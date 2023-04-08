@@ -365,6 +365,7 @@
   skin/classic/messenger/shared/feedSubscribe.css             (../shared/mail/feedSubscribe.css)
   skin/classic/messenger/shared/fieldMapImport.css            (../shared/mail/fieldMapImport.css)
   skin/classic/messenger/shared/filterDialog.css              (../shared/mail/filterDialog.css)
+  skin/classic/messenger/filterEditor.css                     (../shared/mail/filterEditor.css)
   skin/classic/messenger/shared/folderMenus.css               (../shared/mail/folderMenus.css)
   skin/classic/messenger/shared/folderPane.css                (../shared/mail/folderPane.css)
   skin/classic/messenger/shared/glodacomplete.css             (../shared/mail/glodacomplete.css)

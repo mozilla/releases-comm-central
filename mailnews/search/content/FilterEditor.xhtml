@@ -11,6 +11,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/filterDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/filterEditor.css" type="text/css"?>
 
 <!DOCTYPE html [
   <!ENTITY % filterEditorDTD SYSTEM "chrome://messenger/locale/FilterEditor.dtd">
@@ -18,13 +19,12 @@
   <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
   %searchTermDTD;
 ]>
-
 <html id="FilterEditor" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
       windowtype="mailnews:filtereditor"
-      persist="width height screenX screenY"
       lightweightthemes="true"
+      style="min-width: 900px; min-height: 600px;"
       scrolling="false">
 <head>
   <title>&window.title;</title>
@@ -48,73 +48,69 @@
     <command id="cmd_updateClassificationMenu" oncommand="gFilterTypeSelector.updateClassificationMenu();"/>
   </commandset>
 
-  <vbox>
-    <hbox align="center" class="input-container">
-      <label id="filterNameLabel"
-             value="&filterName.label;"
-             accesskey="&filterName.accesskey;"
-             control="filterName"/>
-      <html:input id="filterName"
-                  type="text"
-                  class="input-inline"
-                  aria-labelledby="filterNameLabel"/>
-      <spacer class="spacer-inline"/>
-    </hbox>
-  </vbox>
+  <html:div id="filterNameBox" class="input-container">
+    <label id="filterNameLabel"
+           value="&filterName.label;"
+           accesskey="&filterName.accesskey;"
+           control="filterName"/>
+    <html:input id="filterName"
+                type="text"
+                class="input-inline"
+                aria-labelledby="filterNameLabel"/>
+  </html:div>
 
-  <vbox>
-    <html:fieldset>
-      <html:legend>&contextDesc.label;</html:legend>
-      <vbox>
-        <hbox flex="1" align="center">
-          <checkbox id="runManual"
-                    label="&contextManual.label;"
-                    accesskey="&contextManual.accesskey;"
-                    command="cmd_updateFilterType"/>
-        </hbox>
-        <hbox flex="1" align="center">
-          <checkbox id="runIncoming"
-                    label="&contextIncomingMail.label;"
-                    accesskey="&contextIncomingMail.accesskey;"
-                    command="cmd_updateClassificationMenu"/>
-          <menulist id="pluginsRunOrder"
-                    command="cmd_updateFilterType">
-            <menupopup>
-              <menuitem id="runBeforePlugins"
-                        label="&contextBeforeCls.label;"/>
-              <menuitem id="runAfterPlugins"
-                        label="&contextAfterCls.label;"/>
-            </menupopup>
-          </menulist>
-        </hbox>
-        <hbox flex="1" align="center">
-          <checkbox id="runArchive"
-                    label="&contextArchive.label;"
-                    accesskey="&contextArchive.accesskey;"
-                    command="cmd_updateFilterType"/>
-        </hbox>
-        <hbox flex="1" align="center">
-          <checkbox id="runOutgoing"
-                    label="&contextOutgoing.label;"
-                    accesskey="&contextOutgoing.accesskey;"
-                    command="cmd_updateFilterType"/>
-        </hbox>
-        <hbox flex="1" align="center">
-          <checkbox id="runPeriodic"
-                    accesskey="&contextPeriodic.accesskey;"
-                    command="cmd_updateFilterType"/>
-          <label id="periodLength"/>
-        </hbox>
-      </vbox>
-    </html:fieldset>
-  </vbox>
+  <html:fieldset id="applyFiltersSettings">
+    <html:legend>&contextDesc.label;</html:legend>
+    <vbox>
+      <hbox flex="1" align="center">
+        <checkbox id="runManual"
+                  label="&contextManual.label;"
+                  accesskey="&contextManual.accesskey;"
+                  command="cmd_updateFilterType"/>
+      </hbox>
+      <hbox flex="1" align="center">
+        <checkbox id="runIncoming"
+                  label="&contextIncomingMail.label;"
+                  accesskey="&contextIncomingMail.accesskey;"
+                  command="cmd_updateClassificationMenu"/>
+        <menulist id="pluginsRunOrder"
+                  command="cmd_updateFilterType">
+          <menupopup>
+            <menuitem id="runBeforePlugins"
+                      label="&contextBeforeCls.label;"/>
+            <menuitem id="runAfterPlugins"
+                      label="&contextAfterCls.label;"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox flex="1" align="center">
+        <checkbox id="runArchive"
+                  label="&contextArchive.label;"
+                  accesskey="&contextArchive.accesskey;"
+                  command="cmd_updateFilterType"/>
+      </hbox>
+      <hbox flex="1" align="center">
+        <checkbox id="runOutgoing"
+                  label="&contextOutgoing.label;"
+                  accesskey="&contextOutgoing.accesskey;"
+                  command="cmd_updateFilterType"/>
+      </hbox>
+      <hbox flex="1" align="center">
+        <checkbox id="runPeriodic"
+                  accesskey="&contextPeriodic.accesskey;"
+                  command="cmd_updateFilterType"/>
+        <label id="periodLength"/>
+      </hbox>
+    </vbox>
+  </html:fieldset>
 
-    <vbox id="searchTermListBox" flex="1">
+
+  <vbox id="searchTermListBox">
 #include searchTerm.inc.xhtml
 
   <splitter id="gray_horizontal_splitter" persist="state" orient="vertical"/>
 
-  <vbox flex="1">
+  <vbox id="filterActionsBox">
     <label value="&filterActionDesc.label;"
            accesskey="&filterActionDesc.accesskey;"
            control="filterActionList"/>
