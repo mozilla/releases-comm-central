@@ -304,7 +304,7 @@ add_task(function test_open_attachment() {
   let bucket = cwc.e("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
   plan_for_modal_dialog("unknownContentTypeWindow", subtest_open_attachment);
-  cwc.doubleClick(node);
+  EventUtils.synthesizeMouseAtCenter(node, { clickCount: 2 }, node.ownerGlobal);
   wait_for_modal_dialog("unknownContentTypeWindow");
 
   close_compose_window(cwc);

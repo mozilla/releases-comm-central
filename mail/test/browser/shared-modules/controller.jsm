@@ -388,19 +388,6 @@ MozMillController.prototype.click = function(
 };
 
 /**
- * Synthesize a double click on the given element
- */
-MozMillController.prototype.doubleClick = function(
-  element,
-  left,
-  top,
-  expectedEvent
-) {
-  this.mouseEvent(element, left, top, { clickCount: 2 }, expectedEvent);
-  return true;
-};
-
-/**
  * Synthesize a mouse right click event on the given element
  */
 MozMillController.prototype.rightClick = function(

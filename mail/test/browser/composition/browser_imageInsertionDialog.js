@@ -81,7 +81,7 @@ add_task(function test_image_insertion_dialog_persist() {
     );
     mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
-  cwc.doubleClick(img);
+  EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
   // It's not clear why we have to wait here to avoid test failures,
@@ -103,7 +103,7 @@ add_task(function test_image_insertion_dialog_persist() {
     // Accept the dialog
     mwc.window.document.documentElement.querySelector("dialog").acceptDialog();
   });
-  cwc.doubleClick(img);
+  EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
   // It's not clear why we have to wait here to avoid test failures,
@@ -120,7 +120,7 @@ add_task(function test_image_insertion_dialog_persist() {
     // Accept the dialog
     mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
-  cwc.doubleClick(img);
+  EventUtils.synthesizeMouseAtCenter(img, { clickCount: 2 }, img.ownerGlobal);
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
 
