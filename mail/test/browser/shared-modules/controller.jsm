@@ -233,12 +233,16 @@ var MenuTree = function(aWindow, aMenu) {
   }
 };
 
-var MozMillController = function(window) {
-  this.window = window;
+var MozMillController = function(win) {
+  this.window = win;
 
   utils.waitFor(
     function() {
-      return window != null && this.isLoaded();
+      return (
+        win != null &&
+        win.document.readyState == "complete" &&
+        win.location.href != "about:blank"
+      );
     },
     "controller(): Window could not be initialized.",
     undefined,
@@ -416,13 +420,6 @@ MozMillController.prototype.rightClick = function(
 };
 
 /**
- * Synthesize a mouse right click event on the given element (deprecated)
- */
-MozMillController.prototype.rightclick = function(...aArgs) {
-  this.rightClick(...aArgs);
-};
-
-/**
  * Enable/Disable a checkbox depending on the target state
  */
 MozMillController.prototype.check = function(element, state) {
@@ -469,19 +466,6 @@ MozMillController.prototype.radio = function(element) {
   return true;
 };
 
-/**
- * Checks if the specified window has been loaded
- *
- * @param {DOMWindow} [window=this.window] Window object to check for loaded state
- */
-MozMillController.prototype.isLoaded = function(window) {
-  var win = window || this.window;
-
-  return (
-    win.document.readyState == "complete" && win.location.href != "about:blank"
-  );
-};
-
 MozMillController.prototype.waitFor = function(
   callback,
   message,
@@ -500,10 +484,6 @@ MozMillController.prototype.waitFor = function(
 MozMillController.prototype.getMenu = function(menuSelector, document) {
   return new Menu(this, menuSelector, document);
 };
-
-MozMillController.prototype.__defineGetter__("mainMenu", function() {
-  return this.getMenu("menubar");
-});
 
 MozMillController.prototype.__defineGetter__("menus", function() {
   var menubar = this.window.document.querySelector("menubar");
