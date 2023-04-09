@@ -869,95 +869,9 @@ var AugmentEverybodyWith = {
   methods: {
     /**
      * @param aId The element id to use to locate the (initial) element.
-     * @param aQuery Optional query to pick a child of the element identified
-     *   by the id.  Terms that can be used (and applied in this order):
-     * - tagName: Find children with the tagname, if further constraints don't
-     *     whittle it down, the first element is chosen.
-     * - label: Whittle previous elements by their label.
-     *
-     * example:
-     *  // find the child of bob that is a button with a "+" on it.
-     *  e("bob", {tagName: "button", label: "+"});
-     *  // example:
-     *  e("threadTree", {tagName: "treechildren"});
-     *
-     * @returns the element with the given id on the window's document
      */
-    e(aId, aQuery) {
-      let elem = this.window.document.getElementById(aId);
-      if (aQuery) {
-        if (aQuery.tagName) {
-          let elems = Array.from(elem.getElementsByTagName(aQuery.tagName));
-          if (aQuery.label) {
-            elems = elems.filter(elem => elem.label == aQuery.label);
-          }
-          elem = elems[0];
-        }
-      }
-      return elem;
-    },
-
-    /**
-     * Wait for an element with the given id to show up.
-     *
-     * @param aId The DOM id of the element you want to wait to show up.
-     */
-    ewait(aId) {
-      this.waitFor(
-        () => this.window.document.getElementById(aId),
-        `Waiting for element with id ${aId}`
-      );
-    },
-
-    /**
-     * Debug helper that defers a click until the next event loop spin in order
-     *  to create situations that are hard to test in isolation.  In order to
-     *  fashion reliable failures, we currently use a 1-second delay to make
-     *  sure things get sufficiently gummed up.
-     * Only use this for locally reproducing tinderbox failures; do not commit
-     *  code that uses this!
-     *
-     * This gets its own method rather than a generic deferring wrapper so we
-     *  can strap debug on and because it's meant so you can easily just
-     *  prefix on 'defer_' and be done with it.
-     */
-    defer_click(aWhatToClick) {
-      let dis = this;
-      dis.window.setTimeout(function() {
-        dis.click(aWhatToClick);
-      }, 1000);
-    },
-
-    /**
-     * Check if a node's attributes match all those given in actionObj.
-     * Nodes that are obvious containers are skipped, and their children
-     * will be used to recursively find a match instead.
-     *
-     * @param {Element} node - The node to check.
-     * @param {object} actionObj - Contains attribute-value pairs to match.
-     * @returns {Element|null} The matched node or null if no match.
-     */
-    findMatch(node, actionObj) {
-      // Ignore some elements and just use their children instead.
-      if (node.localName == "hbox" || node.localName == "vbox") {
-        for (let i = 0; i < node.children.length; i++) {
-          let childMatch = this.findMatch(node.children[i]);
-          if (childMatch) {
-            return childMatch;
-          }
-        }
-        return null;
-      }
-
-      let matchedAll = true;
-      for (let name in actionObj) {
-        let value = actionObj[name];
-        if (!node.hasAttribute(name) || node.getAttribute(name) != value) {
-          matchedAll = false;
-          break;
-        }
-      }
-      return matchedAll ? node : null;
+    e(aId) {
+      return this.window.document.getElementById(aId);
     },
 
     /**
@@ -980,6 +894,39 @@ var AugmentEverybodyWith = {
       if (aRootPopup.state != "open") {
         await BrowserTestUtils.waitForEvent(aRootPopup, "popupshown");
       }
+
+      /**
+       * Check if a node's attributes match all those given in actionObj.
+       * Nodes that are obvious containers are skipped, and their children
+       * will be used to recursively find a match instead.
+       *
+       * @param {Element} node - The node to check.
+       * @param {object} actionObj - Contains attribute-value pairs to match.
+       * @returns {Element|null} The matched node or null if no match.
+       */
+      let findMatch = function(node, actionObj) {
+        // Ignore some elements and just use their children instead.
+        if (node.localName == "hbox" || node.localName == "vbox") {
+          for (let i = 0; i < node.children.length; i++) {
+            let childMatch = findMatch(node.children[i]);
+            if (childMatch) {
+              return childMatch;
+            }
+          }
+          return null;
+        }
+
+        let matchedAll = true;
+        for (let name in actionObj) {
+          let value = actionObj[name];
+          if (!node.hasAttribute(name) || node.getAttribute(name) != value) {
+            matchedAll = false;
+            break;
+          }
+        }
+        return matchedAll ? node : null;
+      };
+
       // These popups sadly do not close themselves, so we need to keep track
       // of them so we can make sure they end up closed.
       let closeStack = [aRootPopup];
@@ -990,7 +937,7 @@ var AugmentEverybodyWith = {
         let kids = curPopup.children;
         for (let iKid = 0; iKid < kids.length; iKid++) {
           let node = kids[iKid];
-          matchingNode = this.findMatch(node, actionObj);
+          matchingNode = findMatch(node, actionObj);
           if (matchingNode) {
             break;
           }
@@ -1096,7 +1043,15 @@ var AugmentEverybodyWith = {
 
         if (clickTarget) {
           const kids = Array.from(subview.children);
-          const findFunction = node => controller.findMatch(node, clickTarget);
+          const findFunction = node => {
+            let selectors = [];
+            for (let name in clickTarget) {
+              let value = clickTarget[name];
+              selectors.push(`[${name}="${value}"]`);
+            }
+            let s = selectors.join(",");
+            return node.matches(s) || node.querySelector(s);
+          };
 
           // Some views are dynamically populated after ViewShown, so we wait.
           utils.waitFor(
@@ -1156,55 +1111,6 @@ var AugmentEverybodyWith = {
     click_through_appmenu(navTargets, nonNavTarget) {
       this.click(this.window.document.getElementById("button-appmenu"));
       return this.click_appmenu_in_sequence(navTargets, nonNavTarget);
-    },
-
-    /**
-     * mark_action helper method that produces something that can be concat()ed
-     *  onto a list being passed to mark_action in order to describe the focus
-     *  state of the window.  For now this will be a variable-length list but
-     *  could be changed to a single object in the future.
-     */
-    describeFocus() {
-      let arr = [
-        "in window:",
-        getWindowTypeForAppWindow(this.window) +
-          " (" +
-          getUniqueIdForAppWindow(this.window) +
-          ")",
-      ];
-      let focusedWinOut = {},
-        focusedElement,
-        curWindow = this.window;
-      // Use the focus manager to walk down through focused sub-frames so
-      //  in the event that there is no focused element but there is a focused
-      //  sub-frame, we can know that.
-      for (;;) {
-        focusedElement = Services.focus.getFocusedElementForWindow(
-          curWindow,
-          false,
-          focusedWinOut
-        );
-        arr.push("focused kid:");
-        arr.push(focusedElement);
-
-        if (focusedElement && "contentWindow" in focusedElement) {
-          curWindow = focusedElement.contentWindow;
-          continue;
-        }
-        break;
-      }
-
-      return arr;
-    },
-  },
-  getters: {
-    focusedElement() {
-      let ignoredFocusedWindow = {};
-      return Services.focus.getFocusedElementForWindow(
-        this.window,
-        true,
-        ignoredFocusedWindow
-      );
     },
   },
 };
@@ -1267,17 +1173,6 @@ var PerWindowTypeAugmentations = {
       tabmail: "tabmail",
     },
     /**
-     * Globals from the controller's windows global scope at augmentation time.
-     */
-    globalsToExposeAtStartup: {
-      folderTreeController: "gFolderTreeController",
-    },
-    /**
-     * Globals from the controller's windows global to retrieve on-demand
-     *  through getters.
-     */
-    globalsToExposeViaGetters: {},
-    /**
      * Custom getters whose |this| is the controller.
      */
     getters: {
@@ -1294,9 +1189,6 @@ var PerWindowTypeAugmentations = {
     elementsToExpose: {
       contentPane: "messagepane",
     },
-    // the load is deferred, so use a getter.
-    globalsToExposeViaGetters: {},
-    getters: {},
   },
 
   /**
