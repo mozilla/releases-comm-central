@@ -213,3 +213,52 @@ def run_migration_tests(command_context, test_paths=None, **kwargs):
     for context in with_context:
         rv |= test_migration(command_context, obj_dir, **context)
     return rv
+
+
+from mutlh.decorators import Command, CommandArgument
+
+
+@Command(
+    "tb-l10n-quarantine-to-strings",
+    category="thunderbird",
+    description="Publish quarantines strings to comm-l10n.",
+)
+@CommandArgument(
+    "--quarantine-path",
+    "-q",
+    type=Path,
+    help="Path to comm-strings-quarantine repo",
+)
+@CommandArgument(
+    "--comm-l10n-path",
+    "-l",
+    type=Path,
+    help="Path to comm-l10n repo",
+)
+@CommandArgument(
+    "actions",
+    choices=("clean", "prep", "migrate", "push"),
+    nargs="+",
+    # This help block will be poorly formatted until we fix bug 1714239
+    help="""
+    "clean": remove existing clones of quarantine and comm-l10n repos
+    "prep": clone a new repository or update an existing one to latest rev
+    "migrate": update comm-l10n en_US from quarantine
+    "push": push comm-l10n
+    """,
+)
+def quarantine_to_strings(
+    command_context,
+    quarantine_path,
+    comm_l10n_path,
+    actions,
+    **kwargs,
+):
+    """Publish strings in Thunderbird's comm-l10n cross-channel repository from
+    comm-strings-quarantine."""
+    from tbxchannel.quarantine_to_strings import publish_strings
+
+    command_context._set_log_level(True)
+    command_context.activate_virtualenv()
+    command_context.log_manager.enable_unstructured()
+    publish_strings(command_context, quarantine_path, comm_l10n_path, actions, **kwargs)
