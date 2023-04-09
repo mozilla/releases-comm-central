@@ -109,7 +109,7 @@ function subtest_check_account_dot_IDs(tab) {
   // value properly.
   let loginCheck = iframe.getElementById("server.loginAtStartUp");
   Assert.ok(!loginCheck.checked);
-  mc.check(loginCheck, true);
+  EventUtils.synthesizeMouseAtCenter(loginCheck, {}, loginCheck.ownerGlobal);
 
   accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
   click_account_tree_row(tab, accountRow);
@@ -152,8 +152,8 @@ function subtest_check_account_dot_IDs(tab) {
   // Change the ID so that "server.login.At.StartUp" exists now.
   loginCheck.id = "server.login.At.StartUp";
 
-  mc.check(loginCheck, false);
-  mc.check(loginCheck, true);
+  EventUtils.synthesizeMouseAtCenter(loginCheck, {}, loginCheck.ownerGlobal);
+  EventUtils.synthesizeMouseAtCenter(loginCheck, {}, loginCheck.ownerGlobal);
 
   // Check for correct value in the accountValues array, that will be saved into prefs.
   rawCheckValue = tab.browser.contentWindow.getAccountValue(
@@ -294,13 +294,17 @@ function subtest_check_locked_prefs_server(tab) {
   Assert.ok(daysToLeave.disabled);
 
   // When leaveOnServer is checked, only deleteByAge will get enabled.
-  mc.check(leaveOnServer, true);
+  EventUtils.synthesizeMouseAtCenter(
+    leaveOnServer,
+    {},
+    leaveOnServer.ownerGlobal
+  );
   Assert.ok(leaveOnServer.checked);
   Assert.ok(!deleteByAge.disabled);
   Assert.ok(daysToLeave.disabled);
 
   // When deleteByAge is checked, daysToLeave will get enabled.
-  mc.check(deleteByAge, true);
+  EventUtils.synthesizeMouseAtCenter(deleteByAge, {}, deleteByAge.ownerGlobal);
   Assert.ok(deleteByAge.checked);
   Assert.ok(!daysToLeave.disabled);
 
@@ -341,7 +345,11 @@ function subtest_check_locked_prefs_server(tab) {
 
   // When leaveOnserver is unchecked, both of deleteByAge and daysToLeave
   // should get disabled.
-  mc.check(leaveOnServer, false);
+  EventUtils.synthesizeMouseAtCenter(
+    leaveOnServer,
+    {},
+    leaveOnServer.ownerGlobal
+  );
   Assert.ok(!leaveOnServer.disabled);
   Assert.ok(!leaveOnServer.checked);
 

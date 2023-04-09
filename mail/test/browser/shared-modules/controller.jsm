@@ -412,30 +412,6 @@ MozMillController.prototype.rightClick = function(
 };
 
 /**
- * Enable/Disable a checkbox depending on the target state
- */
-MozMillController.prototype.check = function(element, state) {
-  var result = false;
-
-  if (!element) {
-    throw new Error("check: Missing element");
-  }
-
-  state = typeof state == "boolean" ? state : false;
-  if (state != element.checked) {
-    this.click(element);
-    this.waitFor(
-      function() {
-        return element.checked == state;
-      },
-      "Checkbox could not be checked/unchecked",
-      500
-    );
-
-    result = true;
-  }
-
-  return result;
 };
 
 /**

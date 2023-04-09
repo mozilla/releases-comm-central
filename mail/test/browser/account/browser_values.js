@@ -103,7 +103,7 @@ function subtest_check_default_CC_address(tab) {
   Assert.ok(!ccCheck.checked);
   Assert.equal(ccAddress.value, "");
   // After ticking the CC checkbox the default address should be prefilled.
-  mc.check(ccCheck, true);
+  EventUtils.synthesizeMouseAtCenter(ccCheck, {}, ccCheck.ownerGlobal);
   Assert.equal(ccAddress.value, defaultAddress);
 
   let bccCheck = iframe.contentDocument.getElementById("identity.doBcc");
@@ -114,7 +114,7 @@ function subtest_check_default_CC_address(tab) {
   let bccUserAddress = "somebody@else.invalid";
   bccAddress.value = bccUserAddress;
   // After ticking the BCC checkbox the current value of the address should not change.
-  mc.check(bccCheck, true);
+  EventUtils.synthesizeMouseAtCenter(bccCheck, {}, bccCheck.ownerGlobal);
   Assert.equal(bccAddress.value, bccUserAddress);
 }
 
