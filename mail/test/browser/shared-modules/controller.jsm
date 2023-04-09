@@ -414,26 +414,6 @@ MozMillController.prototype.rightClick = function(
 /**
 };
 
-/**
- * Select the given radio button
- */
-MozMillController.prototype.radio = function(element) {
-  if (!element) {
-    throw new Error("radio: Missing element");
-  }
-
-  this.click(element);
-  this.waitFor(
-    function() {
-      return element.checked || element.selected;
-    },
-    "Radio button could not be selected",
-    500
-  );
-
-  return true;
-};
-
 MozMillController.prototype.waitFor = function(
   callback,
   message,

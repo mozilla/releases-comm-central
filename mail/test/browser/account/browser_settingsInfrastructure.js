@@ -214,7 +214,11 @@ function subtest_check_locked_prefs_addressing(tab) {
 
   // Now toggle the 'different LDAP server' on. The server selector
   // and edit button should enable.
-  mc.radio(useLDAPdirectory);
+  EventUtils.synthesizeMouseAtCenter(
+    useLDAPdirectory,
+    {},
+    useLDAPdirectory.ownerGlobal
+  );
   Assert.ok(!LDAPdirectory.disabled);
   Assert.ok(!LDAPeditButton.disabled);
 
@@ -443,7 +447,8 @@ function subtest_check_onchange_handler(tab) {
   Assert.equal(autoSyncInterval.value, 1);
 
   // Now type in 35 (days).
-  mc.radio(iframe.getElementById("useAutosync.ByAge"));
+  let byAge = iframe.getElementById("useAutosync.ByAge");
+  EventUtils.synthesizeMouseAtCenter(byAge, {}, byAge.ownerGlobal);
   autoSync.select();
   mc.type(autoSync, "35");
 
