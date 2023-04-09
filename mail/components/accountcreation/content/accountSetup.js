@@ -2303,7 +2303,6 @@ var gAccountSetup = {
         );
       },
       function(e) {
-        self.stopLoadingState("account-setup-checking-password");
         // failed
         // Could be a wrong password, but there are 1000 other
         // reasons why this failed. Only the backend knows.
