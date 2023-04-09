@@ -255,6 +255,7 @@ urlListener.prototype = {
       this.informUserOfCertError(secInfo, aUrl.asciiHostPort);
     } else if (this.mAlter) {
       // Try other variations.
+      this.mServer.closeCachedConnections();
       this.tryNextLogon(aUrl);
     } else {
       // Logon failed, and we aren't supposed to try other variations.
