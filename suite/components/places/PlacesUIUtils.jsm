@@ -34,8 +34,6 @@ const ITEM_CHANGED_BATCH_NOTIFICATION_THRESHOLD = 10;
 
 // copied from utilityOverlay.js
 const TAB_DROP_TYPE = "application/x-moz-tabbrowser-tab";
-const PREF_LOAD_BOOKMARKS_IN_BACKGROUND = "browser.tabs.loadBookmarksInBackground";
-const PREF_LOAD_BOOKMARKS_IN_TABS = "browser.tabs.loadBookmarksInTabs";
 
 var InternalFaviconLoader = {
   /**
@@ -713,19 +711,22 @@ var PlacesUIUtils = {
    * @param   aEvent
    *          The DOM mouse/key event with modifier keys set that track the
    *          user's preferred destination window or tab.
+   * @param   aExternal
+   *          Called from the library window or an external application.
+   *          Link handling for external applications will apply when true.
    */
   openNodeWithEvent:
-  function PUIU_openNodeWithEvent(aNode, aEvent) {
+  function PUIU_openNodeWithEvent(aNode, aEvent, aExternal = false) {
     let window = aEvent.target.ownerGlobal;
-    this._openNodeIn(aNode, window.whereToOpenLink(aEvent, false, true), window);
-
-    let where = window.whereToOpenLink(aEvent, false, true);
-    if (where == "current" && this.loadBookmarksInTabs &&
-        PlacesUtils.nodeIsBookmark(aNode) && !aNode.uri.startsWith("javascript:")) {
-      where = "tab";
+    let whereTo;
+    if (aExternal) {
+      let openParms = window.whereToLoadExternalLink();
+      whereTo = openParms.where;
     }
-
-    this._openNodeIn(aNode, where, window);
+    else {
+      whereTo = window.whereToOpenLink(aEvent, false, true);
+    }
+    this._openNodeIn(aNode, whereTo, window);
   },
 
   /**
@@ -753,20 +754,21 @@ var PlacesUIUtils = {
       // Check whether the node is a bookmark which should be opened as
       // a web panel
       // Currently not supported in SeaMonkey. Please stay tuned.
-      if (aWhere == "current-NOT_YET_SUPPORTED" && isBookmark) {
-        if (PlacesUtils.annotations
-                       .itemHasAnnotation(aNode.itemId, this.LOAD_IN_SIDEBAR_ANNO)) {
-          let browserWin = RecentWindow.getMostRecentBrowserWindow();
-          if (browserWin) {
-            browserWin.openWebPanel(aNode.title, aNode.uri);
-            return;
-          }
-        }
-      }
+      // if (aWhere == "current" && isBookmark) {
+      //   if (PlacesUtils.annotations
+      //                  .itemHasAnnotation(aNode.itemId, this.LOAD_IN_SIDEBAR_ANNO)) {
+      //     let browserWin = this._getTopBrowserWin();
+      //     if (browserWin) {
+      //       browserWin.openWebPanel(aNode.title, aNode.uri);
+      //       return;
+      //     }
+      //   }
+      // }
 
       aWindow.openUILinkIn(aNode.uri, aWhere, {
         allowPopups: aNode.uri.startsWith("javascript:"),
-        inBackground: this.loadBookmarksInBackground,
+        inBackground: Services.prefs.getBoolPref("browser.tabs.avoidBrowserFocus"),
+        aNoReferrer: true,
         private: aPrivate,
       });
     }
@@ -1381,10 +1383,6 @@ XPCOMUtils.defineLazyGetter(PlacesUIUtils, "ellipsis", function() {
 XPCOMUtils.defineLazyServiceGetter(this, "focusManager",
                                    "@mozilla.org/focus-manager;1",
                                    "nsIFocusManager");
-XPCOMUtils.defineLazyPreferenceGetter(PlacesUIUtils, "loadBookmarksInBackground",
-                                      PREF_LOAD_BOOKMARKS_IN_BACKGROUND, false);
-XPCOMUtils.defineLazyPreferenceGetter(PlacesUIUtils, "loadBookmarksInTabs",
-                                      PREF_LOAD_BOOKMARKS_IN_TABS, false);
 
 /**
  * Determines if an unwrapped node can be moved.

@@ -231,9 +231,6 @@ pref("browser.tabs.insertAllTabsAfterCurrent", false);
 pref("browser.tabs.selectOwnerOnClose", true);
 pref("browser.tabs.avoidBrowserFocus", false);
 
-// For future use
-pref("browser.tabs.loadBookmarksInBackground", false);
-
 // No e10s in SeaMonkey for now.
 pref("browser.tabs.remote.autostart", false);
 
