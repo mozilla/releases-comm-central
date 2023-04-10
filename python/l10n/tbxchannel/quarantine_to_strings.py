@@ -138,14 +138,14 @@ def publish_strings(
     )
     local_comm_l10n = HgL10nRepository(comm_l10n_path, COMM_L10N, command_context.log)
 
-    local_quarantine.check_status()
-    local_comm_l10n.check_status()
-
     if "prep" not in actions:
         local_quarantine.update("tip")
         local_comm_l10n.update("tip")
 
     if "migrate" in actions:
+        local_quarantine.check_status()
+        local_comm_l10n.check_status()
+
         command_context.log(
             logging.INFO, "migrate", {}, "Starting string migration from quarantine."
         )
