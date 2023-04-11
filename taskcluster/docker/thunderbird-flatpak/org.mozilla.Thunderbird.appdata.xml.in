@@ -46,6 +46,17 @@
     <category>Office</category>
   </categories>
 
+  <provides>
+    <mediatype>message/rfc822</mediatype>
+    <mediatype>x-scheme-handler/mailto</mediatype>
+    <mediatype>text/calendar</mediatype>
+    <mediatype>text/vcard</mediatype>
+    <mediatype>text/x-vcard</mediatype>
+    <mediatype>x-scheme-handler/webcal</mediatype>
+    <mediatype>x-scheme-handler/webcals</mediatype>
+    <mediatype>x-scheme-handler/mid</mediatype>
+  </provides>
+
   <content_rating type="oars-1.1" />
   <url type="homepage">https://www.thunderbird.net/</url>
   <url type="bugtracker">https://bugzilla.mozilla.org/</url>
