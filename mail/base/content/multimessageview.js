@@ -163,15 +163,15 @@ MultiMessageSummary.prototype = {
     archiveBtn.collapsed = !MessageArchiver.canArchive(aMessages);
 
     // Set archive and delete button listeners.
-    let msgWindow = window.browsingContext.topChromeWindow;
+    let topChromeWindow = window.browsingContext.topChromeWindow;
     archiveBtn.onclick = event => {
       if (event.button == 0) {
-        msgWindow.MsgArchiveSelectedMessages(null);
+        topChromeWindow.goDoCommand("cmd_archive");
       }
     };
     document.getElementById("hdrTrashButton").onclick = event => {
       if (event.button == 0) {
-        msgWindow.goDoCommand("cmd_delete");
+        topChromeWindow.goDoCommand("cmd_delete");
       }
     };
 
