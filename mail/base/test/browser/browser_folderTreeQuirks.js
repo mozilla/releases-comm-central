@@ -8,30 +8,29 @@ const { MessageGenerator, SyntheticMessageSet } = ChromeUtils.import(
 const { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
+const { PromiseTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
+);
 
 let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-let { displayFolder, folderPane, folderTree, threadTree } = about3Pane;
+let { folderPane, folderTree, threadTree } = about3Pane;
 let account,
   rootFolder,
   inboxFolder,
   trashFolder,
   outboxFolder,
   folderA,
-  folderAMessages,
   folderB,
-  folderBMessages,
-  folderC,
-  folderCMessages;
+  folderC;
+let generator = new MessageGenerator();
+let messageInjection = new MessageInjection(
+  {
+    mode: "local",
+  },
+  generator
+);
 
 add_setup(async function() {
-  let generator = new MessageGenerator();
-  let messageInjection = new MessageInjection(
-    {
-      mode: "local",
-    },
-    generator
-  );
-
   account = MailServices.accounts.accounts[0];
   rootFolder = account.incomingServer.rootFolder;
   inboxFolder = rootFolder.getChildNamed("Inbox");
@@ -61,10 +60,6 @@ add_setup(async function() {
       new SyntheticMessageSet(generator.makeMessages({ read: true })),
     ]
   );
-
-  folderAMessages = [...folderA.messages];
-  folderBMessages = [...folderB.messages];
-  folderCMessages = [...folderC.messages];
 
   Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
   about3Pane.paneLayout.messagePaneVisible = false;
@@ -176,6 +171,10 @@ add_task(async function testCompactFavoriteFolders() {
  * Tests the Unread Folders mode.
  */
 add_task(async function testUnreadFolders() {
+  let folderAMessages = [...folderA.messages];
+  let folderBMessages = [...folderB.messages];
+  let folderCMessages = [...folderC.messages];
+
   folderPane.activeModes = ["all", "unread"];
   await checkModeListItems("unread", []);
 
@@ -220,6 +219,10 @@ add_task(async function testUnreadFolders() {
  * Tests the compact Unread Folders mode.
  */
 add_task(async function testCompactUnreadFolders() {
+  let folderAMessages = [...folderA.messages];
+  let folderBMessages = [...folderB.messages];
+  let folderCMessages = [...folderC.messages];
+
   folderPane.activeModes = ["all", "unread"];
   folderPane.isCompact = true;
   await checkModeListItems("unread", []);
@@ -329,6 +332,250 @@ add_task(async function testCompactUnreadFolders() {
 
   MailServices.accounts.removeAccount(foo, false);
   await checkModeListItems("unread", [folderA, folderB, folderC]);
+  folderPane.isCompact = false;
+});
+
+/**
+ * Tests that after moving a folder it is in the right place in the tree,
+ * with any subfolders if they should be shown.
+ */
+add_task(async function testFolderMove() {
+  rootFolder.createSubfolder("new parent", null);
+  let newParentFolder = rootFolder.getChildNamed("new parent");
+  [...folderC.messages][6].markRead(false);
+  folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
+
+  // Set up and check initial state.
+
+  folderPane.activeModes = ["all", "unread", "favorite"];
+  folderPane.isCompact = false;
+
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+    newParentFolder,
+  ]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
+  await checkModeListItems("favorite", [rootFolder, folderC]);
+
+  // Move `folderB` from `folderA` to `newParentFolder`.
+
+  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyFolder(
+    folderB,
+    newParentFolder,
+    true,
+    copyListener,
+    window.msgWindow
+  );
+  await copyListener.promise;
+
+  let movedFolderB = newParentFolder.getChildNamed("folder b");
+  let movedFolderC = movedFolderB.getChildNamed("folder c");
+
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    newParentFolder,
+    movedFolderB,
+    movedFolderC,
+  ]);
+  await checkModeListItems("unread", [
+    rootFolder,
+    newParentFolder,
+    movedFolderB,
+    movedFolderC,
+  ]);
+  await checkModeListItems("favorite", [rootFolder, movedFolderC]);
+
+  // Switch to compact mode for the return move.
+
+  folderPane.isCompact = true;
+  await checkModeListItems("unread", [movedFolderC]);
+  await checkModeListItems("favorite", [movedFolderC]);
+
+  // Move `movedFolderB` from `newParentFolder` back to `folderA`.
+
+  copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyFolder(
+    movedFolderB,
+    folderA,
+    true,
+    copyListener,
+    window.msgWindow
+  );
+  await copyListener.promise;
+
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+    newParentFolder,
+  ]);
+  await checkModeListItems("unread", [folderC]);
+  await checkModeListItems("favorite", [folderC]);
+
+  // Clean up.
+
+  newParentFolder.deleteSelf(null);
+  rootFolder.emptyTrash(null, null);
+  folderC.markAllMessagesRead(null);
+  folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  folderPane.isCompact = false;
+});
+
+/**
+ * Tests that after renaming a folder it is in the right place in the tree,
+ * with any subfolders if they should be shown.
+ */
+add_task(async function testFolderRename() {
+  let extraFolders = {};
+  for (let name of ["aaa", "ggg", "zzz"]) {
+    rootFolder.createSubfolder(name, null);
+    extraFolders[name] = rootFolder
+      .getChildNamed(name)
+      .QueryInterface(Ci.nsIMsgLocalMailFolder);
+    extraFolders[name].addMessage(generator.makeMessage({}).toMboxString());
+    extraFolders[name].setFlag(Ci.nsMsgFolderFlags.Favorite);
+  }
+  [...folderC.messages][4].markRead(false);
+  folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
+
+  // Set up and check initial state.
+
+  folderPane.activeModes = ["all", "unread", "favorite"];
+  folderPane.isCompact = false;
+
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    extraFolders.aaa,
+    folderA,
+    folderB,
+    folderC,
+    extraFolders.ggg,
+    extraFolders.zzz,
+  ]);
+  await checkModeListItems("unread", [
+    rootFolder,
+    extraFolders.aaa,
+    folderA,
+    folderB,
+    folderC,
+    extraFolders.ggg,
+    extraFolders.zzz,
+  ]);
+  await checkModeListItems("favorite", [
+    rootFolder,
+    extraFolders.aaa,
+    folderC,
+    extraFolders.ggg,
+    extraFolders.zzz,
+  ]);
+
+  // Rename `folderA`.
+
+  folderA.rename("renamed", window.msgWindow);
+  let renamedFolderA = rootFolder.getChildNamed("renamed");
+  let renamedFolderB = renamedFolderA.getChildNamed("folder b");
+  let renamedFolderC = renamedFolderB.getChildNamed("folder c");
+
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    extraFolders.aaa,
+    extraFolders.ggg,
+    renamedFolderA,
+    renamedFolderB,
+    renamedFolderC,
+    extraFolders.zzz,
+  ]);
+  await checkModeListItems("unread", [
+    rootFolder,
+    extraFolders.aaa,
+    extraFolders.ggg,
+    renamedFolderA,
+    renamedFolderB,
+    renamedFolderC,
+    extraFolders.zzz,
+  ]);
+  await checkModeListItems("favorite", [
+    rootFolder,
+    extraFolders.aaa,
+    renamedFolderC,
+    extraFolders.ggg,
+    extraFolders.zzz,
+  ]);
+
+  // Switch to compact mode.
+
+  folderPane.isCompact = true;
+  await checkModeListItems("unread", [
+    extraFolders.aaa,
+    renamedFolderC,
+    extraFolders.ggg,
+    extraFolders.zzz,
+  ]);
+  await checkModeListItems("favorite", [
+    extraFolders.aaa,
+    renamedFolderC,
+    extraFolders.ggg,
+    extraFolders.zzz,
+  ]);
+
+  // Rename the folder back to its original name.
+
+  renamedFolderA.rename("folder a", window.msgWindow);
+
+  await checkModeListItems("all", [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    extraFolders.aaa,
+    folderA,
+    folderB,
+    folderC,
+    extraFolders.ggg,
+    extraFolders.zzz,
+  ]);
+  await checkModeListItems("unread", [
+    extraFolders.aaa,
+    folderC,
+    extraFolders.ggg,
+    extraFolders.zzz,
+  ]);
+  await checkModeListItems("favorite", [
+    extraFolders.aaa,
+    folderC,
+    extraFolders.ggg,
+    extraFolders.zzz,
+  ]);
+
+  // Clean up.
+
+  extraFolders.aaa.deleteSelf(null);
+  extraFolders.ggg.deleteSelf(null);
+  extraFolders.zzz.deleteSelf(null);
+  rootFolder.emptyTrash(null, null);
+  folderC.markAllMessagesRead(null);
+  folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
   folderPane.isCompact = false;
 });
 
@@ -599,7 +846,7 @@ add_task(async function testAccountOrder() {
 
   inboxFolder.createSubfolder("sub-inbox", null);
   let subInboxFolder = inboxFolder.getChildNamed("sub-inbox");
-  folderAMessages[0].markRead(false);
+  [...folderA.messages][0].markRead(false);
   folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
   folderPane.activeModes = ["all", "smart", "unread", "favorite"];
 

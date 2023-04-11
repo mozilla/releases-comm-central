@@ -553,6 +553,7 @@ var folderPane = {
         }
         folderTree.expandRow(parentRow);
         let childRow = folderPane._createFolderRow(this.name, childFolder);
+        folderPane._addSubFolders(childFolder, childRow, "all");
         parentRow.insertChildInOrder(childRow);
       },
 
@@ -736,23 +737,7 @@ var folderPane = {
       },
 
       initServer(server) {
-        if (!this._unreadFilter(server.rootFolder)) {
-          return;
-        }
-        if (folderPane._isCompact) {
-          this._recurseSubFolders(server.rootFolder);
-          return;
-        }
-        let serverRow = folderPane._insertInServerOrder(
-          this.containerList,
-          folderPane._createServerRow(this.name, server)
-        );
-        folderPane._addSubFolders(
-          server.rootFolder,
-          serverRow,
-          this.name,
-          this._unreadFilter
-        );
+        this.addFolder(null, server.rootFolder);
       },
 
       _recurseSubFolders(parentFolder) {
@@ -775,18 +760,21 @@ var folderPane = {
             continue;
           }
           if (this._unreadFilter(folder, false)) {
-            let folderRow = folderPane._createFolderRow(
-              this.name,
-              folder,
-              "both"
-            );
-            folderPane._insertInServerOrder(this.containerList, folderRow);
+            this._addFolder(folder);
           }
           this._recurseSubFolders(folder);
         }
       },
 
       addFolder(unused, folder) {
+        if (!this._unreadFilter(folder)) {
+          return;
+        }
+        this._addFolder(folder);
+        this._recurseSubFolders(folder);
+      },
+
+      _addFolder(folder) {
         if (folderPane.getRowForFolder(folder, this.name)) {
           // Don't do anything. `folderPane.changeUnreadCount` already did it.
           return;
@@ -807,8 +795,10 @@ var folderPane = {
         }
 
         if (!folderPane.getRowForFolder(folder.rootFolder, this.name)) {
-          this.initServer(folder.server);
-          return;
+          folderPane._insertInServerOrder(
+            this.containerList,
+            folderPane._createServerRow(this.name, folder.server)
+          );
         }
 
         while (folder) {
@@ -829,27 +819,52 @@ var folderPane = {
         }
       },
 
-      removeFolder(unused, folder) {
-        while (folder) {
-          let parentFolder = folderPane._getNonGmailParent(folder);
-          if (
-            !parentFolder ||
-            this._unreadFilter(parentFolder) ||
-            folderPane._isCompact
-          ) {
-            // This is the highest folder which has no unread messages or
-            // descendents with unread messages (or we're in compact mode and
-            // don't care about descendents). Remove it from the tree.
-            folderPane.getRowForFolder(folder, this.name)?.remove();
-            break;
-          }
-          folder = parentFolder;
+      removeFolder(parentFolder, childFolder) {
+        this._removeFolder(childFolder);
+
+        // If the folder is being moved, `childFolder.parent` is null so the
+        // above code won't remove ancestors. Do this now.
+        if (!childFolder.parent && parentFolder) {
+          this._removeFolder(parentFolder, true);
         }
+
+        // Remove any stray rows that might be descendants of `childFolder`.
+        for (let row of [...this.containerList.querySelectorAll("li")]) {
+          if (row.uri.startsWith(childFolder.URI + "/")) {
+            row.remove();
+          }
+        }
+      },
+
+      _removeFolder(folder, childAlreadyGone = false) {
+        let folderRow = folderPane.getRowForFolder(folder, this.name);
+        if (folderPane._isCompact) {
+          folderRow?.remove();
+          return;
+        }
+
+        // If we get to a row for a folder that doesn't exist, or has children
+        // other than the one being removed, don't go any further.
+        if (
+          !folderRow ||
+          folderRow.childList.childElementCount > (childAlreadyGone ? 0 : 1)
+        ) {
+          return;
+        }
+
+        // Otherwise, move up the folder tree.
+        let parentFolder = folderPane._getNonGmailParent(folder);
+        if (parentFolder) {
+          this._removeFolder(parentFolder);
+        }
+
+        // Remove the row for this folder.
+        folderRow.remove();
       },
 
       changeUnreadCount(folder, unused, newValue) {
         if (newValue > 0) {
-          this.addFolder(null, folder);
+          this._addFolder(folder);
         }
       },
 
@@ -863,65 +878,31 @@ var folderPane = {
       canBeCompact: true,
 
       initServer(server) {
-        let folders = server.rootFolder.getFoldersWithFlags(
+        this.addFolder(null, server.rootFolder);
+      },
+
+      addFolder(unused, folder) {
+        this._addFolder(folder);
+        for (let subFolder of folder.getFoldersWithFlags(
           Ci.nsMsgFolderFlags.Favorite
-        );
-        if (!folders.length) {
-          return;
-        }
-        if (folderPane._isCompact) {
-          for (let folder of folders) {
-            this.containerList.appendChild(
-              folderPane._createFolderRow(this.name, folder, "both")
-            );
-          }
-          return;
-        }
-        let serverRow = folderPane._insertInServerOrder(
-          this.containerList,
-          folderPane._createServerRow(this.name, server)
-        );
-        for (let folder of folders) {
-          serverRow.insertChildInOrder(
-            folderPane._createFolderRow(this.name, folder)
-          );
+        )) {
+          this._addFolder(subFolder);
         }
       },
 
-      removeFolder(unused, folder) {
-        folderPane.getRowForFolder(folder, this.name)?.remove();
-        let serverRow = folderPane.getRowForFolder(
-          folder.rootFolder,
-          this.name
-        );
+      _addFolder(folder) {
         if (
-          serverRow &&
-          !folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Favorite)
+          !(folder.flags & Ci.nsMsgFolderFlags.Favorite) ||
+          folderPane.getRowForFolder(folder, this.name)
         ) {
-          serverRow.remove();
-        }
-      },
-
-      changeFolderFlag(folder, oldValue, newValue) {
-        oldValue &= Ci.nsMsgFolderFlags.Favorite;
-        newValue &= Ci.nsMsgFolderFlags.Favorite;
-
-        if (oldValue == newValue) {
-          return;
-        }
-
-        if (oldValue) {
-          this.removeFolder(null, folder);
           return;
         }
 
         if (folderPane._isCompact) {
-          let folderRow = folderPane._createFolderRow(
-            this.name,
-            folder,
-            "both"
+          folderPane._insertInServerOrder(
+            this.containerList,
+            folderPane._createFolderRow(this.name, folder, "both")
           );
-          folderPane._insertInServerOrder(this.containerList, folderRow);
           return;
         }
 
@@ -942,6 +923,73 @@ var folderPane = {
             folderPane._isCompact ? "both" : "folder"
           )
         );
+      },
+
+      removeFolder(parentFolder, childFolder) {
+        // This is tricky, `childFolder` could be a folder which was a favorite
+        // but isn't any more, or it could be a folder that got moved or
+        // renamed, or it could be a root folder of an account being removed.
+        // Since we store a URI for each row and not actual folders, getting
+        // potentially invalid rows is hard.
+        // The easiest way to handle all cases is to work out which rows should
+        // remain and remove the others.
+
+        // Find all remaining favorite folders.
+        let validFolderURIs;
+        if (parentFolder) {
+          validFolderURIs = childFolder.rootFolder
+            .getFoldersWithFlags(Ci.nsMsgFolderFlags.Favorite)
+            .map(f => f.URI);
+        } else {
+          // The account is being removed.
+          validFolderURIs = [];
+        }
+
+        // Find all rows which might need removal.
+        let folderRows, serverRow;
+        if (folderPane._isCompact) {
+          folderRows = this.containerList.children;
+        } else {
+          serverRow = folderPane.getRowForFolder(
+            childFolder.rootFolder,
+            this.name
+          );
+          if (!serverRow) {
+            return;
+          }
+          folderRows = serverRow.childList.children;
+        }
+
+        // Remove the rows which don't belong to favorite folders.
+        let serverKey = childFolder.server.key;
+        for (let folderRow of [...folderRows]) {
+          if (
+            folderRow.dataset.serverKey == serverKey &&
+            !validFolderURIs.includes(folderRow.uri)
+          ) {
+            folderRow.remove();
+          }
+        }
+
+        // Remove the server row if it exists and has no child rows.
+        if (serverRow?.childList.childElementCount == 0) {
+          serverRow.remove();
+        }
+      },
+
+      changeFolderFlag(folder, oldValue, newValue) {
+        oldValue &= Ci.nsMsgFolderFlags.Favorite;
+        newValue &= Ci.nsMsgFolderFlags.Favorite;
+
+        if (oldValue == newValue) {
+          return;
+        }
+
+        if (oldValue) {
+          this.removeFolder(folderPane._getNonGmailParent(folder), folder);
+        } else {
+          this._addFolder(folder);
+        }
       },
 
       changeAccountOrder() {
@@ -3918,7 +3966,15 @@ var folderListener = {
   },
   onFolderUnicharPropertyChanged(item, property, oldValue, newValue) {},
   onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {},
-  onFolderEvent(folder, event) {},
+  onFolderEvent(folder, event) {
+    if (event == "RenameCompleted") {
+      // If a folder is renamed, we get an `onFolderAdded` notification for
+      // the folder but we are not notified about the descendants.
+      for (let f of folder.descendants) {
+        folderPane.addFolder(f.parent, f);
+      }
+    }
+  },
 };
 
 /**
