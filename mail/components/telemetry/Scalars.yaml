@@ -578,7 +578,7 @@ tb.chat:
       - 1767004
     description: >
       Records the currently active chat message theme and variant.
-    expires: "114"
+    expires: "117"
     kind: string
     keyed: false
     notification_emails:

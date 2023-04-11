@@ -39,6 +39,7 @@ add_task(async function testMessageThemeTelemetry() {
 
   await conversationLoaded;
   scalars = TelemetryTestUtils.getProcessScalars("parent");
+  // NOTE: tb.chat.active_message_theme expires at v 117.
   is(
     scalars["tb.chat.active_message_theme"],
     "mail:default",
