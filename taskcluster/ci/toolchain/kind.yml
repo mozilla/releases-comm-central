@@ -10,15 +10,15 @@ kind-dependencies:
     - packages
 
 reference-jobs:
-    - linux64-aarch64-compiler-rt-15
+    - linux64-aarch64-compiler-rt-16
     - linux64-binutils
     - linux64-cbindgen
     - linux64-cctools-port
-    - linux64-clang-15-profile
-    - linux64-clang-15-raw
+    - linux64-clang-16-profile
+    - linux64-clang-16-raw
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
-    - linux64-clang-15-stage1
+    - linux64-clang-16-stage1
     - linux64-clang-tidy
     - linux64-dump_syms
     - linux64-fix-stacks
@@ -49,16 +49,16 @@ reference-jobs:
     - linux64-upx
     - linux64-winchecksec
     - linux64-wine
-    - linux64-x64-compiler-rt-15
-    - linux64-x86-compiler-rt-15
+    - linux64-x64-compiler-rt-16
+    - linux64-x86-compiler-rt-16
     - linux64-python
-    - macosx64-aarch64-compiler-rt-15
-    - macosx64-clang-15-raw
+    - macosx64-aarch64-compiler-rt-16
+    - macosx64-clang-16-raw
     - macosx64-fix-stacks
     - macosx64-minidump-stackwalk
     - macosx64-node
     - macosx64-sdk-13.0
-    - macosx64-x64-compiler-rt-15
+    - macosx64-x64-compiler-rt-16
     - mingw32-rust
     - nsis
     - sysroot-aarch64-linux-gnu
@@ -66,14 +66,14 @@ reference-jobs:
     - sysroot-wasm32-wasi
     - sysroot-x86_64-linux-gnu
     - wasm32-wasi-compiler-rt
-    - win32-compiler-rt-15
+    - win32-compiler-rt-16
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
     - win64-cbindgen
-    - win64-clang-15-raw
-    - win64-clang-15-stage1
-    - win64-compiler-rt-15
+    - win64-clang-16-raw
+    - win64-clang-16-stage1
+    - win64-compiler-rt-16
     - win64-dump_syms
     - win64-llvm-symbolizer
     - win64-mozmake
