@@ -155,7 +155,14 @@ interface nsIAbCard : nsISupports {
   AString getPropertyAsAString(in string name);
   AUTF8String getPropertyAsAUTF8String(in string name);
   unsigned long getPropertyAsUint32(in string name);
-  boolean getPropertyAsBool(in string name);
+
+  /**
+   * Returns a property for the given name.
+   *
+   * @param name             The case-sensitive name of the property to get.
+   * @param defaultValue     The value to return if the property does not exist.
+   */
+  boolean getPropertyAsBool(in string name, in boolean defaultValue);
 
   /** @} */
 

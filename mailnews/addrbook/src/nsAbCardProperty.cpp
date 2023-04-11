@@ -220,13 +220,16 @@ NS_IMETHODIMP nsAbCardProperty::GetPropertyAsUint32(const char* name,
 }
 
 NS_IMETHODIMP nsAbCardProperty::GetPropertyAsBool(const char* name,
+                                                  bool defaultValue,
                                                   bool* value) {
   NS_ENSURE_ARG_POINTER(name);
+
+  *value = defaultValue;
 
   nsCOMPtr<nsIVariant> variant;
   return m_properties.Get(nsDependentCString(name), getter_AddRefs(variant))
              ? variant->GetAsBool(value)
-             : NS_ERROR_NOT_AVAILABLE;
+             : NS_OK;
 }
 
 NS_IMETHODIMP nsAbCardProperty::SetProperty(const nsACString& name,

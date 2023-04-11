@@ -370,7 +370,7 @@ AddrBookCard.prototype = {
       Cr.NS_ERROR_NOT_AVAILABLE
     );
   },
-  getPropertyAsBool(name) {
+  getPropertyAsBool(name, defaultValue) {
     let value = this.getProperty(name);
     switch (value) {
       case false:
@@ -381,6 +381,8 @@ AddrBookCard.prototype = {
       case 1:
       case "1":
         return true;
+      case undefined:
+        return defaultValue;
     }
     throw Components.Exception(
       `${name}: ${value} - not a boolean`,

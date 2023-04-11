@@ -26,15 +26,7 @@ add_task(async function() {
       return null;
     }
 
-    let preferDisplayName = true;
-    try {
-      preferDisplayName = card.getPropertyAsBool("PreferDisplayName");
-    } catch {
-      // An error will be logged here:
-      // "NS_ERROR_NOT_AVAILABLE: PreferDisplayName: undefined - not a boolean"
-      // This is expected and not a bug.
-    }
-
+    let preferDisplayName = card.getPropertyAsBool("PreferDisplayName", true);
     return preferDisplayName ? card.displayName : card.primaryEmail;
   }
 
