@@ -13,7 +13,7 @@ function _getDisplayedMessages(tab) {
     } else if (nativeTab.mode.name == "mailMessageTab") {
       return [nativeTab.chromeBrowser.contentWindow.gMessage];
     }
-  } else if (nativeTab) {
+  } else if (nativeTab?.messageBrowser) {
     return [nativeTab.messageBrowser.contentWindow.gMessage];
   }
   return [];
