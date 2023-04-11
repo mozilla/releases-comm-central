@@ -38,10 +38,7 @@ if CONFIG["OS_ARCH"] == "WINNT":
 
     LINK_FLAGS["CETCOMPAT"] = []
 
-if CONFIG["MOZ_SANDBOX"] and CONFIG["OS_ARCH"] == "Darwin":
-    USE_LIBS += [
-        "mozsandbox",
-    ]
+if CONFIG["OS_ARCH"] == "Darwin":
     OS_LIBS += [
         "-framework CoreFoundation",
     ]
