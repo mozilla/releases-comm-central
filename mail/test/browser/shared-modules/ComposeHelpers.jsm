@@ -339,12 +339,15 @@ function setup_msg_contents(
 
   let input = aCwc.e(inputID);
   aCwc.sleep(1000);
-  aCwc.type(input, aAddr);
+  input.focus();
+  EventUtils.sendString(aAddr, aCwc.window);
   input.focus();
 
   EventUtils.synthesizeKey("VK_RETURN", {}, aCwc.window);
-  aCwc.type(aCwc.e("msgSubject"), aSubj);
-  aCwc.type(aCwc.e("messageEditor"), aBody);
+  aCwc.e("msgSubject").focus();
+  EventUtils.sendString(aSubj, aCwc.window);
+  aCwc.e("messageEditor").focus();
+  EventUtils.sendString(aBody, aCwc.window);
 
   // Wait for the pill(s) to be created.
   aCwc.waitFor(() => pillcount() == targetCount, `Creating pill for: ${aAddr}`);
@@ -730,7 +733,8 @@ function type_in_composer(aController, aText) {
   // If we have any typing to do, let's do it.
   let frame = aController.e("messageEditor");
   for (let [i, aLine] of aText.entries()) {
-    aController.type(frame, aLine);
+    frame.focus();
+    EventUtils.sendString(aLine, aController.window);
     if (i < aText.length - 1) {
       frame.focus();
       EventUtils.synthesizeKey("VK_RETURN", {}, aController.window);

@@ -314,7 +314,8 @@ function subtest_save_search(savc) {
   Assert.equal(searchVal1.value, "bar");
 
   // - name the search
-  savc.type(savc.e("name"), "SearchSaved");
+  savc.e("name").focus();
+  EventUtils.sendString("SearchSaved", savc.window);
 
   // - save it!
   // this will close the dialog, which wait_for_modal_dialog is making sure

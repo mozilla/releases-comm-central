@@ -450,7 +450,8 @@ function subtest_check_onchange_handler(tab) {
   let byAge = iframe.getElementById("useAutosync.ByAge");
   EventUtils.synthesizeMouseAtCenter(byAge, {}, byAge.ownerGlobal);
   autoSync.select();
-  mc.type(autoSync, "35");
+  autoSync.focus();
+  EventUtils.sendString("35", mc.window);
 
   // Immediately switch to another pane and back.
   accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xhtml", tab);

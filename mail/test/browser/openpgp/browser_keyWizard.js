@@ -321,7 +321,8 @@ add_task(async function add_external_key() {
     "Timeout waiting for the #wizardExternalKey to appear"
   );
 
-  wizard.type(doc.getElementById("externalKey"), EXTERNAL_GNUP_KEY);
+  doc.getElementById("externalKey").focus();
+  EventUtils.sendString(EXTERNAL_GNUP_KEY, wizard.window);
 
   let keyListRadio = tabDocument.getElementById("openPgpKeyListRadio");
 

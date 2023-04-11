@@ -86,9 +86,12 @@ function getMsgHeaders(aMsgHdr) {
  */
 add_task(async function test_basic_multipart_related() {
   let compWin = open_compose_new_mail();
-  compWin.type(compWin.window, "someone@example.com");
-  compWin.type(compWin.e("msgSubject"), "multipart/related");
-  compWin.type(compWin.e("messageEditor"), "Here is a prologue.\n");
+  compWin.window.focus();
+  EventUtils.sendString("someone@example.com", compWin.window);
+  compWin.e("msgSubject").focus();
+  EventUtils.sendString("multipart/related", compWin.window);
+  compWin.e("messageEditor").focus();
+  EventUtils.sendString("Here is a prologue.\n", compWin.window);
 
   const fname = "data/tb-logo.png";
   let file = new FileUtils.File(getTestFilePath(fname));
@@ -100,8 +103,10 @@ add_task(async function test_basic_multipart_related() {
   // Add a simple image to our dialog
   plan_for_modal_dialog("Mail:image", function(dialog) {
     // Insert the url of the image.
-    dialog.type(dialog.window, fileURL);
-    dialog.type(dialog.e("altTextInput"), "Alt text");
+    dialog.window.focus();
+    EventUtils.sendString(fileURL, dialog.window);
+    dialog.e("altTextInput").focus();
+    EventUtils.sendString("Alt text", dialog.window);
     dialog.sleep(0);
 
     // Accept the dialog

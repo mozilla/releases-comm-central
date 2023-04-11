@@ -190,7 +190,8 @@ add_task(async function test_editing_identity() {
   ]);
   compWin.waitFor(() => compWin.e("msgIdentity").editable);
 
-  compWin.type(compWin.e("msgIdentityPopup"), identityCustom);
+  compWin.e("msgIdentityPopup").focus();
+  EventUtils.sendString(identityCustom, compWin.window);
   checkCompIdentity(
     compWin,
     account.defaultIdentity.key,

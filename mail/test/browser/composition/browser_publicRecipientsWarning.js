@@ -669,12 +669,10 @@ add_task(async function testWarningNotShownAfterDismissal() {
   let input = cwc.window.document.getElementById("toAddrInput");
   input.focus();
 
-  cwc.type(
-    input,
-    "test@example.org,"
-      .repeat(publicRecipientLimit)
-      .replace(/test@/g, () => `test${i++}@`)
-  );
+  let recipString = "test@example.org,"
+    .repeat(publicRecipientLimit)
+    .replace(/test@/g, () => `test${i++}@`);
+  EventUtils.sendString(recipString, cwc.window);
 
   // Wait a little in case the notification bar mistakenly appears.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout

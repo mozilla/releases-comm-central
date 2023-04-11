@@ -43,11 +43,17 @@ add_task(async function() {
   let composeWindow = cwc.window;
   let composeDocument = composeWindow.document;
 
-  cwc.type(cwc.e("msgSubject"), "I went to the harbor in an aluminium boat");
-  cwc.type(cwc.e("messageEditor"), "I maneuvered to the center.\n");
-  cwc.type(
-    cwc.e("messageEditor"),
-    "The sky was the colour of ochre and the stars shone like jewelry.\n"
+  cwc.e("msgSubject").focus();
+  EventUtils.sendString(
+    "I went to the harbor in an aluminium boat",
+    cwc.window
+  );
+  cwc.e("messageEditor").focus();
+  EventUtils.sendString("I maneuvered to the center.\n", cwc.window);
+  cwc.e("messageEditor").focus();
+  EventUtils.sendString(
+    "The sky was the colour of ochre and the stars shone like jewelry.\n",
+    cwc.window
   );
 
   // Check initial spelling.

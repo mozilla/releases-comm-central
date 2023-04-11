@@ -94,7 +94,8 @@ add_task(async function test_open_draft_again() {
   Assert.equal(cwins, cwins2, "The number of compose windows changed!");
 
   // Type something and save, then check that we only have one draft.
-  cwc.type(cwc.e("messageEditor"), "Hello!");
+  cwc.e("messageEditor").focus();
+  EventUtils.sendString("Hello!", cwc.window);
   await save_compose_message(cwc.window);
   close_compose_window(cwc);
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
@@ -222,7 +223,8 @@ add_task(async function test_edit_as_new_in_draft() {
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
   let cwc = wait_for_compose_window();
 
-  cwc.type(cwc.e("messageEditor"), "Hello!");
+  cwc.e("messageEditor").focus();
+  EventUtils.sendString("Hello!", cwc.window);
   await save_compose_message(cwc.window);
   close_compose_window(cwc);
 

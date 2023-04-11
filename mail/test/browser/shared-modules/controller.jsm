@@ -266,32 +266,6 @@ var MozMillController = function(win) {
 MozMillController.prototype.sleep = utils.sleep;
 
 /**
- * Synthesize keypress events for each character on the given element
- *
- * @param {Element} element
- *        Element which will receive the type event
- * @param {string} aText
- *        The text to send as single keypress events
- * @param {object} aExpectedEvent
- *        Information about the expected event to occur
- *        Elements: target     - Element which should receive the event
- *                               [optional - default: current element]
- *                  type       - Type of the expected key event
- */
-MozMillController.prototype.type = function(element, aText, aExpectedEvent) {
-  if (!element) {
-    throw new Error("type: Missing element");
-  }
-
-  element.focus();
-  Array.from(aText).forEach(function(letter) {
-    EventUtils.synthesizeKey(letter, {}, element.ownerGlobal);
-  });
-
-  return true;
-};
-
-/**
  * Synthesize a general mouse event on the given element
  *
  * @param {Element} element
