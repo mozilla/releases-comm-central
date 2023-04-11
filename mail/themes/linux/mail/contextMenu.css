@@ -15,5 +15,5 @@ menupopup > menuitem:is([type="checkbox"],[type="radio"]) .menu-iconic-icon {
 menupopup > menu > .menu-text,
 menuitem:not(:is([type="checkbox"],[type="radio"])) > .menu-text {
   /* Align with the checkbox and radio menuitems. */
-  padding-inline-start: 19px;
+  padding-inline-start: 21px;
 }
