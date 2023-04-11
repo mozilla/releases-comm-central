@@ -81,29 +81,29 @@ add_setup(async function() {
  */
 add_task(async function testFavoriteFolders() {
   folderPane.activeModes = ["all", "favorite"];
-  checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", []);
 
   folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [rootFolder, folderA]);
+  await checkModeListItems("favorite", [rootFolder, folderA]);
 
   folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", []);
 
   folderB.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [rootFolder, folderB]);
+  await checkModeListItems("favorite", [rootFolder, folderB]);
 
   folderB.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", []);
 
   folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
   folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [rootFolder, folderA, folderC]);
+  await checkModeListItems("favorite", [rootFolder, folderA, folderC]);
 
   folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [rootFolder, folderC]);
+  await checkModeListItems("favorite", [rootFolder, folderC]);
 
   folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", []);
 });
 
 /**
@@ -112,29 +112,29 @@ add_task(async function testFavoriteFolders() {
 add_task(async function testCompactFavoriteFolders() {
   folderPane.activeModes = ["all", "favorite"];
   folderPane.isCompact = true;
-  checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", []);
 
   folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [folderA]);
+  await checkModeListItems("favorite", [folderA]);
 
   folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", []);
 
   folderB.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [folderB]);
+  await checkModeListItems("favorite", [folderB]);
 
   folderB.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", []);
 
   folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
   folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [folderA, folderC]); // c, a
+  await checkModeListItems("favorite", [folderA, folderC]); // c, a
 
   folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [folderC]);
+  await checkModeListItems("favorite", [folderC]);
 
   folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", []);
 
   // Test with multiple accounts.
 
@@ -148,27 +148,27 @@ add_task(async function testCompactFavoriteFolders() {
   let fooTrashFolder = fooRootFolder.getChildNamed("Trash");
 
   fooTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [fooTrashFolder]);
+  await checkModeListItems("favorite", [fooTrashFolder]);
 
   folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [fooTrashFolder, folderC]);
+  await checkModeListItems("favorite", [fooTrashFolder, folderC]);
 
   MailServices.accounts.reorderAccounts([account.key, foo.key]);
-  checkModeListItems("favorite", [folderC, fooTrashFolder]);
+  await checkModeListItems("favorite", [folderC, fooTrashFolder]);
 
   fooTrashFolder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [folderC]);
+  await checkModeListItems("favorite", [folderC]);
 
   fooTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [folderC, fooTrashFolder]);
+  await checkModeListItems("favorite", [folderC, fooTrashFolder]);
 
   folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  checkModeListItems("favorite", [fooTrashFolder]);
+  await checkModeListItems("favorite", [fooTrashFolder]);
 
   // Clean up.
 
   MailServices.accounts.removeAccount(foo, false);
-  checkModeListItems("favorite", []);
+  await checkModeListItems("favorite", []);
   folderPane.isCompact = false;
 });
 
@@ -177,43 +177,43 @@ add_task(async function testCompactFavoriteFolders() {
  */
 add_task(async function testUnreadFolders() {
   folderPane.activeModes = ["all", "unread"];
-  checkModeListItems("unread", []);
+  await checkModeListItems("unread", []);
 
   folderAMessages[0].markRead(false);
-  checkModeListItems("unread", [rootFolder, folderA]);
+  await checkModeListItems("unread", [rootFolder, folderA]);
 
   folderAMessages[1].markRead(false);
   folderAMessages[2].markRead(false);
-  checkModeListItems("unread", [rootFolder, folderA]);
+  await checkModeListItems("unread", [rootFolder, folderA]);
 
   window.MsgMarkAllRead([folderA]);
-  checkModeListItems("unread", [rootFolder, folderA]);
+  await checkModeListItems("unread", [rootFolder, folderA]);
 
   folderAMessages[0].markRead(false);
   folderBMessages[0].markRead(false);
-  checkModeListItems("unread", [rootFolder, folderA, folderB]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB]);
 
   folderCMessages[0].markRead(false);
-  checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderBMessages[0].markRead(true);
-  checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderAMessages[0].markRead(true);
-  checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(true);
-  checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(false);
-  checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   folderCMessages[1].markRead(false);
   folderCMessages[2].markRead(false);
-  checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 
   window.MsgMarkAllRead([folderC]);
-  checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
 });
 
 /**
@@ -222,43 +222,43 @@ add_task(async function testUnreadFolders() {
 add_task(async function testCompactUnreadFolders() {
   folderPane.activeModes = ["all", "unread"];
   folderPane.isCompact = true;
-  checkModeListItems("unread", []);
+  await checkModeListItems("unread", []);
 
   folderAMessages[0].markRead(false);
-  checkModeListItems("unread", [folderA]);
+  await checkModeListItems("unread", [folderA]);
 
   folderAMessages[1].markRead(false);
   folderAMessages[2].markRead(false);
-  checkModeListItems("unread", [folderA]);
+  await checkModeListItems("unread", [folderA]);
 
   window.MsgMarkAllRead([folderA]);
-  checkModeListItems("unread", [folderA]);
+  await checkModeListItems("unread", [folderA]);
 
   folderAMessages[0].markRead(false);
   folderBMessages[0].markRead(false);
-  checkModeListItems("unread", [folderA, folderB]);
+  await checkModeListItems("unread", [folderA, folderB]);
 
   folderCMessages[0].markRead(false);
-  checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderA, folderB, folderC]);
 
   folderBMessages[0].markRead(true);
-  checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderA, folderB, folderC]);
 
   folderAMessages[0].markRead(true);
-  checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(true);
-  checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderA, folderB, folderC]);
 
   folderCMessages[0].markRead(false);
-  checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderA, folderB, folderC]);
 
   folderCMessages[1].markRead(false);
   folderCMessages[2].markRead(false);
-  checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderA, folderB, folderC]);
 
   window.MsgMarkAllRead([folderC]);
-  checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderA, folderB, folderC]);
 
   // Test with multiple accounts.
 
@@ -278,27 +278,57 @@ add_task(async function testCompactUnreadFolders() {
   let fooMessages = [...fooTrashFolder.messages];
 
   fooMessages[0].markRead(false);
-  checkModeListItems("unread", [fooTrashFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", [
+    fooTrashFolder,
+    folderA,
+    folderB,
+    folderC,
+  ]);
 
   folderCMessages[0].markRead(false);
-  checkModeListItems("unread", [fooTrashFolder, folderA, folderB, folderC]);
+  await checkModeListItems("unread", [
+    fooTrashFolder,
+    folderA,
+    folderB,
+    folderC,
+  ]);
 
   MailServices.accounts.reorderAccounts([account.key, foo.key]);
-  checkModeListItems("unread", [folderA, folderB, folderC, fooTrashFolder]);
+  await checkModeListItems("unread", [
+    folderA,
+    folderB,
+    folderC,
+    fooTrashFolder,
+  ]);
 
   fooMessages[0].markRead(true);
-  checkModeListItems("unread", [folderA, folderB, folderC, fooTrashFolder]);
+  await checkModeListItems("unread", [
+    folderA,
+    folderB,
+    folderC,
+    fooTrashFolder,
+  ]);
 
   fooMessages[0].markRead(false);
-  checkModeListItems("unread", [folderA, folderB, folderC, fooTrashFolder]);
+  await checkModeListItems("unread", [
+    folderA,
+    folderB,
+    folderC,
+    fooTrashFolder,
+  ]);
 
   folderCMessages[0].markRead(true);
-  checkModeListItems("unread", [folderA, folderB, folderC, fooTrashFolder]);
+  await checkModeListItems("unread", [
+    folderA,
+    folderB,
+    folderC,
+    fooTrashFolder,
+  ]);
 
   // Clean up.
 
   MailServices.accounts.removeAccount(foo, false);
-  checkModeListItems("unread", [folderA, folderB, folderC]);
+  await checkModeListItems("unread", [folderA, folderB, folderC]);
   folderPane.isCompact = false;
 });
 
@@ -379,7 +409,7 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
 
   // Check it exists only once.
 
-  checkModeListItems("all", [
+  await checkModeListItems("all", [
     rootFolder,
     inboxFolder,
     trashFolder,
@@ -407,7 +437,7 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
 
   // Check it went away.
 
-  checkModeListItems("all", [
+  await checkModeListItems("all", [
     rootFolder,
     inboxFolder,
     trashFolder,
@@ -461,7 +491,7 @@ add_task(async function testGmailFolders() {
   let gmailInboxFolder = gmailRootFolder.getChildNamed("INBOX");
   let gmailTrashFolder = gmailRootFolder.getChildNamed("Trash");
 
-  checkModeListItems("all", [
+  await checkModeListItems("all", [
     gmailRootFolder,
     gmailInboxFolder,
     gmailTrashFolder,
@@ -528,7 +558,7 @@ add_task(async function testGmailFolders() {
     "_getNonGmailParent should return the root folder for the All Mail folder"
   );
 
-  checkModeListItems("all", [
+  await checkModeListItems("all", [
     gmailRootFolder,
     gmailInboxFolder,
     gmailAllMailFolder,
@@ -547,7 +577,7 @@ add_task(async function testGmailFolders() {
   folderPane.activeModes = ["favorite"];
   folderPane.activeModes = ["all"];
 
-  checkModeListItems("all", [
+  await checkModeListItems("all", [
     gmailRootFolder,
     gmailInboxFolder,
     gmailAllMailFolder,
@@ -602,15 +632,15 @@ add_task(async function testAccountOrder() {
 
   // Check the initial items in the folder tree.
 
-  checkModeListItems("all", localFolders);
-  checkModeListItems("smart", [
+  await checkModeListItems("all", localFolders);
+  await checkModeListItems("smart", [
     ...smartFolders,
     trashFolder,
     rootFolder,
     subInboxFolder,
   ]);
-  checkModeListItems("unread", [rootFolder, folderA]);
-  checkModeListItems("favorite", [rootFolder, folderA]);
+  await checkModeListItems("unread", [rootFolder, folderA]);
+  await checkModeListItems("favorite", [rootFolder, folderA]);
 
   // Create two new "none" accounts, foo and bar.
 
@@ -652,8 +682,12 @@ add_task(async function testAccountOrder() {
     MailServices.accounts.accounts.map(a => a.key),
     [foo.key, bar.key, account.key]
   );
-  checkModeListItems("all", [...fooFolders, ...barFolders, ...localFolders]);
-  checkModeListItems("smart", [
+  await checkModeListItems("all", [
+    ...fooFolders,
+    ...barFolders,
+    ...localFolders,
+  ]);
+  await checkModeListItems("smart", [
     ...smartFolders,
     fooTrashFolder,
     barTrashFolder,
@@ -661,7 +695,7 @@ add_task(async function testAccountOrder() {
     rootFolder,
     subInboxFolder,
   ]);
-  checkModeListItems("unread", [
+  await checkModeListItems("unread", [
     fooRootFolder,
     fooTrashFolder,
     barRootFolder,
@@ -669,7 +703,7 @@ add_task(async function testAccountOrder() {
     rootFolder,
     folderA,
   ]);
-  checkModeListItems("favorite", [
+  await checkModeListItems("favorite", [
     fooRootFolder,
     fooTrashFolder,
     barRootFolder,
@@ -682,8 +716,12 @@ add_task(async function testAccountOrder() {
 
   folderPane.activeModes = ["recent"];
   folderPane.activeModes = ["all", "smart", "unread", "favorite"];
-  checkModeListItems("all", [...fooFolders, ...barFolders, ...localFolders]);
-  checkModeListItems("smart", [
+  await checkModeListItems("all", [
+    ...fooFolders,
+    ...barFolders,
+    ...localFolders,
+  ]);
+  await checkModeListItems("smart", [
     ...smartFolders,
     fooTrashFolder,
     barTrashFolder,
@@ -691,7 +729,7 @@ add_task(async function testAccountOrder() {
     rootFolder,
     subInboxFolder,
   ]);
-  checkModeListItems("unread", [
+  await checkModeListItems("unread", [
     fooRootFolder,
     fooTrashFolder,
     barRootFolder,
@@ -699,7 +737,7 @@ add_task(async function testAccountOrder() {
     rootFolder,
     folderA,
   ]);
-  checkModeListItems("favorite", [
+  await checkModeListItems("favorite", [
     fooRootFolder,
     fooTrashFolder,
     barRootFolder,
@@ -711,8 +749,12 @@ add_task(async function testAccountOrder() {
   // Reorder the accounts.
 
   MailServices.accounts.reorderAccounts([bar.key, account.key, foo.key]);
-  checkModeListItems("all", [...barFolders, ...localFolders, ...fooFolders]);
-  checkModeListItems("smart", [
+  await checkModeListItems("all", [
+    ...barFolders,
+    ...localFolders,
+    ...fooFolders,
+  ]);
+  await checkModeListItems("smart", [
     ...smartFolders,
     barTrashFolder,
     trashFolder,
@@ -720,7 +762,7 @@ add_task(async function testAccountOrder() {
     rootFolder,
     subInboxFolder,
   ]);
-  checkModeListItems("unread", [
+  await checkModeListItems("unread", [
     barRootFolder,
     barTrashFolder,
     rootFolder,
@@ -728,7 +770,7 @@ add_task(async function testAccountOrder() {
     fooRootFolder,
     fooTrashFolder,
   ]);
-  checkModeListItems("favorite", [
+  await checkModeListItems("favorite", [
     barRootFolder,
     barTrashFolder,
     rootFolder,
@@ -740,8 +782,12 @@ add_task(async function testAccountOrder() {
   // Reorder the accounts again.
 
   MailServices.accounts.reorderAccounts([foo.key, account.key, bar.key]);
-  checkModeListItems("all", [...fooFolders, ...localFolders, ...barFolders]);
-  checkModeListItems("smart", [
+  await checkModeListItems("all", [
+    ...fooFolders,
+    ...localFolders,
+    ...barFolders,
+  ]);
+  await checkModeListItems("smart", [
     ...smartFolders,
     fooTrashFolder,
     trashFolder,
@@ -749,7 +795,7 @@ add_task(async function testAccountOrder() {
     rootFolder,
     subInboxFolder,
   ]);
-  checkModeListItems("unread", [
+  await checkModeListItems("unread", [
     fooRootFolder,
     fooTrashFolder,
     rootFolder,
@@ -757,7 +803,7 @@ add_task(async function testAccountOrder() {
     barRootFolder,
     barTrashFolder,
   ]);
-  checkModeListItems("favorite", [
+  await checkModeListItems("favorite", [
     fooRootFolder,
     fooTrashFolder,
     rootFolder,
@@ -769,21 +815,21 @@ add_task(async function testAccountOrder() {
   // Remove one of the added accounts.
 
   MailServices.accounts.removeAccount(foo, false);
-  checkModeListItems("all", [...localFolders, ...barFolders]);
-  checkModeListItems("smart", [
+  await checkModeListItems("all", [...localFolders, ...barFolders]);
+  await checkModeListItems("smart", [
     ...smartFolders,
     trashFolder,
     barTrashFolder,
     rootFolder,
     subInboxFolder,
   ]);
-  checkModeListItems("unread", [
+  await checkModeListItems("unread", [
     rootFolder,
     folderA,
     barRootFolder,
     barTrashFolder,
   ]);
-  checkModeListItems("favorite", [
+  await checkModeListItems("favorite", [
     rootFolder,
     folderA,
     barRootFolder,
@@ -799,14 +845,18 @@ add_task(async function testAccountOrder() {
   rootFolder.emptyTrash(null, null);
 
   localFolders.splice(2, 1);
-  checkModeListItems("all", localFolders);
-  checkModeListItems("smart", [...smartFolders, trashFolder]);
-  checkModeListItems("unread", [rootFolder, folderA]);
-  checkModeListItems("favorite", []);
+  await checkModeListItems("all", localFolders);
+  await checkModeListItems("smart", [...smartFolders, trashFolder]);
+  await checkModeListItems("unread", [rootFolder, folderA]);
+  await checkModeListItems("favorite", []);
 });
 
-function checkModeListItems(modeName, folders) {
+async function checkModeListItems(modeName, folders) {
+  // Jump to the end of the event queue so that any code listening for changes
+  // can run first.
+  await new Promise(resolve => setTimeout(resolve));
   expandAll(modeName);
+
   Assert.deepEqual(
     Array.from(
       folderPane._modes[modeName].containerList.querySelectorAll("li"),
