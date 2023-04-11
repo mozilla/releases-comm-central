@@ -211,7 +211,11 @@
 
 .button.check-button {
   position: relative;
-  padding-inline-start: calc(var(--button-padding) + var(--button-pressed-indicator-padding));
+}
+
+.button.check-button:not(.icon-button) {
+  padding-inline-start: calc(var(--button-padding) * 2 + var(--button-pressed-indicator-padding));
+  padding-inline-end: calc(var(--button-padding) * 2);
 }
 
 .button.check-button.icon-button {
