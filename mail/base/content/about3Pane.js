@@ -2174,7 +2174,7 @@ var folderPane = {
     window.openDialog(
       "chrome://messenger/content/virtualFolderProperties.xhtml",
       "",
-      "chrome,modal,centerscreen",
+      "chrome,modal,centerscreen,resizable=yes",
       {
         folder,
         searchTerms: aSearchTerms,
@@ -2194,7 +2194,7 @@ var folderPane = {
     window.openDialog(
       "chrome://messenger/content/virtualFolderProperties.xhtml",
       "",
-      "chrome,modal,centerscreen",
+      "chrome,modal,centerscreen,resizable=yes",
       {
         folder,
         editExistingFolder: true,

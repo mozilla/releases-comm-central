@@ -169,7 +169,10 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
 
   // when editing an existing folder, hide the folder picker that stores the parent location of the folder
   document.getElementById("msgNewFolderPicker").collapsed = true;
-  document.getElementById("chooseFolderLocationLabel").collapsed = true;
+  let items = document.getElementsByClassName("chooseFolderLocation");
+  for (let item of items) {
+    item.setAttribute("hidden", true);
+  }
   let folderNameField = document.getElementById("existingName");
   folderNameField.removeAttribute("hidden");
 

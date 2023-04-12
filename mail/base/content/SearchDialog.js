@@ -599,7 +599,7 @@ function saveAsVirtualFolder() {
   window.openDialog(
     "chrome://messenger/content/virtualFolderProperties.xhtml",
     "",
-    "chrome,titlebar,modal,centerscreen",
+    "chrome,titlebar,modal,centerscreen,resizable=yes",
     {
       folder: window.arguments[0].folder,
       searchTerms: getSearchTerms(),
