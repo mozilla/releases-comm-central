@@ -5060,13 +5060,34 @@ var headerToolbarNavigation = {
    * @param {Event} event - The keypress DOMEvent.
    */
   triggerMessageHeaderRovingTab(event) {
-    if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) {
+    // Expected keyboard actions are Left, Right, Home, End, Space, and Enter.
+    if (
+      !["ArrowRight", "ArrowLeft", "Home", "End", " ", "Enter"].includes(
+        event.key
+      )
+    ) {
       return;
     }
 
     const headerButtons = [...this.headerButtons];
     let focusableButton = headerButtons.find(b => b.tabIndex != -1);
     let elementIndex = headerButtons.indexOf(focusableButton);
+
+    // TODO: Remove once the buttons are updated to not be XUL
+    // NOTE: Normally a button click handler would cover Enter and Space key
+    // events. However, we need to prevent the default behavior and explicitly
+    // trigger the button click because the XUL toolbarbuttons do not work when
+    // the Enter key is pressed. They do work when the Space key is pressed.
+    // However, if the toolbarbutton is a dropdown menu, the Space key
+    // does not open the menu.
+    if (
+      event.key == "Enter" ||
+      (event.key == " " && event.target.hasAttribute("type"))
+    ) {
+      event.preventDefault();
+      event.target.click();
+      return;
+    }
 
     // Find the adjacent focusable element based on the pressed key.
     if (
