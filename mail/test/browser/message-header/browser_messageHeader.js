@@ -299,6 +299,82 @@ add_task(async function test_a11y_attrs() {
   headersToTest.forEach(verify_header_a11y);
 });
 
+/**
+ * Test the keyboard accessibility of the toolbarbuttons on the message header.
+ */
+add_task(async function enter_msg_hdr_toolbar() {
+  await be_in_folder(folder);
+  // Convert the SyntheticMessage gInterestingMessage into an actual nsIMsgDBHdr
+  // XPCOM message.
+  let hdr = folder.msgDatabase.getMsgHdrForMessageID(
+    gInterestingMessage.messageId
+  );
+  // Select and open the interesting message.
+  let curMessage = select_click_row(
+    about3Pane.gDBView.findIndexOfMsgHdr(hdr, false)
+  );
+  // Make sure it loads.
+  assert_selected_and_displayed(mc, curMessage);
+
+  const BUTTONS_SELECTOR = `toolbarbutton:not([hidden="true"],[is="toolbarbutton-menu-button"]), button:not([hidden])`;
+  let headerToolbar = aboutMessage.document.getElementById(
+    "header-view-toolbar"
+  );
+  let headerButtons = headerToolbar.querySelectorAll(BUTTONS_SELECTOR);
+
+  // Press tab while on the message selected.
+  EventUtils.synthesizeKey("KEY_Tab", {}, about3Pane);
+  Assert.equal(
+    headerButtons[0].id,
+    aboutMessage.document.activeElement.id,
+    "focused on first msgHdr toolbar button"
+  );
+
+  // Simulate the Arrow Right keypress to make sure the correct button gets the
+  // focus.
+  for (let i = 1; i < headerButtons.length; i++) {
+    let previousElement = document.activeElement;
+    EventUtils.synthesizeKey("KEY_ArrowRight", {}, about3Pane);
+    Assert.equal(
+      aboutMessage.document.activeElement.id,
+      headerButtons[i].id,
+      "The next button is focused"
+    );
+    Assert.ok(
+      aboutMessage.document.activeElement.tabIndex == 0 &&
+        previousElement.tabIndex == -1,
+      "The roving tab index was updated"
+    );
+  }
+
+  // Simulate the Arrow Left keypress to make sure the correct button gets the
+  // focus.
+  for (let i = headerButtons.length - 2; i > -1; i--) {
+    let previousElement = document.activeElement;
+    EventUtils.synthesizeKey("KEY_ArrowLeft", {}, about3Pane);
+    Assert.equal(
+      aboutMessage.document.activeElement.id,
+      headerButtons[i].id,
+      "The previous button is focused"
+    );
+    Assert.ok(
+      aboutMessage.document.activeElement.tabIndex == 0 &&
+        previousElement.tabIndex == -1,
+      "The roving tab index was updated"
+    );
+  }
+  EventUtils.synthesizeKey("KEY_Tab", {}, about3Pane);
+  Assert.equal(
+    aboutMessage.document.activeElement.id,
+    "fromRecipient0",
+    "The sender is now focused"
+  );
+}).__skipMe = AppConstants.platform == "macosx";
+// Full keyboard navigation on OSX only works if Full Keyboard Access setting is
+// set to All Control in System Keyboard Preferences. This also works with the
+// setting, Keyboard > Keyboard navigation, in addition to
+// Accessibility > Keyboard > Full Keyboard Access.
+
 add_task(function test_more_button_with_many_recipients() {
   // Start on the interesting message.
   let curMessage = select_click_row(0);
