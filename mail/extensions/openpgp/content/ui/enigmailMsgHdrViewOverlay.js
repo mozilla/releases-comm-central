@@ -1189,6 +1189,9 @@ Enigmail.hdrView = {
         Enigmail.hdrView.msgSignedStateString != null ||
         Enigmail.hdrView.msgEncryptedStateString != null
       ) {
+        // If we already processed an OpenPGP part, then we are handling
+        // a message with an inner S/MIME part. We must not reload
+        // the message here, because we'd run into an endless loop.
         return;
       }
       if (this.isCurrentMessage(uri)) {
