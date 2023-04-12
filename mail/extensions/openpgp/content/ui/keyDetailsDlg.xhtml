@@ -153,7 +153,8 @@
               ondblclick="sigHandleDblClick(event)">
 
           <treecols>
-            <treecol id="sig_uid_col" flex="1"
+            <treecol id="sig_uid_col"
+                     style="flex: 1 auto"
                      data-l10n-id="openpgp-key-details-uid-certified-col"
                      primary="true"/>
             <splitter class="tree-splitter"/>
@@ -188,7 +189,7 @@
               <splitter class="tree-splitter"/>
               <treecol id="keyUsageCol"
                        data-l10n-id="openpgp-key-details-usage-label"
-                       flex="1"/>
+                       style="flex: 1 auto"/>
               <splitter class="tree-splitter"/>
               <treecol id="keyIdCol" style="width:77px"
                        data-l10n-id="openpgp-key-details-id-label"

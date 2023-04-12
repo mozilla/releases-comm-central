@@ -133,19 +133,19 @@ textbox.tree-input {
 }
 
 #siteCol {
-  flex: 3;
+  flex: 3 auto;
 }
 
 #statusCol {
-  flex: 1;
+  flex: 1 auto;
 }
 
 #domainCol {
-  flex: 2;
+  flex: 2 auto;
 }
 
 #nameCol {
-  flex: 1;
+  flex: 1 auto;
 }
 
 /* Adjust the Lightning Edit Category dialog */
