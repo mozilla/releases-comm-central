@@ -33,6 +33,7 @@ var { AppConstants } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   Color: "resource://gre/modules/Color.sys.mjs",
+  ctypes: "resource://gre/modules/ctypes.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -67,12 +68,6 @@ XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
   }
 });
 
-// Copied from M-C's TelemetryEnvironment.jsm
-ChromeUtils.defineModuleGetter(
-  this,
-  "ctypes",
-  "resource://gre/modules/ctypes.jsm"
-);
 /**
  * Gets the service pack and build information on Windows platforms. The initial version
  * was copied from nsUpdateService.js.

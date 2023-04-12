@@ -12,7 +12,9 @@ const EXPORTED_SYMBOLS = ["DNS", "SRVRecord"];
 var DNS = null;
 
 if (typeof Components !== "undefined") {
-  var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+  var { ctypes } = ChromeUtils.importESModule(
+    "resource://gre/modules/ctypes.sys.mjs"
+  );
   var { BasePromiseWorker } = ChromeUtils.import(
     "resource://gre/modules/PromiseWorker.jsm"
   );

@@ -5,7 +5,7 @@
 const { BasePromiseWorker } = ChromeUtils.import(
   "resource://gre/modules/PromiseWorker.jsm"
 );
-const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+import { ctypes } from "resource://gre/modules/ctypes.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { CLib } from "resource:///modules/CLib.sys.mjs";
 import { OTRLibLoader } from "resource:///modules/OTRLib.sys.mjs";
