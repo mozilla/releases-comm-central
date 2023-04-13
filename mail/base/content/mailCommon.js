@@ -211,6 +211,7 @@ var commandController = {
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
     },
     cmd_shiftDelete() {
+      dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
     },
     cmd_createFilterFromMenu() {

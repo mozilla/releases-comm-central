@@ -161,20 +161,9 @@ function displayMessage(uri, viewWrapper) {
     invalidate() {},
     invalidateRange(startIndex, endIndex) {},
     rowCountChanged(index, count) {
-      // HACK ALERT: If we're here, and the calling function appears to be
-      // `DBViewWrapper._deleteCompleted` (actually `nsMsgDBView`), this is
-      // the second time we're notified about the row count changing. We don't
-      // want to adjust the selection twice, or it'll be wrong.
-      if (
-        !this._inBatch &&
-        parent?.location.href != "about:3pane" &&
-        gDBView.selection &&
-        Components.stack.caller?.name != "_deleteCompleted"
-      ) {
-        gDBView.selection.selectEventsSuppressed = true;
-        gDBView.selection.adjustSelection(index, count);
-        gDBView.selection.selectEventsSuppressed = false;
-      }
+      gDBView.selection.selectEventsSuppressed = true;
+      gDBView.selection.adjustSelection(index, count);
+      gDBView.selection.selectEventsSuppressed = false;
     },
   });
 

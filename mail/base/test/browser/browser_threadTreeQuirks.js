@@ -15,7 +15,7 @@ let {
 } = document.getElementById("tabmail");
 let threadTree = about3Pane.threadTree;
 let messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
-let rootFolder, folderA, folderB, sourceMessages, sourceMessageIDs;
+let rootFolder, folderA, folderB, trashFolder, sourceMessages, sourceMessageIDs;
 
 add_setup(async function() {
   let generator = new MessageGenerator();
@@ -32,6 +32,7 @@ add_setup(async function() {
 
   rootFolder.createSubfolder("folder b", null);
   folderB = rootFolder.getChildNamed("folder b");
+  trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 
   // Make some messages, then change their dates to simulate a different order.
   let syntheticMessages = generator.makeMessages({
@@ -235,9 +236,7 @@ add_task(async function testThreadUpdateKeepsSelection() {
   threadTree.removeEventListener("select", reportBadSelectEvent);
   messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
 
-  // Restore folder A.
-  await move([...folderB.messages], folderB, folderA);
-  sourceMessages = [...folderA.messages];
+  await restoreMessages();
 });
 
 add_task(async function testArchiveDeleteUpdates() {
@@ -292,13 +291,86 @@ add_task(async function testArchiveDeleteUpdates() {
 
   threadTree.removeEventListener("select", onSelect);
 
-  // Restore folder A.
-  let trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
-  await move([...trashFolder.messages], trashFolder, folderA);
-  let archiveFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Archive)
-    .subFolders[0];
-  await move([...archiveFolder.messages], archiveFolder, folderA);
-  sourceMessages = [...folderA.messages];
+  await restoreMessages();
+});
+
+add_task(async function testMessagePaneSelection() {
+  await move(sourceMessages.slice(6, 9), folderA, folderB);
+  about3Pane.restoreState({
+    messagePaneVisible: true,
+    folderURI: folderB.URI,
+  });
+  about3Pane.sortController.sortUnthreaded();
+  about3Pane.sortController.sortThreadPane("byDate");
+  about3Pane.sortController.sortDescending();
+
+  threadTree.focus();
+  threadTree.selectedIndex = 1;
+  await messageLoaded(7);
+
+  // Check the initial selection in about:message.
+  Assert.equal(aboutMessage.gDBView.selection.getRangeCount(), 1);
+  let min = {},
+    max = {};
+  aboutMessage.gDBView.selection.getRangeAt(0, min, max);
+  Assert.equal(min.value, 1);
+  Assert.equal(max.value, 1);
+
+  // Add a new message to the folder, which should appear first.
+  threadTree.addEventListener("select", reportBadSelectEvent);
+  messagePaneBrowser.addEventListener("load", reportBadLoad, true);
+  await move(sourceMessages.slice(9, 10), folderA, folderB);
+
+  Assert.deepEqual(
+    Array.from(folderB.messages, m => m.messageId),
+    sourceMessageIDs.slice(6, 10),
+    "all expected messages are in the folder"
+  );
+
+  // Check the selection in about:message.
+  Assert.equal(aboutMessage.gDBView.selection.getRangeCount(), 1);
+  aboutMessage.gDBView.selection.getRangeAt(0, min, max);
+  Assert.equal(min.value, 2);
+  Assert.equal(max.value, 2);
+
+  // Wait to prove unwanted selection or load didn't happen.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(f => setTimeout(f, 500));
+  threadTree.removeEventListener("select", reportBadSelectEvent);
+  messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
+
+  // Now click the delete button in about:message.
+  let deletePromise = PromiseTestUtils.promiseFolderEvent(
+    folderB,
+    "DeleteOrMoveMsgCompleted"
+  );
+  let loadPromise = messageLoaded(6);
+  EventUtils.synthesizeMouseAtCenter(
+    aboutMessage.document.getElementById("hdrTrashButton"),
+    {},
+    aboutMessage
+  );
+  await Promise.all([deletePromise, loadPromise]);
+
+  // Check which message was deleted.
+  Assert.deepEqual(
+    Array.from(trashFolder.messages, m => m.messageId),
+    [sourceMessageIDs[7]],
+    "the right message was deleted"
+  );
+  Assert.deepEqual(
+    Array.from(folderB.messages, m => m.messageId),
+    [sourceMessageIDs[6], sourceMessageIDs[8], sourceMessageIDs[9]],
+    "the right messages were kept"
+  );
+
+  // Check the selection in about:message again.
+  Assert.equal(aboutMessage.gDBView.selection.getRangeCount(), 1);
+  aboutMessage.gDBView.selection.getRangeAt(0, min, max);
+  Assert.equal(min.value, 2);
+  Assert.equal(max.value, 2);
+
+  await restoreMessages();
 });
 
 async function messageLoaded(index) {
@@ -339,5 +411,26 @@ function reportBadLoad() {
     undefined,
     undefined,
     "should not have reloaded the message"
+  );
+}
+
+async function restoreMessages() {
+  // Move all of the messages back to folder A.
+  await move([...folderB.messages], folderB, folderA);
+  let archiveFolder = rootFolder.getFolderWithFlags(
+    Ci.nsMsgFolderFlags.Archive
+  );
+  if (archiveFolder) {
+    for (let folder of archiveFolder.subFolders) {
+      await move([...folder.messages], folder, folderA);
+    }
+  }
+  await move([...trashFolder.messages], trashFolder, folderA);
+
+  // Restore all of the messages in `sourceMessages`, in the right order.
+  sourceMessages = [...folderA.messages].sort(
+    (a, b) =>
+      sourceMessageIDs.indexOf(a.messageId) -
+      sourceMessageIDs.indexOf(b.messageId)
   );
 }
