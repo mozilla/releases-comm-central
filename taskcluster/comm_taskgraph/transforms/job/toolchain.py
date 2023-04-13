@@ -108,12 +108,6 @@ def docker_worker_toolchain(config, job, taskdesc):
     # If the task doesn't have a docker-image, set a default
     worker.setdefault("docker-image", {"in-tree": "deb11-toolchain-build"})
 
-    # Allow the job to specify where artifacts come from, but add
-    # public/build if it's not there already.
-    artifacts = worker.setdefault("artifacts", [])
-    if not any(artifact.get("name") == "public/build" for artifact in artifacts):
-        docker_worker_add_artifacts(config, job, taskdesc)
-
     # Toolchain checkouts don't live under {workdir}/checkouts
     workspace = "{workdir}/workspace/build".format(**run)
     gecko_path = "{}/src".format(workspace)
@@ -130,6 +124,10 @@ def docker_worker_toolchain(config, job, taskdesc):
 
     attributes = taskdesc.setdefault("attributes", {})
     attributes["toolchain-artifact"] = run.pop("toolchain-artifact")
+    toolchain_artifact = attributes["toolchain-artifact"]
+    if not toolchain_artifact.startswith("public/build/"):
+        attributes["artifact_prefix"] = os.path.dirname(toolchain_artifact)
+
     resolve_keyed_by(
         run,
         "toolchain-alias",
@@ -141,6 +139,12 @@ def docker_worker_toolchain(config, job, taskdesc):
         attributes["toolchain-alias"] = alias
     if "toolchain-env" in run:
         attributes["toolchain-env"] = run.pop("toolchain-env")
+
+    # Allow the job to specify where artifacts come from, but add
+    # public/build if it's not there already.
+    artifacts = worker.setdefault("artifacts", [])
+    if not artifacts:
+        docker_worker_add_artifacts(config, job, taskdesc)
 
     digest_data = get_digest_data(config, run, taskdesc)
 
