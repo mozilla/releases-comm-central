@@ -681,7 +681,10 @@ var folderPane = {
           return;
         }
 
-        if (!childFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox, true)) {
+        if (
+          !childFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox, true) &&
+          !["nntp", "rss"].includes(childFolder.server.type)
+        ) {
           return;
         }
 
