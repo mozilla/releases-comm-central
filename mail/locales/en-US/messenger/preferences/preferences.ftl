@@ -719,8 +719,8 @@ do-not-track-label =
     .label = Send websites a “Do Not Track” signal that you don’t want to be tracked
     .accesskey = n
 
-learn-button =
-    .label = Learn more
+dnt-learn-more-button =
+    .value = Learn more
 
 passwords-description = { -brand-short-name } can remember passwords for all of your accounts.
 
