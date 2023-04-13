@@ -61,7 +61,7 @@ radio[value="and"] {
 /* ::::: box sizes ::::: */
 
 #virtualFolderSearchTerms {
-  flex: 1 1 240px;
+  flex: 1 1 0;
   overflow: hidden;
 }
 
