@@ -262,7 +262,7 @@ class BasePopup {
     browser.setAttribute("context", "browserContext");
     browser.setAttribute("autocompletepopup", "PopupAutoComplete");
     browser.setAttribute("selectmenulist", "ContentSelectDropdown");
-    browser.setAttribute("selectmenuconstrained", "false");
+    browser.setAttribute("constrainpopups", "false");
     browser.setAttribute("datetimepicker", "DateTimePickerPanel");
 
     // Ensure the browser will initially load in the same group as other
