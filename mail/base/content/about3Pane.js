@@ -1234,17 +1234,7 @@ var folderPane = {
       }
 
       mode.containerList.replaceChildren();
-
-      if (typeof mode.init == "function") {
-        mode.init();
-      }
-      if (typeof mode.initServer == "function") {
-        for (let account of MailServices.accounts.accounts) {
-          if (account.incomingServer.type != "im") {
-            mode.initServer(account.incomingServer);
-          }
-        }
-      }
+      this._initMode(mode);
     }
     Services.xulStore.setValue(XULSTORE_URL, "folderTree", "compact", value);
   },
@@ -1282,17 +1272,38 @@ var folderPane = {
       `folderPaneModeHeader_${modeName}`
     );
     mode.containerList = container.querySelector("ul");
+    this._initMode(mode);
+    mode.active = true;
+  },
+
+  /**
+   * Initialize a folder mode with all visible accounts.
+   *
+   * @param {object} mode - One of the folder modes from `folderPane._modes`.
+   */
+  _initMode(mode) {
     if (typeof mode.init == "function") {
       mode.init();
     }
-    if (typeof mode.initServer == "function") {
-      for (let account of MailServices.accounts.accounts) {
-        if (account.incomingServer.type != "im") {
-          mode.initServer(account.incomingServer);
-        }
-      }
+    if (typeof mode.initServer != "function") {
+      return;
     }
-    mode.active = true;
+
+    // `.accounts` is used here because it is ordered, `.allServers` isn't.
+    for (let account of MailServices.accounts.accounts) {
+      // Skip IM accounts.
+      if (account.incomingServer.type == "im") {
+        continue;
+      }
+      // Skip POP3 accounts that are deferred to another account.
+      if (
+        account.incomingServer instanceof Ci.nsIPop3IncomingServer &&
+        account.incomingServer.deferredToAccount
+      ) {
+        continue;
+      }
+      mode.initServer(account.incomingServer);
+    }
   },
 
   /**
@@ -4016,32 +4027,42 @@ var folderListener = {
       threadTree.invalidate();
     }
   },
-  onFolderPropertyChanged(item, property, oldValue, newValue) {},
-  onFolderIntPropertyChanged(item, property, oldValue, newValue) {
+  onFolderPropertyChanged(folder, property, oldValue, newValue) {},
+  onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
     switch (property) {
       case "BiffState":
         folderPane.changeNewMessages(
-          item,
+          folder,
           newValue === Ci.nsIMsgFolder.nsMsgBiffState_NewMail
         );
         break;
       case "FolderFlag":
-        folderPane.changeFolderFlag(item, oldValue, newValue);
+        folderPane.changeFolderFlag(folder, oldValue, newValue);
         break;
       case "TotalUnreadMessages":
-        folderPane.changeUnreadCount(item, oldValue, newValue);
+        folderPane.changeUnreadCount(folder, oldValue, newValue);
         break;
     }
   },
-  onFolderBoolPropertyChanged(item, property, oldValue, newValue) {
+  onFolderBoolPropertyChanged(folder, property, oldValue, newValue) {
     switch (property) {
+      case "isDeferred":
+        if (newValue) {
+          folderPane.removeFolder(null, folder);
+        } else {
+          folderPane.addFolder(null, folder);
+          for (let f of folder.descendants) {
+            folderPane.addFolder(f.parent, f);
+          }
+        }
+        break;
       case "NewMessages":
-        folderPane.changeNewMessages(item, newValue);
+        folderPane.changeNewMessages(folder, newValue);
         break;
     }
   },
-  onFolderUnicharPropertyChanged(item, property, oldValue, newValue) {},
-  onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {},
+  onFolderUnicharPropertyChanged(folder, property, oldValue, newValue) {},
+  onFolderPropertyFlagChanged(folder, property, oldFlag, newFlag) {},
   onFolderEvent(folder, event) {
     if (event == "RenameCompleted") {
       // If a folder is renamed, we get an `onFolderAdded` notification for

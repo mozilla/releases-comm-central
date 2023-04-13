@@ -696,6 +696,58 @@ add_task(async function testSearchFolderAddedOnlyOnce() {
 });
 
 /**
+ * Tests deferred POP3 accounts are not displayed in All Folders mode, and
+ * that a change in their deferred status updates the folder tree.
+ */
+add_task(async function testDeferredAccount() {
+  let pop3Account = MailServices.accounts.createAccount();
+  let pop3Server = MailServices.accounts.createIncomingServer(
+    `${pop3Account.key}user`,
+    "localhost",
+    "pop3"
+  );
+  pop3Server.QueryInterface(Ci.nsIPop3IncomingServer);
+  pop3Account.incomingServer = pop3Server.QueryInterface(
+    Ci.nsIPop3IncomingServer
+  );
+
+  let pop3RootFolder = pop3Server.rootFolder;
+  let pop3Folders = [
+    pop3RootFolder,
+    pop3RootFolder.getChildNamed("Inbox"),
+    pop3RootFolder.getChildNamed("Trash"),
+  ];
+  let localFolders = [
+    rootFolder,
+    inboxFolder,
+    trashFolder,
+    outboxFolder,
+    folderA,
+    folderB,
+    folderC,
+  ];
+
+  folderPane.activeModes = ["all"];
+  await checkModeListItems("all", [...pop3Folders, ...localFolders]);
+
+  // Defer the account to Local Folders.
+  pop3Server.deferredToAccount = account.key;
+  await checkModeListItems("all", localFolders);
+
+  // Remove and add the All mode again to check that an existing deferred
+  // folder is not shown when the mode initialises.
+  folderPane.activeModes = ["recent"];
+  folderPane.activeModes = ["all"];
+  await checkModeListItems("all", localFolders);
+
+  // Stop deferring the account.
+  pop3Server.deferredToAccount = null;
+  await checkModeListItems("all", [...pop3Folders, ...localFolders]);
+
+  MailServices.accounts.removeAccount(pop3Account, false);
+});
+
+/**
  * We deliberately hide the special [Gmail] folder from the folder tree.
  * Check that it doesn't appear when for a new or existing account.
  */
