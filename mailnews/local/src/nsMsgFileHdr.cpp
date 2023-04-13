@@ -4,7 +4,6 @@
 
 #include "nsCOMPtr.h"
 #include "nsMsgFileHdr.h"
-#include "nsMsgMessageFlags.h"
 #include "nsNetUtil.h"
 #include "nsIFileURL.h"
 #include "HeaderReader.h"
@@ -143,15 +142,9 @@ NS_IMETHODIMP nsMsgFileHdr::SetPriority(nsMsgPriorityValue aPriority) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::GetFlags(uint32_t* aFlags) {
-  *aFlags = mFlags;
-  return NS_OK;
-}
+NS_IMETHODIMP nsMsgFileHdr::GetFlags(uint32_t* aFlags) { return NS_OK; }
 
-NS_IMETHODIMP nsMsgFileHdr::SetFlags(uint32_t aFlags) {
-  mFlags = aFlags;
-  return NS_OK;
-}
+NS_IMETHODIMP nsMsgFileHdr::SetFlags(uint32_t aFlags) { return NS_OK; }
 
 NS_IMETHODIMP nsMsgFileHdr::OrFlags(uint32_t flags, uint32_t* _retval) {
   return NS_OK;
@@ -274,26 +267,15 @@ NS_IMETHODIMP nsMsgFileHdr::GetAuthor(char** aAuthor) {
 
 NS_IMETHODIMP nsMsgFileHdr::SetAuthor(const char* aAuthor) { return NS_OK; }
 
-NS_IMETHODIMP nsMsgFileHdr::GetSubject(nsACString& aSubject) {
+NS_IMETHODIMP nsMsgFileHdr::GetSubject(char** aSubject) {
   nsresult rv = ReadFile();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  aSubject = mSubject;
+  *aSubject = strdup(mSubject.get());
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFileHdr::SetSubject(const nsACString& aSubject) {
-  mSubject = aSubject;
-  bool strippedRE = NS_MsgStripRE(mSubject, mSubject);
-  nsCOMPtr<nsIMimeConverter> mimeConverter =
-      do_GetService("@mozilla.org/messenger/mimeconverter;1");
-  mimeConverter->DecodeMimeHeader(mSubject.get(), "UTF-8", false, true,
-                                  mDecodedSubject);
-  if (strippedRE) {
-    mFlags |= nsMsgMessageFlags::HasRe;
-  }
-  return NS_OK;
-}
+NS_IMETHODIMP nsMsgFileHdr::SetSubject(const char* aSubject) { return NS_OK; }
 
 NS_IMETHODIMP nsMsgFileHdr::GetRecipients(char** aRecipients) {
   nsresult rv = ReadFile();
@@ -304,13 +286,11 @@ NS_IMETHODIMP nsMsgFileHdr::GetRecipients(char** aRecipients) {
 }
 
 NS_IMETHODIMP nsMsgFileHdr::SetRecipients(const char* aRecipients) {
-  // FIXME: should do assignment (maybe not used but if used, a trap!)
-  // Same for all the other unimplemented setters here.
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFileHdr::SetReferences(const nsACString& references) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFileHdr::GetNumReferences(uint16_t* aNumReferences) {
@@ -319,7 +299,7 @@ NS_IMETHODIMP nsMsgFileHdr::GetNumReferences(uint16_t* aNumReferences) {
 
 NS_IMETHODIMP nsMsgFileHdr::GetStringReference(int32_t refNum,
                                                nsACString& _retval) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFileHdr::GetMime2DecodedAuthor(
@@ -367,9 +347,7 @@ NS_IMETHODIMP nsMsgFileHdr::GetRecipientsCollationKey(
 
 NS_IMETHODIMP nsMsgFileHdr::GetCharset(char** aCharset) { return NS_OK; }
 
-NS_IMETHODIMP nsMsgFileHdr::SetCharset(const char* aCharset) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
+NS_IMETHODIMP nsMsgFileHdr::SetCharset(const char* aCharset) { return NS_OK; }
 
 NS_IMETHODIMP nsMsgFileHdr::GetEffectiveCharset(nsACString& aEffectiveCharset) {
   return NS_OK;
@@ -378,7 +356,7 @@ NS_IMETHODIMP nsMsgFileHdr::GetEffectiveCharset(nsACString& aEffectiveCharset) {
 NS_IMETHODIMP nsMsgFileHdr::GetAccountKey(char** aAccountKey) { return NS_OK; }
 
 NS_IMETHODIMP nsMsgFileHdr::SetAccountKey(const char* aAccountKey) {
-  return NS_ERROR_NOT_IMPLEMENTED;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFileHdr::GetFolder(nsIMsgFolder** aFolder) { return NS_OK; }

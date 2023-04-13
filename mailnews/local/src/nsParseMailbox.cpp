@@ -1065,11 +1065,11 @@ nsresult nsParseMailMessageState::ParseEnvelope(const char* line,
 
 nsresult nsParseMailMessageState::InternSubject(struct message_header* header) {
   if (!header || header->length == 0) {
-    m_newMsgHdr->SetSubject(""_ns);
+    m_newMsgHdr->SetSubject("");
     return NS_OK;
   }
 
-  nsDependentCString key(header->value);
+  const char* key = header->value;
 
   uint32_t flags;
   (void)m_newMsgHdr->GetFlags(&flags);
@@ -1082,7 +1082,7 @@ nsresult nsParseMailMessageState::InternSubject(struct message_header* header) {
         edited the subject line by hand?)
      */
   nsCString modifiedSubject;
-  bool strippedRE = NS_MsgStripRE(key, modifiedSubject);
+  bool strippedRE = NS_MsgStripRE(nsDependentCString(key), modifiedSubject);
   if (strippedRE)
     flags |= nsMsgMessageFlags::HasRe;
   else
@@ -1090,7 +1090,7 @@ nsresult nsParseMailMessageState::InternSubject(struct message_header* header) {
   m_newMsgHdr->SetFlags(flags);  // this *does not* update the mozilla-status
                                  // header in the local folder
 
-  m_newMsgHdr->SetSubject(strippedRE ? modifiedSubject : key);
+  m_newMsgHdr->SetSubject(strippedRE ? modifiedSubject.get() : key);
 
   return NS_OK;
 }

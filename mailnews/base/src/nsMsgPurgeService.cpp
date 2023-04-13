@@ -434,7 +434,7 @@ NS_IMETHODIMP nsMsgPurgeService::OnSearchHit(nsIMsgDBHdr* aMsgHdr,
   aMsgHdr->GetMessageId(getter_Copies(messageId));
   MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
           ("messageId=%s", messageId.get()));
-  aMsgHdr->GetSubject(subject);
+  aMsgHdr->GetSubject(getter_Copies(subject));
   MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
           ("subject=%s", subject.get()));
   aMsgHdr->GetAuthor(getter_Copies(author));

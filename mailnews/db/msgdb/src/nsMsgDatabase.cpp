@@ -3616,7 +3616,7 @@ nsresult nsMsgDatabase::ThreadNewHdr(nsMsgHdr* newHdr, bool& newThread) {
     // try subject threading if we couldn't find a reference and the subject
     // starts with Re:
     nsCString subject;
-    newHdr->GetSubject(subject);
+    newHdr->GetSubject(getter_Copies(subject));
     if (ThreadBySubjectWithoutRe() ||
         (newHdrFlags & nsMsgMessageFlags::HasRe)) {
       nsAutoCString cSubject(subject);
@@ -3847,7 +3847,7 @@ nsresult nsMsgDatabase::AddNewThread(nsMsgHdr* msgHdr) {
   // table, so give it kTableKeyForThreadOne (0xfffffffe).
   if (threadKey == kAllMsgHdrsTableKey) threadKey = kTableKeyForThreadOne;
 
-  nsresult err = msgHdr->GetSubject(subject);
+  nsresult err = msgHdr->GetSubject(getter_Copies(subject));
 
   err = CreateNewThread(threadKey, subject.get(), &threadHdr);
   msgHdr->SetThreadId(threadKey);
@@ -4010,7 +4010,7 @@ nsresult nsMsgDatabase::DumpContents() {
 
       msgHdr->GetMessageKey(&key);
       msgHdr->GetAuthor(getter_Copies(author));
-      msgHdr->GetSubject(subject);
+      msgHdr->GetSubject(getter_Copies(subject));
       printf("hdr key = %u, author = %s subject = %s\n", key, author.get(),
              subject.get());
     }

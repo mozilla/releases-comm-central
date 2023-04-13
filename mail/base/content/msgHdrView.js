@@ -662,7 +662,14 @@ var messageHeaderSink2 = {
         lowerCaseHeaderName = "user-agent";
       }
 
-      // According to RFC 2822, certain headers can occur "unlimited" times.
+      // See RFC 5322 section 3.6 for min-max number for given header.
+      // If multiple headers exist we need to make sure to use the first one.
+
+      if (lowerCaseHeaderName == "subject" && !document.title) {
+        document.title = header.headerValue;
+      }
+      // according to RFC 2822, certain headers
+      // can occur "unlimited" times
       if (lowerCaseHeaderName in currentHeaderData) {
         // Sometimes, you can have multiple To or Cc lines....
         // In this case, we want to append these headers into one.
@@ -678,22 +685,6 @@ var messageHeaderSink2 = {
         }
       } else {
         currentHeaderData[lowerCaseHeaderName] = header;
-      }
-
-      // See RFC 5322 section 3.6 for min-max number for given header.
-      // If multiple headers exist we need to make sure to use the first one.
-      if (lowerCaseHeaderName == "subject" && !document.title) {
-        let fullSubject = "";
-        // Use the subject from the database, which may have been put there in
-        // decrypted form.
-        if (gMessage?.subject) {
-          if (gMessage.flags & Ci.nsMsgMessageFlags.HasRe) {
-            fullSubject = "Re: ";
-          }
-          fullSubject += gMessage.mime2DecodedSubject;
-        }
-        document.title = fullSubject || header.headerValue;
-        currentHeaderData.subject.headerValue = document.title;
       }
     } // while we have more headers to parse
 

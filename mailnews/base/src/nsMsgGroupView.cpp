@@ -158,7 +158,7 @@ nsresult nsMsgGroupView::HashHdr(nsIMsgDBHdr* msgHdr, nsString& aHashKey) {
 
   switch (m_sortType) {
     case nsMsgViewSortType::bySubject:
-      (void)msgHdr->GetSubject(cStringKey);
+      (void)msgHdr->GetSubject(getter_Copies(cStringKey));
       CopyASCIItoUTF16(cStringKey, aHashKey);
       break;
     case nsMsgViewSortType::byAuthor:

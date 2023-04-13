@@ -35,7 +35,6 @@ class nsMsgFileHdr : public nsIMsgDBHdr {
   nsCString mBccList;
   PRTime mDate;
   nsCString mMessageID;
-  uint32_t mFlags;
 };
 
 #endif

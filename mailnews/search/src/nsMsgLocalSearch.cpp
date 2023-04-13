@@ -410,7 +410,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
       err = aTerm->MatchRfc822String(matchString, charset, &result);
       break;
     case nsMsgSearchAttrib::Subject: {
-      msgToMatch->GetSubject(matchString /* , true */);
+      msgToMatch->GetSubject(getter_Copies(matchString) /* , true */);
       if (msgFlags & nsMsgMessageFlags::HasRe) {
         // Make sure we pass along the "Re: " part of the subject if this is a
         // reply.
