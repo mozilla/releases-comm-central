@@ -4010,7 +4010,7 @@ nsresult nsMsgDatabase::DumpContents() {
 
       msgHdr->GetMessageKey(&key);
       msgHdr->GetAuthor(getter_Copies(author));
-      msgHdr->GetSubject(getter_Copies(subject));
+      msgHdr->GetSubject(subject);
       printf("hdr key = %u, author = %s subject = %s\n", key, author.get(),
              subject.get());
     }
