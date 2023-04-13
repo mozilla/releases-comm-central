@@ -3616,7 +3616,7 @@ nsresult nsMsgDatabase::ThreadNewHdr(nsMsgHdr* newHdr, bool& newThread) {
     // try subject threading if we couldn't find a reference and the subject
     // starts with Re:
     nsCString subject;
-    newHdr->GetSubject(getter_Copies(subject));
+    newHdr->GetSubject(subject);
     if (ThreadBySubjectWithoutRe() ||
         (newHdrFlags & nsMsgMessageFlags::HasRe)) {
       nsAutoCString cSubject(subject);
@@ -3847,7 +3847,7 @@ nsresult nsMsgDatabase::AddNewThread(nsMsgHdr* msgHdr) {
   // table, so give it kTableKeyForThreadOne (0xfffffffe).
   if (threadKey == kAllMsgHdrsTableKey) threadKey = kTableKeyForThreadOne;
 
-  nsresult err = msgHdr->GetSubject(getter_Copies(subject));
+  nsresult err = msgHdr->GetSubject(subject);
 
   err = CreateNewThread(threadKey, subject.get(), &threadHdr);
   msgHdr->SetThreadId(threadKey);

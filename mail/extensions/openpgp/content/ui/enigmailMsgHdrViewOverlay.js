@@ -15,7 +15,6 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
   EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
@@ -801,31 +800,23 @@ Enigmail.hdrView = {
   },
 
   setSubject(subject) {
-    if (gMessage) {
-      // Strip multiple localised Re: prefixes. This emulates NS_MsgStripRE().
-      let newSubject = subject;
-      let prefixes = Services.prefs.getStringPref("mailnews.localizedRe", "Re");
-      prefixes = prefixes.split(",");
-      if (!prefixes.includes("Re")) {
-        prefixes.push("Re");
-      }
-      // Construct a regular expression like this: ^(Re: |Aw: )+
-      let regEx = new RegExp(`^(${prefixes.join(": |")}: )+`, "i");
-      newSubject = newSubject.replace(regEx, "");
-      let hadRe = newSubject != subject;
+    // Strip multiple localised Re: prefixes. This emulates NS_MsgStripRE().
+    let prefixes = Services.prefs.getStringPref("mailnews.localizedRe", "Re");
+    prefixes = prefixes.split(",");
+    if (!prefixes.includes("Re")) {
+      prefixes.push("Re");
+    }
+    // Construct a regular expression like this: ^(Re: |Aw: )+
+    let newSubject = subject.replace(
+      new RegExp(`^(${prefixes.join(": |")}: )+`, "i"),
+      ""
+    );
+    let hadRe = newSubject != subject;
 
-      // Update the header pane.
-      this.updateHdrBox("subject", hadRe ? "Re: " + newSubject : newSubject);
-
-      // Update the message.
-      let msgHdr = gMessage;
-      msgHdr.subject = EnigmailData.convertFromUnicode(newSubject, "utf-8");
-
-      let oldFlags = msgHdr.flags;
-      if (hadRe && !(oldFlags & Ci.nsMsgMessageFlags.HasRe)) {
-        let newFlags = oldFlags | Ci.nsMsgMessageFlags.HasRe;
-        msgHdr.flags = newFlags;
-      }
+    // Update the message.
+    gMessage.subject = newSubject;
+    if (hadRe) {
+      gMessage.flags |= Ci.nsMsgMessageFlags.HasRe;
     }
   },
 

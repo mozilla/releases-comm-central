@@ -75,7 +75,7 @@ interface nsIMsgDBHdr : nsISupports
     attribute string ccList;
     attribute string bccList;
     attribute string author;
-    attribute string subject;
+    attribute AUTF8String subject;
     attribute string recipients;
 
     /* anything below here still has to be fixed */
