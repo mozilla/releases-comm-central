@@ -115,7 +115,16 @@ Enigmail.msg = {
       EnigmailKeyRing.getAllKeys();
     }, 3600 * 1000); // 1 hour
 
+    // Need to add event listener to Enigmail.msg.messagePane to make it work
+    // Adding to msgFrame doesn't seem to work
+    Enigmail.msg.messagePane.addEventListener(
+      "unload",
+      Enigmail.msg.messageFrameUnload.bind(Enigmail.msg),
+      true
+    );
+
     EnigmailMsgRead.ensureExtraAddonHeaders();
+    gMessageListeners.push(Enigmail.msg.messageListener);
     Enigmail.msg.messageListener.onEndHeaders();
   },
 
