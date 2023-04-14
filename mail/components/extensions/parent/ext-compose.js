@@ -309,8 +309,6 @@ function trimContent(content) {
  * @see mail/components/extensions/schemas/compose.json
  */
 async function getComposeDetails(composeWindow, extension) {
-  await composeWindowIsReady(composeWindow);
-
   let composeFields = composeWindow.GetComposeDetails();
   let editor = composeWindow.GetCurrentEditor();
 
@@ -493,7 +491,6 @@ async function setFromField(composeWindow, details, extension) {
  * @see mail/components/extensions/schemas/compose.json
  */
 async function setComposeDetails(composeWindow, details, extension) {
-  await composeWindowIsReady(composeWindow);
   let activeElement = composeWindow.document.activeElement;
 
   // Check if conflicting formats have been specified.
@@ -1068,6 +1065,7 @@ var beforeSendEventTracker = {
 
     let sendPromise = event.detail;
     let composeWindow = event.target;
+    await composeWindowIsReady(composeWindow);
     composeWindow.ToggleWindowLock(true);
 
     // Send process waits till sendPromise.resolve() or sendPromise.reject() is
@@ -1418,15 +1416,19 @@ this.compose = class extends ExtensionAPIPersistent {
   };
 
   getAPI(context) {
-    function getComposeTab(tabId) {
+    /**
+     * Guard to make sure the API waits until the compose tab has been fully loaded,
+     * to cope with tabs.onCreated returning tabs very early.
+     *
+     * @param {integer} tabId
+     * @returns {Tab} a fully loaded messageCompose tab
+     */
+    async function getComposeTab(tabId) {
       let tab = tabManager.get(tabId);
-      if (tab instanceof TabmailTab) {
-        throw new ExtensionError("Not a valid compose window");
+      if (tab.type != "messageCompose") {
+        throw new ExtensionError(`Invalid compose tab: ${tabId}`);
       }
-      let location = tab.nativeTab.location.href;
-      if (location != COMPOSE_WINDOW_URI) {
-        throw new ExtensionError(`Not a valid compose window: ${location}`);
-      }
+      await composeWindowIsReady(tab.nativeTab);
       return tab;
     }
 
@@ -1537,7 +1539,7 @@ this.compose = class extends ExtensionAPIPersistent {
           return tabManager.convert(composeWindow);
         },
         async saveMessage(tabId, options) {
-          let tab = getComposeTab(tabId);
+          let tab = await getComposeTab(tabId);
           let saveMode = options?.mode || "draft";
 
           try {
@@ -1553,7 +1555,7 @@ this.compose = class extends ExtensionAPIPersistent {
           }
         },
         async sendMessage(tabId, options) {
-          let tab = getComposeTab(tabId);
+          let tab = await getComposeTab(tabId);
           let sendMode = options?.mode;
           if (!["sendLater", "sendNow"].includes(sendMode)) {
             sendMode = Services.io.offline ? "sendLater" : "sendNow";
@@ -1571,24 +1573,20 @@ this.compose = class extends ExtensionAPIPersistent {
             );
           }
         },
-        getComposeState(tabId) {
-          let tab = getComposeTab(tabId);
+        async getComposeState(tabId) {
+          let tab = await getComposeTab(tabId);
           return composeStates.getStates(tab);
         },
-        getComposeDetails(tabId) {
-          let tab = getComposeTab(tabId);
+        async getComposeDetails(tabId) {
+          let tab = await getComposeTab(tabId);
           return getComposeDetails(tab.nativeTab, extension);
         },
-        setComposeDetails(tabId, details) {
-          let tab = getComposeTab(tabId);
+        async setComposeDetails(tabId, details) {
+          let tab = await getComposeTab(tabId);
           return setComposeDetails(tab.nativeTab, details, extension);
         },
-        getActiveDictionaries(tabId) {
-          let tab = tabManager.get(tabId);
-          if (tab.type != "messageCompose") {
-            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
-          }
-
+        async getActiveDictionaries(tabId) {
+          let tab = await getComposeTab(tabId);
           let dictionaries = tab.nativeTab.gActiveDictionaries;
 
           // Return the list of installed dictionaries, setting those who are
@@ -1602,11 +1600,7 @@ this.compose = class extends ExtensionAPIPersistent {
             }, {});
         },
         async setActiveDictionaries(tabId, activeDictionaries) {
-          let tab = tabManager.get(tabId);
-          if (tab.type != "messageCompose") {
-            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
-          }
-
+          let tab = await getComposeTab(tabId);
           let installedDictionaries = Cc["@mozilla.org/spellchecker/engine;1"]
             .getService(Ci.mozISpellCheckingEngine)
             .getDictionaryList();
@@ -1620,10 +1614,8 @@ this.compose = class extends ExtensionAPIPersistent {
           await tab.nativeTab.ComposeChangeLanguage(activeDictionaries);
         },
         async listAttachments(tabId) {
-          let tab = tabManager.get(tabId);
-          if (tab.type != "messageCompose") {
-            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
-          }
+          let tab = await getComposeTab(tabId);
+
           let bucket = tab.nativeTab.document.getElementById(
             "attachmentBucket"
           );
@@ -1645,11 +1637,7 @@ this.compose = class extends ExtensionAPIPersistent {
           return composeAttachmentTracker.getFile(attachment);
         },
         async addAttachment(tabId, data) {
-          let tab = tabManager.get(tabId);
-          if (tab.type != "messageCompose") {
-            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
-          }
-
+          let tab = await getComposeTab(tabId);
           let attachmentData = await createAttachment(data);
           await AddAttachmentsToWindow(tab.nativeTab, [attachmentData]);
           return composeAttachmentTracker.convert(
@@ -1658,10 +1646,7 @@ this.compose = class extends ExtensionAPIPersistent {
           );
         },
         async updateAttachment(tabId, attachmentId, data) {
-          let tab = tabManager.get(tabId);
-          if (tab.type != "messageCompose") {
-            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
-          }
+          let tab = await getComposeTab(tabId);
           if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
             throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
           }
@@ -1701,10 +1686,7 @@ this.compose = class extends ExtensionAPIPersistent {
           return composeAttachmentTracker.convert(attachmentItem.attachment);
         },
         async removeAttachment(tabId, attachmentId) {
-          let tab = tabManager.get(tabId);
-          if (tab.type != "messageCompose") {
-            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
-          }
+          let tab = await getComposeTab(tabId);
           if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
             throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
           }
