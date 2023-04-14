@@ -570,10 +570,6 @@ class AddrBookDirectory {
     }
     this.saveCardProperties(card.UID, newProperties);
 
-    // Send the card as it is in this directory, not as passed to this function.
-    let newCard = this.getCard(card.UID);
-    Services.obs.notifyObservers(newCard, "addrbook-contact-updated", this.UID);
-
     let changeData = {};
     for (let name of allProperties) {
       if (name == "LastModifiedDate") {
@@ -595,6 +591,10 @@ class AddrBookDirectory {
         Services.prefs.getIntPref("mail.displayname.version", 0) + 1
       );
     }
+
+    // Send the card as it is in this directory, not as passed to this function.
+    let newCard = this.getCard(card.UID);
+    Services.obs.notifyObservers(newCard, "addrbook-contact-updated", this.UID);
 
     Services.obs.notifyObservers(
       newCard,

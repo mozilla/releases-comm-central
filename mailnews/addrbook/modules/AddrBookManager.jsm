@@ -196,6 +196,7 @@ let addressCacheTimer = null;
 // get the updated version of the card that changed.
 Services.prefs.addObserver("mail.displayname.version", () => {
   addressCache.clear();
+  Services.obs.notifyObservers(null, "addrbook-displayname-changed");
 });
 
 /**

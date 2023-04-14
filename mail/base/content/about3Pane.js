@@ -2634,6 +2634,8 @@ var threadPane = {
     this.setUpTagStyles();
     Services.prefs.addObserver("mailnews.tags.", this);
 
+    Services.obs.addObserver(this, "addrbook-displayname-changed");
+
     // Ensure TreeView and its classes are properly defined.
     await customElements.whenDefined("tree-view-table-row");
 
@@ -2741,6 +2743,7 @@ var threadPane = {
 
   uninit() {
     Services.prefs.removeObserver("mailnews.tags.", this);
+    Services.obs.removeObserver(this, "addrbook-displayname-changed");
   },
 
   handleEvent(event) {
@@ -2780,6 +2783,8 @@ var threadPane = {
   observe(subject, topic, data) {
     if (topic == "nsPref:changed") {
       this.setUpTagStyles();
+    } else if (topic == "addrbook-displayname-changed") {
+      threadTree.invalidate();
     }
   },
 
