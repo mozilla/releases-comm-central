@@ -288,16 +288,7 @@
   z-index: 2;
 }
 
-.button-group :is(.button, input):hover {
-  border: none;
-}
-
-.button-group :is(.button, input):hover:active {
-  border: none;
-}
-
 .button-group .button:focus-visible {
-  border: none;
   outline-offset: 0;
   z-index: 3;
 }
