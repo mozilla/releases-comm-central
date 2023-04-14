@@ -11,7 +11,7 @@
 }
 
 .spacer .preview-icon {
-  content: var(--icon-spaces-menu);
+  content: var(--icon-flexible-space);
 }
 
 .search-bar .preview-icon {

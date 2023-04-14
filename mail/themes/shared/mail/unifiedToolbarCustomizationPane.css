@@ -42,8 +42,32 @@
 }
 
 .toolbar-target .spacer {
-  height: 2em;
-  background: var(--color-gray-40);
+  height: 2px;
+  border-top: 2px dashed currentColor;
+  margin-inline: 19px;
+  position: relative;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
+  opacity: 0.5;
+}
+
+.toolbar-target .spacer::before,
+.toolbar-target .spacer::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  top: -9px;
+}
+
+.toolbar-target .spacer::before {
+  background-image: var(--icon-nav-left);
+  left: -16px;
+}
+
+.toolbar-target .spacer::after {
+  background-image: var(--icon-nav-right);
+  right: -16px;
 }
 
 .toolbar-target .throbber .throbber-icon {
