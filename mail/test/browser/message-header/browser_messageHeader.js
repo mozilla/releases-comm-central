@@ -316,7 +316,7 @@ add_task(async function enter_msg_hdr_toolbar() {
   // Make sure it loads.
   assert_selected_and_displayed(mc, curMessage);
 
-  const BUTTONS_SELECTOR = `toolbarbutton:not([hidden="true"],[is="toolbarbutton-menu-button"]), button:not([hidden])`;
+  const BUTTONS_SELECTOR = `toolbarbutton:not([hidden="true"],[is="toolbarbutton-menu-button"]), toolbaritem[id="hdrSmartReplyButton"]>toolbarbutton:not([hidden="true"])>dropmarker, button:not([hidden])`;
   let headerToolbar = aboutMessage.document.getElementById(
     "header-view-toolbar"
   );

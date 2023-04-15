@@ -5031,7 +5031,7 @@ var headerToolbarNavigation = {
    */
   get headerButtons() {
     return this.headerToolbar.querySelectorAll(
-      `toolbarbutton:not([hidden="true"],[is="toolbarbutton-menu-button"]), button:not([hidden])`
+      `toolbarbutton:not([hidden="true"],[is="toolbarbutton-menu-button"]),toolbaritem[id="hdrSmartReplyButton"]>toolbarbutton:not([hidden="true"])>dropmarker, button:not([hidden])`
     );
   },
 
@@ -5084,9 +5084,21 @@ var headerToolbarNavigation = {
       event.key == "Enter" ||
       (event.key == " " && event.target.hasAttribute("type"))
     ) {
-      event.preventDefault();
-      event.target.click();
-      return;
+      if (
+        event.target.getAttribute("class") ==
+        "toolbarbutton-menubutton-dropmarker"
+      ) {
+        event.preventDefault();
+        event.target.parentNode
+          .querySelector("menupopup")
+          .openPopup(event.target.parentNode, "after_end", {
+            triggerEvent: event,
+          });
+      } else {
+        event.preventDefault();
+        event.target.click();
+        return;
+      }
     }
 
     // Find the adjacent focusable element based on the pressed key.
