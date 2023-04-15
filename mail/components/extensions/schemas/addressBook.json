@@ -85,9 +85,21 @@
       {
         "name": "openUI",
         "type": "function",
-        "async": true,
+        "async": "callback",
         "description": "Opens the address book user interface.",
-        "parameters": []
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "return",
+                "$ref": "tabs.Tab"
+              }
+            ]
+          }
+        ]
       },
       {
         "name": "closeUI",

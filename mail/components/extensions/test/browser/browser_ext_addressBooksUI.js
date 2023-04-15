@@ -42,13 +42,32 @@ add_task(async function testUI() {
     await window.sendMessage("checkNumberOfAddressBookTabs", 0);
     await checkNumberOfAddressBookTabs(0);
 
-    await browser.addressBooks.openUI();
+    let abTab1 = await browser.addressBooks.openUI();
+    browser.test.log(JSON.stringify(abTab1));
+    browser.test.assertEq(
+      "addressBook",
+      abTab1.type,
+      "Should have found an addressBook tab"
+    );
     await window.sendMessage("checkNumberOfAddressBookTabs", 1);
     await checkNumberOfAddressBookTabs(1);
 
     await browser.addressBooks.openUI();
+    let abTab2 = await browser.addressBooks.openUI();
+    browser.test.log(JSON.stringify(abTab2));
+    browser.test.assertEq(
+      "addressBook",
+      abTab2.type,
+      "Should have found an addressBook tab"
+    );
     await window.sendMessage("checkNumberOfAddressBookTabs", 1);
     await checkNumberOfAddressBookTabs(1);
+
+    browser.test.assertEq(
+      abTab1.id,
+      abTab2.id,
+      "addressBook tabs should be identical"
+    );
 
     await browser.addressBooks.closeUI();
     await window.sendMessage("checkNumberOfAddressBookTabs", 0);

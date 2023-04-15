@@ -1084,12 +1084,19 @@ this.addressBook = class extends ExtensionAPIPersistent {
   }
 
   getAPI(context) {
+    let { extension } = context;
+    let { tabManager } = extension;
+
     return {
       addressBooks: {
         async openUI() {
           let messengerWindow = windowTracker.topNormalWindow;
           let abWindow = await messengerWindow.toAddressBook();
-          return new Promise(resolve => abWindow.setTimeout(resolve));
+          await new Promise(resolve => abWindow.setTimeout(resolve));
+          let abTab = messengerWindow.document
+            .getElementById("tabmail")
+            .tabInfo.find(t => t.mode.name == "addressBookTab");
+          return tabManager.convert(abTab);
         },
         async closeUI() {
           for (let win of Services.wm.getEnumerator("mail:3pane")) {
