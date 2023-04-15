@@ -4,7 +4,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 calendar.jar:
-% resource calendar .
 % override chrome://messagebody/skin/imip.css chrome://calendar/skin/imip.css
 % override chrome://messagebody/skin/calendar-attendees.css chrome://calendar/skin/shared/calendar-attendees.css
 % override chrome://messagebody/skin/calendar-event-dialog-attendees.png chrome://calendar/skin/shared/calendar-event-dialog-attendees.png
