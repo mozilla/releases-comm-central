@@ -23,13 +23,8 @@ var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "DownloadUtils",
-  "resource://gre/modules/DownloadUtils.jsm"
-);
-
 ChromeUtils.defineESModuleGetters(this, {
+  DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
   PlacesDBUtils: "resource://gre/modules/PlacesDBUtils.sys.mjs",
   PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
   ProcessType: "resource://gre/modules/ProcessType.sys.mjs",

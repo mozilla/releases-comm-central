@@ -34,6 +34,7 @@ XPCOMUtils.defineLazyGetter(
 );
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
   InteractiveBrowser: "resource:///modules/InteractiveBrowser.sys.mjs",
   MatrixCrypto: "resource:///modules/matrix-sdk.sys.mjs",
   MatrixMessageContent: "resource:///modules/matrixMessageContent.sys.mjs",
@@ -43,10 +44,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ReceiptType: "resource:///modules/matrix-sdk.sys.mjs",
   SasEvent: "resource:///modules/matrix-sdk.sys.mjs",
   SyncState: "resource:///modules/matrix-sdk.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  DownloadUtils: "resource://gre/modules/DownloadUtils.jsm",
 });
 
 /**

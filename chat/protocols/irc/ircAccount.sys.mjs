@@ -30,15 +30,10 @@ import { Socket } from "resource:///modules/socket.sys.mjs";
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
   PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
   ircHandlers: "resource:///modules/ircHandlers.sys.mjs",
 });
-
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "DownloadUtils",
-  "resource://gre/modules/DownloadUtils.jsm"
-);
 
 XPCOMUtils.defineLazyGetter(lazy, "_conv", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")

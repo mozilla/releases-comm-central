@@ -6,12 +6,6 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "DownloadUtils",
-  "resource://gre/modules/DownloadUtils.jsm"
-);
-
 const ParserUtils = Cc["@mozilla.org/parserutils;1"].getService(
   Ci.nsIParserUtils
 );
@@ -45,6 +39,7 @@ XPCOMUtils.defineLazyGetter(lazy, "gTimeFormatter", () => {
 });
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
   ToLocaleFormat: "resource:///modules/ToLocaleFormat.sys.mjs",
 });
 

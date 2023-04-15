@@ -12,8 +12,8 @@
 // ------------------------------
 // Constants & Enumeration Values
 
-var { DownloadUtils } = ChromeUtils.import(
-  "resource://gre/modules/DownloadUtils.jsm"
+var { DownloadUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/DownloadUtils.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"

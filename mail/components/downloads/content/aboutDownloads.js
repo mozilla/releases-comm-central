@@ -10,12 +10,8 @@
 
 ChromeUtils.defineESModuleGetters(this, {
   Downloads: "resource://gre/modules/Downloads.sys.mjs",
+  DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
 });
-ChromeUtils.defineModuleGetter(
-  this,
-  "DownloadUtils",
-  "resource://gre/modules/DownloadUtils.jsm"
-);
 
 window.addEventListener("load", event => {
   DownloadsView.init();

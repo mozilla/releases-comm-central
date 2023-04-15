@@ -8,8 +8,8 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { DownloadUtils } = ChromeUtils.import(
-    "resource://gre/modules/DownloadUtils.jsm"
+  const { DownloadUtils } = ChromeUtils.importESModule(
+    "resource://gre/modules/DownloadUtils.sys.mjs"
   );
   const { ChatIcons } = ChromeUtils.importESModule(
     "resource:///modules/chatIcons.sys.mjs"

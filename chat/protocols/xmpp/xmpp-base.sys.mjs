@@ -30,13 +30,8 @@ import {
 import { XMPPSession } from "resource:///modules/xmpp-session.sys.mjs";
 
 const lazy = {};
-
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "DownloadUtils",
-  "resource://gre/modules/DownloadUtils.jsm"
-);
 ChromeUtils.defineESModuleGetters(lazy, {
+  DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
 });
 ChromeUtils.defineModuleGetter(

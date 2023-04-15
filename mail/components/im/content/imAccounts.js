@@ -6,14 +6,15 @@
 /* globals statusSelector */
 /* globals MsgAccountManager */
 
+var { DownloadUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/DownloadUtils.sys.mjs"
+);
+
 var { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
-);
-var { DownloadUtils } = ChromeUtils.import(
-  "resource://gre/modules/DownloadUtils.jsm"
 );
 ChromeUtils.defineESModuleGetters(this, {
   PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
