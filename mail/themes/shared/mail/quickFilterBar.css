@@ -55,6 +55,7 @@
   height: unset;
   margin: 3px;
   padding-block: 3px;
+  max-width: 450px;
 }
 
 @media (-moz-platform: windows-win7) {
@@ -64,7 +65,6 @@
 }
 
 #quick-filter-bar-tab-bar:not([hidden]) {
-  flex: 2;
   display: flex;
   align-items: center;
 }

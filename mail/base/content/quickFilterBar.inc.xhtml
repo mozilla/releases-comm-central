@@ -4,6 +4,12 @@
 
     <div id="quick-filter-bar" class="themeable-brighttext">
       <div id="quick-filter-bar-main-bar">
+        <xul:search-textbox id="qfb-qs-textbox"
+                            class="themeableSearchBox"
+                            timeout="500"
+                            maxlength="192"
+                            data-l10n-id="quick-filter-bar-textbox"
+                            data-l10n-attrs="placeholder" />
         <button is="toggle-button" id="qfb-sticky"
                 class="button icon-button icon-only check-button"
                 data-l10n-id="quick-filter-bar-sticky">
@@ -36,12 +42,6 @@
           </button>
         </div>
         <span id="qfb-results-label"></span>
-        <xul:search-textbox id="qfb-qs-textbox"
-                            class="themeableSearchBox"
-                            timeout="500"
-                            maxlength="192"
-                            data-l10n-id="quick-filter-bar-textbox"
-                            data-l10n-attrs="placeholder"/>
       </div>
       <div id="quick-filter-bar-expando">
         <div id="quick-filter-bar-tab-bar" hidden="hidden">
@@ -57,7 +57,6 @@
             </xul:menupopup>
           </xul:menulist>
         </div>
-        <div style="flex: 1;"></div>
         <div id="quick-filter-bar-filter-text-bar" hidden="hidden">
           <span id="qfb-qs-label"
                 data-l10n-id="quick-filter-bar-text-filter-explanation"></span>
