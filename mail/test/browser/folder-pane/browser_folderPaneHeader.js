@@ -206,6 +206,118 @@ add_task(async function testTogglePaneHeaderFromAppMenu() {
 });
 
 /**
+ * Test the toggle that shows/hides the buttons on the folder pane header from
+ * the context menu.
+ */
+add_task(async function testTogglePaneHeaderButtons() {
+  Assert.ok(!folderPaneHeader.hidden, "The folder pane header is visible");
+  Assert.ok(!fetchButton.hidden, "The Get Messages button is visible");
+  Assert.ok(!newButton.hidden, "The New Message button is visible");
+
+  let folderPaneHdrToggleBtns = [
+    {
+      menuId: "#folderPaneHeaderToggleGetMessages",
+      buttonId: "#folderPaneGetMessages",
+      label: "Get messages",
+    },
+    {
+      menuId: "#folderPaneHeaderToggleNewMessage",
+      buttonId: "#folderPaneWriteMessage",
+      label: "New message",
+    },
+  ];
+
+  for (let toggle of folderPaneHdrToggleBtns) {
+    let toggleMenuItem = moreContext.querySelector(toggle.menuId);
+    let toggleButton = folderPaneHeader.querySelector(toggle.buttonId);
+    let shouldBeChecked = !toggleButton.hidden;
+
+    // Hide the toggle buttons
+    let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+    EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+    await shownPromise;
+
+    Assert.equal(
+      toggleMenuItem.hasAttribute("checked"),
+      shouldBeChecked,
+      `The "${toggle.label}" menuitem should ${
+        shouldBeChecked ? "" : "not"
+      } be checked`
+    );
+
+    EventUtils.synthesizeMouseAtCenter(toggleMenuItem, {}, about3Pane);
+
+    await BrowserTestUtils.waitForCondition(
+      () => !toggleMenuItem.hasAttribute("checked"),
+      `The ${toggle.label} menu item is unchecked`
+    );
+
+    await BrowserTestUtils.waitForCondition(
+      () => toggleButton.hidden,
+      `The ${toggle.label}  button is hidden`
+    );
+
+    let buttonName =
+      toggle.buttonId == "#folderPaneGetMessages"
+        ? "folderPaneGetMessages"
+        : "folderPaneWriteMessage";
+    await BrowserTestUtils.waitForCondition(
+      () =>
+        Services.xulStore.getValue(
+          "chrome://messenger/content/messenger.xhtml",
+          buttonName,
+          "hidden"
+        ) == "true",
+      "The customization data was saved"
+    );
+
+    let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+      moreContext,
+      "popuphidden"
+    );
+    EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+    await menuHiddenPromise;
+
+    // display the toggle buttons
+    EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+    await shownPromise;
+
+    shouldBeChecked = !toggleButton.hidden;
+
+    Assert.equal(
+      toggleMenuItem.hasAttribute("checked"),
+      shouldBeChecked,
+      `The "${toggle.label}" menuitem should ${
+        shouldBeChecked ? "" : "not"
+      } be checked`
+    );
+    EventUtils.synthesizeMouseAtCenter(toggleMenuItem, {}, about3Pane);
+
+    await BrowserTestUtils.waitForCondition(
+      () => toggleMenuItem.hasAttribute("checked"),
+      `The ${toggle.label} menu item is checked`
+    );
+
+    await BrowserTestUtils.waitForCondition(
+      () => !toggleButton.hidden,
+      `The ${toggle.label} button is not hidden`
+    );
+    await BrowserTestUtils.waitForCondition(
+      () =>
+        Services.xulStore.getValue(
+          "chrome://messenger/content/messenger.xhtml",
+          buttonName,
+          "hidden"
+        ) == "false",
+      "The customization data was saved"
+    );
+
+    EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+    await menuHiddenPromise;
+  }
+});
+
+/**
  * Test the default state of the context menu in the about3Pane.
  */
 add_task(async function testInitialActiveModes() {

@@ -1074,6 +1074,12 @@ var folderPane = {
       .addEventListener("click", event => {
         top.MsgNewMessage(event);
       });
+    document.getElementById(
+      "folderPaneGetMessages"
+    ).hidden = this.isFolderPaneGetMsgsBtnHidden();
+    document.getElementById(
+      "folderPaneWriteMessage"
+    ).hidden = this.isFolderPaneNewMsgBtnHidden();
     this.moreContext = document.getElementById("folderPaneMoreContext");
     document
       .getElementById("folderPaneMoreButton")
@@ -2330,21 +2336,68 @@ var folderPane = {
     ).disabled = !canWriteMessages;
   },
 
+  isFolderPaneGetMsgsBtnHidden() {
+    return this.isItemHidden("folderPaneGetMessages");
+  },
+
+  isFolderPaneNewMsgBtnHidden() {
+    return this.isItemHidden("folderPaneWriteMessage");
+  },
+
   isFolderPaneHeaderHidden() {
-    return (
-      Services.xulStore.getValue(
-        XULSTORE_URL,
-        "folderPaneHeaderBar",
-        "hidden"
-      ) == "true"
-    );
+    return this.isItemHidden("folderPaneHeaderBar");
+  },
+
+  isItemHidden(item) {
+    return Services.xulStore.getValue(XULSTORE_URL, item, "hidden") == "true";
+  },
+
+  /**
+   * Ensure the pane header context menu items are correctly checked.
+   */
+  updateContextMenuCheckedItems() {
+    for (let item of document.querySelectorAll(".folder-pane-toggles")) {
+      switch (item.id) {
+        case "folderPaneHeaderToggleGetMessages":
+          this.isFolderPaneGetMsgsBtnHidden()
+            ? item.removeAttribute("checked")
+            : item.setAttribute("checked", true);
+          break;
+        case "folderPaneHeaderToggleNewMessage":
+          this.isFolderPaneNewMsgBtnHidden()
+            ? item.removeAttribute("checked")
+            : item.setAttribute("checked", true);
+          break;
+        default:
+          item.removeAttribute("checked");
+          break;
+      }
+    }
+  },
+
+  toggleGetMsgsBtn(event) {
+    let show = event.target.hasAttribute("checked");
+    document.getElementById("folderPaneGetMessages").hidden = !show;
+
+    this.toggleItem("folderPaneGetMessages", show);
+  },
+
+  toggleNewMsgBtn(event) {
+    let show = event.target.hasAttribute("checked");
+    document.getElementById("folderPaneWriteMessage").hidden = !show;
+
+    this.toggleItem("folderPaneWriteMessage", show);
   },
 
   toggleHeader(show) {
     document.getElementById("folderPaneHeaderBar").hidden = !show;
+    this.toggleItem("folderPaneHeaderBar", show);
+  },
+
+  toggleItem(item, show) {
     Services.xulStore.setValue(
       XULSTORE_URL,
-      "folderPaneHeaderBar",
+      item,
       "hidden",
       show ? "false" : "true"
     );

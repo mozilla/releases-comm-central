@@ -135,6 +135,14 @@ folder-pane-write-message-button = New Message
 folder-pane-more-menu-button =
   .title = Folder pane options
 
+# Context menu item to toggle display of "Get messages" button in folder pane header
+folder-pane-header-context-toggle-get-messages =
+  .label = Show “Get messages”
+
+# Context menu item to toggle display of "New Message" button in folder pane header
+folder-pane-header-context-toggle-new-message =
+  .label = Show “New message”
+
 folder-pane-header-context-hide =
   .label = Hide Folder Pane Header
 

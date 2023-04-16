@@ -371,7 +371,8 @@
   <menupopup id="folderPaneMoreContext"
              class="no-accel-menupopup"
              position="bottomleft topleft"
-             onpopupshowing="folderPane.updateContextCheckedFolderMode();">
+             onpopupshowing="folderPane.updateContextCheckedFolderMode();folderPane.updateContextMenuCheckedItems();">
+             <!--Calling 2 commands, folder command will be moved to subfolder once child patch lands-->
     <menuitem id="folderPaneMoreContextAllFolders"
               class="folder-pane-mode"
               value="all"
@@ -408,6 +409,19 @@
               data-l10n-id="show-recent-folders-label"
               oncommand="folderPane.toggleFolderMode(event);"/>
     <menuseparator id="separatorAfterFolderViewOptions"/>
+    <menuitem id="folderPaneHeaderToggleGetMessages"
+              class="folder-pane-toggles"
+              type="checkbox"
+              closemenu="none"
+              data-l10n-id="folder-pane-header-context-toggle-get-messages"
+              oncommand="folderPane.toggleGetMsgsBtn(event);"/>
+    <menuitem id="folderPaneHeaderToggleNewMessage"
+              class="folder-pane-toggles"
+              type="checkbox"
+              closemenu="none"
+              data-l10n-id="folder-pane-header-context-toggle-new-message"
+              oncommand="folderPane.toggleNewMsgBtn(event);"/>
+    <menuseparator id="separatorBeforeHideFolderPaneHeaderOption"/>
     <menuitem id="folderPaneHeaderHideMenuItem"
               data-l10n-id="folder-pane-header-context-hide"
               oncommand="folderPane.toggleHeader(false);"/>
