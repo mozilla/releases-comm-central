@@ -1086,6 +1086,14 @@ var folderPane = {
       .addEventListener("click", event => {
         this.moreContext.openPopup(event.target, { triggerEvent: event });
       });
+    this.subFolderContext = document.getElementById(
+      "folderModesContextMenuPopup"
+    );
+    document
+      .getElementById("folderModesContextMenuPopup")
+      .addEventListener("click", event => {
+        this.subFolderContext.openPopup(event.target, { triggerEvent: event });
+      });
 
     this.updateWidgets();
   },

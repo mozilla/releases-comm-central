@@ -12,7 +12,9 @@ let tabmail,
   fetchButton,
   newButton,
   moreButton,
-  moreContext;
+  moreContext,
+  folderModesContextMenu,
+  folderModesContextMenuPopup;
 
 add_setup(async function() {
   tabmail = document.getElementById("tabmail");
@@ -22,6 +24,12 @@ add_setup(async function() {
   newButton = folderPaneHeader.querySelector("#folderPaneWriteMessage");
   moreButton = folderPaneHeader.querySelector("#folderPaneMoreButton");
   moreContext = about3Pane.document.getElementById("folderPaneMoreContext");
+  folderModesContextMenu = about3Pane.document.getElementById(
+    "folderModesContextMenu"
+  );
+  folderModesContextMenuPopup = about3Pane.document.getElementById(
+    "folderModesContextMenuPopup"
+  );
 
   registerCleanupFunction(() => {
     Services.xulStore.removeDocument(
@@ -323,8 +331,16 @@ add_task(async function testTogglePaneHeaderButtons() {
 add_task(async function testInitialActiveModes() {
   let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-
   await shownPromise;
+
+  let shownFolderModesSubMenuPromise = BrowserTestUtils.waitForEvent(
+    folderModesContextMenuPopup,
+    "popupshown"
+  );
+
+  EventUtils.synthesizeMouseAtCenter(folderModesContextMenu, {}, about3Pane);
+  await shownFolderModesSubMenuPromise;
+
   Assert.equal(
     about3Pane.folderPane.activeModes.length,
     1,
