@@ -1667,7 +1667,10 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
         let evt = new CustomEvent("TabSelect", {
           bubbles: true,
-          detail: { tabInfo: tab },
+          detail: {
+            tabInfo: tab,
+            previousTabInfo: oldTab,
+          },
         });
         this.tabContainer.selectedItem.dispatchEvent(evt);
       }

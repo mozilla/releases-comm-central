@@ -383,6 +383,7 @@ add_task(async () => {
           "Activate each of the tabs in a somewhat random order to test the onActivated event."
         );
 
+        let previousTabId = messageTab1;
         for (let tab of [
           initialTab,
           calendarTab,
@@ -401,8 +402,10 @@ add_task(async () => {
           );
           await listener.checkEvent("onActivated", {
             tabId: tab,
+            previousTabId,
             windowId: initialWindow,
           });
+          previousTabId = tab;
         }
 
         browser.test.log(
@@ -460,9 +463,12 @@ add_task(async () => {
           });
         }
 
+        // Since the last tab was activated because all other tabs have been
+        // removed, previousTabId should be undefined.
         await listener.checkEvent("onActivated", {
           tabId: initialTab,
           windowId: initialWindow,
+          previousTabId: undefined,
         });
 
         browser.test.assertEq(0, listener.events.length);

@@ -147,7 +147,8 @@ this.tabs = class extends ExtensionAPIPersistent {
     onActivated: this.tabEventRegistrar({
       tabEvent: "tab-activated",
       listener: ({ context, fire, event }) => {
-        fire.async(event);
+        let { tabId, windowId, previousTabId } = event;
+        fire.async({ tabId, windowId, previousTabId });
       },
     }),
 

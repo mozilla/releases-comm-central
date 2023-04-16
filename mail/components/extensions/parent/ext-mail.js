@@ -680,7 +680,7 @@ class TabTracker extends TabTrackerBase {
         // Because we are delaying calling emitCreated above, we also need to
         // delay sending this event because it shouldn't fire before onCreated.
         Promise.resolve().then(() => {
-          this.emitActivated(nativeTabInfo);
+          this.emitActivated(nativeTabInfo, event.detail.previousTabInfo);
         });
         break;
     }
@@ -742,10 +742,16 @@ class TabTracker extends TabTrackerBase {
    * Emits a "tab-activated" event for the given tab info.
    *
    * @param {NativeTabInfo} nativeTabInfo - The tab info which has been activated.
+   * @param {NativeTab} previousTabInfo - The previously active tab element.
    */
-  emitActivated(nativeTabInfo) {
+  emitActivated(nativeTabInfo, previousTabInfo) {
+    let previousTabId;
+    if (previousTabInfo && !previousTabInfo.closed) {
+      previousTabId = this.getId(previousTabInfo);
+    }
     this.emit("tab-activated", {
       tabId: this.getId(nativeTabInfo),
+      previousTabId,
       windowId: windowTracker.getId(getTabWindow(nativeTabInfo)),
     });
   }
