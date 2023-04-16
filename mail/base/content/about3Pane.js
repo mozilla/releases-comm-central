@@ -2498,7 +2498,14 @@ class FolderTreeRow extends HTMLLIElement {
 
   set unreadCount(value) {
     this.classList.toggle("unread", value > 0);
-    this.unreadCountLabel.textContent = value;
+    // Avoid setting `textContent` if possible, each change notifies the
+    // MutationObserver on `folderTree`, and there could be *many* changes.
+    let textNode = this.unreadCountLabel.firstChild;
+    if (textNode) {
+      textNode.nodeValue = value;
+    } else {
+      this.unreadCountLabel.textContent = value;
+    }
   }
 
   /**
