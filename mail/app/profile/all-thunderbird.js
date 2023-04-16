@@ -805,6 +805,9 @@ pref("places.frecency.defaultVisitBonus", 0);
 pref("places.frecency.unvisitedBookmarkBonus", 140);
 pref("places.frecency.unvisitedTypedBonus", 200);
 
+// Enables alternative frecency calculation for origins.
+pref("places.frecency.origins.alternative.featureGate", false);
+
 // Windows taskbar support
 #ifdef XP_WIN
 pref("mail.taskbar.lists.enabled", true);
