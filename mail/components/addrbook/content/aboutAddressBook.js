@@ -2074,7 +2074,7 @@ var cardsPane = {
 
   _showContextMenu(event) {
     let row;
-    if (event.target == this.cardsList) {
+    if (event.target == this.cardsList.table.body) {
       row = this.cardsList.getRowAtIndex(this.cardsList.currentIndex);
     } else {
       row = event.target.closest(
