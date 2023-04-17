@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var EXPORTED_SYMBOLS = ["CalICSCalendar"];
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalReadableStreamFactory } = ChromeUtils.import(
   "resource:///modules/CalReadableStreamFactory.jsm"
@@ -15,11 +13,8 @@ var { CalReadableStreamFactory } = ChromeUtils.import(
 //
 // XXX Should do locks, so that external changes are not overwritten.
 
-var calICalendar = Ci.calICalendar;
-var calIErrors = Ci.calIErrors;
-
 function icsNSResolver(prefix) {
-  const ns = { D: "DAV:" }; // eslint-disable-line id-length
+  const ns = { D: "DAV:" };
   return ns[prefix] || null;
 }
 
@@ -27,15 +22,6 @@ function icsXPathFirst(aNode, aExpr, aType) {
   return cal.xml.evalXPathFirst(aNode, aExpr, icsNSResolver, aType);
 }
 
-function CalICSCalendar() {
-  this.initProviderBase();
-  this.initICSCalendar();
-
-  this.unmappedComponents = [];
-  this.unmappedProperties = [];
-  this.queue = [];
-  this.mModificationActions = [];
-}
 var calICSCalendarClassID = Components.ID("{f8438bff-a3c9-4ed5-b23f-2663b5469abf}");
 var calICSCalendarInterfaces = [
   "calICalendar",
@@ -45,133 +31,290 @@ var calICSCalendarInterfaces = [
   "nsIStreamListener",
   "nsIStreamLoaderObserver",
 ];
-CalICSCalendar.prototype = {
-  __proto__: cal.provider.BaseClass.prototype,
-  classID: calICSCalendarClassID,
-  QueryInterface: cal.generateQI(calICSCalendarInterfaces),
-  classInfo: cal.generateCI({
+
+/**
+ * @implements {calICalendar}
+ * @implements {calISchedulingSupport}
+ * @implements {nsIChannelEventSink}
+ * @implements {nsIInterfaceRequestor}
+ * @implements {nsIStreamListener}
+ * @implements {nsIStreamLoaderObserver}
+ */
+export class CalICSCalendar extends cal.provider.BaseClass {
+  classID = calICSCalendarClassID;
+  QueryInterface = cal.generateQI(calICSCalendarInterfaces);
+  classInfo = cal.generateCI({
     classID: calICSCalendarClassID,
     contractID: "@mozilla.org/calendar/calendar;1?type=ics",
     classDescription: "Calendar ICS provider",
     interfaces: calICSCalendarInterfaces,
-  }),
+  });
 
-  mObserver: null,
-  locked: false,
+  #hooks = null;
+  #memoryCalendar = null;
+  #modificationActions = [];
+  #observer = null;
+  #uri = null;
+  #locked = false;
+  #unmappedComponents = [];
+  #unmappedProperties = [];
+
+  // Public to allow access by calCachedCalendar
+  _queue = [];
+
+  constructor() {
+    super();
+
+    this.initProviderBase();
+    this.initICSCalendar();
+  }
 
   initICSCalendar() {
-    this.mMemoryCalendar = Cc["@mozilla.org/calendar/calendar;1?type=memory"].createInstance(
+    this.#memoryCalendar = Cc["@mozilla.org/calendar/calendar;1?type=memory"].createInstance(
       Ci.calICalendar
     );
 
-    this.mMemoryCalendar.superCalendar = this;
-    this.mObserver = new calICSObserver(this);
-    this.mMemoryCalendar.addObserver(this.mObserver); // XXX Not removed
-  },
+    this.#memoryCalendar.superCalendar = this;
+    this.#observer = new calICSObserver(this);
+    this.#memoryCalendar.addObserver(this.#observer); // XXX Not removed
+  }
 
   //
   // calICalendar interface
   //
   get type() {
     return "ics";
-  },
+  }
 
   get canRefresh() {
     return true;
-  },
+  }
 
   get uri() {
-    return this.mUri;
-  },
-  set uri(aUri) {
-    this.mUri = aUri;
-    this.mMemoryCalendar.uri = this.mUri;
+    return this.#uri;
+  }
 
-    // Use the ioservice, to create a channel, which makes finding the
-    // right hooks to use easier.
-    let channel = Services.io.newChannelFromURI(
-      this.mUri,
-      null,
-      Services.scriptSecurityManager.getSystemPrincipal(),
-      null,
-      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-      Ci.nsIContentPolicy.TYPE_OTHER
-    );
+  set uri(uri) {
+    this.#uri = uri;
+    this.#memoryCalendar.uri = this.#uri;
 
-    if (channel.URI.schemeIs("http") || channel.URI.schemeIs("https")) {
-      this.mHooks = new httpHooks(this);
-    } else if (channel.URI.schemeIs("file")) {
-      this.mHooks = new fileHooks(this);
+    if (this.#uri.schemeIs("http") || this.#uri.schemeIs("https")) {
+      this.#hooks = new httpHooks(this);
+    } else if (this.#uri.schemeIs("file")) {
+      this.#hooks = new fileHooks();
     } else {
-      this.mHooks = new dummyHooks(this);
+      this.#hooks = new dummyHooks();
     }
-  },
+  }
 
   getProperty(aName) {
     switch (aName) {
       case "requiresNetwork":
         return !this.uri.schemeIs("file");
     }
-    return this.__proto__.__proto__.getProperty.apply(this, arguments);
-  },
+
+    return super.getProperty(aName);
+  }
 
   get supportsScheduling() {
     return true;
-  },
+  }
 
   getSchedulingSupport() {
     return this;
-  },
+  }
+
+  // Always use the queue, just to reduce the amount of places where
+  // this.mMemoryCalendar.addItem() and friends are called. less
+  // copied code.
+  addItem(aItem) {
+    return this.adoptItem(aItem.clone());
+  }
+
+  // Used to allow the cachedCalendar provider to hook into adoptItem() before
+  // it returns.
+  _cachedAdoptItemCallback = null;
+
+  async adoptItem(aItem) {
+    if (this.readOnly) {
+      throw new Components.Exception("Calendar is not writable", Ci.calIErrors.CAL_IS_READONLY);
+    }
+
+    let adoptCallback = this._cachedAdoptItemCallback;
+
+    let item = await new Promise(resolve => {
+      this.startBatch();
+      this._queue.push({
+        action: "add",
+        item: aItem,
+        listener: item => {
+          this.endBatch();
+          resolve(item);
+        },
+      });
+      this._processQueue();
+    });
+
+    if (adoptCallback) {
+      await adoptCallback(item.calendar, Cr.NS_OK, Ci.calIOperationListener.ADD, item.id, item);
+    }
+    return item;
+  }
+
+  // Used to allow the cachedCalendar provider to hook into modifyItem() before
+  // it returns.
+  _cachedModifyItemCallback = null;
+
+  async modifyItem(aNewItem, aOldItem) {
+    if (this.readOnly) {
+      throw new Components.Exception("Calendar is not writable", Ci.calIErrors.CAL_IS_READONLY);
+    }
+
+    let modifyCallback = this._cachedModifyItemCallback;
+    let item = await new Promise(resolve => {
+      this.startBatch();
+      this._queue.push({
+        action: "modify",
+        newItem: aNewItem,
+        oldItem: aOldItem,
+        listener: item => {
+          this.endBatch();
+          resolve(item);
+        },
+      });
+      this._processQueue();
+    });
+
+    if (modifyCallback) {
+      await modifyCallback(item.calendar, Cr.NS_OK, Ci.calIOperationListener.MODIFY, item.id, item);
+    }
+    return item;
+  }
+
+  /**
+   * Delete the provided item.
+   *
+   * @param {calIItemBase} aItem
+   * @returns {Promise<void>}
+   */
+  deleteItem(aItem) {
+    if (this.readOnly) {
+      throw new Components.Exception("Calendar is not writable", Ci.calIErrors.CAL_IS_READONLY);
+    }
+
+    return new Promise(resolve => {
+      this._queue.push({
+        action: "delete",
+        item: aItem,
+        listener: resolve,
+      });
+      this._processQueue();
+    });
+  }
+
+  /**
+   * @param {string} aId
+   * @returns {Promise<calIItemBase?>}
+   */
+  getItem(aId) {
+    return new Promise(resolve => {
+      this._queue.push({
+        action: "get_item",
+        id: aId,
+        listener: resolve,
+      });
+      this._processQueue();
+    });
+  }
+
+  /**
+   * @param {number} aItemFilter
+   * @param {number} aCount
+   * @param {calIDateTime} aRangeStart
+   * @param {calIDateTime} aRangeEndEx
+   * @returns {ReadableStream<calIItemBase>}
+   */
+  getItems(aItemFilter, aCount, aRangeStart, aRangeEndEx) {
+    let self = this;
+    return CalReadableStreamFactory.createBoundedReadableStream(
+      aCount,
+      CalReadableStreamFactory.defaultQueueSize,
+      {
+        start(controller) {
+          self._queue.push({
+            action: "get_items",
+            exec: async () => {
+              for await (let value of cal.iterate.streamValues(
+                self.#memoryCalendar.getItems(aItemFilter, aCount, aRangeStart, aRangeEndEx)
+              )) {
+                controller.enqueue(value);
+              }
+              controller.close();
+            },
+          });
+          self._processQueue();
+        },
+      }
+    );
+  }
 
   refresh() {
-    this.queue.push({ action: "refresh", forceRefresh: false });
-    this.processQueue();
-  },
+    this._queue.push({ action: "refresh", forceRefresh: false });
+    this._processQueue();
+  }
 
-  forceRefresh() {
-    this.queue.push({ action: "refresh", forceRefresh: true });
-    this.processQueue();
-  },
+  startBatch() {
+    this.#observer.onStartBatch(this);
+  }
 
-  prepareChannel(aChannel, aForceRefresh) {
-    aChannel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
-    aChannel.notificationCallbacks = this;
+  endBatch() {
+    this.#observer.onEndBatch(this);
+  }
+
+  #forceRefresh() {
+    this._queue.push({ action: "refresh", forceRefresh: true });
+    this._processQueue();
+  }
+
+  #prepareChannel(channel, forceRefresh) {
+    channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
+    channel.notificationCallbacks = this;
 
     // Allow the hook to do its work, like a performing a quick check to
     // see if the remote file really changed. Might save a lot of time
-    this.mHooks.onBeforeGet(aChannel, aForceRefresh);
-  },
+    this.#hooks.onBeforeGet(channel, forceRefresh);
+  }
 
-  createMemoryCalendar() {
+  #createMemoryCalendar() {
     // Create a new calendar, to get rid of all the old events
     // Don't forget to remove the observer
-    if (this.mMemoryCalendar) {
-      this.mMemoryCalendar.removeObserver(this.mObserver);
+    if (this.#memoryCalendar) {
+      this.#memoryCalendar.removeObserver(this.#observer);
     }
-    this.mMemoryCalendar = Cc["@mozilla.org/calendar/calendar;1?type=memory"].createInstance(
+    this.#memoryCalendar = Cc["@mozilla.org/calendar/calendar;1?type=memory"].createInstance(
       Ci.calICalendar
     );
-    this.mMemoryCalendar.uri = this.mUri;
-    this.mMemoryCalendar.superCalendar = this;
-  },
+    this.#memoryCalendar.uri = this.#uri;
+    this.#memoryCalendar.superCalendar = this;
+  }
 
-  doRefresh(aForce) {
+  #doRefresh(force) {
     let channel = Services.io.newChannelFromURI(
-      this.mUri,
+      this.#uri,
       null,
       Services.scriptSecurityManager.getSystemPrincipal(),
       null,
       Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       Ci.nsIContentPolicy.TYPE_OTHER
     );
-    this.prepareChannel(channel, aForce);
+    this.#prepareChannel(channel, force);
 
     let streamLoader = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
       Ci.nsIStreamLoader
     );
 
     // Lock other changes to the item list.
-    this.lock();
+    this.#lock();
 
     try {
       streamLoader.init(this);
@@ -179,15 +322,15 @@ CalICSCalendar.prototype = {
     } catch (e) {
       // File not found: a new calendar. No problem.
       cal.LOG("[calICSCalendar] Error occurred opening channel: " + e);
-      this.unlock();
+      this.#unlock();
     }
-  },
+  }
 
   // nsIChannelEventSink implementation
   asyncOnChannelRedirect(aOldChannel, aNewChannel, aFlags, aCallback) {
-    this.prepareChannel(aNewChannel, true);
+    this.#prepareChannel(aNewChannel, true);
     aCallback.onRedirectVerifyCallback(Cr.NS_OK);
-  },
+  }
 
   // nsIStreamLoaderObserver impl
   // Listener for download. Parse the downloaded file
@@ -197,7 +340,7 @@ CalICSCalendar.prototype = {
 
     if (Components.isSuccessCode(status)) {
       // Allow the hook to get needed data (like an etag) of the channel
-      cont = this.mHooks.onAfterGet(loader.request);
+      cont = this.#hooks.onAfterGet(loader.request);
       cal.LOG("[calICSCalendar] Loading ICS succeeded, needs further processing: " + cont);
     } else {
       // Failure may be due to temporary connection issue, keep old data to
@@ -212,17 +355,17 @@ CalICSCalendar.prototype = {
       // no need to process further, we can use the previous data
       // HACK Sorry, but offline support requires the items to be signaled
       // even if nothing has changed (especially at startup)
-      this.mObserver.onLoad(this);
-      this.unlock();
+      this.#observer.onLoad(this);
+      this.#unlock();
       return;
     }
 
     // Clear any existing events if there was no result
     if (!resultLength) {
-      this.createMemoryCalendar();
-      this.mMemoryCalendar.addObserver(this.mObserver);
-      this.mObserver.onLoad(this);
-      this.unlock();
+      this.#createMemoryCalendar();
+      this.#memoryCalendar.addObserver(this.#observer);
+      this.#observer.onLoad(this);
+      this.#unlock();
       return;
     }
 
@@ -233,16 +376,20 @@ CalICSCalendar.prototype = {
     try {
       str = new TextDecoder().decode(Uint8Array.from(result));
     } catch (e) {
-      this.mObserver.onError(this.superCalendar, calIErrors.CAL_UTF8_DECODING_FAILED, e.toString());
-      this.mObserver.onError(this.superCalendar, calIErrors.READ_FAILED, "");
-      this.unlock();
+      this.#observer.onError(
+        this.superCalendar,
+        Ci.calIErrors.CAL_UTF8_DECODING_FAILED,
+        e.toString()
+      );
+      this.#observer.onError(this.superCalendar, Ci.calIErrors.READ_FAILED, "");
+      this.#unlock();
       return;
     }
 
-    this.createMemoryCalendar();
+    this.#createMemoryCalendar();
 
-    this.mObserver.onStartBatch(this);
-    this.mMemoryCalendar.addObserver(this.mObserver);
+    this.#observer.onStartBatch(this);
+    this.#memoryCalendar.addObserver(this.#observer);
 
     // Wrap parsing in a try block. Will ignore errors. That's a good thing
     // for non-existing or empty files, but not good for invalid files.
@@ -254,52 +401,54 @@ CalICSCalendar.prototype = {
       onParsingComplete(rc, parser_) {
         try {
           for (let item of parser_.getItems()) {
-            self.mMemoryCalendar.adoptItem(item);
+            self.#memoryCalendar.adoptItem(item);
           }
-          self.unmappedComponents = parser_.getComponents();
-          self.unmappedProperties = parser_.getProperties();
+          self.#unmappedComponents = parser_.getComponents();
+          self.#unmappedProperties = parser_.getProperties();
           cal.LOG("[calICSCalendar] Parsing ICS succeeded for " + self.uri.spec);
         } catch (exc) {
           cal.LOG("[calICSCalendar] Parsing ICS failed for \nException: " + exc);
-          self.mObserver.onError(self.superCalendar, exc.result, exc.toString());
-          self.mObserver.onError(self.superCalendar, calIErrors.READ_FAILED, "");
+          self.#observer.onError(self.superCalendar, exc.result, exc.toString());
+          self.#observer.onError(self.superCalendar, Ci.calIErrors.READ_FAILED, "");
         }
-        self.mObserver.onEndBatch(self);
-        self.mObserver.onLoad(self);
+        self.#observer.onEndBatch(self);
+        self.#observer.onLoad(self);
 
         // Now that all items have been stuffed into the memory calendar
         // we should add ourselves as observer. It is important that this
         // happens *after* the calls to adoptItem in the above loop to prevent
         // the views from being notified.
-        self.unlock();
+        self.#unlock();
       },
     };
     parser.parseString(str, listener);
-  },
+  }
 
-  async writeICS() {
+  async #writeICS() {
     cal.LOG("[calICSCalendar] Commencing write of ICS Calendar " + this.name);
-    if (!this.mUri) {
+    if (!this.#uri) {
       throw Components.Exception("mUri must be set", Cr.NS_ERROR_FAILURE);
     }
-    this.lock();
+    this.#lock();
     try {
-      await this.makeBackup();
-      await this.doWriteICS();
+      await this.#makeBackup();
+      await this.#doWriteICS();
     } catch (e) {
-      this.unlock(calIErrors.MODIFICATION_FAILED);
+      this.#unlock(Ci.calIErrors.MODIFICATION_FAILED);
     }
-  },
+  }
 
-  async doWriteICS() {
+  async #doWriteICS() {
     cal.LOG("[calICSCalendar] Writing ICS File " + this.uri.spec);
+
     let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
       Ci.calIIcsSerializer
     );
-    for (let comp of this.unmappedComponents) {
+    for (let comp of this.#unmappedComponents) {
       serializer.addComponent(comp);
     }
-    for (let prop of this.unmappedProperties) {
+
+    for (let prop of this.#unmappedProperties) {
       switch (prop.propertyName) {
         // we always set the current name and timezone:
         case "X-WR-CALNAME":
@@ -310,6 +459,7 @@ CalICSCalendar.prototype = {
           break;
       }
     }
+
     let prop = cal.icsService.createIcalProperty("X-WR-CALNAME");
     prop.value = this.name;
     serializer.addProperty(prop);
@@ -317,10 +467,11 @@ CalICSCalendar.prototype = {
     prop.value = cal.timezoneService.defaultTimezone.tzid;
     serializer.addProperty(prop);
 
-    // don't call this.getItems, because we are locked:
+    // Get items directly from the memory calendar, as we're locked now and
+    // calling this.getItems{,AsArray}() will return immediately
     serializer.addItems(
-      await this.mMemoryCalendar.getItemsAsArray(
-        calICalendar.ITEM_FILTER_TYPE_ALL | calICalendar.ITEM_FILTER_COMPLETED_ALL,
+      await this.#memoryCalendar.getItemsAsArray(
+        Ci.calICalendar.ITEM_FILTER_TYPE_ALL | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL,
         0,
         null,
         null
@@ -333,7 +484,7 @@ CalICSCalendar.prototype = {
       // streamloader to upload.  onStopRequest will be called
       // once the write has finished
       let channel = Services.io.newChannelFromURI(
-        this.mUri,
+        this.#uri,
         null,
         Services.scriptSecurityManager.getSystemPrincipal(),
         null,
@@ -343,63 +494,65 @@ CalICSCalendar.prototype = {
 
       // Allow the hook to add things to the channel, like a
       // header that checks etags
-      let notChanged = this.mHooks.onBeforePut(channel);
+      let notChanged = this.#hooks.onBeforePut(channel);
       if (notChanged) {
         channel.notificationCallbacks = this;
         let uploadChannel = channel.QueryInterface(Ci.nsIUploadChannel);
 
-        // Serialize
+        // Set the content of the upload channel to our ICS file
         let icsStream = serializer.serializeToInputStream();
-
-        // Upload
         uploadChannel.setUploadStream(icsStream, "text/calendar", -1);
 
+        // Prevent Thunderbird from exiting entirely until we've finished
+        // uploading one way or another
         Services.startup.enterLastWindowClosingSurvivalArea();
         inLastWindowClosingSurvivalArea = true;
         channel.asyncOpen(this);
       } else {
-        if (inLastWindowClosingSurvivalArea) {
-          Services.startup.exitLastWindowClosingSurvivalArea();
-        }
-        this.mObserver.onError(
+        this.#observer.onError(
           this.superCalendar,
-          calIErrors.MODIFICATION_FAILED,
+          Ci.calIErrors.MODIFICATION_FAILED,
           "The calendar has been changed remotely. Please reload and apply your changes again!"
         );
-        this.unlock(calIErrors.MODIFICATION_FAILED);
+
+        this.#unlock(Ci.calIErrors.MODIFICATION_FAILED);
       }
     } catch (ex) {
       if (inLastWindowClosingSurvivalArea) {
         Services.startup.exitLastWindowClosingSurvivalArea();
       }
-      this.mObserver.onError(
+
+      this.#observer.onError(
         this.superCalendar,
         ex.result,
         "The calendar could not be saved; there was a failure: 0x" + ex.result.toString(16)
       );
-      this.mObserver.onError(this.superCalendar, calIErrors.MODIFICATION_FAILED, "");
-      this.unlock(calIErrors.MODIFICATION_FAILED);
-      this.forceRefresh();
+      this.#observer.onError(this.superCalendar, Ci.calIErrors.MODIFICATION_FAILED, "");
+      this.#unlock(Ci.calIErrors.MODIFICATION_FAILED);
+
+      this.#forceRefresh();
     }
-  },
+  }
 
   // nsIStreamListener impl
   // For after publishing. Do error checks here
-  onStartRequest(request) {},
-  onDataAvailable(request, inStream, sourceOffset, count) {
+  onStartRequest(aRequest) {}
+
+  onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
     // All data must be consumed. For an upload channel, there is
     // no meaningful data. So it gets read and then ignored
     let scriptableInputStream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
       Ci.nsIScriptableInputStream
     );
-    scriptableInputStream.init(inStream);
+    scriptableInputStream.init(aInputStream);
     scriptableInputStream.read(-1);
-  },
-  onStopRequest(request, status, errorMsg) {
+  }
+
+  onStopRequest(aRequest, aStatusCode) {
     let httpChannel;
     let requestSucceeded = false;
     try {
-      httpChannel = request.QueryInterface(Ci.nsIHttpChannel);
+      httpChannel = aRequest.QueryInterface(Ci.nsIHttpChannel);
       requestSucceeded = httpChannel.requestSucceeded;
     } catch (e) {
       // This may fail if it was not a http channel, handled later on.
@@ -411,200 +564,79 @@ CalICSCalendar.prototype = {
 
     if (
       (httpChannel && !requestSucceeded) ||
-      (!httpChannel && !Components.isSuccessCode(request.status))
+      (!httpChannel && !Components.isSuccessCode(aRequest.status))
     ) {
-      this.mObserver.onError(
+      this.#observer.onError(
         this.superCalendar,
-        Components.isSuccessCode(request.status) ? calIErrors.DAV_PUT_ERROR : request.status,
+        Components.isSuccessCode(aRequest.status) ? Ci.calIErrors.DAV_PUT_ERROR : aRequest.status,
         "Publishing the calendar file failed\n" +
           "Status code: " +
-          request.status.toString(16) +
+          aRequest.status.toString(16) +
           "\n"
       );
-      this.mObserver.onError(this.superCalendar, calIErrors.MODIFICATION_FAILED, "");
+      this.#observer.onError(this.superCalendar, Ci.calIErrors.MODIFICATION_FAILED, "");
 
-      // the PUT has failed, refresh, and signal error to all modifying operations:
-      this.forceRefresh();
-      this.unlock(calIErrors.MODIFICATION_FAILED);
+      // The PUT has failed; refresh and signal error to all modifying operations
+      this.#forceRefresh();
+      this.#unlock(Ci.calIErrors.MODIFICATION_FAILED);
+
       Services.startup.exitLastWindowClosingSurvivalArea();
+
       return;
     }
 
     // Allow the hook to grab data of the channel, like the new etag
-
-    this.mHooks.onAfterPut(request, () => {
-      this.unlock();
-      this.mObserver.onLoad(this);
+    this.#hooks.onAfterPut(aRequest, () => {
+      this.#unlock();
+      this.#observer.onLoad(this);
       Services.startup.exitLastWindowClosingSurvivalArea();
     });
-  },
+  }
 
-  // Always use the queue, just to reduce the amount of places where
-  // this.mMemoryCalendar.addItem() and friends are called. less
-  // copied code.
-  async addItem(aItem) {
-    return this.adoptItem(aItem.clone());
-  },
-
-  // Used to allow the cachedCalendar provider to hook into adoptItem() before
-  // it returns.
-  _cachedAdoptItemCallback: null,
-
-  async adoptItem(aItem) {
-    let adoptCallback = this._cachedAdoptItemCallback;
-    if (this.readOnly) {
-      throw new Components.Exception("Calendar is not writable", calIErrors.CAL_IS_READONLY);
-    }
-    let item = await new Promise((resolve, reject) => {
-      this.startBatch();
-      this.queue.push({
-        action: "add",
-        item: aItem,
-        listener: item => {
-          this.endBatch();
-          resolve(item);
-        },
-      });
-      this.processQueue();
-    });
-    if (adoptCallback) {
-      await adoptCallback(item.calendar, Cr.NS_OK, Ci.calIOperationListener.ADD, item.id, item);
-    }
-    return item;
-  },
-
-  // Used to allow the cachedCalendar provider to hook into modifyItem() before
-  // it returns.
-  _cachedModifyItemCallback: null,
-
-  async modifyItem(newItem, oldItem) {
-    if (this.readOnly) {
-      throw new Components.Exception("Calendar is not writable", calIErrors.CAL_IS_READONLY);
-    }
-    let modifyCallback = this._cachedModifyItemCallback;
-    let item = await new Promise((resolve, reject) => {
-      this.startBatch();
-      this.queue.push({
-        action: "modify",
-        newItem,
-        oldItem,
-        listener: item => {
-          this.endBatch();
-          resolve(item);
-        },
-      });
-      this.processQueue();
-    });
-
-    if (modifyCallback) {
-      await modifyCallback(item.calendar, Cr.NS_OK, Ci.calIOperationListener.MODIFY, item.id, item);
-    }
-    return item;
-  },
-
-  /**
-   * Delete the provided item.
-   *
-   * @param {calIItemBase} item
-   * @returns {Promise<void>}
-   */
-  async deleteItem(item) {
-    if (this.readOnly) {
-      throw new Components.Exception("Calendar is not writable", calIErrors.CAL_IS_READONLY);
-    }
-    return new Promise((resolve, reject) => {
-      this.queue.push({
-        action: "delete",
-        item,
-        listener: resolve,
-      });
-      this.processQueue();
-    });
-  },
-
-  // Promise<calIItemBase|null> getItem(in string id);
-  async getItem(aId) {
-    return new Promise(resolve => {
-      this.queue.push({
-        action: "get_item",
-        id: aId,
-        listener: item => resolve(item),
-      });
-      this.processQueue();
-    });
-  },
-
-  // ReadableStream<calItemBase> getItems(in unsigned long itemFilter,
-  //                                      in unsigned long count,
-  //                                      in calIDateTime rangeStart,
-  //                                      in calIDateTime rangeEnd)
-  getItems(itemFilter, count, rangeStart, rangeEnd) {
-    let self = this;
-    return CalReadableStreamFactory.createBoundedReadableStream(
-      count,
-      CalReadableStreamFactory.defaultQueueSize,
-      {
-        start(controller) {
-          self.queue.push({
-            action: "get_items",
-            exec: async () => {
-              for await (let value of cal.iterate.streamValues(
-                self.mMemoryCalendar.getItems(itemFilter, count, rangeStart, rangeEnd)
-              )) {
-                controller.enqueue(value);
-              }
-              controller.close();
-            },
-          });
-          self.processQueue();
-        },
-      }
-    );
-  },
-
-  async processQueue() {
-    if (this.isLocked()) {
+  async _processQueue() {
+    if (this.#isLocked()) {
       return;
     }
 
-    let a;
+    let task;
     let writeICS = false;
     let refreshAction = null;
-    while ((a = this.queue.shift())) {
-      switch (a.action) {
+    while ((task = this._queue.shift())) {
+      switch (task.action) {
         case "add":
-          this.lock();
-          this.mMemoryCalendar.addItem(a.item).then(async item => {
-            a.item = item;
-            this.mModificationActions.push(a);
-            await this.writeICS();
+          this.#lock();
+          this.#memoryCalendar.addItem(task.item).then(async item => {
+            task.item = item;
+            this.#modificationActions.push(task);
+            await this.#writeICS();
           });
           return;
         case "modify":
-          this.lock();
-          this.mMemoryCalendar.modifyItem(a.newItem, a.oldItem).then(async item => {
-            a.item = item;
-            this.mModificationActions.push(a);
-            await this.writeICS();
+          this.#lock();
+          this.#memoryCalendar.modifyItem(task.newItem, task.oldItem).then(async item => {
+            task.item = item;
+            this.#modificationActions.push(task);
+            await this.#writeICS();
           });
           return;
         case "delete":
-          this.lock();
-          this.mMemoryCalendar.deleteItem(a.item).then(async () => {
-            this.mModificationActions.push(a);
-            await this.writeICS();
+          this.#lock();
+          this.#memoryCalendar.deleteItem(task.item).then(async () => {
+            this.#modificationActions.push(task);
+            await this.#writeICS();
           });
           return;
         case "get_item":
-          this.mMemoryCalendar.getItem(a.id).then(a.listener);
+          this.#memoryCalendar.getItem(task.id).then(task.listener);
           break;
         case "get_items":
-          a.exec();
+          task.exec();
           break;
         case "refresh":
-          refreshAction = a;
+          refreshAction = task;
           break;
       }
+
       if (refreshAction) {
         // break queue processing here and wait for refresh to finish
         // before processing further operations
@@ -616,25 +648,26 @@ CalICSCalendar.prototype = {
         // reschedule the refresh for next round, after the file has been written;
         // strictly we may not need to refresh once the file has been successfully
         // written, but we don't know if that write will succeed.
-        this.queue.unshift(refreshAction);
+        this._queue.unshift(refreshAction);
       }
-      await this.writeICS();
+
+      await this.#writeICS();
     } else if (refreshAction) {
       cal.LOG(
         "[calICSCalendar] Refreshing " + this.name + (refreshAction.forceRefresh ? " (forced)" : "")
       );
-      this.doRefresh(refreshAction.forceRefresh);
+      this.#doRefresh(refreshAction.forceRefresh);
     }
-  },
+  }
 
-  lock() {
-    this.locked = true;
-  },
+  #lock() {
+    this.#locked = true;
+  }
 
-  unlock(errCode) {
-    cal.ASSERT(this.locked, "unexpected!");
+  #unlock(errCode) {
+    cal.ASSERT(this.#locked, "unexpected!");
 
-    this.mModificationActions.forEach(action => {
+    this.#modificationActions.forEach(action => {
       let listener = action.listener;
       if (typeof listener == "function") {
         listener(action.item);
@@ -648,28 +681,21 @@ CalICSCalendar.prototype = {
         }
       }
     });
-    this.mModificationActions = [];
+    this.#modificationActions = [];
 
-    this.locked = false;
-    this.processQueue();
-  },
+    this.#locked = false;
+    this._processQueue();
+  }
 
-  isLocked() {
-    return this.locked;
-  },
-
-  startBatch() {
-    this.mObserver.onStartBatch(this);
-  },
-  endBatch() {
-    this.mObserver.onEndBatch(this);
-  },
+  #isLocked() {
+    return this.#locked;
+  }
 
   /**
    * @see nsIInterfaceRequestor
    * @see calProviderUtils.jsm
    */
-  getInterface: cal.provider.InterfaceRequestor_getInterface,
+  getInterface = cal.provider.InterfaceRequestor_getInterface;
 
   /**
    * Make a backup of the (remote) calendar
@@ -678,12 +704,12 @@ CalICSCalendar.prototype = {
    * It should be called before every upload, so every change can be
    * restored. By default, it will keep 3 backups. It also keeps one
    * file each day, for 3 days. That way, even if the user doesn't notice
-   * the remote calendar has become corrupted, he will still loose max 1
+   * the remote calendar has become corrupted, he will still lose max 1
    * day of work.
    *
    * @returns {Promise} A promise that is settled once backup completed.
    */
-  makeBackup(aCallback) {
+  #makeBackup() {
     return new Promise((resolve, reject) => {
       // Uses |pseudoID|, an id of the calendar, defined below
       function makeName(type) {
@@ -828,7 +854,7 @@ CalICSCalendar.prototype = {
 
       // Now go download the remote file, and store it somewhere local.
       let channel = Services.io.newChannelFromURI(
-        this.mUri,
+        this.#uri,
         null,
         Services.scriptSecurityManager.getSystemPrincipal(),
         null,
@@ -865,56 +891,62 @@ CalICSCalendar.prototype = {
         resolve();
       }
     });
-  },
-};
-
-function calICSObserver(aCalendar) {
-  this.mCalendar = aCalendar;
+  }
 }
 
-calICSObserver.prototype = {
-  mCalendar: null,
-  mInBatch: false,
+/**
+ * @implements {calIObserver}
+ */
+class calICSObserver {
+  #calendar = null;
 
-  // calIObserver:
-  onStartBatch(calendar) {
-    this.mCalendar.observers.notify("onStartBatch", [calendar]);
-    this.mInBatch = true;
-  },
-  onEndBatch(calendar) {
-    this.mCalendar.observers.notify("onEndBatch", [calendar]);
-    this.mInBatch = false;
-  },
-  onLoad(calendar) {
-    this.mCalendar.observers.notify("onLoad", [calendar]);
-  },
+  constructor(calendar) {
+    this.#calendar = calendar;
+  }
+
+  onStartBatch(aCalendar) {
+    this.#calendar.observers.notify("onStartBatch", [aCalendar]);
+  }
+
+  onEndBatch(aCalendar) {
+    this.#calendar.observers.notify("onEndBatch", [aCalendar]);
+  }
+
+  onLoad(aCalendar) {
+    this.#calendar.observers.notify("onLoad", [aCalendar]);
+  }
+
   onAddItem(aItem) {
-    this.mCalendar.observers.notify("onAddItem", [aItem]);
-  },
+    this.#calendar.observers.notify("onAddItem", [aItem]);
+  }
+
   onModifyItem(aNewItem, aOldItem) {
-    this.mCalendar.observers.notify("onModifyItem", [aNewItem, aOldItem]);
-  },
+    this.#calendar.observers.notify("onModifyItem", [aNewItem, aOldItem]);
+  }
+
   onDeleteItem(aDeletedItem) {
-    this.mCalendar.observers.notify("onDeleteItem", [aDeletedItem]);
-  },
-  onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
-    this.mCalendar.observers.notify("onPropertyChanged", [aCalendar, aName, aValue, aOldValue]);
-  },
-  onPropertyDeleting(aCalendar, aName) {
-    this.mCalendar.observers.notify("onPropertyDeleting", [aCalendar, aName]);
-  },
+    this.#calendar.observers.notify("onDeleteItem", [aDeletedItem]);
+  }
 
   onError(aCalendar, aErrNo, aMessage) {
-    this.mCalendar.readOnly = true;
-    this.mCalendar.notifyError(aErrNo, aMessage);
-  },
-};
+    this.#calendar.readOnly = true;
+    this.#calendar.notifyError(aErrNo, aMessage);
+  }
+
+  onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
+    this.#calendar.observers.notify("onPropertyChanged", [aCalendar, aName, aValue, aOldValue]);
+  }
+
+  onPropertyDeleting(aCalendar, aName) {
+    this.#calendar.observers.notify("onPropertyDeleting", [aCalendar, aName]);
+  }
+}
 
 /*
  * Transport Abstraction Hooks
  *
- * Those hooks provide a way to do checks before or after publishing an
- * ics file. The main use will be to check etags (or some other way to check
+ * These hooks provide a way to do checks before or after publishing an
+ * ICS file. The main use will be to check etags (or some other way to check
  * for remote changes) to protect remote changes from being overwritten.
  *
  * Different protocols need different checks (webdav can do etag, but
@@ -924,55 +956,54 @@ calICSObserver.prototype = {
 
 // dummyHooks are for transport types that don't have hooks of their own.
 // Also serves as poor-mans interface definition.
-function dummyHooks(calendar) {
-  this.mCalendar = calendar;
-}
-
-dummyHooks.prototype = {
+class dummyHooks {
   onBeforeGet(aChannel, aForceRefresh) {
     return true;
-  },
+  }
 
   /**
-   * @returns
-   *     a boolean, false if the previous data should be used (the datastore
-   *     didn't change, there might be no data in this GET), true in all
-   *     other cases
+   * @returns {boolean} false if the previous data should be used (the datastore
+   *                    didn't change, there might be no data in this GET), true
+   *                    in all other cases
    */
   onAfterGet(aChannel) {
     return true;
-  },
+  }
 
   onBeforePut(aChannel) {
     return true;
-  },
+  }
 
   onAfterPut(aChannel, aRespFunc) {
     aRespFunc();
     return true;
-  },
-};
-
-function httpHooks(calendar) {
-  this.mCalendar = calendar;
+  }
 }
 
-httpHooks.prototype = {
+class httpHooks {
+  #calendar = null;
+  #etag = null;
+  #lastModified = null;
+
+  constructor(calendar) {
+    this.#calendar = calendar;
+  }
+
   onBeforeGet(aChannel, aForceRefresh) {
     let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
     httpchannel.setRequestHeader("Accept", "text/calendar,text/plain;q=0.8,*/*;q=0.5", false);
 
-    if (this.mEtag && !aForceRefresh) {
+    if (this.#etag && !aForceRefresh) {
       // Somehow the webdav header 'If' doesn't work on apache when
       // passing in a Not, so use the http version here.
-      httpchannel.setRequestHeader("If-None-Match", this.mEtag, false);
-    } else if (!aForceRefresh && this.mLastModified) {
+      httpchannel.setRequestHeader("If-None-Match", this.#etag, false);
+    } else if (!aForceRefresh && this.#lastModified) {
       // Only send 'If-Modified-Since' if no ETag is available
-      httpchannel.setRequestHeader("If-Modified-Since", this.mLastModified, false);
+      httpchannel.setRequestHeader("If-Modified-Since", this.#lastModified, false);
     }
 
     return true;
-  },
+  }
 
   onAfterGet(aChannel) {
     let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
@@ -1002,7 +1033,7 @@ httpHooks.prototype = {
       return false;
     } else if (responseStatus == 410) {
       cal.LOG("[calICSCalendar] Response status 410, calendar is gone. Disabling the calendar.");
-      this.mCalendar.setProperty("disabled", "true");
+      this.#calendar.setProperty("disabled", "true");
       return false;
     } else if (responseStatusCategory == 4 || responseStatusCategory == 5) {
       cal.LOG(
@@ -1010,42 +1041,42 @@ httpHooks.prototype = {
           responseStatus +
           ", temporarily disabling calendar for safety."
       );
-      this.mCalendar.setProperty("disabled", "true");
-      this.mCalendar.setProperty("auto-enabled", "true");
+      this.#calendar.setProperty("disabled", "true");
+      this.#calendar.setProperty("auto-enabled", "true");
       return false;
     }
 
     try {
-      this.mEtag = httpchannel.getResponseHeader("ETag");
+      this.#etag = httpchannel.getResponseHeader("ETag");
     } catch (e) {
       // No etag header. Now what?
-      this.mEtag = null;
+      this.#etag = null;
     }
 
     try {
-      this.mLastModified = httpchannel.getResponseHeader("Last-Modified");
+      this.#lastModified = httpchannel.getResponseHeader("Last-Modified");
     } catch (e) {
-      this.mLastModified = null;
+      this.#lastModified = null;
     }
 
     return true;
-  },
+  }
 
   onBeforePut(aChannel) {
-    if (this.mEtag) {
+    if (this.#etag) {
       let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
 
       // Apache doesn't work correctly with if-match on a PUT method,
       // so use the webdav header
-      httpchannel.setRequestHeader("If", "([" + this.mEtag + "])", false);
+      httpchannel.setRequestHeader("If", "([" + this.#etag + "])", false);
     }
     return true;
-  },
+  }
 
   onAfterPut(aChannel, aRespFunc) {
     let httpchannel = aChannel.QueryInterface(Ci.nsIHttpChannel);
     try {
-      this.mEtag = httpchannel.getResponseHeader("ETag");
+      this.#etag = httpchannel.getResponseHeader("ETag");
       aRespFunc();
     } catch (e) {
       // There was no ETag header on the response. This means that
@@ -1053,7 +1084,6 @@ httpHooks.prototype = {
       // because there is a time in which we don't know the right
       // etag.
       // Try to do the best we can, by immediately getting the etag.
-
       let etagListener = {};
       let self = this; // need to reference in callback
 
@@ -1066,7 +1096,7 @@ httpHooks.prototype = {
           cal.LOG("[calICSCalendar] Failed to fetch channel etag");
         }
 
-        self.mEtag = icsXPathFirst(
+        self.#etag = icsXPathFirst(
           multistatus,
           "/D:propfind/D:response/D:propstat/D:prop/D:getetag"
         );
@@ -1089,34 +1119,29 @@ httpHooks.prototype = {
       cal.provider.sendHttpRequest(streamLoader, etagChannel, etagListener);
     }
     return true;
-  },
+  }
 
   // nsIProgressEventSink
-  onProgress(aRequest, aProgress, aProgressMax) {},
-  onStatus(aRequest, aStatus, aStatusArg) {},
+  onProgress(aRequest, aProgress, aProgressMax) {}
+  onStatus(aRequest, aStatus, aStatusArg) {}
 
   getInterface(aIid) {
     if (aIid.equals(Ci.nsIProgressEventSink)) {
       return this;
     }
     throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
-  },
-};
-
-function fileHooks(calendar) {
-  this.mCalendar = calendar;
+  }
 }
 
-fileHooks.prototype = {
+class fileHooks {
   onBeforeGet(aChannel, aForceRefresh) {
     return true;
-  },
+  }
 
   /**
-   * @returns
-   *     a boolean, false if the previous data should be used (the datastore
-   *     didn't change, there might be no data in this GET), true in all
-   *     other cases
+   * @returns {boolean} false if the previous data should be used (the datastore
+   *                    didn't change, there might be no data in this GET), true
+   *                    in all other cases
    */
   onAfterGet(aChannel) {
     let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
@@ -1128,7 +1153,7 @@ fileHooks.prototype = {
     }
     this.mtime = filechannel.file.lastModifiedTime;
     return true;
-  },
+  }
 
   onBeforePut(aChannel) {
     let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
@@ -1136,12 +1161,12 @@ fileHooks.prototype = {
       return false;
     }
     return true;
-  },
+  }
 
   onAfterPut(aChannel, aRespFunc) {
     let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
     this.mtime = filechannel.file.lastModifiedTime;
     aRespFunc();
     return true;
-  },
-};
+  }
+}

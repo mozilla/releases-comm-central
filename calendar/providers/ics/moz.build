@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    "CalICSCalendar.jsm",
+    "CalICSCalendar.sys.mjs",
     "CalICSProvider.jsm",
 ]
 

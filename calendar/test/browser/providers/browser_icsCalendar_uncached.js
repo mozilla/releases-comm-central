@@ -28,7 +28,7 @@ add_setup(async function() {
 
 async function promiseIdle() {
   await TestUtils.waitForCondition(
-    () => calendar.wrappedJSObject.queue.length == 0 && !calendar.wrappedJSObject.locked
+    () => calendar.wrappedJSObject._queue.length == 0 && !calendar.wrappedJSObject.locked
   );
   await fetch(`${ICSServer.origin}/ping`);
 }

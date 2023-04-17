@@ -100,7 +100,6 @@
   "resource:///modules/CalEvent.jsm": "comm/calendar/base/src/CalEvent.jsm",
   "resource:///modules/CalFreeBusyService.jsm": "comm/calendar/base/src/CalFreeBusyService.jsm",
   "resource:///modules/CalHtmlExport.jsm": "comm/calendar/import-export/CalHtmlExport.jsm",
-  "resource:///modules/CalICSCalendar.jsm": "comm/calendar/providers/ics/CalICSCalendar.jsm",
   "resource:///modules/CalICSProvider.jsm": "comm/calendar/providers/ics/CalICSProvider.jsm",
   "resource:///modules/CalICSService.jsm": "comm/calendar/base/src/CalICSService.jsm",
   "resource:///modules/CalIcsImportExport.jsm": "comm/calendar/import-export/CalIcsImportExport.jsm",
