@@ -2,13 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* eslint-env webextensions */
-
 var { ConversationOpener } = ChromeUtils.import(
   "resource:///modules/ConversationOpener.jsm"
-);
-var { GlodaIndexer } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaIndexer.jsm"
 );
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -119,6 +114,12 @@ add_task(async function testNoMessages() {
  * message is selected.
  */
 add_task(async function testSingleMessage() {
+  await TestUtils.waitForCondition(
+    () => ConversationOpener.isMessageIndexed(testMessages[0]),
+    "waiting for Gloda to finish indexing",
+    500
+  );
+
   let about3Pane = tabmail.currentAbout3Pane;
   let mailContext = about3Pane.document.getElementById("mailContext");
   let threadTree = about3Pane.threadTree;
@@ -138,6 +139,7 @@ add_task(async function testSingleMessage() {
   await shownPromise;
   let messageItems = [
     "mailContext-selectall",
+    "mailContext-openConversation",
     "mailContext-replySender",
     "mailContext-replyAll",
     "mailContext-replyList",
@@ -175,6 +177,7 @@ add_task(async function testSingleMessage() {
   let treeItems = [
     "mailContext-openNewTab",
     "mailContext-openNewWindow",
+    "mailContext-openConversation",
     "mailContext-replySender",
     "mailContext-replyAll",
     "mailContext-replyList",
@@ -204,6 +207,12 @@ add_task(async function testSingleMessage() {
  * than one message is selected.
  */
 add_task(async function testMultipleMessages() {
+  await TestUtils.waitForCondition(
+    () => ConversationOpener.isMessageIndexed(testMessages[1]),
+    "waiting for Gloda to finish indexing",
+    500
+  );
+
   let about3Pane = tabmail.currentAbout3Pane;
   let mailContext = about3Pane.document.getElementById("mailContext");
   let threadTree = about3Pane.threadTree;
@@ -229,6 +238,7 @@ add_task(async function testMultipleMessages() {
   );
   checkMenuitems(
     mailContext,
+    "mailContext-openConversation",
     "mailContext-multiForwardAsAttachment",
     "mailContext-tags",
     "mailContext-mark",
@@ -254,7 +264,7 @@ add_task(async function testMultipleMessages() {
  */
 add_task(async function testSyntheticFolder() {
   await TestUtils.waitForCondition(
-    () => !GlodaIndexer.indexing,
+    () => ConversationOpener.isMessageIndexed(testMessages[6]),
     "waiting for Gloda to finish indexing",
     500
   );
