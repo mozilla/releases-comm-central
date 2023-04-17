@@ -8,6 +8,7 @@ JAR_MANIFESTS += ["jar.mn"]
 EXTRA_JS_MODULES.accountcreation += [
     "AccountConfig.jsm",
     "AccountCreationUtils.jsm",
+    "ConfigVerifier.jsm",
     "CreateInBackend.jsm",
     "ExchangeAutoDiscover.jsm",
     "FetchConfig.jsm",
@@ -15,7 +16,6 @@ EXTRA_JS_MODULES.accountcreation += [
     "GuessConfig.jsm",
     "readFromXML.jsm",
     "Sanitizer.jsm",
-    "verifyConfig.jsm",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [

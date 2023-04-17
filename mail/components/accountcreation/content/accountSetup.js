@@ -20,12 +20,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   cal: "resource:///modules/calendar/calUtils.jsm",
   CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
+  ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.jsm",
   CreateInBackend: "resource:///modules/accountcreation/CreateInBackend.jsm",
   FetchConfig: "resource:///modules/accountcreation/FetchConfig.jsm",
   GuessConfig: "resource:///modules/accountcreation/GuessConfig.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
   Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
-  verifyConfig: "resource:///modules/accountcreation/verifyConfig.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
   UIFontSize: "resource:///modules/UIFontSize.jsm",
 });
@@ -65,29 +65,6 @@ var {
  * - let user verify and maybe edit the server names and ports
  * - If user clicks OK, create the account
  */
-
-/**
-TODO for bug 549045:
-
-- autodetect protocol
-Bugs
-- SSL cert errors
-  - invalid cert (hostname mismatch) doesn't trigger warning dialog as it should
-  - accept self-signed cert (e.g. imap.mail.ru) doesn't work
-    (works without my patch),
-    verifyConfig.js line 124 has no inServer, for whatever reason,
-    although I didn't change verifyConfig.js at all
-    (the change you see in that file is irrelevant: that was an attempt to fix
-    the bug and clean up the code).
-Things to test (works for me):
-- state transitions, buttons enable, status msgs
-  - stop button
-    - showes up again after stopping detection and restarting it
-    - when stopping [retest]: buttons proper?
-  - enter nonsense domain. guess fails, (so automatically) manual,
-    change domain to real one (not in DB), guess succeeds.
-    former bug: goes to manual first shortly, then to result
-*/
 
 // Keep track of the prefers-reduce-motion media query for JS based animations.
 var gReducedMotion;
@@ -2257,17 +2234,21 @@ var gAccountSetup = {
         : this._currentConfig.source;
 
     let self = this;
-    // logic function defined in verifyConfig.js
-    verifyConfig(
-      configFilledIn,
-      // guess login config?
-      configFilledIn.source != AccountConfig.kSourceXML,
-      // TODO Instead, the following line would be correct, but I cannot use it,
-      // because some other code doesn't adhere to the expectations/specs.
-      // Find out what it was and fix it.
-      // concreteConfig.source == AccountConfig.kSourceGuess,
-      this._msgWindow,
-      function(successfulConfig) {
+    let verifier = new ConfigVerifier(this._msgWindow);
+    window.addEventListener("unload", event => {
+      verifier.cleanup();
+    });
+    verifier
+      .verifyConfig(
+        configFilledIn,
+        // guess login config?
+        configFilledIn.source != AccountConfig.kSourceXML
+        // TODO Instead, the following line would be correct, but I cannot use it,
+        // because some other code doesn't adhere to the expectations/specs.
+        // Find out what it was and fix it.
+        // concreteConfig.source == AccountConfig.kSourceGuess,
+      )
+      .then(successfulConfig => {
         // success
         self.stopLoadingState(
           successfulConfig.incoming.password
@@ -2275,8 +2256,7 @@ var gAccountSetup = {
             : null
         );
 
-        // the auth might have changed, so we
-        // should back-port it to the current config.
+        // The auth might have changed, so we should update the current config.
         self._currentConfig.incoming.auth = successfulConfig.incoming.auth;
         self._currentConfig.outgoing.auth = successfulConfig.outgoing.auth;
         self._currentConfig.incoming.username =
@@ -2301,8 +2281,8 @@ var gAccountSetup = {
           telemetryKey,
           1
         );
-      },
-      function(e) {
+      })
+      .catch(e => {
         // failed
         // Could be a wrong password, but there are 1000 other
         // reasons why this failed. Only the backend knows.
@@ -2333,10 +2313,12 @@ var gAccountSetup = {
           telemetryKey,
           1
         );
-      }
-    );
+      });
   },
 
+  /**
+   * @param {AccountConfig} concreteConfig - The config to use.
+   */
   finish(concreteConfig) {
     gAccountSetupLogger.debug("creating account in backend");
     let newAccount = CreateInBackend.createAccountInBackend(concreteConfig);
