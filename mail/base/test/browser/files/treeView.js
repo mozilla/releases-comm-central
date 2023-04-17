@@ -117,5 +117,5 @@ window.addEventListener("load", () => {
   tree.addEventListener("select", () => {
     console.log("select event, selected indices:", tree.selectedIndices);
   });
-  tree.view = new TestView(0, 50);
+  tree.view = new TestView(0, 150);
 });

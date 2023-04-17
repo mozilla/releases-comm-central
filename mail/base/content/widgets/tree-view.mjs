@@ -29,7 +29,7 @@ class TreeView extends HTMLElement {
    *
    * @type {integer}
    */
-  static OVERFLOW_BUFFER = 10;
+  _overflowBuffer = 10;
 
   /**
    * Index of the first row that exists in the DOM.
@@ -91,32 +91,18 @@ class TreeView extends HTMLElement {
 
     this.placeholder = this.querySelector(`slot[name="placeholders"]`);
 
-    // Ensure that there are enough rows for scrolling/resizing to appear
-    // seamless, but don't do it more frequently than 10 times per second,
-    // as it's expensive.
-    let lastTime = 0;
-    let lastHeight = 0;
-    let timer = null;
-    let throttledUpdate = () => {
-      let now = Date.now();
-      let diff = now - lastTime;
+    this.addEventListener("scroll", this);
 
-      if (diff > 100) {
-        this._ensureVisibleRowsAreDisplayed();
-        lastTime = now;
-      } else if (!timer) {
-        timer = setTimeout(() => {
-          this._ensureVisibleRowsAreDisplayed();
-          lastTime = now;
-          timer = null;
-        }, 100 - diff);
-      }
-    };
-    this.addEventListener("scroll", () => throttledUpdate());
+    let lastHeight = 0;
     this.resizeObserver = new ResizeObserver(entries => {
+      if (!this._rowElementClass) {
+        return;
+      }
+      this._overflowBuffer =
+        Math.ceil(this.clientHeight / this._rowElementClass.ROW_HEIGHT) * 2;
       // There's not much point in reducing the number of rows on resize.
       if (this.clientHeight > lastHeight) {
-        throttledUpdate();
+        this._ensureVisibleRowsAreDisplayed();
       }
       lastHeight = this.clientHeight;
     });
@@ -137,6 +123,9 @@ class TreeView extends HTMLElement {
   attributeChangedCallback(attrName, oldValue, newValue) {
     this._rowElementName = newValue || "tree-view-table-row";
     this._rowElementClass = customElements.get(this._rowElementName);
+
+    this._overflowBuffer =
+      Math.ceil(this.clientHeight / this._rowElementClass.ROW_HEIGHT) * 2;
 
     if (this._view) {
       this.invalidate();
@@ -388,6 +377,9 @@ class TreeView extends HTMLElement {
         }
         break;
       }
+      case "scroll":
+        this._ensureVisibleRowsAreDisplayed();
+        break;
     }
   }
 
@@ -513,7 +505,7 @@ class TreeView extends HTMLElement {
 
   /**
    * Fills the view with rows at the current scroll position. Also creates
-   * `OVERFLOW_BUFFER` rows above and below the visible rows. Performance
+   * `_overflowBuffer` rows above and below the visible rows. Performance
    * here is important.
    */
   _ensureVisibleRowsAreDisplayed() {
@@ -542,13 +534,13 @@ class TreeView extends HTMLElement {
     let first = Math.max(
       0,
       Math.floor(this.scrollTop / this._rowElementClass.ROW_HEIGHT) -
-        this.constructor.OVERFLOW_BUFFER
+        this._overflowBuffer
     );
     let last = Math.min(
       rowCount - 1,
       Math.floor(
         (this.scrollTop + this.clientHeight) / this._rowElementClass.ROW_HEIGHT
-      ) + this.constructor.OVERFLOW_BUFFER
+      ) + this._overflowBuffer
     );
 
     this.table.spacerTop.setHeight(first * this._rowElementClass.ROW_HEIGHT);
