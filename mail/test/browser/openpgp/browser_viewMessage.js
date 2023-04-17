@@ -867,6 +867,36 @@ add_task(async function testDecryptHtmlWithNBSP() {
   close_window(mc);
 });
 
+/**
+ * Test that opening an encrypted (and signed) message with non-ascii subject
+ * and body works.
+ */
+add_task(async function testOpenSignedByUnverifiedEncrypted() {
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/encrypted-and-signed-alice-to-bob-nonascii.eml")
+    )
+  );
+  let aboutMessage = get_about_message(mc.window);
+
+  // Check the subject was properly updated (from ...) in the message header.
+  Assert.equal(
+    aboutMessage.document.getElementById("expandedsubjectBox").textContent,
+    "Subject:Re: kod blå",
+    "Non-ascii subject should correct"
+  );
+  Assert.ok(getMsgBodyTxt(mc).includes("Detta är krypterat!"));
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
+    "signed verified icon is displayed"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc);
+});
+
 registerCleanupFunction(async function tearDown() {
   MailServices.accounts.removeAccount(aliceAcct, true);
   await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);

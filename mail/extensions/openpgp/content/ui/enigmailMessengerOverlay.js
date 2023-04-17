@@ -1639,39 +1639,36 @@ Enigmail.msg = {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: movePEPsubject:\n");
 
     let bodyElement = this.getBodyElement();
-
     if (
       bodyElement.textContent.search(/^\r?\n?Subject: [^\r\n]+\r?\n\r?\n/i) ===
         0 &&
       "subject" in currentHeaderData &&
       currentHeaderData.subject.headerValue === "pEp"
     ) {
-      if (gMessage) {
-        let m = EnigmailMime.extractSubjectFromBody(bodyElement.textContent);
-        if (m) {
-          let node = bodyElement.firstChild;
-          let found = false;
+      let m = EnigmailMime.extractSubjectFromBody(bodyElement.textContent);
+      if (m) {
+        let node = bodyElement.firstChild;
+        let found = false;
 
-          while (!found && node) {
-            if (node.nodeName == "DIV") {
-              node.innerHTML = EnigmailFuncs.formatPlaintextMsg(m.messageBody);
-              found = true;
-            }
-            node = node.nextSibling;
+        while (!found && node) {
+          if (node.nodeName == "DIV") {
+            node.innerHTML = EnigmailFuncs.formatPlaintextMsg(m.messageBody);
+            found = true;
           }
-
-          // if no <DIV> node is found, try with <PRE> (bug 24762)
-          node = bodyElement.firstChild;
-          while (!found && node) {
-            if (node.nodeName == "PRE") {
-              node.innerHTML = EnigmailFuncs.formatPlaintextMsg(m.messageBody);
-              found = true;
-            }
-            node = node.nextSibling;
-          }
-
-          Enigmail.hdrView.setSubject(m.subject);
+          node = node.nextSibling;
         }
+
+        // if no <DIV> node is found, try with <PRE> (bug 24762)
+        node = bodyElement.firstChild;
+        while (!found && node) {
+          if (node.nodeName == "PRE") {
+            node.innerHTML = EnigmailFuncs.formatPlaintextMsg(m.messageBody);
+            found = true;
+          }
+          node = node.nextSibling;
+        }
+
+        Enigmail.hdrView.setSubject(m.subject);
       }
     }
   },

@@ -24,14 +24,14 @@ add_task(async function test_cp932_display() {
   let bodyText = aboutMessage.document
     .getElementById("messagepane")
     .contentDocument.querySelector("body").textContent;
-  close_window(msgc);
-
   Assert.ok(
     subjectText.includes("ここに本文がきます。"),
-    "Decoded cp932 text not found in message subject."
+    "Decoded cp932 text not found in message subject. subjectText=" +
+      subjectText
   );
   Assert.ok(
     bodyText.includes("ここに本文がきます。"),
     "Decoded cp932 text not found in message body."
   );
+  close_window(msgc);
 });

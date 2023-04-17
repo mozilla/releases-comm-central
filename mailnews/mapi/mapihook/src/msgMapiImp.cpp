@@ -536,7 +536,7 @@ lpnsMapiMessage MsgMapiListContext::GetMessage(nsMsgKey key,
 
     m_db->GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
     if (msgHdr) {
-      msgHdr->GetSubject(getter_Copies(subject));
+      msgHdr->GetSubject(subject);
       message->lpszSubject = (char*)CoTaskMemAlloc(subject.Length() + 1);
       strcpy((char*)message->lpszSubject, subject.get());
       uint32_t date;

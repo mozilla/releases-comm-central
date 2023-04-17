@@ -1678,7 +1678,7 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
 
               if (refHdr) {
                 nsCString refSubject;
-                rv = refHdr->GetSubject(getter_Copies(refSubject));
+                rv = refHdr->GetSubject(refSubject);
                 if (NS_SUCCEEDED(rv)) {
                   if (refSubject.Find(" (was:") >= 0) strip = false;
                 }

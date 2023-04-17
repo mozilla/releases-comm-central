@@ -300,8 +300,9 @@ NS_IMETHODIMP nsMsgHdr::SetMessageId(const char* messageId) {
   return SetStringColumn(messageId, m_mdb->m_messageIdColumnToken);
 }
 
-NS_IMETHODIMP nsMsgHdr::SetSubject(const char* subject) {
-  return SetStringColumn(subject, m_mdb->m_subjectColumnToken);
+NS_IMETHODIMP nsMsgHdr::SetSubject(const nsACString& subject) {
+  return SetStringColumn(PromiseFlatCString(subject).get(),
+                         m_mdb->m_subjectColumnToken);
 }
 
 NS_IMETHODIMP nsMsgHdr::SetAuthor(const char* author) {
@@ -442,9 +443,9 @@ NS_IMETHODIMP nsMsgHdr::GetAuthor(char** resultAuthor) {
                                        resultAuthor);
 }
 
-NS_IMETHODIMP nsMsgHdr::GetSubject(char** resultSubject) {
+NS_IMETHODIMP nsMsgHdr::GetSubject(nsACString& resultSubject) {
   return m_mdb->RowCellColumnToCharPtr(GetMDBRow(), m_mdb->m_subjectColumnToken,
-                                       resultSubject);
+                                       getter_Copies(resultSubject));
 }
 
 NS_IMETHODIMP nsMsgHdr::GetRecipients(char** resultRecipients) {
