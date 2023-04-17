@@ -681,13 +681,14 @@ class TreeView extends HTMLElement {
     this.table.body.insertBefore(row, before);
     row.setAttribute("aria-setsize", this._view.rowCount);
     row.style.height = `${this._rowElementClass.ROW_HEIGHT}px`;
+    row.index = index;
     if (this._selection?.isSelected(index)) {
       row.selected = true;
     }
     if (this.currentIndex === index) {
       row.classList.add("current");
+      this.table.body.setAttribute("aria-activedescendant", row.id);
     }
-    row.index = index;
     this._rows.set(index, row);
   }
 
@@ -811,12 +812,12 @@ class TreeView extends HTMLElement {
       return;
     }
 
-    this.getRowAtIndex(index)?.classList.add("current");
+    let row = this.getRowAtIndex(index);
+    if (row) {
+      row.classList.add("current");
+      this.table.body.setAttribute("aria-activedescendant", row.id);
+    }
     this.scrollToIndex(index);
-    this.table.body.setAttribute(
-      "aria-activedescendant",
-      `${this.id}-row${index}`
-    );
   }
 
   /**
