@@ -3413,7 +3413,9 @@ function mustCheckRecipientKeys() {
     false
   );
 
-  return isPgpConfigured() && (remindOpenPGP || autoEnablePref);
+  return (
+    isPgpConfigured() && (gSendEncrypted || remindOpenPGP || autoEnablePref)
+  );
 }
 
 /**
@@ -3458,7 +3460,10 @@ function mustCheckRecipientCerts() {
     false
   );
 
-  return isSmimeEncryptionConfigured() && (remindSMime || autoEnablePref);
+  return (
+    isSmimeEncryptionConfigured() &&
+    (gSendEncrypted || remindSMime || autoEnablePref)
+  );
 }
 
 /**
