@@ -199,9 +199,8 @@ async function putItemsIntoCal(destCal, aItems, aListener) {
 /**
  * Save data to a file. Create the file or overwrite an existing file.
  *
- * @param calendarEventArray (required) Array of calendar events that should
- *                                      be saved to file.
- * @param aDefaultFileName   (optional) Initial filename shown in SaveAs dialog.
+ * @param {calIEvent[]} calendarEventArray - Array of calendar events that should be saved to file.
+ * @param {string} [aDefaultFileName] - Initial filename shown in SaveAs dialog.
  */
 function saveEventsToFile(calendarEventArray, aDefaultFileName) {
   if (!calendarEventArray || !calendarEventArray.length) {
@@ -210,16 +209,18 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
 
   // Show the 'Save As' dialog and ask for a filename to save to
   let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-
   picker.init(window, cal.l10n.getCalString("filepickerTitleExport"), Ci.nsIFilePicker.modeSave);
 
+  let filename;
   if (aDefaultFileName && aDefaultFileName.length && aDefaultFileName.length > 0) {
-    picker.defaultString = aDefaultFileName;
+    filename = aDefaultFileName;
   } else if (calendarEventArray.length == 1 && calendarEventArray[0].title) {
-    picker.defaultString = calendarEventArray[0].title;
+    filename = calendarEventArray[0].title;
   } else {
-    picker.defaultString = cal.l10n.getCalString("defaultFileName");
+    filename = cal.l10n.getCalString("defaultFileName");
   }
+  // Remove characters usually illegal on the file system.
+  picker.defaultString = filename.replace(/[/\\?%*:|"<>]/g, "-");
 
   picker.defaultExtension = "ics";
 
