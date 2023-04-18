@@ -27,7 +27,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 /*
   Note: All Editor/Composer-related methods have been moved to editorApplicationOverlay.js,
-  so app windows that require those must include editorNavigatorOverlay.xul
+  so app windows that require those must include editorTasksOverlay.xul
 */
 
 /**
