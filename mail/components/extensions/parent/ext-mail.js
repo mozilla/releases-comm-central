@@ -1461,9 +1461,7 @@ class TabmailWindow extends Window {
    */
   getTabAtIndex(index) {
     let { tabManager } = this.extension;
-    let nativeTabInfo = this.tabmail.tabInfo.filter(info =>
-      getTabBrowser(info)
-    )[index];
+    let nativeTabInfo = this.tabmail.tabInfo[index];
     if (nativeTabInfo) {
       return tabManager.getWrapper(nativeTabInfo);
     }
