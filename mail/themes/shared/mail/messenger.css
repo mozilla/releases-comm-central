@@ -42,7 +42,13 @@ body {
 }
 
 p {
-  margin-block: 0.2em;
+  margin: 2px 4px;
+}
+
+hr {
+  width: 100%;
+  border-top: 1px solid var(--field-border-color);
+  border-bottom: 0;
 }
 
 :root:not([sizemode=maximized]) .titlebar-restore,

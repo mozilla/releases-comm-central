@@ -11,6 +11,8 @@ var gFullDataStrings = new Map();
 var gShortDataStrings = new Map();
 var gListenerAttached = false;
 
+window.addEventListener("load", Startup);
+
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
 
