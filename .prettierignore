@@ -1,11 +1,33 @@
-# This list automatically picks up exclusions from .eslintignore
-
 # These files are disabled due to parsing errors when using Prettier.
 # Bug 1560186
 *.html
 *.xhtml
 *.xul
 *.xml
+
+# Preference files.
+calendar/base/calendar.js
+chat/chat-prefs.js
+mail/app/profile/all-thunderbird.js
+mail/branding/nightly/pref/thunderbird-branding.js
+mail/branding/thunderbird/pref/thunderbird-branding.js
+mail/components/compose/composer.js
+mail/extensions/am-e2e/prefs/e2e-prefs.js
+mail/locales/en-US/all-l10n.js
+mailnews/extensions/mdn/mdn.js
+mailnews/mailnews.js
+
+# This file is split into two in order to keep it as a valid json file
+# for documentation purposes (policies.json) but to be accessed by the
+# code as a .jsm (schema.jsm).
+mail/components/enterprisepolicies/schemas/schema.jsm
+
+# Third-party code.
+calendar/base/modules/Ical.jsm
+chat/protocols/matrix/lib/**
+mail/base/content/protovis-r2.6-modded.js
+mail/components/compose/texzilla/**
+third_party/asn1js/asn1js.mjs
 
 # Ignore SeaMonkey files.
 suite/**

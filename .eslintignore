@@ -19,9 +19,6 @@ db/**
 other-licenses/**
 testing/**
 
-# Temporarily disabled until the XUL parser is fixed (see bug 1542548).
-common/src/viewSource.xul
-
 # We ignore all these directories by default, until we get them enabled.
 # If you are enabling a directory, please add directory specific exclusions
 # below.
@@ -60,6 +57,3 @@ mail/extensions/am-e2e/prefs/e2e-prefs.js
 mail/locales/en-US/all-l10n.js
 mail/components/compose/texzilla/**
 mail/components/compose/composer.js
-
-# exclude MailConstants.jsm because: #filter substitution
-mail/modules/MailConstants.jsm
