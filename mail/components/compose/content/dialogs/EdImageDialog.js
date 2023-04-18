@@ -268,6 +268,8 @@ function PreviewImageLoaded() {
     if (gDialog.actualSizeRadio.selected) {
       SetActualSize();
     }
+
+    window.sizeToContent();
   }
 }
 

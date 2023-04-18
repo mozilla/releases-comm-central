@@ -15,7 +15,7 @@ messenger.jar:
     content/messenger/messengercompose/EdDialogCommon.js             (content/dialogs/EdDialogCommon.js)
     content/messenger/messengercompose/EdLinkProps.xhtml             (content/dialogs/EdLinkProps.xhtml)
     content/messenger/messengercompose/EdLinkProps.js                (content/dialogs/EdLinkProps.js)
-*   content/messenger/messengercompose/EdImageProps.xhtml            (content/dialogs/EdImageProps.xhtml)
+    content/messenger/messengercompose/EdImageProps.xhtml            (content/dialogs/EdImageProps.xhtml)
     content/messenger/messengercompose/EdImageProps.js               (content/dialogs/EdImageProps.js)
     content/messenger/messengercompose/EdImageLinkLoader.js          (content/dialogs/EdImageLinkLoader.js)
     content/messenger/messengercompose/EdImageDialog.js              (content/dialogs/EdImageDialog.js)

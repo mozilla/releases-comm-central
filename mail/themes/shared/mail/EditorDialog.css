@@ -9,6 +9,11 @@
   color: var(--lwt-text-color);
 }
 
+#imageDlg {
+  overflow: auto;
+  max-width: inherit;
+}
+
 .MinWidth5em {
   min-width: 5em;
 }
