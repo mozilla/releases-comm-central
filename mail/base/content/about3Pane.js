@@ -645,15 +645,26 @@ var folderPane = {
           let row = folderPane._createFolderRow(this.name, folder);
           this.containerList.appendChild(row);
           folderType.list = row.childList;
+
+          // Display the searched folders for this type.
+          let vfHelper = VirtualFolderHelper.wrapVirtualFolder(folder);
+          for (let searchFolder of vfHelper.searchFolders) {
+            if (searchFolder != folder) {
+              this.addFolder(undefined, searchFolder);
+            }
+          }
         }
         MailServices.accounts.saveVirtualFolders();
       },
 
       initServer(server) {
-        for (let folder of server.rootFolder.subFolders) {
-          this.addFolder(server.rootFolder, folder);
+        if (["nntp", "rss"].includes(server.type)) {
+          for (let folder of server.rootFolder.subFolders) {
+            this.addFolder(server.rootFolder, folder);
+          }
         }
 
+        // Display inbox subfolders separately.
         let inbox = server.rootFolder.getFolderWithFlags(
           Ci.nsMsgFolderFlags.Inbox
         );
