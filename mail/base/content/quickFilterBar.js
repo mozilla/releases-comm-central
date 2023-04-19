@@ -69,20 +69,20 @@ var quickFilterBar = {
         document.getElementById(QuickFilterManager.textBoxDomId).select();
       }
     });
-    commandController.registerCallback(
-      "cmd_popQuickFilterBarStack",
-      () => {
+    window.addEventListener("keypress", event => {
+      if (event.keyCode != KeyEvent.DOM_VK_ESCAPE || !this.filterer.visible) {
+        // The filter bar isn't visible, do nothing.
+        return;
+      }
+      if (this.filterer.userHitEscape()) {
         // User hit the escape key; do our undo-ish thing.
-        if (this.filterer.userHitEscape()) {
-          this.updateSearch();
-          this.reflectFiltererState();
-        } else {
-          // Close the filter since there was nothing left to relax.
-          this._showFilterBar(false);
-        }
-      },
-      () => this.filterer.visible
-    );
+        this.updateSearch();
+        this.reflectFiltererState();
+      } else {
+        // Close the filter since there was nothing left to relax.
+        this._showFilterBar(false);
+      }
+    });
   },
 
   get filterer() {
@@ -308,8 +308,7 @@ var quickFilterBar = {
     if (!aShow) {
       this.filterer.clear();
       this.updateSearch();
-      let threadPane = document.getElementById("threadTree");
-      threadPane.focus();
+      threadTree.table.body.focus();
     }
     this.reflectFiltererState();
     window.dispatchEvent(new Event("qfbtoggle"));
