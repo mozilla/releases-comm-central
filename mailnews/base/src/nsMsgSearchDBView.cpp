@@ -524,7 +524,7 @@ void nsMsgSearchDBView::MoveThreadAt(nsMsgViewIndex threadIndex) {
   int32_t selectionCount;
   int32_t currentIndex;
   bool hasSelection =
-      mTree && mTreeSelection &&
+      mTreeSelection &&
       ((NS_SUCCEEDED(mTreeSelection->GetCurrentIndex(&currentIndex)) &&
         currentIndex >= 0 && (uint32_t)currentIndex < GetSize()) ||
        (NS_SUCCEEDED(mTreeSelection->GetRangeCount(&selectionCount)) &&
@@ -680,6 +680,7 @@ nsMsgSearchDBView::OnNewSearch() {
   // Needs to happen after we remove the keys, since RowCountChanged() will
   // call our GetRowCount().
   if (mTree) mTree->RowCountChanged(0, -oldSize);
+  if (mJSTree) mJSTree->RowCountChanged(0, -oldSize);
 
   // mSearchResults->Clear();
   return NS_OK;
@@ -1041,6 +1042,7 @@ NS_IMETHODIMP nsMsgSearchDBView::Sort(nsMsgViewSortTypeValue sortType,
 
   RestoreSelection(preservedKey, preservedSelection);
   if (mTree) mTree->Invalidate();
+  if (mJSTree) mJSTree->Invalidate();
 
   NS_ENSURE_SUCCESS(rv, rv);
   return rv;

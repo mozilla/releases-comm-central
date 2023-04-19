@@ -372,6 +372,7 @@ nsMsgQuickSearchDBView::OnNewSearch() {
       cachedHits->HasMoreElements(&hasMore);
       m_cacheEmpty = !hasMore;
       if (mTree) mTree->BeginUpdateBatch();
+      if (mJSTree) mJSTree->BeginUpdateBatch();
       while (hasMore) {
         nsCOMPtr<nsIMsgDBHdr> header;
         nsresult rv = cachedHits->GetNext(getter_AddRefs(header));
@@ -382,6 +383,7 @@ nsMsgQuickSearchDBView::OnNewSearch() {
         cachedHits->HasMoreElements(&hasMore);
       }
       if (mTree) mTree->EndUpdateBatch();
+      if (mJSTree) mJSTree->EndUpdateBatch();
     }
   }
   return NS_OK;

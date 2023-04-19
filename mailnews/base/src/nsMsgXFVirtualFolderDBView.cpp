@@ -353,6 +353,7 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
   // Needs to happen after we remove the keys, since RowCountChanged() will
   // call our GetRowCount().
   if (mTree) mTree->RowCountChanged(0, -oldSize);
+  if (mJSTree) mJSTree->RowCountChanged(0, -oldSize);
 
   // To use the search results cache, we'll need to iterate over the scopes
   // in the search session, calling getNthSearchScope
@@ -397,7 +398,10 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
   // cached results, or used cached results.
   m_doingQuickSearch = !curSearchAsString.Equals(terms);
 
-  if (mTree && !m_doingQuickSearch) mTree->BeginUpdateBatch();
+  if (!m_doingQuickSearch) {
+    if (mTree) mTree->BeginUpdateBatch();
+    if (mJSTree) mJSTree->BeginUpdateBatch();
+  }
 
   for (int32_t i = 0; i < scopeCount; i++) {
     nsMsgSearchScopeValue scopeId;
@@ -447,7 +451,10 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
     }
   }
 
-  if (mTree && !m_doingQuickSearch) mTree->EndUpdateBatch();
+  if (!m_doingQuickSearch) {
+    if (mTree) mTree->EndUpdateBatch();
+    if (mJSTree) mJSTree->EndUpdateBatch();
+  }
 
   m_curFolderStartKeyIndex = 0;
   m_curFolderGettingHits = nullptr;

@@ -489,12 +489,14 @@ nsresult nsMsgGroupView::RebuildView(nsMsgViewFlagsTypeValue newFlags) {
     // This needs to happen after we remove all the keys, since
     // RowCountChanged() will call our GetRowCount().
     if (mTree) mTree->RowCountChanged(0, -oldSize);
+    if (mJSTree) mJSTree->RowCountChanged(0, -oldSize);
 
     SetSuppressChangeNotifications(true);
     nsresult rv =
         OpenWithHdrs(headers, m_sortType, m_sortOrder, newFlags, &count);
     SetSuppressChangeNotifications(false);
     if (mTree) mTree->RowCountChanged(0, GetSize());
+    if (mJSTree) mJSTree->RowCountChanged(0, GetSize());
 
     NS_ENSURE_SUCCESS(rv, rv);
 

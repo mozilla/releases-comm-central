@@ -321,6 +321,7 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
 
         RestoreSelection(preservedKey, preservedSelection);
         if (mTree) mTree->Invalidate();
+        if (mJSTree) mJSTree->Invalidate();
 
         return NS_OK;
       } else {
@@ -339,6 +340,7 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
 
         RestoreSelection(preservedKey, preservedSelection);
         if (mTree) mTree->Invalidate();
+        if (mJSTree) mJSTree->Invalidate();
 
         return NS_OK;
       }
@@ -385,6 +387,7 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
 
   RestoreSelection(preservedKey, preservedSelection);
   if (mTree) mTree->Invalidate();
+  if (mJSTree) mJSTree->Invalidate();
 
   NS_ENSURE_SUCCESS(rv, rv);
   return NS_OK;
