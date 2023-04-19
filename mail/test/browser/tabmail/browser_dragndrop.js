@@ -321,7 +321,12 @@ add_task(async function test_tab_undo() {
 });
 
 async function _synthesizeRecentlyClosedMenu() {
-  mc.rightClick(mc.tabmail.tabContainer.allTabs[1]);
+  let tab = mc.tabmail.tabContainer.allTabs[1];
+  EventUtils.synthesizeMouseAtCenter(
+    tab,
+    { type: "contextmenu", button: 2 },
+    tab.ownerGlobal
+  );
 
   let tabContextMenu = mc.window.document.getElementById("tabContextMenu");
   await wait_for_popup_to_open(tabContextMenu);

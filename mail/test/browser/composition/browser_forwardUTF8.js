@@ -87,7 +87,11 @@ async function forwardViaFolder(aFilePath) {
   // Copy the message to a folder.
   let documentChild = aboutMessage.document.getElementById("messagepane")
     .contentDocument.documentElement;
-  msgc.rightClick(documentChild);
+  EventUtils.synthesizeMouseAtCenter(
+    documentChild,
+    { type: "contextmenu", button: 2 },
+    documentChild.ownerGlobal
+  );
   await msgc.click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
     [

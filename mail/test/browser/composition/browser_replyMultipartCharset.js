@@ -65,7 +65,11 @@ async function subtest_replyEditAsNewForward_charset(
   // opened from a file gives different results on different platforms.
   // All platforms behave the same when using a folder-stored message.
   let documentChild = msgc.window.content.document.documentElement;
-  msgc.rightClick(documentChild);
+  EventUtils.synthesizeMouseAtCenter(
+    documentChild,
+    { type: "contextmenu", button: 2 },
+    documentChild.ownerGlobal
+  );
   let aboutMessage = get_about_message(msgc.window);
   await msgc.click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),

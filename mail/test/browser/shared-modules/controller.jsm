@@ -90,7 +90,12 @@ Menu.prototype = {
       (menu.localName == "popup" || menu.localName == "menupopup") &&
       contextElement
     ) {
-      this._controller.rightClick(contextElement);
+      EventUtils.synthesizeMouseAtCenter(
+        contextElement,
+        { type: "contextmenu", button: 2 },
+        contextElement.ownerGlobal
+      );
+
       this._controller.waitFor(function() {
         return menu.state == "open";
       }, "Context menu has been opened.");

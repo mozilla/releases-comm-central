@@ -104,7 +104,11 @@ add_task(async function test_cid_image_load() {
 
   // Copy the message to a folder.
   let documentChild = messageDoc.firstElementChild;
-  msgc.rightClick(documentChild);
+  EventUtils.synthesizeMouseAtCenter(
+    documentChild,
+    { type: "contextmenu", button: 2 },
+    documentChild.ownerGlobal
+  );
   let aboutMessage = get_about_message(msgc.window);
   await msgc.click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
