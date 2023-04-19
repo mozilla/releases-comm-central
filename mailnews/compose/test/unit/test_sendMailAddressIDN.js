@@ -19,14 +19,9 @@ var kToInvalid = "b\u00F8rken.to@invalid.foo.invalid";
 var kToInvalidWithoutDomain = "b\u00F8rken.to";
 var NS_ERROR_ILLEGAL_LOCALPART = 0x80553139;
 
-/* exported alert */
 // for alertTestUtils.js
+let resolveAlert;
 function alert(aDialogText, aText) {
-  // ignore without domain situation (this is crash test)
-  if (test == kToInvalidWithoutDomain) {
-    return;
-  }
-
   var composeProps = Services.strings.createBundle(
     "chrome://messenger/locale/messengercompose/composeMsgs.properties"
   );
@@ -35,11 +30,13 @@ function alert(aDialogText, aText) {
     "\n" +
     composeProps
       .GetStringFromName("errorIllegalLocalPart2")
-      .replace("%s", kToInvalid);
+      // Without the domain, we currently don't display any name in the
+      // message part.
+      .replace("%s", test == kToInvalidWithoutDomain ? "" : test);
 
   // we should only get here for the kToInvalid test case
-  Assert.equal(test, kToInvalid);
   Assert.equal(aText, expectedAlertMessage);
+  resolveAlert();
 }
 
 // message listener implementations
@@ -128,8 +125,11 @@ MsgSendListener.prototype = {
   ]),
 };
 
-async function doSendTest(aRecipient, aRecipientExpected) {
+async function doSendTest(aRecipient, aRecipientExpected, waitForPrompt) {
   info(`Testing send to ${aRecipient} will get sent to ${aRecipientExpected}`);
+  let promiseAlertReceived = new Promise(resolve => {
+    resolveAlert = resolve;
+  });
   test = aRecipient;
   server = setupServerDaemon();
   server.start();
@@ -144,6 +144,7 @@ async function doSendTest(aRecipient, aRecipientExpected) {
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
   try {
+    do_test_pending();
     var compFields = Cc[
       "@mozilla.org/messengercompose/composefields;1"
     ].createInstance(Ci.nsIMsgCompFields);
@@ -168,12 +169,14 @@ async function doSendTest(aRecipient, aRecipientExpected) {
     );
 
     server.performTest();
-    do_test_pending();
     do_timeout(10000, function() {
       if (!finished) {
         do_throw("Notifications of message send/copy not received");
       }
     });
+    if (waitForPrompt) {
+      await promiseAlertReceived;
+    }
   } catch (e) {
     Assert.ok(false, "Send fail: " + e);
   } finally {
@@ -197,7 +200,7 @@ add_task(function setup() {
 add_task(async function plainASCIIRecipient() {
   // Test 1:
   // Plain ASCII recipient address.
-  await doSendTest(kToASCII, kToASCII);
+  await doSendTest(kToASCII, kToASCII, false);
 });
 
 add_task(async function domainContainsNonAscii() {
@@ -208,7 +211,7 @@ add_task(async function domainContainsNonAscii() {
   // the message to the remaining - wrong! - address.
   // The new code will translate the domain part to ACE for the SMTP
   // transaction (only), i.e. the To: header will stay as stated by the sender.
-  await doSendTest(kToValid, kToValidACE);
+  await doSendTest(kToValid, kToValidACE, false);
 });
 
 add_task(async function localContainsNonAscii() {
@@ -218,11 +221,11 @@ add_task(async function localContainsNonAscii() {
   // The old code would just strip the invalid character and try to send the
   // message to the remaining - wrong! - address.
   // The new code will present an informational message box and deny sending.
-  await doSendTest(kToInvalid, kToInvalid);
+  await doSendTest(kToInvalid, kToInvalid, true);
 });
 
 add_task(async function invalidCharNoAt() {
   // Test 4:
   // Bug 856506. invalid char without '@' causes crash.
-  await doSendTest(kToInvalidWithoutDomain, kToInvalidWithoutDomain);
+  await doSendTest(kToInvalidWithoutDomain, kToInvalidWithoutDomain, true);
 });
