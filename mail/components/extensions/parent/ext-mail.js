@@ -30,7 +30,11 @@ XPCOMUtils.defineLazyPreferenceGetter(
   "extensions.webextensions.messagesPerPage",
   100
 );
-XPCOMUtils.defineLazyGlobalGetters(this, ["IOUtils", "PathUtils"]);
+XPCOMUtils.defineLazyGlobalGetters(this, [
+  "IOUtils",
+  "PathUtils",
+  "FileReader",
+]);
 
 const MAIN_WINDOW_URI = "chrome://messenger/content/messenger.xhtml";
 const POPUP_WINDOW_URI = "chrome://messenger/content/extensionPopup.xhtml";

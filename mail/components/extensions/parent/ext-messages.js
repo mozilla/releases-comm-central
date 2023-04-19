@@ -38,7 +38,7 @@ var { MailStringUtils } = ChromeUtils.import(
 );
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
-Cu.importGlobalProperties(["File", "FileReader", "IOUtils", "PathUtils"]);
+Cu.importGlobalProperties(["File", "IOUtils", "PathUtils"]);
 
 var { DefaultMap } = ExtensionUtils;
 

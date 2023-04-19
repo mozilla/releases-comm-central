@@ -23,7 +23,7 @@ let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
 );
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
-Cu.importGlobalProperties(["File", "FileReader"]);
+Cu.importGlobalProperties(["File"]);
 
 const deliveryFormats = [
   { id: Ci.nsIMsgCompSendFormat.Auto, value: "auto" },
