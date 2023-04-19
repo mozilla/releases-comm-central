@@ -1736,6 +1736,7 @@ var folderPane = {
     event.preventDefault();
 
     let row = event.target.closest("li");
+    this._timedExpand(row);
     if (!row) {
       return;
     }
@@ -1824,11 +1825,37 @@ var folderPane = {
     row.classList.add("drop-target");
   },
 
+  /**
+   * Set a timer to expand `row` in 500ms. If called again before the timer
+   * expires and with a different row, the timer is cleared and a new one
+   * started. If `row` is falsy or isn't collapsed the timer is cleared.
+   *
+   * @param {HTMLLIElement?} row
+   */
+  _timedExpand(row) {
+    if (this._expandRow == row) {
+      return;
+    }
+    if (this._expandTimer) {
+      clearTimeout(this._expandTimer);
+    }
+    if (!row?.classList.contains("collapsed")) {
+      return;
+    }
+    this._expandRow = row;
+    this._expandTimer = setTimeout(() => {
+      folderTree.expandRow(this._expandRow);
+      delete this._expandRow;
+      delete this._expandTimer;
+    }, 500);
+  },
+
   _clearDropTarget() {
     folderTree.querySelector(".drop-target")?.classList.remove("drop-target");
   },
 
   _onDrop(event) {
+    this._timedExpand();
     this._clearDropTarget();
     if (event.dataTransfer.dropEffect == "none") {
       // Somehow this is possible. It should not be possible.
