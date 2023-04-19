@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported PROTO_TREE_VIEW */
+
 /**
  * This file contains a prototype object designed to make the implementation of
  * nsITreeViews in javascript simpler.  This object requires that consumers
@@ -42,6 +44,10 @@ PROTO_TREE_VIEW.prototype = {
    */
   getCellText(aRow, aCol) {
     return this._rowMap[aRow].getText(aCol.id);
+  },
+
+  getCellValue(aRow, aCol) {
+    return this._rowMap[aRow].getValue(aCol.id);
   },
 
   /**
@@ -199,7 +205,6 @@ PROTO_TREE_VIEW.prototype = {
   selectionChanged() {},
   setCellText(aRow, aCol, aValue) {},
   setCellValue(aRow, aCol, aValue) {},
-  getCellValue(aRow, aCol) {},
   getColumnProperties(aCol) {
     return "";
   },

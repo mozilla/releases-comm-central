@@ -263,8 +263,7 @@ function switchToView(viewType) {
 
     selectedDay = oldView.selectedDay;
     currentSelection = oldView.getSelectedItems();
-    oldView.isActive = false;
-    oldView.clearItems();
+    oldView.deactivate();
   }
 
   if (!selectedDay) {
@@ -289,8 +288,7 @@ function switchToView(viewType) {
   view.setSelectedItems(currentSelection);
 
   view.onResize(view);
-  view.isActive = true;
-  view.refreshItems();
+  view.activate();
 }
 
 /**

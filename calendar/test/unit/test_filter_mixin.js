@@ -42,22 +42,11 @@ class TestCalFilter extends CalendarFilteredViewMixin(class {}) {
   }
 }
 
-let calendar, testWidget;
 let testItems = {};
 let addedTestItems = {};
 
 add_setup(async function() {
   await new Promise(resolve => do_calendar_startup(resolve));
-
-  calendar = CalendarTestUtils.createCalendar("test", "storage");
-  calendar.setProperty("calendar-main-in-composite", true);
-  Assert.ok(!calendar.getProperty("disabled"));
-
-  testWidget = new TestCalFilter();
-  testWidget.startDate = cal.createDateTime("20210801");
-  testWidget.endDate = cal.createDateTime("20210831");
-  testWidget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
-  testWidget.isActive = true;
 
   for (let [title, startDate, endDate] of [
     ["before", "20210720", "20210721"],
@@ -88,6 +77,8 @@ add_setup(async function() {
 });
 
 add_task(async function testAddItems() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   for (let title of ["before", "after"]) {
     testWidget.clearItems();
     addedTestItems[title] = await calendar.addItem(testItems[title]);
@@ -115,9 +106,21 @@ add_task(async function testAddItems() {
   Assert.equal(testWidget.addedItems[2].title, "repeating");
   Assert.equal(testWidget.addedItems[2].startDate.icalString, "20210828T120000");
   Assert.equal(testWidget.addedItems[2].endDate.icalString, "20210828T130000");
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testRefresh() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
+  // Add all calendar items.
+  const promises = [];
+  for (const key in testItems) {
+    promises.push(calendar.addItem(testItems[key]));
+  }
+  await Promise.all(promises);
+
   testWidget.startDate = cal.createDateTime("20210801");
   testWidget.endDate = cal.createDateTime("20210831");
   await testWidget.refreshItems();
@@ -151,11 +154,37 @@ add_task(async function testRefresh() {
   Assert.equal(testWidget.addedItems[3].startDate.icalString, "20210902T120000");
   Assert.equal(testWidget.addedItems[3].endDate.icalString, "20210902T130000");
 
-  testWidget.startDate = cal.createDateTime("20210801");
-  testWidget.endDate = cal.createDateTime("20210831");
+  // Verify that refreshing while the widget is inactive doesn't prevent later
+  // attempts to refresh from succeeding.
+  testWidget.deactivate();
+  testWidget.clearItems();
+  Assert.equal(
+    testWidget.addedItems.length,
+    0,
+    "there should be no items after deactivation and clearing"
+  );
+
+  await testWidget.refreshItems();
+  Assert.equal(testWidget.addedItems.length, 0, "refreshing while inactive should not add items");
+
+  await testWidget.activate();
+  Assert.equal(testWidget.addedItems.length, 4, "getItems returns expected number of items");
+  Assert.equal(testWidget.addedItems[0].title, "overlaps_end", "correct item returned");
+  Assert.equal(testWidget.addedItems[1].title, "overlaps_both", "correct item returned");
+  Assert.equal(testWidget.addedItems[2].title, "repeating");
+  Assert.equal(testWidget.addedItems[2].startDate.icalString, "20210828T120000");
+  Assert.equal(testWidget.addedItems[2].endDate.icalString, "20210828T130000");
+  Assert.equal(testWidget.addedItems[3].title, "repeating");
+  Assert.equal(testWidget.addedItems[3].startDate.icalString, "20210902T120000");
+  Assert.equal(testWidget.addedItems[3].endDate.icalString, "20210902T130000");
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testRemoveItems() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   for (let title of ["before", "after"]) {
     testWidget.clearItems();
     await calendar.deleteItem(addedTestItems[title]);
@@ -183,9 +212,14 @@ add_task(async function testRemoveItems() {
   Assert.equal(testWidget.removedItems[2].title, "repeating");
   Assert.equal(testWidget.removedItems[2].startDate.icalString, "20210828T120000");
   Assert.equal(testWidget.removedItems[2].endDate.icalString, "20210828T130000");
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testModifyItem() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "change me";
@@ -217,9 +251,14 @@ add_task(async function testModifyItem() {
   Assert.equal(testWidget.removedItems.length, 1);
   Assert.equal(testWidget.removedItems[0].title, "changed");
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testMoveItemWithinRange() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "move me";
@@ -252,9 +291,14 @@ add_task(async function testMoveItemWithinRange() {
   Assert.equal(testWidget.removedItems.length, 1);
   Assert.equal(testWidget.removedItems[0].title, "move me");
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testMoveItemOutOfRange() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "move me";
@@ -284,9 +328,14 @@ add_task(async function testMoveItemOutOfRange() {
   await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.removedItems.length, 0);
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testMoveItemInToRange() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "move me";
@@ -313,9 +362,14 @@ add_task(async function testMoveItemInToRange() {
   Assert.equal(testWidget.removedItems.length, 1);
   Assert.equal(testWidget.removedItems[0].title, "move me");
   Assert.ok(testWidget.removedItems[0].hasSameIds(testWidget.addedItems[0]));
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testModifyRecurringItem() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "change me";
@@ -361,9 +415,14 @@ add_task(async function testModifyRecurringItem() {
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
   Assert.ok(testWidget.removedItems[1].hasSameIds(addedItems[1]));
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testMoveRecurringItemWithinRange() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "move me";
@@ -420,9 +479,14 @@ add_task(async function testMoveRecurringItemWithinRange() {
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
   Assert.ok(testWidget.removedItems[1].hasSameIds(addedItems[1]));
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testMoveRecurringItemOutOfRange() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "move me";
@@ -460,9 +524,14 @@ add_task(async function testMoveRecurringItemOutOfRange() {
   await calendar.deleteItem(changedItem);
 
   Assert.equal(testWidget.removedItems.length, 0);
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testMoveRecurringItemInToRange() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "move me";
@@ -497,9 +566,14 @@ add_task(async function testMoveRecurringItemInToRange() {
   Assert.ok(testWidget.removedItems[0].hasSameIds(testWidget.addedItems[0]));
   Assert.ok(testWidget.removedItems[1].hasSameIds(testWidget.addedItems[1]));
   Assert.ok(testWidget.removedItems[2].hasSameIds(testWidget.addedItems[2]));
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testModifyOccurrence() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "change me";
@@ -550,9 +624,14 @@ add_task(async function testModifyOccurrence() {
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
   Assert.ok(testWidget.removedItems[1].hasSameIds(addedItems[1]));
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testDeleteOccurrence() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "change me";
@@ -598,9 +677,14 @@ add_task(async function testDeleteOccurrence() {
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
   Assert.ok(testWidget.removedItems[1].hasSameIds(addedItems[1]));
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testMoveOccurrenceWithinRange() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "move me";
@@ -661,9 +745,14 @@ add_task(async function testMoveOccurrenceWithinRange() {
   Assert.ok(testWidget.removedItems[0].hasSameIds(addedItems[0]));
   Assert.ok(testWidget.removedItems[1].hasSameIds(addedItems[1]));
   Assert.ok(testWidget.removedItems[2].hasSameIds(addedItems[2]));
+
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testChangeTaskCompletion() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let incompleteTask = new CalTodo();
   incompleteTask.id = cal.getUUID();
   incompleteTask.title = "incomplete task";
@@ -709,15 +798,14 @@ add_task(async function testChangeTaskCompletion() {
 
   // Clean up.
 
-  await calendar.deleteItem(incompleteAgainItem);
-  testWidget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testDisableEnableCalendar() {
-  addedTestItems.during = await calendar.addItem(testItems.during);
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
 
-  testWidget.clearItems();
-  await testWidget.refreshItems();
+  addedTestItems.during = await calendar.addItem(testItems.during);
 
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.removedItems.length, 0);
@@ -781,10 +869,13 @@ add_task(async function testDisableEnableCalendar() {
   Assert.equal(testWidget.removedItems.length, 0);
   Assert.equal(testWidget.removedCalendarIds.length, 0);
 
-  await calendar.deleteItem(addedTestItems.during);
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testChangeWhileHidden() {
+  const { calendar, testWidget } = await initializeCalendarAndTestWidget();
+
   let item = new CalEvent();
   item.id = cal.getUUID();
   item.title = "change me";
@@ -810,12 +901,11 @@ add_task(async function testChangeWhileHidden() {
   Assert.equal(testWidget.addedItems.length, 0);
   Assert.equal(testWidget.removedItems.length, 0);
 
-  calendar.setProperty("calendar-main-in-composite", true);
+  CalendarTestUtils.removeCalendar(calendar);
+  testWidget.deactivate();
 });
 
 add_task(async function testChangeWhileRefreshing() {
-  CalendarTestUtils.removeCalendar(calendar);
-
   // Create a calendar we can control the output of.
 
   let pumpCalendar = {
@@ -862,10 +952,8 @@ add_task(async function testChangeWhileRefreshing() {
   // Ask the calendars for items. Get a waiting Promise before and after doing so.
   // These should be the same as the earlier Promise.
 
-  widget.isActive = true;
-
   Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
-  Assert.equal(widget.refreshItems(), ready1, ".refreshItems should return the same Promise");
+  Assert.equal(widget.activate(), ready1, ".activate should return the same Promise");
   Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
 
   // Return some items from the calendar. They should be sent to addItems.
@@ -876,7 +964,7 @@ add_task(async function testChangeWhileRefreshing() {
 
   // Make the widget inactive. This invalidates the earlier call to `refreshItems`.
 
-  widget.isActive = false;
+  widget.deactivate();
 
   // Return some more items from the calendar. These should be ignored.
 
@@ -898,12 +986,9 @@ add_task(async function testChangeWhileRefreshing() {
 
   // Make the widget active again so we can test some other things.
 
-  widget.isActive = true;
   widget.clearItems();
 
-  // Start a refresh...
-
-  Assert.equal(widget.refreshItems(), ready1, ".refreshItems should return the same Promise");
+  Assert.equal(widget.activate(), ready1, ".activate should return the same Promise");
   Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
 
   pumpCalendar.controller.enqueue([testItems.during]);
@@ -983,3 +1068,16 @@ add_task(async function testChangeWhileRefreshing() {
   pumpCalendar.controller.close();
   await ready5;
 });
+
+async function initializeCalendarAndTestWidget() {
+  const calendar = CalendarTestUtils.createCalendar("test", "storage");
+  calendar.setProperty("calendar-main-in-composite", true);
+
+  const testWidget = new TestCalFilter();
+  testWidget.startDate = cal.createDateTime("20210801");
+  testWidget.endDate = cal.createDateTime("20210831");
+  testWidget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+  await testWidget.activate();
+
+  return { calendar, testWidget };
+}

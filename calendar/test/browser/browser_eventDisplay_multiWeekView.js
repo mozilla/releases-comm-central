@@ -20,9 +20,9 @@ registerCleanupFunction(() => {
  * @param {string} start - The date time string for the start of the event.
  * @param {string} end - The date time string for the end of the event.
  *
- * @returns {CalEvent} - The created event.
+ * @returns {Promise<CalEvent>} - The created event.
  */
-async function createEvent(name, start, end) {
+function createEvent(name, start, end) {
   let event = new CalEvent();
   event.title = name;
   event.startDate = cal.createDateTime(start);

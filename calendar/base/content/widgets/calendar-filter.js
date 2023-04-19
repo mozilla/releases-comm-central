@@ -4,6 +4,8 @@
 
 /* import-globals-from ../calendar-views-utils.js */
 
+/* exported CalendarFilteredViewMixin */
+
 var { PromiseUtils } = ChromeUtils.importESModule("resource://gre/modules/PromiseUtils.sys.mjs");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalReadableStreamFactory } = ChromeUtils.import(
@@ -1131,19 +1133,36 @@ let CalendarFilteredViewMixin = Base =>
       return this.#isActive;
     }
 
-    set isActive(value) {
-      if (this.isActive == value) {
+    /**
+     * Activate the view, refreshing items and listening for changes.
+     *
+     * @returns {Promise} a promise which resolves when refresh is complete
+     */
+    activate() {
+      if (this.#isActive) {
+        return Promise.resolve();
+      }
+
+      this.#isActive = true;
+      this.#calendarObserver.self = this;
+
+      cal.manager.addCalendarObserver(this.#calendarObserver);
+      return this.refreshItems();
+    }
+
+    /**
+     * Deactivate the view, cancelling any in-progress refresh and causing it to
+     * no longer listen for changes.
+     */
+    deactivate() {
+      if (!this.#isActive) {
         return;
       }
 
-      this.#isActive = value;
+      this.#isActive = false;
       this.#calendarObserver.self = this;
-      if (value) {
-        cal.manager.addCalendarObserver(this.#calendarObserver);
-      } else {
-        cal.manager.removeCalendarObserver(this.#calendarObserver);
-      }
 
+      cal.manager.removeCalendarObserver(this.#calendarObserver);
       this.#invalidate();
     }
 
@@ -1156,7 +1175,12 @@ let CalendarFilteredViewMixin = Base =>
      *   Promise as returned from the `ready` getter.
      */
     refreshItems(force = false) {
-      if (force) {
+      if (!this.#isActive) {
+        // If we're inactive, calling #refreshCalendar() will do nothing, but we
+        // will have created a refresh job with no effect and subsequent refresh
+        // attempts will fail.
+        return Promise.resolve();
+      } else if (force) {
         // Refresh, even if already refreshing or refreshed.
         this.#invalidate();
       } else if (this.#currentRefresh) {
