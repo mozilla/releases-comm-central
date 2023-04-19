@@ -647,10 +647,13 @@ var folderPane = {
           folderType.list = row.childList;
 
           // Display the searched folders for this type.
-          let vfHelper = VirtualFolderHelper.wrapVirtualFolder(folder);
-          for (let searchFolder of vfHelper.searchFolders) {
+          let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
+          for (let searchFolder of wrappedFolder.searchFolders) {
             if (searchFolder != folder) {
-              this.addFolder(undefined, searchFolder);
+              this.addFolder(
+                folderPane._getNonGmailParent(searchFolder),
+                searchFolder
+              );
             }
           }
         }
@@ -663,39 +666,37 @@ var folderPane = {
             this.addFolder(server.rootFolder, folder);
           }
         }
-
-        // Display inbox subfolders separately.
-        let inbox = server.rootFolder.getFolderWithFlags(
-          Ci.nsMsgFolderFlags.Inbox
-        );
-        if (!inbox) {
-          return;
-        }
-        for (let subFolder of inbox.subFolders) {
-          this.addFolder(inbox, subFolder);
-        }
       },
 
       addFolder(parentFolder, childFolder) {
         let flags = childFolder.flags;
         for (let folderType of this._folderTypes) {
-          if (!(flags & folderType.flag) || !folderType.list) {
+          if (
+            !childFolder.isSpecialFolder(folderType.flag, true) ||
+            !folderType.list
+          ) {
             continue;
           }
-          let folderRow = folderPane._createFolderRow(
-            this.name,
-            childFolder,
-            "server"
-          );
-          folderRow.dataset.serverKey = childFolder.server.key;
-          folderPane._insertInServerOrder(folderType.list, folderRow);
+
+          if (folderType.flag & flags) {
+            // The folder has the flag for this type.
+            let folderRow = folderPane._createFolderRow(
+              this.name,
+              childFolder,
+              "server"
+            );
+            folderPane._insertInServerOrder(folderType.list, folderRow);
+          } else {
+            // The folder is a descendant of one which has the flag.
+            let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
+            parentRow.insertChildInOrder(
+              folderPane._createFolderRow(this.name, childFolder)
+            );
+          }
           return;
         }
 
-        if (
-          !childFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox, true) &&
-          !["nntp", "rss"].includes(childFolder.server.type)
-        ) {
+        if (!["nntp", "rss"].includes(childFolder.server.type)) {
           return;
         }
 

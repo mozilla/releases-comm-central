@@ -3,20 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Test that the smart folder mode works properly. This includes checking
- * whether |getParentOfFolder| works, and also making sure selectFolder behaves
- * properly, opening the right folders.
+ * Test that the smart folder mode works properly.
  */
 
 "use strict";
 
 var {
   archive_selected_messages,
-  assert_folder_collapsed,
-  assert_folder_expanded,
-  assert_folder_selected_and_displayed,
-  collapse_folder,
-  delete_messages,
   expand_folder,
   FAKE_SERVER_HOSTNAME,
   get_about_3pane,
@@ -68,46 +61,6 @@ add_setup(async function() {
 
   // The smart inbox may not have been created at setup time, so get it now.
   smartInboxFolder = get_smart_folder_named("Inbox");
-});
-
-/**
- * Test that selectFolder expands a collapsed smart inbox.
- */
-add_task(function test_select_folder_expands_collapsed_smart_inbox() {
-  // Collapse the smart inbox
-  collapse_folder(smartInboxFolder);
-  assert_folder_collapsed(smartInboxFolder);
-
-  // Also collapse the account root, make sure selectFolder don't expand it
-  collapse_folder(rootFolder);
-  assert_folder_collapsed(rootFolder);
-
-  // Now attempt to select the folder.
-  about3Pane.displayFolder(inboxFolder.URI);
-
-  assert_folder_collapsed(rootFolder);
-  assert_folder_expanded(smartInboxFolder);
-  assert_folder_selected_and_displayed(inboxFolder);
-});
-
-/**
- * Test that selectFolder expands a collapsed account root.
- */
-add_task(function test_select_folder_expands_collapsed_account_root() {
-  // Collapse the account root
-  collapse_folder(rootFolder);
-  assert_folder_collapsed(rootFolder);
-
-  // Also collapse the smart inbox, make sure selectFolder don't expand it
-  collapse_folder(smartInboxFolder);
-  assert_folder_collapsed(smartInboxFolder);
-
-  // Now attempt to select the folder.
-  about3Pane.displayFolder(inboxSubfolder.URI);
-
-  assert_folder_collapsed(smartInboxFolder);
-  assert_folder_expanded(rootFolder);
-  assert_folder_selected_and_displayed(inboxSubfolder);
 });
 
 /**
@@ -214,6 +167,13 @@ function assert_uri_not_found(folderURI, scopeList) {
 registerCleanupFunction(async function() {
   about3Pane.folderPane.activeModes = ["all"];
   inboxFolder.propagateDelete(inboxSubfolder, true);
-  await delete_messages(inboxSet);
+  inboxFolder.deleteMessages(
+    [...inboxFolder.messages],
+    top.msgWindow,
+    false,
+    false,
+    null,
+    false
+  );
   trashFolder.propagateDelete(trashSubfolder, true);
 });

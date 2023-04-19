@@ -896,8 +896,6 @@ add_task(async function testGmailFolders() {
 add_task(async function testAccountOrder() {
   // Make some changes to the main account so that it appears in all modes.
 
-  inboxFolder.createSubfolder("sub-inbox", null);
-  let subInboxFolder = inboxFolder.getChildNamed("sub-inbox");
   [...folderA.messages][0].markRead(false);
   folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
   folderPane.activeModes = ["all", "smart", "unread", "favorite"];
@@ -905,7 +903,6 @@ add_task(async function testAccountOrder() {
   let localFolders = [
     rootFolder,
     inboxFolder,
-    subInboxFolder,
     trashFolder,
     outboxFolder,
     folderA,
@@ -932,12 +929,7 @@ add_task(async function testAccountOrder() {
   // Check the initial items in the folder tree.
 
   await checkModeListItems("all", localFolders);
-  await checkModeListItems("smart", [
-    ...smartFolders,
-    trashFolder,
-    rootFolder,
-    subInboxFolder,
-  ]);
+  await checkModeListItems("smart", [...smartFolders, trashFolder]);
   await checkModeListItems("unread", [rootFolder, folderA]);
   await checkModeListItems("favorite", [rootFolder, folderA]);
 
@@ -991,8 +983,6 @@ add_task(async function testAccountOrder() {
     fooTrashFolder,
     barTrashFolder,
     trashFolder,
-    rootFolder,
-    subInboxFolder,
   ]);
   await checkModeListItems("unread", [
     fooRootFolder,
@@ -1025,8 +1015,6 @@ add_task(async function testAccountOrder() {
     fooTrashFolder,
     barTrashFolder,
     trashFolder,
-    rootFolder,
-    subInboxFolder,
   ]);
   await checkModeListItems("unread", [
     fooRootFolder,
@@ -1058,8 +1046,6 @@ add_task(async function testAccountOrder() {
     barTrashFolder,
     trashFolder,
     fooTrashFolder,
-    rootFolder,
-    subInboxFolder,
   ]);
   await checkModeListItems("unread", [
     barRootFolder,
@@ -1091,8 +1077,6 @@ add_task(async function testAccountOrder() {
     fooTrashFolder,
     trashFolder,
     barTrashFolder,
-    rootFolder,
-    subInboxFolder,
   ]);
   await checkModeListItems("unread", [
     fooRootFolder,
@@ -1119,8 +1103,6 @@ add_task(async function testAccountOrder() {
     ...smartFolders,
     trashFolder,
     barTrashFolder,
-    rootFolder,
-    subInboxFolder,
   ]);
   await checkModeListItems("unread", [
     rootFolder,
@@ -1140,10 +1122,8 @@ add_task(async function testAccountOrder() {
   MailServices.accounts.removeAccount(bar, false);
   folderA.markAllMessagesRead(null);
   folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  subInboxFolder.deleteSelf(null);
   rootFolder.emptyTrash(null);
 
-  localFolders.splice(2, 1);
   await checkModeListItems("all", localFolders);
   await checkModeListItems("smart", [...smartFolders, trashFolder]);
   await checkModeListItems("unread", [rootFolder, folderA]);
