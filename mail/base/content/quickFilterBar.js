@@ -40,21 +40,22 @@ class ToggleButton extends HTMLButtonElement {
 }
 customElements.define("toggle-button", ToggleButton, { extends: "button" });
 
-/**
- * There is only one message filter bar widget; the muxer deals with tab
- *  changes and directing modifications to and reflecting the state of the
- *  actual filterer objects.
- */
 var quickFilterBar = {
   _filterer: null,
 
-  /**
-   * This gets called by OnLoadMessenger in order to ensure that the monitor
-   *  gets registered prior to the first tab being opened.  This avoids
-   *  complications about generating synthetic tab notifications.
-   */
   init() {
     this._bindUI();
+
+    // Show the toolbar, unless it has been previously hidden.
+    if (
+      Services.xulStore.getValue(
+        XULSTORE_URL,
+        "quickFilterBar",
+        "collapsed"
+      ) !== "true"
+    ) {
+      this._showFilterBar(true);
+    }
 
     commandController.registerCallback("cmd_showQuickFilterBar", () => {
       if (!this.filterer.visible) {
@@ -88,6 +89,7 @@ var quickFilterBar = {
   get filterer() {
     if (!this._filterer) {
       this._filterer = new QuickFilterState();
+      this._filterer.visible = false;
     }
     return this._filterer;
   },
@@ -311,6 +313,12 @@ var quickFilterBar = {
       threadTree.table.body.focus();
     }
     this.reflectFiltererState();
+    Services.xulStore.setValue(
+      XULSTORE_URL,
+      "quickFilterBar",
+      "collapsed",
+      !aShow
+    );
     window.dispatchEvent(new Event("qfbtoggle"));
   },
 
