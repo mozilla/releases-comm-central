@@ -103,6 +103,10 @@ window.addEventListener("unload", () => {
 });
 
 function displayMessage(uri, viewWrapper) {
+  // Clear the state flags, if this window is re-used.
+  window.msgLoaded = false;
+  window.msgLoading = false;
+
   // Clean up existing objects before starting again.
   ClearPendingReadTimer();
   gMessage = null;
@@ -118,6 +122,7 @@ function displayMessage(uri, viewWrapper) {
   if (!uri) {
     HideMessageHeaderPane();
     MailE10SUtils.loadAboutBlank(getMessagePaneBrowser());
+    window.msgLoaded = true;
     window.dispatchEvent(
       new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
     );
@@ -210,7 +215,7 @@ function displayMessage(uri, viewWrapper) {
     );
   }
   autodetectCharset = false;
-
+  window.msgLoading = true;
   window.dispatchEvent(
     new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
   );

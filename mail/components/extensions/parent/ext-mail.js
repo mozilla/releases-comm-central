@@ -1848,7 +1848,11 @@ function isAttachedMessage(msgHdr) {
  * Converts an nsIMsgHdr to a simple object for use in messages.
  * This function WILL change as the API develops.
  *
- * @returns {object}
+ * @param {nsIMsgHdr} msgHdr
+ * @param {ExtensionData} extension
+ * @returns {MessageHeader} MessageHeader object
+ *
+ * @see /mail/components/extensions/schemas/messages.json
  */
 function convertMessage(msgHdr, extension) {
   if (!msgHdr) {

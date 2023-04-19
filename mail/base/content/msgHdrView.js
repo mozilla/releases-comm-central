@@ -4860,6 +4860,7 @@ function OnMsgLoaded(aUrl) {
     return;
   }
 
+  window.msgLoaded = true;
   window.dispatchEvent(
     new CustomEvent("MsgLoaded", { detail: gMessage, bubbles: true })
   );
