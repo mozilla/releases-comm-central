@@ -547,13 +547,17 @@ function InitViewMessagesMenu() {
 function InitMessageMenu() {
   let tab = document.getElementById("tabmail")?.currentTabInfo;
   let message, folder;
+  let isDummy;
   if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
     ({ message, folder } = tab);
+    isDummy = message && !folder;
+  } else {
+    message = document.getElementById("messageBrowser")?.contentWindow.gMessage;
+    isDummy = !message?.folder;
   }
 
   let isNews = message?.folder?.flags & Ci.nsMsgFolderFlags.Newsgroup;
   let isFeed = message && FeedUtils.isFeedMessage(message);
-  let isDummy = message && !folder;
 
   // We show reply to Newsgroups only for news messages.
   document.getElementById("replyNewsgroupMainMenu").hidden = !isNews;
@@ -573,12 +577,12 @@ function InitMessageMenu() {
 
   document.getElementById("moveMenu").disabled = !canMove;
 
-  document.getElementById("copyMenu").disabled = !(message || isDummy);
+  document.getElementById("copyMenu").disabled = !message;
 
   initMoveToFolderAgainMenu(document.getElementById("moveToFolderAgain"));
 
   // Disable the Forward As menu item if no message is selected.
-  document.getElementById("forwardAsMenu").disabled = !(message || isDummy);
+  document.getElementById("forwardAsMenu").disabled = !message;
 
   // Disable the Tag menu item if no message is selected or when we're
   // not in a folder.
