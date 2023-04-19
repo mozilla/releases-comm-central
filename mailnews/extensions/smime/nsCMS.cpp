@@ -612,50 +612,26 @@ class SMimeVerificationTask final : public CryptoTask {
   virtual nsresult CalculateResult() override {
     MOZ_ASSERT(!NS_IsMainThread());
 
-    nsCOMPtr<nsICMSMessage> message;
-    {
-      mozilla::StaticMutexAutoLock lock(sMutex);
-      mMessage.swap(message);
-    }
-
+    mozilla::StaticMutexAutoLock lock(sMutex);
     nsresult rv;
     if (mDigestData.IsEmpty()) {
-      rv = message->VerifySignature();
+      rv = mMessage->VerifySignature();
     } else {
-      rv = message->VerifyDetachedSignature(mDigestData, mDigestType);
-    }
-
-    {
-      mozilla::StaticMutexAutoLock lock(sMutex);
-      mMessage.swap(message);
+      rv = mMessage->VerifyDetachedSignature(mDigestData, mDigestType);
     }
 
     return rv;
   }
   virtual void CallCallback(nsresult rv) override {
     MOZ_ASSERT(NS_IsMainThread());
-    nsCOMPtr<nsICMSMessage> message;
-    nsCOMPtr<nsISMimeVerificationListener> listener;
-    // Don't call Notify while we're holding the mutex, because it's
-    // a shared mutex across all thread, and holding it for longer can
-    // cause a deadlock.
-    // Also we won't need these objects after leaving this function,
-    // so let's release them early.
-    {
-      mozilla::StaticMutexAutoLock lock(sMutex);
-      if (!mListener) {
-        return;
-      }
-      mListener.swap(listener);
-      mMessage.swap(message);
-    }
-    listener->Notify(message, rv);
+    mozilla::StaticMutexAutoLock lock(sMutex);
+    mListener->Notify(mMessage, rv);
   }
 
   nsCOMPtr<nsICMSMessage> mMessage;
   nsCOMPtr<nsISMimeVerificationListener> mListener;
-  const nsTArray<uint8_t> mDigestData;
-  const int16_t mDigestType;
+  nsTArray<uint8_t> mDigestData;
+  int16_t mDigestType;
 
   static mozilla::StaticMutex sMutex;
 };
