@@ -612,6 +612,9 @@ class SMimeVerificationTask final : public CryptoTask {
   virtual nsresult CalculateResult() override {
     MOZ_ASSERT(!NS_IsMainThread());
 
+    // Because the S/MIME code and related certificate processing isn't
+    // sufficiently threadsafe (see bug 1529003), we want this code to
+    // never run in parallel (see bug 1386601).
     mozilla::StaticMutexAutoLock lock(sMutex);
     nsresult rv;
     if (mDigestData.IsEmpty()) {
