@@ -930,7 +930,7 @@ class MessageInjection {
     let trashHandle = await this.getTrashFolder();
     let trashFolder = this.getRealInjectionFolder(trashHandle);
     let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    trashFolder.emptyTrash(null, promiseUrlListener);
+    trashFolder.emptyTrash(promiseUrlListener);
     await promiseUrlListener.promise;
   }
   /**
@@ -939,7 +939,7 @@ class MessageInjection {
    */
   deleteFolder(folder) {
     let realFolder = this.getRealInjectionFolder(folder);
-    realFolder.parent.propagateDelete(realFolder, true, null);
+    realFolder.parent.propagateDelete(realFolder, true);
   }
 
   /**

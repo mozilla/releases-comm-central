@@ -84,8 +84,8 @@ add_task(async function test_newly_added_folder() {
 });
 
 registerCleanupFunction(async function() {
-  inboxFolder.propagateDelete(inboxSubfolder, true, null);
+  inboxFolder.propagateDelete(inboxSubfolder, true);
   await delete_messages(inboxSet);
-  trashFolder.propagateDelete(trashSubfolder, true, null);
+  trashFolder.propagateDelete(trashSubfolder, true);
   about3Pane.folderPane.activeModes = ["all"];
 });

@@ -264,7 +264,7 @@ async function delete_folder(aFolder, aViewWrapper, aDontEmptyTrash) {
   // Let's empty the trash, then, shall we?
   // (For local folders it doesn't matter who we call this on.)
   if (!aDontEmptyTrash) {
-    aFolder.emptyTrash(null, null);
+    aFolder.emptyTrash(null);
   }
 
   await gMockViewWrapperListener.promise;

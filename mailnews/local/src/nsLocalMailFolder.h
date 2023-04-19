@@ -116,8 +116,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
                      nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD CompactAll(nsIUrlListener* aListener,
                         nsIMsgWindow* aMsgWindow) override;
-  NS_IMETHOD EmptyTrash(nsIMsgWindow* msgWindow,
-                        nsIUrlListener* aListener) override;
+  NS_IMETHOD EmptyTrash(nsIUrlListener* aListener) override;
   NS_IMETHOD DeleteSelf(nsIMsgWindow* msgWindow) override;
   NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
   NS_IMETHOD Rename(const nsAString& aNewName,

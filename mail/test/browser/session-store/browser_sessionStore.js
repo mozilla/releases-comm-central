@@ -132,8 +132,8 @@ add_setup(async function() {
 });
 
 registerCleanupFunction(function() {
-  folderA.server.rootFolder.propagateDelete(folderA, true, null);
-  folderB.server.rootFolder.propagateDelete(folderB, true, null);
+  folderA.server.rootFolder.propagateDelete(folderA, true);
+  folderB.server.rootFolder.propagateDelete(folderB, true);
 
   // Some tests that open new windows don't return focus to the main window
   // in a way that satisfies mochitest, and the test times out.

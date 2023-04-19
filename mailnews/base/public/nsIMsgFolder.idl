@@ -209,19 +209,16 @@ interface nsIMsgFolder : nsISupports {
    *
    * @param folder         a child subfolder to delete
    * @param deleteStorage  whether to also delete the folder storage on disk
-   * @param msgWindow      msgWindow to display status feedback in
    */
-  void propagateDelete(in nsIMsgFolder folder, in boolean deleteStorage,
-                       in nsIMsgWindow msgWindow);
+  void propagateDelete(in nsIMsgFolder folder, in boolean deleteStorage);
 
   /**
    * Delete the folder and all of its subfolders.
    *
    * @param deleteStorage  whether to also delete the folder storage on disk
-   * @param msgWindow      msgWindow to display status feedback in
    */
   [noscript]
-  void recursiveDelete(in boolean deleteStorage, in nsIMsgWindow msgWindow);
+  void recursiveDelete(in boolean deleteStorage);
 
   /**
    * Create a subfolder of the current folder with the passed in name.
@@ -277,7 +274,7 @@ interface nsIMsgFolder : nsISupports {
    */
   void compactAll(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow);
 
-  void emptyTrash(in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
+  void emptyTrash(in nsIUrlListener aListener);
 
   /**
    * change the name of the folder

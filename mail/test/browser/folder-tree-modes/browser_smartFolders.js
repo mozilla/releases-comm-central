@@ -213,7 +213,7 @@ function assert_uri_not_found(folderURI, scopeList) {
 
 registerCleanupFunction(async function() {
   about3Pane.folderPane.activeModes = ["all"];
-  inboxFolder.propagateDelete(inboxSubfolder, true, null);
+  inboxFolder.propagateDelete(inboxSubfolder, true);
   await delete_messages(inboxSet);
-  trashFolder.propagateDelete(trashSubfolder, true, null);
+  trashFolder.propagateDelete(trashSubfolder, true);
 });

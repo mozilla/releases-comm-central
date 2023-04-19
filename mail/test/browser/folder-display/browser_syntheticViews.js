@@ -152,7 +152,7 @@ add_task(async function testListViewMarkRead() {
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
-    trash.emptyTrash(null, null);
+    trash.emptyTrash(null);
   });
 
   await be_in_folder(folder);
@@ -192,7 +192,7 @@ add_task(async function testListViewMarkThreadAsRead() {
     await delete_messages(thread);
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
-    trash.emptyTrash(null, null);
+    trash.emptyTrash(null);
   });
 
   await be_in_folder(folder);
@@ -232,7 +232,7 @@ add_task(async function testConversationViewMarkRead() {
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
-    trash.emptyTrash(null, null);
+    trash.emptyTrash(null);
   });
 
   await be_in_folder(folder);
@@ -269,7 +269,7 @@ add_task(async function testConversationViewMarkThreadAsRead() {
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
-    trash.emptyTrash(null, null);
+    trash.emptyTrash(null);
   });
 
   await be_in_folder(folder);

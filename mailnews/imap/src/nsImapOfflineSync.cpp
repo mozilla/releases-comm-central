@@ -636,7 +636,7 @@ void nsImapOfflineSync::ProcessCopyOperation(
 }
 
 void nsImapOfflineSync::ProcessEmptyTrash() {
-  m_currentFolder->EmptyTrash(m_window, this);
+  m_currentFolder->EmptyTrash(this);
   ClearDB();  // EmptyTrash closes and deletes the trash db.
 }
 

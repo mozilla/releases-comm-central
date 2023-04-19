@@ -112,8 +112,7 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   collapse_folder(folderA);
   MailServices.accounts.localFoldersServer.rootFolder.propagateDelete(
     folderB,
-    true,
-    null
+    true
   );
   // Open folderA again and check folderB is deleted.
   expand_folder(folderA);
@@ -125,8 +124,7 @@ add_task(async function test_all_folders_toggle_folder_open_state() {
   pop3Server.rootFolder.propagateDelete(folder, true, null);
   MailServices.accounts.localFoldersServer.rootFolder.propagateDelete(
     folderA,
-    true,
-    null
+    true
   );
 
   Assert.report(

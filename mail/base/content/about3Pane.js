@@ -2155,11 +2155,11 @@ var folderPane = {
         for (let trash of server.rootFolder.getFoldersWithFlags(
           Ci.nsMsgFolderFlags.Trash
         )) {
-          trash.emptyTrash(top.msgWindow, null);
+          trash.emptyTrash(null);
         }
       }
     } else {
-      folder.emptyTrash(top.msgWindow, null);
+      folder.emptyTrash(null);
     }
   },
 
@@ -2183,7 +2183,7 @@ var folderPane = {
 
     // Delete any subfolders this folder might have
     for (let subFolder of folder.subFolders) {
-      folder.propagateDelete(subFolder, true, top.msgWindow);
+      folder.propagateDelete(subFolder, true);
     }
 
     // Now delete the messages

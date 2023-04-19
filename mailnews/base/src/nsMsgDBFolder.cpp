@@ -3407,7 +3407,7 @@ NS_IMETHODIMP nsMsgDBFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   if (!parent) {
     return NS_ERROR_FAILURE;
   }
-  return parent->PropagateDelete(this, true, msgWindow);
+  return parent->PropagateDelete(this, true);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CreateStorageIfMissing(
@@ -3417,8 +3417,7 @@ NS_IMETHODIMP nsMsgDBFolder::CreateStorageIfMissing(
 }
 
 NS_IMETHODIMP nsMsgDBFolder::PropagateDelete(nsIMsgFolder* folder,
-                                             bool deleteStorage,
-                                             nsIMsgWindow* msgWindow) {
+                                             bool deleteStorage) {
   // first, find the folder we're looking to delete
   nsresult rv = NS_OK;
 
@@ -3429,7 +3428,7 @@ NS_IMETHODIMP nsMsgDBFolder::PropagateDelete(nsIMsgFolder* folder,
       // Remove self as parent
       child->SetParent(nullptr);
       // maybe delete disk storage for it, and its subfolders
-      rv = child->RecursiveDelete(deleteStorage, msgWindow);
+      rv = child->RecursiveDelete(deleteStorage);
       if (NS_SUCCEEDED(rv)) {
         // Remove from list of subfolders.
         mSubFolders.RemoveObjectAt(i);
@@ -3438,14 +3437,13 @@ NS_IMETHODIMP nsMsgDBFolder::PropagateDelete(nsIMsgFolder* folder,
       } else  // setting parent back if we failed
         child->SetParent(this);
     } else
-      rv = child->PropagateDelete(folder, deleteStorage, msgWindow);
+      rv = child->PropagateDelete(folder, deleteStorage);
   }
 
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage,
-                                             nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
   // If deleteStorage is true, recursively deletes disk storage for this folder
   // and all its subfolders.
   // Regardless of deleteStorage, always unlinks them from the children lists
@@ -3472,7 +3470,7 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage,
     nsIMsgFolder* child = mSubFolders[0];
 
     child->SetParent(nullptr);
-    rv = child->RecursiveDelete(deleteStorage, msgWindow);
+    rv = child->RecursiveDelete(deleteStorage);
     if (NS_SUCCEEDED(rv))
       // unlink it from this child's list
       mSubFolders.RemoveObjectAt(0);
@@ -3603,8 +3601,7 @@ NS_IMETHODIMP nsMsgDBFolder::CompactAll(nsIUrlListener* aListener,
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::EmptyTrash(nsIMsgWindow* msgWindow,
-                                        nsIUrlListener* aListener) {
+NS_IMETHODIMP nsMsgDBFolder::EmptyTrash(nsIUrlListener* aListener) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -3859,7 +3856,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsAString& aNewName,
 
       if (parentFolder) {
         SetParent(nullptr);
-        parentFolder->PropagateDelete(this, false, msgWindow);
+        parentFolder->PropagateDelete(this, false);
         parentFolder->NotifyFolderAdded(newFolder);
       }
       newFolder->NotifyFolderEvent(kRenameCompleted);

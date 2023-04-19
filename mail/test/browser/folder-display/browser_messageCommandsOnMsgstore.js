@@ -326,5 +326,5 @@ registerCleanupFunction(async function() {
   await be_in_folder(gInbox.parent);
   await empty_folder(gInbox);
   // await empty_folder(gOutbox); TODO
-  gInbox.server.rootFolder.emptyTrash(null, null);
+  gInbox.server.rootFolder.emptyTrash(null);
 });

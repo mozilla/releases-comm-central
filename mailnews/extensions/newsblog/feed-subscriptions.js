@@ -3037,7 +3037,7 @@ var FeedSubscriptions = {
                   aParentFolder.filePath.path
               );
               let xfolder = aParentFolder.getChildNamed(folderName);
-              aParentFolder.propagateDelete(xfolder, true, null);
+              aParentFolder.propagateDelete(xfolder, true);
               badTag = true;
               break;
             }

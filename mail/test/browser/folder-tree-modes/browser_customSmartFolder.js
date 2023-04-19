@@ -206,6 +206,6 @@ add_task(function test_return_to_all_folders() {
 });
 
 registerCleanupFunction(function() {
-  inboxFolder.propagateDelete(subfolderA, true, null);
-  inboxFolder.propagateDelete(subfolderB, true, null);
+  inboxFolder.propagateDelete(subfolderA, true);
+  inboxFolder.propagateDelete(subfolderB, true);
 });

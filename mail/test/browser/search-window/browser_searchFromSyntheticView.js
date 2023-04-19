@@ -41,7 +41,7 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
 
     let trash = folder.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
     folder.deleteSelf(null);
-    trash.emptyTrash(null, null);
+    trash.emptyTrash(null);
 
     let tabmail = document.querySelector("tabmail");
     while (tabmail.tabInfo.length > 1) {

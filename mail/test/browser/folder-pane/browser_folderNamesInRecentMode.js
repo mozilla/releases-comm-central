@@ -92,10 +92,10 @@ add_task(async function test_folder_names_in_recent_view_mode() {
   assert_folder_tree_view_row_count(5);
 
   // Remove our folders to clean up.
-  rootFolder1.propagateDelete(fUnique, true, null);
-  rootFolder1.propagateDelete(fDup1, true, null);
-  rootFolder2.propagateDelete(fDup2, true, null);
-  rootFolder2.propagateDelete(fDup3, true, null);
+  rootFolder1.propagateDelete(fUnique, true);
+  rootFolder1.propagateDelete(fDup1, true);
+  rootFolder2.propagateDelete(fDup2, true);
+  rootFolder2.propagateDelete(fDup3, true);
 });
 
 registerCleanupFunction(function() {

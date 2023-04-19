@@ -221,13 +221,13 @@ function subtest_folder_operations(root) {
   Assert.ok(path3.exists());
 
   // First try deleting folder3 -- folder1 and folder2 paths should still exist
-  root.propagateDelete(folder3, true, null);
+  root.propagateDelete(folder3, true);
 
   Assert.ok(path1.exists());
   Assert.ok(path2.exists());
   Assert.ok(!path3.exists());
 
-  root.propagateDelete(folder, true, null);
+  root.propagateDelete(folder, true);
 
   Assert.ok(!path1.exists());
   Assert.ok(!path2.exists());
@@ -262,7 +262,7 @@ function test_store_rename(root) {
   Assert.ok(folder2.filePath.exists());
 
   folder3 = root.getChildNamed("newfolder3");
-  root.propagateDelete(folder3, true, null);
+  root.propagateDelete(folder3, true);
   Assert.ok(!root.containsChildNamed("newfolder3"));
   folder3 = root
     .createLocalSubfolder("newfolder3")

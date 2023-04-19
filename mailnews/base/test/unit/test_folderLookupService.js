@@ -48,7 +48,7 @@ add_task(async function test_fls_basics() {
   );
 
   // Now delete the folder; we should be unable to find it
-  root.propagateDelete(root.getChildNamed("Child"), true, null);
+  root.propagateDelete(root.getChildNamed("Child"), true);
   Assert.equal(fls.getFolderForURL(kRootURI + "/Child"), null);
 
   Assert.equal(fls.getFolderForURL(kRootURI + "/"), null);

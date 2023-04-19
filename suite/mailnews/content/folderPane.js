@@ -1919,7 +1919,7 @@ var gFolderTreeController = {
       return;
 
     if (this._checkConfirmationPrompt("emptyTrash"))
-      folder.emptyTrash(msgWindow, null);
+      folder.emptyTrash(null);
   },
 
   /**
@@ -1941,7 +1941,7 @@ var gFolderTreeController = {
 
     // Delete any sub-folders this folder might have.
     for (let f of folder.subFolders) {
-      folder.propagateDelete(f, true, msgWindow);
+      folder.propagateDelete(f, true);
     }
 
     // Now delete the messages.

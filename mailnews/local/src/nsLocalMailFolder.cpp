@@ -542,8 +542,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Compact(nsIUrlListener* aListener,
   return folderCompactor->CompactFolders({this}, aListener, aMsgWindow);
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIMsgWindow* msgWindow,
-                                               nsIUrlListener* aListener) {
+NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIUrlListener* aListener) {
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> trashFolder;
   rv = GetTrashFolder(getter_AddRefs(trashFolder));
@@ -567,7 +566,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIMsgWindow* msgWindow,
       nsCOMPtr<nsIDBFolderInfo> transferInfo;
       trashFolder->GetDBTransferInfo(getter_AddRefs(transferInfo));
       trashFolder->SetParent(nullptr);
-      parentFolder->PropagateDelete(trashFolder, true, msgWindow);
+      parentFolder->PropagateDelete(trashFolder, true);
       parentFolder->CreateSubfolder(u"Trash"_ns, nullptr);
       nsCOMPtr<nsIMsgFolder> newTrashFolder;
       rv = GetTrashFolder(getter_AddRefs(newTrashFolder));
@@ -771,7 +770,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::Rename(const nsAString& aNewName,
     newFolder->SetFlags(mFlags);
     if (parentFolder) {
       SetParent(nullptr);
-      parentFolder->PropagateDelete(this, false, msgWindow);
+      parentFolder->PropagateDelete(this, false);
       parentFolder->NotifyFolderAdded(newFolder);
     }
     // Forget our path, since this folder object renamed itself.

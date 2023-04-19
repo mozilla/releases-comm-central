@@ -445,7 +445,7 @@ void ImportThreadData::ThreadDelete() {
 void ImportThreadData::DriverAbort() {
   if (abort && !threadAlive && destRoot) {
     if (ownsDestRoot) {
-      destRoot->RecursiveDelete(true, nullptr);
+      destRoot->RecursiveDelete(true);
     } else {
       // FIXME: just delete the stuff we created?
     }
@@ -648,7 +648,7 @@ static void ImportMailThread(void* stuff) {
     IMPORT_LOG0("*** ImportMailThread: Abort or fatalError flag was set\n");
     if (pData->ownsDestRoot) {
       IMPORT_LOG0("Calling destRoot->RecursiveDelete\n");
-      destRoot->RecursiveDelete(true, nullptr);
+      destRoot->RecursiveDelete(true);
     } else {
       // FIXME: just delete the stuff we created?
     }

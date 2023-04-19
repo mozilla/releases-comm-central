@@ -18,7 +18,7 @@ function run_test() {
   let rootFolder = localserver.rootFolder;
   for (let folder of rootFolder.subFolders) {
     if (folder.name != "test.filter") {
-      rootFolder.propagateDelete(folder, true, null);
+      rootFolder.propagateDelete(folder, true);
     }
   }
 

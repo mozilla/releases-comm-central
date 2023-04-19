@@ -309,7 +309,7 @@ add_task(async function test_toggling_modes() {
 });
 
 registerCleanupFunction(function() {
-  inboxFolder.propagateDelete(unreadFolder, true, null);
-  inboxFolder.propagateDelete(favoriteFolder, true, null);
+  inboxFolder.propagateDelete(unreadFolder, true);
+  inboxFolder.propagateDelete(favoriteFolder, true);
   toggle_main_menu(menu_state);
 });

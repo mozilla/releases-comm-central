@@ -235,8 +235,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
                      nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD CompactAll(nsIUrlListener* aListener,
                         nsIMsgWindow* aMsgWindow) override;
-  NS_IMETHOD EmptyTrash(nsIMsgWindow* msgWindow,
-                        nsIUrlListener* aListener) override;
+  NS_IMETHOD EmptyTrash(nsIUrlListener* aListener) override;
   NS_IMETHOD CopyDataToOutputStreamForAppend(
       nsIInputStream* aIStream, int32_t aLength,
       nsIOutputStream* outputStream) override;

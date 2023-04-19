@@ -234,9 +234,9 @@ add_task(function test_switch_to_all_folders() {
 
 registerCleanupFunction(function() {
   // Remove our folders
-  inboxFolder.propagateDelete(folder, true, null);
-  inboxFolder.propagateDelete(dummyFolder, true, null);
-  inboxFolder.server.rootFolder.propagateDelete(inbox2Folder, true, null);
+  inboxFolder.propagateDelete(folder, true);
+  inboxFolder.propagateDelete(dummyFolder, true);
+  inboxFolder.server.rootFolder.propagateDelete(inbox2Folder, true);
   assert_folder_tree_view_row_count(7);
 
   document.getElementById("folderTree").focus();

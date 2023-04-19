@@ -1529,7 +1529,7 @@ nsMsgAccountManager::CleanupOnExit() {
           }
 
           if (emptyTrashOnExit) {
-            rv = root->EmptyTrash(nullptr, urlListener);
+            rv = root->EmptyTrash(urlListener);
             if (isImap && NS_SUCCEEDED(rv))
               accountManager->SetFolderDoingEmptyTrash(root);
           }
@@ -3147,7 +3147,7 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderRemoved(nsIMsgFolder* parentFolder,
           NS_ENSURE_SUCCESS(rv, rv);
 
           if (!parent) continue;
-          parent->PropagateDelete(savedSearch, true, nullptr);
+          parent->PropagateDelete(savedSearch, true);
         } else {
           // remove leading '|' we added (or one after |folderURI, if first URI)
           searchURI.Cut(0, 1);

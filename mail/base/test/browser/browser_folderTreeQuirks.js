@@ -1141,7 +1141,7 @@ add_task(async function testAccountOrder() {
   folderA.markAllMessagesRead(null);
   folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
   subInboxFolder.deleteSelf(null);
-  rootFolder.emptyTrash(null, null);
+  rootFolder.emptyTrash(null);
 
   localFolders.splice(2, 1);
   await checkModeListItems("all", localFolders);

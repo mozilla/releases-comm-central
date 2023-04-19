@@ -176,8 +176,7 @@ class NntpIncomingServer extends MsgIncomingServer {
   unsubscribe(name) {
     this.rootMsgFolder.propagateDelete(
       this.rootMsgFolder.getChildNamed(name),
-      true, // delete storage
-      null
+      true // delete storage
     );
     this.newsrcHasChanged = true;
   }

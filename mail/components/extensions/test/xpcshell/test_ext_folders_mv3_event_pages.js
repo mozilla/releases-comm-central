@@ -309,8 +309,7 @@ add_task(
         let subFolder1 = rootFolder.getChildNamed("SubFolder3");
         subFolder1.propagateDelete(
           subFolder1.getChildNamed("SubFolder3"),
-          true,
-          null
+          true
         );
       });
       let deleteData = await extension.awaitMessage("onDeleted received");

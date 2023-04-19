@@ -111,7 +111,7 @@ var gTestArray = [
     let gLocalTrashDB = gLocalTrashFolder.msgDatabase; // eslint-disable-line no-unused-vars
     gLocalTrashFolder.msgDatabase = null;
     // this is synchronous
-    gLocalTrashFolder.emptyTrash(null, null);
+    gLocalTrashFolder.emptyTrash(null);
     // check that the trash folder is 0 size, that the db has a 0 message count
     // and has no messages.
     Assert.equal(0, gLocalTrashFolder.filePath.fileSize);

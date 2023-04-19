@@ -587,7 +587,7 @@ Feed.prototype = {
       );
       // But its remnants are still there, clean up.
       let xfolder = this.server.rootMsgFolder.getChildNamed(this.folderName);
-      this.server.rootMsgFolder.propagateDelete(xfolder, true, null);
+      this.server.rootMsgFolder.propagateDelete(xfolder, true);
     }
   },
 

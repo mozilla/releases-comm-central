@@ -1461,8 +1461,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateStatus(nsIUrlListener* aListener,
   return rv;
 }
 
-NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow* aMsgWindow,
-                                           nsIUrlListener* aListener) {
+NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIUrlListener* aListener) {
   nsCOMPtr<nsIMsgFolder> trashFolder;
   nsresult rv = GetTrashFolder(getter_AddRefs(trashFolder));
   if (NS_SUCCEEDED(rv)) {
@@ -1526,7 +1525,7 @@ NS_IMETHODIMP nsImapMailFolder::EmptyTrash(nsIMsgWindow* aMsgWindow,
     NS_ENSURE_SUCCESS(rv, rv);
     while (!subFolders.IsEmpty()) {
       RefPtr<nsIMsgFolder> f = subFolders.PopLastElement();
-      rv = trashFolder->PropagateDelete(f, true, aMsgWindow);
+      rv = trashFolder->PropagateDelete(f, true);
       NS_ENSURE_SUCCESS(rv, rv);
     }
 
@@ -7406,10 +7405,9 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
       srcFolder->GetParent(getter_AddRefs(msgParent));
       srcFolder->SetParent(nullptr);
       if (msgParent) {
-        msgParent->PropagateDelete(
-            srcFolder, false, msgWindow);  // The files have already been moved,
-                                           // so delete storage false
-        oldPathFile->Remove(false);        // berkeley mailbox
+        // The files have already been moved, so delete storage false.
+        msgParent->PropagateDelete(srcFolder, false);
+        oldPathFile->Remove(false);  // berkeley mailbox
         srcFolder->DeleteStorage();
 
         nsCOMPtr<nsIFile> parentPathFile;
@@ -8137,7 +8135,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
     // Do not propagate the deletion until after we have (synchronously)
     // notified all listeners about the rename.  This allows them to access
     // properties on the source folder without experiencing failures.
-    if (msgParent) msgParent->PropagateDelete(msgFolder, true, nullptr);
+    if (msgParent) msgParent->PropagateDelete(msgFolder, true);
     NotifyFolderAdded(child);
   }
   return rv;

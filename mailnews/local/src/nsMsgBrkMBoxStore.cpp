@@ -505,7 +505,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
     aSrcFolder->SetParent(nullptr);
     if (msgParent) {
       // The files have already been moved, so delete storage false
-      msgParent->PropagateDelete(aSrcFolder, false, aMsgWindow);
+      msgParent->PropagateDelete(aSrcFolder, false);
       oldPath->Remove(false);  // berkeley mailbox
       aSrcFolder->DeleteStorage();
 
@@ -532,7 +532,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
       newMsgFolder->GetParent(getter_AddRefs(msgParent));
       newMsgFolder->SetParent(nullptr);
       if (msgParent) {
-        msgParent->PropagateDelete(newMsgFolder, false, aMsgWindow);
+        msgParent->PropagateDelete(newMsgFolder, false);
         newMsgFolder->DeleteStorage();
         AddDirectorySeparator(newPath);
         newPath->Remove(true);  // berkeley mailbox
