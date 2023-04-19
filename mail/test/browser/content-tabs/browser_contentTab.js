@@ -107,7 +107,11 @@ add_task(async function test_spellcheck_in_content_tabs() {
     "spell-suggestion"
   );
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
-  mc.click(mc.e("browserContext-spell-add-to-dictionary"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("browserContext-spell-add-to-dictionary"),
+    {},
+    mc.e("browserContext-spell-add-to-dictionary").ownerGlobal
+  );
   await close_popup(mc, browserContext);
 
   // Now check we don't have any suggestionss

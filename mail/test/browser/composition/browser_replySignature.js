@@ -30,6 +30,7 @@ var folder;
 
 add_setup(async function() {
   folder = await create_folder("SigStripTest");
+  registerCleanupFunction(() => folder.deleteSelf(null));
 
   let msg = create_message({
     subject: "msg with signature; format=flowed",

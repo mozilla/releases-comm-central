@@ -52,7 +52,11 @@ add_setup(async function() {
  * @param {string} id - The id of the menu item to click.
  */
 async function clickViewMessagesItem(id) {
-  mc.click(mc.e("menu_View"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("menu_View"),
+    {},
+    mc.e("menu_View").ownerGlobal
+  );
   await mc.click_menus_in_sequence(mc.e("menu_View_Popup"), [
     { id: "viewMessagesMenu" },
     { id },

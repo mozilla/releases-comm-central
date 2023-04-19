@@ -821,15 +821,27 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
     mwc.sleep(0);
 
     // Don't add alternate text
-    mwc.click(mwc.e("noAltTextRadio"));
+    let noAlt = mwc.e("noAltTextRadio");
+    EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
+    mwc.sleep(0);
 
     // Accept the dialog
     mwc.window.document.querySelector("dialog").acceptDialog();
   });
-  replyWindow.click(replyWindow.e("insertImage"));
+
+  let insertMenu = replyWindow.window.document.getElementById(
+    "InsertPopupButton"
+  );
+  let insertMenuPopup = replyWindow.e("InsertPopup");
+
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
+  await replyWindow.click_menus_in_sequence(insertMenuPopup, [
+    { id: "InsertImageItem" },
+  ]);
 
   wait_for_modal_dialog();
   wait_for_window_close();
+  replyWindow.sleep(0);
 
   // Paste an image.
   try {

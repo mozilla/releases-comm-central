@@ -118,7 +118,11 @@ async function internal_check_delivery_format(editDraft) {
   );
 
   // Select our wanted format.
-  cwc.click(cwc.e("optionsMenu"));
+  EventUtils.synthesizeMouseAtCenter(
+    cwc.e("optionsMenu"),
+    {},
+    cwc.e("optionsMenu").ownerGlobal
+  );
   await cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
     { id: "outputFormatMenu" },
     { id: "format_both" },
@@ -131,7 +135,11 @@ async function internal_check_delivery_format(editDraft) {
    * @param aValue       A value of nsIMsgCompSendFormat constants of the expected selected format.
    */
   async function assert_format_value(aMenuItemId, aValue) {
-    cwc.click(cwc.e("optionsMenu"));
+    EventUtils.synthesizeMouseAtCenter(
+      cwc.e("optionsMenu"),
+      {},
+      cwc.e("optionsMenu").ownerGlobal
+    );
     let formatMenu = await cwc.click_menus_in_sequence(
       cwc.e("optionsMenuPopup"),
       [{ id: "outputFormatMenu" }],

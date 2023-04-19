@@ -25,7 +25,7 @@ var {
 
 var folder = null;
 var gMsgNo = 0;
-var gComposeWin;
+var gCwc;
 var gNewTab;
 var gPreCount;
 
@@ -45,12 +45,12 @@ add_task(async function test_openComposeFromMailToLink() {
     {},
     gNewTab.browser
   );
-  gComposeWin = wait_for_compose_window();
+  gCwc = wait_for_compose_window();
 });
 
-add_task(function test_checkInsertImage() {
+add_task(async function test_checkInsertImage() {
   // First focus on the editor element
-  gComposeWin.e("messageEditor").focus();
+  gCwc.e("messageEditor").focus();
 
   // Now open the image window
   plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
@@ -61,25 +61,32 @@ add_task(function test_checkInsertImage() {
     input_value(mwc, url + "pass.png");
     mwc.sleep(0);
 
+    let noAlt = mwc.e("noAltTextRadio");
     // Don't add alternate text
-    mwc.click(mwc.e("noAltTextRadio"));
+    EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
 
     // Accept the dialog
     mwc.window.document.querySelector("dialog").acceptDialog();
   });
-  gComposeWin.click(gComposeWin.e("insertImage"));
+
+  let insertMenu = gCwc.window.document.getElementById("InsertPopupButton");
+  let insertMenuPopup = gCwc.window.document.getElementById("InsertPopup");
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
+  await gCwc.click_menus_in_sequence(insertMenuPopup, [
+    { id: "InsertImageItem" },
+  ]);
 
   wait_for_modal_dialog();
   wait_for_window_close();
 
   // Test that the image load has not been denied
-  let childImages = gComposeWin
+  let childImages = gCwc
     .e("messageEditor")
     .contentDocument.getElementsByTagName("img");
 
   Assert.equal(childImages.length, 1, "Should be one image in the document");
 
-  gComposeWin.waitFor(() => childImages[0].complete);
+  gCwc.waitFor(() => childImages[0].complete);
 
   // Should be the only image, so just check the first.
   Assert.ok(
@@ -93,7 +100,7 @@ add_task(function test_checkInsertImage() {
 });
 
 add_task(function test_closeComposeWindowAndTab() {
-  close_compose_window(gComposeWin);
+  close_compose_window(gCwc);
 
   mc.tabmail.closeTab(gNewTab);
 

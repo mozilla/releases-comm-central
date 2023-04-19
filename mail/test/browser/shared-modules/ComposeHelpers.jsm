@@ -700,7 +700,7 @@ function delete_attachment(aComposeWindow, aIndex) {
   let bucket = aComposeWindow.e("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[aIndex];
 
-  aComposeWindow.click(node);
+  EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
   aComposeWindow.window.RemoveSelectedAttachment();
 }
 

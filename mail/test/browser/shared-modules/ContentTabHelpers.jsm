@@ -206,7 +206,7 @@ function open_content_tab_with_click(
 
   let preCount = aController.tabmail.tabContainer.allTabs.length;
   if (typeof aElem != "function") {
-    aController.click(aElem);
+    EventUtils.synthesizeMouseAtCenter(aElem, {}, aElem.ownerGlobal);
   } else {
     aElem();
   }

@@ -181,7 +181,11 @@ async function testComposeFlags(
   if (switchIdentity) {
     checkDonePromise = waitCheckEncryptionStateDone(composeWin);
 
-    cwc.click(cwc.e("msgIdentity"));
+    EventUtils.synthesizeMouseAtCenter(
+      cwc.e("msgIdentity"),
+      {},
+      cwc.e("msgIdentity").ownerGlobal
+    );
     await cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
       { identitykey: plainIdentity.key },
     ]);
@@ -204,7 +208,11 @@ async function testComposeFlags(
 
     checkDonePromise = waitCheckEncryptionStateDone(composeWin);
 
-    cwc.click(cwc.e("msgIdentity"));
+    EventUtils.synthesizeMouseAtCenter(
+      cwc.e("msgIdentity"),
+      {},
+      cwc.e("msgIdentity").ownerGlobal
+    );
     await cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
       { identitykey: bobIdentity.key },
     ]);

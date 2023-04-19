@@ -106,7 +106,11 @@ add_task(async function test_filelink_ignored() {
   add_attachments(cwc, "https://www.example.com/2", maxSize + 10);
   add_attachments(cwc, "https://www.example.com/3", maxSize - 1);
   let aftersend = BrowserTestUtils.waitForEvent(cwc.window, "aftersend");
-  cwc.click(cwc.e("button-send"));
+  EventUtils.synthesizeMouseAtCenter(
+    cwc.e("button-send"),
+    {},
+    cwc.e("button-send").ownerGlobal
+  );
   await aftersend;
   let scalars = TelemetryTestUtils.getProcessScalars("parent");
   Assert.equal(

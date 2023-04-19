@@ -150,8 +150,11 @@ Menu.prototype = {
    * @returns {Menu} The Menu instance
    */
   click(itemSelector) {
-    this._controller.click(this.getItem(itemSelector));
-
+    EventUtils.synthesizeMouseAtCenter(
+      this.getItem(itemSelector),
+      {},
+      this.getItem(itemSelector).ownerGlobal
+    );
     return this;
   },
 
@@ -168,7 +171,11 @@ Menu.prototype = {
    */
   select(itemSelector, contextElement) {
     this.open(contextElement);
-    this.click(itemSelector);
+    EventUtils.synthesizeMouseAtCenter(
+      itemSelector,
+      {},
+      contextElement.ownerGlobal
+    );
     this.close();
   },
 
@@ -376,23 +383,6 @@ MozMillController.prototype.mouseEvent = function(
 };
 
 /**
- * Synthesize a mouse click event on the given element
- */
-MozMillController.prototype.click = function(
-  element,
-  left,
-  top,
-  expectedEvent
-) {
-  // Handle menu items differently
-  if (element && element.tagName == "menuitem") {
-    element.click();
-  } else {
-    this.mouseEvent(element, left, top, {}, expectedEvent);
-  }
-};
-
-/**
  * Synthesize a mouse right click event on the given element
  */
 MozMillController.prototype.rightClick = function(
@@ -409,9 +399,6 @@ MozMillController.prototype.rightClick = function(
     expectedEvent
   );
   return true;
-};
-
-/**
 };
 
 MozMillController.prototype.waitFor = function(

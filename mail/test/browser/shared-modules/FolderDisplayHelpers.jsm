@@ -147,6 +147,10 @@ const EXPORTED_SYMBOLS = [
   "wait_for_popup_to_open",
 ];
 
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
+
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
@@ -1036,8 +1040,8 @@ function select_click_row(aViewIndex) {
     mc.sleep(120);
     row = tree.getRowAtIndex(aViewIndex);
   }
-  EventUtils.synthesizeMouseAtCenter(row, {}, win);
-  mc.sleep();
+  EventUtils.synthesizeMouseAtCenter(row, {}, row.ownerGlobal);
+  mc.sleep(0);
 
   wait_for_message_display_completion(undefined, true);
 
@@ -1549,7 +1553,15 @@ async function delete_via_popup() {
   //   mc.folderDisplay.selectedMessages,
   // ]);
   let win = get_about_3pane();
-  mc.click(win.document.getElementById("mailContext-delete"));
+  let ctxDelete = win.document.getElementById("mailContext-delete");
+  if (AppConstants.platform == "macosx") {
+    // We need to use click() since the synthesizeMouseAtCenter doesn't work for
+    // context menu items on macos.
+    ctxDelete.click();
+  } else {
+    EventUtils.synthesizeMouseAtCenter(ctxDelete, {}, ctxDelete.ownerGlobal);
+  }
+
   // for reasons unknown, the pop-up does not close itself?
   await close_popup(mc, win.document.getElementById("mailContext"));
   wait_for_folder_events();

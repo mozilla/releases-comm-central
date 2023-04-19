@@ -81,7 +81,7 @@ function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
       );
     }
 
-    aController.click(aController.menus.tasksMenu.deleteJunk);
+    win.goDoCommand("cmd_deleteJunk");
 
     if (aNumDeletesExpected != 0) {
       wait_for_folder_events();

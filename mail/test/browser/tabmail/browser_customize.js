@@ -29,9 +29,9 @@ add_setup(function() {
   Services.prefs.setBoolPref("mail.tabs.autoHide", false);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(async function() {
   // Let's reset any and all of our changes to the toolbar
-  gCDHelper.restoreDefaultButtons(mc);
+  await gCDHelper.restoreDefaultButtons(mc);
   Services.prefs.clearUserPref("mail.tabs.autoHide");
 });
 
@@ -62,16 +62,16 @@ add_task(async function test_open_context_menu() {
  * the tab bar, they're redirected to the toolbar directly to the right of
  * the tab bar.
  */
-add_task(function test_redirects_toolbarbutton_drops() {
+add_task(async function test_redirects_toolbarbutton_drops() {
   Services.prefs.setBoolPref("toolkit.customization.unsafe_drag_events", true);
   // Restore the default buttons to get defined starting conditions.
-  gCDHelper.restoreDefaultButtons(mc);
+  await gCDHelper.restoreDefaultButtons(mc);
 
   let tabbar = mc.e("tabmail-tabs");
   let toolbar = mc.e("tabbar-toolbar");
 
   // First, let's open up the customize toolbar window.
-  let ctw = gCDHelper.open(mc);
+  let ctw = await gCDHelper.open(mc);
 
   // Let's grab some items from the customize window, and try dropping
   // them on the tab bar

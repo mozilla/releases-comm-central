@@ -66,19 +66,19 @@ add_task(async function test_message_filter_shows_newsgroup_server() {
 
   let popup = filterc.e("serverMenuPopup");
   Assert.ok(popup);
-  filterc.click(popup);
+  EventUtils.synthesizeMouseAtCenter(popup, {}, popup.ownerGlobal);
 
   let nntp = popup.children.item(1);
   Assert.ok(nntp);
   // We need to get the newsgroups to pop up somehow.
   // These all fail.
-  // filterc.click(nntp);
+  // EventUtils.synthesizeMouseAtCenter(nntp, { }, nntp.ownerGlobal)
   // filterc.mouseover(nntp);
   // filterc.select(popup, popup.parentNode.getIndexOfItem(nntp));
   // filterc.select(nntp, popup.parentNode.getIndexOfItem(nntp));
   // filterc.select(popup, 2);
   // let nntpPopup = nntp.menupopup;
-  // filterc.click(nntpPopup);
+  // EventUtils.synthesizeMouseAtCenter(nntpPopup, { }, nntpPopup.ownerGlobal)
   // filterc.mouseover(nntpPopup);
   // filterc.select(nntpPopup, 2);
 
@@ -179,7 +179,11 @@ function create_simple_filter() {
 
   // Let's open the filter editor.
   plan_for_modal_dialog("mailnews:filtereditor", fill_in_filter_fields);
-  filterc.click(filterc.e("newButton"));
+  EventUtils.synthesizeMouseAtCenter(
+    filterc.e("newButton"),
+    {},
+    filterc.e("newButton").ownerGlobal
+  );
   wait_for_modal_dialog("mailnews:filtereditor");
 }
 
@@ -221,7 +225,11 @@ add_task(function test_address_books_appear_in_message_filter_dropdown() {
 
   // Let's open the filter editor.
   plan_for_modal_dialog("mailnews:filtereditor", filterEditorOpened);
-  filterc.click(filterc.e("newButton"));
+  EventUtils.synthesizeMouseAtCenter(
+    filterc.e("newButton"),
+    {},
+    filterc.e("newButton").ownerGlobal
+  );
   wait_for_modal_dialog("mailnews:filtereditor");
 });
 

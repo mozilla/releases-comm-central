@@ -66,7 +66,11 @@ add_task(async function test_quoteMessage() {
 
   if (["linux", "win"].includes(AppConstants.platform)) {
     // Click Options > Quote Message.
-    cwc.click(cwc.e("optionsMenu"));
+    EventUtils.synthesizeMouseAtCenter(
+      cwc.e("optionsMenu"),
+      {},
+      cwc.e("optionsMenu").ownerGlobal
+    );
     await cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
       { id: "menu_quoteMessage" },
     ]);

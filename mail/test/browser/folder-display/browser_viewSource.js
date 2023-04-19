@@ -140,18 +140,20 @@ async function subtest(row, expectedDisplayed, expectedSource) {
 
   // We can't use the menu on macOS.
   if (AppConstants.platform != "macosx") {
+    let theContent = viewSourceController.e("content");
     // Keep a reference to the originally loaded document.
-    let doc = viewSourceController.e("content").contentDocument;
+    let doc = theContent.contentDocument;
 
     // Click the new window to make it receive further events properly.
-    viewSourceController.click(viewSourceController.e("content"));
+    EventUtils.synthesizeMouseAtCenter(theContent, {}, theContent.ownerGlobal);
     await new Promise(resolve => setTimeout(resolve));
 
     popupshown = BrowserTestUtils.waitForEvent(
       viewSourceController.e("viewmenu-popup"),
       "popupshown"
     );
-    viewSourceController.click(viewSourceController.e("menu_view"));
+    let menuView = viewSourceController.e("menu_view");
+    EventUtils.synthesizeMouseAtCenter(menuView, {}, menuView.ownerGlobal);
     await popupshown;
 
     Assert.equal(

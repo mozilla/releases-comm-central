@@ -18,14 +18,14 @@ var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-add_task(function test_image_insertion_dialog_persist() {
+add_task(async function test_image_insertion_dialog_persist() {
   let cwc = open_compose_new_mail();
 
   // First focus on the editor element
   cwc.e("messageEditor").focus();
 
   // Now open the image window
-  wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
+  wh.plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
     // Insert the url of the image.
     let srcloc = mwc.window.document.getElementById("srcInput");
     srcloc.focus();
@@ -35,27 +35,52 @@ add_task(function test_image_insertion_dialog_persist() {
     mwc.sleep(0);
 
     // Don't add alternate text
-    mwc.click(mwc.e("noAltTextRadio"));
-
+    let noAlt = mwc.e("noAltTextRadio");
+    EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
+    mwc.sleep(0);
     mwc.window.document.documentElement.querySelector("dialog").acceptDialog();
   });
-  cwc.click(cwc.e("insertImage"));
+
+  let insertMenu = cwc.window.document.getElementById("InsertPopupButton");
+  let insertMenuPopup = cwc.e("InsertPopup");
+
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
+  await cwc.click_menus_in_sequence(insertMenuPopup, [
+    { id: "InsertImageItem" },
+  ]);
+
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
+  cwc.sleep(0);
+
+  info("Will check that radio option persists");
 
   // Check that the radio option persists
-  wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
+  wh.plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
     Assert.ok(
       mwc.window.document.getElementById("noAltTextRadio").selected,
       "We should persist the previously selected value"
     );
     // We change to "use alt text"
-    mwc.click(mwc.e("altTextRadio"));
+    let altTextRadio = mwc.e("altTextRadio");
+    EventUtils.synthesizeMouseAtCenter(
+      altTextRadio,
+      {},
+      altTextRadio.ownerGlobal
+    );
+    mwc.sleep(0);
     mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
-  cwc.click(cwc.e("insertImage"));
+
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
+  await cwc.click_menus_in_sequence(insertMenuPopup, [
+    { id: "InsertImageItem" },
+  ]);
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
+  cwc.sleep(0);
+
+  info("Will check that radio option really persists");
 
   // Check that the radio option still persists (be really sure)
   wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
@@ -66,10 +91,16 @@ add_task(function test_image_insertion_dialog_persist() {
     // Accept the dialog
     mwc.window.document.documentElement.querySelector("dialog").cancelDialog();
   });
-  cwc.click(cwc.e("insertImage"));
+
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
+  await cwc.click_menus_in_sequence(insertMenuPopup, [
+    { id: "InsertImageItem" },
+  ]);
   wh.wait_for_modal_dialog();
   wh.wait_for_window_close();
   cwc.sleep(1000);
+
+  info("Will check we switch to 'no alt text'");
 
   // Get the inserted image, double-click it, make sure we switch to "no alt
   // text", despite the persisted value being "use alt text"
@@ -88,13 +119,19 @@ add_task(function test_image_insertion_dialog_persist() {
   // see bug 1246094.
   cwc.sleep(1000);
 
+  info("Will check using alt text");
+
   // Now use some alt text for the edit image dialog
   wh.plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     Assert.ok(
       mwc.window.document.getElementById("noAltTextRadio").selected,
       "That value should persist still..."
     );
-    mwc.click(mwc.e("altTextRadio"));
+    EventUtils.synthesizeMouseAtCenter(
+      mwc.e("altTextRadio"),
+      {},
+      mwc.e("altTextRadio").ownerGlobal
+    );
 
     let srcloc = mwc.window.document.getElementById("altTextInput");
     srcloc.focus();
@@ -109,6 +146,8 @@ add_task(function test_image_insertion_dialog_persist() {
   // It's not clear why we have to wait here to avoid test failures,
   // see bug 1246094.
   cwc.sleep(1000);
+
+  info("Will check next time we edit, we still have 'use alt text' selected");
 
   // Make sure next time we edit it, we still have "use alt text" selected.
   img = cwc.e("messageEditor").contentDocument.querySelector("img");

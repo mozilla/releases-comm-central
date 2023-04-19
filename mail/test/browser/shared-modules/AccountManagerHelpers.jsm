@@ -181,10 +181,18 @@ function remove_account(
 
   // Account removal confirmation dialog. Select what to remove.
   if (removeAccount) {
-    cdc.click(cdc.window.document.getElementById("removeAccount"));
+    EventUtils.synthesizeMouseAtCenter(
+      cdc.window.document.getElementById("removeAccount"),
+      {},
+      cdc.window.document.getElementById("removeAccount").ownerGlobal
+    );
   }
   if (removeData) {
-    cdc.click(cdc.window.document.getElementById("removeData"));
+    EventUtils.synthesizeMouseAtCenter(
+      cdc.window.document.getElementById("removeData"),
+      {},
+      cdc.window.document.getElementById("removeData").ownerGlobal
+    );
   }
 
   cdc.window.document.documentElement.querySelector("dialog").acceptDialog();

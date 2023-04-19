@@ -45,7 +45,16 @@ PromiseTestUtils.allowMatchingRejectionsGlobally(
   /Receiving end does not exist/
 );
 
-add_setup(() => check3PaneState(true, true));
+add_setup(async () => {
+  await check3PaneState(true, true);
+  let tabmail = document.getElementById("tabmail");
+  if (tabmail.tabInfo.length > 1) {
+    info(`Will close ${tabmail.tabInfo.length - 1} tabs left over from others`);
+    for (let i = tabmail.tabInfo.length - 1; i--; i > 0) {
+      tabmail.closeTab(i);
+    }
+  }
+});
 registerCleanupFunction(() => {
   let tabmail = document.getElementById("tabmail");
   is(tabmail.tabInfo.length, 1, "Only one tab open at end of test");

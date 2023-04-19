@@ -215,10 +215,29 @@ async function assert_can_cancel_upload(
   let cmd = aController.e("cmd_cancelUpload");
   aController.window.updateAttachmentItems();
 
-  Assert.ok(!cmd.hidden);
-  Assert.ok(!cmd.disabled);
+  Assert.ok(!cmd.hidden, "cmd_cancelUpload should be shown");
+  Assert.ok(!cmd.disabled, "cmd_cancelUpload should be enabled");
+
+  let attachmentItem = aController.e("attachmentBucket").selectedItem;
+  let contextMenu = aController.e("msgComposeAttachmentItemContext");
+
+  let popupPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    attachmentItem,
+    { type: "contextmenu", button: 2 },
+    attachmentItem.ownerGlobal
+  );
+  await popupPromise;
+
   let cancelItem = aController.e("composeAttachmentContext_cancelUploadItem");
-  aController.click(cancelItem);
+  if (AppConstants.platform == "macosx") {
+    // We need to use click() since the synthesizeMouseAtCenter doesn't work for
+    // context menu items on macos.
+    cancelItem.click();
+  } else {
+    EventUtils.synthesizeMouseAtCenter(cancelItem, {}, cancelItem.ownerGlobal);
+    aController.sleep(0);
+  }
 
   // Close the popup, and wait for the cancellation to be complete.
   await close_popup(aController, aController.e(kAttachmentItemContextID));

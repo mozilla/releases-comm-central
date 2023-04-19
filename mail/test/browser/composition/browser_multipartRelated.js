@@ -107,9 +107,18 @@ add_task(async function test_basic_multipart_related() {
     // Accept the dialog
     dialog.window.document.querySelector("dialog").acceptDialog();
   });
-  compWin.click(compWin.e("insertImage"));
+
+  let insertMenu = compWin.window.document.getElementById("InsertPopupButton");
+  let insertMenuPopup = compWin.e("InsertPopup");
+
+  EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
+  await compWin.click_menus_in_sequence(insertMenuPopup, [
+    { id: "InsertImageItem" },
+  ]);
+
   wait_for_modal_dialog();
   wait_for_window_close();
+  compWin.sleep(0);
 
   await save_compose_message(compWin.window);
   close_compose_window(compWin);

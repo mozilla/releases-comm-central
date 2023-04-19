@@ -125,7 +125,7 @@ async function assert_ignore_works(aController) {
     kNotificationValue,
     { popup: "phishingOptions" }
   );
-  aController.click(prefButton);
+  EventUtils.synthesizeMouseAtCenter(prefButton, {}, prefButton.ownerGlobal);
   await aController.click_menus_in_sequence(
     aboutMessage.document.getElementById("phishingOptions"),
     [{ id: "phishingOptionIgnore" }]

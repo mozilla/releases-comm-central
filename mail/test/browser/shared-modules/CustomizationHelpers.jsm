@@ -13,6 +13,9 @@ var wh = ChromeUtils.import(
 var { Assert } = ChromeUtils.importESModule(
   "resource://testing-common/Assert.sys.mjs"
 );
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
 
 var USE_SHEET_PREF = "toolbar.customization.usesheet";
 
@@ -35,16 +38,17 @@ function CustomizeDialogHelper(aToolbarId, aOpenElementId, aWindowType) {
 
 CustomizeDialogHelper.prototype = {
   /**
-   * Open a customization dialog by clicking on a given XUL element.
+   * Open a customization dialog by clicking on a given element.
    *
    * @param {} aController
    *   the controller object of the window for which the customization
    *   dialog should be opened
    * @returns a controller for the customization dialog
    */
-  open(aController) {
+  async open(aController) {
+    aController.e(this._openElementId).click();
+
     let ctc;
-    aController.click(aController.e(this._openElementId));
     // Depending on preferences the customization dialog is
     // either a normal window or embedded into a sheet.
     if (!this._openInWindow) {
@@ -70,7 +74,9 @@ CustomizeDialogHelper.prototype = {
       wh.plan_for_window_close(aCtc);
     }
 
-    aCtc.click(aCtc.e("donebutton"));
+    let doneButton = aCtc.e("donebutton");
+    EventUtils.synthesizeMouseAtCenter(doneButton, {}, doneButton.ownerGlobal);
+    aCtc.sleep(0);
     // XXX There should be an equivalent for testing the closure of
     // XXX the dialog embedded in a sheet, but I do not know how.
     if (this._openInWindow) {
@@ -88,13 +94,18 @@ CustomizeDialogHelper.prototype = {
    *   the controller object of the window for which the customization
    *   dialog should be opened
    */
-  restoreDefaultButtons(aController) {
-    let ctc = this.open(aController);
+  async restoreDefaultButtons(aController) {
+    let ctc = await this.open(aController);
     let restoreButton = ctc.window.document
       .getElementById("main-box")
       .querySelector("[oncommand*='overlayRestoreDefaultSet();']");
 
-    ctc.click(restoreButton);
+    EventUtils.synthesizeMouseAtCenter(
+      restoreButton,
+      {},
+      restoreButton.ownerGlobal
+    );
+    aController.sleep(0);
 
     this.close(ctc);
 

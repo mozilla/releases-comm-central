@@ -103,7 +103,8 @@ add_task(async function test_send_enabled_manual_address() {
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
   clear_recipients(cwc);
-  cwc.click(menuButton);
+  EventUtils.synthesizeMouseAtCenter(menuButton, {}, menuButton.ownerGlobal);
+  cwc.sleep(0);
   await wait_for_popup_to_open(menu);
   menu.activateItem(cwc.e("addr_replyShowAddressRowMenuItem"));
   setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
@@ -118,11 +119,18 @@ add_task(async function test_send_enabled_manual_address() {
   setup_msg_contents(cwc, " recipient@", "", "");
   check_send_commands_state(cwc, false);
 
-  cwc.click(cwc.e("addr_ccShowAddressRowButton"));
+  let ccShow = cwc.e("addr_ccShowAddressRowButton");
+  EventUtils.synthesizeMouseAtCenter(ccShow, {}, ccShow.ownerGlobal);
+  cwc.sleep(0);
   check_send_commands_state(cwc, false);
 
   // Select the newly generated pill.
-  cwc.click(get_first_pill(cwc));
+  EventUtils.synthesizeMouseAtCenter(
+    get_first_pill(cwc),
+    {},
+    get_first_pill(cwc).ownerGlobal
+  );
+  cwc.sleep(0);
   // Delete the selected pill.
   EventUtils.synthesizeKey("VK_DELETE", {}, cwc.window);
   // Confirm the address row is now empty.
@@ -162,7 +170,12 @@ add_task(async function test_send_enabled_manual_address() {
   // Hack to reveal the newsgroup button.
   let newsgroupsButton = cwc.e("addr_newsgroupsShowAddressRowButton");
   newsgroupsButton.hidden = false;
-  cwc.click(newsgroupsButton);
+  EventUtils.synthesizeMouseAtCenter(
+    newsgroupsButton,
+    {},
+    newsgroupsButton.ownerGlobal
+  );
+  cwc.sleep(0);
 
   // - some string as a newsgroup
   setup_msg_contents(cwc, "newsgroup ", "", "", "newsgroupsAddrInput");

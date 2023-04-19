@@ -34,16 +34,15 @@ var { BrowserTestUtils } = ChromeUtils.importESModule(
 );
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
+
 const lazy = {};
 
 ChromeUtils.defineModuleGetter(
   lazy,
   "mark_action",
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "normalize_for_json",
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
@@ -1019,7 +1018,6 @@ var AugmentEverybodyWith = {
      */
     click_appmenu_in_sequence(navTargets, nonNavTarget) {
       const rootPopup = this.e("appMenu-popup");
-      const controller = this;
 
       function viewShownListener(navTargets, nonNavTarget, allDone, event) {
         // Set up the next listener if there are more navigation targets.
@@ -1063,7 +1061,11 @@ var AugmentEverybodyWith = {
 
           const foundNode = kids.find(findFunction);
 
-          controller.click(foundNode);
+          EventUtils.synthesizeMouseAtCenter(
+            foundNode,
+            {},
+            foundNode.ownerGlobal
+          );
         }
 
         // We are all done when there are no more navigation targets.
@@ -1109,51 +1111,15 @@ var AugmentEverybodyWith = {
      *                    the last shown <panelview>.
      */
     click_through_appmenu(navTargets, nonNavTarget) {
-      this.click(this.window.document.getElementById("button-appmenu"));
+      EventUtils.synthesizeMouseAtCenter(
+        this.window.document.getElementById("button-appmenu"),
+        {},
+        this.window.document.getElementById("button-appmenu").ownerGlobal
+      );
       return this.click_appmenu_in_sequence(navTargets, nonNavTarget);
     },
   },
 };
-
-/**
- * Clicks and other mouse operations used to be recognized just outside a curved
- * border but are no longer so (bug 595652), so we need these wrappers to
- * perform the operations at the center when aLeft or aTop aren't passed in.
- */
-var MOUSE_OPS_TO_WRAP = [
-  "click",
-  "doubleClick",
-  "mouseDown",
-  "mouseOut",
-  "mouseOver",
-  "mouseUp",
-  "middleClick",
-  "rightClick",
-];
-
-for (let mouseOp of MOUSE_OPS_TO_WRAP) {
-  let thisMouseOp = mouseOp;
-  let wrapperFunc = function(el, aLeft, aTop) {
-    let rect = el.getBoundingClientRect();
-    if (aLeft === undefined) {
-      aLeft = rect.width / 2;
-    }
-    if (aTop === undefined) {
-      aTop = rect.height / 2;
-    }
-    // claim to be folder-display-helper since this is an explicit action
-    lazy.mark_action("fdh", thisMouseOp, [
-      lazy.normalize_for_json(el),
-      "x:",
-      aLeft,
-      "y:",
-      aTop,
-    ]);
-    // |this| refers to the window that gets augmented, which is what we want
-    this.__proto__[thisMouseOp](el, aLeft, aTop);
-  };
-  AugmentEverybodyWith.methods[thisMouseOp] = wrapperFunc;
-}
 
 /**
  * Per-windowtype augmentations.  Please use the documentation and general

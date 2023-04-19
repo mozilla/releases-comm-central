@@ -177,10 +177,11 @@ add_task(async function test_pill_context_menu() {
   let popupPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
 
   // Right click on the first pill to open the context menu.
+  let pill = allPills[0];
   EventUtils.synthesizeMouseAtCenter(
-    allPills[0],
+    pill,
     { type: "contextmenu" },
-    cwc.window
+    pill.ownerGlobal
   );
   await popupPromise;
   // The selection should not have changed.
@@ -196,10 +197,15 @@ add_task(async function test_pill_context_menu() {
     "Timeout waiting for the pill to be moved to the Cc field"
   );
 
+  let movePillCc = contextMenu.querySelector("#moveAddressPillCc");
   // Move the pill to the Cc field.
-  // We need to use click() since the synthesizeMouseAtCenter doesn't work for
-  // context menu items on macos.
-  cwc.click(contextMenu.querySelector("#moveAddressPillCc"));
+  if (AppConstants.platform == "macosx") {
+    // We need to use click() since the synthesizeMouseAtCenter doesn't work for
+    // context menu items on macos.
+    movePillCc.click();
+  } else {
+    EventUtils.synthesizeMouseAtCenter(movePillCc, {}, movePillCc.ownerGlobal);
+  }
   await pillMoved;
 
   close_popup(cwc, contextMenu);
@@ -221,7 +227,7 @@ add_task(async function test_pill_context_menu() {
   EventUtils.synthesizeMouseAtCenter(
     ccPill,
     { type: "contextmenu" },
-    cwc.window
+    ccPill.ownerGlobal
   );
   await popupPromise2;
 
@@ -232,7 +238,11 @@ add_task(async function test_pill_context_menu() {
   );
 
   // Move the pill to the Bcc field.
-  cwc.click(contextMenu.querySelector("#moveAddressPillBcc"));
+  EventUtils.synthesizeMouseAtCenter(
+    contextMenu.querySelector("#moveAddressPillBcc"),
+    {},
+    contextMenu.querySelector("#moveAddressPillBcc").ownerGlobal
+  );
   await pillMoved2;
 
   close_popup(cwc, contextMenu);

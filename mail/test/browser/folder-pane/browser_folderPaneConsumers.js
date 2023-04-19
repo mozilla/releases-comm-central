@@ -41,7 +41,11 @@ add_task(async function test_virtual_folder_selection_tree() {
 
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
-  mc.click(mc.e("menu_File"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("menu_File"),
+    {},
+    mc.e("menu_File").ownerGlobal
+  );
   await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
     { id: "menu_New" },
     { id: "menu_newVirtualFolder" },
@@ -56,7 +60,11 @@ function subtest_create_virtual_folder(vfc) {
     "mailnews:virtualFolderList",
     subtest_check_virtual_folder_list
   );
-  vfc.click(vfc.e("folderListPicker"));
+  EventUtils.synthesizeMouseAtCenter(
+    vfc.e("folderListPicker"),
+    {},
+    vfc.e("folderListPicker").ownerGlobal
+  );
   wait_for_modal_dialog("mailnews:virtualFolderList");
 
   vfc.window.document.documentElement.querySelector("dialog").cancelDialog();
@@ -81,7 +89,11 @@ add_task(async function test_offline_sync_folder_selection_tree() {
 
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
-  mc.click(mc.e("menu_File"));
+  EventUtils.synthesizeMouseAtCenter(
+    mc.e("menu_File"),
+    {},
+    mc.e("menu_File").ownerGlobal
+  );
   await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
     { id: "offlineMenuItem" },
     { id: "menu_synchronizeOffline" },
@@ -96,7 +108,11 @@ function subtest_offline_sync(osc) {
     "mailnews:selectOffline",
     subtest_check_offline_folder_list
   );
-  osc.click(osc.e("select"));
+  EventUtils.synthesizeMouseAtCenter(
+    osc.e("select"),
+    {},
+    osc.e("select").ownerGlobal
+  );
   wait_for_modal_dialog("mailnews:selectOffline");
 
   osc.window.document.documentElement.querySelector("dialog").cancelDialog();

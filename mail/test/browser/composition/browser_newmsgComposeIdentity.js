@@ -180,7 +180,11 @@ add_task(async function test_editing_identity() {
   let customEmail = "custom@edited.invalid";
   let identityCustom = customName + " <" + customEmail + ">";
 
-  compWin.click(compWin.e("msgIdentity"));
+  EventUtils.synthesizeMouseAtCenter(
+    compWin.e("msgIdentity"),
+    {},
+    compWin.e("msgIdentity").ownerGlobal
+  );
   await compWin.click_menus_in_sequence(compWin.e("msgIdentityPopup"), [
     { command: "cmd_customizeFromAddress" },
   ]);

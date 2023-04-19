@@ -177,7 +177,7 @@ add_task(function test_can_quit_on_changes() {
  * window's state is such that subsequent quit requests still cause the
  * Don't Save / Cancel / Save dialog to come up.
  */
-add_task(function test_window_quit_state_reset_on_aborted_quit() {
+add_task(async function test_window_quit_state_reset_on_aborted_quit() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
@@ -219,10 +219,17 @@ add_task(function test_window_quit_state_reset_on_aborted_quit() {
   // The first window should still prompt when attempting to close the
   // window.
   gMockPromptService.returnValue = DONT_SAVE;
-  cwc2.click(cwc2.e("menu_close"));
 
-  let promptState = gMockPromptService.promptState;
-  Assert.notEqual(null, promptState, "Expected a confirmEx prompt");
+  // Unclear why the timeout is needed.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  cwc2.window.goDoCommand("cmd_close");
+
+  TestUtils.waitForCondition(
+    () => !!gMockPromptService.promptState,
+    "Expected a confirmEx prompt to come up"
+  );
 
   close_compose_window(cwc1);
 

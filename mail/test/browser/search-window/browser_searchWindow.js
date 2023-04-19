@@ -111,7 +111,7 @@ add_task(function test_enter_some_stuff() {
   let plusButton = swc.window.document.querySelector(
     "#searchRow0 button[label='+']"
   );
-  swc.click(plusButton);
+  EventUtils.synthesizeMouseAtCenter(plusButton, {}, plusButton.ownerGlobal);
 
   // - put "bar" in it
   let searchVal1 = swc.window.document.getElementById("searchVal1");
@@ -131,7 +131,11 @@ add_task(function test_enter_some_stuff() {
 add_task(function test_go_search() {
   // - Trigger the search
   // The "Search" button has id "search-button"
-  swc.click(swc.e("search-button"));
+  EventUtils.synthesizeMouseAtCenter(
+    swc.e("search-button"),
+    {},
+    swc.e("search-button").ownerGlobal
+  );
   wait_for_all_messages_to_load(swc);
 
   // - Verify we got the right messages
@@ -145,7 +149,11 @@ add_task(function test_go_search() {
     "mailnews:virtualFolderProperties",
     subtest_save_search
   );
-  swc.click(swc.e("saveAsVFButton"));
+  EventUtils.synthesizeMouseAtCenter(
+    swc.e("saveAsVFButton"),
+    {},
+    swc.e("saveAsVFButton").ownerGlobal
+  );
   wait_for_modal_dialog("mailnews:virtualFolderProperties");
 });
 

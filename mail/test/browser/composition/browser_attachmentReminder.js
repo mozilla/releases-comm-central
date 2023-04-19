@@ -187,8 +187,10 @@ add_task(async function test_attachment_reminder_appears_properly() {
   // Now try to send, make sure we get the alert.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  cwc.click(cwc.e("button-send"));
+  let buttonSend = cwc.e("button-send");
+  EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
+  await new Promise(resolve => setTimeout(resolve));
 
   // After confirming the reminder the menuitem should get disabled.
   assert_manual_reminder_state(cwc, false);
@@ -224,8 +226,10 @@ add_task(async function test_attachment_reminder_dismissal() {
   // on send anyway.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  cwc.click(cwc.e("button-send"));
+  let buttonSend = cwc.e("button-send");
+  EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
+  await new Promise(resolve => setTimeout(resolve));
 
   let notification = assert_automatic_reminder_state(cwc, true);
 
@@ -334,8 +338,10 @@ add_task(async function test_no_send_now_sends() {
 
   // Click the send button again, this time choose "No, Send Now".
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  cwc.click(cwc.e("button-send"));
+  let buttonSend = cwc.e("button-send");
+  EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
+  await new Promise(resolve => setTimeout(resolve));
 
   // After clicking "Send Now" sending is proceeding, just handle the error.
   click_send_and_handle_send_error(cwc, true);
@@ -436,8 +442,10 @@ add_task(async function test_manual_attachment_reminder() {
   // Now try to send, make sure we get the alert.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  cwc.click(cwc.e("button-send"));
+  let buttonSend = cwc.e("button-send");
+  EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
+  await new Promise(resolve => setTimeout(resolve));
 
   // We were alerted once and the manual reminder is automatically turned off.
   assert_manual_reminder_state(cwc, false);
@@ -765,7 +773,8 @@ add_task(async function test_disabling_attachment_reminder() {
       popup: "reminderBarPopup",
     }
   );
-  cwc.click(disableButton.querySelector("dropmarker"));
+  let dropmarker = disableButton.querySelector("dropmarker");
+  EventUtils.synthesizeMouseAtCenter(dropmarker, {}, dropmarker.ownerGlobal);
   await cwc.click_menus_in_sequence(
     disableButton.closest("toolbarbutton").querySelector("menupopup"),
     [{ id: "disableReminder" }]
@@ -797,7 +806,8 @@ add_task(async function test_disabling_attachment_reminder() {
   disableButton = get_notification_button(cwc.window, kBoxId, kNotificationId, {
     popup: "reminderBarPopup",
   });
-  cwc.click(disableButton.querySelector("dropmarker"));
+  dropmarker = disableButton.querySelector("dropmarker");
+  EventUtils.synthesizeMouseAtCenter(dropmarker, {}, dropmarker.ownerGlobal);
   await cwc.click_menus_in_sequence(
     disableButton.closest("toolbarbutton").querySelector("menupopup"),
     [{ id: "disableReminder" }]
@@ -832,7 +842,8 @@ add_task(async function test_disabling_attachment_reminder() {
 function click_send_and_handle_send_error(aController, aAlreadySending) {
   plan_for_modal_dialog("commonDialogWindow", click_ok_on_send_error);
   if (!aAlreadySending) {
-    aController.click(aController.e("button-send"));
+    let buttonSend = aController.e("button-send");
+    EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   }
   wait_for_modal_dialog("commonDialogWindow");
 }

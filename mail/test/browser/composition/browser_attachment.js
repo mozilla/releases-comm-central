@@ -267,7 +267,7 @@ add_task(function test_rename_attachment() {
   // Now, rename the attachment.
   let bucket = cwc.e("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
-  cwc.click(node);
+  EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
   plan_for_modal_dialog("commonDialogWindow", subtest_rename_attachment);
   cwc.window.RenameSelectedAttachment();
   wait_for_modal_dialog("commonDialogWindow");
@@ -419,7 +419,11 @@ async function subtest_reordering(
     }
     // Take action.
     if ("button" in action) {
-      aCwc.click(aCwc.e(action.button));
+      EventUtils.synthesizeMouseAtCenter(
+        aCwc.e(action.button),
+        {},
+        aCwc.e(action.button).ownerGlobal
+      );
     } else if ("key" in action) {
       EventUtils.synthesizeKey(action.key, action.key_modifiers, aCwc.window);
     }
@@ -481,7 +485,7 @@ add_task(async function test_attachment_reordering() {
   await wait_for_popup_to_open(panel);
 
   // Click on the editor which should close the panel.
-  cwc.click(editorEl);
+  EventUtils.synthesizeMouseAtCenter(editorEl, {}, editorEl.ownerGlobal);
   cwc.waitFor(
     () => panel.state == "closed",
     "Reordering panel didn't close when editor was clicked."
