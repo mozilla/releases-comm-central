@@ -312,7 +312,7 @@ var folderPaneContextMenu = {
           (isJunk && FolderUtils.canRenameDeleteJunkMail(URI)),
         cmd_compactFolder:
           !isVirtual &&
-          canCompact &&
+          (isServer || canCompact) &&
           gFolder.isCommandEnabled("cmd_compactFolder"),
         cmd_emptyTrash: isTrash,
       };
@@ -2198,35 +2198,26 @@ var folderPane = {
   },
 
   /**
-   * Compacts either particular folder/s, or selected folders.
+   * Compacts the given folder.
    *
-   * @param [aFolders] - The folders to compact, if different than the currently
-   *   selected ones.
+   * @param {nsIMsgFolder} folder
    */
-  compactFolders(aFolders) {
-    let folders = aFolders;
-    for (let i = 0; i < folders.length; i++) {
-      // Can't compact folders that have just been compacted.
-      if (folders[i].server.type != "imap" && !folders[i].expungedBytes) {
-        continue;
-      }
-
-      folders[i].compact(null, top.msgWindow);
+  compactFolder(folder) {
+    // Can't compact folders that have just been compacted.
+    if (folder.server.type != "imap" && !folder.expungedBytes) {
+      return;
     }
+
+    folder.compact(null, top.msgWindow);
   },
 
   /**
-   * Compacts all folders for accounts that the given folders belong
-   * to, or all folders for accounts of the currently selected folders.
+   * Compacts all folders for the account that the given folder belongs to.
    *
-   * @param aFolders - (optional) the folders for whose accounts we should
-   *   compact all folders, if different than the currently selected ones.
+   * @param {nsIMsgFolder} folder
    */
-  compactAllFoldersForAccount(aFolders) {
-    let folders = aFolders;
-    for (let i = 0; i < folders.length; i++) {
-      folders[i].compactAll(null, top.msgWindow);
-    }
+  compactAllFoldersForAccount(folder) {
+    folder.rootFolder.compactAll(null, top.msgWindow);
   },
 
   /**
@@ -4404,7 +4395,13 @@ commandController.registerCallback(
 );
 commandController.registerCallback(
   "cmd_compactFolder",
-  () => folderPane.compactFolders([gFolder]),
+  () => {
+    if (gFolder.isServer) {
+      folderPane.compactAllFoldersForAccount(gFolder);
+    } else {
+      folderPane.compactFolder(gFolder);
+    }
+  },
   () => folderPaneContextMenu.getCommandState("cmd_compactFolder")
 );
 commandController.registerCallback(

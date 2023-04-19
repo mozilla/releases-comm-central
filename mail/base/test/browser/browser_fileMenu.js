@@ -39,7 +39,7 @@ const fileMenuData = {
   menu_subscribe: { disabled: true },
   menu_deleteFolder: { disabled: true },
   menu_renameFolder: { disabled: true },
-  menu_compactFolder: { disabled: true },
+  menu_compactFolder: { disabled: ["mailMessageTab", "contentTab"] },
   menu_emptyTrash: { disabled: true },
   offlineMenuItem: {},
   goOfflineMenuItem: {},
