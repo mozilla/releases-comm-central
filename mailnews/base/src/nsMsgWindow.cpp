@@ -354,30 +354,6 @@ NS_IMETHODIMP nsMsgWindow::SetLoadCookie(nsISupports* aLoadCookie) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetPromptDialog(nsIPrompt** aPrompt) {
-  NS_ENSURE_ARG_POINTER(aPrompt);
-
-  // testing only
-  if (mPromptDialog) {
-    NS_ADDREF(*aPrompt = mPromptDialog);
-    return NS_OK;
-  }
-
-  nsresult rv;
-  nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak, &rv));
-  if (rootShell) {
-    nsCOMPtr<nsIPrompt> dialog;
-    dialog = do_GetInterface(rootShell, &rv);
-    dialog.forget(aPrompt);
-  }
-  return rv;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetPromptDialog(nsIPrompt* aPromptDialog) {
-  mPromptDialog = aPromptDialog;
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsMsgWindow::DisplayURIInMessagePane(const nsAString& uri, bool clearMsgHdr,
                                      nsIPrincipal* principal) {

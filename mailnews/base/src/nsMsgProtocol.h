@@ -177,11 +177,6 @@ class nsMsgProtocol : public nsIStreamListener,
 
   nsString m_lastPasswordSent;  // used to prefill the password prompt
 
-  // private helper routine used by subclasses to quickly get a reference to the
-  // correct prompt dialog for a mailnews url.
-  nsresult GetPromptDialogFromUrl(nsIMsgMailNewsUrl* aMsgUrl,
-                                  nsIPrompt** aPromptDialog);
-
   // if a url isn't going to result in any content then we want to suppress
   // calls to OnStartRequest, OnDataAvailable and OnStopRequest
   bool mSuppressListenerNotifications;

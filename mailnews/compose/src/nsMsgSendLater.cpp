@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #include "nsMsgSendLater.h"
+#include "nsIMsgMailNewsUrl.h"
 #include "nsMsgCopy.h"
 #include "nsIMsgSend.h"
 #include "nsIPrefService.h"
@@ -25,6 +26,7 @@
 #include "nsIMsgDatabase.h"
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
+#include "nsIMsgWindow.h"
 #include "nsMsgMessageFlags.h"
 #include "mozilla/dom/Promise.h"
 #include "mozilla/Services.h"
@@ -219,13 +221,16 @@ nsMsgSendLater::OnStopRequest(nsIRequest* request, nsresult status) {
 
     // extract the prompt object to use for the alert from the url....
     nsCOMPtr<nsIURI> uri;
-    nsCOMPtr<nsIPrompt> promptObject;
+    nsCOMPtr<mozIDOMWindowProxy> domWindow;
     if (channel) {
       channel->GetURI(getter_AddRefs(uri));
-      nsCOMPtr<nsISmtpUrl> smtpUrl(do_QueryInterface(uri));
-      if (smtpUrl) smtpUrl->GetPrompt(getter_AddRefs(promptObject));
+      nsCOMPtr<nsIMsgMailNewsUrl> msgUrl(do_QueryInterface(uri));
+      nsCOMPtr<nsIMsgWindow> msgWindow;
+      if (msgUrl) msgUrl->GetMsgWindow(getter_AddRefs(msgWindow));
+      if (msgWindow) msgWindow->GetDomWindow(getter_AddRefs(domWindow));
     }
-    nsMsgDisplayMessageByName(promptObject, "errorQueuedDeliveryFailed");
+
+    nsMsgDisplayMessageByName(domWindow, "errorQueuedDeliveryFailed");
 
     // Getting the data failed, but we will still keep trying to send the
     // rest...

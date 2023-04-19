@@ -12,6 +12,8 @@
 #include "nsServiceManagerUtils.h"
 #include "nsMsgUtils.h"
 #include "mozilla/Components.h"
+#include "nsIPromptService.h"
+#include "nsEmbedCID.h"
 
 nsresult nsMsgGetMessageByName(const char* aName, nsString& aResult) {
   nsresult rv;
@@ -57,48 +59,36 @@ nsresult nsMsgBuildMessageWithTmpFile(nsIFile* aFile, nsString& aResult) {
   return nsMsgBuildMessageByName("unableToOpenTmpFile", aFile, aResult);
 }
 
-nsresult nsMsgDisplayMessageByName(nsIPrompt* aPrompt, const char* aName,
+nsresult nsMsgDisplayMessageByName(mozIDOMWindowProxy* window,
+                                   const char* aName,
                                    const char16_t* windowTitle) {
   nsString msg;
   nsMsgGetMessageByName(aName, msg);
-  return nsMsgDisplayMessageByString(aPrompt, msg.get(), windowTitle);
+  return nsMsgDisplayMessageByString(window, msg.get(), windowTitle);
 }
 
-nsresult nsMsgDisplayMessageByString(nsIPrompt* aPrompt, const char16_t* msg,
+nsresult nsMsgDisplayMessageByString(mozIDOMWindowProxy* window,
+                                     const char16_t* msg,
                                      const char16_t* windowTitle) {
   NS_ENSURE_ARG_POINTER(msg);
 
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIPrompt> prompt = aPrompt;
+  nsresult rv;
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!prompt) {
-    nsCOMPtr<nsIWindowWatcher> wwatch(
-        do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-    if (wwatch) wwatch->GetNewPrompter(0, getter_AddRefs(prompt));
-  }
-
-  if (prompt) rv = prompt->Alert(windowTitle, msg);
-
-  return rv;
+  return dlgService->Alert(window, windowTitle, msg);
 }
 
-nsresult nsMsgAskBooleanQuestionByString(nsIPrompt* aPrompt,
+nsresult nsMsgAskBooleanQuestionByString(mozIDOMWindowProxy* window,
                                          const char16_t* msg, bool* answer,
                                          const char16_t* windowTitle) {
   NS_ENSURE_TRUE(msg && *msg, NS_ERROR_INVALID_ARG);
 
-  nsresult rv = NS_OK;
-  nsCOMPtr<nsIPrompt> dialog = aPrompt;
+  nsresult rv;
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  if (!dialog) {
-    nsCOMPtr<nsIWindowWatcher> wwatch(
-        do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-    if (wwatch) wwatch->GetNewPrompter(0, getter_AddRefs(dialog));
-  }
-
-  if (dialog) {
-    rv = dialog->Confirm(windowTitle, msg, answer);
-  }
-
-  return rv;
+  return dlgService->Confirm(window, windowTitle, msg, answer);
 }

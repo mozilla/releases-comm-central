@@ -31,7 +31,7 @@ var gGotAlert = new Promise(resolve => {
 });
 
 /* exported alert to alertTestUtils.js */
-function alert(aDialogTitle, aText) {
+function alertPS(parent, aDialogTitle, aText) {
   gAlertResolve(aText);
 }
 
@@ -48,6 +48,7 @@ function addGeneratedMessagesToServer(messages, mailbox) {
 var gStreamedHdr = null;
 
 add_setup(async function() {
+  registerAlertTestUtils();
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",
     false

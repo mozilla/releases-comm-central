@@ -34,18 +34,7 @@ var kUsername = "testsmtp";
 var kInvalidPassword = "smtptest";
 var kValidPassword = "smtptest1";
 
-/* exported alert, confirmEx, promptPasswordPS */
-// for alertTestUtils.js
-function alert(aDialogText, aText) {
-  // The first few attempts may prompt about the password problem, the last
-  // attempt shouldn't.
-  Assert.ok(attempt < 4);
-
-  // Log the fact we've got an alert, but we don't need to test anything here.
-  dump("Alert Title: " + aDialogText + "\nAlert Text: " + aText + "\n");
-}
-
-function confirmEx(
+function confirmExPS(
   aDialogTitle,
   aText,
   aButtonFlags,

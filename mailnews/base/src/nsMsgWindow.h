@@ -39,8 +39,6 @@ class nsMsgWindow : public nsIMsgWindow,
   // These are used by the backend protocol code to attach
   // notification callbacks to channels, e.g., nsIBadCertListner2.
   nsCOMPtr<nsIInterfaceRequestor> mNotificationCallbacks;
-  // prompt dialog used during testing only
-  nsCOMPtr<nsIPrompt> mPromptDialog;
   // authorization prompt used during testing only
   nsCOMPtr<nsIAuthPrompt> mAuthPrompt;
 

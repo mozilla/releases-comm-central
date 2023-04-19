@@ -71,6 +71,8 @@ function resetAlertPromise() {
 }
 
 add_setup(async function() {
+  registerAlertTestUtils();
+
   localAccountUtils.loadLocalMailAccount();
 
   allow4GBFolders(false);
@@ -498,11 +500,10 @@ add_task(function endTest() {
   }
 });
 
-/* exported alert */
 // This alert() is triggered when file size becomes close (enough) to or
 // exceeds 4 GiB.
 // See hardcoded value in nsMsgBrkMBoxStore::HasSpaceAvailable().
-function alert(aDialogTitle, aText) {
+function alertPS(parent, aDialogTitle, aText) {
   // See "/*/locales/en-US/chrome/*/messenger.properties > mailboxTooLarge".
   alertResolve(aText);
 }

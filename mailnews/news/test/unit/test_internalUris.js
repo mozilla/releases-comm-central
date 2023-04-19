@@ -37,6 +37,8 @@ var kCancelArticle =
 var dummyMsgWindow;
 
 add_setup(function setupTest() {
+  registerAlertTestUtils();
+
   daemon = setupNNTPDaemon();
   server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();
@@ -297,7 +299,7 @@ class DummyMsgWindow {
 
 /* exported alert, confirmEx */
 // Prompts for cancel.
-function alert(title, text) {}
-function confirmEx(title, text, flags) {
+function alertPS(parent, title, text) {}
+function confirmExPS(parent, title, text, flags) {
   return 0;
 }

@@ -1460,7 +1460,7 @@ class Pop3Client {
     let errorTitle = bundle.formatStringFromName("pop3ErrorDialogTitle", [
       this._server.prettyName,
     ]);
-    this._msgWindow.promptDialog.alert(errorTitle, errorMsg);
+    Services.prompt.alert(this._msgWindow.domWindow, errorTitle, errorMsg);
   }
 
   /**

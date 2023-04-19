@@ -16,9 +16,9 @@ const { PromiseTestUtils } = ChromeUtils.import(
 
 var gNewPassword = null;
 
-/* exported confirmEx, promptPasswordPS */
 // for alertTestUtils.js
-function confirmEx(
+function confirmExPS(
+  parent,
   aDialogTitle,
   aText,
   aButtonFlags,

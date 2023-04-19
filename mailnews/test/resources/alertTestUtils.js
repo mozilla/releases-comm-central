@@ -346,6 +346,7 @@ function registerAlertTestUtils() {
     "@mozilla.org/embedcomp/window-watcher;1",
     alertUtilsWindowWatcher
   );
+  MockRegistrar.register("@mozilla.org/prompter;1", alertUtilsPromptService);
   Services.prompt = alertUtilsPromptService;
 }
 
@@ -482,6 +483,5 @@ gDummyMsgWindow.setAuthPrompt({
     return ok;
   },
 });
-gDummyMsgWindow.setPromptDialog(alertUtilsPrompts);
 // Set MailServices.mailSession.topmostMsgWindow to gDummyMsgWindow.
 MailServices.mailSession.AddMsgWindow(gDummyMsgWindow);

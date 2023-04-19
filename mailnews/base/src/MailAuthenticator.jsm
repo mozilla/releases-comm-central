@@ -175,14 +175,6 @@ class MailAuthenticator {
    * @returns {number} - 0: Retry; 1: Cancel; 2: New password.
    */
   _promptAuthFailed(msgWindow, accountname) {
-    let dialog;
-    if (msgWindow) {
-      dialog = msgWindow.promptDialog;
-    }
-    if (!dialog) {
-      dialog = Services.ww.getNewPrompter(null);
-    }
-
     let bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
     );
@@ -208,7 +200,8 @@ class MailAuthenticator {
       Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING;
     let dummyValue = { value: false };
 
-    return dialog.confirmEx(
+    return Services.prompt.confirmEx(
+      msgWindow?.domWindow,
       title,
       message,
       buttonFlags,

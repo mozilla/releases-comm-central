@@ -154,7 +154,7 @@ add_task(function endTest() {
 });
 
 /* exported alert, confirmEx, promptPasswordPS */
-function alert(aDialogText, aText) {
+function alertPS(parent, aDialogText, aText) {
   // The first few attempts may prompt about the password problem, the last
   // attempt shouldn't.
   Assert.ok(attempt < 4);
@@ -163,7 +163,8 @@ function alert(aDialogText, aText) {
   info("Alert Title: " + aDialogText + "\nAlert Text: " + aText);
 }
 
-function confirmEx(
+function confirmExPS(
+  parent,
   aDialogTitle,
   aText,
   aButtonFlags,

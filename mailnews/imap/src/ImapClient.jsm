@@ -1831,7 +1831,7 @@ class ImapClient {
     let errorMsg = bundle.formatStringFromName(errorName, [
       this._server.hostName,
     ]);
-    this._msgWindow.promptDialog.alert(null, errorMsg);
+    Services.prompt.alert(this._msgWindow.domWindow, null, errorMsg);
   }
 
   /**

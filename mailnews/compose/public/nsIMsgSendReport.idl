@@ -4,8 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsIPrompt.idl"
 
+interface mozIDOMWindowProxy;
 
 [scriptable, uuid(2ec81175-bc65-44b9-ba87-462bc3f938db)]
 interface nsIMsgProcessReport : nsISupports {
@@ -43,5 +43,5 @@ interface nsIMsgSendReport : nsISupports {
      Also it will return the error code. In case of no error or if the error has been canceld, it will return
      NS_OK.
   */
-  nsresult displayReport(in nsIPrompt prompt, in boolean showErrorOnly, in boolean dontShowReportTwice);
+  nsresult displayReport(in mozIDOMWindowProxy prompt, in boolean showErrorOnly, in boolean dontShowReportTwice);
 };

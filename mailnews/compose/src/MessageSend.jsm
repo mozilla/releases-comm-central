@@ -359,12 +359,8 @@ MessageSend.prototype = {
 
   fail(exitCode, errorMsg) {
     this._failed = true;
-    let prompt = this.getDefaultPrompt();
-    if (
-      !Components.isSuccessCode(exitCode) &&
-      exitCode != Cr.NS_ERROR_ABORT &&
-      prompt
-    ) {
+    // let prompt = this.getDefaultPrompt();
+    if (!Components.isSuccessCode(exitCode) && exitCode != Cr.NS_ERROR_ABORT) {
       lazy.MsgUtils.sendLogger.error(
         `Sending failed; ${errorMsg}, exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
       );
@@ -380,7 +376,7 @@ MessageSend.prototype = {
           false
         );
       }
-      exitCode = this._sendReport.displayReport(prompt, true, true);
+      exitCode = this._sendReport.displayReport(this._parentWindow, true, true);
     }
     this.abort();
 
@@ -489,8 +485,8 @@ MessageSend.prototype = {
         let buttonLabelRety = this._composeBundle.GetStringFromName(
           "buttonLabelRetry2"
         );
-        let prompt = this.getDefaultPrompt();
-        let buttonPressed = prompt.confirmEx(
+        let buttonPressed = Services.prompt.confirmEx(
+          this._parentWindow,
           dialogTitle,
           promptMsg,
           buttonFlags,
@@ -550,7 +546,8 @@ MessageSend.prototype = {
             this._mimeDoFcc(null, true, Ci.nsIMsgSend.nsMsgDeliverNow);
             return;
           } catch (e) {
-            prompt.alert(
+            Services.prompt.alert(
+              this._parentWindow,
               null,
               this._composeBundle.GetStringFromName("saveToLocalFoldersFailed")
             );

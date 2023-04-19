@@ -42,7 +42,8 @@ function alert(aDialogText, aText) {
   dump("Alert Title: " + aDialogText + "\nAlert Text: " + aText + "\n");
 }
 
-function confirmEx(
+function confirmExPS(
+  parent,
   aDialogTitle,
   aText,
   aButtonFlags,

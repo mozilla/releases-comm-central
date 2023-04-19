@@ -31,6 +31,8 @@
 #include "mozilla/dom/Element.h"
 #include "mozilla/Components.h"
 #include "nsFocusManager.h"
+#include "nsIPromptService.h"
+#include "nsEmbedCID.h"
 
 NS_IMPL_ISUPPORTS(nsMsgMailSession, nsIMsgMailSession, nsIFolderListener)
 
@@ -208,20 +210,15 @@ nsMsgMailSession::AlertUser(const nsAString& aMessage,
 
   if (!msgWindow) return NS_OK;
 
-  nsCOMPtr<nsIPrompt> dialog;
-  msgWindow->GetPromptDialog(getter_AddRefs(dialog));
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  msgWindow->GetDomWindow(getter_AddRefs(domWindow));
 
-  if (!dialog)  // if we didn't get one, use the default....
-  {
-    nsresult rv;
-    nsCOMPtr<nsIWindowWatcher> wwatch =
-        do_GetService(NS_WINDOWWATCHER_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+  nsresult rv;
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    wwatch->GetNewPrompter(0, getter_AddRefs(dialog));
-  }
-
-  if (dialog) return dialog->Alert(nullptr, PromiseFlatString(aMessage).get());
+  dlgService->Alert(domWindow, nullptr, PromiseFlatString(aMessage).get());
 
   return NS_OK;
 }

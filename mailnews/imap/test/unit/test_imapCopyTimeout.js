@@ -27,13 +27,12 @@ var alertPromise = new Promise(resolve => {
   alertResolve = resolve;
 });
 
-/* exported alert */
-// to alertTestUtils.js
-function alert(aDialogTitle, aText) {
+function alertPS(parent, aDialogTitle, aText) {
   alertResolve(aText);
 }
 
 add_setup(function() {
+  registerAlertTestUtils();
   setupIMAPPump();
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",

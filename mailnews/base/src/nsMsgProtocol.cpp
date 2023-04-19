@@ -420,21 +420,6 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest* request,
   return rv;
 }
 
-nsresult nsMsgProtocol::GetPromptDialogFromUrl(nsIMsgMailNewsUrl* aMsgUrl,
-                                               nsIPrompt** aPromptDialog) {
-  // get the nsIPrompt interface from the message window associated wit this
-  // url.
-  nsCOMPtr<nsIMsgWindow> msgWindow;
-  aMsgUrl->GetMsgWindow(getter_AddRefs(msgWindow));
-  NS_ENSURE_TRUE(msgWindow, NS_ERROR_FAILURE);
-
-  msgWindow->GetPromptDialog(aPromptDialog);
-
-  NS_ENSURE_TRUE(*aPromptDialog, NS_ERROR_FAILURE);
-
-  return NS_OK;
-}
-
 nsresult nsMsgProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
   // nsMsgProtocol implements nsIChannel, and all channels are required to
   // have non-null loadInfo. So if it's still unset, we've not been correctly

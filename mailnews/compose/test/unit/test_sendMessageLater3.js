@@ -26,9 +26,8 @@ var msgSendLater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
   Ci.nsIMsgSendLater
 );
 
-/* exported alert */
 // for alertTestUtils.js
-function alert(aDialogTitle, aText) {
+function alertPS(parent, aDialogTitle, aText) {
   dump("Hiding Alert {\n" + aText + "\n} End Alert\n");
 }
 

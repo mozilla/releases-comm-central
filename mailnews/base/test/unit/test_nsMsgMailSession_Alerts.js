@@ -68,6 +68,7 @@ alertListener.prototype = {
 
     return this.mReturn;
   },
+  QueryInferface: ChromeUtils.generateQI([Ci.nsIMsgMailNewsUrl]),
 };
 
 function run_test() {

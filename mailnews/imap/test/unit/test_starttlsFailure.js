@@ -24,7 +24,7 @@ var gGotAlert = new Promise(resolve => {
 });
 
 /* exported alert to alertTestUtils.js */
-function alert(aDialogTitle, aText) {
+function alertPS(parent, aDialogTitle, aText) {
   gAlertResolve(aText);
 }
 

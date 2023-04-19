@@ -8,9 +8,7 @@
 
 // async support
 /* import-globals-from ../../../test/resources/logHelper.js */
-/* import-globals-from ../../../test/resources/alertTestUtils.js */
 load("../../../resources/logHelper.js");
-load("../../../resources/alertTestUtils.js");
 const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
@@ -51,10 +49,7 @@ var gTestArray = [
       new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
     );
     let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
-    IMAPPump.inbox.updateFolderWithListener(
-      gDummyMsgWindow,
-      promiseUrlListener
-    );
+    IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
     await promiseUrlListener.promise;
 
     Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
@@ -66,14 +61,13 @@ var gTestArray = [
   teardownIMAPPump,
 ];
 
-function run_test() {
+add_setup(() => {
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",
     false
   );
   gTestArray.forEach(x => add_task(x));
-  run_next_test();
-}
+});
 
 /*
  * helper functions

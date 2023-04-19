@@ -75,6 +75,8 @@
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Utf8.h"
 #include "mozilla/Buffer.h"
+#include "nsIPromptService.h"
+#include "nsEmbedCID.h"
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -1522,20 +1524,15 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow* aMsgWindow,
                                           const nsACString& aUsername,
                                           const nsAString& aAccountname,
                                           int32_t* aResult) {
-  nsCOMPtr<nsIPrompt> dialog;
-  if (aMsgWindow) aMsgWindow->GetPromptDialog(getter_AddRefs(dialog));
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  if (aMsgWindow) {
+    aMsgWindow->GetDomWindow(getter_AddRefs(domWindow));
+  }
 
   nsresult rv;
-
-  // If we haven't got one, use a default dialog.
-  if (!dialog) {
-    nsCOMPtr<nsIWindowWatcher> wwatch =
-        do_GetService(NS_WINDOWWATCHER_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    rv = wwatch->GetNewPrompter(0, getter_AddRefs(dialog));
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIStringBundleService> bundleSvc =
       mozilla::components::StringBundle::Service();
@@ -1576,8 +1573,8 @@ NS_MSG_BASE nsresult MsgPromptLoginFailed(nsIMsgWindow* aMsgWindow,
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool dummyValue = false;
-  return dialog->ConfirmEx(
-      title.get(), message.get(),
+  return dlgService->ConfirmEx(
+      domWindow, title.get(), message.get(),
       (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_0) +
           (nsIPrompt::BUTTON_TITLE_CANCEL * nsIPrompt::BUTTON_POS_1) +
           (nsIPrompt::BUTTON_TITLE_IS_STRING * nsIPrompt::BUTTON_POS_2),

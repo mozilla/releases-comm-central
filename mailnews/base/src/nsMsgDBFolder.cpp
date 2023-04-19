@@ -68,6 +68,8 @@
 #include "mozilla/SlicedInputStream.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/Utf8.h"
+#include "nsIPromptService.h"
+#include "nsEmbedCID.h"
 
 using namespace mozilla;
 
@@ -4894,12 +4896,16 @@ NS_IMETHODIMP nsMsgDBFolder::ThrowAlertMsg(const char* msgName,
   nsAutoString title;
   bundle->FormatStringFromName("folderErrorAlertTitle", {ident}, title);
 
-  nsCOMPtr<nsIPrompt> dialog;
-  rv = msgWindow->GetPromptDialog(getter_AddRefs(dialog));
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  rv = msgWindow->GetDomWindow(getter_AddRefs(domWindow));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return dialog->Alert(title.IsEmpty() ? nullptr : title.get(),
-                       alertString.get());
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  return dlgService->Alert(domWindow, title.IsEmpty() ? nullptr : title.get(),
+                           alertString.get());
 }
 
 NS_IMETHODIMP nsMsgDBFolder::AlertFilterChanged(nsIMsgWindow* msgWindow) {

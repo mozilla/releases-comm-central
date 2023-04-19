@@ -21,9 +21,7 @@ var kValidPassword = "password";
 var incomingServer, server;
 var attempt = 0;
 
-/* exported confirmEx, promptPasswordPS */
-// to alertTestUtils.js
-function confirmEx(
+function confirmExPS(
   aDialogTitle,
   aText,
   aButtonFlags,

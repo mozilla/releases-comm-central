@@ -1209,19 +1209,12 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
   // Save the identity being sent for later use.
   m_identity = identity;
 
-  nsCOMPtr<nsIPrompt> prompt;
-  if (m_window) {
-    nsCOMPtr<nsPIDOMWindowOuter> window = nsPIDOMWindowOuter::From(m_window);
-    window->GetPrompter(getter_AddRefs(prompt));
-  }
-
   RefPtr<mozilla::dom::Promise> promise;
   rv = SendMsgToServer(deliverMode, identity, accountKey,
                        getter_AddRefs(promise));
 
   RefPtr<nsMsgCompose> self = this;
-  auto handleFailure = [self = std::move(self), prompt = std::move(prompt),
-                        deliverMode](nsresult rv) {
+  auto handleFailure = [self = std::move(self), deliverMode](nsresult rv) {
     self->NotifyStateListeners(
         nsIMsgComposeNotificationType::ComposeProcessDone, rv);
     nsCOMPtr<nsIMsgSendReport> sendReport;
@@ -1229,24 +1222,24 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       self->mMsgSend->GetSendReport(getter_AddRefs(sendReport));
     if (sendReport) {
       nsresult theError;
-      sendReport->DisplayReport(prompt, true, true, &theError);
+      sendReport->DisplayReport(self->m_window, true, true, &theError);
     } else {
       // If we come here it's because we got an error before we could initialize
       // a send report! Let's try our best...
       switch (deliverMode) {
         case nsIMsgCompDeliverMode::Later:
-          nsMsgDisplayMessageByName(prompt, "unableToSendLater");
+          nsMsgDisplayMessageByName(self->m_window, "unableToSendLater");
           break;
         case nsIMsgCompDeliverMode::AutoSaveAsDraft:
         case nsIMsgCompDeliverMode::SaveAsDraft:
-          nsMsgDisplayMessageByName(prompt, "unableToSaveDraft");
+          nsMsgDisplayMessageByName(self->m_window, "unableToSaveDraft");
           break;
         case nsIMsgCompDeliverMode::SaveAsTemplate:
-          nsMsgDisplayMessageByName(prompt, "unableToSaveTemplate");
+          nsMsgDisplayMessageByName(self->m_window, "unableToSaveTemplate");
           break;
 
         default:
-          nsMsgDisplayMessageByName(prompt, "sendFailed");
+          nsMsgDisplayMessageByName(self->m_window, "sendFailed");
           break;
       }
     }
@@ -2359,13 +2352,9 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
         // Handle "followup-to: poster" magic keyword here
         if (followUpTo.EqualsLiteral("poster")) {
           nsCOMPtr<mozIDOMWindowProxy> domWindow;
-          nsCOMPtr<nsIPrompt> prompt;
           compose->GetDomWindow(getter_AddRefs(domWindow));
           NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
-          nsCOMPtr<nsPIDOMWindowOuter> composeWindow =
-              nsPIDOMWindowOuter::From(domWindow);
-          if (composeWindow) composeWindow->GetPrompter(getter_AddRefs(prompt));
-          nsMsgDisplayMessageByName(prompt, "followupToSenderMessage");
+          nsMsgDisplayMessageByName(domWindow, "followupToSenderMessage");
 
           if (!replyTo.IsEmpty()) {
             compFields->SetTo(replyTo);

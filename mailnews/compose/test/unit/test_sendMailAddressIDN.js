@@ -21,7 +21,7 @@ var NS_ERROR_ILLEGAL_LOCALPART = 0x80553139;
 
 // for alertTestUtils.js
 let resolveAlert;
-function alert(aDialogText, aText) {
+function alertPS(parent, aDialogText, aText) {
   var composeProps = Services.strings.createBundle(
     "chrome://messenger/locale/messengercompose/composeMsgs.properties"
   );

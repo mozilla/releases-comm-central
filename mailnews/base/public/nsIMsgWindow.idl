@@ -60,8 +60,6 @@ interface nsIMsgWindow : nsISupports {
 
   void displayHTMLInMessagePane(in AString title, in AString body, in boolean clearMsgHdr);
 
-  readonly attribute nsIPrompt promptDialog;
-
   /**
     Has a running url been stopped? If you care about checking
     this flag, you need to clear it before you start your operation since
@@ -88,6 +86,5 @@ interface nsIMsgWindowTest : nsISupports {
   /**
    * For testing only, allow setting a few read-only attributes
    */
-  void setPromptDialog(in nsIPrompt promptDialog);
   void setAuthPrompt(in nsIAuthPrompt authPrompt);
 };

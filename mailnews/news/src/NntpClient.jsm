@@ -918,7 +918,7 @@ class NntpClient {
     if (serverErrorMsg) {
       errorMsg += " " + serverErrorMsg;
     }
-    msgWindow.promptDialog.alert(null, errorMsg);
+    Services.prompt.alert(msgWindow?.domWindow, null, errorMsg);
 
     this._actionDone(Cr.NS_ERROR_FAILURE);
   }

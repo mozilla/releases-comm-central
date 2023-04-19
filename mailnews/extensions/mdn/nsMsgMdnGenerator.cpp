@@ -30,6 +30,8 @@
 #include "mozilla/Components.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 #include "mozilla/Unused.h"
+#include "nsIPromptService.h"
+#include "nsEmbedCID.h"
 
 using namespace mozilla::mailnews;
 
@@ -1023,9 +1025,14 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI* url,
   bundle->FormatStringFromName(exitString, params, failed_msg);
   bundle->GetStringFromName("sendMessageErrorTitle", dialogTitle);
 
-  nsCOMPtr<nsIPrompt> dialog;
-  rv = m_window->GetPromptDialog(getter_AddRefs(dialog));
-  if (NS_SUCCEEDED(rv)) dialog->Alert(dialogTitle.get(), failed_msg.get());
+  nsCOMPtr<mozIDOMWindowProxy> domWindow;
+  m_window->GetDomWindow(getter_AddRefs(domWindow));
+
+  nsCOMPtr<nsIPromptService> dlgService(
+      do_GetService(NS_PROMPTSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  dlgService->Alert(domWindow, dialogTitle.get(), failed_msg.get());
 
   return NS_OK;
 }

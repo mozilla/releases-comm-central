@@ -157,7 +157,8 @@ class NntpService {
       let bundle = Services.strings.createBundle(
         "chrome://messenger/locale/news.properties"
       );
-      let result = msgWindow.promptDialog.confirmEx(
+      let result = Services.prompt.confirmEx(
+        msgWindow?.domWindow,
         null,
         bundle.GetStringFromName("cancelConfirm"),
         Ci.nsIPrompt.STD_YES_NO_BUTTONS,
