@@ -129,7 +129,7 @@
           <treecols>
             <treecol is="treecol-image" id="calendar-task-tree-col-completed"
                      class="calendar-task-tree-col-completed"
-                     minwidth="19"
+                     style="min-width: 18px"
                      fixed="true"
                      cycler="true"
                      sortKey="completedDate"
@@ -141,7 +141,7 @@
             <splitter class="tree-splitter"/>
             <treecol is="treecol-image" id="calendar-task-tree-col-priority"
                      class="calendar-task-tree-col-priority"
-                     minwidth="17"
+                     style="min-width: 17px"
                      fixed="true"
                      itemproperty="priority"
                      closemenu="none"
@@ -187,8 +187,7 @@
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-percentcomplete"
                      itemproperty="percentComplete"
-                     style="flex: 1 auto"
-                     minwidth="40"
+                     style="flex: 1 auto; min-width: 40px;"
                      closemenu="none"
                      label="&calendar.unifinder.tree.percentcomplete.label;"
                      tooltiptext="&calendar.unifinder.tree.percentcomplete.tooltip2;"/>
