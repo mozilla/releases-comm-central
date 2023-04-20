@@ -90,63 +90,6 @@ add_task(async function test_message_filter_shows_newsgroup_server() {
   close_window(filterc);
 });
 
-/*
- * Test that customizing the toolbar doesn't lead to doubled accounts in
- * the Get Mail menu.  (bug 520457)
- */
-add_task(async function test_customize_toolbar_doesnt_double_get_mail_menu() {
-  await be_in_folder(folderA);
-
-  /**
-   * Get the getAllNewMessages menu and check the number of items.
-   */
-  async function check_getAllNewMsgMenu() {
-    wait_for_window_focused(mc.window);
-
-    let button = mc.e("button-getmsg");
-    let popup = mc.e("button-getMsgPopup");
-
-    let shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
-    EventUtils.synthesizeMouseAtCenter(
-      button.querySelector(".toolbarbutton-menubutton-dropmarker"),
-      {},
-      mc.window
-    );
-    await shownPromise;
-
-    Assert.equal(
-      popup.childElementCount,
-      4,
-      "Incorrect number of items for GetNewMessages before customization"
-    );
-    // Close the popup.
-    await close_popup(mc, popup);
-  }
-
-  await check_getAllNewMsgMenu();
-  plan_for_new_window("mailnews:customizeToolbar");
-  // Open the customization dialog.
-  mc.rightClick(mc.e("mail-bar3"));
-  EventUtils.synthesizeMouseAtCenter(
-    mc.e("CustomizeMailToolbar"),
-    { clickCount: 1 },
-    mc.window
-  );
-
-  await close_popup(mc, mc.e("toolbar-context-menu"));
-  let customc = wait_for_new_window("mailnews:customizeToolbar");
-  wait_for_window_focused(customc.window);
-  plan_for_window_close(customc);
-  EventUtils.synthesizeMouseAtCenter(
-    customc.e("donebutton"),
-    { clickCount: 1 },
-    customc.window
-  );
-  wait_for_window_close();
-
-  await check_getAllNewMsgMenu();
-}).__skipMe = AppConstants.platform == "macosx";
-
 /* A helper function that opens up the new filter dialog (assuming that the
  * main filters dialog is already open), creates a simple filter, and then
  * closes the dialog.
@@ -186,6 +129,11 @@ async function create_simple_filter() {
  * Open the Message Filters dialog by clicking the menus.
  */
 async function openFiltersDialogs() {
+  if (AppConstants.platform == "macosx") {
+    // Can't click the menus on mac.
+    mc.window.MsgFilters();
+    return;
+  }
   // Show menubar so we can click it.
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
   // Open the "Tools | Message Filters…", a.k.a. "tasksMenu » filtersCmd".
@@ -326,5 +274,4 @@ registerCleanupFunction(() => {
   // Some tests that open new windows don't return focus to the main window
   // in a way that satisfies mochitest, and the test times out.
   Services.focus.focusedWindow = window;
-  window.gFolderDisplay.tree.focus();
 });
