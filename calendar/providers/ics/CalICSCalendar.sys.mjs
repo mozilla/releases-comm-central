@@ -95,6 +95,10 @@ export class CalICSCalendar extends cal.provider.BaseClass {
   }
 
   set uri(uri) {
+    if (this.#uri?.spec == uri.spec) {
+      return;
+    }
+
     this.#uri = uri;
     this.#memoryCalendar.uri = this.#uri;
 
@@ -105,6 +109,11 @@ export class CalICSCalendar extends cal.provider.BaseClass {
     } else {
       this.#hooks = new dummyHooks();
     }
+
+    // Refresh immediately, without entering the queue, in order to populate the
+    // memory calendar. It's our source of truth, and any writes that occur
+    // before refreshing could wipe out calendar data.
+    this.#doRefresh();
   }
 
   getProperty(aName) {
@@ -438,6 +447,74 @@ export class CalICSCalendar extends cal.provider.BaseClass {
     }
   }
 
+  /**
+   * Write the contents of an ICS serializer to an open channel as an ICS file.
+   *
+   * @param {calIIcsSerializer} serializer - The serializer to write
+   * @param {nsIChannel} channel - The destination upload or file channel
+   */
+  async #writeSerializerToChannel(serializer, channel) {
+    if (channel.URI.schemeIs("file")) {
+      // We handle local files separately, as writing to an nsIChannel has the
+      // potential to fail partway and can leave a file truncated, resulting in
+      // data loss. For local files, we have the option to do atomic writes.
+      try {
+        const file = channel.QueryInterface(Ci.nsIFileChannel).file;
+
+        // The temporary file permissions will become the file permissions since
+        // we move the temp file over top of the file itself. Copy the file
+        // permissions or use a restrictive default.
+        const tmpFilePermissions = file.exists() ? file.permissions : 0o600;
+
+        // We're going to be writing to an arbitrary point in the user's file
+        // system, so we want to be very careful that we're not going to
+        // overwrite any of their files.
+        const tmpFilePath = await IOUtils.createUniqueFile(
+          file.parent.path,
+          `${file.leafName}.tmp`,
+          tmpFilePermissions
+        );
+
+        const outString = serializer.serializeToString();
+        await IOUtils.writeUTF8(file.path, outString, {
+          tmpPath: tmpFilePath,
+        });
+      } catch (e) {
+        this.#observer.onError(
+          this.superCalendar,
+          Ci.calIErrors.MODIFICATION_FAILED,
+          `Failed to write to calendar file ${channel.URI.spec}: ${e.message}`
+        );
+
+        // Writing the file has failed; refresh and signal error to all
+        // modifying operations.
+        this.#unlock(Ci.calIErrors.MODIFICATION_FAILED);
+        this.#forceRefresh();
+
+        return;
+      }
+
+      // Write succeeded and we can clean up. We can reuse the channel, as the
+      // last-modified time on the file will still be accurate.
+      this.#hooks.onAfterPut(channel, () => {
+        this.#unlock();
+        this.#observer.onLoad(this);
+        Services.startup.exitLastWindowClosingSurvivalArea();
+      });
+
+      return;
+    }
+
+    channel.notificationCallbacks = this;
+    let uploadChannel = channel.QueryInterface(Ci.nsIUploadChannel);
+
+    // Set the content of the upload channel to our ICS file.
+    let icsStream = serializer.serializeToInputStream();
+    uploadChannel.setUploadStream(icsStream, "text/calendar", -1);
+
+    channel.asyncOpen(this);
+  }
+
   async #doWriteICS() {
     cal.LOG("[calICSCalendar] Writing ICS File " + this.uri.spec);
 
@@ -496,18 +573,12 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       // header that checks etags
       let notChanged = this.#hooks.onBeforePut(channel);
       if (notChanged) {
-        channel.notificationCallbacks = this;
-        let uploadChannel = channel.QueryInterface(Ci.nsIUploadChannel);
-
-        // Set the content of the upload channel to our ICS file
-        let icsStream = serializer.serializeToInputStream();
-        uploadChannel.setUploadStream(icsStream, "text/calendar", -1);
-
         // Prevent Thunderbird from exiting entirely until we've finished
         // uploading one way or another
         Services.startup.enterLastWindowClosingSurvivalArea();
         inLastWindowClosingSurvivalArea = true;
-        channel.asyncOpen(this);
+
+        this.#writeSerializerToChannel(serializer, channel);
       } else {
         this.#observer.onError(
           this.superCalendar,
@@ -1126,6 +1197,8 @@ class httpHooks {
 }
 
 class fileHooks {
+  #lastModified = null;
+
   onBeforeGet(aChannel, aForceRefresh) {
     return true;
   }
@@ -1137,19 +1210,16 @@ class fileHooks {
    */
   onAfterGet(aChannel) {
     let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
-    if (this.mtime) {
-      let newMtime = filechannel.file.lastModifiedTime;
-      if (this.mtime == newMtime) {
-        return false;
-      }
+    if (this.#lastModified && this.#lastModified == filechannel.file.lastModifiedTime) {
+      return false;
     }
-    this.mtime = filechannel.file.lastModifiedTime;
+    this.#lastModified = filechannel.file.lastModifiedTime;
     return true;
   }
 
   onBeforePut(aChannel) {
     let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
-    if (this.mtime && this.mtime != filechannel.file.lastModifiedTime) {
+    if (this.#lastModified && this.#lastModified != filechannel.file.lastModifiedTime) {
       return false;
     }
     return true;
@@ -1157,7 +1227,7 @@ class fileHooks {
 
   onAfterPut(aChannel, aRespFunc) {
     let filechannel = aChannel.QueryInterface(Ci.nsIFileChannel);
-    this.mtime = filechannel.file.lastModifiedTime;
+    this.#lastModified = filechannel.file.lastModifiedTime;
     aRespFunc();
     return true;
   }
