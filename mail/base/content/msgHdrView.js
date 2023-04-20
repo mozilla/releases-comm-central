@@ -842,6 +842,33 @@ var messageHeaderSink2 = {
    */
   onEndMsgDownload(url) {
     let browser = getMessagePaneBrowser();
+
+    // If we have no attachments, we hide the attachment icon in the message
+    // tree.
+    // PGP key attachments do not count as attachments for the purposes of the
+    // message tree, even though we still show them in the attachment list.
+    // Otherwise the attachment icon becomes less useful when someone receives
+    // lots of signed messages.
+    // We do the same if we only have text/vcard attachments because we
+    // *assume* the vcard attachment is a personal vcard (rather than an
+    // addressbook, or a shared contact) that is attached to every message.
+    // NOTE: There would be some obvious give-aways in the vcard content that
+    // this personal vcard assumption is incorrect (multiple contacts, or a
+    // contact with an address that is different from the sender address) but we
+    // do not have easy access to the attachment content here, so we just stick
+    // to the assumption.
+    // NOTE: If the message contains two vcard attachments (or more) then this
+    // would hint that one of the vcards is not personal, but we won't make an
+    // exception here to keep the implementation simple.
+    gMessage?.markHasAttachments(
+      currentAttachments.some(
+        att =>
+          att.contentType != "text/vcard" &&
+          att.contentType != "text/x-vcard" &&
+          att.contentType != "application/pgp-keys"
+      )
+    );
+
     if (
       currentAttachments.length &&
       Services.prefs.getBoolPref("mail.inline_attachments") &&
