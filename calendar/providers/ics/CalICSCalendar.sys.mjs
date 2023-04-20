@@ -152,7 +152,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
           resolve(item);
         },
       });
-      this._processQueue();
+      this.#processQueue();
     });
 
     if (adoptCallback) {
@@ -182,7 +182,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
           resolve(item);
         },
       });
-      this._processQueue();
+      this.#processQueue();
     });
 
     if (modifyCallback) {
@@ -208,7 +208,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
         item: aItem,
         listener: resolve,
       });
-      this._processQueue();
+      this.#processQueue();
     });
   }
 
@@ -223,7 +223,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
         id: aId,
         listener: resolve,
       });
-      this._processQueue();
+      this.#processQueue();
     });
   }
 
@@ -252,7 +252,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
               controller.close();
             },
           });
-          self._processQueue();
+          self.#processQueue();
         },
       }
     );
@@ -260,7 +260,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
 
   refresh() {
     this._queue.push({ action: "refresh", forceRefresh: false });
-    this._processQueue();
+    this.#processQueue();
   }
 
   startBatch() {
@@ -273,7 +273,7 @@ export class CalICSCalendar extends cal.provider.BaseClass {
 
   #forceRefresh() {
     this._queue.push({ action: "refresh", forceRefresh: true });
-    this._processQueue();
+    this.#processQueue();
   }
 
   #prepareChannel(channel, forceRefresh) {
@@ -593,13 +593,12 @@ export class CalICSCalendar extends cal.provider.BaseClass {
     });
   }
 
-  async _processQueue() {
-    if (this.#isLocked()) {
+  async #processQueue() {
+    if (this._isLocked) {
       return;
     }
 
     let task;
-    let writeICS = false;
     let refreshAction = null;
     while ((task = this._queue.shift())) {
       switch (task.action) {
@@ -638,25 +637,17 @@ export class CalICSCalendar extends cal.provider.BaseClass {
       }
 
       if (refreshAction) {
+        cal.LOG(
+          "[calICSCalendar] Refreshing " +
+            this.name +
+            (refreshAction.forceRefresh ? " (forced)" : "")
+        );
+        this.#doRefresh(refreshAction.forceRefresh);
+
         // break queue processing here and wait for refresh to finish
         // before processing further operations
         break;
       }
-    }
-    if (writeICS) {
-      if (refreshAction) {
-        // reschedule the refresh for next round, after the file has been written;
-        // strictly we may not need to refresh once the file has been successfully
-        // written, but we don't know if that write will succeed.
-        this._queue.unshift(refreshAction);
-      }
-
-      await this.#writeICS();
-    } else if (refreshAction) {
-      cal.LOG(
-        "[calICSCalendar] Refreshing " + this.name + (refreshAction.forceRefresh ? " (forced)" : "")
-      );
-      this.#doRefresh(refreshAction.forceRefresh);
     }
   }
 
@@ -684,10 +675,11 @@ export class CalICSCalendar extends cal.provider.BaseClass {
     this.#modificationActions = [];
 
     this.#locked = false;
-    this._processQueue();
+    this.#processQueue();
   }
 
-  #isLocked() {
+  // Visible for testing.
+  get _isLocked() {
     return this.#locked;
   }
 

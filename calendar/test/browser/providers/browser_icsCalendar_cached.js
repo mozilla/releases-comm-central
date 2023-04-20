@@ -37,7 +37,7 @@ async function promiseIdle() {
   await TestUtils.waitForCondition(
     () =>
       calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject._queue.length == 0 &&
-      !calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject.locked
+      calendar.wrappedJSObject.mUncachedCalendar.wrappedJSObject._isLocked === false
   );
   await fetch(`${ICSServer.origin}/ping`);
 }
@@ -54,13 +54,13 @@ add_task(async function testAlarms() {
 add_task(async function testSyncChanges() {
   await syncChangesTest.setUp();
 
-  ICSServer.putICSInternal(syncChangesTest.part1Item);
+  await ICSServer.putICSInternal(syncChangesTest.part1Item);
   await syncChangesTest.runPart1();
 
-  ICSServer.putICSInternal(syncChangesTest.part2Item);
+  await ICSServer.putICSInternal(syncChangesTest.part2Item);
   await syncChangesTest.runPart2();
 
-  ICSServer.putICSInternal(
+  await ICSServer.putICSInternal(
     CalendarTestUtils.dedent`
       BEGIN:VCALENDAR
       END:VCALENDAR
