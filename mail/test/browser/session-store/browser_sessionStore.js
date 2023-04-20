@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*
+/**
  * Session Storage Tests. Session Restoration Tests are currently implemented in
- * folder-display/test-message-pane-visibility.js.
+ * folder-display/browser_messagePaneVisibility.js.
  */
 
 "use strict";
@@ -88,13 +88,15 @@ function readFile() {
   return JSON.parse(data);
 }
 
-function waitForFileRefresh() {
-  controller.sleep(kSaveDelayMs);
-  utils.waitFor(
+async function waitForFileRefresh() {
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, kSaveDelayMs));
+  TestUtils.waitForCondition(
     () => SessionStoreManager.sessionFile.exists(),
     "session file should exist"
   );
-  controller.sleep(asyncFileWriteDelayMS);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 }
 
 function open3PaneWindow() {
@@ -161,7 +163,7 @@ add_task(async function test_periodic_session_persistence_simple() {
   // if periodic session persistence is working, the file should be
   // re-created
   SessionStoreManager._saveState();
-  waitForFileRefresh();
+  await waitForFileRefresh();
 });
 
 add_task(async function test_periodic_nondirty_session_persistence() {
@@ -169,7 +171,7 @@ add_task(async function test_periodic_nondirty_session_persistence() {
   await be_in_folder(folderB);
 
   SessionStoreManager._saveState();
-  waitForFileRefresh();
+  await waitForFileRefresh();
 
   // delete the session file
   let sessionFile = SessionStoreManager.sessionFile;
@@ -178,7 +180,7 @@ add_task(async function test_periodic_nondirty_session_persistence() {
   // Since the state of the session hasn't changed since last _saveState(),
   // the session file should not be re-created.
   SessionStoreManager._saveState();
-  controller.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
+  utils.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
 
   utils.waitFor(() => !sessionFile.exists(), "session file should not exist");
 });
@@ -192,7 +194,7 @@ add_task(async function test_single_3pane_periodic_session_persistence() {
   let state = mail3PaneWindow.getWindowStateForSessionPersistence();
 
   SessionStoreManager._saveState();
-  waitForFileRefresh();
+  await waitForFileRefresh();
 
   // load the saved state from disk
   let loadedState = readFile();
@@ -222,7 +224,7 @@ async function test_restore_single_3pane_persistence() {
   // close the 3pane window
   close_window(new controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
-  controller.sleep(asyncFileWriteDelayMS);
+  utils.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   set_mc(mc);
@@ -291,7 +293,7 @@ add_task(async function test_message_pane_height_persistence() {
   // The 3pane window is closed.
   close_window(new controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
-  controller.sleep(asyncFileWriteDelayMS);
+  utils.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   set_mc(mc);
@@ -317,7 +319,7 @@ add_task(async function test_message_pane_height_persistence() {
   // The 3pane window is closed.
   close_window(mc);
   // Wait for window close async session write to finish.
-  controller.sleep(asyncFileWriteDelayMS);
+  utils.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   set_mc(mc);
@@ -399,7 +401,7 @@ add_task(async function test_message_pane_width_persistence() {
   // The 3pane window is closed.
   close_window(new controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
-  controller.sleep(asyncFileWriteDelayMS);
+  utils.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   set_mc(mc);
@@ -439,7 +441,7 @@ add_task(async function test_message_pane_width_persistence() {
   // The 3pane window is closed.
   close_window(mc);
   // Wait for window close async session write to finish.
-  controller.sleep(asyncFileWriteDelayMS);
+  utils.sleep(asyncFileWriteDelayMS);
 
   mc = open3PaneWindow();
   set_mc(mc);
@@ -480,7 +482,7 @@ add_task(async function test_multiple_3pane_periodic_session_persistence() {
   }
 
   SessionStoreManager._saveState();
-  waitForFileRefresh();
+  await waitForFileRefresh();
 
   // load the saved state from disk
   let loadedState = readFile();
@@ -556,7 +558,7 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
 
   // Wait for session file to be created (removed in prior test) after
   // all 3pane windows close and for session write to finish.
-  waitForFileRefresh();
+  await waitForFileRefresh();
 
   // load the saved state from disk
   let loadedState = readFile();

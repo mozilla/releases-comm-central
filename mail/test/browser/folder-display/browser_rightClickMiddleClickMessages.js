@@ -106,7 +106,12 @@ add_task(async function test_right_click_column_header_shows_col_picker() {
 
   // Right click the subject column header
   // This should show the column picker popup.
-  mc.rightClick(mc.e("subjectCol"));
+  let subjectCol = mc.e("subjectCol");
+  EventUtils.synthesizeMouseAtCenter(
+    subjectCol,
+    { type: "contextmenu", button: 2 },
+    subjectCol.ownerGlobal
+  );
 
   // Check that the popup opens.
   await wait_for_popup_to_open(popup);

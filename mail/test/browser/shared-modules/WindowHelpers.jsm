@@ -279,7 +279,7 @@ var WindowWatcher = {
     this.waitingList.delete(aWindowType);
     // spin the event loop to make sure any setTimeout 0 calls have gotten their
     //  time in the sun.
-    controller.sleep(0);
+    utils.sleep(0);
     this._firstWindowOpened = true;
     // wrap the creation because
     lazy.mark_action("winhelp", "new MozMillController()", [aWindowType]);

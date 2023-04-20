@@ -38,17 +38,9 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["MozMillController", "sleep"];
-
-var EventUtils = ChromeUtils.import(
-  "resource://testing-common/mozmill/EventUtils.jsm"
-);
+var EXPORTED_SYMBOLS = ["MozMillController"];
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
-// Declare most used utils functions in the controller namespace
-var sleep = utils.sleep;
-
 var MozMillController = function(win) {
   this.window = win;
 
@@ -68,116 +60,6 @@ var MozMillController = function(win) {
 };
 
 MozMillController.prototype.sleep = utils.sleep;
-
-/**
- * Synthesize a general mouse event on the given element
- *
- * @param {Element} element
- *        Element which will receive the mouse event
- * @param {number} aOffsetX
- *        Relative x offset in the elements bounds to click on
- * @param {number} aOffsetY
- *        Relative y offset in the elements bounds to click on
- * @param {object} aEvent
- *        Information about the event to send
- *        Elements: accelKey   - Hold down the accelerator key (ctrl/meta)
- *                               [optional - default: false]
- *                  altKey     - Hold down the alt key
- *                               [optional - default: false]
- *                  button     - Mouse button to use
- *                               [optional - default: 0]
- *                  clickCount - Number of counts to click
- *                               [optional - default: 1]
- *                  ctrlKey    - Hold down the ctrl key
- *                               [optional - default: false]
- *                  metaKey    - Hold down the meta key (command key on Mac)
- *                               [optional - default: false]
- *                  shiftKey   - Hold down the shift key
- *                               [optional - default: false]
- *                  type       - Type of the mouse event ('click', 'mousedown',
- *                               'mouseup', 'mouseover', 'mouseout')
- *                               [optional - default: 'mousedown' + 'mouseup']
- * @param {object} aExpectedEvent
- *        Information about the expected event to occur
- *        Elements: target     - Element which should receive the event
- *                               [optional - default: current element]
- *                  type       - Type of the expected mouse event
- */
-MozMillController.prototype.mouseEvent = function(
-  element,
-  aOffsetX,
-  aOffsetY,
-  aEvent,
-  aExpectedEvent
-) {
-  if (!element) {
-    throw new Error("mouseEvent: Missing element");
-  }
-
-  // If no offset is given we will use the center of the element to click on.
-  var rect = element.getBoundingClientRect();
-  if (isNaN(aOffsetX)) {
-    aOffsetX = rect.width / 2;
-  }
-  if (isNaN(aOffsetY)) {
-    aOffsetY = rect.height / 2;
-  }
-
-  // Scroll element into view otherwise the click will fail
-  if (element.scrollIntoView) {
-    element.scrollIntoView();
-  }
-
-  if (aExpectedEvent) {
-    // The expected event type has to be set
-    if (!aExpectedEvent.type) {
-      throw new Error("mouseEvent: Expected event type not specified");
-    }
-
-    // If no target has been specified use the specified element
-    var target = aExpectedEvent.target || element;
-
-    EventUtils.synthesizeMouseExpectEvent(
-      element,
-      aOffsetX,
-      aOffsetY,
-      aEvent,
-      target,
-      aExpectedEvent.event,
-      "controller.mouseEvent()",
-      element.ownerGlobal
-    );
-  } else {
-    EventUtils.synthesizeMouse(
-      element,
-      aOffsetX,
-      aOffsetY,
-      aEvent,
-      element.ownerGlobal
-    );
-  }
-
-  sleep(0);
-};
-
-/**
- * Synthesize a mouse right click event on the given element
- */
-MozMillController.prototype.rightClick = function(
-  element,
-  left,
-  top,
-  expectedEvent
-) {
-  this.mouseEvent(
-    element,
-    left,
-    top,
-    { type: "contextmenu", button: 2 },
-    expectedEvent
-  );
-  return true;
-};
 
 MozMillController.prototype.waitFor = function(
   callback,
