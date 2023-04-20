@@ -53,14 +53,14 @@ add_task(async function test_pill_selection() {
     "All pills currently selected"
   );
 
+  // Right click on the last pill to open the context menu.
+  let pill3 = allPills[3];
   let contextMenu = cDoc.getElementById("emailAddressPillPopup");
   let popupPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
-
-  // Right click on the last pill to open the context menu.
   EventUtils.synthesizeMouseAtCenter(
-    allPills[3],
+    pill3,
     { type: "contextmenu" },
-    cwc.window
+    pill3.ownerGlobal
   );
   await popupPromise;
   // The selection should not have changed.
@@ -85,11 +85,12 @@ add_task(async function test_pill_selection() {
 
   let popupPromise2 = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
 
+  let pill0 = allPills[0];
   // Right click on the first pill to open the context menu.
   EventUtils.synthesizeMouseAtCenter(
-    allPills[0],
+    pill0,
     { type: "contextmenu" },
-    cwc.window
+    pill0.ownerGlobal
   );
   await popupPromise2;
 
@@ -129,12 +130,13 @@ add_task(async function test_pill_selection() {
 
   let popupPromise3 = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
 
+  let pill2 = allPills[2];
   // Right click on the thirds pill, which should be selected, to select it
   // while opening the context menu and deselecting the other two pills.
   EventUtils.synthesizeMouseAtCenter(
-    allPills[2],
+    pill2,
     { type: "contextmenu" },
-    cwc.window
+    pill2.ownerGlobal
   );
   await popupPromise3;
 
@@ -238,11 +240,14 @@ add_task(async function test_pill_context_menu() {
   );
 
   // Move the pill to the Bcc field.
-  EventUtils.synthesizeMouseAtCenter(
-    contextMenu.querySelector("#moveAddressPillBcc"),
-    {},
-    contextMenu.querySelector("#moveAddressPillBcc").ownerGlobal
-  );
+  let moveAdd = contextMenu.querySelector("#moveAddressPillBcc");
+  if (AppConstants.platform == "macosx") {
+    // We need to use click() since the synthesizeMouseAtCenter doesn't work for
+    // context menu items on macos.
+    moveAdd.click();
+  } else {
+    EventUtils.synthesizeMouseAtCenter(moveAdd, {}, moveAdd.ownerGlobal);
+  }
   await pillMoved2;
 
   close_popup(cwc, contextMenu);

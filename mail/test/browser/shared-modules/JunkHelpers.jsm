@@ -54,7 +54,7 @@ function mark_selected_messages_as_junk(aController) {
  * @param aController The controller in whose context to do this, defaults to
  *     |mc| if omitted.
  */
-function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
+async function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
   if (aController === undefined) {
     aController = mc;
   }

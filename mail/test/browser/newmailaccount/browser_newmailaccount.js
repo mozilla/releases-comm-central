@@ -355,7 +355,18 @@ add_task(async function test_switch_between_account_provisioner_and_setup() {
  * Test opening the account provisioner from the menu bar.
  */
 add_task(async function open_provisioner_from_menu_bar() {
-  mc.menus.menu_File.menu_New.newCreateEmailAccountMenuItem.click();
+  // Show menubar so we can click it.
+  document.getElementById("toolbar-menubar").removeAttribute("autohide");
+
+  EventUtils.synthesizeMouseAtCenter(
+    mc.window.document.getElementById("menu_File"),
+    {},
+    mc.window
+  );
+  await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
+    { id: "menu_New" },
+    { id: "newCreateEmailAccountMenuItem" },
+  ]);
 
   // The account Provisioner tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
@@ -576,26 +587,22 @@ add_task(async function test_can_pref_off_account_provisioner() {
   // First, we'll disable the account provisioner.
   Services.prefs.setBoolPref("mail.provider.enabled", false);
 
-  // We'll use the Mozmill Menu API to grab the main menu...
-  let mailMenuBar = mc.getMenu("#mail-menubar");
-  let newMenuPopup = mc.e("menu_NewPopup");
+  // Show menubar so we can click it.
+  document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
-  // First, we do some hackery to allow the "New" menupopup to respond to
-  // events...
-  let oldAllowEvents = newMenuPopup.getAttribute("allowevents") === "true";
-  newMenuPopup.setAttribute("allowevents", "true");
+  EventUtils.synthesizeMouseAtCenter(
+    mc.window.document.getElementById("menu_File"),
+    {},
+    mc.window
+  );
+  await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
+    { id: "menu_New" },
+  ]);
 
-  // And then call open on the menu. This doesn't actually open the menu
-  // on screen, but it simulates the act, and dynamically generated or
-  // modified menuitems react accordingly. Simulating this helps us sidestep
-  // weird platform issues.
-  mailMenuBar.open();
-
-  // Next, we'll ensure that the "Get a new mail account"
-  // menuitem is no longer available.
-  await BrowserTestUtils.waitForCondition(
-    () => mc.e("newCreateEmailAccountMenuItem").hidden,
-    "Timed out waiting for the Account Provisioner menuitem to be hidden"
+  // Ensure that the "Get a new mail account" menuitem is no longer available.
+  Assert.ok(
+    mc.e("newCreateEmailAccountMenuItem").hidden,
+    "new account menu should be hidden"
   );
 
   // Close all existing tabs except the first mail tab to avoid errors.
@@ -614,13 +621,17 @@ add_task(async function test_can_pref_off_account_provisioner() {
   // Ok, now pref the Account Provisioner back on
   Services.prefs.setBoolPref("mail.provider.enabled", true);
 
-  // Re-open the menu to repopulate it.
-  mailMenuBar.open();
-
-  // Make sure that the "Get a new mail account" menuitem is NOT hidden.
-  await BrowserTestUtils.waitForCondition(
-    () => !mc.e("newCreateEmailAccountMenuItem").hidden,
-    "Timed out waiting for the Account Provisioner menuitem to appear"
+  EventUtils.synthesizeMouseAtCenter(
+    mc.window.document.getElementById("menu_File"),
+    {},
+    mc.window
+  );
+  await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
+    { id: "menu_New" },
+  ]);
+  Assert.ok(
+    !mc.e("newCreateEmailAccountMenuItem").hidden,
+    "new account menu should show"
   );
 
   // Open up the Account Hub.
@@ -632,11 +643,4 @@ add_task(async function test_can_pref_off_account_provisioner() {
   );
   // Close the Account Hub tab.
   mc.tabmail.closeTab(tab);
-
-  // And finally restore the menu to the way it was.
-  if (oldAllowEvents) {
-    newMenuPopup.setAttribute("allowevents", "true");
-  } else {
-    newMenuPopup.removeAttribute("allowevents");
-  }
 }).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.

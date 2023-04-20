@@ -86,10 +86,20 @@ const ABOUT_SUPPORT_ERROR_STRINGS = new Map([
  * @returns the about:support tab.
  */
 function open_about_support() {
-  let tab = open_content_tab_with_click(
-    mc.menus.helpMenu.aboutsupport_open,
-    "about:support"
-  );
+  let openAboutSupport = async function() {
+    if (AppConstants.platform == "macosx") {
+      mc.window.document.getElementById("aboutsupport_open").click();
+    } else {
+      // Show menubar so we can click it.
+      document.getElementById("toolbar-menubar").removeAttribute("autohide");
+      let helpMenu = mc.window.document.getElementById("helpMenu");
+      EventUtils.synthesizeMouseAtCenter(helpMenu, {}, helpMenu.ownerGlobal);
+      await mc.click_menus_in_sequence(mc.e("menu_HelpPopup"), [
+        { id: "aboutsupport_open" },
+      ]);
+    }
+  };
+  let tab = open_content_tab_with_click(openAboutSupport, "about:support");
 
   // Make sure L10n is done.
   let l10nDone = false;

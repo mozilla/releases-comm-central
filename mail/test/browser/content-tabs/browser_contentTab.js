@@ -107,11 +107,14 @@ add_task(async function test_spellcheck_in_content_tabs() {
     "spell-suggestion"
   );
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
-  EventUtils.synthesizeMouseAtCenter(
-    mc.e("browserContext-spell-add-to-dictionary"),
-    {},
-    mc.e("browserContext-spell-add-to-dictionary").ownerGlobal
-  );
+  let addToDict = mc.e("browserContext-spell-add-to-dictionary");
+  if (AppConstants.platform == "macosx") {
+    // We need to use click() since the synthesizeMouseAtCenter doesn't work for
+    // context menu items on macos.
+    addToDict.click();
+  } else {
+    EventUtils.synthesizeMouseAtCenter(addToDict, {}, addToDict.ownerGlobal);
+  }
   await close_popup(mc, browserContext);
 
   // Now check we don't have any suggestionss

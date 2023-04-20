@@ -50,9 +50,10 @@ add_setup(async () => {
   let tabmail = document.getElementById("tabmail");
   if (tabmail.tabInfo.length > 1) {
     info(`Will close ${tabmail.tabInfo.length - 1} tabs left over from others`);
-    for (let i = tabmail.tabInfo.length - 1; i--; i > 0) {
+    for (let i = tabmail.tabInfo.length - 1; i > 0; i--) {
       tabmail.closeTab(i);
     }
+    is(tabmail.tabInfo.length, 1, "One tab open from start");
   }
 });
 registerCleanupFunction(() => {

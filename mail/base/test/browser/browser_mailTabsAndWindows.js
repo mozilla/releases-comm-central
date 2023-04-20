@@ -13,6 +13,15 @@ var { MessageGenerator } = ChromeUtils.import(
 let folderA, messagesA, folderB, messagesB;
 
 add_setup(async function() {
+  let tabmail = document.getElementById("tabmail");
+  if (tabmail.tabInfo.length > 1) {
+    info(`Will close ${tabmail.tabInfo.length - 1} tabs left over from others`);
+    for (let i = tabmail.tabInfo.length - 1; i > 0; i--) {
+      tabmail.closeTab(i);
+    }
+  }
+  Assert.equal(tabmail.tabInfo.length, 1, "should be set up with one tab");
+
   let generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
@@ -44,8 +53,8 @@ add_setup(async function() {
 
 add_task(async function testTabs() {
   let tabmail = document.getElementById("tabmail");
-  Assert.equal(tabmail.tabInfo.length, 1);
-  Assert.equal(tabmail.currentTabInfo, tabmail.tabInfo[0]);
+  Assert.equal(tabmail.tabInfo.length, 1, "should start off with one tab open");
+  Assert.equal(tabmail.currentTabInfo, tabmail.tabInfo[0], "should show tab0");
 
   // Check the first tab.
 

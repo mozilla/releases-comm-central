@@ -57,10 +57,8 @@ add_setup(async function() {
 add_task(async function test_message_filter_shows_newsgroup_server() {
   await be_in_folder(folderA);
 
-  // Open the "Tools » Message Filters…" window,
-  // a.k.a. "tasksMenu » filtersCmd".
   plan_for_new_window("mailnews:filterlist");
-  mc.menus.Tools.filtersCmd.click();
+  await openFiltersDialogs();
   let filterc = wait_for_new_window("mailnews:filterlist");
   wait_for_window_focused(filterc.window);
 
@@ -126,7 +124,6 @@ add_task(async function test_customize_toolbar_doesnt_double_get_mail_menu() {
   }
 
   await check_getAllNewMsgMenu();
-
   plan_for_new_window("mailnews:customizeToolbar");
   // Open the customization dialog.
   mc.rightClick(mc.e("mail-bar3"));
@@ -135,8 +132,8 @@ add_task(async function test_customize_toolbar_doesnt_double_get_mail_menu() {
     { clickCount: 1 },
     mc.window
   );
-  await close_popup(mc, mc.e("toolbar-context-menu"));
 
+  await close_popup(mc, mc.e("toolbar-context-menu"));
   let customc = wait_for_new_window("mailnews:customizeToolbar");
   wait_for_window_focused(customc.window);
   plan_for_window_close(customc);
@@ -154,10 +151,8 @@ add_task(async function test_customize_toolbar_doesnt_double_get_mail_menu() {
  * main filters dialog is already open), creates a simple filter, and then
  * closes the dialog.
  */
-function create_simple_filter() {
-  // Open the "Tools » Message Filters…" window,
-  // a.k.a. "tasksMenu » filtersCmd".
-  mc.menus.Tools.filtersCmd.click();
+async function create_simple_filter() {
+  await openFiltersDialogs();
 
   // We'll assume that the filters dialog is already open from
   // the previous tests.
@@ -187,10 +182,25 @@ function create_simple_filter() {
   wait_for_modal_dialog("mailnews:filtereditor");
 }
 
-/*
+/**
+ * Open the Message Filters dialog by clicking the menus.
+ */
+async function openFiltersDialogs() {
+  // Show menubar so we can click it.
+  document.getElementById("toolbar-menubar").removeAttribute("autohide");
+  // Open the "Tools | Message Filters…", a.k.a. "tasksMenu » filtersCmd".
+  EventUtils.synthesizeMouseAtCenter(
+    mc.window.document.getElementById("tasksMenu"),
+    {},
+    mc.window
+  );
+  await mc.click_menus_in_sequence(mc.e("taskPopup"), [{ id: "filtersCmd" }]);
+}
+
+/**
  * Test that the address books can appear in the message filter dropdown
  */
-add_task(function test_address_books_appear_in_message_filter_dropdown() {
+add_task(async function test_address_books_appear_in_message_filter_dropdown() {
   // Create a remote address book - we don't want this to appear in the
   // dropdown.
   let ldapAb = create_ldap_address_book("Some LDAP Address Book");
@@ -198,9 +208,7 @@ add_task(function test_address_books_appear_in_message_filter_dropdown() {
   // Sanity check - this LDAP book should be remote.
   Assert.ok(ldapAb.isRemote);
 
-  // Open the "Tools » Message Filters…" window,
-  // a.k.a. "tasksMenu » filtersCmd".
-  mc.menus.Tools.filtersCmd.click();
+  await openFiltersDialogs();
 
   // We'll assume that the filters dialog is already open from
   // the previous tests.
@@ -239,11 +247,11 @@ add_task(function test_address_books_appear_in_message_filter_dropdown() {
  *
  * This also tests whether or not cancelling quit works.
  */
-add_task(function test_can_cancel_quit_on_filter_changes() {
+add_task(async function test_can_cancel_quit_on_filter_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
-  create_simple_filter();
+  await create_simple_filter();
 
   let filterc = wait_for_existing_window("mailnews:filterlist");
   let runButton = filterc.e("runFiltersButton");
