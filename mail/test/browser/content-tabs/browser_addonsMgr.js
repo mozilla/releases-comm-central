@@ -17,9 +17,9 @@ var {
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
-add_task(function test_open_addons_with_url() {
+add_task(async function test_open_addons_with_url() {
   mc.window.openAddonsMgr("addons://list/theme");
-  mc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
 
   let tab = mc.tabmail.currentTabInfo;
   wait_for_content_tab_load(tab, "about:addons", 10000);

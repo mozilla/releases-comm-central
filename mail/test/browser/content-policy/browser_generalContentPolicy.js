@@ -812,18 +812,17 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   replyWindow.e("messageEditor").focus();
 
   // Now open the image window
-  plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
+  plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
     // Insert the url of the image.
     let srcloc = mwc.window.document.getElementById("srcInput");
     srcloc.focus();
 
     input_value(mwc, url + "pass.png");
-    mwc.sleep(0);
 
     // Don't add alternate text
     let noAlt = mwc.e("noAltTextRadio");
     EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
-    mwc.sleep(0);
+    await new Promise(resolve => setTimeout(resolve));
 
     // Accept the dialog
     mwc.window.document.querySelector("dialog").acceptDialog();
@@ -841,7 +840,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
 
   wait_for_modal_dialog();
   wait_for_window_close();
-  replyWindow.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
 
   // Paste an image.
   try {

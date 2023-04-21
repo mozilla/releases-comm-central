@@ -399,7 +399,7 @@ add_task(async function test_tab_recentlyClosed() {
   // Restore the most recently closed tab
   menu.menupopup.activateItem(menu.getItemAtIndex(0));
   await _teardownRecentlyClosedMenu();
-  mc.sleep();
+  await new Promise(resolve => setTimeout(resolve));
 
   wait_for_message_display_completion(mc);
   assert_number_of_tabs_open(3);
@@ -419,7 +419,7 @@ add_task(async function test_tab_recentlyClosed() {
   // Now we restore an "random" tab.
   menu.menupopup.activateItem(menu.getItemAtIndex(5));
   await _teardownRecentlyClosedMenu();
-  mc.sleep();
+  await new Promise(resolve => setTimeout(resolve));
 
   wait_for_message_display_completion(mc);
   assert_number_of_tabs_open(4);
@@ -440,7 +440,7 @@ add_task(async function test_tab_recentlyClosed() {
 
   menu.menupopup.activateItem(menu.getItemAtIndex(menu.itemCount - 1));
   await _teardownRecentlyClosedMenu();
-  mc.sleep();
+  await new Promise(resolve => setTimeout(resolve));
 
   wait_for_message_display_completion(mc);
 

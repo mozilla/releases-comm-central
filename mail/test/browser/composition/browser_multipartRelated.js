@@ -101,13 +101,13 @@ add_task(async function test_basic_multipart_related() {
   let fileURL = fileHandler.getURLSpecFromActualFile(file);
 
   // Add a simple image to our dialog
-  plan_for_modal_dialog("Mail:image", function(dialog) {
+  plan_for_modal_dialog("Mail:image", async function(dialog) {
     // Insert the url of the image.
     dialog.window.focus();
     EventUtils.sendString(fileURL, dialog.window);
     dialog.e("altTextInput").focus();
     EventUtils.sendString("Alt text", dialog.window);
-    dialog.sleep(0);
+    await new Promise(resolve => setTimeout(resolve));
 
     // Accept the dialog
     dialog.window.document.querySelector("dialog").acceptDialog();
@@ -123,7 +123,7 @@ add_task(async function test_basic_multipart_related() {
 
   wait_for_modal_dialog();
   wait_for_window_close();
-  compWin.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
 
   await save_compose_message(compWin.window);
   close_compose_window(compWin);

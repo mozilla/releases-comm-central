@@ -78,7 +78,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
     );
   }
   // Let the event queue clear.
-  mc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   // Check view is still valid
   get_about_3pane().gDBView.getMsgHdrAt(0);
 

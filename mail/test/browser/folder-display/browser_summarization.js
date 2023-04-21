@@ -161,9 +161,9 @@ add_task(async function test_message_tabs_update_correctly() {
  * Test the stabilization logic by making the stabilization interval absurd and
  *  then manually clearing things up.
  */
-add_task(function test_selection_stabilization_logic() {
+add_task(async function test_selection_stabilization_logic() {
   // make sure all summarization has run to completion.
-  mc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   // does not summarize anything, does not affect timer
   select_click_row(0);
   // does summarize things.  timer will be tick tick ticking!

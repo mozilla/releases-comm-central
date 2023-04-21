@@ -53,13 +53,13 @@ add_task(async function test_checkInsertImage() {
   gCwc.e("messageEditor").focus();
 
   // Now open the image window
-  plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
+  plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
     // Insert the url of the image.
     let srcloc = mwc.window.document.getElementById("srcInput");
     srcloc.focus();
 
     input_value(mwc, url + "pass.png");
-    mwc.sleep(0);
+    await new Promise(resolve => setTimeout(resolve));
 
     let noAlt = mwc.e("noAltTextRadio");
     // Don't add alternate text

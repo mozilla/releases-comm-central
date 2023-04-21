@@ -399,14 +399,14 @@ async function subtest_reordering(
   for (let name of aInitialAttachmentNames) {
     add_attachments(aCwc, filePrefix + name, size);
   }
-  aCwc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   Assert.equal(bucket.itemCount, aInitialAttachmentNames.length);
   check_attachment_names(aCwc, aInitialAttachmentNames);
 
   if (aOpenPanel) {
     // Bring up the reordering panel.
     aCwc.window.showReorderAttachmentsPanel();
-    aCwc.sleep(0);
+    await new Promise(resolve => setTimeout(resolve));
     panel = aCwc.e("reorderAttachmentsPanel");
     await wait_for_popup_to_open(panel);
   }
@@ -427,7 +427,7 @@ async function subtest_reordering(
     } else if ("key" in action) {
       EventUtils.synthesizeKey(action.key, action.key_modifiers, aCwc.window);
     }
-    aCwc.sleep(0);
+    await new Promise(resolve => setTimeout(resolve));
     // Check result.
     check_attachment_names(aCwc, action.result);
   }
@@ -467,7 +467,7 @@ add_task(async function test_attachment_reordering() {
   const initialAttachmentNames_0 = ["A1", "A2"];
   for (let name of initialAttachmentNames_0) {
     add_attachments(cwc, filePrefix + name, size);
-    cwc.sleep(0);
+    await new Promise(resolve => setTimeout(resolve));
   }
   Assert.equal(bucket.itemCount, initialAttachmentNames_0.length);
   check_attachment_names(cwc, initialAttachmentNames_0);

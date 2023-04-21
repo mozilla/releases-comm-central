@@ -59,13 +59,13 @@ add_setup(async function() {
 /**
  * Test that inbox and inboxSubfolder are in view
  */
-add_task(function test_folder_population() {
+add_task(async function test_folder_population() {
   about3Pane.folderTree.expandRowAtIndex(0);
-  mc.sleep();
+  await new Promise(resolve => setTimeout(resolve));
   assert_folder_visible(inboxFolder);
 
   about3Pane.folderTree.expandRowAtIndex(1);
-  mc.sleep();
+  await new Promise(resolve => setTimeout(resolve));
   assert_folder_visible(inboxSubfolder);
 });
 

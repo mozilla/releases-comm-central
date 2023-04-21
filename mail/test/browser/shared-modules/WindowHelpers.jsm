@@ -333,10 +333,10 @@ var WindowWatcher = {
       this._timer.cancel();
 
       let self = this;
-      function startTest() {
+      async function startTest() {
         self.planForWindowClose(troller.window);
         try {
-          self.subTestFunc(troller);
+          await self.subTestFunc(troller);
         } finally {
           self.subTestFunc = null;
         }

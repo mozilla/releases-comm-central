@@ -14,13 +14,13 @@ var { assert_tab_mode_name, mark_action, mc } = ChromeUtils.import(
  * Create a new chat tab, making that tab the current tab. We block until the
  * message finishes loading. (Inspired by open_selected_message_in_new_tab)
  */
-function open_chat_tab() {
+async function open_chat_tab() {
   // Get the current tab count so we can make sure the tab actually opened.
   let preCount = mc.tabmail.tabContainer.allTabs.length;
 
   mc.tabmail.openTab("chat", {});
   mark_action("imh", "open_chat_tab", []);
-  wait_for_chat_tab_to_open(mc);
+  await wait_for_chat_tab_to_open(mc);
 
   if (mc.tabmail.tabContainer.allTabs.length != preCount + 1) {
     throw new Error("The tab never actually got opened!");
@@ -30,7 +30,7 @@ function open_chat_tab() {
   return newTab;
 }
 
-function wait_for_chat_tab_to_open(aController) {
+async function wait_for_chat_tab_to_open(aController) {
   if (aController == null) {
     aController = mc;
   }
@@ -54,16 +54,16 @@ function wait_for_chat_tab_to_open(aController) {
 
   // The above may return immediately, meaning the event queue might not get a
   // chance. Give it a chance now.
-  aController.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   mark_action("imh", "/wait_for_chat_tab_to_open", []);
 }
 
-/*
+/**
  * This tests that the chat tab is restored properly after tabs are
  * serialized. As for folder tabs, we can't test a restart (can we ?), so we
  * just test the persist/restore cycle.
  */
-add_task(function test_chat_tab_restore() {
+add_task(async function test_chat_tab_restore() {
   // Close everything but the first tab.
   let closeTabs = function() {
     while (mc.tabmail.tabInfo.length > 1) {
@@ -71,7 +71,7 @@ add_task(function test_chat_tab_restore() {
     }
   };
 
-  open_chat_tab();
+  await open_chat_tab();
   let state = mc.tabmail.persistTabs();
   closeTabs();
   mc.tabmail.restoreTabs(state);

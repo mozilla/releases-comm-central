@@ -1356,7 +1356,7 @@ add_task(async function test_converting_filelink_to_normal_removes_url() {
  * normal attachments, checking to ensure that the links are removed from
  * the body of the email.
  */
-function subtest_converting_filelink_to_normal_removes_url() {
+async function subtest_converting_filelink_to_normal_removes_url() {
   gMockFilePicker.returnFiles = collectFiles(kFiles);
   let provider = new MockCloudfileAccount();
   provider.init("providerC", {
@@ -1408,7 +1408,7 @@ function subtest_converting_filelink_to_normal_removes_url() {
   }
 
   // At this point, the root should also have been removed.
-  cw.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   let mailBody = get_compose_body(cw);
   root = mailBody.querySelector("#cloudAttachmentListRoot");
   if (root) {

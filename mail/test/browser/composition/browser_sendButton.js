@@ -104,7 +104,7 @@ add_task(async function test_send_enabled_manual_address() {
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
   clear_recipients(cwc);
   EventUtils.synthesizeMouseAtCenter(menuButton, {}, menuButton.ownerGlobal);
-  cwc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   await wait_for_popup_to_open(menu);
   menu.activateItem(cwc.e("addr_replyShowAddressRowMenuItem"));
   setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
@@ -121,7 +121,7 @@ add_task(async function test_send_enabled_manual_address() {
 
   let ccShow = cwc.e("addr_ccShowAddressRowButton");
   EventUtils.synthesizeMouseAtCenter(ccShow, {}, ccShow.ownerGlobal);
-  cwc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   check_send_commands_state(cwc, false);
 
   // Select the newly generated pill.
@@ -130,7 +130,7 @@ add_task(async function test_send_enabled_manual_address() {
     {},
     get_first_pill(cwc).ownerGlobal
   );
-  cwc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   // Delete the selected pill.
   EventUtils.synthesizeKey("VK_DELETE", {}, cwc.window);
   // Confirm the address row is now empty.
@@ -175,7 +175,7 @@ add_task(async function test_send_enabled_manual_address() {
     {},
     newsgroupsButton.ownerGlobal
   );
-  cwc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
 
   // - some string as a newsgroup
   setup_msg_contents(cwc, "newsgroup ", "", "", "newsgroupsAddrInput");

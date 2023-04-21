@@ -706,7 +706,7 @@ add_task(async function test_tag_keys_disabled_in_content_tab() {
   let curMessage = select_click_row(0);
 
   mc.window.openAddonsMgr("addons://list/theme");
-  mc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
 
   let tab = mc.tabmail.currentTabInfo;
   wait_for_content_tab_load(tab, "about:addons", 15000);

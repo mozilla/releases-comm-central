@@ -157,7 +157,7 @@ add_task(async function test_tabs_are_still_happy() {
   assert_messages_in_view(setA);
   assert_selected_and_displayed(messageA);
   // focus restoration uses setTimeout(0) and so we need to give it a chance
-  mc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   assert_folder_tree_focused();
 });
 

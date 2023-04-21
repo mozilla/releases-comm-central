@@ -60,8 +60,8 @@ registerCleanupFunction(function() {
 });
 
 add_task(async function test_account_open_state() {
-  await open_advanced_settings(function(tab) {
-    subtest_check_account_order(tab);
+  await open_advanced_settings(async function(tab) {
+    await subtest_check_account_order(tab);
   });
 });
 
@@ -70,7 +70,7 @@ add_task(async function test_account_open_state() {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_account_order(tab) {
+async function subtest_check_account_order(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
   click_account_tree_row(tab, accountRow);
 
@@ -80,7 +80,7 @@ function subtest_check_account_order(tab) {
 
   // Moving the account up to reorder.
   EventUtils.synthesizeKey("VK_UP", { altKey: true });
-  mc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   let curAccountList = MailServices.accounts.accounts.map(
     account => account.key
   );
@@ -88,7 +88,7 @@ function subtest_check_account_order(tab) {
 
   // Moving the account down, back to the starting position.
   EventUtils.synthesizeKey("VK_DOWN", { altKey: true });
-  mc.sleep(0);
+  await new Promise(resolve => setTimeout(resolve));
   curAccountList = MailServices.accounts.accounts.map(account => account.key);
   Assert.equal(curAccountList.join(), prevAccountList.join());
 }

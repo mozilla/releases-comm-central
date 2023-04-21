@@ -109,7 +109,7 @@ add_task(async function test_upload_cancel_repeat() {
     cw.waitFor(() => started);
 
     await assert_can_cancel_upload(cw, provider, promise, file);
-    cw.sleep();
+    await new Promise(resolve => setTimeout(resolve));
 
     // A cancelled conversion must not remove the attachment.
     Assert.equal(
@@ -236,7 +236,7 @@ async function assert_can_cancel_upload(
     cancelItem.click();
   } else {
     EventUtils.synthesizeMouseAtCenter(cancelItem, {}, cancelItem.ownerGlobal);
-    aController.sleep(0);
+    await new Promise(resolve => setTimeout(resolve));
   }
 
   // Close the popup, and wait for the cancellation to be complete.
@@ -326,7 +326,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
       promise.resolve(promise.upload);
     }
   }
-  cw.sleep();
+  await new Promise(resolve => setTimeout(resolve));
 
   Assert.equal(
     bucket.itemCount,
@@ -419,7 +419,7 @@ add_task(async function test_error_conversion() {
   await uploadError;
 
   // Wait for the showLocalizedCloudFileAlert() to localize the error message.
-  cw.sleep();
+  await new Promise(resolve => setTimeout(resolve));
 
   is(
     Services.prompt.alertCount,

@@ -31,7 +31,7 @@ var PORT_NUMBERS_TO_TEST = [
 
 var gTestNumber;
 
-function subtest_check_set_port_number(tab, dontSet) {
+async function subtest_check_set_port_number(tab, dontSet) {
   // This test expects the following POP account to exist by default
   // with port number 110 and no security.
   let server = MailServices.accounts.findServer(
@@ -63,12 +63,12 @@ function subtest_check_set_port_number(tab, dontSet) {
     delete_all_existing(mc, portElem);
     input_value(mc, PORT_NUMBERS_TO_TEST[gTestNumber]);
 
-    mc.sleep(0);
+    await new Promise(resolve => setTimeout(resolve));
   }
 }
 
-function subtest_check_port_number(tab) {
-  subtest_check_set_port_number(tab, true);
+async function subtest_check_port_number(tab) {
+  await subtest_check_set_port_number(tab, true);
 }
 
 add_task(async function test_account_port_setting() {
