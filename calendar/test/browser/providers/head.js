@@ -241,6 +241,9 @@ async function runTestAlarms() {
   Assert.equal(window.unifinderTreeView.rowCount, 0, "there should be no events in the unifinder");
 }
 
+const syncItem1Name = "holy cow, a new item!";
+const syncItem2Name = "a changed item";
+
 let syncChangesTest = {
   async setUp() {
     await CalendarTestUtils.openCalendarTab(window);
@@ -270,7 +273,7 @@ let syncChangesTest = {
       BEGIN:VCALENDAR
       BEGIN:VEVENT
       UID:ad0850e5-8020-4599-86a4-86c90af4e2cd
-      SUMMARY:holy cow, a new item!
+      SUMMARY:${syncItem1Name}
       DTSTART:${start.icalString}
       DTEND:${end.icalString}
       END:VEVENT
@@ -282,27 +285,29 @@ let syncChangesTest = {
     await CalendarTestUtils.setCalendarView(window, "multiweek");
     await CalendarTestUtils.goToToday(window);
 
+    // Sanity check that we have not already synchronized and that there is no
+    // existing item.
     Assert.ok(
       !CalendarTestUtils.multiweekView.getItemAt(window, 2, 3, 1),
       "there should be no existing item in the calendar"
     );
 
-    calendarObserver._onLoadPromise = PromiseUtils.defer();
+    // Synchronize.
     EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-synchronize-button"), {});
-    await calendarObserver._onLoadPromise;
 
+    // Verify that the item we added appears in the calendar view.
     let item = await CalendarTestUtils.multiweekView.waitForItemAt(window, 2, 3, 1);
-    Assert.equal(item.item.title, "holy cow, a new item!", "view should include newly-added item");
+    Assert.equal(item.item.title, syncItem1Name, "view should include newly-added item");
 
+    // Verify that the today pane updates and shows the item we added.
     await TestUtils.waitForCondition(() => window.TodayPane.agenda.rowCount == 1);
-    let agendaItem = window.TodayPane.agenda.rows[0];
     Assert.equal(
-      agendaItem.querySelector(".agenda-listitem-title").textContent,
-      "holy cow, a new item!",
+      getTodayPaneItemTitle(0),
+      syncItem1Name,
       "today pane should include newly-added item"
     );
     Assert.ok(
-      !agendaItem.nextElementSibling,
+      !window.TodayPane.agenda.rows[0].nextElementSibling,
       "there should be no additional items in the today pane"
     );
   },
@@ -320,7 +325,7 @@ let syncChangesTest = {
       BEGIN:VCALENDAR
       BEGIN:VEVENT
       UID:ad0850e5-8020-4599-86a4-86c90af4e2cd
-      SUMMARY:a changed item
+      SUMMARY:${syncItem2Name}
       DTSTART:${start.icalString}
       DTEND:${end.icalString}
       END:VEVENT
@@ -329,39 +334,52 @@ let syncChangesTest = {
   },
 
   async runPart2() {
+    // Sanity check that we have not already synchronized and that there is no
+    // existing item.
     Assert.ok(
       !CalendarTestUtils.multiweekView.getItemAt(window, 2, 4, 1),
       "there should be no existing item on the specified day"
     );
 
-    calendarObserver._onLoadPromise = PromiseUtils.defer();
+    // Synchronize.
     EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-synchronize-button"), {});
-    await calendarObserver._onLoadPromise;
 
+    // Verify that the item has updated in the calendar view.
     await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 3, 1);
     let item = await CalendarTestUtils.multiweekView.waitForItemAt(window, 2, 4, 1);
-    Assert.equal(item.item.title, "a changed item");
+    Assert.equal(item.item.title, syncItem2Name, "view should show updated item");
 
-    await TestUtils.waitForCondition(() => window.TodayPane.agenda.rowCount == 1);
-    let agendaItem = window.TodayPane.agenda.rows[0];
-    Assert.equal(agendaItem.querySelector(".agenda-listitem-title").textContent, "a changed item");
-    Assert.ok(!agendaItem.nextElementSibling);
+    // Verify that the today pane updates and shows the updated item.
+    await TestUtils.waitForCondition(
+      () => window.TodayPane.agenda.rowCount == 1 && getTodayPaneItemTitle(0) != syncItem1Name
+    );
+    Assert.equal(getTodayPaneItemTitle(0), syncItem2Name, "today pane should show updated item");
+    Assert.ok(
+      !window.TodayPane.agenda.rows[0].nextElementSibling,
+      "there should be no additional items in the today pane"
+    );
   },
 
   async runPart3() {
-    calendarObserver._onLoadPromise = PromiseUtils.defer();
+    // Synchronize via the calendar context menu.
     await calendarListContextMenu(
       document.querySelector("#calendar-list > li:nth-child(2)"),
       "list-calendar-context-reload"
     );
-    await calendarObserver._onLoadPromise;
 
+    // Verify that the item is removed from the calendar view.
     await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 3, 1);
     await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 4, 1);
 
+    // Verify that the item is removed from the today pane.
     await TestUtils.waitForCondition(() => window.TodayPane.agenda.rowCount == 0);
   },
 };
+
+function getTodayPaneItemTitle(idx) {
+  const row = window.TodayPane.agenda.rows[idx];
+  return row.querySelector(".agenda-listitem-title").textContent;
+}
 
 async function calendarListContextMenu(target, menuItem) {
   await new Promise(r => setTimeout(r));
