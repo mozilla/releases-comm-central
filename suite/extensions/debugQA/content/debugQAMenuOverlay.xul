@@ -141,8 +141,6 @@
         <menuitem label="Recent gitlab 2.53 l10n Activity"
                   oncommand="openQAUrl('https://gitlab.com/seamonkey-project/seamonkey-2.53-l10n/activity/');"/>
         <menuseparator/>
-        <menuitem label="Daily unofficial 2.57 Builds"
-                  oncommand="openQAUrl('https://www.wg9s.com/comm-257/');"/>
         <menuitem label="Daily unofficial 2.53 Builds"
                   oncommand="openQAUrl('https://www.wg9s.com/comm-253/');"/>
       </menupopup>
