@@ -69,7 +69,7 @@ function close_search_window(aController) {
  * to the given controller.
  */
 function assert_search_window_folder_displayed(aController, aFolder) {
-  let currentFolder = aController.currentFolder;
+  let currentFolder = aController.window.gCurrentFolder;
   Assert.equal(
     currentFolder,
     aFolder,
