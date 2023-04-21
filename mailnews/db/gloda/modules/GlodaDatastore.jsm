@@ -1203,13 +1203,6 @@ var GlodaDatastore = {
     this._populateContactManagedId();
     this._populateIdentityManagedId();
 
-    // create the timer we use to periodically drop our references to folders
-    //  we no longer need XPCOM references to (or more significantly, their
-    //  message databases.)
-    this._folderCleanupTimer = Cc["@mozilla.org/timer;1"].createInstance(
-      Ci.nsITimer
-    );
-
     this._log.debug("Completed datastore initialization.");
   },
 
@@ -1270,12 +1263,6 @@ var GlodaDatastore = {
     }
 
     this.datastoreIsShutdown = true;
-
-    // shutdown our folder cleanup timer, if active and null it out.
-    if (this._folderCleanupActive) {
-      this._folderCleanupTimer.cancel();
-    }
-    this._folderCleanupTimer = null;
 
     this._log.info("Closing db connection");
 
@@ -2357,82 +2344,6 @@ var GlodaDatastore = {
     let dfbis = this._deleteFolderByIDStatement;
     dfbis.bindByIndex(0, aFolderID);
     dfbis.executeAsync(this.trackAsync());
-  },
-
-  /**
-   * This timer drives our folder cleanup logic that is in charge of dropping
-   *  our folder references and more importantly the folder's msgDatabase
-   *  reference, but only if they are no longer in use.
-   * This timer is only active when we have one or more live gloda folders (as
-   *  tracked by _liveGlodaFolders).  Although we choose our timer interval to
-   *  be power-friendly, it doesn't really matter because unless the user or the
-   *  indexing process is actively doing things, all of the folders will 'die'
-   *  and so we will stop scheduling the timer.
-   */
-  _folderCleanupTimer: null,
-
-  /**
-   * When true, we have a folder cleanup timer event active.
-   */
-  _folderCleanupActive: false,
-
-  /**
-   * Interval at which we call the folder cleanup code, in milliseconds.
-   */
-  _folderCleanupTimerInterval: 2000,
-
-  /**
-   * Maps the id of 'live' GlodaFolders to the instances.  If a GlodaFolder is
-   *  in here, it means that it has a reference to its nsIMsgDBFolder which
-   *  should have an open nsIMsgDatabase that we will need to close.  This does
-   *  not count folders that are being indexed unless they have also been used
-   *  for header retrieval.
-   */
-  _liveGlodaFolders: {},
-
-  /**
-   * Mark a GlodaFolder as having a live reference to its nsIMsgFolder with an
-   *  implied opened associated message database.  GlodaFolder calls this when
-   *  it first acquires its reference.  It is removed from the list of live
-   *  folders only when our timer check calls the GlodaFolder's
-   *  forgetFolderIfUnused method and that method returns true.
-   */
-  markFolderLive(aGlodaFolder) {
-    this._liveGlodaFolders[aGlodaFolder.id] = aGlodaFolder;
-    if (!this._folderCleanupActive) {
-      this._folderCleanupTimer.initWithCallback(
-        this._performFolderCleanup,
-        this._folderCleanupTimerInterval,
-        Ci.nsITimer.TYPE_REPEATING_SLACK
-      );
-      this._folderCleanupActive = true;
-    }
-  },
-
-  /**
-   * Timer-driven folder cleanup logic.  For every live folder tracked in
-   *  _liveGlodaFolders, we call their forgetFolderIfUnused method each time
-   *  until they return true indicating they have cleaned themselves up.
-   * This method is called without a 'this' context!
-   */
-  _performFolderCleanup() {
-    // we only need to keep going if there is at least one folder in the table
-    //  that is still alive after this pass.
-    let keepGoing = false;
-    for (let id in GlodaDatastore._liveGlodaFolders) {
-      let glodaFolder = GlodaDatastore._liveGlodaFolders[id];
-      // returns true if it is now 'dead' and doesn't need this heartbeat check
-      if (glodaFolder.forgetFolderIfUnused()) {
-        delete GlodaDatastore._liveGlodaFolders[glodaFolder.id];
-      } else {
-        keepGoing = true;
-      }
-    }
-
-    if (!keepGoing) {
-      GlodaDatastore._folderCleanupTimer.cancel();
-      GlodaDatastore._folderCleanupActive = false;
-    }
   },
 
   /* ********** Conversation ********** */
