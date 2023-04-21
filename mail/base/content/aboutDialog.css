@@ -94,6 +94,10 @@ body {
   cursor: text;
 }
 
+#releasenotes {
+  margin-inline-start: 0.5em;
+}
+
 #distribution,
 #distributionId {
   display: none;
