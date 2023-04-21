@@ -346,7 +346,7 @@ async function _middle_click_on_collapsed_thread_root_helper(aBackground) {
   let tree = mc.window.document.getElementById("threadTree");
   // Scroll to the top, then to the bottom
   tree.ensureRowIsVisible(0);
-  tree.scrollByLines(mc.folderDisplay.view.dbView.rowCount);
+  tree.scrollByLines(mc.window.gFolderDisplay.view.dbView.rowCount);
   // Note the first visible row
   let preFirstRow = tree.getFirstVisibleRow();
 
@@ -358,7 +358,7 @@ async function _middle_click_on_collapsed_thread_root_helper(aBackground) {
   // Middle-click on the root of the collapsed thread, which is also the last
   // row
   let [tabMessage] = middle_click_on_row(
-    mc.folderDisplay.view.dbView.rowCount - 1
+    mc.window.gFolderDisplay.view.dbView.rowCount - 1
   );
 
   if (!aBackground) {
@@ -396,7 +396,7 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
   // Scroll to the top, then to near (but not exactly) the bottom
   tree.ensureRowIsVisible(0);
   tree.scrollToRow(
-    mc.folderDisplay.view.dbView.rowCount -
+    mc.window.gFolderDisplay.view.dbView.rowCount -
       tree.getPageLength() -
       NUM_MESSAGES_IN_THREAD / 2
   );
@@ -411,7 +411,7 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
   // Middle-click on the root of the expanded thread, which is the row with
   // index (number of rows - number of messages in thread).
   let [tabMessage] = middle_click_on_row(
-    mc.folderDisplay.view.dbView.rowCount - NUM_MESSAGES_IN_THREAD
+    mc.window.gFolderDisplay.view.dbView.rowCount - NUM_MESSAGES_IN_THREAD
   );
 
   if (!aBackground) {

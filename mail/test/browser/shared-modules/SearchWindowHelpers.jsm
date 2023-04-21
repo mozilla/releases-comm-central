@@ -144,7 +144,7 @@ function select_shift_click_search_row(aViewIndex, aController) {
   );
 
   aController.sleep(0);
-  return aController.folderDisplay.selectedMessages;
+  return aController.window.gFolderDisplay.selectedMessages;
 }
 
 /**
@@ -178,8 +178,8 @@ function assert_messages_in_search_view(aSynSets, aController) {
 
   // Iterate over the contents of the view, nulling out values in
   // synMessageURIs for found messages, and exploding for missing ones.
-  let dbView = aController.folderDisplay.view.dbView;
-  let treeView = aController.folderDisplay.view.dbView.QueryInterface(
+  let dbView = aController.window.gFolderDisplay.view.dbView;
+  let treeView = aController.window.gFolderDisplay.view.dbView.QueryInterface(
     Ci.nsITreeView
   );
   let rowCount = treeView.rowCount;

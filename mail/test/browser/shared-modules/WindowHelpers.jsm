@@ -1130,15 +1130,12 @@ var PerWindowTypeAugmentations = {
    * The search window, via control-shift-F.
    */
   "mailnews:search": {
-    globalsToExposeAtStartup: {
-      folderDisplay: "gFolderDisplay",
-    },
     globalsToExposeViaGetters: {
       currentFolder: "gCurrentFolder",
     },
     getters: {
       dbView() {
-        return this.folderDisplay.view.dbView;
+        return this.window.gFolderDisplay.view.dbView;
       },
     },
   },

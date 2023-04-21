@@ -171,7 +171,7 @@ add_task(async function test_selection_stabilization_logic() {
   // verify that things were summarized...
   assert_selected_and_displayed([0, 1]);
   // save the set of messages so we can verify the summary sticks to this.
-  let messages = mc.folderDisplay.selectedMessages;
+  let messages = mc.window.gFolderDisplay.selectedMessages;
 
   // make sure the
 
@@ -196,7 +196,7 @@ add_task(function test_summarization_thread_detection() {
   make_display_threaded();
   select_click_row(0);
   select_shift_click_row(9);
-  let messages = mc.folderDisplay.selectedMessages;
+  let messages = mc.window.gFolderDisplay.selectedMessages;
   toggle_thread_row(0);
   assert_messages_summarized(mc, messages);
   // count the number of messages represented
@@ -334,7 +334,7 @@ add_task(async function test_summary_when_multiple_identities() {
 
   // Assertions
   select_click_row(0);
-  assert_messages_summarized(mc, mc.folderDisplay.selectedMessages);
+  assert_messages_summarized(mc, mc.window.gFolderDisplay.selectedMessages);
   // Thread summary shows a date, while multimessage summary shows a subject.
   assert_summary_contains_N_elts(".item_header > .subject", 0);
   assert_summary_contains_N_elts(".item_header > .date", 2);
@@ -423,7 +423,7 @@ add_task(async function test_archive_and_delete_messages() {
   make_display_unthreaded();
   select_click_row(0);
   select_shift_click_row(2);
-  let messages = mc.folderDisplay.selectedMessages;
+  let messages = mc.window.gFolderDisplay.selectedMessages;
 
   let contentWindow = mc.window.document.getElementById("multimessage")
     .contentWindow;
@@ -445,7 +445,7 @@ add_task(async function test_archive_and_delete_messages() {
   assert_nothing_selected();
   select_click_row(0);
   select_shift_click_row(2);
-  messages = mc.folderDisplay.selectedMessages;
+  messages = mc.window.gFolderDisplay.selectedMessages;
 
   // Delete selected messages.
   plan_to_wait_for_folder_events(

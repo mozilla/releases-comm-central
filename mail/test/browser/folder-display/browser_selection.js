@@ -167,7 +167,7 @@ add_task(async function test_enter_scroll_to_new() {
   // be in the folder
   await be_in_folder(folder);
   // make sure the sort is ascending...
-  mc.folderDisplay.view.sortAscending();
+  mc.window.gFolderDisplay.view.sortAscending();
   // leave the folder so that the messages get marked as read
   await enter_folder(folder.rootFolder);
   // add a new message, and make sure it is new

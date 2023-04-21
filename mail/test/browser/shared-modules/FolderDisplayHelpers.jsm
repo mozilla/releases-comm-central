@@ -1116,7 +1116,7 @@ function select_column_click_row(aViewIndex, aController) {
   }
 
   mark_action("fdh", "/select_column_click_row", [
-    mc.folderDisplay.selectedMessages,
+    mc.window.gFolderDisplay.selectedMessages,
   ]);
   return dbView.getMsgHdrAt(aViewIndex);
 }
@@ -1577,7 +1577,7 @@ async function delete_via_popup() {
   );
   // mark_action("fdh", "delete_via_popup", [
   //   "selected messages:",
-  //   mc.folderDisplay.selectedMessages,
+  //   mc.window.gFolderDisplay.selectedMessages,
   // ]);
   let win = get_about_3pane();
   let ctxDelete = win.document.getElementById("mailContext-delete");
@@ -1694,7 +1694,7 @@ function archive_selected_messages(aController) {
   // mark_action(
   //   "fdh",
   //   "archive_selected_messages",
-  //   ["selected messages:", aController.folderDisplay.selectedMessages].concat(
+  //   ["selected messages:", aController.window.gFolderDisplay.selectedMessages].concat(
   //     aController.describeFocus()
   //   )
   // );
@@ -1739,7 +1739,7 @@ function press_enter(aController) {
   // mark_action(
   //   "fdh",
   //   "press_enter",
-  //   ["selected messages:", aController.folderDisplay.selectedMessages].concat(
+  //   ["selected messages:", aController.window.gFolderDisplay.selectedMessages].concat(
   //     aController.describeFocus()
   //   )
   // );
@@ -1757,7 +1757,7 @@ function press_enter(aController) {
  */
 function wait_for_all_messages_to_load(aController = mc) {
   // utils.waitFor(
-  //   () => aController.folderDisplay.allMessagesLoaded,
+  //   () => aController.window.gFolderDisplay.allMessagesLoaded,
   //   "Messages never finished loading.  Timed Out."
   // );
   // the above may return immediately, meaning the event queue might not get a
@@ -2344,13 +2344,13 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
 
     if (trustSelection) {
       if (
-        troller.folderDisplay.selectedMessage !=
+        troller.window.gFolderDisplay.selectedMessage !=
         troller.messageDisplay.displayedMessage
       ) {
         throw new Error(
           "folderDisplay.selectedMessage != " +
             "messageDisplay.displayedMessage! (fd: " +
-            troller.folderDisplay.selectedMessage +
+            troller.window.gFolderDisplay.selectedMessage +
             " vs md: " +
             troller.messageDisplay.displayedMessage +
             ")"
@@ -2366,12 +2366,12 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     troller.sleep(500);
     // make sure the content pane is pointed at the right thing
 
-    let msgService = troller.folderDisplay.messenger.messageServiceFromURI(
+    let msgService = troller.window.gFolderDisplay.messenger.messageServiceFromURI(
       msgUri
     );
     let msgUrl = msgService.getUrlForUri(
       msgUri,
-      troller.folderDisplay.msgWindow
+      troller.window.gFolderDisplay.msgWindow
     );
     if (troller.window.content?.location.href != msgUrl.spec) {
       throw new Error(
@@ -2509,7 +2509,7 @@ function assert_messages_summarized(aController, aSelectedMessages) {
 
   // - Verify summary object knows about right messages
   if (aSelectedMessages == null) {
-    aSelectedMessages = aController.folderDisplay.selectedMessages;
+    aSelectedMessages = aController.window.gFolderDisplay.selectedMessages;
   }
   // if it's a synthetic message set, we want the headers...
   if (aSelectedMessages.synMessages) {
@@ -2939,7 +2939,10 @@ var assert_folder_selected = assert_folders_selected;
  */
 function assert_folder_displayed(...aArgs) {
   let [troller, desiredFolders] = _process_row_folder_arguments(...aArgs);
-  Assert.equal(troller.folderDisplay.displayedFolder, desiredFolders[0]);
+  Assert.equal(
+    troller.window.gFolderDisplay.displayedFolder,
+    desiredFolders[0]
+  );
 }
 
 /**
@@ -3058,7 +3061,7 @@ function collapse_all_threads() {
 function set_show_unread_only(aShowUnreadOnly) {
   wait_for_message_display_completion();
   mark_action("fdh", "set_show_unread_only", [aShowUnreadOnly]);
-  mc.folderDisplay.view.showUnreadOnly = aShowUnreadOnly;
+  mc.window.gFolderDisplay.view.showUnreadOnly = aShowUnreadOnly;
   wait_for_all_messages_to_load();
   wait_for_message_display_completion();
   // drain event queue
@@ -3070,7 +3073,7 @@ function set_show_unread_only(aShowUnreadOnly) {
  */
 function assert_showing_unread_only() {
   wait_for_message_display_completion();
-  if (!mc.folderDisplay.view.showUnreadOnly) {
+  if (!mc.window.gFolderDisplay.view.showUnreadOnly) {
     throw new Error(
       "The view should be showing unread messages only, but it isn't."
     );
@@ -3082,7 +3085,7 @@ function assert_showing_unread_only() {
  */
 function assert_not_showing_unread_only() {
   wait_for_message_display_completion();
-  if (mc.folderDisplay.view.showUnreadOnly) {
+  if (mc.window.gFolderDisplay.view.showUnreadOnly) {
     throw new Error(
       "The view should not be showing unread messages only, but it is."
     );
@@ -3113,7 +3116,7 @@ function set_mail_view(aMailViewIndex, aData) {
  * |set_mail_view| for information about aData.
  */
 function assert_mail_view(aMailViewIndex, aData) {
-  let actualMailViewIndex = mc.folderDisplay.view.mailViewIndex;
+  let actualMailViewIndex = mc.window.gFolderDisplay.view.mailViewIndex;
   if (actualMailViewIndex != aMailViewIndex) {
     throw new Error(
       "The mail view index should be " +
@@ -3123,7 +3126,7 @@ function assert_mail_view(aMailViewIndex, aData) {
     );
   }
 
-  let actualMailViewData = mc.folderDisplay.view.mailViewData;
+  let actualMailViewData = mc.window.gFolderDisplay.view.mailViewData;
   if (actualMailViewData != aData) {
     throw new Error(
       "The mail view data should be " +

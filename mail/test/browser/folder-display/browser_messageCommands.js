@@ -657,12 +657,12 @@ add_task(async function test_disabled_archive() {
   );
 
   // test message summaries with "large" selection
-  mc.folderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 1;
+  mc.window.gFolderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 1;
   select_click_row(0);
   current = select_shift_click_row(2);
   EventUtils.synthesizeKey("a", {});
   assert_selected_and_displayed(current);
-  mc.folderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 100;
+  mc.window.gFolderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 100;
 
   htmlframe = mc.e("multimessage");
   archiveBtn = htmlframe.contentDocument.getElementById("hdrArchiveButton");
