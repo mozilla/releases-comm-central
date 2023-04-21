@@ -1086,7 +1086,7 @@ function select_column_click_row(aViewIndex, aController) {
   }
   _row_click_helper(
     aController,
-    aController.threadTree,
+    aController.window.document.getElementById("threadTree"),
     aViewIndex,
     0,
     null,
@@ -2525,7 +2525,7 @@ function assert_visible(aViewIndexOrMessage) {
   } else {
     viewIndex = win.gDBView.findIndexOfMsgHdr(aViewIndexOrMessage, false);
   }
-  let tree = win.threadTree;
+  let tree = win.window.document.getElementById("threadTree");
   let firstVisibleIndex = tree.getFirstVisibleIndex();
   let lastVisibleIndex = Math.floor(
     (tree.scrollTop + tree.clientHeight) / tree._rowElementClass.ROW_HEIGHT

@@ -93,7 +93,7 @@ function select_click_search_row(aViewIndex, aController) {
     aController = mc;
   }
 
-  let tree = aController.threadTree;
+  let tree = aController.window.document.getElementById("threadTree");
   tree.scrollToRow(aViewIndex);
   let coords = tree.getCoordsForCellItem(
     aViewIndex,
@@ -127,7 +127,7 @@ function select_shift_click_search_row(aViewIndex, aController) {
     aController = mc;
   }
 
-  let tree = aController.threadTree;
+  let tree = aController.window.document.getElementById("threadTree");
   tree.scrollToRow(aViewIndex);
   let coords = tree.getCoordsForCellItem(
     aViewIndex,

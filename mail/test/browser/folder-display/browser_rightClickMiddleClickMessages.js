@@ -343,7 +343,7 @@ async function _middle_click_on_collapsed_thread_root_helper(aBackground) {
 
   let folderTab = mc.tabmail.currentTabInfo;
 
-  let tree = mc.threadTree;
+  let tree = mc.window.document.getElementById("threadTree");
   // Scroll to the top, then to the bottom
   tree.ensureRowIsVisible(0);
   tree.scrollByLines(mc.folderDisplay.view.dbView.rowCount);
@@ -392,7 +392,7 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
 
   let folderTab = mc.tabmail.currentTabInfo;
 
-  let tree = mc.threadTree;
+  let tree = mc.window.document.getElementById("threadTree");
   // Scroll to the top, then to near (but not exactly) the bottom
   tree.ensureRowIsVisible(0);
   tree.scrollToRow(

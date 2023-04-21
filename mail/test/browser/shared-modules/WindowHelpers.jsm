@@ -1134,7 +1134,6 @@ var PerWindowTypeAugmentations = {
      * DOM elements to expose as attributes (by copying at augmentation time.)
      */
     elementsToExpose: {
-      threadTree: "threadTree",
       folderTree: "folderTree",
       tabmail: "tabmail",
     },
@@ -1161,9 +1160,6 @@ var PerWindowTypeAugmentations = {
    * The search window, via control-shift-F.
    */
   "mailnews:search": {
-    elementsToExpose: {
-      threadTree: "threadTree",
-    },
     globalsToExposeAtStartup: {
       folderDisplay: "gFolderDisplay",
     },
