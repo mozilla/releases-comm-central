@@ -1127,31 +1127,6 @@ var AugmentEverybodyWith = {
  */
 var PerWindowTypeAugmentations = {
   /**
-   * The 3pane window is messenger.xhtml, the default window.
-   */
-  "mail:3pane": {
-    /**
-     * Custom getters whose |this| is the controller.
-     */
-    getters: {
-      contentPane() {
-        return this.window.document
-          .getElementById("tabmail")
-          .getBrowserForSelectedTab();
-      },
-    },
-  },
-
-  /**
-   * Standalone message window.
-   */
-  "mail:messageWindow": {
-    elementsToExpose: {
-      contentPane: "messagepane",
-    },
-  },
-
-  /**
    * The search window, via control-shift-F.
    */
   "mailnews:search": {
