@@ -2418,7 +2418,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
 
     // and _now_ make sure that we actually summarized what we wanted to
     //  summarize.
-    let desiredMessages = desiredIndices.map(vi => mc.dbView.getMsgHdrAt(vi));
+    let desiredMessages = desiredIndices.map(vi => mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(vi));
     assert_messages_summarized(troller, desiredMessages);
     */
   }

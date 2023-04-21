@@ -1121,23 +1121,6 @@ var AugmentEverybodyWith = {
   },
 };
 
-/**
- * Per-windowtype augmentations.  Please use the documentation and general
- *  example of mail:3pane as your example.
- */
-var PerWindowTypeAugmentations = {
-  /**
-   * The search window, via control-shift-F.
-   */
-  "mailnews:search": {
-    getters: {
-      dbView() {
-        return this.window.gFolderDisplay.view.dbView;
-      },
-    },
-  },
-};
-
 function _augment_helper(aController, aAugmentDef) {
   if (aAugmentDef.elementsToExpose) {
     for (let key in aAugmentDef.elementsToExpose) {
@@ -1182,9 +1165,6 @@ function augment_controller(aController, aWindowType) {
   }
 
   _augment_helper(aController, AugmentEverybodyWith);
-  if (PerWindowTypeAugmentations[aWindowType]) {
-    _augment_helper(aController, PerWindowTypeAugmentations[aWindowType]);
-  }
 
   return aController;
 }

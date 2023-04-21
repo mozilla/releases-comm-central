@@ -69,7 +69,7 @@ add_setup(async function() {
   inbox2Folder = inboxFolder.server.rootFolder.getChildNamed("Inbox2");
 
   await be_in_folder(folder);
-  msgHdr = mc.dbView.getMsgHdrAt(0);
+  msgHdr = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(0);
 });
 
 /**
@@ -194,7 +194,7 @@ add_task(async function test_display_message_in_smart_folder_mode_works() {
 add_task(
   async function test_display_inbox_message_in_smart_folder_mode_works() {
     await be_in_folder(inboxFolder);
-    let inboxMsgHdr = mc.dbView.getMsgHdrAt(0);
+    let inboxMsgHdr = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(0);
 
     // Collapse everything
     collapse_folder(smartInboxFolder);

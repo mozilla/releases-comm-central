@@ -183,9 +183,9 @@ add_task(async function test_open_first_message_in_virtual_folder() {
  */
 add_task(async function test_delete_from_virtual_folder_in_folder_tab() {
   // - plan to end up on the guy who is currently at index 1
-  curMessage = mc.dbView.getMsgHdrAt(1);
+  curMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
-  nextMessage = mc.dbView.getMsgHdrAt(2);
+  nextMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(2);
   // - delete the message
   press_delete();
 
@@ -207,7 +207,7 @@ add_task(async function test_delete_from_virtual_folder_in_message_tab() {
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 
   // figure out the next guy...
-  nextMessage = mc.dbView.getMsgHdrAt(1);
+  nextMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
   if (!nextMessage) {
     throw new Error("We ran out of messages early?");
   }
@@ -280,9 +280,9 @@ add_task(async function test_open_first_message_in_smart_inbox() {
  */
 add_task(async function test_delete_from_smart_inbox_in_folder_tab() {
   // - plan to end up on the guy who is currently at index 1
-  curMessage = mc.dbView.getMsgHdrAt(1);
+  curMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
-  nextMessage = mc.dbView.getMsgHdrAt(2);
+  nextMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(2);
   // - delete the message
   press_delete();
 
@@ -304,7 +304,7 @@ add_task(async function test_delete_from_smart_inbox_in_message_tab() {
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 
   // figure out the next guy...
-  nextMessage = mc.dbView.getMsgHdrAt(1);
+  nextMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
   if (!nextMessage) {
     throw new Error("We ran out of messages early?");
   }

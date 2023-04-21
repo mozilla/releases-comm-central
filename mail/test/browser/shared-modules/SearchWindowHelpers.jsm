@@ -109,7 +109,7 @@ function select_click_search_row(aViewIndex, aController) {
     aController.window
   );
 
-  return aController.dbView.getMsgHdrAt(aViewIndex);
+  return aController.window.gFolderDisplay.view.dbView.getMsgHdrAt(aViewIndex);
 }
 
 /**
