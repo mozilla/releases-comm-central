@@ -278,6 +278,11 @@
   z-index: 10;
 }
 
+#todo-tab-panel {
+  height: 40%;
+  min-height: 160px;
+}
+
 #show-completed-checkbox-box {
   padding-top: 3px;
   padding-inline-start: 5px;

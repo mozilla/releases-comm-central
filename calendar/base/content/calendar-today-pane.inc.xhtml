@@ -148,36 +148,31 @@
     </calendar-modevbox>
     <splitter id="today-pane-splitter" persist="hidden" orient="vertical"/>
     <calendar-modevbox id="todo-tab-panel"
-                       flex="1"
                        mode="mail,calendar,chat,calendarEvent,calendarTask"
                        collapsedinmodes="mail,task,chat,calendarEvent,calendarTask"
                        persist="height collapsedinmodes"
                        ondragover="calendarTaskButtonDNDObserver.onDragOver(event);"
                        ondrop="calendarTaskButtonDNDObserver.onDrop(event);">
-      <!-- This second vbox means all of this is added to the DOM at once,
-           so the label's binding doesn't complain about not having a control. -->
-      <vbox flex="1">
-        <box id="show-completed-checkbox-box" align="center">
-          <checkbox id="show-completed-checkbox"
-                    label="&calendar.unifinder.showcompletedtodos.label;"
-                    flex="1"
-                    crop="end"
-                    oncommand="TodayPane.updateCalendarToDoUnifinder()"
-                    persist="checked"
-                    autocheck="false"/>
-        </box>
-        <vbox id="calendar-task-tree-detail" flex="1">
-          <tree is="calendar-task-tree-todaypane" id="unifinder-todo-tree"
-                flex="1"
-                visible-columns="completed priority title"
-                persist="visible-columns ordinals widths sort-active sort-direction filterValue"
-                context="taskitem-context-menu"/>
-          <html:input id="unifinder-task-edit-field"
-                      class="task-edit-field themeableSearchBox"
-                      onfocus="taskEdit.onFocus(event)"
-                      onblur="taskEdit.onBlur(event)"
-                      onkeypress="taskEdit.onKeyPress(event)"/>
-        </vbox>
+      <box id="show-completed-checkbox-box" align="center">
+        <checkbox id="show-completed-checkbox"
+                  label="&calendar.unifinder.showcompletedtodos.label;"
+                  flex="1"
+                  crop="end"
+                  oncommand="TodayPane.updateCalendarToDoUnifinder()"
+                  persist="checked"
+                  autocheck="false"/>
+      </box>
+      <vbox id="calendar-task-tree-detail" flex="1">
+        <tree is="calendar-task-tree-todaypane" id="unifinder-todo-tree"
+              flex="1"
+              visible-columns="completed priority title"
+              persist="visible-columns ordinals widths sort-active sort-direction filterValue"
+              context="taskitem-context-menu"/>
+        <html:input id="unifinder-task-edit-field"
+                    class="task-edit-field themeableSearchBox"
+                    onfocus="taskEdit.onFocus(event)"
+                    onblur="taskEdit.onBlur(event)"
+                    onkeypress="taskEdit.onKeyPress(event)"/>
       </vbox>
     </calendar-modevbox>
   </vbox>
