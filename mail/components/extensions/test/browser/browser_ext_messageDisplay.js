@@ -372,13 +372,13 @@ add_task(async function testOpenMessagesInTabs() {
 
         await browser.test.assertRejects(
           browser.messageDisplay.open({}),
-          "Exactly one of messageId or headerMessageId must be specified.",
+          "Exactly one of messageId, headerMessageId or file must be specified.",
           "browser.messageDisplay.open() should reject, if no messageId and no headerMessageId is specified"
         );
 
         await browser.test.assertRejects(
           browser.messageDisplay.open({ messageId: 578, headerMessageId: "1" }),
-          "Exactly one of messageId or headerMessageId must be specified.",
+          "Exactly one of messageId, headerMessageId or file must be specified.",
           "browser.messageDisplay.open() should reject, if messageId and headerMessageId are specified"
         );
 

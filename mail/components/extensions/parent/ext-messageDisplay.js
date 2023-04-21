@@ -64,17 +64,6 @@ function getDefaultMessageOpenLocation() {
  * @returns {nsIMsgHdr} the requested msgHdr
  */
 function getMsgHdr(properties) {
-  if (
-    ["messageId", "headerMessageId"].reduce(
-      (count, value) => (properties[value] ? count + 1 : count),
-      0
-    ) != 1
-  ) {
-    throw new ExtensionError(
-      "Exactly one of messageId or headerMessageId must be specified."
-    );
-  }
-
   if (properties.headerMessageId) {
     let msgHdr = MailUtils.getMsgHdrForMsgId(properties.headerMessageId);
     if (!msgHdr) {
@@ -274,19 +263,39 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           return convertMessages(messages, extension);
         },
         async open(properties) {
-          let msgHdr = getMsgHdr(properties);
+          if (
+            ["messageId", "headerMessageId", "file"].reduce(
+              (count, value) => (properties[value] ? count + 1 : count),
+              0
+            ) != 1
+          ) {
+            throw new ExtensionError(
+              "Exactly one of messageId, headerMessageId or file must be specified."
+            );
+          }
+
           let messageURI;
-          if (msgHdr.folder) {
-            messageURI = msgHdr.folder.getUriForMsg(msgHdr);
+          if (properties.file) {
+            let realFile = await getRealFileForFile(properties.file);
+            messageURI = Services.io
+              .newFileURI(realFile)
+              .mutate()
+              .setQuery("type=application/x-message-display")
+              .finalize().spec;
           } else {
-            // Add the application/x-message-display type to the url, if missing.
-            // The slash is escaped when setting the type via searchParams, but
-            // core code needs it unescaped.
-            let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
-            url.searchParams.delete("type");
-            messageURI = `${url.href}${
-              url.searchParams.toString() ? "&" : "?"
-            }type=application/x-message-display`;
+            let msgHdr = getMsgHdr(properties);
+            if (msgHdr.folder) {
+              messageURI = msgHdr.folder.getUriForMsg(msgHdr);
+            } else {
+              // Add the application/x-message-display type to the url, if missing.
+              // The slash is escaped when setting the type via searchParams, but
+              // core code needs it unescaped.
+              let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
+              url.searchParams.delete("type");
+              messageURI = `${url.href}${
+                url.searchParams.toString() ? "&" : "?"
+              }type=application/x-message-display`;
+            }
           }
 
           let window = await getNormalWindowReady(context, properties.windowId);

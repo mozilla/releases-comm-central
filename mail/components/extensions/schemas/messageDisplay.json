@@ -105,8 +105,15 @@
           {
             "name": "openProperties",
             "type": "object",
-            "description": "Settings for opening the message. Exactly one of messageId or headerMessageId must be specified.",
+            "description": "Settings for opening the message. Exactly one of messageId, headerMessageId or file must be specified.",
             "properties": {
+              "file": {
+                "type": "object",
+                "optional": true,
+                "isInstanceOf": "File",
+                "additionalProperties": true,
+                "description": "The DOM file object of a message to be opened."
+              },
               "messageId": {
                 "type": "integer",
                 "optional": true,

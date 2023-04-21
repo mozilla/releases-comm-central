@@ -37,12 +37,17 @@ async function testOpenMessages(testConfig) {
         // Get test properties.
         let [testConfig] = await window.sendMessage("getTestConfig");
 
-        function open(message, testConfig) {
+        async function open(message, testConfig) {
           let properties = { ...testConfig };
           if (properties.headerMessageId) {
             properties.headerMessageId = message.headerMessageId;
           } else if (properties.messageId) {
             properties.messageId = message.id;
+          } else if (properties.file) {
+            properties.file = new File(
+              [await browser.messages.getRaw(message.id)],
+              "msgfile.eml"
+            );
           }
           return browser.messageDisplay.open(properties);
         }
@@ -70,11 +75,22 @@ async function testOpenMessages(testConfig) {
           let msg = await browser.messageDisplay.getDisplayedMessage(
             openedTabs[i].value.id
           );
-          browser.test.assertEq(
-            messages[Math.floor(i / 2)].id,
-            msg.id,
-            `Should see the correct message in window ${i}`
-          );
+          if (testConfig.file) {
+            browser.test.assertTrue(
+              messages[Math.floor(i / 2)].id != msg.id,
+              `Opened file msg should have a new message id (${
+                msg.id
+              }) and should not equal the id of the source message (${
+                messages[Math.floor(i / 2)].id
+              }) in window ${i}`
+            );
+          } else {
+            browser.test.assertEq(
+              messages[Math.floor(i / 2)].id,
+              msg.id,
+              `Should see the correct message in window ${i}`
+            );
+          }
           await browser.tabs.remove(openedTabs[i].value.id);
         }
 
@@ -103,11 +119,9 @@ async function testOpenMessages(testConfig) {
 add_task(async function testHeaderMessageIdActiveDefault() {
   await testOpenMessages({ headerMessageId: true, active: true });
 });
-
 add_task(async function testHeaderMessageIdInActiveDefault() {
   await testOpenMessages({ headerMessageId: true, active: false });
 });
-
 add_task(async function testHeaderMessageIdActiveWindow() {
   await testOpenMessages({
     headerMessageId: true,
@@ -115,7 +129,6 @@ add_task(async function testHeaderMessageIdActiveWindow() {
     location: "window",
   });
 });
-
 add_task(async function testHeaderMessageIdInActiveWindow() {
   await testOpenMessages({
     headerMessageId: true,
@@ -123,7 +136,6 @@ add_task(async function testHeaderMessageIdInActiveWindow() {
     location: "window",
   });
 });
-
 add_task(async function testHeaderMessageIdActiveTab() {
   await testOpenMessages({
     headerMessageId: true,
@@ -131,7 +143,6 @@ add_task(async function testHeaderMessageIdActiveTab() {
     location: "tab",
   });
 });
-
 add_task(async function testHeaderMessageIdInActiveTab() {
   await testOpenMessages({
     headerMessageId: true,
@@ -143,11 +154,9 @@ add_task(async function testHeaderMessageIdInActiveTab() {
 add_task(async function testMessageIdActiveDefault() {
   await testOpenMessages({ messageId: true, active: true });
 });
-
 add_task(async function testMessageIdInActiveDefault() {
   await testOpenMessages({ messageId: true, active: false });
 });
-
 add_task(async function testMessageIdActiveWindow() {
   await testOpenMessages({
     messageId: true,
@@ -155,7 +164,6 @@ add_task(async function testMessageIdActiveWindow() {
     location: "window",
   });
 });
-
 add_task(async function testMessageIdInActiveWindow() {
   await testOpenMessages({
     messageId: true,
@@ -163,7 +171,6 @@ add_task(async function testMessageIdInActiveWindow() {
     location: "window",
   });
 });
-
 add_task(async function testMessageIdActiveTab() {
   await testOpenMessages({
     messageId: true,
@@ -171,10 +178,44 @@ add_task(async function testMessageIdActiveTab() {
     location: "tab",
   });
 });
-
 add_task(async function testMessageIdInActiveTab() {
   await testOpenMessages({
     messageId: true,
+    active: false,
+    location: "tab",
+  });
+});
+
+add_task(async function testMessageFileActiveDefault() {
+  await testOpenMessages({ file: true, active: true });
+});
+add_task(async function testMessageFileInActiveDefault() {
+  await testOpenMessages({ file: true, active: false });
+});
+add_task(async function testMessageFileActiveWindow() {
+  await testOpenMessages({
+    file: true,
+    active: true,
+    location: "window",
+  });
+});
+add_task(async function testMessageFileInActiveWindow() {
+  await testOpenMessages({
+    file: true,
+    active: false,
+    location: "window",
+  });
+});
+add_task(async function testMessageFileActiveTab() {
+  await testOpenMessages({
+    file: true,
+    active: true,
+    location: "tab",
+  });
+});
+add_task(async function testMessageFileInActiveTab() {
+  await testOpenMessages({
+    file: true,
     active: false,
     location: "tab",
   });
