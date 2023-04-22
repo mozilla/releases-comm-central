@@ -45,7 +45,7 @@ function assert_folder_pane_visible() {
     "The tab does not think that the folder pane is visible, but it should!"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(win.folderTree),
+    BrowserTestUtils.is_visible(win.window.document.getElementById("folderTree")),
     "The folder tree should not be collapsed!"
   );
   Assert.equal(
@@ -77,7 +77,7 @@ function assert_folder_pane_hidden() {
     "The tab thinks that the folder pane is visible, but it shouldn't!"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(win.folderTree),
+    BrowserTestUtils.is_hidden(win.window.document.getElementById("folderTree")),
     "The folder tree should be collapsed!"
   );
   Assert.equal(

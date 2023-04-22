@@ -1442,8 +1442,8 @@ function assert_folder_expanded(aFolder) {
  */
 function select_click_folder(aFolder) {
   let win = get_about_3pane();
-  let index = win.folderTree.rows.findIndex(row => row.uri == aFolder.URI);
-  let row = win.folderTree.rows[index];
+  let folderTree = win.window.document.getElementById("folderTree");
+  let row = folderTree.rows.find(row => row.uri == aFolder.URI);
   row.scrollIntoView();
   EventUtils.synthesizeMouseAtCenter(row.querySelector(".container"), {}, win);
 }
@@ -1491,12 +1491,12 @@ function select_shift_click_folder(aFolder) {
  */
 async function right_click_on_folder(aFolder) {
   let win = get_about_3pane();
-  let index = win.folderTree.rows.findIndex(row => row.uri == aFolder.URI);
+  let folderTree = win.window.document.getElementById("folderTree");
   let shownPromise = BrowserTestUtils.waitForEvent(
     win.document.getElementById("folderPaneContext"),
     "popupshown"
   );
-  let row = win.folderTree.rows[index];
+  let row = folderTree.find(row => row.uri == aFolder.URI);
   EventUtils.synthesizeMouseAtCenter(
     row.querySelector(".container"),
     { type: "contextmenu" },
@@ -1514,9 +1514,11 @@ async function right_click_on_folder(aFolder) {
  */
 function middle_click_on_folder(aFolder) {
   // Figure out the view index
+  let win = get_about_3pane();
   let viewIndex = mc.folderTreeView.getIndexOfFolder(aFolder);
+  let folderTree = win.window.document.getElementById("folderTree");
   mark_action("fdh", "middle_click_on_folder", [aFolder]);
-  _row_click_helper(mc, mc.folderTree, viewIndex, 1);
+  _row_click_helper(mc, folderTree, viewIndex, 1);
   // We append new tabs at the end, so return the last tab
   return [
     mc.tabmail.tabInfo[mc.tabmail.tabContainer.allTabs.length - 1],
@@ -2860,8 +2862,9 @@ function assert_folders_selected(...aArgs) {
   let [troller, desiredFolders] = _process_row_folder_arguments(...aArgs);
 
   let win = get_about_3pane();
+  let folderTree = win.window.document.getElementById("folderTree");
   // - get the actual selection (already sorted by integer value)
-  let uri = win.folderTree.rows[win.folderTree.selectedIndex]?.uri;
+  let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
   let selectedFolders = [MailServices.folderLookup.getFolderForURL(uri)];
 
   // - test selection equivalence

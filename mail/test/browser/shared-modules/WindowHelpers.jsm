@@ -1134,7 +1134,6 @@ var PerWindowTypeAugmentations = {
      * DOM elements to expose as attributes (by copying at augmentation time.)
      */
     elementsToExpose: {
-      folderTree: "folderTree",
       tabmail: "tabmail",
     },
     /**
