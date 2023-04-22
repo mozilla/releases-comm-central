@@ -224,6 +224,7 @@
   @media (-moz-gtk-csd-reversed-placement) {
     .titlebar-buttonbox-container {
       margin-inline-start: 6px;
+      transform: scaleX(-1);
     }
   }
 
