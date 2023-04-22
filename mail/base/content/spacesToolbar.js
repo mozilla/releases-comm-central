@@ -1099,7 +1099,15 @@ var gSpacesToolbar = {
           return tabInfo.spaceId == this.name ? 1 : 0;
         },
         open(where) {
-          let tab = openContentTab(this.url, where);
+          // The check if we should switch to an existing tab in this space was
+          // done in openSpace() and this function here should always open a new
+          // tab and not switch to a tab which might have loaded the same url,
+          // but belongs to a different space.
+          let tab = openTab(
+            "contentTab",
+            { url: this.url, duplicate: true },
+            where
+          );
           tab.spaceId = this.name;
           // TODO: Make sure the spaceId is set during load, and not here, where
           // it is too late.
