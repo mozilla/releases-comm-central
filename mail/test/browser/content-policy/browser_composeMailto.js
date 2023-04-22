@@ -33,10 +33,11 @@ var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-policy/html/";
 
 add_task(async function test_openComposeFromMailToLink() {
+  let tabmail = mc.window.document.getElementById("tabmail");
   // Open a content tab with the mailto link in it.
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  gPreCount = mc.tabmail.tabContainer.allTabs.length;
+  gPreCount = tabmail.tabContainer.allTabs.length;
   gNewTab = open_content_tab_with_url(url + "mailtolink.html");
 
   plan_for_new_window("msgcompose");
@@ -101,10 +102,11 @@ add_task(async function test_checkInsertImage() {
 
 add_task(function test_closeComposeWindowAndTab() {
   close_compose_window(gCwc);
+  let tabmail = mc.window.document.getElementById("tabmail");
 
-  mc.tabmail.closeTab(gNewTab);
+  tabmail.closeTab(gNewTab);
 
-  if (mc.tabmail.tabContainer.allTabs.length != gPreCount) {
+  if (tabmail.tabContainer.allTabs.length != gPreCount) {
     throw new Error("The content tab didn't close");
   }
 

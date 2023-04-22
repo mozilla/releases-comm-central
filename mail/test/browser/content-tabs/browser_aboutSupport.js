@@ -50,7 +50,8 @@ add_setup(function() {
 // After every test we want to close the about:support tab so that failures
 // don't cascade.
 function teardownTest(module) {
-  mc.tabmail.closeOtherTabs(mc.tabmail.tabInfo[0]);
+  let tabmail = mc.window.document.getElementById("tabmail");
+  tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 }
 
 /**

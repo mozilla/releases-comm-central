@@ -181,7 +181,7 @@ add_task(async function test_close_message_tab_on_delete_from_message_tab() {
 
   assert_number_of_tabs_open(2);
 
-  if (msgc2 != mc.tabmail.tabInfo[1]) {
+  if (msgc2 != mc.window.document.getElementById("tabmail").tabInfo[1]) {
     throw new Error("should only have closed the active tab");
   }
 
@@ -218,7 +218,7 @@ add_task(
 
     assert_number_of_tabs_open(2);
 
-    if (msgc2 != mc.tabmail.tabInfo[1]) {
+    if (msgc2 != mc.window.document.getElementById("tabmail").tabInfo[1]) {
       throw new Error("should only have closed the active tab");
     }
 
@@ -257,7 +257,7 @@ add_task(
 
     assert_number_of_tabs_open(2);
 
-    if (msgc2 != mc.tabmail.tabInfo[1]) {
+    if (msgc2 != mc.window.document.getElementById("tabmail").tabInfo[1]) {
       throw new Error("should only have closed the active tab");
     }
 
@@ -299,7 +299,7 @@ add_task(
 
     assert_number_of_tabs_open(2);
 
-    if (msgc2 != mc.tabmail.tabInfo[1]) {
+    if (msgc2 != mc.window.document.getElementById("tabmail").tabInfo[1]) {
       throw new Error("should only have closed the active tab");
     }
 

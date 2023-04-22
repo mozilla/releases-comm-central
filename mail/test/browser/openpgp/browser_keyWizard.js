@@ -351,7 +351,7 @@ add_task(async function add_external_key() {
 });
 
 registerCleanupFunction(async function() {
-  mc.tabmail.closeTab(gTab);
+  mc.window.document.getElementById("tabmail").closeTab(gTab);
   gTab = null;
   tabDocument = null;
   tabWindow = null;

@@ -203,7 +203,8 @@ add_task(function test_dnsPrefetch_compose() {
 add_task(async function test_dnsPrefetch_contentTab() {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
+  let tabmail = mc.window.document.getElementById("tabmail");
+  let preCount = tabmail.tabContainer.allTabs.length;
 
   let dataurl =
     "data:text/html,<html><head><title>test dns prefetch</title>" +
@@ -211,14 +212,14 @@ add_task(async function test_dnsPrefetch_contentTab() {
 
   let newTab = open_content_tab_with_url(dataurl);
 
-  await SpecialPowers.spawn(mc.tabmail.getBrowserForSelectedTab(), [], () => {
+  await SpecialPowers.spawn(tabmail.getBrowserForSelectedTab(), [], () => {
     Assert.ok(docShell, "docShell should be available");
     Assert.ok(docShell.allowDNSPrefetch, "allowDNSPrefetch should be enabled");
   });
 
-  mc.tabmail.closeTab(newTab);
+  tabmail.closeTab(newTab);
 
-  if (mc.tabmail.tabContainer.allTabs.length != preCount) {
+  if (tabmail.tabContainer.allTabs.length != preCount) {
     throw new Error("The content tab didn't close");
   }
 

@@ -1131,17 +1131,13 @@ var PerWindowTypeAugmentations = {
    */
   "mail:3pane": {
     /**
-     * DOM elements to expose as attributes (by copying at augmentation time.)
-     */
-    elementsToExpose: {
-      tabmail: "tabmail",
-    },
-    /**
      * Custom getters whose |this| is the controller.
      */
     getters: {
       contentPane() {
-        return this.tabmail.getBrowserForSelectedTab();
+        return this.window.document
+          .getElementById("tabmail")
+          .getBrowserForSelectedTab();
       },
     },
   },

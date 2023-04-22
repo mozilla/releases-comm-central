@@ -16,17 +16,21 @@ var { assert_tab_mode_name, mark_action, mc } = ChromeUtils.import(
  */
 async function open_chat_tab() {
   // Get the current tab count so we can make sure the tab actually opened.
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
+  let preCount = mc.window.document.getElementById("tabmail").tabContainer
+    .allTabs.length;
 
-  mc.tabmail.openTab("chat", {});
+  mc.window.document.getElementById("tabmail").openTab("chat", {});
   mark_action("imh", "open_chat_tab", []);
   await wait_for_chat_tab_to_open(mc);
 
-  if (mc.tabmail.tabContainer.allTabs.length != preCount + 1) {
+  if (
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length !=
+    preCount + 1
+  ) {
     throw new Error("The tab never actually got opened!");
   }
 
-  let newTab = mc.tabmail.tabInfo[preCount];
+  let newTab = mc.window.document.getElementById("tabmail").tabInfo[preCount];
   return newTab;
 }
 
@@ -39,7 +43,7 @@ async function wait_for_chat_tab_to_open(aController) {
   utils.waitFor(
     function() {
       let chatTabFound = false;
-      for (let tab of mc.tabmail.tabInfo) {
+      for (let tab of mc.window.document.getElementById("tabmail").tabInfo) {
         if (tab.mode.type == "chat") {
           chatTabFound = true;
           break;
@@ -66,23 +70,28 @@ async function wait_for_chat_tab_to_open(aController) {
 add_task(async function test_chat_tab_restore() {
   // Close everything but the first tab.
   let closeTabs = function() {
-    while (mc.tabmail.tabInfo.length > 1) {
-      mc.tabmail.closeTab(1);
+    while (mc.window.document.getElementById("tabmail").tabInfo.length > 1) {
+      mc.window.document.getElementById("tabmail").closeTab(1);
     }
   };
 
   await open_chat_tab();
-  let state = mc.tabmail.persistTabs();
+  let state = mc.window.document.getElementById("tabmail").persistTabs();
   closeTabs();
-  mc.tabmail.restoreTabs(state);
+  mc.window.document.getElementById("tabmail").restoreTabs(state);
 
-  if (mc.tabmail.tabContainer.allTabs.length < 2) {
+  if (
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length < 2
+  ) {
     throw new Error("The tab is not restored!");
   }
 
   let tabTypes = ["mail3PaneTab", "chat"];
   for (let i in tabTypes) {
-    assert_tab_mode_name(mc.tabmail.tabInfo[i], tabTypes[i]);
+    assert_tab_mode_name(
+      mc.window.document.getElementById("tabmail").tabInfo[i],
+      tabTypes[i]
+    );
   }
 
   closeTabs();

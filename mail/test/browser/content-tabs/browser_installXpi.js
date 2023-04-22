@@ -27,7 +27,7 @@ add_setup(function() {
 });
 
 registerCleanupFunction(function() {
-  mc.tabmail.closeTab(gNewTab);
+  mc.window.document.getElementById("tabmail").closeTab(gNewTab);
 });
 
 function waitForNotification(id, buttonToClickSelector, callback) {

@@ -272,8 +272,9 @@ add_task(async function test_mail_account_setup() {
     "Timeout waiting for the manual edit area to become visible"
   );
 
+  let tabmail = mc.window.document.getElementById("tabmail");
   let tabChanged = BrowserTestUtils.waitForCondition(
-    () => mc.tabmail.selectedTab != tab,
+    () => tabmail.selectedTab != tab,
     "Timeout waiting for the currently active tab to change"
   );
 
@@ -290,19 +291,17 @@ add_task(async function test_mail_account_setup() {
   // Settings tab to open before running other sub tests.
   await tabChanged;
 
-  await subtest_verify_account(mc.tabmail.selectedTab, user);
+  await subtest_verify_account(tabmail.selectedTab, user);
 
   // Close the Account Settings tab.
-  mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+  tabmail.closeTab(tabmail.currentTabInfo);
 
   // Confirm that we properly updated the folderPaneVisible attribute for the
   // tabmail when we created the account in the background.
-  Assert.ok(mc.tabmail.currentTabInfo.folderPaneVisible);
+  Assert.ok(tabmail.currentTabInfo.folderPaneVisible);
 
   // Confirm that the folder pane is visible.
-  Assert.ok(
-    BrowserTestUtils.is_visible(mc.tabmail.currentAbout3Pane.folderTree)
-  );
+  Assert.ok(BrowserTestUtils.is_visible(tabmail.currentAbout3Pane.folderTree));
 
   let promptState = gMockPromptService.promptState;
   Assert.equal("confirm", promptState.method);
@@ -735,12 +734,10 @@ add_task(async function test_full_account_setup() {
   // The final page should be visible.
   await finalViewShowed;
 
+  let tabmail = mc.window.document.getElementById("tabmail");
+
   // The tab shouldn't change even if we created a new account.
-  Assert.equal(
-    tab,
-    mc.tabmail.selectedTab,
-    "Tab should should still be the same"
-  );
+  Assert.equal(tab, tabmail.selectedTab, "Tab should should still be the same");
 
   // Assert the UI is properly filled with the new account info.
   Assert.equal(
@@ -889,7 +886,7 @@ add_task(async function test_full_account_setup() {
   );
 
   let tabChanged = BrowserTestUtils.waitForCondition(
-    () => mc.tabmail.selectedTab != tab,
+    () => tabmail.selectedTab != tab,
     "Timeout waiting for the currently active tab to change"
   );
 
@@ -908,7 +905,7 @@ add_task(async function test_full_account_setup() {
 
   // Confirm the mail 3 pane is the currently selected tab.
   Assert.equal(
-    mc.tabmail.selectedTab.mode.name,
+    tabmail.selectedTab.mode.name,
     "mail3PaneTab",
     "The currently selected tab is the primary Mail tab"
   );

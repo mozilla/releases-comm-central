@@ -18,7 +18,7 @@ var { IMServices } = ChromeUtils.importESModule(
  */
 add_task(function test_toolbar_and_placeholder() {
   Assert.notEqual(
-    mc.tabmail.selectedTab.mode.type,
+    mc.window.document.getElementById("tabmail").selectedTab.mode.type,
     "chat",
     "the chat tab shouldn't be selected at startup"
   );
@@ -28,7 +28,7 @@ add_task(function test_toolbar_and_placeholder() {
     mc.window
   );
   Assert.equal(
-    mc.tabmail.selectedTab.mode.type,
+    mc.window.document.getElementById("tabmail").selectedTab.mode.type,
     "chat",
     "the chat tab should be selected"
   );
@@ -141,7 +141,7 @@ add_task(function test_toolbar_and_placeholder() {
     "the correct placeholder button is visible"
   );
 
-  while (mc.tabmail.tabInfo.length > 1) {
-    mc.tabmail.closeTab(1);
+  while (mc.window.document.getElementById("tabmail").tabInfo.length > 1) {
+    mc.window.document.getElementById("tabmail").closeTab(1);
   }
 });

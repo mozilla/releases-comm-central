@@ -110,7 +110,7 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   assert_selected_and_displayed(mc, msg);
 
   let tabSelectPromise = BrowserTestUtils.waitForEvent(
-    mc.tabmail.tabContainer,
+    mc.window.document.getElementById("tabmail").tabContainer,
     "select"
   );
   let aboutMessage = get_about_message();
@@ -152,7 +152,7 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   }
 
   close_compose_window(compWin, false);
-  close_tab(mc.tabmail.currentTabInfo);
+  close_tab(mc.window.document.getElementById("tabmail").currentTabInfo);
 }
 
 /**

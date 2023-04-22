@@ -43,7 +43,7 @@ add_setup(async function() {
 add_task(async function test_closed_single_message_tab_returns_to_inbox() {
   await be_in_folder(gFolder);
   make_display_threaded();
-  let inboxTab = mc.tabmail.currentTabInfo;
+  let inboxTab = mc.window.document.getElementById("tabmail").currentTabInfo;
 
   select_click_row(0);
   // Open a message in a new tab...
@@ -55,13 +55,13 @@ add_task(async function test_closed_single_message_tab_returns_to_inbox() {
   await open_selected_message_in_new_tab(false);
 
   // Close the second tab
-  mc.tabmail.closeTab(2);
+  mc.window.document.getElementById("tabmail").closeTab(2);
 
   // We should have gone back to the inbox tab
   assert_selected_tab(inboxTab);
 
   // Close the first tab
-  mc.tabmail.closeTab(1);
+  mc.window.document.getElementById("tabmail").closeTab(1);
 });
 
 /**
@@ -84,19 +84,19 @@ add_task(async function test_does_not_go_to_opener_if_switched() {
 
   // Switch to the first tab
   await switch_tab(1);
-  let firstTab = mc.tabmail.currentTabInfo;
+  let firstTab = mc.window.document.getElementById("tabmail").currentTabInfo;
 
   // Switch back to the second tab
   await switch_tab(2);
 
   // Close the second tab
-  mc.tabmail.closeTab(2);
+  mc.window.document.getElementById("tabmail").closeTab(2);
 
   // We should have gone back to the second tab
   assert_selected_tab(firstTab);
 
   // Close the first tab
-  mc.tabmail.closeTab(1);
+  mc.window.document.getElementById("tabmail").closeTab(1);
 });
 
 /**
@@ -118,11 +118,13 @@ add_task(async function test_opening_thread_in_tabs_closing_behaviour() {
   // We should close that tab, and the third last tab should be selected,
   // etc.
   for (let i = MSGS_PER_THREAD; i > 0; --i) {
-    let previousTab = mc.tabmail.tabContainer.getItemAtIndex(i - 1);
-    mc.tabmail.closeTab(i);
+    let previousTab = mc.window.document
+      .getElementById("tabmail")
+      .tabContainer.getItemAtIndex(i - 1);
+    mc.window.document.getElementById("tabmail").closeTab(i);
     Assert.equal(
       previousTab,
-      mc.tabmail.tabContainer.selectedItem,
+      mc.window.document.getElementById("tabmail").tabContainer.selectedItem,
       "Expected tab at index " + (i - 1) + " to be selected."
     );
   }
@@ -149,13 +151,15 @@ async function openTabs(numAdd) {
   for (let i = 0; i < numAdd; i++) {
     await open_selected_message_in_new_tab(true);
   }
-  let tabs = mc.tabmail.tabInfo.map((info, index) => {
-    return {
-      info,
-      index,
-      node: info.tabNode,
-    };
-  });
+  let tabs = mc.window.document
+    .getElementById("tabmail")
+    .tabInfo.map((info, index) => {
+      return {
+        info,
+        index,
+        node: info.tabNode,
+      };
+    });
   Assert.equal(tabs.length, numAdd + 1, "Have expected number of tabs");
   return tabs;
 }
@@ -180,7 +184,8 @@ async function assertClose(fromTab, closeMethod, switchToTab, closingTabs) {
     closingTabs = [fromTab];
     desc = `closing tab #${fromTab.index}`;
   }
-  let numTabsBefore = mc.tabmail.tabInfo.length;
+  let numTabsBefore = mc.window.document.getElementById("tabmail").tabInfo
+    .length;
   for (let tab of closingTabs) {
     Assert.ok(
       tab.node.parentNode,
@@ -196,7 +201,7 @@ async function assertClose(fromTab, closeMethod, switchToTab, closingTabs) {
     );
   }
   Assert.equal(
-    mc.tabmail.tabInfo.length,
+    mc.window.document.getElementById("tabmail").tabInfo.length,
     numTabsBefore - closingTabs.length,
     `Number of tabs after ${desc}`
   );

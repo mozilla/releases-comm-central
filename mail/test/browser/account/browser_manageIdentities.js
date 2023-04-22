@@ -143,7 +143,7 @@ add_setup(async function() {
   // Go to the account settings.
   let tab = await openAccountSettings();
   registerCleanupFunction(function closeTab() {
-    mc.tabmail.closeTab(tab);
+    mc.window.document.getElementById("tabmail").closeTab(tab);
   });
 
   // To the account main page.

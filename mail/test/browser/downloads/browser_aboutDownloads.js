@@ -134,16 +134,22 @@ function setupTest(test) {
 }
 
 function open_about_downloads() {
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
+  let preCount = mc.window.document.getElementById("tabmail").tabContainer
+    .allTabs.length;
   let newTab = mc.window.openSavedFilesWnd();
   mc.waitFor(
-    () => mc.tabmail.tabContainer.allTabs.length == preCount + 1,
+    () =>
+      mc.window.document.getElementById("tabmail").tabContainer.allTabs
+        .length ==
+      preCount + 1,
     "Timeout waiting for about:downloads tab"
   );
 
   wait_for_browser_load(newTab.browser, "about:downloads");
   // We append new tabs at the end, so check the last one.
-  let expectedNewTab = mc.tabmail.tabInfo[preCount];
+  let expectedNewTab = mc.window.document.getElementById("tabmail").tabInfo[
+    preCount
+  ];
   return expectedNewTab;
 }
 
@@ -185,7 +191,7 @@ async function save_attachment_files() {
 async function subtest_save_attachment_files_in_list() {
   await save_attachment_files();
 
-  mc.tabmail.switchToTab(downloadsTab);
+  mc.window.document.getElementById("tabmail").switchToTab(downloadsTab);
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
 
   let length = attachmentFileNames.length;

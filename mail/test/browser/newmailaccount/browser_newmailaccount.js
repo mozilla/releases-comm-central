@@ -250,13 +250,15 @@ add_task(async function test_account_creation_from_provisioner() {
   );
 
   // Close the account provisioner tab, and then restore it.
-  mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
-  mc.tabmail.undoCloseTab();
+  mc.window.document
+    .getElementById("tabmail")
+    .closeTab(mc.window.document.getElementById("tabmail").currentTabInfo);
+  mc.window.document.getElementById("tabmail").undoCloseTab();
   // Wait for the page to be loaded again...
   wait_for_content_tab_load(undefined, function(aURL) {
     return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
-  tab = mc.tabmail.currentTabInfo;
+  tab = mc.window.document.getElementById("tabmail").currentTabInfo;
 
   // Record how many accounts we start with.
   gNumAccounts = MailServices.accounts.accounts.length;
@@ -271,7 +273,8 @@ add_task(async function test_account_creation_from_provisioner() {
   // The account setup tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser?.currentURI?.spec == "about:accountsetup",
+      mc.window.document.getElementById("tabmail").selectedTab.browser
+        ?.currentURI?.spec == "about:accountsetup",
     "The Account Setup Tab was opened"
   );
   // A new account should have been created.
@@ -283,8 +286,8 @@ add_task(async function test_account_creation_from_provisioner() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser?.contentWindow.gAccountSetup
-        ?._currentModename == "success",
+      mc.window.document.getElementById("tabmail").selectedTab.browser
+        ?.contentWindow.gAccountSetup?._currentModename == "success",
     "The success view was shown"
   );
 
@@ -298,7 +301,9 @@ add_task(async function test_account_creation_from_provisioner() {
   // Clean it up.
   remove_email_account("green@example.com");
   // Close the account setup tab.
-  mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+  mc.window.document
+    .getElementById("tabmail")
+    .closeTab(mc.window.document.getElementById("tabmail").currentTabInfo);
 });
 
 /**
@@ -322,14 +327,17 @@ add_task(async function test_switch_between_account_provisioner_and_setup() {
   // The account setup tab should NOT be opened.
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser?.currentURI?.spec != "about:accountsetup",
+      mc.window.document.getElementById("tabmail").selectedTab.browser
+        ?.currentURI?.spec != "about:accountsetup",
     "The Account Setup Tab was not opened"
   );
 
   tab = await openAccountProvisioner();
   tabDocument = tab.browser.contentWindow.document;
 
-  await waitForLoadedProviders(mc.tabmail.currentTabInfo);
+  await waitForLoadedProviders(
+    mc.window.document.getElementById("tabmail").currentTabInfo
+  );
 
   // Click on the "Use existing account" button.
   let existingAccountButton = tabDocument.getElementById("existingButton");
@@ -343,12 +351,15 @@ add_task(async function test_switch_between_account_provisioner_and_setup() {
   // The account setup tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser?.currentURI?.spec == "about:accountsetup",
+      mc.window.document.getElementById("tabmail").selectedTab.browser
+        ?.currentURI?.spec == "about:accountsetup",
     "The Account Setup Tab was opened"
   );
 
   // Close the account setup tab.
-  mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+  mc.window.document
+    .getElementById("tabmail")
+    .closeTab(mc.window.document.getElementById("tabmail").currentTabInfo);
 });
 
 /**
@@ -371,14 +382,18 @@ add_task(async function open_provisioner_from_menu_bar() {
   // The account Provisioner tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser?.currentURI?.spec ==
-      "about:accountprovisioner",
+      mc.window.document.getElementById("tabmail").selectedTab.browser
+        ?.currentURI?.spec == "about:accountprovisioner",
     "The Account Provisioner Tab was opened"
   );
-  await waitForLoadedProviders(mc.tabmail.currentTabInfo);
+  await waitForLoadedProviders(
+    mc.window.document.getElementById("tabmail").currentTabInfo
+  );
 
   // Close the account provisioner tab.
-  mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+  mc.window.document
+    .getElementById("tabmail")
+    .closeTab(mc.window.document.getElementById("tabmail").currentTabInfo);
 }).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
 
 /**
@@ -397,14 +412,18 @@ add_task(async function open_provisioner_from_app_menu() {
   // The account Provisioner tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser?.currentURI?.spec ==
-      "about:accountprovisioner",
+      mc.window.document.getElementById("tabmail").selectedTab.browser
+        ?.currentURI?.spec == "about:accountprovisioner",
     "The Account Provisioner Tab was opened"
   );
-  await waitForLoadedProviders(mc.tabmail.currentTabInfo);
+  await waitForLoadedProviders(
+    mc.window.document.getElementById("tabmail").currentTabInfo
+  );
 
   // Close the account provisioner tab.
-  mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+  mc.window.document
+    .getElementById("tabmail")
+    .closeTab(mc.window.document.getElementById("tabmail").currentTabInfo);
 }).skip();
 
 /**
@@ -458,7 +477,9 @@ add_task(async function test_html_characters_and_ampersands() {
   );
 
   // Close the account provisioner tab.
-  mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+  mc.window.document
+    .getElementById("tabmail")
+    .closeTab(mc.window.document.getElementById("tabmail").currentTabInfo);
 });
 
 /**
@@ -491,7 +512,9 @@ add_task(async function test_shows_error_on_bad_suggest_from_name() {
   await notificationShowed;
 
   // Close the account provisioner tab.
-  mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+  mc.window.document
+    .getElementById("tabmail")
+    .closeTab(mc.window.document.getElementById("tabmail").currentTabInfo);
   Services.prefs.setCharPref(kSuggestFromNamePref, original);
 });
 
@@ -544,7 +567,7 @@ add_task(async function test_error_on_corrupt_XML() {
   wait_for_content_tab_load(undefined, function(aURL) {
     return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
-  tab = mc.tabmail.currentTabInfo;
+  tab = mc.window.document.getElementById("tabmail").currentTabInfo;
 
   gMockPromptService.returnValue = true;
 
@@ -556,8 +579,8 @@ add_task(async function test_error_on_corrupt_XML() {
   );
   await BrowserTestUtils.waitForCondition(
     () =>
-      mc.tabmail.selectedTab.browser?.currentURI?.spec ==
-      "about:accountprovisioner",
+      mc.window.document.getElementById("tabmail").selectedTab.browser
+        ?.currentURI?.spec == "about:accountprovisioner",
     "The Account Provisioner Tab was opened"
   );
 
@@ -570,8 +593,10 @@ add_task(async function test_error_on_corrupt_XML() {
   gMockPromptService.unregister();
 
   // Close the account setup tab.
-  mc.tabmail.closeTab(tab);
-  mc.tabmail.closeTab(mc.tabmail.currentTabInfo);
+  mc.window.document.getElementById("tabmail").closeTab(tab);
+  mc.window.document
+    .getElementById("tabmail")
+    .closeTab(mc.window.document.getElementById("tabmail").currentTabInfo);
 });
 
 /**
@@ -606,7 +631,9 @@ add_task(async function test_can_pref_off_account_provisioner() {
   );
 
   // Close all existing tabs except the first mail tab to avoid errors.
-  mc.tabmail.closeOtherTabs(mc.tabmail.tabInfo[0]);
+  mc.window.document
+    .getElementById("tabmail")
+    .closeOtherTabs(mc.window.document.getElementById("tabmail").tabInfo[0]);
 
   // Open up the Account Hub.
   let tab = await openAccountSetup();
@@ -616,7 +643,7 @@ add_task(async function test_can_pref_off_account_provisioner() {
       .hidden
   );
   // Close the Account Hub tab.
-  mc.tabmail.closeTab(tab);
+  mc.window.document.getElementById("tabmail").closeTab(tab);
 
   // Ok, now pref the Account Provisioner back on
   Services.prefs.setBoolPref("mail.provider.enabled", true);
@@ -642,5 +669,5 @@ add_task(async function test_can_pref_off_account_provisioner() {
       .hidden
   );
   // Close the Account Hub tab.
-  mc.tabmail.closeTab(tab);
+  mc.window.document.getElementById("tabmail").closeTab(tab);
 }).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.

@@ -106,14 +106,14 @@ async function clickSubMenuItem(menuId, itemId) {
 async function openConversationView(row, col) {
   let menu = window.document.querySelector("#mailContext");
   let item = window.document.querySelector("#mailContext-openConversation");
-  let prevTab = window.tabmail.selectedTab;
+  let prevTab = window.document.getElementById("tabmail").selectedTab;
 
   let loadedPromise = BrowserTestUtils.waitForEvent(window, "MsgsLoaded");
   await openContextMenu(row, col);
   menu.activateItem(item);
   await loadedPromise;
   await TestUtils.waitForCondition(
-    () => window.tabmail.selectedTab != prevTab,
+    () => window.document.getElementById("tabmail").selectedTab != prevTab,
     "Conversation View tab did not open"
   );
 }

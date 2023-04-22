@@ -708,7 +708,7 @@ add_task(async function test_tag_keys_disabled_in_content_tab() {
   mc.window.openAddonsMgr("addons://list/theme");
   await new Promise(resolve => setTimeout(resolve));
 
-  let tab = mc.tabmail.currentTabInfo;
+  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   wait_for_content_tab_load(tab, "about:addons", 15000);
 
   // Make sure pressing the "1" key in a content tab doesn't tag a message
@@ -716,7 +716,7 @@ add_task(async function test_tag_keys_disabled_in_content_tab() {
   EventUtils.synthesizeKey("1", {});
   check_tag_in_message(curMessage, tagArray[0], false);
 
-  mc.tabmail.closeTab(tab);
+  mc.window.document.getElementById("tabmail").closeTab(tab);
 }).skip(); // TODO: not working
 
 registerCleanupFunction(function() {

@@ -61,11 +61,13 @@ add_task(async function test_content_tab_open() {
  * spell checking options.
  */
 add_task(async function test_spellcheck_in_content_tabs() {
+  let tabmail = mc.window.document.getElementById("tabmail");
+
   // Test a few random items
   BrowserTestUtils.synthesizeMouseAtCenter(
     "textarea",
     {},
-    mc.tabmail.selectedTab.browser
+    tabmail.selectedTab.browser
   );
   // Bug 364914 causes textareas to not be spell checked until they have been
   // focused at last once, so give the event loop a chance to spin.
@@ -75,7 +77,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
   BrowserTestUtils.synthesizeMouseAtCenter(
     "textarea",
     { type: "contextmenu" },
-    mc.tabmail.selectedTab.browser
+    tabmail.selectedTab.browser
   );
   let browserContext = mc.e("browserContext");
   await wait_for_popup_to_open(browserContext);
@@ -87,7 +89,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
   BrowserTestUtils.synthesizeMouseAtCenter(
     "body > :first-child",
     { type: "contextmenu" },
-    mc.tabmail.selectedTab.browser
+    tabmail.selectedTab.browser
   );
   await wait_for_popup_to_open(browserContext);
   assert_element_not_visible("browserContext-spell-dictionaries");
@@ -100,7 +102,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     5,
     5,
     { type: "contextmenu", button: 2 },
-    mc.tabmail.selectedTab.browser
+    tabmail.selectedTab.browser
   );
   await wait_for_popup_to_open(browserContext);
   let suggestions = mc.window.document.getElementsByClassName(
@@ -123,7 +125,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     5,
     5,
     { type: "contextmenu", button: 2 },
-    mc.tabmail.selectedTab.browser
+    tabmail.selectedTab.browser
   );
   await wait_for_popup_to_open(browserContext);
   suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
@@ -142,8 +144,9 @@ add_task(function test_content_tab_default_favicon() {
 });
 
 add_task(async function test_content_tab_onbeforeunload() {
-  let count = mc.tabmail.tabContainer.allTabs.length;
-  let tab = mc.tabmail.tabInfo[count - 1];
+  let tabmail = mc.window.document.getElementById("tabmail");
+  let count = tabmail.tabContainer.allTabs.length;
+  let tab = tabmail.tabInfo[count - 1];
   await SpecialPowers.spawn(tab.browser, [], () => {
     content.addEventListener("beforeunload", function(event) {
       event.returnValue = "Green llama in your car";
@@ -154,7 +157,7 @@ add_task(async function test_content_tab_onbeforeunload() {
   Services.prefs.setBoolPref(interactionPref, false);
 
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  mc.tabmail.closeTab(tab);
+  tabmail.closeTab(tab);
   await dialogPromise;
 
   Services.prefs.clearUserPref(interactionPref);
@@ -166,7 +169,8 @@ add_task(async function test_content_tab_onbeforeunload() {
 // - zoom?
 
 registerCleanupFunction(function() {
-  while (mc.tabmail.tabInfo.length > 1) {
-    mc.tabmail.closeTab(1);
+  let tabmail = mc.window.document.getElementById("tabmail");
+  while (tabmail.tabInfo.length > 1) {
+    tabmail.closeTab(1);
   }
 });

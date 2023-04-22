@@ -248,11 +248,13 @@ add_task(
     msgc = null;
 
     // - and we should now be on the folder tab and there should be no other tabs
-    if (mc.tabmail.tabInfo.length != 1) {
+    if (mc.window.document.getElementById("tabmail").tabInfo.length != 1) {
       throw new Error("There should only be one tab left!");
     }
     // the below check is implied by the previous check if things are sane-ish
-    if (mc.tabmail.currentTabInfo != tabFolder) {
+    if (
+      mc.window.document.getElementById("tabmail").currentTabInfo != tabFolder
+    ) {
       throw new Error("We should be on the folder tab!");
     }
   }
@@ -343,11 +345,13 @@ add_task(
     msgc = null;
 
     // - and we should now be on the folder tab and there should be no other tabs
-    if (mc.tabmail.tabInfo.length != 1) {
+    if (mc.window.document.getElementById("tabmail").tabInfo.length != 1) {
       throw new Error("There should only be one tab left!");
     }
     // the below check is implied by the previous check if things are sane-ish
-    if (mc.tabmail.currentTabInfo != tabFolder) {
+    if (
+      mc.window.document.getElementById("tabmail").currentTabInfo != tabFolder
+    ) {
       throw new Error("We should be on the folder tab!");
     }
   }

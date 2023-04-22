@@ -195,7 +195,7 @@ async function _middle_click_with_nothing_selected_helper(aBackground) {
 
   select_none();
   assert_nothing_selected();
-  let folderTab = mc.tabmail.currentTabInfo;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   // Focus the thread tree -- we're going to make sure it's focused when we
   // come back
   focus_thread_tree();
@@ -226,7 +226,7 @@ async function _middle_click_with_one_thing_selected_helper(aBackground) {
   select_click_row(0);
   assert_selected_and_displayed(0);
 
-  let folderTab = mc.tabmail.currentTabInfo;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [tabMessage, curMessage] = middle_click_on_row(1);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
@@ -256,7 +256,7 @@ async function _middle_click_with_many_things_selected_helper(aBackground) {
   select_shift_click_row(5);
   assert_selected_and_displayed([0, 5]);
 
-  let folderTab = mc.tabmail.currentTabInfo;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [tabMessage, curMessage] = middle_click_on_row(1);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
@@ -284,7 +284,7 @@ async function _middle_click_on_existing_single_selection_helper(aBackground) {
   select_click_row(3);
   assert_selected_and_displayed(3);
 
-  let folderTab = mc.tabmail.currentTabInfo;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [tabMessage, curMessage] = middle_click_on_row(3);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
@@ -313,7 +313,7 @@ async function _middle_click_on_existing_multi_selection_helper(aBackground) {
   select_shift_click_row(6);
   assert_selected_and_displayed([3, 6]);
 
-  let folderTab = mc.tabmail.currentTabInfo;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [tabMessage, curMessage] = middle_click_on_row(5);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
@@ -341,7 +341,7 @@ async function _middle_click_on_collapsed_thread_root_helper(aBackground) {
   make_display_threaded();
   collapse_all_threads();
 
-  let folderTab = mc.tabmail.currentTabInfo;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
 
   let tree = mc.window.document.getElementById("threadTree");
   // Scroll to the top, then to the bottom
@@ -390,7 +390,7 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
   make_display_threaded();
   expand_all_threads();
 
-  let folderTab = mc.tabmail.currentTabInfo;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
 
   let tree = mc.window.document.getElementById("threadTree");
   // Scroll to the top, then to near (but not exactly) the bottom
@@ -523,7 +523,7 @@ add_task(async function test_right_click_deletion_of_one_selected_thing() {
   await delete_via_popup();
   assert_message_not_in_view(curMessage);
 
-  // Assert.notEqual(mc.tabmail.currentTabInfo.browser.contentWindow.gDBView.selection.count, 0, "We should have tried to select something!");
+  // Assert.notEqual(mc.window.document.getElementById("tabmail").currentTabInfo.browser.contentWindow.gDBView.selection.count, 0, "We should have tried to select something!");
 });
 
 add_task(async function test_right_click_deletion_of_many_selected_things() {
@@ -536,5 +536,5 @@ add_task(async function test_right_click_deletion_of_many_selected_things() {
   await delete_via_popup();
   assert_messages_not_in_view(messages);
 
-  // Assert.notEqual(mc.tabmail.currentTabInfo.browser.contentWindow.gDBView.selection.count, 0, "We should have tried to select something!");
+  // Assert.notEqual(mc.window.document.getElementById("tabmail").currentTabInfo.browser.contentWindow.gDBView.selection.count, 0, "We should have tried to select something!");
 });

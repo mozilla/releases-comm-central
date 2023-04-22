@@ -163,8 +163,9 @@ add_task(function test_go_search() {
 add_task(async function test_open_single_search_result_in_tab() {
   swc.window.focus();
   set_open_message_behavior("NEW_TAB");
-  let folderTab = mc.tabmail.currentTabInfo;
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let preCount = mc.window.document.getElementById("tabmail").tabContainer
+    .allTabs.length;
 
   // Select one message
   swc.e("threadTree").focus();
@@ -181,7 +182,7 @@ add_task(async function test_open_single_search_result_in_tab() {
   // Check that the message header displayed is the right one
   assert_selected_and_displayed(msgHdr);
   // Clean up, close the tab
-  close_tab(mc.tabmail.currentTabInfo);
+  close_tab(mc.window.document.getElementById("tabmail").currentTabInfo);
   await switch_tab(folderTab);
   reset_open_message_behavior();
 });
@@ -192,8 +193,9 @@ add_task(async function test_open_single_search_result_in_tab() {
 add_task(async function test_open_multiple_search_results_in_new_tabs() {
   swc.window.focus();
   set_open_message_behavior("NEW_TAB");
-  let folderTab = mc.tabmail.currentTabInfo;
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let preCount = mc.window.document.getElementById("tabmail").tabContainer
+    .allTabs.length;
 
   // Select a bunch of messages
   swc.e("threadTree").focus();
@@ -216,7 +218,7 @@ add_task(async function test_open_multiple_search_results_in_new_tabs() {
   // title
   for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
     assert_tab_titled_from(
-      mc.tabmail.tabInfo[preCount + i],
+      mc.window.document.getElementById("tabmail").tabInfo[preCount + i],
       selectedMessages[i]
     );
   }
@@ -225,7 +227,7 @@ add_task(async function test_open_multiple_search_results_in_new_tabs() {
   // previous tab.
   for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
     assert_selected_and_displayed(selectedMessages.pop());
-    close_tab(mc.tabmail.currentTabInfo);
+    close_tab(mc.window.document.getElementById("tabmail").currentTabInfo);
   }
   await switch_tab(folderTab);
   reset_open_message_behavior();

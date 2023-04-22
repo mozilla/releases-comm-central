@@ -36,7 +36,7 @@ add_setup(async function() {
  * menus, splitters, etc. are set up right.
  */
 function assert_folder_pane_visible() {
-  let tab = mc.tabmail.currentTabInfo;
+  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let win = get_about_3pane();
 
   Assert.equal(
@@ -45,7 +45,9 @@ function assert_folder_pane_visible() {
     "The tab does not think that the folder pane is visible, but it should!"
   );
   Assert.ok(
-    BrowserTestUtils.is_visible(win.window.document.getElementById("folderTree")),
+    BrowserTestUtils.is_visible(
+      win.window.document.getElementById("folderTree")
+    ),
     "The folder tree should not be collapsed!"
   );
   Assert.equal(
@@ -68,7 +70,7 @@ function assert_folder_pane_visible() {
  * menus, splitters, etc. are set up right.
  */
 function assert_folder_pane_hidden() {
-  let tab = mc.tabmail.currentTabInfo;
+  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let win = get_about_3pane();
 
   Assert.equal(
@@ -77,7 +79,9 @@ function assert_folder_pane_hidden() {
     "The tab thinks that the folder pane is visible, but it shouldn't!"
   );
   Assert.ok(
-    BrowserTestUtils.is_hidden(win.window.document.getElementById("folderTree")),
+    BrowserTestUtils.is_hidden(
+      win.window.document.getElementById("folderTree")
+    ),
     "The folder tree should be collapsed!"
   );
   Assert.equal(
@@ -192,6 +196,8 @@ add_task(async function test_folder_pane_is_sticky() {
 add_task(async function test_folder_pane_persistence_generally_works() {
   await be_in_folder(folder);
 
+  let tabmail = mc.window.document.getElementById("tabmail");
+
   // helper to open tabs with the folder pane in the desired states (1 for
   //  visible, 0 for hidden)
   async function openTabs(aConfig) {
@@ -199,7 +205,7 @@ add_task(async function test_folder_pane_persistence_generally_works() {
       if (iTab != 0) {
         await open_folder_in_new_tab(folder);
       }
-      if (mc.tabmail.currentTabInfo.folderPaneVisible != folderPaneVisible) {
+      if (tabmail.currentTabInfo.folderPaneVisible != folderPaneVisible) {
         toggle_folder_pane();
       }
     }
@@ -207,8 +213,8 @@ add_task(async function test_folder_pane_persistence_generally_works() {
 
   // close everything but the first tab.
   function closeTabs() {
-    while (mc.tabmail.tabInfo.length > 1) {
-      mc.tabmail.closeTab(1);
+    while (tabmail.tabInfo.length > 1) {
+      tabmail.closeTab(1);
     }
   }
 
@@ -217,13 +223,10 @@ add_task(async function test_folder_pane_persistence_generally_works() {
       info("tab " + iTab);
 
       await switch_tab(iTab);
-      if (mc.tabmail.currentAbout3Pane.document.readyState != "complete") {
-        await BrowserTestUtils.waitForEvent(
-          mc.tabmail.currentAbout3Pane,
-          "load"
-        );
+      if (tabmail.currentAbout3Pane.document.readyState != "complete") {
+        await BrowserTestUtils.waitForEvent(tabmail.currentAbout3Pane, "load");
         await new Promise(resolve =>
-          mc.tabmail.currentAbout3Pane.setTimeout(resolve)
+          tabmail.currentAbout3Pane.setTimeout(resolve)
         );
       }
 
@@ -245,7 +248,7 @@ add_task(async function test_folder_pane_persistence_generally_works() {
   for (let config of configs) {
     await openTabs(config);
     await verifyTabs(config); // make sure openTabs did its job right
-    let state = mc.tabmail.persistTabs();
+    let state = tabmail.persistTabs();
     closeTabs();
 
     Assert.equal(state.tabs[0].state.folderPaneVisible, config[0]);
@@ -258,7 +261,7 @@ add_task(async function test_folder_pane_persistence_generally_works() {
     // to change things.
     toggle_folder_pane();
 
-    mc.tabmail.restoreTabs(state);
+    tabmail.restoreTabs(state);
     await verifyTabs(config);
     closeTabs();
 

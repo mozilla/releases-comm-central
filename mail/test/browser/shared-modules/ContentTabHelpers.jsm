@@ -113,9 +113,9 @@ var NotificationWatcher = {
       );
     }
     // Double check the notification box has finished animating.
-    let notificationBox = mc.tabmail.selectedTab.panel.querySelector(
-      "notificationbox"
-    );
+    let notificationBox = mc.window.document
+      .getElementById("tabmail")
+      .selectedTab.panel.querySelector("notificationbox");
     if (notificationBox && notificationBox._animating) {
       aController.waitFor(
         () => !notificationBox._animating,
@@ -139,44 +139,33 @@ var NotificationWatcher = {
 /**
  * Opens a content tab with the given URL.
  *
- * @param aURL The URL to load (string).
- * @param [aBackground] Whether the tab is opened in the background. Defaults to
- *                      false.
- * @param [aController] The controller to open the tab in. Defaults to |mc|.
+ * @param {string} aURL - The URL to load.
+ * @param {string} [aLinkHandler=null] - See specialTabs.contentTabType.openTab.
+ * @param {boolean} [aBackground=false] Whether the tab is opened in the background.
  *
- * @returns The newly-opened tab.
+ * @returns {object} The newly-opened tab.
  */
 function open_content_tab_with_url(
   aURL,
-  aLinkHandler,
-  aBackground,
-  aController
+  aLinkHandler = null,
+  aBackground = false
 ) {
-  if (aLinkHandler === undefined) {
-    aLinkHandler = null;
-  }
-  if (aBackground === undefined) {
-    aBackground = false;
-  }
-  if (aController === undefined) {
-    aController = mc;
-  }
-
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
-  mc.tabmail.openTab("contentTab", {
+  let tabmail = mc.window.document.getElementById("tabmail");
+  let preCount = tabmail.tabContainer.allTabs.length;
+  tabmail.openTab("contentTab", {
     url: aURL,
     background: aBackground,
     linkHandler: aLinkHandler,
   });
   utils.waitFor(
-    () => aController.tabmail.tabContainer.allTabs.length == preCount + 1,
+    () => tabmail.tabContainer.allTabs.length == preCount + 1,
     "Timeout waiting for the content tab to open with URL: " + aURL,
     FAST_TIMEOUT,
     FAST_INTERVAL
   );
 
   // We append new tabs at the end, so check the last one.
-  let expectedNewTab = aController.tabmail.tabInfo[preCount];
+  let expectedNewTab = tabmail.tabInfo[preCount];
   folderDisplayHelper.assert_selected_tab(expectedNewTab);
   wait_for_content_tab_load(expectedNewTab, aURL);
   return expectedNewTab;
@@ -204,7 +193,8 @@ function open_content_tab_with_click(
     aController = mc;
   }
 
-  let preCount = aController.tabmail.tabContainer.allTabs.length;
+  let preCount = aController.window.document.getElementById("tabmail")
+    .tabContainer.allTabs.length;
   if (typeof aElem != "function") {
     EventUtils.synthesizeMouseAtCenter(aElem, {}, aElem.ownerGlobal);
   } else {
@@ -212,14 +202,18 @@ function open_content_tab_with_click(
   }
 
   utils.waitFor(
-    () => aController.tabmail.tabContainer.allTabs.length == preCount + 1,
+    () =>
+      aController.window.document.getElementById("tabmail").tabContainer.allTabs
+        .length ==
+      preCount + 1,
     "Timeout waiting for the content tab to open",
     FAST_TIMEOUT,
     FAST_INTERVAL
   );
 
   // We append new tabs at the end, so check the last one.
-  let expectedNewTab = aController.tabmail.tabInfo[preCount];
+  let expectedNewTab = aController.window.document.getElementById("tabmail")
+    .tabInfo[preCount];
   folderDisplayHelper.assert_selected_tab(expectedNewTab);
   folderDisplayHelper.assert_tab_mode_name(expectedNewTab, aTabType);
   wait_for_content_tab_load(expectedNewTab, aExpectedURL);
@@ -236,7 +230,7 @@ function open_content_tab_with_click(
  */
 function plan_for_content_tab_load(aTab) {
   if (aTab === undefined) {
-    aTab = mc.tabmail.currentTabInfo;
+    aTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   }
   aTab.pageLoaded = false;
 }
@@ -255,7 +249,7 @@ function plan_for_content_tab_load(aTab) {
  */
 function wait_for_content_tab_load(aTab, aURL, aTimeout) {
   if (aTab === undefined) {
-    aTab = mc.tabmail.currentTabInfo;
+    aTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   }
 
   function isLoadedChecker() {
@@ -393,9 +387,9 @@ function assert_content_tab_text_absent(aTab, aText) {
  * null if otherwise.
  */
 function get_notification_bar_for_tab(aTab) {
-  let notificationBoxEls = mc.tabmail.selectedTab.panel.querySelector(
-    "notificationbox"
-  );
+  let notificationBoxEls = mc.window.document
+    .getElementById("tabmail")
+    .selectedTab.panel.querySelector("notificationbox");
   if (!notificationBoxEls) {
     return null;
   }

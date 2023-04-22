@@ -106,5 +106,5 @@ add_task(async function test_re_test_config() {
     "We're not back to the original state!"
   );
 
-  mc.tabmail.closeTab(tab);
+  mc.window.document.getElementById("tabmail").closeTab(tab);
 });

@@ -62,8 +62,9 @@ add_setup(async function() {
  */
 add_task(async function test_open_single_message_in_tab() {
   set_open_message_behavior("NEW_TAB");
-  let folderTab = mc.tabmail.currentTabInfo;
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let preCount = mc.window.document.getElementById("tabmail").tabContainer
+    .allTabs.length;
   await be_in_folder(folder);
   // Select one message
   let msgHdr = select_click_row(1);
@@ -75,7 +76,7 @@ add_task(async function test_open_single_message_in_tab() {
   // opened tab is in the foreground)
   assert_tab_mode_name(null, "mailMessageTab");
 
-  let tab = mc.tabmail.currentTabInfo;
+  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   if (
     tab.chromeBrowser.docShell.isLoadingDocument ||
     tab.chromeBrowser.currentURI.spec != "about:message"
@@ -88,7 +89,7 @@ add_task(async function test_open_single_message_in_tab() {
   // Check that the message pane is focused
   assert_message_pane_focused();
   // Clean up, close the tab
-  close_tab(mc.tabmail.currentTabInfo);
+  close_tab(mc.window.document.getElementById("tabmail").currentTabInfo);
   await switch_tab(folderTab);
   reset_open_message_behavior();
 });
@@ -98,8 +99,9 @@ add_task(async function test_open_single_message_in_tab() {
  */
 add_task(async function test_open_multiple_messages_in_tabs() {
   set_open_message_behavior("NEW_TAB");
-  let folderTab = mc.tabmail.currentTabInfo;
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
+  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let preCount = mc.window.document.getElementById("tabmail").tabContainer
+    .allTabs.length;
   await be_in_folder(folder);
 
   // Select a bunch of messages
@@ -117,7 +119,7 @@ add_task(async function test_open_multiple_messages_in_tabs() {
   // title
   for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
     assert_tab_titled_from(
-      mc.tabmail.tabInfo[preCount + i],
+      mc.window.document.getElementById("tabmail").tabInfo[preCount + i],
       selectedMessages[i]
     );
   }
@@ -127,7 +129,7 @@ add_task(async function test_open_multiple_messages_in_tabs() {
   for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
     assert_selected_and_displayed(selectedMessages.pop());
     assert_message_pane_focused();
-    close_tab(mc.tabmail.currentTabInfo);
+    close_tab(mc.window.document.getElementById("tabmail").currentTabInfo);
   }
   await switch_tab(folderTab);
   reset_open_message_behavior();

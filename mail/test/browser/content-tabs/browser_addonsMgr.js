@@ -21,7 +21,7 @@ add_task(async function test_open_addons_with_url() {
   mc.window.openAddonsMgr("addons://list/theme");
   await new Promise(resolve => setTimeout(resolve));
 
-  let tab = mc.tabmail.currentTabInfo;
+  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   wait_for_content_tab_load(tab, "about:addons", 10000);
   let categoriesBox = tab.browser.contentDocument.getElementById("categories");
   Assert.equal(
@@ -30,8 +30,8 @@ add_task(async function test_open_addons_with_url() {
     "Themes category should be selected!"
   );
 
-  mc.tabmail.switchToTab(0); // switch to 3pane
-  mc.tabmail.closeTab(tab);
+  mc.window.document.getElementById("tabmail").switchToTab(0); // switch to 3pane
+  mc.window.document.getElementById("tabmail").closeTab(tab);
 });
 
 /**

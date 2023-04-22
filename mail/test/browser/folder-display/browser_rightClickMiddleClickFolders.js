@@ -116,7 +116,7 @@ async function _middle_click_folder_with_one_thing_selected_helper(
   select_click_folder(folderB);
   assert_folder_selected_and_displayed(folderB);
 
-  let originalTab = mc.tabmail.currentTabInfo;
+  let originalTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [newTab] = middle_click_on_folder(folderA);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
@@ -137,7 +137,7 @@ async function _middle_click_folder_with_many_things_selected_helper(
   select_shift_click_folder(folderC);
   assert_folders_selected_and_displayed(folderB, folderC);
 
-  let originalTab = mc.tabmail.currentTabInfo;
+  let originalTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [newTab] = middle_click_on_folder(folderA);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
@@ -162,7 +162,7 @@ async function _middle_click_folder_on_existing_single_selection_helper(
   select_click_folder(folderC);
   assert_folder_selected_and_displayed(folderC);
 
-  let originalTab = mc.tabmail.currentTabInfo;
+  let originalTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [newTab] = middle_click_on_folder(folderC);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
@@ -184,7 +184,7 @@ async function _middle_click_on_existing_multi_selection_helper(aBackground) {
   select_shift_click_folder(folderC);
   assert_folders_selected_and_displayed(folderA, folderB, folderC);
 
-  let originalTab = mc.tabmail.currentTabInfo;
+  let originalTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [newTab] = middle_click_on_folder(folderB);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.

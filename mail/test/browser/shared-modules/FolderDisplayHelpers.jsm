@@ -554,7 +554,7 @@ async function be_in_folder(aFolder) {
   if (win.gFolder != aFolder) {
     await enter_folder(aFolder);
   }
-  return mc.tabmail.currentTabInfo;
+  return mc.window.document.getElementById("tabmail").currentTabInfo;
 }
 
 /**
@@ -570,7 +570,7 @@ async function be_in_folder(aFolder) {
  *     tabs than the index, which will change as tabs open/close).
  */
 async function open_folder_in_new_tab(aFolder) {
-  otherTab = mc.tabmail.currentTabInfo;
+  otherTab = mc.window.document.getElementById("tabmail").currentTabInfo;
 
   let tab = mc.window.openTab(
     "mail3PaneTab",
@@ -636,18 +636,21 @@ var open_selected_message = open_selected_messages;
  */
 async function open_selected_message_in_new_tab(aBackground) {
   // get the current tab count so we can make sure the tab actually opened.
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
+  let preCount = mc.window.document.getElementById("tabmail").tabContainer
+    .allTabs.length;
 
   // save the current tab as the 'other' tab
-  otherTab = mc.tabmail.currentTabInfo;
+  otherTab = mc.window.document.getElementById("tabmail").currentTabInfo;
 
   let win = get_about_3pane();
   let message = win.gDBView.hdrForFirstSelectedMessage;
-  let tab = mc.tabmail.openTab("mailMessageTab", {
-    messageURI: message.folder.getUriForMsg(message),
-    viewWrapper: win.gViewWrapper,
-    background: aBackground,
-  });
+  let tab = mc.window.document
+    .getElementById("tabmail")
+    .openTab("mailMessageTab", {
+      messageURI: message.folder.getUriForMsg(message),
+      viewWrapper: win.gViewWrapper,
+      background: aBackground,
+    });
 
   if (
     tab.chromeBrowser.docShell.isLoadingDocument ||
@@ -661,7 +664,10 @@ async function open_selected_message_in_new_tab(aBackground) {
   }
 
   // check that the tab count increased
-  if (mc.tabmail.tabContainer.allTabs.length != preCount + 1) {
+  if (
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length !=
+    preCount + 1
+  ) {
     throw new Error("The tab never actually got opened!");
   }
 
@@ -717,7 +723,7 @@ function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
   }
 
   // Make sure that the tab we're returning is a folder tab
-  let currentTab = mc.tabmail.currentTabInfo;
+  let currentTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   assert_tab_mode_name(currentTab, "mail3PaneTab");
 
   return currentTab;
@@ -789,18 +795,18 @@ function _jsonize_tabmail_tab(tab) {
  */
 async function switch_tab(aNewTab) {
   if (typeof aNewTab == "number") {
-    aNewTab = mc.tabmail.tabInfo[aNewTab];
+    aNewTab = mc.window.document.getElementById("tabmail").tabInfo[aNewTab];
   }
 
   // If the new tab is the same as the current tab, none of the below applies.
   // Get out now.
-  if (aNewTab == mc.tabmail.currentTabInfo) {
+  if (aNewTab == mc.window.document.getElementById("tabmail").currentTabInfo) {
     return;
   }
 
   let targetTab = aNewTab != null ? aNewTab : otherTab;
   // now the current tab will be the 'other' tab after we switch
-  otherTab = mc.tabmail.currentTabInfo;
+  otherTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   mark_action("fdh", "switch_tab", [
     "old tab",
     _jsonize_tabmail_tab(otherTab),
@@ -809,10 +815,10 @@ async function switch_tab(aNewTab) {
   ]);
 
   let selectPromise = BrowserTestUtils.waitForEvent(
-    mc.tabmail.tabContainer,
+    mc.window.document.getElementById("tabmail").tabContainer,
     "select"
   );
-  mc.tabmail.switchToTab(targetTab);
+  mc.window.document.getElementById("tabmail").switchToTab(targetTab);
   await selectPromise;
 }
 
@@ -822,7 +828,10 @@ async function switch_tab(aNewTab) {
  * @param aTab The tab that should currently be selected.
  */
 function assert_selected_tab(aTab) {
-  Assert.equal(mc.tabmail.currentTabInfo, aTab);
+  Assert.equal(
+    mc.window.document.getElementById("tabmail").currentTabInfo,
+    aTab
+  );
 }
 
 /**
@@ -831,7 +840,10 @@ function assert_selected_tab(aTab) {
  * @param aTab The tab that should currently not be selected.
  */
 function assert_not_selected_tab(aTab) {
-  Assert.notEqual(mc.tabmail.currentTabInfo, aTab);
+  Assert.notEqual(
+    mc.window.document.getElementById("tabmail").currentTabInfo,
+    aTab
+  );
 }
 
 /**
@@ -843,7 +855,7 @@ function assert_not_selected_tab(aTab) {
  */
 function assert_tab_mode_name(aTab, aModeName) {
   if (!aTab) {
-    aTab = mc.tabmail.currentTabInfo;
+    aTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   }
 
   Assert.equal(aTab.mode.name, aModeName, `Tab should be of type ${aModeName}`);
@@ -855,7 +867,8 @@ function assert_tab_mode_name(aTab, aModeName) {
  * @param aNumber The number of tabs that should be open.
  */
 function assert_number_of_tabs_open(aNumber) {
-  let actualNumber = mc.tabmail.tabContainer.allTabs.length;
+  let actualNumber = mc.window.document.getElementById("tabmail").tabContainer
+    .allTabs.length;
   Assert.equal(actualNumber, aNumber, `There should be ${aNumber} tabs open`);
 }
 
@@ -898,16 +911,22 @@ function close_tab(aTabToClose) {
   mark_action("fdh", "close_tab", [aTabToClose]);
 
   if (typeof aTabToClose == "number") {
-    aTabToClose = mc.tabmail.tabInfo[aTabToClose];
+    aTabToClose = mc.window.document.getElementById("tabmail").tabInfo[
+      aTabToClose
+    ];
   }
 
   // Get the current tab count so we can make sure the tab actually closed.
-  let preCount = mc.tabmail.tabContainer.allTabs.length;
+  let preCount = mc.window.document.getElementById("tabmail").tabContainer
+    .allTabs.length;
 
-  mc.tabmail.closeTab(aTabToClose);
+  mc.window.document.getElementById("tabmail").closeTab(aTabToClose);
 
   // Check that the tab count decreased.
-  if (mc.tabmail.tabContainer.allTabs.length != preCount - 1) {
+  if (
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length !=
+    preCount - 1
+  ) {
     throw new Error("The tab never actually got closed!");
   }
 }
@@ -1301,7 +1320,10 @@ function middle_click_on_row(aViewIndex) {
   EventUtils.synthesizeMouseAtCenter(row, { button: 1 }, win);
 
   return [
-    mc.tabmail.tabInfo[mc.tabmail.tabContainer.allTabs.length - 1],
+    mc.window.document.getElementById("tabmail").tabInfo[
+      mc.window.document.getElementById("tabmail").tabContainer.allTabs.length -
+        1
+    ],
     win.gDBView.getMsgHdrAt(aViewIndex),
   ];
 }
@@ -1521,7 +1543,10 @@ function middle_click_on_folder(aFolder) {
   _row_click_helper(mc, folderTree, viewIndex, 1);
   // We append new tabs at the end, so return the last tab
   return [
-    mc.tabmail.tabInfo[mc.tabmail.tabContainer.allTabs.length - 1],
+    mc.window.document.getElementById("tabmail").tabInfo[
+      mc.window.document.getElementById("tabmail").tabContainer.allTabs.length -
+        1
+    ],
     viewIndex,
   ];
 }
@@ -1791,15 +1816,19 @@ function plan_for_message_display(aControllerOrTab) {}
  */
 function wait_for_message_display_completion(aController, aLoadDemanded) {
   let win;
-  if (aController == null || aController?.tabmail) {
+  if (
+    aController == null ||
+    aController.window.document.getElementById("tabmail")
+  ) {
     win = get_about_message(aController?.window);
   } else {
     win = aController.window.document.getElementById("messageBrowser")
       .contentWindow;
   }
 
-  if (mc.tabmail.currentTabInfo.mode.name == "mail3PaneTab") {
-    let about3Pane = mc.tabmail.currentAbout3Pane;
+  let tabmail = mc.window.document.getElementById("tabmail");
+  if (tabmail.currentTabInfo.mode.name == "mail3PaneTab") {
+    let about3Pane = tabmail.currentAbout3Pane;
     if (about3Pane?.gDBView?.getSelectedMsgHdrs().length > 1) {
       // Displaying multiple messages.
       return;
@@ -2049,7 +2078,7 @@ var assert_message_not_in_view = assert_messages_not_in_view;
  *  menus, splitters, etc. are set up right.
  */
 function assert_message_pane_visible() {
-  let tab = mc.tabmail.currentTabInfo;
+  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let win = get_about_3pane();
   let messagePane = win.document.getElementById("messagePane");
 
@@ -2082,7 +2111,7 @@ function assert_message_pane_visible() {
  *  menus, splitters, etc. are set up right.
  */
 function assert_message_pane_hidden() {
-  let tab = mc.tabmail.currentTabInfo;
+  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let win = get_about_3pane();
   let messagePane = win.document.getElementById("messagePane");
 

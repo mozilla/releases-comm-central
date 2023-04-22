@@ -44,8 +44,8 @@ let tests = [
 
       await BrowserTestUtils.waitForCondition(
         () =>
-          window.tabmail.selectedTab.browser &&
-          window.tabmail.selectedTab.browser.src ==
+          window.document.getElementById("tabmail").selectedTab.browser &&
+          window.document.getElementById("tabmail").selectedTab.browser.src ==
             "chrome://messenger/content/glodaFacetView.xhtml",
         "search result tab did not open in time"
       );
@@ -75,9 +75,10 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
     GlodaMsgIndexer.indexFolder(folder, { callback, force: true });
   });
 
+  let tabmail = window.document.getElementById("tabmail");
   for (let test of tests) {
-    while (window.tabmail.tabInfo.length > 1) {
-      window.tabmail.closeTab(1);
+    while (tabmail.tabInfo.length > 1) {
+      tabmail.closeTab(1);
     }
 
     if (test.before) {
@@ -85,7 +86,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
     }
 
     Assert.equal(
-      window.tabmail.tabInfo.length,
+      tabmail.tabInfo.length,
       test.tabCountBefore,
       "tab count is as expected before"
     );
@@ -118,12 +119,12 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
     await new Promise(resolve => window.setTimeout(resolve, 1000));
 
     Assert.equal(
-      window.tabmail.tabInfo.length,
+      tabmail.tabInfo.length,
       test.tabCountAfter,
       "tab count is as expected after"
     );
     Assert.equal(
-      window.tabmail.selectedTab.browser.src,
+      tabmail.selectedTab.browser.src,
       "chrome://messenger/content/glodaFacetView.xhtml",
       "current tab is the search results tab"
     );
@@ -131,10 +132,11 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
 });
 
 registerCleanupFunction(async function() {
-  window.tabmail.selectTabByMode("mail3PaneTab");
+  let tabmail = window.document.getElementById("tabmail");
+  tabmail.selectTabByMode("mail3PaneTab");
   await be_in_folder(inboxFolder);
   folder.deleteSelf(null);
-  while (window.tabmail.tabInfo.length > 1) {
-    window.tabmail.closeTab(1);
+  while (tabmail.tabInfo.length > 1) {
+    tabmail.closeTab(1);
   }
 });

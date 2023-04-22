@@ -75,8 +75,9 @@ registerCleanupFunction(async function() {
  * movable tab and drops it onto the third movable tab.
  */
 add_task(async function test_tab_reorder_tabbar() {
+  let tabmail = mc.window.document.getElementById("tabmail");
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
-  mc.tabmail.closeOtherTabs(0);
+  tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 
   await be_in_folder(folder);
@@ -91,17 +92,18 @@ add_task(async function test_tab_reorder_tabbar() {
   assert_number_of_tabs_open(5);
 
   Assert.ok(
-    mc.tabmail.tabModes.mailMessageTab.tabs[0] == mc.tabmail.tabInfo[1],
+    tabmail.tabModes.mailMessageTab.tabs[0] == tabmail.tabInfo[1],
     " tabMode.tabs and tabInfo out of sync"
   );
 
   Assert.ok(
-    mc.tabmail.tabModes.mailMessageTab.tabs[1] == mc.tabmail.tabInfo[2],
+    tabmail.tabModes.mailMessageTab.tabs[1] ==
+      mc.window.document.getElementById("tabmail").tabInfo[2],
     " tabMode.tabs and tabInfo out of sync"
   );
 
   Assert.ok(
-    mc.tabmail.tabModes.mailMessageTab.tabs[2] == mc.tabmail.tabInfo[3],
+    tabmail.tabModes.mailMessageTab.tabs[2] == tabmail.tabInfo[3],
     " tabMode.tabs and tabInfo out of sync"
   );
 
@@ -109,8 +111,8 @@ add_task(async function test_tab_reorder_tabbar() {
   await switch_tab(1);
   assert_selected_and_displayed(msgHdrsInFolder[0]);
 
-  let tab1 = mc.tabmail.tabContainer.allTabs[1];
-  let tab3 = mc.tabmail.tabContainer.allTabs[3];
+  let tab1 = tabmail.tabContainer.allTabs[1];
+  let tab3 = tabmail.tabContainer.allTabs[3];
 
   drag_n_drop_element(
     tab1,
@@ -119,7 +121,7 @@ add_task(async function test_tab_reorder_tabbar() {
     mc.window,
     0.75,
     0.0,
-    mc.tabmail.tabContainer
+    tabmail.tabContainer
   );
 
   wait_for_message_display_completion(mc);
@@ -128,12 +130,12 @@ add_task(async function test_tab_reorder_tabbar() {
   assert_number_of_tabs_open(5);
 
   // ... we should find tab1 at the third position...
-  Assert.equal(tab1, mc.tabmail.tabContainer.allTabs[3], "Moving tab1 failed");
+  Assert.equal(tab1, tabmail.tabContainer.allTabs[3], "Moving tab1 failed");
   await switch_tab(3);
   assert_selected_and_displayed(msgHdrsInFolder[0]);
 
   // ... while tab3 moves one up and gets second.
-  Assert.ok(tab3 == mc.tabmail.tabContainer.allTabs[2], "Moving tab3 failed");
+  Assert.ok(tab3 == tabmail.tabContainer.allTabs[2], "Moving tab3 failed");
   await switch_tab(2);
   assert_selected_and_displayed(msgHdrsInFolder[2]);
 
@@ -141,17 +143,17 @@ add_task(async function test_tab_reorder_tabbar() {
   // tabMode["message"].tabs[0-2] have to be same, otherwise something went
   // wrong while moving tabs around
   Assert.ok(
-    mc.tabmail.tabModes.mailMessageTab.tabs[0] == mc.tabmail.tabInfo[1],
+    tabmail.tabModes.mailMessageTab.tabs[0] == tabmail.tabInfo[1],
     " tabMode.tabs and tabInfo out of sync"
   );
 
   Assert.ok(
-    mc.tabmail.tabModes.mailMessageTab.tabs[1] == mc.tabmail.tabInfo[2],
+    tabmail.tabModes.mailMessageTab.tabs[1] == tabmail.tabInfo[2],
     " tabMode.tabs and tabInfo out of sync"
   );
 
   Assert.ok(
-    mc.tabmail.tabModes.mailMessageTab.tabs[2] == mc.tabmail.tabInfo[3],
+    tabmail.tabModes.mailMessageTab.tabs[2] == tabmail.tabInfo[3],
     " tabMode.tabs and tabInfo out of sync"
   );
   teardownTest();
@@ -161,8 +163,9 @@ add_task(async function test_tab_reorder_tabbar() {
  * Tests drag'n'drop tab reordering between windows
  */
 add_task(async function test_tab_reorder_window() {
+  let tabmail = mc.window.document.getElementById("tabmail");
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
-  mc.tabmail.closeOtherTabs(0);
+  tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 
   let mc2 = null;
@@ -182,11 +185,12 @@ add_task(async function test_tab_reorder_window() {
   mc2 = open_folder_in_new_window(folder);
 
   // Start dragging the first tab ...
-  let tabA = mc.tabmail.tabContainer.allTabs[1];
+  let tabA = tabmail.tabContainer.allTabs[1];
   Assert.ok(tabA, "No movable Tab");
 
   // We drop onto the Folder Tab, it is guaranteed to exist.
-  let tabB = mc2.tabmail.tabContainer.allTabs[0];
+  let tabmail2 = mc2.window.document.getElementById("tabmail");
+  let tabB = tabmail2.tabContainer.allTabs[0];
   Assert.ok(tabB, "No movable Tab");
 
   drag_n_drop_element(
@@ -196,18 +200,18 @@ add_task(async function test_tab_reorder_window() {
     mc2.window,
     0.75,
     0.0,
-    mc.tabmail.tabContainer
+    tabmail.tabContainer
   );
 
   wait_for_message_display_completion(mc2);
 
   Assert.ok(
-    mc.tabmail.tabContainer.allTabs.length == 1,
+    tabmail.tabContainer.allTabs.length == 1,
     "Moving tab to new window failed, tab still in old window"
   );
 
   Assert.ok(
-    mc2.tabmail.tabContainer.allTabs.length == 2,
+    tabmail2.tabContainer.allTabs.length == 2,
     "Moving tab to new window failed, no new tab in new window"
   );
 
@@ -219,8 +223,9 @@ add_task(async function test_tab_reorder_window() {
  * Tests detaching tabs into windows via drag'n'drop
  */
 add_task(async function test_tab_reorder_detach() {
+  let tabmail = mc.window.document.getElementById("tabmail");
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
-  mc.tabmail.closeOtherTabs(0);
+  tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 
   let mc2 = null;
@@ -237,13 +242,12 @@ add_task(async function test_tab_reorder_detach() {
   let newWindowPromise = async_plan_for_new_window("mail:3pane");
 
   // ... now start dragging
+  tabmail.switchToTab(1);
 
-  mc.tabmail.switchToTab(1);
-
-  let tab1 = mc.tabmail.tabContainer.allTabs[1];
+  let tab1 = tabmail.tabContainer.allTabs[1];
   let dropContent = mc.e("tabpanelcontainer");
 
-  let dt = synthesize_drag_start(mc.window, tab1, mc.tabmail.tabContainer);
+  let dt = synthesize_drag_start(mc.window, tab1, tabmail.tabContainer);
 
   synthesize_drag_over(mc.window, dropContent, dt);
 
@@ -256,19 +260,20 @@ add_task(async function test_tab_reorder_detach() {
 
   // ... and wait for the new window
   mc2 = await newWindowPromise;
+  let tabmail2 = mc2.window.document.getElementById("tabmail");
   await TestUtils.waitForCondition(
-    () => mc2.tabmail.tabInfo[1]?.chromeBrowser,
+    () => tabmail2.tabInfo[1]?.chromeBrowser,
     "waiting for a second tab to open in the new window"
   );
   wait_for_message_display_completion(mc2, true);
 
   Assert.ok(
-    mc.tabmail.tabContainer.allTabs.length == 1,
+    tabmail.tabContainer.allTabs.length == 1,
     "Moving tab to new window failed, tab still in old window"
   );
 
   Assert.ok(
-    mc2.tabmail.tabContainer.allTabs.length == 2,
+    tabmail2.tabContainer.allTabs.length == 2,
     "Moving tab to new window failed, no new tab in new window"
   );
 
@@ -280,8 +285,9 @@ add_task(async function test_tab_reorder_detach() {
  * Test undo of recently closed tabs.
  */
 add_task(async function test_tab_undo() {
+  let tabmail = mc.window.document.getElementById("tabmail");
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
-  mc.tabmail.closeOtherTabs(0);
+  tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 
   await be_in_folder(folder);
@@ -297,23 +303,23 @@ add_task(async function test_tab_undo() {
   await switch_tab(2);
   assert_selected_and_displayed(msgHdrsInFolder[1]);
 
-  mc.tabmail.closeTab(2);
+  tabmail.closeTab(2);
   // This tab should not be added to recently closed tabs...
   // ... thus it can't be restored
-  mc.tabmail.closeTab(2, true);
-  mc.tabmail.closeTab(2);
+  tabmail.closeTab(2, true);
+  tabmail.closeTab(2);
 
   assert_number_of_tabs_open(3);
   assert_selected_and_displayed(mc, msgHdrsInFolder[4]);
 
-  mc.tabmail.undoCloseTab();
+  tabmail.undoCloseTab();
   wait_for_message_display_completion();
   assert_number_of_tabs_open(4);
   assert_selected_and_displayed(mc, msgHdrsInFolder[3]);
 
   // msgHdrsInFolder[2] won't be restored, it was closed with disabled undo.
 
-  mc.tabmail.undoCloseTab();
+  tabmail.undoCloseTab();
   wait_for_message_display_completion();
   assert_number_of_tabs_open(5);
   assert_selected_and_displayed(mc, msgHdrsInFolder[1]);
@@ -321,7 +327,8 @@ add_task(async function test_tab_undo() {
 });
 
 async function _synthesizeRecentlyClosedMenu() {
-  let tab = mc.tabmail.tabContainer.allTabs[1];
+  let tab = mc.window.document.getElementById("tabmail").tabContainer
+    .allTabs[1];
   EventUtils.synthesizeMouseAtCenter(
     tab,
     { type: "contextmenu", button: 2 },
@@ -350,13 +357,14 @@ async function _teardownRecentlyClosedMenu() {
  * Tests the recently closed tabs menu.
  */
 add_task(async function test_tab_recentlyClosed() {
+  let tabmail = mc.window.document.getElementById("tabmail");
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
-  mc.tabmail.closeOtherTabs(0, true);
+  tabmail.closeOtherTabs(0, true);
   assert_number_of_tabs_open(1);
 
   // We start with a clean tab history.
-  mc.tabmail.clearRecentlyClosedTabs();
-  Assert.equal(mc.tabmail.recentlyClosedTabs.length, 0);
+  tabmail.clearRecentlyClosedTabs();
+  Assert.equal(tabmail.recentlyClosedTabs.length, 0);
 
   // The history is cleaned so let's open 15 tabs...
   await be_in_folder(folder);
@@ -374,12 +382,12 @@ add_task(async function test_tab_recentlyClosed() {
   // ... and store the tab titles, to ensure they match with the menu items.
   let tabTitles = [];
   for (let idx = 0; idx < 16; idx++) {
-    tabTitles.unshift(mc.tabmail.tabInfo[idx].title);
+    tabTitles.unshift(tabmail.tabInfo[idx].title);
   }
 
   // Start the test by closing all tabs except the first two tabs...
   for (let idx = 0; idx < 14; idx++) {
-    mc.tabmail.closeTab(2);
+    tabmail.closeTab(2);
   }
 
   assert_number_of_tabs_open(2);
@@ -460,6 +468,6 @@ function teardownTest(test) {
   }
 
   // clean up the tabbbar
-  mc.tabmail.closeOtherTabs(0);
+  mc.window.document.getElementById("tabmail").closeOtherTabs(0);
   assert_number_of_tabs_open(1);
 }
