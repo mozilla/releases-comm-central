@@ -27,7 +27,7 @@ add_setup(function() {
 
 // mbox mailboxes cannot contain both child mailboxes and messages, so this will
 // be one test case.
-add_task(async function setupMailboxes() {
+add_setup(async function() {
   IMAPPump.mailbox.specialUseFlag = "\\Inbox";
   IMAPPump.daemon.createMailbox("[Gmail]", { flags: ["\\Noselect"] });
   IMAPPump.daemon.createMailbox("[Gmail]/All Mail", {

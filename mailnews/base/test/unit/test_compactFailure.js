@@ -111,7 +111,7 @@ async function delete_all_messages() {
   await promiseCopyListener.promise;
 }
 
-add_task(function setup_test() {
+add_setup(function() {
   localAccountUtils.loadLocalMailAccount();
   create_local_folders();
 });

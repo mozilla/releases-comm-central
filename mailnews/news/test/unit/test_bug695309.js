@@ -30,7 +30,7 @@ const { NetworkTestUtils } = ChromeUtils.import(
 var daemon, localserver, server;
 var highWater = 0;
 
-add_task(async function setup() {
+add_setup(async function() {
   daemon = setupNNTPDaemon();
   server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();

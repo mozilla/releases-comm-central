@@ -19,7 +19,7 @@ var gMsgHdr = null;
 // Take a multipart message as we're testing attachment URLs as well
 var gFile = do_get_file("../../../data/multipart-complex2");
 
-add_task(function setup() {
+add_setup(function() {
   setupIMAPPump();
 
   // Set up nsIMsgFolderListener to get the header when it's received

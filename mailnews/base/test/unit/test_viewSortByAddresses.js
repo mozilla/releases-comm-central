@@ -38,7 +38,7 @@ var cards = [
   { email: "ggg@h.invalid", displayName: "1" },
 ];
 
-add_task(async function setupModule() {
+add_setup(async function() {
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
 

@@ -104,7 +104,7 @@ gMFListener.prototype = {
   },
 };
 
-add_task(async function setup_test() {
+add_setup(async function() {
   // Set option so that when messages are marked as junk, they move to the junk folder
   Services.prefs.setBoolPref("mail.spam.manualMark", true);
 

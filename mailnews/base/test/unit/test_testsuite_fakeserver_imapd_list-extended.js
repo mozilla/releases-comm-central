@@ -29,7 +29,7 @@ add_setup(function() {
 
 // mbox mailboxes cannot contain both child mailboxes and messages, so this will
 // be one test case.
-add_task(async function setupMailboxes() {
+add_setup(async function() {
   IMAPPump.mailbox.flags = ["\\Marked", "\\NoInferiors"];
   IMAPPump.mailbox.subscribed = true;
   IMAPPump.daemon.createMailbox("Fruit", {});

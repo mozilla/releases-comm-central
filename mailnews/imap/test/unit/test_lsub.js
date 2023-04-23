@@ -21,7 +21,7 @@ add_setup(function() {
 });
 
 // Setup the mailboxes that will be used for this test.
-add_task(async function setupMailboxes() {
+add_setup(async function() {
   IMAPPump.mailbox.subscribed = true;
   IMAPPump.daemon.createMailbox("folder1", {
     subscribed: true,

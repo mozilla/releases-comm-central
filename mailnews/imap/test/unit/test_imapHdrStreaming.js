@@ -37,7 +37,7 @@ function addMessagesToServer(messages, mailbox) {
   });
 }
 
-add_task(async function setup_test() {
+add_setup(async function() {
   // Add a couple of messages to the INBOX
   //   this is synchronous, afaik.
   addMessagesToServer(

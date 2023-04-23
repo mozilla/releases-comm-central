@@ -93,7 +93,7 @@ var observer = {
 
 var baseAddressBookCount;
 
-add_task(async function setUp() {
+add_setup(function() {
   let profileDir = do_get_profile();
   observer.setUp();
 

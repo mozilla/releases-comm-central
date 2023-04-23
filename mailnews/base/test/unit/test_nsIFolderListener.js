@@ -29,7 +29,7 @@ var folderListener = {
 var targetFolder;
 var messageInjection;
 
-add_task(async function setup() {
+add_setup(async function() {
   let msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
 

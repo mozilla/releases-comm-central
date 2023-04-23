@@ -1139,7 +1139,7 @@ function tests_for_all_views() {
   test_insert_remove_view_rows();
 }
 
-add_task(function setup_test() {
+add_setup(function() {
   gMessages = setup_messages();
 });
 

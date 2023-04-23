@@ -12,7 +12,7 @@ const { PromiseTestUtils } = ChromeUtils.import(
 const PORT = 25;
 var daemon, localserver, server;
 
-add_task(async function setup() {
+add_setup(function() {
   localAccountUtils.loadLocalMailAccount();
   server = setupServerDaemon();
   daemon = server._daemon;

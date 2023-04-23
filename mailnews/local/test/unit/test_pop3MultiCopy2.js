@@ -25,7 +25,7 @@ var gTestSubjects = [
   "Hello, did you receive my bugmail?",
 ];
 
-add_task(async function setupFolders() {
+add_setup(async function() {
   let storeID = "@mozilla.org/msgstore/maildirstore;1";
   resetPluggableStoreLocal(storeID);
 

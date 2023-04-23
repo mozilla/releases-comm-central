@@ -43,7 +43,7 @@ add_setup(function() {
 /**
  * Create an e-mail so the identity can exist.
  */
-add_task(async function setup_create_identity() {
+add_setup(async function() {
   let [msgSet] = await messageInjection.makeNewSetsInFolders(
     [messageInjection.getInboxFolder()],
     [{ count: 1, from: [DISPLAY_NAME, EMAIL_ADDRESS] }]

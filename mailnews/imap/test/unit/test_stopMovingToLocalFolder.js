@@ -33,7 +33,7 @@ add_setup(function() {
   );
 });
 
-add_task(async function setup_messages() {
+add_setup(async function() {
   let messageGenerator = new MessageGenerator();
   let messageString = messageGenerator.makeMessage().toMessageString();
   let dataUri = Services.io.newURI(

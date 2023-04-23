@@ -268,7 +268,7 @@ const tests = [
  * Initialize OpenPGP, import Alice and Bob's keys, then install the messages
  * we are going to test.
  */
-add_task(async function setUp() {
+add_setup(async function() {
   await OpenPGPTestUtils.initOpenPGP();
 
   await OpenPGPTestUtils.importPrivateKey(

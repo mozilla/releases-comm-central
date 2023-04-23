@@ -51,7 +51,7 @@ async function sendReply(identity, fields, originalMsgURI, compType) {
 /**
  * Load local mail account and start fake SMTP server.
  */
-add_task(async function setup() {
+add_setup(function() {
   localAccountUtils.loadLocalMailAccount();
   gServer = setupServerDaemon();
   gServer.start();

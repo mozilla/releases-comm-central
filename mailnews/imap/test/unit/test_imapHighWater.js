@@ -70,7 +70,7 @@ add_setup(function() {
   Services.prefs.setIntPref("offline.download.download_messages", 2);
 });
 
-add_task(function setupFolders() {
+add_setup(function() {
   // make 10 messages
   let messageGenerator = new MessageGenerator();
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);

@@ -10,7 +10,7 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 let fcc2Folder;
 
-add_task(async function setup() {
+add_setup(async function() {
   localAccountUtils.loadLocalMailAccount();
   fcc2Folder = localAccountUtils.rootFolder.createLocalSubfolder("fcc2");
 });

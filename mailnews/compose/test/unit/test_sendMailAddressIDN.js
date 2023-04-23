@@ -188,7 +188,7 @@ async function doSendTest(aRecipient, aRecipientExpected, waitForPrompt) {
   }
 }
 
-add_task(function setup() {
+add_setup(function() {
   registerAlertTestUtils();
 
   // Ensure we have at least one mail account
