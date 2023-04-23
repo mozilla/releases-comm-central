@@ -1574,7 +1574,7 @@ AttachmentInfo.prototype = {
           AttachmentInfo._temporaryFiles.set(url, tempFile);
         }
 
-        top.MsgOpenEMLFile(tempFile, Services.io.newFileURI(tempFile));
+        MailUtils.openEMLFile(top, tempFile, Services.io.newFileURI(tempFile));
         return;
       }
 

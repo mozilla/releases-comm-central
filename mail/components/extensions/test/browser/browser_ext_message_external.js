@@ -390,7 +390,7 @@ add_task(async function testExternalMessage() {
       ]
     );
 
-    window.MsgOpenEMLFile(messageFile, url);
+    MailUtils.openEMLFile(window, messageFile, url);
     extension.sendMessage();
   });
 

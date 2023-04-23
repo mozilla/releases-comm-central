@@ -4,18 +4,19 @@
 
 var EXPORTED_SYMBOLS = ["MailUtils"];
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-const { PluralForm } = ChromeUtils.importESModule(
-  "resource://gre/modules/PluralForm.sys.mjs"
-);
+
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "MailConsts",
-  "resource:///modules/MailConsts.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  MailConsts: "resource:///modules/MailConsts.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  MimeParser: "resource:///modules/mimeParser.jsm",
+  NetUtil: "resource://gre/modules/NetUtil.jsm",
+  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+});
 
 /**
  * This module has several utility functions for use by both core and
@@ -57,7 +58,7 @@ var MailUtils = {
    * open (the folder tree wouldn't have been initialized yet).
    */
   discoverFolders() {
-    for (let server of MailServices.accounts.allServers) {
+    for (let server of lazy.MailServices.accounts.allServers) {
       // Bug 466311 Sometimes this can throw file not found, we're unsure
       // why, but catch it and log the fact.
       try {
@@ -83,7 +84,7 @@ var MailUtils = {
    *          isn't found
    */
   getFolderForFileInProfile(aFile) {
-    for (let folder of MailServices.accounts.allFolders) {
+    for (let folder of lazy.MailServices.accounts.allFolders) {
       if (folder.filePath.equals(aFile)) {
         return folder;
       }
@@ -159,7 +160,7 @@ var MailUtils = {
         "chrome://messenger/locale/messenger.properties"
       );
       let title = bundle.GetStringFromName(aConfirmTitle);
-      let message = PluralForm.get(
+      let message = lazy.PluralForm.get(
         aNumMessages,
         bundle.GetStringFromName(aConfirmMsg)
       ).replace("#1", aNumMessages);
@@ -373,6 +374,73 @@ var MailUtils = {
   },
 
   /**
+   * Open the given .eml file.
+   *
+   * @param {DOMWindow} win - The window which the file is being opened within.
+   * @param {nsIFile} aFile - The file being opened.
+   * @param {nsIURL} aURL - The full file URL.
+   */
+  openEMLFile(win, aFile, aURL) {
+    let url = aURL
+      .mutate()
+      .setQuery("type=application/x-message-display")
+      .finalize();
+
+    let fstream = null;
+    let headers = new Map();
+    // Read this eml and extract its headers to check for X-Unsent.
+    try {
+      fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+        Ci.nsIFileInputStream
+      );
+      fstream.init(aFile, -1, 0, 0);
+      let data = lazy.NetUtil.readInputStreamToString(
+        fstream,
+        fstream.available()
+      );
+      headers = lazy.MimeParser.extractHeaders(data);
+    } catch (e) {
+      // Ignore errors on reading the eml or extracting its headers. The test for
+      // the X-Unsent header below will fail and the message window will take care
+      // of any error handling.
+    } finally {
+      if (fstream) {
+        fstream.close();
+      }
+    }
+
+    if (headers.get("X-Unsent") == "1") {
+      let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+        Ci.nsIMsgWindow
+      );
+      lazy.MailServices.compose.OpenComposeWindow(
+        null,
+        {},
+        url.spec,
+        Ci.nsIMsgCompType.Draft,
+        Ci.nsIMsgCompFormat.Default,
+        null,
+        headers.get("from"),
+        msgWindow
+      );
+    } else if (
+      Services.prefs.getIntPref("mail.openMessageBehavior") ==
+      lazy.MailConsts.OpenMessageBehavior.NEW_TAB
+    ) {
+      win.document
+        .getElementById("tabmail")
+        .openTab("mailMessageTab", { messageURI: url.spec });
+    } else {
+      win.openDialog(
+        "chrome://messenger/content/messageWindow.xhtml",
+        "_blank",
+        "all,chrome,dialog=no,status,toolbar",
+        url
+      );
+    }
+  },
+
+  /**
    * The number of milliseconds to wait between loading of folders in
    * |takeActionOnFolderAndDescendents|.  We wait at all because
    * opening msf databases is a potentially expensive synchronous operation that
@@ -474,7 +542,7 @@ var MailUtils = {
     // If we have a hint to help us pick one identity, search for a match.
     // Even if we only have one identity, check which hint might match.
     if (optionalHint) {
-      let hints = MailServices.headerParser.makeFromDisplayAddress(
+      let hints = lazy.MailServices.headerParser.makeFromDisplayAddress(
         optionalHint
       );
 
@@ -508,7 +576,7 @@ var MailUtils = {
 
     // Still no matches? Give up and pick the default or the first one.
     if (useDefault) {
-      let defaultAccount = MailServices.accounts.defaultAccount;
+      let defaultAccount = lazy.MailServices.accounts.defaultAccount;
       if (defaultAccount && defaultAccount.defaultIdentity) {
         return [defaultAccount.defaultIdentity, null];
       }
@@ -518,7 +586,7 @@ var MailUtils = {
   },
 
   getIdentityForServer(server, optionalHint) {
-    let identities = MailServices.accounts.getIdentitiesForServer(server);
+    let identities = lazy.MailServices.accounts.getIdentitiesForServer(server);
     return this.getBestIdentity(identities, optionalHint);
   },
 
@@ -546,7 +614,7 @@ var MailUtils = {
     if (!server) {
       let accountKey = hdr.accountKey;
       if (accountKey) {
-        let account = MailServices.accounts.getAccount(accountKey);
+        let account = lazy.MailServices.accounts.getAccount(accountKey);
         if (account) {
           server = account.incomingServer;
         }
@@ -575,7 +643,7 @@ var MailUtils = {
 
     if (!identity) {
       [identity, matchingHint] = this.getBestIdentity(
-        MailServices.accounts.allIdentities,
+        lazy.MailServices.accounts.allIdentities,
         hintForIdentity,
         true
       );
@@ -602,7 +670,7 @@ var MailUtils = {
    * @returns {nsIAbDirectory|null} - Found list or null.
    */
   findListInAddressBooks(entryName) {
-    for (let abDir of MailServices.ab.directories) {
+    for (let abDir of lazy.MailServices.ab.directories) {
       if (abDir.supportsMailingLists) {
         for (let dir of abDir.childNodes) {
           if (dir.isMailList && dir.dirName == entryName) {
@@ -657,7 +725,7 @@ var MailUtils = {
    * @returns {nsIMsgDBHdr}
    */
   getMsgHdrForMsgId(msgId, startServer) {
-    let allServers = MailServices.accounts.allServers;
+    let allServers = lazy.MailServices.accounts.allServers;
     if (startServer) {
       allServers = [startServer].concat(
         allServers.filter(s => s.key != startServer.key)

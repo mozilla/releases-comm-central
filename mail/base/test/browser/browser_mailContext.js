@@ -9,6 +9,7 @@ var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
@@ -422,7 +423,11 @@ add_task(async function testExternalMessageTab() {
     "mail.openMessageBehavior",
     MailConsts.OpenMessageBehavior.NEW_TAB
   );
-  window.MsgOpenEMLFile(messageFile, Services.io.newFileURI(messageFile));
+  MailUtils.openEMLFile(
+    window,
+    messageFile,
+    Services.io.newFileURI(messageFile)
+  );
   await tabPromise;
   await new Promise(resolve => setTimeout(resolve));
 
@@ -518,7 +523,11 @@ add_task(async function testExternalMessageWindow() {
     "mail.openMessageBehavior",
     MailConsts.OpenMessageBehavior.NEW_WINDOW
   );
-  window.MsgOpenEMLFile(messageFile, Services.io.newFileURI(messageFile));
+  MailUtils.openEMLFile(
+    window,
+    messageFile,
+    Services.io.newFileURI(messageFile)
+  );
   let win = await winPromise;
   await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
   await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);

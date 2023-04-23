@@ -1255,68 +1255,8 @@ function MsgOpenFromFile() {
     if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
       return;
     }
-    MsgOpenEMLFile(fp.file, fp.fileURL);
+    MailUtils.openEMLFile(window, fp.file, fp.fileURL);
   });
-}
-
-/**
- * Open the given .eml file.
- */
-function MsgOpenEMLFile(aFile, aURL) {
-  let url = aURL
-    .mutate()
-    .setQuery("type=application/x-message-display")
-    .finalize();
-
-  let fstream = null;
-  let headers = new Map();
-  // Read this eml and extract its headers to check for X-Unsent.
-  try {
-    fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
-      Ci.nsIFileInputStream
-    );
-    fstream.init(aFile, -1, 0, 0);
-    let data = NetUtil.readInputStreamToString(fstream, fstream.available());
-    headers = MimeParser.extractHeaders(data);
-  } catch (e) {
-    // Ignore errors on reading the eml or extracting its headers. The test for
-    // the X-Unsent header below will fail and the message window will take care
-    // of any error handling.
-  } finally {
-    if (fstream) {
-      fstream.close();
-    }
-  }
-
-  if (headers.get("X-Unsent") == "1") {
-    let msgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-      Ci.nsIMsgWindow
-    );
-    MailServices.compose.OpenComposeWindow(
-      null,
-      {},
-      url.spec,
-      Ci.nsIMsgCompType.Draft,
-      Ci.nsIMsgCompFormat.Default,
-      null,
-      headers.get("from"),
-      msgWindow
-    );
-  } else if (
-    Services.prefs.getIntPref("mail.openMessageBehavior") ==
-    MailConsts.OpenMessageBehavior.NEW_TAB
-  ) {
-    document
-      .getElementById("tabmail")
-      .openTab("mailMessageTab", { messageURI: url.spec });
-  } else {
-    window.openDialog(
-      "chrome://messenger/content/messageWindow.xhtml",
-      "_blank",
-      "all,chrome,dialog=no,status,toolbar",
-      url
-    );
-  }
 }
 
 /**
@@ -1347,7 +1287,7 @@ function MsgOpenMessageFromString(data) {
     .QueryInterface(Ci.nsIFileProtocolHandler)
     .newFileURI(tempFile);
 
-  MsgOpenEMLFile(tempFile, url);
+  MailUtils.openEMLFile(window, tempFile, url);
 }
 
 function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
