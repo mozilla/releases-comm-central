@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+ChromeUtils.defineESModuleGetters(this, {
+  AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
+});
+
 ChromeUtils.defineModuleGetter(
   this,
   "MailServices",
@@ -551,6 +555,9 @@ this.messages = class extends ExtensionAPIPersistent {
   };
 
   getAPI(context) {
+    const { extension } = this;
+    const { tabManager } = extension;
+
     function collectMessagesInFolders(messageIds) {
       let folderMap = new DefaultMap(() => new Set());
 
@@ -812,6 +819,36 @@ this.messages = class extends ExtensionAPIPersistent {
           return new File([attachment.raw], attachment.name, {
             type: attachment.contentType,
           });
+        },
+        async openAttachment(messageId, partName, tabId) {
+          let msgHdr = messageTracker.getMessage(messageId);
+          if (!msgHdr) {
+            throw new ExtensionError(`Message not found: ${messageId}.`);
+          }
+          let attachment = await getAttachment(msgHdr, partName);
+          if (!attachment) {
+            throw new ExtensionError(
+              `Part ${partName} not found in message ${messageId}.`
+            );
+          }
+          let attachmentInfo = new AttachmentInfo({
+            contentType: attachment.contentType,
+            url: attachment.url,
+            name: attachment.name,
+            uri: msgHdr.folder.getUriForMsg(msgHdr),
+            isExternalAttachment: attachment.isExternal,
+            message: msgHdr,
+          });
+          let tab = tabManager.get(tabId);
+          try {
+            await attachmentInfo.open(
+              tab.nativeTab.chromeBrowser.browsingContext
+            );
+          } catch (ex) {
+            throw new ExtensionError(
+              `Part ${partName} could not be opened: ${ex}.`
+            );
+          }
         },
         async query(queryInfo) {
           let composeFields = Cc[

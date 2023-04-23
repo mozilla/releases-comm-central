@@ -549,6 +549,28 @@
         ]
       },
       {
+        "name": "openAttachment",
+        "type": "function",
+        "description": "Opens the specified attachment",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageId",
+            "type": "integer"
+          },
+          {
+            "name": "partName",
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d+)*$"
+          },
+          {
+            "name": "tabId",
+            "type": "integer",
+            "description": "The ID of the tab associated with the message opening."
+          }
+        ]
+      },
+      {
         "name": "query",
         "type": "function",
         "description": "Gets all messages that have the specified properties, or all messages if no properties are specified.",
