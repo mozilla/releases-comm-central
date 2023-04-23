@@ -29,8 +29,7 @@ var { MailServices } = ChromeUtils.import(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
-  Downloads: "resource://gre/modules/Downloads.sys.mjs",
-  FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
+  AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
   PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
 });
 
@@ -761,13 +760,15 @@ var messageHeaderSink2 = {
   },
 
   handleAttachment(contentType, url, displayName, uri, isExternalAttachment) {
-    let newAttachment = new AttachmentInfo(
+    let newAttachment = new AttachmentInfo({
       contentType,
       url,
-      displayName,
+      name: displayName,
       uri,
-      isExternalAttachment
-    );
+      isExternalAttachment,
+      message: gMessage,
+      updateAttachmentsDisplayFn: updateAttachmentsDisplay,
+    });
     currentAttachments.push(newAttachment);
 
     if (contentType == "application/pgp-keys" || displayName.endsWith(".asc")) {
@@ -1412,543 +1413,6 @@ function outputEmailAddresses(headerEntry, emailAddresses) {
 
   headerEntry.enclosingBox.buildView();
 }
-
-/**
- * Create a new attachment object which goes into the data attachment array.
- * This method checks whether the passed attachment is empty or not.
- *
- * @param {string} contentType - The attachment's mimetype.
- * @param {string} url - The URL for the attachment.
- * @param {string} name - The name to be displayed for this attachment
- *                               (usually the filename).
- * @param {string} uri - The URI for the message containing the attachment.
- * @param {boolean} isExternalAttachment - True if the attachment has been
- *                                         detached to file or is a link
- *                                         attachment.
- */
-function AttachmentInfo(contentType, url, name, uri, isExternalAttachment) {
-  this.message = gMessage;
-  this.contentType = contentType;
-  this.name = name;
-  this.url = url;
-  this.uri = uri;
-  this.isExternalAttachment = isExternalAttachment;
-  // A |size| value of -1 means we don't have a valid size. Check again if
-  // |sizeResolved| is false. For internal attachments and link attachments
-  // with a reported size, libmime streams values to addAttachmentField()
-  // which updates this object. For external file attachments, |size| is updated
-  // in the isEmpty() function when the list is built. Deleted attachments
-  // are resolved to -1.
-  this.size = -1;
-  this.sizeResolved = this.isDeleted;
-
-  // Remove [?&]part= from remote urls, after getting the partID.
-  // Remote urls, unlike non external mail part urls, may also contain query
-  // strings starting with ?; PART_RE does not handle this.
-  if (this.isLinkAttachment || this.isFileAttachment) {
-    let match = url.match(/[?&]part=[^&]+$/);
-    match = match && match[0];
-    this.partID = match && match.split("part=")[1];
-    this.url = url.replace(match, "");
-  } else {
-    let match = GlodaUtils.PART_RE.exec(url);
-    this.partID = match && match[1];
-  }
-}
-
-AttachmentInfo.prototype = {
-  /**
-   * Save this attachment to a file.
-   */
-  async save() {
-    if (!this.hasFile || this.message != gMessage) {
-      return;
-    }
-
-    let empty = await this.isEmpty();
-    if (empty) {
-      return;
-    }
-
-    top.messenger.saveAttachment(
-      this.contentType,
-      this.url,
-      encodeURIComponent(this.name),
-      this.uri,
-      this.isExternalAttachment
-    );
-  },
-
-  /**
-   * Open this attachment.
-   */
-  async open() {
-    if (!this.hasFile || this.message != gMessage) {
-      return;
-    }
-
-    let bundleMessenger = document.getElementById("bundle_messenger");
-    let empty = await this.isEmpty();
-    if (empty) {
-      let prompt = bundleMessenger.getString(
-        this.isExternalAttachment
-          ? "externalAttachmentNotFound"
-          : "emptyAttachment"
-      );
-      top.msgWindow.promptDialog.alert(null, prompt);
-    } else {
-      // @see MsgComposeCommands.js which has simililar opening functionality
-      let dotPos = this.name.lastIndexOf(".");
-      let extension =
-        dotPos >= 0 ? this.name.substring(dotPos + 1).toLowerCase() : "";
-      if (this.contentType == "application/pdf" || extension == "pdf") {
-        let handlerInfo = gMIMEService.getFromTypeAndExtension(
-          this.contentType,
-          extension
-        );
-        // Only open a new tab for pdfs if we are handling them internally.
-        if (
-          !handlerInfo.alwaysAskBeforeHandling &&
-          handlerInfo.preferredAction == Ci.nsIHandlerInfo.handleInternally
-        ) {
-          // Add the content type to avoid a "how do you want to open this?"
-          // dialog. The type may already be there, but that doesn't matter.
-          let url = this.url;
-          if (!url.includes("type=")) {
-            url += url.includes("?") ? "&" : "?";
-            url += "type=application/pdf";
-          }
-          let tabmail = document.getElementById("tabmail");
-          if (!tabmail) {
-            // If no tabmail available in this window, try and find it in
-            // another.
-            let win = Services.wm.getMostRecentWindow("mail:3pane");
-            tabmail = win && win.document.getElementById("tabmail");
-          }
-          if (tabmail) {
-            tabmail.openTab("contentTab", {
-              url,
-              background: false,
-              linkHandler: "single-page",
-            });
-            tabmail.ownerGlobal.focus();
-            return;
-          }
-          // If no tabmail, open PDF same as other attachments.
-        }
-      }
-
-      // Just use the old method for handling messages, it works.
-
-      let { name, url } = this;
-
-      async function saveToFile(path) {
-        let buffer = await new Promise(function(resolve, reject) {
-          NetUtil.asyncFetch(
-            {
-              uri: Services.io.newURI(url),
-              loadUsingSystemPrincipal: true,
-            },
-            function(inputStream, status) {
-              if (Components.isSuccessCode(status)) {
-                resolve(NetUtil.readInputStream(inputStream));
-              } else {
-                reject(
-                  new Components.Exception("Failed to fetch attachment", status)
-                );
-              }
-            }
-          );
-        });
-        await IOUtils.write(path, new Uint8Array(buffer));
-      }
-
-      if (this.contentType == "message/rfc822") {
-        let tempFile = AttachmentInfo._temporaryFiles.get(url);
-        if (!tempFile?.exists()) {
-          tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-          tempFile.append("subPart.eml");
-          tempFile.createUnique(0, 0o600);
-          saveToFile(tempFile.path);
-
-          AttachmentInfo._temporaryFiles.set(url, tempFile);
-        }
-
-        MailUtils.openEMLFile(top, tempFile, Services.io.newFileURI(tempFile));
-        return;
-      }
-
-      // Get the MIME info from the service.
-
-      let mimeInfo;
-      try {
-        mimeInfo = gMIMEService.getFromTypeAndExtension(
-          this.contentType,
-          extension
-        );
-      } catch (ex) {
-        // If the call above fails, which can happen on Windows where there's
-        // nothing registered for the file type, assume this generic type.
-        mimeInfo = gMIMEService.getFromTypeAndExtension(
-          "application/octet-stream",
-          ""
-        );
-      }
-      // The default action is saveToDisk, which is not what we want.
-      // If we don't have a stored handler, ask before handling.
-      if (!gHandlerService.exists(mimeInfo)) {
-        mimeInfo.alwaysAskBeforeHandling = true;
-        mimeInfo.preferredAction = Ci.nsIHandlerInfo.alwaysAsk;
-      }
-
-      // If we know what to do, do it.
-
-      name = DownloadPaths.sanitize(name);
-
-      let createTemporaryFileAndOpen = async mimeInfo => {
-        let tmpPath = PathUtils.join(
-          Services.dirsvc.get("TmpD", Ci.nsIFile).path,
-          "pid-" + Services.appinfo.processID
-        );
-        await IOUtils.makeDirectory(tmpPath, { permissions: 0o700 });
-        let tempFile = Cc["@mozilla.org/file/local;1"].createInstance(
-          Ci.nsIFile
-        );
-        tempFile.initWithPath(tmpPath);
-
-        tempFile.append(name);
-        tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-        tempFile.remove(false);
-
-        Cc["@mozilla.org/uriloader/external-helper-app-service;1"]
-          .getService(Ci.nsPIExternalAppLauncher)
-          .deleteTemporaryFileOnExit(tempFile);
-
-        await saveToFile(tempFile.path);
-        // Before opening from the temp dir, make the file read only so that
-        // users don't edit and lose their edits...
-        tempFile.permissions = 0o400;
-        this._openFile(mimeInfo, tempFile);
-      };
-
-      let openLocalFile = mimeInfo => {
-        let fileHandler = Services.io
-          .getProtocolHandler("file")
-          .QueryInterface(Ci.nsIFileProtocolHandler);
-
-        try {
-          let externalFile = fileHandler.getFileFromURLSpec(this.displayUrl);
-          this._openFile(mimeInfo, externalFile);
-        } catch (ex) {
-          console.error(
-            "AttachmentInfo.open: file - " + this.displayUrl + ", " + ex
-          );
-        }
-      };
-
-      if (!mimeInfo.alwaysAskBeforeHandling) {
-        switch (mimeInfo.preferredAction) {
-          case Ci.nsIHandlerInfo.saveToDisk:
-            if (Services.prefs.getBoolPref("browser.download.useDownloadDir")) {
-              let destFile = new FileUtils.File(
-                await Downloads.getPreferredDownloadsDirectory()
-              );
-              destFile.append(name);
-              destFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
-              destFile.remove(false);
-              await saveToFile(destFile.path);
-            } else {
-              let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
-                Ci.nsIFilePicker
-              );
-              filePicker.defaultString = this.name;
-              filePicker.defaultExtension = extension;
-              filePicker.init(
-                window.browsingContext.topChromeWindow,
-                bundleMessenger.getString("SaveAttachment"),
-                Ci.nsIFilePicker.modeSave
-              );
-              let rv = await new Promise(resolve => filePicker.open(resolve));
-              if (rv != Ci.nsIFilePicker.returnCancel) {
-                await saveToFile(filePicker.file.path);
-              }
-            }
-            return;
-          case Ci.nsIHandlerInfo.useHelperApp:
-          case Ci.nsIHandlerInfo.useSystemDefault:
-            // Attachments can be detached and, if this is the case, opened from
-            // their location on disk instead of copied to a temporary file.
-            if (this.isExternalAttachment) {
-              openLocalFile(mimeInfo);
-
-              return;
-            }
-
-            await createTemporaryFileAndOpen(mimeInfo);
-            return;
-        }
-      }
-
-      // Ask what to do, then do it.
-      let appLauncherDialog = Cc[
-        "@mozilla.org/helperapplauncherdialog;1"
-      ].createInstance(Ci.nsIHelperAppLauncherDialog);
-      appLauncherDialog.show(
-        {
-          QueryInterface: ChromeUtils.generateQI(["nsIHelperAppLauncher"]),
-          MIMEInfo: mimeInfo,
-          source: Services.io.newURI(this.url),
-          suggestedFileName: this.name,
-          cancel(reason) {},
-          promptForSaveDestination() {
-            appLauncherDialog.promptForSaveToFileAsync(
-              this,
-              window.browsingContext.topChromeWindow,
-              this.suggestedFileName,
-              "." + extension, // Dot stripped by promptForSaveToFileAsync.
-              false
-            );
-          },
-          launchLocalFile() {
-            openLocalFile(mimeInfo);
-          },
-          async setDownloadToLaunch(handleInternally, file) {
-            await createTemporaryFileAndOpen(mimeInfo);
-          },
-          async saveDestinationAvailable(file) {
-            if (file) {
-              await saveToFile(file.path);
-            }
-          },
-          setWebProgressListener(webProgressListener) {},
-          targetFile: null,
-          targetFileIsExecutable: null,
-          timeDownloadStarted: null,
-          contentLength: this.size,
-          browsingContextId: getMessagePaneBrowser().browsingContext.id,
-        },
-        window.browsingContext.topChromeWindow,
-        null
-      );
-    }
-  },
-
-  /**
-   * Unless overridden by a test, opens a saved attachment when called by `open`.
-   *
-   * @param {nsIMIMEInfo} mimeInfo
-   * @param {nsIFile} file
-   */
-  _openFile(mimeInfo, file) {
-    mimeInfo.launchWithFile(file);
-  },
-
-  /**
-   * Detach this attachment from the message.
-   *
-   * @param {boolean} aSaveFirst - true if the attachment should be saved
-   *                               before detaching, false otherwise.
-   */
-  detach(aSaveFirst) {
-    top.messenger.detachAttachment(
-      this.contentType,
-      this.url,
-      encodeURIComponent(this.name),
-      this.uri,
-      aSaveFirst
-    );
-  },
-
-  /**
-   * This method checks whether the attachment has been deleted or not.
-   *
-   * @returns true if the attachment has been deleted, false otherwise.
-   */
-  get isDeleted() {
-    return this.contentType == "text/x-moz-deleted";
-  },
-
-  /**
-   * This method checks whether the attachment is a detached file.
-   *
-   * @returns true if the attachment is a detached file, false otherwise.
-   */
-  get isFileAttachment() {
-    return this.isExternalAttachment && this.url.startsWith("file:");
-  },
-
-  /**
-   * This method checks whether the attachment is an http link.
-   *
-   * @returns true if the attachment is an http link, false otherwise.
-   */
-  get isLinkAttachment() {
-    return this.isExternalAttachment && /^https?:/.test(this.url);
-  },
-
-  /**
-   * This method checks whether the attachment has an associated file or not.
-   * Deleted attachments or detached attachments with missing external files
-   * do *not* have a file.
-   *
-   * @returns true if the attachment has an associated file, false otherwise.
-   */
-  get hasFile() {
-    if (this.sizeResolved && this.size == -1) {
-      return false;
-    }
-
-    return true;
-  },
-
-  /**
-   * Return display url, decoded and converted to utf8 from IDN punycode ascii,
-   * if the attachment is external (http or file schemes).
-   *
-   * @returns {string} url.
-   */
-  get displayUrl() {
-    if (this.isExternalAttachment) {
-      // For status bar url display purposes, we want the displaySpec.
-      // The ?part= has already been removed.
-      return decodeURI(makeURI(this.url).displaySpec);
-    }
-
-    return this.url;
-  },
-
-  /**
-   * This method checks whether the attachment url location exists and
-   * is accessible. For http and file urls, fetch() will have the size
-   * in the content-length header.
-   *
-   * @returns true if the attachment is empty or error, false otherwise.
-   */
-  async isEmpty() {
-    if (this.isDeleted) {
-      return true;
-    }
-
-    const isFetchable = url => {
-      let uri = makeURI(url);
-      return !(uri.username || uri.userPass);
-    };
-
-    // We have a resolved size.
-    if (this.sizeResolved) {
-      return this.size < 1;
-    }
-
-    if (!isFetchable(this.url)) {
-      return false;
-    }
-
-    let empty = true;
-    let size = -1;
-    let options = { method: "GET" };
-
-    let request = new Request(this.url, options);
-
-    if (this.isExternalAttachment) {
-      updateAttachmentsDisplay(this, true);
-    }
-
-    await fetch(request)
-      .then(response => {
-        if (!response.ok) {
-          console.warn(
-            "AttachmentInfo.isEmpty: fetch response error - " +
-              response.statusText +
-              ", response.url - " +
-              response.url
-          );
-          return null;
-        }
-
-        if (this.isLinkAttachment) {
-          if (response.status < 200 || response.status > 304) {
-            console.warn(
-              "AttachmentInfo.isEmpty: link fetch response status - " +
-                response.status +
-                ", response.url - " +
-                response.url
-            );
-            return null;
-          }
-        }
-
-        return response;
-      })
-      .then(async response => {
-        if (this.isExternalAttachment) {
-          size = response ? response.headers.get("content-length") : -1;
-        } else {
-          // Check the attachment again if addAttachmentField() sets a
-          // libmime -1 return value for size in this object.
-          // Note: just test for a non zero size, don't need to drain the
-          // stream. We only get here if the url is fetchable.
-          // The size for internal attachments is not calculated here but
-          // will come from libmime.
-          let reader = response.body.getReader();
-          let result = await reader.read();
-          reader.cancel();
-          size = result && result.value ? result.value.length : -1;
-        }
-
-        if (size > 0) {
-          empty = false;
-        }
-      })
-      .catch(error => {
-        console.warn(
-          `AttachmentInfo.isEmpty: ${error.message} url - ${this.url}`
-        );
-      });
-
-    this.sizeResolved = true;
-
-    if (this.isExternalAttachment) {
-      // For link attachments, we may have had a published value or -1
-      // indicating unknown value. We now know the real size, so set it and
-      // update the ui. For detached file attachments, get the size here
-      // instead of the old xpcom way.
-      this.size = size;
-      updateAttachmentsDisplay(this, false);
-    }
-
-    return empty;
-  },
-
-  /**
-   * Open a file attachment's containing folder.
-   */
-  openFolder() {
-    if (!this.isFileAttachment || !this.hasFile) {
-      return;
-    }
-
-    // The file url is stored in the attachment info part with unix path and
-    // needs to be converted to os path for nsIFile.
-    let fileHandler = Services.io
-      .getProtocolHandler("file")
-      .QueryInterface(Ci.nsIFileProtocolHandler);
-    try {
-      fileHandler.getFileFromURLSpec(this.displayUrl).reveal();
-    } catch (ex) {
-      console.error(
-        "AttachmentInfo.openFolder: file - " + this.displayUrl + ", " + ex
-      );
-    }
-  },
-};
-
-/**
- * A cache of message/rfc822 attachments saved to temporary files for display.
- * Saving the same attachment again is avoided.
- *
- * @type {Map<string, nsIFile>}
- */
-AttachmentInfo._temporaryFiles = new Map();
 
 /**
  * Return true if possible attachments in the currently loaded message can be
@@ -2789,7 +2253,10 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   // Create the "open" menu item
   var menuitementry = document.createXULElement("menuitem");
   menuitementry.attachment = attachment;
-  menuitementry.setAttribute("oncommand", "this.attachment.open();");
+  menuitementry.setAttribute(
+    "oncommand",
+    "this.attachment.open(getMessagePaneBrowser().browsingContext);"
+  );
   menuitementry.setAttribute("label", getString("openLabel"));
   menuitementry.setAttribute("accesskey", getString("openLabelAccesskey"));
   menuitementry.setAttribute("disabled", deleted);
@@ -2802,7 +2269,10 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   // Create the "save" menu item
   menuitementry = document.createXULElement("menuitem");
   menuitementry.attachment = attachment;
-  menuitementry.setAttribute("oncommand", "this.attachment.save();");
+  menuitementry.setAttribute(
+    "oncommand",
+    "this.attachment.save(top.messenger);"
+  );
   menuitementry.setAttribute("label", getString("saveLabel"));
   menuitementry.setAttribute("accesskey", getString("saveLabelAccesskey"));
   menuitementry.setAttribute("disabled", deleted);
@@ -2811,7 +2281,10 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   // Create the "detach" menu item
   menuitementry = document.createXULElement("menuitem");
   menuitementry.attachment = attachment;
-  menuitementry.setAttribute("oncommand", "this.attachment.detach(true);");
+  menuitementry.setAttribute(
+    "oncommand",
+    "this.attachment.detach(top.messenger, true);"
+  );
   menuitementry.setAttribute("label", getString("detachLabel"));
   menuitementry.setAttribute("accesskey", getString("detachLabelAccesskey"));
   menuitementry.setAttribute("disabled", !canDetach);
@@ -2820,7 +2293,10 @@ function addAttachmentToPopup(popup, attachment, attachmentIndex) {
   // Create the "delete" menu item
   menuitementry = document.createXULElement("menuitem");
   menuitementry.attachment = attachment;
-  menuitementry.setAttribute("oncommand", "this.attachment.detach(false);");
+  menuitementry.setAttribute(
+    "oncommand",
+    "this.attachment.detach(top.messenger, false);"
+  );
   menuitementry.setAttribute("label", getString("deleteLabel"));
   menuitementry.setAttribute("accesskey", getString("deleteLabelAccesskey"));
   menuitementry.setAttribute("disabled", !canDetach);
@@ -2953,7 +2429,7 @@ function HandleMultipleAttachments(attachments, action) {
       // supported. As a workaround, resort to normal detach-"all". See also
       // the comment on 'detaching a multiple selection of attachments' below.
       if (attachments.length == 1) {
-        attachments[0].detach(true);
+        attachments[0].detach(top.messenger, true);
       } else {
         top.messenger.detachAllAttachments(
           attachmentContentTypeArray,
@@ -2983,7 +2459,7 @@ function HandleMultipleAttachments(attachments, action) {
       // doing the first helper app dialog right away, then waiting a bit
       // before we launch the rest.
       let actionFunction = function(aAttachment) {
-        aAttachment.open();
+        aAttachment.open(getMessagePaneBrowser().browsingContext);
       };
 
       for (let i = 0; i < attachments.length; i++) {
@@ -3000,7 +2476,7 @@ function HandleMultipleAttachments(attachments, action) {
       // the folder path of each file for the save dialog of the next one.
       let saveAttachments = function(attachments) {
         if (attachments.length > 0) {
-          attachments[0].save().then(function() {
+          attachments[0].save(top.messenger).then(function() {
             saveAttachments(attachments.slice(1));
           });
         }

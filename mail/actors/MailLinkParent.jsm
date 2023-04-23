@@ -7,10 +7,20 @@
 
 const EXPORTED_SYMBOLS = ["MailLinkParent"];
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+const { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+
+const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
+});
+
+XPCOMUtils.defineLazyModuleGetters(lazy, {
+  MailServices: "resource:///modules/MailServices.jsm",
+  MailUtils: "resource:///modules/MailUtils.jsm",
+});
 
 class MailLinkParent extends JSWindowActorParent {
   receiveMessage(value) {
@@ -39,15 +49,14 @@ class MailLinkParent extends JSWindowActorParent {
 
   _handleMailboxLink({ data, target }) {
     // AttachmentInfo is defined in msgHdrView.js.
-    let { AttachmentInfo } = target.browsingContext.topChromeWindow;
     let url = new URL(data);
-    new AttachmentInfo(
-      "",
-      data,
-      url.searchParams.get("filename"),
-      "",
-      false
-    ).open();
+    new lazy.AttachmentInfo({
+      contentType: "",
+      url: data,
+      name: url.searchParams.get("filename"),
+      uri: "",
+      isExternalAttachment: false,
+    }).open(target.browsingContext.topChromeWindow, target.browsingContext.id);
   }
 
   _handleMailToLink({ data, target }) {
@@ -58,10 +67,12 @@ class MailLinkParent extends JSWindowActorParent {
     let documentURI = target.windowContext.documentURI;
     if (documentURI instanceof Ci.nsIMsgMessageUrl) {
       documentURI.QueryInterface(Ci.nsIMsgMessageUrl);
-      [identity] = MailUtils.getIdentityForHeader(documentURI.messageHeader);
+      [identity] = lazy.MailUtils.getIdentityForHeader(
+        documentURI.messageHeader
+      );
     }
 
-    MailServices.compose.OpenComposeWindowWithURI(
+    lazy.MailServices.compose.OpenComposeWindowWithURI(
       undefined,
       Services.io.newURI(data),
       identity
@@ -70,7 +81,7 @@ class MailLinkParent extends JSWindowActorParent {
 
   _handleMidLink({ data }) {
     // data is the mid: url.
-    MailUtils.openMessageByMessageId(data.slice(4));
+    lazy.MailUtils.openMessageByMessageId(data.slice(4));
   }
 
   _handleNewsLink({ data }) {

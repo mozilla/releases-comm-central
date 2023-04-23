@@ -21,7 +21,6 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
-  DownloadPaths: "resource://gre/modules/DownloadPaths.sys.mjs",
   TreeSelection: "chrome://messenger/content/tree-selection.mjs",
 });
 
