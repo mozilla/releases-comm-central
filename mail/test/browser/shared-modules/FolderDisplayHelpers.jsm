@@ -1518,7 +1518,7 @@ async function right_click_on_folder(aFolder) {
     win.document.getElementById("folderPaneContext"),
     "popupshown"
   );
-  let row = folderTree.find(row => row.uri == aFolder.URI);
+  let row = folderTree.rows.find(row => row.uri == aFolder.URI);
   EventUtils.synthesizeMouseAtCenter(
     row.querySelector(".container"),
     { type: "contextmenu" },
