@@ -562,7 +562,6 @@ Enigmail.msg = {
     }
 
     if (doSetSubject) {
-      subject = EnigmailData.convertToUnicode(subject, "UTF-8");
       subject = jsmime.headerparser.decodeRFC2047Words(subject, "utf-8");
 
       if (subjElem.value == "Re: " + subject) {

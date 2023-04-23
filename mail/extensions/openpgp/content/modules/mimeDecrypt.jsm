@@ -860,10 +860,7 @@ MimeDecryptHandler.prototype = {
       try {
         let msgDbHdr = this.uri.QueryInterface(Ci.nsIMsgMessageUrl)
           .messageHeader;
-        msgDbHdr.subject = lazy.EnigmailData.convertFromUnicode(
-          this.decryptedHeaders.subject,
-          "utf-8"
-        );
+        msgDbHdr.subject = this.decryptedHeaders.subject;
       } catch (x) {
         console.debug(x);
       }
