@@ -26,7 +26,6 @@ job-defaults:
             - linux64-libdmg
             - linux64-nasm
             - linux64-node
-            - linux64-python
             - linux64-rust-macos
             - linux64-rust-size
             - sysroot-wasm32-wasi

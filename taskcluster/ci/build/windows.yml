@@ -48,7 +48,6 @@ win32/opt:
             - linux64-dump_syms
             - linux64-nasm
             - linux64-node
-            - linux64-python
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
@@ -106,7 +105,6 @@ win32-shippable/opt:
             - linux64-dump_syms
             - linux64-nasm
             - linux64-node
-            - linux64-python
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-winchecksec
@@ -159,7 +157,6 @@ win32/debug:
             - linux64-dump_syms
             - linux64-nasm
             - linux64-node
-            - linux64-python
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
@@ -212,7 +209,6 @@ win64/opt:
             - linux64-dump_syms
             - linux64-nasm
             - linux64-node
-            - linux64-python
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
@@ -270,7 +266,6 @@ win64-shippable/opt:
             - linux64-dump_syms
             - linux64-nasm
             - linux64-node
-            - linux64-python
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-winchecksec
@@ -323,7 +318,6 @@ win64/debug:
             - linux64-dump_syms
             - linux64-nasm
             - linux64-node
-            - linux64-python
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
@@ -378,7 +372,6 @@ win64-plain/debug:
             - win64-mozmake
             - win64-node
             - win64-nasm
-            - win64-python
             - win64-rust
             - win64-vs2017
             - win64-winchecksec
@@ -423,7 +416,6 @@ win64-plain/opt:
             - win64-mozmake
             - win64-node
             - win64-nasm
-            - win64-python
             - win64-rust
             - win64-vs2017
             - win64-winchecksec
@@ -466,7 +458,6 @@ win64-asan/opt:
             - linux64-dump_syms
             - linux64-nasm
             - linux64-node
-            - linux64-python
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
@@ -530,7 +521,6 @@ win64-asan-reporter-shippable/opt:
             - linux64-dump_syms
             - linux64-nasm
             - linux64-node
-            - linux64-python
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
