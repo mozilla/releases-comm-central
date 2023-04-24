@@ -3043,6 +3043,10 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
             searchURI.Cut(0, 1);
             searchURI.Append(folderURI);
             dbFolderInfo->SetCharProperty(kSearchFolderUriProp, searchURI);
+            nsCOMPtr<nsIObserverService> obs =
+                mozilla::services::GetObserverService();
+            obs->NotifyObservers(virtualFolder, "search-folders-changed",
+                                 nullptr);
             break;
           }
           // New sent or archive folder, need to add sub-folders to smart
@@ -3156,6 +3160,9 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderRemoved(nsIMsgFolder* parentFolder,
           // remove leading '|' we added (or one after |folderURI, if first URI)
           searchURI.Cut(0, 1);
           dbFolderInfo->SetCharProperty(kSearchFolderUriProp, searchURI);
+          nsCOMPtr<nsIObserverService> obs =
+              mozilla::services::GetObserverService();
+          obs->NotifyObservers(savedSearch, "search-folders-changed", nullptr);
         }
       }
     }
@@ -3250,6 +3257,10 @@ nsresult nsMsgAccountManager::RemoveFolderFromSmartFolder(
           // remove leading '|' we added (or one after |folderURI, if first URI)
           searchURI.Cut(0, 1);
           dbFolderInfo->SetCharProperty(kSearchFolderUriProp, searchURI);
+          nsCOMPtr<nsIObserverService> obs =
+              mozilla::services::GetObserverService();
+          obs->NotifyObservers(virtualFolder, "search-folders-changed",
+                               nullptr);
         }
       }
     }

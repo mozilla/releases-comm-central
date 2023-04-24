@@ -126,6 +126,7 @@ VirtualFolderWrapper.prototype = {
     return this.dbFolderInfo
       .getCharProperty("searchFolderUri")
       .split("|")
+      .sort() // Put folders in URI order so a parent is always before a child.
       .map(uri => lazy.MailUtils.getExistingFolder(uri))
       .filter(Boolean);
   },
@@ -142,6 +143,7 @@ VirtualFolderWrapper.prototype = {
       let uris = aFolders.map(folder => folder.URI);
       this.dbFolderInfo.setCharProperty("searchFolderUri", uris.join("|"));
     }
+    Services.obs.notifyObservers(this.virtualFolder, "search-folders-changed");
   },
 
   /**

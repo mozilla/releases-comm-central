@@ -650,7 +650,7 @@ var folderPane = {
           let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
           for (let searchFolder of wrappedFolder.searchFolders) {
             if (searchFolder != folder) {
-              this.addFolder(
+              this._addSearchedFolder(
                 folderPane._getNonGmailParent(searchFolder),
                 searchFolder
               );
@@ -658,6 +658,72 @@ var folderPane = {
           }
         }
         MailServices.accounts.saveVirtualFolders();
+      },
+
+      _addSearchedFolder(parentFolder, childFolder) {
+        let flags = childFolder.flags;
+        let folderType = this._folderTypes.find(
+          ft => childFolder.isSpecialFolder(ft.flag, true) && ft.list
+        );
+        if (!folderType) {
+          return;
+        }
+
+        if (folderType.flag & flags) {
+          // The folder has the flag for this type.
+          let folderRow = folderPane._createFolderRow(
+            this.name,
+            childFolder,
+            "server"
+          );
+          folderPane._insertInServerOrder(folderType.list, folderRow);
+        } else {
+          // The folder is a descendant of one which has the flag.
+          let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
+          if (!parentRow) {
+            // This is awkward: `childFolder` is searched but `parentFolder` is
+            // not. Displaying the unsearched folder is probably the least
+            // confusing way to handle this situation.
+            this._addSearchedFolder(
+              folderPane._getNonGmailParent(parentFolder),
+              parentFolder
+            );
+            parentRow = folderPane.getRowForFolder(parentFolder, this.name);
+          }
+          parentRow.insertChildInOrder(
+            folderPane._createFolderRow(this.name, childFolder)
+          );
+        }
+      },
+
+      changeSearchedFolders(smartFolder) {
+        let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(smartFolder);
+        let smartFolderRow = folderPane.getRowForFolder(smartFolder, this.name);
+        let searchFolderURIs = wrappedFolder.searchFolders.map(sf => sf.URI);
+
+        // Remove any rows which may belong to folders that aren't searched.
+        for (let row of [...smartFolderRow.querySelectorAll("li")]) {
+          if (!searchFolderURIs.includes(row.uri)) {
+            row.remove();
+          }
+        }
+
+        // Add missing rows for folders that are searched.
+        let existingRowURIs = Array.from(
+          smartFolderRow.querySelectorAll("li"),
+          row => row.uri
+        );
+        for (let searchFolder of wrappedFolder.searchFolders) {
+          if (
+            searchFolder != smartFolder &&
+            !existingRowURIs.includes(searchFolder.URI)
+          ) {
+            this._addSearchedFolder(
+              folderPane._getNonGmailParent(searchFolder),
+              searchFolder
+            );
+          }
+        }
       },
 
       initServer(server) {
@@ -669,33 +735,6 @@ var folderPane = {
       },
 
       addFolder(parentFolder, childFolder) {
-        let flags = childFolder.flags;
-        for (let folderType of this._folderTypes) {
-          if (
-            !childFolder.isSpecialFolder(folderType.flag, true) ||
-            !folderType.list
-          ) {
-            continue;
-          }
-
-          if (folderType.flag & flags) {
-            // The folder has the flag for this type.
-            let folderRow = folderPane._createFolderRow(
-              this.name,
-              childFolder,
-              "server"
-            );
-            folderPane._insertInServerOrder(folderType.list, folderRow);
-          } else {
-            // The folder is a descendant of one which has the flag.
-            let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
-            parentRow.insertChildInOrder(
-              folderPane._createFolderRow(this.name, childFolder)
-            );
-          }
-          return;
-        }
-
         if (!["nntp", "rss"].includes(childFolder.server.type)) {
           return;
         }
@@ -1065,6 +1104,8 @@ var folderPane = {
 
     Services.prefs.addObserver("mail.accountmanager.accounts", this);
 
+    Services.obs.addObserver(this, "search-folders-changed");
+
     folderTree.addEventListener("contextmenu", this);
     folderTree.addEventListener("collapsed", this);
     folderTree.addEventListener("expanded", this);
@@ -1112,6 +1153,7 @@ var folderPane = {
 
   uninit() {
     Services.prefs.removeObserver("mail.accountmanager.accounts", this);
+    Services.obs.removeObserver(this, "search-folders-changed");
   },
 
   handleEvent(event) {
@@ -1146,6 +1188,11 @@ var folderPane = {
   observe(subject, topic, data) {
     if (topic == "nsPref:changed") {
       this._forAllActiveModes("changeAccountOrder");
+    } else if (topic == "search-folders-changed" && this._modes.smart.active) {
+      subject.QueryInterface(Ci.nsIMsgFolder);
+      if (subject.server == this._modes.smart._smartServer) {
+        this._modes.smart.changeSearchedFolders(subject);
+      }
     }
   },
 
