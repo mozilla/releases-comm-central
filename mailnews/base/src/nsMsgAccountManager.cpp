@@ -2948,11 +2948,13 @@ nsresult nsMsgAccountManager::RemoveVFListenerForVF(nsIMsgFolder* virtualFolder,
 
   while (iter.HasMore()) {
     listener = iter.GetNext();
-    if (listener->m_folderWatching == folder &&
-        listener->m_virtualFolder == virtualFolder) {
+    if (listener->m_virtualFolder == virtualFolder &&
+        (!folder || listener->m_folderWatching == folder)) {
       msgDBService->UnregisterPendingListener(listener);
       m_virtualFolderListeners.RemoveElement(listener);
-      break;
+      if (folder) {
+        break;
+      }
     }
   }
   return NS_OK;
@@ -3093,6 +3095,8 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderRemoved(nsIMsgFolder* parentFolder,
   folder->GetFlags(&folderFlags);
   // if we removed a VF, flush VF list to disk.
   if (folderFlags & nsMsgFolderFlags::Virtual) {
+    RemoveVFListenerForVF(folder, nullptr);
+    m_virtualFolders.RemoveElement(folder);
     rv = SaveVirtualFolders();
     // clear flags on deleted folder if it's a virtual folder, so that creating
     // a new folder with the same name doesn't cause confusion.
