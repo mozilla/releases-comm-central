@@ -91,6 +91,11 @@ def check(params, file_patterns):
     """Determine whether any of the files changed in the indicated push to
     https://hg.mozilla.org match any of the given file patterns."""
     changed_files = get_files_changed_extended(params)
+    if not changed_files:
+        logger.warning(
+            "changed_files from automationrelevance is empty; assuming all files have changed"
+        )
+        return True
 
     for pattern in file_patterns:
         for path in changed_files:
