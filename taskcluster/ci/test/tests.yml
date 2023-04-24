@@ -22,7 +22,7 @@ xpcshell:
                 default: xpcshell
     target:
         by-test-platform:
-            windows1.*-shippable-qr/opt:
+            windows11-64.*:
                 by-variant:
                     msix: target.installer.msix
                     default: null
@@ -34,7 +34,7 @@ xpcshell:
         by-variant:
             msix:
                 by-test-platform:
-                    windows1.*-shippable-qr/opt: built-projects
+                    windows11-64.*: built-projects
                     default: []
             default: built-projects
     tier:
@@ -115,7 +115,7 @@ mochitest-thunderbird:
         name: mochitest-browser-chrome-thunderbird
     target:
         by-test-platform:
-            windows1.*-shippable-qr/opt:
+            windows11-64.*:
                 by-variant:
                     msix: target.installer.msix
                     default: null
@@ -138,7 +138,7 @@ mochitest-thunderbird:
         by-variant:
             msix:
                 by-test-platform:
-                    windows1.*-shippable-qr/opt: built-projects
+                    windows11-64.*: built-projects
                     default: []
             default: built-projects
     tier:

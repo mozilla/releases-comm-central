@@ -37,7 +37,7 @@ job-defaults:
     mozharness:
         requires-signed-builds:
             by-test-platform:
-                windows1.*-64.*-qr/opt:
+                windows11-64.*:
                     by-variant:
                         msix: true
                         default: false
