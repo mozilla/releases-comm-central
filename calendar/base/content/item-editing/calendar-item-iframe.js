@@ -443,6 +443,12 @@ function onLoad() {
   );
   EditorSharedStartup();
 
+  // We want to keep HTML output as simple as possible, so don't try to use divs
+  // as separators. As a bonus, this avoids a bug in the editor which sometimes
+  // causes the user to have to hit enter twice for it to take effect.
+  const editor = GetCurrentEditor();
+  editor.document.execCommand("defaultparagraphseparator", false, "br");
+
   onLoad.hasLoaded = true;
 }
 // Set a variable to allow or prevent actions before the dialog is done loading.
@@ -1549,15 +1555,20 @@ function saveDialog(item) {
   let editorElement = document.getElementById("item-description");
   let editor = editorElement.getHTMLEditor(editorElement.contentWindow);
   if (editor.documentModified) {
-    // Using the same mode as the HTML downconverter in calItemBase.js
+    // Get editor output as HTML. We request raw output to avoid any
+    // pretty-printing which may cause issues with Google Calendar (see comments
+    // in calViewUtils.fixGoogleCalendarDescription() for more information).
     let mode =
+      Ci.nsIDocumentEncoder.OutputRaw |
       Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
-      Ci.nsIDocumentEncoder.OutputWrap |
-      Ci.nsIDocumentEncoder.OutputLFLineBreak |
-      Ci.nsIDocumentEncoder.OutputNoScriptContent |
-      Ci.nsIDocumentEncoder.OutputNoFramesContent |
       Ci.nsIDocumentEncoder.OutputBodyOnly;
-    item.descriptionHTML = editor.outputToString("text/html", mode);
+
+    const editorOutput = editor.outputToString("text/html", mode);
+
+    // The editor gives us output wrapped in a body tag. We don't really want
+    // that, so strip it. (Yes, it's a regex with HTML, but a _very_ specific
+    // one.)
+    item.descriptionHTML = editorOutput.replace(/^<body>(.+)<\/body>$/, "$1");
   }
 
   // Event Status

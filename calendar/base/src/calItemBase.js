@@ -420,24 +420,29 @@ calItemBase.prototype = {
 
   set descriptionHTML(html) {
     if (html) {
-      // Using the same mode as the HTML description editor
-      // in calendar-item-iframe.js
+      // We need to output a plaintext version of the description, even if we're
+      // using the ALTREP parameter.
       let mode =
         Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
         Ci.nsIDocumentEncoder.OutputWrap |
         Ci.nsIDocumentEncoder.OutputLFLineBreak |
-        Ci.nsIDocumentEncoder.OutputNoScriptContent |
-        Ci.nsIDocumentEncoder.OutputNoFramesContent |
         Ci.nsIDocumentEncoder.OutputBodyOnly;
       let text = gParserUtils.convertToPlainText(html, mode, 80);
+
       this.setProperty("DESCRIPTION", text);
+
+      // If the text is non-empty, create a standard ALTREP representation of
+      // the description as HTML.
+      // N.B. There's logic in nsMsgCompose for determining if HTML is
+      // convertible to plaintext without losing formatting. We could test if we
+      // could leave this part off if we generalized that logic.
       if (text) {
         this.setPropertyParameter(
           "DESCRIPTION",
           "ALTREP",
           "data:text/html," + encodeURIComponent(html)
         );
-      } // else: can't set a property parameter if the property is empty
+      }
     } else {
       this.deleteProperty("DESCRIPTION");
     }

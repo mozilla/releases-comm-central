@@ -1187,14 +1187,25 @@ class FreeBusyResponse extends CalDavSimpleResponse {
   }
 }
 
+/**
+ * Set item description to a format Google Calendar understands if the item
+ * will be uploaded to Google Calendar.
+ *
+ * @param {calIItemBase} aItem - The item we may want to modify.
+ * @param {nsIURI} aUri - The URI the item will be uploaded to.
+ * @returns {calItemBase} - A calendar item with appropriately-set description.
+ */
 function fixGoogleDescription(aItem, aUri) {
   if (aUri.spec.startsWith("https://apidata.googleusercontent.com/caldav/")) {
-    // Move the HTML to the DESCRIPTION field, because that's where
-    // Google puts HTML, which is a ICS spec violation. :-(
+    // Google expects item descriptions to be bare HTML in violation of spec,
+    // rather than using the standard Alternate Text Representation.
     aItem = aItem.clone();
     aItem.descriptionText = aItem.descriptionHTML;
-    // Mark items mangled by us for Google, so one can later revert it.
+
+    // Mark items we've modified for Google compatibility for informational
+    // purposes.
     aItem.setProperty("X-MOZ-GOOGLE-HTML-DESCRIPTION", true);
   }
+
   return aItem;
 }

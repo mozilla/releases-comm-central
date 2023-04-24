@@ -358,29 +358,45 @@ var calview = {
   },
 
   /**
-   * Fixes up a description of a Google Calendar item
+   * Correct the description of a Google Calendar item so that it will display
+   * as intended.
    *
-   * @param item      The item to check
+   * @param {calIItemBase} item - The item to correct.
    */
   fixGoogleCalendarDescription(item) {
-    let description = item.descriptionText;
-    if (description) {
-      // Google Calendar descriptions are actually HTML,
-      // but they contain bare URLs and newlines, so fix those up here.
-      let mode = Ci.mozITXTToHTMLConv.kURLs;
-      // scanHTML only allows &lt; &gt; and &amp; so decode other entities now
-      description = description.replace(/&#?\w+;?/g, entity => {
-        let body = new DOMParser().parseFromString(entity, "text/html").body;
+    // Google Calendar inserts bare HTML into its description field instead of
+    // using the standard Alternate Text Representation mechanism. However,
+    // the HTML is a poor representation of how it displays descriptions on
+    // the site: links may be included as bare URLs and line breaks may be
+    // included as raw newlines, so in order to display descriptions as Google
+    // intends, we need to make some corrections.
+    if (item.descriptionText) {
+      // Convert HTML entities which scanHTML won't handle into their standard
+      // text representation.
+      let description = item.descriptionText.replace(/&#?\w+;?/g, potentialEntity => {
+        // Attempt to parse the pattern match as an HTML entity.
+        let body = new DOMParser().parseFromString(potentialEntity, "text/html").body;
+
+        // Don't replace text that didn't parse as an entity or that parsed as
+        // an entity which could break HTML parsing below.
         return body.innerText.length == 1 && !'"&<>'.includes(body.innerText)
           ? body.innerText
-          : entity; // Entity didn't decode to a character, so leave it
+          : potentialEntity;
       });
-      description = lazy.gTextToHtmlConverter.scanHTML(description, mode);
+
+      // Replace bare URLs with links and convert remaining entities.
+      description = lazy.gTextToHtmlConverter.scanHTML(description, Ci.mozITXTToHTMLConv.kURLs);
+
+      // Setting the HTML description will mark the item dirty, but we want to
+      // avoid unnecessary updates; preserve modification time.
       let stamp = item.stampTime;
       let lastModified = item.lastModifiedTime;
+
       item.descriptionHTML = description.replace(/\r?\n/g, "<br>");
+
+      // Restore modification time.
       item.setProperty("DTSTAMP", stamp);
-      item.setProperty("LAST-MODIFIED", lastModified); // undirty the item
+      item.setProperty("LAST-MODIFIED", lastModified);
     }
   },
 };
