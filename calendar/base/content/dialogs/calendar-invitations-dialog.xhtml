@@ -27,22 +27,20 @@
   <script defer="defer" src="chrome://calendar/content/calendar-invitations-dialog.js"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttons="accept,cancel">
-  <vbox id="dialog-box" flex="1">
-    <stack flex="1">
-      <richlistbox id="invitations-listbox" flex="1"/>
-      <hbox id="updating-box" align="center" pack="center" hidden="true">
-        <label value="&calendar.invitations.dialog.statusmessage.updating.text;"
-               crop="end"/>
-        <html:img class="calendar-invitations-updating-icon"
-                  src="chrome://global/skin/icons/loading.png" alt="" />
-      </hbox>
-      <hbox id="noinvitations-box" align="center" pack="center" hidden="true">
-        <label value="&calendar.invitations.dialog.statusmessage.noinvitations.text;"
-               crop="end"/>
-      </hbox>
-    </stack>
-  </vbox>
+<dialog class="scrollable" buttons="accept,cancel">
+  <div id="invitationContainer">
+    <richlistbox id="invitations-listbox"/>
+    <hbox id="updating-box" align="center" pack="center" hidden="true">
+      <label value="&calendar.invitations.dialog.statusmessage.updating.text;"
+             crop="end"/>
+      <html:img class="calendar-invitations-updating-icon"
+                src="chrome://global/skin/icons/loading.png" alt="" />
+    </hbox>
+    <hbox id="noinvitations-box" align="center" pack="center" hidden="true">
+      <label value="&calendar.invitations.dialog.statusmessage.noinvitations.text;"
+             crop="end"/>
+    </hbox>
+  </div>
 </dialog>
 </html:body>
 </html>

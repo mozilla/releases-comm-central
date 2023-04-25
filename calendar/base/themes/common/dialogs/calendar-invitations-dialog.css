@@ -17,9 +17,10 @@
   border: 1px solid var(--field-border-color);
 }
 
-#invitations-listbox {
+#invitationContainer {
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 richlistitem[is="calendar-invitations-richlistitem"] {
@@ -30,6 +31,7 @@ richlistitem[is="calendar-invitations-richlistitem"] {
 
 .calendar-invitations-richlistitem-title {
   font-weight: bold;
+  white-space: break-spaces;
 }
 
 .calendar-invitations-richlistitem-icon {

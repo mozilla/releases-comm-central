@@ -133,6 +133,15 @@ dialog::part(content-box) {
   flex: 1;
 }
 
+dialog.scrollable {
+  width: 100vw;
+  height: 100vh;
+}
+
+dialog.scrollable::part(content-box) {
+  overflow: scroll;
+}
+
 html|input,
 html|textarea {
   appearance: none;
