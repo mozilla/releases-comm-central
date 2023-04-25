@@ -632,33 +632,12 @@ window.addEventListener(
     displayStartTime = displayStartTime.getInTimezone(cal.dtz.defaultTimezone);
     displayEndTime = displayStartTime.clone();
 
-    if (organizer) {
-      let organizerElement = attendeeList.appendChild(document.createXULElement("event-attendee"));
-      organizerElement.attendee = organizer;
-    } else {
-      let organizerId = calendar.getProperty("organizerId");
-      if (organizerId) {
-        let organizerElement = attendeeList.appendChild(
-          document.createXULElement("event-attendee")
-        );
-        organizerElement.value = organizerId.replace(/^mailto:/, "");
-        organizerElement.isOrganizer = true;
-      }
-    }
-    for (let attendee of attendees) {
-      let attendeeElement = attendeeList.appendChild(document.createXULElement("event-attendee"));
-      attendeeElement.attendee = attendee;
-    }
-
     readOnly = calendar.isReadOnly;
     zoom.level = 2;
     layout();
     eventBar.update(true);
     dateTimePickerUI.addListeners();
     addEventListener("resize", layout);
-
-    attendeeList.appendChild(document.createXULElement("event-attendee")).focus();
-    updateVerticalScrollbars();
 
     dateTimePickerUI.start.addEventListener("change", function(event) {
       if (!updateByFunction) {
@@ -677,6 +656,37 @@ window.addEventListener(
         updateRange();
       }
     });
+
+    // The organizer must be added after zoom level is set in order for
+    // free/busy update to work.
+    if (organizer) {
+      let organizerElement = attendeeList.appendChild(document.createXULElement("event-attendee"));
+      organizerElement.attendee = organizer;
+    } else {
+      // There's no existing organizer for the event; create a new one and add
+      // it to the attendees list.
+      let organizerId = calendar.getProperty("organizerId");
+      if (organizerId) {
+        const newOrganizer = new CalAttendee();
+        newOrganizer.isOrganizer = true;
+        newOrganizer.id = cal.email.removeMailTo(organizerId);
+
+        let organizerElement = attendeeList.appendChild(
+          document.createXULElement("event-attendee")
+        );
+        organizerElement.attendee = newOrganizer;
+      }
+    }
+
+    // Add all provided attendees to the attendee list.
+    for (let attendee of attendees) {
+      let attendeeElement = attendeeList.appendChild(document.createXULElement("event-attendee"));
+      attendeeElement.attendee = attendee;
+    }
+
+    // Add a final empty row for user input.
+    attendeeList.appendChild(document.createXULElement("event-attendee")).focus();
+    updateVerticalScrollbars();
   },
   { once: true }
 );
@@ -687,7 +697,7 @@ window.addEventListener("dialogaccept", () => {
   let organizer = attendeeElements[0].attendee;
   for (let i = 1; i < attendeeElements.length; i++) {
     let attendee = attendeeElements[i].attendee;
-    if (attendee) {
+    if (attendee.id) {
       attendees.push(attendee);
     }
   }
@@ -1070,96 +1080,114 @@ function updateRange() {
    * element is removed.
    */
   class EventAttendee extends MozXULElement {
+    static #DEFAULT_ROLE = "REQ-PARTICIPANT";
+    static #DEFAULT_USER_TYPE = "INDIVIDUAL";
+
+    static #roleCycle = ["REQ-PARTICIPANT", "OPT-PARTICIPANT", "NON-PARTICIPANT", "CHAIR"];
+    static #userTypeCycle = ["INDIVIDUAL", "GROUP", "RESOURCE", "ROOM"];
+
+    #attendee = null;
+    #roleIcon = null;
+    #userTypeIcon = null;
+    #input = null;
+
+    // Because these divs have no reference back to the corresponding attendee,
+    // we currently have to expose this in order to test that free/busy updates
+    // happen appropriately.
+    _freeBusyDiv = null;
+
     connectedCallback() {
-      this.roleIcon = this.appendChild(document.createElement("img"));
-      this.roleIcon.classList.add("role-icon");
-      this.roleIcon.setAttribute(
+      // Initialize a default attendee.
+      this.#attendee = new CalAttendee();
+      this.#attendee.role = EventAttendee.#DEFAULT_ROLE;
+      this.#attendee.userType = EventAttendee.#DEFAULT_USER_TYPE;
+
+      // Set up participation role icon. Its image is a grid of icons, the
+      // display of which is determined by CSS rules defined in
+      // calendar-attendees.css based on its class and "attendeerole" attribute.
+      this.#roleIcon = this.appendChild(document.createElement("img"));
+      this.#roleIcon.classList.add("role-icon");
+      this.#roleIcon.setAttribute(
         "src",
         "chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
       );
-      this.roleIcon.setAttribute("attendeerole", "REQ-PARTICIPANT");
-      this._updateTooltip(this.roleIcon);
-      this.roleIcon.addEventListener("click", this);
+      this.#updateRoleIcon();
+      this.#roleIcon.addEventListener("click", this);
 
-      this.userTypeIcon = this.appendChild(document.createElement("img"));
-      this.userTypeIcon.classList.add("usertype-icon");
-      this.userTypeIcon.setAttribute("src", "chrome://calendar/skin/shared/attendee-icons.png");
-      this.userTypeIcon.setAttribute("usertype", "INDIVIDUAL");
-      this._updateTooltip(this.userTypeIcon);
-      this.userTypeIcon.addEventListener("click", this);
+      // Set up calendar user type icon. Its image is a grid of icons, the
+      // display of which is determined by CSS rules defined in
+      // calendar-attendees.css based on its class and "usertype" attribute.
+      this.#userTypeIcon = this.appendChild(document.createElement("img"));
+      this.#userTypeIcon.classList.add("usertype-icon");
+      this.#userTypeIcon.setAttribute("src", "chrome://calendar/skin/shared/attendee-icons.png");
+      this.#updateUserTypeIcon();
+      this.#userTypeIcon.addEventListener("click", this);
 
-      this.input = this.appendChild(document.createElement("input", { is: "autocomplete-input" }));
-      this.input.classList.add("plain");
-      this.input.setAttribute("autocompletesearch", "addrbook ldap");
-      this.input.setAttribute("autocompletesearchparam", "{}");
-      this.input.setAttribute("forcecomplete", "true");
-      this.input.setAttribute("timeout", "200");
-      this.input.setAttribute("completedefaultindex", "true");
-      this.input.setAttribute("completeselectedindex", "true");
-      this.input.setAttribute("minresultsforpopup", "1");
-      this.input.addEventListener("change", this);
-      this.input.addEventListener("keydown", this);
-      this.input.addEventListener("input", this);
-      this.input.addEventListener("click", this);
+      this.#input = this.appendChild(document.createElement("input", { is: "autocomplete-input" }));
+      this.#input.classList.add("plain");
+      this.#input.setAttribute("autocompletesearch", "addrbook ldap");
+      this.#input.setAttribute("autocompletesearchparam", "{}");
+      this.#input.setAttribute("forcecomplete", "true");
+      this.#input.setAttribute("timeout", "200");
+      this.#input.setAttribute("completedefaultindex", "true");
+      this.#input.setAttribute("completeselectedindex", "true");
+      this.#input.setAttribute("minresultsforpopup", "1");
+      this.#input.addEventListener("change", this);
+      this.#input.addEventListener("keydown", this);
+      this.#input.addEventListener("input", this);
+      this.#input.addEventListener("click", this);
 
-      this.freeBusyDiv = freebusyGridInner.appendChild(document.createElement("div"));
-      this.freeBusyDiv.classList.add("freebusy-row");
+      this._freeBusyDiv = freebusyGridInner.appendChild(document.createElement("div"));
+      this._freeBusyDiv.classList.add("freebusy-row");
     }
+
     disconnectedCallback() {
-      this.freeBusyDiv.remove();
+      this._freeBusyDiv.remove();
     }
 
-    /** @returns {calIAttendee} - Attendee object for this row. */
+    /**
+     * Get the attendee for this row. The attendee will be cloned to prevent
+     * accidental modification, which could cause the UI to fall out of sync.
+     *
+     * @returns {calIAttendee} - The attendee for this row.
+     */
     get attendee() {
-      if (!this.value) {
-        return null;
-      }
-
-      let address = MailServices.headerParser.makeFromDisplayAddress(this.value)[0];
-
-      let attendee = new CalAttendee();
-      attendee.id = cal.email.prependMailTo(address.email);
-      if (address.name && address.name != address.email) {
-        attendee.commonName = address.name;
-      }
-      attendee.isOrganizer = this.isOrganizer;
-      attendee.role = this.roleIcon.getAttribute("attendeerole");
-      let userType = this.userTypeIcon.getAttribute("usertype");
-      attendee.userType = userType == "INDIVIDUAL" ? null : userType; // INDIVIDUAL is the default
-
-      return attendee;
+      return this.#attendee.clone();
     }
-    /** @param {calIAttendee} value - Attendee object for this row. */
-    set attendee(value) {
-      if (value.commonName) {
-        this.value = MailServices.headerParser.makeMimeHeader([
-          { name: value.commonName, email: value.id.replace(/^mailto:/, "") },
-        ]);
+
+    /**
+     * Set the attendee for this row.
+     *
+     * @param {calIAttendee} attendee - The new attendee for this row.
+     */
+    set attendee(attendee) {
+      this.#attendee = attendee.clone();
+
+      // Update display values of the icons and input box.
+      this.#updateRoleIcon();
+      this.#updateUserTypeIcon();
+
+      // If the attendee has a name set, build a display string from their name
+      // and email; otherwise, we can use the email address as is.
+      const attendeeEmail = cal.email.removeMailTo(this.#attendee.id);
+      if (this.#attendee.commonName) {
+        this.#input.value = MailServices.headerParser
+          .makeMailboxObject(this.#attendee.commonName, attendeeEmail)
+          .toString();
       } else {
-        this.value = value.id.replace(/^mailto:/, "");
+        this.#input.value = attendeeEmail;
       }
-      this.isOrganizer = value.isOrganizer;
-      this.roleIcon.setAttribute("attendeerole", value.role);
-      this._updateTooltip(this.roleIcon);
-      this.userTypeIcon.setAttribute("usertype", value.userType || "INDIVIDUAL");
-      this._updateTooltip(this.userTypeIcon);
-    }
 
-    /** @returns {string} - The user-visible string representing this row's attendee. */
-    get value() {
-      return this.input.value;
-    }
-    /** @param {string} value - The user-visible string representing this row's attendee. */
-    set value(value) {
-      this.input.value = value;
+      this.updateFreeBusy(displayStartTime, displayEndTime);
     }
 
     /** Removes all free/busy information from this row. */
     clearFreeBusy() {
-      while (this.freeBusyDiv.lastChild) {
-        this.freeBusyDiv.lastChild.remove();
+      while (this._freeBusyDiv.lastChild) {
+        this._freeBusyDiv.lastChild.remove();
       }
     }
+
     /**
      * Queries the free/busy service for information about this row's attendee, and displays the
      * information on the grid if there is any.
@@ -1168,14 +1196,14 @@ function updateRange() {
      * @param {calIDateTime} to - The end of a time period to query.
      */
     updateFreeBusy(from, to) {
-      let addresses = MailServices.headerParser.makeFromDisplayAddress(this.input.value);
+      let addresses = MailServices.headerParser.makeFromDisplayAddress(this.#input.value);
       if (addresses.length === 0) {
         return;
       }
 
-      let calendar = `mailto:${addresses[0].email}`;
+      let calendar = cal.email.prependMailTo(addresses[0].email);
 
-      let pendingDiv = this.freeBusyDiv.appendChild(document.createElement("div"));
+      let pendingDiv = this._freeBusyDiv.appendChild(document.createElement("div"));
       pendingDiv.classList.add("pending");
       setLeftAndWidth(pendingDiv, from, to);
 
@@ -1192,7 +1220,7 @@ function updateRange() {
                 continue;
               }
 
-              let block = this.freeBusyDiv.appendChild(document.createElement("div"));
+              let block = this._freeBusyDiv.appendChild(document.createElement("div"));
               switch (freeBusyType) {
                 case Ci.calIFreeBusyInterval.BUSY_TENTATIVE:
                   block.classList.add("tentative");
@@ -1221,8 +1249,9 @@ function updateRange() {
 
     focus() {
       this.scrollIntoView();
-      this.input.focus();
+      this.#input.focus();
     }
+
     handleEvent(event) {
       if (
         event.type == "change" ||
@@ -1234,47 +1263,97 @@ function updateRange() {
           event.inputType == "insertReplacementText" &&
           event.explicitOriginalTarget != event.originalTarget)
       ) {
-        let nextElement = this.nextElementSibling;
-        if (this.value) {
-          let entries = MailServices.headerParser.makeFromDisplayAddress(this.value);
-          let expandedEntries = new Set();
-
-          let expandEntry = entry => {
-            let list = MailUtils.findListInAddressBooks(entry.name);
+        const nextElement = this.nextElementSibling;
+        if (this.#input.value) {
+          /**
+           * Given structured address data, build it into a collection of
+           * mailboxes, resolving any groups into individual mailboxes in the
+           * process.
+           *
+           * @param {Map<string, msgIAddressObject>} accumulatorMap - A map from
+           *   attendee ID to the corresponding mailbox.
+           * @param {msgIAddressObject} address - Structured representation of
+           *   an RFC 5322 address to resolve to one or more mailboxes.
+           * @returns {Map<string, msgIAddressObject>} - A map containing all
+           *   entries from the provided map as well as any individual
+           *   mailboxes resolved from the provided address.
+           */
+          function resolveAddressesToMailboxes(accumulatorMap, address) {
+            let list = MailUtils.findListInAddressBooks(address.name);
             if (list) {
-              for (let card of list.childCards) {
-                card.QueryInterface(Ci.nsIAbCard);
-                expandEntry({ name: card.displayName, email: card.primaryEmail });
-              }
-            } else {
-              expandedEntries.add(
-                MailServices.headerParser.makeMimeAddress(entry.name, entry.email)
-              );
-            }
-          };
+              // If the address was for a group, collect each mailbox from that
+              // group, recursively if necessary.
+              return list.childCards
+                .map(card => {
+                  card.QueryInterface(Ci.nsIAbCard);
 
-          for (let entry of entries) {
-            expandEntry(entry);
-          }
-          if (expandedEntries.size == 1) {
-            this.value = expandedEntries.values().next().value;
-          } else {
-            this.remove();
-            for (let entry of expandedEntries) {
-              let memberElement = attendeeList.insertBefore(
-                document.createXULElement("event-attendee"),
-                nextElement
-              );
-              memberElement.value = entry;
-              memberElement.updateFreeBusy(displayStartTime, displayEndTime);
+                  return MailServices.headerParser.makeMailboxObject(
+                    card.displayName,
+                    card.primaryEmail
+                  );
+                })
+                .reduce(resolveAddressesToMailboxes, accumulatorMap);
             }
+
+            // The address data was a single mailbox; add it to the map.
+            return accumulatorMap.set(address.email, address);
           }
+
+          // Take the addresses in the input and resolve them into individual
+          // mailboxes for attendees.
+          const attendeeAddresses = MailServices.headerParser.makeFromDisplayAddress(
+            this.#input.value
+          );
+          const resolvedMailboxes = attendeeAddresses.reduce(
+            resolveAddressesToMailboxes,
+            new Map()
+          );
+
+          // We want to ensure that this row and its attendee is preserved if
+          // the attendee is still in the list; otherwise, we may throw away
+          // what we already know about them (e.g., required vs. optional or
+          // RSVP status).
+          const attendeeEmail = this.#attendee.id && cal.email.removeMailTo(this.#attendee.id);
+          if (attendeeEmail && resolvedMailboxes.has(attendeeEmail)) {
+            // Update attendee name from mailbox and ensure we don't duplicate
+            // the row.
+            const mailbox = resolvedMailboxes.get(attendeeEmail);
+            this.#attendee.commonName = mailbox.name;
+            resolvedMailboxes.delete(attendeeEmail);
+          } else {
+            // The attendee for this row was not found in the revised list of
+            // mailboxes, so remove the row from the attendee list.
+            nextElement?.focus();
+            this.remove();
+          }
+
+          // For any mailboxes beyond that representing the current attendee,
+          // add a new row immediately following this one (or its previous
+          // location if removed).
+          for (const [email, mailbox] of resolvedMailboxes) {
+            const newAttendee = new CalAttendee();
+            newAttendee.id = cal.email.prependMailTo(email);
+
+            if (mailbox.name && mailbox.name != mailbox.email) {
+              newAttendee.commonName = mailbox.name;
+            }
+
+            const newRow = attendeeList.insertBefore(
+              document.createXULElement("event-attendee"),
+              nextElement
+            );
+            newRow.attendee = newAttendee;
+          }
+
+          // If there are no rows following, create an empty row for the next attendee.
           if (!nextElement) {
             attendeeList.appendChild(document.createXULElement("event-attendee")).focus();
             freebusyGrid.scrollTop = attendeeList.scrollTop;
           }
         } else if (this.nextElementSibling) {
-          // No value but not the last row? Remove.
+          // This row is now empty, but there are additional rows (and thus an
+          // empty row for new entries). Remove this row and focus the next.
+          this.nextElementSibling.focus();
           this.remove();
         }
 
@@ -1295,20 +1374,18 @@ function updateRange() {
         };
 
         let target = event.target;
-        if (target == this.roleIcon) {
-          let nextValue = cycle(EventAttendee.roleCycle, target.getAttribute("attendeerole"));
-          target.setAttribute("attendeerole", nextValue);
-          this._updateTooltip(target);
-        } else if (target == this.userTypeIcon) {
-          if (!this.isOrganizer) {
-            let nextValue = cycle(EventAttendee.userTypeCycle, target.getAttribute("usertype"));
-            target.setAttribute("usertype", nextValue);
-            this._updateTooltip(target);
+        if (target == this.#roleIcon) {
+          this.#attendee.role = cycle(EventAttendee.#roleCycle, this.#attendee.role);
+          this.#updateRoleIcon();
+        } else if (target == this.#userTypeIcon) {
+          if (!this.#attendee.isOrganizer) {
+            this.#attendee.userType = cycle(EventAttendee.#userTypeCycle, this.#attendee.userType);
+            this.#updateUserTypeIcon();
           }
         }
       } else if (event.type == "keydown" && event.key == "ArrowRight") {
         let nextElement = this.nextElementSibling;
-        if (this.value) {
+        if (this.#input.value) {
           if (!nextElement) {
             attendeeList.appendChild(document.createXULElement("event-attendee"));
           }
@@ -1318,49 +1395,70 @@ function updateRange() {
         }
       }
     }
-    _updateTooltip(targetIcon) {
+
+    /**
+     * Update the tooltip and icon of the role icon node to match the current
+     * role for this row's attendee.
+     */
+    #updateRoleIcon() {
+      const role = this.#attendee.role ?? EventAttendee.#DEFAULT_ROLE;
+      const roleValueToStringKeyMap = {
+        "REQ-PARTICIPANT": "event.attendee.role.required",
+        "OPT-PARTICIPANT": "event.attendee.role.optional",
+        "NON-PARTICIPANT": "event.attendee.role.nonparticipant",
+        CHAIR: "event.attendee.role.chair",
+      };
+
       let tooltip;
-      if (targetIcon == this.roleIcon) {
-        let role = targetIcon.getAttribute("attendeerole");
-        const roleMap = {
-          "REQ-PARTICIPANT": "required",
-          "OPT-PARTICIPANT": "optional",
-          "NON-PARTICIPANT": "nonparticipant",
-          CHAIR: "chair",
-        };
-
-        let roleNameString = "event.attendee.role." + (role in roleMap ? roleMap[role] : "unknown");
+      if (role in roleValueToStringKeyMap) {
         tooltip = cal.l10n.getString(
           "calendar-event-dialog-attendees",
-          roleNameString,
-          role in roleMap ? [] : [role]
-        );
-      } else if (targetIcon == this.userTypeIcon) {
-        let userType = targetIcon.getAttribute("usertype");
-        const userTypeMap = {
-          INDIVIDUAL: "individual",
-          GROUP: "group",
-          RESOURCE: "resource",
-          ROOM: "room",
-          // UNKNOWN is not handled.
-        };
-
-        let userTypeString =
-          "event.attendee.usertype." +
-          (userType in userTypeMap ? userTypeMap[userType] : "unknown");
-        tooltip = cal.l10n.getString(
-          "calendar-event-dialog-attendees",
-          userTypeString,
-          userType in userTypeMap ? [] : [userType]
+          roleValueToStringKeyMap[role]
         );
       } else {
-        return;
+        tooltip = cal.l10n.getString(
+          "calendar-event-dialog-attendees",
+          "event.attendee.role.unknown",
+          [role]
+        );
       }
-      targetIcon.setAttribute("title", tooltip);
+
+      this.#roleIcon.setAttribute("attendeerole", role);
+      this.#roleIcon.setAttribute("title", tooltip);
+    }
+
+    /**
+     * Update the tooltip and icon of the user type icon node to match the
+     * current user type for this row's attendee.
+     */
+    #updateUserTypeIcon() {
+      const userType = this.#attendee.userType ?? EventAttendee.#DEFAULT_USER_TYPE;
+      const userTypeValueToStringKeyMap = {
+        INDIVIDUAL: "event.attendee.usertype.individual",
+        GROUP: "event.attendee.usertype.group",
+        RESOURCE: "event.attendee.usertype.resource",
+        ROOM: "event.attendee.usertype.room",
+        // UNKNOWN and any unrecognized user types are handled below.
+      };
+
+      let tooltip;
+      if (userType in userTypeValueToStringKeyMap) {
+        tooltip = cal.l10n.getString(
+          "calendar-event-dialog-attendees",
+          userTypeValueToStringKeyMap[userType]
+        );
+      } else {
+        tooltip = cal.l10n.getString(
+          "calendar-event-dialog-attendees",
+          "event.attendee.usertype.unknown",
+          [userType]
+        );
+      }
+
+      this.#userTypeIcon.setAttribute("usertype", userType);
+      this.#userTypeIcon.setAttribute("title", tooltip);
     }
   }
-  EventAttendee.roleCycle = ["REQ-PARTICIPANT", "OPT-PARTICIPANT", "NON-PARTICIPANT", "CHAIR"];
-  EventAttendee.userTypeCycle = ["INDIVIDUAL", "GROUP", "RESOURCE", "ROOM"];
   customElements.define("event-attendee", EventAttendee);
 
   /**

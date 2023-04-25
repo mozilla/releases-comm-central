@@ -36,3 +36,40 @@ registerCleanupFunction(async () => {
   Services.ww.unregisterNotification(savePromptObserver);
   await CalendarTestUtils.restoreCalendarViewsState(window, calendarViewsInitialState);
 });
+
+function openAttendeesWindow(eventWindowOrArgs) {
+  let attendeesWindowPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    null,
+    "chrome://calendar/content/calendar-event-dialog-attendees.xhtml",
+    {
+      async callback(win) {
+        await new Promise(resolve => win.setTimeout(resolve));
+      },
+    }
+  );
+
+  if (Window.isInstance(eventWindowOrArgs)) {
+    EventUtils.synthesizeMouseAtCenter(
+      eventWindowOrArgs.document.getElementById("button-attendees"),
+      {},
+      eventWindowOrArgs
+    );
+  } else {
+    openDialog(
+      "chrome://calendar/content/calendar-event-dialog-attendees.xhtml",
+      "_blank",
+      "chrome,titlebar,resizable",
+      eventWindowOrArgs
+    );
+  }
+  return attendeesWindowPromise;
+}
+
+async function closeAttendeesWindow(attendeesWindow, buttonAction = "accept") {
+  let closedPromise = BrowserTestUtils.domWindowClosed(attendeesWindow);
+  let dialog = attendeesWindow.document.querySelector("dialog");
+  dialog.getButton(buttonAction).click();
+  await closedPromise;
+
+  await new Promise(resolve => setTimeout(resolve));
+}

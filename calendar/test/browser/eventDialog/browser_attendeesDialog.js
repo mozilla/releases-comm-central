@@ -1,4 +1,8 @@
-/* globals createEventWithDialog */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* globals createEventWithDialog, openAttendeesWindow, closeAttendeesWindow */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -68,26 +72,32 @@ add_task(async () => {
       () => attendeesList.childElementCount == expected.length + 1,
       "empty attendee input should have been added"
     );
+
+    function getInputValueFromAttendeeRow(row) {
+      const input = row.querySelector("input");
+      return input.value;
+    }
+
     Assert.deepEqual(
-      Array.from(attendeesList.children, c => c.input.value),
+      Array.from(attendeesList.children, getInputValueFromAttendeeRow),
       [...expected, ""],
       "attendees list matches what was expected"
     );
     Assert.equal(
       attendeesDocument.activeElement,
-      attendeesList.children[expected.length].input,
+      attendeesList.children[expected.length].querySelector("input"),
       "empty attendee input should have focus"
     );
   }
 
   async function checkFreeBusy(row, count) {
-    Assert.equal(row.freeBusyDiv.querySelectorAll(".pending").length, 1);
-    Assert.equal(row.freeBusyDiv.querySelectorAll(".busy").length, 0);
+    Assert.equal(row._freeBusyDiv.querySelectorAll(".pending").length, 1);
+    Assert.equal(row._freeBusyDiv.querySelectorAll(".busy").length, 0);
     let responsePromise = BrowserTestUtils.waitForEvent(row, "freebusy-update-finished");
     freeBusyProvider.sendNextResponse();
     await responsePromise;
-    Assert.equal(row.freeBusyDiv.querySelectorAll(".pending").length, 0);
-    Assert.equal(row.freeBusyDiv.querySelectorAll(".busy").length, count);
+    Assert.equal(row._freeBusyDiv.querySelectorAll(".pending").length, 0);
+    Assert.equal(row._freeBusyDiv.querySelectorAll(".busy").length, count);
   }
 
   {
@@ -120,18 +130,15 @@ add_task(async () => {
 
     // Add attendee.
 
-    let input = attendeesDocument.activeElement;
-    let attendee = input.closest("event-attendee");
     EventUtils.sendString("test@invalid", attendeesWindow);
     EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
 
     await checkListOfAttendees(attendeesDocument, "mochitest@invalid", "test@invalid");
-    await checkFreeBusy(attendee, 0);
+    await checkFreeBusy(attendeesList.children[1], 0);
 
     // Add another attendee, from the address book.
 
-    input = attendeesDocument.activeElement;
-    attendee = input.closest("event-attendee");
+    let input = attendeesDocument.activeElement;
     EventUtils.sendString("julie", attendeesWindow);
     await new Promise(resolve => attendeesWindow.setTimeout(resolve, 1000));
     Assert.equal(input.value, "juliet Mochitest <juliet@invalid>");
@@ -148,7 +155,7 @@ add_task(async () => {
       "test@invalid",
       "Juliet Mochitest <juliet@invalid>"
     );
-    await checkFreeBusy(attendee, 1);
+    await checkFreeBusy(attendeesList.children[2], 1);
 
     // Add a mailing list which should expand.
 
@@ -391,41 +398,6 @@ async function closeEventWindow(eventWindow) {
   eventWindow.document.getElementById("button-saveandclose").click();
   await eventWindowPromise;
   await new Promise(resolve => setTimeout(resolve));
-}
-
-function openAttendeesWindow(eventWindowOrArgs) {
-  let attendeesWindowPromise = BrowserTestUtils.promiseAlertDialogOpen(
-    null,
-    "chrome://calendar/content/calendar-event-dialog-attendees.xhtml",
-    {
-      async callback(win) {
-        await new Promise(resolve => win.setTimeout(resolve));
-      },
-    }
-  );
-
-  if (Window.isInstance(eventWindowOrArgs)) {
-    EventUtils.synthesizeMouseAtCenter(
-      eventWindowOrArgs.document.getElementById("button-attendees"),
-      {},
-      eventWindowOrArgs
-    );
-  } else {
-    openDialog(
-      "chrome://calendar/content/calendar-event-dialog-attendees.xhtml",
-      "_blank",
-      "chrome,titlebar,resizable",
-      eventWindowOrArgs
-    );
-  }
-  return attendeesWindowPromise;
-}
-
-function closeAttendeesWindow(attendeesWindow, buttonAction = "accept") {
-  let closedPromise = BrowserTestUtils.domWindowClosed(attendeesWindow);
-  let dialog = attendeesWindow.document.querySelector("dialog");
-  dialog.getButton(buttonAction).click();
-  return closedPromise;
 }
 
 function fromToday({ days = 0, hours = 0 }) {

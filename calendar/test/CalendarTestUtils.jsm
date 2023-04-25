@@ -142,7 +142,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which item to select (1-based).
    *
-   * @returns {MozCalendarEventBox} - The event box.
+   * @returns {Promise<MozCalendarEventBox>} - The event box.
    */
   async waitForEventBoxAt(win, index) {
     return this.#helper.waitForEventBoxAt(win, 1, index);
@@ -165,7 +165,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which item to select (1-based).
    *
-   * @returns {MozCalendarEditableItem} - The all-day item.
+   * @returns {Promise<MozCalendarEditableItem>} - The all-day item.
    */
   async waitForAllDayItemAt(win, index) {
     return this.#helper.waitForAllDayItemAt(win, 1, index);
@@ -178,7 +178,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which event to select.
    *
-   * @returns {Window} - The summary event dialog window.
+   * @returns {Promise<Window>} - The summary event dialog window.
    */
   async viewEventAt(win, index) {
     return this.#helper.viewEventAt(win, 1, index);
@@ -191,7 +191,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which event to select.
    *
-   * @returns {EditItemAtResult}
+   * @returns {Promise<EditItemAtResult>}
    */
   async editEventAt(win, index) {
     return this.#helper.editEventAt(win, 1, index);
@@ -204,7 +204,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which event box to select.
    *
-   * @returns {EditItemAtResult}
+   * @returns {Promise<EditItemAtResult>}
    */
   async editEventOccurrenceAt(win, index) {
     return this.#helper.editEventOccurrenceAt(win, 1, index);
@@ -217,7 +217,7 @@ class CalendarDayViewTestUtils {
    * @param {Window} win - The window the calendar is displayed in.
    * @param {number} index - Indicates which event box to select.
    *
-   * @returns {EditItemAtResult}
+   * @returns {Promise<EditItemAtResult>}
    */
   async editEventOccurrencesAt(win, index) {
     return this.#helper.editEventOccurrencesAt(win, 1, index);
@@ -397,7 +397,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Day of the week, between 1-7.
    * @param {number} index - Indicates which item to select (starting from 1).
    *
-   * @returns {MozCalendarEditableItem} - The all-day item.
+   * @returns {Promise<MozCalendarEditableItem>} - The all-day item.
    */
   async waitForAllDayItemAt(win, day, index) {
     return TestUtils.waitForCondition(
@@ -414,7 +414,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which event to select.
    *
-   * @returns {Window} - The summary event dialog window.
+   * @returns {Promise<Window>} - The summary event dialog window.
    */
   async viewEventAt(win, day, index) {
     let item = await this.waitForEventBoxAt(win, day, index);
@@ -429,7 +429,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which event to select.
    *
-   * @returns {EditItemAtResult}
+   * @returns {Promise<EditItemAtResult>}
    */
   async editEventAt(win, day, index) {
     let item = await this.waitForEventBoxAt(win, day, index);
@@ -444,7 +444,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which event box to select.
    *
-   * @returns {EditItemAtResult}
+   * @returns {Promise<EditItemAtResult>}
    */
   async editEventOccurrenceAt(win, day, index) {
     let item = await this.waitForEventBoxAt(win, day, index);
@@ -459,7 +459,7 @@ class CalendarWeekViewTestUtils {
    * @param {number} day - Must be between 1-7.
    * @param {number} index - Indicates which event box to select.
    *
-   * @returns {EditItemAtResult}
+   * @returns {Promise<EditItemAtResult>}
    */
   async editEventOccurrencesAt(win, day, index) {
     let item = await this.waitForEventBoxAt(win, day, index);
@@ -833,7 +833,7 @@ const CalendarTestUtils = {
    * @param {MozCalendarEditableItem} item - An event box item that can be
    * clicked on to open the dialog.
    *
-   * @returns {Window}
+   * @returns {Promise<Window>}
    */
   async viewItem(win, item) {
     if (Services.focus.activeWindow != win) {
@@ -888,7 +888,7 @@ const CalendarTestUtils = {
   /**
    * Opens the dialog for editing a new task.
    *
-   * @param {Window} win - The window containing the task tree.
+   * @param {Promise<Window>} win - The window containing the task tree.
    */
   async editNewTask(win) {
     return this._editNewItem(win, null, "task");
@@ -917,7 +917,7 @@ const CalendarTestUtils = {
    * @param {MozCalendarEditableItem} item - An event box item that can be
    * clicked on to open the dialog.
    *
-   * @returns {EditItemAtResult}
+   * @returns {Promise<EditItemAtResult>}
    */
   async editItem(win, item) {
     return this._editItem(win, item, "#calendar-summary-dialog-edit-button");
