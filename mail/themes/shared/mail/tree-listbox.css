@@ -439,7 +439,12 @@ slot[name="placeholders"] div::before {
   table[is="tree-view-table"] tbody tr {
     transition:
       color var(--transition-duration) var(--transition-timing),
-      background-color var(--transition-duration) var(--transition-timing),
+      background-color var(--transition-duration) var(--transition-timing);
+  }
+
+  table[is="tree-view-table"] tbody tr img {
+    transition:
+      color var(--transition-duration) var(--transition-timing),
       fill var(--transition-duration) var(--transition-timing),
       stroke var(--transition-duration) var(--transition-timing);
   }

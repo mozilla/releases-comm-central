@@ -7,7 +7,7 @@
 /* Default variables */
 
 :root {
-  --transition-duration: 200ms;
+  --transition-duration: 120ms;
   --transition-timing: ease;
   --arrowpanel-background: var(--layout-background-1);
   --arrowpanel-color: var(--layout-color-1);
