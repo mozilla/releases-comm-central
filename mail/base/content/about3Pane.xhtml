@@ -55,20 +55,25 @@
 <body class="layout-classic">
   <div id="folderPane" tabindex="-1">
     <div id="folderPaneHeaderBar" hidden="hidden">
-      <button id="folderPaneGetMessages"
+# Force a reverse tabindex to work alongside the `flex-direction: row-reverse`
+# in order to guarantee a consistent end alignment of the `#folderPaneMoreButton`.
+      <button id="folderPaneMoreButton"
               class="button button-flat icon-button icon-only"
-              data-l10n-id="folder-pane-get-messages-button"
+              data-l10n-id="folder-pane-more-menu-button"
               type="button"
-              disabled="disabled"></button>
+              tabindex="3"></button>
       <button id="folderPaneWriteMessage"
               class="button button-primary icon-button"
               data-l10n-id="folder-pane-write-message-button"
               type="button"
+              tabindex="2"
               disabled="disabled"></button>
-      <button id="folderPaneMoreButton"
+      <button id="folderPaneGetMessages"
               class="button button-flat icon-button icon-only"
-              data-l10n-id="folder-pane-more-menu-button"
-              type="button"></button>
+              data-l10n-id="folder-pane-get-messages-button"
+              type="button"
+              tabindex="1"
+              disabled="disabled"></button>
     </div>
     <ul id="folderTree" is="tree-listbox" role="tree"></ul>
     <template id="modeTemplate">

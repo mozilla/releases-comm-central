@@ -9,7 +9,7 @@
   --treeitem-border-radius: 3px;
   --folder-mode-name-padding: 6px;
   --folder-tree-header-gap: 9px;
-  --folder-tree-header-padding: 9px 6px;
+  --folder-tree-header-padding: 9px;
 }
 
 @media not (prefers-contrast) {
@@ -62,7 +62,7 @@
 :root[uidensity="compact"] {
   --folder-mode-name-padding: 3px;
   --folder-tree-header-gap: 6px;
-  --folder-tree-header-padding: 4px 3px;
+  --folder-tree-header-padding: 4px 6px;
 }
 
 :root[uidensity="touch"] {
@@ -194,8 +194,9 @@ body:not(.account-central) #accountCentralBrowser {
 #folderPaneHeaderBar:not([hidden]) {
   --button-margin: 0;
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
   gap: var(--folder-tree-header-gap);
   position: sticky;
   top: 0;
