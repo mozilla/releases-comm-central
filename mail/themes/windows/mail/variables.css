@@ -56,7 +56,6 @@
 
 @media (prefers-contrast) {
   :root:not(:-moz-lwtheme) {
-    --button-border-color: WindowText;
     --lwt-tabs-border-color: ThreeDShadow;
     --tabline-color: SelectedItem;
     --item-focus-selected-border-color: SelectedItemText;

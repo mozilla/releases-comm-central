@@ -89,7 +89,25 @@
   }
 }
 
+@media (-moz-platform: windows-win7) {
+  @media (-moz-windows-default-theme) and (-moz-windows-glass: 0) {
+    #messengerWindow[sizemode="normal"] .titlebar-buttonbox-container {
+      padding-top: 4px;
+    }
+  }
+}
+
+@media (-moz-platform: windows-win8) {
+  #messengerWindow[sizemode="normal"] .titlebar-buttonbox-container {
+    padding-top: 3px;
+  }
+}
+
 @media (-moz-windows-classic) {
+  #messengerWindow[sizemode="normal"] .titlebar-buttonbox-container {
+    padding-top: 3px;
+  }
+
   :root[tabsintitlebar][sizemode="normal"] #toolbar-menubar {
     margin-top: 4px;
   }
@@ -517,6 +535,14 @@ fieldset > radiogroup {
 }
 
 @media (-moz-platform: windows-win7) {
+  @media (-moz-windows-default-theme) and (-moz-windows-glass: 0) {
+    /* Add a window top border behind the titlebar */
+    :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox-background {
+      background-image: linear-gradient(to bottom, ThreeDDarkShadow 0,
+                                        ThreeDDarkShadow 1px, ThreeDHighlight 1px,
+                                        ThreeDHighlight 2px, transparent 2px);
+    }
+  }
   @media (-moz-windows-classic) {
     /* Add a window top border behind the titlebar */
     :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox-background {

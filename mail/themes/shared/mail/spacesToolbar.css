@@ -163,6 +163,13 @@
   background-color: color-mix(in srgb, currentColor 10%, transparent);
 }
 
+@media (prefers-contrast) {
+  .spaces-toolbar-button:hover:not(.current) {
+    background-color: var(--spaces-button-active-bg-color);
+    color: var(--spaces-button-active-text-color);
+  }
+}
+
 .spaces-popup-menuitem > .menu-iconic-left {
   position: relative;
 }

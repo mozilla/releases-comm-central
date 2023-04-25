@@ -216,7 +216,9 @@
 
 @media (prefers-contrast) {
   :root:not(:-moz-lwtheme) {
+    --button-color: ButtonText;
     --button-background-color: ButtonFace;
+    --button-border-color: ButtonText;
     --button-hover-text-color: SelectedItemText;
     --button-hover-background-color: SelectedItem;
     --button-active-background-color: SelectedItem;
