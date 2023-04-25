@@ -30,7 +30,7 @@ class CompactFolderButton extends MailTabButton {
     if (!about3Pane) {
       return;
     }
-    about3Pane.folderPane.compactFolders([about3Pane.gFolder]);
+    about3Pane.folderPane.compactFolder(about3Pane.gFolder);
     event.preventDefault();
     event.stopPropagation();
   };
