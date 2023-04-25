@@ -2818,6 +2818,11 @@ var threadPane = {
   },
 
   _onDoubleClick(event) {
+    if (event.target.closest("button")) {
+      // Prevent item activation if double click happens on a button inside the
+      // row. E.g.: Thread toggle, spam, favorite, etc.
+      return;
+    }
     this._onItemActivate(event);
   },
 

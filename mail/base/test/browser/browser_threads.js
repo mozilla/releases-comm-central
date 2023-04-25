@@ -61,6 +61,41 @@ add_setup(async function() {
   });
 });
 
+/**
+ * Test that a double click on a button doesn't trigger the opening of the
+ * message.
+ */
+add_task(async function checkDoubleClickOnThreadButton() {
+  let row = threadTree.getRowAtIndex(20);
+  Assert.ok(
+    !row.classList.contains("collapsed"),
+    "The thread row should be expanded"
+  );
+
+  Assert.equal(tabmail.tabInfo.length, 1, "Only 1 tab currently visible");
+
+  let button = row.querySelector(".thread-container .twisty");
+  // Simulate a double click on the twisty icon.
+  EventUtils.synthesizeMouseAtCenter(button, { clickCount: 2 }, about3Pane);
+
+  Assert.equal(
+    tabmail.tabInfo.length,
+    1,
+    "The message wasn't opened in another tab"
+  );
+
+  // Normally a double click on the twisty would close and open the thread, but
+  // this simulated click is too fast and the second click happens before the
+  // row is collapsed. Let's click on it again once to return to the original
+  // state.
+  EventUtils.synthesizeMouseAtCenter(button, {}, about3Pane);
+
+  Assert.ok(
+    !row.classList.contains("collapsed"),
+    "The double click was registered as 2 separate clicks and the thread row is still expanded"
+  );
+});
+
 add_task(async function testIgnoreThread() {
   // Check the menu items for the root message in a thread.
 
