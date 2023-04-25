@@ -38,7 +38,6 @@ jobs:
             max-run-time: 36000
             env:
                 PERFHERDER_EXTRA_OPTIONS: searchfox
-                RUSTC_BOOTSTRAP: "1"
                 MOZSEARCH_PLATFORM: "linux"
         run:
             using: mozharness
@@ -77,7 +76,6 @@ jobs:
             max-run-time: 36000
             env:
                 PERFHERDER_EXTRA_OPTIONS: searchfox
-                RUSTC_BOOTSTRAP: "1"
                 MOZSEARCH_PLATFORM: "macosx"
         run:
             using: mozharness
@@ -119,7 +117,6 @@ jobs:
             max-run-time: 36000
             env:
                 PERFHERDER_EXTRA_OPTIONS: searchfox
-                RUSTC_BOOTSTRAP: "1"
                 MOZSEARCH_PLATFORM: "windows"
         run:
             using: mozharness
