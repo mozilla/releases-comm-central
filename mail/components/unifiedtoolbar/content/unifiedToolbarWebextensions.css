@@ -25,7 +25,7 @@
 @media (prefers-color-scheme: dark) {
   .unified-toolbar .extension-action .button-icon,
   :root[lwt-tree-brighttext] .unified-toolbar .extension-action .button-icon {
-    content: var(--webextension-toolbar-image-light, inherit);
+    content: var(--webextension-toolbar-image-light, inherit) !important;
   }
 }
 
@@ -46,7 +46,7 @@
   @media (prefers-color-scheme: dark) {
     .unified-toolbar .extension-action .button-icon,
     :root[lwt-tree-brighttext] .unified-toolbar .extension-action .button-icon {
-      content: var(--webextension-toolbar-image-2x-light, inherit);
+      content: var(--webextension-toolbar-image-2x-light, inherit) !important;
     }
   }
 }
