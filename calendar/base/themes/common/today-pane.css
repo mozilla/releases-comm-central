@@ -283,6 +283,10 @@
   min-height: 160px;
 }
 
+#today-pane-splitter[hidden="true"] + #todo-tab-panel {
+  height: 100%;
+}
+
 #show-completed-checkbox-box {
   padding-top: 3px;
   padding-inline-start: 5px;
