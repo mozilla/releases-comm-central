@@ -349,6 +349,29 @@ openpgp-personal-no-label =
 openpgp-personal-yes-label =
     .label = Yes, treat this key as a personal key.
 
+openpgp-passphrase-protection =
+  .label = Passphrase Protection
+
+openpgp-passphrase-status-unprotected = Unprotected
+openpgp-passphrase-status-primary-password = Protected by { -brand-short-name }’s Primary Password
+openpgp-passphrase-status-user-passphrase = Protected by a passphrase
+
+openpgp-passphrase-instruction-unprotected = Set a passphrase to protect this key
+openpgp-passphrase-instruction-primary-password = Alternatively protect this key with a separate passphrase
+openpgp-passphrase-instruction-user-passphrase = Unlock this key to change its protection.
+
+openpgp-passphrase-unlock = Unlock
+openpgp-passphrase-unlocked = Key successfully unlocked.
+
+openpgp-remove-protection = Remove passphrase protection
+openpgp-use-primary-password = Remove passphrase and protect with Primary Password
+
+openpgp-passphrase-new = New passphrase
+openpgp-passphrase-new-repeat = Confirm new passphrase
+
+openpgp-passphrase-set = Set passphrase
+openpgp-passphrase-change = Change passphrase
+
 openpgp-copy-cmd-label =
     .label = Copy
 
@@ -689,9 +712,20 @@ import-key-file = Import OpenPGP Key File
 import-rev-file = Import OpenPGP Revocation File
 gnupg-file = GnuPG Files
 import-keys-failed=Importing the keys failed
+
 # Variables:
 # $key (String) - Key id to unlock.
-passphrase-prompt = Please enter the passphrase that unlocks the following key: { $key }
+# $date (String) - The date on which the key was created
+# $username_and_email (String) - The user name, and/or the email address which the key owner has set for the key.
+passphrase-prompt2 = Enter the passphrase to unlock the secret key with ID { $key }, created { $date }, { $username_and_email }
+
+# Variables:
+# $subkey (String) - Key id to unlock, which is a subkey.
+# $key (String) - This is the main key, to which the subkey belongs.
+# $date (String) - The date on which the key was created
+# $username_and_email (String) - The user name, and/or the email address which the key owner has set for the key.
+passphrase-prompt2-sub = Enter the passphrase to unlock the secret key with ID { $subkey }, which is a subkey of key ID { $key }, created { $date }, { $username_and_email }
+
 file-to-big-to-import = This file is too big. Please don’t import a large set of keys at once.
 
 ## Strings used in enigmailKeygen.js

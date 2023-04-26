@@ -30,6 +30,17 @@ radio-gnupg-key =
 
 openpgp-generate-key-title = Generate OpenPGP Key
 
+openpgp-keygen-secret-protection = Secret Key Protection
+
+radio-keygen-no-protection =
+    .label = Unprotected
+radio-keygen-protect-primary-pass =
+    .label = Protect with the Primary Password
+
+radio-keygen-passphrase-protection =
+    .label = Protect with a passphrase:
+openpgp-passphrase-repeat = Confirm the passphrase:
+
 openpgp-generate-key-info = <b>Key generation may take up to several minutes to complete.</b> Do not exit the application while key generation is in progress. Actively browsing or performing disk-intensive operations during key generation will replenish the ‘randomness pool’ and speed-up the process. You will be alerted when key generation is completed.
 
 openpgp-keygen-expiry-title = Key expiry
@@ -133,10 +144,10 @@ openpgp-import-key-list-description = Confirm which keys may be treated as your 
 
 openpgp-import-key-list-caption = Keys marked to be treated as Personal Keys will be listed in the End-To-End Encryption section. The others will be available inside the Key Manager.
 
-openpgp-passphrase-prompt-title = Passphrase required
+openpgp-import-keep-passphrases =
+    .label = Keep passphrase protection for imported secret keys
 
-#   $key (String) - the id of the key being imported
-openpgp-passphrase-prompt = Please enter the passphrase to unlock the following key: { $key }
+openpgp-passphrase-prompt-title = Passphrase required
 
 openpgp-import-key-button =
     .label = Select File to Import…
