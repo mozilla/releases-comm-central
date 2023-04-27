@@ -32,15 +32,14 @@ class BaseMessageService {
   _logger = lazy.NntpUtils.logger;
 
   /** @see nsIMsgMessageService */
-  DisplayMessage(
+  loadMessage(
     messageURI,
     displayConsumer,
     msgWindow,
     urlListener,
-    autodetectCharset,
-    outURL
+    autodetectCharset
   ) {
-    this._logger.debug("DisplayMessage", messageURI);
+    this._logger.debug("loadMessage", messageURI);
 
     let uri = this.getUrlForUri(messageURI, msgWindow);
     if (urlListener) {
@@ -74,23 +73,9 @@ class BaseMessageService {
     return folder?.GetMessageHeader(key);
   }
 
-  CopyMessage(
-    messageUri,
-    copyListener,
-    moveMessage,
-    urlListener,
-    msgWindow,
-    outUrl
-  ) {
-    this._logger.debug("CopyMessage", messageUri);
-    this.DisplayMessage(
-      messageUri,
-      copyListener,
-      msgWindow,
-      urlListener,
-      false,
-      outUrl
-    );
+  copyMessage(messageUri, copyListener, moveMessage, urlListener, msgWindow) {
+    this._logger.debug("copyMessage", messageUri);
+    this.loadMessage(messageUri, copyListener, msgWindow, urlListener, false);
   }
 
   SaveMessageToDisk(
@@ -116,7 +101,7 @@ class BaseMessageService {
       url.msgIsInLocalCache = folder.hasMsgOffline(key);
     }
 
-    this.DisplayMessage(
+    this.loadMessage(
       messageUri,
       url.getSaveAsListener(addDummyEnvelope, file),
       msgWindow,
@@ -147,7 +132,7 @@ class BaseMessageService {
 
   streamMessage(messageUri, consumer, msgWindow, urlListener, convertData) {
     this._logger.debug("streamMessage", messageUri);
-    this.DisplayMessage(messageUri, consumer, msgWindow, urlListener, false);
+    this.loadMessage(messageUri, consumer, msgWindow, urlListener, false);
   }
 
   /**
@@ -214,13 +199,7 @@ class BaseMessageService {
   /** @see nsIMsgMessageFetchPartService */
   fetchMimePart(uri, messageUri, displayConsumer, msgWindow, urlListener) {
     this._logger.debug("fetchMimePart", uri.spec);
-    this.DisplayMessage(
-      uri.spec,
-      displayConsumer,
-      msgWindow,
-      urlListener,
-      false
-    );
+    this.loadMessage(uri.spec, displayConsumer, msgWindow, urlListener, false);
   }
 }
 

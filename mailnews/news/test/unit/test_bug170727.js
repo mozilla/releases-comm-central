@@ -4,7 +4,7 @@ const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-add_task(async function testDisplayMessage() {
+add_task(async function testloadMessage() {
   let daemon = setupNNTPDaemon();
   daemon.addGroup("dot.test");
   daemon.addArticle(make_article(do_get_file("postings/post3.eml")));
@@ -32,7 +32,7 @@ add_task(async function testDisplayMessage() {
   // displayed directly and simultaneously saved in the offline storage.
   {
     let listener = new PromiseTestUtils.PromiseStreamListener();
-    msgService.DisplayMessage(uri, listener, null, null, null, {});
+    msgService.loadMessage(uri, listener, null, null, false);
     let msgText = await listener.promise;
     localserver.closeCachedConnections();
 
@@ -46,7 +46,7 @@ add_task(async function testDisplayMessage() {
   // In the second run, the offline store serves as the source of the article.
   {
     let listener = new PromiseTestUtils.PromiseStreamListener();
-    msgService.DisplayMessage(uri, listener, null, null, null, {});
+    msgService.loadMessage(uri, listener, null, null, false);
     let msgText = await listener.promise;
     localserver.closeCachedConnections();
 

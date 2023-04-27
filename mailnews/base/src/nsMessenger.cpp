@@ -521,9 +521,8 @@ nsresult nsMessenger::SaveAttachment(nsIFile* aFile, const nsACString& aURL,
                                          mMsgWindow, saveListener,
                                          getter_AddRefs(dummyNull));
       else
-        rv = messageService->DisplayMessage(fullMessageUri, convertedListener,
-                                            mMsgWindow, nullptr, false,
-                                            getter_AddRefs(dummyNull));
+        rv = messageService->LoadMessage(fullMessageUri, convertedListener,
+                                         mMsgWindow, nullptr, false);
     }  // if we got a message service
   }    // if we created a url
 
@@ -889,10 +888,8 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
       NS_ASSERTION(NS_SUCCEEDED(rv), "AsyncConvertData failed");
       if (NS_FAILED(rv)) goto done;
 
-      nsCOMPtr<nsIURI> dummyNull;
-      rv = messageService->DisplayMessage(urlString, convertedListener,
-                                          mMsgWindow, nullptr, false,
-                                          getter_AddRefs(dummyNull));
+      rv = messageService->LoadMessage(urlString, convertedListener, mMsgWindow,
+                                       nullptr, false);
     }
   } else {
     // ** save as Template

@@ -47,10 +47,9 @@ interface nsIMsgMessageService : nsISupports {
    *                     FALSE leaves it as just a copy.
    * @param aUrlListener
    * @param aMsgWindow
-   * @param aURL
    */
-  void CopyMessage(in AUTF8String aSrcURI, in nsIStreamListener aCopyListener, in boolean aMoveMessage,
-               in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow, out nsIURI aURL);
+  void copyMessage(in AUTF8String aSrcURI, in nsIStreamListener aCopyListener, in boolean aMoveMessage,
+               in nsIUrlListener aUrlListener, in nsIMsgWindow aMsgWindow);
 
   /**
    * Copy multiple messages at a time
@@ -71,7 +70,7 @@ interface nsIMsgMessageService : nsISupports {
                       in nsIMsgWindow aMsgWindow);
 
   /**
-   * When you want a message displayed....
+   * When you want a message displayed.... this loads it into the consumer.
    *
    * @param aMessageURI Is a uri representing the message to display.
    * @param aDisplayConsumer Is (for now) an nsIDocShell which we'll use to load
@@ -80,14 +79,12 @@ interface nsIMsgMessageService : nsISupports {
    * @param aMsgWindow
    * @param aUrlListener
    * @param aAutodetectCharset (optional) if the characterset should be auto-detected.
-   * @param aURL
    */
-  void DisplayMessage(in AUTF8String aMessageURI,
+  void loadMessage(in AUTF8String aMessageURI,
             in nsISupports aDisplayConsumer,
             in nsIMsgWindow aMsgWindow,
             in nsIUrlListener aUrlListener,
-            in boolean aAutodetectCharset,
-            out nsIURI aURL);
+            in boolean aAutodetectCharset);
 
   /**
    * When you want to spool a message out to a file on disk.

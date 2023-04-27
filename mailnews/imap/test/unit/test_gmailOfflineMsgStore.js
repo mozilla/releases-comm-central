@@ -93,16 +93,14 @@ add_task(async function selectInboxMsg() {
   ].getService(Ci.nsIMsgMessageService);
   let db = IMAPPump.inbox.msgDatabase;
   let msg1 = db.getMsgHdrForMessageID(gMsgId1);
-  let url = {};
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   let urlListener = new PromiseTestUtils.PromiseUrlListener();
-  imapService.DisplayMessage(
+  imapService.loadMessage(
     IMAPPump.inbox.getUriForMsg(msg1),
     streamListener,
     null,
     urlListener,
-    null,
-    url
+    false
   );
   await urlListener.promise;
 });
@@ -165,16 +163,14 @@ add_task(async function selectFooMsg() {
     "@mozilla.org/messenger/messageservice;1?type=imap"
   ].getService(Ci.nsIMsgMessageService);
   let msg1 = fooFolder.msgDatabase.getMsgHdrForMessageID(gMsgId2);
-  let url = {};
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
   let urlListener = new PromiseTestUtils.PromiseUrlListener();
-  imapService.DisplayMessage(
+  imapService.loadMessage(
     fooFolder.getUriForMsg(msg1),
     streamListener,
     null,
     urlListener,
-    null,
-    url
+    false
   );
   await urlListener.promise;
 });

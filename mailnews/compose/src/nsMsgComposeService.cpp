@@ -1205,7 +1205,7 @@ nsresult nsMsgComposeService::LoadDraftOrTemplate(
                                  doing a command that opens the compose window,
  *                               which means we switch the compose window used
  *                               from the default.
- * @param aMsgWindow msgWindow to pass into DisplayMessage.
+ * @param aMsgWindow msgWindow to pass into LoadMessage.
  */
 nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
     const nsACString& aMsgURI, nsMimeOutputType aOutType,
@@ -1288,10 +1288,8 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
 
   // Now, just plug the two together and get the hell out of the way!
   nsCOMPtr<nsIStreamListener> streamListener = do_QueryInterface(mimeConverter);
-  nsCOMPtr<nsIURI> dummyNull;
-  return messageService->DisplayMessage(aMsgURI, streamListener, aMsgWindow,
-                                        nullptr, autodetectCharset,
-                                        getter_AddRefs(dummyNull));
+  return messageService->LoadMessage(aMsgURI, streamListener, aMsgWindow,
+                                     nullptr, autodetectCharset);
 }
 
 NS_IMETHODIMP

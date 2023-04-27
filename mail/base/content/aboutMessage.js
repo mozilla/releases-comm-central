@@ -52,13 +52,12 @@ function ReloadMessage() {
 function MailSetCharacterSet() {
   let messageService = MailServices.messageServiceFromURI(gMessageURI);
   gMessage = messageService.messageURIToMsgHdr(gMessageURI);
-  messageService.DisplayMessage(
+  messageService.loadMessage(
     gMessageURI,
     getMessagePaneBrowser().docShell,
     null,
     null,
-    true,
-    {}
+    true
   );
   autodetectCharset = true;
 }
@@ -183,7 +182,7 @@ function displayMessage(uri, viewWrapper) {
   browser.docShell.allowDNSPrefetch = false;
 
   try {
-    messageService.DisplayMessage(uri, browser.docShell, null, null, null, {});
+    messageService.loadMessage(uri, browser.docShell, null, null, null);
   } catch (ex) {
     if (ex.result != Cr.NS_ERROR_OFFLINE) {
       throw ex;

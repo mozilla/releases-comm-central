@@ -33,7 +33,7 @@ add_task(async function test403242() {
 
   // Pretend to display the message
   let listener = new PromiseTestUtils.PromiseStreamListener();
-  msgService.DisplayMessage(uri, listener, null, null, null, {});
+  msgService.loadMessage(uri, listener, null, null, false);
   let msgText = await listener.promise;
   localserver.closeCachedConnections();
   server.stop();

@@ -2540,10 +2540,8 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(nsISupports* message,
     nsCOMPtr<nsIStreamListener> streamListener(
         do_QueryInterface(copyStreamListener, &rv));
     NS_ENSURE_SUCCESS(rv, NS_ERROR_NO_INTERFACE);
-    nsCOMPtr<nsIURI> dummyNull;
     rv = mCopyState->m_messageService->CopyMessage(uri, streamListener, isMove,
-                                                   nullptr, aMsgWindow,
-                                                   getter_AddRefs(dummyNull));
+                                                   nullptr, aMsgWindow);
   }
   return rv;
 }

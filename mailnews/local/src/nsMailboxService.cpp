@@ -86,12 +86,13 @@ nsresult nsMailboxService::CopyMessage(const nsACString& aSrcMailboxURI,
                                        nsIStreamListener* aMailboxCopyHandler,
                                        bool moveMessage,
                                        nsIUrlListener* aUrlListener,
-                                       nsIMsgWindow* aMsgWindow,
-                                       nsIURI** aURL) {
+                                       nsIMsgWindow* aMsgWindow) {
   nsMailboxAction mailboxAction = nsIMailboxUrl::ActionMoveMessage;
+  nsCOMPtr<nsIURI> aURL;  // unused...
   if (!moveMessage) mailboxAction = nsIMailboxUrl::ActionCopyMessage;
   return FetchMessage(aSrcMailboxURI, aMailboxCopyHandler, aMsgWindow,
-                      aUrlListener, nullptr, mailboxAction, false, aURL);
+                      aUrlListener, nullptr, mailboxAction, false,
+                      getter_AddRefs(aURL));
 }
 
 nsresult nsMailboxService::CopyMessages(
@@ -232,15 +233,15 @@ NS_IMETHODIMP nsMailboxService::FetchMimePart(
   return RunMailboxUrl(msgUrl, aDisplayConsumer);
 }
 
-NS_IMETHODIMP nsMailboxService::DisplayMessage(const nsACString& aMessageURI,
-                                               nsISupports* aDisplayConsumer,
-                                               nsIMsgWindow* aMsgWindow,
-                                               nsIUrlListener* aUrlListener,
-                                               bool aOverideCharset,
-                                               nsIURI** aURL) {
+NS_IMETHODIMP nsMailboxService::LoadMessage(const nsACString& aMessageURI,
+                                            nsISupports* aDisplayConsumer,
+                                            nsIMsgWindow* aMsgWindow,
+                                            nsIUrlListener* aUrlListener,
+                                            bool aOverideCharset) {
+  nsCOMPtr<nsIURI> aURL;  // unused...
   return FetchMessage(aMessageURI, aDisplayConsumer, aMsgWindow, aUrlListener,
                       nullptr, nsIMailboxUrl::ActionFetchMessage,
-                      aOverideCharset, aURL);
+                      aOverideCharset, getter_AddRefs(aURL));
 }
 
 NS_IMETHODIMP

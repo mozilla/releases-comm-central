@@ -26,15 +26,8 @@ class BaseMessageService {
 
   _logger = ImapUtils.logger;
 
-  CopyMessage(
-    messageUri,
-    copyListener,
-    moveMessage,
-    urlListener,
-    msgWindow,
-    outUrl
-  ) {
-    this._logger.debug("CopyMessage", messageUri, moveMessage);
+  copyMessage(messageUri, copyListener, moveMessage, urlListener, msgWindow) {
+    this._logger.debug("copyMessage", messageUri, moveMessage);
     let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
       messageUri
     );
@@ -63,15 +56,14 @@ class BaseMessageService {
     );
   }
 
-  DisplayMessage(
+  loadMessage(
     messageUri,
     displayConsumer,
     msgWindow,
     urlListener,
-    autodetectCharset,
-    outURL
+    autodetectCharset
   ) {
-    this._logger.debug("DisplayMessage", messageUri);
+    this._logger.debug("loadMessage", messageUri);
     let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
       messageUri
     );

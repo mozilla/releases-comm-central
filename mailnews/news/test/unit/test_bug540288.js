@@ -98,7 +98,7 @@ function run_test() {
 
           Cc["@mozilla.org/messenger/messageservice;1?type=news"]
             .getService(Ci.nsIMsgMessageService)
-            .DisplayMessage(messageUri, streamListener, null, null, null, {});
+            .loadMessage(messageUri, streamListener, null, null, false);
 
           // Get the server to run
           server.performTest();

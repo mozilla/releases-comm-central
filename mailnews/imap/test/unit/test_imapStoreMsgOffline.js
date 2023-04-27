@@ -86,7 +86,6 @@ add_task(async function selectFirstMsg() {
 
   let db = IMAPPump.inbox.msgDatabase;
   let msg1 = db.getMsgHdrForMessageID(gMsgId1);
-  let url = {};
   let listener = new PromiseTestUtils.PromiseUrlListener({
     OnStopRunningUrl: (aUrl, aExitCode) => {
       Assert.equal(aExitCode, 0);
@@ -94,13 +93,12 @@ add_task(async function selectFirstMsg() {
   });
   // We use the streamListener as a display consumer.
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
-  gIMAPService.DisplayMessage(
+  gIMAPService.loadMessage(
     IMAPPump.inbox.getUriForMsg(msg1),
     streamListener,
     null,
     listener,
-    null,
-    url
+    false
   );
   await listener.promise;
 });
@@ -110,7 +108,6 @@ add_task(async function select2ndMsg() {
   Assert.notEqual(msg1.flags & Ci.nsMsgMessageFlags.Offline, 0);
   let db = IMAPPump.inbox.msgDatabase;
   let msg2 = db.getMsgHdrForMessageID(gMsgId2);
-  let url = {};
   let listener = new PromiseTestUtils.PromiseUrlListener({
     OnStopRunningUrl: (aUrl, aExitCode) => {
       Assert.equal(aExitCode, 0);
@@ -118,13 +115,12 @@ add_task(async function select2ndMsg() {
   });
   // We use the streamListener as a display consumer.
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
-  gIMAPService.DisplayMessage(
+  gIMAPService.loadMessage(
     IMAPPump.inbox.getUriForMsg(msg2),
     streamListener,
     null,
     listener,
-    null,
-    url
+    false
   );
   await listener.promise;
 });
@@ -134,17 +130,15 @@ add_task(async function select3rdMsg() {
   Assert.notEqual(msg2.flags & Ci.nsMsgMessageFlags.Offline, 0);
   let db = IMAPPump.inbox.msgDatabase;
   let msg3 = db.getMsgHdrForMessageID(gMsgId3);
-  let url = {};
   let listener = new PromiseTestUtils.PromiseUrlListener();
   // We use the streamListener as a display consumer.
   let streamListener = new PromiseTestUtils.PromiseStreamListener();
-  gIMAPService.DisplayMessage(
+  gIMAPService.loadMessage(
     IMAPPump.inbox.getUriForMsg(msg3),
     streamListener,
     null,
     listener,
-    null,
-    url
+    false
   );
   await listener.promise;
 });

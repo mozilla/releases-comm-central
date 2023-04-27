@@ -2,7 +2,7 @@
 /*
  * Tests:
  * - getNewMessages for a newsgroup folder (single message).
- * - DisplayMessage for a newsgroup message
+ * - loadMessage for a newsgroup message
  *   - Downloading a single message and checking content in stream is correct.
  */
 
@@ -93,7 +93,7 @@ function run_test() {
 
     Cc["@mozilla.org/messenger/messageservice;1?type=news"]
       .getService(Ci.nsIMsgMessageService)
-      .DisplayMessage(messageUri, streamListener, null, null, null, {});
+      .loadMessage(messageUri, streamListener, null, null, false);
   } catch (e) {
     server.stop();
     do_throw(e);
