@@ -6483,6 +6483,7 @@ nsresult nsMsgDBView::ToggleIgnored(nsTArray<nsMsgViewIndex> const& selection,
   // Ignored state is toggled based on the first selected thread.
   nsMsgViewIndex threadIndex =
       GetThreadFromMsgIndex(selection[0], getter_AddRefs(thread));
+  NS_ENSURE_STATE(thread);
   uint32_t threadFlags;
   thread->GetFlags(&threadFlags);
   uint32_t ignored = threadFlags & nsMsgMessageFlags::Ignored;
@@ -6548,10 +6549,8 @@ nsresult nsMsgDBView::ToggleMessageKilled(
 
 nsMsgViewIndex nsMsgDBView::GetThreadFromMsgIndex(nsMsgViewIndex index,
                                                   nsIMsgThread** threadHdr) {
-  nsMsgKey msgKey = GetAt(index);
-  nsMsgViewIndex threadIndex;
-
   if (threadHdr == nullptr) return nsMsgViewIndex_None;
+  nsMsgKey msgKey = GetAt(index);
 
   nsresult rv = GetThreadContainingIndex(index, threadHdr);
   NS_ENSURE_SUCCESS(rv, nsMsgViewIndex_None);
@@ -6560,11 +6559,11 @@ nsMsgViewIndex nsMsgDBView::GetThreadFromMsgIndex(nsMsgViewIndex index,
 
   nsMsgKey threadKey;
   (*threadHdr)->GetThreadKey(&threadKey);
+  nsMsgViewIndex threadIndex;
   if (msgKey != threadKey)
     threadIndex = GetIndexOfFirstDisplayedKeyInThread(*threadHdr);
   else
     threadIndex = index;
-
   return threadIndex;
 }
 
@@ -6575,6 +6574,7 @@ nsresult nsMsgDBView::ToggleWatched(nsTArray<nsMsgViewIndex> const& selection) {
   // Watched state is toggled based on the first selected thread.
   nsMsgViewIndex threadIndex =
       GetThreadFromMsgIndex(selection[0], getter_AddRefs(thread));
+  NS_ENSURE_STATE(thread);
   uint32_t threadFlags;
   thread->GetFlags(&threadFlags);
   uint32_t watched = threadFlags & nsMsgMessageFlags::Watched;
