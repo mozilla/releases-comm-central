@@ -825,7 +825,7 @@ var TagFacetingFilter = {
   onCommand(aState, aNode, aEvent, aDocument) {
     let checked = aNode.pressed ? true : null;
     if (!checked) {
-      aDocument.getElementById("quick-filter-bar-tab-bar").hidden = true;
+      aDocument.getElementById("quickFilterBarTagsContainer").hidden = true;
     }
 
     // return ourselves if we just got checked to have
@@ -852,12 +852,12 @@ var TagFacetingFilter = {
     if (aFilterValue != null && typeof aFilterValue == "object") {
       this._populateTagBar(aFilterValue, aDocument, aMuxer);
     } else {
-      aDocument.getElementById("quick-filter-bar-tab-bar").hidden = true;
+      aDocument.getElementById("quickFilterBarTagsContainer").hidden = true;
     }
   },
 
   _populateTagBar(aState, aDocument, aMuxer) {
-    let tagbar = aDocument.getElementById("quick-filter-bar-tab-bar");
+    let tagbar = aDocument.getElementById("quickFilterBarTagsContainer");
     let keywordMap = aState.tags;
 
     // If we have a mode stored use that. If we don't have a mode, then update

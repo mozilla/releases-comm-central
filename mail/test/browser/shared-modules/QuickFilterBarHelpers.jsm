@@ -217,17 +217,17 @@ function toggle_tag_mode() {
  */
 function assert_tag_constraints_visible(...aArgs) {
   // the stupid bar should be visible if any arguments are specified
-  let tabBar = get_about_3pane().document.getElementById(
-    "quick-filter-bar-tab-bar"
+  let tagBar = get_about_3pane().document.getElementById(
+    "quickFilterBarTagsContainer"
   );
   if (aArgs.length > 0) {
     Assert.ok(
-      BrowserTestUtils.is_visible(tabBar),
+      BrowserTestUtils.is_visible(tagBar),
       "The tag bar should not be collapsed!"
     );
   }
 
-  let kids = tabBar.children;
+  let kids = tagBar.children;
   let tagLength = kids.length - 1; // -1 for the qfb-boolean-mode widget
   // this is bad error reporting in here for now.
   if (tagLength != aArgs.length) {
@@ -265,7 +265,7 @@ function assert_tag_constraints_checked(...aArgs) {
     expected[nodeId] = true;
   }
 
-  let kids = mc.e("quick-filter-bar-tab-bar").children;
+  let kids = mc.e("quickFilterBarTagsContainer").children;
   for (let iNode = 0; iNode < kids.length; iNode++) {
     let node = kids[iNode];
     if (node.pressed != node.id in expected) {

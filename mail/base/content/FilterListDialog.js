@@ -1105,16 +1105,16 @@ function updateCountBox() {
       gFilterBundle.getString("filterCountItems")
     ).replace("#1", len);
     countBox.removeAttribute("filterActive");
-  } else {
-    // "N of M"
-    countBox.value = gFilterBundle.getFormattedString(
-      "filterCountVisibleOfTotal",
-      [len, sum]
-    );
-    if (len == 0 && sum > 0) {
-      countBox.setAttribute("filterActive", "nomatches");
-    } else {
-      countBox.setAttribute("filterActive", "matches");
-    }
+    return;
   }
+
+  // "N of M"
+  countBox.value = gFilterBundle.getFormattedString(
+    "filterCountVisibleOfTotal",
+    [len, sum]
+  );
+  countBox.setAttribute(
+    "filterActive",
+    len == 0 && sum > 0 ? "nomatches" : "matches"
+  );
 }

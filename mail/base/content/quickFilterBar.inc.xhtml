@@ -3,17 +3,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
     <div id="quick-filter-bar" class="themeable-brighttext" hidden="hidden">
-      <div id="quick-filter-bar-main-bar">
+      <div id="quickFilterBarContainer">
+        <button is="toggle-button" id="qfb-sticky"
+                class="button icon-button icon-only check-button"
+                data-l10n-id="quick-filter-bar-sticky">
+        </button>
         <xul:search-textbox id="qfb-qs-textbox"
                             class="themeableSearchBox"
                             timeout="500"
                             maxlength="192"
                             data-l10n-id="quick-filter-bar-textbox"
                             data-l10n-attrs="placeholder" />
-        <button is="toggle-button" id="qfb-sticky"
-                class="button icon-button icon-only check-button"
-                data-l10n-id="quick-filter-bar-sticky">
-        </button>
         <div class="button-group">
           <button is="toggle-button" id="qfb-unread"
                   class="button collapsible-button icon-button check-button"
@@ -43,20 +43,7 @@
         </div>
         <span id="qfb-results-label"></span>
       </div>
-      <div id="quick-filter-bar-expando">
-        <div id="quick-filter-bar-tab-bar" hidden="hidden">
-          <xul:menulist id="qfb-boolean-mode" value="OR">
-            <xul:menupopup>
-              <xul:menuitem id="qfb-boolean-mode-or"
-                            value="OR"
-                            data-l10n-id="quick-filter-bar-boolean-mode-any"
-                            default="default"/>
-              <xul:menuitem id="qfb-boolean-mode-and"
-                            value="AND"
-                            data-l10n-id="quick-filter-bar-boolean-mode-all"/>
-            </xul:menupopup>
-          </xul:menulist>
-        </div>
+      <div id="quickFilterBarSecondFilters">
         <div id="quick-filter-bar-filter-text-bar" hidden="hidden">
           <span id="qfb-qs-label"
                 data-l10n-id="quick-filter-bar-text-filter-explanation"></span>
@@ -74,6 +61,19 @@
                     class="button check-button"
                     data-l10n-id="quick-filter-bar-text-filter-body"></button>
           </div>
+        </div>
+        <div id="quickFilterBarTagsContainer" hidden="hidden">
+          <xul:menulist id="qfb-boolean-mode" value="OR">
+            <xul:menupopup>
+              <xul:menuitem id="qfb-boolean-mode-or"
+                            value="OR"
+                            data-l10n-id="quick-filter-bar-boolean-mode-any"
+                            default="default"/>
+              <xul:menuitem id="qfb-boolean-mode-and"
+                            value="AND"
+                            data-l10n-id="quick-filter-bar-boolean-mode-all"/>
+            </xul:menupopup>
+          </xul:menulist>
         </div>
       </div>
     </div>
