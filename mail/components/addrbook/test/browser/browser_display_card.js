@@ -57,7 +57,7 @@ add_setup(async function() {
       EMAIL;PREF=1:primary@invalid
       EMAIL;TYPE=WORK:tertiary@invalid
       TEL;VALUE=URI:tel:000-0000
-      TEL;TYPE=WORK,VOICE:111-1111
+      TEL;TYPE=WORK,VOICE:callto:111-1111
       TEL;TYPE=VOICE,WORK:222-2222
       TEL;TYPE=HOME;TYPE=VIDEO:tel:333-3333
       ADR:;;street,suburb;city;state;zip;country
@@ -244,13 +244,14 @@ add_task(async function testDisplay() {
   Assert.equal(items.length, 4);
 
   Assert.equal(items[0].querySelector(".entry-type").textContent, "");
-  Assert.equal(items[0].querySelector(".entry-value").textContent, "000-0000");
+  Assert.equal(items[0].querySelector(".entry-value a").href, `tel:0000000`);
 
   Assert.equal(
     items[1].querySelector(".entry-type").dataset.l10nId,
     "about-addressbook-entry-type-work"
   );
   Assert.equal(items[1].querySelector(".entry-value").textContent, "111-1111");
+  Assert.equal(items[1].querySelector(".entry-value a").href, `callto:1111111`);
 
   Assert.equal(
     items[2].querySelector(".entry-type").dataset.l10nId,
@@ -263,6 +264,7 @@ add_task(async function testDisplay() {
     "about-addressbook-entry-type-home"
   );
   Assert.equal(items[3].querySelector(".entry-value").textContent, "333-3333");
+  Assert.equal(items[3].querySelector(".entry-value a").href, `tel:3333333`);
 
   // Addresses section.
   Assert.ok(BrowserTestUtils.is_visible(addressesSection));

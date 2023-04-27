@@ -3078,10 +3078,13 @@ var detailsPane = {
     for (let entry of vCardProperties.getAllEntries("tel")) {
       let li = list.appendChild(createEntryItem());
       setEntryType(li, entry, ["work", "home", "fax", "cell", "pager"]);
-      li.querySelector(".entry-value").textContent = entry.value.replace(
-        /^tel:/,
-        ""
-      );
+      let a = document.createElement("a");
+      // Handle tel: uri, some other scheme, or plain text number.
+      let number = entry.value.replace(/^[a-z\+]{3,}:/, "");
+      let scheme = entry.value.split(/([a-z\+]{3,}):/)[1] || "tel";
+      a.href = `${scheme}:${number.replaceAll(/[^\d\+]/g, "")}`;
+      a.textContent = number;
+      li.querySelector(".entry-value").appendChild(a);
     }
     section.hidden = list.childElementCount == 0;
 
