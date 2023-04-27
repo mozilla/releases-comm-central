@@ -3972,6 +3972,10 @@ var messagePane = {
     messagePane.clearWebPage();
     messagePane.clearMessages();
 
+    let msgHdr = top.messenger.msgHdrFromURI(messageURI);
+    displayFolder(msgHdr.folder.URI); // Change to correct folder if needed.
+    threadTree.selectedIndex = threadTree.view.findIndexOfMsgHdr(msgHdr, true);
+
     messageBrowser.contentWindow.displayMessage(messageURI, gViewWrapper);
     messageBrowser.hidden = false;
   },

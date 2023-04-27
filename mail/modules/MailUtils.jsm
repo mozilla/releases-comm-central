@@ -129,16 +129,16 @@ var MailUtils = {
    * @note Do not use this if you want to open multiple messages at once. Use
    *       |displayMessages| instead.
    *
-   * @param aMsgHdr the message header to display
-   * @param [aViewWrapperToClone] a view wrapper to clone. If null or not
-   *                              given, the message header's folder's default
-   *                              view will be used
-   * @param [aTabmail] a tabmail element to use in case we need to open tabs.
-   *                   If null or not given:
-   *                   - if one or more 3pane windows are open, the most recent
-   *                     one's tabmail is used
-   *                   - if no 3pane windows are open, a standalone window is
-   *                     opened instead of a tab
+   * @param {nsIMsgHdr} aMsgHdr - The message header to display.
+   * @param {DBViewWrapper} [aViewWrapperToClone] - A view wrapper to clone.
+   *   If null or not given, the message header's folder's default view will
+   *   be used.
+   * @param {Element} [aTabmail] - A tabmail element to use in case we need to
+   *   open tabs. If null or not given:
+   *    - if one or more 3pane windows are open, the most recent one's tabmail
+   *      is used, and the window is brought to the front
+   *    - if no 3pane windows are open, a standalone window is opened instead
+   *      of a tab
    */
   displayMessage(aMsgHdr, aViewWrapperToClone, aTabmail) {
     this.displayMessages([aMsgHdr], aViewWrapperToClone, aTabmail);
@@ -177,18 +177,17 @@ var MailUtils = {
    * called when you'd like to display multiple messages to the user according
    * to the pref set.
    *
-   * @param aMsgHdrs an array containing the message headers to display. The
-   *                 array should contain at least one message header
-   * @param [aViewWrapperToClone] a DB view wrapper to clone for each of the
-   *                              tabs or windows
-   * @param [aTabmail] a tabmail element to use in case we need to open tabs.
-   *                   If given, the window containing the tabmail is assumed
-   *                   to be in front. If null or not given:
-   *                   - if one or more 3pane windows are open, the most recent
-   *                     one's tabmail is used, and the window is brought to the
-   *                     front
-   *                   - if no 3pane windows are open, standalone windows are
-   *                     opened instead of tabs
+   * @param {nsIMsgHdr[]} aMsgHdrs - An array containing the message headers to
+   *   display. The array should contain at least one message header.
+   * @param {DBViewWrapper} [aViewWrapperToClone] - A DB view wrapper to clone
+   *   for each of the tabs or windows.
+   * @param {Element} [aTabmail] - A tabmail element to use in case we need to
+   *   open tabs. If given, the window containing the tabmail is assumed to be
+   *   in front. If null or not given:
+   *    - if one or more 3pane windows are open, the most recent one's tabmail
+   *      is used, and the window is brought to the front
+   *    - if no 3pane windows are open, a standalone window is opened instead
+   *      of a tab
    */
   displayMessages(aMsgHdrs, aViewWrapperToClone, aTabmail) {
     let openMessageBehavior = Services.prefs.getIntPref(
@@ -255,11 +254,11 @@ var MailUtils = {
   /**
    * Show this message in an existing window.
    *
-   * @param aMsgHdr the message header to display
-   * @param [aViewWrapperToClone] a DB view wrapper to clone for the message
-   *                              window
-   * @returns true if an existing window was found and the message header was
-   *          displayed, false otherwise
+   * @param {nsIMsgHdr} aMsgHdr - The message header to display.
+   * @param {DBViewWrapper} [aViewWrapperToClone] - A DB view wrapper to clone
+   *   for the message window.
+   * @returns {boolean} true if an existing window was found and the message
+   *   header was displayed, false otherwise.
    */
   openMessageInExistingWindow(aMsgHdr, aViewWrapperToClone) {
     let messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
@@ -273,9 +272,9 @@ var MailUtils = {
   /**
    * Open a new standalone message window with this header.
    *
-   * @param aMsgHdr the message header to display
-   * @param [aViewWrapperToClone] a DB view wrapper to clone for the message
-   *                              window
+   * @param {nsIMsgHdr} aMsgHdr the message header to display
+   * @param {DBViewWrapper} [aViewWrapperToClone] - A DB view wrapper to clone
+   *   for the message window.
    * @returns {DOMWindow} the opened window
    */
   openMessageInNewWindow(aMsgHdr, aViewWrapperToClone) {
@@ -297,9 +296,10 @@ var MailUtils = {
    * for confirmation if the number of windows to be opened is greater than the
    * value of the mailnews.open_window_warning preference.
    *
-   * @param aMsgHdrs an array containing the message headers to display
-   * @param [aViewWrapperToClone] a DB view wrapper to clone for each message
-   *                              window
+   * @param {nsIMsgHdr[]} aMsgHdrs - An array containing the message headers
+   *   to display.
+   * @param {DBViewWrapper} [aViewWrapperToClone] - A DB view wrapper to clone
+   *   for each message window.
    */
   openMessagesInNewWindows(aMsgHdrs, aViewWrapperToClone) {
     if (
@@ -323,7 +323,7 @@ var MailUtils = {
    * useful when the message needs to be displayed in the context of its folder
    * or thread.
    *
-   * @param aMsgHdr the message header to display
+   * @param {nsIMsgHdr} aMsgHdr - The message header to display.
    */
   displayMessageInFolderTab(aMsgHdr) {
     // Try opening new tabs in a 3pane window
@@ -593,8 +593,8 @@ var MailUtils = {
   /**
    * Get the identity for the given header.
    *
-   * @param hdr nsIMsgHdr message header
-   * @param type nsIMsgCompType compose type the identity is used for.
+   * @param {nsIMsgHdr} hdr - Message header.
+   * @param {nsIMsgCompType} type - Compose type the identity is used for.
    * @returns {Array} - An array of two elements, [identity, matchingHint].
    *   identity is an nsIMsgIdentity and matchingHint is a string.
    */

@@ -3288,26 +3288,20 @@ const gMessageHeader = {
     let id = event.currentTarget.closest(".header-message-id").id;
     if (event.button == 0) {
       // Remove the < and > symbols.
-      window.browsingContext.topChromeWindow.OpenMessageForMessageId(
-        id.substring(1, id.length - 1)
-      );
+      OpenMessageForMessageId(id.substring(1, id.length - 1));
     }
   },
 
   openMessage(event) {
     let id = event.currentTarget.parentNode.headerField.id;
     // Remove the < and > symbols.
-    window.browsingContext.topChromeWindow.OpenMessageForMessageId(
-      id.substring(1, id.length - 1)
-    );
+    OpenMessageForMessageId(id.substring(1, id.length - 1));
   },
 
   openBrowser(event) {
     let id = event.currentTarget.parentNode.headerField.id;
     // Remove the < and > symbols.
-    window.browsingContext.topChromeWindow.OpenBrowserWithMessageId(
-      id.substring(1, id.length - 1)
-    );
+    OpenBrowserWithMessageId(id.substring(1, id.length - 1));
   },
 
   copyMessageId(event) {
@@ -3347,7 +3341,7 @@ function MarkSelectedMessagesFlagged(markFlagged) {
  * Take the message id from the messageIdNode and use the url defined in the
  * hidden pref "mailnews.messageid_browser.url" to open it in a browser window
  * (%mid is replaced by the message id).
- * @param messageId the message id to open
+ * @param {string} messageId - The message id to open.
  */
 function OpenBrowserWithMessageId(messageId) {
   var browserURL = Services.prefs.getComplexValue(
@@ -3371,47 +3365,36 @@ function OpenBrowserWithMessageId(messageId) {
  * message in all folders starting with the current selected folder, then the
  * current account followed by the other accounts and open corresponding
  * message if found.
- * @param messageId the message id to open
+ * @param {string} messageId - The message id to open.
  */
 function OpenMessageForMessageId(messageId) {
   let startServer = gFolder?.server;
 
   window.setCursor("wait");
-  let { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-  let messageHeader = MailUtils.getMsgHdrForMsgId(messageId, startServer);
+  let msgHdr = MailUtils.getMsgHdrForMsgId(messageId, startServer);
   window.setCursor("auto");
 
-  // if message id was found open corresponding message
-  // else show error message
-  if (messageHeader) {
-    OpenMessageByHeader(
-      messageHeader,
-      Services.prefs.getBoolPref("mailnews.messageid.openInNewWindow")
-    );
-  } else {
-    let messageIdStr = "<" + messageId + ">";
-    let bundle = document.getElementById("bundle_messenger");
-    let errorTitle = bundle.getString("errorOpenMessageForMessageIdTitle");
-    let errorMessage = bundle.getFormattedString(
-      "errorOpenMessageForMessageIdMessage",
-      [messageIdStr]
-    );
-
-    Services.prompt.alert(window, errorTitle, errorMessage);
+  // If message was found open corresponding message.
+  if (msgHdr) {
+    let uri = msgHdr.folder.getUriForMsg(msgHdr);
+    let tabmail = top.window.document.getElementById("tabmail");
+    if (tabmail?.currentAbout3Pane) {
+      // Message in 3pane.
+      tabmail.currentAbout3Pane.messagePane.displayMessage(uri);
+    } else {
+      // Message in tab, standalone message window.
+      window.displayMessage(uri);
+    }
+    return;
   }
-}
-
-function OpenMessageByHeader(messageHeader, openInNewWindow) {
-  if (openInNewWindow) {
-    window.openDialog(
-      "chrome://messenger/content/messageWindow.xhtml",
-      "_blank",
-      "all,chrome,dialog=no,status,toolbar",
-      messageHeader
-    );
-  } else {
-    // TODO: Reimplement this?
-  }
+  let messageIdStr = "<" + messageId + ">";
+  let bundle = document.getElementById("bundle_messenger");
+  let errorTitle = bundle.getString("errorOpenMessageForMessageIdTitle");
+  let errorMessage = bundle.getFormattedString(
+    "errorOpenMessageForMessageIdMessage",
+    [messageIdStr]
+  );
+  Services.prompt.alert(window, errorTitle, errorMessage);
 }
 
 /**
