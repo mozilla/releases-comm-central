@@ -2823,8 +2823,8 @@ var threadPane = {
     threadTree.addEventListener("keypress", this);
     threadTree.addEventListener("select", this);
     threadTree.table.body.addEventListener("dragstart", this);
-    threadTree.table.body.addEventListener("dragover", this);
-    threadTree.table.body.addEventListener("drop", this);
+    threadTree.addEventListener("dragover", this);
+    threadTree.addEventListener("drop", this);
     threadTree.addEventListener("expanded", this);
     threadTree.addEventListener("collapsed", this);
   },
@@ -3024,7 +3024,13 @@ var threadPane = {
     );
   },
 
+  /**
+   * Handle threadPane dragover events.
+   */
   _onDragOver(event) {
+    if (event.target.closest("thead")) {
+      return; // Only allow dropping in the body.
+    }
     // Must prevent default. Otherwise dropEffect gets cleared.
     event.preventDefault();
     event.dataTransfer.dropEffect = "none";
@@ -3046,7 +3052,13 @@ var threadPane = {
     }
   },
 
+  /**
+   * Handle threadPane drop events.
+   */
   _onDrop(event) {
+    if (event.target.closest("thead")) {
+      return; // Only allow dropping in the body.
+    }
     event.preventDefault();
     for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
       let extFile = event.dataTransfer
