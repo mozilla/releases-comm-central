@@ -2920,8 +2920,11 @@ var threadPane = {
     }
   },
 
+  /**
+   * Handle threadPane drag events.
+   */
   _onDragStart(event) {
-    let row = event.target.closest(`tr[is="thread-row"]`);
+    let row = event.target.closest(`tr[is^="thread-"]`);
     if (!row) {
       event.preventDefault();
       return;
