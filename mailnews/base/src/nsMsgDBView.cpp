@@ -6152,6 +6152,7 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
     *pResultKey = nsMsgKey_None;
     return NS_OK;
   }
+  *pResultKey = nsMsgKey_None;
 
   switch (motion) {
     case nsMsgNavigationType::firstMessage:
@@ -6164,10 +6165,10 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
       *pResultKey = m_keys[*pResultIndex];
       break;
     case nsMsgNavigationType::previousMessage:
-      *pResultIndex = (startIndex != nsMsgViewIndex_None && startIndex > 0)
-                          ? startIndex - 1
-                          : 0;
-      *pResultKey = m_keys[*pResultIndex];
+      if (startIndex != nsMsgViewIndex_None && startIndex > 0) {
+        *pResultIndex = startIndex - 1;
+      }
+      if (IsValidIndex(*pResultIndex)) *pResultKey = m_keys[*pResultIndex];
       break;
     case nsMsgNavigationType::lastMessage:
       *pResultIndex = lastIndex;
@@ -6176,22 +6177,18 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
     case nsMsgNavigationType::firstFlagged:
       rv = FindFirstFlagged(pResultIndex);
       if (IsValidIndex(*pResultIndex)) *pResultKey = m_keys[*pResultIndex];
-
       break;
     case nsMsgNavigationType::nextFlagged:
       rv = FindNextFlagged(startIndex + 1, pResultIndex);
       if (IsValidIndex(*pResultIndex)) *pResultKey = m_keys[*pResultIndex];
-
       break;
     case nsMsgNavigationType::previousFlagged:
       rv = FindPrevFlagged(startIndex, pResultIndex);
       if (IsValidIndex(*pResultIndex)) *pResultKey = m_keys[*pResultIndex];
-
       break;
     case nsMsgNavigationType::firstNew:
       rv = FindFirstNew(pResultIndex);
       if (IsValidIndex(*pResultIndex)) *pResultKey = m_keys[*pResultIndex];
-
       break;
     case nsMsgNavigationType::firstUnreadMessage:
       startIndex = nsMsgViewIndex_None;
@@ -6252,7 +6249,7 @@ nsresult nsMsgDBView::NavigateFromPos(nsMsgNavigationTypeValue motion,
       }
       break;
     case nsMsgNavigationType::previousUnreadMessage:
-      if (startIndex == nsMsgViewIndex_None) break;
+      if (!IsValidIndex(startIndex)) break;
 
       rv = FindPrevUnread(m_keys[startIndex], pResultKey, &resultThreadKey);
       if (NS_SUCCEEDED(rv)) {
