@@ -12,10 +12,10 @@
  *
  * globals prerequisites used:
  *
- *   window.MsgStatusFeedback
+ *   top.window.MsgStatusFeedback
  */
 
-/* globals gDBView, gViewWrapper, commandController */
+/* globals gDBView, gViewWrapper */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -29,19 +29,16 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailUtils.jsm"
 );
 
-/*
- * determineActionsForJunkMsgs
- *
+/**
  * Determines the actions that should be carried out on the messages
  * that are being marked as junk
  *
- * @param aFolder
- *        the folder with messages being marked as junk
- *
- * @return an object with two properties: 'markRead' (boolean) indicating
- *         whether the messages should be marked as read, and 'junkTargetFolder'
- *         (nsIMsgFolder) specifying where the messages should be moved, or
- *         null if they should not be moved.
+ * @param {nsIMsgFolder} aFolder - The folder with messages being marked as junk.
+ * @returns {object} result an object with two properties.
+ * @returns {boolean} result.markRead - Whether the messages should be marked
+ *   as read.
+ * @returns {?nsIMsgFolder} result.junkTargetFolder - Where the messages should
+ *   be moved, or null if they should not be moved.
  */
 function determineActionsForJunkMsgs(aFolder) {
   var actions = { markRead: false, junkTargetFolder: null };
@@ -72,59 +69,77 @@ function determineActionsForJunkMsgs(aFolder) {
 }
 
 /**
- * performActionsOnJunkMsgs
- *
- * Performs required operations on a list of newly-classified junk messages
+ * Performs required operations on a list of newly-classified junk messages.
  *
  * @param {nsIMsgFolder} aFolder - The folder with messages being marked as
- *                                 junk.
- * @param {Array.<nsIMsgDBHdr>} aJunkMsgHdrs - New junk messages.
- * @param {Array.<nsIMsgDBHdr>} aGoodMsgHdrs - New good messages.
+ *   junk.
+ * @param {nsIMsgDBHdr[]} aJunkMsgHdrs - New junk messages.
+ * @param {nsIMsgDBHdr[]} aGoodMsgHdrs - New good messages.
  */
-function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
-  if (aFolder instanceof Ci.nsIMsgImapMailFolder) {
-    // need to update IMAP custom flags
-    if (aJunkMsgHdrs.length) {
-      let junkMsgKeys = aJunkMsgHdrs.map(hdr => hdr.messageKey);
-      aFolder.storeCustomKeywords(null, "Junk", "NonJunk", junkMsgKeys);
+async function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
+  return new Promise((resolve, reject) => {
+    if (aFolder instanceof Ci.nsIMsgImapMailFolder) {
+      // need to update IMAP custom flags
+      if (aJunkMsgHdrs.length) {
+        let junkMsgKeys = aJunkMsgHdrs.map(hdr => hdr.messageKey);
+        aFolder.storeCustomKeywords(null, "Junk", "NonJunk", junkMsgKeys);
+      }
+
+      if (aGoodMsgHdrs.length) {
+        let goodMsgKeys = aGoodMsgHdrs.map(hdr => hdr.messageKey);
+        aFolder.storeCustomKeywords(null, "NonJunk", "Junk", goodMsgKeys);
+      }
+    }
+    if (!aJunkMsgHdrs.length) {
+      resolve();
+      return;
     }
 
-    if (aGoodMsgHdrs.length) {
-      let goodMsgKeys = aGoodMsgHdrs.map(hdr => hdr.messageKey);
-      aFolder.storeCustomKeywords(null, "NonJunk", "Junk", goodMsgKeys);
-    }
-  }
-
-  if (aJunkMsgHdrs.length) {
-    var actionParams = determineActionsForJunkMsgs(aFolder);
+    let actionParams = determineActionsForJunkMsgs(aFolder);
     if (actionParams.markRead) {
       aFolder.markMessagesRead(aJunkMsgHdrs, true);
     }
 
-    if (actionParams.junkTargetFolder) {
-      MailServices.copy.copyMessages(
-        aFolder,
-        aJunkMsgHdrs,
-        actionParams.junkTargetFolder,
-        true /* isMove */,
-        null,
-        top.msgWindow,
-        true /* allow undo */
-      );
+    if (!actionParams.junkTargetFolder) {
+      resolve();
+      return;
     }
-  }
+
+    // @implements {nsIMsgCopyServiceListener}
+    let listener = {
+      QueryInterface: ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]),
+      OnStartCopy() {},
+      OnProgress(progress, progressMax) {},
+      SetMessageKey(key) {},
+      GetMessageId() {},
+      OnStopCopy(status) {
+        if (Components.isSuccessCode(status)) {
+          resolve();
+          return;
+        }
+        let uri = actionParams.junkTargetFolder.URI;
+        reject(new Error(`Moving junk to ${uri} failed.`));
+      },
+    };
+    MailServices.copy.copyMessages(
+      aFolder,
+      aJunkMsgHdrs,
+      actionParams.junkTargetFolder,
+      true /* isMove */,
+      listener,
+      top.msgWindow,
+      true /* allow undo */
+    );
+  });
 }
 
 /**
- * MessageClassifier
- *
  * Helper object storing the list of pending messages to process,
- * and implementing junk processing callback
+ * and implementing junk processing callback.
  *
- * @param aFolder
- *        the folder with messages to be analyzed for junk
- * @param aTotalMessages
- *        Number of messages to process, used for progress report only
+ * @param {nsIMsgFolder} aFolder - The folder with messages to be analyzed for junk.
+ * @param {integer} aTotalMessages - Number of messages to process, used for
+ *   progress report only.
  */
 
 function MessageClassifier(aFolder, aTotalMessages) {
@@ -139,10 +154,11 @@ function MessageClassifier(aFolder, aTotalMessages) {
   this.lastStatusTime = Date.now();
 }
 
+/**
+ * @implements {nsIJunkMailClassificationListener}
+ */
 MessageClassifier.prototype = {
   /**
-   * analyzeMessage
-   *
    * Starts the message classification process for a message. If the message
    * sender's address is whitelisted, the message is skipped.
    *
@@ -181,29 +197,24 @@ MessageClassifier.prototype = {
     }
   },
 
-  /*
-   * nsIJunkMailClassificationListener implementation
-   * onMessageClassified
+  /**
+   * Callback function from nsIJunkMailPlugin with classification results.
    *
-   * Callback function from nsIJunkMailPlugin with classification results
-   *
-   * @param aClassifiedMsgURI
-   *        URI of classified message
-   * @param aClassification
-   *        Junk classification (0: UNCLASSIFIED, 1: GOOD, 2: JUNK)
-   * @param aJunkPercent
-   *        0 - 100 indicator of junk likelihood, with 100 meaning probably junk
+   * @param {string} aClassifiedMsgURI - URI of classified message.
+   * @param {integer} aClassification - Junk classification (0: UNCLASSIFIED, 1: GOOD, 2: JUNK)
+   * @param {integer} aJunkPercent - 0 - 100 indicator of junk likelihood,
+   *   with 100 meaning probably junk.
+   * @see {nsIJunkMailClassificationListener}
    */
-  onMessageClassified(aClassifiedMsgURI, aClassification, aJunkPercent) {
+  async onMessageClassified(aClassifiedMsgURI, aClassification, aJunkPercent) {
     if (!aClassifiedMsgURI) {
       // Ignore end of batch.
       return;
     }
-    var nsIJunkMailPlugin = Ci.nsIJunkMailPlugin;
     var score =
-      aClassification == nsIJunkMailPlugin.JUNK
-        ? nsIJunkMailPlugin.IS_SPAM_SCORE
-        : nsIJunkMailPlugin.IS_HAM_SCORE;
+      aClassification == Ci.nsIJunkMailPlugin.JUNK
+        ? Ci.nsIJunkMailPlugin.IS_SPAM_SCORE
+        : Ci.nsIJunkMailPlugin.IS_HAM_SCORE;
     const statusDisplayInterval = 1000; // milliseconds between status updates
 
     // set these props via the db (instead of the message header
@@ -215,13 +226,17 @@ MessageClassifier.prototype = {
     db.setStringProperty(msgHdr.messageKey, "junkscoreorigin", "plugin");
     db.setStringProperty(msgHdr.messageKey, "junkpercent", aJunkPercent);
 
-    if (aClassification == nsIJunkMailPlugin.JUNK) {
+    if (aClassification == Ci.nsIJunkMailPlugin.JUNK) {
       this.mJunkMsgHdrs.push(msgHdr);
-    } else if (aClassification == nsIJunkMailPlugin.GOOD) {
+    } else if (aClassification == Ci.nsIJunkMailPlugin.GOOD) {
       this.mGoodMsgHdrs.push(msgHdr);
     }
 
     var nextMsgURI = this.mMessageQueue.shift();
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messenger.properties"
+    );
+
     if (nextMsgURI) {
       ++this.mProcessedMessages;
       if (Date.now() > this.lastStatusTime + statusDisplayInterval) {
@@ -232,57 +247,49 @@ MessageClassifier.prototype = {
             (this.mProcessedMessages * 100) / this.mTotalMessages
           );
         }
-        var percentStr = percentDone + "%";
-        window.MsgStatusFeedback.showStatusString(
-          document
-            .getElementById("bundle_messenger")
-            .getFormattedString("junkAnalysisPercentComplete", [percentStr])
+        top.window.MsgStatusFeedback.showStatusString(
+          bundle.formatStringFromName("junkAnalysisPercentComplete", [
+            percentDone + "%",
+          ])
         );
       }
-
       MailServices.junk.classifyMessage(nextMsgURI, top.msgWindow, this);
     } else {
-      window.MsgStatusFeedback.showStatusString(
-        document
-          .getElementById("bundle_messenger")
-          .getString("processingJunkMessages")
+      top.window.MsgStatusFeedback.showStatusString(
+        bundle.GetStringFromName("processingJunkMessages")
       );
-      performActionsOnJunkMsgs(
+      await performActionsOnJunkMsgs(
         this.mFolder,
         this.mJunkMsgHdrs,
         this.mGoodMsgHdrs
       );
-      window.MsgStatusFeedback.showStatusString("");
+      setTimeout(() => {
+        top.window.MsgStatusFeedback.showStatusString("");
+      }, 500);
     }
   },
 };
 
-/*
- * filterFolderForJunk
- *
+/**
  * Filter all messages in the current folder for junk
  */
-function filterFolderForJunk() {
-  processFolderForJunk(true);
+async function filterFolderForJunk() {
+  await processFolderForJunk(true);
 }
 
-/*
- * analyzeMessagesForJunk
- *
+/**
  * Filter selected messages in the current folder for junk
  */
-function analyzeMessagesForJunk() {
-  processFolderForJunk(false);
+async function analyzeMessagesForJunk() {
+  await processFolderForJunk(false);
 }
 
-/*
- * processFolderForJunk
- *
+/**
  * Filter messages in the current folder for junk
  *
- * @param aAll: true to filter all messages, else filter selection
+ * @param {boolean} aAll - true to filter all messages, else filter selection.
  */
-function processFolderForJunk(aAll) {
+async function processFolderForJunk(aAll) {
   let indices;
   if (aAll) {
     // need to expand all threads, so we analyze everything
@@ -341,7 +348,7 @@ function processFolderForJunk(aAll) {
   }
   if (msgClassifier.firstMessage) {
     // the async plugin was not used, maybe all whitelisted?
-    performActionsOnJunkMsgs(
+    await performActionsOnJunkMsgs(
       msgClassifier.mFolder,
       msgClassifier.mJunkMsgHdrs,
       msgClassifier.mGoodMsgHdrs
