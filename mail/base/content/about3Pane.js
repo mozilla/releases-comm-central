@@ -2886,6 +2886,11 @@ var threadPane = {
   },
 
   _onKeyPress(event) {
+    if (event.target.closest("thead")) {
+      // Bail out if the keypress happens in the table header.
+      return;
+    }
+
     if (event.key == "Enter") {
       this._onItemActivate(event);
     }

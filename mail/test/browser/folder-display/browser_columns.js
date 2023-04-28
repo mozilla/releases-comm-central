@@ -17,6 +17,7 @@ var {
   create_virtual_folder,
   enter_folder,
   inboxFolder,
+  make_message_sets_in_folders,
   mc,
   open_folder_in_new_tab,
   switch_tab,
@@ -180,6 +181,57 @@ add_task(async function test_column_defaults_inbox() {
   folderInbox = inboxFolder;
   await enter_folder(folderInbox);
   assert_visible_columns(INBOX_DEFAULTS);
+});
+
+add_task(async function test_keypress_on_columns() {
+  await make_message_sets_in_folders([folderInbox], [{ count: 1 }]);
+
+  let tabmail = document.getElementById("tabmail");
+  let about3Pane = tabmail.currentAbout3Pane;
+
+  // Select the first row.
+  let row = about3Pane.threadTree.getRowAtIndex(0);
+  EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
+
+  // Press SHIFT+TAB to focus on the column picker.
+  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, about3Pane);
+
+  Assert.equal(
+    about3Pane.document.activeElement,
+    about3Pane.document.querySelector(
+      `th[is="tree-view-table-column-picker"] button`
+    ),
+    "The column picker should be focused"
+  );
+
+  Assert.equal(tabmail.tabInfo.length, 1, "Only 1 tab should be visible");
+
+  let colPickerPopup = about3Pane.document.querySelector(
+    `th[is="tree-view-table-column-picker"] menupopup`
+  );
+  let shownPromise = BrowserTestUtils.waitForEvent(
+    colPickerPopup,
+    "popupshown"
+  );
+  // Pressing Enter should open the column picker popup.
+  EventUtils.synthesizeKey("VK_RETURN", {}, about3Pane);
+  await shownPromise;
+
+  Assert.equal(
+    tabmail.tabInfo.length,
+    1,
+    "The selected message shouldn't be opened in another tab"
+  );
+
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    colPickerPopup,
+    "popuphidden",
+    undefined,
+    event => event.originalTarget == colPickerPopup
+  );
+  // Close the column picker.
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, about3Pane);
+  await hiddenPromise;
 });
 
 /**
