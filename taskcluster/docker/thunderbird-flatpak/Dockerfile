@@ -7,5 +7,7 @@ WORKDIR /scripts/
 # Copy everything in the docker/thunderbird-flatpak folder but the Dockerfile
 COPY [^D]* /scripts/
 
+RUN /scripts/make_venv.sh
+
 # Set a default command useful for debugging
 CMD ["/bin/bash", "--login"]

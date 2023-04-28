@@ -38,7 +38,6 @@ rm -rf "$SOURCE_DEST" && mkdir -p "$SOURCE_DEST"
 # XXX ensure we have a clean slate in the local flatpak repo
 rm -rf ~/.local/share/flatpak/
 
-
 CURL="curl --location --retry 10 --retry-delay 10"
 
 # Download en-US linux64 binary
@@ -46,10 +45,19 @@ $CURL -o "${WORKSPACE}/thunderbird.tar.bz2" \
     "${CANDIDATES_DIR}/${VERSION}-candidates/build${BUILD_NUMBER}/linux-x86_64/en-US/thunderbird-${VERSION}.tar.bz2"
 
 # Use list of locales to fetch L10N XPIs
-#$CURL -o "${WORKSPACE}/l10n_changesets.json" "$L10N_CHANGESETS"
-#locales=$(python3 "$SCRIPT_DIRECTORY/extract_locales_from_l10n_json.py" "${WORKSPACE}/l10n_changesets.json")
-$CURL -o "${WORKSPACE}/shipped-locales" "$L10N_CHANGESETS"
-locales=$(grep -E -v '(en-US|ja-JP-mac)' "${WORKSPACE}/shipped-locales")
+$CURL -o "${WORKSPACE}/l10n-changesets.json" "$L10N_CHANGESETS"
+locales=$(python3 "$SCRIPT_DIRECTORY/extract_locales_from_l10n_json.py" "${WORKSPACE}/l10n-changesets.json")
+
+# Download artifacts from dependencies and build the .desktop file.
+(
+source /scripts/venv/bin/activate
+python3 /scripts/build-desktop-file.py -o "$WORKSPACE/org.mozilla.Thunderbird.desktop" \
+  -t "/scripts/org.mozilla.Thunderbird.desktop.jinja2" \
+  -l "$WORKSPACE/l10n-central" \
+  -L "$WORKSPACE/l10n-changesets.json" \
+  -f "mail/branding/thunderbird/brand.ftl" \
+  -f "mail/messenger/flatpak.ftl"
+)
 
 DISTRIBUTION_DIR="$SOURCE_DEST/distribution"
 mkdir -p "$DISTRIBUTION_DIR"
@@ -61,7 +69,6 @@ for locale in $locales; do
 done
 
 envsubst < "$SCRIPT_DIRECTORY/org.mozilla.Thunderbird.appdata.xml.in" > "${WORKSPACE}/org.mozilla.Thunderbird.appdata.xml"
-cp -v "$SCRIPT_DIRECTORY/org.mozilla.Thunderbird.desktop" "$WORKSPACE"
 cp -v "$SCRIPT_DIRECTORY/distribution.ini" "$WORKSPACE"
 cp -v "$SCRIPT_DIRECTORY/policies.json" "$WORKSPACE"
 cp -v "$SCRIPT_DIRECTORY/launch-script.sh" "$WORKSPACE"
