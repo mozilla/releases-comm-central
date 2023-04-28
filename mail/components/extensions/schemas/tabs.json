@@ -528,12 +528,12 @@
               "url": {
                 "type": "string",
                 "optional": true,
-                "description": "A URL to navigate the tab to. Only applicable for <value>content</value> tabs and active <value>mail</value> tabs."
+                "description": "A URL of a page to load. If the URL points to a content page (a web page, an extension page or a registered WebExtension protocol handler page), the tab will navigate to the requested page. All other URLs will be opened externally without changing the tab. Note: This function will throw an error, if a content page is loaded into a non-content tab (its type must be either <value>content</value> or <value>mail</value>)."
               },
               "active": {
                 "type": "boolean",
                 "optional": true,
-                "description": "Set this to <value>true</value>, if the tab should be active. Does not affect whether the window is focused (see :ref:`windows.update`). Setting this to <value>false</value> has no effect."
+                "description": "Set this to <value>true</value>, if the tab should become active. Does not affect whether the window is focused (see :ref:`windows.update`). Setting this to <value>false</value> has no effect."
               }
             }
           },
@@ -619,7 +619,7 @@
       {
         "name": "reload",
         "type": "function",
-        "description": "Reload a tab.",
+        "description": "Reload a tab. Only applicable for tabs which display a content page.",
         "async": "callback",
         "parameters": [
           {

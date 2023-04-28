@@ -87,6 +87,20 @@ let tabListener = {
   },
 };
 
+let hasWebHandlerApp = protocol => {
+  let protoInfo = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+    .getService(Ci.nsIExternalProtocolService)
+    .getProtocolHandlerInfo(protocol);
+  let appHandlers = protoInfo.possibleApplicationHandlers;
+  for (let i = 0; i < appHandlers.length; i++) {
+    let handler = appHandlers.queryElementAt(i, Ci.nsISupports);
+    if (handler instanceof Ci.nsIWebHandlerApp) {
+      return true;
+    }
+  }
+  return false;
+};
+
 // Attributes and properties used in the TabsUpdateFilterManager.
 const allAttrs = new Set(["favIconUrl", "title"]);
 const allProperties = new Set(["favIconUrl", "status", "title"]);
@@ -533,11 +547,7 @@ this.tabs = class extends ExtensionAPIPersistent {
 
         async update(tabId, updateProperties) {
           let nativeTabInfo = getTabOrActive(tabId);
-          if (nativeTabInfo instanceof Ci.nsIDOMWindow) {
-            throw new ExtensionError(
-              "tabs.update is not applicable to this tab."
-            );
-          }
+          let tab = tabManager.getWrapper(nativeTabInfo);
           let tabmail = getTabTabmail(nativeTabInfo);
 
           if (updateProperties.url) {
@@ -546,35 +556,65 @@ this.tabs = class extends ExtensionAPIPersistent {
               return Promise.reject({ message: `Illegal URL: ${url}` });
             }
 
-            let options = {
-              flags: updateProperties.loadReplace
-                ? Ci.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY
-                : Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
-              triggeringPrincipal: context.principal,
-            };
+            let uri;
+            try {
+              uri = Services.io.newURI(url);
+            } catch (e) {
+              throw new ExtensionError(`Url "${url}" seems to be malformed.`);
+            }
 
-            // Only supported for content tabs and mail tabs.
-            if (nativeTabInfo.mode.name == "contentTab") {
-              let browser = getTabBrowser(nativeTabInfo);
-              if (!browser) {
-                throw new ExtensionError("Cannot set a URL for this tab.");
+            // http(s): urls, moz-extension: urls and self-registered protocol
+            // handlers are actually loaded into the tab (and change its url).
+            // All other urls are forwarded to the external protocol handler and
+            // do not change the current tab.
+            let isContentUrl = /((^blob:)|(^https:)|(^http:)|(^moz-extension:))/i.test(
+              url
+            );
+            let isWebExtProtocolUrl =
+              /((^ext\+[a-z]+:)|(^web\+[a-z]+:))/i.test(url) &&
+              hasWebHandlerApp(uri.scheme);
+
+            if (isContentUrl || isWebExtProtocolUrl) {
+              if (tab.type != "content" && tab.type != "mail") {
+                throw new ExtensionError(
+                  isContentUrl
+                    ? "Loading a content url is only supported for content tabs and mail tabs."
+                    : "Loading a registered WebExtension protocol handler url is only supported for content tabs and mail tabs."
+                );
               }
-              MailE10SUtils.loadURI(browser, url, options);
-            } else if (nativeTabInfo.mode.name == "mail3PaneTab") {
-              nativeTabInfo.chromeBrowser.contentWindow.messagePane.displayWebPage(
-                url,
-                options
-              );
+
+              let options = {
+                flags: updateProperties.loadReplace
+                  ? Ci.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY
+                  : Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
+                triggeringPrincipal: context.principal,
+              };
+
+              if (tab.type == "mail") {
+                // The content browser in about:3pane.
+                nativeTabInfo.chromeBrowser.contentWindow.messagePane.displayWebPage(
+                  url,
+                  options
+                );
+              } else {
+                let browser = getTabBrowser(nativeTabInfo);
+                if (!browser) {
+                  throw new ExtensionError("Cannot set a URL for this tab.");
+                }
+                MailE10SUtils.loadURI(browser, url, options);
+              }
             } else {
-              throw new ExtensionError(
-                "Updating the displayed url is only supported for content tabs and mail tabs."
-              );
+              // Send unknown URLs schema to the external protocol handler.
+              // This does not change the current tab.
+              Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+                .getService(Ci.nsIExternalProtocolService)
+                .loadURI(uri);
             }
           }
 
-          // The current tab can only be set to active. To set it inactive, another tab has to be set
-          // as active.
-          if (updateProperties.active) {
+          // A tab can only be set to be active. To set it inactive, another tab
+          // has to be set as active.
+          if (tabmail && updateProperties.active) {
             tabmail.selectedTab = nativeTabInfo;
           }
 
@@ -583,11 +623,17 @@ this.tabs = class extends ExtensionAPIPersistent {
 
         async reload(tabId, reloadProperties) {
           let nativeTabInfo = getTabOrActive(tabId);
-          if (nativeTabInfo instanceof Ci.nsIDOMWindow) {
+          let tab = tabManager.getWrapper(nativeTabInfo);
+
+          let isContentMailTab =
+            tab.type == "mail" &&
+            !nativeTabInfo.chromeBrowser.contentWindow.webBrowser.hidden;
+          if (tab.type != "content" && !isContentMailTab) {
             throw new ExtensionError(
-              "tabs.reload is not applicable to this tab."
+              "Reloading is only supported for tabs displaying a content page."
             );
           }
+
           let browser = getTabBrowser(nativeTabInfo);
 
           let flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
