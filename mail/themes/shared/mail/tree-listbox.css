@@ -84,6 +84,7 @@
   display: flex;
   align-items: start;
   overflow-y: scroll;
+  overscroll-behavior-y: none;
   height: 100%;
 }
 
