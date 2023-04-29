@@ -456,6 +456,10 @@ slot[name="placeholders"] div::before {
   min-height: var(--list-item-min-height);
 }
 
+.no-overscroll {
+  overscroll-behavior-y: none;
+}
+
 /* Drag and Drop */
 
 th.column-dragging {
