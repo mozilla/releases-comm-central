@@ -34,7 +34,7 @@ function onLoad(event) {
     // If there is about text, we always show it.
     if (distroAbout) {
       let distroField = document.getElementById("distribution");
-      distroField.value = distroAbout;
+      distroField.innerText = distroAbout;
       distroField.style.display = "block";
     }
     // If it's not a mozilla distribution, show the rest,
@@ -46,7 +46,7 @@ function onLoad(event) {
       }
 
       let distroIdField = document.getElementById("distributionId");
-      distroIdField.value = distroId;
+      distroIdField.innerText = distroId;
       distroIdField.style.display = "block";
     }
   }
