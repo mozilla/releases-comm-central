@@ -10,10 +10,10 @@
  *   used to select the expected button/menuitem icon.
  * @param {?object} manifestIcons - The icons entry of the extension manifest.
  */
-async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
+async function test_space(background, selectedTheme, manifestIcons) {
   let manifest = {
-    manifest_version: 2,
-    applications: {
+    manifest_version: 3,
+    browser_specific_settings: {
       gecko: {
         id: "spaces_toolbar@mochi.test",
       },
@@ -198,70 +198,56 @@ add_task(async function test_add_update_remove() {
       ? browser.runtime.getURL(manifest.icons[16])
       : "chrome://messenger/content/extension.svg";
 
-    // Test addButton().
-    browser.test.log("addButton(): Without id.");
+    // Test create().
+    browser.test.log("create(): Without id.");
     await browser.test.assertThrows(
-      () => browser.spacesToolbar.addButton(),
-      /Incorrect argument types for spacesToolbar.addButton./,
-      "addButton() without id should throw."
+      () => browser.spaces.create(),
+      /Incorrect argument types for spaces.create./,
+      "create() without id should throw."
     );
 
-    browser.test.log("addButton(): Without properties.");
+    browser.test.log("create(): Without default url.");
     await browser.test.assertThrows(
-      () => browser.spacesToolbar.addButton("button_1"),
-      /Incorrect argument types for spacesToolbar.addButton./,
-      "addButton() without properties should throw."
+      () => browser.spaces.create("space_1"),
+      /Incorrect argument types for spaces.create./,
+      "create() without default url should throw."
     );
 
-    browser.test.log("addButton(): With empty properties.");
+    browser.test.log("create(): With invalid default url.");
     await browser.test.assertRejects(
-      browser.spacesToolbar.addButton("button_1", {}),
-      /Failed to add button to the spaces toolbar: Invalid url./,
-      "addButton() without a url should throw."
+      browser.spaces.create("space_1", "invalid://url"),
+      /Failed to create new space: Invalid default url./,
+      "create() with an invalid default url should throw."
     );
 
-    browser.test.log("addButton(): With invalid url.");
-    await browser.test.assertRejects(
-      browser.spacesToolbar.addButton("button_1", {
-        url: "invalid://url",
-      }),
-      /Failed to add button to the spaces toolbar: Invalid url./,
-      "addButton() with an invalid url should throw."
-    );
-
-    browser.test.log("addButton(): With url only.");
-    await browser.spacesToolbar.addButton("button_1", {
-      url: "https://test.invalid",
-    });
-    let expected_button_1 = {
-      id: "button_1",
+    browser.test.log("create(): With default url only.");
+    await browser.spaces.create("space_1", "https://test.invalid");
+    let expected_space_1 = {
+      id: "space_1",
       title: "Generated extension",
       url: "https://test.invalid",
       icons: {
         default: `url("${extensionIcon}")`,
       },
     };
-    await window.sendMessage("checkUI", [expected_button_1]);
+    await window.sendMessage("checkUI", [expected_space_1]);
 
-    browser.test.log("addButton(): With url only, but existing id.");
+    browser.test.log("create(): With default url only, but existing id.");
     await browser.test.assertRejects(
-      browser.spacesToolbar.addButton("button_1", {
-        url: "https://test.invalid",
-      }),
-      /Failed to add button to the spaces toolbar: The id button_1 is already used by this extension./,
-      "addButton() with existing id should throw."
+      browser.spaces.create("space_1", "https://test.invalid"),
+      /Failed to create new space: The id space_1 is already used by this extension./,
+      "create() with existing id should throw."
     );
 
-    browser.test.log("addButton(): With most properties.");
-    await browser.spacesToolbar.addButton("button_2", {
+    browser.test.log("create(): With most properties.");
+    await browser.spaces.create("space_2", "/local/file.html", {
       title: "Google",
-      url: "/local/file.html",
       defaultIcons: "default.png",
       badgeText: "12",
       badgeBackgroundColor: [50, 100, 150, 255],
     });
-    let expected_button_2 = {
-      id: "button_2",
+    let expected_space_2 = {
+      id: "space_2",
       title: "Google",
       url: browser.runtime.getURL("/local/file.html"),
       icons: {
@@ -270,132 +256,118 @@ add_task(async function test_add_update_remove() {
       badgeText: "12",
       badgeBackgroundColor: "rgb(50, 100, 150)",
     };
-    await window.sendMessage("checkUI", [expected_button_1, expected_button_2]);
+    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
-    // Test updateButton().
-    browser.test.log("updateButton(): Without id.");
+    // Test update().
+    browser.test.log("update(): Without id.");
     await browser.test.assertThrows(
-      () => browser.spacesToolbar.updateButton(),
-      /Incorrect argument types for spacesToolbar.updateButton./,
-      "updateButton() without id should throw."
+      () => browser.spaces.update(),
+      /Incorrect argument types for spaces.update./,
+      "update() without id should throw."
     );
 
-    browser.test.log("updateButton(): Without properties.");
-    await browser.test.assertThrows(
-      () => browser.spacesToolbar.updateButton("InvalidId"),
-      /Incorrect argument types for spacesToolbar.updateButton./,
-      "updateButton() without properties should throw."
-    );
-
-    browser.test.log("updateButton(): With empty properties but invalid id.");
+    browser.test.log("update(): With invalid id.");
     await browser.test.assertRejects(
-      browser.spacesToolbar.updateButton("InvalidId", {}),
-      /Failed to update button in the spaces toolbar: A button with id InvalidId does not exist for this extension./,
-      "updateButton() with invalid id should throw."
+      browser.spaces.update("InvalidId"),
+      /Failed to update space: A space with id InvalidId does not exist for this extension./,
+      "update() with invalid id should throw."
     );
 
-    browser.test.log("updateButton(): With empty properties.");
-    await browser.spacesToolbar.updateButton("button_1", {});
-    await window.sendMessage("checkUI", [expected_button_1, expected_button_2]);
+    browser.test.log("update(): Without properties.");
+    await browser.spaces.update("space_1");
+    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
-    browser.test.log("updateButton(): Updating the badge.");
-    await browser.spacesToolbar.updateButton("button_2", {
+    browser.test.log("update(): Updating the badge.");
+    await browser.spaces.update("space_2", {
       badgeText: "ok",
       badgeBackgroundColor: "green",
     });
-    expected_button_2.badgeText = "ok";
-    expected_button_2.badgeBackgroundColor = "rgb(0, 128, 0)";
-    await window.sendMessage("checkUI", [expected_button_1, expected_button_2]);
+    expected_space_2.badgeText = "ok";
+    expected_space_2.badgeBackgroundColor = "rgb(0, 128, 0)";
+    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
-    browser.test.log("updateButton(): Removing the badge.");
-    await browser.spacesToolbar.updateButton("button_2", {
+    browser.test.log("update(): Removing the badge.");
+    await browser.spaces.update("space_2", {
       badgeText: "",
     });
-    delete expected_button_2.badgeText;
-    delete expected_button_2.badgeBackgroundColor;
-    await window.sendMessage("checkUI", [expected_button_1, expected_button_2]);
+    delete expected_space_2.badgeText;
+    delete expected_space_2.badgeBackgroundColor;
+    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
-    browser.test.log("updateButton(): Changing the title.");
-    await browser.spacesToolbar.updateButton("button_2", {
+    browser.test.log("update(): Changing the title.");
+    await browser.spaces.update("space_2", {
       title: "Some other title",
     });
-    expected_button_2.title = "Some other title";
-    await window.sendMessage("checkUI", [expected_button_1, expected_button_2]);
+    expected_space_2.title = "Some other title";
+    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
-    browser.test.log("updateButton(): Removing the title.");
-    await browser.spacesToolbar.updateButton("button_2", {
+    browser.test.log("update(): Removing the title.");
+    await browser.spaces.update("space_2", {
       title: "",
     });
-    expected_button_2.title = "Generated extension";
-    await window.sendMessage("checkUI", [expected_button_1, expected_button_2]);
+    expected_space_2.title = "Generated extension";
+    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
-    browser.test.log("updateButton(): Settings an invalid url.");
+    browser.test.log("update(): Setting invalid default url.");
     await browser.test.assertRejects(
-      browser.spacesToolbar.updateButton("button_2", {
-        url: "Invalid",
-      }),
-      /Failed to update button in the spaces toolbar: Invalid url./,
-      "updateButton() with invalid url should throw."
+      browser.spaces.update("space_2", "invalid://url"),
+      /Failed to update space: Invalid default url./,
+      "update() with invalid default url should throw."
     );
 
-    await browser.spacesToolbar.updateButton("button_2", {
+    await browser.spaces.update("space_2", "https://test.more.invalid", {
       title: "Bing",
-      url: "https://test.more.invalid",
     });
-    expected_button_2.title = "Bing";
-    expected_button_2.url = "https://test.more.invalid";
-    await window.sendMessage("checkUI", [expected_button_1, expected_button_2]);
+    expected_space_2.title = "Bing";
+    expected_space_2.url = "https://test.more.invalid";
+    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
-    // Test removeButton().
-    browser.test.log("removeButton(): Removing without id.");
+    // Test remove().
+    browser.test.log("remove(): Removing without id.");
     await browser.test.assertThrows(
-      () => browser.spacesToolbar.removeButton(),
-      /Incorrect argument types for spacesToolbar.removeButton./,
-      "removeButton() without id should throw."
+      () => browser.spaces.remove(),
+      /Incorrect argument types for spaces.remove./,
+      "remove() without id should throw."
     );
 
-    browser.test.log("removeButton(): Removing with invalid id.");
+    browser.test.log("remove(): Removing with invalid id.");
     await browser.test.assertRejects(
-      browser.spacesToolbar.removeButton("InvalidId"),
-      /Failed to remove button from the spaces toolbar: A button with id InvalidId does not exist for this extension./,
-      "removeButton() with invalid id should throw."
+      browser.spaces.remove("InvalidId"),
+      /Failed to remove space: A space with id InvalidId does not exist for this extension./,
+      "remove() with invalid id should throw."
     );
 
-    browser.test.log("removeButton(): Removing button_1.");
-    await browser.spacesToolbar.removeButton("button_1");
-    await window.sendMessage("checkUI", [expected_button_2]);
+    browser.test.log("remove(): Removing space_1.");
+    await browser.spaces.remove("space_1");
+    await window.sendMessage("checkUI", [expected_space_2]);
 
     browser.test.notifyPass();
   }
-  await test_spaceToolbar(background, "default");
-  await test_spaceToolbar(background, "default", { 16: "manifest.png" });
+  await test_space(background, "default");
+  await test_space(background, "default", { 16: "manifest.png" });
 });
 
 add_task(async function test_open_reload_close() {
   async function background() {
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
 
-    // Add buttons.
+    // Add spaces.
     let url1 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content.html`;
-    await browser.spacesToolbar.addButton("button_1", {
-      url: url1,
-    });
+    await browser.spaces.create("space_1", url1);
     let url2 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content_body.html`;
-    await browser.spacesToolbar.addButton("button_2", {
-      url: url2,
-    });
+    await browser.spaces.create("space_2", url2);
 
     // Open spaces.
     await window.sendMessage("checkTabs", {
       action: "open",
       url: url1,
-      buttonId: "button_1",
+      buttonId: "space_1",
       openSpacesUrls: [url1],
     });
     await window.sendMessage("checkTabs", {
       action: "open",
       url: url2,
-      buttonId: "button_2",
+      buttonId: "space_2",
       openSpacesUrls: [url1, url2],
     });
 
@@ -403,27 +375,27 @@ add_task(async function test_open_reload_close() {
     await window.sendMessage("checkTabs", {
       action: "switch",
       url: url1,
-      buttonId: "button_1",
+      buttonId: "space_1",
       openSpacesUrls: [url1, url2],
     });
     await window.sendMessage("checkTabs", {
       action: "switch",
       url: url2,
-      buttonId: "button_2",
+      buttonId: "space_2",
       openSpacesUrls: [url1, url2],
     });
 
     // TODO: Add test for tab reloading, once this has been implemented.
 
-    // Remove buttons and check that related spaces tab are closed.
-    await browser.spacesToolbar.removeButton("button_1");
+    // Remove spaces and check that related spaces tab are closed.
+    await browser.spaces.remove("space_1");
     await window.sendMessage("checkTabs", { openSpacesUrls: [url2] });
-    await browser.spacesToolbar.removeButton("button_2");
+    await browser.spaces.remove("space_2");
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
 
     browser.test.notifyPass();
   }
-  await test_spaceToolbar(background, "default");
+  await test_space(background, "default");
 });
 
 add_task(async function test_icons() {
@@ -434,10 +406,9 @@ add_task(async function test_icons() {
       : "chrome://messenger/content/extension.svg";
 
     // Test 1: Setting defaultIcons and themeIcons.
-    browser.test.log("addButton(): Setting defaultIcons and themeIcons.");
-    await browser.spacesToolbar.addButton("button_1", {
+    browser.test.log("create(): Setting defaultIcons and themeIcons.");
+    await browser.spaces.create("space_1", "https://test.invalid", {
       title: "Google",
-      url: "https://test.invalid",
       defaultIcons: "default.png",
       themeIcons: [
         {
@@ -447,8 +418,8 @@ add_task(async function test_icons() {
         },
       ],
     });
-    let expected_button_1 = {
-      id: "button_1",
+    let expected_space_1 = {
+      id: "space_1",
       title: "Google",
       url: "https://test.invalid",
       icons: {
@@ -457,43 +428,43 @@ add_task(async function test_icons() {
         light: `url("${browser.runtime.getURL("light.png")}")`,
       },
     };
-    await window.sendMessage("checkUI", [expected_button_1]);
+    await window.sendMessage("checkUI", [expected_space_1]);
 
     // Clearing defaultIcons.
-    await browser.spacesToolbar.updateButton("button_1", {
+    await browser.spaces.update("space_1", {
       defaultIcons: "",
     });
-    expected_button_1.icons = {
+    expected_space_1.icons = {
       default: `url("${browser.runtime.getURL("dark.png")}")`,
       dark: `url("${browser.runtime.getURL("dark.png")}")`,
       light: `url("${browser.runtime.getURL("light.png")}")`,
     };
-    await window.sendMessage("checkUI", [expected_button_1]);
+    await window.sendMessage("checkUI", [expected_space_1]);
 
     // Setting other defaultIcons.
-    await browser.spacesToolbar.updateButton("button_1", {
+    await browser.spaces.update("space_1", {
       defaultIcons: "other.png",
     });
-    expected_button_1.icons = {
+    expected_space_1.icons = {
       default: `url("${browser.runtime.getURL("other.png")}")`,
       dark: `url("${browser.runtime.getURL("dark.png")}")`,
       light: `url("${browser.runtime.getURL("light.png")}")`,
     };
-    await window.sendMessage("checkUI", [expected_button_1]);
+    await window.sendMessage("checkUI", [expected_space_1]);
 
     // Clearing themeIcons.
-    await browser.spacesToolbar.updateButton("button_1", {
+    await browser.spaces.update("space_1", {
       themeIcons: [],
     });
-    expected_button_1.icons = {
+    expected_space_1.icons = {
       default: `url("${browser.runtime.getURL("other.png")}")`,
       dark: `url("${browser.runtime.getURL("other.png")}")`,
       light: `url("${browser.runtime.getURL("other.png")}")`,
     };
-    await window.sendMessage("checkUI", [expected_button_1]);
+    await window.sendMessage("checkUI", [expected_space_1]);
 
     // Setting other themeIcons.
-    await browser.spacesToolbar.updateButton("button_1", {
+    await browser.spaces.update("space_1", {
       themeIcons: [
         {
           dark: "dark2.png",
@@ -502,18 +473,17 @@ add_task(async function test_icons() {
         },
       ],
     });
-    expected_button_1.icons = {
+    expected_space_1.icons = {
       default: `url("${browser.runtime.getURL("other.png")}")`,
       dark: `url("${browser.runtime.getURL("dark2.png")}")`,
       light: `url("${browser.runtime.getURL("light2.png")}")`,
     };
-    await window.sendMessage("checkUI", [expected_button_1]);
+    await window.sendMessage("checkUI", [expected_space_1]);
 
     // Test 2: Setting themeIcons only.
-    browser.test.log("addButton(): Setting themeIcons only.");
-    await browser.spacesToolbar.addButton("button_2", {
+    browser.test.log("create(): Setting themeIcons only.");
+    await browser.spaces.create("space_2", "https://test.other.invalid", {
       title: "Wikipedia",
-      url: "https://test.other.invalid",
       themeIcons: [
         {
           dark: "dark2.png",
@@ -524,8 +494,8 @@ add_task(async function test_icons() {
     });
     // Not specifying defaultIcons but only themeIcons should always use the
     // theme icons, even for the default theme (and not the extension icon).
-    let expected_button_2 = {
-      id: "button_2",
+    let expected_space_2 = {
+      id: "space_2",
       title: "Wikipedia",
       url: "https://test.other.invalid",
       icons: {
@@ -534,28 +504,27 @@ add_task(async function test_icons() {
         light: `url("${browser.runtime.getURL("light2.png")}")`,
       },
     };
-    await window.sendMessage("checkUI", [expected_button_1, expected_button_2]);
+    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     // Clearing themeIcons.
-    await browser.spacesToolbar.updateButton("button_2", {
+    await browser.spaces.update("space_2", {
       themeIcons: [],
     });
-    expected_button_2.icons = {
+    expected_space_2.icons = {
       default: `url("${extensionIcon}")`,
       dark: `url("${extensionIcon}")`,
       light: `url("${extensionIcon}")`,
     };
-    await window.sendMessage("checkUI", [expected_button_1, expected_button_2]);
+    await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     // Test 3: Setting defaultIcons only.
-    browser.test.log("addButton(): Setting defaultIcons only.");
-    await browser.spacesToolbar.addButton("button_3", {
+    browser.test.log("create(): Setting defaultIcons only.");
+    await browser.spaces.create("space_3", "https://test.more.invalid", {
       title: "Bing",
-      url: "https://test.more.invalid",
       defaultIcons: "default.png",
     });
-    let expected_button_3 = {
-      id: "button_3",
+    let expected_space_3 = {
+      id: "space_3",
       title: "Bing",
       url: "https://test.more.invalid",
       icons: {
@@ -565,13 +534,13 @@ add_task(async function test_icons() {
       },
     };
     await window.sendMessage("checkUI", [
-      expected_button_1,
-      expected_button_2,
-      expected_button_3,
+      expected_space_1,
+      expected_space_2,
+      expected_space_3,
     ]);
 
     // Clearing defaultIcons and setting themeIcons.
-    await browser.spacesToolbar.updateButton("button_3", {
+    await browser.spaces.update("space_3", {
       defaultIcons: "",
       themeIcons: [
         {
@@ -581,25 +550,24 @@ add_task(async function test_icons() {
         },
       ],
     });
-    expected_button_3.icons = {
+    expected_space_3.icons = {
       default: `url("${browser.runtime.getURL("dark3.png")}")`,
       dark: `url("${browser.runtime.getURL("dark3.png")}")`,
       light: `url("${browser.runtime.getURL("light3.png")}")`,
     };
     await window.sendMessage("checkUI", [
-      expected_button_1,
-      expected_button_2,
-      expected_button_3,
+      expected_space_1,
+      expected_space_2,
+      expected_space_3,
     ]);
 
     // Test 4: Setting no icons.
-    browser.test.log("addButton(): Setting no icons.");
-    await browser.spacesToolbar.addButton("button_4", {
+    browser.test.log("create(): Setting no icons.");
+    await browser.spaces.create("space_4", "https://duckduckgo.com", {
       title: "DuckDuckGo",
-      url: "https://duckduckgo.com",
     });
-    let expected_button_4 = {
-      id: "button_4",
+    let expected_space_4 = {
+      id: "space_4",
       title: "DuckDuckGo",
       url: "https://duckduckgo.com",
       icons: {
@@ -609,40 +577,40 @@ add_task(async function test_icons() {
       },
     };
     await window.sendMessage("checkUI", [
-      expected_button_1,
-      expected_button_2,
-      expected_button_3,
-      expected_button_4,
+      expected_space_1,
+      expected_space_2,
+      expected_space_3,
+      expected_space_4,
     ]);
 
     // Setting and clearing default icons.
-    await browser.spacesToolbar.updateButton("button_4", {
+    await browser.spaces.update("space_4", {
       defaultIcons: "default.png",
     });
-    expected_button_4.icons = {
+    expected_space_4.icons = {
       default: `url("${browser.runtime.getURL("default.png")}")`,
       dark: `url("${browser.runtime.getURL("default.png")}")`,
       light: `url("${browser.runtime.getURL("default.png")}")`,
     };
     await window.sendMessage("checkUI", [
-      expected_button_1,
-      expected_button_2,
-      expected_button_3,
-      expected_button_4,
+      expected_space_1,
+      expected_space_2,
+      expected_space_3,
+      expected_space_4,
     ]);
-    await browser.spacesToolbar.updateButton("button_4", {
+    await browser.spaces.update("space_4", {
       defaultIcons: "",
     });
-    expected_button_4.icons = {
+    expected_space_4.icons = {
       default: `url("${extensionIcon}")`,
       dark: `url("${extensionIcon}")`,
       light: `url("${extensionIcon}")`,
     };
     await window.sendMessage("checkUI", [
-      expected_button_1,
-      expected_button_2,
-      expected_button_3,
-      expected_button_4,
+      expected_space_1,
+      expected_space_2,
+      expected_space_3,
+      expected_space_4,
     ]);
 
     browser.test.notifyPass();
@@ -654,16 +622,16 @@ add_task(async function test_icons() {
       "thunderbird-compact-dark@mozilla.org"
     );
     await dark_theme.enable();
-    await test_spaceToolbar(background, "light", manifestIcons);
+    await test_space(background, "light", manifestIcons);
 
     let light_theme = await AddonManager.getAddonByID(
       "thunderbird-compact-light@mozilla.org"
     );
     await light_theme.enable();
-    await test_spaceToolbar(background, "dark", manifestIcons);
+    await test_space(background, "dark", manifestIcons);
 
     // Disabling a theme will enable the default theme.
     await light_theme.disable();
-    await test_spaceToolbar(background, "default", manifestIcons);
+    await test_space(background, "default", manifestIcons);
   }
 });

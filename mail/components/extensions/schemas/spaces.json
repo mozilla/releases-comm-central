@@ -1,0 +1,136 @@
+[
+  {
+    "namespace": "spaces",
+    "min_manifest_version": 3,
+    "types": [
+      {
+        "id": "SpaceButtonProperties",
+        "type": "object",
+        "properties": {
+          "badgeBackgroundColor": {
+            "choices": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "ColorArray"
+              }
+            ],
+            "optional": true,
+            "description": "Sets the background color of the badge. Can be specified as an array of four integers in the range [0,255] that make up the RGBA color of the badge. For example, opaque red is <value>[255, 0, 0, 255]</value>. Can also be a string with an HTML color name (<value>red</value>) or a HEX color value (<value>#FF0000</value> or <value>#F00</value>). Reset when set to an empty string."
+          },
+          "badgeText": {
+            "type": "string",
+            "optional": true,
+            "description": "Sets the badge text for the button in the spaces toolbar. The badge is displayed on top of the icon. Any number of characters can be set, but only about four can fit in the space. Removed when set to an empty string."
+          },
+          "defaultIcons": {
+            "choices": [
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "manifest.IconPath"
+              }
+            ],
+            "optional": true,
+            "description": "The paths to one or more icons for the button in the spaces toolbar. Defaults to the extension icon, if set to an empty string."
+          },
+          "themeIcons": {
+            "type": "array",
+            "optional": true,
+            "items": {
+              "$ref": "manifest.ThemeIcons"
+            },
+            "description": "Specifies dark and light icons for the button in the spaces toolbar to be used with themes: The ``light`` icons will be used on dark backgrounds and vice versa. At least the set for <em>16px</em> icons should be specified. The set for <em>32px</em> icons will be used on screens with a very high pixel density, if specified."
+          },
+          "title": {
+            "type": "string",
+            "optional": true,
+            "description": "The title for the button in the spaces toolbar, used in the tooltip of the button and as the displayed name in the overflow menu. Defaults to the name of the extension, if set to an empty string."
+          }
+        }
+      },
+      {
+        "id": "ColorArray",
+        "description": "An array of four integers in the range [0,255] that make up the RGBA color. For example, opaque red is <value>[255, 0, 0, 255]</value>.",
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "minItems": 4,
+        "maxItems": 4
+      }
+    ],
+    "functions": [
+      {
+        "name": "create",
+        "type": "function",
+        "description": "Creates a new space and adds its button to the spaces toolbar.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "description": "The unique id to assign to this space. May only contain alphanumeric characters and underscores."
+          },
+          {
+            "name": "defaultUrl",
+            "type": "string",
+            "description": "The default space url, loaded into a tab when the button in the spaces toolbar is clicked. Supported are <value>https://</value> and <value>http://</value> links, as well as links to WebExtension pages."
+          },
+          {
+            "name": "buttonProperties",
+            "description": "Properties of the button for the new space.",
+            "$ref": "spaces.SpaceButtonProperties",
+            "optional": true,
+            "default": {}
+          }
+        ]
+      },
+      {
+        "name": "remove",
+        "type": "function",
+        "description": "Removes the specified space, closes all its tabs and removes its button from the spaces toolbar. Throws an exception if the requested space does not exist or was not created by this extension.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "name",
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "description": "The name of the space which is to be removed. May only contain alphanumeric characters and underscores."
+          }
+        ]
+      },
+      {
+        "name": "update",
+        "type": "function",
+        "description": "Updates the specified space. Throws an exception if the requested space does not exist or was not created by this extension.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "description": "The id of the space whose button is to be updated. May only contain alphanumeric characters and underscores.",
+            "pattern": "^[a-zA-Z0-9_]+$"
+          },
+          {
+            "name": "defaultUrl",
+            "type": "string",
+            "description": "The default space url, loaded into a tab when the button in the spaces toolbar is clicked. Supported are <value>https://</value> and <value>http://</value> links, as well as links to WebExtension pages.",
+            "optional": true
+          },
+          {
+            "name": "buttonProperties",
+            "description": "Only specified button properties will be updated.",
+            "$ref": "spaces.SpaceButtonProperties",
+            "optional": true
+          }
+        ]
+      }
+    ]
+  }
+]

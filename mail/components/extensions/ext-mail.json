@@ -296,6 +296,18 @@
       ]
     ]
   },
+  "spaces": {
+    "url": "chrome://messenger/content/parent/ext-spaces.js",
+    "schema": "chrome://messenger/content/schemas/spaces.json",
+    "scopes": [
+      "addon_parent"
+    ],
+    "paths": [
+      [
+        "spaces"
+      ]
+    ]
+  },
   "spacesToolbar": {
     "url": "chrome://messenger/content/parent/ext-spacesToolbar.js",
     "schema": "chrome://messenger/content/schemas/spacesToolbar.json",

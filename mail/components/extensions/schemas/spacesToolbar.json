@@ -1,6 +1,7 @@
 [
   {
     "namespace": "spacesToolbar",
+    "max_manifest_version": 2,
     "types": [
       {
         "id": "ButtonProperties",
