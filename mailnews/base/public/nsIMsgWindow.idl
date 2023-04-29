@@ -56,10 +56,6 @@ interface nsIMsgWindow : nsISupports {
    */
   attribute nsIInterfaceRequestor notificationCallbacks;
 
-  void displayURIInMessagePane(in AString uri, in boolean clearMsgHdr, in nsIPrincipal principal);
-
-  void displayHTMLInMessagePane(in AString title, in AString body, in boolean clearMsgHdr);
-
   /**
     Has a running url been stopped? If you care about checking
     this flag, you need to clear it before you start your operation since

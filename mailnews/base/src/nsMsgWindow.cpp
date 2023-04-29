@@ -354,45 +354,4 @@ NS_IMETHODIMP nsMsgWindow::SetLoadCookie(nsISupports* aLoadCookie) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgWindow::DisplayURIInMessagePane(const nsAString& uri, bool clearMsgHdr,
-                                     nsIPrincipal* principal) {
-  if (clearMsgHdr && mMsgWindowCommands) mMsgWindowCommands->ClearMsgPane();
-
-  nsCOMPtr<nsIDocShell> docShell;
-  GetMessageWindowDocShell(getter_AddRefs(docShell));
-  NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
-
-  nsCOMPtr<nsIWebNavigation> webNav(do_QueryInterface(docShell));
-  NS_ENSURE_TRUE(webNav, NS_ERROR_FAILURE);
-
-  mozilla::dom::LoadURIOptions loadURIOptions;
-  loadURIOptions.mTriggeringPrincipal = principal;
-  return webNav->FixupAndLoadURIString(uri, loadURIOptions);
-}
-
-NS_IMETHODIMP
-nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title,
-                                      const nsAString& body, bool clearMsgHdr) {
-  nsString htmlStr;
-  htmlStr.AppendLiteral(
-      u"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; "
-      u"charset=UTF-8\"></head><body>");
-  htmlStr.Append(body);
-  htmlStr.AppendLiteral(u"</body></html>");
-
-  char* encodedHtml =
-      PL_Base64Encode(NS_ConvertUTF16toUTF8(htmlStr).get(), 0, nullptr);
-  if (!encodedHtml) return NS_ERROR_OUT_OF_MEMORY;
-
-  nsCString dataSpec;
-  dataSpec = "data:text/html;base64,";
-  dataSpec += encodedHtml;
-
-  PR_FREEIF(encodedHtml);
-
-  return DisplayURIInMessagePane(NS_ConvertASCIItoUTF16(dataSpec), clearMsgHdr,
-                                 nsContentUtils::GetSystemPrincipal());
-}
-
 NS_IMPL_GETSET(nsMsgWindow, Stopped, bool, m_stopped)
