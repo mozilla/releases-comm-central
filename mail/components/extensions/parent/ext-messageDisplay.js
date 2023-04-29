@@ -298,13 +298,16 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
             }
           }
 
-          let window = await getNormalWindowReady(context, properties.windowId);
           let tab;
           switch (properties.location || getDefaultMessageOpenLocation()) {
             case "tab":
               {
+                let normalWindow = await getNormalWindowReady(
+                  context,
+                  properties.windowId
+                );
                 let active = properties.active ?? true;
-                let tabmail = window.document.getElementById("tabmail");
+                let tabmail = normalWindow.document.getElementById("tabmail");
                 let currentTab = tabmail.selectedTab;
                 let nativeTabInfo = tabmail.openTab("mailMessageTab", {
                   messageURI,
@@ -324,15 +327,16 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
             case "window":
               {
                 // Handle window location.
-                let msgWindow = window.MsgOpenNewWindowForMessage(
+                let topNormalWindow = await getNormalWindowReady();
+                let messageWindow = topNormalWindow.MsgOpenNewWindowForMessage(
                   Services.io.newURI(messageURI)
                 );
                 await new Promise(resolve =>
-                  msgWindow.addEventListener("MsgLoaded", resolve, {
+                  messageWindow.addEventListener("MsgLoaded", resolve, {
                     once: true,
                   })
                 );
-                tab = tabManager.convert(msgWindow);
+                tab = tabManager.convert(messageWindow);
               }
               break;
           }

@@ -1605,32 +1605,44 @@ class WindowManager extends WindowManagerBase {
 }
 
 /**
- * Wait until the window identified by the given windowId has finished its delayed
- * startup. Returns its DOMWindow when done. Waits for the top window, if no window
- * is specified.
+ * Wait until the normal window identified by the given windowId has finished its
+ * delayed startup. Returns its DOMWindow when done. Waits for the top normal
+ * window, if no window is specified.
  *
  * @param {*} [context] - a WebExtension context
  * @param {*} [windowId] - a WebExtension window id
  * @returns {DOMWindow}
  */
-function getNormalWindowReady(context, windowId) {
-  return new Promise((resolve, reject) => {
-    let window = !windowId
-      ? windowTracker.topNormalWindow
-      : windowTracker.getWindow(windowId, context);
+async function getNormalWindowReady(context, windowId) {
+  let window;
+  if (windowId) {
+    let win = context.extension.windowManager.get(windowId, context);
+    if (win.type != "normal") {
+      throw new ExtensionError(
+        `Window with ID ${windowId} is not a normal window`
+      );
+    }
+    window = win.window;
+  } else {
+    window = windowTracker.topNormalWindow;
+  }
+
+  await new Promise((resolve, reject) => {
     if (!window?.gMailInit || !window.gMailInit.delayedStartupFinished) {
       let obs = (finishedWindow, topic, data) => {
         if (window && finishedWindow != window) {
           return;
         }
         Services.obs.removeObserver(obs, "browser-delayed-startup-finished");
-        resolve(finishedWindow);
+        resolve();
       };
       Services.obs.addObserver(obs, "browser-delayed-startup-finished");
     } else {
-      resolve(window);
+      resolve();
     }
   });
+
+  return window;
 }
 
 /**
