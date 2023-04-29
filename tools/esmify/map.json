@@ -415,7 +415,6 @@
   "resource:///modules/matrixTextForEvent.jsm": "comm/chat/protocols/matrix/matrixTextForEvent.jsm",
   "resource:///modules/mimeParser.jsm": "comm/mailnews/mime/src/mimeParser.jsm",
   "resource:///modules/odnoklassniki.jsm": "comm/chat/protocols/odnoklassniki/odnoklassniki.jsm",
-  "resource:///modules/policies/schema.jsm": "comm/mail/components/enterprisepolicies/schemas/schema.jsm",
   "resource:///modules/sax.jsm": "comm/chat/protocols/xmpp/sax.jsm",
   "resource:///modules/socket.jsm": "comm/chat/modules/socket.jsm",
   "resource:///modules/twitter.jsm": "comm/chat/protocols/twitter/twitter.jsm",

@@ -8,8 +8,9 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  schema: "resource:///modules/policies/schema.jsm",
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  schema: "resource:///modules/policies/schema.sys.mjs",
 });
 
 function col(text, className) {
@@ -62,7 +63,7 @@ function generateActivePolicies(data) {
   for (let policyName in data) {
     const color_class = ++policy_count % 2 === 0 ? "even" : "odd";
 
-    if (schema.properties[policyName].type == "array") {
+    if (lazy.schema.properties[policyName].type == "array") {
       for (let count in data[policyName]) {
         let isFirstRow = count == 0;
         let isLastRow = count == data[policyName].length - 1;
@@ -78,7 +79,7 @@ function generateActivePolicies(data) {
           data[policyName].length > 1
         );
       }
-    } else if (schema.properties[policyName].type == "object") {
+    } else if (lazy.schema.properties[policyName].type == "object") {
       let count = 0;
       for (let obj in data[policyName]) {
         let isFirstRow = count == 0;
@@ -277,7 +278,7 @@ function generateDocumentation() {
     Certificates: "CertificatesDescription",
   };
 
-  for (let policyName in schema.properties) {
+  for (let policyName in lazy.schema.properties) {
     let main_tbody = document.createElement("tbody");
     main_tbody.classList.add("collapsible");
     main_tbody.addEventListener("click", function() {
@@ -295,32 +296,35 @@ function generateDocumentation() {
     sec_tbody.classList.add("content");
     sec_tbody.classList.add("content-style");
     let schema_row = document.createElement("tr");
-    if (schema.properties[policyName].properties) {
+    if (lazy.schema.properties[policyName].properties) {
       let column = col(
-        JSON.stringify(schema.properties[policyName].properties, null, 1),
+        JSON.stringify(lazy.schema.properties[policyName].properties, null, 1),
         "schema"
       );
       column.colSpan = "2";
       schema_row.appendChild(column);
       sec_tbody.appendChild(schema_row);
-    } else if (schema.properties[policyName].items) {
+    } else if (lazy.schema.properties[policyName].items) {
       let column = col(
-        JSON.stringify(schema.properties[policyName], null, 1),
+        JSON.stringify(lazy.schema.properties[policyName], null, 1),
         "schema"
       );
       column.colSpan = "2";
       schema_row.appendChild(column);
       sec_tbody.appendChild(schema_row);
     } else {
-      let column = col("type: " + schema.properties[policyName].type, "schema");
+      let column = col(
+        "type: " + lazy.schema.properties[policyName].type,
+        "schema"
+      );
       column.colSpan = "2";
       schema_row.appendChild(column);
       sec_tbody.appendChild(schema_row);
-      if (schema.properties[policyName].enum) {
+      if (lazy.schema.properties[policyName].enum) {
         let enum_row = document.createElement("tr");
         column = col(
           "enum: " +
-            JSON.stringify(schema.properties[policyName].enum, null, 1),
+            JSON.stringify(lazy.schema.properties[policyName].enum, null, 1),
           "schema"
         );
         column.colSpan = "2";

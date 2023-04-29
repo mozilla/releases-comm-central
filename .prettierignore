@@ -19,8 +19,8 @@ mailnews/mailnews.js
 
 # This file is split into two in order to keep it as a valid json file
 # for documentation purposes (policies.json) but to be accessed by the
-# code as a .jsm (schema.jsm).
-mail/components/enterprisepolicies/schemas/schema.jsm
+# code as a JS module (schema.sys.mjs).
+mail/components/enterprisepolicies/schemas/schema.sys.mjs
 
 # Third-party code.
 calendar/base/modules/Ical.jsm
