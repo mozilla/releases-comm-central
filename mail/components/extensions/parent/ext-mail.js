@@ -384,6 +384,32 @@ class nsDummyMsgHeader {
 }
 
 /**
+ * Returns the WebExtension window type for the given window, or null, if it is
+ * not supported.
+ *
+ * @param {DOMWindow} window - The window to check
+ * @returns {[string]} - The WebExtension type of the window
+ */
+function getWebExtensionWindowType(window) {
+  let { documentElement } = window.document;
+  if (!documentElement) {
+    return null;
+  }
+  switch (documentElement.getAttribute("windowtype")) {
+    case "msgcompose":
+      return "messageCompose";
+    case "mail:messageWindow":
+      return "messageDisplay";
+    case "mail:extensionPopup":
+      return "popup";
+    case "mail:3pane":
+      return "normal";
+    default:
+      return null;
+  }
+}
+
+/**
  * The window tracker tracks opening and closing Thunderbird windows. Each window has an id, which
  * is mapped to native window objects.
  */
@@ -413,24 +439,14 @@ class WindowTracker extends WindowTrackerBase {
   }
 
   /**
-   * Determines if the passed window object is a mail window. The function
-   * name is for base class compatibility with toolkit.
+   * Determines if the passed window object is supported by the windows API. The
+   * function name is for base class compatibility with toolkit.
    *
    * @param {DOMWindow} window - The window to check
-   * @returns {boolean} True, if the window is a mail window
+   * @returns {boolean} True, if the window is supported by the windows API
    */
   isBrowserWindow(window) {
-    let { documentElement } = window.document;
-    if (!documentElement) {
-      return false;
-    }
-
-    return [
-      "mail:3pane",
-      "msgcompose",
-      "mail:messageWindow",
-      "mail:extensionPopup",
-    ].includes(documentElement.getAttribute("windowtype"));
+    return !!getWebExtensionWindowType(window);
   }
 
   /**
@@ -1181,22 +1197,17 @@ class TabmailTab extends Tab {
  */
 class Window extends WindowBase {
   /**
-   * @property {string} type
-   *        The type of the window, as defined by the WebExtension API. May be
-   *        either "normal" or "popup".
-   *        @readonly
+   * @property {string} type - The type of the window, as defined by the
+   *   WebExtension API.
+   * @see mail/components/extensions/schemas/windows.json
+   * @readonly
    */
   get type() {
-    switch (this.window.document.documentElement.getAttribute("windowtype")) {
-      case "msgcompose":
-        return "messageCompose";
-      case "mail:messageWindow":
-        return "messageDisplay";
-      case "mail:extensionPopup":
-        return "popup";
-      default:
-        return super.type;
+    let type = getWebExtensionWindowType(this.window);
+    if (!type) {
+      throw new Error("Windows API encountered an unknown window type.");
     }
+    return type;
   }
 
   /** Returns the title of the tab, without permission checks. */

@@ -35,7 +35,7 @@ const SORT_ORDER_MAP = new Map(
 );
 
 /**
- * Converts a mail tab to a simle object for use in messages.
+ * Converts a mail tab to a simple object for use in messages.
  *
  * @returns {object}
  */
