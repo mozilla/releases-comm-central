@@ -1159,16 +1159,31 @@ label.statusbarpanel {
 }
 
 findbar {
-  background-color: var(--toolbar-non-lwt-bgcolor);
-  color: var(--toolbar-non-lwt-textcolor);
-  text-shadow: none;
+  background-color: var(--toolbar-bgcolor);
+  color: var(--toolbar-color);
+  border-top-color: var(--chrome-content-separator-color, ThreeDShadow);
 }
 
-:root:not([lwtheme-image]) findbar:-moz-lwtheme {
+findbar:-moz-lwtheme {
   background-color: var(--lwt-accent-color);
-  background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor));
-  border-top-color: var(--chrome-content-separator-color);
-  color: var(--toolbar-color);
+  background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)), var(--lwt-additional-images);
+  background-repeat: no-repeat, var(--lwt-background-tiling);
+  background-position: right bottom, var(--lwt-background-alignment);
+  background-position-y: bottom;
+}
+
+:root[lwtheme-image] findbar {
+  background-image: linear-gradient(var(--toolbar-bgcolor), var(--toolbar-bgcolor)),
+                                    var(--lwt-header-image), var(--lwt-additional-images);
+  background-repeat: no-repeat, no-repeat, var(--lwt-background-tiling);
+  background-position: center, right bottom, var(--lwt-background-alignment);
+}
+
+/* Workaround until bug 1828322 is fixed */
+#messagepanebox > findbar {
+  color: var(--layout-color-1);
+  background-color: var(--layout-background-1);
+  border-top-color: var(--splitter-color);
 }
 
 #messagepanebox > findbar > .findbar-container {
