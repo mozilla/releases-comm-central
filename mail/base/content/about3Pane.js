@@ -599,6 +599,9 @@ var folderPane = {
           let account = MailServices.accounts.createAccount();
           account.incomingServer = this._smartServer;
         }
+        this._smartServer.prettyName = messengerBundle.GetStringFromName(
+          "unifiedAccountName"
+        );
         let smartRoot = this._smartServer.rootFolder.QueryInterface(
           Ci.nsIMsgLocalMailFolder
         );
