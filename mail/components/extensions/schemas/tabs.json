@@ -555,7 +555,7 @@
       {
         "name": "move",
         "type": "function",
-        "description": "Moves one or more tabs to a new position within its window, or to a new window. Note that tabs can only be moved to and from windows of type <value>normal</value>.",
+        "description": "Moves one or more tabs to a new position within its current window, or to a different window. Note that tabs can only be moved to and from windows of type <value>normal</value>.",
         "async": "callback",
         "parameters": [
           {
@@ -588,7 +588,7 @@
               "index": {
                 "type": "integer",
                 "minimum": -1,
-                "description": "The position to move the window to. <value>-1</value> will place the tab at the end of the window."
+                "description": "The position to move the tab to. <value>-1</value> will place the tab at the end of the window."
               }
             }
           },
@@ -600,17 +600,10 @@
               {
                 "name": "tabs",
                 "description": "Details about the moved tabs.",
-                "choices": [
-                  {
-                    "$ref": "Tab"
-                  },
-                  {
-                    "type": "array",
-                    "items": {
-                      "$ref": "Tab"
-                    }
-                  }
-                ]
+                "type": "array",
+                "items": {
+                  "$ref": "Tab"
+                }
               }
             ]
           }

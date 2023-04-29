@@ -697,15 +697,10 @@ this.tabs = class extends ExtensionAPIPersistent {
 
           let destinationWindow = null;
           if (moveProperties.windowId !== null) {
-            destinationWindow = windowTracker.getWindow(
+            destinationWindow = await getNormalWindowReady(
+              context,
               moveProperties.windowId
             );
-            // Fail on an invalid window.
-            if (!destinationWindow) {
-              return Promise.reject({
-                message: `Invalid window ID: ${moveProperties.windowId}`,
-              });
-            }
           }
 
           /*
@@ -718,12 +713,15 @@ this.tabs = class extends ExtensionAPIPersistent {
           let indexMap = new Map();
           let lastInsertion = new Map();
 
-          let tabs = tabIds.map(tabId => tabTracker.getTab(tabId));
-          for (let nativeTabInfo of tabs) {
+          let tabs = tabIds.map(tabId => ({
+            nativeTabInfo: tabTracker.getTab(tabId),
+            tabId,
+          }));
+          for (let { nativeTabInfo, tabId } of tabs) {
             if (nativeTabInfo instanceof Ci.nsIDOMWindow) {
-              throw new ExtensionError(
-                "tabs.move is not applicable to this tab."
-              );
+              return Promise.reject({
+                message: `Tab with ID ${tabId} does not belong to a normal window`,
+              });
             }
 
             // If the window is not specified, use the window from the tab.
