@@ -92,33 +92,67 @@
       {
         "name": "removeButton",
         "type": "function",
-        "description": "Removes the specified button from the spaces toolbar. Throws an exception if the requested spaces toolbar button does not exist. If the tab of this button is currently open, it will be closed.",
+        "description": "Removes the specified button from the spaces toolbar. Throws an exception if the requested spaces toolbar button does not exist or was not created by this extension. If the tab of this button is currently open, it will be closed.",
         "async": true,
         "parameters": [
           {
             "name": "id",
             "type": "string",
             "pattern": "^[a-zA-Z0-9_]+$",
-            "description": "The id of the button which is to be removed. May only contain alphanumeric characters and underscores."
+            "description": "The id of the spaces toolbar button, which is to be removed. May only contain alphanumeric characters and underscores."
           }
         ]
       },
       {
         "name": "updateButton",
         "type": "function",
-        "description": "Updates properties of the specified spaces toolbar button. Throws an exception if the requested spaces toolbar button does not exist.",
+        "description": "Updates properties of the specified spaces toolbar button. Throws an exception if the requested spaces toolbar button does not exist or was not created by this extension.",
         "async": true,
         "parameters": [
           {
             "name": "id",
             "type": "string",
-            "description": "The id of the button which is to be updated. May only contain alphanumeric characters and underscores.",
+            "description": "The id of the spaces toolbar button, which is to be updated. May only contain alphanumeric characters and underscores.",
             "pattern": "^[a-zA-Z0-9_]+$"
           },
           {
             "name": "properties",
             "description": "Only specified properties will be updated.",
             "$ref": "spacesToolbar.ButtonProperties"
+          }
+        ]
+      },
+      {
+        "name": "clickButton",
+        "type": "function",
+        "description": "Trigger a click on the specified spaces toolbar button. Throws an exception if the requested spaces toolbar button does not exist or was not created by this extension.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "description": "The id of the spaces toolbar button. May only contain alphanumeric characters and underscores.",
+            "pattern": "^[a-zA-Z0-9_]+$"
+          },
+          {
+            "name": "windowId",
+            "type": "integer",
+            "minimum": -2,
+            "optional": true,
+            "description": "The id of the normal window, where the spaces toolbar button should be clicked. Defaults to the most recent normal window."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "tab",
+                "$ref": "Tab",
+                "optional": true,
+                "description": "Details about the opened or activated tab."
+              }
+            ]
           }
         ]
       }

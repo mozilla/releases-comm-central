@@ -18,6 +18,7 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
         id: "spaces_toolbar@mochi.test",
       },
     },
+    permissions: ["tabs"],
     background: { scripts: ["utils.js", "background.js"] },
   };
 
@@ -36,7 +37,7 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
   extension.onMessage("checkTabs", async test => {
     let tabmail = document.getElementById("tabmail");
 
-    if (test.buttonId && test.url) {
+    if (test.action && test.buttonId && test.url) {
       let tabPromise =
         test.action == "switch"
           ? BrowserTestUtils.waitForEvent(tabmail.tabContainer, "TabSelect")
@@ -666,4 +667,76 @@ add_task(async function test_icons() {
     await light_theme.disable();
     await test_spaceToolbar(background, "default", manifestIcons);
   }
+});
+
+add_task(async function test_open_programmatically() {
+  async function background() {
+    await window.sendMessage("checkTabs", { openSpacesUrls: [] });
+
+    // Add buttons.
+    let url1 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content.html`;
+    await browser.spacesToolbar.addButton("button_1", {
+      url: url1,
+    });
+    let url2 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content_body.html`;
+    await browser.spacesToolbar.addButton("button_2", {
+      url: url2,
+    });
+
+    function clickSpaceButton(buttonId, url) {
+      let loadPromise = new Promise(resolve => {
+        let urlSeen = false;
+        let listener = (tabId, changeInfo) => {
+          if (changeInfo.url && changeInfo.url == url) {
+            urlSeen = true;
+          }
+          if (changeInfo.status == "complete" && urlSeen) {
+            browser.tabs.onUpdated.removeListener(listener);
+            resolve();
+          }
+        };
+        browser.tabs.onUpdated.addListener(listener);
+      });
+      browser.spacesToolbar.clickButton(buttonId);
+      return loadPromise;
+    }
+
+    // Open space #1.
+    await clickSpaceButton("button_1", url1);
+    await window.sendMessage("checkTabs", {
+      buttonId: "button_1",
+      openSpacesUrls: [url1],
+    });
+
+    // Open space #2.
+    await clickSpaceButton("button_2", url2);
+    await window.sendMessage("checkTabs", {
+      buttonId: "button_2",
+      openSpacesUrls: [url1, url2],
+    });
+
+    // Switch to open space tab.
+    await window.sendMessage("checkTabs", {
+      action: "switch",
+      url: url1,
+      buttonId: "button_1",
+      openSpacesUrls: [url1, url2],
+    });
+
+    await window.sendMessage("checkTabs", {
+      action: "switch",
+      url: url2,
+      buttonId: "button_2",
+      openSpacesUrls: [url1, url2],
+    });
+
+    // Remove spaces and check that related spaces tab are closed.
+    await browser.spacesToolbar.removeButton("button_1");
+    await window.sendMessage("checkTabs", { openSpacesUrls: [url2] });
+    await browser.spacesToolbar.removeButton("button_2");
+    await window.sendMessage("checkTabs", { openSpacesUrls: [] });
+
+    browser.test.notifyPass();
+  }
+  await test_spaceToolbar(background, "default");
 });

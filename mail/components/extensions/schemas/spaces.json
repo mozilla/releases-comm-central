@@ -72,7 +72,7 @@
         "async": true,
         "parameters": [
           {
-            "name": "id",
+            "name": "spaceId",
             "type": "string",
             "pattern": "^[a-zA-Z0-9_]+$",
             "description": "The unique id to assign to this space. May only contain alphanumeric characters and underscores."
@@ -112,7 +112,7 @@
         "async": true,
         "parameters": [
           {
-            "name": "id",
+            "name": "spaceId",
             "type": "string",
             "description": "The id of the space whose button is to be updated. May only contain alphanumeric characters and underscores.",
             "pattern": "^[a-zA-Z0-9_]+$"
@@ -128,6 +128,40 @@
             "description": "Only specified button properties will be updated.",
             "$ref": "spaces.SpaceButtonProperties",
             "optional": true
+          }
+        ]
+      },
+      {
+        "name": "open",
+        "type": "function",
+        "description": "Opens or switches to the specified space. Throws an exception if the requested space does not exist or was not created by this extension.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "type": "string",
+            "description": "The id of the space. May only contain alphanumeric characters and underscores.",
+            "pattern": "^[a-zA-Z0-9_]+$"
+          },
+          {
+            "name": "windowId",
+            "type": "integer",
+            "minimum": -2,
+            "optional": true,
+            "description": "The id of the normal window, where the space should be opened. Defaults to the most recent normal window."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "tab",
+                "$ref": "Tab",
+                "optional": true,
+                "description": "Details about the opened or activated space tab."
+              }
+            ]
           }
         ]
       }

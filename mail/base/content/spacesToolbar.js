@@ -593,13 +593,15 @@ var gSpacesToolbar = {
       tabInfo => space.tabInSpace(tabInfo) == 1
     );
     if (!existing) {
-      space.open("tab");
+      return space.open("tab");
     } else if (this.currentSpace != space) {
       // Only switch to the tab if it is in a different space to the
       // current one. In particular, if we are in a later tab we won't
       // switch to the earliest tab.
       tabmail.switchToTab(existing);
+      return existing;
     }
+    return tabmail.currentTabInfo;
   },
 
   /**

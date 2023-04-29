@@ -27,7 +27,7 @@ XPCOMUtils.defineLazyGlobalGetters(this, ["InspectorUtils"]);
 
 var { makeWidgetId } = ExtensionCommon;
 
-var buttons = new Map();
+var nativeSpaces = new Map();
 var windowURLs = ["chrome://messenger/content/messenger.xhtml"];
 
 ExtensionSupport.registerWindowListener("ext-spaces", {
@@ -42,10 +42,10 @@ ExtensionSupport.registerWindowListener("ext-spaces", {
         });
       }
     });
-    for (let buttonId of [...buttons.keys()]) {
+    for (let nativeSpaceId of [...nativeSpaces.keys()]) {
       await window.gSpacesToolbar.createToolbarButton(
-        buttonId,
-        buttons.get(buttonId).nativeProperties
+        nativeSpaceId,
+        nativeSpaces.get(nativeSpaceId).nativeButtonProperties
       );
     }
   },
@@ -77,13 +77,14 @@ this.spaces = class extends ExtensionAPI {
   }
 
   /**
-   * Generate an id of the form <add-on-id>-spacesButton-<id>.
+   * Generate an id of the form <add-on-id>-spacesButton-<spaceId>.
    *
-   * @param {string} id - an id for the button
-   * @returns {string} - buttonId to be used in the actual html element
+   * @param {string} spaceId - spaceId as used by the extension
+   * @returns {string} - native id representing the space, also used as the id
+   *   of the html element of the spaces toolbar button of this space
    */
-  generateButtonId(id) {
-    return `${this.widgetId}-spacesButton-${id}`;
+  generateNativeSpaceId(spaceId) {
+    return `${this.widgetId}-spacesButton-${spaceId}`;
   }
 
   /**
@@ -147,18 +148,18 @@ this.spaces = class extends ExtensionAPI {
    * Called when an extension context is closed.
    */
   async close() {
-    let extensionButtonIds = [...buttons.keys()].filter(id =>
-      id.startsWith(this.generateButtonId(""))
+    let obsoleteNativeSpaceIds = [...nativeSpaces.keys()].filter(id =>
+      id.startsWith(this.generateNativeSpaceId(""))
     );
     for (let window of ExtensionSupport.openWindows) {
       if (windowURLs.includes(window.location.href)) {
-        for (let buttonId of extensionButtonIds) {
-          await window.gSpacesToolbar.removeToolbarButton(buttonId);
+        for (let nativeSpaceId of obsoleteNativeSpaceIds) {
+          await window.gSpacesToolbar.removeToolbarButton(nativeSpaceId);
         }
       }
     }
-    for (let buttonId of extensionButtonIds) {
-      buttons.delete(buttonId);
+    for (let nativeSpaceId of obsoleteNativeSpaceIds) {
+      nativeSpaces.delete(nativeSpaceId);
     }
   }
 
@@ -166,16 +167,15 @@ this.spaces = class extends ExtensionAPI {
     context.callOnClose(this);
     this.widgetId = makeWidgetId(context.extension.id);
     let self = this;
+    let { tabManager } = context.extension;
 
     return {
       spaces: {
-        async create(id, defaultUrl, buttonProperties) {
-          // Since each space may only have one button, we can use the existence
-          // of the button as an indicator, if the space already exists.
-          let buttonId = self.generateButtonId(id);
-          if (buttons.has(buttonId)) {
+        async create(spaceId, defaultUrl, buttonProperties) {
+          let nativeSpaceId = self.generateNativeSpaceId(spaceId);
+          if (nativeSpaces.has(nativeSpaceId)) {
             throw new ExtensionError(
-              `Failed to create new space: The id ${id} is already used by this extension.`
+              `Failed to create new space: The id ${spaceId} is already used by this extension.`
             );
           }
 
@@ -186,7 +186,7 @@ this.spaces = class extends ExtensionAPI {
             );
           }
 
-          let nativeProperties = self.convertProperties(
+          let nativeButtonProperties = self.convertProperties(
             defaultUrl,
             buttonProperties
           );
@@ -194,46 +194,48 @@ this.spaces = class extends ExtensionAPI {
             for (let window of ExtensionSupport.openWindows) {
               if (windowURLs.includes(window.location.href)) {
                 await window.gSpacesToolbar.createToolbarButton(
-                  buttonId,
-                  nativeProperties
+                  nativeSpaceId,
+                  nativeButtonProperties
                 );
               }
             }
-            buttons.set(buttonId, {
+            nativeSpaces.set(nativeSpaceId, {
               defaultUrl,
               buttonProperties,
-              nativeProperties,
+              nativeButtonProperties,
             });
           } catch (error) {
             throw new ExtensionError(`Failed to create space: ${error}`);
           }
         },
-        async remove(id) {
-          let buttonId = self.generateButtonId(id);
-          if (!buttons.has(buttonId)) {
+        async remove(spaceId) {
+          let nativeSpaceId = self.generateNativeSpaceId(spaceId);
+          if (!nativeSpaces.has(nativeSpaceId)) {
             throw new ExtensionError(
-              `Failed to remove space: A space with id ${id} does not exist for this extension.`
+              `Failed to remove space: A space with id ${spaceId} does not exist for this extension.`
             );
           }
           try {
             for (let window of ExtensionSupport.openWindows) {
               if (windowURLs.includes(window.location.href)) {
-                await window.gSpacesToolbar.removeToolbarButton(buttonId);
+                await window.gSpacesToolbar.removeToolbarButton(nativeSpaceId);
               }
             }
-            buttons.delete(buttonId);
+            nativeSpaces.delete(nativeSpaceId);
           } catch (ex) {
             throw new ExtensionError(`Failed to remove space: ${ex.message}`);
           }
         },
-        async update(id, updatedDefaultUrl, updatedButtonProperties) {
-          let buttonId = self.generateButtonId(id);
-          if (!buttons.has(buttonId)) {
+        async update(spaceId, updatedDefaultUrl, updatedButtonProperties) {
+          let nativeSpaceId = self.generateNativeSpaceId(spaceId);
+          if (!nativeSpaces.has(nativeSpaceId)) {
             throw new ExtensionError(
-              `Failed to update space: A space with id ${id} does not exist for this extension.`
+              `Failed to update space: A space with id ${spaceId} does not exist for this extension.`
             );
           }
-          let { defaultUrl, buttonProperties } = buttons.get(buttonId);
+          let { defaultUrl, buttonProperties } = nativeSpaces.get(
+            nativeSpaceId
+          );
           let changes = false;
 
           if (updatedDefaultUrl) {
@@ -259,7 +261,7 @@ this.spaces = class extends ExtensionAPI {
           }
 
           if (changes) {
-            let nativeProperties = self.convertProperties(
+            let nativeButtonProperties = self.convertProperties(
               defaultUrl,
               buttonProperties
             );
@@ -267,20 +269,38 @@ this.spaces = class extends ExtensionAPI {
               for (let window of ExtensionSupport.openWindows) {
                 if (windowURLs.includes(window.location.href)) {
                   await window.gSpacesToolbar.updateToolbarButton(
-                    buttonId,
-                    nativeProperties
+                    nativeSpaceId,
+                    nativeButtonProperties
                   );
                 }
               }
-              buttons.set(buttonId, {
+              nativeSpaces.set(nativeSpaceId, {
                 defaultUrl,
                 buttonProperties,
-                nativeProperties,
+                nativeButtonProperties,
               });
             } catch (error) {
               throw new ExtensionError(`Failed to update space: ${error}`);
             }
           }
+        },
+        async open(spaceId, windowId) {
+          let nativeSpaceId = self.generateNativeSpaceId(spaceId);
+          if (!nativeSpaces.has(nativeSpaceId)) {
+            throw new ExtensionError(
+              `Failed to open space: A space with id ${spaceId} does not exist for this extension.`
+            );
+          }
+
+          let window = await getNormalWindowReady(context, windowId);
+          let space = window.gSpacesToolbar.spaces.find(
+            space => space.name == nativeSpaceId
+          );
+
+          let tabmail = window.document.getElementById("tabmail");
+          let currentTab = tabmail.selectedTab;
+          let nativeTabInfo = window.gSpacesToolbar.openSpace(tabmail, space);
+          return tabManager.convert(nativeTabInfo, currentTab);
         },
       },
     };

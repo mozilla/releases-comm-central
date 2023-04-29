@@ -164,6 +164,7 @@ this.spacesToolbar = class extends ExtensionAPI {
     context.callOnClose(this);
     this.widgetId = makeWidgetId(context.extension.id);
     let self = this;
+    let { tabManager } = context.extension;
 
     return {
       spacesToolbar: {
@@ -272,6 +273,24 @@ this.spacesToolbar = class extends ExtensionAPI {
               `Failed to update button in the spaces toolbar: ${error}`
             );
           }
+        },
+        async clickButton(id, windowId) {
+          let buttonId = self.generateButtonId(id);
+          if (!buttons.has(buttonId)) {
+            throw new ExtensionError(
+              `Failed to trigger a click on the spaces toolbar button: A button with id ${id} does not exist for this extension.`
+            );
+          }
+
+          let window = await getNormalWindowReady(context, windowId);
+          let space = window.gSpacesToolbar.spaces.find(
+            space => space.name == buttonId
+          );
+
+          let tabmail = window.document.getElementById("tabmail");
+          let currentTab = tabmail.selectedTab;
+          let nativeTabInfo = window.gSpacesToolbar.openSpace(tabmail, space);
+          return tabManager.convert(nativeTabInfo, currentTab);
         },
       },
     };
