@@ -1058,9 +1058,35 @@ class Tab extends TabBase {
 
   /** Returns the loading status of the tab. */
   get status() {
-    return this.browser?.webProgress?.isLoadingDocument
-      ? "loading"
-      : "complete";
+    let isComplete;
+    switch (this.type) {
+      case "messageDisplay":
+      case "addressBook":
+        isComplete = this.browser?.contentDocument?.readyState == "complete";
+        break;
+      case "mail":
+        {
+          // If the messagePane is hidden or all browsers are hidden, there is
+          // nothing to be loaded and we should return complete.
+          let contentWindow = this.nativeTab.chromeBrowser.contentWindow;
+          isComplete =
+            !this.nativeTab.messagePaneVisible ||
+            this.browser?.webProgress?.isLoadingDocument === false ||
+            (contentWindow.webBrowser?.hidden &&
+              contentWindow.messageBrowser?.hidden &&
+              contentWindow.multiMessageBrowser?.hidden);
+        }
+        break;
+      case "content":
+      case "special":
+        isComplete = this.browser?.webProgress?.isLoadingDocument === false;
+        break;
+      default:
+        // All other tabs (chat, task, calendar, messageCompose) do not fire the
+        // tabs.onUpdated event (Bug 1827929). Let them always be complete.
+        isComplete = true;
+    }
+    return isComplete ? "complete" : "loading";
   }
 
   /** Returns the width of the tab. */
