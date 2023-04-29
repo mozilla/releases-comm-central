@@ -120,12 +120,12 @@
 
 global-search-bar:not([hidden]) {
   display: block;
+  color: var(--layout-color-0);
 }
 
-@media (-moz-windows-accent-color-in-titlebar) {
-  global-search-bar {
-    color: -moz-dialogtext;
-  }
+global-search-bar:not([hidden]):-moz-lwtheme {
+  color: var(--toolbar-field-color);
+  text-shadow: none;
 }
 
 kbd {

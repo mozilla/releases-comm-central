@@ -186,6 +186,13 @@
   border-color: transparent;
 }
 
+@media (prefers-contrast) {
+  .button.button-flat:hover,
+  .button.button-flat:hover:active {
+    background-color: SelectedItem;
+  }
+}
+
 /* Link Button Styles */
 
 .button.link-button {

@@ -121,6 +121,7 @@
   --panel-separator-color: hsla(210, 4%, 10%, 0.14);
   --toolbar-color: var(--lwt-text-color, inherit);
   --toolbar-bgcolor: rgba(255, 255, 255, .4);
+  --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
   --toolbarbutton-icon-fill-opacity: 1;
   --autocomplete-popup-url-color: hsl(210, 77%, 47%);
 }
