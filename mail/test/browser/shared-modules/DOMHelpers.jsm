@@ -30,6 +30,8 @@ var { Assert } = ChromeUtils.importESModule(
   "resource://testing-common/Assert.sys.mjs"
 );
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
+
 /**
  * This function takes either a string or an elementlibs.Elem, and returns
  * whether it is hidden or not (simply by poking at its hidden property). It
@@ -250,5 +252,5 @@ function collapse_panes(aElement, aShouldBeCollapsed) {
     }
   }
   // Spin the event loop once to let other window elements redraw.
-  lazy.mc.sleep(50);
+  utils.sleep(50);
 }

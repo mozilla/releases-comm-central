@@ -268,7 +268,7 @@ function wait_for_content_tab_load(aTab, aURL, aTimeout) {
   );
   // The above may return immediately, meaning the event queue might not get a
   // chance. Give it a chance now.
-  mc.sleep(0);
+  utils.sleep(0);
   // Finally, require that the tab's browser thinks that no page is being loaded.
   wh.wait_for_browser_load(aTab.browser, aURL);
 }

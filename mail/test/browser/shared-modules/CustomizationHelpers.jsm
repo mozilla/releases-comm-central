@@ -17,6 +17,8 @@ var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
+
 var USE_SHEET_PREF = "toolbar.customization.usesheet";
 
 /**
@@ -61,7 +63,7 @@ CustomizeDialogHelper.prototype = {
     } else {
       ctc = wh.wait_for_existing_window(this._windowType);
     }
-    ctc.sleep(500);
+    utils.sleep(500);
     return ctc;
   },
 
@@ -78,7 +80,7 @@ CustomizeDialogHelper.prototype = {
 
     let doneButton = aCtc.window.document.getElementById("donebutton");
     EventUtils.synthesizeMouseAtCenter(doneButton, {}, doneButton.ownerGlobal);
-    aCtc.sleep(0);
+    utils.sleep(0);
     // XXX There should be an equivalent for testing the closure of
     // XXX the dialog embedded in a sheet, but I do not know how.
     if (this._openInWindow) {
@@ -107,7 +109,7 @@ CustomizeDialogHelper.prototype = {
       {},
       restoreButton.ownerGlobal
     );
-    aController.sleep(0);
+    utils.sleep(0);
 
     this.close(ctc);
 

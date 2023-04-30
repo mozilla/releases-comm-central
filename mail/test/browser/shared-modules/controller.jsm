@@ -59,8 +59,6 @@ var MozMillController = function(win) {
   );
 };
 
-MozMillController.prototype.sleep = utils.sleep;
-
 MozMillController.prototype.waitFor = function(
   callback,
   message,

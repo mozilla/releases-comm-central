@@ -752,7 +752,7 @@ function resize_to(aController, aWidth, aHeight) {
   // Give the event loop a spin in order to let the reality of an asynchronously
   // interacting window manager have its impact. This still may not be
   // sufficient.
-  aController.sleep(0);
+  utils.sleep(0);
   aController.waitFor(
     () =>
       aController.window.outerWidth == aWidth &&

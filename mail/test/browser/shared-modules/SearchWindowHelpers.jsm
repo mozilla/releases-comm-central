@@ -27,6 +27,7 @@ var { Assert } = ChromeUtils.importESModule(
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 /**
  * Open a search window using the accel-shift-f shortcut.
@@ -143,7 +144,7 @@ function select_shift_click_search_row(aViewIndex, aController) {
     aController.window
   );
 
-  aController.sleep(0);
+  utils.sleep(0);
   return aController.window.gFolderDisplay.selectedMessages;
 }
 

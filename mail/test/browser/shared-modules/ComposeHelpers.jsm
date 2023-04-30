@@ -308,7 +308,7 @@ function _wait_for_compose_window(aController, replyWindow) {
     () => replyWindow.window.composeEditorReady,
     "waiting for the compose editor to be ready"
   );
-  replyWindow.sleep(0);
+  utils.sleep(0);
 
   return replyWindow;
 }
@@ -338,7 +338,7 @@ function setup_msg_contents(
   }
 
   let input = aCwc.window.document.getElementById(inputID);
-  aCwc.sleep(1000);
+  utils.sleep(1000);
   input.focus();
   EventUtils.sendString(aAddr, aCwc.window);
   input.focus();
@@ -439,7 +439,7 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
       "Attachments adding didn't finish"
     );
   }
-  aController.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -488,7 +488,7 @@ function rename_selected_cloud_attachment(aController, aName) {
   );
   Services.prompt = originalPromptService;
 
-  aController.sleep(0);
+  utils.sleep(0);
   if (seenAlert) {
     return seenAlert;
   }
@@ -581,7 +581,7 @@ function convert_selected_to_cloud_attachment(
     );
   }
 
-  aController.sleep(0);
+  utils.sleep(0);
   return uploads;
 }
 
@@ -691,7 +691,7 @@ function add_cloud_attachments(
       "Attachments uploading didn't finish"
     );
   }
-  aController.sleep(0);
+  utils.sleep(0);
   return uploads;
 }
 

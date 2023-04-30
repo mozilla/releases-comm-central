@@ -515,7 +515,7 @@ async function enter_folder(aFolder) {
   await displayPromise;
 
   // Drain the event queue.
-  mc.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -736,7 +736,7 @@ async function open_message_from_file(file) {
   let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
   windowHelper.wait_for_window_focused(msgc.window);
-  msgc.sleep(0);
+  utils.sleep(0);
 
   return msgc;
 }
@@ -969,7 +969,7 @@ function click_tree_row(aTree, aRowIndex, aController) {
   let column = aTree.columns[0];
   let coords = aTree.getCoordsForCellItem(aRowIndex, column, "text");
 
-  aController.sleep(0);
+  utils.sleep(0);
   EventUtils.synthesizeMouse(
     aTree.body,
     coords.x + 4,
@@ -977,7 +977,7 @@ function click_tree_row(aTree, aRowIndex, aController) {
     {},
     aTree.ownerGlobal
   );
-  aController.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -1000,11 +1000,11 @@ function select_click_row(aViewIndex) {
   let row = tree.getRowAtIndex(aViewIndex);
   if (!row) {
     // Wait longer than TreeView does on scroll, then try again.
-    mc.sleep(120);
+    utils.sleep(120);
     row = tree.getRowAtIndex(aViewIndex);
   }
   EventUtils.synthesizeMouseAtCenter(row, {}, row.ownerGlobal);
-  mc.sleep(0);
+  utils.sleep(0);
 
   wait_for_message_display_completion(undefined, true);
 
@@ -1431,7 +1431,7 @@ function select_shift_click_folder(aFolder) {
   mc.folderTreeView.selection.rangedSelect(-1, viewIndex, false);
   wait_for_all_messages_to_load();
   // give the event queue a chance to drain...
-  mc.sleep(0);
+  utils.sleep(0);
 
   return mc.folderTreeView.getSelectedFolders();
 }
@@ -1632,7 +1632,7 @@ function archive_selected_messages(aController) {
   // );
   // The above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
-  aController.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -1670,7 +1670,7 @@ function wait_for_all_messages_to_load(aController = mc) {
   // );
   // the above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
-  aController.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -1770,7 +1770,7 @@ function wait_for_message_display_completion(aController, aLoadDemanded) {
     }
   }
 
-  mc.sleep();
+  utils.sleep();
 }
 
 /**
@@ -1814,7 +1814,7 @@ function wait_for_blank_content_pane(aController) {
 
   // the above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
-  mc.sleep();
+  utils.sleep();
 }
 
 var FolderListener = {
@@ -2271,7 +2271,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     // wait for the document to load so that we don't try and replace it later
     //  and get that stupid assertion
     wait_for_message_display_completion();
-    troller.sleep(500);
+    utils.sleep(500)
     // make sure the content pane is pointed at the right thing
 
     let msgService = troller.window.gFolderDisplay.messenger.messageServiceFromURI(
@@ -2413,7 +2413,7 @@ function assert_messages_summarized(aController, aSelectedMessages) {
   // Although WindowHelpers sets the stabilization interval to 0, we
   //  still need to make sure we have drained the event queue so that it has
   //  actually gotten a chance to run.
-  aController.sleep(0);
+  utils.sleep(0);
 
   // - Verify summary object knows about right messages
   if (aSelectedMessages == null) {
@@ -2915,7 +2915,7 @@ function make_display_unthreaded() {
   wait_for_message_display_completion();
   get_about_3pane().gViewWrapper.showUnthreaded = true;
   // drain event queue
-  mc.sleep(0);
+  utils.sleep(0);
   wait_for_message_display_completion();
 }
 
@@ -2926,7 +2926,7 @@ function make_display_threaded() {
   wait_for_message_display_completion();
   get_about_3pane().gViewWrapper.showThreaded = true;
   // drain event queue
-  mc.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -2936,7 +2936,7 @@ function make_display_grouped() {
   wait_for_message_display_completion();
   get_about_3pane().gViewWrapper.showGroupedBySort = true;
   // drain event queue
-  mc.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -2946,7 +2946,7 @@ function collapse_all_threads() {
   wait_for_message_display_completion();
   get_about_3pane().commandController.doCommand("cmd_collapseAllThreads");
   // drain event queue
-  mc.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -2958,7 +2958,7 @@ function set_show_unread_only(aShowUnreadOnly) {
   wait_for_all_messages_to_load();
   wait_for_message_display_completion();
   // drain event queue
-  mc.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -2995,7 +2995,7 @@ function set_mail_view(aMailViewIndex, aData) {
   wait_for_all_messages_to_load();
   wait_for_message_display_completion();
   // drain event queue
-  mc.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -3031,7 +3031,7 @@ function expand_all_threads() {
   wait_for_message_display_completion();
   get_about_3pane().commandController.doCommand("cmd_expandAllThreads");
   // drain event queue
-  mc.sleep(0);
+  utils.sleep(0);
 }
 
 /**
@@ -3187,7 +3187,7 @@ function toggle_main_menu(aEnabled = true) {
   let menubar = mc.window.document.getElementById("toolbar-menubar");
   let state = menubar.getAttribute("autohide") != "true";
   menubar.setAttribute("autohide", !aEnabled);
-  mc.sleep(0);
+  utils.sleep(0);
   return state;
 }
 
