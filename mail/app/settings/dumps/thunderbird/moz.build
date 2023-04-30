@@ -10,6 +10,7 @@
 FINAL_TARGET_FILES.defaults.settings.thunderbird += [
     "anti-tracking-url-decoration.json",
     "hijack-blocklists.json",
+    "password-recipes.json",
     "search-config.json",
     "url-classifier-skip-urls.json",
 ]
