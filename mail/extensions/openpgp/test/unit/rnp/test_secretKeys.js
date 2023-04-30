@@ -30,7 +30,7 @@ const keyDir = "../../../../../test/browser/openpgp/data/keys";
 /**
  * Initialize OpenPGP add testing keys.
  */
-add_task(async function setUp() {
+add_setup(async function() {
   do_get_profile();
 
   await OpenPGPTestUtils.initOpenPGP();

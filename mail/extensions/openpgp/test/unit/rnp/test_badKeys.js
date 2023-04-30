@@ -27,7 +27,7 @@ const { OpenPGPTestUtils } = ChromeUtils.import(
 
 const KEY_DIR = "../../../../../test/browser/openpgp/data/keys";
 
-add_task(async function setUp() {
+add_setup(async function() {
   do_get_profile();
 
   await OpenPGPTestUtils.initOpenPGP();
