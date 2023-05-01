@@ -2925,18 +2925,20 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                 ("%s: Fetch entire message with FetchTryChunking", __func__));
             FetchTryChunking(messageIdString, whatToFetch, bMessageIdsAreUids,
                              NULL, messageSize, true);
-          }
-          if (GetServerStateParser().LastCommandSuccessful() &&
-              m_imapAction != nsIImapUrl::nsImapMsgPreview &&
-              m_imapAction != nsIImapUrl::nsImapMsgFetchPeek) {
-            uint32_t uid = strtoul(messageIdString.get(), nullptr, 10);
-            int32_t index;
-            bool foundIt;
-            imapMessageFlagsType flags =
-                m_flagState->GetMessageFlagsFromUID(uid, &foundIt, &index);
-            if (foundIt) {
-              flags |= kImapMsgSeenFlag;
-              m_flagState->SetMessageFlags(index, flags);
+            // If fetch was not a peek, ensure that the message displays as
+            // read (not bold) in case the server fails to mark the message
+            // as SEEN.
+            if (GetServerStateParser().LastCommandSuccessful() &&
+                m_imapAction != nsIImapUrl::nsImapMsgFetchPeek) {
+              uint32_t uid = strtoul(messageIdString.get(), nullptr, 10);
+              int32_t index;
+              bool foundIt;
+              imapMessageFlagsType flags =
+                  m_flagState->GetMessageFlagsFromUID(uid, &foundIt, &index);
+              if (foundIt) {
+                flags |= kImapMsgSeenFlag;
+                m_flagState->SetMessageFlags(index, flags);
+              }
             }
           }
         } break;
