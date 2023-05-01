@@ -75,11 +75,13 @@ add_task(async function test_quoteMessage() {
       cwc.window.document.getElementById("optionsMenuPopup"),
       [{ id: "menu_quoteMessage" }]
     );
-    cwc.sleep(50);
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 50));
   } else {
     // Native menubar is used on macOS, didn't find a way to click it.
     cwc.window.goDoCommand("cmd_quoteMessage");
-    cwc.sleep(1);
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 1));
   }
   composeBody = get_compose_body(cwc).textContent;
   Assert.equal(

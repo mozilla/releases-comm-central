@@ -86,7 +86,7 @@ const ABOUT_SUPPORT_ERROR_STRINGS = new Map([
  *
  * @returns the about:support tab.
  */
-function open_about_support() {
+async function open_about_support() {
   let openAboutSupport = async function() {
     if (AppConstants.platform == "macosx") {
       mc.window.document.getElementById("aboutsupport_open").click();
@@ -132,7 +132,8 @@ function open_about_support() {
 
   // Wait an additional half-second for some more localisation caused by
   // runtime changes to the page.
-  mc.sleep(500);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
   return tab;
 }
 
@@ -178,8 +179,8 @@ function find_private_element(aTab) {
  * to check that no major errors have occurred. The basic tests are by no means
  * comprehensive.
  */
-add_task(function test_display_about_support() {
-  let tab = open_about_support();
+add_task(async function test_display_about_support() {
+  let tab = await open_about_support();
   // Check that the document has a few strings that indicate that we've loaded
   // the right page.
   for (let str of ABOUT_SUPPORT_STRINGS) {
@@ -236,8 +237,8 @@ add_task(function test_display_about_support() {
 /**
  * Test that our accounts are displayed in order.
  */
-add_task(function test_accounts_in_order() {
-  let tab = open_about_support();
+add_task(async function test_accounts_in_order() {
+  let tab = await open_about_support();
   // This is a really simple test and by no means comprehensive -- test that
   // "account1" appears before "account2" in the HTML content.
   assert_content_tab_text_present(tab, "account1");
@@ -260,11 +261,11 @@ var UNIQUE_ID = "3a9e1694-7115-4237-8b1e-1cabe6e35073";
  * Test that a modified preference on the whitelist but not on the blacklist
  * shows up.
  */
-add_task(function test_modified_pref_on_whitelist() {
+add_task(async function test_modified_pref_on_whitelist() {
   const PREFIX = "accessibility.";
   let prefName = PREFIX + UNIQUE_ID;
   Services.prefs.setBoolPref(prefName, true);
-  let tab = open_about_support();
+  let tab = await open_about_support();
 
   assert_content_tab_text_present(tab, prefName);
   close_tab(tab);
@@ -274,9 +275,9 @@ add_task(function test_modified_pref_on_whitelist() {
 /**
  * Test that a modified preference not on the whitelist doesn't show up.
  */
-add_task(function test_modified_pref_not_on_whitelist() {
+add_task(async function test_modified_pref_not_on_whitelist() {
   Services.prefs.setBoolPref(UNIQUE_ID, true);
-  let tab = open_about_support();
+  let tab = await open_about_support();
   assert_content_tab_text_absent(tab, UNIQUE_ID);
   close_tab(tab);
   Services.prefs.clearUserPref(UNIQUE_ID);
@@ -285,11 +286,11 @@ add_task(function test_modified_pref_not_on_whitelist() {
 /**
  * Test that a modified preference on the blacklist doesn't show up.
  */
-add_task(function test_modified_pref_on_blacklist() {
+add_task(async function test_modified_pref_on_blacklist() {
   const PREFIX = "network.proxy.";
   let prefName = PREFIX + UNIQUE_ID;
   Services.prefs.setBoolPref(prefName, true);
-  let tab = open_about_support();
+  let tab = await open_about_support();
 
   assert_content_tab_text_absent(tab, prefName);
   close_tab(tab);
@@ -300,8 +301,8 @@ add_task(function test_modified_pref_on_blacklist() {
  * Test that private data isn't displayed by default, and that when it is
  * displayed, it actually shows up.
  */
-add_task(function test_private_data() {
-  let tab = open_about_support();
+add_task(async function test_private_data() {
+  let tab = await open_about_support();
   let checkbox = content_tab_e(tab, "check-show-private-data");
 
   // We use the profile path and some other element as an example
@@ -348,8 +349,8 @@ function check_text_in_body(aDocument, aText) {
 /**
  * Test (well, sort of) the copy to clipboard function with public data.
  */
-add_task(function test_copy_to_clipboard_public() {
-  let tab = open_about_support();
+add_task(async function test_copy_to_clipboard_public() {
+  let tab = await open_about_support();
   let privateElem = find_private_element(tab);
   // To avoid destroying the current contents of the clipboard, instead of
   // actually copying to it, we just retrieve what would have been copied to it
@@ -404,8 +405,8 @@ add_task(function test_copy_to_clipboard_public() {
 /**
  * Test (well, sort of) the copy to clipboard function with private data.
  */
-add_task(function test_copy_to_clipboard_private() {
-  let tab = open_about_support();
+add_task(async function test_copy_to_clipboard_private() {
+  let tab = await open_about_support();
 
   // Display private data.
   let privateElem = find_private_element(tab);
@@ -476,8 +477,8 @@ add_task(function test_copy_to_clipboard_private() {
 /**
  * Test opening the compose window with public data.
  */
-add_task(function test_send_via_email_public() {
-  let tab = open_about_support();
+add_task(async function test_send_via_email_public() {
+  let tab = await open_about_support();
   let privateElem = find_private_element(tab);
 
   let cwc = open_send_via_email(tab);
@@ -524,8 +525,8 @@ add_task(function test_send_via_email_public() {
 /**
  * Test opening the compose window with private data.
  */
-add_task(function test_send_via_email_private() {
-  let tab = open_about_support();
+add_task(async function test_send_via_email_private() {
+  let tab = await open_about_support();
 
   // Display private data.
   let privateElem = find_private_element(tab);

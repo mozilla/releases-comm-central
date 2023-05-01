@@ -85,7 +85,9 @@ add_task(async function test_open_draft_again() {
     aboutMessage
   );
 
-  mc.sleep(1000); // wait a sec to see if it caused a new window
+  // Wait a sec to see if it caused a new window.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
   Assert.ok(
     Services.ww.activeWindow == cwc.window,

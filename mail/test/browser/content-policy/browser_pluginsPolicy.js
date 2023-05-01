@@ -126,7 +126,8 @@ async function addMsgToFolderAndCheckContent(loadAllowed) {
   // XXX It appears the assert_selected_and_displayed doesn't actually wait
   // long enough for plugin load. However, I also can't find a way to wait for
   // long enough in all situations, so this will have to do for now.
-  mc.sleep(1000);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
   // Now check that the content hasn't been loaded
   if (
@@ -154,7 +155,8 @@ async function checkStandaloneMessageWindow(loadAllowed) {
   // XXX It appears the wait_for_message_display_completion doesn't actually
   // wait long enough for plugin load. However, I also can't find a way to wait
   // for long enough in all situations, so this will have to do for now.
-  mc.sleep(1000);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
   let aboutMessage = get_about_message(msgc.window);
   if (

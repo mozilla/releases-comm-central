@@ -97,12 +97,13 @@ function assert_automatic_reminder_state(aCwc, aShown) {
  *                to change. This is used if the state is already what we want
  *                but we expect it could change in a short while.
  */
-function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
+async function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
   const notificationSlackTime = 5000;
 
   if (aShown) {
     if (aDelay) {
-      aCwc.sleep(notificationSlackTime);
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      await new Promise(resolve => setTimeout(resolve, notificationSlackTime));
     }
     // This waits up to 30 seconds for the notification to appear.
     wait_for_notification_to_show(aCwc.window, kBoxId, kNotificationId);
@@ -113,7 +114,8 @@ function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
     wait_for_notification_to_stop(aCwc.window, kBoxId, kNotificationId);
   } else {
     // This waits 5 seconds during which the notification must not appear.
-    aCwc.sleep(notificationSlackTime);
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, notificationSlackTime));
     assert_automatic_reminder_state(aCwc, false);
   }
 }
@@ -168,13 +170,13 @@ add_task(async function test_attachment_reminder_appears_properly() {
   );
 
   // Give the notification time to appear. It shouldn't.
-  wait_for_reminder_state(cwc, false);
+  await wait_for_reminder_state(cwc, false);
 
   cwc.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Seen this cool attachment?", cwc.window);
 
   // Give the notification time to appear. It should now.
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
 
   // The manual reminder should be disabled yet.
   assert_manual_reminder_state(cwc, false);
@@ -186,7 +188,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
     {},
     cwc.window
   );
-  wait_for_reminder_state(cwc, false);
+  await wait_for_reminder_state(cwc, false);
 
   // The manual reminder should be enabled now.
   assert_manual_reminder_state(cwc, true);
@@ -225,7 +227,7 @@ add_task(async function test_attachment_reminder_dismissal() {
   );
 
   // Give the notification time to appear.
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
 
   Assert.equal(get_reminder_keywords(cwc), "test.doc, attachment, attached");
 
@@ -252,7 +254,7 @@ add_task(async function test_attachment_reminder_dismissal() {
  * Bug 938829
  * Check that adding an attachment actually hides the notification.
  */
-add_task(function test_attachment_reminder_with_attachment() {
+add_task(async function test_attachment_reminder_with_attachment() {
   let cwc = open_compose_new_mail();
 
   // There should be no notification yet.
@@ -266,7 +268,7 @@ add_task(function test_attachment_reminder_with_attachment() {
   );
 
   // Give the notification time to appear. It should.
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
 
   // Add an attachment.
   let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
@@ -279,19 +281,19 @@ add_task(function test_attachment_reminder_with_attachment() {
   cwc.window.AddAttachments(attachments);
 
   // The notification should hide.
-  wait_for_reminder_state(cwc, false);
+  await wait_for_reminder_state(cwc, false);
 
   // Add some more text with keyword so the automatic notification
   // could potentially show up.
   setup_msg_contents(cwc, "", "", " Yes, there is a file attached!");
   // Give the notification time to appear. It shouldn't.
-  wait_for_reminder_state(cwc, false);
+  await wait_for_reminder_state(cwc, false);
 
   cwc.window.RemoveAllAttachments();
 
   // After removing the attachment, notification should come back
   // with all the keywords, even those input while having an attachment.
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
   Assert.equal(get_reminder_keywords(cwc), "attachment, attached");
 
   close_compose_window(cwc);
@@ -300,7 +302,7 @@ add_task(function test_attachment_reminder_with_attachment() {
 /**
  * Test that the mail.compose.attachment_reminder_aggressive pref works.
  */
-add_task(function test_attachment_reminder_aggressive_pref() {
+add_task(async function test_attachment_reminder_aggressive_pref() {
   const kPref = "mail.compose.attachment_reminder_aggressive";
   Services.prefs.setBoolPref(kPref, false);
 
@@ -316,7 +318,7 @@ add_task(function test_attachment_reminder_aggressive_pref() {
     "Check this attachment!"
   );
 
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
   click_send_and_handle_send_error(cwc);
 
   close_compose_window(cwc);
@@ -341,7 +343,7 @@ add_task(async function test_no_send_now_sends() {
     "Hello, I got your attachment!"
   );
 
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
 
   // Click the send button again, this time choose "No, Send Now".
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
@@ -461,7 +463,8 @@ add_task(async function test_manual_attachment_reminder() {
 
   // Enable the manual reminder and disable it again to see if it toggles right.
   await click_manual_reminder(cwc, true);
-  cwc.sleep(2000);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 2000));
   await click_manual_reminder(cwc, false);
 
   // Now try to send again, there should be no more alert.
@@ -495,33 +498,33 @@ add_task(
     );
 
     // The automatic attachment notification should pop up.
-    wait_for_reminder_state(cwc, true);
+    await wait_for_reminder_state(cwc, true);
 
     // Now enable the manual reminder.
     await click_manual_reminder(cwc, true);
     // The attachment notification should disappear.
-    wait_for_reminder_state(cwc, false);
+    await wait_for_reminder_state(cwc, false);
 
     // Add some more text so the automatic notification
     // could potentially show up.
     setup_msg_contents(cwc, "", "", " and look for your attachment!");
     // Give the notification time to appear. It shouldn't.
-    wait_for_reminder_state(cwc, false);
+    await wait_for_reminder_state(cwc, false);
 
     // Now disable the manual reminder.
     await click_manual_reminder(cwc, false);
     // Give the notification time to appear. It shouldn't.
-    wait_for_reminder_state(cwc, false);
+    await wait_for_reminder_state(cwc, false);
 
     // Add some more text without keywords.
     setup_msg_contents(cwc, "", "", " No keywords here.");
     // Give the notification time to appear. It shouldn't.
-    wait_for_reminder_state(cwc, false);
+    await wait_for_reminder_state(cwc, false);
 
     // Add some more text with a new keyword.
     setup_msg_contents(cwc, "", "", " Do you find it attached?");
     // Give the notification time to appear. It should now.
-    wait_for_reminder_state(cwc, true);
+    await wait_for_reminder_state(cwc, true);
     Assert.equal(get_reminder_keywords(cwc), "attachment, attached");
 
     close_compose_window(cwc);
@@ -580,7 +583,7 @@ add_task(function test_attachment_vs_filelink_reminder() {
  * Bug 944643
  * Test the attachment reminder coming up when keyword is in subject line.
  */
-add_task(function test_attachment_reminder_in_subject() {
+add_task(async function test_attachment_reminder_in_subject() {
   // Open a blank message compose
   let cwc = open_compose_new_mail();
   // This one should have the reminder disabled.
@@ -597,14 +600,14 @@ add_task(function test_attachment_reminder_in_subject() {
   );
 
   // The automatic attachment notification should pop up.
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
   Assert.equal(get_reminder_keywords(cwc), "attachment");
 
   // Now clear the subject
   delete_all_existing(cwc, cwc.window.document.getElementById("msgSubject"));
 
   // Give the notification time to disappear.
-  wait_for_reminder_state(cwc, false);
+  await wait_for_reminder_state(cwc, false);
 
   close_compose_window(cwc);
 });
@@ -614,7 +617,7 @@ add_task(function test_attachment_reminder_in_subject() {
  * Test the attachment reminder coming up when keyword is in subject line
  * and also body.
  */
-add_task(function test_attachment_reminder_in_subject_and_body() {
+add_task(async function test_attachment_reminder_in_subject_and_body() {
   // Open a blank message compose
   let cwc = open_compose_new_mail();
   // This one should have the reminder disabled.
@@ -631,7 +634,7 @@ add_task(function test_attachment_reminder_in_subject_and_body() {
   );
 
   // The automatic attachment notification should pop up.
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
   Assert.equal(get_reminder_keywords(cwc), "attachment, attached");
 
   // Now clear only the subject
@@ -639,7 +642,7 @@ add_task(function test_attachment_reminder_in_subject_and_body() {
 
   // Give the notification some time. It should not disappear,
   // just reduce the keywords list.
-  wait_for_reminder_state(cwc, true, true);
+  await wait_for_reminder_state(cwc, true, true);
   Assert.equal(get_reminder_keywords(cwc), "attached");
 
   close_compose_window(cwc);
@@ -671,7 +674,7 @@ add_task(async function test_disabled_attachment_reminder() {
   // could potentially show up.
   setup_msg_contents(cwc, "", "", " and look for your attachment!");
   // Give the notification time to appear. It shouldn't.
-  wait_for_reminder_state(cwc, false);
+  await wait_for_reminder_state(cwc, false);
 
   // Enable the manual reminder.
   await click_manual_reminder(cwc, true);
@@ -714,7 +717,7 @@ add_task(async function test_reminder_in_draft() {
   setup_msg_contents(cwc, "", "", " and look for your attachment!");
 
   // Give the notification time to appear.
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
 
   // Now close the message with saving it as draft.
   await save_compose_message(cwc.window);
@@ -746,7 +749,7 @@ add_task(async function test_reminder_in_draft() {
   cwc = wait_for_compose_window();
 
   // Give the notification time to appear.
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
 
   close_compose_window(cwc);
 
@@ -771,7 +774,7 @@ add_task(async function test_disabling_attachment_reminder() {
   // This one should have the manual reminder disabled.
   assert_manual_reminder_state(cwc, false);
   // There should be an attachment reminder.
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
 
   // Disable the reminder (not just dismiss) using the menuitem
   // in the notification bar menu-button.
@@ -790,12 +793,12 @@ add_task(async function test_disabling_attachment_reminder() {
     [{ id: "disableReminder" }]
   );
 
-  wait_for_reminder_state(cwc, false);
+  await wait_for_reminder_state(cwc, false);
 
   // Add more keywords.
   setup_msg_contents(cwc, "", "", "... and another file attached.");
   // Give the notification time to appear. It shouldn't.
-  wait_for_reminder_state(cwc, false);
+  await wait_for_reminder_state(cwc, false);
 
   // Enable the manual reminder.
   // This overrides the previous explicit disabling of any reminder.
@@ -810,7 +813,7 @@ add_task(async function test_disabling_attachment_reminder() {
   // Add more keywords to trigger automatic reminder.
   setup_msg_contents(cwc, "", "", "I enclosed another file.");
   // Give the notification time to appear. It should now.
-  wait_for_reminder_state(cwc, true);
+  await wait_for_reminder_state(cwc, true);
 
   // Disable the reminder again.
   disableButton = get_notification_button(cwc.window, kBoxId, kNotificationId, {
@@ -822,7 +825,7 @@ add_task(async function test_disabling_attachment_reminder() {
     disableButton.closest("toolbarbutton").querySelector("menupopup"),
     [{ id: "disableReminder" }]
   );
-  wait_for_reminder_state(cwc, false);
+  await wait_for_reminder_state(cwc, false);
 
   // Now send the message.
   plan_for_window_close(cwc);

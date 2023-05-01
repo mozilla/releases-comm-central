@@ -394,7 +394,7 @@ async function checkEMLMessageWindow(test, emlFile) {
  *
  * @returns the file the message was safed to
  */
-function saveAsEMLFile(msgNo) {
+async function saveAsEMLFile(msgNo) {
   let msgHdr = select_click_row(msgNo);
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
@@ -411,7 +411,8 @@ function saveAsEMLFile(msgNo) {
     true
   );
   // no listener for saveAs, though we should add one.
-  mc.sleep(5000);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 5000));
   return file;
 }
 
@@ -693,7 +694,7 @@ add_task(async function test_generalContentPolicy() {
 
     // Only want to do this for the test case which has the remote image.
     if (TESTS[i].checkRemoteImg) {
-      let emlFile = saveAsEMLFile(i);
+      let emlFile = await saveAsEMLFile(i);
       await checkEMLMessageWindow(TESTS[i], emlFile);
       emlFile.remove(false);
     }

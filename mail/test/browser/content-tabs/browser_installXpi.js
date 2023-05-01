@@ -30,14 +30,15 @@ registerCleanupFunction(function() {
   mc.window.document.getElementById("tabmail").closeTab(gNewTab);
 });
 
-function waitForNotification(id, buttonToClickSelector, callback) {
+async function waitForNotification(id, buttonToClickSelector, callback) {
   let notificationSelector = `#notification-popup > #${id}-notification`;
   let notification;
   mc.waitFor(() => {
     notification = gDocument.querySelector(notificationSelector);
     return notification && !notification.hidden;
   });
-  mc.sleep(500);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
   if (callback) {
     callback();
   }
@@ -55,11 +56,11 @@ add_task(async function test_install_corrupt_xpi() {
     {},
     gNewTab.browser
   );
-  waitForNotification(
+  await waitForNotification(
     "addon-install-blocked",
     ".popup-notification-primary-button"
   );
-  waitForNotification(
+  await waitForNotification(
     "addon-install-failed",
     ".popup-notification-primary-button"
   );
@@ -71,11 +72,11 @@ add_task(async function test_install_xpi_offer() {
     {},
     gNewTab.browser
   );
-  waitForNotification(
+  await waitForNotification(
     "addon-install-blocked",
     ".popup-notification-primary-button"
   );
-  waitForNotification(
+  await waitForNotification(
     "addon-install-failed",
     ".popup-notification-primary-button"
   );
@@ -90,7 +91,7 @@ add_task(async function test_xpinstall_disabled() {
     {},
     gNewTab.browser
   );
-  waitForNotification(
+  await waitForNotification(
     "xpinstall-disabled",
     ".popup-notification-secondary-button"
   );
@@ -104,11 +105,11 @@ add_task(async function test_xpinstall_actually_install() {
     {},
     gNewTab.browser
   );
-  waitForNotification(
+  await waitForNotification(
     "addon-install-blocked",
     ".popup-notification-primary-button"
   );
-  waitForNotification(
+  await waitForNotification(
     "addon-install-failed",
     ".popup-notification-primary-button"
   );
@@ -120,12 +121,12 @@ add_task(async function test_xpinstall_webext_actually_install() {
     {},
     gNewTab.browser
   );
-  waitForNotification(
+  await waitForNotification(
     "addon-install-blocked",
     ".popup-notification-primary-button"
   );
-  waitForNotification("addon-progress");
-  waitForNotification(
+  await waitForNotification("addon-progress");
+  await waitForNotification(
     "addon-webext-permissions",
     ".popup-notification-primary-button",
     () => {
@@ -135,7 +136,10 @@ add_task(async function test_xpinstall_webext_actually_install() {
       Assert.ok(!permission.hidden);
     }
   );
-  waitForNotification("addon-installed", ".popup-notification-primary-button");
+  await waitForNotification(
+    "addon-installed",
+    ".popup-notification-primary-button"
+  );
 
   Assert.report(
     false,

@@ -73,7 +73,8 @@ add_task(async function test_spellcheck_in_content_tabs() {
   // focused at last once, so give the event loop a chance to spin.
   // Since bug 1370754 the inline spell checker waits 1 second, so let's
   // wait 2 seconds to be on the safe side.
-  mc.sleep(2000);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 2000));
   BrowserTestUtils.synthesizeMouseAtCenter(
     "textarea",
     { type: "contextmenu" },

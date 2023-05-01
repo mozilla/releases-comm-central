@@ -148,7 +148,12 @@ function assert_fonts_equal(aDescription, aExpected, aActual, aPrefix = false) {
  * pref window to the display pane and checks that, then opens the font chooser
  * and checks that too.
  */
-function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
+async function _verify_fonts_displayed(
+  aDefaults,
+  aSerif,
+  aSansSerif,
+  aMonospace
+) {
   // Bring up the preferences window.
   let prefTab = open_pref_tab("paneGeneral");
   let contentDoc = prefTab.browser.contentDocument;
@@ -171,7 +176,8 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
 
   let advancedFonts = contentDoc.getElementById("advancedFonts");
   advancedFonts.scrollIntoView(false);
-  mc.sleep(500);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
   // Now open the advanced dialog.
   EventUtils.synthesizeMouseAtCenter(advancedFonts, {}, prefsWindow);
   let fontc = wait_for_frame_load(
@@ -255,7 +261,7 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
  * font.name.<type>.<language> is displayed in the font chooser (if it is
  * present on the computer).
  */
-add_task(function test_font_name_displayed() {
+add_task(async function test_font_name_displayed() {
   Services.prefs.setCharPref("font.language.group", kLanguage);
 
   // Pick the first font for each font type and set it.
@@ -273,7 +279,7 @@ add_task(function test_font_name_displayed() {
   }
 
   let fontTypes = kFontTypes.map(fontType => expected[fontType]);
-  _verify_fonts_displayed(false, ...fontTypes);
+  await _verify_fonts_displayed(false, ...fontTypes);
   teardownTest();
 });
 
@@ -290,7 +296,7 @@ const kFakeFonts = {
  * present on the computer, we fall back to displaying what's in
  * font.name-list.<type>.<language>.
  */
-add_task(function test_font_name_not_present() {
+add_task(async function test_font_name_not_present() {
   Services.prefs.setCharPref("font.language.group", kLanguage);
 
   // The fonts we're expecting to see selected in the font chooser for
@@ -343,7 +349,7 @@ add_task(function test_font_name_not_present() {
   }
 
   let fontTypes = kFontTypes.map(fontType => expected[fontType]);
-  _verify_fonts_displayed(true, ...fontTypes);
+  await _verify_fonts_displayed(true, ...fontTypes);
   teardownTest();
 });
 

@@ -180,7 +180,11 @@ add_task(async function test_periodic_nondirty_session_persistence() {
   // Since the state of the session hasn't changed since last _saveState(),
   // the session file should not be re-created.
   SessionStoreManager._saveState();
-  utils.sleep(kSaveDelayMs + asyncFileWriteDelayMS);
+
+  await new Promise(resolve =>
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    setTimeout(resolve, kSaveDelayMs + asyncFileWriteDelayMS)
+  );
 
   utils.waitFor(() => !sessionFile.exists(), "session file should not exist");
 });
@@ -224,7 +228,8 @@ async function test_restore_single_3pane_persistence() {
   // close the 3pane window
   close_window(new controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
-  utils.sleep(asyncFileWriteDelayMS);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
   mc = open3PaneWindow();
   set_mc(mc);
@@ -301,7 +306,8 @@ add_task(async function test_message_pane_height_persistence() {
   // The 3pane window is closed.
   close_window(new controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
-  utils.sleep(asyncFileWriteDelayMS);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
   mc = open3PaneWindow();
   set_mc(mc);
@@ -332,7 +338,8 @@ add_task(async function test_message_pane_height_persistence() {
   // The 3pane window is closed.
   close_window(mc);
   // Wait for window close async session write to finish.
-  utils.sleep(asyncFileWriteDelayMS);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
   mc = open3PaneWindow();
   set_mc(mc);
@@ -423,7 +430,8 @@ add_task(async function test_message_pane_width_persistence() {
   // The 3pane window is closed.
   close_window(new controller.MozMillController(mail3PaneWindow));
   // Wait for window close async session write to finish.
-  utils.sleep(asyncFileWriteDelayMS);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
   mc = open3PaneWindow();
   set_mc(mc);
@@ -469,7 +477,8 @@ add_task(async function test_message_pane_width_persistence() {
   // The 3pane window is closed.
   close_window(mc);
   // Wait for window close async session write to finish.
-  utils.sleep(asyncFileWriteDelayMS);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
   mc = open3PaneWindow();
   set_mc(mc);

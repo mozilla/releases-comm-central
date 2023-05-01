@@ -50,7 +50,8 @@ add_task(function test_addon_prefs() {
   );
 
   plan_for_modal_dialog("mozmill-prefs", function(controller) {
-    // Add |mc.sleep(1000);| here to see the popup dialog.
+    // Add | await new Promise(resolve => setTimeout(resolve, 1000));|
+    // here to see the popup dialog.
     controller.window.close();
   });
 
