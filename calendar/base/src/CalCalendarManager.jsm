@@ -547,7 +547,38 @@ CalCalendarManager.prototype = {
     // via getCalendars():
     for (let calendar of Object.values(this.mCache)) {
       let delay = 0;
-      if (calendar.getProperty("cache.enabled")) {
+
+      // The special-casing of ICS here is a very ugly hack. We can delay most
+      // cached calendars without an issue, but the ICS implementation has two
+      // properties which make that dangerous in its case:
+      //
+      // 1) ICS files can only be written whole cloth. Since it's a plain file,
+      // we need to know the entire contents of what we want to write.
+      //
+      // 2) It is backed by a memory calendar which it regards as its source of
+      // truth, and the backing calendar is only populated on a refresh.
+      //
+      // The combination of these two means that any update to the ICS calendar
+      // before the memory calendar is populated will erase everything in the
+      // calendar (except potentially the added item if that's what we're
+      // doing). A 15 second window for data loss-inducing updates isn't huge,
+      // but it's more than we should bet on.
+      //
+      // Why not fix this a different way? Trying to populate the memory
+      // calendar outside of a refresh causes the caching calendar to get
+      // confused about event ownership and identity, leading to bogus observer
+      // notifications and potential duplication of events in some parts of the
+      // interface. Having the ICS calendar refresh itself internally can cause
+      // disabled calendars to behave improperly, since calendars don't actually
+      // enforce their own disablement and may not know if they're disabled
+      // until after we try to refresh. Having the ICS calendar ensure it has
+      // refreshed itself before trying to make updates would require a fair bit
+      // of refactoring in its processing queue and, while it should probably
+      // happen, fingers crossed we can rework the provider architecture to make
+      // many of these problems less of an issue first.
+      const canDelay = calendar.getProperty("cache.enabled") && !calendar.type == "ics";
+
+      if (canDelay) {
         // If the calendar is cached, we don't need to refresh it RIGHT NOW, so let's wait a
         // while and let other things happen first.
         delay = 15000;

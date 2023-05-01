@@ -109,11 +109,6 @@ export class CalICSCalendar extends cal.provider.BaseClass {
     } else {
       this.#hooks = new dummyHooks();
     }
-
-    // Refresh immediately, without entering the queue, in order to populate the
-    // memory calendar. It's our source of truth, and any writes that occur
-    // before refreshing could wipe out calendar data.
-    this.#doRefresh();
   }
 
   getProperty(aName) {
