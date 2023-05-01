@@ -6,7 +6,7 @@
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-var { assert_tab_mode_name, mark_action, mc } = ChromeUtils.import(
+var { assert_tab_mode_name, mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
@@ -20,7 +20,6 @@ async function open_chat_tab() {
     .allTabs.length;
 
   mc.window.document.getElementById("tabmail").openTab("chat", {});
-  mark_action("imh", "open_chat_tab", []);
   await wait_for_chat_tab_to_open(mc);
 
   if (
@@ -39,7 +38,6 @@ async function wait_for_chat_tab_to_open(aController) {
     aController = mc;
   }
 
-  mark_action("imh", "wait_for_chat_tab_to_open", [aController]);
   utils.waitFor(
     function() {
       let chatTabFound = false;
@@ -59,7 +57,6 @@ async function wait_for_chat_tab_to_open(aController) {
   // The above may return immediately, meaning the event queue might not get a
   // chance. Give it a chance now.
   await new Promise(resolve => setTimeout(resolve));
-  mark_action("imh", "/wait_for_chat_tab_to_open", []);
 }
 
 /**

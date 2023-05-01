@@ -93,7 +93,6 @@ const EXPORTED_SYMBOLS = [
   "make_display_threaded",
   "make_display_unthreaded",
   "make_message_sets_in_folders",
-  "mark_action",
   "mc",
   "middle_click_on_folder",
   "middle_click_on_row",
@@ -220,7 +219,6 @@ var msgGenFactory = new MessageScenarioFactory(msgGen);
 var inboxFolder = null;
 
 // logHelper exports
-var mark_action;
 var normalize_for_json;
 
 // Default size of the main Thunderbird window in which the tests will run.
@@ -258,30 +256,12 @@ function setupModule() {
     testHelperModule
   );
   // - Hook-up logHelper to the mozmill event system...
-  mark_action = testHelperModule.mark_action;
   normalize_for_json = testHelperModule._normalize_for_json;
-
-  // Indicate to any fancy helpers (just folderEventLogHelper right now) that
-  //  we want them to log extra stuff.
-  testHelperModule._logHelperInterestedListeners = true;
-
-  // provide super helpful folder event info (when logHelper cares)
-  load_via_src_path(
-    "../../../testing/mochitest/resources/folderEventLogHelper.js",
-    testHelperModule
-  );
-  testHelperModule.registerFolderEventLogHelper();
 
   // use window-helper's augment_controller method to get our extra good stuff
   //  we need.
   mc = windowHelper.wait_for_existing_window("mail:3pane");
   windowHelper.augment_controller(mc);
-
-  mark_action("fdh", "startup completed", [
-    mc.window.msgWindow != null
-      ? "3pane looks initialized"
-      : "3pane does not appear to have fully loaded yet!",
-  ]);
 
   setupAccountStuff();
 }
@@ -533,8 +513,6 @@ async function enter_folder(aFolder) {
     await enter_folder(aFolder.rootFolder);
   }
 
-  mark_action("fdh", "enter_folder", [aFolder]);
-
   let displayPromise = BrowserTestUtils.waitForEvent(win, "folderURIChanged");
   win.displayFolder(aFolder.URI);
   await displayPromise;
@@ -708,12 +686,6 @@ async function open_selected_message_in_new_window() {
  * @returns The currently selected tab, guaranteed to be a folder tab.
  */
 function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
-  mark_action("fdh", "display_message_in_folder_tab", [
-    "message",
-    aMsgHdr,
-    "new 3 pane expected?",
-    Boolean(aExpectNew3Pane),
-  ]);
   if (aExpectNew3Pane) {
     windowHelper.plan_for_new_window("mail:3pane");
   }
@@ -737,8 +709,6 @@ function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
  * @returns The MozmillController-wrapped new window.
  */
 async function open_message_from_file(file) {
-  mark_action("fdh", "open_message_from_file", ["file", file.path]);
-
   if (!file.isFile() || !file.isReadable()) {
     throw new Error(
       "The requested message file " +
@@ -774,18 +744,6 @@ async function open_message_from_file(file) {
   return msgc;
 }
 
-function _jsonize_tabmail_tab(tab) {
-  return {
-    type: "tabmail-tab",
-    modeName: tab.mode.name,
-    typeName: tab.mode.tabType.name,
-    title: tab.title,
-    busy: tab.busy,
-    canClose: tab.canClose,
-    _focusedElement: tab._focusedElement,
-  };
-}
-
 /**
  * Switch to another folder or message tab.  If no tab is specified, we switch
  *  to the 'other' tab.  That is the last tab we used, most likely the tab that
@@ -807,13 +765,6 @@ async function switch_tab(aNewTab) {
   let targetTab = aNewTab != null ? aNewTab : otherTab;
   // now the current tab will be the 'other' tab after we switch
   otherTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  mark_action("fdh", "switch_tab", [
-    "old tab",
-    _jsonize_tabmail_tab(otherTab),
-    "new tab",
-    _jsonize_tabmail_tab(targetTab),
-  ]);
-
   let selectPromise = BrowserTestUtils.waitForEvent(
     mc.window.document.getElementById("tabmail").tabContainer,
     "select"
@@ -908,8 +859,6 @@ function assert_tab_has_title(aTab, aTitle) {
  *  current tab.
  */
 function close_tab(aTabToClose) {
-  mark_action("fdh", "close_tab", [aTabToClose]);
-
   if (typeof aTabToClose == "number") {
     aTabToClose = mc.window.document.getElementById("tabmail").tabInfo[
       aTabToClose
@@ -935,7 +884,6 @@ function close_tab(aTabToClose) {
  * Close a message window by calling window.close() on the controller.
  */
 function close_message_window(aController) {
-  mark_action("fdh", "close_message_window", []);
   windowHelper.close_window(aController);
 }
 
@@ -944,7 +892,6 @@ function close_message_window(aController) {
  *  we explicitly focus the thread tree as a side-effect.
  */
 function select_none(aController) {
-  mark_action("fdh", "select_none", []);
   if (aController == null) {
     aController = mc;
   }
@@ -1090,7 +1037,6 @@ function select_column_click_row(aViewIndex, aController) {
     wait_for_message_display_completion(aController);
   }
   aViewIndex = _normalize_view_index(aViewIndex, aController);
-  mark_action("fdh", "select_column_click_row", [aViewIndex]);
 
   // A click in the select column will always change the message display. If
   // clicking on a single selection (deselect), don't wait for a message load.
@@ -1114,10 +1060,6 @@ function select_column_click_row(aViewIndex, aController) {
   if (hasMessageDisplay) {
     wait_for_message_display_completion(aController, willDisplayMessage);
   }
-
-  mark_action("fdh", "/select_column_click_row", [
-    mc.window.gFolderDisplay.selectedMessages,
-  ]);
   return dbView.getMsgHdrAt(aViewIndex);
 }
 
@@ -1489,12 +1431,6 @@ function select_shift_click_folder(aFolder) {
   //  interaction.
   mc.folderTreeView.selection.rangedSelect(-1, viewIndex, false);
   wait_for_all_messages_to_load();
-  mark_action("fdh", "select_shift_click_folder", [
-    "clicked:",
-    aFolder,
-    "now selected:",
-    mc.folderTreeView.getSelectedFolders(),
-  ]);
   // give the event queue a chance to drain...
   mc.sleep(0);
 
@@ -1539,7 +1475,6 @@ function middle_click_on_folder(aFolder) {
   let win = get_about_3pane();
   let viewIndex = mc.folderTreeView.getIndexOfFolder(aFolder);
   let folderTree = win.window.document.getElementById("folderTree");
-  mark_action("fdh", "middle_click_on_folder", [aFolder]);
   _row_click_helper(mc, folderTree, viewIndex, 1);
   // We append new tabs at the end, so return the last tab
   return [
@@ -1575,10 +1510,6 @@ async function delete_via_popup() {
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
   );
-  // mark_action("fdh", "delete_via_popup", [
-  //   "selected messages:",
-  //   mc.window.gFolderDisplay.selectedMessages,
-  // ]);
   let win = get_about_3pane();
   let ctxDelete = win.document.getElementById("mailContext-delete");
   if (AppConstants.platform == "macosx") {
@@ -1606,18 +1537,10 @@ async function wait_for_popup_to_open(popupElem) {
 async function close_popup(aController, elem) {
   // if it was already closing, just leave
   if (elem.state == "closed") {
-    mark_action("fdh", "close_popup", [
-      "popup suspiciously already closed!",
-      elem,
-    ]);
     return;
   }
 
-  if (elem.state == "hiding") {
-    mark_action("fdh", "close_popup", [
-      "popup suspiciously already closing...",
-    ]);
-  } else {
+  if (elem.state != "hiding") {
     // Actually close the popup because it's not closing/closed.
     let hiddenPromise = BrowserTestUtils.waitForEvent(elem, "popuphidden");
     elem.hidePopup();
@@ -1691,13 +1614,6 @@ function archive_selected_messages(aController) {
   // How many messages do we expect to remain after the archival?
   let expectedCount = dbView.rowCount - dbView.numSelected;
 
-  // mark_action(
-  //   "fdh",
-  //   "archive_selected_messages",
-  //   ["selected messages:", aController.window.gFolderDisplay.selectedMessages].concat(
-  //     aController.describeFocus()
-  //   )
-  // );
   // if (expectedCount && aController.messageDisplay.visible) {
   //   plan_for_message_display(aController);
   // }
@@ -1736,13 +1652,6 @@ function press_enter(aController) {
   if ("messageDisplay" in aController) {
     wait_for_message_display_completion(aController);
   }
-  // mark_action(
-  //   "fdh",
-  //   "press_enter",
-  //   ["selected messages:", aController.window.gFolderDisplay.selectedMessages].concat(
-  //     aController.describeFocus()
-  //   )
-  // );
   EventUtils.synthesizeKey("VK_RETURN", {}, aController.window);
   // The caller's going to have to wait for message display completion
 }
@@ -2643,12 +2552,6 @@ function assert_expanded(...aArgs) {
  *     calls removeChild on the palette.)
  */
 function add_to_toolbar(aToolbarElement, aElementId) {
-  mark_action("fdh", "add_to_toolbar", [
-    "adding",
-    aElementId,
-    "current set",
-    aToolbarElement.currentSet,
-  ]);
   let currentSet = aToolbarElement.currentSet.split(",");
   if (!currentSet.includes(aElementId)) {
     currentSet.unshift(aElementId);
@@ -2666,12 +2569,6 @@ function add_to_toolbar(aToolbarElement, aElementId) {
  *     toolbar.
  */
 function remove_from_toolbar(aToolbarElement, aElementId) {
-  mark_action("fdh", "remove_from_toolbar", [
-    "removing",
-    aElementId,
-    "current set",
-    aToolbarElement.currentSet,
-  ]);
   let currentSet = aToolbarElement.currentSet.split(",");
   if (currentSet.includes(aElementId)) {
     currentSet.splice(currentSet.indexOf(aElementId), 1);
@@ -3015,7 +2912,6 @@ function _prettify_folder_array(aArray) {
  */
 function make_display_unthreaded() {
   wait_for_message_display_completion();
-  mark_action("fdh", "make_folder_display_unthreaded", []);
   get_about_3pane().gViewWrapper.showUnthreaded = true;
   // drain event queue
   mc.sleep(0);
@@ -3027,7 +2923,6 @@ function make_display_unthreaded() {
  */
 function make_display_threaded() {
   wait_for_message_display_completion();
-  mark_action("fdh", "make_folder_display_threaded", []);
   get_about_3pane().gViewWrapper.showThreaded = true;
   // drain event queue
   mc.sleep(0);
@@ -3038,7 +2933,6 @@ function make_display_threaded() {
  */
 function make_display_grouped() {
   wait_for_message_display_completion();
-  mark_action("fdh", "make_folder_display_grouped", []);
   get_about_3pane().gViewWrapper.showGroupedBySort = true;
   // drain event queue
   mc.sleep(0);
@@ -3049,7 +2943,6 @@ function make_display_grouped() {
  */
 function collapse_all_threads() {
   wait_for_message_display_completion();
-  mark_action("fdh", "collapse_all_threads", []);
   get_about_3pane().commandController.doCommand("cmd_collapseAllThreads");
   // drain event queue
   mc.sleep(0);
@@ -3060,7 +2953,6 @@ function collapse_all_threads() {
  */
 function set_show_unread_only(aShowUnreadOnly) {
   wait_for_message_display_completion();
-  mark_action("fdh", "set_show_unread_only", [aShowUnreadOnly]);
   mc.window.gFolderDisplay.view.showUnreadOnly = aShowUnreadOnly;
   wait_for_all_messages_to_load();
   wait_for_message_display_completion();
@@ -3098,12 +2990,6 @@ function assert_not_showing_unread_only() {
  */
 function set_mail_view(aMailViewIndex, aData) {
   wait_for_message_display_completion();
-  mark_action("fdh", "set_mail_view", [
-    "index",
-    aMailViewIndex,
-    "mail view data",
-    aData,
-  ]);
   get_about_3pane().gViewWrapper.setMailView(aMailViewIndex, aData);
   wait_for_all_messages_to_load();
   wait_for_message_display_completion();
@@ -3142,7 +3028,6 @@ function assert_mail_view(aMailViewIndex, aData) {
  */
 function expand_all_threads() {
   wait_for_message_display_completion();
-  mark_action("fdh", "expand_all_threads", []);
   get_about_3pane().commandController.doCommand("cmd_expandAllThreads");
   // drain event queue
   mc.sleep(0);

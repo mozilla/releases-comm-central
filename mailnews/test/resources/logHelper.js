@@ -66,8 +66,6 @@ var _errorConsoleTunnel = {
     }
 
     try {
-      // meh, let's just use mark_failure for now.
-      // and let's avoid feedback loops (happens in mozmill)
       if (
         aMessage instanceof Ci.nsIScriptError &&
         !aMessage.errorMessage.includes("Error console says")
@@ -103,7 +101,7 @@ var _errorConsoleTunnel = {
         ) {
           return;
         }
-        mark_failure(["Error console says", aMessage]);
+        dump(`Error console says: ${aMessage}`);
       }
     } catch (ex) {
       // This is to avoid pathological error loops.  we definitely do not
@@ -164,8 +162,8 @@ _init_log_helper();
 
 /**
  * Mark the start of a test.  This creates nice console output as well as
- *  setting up logging contexts so that use of other helpers in here like
- *  mark_action get associated with the context.
+ *  setting up logging contexts so that use of other helpers in here
+ *  get associated with the context.
  *
  * This will likely only be used by the test driver framework, such as
  *  asyncTestUtils.js.  However, |mark_sub_test_start| is for user test code.
@@ -511,67 +509,6 @@ function register_json_normalizer(aType, aHandler) {
   _registered_json_normalizers.push([aType, aHandler]);
 }
 
-/**
- * Helper for |mark_action| that creates json-transportable representation so
- *  cool UI on the other end can do something.
- */
-function _MarkAction(aWho, aWhat, aArgs) {
-  this.type = "action";
-  this.who = aWho;
-  this.what = aWhat;
-  this.args = aArgs;
-}
-_MarkAction.prototype = {
-  _jsonMe: true,
-  toString() {
-    let argStr;
-    if (this.args) {
-      argStr = ":";
-      for (let arg of this.args) {
-        if (arg != null && typeof arg == "object" && "type" in arg) {
-          if ("name" in arg) {
-            argStr += " " + arg.type + ": " + arg.name;
-          } else {
-            argStr += " " + arg.type;
-          }
-        } else {
-          argStr += " " + arg;
-        }
-      }
-    } else {
-      argStr = "";
-    }
-    return this.who + " " + this.what + argStr;
-  },
-};
-
-/**
- * Report performance of an action (by testing code).  You would use this rather
- *  than dump because we attempt to do interesting and useful logging things.
- *  In the future, this may mean prettier logs when buildbot runs a test and it
- *  fails, but right now it means great fun for people who use logsploder and
- *  just nicely formatted text for people looking at the console output.
- *
- * @param {string} aWho - Think of this like a logger handle... it might be soon.
- * @param {string} aWhat - What did you do?
- * @param {*[]} aArgs A list of arguments, which could each be something like an
- *   nsIMsgFolder or nsIMsgDBHdr or something like that.  It uses
- *   |_normalize_for_json| which can handle some native objects, be extended
- *   to handle more, and does a fair job on straight JS objects.
- */
-function mark_action(aWho, aWhat, aArgs) {
-  let logger = console.createInstance({
-    prefix: "test." + aWho,
-    maxLogLevelPref: "test.loghelper.loglevel",
-  });
-
-  aArgs = aArgs.map(arg => _normalize_for_json(arg, undefined, true));
-  logger.info(
-    _testLoggerActiveContext,
-    new _MarkAction(aWho, aWhat, aArgs).toString()
-  );
-}
-
 /*
  * Wrap the xpcshell test functions that do interesting things.  The idea is
  *  that we clobber these only if we're going to value-add; that decision
@@ -611,34 +548,6 @@ function _Failure(aText, aStack) {
 _Failure.prototype = {
   _jsonMe: true,
 };
-
-function mark_failure(aRichString) {
-  let args = [_testLoggerActiveContext];
-  let text = "";
-  for (let [i, richThing] of aRichString.entries()) {
-    text += i ? " " : "";
-    if (richThing == null || typeof richThing != "object") {
-      text += richThing;
-      args.push(richThing);
-    } else {
-      let jsonThing = _normalize_for_json(richThing);
-      if ("type" in jsonThing && "name" in jsonThing) {
-        text += "[" + jsonThing.type + " " + jsonThing.name + "]";
-      } else {
-        text += "[" + jsonThing + "]";
-      }
-
-      // hook things up to be json serialized.
-      if (!("_jsonMe" in jsonThing)) {
-        jsonThing._jsonMe = true;
-      }
-      args.push(jsonThing);
-    }
-  }
-  _xpcshellLogger.info.apply(_xpcshellLogger, args);
-
-  do_throw(text, Components.stack.caller);
-}
 
 function _wrapped_do_throw(text, stack) {
   if (!stack) {
