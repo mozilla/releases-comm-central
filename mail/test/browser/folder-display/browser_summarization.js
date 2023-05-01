@@ -357,7 +357,7 @@ function extract_first_address(thread) {
 }
 
 function check_address_name(name) {
-  let htmlframe = mc.e("multimessage");
+  let htmlframe = mc.window.document.getElementById("multimessage");
   let match = htmlframe.contentDocument.querySelector(".author");
   if (match.textContent != name) {
     throw new Error(

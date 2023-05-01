@@ -41,12 +41,12 @@ registerCleanupFunction(async function() {
  */
 add_task(async function test_open_context_menu() {
   // First, ensure that the context menu is closed.
-  let contextPopup = mc.e("toolbar-context-menu");
+  let contextPopup = mc.window.document.getElementById("toolbar-context-menu");
   Assert.notEqual(contextPopup.state, "open");
 
   // Right click on the tab bar
   EventUtils.synthesizeMouseAtCenter(
-    mc.e("tabmail-tabs"),
+    mc.window.document.getElementById("tabmail-tabs"),
     { type: "contextmenu" },
     window
   );
@@ -67,8 +67,8 @@ add_task(async function test_redirects_toolbarbutton_drops() {
   // Restore the default buttons to get defined starting conditions.
   await gCDHelper.restoreDefaultButtons(mc);
 
-  let tabbar = mc.e("tabmail-tabs");
-  let toolbar = mc.e("tabbar-toolbar");
+  let tabbar = mc.window.document.getElementById("tabmail-tabs");
+  let toolbar = mc.window.document.getElementById("tabbar-toolbar");
 
   // First, let's open up the customize toolbar window.
   let ctw = await gCDHelper.open(mc);
@@ -81,7 +81,7 @@ add_task(async function test_redirects_toolbarbutton_drops() {
     "wrapper-button-forward",
     "wrapper-button-archive",
   ].forEach(function(aButtonId) {
-    let button = ctw.e(aButtonId);
+    let button = ctw.window.document.getElementById(aButtonId);
 
     drag_n_drop_element(
       button,

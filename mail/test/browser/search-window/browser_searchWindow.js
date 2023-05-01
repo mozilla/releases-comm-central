@@ -87,7 +87,9 @@ add_task(async function test_show_search_window() {
 add_task(function test_enter_some_stuff() {
   // - turn off search subfolders
   // (we're not testing the UI, direct access is fine)
-  swc.e("checkSearchSubFolders").removeAttribute("checked");
+  swc.window.document
+    .getElementById("checkSearchSubFolders")
+    .removeAttribute("checked");
 
   // - put "foo" in the subject contains box
   // Each filter criterion is a listitem in the listbox with id=searchTermList.
@@ -132,9 +134,9 @@ add_task(function test_go_search() {
   // - Trigger the search
   // The "Search" button has id "search-button"
   EventUtils.synthesizeMouseAtCenter(
-    swc.e("search-button"),
+    swc.window.document.getElementById("search-button"),
     {},
-    swc.e("search-button").ownerGlobal
+    swc.window.document.getElementById("search-button").ownerGlobal
   );
   wait_for_all_messages_to_load(swc);
 
@@ -150,9 +152,9 @@ add_task(function test_go_search() {
     subtest_save_search
   );
   EventUtils.synthesizeMouseAtCenter(
-    swc.e("saveAsVFButton"),
+    swc.window.document.getElementById("saveAsVFButton"),
     {},
-    swc.e("saveAsVFButton").ownerGlobal
+    swc.window.document.getElementById("saveAsVFButton").ownerGlobal
   );
   wait_for_modal_dialog("mailnews:virtualFolderProperties");
 });
@@ -168,7 +170,7 @@ add_task(async function test_open_single_search_result_in_tab() {
     .allTabs.length;
 
   // Select one message
-  swc.e("threadTree").focus();
+  swc.window.document.getElementById("threadTree").focus();
   let msgHdr = select_click_search_row(1, swc);
   // Open the selected message
   open_selected_message(swc);
@@ -198,7 +200,7 @@ add_task(async function test_open_multiple_search_results_in_new_tabs() {
     .allTabs.length;
 
   // Select a bunch of messages
-  swc.e("threadTree").focus();
+  swc.window.document.getElementById("threadTree").focus();
   select_click_search_row(1, swc);
   let selectedMessages = select_shift_click_search_row(
     NUM_MESSAGES_TO_OPEN,
@@ -241,7 +243,7 @@ add_task(async function test_open_search_result_in_new_window() {
   set_open_message_behavior("NEW_WINDOW");
 
   // Select a message
-  swc.e("threadTree").focus();
+  swc.window.document.getElementById("threadTree").focus();
   let msgHdr = select_click_search_row(1, swc);
 
   let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
@@ -264,7 +266,7 @@ add_task(async function test_open_search_result_in_existing_window() {
   set_open_message_behavior("EXISTING_WINDOW");
 
   // Open up a window
-  swc.e("threadTree").focus();
+  swc.window.document.getElementById("threadTree").focus();
   select_click_search_row(1, swc);
   let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   open_selected_message(swc);
@@ -316,7 +318,7 @@ function subtest_save_search(savc) {
   Assert.equal(searchVal1.value, "bar");
 
   // - name the search
-  savc.e("name").focus();
+  savc.window.document.getElementById("name").focus();
   EventUtils.sendString("SearchSaved", savc.window);
 
   // - save it!

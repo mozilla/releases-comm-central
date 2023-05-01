@@ -63,7 +63,7 @@ add_task(async function test_message_filter_shows_newsgroup_server() {
   let filterc = wait_for_new_window("mailnews:filterlist");
   wait_for_window_focused(filterc.window);
 
-  let popup = filterc.e("serverMenuPopup");
+  let popup = filterc.window.document.getElementById("serverMenuPopup");
   Assert.ok(popup);
   EventUtils.synthesizeMouseAtCenter(popup, {}, popup.ownerGlobal);
 
@@ -103,14 +103,15 @@ async function create_simple_filter() {
   let filterc = wait_for_existing_window("mailnews:filterlist");
 
   function fill_in_filter_fields(fec) {
-    let filterName = fec.e("filterName");
+    let filterName = fec.window.document.getElementById("filterName");
     filterName.value = "A Simple Filter";
-    fec.e("searchAttr0").value = Ci.nsMsgSearchAttrib.To;
-    fec.e("searchOp0").value = Ci.nsMsgSearchOp.Is;
-    let searchVal = fec.e("searchVal0").input;
+    fec.window.document.getElementById("searchAttr0").value =
+      Ci.nsMsgSearchAttrib.To;
+    fec.window.document.getElementById("searchOp0").value = Ci.nsMsgSearchOp.Is;
+    let searchVal = fec.window.document.getElementById("searchVal0").input;
     searchVal.setAttribute("value", "test@foo.invalid");
 
-    let filterActions = fec.e("filterActionList");
+    let filterActions = fec.window.document.getElementById("filterActionList");
     let firstAction = filterActions.getItemAtIndex(0);
     firstAction.setAttribute("value", "markasflagged");
     fec.window.document.querySelector("dialog").acceptDialog();
@@ -119,9 +120,9 @@ async function create_simple_filter() {
   // Let's open the filter editor.
   plan_for_modal_dialog("mailnews:filtereditor", fill_in_filter_fields);
   EventUtils.synthesizeMouseAtCenter(
-    filterc.e("newButton"),
+    filterc.window.document.getElementById("newButton"),
     {},
-    filterc.e("newButton").ownerGlobal
+    filterc.window.document.getElementById("newButton").ownerGlobal
   );
   wait_for_modal_dialog("mailnews:filtereditor");
 }
@@ -143,9 +144,10 @@ async function openFiltersDialogs() {
     {},
     mc.window
   );
-  await click_menus_in_sequence(mc.e("taskPopup"), [
-    { id: "filtersCmd" },
-  ]);
+  await click_menus_in_sequence(
+    mc.window.document.getElementById("taskPopup"),
+    [{ id: "filtersCmd" }]
+  );
 }
 
 /**
@@ -168,9 +170,11 @@ add_task(async function test_address_books_appear_in_message_filter_dropdown() {
   // Prepare a function to deal with the filter editor once it
   // has opened
   function filterEditorOpened(fec) {
-    fec.e("searchAttr0").value = Ci.nsMsgSearchAttrib.To;
-    fec.e("searchOp0").value = Ci.nsMsgSearchOp.IsInAB;
-    let abList = fec.e("searchVal0").input;
+    fec.window.document.getElementById("searchAttr0").value =
+      Ci.nsMsgSearchAttrib.To;
+    fec.window.document.getElementById("searchOp0").value =
+      Ci.nsMsgSearchOp.IsInAB;
+    let abList = fec.window.document.getElementById("searchVal0").input;
 
     // We should have 2 address books here - one for the Personal Address
     // Book, and one for Collected Addresses.  The LDAP address book should
@@ -185,9 +189,9 @@ add_task(async function test_address_books_appear_in_message_filter_dropdown() {
   // Let's open the filter editor.
   plan_for_modal_dialog("mailnews:filtereditor", filterEditorOpened);
   EventUtils.synthesizeMouseAtCenter(
-    filterc.e("newButton"),
+    filterc.window.document.getElementById("newButton"),
     {},
-    filterc.e("newButton").ownerGlobal
+    filterc.window.document.getElementById("newButton").ownerGlobal
   );
   wait_for_modal_dialog("mailnews:filtereditor");
 });
@@ -205,7 +209,7 @@ add_task(async function test_can_cancel_quit_on_filter_changes() {
   await create_simple_filter();
 
   let filterc = wait_for_existing_window("mailnews:filterlist");
-  let runButton = filterc.e("runFiltersButton");
+  let runButton = filterc.window.document.getElementById("runFiltersButton");
   runButton.setAttribute("label", runButton.getAttribute("stoplabel"));
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
@@ -243,10 +247,11 @@ add_task(function test_can_quit_on_filter_changes() {
   let filterc = wait_for_existing_window("mailnews:filterlist");
 
   // There should already be 1 filter defined from previous test.
-  let filterCount = filterc.e("filterList").itemCount;
+  let filterCount = filterc.window.document.getElementById("filterList")
+    .itemCount;
   Assert.equal(filterCount, 1);
 
-  let runButton = filterc.e("runFiltersButton");
+  let runButton = filterc.window.document.getElementById("runFiltersButton");
   runButton.setAttribute("label", runButton.getAttribute("stoplabel"));
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(

@@ -43,7 +43,11 @@ add_task(async function test_open_addons_with_url() {
  */
 add_task(function test_addon_prefs() {
   // Open Add-on Options.
-  const subview = click_through_appmenu([{ id: "appmenu_addons" }]);
+  const subview = click_through_appmenu(
+    [{ id: "appmenu_addons" }],
+    null,
+    mc.window
+  );
 
   plan_for_modal_dialog("mozmill-prefs", function(controller) {
     // Add |mc.sleep(1000);| here to see the popup dialog.

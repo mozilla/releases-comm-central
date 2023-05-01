@@ -69,7 +69,7 @@ add_task(async function test_selection_extension() {
 
 add_task(async function test_selection_select_column() {
   await be_in_folder(folder);
-  mc.e("selectCol").removeAttribute("hidden");
+  mc.window.document.getElementById("selectCol").removeAttribute("hidden");
   select_none();
   select_column_click_row(0);
   assert_selected_and_displayed(0);
@@ -97,7 +97,7 @@ add_task(async function test_selection_select_column_deselection() {
   await right_click_on_row(7);
   await delete_via_popup();
   assert_nothing_selected();
-  mc.e("selectCol").setAttribute("hidden", true);
+  mc.window.document.getElementById("selectCol").setAttribute("hidden", true);
 });
 
 add_task(async function test_selection_last_message_deleted() {

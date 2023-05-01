@@ -98,7 +98,7 @@ add_setup(async function() {
  *                        (the sender address to be sent out).
  */
 function checkCompIdentity(cwc, aIdentityKey, aIdentityAlias, aIdentityValue) {
-  let identityList = cwc.e("msgIdentity");
+  let identityList = cwc.window.document.getElementById("msgIdentity");
 
   Assert.equal(
     cwc.window.getCurrentIdentityKey(),
@@ -181,16 +181,19 @@ add_task(async function test_editing_identity() {
   let identityCustom = customName + " <" + customEmail + ">";
 
   EventUtils.synthesizeMouseAtCenter(
-    compWin.e("msgIdentity"),
+    compWin.window.document.getElementById("msgIdentity"),
     {},
-    compWin.e("msgIdentity").ownerGlobal
+    compWin.window.document.getElementById("msgIdentity").ownerGlobal
   );
-  await click_menus_in_sequence(compWin.e("msgIdentityPopup"), [
-    { command: "cmd_customizeFromAddress" },
-  ]);
-  compWin.waitFor(() => compWin.e("msgIdentity").editable);
+  await click_menus_in_sequence(
+    compWin.window.document.getElementById("msgIdentityPopup"),
+    [{ command: "cmd_customizeFromAddress" }]
+  );
+  compWin.waitFor(
+    () => compWin.window.document.getElementById("msgIdentity").editable
+  );
 
-  compWin.e("msgIdentityPopup").focus();
+  compWin.window.document.getElementById("msgIdentityPopup").focus();
   EventUtils.sendString(identityCustom, compWin.window);
   checkCompIdentity(
     compWin,
@@ -207,7 +210,7 @@ add_task(async function test_editing_identity() {
 
   // Switch to another identity to see if editable field still obeys predefined
   // identity values.
-  await click_menus_in_sequence(compWin.e("msgIdentityPopup"),
+  await click_menus_in_sequence(compWin.window.document.getElementById("msgIdentityPopup"),
                                   [ { identitykey: identityKey2 } ]);
   checkCompIdentity(compWin, identityKey2, identity2From, identity2From);
 

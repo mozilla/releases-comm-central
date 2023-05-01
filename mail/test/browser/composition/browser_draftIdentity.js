@@ -276,8 +276,8 @@ add_task(async function test_draft_identity_selection() {
   wait_for_notification_to_show(cwc, "compose-notification-bottom",
                                 "identityWarning");
   // Notification should go away when another identity is chosen.
-  EventUtils.synthesizeMouseAtCenter(cwc.e("msgIdentity"), { }, cwc.e("msgIdentity").ownerGlobal)
-  await click_menus_in_sequence(cwc.e("msgIdentityPopup"),
+  EventUtils.synthesizeMouseAtCenter(cwc.e("msgIdentity"), { }, cwc.window.document.getElementById("msgIdentity").ownerGlobal)
+  await click_menus_in_sequence(cwc.window.document.getElementById("msgIdentityPopup"),
                               [ { identitykey: gIdentities[0].key } ]);
 
   wait_for_notification_to_stop(cwc, "compose-notification-bottom",

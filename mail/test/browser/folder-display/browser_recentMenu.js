@@ -27,7 +27,6 @@ var {
   click_menus_in_sequence,
   close_popup_sequence,
   click_appmenu_in_sequence,
-  click_through_appmenu,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MailServices } = ChromeUtils.import(

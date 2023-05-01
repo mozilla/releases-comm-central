@@ -23,7 +23,7 @@ add_task(function test_toolbar_and_placeholder() {
     "the chat tab shouldn't be selected at startup"
   );
   EventUtils.synthesizeMouseAtCenter(
-    mc.e("chatButton"),
+    mc.window.document.getElementById("chatButton"),
     { clickCount: 1 },
     mc.window
   );
@@ -35,19 +35,19 @@ add_task(function test_toolbar_and_placeholder() {
 
   // Check that "No connected account" placeholder is correct.
   Assert.ok(
-    !mc.e("noConvScreen").hidden,
+    !mc.window.document.getElementById("noConvScreen").hidden,
     "'Your chat accounts are not connected.' placeholder"
   );
   Assert.ok(
-    mc.e("noConvInnerBox").hidden,
+    mc.window.document.getElementById("noConvInnerBox").hidden,
     "the 'No conversation' placeholder is hidden"
   );
   Assert.ok(
-    mc.e("noAccountInnerBox").hidden,
+    mc.window.document.getElementById("noAccountInnerBox").hidden,
     "the 'No account' placeholder is hidden"
   );
   Assert.ok(
-    !mc.e("noConnectedAccountInnerBox").hidden,
+    !mc.window.document.getElementById("noConnectedAccountInnerBox").hidden,
     "the 'No connected account' placeholder is visible"
   );
   let chatHandler = mc.window.chatHandler;
@@ -64,11 +64,11 @@ add_task(function test_toolbar_and_placeholder() {
 
   // check that add contact and join chat are disabled
   Assert.ok(
-    mc.e("button-add-buddy").disabled,
+    mc.window.document.getElementById("button-add-buddy").disabled,
     "the Add Buddy button is disabled"
   );
   Assert.ok(
-    mc.e("button-join-chat").disabled,
+    mc.window.document.getElementById("button-join-chat").disabled,
     "the Join Chat button is disabled"
   );
 
@@ -86,25 +86,25 @@ add_task(function test_toolbar_and_placeholder() {
 
   // check that add contact and join chat are no longer disabled
   Assert.ok(
-    !mc.e("button-add-buddy").disabled,
+    !mc.window.document.getElementById("button-add-buddy").disabled,
     "the Add Buddy button is not disabled"
   );
   Assert.ok(
-    !mc.e("button-join-chat").disabled,
+    !mc.window.document.getElementById("button-join-chat").disabled,
     "the Join Chat button is not disabled"
   );
 
   // Check that the "No conversations" placeholder is correct.
   Assert.ok(
-    !mc.e("noConvInnerBox").hidden,
+    !mc.window.document.getElementById("noConvInnerBox").hidden,
     "the 'No conversation' placeholder is visible"
   );
   Assert.ok(
-    mc.e("noAccountInnerBox").hidden,
+    mc.window.document.getElementById("noAccountInnerBox").hidden,
     "the 'No account' placeholder is hidden"
   );
   Assert.ok(
-    mc.e("noConnectedAccountInnerBox").hidden,
+    mc.window.document.getElementById("noConnectedAccountInnerBox").hidden,
     "the 'No connected account' placeholder is hidden"
   );
   Assert.ok(!chatHandler._placeHolderButtonId, "no placeholder button");
@@ -114,25 +114,25 @@ add_task(function test_toolbar_and_placeholder() {
 
   // check that add contact and join chat are disabled again.
   Assert.ok(
-    mc.e("button-add-buddy").disabled,
+    mc.window.document.getElementById("button-add-buddy").disabled,
     "the Add Buddy button is disabled"
   );
   Assert.ok(
-    mc.e("button-join-chat").disabled,
+    mc.window.document.getElementById("button-join-chat").disabled,
     "the Join Chat button is disabled"
   );
 
   // Check that the "No connected account" placeholder is back.
   Assert.ok(
-    mc.e("noConvInnerBox").hidden,
+    mc.window.document.getElementById("noConvInnerBox").hidden,
     "the 'No conversation' placeholder is hidden"
   );
   Assert.ok(
-    mc.e("noAccountInnerBox").hidden,
+    mc.window.document.getElementById("noAccountInnerBox").hidden,
     "the 'No account' placeholder is hidden"
   );
   Assert.ok(
-    !mc.e("noConnectedAccountInnerBox").hidden,
+    !mc.window.document.getElementById("noConnectedAccountInnerBox").hidden,
     "the 'No connected account' placeholder is visible"
   );
   Assert.equal(

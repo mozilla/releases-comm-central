@@ -131,7 +131,8 @@ function checkComposeWindow(replyType) {
 
   // Check the prefetch in the compose window.
   Assert.ok(
-    !replyWindow.e("messageEditor").docShell.allowDNSPrefetch,
+    !replyWindow.window.document.getElementById("messageEditor").docShell
+      .allowDNSPrefetch,
     `Should have disabled DNS prefetch in the compose window (${errMsg})`
   );
 

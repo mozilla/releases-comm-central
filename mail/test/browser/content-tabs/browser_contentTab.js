@@ -79,7 +79,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     { type: "contextmenu" },
     tabmail.selectedTab.browser
   );
-  let browserContext = mc.e("browserContext");
+  let browserContext = mc.window.document.getElementById("browserContext");
   await wait_for_popup_to_open(browserContext);
   assert_element_visible("browserContext-spell-dictionaries");
   assert_element_visible("browserContext-spell-check-enabled");
@@ -109,7 +109,9 @@ add_task(async function test_spellcheck_in_content_tabs() {
     "spell-suggestion"
   );
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
-  let addToDict = mc.e("browserContext-spell-add-to-dictionary");
+  let addToDict = mc.window.document.getElementById(
+    "browserContext-spell-add-to-dictionary"
+  );
   if (AppConstants.platform == "macosx") {
     // We need to use click() since the synthesizeMouseAtCenter doesn't work for
     // context menu items on macos.

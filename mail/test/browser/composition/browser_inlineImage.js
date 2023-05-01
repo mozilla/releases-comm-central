@@ -81,7 +81,7 @@ add_task(async function test_send_inline_image() {
   let dataURI = `data:image/png;base64,${fileContent}`;
 
   putHTMLOnClipboard(`<img id="inline-img" src="${dataURI}">`);
-  cwc.e("messageEditor").focus();
+  cwc.window.document.getElementById("messageEditor").focus();
   // Ctrl+V = Paste
   EventUtils.synthesizeKey(
     "v",

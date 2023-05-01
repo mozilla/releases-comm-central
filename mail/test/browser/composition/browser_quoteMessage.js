@@ -67,13 +67,14 @@ add_task(async function test_quoteMessage() {
   if (["linux", "win"].includes(AppConstants.platform)) {
     // Click Options > Quote Message.
     EventUtils.synthesizeMouseAtCenter(
-      cwc.e("optionsMenu"),
+      cwc.window.document.getElementById("optionsMenu"),
       {},
-      cwc.e("optionsMenu").ownerGlobal
+      cwc.window.document.getElementById("optionsMenu").ownerGlobal
     );
-    await click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
-      { id: "menu_quoteMessage" },
-    ]);
+    await click_menus_in_sequence(
+      cwc.window.document.getElementById("optionsMenuPopup"),
+      [{ id: "menu_quoteMessage" }]
+    );
     cwc.sleep(50);
   } else {
     // Native menubar is used on macOS, didn't find a way to click it.

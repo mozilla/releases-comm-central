@@ -99,7 +99,7 @@ add_setup(async function() {
  * @param expectedSize the expected size of the attachment, in bytes
  */
 function check_attachment_size(controller, index, expectedSize) {
-  let bucket = controller.e("attachmentBucket");
+  let bucket = controller.window.document.getElementById("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   // First, let's check that the attachment size is correct
@@ -137,7 +137,7 @@ function check_attachment_size(controller, index, expectedSize) {
  * @param index the attachment to examine, as an index into the listbox
  */
 function check_no_attachment_size(controller, index) {
-  let bucket = controller.e("attachmentBucket");
+  let bucket = controller.window.document.getElementById("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   if (node.attachment.size != -1) {
@@ -157,9 +157,11 @@ function check_no_attachment_size(controller, index) {
  * @param count the expected number of attachments
  */
 function check_total_attachment_size(controller, count) {
-  let bucket = controller.e("attachmentBucket");
+  let bucket = controller.window.document.getElementById("attachmentBucket");
   let nodes = bucket.querySelectorAll("richlistitem.attachmentItem");
-  let sizeNode = controller.e("attachmentBucketSize");
+  let sizeNode = controller.window.document.getElementById(
+    "attachmentBucketSize"
+  );
 
   if (nodes.length != count) {
     throw new Error(
@@ -249,7 +251,7 @@ add_task(function test_delete_attachments() {
 });
 
 function subtest_rename_attachment(cwc) {
-  cwc.e("loginTextbox").value = "renamed.txt";
+  cwc.window.document.getElementById("loginTextbox").value = "renamed.txt";
   cwc.window.document
     .querySelector("dialog")
     .getButton("accept")
@@ -265,7 +267,7 @@ add_task(function test_rename_attachment() {
   add_attachments(cwc, url, size);
 
   // Now, rename the attachment.
-  let bucket = cwc.e("attachmentBucket");
+  let bucket = cwc.window.document.getElementById("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
   EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
   plan_for_modal_dialog("commonDialogWindow", subtest_rename_attachment);
@@ -301,7 +303,7 @@ add_task(function test_open_attachment() {
   add_attachments(cwc, url, size);
 
   // Now, open the attachment.
-  let bucket = cwc.e("attachmentBucket");
+  let bucket = cwc.window.document.getElementById("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
   plan_for_modal_dialog("unknownContentTypeWindow", subtest_open_attachment);
   EventUtils.synthesizeMouseAtCenter(node, { clickCount: 2 }, node.ownerGlobal);
@@ -361,7 +363,7 @@ add_task(async function test_forward_message_with_attachments_as_attachment() {
  * @param aNames       An array of attachment names that are expected
  */
 function check_attachment_names(aController, aNames) {
-  let bucket = aController.e("attachmentBucket");
+  let bucket = aController.window.document.getElementById("attachmentBucket");
   Assert.equal(aNames.length, bucket.itemCount);
   for (let i = 0; i < aNames.length; i++) {
     Assert.equal(bucket.getItemAtIndex(i).getAttribute("name"), aNames[i]);
@@ -391,7 +393,7 @@ async function subtest_reordering(
   aReorder_actions,
   aOpenPanel = true
 ) {
-  let bucket = aCwc.e("attachmentBucket");
+  let bucket = aCwc.window.document.getElementById("attachmentBucket");
   let panel;
 
   // Create a set of attachments for the test.
@@ -407,7 +409,7 @@ async function subtest_reordering(
     // Bring up the reordering panel.
     aCwc.window.showReorderAttachmentsPanel();
     await new Promise(resolve => setTimeout(resolve));
-    panel = aCwc.e("reorderAttachmentsPanel");
+    panel = aCwc.window.document.getElementById("reorderAttachmentsPanel");
     await wait_for_popup_to_open(panel);
   }
 
@@ -420,9 +422,9 @@ async function subtest_reordering(
     // Take action.
     if ("button" in action) {
       EventUtils.synthesizeMouseAtCenter(
-        aCwc.e(action.button),
+        aCwc.window.document.getElementById(action.button),
         {},
-        aCwc.e(action.button).ownerGlobal
+        aCwc.window.document.getElementById(action.button).ownerGlobal
       );
     } else if ("key" in action) {
       EventUtils.synthesizeKey(action.key, action.key_modifiers, aCwc.window);
@@ -453,8 +455,8 @@ async function subtest_reordering(
 add_task(async function test_attachment_reordering() {
   let cwc = open_compose_new_mail();
   let editorEl = cwc.window.GetCurrentEditorElement();
-  let bucket = cwc.e("attachmentBucket");
-  let panel = cwc.e("reorderAttachmentsPanel");
+  let bucket = cwc.window.document.getElementById("attachmentBucket");
+  let panel = cwc.window.document.getElementById("reorderAttachmentsPanel");
   // const openReorderPanelModifiers =
   //   (AppConstants.platform == "macosx") ? { controlKey: true }
   //                                       : { altKey: true };
@@ -473,7 +475,9 @@ add_task(async function test_attachment_reordering() {
   check_attachment_names(cwc, initialAttachmentNames_0);
 
   // Show 'Reorder Attachments' panel via mouse clicks.
-  let contextMenu = cwc.e("msgComposeAttachmentItemContext");
+  let contextMenu = cwc.window.document.getElementById(
+    "msgComposeAttachmentItemContext"
+  );
   let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     bucket.getItemAtIndex(1),
@@ -481,7 +485,9 @@ add_task(async function test_attachment_reordering() {
     cwc.window
   );
   await shownPromise;
-  contextMenu.activateItem(cwc.e("composeAttachmentContext_reorderItem"));
+  contextMenu.activateItem(
+    cwc.window.document.getElementById("composeAttachmentContext_reorderItem")
+  );
   await wait_for_popup_to_open(panel);
 
   // Click on the editor which should close the panel.

@@ -127,12 +127,17 @@ function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
 function assert_manual_reminder_state(aCwc, aChecked) {
   const remindCommand = "cmd_remindLater";
   Assert.equal(
-    aCwc.e("button-attachPopup_remindLaterItem").getAttribute("command"),
+    aCwc.window.document
+      .getElementById("button-attachPopup_remindLaterItem")
+      .getAttribute("command"),
     remindCommand
   );
 
   let checkedValue = aChecked ? "true" : "false";
-  Assert.equal(aCwc.e(remindCommand).getAttribute("checked"), checkedValue);
+  Assert.equal(
+    aCwc.window.document.getElementById(remindCommand).getAttribute("checked"),
+    checkedValue
+  );
 }
 
 /**
@@ -165,7 +170,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   // Give the notification time to appear. It shouldn't.
   wait_for_reminder_state(cwc, false);
 
-  cwc.e("messageEditor").focus();
+  cwc.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Seen this cool attachment?", cwc.window);
 
   // Give the notification time to appear. It should now.
@@ -189,7 +194,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   // Now try to send, make sure we get the alert.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  let buttonSend = cwc.e("button-send");
+  let buttonSend = cwc.window.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -228,7 +233,7 @@ add_task(async function test_attachment_reminder_dismissal() {
   // on send anyway.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  let buttonSend = cwc.e("button-send");
+  let buttonSend = cwc.window.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -340,7 +345,7 @@ add_task(async function test_no_send_now_sends() {
 
   // Click the send button again, this time choose "No, Send Now".
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  let buttonSend = cwc.e("button-send");
+  let buttonSend = cwc.window.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -363,7 +368,7 @@ async function click_manual_reminder(aCwc, aExpectedState) {
   wait_for_window_focused(aCwc.window);
   let button = aCwc.window.document.getElementById("button-attach");
 
-  let popup = aCwc.e("button-attachPopup");
+  let popup = aCwc.window.document.getElementById("button-attachPopup");
   let shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     button.querySelector(".toolbarbutton-menubutton-dropmarker"),
@@ -372,7 +377,9 @@ async function click_manual_reminder(aCwc, aExpectedState) {
   );
   await shownPromise;
   let hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
-  popup.activateItem(aCwc.e("button-attachPopup_remindLaterItem"));
+  popup.activateItem(
+    aCwc.window.document.getElementById("button-attachPopup_remindLaterItem")
+  );
   await hiddenPromise;
   wait_for_window_focused(aCwc.window);
   assert_manual_reminder_state(aCwc, aExpectedState);
@@ -444,7 +451,7 @@ add_task(async function test_manual_attachment_reminder() {
   // Now try to send, make sure we get the alert.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
-  let buttonSend = cwc.e("button-send");
+  let buttonSend = cwc.window.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -529,7 +536,8 @@ add_task(
  *                     False otherwise.
  */
 function assert_any_notification(aCwc, aValue) {
-  let notification = aCwc.e(kBoxId).currentNotification;
+  let notification = aCwc.window.document.getElementById(kBoxId)
+    .currentNotification;
   if ((notification == null) == aValue) {
     throw new Error("Notification in wrong state");
   }
@@ -593,7 +601,7 @@ add_task(function test_attachment_reminder_in_subject() {
   Assert.equal(get_reminder_keywords(cwc), "attachment");
 
   // Now clear the subject
-  delete_all_existing(cwc, cwc.e("msgSubject"));
+  delete_all_existing(cwc, cwc.window.document.getElementById("msgSubject"));
 
   // Give the notification time to disappear.
   wait_for_reminder_state(cwc, false);
@@ -627,7 +635,7 @@ add_task(function test_attachment_reminder_in_subject_and_body() {
   Assert.equal(get_reminder_keywords(cwc), "attachment, attached");
 
   // Now clear only the subject
-  delete_all_existing(cwc, cwc.e("msgSubject"));
+  delete_all_existing(cwc, cwc.window.document.getElementById("msgSubject"));
 
   // Give the notification some time. It should not disappear,
   // just reduce the keywords list.
@@ -844,7 +852,7 @@ add_task(async function test_disabling_attachment_reminder() {
 function click_send_and_handle_send_error(aController, aAlreadySending) {
   plan_for_modal_dialog("commonDialogWindow", click_ok_on_send_error);
   if (!aAlreadySending) {
-    let buttonSend = aController.e("button-send");
+    let buttonSend = aController.window.document.getElementById("button-send");
     EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   }
   wait_for_modal_dialog("commonDialogWindow");

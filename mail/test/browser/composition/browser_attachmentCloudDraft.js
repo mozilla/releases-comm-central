@@ -80,7 +80,7 @@ add_task(async function test_draft_with_cloudFile_attachment() {
 
   let cwc = openDraft();
 
-  let bucket = cwc.e("attachmentBucket");
+  let bucket = cwc.window.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -124,7 +124,7 @@ add_task(async function test_draft_with_cloudFile_attachment() {
   );
   Assert.equal(
     draft.totalSize,
-    cwc.e("attachmentBucketSize").textContent,
+    cwc.window.document.getElementById("attachmentBucketSize").textContent,
     "Total size of draft should match total size of original email."
   );
 
@@ -177,7 +177,7 @@ add_task(async function test_draft_with_unknown_cloudFile_attachment() {
 
   let cwc = openDraft();
 
-  let bucket = cwc.e("attachmentBucket");
+  let bucket = cwc.window.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -222,7 +222,7 @@ add_task(async function test_draft_with_unknown_cloudFile_attachment() {
   );
   Assert.equal(
     draft.totalSize,
-    cwc.e("attachmentBucketSize").textContent,
+    cwc.window.document.getElementById("attachmentBucketSize").textContent,
     "Total size of draft should match total size of original email."
   );
 
@@ -274,7 +274,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_account() {
   let cwc = openDraft();
 
   // Check that the draft has a cloudFile attachment.
-  let bucket = cwc.e("attachmentBucket");
+  let bucket = cwc.window.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -319,7 +319,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_account() {
   );
   Assert.equal(
     draft.totalSize,
-    cwc.e("attachmentBucketSize").textContent,
+    cwc.window.document.getElementById("attachmentBucketSize").textContent,
     "Total size of draft should match total size of original email."
   );
 
@@ -370,7 +370,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
   let cwc = openDraft();
 
   // Check that the draft has a cloudFile attachment.
-  let bucket = cwc.e("attachmentBucket");
+  let bucket = cwc.window.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -419,7 +419,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
   );
   Assert.equal(
     draft.totalSize,
-    cwc.e("attachmentBucketSize").textContent,
+    cwc.window.document.getElementById("attachmentBucketSize").textContent,
     "Total size of draft should match total size of original email."
   );
 
@@ -480,7 +480,7 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
 
   await cwc.window.attachToCloudNew(cloudFileAccount);
 
-  let bucket = cwc.e("attachmentBucket");
+  let bucket = cwc.window.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -506,7 +506,8 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   let upload = item.cloudFileUpload;
   let itemIcon = item.querySelector("img.attachmentcell-icon").src;
   let itemSize = item.querySelector(".attachmentcell-size").textContent;
-  let totalSize = cwc.e("attachmentBucketSize").textContent;
+  let totalSize = cwc.window.document.getElementById("attachmentBucketSize")
+    .textContent;
 
   Assert.equal(
     itemIcon,

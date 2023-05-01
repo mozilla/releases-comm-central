@@ -57,7 +57,7 @@ function assert_folder_pane_visible() {
   );
 
   mc.window.view_init(); // Force the view menu to update.
-  let paneMenuItem = mc.e("menu_showFolderPane");
+  let paneMenuItem = mc.window.document.getElementById("menu_showFolderPane");
   Assert.equal(
     paneMenuItem.getAttribute("checked"),
     "true",
@@ -91,7 +91,7 @@ function assert_folder_pane_hidden() {
   );
 
   mc.window.view_init(); // Force the view menu to update.
-  let paneMenuItem = mc.e("menu_showFolderPane");
+  let paneMenuItem = mc.window.document.getElementById("menu_showFolderPane");
   Assert.notEqual(
     paneMenuItem.getAttribute("checked"),
     "true",

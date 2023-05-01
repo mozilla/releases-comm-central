@@ -35,7 +35,9 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   await right_click_on_folder(aFolder);
   let callback = function(controller) {
     // When the "stop button" is disabled, the panel is populated.
-    controller.waitFor(() => controller.e("stopButton").disabled);
+    controller.waitFor(
+      () => controller.window.document.getElementById("stopButton").disabled
+    );
     aFunction(controller);
   };
   plan_for_modal_dialog("mailnews:subscribe", callback);
@@ -53,7 +55,7 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
  * @param text The text to enter
  */
 function enter_text_in_search_box(swc, text) {
-  let textbox = swc.e("namefield");
+  let textbox = swc.window.document.getElementById("namefield");
   delete_all_existing(swc, textbox);
   input_value(swc, text, textbox);
 }
@@ -66,7 +68,7 @@ function enter_text_in_search_box(swc, text) {
  * @returns {boolean} Result of the check
  */
 function check_newsgroup_displayed(swc, name) {
-  let tree = swc.e("searchTree");
+  let tree = swc.window.document.getElementById("searchTree");
   if (!tree.columns) {
     // Maybe not yet available.
     return false;

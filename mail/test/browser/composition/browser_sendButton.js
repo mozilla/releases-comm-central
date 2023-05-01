@@ -69,17 +69,40 @@ add_setup(async function() {
  * @param aEnabled  The expected state of the commands.
  */
 function check_send_commands_state(aCwc, aEnabled) {
-  Assert.equal(aCwc.e("cmd_sendButton").hasAttribute("disabled"), !aEnabled);
-  Assert.equal(aCwc.e("cmd_sendNow").hasAttribute("disabled"), !aEnabled);
-  Assert.equal(aCwc.e("cmd_sendWithCheck").hasAttribute("disabled"), !aEnabled);
-  Assert.equal(aCwc.e("cmd_sendLater").hasAttribute("disabled"), !aEnabled);
+  Assert.equal(
+    aCwc.window.document
+      .getElementById("cmd_sendButton")
+      .hasAttribute("disabled"),
+    !aEnabled
+  );
+  Assert.equal(
+    aCwc.window.document.getElementById("cmd_sendNow").hasAttribute("disabled"),
+    !aEnabled
+  );
+  Assert.equal(
+    aCwc.window.document
+      .getElementById("cmd_sendWithCheck")
+      .hasAttribute("disabled"),
+    !aEnabled
+  );
+  Assert.equal(
+    aCwc.window.document
+      .getElementById("cmd_sendLater")
+      .hasAttribute("disabled"),
+    !aEnabled
+  );
 
   // The toolbar buttons and menuitems should be linked to these commands
   // thus inheriting the enabled state. Check that on the Send button
   // and Send Now menuitem.
-  Assert.equal(aCwc.e("button-send").getAttribute("command"), "cmd_sendButton");
   Assert.equal(
-    aCwc.e("menu-item-send-now").getAttribute("command"),
+    aCwc.window.document.getElementById("button-send").getAttribute("command"),
+    "cmd_sendButton"
+  );
+  Assert.equal(
+    aCwc.window.document
+      .getElementById("menu-item-send-now")
+      .getAttribute("command"),
     "cmd_sendNow"
   );
 }
@@ -91,8 +114,10 @@ function check_send_commands_state(aCwc, aEnabled) {
  */
 add_task(async function test_send_enabled_manual_address() {
   let cwc = open_compose_new_mail(); // compose controller
-  let menu = cwc.e("extraAddressRowsMenu"); // extra recipients menu
-  let menuButton = cwc.e("extraAddressRowsMenuButton");
+  let menu = cwc.window.document.getElementById("extraAddressRowsMenu"); // extra recipients menu
+  let menuButton = cwc.window.document.getElementById(
+    "extraAddressRowsMenuButton"
+  );
 
   // On an empty window, Send must be disabled.
   check_send_commands_state(cwc, false);
@@ -106,7 +131,9 @@ add_task(async function test_send_enabled_manual_address() {
   EventUtils.synthesizeMouseAtCenter(menuButton, {}, menuButton.ownerGlobal);
   await new Promise(resolve => setTimeout(resolve));
   await wait_for_popup_to_open(menu);
-  menu.activateItem(cwc.e("addr_replyShowAddressRowMenuItem"));
+  menu.activateItem(
+    cwc.window.document.getElementById("addr_replyShowAddressRowMenuItem")
+  );
   setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
   check_send_commands_state(cwc, false);
 
@@ -119,7 +146,9 @@ add_task(async function test_send_enabled_manual_address() {
   setup_msg_contents(cwc, " recipient@", "", "");
   check_send_commands_state(cwc, false);
 
-  let ccShow = cwc.e("addr_ccShowAddressRowButton");
+  let ccShow = cwc.window.document.getElementById(
+    "addr_ccShowAddressRowButton"
+  );
   EventUtils.synthesizeMouseAtCenter(ccShow, {}, ccShow.ownerGlobal);
   await new Promise(resolve => setTimeout(resolve));
   check_send_commands_state(cwc, false);
@@ -168,7 +197,9 @@ add_task(async function test_send_enabled_manual_address() {
   check_send_commands_state(cwc, false);
 
   // Hack to reveal the newsgroup button.
-  let newsgroupsButton = cwc.e("addr_newsgroupsShowAddressRowButton");
+  let newsgroupsButton = cwc.window.document.getElementById(
+    "addr_newsgroupsShowAddressRowButton"
+  );
   newsgroupsButton.hidden = false;
   EventUtils.synthesizeMouseAtCenter(
     newsgroupsButton,
@@ -224,7 +255,7 @@ add_task(async function test_send_enabled_prefilled_address_from_identity() {
   let cwc = open_compose_new_mail();
   check_send_commands_state(cwc, true);
 
-  let identityPicker = cwc.e("msgIdentity");
+  let identityPicker = cwc.window.document.getElementById("msgIdentity");
   Assert.equal(identityPicker.selectedIndex, 0);
 
   // Switch to the second identity that has no CC. Send should be disabled.
@@ -262,7 +293,7 @@ add_task(function test_send_enabled_address_contacts_sidebar() {
   // FIXME: Use UI to open contacts sidebar.
   cwc.window.toggleContactsSidebar();
 
-  let contactsBrowser = cwc.e("contactsBrowser");
+  let contactsBrowser = cwc.window.document.getElementById("contactsBrowser");
   wait_for_frame_load(
     contactsBrowser,
     "chrome://messenger/content/addressbook/abContactsPanel.xhtml?focus"

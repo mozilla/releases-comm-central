@@ -92,7 +92,7 @@ add_setup(function() {
 
   // Hide Lightning's Today pane as it obscures buttons in preferences in the
   // small TB window our tests run in.
-  gTodayPane = mc.e("today-pane-panel");
+  gTodayPane = mc.window.document.getElementById("today-pane-panel");
   if (gTodayPane) {
     if (!gTodayPane.collapsed) {
       EventUtils.synthesizeKey("VK_F11", {});
@@ -182,15 +182,27 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
   // The font pickers are populated async so we need to wait for it.
   for (let fontElemId of ["serif", "sans-serif", "monospace"]) {
     fontc.waitFor(
-      () => fontc.e(fontElemId).label != "",
+      () => fontc.window.document.getElementById(fontElemId).label != "",
       "Timeout waiting for font picker '" + fontElemId + "' to populate."
     );
   }
 
   if (!aDefaults) {
-    assert_fonts_equal("serif", aSerif, fontc.e("serif").value);
-    assert_fonts_equal("sans-serif", aSansSerif, fontc.e("sans-serif").value);
-    assert_fonts_equal("monospace", aMonospace, fontc.e("monospace").value);
+    assert_fonts_equal(
+      "serif",
+      aSerif,
+      fontc.window.document.getElementById("serif").value
+    );
+    assert_fonts_equal(
+      "sans-serif",
+      aSansSerif,
+      fontc.window.document.getElementById("sans-serif").value
+    );
+    assert_fonts_equal(
+      "monospace",
+      aMonospace,
+      fontc.window.document.getElementById("monospace").value
+    );
   } else if (AppConstants.platform == "linux") {
     // When default fonts are displayed in the menulist, there is no value set,
     // only the label, in the form "Default (font name)".
@@ -199,30 +211,39 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
     // like 'serif', but here a specific font name will be shown, but it is
     // system-dependent what it will be. So we just check for the 'Default'
     // prefix.
-    assert_fonts_equal("serif", `Default (`, fontc.e("serif").label, true);
+    assert_fonts_equal(
+      "serif",
+      `Default (`,
+      fontc.window.document.getElementById("serif").label,
+      true
+    );
     assert_fonts_equal(
       "sans-serif",
       `Default (`,
-      fontc.e("sans-serif").label,
+      fontc.window.document.getElementById("sans-serif").label,
       true
     );
     assert_fonts_equal(
       "monospace",
       `Default (`,
-      fontc.e("monospace").label,
+      fontc.window.document.getElementById("monospace").label,
       true
     );
   } else {
-    assert_fonts_equal("serif", `Default (${aSerif})`, fontc.e("serif").label);
+    assert_fonts_equal(
+      "serif",
+      `Default (${aSerif})`,
+      fontc.window.document.getElementById("serif").label
+    );
     assert_fonts_equal(
       "sans-serif",
       `Default (${aSansSerif})`,
-      fontc.e("sans-serif").label
+      fontc.window.document.getElementById("sans-serif").label
     );
     assert_fonts_equal(
       "monospace",
       `Default (${aMonospace})`,
-      fontc.e("monospace").label
+      fontc.window.document.getElementById("monospace").label
     );
   }
 

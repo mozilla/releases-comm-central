@@ -104,7 +104,7 @@ add_task(async function test_paste_file_urls() {
           "' alt='tmp' />"
       );
 
-      cwc.e("messageEditor").focus();
+      cwc.window.document.getElementById("messageEditor").focus();
       // Ctrl+V = Paste
       EventUtils.synthesizeKey(
         "v",
@@ -119,7 +119,9 @@ add_task(async function test_paste_file_urls() {
   // Now wait for the paste, and for the file: based image to get converted
   // to data:.
   cwc.waitFor(function() {
-    let img = cwc.e("messageEditor").contentDocument.getElementById("tmp-img");
+    let img = cwc.window.document
+      .getElementById("messageEditor")
+      .contentDocument.getElementById("tmp-img");
     return img && img.naturalHeight == 84 && img.src.startsWith("data:");
   }, "Timeout waiting for pasted tmp image to be loaded ok");
 

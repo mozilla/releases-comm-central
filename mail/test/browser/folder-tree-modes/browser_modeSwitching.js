@@ -55,14 +55,14 @@ add_setup(async function() {
   await make_message_sets_in_folders([unreadFolder], [{ count: 1 }]);
   favoriteFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
-  modeList_menu = mc.e("menu_FolderViewsPopup");
-  modeList_appmenu = mc.e("appMenu-foldersView");
+  modeList_menu = mc.window.document.getElementById("menu_FolderViewsPopup");
+  modeList_appmenu = mc.window.document.getElementById("appMenu-foldersView");
 
-  view_menu = mc.e("menu_View");
-  view_menupopup = mc.e("menu_View_Popup");
+  view_menu = mc.window.document.getElementById("menu_View");
+  view_menupopup = mc.window.document.getElementById("menu_View_Popup");
   appmenu_button = mc.window.document.getElementById("button-appmenu");
-  appmenu_mainView = mc.e("appMenu-mainView");
-  appmenu_popup = mc.e("appMenu-popup");
+  appmenu_mainView = mc.window.document.getElementById("appMenu-mainView");
+  appmenu_popup = mc.window.document.getElementById("appMenu-popup");
 
   // Main menu is needed for this whole test file.
   menu_state = toggle_main_menu(true);
@@ -105,10 +105,11 @@ async function assert_mode_selected(aMode) {
   }
 
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
-  click_through_appmenu([
-    { id: "appmenu_View" },
-    { id: "appmenu_FolderViews" },
-  ]);
+  click_through_appmenu(
+    [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
+    null,
+    mc.window
+  );
   for (let mode of about3Pane.folderPane.activeModes) {
     Assert.ok(
       modeList_appmenu
@@ -143,10 +144,11 @@ async function assert_mode_not_selected(mode) {
   }
 
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
-  click_through_appmenu([
-    { id: "appmenu_View" },
-    { id: "appmenu_FolderViews" },
-  ]);
+  click_through_appmenu(
+    [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
+    null,
+    mc.window
+  );
   Assert.ok(
     !modeList_appmenu.querySelector(`[value="${mode}"]`).hasAttribute("checked")
   );
@@ -162,7 +164,8 @@ function select_mode_in_menu(mode) {
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
   click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
-    { value: mode }
+    { value: mode },
+    mc.window
   );
   appmenu_popup.hidePopup();
 }

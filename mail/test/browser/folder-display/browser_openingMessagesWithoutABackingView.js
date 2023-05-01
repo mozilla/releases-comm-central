@@ -57,7 +57,10 @@ add_setup(async function() {
   folder = await create_folder("OpeningMessagesNoBackingViewA");
   await make_message_sets_in_folders([folder], [{ count: 10 }]);
   // We don't obey mail view persistence unless the view picker is there
-  add_to_toolbar(mc.e("mail-bar3"), "mailviews-container");
+  add_to_toolbar(
+    mc.window.document.getElementById("mail-bar3"),
+    "mailviews-container"
+  );
 });
 
 /**
@@ -241,7 +244,10 @@ add_task(
  * Good hygiene: remove the view picker from the toolbar.
  */
 add_task(function test_cleanup() {
-  remove_from_toolbar(mc.e("mail-bar3"), "mailviews-container");
+  remove_from_toolbar(
+    mc.window.document.getElementById("mail-bar3"),
+    "mailviews-container"
+  );
 
   Assert.report(
     false,

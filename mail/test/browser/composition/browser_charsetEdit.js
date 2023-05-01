@@ -108,7 +108,7 @@ add_task(async function test_wrong_reply_charset() {
     }),
   });
   await add_message_to_folder([folder], msg0);
-  await await be_in_folder(folder);
+  await be_in_folder(folder);
   // Make the folder unthreaded for easier message selection.
   make_display_unthreaded();
 

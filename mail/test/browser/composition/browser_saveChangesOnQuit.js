@@ -100,7 +100,7 @@ add_task(function test_can_cancel_quit_on_changes() {
   cwc = open_compose_new_mail(mc);
 
   // Make some changes
-  cwc.e("messageEditor").focus();
+  cwc.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hey check out this megalol link", cwc.window);
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
@@ -144,7 +144,7 @@ add_task(function test_can_quit_on_changes() {
   cwc = open_compose_new_mail(mc);
 
   // Make some changes
-  cwc.e("messageEditor").focus();
+  cwc.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hey check out this megalol link", cwc.window);
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
@@ -188,10 +188,10 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
   let cwc2 = open_compose_new_mail(mc);
 
   // Type something in each window.
-  cwc1.e("messageEditor").focus();
+  cwc1.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Marco!", cwc1.window);
 
-  cwc2.e("messageEditor").focus();
+  cwc2.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Polo!", cwc2.window);
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
@@ -270,17 +270,17 @@ add_task(async function test_prompt_on_close_for_modified() {
   assert_selected_and_displayed(mc, msg);
 
   let nwc = open_compose_new_mail();
-  nwc.e("messageEditor").focus();
+  nwc.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hey hey hey!", nwc.window);
   close_compose_window(nwc, true);
 
   let rwc = open_compose_with_reply();
-  rwc.e("messageEditor").focus();
+  rwc.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Howdy!", rwc.window);
   close_compose_window(rwc, true);
 
   let fwc = open_compose_with_forward();
-  fwc.e("messageEditor").focus();
+  fwc.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Greetings!", fwc.window);
   close_compose_window(fwc, true);
 });
@@ -300,7 +300,7 @@ add_task(
 
     let fwc = open_compose_with_forward();
     Assert.equal(
-      fwc.e("attachmentBucket").getRowCount(),
+      fwc.window.document.getElementById("attachmentBucket").getRowCount(),
       0,
       "forwarding msg created attachment"
     );
@@ -323,7 +323,7 @@ add_task(
 
     let fwc = open_compose_with_forward();
     Assert.equal(
-      fwc.e("attachmentBucket").getRowCount(),
+      fwc.window.document.getElementById("attachmentBucket").getRowCount(),
       0,
       "forwarding msg created attachment"
     );

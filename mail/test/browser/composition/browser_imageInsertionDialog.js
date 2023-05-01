@@ -26,7 +26,7 @@ add_task(async function test_image_insertion_dialog_persist() {
   let cwc = open_compose_new_mail();
 
   // First focus on the editor element
-  cwc.e("messageEditor").focus();
+  cwc.window.document.getElementById("messageEditor").focus();
 
   // Now open the image window
   plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
@@ -38,25 +38,25 @@ add_task(async function test_image_insertion_dialog_persist() {
     input_value(mwc, Services.io.newFileURI(file).spec);
 
     // Don't add alternate text
-    let noAlt = mwc.e("noAltTextRadio");
+    let noAlt = mwc.window.document.getElementById("noAltTextRadio");
     EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
     await new Promise(resolve => setTimeout(resolve));
     mwc.window.document.documentElement.querySelector("dialog").acceptDialog();
   });
 
   let insertMenu = cwc.window.document.getElementById("InsertPopupButton");
-  let insertMenuPopup = cwc.e("InsertPopup");
+  let insertMenuPopup = cwc.window.document.getElementById("InsertPopup");
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
-  await click_menus_in_sequence(insertMenuPopup, [
-    { id: "InsertImageItem" },
-  ]);
+  await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
 
   wait_for_modal_dialog();
   wait_for_window_close();
   await new Promise(resolve => setTimeout(resolve));
 
-  let img = cwc.e("messageEditor").contentDocument.querySelector("img");
+  let img = cwc.window.document
+    .getElementById("messageEditor")
+    .contentDocument.querySelector("img");
   Assert.ok(!!img, "editor should contain an image");
 
   info("Will check that radio option persists");
@@ -68,7 +68,7 @@ add_task(async function test_image_insertion_dialog_persist() {
       "We should persist the previously selected value"
     );
     // We change to "use alt text"
-    let altTextRadio = mwc.e("altTextRadio");
+    let altTextRadio = mwc.window.document.getElementById("altTextRadio");
     EventUtils.synthesizeMouseAtCenter(
       altTextRadio,
       {},
@@ -79,9 +79,7 @@ add_task(async function test_image_insertion_dialog_persist() {
   });
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
-  await click_menus_in_sequence(insertMenuPopup, [
-    { id: "InsertImageItem" },
-  ]);
+  await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
   wait_for_modal_dialog();
   wait_for_window_close();
   await new Promise(resolve => setTimeout(resolve));
@@ -99,9 +97,7 @@ add_task(async function test_image_insertion_dialog_persist() {
   });
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
-  await click_menus_in_sequence(insertMenuPopup, [
-    { id: "InsertImageItem" },
-  ]);
+  await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
   wait_for_modal_dialog();
   wait_for_window_close();
 
@@ -128,7 +124,7 @@ add_task(async function test_image_insertion_dialog_persist() {
       mwc.window.document.getElementById("noAltTextRadio").selected,
       "That value should persist still..."
     );
-    let altTextRadio = mwc.e("altTextRadio");
+    let altTextRadio = mwc.window.document.getElementById("altTextRadio");
     EventUtils.synthesizeMouseAtCenter(
       altTextRadio,
       {},
@@ -149,7 +145,9 @@ add_task(async function test_image_insertion_dialog_persist() {
   info("Will check next time we edit, we still have 'use alt text' selected");
 
   // Make sure next time we edit it, we still have "use alt text" selected.
-  img = cwc.e("messageEditor").contentDocument.querySelector("img");
+  img = cwc.window.document
+    .getElementById("messageEditor")
+    .contentDocument.querySelector("img");
   plan_for_modal_dialog("Mail:image", function insert_image(mwc) {
     Assert.ok(
       mwc.window.document.getElementById("altTextRadio").selected,

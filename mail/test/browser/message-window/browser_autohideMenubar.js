@@ -99,7 +99,7 @@ async function help_test_autohide(controller, menubar) {
 }
 
 add_task(async function test_autohidden_menubar_3pane() {
-  let menubar = mc.e("toolbar-menubar");
+  let menubar = mc.window.document.getElementById("toolbar-menubar");
   await help_test_autohide(mc, menubar);
 });
 
@@ -107,7 +107,7 @@ add_task(async function test_autohidden_menubar_message_window() {
   await be_in_folder(menuFolder);
   select_click_row(0);
   let msgc = await open_selected_message_in_new_window();
-  let menubar = msgc.e("toolbar-menubar");
+  let menubar = msgc.window.document.getElementById("toolbar-menubar");
 
   await help_test_autohide(msgc, menubar);
   close_message_window(msgc);

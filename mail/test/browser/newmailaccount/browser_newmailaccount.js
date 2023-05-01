@@ -377,10 +377,10 @@ add_task(async function open_provisioner_from_menu_bar() {
     {},
     mc.window
   );
-  await click_menus_in_sequence(mc.e("menu_FilePopup"), [
-    { id: "menu_New" },
-    { id: "newCreateEmailAccountMenuItem" },
-  ]);
+  await click_menus_in_sequence(
+    mc.window.document.getElementById("menu_FilePopup"),
+    [{ id: "menu_New" }, { id: "newCreateEmailAccountMenuItem" }]
+  );
 
   // The account Provisioner tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
@@ -408,9 +408,13 @@ add_task(async function open_provisioner_from_app_menu() {
     {},
     mc.window
   );
-  click_through_appmenu([{ id: "appmenu_new" }], {
-    id: "appmenu_newCreateEmailAccountMenuItem",
-  });
+  click_through_appmenu(
+    [{ id: "appmenu_new" }],
+    {
+      id: "appmenu_newCreateEmailAccountMenuItem",
+    },
+    mc.window
+  );
 
   // The account Provisioner tab should be open and selected.
   await BrowserTestUtils.waitForCondition(
@@ -623,13 +627,14 @@ add_task(async function test_can_pref_off_account_provisioner() {
     {},
     mc.window
   );
-  await click_menus_in_sequence(mc.e("menu_FilePopup"), [
-    { id: "menu_New" },
-  ]);
+  await click_menus_in_sequence(
+    mc.window.document.getElementById("menu_FilePopup"),
+    [{ id: "menu_New" }]
+  );
 
   // Ensure that the "Get a new mail account" menuitem is no longer available.
   Assert.ok(
-    mc.e("newCreateEmailAccountMenuItem").hidden,
+    mc.window.document.getElementById("newCreateEmailAccountMenuItem").hidden,
     "new account menu should be hidden"
   );
 
@@ -656,11 +661,12 @@ add_task(async function test_can_pref_off_account_provisioner() {
     {},
     mc.window
   );
-  await click_menus_in_sequence(mc.e("menu_FilePopup"), [
-    { id: "menu_New" },
-  ]);
+  await click_menus_in_sequence(
+    mc.window.document.getElementById("menu_FilePopup"),
+    [{ id: "menu_New" }]
+  );
   Assert.ok(
-    !mc.e("newCreateEmailAccountMenuItem").hidden,
+    !mc.window.document.getElementById("newCreateEmailAccountMenuItem").hidden,
     "new account menu should show"
   );
 

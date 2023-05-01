@@ -56,14 +56,14 @@ add_setup(async function() {
  */
 async function clickViewMessagesItem(id) {
   EventUtils.synthesizeMouseAtCenter(
-    mc.e("menu_View"),
+    mc.window.document.getElementById("menu_View"),
     {},
-    mc.e("menu_View").ownerGlobal
+    mc.window.document.getElementById("menu_View").ownerGlobal
   );
-  await click_menus_in_sequence(mc.e("menu_View_Popup"), [
-    { id: "viewMessagesMenu" },
-    { id },
-  ]);
+  await click_menus_in_sequence(
+    mc.window.document.getElementById("menu_View_Popup"),
+    [{ id: "viewMessagesMenu" }, { id }]
+  );
 }
 
 /**

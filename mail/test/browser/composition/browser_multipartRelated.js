@@ -89,9 +89,9 @@ add_task(async function test_basic_multipart_related() {
   let compWin = open_compose_new_mail();
   compWin.window.focus();
   EventUtils.sendString("someone@example.com", compWin.window);
-  compWin.e("msgSubject").focus();
+  compWin.window.document.getElementById("msgSubject").focus();
   EventUtils.sendString("multipart/related", compWin.window);
-  compWin.e("messageEditor").focus();
+  compWin.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Here is a prologue.\n", compWin.window);
 
   const fname = "data/tb-logo.png";
@@ -106,7 +106,7 @@ add_task(async function test_basic_multipart_related() {
     // Insert the url of the image.
     dialog.window.focus();
     EventUtils.sendString(fileURL, dialog.window);
-    dialog.e("altTextInput").focus();
+    dialog.window.document.getElementById("altTextInput").focus();
     EventUtils.sendString("Alt text", dialog.window);
     await new Promise(resolve => setTimeout(resolve));
 
@@ -115,12 +115,10 @@ add_task(async function test_basic_multipart_related() {
   });
 
   let insertMenu = compWin.window.document.getElementById("InsertPopupButton");
-  let insertMenuPopup = compWin.e("InsertPopup");
+  let insertMenuPopup = compWin.window.document.getElementById("InsertPopup");
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
-  await click_menus_in_sequence(insertMenuPopup, [
-    { id: "InsertImageItem" },
-  ]);
+  await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
 
   wait_for_modal_dialog();
   wait_for_window_close();

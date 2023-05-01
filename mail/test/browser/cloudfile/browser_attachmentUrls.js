@@ -229,7 +229,7 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
     );
   }
 
-  let bucket = aController.e("attachmentBucket");
+  let bucket = aController.window.document.getElementById("attachmentBucket");
 
   // Check the actual content of the generated cloudAttachmentItems.
   for (let i = 0; i < urls.length; i++) {

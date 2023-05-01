@@ -39,12 +39,15 @@ add_setup(async function() {
 
 add_task(function test_add_folder_toolbar() {
   // It should not be present by default
-  let folderLoc = mc.e("locationFolders");
+  let folderLoc = mc.window.document.getElementById("locationFolders");
   Assert.ok(!folderLoc);
 
   // But it should show up when we call
-  add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
-  folderLoc = mc.e("locationFolders");
+  add_to_toolbar(
+    mc.window.document.getElementById("mail-bar3"),
+    "folder-location-container"
+  );
+  folderLoc = mc.window.document.getElementById("locationFolders");
   Assert.ok(folderLoc);
 
   Assert.equal(
@@ -55,8 +58,11 @@ add_task(function test_add_folder_toolbar() {
 });
 
 add_task(async function test_folder_toolbar_shows_correct_item() {
-  add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
-  let folderLoc = mc.e("locationFolders");
+  add_to_toolbar(
+    mc.window.document.getElementById("mail-bar3"),
+    "folder-location-container"
+  );
+  let folderLoc = mc.window.document.getElementById("locationFolders");
 
   // Start in folder a.
   let tabFolderA = await be_in_folder(folderA);
@@ -102,9 +108,12 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
 });
 
 add_task(async function test_folder_toolbar_disappears_on_message_tab() {
-  add_to_toolbar(mc.e("mail-bar3"), "folder-location-container");
+  add_to_toolbar(
+    mc.window.document.getElementById("mail-bar3"),
+    "folder-location-container"
+  );
   await be_in_folder(folderB);
-  let folderLoc = mc.e("locationFolders");
+  let folderLoc = mc.window.document.getElementById("locationFolders");
   Assert.ok(folderLoc);
   Assert.equal(
     folderLoc.label,
@@ -119,7 +128,7 @@ add_task(async function test_folder_toolbar_disappears_on_message_tab() {
   let messageTab = await open_selected_message_in_new_tab();
 
   Assert.equal(
-    mc.e("folder-location-container").collapsed,
+    mc.window.document.getElementById("folder-location-container").collapsed,
     true,
     "The toolbar should be hidden."
   );
@@ -129,7 +138,10 @@ add_task(async function test_folder_toolbar_disappears_on_message_tab() {
 });
 
 add_task(function test_remove_folder_toolbar() {
-  remove_from_toolbar(mc.e("mail-bar3"), "folder-location-container");
+  remove_from_toolbar(
+    mc.window.document.getElementById("mail-bar3"),
+    "folder-location-container"
+  );
 
-  Assert.ok(!mc.e("locationFolders"));
+  Assert.ok(!mc.window.document.getElementById("locationFolders"));
 });

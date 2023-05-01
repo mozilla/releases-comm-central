@@ -72,8 +72,8 @@ var kTextNodeType = 3;
  * @param aController the controller for the mail:3pane from which to spawn
  *                    the compose window.  If left blank, defaults to mc.
  *
- * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
- *         that is augmented using augment_controller.
+ * @returns {MozmillController} The loaded window of type "msgcompose"
+ *   wrapped in a MozmillController.
  *
  */
 function open_compose_new_mail(aController) {
@@ -95,8 +95,8 @@ function open_compose_new_mail(aController) {
  * Opens the compose window by replying to a selected message and waits for it
  * to load.
  *
- * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
- *         that is augmented using augment_controller.
+ * @returns {MozmillController} The loaded window of type "msgcompose"
+ *   wrapped in a MozmillController.
  */
 function open_compose_with_reply(aController) {
   if (aController === undefined) {
@@ -117,8 +117,8 @@ function open_compose_with_reply(aController) {
  * Opens the compose window by replying to all for a selected message and waits
  * for it to load.
  *
- * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
- *         that is augmented using augment_controller.
+ * @returns {MozmillController} The loaded window of type "msgcompose"
+ *   wrapped in a MozmillController.
  */
 function open_compose_with_reply_to_all(aController) {
   if (aController === undefined) {
@@ -139,8 +139,8 @@ function open_compose_with_reply_to_all(aController) {
  * Opens the compose window by replying to list for a selected message and waits for it
  * to load.
  *
- * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
- *         that is augmented using augment_controller.
+ * @returns {MozmillController} The loaded window of type "msgcompose"
+ *   wrapped in a MozmillController.
  */
 function open_compose_with_reply_to_list(aController) {
   if (aController === undefined) {
@@ -161,8 +161,8 @@ function open_compose_with_reply_to_list(aController) {
  * Opens the compose window by forwarding the selected messages as attachments
  * and waits for it to load.
  *
- * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
- *         that is augmented using augment_controller.
+ * @returns {MozmillController} The loaded window of type "msgcompose"
+ *   wrapped in a MozmillController.
  */
 function open_compose_with_forward_as_attachments(aController) {
   if (aController === undefined) {
@@ -179,8 +179,8 @@ function open_compose_with_forward_as_attachments(aController) {
  * Opens the compose window by editing the selected message as new
  * and waits for it to load.
  *
- * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
- *         that is augmented using augment_controller.
+ * @returns {MozmillController} The loaded window of type "msgcompose"
+ *   wrapped in a MozmillController.
  */
 function open_compose_with_edit_as_new(aController) {
   if (aController === undefined) {
@@ -197,8 +197,8 @@ function open_compose_with_edit_as_new(aController) {
  * Opens the compose window by forwarding the selected message and waits for it
  * to load.
  *
- * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
- *         that is augmented using augment_controller.
+ * @returns {MozmillController} The loaded window of type "msgcompose"
+ *   wrapped in a MozmillController.
  */
 function open_compose_with_forward(aController) {
   if (aController === undefined) {
@@ -219,8 +219,8 @@ function open_compose_with_forward(aController) {
  * Open draft editing by clicking the "Edit" on the draft notification bar
  * of the selected message.
  *
- * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
- *         that is augmented using augment_controller.
+ * @returns {MozmillController} The loaded window of type "msgcompose"
+ *   wrapped in a MozmillController.
  */
 function open_compose_from_draft(win = get_about_message()) {
   windowHelper.plan_for_new_window("msgcompose");
@@ -282,8 +282,8 @@ function close_compose_window(aController, aShouldPrompt) {
  * "windowHelper.plan_for_new_window("msgcompose");" and the command to open
  * the compose window itself.
  *
- * @returns The loaded window of type "msgcompose" wrapped in a MozmillController
- *         that is augmented using augment_controller.
+ * @returns {MozmillController} The loaded window of type "msgcompose"
+ *   wrapped in a MozmillController.
  */
 async function async_wait_for_compose_window(aController, aPromise) {
   let replyWindow = await aPromise;
@@ -337,16 +337,16 @@ function setup_msg_contents(
     targetCount += aAddr.split(",").filter(s => s.trim()).length;
   }
 
-  let input = aCwc.e(inputID);
+  let input = aCwc.window.document.getElementById(inputID);
   aCwc.sleep(1000);
   input.focus();
   EventUtils.sendString(aAddr, aCwc.window);
   input.focus();
 
   EventUtils.synthesizeKey("VK_RETURN", {}, aCwc.window);
-  aCwc.e("msgSubject").focus();
+  aCwc.window.document.getElementById("msgSubject").focus();
   EventUtils.sendString(aSubj, aCwc.window);
-  aCwc.e("messageEditor").focus();
+  aCwc.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString(aBody, aCwc.window);
 
   // Wait for the pill(s) to be created.
@@ -364,7 +364,9 @@ function clear_recipients(aController) {
   )) {
     pill.toggleAttribute("selected", true);
   }
-  aController.e("recipientsContainer").removeSelectedPills();
+  aController.window.document
+    .getElementById("recipientsContainer")
+    .removeSelectedPills();
 }
 
 /**
@@ -424,7 +426,7 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
     attachmentsDone = true;
   }
 
-  let bucket = aController.e("attachmentBucket");
+  let bucket = aController.window.document.getElementById("attachmentBucket");
   if (aWaitAdded) {
     bucket.addEventListener("attachments-added", collectAddedAttachments, {
       once: true,
@@ -448,7 +450,7 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
  *
  */
 function rename_selected_cloud_attachment(aController, aName) {
-  let bucket = aController.e("attachmentBucket");
+  let bucket = aController.window.document.getElementById("attachmentBucket");
   let attachmentRenamed = false;
   let upload = null;
   let seenAlert = null;
@@ -506,7 +508,7 @@ function convert_selected_to_cloud_attachment(
   aProvider,
   aWaitUploaded = true
 ) {
-  let bucket = aController.e("attachmentBucket");
+  let bucket = aController.window.document.getElementById("attachmentBucket");
   let uploads = [];
   let attachmentsSelected =
     aController.window.gAttachmentBucket.selectedItems.length;
@@ -598,7 +600,7 @@ function add_cloud_attachments(
   aWaitUploaded = true,
   aExpectedAlerts = 0
 ) {
-  let bucket = aController.e("attachmentBucket");
+  let bucket = aController.window.document.getElementById("attachmentBucket");
   let uploads = [];
   let seenAlerts = [];
 
@@ -700,7 +702,9 @@ function add_cloud_attachments(
  * @param aIndex the index of the attachment in the attachment pane
  */
 function delete_attachment(aComposeWindow, aIndex) {
-  let bucket = aComposeWindow.e("attachmentBucket");
+  let bucket = aComposeWindow.window.document.getElementById(
+    "attachmentBucket"
+  );
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[aIndex];
 
   EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
@@ -713,8 +717,8 @@ function delete_attachment(aComposeWindow, aIndex) {
  * @param aController the controller for a compose window.
  */
 function get_compose_body(aController) {
-  let mailBody = aController
-    .e("messageEditor")
+  let mailBody = aController.window.document
+    .getElementById("messageEditor")
     .contentDocument.querySelector("body");
   if (!mailBody) {
     throw new Error("Compose body not found!");
@@ -731,7 +735,7 @@ function get_compose_body(aController) {
  */
 function type_in_composer(aController, aText) {
   // If we have any typing to do, let's do it.
-  let frame = aController.e("messageEditor");
+  let frame = aController.window.document.getElementById("messageEditor");
   for (let [i, aLine] of aText.entries()) {
     frame.focus();
     EventUtils.sendString(aLine, aController.window);

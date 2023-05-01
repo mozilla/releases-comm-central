@@ -265,7 +265,8 @@ function assert_tag_constraints_checked(...aArgs) {
     expected[nodeId] = true;
   }
 
-  let kids = mc.e("quickFilterBarTagsContainer").children;
+  let kids = mc.window.document.getElementById("quickFilterBarTagsContainer")
+    .children;
   for (let iNode = 0; iNode < kids.length; iNode++) {
     let node = kids[iNode];
     if (node.pressed != node.id in expected) {

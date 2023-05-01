@@ -104,7 +104,8 @@ async function subtest_replyEditAsNewForward_charset(
   }
 
   // Check the charset in the compose window.
-  let charset = fwdWin.e("messageEditor").contentDocument.charset;
+  let charset = fwdWin.window.document.getElementById("messageEditor")
+    .contentDocument.charset;
   Assert.equal(charset, "UTF-8", "Compose window has the wrong charset");
   close_compose_window(fwdWin);
 

@@ -72,9 +72,9 @@ add_setup(async function() {
   );
 
   // Add the view picker to the toolbar
-  let toolbar = mc.e("mail-bar3");
+  let toolbar = mc.window.document.getElementById("mail-bar3");
   toolbar.insertItem("mailviews-container", null);
-  Assert.ok(mc.e("mailviews-container"));
+  Assert.ok(mc.window.document.getElementById("mailviews-container"));
 });
 
 // Check whether this message is displayed in the folder tab
@@ -126,7 +126,9 @@ add_task(async function test_create_virtual_folders() {
   await be_in_folder(baseFolder);
 
   // Apply the mail view
-  mc.window.RefreshAllViewPopups(mc.e("viewPickerPopup"));
+  mc.window.RefreshAllViewPopups(
+    mc.window.document.getElementById("viewPickerPopup")
+  );
   mc.window.ViewChange(":$label1");
   wait_for_all_messages_to_load();
 

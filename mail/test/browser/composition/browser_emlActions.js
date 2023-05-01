@@ -111,7 +111,10 @@ add_task(async function test_reply_eml_subject() {
 
   let replyWin = open_compose_with_reply(msgc);
 
-  Assert.equal(replyWin.e("msgSubject").value, "Re: \u2200a\u220aA");
+  Assert.equal(
+    replyWin.window.document.getElementById("msgSubject").value,
+    "Re: \u2200a\u220aA"
+  );
   close_compose_window(replyWin); // close compose window
   close_window(msgc); // close base .eml message
 });

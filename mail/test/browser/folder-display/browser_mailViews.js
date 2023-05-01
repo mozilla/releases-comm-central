@@ -37,9 +37,9 @@ add_setup(async function() {
 });
 
 add_task(function test_put_view_picker_on_toolbar() {
-  let toolbar = mc.e("mail-bar3");
+  let toolbar = mc.window.document.getElementById("mail-bar3");
   toolbar.insertItem("mailviews-container", null);
-  Assert.ok(mc.e("mailviews-container"));
+  Assert.ok(mc.window.document.getElementById("mailviews-container"));
 });
 
 /**
@@ -53,7 +53,9 @@ add_task(async function test_save_view_as_folder() {
   // okay, mozmill is just not ready to click on the view picker...
   // just call the ViewChange global.  it's sad, but it has the same effects.
   // at least, it does once we've caused the popups to get refreshed.
-  mc.window.RefreshAllViewPopups(mc.e("viewPickerPopup"));
+  mc.window.RefreshAllViewPopups(
+    mc.window.document.getElementById("viewPickerPopup")
+  );
   mc.window.ViewChange(":$label1");
   wait_for_all_messages_to_load();
 
@@ -70,7 +72,10 @@ add_task(async function test_save_view_as_folder() {
 
 function subtest_save_mail_view(savc) {
   // - make sure the name is right
-  Assert.equal(savc.e("name").value, baseFolder.prettyName + "-Important");
+  Assert.equal(
+    savc.window.document.getElementById("name").value,
+    baseFolder.prettyName + "-Important"
+  );
 
   let selector = savc.window.document.querySelector("#searchVal0 menulist");
   Assert.ok(selector, "Should have a tag selector");

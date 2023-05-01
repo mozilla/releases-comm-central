@@ -46,14 +46,16 @@ CustomizeDialogHelper.prototype = {
    * @returns a controller for the customization dialog
    */
   async open(aController) {
-    aController.e(this._openElementId).click();
+    aController.window.document.getElementById(this._openElementId).click();
 
     let ctc;
     // Depending on preferences the customization dialog is
     // either a normal window or embedded into a sheet.
     if (!this._openInWindow) {
       ctc = wh.wait_for_frame_load(
-        aController.e("customizeToolbarSheetIFrame"),
+        aController.window.document.getElementById(
+          "customizeToolbarSheetIFrame"
+        ),
         "chrome://messenger/content/customizeToolbar.xhtml"
       );
     } else {
@@ -74,7 +76,7 @@ CustomizeDialogHelper.prototype = {
       wh.plan_for_window_close(aCtc);
     }
 
-    let doneButton = aCtc.e("donebutton");
+    let doneButton = aCtc.window.document.getElementById("donebutton");
     EventUtils.synthesizeMouseAtCenter(doneButton, {}, doneButton.ownerGlobal);
     aCtc.sleep(0);
     // XXX There should be an equivalent for testing the closure of
@@ -109,7 +111,7 @@ CustomizeDialogHelper.prototype = {
 
     this.close(ctc);
 
-    let toolbar = aController.e(this._toolbarId);
+    let toolbar = aController.window.document.getElementById(this._toolbarId);
     let defaultSet = toolbar.getAttribute("defaultset");
 
     Assert.equal(toolbar.currentSet, defaultSet);

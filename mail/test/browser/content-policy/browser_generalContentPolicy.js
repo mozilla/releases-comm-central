@@ -814,7 +814,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   // (copied from test-compose-mailto.js:test_checkInsertImage()).
 
   // First focus on the editor element
-  replyWindow.e("messageEditor").focus();
+  replyWindow.window.document.getElementById("messageEditor").focus();
 
   // Now open the image window
   plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
@@ -825,7 +825,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
     input_value(mwc, url + "pass.png");
 
     // Don't add alternate text
-    let noAlt = mwc.e("noAltTextRadio");
+    let noAlt = mwc.window.document.getElementById("noAltTextRadio");
     EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
     await new Promise(resolve => setTimeout(resolve));
 
@@ -836,12 +836,12 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   let insertMenu = replyWindow.window.document.getElementById(
     "InsertPopupButton"
   );
-  let insertMenuPopup = replyWindow.e("InsertPopup");
+  let insertMenuPopup = replyWindow.window.document.getElementById(
+    "InsertPopup"
+  );
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
-  await click_menus_in_sequence(insertMenuPopup, [
-    { id: "InsertImageItem" },
-  ]);
+  await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
 
   wait_for_modal_dialog();
   wait_for_window_close();
@@ -864,15 +864,15 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
 
   // Now wait for the paste.
   replyWindow.waitFor(function() {
-    let img = replyWindow
-      .e("messageEditor")
+    let img = replyWindow.window.document
+      .getElementById("messageEditor")
       .contentDocument.getElementById("tmp-img");
     return img != null && img.complete;
   }, "Timeout waiting for pasted tmp image to be loaded ok");
 
   // Test that the image load has not been denied
-  let childImages = replyWindow
-    .e("messageEditor")
+  let childImages = replyWindow.window.document
+    .getElementById("messageEditor")
     .contentDocument.getElementsByTagName("img");
 
   Assert.equal(childImages.length, 2, "Should have two images in the doc.");

@@ -7,9 +7,7 @@
 const EXPORTED_SYMBOLS = [
   "click_menus_in_sequence",
   "close_popup_sequence",
-  "click_appmenu_in_sequence",
   "click_through_appmenu",
-
   "plan_for_new_window",
   "wait_for_new_window",
   "async_plan_for_new_window",
@@ -23,7 +21,6 @@ const EXPORTED_SYMBOLS = [
   "wait_for_browser_load",
   "wait_for_frame_load",
   "resize_to",
-  "augment_controller",
 ];
 
 var controller = ChromeUtils.import(
@@ -287,7 +284,6 @@ var WindowWatcher = {
       let appWindow = this.waitingList.get(this.waitingForOpen);
       let domWindow = appWindow.docShell.domWindow;
       let troller = new controller.MozMillController(domWindow);
-      augment_controller(troller, this.waitingForOpen);
 
       this._timer.cancel();
 
@@ -500,22 +496,17 @@ var WindowWatcher = {
  * Call this if the window you want to get may already be open.  What we
  *  provide above just directly grabbing the window yourself is:
  * - We wait for it to finish loading.
- * - We augment it via the augment_controller mechanism.
  *
  * @param aWindowType the window type that will be created.  This is literally
  *     the value of the "windowtype" attribute on the window.  The values tend
  *     to look like "app:windowname", for example "mailnews:search".
  *
- * @returns The loaded window of the given type wrapped in a MozmillController
- *     that is augmented using augment_controller.
+ * @returns {MozmillController}
  */
 function wait_for_existing_window(aWindowType) {
   WindowWatcher.ensureInited();
   WindowWatcher.planForAlreadyOpenWindow(aWindowType);
-  return augment_controller(
-    WindowWatcher.waitForWindowOpen(aWindowType),
-    aWindowType
-  );
+  return WindowWatcher.waitForWindowOpen(aWindowType);
 }
 
 /**
@@ -541,14 +532,10 @@ function plan_for_new_window(aWindowType) {
  *  previously told us about via |plan_for_new_window|), returning it wrapped
  *  in a MozmillController.
  *
- * @returns The loaded window of the given type wrapped in a MozmillController
- *     that is augmented using augment_controller.
+ * @returns {MozmillController}
  */
 function wait_for_new_window(aWindowType) {
-  let c = augment_controller(
-    WindowWatcher.waitForWindowOpen(aWindowType),
-    aWindowType
-  );
+  let c = WindowWatcher.waitForWindowOpen(aWindowType);
   // A nested event loop can get spun inside the Controller's constructor
   //  (which is arguably not a great idea), so it's important that we denote
   //  when we're actually leaving this function in case something crazy
@@ -568,7 +555,6 @@ async function async_plan_for_new_window(aWindowType) {
   await new Promise(r => domWindow.setTimeout(r));
 
   let domWindowController = new controller.MozMillController(domWindow);
-  augment_controller(domWindowController, aWindowType);
   return domWindowController;
 }
 
@@ -749,7 +735,7 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   // get a mozmillDocumentLoaded attribute (bug 666438).
   let contentWindow = aDetails.contentWindow;
   if (contentWindow) {
-    return augment_controller(new controller.MozMillController(contentWindow));
+    return new controller.MozMillController(contentWindow);
   }
   return null;
 }
@@ -923,16 +909,17 @@ function close_popup_sequence(aCloseStack) {
  * done with it.
  *
  * @param {object[]} navTargets - Array of objects that contain
- *     attribute->value pairs. We pick the menu item whose DOM node matches
- *     all the attribute->value pairs. We click whatever we find. We throw
- *     if the element being asked for is not found.
+ *   attribute->value pairs. We pick the menu item whose DOM node matches
+ *   all the attribute->value pairs. We click whatever we find. We throw
+ *   if the element being asked for is not found.
  * @param {object} [nonNavTarget] - Contains attribute->value pairs used
- *                                 to identify a final menu item to click.
+ *   to identify a final menu item to click.
+ * @param {Window} win - The window we're using.
  * @returns {Element} The <vbox class="panel-subview-body"> element inside
- *                    the last shown <panelview>.
+ *   the last shown <panelview>.
  */
-function click_appmenu_in_sequence(navTargets, nonNavTarget) {
-  const rootPopup = this.e("appMenu-popup");
+function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
+  const rootPopup = win.document.getElementById("appMenu-popup");
 
   function viewShownListener(navTargets, nonNavTarget, allDone, event) {
     // Set up the next listener if there are more navigation targets.
@@ -1001,10 +988,12 @@ function click_appmenu_in_sequence(navTargets, nonNavTarget) {
   // code (to match click_menus_in_sequence), we have to call the first
   // viewShownListener manually, using a fake event argument, to start the
   // series of event listener calls.
-  const fakeEvent = { target: this.e("appMenu-mainView") };
+  const fakeEvent = {
+    target: win.document.getElementById("appMenu-mainView"),
+  };
   viewShownListener(navTargets, nonNavTarget, allDone, fakeEvent);
 
-  utils.waitFor(() => done, "Timed out in click_appmenu_in_sequence.");
+  utils.waitFor(() => done, "Timed out in _click_appmenu_in_sequence.");
   return subviewToReturn;
 }
 
@@ -1012,82 +1001,18 @@ function click_appmenu_in_sequence(navTargets, nonNavTarget) {
  * Utility wrapper function that clicks the main appmenu button to open the
  * appmenu before calling `click_appmenu_in_sequence`. Makes things simple
  * and concise for the most common case while still allowing for tests that
- * open the appmenu via keyboard before calling `click_appmenu_in_sequence`.
+ * open the appmenu via keyboard before calling `_click_appmenu_in_sequence`.
  *
  * @param {object[]} navTargets - Array of objects that contain
  *     attribute->value pairs to be used to identify menu items to click.
- * @param {object} [nonNavTarget] - Contains attribute->value pairs used
- *                                 to identify a final menu item to click.
+ * @param {?object} nonNavTarget - Contains attribute->value pairs used
+ *   to identify a final menu item to click.
+ * @param {Window} win - The window we're using.
  * @returns {Element} The <vbox class="panel-subview-body"> element inside
  *                    the last shown <panelview>.
  */
-function click_through_appmenu(navTargets, nonNavTarget) {
-  EventUtils.synthesizeMouseAtCenter(
-    this.window.document.getElementById("button-appmenu"),
-    {},
-    this.window.document.getElementById("button-appmenu").ownerGlobal
-  );
-  return click_appmenu_in_sequence(navTargets, nonNavTarget);
-}
-
-/**
- * Methods to augment every controller that passes through augment_controller.
- */
-var AugmentEverybodyWith = {
-  methods: {
-    /**
-     * @param aId The element id to use to locate the (initial) element.
-     */
-    e(aId) {
-      return this.window.document.getElementById(aId);
-    },
-  },
-};
-
-function _augment_helper(aController, aAugmentDef) {
-  if (aAugmentDef.elementsToExpose) {
-    for (let key in aAugmentDef.elementsToExpose) {
-      let value = aAugmentDef.elementsToExpose[key];
-      aController[key] = aController.window.document.getElementById(value);
-    }
-  }
-  if (aAugmentDef.globalsToExposeAtStartup) {
-    for (let key in aAugmentDef.globalsToExposeAtStartup) {
-      let value = aAugmentDef.globalsToExposeAtStartup[key];
-      aController[key] = aController.window[value];
-    }
-  }
-  if (aAugmentDef.globalsToExposeViaGetters) {
-    for (let key in aAugmentDef.globalsToExposeViaGetters) {
-      let value = aAugmentDef.globalsToExposeViaGetters[key];
-      let globalName = value;
-      aController.__defineGetter__(key, function() {
-        return this.window[globalName];
-      });
-    }
-  }
-  if (aAugmentDef.getters) {
-    for (let key in aAugmentDef.getters) {
-      let value = aAugmentDef.getters[key];
-      aController.__defineGetter__(key, value);
-    }
-  }
-  if (aAugmentDef.methods) {
-    for (let key in aAugmentDef.methods) {
-      let value = aAugmentDef.methods[key];
-      aController[key] = value;
-    }
-  }
-}
-
-function augment_controller(aController, aWindowType) {
-  if (aWindowType === undefined) {
-    aWindowType = getWindowTypeOrId(
-      aController.window.document.documentElement
-    );
-  }
-
-  _augment_helper(aController, AugmentEverybodyWith);
-
-  return aController;
+function click_through_appmenu(navTargets, nonNavTarget, win) {
+  let appmenu = win.document.getElementById("button-appmenu");
+  EventUtils.synthesizeMouseAtCenter(appmenu, {}, appmenu.ownerGlobal);
+  return _click_appmenu_in_sequence(navTargets, nonNavTarget, win);
 }

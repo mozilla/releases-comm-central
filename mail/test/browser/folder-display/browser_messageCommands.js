@@ -113,9 +113,7 @@ async function check_read_menuitems(index, canMarkRead, canMarkUnread) {
     getMailContext(),
     "popuphidden"
   );
-  await click_menus_in_sequence(getMailContext(), [
-    { id: "mailContext-mark" },
-  ]);
+  await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
   let readEnabled = !getMailContext().querySelector("#mailContext-markRead")
     .disabled;
@@ -319,9 +317,7 @@ add_task(async function test_mark_all_read() {
     getMailContext(),
     "popuphidden"
   );
-  await click_menus_in_sequence(getMailContext(), [
-    { id: "mailContext-mark" },
-  ]);
+  await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
   await hiddenPromise;
   await new Promise(resolve => requestAnimationFrame(resolve));
 
@@ -348,11 +344,11 @@ add_task(async function test_mark_thread_as_read() {
   // Make sure Mark Thread as Read is enabled with >0 messages in thread unread.
   await right_click_on_row(0);
   await wait_for_popup_to_open(getMailContext());
-  await click_menus_in_sequence(getMailContext(), [
-    { id: "mailContext-mark" },
-  ]);
+  await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
-  let markThreadAsReadDisabled = mc.e("mailContext-markThreadAsRead").disabled;
+  let markThreadAsReadDisabled = mc.window.document.getElementById(
+    "mailContext-markThreadAsRead"
+  ).disabled;
   Assert.ok(
     !markThreadAsReadDisabled,
     "Mark Thread as read menu item should not be disabled!"
@@ -373,11 +369,11 @@ add_task(async function test_mark_thread_as_read() {
   // Make sure Mark Thread as Read is now disabled with all messages read.
   await right_click_on_row(0);
   await wait_for_popup_to_open(getMailContext());
-  await click_menus_in_sequence(getMailContext(), [
-    { id: "mailContext-mark" },
-  ]);
+  await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
-  markThreadAsReadDisabled = mc.e("mailContext-markThreadAsRead").disabled;
+  markThreadAsReadDisabled = mc.window.document.getElementById(
+    "mailContext-markThreadAsRead"
+  ).disabled;
   Assert.ok(
     markThreadAsReadDisabled,
     "Mark Thread as read menu item should  be disabled!"
@@ -387,11 +383,11 @@ add_task(async function test_mark_thread_as_read() {
   curMessage.markRead(false);
   await right_click_on_row(0);
   await wait_for_popup_to_open(getMailContext());
-  await click_menus_in_sequence(getMailContext(), [
-    { id: "mailContext-mark" },
-  ]);
+  await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
-  markThreadAsReadDisabled = mc.e("mailContext-markThreadAsRead").disabled;
+  markThreadAsReadDisabled = mc.window.document.getElementById(
+    "mailContext-markThreadAsRead"
+  ).disabled;
   Assert.ok(
     !markThreadAsReadDisabled,
     "Mark Thread as read menu item should not be disabled!"
@@ -667,7 +663,7 @@ add_task(async function test_disabled_archive() {
   assert_selected_and_displayed(current);
   mc.window.gFolderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 100;
 
-  htmlframe = mc.e("multimessage");
+  htmlframe = mc.window.document.getElementById("multimessage");
   archiveBtn = htmlframe.contentDocument.getElementById("hdrArchiveButton");
   Assert.ok(
     archiveBtn.collapsed,

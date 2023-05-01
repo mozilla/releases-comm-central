@@ -245,7 +245,7 @@ add_task(async function test_tab_reorder_detach() {
   tabmail.switchToTab(1);
 
   let tab1 = tabmail.tabContainer.allTabs[1];
-  let dropContent = mc.e("tabpanelcontainer");
+  let dropContent = mc.window.document.getElementById("tabpanelcontainer");
 
   let dt = synthesize_drag_start(mc.window, tab1, tabmail.tabContainer);
 

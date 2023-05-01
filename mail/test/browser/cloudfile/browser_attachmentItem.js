@@ -96,7 +96,7 @@ add_task(async function test_upload_cancel_repeat() {
     promise = null;
     started = false;
 
-    let bucket = cw.e("attachmentBucket");
+    let bucket = cw.window.document.getElementById("attachmentBucket");
     Assert.equal(
       bucket.itemCount,
       1,
@@ -145,7 +145,7 @@ add_task(async function test_upload_multiple_and_cancel() {
 
   add_cloud_attachments(cw, provider, false);
 
-  let bucket = cw.e("attachmentBucket");
+  let bucket = cw.window.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -212,14 +212,18 @@ async function assert_can_cancel_upload(
   select_attachments(aController, index)[0];
 
   // Bring up the context menu, and click cancel.
-  let cmd = aController.e("cmd_cancelUpload");
+  let cmd = aController.window.document.getElementById("cmd_cancelUpload");
   aController.window.updateAttachmentItems();
 
   Assert.ok(!cmd.hidden, "cmd_cancelUpload should be shown");
   Assert.ok(!cmd.disabled, "cmd_cancelUpload should be enabled");
 
-  let attachmentItem = aController.e("attachmentBucket").selectedItem;
-  let contextMenu = aController.e("msgComposeAttachmentItemContext");
+  let attachmentItem = aController.window.document.getElementById(
+    "attachmentBucket"
+  ).selectedItem;
+  let contextMenu = aController.window.document.getElementById(
+    "msgComposeAttachmentItemContext"
+  );
 
   let popupPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
@@ -229,7 +233,9 @@ async function assert_can_cancel_upload(
   );
   await popupPromise;
 
-  let cancelItem = aController.e("composeAttachmentContext_cancelUploadItem");
+  let cancelItem = aController.window.document.getElementById(
+    "composeAttachmentContext_cancelUploadItem"
+  );
   if (AppConstants.platform == "macosx") {
     // We need to use click() since the synthesizeMouseAtCenter doesn't work for
     // context menu items on macos.
@@ -240,7 +246,10 @@ async function assert_can_cancel_upload(
   }
 
   // Close the popup, and wait for the cancellation to be complete.
-  await close_popup(aController, aController.e(kAttachmentItemContextID));
+  await close_popup(
+    aController,
+    aController.window.document.getElementById(kAttachmentItemContextID)
+  );
   aController.waitFor(() => cancelled);
 }
 
@@ -257,7 +266,7 @@ function get_attachmentitem_index_for_file(aController, aFile) {
 
   // Get the bucket, and go through each item looking for the matching
   // attachmentitem.
-  let bucket = aController.e("attachmentBucket");
+  let bucket = aController.window.document.getElementById("attachmentBucket");
   for (let i = 0; i < bucket.getRowCount(); ++i) {
     let attachmentitem = bucket.getItemAtIndex(i);
     if (attachmentitem.attachment.url == fileUrl) {
@@ -304,7 +313,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
   add_cloud_attachments(cw, provider, false);
   cw.waitFor(() => promises.length == kFiles.length);
 
-  let bucket = cw.e("attachmentBucket");
+  let bucket = cw.window.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -384,7 +393,7 @@ add_task(async function test_successful_upload() {
  */
 add_task(async function test_error_conversion() {
   let cw = open_compose_new_mail();
-  let bucket = cw.e("attachmentBucket");
+  let bucket = cw.window.document.getElementById("attachmentBucket");
 
   // Upload 3 files to the standard provider.
   await test_upload(cw, null, 3, 0);

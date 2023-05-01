@@ -98,7 +98,7 @@ add_task(async function test_open_draft_again() {
   Assert.equal(cwins, cwins2, "The number of compose windows changed!");
 
   // Type something and save, then check that we only have one draft.
-  cwc.e("messageEditor").focus();
+  cwc.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hello!", cwc.window);
   await save_compose_message(cwc.window);
   close_compose_window(cwc);
@@ -124,14 +124,14 @@ async function internal_check_delivery_format(editDraft) {
 
   // Select our wanted format.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.e("optionsMenu"),
+    cwc.window.document.getElementById("optionsMenu"),
     {},
-    cwc.e("optionsMenu").ownerGlobal
+    cwc.window.document.getElementById("optionsMenu").ownerGlobal
   );
-  await click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
-    { id: "outputFormatMenu" },
-    { id: "format_both" },
-  ]);
+  await click_menus_in_sequence(
+    cwc.window.document.getElementById("optionsMenuPopup"),
+    [{ id: "outputFormatMenu" }, { id: "format_both" }]
+  );
 
   /**
    * Check if the right format is selected in the menu.
@@ -141,17 +141,17 @@ async function internal_check_delivery_format(editDraft) {
    */
   async function assert_format_value(aMenuItemId, aValue) {
     EventUtils.synthesizeMouseAtCenter(
-      cwc.e("optionsMenu"),
+      cwc.window.document.getElementById("optionsMenu"),
       {},
-      cwc.e("optionsMenu").ownerGlobal
+      cwc.window.document.getElementById("optionsMenu").ownerGlobal
     );
     let formatMenu = await click_menus_in_sequence(
-      cwc.e("optionsMenuPopup"),
+      cwc.window.document.getElementById("optionsMenuPopup"),
       [{ id: "outputFormatMenu" }],
       true
     );
-    let formatItem = cwc
-      .e("outputFormatMenuPopup")
+    let formatItem = cwc.window.document
+      .getElementById("outputFormatMenuPopup")
       .querySelector("[name=output_format][checked=true]");
     Assert.equal(formatItem.id, aMenuItemId);
     close_popup_sequence(formatMenu);
@@ -227,7 +227,7 @@ add_task(async function test_edit_as_new_in_draft() {
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
   let cwc = wait_for_compose_window();
 
-  cwc.e("messageEditor").focus();
+  cwc.window.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hello!", cwc.window);
   await save_compose_message(cwc.window);
   close_compose_window(cwc);

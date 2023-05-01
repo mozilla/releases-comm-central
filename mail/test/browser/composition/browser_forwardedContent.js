@@ -48,8 +48,8 @@ add_task(async function test_forwarded_subj() {
 
   let fwdWin = open_compose_with_forward();
 
-  let headerTableText = fwdWin
-    .e("messageEditor")
+  let headerTableText = fwdWin.window.document
+    .getElementById("messageEditor")
     .contentDocument.querySelector("table").textContent;
   if (!headerTableText.includes(msg.mime2DecodedSubject)) {
     throw new Error(

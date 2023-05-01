@@ -125,7 +125,11 @@ function check_nntp_address_types(win) {
  * With an NNTP account, the 'To' addressing row should be hidden.
  */
 function check_collapsed_pop_recipient(cwc) {
-  Assert.ok(cwc.e("addressRowTo").classList.contains("hidden"));
+  Assert.ok(
+    cwc.window.document
+      .getElementById("addressRowTo")
+      .classList.contains("hidden")
+  );
 }
 
 function add_NNTP_account() {
@@ -193,25 +197,27 @@ add_task(async function test_address_types() {
 
   let NNTPidentity = accountNNTP.defaultIdentity.key;
   EventUtils.synthesizeMouseAtCenter(
-    cwc.e("msgIdentity"),
+    cwc.window.document.getElementById("msgIdentity"),
     {},
-    cwc.e("msgIdentity").ownerGlobal
+    cwc.window.document.getElementById("msgIdentity").ownerGlobal
   );
-  await click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
-    { identitykey: NNTPidentity },
-  ]);
+  await click_menus_in_sequence(
+    cwc.window.document.getElementById("msgIdentityPopup"),
+    [{ identitykey: NNTPidentity }]
+  );
   check_nntp_address_types(cwc.window);
 
   // Switch back to the POP3 account.
   let POP3identity = accountPOP3.defaultIdentity.key;
   EventUtils.synthesizeMouseAtCenter(
-    cwc.e("msgIdentity"),
+    cwc.window.document.getElementById("msgIdentity"),
     {},
-    cwc.e("msgIdentity").ownerGlobal
+    cwc.window.document.getElementById("msgIdentity").ownerGlobal
   );
-  await click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
-    { identitykey: POP3identity },
-  ]);
+  await click_menus_in_sequence(
+    cwc.window.document.getElementById("msgIdentityPopup"),
+    [{ identitykey: POP3identity }]
+  );
   check_nntp_address_types(cwc.window);
 
   close_compose_window(cwc);

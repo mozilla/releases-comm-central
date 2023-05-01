@@ -52,7 +52,7 @@ add_task(async function test_openComposeFromMailToLink() {
 
 add_task(async function test_checkInsertImage() {
   // First focus on the editor element
-  gCwc.e("messageEditor").focus();
+  gCwc.window.document.getElementById("messageEditor").focus();
 
   // Now open the image window
   plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
@@ -63,7 +63,7 @@ add_task(async function test_checkInsertImage() {
     input_value(mwc, url + "pass.png");
     await new Promise(resolve => setTimeout(resolve));
 
-    let noAlt = mwc.e("noAltTextRadio");
+    let noAlt = mwc.window.document.getElementById("noAltTextRadio");
     // Don't add alternate text
     EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
 
@@ -74,16 +74,14 @@ add_task(async function test_checkInsertImage() {
   let insertMenu = gCwc.window.document.getElementById("InsertPopupButton");
   let insertMenuPopup = gCwc.window.document.getElementById("InsertPopup");
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
-  await click_menus_in_sequence(insertMenuPopup, [
-    { id: "InsertImageItem" },
-  ]);
+  await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
 
   wait_for_modal_dialog();
   wait_for_window_close();
 
   // Test that the image load has not been denied
-  let childImages = gCwc
-    .e("messageEditor")
+  let childImages = gCwc.window.document
+    .getElementById("messageEditor")
     .contentDocument.getElementsByTagName("img");
 
   Assert.equal(childImages.length, 1, "Should be one image in the document");

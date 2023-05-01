@@ -147,10 +147,12 @@ add_task(async function test_cid_image_view() {
  */
 async function check_cid_image_compose(cwc) {
   // Our image should also be in composition when the message is forwarded/replied.
-  let image = cwc.e("messageEditor").contentDocument.getElementById("cidImage");
+  let image = cwc.window.document
+    .getElementById("messageEditor")
+    .contentDocument.getElementById("cidImage");
   await check_image_size(cwc, image, "data:");
-  image = cwc
-    .e("messageEditor")
+  image = cwc.window.document
+    .getElementById("messageEditor")
     .contentDocument.getElementById("cidImageOrigin");
   await check_image_size(cwc, image, "data:");
 }

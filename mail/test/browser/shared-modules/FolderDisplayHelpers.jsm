@@ -258,10 +258,7 @@ function setupModule() {
   // - Hook-up logHelper to the mozmill event system...
   normalize_for_json = testHelperModule._normalize_for_json;
 
-  // use window-helper's augment_controller method to get our extra good stuff
-  //  we need.
   mc = windowHelper.wait_for_existing_window("mail:3pane");
-  windowHelper.augment_controller(mc);
 
   setupAccountStuff();
 }
@@ -1145,7 +1142,9 @@ function _row_click_helper(
   let tx = treeRect.x,
     ty = treeRect.y;
   // coordinates of the row display region of the tree (below the headers)
-  let children = aController.e(aTree.id, { tagName: "treechildren" });
+  let children = aController.window.document.getElementById(aTree.id, {
+    tagName: "treechildren",
+  });
   let childrenRect = children.getBoundingClientRect();
   let x = childrenRect.x,
     y = childrenRect.y;
@@ -1156,7 +1155,7 @@ function _row_click_helper(
   // expand toggler unless that is explicitly requested.
   if (aTree.id == "threadTree") {
     let columnId = aColumnId || "subjectCol";
-    let col = aController.e(columnId);
+    let col = aController.window.document.getElementById(columnId);
     rowX = col.getBoundingClientRect().x - tx + 8;
     // click on the toggle if so requested (for subjectCol)
     if (columnId == "subjectCol" && aExtra !== "toggle") {
@@ -2007,7 +2006,7 @@ function assert_message_pane_visible() {
   );
 
   mc.window.view_init(); // Force the view menu to update.
-  let paneMenuItem = mc.e("menu_showMessage");
+  let paneMenuItem = mc.window.document.getElementById("menu_showMessage");
   Assert.equal(
     paneMenuItem.getAttribute("checked"),
     "true",
@@ -2040,7 +2039,7 @@ function assert_message_pane_hidden() {
   );
 
   mc.window.view_init(); // Force the view menu to update.
-  let paneMenuItem = mc.e("menu_showMessage");
+  let paneMenuItem = mc.window.document.getElementById("menu_showMessage");
   Assert.notEqual(
     paneMenuItem.getAttribute("checked"),
     "true",
@@ -2060,7 +2059,7 @@ function toggle_message_pane() {
  * This is necessary as the FolderPane is collapsed if no account is available.
  */
 function show_folder_pane() {
-  mc.e("folderPaneBox").collapsed = false;
+  mc.window.document.getElementById("folderPaneBox").collapsed = false;
 }
 
 /**
@@ -2242,8 +2241,8 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
       throw new Error("Message display is not in single message display mode.");
     }
     // now make sure that we actually are in single message display mode
-    let singleMessagePane = troller.e("singleMessage");
-    let multiMessagePane = troller.e("multimessage");
+    let singleMessagePane = troller.window.document.getElementById("singleMessage");
+    let multiMessagePane = troller.window.document.getElementById("multimessage");
     if (singleMessagePane && singleMessagePane.hidden) {
       throw new Error("Single message pane is hidden but it should not be.");
     }
@@ -2316,8 +2315,8 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     }
 
     // now make sure that we actually are in nultiple message display mode
-    let singleMessagePane = troller.e("singleMessage");
-    let multiMessagePane = troller.e("multimessage");
+    let singleMessagePane = troller.window.document.getElementById("singleMessage");
+    let multiMessagePane = troller.window.document.getElementById("multimessage");
     if (singleMessagePane && !singleMessagePane.hidden) {
       throw new Error("Single message pane is visible but it should not be.");
     }
@@ -2633,7 +2632,7 @@ function _get_currently_focused_thing() {
   let focusedWindow = mc.window.document.commandDispatcher.focusedWindow;
   if (focusedWindow) {
     for (let windowId of RECOGNIZED_WINDOWS) {
-      let elem = mc.e(windowId);
+      let elem = mc.window.document.getElementById(windowId);
       if (elem && focusedWindow == elem.contentWindow) {
         return windowId;
       }
@@ -2648,7 +2647,9 @@ function _get_currently_focused_thing() {
   }
 
   let focusedElement = mc.window.document.commandDispatcher.focusedElement;
-  let elementsToMatch = RECOGNIZED_ELEMENTS.map(elem => mc.e(elem));
+  let elementsToMatch = RECOGNIZED_ELEMENTS.map(elem =>
+    mc.window.document.getElementById(elem)
+  );
   while (focusedElement && !elementsToMatch.includes(focusedElement)) {
     focusedElement = focusedElement.parentNode;
   }
@@ -3099,7 +3100,7 @@ function reset_close_message_on_delete() {
  */
 
 function assert_summary_contains_N_elts(aSelector, aNumElts) {
-  let htmlframe = mc.e("multimessage");
+  let htmlframe = mc.window.document.getElementById("multimessage");
   let matches = htmlframe.contentDocument.querySelectorAll(aSelector);
   if (matches.length != aNumElts) {
     throw new Error(
@@ -3183,7 +3184,7 @@ function restore_default_window_size() {
  * @param {boolean} aEnabled - Whether the menu should be shown or not.
  */
 function toggle_main_menu(aEnabled = true) {
-  let menubar = mc.e("toolbar-menubar");
+  let menubar = mc.window.document.getElementById("toolbar-menubar");
   let state = menubar.getAttribute("autohide") != "true";
   menubar.setAttribute("autohide", !aEnabled);
   mc.sleep(0);
