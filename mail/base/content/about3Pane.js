@@ -1693,6 +1693,20 @@ var folderPane = {
     }
   },
 
+  /**
+   * Called when a server's `prettyName` changes, to update the UI.
+   *
+   * @param {nsIMsgFolder} folder
+   * @param {string} name
+   */
+  changeServerName(folder, name) {
+    for (let row of folderTree.querySelectorAll(
+      `li[data-server-key="${folder.server.key}"]`
+    )) {
+      row.setServerName(name);
+    }
+  },
+
   _onSelect(event) {
     threadPane.saveSelection();
     threadPane.hideIgnoredMessageNotification();
@@ -2588,8 +2602,10 @@ class FolderTreeRow extends HTMLLIElement {
   }
 
   set name(value) {
-    this.nameLabel.textContent = value;
-    this.setAttribute("aria-label", value);
+    if (this.name != value) {
+      this.nameLabel.textContent = value;
+      this.setAttribute("aria-label", value);
+    }
   }
 
   /**
@@ -2610,6 +2626,23 @@ class FolderTreeRow extends HTMLLIElement {
       textNode.nodeValue = value;
     } else {
       this.unreadCountLabel.textContent = value;
+    }
+  }
+
+  /**
+   * Format and set the name label of this row.
+   */
+  _setName() {
+    switch (this._nameStyle) {
+      case "server":
+        this.name = this._serverName;
+        break;
+      case "folder":
+        this.name = this._folderName;
+        break;
+      case "both":
+        this.name = `${this._folderName} - ${this._serverName}`;
+        break;
     }
   }
 
@@ -2651,7 +2684,9 @@ class FolderTreeRow extends HTMLLIElement {
     this.dataset.serverKey = server.key;
     this.dataset.serverType = server.type;
     this.dataset.serverSecure = server.isSecure;
-    this.name = server.prettyName;
+    this._nameStyle = "server";
+    this._serverName = server.prettyName;
+    this._setName();
   }
 
   /**
@@ -2665,17 +2700,10 @@ class FolderTreeRow extends HTMLLIElement {
     this.dataset.serverKey = folder.server.key;
     this.setFolderTypeFromFolder(folder);
     this.setFolderPropertiesFromFolder(folder);
-    switch (nameStyle) {
-      case "server":
-        this.name = folder.server.prettyName;
-        break;
-      case "folder":
-        this.name = folder.name;
-        break;
-      case "both":
-        this.name = `${folder.name} - ${folder.server.prettyName}`;
-        break;
-    }
+    this._nameStyle = nameStyle;
+    this._serverName = folder.server.prettyName;
+    this._folderName = folder.name;
+    this._setName();
     this.unreadCount = folder.getNumUnread(false);
     this.folderSortOrder = folder.sortOrder;
     if (folder.noSelect) {
@@ -2713,6 +2741,18 @@ class FolderTreeRow extends HTMLLIElement {
       } else {
         delete this.dataset[name];
       }
+    }
+  }
+
+  /**
+   * Update this row's name label to match the new `prettyName` of the server.
+   *
+   * @param {string} name
+   */
+  setServerName(name) {
+    this._serverName = name;
+    if (this._nameStyle != "folder") {
+      this._setName();
     }
   }
 
@@ -4204,7 +4244,15 @@ var folderListener = {
         break;
     }
   },
-  onFolderUnicharPropertyChanged(folder, property, oldValue, newValue) {},
+  onFolderUnicharPropertyChanged(folder, property, oldValue, newValue) {
+    switch (property) {
+      case "Name":
+        if (folder.isServer) {
+          folderPane.changeServerName(folder, newValue);
+        }
+        break;
+    }
+  },
   onFolderPropertyFlagChanged(folder, property, oldFlag, newFlag) {},
   onFolderEvent(folder, event) {
     if (event == "RenameCompleted") {
