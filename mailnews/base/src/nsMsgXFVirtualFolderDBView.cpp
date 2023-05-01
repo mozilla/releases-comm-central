@@ -280,6 +280,9 @@ nsMsgXFVirtualFolderDBView::OnSearchHit(nsIMsgDBHdr* aMsgHdr,
 
 NS_IMETHODIMP
 nsMsgXFVirtualFolderDBView::OnSearchDone(nsresult status) {
+  // This batch began in OnNewSearch.
+  if (mJSTree) mJSTree->EndUpdateBatch();
+
   NS_ENSURE_TRUE(m_viewFolder, NS_ERROR_NOT_INITIALIZED);
 
   // Handle any non verified hits we haven't handled yet.
@@ -470,6 +473,9 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
       Sort(m_sortType, m_sortOrder);
     }
   }
+
+  // Prevent updates for every message found. This batch ends in OnSearchDone.
+  if (mJSTree) mJSTree->BeginUpdateBatch();
 
   return NS_OK;
 }

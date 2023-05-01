@@ -290,6 +290,8 @@ nsMsgQuickSearchDBView::OnSearchHit(nsIMsgDBHdr* aMsgHdr,
 
 NS_IMETHODIMP
 nsMsgQuickSearchDBView::OnSearchDone(nsresult status) {
+  // This batch began in OnNewSearch.
+  if (mJSTree) mJSTree->EndUpdateBatch();
   // We're a single-folder virtual folder if viewFolder != folder, and that is
   // the only case in which we want to be messing about with a results cache
   // or unread counts.
@@ -386,6 +388,10 @@ nsMsgQuickSearchDBView::OnNewSearch() {
       if (mJSTree) mJSTree->EndUpdateBatch();
     }
   }
+
+  // Prevent updates for every message found. This batch ends in OnSearchDone.
+  if (mJSTree) mJSTree->BeginUpdateBatch();
+
   return NS_OK;
 }
 
