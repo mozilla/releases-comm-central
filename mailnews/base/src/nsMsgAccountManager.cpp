@@ -126,6 +126,7 @@ nsMsgAccountManager::~nsMsgAccountManager() {
     nsCOMPtr<nsIObserverService> observerService =
         mozilla::services::GetObserverService();
     if (observerService) {
+      observerService->RemoveObserver(this, "search-folders-changed");
       observerService->RemoveObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID);
       observerService->RemoveObserver(this, "quit-application-granted");
       observerService->RemoveObserver(this, ABOUT_TO_GO_OFFLINE_TOPIC);
@@ -147,6 +148,7 @@ nsresult nsMsgAccountManager::Init() {
   nsCOMPtr<nsIObserverService> observerService =
       mozilla::services::GetObserverService();
   if (observerService) {
+    observerService->AddObserver(this, "search-folders-changed", true);
     observerService->AddObserver(this, NS_XPCOM_SHUTDOWN_OBSERVER_ID, true);
     observerService->AddObserver(this, "quit-application-granted", true);
     observerService->AddObserver(this, ABOUT_TO_GO_OFFLINE_TOPIC, true);
@@ -233,6 +235,20 @@ nsMsgAccountManager::SetUserNeedsToAuthenticate(bool aUserNeedsToAuthenticate) {
 NS_IMETHODIMP nsMsgAccountManager::Observe(nsISupports* aSubject,
                                            const char* aTopic,
                                            const char16_t* someData) {
+  if (!strcmp(aTopic, "search-folders-changed")) {
+    nsCOMPtr<nsIMsgFolder> virtualFolder = do_QueryInterface(aSubject);
+    RemoveVFListenerForVF(virtualFolder, nullptr);
+    nsCOMPtr<nsIMsgDatabase> db;
+    nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+    virtualFolder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
+                                        getter_AddRefs(db));
+    nsCString srchFolderUris;
+    dbFolderInfo->GetCharProperty(kSearchFolderUriProp, srchFolderUris);
+    nsCOMPtr<nsIMsgDBService> msgDBService =
+        do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
+    AddVFListenersForVF(virtualFolder, srchFolderUris, msgDBService);
+    return NS_OK;
+  }
   if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID)) {
     Shutdown();
     return NS_OK;
@@ -2908,6 +2924,9 @@ void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString& buffer) {
 nsresult nsMsgAccountManager::AddVFListenersForVF(
     nsIMsgFolder* virtualFolder, const nsCString& srchFolderUris,
     nsIMsgDBService* msgDBService) {
+  // Avoid any possible duplicate listeners for this virtual folder.
+  RemoveVFListenerForVF(virtualFolder, nullptr);
+
   nsTArray<nsCString> folderUris;
   ParseString(srchFolderUris, '|', folderUris);
 
@@ -2985,6 +3004,46 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
                                                  nsIMsgFolder* folder) {
   uint32_t folderFlags;
   folder->GetFlags(&folderFlags);
+
+  // Find any virtual folders that search `parent`, and add `folder` to them.
+  if (parent && !(folderFlags & nsMsgFolderFlags::Virtual)) {
+    nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
+        m_virtualFolderListeners);
+    RefPtr<VirtualFolderChangeListener> listener;
+
+    while (iter.HasMore()) {
+      listener = iter.GetNext();
+      if (listener->m_folderWatching == parent) {
+        nsCOMPtr<nsIMsgDatabase> db;
+        nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+        listener->m_virtualFolder->GetDBFolderInfoAndDB(
+            getter_AddRefs(dbFolderInfo), getter_AddRefs(db));
+
+        nsCString searchURI;
+        dbFolderInfo->GetCharProperty(kSearchFolderUriProp, searchURI);
+
+        // "normalize" searchURI so we can search for |folderURI|.
+        if (!searchURI.IsEmpty()) {
+          searchURI.Insert('|', 0);
+          searchURI.Append('|');
+        }
+        nsCString folderURI;
+        folder->GetURI(folderURI);
+
+        int32_t index = searchURI.Find(folderURI);
+        if (index == kNotFound) {
+          searchURI.Cut(0, 1);
+          searchURI.Append(folderURI);
+          dbFolderInfo->SetCharProperty(kSearchFolderUriProp, searchURI);
+          nsCOMPtr<nsIObserverService> obs =
+              mozilla::services::GetObserverService();
+          obs->NotifyObservers(listener->m_virtualFolder,
+                               "search-folders-changed", nullptr);
+        }
+      }
+    }
+  }
+
   bool addToSmartFolders = false;
   folder->IsSpecialFolder(
       nsMsgFolderFlags::Inbox | nsMsgFolderFlags::Templates |
@@ -3049,24 +3108,21 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
                                  nullptr);
             break;
           }
-          // New sent or archive folder, need to add sub-folders to smart
-          // folder.
-          if (vfFolderFlag &
-              (nsMsgFolderFlags::Archive | nsMsgFolderFlags::SentMail)) {
-            nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
-            rv = folder->GetDescendants(allDescendants);
-            NS_ENSURE_SUCCESS(rv, rv);
+          // Add sub-folders to smart folder.
+          nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+          rv = folder->GetDescendants(allDescendants);
+          NS_ENSURE_SUCCESS(rv, rv);
 
-            nsCOMPtr<nsIMsgFolder> parentFolder;
-            for (auto subFolder : allDescendants) {
-              subFolder->GetParent(getter_AddRefs(parentFolder));
-              OnFolderAdded(parentFolder, subFolder);
-            }
+          nsCOMPtr<nsIMsgFolder> parentFolder;
+          for (auto subFolder : allDescendants) {
+            subFolder->GetParent(getter_AddRefs(parentFolder));
+            OnFolderAdded(parentFolder, subFolder);
           }
         }
       }
     }
   }
+
   // need to make sure this isn't happening during loading of virtualfolders.dat
   if (folderFlags & nsMsgFolderFlags::Virtual && !m_loadingVirtualFolders) {
     // When a new virtual folder is added, need to create a db Listener for it.
