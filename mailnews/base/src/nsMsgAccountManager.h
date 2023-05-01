@@ -184,8 +184,7 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
                                           nsIOutputStream* outputStream);
   void ParseAndVerifyVirtualFolderScope(nsCString& buffer);
   nsresult AddVFListenersForVF(nsIMsgFolder* virtualFolder,
-                               const nsCString& srchFolderUris,
-                               nsIMsgDBService* msgDBService);
+                               const nsCString& srchFolderUris);
 
   nsresult RemoveVFListenerForVF(nsIMsgFolder* virtualFolder,
                                  nsIMsgFolder* folder);
@@ -196,6 +195,7 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
   nsresult SetSendLaterUriPref(nsIMsgIncomingServer* server);
 
   nsCOMPtr<nsIPrefBranch> m_prefs;
+  nsCOMPtr<nsIMsgDBService> m_dbService;
 
   //
   // root folder listener stuff

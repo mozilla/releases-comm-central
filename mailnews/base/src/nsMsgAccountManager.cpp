@@ -170,17 +170,17 @@ nsresult nsMsgAccountManager::Shutdown() {
 
   SaveVirtualFolders();
 
-  nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
-  if (msgDBService) {
+  if (m_dbService) {
     nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
         m_virtualFolderListeners);
     RefPtr<VirtualFolderChangeListener> listener;
 
     while (iter.HasMore()) {
       listener = iter.GetNext();
-      msgDBService->UnregisterPendingListener(listener);
+      m_dbService->UnregisterPendingListener(listener);
     }
+
+    m_dbService = nullptr;
   }
   m_virtualFolders.Clear();
   if (m_msgFolderCache) WriteToFolderCache(m_msgFolderCache);
@@ -237,16 +237,13 @@ NS_IMETHODIMP nsMsgAccountManager::Observe(nsISupports* aSubject,
                                            const char16_t* someData) {
   if (!strcmp(aTopic, "search-folders-changed")) {
     nsCOMPtr<nsIMsgFolder> virtualFolder = do_QueryInterface(aSubject);
-    RemoveVFListenerForVF(virtualFolder, nullptr);
     nsCOMPtr<nsIMsgDatabase> db;
     nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
     virtualFolder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
                                         getter_AddRefs(db));
     nsCString srchFolderUris;
     dbFolderInfo->GetCharProperty(kSearchFolderUriProp, srchFolderUris);
-    nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService("@mozilla.org/msgDatabase/msgDBService;1");
-    AddVFListenersForVF(virtualFolder, srchFolderUris, msgDBService);
+    AddVFListenersForVF(virtualFolder, srchFolderUris);
     return NS_OK;
   }
   if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID)) {
@@ -2692,112 +2689,111 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
   m_loadingVirtualFolders = true;
 
   nsresult rv;
-  nsCOMPtr<nsIMsgDBService> msgDBService =
-      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
-  if (msgDBService) {
+  if (!m_dbService) {
+    m_dbService = do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsIFileInputStream> fileStream =
-        do_CreateInstance(NS_LOCALFILEINPUTSTREAM_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
-    rv = fileStream->Init(file, PR_RDONLY, 0664, false);
-    nsCOMPtr<nsILineInputStream> lineInputStream(do_QueryInterface(fileStream));
+  nsCOMPtr<nsIFileInputStream> fileStream =
+      do_CreateInstance(NS_LOCALFILEINPUTSTREAM_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-    bool isMore = true;
-    nsAutoCString buffer;
-    int32_t version = -1;
-    nsCOMPtr<nsIMsgFolder> virtualFolder;
-    nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+  rv = fileStream->Init(file, PR_RDONLY, 0664, false);
+  nsCOMPtr<nsILineInputStream> lineInputStream(do_QueryInterface(fileStream));
 
-    while (isMore && NS_SUCCEEDED(lineInputStream->ReadLine(buffer, &isMore))) {
-      if (!buffer.IsEmpty()) {
-        if (version == -1) {
-          buffer.Cut(0, 8);
-          nsresult irv;
-          version = buffer.ToInteger(&irv);
-          continue;
-        }
-        if (StringBeginsWith(buffer, "uri="_ns)) {
-          buffer.Cut(0, 4);
-          dbFolderInfo = nullptr;
+  bool isMore = true;
+  nsAutoCString buffer;
+  int32_t version = -1;
+  nsCOMPtr<nsIMsgFolder> virtualFolder;
+  nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
 
-          rv = GetOrCreateFolder(buffer, getter_AddRefs(virtualFolder));
+  while (isMore && NS_SUCCEEDED(lineInputStream->ReadLine(buffer, &isMore))) {
+    if (!buffer.IsEmpty()) {
+      if (version == -1) {
+        buffer.Cut(0, 8);
+        nsresult irv;
+        version = buffer.ToInteger(&irv);
+        continue;
+      }
+      if (StringBeginsWith(buffer, "uri="_ns)) {
+        buffer.Cut(0, 4);
+        dbFolderInfo = nullptr;
+
+        rv = GetOrCreateFolder(buffer, getter_AddRefs(virtualFolder));
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        virtualFolder->SetFlag(nsMsgFolderFlags::Virtual);
+
+        nsCOMPtr<nsIMsgFolder> grandParent;
+        nsCOMPtr<nsIMsgFolder> oldParent;
+        nsCOMPtr<nsIMsgFolder> parentFolder;
+        bool isServer;
+        // This loop handles creating virtual folders without an existing
+        // parent.
+        do {
+          // need to add the folder as a sub-folder of its parent.
+          int32_t lastSlash = buffer.RFindChar('/');
+          if (lastSlash == kNotFound) break;
+          nsDependentCSubstring parentUri(buffer, 0, lastSlash);
+          // hold a reference so it won't get deleted before it's parented.
+          oldParent = parentFolder;
+
+          rv = GetOrCreateFolder(parentUri, getter_AddRefs(parentFolder));
           NS_ENSURE_SUCCESS(rv, rv);
 
-          virtualFolder->SetFlag(nsMsgFolderFlags::Virtual);
+          nsAutoString currentFolderNameStr;
+          nsAutoCString currentFolderNameCStr;
+          MsgUnescapeString(
+              nsCString(Substring(buffer, lastSlash + 1, buffer.Length())), 0,
+              currentFolderNameCStr);
+          CopyUTF8toUTF16(currentFolderNameCStr, currentFolderNameStr);
+          nsCOMPtr<nsIMsgFolder> childFolder;
+          nsCOMPtr<nsIMsgDatabase> db;
+          // force db to get created.
+          // XXX TODO: is this SetParent() right? Won't it screw up if virtual
+          // folder is nested >2 deep? Leave for now, but revisit when getting
+          // rid of dangling folders (BenC).
+          virtualFolder->SetParent(parentFolder);
+          rv = virtualFolder->GetMsgDatabase(getter_AddRefs(db));
+          if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING)
+            m_dbService->CreateNewDB(virtualFolder, getter_AddRefs(db));
+          if (db)
+            rv = db->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
+          else
+            break;
 
-          nsCOMPtr<nsIMsgFolder> grandParent;
-          nsCOMPtr<nsIMsgFolder> oldParent;
-          nsCOMPtr<nsIMsgFolder> parentFolder;
-          bool isServer;
-          // This loop handles creating virtual folders without an existing
-          // parent.
-          do {
-            // need to add the folder as a sub-folder of its parent.
-            int32_t lastSlash = buffer.RFindChar('/');
-            if (lastSlash == kNotFound) break;
-            nsDependentCSubstring parentUri(buffer, 0, lastSlash);
-            // hold a reference so it won't get deleted before it's parented.
-            oldParent = parentFolder;
-
-            rv = GetOrCreateFolder(parentUri, getter_AddRefs(parentFolder));
-            NS_ENSURE_SUCCESS(rv, rv);
-
-            nsAutoString currentFolderNameStr;
-            nsAutoCString currentFolderNameCStr;
-            MsgUnescapeString(
-                nsCString(Substring(buffer, lastSlash + 1, buffer.Length())), 0,
-                currentFolderNameCStr);
-            CopyUTF8toUTF16(currentFolderNameCStr, currentFolderNameStr);
-            nsCOMPtr<nsIMsgFolder> childFolder;
-            nsCOMPtr<nsIMsgDatabase> db;
-            // force db to get created.
-            // XXX TODO: is this SetParent() right? Won't it screw up if virtual
-            // folder is nested >2 deep? Leave for now, but revisit when getting
-            // rid of dangling folders (BenC).
-            virtualFolder->SetParent(parentFolder);
-            rv = virtualFolder->GetMsgDatabase(getter_AddRefs(db));
-            if (rv == NS_MSG_ERROR_FOLDER_SUMMARY_MISSING)
-              msgDBService->CreateNewDB(virtualFolder, getter_AddRefs(db));
-            if (db)
-              rv = db->GetDBFolderInfo(getter_AddRefs(dbFolderInfo));
-            else
-              break;
-
-            parentFolder->AddSubfolder(currentFolderNameStr,
-                                       getter_AddRefs(childFolder));
-            if (childFolder) parentFolder->NotifyFolderAdded(childFolder);
-            // here we make sure if our parent is rooted - if not, we're
-            // going to loop and add our parent as a child of its grandparent
-            // and repeat until we get to the server, or a folder that
-            // has its parent set.
-            parentFolder->GetParent(getter_AddRefs(grandParent));
-            parentFolder->GetIsServer(&isServer);
-            buffer.SetLength(lastSlash);
-          } while (!grandParent && !isServer);
-        } else if (dbFolderInfo && StringBeginsWith(buffer, "scope="_ns)) {
-          buffer.Cut(0, 6);
-          // if this is a cross folder virtual folder, we have a list of folders
-          // uris, and we have to add a pending listener for each of them.
-          if (!buffer.IsEmpty()) {
-            ParseAndVerifyVirtualFolderScope(buffer);
-            dbFolderInfo->SetCharProperty(kSearchFolderUriProp, buffer);
-            AddVFListenersForVF(virtualFolder, buffer, msgDBService);
-          }
-        } else if (dbFolderInfo && StringBeginsWith(buffer, "terms="_ns)) {
-          buffer.Cut(0, 6);
-          dbFolderInfo->SetCharProperty("searchStr", buffer);
-        } else if (dbFolderInfo &&
-                   StringBeginsWith(buffer, "searchOnline="_ns)) {
-          buffer.Cut(0, 13);
-          dbFolderInfo->SetBooleanProperty("searchOnline",
-                                           buffer.EqualsLiteral("true"));
-        } else if (dbFolderInfo &&
-                   Substring(buffer, 0, SEARCH_FOLDER_FLAG_LEN + 1)
-                       .Equals(SEARCH_FOLDER_FLAG "=")) {
-          buffer.Cut(0, SEARCH_FOLDER_FLAG_LEN + 1);
-          dbFolderInfo->SetCharProperty(SEARCH_FOLDER_FLAG, buffer);
+          parentFolder->AddSubfolder(currentFolderNameStr,
+                                     getter_AddRefs(childFolder));
+          if (childFolder) parentFolder->NotifyFolderAdded(childFolder);
+          // here we make sure if our parent is rooted - if not, we're
+          // going to loop and add our parent as a child of its grandparent
+          // and repeat until we get to the server, or a folder that
+          // has its parent set.
+          parentFolder->GetParent(getter_AddRefs(grandParent));
+          parentFolder->GetIsServer(&isServer);
+          buffer.SetLength(lastSlash);
+        } while (!grandParent && !isServer);
+      } else if (dbFolderInfo && StringBeginsWith(buffer, "scope="_ns)) {
+        buffer.Cut(0, 6);
+        // if this is a cross folder virtual folder, we have a list of folders
+        // uris, and we have to add a pending listener for each of them.
+        if (!buffer.IsEmpty()) {
+          ParseAndVerifyVirtualFolderScope(buffer);
+          dbFolderInfo->SetCharProperty(kSearchFolderUriProp, buffer);
+          AddVFListenersForVF(virtualFolder, buffer);
         }
+      } else if (dbFolderInfo && StringBeginsWith(buffer, "terms="_ns)) {
+        buffer.Cut(0, 6);
+        dbFolderInfo->SetCharProperty("searchStr", buffer);
+      } else if (dbFolderInfo && StringBeginsWith(buffer, "searchOnline="_ns)) {
+        buffer.Cut(0, 13);
+        dbFolderInfo->SetBooleanProperty("searchOnline",
+                                         buffer.EqualsLiteral("true"));
+      } else if (dbFolderInfo &&
+                 Substring(buffer, 0, SEARCH_FOLDER_FLAG_LEN + 1)
+                     .Equals(SEARCH_FOLDER_FLAG "=")) {
+        buffer.Cut(0, SEARCH_FOLDER_FLAG_LEN + 1);
+        dbFolderInfo->SetCharProperty(SEARCH_FOLDER_FLAG, buffer);
       }
     }
   }
@@ -2922,8 +2918,13 @@ void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString& buffer) {
 
 // This conveniently works to add a single folder as well.
 nsresult nsMsgAccountManager::AddVFListenersForVF(
-    nsIMsgFolder* virtualFolder, const nsCString& srchFolderUris,
-    nsIMsgDBService* msgDBService) {
+    nsIMsgFolder* virtualFolder, const nsCString& srchFolderUris) {
+  nsresult rv;
+  if (!m_dbService) {
+    m_dbService = do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   // Avoid any possible duplicate listeners for this virtual folder.
   RemoveVFListenerForVF(virtualFolder, nullptr);
 
@@ -2932,7 +2933,7 @@ nsresult nsMsgAccountManager::AddVFListenersForVF(
 
   for (uint32_t i = 0; i < folderUris.Length(); i++) {
     nsCOMPtr<nsIMsgFolder> realFolder;
-    nsresult rv = GetOrCreateFolder(folderUris[i], getter_AddRefs(realFolder));
+    rv = GetOrCreateFolder(folderUris[i], getter_AddRefs(realFolder));
     NS_ENSURE_SUCCESS(rv, rv);
     RefPtr<VirtualFolderChangeListener> dbListener =
         new VirtualFolderChangeListener();
@@ -2944,7 +2945,7 @@ nsresult nsMsgAccountManager::AddVFListenersForVF(
       continue;
     }
     m_virtualFolderListeners.AppendElement(dbListener);
-    msgDBService->RegisterPendingListener(realFolder, dbListener);
+    m_dbService->RegisterPendingListener(realFolder, dbListener);
   }
   if (!m_virtualFolders.Contains(virtualFolder)) {
     m_virtualFolders.AppendElement(virtualFolder);
@@ -2957,9 +2958,10 @@ nsresult nsMsgAccountManager::AddVFListenersForVF(
 nsresult nsMsgAccountManager::RemoveVFListenerForVF(nsIMsgFolder* virtualFolder,
                                                     nsIMsgFolder* folder) {
   nsresult rv;
-  nsCOMPtr<nsIMsgDBService> msgDBService(
-      do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (!m_dbService) {
+    m_dbService = do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
       m_virtualFolderListeners);
@@ -2969,7 +2971,7 @@ nsresult nsMsgAccountManager::RemoveVFListenerForVF(nsIMsgFolder* virtualFolder,
     listener = iter.GetNext();
     if (listener->m_virtualFolder == virtualFolder &&
         (!folder || listener->m_folderWatching == folder)) {
-      msgDBService->UnregisterPendingListener(listener);
+      m_dbService->UnregisterPendingListener(listener);
       m_virtualFolderListeners.RemoveElement(listener);
       if (folder) {
         break;
@@ -3126,18 +3128,14 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
   // need to make sure this isn't happening during loading of virtualfolders.dat
   if (folderFlags & nsMsgFolderFlags::Virtual && !m_loadingVirtualFolders) {
     // When a new virtual folder is added, need to create a db Listener for it.
-    nsCOMPtr<nsIMsgDBService> msgDBService =
-        do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
-    if (msgDBService) {
-      nsCOMPtr<nsIMsgDatabase> virtDatabase;
-      nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-      rv = folder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
-                                        getter_AddRefs(virtDatabase));
-      NS_ENSURE_SUCCESS(rv, rv);
-      nsCString srchFolderUri;
-      dbFolderInfo->GetCharProperty(kSearchFolderUriProp, srchFolderUri);
-      AddVFListenersForVF(folder, srchFolderUri, msgDBService);
-    }
+    nsCOMPtr<nsIMsgDatabase> virtDatabase;
+    nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+    rv = folder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
+                                      getter_AddRefs(virtDatabase));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCString srchFolderUri;
+    dbFolderInfo->GetCharProperty(kSearchFolderUriProp, srchFolderUri);
+    AddVFListenersForVF(folder, srchFolderUri);
     rv = SaveVirtualFolders();
   }
   return rv;
