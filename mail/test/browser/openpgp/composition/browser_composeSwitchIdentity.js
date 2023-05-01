@@ -19,7 +19,7 @@ const {
 const { open_compose_new_mail, setup_msg_contents } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
-const { close_window } = ChromeUtils.import(
+const { click_menus_in_sequence, close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 const { OpenPGPTestUtils } = ChromeUtils.import(
@@ -186,7 +186,7 @@ async function testComposeFlags(
       {},
       cwc.e("msgIdentity").ownerGlobal
     );
-    await cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
+    await click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
       { identitykey: plainIdentity.key },
     ]);
 
@@ -213,7 +213,7 @@ async function testComposeFlags(
       {},
       cwc.e("msgIdentity").ownerGlobal
     );
-    await cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
+    await click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
       { identitykey: bobIdentity.key },
     ]);
 

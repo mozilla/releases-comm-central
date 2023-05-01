@@ -21,7 +21,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
+var { click_menus_in_sequence, close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -44,7 +44,7 @@ add_task(async function test_quoteMessage() {
     documentChild.ownerGlobal
   );
   let aboutMessage = get_about_message(msgc.window);
-  await msgc.click_menus_in_sequence(
+  await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
     [
       { id: "mailContext-copyMenu" },
@@ -71,7 +71,7 @@ add_task(async function test_quoteMessage() {
       {},
       cwc.e("optionsMenu").ownerGlobal
     );
-    await cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
+    await click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
       { id: "menu_quoteMessage" },
     ]);
     cwc.sleep(50);

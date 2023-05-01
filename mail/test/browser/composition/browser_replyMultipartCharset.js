@@ -39,7 +39,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
+var { click_menus_in_sequence, close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -71,7 +71,7 @@ async function subtest_replyEditAsNewForward_charset(
     documentChild.ownerGlobal
   );
   let aboutMessage = get_about_message(msgc.window);
-  await msgc.click_menus_in_sequence(
+  await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
     [
       { id: "mailContext-copyMenu" },

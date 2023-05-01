@@ -40,6 +40,7 @@ var {
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 var {
+  click_menus_in_sequence,
   plan_for_modal_dialog,
   plan_for_new_window,
   plan_for_window_close,
@@ -776,7 +777,7 @@ add_task(async function test_disabling_attachment_reminder() {
   );
   let dropmarker = disableButton.querySelector("dropmarker");
   EventUtils.synthesizeMouseAtCenter(dropmarker, {}, dropmarker.ownerGlobal);
-  await cwc.click_menus_in_sequence(
+  await click_menus_in_sequence(
     disableButton.closest("toolbarbutton").querySelector("menupopup"),
     [{ id: "disableReminder" }]
   );
@@ -809,7 +810,7 @@ add_task(async function test_disabling_attachment_reminder() {
   });
   dropmarker = disableButton.querySelector("dropmarker");
   EventUtils.synthesizeMouseAtCenter(dropmarker, {}, dropmarker.ownerGlobal);
-  await cwc.click_menus_in_sequence(
+  await click_menus_in_sequence(
     disableButton.closest("toolbarbutton").querySelector("menupopup"),
     [{ id: "disableReminder" }]
   );

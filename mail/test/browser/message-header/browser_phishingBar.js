@@ -39,8 +39,8 @@ var {
   plan_for_modal_dialog,
   plan_for_new_window,
   wait_for_new_window,
+  click_menus_in_sequence,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
-
 var folder;
 
 var kBoxId = "mail-notification-top";
@@ -126,7 +126,7 @@ async function assert_ignore_works(aController) {
     { popup: "phishingOptions" }
   );
   EventUtils.synthesizeMouseAtCenter(prefButton, {}, prefButton.ownerGlobal);
-  await aController.click_menus_in_sequence(
+  await click_menus_in_sequence(
     aboutMessage.document.getElementById("phishingOptions"),
     [{ id: "phishingOptionIgnore" }]
   );

@@ -33,6 +33,7 @@ var {
   wait_for_new_window,
   wait_for_window_focused,
   wait_for_window_close,
+  click_menus_in_sequence,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { gMockPromptService } = ChromeUtils.import(
@@ -142,7 +143,9 @@ async function openFiltersDialogs() {
     {},
     mc.window
   );
-  await mc.click_menus_in_sequence(mc.e("taskPopup"), [{ id: "filtersCmd" }]);
+  await click_menus_in_sequence(mc.e("taskPopup"), [
+    { id: "filtersCmd" },
+  ]);
 }
 
 /**

@@ -32,6 +32,9 @@ var { input_value } = ChromeUtils.import(
 let { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
+var { click_through_appmenu, click_menus_in_sequence } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.
@@ -374,7 +377,7 @@ add_task(async function open_provisioner_from_menu_bar() {
     {},
     mc.window
   );
-  await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
+  await click_menus_in_sequence(mc.e("menu_FilePopup"), [
     { id: "menu_New" },
     { id: "newCreateEmailAccountMenuItem" },
   ]);
@@ -405,7 +408,7 @@ add_task(async function open_provisioner_from_app_menu() {
     {},
     mc.window
   );
-  mc.click_through_appmenu([{ id: "appmenu_new" }], {
+  click_through_appmenu([{ id: "appmenu_new" }], {
     id: "appmenu_newCreateEmailAccountMenuItem",
   });
 
@@ -620,7 +623,7 @@ add_task(async function test_can_pref_off_account_provisioner() {
     {},
     mc.window
   );
-  await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
+  await click_menus_in_sequence(mc.e("menu_FilePopup"), [
     { id: "menu_New" },
   ]);
 
@@ -653,7 +656,7 @@ add_task(async function test_can_pref_off_account_provisioner() {
     {},
     mc.window
   );
-  await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
+  await click_menus_in_sequence(mc.e("menu_FilePopup"), [
     { id: "menu_New" },
   ]);
   Assert.ok(

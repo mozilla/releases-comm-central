@@ -18,6 +18,7 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
+  click_menus_in_sequence,
   close_window,
   plan_for_new_window,
   wait_for_new_window,
@@ -161,7 +162,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
       expectedSource == contentReadable
     );
 
-    await viewSourceController.click_menus_in_sequence(
+    await click_menus_in_sequence(
       viewSourceController.e("viewmenu-popup"),
       [{ id: "repair-text-encoding" }]
     );

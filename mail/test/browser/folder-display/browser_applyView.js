@@ -11,6 +11,9 @@
 var { be_in_folder, create_folder, mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { click_menus_in_sequence } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 // These are for the reset/apply to other/apply to other+child tests.
 var folderSource, folderParent, folderChild1, folderChild2;
@@ -91,7 +94,7 @@ async function invoke_column_picker_option(aActions) {
     colPickerPopup,
     "popuphidden"
   );
-  await mc.click_menus_in_sequence(colPickerPopup, aActions);
+  await click_menus_in_sequence(colPickerPopup, aActions);
   await hiddenPromise;
 }
 

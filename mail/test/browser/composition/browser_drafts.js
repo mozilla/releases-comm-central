@@ -32,9 +32,13 @@ var {
 var { wait_for_notification_to_show, get_notification } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
-var { plan_for_new_window, wait_for_window_focused } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+
+var {
+  click_menus_in_sequence,
+  close_popup_sequence,
+  plan_for_new_window,
+  wait_for_window_focused,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -124,7 +128,7 @@ async function internal_check_delivery_format(editDraft) {
     {},
     cwc.e("optionsMenu").ownerGlobal
   );
-  await cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
+  await click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
     { id: "outputFormatMenu" },
     { id: "format_both" },
   ]);
@@ -141,7 +145,7 @@ async function internal_check_delivery_format(editDraft) {
       {},
       cwc.e("optionsMenu").ownerGlobal
     );
-    let formatMenu = await cwc.click_menus_in_sequence(
+    let formatMenu = await click_menus_in_sequence(
       cwc.e("optionsMenuPopup"),
       [{ id: "outputFormatMenu" }],
       true
@@ -150,7 +154,7 @@ async function internal_check_delivery_format(editDraft) {
       .e("outputFormatMenuPopup")
       .querySelector("[name=output_format][checked=true]");
     Assert.equal(formatItem.id, aMenuItemId);
-    cwc.close_popup_sequence(formatMenu);
+    close_popup_sequence(formatMenu);
   }
 
   await save_compose_message(cwc.window);

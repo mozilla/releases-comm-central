@@ -24,7 +24,7 @@ var {
 var { close_tab, mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_new_window } = ChromeUtils.import(
+var { click_menus_in_sequence, plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -95,7 +95,7 @@ function open_about_support() {
       document.getElementById("toolbar-menubar").removeAttribute("autohide");
       let helpMenu = mc.window.document.getElementById("helpMenu");
       EventUtils.synthesizeMouseAtCenter(helpMenu, {}, helpMenu.ownerGlobal);
-      await mc.click_menus_in_sequence(mc.e("menu_HelpPopup"), [
+      await click_menus_in_sequence(mc.e("menu_HelpPopup"), [
         { id: "aboutsupport_open" },
       ]);
     }

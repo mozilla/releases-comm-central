@@ -5,6 +5,11 @@
 "use strict";
 
 const EXPORTED_SYMBOLS = [
+  "click_menus_in_sequence",
+  "close_popup_sequence",
+  "click_appmenu_in_sequence",
+  "click_through_appmenu",
+
   "plan_for_new_window",
   "wait_for_new_window",
   "async_plan_for_new_window",
@@ -784,6 +789,248 @@ function resize_to(aController, aWidth, aHeight) {
 }
 
 /**
+ * Dynamically-built/XBL-defined menus can be hard to work with, this makes it
+ *  easier.
+ *
+ * @param aRootPopup  The base popup. The caller is expected to activate it
+ *     (by clicking/rightclicking the right widget). We will only wait for it
+ *     to open if it is in the process.
+ * @param aActions  An array of objects where each object has attributes
+ *     with a value defined. We pick the menu item whose DOM node matches
+ *     all the attributes with the specified names and value. We click whatever
+ *     we find. We throw if the element being asked for is not found.
+ * @param aKeepOpen  If set to true the popups are not closed after last click.
+ *
+ * @returns An array of popup elements that were left open. It will be
+ *          an empty array if aKeepOpen was set to false.
+ */
+async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
+  if (aRootPopup.state != "open") {
+    await BrowserTestUtils.waitForEvent(aRootPopup, "popupshown");
+  }
+
+  /**
+   * Check if a node's attributes match all those given in actionObj.
+   * Nodes that are obvious containers are skipped, and their children
+   * will be used to recursively find a match instead.
+   *
+   * @param {Element} node - The node to check.
+   * @param {object} actionObj - Contains attribute-value pairs to match.
+   * @returns {Element|null} The matched node or null if no match.
+   */
+  let findMatch = function(node, actionObj) {
+    // Ignore some elements and just use their children instead.
+    if (node.localName == "hbox" || node.localName == "vbox") {
+      for (let i = 0; i < node.children.length; i++) {
+        let childMatch = findMatch(node.children[i]);
+        if (childMatch) {
+          return childMatch;
+        }
+      }
+      return null;
+    }
+
+    let matchedAll = true;
+    for (let name in actionObj) {
+      let value = actionObj[name];
+      if (!node.hasAttribute(name) || node.getAttribute(name) != value) {
+        matchedAll = false;
+        break;
+      }
+    }
+    return matchedAll ? node : null;
+  };
+
+  // These popups sadly do not close themselves, so we need to keep track
+  // of them so we can make sure they end up closed.
+  let closeStack = [aRootPopup];
+
+  let curPopup = aRootPopup;
+  for (let [iAction, actionObj] of aActions.entries()) {
+    let matchingNode = null;
+    let kids = curPopup.children;
+    for (let iKid = 0; iKid < kids.length; iKid++) {
+      let node = kids[iKid];
+      matchingNode = findMatch(node, actionObj);
+      if (matchingNode) {
+        break;
+      }
+    }
+
+    if (!matchingNode) {
+      throw new Error(
+        "Did not find matching menu item for action index " +
+          iAction +
+          ": " +
+          JSON.stringify(actionObj)
+      );
+    }
+
+    if (matchingNode.localName == "menu") {
+      matchingNode.openMenu(true);
+    } else {
+      curPopup.activateItem(matchingNode);
+    }
+    await new Promise(r => matchingNode.ownerGlobal.setTimeout(r, 500));
+
+    let newPopup = null;
+    if ("menupopup" in matchingNode) {
+      newPopup = matchingNode.menupopup;
+    }
+    if (newPopup) {
+      curPopup = newPopup;
+      closeStack.push(curPopup);
+      if (curPopup.state != "open") {
+        await BrowserTestUtils.waitForEvent(curPopup, "popupshown");
+      }
+    }
+  }
+
+  if (!aKeepOpen) {
+    close_popup_sequence(closeStack);
+    return [];
+  }
+  return closeStack;
+}
+
+/**
+ * Close given menupopups.
+ *
+ * @param aCloseStack  An array of menupopup elements that are to be closed.
+ *                     The elements are processed from the end of the array
+ *                     to the front (a stack).
+ */
+function close_popup_sequence(aCloseStack) {
+  while (aCloseStack.length) {
+    let curPopup = aCloseStack.pop();
+    if (curPopup.state == "open") {
+      curPopup.focus();
+      curPopup.hidePopup();
+    }
+  }
+}
+
+/**
+ * Click through the appmenu. Callers are expected to open the initial
+ * appmenu panelview (e.g. by clicking the appmenu button). We wait for it
+ * to open if it is not open yet. Then we use a recursive style approach
+ * with a sequence of event listeners handling "ViewShown" events. The
+ * `navTargets` parameter specifies items to click to navigate through the
+ * menu. The optional `nonNavTarget` parameter specifies a final item to
+ * click to perform a command after navigating through the menu. If this
+ * argument is omitted, callers can interact with the last view panel that
+ * is returned. Callers will then need to close the appmenu when they are
+ * done with it.
+ *
+ * @param {object[]} navTargets - Array of objects that contain
+ *     attribute->value pairs. We pick the menu item whose DOM node matches
+ *     all the attribute->value pairs. We click whatever we find. We throw
+ *     if the element being asked for is not found.
+ * @param {object} [nonNavTarget] - Contains attribute->value pairs used
+ *                                 to identify a final menu item to click.
+ * @returns {Element} The <vbox class="panel-subview-body"> element inside
+ *                    the last shown <panelview>.
+ */
+function click_appmenu_in_sequence(navTargets, nonNavTarget) {
+  const rootPopup = this.e("appMenu-popup");
+
+  function viewShownListener(navTargets, nonNavTarget, allDone, event) {
+    // Set up the next listener if there are more navigation targets.
+    if (navTargets.length > 0) {
+      rootPopup.addEventListener(
+        "ViewShown",
+        viewShownListener.bind(
+          null,
+          navTargets.slice(1),
+          nonNavTarget,
+          allDone
+        ),
+        { once: true }
+      );
+    }
+
+    const subview = event.target.querySelector(".panel-subview-body");
+
+    // Click a target if there is a target left to click.
+    const clickTarget = navTargets[0] || nonNavTarget;
+
+    if (clickTarget) {
+      const kids = Array.from(subview.children);
+      const findFunction = node => {
+        let selectors = [];
+        for (let name in clickTarget) {
+          let value = clickTarget[name];
+          selectors.push(`[${name}="${value}"]`);
+        }
+        let s = selectors.join(",");
+        return node.matches(s) || node.querySelector(s);
+      };
+
+      // Some views are dynamically populated after ViewShown, so we wait.
+      utils.waitFor(
+        () => kids.find(findFunction),
+        () =>
+          "Waited but did not find matching menu item for target: " +
+          JSON.stringify(clickTarget)
+      );
+
+      const foundNode = kids.find(findFunction);
+
+      EventUtils.synthesizeMouseAtCenter(foundNode, {}, foundNode.ownerGlobal);
+    }
+
+    // We are all done when there are no more navigation targets.
+    if (navTargets.length == 0) {
+      allDone(subview);
+    }
+  }
+
+  let done = false;
+  let subviewToReturn;
+  const allDone = subview => {
+    subviewToReturn = subview;
+    done = true;
+  };
+
+  utils.waitFor(
+    () => rootPopup.getAttribute("panelopen") == "true",
+    "Waited for the appmenu to open, but it never opened."
+  );
+
+  // Because the appmenu button has already been clicked in the calling
+  // code (to match click_menus_in_sequence), we have to call the first
+  // viewShownListener manually, using a fake event argument, to start the
+  // series of event listener calls.
+  const fakeEvent = { target: this.e("appMenu-mainView") };
+  viewShownListener(navTargets, nonNavTarget, allDone, fakeEvent);
+
+  utils.waitFor(() => done, "Timed out in click_appmenu_in_sequence.");
+  return subviewToReturn;
+}
+
+/**
+ * Utility wrapper function that clicks the main appmenu button to open the
+ * appmenu before calling `click_appmenu_in_sequence`. Makes things simple
+ * and concise for the most common case while still allowing for tests that
+ * open the appmenu via keyboard before calling `click_appmenu_in_sequence`.
+ *
+ * @param {object[]} navTargets - Array of objects that contain
+ *     attribute->value pairs to be used to identify menu items to click.
+ * @param {object} [nonNavTarget] - Contains attribute->value pairs used
+ *                                 to identify a final menu item to click.
+ * @returns {Element} The <vbox class="panel-subview-body"> element inside
+ *                    the last shown <panelview>.
+ */
+function click_through_appmenu(navTargets, nonNavTarget) {
+  EventUtils.synthesizeMouseAtCenter(
+    this.window.document.getElementById("button-appmenu"),
+    {},
+    this.window.document.getElementById("button-appmenu").ownerGlobal
+  );
+  return click_appmenu_in_sequence(navTargets, nonNavTarget);
+}
+
+/**
  * Methods to augment every controller that passes through augment_controller.
  */
 var AugmentEverybodyWith = {
@@ -793,252 +1040,6 @@ var AugmentEverybodyWith = {
      */
     e(aId) {
       return this.window.document.getElementById(aId);
-    },
-
-    /**
-     * Dynamically-built/XBL-defined menus can be hard to work with, this makes it
-     *  easier.
-     *
-     * @param aRootPopup  The base popup. The caller is expected to activate it
-     *     (by clicking/rightclicking the right widget). We will only wait for it
-     *     to open if it is in the process.
-     * @param aActions  An array of objects where each object has attributes
-     *     with a value defined. We pick the menu item whose DOM node matches
-     *     all the attributes with the specified names and value. We click whatever
-     *     we find. We throw if the element being asked for is not found.
-     * @param aKeepOpen  If set to true the popups are not closed after last click.
-     *
-     * @returns An array of popup elements that were left open. It will be
-     *          an empty array if aKeepOpen was set to false.
-     */
-    async click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
-      if (aRootPopup.state != "open") {
-        await BrowserTestUtils.waitForEvent(aRootPopup, "popupshown");
-      }
-
-      /**
-       * Check if a node's attributes match all those given in actionObj.
-       * Nodes that are obvious containers are skipped, and their children
-       * will be used to recursively find a match instead.
-       *
-       * @param {Element} node - The node to check.
-       * @param {object} actionObj - Contains attribute-value pairs to match.
-       * @returns {Element|null} The matched node or null if no match.
-       */
-      let findMatch = function(node, actionObj) {
-        // Ignore some elements and just use their children instead.
-        if (node.localName == "hbox" || node.localName == "vbox") {
-          for (let i = 0; i < node.children.length; i++) {
-            let childMatch = findMatch(node.children[i]);
-            if (childMatch) {
-              return childMatch;
-            }
-          }
-          return null;
-        }
-
-        let matchedAll = true;
-        for (let name in actionObj) {
-          let value = actionObj[name];
-          if (!node.hasAttribute(name) || node.getAttribute(name) != value) {
-            matchedAll = false;
-            break;
-          }
-        }
-        return matchedAll ? node : null;
-      };
-
-      // These popups sadly do not close themselves, so we need to keep track
-      // of them so we can make sure they end up closed.
-      let closeStack = [aRootPopup];
-
-      let curPopup = aRootPopup;
-      for (let [iAction, actionObj] of aActions.entries()) {
-        let matchingNode = null;
-        let kids = curPopup.children;
-        for (let iKid = 0; iKid < kids.length; iKid++) {
-          let node = kids[iKid];
-          matchingNode = findMatch(node, actionObj);
-          if (matchingNode) {
-            break;
-          }
-        }
-
-        if (!matchingNode) {
-          throw new Error(
-            "Did not find matching menu item for action index " +
-              iAction +
-              ": " +
-              JSON.stringify(actionObj)
-          );
-        }
-
-        if (matchingNode.localName == "menu") {
-          matchingNode.openMenu(true);
-        } else {
-          curPopup.activateItem(matchingNode);
-        }
-        await new Promise(r => matchingNode.ownerGlobal.setTimeout(r, 500));
-
-        let newPopup = null;
-        if ("menupopup" in matchingNode) {
-          newPopup = matchingNode.menupopup;
-        }
-        if (newPopup) {
-          curPopup = newPopup;
-          closeStack.push(curPopup);
-          if (curPopup.state != "open") {
-            await BrowserTestUtils.waitForEvent(curPopup, "popupshown");
-          }
-        }
-      }
-
-      if (!aKeepOpen) {
-        this.close_popup_sequence(closeStack);
-        return [];
-      }
-      return closeStack;
-    },
-
-    /**
-     * Close given menupopups.
-     *
-     * @param aCloseStack  An array of menupopup elements that are to be closed.
-     *                     The elements are processed from the end of the array
-     *                     to the front (a stack).
-     */
-    close_popup_sequence(aCloseStack) {
-      while (aCloseStack.length) {
-        let curPopup = aCloseStack.pop();
-        if (curPopup.state == "open") {
-          curPopup.focus();
-          curPopup.hidePopup();
-        }
-      }
-    },
-
-    /**
-     * Click through the appmenu. Callers are expected to open the initial
-     * appmenu panelview (e.g. by clicking the appmenu button). We wait for it
-     * to open if it is not open yet. Then we use a recursive style approach
-     * with a sequence of event listeners handling "ViewShown" events. The
-     * `navTargets` parameter specifies items to click to navigate through the
-     * menu. The optional `nonNavTarget` parameter specifies a final item to
-     * click to perform a command after navigating through the menu. If this
-     * argument is omitted, callers can interact with the last view panel that
-     * is returned. Callers will then need to close the appmenu when they are
-     * done with it.
-     *
-     * @param {object[]} navTargets - Array of objects that contain
-     *     attribute->value pairs. We pick the menu item whose DOM node matches
-     *     all the attribute->value pairs. We click whatever we find. We throw
-     *     if the element being asked for is not found.
-     * @param {object} [nonNavTarget] - Contains attribute->value pairs used
-     *                                 to identify a final menu item to click.
-     * @returns {Element} The <vbox class="panel-subview-body"> element inside
-     *                    the last shown <panelview>.
-     */
-    click_appmenu_in_sequence(navTargets, nonNavTarget) {
-      const rootPopup = this.e("appMenu-popup");
-
-      function viewShownListener(navTargets, nonNavTarget, allDone, event) {
-        // Set up the next listener if there are more navigation targets.
-        if (navTargets.length > 0) {
-          rootPopup.addEventListener(
-            "ViewShown",
-            viewShownListener.bind(
-              null,
-              navTargets.slice(1),
-              nonNavTarget,
-              allDone
-            ),
-            { once: true }
-          );
-        }
-
-        const subview = event.target.querySelector(".panel-subview-body");
-
-        // Click a target if there is a target left to click.
-        const clickTarget = navTargets[0] || nonNavTarget;
-
-        if (clickTarget) {
-          const kids = Array.from(subview.children);
-          const findFunction = node => {
-            let selectors = [];
-            for (let name in clickTarget) {
-              let value = clickTarget[name];
-              selectors.push(`[${name}="${value}"]`);
-            }
-            let s = selectors.join(",");
-            return node.matches(s) || node.querySelector(s);
-          };
-
-          // Some views are dynamically populated after ViewShown, so we wait.
-          utils.waitFor(
-            () => kids.find(findFunction),
-            () =>
-              "Waited but did not find matching menu item for target: " +
-              JSON.stringify(clickTarget)
-          );
-
-          const foundNode = kids.find(findFunction);
-
-          EventUtils.synthesizeMouseAtCenter(
-            foundNode,
-            {},
-            foundNode.ownerGlobal
-          );
-        }
-
-        // We are all done when there are no more navigation targets.
-        if (navTargets.length == 0) {
-          allDone(subview);
-        }
-      }
-
-      let done = false;
-      let subviewToReturn;
-      const allDone = subview => {
-        subviewToReturn = subview;
-        done = true;
-      };
-
-      utils.waitFor(
-        () => rootPopup.getAttribute("panelopen") == "true",
-        "Waited for the appmenu to open, but it never opened."
-      );
-
-      // Because the appmenu button has already been clicked in the calling
-      // code (to match click_menus_in_sequence), we have to call the first
-      // viewShownListener manually, using a fake event argument, to start the
-      // series of event listener calls.
-      const fakeEvent = { target: this.e("appMenu-mainView") };
-      viewShownListener(navTargets, nonNavTarget, allDone, fakeEvent);
-
-      utils.waitFor(() => done, "Timed out in click_appmenu_in_sequence.");
-      return subviewToReturn;
-    },
-
-    /**
-     * Utility wrapper function that clicks the main appmenu button to open the
-     * appmenu before calling `click_appmenu_in_sequence`. Makes things simple
-     * and concise for the most common case while still allowing for tests that
-     * open the appmenu via keyboard before calling `click_appmenu_in_sequence`.
-     *
-     * @param {object[]} navTargets - Array of objects that contain
-     *     attribute->value pairs to be used to identify menu items to click.
-     * @param {object} [nonNavTarget] - Contains attribute->value pairs used
-     *                                 to identify a final menu item to click.
-     * @returns {Element} The <vbox class="panel-subview-body"> element inside
-     *                    the last shown <panelview>.
-     */
-    click_through_appmenu(navTargets, nonNavTarget) {
-      EventUtils.synthesizeMouseAtCenter(
-        this.window.document.getElementById("button-appmenu"),
-        {},
-        this.window.document.getElementById("button-appmenu").ownerGlobal
-      );
-      return this.click_appmenu_in_sequence(navTargets, nonNavTarget);
     },
   },
 };

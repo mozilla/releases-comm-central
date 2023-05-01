@@ -25,6 +25,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { click_menus_in_sequence } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var folder;
 var thread1, thread2, thread3;
@@ -57,7 +60,7 @@ async function clickViewMessagesItem(id) {
     {},
     mc.e("menu_View").ownerGlobal
   );
-  await mc.click_menus_in_sequence(mc.e("menu_View_Popup"), [
+  await click_menus_in_sequence(mc.e("menu_View_Popup"), [
     { id: "viewMessagesMenu" },
     { id },
   ]);

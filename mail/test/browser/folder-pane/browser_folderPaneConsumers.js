@@ -19,6 +19,9 @@ var { NNTP_PORT, setupLocalServer } = ChromeUtils.import(
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
+var { click_menus_in_sequence } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -46,7 +49,7 @@ add_task(async function test_virtual_folder_selection_tree() {
     {},
     mc.e("menu_File").ownerGlobal
   );
-  await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
+  await click_menus_in_sequence(mc.e("menu_FilePopup"), [
     { id: "menu_New" },
     { id: "menu_newVirtualFolder" },
   ]);
@@ -94,7 +97,7 @@ add_task(async function test_offline_sync_folder_selection_tree() {
     {},
     mc.e("menu_File").ownerGlobal
   );
-  await mc.click_menus_in_sequence(mc.e("menu_FilePopup"), [
+  await click_menus_in_sequence(mc.e("menu_FilePopup"), [
     { id: "offlineMenuItem" },
     { id: "menu_synchronizeOffline" },
   ]);

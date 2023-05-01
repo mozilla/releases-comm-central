@@ -27,7 +27,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { wait_for_browser_load } = ChromeUtils.import(
+var { click_menus_in_sequence, wait_for_browser_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -253,7 +253,7 @@ add_task(async function test_remove_file() {
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   await wait_for_popup_to_open(contextMenu);
-  await mc.click_menus_in_sequence(contextMenu, [
+  await click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_remove" },
   ]);
   mc.waitFor(
@@ -306,7 +306,7 @@ add_task(async function test_remove_multiple_files() {
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   await wait_for_popup_to_open(contextMenu);
-  await mc.click_menus_in_sequence(contextMenu, [
+  await click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_remove" },
   ]);
   mc.waitFor(
@@ -349,7 +349,7 @@ add_task(async function test_clear_all_files() {
 
   let contextMenu = content_tab_e(downloadsTab, "msgDownloadsContextMenu");
   await wait_for_popup_to_open(contextMenu);
-  await mc.click_menus_in_sequence(contextMenu, [
+  await click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_clearDownloads" },
   ]);
   mc.waitFor(

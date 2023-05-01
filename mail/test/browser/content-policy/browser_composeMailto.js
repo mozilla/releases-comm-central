@@ -17,6 +17,7 @@ var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
 var {
+  click_menus_in_sequence,
   plan_for_modal_dialog,
   plan_for_new_window,
   wait_for_modal_dialog,
@@ -73,7 +74,7 @@ add_task(async function test_checkInsertImage() {
   let insertMenu = gCwc.window.document.getElementById("InsertPopupButton");
   let insertMenuPopup = gCwc.window.document.getElementById("InsertPopup");
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
-  await gCwc.click_menus_in_sequence(insertMenuPopup, [
+  await click_menus_in_sequence(insertMenuPopup, [
     { id: "InsertImageItem" },
   ]);
 

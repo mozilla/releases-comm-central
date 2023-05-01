@@ -29,9 +29,11 @@ const {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+const {
+  click_menus_in_sequence,
+  plan_for_window_close,
+  wait_for_window_close,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -145,7 +147,7 @@ add_task(async function test_mark_messages_read() {
     getMailContext(),
     "popuphidden"
   );
-  await mc.click_menus_in_sequence(getMailContext(), [
+  await click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markAllRead" },
   ]);
@@ -187,7 +189,7 @@ add_task(async function test_mark_messages_read() {
     getMailContext(),
     "popuphidden"
   );
-  await mc.click_menus_in_sequence(getMailContext(), [
+  await click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markUnread" },
   ]);
@@ -206,7 +208,7 @@ add_task(async function test_mark_messages_flagged() {
     getMailContext(),
     "popuphidden"
   );
-  await mc.click_menus_in_sequence(getMailContext(), [
+  await click_menus_in_sequence(getMailContext(), [
     { id: "mailContext-mark" },
     { id: "mailContext-markFlagged" },
   ]);

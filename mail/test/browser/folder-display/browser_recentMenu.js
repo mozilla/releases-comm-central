@@ -23,7 +23,12 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-
+var {
+  click_menus_in_sequence,
+  close_popup_sequence,
+  click_appmenu_in_sequence,
+  click_through_appmenu,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -52,7 +57,7 @@ add_task(async function test_move_message() {
   // This will cause the initial build of the move recent context menu,
   // which should be empty and disabled.
   await right_click_on_row(0);
-  let popups = await mc.click_menus_in_sequence(
+  let popups = await click_menus_in_sequence(
     getMailContext(),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
@@ -65,7 +70,7 @@ add_task(async function test_move_message() {
     getMailContext(),
     "popuphidden"
   );
-  mc.close_popup_sequence(popups);
+  close_popup_sequence(popups);
   await hiddenPromise;
   await new Promise(resolve => requestAnimationFrame(resolve));
   let copyListener = {
@@ -98,7 +103,7 @@ add_task(async function test_move_message() {
   // id we can use.
   select_click_row(0);
   await right_click_on_row(0);
-  popups = await mc.click_menus_in_sequence(
+  popups = await click_menus_in_sequence(
     getMailContext(),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
@@ -118,7 +123,7 @@ add_task(async function test_move_message() {
     getMailContext(),
     "popuphidden"
   );
-  mc.close_popup_sequence(popups);
+  close_popup_sequence(popups);
   await hiddenPromise;
   await new Promise(resolve => requestAnimationFrame(resolve));
 });
@@ -128,7 +133,7 @@ add_task(async function test_delete_message() {
   // We've deleted a message - we should still just have folder2 in the menu.
   select_click_row(0); // TODO shouldn't need to do this
   await right_click_on_row(0);
-  let popups = await mc.click_menus_in_sequence(
+  let popups = await click_menus_in_sequence(
     getMailContext(),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
@@ -148,7 +153,7 @@ add_task(async function test_delete_message() {
     getMailContext(),
     "popuphidden"
   );
-  mc.close_popup_sequence(popups);
+  close_popup_sequence(popups);
   await hiddenPromise;
   await new Promise(resolve => requestAnimationFrame(resolve));
 });
@@ -164,7 +169,7 @@ add_task(async function test_archive_message() {
   await be_in_folder(archive.descendants[0]);
   select_click_row(0);
   await right_click_on_row(0);
-  let popups = await mc.click_menus_in_sequence(
+  let popups = await click_menus_in_sequence(
     getMailContext(),
     [{ id: "mailContext-moveMenu" }, { label: "Recent" }],
     true
@@ -184,7 +189,7 @@ add_task(async function test_archive_message() {
     getMailContext(),
     "popuphidden"
   );
-  mc.close_popup_sequence(popups);
+  close_popup_sequence(popups);
   await hiddenPromise;
   await new Promise(resolve => requestAnimationFrame(resolve));
 });

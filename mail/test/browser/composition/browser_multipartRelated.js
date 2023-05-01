@@ -25,6 +25,7 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
+  click_menus_in_sequence,
   plan_for_modal_dialog,
   wait_for_modal_dialog,
   wait_for_window_close,
@@ -117,7 +118,7 @@ add_task(async function test_basic_multipart_related() {
   let insertMenuPopup = compWin.e("InsertPopup");
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
-  await compWin.click_menus_in_sequence(insertMenuPopup, [
+  await click_menus_in_sequence(insertMenuPopup, [
     { id: "InsertImageItem" },
   ]);
 

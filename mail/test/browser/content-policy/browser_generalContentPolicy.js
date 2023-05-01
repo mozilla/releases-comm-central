@@ -57,6 +57,7 @@ var {
 );
 var {
   async_plan_for_new_window,
+  click_menus_in_sequence,
   plan_for_modal_dialog,
   wait_for_modal_dialog,
   wait_for_new_window,
@@ -838,7 +839,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   let insertMenuPopup = replyWindow.e("InsertPopup");
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
-  await replyWindow.click_menus_in_sequence(insertMenuPopup, [
+  await click_menus_in_sequence(insertMenuPopup, [
     { id: "InsertImageItem" },
   ]);
 

@@ -11,6 +11,7 @@ var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
+  click_through_appmenu,
   plan_for_modal_dialog,
   wait_for_browser_load,
   wait_for_modal_dialog,
@@ -42,7 +43,7 @@ add_task(async function test_open_addons_with_url() {
  */
 add_task(function test_addon_prefs() {
   // Open Add-on Options.
-  const subview = mc.click_through_appmenu([{ id: "appmenu_addons" }]);
+  const subview = click_through_appmenu([{ id: "appmenu_addons" }]);
 
   plan_for_modal_dialog("mozmill-prefs", function(controller) {
     // Add |mc.sleep(1000);| here to see the popup dialog.

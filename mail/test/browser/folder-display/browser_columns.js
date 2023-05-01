@@ -25,6 +25,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { click_menus_in_sequence } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 // needed to zero inter-folder processing delay
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -474,7 +477,7 @@ async function invoke_column_picker_option(aActions) {
   );
   EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
   await shownPromise;
-  await mc.click_menus_in_sequence(colPickerPopup, aActions);
+  await click_menus_in_sequence(colPickerPopup, aActions);
 }
 
 /**

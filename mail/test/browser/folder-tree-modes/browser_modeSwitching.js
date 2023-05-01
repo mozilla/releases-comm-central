@@ -23,6 +23,11 @@ var { MailTelemetryForTests } = ChromeUtils.import(
 var { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
+var {
+  click_menus_in_sequence,
+  click_through_appmenu,
+  close_popup_sequence,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var rootFolder;
 var unreadFolder;
@@ -86,7 +91,7 @@ async function assert_mode_selected(aMode) {
   if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from tests.
     EventUtils.synthesizeMouseAtCenter(view_menu, { clickCount: 1 }, mc.window);
-    let popuplist = await mc.click_menus_in_sequence(
+    let popuplist = await click_menus_in_sequence(
       view_menupopup,
       [{ id: modeList_menu.parentNode.id }],
       true
@@ -96,11 +101,11 @@ async function assert_mode_selected(aMode) {
         modeList_menu.querySelector(`[value="${mode}"]`).hasAttribute("checked")
       );
     }
-    mc.close_popup_sequence(popuplist);
+    close_popup_sequence(popuplist);
   }
 
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
-  mc.click_through_appmenu([
+  click_through_appmenu([
     { id: "appmenu_View" },
     { id: "appmenu_FolderViews" },
   ]);
@@ -126,7 +131,7 @@ async function assert_mode_not_selected(mode) {
   if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from tests.
     EventUtils.synthesizeMouseAtCenter(view_menu, { clickCount: 1 }, mc.window);
-    let popuplist = await mc.click_menus_in_sequence(
+    let popuplist = await click_menus_in_sequence(
       view_menupopup,
       [{ id: modeList_menu.parentNode.id }],
       true
@@ -134,11 +139,11 @@ async function assert_mode_not_selected(mode) {
     Assert.ok(
       !modeList_menu.querySelector(`[value="${mode}"]`).hasAttribute("checked")
     );
-    mc.close_popup_sequence(popuplist);
+    close_popup_sequence(popuplist);
   }
 
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
-  mc.click_through_appmenu([
+  click_through_appmenu([
     { id: "appmenu_View" },
     { id: "appmenu_FolderViews" },
   ]);
@@ -155,7 +160,7 @@ async function assert_mode_not_selected(mode) {
  */
 function select_mode_in_menu(mode) {
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
-  mc.click_through_appmenu(
+  click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
     { value: mode }
   );

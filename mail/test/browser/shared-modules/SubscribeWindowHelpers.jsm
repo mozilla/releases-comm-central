@@ -10,15 +10,17 @@ const EXPORTED_SYMBOLS = [
   "check_newsgroup_displayed",
 ];
 
-var { get_about_3pane, mc, right_click_on_folder } = ChromeUtils.import(
+var { get_about_3pane, right_click_on_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+var {
+  click_menus_in_sequence,
+  plan_for_modal_dialog,
+  wait_for_modal_dialog,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 /**
  * Open a subscribe dialog from the context menu.
@@ -37,7 +39,7 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
     aFunction(controller);
   };
   plan_for_modal_dialog("mailnews:subscribe", callback);
-  await mc.click_menus_in_sequence(
+  await click_menus_in_sequence(
     win.document.getElementById("folderPaneContext"),
     [{ id: "folderPaneContext-subscribe" }]
   );

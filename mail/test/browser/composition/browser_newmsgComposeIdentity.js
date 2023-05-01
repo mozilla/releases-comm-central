@@ -24,7 +24,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_new_window } = ChromeUtils.import(
+var { click_menus_in_sequence, plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -185,7 +185,7 @@ add_task(async function test_editing_identity() {
     {},
     compWin.e("msgIdentity").ownerGlobal
   );
-  await compWin.click_menus_in_sequence(compWin.e("msgIdentityPopup"), [
+  await click_menus_in_sequence(compWin.e("msgIdentityPopup"), [
     { command: "cmd_customizeFromAddress" },
   ]);
   compWin.waitFor(() => compWin.e("msgIdentity").editable);
@@ -207,7 +207,7 @@ add_task(async function test_editing_identity() {
 
   // Switch to another identity to see if editable field still obeys predefined
   // identity values.
-  await compWin.click_menus_in_sequence(compWin.e("msgIdentityPopup"),
+  await click_menus_in_sequence(compWin.e("msgIdentityPopup"),
                                   [ { identitykey: identityKey2 } ]);
   checkCompIdentity(compWin, identityKey2, identity2From, identity2From);
 

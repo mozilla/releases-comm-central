@@ -8,6 +8,10 @@
 
 "use strict";
 
+var { click_menus_in_sequence } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
@@ -193,7 +197,7 @@ add_task(async function test_address_types() {
     {},
     cwc.e("msgIdentity").ownerGlobal
   );
-  await cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
+  await click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: NNTPidentity },
   ]);
   check_nntp_address_types(cwc.window);
@@ -205,7 +209,7 @@ add_task(async function test_address_types() {
     {},
     cwc.e("msgIdentity").ownerGlobal
   );
-  await cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
+  await click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: POP3identity },
   ]);
   check_nntp_address_types(cwc.window);
