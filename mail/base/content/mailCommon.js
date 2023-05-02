@@ -89,11 +89,11 @@ var commandController = {
         commandController.doCommand("cmd_replySender", event);
       }
     },
-    cmd_forward() {
+    cmd_forward(event) {
       if (Services.prefs.getIntPref("mail.forward_message_mode", 0) == 0) {
-        commandController.doCommand("cmd_forwardAttachment");
+        commandController.doCommand("cmd_forwardAttachment", event);
       } else {
-        commandController.doCommand("cmd_forwardInline");
+        commandController.doCommand("cmd_forwardInline", event);
       }
     },
     cmd_openMessage(event) {

@@ -100,7 +100,7 @@ var DefaultController = {
     return false;
   },
 
-  doCommand(command, aTab) {
+  doCommand(command, event) {
     // If the user invoked a key short cut then it is possible that we got here
     // for a command which is really disabled. Kick out if the command should be disabled.
     if (!this.isCommandEnabled(command)) {
@@ -119,7 +119,7 @@ var DefaultController = {
         MsgGetNextNMessages();
         break;
       case "cmd_newMessage":
-        MsgNewMessage(null);
+        MsgNewMessage(event);
         break;
       case "cmd_undoCloseTab":
         document.getElementById("tabmail").undoCloseTab();

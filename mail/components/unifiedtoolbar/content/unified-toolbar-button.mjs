@@ -143,11 +143,12 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
     }
     if (this.hasAttribute("command")) {
       const command = this.getAttribute("command");
-      const controller = getEnabledControllerForCommand(command);
+      let controller = getEnabledControllerForCommand(command);
       if (controller) {
         event.preventDefault();
         event.stopPropagation();
-        controller.doCommand(command);
+        controller = controller.wrappedJSObject ?? controller;
+        controller.doCommand(command, event);
         return;
       }
       const commandElement = document.getElementById(command);
