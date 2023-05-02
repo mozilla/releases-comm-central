@@ -8,7 +8,9 @@
 /* import-globals-from ../../../base/content/msgHdrView.js */
 /* import-globals-from ../../../base/content/msgSecurityPane.js */
 
-var gEncryptedURIService = null;
+// mailCommon.js
+/* globals gEncryptedURIService */
+
 var gMyLastEncryptedURI = null;
 
 var gSMIMEBundle = null;

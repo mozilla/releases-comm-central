@@ -17,9 +17,19 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   ConversationOpener: "resource:///modules/ConversationOpener.jsm",
+  EnigmailPersistentCrypto:
+    "chrome://openpgp/content/modules/persistentCrypto.jsm",
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MessageArchiver: "resource:///modules/MessageArchiver.jsm",
 });
+
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gEncryptedURIService",
+  "@mozilla.org/messenger-smime/smime-encrypted-uris-service;1",
+  "nsIEncryptedSMIMEURIsService"
+);
 
 const nsMsgViewIndex_None = 0xffffffff;
 const nsMsgKey_None = 0xffffffff;
@@ -158,6 +168,36 @@ var commandController = {
         destFolder.URI
       );
       Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", true);
+    },
+    async cmd_copyDecryptedTo(destFolder) {
+      let msgHdrs = gDBView.getSelectedMsgHdrs();
+      if (!msgHdrs || msgHdrs.length === 0) {
+        return;
+      }
+
+      let total = msgHdrs.length;
+      let failures = 0;
+      for (let msgHdr of msgHdrs) {
+        await EnigmailPersistentCrypto.cryptMessage(
+          msgHdr,
+          destFolder.URI,
+          false, // not moving
+          false
+        ).catch(err => {
+          failures++;
+        });
+      }
+
+      if (failures) {
+        let info = await document.l10n.formatValue(
+          "decrypt-and-copy-failures",
+          {
+            failures,
+            total,
+          }
+        );
+        Services.prompt.alert(null, document.title, info);
+      }
     },
     /**
      * Copies the selected messages to the destination folder.
@@ -452,6 +492,18 @@ var commandController = {
       case "cmd_moveMessage":
       case "cmd_applyFiltersToSelection":
         return numSelectedMessages >= 1 && !isDummyMessage;
+      case "cmd_copyDecryptedTo": {
+        let showDecrypt = numSelectedMessages > 1;
+        if (numSelectedMessages == 1) {
+          let msgURI = gDBView.URIForFirstSelectedMessage;
+          if (msgURI) {
+            showDecrypt =
+              EnigmailURIs.isEncryptedUri(msgURI) ||
+              gEncryptedURIService.isEncrypted(msgURI);
+          }
+        }
+        return showDecrypt;
+      }
       case "cmd_editDraftMsg":
         return (
           numSelectedMessages == 1 &&

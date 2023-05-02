@@ -254,6 +254,24 @@
               class="menuitem-iconic"
               label="&moveToFolderAgain.label;"
               accesskey="&moveToFolderAgain.accesskey;"/>
+
+    <menu id="mailContext-decryptToFolder"
+          class="menu-iconic"
+          data-l10n-id="context-menu-decrypt-to-folder"
+          data-l10n-attrs="accesskey">
+      <menupopup is="folder-menupopup"
+                 id="mailContext-decryptToTargetFolder"
+                 mode="filing"
+                 showFileHereLabel="true"
+                 showRecent="true"
+                 recentLabel="&contextMoveCopyMsgRecentMenu.label;"
+                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
+                 showFavorites="true"
+                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"
+                 hasbeenopened="false" />
+    </menu>
+
     <menu id="mailContext-calendar-convert-menu"
           class="menu-iconic hide-when-calendar-deactivated"
           label="&calendar.context.convertmenu.label;"

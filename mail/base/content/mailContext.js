@@ -10,6 +10,9 @@
 /* globals goDoCommand */ // globalOverlay.js
 /* globals gDBView, gFolder, gViewWrapper, messengerBundle */
 
+// mailCommon.js
+/* globals gEncryptedURIService */
+
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -18,6 +21,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   PhishingDetector: "resource:///modules/PhishingDetector.jsm",
   TagUtils: "resource:///modules/TagUtils.jsm",
@@ -85,6 +89,7 @@ var mailContextMenu = {
     "mailContext-markFlagged": "cmd_markAsFlagged",
     "mailContext-archive": "cmd_archive",
     "mailContext-moveToFolderAgain": "cmd_moveToFolderAgain",
+    "mailContext-decryptToFolder": "cmd_copyDecryptedTo",
     "mailContext-delete": "cmd_delete",
     "mailContext-ignoreThread": "cmd_killThread",
     "mailContext-ignoreSubthread": "cmd_killSubthread",
@@ -520,6 +525,15 @@ var mailContextMenu = {
           document.getElementById("mailContext-copyMenu").contains(event.target)
         ) {
           commandController.doCommand("cmd_copyMessage", event.target._folder);
+        } else if (
+          document
+            .getElementById("mailContext-decryptToFolder")
+            .contains(event.target)
+        ) {
+          commandController.doCommand(
+            "cmd_copyDecryptedTo",
+            event.target._folder
+          );
         }
         break;
       }
