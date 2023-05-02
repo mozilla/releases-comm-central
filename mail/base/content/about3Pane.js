@@ -1107,6 +1107,8 @@ var folderPane = {
 
     Services.prefs.addObserver("mail.accountmanager.accounts", this);
 
+    Services.obs.addObserver(this, "folder-color-changed");
+    Services.obs.addObserver(this, "folder-color-preview");
     Services.obs.addObserver(this, "search-folders-changed");
     Services.obs.addObserver(this, "folder-properties-changed");
 
@@ -1157,6 +1159,8 @@ var folderPane = {
 
   uninit() {
     Services.prefs.removeObserver("mail.accountmanager.accounts", this);
+    Services.obs.removeObserver(this, "folder-color-changed");
+    Services.obs.removeObserver(this, "folder-color-preview");
     Services.obs.removeObserver(this, "search-folders-changed");
     Services.obs.removeObserver(this, "folder-properties-changed");
   },
@@ -1191,15 +1195,25 @@ var folderPane = {
   },
 
   observe(subject, topic, data) {
-    if (topic == "nsPref:changed") {
-      this._forAllActiveModes("changeAccountOrder");
-    } else if (topic == "search-folders-changed" && this._modes.smart.active) {
-      subject.QueryInterface(Ci.nsIMsgFolder);
-      if (subject.server == this._modes.smart._smartServer) {
-        this._modes.smart.changeSearchedFolders(subject);
-      }
-    } else if (topic == "folder-properties-changed") {
-      this.updateFolderProperties(subject.QueryInterface(Ci.nsIMsgFolder));
+    switch (topic) {
+      case "nsPref:changed":
+        this._forAllActiveModes("changeAccountOrder");
+        break;
+      case "search-folders-changed":
+        if (this._modes.smart.active) {
+          subject.QueryInterface(Ci.nsIMsgFolder);
+          if (subject.server == this._modes.smart._smartServer) {
+            this._modes.smart.changeSearchedFolders(subject);
+          }
+        }
+        break;
+      case "folder-properties-changed":
+        this.updateFolderProperties(subject.QueryInterface(Ci.nsIMsgFolder));
+        break;
+      case "folder-color-changed":
+      case "folder-color-preview":
+        this._changeRows(subject, row => row.setIconColor(data));
+        break;
     }
   },
 
@@ -2102,7 +2116,6 @@ var folderPane = {
       if (aNewName != aOldName) {
         folder.rename(aNewName, top.msgWindow);
       }
-      folderPane.getFolderFromUri(aUri)?.setIconColor();
     }
 
     async function rebuildSummary() {
@@ -2149,9 +2162,6 @@ var folderPane = {
         okCallback: editFolderCallback,
         name: folder.prettyName,
         rebuildSummaryCallback: rebuildSummary,
-        previewSelectedColorCallback() {},
-        clearFolderSelectionCallback() {},
-        selectFolderCallback() {},
       }
     );
   },
@@ -2373,7 +2383,6 @@ var folderPane = {
     // xxx should pass the folder object
     function editVirtualCallback(aUri) {
       // TODO: we need to reload the folder if it is the currently loaded folder...
-      folderPane.getFolderFromUri(aUri)?.setIconColor();
     }
     window.openDialog(
       "chrome://messenger/content/virtualFolderProperties.xhtml",
@@ -2384,9 +2393,6 @@ var folderPane = {
         editExistingFolder: true,
         onOKCallback: editVirtualCallback,
         msgWindow: top.msgWindow,
-        previewSelectedColorCallback() {},
-        clearFolderSelectionCallback() {},
-        selectFolderCallback() {},
       }
     );
   },
@@ -2664,14 +2670,16 @@ class FolderTreeRow extends HTMLLIElement {
   }
 
   /**
-   * Set the icon color if one is availible from the FolderTreeProperties.
+   * Set the icon color to the given color, or if none is given the value from
+   * FolderTreeProperties, or the default.
+   *
+   * @param {string?} iconColor
    */
-  setIconColor() {
-    let iconColor = FolderTreeProperties.getColor(this.uri);
+  setIconColor(iconColor) {
     if (!iconColor) {
-      return;
+      iconColor = FolderTreeProperties.getColor(this.uri);
     }
-    this.icon.style.setProperty("--icon-color", iconColor);
+    this.icon.style.setProperty("--icon-color", iconColor ?? "");
   }
 
   /**

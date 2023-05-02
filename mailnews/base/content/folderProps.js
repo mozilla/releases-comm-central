@@ -13,9 +13,7 @@ var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 var gMsgFolder;
 var gLockedPref = null;
 
-var gCurrentColor = "";
 var gDefaultColor = "";
-var gNeedToRestoreFolderSelection = false;
 
 window.addEventListener("DOMContentLoaded", folderPropsOnLoad);
 document.addEventListener("dialogaccept", folderPropsOKButton);
@@ -127,24 +125,6 @@ function doEnabling() {
     .getButton("accept").disabled = !nameTextbox.value;
 }
 
-/**
- * Clear the tree selection if the user opens the color picker in order to
- * guarantee a proper color preview of the highlighted tree item.
- */
-function inputColorClicked() {
-  window.arguments[0].clearFolderSelectionCallback();
-  gNeedToRestoreFolderSelection = true;
-}
-
-/**
- * Reset the folder color to the default value.
- */
-function resetColor() {
-  inputColorClicked();
-  document.getElementById("color").value = gDefaultColor;
-  window.arguments[0].previewSelectedColorCallback(gMsgFolder, null);
-}
-
 function folderPropsOKButton(event) {
   if (gMsgFolder) {
     if (
@@ -184,12 +164,13 @@ function folderPropsOKButton(event) {
     ).checked;
     gMsgFolder.retentionSettings = retentionSettings;
 
-    FolderTreeProperties.setColor(
-      window.arguments[0].folder.URI,
-      document.getElementById("color").value
-    );
-
-    restoreFolderSelection();
+    let color = document.getElementById("color").value;
+    if (color == gDefaultColor) {
+      color = undefined;
+    }
+    FolderTreeProperties.setColor(gMsgFolder.URI, color);
+    // Tell 3-pane tabs to update the folder's color.
+    Services.obs.notifyObservers(gMsgFolder, "folder-color-changed", color);
   }
 
   try {
@@ -205,26 +186,8 @@ function folderPropsOKButton(event) {
 }
 
 function folderCancelButton(event) {
-  // Restore the icon to the previous color and discard edits.
-  if (gMsgFolder && window.arguments[0].previewSelectedColorCallback) {
-    window.arguments[0].previewSelectedColorCallback(gMsgFolder, gCurrentColor);
-  }
-
-  restoreFolderSelection();
-}
-
-/**
- * If the user interacted with the color picker, it means the folder was
- * deselected to ensure a proper preview of the color, so we need to re-select
- * the folder when done.
- */
-function restoreFolderSelection() {
-  if (
-    gNeedToRestoreFolderSelection &&
-    window.arguments[0].selectFolderCallback
-  ) {
-    window.arguments[0].selectFolderCallback(gMsgFolder);
-  }
+  // Clear any previewed color.
+  Services.obs.notifyObservers(gMsgFolder, "folder-color-preview");
 }
 
 function folderPropsOnLoad() {
@@ -257,8 +220,6 @@ function folderPropsOnLoad() {
   if (window.arguments[0].folder) {
     // Fill in folder name, based on what they selected in the folder pane.
     gMsgFolder = window.arguments[0].folder;
-    // Store the current icon color to allow discarding edits.
-    gCurrentColor = FolderTreeProperties.getColor(gMsgFolder.URI);
   }
 
   if (window.arguments[0].name) {
@@ -305,11 +266,24 @@ function folderPropsOnLoad() {
     }
 
     let colorInput = document.getElementById("color");
-    colorInput.value = gCurrentColor || gDefaultColor;
+    colorInput.value =
+      FolderTreeProperties.getColor(gMsgFolder.URI) || gDefaultColor;
     colorInput.addEventListener("input", event => {
-      window.arguments[0].previewSelectedColorCallback(
+      // Preview the chosen color.
+      Services.obs.notifyObservers(
         gMsgFolder,
-        event.target.value
+        "folder-color-preview",
+        colorInput.value
+      );
+    });
+    let resetColorButton = document.getElementById("resetColor");
+    resetColorButton.addEventListener("click", function() {
+      colorInput.value = gDefaultColor;
+      // Preview the default color.
+      Services.obs.notifyObservers(
+        gMsgFolder,
+        "folder-color-preview",
+        gDefaultColor
       );
     });
 

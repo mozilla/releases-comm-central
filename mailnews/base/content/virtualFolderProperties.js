@@ -11,13 +11,13 @@ var gSearchTermSession; // really an in memory temporary filter we use to read i
 var gSearchFolderURIs = "";
 var gMessengerBundle = null;
 var gFolderBundle = null;
-var gCurrentColor = "";
 var gDefaultColor = "";
-var gNeedToRestoreFolderSelection = false;
+var gMsgFolder;
 
 var { FolderTreeProperties } = ChromeUtils.import(
   "resource:///modules/FolderTreeProperties.jsm"
 );
+var { FolderUtils } = ChromeUtils.import("resource:///modules/FolderUtils.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -150,6 +150,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   let virtualFolderWrapper = VirtualFolderHelper.wrapVirtualFolder(
     window.arguments[0].folder
   );
+  gMsgFolder = window.arguments[0].folder;
 
   let styles = getComputedStyle(document.body);
   let folderColors = {
@@ -178,35 +179,31 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
 
   // Show the icon color options.
   document.getElementById("iconColorContainer").collapsed = false;
-  // Store the current icon color to allow discarding edits.
-  gCurrentColor = FolderTreeProperties.getColor(aVirtualFolder.URI);
 
-  // Check the current folder name against known folder names to set the
-  // correct default color, if needed.
-  let selectedFolderName = "";
-
-  switch (window.arguments[0].serverType) {
-    case "rss":
-      selectedFolderName = "RSS";
-      break;
-    case "nntp":
-      selectedFolderName = "Newsgroup";
-      break;
-    default:
-      selectedFolderName = "Virtual";
-      break;
-  }
-
-  if (Object.keys(folderColors).includes(selectedFolderName)) {
-    gDefaultColor = folderColors[selectedFolderName];
+  let folderType = FolderUtils.getSpecialFolderString(gMsgFolder);
+  if (folderType in folderColors) {
+    gDefaultColor = folderColors[folderType];
   }
 
   let colorInput = document.getElementById("color");
-  colorInput.value = gCurrentColor || gDefaultColor;
+  colorInput.value =
+    FolderTreeProperties.getColor(aVirtualFolder.URI) || gDefaultColor;
   colorInput.addEventListener("input", event => {
-    window.arguments[0].previewSelectedColorCallback(
-      aVirtualFolder,
-      event.target.value
+    // Preview the chosen color.
+    Services.obs.notifyObservers(
+      gMsgFolder,
+      "folder-color-preview",
+      colorInput.value
+    );
+  });
+  let resetColorButton = document.getElementById("resetColor");
+  resetColorButton.addEventListener("click", function() {
+    colorInput.value = gDefaultColor;
+    // Preview the default color.
+    Services.obs.notifyObservers(
+      gMsgFolder,
+      "folder-color-preview",
+      gDefaultColor
     );
   });
 
@@ -267,16 +264,18 @@ function onOK(event) {
 
     MailServices.accounts.saveVirtualFolders();
 
-    FolderTreeProperties.setColor(
-      window.arguments[0].folder.URI,
-      document.getElementById("color").value
-    );
+    let color = document.getElementById("color").value;
+    if (color == gDefaultColor) {
+      color = undefined;
+    }
+    FolderTreeProperties.setColor(gMsgFolder.URI, color);
+    // Tell 3-pane tabs to update the folder's color.
+    Services.obs.notifyObservers(gMsgFolder, "folder-color-changed", color);
 
     if (window.arguments[0].onOKCallback) {
       window.arguments[0].onOKCallback(virtualFolderWrapper.virtualFolder.URI);
     }
 
-    restoreFolderSelection();
     return;
   }
 
@@ -321,31 +320,9 @@ function onOK(event) {
 }
 
 function onCancel(event) {
-  if (
-    window.arguments[0].folder &&
-    window.arguments[0].previewSelectedColorCallback
-  ) {
-    // Restore the icon to the previous color and discard edits.
-    window.arguments[0].previewSelectedColorCallback(
-      window.arguments[0].folder,
-      gCurrentColor
-    );
-  }
-
-  restoreFolderSelection();
-}
-
-/**
- * If the user interacted with the color picker, it means the folder was
- * deselected to ensure a proper preview of the color, so we need to re-select
- * the folder when done.
- */
-function restoreFolderSelection() {
-  if (
-    gNeedToRestoreFolderSelection &&
-    window.arguments[0].selectFolderCallback
-  ) {
-    window.arguments[0].selectFolderCallback(window.arguments[0].folder);
+  if (gMsgFolder) {
+    // Clear any previewed color.
+    Services.obs.notifyObservers(gMsgFolder, "folder-color-preview");
   }
 }
 
@@ -403,25 +380,4 @@ function updateFoldersCount() {
 function onEnterInSearchTerm() {
   // stub function called by the core search widget code...
   // nothing for us to do here
-}
-
-/**
- * Clear the tree selection if the user opens the color picker in order to
- * guarantee a proper color preview of the highlighted tree item.
- */
-function inputColorClicked() {
-  window.arguments[0].clearFolderSelectionCallback();
-  gNeedToRestoreFolderSelection = true;
-}
-
-/**
- * Reset the folder color to the default value.
- */
-function resetColor() {
-  inputColorClicked();
-  document.getElementById("color").value = gDefaultColor;
-  window.arguments[0].previewSelectedColorCallback(
-    window.arguments[0].folder,
-    null
-  );
 }

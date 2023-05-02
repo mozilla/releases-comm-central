@@ -51,6 +51,12 @@ var FolderTreeProperties = {
     jsonFile.saveSoon();
   },
 
+  resetColors() {
+    ensureReady();
+    delete jsonFile.data.colors;
+    jsonFile.saveSoon();
+  },
+
   getIsExpanded(folderURI, mode) {
     ensureReady();
     if (!Array.isArray(jsonFile.data.open?.[mode])) {
