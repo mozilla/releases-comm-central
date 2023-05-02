@@ -42,32 +42,35 @@
 }
 
 .toolbar-target .spacer {
-  height: 2px;
-  border-top: 2px dashed currentColor;
-  margin-inline: 19px;
+  color: color-mix(in srgb, var(--layout-color-1) 50%, transparent);
+  background-image: linear-gradient(to left, currentColor 0%, currentColor 50%, transparent 50%, transparent 100%);
+  background-size: 9px 1px;
+  background-position: 5px center;
+  background-repeat: repeat-x;
   position: relative;
+  height: 100%;
   -moz-context-properties: stroke;
   stroke: currentColor;
-  opacity: 0.5;
 }
 
 .toolbar-target .spacer::before,
 .toolbar-target .spacer::after {
   content: '';
   width: 16px;
-  height: 16px;
   position: absolute;
-  top: -9px;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position-y: center;
 }
 
 .toolbar-target .spacer::before {
   background-image: var(--icon-nav-left);
-  left: -16px;
+  left: -5px;
 }
 
 .toolbar-target .spacer::after {
   background-image: var(--icon-nav-right);
-  right: -16px;
+  right: -5px;
 }
 
 .toolbar-target .throbber .throbber-icon {
