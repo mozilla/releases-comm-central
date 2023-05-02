@@ -186,8 +186,8 @@ html|input[type="number"]::-moz-number-spin-down {
   width: 16px;
   background-position: center;
   background-color: var(--button-background-color);
+  background-repeat: no-repeat;
   border: 1px solid var(--field-border-color);
-  border-radius: 2px;
   -moz-context-properties: stroke;
   stroke: currentColor;
 }
@@ -195,9 +195,11 @@ html|input[type="number"]::-moz-number-spin-down {
 html|input[type="number"]::-moz-number-spin-up {
   background-image: var(--icon-nav-up-sm);
   border-bottom-style: none;
+  border-radius: 2px 2px 0 0;
 }
 html|input[type="number"]::-moz-number-spin-down {
   background-image: var(--icon-nav-down-sm);
+  border-radius: 0 0 2px 2px;
 }
 
 button,
