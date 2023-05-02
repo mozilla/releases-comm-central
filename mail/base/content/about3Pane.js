@@ -2702,7 +2702,7 @@ class FolderTreeRow extends HTMLLIElement {
     this.setFolderPropertiesFromFolder(folder);
     this._nameStyle = nameStyle;
     this._serverName = folder.server.prettyName;
-    this._folderName = folder.name;
+    this._folderName = folder.abbreviatedName;
     this._setName();
     this.unreadCount = folder.getNumUnread(false);
     this.folderSortOrder = folder.sortOrder;
