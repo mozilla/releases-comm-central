@@ -175,8 +175,8 @@ mail-context-delete-messages =
     *[other] Delete selected messages
   }
 
-context-menu-decrypt-to-folder =
-    .label = Copy As Decrypted To
+context-menu-decrypt-to-folder2 =
+    .label = Create Decrypted Copy In
     .accesskey = y
 
 ## Message header pane
