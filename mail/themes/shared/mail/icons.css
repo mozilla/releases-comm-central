@@ -134,6 +134,11 @@
   --icon-warning: url("chrome://messenger/skin/icons/new/compact/warning.svg");
   --icon-warning-sm: url("chrome://messenger/skin/icons/warning-12.svg");
 
+  /* Medium variations, touch, 20px */
+  --icon-add-md: url("chrome://messenger/skin/icons/new/normal/add.svg");
+  --icon-download-md: url("chrome://messenger/skin/icons/new/normal/download.svg");
+  --icon-more-md: url("chrome://messenger/skin/icons/new/normal/more.svg");
+
   /* Large variations, touch, 24px */
   --icon-address-book-lg: url("chrome://messenger/skin/icons/new/touch/address-book.svg");
   --icon-calendar-lg: url("chrome://messenger/skin/icons/new/touch/calendar.svg");

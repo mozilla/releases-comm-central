@@ -10,6 +10,10 @@
   --folder-mode-name-padding: 6px;
   --folder-tree-header-gap: 9px;
   --folder-tree-header-padding: 9px;
+  --folder-pane-icon-size: 16px;
+  --folder-pane-icon-new: var(--icon-add);
+  --folder-pane-icon-more: var(--icon-more);
+  --folder-pane-icon-download: var(--icon-download);
 }
 
 @media not (prefers-contrast) {
@@ -68,6 +72,10 @@
 :root[uidensity="touch"] {
   --folder-mode-name-padding: 9px;
   --folder-tree-header-gap: 12px;
+  --folder-pane-icon-size: 20px;
+  --folder-pane-icon-new: var(--icon-add-md);
+  --folder-pane-icon-more: var(--icon-more-md);
+  --folder-pane-icon-download: var(--icon-download-md);
 }
 
 
@@ -205,16 +213,22 @@ body:not(.account-central) #accountCentralBrowser {
   z-index: 1;
 }
 
+#folderPaneGetMessages,
+#folderPaneMoreButton,
+#folderPaneWriteMessage {
+  --icon-size: var(--folder-pane-icon-size);
+}
+
 #folderPaneGetMessages {
-  background-image: var(--icon-download);
+  background-image: var(--folder-pane-icon-download);
 }
 
 #folderPaneMoreButton {
-  background-image: var(--icon-more);
+  background-image: var(--folder-pane-icon-more);
 }
 
 #folderPaneWriteMessage {
-  background-image: var(--icon-add);
+  background-image: var(--folder-pane-icon-new);
 }
 
 #folderTree,

@@ -616,6 +616,7 @@
   skin/classic/messenger/icons/new/compact/user-list-alt.svg  (../shared/mail/icons/new/compact/user-list-alt.svg)
   skin/classic/messenger/icons/new/compact/warning.svg        (../shared/mail/icons/new/compact/warning.svg)
 
+  skin/classic/messenger/icons/new/normal/add.svg             (../shared/mail/icons/new/normal/add.svg)
   skin/classic/messenger/icons/new/normal/address-book.svg    (../shared/mail/icons/new/normal/address-book.svg)
   skin/classic/messenger/icons/new/normal/add-circle.svg      (../shared/mail/icons/new/normal/add-circle.svg)
   skin/classic/messenger/icons/new/normal/archive.svg         (../shared/mail/icons/new/normal/archive.svg)
@@ -623,6 +624,7 @@
   skin/classic/messenger/icons/new/normal/calendar-invite.svg (../shared/mail/icons/new/normal/calendar-invite.svg)
   skin/classic/messenger/icons/new/normal/chat.svg            (../shared/mail/icons/new/normal/chat.svg)
   skin/classic/messenger/icons/new/normal/collapse.svg        (../shared/mail/icons/new/normal/collapse.svg)
+  skin/classic/messenger/icons/new/normal/download.svg        (../shared/mail/icons/new/normal/download.svg)
   skin/classic/messenger/icons/new/normal/draft.svg           (../shared/mail/icons/new/normal/draft.svg)
   skin/classic/messenger/icons/new/normal/folder-filter.svg   (../shared/mail/icons/new/normal/folder-filter.svg)
   skin/classic/messenger/icons/new/normal/folder-rss.svg      (../shared/mail/icons/new/normal/folder-rss.svg)
@@ -633,6 +635,7 @@
   skin/classic/messenger/icons/new/normal/link.svg            (../shared/mail/icons/new/normal/link.svg)
   skin/classic/messenger/icons/new/normal/mail-secure.svg     (../shared/mail/icons/new/normal/mail-secure.svg)
   skin/classic/messenger/icons/new/normal/mail.svg            (../shared/mail/icons/new/normal/mail.svg)
+  skin/classic/messenger/icons/new/normal/more.svg            (../shared/mail/icons/new/normal/more.svg)
   skin/classic/messenger/icons/new/normal/newsletter.svg      (../shared/mail/icons/new/normal/newsletter.svg)
   skin/classic/messenger/icons/new/normal/outbox.svg          (../shared/mail/icons/new/normal/outbox.svg)
   skin/classic/messenger/icons/new/normal/overflow.svg        (../shared/mail/icons/new/normal/overflow.svg)

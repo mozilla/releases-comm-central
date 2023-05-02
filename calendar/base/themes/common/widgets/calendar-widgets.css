@@ -365,6 +365,12 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   background-image: var(--icon-add);
 }
 
+:root[uidensity="touch"] #sidePanelNewEvent,
+:root[uidensity="touch"] #sidePanelNewTask {
+  --icon-size: 20px;
+  background-image: var(--icon-add-md);
+}
+
 /* Calendar Side Panel */
 
 #primaryButtonSidePanel {
