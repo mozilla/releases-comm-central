@@ -417,6 +417,8 @@
           {
             "type": "object",
             "name": "queryInfo",
+            "optional": true,
+            "default": {},
             "properties": {
               "mailTab": {
                 "type": "boolean",

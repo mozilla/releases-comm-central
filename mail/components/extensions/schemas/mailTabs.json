@@ -125,6 +125,8 @@
           {
             "type": "object",
             "name": "queryInfo",
+            "optional": true,
+            "default": {},
             "properties": {
               "active": {
                 "type": "boolean",
