@@ -576,7 +576,7 @@ CalCalendarManager.prototype = {
       // of refactoring in its processing queue and, while it should probably
       // happen, fingers crossed we can rework the provider architecture to make
       // many of these problems less of an issue first.
-      const canDelay = calendar.getProperty("cache.enabled") && !calendar.type == "ics";
+      const canDelay = calendar.getProperty("cache.enabled") && calendar.type != "ics";
 
       if (canDelay) {
         // If the calendar is cached, we don't need to refresh it RIGHT NOW, so let's wait a
