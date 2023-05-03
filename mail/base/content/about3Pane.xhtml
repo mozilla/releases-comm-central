@@ -89,7 +89,8 @@
         </div>
         <div class="icon"></div>
         <span class="name" tabindex="-1"></span>
-        <span class="unread-count"></span>
+        <span class="folder-count-badge unread-count"></span>
+        <span class="folder-count-badge total-count" hidden="hidden"></span>
       </div>
       <ul></ul>
     </template>
@@ -422,17 +423,24 @@
     </menu>
     <menuseparator id="separatorAfterFolderViewOptions"/>
     <menuitem id="folderPaneHeaderToggleGetMessages"
-              class="folder-pane-toggles"
+              class="folder-pane-option"
               type="checkbox"
               closemenu="none"
               data-l10n-id="folder-pane-header-context-toggle-get-messages"
               oncommand="folderPane.toggleGetMsgsBtn(event);"/>
     <menuitem id="folderPaneHeaderToggleNewMessage"
-              class="folder-pane-toggles"
+              class="folder-pane-option"
               type="checkbox"
               closemenu="none"
               data-l10n-id="folder-pane-header-context-toggle-new-message"
               oncommand="folderPane.toggleNewMsgBtn(event);"/>
+    <menuitem id="folderPaneHeaderToggleTotalCount"
+              class="folder-pane-option"
+              value="total"
+              type="checkbox"
+              closemenu="none"
+              data-l10n-id="folder-pane-show-total-toggle"
+              oncommand="folderPane.toggleTotal(event);"/>
     <menuseparator id="separatorBeforeHideFolderPaneHeaderOption"/>
     <menuitem id="folderPaneHeaderHideMenuItem"
               data-l10n-id="folder-pane-header-context-hide"

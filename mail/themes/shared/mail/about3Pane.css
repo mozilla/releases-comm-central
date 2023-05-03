@@ -21,6 +21,8 @@
     --foldertree-background: var(--sidebar-background-color, var(--color-gray-05));
     --folderpane-unread-count-background: var(--color-gray-50);
     --folderpane-unread-count-text: var(--color-white);
+    --folderpane-total-count-background: var(--color-gray-20);
+    --folderpane-total-count-text: var(--color-gray-90);
     --folderpane-unread-new-count-background: var(--color-blue-60);
     --treeitem-background-selected: var(--color-gray-20);
     --treeitem-background-hover: var(--color-gray-10);
@@ -33,6 +35,8 @@
     :root {
       --foldertree-background: var(--sidebar-background-color, var(--color-gray-70));
       --folderpane-unread-new-count-background: var(--color-blue-50);
+      --folderpane-total-count-background: var(--color-gray-60);
+      --folderpane-total-count-text: var(--color-white);
       --treeitem-background-selected: var(--color-gray-70);
       --treeitem-background-hover: var(--color-gray-60);
       --treeitem-background-active: var(--sidebar-highlight-background-color, var(--color-blue-60));
@@ -49,6 +53,8 @@
   :root:not(:-moz-lwtheme) {
     --folderpane-unread-count-background: var(--selected-item-color);
     --folderpane-unread-count-text: var(--selected-item-text-color);
+    --folderpane-total-count-background: var(--selected-item-color);
+    --folderpane-total-count-text: var(--selected-item-text-color);
     --folderpane-unread-new-count-background: ButtonShadow;
     --treeitem-background-selected: transparent;
     --treeitem-background-hover: transparent;
@@ -482,7 +488,7 @@ li:not(.selected) > .container:hover {
   color: currentColor;
 }
 
-.unread-count {
+.folder-count-badge {
   display: none;
   padding: 1px 4px;
   border-radius: 1000px;
@@ -496,9 +502,19 @@ li:not(.selected) > .container:hover {
   margin-inline-end: 6px;
 }
 
+.total-count {
+  font-weight: normal;
+  color: var(--folderpane-total-count-text);
+  background-color: var(--folderpane-total-count-background);
+}
+
 .unread > .container > .unread-count {
   display: unset;
   background-color: var(--folderpane-unread-count-background);
+}
+
+.total > .container > .total-count:not([hidden]) {
+  display: unset;
 }
 
 .new-messages > .container > .unread-count {

@@ -14,7 +14,8 @@ let tabmail,
   moreButton,
   moreContext,
   folderModesContextMenu,
-  folderModesContextMenuPopup;
+  folderModesContextMenuPopup,
+  totalCountBadge;
 
 add_setup(async function() {
   tabmail = document.getElementById("tabmail");
@@ -468,9 +469,13 @@ add_task(async function testFolderModesDeactivation() {
   }
   Assert.equal(moreContext.state, "open", "The context menu remains open");
   let menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    moreContext,
+    folderModesContextMenuPopup,
     "popuphidden"
   );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
+
+  menuHiddenPromise = BrowserTestUtils.waitForEvent(moreContext, "popuphidden");
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
   await menuHiddenPromise;
 });
@@ -511,5 +516,101 @@ add_task(async function testActionButtonsState() {
   await BrowserTestUtils.waitForCondition(
     () => !newButton.disabled,
     "The New Message button is enabled"
+  );
+});
+
+add_task(async function testTotalCountDefaultState() {
+  totalCountBadge = about3Pane.document.querySelector(".total-count");
+  Assert.ok(
+    !moreContext
+      .querySelector("#folderPaneHeaderToggleTotalCount")
+      .hasAttribute("checked"),
+    "The total count toggle is unchecked"
+  );
+  Assert.ok(totalCountBadge.hidden, "The total count badges are hidden");
+  Assert.notEqual(
+    Services.xulStore.getValue(
+      "chrome://messenger/content/messenger.xhtml",
+      "totalMsgCount",
+      "visible"
+    ),
+    "true",
+    "The customization data was saved"
+  );
+});
+
+add_task(async function testTotalCountVisible() {
+  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+  await shownPromise;
+
+  // Toggle total count ON.
+  let toggleOnPromise = BrowserTestUtils.waitForCondition(
+    () => !totalCountBadge.hidden,
+    "The total count badges are visible"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    moreContext.querySelector("#folderPaneHeaderToggleTotalCount"),
+    {},
+    about3Pane
+  );
+  await toggleOnPromise;
+  // Check that toggle was successful.
+  Assert.ok(
+    moreContext
+      .querySelector("#folderPaneHeaderToggleTotalCount")
+      .hasAttribute("checked"),
+    "The total count toggle is checked"
+  );
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      Services.xulStore.getValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "totalMsgCount",
+        "visible"
+      ) == "true",
+    "The customization data was saved"
+  );
+
+  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    moreContext,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
+});
+
+add_task(async function testTotalCountHidden() {
+  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+  await shownPromise;
+
+  // Toggle total count OFF.
+  let toggleOffPromise = BrowserTestUtils.waitForCondition(
+    () => totalCountBadge.hidden,
+    "The total count badges are hidden"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    moreContext.querySelector("#folderPaneHeaderToggleTotalCount"),
+    {},
+    about3Pane
+  );
+  await toggleOffPromise;
+
+  // Check that toggle was successful.
+  Assert.ok(
+    !moreContext
+      .querySelector("#folderPaneHeaderToggleTotalCount")
+      .getAttribute("checked"),
+    "The total count toggle is unchecked"
+  );
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      Services.xulStore.getValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "totalMsgCount",
+        "visible"
+      ) == "false",
+    "The customization data was saved"
   );
 });

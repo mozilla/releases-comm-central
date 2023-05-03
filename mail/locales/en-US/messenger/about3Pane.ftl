@@ -137,7 +137,7 @@ folder-pane-more-menu-button =
 
 # Context menu item to show/hide different folder types in the folder pane
 folder-pane-header-folder-modes =
-  .label = Folder modes
+  .label = Folder Modes
 
 # Context menu item to toggle display of "Get messages" button in folder pane header
 folder-pane-header-context-toggle-get-messages =
@@ -149,6 +149,9 @@ folder-pane-header-context-toggle-new-message =
 
 folder-pane-header-context-hide =
   .label = Hide Folder Pane Header
+
+folder-pane-show-total-toggle =
+  .label = Show Total Message Count
 
 ## Message thread pane
 

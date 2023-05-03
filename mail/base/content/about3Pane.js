@@ -1153,7 +1153,7 @@ var folderPane = {
       .addEventListener("click", event => {
         this.subFolderContext.openPopup(event.target, { triggerEvent: event });
       });
-
+    this.toggleTotalCountBadge();
     this.updateWidgets();
   },
 
@@ -1281,6 +1281,7 @@ var folderPane = {
       "mode",
       this.activeModes.join(",")
     );
+    this.toggleTotalCountBadge();
   },
 
   /**
@@ -1721,6 +1722,17 @@ var folderPane = {
     }
   },
 
+  /**
+   * Called when a folder's unread count changes, to update the UI.
+   *
+   * @param {nsIMsgFolder} folder
+   * @param {integer} oldValue
+   * @param {integer} newValue
+   */
+  changeTotalCount(folder, oldValue, newValue) {
+    this._changeRows(folder, row => (row.totalCount = newValue));
+  },
+
   _onSelect(event) {
     threadPane.saveSelection();
     threadPane.hideIgnoredMessageNotification();
@@ -1808,6 +1820,7 @@ var folderPane = {
       let mode = target.closest("[data-mode]").dataset.mode;
       FolderTreeProperties.setIsExpanded(target.uri, mode, false);
     }
+    target.updateTotalMessageCount();
   },
 
   _onExpanded({ target }) {
@@ -1815,6 +1828,7 @@ var folderPane = {
       let mode = target.closest("[data-mode]").dataset.mode;
       FolderTreeProperties.setIsExpanded(target.uri, mode, true);
     }
+    target.updateTotalMessageCount();
   },
 
   _onDragStart(event) {
@@ -2485,11 +2499,15 @@ var folderPane = {
     return Services.xulStore.getValue(XULSTORE_URL, item, "hidden") == "true";
   },
 
+  isItemVisible(item) {
+    return Services.xulStore.getValue(XULSTORE_URL, item, "visible") == "true";
+  },
+
   /**
    * Ensure the pane header context menu items are correctly checked.
    */
   updateContextMenuCheckedItems() {
-    for (let item of document.querySelectorAll(".folder-pane-toggles")) {
+    for (let item of document.querySelectorAll(".folder-pane-option")) {
       switch (item.id) {
         case "folderPaneHeaderToggleGetMessages":
           this.isFolderPaneGetMsgsBtnHidden()
@@ -2500,6 +2518,11 @@ var folderPane = {
           this.isFolderPaneNewMsgBtnHidden()
             ? item.removeAttribute("checked")
             : item.setAttribute("checked", true);
+          break;
+        case "folderPaneHeaderToggleTotalCount":
+          this.isTotalMsgCountVisible()
+            ? item.setAttribute("checked", true)
+            : item.removeAttribute("checked");
           break;
         default:
           item.removeAttribute("checked");
@@ -2512,28 +2535,51 @@ var folderPane = {
     let show = event.target.hasAttribute("checked");
     document.getElementById("folderPaneGetMessages").hidden = !show;
 
-    this.toggleItem("folderPaneGetMessages", show);
+    this.updateXULStoreAttribute("folderPaneGetMessages", "hidden", show);
   },
 
   toggleNewMsgBtn(event) {
     let show = event.target.hasAttribute("checked");
     document.getElementById("folderPaneWriteMessage").hidden = !show;
 
-    this.toggleItem("folderPaneWriteMessage", show);
+    this.updateXULStoreAttribute("folderPaneWriteMessage", "hidden", show);
   },
 
   toggleHeader(show) {
     document.getElementById("folderPaneHeaderBar").hidden = !show;
-    this.toggleItem("folderPaneHeaderBar", show);
+    this.updateXULStoreAttribute("folderPaneHeaderBar", "hidden", show);
   },
 
-  toggleItem(item, show) {
+  updateXULStoreAttribute(element, attribute, value) {
     Services.xulStore.setValue(
       XULSTORE_URL,
-      item,
-      "hidden",
-      show ? "false" : "true"
+      element,
+      attribute,
+      value ? "false" : "true"
     );
+  },
+
+  /**
+   * Check XULStore to see if the total message count badges should be hidden.
+   */
+  isTotalMsgCountVisible() {
+    return this.isItemVisible("totalMsgCount");
+  },
+
+  /**
+   * Toggle the total message count badges and update the XULStore.
+   */
+  toggleTotal(event) {
+    let show = !event.target.hasAttribute("checked");
+    this.updateXULStoreAttribute("totalMsgCount", "visible", show);
+    this.toggleTotalCountBadge();
+  },
+
+  toggleTotalCountBadge() {
+    let visible = !this.isTotalMsgCountVisible();
+    for (let badge of document.querySelectorAll(".total-count")) {
+      badge.hidden = visible;
+    }
   },
 };
 
@@ -2578,6 +2624,8 @@ class FolderTreeRow extends HTMLLIElement {
   /** @type {HTMLSpanElement} */
   unreadCountLabel;
   /** @type {HTMLUListElement} */
+  totalCountLabel;
+  /** @type {HTMLUListElement} */
   childList;
 
   constructor() {
@@ -2587,6 +2635,7 @@ class FolderTreeRow extends HTMLLIElement {
     this.nameLabel = this.querySelector(".name");
     this.icon = this.querySelector(".icon");
     this.unreadCountLabel = this.querySelector(".unread-count");
+    this.totalCountLabel = this.querySelector(".total-count");
     this.childList = this.querySelector("ul");
   }
 
@@ -2653,6 +2702,20 @@ class FolderTreeRow extends HTMLLIElement {
   }
 
   /**
+   * The total number of messages for this folder.
+   *
+   * @type {number}
+   */
+  get totalCount() {
+    return parseInt(this.totalCountLabel.textContent, 10) || 0;
+  }
+
+  set totalCount(value) {
+    this.classList.toggle("total", value > 0);
+    this.totalCountLabel.textContent = value;
+  }
+
+  /**
    * Set some common properties based on the URI for this row.
    * `this.modeName` must be set before calling this function.
    *
@@ -2713,12 +2776,21 @@ class FolderTreeRow extends HTMLLIElement {
     this._folderName = folder.abbreviatedName;
     this._setName();
     this.unreadCount = folder.getNumUnread(false);
+    this.totalCount = folder.getTotalMessages(
+      this.classList.contains("collapsed")
+    );
     this.folderSortOrder = folder.sortOrder;
     if (folder.noSelect) {
       this.classList.add("noselect-folder");
     } else {
       this.setAttribute("draggable", "true");
     }
+  }
+
+  updateTotalMessageCount() {
+    this.totalCount = MailServices.folderLookup
+      .getFolderForURL(this.uri)
+      .getTotalMessages(this.classList.contains("collapsed"));
   }
 
   /**
@@ -4238,6 +4310,9 @@ var folderListener = {
         break;
       case "TotalUnreadMessages":
         folderPane.changeUnreadCount(folder, oldValue, newValue);
+        break;
+      case "TotalMessages":
+        folderPane.changeTotalCount(folder, oldValue, newValue);
         break;
     }
   },
