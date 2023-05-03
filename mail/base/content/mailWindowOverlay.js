@@ -1036,6 +1036,7 @@ function MsgPauseUpdates(selectedFolders = GetSelectedMsgFolders(), pause) {
   }
 
   FeedUtils.pauseFeedFolderUpdates(folder, pause, true);
+  Services.obs.notifyObservers(folder, "folder-properties-changed");
 }
 
 function MsgGetMessagesForAllServers(defaultServer) {

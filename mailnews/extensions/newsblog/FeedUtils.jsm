@@ -785,7 +785,7 @@ var FeedUtils = {
    * @param {nsIMsgFolder} aFolder - Folder or a feed url's parent folder.
    * @param {string} aFeedUrl - Feed url for a feed row, null for folder.
    *
-   * @returns {String} - The properties.
+   * @returns {string} - Space separated properties.
    */
   getFolderProperties(aFolder, aFeedUrl) {
     let folder = aFolder;
@@ -799,7 +799,7 @@ var FeedUtils = {
       folder.server.rootFolder.URI
     ).enabled;
     if (folder.isServer) {
-      return !serverEnabled ? " serverIsPaused" : "";
+      return !serverEnabled ? " isPaused" : "";
     }
 
     let properties = aFeedUrl ? " isFeed-true" : " isFeedFolder-true";
@@ -827,7 +827,6 @@ var FeedUtils = {
     properties += hasError ? " hasError" : "";
     properties += isBusy ? " isBusy" : "";
     properties += numPaused == feedUrls.length ? " isPaused" : "";
-    properties += !serverEnabled ? " serverIsPaused" : "";
 
     return properties;
   },
@@ -892,11 +891,11 @@ var FeedUtils = {
    * Update a feed or folder status and refresh folderpane.
    *
    * @param {nsIMsgFolder} aFolder - Folder.
-   * @param {String} aUrl - Url key (feed url or folder URI).
-   * @param {String} aProperty - Url status property.
-   * @param {String} aValue - Value.
+   * @param {string} aUrl - Url key (feed url or folder URI).
+   * @param {string} aProperty - Url status property.
+   * @param {string} aValue - Value.
    *
-   * @returns {String} aValue        - The value.
+   * @returns {void}
    */
   setStatus(aFolder, aUrl, aProperty, aValue) {
     if (!aFolder || !aUrl || !aProperty) {
@@ -913,7 +912,7 @@ var FeedUtils = {
 
     this[aFolder.server.serverURI][aUrl].status[aProperty] = aValue;
 
-    // TODO: Update three pane tabs.
+    Services.obs.notifyObservers(aFolder, "folder-properties-changed");
 
     let win = Services.wm.getMostRecentWindow("Mail:News-BlogSubscriptions");
     if (win) {

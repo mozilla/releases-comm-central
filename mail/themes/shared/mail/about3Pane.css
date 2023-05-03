@@ -431,6 +431,23 @@ li:not(.selected) > .container:hover {
   --icon-color: var(--folder-color-newsletter);
 }
 
+#folderTree li[data-is-paused="true"] > .container > .icon,
+#folderTree li[data-is-paused="true"] > .container > .name,
+#folderTree li[data-is-paused="true"] ul > li > .container > .icon,
+#folderTree li[data-is-paused="true"] ul > li > .container > .name {
+  opacity: 0.6;
+}
+
+#folderTree li[data-is-busy="true"] > .container > .icon {
+  background-image: var(--icon-clock);
+}
+
+#folderTree li[data-has-error="true"] > .container > .icon {
+  background-image: var(--icon-warning-sm);
+  fill: var(--color-amber-30);
+  stroke: var(--color-amber-60);
+}
+
 .name {
   flex: 1;
   margin-inline: 7px;

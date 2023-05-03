@@ -1108,6 +1108,7 @@ var folderPane = {
     Services.prefs.addObserver("mail.accountmanager.accounts", this);
 
     Services.obs.addObserver(this, "search-folders-changed");
+    Services.obs.addObserver(this, "folder-properties-changed");
 
     folderTree.addEventListener("contextmenu", this);
     folderTree.addEventListener("collapsed", this);
@@ -1157,6 +1158,7 @@ var folderPane = {
   uninit() {
     Services.prefs.removeObserver("mail.accountmanager.accounts", this);
     Services.obs.removeObserver(this, "search-folders-changed");
+    Services.obs.removeObserver(this, "folder-properties-changed");
   },
 
   handleEvent(event) {
@@ -1196,6 +1198,8 @@ var folderPane = {
       if (subject.server == this._modes.smart._smartServer) {
         this._modes.smart.changeSearchedFolders(subject);
       }
+    } else if (topic == "folder-properties-changed") {
+      this.updateFolderProperties(subject.QueryInterface(Ci.nsIMsgFolder));
     }
   },
 
@@ -1604,15 +1608,23 @@ var folderPane = {
   },
 
   /**
-   * Update the list of folders if the current mode rely on specific flags.
+   * Update the list of folders to reflect current flags.
    *
-   * @param {nsIMsgFolder} item - The target folder.
-   * @param {nsMsgFolderFlags} oldValue - The old flag value.
-   * @param {nsMsgFolderFlags} newValue - The updated flag value.
+   * @param {nsIMsgFolder} item - The folder whose data to use.
    */
   changeFolderFlag(item, oldValue, newValue) {
-    this._forAllActiveModes("changeFolderFlag", item, oldValue, newValue);
+    this._forAllActiveModes("changeFolderFlag", item);
     this._changeRows(item, row => row.setFolderTypeFromFolder(item));
+  },
+
+  /**
+   * Update the list of folders to reflect current properties.
+   *
+   * @param {nsIMsgFolder} item - The folder whose data to use.
+   */
+  updateFolderProperties(item) {
+    this._forAllActiveModes("updateFolderProperties", item);
+    this._changeRows(item, row => row.setFolderPropertiesFromFolder(item));
   },
 
   /**
@@ -2650,6 +2662,7 @@ class FolderTreeRow extends HTMLLIElement {
     this._setURI(folder.URI);
     this.dataset.serverKey = folder.server.key;
     this.setFolderTypeFromFolder(folder);
+    this.setFolderPropertiesFromFolder(folder);
     switch (nameStyle) {
       case "server":
         this.name = folder.server.prettyName;
@@ -2679,6 +2692,25 @@ class FolderTreeRow extends HTMLLIElement {
     let folderType = FolderUtils.getSpecialFolderString(folder);
     if (folderType != "none") {
       this.dataset.folderType = folderType.toLowerCase();
+    }
+  }
+
+  /**
+   * Sets folder properties based on the folder for the row.
+   *
+   * @param {nsIMsgFolder} folder
+   */
+  setFolderPropertiesFromFolder(folder) {
+    if (folder.server.type != "rss") {
+      return;
+    }
+    let props = FeedUtils.getFolderProperties(folder);
+    for (let name of ["hasError", "isBusy", "isPaused"]) {
+      if (props.includes(name)) {
+        this.dataset[name] = "true";
+      } else {
+        delete this.dataset[name];
+      }
     }
   }
 

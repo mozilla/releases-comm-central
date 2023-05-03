@@ -12,7 +12,6 @@ var { MailServices } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  FeedUtils: "resource:///modules/FeedUtils.jsm",
   FolderUtils: "resource:///modules/FolderUtils.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
 });
