@@ -984,12 +984,17 @@ class SmtpClient {
   }
 
   /**
-   * Response to AUTH LOGIN username, if successful expects base64 encoded password
+   * Process the response to AUTH LOGIN with a username. If successful, expects
+   * a base64-encoded password.
    *
-   * @param {object} command Parsed command from the server {statusCode, data}
+   * @param {{statusCode: number, data: string}} command - Parsed command from
+   *   the server.
    */
   _actionAUTH_LOGIN_PASS(command) {
-    if (command.statusCode !== 334 || command.data !== "UGFzc3dvcmQ6") {
+    if (
+      command.statusCode !== 334 ||
+      (command.data !== btoa("Password:") && command.data !== btoa("password:"))
+    ) {
       this._onNsError(MsgUtils.NS_ERROR_SMTP_AUTH_FAILURE, command.data);
       return;
     }
