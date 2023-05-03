@@ -72,6 +72,11 @@ var commandController = {
     cmd_watchThread: Ci.nsMsgViewCommandType.toggleThreadWatched,
   },
   _callbackCommands: {
+    cmd_cancel() {
+      gFolder
+        .QueryInterface(Ci.nsIMsgNewsFolder)
+        .cancelMessage(gDBView.hdrForFirstSelectedMessage, top.msgWindow);
+    },
     cmd_openConversation() {
       new ConversationOpener(window).openConversationForMessages(
         gDBView.getSelectedMsgHdrs()
@@ -438,6 +443,8 @@ var commandController = {
       (gFolder?.canDeleteMessages || gViewWrapper.isSynthetic);
 
     switch (command) {
+      case "cmd_cancel":
+        return numSelectedMessages == 1 && isNewsgroup;
       case "cmd_openConversation":
         return gDBView
           .getSelectedMsgHdrs()
