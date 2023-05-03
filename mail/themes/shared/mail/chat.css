@@ -115,6 +115,7 @@
   /* make it possible to let the children overwrite the end border.
      margin-inline-start because of the inverted direction */
   margin-inline-start: -1px;
+  contain: size;
 }
 
 /* move the scrollbar to the left */
@@ -324,6 +325,7 @@ richlistitem[is="chat-contact-richlistitem"][cansend]:hover .startChatBubble {
 
 .convBox {
   min-height: 135px;
+  min-width: 200px;
 }
 
 .conv-top {
