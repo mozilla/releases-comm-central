@@ -530,15 +530,21 @@ var commandController = {
           gViewWrapper.dbView.getSelectedMsgHdrs().some(msg => msg.isRead)
         );
       case "cmd_markThreadAsRead": {
-        if (numSelectedMessages != 1 || isDummyMessage) {
+        if (numSelectedMessages == 0 || isDummyMessage) {
           return false;
         }
-        let selectedIndex = {};
-        gViewWrapper.dbView.selection?.getRangeAt(0, selectedIndex, {});
-        return (
-          gViewWrapper.dbView.getThreadContainingIndex(selectedIndex.value)
-            .numUnreadChildren > 0
-        );
+        let sel = gViewWrapper.dbView.selection;
+        for (let i = 0; i < sel.getRangeCount(); i++) {
+          let selectedIndex = {};
+          sel.getRangeAt(i, selectedIndex, {});
+          if (
+            gViewWrapper.dbView.getThreadContainingIndex(selectedIndex.value)
+              .numUnreadChildren > 0
+          ) {
+            return true;
+          }
+        }
+        return false;
       }
       case "cmd_markAllRead":
         return gDBView?.msgFolder?.getNumUnread(false) > 0;
