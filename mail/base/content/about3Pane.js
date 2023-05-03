@@ -3344,6 +3344,9 @@ var threadPane = {
    */
   setTreeView(view) {
     threadTree.view = gDBView = view;
+    // Clear the batch flag. Don't call `endUpdateBatch` as that may change in
+    // future leading to unintended consequences.
+    this._jsTree._inBatch = false;
     view.setJSTree(this._jsTree);
   },
 
