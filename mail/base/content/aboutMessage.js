@@ -489,6 +489,16 @@ var messageHistory = {
   },
 };
 
+commandController.registerCallback(
+  "cmd_delete",
+  () => commandController.doCommand("cmd_deleteMessage"),
+  () => commandController.isCommandEnabled("cmd_deleteMessage")
+);
+commandController.registerCallback(
+  "cmd_shiftDelete",
+  () => commandController.doCommand("cmd_shiftDeleteMessage"),
+  () => commandController.isCommandEnabled("cmd_shiftDeleteMessage")
+);
 commandController.registerCallback("cmd_find", () =>
   document.getElementById("FindToolbar").onFindCommand()
 );

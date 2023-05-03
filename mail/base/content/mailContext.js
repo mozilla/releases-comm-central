@@ -88,7 +88,7 @@ var mailContextMenu = {
     "mailContext-archive": "cmd_archive",
     "mailContext-moveToFolderAgain": "cmd_moveToFolderAgain",
     "mailContext-decryptToFolder": "cmd_copyDecryptedTo",
-    "mailContext-delete": "cmd_delete",
+    "mailContext-delete": "cmd_deleteMessage",
     "mailContext-ignoreThread": "cmd_killThread",
     "mailContext-ignoreSubthread": "cmd_killSubthread",
     "mailContext-watchThread": "cmd_watchThread",

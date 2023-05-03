@@ -183,7 +183,7 @@ var quickFilterBar = {
 
     this.reflectFiltererResults();
 
-    document.getElementById("quick-filter-bar").hidden = !this.filterer.visible;
+    this.domNode.hidden = !this.filterer.visible;
   },
 
   /**
@@ -201,7 +201,6 @@ var quickFilterBar = {
    */
   reflectFiltererResults() {
     let threadPane = document.getElementById("threadTree");
-    let qfb = document.getElementById("quick-filter-bar");
 
     // bail early if the view is in the process of being created
     if (!gDBView) {
@@ -211,25 +210,25 @@ var quickFilterBar = {
     // no filter active
     if (!gViewWrapper.search || !gViewWrapper.search.userTerms) {
       threadPane.removeAttribute("filterActive");
-      qfb.removeAttribute("filterActive");
+      this.domNode.removeAttribute("filterActive");
     } else if (gViewWrapper.searching) {
       // filter active, still searching
       // Do not set this immediately; wait a bit and then only set this if we
       //  still are in this same state (and we are still the active tab...)
-      setTimeout(function() {
+      setTimeout(() => {
         threadPane.setAttribute("filterActive", "searching");
-        qfb.setAttribute("filterActive", "searching");
+        this.domNode.setAttribute("filterActive", "searching");
       }, 500);
     } else if (gDBView.numMsgsInView) {
       // filter completed, results
       // some matches
       threadPane.setAttribute("filterActive", "matches");
-      qfb.setAttribute("filterActive", "matches");
+      this.domNode.setAttribute("filterActive", "matches");
     } else {
       // filter completed, no results
       // no matches! :(
       threadPane.setAttribute("filterActive", "nomatches");
-      qfb.setAttribute("filterActive", "nomatches");
+      this.domNode.setAttribute("filterActive", "nomatches");
     }
   },
 
@@ -382,3 +381,6 @@ var quickFilterBar = {
     this.reflectFiltererState();
   },
 };
+XPCOMUtils.defineLazyGetter(quickFilterBar, "domNode", () =>
+  document.getElementById("quick-filter-bar")
+);

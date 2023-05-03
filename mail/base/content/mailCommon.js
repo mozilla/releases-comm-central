@@ -250,12 +250,12 @@ var commandController = {
         commandController.doCommand("cmd_copyMessage", folder);
       }
     },
-    cmd_delete() {
+    cmd_deleteMessage() {
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
     },
-    cmd_shiftDelete() {
+    cmd_shiftDeleteMessage() {
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
     },
@@ -581,9 +581,9 @@ var commandController = {
         }
         return !!canMoveAgain;
       }
-      case "cmd_delete":
+      case "cmd_deleteMessage":
         return isNewsgroup || canMove;
-      case "cmd_shiftDelete":
+      case "cmd_shiftDeleteMessage":
         return this._getViewCommandStatus(
           Ci.nsMsgViewCommandType.deleteNoTrash
         );

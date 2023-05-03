@@ -294,10 +294,13 @@ var folderPaneContextMenu = {
       let isJunk = flags & Ci.nsMsgFolderFlags.Junk;
       let isTrash = isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true);
       let isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
-      let serverType = server.type;
+      let isNNTP = server.type == "nntp";
+      if (isNNTP && !isServer) {
+        // `folderPane.deleteFolder` has a special case for this.
+        deletable = true;
+      }
       let showNewFolderItem =
-        (serverType != "nntp" && canCreateSubfolders) ||
-        flags & Ci.nsMsgFolderFlags.Inbox;
+        (!isNNTP && canCreateSubfolders) || flags & Ci.nsMsgFolderFlags.Inbox;
 
       this._commandStates = {
         cmd_newFolder: showNewFolderItem,
@@ -4723,6 +4726,48 @@ commandController.registerCallback(
   "cmd_emptyTrash",
   () => folderPane.emptyTrash(gFolder),
   () => folderPaneContextMenu.getCommandState("cmd_emptyTrash")
+);
+
+// Delete commands, which change behaviour based on the active element.
+// Note that `document.activeElement` refers to the active element in *this*
+// document regardless of whether this document is the active one.
+commandController.registerCallback(
+  "cmd_delete",
+  () => {
+    if (document.activeElement == folderTree) {
+      commandController.doCommand("cmd_deleteFolder");
+    } else if (!quickFilterBar.domNode.contains(document.activeElement)) {
+      commandController.doCommand("cmd_deleteMessage");
+    }
+  },
+  () => {
+    if (document.activeElement == folderTree) {
+      return commandController.isCommandEnabled("cmd_deleteFolder");
+    }
+    if (
+      !quickFilterBar.domNode ||
+      quickFilterBar.domNode.contains(document.activeElement)
+    ) {
+      return false;
+    }
+    return commandController.isCommandEnabled("cmd_deleteMessage");
+  }
+);
+commandController.registerCallback(
+  "cmd_shiftDelete",
+  () => {
+    commandController.doCommand("cmd_shiftDeleteMessage");
+  },
+  () => {
+    if (
+      document.activeElement == folderTree ||
+      !quickFilterBar.domNode ||
+      quickFilterBar.domNode.contains(document.activeElement)
+    ) {
+      return false;
+    }
+    return commandController.isCommandEnabled("cmd_shiftDeleteMessage");
+  }
 );
 
 commandController.registerCallback("cmd_viewClassicMailLayout", () =>
