@@ -83,6 +83,7 @@ function isPhishingURL(aLinkNode, aSilentMode, aHref)
     return false;
 
   var phishingType = kPhishingNotSuspicious;
+  var aLinkText = gatherTextUnder(aLinkNode);
   var href = aHref || aLinkNode.href;
   if (!href)
     return false;
@@ -100,16 +101,23 @@ function isPhishingURL(aLinkNode, aSilentMode, aHref)
   // this prevents us from flagging imap and other internally handled urls
   if (hrefURL.schemeIs('http') || hrefURL.schemeIs('https'))
   {
-    let ipAddress = isLegalIPAddress(hrefURL.host, true);
-    if (ipAddress && !isLegalLocalIPAddress(ipAddress))
-      phishingType = kPhishingWithIPAddress;
-    else if (misMatchedHostWithLinkText(aLinkNode, hrefURL, linkTextURL))
-      phishingType = kPhishingWithMismatchedHosts;
 
-    isPhishingURL = phishingType != kPhishingNotSuspicious;
+    if (aLinkText)
+      aLinkText = aLinkText.replace(/^<(.+)>$|^"(.+)"$/, "$1$2");
+    if (aLinkText != aLinkNode.href &&
+        aLinkText.replace(/\/+$/, "") != aLinkNode.href.replace(/\/+$/, ""))
+    {
+      let ipAddress = isLegalIPAddress(hrefURL.host, true);
+      if (ipAddress && !isLegalLocalIPAddress(ipAddress))
+        phishingType = kPhishingWithIPAddress;
+      else if (misMatchedHostWithLinkText(aLinkNode, hrefURL))
+        phishingType = kPhishingWithMismatchedHosts;
 
-    if (!aSilentMode && isPhishingURL) // allow the user to override the decision
-      isPhishingURL = confirmSuspiciousURL(phishingType, hrefURL.host);
+      isPhishingURL = phishingType != kPhishingNotSuspicious;
+
+      if (!aSilentMode && isPhishingURL) // allow the user to override the decision
+        isPhishingURL = confirmSuspiciousURL(phishingType, hrefURL.host);
+    }
   }
 
   return isPhishingURL;
@@ -119,7 +127,7 @@ function isPhishingURL(aLinkNode, aSilentMode, aHref)
 // helper methods in support of isPhishingURL
 //////////////////////////////////////////////////////////////////////////////
 
-function misMatchedHostWithLinkText(aLinkNode, aHrefURL, aLinkTextURL)
+function misMatchedHostWithLinkText(aLinkNode, aHrefURL)
 {
   var linkNodeText = gatherTextUnder(aLinkNode);
 
@@ -133,10 +141,9 @@ function misMatchedHostWithLinkText(aLinkNode, aHrefURL, aLinkTextURL)
     // does the link text look like a http url?
      if (linkNodeText.search(/(^http:|^https:)/) != -1)
      {
-       var linkTextURL  = Services.io.newURI(linkNodeText);
-       aLinkTextURL.value = linkTextURL;
+       var linkURI  = Services.io.newURI(linkNodeText);
        // compare hosts, but ignore possible www. prefix
-       return !(aHrefURL.host.replace(/^www\./, "") == aLinkTextURL.value.host.replace(/^www\./, ""));
+       return !(aHrefURL.host.replace(/^www\./, "") == linkURI.host.replace(/^www\./, ""));
      }
   }
 
