@@ -501,7 +501,7 @@ var commandController = {
         return numSelectedMessages >= 1 && !isDummyMessage;
       case "cmd_copyDecryptedTo": {
         let showDecrypt = numSelectedMessages > 1;
-        if (numSelectedMessages == 1) {
+        if (numSelectedMessages == 1 && !isDummyMessage) {
           let msgURI = gDBView.URIForFirstSelectedMessage;
           if (msgURI) {
             showDecrypt =

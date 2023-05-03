@@ -246,7 +246,7 @@ add_task(async function testMultipleMessages() {
     "mailContext-archive",
     "mailContext-moveMenu",
     "mailContext-copyMenu",
-    // "mailContext-decryptToFolder",
+    "mailContext-decryptToFolder",
     "mailContext-delete",
     "mailContext-ignoreThread",
     "mailContext-ignoreSubthread",
