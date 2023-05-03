@@ -4185,6 +4185,12 @@ function restoreState({
 }
 
 function displayFolder(folderURI) {
+  if (folderTree.selectedRow?.uri == folderURI) {
+    // Already set to display the right folder. Make sure not not to change
+    // to the same folder in a different folder mode.
+    return;
+  }
+
   let row = folderPane.getRowForFolder(folderURI);
   if (!row) {
     return;
