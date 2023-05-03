@@ -46,6 +46,9 @@ Preferences.addAll([
   { id: "security.disable_button.openCertManager", type: "bool" },
   { id: "security.disable_button.openDeviceManager", type: "bool" },
   { id: "security.OCSP.enabled", type: "int" },
+  { id: "mail.e2ee.auto_enable", type: "bool" },
+  { id: "mail.e2ee.auto_disable", type: "bool" },
+  { id: "mail.e2ee.notify_on_auto_disable", type: "bool" },
 ]);
 
 if (AppConstants.MOZ_DATA_REPORTING) {
@@ -114,6 +117,8 @@ var gPrivacyPane = {
     element = document.getElementById("enableOCSP");
     Preferences.addSyncFromPrefListener(element, () => this.readEnableOCSP());
     Preferences.addSyncToPrefListener(element, () => this.writeEnableOCSP());
+
+    this.initE2eeCheckboxes();
   },
 
   /**
@@ -517,6 +522,38 @@ var gPrivacyPane = {
     // If allow telemetry is checked, hide the box saying you're no longer
     // allowing it.
     document.getElementById("telemetry-container").hidden = checkbox.checked;
+  },
+
+  initE2eeCheckboxes() {
+    let on = document.getElementById("emailE2eeAutoEnable");
+    let off = document.getElementById("emailE2eeAutoDisable");
+    let notify = document.getElementById("emailE2eeAutoDisableNotify");
+
+    on.checked = Preferences.get("mail.e2ee.auto_enable").value;
+    off.checked = Preferences.get("mail.e2ee.auto_disable").value;
+    notify.checked = Preferences.get("mail.e2ee.notify_on_auto_disable").value;
+
+    if (!on.checked) {
+      off.disabled = true;
+      notify.disabled = true;
+    } else {
+      off.disabled = false;
+      notify.disabled = !off.checked;
+    }
+  },
+
+  updateE2eeCheckboxes() {
+    let on = document.getElementById("emailE2eeAutoEnable");
+    let off = document.getElementById("emailE2eeAutoDisable");
+    let notify = document.getElementById("emailE2eeAutoDisableNotify");
+
+    if (!on.checked) {
+      off.disabled = true;
+      notify.disabled = true;
+    } else {
+      off.disabled = false;
+      notify.disabled = !off.checked;
+    }
   },
 };
 

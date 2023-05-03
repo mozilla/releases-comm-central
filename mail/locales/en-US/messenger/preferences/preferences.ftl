@@ -806,6 +806,27 @@ security-devices-button =
     .label = Security Devices…
     .accesskey = D
 
+email-e2ee-header = Email End-To-End Encryption
+
+account-settings = Account Settings
+
+email-e2ee-enable-info =
+    Set up email accounts and identities for End-To-End Encryption in Account Settings.
+
+email-e2ee-automatism = Automatic Use of Encryption
+email-e2ee-automatism-pre =
+    { -brand-short-name } can assist by automatically enabling or disabling encryption while composing an email.
+    Auto enabling/disabling is based on the availability of valid and accepted correspondents’ keys or certificates.
+email-e2ee-auto-on =
+    .label = Automatically enable encryption when possible
+email-e2ee-auto-off =
+    .label = Automatically disable encryption when recipients change and encryption is no longer possible
+email-e2ee-auto-off-notify =
+    .label = Show a notification whenever encryption is disabled automatically
+email-e2ee-automatism-post =
+    Automatic decisions may be overridden by manually enabling or disabling encryption when composing a message.
+    Note: encryption is always automatically enabled when replying to an encrypted message.
+
 ## Chat Tab
 
 startup-label =

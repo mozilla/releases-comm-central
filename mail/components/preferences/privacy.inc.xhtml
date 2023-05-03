@@ -8,7 +8,7 @@
     <hbox id="privacyCategory"
           class="subcategory"
           data-category="panePrivacy">
-      <html:h1 data-l10n-id="privacy-main-header"/>
+      <html:h1 data-l10n-id="privacy-main-header"></html:h1>
     </hbox>
 
     <!-- Mail Content -->
@@ -145,7 +145,7 @@
     <hbox id="privacyPasswordsCategory"
           class="subcategory"
           data-category="panePrivacy">
-      <html:h1 data-l10n-id="privacy-passwords-header"/>
+      <html:h1 data-l10n-id="privacy-passwords-header"></html:h1>
     </hbox>
 
     <separator data-category="panePrivacy"/>
@@ -217,7 +217,7 @@
     <hbox id="privacyJunkCategory"
           class="subcategory"
           data-category="panePrivacy">
-      <html:h1 data-l10n-id="privacy-junk-header"/>
+      <html:h1 data-l10n-id="privacy-junk-header"></html:h1>
     </hbox>
 
     <separator data-category="panePrivacy"/>
@@ -278,7 +278,7 @@
     <hbox id="privacyDataCollectionCategory"
           class="subcategory"
           data-category="panePrivacy">
-      <html:h1 data-l10n-id="collection-header"/>
+      <html:h1 data-l10n-id="collection-header"></html:h1>
     </hbox>
 
     <html:div data-category="panePrivacy">
@@ -335,7 +335,7 @@
     <hbox id="privacySecurityCategory"
           class="subcategory"
           data-category="panePrivacy">
-      <html:h1 data-l10n-id="privacy-security-header"/>
+      <html:h1 data-l10n-id="privacy-security-header"></html:h1>
     </hbox>
 
     <html:div data-category="panePrivacy">
@@ -552,4 +552,46 @@
     </html:fieldset>
     </html:div>
 
+    <!-- Email End-To-End Encryption -->
+    <hbox id="privacyCategory"
+          class="subcategory"
+          data-category="panePrivacy">
+      <html:h1 data-l10n-id="email-e2ee-header"></html:h1>
+    </hbox>
+
+    <html:div data-category="panePrivacy">
+    <html:fieldset id="emailE2eeGroupPreparation" data-category="panePrivacy">
+      <description data-l10n-id="email-e2ee-enable-info"/>
+      <html:button id="settingsButton"
+              type="button"
+              data-l10n-id="account-button"
+              class="button button-flat"
+              onclick="window.browsingContext.topChromeWindow.MsgAccountManager(null);">
+      </html:button>
+    </html:fieldset>
+    </html:div>
+
+    <html:div data-category="panePrivacy">
+    <html:fieldset id="emailE2eeGroupAutomatism" data-category="panePrivacy">
+      <html:legend data-l10n-id="email-e2ee-automatism"></html:legend>
+      <description data-l10n-id="email-e2ee-automatism-pre"/>
+      <separator class="thin"/>
+
+      <checkbox id="emailE2eeAutoEnable"
+                preference="mail.e2ee.auto_enable"
+                data-l10n-id="email-e2ee-auto-on"
+                oncommand="gPrivacyPane.updateE2eeCheckboxes();"/>
+      <checkbox id="emailE2eeAutoDisable"
+                preference="mail.e2ee.auto_disable"
+                data-l10n-id="email-e2ee-auto-off"
+                oncommand="gPrivacyPane.updateE2eeCheckboxes();"/>
+      <checkbox id="emailE2eeAutoDisableNotify"
+                preference="mail.e2ee.notify_on_auto_disable"
+                data-l10n-id="email-e2ee-auto-off-notify"
+                oncommand="gPrivacyPane.updateE2eeCheckboxes();"/>
+
+      <separator class="thin"/>
+      <description data-l10n-id="email-e2ee-automatism-post"/>
+    </html:fieldset>
+    </html:div>
   </html:template>
