@@ -189,8 +189,9 @@ class NntpClient {
           res.status >= 400 &&
           res.status < 500
         ) {
-          if (this._msgWindow && this._articleNumber) {
+          if (this._articleNumber) {
             let uri = `about:newserror?r=${res.statusText}`;
+
             if (this._articleNumber.startsWith("<")) {
               uri += `&m=${encodeURIComponent(this._articleNumber)}`;
             } else {
@@ -205,16 +206,9 @@ class NntpClient {
             if (this._newsFolder) {
               uri += `&f=${this._newsFolder.URI}`;
             }
-            try {
-              this._msgWindow.displayURIInMessagePane(
-                uri,
-                true,
-                Services.scriptSecurityManager.getSystemPrincipal()
-              );
-            } catch (e) {
-              // Can happen when copying an expired message to another folder.
-              this._logger.error(e);
-            }
+            // Store the uri to display. The registered uriListener will get
+            // notified when we stop running the uri, and can act on this data.
+            this.runningUri.seeOtherURI = uri;
           }
           this._actionError(NNTP_ERROR_MESSAGE, res.statusText);
           return;
@@ -942,7 +936,7 @@ class NntpClient {
     this._newsGroup?.cleanUp();
     this._newsFolder?.OnStopRunningUrl?.(this.runningUri, status);
     this.urlListener?.OnStopRunningUrl(this.runningUri, status);
-    this.runningUri.SetUrlState(false, Cr.NS_OK);
+    this.runningUri.SetUrlState(false, status);
     this._reset();
     this.onIdle?.();
   };

@@ -181,8 +181,23 @@ function displayMessage(uri, viewWrapper) {
   browser.docShell.allowAuth = false;
   browser.docShell.allowDNSPrefetch = false;
 
+  // @implements {nsIUrlListener}
+  let urlListener = {
+    OnStartRunningUrl(url) {},
+    OnStopRunningUrl(url, status) {
+      window.msgLoading = true;
+      window.dispatchEvent(
+        new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
+      );
+      if (url instanceof Ci.nsIMsgMailNewsUrl && url.seeOtherURI) {
+        // Show error page if needed.
+        HideMessageHeaderPane();
+        MailE10SUtils.loadURI(getMessagePaneBrowser(), url.seeOtherURI);
+      }
+    },
+  };
   try {
-    messageService.loadMessage(uri, browser.docShell, null, null, null);
+    messageService.loadMessage(uri, browser.docShell, null, urlListener, false);
   } catch (ex) {
     if (ex.result != Cr.NS_ERROR_OFFLINE) {
       throw ex;
@@ -213,10 +228,6 @@ function displayMessage(uri, viewWrapper) {
     );
   }
   autodetectCharset = false;
-  window.msgLoading = true;
-  window.dispatchEvent(
-    new CustomEvent("messageURIChanged", { bubbles: true, detail: uri })
-  );
 }
 
 var folderListener = {

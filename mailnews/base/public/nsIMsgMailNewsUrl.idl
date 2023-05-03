@@ -124,6 +124,12 @@ interface nsIMsgMailNewsUrl : nsIURL {
    */
   attribute AString errorMessage;
 
+  /**
+   * To be used in error situations, e.g. to give the URI to an error page
+   * that describes the problem.
+   */
+  attribute AUTF8String seeOtherURI;
+
   attribute nsICacheEntry memCacheEntry;
 
   const unsigned long eCopy     = 0;

@@ -212,8 +212,9 @@ nsresult nsMsgMailNewsUrl::GetUrlState(bool* aRunningUrl) {
 
 nsresult nsMsgMailNewsUrl::SetUrlState(bool aRunningUrl, nsresult aExitCode) {
   // if we already knew this running state, return, unless the url was aborted
-  if (m_runningUrl == aRunningUrl && aExitCode != NS_MSG_ERROR_URL_ABORTED)
+  if (m_runningUrl == aRunningUrl && aExitCode != NS_MSG_ERROR_URL_ABORTED) {
     return NS_OK;
+  }
   m_runningUrl = aRunningUrl;
   nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
 
@@ -424,6 +425,16 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetErrorMessage(nsAString& aErrorMessage) {
 NS_IMETHODIMP nsMsgMailNewsUrl::SetErrorMessage(
     const nsAString& aErrorMessage) {
   m_errorMessage.Assign(aErrorMessage);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::SetSeeOtherURI(const nsACString& aSeeOtherURI) {
+  m_seeOtherURI.Assign(aSeeOtherURI);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetSeeOtherURI(nsACString& aSeeOtherURI) {
+  aSeeOtherURI = m_seeOtherURI;
   return NS_OK;
 }
 
