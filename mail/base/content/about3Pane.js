@@ -1608,12 +1608,14 @@ var folderPane = {
   },
 
   /**
-   * Update the list of folders to reflect current flags.
+   * Update the list of folders if the current mode rely on specific flags.
    *
-   * @param {nsIMsgFolder} item - The folder whose data to use.
+   * @param {nsIMsgFolder} item - The target folder.
+   * @param {nsMsgFolderFlags} oldValue - The old flag value.
+   * @param {nsMsgFolderFlags} newValue - The updated flag value.
    */
   changeFolderFlag(item, oldValue, newValue) {
-    this._forAllActiveModes("changeFolderFlag", item);
+    this._forAllActiveModes("changeFolderFlag", item, oldValue, newValue);
     this._changeRows(item, row => row.setFolderTypeFromFolder(item));
   },
 
