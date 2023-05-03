@@ -30,6 +30,12 @@
   flex-shrink: 0;
 }
 
+[is="customization-target"]:focus-visible,
+[is="customization-palette"]:focus-visible {
+  outline: var(--focus-outline);
+  outline-color: transparent;
+}
+
 .toolbar-target {
   /* TODO this should match actual titlebar dimensions */
   background: var(--layout-background-3);
@@ -114,8 +120,10 @@ h2 {
   padding: 0;
 }
 
-[is="customizable-element"][aria-selected="true"] {
-  outline: 2px dotted var(--primary);
+[is="customization-target"]:focus-within [is="customizable-element"][aria-selected="true"],
+[is="customization-palette"]:focus-within [is="customizable-element"][aria-selected="true"] {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
 }
 
 [is="customization-palette"] [is="customizable-element"] {
