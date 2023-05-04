@@ -111,8 +111,23 @@ tr[data-properties~="untagged"][data-properties~="unread"] {
   color: var(--thread-pane-unread-color);
 }
 
-tr[is="thread-row"] {
+tr[is="thread-row"],
+tr[is="thread-card"] .subject {
   color: var(--tag-color, currentColor);
+}
+
+.tag-icon {
+  content: var(--icon-tag-sm);
+}
+
+tr[data-properties~="tagged"] .tag-icon {
+  display: unset;
+  color: var(--tag-color, currentColor);
+}
+
+[is="tree-view-table-body"]:focus > .selected[data-properties~="tagged"] :is(.tag-icon, .subject),
+[is="tree-view-table-body"] > .selected[data-properties~="tagged"]:focus-within :is(.tag-icon, .subject) {
+  color: currentColor;
 }
 
 [is="tree-view-table-body"]:focus tr[is="thread-row"].selected,

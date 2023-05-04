@@ -4606,6 +4606,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.subjectLine = this.querySelector(".subject");
       this.dateLine = this.querySelector(".date");
       this.starButton = this.querySelector(".button-star");
+      this.tagIcon = this.querySelector(".tag-icon");
     }
 
     get index() {
@@ -4623,7 +4624,7 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       // see.
       let cellTexts = this.view.cellDataForColumns(
         index,
-        ["subjectCol", "correspondentCol", "dateCol"],
+        ["subjectCol", "correspondentCol", "dateCol", "tagsCol"],
         properties,
         threadLevel
       );
@@ -4641,11 +4642,13 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.subjectLine.textContent = cellTexts[0];
       this.senderLine.textContent = cellTexts[1];
       this.dateLine.textContent = cellTexts[2];
+      this.tagIcon.title = cellTexts[3];
 
       // Follow the layout order.
       ariaLabelPromises.push(cellTexts[1]);
       ariaLabelPromises.push(cellTexts[2]);
       ariaLabelPromises.push(cellTexts[0]);
+      ariaLabelPromises.push(cellTexts[3]);
 
       if (propertiesSet.has("flagged")) {
         document.l10n.setAttributes(
