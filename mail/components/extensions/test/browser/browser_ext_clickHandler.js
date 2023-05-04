@@ -19,16 +19,17 @@ let mockExternalProtocolService = {
   },
   setProtocolHandlerDefaults(handlerInfo, osHandlerExists) {},
   urlLoaded(url) {
-    let found = this._loadedURLs.includes(url);
-    this._loadedURLs = this._loadedURLs.filter(e => e != url);
-    return found;
+    let rv = this._loadedURLs.length == 1 && this._loadedURLs[0] == url;
+    this._loadedURLs = [];
+    return rv;
   },
   hasAnyUrlLoaded() {
-    return this._loadedURLs.length > 0;
+    let rv = this._loadedURLs.length > 0;
+    this._loadedURLs = [];
+    return rv;
   },
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
-
 let mockExternalProtocolServiceCID = MockRegistrar.register(
   "@mozilla.org/uriloader/external-protocol-service;1",
   mockExternalProtocolService
@@ -58,14 +59,10 @@ const getCommonFiles = async () => {
       };
 
       window.UpdateTabPromise = class {
-        constructor(options) {
-          this.logWindowId = options?.logWindowId;
+        constructor() {
           this.promise = new Promise(resolve => {
-            let updateLog = new Map();
+            let log = {};
             let updateListener = (tabId, changes, tab) => {
-              let id = this.logWindowId ? tab.windowId : tabId;
-              let log = updateLog.get(id) || {};
-
               if (changes.url == "about:blank") {
                 // Reset whatever we have seen so far.
                 log = {};
@@ -82,10 +79,16 @@ const getCommonFiles = async () => {
                   log.complete = true;
                 }
               }
-              updateLog.set(id, log);
+              if (log.id && log.id != tabId) {
+                browser.test.fail(
+                  "Should not receive update events for multiple tabs"
+                );
+              }
+              log.id = tabId;
+
               if (log.url && log.loading && log.complete) {
                 browser.tabs.onUpdated.removeListener(updateListener);
-                resolve(updateLog);
+                resolve(log);
               }
             };
             browser.tabs.onUpdated.addListener(updateListener);
@@ -96,19 +99,13 @@ const getCommonFiles = async () => {
           // and complete) and a url.
           let updateLog = await this.promise;
           browser.test.assertEq(
-            1,
-            updateLog.size,
-            `Should have seen exactly one tab being updated - ${JSON.stringify(
-              Array.from(updateLog)
-            )}`
-          );
-          browser.test.assertTrue(
-            updateLog.has(id),
+            id,
+            updateLog.id,
             "Updates must belong to the current tab"
           );
           browser.test.assertEq(
             url,
-            updateLog.get(id).url,
+            updateLog.url,
             "Should have seen the correct url loaded."
           );
         }
@@ -222,7 +219,29 @@ const subtest_clickInBrowser = async (
         url => url != "about:blank"
       );
     }
-    await BrowserTestUtils.synthesizeMouseAtCenter(linkId, {}, browser);
+
+    let success = false;
+    for (let retries = 0; !success && retries < 2; retries++) {
+      let clickPromise = BrowserTestUtils.waitForContentEvent(
+        browser,
+        "click",
+        true,
+        null,
+        true
+      ).then(() => true);
+      // Linux: Sometimes the actor used to simulate the mouse click in the content process does not
+      // react, even though the content page signals to be fully loaded. There is no status signal
+      // we could wait for, the loaded page *should* be ready at this point. To mitigate, we wait
+      // for the click event and if we do not see it within a certain time, we click again.
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      let failPromise = new Promise(r =>
+        browser.ownerGlobal.setTimeout(r, 500)
+      ).then(() => false);
+
+      await BrowserTestUtils.synthesizeMouseAtCenter(linkId, {}, browser);
+      success = await Promise.race([clickPromise, failPromise]);
+    }
+    Assert.ok(success, "Should have received click event on content link");
   }
 
   await extension.startup();
@@ -421,15 +440,15 @@ add_task(async function test_windows() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "windowFunctions.js": async () => {
-        let openTestWin = async url => {
+        let openTestTab = async url => {
           let createdTestTab = new window.CreateTabPromise();
-          let updatedTestTab = new window.UpdateTabPromise({
-            logWindowId: true,
-          });
+          let updatedTestTab = new window.UpdateTabPromise();
           let testWindow = await browser.windows.create({ type: "popup", url });
           await createdTestTab.done();
-          await updatedTestTab.verify(testWindow.id, url);
-          return testWindow;
+
+          let [testTab] = await browser.tabs.query({ windowId: testWindow.id });
+          await updatedTestTab.verify(testTab.id, url);
+          return testTab;
         };
 
         window.expectLinkOpenInNewTab = async (
@@ -437,7 +456,7 @@ add_task(async function test_windows() {
           linkId,
           expectedUrl
         ) => {
-          let testWindow = await openTestWin(testUrl);
+          let testTab = await openTestTab(testUrl);
 
           // Click a link in testWindow to open a new tab.
           let createdNewTab = new window.CreateTabPromise();
@@ -447,7 +466,7 @@ add_task(async function test_windows() {
           await updatedNewTab.verify(createdTab.id, expectedUrl);
 
           await browser.tabs.remove(createdTab.id);
-          await browser.windows.remove(testWindow.id);
+          await browser.tabs.remove(testTab.id);
         };
 
         window.expectLinkOpenInSameTab = async (
@@ -455,14 +474,13 @@ add_task(async function test_windows() {
           linkId,
           expectedUrl
         ) => {
-          let testWindow = await openTestWin(testUrl);
+          let testTab = await openTestTab(testUrl);
 
           // Click a link in testWindow to open in self.
-          let updatedTab = new window.UpdateTabPromise({ logWindowId: true });
+          let updatedTab = new window.UpdateTabPromise();
           await window.sendMessage("click", { linkId });
-          await updatedTab.verify(testWindow.id, expectedUrl);
-
-          await browser.windows.remove(testWindow.id);
+          await updatedTab.verify(testTab.id, expectedUrl);
+          await browser.tabs.remove(testTab.id);
         };
 
         window.expectLinkOpenInExternalBrowser = async (
@@ -470,9 +488,9 @@ add_task(async function test_windows() {
           linkId,
           expectedUrl
         ) => {
-          let win = await openTestWin(testUrl);
+          let testTab = await openTestTab(testUrl);
           await window.sendMessage("click", { linkId, expectedUrl });
-          await browser.windows.remove(win.id);
+          await browser.tabs.remove(testTab.id);
         };
       },
       ...(await getCommonFiles()),
