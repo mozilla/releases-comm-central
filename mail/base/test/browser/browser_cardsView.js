@@ -41,6 +41,7 @@ add_setup(async function() {
       window
     );
     MailServices.accounts.removeAccount(account, false);
+    about3Pane.paneLayout.messagePaneVisible = true;
   });
 });
 

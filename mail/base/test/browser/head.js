@@ -50,6 +50,14 @@ class MenuTestHelper {
    * @property {boolean|string[]} [disabled] - true if the item should be
    *   disabled in all modes, or a list of modes in which it should be
    *   disabled. If the item should be hidden this property is ignored.
+   * @property {boolean|string[]} [checked] - true if the item should be
+   *   checked in all modes, or a list of modes in which it should be
+   *   checked. If the item should be hidden this property is ignored.
+   * @property {string} [l10nID] - the ID of the Fluent string this item
+   *   should be displaying. If specified, `l10nArgs` will be checked.
+   * @property {object} [l10nArgs] - the arguments for the Fluent string this
+   *   item should be displaying. If not specified, the string should not have
+   *   arguments.
    */
   /**
    * An object describing the possible states of a menu's items. Object keys
@@ -96,6 +104,15 @@ class MenuTestHelper {
         !actual.hasAttribute("checked") ||
           actual.getAttribute("checked") == "false",
         `${actual.id} not checked`
+      );
+    }
+    if (expected.l10nID) {
+      let attributes = actual.ownerDocument.l10n.getAttributes(actual);
+      Assert.equal(attributes.id, expected.l10nID, `${actual.id} L10n string`);
+      Assert.deepEqual(
+        attributes.args,
+        expected.l10nArgs ?? null,
+        `${actual.id} L10n args`
       );
     }
   }
@@ -155,6 +172,7 @@ class MenuTestHelper {
     let data = {};
     for (let [id, itemData] of Object.entries(this.baseData)) {
       data[id] = {
+        ...itemData,
         hidden: itemData.hidden === true || itemData.hidden?.includes(mode),
         disabled:
           itemData.disabled === true || itemData.disabled?.includes(mode),
