@@ -4602,6 +4602,11 @@ void nsMsgCompose::TagConvertible(Element* node, int32_t* _retval) {
 
   // Treat <font face="monospace"> as converible to plaintext.
   if (element.LowerCaseEqualsLiteral("font")) {
+    node->GetAttribute(u"size"_ns, attribValue);
+    if (!attribValue.IsEmpty()) {
+      *_retval = nsIMsgCompConvertible::No;
+      return;
+    }
     node->GetAttribute(u"face"_ns, attribValue);
     if (attribValue.LowerCaseEqualsLiteral("monospace")) {
       *_retval = nsIMsgCompConvertible::Plain;
