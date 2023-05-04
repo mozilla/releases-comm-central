@@ -2871,7 +2871,7 @@ var threadPane = {
    */
   _savedSelections: new Map(),
 
-  columns: getDefaultColumns(gFolder, gViewWrapper?.isSynthetic),
+  columns: getDefaultColumns(gFolder),
 
   async init() {
     quickFilterBar.init();
@@ -2910,12 +2910,6 @@ var threadPane = {
       threadTree.invalidate();
     });
     this.densityChange();
-
-    // No need to restore the columns state on first load since a folder hasn't
-    // been selected yet.
-    this.treeTable.setColumns(
-      getDefaultColumns(gFolder, gViewWrapper?.isSynthetic)
-    );
 
     XPCOMUtils.defineLazyGetter(this, "notificationBox", () => {
       let container = document.getElementById("threadPaneNotificationBox");
@@ -3529,11 +3523,19 @@ var threadPane = {
       // default columns for the currently visible folder, otherwise the table
       // layout will maintain whatever state is currently set from the previous
       // folder, which it doesn't reflect reality.
-      this.columns = getDefaultColumns(gFolder, gViewWrapper?.isSynthetic);
+      this.columns = getDefaultColumns(gFolder);
       return;
     }
 
-    const columnStates = JSON.parse(stringState);
+    this.applyPersistedColumnsState(JSON.parse(stringState));
+  },
+
+  /**
+   * Update the current columns to match a previously saved state.
+   *
+   * @param {JSON} columnStates - The parsed JSON of a previously saved state.
+   */
+  applyPersistedColumnsState(columnStates) {
     this.columns.forEach(c => {
       c.hidden = !columnStates[c.id]?.visible;
       c.ordinal = columnStates[c.id]?.ordinal ?? 0;
@@ -3671,8 +3673,8 @@ var threadPane = {
       };
     }
 
-    if (gDBView.isSynthetic) {
-      let syntheticView = gDBView._syntheticView;
+    if (gViewWrapper.isSynthetic) {
+      let syntheticView = gViewWrapper._syntheticView;
       if ("setPersistedSetting" in syntheticView) {
         syntheticView.setPersistedSetting("columns", newState);
       }
@@ -4238,8 +4240,21 @@ function restoreState({
   if (folderURI) {
     displayFolder(folderURI);
   } else if (syntheticView) {
-    // TODO: Move this block.
-    threadPane.restoreColumns();
+    // In a synthetic view check if we have a previously edited column layout to
+    // restore.
+    if ("getPersistedSetting" in syntheticView) {
+      let columnsState = syntheticView.getPersistedSetting("columns");
+      if (!columnsState) {
+        threadPane.restoreDefaultColumns();
+        return;
+      }
+
+      threadPane.applyPersistedColumnsState(columnsState);
+      threadPane.updateColumns();
+    } else {
+      // Otherwise restore the default synthetic columns.
+      threadPane.restoreDefaultColumns();
+    }
 
     gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
     gViewWrapper._viewFlags = 1;

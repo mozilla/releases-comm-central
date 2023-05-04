@@ -32,6 +32,10 @@ var { click_menus_in_sequence } = ChromeUtils.import(
 // needed to zero inter-folder processing delay
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
+var { GlodaSyntheticView } = ChromeUtils.import(
+  "resource:///modules/gloda/GlodaSyntheticView.jsm"
+);
+
 var folderInbox, folderSent, folderVirtual, folderA, folderB;
 // INBOX_DEFAULTS sans 'dateCol' but gains 'tagsCol'
 var columnsB;
@@ -687,68 +691,93 @@ class FakeCollection {
   }
 }
 
-function plan_for_columns_state_update() {
-  gColumnStateUpdated = false;
-}
-
-function wait_for_columns_state_updated() {
-  const STATE_PREF = "mailnews.database.global.views.global";
-  let columns_state_updated = function() {
-    gColumnStateUpdated = true;
-  };
-  Services.prefs.addObserver(STATE_PREF, columns_state_updated);
-  mc.waitFor(
-    () => gColumnStateUpdated,
-    "Timeout waiting for columns state updated."
+add_task(async function test_column_defaults_gloda_collection() {
+  let tabmail = document.getElementById("tabmail");
+  let tab = tabmail.openTab("mail3PaneTab", {
+    folderPaneVisible: false,
+    syntheticView: new GlodaSyntheticView({
+      collection: new FakeCollection(),
+    }),
+    title: "Test gloda results",
+  });
+  await BrowserTestUtils.waitForCondition(
+    () => tab.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
+    "synthetic view loaded"
   );
-  Services.prefs.removeObserver(STATE_PREF, columns_state_updated);
-}
-
-add_task(function test_column_defaults_gloda_collection() {
-  let fakeCollection = new FakeCollection();
-  let tab = mc.window.openTab("glodaList", { collection: fakeCollection });
-  wait_for_all_messages_to_load();
   assert_visible_columns(GLODA_DEFAULTS);
   close_tab(tab);
-}).skip(); // Enable after gloda view uses the correct columns.
+});
 
 add_task(async function test_persist_columns_gloda_collection() {
   let fakeCollection = new FakeCollection();
-  let tab1 = mc.window.openTab("glodaList", { collection: fakeCollection });
-  wait_for_all_messages_to_load();
+  let tabmail = document.getElementById("tabmail");
+  let tab1 = tabmail.openTab("mail3PaneTab", {
+    folderPaneVisible: false,
+    syntheticView: new GlodaSyntheticView({
+      collection: fakeCollection,
+    }),
+    title: "Test gloda results 1",
+  });
+  await BrowserTestUtils.waitForCondition(
+    () => tab1.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
+    "synthetic view loaded"
+  );
 
-  plan_for_columns_state_update();
   await toggleColumn("locationCol");
-  wait_for_columns_state_updated();
-
-  plan_for_columns_state_update();
   await toggleColumn("accountCol");
-  wait_for_columns_state_updated();
 
   glodaColumns = GLODA_DEFAULTS.slice(0, -1);
   glodaColumns.push("accountCol");
 
-  let tab2 = mc.window.openTab("glodaList", { collection: fakeCollection });
-  wait_for_all_messages_to_load();
+  let tab2 = tabmail.openTab("mail3PaneTab", {
+    folderPaneVisible: false,
+    syntheticView: new GlodaSyntheticView({
+      collection: fakeCollection,
+    }),
+    title: "Test gloda results 2",
+  });
+  await BrowserTestUtils.waitForCondition(
+    () => tab2.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
+    "synthetic view loaded"
+  );
   assert_visible_columns(glodaColumns);
 
   close_tab(tab2);
   close_tab(tab1);
-}).skip(); // Enable after gloda view uses the correct columns.
+});
 
 add_task(async function test_reset_columns_gloda_collection() {
   let fakeCollection = new FakeCollection();
-  let tab1 = mc.window.openTab("glodaList", { collection: fakeCollection });
-  wait_for_all_messages_to_load();
+  let tabmail = document.getElementById("tabmail");
+  let tab1 = tabmail.openTab("mail3PaneTab", {
+    folderPaneVisible: false,
+    syntheticView: new GlodaSyntheticView({
+      collection: fakeCollection,
+    }),
+    title: "Test gloda results 1",
+  });
+  await BrowserTestUtils.waitForCondition(
+    () => tab1.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
+    "synthetic view loaded"
+  );
   assert_visible_columns(glodaColumns);
 
   // reset order!
   await invoke_column_picker_option([{ label: "Restore column order" }]);
-  assert_visible_columns(glodaColumns); // same, only order (would be) reset
+  assert_visible_columns(GLODA_DEFAULTS);
 
-  let tab2 = mc.window.openTab("glodaList", { collection: fakeCollection });
-  wait_for_all_messages_to_load();
-  assert_visible_columns(glodaColumns);
+  let tab2 = tabmail.openTab("mail3PaneTab", {
+    folderPaneVisible: false,
+    syntheticView: new GlodaSyntheticView({
+      collection: fakeCollection,
+    }),
+    title: "Test gloda results 2",
+  });
+  await BrowserTestUtils.waitForCondition(
+    () => tab2.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
+    "synthetic view loaded"
+  );
+  assert_visible_columns(GLODA_DEFAULTS);
 
   close_tab(tab2);
   close_tab(tab1);
@@ -759,4 +788,4 @@ add_task(async function test_reset_columns_gloda_collection() {
     undefined,
     "Test ran to completion successfully"
   );
-}).skip(); // Enable after gloda view uses the correct columns.
+});

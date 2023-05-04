@@ -286,7 +286,37 @@ export function getDefaultColumns(folder, isSynthetic) {
   // Create a clone we can edit.
   let updatedColumns = DEFAULT_COLUMNS.map(column => ({ ...column }));
 
+  // We don't have a folder yet.
   if (!folder) {
+    // Synthetic views usually don't have folders, but let's check if we're
+    // actually looking at one and not just loading things early.
+    if (!isSynthetic) {
+      return updatedColumns;
+    }
+
+    updatedColumns.forEach(c => {
+      switch (c.id) {
+        case "correspondentCol":
+          // Don't show the correspondent if is not wanted.
+          c.hidden = !lazy.USE_CORRESPONDENTS;
+          break;
+        case "senderCol":
+          // Hide the sender if correspondent is enabled.
+          c.hidden = lazy.USE_CORRESPONDENTS;
+          break;
+        case "attachmentCol":
+        case "unreadButtonColHeader":
+        case "junkStatusCol":
+          // Hide all the columns we don't want in a default gloda view.
+          c.hidden = true;
+          break;
+        case "locationCol":
+          // Always show the location by default in a gloda view.
+          c.hidden = false;
+          break;
+      }
+    });
+
     return updatedColumns;
   }
 
@@ -310,10 +340,6 @@ export function getDefaultColumns(folder, isSynthetic) {
         // No recipient column if we use correspondent. Otherwise hide it if is
         // not an outgoing folder.
         c.hidden = lazy.USE_CORRESPONDENTS ? true : !isOutgoing(folder);
-        break;
-      case "locationCol":
-        // Show the location column for synthetic views such as gloda results.
-        c.hidden = !isSynthetic;
         break;
       case "junkStatusCol":
         // No ability to mark newsgroup or feed messages as spam.
