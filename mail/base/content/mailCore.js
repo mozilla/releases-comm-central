@@ -13,7 +13,6 @@
  */
 
 /* import-globals-from ../../extensions/mailviews/content/msgViewPickerOverlay.js */
-/* import-globals-from commandglue.js */
 /* import-globals-from customizeToolbar.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
@@ -258,11 +257,6 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
   // make sure the mail views search box is initialized
   if (document.getElementById("mailviews-container")) {
     ViewPickerOnLoad();
-  }
-
-  // make sure the folder location picker is initialized
-  if (document.getElementById("folder-location-container")) {
-    FolderPaneSelectionChange();
   }
 
   var customizePopup = document.getElementById(customizePopupId);

@@ -6,8 +6,8 @@
 /* global gSpacesToolbar */
 
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
-/* import-globals-from commandglue.js */
 /* import-globals-from contentAreaClick.js */
+/* import-globals-from mail-offline.js */
 /* import-globals-from mail3PaneWindowCommands.js */
 /* import-globals-from mailCommands.js */
 /* import-globals-from mailCore.js */
@@ -1378,8 +1378,13 @@ function MsgFilters(emailAddress, folder, fieldName) {
   }
 
   if (!folder) {
+    let chromeBrowser =
+      document.getElementById("tabmail")?.currentTabInfo.chromeBrowser ||
+      document.getElementById("messageBrowser");
+    let message =
+      chromeBrowser?.contentWindow?.gDBView?.hdrForFirstSelectedMessage;
     // Try to determine the folder from the selected message.
-    if (gDBView) {
+    if (message) {
       // Here we face a decision. If the message has been moved to a different
       // account, then a single filter cannot work for both manual and incoming
       // scope. So we will create the filter based on its existing location,
@@ -1388,8 +1393,7 @@ function MsgFilters(emailAddress, folder, fieldName) {
       // filters work correctly), but may not be what IMAP users who filter to a
       // local folder really want.
       try {
-        // TODO: Fix this.
-        // folder = gFolderDisplay.selectedMessage.folder;
+        folder = message.folder;
       } catch (ex) {}
     }
     if (!folder) {

@@ -8,7 +8,6 @@
 /* import-globals-from ../../../../toolkit/content/viewZoomOverlay.js */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
-/* import-globals-from commandglue.js */
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCommands.js */
 /* import-globals-from mailCore.js */

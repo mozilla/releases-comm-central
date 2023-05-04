@@ -5,8 +5,6 @@
 // TODO: Fix undefined things in this file.
 /* eslint-disable no-undef */
 
-/* import-globals-from ../../../base/content/commandglue.js */
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

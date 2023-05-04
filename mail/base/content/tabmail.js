@@ -6,7 +6,6 @@
 
 /* global MozElements, MozXULElement */
 
-/* import-globals-from commandglue.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
 

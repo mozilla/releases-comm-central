@@ -18,6 +18,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
 });
 
+var gDBView;
 var nsMsgKey_None = 0xffffffff;
 var nsMsgViewIndex_None = 0xffffffff;
 
@@ -2637,3 +2638,119 @@ FolderDisplayWidget.prototype = {
   },
   // @}
 };
+
+function SetNewsFolderColumns() {
+  var sizeColumn = document.getElementById("sizeCol");
+  var bundle = document.getElementById("bundle_messenger");
+
+  if (gDBView.usingLines) {
+    sizeColumn.setAttribute("label", bundle.getString("linesColumnHeader"));
+    sizeColumn.setAttribute(
+      "tooltiptext",
+      bundle.getString("linesColumnTooltip2")
+    );
+  } else {
+    sizeColumn.setAttribute("label", bundle.getString("sizeColumnHeader"));
+    sizeColumn.setAttribute(
+      "tooltiptext",
+      bundle.getString("sizeColumnTooltip2")
+    );
+  }
+}
+
+function UpdateStatusMessageCounts(folder) {
+  var unreadElement = document.getElementById("unreadMessageCount");
+  var totalElement = document.getElementById("totalMessageCount");
+  if (folder && !folder.isServer && unreadElement && totalElement) {
+    var numSelected = 0; // TODO
+    var bundle = document.getElementById("bundle_messenger");
+
+    var numUnread =
+      numSelected > 1
+        ? bundle.getFormattedString("selectedMsgStatus", [numSelected])
+        : bundle.getFormattedString("unreadMsgStatus", [
+            folder.getNumUnread(false),
+          ]);
+    var numTotal = bundle.getFormattedString("totalMsgStatus", [
+      folder.getTotalMessages(false),
+    ]);
+
+    unreadElement.setAttribute("value", numUnread);
+    totalElement.setAttribute("value", numTotal);
+    unreadElement.hidden = false;
+    totalElement.hidden = false;
+  }
+}
+
+function UpdateStatusQuota(folder) {
+  if (!document.getElementById("quotaPanel")) {
+    // No quotaPanel in here, like for the search window.
+    return;
+  }
+
+  if (!(folder && folder instanceof Ci.nsIMsgImapMailFolder)) {
+    document.getElementById("quotaPanel").hidden = true;
+    return;
+  }
+
+  let quotaUsagePercentage = q =>
+    Number((100n * BigInt(q.usage)) / BigInt(q.limit));
+
+  // For display on main window panel only include quota names containing
+  // "STORAGE" or "MESSAGE". This will exclude unusual quota names containing
+  // items like "MAILBOX" and "LEVEL" from the panel bargraph. All quota names
+  // will still appear on the folder properties quota window.
+  // Note: Quota name is typically something like "User Quota / STORAGE".
+  let folderQuota = folder
+    .getQuota()
+    .filter(
+      quota =>
+        quota.name.toUpperCase().includes("STORAGE") ||
+        quota.name.toUpperCase().includes("MESSAGE")
+    );
+  // If folderQuota not empty, find the index of the element with highest
+  //  percent usage and determine if it is above the panel display threshold.
+  if (folderQuota.length > 0) {
+    let highest = folderQuota.reduce((acc, current) =>
+      quotaUsagePercentage(acc) > quotaUsagePercentage(current) ? acc : current
+    );
+    let percent = quotaUsagePercentage(highest);
+    if (
+      percent <
+      Services.prefs.getIntPref("mail.quota.mainwindow_threshold.show")
+    ) {
+      document.getElementById("quotaPanel").hidden = true;
+    } else {
+      document.getElementById("quotaPanel").hidden = false;
+      document.getElementById("quotaMeter").setAttribute("value", percent);
+      var bundle = document.getElementById("bundle_messenger");
+      document.getElementById(
+        "quotaLabel"
+      ).value = bundle.getFormattedString("percent", [percent]);
+      document.getElementById(
+        "quotaLabel"
+      ).tooltipText = bundle.getFormattedString("quotaTooltip2", [
+        highest.usage,
+        highest.limit,
+      ]);
+      let quotaPanel = document.getElementById("quotaPanel");
+      if (
+        percent <
+        Services.prefs.getIntPref("mail.quota.mainwindow_threshold.warning")
+      ) {
+        quotaPanel.classList.remove("alert-warning", "alert-critical");
+      } else if (
+        percent <
+        Services.prefs.getIntPref("mail.quota.mainwindow_threshold.critical")
+      ) {
+        quotaPanel.classList.remove("alert-critical");
+        quotaPanel.classList.add("alert-warning");
+      } else {
+        quotaPanel.classList.remove("alert-warning");
+        quotaPanel.classList.add("alert-critical");
+      }
+    }
+  } else {
+    document.getElementById("quotaPanel").hidden = true;
+  }
+}

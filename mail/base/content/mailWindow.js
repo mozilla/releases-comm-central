@@ -5,7 +5,6 @@
 
 /* import-globals-from ../../../../toolkit/content/contentAreaUtils.js */
 /* import-globals-from ../../../../toolkit/content/viewZoomOverlay.js */
-/* import-globals-from commandglue.js */
 /* import-globals-from globalOverlay.js */
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCore.js */
@@ -56,7 +55,6 @@ function OnMailWindowUnload() {
   msgWindow.closeWindow();
 
   msgWindow.notificationCallbacks = null;
-  gDBView = null; // eslint-disable-line no-global-assign
   window.MsgStatusFeedback.unload();
   Cc["@mozilla.org/activity-manager;1"]
     .getService(Ci.nsIActivityManager)
