@@ -9,9 +9,6 @@ const EXPORTED_SYMBOLS = [
   "ImapAuthenticator",
 ];
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
 var { MailCryptoUtils } = ChromeUtils.import(
   "resource:///modules/MailCryptoUtils.jsm"
 );
@@ -264,19 +261,7 @@ class SmtpAuthenticator extends MailAuthenticator {
       "smtpEnterPasswordPromptTitleWithHostname",
       [this._server.hostname]
     );
-    let authPrompt;
-    try {
-      // This prompt has a checkbox for saving password.
-      authPrompt = MailServices.mailSession.topmostMsgWindow.authPrompt;
-    } catch (e) {
-      // Often happens in tests. This prompt has no checkbox for saving password.
-      authPrompt = Services.ww.getNewAuthPrompter(null);
-    }
-    return this._server.getPasswordWithUI(
-      promptString,
-      promptTitle,
-      authPrompt
-    );
+    return this._server.getPasswordWithUI(promptString, promptTitle);
   }
 
   /**
@@ -438,14 +423,9 @@ class Pop3Authenticator extends IncomingServerAuthenticator {
       "pop3EnterPasswordPromptTitleWithUsername",
       [this._server.hostName]
     );
-    let msgWindow;
-    try {
-      msgWindow = MailServices.mailSession.topmostMsgWindow;
-    } catch (e) {}
     return this._server.wrappedJSObject.getPasswordWithUIAsync(
       promptString,
-      promptTitle,
-      msgWindow
+      promptTitle
     );
   }
 
@@ -476,14 +456,9 @@ class ImapAuthenticator extends IncomingServerAuthenticator {
       "imapEnterPasswordPromptTitleWithUsername",
       [this._server.hostName]
     );
-    let msgWindow;
-    try {
-      msgWindow = MailServices.mailSession.topmostMsgWindow;
-    } catch (e) {}
     return this._server.wrappedJSObject.getPasswordWithUIAsync(
       promptString,
-      promptTitle,
-      msgWindow
+      promptTitle
     );
   }
 

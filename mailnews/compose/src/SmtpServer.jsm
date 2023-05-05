@@ -237,7 +237,17 @@ class SmtpServer {
     this._password = password;
   }
 
-  getPasswordWithUI(promptMessage, promptTitle, prompt) {
+  getPasswordWithUI(promptMessage, promptTitle) {
+    let authPrompt;
+    try {
+      // This prompt has a checkbox for saving password.
+      authPrompt = Cc["@mozilla.org/messenger/msgAuthPrompt;1"].getService(
+        Ci.nsIAuthPrompt
+      );
+    } catch (e) {
+      // Often happens in tests. This prompt has no checkbox for saving password.
+      authPrompt = Services.ww.getNewAuthPrompter(null);
+    }
     let password = this._getPasswordWithoutUI();
     if (password) {
       this.password = password;
@@ -247,7 +257,7 @@ class SmtpServer {
     let outPassword = {};
     let ok;
     if (this.username) {
-      ok = prompt.promptPassword(
+      ok = authPrompt.promptPassword(
         promptTitle,
         promptMessage,
         this.serverURI,
@@ -255,7 +265,7 @@ class SmtpServer {
         outPassword
       );
     } else {
-      ok = prompt.promptUsernameAndPassword(
+      ok = authPrompt.promptUsernameAndPassword(
         promptTitle,
         promptMessage,
         this.serverURI,

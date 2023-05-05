@@ -341,26 +341,11 @@ var alertUtilsWindowWatcher = {
   QueryInterface: ChromeUtils.generateQI(["nsIWindowWatcher"]),
 };
 
-function registerAlertTestUtils() {
-  MockRegistrar.register(
-    "@mozilla.org/embedcomp/window-watcher;1",
-    alertUtilsWindowWatcher
-  );
-  MockRegistrar.register("@mozilla.org/prompter;1", alertUtilsPromptService);
-  Services.prompt = alertUtilsPromptService;
-}
-
-// Dummy message window that ensures we get prompted for logins. Calls
+// Special prompt that ensures we get prompted for logins. Calls
 // promptPasswordPS/promptUsernameAndPasswordPS directly, rather than through
 // the prompt service, because the function signature changed and no longer
-// allows a "save password" check box. We also avoid the prompt service
-// interface in the real msgWindow.
-
-var gDummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-  Ci.nsIMsgWindow
-);
-gDummyMsgWindow instanceof Ci.nsIMsgWindowTest;
-gDummyMsgWindow.setAuthPrompt({
+// allows a "save password" check box.
+let alertUtilsMsgAuthPrompt = {
   QueryInterface: ChromeUtils.generateQI(["nsIAuthPrompt"]),
 
   _getFormattedOrigin(aURI) {
@@ -482,6 +467,21 @@ gDummyMsgWindow.setAuthPrompt({
 
     return ok;
   },
-});
-// Set MailServices.mailSession.topmostMsgWindow to gDummyMsgWindow.
-MailServices.mailSession.AddMsgWindow(gDummyMsgWindow);
+};
+
+function registerAlertTestUtils() {
+  MockRegistrar.register(
+    "@mozilla.org/embedcomp/window-watcher;1",
+    alertUtilsWindowWatcher
+  );
+  MockRegistrar.register(
+    "@mozilla.org/messenger/msgAuthPrompt;1",
+    alertUtilsMsgAuthPrompt
+  );
+  MockRegistrar.register("@mozilla.org/prompter;1", alertUtilsPromptService);
+  Services.prompt = alertUtilsPromptService;
+}
+
+var gDummyMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
+  Ci.nsIMsgWindow
+);

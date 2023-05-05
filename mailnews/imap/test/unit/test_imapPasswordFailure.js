@@ -97,9 +97,7 @@ add_task(async function() {
   incomingServer.password = "";
   let password = incomingServer.getPasswordWithUI(
     "Prompt Message",
-    "Prompt Title",
-    null,
-    {}
+    "Prompt Title"
   );
 
   // The fake server expects one password, but we're feeding it an invalid one

@@ -2031,7 +2031,7 @@ nsImapIncomingServer::PromptPassword(nsIMsgWindow* aMsgWindow,
                                             formatStrings2, passwordText);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = GetPasswordWithUI(passwordText, passwordTitle, aMsgWindow, aPassword);
+  rv = GetPasswordWithUI(passwordText, passwordTitle, aPassword);
   if (NS_SUCCEEDED(rv)) m_password = aPassword;
   return rv;
 }

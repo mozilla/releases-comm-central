@@ -107,13 +107,10 @@ interface nsISmtpServer : nsISupports {
    * @param promptString  The string to prompt the user with when asking for
    *                      the password.
    * @param promptTitle   The title of the prompt.
-   * @param netPrompt     An nsIAuthPrompt instance to use for the password
-   *                      prompt.
    * @return              The password to use (may be null if no password was
    *                      obtained).
    */
-  AString getPasswordWithUI(in wstring promptString, in wstring promptTitle,
-                           in nsIAuthPrompt netPrompt);
+  AString getPasswordWithUI(in wstring promptString, in wstring promptTitle);
 
   /**
    * Gets a username and password for this server, using a UI prompt if

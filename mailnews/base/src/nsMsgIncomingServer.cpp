@@ -712,7 +712,6 @@ nsresult nsMsgIncomingServer::GetPasswordWithoutUI() {
 NS_IMETHODIMP
 nsMsgIncomingServer::GetPasswordWithUI(const nsAString& aPromptMessage,
                                        const nsAString& aPromptTitle,
-                                       nsIMsgWindow* aMsgWindow,
                                        nsAString& aPassword) {
   nsresult rv = NS_OK;
 
@@ -727,13 +726,9 @@ nsMsgIncomingServer::GetPasswordWithUI(const nsAString& aPromptMessage,
     if (rv == NS_ERROR_ABORT) return NS_MSG_PASSWORD_PROMPT_CANCELLED;
   }
   if (m_password.IsEmpty()) {
-    nsCOMPtr<nsIAuthPrompt> dialog;
-    // aMsgWindow is required if we need to prompt
-    if (aMsgWindow) {
-      rv = aMsgWindow->GetAuthPrompt(getter_AddRefs(dialog));
-      NS_ENSURE_SUCCESS(rv, rv);
-    }
-    if (dialog) {
+    nsCOMPtr<nsIAuthPrompt> authPrompt =
+        do_GetService("@mozilla.org/messenger/msgAuthPrompt;1");
+    if (authPrompt) {
       // prompt the user for the password
       nsCString serverUri;
       rv = GetLocalStoreType(serverUri);
@@ -763,11 +758,11 @@ nsMsgIncomingServer::GetPasswordWithUI(const nsAString& aPromptMessage,
       if (!aPassword.IsEmpty()) uniPassword = ToNewUnicode(aPassword);
 
       bool okayValue = true;
-      rv = dialog->PromptPassword(PromiseFlatString(aPromptTitle).get(),
-                                  PromiseFlatString(aPromptMessage).get(),
-                                  NS_ConvertASCIItoUTF16(serverUri).get(),
-                                  nsIAuthPrompt::SAVE_PASSWORD_PERMANENTLY,
-                                  &uniPassword, &okayValue);
+      rv = authPrompt->PromptPassword(PromiseFlatString(aPromptTitle).get(),
+                                      PromiseFlatString(aPromptMessage).get(),
+                                      NS_ConvertASCIItoUTF16(serverUri).get(),
+                                      nsIAuthPrompt::SAVE_PASSWORD_PERMANENTLY,
+                                      &uniPassword, &okayValue);
       NS_ENSURE_SUCCESS(rv, rv);
 
       if (!okayValue)  // if the user pressed cancel, just return an empty

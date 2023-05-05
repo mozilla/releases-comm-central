@@ -1060,19 +1060,16 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow* aMsgWindow,
   // Show the prompt if we need to
   if (mustPrompt ||
       (mayPrompt && (mGroupUsername.IsEmpty() || mGroupPassword.IsEmpty()))) {
-    nsCOMPtr<nsIAuthPrompt> dialog;
-    if (aMsgWindow) {
-      rv = aMsgWindow->GetAuthPrompt(getter_AddRefs(dialog));
-      NS_ENSURE_SUCCESS(rv, rv);
-    } else {
+    nsCOMPtr<nsIAuthPrompt> authPrompt =
+        do_GetService("@mozilla.org/messenger/msgAuthPrompt;1");
+    if (!authPrompt) {
       nsCOMPtr<nsIWindowWatcher> wwatch(
           do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-      if (wwatch) wwatch->GetNewAuthPrompter(0, getter_AddRefs(dialog));
-      if (!dialog) return NS_ERROR_FAILURE;
+      if (wwatch) wwatch->GetNewAuthPrompter(0, getter_AddRefs(authPrompt));
+      if (!authPrompt) return NS_ERROR_FAILURE;
     }
 
-    NS_ASSERTION(dialog, "We didn't get a net prompt");
-    if (dialog) {
+    if (authPrompt) {
       // Format the prompt text strings
       nsString promptTitle, promptText;
       bundle->GetStringFromName("enterUserPassTitle", promptTitle);
@@ -1111,7 +1108,7 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow* aMsgWindow,
           ToNewUnicode(NS_ConvertASCIItoUTF16(mGroupPassword));
 
       // Prompt for the dialog
-      rv = dialog->PromptUsernameAndPassword(
+      rv = authPrompt->PromptUsernameAndPassword(
           promptTitle.get(), promptText.get(), signonURL.get(),
           nsIAuthPrompt::SAVE_PASSWORD_PERMANENTLY, &uniGroupUsername,
           &uniGroupPassword, validCredentials);

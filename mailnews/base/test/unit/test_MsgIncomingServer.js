@@ -32,7 +32,7 @@ add_task(function testMigratePasswordOnChangeUsernameHostname() {
     "news.localhost",
     "nntp"
   );
-  nntpIncomingServer.getPasswordWithUI("", "", null);
+  nntpIncomingServer.getPasswordWithUI("", "");
   equal(nntpIncomingServer.password, "password-nntp");
 
   // Change the username, check password can be found using the new username.
@@ -52,7 +52,7 @@ add_task(function testMigratePasswordOnChangeUsernameHostname() {
     "pop3.localhost",
     "pop3"
   );
-  pop3IncomingServer.getPasswordWithUI("", "", null);
+  pop3IncomingServer.getPasswordWithUI("", "");
   equal(pop3IncomingServer.password, "password-pop");
 
   // Change the hostname, check password can be found using the new hostname.

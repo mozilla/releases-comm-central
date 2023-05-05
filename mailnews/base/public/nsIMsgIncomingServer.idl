@@ -119,7 +119,6 @@ interface nsIMsgIncomingServer : nsISupports {
    * @param aPromptString  The text of the prompt if the user is prompted for
    *                       password.
    * @param aPromptTitle   The title of the prompt if the user is prompted.
-   * @param aMsgWindow     A message window to associate the prompt with.
    * @return               The obtained password. Could be an empty password.
    *
    * @exception NS_ERROR_FAILURE  The password could not be obtained.
@@ -128,8 +127,7 @@ interface nsIMsgIncomingServer : nsISupports {
    *       if the prompt was presented to the user but the user cancelled the
    *       prompt.
    */
-  AString getPasswordWithUI(in AString aPromptString, in AString aPromptTitle,
-                             in nsIMsgWindow aMsgWindow);
+  AString getPasswordWithUI(in AString aPromptString, in AString aPromptTitle);
 
   /* forget the password in memory and in single signon database */
   void forgetPassword();

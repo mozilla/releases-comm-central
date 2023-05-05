@@ -40,7 +40,7 @@
 #include "nsFrameLoader.h"
 
 NS_IMPL_ISUPPORTS(nsMsgWindow, nsIMsgWindow, nsIURIContentListener,
-                  nsISupportsWeakReference, nsIMsgWindowTest)
+                  nsISupportsWeakReference)
 
 nsMsgWindow::nsMsgWindow() {
   mCharsetOverride = false;
@@ -177,22 +177,6 @@ NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell** aDocShell) {
     CallQueryReferent(mRootDocShellWeak.get(), aDocShell);
   else
     *aDocShell = nullptr;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::GetAuthPrompt(nsIAuthPrompt** aAuthPrompt) {
-  NS_ENSURE_ARG_POINTER(aAuthPrompt);
-
-  if (!mAuthPrompt) {
-    mAuthPrompt = do_GetService("@mozilla.org/messenger/msgAuthPrompt;1");
-  }
-
-  NS_ADDREF(*aAuthPrompt = mAuthPrompt);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetAuthPrompt(nsIAuthPrompt* aAuthPrompt) {
-  mAuthPrompt = aAuthPrompt;
   return NS_OK;
 }
 

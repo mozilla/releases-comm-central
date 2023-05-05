@@ -45,12 +45,6 @@ interface nsIMsgWindow : nsISupports {
   readonly attribute nsIDocShell messageWindowDocShell;
 
   /**
-   * Returns the auth prompt associated with the window. This will only return
-   * a value if the rootDocShell has been set.
-   */
-  readonly attribute nsIAuthPrompt authPrompt;
-
-  /**
    * These are currently used to set notification callbacks on
    * protocol channels to handle things like bad cert exceptions.
    */
@@ -75,12 +69,4 @@ interface nsIMsgWindow : nsISupports {
     this forces a release...
    */
   void closeWindow();
-};
-
-[scriptable, uuid(FFBC8B13-243F-4cd9-92D0-01636CDA425E)]
-interface nsIMsgWindowTest : nsISupports {
-  /**
-   * For testing only, allow setting a few read-only attributes
-   */
-  void setAuthPrompt(in nsIAuthPrompt authPrompt);
 };

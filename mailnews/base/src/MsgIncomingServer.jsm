@@ -828,7 +828,7 @@ class MsgIncomingServer {
     return null;
   }
 
-  getPasswordWithUI(promptMessage, promptTitle, msgWindow) {
+  getPasswordWithUI(promptMessage, promptTitle) {
     let password = this._getPasswordWithoutUI();
     if (password) {
       this.password = password;
@@ -837,8 +837,16 @@ class MsgIncomingServer {
     let outUsername = {};
     let outPassword = {};
     let ok;
-    let authPrompt =
-      msgWindow?.authPrompt || Services.ww.getNewAuthPrompter(null);
+    let authPrompt;
+    try {
+      // This prompt has a checkbox for saving password.
+      authPrompt = Cc["@mozilla.org/messenger/msgAuthPrompt;1"].getService(
+        Ci.nsIAuthPrompt
+      );
+    } catch (e) {
+      // Often happens in tests. This prompt has no checkbox for saving password.
+      authPrompt = Services.ww.getNewAuthPrompter(null);
+    }
     if (this.username) {
       ok = authPrompt.promptPassword(
         promptTitle,
@@ -1185,9 +1193,8 @@ class MsgIncomingServer {
    *
    * @param {string} message - The text inside the prompt.
    * @param {string} title - The title of the prompt.
-   * @param {nsIMsgWindow} - The associated msg window.
    */
-  async getPasswordWithUIAsync(promptMessage, promptTitle, msgWindow) {
+  async getPasswordWithUIAsync(promptMessage, promptTitle) {
     if (this._passwordPromise) {
       await this._passwordPromise;
       return this.password;
@@ -1198,7 +1205,7 @@ class MsgIncomingServer {
       deferred.reject = reject;
     });
     try {
-      this.getPasswordWithUI(promptMessage, promptTitle, msgWindow);
+      this.getPasswordWithUI(promptMessage, promptTitle);
     } catch (e) {
       deferred.reject(e);
       throw e;

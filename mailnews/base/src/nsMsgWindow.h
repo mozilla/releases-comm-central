@@ -19,7 +19,6 @@
 
 class nsMsgWindow : public nsIMsgWindow,
                     public nsIURIContentListener,
-                    public nsIMsgWindowTest,
                     public nsSupportsWeakReference {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -28,7 +27,6 @@ class nsMsgWindow : public nsIMsgWindow,
   nsresult Init();
   NS_DECL_NSIMSGWINDOW
   NS_DECL_NSIURICONTENTLISTENER
-  NS_DECL_NSIMSGWINDOWTEST
 
  protected:
   virtual ~nsMsgWindow();
