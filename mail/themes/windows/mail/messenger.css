@@ -49,11 +49,6 @@
     padding-inline-start: 32px;
   }
 
-  menupopup[needsgutter] > .menu-iconic > .menu-iconic-left,
-  menupopup[needsgutter] > .menuitem-iconic > .menu-iconic-left {
-    margin-inline-start: -2px;
-  }
-
   .folderMenuItem > .menu-iconic-left,
   .menuitem-iconic > .menu-iconic-left {
     display: flex;
