@@ -85,7 +85,7 @@ const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
   }
 
   async function clickLink(browser) {
-    await BrowserTestUtils.synthesizeMouseAtCenter("#link", {}, browser);
+    await synthesizeMouseAtCenterAndRetry("#link", {}, browser);
   }
 
   await extension.startup();

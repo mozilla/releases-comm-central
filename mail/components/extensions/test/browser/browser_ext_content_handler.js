@@ -128,7 +128,7 @@ const subtest_clickInBrowser = async (extension, getBrowser) => {
         url => url != "about:blank"
       );
     }
-    await BrowserTestUtils.synthesizeMouseAtCenter(linkSelector, {}, browser);
+    await synthesizeMouseAtCenterAndRetry(linkSelector, {}, browser);
   }
 
   await extension.startup();

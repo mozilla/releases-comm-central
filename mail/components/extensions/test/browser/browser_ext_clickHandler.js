@@ -219,29 +219,7 @@ const subtest_clickInBrowser = async (
         url => url != "about:blank"
       );
     }
-
-    let success = false;
-    for (let retries = 0; !success && retries < 2; retries++) {
-      let clickPromise = BrowserTestUtils.waitForContentEvent(
-        browser,
-        "click",
-        true,
-        null,
-        true
-      ).then(() => true);
-      // Linux: Sometimes the actor used to simulate the mouse click in the content process does not
-      // react, even though the content page signals to be fully loaded. There is no status signal
-      // we could wait for, the loaded page *should* be ready at this point. To mitigate, we wait
-      // for the click event and if we do not see it within a certain time, we click again.
-      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-      let failPromise = new Promise(r =>
-        browser.ownerGlobal.setTimeout(r, 500)
-      ).then(() => false);
-
-      await BrowserTestUtils.synthesizeMouseAtCenter(linkId, {}, browser);
-      success = await Promise.race([clickPromise, failPromise]);
-    }
-    Assert.ok(success, "Should have received click event on content link");
+    await synthesizeMouseAtCenterAndRetry(linkId, {}, browser);
   }
 
   await extension.startup();
@@ -635,7 +613,7 @@ add_task(async function test_message() {
   await loadedPromise;
 
   // Click the link.
-  await BrowserTestUtils.synthesizeMouseAtCenter("#link", {}, messagePane);
+  await synthesizeMouseAtCenterAndRetry("#link", {}, messagePane);
   Assert.ok(
     mockExternalProtocolService.urlLoaded(
       "https://www.example.de/messageLink.html"

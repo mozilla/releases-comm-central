@@ -1,6 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* globals synthesizeMouseAtCenterAndRetry */
+
 "use strict";
 
 const { ExtensionPermissions } = ChromeUtils.import(
@@ -58,7 +61,7 @@ function rightClick(menu, element) {
  */
 async function rightClickOnContent(menu, selector, browser) {
   let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  await BrowserTestUtils.synthesizeMouseAtCenter(
+  await synthesizeMouseAtCenterAndRetry(
     selector,
     { type: "contextmenu" },
     browser
@@ -310,7 +313,7 @@ async function subtest_content(
   }
   let menu = ownerDocument.getElementById(menuId);
 
-  await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser);
+  await synthesizeMouseAtCenterAndRetry("body", {}, browser);
 
   info("Test a part of the page with no content.");
 
@@ -375,7 +378,7 @@ async function subtest_content(
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(r => setTimeout(r, 250));
 
-  await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser); // Select nothing.
+  await synthesizeMouseAtCenterAndRetry("body", {}, browser); // Select nothing.
 
   info("Test link.");
 
@@ -485,7 +488,7 @@ async function subtest_compose_body(
   let ownerDocument = browser.ownerDocument;
   let menu = ownerDocument.getElementById(browser.getAttribute("context"));
 
-  await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser);
+  await synthesizeMouseAtCenterAndRetry("body", {}, browser);
 
   info("Test a part of the page with no content.");
   {
@@ -558,7 +561,7 @@ async function subtest_compose_body(
     // this doesn't happen.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(r => setTimeout(r, 250));
-    await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser); // Select nothing.
+    await synthesizeMouseAtCenterAndRetry("body", {}, browser); // Select nothing.
   }
 
   info("Test link.");
@@ -602,7 +605,7 @@ async function subtest_compose_body(
     // this doesn't happen.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(r => setTimeout(r, 250));
-    await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser); // Select nothing.
+    await synthesizeMouseAtCenterAndRetry("body", {}, browser); // Select nothing.
   }
 
   info("Test image.");
@@ -645,7 +648,7 @@ async function subtest_compose_body(
     // this doesn't happen.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(r => setTimeout(r, 250));
-    await BrowserTestUtils.synthesizeMouseAtCenter("body", {}, browser); // Select nothing.
+    await synthesizeMouseAtCenterAndRetry("body", {}, browser); // Select nothing.
   }
 }
 
