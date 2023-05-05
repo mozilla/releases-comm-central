@@ -297,9 +297,12 @@ var mailContextMenu = {
     );
 
     // setSingleSelection("mailContext-calendar-convert-menu");
+
     document.l10n.setAttributes(
       document.getElementById("mailContext-delete"),
-      "mail-context-delete-messages",
+      message.flags & Ci.nsMsgMessageFlags.IMAPDeleted
+        ? "mail-context-undelete-messages"
+        : "mail-context-delete-messages",
       {
         count: numSelectedMessages,
       }

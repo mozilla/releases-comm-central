@@ -158,9 +158,51 @@ function file_init() {
  * Update the menu items visibility in the Edit submenu.
  */
 function InitEditMessagesMenu() {
-  goSetMenuValue("cmd_delete", "valueDefault");
-  goSetAccessKey("cmd_delete", "valueDefaultAccessKey");
   document.commandDispatcher.updateCommands("create-menu-edit");
+
+  let chromeBrowser, folderTreeActive, folderIsNewsgroup;
+
+  let deleteController = getEnabledControllerForCommand("cmd_delete");
+  if (deleteController?.wrappedJSObject) {
+    // If the controller is a JS object, it must be one we've implemented,
+    // not the built-in controller for textboxes.
+    let tab = document.getElementById("tabmail")?.currentTabInfo;
+    if (tab?.mode.name == "mail3PaneTab") {
+      chromeBrowser = tab.chromeBrowser;
+      folderTreeActive =
+        chromeBrowser.contentDocument.activeElement.id == "folderTree";
+      if (folderTreeActive) {
+        let folder = chromeBrowser.contentWindow.gFolder;
+        folderIsNewsgroup = folder?.server.type == "nntp";
+      }
+    } else if (tab?.mode.name == "mailMessageTab") {
+      chromeBrowser = tab.chromeBrowser;
+    } else {
+      chromeBrowser = document.getElementById("messageBrowser");
+    }
+  }
+
+  let dbView = chromeBrowser?.contentWindow.gDBView;
+  let numSelected = dbView?.numSelected;
+
+  let deleteMenuItem = document.getElementById("menu_delete");
+  if (folderTreeActive) {
+    let value = folderIsNewsgroup ? "unsubscribe-newsgroup" : "delete-folder";
+    document.l10n.setAttributes(deleteMenuItem, `menu-edit-${value}`);
+  } else if (numSelected) {
+    let message = dbView?.hdrForFirstSelectedMessage;
+    let value;
+    if (message && message.flags & Ci.nsMsgMessageFlags.IMAPDeleted) {
+      value = "undelete-messages";
+    } else {
+      value = "delete-messages";
+    }
+    document.l10n.setAttributes(deleteMenuItem, `menu-edit-${value}`, {
+      count: numSelected,
+    });
+  } else {
+    document.l10n.setAttributes(deleteMenuItem, "text-action-delete");
+  }
 
   // initialize the favorite Folder checkbox in the edit menu
   let favoriteFolderMenu = document.getElementById("menu_favoriteFolder");
@@ -181,10 +223,6 @@ function initSearchMessagesMenu() {
 }
 
 function InitAppFolderViewsMenu() {
-  goSetMenuValue("cmd_delete", "valueDefault");
-  goSetAccessKey("cmd_delete", "valueDefaultAccessKey");
-  document.commandDispatcher.updateCommands("create-menu-edit");
-
   // Initialize the favorite Folder checkbox in the appmenu menu.
   let favoriteAppFolderMenu = document.getElementById("appmenu_favoriteFolder");
   if (!favoriteAppFolderMenu.hasAttribute("disabled")) {

@@ -153,9 +153,9 @@
       <menuitem id="menu_subscribe" label="&subscribeCmd.label;"
                 accesskey="&subscribeCmd.accesskey;" command="cmd_subscribe"/>
       <menuseparator id="fileMenuAfterSubscribeSeparator"/>
-      <menuitem id="menu_deleteFolder" label="&deleteFolder.label;"
-              accesskey="&deleteFolder.accesskey;"
-              command="cmd_deleteFolder"/>
+      <menuitem id="menu_deleteFolder"
+                data-l10n-id="menu-edit-delete-folder"
+                command="cmd_deleteFolder"/>
       <menuitem id="menu_renameFolder" label="&renameFolder.label;"
               accesskey="&renameFolder.accesskey;"
 #ifndef XP_MACOSX
@@ -242,7 +242,6 @@
               key="key_paste"
               command="cmd_paste"/>
     <menuitem id="menu_delete"
-              data-l10n-id="text-action-delete"
               key="key_delete"
               command="cmd_delete"/>
     <menuseparator id="editMenuAfterDeleteSeparator"/>
