@@ -9,11 +9,11 @@ const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-let {
-  currentAbout3Pane: about3Pane,
-  currentAboutMessage: aboutMessage,
-} = document.getElementById("tabmail");
+let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 let threadTree = about3Pane.threadTree;
+// Not `currentAboutMessage` as (a) that's null right now, and (b) we'll be
+// testing things that happen when about:message is hidden.
+let aboutMessage = about3Pane.messageBrowser.contentWindow;
 let messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
 let rootFolder, folderA, folderB, trashFolder, sourceMessages, sourceMessageIDs;
 

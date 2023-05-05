@@ -275,13 +275,11 @@ function get_about_3pane(win = mc.window) {
 function get_about_message(win = mc.window) {
   let doc = win.document;
   let tabmail = doc.getElementById("tabmail");
-  if (
-    tabmail &&
-    ["mail3PaneTab", "mailMessageTab"].includes(
-      tabmail.currentTabInfo.mode.name
-    )
-  ) {
+  if (tabmail?.currentTabInfo.mode.name == "mailMessageTab") {
     return tabmail.currentAboutMessage;
+  } else if (tabmail?.currentTabInfo.mode.name == "mail3PaneTab") {
+    // Not `currentAboutMessage`, we'll return a value even if it's hidden.
+    return get_about_3pane(win).messageBrowser.contentWindow;
   } else if (
     doc.documentElement.getAttribute("windowtype") == "mail:messageWindow"
   ) {

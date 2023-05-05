@@ -58,12 +58,13 @@ add_task(async () => {
 
   let tabmail = document.getElementById("tabmail");
   let about3Pane = tabmail.currentAbout3Pane;
-  let aboutMessage = tabmail.currentAboutMessage;
-  let { folderTree, threadTree } = about3Pane;
+  let { folderTree, threadTree, messageBrowser } = about3Pane;
   let menu = about3Pane.document.getElementById("folderPaneContext");
   let menuItem = about3Pane.document.getElementById(
     "folderPaneContext-subscribe"
   );
+  // Not `currentAboutMessage` as that's null right now.
+  let aboutMessage = messageBrowser.contentWindow;
   let messagePane = aboutMessage.getMessagePaneBrowser();
 
   let account = MailServices.accounts.getAccount("account1");

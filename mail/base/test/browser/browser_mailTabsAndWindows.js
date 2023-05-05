@@ -70,16 +70,24 @@ add_task(async function testTabs() {
     "messageBrowser"
   );
   Assert.equal(firstMessageBrowser.currentURI.spec, "about:message");
-  Assert.equal(tabmail.currentAboutMessage, firstMessageBrowser.contentWindow);
 
   let firstMessagePane = firstMessageBrowser.contentDocument.getElementById(
     "messagepane"
   );
   Assert.equal(firstMessagePane.currentURI.spec, "about:blank");
+  Assert.equal(
+    tabmail.currentAboutMessage,
+    null,
+    "currentAboutMessage should be null with no message selected"
+  );
   Assert.equal(firstTab.browser, null);
   Assert.equal(firstTab.linkedBrowser, null);
 
-  let { folderTree, threadTree } = firstChromeBrowser.contentWindow;
+  let {
+    folderTree,
+    threadTree,
+    messagePane,
+  } = firstChromeBrowser.contentWindow;
 
   firstTab.folder = folderA;
   Assert.equal(firstTab.folder, folderA);
@@ -92,6 +100,11 @@ add_task(async function testTabs() {
 
   Assert.equal(firstTab.message, null);
   threadTree.selectedIndex = 0;
+  Assert.equal(
+    tabmail.currentAboutMessage,
+    firstMessageBrowser.contentWindow,
+    "currentAboutMessage should have a value with a message selected"
+  );
   Assert.equal(firstTab.message, messagesA[0]);
   Assert.equal(firstTab.browser, firstMessagePane);
   Assert.equal(firstTab.linkedBrowser, firstMessagePane);
@@ -106,6 +119,11 @@ add_task(async function testTabs() {
   firstTab.messagePaneVisible = false;
   Assert.ok(BrowserTestUtils.is_hidden(folderTree));
   Assert.ok(BrowserTestUtils.is_hidden(firstMessageBrowser));
+  Assert.equal(
+    tabmail.currentAboutMessage,
+    null,
+    "currentAboutMessage should be null with the message pane hidden"
+  );
   Assert.equal(firstTab.browser, null);
   Assert.equal(firstTab.linkedBrowser, null);
 
@@ -116,11 +134,72 @@ add_task(async function testTabs() {
   firstTab.messagePaneVisible = true;
   Assert.ok(BrowserTestUtils.is_visible(folderTree));
   Assert.ok(BrowserTestUtils.is_visible(firstMessageBrowser));
+  Assert.equal(
+    tabmail.currentAboutMessage,
+    firstMessageBrowser.contentWindow,
+    "currentAboutMessage should have a value with the message pane shown"
+  );
   Assert.equal(firstTab.browser, firstMessagePane);
   Assert.equal(firstTab.linkedBrowser, firstMessagePane);
 
   Assert.equal(firstChromeBrowser.contentWindow.tabOrWindow, firstTab);
   Assert.equal(firstMessageBrowser.contentWindow.tabOrWindow, firstTab);
+
+  // Select multiple messages.
+
+  let firstMultiMessageBrowser = firstChromeBrowser.contentDocument.getElementById(
+    "multiMessageBrowser"
+  );
+  let firstWebBrowser = firstChromeBrowser.contentDocument.getElementById(
+    "webBrowser"
+  );
+
+  threadTree.selectedIndices = [1, 2];
+  Assert.ok(BrowserTestUtils.is_hidden(firstWebBrowser));
+  Assert.ok(BrowserTestUtils.is_hidden(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.is_visible(firstMultiMessageBrowser));
+  Assert.equal(
+    tabmail.currentAboutMessage,
+    null,
+    "currentAboutMessage should be null with multiple messages selected"
+  );
+  Assert.equal(firstTab.browser, null);
+  Assert.equal(firstTab.linkedBrowser, null);
+
+  // Load a web page.
+
+  let loadedPromise = BrowserTestUtils.browserLoaded(
+    firstWebBrowser,
+    false,
+    "http://mochi.test:8888/"
+  );
+  messagePane.displayWebPage("http://mochi.test:8888/");
+  await loadedPromise;
+  Assert.ok(BrowserTestUtils.is_visible(firstWebBrowser));
+  Assert.ok(BrowserTestUtils.is_hidden(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.is_hidden(firstMultiMessageBrowser));
+  Assert.equal(firstWebBrowser.currentURI.spec, "http://mochi.test:8888/");
+  Assert.equal(
+    tabmail.currentAboutMessage,
+    null,
+    "currentAboutMessage should be null with a web page loaded"
+  );
+  Assert.equal(firstTab.browser, firstWebBrowser);
+  Assert.equal(firstTab.linkedBrowser, firstWebBrowser);
+
+  // Go back to a single selection.
+
+  threadTree.selectedIndex = 0;
+  Assert.ok(BrowserTestUtils.is_hidden(firstWebBrowser));
+  Assert.ok(BrowserTestUtils.is_visible(firstMessageBrowser));
+  Assert.ok(BrowserTestUtils.is_hidden(firstMultiMessageBrowser));
+  Assert.equal(
+    tabmail.currentAboutMessage,
+    firstMessageBrowser.contentWindow,
+    "currentAboutMessage should have a value with a single message selected"
+  );
+  Assert.equal(firstTab.browser, firstMessagePane);
+  Assert.equal(firstTab.linkedBrowser, firstMessagePane);
 
   // Open some more tabs. These should open in the background.
 
@@ -157,16 +236,27 @@ add_task(async function testTabs() {
   );
   await ensureBrowserLoaded(secondMessageBrowser);
   Assert.equal(secondMessageBrowser.currentURI.spec, "about:message");
-  Assert.equal(tabmail.currentAboutMessage, secondMessageBrowser.contentWindow);
 
   let secondMessagePane = secondMessageBrowser.contentDocument.getElementById(
     "messagepane"
   );
   Assert.equal(secondMessagePane.currentURI.spec, "about:blank");
+  Assert.equal(
+    tabmail.currentAboutMessage,
+    null,
+    "currentAboutMessage should be null with no message selected"
+  );
   Assert.equal(secondTab.browser, null);
   Assert.equal(secondTab.linkedBrowser, null);
 
   Assert.equal(secondTab.folder, folderB);
+
+  secondChromeBrowser.contentWindow.threadTree.selectedIndex = 0;
+  Assert.equal(
+    tabmail.currentAboutMessage,
+    secondMessageBrowser.contentWindow,
+    "currentAboutMessage should have a value with a message selected"
+  );
 
   Assert.equal(secondChromeBrowser.contentWindow.tabOrWindow, secondTab);
   Assert.equal(secondMessageBrowser.contentWindow.tabOrWindow, secondTab);

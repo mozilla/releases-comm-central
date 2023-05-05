@@ -76,7 +76,6 @@ add_setup(async function() {
 add_task(async function testInvitationIdentityPrompt() {
   let tabmail = document.getElementById("tabmail");
   let about3Pane = tabmail.currentAbout3Pane;
-  let aboutMessage = tabmail.currentAboutMessage;
   about3Pane.displayFolder(gInbox.URI);
   about3Pane.threadTree.selectedIndex = 0;
 
@@ -114,6 +113,7 @@ add_task(async function testInvitationIdentityPrompt() {
     },
   });
 
+  let aboutMessage = tabmail.currentAboutMessage;
   let acceptButton = aboutMessage.document.getElementById("imipAcceptButton");
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.is_visible(acceptButton),

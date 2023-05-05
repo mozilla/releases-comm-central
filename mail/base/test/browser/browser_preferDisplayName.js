@@ -47,11 +47,10 @@ add_setup(async function() {
 });
 
 add_task(async function() {
-  let {
-    currentAbout3Pane: about3Pane,
-    currentAboutMessage: aboutMessage,
-  } = document.getElementById("tabmail");
-  let { threadPane, threadTree } = about3Pane;
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  let { threadPane, threadTree, messageBrowser } = about3Pane;
+  // Not `currentAboutMessage` as that's null right now.
+  let aboutMessage = messageBrowser.contentWindow;
   let messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
 
   // Set up the UI.
