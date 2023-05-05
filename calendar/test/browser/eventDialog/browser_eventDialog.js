@@ -19,15 +19,16 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 const EVENTTITLE = "Event";
 const EVENTLOCATION = "Location";
 const EVENTDESCRIPTION = "Event Description";
-const EVENTATTENDEE = "foo@bar.com";
+const EVENTATTENDEE = "foo@example.com";
 const EVENTURL = "https://mozilla.org/";
+const EVENT_ORGANIZER_EMAIL = "pillow@example.com";
 var firstDay;
 
 var { dayView, monthView } = CalendarTestUtils;
 
 let calendar = CalendarTestUtils.createCalendar();
 // This is done so that calItemBase#isInvitation returns true.
-calendar.setProperty("organizerId", "mailto:pillow@example.com");
+calendar.setProperty("organizerId", `mailto:${EVENT_ORGANIZER_EMAIL}`);
 registerCleanupFunction(() => {
   CalendarTestUtils.removeCalendar(calendar);
 });
@@ -120,10 +121,10 @@ add_task(async function testEventDialog() {
   );
 
   let attendeesTab = iframeDocument.getElementById("event-grid-tabpanel-attendees");
-  let attendeeName = attendeesTab.querySelector(".attendee-list .attendee-name");
-
-  Assert.ok(attendeeName);
-  Assert.equal(attendeeName.textContent, EVENTATTENDEE);
+  let attendeeNameElements = attendeesTab.querySelectorAll(".attendee-list .attendee-name");
+  Assert.equal(attendeeNameElements.length, 2, "there should be two attendees after save");
+  Assert.equal(attendeeNameElements[0].textContent, EVENT_ORGANIZER_EMAIL);
+  Assert.equal(attendeeNameElements[1].textContent, EVENTATTENDEE);
   Assert.ok(!iframeDocument.getElementById("notify-attendees-checkbox").checked);
 
   // Verify private label visible.

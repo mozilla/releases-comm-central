@@ -575,7 +575,7 @@ calItemBase.prototype = {
       this.mAttendees = this.mParentItem.getAttendees();
     }
     if (this.mAttendees) {
-      return this.mAttendees.concat([]); // clone
+      return Array.from(this.mAttendees); // clone
     }
     return [];
   },

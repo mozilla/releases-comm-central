@@ -73,3 +73,28 @@ async function closeAttendeesWindow(attendeesWindow, buttonAction = "accept") {
 
   await new Promise(resolve => setTimeout(resolve));
 }
+
+function findAndFocusMatchingRow(attendeesWindow, message, matchFunction) {
+  // Get the attendee row for which the input matches.
+  const attendeeList = attendeesWindow.document.getElementById("attendee-list");
+  const attendeeInput = Array.from(attendeeList.children)
+    .map(child => child.querySelector("input"))
+    .find(input => {
+      return input ? matchFunction(input.value) : false;
+    });
+  Assert.ok(attendeeInput, message);
+
+  attendeeInput.focus();
+
+  return attendeeInput;
+}
+
+function findAndEditMatchingRow(attendeesWindow, newValue, message, matchFunction) {
+  // Get the attendee row we wish to edit.
+  const attendeeInput = findAndFocusMatchingRow(attendeesWindow, message, matchFunction);
+
+  // Set the new value of the row. We set the input value directly due to issues
+  // experienced trying to use simulated keystrokes.
+  attendeeInput.value = newValue;
+  EventUtils.synthesizeKey("VK_RETURN", {}, attendeesWindow);
+}

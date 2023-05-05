@@ -567,7 +567,7 @@ window.addEventListener(
   "load",
   () => {
     let [
-      { startTime, endTime, displayTimezone, calendar, organizer, attendees },
+      { startTime, endTime, displayTimezone, calendar, organizer, attendees: existingAttendees },
     ] = window.arguments;
 
     if (startTime.isDate) {
@@ -657,24 +657,29 @@ window.addEventListener(
       }
     });
 
-    // The organizer must be added after zoom level is set in order for
-    // free/busy update to work.
-    if (organizer) {
-      let organizerElement = attendeeList.appendChild(document.createXULElement("event-attendee"));
-      organizerElement.attendee = organizer;
-    } else {
-      // There's no existing organizer for the event; create a new one and add
-      // it to the attendees list.
-      let organizerId = calendar.getProperty("organizerId");
-      if (organizerId) {
-        const newOrganizer = new CalAttendee();
-        newOrganizer.isOrganizer = true;
-        newOrganizer.id = cal.email.removeMailTo(organizerId);
+    const attendees = Array.from(existingAttendees);
 
-        let organizerElement = attendeeList.appendChild(
-          document.createXULElement("event-attendee")
-        );
-        organizerElement.attendee = newOrganizer;
+    // If there are no existing attendees, we assume that this is the first time
+    // others are being invited. By default, the organizer is added as an
+    // attendee, letting the organizer remove themselves if that isn't desired.
+    if (attendees.length == 0) {
+      if (organizer) {
+        attendees.push(organizer);
+      } else {
+        const organizerId = calendar.getProperty("organizerId");
+        if (organizerId) {
+          // We explicitly don't mark this attendee as organizer, as that has
+          // special meaning in ical.js. This represents the organizer as a
+          // potential attendee of the event and can be removed by the organizer
+          // through the interface if they do not plan on attending. By default,
+          // the organizer has accepted.
+          const organizerAsAttendee = new CalAttendee();
+          organizerAsAttendee.id = cal.email.removeMailTo(organizerId);
+          organizerAsAttendee.commonName = calendar.getProperty("organizerCN");
+          organizerAsAttendee.role = "REQ-PARTICIPANT";
+          organizerAsAttendee.participationStatus = "ACCEPTED";
+          attendees.push(organizerAsAttendee);
+        }
       }
     }
 
@@ -692,21 +697,45 @@ window.addEventListener(
 );
 
 window.addEventListener("dialogaccept", () => {
-  let attendees = [];
+  // Build the list of attendees which have been filled in.
   let attendeeElements = attendeeList.getElementsByTagName("event-attendee");
-  let organizer = attendeeElements[0].attendee;
-  for (let i = 1; i < attendeeElements.length; i++) {
-    let attendee = attendeeElements[i].attendee;
-    if (attendee.id) {
-      attendees.push(attendee);
+  const attendees = Array.from(attendeeElements)
+    .map(element => element.attendee)
+    .filter(attendee => !!attendee.id);
+
+  const [{ organizer: existingOrganizer, calendar, onOk }] = window.arguments;
+
+  // Determine the organizer of the event. If there are no attendees other than
+  // the organizer, we want to leave it as a personal event with no organizer.
+  // Only set that value if other attendees have been added.
+  let organizer;
+
+  const organizerId = existingOrganizer?.id ?? calendar.getProperty("organizerId");
+  if (organizerId) {
+    const nonOrganizerAttendees = attendees.filter(attendee => attendee.id != organizerId);
+    if (nonOrganizerAttendees.length != 0) {
+      if (existingOrganizer) {
+        organizer = existingOrganizer;
+      } else {
+        organizer = new CalAttendee();
+        organizer.id = cal.email.removeMailTo(organizerId);
+        organizer.commonName = calendar.getProperty("organizerCN");
+        organizer.isOrganizer = true;
+      }
+    } else {
+      // Since we don't set the organizer if the event is personal, don't add
+      // the organizer as an attendee either.
+      attendees.length = 0;
     }
   }
+
   let { startValue, endValue } = dateTimePickerUI;
   if (dateTimePickerUI.allDay.checked) {
     startValue.isDate = true;
     endValue.isDate = true;
   }
-  window.arguments[0].onOk(attendees, organizer, startValue, endValue);
+
+  onOk(attendees, organizer, startValue, endValue);
 });
 
 /**
@@ -1333,6 +1362,8 @@ function updateRange() {
           for (const [email, mailbox] of resolvedMailboxes) {
             const newAttendee = new CalAttendee();
             newAttendee.id = cal.email.prependMailTo(email);
+            newAttendee.role = EventAttendee.#DEFAULT_ROLE;
+            newAttendee.userType = EventAttendee.#DEFAULT_USER_TYPE;
 
             if (mailbox.name && mailbox.name != mailbox.email) {
               newAttendee.commonName = mailbox.name;

@@ -353,29 +353,22 @@ function onLoad() {
 
   window.attendeeTabLabel = document.getElementById("event-grid-tab-attendees").label;
   window.attachmentTabLabel = document.getElementById("event-grid-tab-attachments").label;
-  // we store the array of attendees in the window.
-  // clone each existing attendee since we still suffer
-  // from the 'lost x-properties'-bug.
-  window.attendees = [];
-  let attendees = item.getAttendees();
-  if (attendees && attendees.length) {
-    for (let attendee of attendees) {
-      window.attendees.push(attendee.clone());
-    }
-  }
+
+  // Store the array of attendees on the window for later retrieval. Clone each
+  // existing attendee to prevent modifying objects referenced elsewhere.
+  const attendees = item.getAttendees() ?? [];
+  window.attendees = attendees.map(attendee => attendee.clone());
 
   window.organizer = null;
   if (item.organizer) {
     window.organizer = item.organizer.clone();
-  } else if (item.getAttendees().length > 0) {
-    // previous versions of calendar may have filled ORGANIZER correctly on overridden instances:
-    let orgId = item.calendar.getProperty("organizerId");
-    if (orgId) {
+  } else if (attendees.length > 0) {
+    // Previous versions of calendar may not have set the organizer correctly.
+    let organizerId = item.calendar.getProperty("organizerId");
+    if (organizerId) {
       let organizer = new CalAttendee();
-      organizer.id = orgId;
+      organizer.id = cal.email.removeMailTo(organizerId);
       organizer.commonName = item.calendar.getProperty("organizerCN");
-      organizer.role = "REQ-PARTICIPANT";
-      organizer.participationStatus = "ACCEPTED";
       organizer.isOrganizer = true;
       window.organizer = organizer;
     }
@@ -747,7 +740,7 @@ function loadDialog(aItem) {
   // if we're in reschedule mode, it's pointless to enable the control
   disallowcounterCheckbox.disabled = !!window.counterProposal;
 
-  updateAttendees();
+  updateAttendeeInterface();
   updateRepeat(true);
   updateReminder(true);
 
@@ -1922,31 +1915,7 @@ function editAttendees() {
 
   let callback = function(attendees, organizer, startTime, endTime) {
     savedWindow.attendees = attendees;
-    if (organizer) {
-      // In case we didn't have an organizer object before we
-      // added attendees to our event we take the one created
-      // by the 'invite attendee'-dialog.
-      if (savedWindow.organizer) {
-        // The other case is that we already had an organizer object
-        // before we went through the 'invite attendee'-dialog. In that
-        // case make sure we don't carry over attributes that have been
-        // set to their default values by the dialog but don't actually
-        // exist in the original organizer object.
-        if (!savedWindow.organizer.id) {
-          organizer.id = null;
-        }
-        if (!savedWindow.organizer.role) {
-          organizer.role = null;
-        }
-        if (!savedWindow.organizer.participationStatus) {
-          organizer.participationStatus = null;
-        }
-        if (!savedWindow.organizer.commonName) {
-          organizer.commonName = null;
-        }
-      }
-      savedWindow.organizer = organizer;
-    }
+    savedWindow.organizer = organizer;
 
     // if a participant was added or removed we switch to the attendee
     // tab, so the user can see the change directly
@@ -1963,7 +1932,7 @@ function editAttendees() {
     gStartTime = startTime.getInTimezone(kDefaultTimezone);
     gEndTime = endTime.getInTimezone(kDefaultTimezone);
     gItemDuration = duration;
-    updateAttendees();
+    updateAttendeeInterface();
     updateDateTime();
     updateAllDay();
 
@@ -2603,7 +2572,7 @@ function updateCalendar() {
     window.organizer.id = calendarOrgId;
     window.organizer.commonName = calendar.getProperty("organizerCN");
     gPreviousCalendarId = calendar.id;
-    updateAttendees();
+    updateAttendeeInterface();
   }
 
   if (!canNotifyAttendees(calendar, item) && calendar.getProperty("imip.identity")) {
@@ -3738,7 +3707,7 @@ function updateItemURL(aShow, aUrl) {
 /**
  * This function updates dialog controls related to attendees.
  */
-function updateAttendees() {
+function updateAttendeeInterface() {
   // sending email invitations currently only supported for events
   let attendeeTab = document.getElementById("event-grid-tab-attendees");
   let attendeePanel = document.getElementById("event-grid-tabpanel-attendees");
@@ -3947,7 +3916,7 @@ function setAttendeeContext(aEvent) {
 function removeAttendee(aAttendee) {
   if (aAttendee) {
     window.attendees = window.attendees.filter(aAtt => aAtt != aAttendee);
-    updateAttendees();
+    updateAttendeeInterface();
   }
 }
 
@@ -3957,7 +3926,7 @@ function removeAttendee(aAttendee) {
 function removeAllAttendees() {
   window.attendees = [];
   window.organizer = null;
-  updateAttendees();
+  updateAttendeeInterface();
 }
 
 /**

@@ -10,7 +10,7 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 add_task(async () => {
   let calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
   calendar.name = "Mochitest";
-  calendar.setProperty("organizerId", "mailto:mochitest@invalid");
+  calendar.setProperty("organizerId", "mailto:mochitest@example.com");
 
   cal.freeBusyService.addProvider(freeBusyProvider);
 
@@ -23,7 +23,7 @@ add_task(async () => {
     card.firstName = name;
     card.lastName = "Mochitest";
     card.displayName = `${name} Mochitest`;
-    card.primaryEmail = `${name.toLowerCase()}@invalid`;
+    card.primaryEmail = `${name.toLowerCase()}@example.com`;
     contacts[name.toUpperCase()] = book.addCard(card);
   }
   let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(Ci.nsIAbDirectory);
@@ -66,10 +66,10 @@ add_task(async () => {
   let eventEndTime = iframeDocument.getElementById("event-endtime");
   eventEndTime.value = times.THREE_THIRTY;
 
-  async function checkListOfAttendees(attendeesDocument, ...expected) {
+  async function checkAttendeesInAttendeesDialog(attendeesDocument, expectedAttendees) {
     let attendeesList = attendeesDocument.getElementById("attendee-list");
     await TestUtils.waitForCondition(
-      () => attendeesList.childElementCount == expected.length + 1,
+      () => attendeesList.childElementCount == expectedAttendees.length + 1,
       "empty attendee input should have been added"
     );
 
@@ -80,12 +80,12 @@ add_task(async () => {
 
     Assert.deepEqual(
       Array.from(attendeesList.children, getInputValueFromAttendeeRow),
-      [...expected, ""],
+      [...expectedAttendees, ""],
       "attendees list matches what was expected"
     );
     Assert.equal(
       attendeesDocument.activeElement,
-      attendeesList.children[expected.length].querySelector("input"),
+      attendeesList.children[expectedAttendees.length].querySelector("input"),
       "empty attendee input should have focus"
     );
   }
@@ -108,7 +108,7 @@ add_task(async () => {
 
     Assert.equal(attendeesWindow.arguments[0].calendar, calendar);
     Assert.equal(attendeesWindow.arguments[0].organizer, null);
-    Assert.equal(calendar.getProperty("organizerId"), "mailto:mochitest@invalid");
+    Assert.equal(calendar.getProperty("organizerId"), "mailto:mochitest@example.com");
     Assert.deepEqual(attendeesWindow.arguments[0].attendees, []);
 
     await new Promise(resolve => attendeesWindow.setTimeout(resolve));
@@ -123,17 +123,20 @@ add_task(async () => {
 
     // Check free/busy of organizer.
 
-    await checkListOfAttendees(attendeesDocument, "mochitest@invalid");
+    await checkAttendeesInAttendeesDialog(attendeesDocument, ["mochitest@example.com"]);
 
     let organizer = attendeesList.firstElementChild;
     await checkFreeBusy(organizer, 5);
 
     // Add attendee.
 
-    EventUtils.sendString("test@invalid", attendeesWindow);
+    EventUtils.sendString("test@example.com", attendeesWindow);
     EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
 
-    await checkListOfAttendees(attendeesDocument, "mochitest@invalid", "test@invalid");
+    await checkAttendeesInAttendeesDialog(attendeesDocument, [
+      "mochitest@example.com",
+      "test@example.com",
+    ]);
     await checkFreeBusy(attendeesList.children[1], 0);
 
     // Add another attendee, from the address book.
@@ -141,7 +144,7 @@ add_task(async () => {
     let input = attendeesDocument.activeElement;
     EventUtils.sendString("julie", attendeesWindow);
     await new Promise(resolve => attendeesWindow.setTimeout(resolve, 1000));
-    Assert.equal(input.value, "juliet Mochitest <juliet@invalid>");
+    Assert.equal(input.value, "juliet Mochitest <juliet@example.com>");
     Assert.ok(input.popupElement.popupOpen);
     Assert.equal(input.popupElement.richlistbox.childElementCount, 1);
     Assert.equal(input.popupElement._currentIndex, 1);
@@ -149,12 +152,11 @@ add_task(async () => {
     Assert.equal(input.popupElement._currentIndex, 1);
     EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
 
-    await checkListOfAttendees(
-      attendeesDocument,
-      "mochitest@invalid",
-      "test@invalid",
-      "Juliet Mochitest <juliet@invalid>"
-    );
+    await checkAttendeesInAttendeesDialog(attendeesDocument, [
+      "mochitest@example.com",
+      "test@example.com",
+      "Juliet Mochitest <juliet@example.com>",
+    ]);
     await checkFreeBusy(attendeesList.children[2], 1);
 
     // Add a mailing list which should expand.
@@ -170,16 +172,15 @@ add_task(async () => {
     Assert.equal(input.popupElement._currentIndex, 1);
     EventUtils.synthesizeKey("VK_TAB", {}, attendeesWindow);
 
-    await checkListOfAttendees(
-      attendeesDocument,
-      "mochitest@invalid",
-      "test@invalid",
-      "Juliet Mochitest <juliet@invalid>",
-      "Mike Mochitest <mike@invalid>",
-      "Oscar Mochitest <oscar@invalid>",
-      "Romeo Mochitest <romeo@invalid>",
-      "Victor Mochitest <victor@invalid>"
-    );
+    await checkAttendeesInAttendeesDialog(attendeesDocument, [
+      "mochitest@example.com",
+      "test@example.com",
+      "Juliet Mochitest <juliet@example.com>",
+      "Mike Mochitest <mike@example.com>",
+      "Oscar Mochitest <oscar@example.com>",
+      "Romeo Mochitest <romeo@example.com>",
+      "Victor Mochitest <victor@example.com>",
+    ]);
     await checkFreeBusy(attendeesList.children[3], 0);
     await checkFreeBusy(attendeesList.children[4], 0);
     await checkFreeBusy(attendeesList.children[5], 1);
@@ -192,25 +193,25 @@ add_task(async () => {
   Assert.equal(eventStartTime.value.toISOString(), times.TWO_THIRTY.toISOString());
   Assert.equal(eventEndTime.value.toISOString(), times.FOUR.toISOString());
 
-  function checkAttendeeCells(organizer, ...expected) {
+  function checkAttendeesInEventDialog(organizer, expectedAttendees) {
     Assert.equal(iframeDocument.getElementById("item-organizer-row").textContent, organizer);
 
     let attendeeItems = iframeDocument.querySelectorAll(".attendee-list .attendee-label");
-    Assert.equal(attendeeItems.length, expected.length);
-    for (let i = 0; i < expected.length; i++) {
-      Assert.equal(attendeeItems[i].getAttribute("attendeeid"), expected[i]);
+    Assert.equal(attendeeItems.length, expectedAttendees.length);
+    for (let i = 0; i < expectedAttendees.length; i++) {
+      Assert.equal(attendeeItems[i].getAttribute("attendeeid"), expectedAttendees[i]);
     }
   }
 
-  checkAttendeeCells(
-    "mochitest@invalid",
-    "mailto:test@invalid",
-    "mailto:juliet@invalid",
-    "mailto:mike@invalid",
-    "mailto:oscar@invalid",
-    "mailto:romeo@invalid",
-    "mailto:victor@invalid"
-  );
+  checkAttendeesInEventDialog("mochitest@example.com", [
+    "mailto:mochitest@example.com",
+    "mailto:test@example.com",
+    "mailto:juliet@example.com",
+    "mailto:mike@example.com",
+    "mailto:oscar@example.com",
+    "mailto:romeo@example.com",
+    "mailto:victor@example.com",
+  ]);
 
   {
     info("Opening for a second time");
@@ -223,16 +224,15 @@ add_task(async () => {
     Assert.equal(attendeesStartTime.value.toISOString(), times.TWO_THIRTY.toISOString());
     Assert.equal(attendeesEndTime.value.toISOString(), times.FOUR.toISOString());
 
-    await checkListOfAttendees(
-      attendeesDocument,
-      "mochitest@invalid",
-      "test@invalid",
-      "Juliet Mochitest <juliet@invalid>",
-      "Mike Mochitest <mike@invalid>",
-      "Oscar Mochitest <oscar@invalid>",
-      "Romeo Mochitest <romeo@invalid>",
-      "Victor Mochitest <victor@invalid>"
-    );
+    await checkAttendeesInAttendeesDialog(attendeesDocument, [
+      "mochitest@example.com",
+      "test@example.com",
+      "Juliet Mochitest <juliet@example.com>",
+      "Mike Mochitest <mike@example.com>",
+      "Oscar Mochitest <oscar@example.com>",
+      "Romeo Mochitest <romeo@example.com>",
+      "Victor Mochitest <victor@example.com>",
+    ]);
 
     await checkFreeBusy(attendeesList.children[0], 5);
     await checkFreeBusy(attendeesList.children[1], 0);
@@ -249,15 +249,15 @@ add_task(async () => {
   Assert.equal(eventStartTime.value.toISOString(), times.TWO_THIRTY.toISOString());
   Assert.equal(eventEndTime.value.toISOString(), times.FOUR.toISOString());
 
-  checkAttendeeCells(
-    "mochitest@invalid",
-    "mailto:test@invalid",
-    "mailto:juliet@invalid",
-    "mailto:mike@invalid",
-    "mailto:oscar@invalid",
-    "mailto:romeo@invalid",
-    "mailto:victor@invalid"
-  );
+  checkAttendeesInEventDialog("mochitest@example.com", [
+    "mailto:mochitest@example.com",
+    "mailto:test@example.com",
+    "mailto:juliet@example.com",
+    "mailto:mike@example.com",
+    "mailto:oscar@example.com",
+    "mailto:romeo@example.com",
+    "mailto:victor@example.com",
+  ]);
 
   iframeDocument.getElementById("notify-attendees-checkbox").checked = false;
   await closeEventWindow(eventWindow);
@@ -265,7 +265,7 @@ add_task(async () => {
 
 add_task(async () => {
   let calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
-  calendar.setProperty("organizerId", "mailto:mochitest@invalid");
+  calendar.setProperty("organizerId", "mailto:mochitest@example.com");
 
   registerCleanupFunction(async () => {
     CalendarTestUtils.removeCalendar(calendar);
@@ -449,14 +449,14 @@ var freeBusyProvider = {
     });
   },
   data: {
-    "mailto:mochitest@invalid": [
+    "mailto:mochitest@example.com": [
       [{ days: 1, hours: 4 }, "PT3H"],
       [{ days: 1, hours: 8 }, "PT3H"],
       [{ days: 1, hours: 12 }, "PT3H"],
       [{ days: 1, hours: 16 }, "PT3H"],
       [{ days: 2, hours: 4 }, "PT3H"],
     ],
-    "mailto:juliet@invalid": [["P1DT9H", "PT8H"]],
-    "mailto:romeo@invalid": [["P1DT14H", "PT5H"]],
+    "mailto:juliet@example.com": [["P1DT9H", "PT8H"]],
+    "mailto:romeo@example.com": [["P1DT14H", "PT5H"]],
   },
 };
