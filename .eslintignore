@@ -7,6 +7,10 @@
 # lint eslint config files which are excluded by default
 !**/.eslintrc.js
 
+# For now, skip all json files for ESLint, these will still be run through
+# Prettier.
+**/*.json
+
 # Exclude expected objdirs.
 obj*/**
 
@@ -15,7 +19,6 @@ mozilla/**
 
 # These directories don't contain any js and are not meant to
 config/**
-db/**
 other-licenses/**
 testing/**
 
@@ -27,14 +30,9 @@ suite/**
 
 # calendar/ exclusions
 calendar/base/calendar.js
-calendar/base/modules/Ical.jsm
 
 # chat exclusions
 chat/chat-prefs.js
-# third-party code
-chat/protocols/matrix/lib/**
-chat/protocols/xmpp/lib/**
-third_party
 # preprocessed files
 chat/content/imtooltip.xml
 
@@ -45,7 +43,6 @@ mailnews/extensions/mdn/mdn.js
 # mail exclusions
 mail/app/profile/all-thunderbird.js
 mail/app/profile/channel-prefs.js
-mail/base/content/protovis-r2.6-modded.js
 mail/branding/nightly/pref/thunderbird-branding.js
 mail/branding/thunderbird/pref/thunderbird-branding.js
 # This file is split into two in order to keep it as a valid json file
@@ -55,5 +52,4 @@ mail/components/enterprisepolicies/schemas/schema.sys.mjs
 mail/components/im/all-im.js
 mail/extensions/am-e2e/prefs/e2e-prefs.js
 mail/locales/en-US/all-l10n.js
-mail/components/compose/texzilla/**
 mail/components/compose/composer.js

@@ -8,6 +8,7 @@ const path = require("path");
 
 const xpcshellTestConfig = require("eslint-plugin-mozilla/lib/configs/xpcshell-test.js");
 const browserTestConfig = require("eslint-plugin-mozilla/lib/configs/browser-test.js");
+const fs = require("fs");
 
 /**
  * Some configurations have overrides, which can't be specified within overrides,
@@ -18,6 +19,19 @@ function removeOverrides(config) {
   delete config.overrides;
   return config;
 }
+
+function readFile(path) {
+  return fs
+    .readFileSync(path, { encoding: "utf-8" })
+    .split("\n")
+    .filter(p => p && !p.startsWith("#"))
+    .map(p => p.replace(/^comm\//, ""));
+}
+
+const ignorePatterns = [
+  ...readFile(path.join(__dirname, "tools", "lint", "ThirdPartyPaths.txt")),
+  ...readFile(path.join(__dirname, "tools", "lint", "Generated.txt")),
+];
 
 const xpcshellTestPaths = [
   "**/test*/unit*/",
@@ -49,6 +63,8 @@ module.exports = {
   },
   // Ignore eslint configurations in parent directories.
   root: true,
+
+  ignorePatterns,
 
   // We would like the same base rules as provided by
   // mozilla/tools/lint/eslint/eslint-plugin-mozilla/lib/configs/recommended.js

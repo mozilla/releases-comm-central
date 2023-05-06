@@ -1,0 +1,3 @@
+comm/mailnews/extensions/newsblog/test/unit/resources/feeds-missing-timestamp/feeds.json
+comm/mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeditems.json
+comm/mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeds.json

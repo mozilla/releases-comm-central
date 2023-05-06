@@ -1,5 +1,8 @@
+comm/calendar/base/modules/Ical.jsm
 comm/chat/protocols/matrix/lib
 comm/chat/protocols/xmpp/lib
+comm/mail/base/content/protovis-r2.6-modded.js
+comm/mail/components/compose/texzilla/TeXZilla.js
 comm/mail/components/storybook/storybook-static
 comm/mailnews/mapi/include
 comm/third_party/asn1js
