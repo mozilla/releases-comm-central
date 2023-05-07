@@ -6,6 +6,8 @@ let account;
 let messages;
 let tabmail = document.getElementById("tabmail");
 
+requestLongerTimeout(1);
+
 add_setup(async () => {
   account = createAccount();
   let rootFolder = account.incomingServer.rootFolder;
