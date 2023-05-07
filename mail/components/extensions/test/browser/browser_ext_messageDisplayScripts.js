@@ -74,7 +74,7 @@ add_task(async function testInsertRemoveCSS() {
   });
 
   about3Pane.threadTree.selectedIndex = 0;
-  await BrowserTestUtils.browserLoaded(messagePane);
+  await awaitBrowserLoaded(messagePane);
 
   await extension.startup();
 
@@ -142,7 +142,7 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
   });
 
   about3Pane.threadTree.selectedIndex = 1;
-  await BrowserTestUtils.browserLoaded(messagePane);
+  await awaitBrowserLoaded(messagePane);
 
   await extension.startup();
 
@@ -188,7 +188,7 @@ add_task(async function testExecuteScript() {
   });
 
   about3Pane.threadTree.selectedIndex = 2;
-  await BrowserTestUtils.browserLoaded(messagePane);
+  await awaitBrowserLoaded(messagePane);
 
   await extension.startup();
 
@@ -257,7 +257,7 @@ add_task(async function testExecuteScriptNoPermissions() {
   });
 
   about3Pane.threadTree.selectedIndex = 3;
-  await BrowserTestUtils.browserLoaded(messagePane);
+  await awaitBrowserLoaded(messagePane);
 
   await extension.startup();
 
@@ -292,7 +292,7 @@ add_task(async function testExecuteScriptAlias() {
   });
 
   about3Pane.threadTree.selectedIndex = 4;
-  await BrowserTestUtils.browserLoaded(messagePane);
+  await awaitBrowserLoaded(messagePane);
 
   await extension.startup();
 
@@ -376,7 +376,7 @@ add_task(async function testRegister() {
   });
 
   about3Pane.threadTree.selectedIndex = 5;
-  await BrowserTestUtils.browserLoaded(messagePane);
+  await awaitBrowserLoaded(messagePane);
 
   extension.startup();
   await extension.awaitMessage("Ready");
@@ -571,12 +571,12 @@ async function subtestContentScriptManifest(message, ...permissions) {
 
 add_task(async function testContentScriptManifestNoPermission() {
   about3Pane.threadTree.selectedIndex = 7;
-  await BrowserTestUtils.browserLoaded(messagePane);
+  await awaitBrowserLoaded(messagePane);
   await subtestContentScriptManifest(messages[7]);
 });
 add_task(async function testContentScriptManifest() {
   about3Pane.threadTree.selectedIndex = 8;
-  await BrowserTestUtils.browserLoaded(messagePane);
+  await awaitBrowserLoaded(messagePane);
   await subtestContentScriptManifest(messages[8], "messagesModify");
 });
 
@@ -623,12 +623,12 @@ async function subtestContentScriptRegister(message, ...permissions) {
 
 add_task(async function testContentScriptRegisterNoPermission() {
   about3Pane.threadTree.selectedIndex = 9;
-  await BrowserTestUtils.browserLoaded(messagePane);
+  await awaitBrowserLoaded(messagePane);
   await subtestContentScriptRegister(messages[9], "<all_urls>");
 });
 add_task(async function testContentScriptRegister() {
   about3Pane.threadTree.selectedIndex = 10;
-  await BrowserTestUtils.browserLoaded(messagePane);
+  await awaitBrowserLoaded(messagePane);
   await subtestContentScriptRegister(
     messages[10],
     "<all_urls>",

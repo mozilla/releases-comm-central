@@ -117,17 +117,7 @@ const getCommonFiles = async () => {
 
 const subtest_clickInBrowser = async (extension, getBrowser) => {
   async function clickLink(linkSelector, browser) {
-    if (
-      browser.webProgress?.isLoadingDocument ||
-      !browser.currentURI ||
-      browser.currentURI?.spec == "about:blank"
-    ) {
-      await BrowserTestUtils.browserLoaded(
-        browser,
-        undefined,
-        url => url != "about:blank"
-      );
-    }
+    await awaitBrowserLoaded(browser, url => url != "about:blank");
     await synthesizeMouseAtCenterAndRetry(linkSelector, {}, browser);
   }
 

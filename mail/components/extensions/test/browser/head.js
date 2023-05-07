@@ -255,14 +255,33 @@ function getPanelForNode(node) {
   return node;
 }
 
-function awaitBrowserLoaded(browser) {
-  if (
-    browser.ownerGlobal.document.readyState === "complete" &&
-    browser.currentURI.spec !== "about:blank"
-  ) {
-    return Promise.resolve();
+/**
+ * Wait until the browser is fully loaded.
+ *
+ * @param {xul:browser} browser - A xul:browser.
+ * @param {string|function} [wantLoad = null] - If a function, takes a URL and
+ *   returns true if that's the load we're interested in. If a string, gives the
+ *   URL of the load we're interested in. If not present, the first load resolves
+ *   the promise.
+ *
+ * @returns {Promise} When a load event is triggered for the browser or the browser
+ *   is already fully loaded.
+ */
+function awaitBrowserLoaded(browser, wantLoad) {
+  let testFn = () => true;
+  if (wantLoad) {
+    testFn = typeof wantLoad === "function" ? wantLoad : url => url == wantLoad;
   }
-  return BrowserTestUtils.browserLoaded(browser);
+
+  return TestUtils.waitForCondition(
+    () =>
+      browser.ownerGlobal.document.readyState === "complete" &&
+      (browser.webProgress?.isLoadingDocument === false ||
+        browser.contentDocument?.readyState === "complete") &&
+      browser.currentURI &&
+      testFn(browser.currentURI.spec),
+    "Browser should be loaded"
+  );
 }
 
 var awaitExtensionPanel = async function(
@@ -277,10 +296,10 @@ var awaitExtensionPanel = async function(
     event => event.detail.extension.id === extension.id
   );
 
-  await Promise.all([
-    promisePopupShown(getPanelForNode(browser)),
-    awaitLoad && awaitBrowserLoaded(browser),
-  ]);
+  if (awaitLoad) {
+    await awaitBrowserLoaded(browser, url => url != "about:blank");
+  }
+  await promisePopupShown(getPanelForNode(browser));
 
   return browser;
 };
@@ -393,16 +412,7 @@ async function promiseMessageLoaded(browser, msgHdr) {
     null
   );
 
-  if (
-    browser.webProgress?.isLoadingDocument ||
-    !browser.currentURI?.equals(messageURI)
-  ) {
-    await BrowserTestUtils.browserLoaded(
-      browser,
-      null,
-      uri => uri == messageURI.spec
-    );
-  }
+  await awaitBrowserLoaded(browser, uri => uri == messageURI.spec);
 }
 
 /**
@@ -730,13 +740,9 @@ function contentTabOpenPromise(tabmail, url) {
       onTabRestored(aTab) {},
       onTabSwitched(aNewTab, aOldTab) {},
       async onTabOpened(aTab) {
-        let newBrowser = aTab.linkedBrowser;
-        let urlMatches = urlToMatch => urlToMatch == url;
-
-        let result = BrowserTestUtils.browserLoaded(
-          newBrowser,
-          false,
-          urlMatches
+        let result = awaitBrowserLoaded(
+          aTab.linkedBrowser,
+          urlToMatch => urlToMatch == url
         ).then(() => aTab);
 
         let reporterListener = {

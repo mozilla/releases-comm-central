@@ -84,12 +84,7 @@ async function subTest(createTab, getBrowser, shouldRemove = true) {
 
   await extension.awaitMessage();
   let browser = getBrowser();
-  if (
-    browser.webProgress?.isLoadingDocument ||
-    browser.currentURI?.spec == "about:blank"
-  ) {
-    await BrowserTestUtils.browserLoaded(browser);
-  }
+  await awaitBrowserLoaded(browser, url => url != "about:blank");
 
   await checkContent(browser, {
     backgroundColor: "rgba(0, 0, 0, 0)",

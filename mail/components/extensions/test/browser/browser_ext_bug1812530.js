@@ -49,7 +49,7 @@ add_setup(async () => {
     messagePaneVisible: true,
   });
   about3Pane.threadTree.selectedIndex = 0;
-  await BrowserTestUtils.browserLoaded(
+  await awaitBrowserLoaded(
     about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser()
   );
 });
@@ -60,17 +60,7 @@ registerCleanupFunction(() => {
 
 const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
   async function contextClick(elementSelector, browser) {
-    if (
-      browser.webProgress?.isLoadingDocument ||
-      !browser.currentURI ||
-      browser.currentURI?.spec == "about:blank"
-    ) {
-      await BrowserTestUtils.browserLoaded(
-        browser,
-        undefined,
-        url => url != "about:blank"
-      );
-    }
+    await awaitBrowserLoaded(browser, url => url != "about:blank");
 
     let menuId = browser.getAttribute("context");
     let menu = browser.ownerGlobal.top.document.getElementById(menuId);

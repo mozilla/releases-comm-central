@@ -19,7 +19,7 @@ add_task(async () => {
     messagePaneVisible: true,
   });
   about3Pane.threadTree.selectedIndex = 0;
-  await BrowserTestUtils.browserLoaded(
+  await awaitBrowserLoaded(
     about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser()
   );
 

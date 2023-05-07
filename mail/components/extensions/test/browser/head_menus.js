@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals synthesizeMouseAtCenterAndRetry */
+/* globals synthesizeMouseAtCenterAndRetry, awaitBrowserLoaded */
 
 "use strict";
 
@@ -290,17 +290,7 @@ async function subtest_content(
   pageUrl,
   tab
 ) {
-  if (
-    browser.webProgress?.isLoadingDocument ||
-    !browser.currentURI ||
-    browser.currentURI?.spec == "about:blank"
-  ) {
-    await BrowserTestUtils.browserLoaded(
-      browser,
-      undefined,
-      url => url != "about:blank"
-    );
-  }
+  await awaitBrowserLoaded(browser, url => url != "about:blank");
 
   let menuId = browser.getAttribute("context");
   let ownerDocument;
@@ -473,17 +463,7 @@ async function subtest_compose_body(
   pageUrl,
   tab
 ) {
-  if (
-    browser.webProgress?.isLoadingDocument ||
-    !browser.currentURI ||
-    browser.currentURI?.spec == "about:blank"
-  ) {
-    await BrowserTestUtils.browserLoaded(
-      browser,
-      undefined,
-      url => url != "about:blank"
-    );
-  }
+  await awaitBrowserLoaded(browser, url => url != "about:blank");
 
   let ownerDocument = browser.ownerDocument;
   let menu = ownerDocument.getElementById(browser.getAttribute("context"));

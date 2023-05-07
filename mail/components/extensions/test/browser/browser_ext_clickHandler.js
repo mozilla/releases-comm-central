@@ -208,17 +208,7 @@ const subtest_clickInBrowser = async (
   getBrowser
 ) => {
   async function clickLink(linkId, browser) {
-    if (
-      browser.webProgress?.isLoadingDocument ||
-      !browser.currentURI ||
-      browser.currentURI?.spec == "about:blank"
-    ) {
-      await BrowserTestUtils.browserLoaded(
-        browser,
-        undefined,
-        url => url != "about:blank"
-      );
-    }
+    await awaitBrowserLoaded(browser, url => url != "about:blank");
     await synthesizeMouseAtCenterAndRetry(linkId, {}, browser);
   }
 

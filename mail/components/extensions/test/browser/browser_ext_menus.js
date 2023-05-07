@@ -278,7 +278,7 @@ async function subtest_message_panes(manifest) {
   );
 
   about3Pane.threadTree.selectedIndices = [];
-  await BrowserTestUtils.browserLoaded(messagePane, undefined, "about:blank");
+  await awaitBrowserLoaded(messagePane, "about:blank");
 
   info("Test the message pane in a tab.");
 
@@ -461,7 +461,7 @@ add_task(async function test_content_mv2() {
 });
 add_task(async function test_content_tab_mv2() {
   let tab = window.openContentTab(`${URL_BASE}/content.html`);
-  await BrowserTestUtils.browserLoaded(tab.browser);
+  await awaitBrowserLoaded(tab.browser);
 
   let extension = await getMenuExtension({
     manifest_version: 2,
@@ -498,17 +498,10 @@ add_task(async function test_content_window_mv2() {
   );
   let extensionWindow = await extensionWindowPromise;
   await focusWindow(extensionWindow);
-
-  if (
-    extensionWindow.browser.webProgress?.isLoadingDocument ||
-    extensionWindow.browser.currentURI?.spec == "about:blank"
-  ) {
-    await BrowserTestUtils.browserLoaded(
-      extensionWindow.browser,
-      undefined,
-      url => url != "about:blank"
-    );
-  }
+  await awaitBrowserLoaded(
+    extensionWindow.browser,
+    url => url != "about:blank"
+  );
 
   let extension = await getMenuExtension({
     manifest_version: 2,
@@ -578,7 +571,7 @@ add_task(async function test_content_mv3() {
 });
 add_task(async function test_content_tab_mv3() {
   let tab = window.openContentTab(`${URL_BASE}/content.html`);
-  await BrowserTestUtils.browserLoaded(tab.browser);
+  await awaitBrowserLoaded(tab.browser);
 
   let extension = await getMenuExtension({
     manifest_version: 3,
@@ -615,17 +608,10 @@ add_task(async function test_content_window_mv3() {
   );
   let extensionWindow = await extensionWindowPromise;
   await focusWindow(extensionWindow);
-
-  if (
-    extensionWindow.browser.webProgress?.isLoadingDocument ||
-    extensionWindow.browser.currentURI?.spec == "about:blank"
-  ) {
-    await BrowserTestUtils.browserLoaded(
-      extensionWindow.browser,
-      undefined,
-      url => url != "about:blank"
-    );
-  }
+  await awaitBrowserLoaded(
+    extensionWindow.browser,
+    url => url != "about:blank"
+  );
 
   let extension = await getMenuExtension({
     manifest_version: 3,

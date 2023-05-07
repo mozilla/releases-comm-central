@@ -39,16 +39,8 @@ const getCommonFiles = async () => {
 };
 
 const subtest_clickOpenInBrowserContextMenu = async (extension, getBrowser) => {
-  async function waitForLoad(browser, expectedUrl) {
-    if (
-      browser.webProgress?.isLoadingDocument ||
-      !browser.currentURI ||
-      !browser.currentURI?.spec.endsWith(expectedUrl)
-    ) {
-      await BrowserTestUtils.browserLoaded(browser, undefined, url =>
-        url.endsWith(expectedUrl)
-      );
-    }
+  function waitForLoad(browser, expectedUrl) {
+    return awaitBrowserLoaded(browser, url => url.endsWith(expectedUrl));
   }
 
   async function testMenuNavItems(description, browser, expected) {
