@@ -16,7 +16,7 @@ menupopup:not([type="arrow"]) {
 }
 
 @media (prefers-contrast) {
-  menupopup > :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
+  menupopup:not(:-moz-lwtheme) > :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
     color: SelectedItemText;
   }
 }

@@ -30,8 +30,8 @@
   :root {
     --listbox-color: var(--color-gray-80);
     --listbox-selected-bg: var(--color-gray-20);
-    --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--selected-item-color));
-    --listbox-selected-color: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
+    --listbox-focused-selected-bg: var(--selected-item-color);
+    --listbox-selected-color: var(--selected-item-text-color);
     --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
     --tree-view-bg: var(--color-white);
     --tree-view-color: var(--color-ink-90);
@@ -46,7 +46,7 @@
     :root {
       --listbox-color: var(--color-gray-05);
       --listbox-selected-bg: var(--color-gray-70);
-      --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--color-blue-60));
+      --listbox-focused-selected-bg: var(--color-blue-60);
       --tree-view-bg: var(--color-gray-90);
       --tree-view-color: var(--color-gray-30);
       --tree-view-header-bg: var(--color-gray-80);
@@ -78,6 +78,8 @@
   --tree-view-header-bg: var(--sidebar-background-color, Field);
   --listbox-selected-bg: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
   --listbox-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
+  --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--selected-item-color));
+  --listbox-selected-color: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
 }
 
 .tree-view-scrollable-container {

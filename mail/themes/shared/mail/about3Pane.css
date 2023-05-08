@@ -18,7 +18,7 @@
 
 @media not (prefers-contrast) {
   :root {
-    --foldertree-background: var(--sidebar-background-color, var(--color-gray-05));
+    --foldertree-background: var(--color-gray-05);
     --folderpane-unread-count-background: var(--color-gray-50);
     --folderpane-unread-count-text: var(--color-white);
     --folderpane-total-count-background: var(--color-gray-20);
@@ -26,20 +26,20 @@
     --folderpane-unread-new-count-background: var(--color-blue-60);
     --treeitem-background-selected: var(--color-gray-20);
     --treeitem-background-hover: var(--color-gray-10);
-    --treeitem-text-active: var(--sidebar-highlight-text-color, var(--color-white));
-    --treeitem-background-active: var(--sidebar-highlight-background-color, var(--color-blue-50));
+    --treeitem-text-active: var(--color-white);
+    --treeitem-background-active: var(--color-blue-50);
     --in-content-item-selected-unfocused: var(--color-gray-20);
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --foldertree-background: var(--sidebar-background-color, var(--color-gray-70));
+      --foldertree-background: var(--color-gray-70);
       --folderpane-unread-new-count-background: var(--color-blue-50);
       --folderpane-total-count-background: var(--color-gray-60);
       --folderpane-total-count-text: var(--color-white);
       --treeitem-background-selected: var(--color-gray-70);
       --treeitem-background-hover: var(--color-gray-60);
-      --treeitem-background-active: var(--sidebar-highlight-background-color, var(--color-blue-60));
+      --treeitem-background-active: var(--color-blue-60);
       --in-content-item-selected-unfocused: rgba(249, 249, 250, 0.05);
       --in-content-primary-button-background: #45a1ff;
       --in-content-primary-button-background-hover: #65c1ff;
@@ -65,8 +65,11 @@
 }
 
 :root[lwt-tree] {
+  --foldertree-background: var(--sidebar-background-color);
   --treeitem-background-selected: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
   --treeitem-background-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
+  --treeitem-text-active: var(--sidebar-highlight-text-color);
+  --treeitem-background-active: var(--sidebar-highlight-background-color);
 }
 
 :root[uidensity="compact"] {
