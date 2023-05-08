@@ -134,6 +134,7 @@ openpgp-key-man-discover-cmd =
 openpgp-key-man-publish-cmd =
     .label = Publish
     .accesskey = P
+openpgp-key-publish = Publish
 openpgp-key-man-discover-prompt = To discover OpenPGP keys online, on keyservers or using the WKD protocol, enter either an email address or a key ID.
 openpgp-key-man-discover-progress = Searching…
 
@@ -427,6 +428,8 @@ openpgp-key-expires-within-6-months-icon =
 
 openpgp-key-has-expired-icon =
     .title = Key expired
+
+openpgp-suggest-publishing-key = Publishing the public key on a keyserver allows others to discover it.
 
 openpgp-key-expand-section =
   .tooltiptext = More information

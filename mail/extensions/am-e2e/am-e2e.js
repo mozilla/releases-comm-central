@@ -14,8 +14,17 @@ var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 var { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
 );
+var { EnigmailDialog } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/dialog.jsm"
+);
 var { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
+);
+var { EnigmailKeyserverURIs } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyserverUris.jsm"
+);
+var { EnigmailKeyServer } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyserver.jsm"
 );
 var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
@@ -912,6 +921,30 @@ async function reloadOpenPgpUI() {
     dateContainer.appendChild(description);
     dateContainer.appendChild(dateButton);
 
+    let publishContainer = null;
+
+    // If this key is the currently selected key, suggest publishing.
+    if (key.keyId == gKeyId) {
+      publishContainer = document.createXULElement("hbox");
+      publishContainer.setAttribute("align", "center");
+
+      let publishButton = document.createElement("button");
+      document.l10n.setAttributes(publishButton, "openpgp-key-publish");
+      publishButton.addEventListener("click", () => {
+        amE2eUploadKey(key);
+      });
+      publishButton.classList.add("button-small");
+
+      let description = document.createXULElement("description");
+      document.l10n.setAttributes(
+        description,
+        "openpgp-suggest-publishing-key"
+      );
+
+      publishContainer.appendChild(description);
+      publishContainer.appendChild(publishButton);
+    }
+
     let hiddenContainer = document.createXULElement("vbox");
     hiddenContainer.classList.add(
       "content-blocking-extra-information",
@@ -1065,6 +1098,9 @@ async function reloadOpenPgpUI() {
     hiddenContainer.appendChild(btnContainer);
 
     indent.appendChild(dateContainer);
+    if (publishContainer) {
+      indent.appendChild(publishContainer);
+    }
     indent.appendChild(hiddenContainer);
 
     container.appendChild(box);
@@ -1185,6 +1221,20 @@ async function openPgpRevokeKey(key) {
       reloadOpenPgpUI();
     }
   });
+}
+
+async function amE2eUploadKey(key) {
+  let ks = EnigmailKeyserverURIs.getUploadKeyServer();
+
+  let ok = await EnigmailKeyServer.upload(key.keyId, ks);
+  let msg = await document.l10n.formatValue(
+    ok ? "openpgp-key-publish-ok" : "openpgp-key-publish-fail",
+    {
+      keyserver: ks,
+    }
+  );
+
+  EnigmailDialog.alert(null, msg);
 }
 
 /**
