@@ -18,8 +18,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 /**
  * Tabs for displaying mail folders and messages.
  */
-var newMailTabType = {
-  name: "newMailTab",
+var mailTabType = {
+  name: "mailTab",
   perTabPanel: "vbox",
   _cloneTemplate(template, tab, onDOMContentLoaded, onLoad) {
     let tabmail = document.getElementById("tabmail");
@@ -84,7 +84,7 @@ var newMailTabType = {
       isDefault: true,
 
       openTab(tab, args = {}) {
-        newMailTabType._cloneTemplate(
+        mailTabType._cloneTemplate(
           "mail3PaneTabTemplate",
           tab,
           win => {
@@ -325,7 +325,7 @@ var newMailTabType = {
     mailMessageTab: {
       _nextId: 1,
       openTab(tab, { messageURI, viewWrapper } = {}) {
-        newMailTabType._cloneTemplate(
+        mailTabType._cloneTemplate(
           "mailMessageTabTemplate",
           tab,
           undefined,

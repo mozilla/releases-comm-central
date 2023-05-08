@@ -60,7 +60,7 @@ add_task(async function testTabs() {
 
   let firstTab = tabmail.currentTabInfo;
   Assert.equal(firstTab.mode.name, "mail3PaneTab");
-  Assert.equal(firstTab.mode.tabType.name, "newMailTab");
+  Assert.equal(firstTab.mode.tabType.name, "mailTab");
 
   let firstChromeBrowser = firstTab.chromeBrowser;
   Assert.equal(firstChromeBrowser.currentURI.spec, "about:3pane");
@@ -145,7 +145,7 @@ add_task(async function testTabs() {
 
   let secondTab = tabmail.currentTabInfo;
   Assert.equal(secondTab.mode.name, "mail3PaneTab");
-  Assert.equal(secondTab.mode.tabType.name, "newMailTab");
+  Assert.equal(secondTab.mode.tabType.name, "mailTab");
 
   let secondChromeBrowser = secondTab.chromeBrowser;
   await ensureBrowserLoaded(secondChromeBrowser);
@@ -178,7 +178,7 @@ add_task(async function testTabs() {
 
   let thirdTab = tabmail.currentTabInfo;
   Assert.equal(thirdTab.mode.name, "mailMessageTab");
-  Assert.equal(thirdTab.mode.tabType.name, "newMailTab");
+  Assert.equal(thirdTab.mode.tabType.name, "mailTab");
 
   let thirdChromeBrowser = thirdTab.chromeBrowser;
   await ensureBrowserLoaded(thirdChromeBrowser);
@@ -206,7 +206,7 @@ add_task(async function testTabs() {
 
   let fourthTab = tabmail.currentTabInfo;
   Assert.equal(fourthTab.mode.name, "mailMessageTab");
-  Assert.equal(fourthTab.mode.tabType.name, "newMailTab");
+  Assert.equal(fourthTab.mode.tabType.name, "mailTab");
 
   let fourthChromeBrowser = fourthTab.chromeBrowser;
   await ensureBrowserLoaded(fourthChromeBrowser);

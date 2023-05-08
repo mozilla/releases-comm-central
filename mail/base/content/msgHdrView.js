@@ -448,7 +448,7 @@ async function OnLoadMsgHeaderPane() {
   );
 
   getMessagePaneBrowser().addProgressListener(
-    messageHeaderSink2,
+    messageProgressListener,
     Ci.nsIWebProgress.NOTIFY_STATE_ALL
   );
 
@@ -510,10 +510,13 @@ var MsgHdrViewObserver = {
 };
 
 /**
- * The messageHeaderSink2 is the class that gets notified of a message's headers
- * as we display the message through our mime converter.
+ * Receives a message's headers as we display the message through our mime converter.
+ *
+ * @see {nsIMailChannel}
+ * @implements {nsIWebProgressListener}
+ * @implements {nsISupportsWeakReference}
  */
-var messageHeaderSink2 = {
+var messageProgressListener = {
   QueryInterface: ChromeUtils.generateQI([
     "nsIWebProgressListener",
     "nsISupportsWeakReference",

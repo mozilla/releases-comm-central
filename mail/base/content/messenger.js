@@ -256,7 +256,7 @@ var gMailInit = {
     let tabmail = document.getElementById("tabmail");
     if (tabmail) {
       // mailTabType is defined in mailTabs.js
-      tabmail.registerTabType(newMailTabType);
+      tabmail.registerTabType(mailTabType);
       // glodaFacetTab* in glodaFacetTab.js
       tabmail.registerTabType(glodaFacetTabType);
       tabmail.registerTabMonitor(GlodaSearchBoxTabMonitor);
