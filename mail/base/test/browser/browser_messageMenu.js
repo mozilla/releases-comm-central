@@ -41,7 +41,7 @@ const messageMenuData = {
   menu_openFeedWebPageInMessagePane: {
     disabled: nothingSelected,
   },
-  msgAttachmentMenu: { disabled: true }, // Bug 1819005.
+  msgAttachmentMenu: { disabled: true },
   tagMenu: { disabled: [...nothingSelected, "externalMessage"] },
   "tagMenu-addNewTag": { disabled: nothingSelected },
   "tagMenu-manageTags": { disabled: nothingSelected },
@@ -195,12 +195,25 @@ add_task(async function testSingleSelection() {
   });
 
   // This message has an attachment.
-  // Bug 1819005.
-  // tabmail.currentAbout3Pane.threadTree.selectedIndex = 5;
-  // await helper.testItems({
-  //   msgAttachmentMenu: { disabled: false },
-  //   (plus the four items inside)
-  // });
+  tabmail.currentAbout3Pane.threadTree.selectedIndex = 5;
+  await BrowserTestUtils.browserLoaded(
+    tabmail.currentAboutMessage.getMessagePaneBrowser()
+  );
+
+  await helper.testItems({
+    msgAttachmentMenu: {},
+    "menu-openAllAttachments": {},
+    "menu-saveAllAttachments": {},
+    "menu-detachAllAttachments": {},
+    "menu-deleteAllAttachments": {},
+  });
+
+  // FIXME: Select another message and wait for it load in order to properly
+  // clear about:message.
+  tabmail.currentAbout3Pane.threadTree.selectedIndex = 1;
+  await BrowserTestUtils.browserLoaded(
+    tabmail.currentAboutMessage.getMessagePaneBrowser()
+  );
 });
 
 add_task(async function testMultiSelection() {

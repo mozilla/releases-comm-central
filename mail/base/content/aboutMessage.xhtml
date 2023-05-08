@@ -80,6 +80,17 @@
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
+  <commandset id="attachmentCommands">
+    <command id="cmd_openAllAttachments"
+             oncommand="goDoCommand('cmd_openAllAttachments');"/>
+    <command id="cmd_saveAllAttachments"
+             oncommand="goDoCommand('cmd_saveAllAttachments');"/>
+    <command id="cmd_detachAllAttachments"
+             oncommand="goDoCommand('cmd_detachAllAttachments');"/>
+    <command id="cmd_deleteAllAttachments"
+             oncommand="goDoCommand('cmd_deleteAllAttachments');"/>
+  </commandset>
+
   <popupset id="mainPopupSet">
 #include mailContext.inc.xhtml
 #include msgHdrPopup.inc.xhtml

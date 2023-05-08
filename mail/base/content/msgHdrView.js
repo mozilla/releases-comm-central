@@ -777,10 +777,6 @@ var messageProgressListener = {
     if (contentType == "application/pgp-keys" || displayName.endsWith(".asc")) {
       Enigmail.msg.autoProcessPgpKeyAttachment(newAttachment);
     }
-
-    if (currentAttachments.length == 1) {
-      // We also have to enable the Message/Attachments menuitem.
-    }
   },
 
   addAttachmentField(field, value) {
@@ -1639,59 +1635,17 @@ var AttachmentListController = {
 };
 
 var AttachmentMenuController = {
-  commands: {
-    cmd_openAllAttachments: {
-      isEnabled() {
-        return AttachmentMenuController._someFilesAvailable();
-      },
-
-      doCommand() {
-        HandleAllAttachments("open");
-      },
-    },
-
-    cmd_saveAllAttachments: {
-      isEnabled() {
-        return AttachmentMenuController._someFilesAvailable();
-      },
-
-      doCommand() {
-        HandleAllAttachments("save");
-      },
-    },
-
-    cmd_detachAllAttachments: {
-      isEnabled() {
-        return AttachmentMenuController._canDetachFiles();
-      },
-
-      doCommand() {
-        HandleAllAttachments("detach");
-      },
-    },
-
-    cmd_deleteAllAttachments: {
-      isEnabled() {
-        return AttachmentMenuController._canDetachFiles();
-      },
-
-      doCommand() {
-        HandleAllAttachments("delete");
-      },
-    },
-  },
-
-  _canDetachFiles() {
+  canDetachFiles() {
     let someNotDetached = currentAttachments.some(function(aAttachment) {
       return !aAttachment.isExternalAttachment;
     });
 
     return (
-      CanDetachAttachments() && someNotDetached && this._someFilesAvailable()
+      CanDetachAttachments() && someNotDetached && this.someFilesAvailable()
     );
   },
 
-  _someFilesAvailable() {
+  someFilesAvailable() {
     return currentAttachments.some(function(aAttachment) {
       return aAttachment.hasFile;
     });
@@ -1700,36 +1654,11 @@ var AttachmentMenuController = {
   supportsCommand(aCommand) {
     return aCommand in this.commands;
   },
-
-  isCommandEnabled(aCommand) {
-    if (!this.supportsCommand(aCommand)) {
-      return false;
-    }
-
-    return this.commands[aCommand].isEnabled();
-  },
-
-  doCommand(aCommand) {
-    if (!this.supportsCommand(aCommand)) {
-      return;
-    }
-    let cmd = this.commands[aCommand];
-    if (!cmd.isEnabled()) {
-      return;
-    }
-    cmd.doCommand();
-  },
-
-  onEvent(aEvent) {},
 };
 
 function goUpdateAttachmentCommands() {
   for (let action of ["open", "save", "detach", "delete"]) {
-    document.getElementById(
-      `context-${action}AllAttachments`
-    ).disabled = !AttachmentMenuController.isCommandEnabled(
-      `cmd_${action}AllAttachments`
-    );
+    goUpdateCommand(`cmd_${action}AllAttachments`);
   }
 }
 
@@ -2130,195 +2059,6 @@ function toggleAttachmentList(expanded, updateFocus) {
     if (updateFocus && document.activeElement == attachmentList) {
       // TODO
     }
-  }
-}
-
-/**
- * Pick out a nice icon for the attachment.
- *
- * @param attachment  the nsIMsgAttachment object to show icon for
- */
-function getIconForAttachment(attachment) {
-  if (attachment.isDeleted) {
-    return "chrome://messenger/skin/icons/attachment-deleted.svg";
-  }
-  return `moz-icon://${attachment.name}?size=16&amp;contentType=${attachment.contentType}`;
-}
-
-/**
- * Public method called when we create the attachments file menu
- */
-function FillAttachmentListPopup(aEvent, aPopup) {
-  // First clear out the old view...
-  ClearAttachmentMenu(aPopup);
-
-  for (let [attachmentIndex, attachment] of currentAttachments.entries()) {
-    addAttachmentToPopup(aPopup, attachment, attachmentIndex);
-  }
-
-  goUpdateAttachmentCommands();
-}
-
-// Public method used to clear the file attachment menu
-function ClearAttachmentMenu(popup) {
-  if (popup) {
-    while (popup.firstElementChild.localName == "menu") {
-      popup.firstElementChild.remove();
-    }
-  }
-}
-
-/**
- * Create a menu for a single attachment.
- *
- * @param popup  the popup to add the menu to
- * @param attachment  the AttachmentInfo object to add
- * @param attachmentIndex  the index (starting at 0) of this attachment
- */
-function addAttachmentToPopup(popup, attachment, attachmentIndex) {
-  if (!popup) {
-    return;
-  }
-
-  var item = document.createXULElement("menu");
-  if (!item) {
-    return;
-  }
-
-  function getString(aName) {
-    return document.getElementById("bundle_messenger").getString(aName);
-  }
-
-  // Insert the item just before the separator. The separator is the 2nd to
-  // last element in the popup.
-  item.setAttribute("class", "menu-iconic");
-  item.setAttribute("image", getIconForAttachment(attachment));
-
-  // find the separator
-  var indexOfSeparator = 0;
-  while (popup.children[indexOfSeparator].localName != "menuseparator") {
-    indexOfSeparator++;
-  }
-  // We increment the attachmentIndex here since we only use it for the
-  // label and accesskey attributes, and we want the accesskeys for the
-  // attachments list in the menu to be 1-indexed.
-  attachmentIndex++;
-  var displayName = SanitizeAttachmentDisplayName(attachment);
-  var label = document
-    .getElementById("bundle_messenger")
-    .getFormattedString("attachmentDisplayNameFormat", [
-      attachmentIndex,
-      displayName,
-    ]);
-  item.setAttribute("crop", "center");
-  item.setAttribute("label", label);
-  item.setAttribute("accesskey", attachmentIndex % 10);
-
-  // Each attachment in the list gets its own menupopup with options for
-  // saving, deleting, detaching, etc.
-  var openpopup = document.createXULElement("menupopup");
-  openpopup = item.appendChild(openpopup);
-  openpopup.addEventListener("popupshowing", function(aEvent) {
-    aEvent.stopPropagation();
-  });
-
-  // Due to Bug #314228, we must append our menupopup to the new attachment
-  // menu item before we inserting the attachment menu into the popup. If we
-  // don't, our attachment menu items will not show up.
-  item = popup.insertBefore(item, popup.children[indexOfSeparator]);
-
-  if (attachment.isExternalAttachment) {
-    if (!attachment.hasFile) {
-      item.classList.add("notfound");
-    } else {
-      // The text-link class must be added to the <label> and have a <menu>
-      // hover rule. Adding to <menu> makes hover overflow the underline to
-      // the popup items.
-      let label = item.children[1];
-      label.classList.add("text-link");
-    }
-  }
-
-  if (attachment.isDeleted) {
-    item.classList.add("notfound");
-  }
-
-  var detached = attachment.isExternalAttachment;
-  var deleted = !attachment.hasFile;
-  var canDetach = CanDetachAttachments() && !deleted && !detached;
-
-  if (deleted) {
-    // We can't do anything with a deleted attachment, so just return.
-    item.disabled = true;
-    return;
-  }
-
-  // Create the "open" menu item
-  var menuitementry = document.createXULElement("menuitem");
-  menuitementry.attachment = attachment;
-  menuitementry.setAttribute(
-    "oncommand",
-    "this.attachment.open(getMessagePaneBrowser().browsingContext);"
-  );
-  menuitementry.setAttribute("label", getString("openLabel"));
-  menuitementry.setAttribute("accesskey", getString("openLabelAccesskey"));
-  menuitementry.setAttribute("disabled", deleted);
-  menuitementry = openpopup.appendChild(menuitementry);
-
-  // Create a menuseparator
-  var menuseparator = document.createXULElement("menuseparator");
-  openpopup.appendChild(menuseparator);
-
-  // Create the "save" menu item
-  menuitementry = document.createXULElement("menuitem");
-  menuitementry.attachment = attachment;
-  menuitementry.setAttribute(
-    "oncommand",
-    "this.attachment.save(top.messenger);"
-  );
-  menuitementry.setAttribute("label", getString("saveLabel"));
-  menuitementry.setAttribute("accesskey", getString("saveLabelAccesskey"));
-  menuitementry.setAttribute("disabled", deleted);
-  menuitementry = openpopup.appendChild(menuitementry);
-
-  // Create the "detach" menu item
-  menuitementry = document.createXULElement("menuitem");
-  menuitementry.attachment = attachment;
-  menuitementry.setAttribute(
-    "oncommand",
-    "this.attachment.detach(top.messenger, true);"
-  );
-  menuitementry.setAttribute("label", getString("detachLabel"));
-  menuitementry.setAttribute("accesskey", getString("detachLabelAccesskey"));
-  menuitementry.setAttribute("disabled", !canDetach);
-  menuitementry = openpopup.appendChild(menuitementry);
-
-  // Create the "delete" menu item
-  menuitementry = document.createXULElement("menuitem");
-  menuitementry.attachment = attachment;
-  menuitementry.setAttribute(
-    "oncommand",
-    "this.attachment.detach(top.messenger, false);"
-  );
-  menuitementry.setAttribute("label", getString("deleteLabel"));
-  menuitementry.setAttribute("accesskey", getString("deleteLabelAccesskey"));
-  menuitementry.setAttribute("disabled", !canDetach);
-  menuitementry = openpopup.appendChild(menuitementry);
-
-  // Create the "open containing folder" menu item, for existing detached only.
-  if (attachment.isFileAttachment) {
-    let menuseparator = document.createXULElement("menuseparator");
-    openpopup.appendChild(menuseparator);
-    menuitementry = document.createXULElement("menuitem");
-    menuitementry.attachment = attachment;
-    menuitementry.setAttribute("oncommand", "this.attachment.openFolder();");
-    menuitementry.setAttribute("label", getString("openFolderLabel"));
-    menuitementry.setAttribute(
-      "accesskey",
-      getString("openFolderLabelAccesskey")
-    );
-    menuitementry.setAttribute("disabled", !attachment.hasFile);
-    menuitementry = openpopup.appendChild(menuitementry);
   }
 }
 

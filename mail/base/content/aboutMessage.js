@@ -11,7 +11,7 @@
 // msgHdrView.js
 /* globals AdjustHeaderView ClearCurrentHeaders ClearPendingReadTimer
    HideMessageHeaderPane OnLoadMsgHeaderPane OnTagsChange
-   OnUnloadMsgHeaderPane */
+   OnUnloadMsgHeaderPane HandleAllAttachments AttachmentMenuController */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -513,3 +513,28 @@ commandController.registerCallback("cmd_fullZoomReset", () => {
 commandController.registerCallback("cmd_fullZoomToggle", () => {
   top.ZoomManager.toggleZoom();
 });
+
+// Attachments commands.
+commandController.registerCallback(
+  "cmd_openAllAttachments",
+  () => HandleAllAttachments("open"),
+  () => AttachmentMenuController.someFilesAvailable()
+);
+
+commandController.registerCallback(
+  "cmd_saveAllAttachments",
+  () => HandleAllAttachments("save"),
+  () => AttachmentMenuController.someFilesAvailable()
+);
+
+commandController.registerCallback(
+  "cmd_detachAllAttachments",
+  () => HandleAllAttachments("detach"),
+  () => AttachmentMenuController.canDetachFiles()
+);
+
+commandController.registerCallback(
+  "cmd_deleteAllAttachments",
+  () => HandleAllAttachments("delete"),
+  () => AttachmentMenuController.canDetachFiles()
+);

@@ -5299,3 +5299,19 @@ commandController.registerCallback(
   () => webBrowser.stop(),
   () => webBrowser.busy
 );
+
+// Attachments commands.
+for (let command of [
+  "cmd_openAllAttachments",
+  "cmd_saveAllAttachments",
+  "cmd_detachAllAttachments",
+  "cmd_deleteAllAttachments",
+]) {
+  commandController.registerCallback(
+    command,
+    () => messageBrowser.contentWindow.commandController.doCommand(command),
+    () =>
+      !messageBrowser.hidden &&
+      messageBrowser.contentWindow.commandController.isCommandEnabled(command)
+  );
+}

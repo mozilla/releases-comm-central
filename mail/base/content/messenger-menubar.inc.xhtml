@@ -978,18 +978,22 @@
               accesskey="&openAttachmentListCmd.accesskey;"
               disabled="true">
           <menupopup id="attachmentMenuList"
-                      onpopupshowing="FillAttachmentListPopup(event, this);">
+                     onpopupshowing="fillAttachmentListPopup(event);">
             <menuseparator/>
-            <menuitem label="&openAllAttachmentsCmd.label;"
+            <menuitem id="menu-openAllAttachments"
+                      label="&openAllAttachmentsCmd.label;"
                       accesskey="&openAllAttachmentsCmd.accesskey;"
                       command="cmd_openAllAttachments"/>
-            <menuitem label="&saveAllAttachmentsCmd.label;"
+            <menuitem id="menu-saveAllAttachments"
+                      label="&saveAllAttachmentsCmd.label;"
                       accesskey="&saveAllAttachmentsCmd.accesskey;"
                       command="cmd_saveAllAttachments"/>
-            <menuitem label="&detachAllAttachmentsCmd.label;"
+            <menuitem id="menu-detachAllAttachments"
+                      label="&detachAllAttachmentsCmd.label;"
                       accesskey="&detachAllAttachmentsCmd.accesskey;"
                       command="cmd_detachAllAttachments"/>
-            <menuitem label="&deleteAllAttachmentsCmd.label;"
+            <menuitem id="menu-deleteAllAttachments"
+                      label="&deleteAllAttachmentsCmd.label;"
                       accesskey="&deleteAllAttachmentsCmd.accesskey;"
                       command="cmd_deleteAllAttachments"/>
           </menupopup>
