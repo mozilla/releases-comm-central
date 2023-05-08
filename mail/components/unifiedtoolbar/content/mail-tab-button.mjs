@@ -17,7 +17,7 @@ export class MailTabButton extends UnifiedToolbarButton {
    *
    * @type {string[]}
    */
-  observed3PaneEvents = ["folderURIChanged", "MsgsLoaded"];
+  observed3PaneEvents = ["folderURIChanged", "select"];
 
   /**
    * Array of events to listen for on the message browser.

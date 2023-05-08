@@ -96,7 +96,7 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
     this.label = template.querySelector("span");
     this.#updateLabel();
     this.appendChild(template);
-    this.addEventListener("click", this.handleClick);
+    this.addEventListener("click", event => this.handleClick(event));
   }
 
   disconnectedCallback() {
@@ -117,7 +117,7 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
    *
    * @param {MouseEvent} event - Click event.
    */
-  handleClick = event => {
+  handleClick(event) {
     if (this.hasAttribute("popup")) {
       event.preventDefault();
       event.stopPropagation();
@@ -159,7 +159,7 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
       event.stopPropagation();
       commandElement.doCommand();
     }
-  };
+  }
 
   /**
    * Callback for the mutation observer on the command this button follows.

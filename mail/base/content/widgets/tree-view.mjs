@@ -1011,7 +1011,7 @@ class TreeView extends HTMLElement {
       if (this._selectTimeout) {
         window.clearTimeout(this._selectTimeout);
       }
-      this.dispatchEvent(new CustomEvent("select"));
+      this.dispatchEvent(new CustomEvent("select", { bubbles: true }));
       return;
     }
 
@@ -1021,7 +1021,7 @@ class TreeView extends HTMLElement {
         window.clearTimeout(this._selectTimeout);
       }
       this._selectTimeout = window.setTimeout(() => {
-        this.dispatchEvent(new CustomEvent("select"));
+        this.dispatchEvent(new CustomEvent("select", { bubbles: true }));
         this._selectTimeout = null;
       }, delay);
     }

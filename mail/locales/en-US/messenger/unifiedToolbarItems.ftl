@@ -95,8 +95,13 @@ toolbar-junk =
 
 toolbar-delete-label = Delete
 
-toolbar-delete =
-    .title = Delete selected messages or folder
+toolbar-delete-title =
+    .title = Delete the selected messages
+
+toolbar-undelete-label = Undelete
+
+toolbar-undelete =
+    .title = Undelete the selected messages
 
 toolbar-compact-label = Compact
 
