@@ -9,7 +9,7 @@
 /* globals gDBView: true, gFolder: true, gViewWrapper: true */
 
 // msgHdrView.js
-/* globals AdjustHeaderView ClearPendingReadTimer
+/* globals AdjustHeaderView ClearCurrentHeaders ClearPendingReadTimer
    HideMessageHeaderPane OnLoadMsgHeaderPane OnTagsChange
    OnUnloadMsgHeaderPane */
 
@@ -116,6 +116,7 @@ function displayMessage(uri, viewWrapper) {
   gDBView = null;
 
   gMessageURI = uri;
+  ClearCurrentHeaders();
 
   if (!uri) {
     HideMessageHeaderPane();
