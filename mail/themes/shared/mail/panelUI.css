@@ -1070,6 +1070,8 @@ menulist[open="true"]:not([disabled="true"]) {
 }
 
 #appMenu-fontSizeReset-button > .toolbarbutton-text {
+  display: flex; 
+  justify-content: center;
   border: 1px solid var(--appmenu-button-border-color);
   border-radius: 2px;
   min-width: var(--appmenu-fontsize-reset-button-width);
