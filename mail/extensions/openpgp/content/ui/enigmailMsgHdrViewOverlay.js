@@ -774,30 +774,31 @@ Enigmail.hdrView = {
     return canDetach;
   },
 
-  fillAttachmentListPopup(item) {
-    EnigmailLog.DEBUG(
-      "enigmailMsgHdrViewOverlay.js: Enigmail.hdrView.fillAttachmentListPopup\n"
-    );
-    FillAttachmentListPopup(item);
+  // FIXME: Temporarily disabled as it's not hooked to anything.
+  // fillAttachmentListPopup(item) {
+  //   EnigmailLog.DEBUG(
+  //     "enigmailMsgHdrViewOverlay.js: Enigmail.hdrView.fillAttachmentListPopup\n"
+  //   );
+  //   fillAttachmentListPopup(item);
 
-    if (!this.enigCanDetachAttachments()) {
-      for (var i = 0; i < item.childNodes.length; i++) {
-        if (item.childNodes[i].className == "menu-iconic") {
-          var mnu = item.childNodes[i].firstChild.firstChild;
-          while (mnu) {
-            if (
-              mnu
-                .getAttribute("oncommand")
-                .search(/(detachAttachment|deleteAttachment)/) >= 0
-            ) {
-              mnu.setAttribute("disabled", true);
-            }
-            mnu = mnu.nextSibling;
-          }
-        }
-      }
-    }
-  },
+  //   if (!this.enigCanDetachAttachments()) {
+  //     for (var i = 0; i < item.childNodes.length; i++) {
+  //       if (item.childNodes[i].className == "menu-iconic") {
+  //         var mnu = item.childNodes[i].firstChild.firstChild;
+  //         while (mnu) {
+  //           if (
+  //             mnu
+  //               .getAttribute("oncommand")
+  //               .search(/(detachAttachment|deleteAttachment)/) >= 0
+  //           ) {
+  //             mnu.setAttribute("disabled", true);
+  //           }
+  //           mnu = mnu.nextSibling;
+  //         }
+  //       }
+  //     }
+  //   }
+  // },
 
   setSubject(subject) {
     // Strip multiple localised Re: prefixes. This emulates NS_MsgStripRE().
