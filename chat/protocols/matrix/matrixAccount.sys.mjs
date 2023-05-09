@@ -1768,6 +1768,15 @@ MatrixAccount.prototype = {
       accessToken = undefined;
     }
 
+    // Ensure any existing client will no longer interact with the network and
+    // this account instance. A client will already exist whenever the account
+    // is reconnected via the chat account connection management, or when we
+    // have to create a new client to handle a new indexedDB schema.
+    if (this._client) {
+      this._client.stopClient();
+      this._client.removeAllListeners();
+    }
+
     const opts = await this.getClientOptions();
     this._client = lazy.MatrixSDK.createClient(opts);
     if (this._client.isLoggedIn()) {
