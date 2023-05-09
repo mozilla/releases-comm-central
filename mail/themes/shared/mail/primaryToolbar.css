@@ -27,7 +27,7 @@
 }
 
 #button-getmsg {
-  list-style-image: var(--icon-get-mail);
+  list-style-image: var(--icon-cloud-download);
 }
 
 #button-newmsg {

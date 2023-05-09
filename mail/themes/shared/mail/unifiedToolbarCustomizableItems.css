@@ -39,7 +39,7 @@
 }
 
 .get-messages .preview-icon {
-  content: var(--icon-get-mail);
+  content: var(--icon-cloud-download);
 }
 
 .reply .preview-icon {

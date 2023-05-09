@@ -188,7 +188,7 @@ kbd {
 }
 
 .unified-toolbar .get-messages .button-icon {
-  content: var(--icon-get-mail);
+  content: var(--icon-cloud-download);
 }
 
 .unified-toolbar .reply .button-icon {

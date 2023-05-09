@@ -13,7 +13,7 @@
   --folder-pane-icon-size: 16px;
   --folder-pane-icon-new: var(--icon-add);
   --folder-pane-icon-more: var(--icon-more);
-  --folder-pane-icon-download: var(--icon-download);
+  --folder-pane-icon-download: var(--icon-cloud-download);
 }
 
 @media not (prefers-contrast) {
@@ -84,7 +84,7 @@
   --folder-pane-icon-size: 20px;
   --folder-pane-icon-new: var(--icon-add-md);
   --folder-pane-icon-more: var(--icon-more-md);
-  --folder-pane-icon-download: var(--icon-download-md);
+  --folder-pane-icon-download: var(--icon-cloud-download-md);
 }
 
 
@@ -218,6 +218,7 @@ body:not(.account-central) #accountCentralBrowser {
   position: sticky;
   top: 0;
   background-color: var(--sidebar-background-color, var(--foldertree-background));
+  color: var(--layout-color-2);
   padding: var(--folder-tree-header-padding);
   z-index: 1;
 }
