@@ -145,6 +145,10 @@
   align-items: center;
 }
 
+#quick-filter-bar-filter-text-bar > .button-group > .button {
+  min-width: 0;
+}
+
 #qfb-upsell-line-one {
   font-weight: bold;
 }

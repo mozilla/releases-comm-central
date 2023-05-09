@@ -221,7 +221,7 @@
 }
 
 .button.check-button:not(.icon-button) {
-  padding-inline-start: calc(var(--button-padding) * 2 + var(--button-pressed-indicator-padding));
+  padding-inline-start: calc(var(--button-padding) * 2 + 9px);
   padding-inline-end: calc(var(--button-padding) * 2);
 }
 
