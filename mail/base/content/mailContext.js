@@ -292,7 +292,7 @@ var mailContextMenu = {
     showItem("mailContext-moveMenu", canMove);
     showItem("mailContext-copyMenu", canCopy);
 
-    window.browsingContext.topChromeWindow.initMoveToFolderAgainMenu(
+    top.initMoveToFolderAgainMenu(
       document.getElementById("mailContext-moveToFolderAgain")
     );
 
@@ -391,7 +391,6 @@ var mailContextMenu = {
       return;
     }
 
-    let topChromeWindow = window.browsingContext.topChromeWindow;
     switch (event.target.id) {
       // Links
       // case "mailContext-openInBrowser":
@@ -399,13 +398,13 @@ var mailContextMenu = {
       //   break;
       case "mailContext-openLinkInBrowser":
         // Only called in about:message.
-        topChromeWindow.openLinkExternally(this.context.linkURL);
+        top.openLinkExternally(this.context.linkURL);
         break;
       case "mailContext-copylink":
         goDoCommand("cmd_copyLink");
         break;
       // case "mailContext-savelink":
-      //   topChromeWindow.saveURL(
+      //   top.saveURL(
       //     this.context.linkURL,
       //     this.context.linkTextStr,
       //     null,
@@ -420,16 +419,18 @@ var mailContextMenu = {
         PhishingDetector.reportPhishingURL(this.context.linkURL);
         break;
       case "mailContext-addemail":
-        topChromeWindow.addEmail(this.context.linkURL);
+        top.addEmail(this.context.linkURL);
         break;
       case "mailContext-composeemailto":
-        topChromeWindow.composeEmailTo(
+        top.composeEmailTo(
           this.context.linkURL,
-          MailServices.accounts.getFirstIdentityForServer(gFolder.server)
+          gFolder
+            ? MailServices.accounts.getFirstIdentityForServer(gFolder.server)
+            : null
         );
         break;
       case "mailContext-copyemail": {
-        let addresses = topChromeWindow.getEmail(this.context.linkURL);
+        let addresses = top.getEmail(this.context.linkURL);
         Cc["@mozilla.org/widget/clipboardhelper;1"]
           .getService(Ci.nsIClipboardHelper)
           .copyString(addresses);
@@ -441,7 +442,7 @@ var mailContextMenu = {
         goDoCommand("cmd_copyImage");
         break;
       case "mailContext-saveimage":
-        topChromeWindow.saveURL(
+        top.saveURL(
           this.context.imageInfo.currentSrc,
           null,
           null,
@@ -464,21 +465,18 @@ var mailContextMenu = {
 
       // Search
       case "mailContext-searchTheWeb":
-        topChromeWindow.openWebSearch(this.selectionInfo.text);
+        top.openWebSearch(this.selectionInfo.text);
         break;
 
       // Open messages
       case "mailContext-openNewTab":
-        topChromeWindow.OpenMessageInNewTab(
-          gDBView.hdrForFirstSelectedMessage,
-          {
-            event,
-            viewWrapper: gViewWrapper,
-          }
-        );
+        top.OpenMessageInNewTab(gDBView.hdrForFirstSelectedMessage, {
+          event,
+          viewWrapper: gViewWrapper,
+        });
         break;
       case "mailContext-openNewWindow":
-        topChromeWindow.MsgOpenNewWindowForMessage(
+        top.MsgOpenNewWindowForMessage(
           gDBView.hdrForFirstSelectedMessage,
           gViewWrapper
         );
@@ -696,7 +694,7 @@ var mailContextMenu = {
   },
 
   addTag() {
-    window.browsingContext.topChromeWindow.openDialog(
+    top.openDialog(
       "chrome://messenger/content/newTagDialog.xhtml",
       "",
       "chrome,titlebar,modal,centerscreen",

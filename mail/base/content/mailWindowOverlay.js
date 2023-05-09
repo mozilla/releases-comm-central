@@ -2219,3 +2219,65 @@ function getIconForAttachment(attachment) {
     ? "chrome://messenger/skin/icons/attachment-deleted.svg"
     : `moz-icon://${attachment.name}?size=16&amp;contentType=${attachment.contentType}`;
 }
+
+/**
+ * Opens the Address Book to add the email address from the given mailto: URL.
+ *
+ * @param {string} url
+ */
+function addEmail(url) {
+  let addresses = getEmail(url);
+  toAddressBook({
+    action: "create",
+    address: addresses,
+  });
+}
+
+/**
+ * Extracts email address(es) from the given mailto: URL.
+ *
+ * @param {string} url
+ * @returns {string}
+ */
+function getEmail(url) {
+  let mailtolength = 7;
+  let qmark = url.indexOf("?");
+  let addresses;
+
+  if (qmark > mailtolength) {
+    addresses = url.substring(mailtolength, qmark);
+  } else {
+    addresses = url.substr(mailtolength);
+  }
+  // Let's try to unescape it using a character set
+  try {
+    addresses = Services.textToSubURI.unEscapeURIForUI(addresses);
+  } catch (ex) {
+    // Do nothing.
+  }
+  return addresses;
+}
+
+/**
+ * Begins composing an email to the address from the given mailto: URL.
+ *
+ * @param {string} linkURL
+ * @param {nsIMsgIdentity} [identity] - The identity to use, otherwise the
+ *   default identity is used.
+ */
+function composeEmailTo(linkURL, identity) {
+  let fields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  fields.to = getEmail(linkURL);
+  params.type = Ci.nsIMsgCompType.New;
+  params.format = Ci.nsIMsgCompFormat.Default;
+  if (identity) {
+    params.identity = identity;
+  }
+  params.composeFields = fields;
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+}
