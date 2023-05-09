@@ -1253,6 +1253,7 @@ function reportPreferences() {
     // Calendar general
     "calendar.item.editInTab",
     "calendar.item.promptDelete",
+    "calendar.timezone.useSystemTimezone",
 
     // Alarms
     "calendar.alarms.playsound",

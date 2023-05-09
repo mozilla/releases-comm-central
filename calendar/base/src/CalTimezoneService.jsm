@@ -77,7 +77,7 @@ CalTimezoneService.prototype = {
     this._initDefaultTimezone();
 
     // Watch for changes in system timezone or related user preferences
-    Services.prefs.addObserver("calendar.timezone.use-system-timezone", this);
+    Services.prefs.addObserver("calendar.timezone.useSystemTimezone", this);
     Services.prefs.addObserver("calendar.timezone.local", this);
     Services.obs.addObserver(this, TIMEZONE_CHANGED_TOPIC);
 
@@ -90,7 +90,7 @@ CalTimezoneService.prototype = {
   shutdown(aCompleteListener) {
     Services.obs.removeObserver(this, TIMEZONE_CHANGED_TOPIC);
     Services.prefs.removeObserver("calendar.timezone.local", this);
-    Services.prefs.removeObserver("calendar.timezone.use-system-timezone", this);
+    Services.prefs.removeObserver("calendar.timezone.useSystemTimezone", this);
     aCompleteListener.onResult(null, Cr.NS_OK);
   },
 
@@ -162,13 +162,13 @@ CalTimezoneService.prototype = {
     // If the "use system timezone" preference is unset, we default to enabling
     // it if the user's system supports it
     let isSetSystemTimezonePref = Services.prefs.prefHasUserValue(
-      "calendar.timezone.use-system-timezone"
+      "calendar.timezone.useSystemTimezone"
     );
 
     if (!isSetSystemTimezonePref) {
       let canUseSystemTimezone = AppConstants.MOZ_CAN_FOLLOW_SYSTEM_TIME;
 
-      Services.prefs.setBoolPref("calendar.timezone.use-system-timezone", canUseSystemTimezone);
+      Services.prefs.setBoolPref("calendar.timezone.useSystemTimezone", canUseSystemTimezone);
     }
 
     this._updateDefaultTimezone();
@@ -176,7 +176,7 @@ CalTimezoneService.prototype = {
 
   _updateDefaultTimezone() {
     let prefUseSystemTimezone = Services.prefs.getBoolPref(
-      "calendar.timezone.use-system-timezone",
+      "calendar.timezone.useSystemTimezone",
       true
     );
     let prefTzid = Services.prefs.getStringPref("calendar.timezone.local", null);
@@ -217,7 +217,7 @@ CalTimezoneService.prototype = {
       this._updateDefaultTimezone();
     } else if (
       aTopic == "nsPref:changed" &&
-      (aData == "calendar.timezone.use-system-timezone" || aData == "calendar.timezone.local")
+      (aData == "calendar.timezone.useSystemTimezone" || aData == "calendar.timezone.local")
     ) {
       // We may get a bogus second update from the timezone pref if its change
       // is a result of the system timezone changing, but it should settle, and
