@@ -889,6 +889,8 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
   let tab = document.getElementById("tabmail")?.currentTabInfo;
   if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
     message = tab.message;
+  } else {
+    message = document.getElementById("messageBrowser")?.contentWindow.gMessage;
   }
 
   const tagArray = MailServices.tags.getAllTags();
@@ -932,13 +934,7 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
     item.setAttribute("value", tagInfo.key);
     item.setAttribute("type", "checkbox");
     item.addEventListener("command", function(event) {
-      let tab = document.getElementById("tabmail")?.currentTabInfo;
-      if (["mail3PaneTab", "mailMessageTab"].includes(tab?.mode.name)) {
-        tab.chromeBrowser.contentWindow.commandController.doCommand(
-          "cmd_toggleTag",
-          event
-        );
-      }
+      goDoCommand("cmd_toggleTag", event);
     });
 
     if (tagInfo.color) {
