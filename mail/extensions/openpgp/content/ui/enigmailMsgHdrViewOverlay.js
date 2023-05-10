@@ -44,7 +44,6 @@ Enigmail.hdrView = {
   msgEncryptionAllKeyIds: null,
   msgHasKeyAttached: false,
 
-  alreadyWrappedCDA: false,
   ignoreStatusFromMimePart: "",
   receivedStatusFromParts: new Set(),
 
@@ -68,41 +67,7 @@ Enigmail.hdrView = {
   hdrViewLoad() {
     EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: this.hdrViewLoad\n");
 
-    // THE FOLLOWING OVERRIDES CODE IN msgHdrViewOverlay.js
-    // which wouldn't work otherwise
-
-    if (!this.alreadyWrappedCDA) {
-      this.alreadyWrappedCDA = true;
-      this.origCanDetachAttachments = CanDetachAttachments;
-      // eslint-disable-next-line no-global-assign
-      CanDetachAttachments = function() {
-        return (
-          Enigmail.hdrView.origCanDetachAttachments() &&
-          Enigmail.hdrView.enigCanDetachAttachments()
-        );
-      };
-    }
-
     this.msgHdrViewLoad();
-
-    /*
-    // Override SMIME ui
-    let signedHdrElement = document.getElementById("signedHdrIcon");
-    if (signedHdrElement) {
-      signedHdrElement.setAttribute(
-        "onclick",
-        "Enigmail.msg.viewSecurityInfo(event, true);"
-      );
-    }
-
-    let encryptedHdrElement = document.getElementById("encryptedHdrIcon");
-    if (encryptedHdrElement) {
-      encryptedHdrElement.setAttribute(
-        "onclick",
-        "Enigmail.msg.viewSecurityInfo(event, true);"
-      );
-    }
-    */
 
     let addrPopup = document.getElementById("emailAddressPopup");
     if (addrPopup) {
@@ -1218,8 +1183,6 @@ Enigmail.hdrView = {
       );
       msgFrame.removeEventListener("load", Enigmail.hdrView.messageLoad);
     }
-
-    CanDetachAttachments = Enigmail.hdrView.origCanDetachAttachments;
   },
   */
 };
