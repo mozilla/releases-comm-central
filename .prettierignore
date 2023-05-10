@@ -1,9 +1,18 @@
+# Exclude everything by default, then include all the formats we support.
+*.*
+!*.js
+!*.jsm
+!*.json
+!*.mjs
+!*.jsx
+!*.sjs
+
+# Not currently enabled, but planning to soon.
 # These files are disabled due to parsing errors when using Prettier.
 # Bug 1560186
-*.html
-*.xhtml
-*.xul
-*.xml
+# !*.html
+# !*.xhtml
+# !*.xml
 
 # Preference files.
 calendar/base/calendar.js
@@ -13,7 +22,7 @@ mail/branding/nightly/pref/thunderbird-branding.js
 mail/branding/thunderbird/pref/thunderbird-branding.js
 mail/components/compose/composer.js
 mail/extensions/am-e2e/prefs/e2e-prefs.js
-mail/locales/en-US/all-l10n.js
+mail/locales/**
 mailnews/extensions/mdn/mdn.js
 mailnews/mailnews.js
 
@@ -22,12 +31,32 @@ mailnews/mailnews.js
 # code as a JS module (schema.sys.mjs).
 mail/components/enterprisepolicies/schemas/schema.sys.mjs
 
-# Third-party code.
-calendar/base/modules/Ical.jsm
-chat/protocols/matrix/lib/**
-mail/base/content/protovis-r2.6-modded.js
-mail/components/compose/texzilla/**
-third_party/asn1js/asn1js.mjs
-
 # Ignore SeaMonkey files.
 suite/**
+
+try_task_config.json
+
+##############################################################################
+# The list below is copied from ThirdPartyPaths.txt. Prettier doesn't currently
+# support multiple ignore files or dynamic ignore configurations.
+# When this is implemented, we'll update the configuration below (bug 1825508)
+##############################################################################
+
+calendar/base/modules/Ical.jsm
+chat/protocols/matrix/lib/**
+chat/protocols/xmpp/lib/**
+mail/base/content/protovis-r2.6-modded.js
+mail/components/compose/texzilla/TeXZilla.js
+mail/components/storybook/storybook-static/**
+third_party/**
+
+
+##############################################################################
+# The list below is copied from Generated.txt. Prettier doesn't currently
+# support multiple ignore files or dynamic ignore configurations.
+# When this is implemented, we'll update the configuration below (bug 1825508)
+##############################################################################
+
+mailnews/extensions/newsblog/test/unit/resources/feeds-missing-timestamp/feeds.json
+mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeditems.json
+mailnews/extensions/newsblog/test/unit/resources/feeds-simple/feeds.json
