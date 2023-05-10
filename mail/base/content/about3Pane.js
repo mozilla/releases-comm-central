@@ -5290,38 +5290,26 @@ commandController.registerCallback(
   () => !this.messageBrowser.hidden
 );
 
-/* Message zoom commands */
+// Zoom.
 commandController.registerCallback(
   "cmd_fullZoomReduce",
-  () =>
-    this.messageBrowser.contentWindow.commandController.doCommand(
-      "cmd_fullZoomReduce"
-    ),
-  () => !this.messageBrowser.hidden
+  () => top.ZoomManager.reduce(),
+  () => !webBrowser.hidden || !messageBrowser.hidden
 );
 commandController.registerCallback(
   "cmd_fullZoomEnlarge",
-  () =>
-    this.messageBrowser.contentWindow.commandController.doCommand(
-      "cmd_fullZoomEnlarge"
-    ),
-  () => !this.messageBrowser.hidden
+  () => top.ZoomManager.enlarge(),
+  () => !webBrowser.hidden || !messageBrowser.hidden
 );
 commandController.registerCallback(
   "cmd_fullZoomReset",
-  () =>
-    this.messageBrowser.contentWindow.commandController.doCommand(
-      "cmd_fullZoomReset"
-    ),
-  () => !this.messageBrowser.hidden
+  () => top.ZoomManager.reset(),
+  () => !webBrowser.hidden || !messageBrowser.hidden
 );
 commandController.registerCallback(
   "cmd_fullZoomToggle",
-  () =>
-    this.messageBrowser.contentWindow.commandController.doCommand(
-      "cmd_fullZoomToggle"
-    ),
-  () => !this.messageBrowser.hidden
+  () => top.ZoomManager.toggleZoom(),
+  () => !webBrowser.hidden || !messageBrowser.hidden
 );
 
 // Browser commands.
