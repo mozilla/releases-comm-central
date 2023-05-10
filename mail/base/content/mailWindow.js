@@ -689,6 +689,14 @@ function UpdateFullZoomMenu() {
   cmdItem.setAttribute("checked", !ZoomManager.useFullZoom);
 }
 
+window.addEventListener("DoZoomEnlargeBy10", event =>
+  ZoomManager.scrollZoomEnlarge(event.target)
+);
+
+window.addEventListener("DoZoomReduceBy10", event =>
+  ZoomManager.scrollReduceEnlarge(event.target)
+);
+
 function InformUserOfCertError(secInfo, targetSite) {
   let params = {
     exceptionAdded: false,

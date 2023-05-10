@@ -98,20 +98,6 @@ function OnLoadMessageWindow() {
       document.title = document.documentElement.getAttribute("titlemodifier");
     }
   });
-  messageBrowser.addEventListener(
-    "DoZoomEnlargeBy10",
-    () => {
-      ZoomManager.scrollZoomEnlarge(messageBrowser);
-    },
-    true
-  );
-  messageBrowser.addEventListener(
-    "DoZoomReduceBy10",
-    () => {
-      ZoomManager.scrollReduceEnlarge(messageBrowser);
-    },
-    true
-  );
 
   UIDensity.registerWindow(window);
   UIFontSize.registerWindow(window);
