@@ -604,6 +604,12 @@ var messageProgressListener = {
   },
 
   onEndHeaders() {
+    if (!gViewWrapper || !gMessage) {
+      // The view wrapper and/or message went away before we finished loading
+      // the message. Bail out.
+      return;
+    }
+
     // Give add-ons a chance to modify currentHeaderData before it actually
     // gets displayed.
     for (let listener of gMessageListeners) {
@@ -638,7 +644,7 @@ var messageProgressListener = {
     }
 
     gMessageNotificationBar.setDraftEditMessage();
-    UpdateJunkButton();
+    updateHeaderToolbarButtons();
 
     for (let listener of gMessageListeners) {
       listener.onEndHeaders();
@@ -1087,8 +1093,8 @@ function updateExpandedView() {
   // grids are the same size so that they don't look weird.
   gMessageHeader.syncLabelsColumnWidths();
 
-  UpdateJunkButton();
   UpdateReplyButtons();
+  updateHeaderToolbarButtons();
   updateComposeButtons();
   displayAttachmentsForExpandedView();
 
@@ -2336,14 +2342,26 @@ function onShowOtherActionsPopup() {
     );
   }
 
-  if (SelectedMessagesAreRead()) {
-    document.getElementById("markAsReadMenuItem").setAttribute("hidden", true);
-    document.getElementById("markAsUnreadMenuItem").removeAttribute("hidden");
+  let isDummyMessage = !gViewWrapper.isSynthetic && !gMessage.folder;
+  let tagsItem = document.getElementById("otherActionsTag");
+  let markAsReadItem = document.getElementById("markAsReadMenuItem");
+  let markAsUnreadItem = document.getElementById("markAsUnreadMenuItem");
+
+  if (isDummyMessage) {
+    tagsItem.disabled = true;
+    markAsReadItem.disabled = true;
+    markAsReadItem.removeAttribute("hidden");
+    markAsUnreadItem.setAttribute("hidden", true);
   } else {
-    document.getElementById("markAsReadMenuItem").removeAttribute("hidden");
-    document
-      .getElementById("markAsUnreadMenuItem")
-      .setAttribute("hidden", true);
+    tagsItem.disabled = false;
+    markAsReadItem.disabled = false;
+    if (SelectedMessagesAreRead()) {
+      markAsReadItem.setAttribute("hidden", true);
+      markAsUnreadItem.removeAttribute("hidden");
+    } else {
+      markAsReadItem.removeAttribute("hidden");
+      markAsUnreadItem.setAttribute("hidden", true);
+    }
   }
 
   // Check if the current message is feed or not.
@@ -3424,24 +3442,29 @@ function MsgComposeDraftMessage() {
 }
 
 /**
- * Update the "mark as junk" button in the message header area.
+ * Update the "archive", "junk" and "delete" buttons in the message header area.
  */
-function UpdateJunkButton() {
-  // The junk message should slave off the selected message, as the preview pane
-  //  may not be visible
-  // But only the message display knows if we are dealing with a dummy.
-  if (!gMessage || !gFolder) {
-    // .eml file
+function updateHeaderToolbarButtons() {
+  let isDummyMessage = !gViewWrapper.isSynthetic && !gMessage.folder;
+  let archiveButton = document.getElementById("hdrArchiveButton");
+  let junkButton = document.getElementById("hdrJunkButton");
+  let trashButton = document.getElementById("hdrTrashButton");
+
+  if (isDummyMessage) {
+    archiveButton.disabled = true;
+    junkButton.disabled = true;
+    trashButton.disabled = true;
     return;
   }
+
+  archiveButton.disabled = false;
   let junkScore = gMessage.getStringProperty("junkscore");
   let hideJunk = junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
   if (!commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.junk)) {
     hideJunk = true;
   }
-  if (document.getElementById("hdrJunkButton")) {
-    document.getElementById("hdrJunkButton").disabled = hideJunk;
-  }
+  junkButton.disabled = hideJunk;
+  trashButton.disabled = false;
 }
 
 /**
