@@ -193,14 +193,14 @@
               <menuitem id="hdrTagDropdown-addNewTag"
                         label="&addNewTag.label;"
                         accesskey="&addNewTag.accesskey;"
-                        command="cmd_addTag"/>
+                        oncommand="goDoCommand('cmd_addTag');"/>
               <menuitem id="manageTags"
                         label="&manageTags.label;"
                         accesskey="&manageTags.accesskey;"
-                        command="cmd_manageTags"/>
+                        oncommand="goDoCommand('cmd_manageTags');"/>
               <menuseparator id="hdrTagDropdown-sep-afterAddNewTag"/>
               <menuitem id="hdrTagDropdown-tagRemoveAll"
-                        command="cmd_removeTags"/>
+                        oncommand="goDoCommand('cmd_removeTags');"/>
               <menuseparator id="hdrTagDropdown-sep-afterTagRemoveAll"/>
             </menupopup>
           </menu>
