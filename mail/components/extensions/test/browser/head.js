@@ -45,6 +45,17 @@ PromiseTestUtils.allowMatchingRejectionsGlobally(
   /Receiving end does not exist/
 );
 
+// Adjust timeout to take care of code coverage runs and fission runs to be a
+// lot slower.
+let originalRequestLongerTimeout = requestLongerTimeout;
+// eslint-disable-next-line no-global-assign
+requestLongerTimeout = factor => {
+  let ccovMultiplier = AppConstants.MOZ_CODE_COVERAGE ? 2 : 1;
+  let fissionMultiplier = SpecialPowers.useRemoteSubframes ? 2 : 1;
+  originalRequestLongerTimeout(ccovMultiplier * fissionMultiplier * factor);
+};
+requestLongerTimeout(1);
+
 add_setup(async () => {
   await check3PaneState(true, true);
   let tabmail = document.getElementById("tabmail");

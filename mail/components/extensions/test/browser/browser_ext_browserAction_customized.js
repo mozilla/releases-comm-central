@@ -10,8 +10,6 @@ async function enforceState(state) {
   await stateChangeObserved;
 }
 
-requestLongerTimeout(1);
-
 add_setup(async () => {
   // Set a customized state for the spaces we are working with in this test.
   await enforceState({
