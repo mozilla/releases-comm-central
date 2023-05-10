@@ -78,9 +78,7 @@
   {
     "namespace": "commands",
     "description": "Use the commands API to add keyboard shortcuts that trigger actions in your extension, for example opening one of the action popups or sending a command to the extension.",
-    "permissions": [
-      "manifest:commands"
-    ],
+    "permissions": ["manifest:commands"],
     "types": [
       {
         "id": "Command",

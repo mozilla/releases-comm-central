@@ -13,10 +13,7 @@
   "icons": {
     "16": "__MSG_extensionIcon__"
   },
-  "web_accessible_resources": [
-    "yandex-en.ico",
-    "yandex-ru.ico"
-  ],
+  "web_accessible_resources": ["yandex-en.ico", "yandex-ru.ico"],
   "chrome_settings_overrides": {
     "search_provider": {
       "name": "__MSG_extensionName__",

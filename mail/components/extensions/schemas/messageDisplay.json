@@ -1,9 +1,7 @@
 [
   {
     "namespace": "messageDisplay",
-    "permissions": [
-      "messagesRead"
-    ],
+    "permissions": ["messagesRead"],
     "events": [
       {
         "name": "onMessageDisplayed",
@@ -127,10 +125,7 @@
               },
               "location": {
                 "type": "string",
-                "enum": [
-                  "tab",
-                  "window"
-                ],
+                "enum": ["tab", "window"],
                 "optional": true,
                 "description": "Where to open the message. If not specified, the users preference is honoured."
               },

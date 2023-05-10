@@ -7,9 +7,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": [
-              "accountsIdentities"
-            ]
+            "enum": ["accountsIdentities"]
           }
         ]
       }
@@ -17,9 +15,7 @@
   },
   {
     "namespace": "identities",
-    "permissions": [
-      "accountsRead"
-    ],
+    "permissions": ["accountsRead"],
     "types": [
       {
         "id": "MailIdentity",
@@ -130,9 +126,7 @@
       },
       {
         "name": "create",
-        "permissions": [
-          "accountsIdentities"
-        ],
+        "permissions": ["accountsIdentities"],
         "type": "function",
         "description": "Create a new identity in the specified account.",
         "async": "callback",
@@ -159,9 +153,7 @@
       },
       {
         "name": "delete",
-        "permissions": [
-          "accountsIdentities"
-        ],
+        "permissions": ["accountsIdentities"],
         "type": "function",
         "description": "Attempts to delete the requested identity. Default identities cannot be deleted.",
         "async": true,
@@ -174,9 +166,7 @@
       },
       {
         "name": "update",
-        "permissions": [
-          "accountsIdentities"
-        ],
+        "permissions": ["accountsIdentities"],
         "type": "function",
         "description": "Updates the details of an identity.",
         "async": "callback",

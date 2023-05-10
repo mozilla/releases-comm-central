@@ -65,9 +65,7 @@
   {
     "namespace": "messageDisplayAction",
     "description": "Use a messageDisplayAction to put a button in the message display toolbar. In addition to its icon, a messageDisplayAction button can also have a tooltip, a badge, and a popup.",
-    "permissions": [
-      "manifest:message_display_action"
-    ],
+    "permissions": ["manifest:message_display_action"],
     "types": [
       {
         "id": "ColorArray",
@@ -110,13 +108,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "Shift",
-                "Alt",
-                "Command",
-                "Ctrl",
-                "MacCtrl"
-              ]
+              "enum": ["Shift", "Alt", "Command", "Ctrl", "MacCtrl"]
             },
             "description": "An array of keyboard modifiers that were held while the menu item was clicked."
           },

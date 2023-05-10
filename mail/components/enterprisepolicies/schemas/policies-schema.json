@@ -2,11 +2,10 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-
     "3rdparty": {
       "type": "object",
       "properties": {
-        "Extensions" : {
+        "Extensions": {
           "type": "object",
           "patternProperties": {
             "^.*$": {
@@ -32,19 +31,19 @@
     "Authentication": {
       "type": "object",
       "properties": {
-        "SPNEGO" : {
+        "SPNEGO": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "Delegated" : {
+        "Delegated": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "NTLM" : {
+        "NTLM": {
           "type": "array",
           "items": {
             "type": "string"
@@ -294,19 +293,19 @@
     "Extensions": {
       "type": "object",
       "properties": {
-        "Install" : {
+        "Install": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "Uninstall" : {
+        "Uninstall": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "Locked" : {
+        "Locked": {
           "type": "array",
           "items": {
             "type": "string"
@@ -356,7 +355,12 @@
           "properties": {
             "installation_mode": {
               "type": "string",
-              "enum": ["allowed", "blocked", "force_installed", "normal_installed"]
+              "enum": [
+                "allowed",
+                "blocked",
+                "force_installed",
+                "normal_installed"
+              ]
             },
             "install_url": {
               "type": "string"
@@ -437,7 +441,7 @@
     },
 
     "ManualAppUpdateOnly": {
-        "type": "boolean"
+      "type": "boolean"
     },
 
     "NetworkPrediction": {

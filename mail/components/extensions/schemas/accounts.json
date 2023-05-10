@@ -7,9 +7,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": [
-              "accountsRead"
-            ]
+            "enum": ["accountsRead"]
           }
         ]
       }
@@ -17,9 +15,7 @@
   },
   {
     "namespace": "accounts",
-    "permissions": [
-      "accountsRead"
-    ],
+    "permissions": ["accountsRead"],
     "types": [
       {
         "id": "MailAccount",

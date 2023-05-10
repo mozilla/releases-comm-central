@@ -10,9 +10,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": [
-              "menus"
-            ]
+            "enum": ["menus"]
           }
         ]
       },
@@ -21,9 +19,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": [
-              "menus.overrideContext"
-            ]
+            "enum": ["menus.overrideContext"]
           }
         ]
       }
@@ -31,9 +27,7 @@
   },
   {
     "namespace": "menus",
-    "permissions": [
-      "menus"
-    ],
+    "permissions": ["menus"],
     "description": "The menus API allows to add items to Thunderbirds menus. You can choose what types of objects your context menu additions apply to, such as images, hyperlinks, and pages.",
     "properties": {
       "ACTION_MENU_TOP_LEVEL_LIMIT": {
@@ -73,16 +67,12 @@
           {
             "type": "string",
             "max_manifest_version": 2,
-            "enum": [
-              "browser_action"
-            ]
+            "enum": ["browser_action"]
           },
           {
             "type": "string",
             "min_manifest_version": 3,
-            "enum": [
-              "action"
-            ]
+            "enum": ["action"]
           }
         ],
         "description": "The different contexts a menu can appear in. Specifying <value>all</value> is equivalent to the combination of all other contexts excluding <value>tab</value> and <value>tools_menu</value>. More information about each context can be found in the `Supported UI Elements <|link-ui-elements|>`__ article on developer.thunderbird.net."
@@ -90,12 +80,7 @@
       {
         "id": "ItemType",
         "type": "string",
-        "enum": [
-          "normal",
-          "checkbox",
-          "radio",
-          "separator"
-        ],
+        "enum": ["normal", "checkbox", "radio", "separator"],
         "description": "The type of menu item."
       },
       {
@@ -315,13 +300,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "Shift",
-                "Alt",
-                "Command",
-                "Ctrl",
-                "MacCtrl"
-              ]
+              "enum": ["Shift", "Alt", "Command", "Ctrl", "MacCtrl"]
             },
             "description": "An array of keyboard modifiers that were held while the menu item was clicked."
           },
@@ -681,9 +660,7 @@
       },
       {
         "name": "overrideContext",
-        "permissions": [
-          "menus.overrideContext"
-        ],
+        "permissions": ["menus.overrideContext"],
         "type": "function",
         "description": "Show the matching menu items from this extension instead of the default menu. This should be called during a `contextmenu <|link-contextmenu-event|>`__ event handler, and only applies to the menu that opens after this event.",
         "parameters": [
@@ -699,9 +676,7 @@
               },
               "context": {
                 "type": "string",
-                "enum": [
-                  "tab"
-                ],
+                "enum": ["tab"],
                 "optional": true,
                 "description": "ContextType to override, to allow menu items from other extensions in the menu. Currently only <value>tab</value> is supported. ``contextOptions.showDefaults`` cannot be used with this option."
               },

@@ -7,9 +7,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": [
-              "addressBooks"
-            ]
+            "enum": ["addressBooks"]
           }
         ]
       }
@@ -17,18 +15,12 @@
   },
   {
     "namespace": "addressBooks",
-    "permissions": [
-      "addressBooks"
-    ],
+    "permissions": ["addressBooks"],
     "types": [
       {
         "id": "NodeType",
         "type": "string",
-        "enum": [
-          "addressBook",
-          "contact",
-          "mailingList"
-        ],
+        "enum": ["addressBook", "contact", "mailingList"],
         "description": "Indicates the type of a Node."
       },
       {
@@ -265,9 +257,7 @@
   },
   {
     "namespace": "addressBooks.provider",
-    "permissions": [
-      "addressBooks"
-    ],
+    "permissions": ["addressBooks"],
     "events": [
       {
         "name": "onSearchRequest",
@@ -320,9 +310,7 @@
   },
   {
     "namespace": "contacts",
-    "permissions": [
-      "addressBooks"
-    ],
+    "permissions": ["addressBooks"],
     "types": [
       {
         "id": "QueryInfo",
@@ -683,9 +671,7 @@
   },
   {
     "namespace": "mailingLists",
-    "permissions": [
-      "addressBooks"
-    ],
+    "permissions": ["addressBooks"],
     "types": [
       {
         "id": "MailingListNode",

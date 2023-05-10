@@ -51,10 +51,7 @@
           "default_area": {
             "description": "Defines the location the action button will appear. This will always behave like <value>maintoolbar</value>. The <value>tabstoolbar</value> area should no longer be used.",
             "type": "string",
-            "enum": [
-              "maintoolbar",
-              "tabstoolbar"
-            ],
+            "enum": ["maintoolbar", "tabstoolbar"],
             "optional": true
           },
           "default_windows": {
@@ -62,14 +59,9 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "normal",
-                "messageDisplay"
-              ]
+              "enum": ["normal", "messageDisplay"]
             },
-            "default": [
-              "normal"
-            ],
+            "default": ["normal"],
             "optional": true
           },
           "allowed_spaces": {
@@ -87,9 +79,7 @@
                 "default"
               ]
             },
-            "default": [
-              "mail"
-            ],
+            "default": ["mail"],
             "optional": true
           }
         }
@@ -119,10 +109,7 @@
   {
     "namespace": "action",
     "description": "Use an action to put a button in the mail window toolbar. In addition to its icon, an action button can also have a tooltip, a badge, and a popup.",
-    "permissions": [
-      "manifest:action",
-      "manifest:browser_action"
-    ],
+    "permissions": ["manifest:action", "manifest:browser_action"],
     "min_manifest_version": 3,
     "types": [
       {
@@ -166,13 +153,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "Shift",
-                "Alt",
-                "Command",
-                "Ctrl",
-                "MacCtrl"
-              ]
+              "enum": ["Shift", "Alt", "Command", "Ctrl", "MacCtrl"]
             },
             "description": "An array of keyboard modifiers that were held while the menu item was clicked."
           },
@@ -777,10 +758,7 @@
   },
   {
     "namespace": "browserAction",
-    "permissions": [
-      "manifest:action",
-      "manifest:browser_action"
-    ],
+    "permissions": ["manifest:action", "manifest:browser_action"],
     "max_manifest_version": 2,
     "$import": "action"
   }

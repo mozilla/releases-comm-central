@@ -7,11 +7,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": [
-              "compose",
-              "compose.save",
-              "compose.send"
-            ]
+            "enum": ["compose", "compose.save", "compose.send"]
           }
         ]
       }
@@ -37,10 +33,7 @@
               "type": {
                 "type": "string",
                 "description": "Which sort of object this ID is for.",
-                "enum": [
-                  "contact",
-                  "mailingList"
-                ]
+                "enum": ["contact", "mailingList"]
               }
             }
           }
@@ -114,9 +107,7 @@
               },
               {
                 "type": "string",
-                "enum": [
-                  ""
-                ]
+                "enum": [""]
               }
             ],
             "optional": true,
@@ -129,9 +120,7 @@
               },
               {
                 "type": "string",
-                "enum": [
-                  ""
-                ]
+                "enum": [""]
               }
             ],
             "description": "An additional fcc folder which can be selected while composing the message, an empty string if not used.",
@@ -173,13 +162,7 @@
           "type": {
             "type": "string",
             "description": "Read-only. The type of the message being composed, depending on how the compose window was opened by the user.",
-            "enum": [
-              "draft",
-              "new",
-              "redirect",
-              "reply",
-              "forward"
-            ],
+            "enum": ["draft", "new", "redirect", "reply", "forward"],
             "optional": true
           },
           "body": {
@@ -199,12 +182,7 @@
           },
           "deliveryFormat": {
             "type": "string",
-            "enum": [
-              "auto",
-              "plaintext",
-              "html",
-              "both"
-            ],
+            "enum": ["auto", "plaintext", "html", "both"],
             "description": "Defines the mime format of the sent message (ignored on plain text messages). Defaults to <value>auto</value>, which will send html messages as plain text, if they do not include any formatting, and as <value>both</value> otherwise (a multipart/mixed message).",
             "optional": true
           },
@@ -218,13 +196,7 @@
           },
           "priority": {
             "type": "string",
-            "enum": [
-              "lowest",
-              "low",
-              "normal",
-              "high",
-              "highest"
-            ],
+            "enum": ["lowest", "low", "normal", "high", "highest"],
             "description": "The priority of the message.",
             "optional": true
           },
@@ -329,9 +301,7 @@
         "name": "onBeforeSend",
         "type": "function",
         "description": "Fired when a message is about to be sent from the compose window. This is a user input event handler. For asynchronous listeners some `restrictions <|link-user-input-restrictions|>`__ apply.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "parameters": [
           {
             "name": "tab",
@@ -363,9 +333,7 @@
         "name": "onAfterSend",
         "type": "function",
         "description": "Fired when sending a message succeeded or failed.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "parameters": [
           {
             "name": "tab",
@@ -378,10 +346,7 @@
               "mode": {
                 "type": "string",
                 "description": "The used send mode.",
-                "enum": [
-                  "sendNow",
-                  "sendLater"
-                ]
+                "enum": ["sendNow", "sendLater"]
               },
               "error": {
                 "type": "string",
@@ -408,9 +373,7 @@
         "name": "onAfterSave",
         "type": "function",
         "description": "Fired when saving a message as draft or template succeeded or failed.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "parameters": [
           {
             "name": "tab",
@@ -423,10 +386,7 @@
               "mode": {
                 "type": "string",
                 "description": "The used save mode.",
-                "enum": [
-                  "draft",
-                  "template"
-                ]
+                "enum": ["draft", "template"]
               },
               "error": {
                 "type": "string",
@@ -448,9 +408,7 @@
         "name": "onAttachmentAdded",
         "type": "function",
         "description": "Fired when an attachment is added to a message being composed.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "parameters": [
           {
             "name": "tab",
@@ -466,9 +424,7 @@
         "name": "onAttachmentRemoved",
         "type": "function",
         "description": "Fired when an attachment is removed from a message being composed.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "parameters": [
           {
             "name": "tab",
@@ -484,9 +440,7 @@
         "name": "onIdentityChanged",
         "type": "function",
         "description": "Fired when the user changes the identity that will be used to send a message being composed.",
-        "permissions": [
-          "accountsRead"
-        ],
+        "permissions": ["accountsRead"],
         "parameters": [
           {
             "name": "tab",
@@ -576,11 +530,7 @@
           {
             "name": "replyType",
             "type": "string",
-            "enum": [
-              "replyToSender",
-              "replyToList",
-              "replyToAll"
-            ],
+            "enum": ["replyToSender", "replyToList", "replyToAll"],
             "optional": true
           },
           {
@@ -616,10 +566,7 @@
           {
             "name": "forwardType",
             "type": "string",
-            "enum": [
-              "forwardInline",
-              "forwardAsAttachment"
-            ],
+            "enum": ["forwardInline", "forwardAsAttachment"],
             "optional": true
           },
           {
@@ -645,9 +592,7 @@
         "type": "function",
         "async": "callback",
         "description": "Fetches the current state of a compose window. Currently only a limited amount of information is available, more will be added in later versions.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "parameters": [
           {
             "type": "integer",
@@ -671,9 +616,7 @@
         "type": "function",
         "async": true,
         "description": "Updates the compose window. The properties of the given :ref:`compose.ComposeDetails` object will be used to overwrite the current values of the specified compose window, so only properties that are to be changed should be included.\n\nWhen updating any of the array properties (``customHeaders`` and most address fields), make sure to first get the current values to not accidentally remove all existing entries when setting the new value.\n\n**Note:** The compose format of an existing compose window cannot be changed. Since Thunderbird 98, setting conflicting values for ``details.body``, ``details.plainTextBody`` or ``details.isPlaintext`` no longer throws an exception, instead the compose window chooses the matching ``details.body`` or ``details.plainTextBody`` value and ignores the other.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "parameters": [
           {
             "type": "integer",
@@ -691,9 +634,7 @@
         "type": "function",
         "async": "callback",
         "description": "Returns a :ref:`compose.ComposeDictionaries` object, listing all installed dictionaries, including the information whether they are currently enabled or not.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "parameters": [
           {
             "type": "integer",
@@ -717,9 +658,7 @@
         "type": "function",
         "async": true,
         "description": "Updates the active dictionaries. Throws if the ``activeDictionaries`` array contains unknown or invalid language identifiers.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "parameters": [
           {
             "type": "integer",
@@ -739,9 +678,7 @@
         "name": "listAttachments",
         "type": "function",
         "description": "Lists all of the attachments of the message being composed in the specified tab.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "async": "callback",
         "parameters": [
           {
@@ -792,9 +729,7 @@
         "name": "addAttachment",
         "type": "function",
         "description": "Adds an attachment to the message being composed in the specified tab.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "async": "callback",
         "parameters": [
           {
@@ -828,9 +763,7 @@
         "name": "updateAttachment",
         "type": "function",
         "description": "Updates the name and/or the content of an attachment in the message being composed in the specified tab. If the specified attachment is a cloud file attachment and the associated provider failed to update the attachment, the function will throw an <em>ExtensionError</em>.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "async": "callback",
         "parameters": [
           {
@@ -861,9 +794,7 @@
         "name": "removeAttachment",
         "type": "function",
         "description": "Removes an attachment from the message being composed in the specified tab.",
-        "permissions": [
-          "compose"
-        ],
+        "permissions": ["compose"],
         "async": true,
         "parameters": [
           {
@@ -878,9 +809,7 @@
       },
       {
         "name": "sendMessage",
-        "permissions": [
-          "compose.send"
-        ],
+        "permissions": ["compose.send"],
         "type": "function",
         "description": "Sends the message currently being composed. If the send mode is not specified or set to <value>default</value>, the message will be send directly if the user is online and placed in the users outbox otherwise. The returned Promise fulfills once the message has been successfully sent or placed in the user's outbox. Throws when the send process has been aborted by the user, by an :ref:`compose.onBeforeSend` event or if there has been an error while sending the message to the outgoing mail server.",
         "async": "callback",
@@ -896,11 +825,7 @@
             "properties": {
               "mode": {
                 "type": "string",
-                "enum": [
-                  "default",
-                  "sendNow",
-                  "sendLater"
-                ]
+                "enum": ["default", "sendNow", "sendLater"]
               }
             }
           },
@@ -916,10 +841,7 @@
                   "mode": {
                     "type": "string",
                     "description": "The used send mode.",
-                    "enum": [
-                      "sendNow",
-                      "sendLater"
-                    ]
+                    "enum": ["sendNow", "sendLater"]
                   },
                   "headerMessageId": {
                     "type": "string",
@@ -941,9 +863,7 @@
       },
       {
         "name": "saveMessage",
-        "permissions": [
-          "compose.save"
-        ],
+        "permissions": ["compose.save"],
         "type": "function",
         "description": "Saves the message currently being composed as a draft or as a template. If the save mode is not specified, the message will be saved as a draft. The returned Promise fulfills once the message has been successfully saved.",
         "async": "callback",
@@ -959,10 +879,7 @@
             "properties": {
               "mode": {
                 "type": "string",
-                "enum": [
-                  "draft",
-                  "template"
-                ]
+                "enum": ["draft", "template"]
               }
             }
           },
@@ -978,10 +895,7 @@
                   "mode": {
                     "type": "string",
                     "description": "The used save mode.",
-                    "enum": [
-                      "draft",
-                      "template"
-                    ]
+                    "enum": ["draft", "template"]
                   },
                   "messages": {
                     "type": "array",

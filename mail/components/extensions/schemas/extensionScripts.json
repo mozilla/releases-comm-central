@@ -10,9 +10,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": [
-              "messagesModify"
-            ]
+            "enum": ["messagesModify"]
           }
         ]
       }
@@ -20,9 +18,7 @@
   },
   {
     "namespace": "composeScripts",
-    "permissions": [
-      "compose"
-    ],
+    "permissions": ["compose"],
     "types": [
       {
         "id": "RegisteredComposeScriptOptions",
@@ -79,9 +75,7 @@
   },
   {
     "namespace": "messageDisplayScripts",
-    "permissions": [
-      "messagesModify"
-    ],
+    "permissions": ["messagesModify"],
     "types": [
       {
         "id": "RegisteredMessageDisplayScriptOptions",

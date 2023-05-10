@@ -12,9 +12,7 @@
   "icons": {
     "16": "favicon.gif"
   },
-  "web_accessible_resources": [
-    "favicon.gif"
-  ],
+  "web_accessible_resources": ["favicon.gif"],
   "chrome_settings_overrides": {
     "search_provider": {
       "name": "List.am",

@@ -46,28 +46,16 @@
             "type": "string",
             "description": "**Note:** ``sortType`` and ``sortOrder`` depend on each other, so both should be present, or neither.",
             "optional": true,
-            "enum": [
-              "none",
-              "ascending",
-              "descending"
-            ]
+            "enum": ["none", "ascending", "descending"]
           },
           "viewType": {
             "type": "string",
             "optional": true,
-            "enum": [
-              "ungrouped",
-              "groupedByThread",
-              "groupedBySortType"
-            ]
+            "enum": ["ungrouped", "groupedByThread", "groupedBySortType"]
           },
           "layout": {
             "type": "string",
-            "enum": [
-              "standard",
-              "wide",
-              "vertical"
-            ]
+            "enum": ["standard", "wide", "vertical"]
           },
           "folderPaneVisible": {
             "type": "boolean",
@@ -261,30 +249,18 @@
                 "type": "string",
                 "description": "Sorts the list of messages. ``sortType`` must also be given.",
                 "optional": true,
-                "enum": [
-                  "none",
-                  "ascending",
-                  "descending"
-                ]
+                "enum": ["none", "ascending", "descending"]
               },
               "viewType": {
                 "type": "string",
                 "optional": true,
-                "enum": [
-                  "ungrouped",
-                  "groupedByThread",
-                  "groupedBySortType"
-                ]
+                "enum": ["ungrouped", "groupedByThread", "groupedBySortType"]
               },
               "layout": {
                 "type": "string",
                 "description": "Sets the arrangement of the folder pane, message list pane, and message display pane. Note that setting this applies it to all mail tabs.",
                 "optional": true,
-                "enum": [
-                  "standard",
-                  "wide",
-                  "vertical"
-                ]
+                "enum": ["standard", "wide", "vertical"]
               },
               "folderPaneVisible": {
                 "type": "boolean",
@@ -304,9 +280,7 @@
         "name": "getSelectedMessages",
         "type": "function",
         "description": "Lists the selected messages in the current folder.",
-        "permissions": [
-          "messagesRead"
-        ],
+        "permissions": ["messagesRead"],
         "async": "callback",
         "parameters": [
           {
@@ -332,10 +306,7 @@
         "name": "setSelectedMessages",
         "type": "function",
         "description": "Selects none, one or multiple messages.",
-        "permissions": [
-          "messagesRead",
-          "accountsRead"
-        ],
+        "permissions": ["messagesRead", "accountsRead"],
         "async": true,
         "parameters": [
           {
@@ -424,9 +395,7 @@
         "name": "onDisplayedFolderChanged",
         "type": "function",
         "description": "Fired when the displayed folder changes in any mail tab.",
-        "permissions": [
-          "accountsRead"
-        ],
+        "permissions": ["accountsRead"],
         "parameters": [
           {
             "name": "tab",
@@ -442,9 +411,7 @@
         "name": "onSelectedMessagesChanged",
         "type": "function",
         "description": "Fired when the selected messages change in any mail tab.",
-        "permissions": [
-          "messagesRead"
-        ],
+        "permissions": ["messagesRead"],
         "parameters": [
           {
             "name": "tab",

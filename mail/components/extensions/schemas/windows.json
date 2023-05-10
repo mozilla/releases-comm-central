@@ -24,13 +24,7 @@
         "id": "WindowState",
         "type": "string",
         "description": "The state of this window.",
-        "enum": [
-          "normal",
-          "minimized",
-          "maximized",
-          "fullscreen",
-          "docked"
-        ]
+        "enum": ["normal", "minimized", "maximized", "fullscreen", "docked"]
       },
       {
         "id": "Window",
@@ -103,12 +97,7 @@
         "id": "CreateType",
         "type": "string",
         "description": "Specifies what type of window to create. Thunderbird does not support <value>panel</value> and <value>detached_panel</value>, they are interpreted as <value>popup</value>.",
-        "enum": [
-          "normal",
-          "popup",
-          "panel",
-          "detached_panel"
-        ]
+        "enum": ["normal", "popup", "panel", "detached_panel"]
       },
       {
         "id": "GetInfo",

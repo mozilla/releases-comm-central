@@ -153,10 +153,7 @@
                         "condition": {
                           "type": "string",
                           "optional": true,
-                          "enum": [
-                            "purpose",
-                            "pref"
-                          ],
+                          "enum": ["purpose", "pref"],
                           "description": "The type of param can be either \"purpose\" or \"pref\"."
                         },
                         "pref": {

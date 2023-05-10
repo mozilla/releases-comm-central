@@ -10,9 +10,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": [
-              "activeTab"
-            ]
+            "enum": ["activeTab"]
           }
         ]
       },
@@ -21,10 +19,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": [
-              "tabs",
-              "tabHide"
-            ]
+            "enum": ["tabs", "tabHide"]
           }
         ]
       }
@@ -72,25 +67,19 @@
           "url": {
             "type": "string",
             "optional": true,
-            "permissions": [
-              "tabs"
-            ],
+            "permissions": ["tabs"],
             "description": "The URL the tab is displaying. This property is only present if the extension's manifest includes the <permission>tabs</permission> permission."
           },
           "title": {
             "type": "string",
             "optional": true,
-            "permissions": [
-              "tabs"
-            ],
+            "permissions": ["tabs"],
             "description": "The title of the tab. This property is only present if the extension's manifest includes the <permission>tabs</permission> permission."
           },
           "favIconUrl": {
             "type": "string",
             "optional": true,
-            "permissions": [
-              "tabs"
-            ],
+            "permissions": ["tabs"],
             "description": "The URL of the tab's favicon. This property is only present if the extension's manifest includes the <permission>tabs</permission> permission. It may also be an empty string if the tab is loading."
           },
           "status": {
@@ -135,10 +124,7 @@
       {
         "id": "TabStatus",
         "type": "string",
-        "enum": [
-          "loading",
-          "complete"
-        ],
+        "enum": ["loading", "complete"],
         "description": "Whether the tabs have completed loading."
       },
       {
@@ -158,11 +144,7 @@
       {
         "id": "UpdatePropertyName",
         "type": "string",
-        "enum": [
-          "favIconUrl",
-          "status",
-          "title"
-        ],
+        "enum": ["favIconUrl", "status", "title"],
         "description": "Event names supported in onUpdated."
       },
       {

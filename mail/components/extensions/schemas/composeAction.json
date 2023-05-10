@@ -53,10 +53,7 @@
               "default_area": {
                 "description": "Defines the location the composeAction button will appear. The default location is <value>maintoolbar</value>.",
                 "type": "string",
-                "enum": [
-                  "maintoolbar",
-                  "formattoolbar"
-                ],
+                "enum": ["maintoolbar", "formattoolbar"],
                 "optional": true
               }
             },
@@ -69,9 +66,7 @@
   {
     "namespace": "composeAction",
     "description": "Use a composeAction to put a button in the message composition toolbars. In addition to its icon, a composeAction button can also have a tooltip, a badge, and a popup.",
-    "permissions": [
-      "manifest:compose_action"
-    ],
+    "permissions": ["manifest:compose_action"],
     "types": [
       {
         "id": "ColorArray",
@@ -114,13 +109,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "Shift",
-                "Alt",
-                "Command",
-                "Ctrl",
-                "MacCtrl"
-              ]
+              "enum": ["Shift", "Alt", "Command", "Ctrl", "MacCtrl"]
             },
             "description": "An array of keyboard modifiers that were held while the menu item was clicked."
           },

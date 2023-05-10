@@ -1,7 +1,4 @@
 {
   "description": "OpenPGP alias rules",
-  "rules": [
-    {
-    },
-  ]
+  "rules": [{}]
 }
