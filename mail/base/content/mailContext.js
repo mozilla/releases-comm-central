@@ -44,15 +44,13 @@ window.addEventListener("DOMContentLoaded", event => {
  *
  * @returns {boolean} true if this function opened the context menu
  */
-function openContextMenu({ data, target }) {
+function openContextMenu({ data, target }, browser) {
   if (window.browsingContext.parent != window.browsingContext.top) {
     // Not sure how we'd get here, but let's not continue if we do.
     return false;
   }
 
-  // TODO we'll want the context menu in non-mail pages, when they work.
-  const MESSAGE_PROTOCOLS = ["imap", "mailbox", "news", "nntp", "snews"];
-  if (!MESSAGE_PROTOCOLS.includes(target.browsingContext.currentURI.scheme)) {
+  if (browser.getAttribute("context") != "mailContext") {
     return false;
   }
 
