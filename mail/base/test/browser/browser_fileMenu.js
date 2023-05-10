@@ -40,7 +40,7 @@ const fileMenuData = {
   menu_deleteFolder: { disabled: true },
   menu_renameFolder: { disabled: true },
   menu_compactFolder: { disabled: ["mailMessageTab", "contentTab"] },
-  menu_emptyTrash: { disabled: true },
+  menu_emptyTrash: { disabled: ["mailMessageTab", "contentTab"] },
   offlineMenuItem: {},
   goOfflineMenuItem: {},
   menu_synchronizeOffline: {},
@@ -106,7 +106,7 @@ add_task(async function test3PaneTab() {
     menu_deleteFolder: { disabled: true },
     menu_renameFolder: { disabled: true },
     menu_compactFolder: { disabled: false },
-    menu_emptyTrash: { disabled: true },
+    menu_emptyTrash: {},
   });
 
   tabmail.currentAbout3Pane.displayFolder(plainFolder);
@@ -114,7 +114,7 @@ add_task(async function test3PaneTab() {
     menu_deleteFolder: { disabled: false },
     menu_renameFolder: { disabled: false },
     menu_compactFolder: { disabled: false },
-    menu_emptyTrash: { disabled: true },
+    menu_emptyTrash: {},
   });
 
   tabmail.currentAbout3Pane.displayFolder(trashFolder);
@@ -122,7 +122,7 @@ add_task(async function test3PaneTab() {
     menu_deleteFolder: { disabled: true },
     menu_renameFolder: { disabled: true },
     menu_compactFolder: { disabled: false },
-    menu_emptyTrash: { disabled: false },
+    menu_emptyTrash: {},
   });
 });
 

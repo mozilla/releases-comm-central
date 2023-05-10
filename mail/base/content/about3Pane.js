@@ -236,7 +236,6 @@ var folderPaneContextMenu = {
     "folderPaneContext-remove": "cmd_deleteFolder",
     "folderPaneContext-rename": "cmd_renameFolder",
     "folderPaneContext-compact": "cmd_compactFolder",
-    "folderPaneContext-emptyTrash": "cmd_emptyTrash",
   },
 
   /**
@@ -287,12 +286,10 @@ var folderPaneContextMenu = {
         deletable,
         flags,
         isServer,
-        isSpecialFolder,
         server,
         URI,
       } = gFolder;
       let isJunk = flags & Ci.nsMsgFolderFlags.Junk;
-      let isTrash = isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true);
       let isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
       let isNNTP = server.type == "nntp";
       if (isNNTP && !isServer) {
@@ -317,7 +314,7 @@ var folderPaneContextMenu = {
           !isVirtual &&
           (isServer || canCompact) &&
           gFolder.isCommandEnabled("cmd_compactFolder"),
-        cmd_emptyTrash: isTrash,
+        cmd_emptyTrash: !isNNTP,
       };
     }
     return this._commandStates[command];
@@ -417,6 +414,10 @@ var folderPaneContextMenu = {
     showItem(
       "folderPaneContext-markNewsgroupAllRead",
       isRealFolder && serverType == "nntp"
+    );
+    showItem(
+      "folderPaneContext-emptyTrash",
+      isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true)
     );
     showItem("folderPaneContext-emptyJunk", isJunk);
     showItem(
