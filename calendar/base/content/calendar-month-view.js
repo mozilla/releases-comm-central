@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals calendarNavigationBar, MozElements, MozXULElement, timeIndicator */
+/* globals calendarNavigationBar, MozElements, MozXULElement */
 
 /* import-globals-from calendar-ui-utils.js */
 
@@ -808,8 +808,6 @@
       this.mHeight = height;
 
       this.adjustWeekdayLength();
-      // Delete the timer for the time indicator in day/week view.
-      timeIndicator.cancel();
     }
 
     /**

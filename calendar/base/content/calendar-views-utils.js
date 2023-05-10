@@ -605,26 +605,6 @@ var calendarNavigationBar = {
   },
 };
 
-/*
- * Timer for the time indicator in day and week view.
- */
-var timeIndicator = {
-  timer: null,
-  start(interval, thisArg) {
-    timeIndicator.timer = setInterval(
-      () => thisArg.updateTimeIndicatorPosition(false),
-      interval * 1000
-    );
-  },
-  cancel() {
-    if (timeIndicator.timer) {
-      clearTimeout(timeIndicator.timer);
-      timeIndicator.timer = null;
-    }
-  },
-  lastView: null,
-};
-
 var timezoneObserver = {
   observe() {
     let minimonth = getMinimonth();

@@ -77,9 +77,6 @@ add_task(async function() {
   Assert.equal(Services.prefs.getIntPref("calendar.view.daystarthour"), expectedStartHour);
   Assert.equal(Services.prefs.getIntPref("calendar.view.dayendhour"), 12);
   Assert.equal(Services.prefs.getIntPref("calendar.view.visiblehours"), expectedVisibleHours);
-  Assert.equal(Services.prefs.getIntPref("calendar.view.timeIndicatorInterval"), 15);
-
-  Assert.equal(window.timeIndicator.timer, null, "time indicator is not active");
 
   // Open the day view, check the display matches the prefs.
 
@@ -87,7 +84,6 @@ add_task(async function() {
 
   let dayView = document.getElementById("day-view");
 
-  Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
   await waitForFirstVisibleHour(dayView, expectedStartHour);
   await waitForVisibleHours(dayView, expectedVisibleHours);
 
@@ -106,7 +102,6 @@ add_task(async function() {
 
   let weekView = document.getElementById("week-view");
 
-  Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
   await waitForFirstVisibleHour(weekView, expectedStartHour);
   await waitForVisibleHours(weekView, expectedVisibleHours);
 
@@ -125,22 +120,19 @@ add_task(async function() {
   // Switch away from the calendar tab.
 
   tabmail.switchToTab(0);
-  Assert.equal(window.timeIndicator.timer, null, "time indicator is not active");
 
-  // Switch back to the calendar tab. Check the timer and scroll position.
+  // Switch back to the calendar tab. Check scroll position.
 
   tabmail.switchToTab(1);
   Assert.equal(window.currentView().id, "day-view");
 
-  Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
   await waitForFirstVisibleHour(dayView, expectedStartHour + 3);
   await waitForVisibleHours(dayView, expectedVisibleHours);
 
-  // Go back to the week view, check the timer and scroll position.
+  // Go back to the week view. Check scroll position.
 
   await CalendarTestUtils.setCalendarView(window, "week");
 
-  Assert.notEqual(window.timeIndicator.timer, null, "time indicator is active");
   await waitForFirstVisibleHour(weekView, expectedStartHour - 1);
   await waitForVisibleHours(weekView, expectedVisibleHours);
 });

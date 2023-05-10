@@ -220,9 +220,7 @@
           this.timezone = cal.dtz.defaultTimezone;
           this.refreshView();
 
-          if (this.updateTimeIndicatorPosition) {
-            this.updateTimeIndicatorPosition(true);
-          }
+          this.updateTimeIndicatorPosition();
         },
       };
 
@@ -263,6 +261,7 @@
       Services.obs.addObserver(this.mTimezoneObserver, "defaultTimezoneChanged");
 
       this.updateDaysOffPrefs();
+      this.updateTimeIndicatorPosition();
 
       // Remove observers on window unload.
       window.addEventListener(
@@ -536,6 +535,11 @@
 
       this.daysOffArray = daysOffPrefs.filter(filterDaysOff).map(pref => pref[0]);
     }
+
+    /**
+     * Adjust the position of this view's indicator of the current time, if any.
+     */
+    updateTimeIndicatorPosition() {}
 
     /**
      * Refresh the view.

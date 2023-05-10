@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals TodayPane, timeIndicator, switchToView, gLastShownCalendarView, ensureUnifinderLoaded */
+/* globals TodayPane, switchToView, gLastShownCalendarView, ensureUnifinderLoaded */
 
 /* exported calSwitchToCalendarMode, calSwitchToMode, calSwitchToTaskMode,
  *          changeMode
@@ -46,9 +46,6 @@ function changeMode(mode = "mail") {
   });
 
   TodayPane.onModeModified();
-  if (gCurrentMode != "calendar") {
-    timeIndicator.cancel();
-  }
 }
 
 /**

@@ -2153,13 +2153,6 @@
 
       // Get visible hours from prefs and set on the view.
       this.setVisibleHours(Services.prefs.getIntPref("calendar.view.visiblehours", 9));
-
-      // Set the time interval for the time indicator timer.
-      this.setTimeIndicatorInterval(
-        Services.prefs.getIntPref("calendar.view.timeIndicatorInterval", 15)
-      );
-
-      this.enableTimeIndicator();
     }
 
     // calICalendarView Properties
@@ -2252,105 +2245,25 @@
     }
 
     /**
-     * Set the preference for the time indicator interval.
-     *
-     * @param {number} prefInterval - A time indicator interval preference value.
-     */
-    setTimeIndicatorInterval(prefInterval) {
-      // If the preference just edited by the user is outside the valid
-      // range [0, 1440], we change it into the nearest limit (0 or 1440).
-      const newTimeInterval = Math.max(0, Math.min(1440, prefInterval));
-      if (newTimeInterval != prefInterval) {
-        Services.prefs.setIntPref("calendar.view.timeIndicatorInterval", newTimeInterval);
-      }
-
-      if (newTimeInterval != this.mTimeIndicatorInterval) {
-        this.mTimeIndicatorInterval = newTimeInterval;
-      }
-      if (this.mTimeIndicatorInterval == 0) {
-        timeIndicator.cancel();
-      }
-    }
-
-    /**
-     * Hides or shows the time indicator when the time indicator interval preference changes
-     * to 0 or changes from 0 to greater than 0. Also updates its position if needed.
-     */
-    enableTimeIndicator() {
-      const hideIndicator = this.mTimeIndicatorInterval == 0;
-      this.nowIndicator.hidden = hideIndicator;
-
-      const todayColumn = this.findColumnForDate(this.today());
-      if (todayColumn) {
-        todayColumn.column.timeIndicatorBox.hidden = hideIndicator;
-      }
-
-      // Update the timer but only under some circumstances, otherwise
-      // it will update the wrong view or it will start without need.
-      const currView = currentView().type;
-      if (
-        gCurrentMode == "calendar" &&
-        currView == this.type &&
-        !hideIndicator &&
-        (currView == "day" || currView == "week")
-      ) {
-        this.updateTimeIndicatorPosition(true);
-      }
-    }
-
-    /**
      * Update the position of the time indicator.
-     *
-     * @param {boolean} updateTheTimer - Whether to update the timer.
-     * @param {boolean} ppmChanged - Whether the pixels per minute has changed.
-     * @param {boolean} viewChanged - Whether the view has changed.
      */
-    updateTimeIndicatorPosition(updateTheTimer, ppmChanged, viewChanged) {
+    updateTimeIndicatorPosition() {
+      // Calculate the position of the indicator based on how far into the day
+      // it is and the size of the current view.
       const now = cal.dtz.now();
       const nowMinutes = now.hour * 60 + now.minute;
 
-      if (updateTheTimer) {
-        const originalPrefInt = this.mTimeIndicatorInterval;
-        if (originalPrefInt == 0) {
-          timeIndicator.cancel();
-          return;
-        }
-
-        // If pixels per minute is small, increase (then update) the interval pref.
-        const prefInt =
-          ppmChanged && this.pixelsPerMinute < 0.6
-            ? Math.round(originalPrefInt / this.pixelsPerMinute)
-            : originalPrefInt;
-
-        if (!ppmChanged || viewChanged || prefInt != originalPrefInt) {
-          // Synchronize the timer with a multiple of the interval.
-          const firstInterval = (prefInt - (nowMinutes % prefInt)) * 60 - now.second;
-          if (timeIndicator.timer) {
-            timeIndicator.cancel();
-          }
-          timeIndicator.lastView = this.id;
-          timeIndicator.timer = setTimeout(() => {
-            this.updateTimeIndicatorPosition(false);
-            timeIndicator.start(prefInt * 60, this);
-          }, firstInterval * 1000);
-
-          // Set the time for the first positioning of the indicator.
-          const time = Math.floor(nowMinutes / prefInt) * prefInt;
-          document.getElementById("day-view").mTimeIndicatorMinutes = time;
-          document.getElementById("week-view").mTimeIndicatorMinutes = time;
-        }
-      } else if (updateTheTimer === false) {
-        // Set the time for every positioning after the first
-        document.getElementById("day-view").mTimeIndicatorMinutes = nowMinutes;
-        document.getElementById("week-view").mTimeIndicatorMinutes = nowMinutes;
-      }
-      // Update the position of the indicator.
-      let position = `${this.pixelsPerMinute * this.mTimeIndicatorMinutes - 1}px`;
+      let position = `${this.pixelsPerMinute * nowMinutes - 1}px`;
       let isVertical = this.getAttribute("orient") == "vertical";
 
+      // Control the position of the dot in the time bar, which is present even
+      // when the view does not show the current day. Inline start controls
+      // horizontal position of the dot, block controls vertical.
       this.nowIndicator.style.insetInlineStart = isVertical ? null : position;
       this.nowIndicator.style.insetBlockStart = isVertical ? position : null;
 
+      // Control the position of the bar, which should be visible only for the
+      // current day.
       const todayIndicator = this.findColumnForDate(this.today())?.column.timeIndicatorBox;
       if (todayIndicator) {
         todayIndicator.style.marginInlineStart = isVertical ? null : position;
@@ -2379,11 +2292,6 @@
         case "calendar.view.visiblehours":
           this.setVisibleHours(subject.getIntPref(preference));
           this.readjustView(true, true, this.scrollMinute);
-          break;
-
-        case "calendar.view.timeIndicatorInterval":
-          this.setTimeIndicatorInterval(subject.getIntPref(preference));
-          this.enableTimeIndicator();
           break;
 
         default:
@@ -2672,16 +2580,7 @@
         }
       }
 
-      // Adjust the time indicator position and the related timer.
-      if (this.mTimeIndicatorInterval != 0) {
-        const viewHasChanged = timeIndicator.lastView != this.id;
-        if (
-          gCurrentMode == "calendar" &&
-          (!timeIndicator.timer || ppmHasChanged || viewHasChanged)
-        ) {
-          this.updateTimeIndicatorPosition(true, ppmHasChanged, viewHasChanged);
-        }
-      }
+      this.updateTimeIndicatorPosition();
 
       // The changes have now been handled.
       this.headingDatesChanged = false;
@@ -3096,7 +2995,6 @@
 
         // Get today's date.
         let today = this.today();
-        let updateTimeIndicator = false;
 
         let dateFormatter = cal.dtz.formatter;
 
@@ -3170,20 +3068,13 @@
           );
 
           let isToday = dayDate.compare(today) == 0;
-          dayCol.column.timeIndicatorBox.hidden = !isToday || this.mTimeIndicatorInterval == 0;
-          if (isToday) {
-            updateTimeIndicator = true;
-          }
+          dayCol.column.timeIndicatorBox.hidden = !isToday;
           dayCol.container.classList.toggle("day-column-today", isToday);
         }
         // Remove excess columns.
         for (let dayCol of this.dayColumns.splice(colIndex)) {
           dayCol.column.endLayoutBatchChange();
           dayCol.container.remove();
-        }
-
-        if (updateTimeIndicator) {
-          this.updateTimeIndicatorPosition();
         }
       }
 

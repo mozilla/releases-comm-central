@@ -55,6 +55,7 @@ async function loadCalendarComponent() {
   await loadCalendarManager();
 
   CalMetronome.on("day", doMidnightUpdate);
+  CalMetronome.on("minute", updateTimeIndicatorPosition);
 
   // Set up the command controller from calendar-command-controller.js
   injectCalendarCommandController();
@@ -153,6 +154,7 @@ function unloadCalendarComponent() {
 
   taskEdit.onUnload();
 
+  CalMetronome.off("minute", updateTimeIndicatorPosition);
   CalMetronome.off("day", doMidnightUpdate);
 }
 
@@ -315,6 +317,14 @@ function doMidnightUpdate() {
   } catch (exc) {
     cal.ASSERT(false, exc);
   }
+}
+
+/**
+ * Update the position of the current view's indicator of the current time, if
+ * any.
+ */
+function updateTimeIndicatorPosition() {
+  currentView()?.updateTimeIndicatorPosition();
 }
 
 /**
