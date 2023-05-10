@@ -5079,27 +5079,27 @@ function SwitchView(command) {
 commandController.registerCallback(
   "cmd_viewAllMsgs",
   () => SwitchView("cmd_viewAllMsgs"),
-  () => !!gViewWrapper?.dbView
+  () => !!gDBView
 );
 commandController.registerCallback(
   "cmd_viewThreadsWithUnread",
   () => SwitchView("cmd_viewThreadsWithUnread"),
-  () => !!gViewWrapper?.dbView
+  () => !!gDBView && !(gFolder.flags & Ci.nsMsgFolderFlags.Virtual)
 );
 commandController.registerCallback(
   "cmd_viewWatchedThreadsWithUnread",
   () => SwitchView("cmd_viewWatchedThreadsWithUnread"),
-  () => !!gViewWrapper?.dbView
+  () => !!gDBView && !(gFolder.flags & Ci.nsMsgFolderFlags.Virtual)
 );
 commandController.registerCallback(
   "cmd_viewUnreadMsgs",
   () => SwitchView("cmd_viewUnreadMsgs"),
-  () => !!gViewWrapper?.dbView
+  () => !!gDBView && !(gFolder.flags & Ci.nsMsgFolderFlags.Virtual)
 );
 commandController.registerCallback(
   "cmd_viewIgnoredThreads",
   () => SwitchView("cmd_viewIgnoredThreads"),
-  () => !!gViewWrapper?.dbView
+  () => !!gDBView
 );
 
 commandController.registerCallback("cmd_goStartPage", () => {
