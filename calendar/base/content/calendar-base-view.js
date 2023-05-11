@@ -65,6 +65,13 @@
    * @abstract
    */
   class CalendarBaseView extends CalendarFilteredViewMixin(MozXULElement) {
+    /**
+     * Whether the view has been initialized.
+     *
+     * @type {boolean}
+     */
+    #isInitialized = false;
+
     connectedCallback() {
       if (this.delayConnectedCallback() || this.hasConnected) {
         return;
@@ -83,6 +90,11 @@
     }
 
     ensureInitialized() {
+      if (this.#isInitialized) {
+        return;
+      }
+      this.#isInitialized = true;
+
       this.calICalendarView = this.getCustomInterfaceCallback(Ci.calICalendarView);
 
       this.addEventListener("move", event => {
@@ -284,6 +296,16 @@
     onResize() {
       // Child classes should provide the implementation.
       throw new Error(this.constructor.name + ".onResize not implemented");
+    }
+
+    /**
+     * Whether the view has been initialized.
+     *
+     * @returns {boolean} - True if the view has been initialized, otherwise
+     * false.
+     */
+    get isInitialized() {
+      return this.#isInitialized;
     }
 
     get type() {

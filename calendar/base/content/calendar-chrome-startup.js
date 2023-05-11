@@ -324,7 +324,15 @@ function doMidnightUpdate() {
  * any.
  */
 function updateTimeIndicatorPosition() {
-  currentView()?.updateTimeIndicatorPosition();
+  const view = currentView();
+  if (!view?.isInitialized) {
+    // Ensure that we don't attempt to update a view that isn't ready. Calendar
+    // chrome is always loaded at startup, but the view isn't initialized until
+    // the user switches to the calendar tab.
+    return;
+  }
+
+  view.updateTimeIndicatorPosition();
 }
 
 /**

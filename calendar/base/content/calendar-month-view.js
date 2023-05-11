@@ -441,10 +441,9 @@
    */
   class CalendarMonthBaseView extends MozElements.CalendarBaseView {
     ensureInitialized() {
-      if (this.initialized) {
+      if (this.isInitialized) {
         return;
       }
-      this.initialized = true;
       super.ensureInitialized();
 
       this.appendChild(

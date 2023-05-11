@@ -2031,10 +2031,9 @@
     }
 
     ensureInitialized() {
-      if (this.initialized) {
+      if (this.isInitialized) {
         return;
       }
-      this.initialized = true;
 
       this.grid = document.createElement("div");
       this.grid.classList.add("multiday-grid");
