@@ -7,6 +7,7 @@
 /* global MozElements */
 /* import-globals-from ../../../../components/compose/content/MsgComposeCommands.js */
 /* import-globals-from commonWorkflows.js */
+/* globals goDoCommand */ // From globalOverlay.js
 
 "use strict";
 

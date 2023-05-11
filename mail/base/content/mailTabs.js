@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from mail3PaneWindowCommands.js */
-/* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
 /* import-globals-from messenger.js */
+
+/* globals contentProgress, statusFeedback */ // From mailWindow.js
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   FolderUtils: "resource:///modules/FolderUtils.jsm",

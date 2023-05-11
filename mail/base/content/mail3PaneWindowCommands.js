@@ -11,8 +11,10 @@
 
 /* import-globals-from ../../components/im/content/chat-messenger.js */
 /* import-globals-from mailCore.js */
-/* import-globals-from mailWindow.js */
+/* import-globals-from mailWindow.js */ // msgWindow and a loooot more
 /* import-globals-from utilityOverlay.js */
+
+/* globals MailOfflineMgr */ // From mail-offline.js
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -64,7 +66,7 @@ var DefaultController = {
     }
     switch (command) {
       case "cmd_newMessage":
-        return CanComposeMessages();
+        return MailServices.accounts.allIdentities.length > 0;
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
         return true;

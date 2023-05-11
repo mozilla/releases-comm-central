@@ -4,8 +4,10 @@
 
 /* global MozElements, openOptionsDialog */
 
-/* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
+
+/* globals ZoomManager */ // From viewZoomOverlay.js
+/* globals PrintUtils */ // From printUtils.js
 
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
@@ -15,6 +17,9 @@ var { AddonManager } = ChromeUtils.import(
 );
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
+);
+var { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
 );
 
 function tabProgressListener(aTab, aStartsBlank) {
@@ -262,7 +267,8 @@ var DOMLinkHandler = {
       }
 
       let targetDoc = link.ownerDocument;
-      let uri = makeURI(link.href, targetDoc.characterSet);
+
+      let uri = Services.io.newURI(link.href, targetDoc.characterSet);
 
       // Verify that the load of this icon is legal.
       // Some error or special pages can load their favicon.
@@ -1372,7 +1378,7 @@ var specialTabs = {
     if (aIcon && this.mFaviconService) {
       this.mFaviconService.setAndFetchFaviconForPage(
         aTab.browser.currentURI,
-        makeURI(aIcon),
+        Services.io.newURI(aIcon),
         false,
         this.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
         null,

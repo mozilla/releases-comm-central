@@ -3,8 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
+
+/* globals msgWindow, messenger */ // From mailWindow.js
+/* globals openComposeWindowForRSSArticle */ // From newsblogOverlay.js
 
 /* globals currentHeaderData */ // TODO: this isn't real.
 
@@ -20,6 +22,11 @@ ChromeUtils.defineModuleGetter(
   this,
   "MailUtils",
   "resource:///modules/MailUtils.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "MsgHdrToMimeMessage",
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 ChromeUtils.defineModuleGetter(
   this,
@@ -585,6 +592,37 @@ function viewEncryptedPart(message) {
   // display the message source, not the processed HTML.
   url = url.replace(/type=application\/x-message-display&/, "");
 
+  /**
+   * Save the given string to a file, then open it as an .eml file.
+   *
+   * @param {string} data - The message data.
+   */
+  let msgOpenMessageFromString = function(data) {
+    let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    tempFile.append("subPart.eml");
+    tempFile.createUnique(0, 0o600);
+
+    let outputStream = Cc[
+      "@mozilla.org/network/file-output-stream;1"
+    ].createInstance(Ci.nsIFileOutputStream);
+    outputStream.init(tempFile, 2, 0x200, false); // open as "write only"
+    outputStream.write(data, data.length);
+    outputStream.close();
+
+    // Delete file on exit, because Windows locks the file
+    let extAppLauncher = Cc[
+      "@mozilla.org/uriloader/external-helper-app-service;1"
+    ].getService(Ci.nsPIExternalAppLauncher);
+    extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+
+    let url = Services.io
+      .getProtocolHandler("file")
+      .QueryInterface(Ci.nsIFileProtocolHandler)
+      .newFileURI(tempFile);
+
+    MailUtils.openEMLFile(window, tempFile, url);
+  };
+
   function recursiveEmitEncryptedParts(mimeTree) {
     for (let part of mimeTree.subParts) {
       const ct = part.headers.contentType.type;
@@ -595,7 +633,7 @@ function viewEncryptedPart(message) {
           full += `${boundary}\n${subPart.headers.rawHeaderText}\n\n${subPart.body}\n`;
         }
         full += `${boundary}--\n`;
-        MsgOpenMessageFromString(full);
+        msgOpenMessageFromString(full);
         continue;
       }
       recursiveEmitEncryptedParts(part);

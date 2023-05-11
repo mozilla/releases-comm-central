@@ -5,8 +5,6 @@
 
 /* global MozXULElement */
 
-/* import-globals-from ../mailWindow.js */
-
 "use strict";
 
 // The autocomplete CE is defined lazily. Create one now to get
@@ -19,23 +17,30 @@ customElements.whenDefined("autocomplete-input").then(() => {
   const { AppConstants } = ChromeUtils.importESModule(
     "resource://gre/modules/AppConstants.sys.mjs"
   );
-  const { GlodaConstants } = ChromeUtils.import(
-    "resource:///modules/gloda/GlodaConstants.jsm"
-  );
   const { XPCOMUtils } = ChromeUtils.importESModule(
     "resource://gre/modules/XPCOMUtils.sys.mjs"
   );
 
   const lazy = {};
-
   ChromeUtils.defineESModuleGetters(lazy, {
     GlodaIMSearcher: "resource:///modules/GlodaIMSearcher.sys.mjs",
   });
   ChromeUtils.defineModuleGetter(
     lazy,
+    "Gloda",
+    "resource:///modules/gloda/GlodaPublic.jsm"
+  );
+  ChromeUtils.defineModuleGetter(
+    lazy,
     "GlodaMsgSearcher",
     "resource:///modules/gloda/GlodaMsgSearcher.jsm"
   );
+  ChromeUtils.defineModuleGetter(
+    lazy,
+    "GlodaConstants",
+    "resource:///modules/gloda/GlodaConstants.jsm"
+  );
+
   XPCOMUtils.defineLazyGetter(
     lazy,
     "glodaCompleter",
@@ -144,7 +149,9 @@ customElements.whenDefined("autocomplete-input").then(() => {
               // the event loop by using setTimeout.
               setTimeout(this.doSearch.bind(this), 0);
             } else if (row.nounDef) {
-              let theQuery = Gloda.newQuery(GlodaConstants.NOUN_MESSAGE);
+              let theQuery = lazy.Gloda.newQuery(
+                lazy.GlodaConstants.NOUN_MESSAGE
+              );
               if (row.nounDef.name == "tag") {
                 theQuery = theQuery.tags(row.item);
               } else if (row.nounDef.name == "identity") {

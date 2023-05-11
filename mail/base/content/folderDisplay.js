@@ -4,6 +4,8 @@
 
 /* import-globals-from SearchDialog.js */
 
+/* globals ViewPickerBinding */ // From msgViewPickerOverlay.js
+
 /* TODO: Now used exclusively in SearchDialog.xhtml. Needs dead code removal. */
 
 var { XPCOMUtils } = ChromeUtils.importESModule(

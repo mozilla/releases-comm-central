@@ -11,10 +11,11 @@
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailCommands.js */
 /* import-globals-from mailCore.js */
-/* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
 /* import-globals-from messenger-customization.js */
 /* import-globals-from toolbarIconColor.js */
+
+/* globals messenger, CreateMailWindowGlobals, InitMsgWindow, OnMailWindowUnload */ // From mailWindow.js
 
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
@@ -488,7 +489,7 @@ var MessageWindowController = {
     switch (command) {
       case "cmd_newMessage":
       case "button_followup":
-        return CanComposeMessages();
+        return MailServices.accounts.allIdentities.length > 0;
       case "cmd_reload":
       case "cmd_find":
       case "cmd_viewAllHeader":

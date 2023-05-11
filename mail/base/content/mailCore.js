@@ -14,8 +14,10 @@
 
 /* import-globals-from ../../extensions/mailviews/content/msgViewPickerOverlay.js */
 /* import-globals-from customizeToolbar.js */
-/* import-globals-from mailWindow.js */
 /* import-globals-from utilityOverlay.js */
+
+/* globals gChatTab */ // From globals chat-messenger.js
+/* globals currentAttachments */ // From msgHdrView.js
 
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
@@ -48,6 +50,18 @@ XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {
     );
   };
   return scope.gViewSourceUtils;
+});
+
+Object.defineProperty(this, "BrowserConsoleManager", {
+  get() {
+    let { loader } = ChromeUtils.importESModule(
+      "resource://devtools/shared/loader/Loader.sys.mjs"
+    );
+    return loader.require("devtools/client/webconsole/browser-console-manager")
+      .BrowserConsoleManager;
+  },
+  configurable: true,
+  enumerable: true,
 });
 
 var gCustomizeSheet = false;
@@ -1018,8 +1032,11 @@ nsFlavorDataProvider.prototype = {
 
       // call our code for saving attachments
       if (attachment) {
-        var name = attachment.name || attachment.displayName;
-        var destFilePath = messenger.saveAttachmentToFolder(
+        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+          Ci.nsIMessenger
+        );
+        let name = attachment.name || attachment.displayName;
+        let destFilePath = messenger.saveAttachmentToFolder(
           attachment.contentType,
           attachment.url,
           name.replace(/(.{74}).*(.{10})$/u, "$1...$2"),

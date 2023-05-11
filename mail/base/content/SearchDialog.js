@@ -6,8 +6,9 @@
 /* import-globals-from ../../../mailnews/search/content/searchTerm.js */
 /* import-globals-from folderDisplay.js */
 /* import-globals-from globalOverlay.js */
-/* import-globals-from mailWindow.js */
 /* import-globals-from threadPane.js */
+
+/* globals nsMsgStatusFeedback */ // From mailWindow.js
 
 "use strict";
 

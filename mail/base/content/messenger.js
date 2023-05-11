@@ -12,13 +12,14 @@
 /* import-globals-from mailCore.js */
 /* import-globals-from mail-offline.js */
 /* import-globals-from mailTabs.js */
-/* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */
 /* import-globals-from messenger-customization.js */
 /* import-globals-from searchBar.js */
 /* import-globals-from spacesToolbar.js */
 /* import-globals-from specialTabs.js */
 /* import-globals-from toolbarIconColor.js */
+
+/* globals CreateMailWindowGlobals, InitMsgWindow, OnMailWindowUnload */ // From mailWindow.js
 
 /* globals loadCalendarComponent */
 
@@ -1080,6 +1081,9 @@ messageFlavorDataProvider.prototype = {
       Ci.nsISupportsString
     );
 
+    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+      Ci.nsIMessenger
+    );
     messenger.saveAs(
       messageUri.data,
       true,

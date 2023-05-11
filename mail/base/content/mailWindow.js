@@ -697,21 +697,6 @@ window.addEventListener("DoZoomReduceBy10", event =>
   ZoomManager.scrollReduceEnlarge(event.target)
 );
 
-function InformUserOfCertError(secInfo, targetSite) {
-  let params = {
-    exceptionAdded: false,
-    securityInfo: secInfo,
-    prefetchCert: true,
-    location: targetSite,
-  };
-  window.openDialog(
-    "chrome://pippki/content/exceptionDialog.xhtml",
-    "",
-    "chrome,centerscreen,modal",
-    params
-  );
-}
-
 function nsBrowserAccess() {}
 
 nsBrowserAccess.prototype = {

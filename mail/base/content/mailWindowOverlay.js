@@ -3,16 +3,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global gSpacesToolbar MailOfflineMgr */
+/* global gSpacesToolbar */
 
 /* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
 /* import-globals-from contentAreaClick.js */
-/* import-globals-from mail-offline.js */
 /* import-globals-from mail3PaneWindowCommands.js */
 /* import-globals-from mailCommands.js */
 /* import-globals-from mailCore.js */
-/* import-globals-from mailWindow.js */
+
 /* import-globals-from utilityOverlay.js */
+
+/* globals messenger */ // From messageWindow.js
+/* globals GetSelectedMsgFolders */ // From messenger.js
+/* globals MailOfflineMgr */ // From mail-offline.js
 
 /* globals OnTagsChange, currentHeaderData */ // TODO: these aren't real.
 
@@ -28,6 +31,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
+  UIDensity: "resource:///modules/UIDensity.jsm",
+  UIFontSize: "resource:///modules/UIFontSize.jsm",
 });
 
 Object.defineProperty(this, "BrowserConsoleManager", {
@@ -947,81 +952,6 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
   });
 }
 
-/**
- * Refresh the contents of the recently closed tags popup menu/panel.
- * Used for example for appmenu/Go/Recently_Closed_Tabs panel.
- *
- * @param {Element} parent - Parent element that will contain the menu items.
- * @param {string} [elementName] - Type of menu item, e.g. "menuitem", "toolbarbutton".
- * @param {string} [classes] - Classes to set on the menu items.
- * @param {string} [separatorName] - Type of separator, e.g. "menuseparator", "toolbarseparator".
- */
-function InitRecentlyClosedTabsPopup(
-  parent,
-  elementName = "menuitem",
-  classes,
-  separatorName = "menuseparator"
-) {
-  const tabs = document.getElementById("tabmail").recentlyClosedTabs;
-
-  // Show Popup only when there are restorable tabs.
-  if (!tabs.length) {
-    return false;
-  }
-
-  // Clear the list.
-  while (parent.hasChildNodes()) {
-    parent.lastChild.remove();
-  }
-
-  // Insert menu items to rebuild the recently closed tab list.
-  tabs.forEach((tab, index) => {
-    const item = document.createXULElement(elementName);
-    item.setAttribute("label", tab.title);
-    item.setAttribute(
-      "oncommand",
-      `document.getElementById("tabmail").undoCloseTab(${index});`
-    );
-    if (classes) {
-      item.setAttribute("class", classes);
-    }
-
-    if (index == 0) {
-      item.setAttribute("key", "key_undoCloseTab");
-    }
-    parent.appendChild(item);
-  });
-
-  // Only show "Restore All Tabs" if there is more than one tab to restore.
-  if (tabs.length > 1) {
-    parent.appendChild(document.createXULElement(separatorName));
-
-    const item = document.createXULElement(elementName);
-    item.setAttribute(
-      "label",
-      document.getElementById("bundle_messenger").getString("restoreAllTabs")
-    );
-
-    item.addEventListener("command", goRestoreAllTabs);
-
-    if (classes) {
-      item.setAttribute("class", classes);
-    }
-    parent.appendChild(item);
-  }
-
-  return true;
-}
-
-function goRestoreAllTabs() {
-  let tabmail = document.getElementById("tabmail");
-
-  let len = tabmail.recentlyClosedTabs.length;
-
-  while (len--) {
-    document.getElementById("tabmail").undoCloseTab();
-  }
-}
 /*
 TODO: Fix and enable this code.
 function getMsgToolbarMenu_init() {
@@ -1184,10 +1114,6 @@ function MsgNewMessage(event) {
   }
 }
 
-function CanComposeMessages() {
-  return MailServices.accounts.allIdentities.length > 0;
-}
-
 /** Open subscribe window. */
 function MsgSubscribe(folder) {
   var preselectedFolder = folder || GetFirstSelectedMsgFolder();
@@ -1300,37 +1226,6 @@ function MsgOpenFromFile() {
     }
     MailUtils.openEMLFile(window, fp.file, fp.fileURL);
   });
-}
-
-/**
- * Save the given string to a file, then open it as an .eml file.
- *
- * @param {string} data - The message
- */
-function MsgOpenMessageFromString(data) {
-  let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-  tempFile.append("subPart.eml");
-  tempFile.createUnique(0, 0o600);
-
-  let outputStream = Cc[
-    "@mozilla.org/network/file-output-stream;1"
-  ].createInstance(Ci.nsIFileOutputStream);
-  outputStream.init(tempFile, 2, 0x200, false); // open as "write only"
-  outputStream.write(data, data.length);
-  outputStream.close();
-
-  // Delete file on exit, because Windows locks the file
-  let extAppLauncher = Cc[
-    "@mozilla.org/uriloader/external-helper-app-service;1"
-  ].getService(Ci.nsPIExternalAppLauncher);
-  extAppLauncher.deleteTemporaryFileOnExit(tempFile);
-
-  let url = Services.io
-    .getProtocolHandler("file")
-    .QueryInterface(Ci.nsIFileProtocolHandler)
-    .newFileURI(tempFile);
-
-  MailUtils.openEMLFile(window, tempFile, url);
 }
 
 function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
@@ -1661,6 +1556,21 @@ function GetNewMsgs(server, folder) {
   folder.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NoMail;
   folder.clearNewMessages();
   server.getNewMessages(folder, msgWindow, new TransportErrorUrlListener());
+}
+
+function InformUserOfCertError(secInfo, targetSite) {
+  let params = {
+    exceptionAdded: false,
+    securityInfo: secInfo,
+    prefetchCert: true,
+    location: targetSite,
+  };
+  window.openDialog(
+    "chrome://pippki/content/exceptionDialog.xhtml",
+    "",
+    "chrome,centerscreen,modal",
+    params
+  );
 }
 
 /**

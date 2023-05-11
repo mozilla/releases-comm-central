@@ -2,8 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* TODO: Now used exclusively in SearchDialog.xhtml. Needs dead code removal. */
+
 /* import-globals-from folderDisplay.js */
 /* import-globals-from SearchDialog.js */
+
+/* globals validateFileName */ // From utilityOverlay.js
+/* globals messageFlavorDataProvider */ // From messenger.js
 
 ChromeUtils.defineESModuleGetters(this, {
   TreeSelection: "chrome://messenger/content/tree-selection.mjs",

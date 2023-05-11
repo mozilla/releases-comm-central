@@ -13,9 +13,11 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { FeedUtils } = ChromeUtils.import("resource:///modules/FeedUtils.jsm");
+var { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
+);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
   MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.jsm",
 });
 

@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
+"use strict"; // from mailWindow.js
 
 /* global MozElements, MozXULElement */
 
 /* import-globals-from mailCore.js */
-/* import-globals-from mailWindow.js */
+/* globals contentProgress, statusFeedback */
 
 var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
@@ -1888,6 +1888,78 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
   }
 
   customElements.define("tabmail", MozTabmail);
+}
+
+/**
+ * Refresh the contents of the recently closed tags popup menu/panel.
+ * Used for example for appmenu/Go/Recently_Closed_Tabs panel.
+ *
+ * @param {Element} parent - Parent element that will contain the menu items.
+ * @param {string} [elementName] - Type of menu item, e.g. "menuitem", "toolbarbutton".
+ * @param {string} [classes] - Classes to set on the menu items.
+ * @param {string} [separatorName] - Type of separator, e.g. "menuseparator", "toolbarseparator".
+ */
+function InitRecentlyClosedTabsPopup(
+  parent,
+  elementName = "menuitem",
+  classes,
+  separatorName = "menuseparator"
+) {
+  const tabs = document.getElementById("tabmail").recentlyClosedTabs;
+
+  // Show Popup only when there are restorable tabs.
+  if (!tabs.length) {
+    return false;
+  }
+
+  // Clear the list.
+  while (parent.hasChildNodes()) {
+    parent.lastChild.remove();
+  }
+
+  // Insert menu items to rebuild the recently closed tab list.
+  tabs.forEach((tab, index) => {
+    const item = document.createXULElement(elementName);
+    item.setAttribute("label", tab.title);
+    item.setAttribute(
+      "oncommand",
+      `document.getElementById("tabmail").undoCloseTab(${index});`
+    );
+    if (classes) {
+      item.setAttribute("class", classes);
+    }
+
+    if (index == 0) {
+      item.setAttribute("key", "key_undoCloseTab");
+    }
+    parent.appendChild(item);
+  });
+
+  // Only show "Restore All Tabs" if there is more than one tab to restore.
+  if (tabs.length > 1) {
+    parent.appendChild(document.createXULElement(separatorName));
+
+    const item = document.createXULElement(elementName);
+    item.setAttribute(
+      "label",
+      document.getElementById("bundle_messenger").getString("restoreAllTabs")
+    );
+
+    item.addEventListener("command", () => {
+      let tabmail = document.getElementById("tabmail");
+      let len = tabmail.recentlyClosedTabs.length;
+      while (len--) {
+        document.getElementById("tabmail").undoCloseTab();
+      }
+    });
+
+    if (classes) {
+      item.setAttribute("class", classes);
+    }
+    parent.appendChild(item);
+  }
+
+  return true;
 }
 
 // Set up the tabContextMenu, which is used as the context menu for all tabmail

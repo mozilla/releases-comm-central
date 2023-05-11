@@ -5,6 +5,7 @@
 
 /* import-globals-from MsgComposeCommands.js */
 /* import-globals-from ../../addrbook/content/abCommon.js */
+/* globals goDoCommand */ // From globalOverlay.js
 
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var { DisplayNameUtils } = ChromeUtils.import(

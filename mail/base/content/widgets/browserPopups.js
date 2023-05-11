@@ -3,7 +3,9 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../utilityOverlay.js */
-/* import-globals-from ../mailWindow.js */
+
+/* globals saveURL */ // From contentAreaUtils.js
+/* globals goUpdateCommand */ // From globalOverlay.js
 
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
