@@ -36,6 +36,9 @@ suite/**
 
 try_task_config.json
 
+#Intentionally incorrect
+mailnews/test/data/alias-9.json
+
 ##############################################################################
 # The list below is copied from ThirdPartyPaths.txt. Prettier doesn't currently
 # support multiple ignore files or dynamic ignore configurations.
