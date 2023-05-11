@@ -15,7 +15,6 @@
 @media not all and (min-resolution: 1.1dppx) {
   /* for browserAction, composeAction and messageAction */
   :root .spaces-addon-menuitem,
-  :root .spaces-popup-menuitem,
   .webextension-action {
     list-style-image: var(--webextension-toolbar-image, inherit);
   }
@@ -26,7 +25,6 @@
   }
 
   :root .spaces-addon-menuitem:-moz-lwtheme,
-  :root .spaces-popup-menuitem:-moz-lwtheme,
   .webextension-action:-moz-lwtheme {
     list-style-image: var(--webextension-toolbar-image-dark, inherit);
   }
@@ -37,7 +35,6 @@
 
   @media (prefers-color-scheme: dark) {
     :root .spaces-addon-menuitem,
-    :root .spaces-popup-menuitem,
     .webextension-action {
       list-style-image: var(--webextension-toolbar-image-light, inherit) !important;
     }
@@ -65,7 +62,6 @@
 /* for displays, like Retina > 1.1dppx */
 @media (min-resolution: 1.1dppx) {
   :root .spaces-addon-menuitem,
-  :root .spaces-popup-menuitem,
   .webextension-action {
     list-style-image: var(--webextension-toolbar-image-2x, inherit);
   }
@@ -75,7 +71,6 @@
   }
 
   :root .spaces-addon-menuitem:-moz-lwtheme,
-  :root .spaces-popup-menuitem:-moz-lwtheme,
   .webextension-action:-moz-lwtheme {
     list-style-image: var(--webextension-toolbar-image-2x-dark, inherit);
   }
@@ -86,7 +81,6 @@
 
   @media (prefers-color-scheme: dark) {
     :root .spaces-addon-menuitem,
-    :root .spaces-popup-menuitem,
     .webextension-action {
       list-style-image: var(--webextension-toolbar-image-2x-light, inherit) !important;
     }
