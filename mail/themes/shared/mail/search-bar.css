@@ -33,13 +33,14 @@ input:-moz-lwtheme {
 }
 
 input:focus-visible {
-  border-color: var(--toolbar-field-focus-border-color);
-  outline: 1px solid var(--toolbar-field-focus-border-color);
+  outline: var(--focus-outline);
+  outline-offset: -1px;
 }
 
 @media (-moz-windows-accent-color-in-titlebar) {
   input:not(:-moz-lwtheme):focus-visible {
-    outline-color: accentColorText;
+    outline-offset: var(--focus-outline-offset);
+    outline-color: var(--windows-accent-outline-color);
   }
 }
 
@@ -63,6 +64,10 @@ input:-moz-lwtheme:focus-visible {
   margin: 0;
 }
 
+.button.button-flat.icon-button:focus-visible {
+  outline-offset: -1px;
+}
+
 div {
   display: none;
   position: absolute;
@@ -76,6 +81,7 @@ div {
   text-overflow: clip;
   overflow: hidden;
   white-space: nowrap;
+  inset-block: 0;
 }
 
 input:placeholder-shown + div {

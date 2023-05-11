@@ -3,25 +3,55 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 button {
-  padding: 9px;
+  padding-inline: 9px;
+  padding-block: 10px 6px;
   box-sizing: border-box;
   border-radius: 4px 4px 0 0;
   cursor: default;
   user-select: none;
   appearance: none;
-  border: none;
   background: none;
+  border: 2px solid transparent;
+  border-bottom: none;
   display: flex;
   align-content: center;
   gap: 6px;
   width: 100%;
   font-size: inherit;
+  position: relative;
 }
 
 button[aria-selected="true"] {
-  padding-top: 7px;
-  border-top: 2px solid var(--primary);
   background: var(--layout-background-1);
+  box-shadow: 0 2px 8px -5px var(--color-black);
+}
+
+button::before {
+  content: '';
+  height: 2px;
+  margin-top: 3px;
+  margin-inline: 3px;
+  border-radius: 3px;
+  position: absolute;
+  inset-inline: 2px;
+  top: 0;
+}
+
+button[aria-selected="true"]::before {
+  background-color: var(--primary);
+}
+
+button:not([aria-selected="true"]):hover {
+  background: color-mix(in srgb, var(--layout-background-1) 20%, transparent);
+}
+
+button:not([aria-selected="true"]):hover::before {
+  background-color: color-mix(in srgb, var(--layout-background-1) 30%, transparent);
+}
+
+button:focus-visible {
+  outline: 2px solid transparent;
+  border-color: var(--primary);
 }
 
 span {

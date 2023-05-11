@@ -116,6 +116,10 @@ unified-toolbar-customization {
 
 #customizationHeading {
   align-self: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--layout-color-2);
+  margin-block: .5em;
 }
 
 #unifiedToolbarCustomizationContainer {
@@ -135,7 +139,7 @@ unified-toolbar-customization {
   justify-content: space-between;
   align-items: center;
   user-select: none;
-  background: var(--layout-background-2);
+  background: var(--layout-background-1);
   /* We need at least 1rem of padding to ensure the
    * #unifiedToolbarCustomizationUnsavedChanges can be displayed in it */
   padding-block: max(calc(var(--customization-footer-padding) * 2), 1rem);

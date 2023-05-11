@@ -45,6 +45,11 @@
   height: 2em;
   max-width: 100vw;
   border: 1px solid var(--layout-border-0);
+  gap: 6px;
+}
+
+.toolbar-target .button.unified-toolbar-button {
+  margin-block: 0;
 }
 
 .toolbar-target .spacer {
