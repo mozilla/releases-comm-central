@@ -2944,12 +2944,6 @@ Enigmail.composeStateListener = {
     */
 
     if (isEditable && !isEmpty) {
-      let msgHdr = Enigmail.msg.getMsgHdr();
-      if (msgHdr) {
-        Enigmail.msg.setOriginalSubject(msgHdr.subject, msgHdr.flags, true);
-      }
-      Enigmail.msg.fixMessageSubject();
-
       if (!Enigmail.msg.timeoutId && !Enigmail.msg.dirty) {
         Enigmail.msg.timeoutId = setTimeout(function() {
           Enigmail.msg.decryptQuote(false);
