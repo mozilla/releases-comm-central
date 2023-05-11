@@ -107,6 +107,7 @@ async function init() {
     if (gSubDialog) {
       gSubDialog._topDialog._removeDialogEventListeners();
       gSubDialog._topDialog._closeButton.remove();
+      resizeDialog();
     }
   }, 150);
 
