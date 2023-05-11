@@ -4,6 +4,11 @@
 
 "use strict";
 
+// Double timeout for code coverage runs.
+if (AppConstants.MOZ_CODE_COVERAGE) {
+  requestLongerTimeout(2);
+}
+
 /*
  * Test rearanging tabs via drag'n'drop.
  */
