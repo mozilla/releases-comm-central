@@ -10,8 +10,10 @@ from mozlint.pathutils import expand_exclusions
 from mozlint.types import supported_types
 from mozpack import path as mozpath
 
-COMM_EXCLUSION_FILES = [os.path.join("comm", "tools", "lint", "ThirdPartyPaths.txt"),
-                        os.path.join("comm", "tools", "lint", "Generated.txt")]
+COMM_EXCLUSION_FILES = [
+    os.path.join("comm", "tools", "lint", "ThirdPartyPaths.txt"),
+    os.path.join("comm", "tools", "lint", "Generated.txt"),
+]
 
 TASKCLUSTER_EXCLUDE_PATHS = (os.path.join("comm", "suite"),)
 
