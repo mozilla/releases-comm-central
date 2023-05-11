@@ -6,26 +6,42 @@ add_task(async function check_focus() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let win;
-
-        browser.runtime.onMessage.addListener(msg => {
-          return window.sendMessage(msg, win.id);
+        // Create a promise which waits until the script in the window is loaded
+        // and the email field has focus, so we can send our fake keystrokes.
+        let loadPromise = new Promise(resolve => {
+          let listener = async (msg, sender) => {
+            if (msg == "loaded") {
+              browser.runtime.onMessage.removeListener(listener);
+              resolve(sender.tab.windowId);
+            }
+          };
+          browser.runtime.onMessage.addListener(listener);
         });
 
-        win = await browser.windows.create({
+        let openedWin = await browser.windows.create({
           url: "focus.html",
           type: "popup",
           allowScriptsToClose: true,
         });
+        let loadedWinId = await loadPromise;
 
-        await new Promise(resolve => {
+        browser.test.assertEq(
+          openedWin.id,
+          loadedWinId,
+          "The correct window should have been loaded"
+        );
+
+        let removePromise = new Promise(resolve => {
           browser.windows.onRemoved.addListener(id => {
-            if (id == win.id) {
+            if (id == openedWin.id) {
               resolve();
             }
           });
         });
 
+        window.sendMessage("sendKeyStrokes", openedWin.id);
+
+        await removePromise;
         browser.test.notifyPass("finished");
       },
       "focus.html": `<!DOCTYPE html>
@@ -46,15 +62,13 @@ add_task(async function check_focus() {
           email.focus();
 
           await new Promise(r => window.setTimeout(r));
-          let [expectedString] = await browser.runtime.sendMessage(
-            "sendKeyStrokes"
-          );
+          await browser.runtime.sendMessage("loaded");
 
           // Fails as expected if focus is not set in
           // https://searchfox.org/comm-central/rev/be2751632bd695d17732ff590a71acb9b1ef920c/mail/components/extensions/extensionPopup.js#126-130
           await window.waitForCondition(
-            () => email.value == expectedString,
-            `Input field should have the correct value. Expected: ${expectedString},  actual: ${email.value}`
+            () => email.value == "happy typing",
+            `Input field should have the correct value. Expected: "happy typing",  actual: "${email.value}"`
           );
 
           window.close();
