@@ -52,6 +52,11 @@ var archiveSrcFolder = null;
 var tagArray;
 var gAutoRead;
 
+// Adjust timeout to take care of code coverage runs needing twice as long.
+if (AppConstants.MOZ_CODE_COVERAGE) {
+  requestLongerTimeout(2);
+}
+
 add_setup(async function() {
   gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
