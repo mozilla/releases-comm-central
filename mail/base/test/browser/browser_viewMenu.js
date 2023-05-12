@@ -19,7 +19,6 @@ const viewMenuData = {
   messagePaneVertical: {},
   menu_showFolderPane: { checked: true },
   menu_showFolderPaneCols: { disabled: true },
-  menu_toggleThreadPaneHeader: { disabled: true, checked: true },
   menu_showMessage: {},
   menu_FolderViews: {},
   menu_toggleFolderHeader: { checked: true },
@@ -171,7 +170,6 @@ add_task(async function test3PaneTab() {
     view_toolbars_popup_quickFilterBar: { checked: true },
     menu_MessagePaneLayout: {},
     menu_showFolderPane: { checked: true },
-    menu_toggleThreadPaneHeader: { checked: true },
     menu_showMessage: { checked: true },
     viewSortMenu: { disabled: false },
     viewMessagesMenu: { disabled: false },
@@ -190,12 +188,6 @@ add_task(async function test3PaneTab() {
     menu_showMessage: { checked: true },
   });
 
-  goDoCommand("cmd_toggleThreadPaneHeader");
-  await helper.testItems({
-    menu_MessagePaneLayout: {},
-    menu_toggleThreadPaneHeader: { checked: false },
-  });
-
   goDoCommand("cmd_toggleMessagePane");
   await helper.testItems({
     menu_MessagePaneLayout: {},
@@ -205,14 +197,12 @@ add_task(async function test3PaneTab() {
 
   goDoCommand("cmd_toggleQuickFilterBar");
   goDoCommand("cmd_toggleFolderPane");
-  goDoCommand("cmd_toggleThreadPaneHeader");
   goDoCommand("cmd_toggleMessagePane");
   await helper.testItems({
     menu_Toolbars: {},
     view_toolbars_popup_quickFilterBar: { checked: true },
     menu_MessagePaneLayout: {},
     menu_showFolderPane: { checked: true },
-    menu_toggleThreadPaneHeader: { checked: true },
     menu_showMessage: { checked: true },
   });
 });

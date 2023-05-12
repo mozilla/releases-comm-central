@@ -2,14 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-:root {
-  --thread-pane-header-padding: 3px 6px;
-}
-
-:root[uidensity="touch"] {
-  --thread-pane-header-padding: 6px 9px;
-}
-
 @media not (prefers-contrast) {
   :root {
     --thread-pane-flag-fill: var(--color-orange-30);
@@ -549,6 +541,7 @@ tr[data-properties~="outgoing"].selected .correspondentcol-column {
 
 #threadTree[rows="thread-card"] {
   background-color: var(--layout-background-1);
+  border-top: 1px solid var(--splitter-color);
 }
 
 tr[is="thread-card"] td {
@@ -649,48 +642,4 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
 
 #threadTree [data-properties~="new"]:not(.selected) .thread-card-container :is(.subject, .date) {
   color: var(--new-folder-color);
-}
-
-/* Header bar */
-
-.list-header-bar:not([hidden]) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  padding: var(--thread-pane-header-padding);
-  background-color: var(--layout-background-1);
-  border-bottom: 1px solid var(--layout-border-0);
-}
-
-.list-header-bar-container-start,
-.list-header-bar-container-end {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.list-header-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--layout-color-2);
-  margin-block: 0;
-}
-
-.thread-pane-total-count {
-  align-self: end;
-  font-size: 1rem;
-  font-weight: normal;
-  padding-inline-start: 9px;
-  color: var(--layout-color-2);
-}
-
-#threadPaneQuickFilterButton {
-  background-image: var(--icon-filter);
-  margin: 0;
-}
-
-#threadPaneDisplayButton {
-  background-image: var(--icon-layout); /* TODO: Change with a display icon */
-  margin: 0;
 }
