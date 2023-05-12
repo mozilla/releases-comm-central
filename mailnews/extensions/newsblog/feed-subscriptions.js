@@ -383,28 +383,25 @@ var FeedSubscriptions = {
               return child.favicon;
             }
 
-            setTimeout(() => {
-              FeedUtils.getFavicon(
+            setTimeout(async () => {
+              let iconUrl = await FeedUtils.getFavicon(
                 child.parentFolder,
-                child.url,
-                null,
-                window,
-                callback
+                child.url
               );
+              if (iconUrl) {
+                callback(iconUrl);
+              }
             }, 0);
             break;
           }
         }
       } else {
         // A feed.
-        setTimeout(() => {
-          FeedUtils.getFavicon(
-            item.parentFolder,
-            item.url,
-            null,
-            window,
-            callback
-          );
+        setTimeout(async () => {
+          let iconUrl = await FeedUtils.getFavicon(item.parentFolder, item.url);
+          if (iconUrl) {
+            callback(iconUrl);
+          }
         }, 0);
       }
 
@@ -1802,8 +1799,8 @@ var FeedSubscriptions = {
       );
 
       // Update folderpane favicons.
-      FeedUtils.setFolderPaneProperty(currentFolder, "favicon", null, "row");
-      FeedUtils.setFolderPaneProperty(newFolder, "favicon", null, "row");
+      Services.obs.notifyObservers(currentFolder, "folder-properties-changed");
+      Services.obs.notifyObservers(newFolder, "folder-properties-changed");
     } else {
       // Moving/copying to a new account.  If dropping on the account folder,
       // a new subfolder is created if necessary.
@@ -1915,7 +1912,7 @@ var FeedSubscriptions = {
 
   mFeedDownloadCallback: {
     mSubscribeMode: true,
-    downloaded(feed, aErrorCode) {
+    async downloaded(feed, aErrorCode) {
       // Offline check is done in the context of 3pane, return to the subscribe
       // window once the modal prompt is dispatched.
       window.focus();
@@ -1951,6 +1948,17 @@ var FeedSubscriptions = {
 
         // Add the feed to the databases.
         FeedUtils.addFeed(feed);
+
+        // Set isBusy status, and clear it after getting favicon. This makes
+        // sure the folder icon is redrawn to reflect what we got.
+        FeedUtils.setStatus(
+          feed.folder,
+          feed.url,
+          "code",
+          FeedUtils.kNewsBlogFeedIsBusy
+        );
+        await FeedUtils.getFavicon(feed.folder, feed.url);
+        FeedUtils.setStatus(feed.folder, feed.url, "code", aErrorCode);
 
         // Now add the feed to our view.  If adding, the current selection will
         // be a folder; if updating it will be a feed.  No need to rebuild the

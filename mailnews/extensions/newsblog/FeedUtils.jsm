@@ -16,6 +16,7 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   JSONFile: "resource://gre/modules/JSONFile.sys.mjs",
+  PlacesUtils: "resource://gre/modules/PlacesUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
@@ -223,9 +224,9 @@ var FeedUtils = {
    * @param {Boolean} aIsBiff - true if biff, false if manual get.
    * @param {nsIDOMWindow} aMsgWindow - The window.
    *
-   * @returns {void}
+   * @returns {Promise<void>} When all feeds downloading have been set off.
    */
-  downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
+  async downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
     FeedUtils.log.debug(
       "downloadFeed: account isBiff:isOffline - " +
         aIsBiff +
@@ -280,7 +281,7 @@ var FeedUtils = {
     }
 
     let folder;
-    function* feeder() {
+    async function* feeder() {
       for (let i = 0; i < allFolders.length; i++) {
         folder = allFolders[i];
         FeedUtils.log.debug(
@@ -313,8 +314,8 @@ var FeedUtils = {
         for (let url of feedUrlArray) {
           // Check whether this feed should be updated; if forceDownload is true
           // skip the per feed check.
+          let status = FeedUtils.getStatus(folder, url);
           if (!forceDownload) {
-            let status = FeedUtils.getStatus(folder, url);
             // Also skip if user paused, or error paused (but not inStartup;
             // go check the feed again), or update interval hasn't expired.
             if (
@@ -335,6 +336,13 @@ var FeedUtils = {
               );
               continue;
             }
+          }
+          // Update feed icons only once every 24h, tops.
+          if (
+            forceDownload ||
+            now - status.lastUpdateTime >= 24 * 60 * 60 * 1000
+          ) {
+            await FeedUtils.getFavicon(folder, url);
           }
 
           // Create a feed object.
@@ -405,7 +413,7 @@ var FeedUtils = {
       }
     }
 
-    let getFeed = feeder();
+    let getFeed = await feeder();
     try {
       let done = getFeed.next().done;
       if (done) {
@@ -589,7 +597,7 @@ var FeedUtils = {
     ds.saveSoon();
 
     // Update folderpane.
-    this.setFolderPaneProperty(aFeed.folder, "favicon", null, "row");
+    Services.obs.notifyObservers(aFeed.folder, "folder-properties-changed");
   },
 
   /**
@@ -611,7 +619,7 @@ var FeedUtils = {
     ds.saveSoon();
 
     // Update folderpane.
-    this.setFolderPaneProperty(aFeed.folder, "favicon", null, "row");
+    Services.obs.notifyObservers(aFeed.folder, "folder-properties-changed");
   },
 
   /**
@@ -832,20 +840,6 @@ var FeedUtils = {
   },
 
   /**
-   * Update a folderpane cached property.
-   *
-   * @param {nsIMsgFolder} aFolder - Folder.
-   * @param {string} aProperty - Property.
-   * @param {string} aValue - Value.
-   * @param {String} aInvalidate - "row" = folder's row.
-   *                                  ."all" = all rows.
-   * @returns {void}
-   */
-  setFolderPaneProperty(aFolder, aProperty, aValue, aInvalidate) {
-    // TODO: Something more sensible?
-  },
-
-  /**
    * Get a cached feed or folder status.
    *
    * @param {nsIMsgFolder} aFolder - Folder.
@@ -925,101 +919,134 @@ var FeedUtils = {
    * message url. The favicon service caches it in memory if places history is
    * not enabled.
    *
-   * @param {nsIMsgFolder} aFolder - The feed folder or null if aUrl.
-   * @param {string} aUrl - A url (feed, message, other) or null if aFolder.
-   * @param {string} aIconUrl - The icon url if already determined, else null.
-   * @param {nsIDOMWindow} aWindow - Null if requesting url without setting it.
-   * @param {Function} aCallback - Null or callback.
+   * @param {?nsIMsgFolder} folder - The feed folder or null if url set.
+   * @param {?string} feedURL - A url (feed, message, other) or null if folder set.
    *
-   * @returns {String} - The favicon url or empty string.
+   * @returns {Promise<string>} - The favicon url or empty string.
    */
-  getFavicon(aFolder, aUrl, aIconUrl, aWindow, aCallback) {
-    // On any error, cache an empty string to show the default favicon, and
-    // don't try anymore in this session.
-    let useDefaultFavicon = () => {
-      if (aCallback) {
-        aCallback("");
-      }
-
-      return "";
-    };
-
+  async getFavicon(folder, feedURL) {
     if (
       !Services.prefs.getBoolPref("browser.chrome.site_icons") ||
       !Services.prefs.getBoolPref("browser.chrome.favicons")
     ) {
-      return useDefaultFavicon();
+      return "";
     }
 
-    if (aIconUrl != null) {
-      return aIconUrl;
-    }
-
-    let onLoadSuccess = aEvent => {
-      let iconUri = Services.io.newURI(aEvent.target.src);
-      aWindow.specialTabs.mFaviconService.setAndFetchFaviconForPage(
-        uri,
-        iconUri,
-        false,
-        aWindow.specialTabs.mFaviconService.FAVICON_LOAD_NON_PRIVATE,
-        null,
-        Services.scriptSecurityManager.getSystemPrincipal()
-      );
-
-      if (aCallback) {
-        aCallback(iconUri.spec);
-      }
-    };
-
-    let onLoadError = aEvent => {
-      useDefaultFavicon();
-      let url = aEvent.target.src;
-      aWindow.specialTabs.getFaviconFromPage(url, aCallback);
-    };
-
-    let url = aUrl;
+    let url = feedURL;
     if (!url) {
       // Get the proposed iconUrl from the folder's first subscribed feed's
       // <link>.
-      if (!aFolder) {
-        return useDefaultFavicon();
-      }
-
-      let feedUrls = this.getFeedUrlsInFolder(aFolder);
-      url = feedUrls ? feedUrls[0] : null;
+      url = this.getFeedUrlsInFolder(folder)[0];
       if (!url) {
-        return useDefaultFavicon();
+        return "";
       }
+      feedURL = url;
     }
 
-    if (aFolder) {
-      let feed = new lazy.Feed(url, aFolder);
+    if (folder) {
+      let feed = new lazy.Feed(url, folder);
       url = feed.link && feed.link.startsWith("http") ? feed.link : url;
     }
 
-    let uri, iconUri;
-    try {
-      uri = Services.io.newURI(url);
-      iconUri = Services.io.newURI(uri.prePath + "/favicon.ico");
-    } catch (ex) {
-      return useDefaultFavicon();
+    /**
+     * Convert a Blob to data URL.
+     * @param {Blob} blob - Blob to convert.
+     * @returns {string} data URL.
+     */
+    let blobToBase64 = blob => {
+      return new Promise((resolve, reject) => {
+        let reader = new FileReader();
+        reader.onloadend = () => {
+          if (reader.result.endsWith("base64,")) {
+            reject(new Error(`Invalid blob encountered.`));
+            return;
+          }
+          resolve(reader.result);
+        };
+        reader.readAsDataURL(blob);
+      });
+    };
+
+    /**
+     * Try getting favicon from url.
+     * @param {string} url - The favicon url.
+     * @returns {Blob} - Existing favicon.
+     */
+    let fetchFavicon = async url => {
+      let response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`No favicon for url ${url}`);
+      }
+      if (!/^image\//i.test(response.headers.get("Content-Type"))) {
+        throw new Error(`Non-image favicon for ${url}`);
+      }
+      return response.blob();
+    };
+
+    /**
+     * Try getting favicon from the a html page.
+     * @param {string} page - The page url to check.
+     * @returns {Blob} - Found favicon.
+     */
+    let discoverFaviconURL = async page => {
+      let response = await fetch(page);
+      if (!response.ok) {
+        throw new Error(`No favicon for page ${page}`);
+      }
+      if (!/^text\/html/i.test(response.headers.get("Content-Type"))) {
+        throw new Error(`No page to get favicon from for ${page}`);
+      }
+      let doc = new DOMParser().parseFromString(
+        await response.text(),
+        "text/html"
+      );
+      let iconLink = doc.querySelector(
+        `link[rel~='icon']:is([sizes~='any'],[sizes~='16x16' i],[sizes~='32x32' i],:not([sizes])`
+      );
+      if (!iconLink) {
+        throw new Error(`No iconLink discovered for page=${page}`);
+      }
+      return /^https?:/.test(iconLink.href)
+        ? iconLink.href
+        : new URL(page).origin + iconLink.href;
+    };
+
+    let uri = Services.io.newURI(url);
+    let iconURL = await fetchFavicon(uri.prePath + "/favicon.ico")
+      .then(blobToBase64)
+      .catch(e => {
+        return discoverFaviconURL(url)
+          .then(fetchFavicon)
+          .then(blobToBase64)
+          .catch(() => "");
+      });
+
+    if (!iconURL) {
+      return "";
     }
 
-    if (!aWindow) {
-      return iconUri.spec;
-    }
-
-    aWindow.specialTabs.loadFaviconImageNode(
-      onLoadSuccess,
-      onLoadError,
-      iconUri.spec
-    );
-    // Cache the favicon url initially.
-    if (aCallback) {
-      aCallback(iconUri.spec);
-    }
-
-    return iconUri.spec;
+    // setAndFetchFaviconForPage needs the url to be in the database first.
+    await lazy.PlacesUtils.history.insert({
+      url: feedURL,
+      visits: [
+        {
+          date: new Date(),
+        },
+      ],
+    });
+    return new Promise(resolve => {
+      // All good. Now store iconURL for future usage.
+      lazy.PlacesUtils.favicons.setAndFetchFaviconForPage(
+        Services.io.newURI(feedURL),
+        Services.io.newURI(iconURL),
+        true,
+        lazy.PlacesUtils.favicons.FAVICON_LOAD_NON_PRIVATE,
+        faviconURI => {
+          resolve(faviconURI.spec);
+        },
+        Services.scriptSecurityManager.getSystemPrincipal()
+      );
+    });
   },
 
   /**
@@ -1149,7 +1176,7 @@ var FeedUtils = {
         sub.destFolder = folderURI;
         destDS.data.push(sub);
       }
-      this.setFolderPaneProperty(aFolder, "favicon", null, "row");
+
       origDS.saveSoon();
       destDS.saveSoon();
     }

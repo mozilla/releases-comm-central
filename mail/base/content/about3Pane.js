@@ -2828,6 +2828,11 @@ class FolderTreeRow extends HTMLLIElement {
     if (folder.server.type != "rss") {
       return;
     }
+    let urls = !folder.isServer ? FeedUtils.getFeedUrlsInFolder(folder) : null;
+    if (urls?.length == 1) {
+      let url = urls[0];
+      this.icon.style = `content: url("page-icon:${url}"); background-image: none;`;
+    }
     let props = FeedUtils.getFolderProperties(folder);
     for (let name of ["hasError", "isBusy", "isPaused"]) {
       if (props.includes(name)) {

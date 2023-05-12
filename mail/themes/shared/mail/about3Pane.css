@@ -449,11 +449,13 @@ li:not(.selected) > .container:hover {
 }
 
 #folderTree li[data-is-busy="true"] > .container > .icon {
-  background-image: var(--icon-clock);
+  content: var(--icon-clock) !important;
+  background-image: none;
 }
 
 #folderTree li[data-has-error="true"] > .container > .icon {
-  background-image: var(--icon-warning-sm);
+  content: var(--icon-warning) !important;
+  background-image: none;
   fill: var(--color-amber-30);
   stroke: var(--color-amber-60);
 }
