@@ -299,7 +299,7 @@ function onLoadCalendarItemPanel(aIframeId, aUrl) {
   let calendarItem = iframe.contentWindow.arguments[0].calendarEvent;
   gConfig.isEvent = calendarItem.isEvent();
 
-  // for tasks in a window dialog, set the dialog id for CSS selection, etc.
+  // for tasks in a window dialog, set the dialog id for CSS selection.
   if (!gTabmail) {
     if (gConfig.isEvent) {
       setDialogId(dialog, "calendar-event-dialog");

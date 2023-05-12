@@ -50,15 +50,14 @@ function dispose() {
 }
 
 /**
- * Sets the id of a Dialog to another value to allow different styles and the icon
- * attribute for window-icons to be displayed.
+ * Sets the id of a Dialog to another value to allow different CSS styles
+ * to be used.
  *
  * @param aDialog               The Dialog to be changed.
  * @param aNewId                The new ID as String.
  */
 function setDialogId(aDialog, aNewId) {
   aDialog.setAttribute("id", aNewId);
-  aDialog.setAttribute("icon", aNewId);
   applyPersistedProperties(aDialog);
 }
 

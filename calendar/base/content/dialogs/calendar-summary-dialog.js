@@ -43,7 +43,7 @@ async function onLoad() {
 
   document.title = item.title;
 
-  // set the dialog-id to enable the right window-icon to be loaded.
+  // set the dialog-id to enable the right CSS to be used.
   if (item.isEvent()) {
     setDialogId(dialog, "calendar-event-summary-dialog");
   } else if (item.isTodo()) {
