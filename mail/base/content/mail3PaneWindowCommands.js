@@ -195,12 +195,15 @@ function IsSendUnsentMsgsEnabled(unsentMsgsFolder) {
     return false;
   }
 
-  var msgSendlater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
-    Ci.nsIMsgSendLater
-  );
+  let msgSendlater;
+  try {
+    msgSendlater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
+      Ci.nsIMsgSendLater
+    );
+  } catch (error) {}
 
   // If we're currently sending unsent msgs, disable this cmd.
-  if (msgSendlater.sendingMessages) {
+  if (msgSendlater?.sendingMessages) {
     return false;
   }
 
@@ -231,7 +234,11 @@ function IsSendUnsentMsgsEnabled(unsentMsgsFolder) {
     }
   }
 
-  return msgSendlater.hasUnsentMessages(identity);
+  let hasUnsentMessages = false;
+  try {
+    hasUnsentMessages = msgSendlater?.hasUnsentMessages(identity);
+  } catch (error) {}
+  return hasUnsentMessages;
 }
 
 /**
