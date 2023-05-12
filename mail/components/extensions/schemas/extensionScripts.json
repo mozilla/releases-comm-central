@@ -10,7 +10,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": ["messagesModify","sensitiveDataUpload"]
+            "enum": ["messagesModify", "sensitiveDataUpload"]
           }
         ]
       }
