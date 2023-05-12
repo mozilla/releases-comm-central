@@ -384,9 +384,6 @@ interface nsIMsgIncomingServer : nsISupports {
   /* check if this server allows search operations */
   readonly attribute boolean canSearchMessages;
 
-  /* check if this server allows canEmptyTrashOnExit operations */
-  readonly attribute boolean canEmptyTrashOnExit;
-
   /* display startup page once per account per session */
   attribute boolean displayStartupPage;
   attribute nsIMsgDownloadSettings downloadSettings;

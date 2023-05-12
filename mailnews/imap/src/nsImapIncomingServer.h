@@ -51,7 +51,6 @@ class nsImapIncomingServer : public nsMsgIncomingServer,
       bool* canCompactFoldersOnServer) override;
   NS_IMETHOD GetCanUndoDeleteOnServer(bool* canUndoDeleteOnServer) override;
   NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
-  NS_IMETHOD GetCanEmptyTrashOnExit(bool* canEmptyTrashOnExit) override;
   NS_IMETHOD GetOfflineSupportLevel(int32_t* aSupportLevel) override;
   NS_IMETHOD GeneratePrettyNameForMigration(nsAString& aPrettyName) override;
   NS_IMETHOD GetSupportsDiskSpace(bool* aSupportsDiskSpace) override;

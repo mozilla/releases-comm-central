@@ -599,10 +599,6 @@ class MsgIncomingServer {
     return true;
   }
 
-  get canEmptyTrashOnExit() {
-    return true;
-  }
-
   /**
    * type, attribute name, pref name
    */

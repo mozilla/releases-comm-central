@@ -351,14 +351,6 @@ nsMsgIncomingServer::GetCanUndoDeleteOnServer(bool* canUndoDeleteOnServer) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsMsgIncomingServer::GetCanEmptyTrashOnExit(bool* canEmptyTrashOnExit) {
-  // derived class should override if they need to do this.
-  NS_ENSURE_ARG_POINTER(canEmptyTrashOnExit);
-  *canEmptyTrashOnExit = true;
-  return NS_OK;
-}
-
 // construct <localStoreType>://[<username>@]<hostname
 NS_IMETHODIMP
 nsMsgIncomingServer::GetServerURI(nsACString& aResult) {

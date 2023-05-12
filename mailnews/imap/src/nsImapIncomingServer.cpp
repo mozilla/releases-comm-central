@@ -2521,15 +2521,6 @@ nsImapIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   return NS_OK;
 }
 
-NS_IMETHODIMP
-nsImapIncomingServer::GetCanEmptyTrashOnExit(bool* canEmptyTrashOnExit) {
-  NS_ENSURE_ARG_POINTER(canEmptyTrashOnExit);
-  // Initialize canEmptyTrashOnExit true, a default value for IMAP
-  *canEmptyTrashOnExit = true;
-  GetPrefForServerAttribute("canEmptyTrashOnExit", canEmptyTrashOnExit);
-  return NS_OK;
-}
-
 nsresult nsImapIncomingServer::CreateHostSpecificPrefName(
     const char* prefPrefix, nsAutoCString& prefName) {
   NS_ENSURE_ARG_POINTER(prefPrefix);

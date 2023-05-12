@@ -136,15 +136,6 @@ function onPreInit(account, accountValues) {
   hideShowControls(type);
 
   gServer = account.incomingServer;
-
-  if (!account.incomingServer.canEmptyTrashOnExit) {
-    document
-      .getElementById("server.emptyTrashOnExit")
-      .setAttribute("hidden", "true");
-    document
-      .getElementById("imap.deleteModel.box")
-      .setAttribute("hidden", "true");
-  }
 }
 
 function initServerType() {
