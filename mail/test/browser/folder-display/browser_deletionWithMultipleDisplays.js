@@ -46,9 +46,10 @@ var folder,
   multipleDeletionFolder3,
   multipleDeletionFolder4;
 
-add_setup(async function() {
-  requestLongerTimeout(3);
+// Adjust timeout to take care of code coverage runs needing twice as long.
+requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 4 : 2);
 
+add_setup(async function() {
   folder = await create_folder("DeletionA");
   lastMessageFolder = await create_folder("DeletionB");
   oneBeforeFolder = await create_folder("DeletionC");
