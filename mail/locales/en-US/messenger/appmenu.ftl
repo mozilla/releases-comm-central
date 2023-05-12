@@ -139,6 +139,9 @@ appmenu-view-panel =
   .label = View
   .accesskey = V
 
+appmenuitem-toggle-thread-pane-header =
+  .label = Message List Header
+
 appmenu-font-size-value = Font Size
 
 appmenu-mail-uidensity-value = Density

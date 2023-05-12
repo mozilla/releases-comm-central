@@ -12,7 +12,7 @@ var { click_through_appmenu } = ChromeUtils.import(
 let tabmail = document.getElementById("tabmail");
 let about3Pane = tabmail.currentAbout3Pane;
 let { threadPane, threadTree } = about3Pane;
-let rootFolder, testFolder, testMessages;
+let rootFolder, testFolder, testMessages, displayContext, displayButton;
 
 add_setup(async function() {
   MailServices.accounts.createLocalMailAccount();
@@ -35,17 +35,13 @@ add_setup(async function() {
   about3Pane.paneLayout.messagePaneVisible = false;
 
   registerCleanupFunction(() => {
-    click_through_appmenu(
-      [{ id: "appmenu_View" }, { id: "appmenu_MessagePaneLayout" }],
-      { id: "appmenu_messagePaneClassic" },
-      window
-    );
     MailServices.accounts.removeAccount(account, false);
     about3Pane.paneLayout.messagePaneVisible = true;
+    about3Pane.folderTree.focus();
   });
 });
 
-add_task(async function testSwitchToVerticalView() {
+add_task(async function testSwitchToCardsView() {
   click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_MessagePaneLayout" }],
     { id: "appmenu_messagePaneVertical" },
@@ -53,9 +49,41 @@ add_task(async function testSwitchToVerticalView() {
   );
 
   await BrowserTestUtils.waitForCondition(
+    () => threadTree.getAttribute("rows") == "thread-row",
+    "The tree view should not switch to a card layout"
+  );
+
+  displayContext = about3Pane.document.getElementById(
+    "threadPaneDisplayContext"
+  );
+  displayButton = about3Pane.document.getElementById("threadPaneDisplayButton");
+  let shownPromise = BrowserTestUtils.waitForEvent(
+    displayContext,
+    "popupshown"
+  );
+  EventUtils.synthesizeMouseAtCenter(displayButton, {}, about3Pane);
+  await shownPromise;
+
+  Assert.ok(
+    displayContext
+      .querySelector("#threadPaneTableView")
+      .getAttribute("checked"),
+    "The table view menuitem should be checked"
+  );
+
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    displayContext,
+    "popuphidden"
+  );
+  displayContext.activateItem(
+    displayContext.querySelector("#threadPaneCardsView")
+  );
+  await BrowserTestUtils.waitForCondition(
     () => threadTree.getAttribute("rows") == "thread-card",
     "The tree view switched to a card layout"
   );
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  await hiddenPromise;
 
   Assert.equal(
     threadTree.getAttribute("rows"),
@@ -73,6 +101,20 @@ add_task(async function testSwitchToVerticalView() {
     BrowserTestUtils.is_hidden(attachment),
     "attachment icon should be hidden"
   );
+
+  // Switching to horizontal view shouldn't affect the list layout.
+  click_through_appmenu(
+    [{ id: "appmenu_View" }, { id: "appmenu_MessagePaneLayout" }],
+    { id: "appmenu_messagePaneClassic" },
+    window
+  );
+
+  Assert.equal(
+    threadTree.getAttribute("rows"),
+    "thread-card",
+    "tree view in cards layout"
+  );
+  about3Pane.folderTree.focus();
 });
 
 add_task(async function testTagsInVerticalView() {
@@ -102,4 +144,47 @@ add_task(async function testTagsInVerticalView() {
   EventUtils.synthesizeKey("2", {});
   Assert.ok(BrowserTestUtils.is_visible(tag2), "tag icon should be visible");
   Assert.deepEqual(tag2.title, "Work", "The work tag should be set");
+
+  // Switch back to a table layout and horizontal view.
+  let shownPromise = BrowserTestUtils.waitForEvent(
+    displayContext,
+    "popupshown"
+  );
+  EventUtils.synthesizeMouseAtCenter(displayButton, {}, about3Pane);
+  await shownPromise;
+
+  Assert.ok(
+    displayContext
+      .querySelector("#threadPaneCardsView")
+      .getAttribute("checked"),
+    "The cards view menuitem should be checked"
+  );
+
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    displayContext,
+    "popuphidden"
+  );
+  displayContext.activateItem(
+    displayContext.querySelector("#threadPaneTableView")
+  );
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.getAttribute("rows") == "thread-row",
+    "The tree view switched to a table layout"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  await hiddenPromise;
+
+  Assert.equal(
+    threadTree.getAttribute("rows"),
+    "thread-row",
+    "tree view in table layout"
+  );
+
+  Services.prefs.clearUserPref("mail.pane_config.dynamic");
+  Services.xulStore.removeValue(
+    "chrome://messenger/content/messenger.xhtml",
+    "threadPane",
+    "view"
+  );
+  about3Pane.folderTree.focus();
 });

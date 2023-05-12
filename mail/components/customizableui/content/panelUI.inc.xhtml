@@ -356,6 +356,7 @@
         <toolbarbutton id="appmenu_showFolderPane"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
+                       closemenu="none"
                        label="&showFolderPaneCmd.label;"
                        command="cmd_toggleFolderPane"/>
         <toolbarbutton id="appmenu_showFolderPaneCols"
@@ -363,9 +364,17 @@
                        type="checkbox"
                        label="&showFolderPaneColsCmd.label;"
                        command="cmd_toggleFolderPaneCols"/>
+        <toolbarbutton id="appmenu_toggleThreadPaneHeader"
+                       class="subviewbutton subviewbutton-iconic"
+                       type="checkbox"
+                       name="threadheader"
+                       closemenu="none"
+                       data-l10n-id="appmenuitem-toggle-thread-pane-header"
+                       command="cmd_toggleThreadPaneHeader"/>
         <toolbarbutton id="appmenu_showMessage"
                        class="subviewbutton subviewbutton-iconic"
                        type="checkbox"
+                       closemenu="none"
                        label="&showMessageCmd.label;"
                        key="key_toggleMessagePane"
                        command="cmd_toggleMessagePane"/>

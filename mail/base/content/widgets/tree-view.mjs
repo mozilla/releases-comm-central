@@ -1876,6 +1876,10 @@ class TreeViewTableBody extends HTMLTableSectionElement {
     this.addEventListener("keyup", treeView);
     this.addEventListener("click", treeView);
     this.addEventListener("keydown", treeView);
+
+    if (treeView.dataset.labelId) {
+      this.setAttribute("aria-labelledby", treeView.dataset.labelId);
+    }
   }
 }
 customElements.define("tree-view-table-body", TreeViewTableBody, {

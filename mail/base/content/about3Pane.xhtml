@@ -100,8 +100,27 @@
       resize-id="folderPane"
       collapse-width="100" />
   <div id="threadPane">
+    <div id="threadPaneHeaderBar" class="list-header-bar">
+      <div class="list-header-bar-container-start">
+        <h2 id="threadPaneFolderName" class="list-header-title"></h2>
+        <span id="threadPaneFolderCount" class="thread-pane-total-count"></span>
+      </div>
+      <div class="list-header-bar-container-end">
+        <button id="threadPaneQuickFilterButton"
+                class="button icon-button check-button unified-toolbar-button"
+                data-l10n-id="quick-filter-button"
+                oncommand="cmd_toggleQuickFilterBar">
+          <span data-l10n-id="quick-filter-button-label"></span>
+        </button>
+        <button id="threadPaneDisplayButton"
+                class="button button-flat icon-button icon-only"
+                data-l10n-id="thread-pane-header-display-button"
+                type="button">
+        </button>
+      </div>
+    </div>
 #include quickFilterBar.inc.xhtml
-    <tree-view id="threadTree"/>
+    <tree-view id="threadTree" data-label-id="threadPaneFolderName"/>
     <!-- Thread pane templates -->
     <template id="threadPaneApplyColumnMenu">
       <xul:menu class="applyTo-menu"
@@ -446,6 +465,31 @@
     <menuitem id="folderPaneHeaderHideMenuItem"
               data-l10n-id="folder-pane-header-context-hide"
               oncommand="folderPane.toggleHeader(false);"/>
+  </menupopup>
+
+  <menupopup id="threadPaneDisplayContext"
+             class="no-accel-menupopup"
+             position="bottomleft topleft"
+             onpopupshowing="threadPaneHeader.updateDisplayContextMenu();">
+    <menuitem id="threadPaneTableView"
+              class="thread-view-option"
+              type="radio"
+              name="threadview"
+              value="table"
+              closemenu="none"
+              data-l10n-id="thread-pane-header-context-table-view"
+              oncommand="threadPaneHeader.changePaneView(event);"/>
+    <menuitem id="threadPaneCardsView"
+              class="thread-view-option"
+              type="radio"
+              name="threadview"
+              value="cards"
+              closemenu="none"
+              data-l10n-id="thread-pane-header-context-cards-view"
+              oncommand="threadPaneHeader.changePaneView(event);"/>
+    <menuseparator id="separatorBeforeHideThreadHeaderOption"/>
+    <menuitem data-l10n-id="thread-pane-header-context-hide"
+              oncommand="threadPaneHeader.toggleThreadPaneHeader();"/>
   </menupopup>
 #include mailContext.inc.xhtml
 </popupset>

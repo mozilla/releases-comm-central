@@ -12,7 +12,7 @@ const VIRTUAL_COLOR_HEX = "#cd26a5";
 const VIRTUAL_COLOR_RGB = "rgb(205, 38, 165)";
 
 let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-let { folderPane, folderTree } = about3Pane;
+let { folderPane, folderTree, threadTree } = about3Pane;
 let rootFolder, trashFolder, trashFolderRows, virtualFolder, virtualFolderRows;
 
 add_setup(async function() {
@@ -228,6 +228,9 @@ async function openFolderProperties(row) {
 }
 
 function assertRowColors(rows, rgb) {
+  // Always move the focus away from the row otherwise we might get the selected
+  // state which turns the icon white.
+  threadTree.table.body.focus();
   for (let row of Object.values(rows)) {
     Assert.equal(getComputedStyle(row.querySelector(".icon")).stroke, rgb);
   }
