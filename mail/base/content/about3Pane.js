@@ -498,6 +498,9 @@ var folderPaneContextMenu = {
       case "folderPaneContext-markNewsgroupAllRead":
         topChromeWindow.MsgMarkAllRead([gFolder]);
         break;
+      case "folderPaneContext-emptyTrash":
+        folderPane.emptyTrash(gFolder);
+        break;
       case "folderPaneContext-emptyJunk":
         folderPane.emptyJunk(gFolder);
         break;
