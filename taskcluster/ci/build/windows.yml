@@ -57,7 +57,7 @@ win32/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win32-libotr
-            - win64-vs2017
+            - vs
         fetch:
             - upx-3.95-win
 
@@ -113,7 +113,7 @@ win32-shippable/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win32-libotr
-            - win64-vs2017
+            - vs
         fetch:
             - upx-3.95-win
 
@@ -166,7 +166,7 @@ win32/debug:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win32-libotr
-            - win64-vs2017
+            - vs
         fetch:
             - upx-3.95-win
 
@@ -218,7 +218,7 @@ win64/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
-            - win64-vs2017
+            - vs
         fetch:
             - upx-3.95-win
 
@@ -274,7 +274,7 @@ win64-shippable/opt:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
-            - win64-vs2017
+            - vs
         fetch:
             - upx-3.95-win
 
@@ -327,7 +327,7 @@ win64/debug:
             - sysroot-wasm32-wasi
             - sysroot-x86_64-linux-gnu
             - win64-libotr
-            - win64-vs2017
+            - vs
         fetch:
             - upx-3.95-win
 
@@ -373,7 +373,7 @@ win64-plain/debug:
             - win64-node
             - win64-nasm
             - win64-rust
-            - win64-vs2017
+            - vs
             - win64-winchecksec
 
 win64-plain/opt:
@@ -417,7 +417,7 @@ win64-plain/opt:
             - win64-node
             - win64-nasm
             - win64-rust
-            - win64-vs2017
+            - vs
             - win64-winchecksec
 
 win64-asan/opt:
@@ -468,7 +468,7 @@ win64-asan/opt:
             - sysroot-x86_64-linux-gnu
             - win64-libotr
             - win64-llvm-symbolizer
-            - win64-vs2017
+            - vs
         fetch:
             - upx-3.95-win
 
@@ -531,6 +531,6 @@ win64-asan-reporter-shippable/opt:
             - sysroot-x86_64-linux-gnu
             - win64-libotr
             - win64-llvm-symbolizer
-            - win64-vs2017
+            - vs
         fetch:
             - upx-3.95-win
