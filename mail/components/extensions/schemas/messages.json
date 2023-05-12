@@ -12,7 +12,8 @@
               "messagesImport",
               "messagesMove",
               "messagesRead",
-              "messagesTags"
+              "messagesTags",
+              "sensitiveDataUpload"
             ]
           }
         ]

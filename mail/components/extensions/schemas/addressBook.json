@@ -7,7 +7,7 @@
         "choices": [
           {
             "type": "string",
-            "enum": ["addressBooks"]
+            "enum": ["addressBooks", "sensitiveDataUpload"]
           }
         ]
       }
