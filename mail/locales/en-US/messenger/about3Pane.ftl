@@ -2,6 +2,32 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+## Message List Header Bar
+
+quick-filter-button =
+  .title = Toggle the Quick Filter Bar
+quick-filter-button-label = Quick Filter
+
+thread-pane-header-display-button =
+  .title = Message list display options
+
+# Variables:
+# $count (Number) - The number of messages in this folder.
+thread-pane-folder-message-count =
+  { $count ->
+    [one] { $count } Message
+    *[other] { $count } Messages
+  }
+
+thread-pane-header-context-table-view =
+  .label = Table View
+
+thread-pane-header-context-cards-view =
+  .label = Cards View
+
+thread-pane-header-context-hide =
+  .label = Hide Message List Header
+
 ## Quick Filter Bar
 
 # The tooltip to display when the user hovers over the sticky button

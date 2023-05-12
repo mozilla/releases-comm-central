@@ -103,6 +103,7 @@ window.addEventListener("DOMContentLoaded", async event => {
   folderPaneContextMenu.init();
   await folderPane.init();
   await threadPane.init();
+  threadPaneHeader.init();
   await messagePane.init();
 
   accountCentralBrowser = document.getElementById("accountCentralBrowser");
@@ -129,6 +130,7 @@ window.addEventListener("unload", () => {
   gViewWrapper?.close();
   folderPane.uninit();
   threadPane.uninit();
+  threadPaneHeader.uninit();
 });
 
 var paneLayout = {
@@ -180,30 +182,29 @@ var paneLayout = {
       (name, oldValue, newValue) => this.setLayout(newValue)
     );
     this.setLayout(this.layoutPreference);
+    threadPane.updateThreadView(
+      Services.xulStore.getValue(XULSTORE_URL, "threadPane", "view")
+    );
   },
 
   setLayout(preference) {
     document.body.classList.remove(
       "layout-classic",
       "layout-vertical",
-      "layout-wide",
-      "layout-table"
+      "layout-wide"
     );
     switch (preference) {
       case 1:
-        document.body.classList.add("layout-wide", "layout-table");
+        document.body.classList.add("layout-wide");
         this.messagePaneSplitter.resizeDirection = "vertical";
-        threadTree?.setAttribute("rows", "thread-row");
         break;
       case 2:
         document.body.classList.add("layout-vertical");
         this.messagePaneSplitter.resizeDirection = "horizontal";
-        threadTree?.setAttribute("rows", "thread-card");
         break;
       default:
-        document.body.classList.add("layout-classic", "layout-table");
+        document.body.classList.add("layout-classic");
         this.messagePaneSplitter.resizeDirection = "vertical";
-        threadTree?.setAttribute("rows", "thread-row");
         break;
     }
   },
@@ -1793,6 +1794,7 @@ var folderPane = {
 
       threadPane.restoreSortIndicator();
       threadPane.restoreSelection();
+      threadPaneHeader.onFolderSelected();
     }
 
     window.dispatchEvent(
@@ -2874,6 +2876,180 @@ class FolderTreeRow extends HTMLLIElement {
 }
 customElements.define("folder-tree-row", FolderTreeRow, { extends: "li" });
 
+/**
+ * Header area of the message list pane.
+ */
+var threadPaneHeader = {
+  /**
+   * The header bar element.
+   * @type {?HTMLElement}
+   */
+  bar: null,
+  /**
+   * The h2 element receiving the folder name.
+   * @type {?HTMLHeadElement}
+   */
+  folderName: null,
+  /**
+   * The span element receiving the message count.
+   * @type {?HTMLSpanElement}
+   */
+  folderCount: null,
+  /**
+   * The quick filter toolbar toggle button.
+   * @type {?HTMLButtonElement}
+   */
+  filterButton: null,
+  /**
+   * The display options button opening the popup.
+   * @type {?HTMLButtonElement}
+   */
+  displayButton: null,
+  /**
+   * If the header area is hidden.
+   * @type {boolean}
+   */
+  isHidden: false,
+
+  init() {
+    this.isHidden =
+      Services.xulStore.getValue(XULSTORE_URL, "threadPaneHeader", "hidden") ===
+      "true";
+    this.bar = document.getElementById("threadPaneHeaderBar");
+    this.bar.hidden = this.isHidden;
+
+    this.folderName = document.getElementById("threadPaneFolderName");
+    this.folderCount = document.getElementById("threadPaneFolderCount");
+    this.filterButton = document.getElementById("threadPaneQuickFilterButton");
+    this.filterButton.addEventListener("click", () =>
+      goDoCommand("cmd_toggleQuickFilterBar")
+    );
+    window.addEventListener("qfbtoggle", this);
+    this.onQuickFilterToggle();
+
+    this.displayButton = document.getElementById("threadPaneDisplayButton");
+    this.displayContext = document.getElementById("threadPaneDisplayContext");
+    this.displayButton.addEventListener("click", event => {
+      this.displayContext.openPopup(event.target, { triggerEvent: event });
+    });
+  },
+
+  uninit() {
+    window.removeEventListener("qfbtoggle", this);
+  },
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "qfbtoggle":
+        this.onQuickFilterToggle();
+        break;
+    }
+  },
+
+  /**
+   * Update the context menu to reflect the currently selected display options.
+   */
+  updateDisplayContextMenu() {
+    const isTableLayout = document.body.classList.contains("layout-table");
+    document
+      .getElementById(
+        isTableLayout ? "threadPaneTableView" : "threadPaneCardsView"
+      )
+      .setAttribute("checked", "true");
+  },
+
+  /**
+   * Change the display view of the message list pane.
+   *
+   * @param {DOMEvent} event - The click event.
+   */
+  changePaneView(event) {
+    const view = event.target.value;
+    Services.xulStore.setValue(XULSTORE_URL, "threadPane", "view", view);
+    threadPane.updateThreadView(view);
+  },
+
+  /**
+   * Update the quick filter button based on the quick filter bar state.
+   */
+  onQuickFilterToggle() {
+    const active = quickFilterBar.filterer.visible;
+    this.filterButton.setAttribute("aria-pressed", active.toString());
+  },
+
+  /**
+   * Toggle the visibility of the message list pane header.
+   */
+  toggleThreadPaneHeader() {
+    this.isHidden = !this.isHidden;
+    this.bar.hidden = this.isHidden;
+
+    Services.xulStore.setValue(
+      XULSTORE_URL,
+      "threadPaneHeader",
+      "hidden",
+      this.isHidden
+    );
+    // Trigger a data refresh if we're revealing the header.
+    if (!this.isHidden) {
+      this.onFolderSelected();
+    }
+  },
+
+  /**
+   * Update the header data when the selected folder changes.
+   */
+  onFolderSelected() {
+    // Bail out if the pane is hidden as we don't need to update anything.
+    if (this.isHidden) {
+      return;
+    }
+
+    // Hide any potential stale data if we don't have a folder.
+    if (!gFolder && !gViewWrapper?.isSynthetic) {
+      this.folderName.hidden = true;
+      this.folderCount.hidden = true;
+      return;
+    }
+
+    this.folderName.hidden = false;
+    this.folderCount.hidden = false;
+
+    this.folderName.textContent = gFolder?.name ?? document.title;
+    document.l10n.setAttributes(
+      this.folderCount,
+      "thread-pane-folder-message-count",
+      { count: gFolder?.getTotalMessages(false) || gDBView?.rowCount }
+    );
+  },
+
+  /**
+   * Update the total message count in the header if the value changed for the
+   * currently selected folder.
+   *
+   * @param {nsIMsgFolder} folder - The folder updating the count.
+   * @param {integer} oldValue
+   * @param {integer} newValue
+   */
+  updateFolderCount(folder, oldValue, newValue) {
+    if (
+      !gFolder ||
+      !folder ||
+      this.isHidden ||
+      folder.URI != gFolder.URI ||
+      oldValue == newValue
+    ) {
+      return;
+    }
+
+    document.l10n.setAttributes(
+      this.folderCount,
+      "thread-pane-folder-message-count",
+      { count: newValue }
+    );
+  },
+};
+
 var threadPane = {
   /**
    * Non-persistent storage of the last-selected items in each folder.
@@ -2907,7 +3083,9 @@ var threadPane = {
     ]);
     threadTree.setAttribute(
       "rows",
-      paneLayout.layoutPreference == 2 ? "thread-card" : "thread-row"
+      Services.xulStore.getValue(XULSTORE_URL, "threadPane", "view") == "cards"
+        ? "thread-card"
+        : "thread-row"
     );
 
     XPCOMUtils.defineLazyPreferenceGetter(
@@ -4049,6 +4227,26 @@ var threadPane = {
       );
     }
   },
+
+  /**
+   * Update the display view of the message list. Current supported options are
+   * table and cards.
+   *
+   * @param {string} view - The view type.
+   */
+  updateThreadView(view) {
+    switch (view) {
+      case "cards":
+        document.body.classList.remove("layout-table");
+        threadTree?.setAttribute("rows", "thread-card");
+        break;
+      case "table":
+      default:
+        document.body.classList.add("layout-table");
+        threadTree?.setAttribute("rows", "thread-row");
+        break;
+    }
+  },
 };
 
 var messagePane = {
@@ -4240,6 +4438,7 @@ function restoreState({
   folderURI,
   syntheticView,
   first = false,
+  title = null,
 } = {}) {
   if (folderPaneVisible === undefined) {
     folderPaneVisible = folderURI || !syntheticView;
@@ -4280,8 +4479,10 @@ function restoreState({
     gViewWrapper.openSynthetic(syntheticView);
     gDBView = gViewWrapper.dbView;
 
+    document.title = title;
     document.body.classList.remove("account-central");
     accountCentralBrowser.hidden = true;
+    threadPaneHeader.onFolderSelected();
   }
 
   if (
@@ -4350,6 +4551,7 @@ var folderListener = {
         break;
       case "TotalMessages":
         folderPane.changeTotalCount(folder, oldValue, newValue);
+        threadPaneHeader.updateFolderCount(folder, oldValue, newValue);
         break;
     }
   },
@@ -4789,6 +4991,11 @@ commandController.registerCallback("cmd_viewWideMailLayout", () =>
 );
 commandController.registerCallback("cmd_viewVerticalMailLayout", () =>
   Services.prefs.setIntPref("mail.pane_config.dynamic", 2)
+);
+commandController.registerCallback(
+  "cmd_toggleThreadPaneHeader",
+  () => threadPaneHeader.toggleThreadPaneHeader(),
+  () => gFolder && !gFolder.isServer
 );
 commandController.registerCallback("cmd_toggleFolderPane", () => {
   paneLayout.folderPaneSplitter.toggleCollapsed();
