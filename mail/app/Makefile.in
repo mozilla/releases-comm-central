@@ -46,6 +46,10 @@ endif # ! WinNT
 ifeq (gtk,$(MOZ_WIDGET_TOOLKIT))
 ICON_SUFFIX=.png
 DESKTOP_ICONS = \
+	msgcomposeWindow16 \
+	msgcomposeWindow24 \
+	msgcomposeWindow32 \
+	msgcomposeWindow48 \
 	calendar-alarm-dialog \
 	calendar-general-dialog \
 	$(NULL)
