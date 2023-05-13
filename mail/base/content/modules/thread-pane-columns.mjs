@@ -278,23 +278,23 @@ const isOutgoing = folder => {
  * and folder states.
  *
  * @param {nsIMsgFolder} folder - The currently viewed folder.
- * @param {boolean} isSynthetic - If the current view is synthetic, meaning we
- *   are not visualizing a real folder, such as the gloda results list.
- * @returns {Array}
+ * @param {boolean} [isSynthetic=false] - If the current view is synthetic,
+ *   meaning we are not visualizing a real folder, but rather
+ *   the gloda results list.
+ * @returns {object[]}
  */
-export function getDefaultColumns(folder, isSynthetic) {
+export function getDefaultColumns(folder, isSynthetic = false) {
   // Create a clone we can edit.
   let updatedColumns = DEFAULT_COLUMNS.map(column => ({ ...column }));
 
-  // We don't have a folder yet.
   if (!folder) {
-    // Synthetic views usually don't have folders, but let's check if we're
-    // actually looking at one and not just loading things early.
-    if (!isSynthetic) {
-      return updatedColumns;
-    }
-
-    updatedColumns.forEach(c => {
+    // We don't have a folder yet. Use defaults.
+    return updatedColumns;
+  }
+  if (isSynthetic) {
+    // Synthetic views usually can contain messages from multiple folders.
+    // Folder for the selected message will still be set.
+    for (let c of updatedColumns) {
       switch (c.id) {
         case "correspondentCol":
           // Don't show the correspondent if is not wanted.
@@ -315,12 +315,11 @@ export function getDefaultColumns(folder, isSynthetic) {
           c.hidden = false;
           break;
       }
-    });
-
+    }
     return updatedColumns;
   }
 
-  updatedColumns.forEach(c => {
+  for (let c of updatedColumns) {
     switch (c.id) {
       case "correspondentCol":
         // Don't show the correspondent for news or RSS.
@@ -348,7 +347,6 @@ export function getDefaultColumns(folder, isSynthetic) {
           lazy.FeedUtils.isFeedFolder(folder);
         break;
     }
-  });
-
+  }
   return updatedColumns;
 }

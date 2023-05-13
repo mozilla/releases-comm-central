@@ -39,8 +39,6 @@ var { GlodaSyntheticView } = ChromeUtils.import(
 var folderInbox, folderSent, folderVirtual, folderA, folderB;
 // INBOX_DEFAULTS sans 'dateCol' but gains 'tagsCol'
 var columnsB;
-// GLODA_DEFAULTS sans 'locationCol' but gains 'accountCol'
-var glodaColumns;
 
 // these are for the reset/apply to other/apply to other+child tests.
 var folderSource, folderParent, folderChild1, folderChild2;
@@ -726,7 +724,8 @@ add_task(async function test_persist_columns_gloda_collection() {
   await toggleColumn("locationCol");
   await toggleColumn("accountCol");
 
-  glodaColumns = GLODA_DEFAULTS.slice(0, -1);
+  // GLODA_DEFAULTS sans 'locationCol' but gains 'accountCol'
+  let glodaColumns = GLODA_DEFAULTS.slice(0, -1);
   glodaColumns.push("accountCol");
 
   let tab2 = tabmail.openTab("mail3PaneTab", {
@@ -741,6 +740,10 @@ add_task(async function test_persist_columns_gloda_collection() {
     "synthetic view loaded"
   );
   assert_visible_columns(glodaColumns);
+
+  // Restore default gloda columns for debug ease.
+  await toggleColumn("locationCol");
+  await toggleColumn("accountCol");
 
   close_tab(tab2);
   close_tab(tab1);
@@ -760,10 +763,19 @@ add_task(async function test_reset_columns_gloda_collection() {
     () => tab1.chromeBrowser.contentWindow.gViewWrapper?.isSynthetic,
     "synthetic view loaded"
   );
+
+  await toggleColumn("locationCol");
+  await toggleColumn("accountCol");
+
+  // GLODA_DEFAULTS sans 'locationCol' but gains 'accountCol'
+  let glodaColumns = GLODA_DEFAULTS.slice(0, -1);
+  glodaColumns.push("accountCol");
+
   assert_visible_columns(glodaColumns);
 
   // reset order!
   await invoke_column_picker_option([{ label: "Restore column order" }]);
+
   assert_visible_columns(GLODA_DEFAULTS);
 
   let tab2 = tabmail.openTab("mail3PaneTab", {
@@ -778,6 +790,10 @@ add_task(async function test_reset_columns_gloda_collection() {
     "synthetic view loaded"
   );
   assert_visible_columns(GLODA_DEFAULTS);
+
+  // Restore default gloda columns for debug ease.
+  await toggleColumn("locationCol");
+  await toggleColumn("accountCol");
 
   close_tab(tab2);
   close_tab(tab1);

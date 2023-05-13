@@ -1745,19 +1745,20 @@ var folderPane = {
     threadPane.saveSelection();
     threadPane.hideIgnoredMessageNotification();
 
+    let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
+    if (!uri) {
+      gFolder = null;
+      return;
+    }
+
+    gFolder = MailServices.folderLookup.getFolderForURL(uri);
+
     // Bail out if this is synthetic view, such as a gloda search.
     if (gViewWrapper?.isSynthetic) {
       return;
     }
 
     messagePane.clearAll();
-
-    let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
-    if (!uri) {
-      return;
-    }
-
-    gFolder = MailServices.folderLookup.getFolderForURL(uri);
 
     document.head.querySelector(
       `link[rel="icon"]`
