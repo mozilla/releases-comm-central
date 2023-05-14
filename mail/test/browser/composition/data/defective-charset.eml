@@ -1,0 +1,28 @@
+To: me@example.com
+From: you@example.com
+Subject: Test message with Spanish text, no encoding, is windows-1250 (as detected)
+Date: Tue, 20 Apr 2021 15:20:34 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+
+A lo largo de mi vida he sido testigo de muchas historias, experiencias 
+e interpretaciones de la vida. Y me doy cuenta de que lo que más aprecio 
+es la honestidad. En estos últimos meses siento que se ha polarizado aún 
+más esta gran diferencias: las personas que son honestas consigo mismas, 
+incluso en su deshonestidad, y las que no. Las personas honestas son 
+aquellas dueñas y responsables de su vida. Que no buscan una autoridad 
+externa que les guíe, que les proteja, que les cuide. Las personas 
+deshonestas son aquellas que se creen víctimas de la vida, que culpan al 
+otro o a los otros de sus “desgracias”. Que buscan fuera lo que solo 
+pueden encontrar dentro. A lo largo de mi vida he sido testigo de muchas 
+historias, experiencias e interpretaciones de la vida. Y me doy cuenta 
+de que lo que más aprecio es la honestidad. En estos últimos meses 
+siento que se ha polarizado aún más esta gran diferencias: las personas 
+que son honestas consigo mismas, incluso en su deshonestidad, y las que 
+no. Las personas honestas son aquellas dueñas y responsables de su vida. 
+Que no buscan una autoridad externa que les guíe, que les proteja, que 
+les cuide. Las personas deshonestas son aquellas que se creen víctimas 
+de la vida, que culpan al otro o a los otros de sus “desgracias”. Que 
+buscan fuera lo que solo pueden encontrar dentro.

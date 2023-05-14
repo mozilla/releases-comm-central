@@ -1194,9 +1194,10 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
     if (mdd->options) {
       // save the override flag before it's unavailable
       charsetOverride = mdd->options->override_charset;
-      if ((!mdd->mailcharset || charsetOverride) &&
-          mdd->options->default_charset) {
-        PR_Free(mdd->mailcharset);
+      // Override the charset only if requested. If the message doesn't have
+      // one and we're not overriding, we'll detect it later.
+      if (charsetOverride && mdd->options->default_charset) {
+        PR_FREEIF(mdd->mailcharset);
         mdd->mailcharset = strdup(mdd->options->default_charset);
       }
 
@@ -1441,12 +1442,24 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
             mimeCharset = MimeHeaders_get_parameter(
                 mdd->messageBody->m_type.get(), "charset", nullptr, nullptr);
           // If no charset is specified in the header then use the default.
-          char* bodyCharset = mimeCharset ? mimeCharset : mdd->mailcharset;
-          if (bodyCharset) {
+          nsAutoCString bodyCharset;
+          if (mimeCharset) {
+            bodyCharset.Adopt(mimeCharset);
+          } else if (mdd->mailcharset) {
+            bodyCharset.Assign(mdd->mailcharset);
+          }
+          if (bodyCharset.IsEmpty()) {
+            nsAutoCString detectedCharset;
+            // We need to detect it.
+            rv = MIME_detect_charset(body, bodyLen, detectedCharset);
+            if (NS_SUCCEEDED(rv) && !detectedCharset.IsEmpty()) {
+              bodyCharset = detectedCharset;
+            }
+          }
+          if (!bodyCharset.IsEmpty()) {
             nsAutoString tmpUnicodeBody;
-            rv = nsMsgI18NConvertToUnicode(nsDependentCString(bodyCharset),
-                                           nsDependentCString(body),
-                                           tmpUnicodeBody);
+            rv = nsMsgI18NConvertToUnicode(
+                bodyCharset, nsDependentCString(body), tmpUnicodeBody);
             if (NS_FAILED(rv))  // Tough luck, ASCII/ISO-8859-1 then...
               CopyASCIItoUTF16(nsDependentCString(body), tmpUnicodeBody);
 
@@ -1456,7 +1469,6 @@ static void mime_parse_stream_complete(nsMIMESession* stream) {
               body = newBody;
             }
           }
-          PR_FREEIF(mimeCharset);
         }
       }
 
