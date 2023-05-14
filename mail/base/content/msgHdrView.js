@@ -498,7 +498,10 @@ var MsgHdrViewObserver = {
       }
     } else if (topic == "remote-content-blocked") {
       let browser = getMessagePaneBrowser();
-      if (browser.browsingContext.id == data) {
+      if (
+        browser.browsingContext.id == data ||
+        browser.browsingContext == BrowsingContext.get(data)?.top
+      ) {
         gMessageNotificationBar.setRemoteContentMsg(
           null,
           subject,

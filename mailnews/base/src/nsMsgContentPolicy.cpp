@@ -339,7 +339,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   NS_ENSURE_SUCCESS(rv, rv);
   if (isEncrypted) {
     *aDecision = nsIContentPolicy::REJECT_REQUEST;
-    NotifyContentWasBlocked(targetContext->Top()->Id(), aContentLocation);
+    NotifyContentWasBlocked(targetContext->Id(), aContentLocation);
     return NS_OK;
   }
 
@@ -391,9 +391,8 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   }
 
   // The default decision is still to reject.
-  ShouldAcceptContentForPotentialMsg(targetContext->Top()->Id(),
-                                     aRequestingLocation, aContentLocation,
-                                     aDecision);
+  ShouldAcceptContentForPotentialMsg(targetContext->Id(), aRequestingLocation,
+                                     aContentLocation, aDecision);
   return NS_OK;
 }
 
