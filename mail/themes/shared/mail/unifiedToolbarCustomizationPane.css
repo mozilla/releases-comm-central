@@ -115,6 +115,10 @@
   margin: 1rem;
 }
 
+[is="customization-palette"]:not(:last-of-type) {
+  margin-block-end: 2.5rem;
+}
+
 h2 {
   margin-inline: 1rem;
   user-select: none;
