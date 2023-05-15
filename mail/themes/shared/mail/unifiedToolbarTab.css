@@ -22,7 +22,7 @@ button {
 }
 
 button[aria-selected="true"] {
-  background: var(--layout-background-1);
+  background-color: var(--layout-background-1);
   box-shadow: 0 2px 8px -5px var(--color-black);
 }
 
@@ -42,11 +42,11 @@ button[aria-selected="true"]::before {
 }
 
 button:not([aria-selected="true"]):hover {
-  background: color-mix(in srgb, var(--layout-background-1) 20%, transparent);
+  background-color: color-mix(in srgb, var(--layout-background-1) 50%, transparent);
 }
 
 button:not([aria-selected="true"]):hover::before {
-  background-color: color-mix(in srgb, var(--layout-background-1) 30%, transparent);
+  background-color: color-mix(in srgb, var(--layout-color-1) 15%, transparent);
 }
 
 button:focus-visible {
