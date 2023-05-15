@@ -465,6 +465,21 @@ static bool MimeMultipartRelated_output_child_p(MimeObject* obj,
           if (part) {
             char* name = MimeHeaders_get_name(child->headers, child->options);
             // let's stick the filename in the part so save as will work.
+            if (!name) {
+              // Mozilla platform code will correct the file extension
+              // when copying the embedded image. That doesn't work
+              // since our MailNews URLs don't allow setting the file
+              // extension. So provide a filename and valid extension.
+              char* ct = MimeHeaders_get(child->headers, HEADER_CONTENT_TYPE,
+                                         false, false);
+              if (ct) {
+                name = ct;
+                char* slash = strchr(name, '/');
+                if (slash) *slash = '.';
+                char* semi = strchr(name, ';');
+                if (semi) *semi = 0;
+              }
+            }
             if (name) {
               char* savePart = part;
               part = PR_smprintf("%s&filename=%s", savePart, name);
