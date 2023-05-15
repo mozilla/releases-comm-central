@@ -491,6 +491,16 @@
     <menuitem data-l10n-id="thread-pane-header-context-hide"
               oncommand="threadPaneHeader.toggleThreadPaneHeader();"/>
   </menupopup>
+  <menupopup id="folderPaneGetMessagesContext"
+             class="no-accel-menupopup"
+             position="bottomleft topleft"
+             onpopupshowing="folderPane.updateGetMessagesContextMenu();">
+    <menuitem id="itemGetAllNewMessages"
+              class="menuitem-iconic"
+              data-l10n-id="folder-pane-get-all-messages-menuitem"
+              oncommand="top.MsgGetMessagesForAllAuthenticatedAccounts();"/>
+  <menuseparator id="separatorAfterItemGetAllNewMessages"/>
+</menupopup>
 #include mailContext.inc.xhtml
 </popupset>
 </html>

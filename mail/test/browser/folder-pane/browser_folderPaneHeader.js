@@ -13,6 +13,7 @@ let tabmail,
   newButton,
   moreButton,
   moreContext,
+  fetchContext,
   folderModesContextMenu,
   folderModesContextMenuPopup,
   totalCountBadge;
@@ -22,6 +23,9 @@ add_setup(async function() {
   about3Pane = tabmail.currentAbout3Pane;
   folderPaneHeader = about3Pane.document.getElementById("folderPaneHeaderBar");
   fetchButton = folderPaneHeader.querySelector("#folderPaneGetMessages");
+  fetchContext = about3Pane.document.getElementById(
+    "folderPaneGetMessagesContext"
+  );
   newButton = folderPaneHeader.querySelector("#folderPaneWriteMessage");
   moreButton = folderPaneHeader.querySelector("#folderPaneMoreButton");
   moreContext = about3Pane.document.getElementById("folderPaneMoreContext");
@@ -476,6 +480,32 @@ add_task(async function testFolderModesDeactivation() {
   await menuHiddenPromise;
 
   menuHiddenPromise = BrowserTestUtils.waitForEvent(moreContext, "popuphidden");
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
+});
+
+add_task(async function testGetMessageContextMenu() {
+  const shownPromise = BrowserTestUtils.waitForEvent(
+    fetchContext,
+    "popupshown"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    fetchButton,
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+
+  Assert.equal(
+    fetchContext.querySelectorAll("menuitem").length,
+    2,
+    "2 menuitems should be present in the fetch context"
+  );
+
+  const menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    fetchContext,
+    "popuphidden"
+  );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
   await menuHiddenPromise;
 });

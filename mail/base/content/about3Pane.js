@@ -1131,19 +1131,23 @@ var folderPane = {
     document.getElementById(
       "folderPaneHeaderBar"
     ).hidden = this.isFolderPaneHeaderHidden();
-    document
-      .getElementById("folderPaneGetMessages")
-      .addEventListener("click", () => {
-        top.MsgGetMessagesForAccount();
-      });
+    const folderPaneGetMessages = document.getElementById(
+      "folderPaneGetMessages"
+    );
+    folderPaneGetMessages.addEventListener("click", () => {
+      top.MsgGetMessagesForAccount();
+    });
+    folderPaneGetMessages.addEventListener("contextmenu", event => {
+      document
+        .getElementById("folderPaneGetMessagesContext")
+        .openPopup(event.target, { triggerEvent: event });
+    });
     document
       .getElementById("folderPaneWriteMessage")
       .addEventListener("click", event => {
         top.MsgNewMessage(event);
       });
-    document.getElementById(
-      "folderPaneGetMessages"
-    ).hidden = this.isFolderPaneGetMsgsBtnHidden();
+    folderPaneGetMessages.hidden = this.isFolderPaneGetMsgsBtnHidden();
     document.getElementById(
       "folderPaneWriteMessage"
     ).hidden = this.isFolderPaneNewMsgBtnHidden();
@@ -2591,6 +2595,33 @@ var folderPane = {
     let visible = !this.isTotalMsgCountVisible();
     for (let badge of document.querySelectorAll(".total-count")) {
       badge.hidden = visible;
+    }
+  },
+
+  /**
+   * Populate the "Get Messages" context menu with all available servers that
+   * we can fetch data for.
+   */
+  updateGetMessagesContextMenu() {
+    const menupopup = document.getElementById("folderPaneGetMessagesContext");
+    while (menupopup.lastElementChild.classList.contains("server")) {
+      menupopup.lastElementChild.remove();
+    }
+
+    // Get all servers in the proper sorted order.
+    const servers = FolderUtils.allAccountsSorted(true)
+      .map(a => a.incomingServer)
+      .filter(s => s.rootFolder.isServer && s.type != "none");
+    for (let server of servers) {
+      const menuitem = document.createXULElement("menuitem");
+      menuitem.classList.add("menuitem-iconic", "server");
+      menuitem.dataset.serverType = server.type;
+      menuitem.dataset.serverSecure = server.isSecure;
+      menuitem.label = server.prettyName;
+      menuitem.addEventListener("command", () =>
+        top.MsgGetMessagesForAccount(server.rootFolder)
+      );
+      menupopup.appendChild(menuitem);
     }
   },
 };

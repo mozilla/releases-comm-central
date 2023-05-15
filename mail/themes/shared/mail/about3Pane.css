@@ -233,6 +233,16 @@ body:not(.account-central) #accountCentralBrowser {
   background-image: var(--folder-pane-icon-download);
 }
 
+#folderPaneGetMessagesContext {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+}
+
+#itemGetAllNewMessages {
+  list-style-image: var(--folder-pane-icon-download);
+}
+
 #folderPaneMoreButton {
   background-image: var(--folder-pane-icon-more);
 }
@@ -365,14 +375,17 @@ li:not(.selected) > .container:hover {
   background-image: var(--icon-newsletter);
 }
 
-#folderTree li[data-server-type="imap"] > .container > .icon,
-#folderTree li[data-server-type="pop3"] > .container > .icon {
+#folderTree li:is([data-server-type="imap"], [data-server-type="pop3"]) > .container > .icon {
   background-image: var(--icon-mail);
 }
 
-#folderTree li[data-server-type="imap"][data-server-secure="true"] > .container > .icon,
-#folderTree li[data-server-type="pop3"][data-server-secure="true"] > .container > .icon {
+#folderTree li:is([data-server-type="imap"], [data-server-type="pop3"])[data-server-secure="true"]
+  > .container > .icon {
   background-image: var(--icon-mail-secure);
+}
+
+menuitem.server:is([data-server-type="imap"], [data-server-type="pop3"])[data-server-secure="true"] {
+  list-style-image: var(--icon-mail-secure);
 }
 
 #folderTree li[data-server-type="none"] > .container > .icon {
@@ -383,12 +396,24 @@ li:not(.selected) > .container:hover {
   background-image: var(--icon-globe);
 }
 
+menuitem.server[data-server-type="nntp"] {
+  list-style-image: var(--icon-globe);
+}
+
 #folderTree li[data-server-type="nntp"][data-server-secure="true"] > .container > .icon {
   background-image: var(--icon-globe-secure);
 }
 
+menuitem.server[data-server-type="nntp"][data-server-secure="true"] {
+  list-style-image: var(--icon-globe-secure);
+}
+
 #folderTree li[data-server-type="rss"] > .container > .icon {
   background-image: var(--icon-rss);
+}
+
+menuitem.server[data-server-type="rss"] {
+  list-style-image: var(--icon-rss);
 }
 
 #folderTree li[data-folder-type="archive"] > .container > .icon {

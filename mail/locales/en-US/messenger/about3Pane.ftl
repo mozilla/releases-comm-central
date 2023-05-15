@@ -155,6 +155,10 @@ quick-filter-bar-gloda-upsell-line2 = Press ‘Enter’ again to continue your s
 folder-pane-get-messages-button =
   .title = Get messages
 
+folder-pane-get-all-messages-menuitem =
+  .label = Get All New Messages
+  .accesskey = G
+
 folder-pane-write-message-button = New Message
   .title = Compose a new message
 
