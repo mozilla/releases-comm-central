@@ -14,6 +14,7 @@
   background-color: var(--body-background-color);
   color: var(--body-text-color);
   appearance: none;
+  user-select: auto; /* Overrides messenger.css. */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -199,6 +200,7 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 6px;
+  user-select: none;
 }
 
 @media print {
