@@ -18,10 +18,6 @@
   margin-inline-end: 8px;
 }
 
-#imip-view-toolbar {
-  --imip-button-background: #fff;
-}
-
 #calsidebar_splitter {
   border-inline-end: 1px solid var(--splitter-color);
   /* make only the splitter border visible */

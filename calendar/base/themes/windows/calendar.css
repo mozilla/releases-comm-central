@@ -50,7 +50,3 @@
 #today-splitter.calendar-sidebar-splitter:-moz-lwtheme {
   background-image: none;
 }
-
-#imip-view-toolbar {
-  --imip-button-background: ButtonFace;
-}

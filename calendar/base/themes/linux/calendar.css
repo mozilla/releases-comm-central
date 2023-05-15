@@ -44,7 +44,3 @@
 #calendar-status-todaypane-button > .toolbarbutton-text {
   margin: 0 0 1px !important;
 }
-
-#imip-view-toolbar {
-  --imip-button-background: AppWorkspace;
-}
