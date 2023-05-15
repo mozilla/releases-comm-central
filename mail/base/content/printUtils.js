@@ -102,7 +102,7 @@ XPCOMUtils.defineLazyGetter(this, "PrintUtils", () => {
   );
   scope.PrintUtils.loadPrintBrowser = async function(url) {
     let printBrowser = this.printBrowser;
-    if (printBrowser.currentURI.spec == url) {
+    if (printBrowser.currentURI?.spec == url) {
       return;
     }
 
