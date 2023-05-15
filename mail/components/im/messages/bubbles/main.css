@@ -6,6 +6,7 @@ body {
   margin: 0;
   padding: 0;
   background: -moz-linear-gradient(top, -moz-dialog, -moz-default-background-color) fixed;
+  color: #000;
 }
 
 p {
