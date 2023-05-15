@@ -313,8 +313,9 @@ add_task(async function testSignedEncryptedMessageWithKeyComposition() {
   EventUtils.synthesizeKey("VK_DELETE");
 });
 
-registerCleanupFunction(function tearDown() {
+registerCleanupFunction(async function tearDown() {
   bobIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
+  await OpenPGPTestUtils.removeKeyById("0xfbfcc82a015e7330", true);
   MailServices.accounts.removeIncomingServer(bobAcct.incomingServer, true);
   MailServices.accounts.removeAccount(bobAcct, true);
 });
