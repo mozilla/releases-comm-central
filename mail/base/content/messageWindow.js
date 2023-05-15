@@ -174,17 +174,21 @@ function actuallyLoadMessage() {
       return;
     }
 
-    let msgHdr = null;
+    let msgHdr, viewWrapperToClone;
     // message header as an object?
     if ("wrappedJSObject" in window.arguments[0]) {
       let hdrObject = window.arguments[0].wrappedJSObject;
-      msgHdr = hdrObject.msgHdr;
+      ({ msgHdr, viewWrapperToClone } = hdrObject);
     } else if (window.arguments[0] instanceof Ci.nsIMsgDBHdr) {
       // message header as a separate param?
       msgHdr = window.arguments[0];
+      viewWrapperToClone = window.arguments[1];
     }
 
-    contentWindow.displayMessage(msgHdr.folder.getUriForMsg(msgHdr));
+    contentWindow.displayMessage(
+      msgHdr.folder.getUriForMsg(msgHdr),
+      viewWrapperToClone
+    );
   }
 
   // set focus to the message pane
@@ -733,7 +737,8 @@ function navigateToUri(target) {
   if (index != nsMsgViewIndex_None) {
     currentWindow.gViewWrapper.dbView.selection.select(index);
     currentWindow.displayMessage(
-      currentWindow.gViewWrapper.dbView.URIForFirstSelectedMessage
+      currentWindow.gViewWrapper.dbView.URIForFirstSelectedMessage,
+      currentWindow.gViewWrapper
     );
   }
 }

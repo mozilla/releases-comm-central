@@ -796,7 +796,10 @@ var commandController = {
       }
     } else {
       gViewWrapper.dbView.selection.select(resultIndex.value);
-      window.displayMessage(gViewWrapper.dbView.URIForFirstSelectedMessage);
+      window.displayMessage(
+        gViewWrapper.dbView.URIForFirstSelectedMessage,
+        gViewWrapper
+      );
     }
   },
 };
@@ -928,7 +931,8 @@ var dbViewWrapperListener = {
         } else if (parent?.location != "about:3pane") {
           gDBView.selection.select(this._nextViewIndexAfterDelete);
           window.displayMessage(
-            gDBView.getURIForViewIndex(this._nextViewIndexAfterDelete)
+            gDBView.getURIForViewIndex(this._nextViewIndexAfterDelete),
+            gViewWrapper
           );
         }
       }
