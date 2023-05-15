@@ -11,6 +11,9 @@ var EXPORTED_SYMBOLS = ["EnigmailKeyRing"];
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
+const { MailStringUtils } = ChromeUtils.import(
+  "resource:///modules/MailStringUtils.jsm"
+);
 
 const lazy = {};
 
@@ -386,14 +389,22 @@ var EnigmailKeyRing = {
   },
 
   /**
-   * win: context/parent window
-   * passCB: a callback function that will be called if the user needs
-   *         to enter a passphrase to unlock a secret key.
-   *         For the current API, see passphrasePromptCallback
+   * Import a secret key from the given file.
+   *
+   * @param {nsIFile} file - ASCII armored file containing the revocation.
+   * @param {nsIWindow} win - parent window
+   * @param {Function} passCB - a callback function that will be called if the user needs
+   *   to enter a passphrase to unlock a secret key. See passphrasePromptCallback
+   *   for the function signature.
+   * @param {object} errorMsgObj - errorMsgObj.value will contain an error
+   *   message in case of failures
+   * @param {object} importedKeysObj - importedKeysObj.value will contain
+   *   an array of the FPRs imported
    */
   async importSecKeyFromFile(
     win,
     passCB,
+    keepPassphrases,
     inputFile,
     errorMsgObj,
     importedKeysObj
@@ -403,7 +414,9 @@ var EnigmailKeyRing = {
         inputFile.path +
         "\n"
     );
-    const cApi = lazy.EnigmailCryptoAPI();
+
+    let data = await IOUtils.read(inputFile.path);
+    let contents = MailStringUtils.uint8ArrayToByteString(data);
     let res;
     let tryAgain;
     let permissive = false;
@@ -413,10 +426,11 @@ var EnigmailKeyRing = {
 
       try {
         // strict on first attempt, permissive on optional second attempt
-        res = await cApi.importSecKeyFromFileAPI(
+        res = await lazy.RNP.importSecKeyBlockImpl(
           win,
           passCB,
-          inputFile,
+          keepPassphrases,
+          contents,
           permissive
         );
         failed =
@@ -721,18 +735,15 @@ var EnigmailKeyRing = {
    * @param parent          nsIWindow
    * @param askToConfirm    Boolean  - if true, display confirmation dialog
    * @param keyBlock        String   - data containing key
+   * @param isBinary        Boolean
    * @param keyId           String   - key ID expected to import (no meaning)
    * @param errorMsgObj     Object   - o.value will contain error message from GnuPG
    * @param importedKeysObj Object - [OPTIONAL] o.value will contain an array of the FPRs imported
    * @param minimizeKey     Boolean  - [OPTIONAL] minimize key for importing
    * @param limitedUids     Array<String> - [OPTIONAL] restrict importing the key(s) to a given set of UIDs
-   * @param importSecret    Boolean  - By default and traditionally, function imports public, only.
-   *                                   If true, will import secret, only.
    * @param allowPermissiveFallbackWithPrompt Boolean - If true, and regular import attempt fails,
    *                                                    the user is asked to allow an optional
    *                                                    permissive import attempt.
-   * @param passCB          Function - Password callback function
-   *                        TODO: After 78, callback should be moved to last parameter
    * @param {string} acceptance - Acceptance for the keys to import,
    *                                   which are new, or still have acceptance "undecided".
    *
@@ -751,9 +762,7 @@ var EnigmailKeyRing = {
     importedKeysObj,
     minimizeKey = false,
     limitedUids = [],
-    importSecret = false, // by default and traditionally, function imports public, only
     allowPermissiveFallbackWithPrompt = true,
-    passCB = null, // password callback function
     acceptance = null
   ) {
     const cApi = lazy.EnigmailCryptoAPI();
@@ -768,9 +777,7 @@ var EnigmailKeyRing = {
         importedKeysObj,
         minimizeKey,
         limitedUids,
-        importSecret,
         allowPermissiveFallbackWithPrompt,
-        passCB,
         acceptance
       )
     );
@@ -782,18 +789,15 @@ var EnigmailKeyRing = {
    * @param parent          nsIWindow
    * @param askToConfirm    Boolean  - if true, display confirmation dialog
    * @param keyBlock        String   - data containing key
+   * @param isBinary        Boolean
    * @param keyId           String   - key ID expected to import (no meaning)
    * @param errorMsgObj     Object   - o.value will contain error message from GnuPG
    * @param importedKeysObj Object - [OPTIONAL] o.value will contain an array of the FPRs imported
    * @param minimizeKey     Boolean  - [OPTIONAL] minimize key for importing
    * @param limitedUids     Array<String> - [OPTIONAL] restrict importing the key(s) to a given set of UIDs
-   * @param importSecret    Boolean  - By default and traditionally, function imports public, only.
-   *                                   If true, will import secret, only.
    * @param allowPermissiveFallbackWithPrompt Boolean - If true, and regular import attempt fails,
    *                                                    the user is asked to allow an optional
    *                                                    permissive import attempt.
-   * @param passCB          Function - Password callback function
-   *                        TODO: After 78, callback should be moved to last parameter
    * @param acceptance      String   - The new acceptance value for the imported keys,
    *                                   which are new, or still have acceptance "undecided".
    *
@@ -812,20 +816,12 @@ var EnigmailKeyRing = {
     importedKeysObj,
     minimizeKey = false,
     limitedUids = [],
-    importSecret = false,
     allowPermissiveFallbackWithPrompt = true,
-    passCB = null,
     acceptance = null
   ) {
     lazy.EnigmailLog.DEBUG(
       `keyRing.jsm: EnigmailKeyRing.importKeyAsync('${keyId}', ${askToConfirm}, ${minimizeKey})\n`
     );
-
-    if (importSecret && acceptance) {
-      throw new Error(
-        "Invalid parameters, cannot define acceptance when importing public keys"
-      );
-    }
 
     var pgpBlock;
     if (!isBinary) {
@@ -880,23 +876,13 @@ var EnigmailKeyRing = {
       // strict on first attempt, permissive on optional second attempt
       let blockParam = isBinary ? keyBlock : pgpBlock;
 
-      if (!importSecret) {
-        result = await cApi.importPubkeyBlockAutoAcceptAPI(
-          parent,
-          blockParam,
-          acceptance,
-          permissive,
-          limitedUids
-        );
-      } else {
-        result = await lazy.RNP.importSecKeyBlockImpl(
-          parent,
-          passCB,
-          blockParam,
-          permissive,
-          limitedUids
-        );
-      }
+      result = await cApi.importPubkeyBlockAutoAcceptAPI(
+        parent,
+        blockParam,
+        acceptance,
+        permissive,
+        limitedUids
+      );
 
       tryAgain = false;
       let failed =
@@ -964,9 +950,7 @@ var EnigmailKeyRing = {
             null,
             false,
             limitedUids,
-            false,
             true,
-            null,
             outParam.acceptance
           );
         } catch (ex) {
@@ -1017,9 +1001,7 @@ var EnigmailKeyRing = {
               null,
               false,
               limitedUids,
-              false,
               true,
-              null,
               outParam.acceptance
             );
           } catch (ex) {

@@ -278,7 +278,7 @@ class CryptoAPI {
     return null;
   }
 
-  async getNewRevocation(id) {
+  async unlockAndGetNewRevocation(id, pass) {
     return null;
   }
 

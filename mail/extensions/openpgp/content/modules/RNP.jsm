@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["RNP"];
+const EXPORTED_SYMBOLS = ["RNP", "RnpPrivateKeyUnlockTracker"];
 
 const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
@@ -26,6 +26,8 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   RNPLibLoader: "chrome://openpgp/content/modules/RNPLib.jsm",
 });
 
+var l10n = new Localization(["messenger/openpgp/openpgp.ftl"]);
+
 const str_encrypt = "encrypt";
 const str_sign = "sign";
 const str_certify = "certify";
@@ -33,6 +35,394 @@ const str_authenticate = "authenticate";
 const RNP_PHOTO_USERID_ID = "(photo)"; // string is hardcoded inside RNP
 
 var RNPLib;
+
+/**
+ * Opens a prompt, asking the user to enter passphrase for given key id.
+
+ * @param {?nsIWindow} win - Parent window, may be null
+ * @param {string} promptString - This message will be shown to the user
+ * @param {object} resultFlags - Attribute .canceled is set to true
+ *   if the user clicked cancel, other it's set to false.
+ * @returns {string} - The passphrase the user entered
+ */
+function passphrasePromptCallback(win, promptString, resultFlags) {
+  let password = { value: "" };
+  if (!Services.prompt.promptPassword(win, "", promptString, password)) {
+    resultFlags.canceled = true;
+    return "";
+  }
+
+  resultFlags.canceled = false;
+  return password.value;
+}
+
+/**
+ * Helper class to track resources related to a private/secret key,
+ * holding the key handle obtained from RNP, and offering services
+ * related to that key and its handle, including releasing the handle
+ * when done. Tracking a null handle is allowed.
+ */
+class RnpPrivateKeyUnlockTracker {
+  #rnpKeyHandle = null;
+  #wasUnlocked = false;
+  #allowPromptingUserForPassword = false;
+  #allowAutoUnlockWithCachedPasswords = false;
+  #passwordCache = null;
+  #fingerprint = "";
+  #passphraseCallback = null;
+  #rememberUnlockPasswordForUnprotect = false;
+  #unlockPassword = null;
+  #isLocked = true;
+
+  /**
+   * Initialize this object as a tracker for the private key identified
+   * by the given fingerprint. The fingerprint will be looked up in an
+   * RNP space (FFI) and the resulting handle will be tracked. The
+   * default FFI is used for performing the lookup, unless a specific
+   * FFI is given. If no key can be found, the object is initialized
+   * with a null handle. If a handle was found, the handle and any
+   * additional resources can be freed by calling the object's release()
+   * method.
+   *
+   * @param {string} fingerprint - the fingerprint of a key to look up.
+   * @param {rnp_ffi_t} ffi - An optional specific FFI.
+   * @returns {RnpPrivateKeyUnlockTracker} - a new instance, which was
+   *   either initialized with a found key handle, or with null-
+   */
+  static constructFromFingerprint(fingerprint, ffi = RNPLib.ffi) {
+    if (fingerprint.startsWith("0x")) {
+      throw new Error("fingerprint must not start with 0x");
+    }
+
+    let handle = RNP.getKeyHandleByKeyIdOrFingerprint(ffi, `0x${fingerprint}`);
+
+    return new RnpPrivateKeyUnlockTracker(handle);
+  }
+
+  /**
+   * Construct this object as a tracker for the private key referenced
+   * by the given handle. The object may also be initialized
+   * with null, if no key was found. A valid handle and any additional
+   * resources can be freed by calling the object's release() method.
+   *
+   * @param {?rnp_key_handle_t} handle - the handle of a RNP key, or null
+   */
+  constructor(handle) {
+    if (this.#rnpKeyHandle) {
+      throw new Error("Instance already initialized");
+    }
+    if (!handle) {
+      return;
+    }
+    this.#rnpKeyHandle = handle;
+    let is_locked = new lazy.ctypes.bool();
+    if (RNPLib.rnp_key_is_locked(this.#rnpKeyHandle, is_locked.address())) {
+      throw new Error("rnp_key_is_locked failed");
+    }
+    this.#isLocked = is_locked.value;
+
+    if (!this.#fingerprint) {
+      let fingerprint = new lazy.ctypes.char.ptr();
+      if (
+        RNPLib.rnp_key_get_fprint(this.#rnpKeyHandle, fingerprint.address())
+      ) {
+        throw new Error("rnp_key_get_fprint failed");
+      }
+      this.#fingerprint = fingerprint.readString();
+      RNPLib.rnp_buffer_destroy(fingerprint);
+    }
+  }
+
+  /**
+   * @param {Function} cb - Override the callback function that this
+   *   object will call to obtain the passphrase to unlock the private
+   *   key for tracked key handle, if the object needs to unlock
+   *   the key and prompting the user is allowed.
+   *   If no alternative callback is set, the global
+   *   passphrasePromptCallback function will be used.
+   */
+  setPassphraseCallback(cb) {
+    this.#passphraseCallback = cb;
+  }
+
+  /**
+   * Allow or forbid prompting the user for a passphrase.
+   *
+   * @param {boolean} isAllowed - True if allowed, false if forbidden
+   */
+  setAllowPromptingUserForPassword(isAllowed) {
+    this.#allowPromptingUserForPassword = isAllowed;
+  }
+
+  /**
+   * Allow or forbid automatically using passphrases from a configured
+   * cache of passphrase, if it's necessary to obtain a passphrase
+   * for unlocking.
+   *
+   * @param {boolean} isAllowed - True if allowed, false if forbidden
+   */
+  setAllowAutoUnlockWithCachedPasswords(isAllowed) {
+    this.#allowAutoUnlockWithCachedPasswords = isAllowed;
+  }
+
+  /**
+   * Allow or forbid this object to remember the passphrase that was
+   * successfully used to to unlock it. This is necessary when intending
+   * to subsequently call the unprotect() function to remove the key's
+   * passphrase protection. Care should be taken that a tracker object
+   * with a remembered passphrase is held in memory only for a short
+   * amount of time, and should be released as soon as a task has
+   * completed.
+   *
+   * @param {boolean} isAllowed - True if allowed, false if forbidden
+   */
+  setRememberUnlockPassword(isAllowed) {
+    this.#rememberUnlockPasswordForUnprotect = isAllowed;
+  }
+
+  /**
+   * Registers a reference to shared object that implements an optional
+   * password cache. Will be used to look up passwords if
+   * #allowAutoUnlockWithCachedPasswords is set to true. Will be used
+   * to store additional passwords that are found to unlock a key.
+   */
+  setPasswordCache(cacheObj) {
+    this.#passwordCache = cacheObj;
+  }
+
+  /**
+   * Completely remove the encryption layer that protects the private
+   * key. Requires that setRememberUnlockPassword(true) was already
+   * called on this object, prior to unlocking the key, because this
+   * code requires that the unlock/unprotect passphrase has been cached
+   * in this object already, and that the tracked key has already been
+   * unlocked.
+   */
+  unprotect() {
+    if (
+      !this.#rnpKeyHandle ||
+      !this.#isLocked ||
+      !this.#wasUnlocked ||
+      !this.#rememberUnlockPasswordForUnprotect
+    ) {
+      return;
+    }
+
+    if (RNPLib.rnp_key_unprotect(this.#rnpKeyHandle, this.#unlockPassword)) {
+      throw new Error(`Failed to unprotect private key ${this.#fingerprint}`);
+    }
+  }
+
+  /**
+   * Attempt to unlock the tracked key with the given passphrase,
+   * can also be used with the empty string, which will unlock the key
+   * if no passphrase is set.
+   *
+   * @param {string} pass - try to unlock the key using this passphrase
+   */
+  unlockWithPassword(pass) {
+    if (!this.#rnpKeyHandle || !this.#isLocked) {
+      return;
+    }
+    this.#wasUnlocked = false;
+
+    if (!RNPLib.rnp_key_unlock(this.#rnpKeyHandle, pass)) {
+      this.#isLocked = false;
+      this.#wasUnlocked = true;
+      if (this.#rememberUnlockPasswordForUnprotect) {
+        this.#unlockPassword = pass;
+      }
+    }
+  }
+
+  /**
+   * Attempt to unlock the tracked key, using the allowed unlock
+   * mechanisms that have been configured/allowed for this tracker,
+   * which must been configured as desired prior to calling this function.
+   * Attempts will potentially be made to unlock using the automatic
+   * passphrase, or using password available in the password cache,
+   * or by prompting the user for a password, repeatedly prompting
+   * until the user enters the correct password or cancels.
+   * When prompting the user for a passphrase, and the key is a subkey,
+   * it might be necessary to lookup the primary key. A RNP FFI handle
+   * is necessary for that potential lookup.
+   * Unless a ffi parameter is provided, the default ffi is used.
+   *
+   * @param {rnp_ffi_t} ffi - An optional specific FFI.
+   */
+  async unlock(ffi = RNPLib.ffi) {
+    if (!this.#rnpKeyHandle || !this.#isLocked) {
+      return;
+    }
+    this.#wasUnlocked = false;
+    let autoPassword = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
+
+    if (!RNPLib.rnp_key_unlock(this.#rnpKeyHandle, autoPassword)) {
+      this.#isLocked = false;
+      this.#wasUnlocked = true;
+      if (this.#rememberUnlockPasswordForUnprotect) {
+        this.#unlockPassword = autoPassword;
+      }
+      return;
+    }
+
+    if (this.#allowAutoUnlockWithCachedPasswords && this.#passwordCache) {
+      for (let pw of this.#passwordCache.passwords) {
+        if (!RNPLib.rnp_key_unlock(this.#rnpKeyHandle, pw)) {
+          this.#isLocked = false;
+          this.#wasUnlocked = true;
+          if (this.#rememberUnlockPasswordForUnprotect) {
+            this.#unlockPassword = pw;
+          }
+          return;
+        }
+      }
+    }
+
+    if (!this.#allowPromptingUserForPassword) {
+      return;
+    }
+
+    let promptString = await RNP.getPassphrasePrompt(this.#rnpKeyHandle, ffi);
+
+    while (true) {
+      let userFlags = { canceled: false };
+      let pass;
+      if (this.#passphraseCallback) {
+        pass = this.#passphraseCallback(null, promptString, userFlags);
+      } else {
+        pass = passphrasePromptCallback(null, promptString, userFlags);
+      }
+      if (userFlags.canceled) {
+        return;
+      }
+
+      if (!RNPLib.rnp_key_unlock(this.#rnpKeyHandle, pass)) {
+        this.#isLocked = false;
+        this.#wasUnlocked = true;
+        if (this.#rememberUnlockPasswordForUnprotect) {
+          this.#unlockPassword = pass;
+        }
+
+        if (this.#passwordCache) {
+          this.#passwordCache.passwords.push(pass);
+        }
+        return;
+      }
+    }
+  }
+
+  /**
+   * Check that this tracker has a reference to a valid private key.
+   * The check will fail e.g. for offline secret keys, where a
+   * primary key is marked as being a secret key, but not having
+   * the raw key data available. (In that scenario, the raw key data
+   * for subkeys is usually available.)
+   *
+   * @returns {boolean} - true if the tracked key is a secret/private
+   *   key with its key material available.
+   */
+  available() {
+    return (
+      this.#rnpKeyHandle &&
+      RNPLib.getSecretAvailableFromHandle(this.#rnpKeyHandle) &&
+      RNPLib.isSecretKeyMaterialAvailable(this.#rnpKeyHandle)
+    );
+  }
+
+  /**
+   * Obtain the raw RNP key handle managed by this tracker.
+   * The returned handle may be temporarily used by the caller,
+   * but the caller must not destroy the handle. The returned handle
+   * will become invalid as soon as the release() function is called
+   * on this tracker object.
+   *
+   * @returns {rnp_key_handle_t} - the handle of the tracked private key
+   *   or null, if no key is tracked by this tracker.
+   */
+  getHandle() {
+    return this.#rnpKeyHandle;
+  }
+
+  /**
+   * @returns {string} - key fingerprint of the tracked key, or the
+   *   empty string.
+   */
+  getFingerprint() {
+    return this.#fingerprint;
+  }
+
+  /**
+   * @returns {boolean} - true if the tracked key is currently unlocked.
+   */
+  isUnlocked() {
+    return !this.#isLocked;
+  }
+
+  /**
+   * Protect the key with the automatic passphrase mechanism, that is,
+   * using the classic mechanism that uses an automatically generated
+   * passphrase, which is either unprotected, or protected by the
+   * primary password.
+   * Requires that the key is unlocked already.
+   */
+  async setAutoPassphrase() {
+    if (!this.#rnpKeyHandle) {
+      return;
+    }
+
+    let autoPassword = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
+    if (
+      RNPLib.rnp_key_protect(
+        this.#rnpKeyHandle,
+        autoPassword,
+        null,
+        null,
+        null,
+        0
+      )
+    ) {
+      throw new Error(`rnp_key_protect failed for ${this.#fingerprint}`);
+    }
+  }
+
+  /**
+   * Protect the key with the given passphrase.
+   * Requires that the key is unlocked already.
+   *
+   * @param {string} pass - protect the key with this passphrase
+   */
+  setPassphrase(pass) {
+    if (!this.#rnpKeyHandle) {
+      return;
+    }
+
+    if (RNPLib.rnp_key_protect(this.#rnpKeyHandle, pass, null, null, null, 0)) {
+      throw new Error(`rnp_key_protect failed for ${this.#fingerprint}`);
+    }
+  }
+
+  /**
+   * Release all data managed by this tracker, if necessary locking the
+   * tracked private key, forgetting the remembered unlock password,
+   * and destroying the handle.
+   * Note that data passed on to a password cache isn't released.
+   */
+  release() {
+    if (!this.#rnpKeyHandle) {
+      return;
+    }
+
+    this.#unlockPassword = null;
+    if (!this.#isLocked && this.#wasUnlocked) {
+      RNPLib.rnp_key_lock(this.#rnpKeyHandle);
+      this.#isLocked = true;
+    }
+
+    RNPLib.rnp_key_handle_destroy(this.#rnpKeyHandle);
+    this.#rnpKeyHandle = null;
+  }
+}
 
 var RNP = {
   hasRan: false,
@@ -79,10 +469,20 @@ var RNP = {
     }
   },
 
+  /**
+   * returns {integer} - the raw value of the key's creation date
+   */
+  getKeyCreatedValueFromHandle(handle) {
+    let key_creation = new lazy.ctypes.uint32_t();
+    if (RNPLib.rnp_key_get_creation(handle, key_creation.address())) {
+      throw new Error("rnp_key_get_creation failed");
+    }
+    return key_creation.value;
+  },
+
   addKeyAttributes(handle, meta, keyObj, is_subkey, forListing) {
     let algo = new lazy.ctypes.char.ptr();
     let bits = new lazy.ctypes.uint32_t();
-    let key_creation = new lazy.ctypes.uint32_t();
     let key_expiration = new lazy.ctypes.uint32_t();
     let allowed = new lazy.ctypes.bool();
 
@@ -118,10 +518,7 @@ var RNP = {
     }
     keyObj.keySize = bits.value;
 
-    if (RNPLib.rnp_key_get_creation(handle, key_creation.address())) {
-      throw new Error("rnp_key_get_creation failed");
-    }
-    keyObj.keyCreated = key_creation.value;
+    keyObj.keyCreated = this.getKeyCreatedValueFromHandle(handle);
     keyObj.created = new Services.intl.DateTimeFormat().format(
       new Date(keyObj.keyCreated * 1000)
     );
@@ -1135,25 +1532,110 @@ var RNP = {
     return str.replace(commentLine, "");
   },
 
-  async decrypt(encrypted, options, alreadyDecrypted = false) {
-    let input_from_memory = new RNPLib.rnp_input_t();
+  /**
+   * This function analyzes an encrypted message. It will check if one
+   * of the available secret keys can be used to decrypt a message,
+   * without actually performing the decryption.
+   * This is done by performing a decryption attempt in an empty
+   * environment, which doesn't have any keys available. The decryption
+   * attempt allows us to use the RNP APIs that list the key IDs of
+   * keys that would be able to decrypt the object.
+   * If a matching available secret ID is found, then the handle to that
+   * available secret key is returned.
+   *
+   * @param {rnp_input_t} - A prepared RNP input object that contains
+   *   the encrypted message that should be analyzed.
+   * @returns {rnp_key_handle_t} - the handle of a private key that can
+   *   be used to decrypt the message, or null, if no usable key was
+   *   found.
+   */
+  getFirstAvailableDecryptionKeyHandle(encrypted_rnp_input_from_memory) {
+    let resultKey = null;
 
-    let arr = encrypted.split("").map(e => e.charCodeAt());
-    var encrypted_array = lazy.ctypes.uint8_t.array()(arr);
+    let dummyFfi = RNPLib.prepare_ffi();
+    if (!dummyFfi) {
+      return null;
+    }
 
-    RNPLib.rnp_input_from_memory(
-      input_from_memory.address(),
-      encrypted_array,
-      encrypted_array.length,
-      false
+    const dummy_max_output_size = 1;
+    let dummy_output_to_memory = new RNPLib.rnp_output_t();
+    RNPLib.rnp_output_to_memory(
+      dummy_output_to_memory.address(),
+      dummy_max_output_size
     );
 
-    // Allow compressed encrypted messages, max factor 1200, up to 100 MiB.
-    const max_decrypted_message_size = 100 * 1024 * 1024;
-    let max_out = Math.min(encrypted.length * 1200, max_decrypted_message_size);
+    let dummy_verify_op = new RNPLib.rnp_op_verify_t();
+    RNPLib.rnp_op_verify_create(
+      dummy_verify_op.address(),
+      dummyFfi,
+      encrypted_rnp_input_from_memory,
+      dummy_output_to_memory
+    );
 
-    let output_to_memory = new RNPLib.rnp_output_t();
-    RNPLib.rnp_output_to_memory(output_to_memory.address(), max_out);
+    // It's expected and ok that this function returns an error,
+    // e.r. RNP_ERROR_NO_SUITABLE_KEY, we'll query detailed results.
+    RNPLib.rnp_op_verify_execute(dummy_verify_op);
+
+    let all_recip_count = new lazy.ctypes.size_t();
+    if (
+      RNPLib.rnp_op_verify_get_recipient_count(
+        dummy_verify_op,
+        all_recip_count.address()
+      )
+    ) {
+      throw new Error("rnp_op_verify_get_recipient_count failed");
+    }
+
+    // Loop is skipped if all_recip_count is zero.
+    for (
+      let recip_i = 0;
+      recip_i < all_recip_count.value && !resultKey;
+      recip_i++
+    ) {
+      let recip_handle = new RNPLib.rnp_recipient_handle_t();
+      if (
+        RNPLib.rnp_op_verify_get_recipient_at(
+          dummy_verify_op,
+          recip_i,
+          recip_handle.address()
+        )
+      ) {
+        throw new Error("rnp_op_verify_get_recipient_at failed");
+      }
+
+      let c_key_id = new lazy.ctypes.char.ptr();
+      if (RNPLib.rnp_recipient_get_keyid(recip_handle, c_key_id.address())) {
+        throw new Error("rnp_recipient_get_keyid failed");
+      }
+      let recip_key_id = c_key_id.readString();
+      RNPLib.rnp_buffer_destroy(c_key_id);
+
+      let recip_key_handle = this.getKeyHandleByKeyIdOrFingerprint(
+        RNPLib.ffi,
+        "0x" + recip_key_id
+      );
+      if (!recip_key_handle.isNull()) {
+        if (
+          RNPLib.getSecretAvailableFromHandle(recip_key_handle) &&
+          RNPLib.isSecretKeyMaterialAvailable(recip_key_handle)
+        ) {
+          resultKey = recip_key_handle;
+        } else {
+          RNPLib.rnp_key_handle_destroy(recip_key_handle);
+        }
+      }
+    }
+
+    RNPLib.rnp_output_destroy(dummy_output_to_memory);
+    RNPLib.rnp_op_verify_destroy(dummy_verify_op);
+    RNPLib.rnp_ffi_destroy(dummyFfi);
+
+    return resultKey;
+  },
+
+  async decrypt(encrypted, options, alreadyDecrypted = false) {
+    let arr = encrypted.split("").map(e => e.charCodeAt());
+    var encrypted_array = lazy.ctypes.uint8_t.array()(arr);
 
     let result = {};
     result.decryptedData = "";
@@ -1172,216 +1654,271 @@ var RNP = {
       result.encToDetails = options.encToDetails;
     }
 
-    let verify_op = new RNPLib.rnp_op_verify_t();
-    result.exitCode = RNPLib.rnp_op_verify_create(
-      verify_op.address(),
-      RNPLib.ffi,
-      input_from_memory,
-      output_to_memory
+    // We cannot reuse the same rnp_input_t for both the dummy operation
+    // and the real decryption operation, as the rnp_input_t object
+    // apparently becomes unusable after operating on it.
+    // That's why we produce a separate rnp_input_t based on the same
+    // data for the dummy operation.
+    let dummy_input_from_memory = new RNPLib.rnp_input_t();
+    RNPLib.rnp_input_from_memory(
+      dummy_input_from_memory.address(),
+      encrypted_array,
+      encrypted_array.length,
+      false
     );
 
-    result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
+    let rnpCannotDecrypt = true;
 
-    let rnpCannotDecrypt = false;
-    let queryAllEncryptionRecipients = false;
-    let stillUndecidedIfSignatureIsBad = false;
+    let decryptKey = new RnpPrivateKeyUnlockTracker(
+      this.getFirstAvailableDecryptionKeyHandle(dummy_input_from_memory)
+    );
 
-    let useDecodedData;
-    let processSignature;
-    switch (result.exitCode) {
-      case RNPLib.RNP_SUCCESS:
-        useDecodedData = true;
-        processSignature = true;
-        break;
-      case RNPLib.RNP_ERROR_SIGNATURE_INVALID:
-        // Either the signing key is unavailable, or the signature is
-        // indeed bad. Must check signature status below.
-        stillUndecidedIfSignatureIsBad = true;
-        useDecodedData = true;
-        processSignature = true;
-        break;
-      case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
-        useDecodedData = true;
-        processSignature = false;
-        result.statusFlags |= lazy.EnigmailConstants.EXPIRED_SIGNATURE;
-        break;
-      case RNPLib.RNP_ERROR_DECRYPT_FAILED:
-        rnpCannotDecrypt = true;
-        useDecodedData = false;
-        processSignature = false;
-        queryAllEncryptionRecipients = true;
-        result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_FAILED;
-        break;
-      case RNPLib.RNP_ERROR_NO_SUITABLE_KEY:
-        rnpCannotDecrypt = true;
-        useDecodedData = false;
-        processSignature = false;
-        queryAllEncryptionRecipients = true;
-        result.statusFlags |=
-          lazy.EnigmailConstants.DECRYPTION_FAILED |
-          lazy.EnigmailConstants.NO_SECKEY;
-        break;
-      default:
-        useDecodedData = false;
-        processSignature = false;
-        console.debug(
-          "rnp_op_verify_execute returned unexpected: " + result.exitCode
-        );
-        break;
+    decryptKey.setAllowPromptingUserForPassword(true);
+    decryptKey.setAllowAutoUnlockWithCachedPasswords(true);
+
+    if (decryptKey.available()) {
+      // If the key cannot be automatically unlocked, we'll rely on
+      // the password prompt callback from RNP, and on the user to unlock.
+      await decryptKey.unlock();
     }
 
-    if (useDecodedData && alreadyDecrypted) {
-      result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
-    } else if (useDecodedData && !alreadyDecrypted) {
-      let prot_mode_str = new lazy.ctypes.char.ptr();
-      let prot_cipher_str = new lazy.ctypes.char.ptr();
-      let prot_is_valid = new lazy.ctypes.bool();
-
-      if (
-        RNPLib.rnp_op_verify_get_protection_info(
-          verify_op,
-          prot_mode_str.address(),
-          prot_cipher_str.address(),
-          prot_is_valid.address()
-        )
-      ) {
-        throw new Error("rnp_op_verify_get_protection_info failed");
-      }
-      let mode = prot_mode_str.readString();
-      let cipher = prot_cipher_str.readString();
-      let validIntegrityProtection = prot_is_valid.value;
-
-      if (mode != "none") {
-        if (!validIntegrityProtection) {
-          useDecodedData = false;
-          result.statusFlags |=
-            lazy.EnigmailConstants.MISSING_MDC |
-            lazy.EnigmailConstants.DECRYPTION_FAILED;
-        } else if (mode == "null" || this.policyForbidsAlg(cipher)) {
-          // don't indicate decryption, because a non-protecting or insecure cipher was used
-          result.statusFlags |= lazy.EnigmailConstants.UNKNOWN_ALGO;
-        } else {
-          queryAllEncryptionRecipients = true;
-
-          let recip_handle = new RNPLib.rnp_recipient_handle_t();
-          let rv = RNPLib.rnp_op_verify_get_used_recipient(
-            verify_op,
-            recip_handle.address()
-          );
-          if (rv) {
-            throw new Error("rnp_op_verify_get_used_recipient failed");
-          }
-
-          let c_alg = new lazy.ctypes.char.ptr();
-          rv = RNPLib.rnp_recipient_get_alg(recip_handle, c_alg.address());
-          if (rv) {
-            throw new Error("rnp_recipient_get_alg failed");
-          }
-
-          if (this.policyForbidsAlg(c_alg.readString())) {
-            result.statusFlags |= lazy.EnigmailConstants.UNKNOWN_ALGO;
-          } else {
-            this.getKeyIdsFromRecipHandle(
-              recip_handle,
-              result.encToDetails.myRecipKey
-            );
-            result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
-          }
-        }
-      }
-    }
-
-    if (queryAllEncryptionRecipients) {
-      let all_recip_count = new lazy.ctypes.size_t();
-      if (
-        RNPLib.rnp_op_verify_get_recipient_count(
-          verify_op,
-          all_recip_count.address()
-        )
-      ) {
-        throw new Error("rnp_op_verify_get_recipient_count failed");
-      }
-      if (all_recip_count.value > 1) {
-        for (let recip_i = 0; recip_i < all_recip_count.value; recip_i++) {
-          let other_recip_handle = new RNPLib.rnp_recipient_handle_t();
-          if (
-            RNPLib.rnp_op_verify_get_recipient_at(
-              verify_op,
-              recip_i,
-              other_recip_handle.address()
-            )
-          ) {
-            throw new Error("rnp_op_verify_get_recipient_at failed");
-          }
-          let encTo = {};
-          this.getKeyIdsFromRecipHandle(other_recip_handle, encTo);
-          result.encToDetails.allRecipKeys.push(encTo);
-        }
-      }
-    }
-
-    if (useDecodedData) {
-      let result_buf = new lazy.ctypes.uint8_t.ptr();
-      let result_len = new lazy.ctypes.size_t();
-      let rv = RNPLib.rnp_output_memory_get_buf(
-        output_to_memory,
-        result_buf.address(),
-        result_len.address(),
+    // Even if we don't have a matching decryption key, run
+    // through full processing, to obtain all the various status flags,
+    // and because decryption might not be necessary.
+    try {
+      let input_from_memory = new RNPLib.rnp_input_t();
+      RNPLib.rnp_input_from_memory(
+        input_from_memory.address(),
+        encrypted_array,
+        encrypted_array.length,
         false
       );
 
-      // result_len is of type UInt64, I don't know of a better way
-      // to convert it to an integer.
-      let b_len = parseInt(result_len.value.toString());
+      // Allow compressed encrypted messages, max factor 1200, up to 100 MiB.
+      const max_decrypted_message_size = 100 * 1024 * 1024;
+      let max_out = Math.min(
+        encrypted.length * 1200,
+        max_decrypted_message_size
+      );
 
-      if (!rv) {
-        // type casting the pointer type to an array type allows us to
-        // access the elements by index.
-        let uint8_array = lazy.ctypes.cast(
-          result_buf,
-          lazy.ctypes.uint8_t.array(result_len.value).ptr
-        ).contents;
+      let output_to_memory = new RNPLib.rnp_output_t();
+      RNPLib.rnp_output_to_memory(output_to_memory.address(), max_out);
 
-        let str = "";
-        for (let i = 0; i < b_len; i++) {
-          str += String.fromCharCode(uint8_array[i]);
-        }
+      let verify_op = new RNPLib.rnp_op_verify_t();
+      // Apparently the exit code here is ignored (replaced below)
+      result.exitCode = RNPLib.rnp_op_verify_create(
+        verify_op.address(),
+        RNPLib.ffi,
+        input_from_memory,
+        output_to_memory
+      );
 
-        result.decryptedData = str;
+      result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
+
+      rnpCannotDecrypt = false;
+      let queryAllEncryptionRecipients = false;
+      let stillUndecidedIfSignatureIsBad = false;
+
+      let useDecodedData;
+      let processSignature;
+      switch (result.exitCode) {
+        case RNPLib.RNP_SUCCESS:
+          useDecodedData = true;
+          processSignature = true;
+          break;
+        case RNPLib.RNP_ERROR_SIGNATURE_INVALID:
+          // Either the signing key is unavailable, or the signature is
+          // indeed bad. Must check signature status below.
+          stillUndecidedIfSignatureIsBad = true;
+          useDecodedData = true;
+          processSignature = true;
+          break;
+        case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
+          useDecodedData = true;
+          processSignature = false;
+          result.statusFlags |= lazy.EnigmailConstants.EXPIRED_SIGNATURE;
+          break;
+        case RNPLib.RNP_ERROR_DECRYPT_FAILED:
+          rnpCannotDecrypt = true;
+          useDecodedData = false;
+          processSignature = false;
+          queryAllEncryptionRecipients = true;
+          result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_FAILED;
+          break;
+        case RNPLib.RNP_ERROR_NO_SUITABLE_KEY:
+          rnpCannotDecrypt = true;
+          useDecodedData = false;
+          processSignature = false;
+          queryAllEncryptionRecipients = true;
+          result.statusFlags |=
+            lazy.EnigmailConstants.DECRYPTION_FAILED |
+            lazy.EnigmailConstants.NO_SECKEY;
+          break;
+        default:
+          useDecodedData = false;
+          processSignature = false;
+          console.debug(
+            "rnp_op_verify_execute returned unexpected: " + result.exitCode
+          );
+          break;
       }
 
-      if (processSignature) {
-        // ignore "no signature" result, that's ok
-        await this.getVerifyDetails(
-          RNPLib.ffi,
-          options.fromAddr,
-          options.msgDate,
-          verify_op,
-          result
-        );
+      if (useDecodedData && alreadyDecrypted) {
+        result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
+      } else if (useDecodedData && !alreadyDecrypted) {
+        let prot_mode_str = new lazy.ctypes.char.ptr();
+        let prot_cipher_str = new lazy.ctypes.char.ptr();
+        let prot_is_valid = new lazy.ctypes.bool();
 
         if (
-          (result.statusFlags &
-            (lazy.EnigmailConstants.GOOD_SIGNATURE |
-              lazy.EnigmailConstants.UNCERTAIN_SIGNATURE |
-              lazy.EnigmailConstants.EXPIRED_SIGNATURE |
-              lazy.EnigmailConstants.BAD_SIGNATURE)) !=
-          0
+          RNPLib.rnp_op_verify_get_protection_info(
+            verify_op,
+            prot_mode_str.address(),
+            prot_cipher_str.address(),
+            prot_is_valid.address()
+          )
         ) {
-          // A decision was already made.
-          stillUndecidedIfSignatureIsBad = false;
+          throw new Error("rnp_op_verify_get_protection_info failed");
+        }
+        let mode = prot_mode_str.readString();
+        let cipher = prot_cipher_str.readString();
+        let validIntegrityProtection = prot_is_valid.value;
+
+        if (mode != "none") {
+          if (!validIntegrityProtection) {
+            useDecodedData = false;
+            result.statusFlags |=
+              lazy.EnigmailConstants.MISSING_MDC |
+              lazy.EnigmailConstants.DECRYPTION_FAILED;
+          } else if (mode == "null" || this.policyForbidsAlg(cipher)) {
+            // don't indicate decryption, because a non-protecting or insecure cipher was used
+            result.statusFlags |= lazy.EnigmailConstants.UNKNOWN_ALGO;
+          } else {
+            queryAllEncryptionRecipients = true;
+
+            let recip_handle = new RNPLib.rnp_recipient_handle_t();
+            let rv = RNPLib.rnp_op_verify_get_used_recipient(
+              verify_op,
+              recip_handle.address()
+            );
+            if (rv) {
+              throw new Error("rnp_op_verify_get_used_recipient failed");
+            }
+
+            let c_alg = new lazy.ctypes.char.ptr();
+            rv = RNPLib.rnp_recipient_get_alg(recip_handle, c_alg.address());
+            if (rv) {
+              throw new Error("rnp_recipient_get_alg failed");
+            }
+
+            if (this.policyForbidsAlg(c_alg.readString())) {
+              result.statusFlags |= lazy.EnigmailConstants.UNKNOWN_ALGO;
+            } else {
+              this.getKeyIdsFromRecipHandle(
+                recip_handle,
+                result.encToDetails.myRecipKey
+              );
+              result.statusFlags |= lazy.EnigmailConstants.DECRYPTION_OKAY;
+            }
+          }
         }
       }
-    }
 
-    if (stillUndecidedIfSignatureIsBad) {
-      // We didn't find more details above, so conclude it's bad.
-      result.statusFlags |= lazy.EnigmailConstants.BAD_SIGNATURE;
-    }
+      if (queryAllEncryptionRecipients) {
+        let all_recip_count = new lazy.ctypes.size_t();
+        if (
+          RNPLib.rnp_op_verify_get_recipient_count(
+            verify_op,
+            all_recip_count.address()
+          )
+        ) {
+          throw new Error("rnp_op_verify_get_recipient_count failed");
+        }
+        if (all_recip_count.value > 1) {
+          for (let recip_i = 0; recip_i < all_recip_count.value; recip_i++) {
+            let other_recip_handle = new RNPLib.rnp_recipient_handle_t();
+            if (
+              RNPLib.rnp_op_verify_get_recipient_at(
+                verify_op,
+                recip_i,
+                other_recip_handle.address()
+              )
+            ) {
+              throw new Error("rnp_op_verify_get_recipient_at failed");
+            }
+            let encTo = {};
+            this.getKeyIdsFromRecipHandle(other_recip_handle, encTo);
+            result.encToDetails.allRecipKeys.push(encTo);
+          }
+        }
+      }
 
-    RNPLib.rnp_input_destroy(input_from_memory);
-    RNPLib.rnp_output_destroy(output_to_memory);
-    RNPLib.rnp_op_verify_destroy(verify_op);
+      if (useDecodedData) {
+        let result_buf = new lazy.ctypes.uint8_t.ptr();
+        let result_len = new lazy.ctypes.size_t();
+        let rv = RNPLib.rnp_output_memory_get_buf(
+          output_to_memory,
+          result_buf.address(),
+          result_len.address(),
+          false
+        );
+
+        // result_len is of type UInt64, I don't know of a better way
+        // to convert it to an integer.
+        let b_len = parseInt(result_len.value.toString());
+
+        if (!rv) {
+          // type casting the pointer type to an array type allows us to
+          // access the elements by index.
+          let uint8_array = lazy.ctypes.cast(
+            result_buf,
+            lazy.ctypes.uint8_t.array(result_len.value).ptr
+          ).contents;
+
+          let str = "";
+          for (let i = 0; i < b_len; i++) {
+            str += String.fromCharCode(uint8_array[i]);
+          }
+
+          result.decryptedData = str;
+        }
+
+        if (processSignature) {
+          // ignore "no signature" result, that's ok
+          await this.getVerifyDetails(
+            RNPLib.ffi,
+            options.fromAddr,
+            options.msgDate,
+            verify_op,
+            result
+          );
+
+          if (
+            (result.statusFlags &
+              (lazy.EnigmailConstants.GOOD_SIGNATURE |
+                lazy.EnigmailConstants.UNCERTAIN_SIGNATURE |
+                lazy.EnigmailConstants.EXPIRED_SIGNATURE |
+                lazy.EnigmailConstants.BAD_SIGNATURE)) !=
+            0
+          ) {
+            // A decision was already made.
+            stillUndecidedIfSignatureIsBad = false;
+          }
+        }
+      }
+
+      if (stillUndecidedIfSignatureIsBad) {
+        // We didn't find more details above, so conclude it's bad.
+        result.statusFlags |= lazy.EnigmailConstants.BAD_SIGNATURE;
+      }
+
+      RNPLib.rnp_input_destroy(input_from_memory);
+      RNPLib.rnp_output_destroy(output_to_memory);
+      RNPLib.rnp_op_verify_destroy(verify_op);
+    } finally {
+      decryptKey.release();
+      RNPLib.rnp_input_destroy(dummy_input_from_memory);
+    }
 
     if (
       rnpCannotDecrypt &&
@@ -2062,6 +2599,7 @@ var RNP = {
   async importSecKeyBlockImpl(
     win,
     passCB,
+    keepPassphrases,
     keyBlockStr,
     permissive = false,
     limitedFPRs = []
@@ -2069,6 +2607,7 @@ var RNP = {
     return this._importKeyBlockWithAutoAccept(
       win,
       passCB,
+      keepPassphrases,
       keyBlockStr,
       false,
       true,
@@ -2088,6 +2627,7 @@ var RNP = {
     return this._importKeyBlockWithAutoAccept(
       win,
       null,
+      false,
       keyBlockStr,
       true,
       false,
@@ -2097,9 +2637,43 @@ var RNP = {
     );
   },
 
+  /**
+   * Import either a public key or a secret key.
+   * Importing both at the same time isn't supported by this API.
+   *
+   * @param {?nsIWindow} win - Parent window, may be null
+   * @param {Function} passCB - a callback function that will be called if the user needs
+   *   to enter a passphrase to unlock a secret key. See passphrasePromptCallback
+   *   for the function signature.
+   * @param {boolean} keepPassphrases - controls which passphrase will
+   *   be used to protect imported secret keys. If true, the existing
+   *   passphrase will be kept. If false, (of if currently there's no
+   *   passphrase set), passphrase protection will be changed to use
+   *   our automatic passphrase (to allow automatic protection by
+   *   primary password, whether's it's currently enabled or not).
+   * @param {string} keyBlockStr - An block of OpenPGP key data. See
+   *   implementation of function importToFFI for allowed contents.
+   *   TODO: Write better documentation for this parameter.
+   * @param {boolean} pubkey - If true, import the public keys found in
+   *   keyBlockStr.
+   * @param {boolean} seckey - If true, import the secret keys found in
+   *   keyBlockStr.
+   * @param {string} acceptance - The key acceptance level that should
+   *   be assigned to imported public keys.
+   *   TODO: Write better documentation for the allowed values.
+   * @param {boolean} permissive - Whether it's allowed to fall back
+   *   to a permissive import, if strict import fails.
+   *   (See RNP documentation for RNP_LOAD_SAVE_PERMISSIVE.)
+   * @param {string[]} limitedFPRs - This is a filtering parameter.
+   *   If the array is empty, all keys will be imported.
+   *   If the array contains at least one entry, a key will be imported
+   *   only if its fingerprint (of the primary key) is listed in this
+   *   array.
+   */
   async _importKeyBlockWithAutoAccept(
     win,
     passCB,
+    keepPassphrases,
     keyBlockStr,
     pubkey,
     seckey,
@@ -2110,19 +2684,18 @@ var RNP = {
     if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
       throw new Error("rejecting big keyblock");
     }
-
-    let newPass = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
-    /* Explicit comparison, because empty string might potentially
-     * be allowed. */
-    if (newPass == null || newPass == undefined) {
-      throw new Error("unexpected null/undefined OpenPGP password");
+    if (pubkey && seckey) {
+      // Currently no caller needs to import both at the save time,
+      // and the implementation hasn't been reviewed, whether it
+      // supports it or not, so we refuse this request.
+      throw new Error("Cannot import public and secret keys at the same time");
     }
 
     /*
      * Import strategy:
      * - import file into a temporary space, in-memory only (ffi)
      * - if we failed to decrypt the secret keys, return null
-     * - change the password of all secret keys
+     * - set the password of secret keys that don't have one yet
      * - get the key listing of all keys from the temporary space,
      *   which is want we want to return as the import report
      * - export all keys from the temporary space, and import them
@@ -2147,9 +2720,20 @@ var RNP = {
     }
 
     let keys = await this.getKeysFromFFI(tempFFI, true);
-    let recentPass = "";
+    let pwCache = {
+      passwords: [],
+    };
 
-    // Prior to importing, ensure we can unprotect all keys
+    // Prior to importing, ensure the user is able to unlock all keys
+
+    // If anything goes wrong during our attempt to unlock keys,
+    // we don't want to keep key material remain unprotected in memory,
+    // that's why we remember the trackers, including the respective
+    // unlock passphrase, temporarily in memory, and we'll minimize
+    // the period of time during which the key remains unprotected.
+    let secretKeyTrackers = new Map();
+
+    let unableToUnlockId = null;
 
     for (let k of keys) {
       let fprStr = "0x" + k.fpr;
@@ -2162,103 +2746,104 @@ var RNP = {
         throw new Error("cannot get key handle for imported key: " + k.fpr);
       }
 
-      let unableToUnprotectId = null;
+      if (!k.secretAvailable) {
+        RNPLib.rnp_key_handle_destroy(impKey);
+        impKey = null;
+      } else {
+        let primaryKey = new RnpPrivateKeyUnlockTracker(impKey);
+        impKey = null;
 
-      if (k.secretAvailable) {
-        while (!userFlags.canceled) {
-          // After we unprotect a key, immediately re-protect it with
-          // the new passphrase. If a failure occurs at some point,
-          // all keys remain protected in memory.
-
-          let rv = 0;
-
-          // Don't attempt to unprotect secret keys that are unavailable.
-          if (RNPLib.isSecretKeyMaterialAvailable(impKey)) {
-            rv = RNPLib.rnp_key_unprotect(impKey, recentPass);
-            if (rv == 0) {
-              if (
-                RNPLib.rnp_key_protect(impKey, newPass, null, null, null, 0)
-              ) {
-                throw new Error("rnp_key_protect failed");
-              }
+        // Don't attempt to unlock secret keys that are unavailable.
+        if (primaryKey.available()) {
+          // Is it unprotected?
+          primaryKey.unlockWithPassword("");
+          if (primaryKey.isUnlocked()) {
+            // yes, it's unprotected (empty passphrase)
+            await primaryKey.setAutoPassphrase();
+          } else {
+            // try to unlock with the recently entered passwords,
+            // or ask the user, if allowed
+            primaryKey.setPasswordCache(pwCache);
+            primaryKey.setAllowAutoUnlockWithCachedPasswords(true);
+            primaryKey.setAllowPromptingUserForPassword(!!passCB);
+            primaryKey.setPassphraseCallback(passCB);
+            primaryKey.setRememberUnlockPassword(true);
+            await primaryKey.unlock(tempFFI);
+            if (!primaryKey.isUnlocked()) {
+              userFlags.canceled = true;
+              unableToUnlockId = RNP.getKeyIDFromHandle(primaryKey.getHandle());
+            } else {
+              secretKeyTrackers.set(fprStr, primaryKey);
             }
           }
-
-          if (rv == 0) {
-            let sub_count = new lazy.ctypes.size_t();
-            if (RNPLib.rnp_key_get_subkey_count(impKey, sub_count.address())) {
-              throw new Error("rnp_key_get_subkey_count failed");
-            }
-            for (
-              let i = 0;
-              i < sub_count.value && !unableToUnprotectId && !rv;
-              i++
-            ) {
-              let sub_handle = new RNPLib.rnp_key_handle_t();
-              if (
-                RNPLib.rnp_key_get_subkey_at(impKey, i, sub_handle.address())
-              ) {
-                throw new Error("rnp_key_get_subkey_at failed");
-              }
-
-              if (RNPLib.isSecretKeyMaterialAvailable(sub_handle)) {
-                rv = RNPLib.rnp_key_unprotect(sub_handle, recentPass);
-                if (rv) {
-                  // if (!recentPass), we haven't yet asked the user
-                  // for a password, or the user hasn't yet entered the
-                  // password. That's not yet a failure.
-                  if (recentPass) {
-                    unableToUnprotectId = RNP.getKeyIDFromHandle(sub_handle);
-                  }
-                } else if (
-                  RNPLib.rnp_key_protect(
-                    sub_handle,
-                    newPass,
-                    null,
-                    null,
-                    null,
-                    0
-                  )
-                ) {
-                  throw new Error("rnp_key_protect failed");
-                }
-              }
-
-              RNPLib.rnp_key_handle_destroy(sub_handle);
-            }
-
-            if (rv == 0) {
-              break;
-            }
-          }
-
-          if (unableToUnprotectId) {
-            break;
-          }
-
-          if (rv != RNPLib.RNP_ERROR_BAD_PASSWORD || !passCB) {
-            unableToUnprotectId = k.fpr;
-            break;
-          }
-
-          recentPass = passCB(
-            win,
-            `${k.fpr}, ${k.userId}, ${k.created}`,
-            userFlags
-          );
         }
 
-        if (unableToUnprotectId) {
-          result.errorMsg = "Cannot unprotect key " + unableToUnprotectId;
-          console.debug(result.errorMsg);
-          return result;
+        if (!userFlags.canceled) {
+          let sub_count = new lazy.ctypes.size_t();
+          if (
+            RNPLib.rnp_key_get_subkey_count(
+              primaryKey.getHandle(),
+              sub_count.address()
+            )
+          ) {
+            throw new Error("rnp_key_get_subkey_count failed");
+          }
+
+          for (let i = 0; i < sub_count.value && !userFlags.canceled; i++) {
+            let sub_handle = new RNPLib.rnp_key_handle_t();
+            if (
+              RNPLib.rnp_key_get_subkey_at(
+                primaryKey.getHandle(),
+                i,
+                sub_handle.address()
+              )
+            ) {
+              throw new Error("rnp_key_get_subkey_at failed");
+            }
+
+            let subTracker = new RnpPrivateKeyUnlockTracker(sub_handle);
+            sub_handle = null;
+
+            if (subTracker.available()) {
+              // Is it unprotected?
+              subTracker.unlockWithPassword("");
+              if (subTracker.isUnlocked()) {
+                // yes, it's unprotected (empty passphrase)
+                await subTracker.setAutoPassphrase();
+              } else {
+                // try to unlock with the recently entered passwords,
+                // or ask the user, if allowed
+                subTracker.setPasswordCache(pwCache);
+                subTracker.setAllowAutoUnlockWithCachedPasswords(true);
+                subTracker.setAllowPromptingUserForPassword(!!passCB);
+                subTracker.setPassphraseCallback(passCB);
+                subTracker.setRememberUnlockPassword(true);
+                await subTracker.unlock(tempFFI);
+                if (!subTracker.isUnlocked()) {
+                  userFlags.canceled = true;
+                  unableToUnlockId = RNP.getKeyIDFromHandle(
+                    subTracker.getHandle()
+                  );
+                  break;
+                } else {
+                  secretKeyTrackers.set(
+                    this.getFingerprintFromHandle(subTracker.getHandle()),
+                    subTracker
+                  );
+                }
+              }
+            }
+          }
         }
       }
 
-      RNPLib.rnp_key_handle_destroy(impKey);
       if (userFlags.canceled) {
         break;
       }
+    }
+
+    if (unableToUnlockId) {
+      result.errorMsg = "Cannot unlock key " + unableToUnlockId;
     }
 
     if (!userFlags.canceled) {
@@ -2284,7 +2869,50 @@ var RNP = {
           RNPLib.rnp_key_handle_destroy(existingKey);
         }
 
-        let impKey = await this.getKeyHandleByIdentifier(tempFFI, fprStr);
+        let impKeyPub;
+        let impKeySecTracker = secretKeyTrackers.get(fprStr);
+        if (!impKeySecTracker) {
+          impKeyPub = await this.getKeyHandleByIdentifier(tempFFI, fprStr);
+        }
+
+        if (impKeySecTracker && !keepPassphrases) {
+          impKeySecTracker.unprotect();
+          await impKeySecTracker.setAutoPassphrase();
+
+          let sub_count = new lazy.ctypes.size_t();
+          if (
+            RNPLib.rnp_key_get_subkey_count(
+              impKeySecTracker.getHandle(),
+              sub_count.address()
+            )
+          ) {
+            throw new Error("rnp_key_get_subkey_count failed");
+          }
+
+          for (let i = 0; i < sub_count.value; i++) {
+            let sub_handle = new RNPLib.rnp_key_handle_t();
+            if (
+              RNPLib.rnp_key_get_subkey_at(
+                impKeySecTracker.getHandle(),
+                i,
+                sub_handle.address()
+              )
+            ) {
+              throw new Error("rnp_key_get_subkey_at failed");
+            }
+
+            let subTracker = secretKeyTrackers.get(
+              this.getFingerprintFromHandle(sub_handle)
+            );
+            if (!subTracker) {
+              // There is no secret key material for this subkey available,
+              // that's why no tracker was created, we can skip it.
+              continue;
+            }
+            subTracker.unprotect();
+            await subTracker.setAutoPassphrase();
+          }
+        }
 
         let exportFlags =
           RNPLib.RNP_KEY_EXPORT_ARMORED | RNPLib.RNP_KEY_EXPORT_SUBKEYS;
@@ -2301,8 +2929,19 @@ var RNP = {
           throw new Error("rnp_output_to_memory failed");
         }
 
-        if (RNPLib.rnp_key_export(impKey, output_to_memory, exportFlags)) {
+        if (
+          RNPLib.rnp_key_export(
+            impKeySecTracker ? impKeySecTracker.getHandle() : impKeyPub,
+            output_to_memory,
+            exportFlags
+          )
+        ) {
           throw new Error("rnp_key_export failed");
+        }
+
+        if (impKeyPub) {
+          RNPLib.rnp_key_handle_destroy(impKeyPub);
+          impKeyPub = null;
         }
 
         let result_buf = new lazy.ctypes.uint8_t.ptr();
@@ -2353,20 +2992,10 @@ var RNP = {
           throw new Error("rnp_import_keys failed");
         }
 
-        let impKey2 = await this.getKeyHandleByIdentifier(
-          RNPLib.ffi,
-          "0x" + k.fpr
-        );
-        if (k.secretAvailable) {
-          RNPLib.protectKeyWithSubKeys(impKey2, newPass);
-        }
-        RNPLib.rnp_key_handle_destroy(impKey2);
-
         result.importedKeys.push("0x" + k.id);
 
         RNPLib.rnp_input_destroy(input_from_memory);
         RNPLib.rnp_output_destroy(output_to_memory);
-        RNPLib.rnp_key_handle_destroy(impKey);
 
         // For acceptance "undecided", we don't store it, because that's
         // the default if no value is stored.
@@ -2414,6 +3043,10 @@ var RNP = {
       await this.saveKeyRings();
     }
 
+    for (let valTracker of secretKeyTrackers.values()) {
+      valTracker.release();
+    }
+
     RNPLib.rnp_ffi_destroy(tempFFI);
     return result;
   },
@@ -2445,25 +3078,33 @@ var RNP = {
   },
 
   async revokeKey(keyFingerprint) {
-    let handle = new RNPLib.rnp_key_handle_t();
-    if (
-      RNPLib.rnp_locate_key(
-        RNPLib.ffi,
-        "fingerprint",
-        keyFingerprint,
-        handle.address()
-      )
-    ) {
-      throw new Error("rnp_locate_key failed");
+    let tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(
+      keyFingerprint
+    );
+    if (!tracker.available()) {
+      return;
+    }
+    tracker.setAllowPromptingUserForPassword(true);
+    tracker.setAllowAutoUnlockWithCachedPasswords(true);
+    await tracker.unlock();
+    if (!tracker.isUnlocked()) {
+      return;
     }
 
     let flags = 0;
-
-    if (RNPLib.rnp_key_revoke(handle, flags, null, null, null)) {
-      throw new Error("rnp_key_revoke failed");
+    let revokeResult = RNPLib.rnp_key_revoke(
+      tracker.getHandle(),
+      flags,
+      null,
+      null,
+      null
+    );
+    tracker.release();
+    if (revokeResult) {
+      throw new Error(
+        `rnp_key_revoke failed for fingerprint=${keyFingerprint}`
+      );
     }
-
-    RNPLib.rnp_key_handle_destroy(handle);
     await this.saveKeyRings();
   },
 
@@ -2586,17 +3227,14 @@ var RNP = {
       }
 
       if (!skip) {
-        let key_creation = new lazy.ctypes.uint32_t();
-        if (RNPLib.rnp_key_get_creation(sub_handle, key_creation.address())) {
-          throw new Error("rnp_key_get_creation failed");
-        }
-        if (!newest_handle || key_creation.value > newest_created) {
+        let created = this.getKeyCreatedValueFromHandle(sub_handle);
+        if (!newest_handle || created > newest_created) {
           if (newest_handle) {
             RNPLib.rnp_key_handle_destroy(newest_handle);
           }
           newest_handle = sub_handle;
           sub_handle = null;
-          newest_created = key_creation.value;
+          newest_created = created;
         }
       }
 
@@ -2745,151 +3383,182 @@ var RNP = {
       throw new Error("invalid parameters, neither encrypt nor sign");
     }
 
-    let senderKey = null;
-    if (args.sign || args.encryptToSender) {
-      senderKey = await this.getKeyHandleByIdentifier(RNPLib.ffi, args.sender);
-      if (!senderKey || senderKey.isNull()) {
-        return null;
-      }
-      // Manually configured external key overrides the check for
-      // a valid personal key.
-      if (!args.senderKeyIsExternal) {
-        let isPersonal = false;
-        let senderKeySecretAvailable = this.getSecretAvailableFromHandle(
-          senderKey
-        );
-        if (senderKeySecretAvailable) {
-          let senderFpr = this.getFingerprintFromHandle(senderKey);
-          isPersonal = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
-            senderFpr
+    let senderKeyTracker = null;
+    let subKeyTracker = null;
+
+    try {
+      if (args.sign || args.encryptToSender) {
+        {
+          // Use a temporary scope to ensure the senderKey variable
+          // cannot be accessed later on.
+          let senderKey = await this.getKeyHandleByIdentifier(
+            RNPLib.ffi,
+            args.sender
           );
-        }
-        if (!isPersonal) {
-          throw new Error(
-            "configured sender key " +
-              args.sender +
-              " isn't accepted as a personal key"
-          );
-        }
-      }
-
-      if (args.encryptToSender) {
-        this.addSuitableEncryptKey(senderKey, op);
-      }
-      if (args.sign) {
-        // Prefer usable subkeys, because they are always newer
-        // (or same age) as primary key.
-
-        let use_sub = this.getSuitableSubkey(senderKey, str_sign);
-        if (!use_sub && !this.isKeyUsableFor(senderKey, str_sign)) {
-          throw new Error("no suitable (sub)key found for " + str_sign);
-        }
-
-        if (args.encrypt) {
-          if (
-            RNPLib.rnp_op_encrypt_add_signature(
-              op,
-              use_sub != null ? use_sub : senderKey,
-              null
-            )
-          ) {
-            throw new Error("rnp_op_encrypt_add_signature failed");
+          if (!senderKey || senderKey.isNull()) {
+            return null;
           }
-        } else if (
-          RNPLib.rnp_op_sign_add_signature(
-            op,
-            use_sub ? use_sub : senderKey,
-            null
-          )
-        ) {
-          throw new Error("rnp_op_sign_add_signature failed");
+
+          senderKeyTracker = new RnpPrivateKeyUnlockTracker(senderKey);
+          senderKeyTracker.setAllowPromptingUserForPassword(true);
+          senderKeyTracker.setAllowAutoUnlockWithCachedPasswords(true);
         }
-        if (use_sub) {
-          RNPLib.rnp_key_handle_destroy(use_sub);
+
+        // Manually configured external key overrides the check for
+        // a valid personal key.
+        if (!args.senderKeyIsExternal) {
+          if (!senderKeyTracker.available()) {
+            throw new Error(
+              `configured sender key ${args.sender} isn't available`
+            );
+          }
+          if (
+            !(await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
+              senderKeyTracker.getFingerprint()
+            ))
+          ) {
+            throw new Error(
+              `configured sender key ${args.sender} isn't accepted as a personal key`
+            );
+          }
+        }
+
+        if (args.encryptToSender) {
+          this.addSuitableEncryptKey(senderKeyTracker.getHandle(), op);
+        }
+        if (args.sign) {
+          // Prefer usable subkeys, because they are always newer
+          // (or same age) as primary key.
+
+          let usableSubKeyHandle = this.getSuitableSubkey(
+            senderKeyTracker.getHandle(),
+            str_sign
+          );
+          if (
+            !usableSubKeyHandle &&
+            !this.isKeyUsableFor(senderKeyTracker.getHandle(), str_sign)
+          ) {
+            throw new Error("no suitable (sub)key found for " + str_sign);
+          }
+
+          if (usableSubKeyHandle) {
+            subKeyTracker = new RnpPrivateKeyUnlockTracker(usableSubKeyHandle);
+            subKeyTracker.setAllowPromptingUserForPassword(true);
+            subKeyTracker.setAllowAutoUnlockWithCachedPasswords(true);
+          }
+
+          let signingKeyHandle = null;
+          if (usableSubKeyHandle && usableSubKeyHandle.available()) {
+            await usableSubKeyHandle.unlock();
+            signingKeyHandle = usableSubKeyHandle.getHandle();
+          } else {
+            await senderKeyTracker.unlock();
+            signingKeyHandle = senderKeyTracker.getHandle();
+          }
+
+          if (args.encrypt) {
+            if (
+              RNPLib.rnp_op_encrypt_add_signature(op, signingKeyHandle, null)
+            ) {
+              throw new Error("rnp_op_encrypt_add_signature failed");
+            }
+          } else if (
+            RNPLib.rnp_op_sign_add_signature(op, signingKeyHandle, null)
+          ) {
+            throw new Error("rnp_op_sign_add_signature failed");
+          }
+          // This was just a reference, no ownership.
+          signingKeyHandle = null;
         }
       }
-      RNPLib.rnp_key_handle_destroy(senderKey);
-    }
 
-    if (args.encrypt) {
-      // If we have an alias definition, it will be used, and the usual
-      // lookup by email address will be skipped. Earlier code should
-      // have already checked that alias keys are available and usable
-      // for encryption, so we fail if a problem is found.
+      if (args.encrypt) {
+        // If we have an alias definition, it will be used, and the usual
+        // lookup by email address will be skipped. Earlier code should
+        // have already checked that alias keys are available and usable
+        // for encryption, so we fail if a problem is found.
 
-      for (let rcpList of [args.to, args.bcc]) {
-        for (let rcpEmail of rcpList) {
-          rcpEmail = rcpEmail.toLowerCase();
-          let aliasKeys = args.aliasKeys.get(
-            this.getEmailWithoutBrackets(rcpEmail)
-          );
-          if (aliasKeys) {
-            if (!this.addAliasKeys(aliasKeys, op)) {
+        for (let rcpList of [args.to, args.bcc]) {
+          for (let rcpEmail of rcpList) {
+            rcpEmail = rcpEmail.toLowerCase();
+            let aliasKeys = args.aliasKeys.get(
+              this.getEmailWithoutBrackets(rcpEmail)
+            );
+            if (aliasKeys) {
+              if (!this.addAliasKeys(aliasKeys, op)) {
+                resultStatus.statusFlags |=
+                  lazy.EnigmailConstants.INVALID_RECIPIENT;
+                return null;
+              }
+            } else if (!(await this.addEncryptionKeyForEmail(rcpEmail, op))) {
               resultStatus.statusFlags |=
                 lazy.EnigmailConstants.INVALID_RECIPIENT;
               return null;
             }
-          } else if (!(await this.addEncryptionKeyForEmail(rcpEmail, op))) {
-            resultStatus.statusFlags |=
-              lazy.EnigmailConstants.INVALID_RECIPIENT;
-            return null;
           }
         }
-      }
 
-      if (AppConstants.MOZ_UPDATE_CHANNEL != "release") {
-        let debugKey = Services.prefs.getStringPref(
-          "mail.openpgp.debug.extra_encryption_key"
-        );
-        if (debugKey) {
-          let handle = this.getKeyHandleByKeyIdOrFingerprint(
-            RNPLib.ffi,
-            debugKey
+        if (AppConstants.MOZ_UPDATE_CHANNEL != "release") {
+          let debugKey = Services.prefs.getStringPref(
+            "mail.openpgp.debug.extra_encryption_key"
           );
-          if (!handle.isNull()) {
-            console.debug("encrypting to debug key " + debugKey);
-            this.addSuitableEncryptKey(handle, op);
-            RNPLib.rnp_key_handle_destroy(handle);
+          if (debugKey) {
+            let handle = this.getKeyHandleByKeyIdOrFingerprint(
+              RNPLib.ffi,
+              debugKey
+            );
+            if (!handle.isNull()) {
+              console.debug("encrypting to debug key " + debugKey);
+              this.addSuitableEncryptKey(handle, op);
+              RNPLib.rnp_key_handle_destroy(handle);
+            }
           }
         }
-      }
 
-      // TODO decide if our compatibility requirements allow us to
-      // use AEAD
-      if (RNPLib.rnp_op_encrypt_set_cipher(op, "AES256")) {
-        throw new Error("rnp_op_encrypt_set_cipher failed");
-      }
+        // TODO decide if our compatibility requirements allow us to
+        // use AEAD
+        if (RNPLib.rnp_op_encrypt_set_cipher(op, "AES256")) {
+          throw new Error("rnp_op_encrypt_set_cipher failed");
+        }
 
-      // TODO, map args.signatureHash string to RNP and call
-      //       rnp_op_encrypt_set_hash
-      if (RNPLib.rnp_op_encrypt_set_hash(op, "SHA256")) {
-        throw new Error("rnp_op_encrypt_set_hash failed");
-      }
+        // TODO, map args.signatureHash string to RNP and call
+        //       rnp_op_encrypt_set_hash
+        if (RNPLib.rnp_op_encrypt_set_hash(op, "SHA256")) {
+          throw new Error("rnp_op_encrypt_set_hash failed");
+        }
 
-      if (RNPLib.rnp_op_encrypt_set_armor(op, args.armor)) {
-        throw new Error("rnp_op_encrypt_set_armor failed");
-      }
+        if (RNPLib.rnp_op_encrypt_set_armor(op, args.armor)) {
+          throw new Error("rnp_op_encrypt_set_armor failed");
+        }
 
-      let rv = RNPLib.rnp_op_encrypt_execute(op);
-      if (rv) {
-        throw new Error("rnp_op_encrypt_execute failed: " + rv);
-      }
-      RNPLib.rnp_op_encrypt_destroy(op);
-    } else {
-      if (RNPLib.rnp_op_sign_set_hash(op, "SHA256")) {
-        throw new Error("rnp_op_sign_set_hash failed");
-      }
-      // TODO, map args.signatureHash string to RNP and call
-      //       rnp_op_encrypt_set_hash
+        let rv = RNPLib.rnp_op_encrypt_execute(op);
+        if (rv) {
+          throw new Error("rnp_op_encrypt_execute failed: " + rv);
+        }
+        RNPLib.rnp_op_encrypt_destroy(op);
+      } else {
+        if (RNPLib.rnp_op_sign_set_hash(op, "SHA256")) {
+          throw new Error("rnp_op_sign_set_hash failed");
+        }
+        // TODO, map args.signatureHash string to RNP and call
+        //       rnp_op_encrypt_set_hash
 
-      if (RNPLib.rnp_op_sign_set_armor(op, args.armor)) {
-        throw new Error("rnp_op_sign_set_armor failed");
-      }
+        if (RNPLib.rnp_op_sign_set_armor(op, args.armor)) {
+          throw new Error("rnp_op_sign_set_armor failed");
+        }
 
-      if (RNPLib.rnp_op_sign_execute(op)) {
-        throw new Error("rnp_op_sign_execute failed");
+        if (RNPLib.rnp_op_sign_execute(op)) {
+          throw new Error("rnp_op_sign_execute failed");
+        }
+        RNPLib.rnp_op_sign_destroy(op);
       }
-      RNPLib.rnp_op_sign_destroy(op);
+    } finally {
+      if (subKeyTracker) {
+        subKeyTracker.release();
+      }
+      if (senderKeyTracker) {
+        senderKeyTracker.release();
+      }
     }
 
     RNPLib.rnp_input_destroy(input);
@@ -2949,11 +3618,9 @@ var RNP = {
     if (!expiration.value) {
       return false;
     }
-    let creation = new lazy.ctypes.uint32_t();
-    if (RNPLib.rnp_key_get_creation(handle, creation.address())) {
-      throw new Error("rnp_key_get_creation failed");
-    }
-    let expirationSeconds = creation.value + expiration.value;
+
+    let created = this.getKeyCreatedValueFromHandle(handle);
+    let expirationSeconds = created + expiration.value;
     return this.isExpiredTime(expirationSeconds);
   },
 
@@ -3396,15 +4063,10 @@ var RNP = {
    *
    * This function modifies the input key to make it compatible.
    *
-   * If this function decides that a modification is necessary,
-   * it will remove encryption (protection) from the key.
-   *
-   * The caller must ensure to protect the returned key.
-   *
-   * At the time of writing this function, the only existing caller
-   * always applies protection after calling this function.
+   * The caller must ensure that the key is unprotected when calling
+   * this function, and must apply the desired protection afterwards.
    */
-  ensureECCSubkeyIsGnuPGCompatible(tempKey, pw) {
+  ensureECCSubkeyIsGnuPGCompatible(tempKey) {
     let algo = new lazy.ctypes.char.ptr();
     if (RNPLib.rnp_key_get_alg(tempKey, algo.address())) {
       throw new Error("rnp_key_get_alg failed");
@@ -3435,11 +4097,6 @@ var RNP = {
 
     // If it's not tweaked yet, then tweak to make it compatible.
     if (!tweak_status.value) {
-      rc = RNPLib.rnp_key_unprotect(tempKey, pw);
-      if (rc) {
-        throw new Error("rnp_key_unprotect failed: " + rc);
-      }
-
       rc = RNPLib.rnp_key_25519_bits_tweak(tempKey);
       if (rc) {
         throw new Error("rnp_key_25519_bits_tweak failed: " + rc);
@@ -3480,33 +4137,33 @@ var RNP = {
       throw new Error("Couldn't initialize librnp.");
     }
 
-    let internalPassword = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
-
     let exportFlags =
       RNPLib.RNP_KEY_EXPORT_SUBKEYS | RNPLib.RNP_KEY_EXPORT_SECRET;
     let importFlags =
       RNPLib.RNP_LOAD_SAVE_PUBLIC_KEYS | RNPLib.RNP_LOAD_SAVE_SECRET_KEYS;
 
+    let unlockFailed = false;
+    let pwCache = {
+      passwords: [],
+    };
+
     for (let fpr of fprs) {
       let fprStr = fpr;
-      let expKey = await this.getKeyHandleByIdentifier(RNPLib.ffi, fprStr);
+      let expKey = await this.getKeyHandleByIdentifier(
+        RNPLib.ffi,
+        "0x" + fprStr
+      );
 
       let output_to_memory = new RNPLib.rnp_output_t();
       if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
         throw new Error("rnp_output_to_memory failed");
       }
 
-      if (RNPLib.rnp_key_unlock(expKey, internalPassword)) {
-        throw new Error("rnp_key_unlock failed");
+      if (RNPLib.rnp_key_export(expKey, output_to_memory, exportFlags)) {
+        throw new Error("rnp_key_export failed");
       }
-
-      try {
-        if (RNPLib.rnp_key_export(expKey, output_to_memory, exportFlags)) {
-          throw new Error("rnp_key_export failed");
-        }
-      } finally {
-        RNPLib.rnp_key_lock(expKey);
-      }
+      RNPLib.rnp_key_handle_destroy(expKey);
+      expKey = null;
 
       let result_buf = new lazy.ctypes.uint8_t.ptr();
       let result_len = new lazy.ctypes.size_t();
@@ -3522,7 +4179,6 @@ var RNP = {
       }
 
       let input_from_memory = new RNPLib.rnp_input_t();
-
       if (
         RNPLib.rnp_input_from_memory(
           input_from_memory.address(),
@@ -3540,87 +4196,115 @@ var RNP = {
         throw new Error("rnp_import_keys failed");
       }
 
-      let tempKey = await this.getKeyHandleByIdentifier(tempFFI, fprStr);
+      RNPLib.rnp_input_destroy(input_from_memory);
+      RNPLib.rnp_output_destroy(output_to_memory);
+      input_from_memory = null;
+      output_to_memory = null;
+      result_buf = null;
 
-      if (RNPLib.rnp_key_unlock(tempKey, internalPassword)) {
-        throw new Error("rnp_key_unlock failed");
+      let tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(
+        fprStr,
+        tempFFI
+      );
+      if (!tracker.available()) {
+        tracker.release();
+        continue;
       }
 
-      try {
-        if (
-          RNPLib.rnp_key_protect(tempKey, backupPassword, null, null, null, 0)
-        ) {
-          throw new Error("rnp_key_protect failed");
-        }
-      } finally {
-        RNPLib.rnp_key_lock(tempKey);
+      tracker.setAllowPromptingUserForPassword(true);
+      tracker.setAllowAutoUnlockWithCachedPasswords(true);
+      tracker.setPasswordCache(pwCache);
+      tracker.setRememberUnlockPassword(true);
+
+      await tracker.unlock();
+      if (!tracker.isUnlocked()) {
+        unlockFailed = true;
+        tracker.release();
+        break;
       }
+
+      tracker.unprotect();
+      tracker.setPassphrase(backupPassword);
 
       let sub_count = new lazy.ctypes.size_t();
-      if (RNPLib.rnp_key_get_subkey_count(tempKey, sub_count.address())) {
+      if (
+        RNPLib.rnp_key_get_subkey_count(
+          tracker.getHandle(),
+          sub_count.address()
+        )
+      ) {
         throw new Error("rnp_key_get_subkey_count failed");
       }
       for (let i = 0; i < sub_count.value; i++) {
         let sub_handle = new RNPLib.rnp_key_handle_t();
-        if (RNPLib.rnp_key_get_subkey_at(tempKey, i, sub_handle.address())) {
+        if (
+          RNPLib.rnp_key_get_subkey_at(
+            tracker.getHandle(),
+            i,
+            sub_handle.address()
+          )
+        ) {
           throw new Error("rnp_key_get_subkey_at failed");
         }
 
-        if (RNPLib.rnp_key_unlock(sub_handle, internalPassword)) {
-          throw new Error("rnp_key_unlock failed");
-        }
+        let subTracker = new RnpPrivateKeyUnlockTracker(sub_handle);
+        if (subTracker.available()) {
+          subTracker.setAllowPromptingUserForPassword(true);
+          subTracker.setAllowAutoUnlockWithCachedPasswords(true);
+          subTracker.setPasswordCache(pwCache);
+          subTracker.setRememberUnlockPassword(true);
 
-        try {
-          this.ensureECCSubkeyIsGnuPGCompatible(sub_handle, internalPassword);
-          if (
-            RNPLib.rnp_key_protect(
-              sub_handle,
-              backupPassword,
-              null,
-              null,
-              null,
-              0
-            )
-          ) {
-            throw new Error("rnp_key_protect failed");
+          await subTracker.unlock();
+          if (!subTracker.isUnlocked()) {
+            unlockFailed = true;
+          } else {
+            subTracker.unprotect();
+            this.ensureECCSubkeyIsGnuPGCompatible(subTracker.getHandle());
+            subTracker.setPassphrase(backupPassword);
           }
-        } finally {
-          RNPLib.rnp_key_lock(sub_handle);
-          RNPLib.rnp_key_handle_destroy(sub_handle);
+        }
+        subTracker.release();
+        if (unlockFailed) {
+          break;
         }
       }
 
-      if (RNPLib.rnp_key_export(tempKey, out_binary, exportFlags)) {
+      if (
+        !unlockFailed &&
+        RNPLib.rnp_key_export(tracker.getHandle(), out_binary, exportFlags)
+      ) {
         throw new Error("rnp_key_export failed");
       }
-      RNPLib.rnp_key_handle_destroy(tempKey);
 
-      RNPLib.rnp_input_destroy(input_from_memory);
-      RNPLib.rnp_output_destroy(output_to_memory);
-      RNPLib.rnp_key_handle_destroy(expKey);
+      tracker.release();
+      if (unlockFailed) {
+        break;
+      }
     }
     RNPLib.rnp_ffi_destroy(tempFFI);
 
-    if ((rv = RNPLib.rnp_output_finish(out_binary))) {
-      throw new Error("rnp_output_finish failed: " + rv);
-    }
-
-    let result_buf = new lazy.ctypes.uint8_t.ptr();
-    let result_len = new lazy.ctypes.size_t();
-    let exitCode = RNPLib.rnp_output_memory_get_buf(
-      out_final,
-      result_buf.address(),
-      result_len.address(),
-      false
-    );
-
     let result = "";
-    if (!exitCode) {
-      let char_array = lazy.ctypes.cast(
-        result_buf,
-        lazy.ctypes.char.array(result_len.value).ptr
-      ).contents;
-      result = char_array.readString();
+    if (!unlockFailed) {
+      if ((rv = RNPLib.rnp_output_finish(out_binary))) {
+        throw new Error("rnp_output_finish failed: " + rv);
+      }
+
+      let result_buf = new lazy.ctypes.uint8_t.ptr();
+      let result_len = new lazy.ctypes.size_t();
+      let exitCode = RNPLib.rnp_output_memory_get_buf(
+        out_final,
+        result_buf.address(),
+        result_len.address(),
+        false
+      );
+
+      if (!exitCode) {
+        let char_array = lazy.ctypes.cast(
+          result_buf,
+          lazy.ctypes.char.array(result_len.value).ptr
+        ).contents;
+        result = char_array.readString();
+      }
     }
 
     RNPLib.rnp_output_destroy(out_binary);
@@ -3629,12 +4313,20 @@ var RNP = {
     return result;
   },
 
-  async getNewRevocation(id) {
+  async unlockAndGetNewRevocation(id, pass) {
     let result = "";
     let key = await this.getKeyHandleByIdentifier(RNPLib.ffi, id);
 
     if (key.isNull()) {
       return result;
+    }
+
+    let tracker = new RnpPrivateKeyUnlockTracker(key);
+    tracker.setAllowPromptingUserForPassword(false);
+    tracker.setAllowAutoUnlockWithCachedPasswords(false);
+    tracker.unlockWithPassword(pass);
+    if (!tracker.isUnlocked()) {
+      throw new Error(`Couldn't unlock key ${key.fpr}`);
     }
 
     let out_final = new RNPLib.rnp_output_t();
@@ -3688,7 +4380,7 @@ var RNP = {
 
     RNPLib.rnp_output_destroy(out_binary);
     RNPLib.rnp_output_destroy(out_final);
-    RNPLib.rnp_key_handle_destroy(key);
+    tracker.release();
     return result;
   },
 
@@ -3751,13 +4443,10 @@ var RNP = {
   // Will change the expiration date of all given keys to newExpiry.
   // fingerprintArray is an array, containing fingerprints, both
   // primary key fingerprints and subkey fingerprints are allowed.
-  // Currently, this function assumes that for any subkey that is
-  // being changeed, the respective primary key is contained in the
-  // array, too. If it isn't, the function will fail, because the
-  // primary key must be unlocked, before changing a subkey works.
+  // The function assumes that all involved keys have already been
+  // unlocked. We shouldn't rely on password callbacks for unlocking,
+  // as it would be confusing if only some keys are changed.
   async changeExpirationDate(fingerprintArray, newExpiry) {
-    let pass = await lazy.OpenPGPMasterpass.retrieveOpenPGPPassword();
-
     for (let fingerprint of fingerprintArray) {
       let handle = this.getKeyHandleByKeyIdOrFingerprint(
         RNPLib.ffi,
@@ -3765,25 +4454,13 @@ var RNP = {
       );
 
       if (handle.isNull()) {
-        return false;
+        continue;
       }
 
-      let unlocked = false;
-      try {
-        if (RNPLib.rnp_key_unlock(handle, pass)) {
-          throw new Error("rnp_key_unlock failed");
-        }
-        unlocked = true;
-
-        if (RNPLib.rnp_key_set_expiration(handle, newExpiry)) {
-          throw new Error("rnp_key_set_expiration failed");
-        }
-      } finally {
-        if (unlocked) {
-          RNPLib.rnp_key_lock(handle);
-        }
-        RNPLib.rnp_key_handle_destroy(handle);
+      if (RNPLib.rnp_key_set_expiration(handle, newExpiry)) {
+        throw new Error(`rnp_key_set_expiration failed for ${fingerprint}`);
       }
+      RNPLib.rnp_key_handle_destroy(handle);
     }
 
     await this.saveKeyRings();
@@ -3856,5 +4533,55 @@ var RNP = {
       RNPLib.rnp_key_handle_destroy(subHandle);
     }
     return result;
+  },
+
+  /**
+   * Helper function to produce the string that will be shown to the
+   * user, when the user is asked to unlock a key. If the key is a
+   * subkey, it might help to user to identify the respective key by
+   * also mentioning the key ID of the primary key, so both IDs are
+   * shown when prompting to unlock a subkey.
+   * Parameter nonDefaultFFI is required, if the prompt is related to
+   * a key that isn't (yet) stored in the global storage, for example
+   * a key that is being prepared for import or export in a temporary
+   * ffi space.
+   *
+   * @param {rnp_key_handle_t} handle - produce a passphrase prompt
+   *   string based on the properties of this key.
+   * @param {rnp_ffi_t} ffi - the RNP FFI that relates the handle
+   * @returns {String} - a string that asks the user to enter the
+   *   passphrase for the given string parameter, including details
+   *   that allow the user to identify the key.
+   */
+  async getPassphrasePrompt(handle, ffi) {
+    let parentOfHandle = this.getPrimaryKeyHandleIfSub(ffi, handle);
+    let useThisHandle = !parentOfHandle.isNull() ? parentOfHandle : handle;
+
+    let keyObj = {};
+    if (
+      !this.getKeyInfoFromHandle(ffi, useThisHandle, keyObj, false, true, true)
+    ) {
+      return "";
+    }
+
+    let mainKeyId = keyObj.keyId;
+    let subKeyId;
+    if (!parentOfHandle.isNull()) {
+      subKeyId = this.getKeyIDFromHandle(handle);
+    }
+
+    if (subKeyId) {
+      return l10n.formatValue("passphrase-prompt2-sub", {
+        subkey: subKeyId,
+        key: mainKeyId,
+        date: keyObj.created,
+        username_and_email: keyObj.userId,
+      });
+    }
+    return l10n.formatValue("passphrase-prompt2", {
+      key: mainKeyId,
+      date: keyObj.created,
+      username_and_email: keyObj.userId,
+    });
   },
 };

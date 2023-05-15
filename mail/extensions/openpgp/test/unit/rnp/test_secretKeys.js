@@ -8,7 +8,9 @@
 
 "use strict";
 
-const { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
+const { RNP, RnpPrivateKeyUnlockTracker } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/RNP.jsm"
+);
 const { OpenPGPMasterpass } = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
 );
@@ -64,15 +66,28 @@ add_task(async function testSecretKeys() {
     "check iSimpleOneSubkeySameExpiry should succeed"
   );
 
+  let allFingerprints = [fpr, keyObj.subKeys[0].fpr];
+
+  let keyTrackers = [];
+  for (let fp of allFingerprints) {
+    let tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(fp);
+    await tracker.unlock();
+    keyTrackers.push(tracker);
+  }
+
   let expiryChanged = await RNP.changeExpirationDate(
-    [fpr, keyObj.subKeys[0].fpr],
+    allFingerprints,
     100 * 24 * 60 * 60
   );
   Assert.ok(expiryChanged, "changeExpirationDate should return success");
 
+  for (let t of keyTrackers) {
+    t.release();
+  }
+
   let backupPassword = "new-password-1234";
 
-  let backupKeyBlock = await RNP.backupSecretKeys(["0x" + fpr], backupPassword);
+  let backupKeyBlock = await RNP.backupSecretKeys([fpr], backupPassword);
 
   let expectedString = "END PGP PRIVATE KEY BLOCK";
 
@@ -106,6 +121,7 @@ add_task(async function testSecretKeys() {
   let importResult = await RNP.importSecKeyBlockImpl(
     null,
     getWrongPassword,
+    false,
     backupKeyBlock
   );
 
@@ -118,6 +134,7 @@ add_task(async function testSecretKeys() {
   importResult = await RNP.importSecKeyBlockImpl(
     null,
     getGoodPassword,
+    false,
     backupKeyBlock
   );
 
@@ -145,6 +162,7 @@ add_task(async function testImportSecretKeyIsProtected() {
   let importResult = await RNP.importSecKeyBlockImpl(
     null,
     getCarolPassword,
+    false,
     carolSec
   );
 
@@ -160,7 +178,7 @@ add_task(async function testImportSecretKeyIsProtected() {
   let aliceSec = await IOUtils.readUTF8(aliceFile.path);
 
   // Alice's secret key is unprotected.
-  importResult = await RNP.importSecKeyBlockImpl(null, null, aliceSec);
+  importResult = await RNP.importSecKeyBlockImpl(null, null, false, aliceSec);
 
   Assert.equal(
     importResult.exitCode,
@@ -186,6 +204,7 @@ add_task(async function testImportOfflinePrimaryKey() {
   let importResult = await RNP.importSecKeyBlockImpl(
     null,
     cancelPassword,
+    false,
     keyBlock
   );
 
@@ -217,6 +236,7 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
   let importResult = await RNP.importSecKeyBlockImpl(
     null,
     cancelPassword,
+    false,
     secBlock
   );
 
@@ -278,6 +298,7 @@ add_task(async function testNoSecretForExistingPublicSubkey() {
   importResult = await RNP.importSecKeyBlockImpl(
     null,
     cancelPassword,
+    false,
     secBlock
   );
 

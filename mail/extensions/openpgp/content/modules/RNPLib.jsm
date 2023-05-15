@@ -817,27 +817,35 @@ function enableRNPLibJS() {
 
     keep_password_cb_alive: null,
 
+    cached_pw: null,
+
+    /**
+     * Past versions of Thunderbird used this callback to provide
+     * the automatically managed passphrase to RNP, which was used
+     * for all OpenPGP. Nowadays, Thunderbird supports the definition
+     * of used-defined passphrase. To better control the unlocking of
+     * keys, Thunderbird no longer uses this callback.
+     * The application is designed to unlock secret keys as needed,
+     * prior to calling the respective RNP APIs.
+     * If this callback is reached anyway, it's an internal error,
+     * it means that some Thunderbird code hasn't properly unlocked
+     * the required key yet.
+     *
+     * This is a C callback from an external library, so we cannot
+     * rely on the usual JS throw mechanism to abort this operation.
+     */
     password_cb(ffi, app_ctx, key, pgp_context, buf, buf_len) {
-      // cannot call async functions from this C callback
-      let pass = lazy.OpenPGPMasterpass.retrieveCachedPassword();
-      if (pass == null) {
-        throw new Error("Got null OpenPGP password");
+      let fingerprint = new ctypes.char.ptr();
+      let fpStr;
+      if (!RNPLib.rnp_key_get_fprint(key, fingerprint.address())) {
+        fpStr = "Fingerprint: " + fingerprint.readString();
       }
-      var passCTypes = ctypes.char.array()(pass); // UTF-8
-      let passLen = passCTypes.length;
+      RNPLib.rnp_buffer_destroy(fingerprint);
 
-      if (buf_len < passLen) {
-        return false;
-      }
-
-      let char_array = ctypes.cast(buf, ctypes.char.array(buf_len).ptr)
-        .contents;
-
-      for (let i = 0; i < passLen; i++) {
-        char_array[i] = passCTypes[i];
-      }
-      char_array[passLen] = 0;
-      return true;
+      console.debug(
+        `Internal error, RNP password callback called unexpectedly. ${fpStr}.`
+      );
+      return false;
     },
 
     // For comparing version numbers

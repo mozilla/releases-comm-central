@@ -40,8 +40,7 @@ add_task(async function testFailToImport() {
   let ids = await OpenPGPTestUtils.importKey(
     null,
     do_get_file(`${KEY_DIR}/invalid-pubkey-nosigs.pgp`),
-    true,
-    false
+    true
   );
   Assert.ok(!ids.length, "importKey should return empty list of imported keys");
 });
@@ -53,8 +52,7 @@ add_task(async function testAvoidBadSubkey() {
   let ids = await OpenPGPTestUtils.importKey(
     null,
     do_get_file(`${KEY_DIR}/encryption-subkey-bad.pgp`),
-    true,
-    false
+    true
   );
   await OpenPGPTestUtils.updateKeyIdAcceptance(
     ids,

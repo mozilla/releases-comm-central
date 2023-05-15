@@ -168,18 +168,49 @@ const OpenPGPTestUtils = {
    * @param {nsIWindow} parent - The parent window.
    * @param {nsIFile} file - A valid file containing a private OpenPGP key.
    * @param {string} [acceptance] - The acceptance setting for the key.
+   * @param {string} [passphrase] - The passphrase string that is required
+   *   for unlocking the imported private key, or null, if no passphrase
+   *   is necessary. The existing passphrase protection is kept.
    * @returns {string[]} - List of imported key ids.
    */
   async importPrivateKey(
     parent,
     file,
-    acceptance = OpenPGPTestUtils.ACCEPTANCE_PERSONAL
+    acceptance = OpenPGPTestUtils.ACCEPTANCE_PERSONAL,
+    passphrase = null
   ) {
-    let ids = await OpenPGPTestUtils.importKey(parent, file, false, true);
-    if (!ids.length) {
+    let data = await IOUtils.read(file.path);
+    let pgpBlock = lazy.MailStringUtils.uint8ArrayToByteString(data);
+
+    function localPassphraseProvider(win, promptString, resultFlags) {
+      resultFlags.canceled = false;
+      return passphrase;
+    }
+
+    let result = await lazy.RNP.importSecKeyBlockImpl(
+      parent,
+      localPassphraseProvider,
+      passphrase != null, // keepPassphrases = true, if a passphrase is given
+      pgpBlock,
+      false,
+      []
+    );
+
+    if (!result || result.exitCode !== 0) {
+      throw new Error(
+        `EnigmailKeyRing.importKey failed with result "${result.errorMsg}"!`
+      );
+    }
+    if (!result.importedKeys || !result.importedKeys.length) {
       throw new Error(`No private key imported from ${file.leafName}`);
     }
-    return OpenPGPTestUtils.updateKeyIdAcceptance(ids, acceptance);
+
+    lazy.EnigmailKeyRing.updateKeys(result.importedKeys);
+    lazy.EnigmailKeyRing.clearCache();
+    return OpenPGPTestUtils.updateKeyIdAcceptance(
+      result.importedKeys.slice(),
+      acceptance
+    );
   },
 
   /**
@@ -188,11 +219,9 @@ const OpenPGPTestUtils = {
    * @param {nsIWindow} parent - The parent window.
    * @param {nsIFile} file - A valid file containing an OpenPGP key.
    * @param {boolean} [isBinary] - false for ASCII armored files
-   * @param {boolean} [isSecret=false] - Flag indicating if the key is secret or
-   *                                     not.
    * @returns {Promise<string[]>} - A list of ids for the key(s) imported.
    */
-  async importKey(parent, file, isBinary, isSecret = false) {
+  async importKey(parent, file, isBinary) {
     let data = await IOUtils.read(file.path);
     let txt = lazy.MailStringUtils.uint8ArrayToByteString(data);
     let errorObj = {};
@@ -208,7 +237,6 @@ const OpenPGPTestUtils = {
       fingerPrintObj,
       false,
       [],
-      isSecret,
       false
     );
 

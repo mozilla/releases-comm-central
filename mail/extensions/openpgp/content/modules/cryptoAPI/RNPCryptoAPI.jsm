@@ -22,9 +22,6 @@ const { EnigmailLog } = ChromeUtils.import(
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
-const { MailStringUtils } = ChromeUtils.import(
-  "resource:///modules/MailStringUtils.jsm"
-);
 
 /**
  * RNP implementation of CryptoAPI
@@ -103,31 +100,6 @@ class RNPCryptoAPI extends CryptoAPI {
       limitedFPRs
     );
     return res;
-  }
-
-  /**
-   * Import key(s) from a file
-   *
-   * @param {nsIFile} inputFile: - the file holding the keys
-   *
-   * @returns {object} or null in case no data / error:
-   *   - {Number}          exitCode:        result code (0: OK)
-   *   - {Array of String) importedKeys:    imported fingerprints
-   *   - {String}          errorMsg:        human readable error message
-   */
-  async importSecKeyFromFileAPI(win, passCB, inputFile, permissive) {
-    let contents = null;
-    try {
-      let data = await IOUtils.read(inputFile.path);
-      contents = MailStringUtils.uint8ArrayToByteString(data);
-    } catch (ex) {
-      console.debug(ex);
-    }
-    if (!contents) {
-      return null;
-    }
-
-    return RNP.importSecKeyBlockImpl(win, passCB, contents, permissive);
   }
 
   async importRevBlockAPI(data) {
@@ -296,8 +268,8 @@ class RNPCryptoAPI extends CryptoAPI {
     return RNP.encryptAndOrSign(plaintext, args, resultStatus);
   }
 
-  async getNewRevocation(id) {
-    return RNP.getNewRevocation(id);
+  async unlockAndGetNewRevocation(id, pass) {
+    return RNP.unlockAndGetNewRevocation(id, pass);
   }
 
   async getPublicKey(id) {
