@@ -153,6 +153,10 @@
           this.compareDocumentPosition(element) &
           Node.DOCUMENT_POSITION_FOLLOWING
         );
+      // Are we already collapsed?
+      this._isCollapsed = this._resizeElement?.classList.contains(
+        "collapsed-by-splitter"
+      );
       this._updateStyling();
     }
 
