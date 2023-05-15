@@ -2266,7 +2266,7 @@ class TreeViewTableBody extends HTMLTableSectionElement {
 
     this.tabIndex = 0;
     this.setAttribute("is", "tree-view-table-body");
-    this.setAttribute("role", "listbox");
+    this.setAttribute("role", "treeview");
     this.setAttribute("aria-multiselectable", "true");
 
     let treeView = this.closest("tree-view");
@@ -2328,7 +2328,7 @@ class TreeViewTableRow extends HTMLTableRowElement {
     this.id = `${this.list.id}-row${index}`;
 
     const isGroup = this.view.isContainer(index);
-    this.setAttribute("role", isGroup ? "group" : "option");
+    this.setAttribute("role", isGroup ? "group" : "treeitem");
     this.classList.toggle("children", isGroup);
 
     const isGroupOpen = this.view.isContainerOpen(index);
