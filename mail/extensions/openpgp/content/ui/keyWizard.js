@@ -33,7 +33,12 @@ var { EnigmailWindows } = ChromeUtils.import(
 var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
-var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "LoginHelper",
+  "resource://gre/modules/LoginHelper.jsm"
+);
 
 // UI variables.
 var gIdentity;
@@ -114,6 +119,7 @@ async function init() {
   // Switch directly to the create screen if requested by the user.
   if (window.arguments[0].isCreate) {
     document.getElementById("openPgpKeyChoices").value = 0;
+
     switchSection();
   }
 
@@ -127,6 +133,22 @@ async function init() {
 
     switchSection();
   }
+}
+
+function onProtectionChange() {
+  let pw1Element = document.getElementById("passwordInput");
+  let pw2Element = document.getElementById("passwordConfirm");
+
+  let pw1 = pw1Element.value;
+  let pw2 = pw2Element.value;
+
+  let inputDisabled = document.getElementById("keygenAutoProtection").selected;
+  pw1Element.disabled = inputDisabled;
+  pw2Element.disabled = inputDisabled;
+
+  let buttonEnabled = inputDisabled || (!inputDisabled && pw1 == pw2 && pw1);
+  let ok = kDialog.getButton("accept");
+  ok.disabled = !buttonEnabled;
 }
 
 /**
@@ -297,6 +319,7 @@ function backToStart(event) {
 
   // Enable the `Continue` button.
   kDialog.getButton("accept").removeAttribute("disabled");
+
   kDialog.getButton("accept").label = kButtonLabel;
   kDialog.getButton("accept").classList.remove("primary");
 
@@ -387,7 +410,32 @@ async function wizardCreateKey() {
     return;
   }
 
-  kDialog.getButton("accept").removeAttribute("disabled");
+  let sepPassphraseEnabled = Services.prefs.getBoolPref(
+    "mail.openpgp.passphrases.enabled"
+  );
+  document.getElementById(
+    "keygenPassphraseSection"
+  ).hidden = !sepPassphraseEnabled;
+
+  if (sepPassphraseEnabled) {
+    let usingPP = LoginHelper.isPrimaryPasswordSet();
+    let autoProt = document.getElementById("keygenAutoProtection");
+
+    document.l10n.setAttributes(
+      autoProt,
+      usingPP
+        ? "radio-keygen-protect-primary-pass"
+        : "radio-keygen-no-protection"
+    );
+
+    autoProt.setAttribute("selected", true);
+    document
+      .getElementById("keygenPassphraseProtection")
+      .removeAttribute("selected");
+  }
+
+  // This also handles enable/disabling the accept/ok button.
+  onProtectionChange();
 }
 
 /**
@@ -396,6 +444,15 @@ async function wizardCreateKey() {
 function wizardImportKey() {
   kCurrentSection = "import";
   revealSection("wizardImportKey");
+
+  let sepPassphraseEnabled = Services.prefs.getBoolPref(
+    "mail.openpgp.passphrases.enabled"
+  );
+  let keepPassphrasesItem = document.getElementById(
+    "openPgpKeygenKeepPassphrases"
+  );
+  keepPassphrasesItem.hidden = !sepPassphraseEnabled;
+  keepPassphrasesItem.checked = false;
 }
 
 /**
@@ -613,25 +670,34 @@ async function openPgpKeygenConfirm() {
 
   kGenerating = true;
 
+  let password;
   let cApi = EnigmailCryptoAPI();
-  try {
-    let newId = null;
-    let pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
-    newId = await cApi.genKey(
-      `${gIdentity.fullName} <${gIdentity.email}>`,
-      document.getElementById("keyType").value,
-      Number(document.getElementById("keySize").value),
-      document.getElementById("openPgpKeygeExpiry").value == 1
-        ? 0
-        : Number(document.getElementById("expireInput").value) *
-            Number(document.getElementById("timeScale").value),
-      pass
-    );
-    console.log("created new key with id: " + newId);
-    gGeneratedKey = newId;
-  } catch (ex) {
-    console.log(ex);
+  let newId = null;
+
+  let sepPassphraseEnabled = Services.prefs.getBoolPref(
+    "mail.openpgp.passphrases.enabled"
+  );
+
+  if (
+    !sepPassphraseEnabled ||
+    document.getElementById("keygenAutoProtection").selected
+  ) {
+    password = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+  } else {
+    password = document.getElementById("passwordInput").value;
   }
+  newId = await cApi.genKey(
+    `${gIdentity.fullName} <${gIdentity.email}>`,
+    document.getElementById("keyType").value,
+    Number(document.getElementById("keySize").value),
+    document.getElementById("openPgpKeygeExpiry").value == 1
+      ? 0
+      : Number(document.getElementById("expireInput").value) *
+          Number(document.getElementById("timeScale").value),
+    password
+  );
+
+  gGeneratedKey = newId;
 
   EnigmailWindows.keyManReloadKeys();
 
@@ -658,7 +724,10 @@ async function openPgpKeygenConfirm() {
   closeOverlay();
   EnigmailKeyRing.clearCache();
 
-  let rev = await cApi.getNewRevocation(`0x${gGeneratedKey}`);
+  let rev = await cApi.unlockAndGetNewRevocation(
+    `0x${gGeneratedKey}`,
+    password
+  );
   if (!rev) {
     openPgpWarning.collapsed = false;
     document.l10n.setAttributes(
@@ -909,9 +978,22 @@ async function openPgpImportStart() {
     let resultKeys = {};
     let errorMsgObj = {};
 
+    // keepPassphrases false is the classic behavior.
+    let keepPassphrases = false;
+
+    // If the pref is on, we allow the user to decide what to do.
+    let allowSeparatePassphrases = Services.prefs.getBoolPref(
+      "mail.openpgp.passphrases.enabled"
+    );
+    if (allowSeparatePassphrases) {
+      keepPassphrases = document.getElementById("openPgpKeygenKeepPassphrases")
+        .checked;
+    }
+
     let exitCode = await EnigmailKeyRing.importSecKeyFromFile(
       window,
       passphrasePromptCallback,
+      keepPassphrases,
       file,
       errorMsgObj,
       resultKeys
@@ -1071,20 +1153,17 @@ function openPgpImportComplete() {
  *
  * @returns {string} - The entered passphrase or empty.
  */
-function passphrasePromptCallback(win, keyId, resultFlags) {
+function passphrasePromptCallback(win, promptString, resultFlags) {
   let passphrase = { value: "" };
 
   // We need to fetch these strings synchronously in order to properly work with
   // the RNP key import method, which is not async.
   let title = syncl10n.formatValueSync("openpgp-passphrase-prompt-title");
-  let message = syncl10n.formatValueSync("openpgp-passphrase-prompt", {
-    key: keyId,
-  });
 
   let prompt = Services.prompt.promptPassword(
     win,
     title,
-    message,
+    promptString,
     passphrase,
     null,
     {}

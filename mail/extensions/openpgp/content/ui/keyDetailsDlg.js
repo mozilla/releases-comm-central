@@ -37,6 +37,15 @@ var { EnigmailCryptoAPI } = ChromeUtils.import(
 var { KeyLookupHelper } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyLookupHelper.jsm"
 );
+var { RNP, RnpPrivateKeyUnlockTracker } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/RNP.jsm"
+);
+
+ChromeUtils.defineModuleGetter(
+  this,
+  "LoginHelper",
+  "resource://gre/modules/LoginHelper.jsm"
+);
 
 var gModePersonal = false;
 
@@ -66,7 +75,21 @@ var gUpdateAllowed = false;
 let gAllEmailCheckboxes = [];
 let gOkButton;
 
+let gPrivateKeyTrackers = [];
+
 window.addEventListener("DOMContentLoaded", onLoad);
+window.addEventListener("unload", onUnload);
+
+function onUnload() {
+  releasePrivateKeys();
+}
+
+function releasePrivateKeys() {
+  for (let tracker of gPrivateKeyTrackers) {
+    tracker.release();
+  }
+  gPrivateKeyTrackers = [];
+}
 
 async function onLoad() {
   if (window.arguments[1]) {
@@ -82,6 +105,16 @@ async function onLoad() {
   gOkButton.focus();
 
   await reloadData(true);
+
+  let sepPassphraseEnabled = Services.prefs.getBoolPref(
+    "mail.openpgp.passphrases.enabled"
+  );
+  document.getElementById("passphraseTab").hidden = !sepPassphraseEnabled;
+  document.getElementById("passphrasePanel").hidden = !sepPassphraseEnabled;
+  if (sepPassphraseEnabled) {
+    await loadPassphraseProtection();
+  }
+
   onAcceptanceChanged();
 }
 
@@ -148,6 +181,164 @@ async function refreshOnline() {
   if (imported) {
     onDataModified();
   }
+}
+
+async function loadPassphraseProtection() {
+  let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
+  if (!keyObj || !keyObj.secretAvailable) {
+    return;
+  }
+
+  let primaryKey = RnpPrivateKeyUnlockTracker.constructFromFingerprint(
+    keyObj.fpr
+  );
+  primaryKey.setAllowPromptingUserForPassword(false);
+  primaryKey.setAllowAutoUnlockWithCachedPasswords(false);
+  let isSecretForPrimaryAvailable = primaryKey.available();
+  let canUnlockSecretForPrimary = false;
+  if (isSecretForPrimaryAvailable) {
+    await primaryKey.unlock();
+    canUnlockSecretForPrimary = primaryKey.isUnlocked();
+  }
+  gPrivateKeyTrackers.push(primaryKey);
+
+  let countSubkeysWithSecretAvailable = 0;
+  let countSubkeysCanAutoUnlock = 0;
+
+  for (let i = 0; i < keyObj.subKeys.length; i++) {
+    let subKey = RnpPrivateKeyUnlockTracker.constructFromFingerprint(
+      keyObj.subKeys[i].fpr
+    );
+    subKey.setAllowPromptingUserForPassword(false);
+    subKey.setAllowAutoUnlockWithCachedPasswords(false);
+    let isSecretForPrimaryAvailable = subKey.available();
+    let canUnlockSecretForPrimary = false;
+    if (isSecretForPrimaryAvailable) {
+      ++countSubkeysWithSecretAvailable;
+      await subKey.unlock();
+      canUnlockSecretForPrimary = subKey.isUnlocked();
+      if (canUnlockSecretForPrimary) {
+        countSubkeysCanAutoUnlock++;
+      }
+      gPrivateKeyTrackers.push(subKey);
+    }
+  }
+
+  let canUnlockAllKeysWhichHaveMaterialAvailable =
+    (isSecretForPrimaryAvailable || canUnlockSecretForPrimary) &&
+    countSubkeysWithSecretAvailable == countSubkeysCanAutoUnlock;
+
+  let userPassphraseMode = "user-passphrase";
+
+  let usingPP = LoginHelper.isPrimaryPasswordSet();
+  let protectionMode;
+  if (canUnlockAllKeysWhichHaveMaterialAvailable) {
+    protectionMode = usingPP ? "primary-password" : "unprotected";
+  } else {
+    protectionMode = userPassphraseMode;
+  }
+
+  // Strings used here:
+  //   openpgp-passphrase-status-unprotected
+  //   openpgp-passphrase-status-primary-password
+  //   openpgp-passphrase-status-user-passphrase
+  document.l10n.setAttributes(
+    document.getElementById("passphraseStatus"),
+    `openpgp-passphrase-status-${protectionMode}`
+  );
+
+  // Strings used here:
+  //   openpgp-passphrase-instruction-unprotected
+  //   openpgp-passphrase-instruction-primary-password
+  //   openpgp-passphrase-instruction-user-passphrase
+  document.l10n.setAttributes(
+    document.getElementById("passphraseInstruction"),
+    `openpgp-passphrase-instruction-${protectionMode}`
+  );
+
+  document.getElementById("unlockBox").hidden =
+    protectionMode != userPassphraseMode;
+  document.getElementById("lockBox").hidden =
+    protectionMode == userPassphraseMode;
+  document.getElementById("usePrimaryPassword").hidden = true;
+  document.getElementById("removeProtection").hidden = true;
+
+  document.l10n.setAttributes(
+    document.getElementById("setPassphrase"),
+    protectionMode == userPassphraseMode
+      ? "openpgp-passphrase-change"
+      : "openpgp-passphrase-set"
+  );
+
+  document.getElementById("passwordInput").value = "";
+  document.getElementById("passwordConfirm").value = "";
+}
+
+async function unlock() {
+  let pwCache = {
+    passwords: [],
+  };
+
+  for (let tracker of gPrivateKeyTrackers) {
+    tracker.setAllowPromptingUserForPassword(true);
+    tracker.setAllowAutoUnlockWithCachedPasswords(true);
+    tracker.setPasswordCache(pwCache);
+    await tracker.unlock();
+    if (!tracker.isUnlocked()) {
+      return;
+    }
+  }
+
+  document.l10n.setAttributes(
+    document.getElementById("passphraseInstruction"),
+    "openpgp-passphrase-unlocked"
+  );
+  document.getElementById("unlockBox").hidden = true;
+  document.getElementById("lockBox").hidden = false;
+  document.getElementById("passwordInput").value = "";
+  document.getElementById("passwordConfirm").value = "";
+
+  document.getElementById(
+    LoginHelper.isPrimaryPasswordSet()
+      ? "usePrimaryPassword"
+      : "removeProtection"
+  ).hidden = false;
+
+  // Necessary to set the disabled status of the button
+  onPasswordInput();
+}
+
+function onPasswordInput() {
+  let pw1 = document.getElementById("passwordInput").value;
+  let pw2 = document.getElementById("passwordConfirm").value;
+
+  // Disable the button if the two passwords don't match, and enable it
+  // if the passwords do match.
+  let disabled = pw1 != pw2 || !pw1.length;
+
+  document.getElementById("setPassphrase").disabled = disabled;
+}
+
+async function setPassphrase() {
+  let pw = document.getElementById("passwordInput").value;
+
+  for (let tracker of gPrivateKeyTrackers) {
+    tracker.setPassphrase(pw);
+  }
+  await RNP.saveKeyRings();
+
+  releasePrivateKeys();
+  loadPassphraseProtection();
+}
+
+async function useAutoPassphrase() {
+  for (let tracker of gPrivateKeyTrackers) {
+    await tracker.setAutoPassphrase();
+  }
+  await RNP.saveKeyRings();
+
+  releasePrivateKeys();
+  loadPassphraseProtection();
 }
 
 function onAcceptanceChanged() {
@@ -252,6 +443,10 @@ async function reloadData(firstLoad) {
   setLabel("keyExpiry", expiryInfo);
 
   gModePersonal = keyObj.secretAvailable;
+
+  document.getElementById("passphraseTab").hidden = !gModePersonal;
+  document.getElementById("passphrasePanel").hidden = !gModePersonal;
+
   if (gModePersonal) {
     gPersonalRadio.removeAttribute("hidden");
     gAcceptanceRadio.setAttribute("hidden", "true");

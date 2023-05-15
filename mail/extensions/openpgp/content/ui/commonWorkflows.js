@@ -29,18 +29,9 @@ var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
  * returns: the passphrase if entered (empty string is allowed)
  * resultFlags.canceled is set to true if the user clicked cancel
  */
-function passphrasePromptCallback(win, keyId, resultFlags) {
+function passphrasePromptCallback(win, promptString, resultFlags) {
   let password = { value: "" };
-  if (
-    !Services.prompt.promptPassword(
-      win,
-      "",
-      l10n.formatValueSync("passphrase-prompt", {
-        key: keyId,
-      }),
-      password
-    )
-  ) {
+  if (!Services.prompt.promptPassword(win, "", promptString, password)) {
     resultFlags.canceled = true;
     return "";
   }
@@ -92,9 +83,13 @@ async function getKeyBlockFromFile(file, wantSecret) {
 /**
  * import OpenPGP keys from file
  *
- * @param {string} what - "rev" for revocation, "pub" for public keys, "sec" for secret keys.
+ * @param {string} what - "rev" for revocation, "pub" for public keys
  */
 async function EnigmailCommon_importObjectFromFile(what) {
+  if (what != "rev" && what != "pub") {
+    throw new Error(`Can't import. Invalid argument: ${what}`);
+  }
+
   let importingRevocation = what == "rev";
   let promptStr = importingRevocation ? "import-rev-file" : "import-key-file";
 
@@ -128,9 +123,8 @@ async function EnigmailCommon_importObjectFromFile(what) {
       continue;
     }
 
-    let isSecret = what == "sec";
     let importBinary = false;
-    let keyBlock = await getKeyBlockFromFile(file, isSecret);
+    let keyBlock = await getKeyBlockFromFile(file, false);
 
     // if we don't find an ASCII block, try to import as binary.
     if (!keyBlock) {
@@ -144,8 +138,8 @@ async function EnigmailCommon_importObjectFromFile(what) {
       keyBlock,
       errorMsgObj,
       true, // interactive
-      !isSecret,
-      isSecret
+      true,
+      false // not secret
     );
 
     if (!preview || !preview.length || errorMsgObj.value) {
@@ -158,37 +152,14 @@ async function EnigmailCommon_importObjectFromFile(what) {
     if (preview.length > 0) {
       let confirmImport = false;
       let autoAcceptance = null;
-      if (isSecret) {
-        if (preview.length == 1) {
-          confirmImport = EnigmailDialog.confirmDlg(
-            window,
-            l10n.formatValueSync("do-import-one", {
-              name: preview[0].name,
-              id: preview[0].id,
-            })
-          );
-        } else {
-          confirmImport = EnigmailDialog.confirmDlg(
-            window,
-            l10n.formatValueSync("do-import-multiple", {
-              key: preview
-                .map(function(a) {
-                  return "\t" + a.name + " (" + a.id + ")";
-                })
-                .join("\n"),
-            })
-          );
-        }
-      } else {
-        let outParam = {};
-        confirmImport = EnigmailDialog.confirmPubkeyImport(
-          window,
-          preview,
-          outParam
-        );
-        if (confirmImport) {
-          autoAcceptance = outParam.acceptance;
-        }
+      let outParam = {};
+      confirmImport = EnigmailDialog.confirmPubkeyImport(
+        window,
+        preview,
+        outParam
+      );
+      if (confirmImport) {
+        autoAcceptance = outParam.acceptance;
       }
 
       if (confirmImport) {
@@ -205,9 +176,7 @@ async function EnigmailCommon_importObjectFromFile(what) {
           resultKeys,
           false, // minimize
           [], // filter
-          isSecret,
           true, // allow prompt for permissive
-          passphrasePromptCallback,
           autoAcceptance
         );
 

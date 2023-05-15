@@ -1532,6 +1532,14 @@ async function exportSecretKey(password, fprArray, file, confirmed = false) {
   }
 
   let backupKeyBlock = await RNP.backupSecretKeys(fprArray, password);
+  if (!backupKeyBlock) {
+    Services.prompt.alert(
+      null,
+      await document.l10n.formatValue("save-keys-failed")
+    );
+    return;
+  }
+
   await IOUtils.writeUTF8(file.path, backupKeyBlock)
     .then(() => {
       document.l10n.setAttributes(

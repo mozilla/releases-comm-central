@@ -43,6 +43,18 @@ pref("mail.openpgp.alias_rules_file", "");
 
 pref("mail.openpgp.key_assistant.enable", true);
 
+// If set to true, enable user interface that allows the user to optionally set
+// and manage individual, user-defined passphrases for OpenPGP secret keys.
+// If set to false, the respective user interface will be hidden.
+// Even when set to true, the user may decide to use the original approach
+// for OpenPGP key protection (using the global primary password or none),
+// by selecting the respective choices in the user interface.
+// Note, if a user sets an user-defined passphrase while this this setting
+// is true, and then switches this setting to false, the keys will keep
+// the user-defined passphrase protection. The application will still prompt
+// to unlock the key using the user-defined passphrase whenever necessary.
+pref("mail.openpgp.passphrases.enabled", false);
+
 // Automatically enable encryption if S/MIME certificates or OpenPGP keys are
 // available for all recipients, and thus encryption is possible.
 // This pref is only about enabling, and doesn't control automatic disabling.

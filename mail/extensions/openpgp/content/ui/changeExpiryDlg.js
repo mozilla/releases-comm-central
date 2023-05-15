@@ -17,7 +17,9 @@ var { EnigmailWindows } = ChromeUtils.import(
 var { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
 );
-var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
+var { RNP, RnpPrivateKeyUnlockTracker } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/RNP.jsm"
+);
 
 let gRadio;
 let gFingerprints = [];
@@ -136,7 +138,36 @@ async function onAccept() {
     newExpireSeconds = secondsSinceKeyCreation + newExpireDays * 24 * 60 * 60;
   }
 
-  return RNP.changeExpirationDate(gFingerprints, newExpireSeconds);
+  let unlockFailed = false;
+
+  let pwCache = {
+    passwords: [],
+  };
+
+  let keyTrackers = [];
+  for (let fp of gFingerprints) {
+    let tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(fp);
+    tracker.setAllowPromptingUserForPassword(true);
+    tracker.setAllowAutoUnlockWithCachedPasswords(true);
+    tracker.setPasswordCache(pwCache);
+    await tracker.unlock();
+    keyTrackers.push(tracker);
+    if (!tracker.isUnlocked()) {
+      unlockFailed = true;
+      break;
+    }
+  }
+
+  let rv = false;
+  if (!unlockFailed) {
+    rv = RNP.changeExpirationDate(gFingerprints, newExpireSeconds);
+  }
+
+  for (let t of keyTrackers) {
+    t.release();
+  }
+
+  return rv;
 }
 
 document.addEventListener("dialogaccept", async function(event) {

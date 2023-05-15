@@ -523,7 +523,7 @@ async function enigmailExportKeys(which) {
   if (exportSecretKey) {
     var fprArray = [];
     for (let id of keyList) {
-      fprArray.push("0x" + gKeyList[id].fpr);
+      fprArray.push(gKeyList[id].fpr);
     }
     EnigmailKeyRing.backupSecretKeysInteractive(
       window,
@@ -585,9 +585,7 @@ async function enigmailImportFromClipbrd() {
         null,
         false,
         [],
-        false,
         true,
-        null,
         outParam.acceptance
       );
       var keyList = preview.map(function(a) {
@@ -808,9 +806,7 @@ function enigmailImportKeysFromUrl() {
             null,
             false,
             [],
-            false,
             true,
-            null,
             outParam.acceptance
           );
           errorMsgObj.preview = preview;

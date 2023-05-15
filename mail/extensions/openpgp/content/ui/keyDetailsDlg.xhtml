@@ -17,7 +17,8 @@
       width="840" height="650">
 <head>
   <title data-l10n-id="openpgp-key-details-doc-title"></title>
-  <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+  <html:link rel="localization" href="branding/brand.ftl"/>
+  <html:link rel="localization" href="messenger/openpgp/openpgp.ftl"/>
   <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://openpgp/content/ui/enigmailCommon.js"></script>
@@ -100,6 +101,7 @@
     <tabs id="mainTabBox">
       <tab id="acceptanceTab" data-l10n-id="openpgp-acceptance-label"/>
       <tab id="emailAddressesTab" data-l10n-id="openpgp-key-man-ignored-ids"/>
+      <tab id="passphraseTab" data-l10n-id="openpgp-passphrase-protection"/>
       <tab id="signaturesTab" data-l10n-id="openpgp-key-details-signatures-tab"/>
       <tab id="structureTab" data-l10n-id="openpgp-key-details-structure-tab"/>
     </tabs>
@@ -144,6 +146,47 @@
         <vbox id="addressesListContainer">
           <vbox id="addressesList" class="indent"/>
         </vbox>
+      </vbox>
+
+      <!-- passphrase tab -->
+      <vbox id="passphrasePanel" flex="1">
+        <description id="passphraseStatus"/>
+        <separator class="thin"/>
+        <description id="passphraseInstruction"/>
+        <separator class="thin"/>
+
+        <vbox id="unlockBox">
+          <hbox>
+            <button id="unlock"
+                    data-l10n-id="openpgp-passphrase-unlock"
+                    oncommand="unlock()"/>
+          </hbox>
+        </vbox>
+
+        <vbox id="lockBox">
+          <hbox>
+            <label data-l10n-id="openpgp-passphrase-new"/>
+            <html:input id="passwordInput" type="password" class="input-inline"
+                        oninput="onPasswordInput();"/>
+          </hbox>
+          <hbox>
+            <label data-l10n-id="openpgp-passphrase-new-repeat"/>
+            <html:input id="passwordConfirm" type="password" class="input-inline"
+                        oninput="onPasswordInput();"/>
+            <button id="setPassphrase" disabled="true"
+                    oncommand="setPassphrase();"/>
+          </hbox>
+          <separator class="thin"/>
+        </vbox>
+
+        <hbox>
+          <button id="removeProtection" hidden="true"
+                  data-l10n-id="openpgp-remove-protection"
+                  oncommand="useAutoPassphrase()"/>
+          <button id="usePrimaryPassword" hidden="true"
+                  data-l10n-id="openpgp-use-primary-password"
+                  oncommand="useAutoPassphrase()"/>
+        </hbox>
       </vbox>
 
       <!-- certifications tab -->
@@ -220,6 +263,7 @@
                data-l10n-id="openpgp-key-details-legend-secret-missing"
                hidden="true"/>
       </vbox>
+
     </tabpanels>
   </tabbox>
 </dialog>

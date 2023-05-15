@@ -126,6 +126,34 @@
         </html:fieldset>
       </html:div>
 
+      <html:div id="keygenPassphraseSection">
+        <html:fieldset>
+          <html:legend data-l10n-id="openpgp-keygen-secret-protection"></html:legend>
+
+          <radiogroup id="openPgpKeyProtection" class="indent">
+            <radio id="keygenAutoProtection"
+                   value="0"
+                   oncommand="onProtectionChange();"/>
+            <vbox>
+              <hbox>
+                <radio id="keygenPassphraseProtection" value="1"
+                       data-l10n-id="radio-keygen-passphrase-protection"
+                       oncommand="onProtectionChange();"/>
+                <html:input id="passwordInput" type="password"
+                            oninput="onProtectionChange();"/>
+              </hbox>
+              <hbox class="indent">
+                <label data-l10n-id="openpgp-passphrase-repeat"/>
+                <html:input id="passwordConfirm" type="password" class="input-inline"
+                            oninput="onProtectionChange();"/>
+              </hbox>
+            </vbox>
+          </radiogroup>
+        </html:fieldset>
+      </html:div>
+
+      <separator class="thin"/>
+
       <html:div>
         <html:fieldset>
           <html:legend data-l10n-id="openpgp-keygen-expiry-title"></html:legend>
@@ -165,7 +193,7 @@
         </html:fieldset>
       </html:div>
 
-      <separator/>
+      <separator class="thin"/>
 
       <html:div>
         <html:fieldset>
@@ -266,6 +294,10 @@
         <description data-l10n-id="openpgp-import-key-list-caption"
                      class="tip-caption"/>
 
+        <separator class="thin"/>
+        <checkbox id="openPgpKeygenKeepPassphrases"
+                  data-l10n-id="openpgp-import-keep-passphrases"/>
+
         <separator/>
       </vbox>
 
@@ -313,8 +345,7 @@
               <html:input id="externalKey" type="text"
                           class="input-inline"
                           data-l10n-id="openpgp-external-key-input"
-                          oninput="toggleSaveButton(event)">
-              </html:input>
+                          oninput="toggleSaveButton(event);"/>
             </hbox>
           </hbox>
 
