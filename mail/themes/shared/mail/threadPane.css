@@ -94,6 +94,7 @@
 }
 
 [is="tree-view-table-body"]:focus > .selected button,
+[is="tree-view-table-body"]:focus-within > .selected button,
 [is="tree-view-table-body"] > .selected:focus-within button {
   color: currentColor;
 }
@@ -134,11 +135,13 @@ tr[data-properties~="tagged"] .tag-icon {
 }
 
 [is="tree-view-table-body"]:focus > .selected[data-properties~="tagged"] :is(.tag-icon, .subject),
+[is="tree-view-table-body"]:focus-within > .selected[data-properties~="tagged"] :is(.tag-icon, .subject),
 [is="tree-view-table-body"] > .selected[data-properties~="tagged"]:focus-within :is(.tag-icon, .subject) {
   color: currentColor;
 }
 
 [is="tree-view-table-body"]:focus tr[is="thread-row"].selected,
+[is="tree-view-table-body"]:focus-within tr[is="thread-row"].selected,
 [is="tree-view-table-body"] tr[is="thread-row"].selected:focus-within {
   background-color: var(--tag-color, var(--listbox-focused-selected-bg));
   color: var(--tag-contrast-color, var(--listbox-selected-color));
@@ -174,6 +177,7 @@ tr[data-properties~="tagged"] .tag-icon {
 }
 
 [is="tree-view-table-body"]:focus > .selected .tree-view-row-thread img,
+[is="tree-view-table-body"]:focus-within > .selected .tree-view-row-thread img,
 [is="tree-view-table-body"] > .selected:focus-within .tree-view-row-thread img {
   color: currentColor;
 }
@@ -213,6 +217,8 @@ tr:not(.children, [data-properties~="ignoreSubthread"]) .tree-view-row-thread im
   stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
+[is="tree-view-table-body"]:focus > .selected .button-star,
+[is="tree-view-table-body"]:focus-within > .selected .button-star,
 [is="tree-view-table-body"]:focus > .selected:not([data-properties~="flagged"]) .button-star,
 [is="tree-view-table-body"] > .selected:focus-within:not([data-properties~="flagged"]) .button-star {
   fill: color-mix(in srgb, currentColor 20%, transparent);
@@ -249,7 +255,10 @@ tr[data-properties~="flagged"] .button-star {
   margin-inline-start: 3px;
 }
 
-[is="tree-view-table-body"]:focus > .selected :is(.attachmentcol-column img, .attachment-icon),
+[is="tree-view-table-body"]:focus >
+  .selected :is(.attachmentcol-column img, .attachment-icon),
+[is="tree-view-table-body"]:focus-within >
+  .selected :is(.attachmentcol-column img, .attachment-icon),
 [is="tree-view-table-body"] >
   .selected:focus-within :is(.attachmentcol-column img, .attachment-icon) {
   color: currentColor;
@@ -283,6 +292,7 @@ tr[data-properties~="unread"] .tree-view-row-unread > .tree-button-unread > img 
 }
 
 [is="tree-view-table-body"]:focus > .selected > .tree-view-row-unread > .tree-button-unread > img,
+[is="tree-view-table-body"]:focus-within > .selected > .tree-view-row-unread > .tree-button-unread > img,
 [is="tree-view-table-body"] > .selected:focus-within > .tree-view-row-unread > .tree-button-unread > img {
   fill: currentColor;
   stroke: currentColor;
@@ -398,6 +408,7 @@ tr[data-properties~="replied"][data-properties~="forwarded"][data-properties~="r
 }
 
 [is="tree-view-table-body"]:focus > .selected :is(.subject-line img, .state),
+[is="tree-view-table-body"]:focus-within > .selected :is(.subject-line img, .state),
 [is="tree-view-table-body"] > .selected:focus-within :is(.subject-line img, .state) {
   fill: currentColor !important;
   stroke: currentColor !important;
@@ -504,6 +515,8 @@ tr[data-properties~="junk"] :is(.tree-view-row-spam > .tree-button-spam > img, .
 }
 
 #threadTree [is="tree-view-table-body"]:focus >
+  .selected[data-properties~="junk"] :is(.date, .subject),
+#threadTree [is="tree-view-table-body"]:focus-within >
   .selected[data-properties~="junk"] :is(.date, .subject),
 #threadTree [is="tree-view-table-body"] >
   .selected[data-properties~="junk"]:focus-within :is(.date, .subject) {

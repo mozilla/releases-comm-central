@@ -32,7 +32,9 @@
     --listbox-selected-bg: var(--color-gray-20);
     --listbox-focused-selected-bg: var(--selected-item-color);
     --listbox-selected-color: var(--selected-item-text-color);
+    --listbox-focused-selected-color: var(--selected-item-text-color);
     --listbox-hover: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
+    --listbox-border-type: dashed;
     --tree-view-bg: var(--color-white);
     --tree-view-color: var(--color-ink-90);
     --tree-view-header-bg: var(--color-gray-05);
@@ -59,13 +61,16 @@
 }
 
 @media (prefers-contrast) {
-  :root:not(:-moz-lwtheme) {
+  :root {
     --listbox-color: currentColor;
-    --listbox-selected-bg: transparent;
     --listbox-selected-color: SelectedItemText;
     --listbox-focused-selected-bg: SelectedItem;
+    --listbox-selected-bg: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
     --listbox-selected-outline: 2px solid SelectedItem;
-    --listbox-hover: transparent;
+    --listbox-border-type: solid;
+  }
+
+  :root:not(:-moz-lwtheme) {
     --tree-view-bg: Field;
     --tree-view-color: FieldText;
     --tree-view-header-bg: Field;
@@ -77,6 +82,7 @@
 :root[lwt-tree] {
   --tree-view-header-bg: var(--sidebar-background-color, Field);
   --listbox-selected-bg: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
+  --listbox-selected-color: var(--listbox-color);
   --listbox-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
   --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--selected-item-color));
   --listbox-selected-color: var(--sidebar-highlight-text-color, var(--selected-item-text-color));
@@ -119,26 +125,44 @@
   background-color: var(--listbox-selected-bg);
 }
 
-[is="tree-view-table-body"]:focus > .current:not(.selected) {
-  outline: 1px dashed var(--listbox-focused-selected-bg);
+[is="tree-view-table-body"]:focus > .selected,
+[is="tree-view-table-body"]:focus-within > .selected {
+  color: var(--listbox-selected-color);
+}
+
+[is="tree-view-table-body"]:focus > .current:not(.selected),
+[is="tree-view-table-body"]:focus-within > .current:not(.selected) {
+  outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
   outline-offset: -1px;
 }
 
 [is="tree-view-table-body"]:focus > .selected,
+[is="tree-view-table-body"]:focus-within > .selected,
 [is="tree-view-table-body"] > .selected:focus-within {
   color: var(--listbox-selected-color);
   background-color: var(--listbox-focused-selected-bg);
 }
 
+.multi-selected [is="tree-view-table-body"] > .selected.current,
 .multi-selected [is="tree-view-table-body"]:focus > .selected.current {
-  outline: 1px dashed var(--listbox-selected-color);
+  outline: 1px var(--listbox-border-type) var(--listbox-selected-color);
   outline-offset: -1px;
 }
 
 [is="tree-view-table-body"]:focus > .selected img,
+[is="tree-view-table-body"]:focus-within > .selected img,
 [is="tree-view-table-body"] > .selected:focus-within img {
   fill: color-mix(in srgb, currentColor 40%, transparent);
   stroke: currentColor;
+}
+
+[is="tree-view-table-body"]:focus > .selected .tree-view-row-thread img,
+[is="tree-view-table-body"]:focus-within > .selected .tree-view-row-thread img {
+  stroke: var(--listbox-selected-color);
+}
+
+tr:is([is="thread-row"], [is="thread-card"]).selected .twisty {
+  color: currentColor;
 }
 
 /* Resizable table columns */
@@ -221,6 +245,8 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 
 [is="tree-view-table-body"]:focus >
   .selected :is(.tree-view-header-select, .tree-view-row-select) img,
+[is="tree-view-table-body"]:focus-within >
+  .selected :is(.tree-view-header-select, .tree-view-row-select) img,
 [is="tree-view-table-body"] > .selected:focus-within
   :is(.tree-view-header-select, .tree-view-row-select) img {
   color: currentColor;
@@ -240,6 +266,7 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 }
 
 [is="tree-view-table-body"]:focus .selected > .tree-view-row-select img,
+[is="tree-view-table-body"]:focus-within .selected > .tree-view-row-select img,
 [is="tree-view-table-body"] .selected:focus-within > .tree-view-row-select img {
   fill: currentColor;
 }
@@ -265,6 +292,7 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 }
 
 [is="tree-view-table-body"]:focus .selected .tree-view-row-delete button,
+[is="tree-view-table-body"]:focus-within .selected .tree-view-row-delete button,
 [is="tree-view-table-body"] .selected:focus-within .tree-view-row-delete button {
   color: currentColor;
 }
