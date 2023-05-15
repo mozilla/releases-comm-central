@@ -547,41 +547,6 @@ var MailMigrator = {
         Services.prefs.clearUserPref("ui.systemUsesDarkTheme");
       }
 
-      // From this point onwards, migration tasks are not run immediately, but
-      // added to the MigrationTasks object then run at the end.
-      //
-      // See the documentation on MigrationTask and MigrationTasks for how to
-      // add a task.
-
-      // Test the slow migration UI.
-      if (currentUIVersion < 31 && new Date() < new Date(2021, 10, 15)) {
-        MigrationTasks.addSimpleTask(
-          "migration-task-test-fast",
-          () => new Promise(r => lazy.setTimeout(r, 50))
-        );
-        MigrationTasks.addSimpleTask(
-          "migration-task-test-slow",
-          () => new Promise(r => lazy.setTimeout(r, 2500))
-        );
-        MigrationTasks.addComplexTask(
-          new (class extends MigrationTask {
-            doAThing() {
-              return new Promise(resolve => lazy.setTimeout(resolve, 500));
-            }
-          })("migration-task-test-progress", async function() {
-            for (let i = 0; i < 10; i++) {
-              this.subTasks.push(
-                new MigrationTask(undefined, () => this.doAThing())
-              );
-            }
-          })
-        );
-        MigrationTasks.addSimpleTask(
-          "migration-task-test-fast",
-          () => new Promise(r => lazy.setTimeout(r, 500))
-        );
-      }
-
       if (currentUIVersion < 32) {
         this._migrateIncomingToOAuth2("imap.gmail.com");
         this._migrateIncomingToOAuth2("pop.gmail.com");
@@ -672,6 +637,11 @@ var MailMigrator = {
         this._migrateSMTPToOAuth2("smtp.office365.com");
       }
 
+      // Migration tasks that may take a long time are not run immediately, but
+      // added to the MigrationTasks object then run at the end.
+      //
+      // See the documentation on MigrationTask and MigrationTasks for how to
+      // add a task.
       MigrationTasks.runTasks();
 
       // Update the migration version.

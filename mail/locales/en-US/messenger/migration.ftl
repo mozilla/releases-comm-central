@@ -8,7 +8,3 @@ migration-progress-header = Getting { -brand-short-name } ready…
 
 # These strings are displayed to the user if a migration is taking a long time.
 # They should be short (no more than a handful of words) and in the present tense.
-
-migration-task-test-fast = Testing a fast change
-migration-task-test-slow = Testing a slow change
-migration-task-test-progress = Testing the progress bar
