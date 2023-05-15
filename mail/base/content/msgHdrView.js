@@ -3376,17 +3376,6 @@ function MsgReplyToListMessage(event) {
   commandController._composeMsgByType(Ci.nsIMsgCompType.ReplyToList, event);
 }
 
-/**
- * Archives the selected messages
- *
- * @param event the event that caused us to call this function
- */
-function MsgArchiveSelectedMessages(event) {
-  let archiver = new MessageArchiver();
-  archiver.msgWindow = top.msgWindow;
-  archiver.archiveMessages([gMessage]);
-}
-
 function MsgForwardMessage(event) {
   var forwardType = Services.prefs.getIntPref("mail.forward_message_mode", 0);
 

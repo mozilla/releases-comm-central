@@ -237,6 +237,13 @@ var commandController = {
       Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", false);
     },
     cmd_archive() {
+      if (parent.location.href == "about:3pane") {
+        // If we're in about:message inside about:3pane, it's the parent
+        // window that needs to advance to the next message.
+        parent.commandController.doCommand("cmd_archive");
+        return;
+      }
+      dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
       let archiver = new MessageArchiver();
       archiver.archiveMessages(gViewWrapper.dbView.getSelectedMsgHdrs());
     },
@@ -251,11 +258,23 @@ var commandController = {
       }
     },
     cmd_deleteMessage() {
+      if (parent.location.href == "about:3pane") {
+        // If we're in about:message inside about:3pane, it's the parent
+        // window that needs to advance to the next message.
+        parent.commandController.doCommand("cmd_deleteMessage");
+        return;
+      }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
     },
     cmd_shiftDeleteMessage() {
+      if (parent.location.href == "about:3pane") {
+        // If we're in about:message inside about:3pane, it's the parent
+        // window that needs to advance to the next message.
+        parent.commandController.doCommand("cmd_shiftDeleteMessage");
+        return;
+      }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteNoTrash);
     },
