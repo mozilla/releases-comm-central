@@ -175,37 +175,6 @@
     <command id="cmd_watchThread" oncommand="goDoCommand('cmd_watchThread')"/>
   </commandset>
 
-  <commandset id="mailToolbarItems"
-              commandupdater="true"
-              events="mail-toolbar"
-              oncommandupdate="goUpdateMailMenuItems(this)">
-    <command id="cmd_newMessage"/>
-    <command id="button_reply"/>
-    <command id="button_replyall"/>
-    <command id="button_replylist"/>
-    <command id="button_followup"/>
-    <command id="button_archive"/>
-    <command id="button_forward"/>
-    <command id="cmd_redirect"/>
-    <command id="button_delete"/>
-    <command id="button_mark"/>
-    <command id="cmd_tag"/>
-    <command id="button_getNewMessages"/>
-    <command id="button_print"/>
-    <command id="button_previous"/>
-    <command id="button_previousMsg"/>
-    <command id="button_next"/>
-    <command id="button_nextMsg"/>
-    <command id="button_goBack"/>
-    <command id="button_goForward"/>
-    <command id="button_file"/>
-    <command id="cmd_delete"/>
-    <command id="button_junk"/>
-    <command id="button_showconversation"/>
-    <command id="button_compact"/>
-    <command id="cmd_chat"/>
-  </commandset>
-
   <commandset id="mailGetMsgMenuItems"
               commandupdater="true"
               events="create-menu-getMsgToolbar,create-menu-file"
@@ -220,7 +189,8 @@
               commandupdater="true"
               events="create-menu-mark"
               oncommandupdate="goUpdateMailMenuItems(this)">
-
+      <command id="cmd_mark"/>
+      <command id="cmd_tag"/>
       <command id="cmd_toggleRead" oncommand="goDoCommand('cmd_toggleRead'); event.stopPropagation()" disabled="true"/>
       <command id="cmd_markAsRead" oncommand="goDoCommand('cmd_markAsRead'); event.stopPropagation()" disabled="true"/>
       <command id="cmd_markAsUnread" oncommand="goDoCommand('cmd_markAsUnread'); event.stopPropagation()" disabled="true"/>

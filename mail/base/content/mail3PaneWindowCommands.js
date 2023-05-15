@@ -38,7 +38,6 @@ var DefaultController = {
       case "cmd_redo":
       case "cmd_sendUnsentMsgs":
       case "cmd_subscribe":
-      case "button_getNewMessages":
       case "cmd_getNewMessages":
       case "cmd_getMsgsForAuthAccounts":
       case "cmd_getNextNMessages":
@@ -81,7 +80,6 @@ var DefaultController = {
         return IsSendUnsentMsgsEnabled(null);
       case "cmd_subscribe":
         return IsSubscribeEnabled();
-      case "button_getNewMessages":
       case "cmd_getNewMessages":
       case "cmd_getMsgsForAuthAccounts":
         return IsGetNewMessagesEnabled();
@@ -109,7 +107,6 @@ var DefaultController = {
     }
 
     switch (command) {
-      case "button_getNewMessages":
       case "cmd_getNewMessages":
         MsgGetMessage();
         break;

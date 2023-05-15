@@ -46,6 +46,14 @@ window.addEventListener("DOMContentLoaded", event => {
   }
 
   messageBrowser = document.getElementById("messageBrowser");
+  messageBrowser.addEventListener("messageURIChanged", () => {
+    // Update toolbar buttons.
+    goUpdateCommand("cmd_getNewMessages");
+    goUpdateCommand("cmd_print");
+    goUpdateCommand("cmd_delete");
+    document.commandDispatcher.updateCommands("create-menu-go");
+    document.commandDispatcher.updateCommands("create-menu-message");
+  });
   messageBrowser.addEventListener(
     "load",
     event => (messageBrowser.contentWindow.tabOrWindow = window),
@@ -456,18 +464,13 @@ var MessageWindowController = {
       case "cmd_undo":
       case "cmd_redo":
       case "cmd_getMsgsForAuthAccounts":
-      case "button_file":
-        return false;
       case "cmd_newMessage":
-      case "button_followup":
       case "cmd_getNextNMessages":
       case "cmd_find":
       case "cmd_findAgain":
       case "cmd_findPrevious":
       case "cmd_reload":
       case "cmd_getNewMessages":
-      case "button_getNewMessages":
-      case "button_print":
       case "cmd_settingsOffline":
       case "cmd_fullZoomReduce":
       case "cmd_fullZoomEnlarge":
@@ -488,17 +491,14 @@ var MessageWindowController = {
   isCommandEnabled(command) {
     switch (command) {
       case "cmd_newMessage":
-      case "button_followup":
         return MailServices.accounts.allIdentities.length > 0;
       case "cmd_reload":
       case "cmd_find":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
       case "cmd_stop":
-      case "button_file":
         return false;
       case "cmd_getNewMessages":
-      case "button_getNewMessages":
       case "cmd_getMsgsForAuthAccounts":
         return IsGetNewMessagesEnabled();
       case "cmd_getNextNMessages":
@@ -514,9 +514,6 @@ var MessageWindowController = {
       case "cmd_fullZoomReset":
       case "cmd_fullZoomToggle":
         return true;
-      case "button_goForward":
-      case "button_goBack":
-        return false;
       case "cmd_undo":
       case "cmd_redo":
         return SetupUndoRedoCommand(command);
@@ -747,4 +744,8 @@ function backToolbarMenu_init(popup) {
 
 function forwardToolbarMenu_init(popup) {
   messageHistoryMenu_init(popup);
+}
+
+function GetSelectedMsgFolders() {
+  return [messageBrowser.contentWindow.gFolder];
 }

@@ -25,7 +25,6 @@
       <toolbarbutton id="hdrReplyToSenderButton" label="&hdrReplyButton1.label;"
                      tooltiptext="&hdrReplyButton2.tooltip;"
                      oncommand="MsgReplySender(event);"
-                     observes="button_reply"
                      class="toolbarbutton-1 message-header-view-button hdrReplyToSenderButton"/>
 
       <toolbaritem id="hdrSmartReplyButton" label="&hdrSmartReplyButton1.label;">
@@ -39,7 +38,6 @@
         <toolbarbutton id="hdrReplyButton" label="&hdrReplyButton1.label;"
                        tooltiptext="&hdrReplyButton2.tooltip;"
                        oncommand="MsgReplySender(event);"
-                       observes="button_reply"
                        class="toolbarbutton-1 message-header-view-button hdrReplyButton"/>
 
         <toolbarbutton is="toolbarbutton-menu-button" id="hdrReplyAllButton"
@@ -47,7 +45,6 @@
                        label="&hdrReplyAllButton1.label;"
                        tooltiptext="&hdrReplyAllButton1.tooltip;"
                        oncommand="MsgReplyToAllMessage(event);"
-                       observes="button_replyall"
                        class="toolbarbutton-1 message-header-view-button hdrReplyButton hdrReplyAllButton"
                        hidden="true">
           <menupopup id="hdrReplyAllDropdown"
@@ -55,14 +52,12 @@
             <menuitem id="hdrReplyAll_ReplyAllSubButton"
                       class="menuitem-iconic"
                       label="&hdrReplyAllButton1.label;"
-                      tooltiptext="&hdrReplyAllButton1.tooltip;"
-                      observes="button_replyall"/>
+                      tooltiptext="&hdrReplyAllButton1.tooltip;"/>
             <toolbarseparator id="hdrReplyAllSubSeparator"/>
             <menuitem id="hdrReplySubButton"
                       class="menuitem-iconic"
                       label="&hdrReplyButton1.label;"
                       tooltiptext="&hdrReplyButton2.tooltip;"
-                      observes="button_reply"
                       oncommand="MsgReplySender(event); event.stopPropagation();"/>
           </menupopup>
         </toolbarbutton>
@@ -72,7 +67,6 @@
                        label="&hdrReplyListButton1.label;"
                        tooltiptext="&hdrReplyListButton1.tooltip;"
                        oncommand="MsgReplyToListMessage(event);"
-                       observes="button_replylist"
                        class="toolbarbutton-1 message-header-view-button hdrReplyButton hdrReplyListButton"
                        hidden="true">
           <menupopup id="hdrReplyListDropdown"
@@ -80,20 +74,17 @@
             <menuitem id="hdrReplyList_ReplyListSubButton"
                       class="menuitem-iconic"
                       label="&hdrReplyListButton1.label;"
-                      tooltiptext="&hdrReplyListButton1.tooltip;"
-                      observes="button_replylist"/>
+                      tooltiptext="&hdrReplyListButton1.tooltip;"/>
             <toolbarseparator id="hdrReplyListSubSeparator"/>
             <menuitem id="hdrRelplyList_ReplyAllSubButton"
                       class="menuitem-iconic"
                       label="&hdrReplyAllButton1.label;"
                       tooltiptext="&hdrReplyAllButton1.tooltip;"
-                      observes="button_replyall"
                       oncommand="MsgReplyToAllMessage(event); event.stopPropagation();"/>
             <menuitem id="hdrReplyList_ReplySubButton"
                       class="menuitem-iconic"
                       label="&hdrReplyButton1.label;"
                       tooltiptext="&hdrReplyButton2.tooltip;"
-                      observes="button_reply"
                       oncommand="MsgReplySender(event); event.stopPropagation();"/>
           </menupopup>
         </toolbarbutton>
@@ -103,27 +94,23 @@
                        type="menu"
                        tooltiptext="&hdrFollowupButton1.tooltip;"
                        oncommand="MsgReplyGroup(event);"
-                       observes="button_followup"
                        class="toolbarbutton-1 message-header-view-button hdrFollowupButton">
           <menupopup id="hdrFollowupDropdown"
                      class="no-icon-menupopup">
             <menuitem id="hdrFollowup_FollowupSubButton"
                       class="menuitem-iconic"
                       label="&hdrFollowupButton1.label;"
-                      tooltiptext="&hdrFollowupButton1.tooltip;"
-                      observes="button_followup"/>
+                      tooltiptext="&hdrFollowupButton1.tooltip;"/>
             <toolbarseparator id="hdrFollowupSubSeparator"/>
             <menuitem id="hdrFollowup_ReplyAllSubButton"
                       class="menuitem-iconic"
                       label="&hdrReplyAllButton1.label;"
                       tooltiptext="&hdrReplyAllButton1.tooltip;"
-                      observes="button_replyall"
                       oncommand="MsgReplyToAllMessage(event); event.stopPropagation();"/>
             <menuitem id="hdrFollowup_ReplySubButton"
                       class="menuitem-iconic"
                       label="&hdrReplyButton1.label;"
                       tooltiptext="&hdrReplyButton2.tooltip;"
-                      observes="button_reply"
                       oncommand="MsgReplySender(event); event.stopPropagation();"/>
           </menupopup>
         </toolbarbutton>
@@ -133,13 +120,11 @@
                      label="&hdrForwardButton1.label;"
                      tooltiptext="&hdrForwardButton1.tooltip;"
                      oncommand="MsgForwardMessage(event);"
-                     observes="button_forward"
                      class="toolbarbutton-1 message-header-view-button hdrForwardButton"/>
       <toolbarbutton id="hdrArchiveButton"
                      label="&hdrArchiveButton1.label;"
                      tooltiptext="&hdrArchiveButton1.tooltip;"
                      oncommand="MsgArchiveSelectedMessages(event);"
-                     observes="button_archive"
                      class="toolbarbutton-1 message-header-view-button hdrArchiveButton"/>
       <toolbarbutton id="hdrJunkButton" label="&hdrJunkButton1.label;"
                      tooltiptext="&hdrJunkButton1.tooltip;"

@@ -46,17 +46,21 @@ class ConversationOpener {
         console.error("Couldn't find a collection for msg: " + this._msgHdr);
       } else {
         let message = collection.items[0];
-        this.window.browsingContext.topChromeWindow.document
-          .getElementById("tabmail")
-          .openTab("mail3PaneTab", {
-            folderPaneVisible: false,
-            syntheticView: new GlodaSyntheticView({
-              conversation: message.conversation,
-              message,
-            }),
-            title: message.conversation.subject,
-            background: false,
-          });
+        let tabmail = this.window.top.document.getElementById("tabmail");
+        if (!tabmail) {
+          tabmail = Services.wm
+            .getMostRecentWindow("mail:3pane")
+            .document.getElementById("tabmail");
+        }
+        tabmail.openTab("mail3PaneTab", {
+          folderPaneVisible: false,
+          syntheticView: new GlodaSyntheticView({
+            conversation: message.conversation,
+            message,
+          }),
+          title: message.conversation.subject,
+          background: false,
+        });
       }
     } catch (e) {
       console.error(e);

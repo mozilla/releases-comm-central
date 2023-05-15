@@ -979,12 +979,10 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
   });
 }
 
-/*
-TODO: Fix and enable this code.
 function getMsgToolbarMenu_init() {
   document.commandDispatcher.updateCommands("create-menu-getMsgToolbar");
 }
-*/
+
 function InitMessageMark() {
   let tab = document.getElementById("tabmail")?.currentTabInfo;
   let flaggedItem = document.getElementById("markFlaggedMenuItem");

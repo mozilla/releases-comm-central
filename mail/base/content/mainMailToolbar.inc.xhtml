@@ -8,8 +8,7 @@
                    class="toolbarbutton-1"
                    label="&getMsgButton1.label;"
                    tooltiptext="&getMsgButton.tooltip;"
-                   oncommand="MsgGetMessagesForAccount();"
-                   observes="button_getNewMessages">
+                   command="cmd_getNewMessages">
       <menupopup is="folder-menupopup" id="button-getMsgPopup"
                  onpopupshowing="getMsgToolbarMenu_init();"
                  oncommand="MsgGetMessagesForAccount(event.target._folder); event.stopPropagation();"
@@ -28,53 +27,12 @@
                    label="&newMsgButton.label;"
                    tooltiptext="&newMsgButton.tooltip;"
                    command="cmd_newMessage"/>
-    <toolbarbutton id="button-reply"
-                   class="toolbarbutton-1"
-                   label="&replyButton.label;"
-                   tooltiptext="&replyButton.tooltip;"
-                   observes="button_reply"
-                   command="cmd_reply"/>
-    <toolbarbutton id="button-replyall"
-                   class="toolbarbutton-1"
-                   label="&replyAllButton.label;"
-                   tooltiptext="&replyAllButton.tooltip;"
-                   observes="button_replyall"
-                   command="cmd_replyall"/>
-    <toolbarbutton id="button-replylist"
-                   class="toolbarbutton-1"
-                   label="&replyListButton.label;"
-                   tooltiptext="&replyListButton.tooltip;"
-                   observes="button_replylist"
-                   command="cmd_replylist"/>
-    <toolbarbutton is="toolbarbutton-menu-button" id="button-forward"
-                   type="menu"
-                   class="toolbarbutton-1"
-                   label="&forwardButton.label;"
-                   tooltiptext="&forwardButton.tooltip;"
-                   observes="button_forward"
-                   command="cmd_forward">
-      <menupopup id="button-ForwardPopup">
-        <menuitem id="button-ForwardAsInlineMenu"
-                  label="&buttonMenuForwardAsInline.label;"
-                  tooltiptext="&forwardAsInline.tooltip;"
-                  command="cmd_forwardInline"/>
-        <menuitem id="button-ForwardAsAttachmentMenu"
-                  label="&buttonMenuForwardAsAttachment.label;"
-                  tooltiptext="&forwardAsAttachment.tooltip;"
-                  command="cmd_forwardAttachment"/>
-      </menupopup>
-    </toolbarbutton>
-    <toolbarbutton id="button-redirect"
-                   class="toolbarbutton-1"
-                   data-l10n-id="redirect-msg-button"
-                   command="cmd_redirect"/>
     <toolbarbutton id="button-file"
                    type="menu"
                    wantdropmarker="true"
                    class="toolbarbutton-1"
                    label="&fileButton.label;"
                    tooltiptext="&fileButton.tooltip;"
-                   observes="button_file"
                    oncommand="goDoCommand('cmd_moveMessage', event.target._folder)">
       <menupopup is="folder-menupopup" id="button-filePopup"
                  mode="filing"
@@ -83,25 +41,17 @@
                  recentLabel="&moveCopyMsgRecentMenu.label;"
                  recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"/>
     </toolbarbutton>
-    <toolbarbutton id="button-archive"
-                   class="toolbarbutton-1"
-                   label="&archiveButton.label;"
-                   tooltiptext="&archiveButton.tooltip;"
-                   observes="button_archive"
-                   oncommand="MsgArchiveSelectedMessages(event)"/>
     <toolbarbutton id="button-showconversation"
                    class="toolbarbutton-1"
                    label="&openConversationButton.label;"
                    tooltiptext="&openMsgConversationButton.tooltip;"
-                   observes="button_showconversation"
-                   oncommand="new ConversationOpener(window).openConversationForMessages(gFolderDisplay.selectedMessages)"/>
+                   command="cmd_openConversation"/>
     <toolbarbutton is="toolbarbutton-menu-button" id="button-goback"
                    type="menu"
                    class="toolbarbutton-1"
                    label="&backButton1.label;"
-                   oncommand="goDoCommand('cmd_goBack')"
-                   tooltiptext="&goBackButton.tooltip;"
-                   observes="button_goBack">
+                   command="cmd_goBack"
+                   tooltiptext="&goBackButton.tooltip;">
       <menupopup id="button-goBackPopup" onpopupshowing="backToolbarMenu_init(this)">
         <menuitem id="button-goBack" label="&goBackCmd.label;" command="cmd_goBack"/>
         <menuseparator id="button-goBackSeparator"/>
@@ -111,9 +61,8 @@
                    type="menu"
                    class="toolbarbutton-1"
                    label="&goForwardButton1.label;"
-                   oncommand="goDoCommand('cmd_goForward')"
-                   tooltiptext="&goForwardButton.tooltip;"
-                   observes="button_goForward">
+                   command="cmd_goForward"
+                   tooltiptext="&goForwardButton.tooltip;">
       <menupopup id="button-goForwardPopup" onpopupshowing="forwardToolbarMenu_init(this)">
         <menuitem id="button-goForward"
                   label="&goForwardCmd.label;"
@@ -128,16 +77,14 @@
       <toolbarbutton id="button-previousUnread"
                      class="toolbarbutton-1"
                      label="&previousButton.label;"
-                     oncommand="goDoCommand('button_previous')"
-                     tooltiptext="&previousButton.tooltip;"
-                     observes="button_previous"/>
+                     command="cmd_previousUnreadMsg"
+                     tooltiptext="&previousButton.tooltip;"/>
     </toolbaritem>
     <toolbarbutton id="button-previousMsg"
                    class="toolbarbutton-1"
                    label="&previousMsgButton.label;"
-                   oncommand="goDoCommand('button_previousMsg')"
-                   tooltiptext="&previousMsgButton.tooltip;"
-                   observes="button_previousMsg"/>
+                   command="cmd_previousMsg"
+                   tooltiptext="&previousMsgButton.tooltip;"/>
     <toolbaritem id="button-next"
                  title="&nextButtonToolbarItem.label;"
                  align="center"
@@ -145,42 +92,23 @@
       <toolbarbutton id="button-nextUnread"
                      class="toolbarbutton-1"
                      label="&nextButton.label;"
-                     oncommand="goDoCommand('button_next')"
-                     tooltiptext="&nextButton.tooltip;"
-                     observes="button_next"/>
+                     command="cmd_nextUnreadMsg"
+                     tooltiptext="&nextButton.tooltip;"/>
     </toolbaritem>
     <toolbarbutton id="button-nextMsg"
                    class="toolbarbutton-1"
                    label="&nextMsgButton.label;"
-                   oncommand="goDoCommand('button_nextMsg');"
-                   tooltiptext="&nextMsgButton.tooltip;"
-                   observes="button_nextMsg"/>
-    <toolbaritem id="button-junk" title="&junkItem.title;">
-      <toolbarbutton id="button-isJunk"
-                     data-l10n-id="toolbar-junk-button"
-                     class="toolbarbutton-1 junk-button"
-                     observes="button_junk"
-                     oncommand="goDoCommand('button_junk')"/>
-    </toolbaritem>
-    <toolbaritem id="button-delete" title="&deleteItem.title;">
-      <toolbarbutton id="button-mark-deleted"
-                     data-l10n-id="toolbar-delete-button"
-                     class="toolbarbutton-1 delete-button"
-                     observes="button_delete"
-                     oncommand="goDoCommand(event.shiftKey ? 'button_shiftDelete' : 'button_delete')"/>
-    </toolbaritem>
+                   command="cmd_nextMsg"
+                   tooltiptext="&nextMsgButton.tooltip;"/>
     <toolbarbutton id="button-print"
                    class="toolbarbutton-1"
                    label="&printButton.label;"
-                   observes="button_print"
-                   oncommand="goDoCommand('cmd_print')"
+                   command="cmd_print"
                    tooltiptext="&printButton.tooltip;"/>
     <toolbarbutton is="toolbarbutton-menu-button" id="button-mark"
                    type="menu"
                    class="toolbarbutton-1"
                    label="&markButton.label;"
-                   oncommand="goDoCommand('button_mark')"
-                   observes="button_mark"
                    tooltiptext="&markButton.tooltip;">
       <menupopup id="button-markPopup" onpopupshowing="InitMessageMark()">
         <menuitem id="markReadToolbarItem"
@@ -267,76 +195,6 @@
                 src="chrome://messenger/skin/icons/notloading.png"
                 srcset="chrome://messenger/skin/icons/notloading@2x.png 2x"
                 alt="" />
-    </toolbaritem>
-    <toolbarbutton id="button-stop"
-                   class="toolbarbutton-1"
-                   label="&stopButton.label;"
-                   tooltiptext="&stopButton.tooltip;"
-                   command="cmd_stop"/>
-    <toolbarbutton id="button-compact" class="toolbarbutton-1"
-                   insertafter="button-mark"
-                   label="&compactButton.label;"
-                   tooltiptext="&compactButton.tooltip;"
-                   oncommand="goDoCommand('button_compact');"
-                   observes="button_compact"/>
-    <toolbaritem id="folder-location-container" insert-after="button-stop"
-                 title="&folderLocationToolbarItem.title;"
-                 align="center"
-                 class="chromeclass-toolbar-additional">
-      <menulist id="locationFolders"
-                flex="1"
-                class="folderMenuItem"
-                label="&folderLocationToolbarItem.title;"
-                context="folderPaneContext"
-                style="min-width:125px; max-width:300px;"
-                crop="center">
-        <menupopup is="folder-menupopup" id="folderLocationPopup"
-                   class="menulist-menupopup"
-                   flex="1"
-                   mode="notDeferred"
-                   showFileHereLabel="true"/>
-      </menulist>
-    </toolbaritem>
-    <toolbaritem id="mailviews-container"
-                 title="&mailViewsToolbarItem.title;"
-                 align="center"
-                 class="chromeclass-toolbar-additional">
-      <label id="viewPickerLabel"
-             value="&viewPicker.label;"
-             control="viewPicker"
-             accesskey="&viewPicker.accesskey;"/>
-      <menulist id="viewPicker" oncommand="ViewChangeByMenuitem(event.target);">
-        <menupopup id="viewPickerPopup"
-                   onpopupshowing="RefreshViewPopup(this);">
-          <menuitem id="viewPickerAll" value="0"
-                    label="&viewAll.label;"
-                    type="radio"/>
-          <menuitem id="viewPickerUnread" value="1"
-                    label="&viewUnread.label;"
-                    type="radio"/>
-          <menuitem id="viewPickerNotDeleted" value="3"
-                    label="&viewNotDeleted.label;"
-                    type="radio"/>
-          <menuseparator id="afterViewPickerUnreadSeparator"/>
-          <menu id="viewPickerTags" label="&viewTags.label;">
-            <menupopup id="viewPickerTagsPopup"
-                       class="menulist-menupopup"
-                       onpopupshowing="RefreshTagsPopup(this);"/>
-          </menu>
-          <menu id="viewPickerCustomViews" label="&viewCustomViews.label;">
-            <menupopup id="viewPickerCustomViewsPopup"
-                       class="menulist-menupopup"
-                       onpopupshowing="RefreshCustomViewsPopup(this);"/>
-          </menu>
-          <menuseparator id="afterViewPickerCustomViewsSeparator"/>
-          <menuitem id="viewPickerVirtualFolder"
-                    value="7"
-                    label="&viewVirtualFolder.label;"/>
-          <menuitem id="viewPickerCustomize"
-                    value="8"
-                    label="&viewCustomizeView.label;"/>
-        </menupopup>
-      </menulist>
     </toolbaritem>
 
     <toolbarbutton id="button-addons" class="toolbarbutton-1"

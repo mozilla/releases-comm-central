@@ -3311,10 +3311,6 @@ function UpdateReplyButtons() {
     }
   }
 
-  goUpdateCommand("button_reply");
-  goUpdateCommand("button_replyall");
-  goUpdateCommand("button_replylist");
-  goUpdateCommand("button_followup");
   // Run this method only after all the header toolbar buttons have been updated
   // so we deal with the actual state.
   headerToolbarNavigation.updateRovingTab();
@@ -3603,7 +3599,7 @@ var gMessageNotificationBar = {
   },
 
   setJunkMsg(aMsgHdr) {
-    goUpdateCommand("button_junk");
+    goUpdateCommand("cmd_junk");
 
     let junkBarStatus = this.checkJunkMsgStatus(aMsgHdr);
     if (junkBarStatus == -1) {
@@ -4137,8 +4133,6 @@ function OnMsgLoaded(aUrl) {
   let wintype = win.document.documentElement.getAttribute("windowtype");
 
   gMessageNotificationBar.setJunkMsg(gMessage);
-
-  goUpdateCommand("button_delete");
 
   let markReadAutoMode = Services.prefs.getBoolPref(
     "mailnews.mark_message_read.auto"

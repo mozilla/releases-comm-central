@@ -76,10 +76,10 @@ add_task(async function test_redirects_toolbarbutton_drops() {
   // Let's grab some items from the customize window, and try dropping
   // them on the tab bar
   [
-    "wrapper-button-replyall",
-    "wrapper-button-replylist",
-    "wrapper-button-forward",
-    "wrapper-button-archive",
+    "wrapper-button-previous",
+    "wrapper-button-previousMsg",
+    "wrapper-button-nextMsg",
+    "wrapper-button-next",
   ].forEach(function(aButtonId) {
     let button = ctw.window.document.getElementById(aButtonId);
 
