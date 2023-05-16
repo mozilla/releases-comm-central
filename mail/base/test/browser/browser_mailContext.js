@@ -143,9 +143,9 @@ add_setup(async function() {
   let messageStrings = messages.map(message => message.toMboxString());
   testFolder.addMessageBatch(messageStrings);
   testMessages = [...testFolder.messages];
-  rootFolder.createSubfolder("Drafts", null);
+  rootFolder.createSubfolder("mailContextDrafts", null);
   draftsFolder = rootFolder
-    .getChildNamed("Drafts")
+    .getChildNamed("mailContextDrafts")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   draftsFolder.setFlag(Ci.nsMsgFolderFlags.Drafts);
   draftsFolder.addMessageBatch(
