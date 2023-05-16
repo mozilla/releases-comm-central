@@ -287,10 +287,6 @@ export function getDefaultColumns(folder, isSynthetic = false) {
   // Create a clone we can edit.
   let updatedColumns = DEFAULT_COLUMNS.map(column => ({ ...column }));
 
-  if (!folder) {
-    // We don't have a folder yet. Use defaults.
-    return updatedColumns;
-  }
   if (isSynthetic) {
     // Synthetic views usually can contain messages from multiple folders.
     // Folder for the selected message will still be set.
@@ -316,6 +312,11 @@ export function getDefaultColumns(folder, isSynthetic = false) {
           break;
       }
     }
+    return updatedColumns;
+  }
+
+  if (!folder) {
+    // We don't have a folder yet. Use defaults.
     return updatedColumns;
   }
 

@@ -525,6 +525,8 @@ var folderPaneContextMenu = {
 };
 
 var folderPane = {
+  _initialized: false,
+
   _modes: {
     all: {
       name: "all",
@@ -1089,6 +1091,16 @@ var folderPane = {
   },
 
   async init() {
+    if (window.openingState?.syntheticView) {
+      // Just avoid initialising the pane. We won't be using it. The folder
+      // listener is still required, because it does other things too.
+      MailServices.mailSession.AddFolderListener(
+        folderListener,
+        Ci.nsIFolderListener.all
+      );
+      return;
+    }
+
     await FolderTreeProperties.ready;
 
     this._modeTemplate = document.getElementById("modeTemplate");
@@ -1167,9 +1179,14 @@ var folderPane = {
       });
     this.toggleTotalCountBadge();
     this.updateWidgets();
+
+    this._initialized = true;
   },
 
   uninit() {
+    if (!this._initialized) {
+      return;
+    }
     Services.prefs.removeObserver("mail.accountmanager.accounts", this);
     Services.obs.removeObserver(this, "folder-color-changed");
     Services.obs.removeObserver(this, "folder-color-preview");
@@ -5034,9 +5051,11 @@ commandController.registerCallback(
   () => threadPaneHeader.toggleThreadPaneHeader(),
   () => gFolder && !gFolder.isServer
 );
-commandController.registerCallback("cmd_toggleFolderPane", () => {
-  paneLayout.folderPaneSplitter.toggleCollapsed();
-});
+commandController.registerCallback(
+  "cmd_toggleFolderPane",
+  () => paneLayout.folderPaneSplitter.toggleCollapsed(),
+  () => !!gFolder
+);
 commandController.registerCallback("cmd_toggleMessagePane", () => {
   paneLayout.messagePaneSplitter.toggleCollapsed();
 });
@@ -5384,17 +5403,17 @@ commandController.registerCallback(
 commandController.registerCallback(
   "cmd_viewThreadsWithUnread",
   () => SwitchView("cmd_viewThreadsWithUnread"),
-  () => !!gDBView && !(gFolder.flags & Ci.nsMsgFolderFlags.Virtual)
+  () => gDBView && gFolder && !(gFolder.flags & Ci.nsMsgFolderFlags.Virtual)
 );
 commandController.registerCallback(
   "cmd_viewWatchedThreadsWithUnread",
   () => SwitchView("cmd_viewWatchedThreadsWithUnread"),
-  () => !!gDBView && !(gFolder.flags & Ci.nsMsgFolderFlags.Virtual)
+  () => gDBView && gFolder && !(gFolder.flags & Ci.nsMsgFolderFlags.Virtual)
 );
 commandController.registerCallback(
   "cmd_viewUnreadMsgs",
   () => SwitchView("cmd_viewUnreadMsgs"),
-  () => !!gDBView && !(gFolder.flags & Ci.nsMsgFolderFlags.Virtual)
+  () => gDBView && gFolder && !(gFolder.flags & Ci.nsMsgFolderFlags.Virtual)
 );
 commandController.registerCallback(
   "cmd_viewIgnoredThreads",
