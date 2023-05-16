@@ -1137,7 +1137,10 @@ void nsImapServerResponseParser::msg_fetch() {
     // I only fetch RFC822 so I should never see these BODY responses
     else if (!PL_strcasecmp(fNextToken, "BODY"))
       skip_to_CRLF();  // I never ask for this
-    else if (!PL_strcasecmp(fNextToken, "ENVELOPE")) {
+    else if (!PL_strncasecmp(fNextToken, "BODY[TEXT", 9)) {
+      // This parses the "preview" response (first 2048 bytes of body text).
+      mime_part_data();  // Note: TEXT is not an actual mime part.
+    } else if (!PL_strcasecmp(fNextToken, "ENVELOPE")) {
       fDownloadingHeaders = true;
       bNeedEndMessageDownload = true;
       BeginMessageDownload(MESSAGE_RFC822);
@@ -1807,6 +1810,32 @@ void nsImapServerResponseParser::msg_fetch_content(bool chunk, int32_t origin,
     } else
       fServerConnection.AbortMessageDownLoad();
   }
+}
+
+void nsImapServerResponseParser::mime_part_data() {
+  char* checkOriginToken = PL_strdup(fNextToken);
+  if (checkOriginToken) {
+    uint32_t origin = 0;
+    bool originFound = false;
+    char* whereStart = PL_strchr(checkOriginToken, '<');
+    if (whereStart) {
+      char* whereEnd = PL_strchr(whereStart, '>');
+      if (whereEnd) {
+        *whereEnd = 0;
+        whereStart++;
+        origin = atoi(whereStart);
+        originFound = true;
+      }
+    }
+    PR_Free(checkOriginToken);
+    AdvanceToNextToken();
+    msg_fetch_content(originFound, origin,
+                      MESSAGE_RFC822);  // keep content type as message/rfc822,
+                                        // even though the
+    // MIME part might not be, because then libmime will
+    // still handle and decode it.
+  } else
+    HandleMemoryFailure();
 }
 
 /*

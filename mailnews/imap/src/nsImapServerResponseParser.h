@@ -164,6 +164,7 @@ class nsImapServerResponseParser : public nsImapGenericParser {
   virtual void namespace_data();
   virtual void myrights_data(bool unsolicited);
   virtual void acl_data();
+  virtual void mime_part_data();
   virtual void quota_data();
   virtual void msg_fetch();
   virtual void msg_obsolete();
