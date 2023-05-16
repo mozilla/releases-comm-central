@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <title>Test for the tree-view custom element</title>
+  <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
+  <style>
+    :root {
+      --color-gray-20: gray;
+      --selected-item-color: rebeccapurple;
+      --selected-item-text-color: white;
+    }
+
+    /* We want a total visible row area of 630px. Intentionally avoid leaving
+     * room for a header. */
+    .tree-view-scrollable-container {
+      height: 630px;
+      scroll-behavior: unset;
+    }
+
+    tr[is="test-row"] td > div {
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+    }
+
+    tr[is="test-row"] td div.d1 {
+      flex: 1;
+    }
+
+    tr[is="test-row"] td div.d1 > div.d2 {
+      line-height: 1.2;
+    }
+
+    tr[is="test-row"] td div.d1 > div.d3 {
+      line-height: 1.2;
+      font-size: 13px;
+    }
+  </style>
+  <script type="module" src="chrome://messenger/content/tree-view.mjs"></script>
+  <script src="tree-element-test-no-header.js"></script>
+  <script src="tree-element-test-common.js"></script>
+</head>
+<body>
+  <input id="before" placeholder="something to focus on" />
+  <tree-view id="testTree" data-select-delay="250"/>
+  <input id="after" placeholder="something to focus on" />
+</body>
+</html>

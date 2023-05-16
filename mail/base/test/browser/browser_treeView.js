@@ -7,66 +7,115 @@ registerCleanupFunction(() => {
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 });
 
+// We wish to run several variants of each test with minor differences, based on
+// changes in the source file, in order to verify that certain variables don't
+// impact behavior.
+const TEST_VARIANTS = ["header", "no-header"];
+
 /**
- * Checks that interactions with the widget do as expected.
+ * Run a given test in a new tab and script sandbox.
+ *
+ * @param {Function} test - The test function to run in the sandbox.
+ * @param {string} filenameFragment - The fragment of the filename representing
+ *   the test variant to run.
+ * @param {object[]} sandboxArgs - Arguments to the sandbox spawner to pass to
+ *   the test function.
  */
-add_task(async function testKeyboardAndMouse() {
-  let tab = tabmail.openTab("contentTab", {
-    url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeView.xhtml",
+async function runTestInSandbox(test, filenameFragment, sandboxArgs = []) {
+  // Create a new tab with our custom content.
+  const tab = tabmail.openTab("contentTab", {
+    url: `chrome://mochitests/content/browser/comm/mail/base/test/browser/files/tree-element-test-${filenameFragment}.xhtml`,
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);
   tab.browser.focus();
 
-  await SpecialPowers.spawn(tab.browser, [], subtestKeyboardAndMouse);
+  // Spawn a new JavaScript sandbox for the tab and run the test function inside
+  // of it.
+  await SpecialPowers.spawn(tab.browser, sandboxArgs, test);
 
   tabmail.closeTab(tab);
+}
+
+/**
+ * Checks that interactions with the widget do as expected.
+ */
+add_task(async function testKeyboardAndMouse() {
+  for (const variant of TEST_VARIANTS) {
+    info(`Running keyboard and mouse test for ${variant}`);
+    await runTestInSandbox(subtestKeyboardAndMouse, variant, [variant]);
+  }
 });
 
-async function subtestKeyboardAndMouse() {
+async function subtestKeyboardAndMouse(variant) {
   let doc = content.document;
 
   let list = doc.getElementById("testTree");
   Assert.ok(!!list, "the list exists");
   Assert.equal(list._rowElementName, "test-row");
   Assert.equal(list._rowElementClass, content.customElements.get("test-row"));
-  Assert.equal(list._overflowBuffer, 26);
-
-  let listRect = list.getBoundingClientRect();
+  Assert.equal(
+    list._toleranceSize,
+    26,
+    "list should have tolerance twice the number of visible rows"
+  );
 
   let rows = list.querySelectorAll(`tr[is="test-row"]`);
   // Count is calculated from the height of `list` divided by
-  // TestCardRow.ROW_HEIGHT, plus list._overflowBuffer.
+  // TestCardRow.ROW_HEIGHT, plus list._toleranceSize.
   Assert.equal(rows.length, 13 + 26, "the list has the right number of rows");
 
   Assert.equal(doc.activeElement, doc.body);
 
+  // Verify the tab order of list elements by tabbing both forward and backward
+  // through them.
   EventUtils.synthesizeKey("VK_TAB", {}, content);
   Assert.equal(
     doc.activeElement.id,
     "before",
-    "the element before the list has focus"
+    "the element before the list should have focus"
   );
 
+  if (variant == "header") {
+    // Tab order changes slightly if the table has a header versus if it
+    // doesn't, so we need to account for that variation.
+    EventUtils.synthesizeKey("VK_TAB", {}, content);
+    Assert.equal(
+      doc.activeElement.id,
+      "testColButton",
+      "the list header button should have focus"
+    );
+  }
+
   EventUtils.synthesizeKey("VK_TAB", {}, content);
-  Assert.equal(doc.activeElement.id, "testBody", "the list has focus");
+  Assert.equal(doc.activeElement.id, "testBody", "the list should have focus");
 
   EventUtils.synthesizeKey("VK_TAB", {}, content);
   Assert.equal(
     doc.activeElement.id,
     "after",
-    "the element after the list has focus"
+    "the element after the list should have focus"
   );
 
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, content);
-  Assert.equal(doc.activeElement.id, "testBody", "the list has focus");
+  Assert.equal(doc.activeElement.id, "testBody", "the list should have focus");
+
+  if (variant == "header") {
+    // Tab order changes slightly if the table has a header versus if it
+    // doesn't, so we need to account for that variation.
+    EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, content);
+    Assert.equal(
+      doc.activeElement.id,
+      "testColButton",
+      "the list header button should have focus"
+    );
+  }
 
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, content);
   Assert.equal(
     doc.activeElement.id,
     "before",
-    "the element before the list has focus"
+    "the element before the list should have focus"
   );
 
   // Check initial selection.
@@ -97,7 +146,7 @@ async function subtestKeyboardAndMouse() {
    */
   function checkTopSpacerHeight(rows) {
     let table = doc.querySelector(`[is="tree-view-table"]`);
-    // -26 to account for the overflow buffer.
+    // -26 to account for the tolerance buffer.
     Assert.equal(
       table.spacerTop.clientHeight,
       list.getRowAtIndex(rows).clientHeight * (rows - 26),
@@ -134,6 +183,7 @@ async function subtestKeyboardAndMouse() {
       expectedIndices,
       "selectedIndices are correct"
     );
+
     if (selectHandler.selectedAtEvent !== null) {
       // Check the value was already set when the select event fired.
       Assert.deepEqual(
@@ -176,7 +226,7 @@ async function subtestKeyboardAndMouse() {
     }
 
     let x = list.clientWidth / 2;
-    let y = index * 50 + 25;
+    let y = list.table.header.clientHeight + index * 50 + 25;
 
     selectHandler.reset();
     list.addEventListener("select", selectHandler, { once: true });
@@ -359,32 +409,32 @@ async function subtestKeyboardAndMouse() {
   checkCurrent(0);
   checkSelected(0);
 
-  // The list is 630px high, so rows 0-11 are fully visible.
+  // The list is 630px high, so rows 0-12 are fully or partly visible.
 
   await pressKey("VK_PAGE_DOWN");
   await scrollingDelay();
-  checkCurrent(12);
-  checkSelected(12);
+  checkCurrent(13);
+  checkSelected(13);
   Assert.equal(list.getFirstVisibleIndex(), 1, "scrolled to the correct place");
 
   await pressKey("VK_PAGE_UP", { shiftKey: true });
   await scrollingDelay();
   checkCurrent(0);
-  checkSelected(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+  checkSelected(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
   Assert.equal(list.getFirstVisibleIndex(), 0, "scrolled to the correct place");
 
   // Shrink shift selection.
   await pressKey("VK_DOWN", { shiftKey: true });
   checkCurrent(1);
-  checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+  checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
   await pressKey("VK_DOWN", { accelKey: true }, false);
   checkCurrent(2);
-  checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+  checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
   await pressKey("VK_DOWN", { accelKey: true }, false);
   checkCurrent(3);
-  checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+  checkSelected(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
   if (AppConstants.platform == "macosx") {
     // We don't allow unselecting a selected row with Space on macOS due to
@@ -396,7 +446,7 @@ async function subtestKeyboardAndMouse() {
     await pressKey(" ", { accelKey: true });
   }
   checkCurrent(3);
-  checkSelected(1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12);
+  checkSelected(1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
   await pressKey("VK_DOWN", { shiftKey: true });
   checkCurrent(4);
@@ -415,7 +465,7 @@ async function subtestKeyboardAndMouse() {
   checkSelected(149);
   Assert.equal(
     list.getFirstVisibleIndex(),
-    138,
+    137,
     "scrolled to the correct place"
   );
   checkTopSpacerHeight(137);
@@ -426,18 +476,18 @@ async function subtestKeyboardAndMouse() {
   checkSelected(149);
   Assert.equal(
     list.getFirstVisibleIndex(),
-    138,
+    137,
     "scrolled to the correct place"
   );
   checkTopSpacerHeight(137);
 
   await pressKey("VK_PAGE_UP");
   await scrollingDelay();
-  checkCurrent(137);
-  checkSelected(137);
+  checkCurrent(136);
+  checkSelected(136);
   Assert.equal(
     list.getFirstVisibleIndex(),
-    137,
+    136,
     "scrolled to the correct place"
   );
 
@@ -445,6 +495,7 @@ async function subtestKeyboardAndMouse() {
   await scrollingDelay();
   checkCurrent(149);
   checkSelected(
+    136,
     137,
     138,
     139,
@@ -461,7 +512,7 @@ async function subtestKeyboardAndMouse() {
   );
   Assert.equal(
     list.getFirstVisibleIndex(),
-    138,
+    137,
     "scrolled to the correct place"
   );
   checkTopSpacerHeight(137);
@@ -482,7 +533,7 @@ async function subtestKeyboardAndMouse() {
   checkSelected(0);
   Assert.equal(
     list.getFirstVisibleIndex(),
-    3,
+    2,
     "getFirstVisibleIndex is correct"
   );
 
@@ -500,7 +551,7 @@ async function subtestKeyboardAndMouse() {
   );
   Assert.equal(
     list.getFirstVisibleIndex(),
-    51,
+    50,
     "getFirstVisibleIndex is correct"
   );
   Assert.ok(
@@ -538,16 +589,30 @@ async function subtestKeyboardAndMouse() {
   // Some literal edge cases. Clicking on a partially visible row should
   // scroll it into view.
 
+  // Calculate the visible area in order to verify that rows appear where they
+  // are intended to appear.
+  const listRect = list.getBoundingClientRect();
+  const headerHeight = list.table.header.clientHeight;
+
+  const visibleRect = new content.DOMRect(
+    listRect.x,
+    listRect.y + headerHeight,
+    listRect.width,
+    listRect.height - headerHeight
+  );
+
+  Assert.equal(visibleRect.height, 630, "the table body should be 630px tall");
+
   rows = list.querySelectorAll(`tr[is="test-row"]`);
   let bcr = rows[12].getBoundingClientRect();
   Assert.less(
     Math.round(bcr.top),
-    Math.round(listRect.bottom),
+    Math.round(visibleRect.bottom),
     "top of row 12 is visible"
   );
   Assert.greater(
     Math.round(bcr.bottom),
-    Math.round(listRect.bottom),
+    Math.round(visibleRect.bottom),
     "bottom of row 12 is not visible"
   );
   await clickOnRow(12);
@@ -556,24 +621,24 @@ async function subtestKeyboardAndMouse() {
   bcr = rows[12].getBoundingClientRect();
   Assert.less(
     Math.round(bcr.top),
-    Math.round(listRect.bottom),
+    Math.round(visibleRect.bottom),
     "top of row 12 is visible"
   );
   Assert.equal(
     Math.round(bcr.bottom),
-    Math.round(listRect.bottom),
+    Math.round(visibleRect.bottom),
     "bottom of row 12 is visible"
   );
 
   bcr = rows[0].getBoundingClientRect();
   Assert.less(
     Math.round(bcr.top),
-    Math.round(listRect.top),
+    Math.round(visibleRect.top),
     "top of row 0 is not visible"
   );
   Assert.greater(
     Math.round(bcr.bottom),
-    Math.round(listRect.top),
+    Math.round(visibleRect.top),
     "bottom of row 0 is visible"
   );
   await clickOnRow(0);
@@ -582,12 +647,12 @@ async function subtestKeyboardAndMouse() {
   bcr = rows[0].getBoundingClientRect();
   Assert.equal(
     Math.round(bcr.top),
-    Math.round(listRect.top),
+    Math.round(visibleRect.top),
     "top of row 0 is visible"
   );
   Assert.greater(
     Math.round(bcr.bottom),
-    Math.round(listRect.top),
+    Math.round(visibleRect.top),
     "bottom of row 0 is visible"
   );
 }
@@ -596,17 +661,10 @@ async function subtestKeyboardAndMouse() {
  * Checks that changes in the view are propagated to the list.
  */
 add_task(async function testRowCountChange() {
-  let tab = tabmail.openTab("contentTab", {
-    url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeView.xhtml",
-  });
-
-  await BrowserTestUtils.browserLoaded(tab.browser);
-  tab.browser.focus();
-
-  await SpecialPowers.spawn(tab.browser, [], subtestRowCountChange);
-
-  tabmail.closeTab(tab);
+  for (const variant of TEST_VARIANTS) {
+    info(`Running row count change test for ${variant}`);
+    await runTestInSandbox(subtestRowCountChange, variant);
+  }
 });
 
 async function subtestRowCountChange() {
@@ -656,6 +714,10 @@ async function subtestRowCountChange() {
 
   list.selectedIndices = [4, 14, 24, 34, 44];
 
+  function getRowsHeight() {
+    return list.scrollHeight - list.table.header.clientHeight;
+  }
+
   function addValues(index, values) {
     view.values.splice(index, 0, ...values);
     info(`Added ${values.join(", ")} at ${index}`);
@@ -670,7 +732,7 @@ async function subtestRowCountChange() {
 
     list.rowCountChanged(index, values.length);
     Assert.equal(
-      list.scrollHeight,
+      getRowsHeight(),
       expectedCount * ROW_HEIGHT,
       "space for all rows is allocated"
     );
@@ -692,7 +754,7 @@ async function subtestRowCountChange() {
 
     list.rowCountChanged(index, -count);
     Assert.equal(
-      list.scrollHeight,
+      getRowsHeight(),
       expectedCount * ROW_HEIGHT,
       "space for all rows is allocated"
     );
@@ -705,27 +767,27 @@ async function subtestRowCountChange() {
   );
   Assert.equal(list.scrollTop, 0, "the list is scrolled to the top");
   Assert.equal(
-    list.scrollHeight,
+    getRowsHeight(),
     expectedCount * ROW_HEIGHT,
     "space for all rows is allocated"
   );
   checkRows(0, 38);
   checkSelected([4, 14, 24, 34, 44], [4, 14, 24, 34]);
-  Assert.equal(list.scrollHeight, 150 * 50);
+  Assert.equal(getRowsHeight(), 150 * 50);
 
   // Add a value at the end. Only the scroll height should change.
 
   addValues(150, [150]);
   checkRows(0, 38);
   checkSelected([4, 14, 24, 34, 44], [4, 14, 24, 34]);
-  Assert.equal(list.scrollHeight, 151 * 50);
+  Assert.equal(getRowsHeight(), 151 * 50);
 
   // Add more values at the end. Only the scroll height should change.
 
   addValues(151, [151, 152, 153]);
   checkRows(0, 38);
   checkSelected([4, 14, 24, 34, 44], [4, 14, 24, 34]);
-  Assert.equal(list.scrollHeight, 154 * 50);
+  Assert.equal(getRowsHeight(), 154 * 50);
 
   // Add values between the last row and the end.
   // Only the scroll height should change.
@@ -733,7 +795,7 @@ async function subtestRowCountChange() {
   addValues(40, ["39a", "39b"]);
   checkRows(0, 38);
   checkSelected([4, 14, 24, 34, 46], [4, 14, 24, 34]);
-  Assert.equal(list.scrollHeight, 156 * 50);
+  Assert.equal(getRowsHeight(), 156 * 50);
 
   // Add values between the last visible row and the last row.
   // The changed rows and those below them should be updated.
@@ -747,7 +809,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[20].dataset.value, "17c");
   Assert.equal(rows[21].dataset.value, "18");
   checkSelected([4, 14, 27, 37, 49], [4, 14, 27, 37]);
-  Assert.equal(list.scrollHeight, 159 * 50);
+  Assert.equal(getRowsHeight(), 159 * 50);
 
   // Add values in the visible rows.
   // The changed rows and those below them should be updated.
@@ -760,7 +822,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[10].dataset.value, "8");
   Assert.equal(rows[22].dataset.value, "17c");
   checkSelected([4, 16, 29, 39, 51], [4, 16, 29]);
-  Assert.equal(list.scrollHeight, 161 * 50);
+  Assert.equal(getRowsHeight(), 161 * 50);
 
   // Add a value at the start. All rows should be updated.
 
@@ -770,7 +832,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[1].dataset.value, "0");
   Assert.equal(rows[22].dataset.value, "17b");
   checkSelected([5, 17, 30, 40, 52], [5, 17, 30]);
-  Assert.equal(list.scrollHeight, 162 * 50);
+  Assert.equal(getRowsHeight(), 162 * 50);
 
   // Add more values at the start. All rows should be updated.
 
@@ -781,7 +843,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[2].dataset.value, "-1");
   Assert.equal(rows[22].dataset.value, "17");
   checkSelected([7, 19, 32, 42, 54], [7, 19, 32]);
-  Assert.equal(list.scrollHeight, 164 * 50);
+  Assert.equal(getRowsHeight(), 164 * 50);
 
   Assert.equal(list.scrollTop, 0, "the list is still scrolled to the top");
 
@@ -792,28 +854,28 @@ async function subtestRowCountChange() {
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[22].dataset.value, "17");
   checkSelected([7, 19, 32, 42, 54], [7, 19, 32]);
-  Assert.equal(list.scrollHeight, 163 * 50);
+  Assert.equal(getRowsHeight(), 163 * 50);
 
   removeValues(160, 3, [151, 152, 153]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[22].dataset.value, "17");
   checkSelected([7, 19, 32, 42, 54], [7, 19, 32]);
-  Assert.equal(list.scrollHeight, 160 * 50);
+  Assert.equal(getRowsHeight(), 160 * 50);
 
   removeValues(48, 2, ["39a", "39b"]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[22].dataset.value, "17");
   checkSelected([7, 19, 32, 42, 52], [7, 19, 32]);
-  Assert.equal(list.scrollHeight, 158 * 50);
+  Assert.equal(getRowsHeight(), 158 * 50);
 
   removeValues(23, 3, ["17a", "17b", "17c"]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[22].dataset.value, "17");
   checkSelected([7, 19, 29, 39, 49], [7, 19, 29]);
-  Assert.equal(list.scrollHeight, 155 * 50);
+  Assert.equal(getRowsHeight(), 155 * 50);
 
   removeValues(11, 2, ["7a", "7b"]);
   checkRows(0, 38);
@@ -822,7 +884,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[11].dataset.value, "8");
   Assert.equal(rows[22].dataset.value, "19");
   checkSelected([7, 17, 27, 37, 47], [7, 17, 27, 37]);
-  Assert.equal(list.scrollHeight, 153 * 50);
+  Assert.equal(getRowsHeight(), 153 * 50);
 
   removeValues(2, 1, [-1]);
   checkRows(0, 38);
@@ -831,7 +893,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[2].dataset.value, "0");
   Assert.equal(rows[22].dataset.value, "20");
   checkSelected([6, 16, 26, 36, 46], [6, 16, 26, 36]);
-  Assert.equal(list.scrollHeight, 152 * 50);
+  Assert.equal(getRowsHeight(), 152 * 50);
 
   removeValues(0, 2, [-3, -2]);
   checkRows(0, 38);
@@ -839,7 +901,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[1].dataset.value, "1");
   Assert.equal(rows[22].dataset.value, "22");
   checkSelected([4, 14, 24, 34, 44], [4, 14, 24, 34]);
-  Assert.equal(list.scrollHeight, 150 * 50);
+  Assert.equal(getRowsHeight(), 150 * 50);
 
   Assert.equal(list.scrollTop, 0, "the list is still scrolled to the top");
 
@@ -1044,17 +1106,7 @@ async function subtestRowCountChange() {
  * may want to make changes there too.
  */
 add_task(async function testExpandCollapse() {
-  let tab = tabmail.openTab("contentTab", {
-    url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeView2.xhtml",
-  });
-
-  await BrowserTestUtils.browserLoaded(tab.browser);
-  tab.browser.focus();
-
-  await SpecialPowers.spawn(tab.browser, [], subtestExpandCollapse);
-
-  tabmail.closeTab(tab);
+  await runTestInSandbox(subtestExpandCollapse, "levels");
 });
 
 async function subtestExpandCollapse() {
@@ -1570,17 +1622,10 @@ async function subtestExpandCollapse() {
  * maintaining the selection.
  */
 add_task(async function testRowClassChange() {
-  let tab = tabmail.openTab("contentTab", {
-    url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeView.xhtml",
-  });
-
-  await BrowserTestUtils.browserLoaded(tab.browser);
-  tab.browser.focus();
-
-  await SpecialPowers.spawn(tab.browser, [], subtestRowClassChange);
-
-  tabmail.closeTab(tab);
+  for (const variant of TEST_VARIANTS) {
+    info(`Running row class change test for ${variant}`);
+    await runTestInSandbox(subtestRowClassChange, variant);
+  }
 });
 
 async function subtestRowClassChange() {
@@ -1635,17 +1680,10 @@ async function subtestRowClassChange() {
  * Checks that resizing the widget automatically adds more rows if necessary.
  */
 add_task(async function testResize() {
-  let tab = tabmail.openTab("contentTab", {
-    url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeView.xhtml",
-  });
-
-  await BrowserTestUtils.browserLoaded(tab.browser);
-  tab.browser.focus();
-
-  await SpecialPowers.spawn(tab.browser, [], subtestResize);
-
-  tabmail.closeTab(tab);
+  for (const variant of TEST_VARIANTS) {
+    info(`Running resize test for ${variant}`);
+    await runTestInSandbox(subtestResize, variant);
+  }
 });
 
 async function subtestResize() {
@@ -1679,7 +1717,7 @@ async function subtestResize() {
   // but this is a bit flaky, so check we have at least the minimum required.
   list.style.height = `${originalHeight - 250}px`;
   await new Promise(resolve => content.setTimeout(resolve, 500));
-  Assert.equal(list._overflowBuffer, 16);
+  Assert.equal(list._toleranceSize, 16);
   Assert.greaterOrEqual(
     rowCount(),
     8 + 26 + 26,
@@ -1697,7 +1735,7 @@ async function subtestResize() {
   // to wait for the ResizeObserver to be triggered.
   list.style.height = `${originalHeight}px`;
   await new Promise(resolve => content.setTimeout(resolve, 100));
-  Assert.equal(list._overflowBuffer, 26);
+  Assert.equal(list._toleranceSize, 26);
   await TestUtils.waitForCondition(
     () => rowCount() == 13 + 26 + 26,
     "making the list taller should change the number of rows"
@@ -1707,7 +1745,7 @@ async function subtestResize() {
   // to be triggered.
   list.style.height = `${originalHeight + 250}px`;
   await new Promise(resolve => content.setTimeout(resolve, 100));
-  Assert.equal(list._overflowBuffer, 36);
+  Assert.equal(list._toleranceSize, 36);
   await TestUtils.waitForCondition(
     () => rowCount() == 18 + 36 + 36,
     "making the list taller should change the number of rows"

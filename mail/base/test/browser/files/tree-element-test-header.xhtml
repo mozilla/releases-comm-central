@@ -9,6 +9,8 @@
   <meta charset="utf-8" />
   <title>Test for the tree-view custom element</title>
   <link rel="stylesheet" href="chrome://messenger/skin/shared/tree-listbox.css" />
+  <!-- Localization is necessary for the table header to display text. -->
+  <link rel="localization" href="messenger/about3Pane.ftl" />
   <style>
     :root {
       --color-gray-20: gray;
@@ -16,8 +18,13 @@
       --selected-item-text-color: white;
     }
 
+    /* We want a total visible row area of 630px, but we need to account for the
+     * height of the header as well. */
+    #testTree {
+      height: calc(var(--tree-header-table-height) + 630px);
+    }
+
     .tree-view-scrollable-container {
-      height: 630px;
       scroll-behavior: unset;
     }
 
@@ -41,9 +48,12 @@
     }
   </style>
   <script type="module" src="chrome://messenger/content/tree-view.mjs"></script>
-  <script src="treeView.js"></script>
+  <script src="tree-element-test-header.js"></script>
+  <script src="tree-element-test-common.js"></script>
 </head>
-<body>
+<!-- We force layout-table in order to ensure that table header rows are
+     displayed.-->
+<body class="layout-table">
   <input id="before" placeholder="something to focus on" />
   <tree-view id="testTree" data-select-delay="250"/>
   <input id="after" placeholder="something to focus on" />

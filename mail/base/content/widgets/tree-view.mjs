@@ -23,32 +23,48 @@ class TreeView extends HTMLElement {
   static observedAttributes = ["rows"];
 
   /**
-   * How many rows outside the visible area to keep in memory. We keep some
-   * rows above and below those that are visible to avoid blank space
-   * appearing when the user scrolls.
+   * The number of rows on either side to keep of the visible area to keep in
+   * memory in order to avoid visible blank spaces while the user scrolls.
    *
    * @type {integer}
    */
-  _overflowBuffer = 10;
+  _toleranceSize = 0;
 
   /**
-   * Index of the first row that exists in the DOM.
-   *
-   * @type {integer}
+   * Set the size of the tolerance buffer based on the number of rows which can
+   * be visible at once.
    */
-  _firstRowIndex = 0;
+  #calculateToleranceBufferSize() {
+    this._toleranceSize = this.#calculateVisibleRowCount() * 2;
+  }
 
   /**
-   * Index of the last row that exists in the DOM.
+   * Index of the first row that exists in the DOM. Includes rows in the
+   * tolerance buffer if they have been added.
    *
    * @type {integer}
    */
-  _lastRowIndex = 0;
+  #firstBufferRowIndex = 0;
+
+  /**
+   * Index of the last row that exists in the DOM. Includes rows in the
+   * tolerance buffer if they have been added.
+   *
+   * @type {integer}
+   */
+  #lastBufferRowIndex = 0;
+
+  /**
+   * Index of the first visible row.
+   *
+   * @type {integer}
+   */
+  #firstVisibleRowIndex = 0;
 
   /**
    * Row indices mapped to the row elements that exist in the DOM.
    *
-   * @type {Map(integer -> Element)}
+   * @type {Map<integer, HTMLTableRowElement>}
    */
   _rows = new Map();
 
@@ -74,6 +90,40 @@ class TreeView extends HTMLElement {
    */
   _selectTimeout = null;
 
+  /**
+   * The virtualized table containing our rows.
+   *
+   * @type {TreeViewTable}
+   */
+  table = null;
+
+  /**
+   * Determine the height of the visible row area, excluding any chrome which
+   * covers elements.
+   *
+   * WARNING: This may cause synchronous reflow if used after modifying the DOM.
+   *
+   * @returns {integer} - The height of the area into which visible rows are
+   *   rendered.
+   */
+  #calculateVisibleHeight() {
+    // Account for the table header height in a sticky position above the body.
+    return this.clientHeight - this.table.header.clientHeight;
+  }
+
+  /**
+   * Determine how many rows are visible in the client presently.
+   *
+   * WARNING: This may cause synchronous reflow if used after modifying the DOM.
+   *
+   * @returns {integer} - The number of visible or partly-visible rows.
+   */
+  #calculateVisibleRowCount() {
+    return Math.ceil(
+      this.#calculateVisibleHeight() / this._rowElementClass.ROW_HEIGHT
+    );
+  }
+
   connectedCallback() {
     if (this.hasConnected) {
       return;
@@ -95,15 +145,26 @@ class TreeView extends HTMLElement {
 
     let lastHeight = 0;
     this.resizeObserver = new ResizeObserver(entries => {
+      // The width of the table isn't important to virtualizing the table. Skip
+      // updating if the height hasn't changed.
+      if (this.clientHeight == lastHeight) {
+        return;
+      }
+
       if (!this._rowElementClass) {
         return;
       }
-      this._overflowBuffer =
-        Math.ceil(this.clientHeight / this._rowElementClass.ROW_HEIGHT) * 2;
-      // There's not much point in reducing the number of rows on resize.
+
+      // The number of rows in the tolerance buffer is based on the number of
+      // rows which can be visible. Update it.
+      this.#calculateToleranceBufferSize();
+
+      // There's not much point in reducing the number of rows on resize. Scroll
+      // height remains the same and we can retain the extra rows in the buffer.
       if (this.clientHeight > lastHeight) {
         this._ensureVisibleRowsAreDisplayed();
       }
+
       lastHeight = this.clientHeight;
     });
     this.resizeObserver.observe(this);
@@ -124,8 +185,7 @@ class TreeView extends HTMLElement {
     this._rowElementName = newValue || "tree-view-table-row";
     this._rowElementClass = customElements.get(this._rowElementName);
 
-    this._overflowBuffer =
-      Math.ceil(this.clientHeight / this._rowElementClass.ROW_HEIGHT) * 2;
+    this.#calculateToleranceBufferSize();
 
     if (this._view) {
       this.invalidate();
@@ -170,11 +230,7 @@ class TreeView extends HTMLElement {
           } else {
             let addedRows = this.expandRowAtIndex(index);
             this.scrollToIndex(
-              index +
-                Math.min(
-                  addedRows,
-                  this.clientHeight / this._rowElementClass.ROW_HEIGHT - 1
-                )
+              index + Math.min(addedRows, this.#calculateVisibleRowCount() - 1)
             );
           }
           this.table.body.focus();
@@ -301,10 +357,7 @@ class TreeView extends HTMLElement {
                 let addedRows = this.expandRowAtIndex(this.currentIndex);
                 this.scrollToIndex(
                   this.currentIndex +
-                    Math.min(
-                      addedRows,
-                      this.clientHeight / this._rowElementClass.ROW_HEIGHT - 1
-                    )
+                    Math.min(addedRows, this.#calculateVisibleRowCount() - 1)
                 );
               } else {
                 newIndex = this.currentIndex + 1;
@@ -324,15 +377,13 @@ class TreeView extends HTMLElement {
           case "PageUp":
             newIndex = Math.max(
               0,
-              currentIndex -
-                Math.floor(this.clientHeight / this._rowElementClass.ROW_HEIGHT)
+              currentIndex - this.#calculateVisibleRowCount()
             );
             break;
           case "PageDown":
             newIndex = Math.min(
               this._view.rowCount - 1,
-              currentIndex +
-                Math.floor(this.clientHeight / this._rowElementClass.ROW_HEIGHT)
+              currentIndex + this.#calculateVisibleRowCount()
             );
             break;
         }
@@ -444,21 +495,30 @@ class TreeView extends HTMLElement {
   }
 
   /**
-   * Clear all rows from the list and create them again.
+   * Clear all rows from the buffer, empty the table body, and reset spacers.
    */
-  invalidate() {
+  #resetRowBuffer() {
     this.table.body.replaceChildren();
     this._rows.clear();
-    this._firstRowIndex = 0;
-    this._lastRowIndex = 0;
+    this.#firstBufferRowIndex = 0;
+    this.#lastBufferRowIndex = 0;
+    this.#firstVisibleRowIndex = 0;
 
-    // Temporarily set the height of the spacerBottom to account for the full
-    // height of the entire table to prevent the list from visually jumping
-    // up and down during rebuild.
+    // Temporarily set the height of the spacers to account for the full height
+    // height of the entire table to prevent the list from visually jumping up
+    // and down during rebuild.
+    this.table.spacerTop.setHeight(0);
     let rowCount = this._view ? this._view.rowCount : 0;
     this.table.spacerBottom.setHeight(
       rowCount * this._rowElementClass.ROW_HEIGHT
     );
+  }
+
+  /**
+   * Clear all rows from the list and create them again.
+   */
+  invalidate() {
+    this.#resetRowBuffer();
     this._ensureVisibleRowsAreDisplayed();
   }
 
@@ -470,8 +530,8 @@ class TreeView extends HTMLElement {
    */
   invalidateRange(startIndex, endIndex) {
     for (
-      let index = Math.max(startIndex, this._firstRowIndex),
-        last = Math.min(endIndex, this._lastRowIndex);
+      let index = Math.max(startIndex, this.#firstBufferRowIndex),
+        last = Math.min(endIndex, this.#lastBufferRowIndex);
       index <= last;
       index++
     ) {
@@ -498,74 +558,154 @@ class TreeView extends HTMLElement {
         row.index = index;
         row.selected = this._selection.isSelected(index);
       }
-    } else if (index >= this._firstRowIndex && index <= this._lastRowIndex) {
+    } else if (
+      index >= this.#firstBufferRowIndex &&
+      index <= this.#lastBufferRowIndex
+    ) {
       this._addRowAtIndex(index);
     }
   }
 
   /**
-   * Fills the view with rows at the current scroll position. Also creates
-   * `_overflowBuffer` rows above and below the visible rows. Performance
-   * here is important.
+   * A contiguous range, inclusive of both extremes.
+   *
+   * @typedef InclusiveRange
+   * @property {integer} first - The inclusive start of the range.
+   * @property {integer} last - The inclusive end of the range.
+   */
+
+  /**
+   * Calculate the range of rows we wish to have in a filled tolerance buffer
+   * based on a given range of visible rows.
+   *
+   * @param {integer} firstVisibleRow - The first visible row in the range.
+   * @param {integer} lastVisibleRow - The last visible row in the range.
+   * @param {integer} dataRowCount - The total number of available rows in the
+   *   source data.
+   * @returns {InclusiveRange} - The full range of the desired buffer.
+   */
+  #calculateDesiredBufferRange(firstVisibleRow, lastVisibleRow, dataRowCount) {
+    const desiredRowRange = {};
+
+    desiredRowRange.first = Math.max(firstVisibleRow - this._toleranceSize, 0);
+    desiredRowRange.last = Math.min(
+      lastVisibleRow + this._toleranceSize,
+      dataRowCount - 1
+    );
+
+    return desiredRowRange;
+  }
+
+  /**
+   * The calculated ranges which determine the shape of the row buffer at
+   * various stages of processing.
+   *
+   * @typedef RowBufferRanges
+   * @property {InclusiveRange} visibleRows - The range of rows which should be
+   *   displayed to the user.
+   * @property {InclusiveRange} desiredRows - The range of rows which should be
+   *   present in the row buffer, including tolerance rows outside of the
+   *   visible area.
+   */
+
+  /**
+   * Calculate the values necessary for building the list of visible rows and
+   * retaining any rows in the buffer which fall inside the desired tolerance
+   * and form a contiguous range with the visible rows.
+   *
+   * WARNING: This function makes calculations based on existing DOM dimensions.
+   * Do not use it after you have modified the DOM.
+   *
+   * @returns {RowBufferRanges}
+   */
+  #calculateRowBufferRanges(dataRowCount) {
+    /** @type {RowBufferRanges} */
+    const ranges = {
+      visibleRows: {},
+      desiredRows: {},
+    };
+
+    // We adjust the row buffer in several stages. First, we'll use the new
+    // scroll position to determine the boundaries of the buffer. Then, we'll
+    // create and add any new rows which are necessary to fit the new
+    // boundaries. Next, we prune rows added in previous scrolls which now fall
+    // outside the boundaries. Finally, we recalculate the height of the spacers
+    // which position the visible rows within the rendered area.
+    ranges.visibleRows.first = Math.max(
+      Math.floor(this.scrollTop / this._rowElementClass.ROW_HEIGHT),
+      0
+    );
+
+    const lastPossibleVisibleRow = Math.ceil(
+      (this.scrollTop + this.#calculateVisibleHeight()) /
+        this._rowElementClass.ROW_HEIGHT
+    );
+
+    ranges.visibleRows.last =
+      Math.min(lastPossibleVisibleRow, dataRowCount) - 1;
+
+    // Determine the number of rows desired in the tolerance buffer in order to
+    // determine whether there are any that we can save.
+    ranges.desiredRows = this.#calculateDesiredBufferRange(
+      ranges.visibleRows.first,
+      ranges.visibleRows.last,
+      dataRowCount
+    );
+
+    return ranges;
+  }
+
+  /**
+   * Display the table rows which should be shown in the visible area and
+   * request filling of the tolerance buffer when idle.
    */
   _ensureVisibleRowsAreDisplayed() {
     let rowCount = this._view ? this._view.rowCount : 0;
     this.placeholder?.classList.toggle("show", !rowCount);
 
-    if (!rowCount) {
+    if (!rowCount || this.#calculateVisibleRowCount() == 0) {
       return;
     }
 
     if (this.scrollTop > rowCount * this._rowElementClass.ROW_HEIGHT) {
       // Beyond the end of the list. We're about to scroll anyway, so clear
-      // everything out and wait for to happen. Don't call `invalidate` here,
+      // everything out and wait for it to happen. Don't call `invalidate` here,
       // or you'll end up in an infinite loop.
-      this.table.body.replaceChildren();
-      this._rows.clear();
-      this._firstRowIndex = 0;
-      this._lastRowIndex = 0;
-      this.table.spacerTop.setHeight(0);
-      this.table.spacerBottom.setHeight(
-        rowCount * this._rowElementClass.ROW_HEIGHT
-      );
+      this.#resetRowBuffer();
       return;
     }
 
-    let first = Math.max(
-      0,
-      Math.floor(this.scrollTop / this._rowElementClass.ROW_HEIGHT) -
-        this._overflowBuffer
-    );
-    let last = Math.min(
-      rowCount - 1,
-      Math.floor(
-        (this.scrollTop + this.clientHeight) / this._rowElementClass.ROW_HEIGHT
-      ) + this._overflowBuffer
-    );
+    const ranges = this.#calculateRowBufferRanges(rowCount);
 
-    this.table.spacerTop.setHeight(first * this._rowElementClass.ROW_HEIGHT);
+    // *WARNING: Do not request any DOM dimensions after this point. Modifying
+    // the DOM will invalidate existing calculations and any additional requests
+    // will cause synchronous reflow.
 
     for (
-      let i = Math.min(this._firstRowIndex - 1, last), iTo = Math.max(first, 0);
+      let i = Math.min(this.#firstBufferRowIndex - 1, ranges.desiredRows.last),
+        iTo = Math.max(ranges.desiredRows.first, 0);
       i >= iTo;
       i--
     ) {
       this._addRowAtIndex(i, this.table.body.firstElementChild);
     }
-    if (this._lastRowIndex == 0 && this.table.body.childElementCount == 0) {
+    if (
+      this.#lastBufferRowIndex == 0 &&
+      this.table.body.childElementCount == 0
+    ) {
       // Special case for first call.
       this._addRowAtIndex(0);
     }
     for (
-      let i = Math.max(this._lastRowIndex + 1, first),
-        iTo = Math.min(last + 1, rowCount);
+      let i = Math.max(this.#lastBufferRowIndex + 1, ranges.desiredRows.first),
+        iTo = Math.min(ranges.desiredRows.last + 1, rowCount);
       i < iTo;
       i++
     ) {
       this._addRowAtIndex(i);
     }
 
-    let firstActualRow = this.getRowAtIndex(first);
+    let firstActualRow = this.getRowAtIndex(ranges.desiredRows.first);
     let row = firstActualRow.previousElementSibling;
     while (row) {
       row.remove();
@@ -573,7 +713,7 @@ class TreeView extends HTMLElement {
       row = firstActualRow.previousElementSibling;
     }
 
-    let lastActualRow = this.getRowAtIndex(last);
+    let lastActualRow = this.getRowAtIndex(ranges.desiredRows.last);
     row = lastActualRow.nextElementSibling;
     while (row) {
       row.remove();
@@ -581,11 +721,22 @@ class TreeView extends HTMLElement {
       row = lastActualRow.nextElementSibling;
     }
 
-    this._firstRowIndex = first;
-    this._lastRowIndex = last;
+    // Set the indices of the new first and last rows in the DOM. They may come
+    // from the tolerance buffer if we haven't exhausted it.
+    this.#firstBufferRowIndex = ranges.desiredRows.first;
+    this.#lastBufferRowIndex = ranges.desiredRows.last;
+
+    this.#firstVisibleRowIndex = ranges.visibleRows.first;
+
+    // Adjust the height of the spacers to ensure that visible rows fall within
+    // the visible space and the overall scroll height is correct.
+    this.table.spacerTop.setHeight(
+      this.#firstBufferRowIndex * this._rowElementClass.ROW_HEIGHT
+    );
 
     this.table.spacerBottom.setHeight(
-      (rowCount - last - 1) * this._rowElementClass.ROW_HEIGHT
+      (rowCount - this.#lastBufferRowIndex - 1) *
+        this._rowElementClass.ROW_HEIGHT
     );
   }
 
@@ -595,7 +746,7 @@ class TreeView extends HTMLElement {
    * @returns {integer}
    */
   getFirstVisibleIndex() {
-    return Math.ceil(this.scrollTop / this._rowElementClass.ROW_HEIGHT);
+    return this.#firstVisibleRowIndex;
   }
 
   /**
@@ -605,10 +756,8 @@ class TreeView extends HTMLElement {
    */
   scrollToIndex(index, instant = false) {
     const topOfRow = this._rowElementClass.ROW_HEIGHT * index;
-    let { scrollTop, clientHeight } = this;
-    // Account for the table header height in a sticky position above the
-    // body. If the list is not in a table layout, the thead height is 0.
-    clientHeight -= this.table.header.clientHeight;
+    let scrollTop = this.scrollTop;
+    const visibleHeight = this.#calculateVisibleHeight();
 
     if (topOfRow < scrollTop) {
       this.scrollTo({
@@ -620,10 +769,10 @@ class TreeView extends HTMLElement {
     }
 
     const bottomOfRow = topOfRow + this._rowElementClass.ROW_HEIGHT;
-    if (bottomOfRow > scrollTop + clientHeight) {
+    if (bottomOfRow > scrollTop + visibleHeight) {
       this.scrollTo({
         left: 0,
-        top: bottomOfRow - clientHeight,
+        top: bottomOfRow - visibleHeight,
         behavior: instant ? "instant" : "auto",
       });
     }
@@ -632,7 +781,10 @@ class TreeView extends HTMLElement {
   /**
    * Updates the list to reflect added or removed rows.
    *
-   * @param {integer} index
+   * @param {integer} index - The position in the existing list where rows were
+   *   added or removed.
+   * @param {integer} delta - The change in number of rows; positive if rows
+   *   were added and negative if rows were removed.
    */
   rowCountChanged(index, delta) {
     if (!this._selection) {
@@ -688,7 +840,7 @@ class TreeView extends HTMLElement {
    * Returns the row element at `index` or null if `index` is out of range.
    *
    * @param {integer} index
-   * @returns {HTMLLIElement}
+   * @returns {HTMLTableRowElement}
    */
   getRowAtIndex(index) {
     return this._rows.get(index) ?? null;
@@ -815,7 +967,7 @@ class TreeView extends HTMLElement {
   /**
    * Select and focus the given index.
    *
-   * @param {number} index - The index to select.
+   * @param {integer} index - The index to select.
    * @param {boolean} [delaySelect=false] - If the selection should be delayed.
    */
   _selectSingle(index, delaySelect = false) {
@@ -834,7 +986,7 @@ class TreeView extends HTMLElement {
   /**
    * Start or extend a range selection to the given index and focus it.
    *
-   * @param {number} index - The index to select.
+   * @param {integer} index - The index to select.
    * @param {boolean} extend[false] - If the new selection range should extend
    *   the current selection.
    */
@@ -847,7 +999,7 @@ class TreeView extends HTMLElement {
   /**
    * Toggle the selection state at the given index and focus it.
    *
-   * @param {number} index - The index to toggle.
+   * @param {integer} index - The index to toggle.
    */
   _toggleSelected(index) {
     this._selection.toggleSelect(index);
@@ -1041,6 +1193,13 @@ class TreeViewTable extends HTMLTableElement {
    * @type {Array}
    */
   columns;
+
+  /**
+   * The header row for the table.
+   *
+   * @type {TreeViewTableHeader}
+   */
+  header;
 
   /**
    * Array containing the IDs of templates holding menu items to dynamically add
@@ -1242,7 +1401,7 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
    * Used to simulate a change in the order. The element remains in the same
    * DOM position.
    *
-   * @param {HTMLLIElement} element - The row to animate.
+   * @param {HTMLTableRowElement} element - The row to animate.
    * @param {number} to - The new Y position of the element after animation.
    */
   static _transitionTranslation(element, to) {
@@ -1491,6 +1650,7 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
     this.row.replaceChildren();
 
     for (let column of this.parentNode.columns) {
+      /** @type {TreeViewTableHeaderCell} */
       let cell = document.createElement("th", {
         is: "tree-view-table-header-cell",
       });

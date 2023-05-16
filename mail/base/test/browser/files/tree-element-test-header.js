@@ -12,6 +12,12 @@ window.addEventListener("load", () => {
     static COLUMNS = [
       {
         id: "testCol",
+        // Ensure that a table header is rendered in order to verify that the
+        // header's presence doesn't cause issues with scroll calculations.
+        l10n: {
+          header: "threadpane-column-header-subject",
+          menuitem: "threadpane-column-label-subject",
+        },
       },
     ];
 
@@ -52,70 +58,7 @@ window.addEventListener("load", () => {
   }
   customElements.define("test-row", TestCardRow, { extends: "tr" });
 
-  class AlternativeCardRow extends customElements.get("tree-view-table-row") {
-    static ROW_HEIGHT = 80;
-
-    connectedCallback() {
-      if (this.hasConnected) {
-        return;
-      }
-
-      super.connectedCallback();
-
-      this.cell = this.appendChild(document.createElement("td"));
-    }
-
-    get index() {
-      return super.index;
-    }
-
-    set index(index) {
-      super.index = index;
-      this.cell.textContent = this.view.getCellText(index, {
-        id: "GeneratedName",
-      });
-    }
-  }
-  customElements.define("alternative-row", AlternativeCardRow, {
-    extends: "tr",
-  });
-
-  class TestView {
-    values = [];
-
-    constructor(start, count) {
-      for (let i = start; i < start + count; i++) {
-        this.values.push(i);
-      }
-    }
-
-    get rowCount() {
-      return this.values.length;
-    }
-
-    getCellText(index, column) {
-      return `${column.id} ${this.values[index]}`;
-    }
-
-    isContainer() {
-      return false;
-    }
-
-    isContainerOpen() {
-      return false;
-    }
-
-    selectionChanged() {}
-
-    setTree() {}
-  }
-
-  let tree = document.getElementById("testTree");
-  tree.table.setBodyID("testBody");
+  const tree = document.getElementById("testTree");
   tree.setAttribute("rows", "test-row");
   tree.table.setColumns(TestCardRow.COLUMNS);
-  tree.addEventListener("select", () => {
-    console.log("select event, selected indices:", tree.selectedIndices);
-  });
-  tree.view = new TestView(0, 150);
 });
