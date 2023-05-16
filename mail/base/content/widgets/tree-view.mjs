@@ -26,6 +26,9 @@ class TreeView extends HTMLElement {
    * The number of rows on either side to keep of the visible area to keep in
    * memory in order to avoid visible blank spaces while the user scrolls.
    *
+   * This member is visible for testing and should not be used outside of this
+   * class in production code.
+   *
    * @type {integer}
    */
   _toleranceSize = 0;
@@ -62,6 +65,13 @@ class TreeView extends HTMLElement {
   #firstVisibleRowIndex = 0;
 
   /**
+   * Index of the last visible row.
+   *
+   * @type {integer}
+   */
+  #lastVisibleRowIndex = 0;
+
+  /**
    * Row indices mapped to the row elements that exist in the DOM.
    *
    * @type {Map<integer, HTMLTableRowElement>}
@@ -91,11 +101,43 @@ class TreeView extends HTMLElement {
   _selectTimeout = null;
 
   /**
+   * A handle to the callback to fill the buffer when we aren't busy painting.
+   *
+   * @type {number}
+   */
+  #bufferFillIdleCallbackHandle = null;
+
+  /**
    * The virtualized table containing our rows.
    *
    * @type {TreeViewTable}
    */
   table = null;
+
+  /**
+   * An event to fire to indicate the work of filling the buffer is complete.
+   * This will fire once both visible and tolerance rows are ready. It will also
+   * fire if no change to the buffer is required.
+   *
+   * This member is visible in order to provide a reliable indicator to tests
+   * that all expected rows should be in place. It should not be used in
+   * production code.
+   *
+   * @type {Event}
+   */
+  _rowBufferReadyEvent = null;
+
+  /**
+   * Fire the provided event, if any, in order to indicate that any necessary
+   * buffer modification work is complete, including if no work is necessary.
+   */
+  #dispatchRowBufferReadyEvent() {
+    // Don't fire if we're currently waiting on buffer fills; let the callback
+    // do that when it's finished.
+    if (this._rowBufferReadyEvent && !this.#bufferFillIdleCallbackHandle) {
+      this.dispatchEvent(this._rowBufferReadyEvent);
+    }
+  }
 
   /**
    * Determine the height of the visible row area, excluding any chrome which
@@ -148,10 +190,12 @@ class TreeView extends HTMLElement {
       // The width of the table isn't important to virtualizing the table. Skip
       // updating if the height hasn't changed.
       if (this.clientHeight == lastHeight) {
+        this.#dispatchRowBufferReadyEvent();
         return;
       }
 
       if (!this._rowElementClass) {
+        this.#dispatchRowBufferReadyEvent();
         return;
       }
 
@@ -163,6 +207,8 @@ class TreeView extends HTMLElement {
       // height remains the same and we can retain the extra rows in the buffer.
       if (this.clientHeight > lastHeight) {
         this._ensureVisibleRowsAreDisplayed();
+      } else {
+        this.#dispatchRowBufferReadyEvent();
       }
 
       lastHeight = this.clientHeight;
@@ -171,6 +217,8 @@ class TreeView extends HTMLElement {
   }
 
   disconnectedCallback() {
+    cancelIdleCallback(this.#bufferFillIdleCallbackHandle);
+
     for (let row of this._rows.values()) {
       row.remove();
     }
@@ -523,32 +571,13 @@ class TreeView extends HTMLElement {
   }
 
   /**
-   * Invalidate the rows between `startIndex` and `endIndex`.
-   *
-   * @param {integer} startIndex
-   * @param {integer} endIndex
-   */
-  invalidateRange(startIndex, endIndex) {
-    for (
-      let index = Math.max(startIndex, this.#firstBufferRowIndex),
-        last = Math.min(endIndex, this.#lastBufferRowIndex);
-      index <= last;
-      index++
-    ) {
-      this.invalidateRow(index);
-    }
-    this._ensureVisibleRowsAreDisplayed();
-  }
-
-  /**
-   * Invalidate the row at `index` in place. If `index` refers to a row that
-   * should exist but doesn't (because the row count increased), adds a row.
-   * If `index` refers to a row that does exist but shouldn't (because the
-   * row count decreased), removes it.
+   * Perform the actions necessary to invalidate the specified row. Implemented
+   * separately to allow {@link invalidateRange} to handle testing event fires
+   * on its own.
    *
    * @param {integer} index
    */
-  invalidateRow(index) {
+  #doInvalidateRow(index) {
     let row = this.getRowAtIndex(index);
     if (row) {
       if (index >= this._view.rowCount) {
@@ -564,6 +593,37 @@ class TreeView extends HTMLElement {
     ) {
       this._addRowAtIndex(index);
     }
+  }
+
+  /**
+   * Invalidate the rows between `startIndex` and `endIndex`.
+   *
+   * @param {integer} startIndex
+   * @param {integer} endIndex
+   */
+  invalidateRange(startIndex, endIndex) {
+    for (
+      let index = Math.max(startIndex, this.#firstBufferRowIndex),
+        last = Math.min(endIndex, this.#lastBufferRowIndex);
+      index <= last;
+      index++
+    ) {
+      this.#doInvalidateRow(index);
+    }
+    this._ensureVisibleRowsAreDisplayed();
+  }
+
+  /**
+   * Invalidate the row at `index` in place. If `index` refers to a row that
+   * should exist but doesn't (because the row count increased), adds a row.
+   * If `index` refers to a row that does exist but shouldn't (because the
+   * row count decreased), removes it.
+   *
+   * @param {integer} index
+   */
+  invalidateRow(index) {
+    this.#doInvalidateRow(index);
+    this.#dispatchRowBufferReadyEvent();
   }
 
   /**
@@ -596,6 +656,104 @@ class TreeView extends HTMLElement {
     return desiredRowRange;
   }
 
+  #createToleranceFillCallback() {
+    this.#bufferFillIdleCallbackHandle = requestIdleCallback(deadline =>
+      this.#fillToleranceBuffer(deadline)
+    );
+  }
+
+  /**
+   * Fill the buffer with tolerance rows above and below the visible rows.
+   *
+   * As fetching data and modifying the DOM is expensive, this is intended to be
+   * run within an idle callback and includes management of the idle callback
+   * handle and creation of further callbacks if work is not completed.
+   *
+   * @param {IdleDeadline} deadline - A deadline object for fetching the
+   *   remaining time in the idle tick.
+   */
+  #fillToleranceBuffer(deadline) {
+    this.#bufferFillIdleCallbackHandle = null;
+
+    const rowCount = this._view?.rowCount ?? 0;
+    if (!rowCount) {
+      return;
+    }
+
+    const bufferRange = this.#calculateDesiredBufferRange(
+      this.#firstVisibleRowIndex,
+      this.#lastVisibleRowIndex,
+      rowCount
+    );
+
+    // Set the amount of time to leave in the deadline to fill another row. In
+    // order to cooperatively schedule work, we shouldn't overrun the time
+    // allotted for the idle tick. This value should be set such that it leaves
+    // enough time to perform another row fill and adjust the relevant spacer
+    // while doing the maximal amount of work per callback.
+    const MS_TO_LEAVE_PER_FILL = 1.25;
+
+    // Fill in the beginning of the buffer.
+    if (bufferRange.first < this.#firstBufferRowIndex) {
+      for (
+        let i = this.#firstBufferRowIndex - 1;
+        i >= bufferRange.first &&
+        deadline.timeRemaining() > MS_TO_LEAVE_PER_FILL;
+        i--
+      ) {
+        this._addRowAtIndex(i, this.table.body.firstElementChild);
+
+        // Update as we go in case we need to wait for the next idle.
+        this.#firstBufferRowIndex = i;
+      }
+
+      // Adjust the height of the top spacer to account for the new rows we've
+      // added.
+      this.table.spacerTop.setHeight(
+        this.#firstBufferRowIndex * this._rowElementClass.ROW_HEIGHT
+      );
+
+      // If we haven't completed the work of filling the tolerance buffer,
+      // schedule a new job to do so.
+      if (this.#firstBufferRowIndex != bufferRange.first) {
+        this.#createToleranceFillCallback();
+        return;
+      }
+    }
+
+    // Fill in the end of the buffer.
+    if (bufferRange.last > this.#lastBufferRowIndex) {
+      for (
+        let i = this.#lastBufferRowIndex + 1;
+        i <= bufferRange.last &&
+        deadline.timeRemaining() > MS_TO_LEAVE_PER_FILL;
+        i++
+      ) {
+        this._addRowAtIndex(i);
+
+        // Update as we go in case we need to wait for the next idle.
+        this.#lastBufferRowIndex = i;
+      }
+
+      // Adjust the height of the bottom spacer to account for the new rows
+      // we've added.
+      this.table.spacerBottom.setHeight(
+        (rowCount - 1 - this.#lastBufferRowIndex) *
+          this._rowElementClass.ROW_HEIGHT
+      );
+
+      // If we haven't completed the work of filling the tolerance buffer,
+      // schedule a new job to do so.
+      if (this.#lastBufferRowIndex != bufferRange.last) {
+        this.#createToleranceFillCallback();
+        return;
+      }
+    }
+
+    // Notify tests that we have finished work.
+    this.#dispatchRowBufferReadyEvent();
+  }
+
   /**
    * The calculated ranges which determine the shape of the row buffer at
    * various stages of processing.
@@ -603,9 +761,12 @@ class TreeView extends HTMLElement {
    * @typedef RowBufferRanges
    * @property {InclusiveRange} visibleRows - The range of rows which should be
    *   displayed to the user.
-   * @property {InclusiveRange} desiredRows - The range of rows which should be
-   *   present in the row buffer, including tolerance rows outside of the
-   *   visible area.
+   * @property {integer?} pruneBefore - The index of the row before which any
+   *   additional rows should be discarded.
+   * @property {integer?} pruneAfter - The index of the row after which any
+   *   additional rows should be discarded.
+   * @property {InclusiveRange} finalizedRows - The range of rows which should
+   *   exist in the row buffer after any additions and removals have been made.
    */
 
   /**
@@ -622,7 +783,9 @@ class TreeView extends HTMLElement {
     /** @type {RowBufferRanges} */
     const ranges = {
       visibleRows: {},
-      desiredRows: {},
+      pruneBefore: null,
+      pruneAfter: null,
+      finalizedRows: {},
     };
 
     // We adjust the row buffer in several stages. First, we'll use the new
@@ -646,11 +809,54 @@ class TreeView extends HTMLElement {
 
     // Determine the number of rows desired in the tolerance buffer in order to
     // determine whether there are any that we can save.
-    ranges.desiredRows = this.#calculateDesiredBufferRange(
+    const desiredRowRange = this.#calculateDesiredBufferRange(
       ranges.visibleRows.first,
       ranges.visibleRows.last,
       dataRowCount
     );
+
+    // Determine which rows are no longer wanted in the buffer. If we've
+    // scrolled past the previous visible rows, it's possible that the tolerance
+    // buffer will still contain some rows we'd like to have in the buffer. Note
+    // that we insist on a contiguous range of rows in the buffer to simplify
+    // determining which rows exist and appropriately spacing the viewport.
+    if (this.#lastBufferRowIndex < ranges.visibleRows.first) {
+      // There is a discontiguity between the visible rows and anything that's
+      // in the buffer. Prune everything before the visible rows.
+      ranges.pruneBefore = ranges.visibleRows.first;
+      ranges.finalizedRows.first = ranges.visibleRows.first;
+    } else if (this.#firstBufferRowIndex < desiredRowRange.first) {
+      // The range of rows in the buffer overlaps the start of the visible rows,
+      // but there are rows outside of the desired buffer as well. Prune them.
+      ranges.pruneBefore = desiredRowRange.first;
+      ranges.finalizedRows.first = desiredRowRange.first;
+    } else {
+      // Determine the beginning of the finalized buffer based on whether the
+      // buffer contains rows before the start of the visible rows.
+      ranges.finalizedRows.first = Math.min(
+        ranges.visibleRows.first,
+        this.#firstBufferRowIndex
+      );
+    }
+
+    if (this.#firstBufferRowIndex > ranges.visibleRows.last) {
+      // There is a discontiguity between the visible rows and anything that's
+      // in the buffer. Prune everything after the visible rows.
+      ranges.pruneAfter = ranges.visibleRows.last;
+      ranges.finalizedRows.last = ranges.visibleRows.last;
+    } else if (this.#lastBufferRowIndex > desiredRowRange.last) {
+      // The range of rows in the buffer overlaps the end of the visible rows,
+      // but there are rows outside of the desired buffer as well. Prune them.
+      ranges.pruneAfter = desiredRowRange.last;
+      ranges.finalizedRows.last = desiredRowRange.last;
+    } else {
+      // Determine the end of the finalized buffer based on whether the buffer
+      // contains rows after the end of the visible rows.
+      ranges.finalizedRows.last = Math.max(
+        ranges.visibleRows.last,
+        this.#lastBufferRowIndex
+      );
+    }
 
     return ranges;
   }
@@ -681,52 +887,72 @@ class TreeView extends HTMLElement {
     // the DOM will invalidate existing calculations and any additional requests
     // will cause synchronous reflow.
 
-    for (
-      let i = Math.min(this.#firstBufferRowIndex - 1, ranges.desiredRows.last),
-        iTo = Math.max(ranges.desiredRows.first, 0);
-      i >= iTo;
-      i--
-    ) {
-      this._addRowAtIndex(i, this.table.body.firstElementChild);
-    }
+    // Add a row if the table is empty. Either we're initializing or have
+    // invalidated the tree, and the next two steps pass over row zero if there
+    // are no rows already in the buffer.
     if (
       this.#lastBufferRowIndex == 0 &&
       this.table.body.childElementCount == 0
     ) {
-      // Special case for first call.
       this._addRowAtIndex(0);
     }
-    for (
-      let i = Math.max(this.#lastBufferRowIndex + 1, ranges.desiredRows.first),
-        iTo = Math.min(ranges.desiredRows.last + 1, rowCount);
-      i < iTo;
-      i++
-    ) {
+
+    // Expand the row buffer to include newly-visible rows which weren't already
+    // visible or preloaded in the tolerance buffer.
+
+    const earliestMissingEndRowIdx = Math.max(
+      this.#lastBufferRowIndex + 1,
+      ranges.visibleRows.first
+    );
+    for (let i = earliestMissingEndRowIdx; i <= ranges.visibleRows.last; i++) {
+      // We are missing rows at the end of the buffer. Either the last row of
+      // the existing buffer lies within the range of visible rows and we begin
+      // there, or the entire range of visible rows occurs after the end of the
+      // buffer and we fill in from the start.
       this._addRowAtIndex(i);
     }
 
-    let firstActualRow = this.getRowAtIndex(ranges.desiredRows.first);
-    let row = firstActualRow.previousElementSibling;
-    while (row) {
-      row.remove();
-      this._rows.delete(row.index);
-      row = firstActualRow.previousElementSibling;
+    const latestMissingStartRowIdx = Math.min(
+      this.#firstBufferRowIndex - 1,
+      ranges.visibleRows.last
+    );
+    for (let i = latestMissingStartRowIdx; i >= ranges.visibleRows.first; i--) {
+      // We are missing rows at the start of the buffer. We'll add them working
+      // backwards so that we can prepend. Either the first row of the existing
+      // buffer lies within the range of visible rows and we begin there, or the
+      // entire range of visible rows occurs before the end of the buffer and we
+      // fill in from the end.
+      this._addRowAtIndex(i, this.table.body.firstElementChild);
     }
 
-    let lastActualRow = this.getRowAtIndex(ranges.desiredRows.last);
-    row = lastActualRow.nextElementSibling;
-    while (row) {
-      row.remove();
-      this._rows.delete(row.index);
-      row = lastActualRow.nextElementSibling;
+    // Prune the buffer of any rows outside of our desired buffer range.
+    if (ranges.pruneBefore) {
+      const pruneBeforeRow = this.getRowAtIndex(ranges.pruneBefore);
+      let rowToPrune = pruneBeforeRow.previousElementSibling;
+      while (rowToPrune) {
+        rowToPrune.remove();
+        this._rows.delete(rowToPrune.index);
+        rowToPrune = pruneBeforeRow.previousElementSibling;
+      }
+    }
+
+    if (ranges.pruneAfter) {
+      const pruneAfterRow = this.getRowAtIndex(ranges.pruneAfter);
+      let rowToPrune = pruneAfterRow.nextElementSibling;
+      while (rowToPrune) {
+        rowToPrune.remove();
+        this._rows.delete(rowToPrune.index);
+        rowToPrune = pruneAfterRow.nextElementSibling;
+      }
     }
 
     // Set the indices of the new first and last rows in the DOM. They may come
     // from the tolerance buffer if we haven't exhausted it.
-    this.#firstBufferRowIndex = ranges.desiredRows.first;
-    this.#lastBufferRowIndex = ranges.desiredRows.last;
+    this.#firstBufferRowIndex = ranges.finalizedRows.first;
+    this.#lastBufferRowIndex = ranges.finalizedRows.last;
 
     this.#firstVisibleRowIndex = ranges.visibleRows.first;
+    this.#lastVisibleRowIndex = ranges.visibleRows.last;
 
     // Adjust the height of the spacers to ensure that visible rows fall within
     // the visible space and the overall scroll height is correct.
@@ -738,6 +964,17 @@ class TreeView extends HTMLElement {
       (rowCount - this.#lastBufferRowIndex - 1) *
         this._rowElementClass.ROW_HEIGHT
     );
+
+    // The row buffer ideally contains some tolerance on either end to avoid
+    // creating rows and fetching data for them during short scrolls. However,
+    // actually creating those rows can be expensive, and during a long scroll
+    // we may throw them away very quickly. To save the expense, only fill the
+    // buffer while idle.
+
+    // Don't schedule a new buffer fill callback if we already have one.
+    if (!this.#bufferFillIdleCallbackHandle) {
+      this.#createToleranceFillCallback();
+    }
   }
 
   /**

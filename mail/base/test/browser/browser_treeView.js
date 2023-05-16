@@ -52,6 +52,29 @@ async function subtestKeyboardAndMouse(variant) {
 
   let list = doc.getElementById("testTree");
   Assert.ok(!!list, "the list exists");
+
+  async function doListActionAndWaitForRowBuffer(actionFn) {
+    // Filling the row buffer is fiddly timing, so provide an event to indicate
+    // that actions which may trigger changes in the row buffer have finished.
+    const eventName = "_treerowbufferfill";
+    list._rowBufferReadyEvent = new content.CustomEvent(eventName);
+
+    const promise = new Promise(resolve =>
+      list.addEventListener(eventName, resolve, { once: true })
+    );
+
+    await actionFn();
+    await promise;
+
+    list._rowBufferReadyEvent = null;
+  }
+
+  async function scrollListToPosition(topOfScroll) {
+    await doListActionAndWaitForRowBuffer(() => {
+      list.scrollTo(0, topOfScroll);
+    });
+  }
+
   Assert.equal(list._rowElementName, "test-row");
   Assert.equal(list._rowElementClass, content.customElements.get("test-row"));
   Assert.equal(
@@ -59,6 +82,10 @@ async function subtestKeyboardAndMouse(variant) {
     26,
     "list should have tolerance twice the number of visible rows"
   );
+
+  // We should be scrolled to the top already, but this will ensure we get an
+  // event fire one way or another.
+  await scrollListToPosition(0);
 
   let rows = list.querySelectorAll(`tr[is="test-row"]`);
   // Count is calculated from the height of `list` divided by
@@ -319,10 +346,6 @@ async function subtestKeyboardAndMouse(variant) {
     );
   }
 
-  function scrollingDelay() {
-    return new Promise(r => content.setTimeout(r, 100));
-  }
-
   await pressKey("VK_UP");
   checkCurrent(1);
   checkSelected(1);
@@ -411,17 +434,27 @@ async function subtestKeyboardAndMouse(variant) {
 
   // The list is 630px high, so rows 0-12 are fully or partly visible.
 
-  await pressKey("VK_PAGE_DOWN");
-  await scrollingDelay();
+  await doListActionAndWaitForRowBuffer(async () => {
+    await pressKey("VK_PAGE_DOWN");
+  });
   checkCurrent(13);
   checkSelected(13);
-  Assert.equal(list.getFirstVisibleIndex(), 1, "scrolled to the correct place");
+  Assert.equal(
+    list.getFirstVisibleIndex(),
+    1,
+    "should have scrolled down a page"
+  );
 
-  await pressKey("VK_PAGE_UP", { shiftKey: true });
-  await scrollingDelay();
+  await doListActionAndWaitForRowBuffer(async () => {
+    await pressKey("VK_PAGE_UP", { shiftKey: true });
+  });
   checkCurrent(0);
   checkSelected(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
-  Assert.equal(list.getFirstVisibleIndex(), 0, "scrolled to the correct place");
+  Assert.equal(
+    list.getFirstVisibleIndex(),
+    0,
+    "should have scrolled up a page"
+  );
 
   // Shrink shift selection.
   await pressKey("VK_DOWN", { shiftKey: true });
@@ -459,14 +492,15 @@ async function subtestKeyboardAndMouse(variant) {
 
   // Now rows 138-149 are fully visible.
 
-  await pressKey("VK_END");
-  await scrollingDelay();
+  await doListActionAndWaitForRowBuffer(async () => {
+    await pressKey("VK_END");
+  });
   checkCurrent(149);
   checkSelected(149);
   Assert.equal(
     list.getFirstVisibleIndex(),
     137,
-    "scrolled to the correct place"
+    "should have scrolled to the end"
   );
   checkTopSpacerHeight(137);
 
@@ -477,22 +511,24 @@ async function subtestKeyboardAndMouse(variant) {
   Assert.equal(
     list.getFirstVisibleIndex(),
     137,
-    "scrolled to the correct place"
+    "should not have changed view"
   );
   checkTopSpacerHeight(137);
 
-  await pressKey("VK_PAGE_UP");
-  await scrollingDelay();
+  await doListActionAndWaitForRowBuffer(async () => {
+    await pressKey("VK_PAGE_UP");
+  });
   checkCurrent(136);
   checkSelected(136);
   Assert.equal(
     list.getFirstVisibleIndex(),
     136,
-    "scrolled to the correct place"
+    "should have scrolled up a page"
   );
 
-  await pressKey("VK_PAGE_DOWN", { shiftKey: true });
-  await scrollingDelay();
+  await doListActionAndWaitForRowBuffer(async () => {
+    await pressKey("VK_PAGE_DOWN", { shiftKey: true });
+  });
   checkCurrent(149);
   checkSelected(
     136,
@@ -513,22 +549,26 @@ async function subtestKeyboardAndMouse(variant) {
   Assert.equal(
     list.getFirstVisibleIndex(),
     137,
-    "scrolled to the correct place"
+    "should have scrolled down a page"
   );
   checkTopSpacerHeight(137);
 
-  await pressKey("VK_HOME");
-  await scrollingDelay();
+  await doListActionAndWaitForRowBuffer(async () => {
+    await pressKey("VK_HOME");
+  });
   checkCurrent(0);
   checkSelected(0);
-  Assert.equal(list.getFirstVisibleIndex(), 0, "scrolled to the correct place");
+  Assert.equal(
+    list.getFirstVisibleIndex(),
+    0,
+    "should have scrolled to the beginning"
+  );
 
   // Scroll around. Which rows are current and selected should be remembered
   // even if the row element itself disappears.
 
   selectHandler.reset();
-  list.scrollTo(0, 125);
-  await scrollingDelay();
+  await scrollListToPosition(125);
   checkCurrent(0);
   checkSelected(0);
   Assert.equal(
@@ -537,8 +577,7 @@ async function subtestKeyboardAndMouse(variant) {
     "getFirstVisibleIndex is correct"
   );
 
-  list.scrollTo(0, 2525);
-  await scrollingDelay();
+  await scrollListToPosition(2525);
   Assert.equal(list.currentIndex, 0, "currentIndex is still set");
   Assert.ok(
     !list.querySelector(".current"),
@@ -554,21 +593,22 @@ async function subtestKeyboardAndMouse(variant) {
     50,
     "getFirstVisibleIndex is correct"
   );
-  Assert.ok(
-    !selectHandler.seenEvent,
-    "'select' event did not fire as expected"
-  );
+  Assert.ok(!selectHandler.seenEvent, "should not have fired 'select' event");
   checkTopSpacerHeight(50);
 
-  await pressKey("VK_DOWN");
-  await scrollingDelay();
+  await doListActionAndWaitForRowBuffer(async () => {
+    await pressKey("VK_DOWN");
+  });
   checkCurrent(1);
   checkSelected(1);
-  Assert.equal(list.getFirstVisibleIndex(), 1, "scrolled to the correct place");
+  Assert.equal(
+    list.getFirstVisibleIndex(),
+    1,
+    "should have scrolled so that the second row is in view"
+  );
 
   selectHandler.reset();
-  list.scrollTo(0, 0);
-  await scrollingDelay();
+  await scrollListToPosition(0);
   checkCurrent(1);
   checkSelected(1);
   Assert.equal(
@@ -584,7 +624,11 @@ async function subtestKeyboardAndMouse(variant) {
   await pressKey("VK_UP");
   checkCurrent(0);
   checkSelected(0);
-  Assert.equal(list.getFirstVisibleIndex(), 0, "scrolled to the correct place");
+  Assert.equal(
+    list.getFirstVisibleIndex(),
+    0,
+    "should have scrolled so that the first row is in view"
+  );
 
   // Some literal edge cases. Clicking on a partially visible row should
   // scroll it into view.
@@ -615,19 +659,21 @@ async function subtestKeyboardAndMouse(variant) {
     Math.round(visibleRect.bottom),
     "bottom of row 12 is not visible"
   );
-  await clickOnRow(12);
-  await scrollingDelay();
+
+  await doListActionAndWaitForRowBuffer(async () => {
+    await clickOnRow(12);
+  });
   rows = list.querySelectorAll(`tr[is="test-row"]`);
   bcr = rows[12].getBoundingClientRect();
   Assert.less(
     Math.round(bcr.top),
     Math.round(visibleRect.bottom),
-    "top of row 12 is visible"
+    "the top of row 12 should be visible"
   );
   Assert.equal(
     Math.round(bcr.bottom),
     Math.round(visibleRect.bottom),
-    "bottom of row 12 is visible"
+    "row 12 should be at the bottom of the visible area"
   );
 
   bcr = rows[0].getBoundingClientRect();
@@ -641,19 +687,21 @@ async function subtestKeyboardAndMouse(variant) {
     Math.round(visibleRect.top),
     "bottom of row 0 is visible"
   );
-  await clickOnRow(0);
-  await scrollingDelay();
+
+  await doListActionAndWaitForRowBuffer(async () => {
+    await clickOnRow(0);
+  });
   rows = list.querySelectorAll(`tr[is="test-row"]`);
   bcr = rows[0].getBoundingClientRect();
   Assert.equal(
     Math.round(bcr.top),
     Math.round(visibleRect.top),
-    "top of row 0 is visible"
+    "row 0 should be at the top of the visible area"
   );
   Assert.greater(
     Math.round(bcr.bottom),
     Math.round(visibleRect.top),
-    "bottom of row 0 is visible"
+    "the bottom of row 0 should be visible"
   );
 }
 
@@ -672,12 +720,25 @@ async function subtestRowCountChange() {
 
   let ROW_HEIGHT = 50;
   let list = doc.getElementById("testTree");
+
+  async function doListActionAndWaitForRowBuffer(actionFn) {
+    // Filling the row buffer is fiddly timing, so provide an event to indicate
+    // that actions which may trigger changes in the row buffer have finished.
+    const eventName = "_treerowbufferfill";
+    list._rowBufferReadyEvent = new content.CustomEvent(eventName);
+
+    const promise = new Promise(resolve =>
+      list.addEventListener(eventName, resolve, { once: true })
+    );
+
+    await actionFn();
+    await promise;
+
+    list._rowBufferReadyEvent = null;
+  }
+
   let view = list.view;
   let rows;
-
-  function scrollingDelay() {
-    return new Promise(r => content.setTimeout(r, 100));
-  }
 
   // Check the initial state.
 
@@ -718,7 +779,7 @@ async function subtestRowCountChange() {
     return list.scrollHeight - list.table.header.clientHeight;
   }
 
-  function addValues(index, values) {
+  async function addValues(index, values) {
     view.values.splice(index, 0, ...values);
     info(`Added ${values.join(", ")} at ${index}`);
     info(view.values);
@@ -730,7 +791,10 @@ async function subtestRowCountChange() {
       "the view has the right number of rows"
     );
 
-    list.rowCountChanged(index, values.length);
+    await doListActionAndWaitForRowBuffer(() => {
+      list.rowCountChanged(index, values.length);
+    });
+
     Assert.equal(
       getRowsHeight(),
       expectedCount * ROW_HEIGHT,
@@ -738,7 +802,7 @@ async function subtestRowCountChange() {
     );
   }
 
-  function removeValues(index, count, expectedRemoved) {
+  async function removeValues(index, count, expectedRemoved) {
     let values = view.values.splice(index, count);
     info(`Removed ${values.join(", ")} from ${index}`);
     info(view.values);
@@ -752,12 +816,21 @@ async function subtestRowCountChange() {
       "the view has the right number of rows"
     );
 
-    list.rowCountChanged(index, -count);
+    await doListActionAndWaitForRowBuffer(() => {
+      list.rowCountChanged(index, -count);
+    });
+
     Assert.equal(
       getRowsHeight(),
       expectedCount * ROW_HEIGHT,
       "space for all rows is allocated"
     );
+  }
+
+  async function scrollListToPosition(topOfScroll) {
+    await doListActionAndWaitForRowBuffer(() => {
+      list.scrollTo(0, topOfScroll);
+    });
   }
 
   Assert.equal(
@@ -771,20 +844,25 @@ async function subtestRowCountChange() {
     expectedCount * ROW_HEIGHT,
     "space for all rows is allocated"
   );
+
+  // We should be scrolled to the top already, but this will ensure we get an
+  // event fire one way or another.
+  await scrollListToPosition(0);
+
   checkRows(0, 38);
   checkSelected([4, 14, 24, 34, 44], [4, 14, 24, 34]);
   Assert.equal(getRowsHeight(), 150 * 50);
 
   // Add a value at the end. Only the scroll height should change.
 
-  addValues(150, [150]);
+  await addValues(150, [150]);
   checkRows(0, 38);
   checkSelected([4, 14, 24, 34, 44], [4, 14, 24, 34]);
   Assert.equal(getRowsHeight(), 151 * 50);
 
   // Add more values at the end. Only the scroll height should change.
 
-  addValues(151, [151, 152, 153]);
+  await addValues(151, [151, 152, 153]);
   checkRows(0, 38);
   checkSelected([4, 14, 24, 34, 44], [4, 14, 24, 34]);
   Assert.equal(getRowsHeight(), 154 * 50);
@@ -792,7 +870,7 @@ async function subtestRowCountChange() {
   // Add values between the last row and the end.
   // Only the scroll height should change.
 
-  addValues(40, ["39a", "39b"]);
+  await addValues(40, ["39a", "39b"]);
   checkRows(0, 38);
   checkSelected([4, 14, 24, 34, 46], [4, 14, 24, 34]);
   Assert.equal(getRowsHeight(), 156 * 50);
@@ -800,7 +878,7 @@ async function subtestRowCountChange() {
   // Add values between the last visible row and the last row.
   // The changed rows and those below them should be updated.
 
-  addValues(18, ["17a", "17b", "17c"]);
+  await addValues(18, ["17a", "17b", "17c"]);
   checkRows(0, 38);
   // Hard-coded sanity checks to prove checkRows is working as intended.
   Assert.equal(rows[17].dataset.value, "17");
@@ -814,7 +892,7 @@ async function subtestRowCountChange() {
   // Add values in the visible rows.
   // The changed rows and those below them should be updated.
 
-  addValues(8, ["7a", "7b"]);
+  await addValues(8, ["7a", "7b"]);
   checkRows(0, 38);
   Assert.equal(rows[7].dataset.value, "7");
   Assert.equal(rows[8].dataset.value, "7a");
@@ -826,7 +904,7 @@ async function subtestRowCountChange() {
 
   // Add a value at the start. All rows should be updated.
 
-  addValues(0, [-1]);
+  await addValues(0, [-1]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-1");
   Assert.equal(rows[1].dataset.value, "0");
@@ -836,7 +914,7 @@ async function subtestRowCountChange() {
 
   // Add more values at the start. All rows should be updated.
 
-  addValues(0, [-3, -2]);
+  await addValues(0, [-3, -2]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[1].dataset.value, "-2");
@@ -849,35 +927,35 @@ async function subtestRowCountChange() {
 
   // Remove values in the order we added them.
 
-  removeValues(160, 1, [150]);
+  await removeValues(160, 1, [150]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[22].dataset.value, "17");
   checkSelected([7, 19, 32, 42, 54], [7, 19, 32]);
   Assert.equal(getRowsHeight(), 163 * 50);
 
-  removeValues(160, 3, [151, 152, 153]);
+  await removeValues(160, 3, [151, 152, 153]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[22].dataset.value, "17");
   checkSelected([7, 19, 32, 42, 54], [7, 19, 32]);
   Assert.equal(getRowsHeight(), 160 * 50);
 
-  removeValues(48, 2, ["39a", "39b"]);
+  await removeValues(48, 2, ["39a", "39b"]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[22].dataset.value, "17");
   checkSelected([7, 19, 32, 42, 52], [7, 19, 32]);
   Assert.equal(getRowsHeight(), 158 * 50);
 
-  removeValues(23, 3, ["17a", "17b", "17c"]);
+  await removeValues(23, 3, ["17a", "17b", "17c"]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[22].dataset.value, "17");
   checkSelected([7, 19, 29, 39, 49], [7, 19, 29]);
   Assert.equal(getRowsHeight(), 155 * 50);
 
-  removeValues(11, 2, ["7a", "7b"]);
+  await removeValues(11, 2, ["7a", "7b"]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[10].dataset.value, "7");
@@ -886,7 +964,7 @@ async function subtestRowCountChange() {
   checkSelected([7, 17, 27, 37, 47], [7, 17, 27, 37]);
   Assert.equal(getRowsHeight(), 153 * 50);
 
-  removeValues(2, 1, [-1]);
+  await removeValues(2, 1, [-1]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "-3");
   Assert.equal(rows[1].dataset.value, "-2");
@@ -895,7 +973,7 @@ async function subtestRowCountChange() {
   checkSelected([6, 16, 26, 36, 46], [6, 16, 26, 36]);
   Assert.equal(getRowsHeight(), 152 * 50);
 
-  removeValues(0, 2, [-3, -2]);
+  await removeValues(0, 2, [-3, -2]);
   checkRows(0, 38);
   Assert.equal(rows[0].dataset.value, "0");
   Assert.equal(rows[1].dataset.value, "1");
@@ -907,20 +985,19 @@ async function subtestRowCountChange() {
 
   // Now scroll to the middle and repeat.
 
-  list.scrollTo(0, 1735);
-  await scrollingDelay();
+  await scrollListToPosition(1735);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "8");
   Assert.equal(rows[65].dataset.value, "73");
   checkSelected([4, 14, 24, 34, 44], [14, 24, 34, 44]);
 
-  addValues(150, [150]);
+  await addValues(150, [150]);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "8");
   Assert.equal(rows[65].dataset.value, "73");
   checkSelected([4, 14, 24, 34, 44], [14, 24, 34, 44]);
 
-  addValues(38, ["37a"]);
+  await addValues(38, ["37a"]);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "8");
   Assert.equal(rows[29].dataset.value, "37");
@@ -929,7 +1006,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[65].dataset.value, "72");
   checkSelected([4, 14, 24, 34, 45], [14, 24, 34, 45]);
 
-  addValues(25, ["24a"]);
+  await addValues(25, ["24a"]);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "8");
   Assert.equal(rows[16].dataset.value, "24");
@@ -938,7 +1015,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[65].dataset.value, "71");
   checkSelected([4, 14, 24, 35, 46], [14, 24, 35, 46]);
 
-  addValues(11, ["10a"]);
+  await addValues(11, ["10a"]);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "8");
   Assert.equal(rows[2].dataset.value, "10");
@@ -947,7 +1024,7 @@ async function subtestRowCountChange() {
   Assert.equal(rows[65].dataset.value, "70");
   checkSelected([4, 15, 25, 36, 47], [15, 25, 36, 47]);
 
-  addValues(0, ["-1"]);
+  await addValues(0, ["-1"]);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "7");
   Assert.equal(rows[65].dataset.value, "69");
@@ -959,31 +1036,31 @@ async function subtestRowCountChange() {
     "the list is still scrolled to the middle"
   );
 
-  removeValues(154, 1, [150]);
+  await removeValues(154, 1, [150]);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "7");
   Assert.equal(rows[65].dataset.value, "69");
   checkSelected([5, 16, 26, 37, 48], [16, 26, 37, 48]);
 
-  removeValues(41, 1, ["37a"]);
+  await removeValues(41, 1, ["37a"]);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "7");
   Assert.equal(rows[65].dataset.value, "70");
   checkSelected([5, 16, 26, 37, 47], [16, 26, 37, 47]);
 
-  removeValues(27, 1, ["24a"]);
+  await removeValues(27, 1, ["24a"]);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "7");
   Assert.equal(rows[65].dataset.value, "71");
   checkSelected([5, 16, 26, 36, 46], [16, 26, 36, 46]);
 
-  removeValues(12, 1, ["10a"]);
+  await removeValues(12, 1, ["10a"]);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "7");
   Assert.equal(rows[65].dataset.value, "72");
   checkSelected([5, 15, 25, 35, 45], [15, 25, 35, 45]);
 
-  removeValues(0, 1, ["-1"]);
+  await removeValues(0, 1, ["-1"]);
   checkRows(8, 73);
   Assert.equal(rows[0].dataset.value, "8");
   Assert.equal(rows[65].dataset.value, "73");
@@ -997,32 +1074,31 @@ async function subtestRowCountChange() {
 
   // Now scroll to the bottom and repeat.
 
-  list.scrollTo(0, 6870);
-  await scrollingDelay();
+  await scrollListToPosition(6870);
   checkRows(111, 149);
   Assert.equal(rows[0].dataset.value, "111");
   Assert.equal(rows[38].dataset.value, "149");
   checkSelected([4, 14, 24, 34, 44], []);
 
-  addValues(50, [50]);
+  await addValues(50, [50]);
   checkRows(111, 150);
   Assert.equal(rows[0].dataset.value, "110");
   Assert.equal(rows[39].dataset.value, "149");
   checkSelected([4, 14, 24, 34, 44], []);
 
-  addValues(49, ["48a"]);
+  await addValues(49, ["48a"]);
   checkRows(111, 151);
   Assert.equal(rows[0].dataset.value, "109");
   Assert.equal(rows[40].dataset.value, "149");
   checkSelected([4, 14, 24, 34, 44], []);
 
-  addValues(30, ["29a"]);
+  await addValues(30, ["29a"]);
   checkRows(111, 152);
   Assert.equal(rows[0].dataset.value, "108");
   Assert.equal(rows[41].dataset.value, "149");
   checkSelected([4, 14, 24, 35, 45], []);
 
-  addValues(0, ["-1"]);
+  await addValues(0, ["-1"]);
   checkRows(111, 153);
   Assert.equal(rows[0].dataset.value, "107");
   Assert.equal(rows[42].dataset.value, "149");
@@ -1034,25 +1110,25 @@ async function subtestRowCountChange() {
     "the list is still scrolled to the bottom"
   );
 
-  removeValues(53, 1, [50]);
+  await removeValues(53, 1, [50]);
   checkRows(111, 152);
   Assert.equal(rows[0].dataset.value, "108");
   Assert.equal(rows[41].dataset.value, "149");
   checkSelected([5, 15, 25, 36, 46], []);
 
-  removeValues(51, 1, ["48a"]);
+  await removeValues(51, 1, ["48a"]);
   checkRows(111, 151);
   Assert.equal(rows[0].dataset.value, "109");
   Assert.equal(rows[40].dataset.value, "149");
   checkSelected([5, 15, 25, 36, 46], []);
 
-  removeValues(31, 1, ["29a"]);
+  await removeValues(31, 1, ["29a"]);
   checkRows(111, 150);
   Assert.equal(rows[0].dataset.value, "110");
   Assert.equal(rows[39].dataset.value, "149");
   checkSelected([5, 15, 25, 35, 45], []);
 
-  removeValues(0, 1, ["-1"]);
+  await removeValues(0, 1, ["-1"]);
   checkRows(111, 149);
   Assert.equal(rows[0].dataset.value, "111");
   Assert.equal(rows[38].dataset.value, "149");
@@ -1066,15 +1142,14 @@ async function subtestRowCountChange() {
 
   // Remove a selected row and check the selection changes.
 
-  list.scrollTo(0, 0);
-  await scrollingDelay();
+  await scrollListToPosition(0);
 
   checkSelected([4, 14, 24, 34, 44], [4, 14, 24, 34]);
 
-  removeValues(3, 3, [3, 4, 5]); // 4 is selected.
+  await removeValues(3, 3, [3, 4, 5]); // 4 is selected.
   checkSelected([11, 21, 31, 41], [11, 21, 31]);
 
-  addValues(3, [3, 4, 5]);
+  await addValues(3, [3, 4, 5]);
   checkSelected([14, 24, 34, 44], [14, 24, 34]);
 
   // Remove some consecutive selected rows.
@@ -1082,18 +1157,18 @@ async function subtestRowCountChange() {
   list.selectedIndices = [6, 7, 8, 9];
   checkSelected([6, 7, 8, 9], [6, 7, 8, 9]);
 
-  removeValues(7, 1, [7]);
+  await removeValues(7, 1, [7]);
   checkSelected([6, 7, 8], [6, 7, 8]);
 
-  removeValues(7, 1, [8]);
+  await removeValues(7, 1, [8]);
   checkSelected([6, 7], [6, 7]);
 
-  removeValues(7, 1, [9]);
+  await removeValues(7, 1, [9]);
   checkSelected([6], [6]);
 
   // Reset the list.
 
-  addValues(7, [7, 8, 9]);
+  await addValues(7, [7, 8, 9]);
   list.selectedIndex = -1;
 }
 
@@ -1687,14 +1762,38 @@ add_task(async function testResize() {
 });
 
 async function subtestResize() {
-  const { TestUtils } = ChromeUtils.importESModule(
-    "resource://testing-common/TestUtils.sys.mjs"
-  );
-
   let doc = content.document;
 
   let list = doc.getElementById("testTree");
   Assert.ok(!!list, "the list exists");
+
+  async function doListActionAndWaitForRowBuffer(actionFn) {
+    // Filling the row buffer is fiddly timing, so provide an event to indicate
+    // that actions which may trigger changes in the row buffer have finished.
+    const eventName = "_treerowbufferfill";
+    list._rowBufferReadyEvent = new content.CustomEvent(eventName);
+
+    const promise = new Promise(resolve =>
+      list.addEventListener(eventName, resolve, { once: true })
+    );
+
+    await actionFn();
+    await promise;
+
+    list._rowBufferReadyEvent = null;
+  }
+
+  async function scrollVerticallyBy(scrollDistance) {
+    await doListActionAndWaitForRowBuffer(() => {
+      list.scrollBy(0, scrollDistance);
+    });
+  }
+
+  async function changeHeightTo(newHeight) {
+    await doListActionAndWaitForRowBuffer(() => {
+      list.style.height = `${newHeight}px`;
+    });
+  }
 
   let rowCount = function() {
     return list.querySelectorAll(`tr[is="test-row"]`).length;
@@ -1702,21 +1801,28 @@ async function subtestResize() {
 
   let originalHeight = list.clientHeight;
 
+  // We should already be at the top, but this will force us to have finished
+  // loading before we trigger another scroll. Otherwise, we may get back a fill
+  // event for the initial fill when we expect an event in response to a scroll.
+  await doListActionAndWaitForRowBuffer(() => {
+    list.scrollTo(0, 0);
+  });
+
   // Start by scrolling to somewhere in the middle of the list, so that we
   // don't have to think about buffer rows that don't exist at the ends.
-  list.scrollBy(0, 2650);
+  await scrollVerticallyBy(2650);
 
   // The list has enough space for 13 visible rows, and 26 buffer rows should
   // exist above and below.
-  await TestUtils.waitForCondition(
-    () => rowCount() == 13 + 26 + 26,
-    "the list should the right number of rows"
+  Assert.equal(
+    rowCount(),
+    13 + 26 + 26,
+    "the list should contain the right number of rows"
   );
 
   // Make the list shorter by 5 rows. This should not affect the number of rows,
   // but this is a bit flaky, so check we have at least the minimum required.
-  list.style.height = `${originalHeight - 250}px`;
-  await new Promise(resolve => content.setTimeout(resolve, 500));
+  await changeHeightTo(originalHeight - 250);
   Assert.equal(list._toleranceSize, 16);
   Assert.greaterOrEqual(
     rowCount(),
@@ -1725,35 +1831,35 @@ async function subtestResize() {
   );
 
   // Scrolling the list by any amount should remove excess rows.
-  list.scrollBy(0, 50);
-  await TestUtils.waitForCondition(
-    () => rowCount() == 8 + 16 + 16,
+  await scrollVerticallyBy(50);
+  Assert.equal(
+    rowCount(),
+    8 + 16 + 16,
     "scrolling the list after resize should remove the excess rows"
   );
 
   // Return to the original height. More buffer rows should be added. We have
   // to wait for the ResizeObserver to be triggered.
-  list.style.height = `${originalHeight}px`;
-  await new Promise(resolve => content.setTimeout(resolve, 100));
+  await changeHeightTo(originalHeight);
   Assert.equal(list._toleranceSize, 26);
-  await TestUtils.waitForCondition(
-    () => rowCount() == 13 + 26 + 26,
+  Assert.equal(
+    rowCount(),
+    13 + 26 + 26,
     "making the list taller should change the number of rows"
   );
 
   // Make the list taller by 5 rows. We have to wait for the ResizeObserver
   // to be triggered.
-  list.style.height = `${originalHeight + 250}px`;
-  await new Promise(resolve => content.setTimeout(resolve, 100));
+  await changeHeightTo(originalHeight + 250);
   Assert.equal(list._toleranceSize, 36);
-  await TestUtils.waitForCondition(
-    () => rowCount() == 18 + 36 + 36,
+  Assert.equal(
+    rowCount(),
+    18 + 36 + 36,
     "making the list taller should change the number of rows"
   );
 
   // Scrolling the list should not affect the number of rows.
-  list.scrollBy(0, 50);
-  await new Promise(resolve => content.setTimeout(resolve, 1000));
+  await scrollVerticallyBy(50);
   Assert.equal(
     rowCount(),
     18 + 36 + 36,
