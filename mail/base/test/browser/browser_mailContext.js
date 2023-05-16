@@ -25,14 +25,94 @@ let tabmail = document.getElementById("tabmail");
 let testFolder, testMessages;
 let draftsFolder, draftsMessages;
 
-function checkMenuitems(menu, ...expectedItems) {
-  if (expectedItems.length == 0) {
+let singleSelectionMessagePane = [
+  "singleMessage",
+  "draftsFolder",
+  "syntheticFolderDraft",
+  "syntheticFolder",
+];
+let singleSelectionThreadPane = [
+  "singleMessageTree",
+  "draftsFolderTree",
+  "syntheticFolderDraftTree",
+  "syntheticFolderTree",
+];
+let onePane = ["messageTab", "messageWindow"];
+let external = ["externalMessageTab", "externalMessageWindow"];
+let allSingleSelection = [
+  ...singleSelectionMessagePane,
+  ...singleSelectionThreadPane,
+  ...onePane,
+  ...external,
+];
+let allThreePane = [
+  ...singleSelectionMessagePane,
+  ...singleSelectionThreadPane,
+  "multipleMessagesTree",
+];
+let notExternal = [...allThreePane, ...onePane];
+
+const messagePaneData = {
+  "mailContext-selectall": [
+    ...singleSelectionMessagePane,
+    ...onePane,
+    ...external,
+  ],
+  "mailContext-editDraftMsg": [
+    "draftsFolder",
+    "draftsFolderTree",
+    "syntheticFolderDraft",
+    "syntheticFolderDraftTree",
+  ],
+  "mailContext-openNewTab": singleSelectionThreadPane,
+  "mailContext-openNewWindow": singleSelectionThreadPane,
+  "mailContext-openConversation": notExternal,
+  "mailContext-openContainingFolder": [
+    "syntheticFolderDraft",
+    "syntheticFolderDraftTree",
+    "syntheticFolder",
+    "syntheticFolderTree",
+    ...onePane,
+  ],
+  "mailContext-replySender": allSingleSelection,
+  "mailContext-replyAll": allSingleSelection,
+  "mailContext-replyList": allSingleSelection,
+  "mailContext-forward": allSingleSelection,
+  "mailContext-forwardAsMenu": allSingleSelection,
+  "mailContext-multiForwardAsAttachment": ["multipleMessagesTree"],
+  "mailContext-redirect": allSingleSelection,
+  "mailContext-editAsNew": allSingleSelection,
+  "mailContext-tags": true, // Should be notExternal really.
+  "mailContext-mark": true, // Should be notExternal really.
+  "mailContext-archive": notExternal,
+  "mailContext-moveMenu": notExternal,
+  "mailContext-copyMenu": true,
+  "mailContext-decryptToFolder": ["multipleMessagesTree"],
+  "mailContext-calendar-convert-menu": [], // Hidden in all contexts.
+  "mailContext-delete": notExternal,
+  "mailContext-ignoreThread": allThreePane,
+  "mailContext-ignoreSubthread": allThreePane,
+  "mailContext-watchThread": notExternal,
+  "mailContext-saveAs": true,
+  "mailContext-print": true,
+  "mailContext-downloadSelected": ["multipleMessagesTree"],
+};
+
+function checkMenuitems(menu, mode) {
+  if (!mode) {
     // Menu should not be shown.
     Assert.equal(menu.state, "closed");
     return;
   }
 
   Assert.notEqual(menu.state, "closed");
+
+  let expectedItems = [];
+  for (let [id, modes] of Object.entries(messagePaneData)) {
+    if (modes === true || modes.includes(mode)) {
+      expectedItems.push(id);
+    }
+  }
 
   let actualItems = [];
   for (let item of menu.children) {
@@ -152,30 +232,7 @@ add_task(async function testSingleMessage() {
     about3Pane.messageBrowser
   );
   await shownPromise;
-  let messageItems = [
-    "mailContext-selectall",
-    "mailContext-openConversation",
-    "mailContext-replySender",
-    "mailContext-replyAll",
-    "mailContext-replyList",
-    "mailContext-forward",
-    "mailContext-forwardAsMenu",
-    "mailContext-redirect",
-    "mailContext-editAsNew",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-archive",
-    "mailContext-moveMenu",
-    "mailContext-copyMenu",
-    // "mailContext-calendar-convert-menu",
-    "mailContext-delete",
-    "mailContext-ignoreThread",
-    "mailContext-ignoreSubthread",
-    "mailContext-watchThread",
-    "mailContext-saveAs",
-    "mailContext-print",
-  ];
-  checkMenuitems(mailContext, ...messageItems);
+  checkMenuitems(mailContext, "singleMessage");
   mailContext.hidePopup();
 
   // Open the menu from the thread pane.
@@ -189,31 +246,7 @@ add_task(async function testSingleMessage() {
     about3Pane
   );
   await shownPromise;
-  let treeItems = [
-    "mailContext-openNewTab",
-    "mailContext-openNewWindow",
-    "mailContext-openConversation",
-    "mailContext-replySender",
-    "mailContext-replyAll",
-    "mailContext-replyList",
-    "mailContext-forward",
-    "mailContext-forwardAsMenu",
-    "mailContext-redirect",
-    "mailContext-editAsNew",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-archive",
-    "mailContext-moveMenu",
-    "mailContext-copyMenu",
-    // "mailContext-calendar-convert-menu",
-    "mailContext-delete",
-    "mailContext-ignoreThread",
-    "mailContext-ignoreSubthread",
-    "mailContext-watchThread",
-    "mailContext-saveAs",
-    "mailContext-print",
-  ];
-  checkMenuitems(mailContext, ...treeItems);
+  checkMenuitems(mailContext, "singleMessageTree");
   mailContext.hidePopup();
 });
 
@@ -251,24 +284,7 @@ add_task(async function testMultipleMessages() {
     },
     about3Pane
   );
-  checkMenuitems(
-    mailContext,
-    "mailContext-openConversation",
-    "mailContext-multiForwardAsAttachment",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-archive",
-    "mailContext-moveMenu",
-    "mailContext-copyMenu",
-    "mailContext-decryptToFolder",
-    "mailContext-delete",
-    "mailContext-ignoreThread",
-    "mailContext-ignoreSubthread",
-    "mailContext-watchThread",
-    "mailContext-saveAs",
-    "mailContext-print",
-    "mailContext-downloadSelected"
-  );
+  checkMenuitems(mailContext, "multipleMessagesTree");
   mailContext.hidePopup();
 });
 
@@ -299,31 +315,7 @@ add_task(async function testDraftsFolder() {
     about3Pane.messageBrowser
   );
   await shownPromise;
-  let messageItems = [
-    "mailContext-selectall",
-    "mailContext-editDraftMsg",
-    "mailContext-openConversation",
-    "mailContext-replySender",
-    "mailContext-replyAll",
-    "mailContext-replyList",
-    "mailContext-forward",
-    "mailContext-forwardAsMenu",
-    "mailContext-redirect",
-    "mailContext-editAsNew",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-archive",
-    "mailContext-moveMenu",
-    "mailContext-copyMenu",
-    // "mailContext-calendar-convert-menu",
-    "mailContext-delete",
-    "mailContext-ignoreThread",
-    "mailContext-ignoreSubthread",
-    "mailContext-watchThread",
-    "mailContext-saveAs",
-    "mailContext-print",
-  ];
-  checkMenuitems(mailContext, ...messageItems);
+  checkMenuitems(mailContext, "draftsFolder");
   mailContext.hidePopup();
 
   // Open the menu from the thread pane.
@@ -337,32 +329,7 @@ add_task(async function testDraftsFolder() {
     about3Pane
   );
   await shownPromise;
-  let treeItems = [
-    "mailContext-editDraftMsg",
-    "mailContext-openNewTab",
-    "mailContext-openNewWindow",
-    "mailContext-openConversation",
-    "mailContext-replySender",
-    "mailContext-replyAll",
-    "mailContext-replyList",
-    "mailContext-forward",
-    "mailContext-forwardAsMenu",
-    "mailContext-redirect",
-    "mailContext-editAsNew",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-archive",
-    "mailContext-moveMenu",
-    "mailContext-copyMenu",
-    // "mailContext-calendar-convert-menu",
-    "mailContext-delete",
-    "mailContext-ignoreThread",
-    "mailContext-ignoreSubthread",
-    "mailContext-watchThread",
-    "mailContext-saveAs",
-    "mailContext-print",
-  ];
-  checkMenuitems(mailContext, ...treeItems);
+  checkMenuitems(mailContext, "draftsFolderTree");
   mailContext.hidePopup();
 });
 
@@ -414,32 +381,7 @@ add_task(async function testSyntheticFolder() {
     about3Pane.messageBrowser
   );
   await shownPromise;
-  let messageItems = [
-    "mailContext-selectall",
-    "mailContext-editDraftMsg",
-    "mailContext-openConversation",
-    "mailContext-openContainingFolder",
-    "mailContext-replySender",
-    "mailContext-replyAll",
-    "mailContext-replyList",
-    "mailContext-forward",
-    "mailContext-forwardAsMenu",
-    "mailContext-redirect",
-    "mailContext-editAsNew",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-archive",
-    "mailContext-moveMenu",
-    "mailContext-copyMenu",
-    // "mailContext-calendar-convert-menu",
-    "mailContext-delete",
-    "mailContext-ignoreThread",
-    "mailContext-ignoreSubthread",
-    "mailContext-watchThread",
-    "mailContext-saveAs",
-    "mailContext-print",
-  ];
-  checkMenuitems(mailContext, ...messageItems);
+  checkMenuitems(mailContext, "syntheticFolderDraft");
   mailContext.hidePopup();
 
   // Open the menu from the thread pane.
@@ -453,33 +395,7 @@ add_task(async function testSyntheticFolder() {
     about3Pane
   );
   await shownPromise;
-  let treeItems = [
-    "mailContext-editDraftMsg",
-    "mailContext-openNewTab",
-    "mailContext-openNewWindow",
-    "mailContext-openConversation",
-    "mailContext-openContainingFolder",
-    "mailContext-replySender",
-    "mailContext-replyAll",
-    "mailContext-replyList",
-    "mailContext-forward",
-    "mailContext-forwardAsMenu",
-    "mailContext-redirect",
-    "mailContext-editAsNew",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-archive",
-    "mailContext-moveMenu",
-    "mailContext-copyMenu",
-    // "mailContext-calendar-convert-menu",
-    "mailContext-delete",
-    "mailContext-ignoreThread",
-    "mailContext-ignoreSubthread",
-    "mailContext-watchThread",
-    "mailContext-saveAs",
-    "mailContext-print",
-  ];
-  checkMenuitems(mailContext, ...treeItems);
+  checkMenuitems(mailContext, "syntheticFolderDraftTree");
   mailContext.hidePopup();
 
   loadedPromise = BrowserTestUtils.browserLoaded(about3Pane.messageBrowser);
@@ -496,8 +412,7 @@ add_task(async function testSyntheticFolder() {
     about3Pane.messageBrowser
   );
   await shownPromise;
-  messageItems.splice(1, 1);
-  checkMenuitems(mailContext, ...messageItems);
+  checkMenuitems(mailContext, "syntheticFolder");
   mailContext.hidePopup();
 
   // Open the menu from the thread pane.
@@ -511,8 +426,7 @@ add_task(async function testSyntheticFolder() {
     about3Pane
   );
   await shownPromise;
-  treeItems.splice(0, 1);
-  checkMenuitems(mailContext, ...treeItems);
+  checkMenuitems(mailContext, "syntheticFolderTree");
   mailContext.hidePopup();
 
   tabmail.closeOtherTabs(0);
@@ -537,29 +451,7 @@ add_task(async function testMessageTab() {
     aboutMessage.getMessagePaneBrowser()
   );
   await shownPromise;
-  let messageItems = [
-    "mailContext-selectall",
-    "mailContext-openConversation",
-    "mailContext-openContainingFolder",
-    "mailContext-replySender",
-    "mailContext-replyAll",
-    "mailContext-replyList",
-    "mailContext-forward",
-    "mailContext-forwardAsMenu",
-    "mailContext-redirect",
-    "mailContext-editAsNew",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-archive",
-    "mailContext-moveMenu",
-    "mailContext-copyMenu",
-    // "mailContext-calendar-convert-menu",
-    "mailContext-delete",
-    "mailContext-watchThread",
-    "mailContext-saveAs",
-    "mailContext-print",
-  ];
-  checkMenuitems(mailContext, ...messageItems);
+  checkMenuitems(mailContext, "messageTab");
   mailContext.hidePopup();
 
   tabmail.closeOtherTabs(0);
@@ -595,23 +487,7 @@ add_task(async function testExternalMessageTab() {
     aboutMessage.getMessagePaneBrowser()
   );
   await shownPromise;
-  let messageItems = [
-    "mailContext-selectall",
-    "mailContext-replySender",
-    "mailContext-replyAll",
-    "mailContext-replyList",
-    "mailContext-forward",
-    "mailContext-forwardAsMenu",
-    "mailContext-redirect",
-    "mailContext-editAsNew",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-copyMenu",
-    // "mailContext-calendar-convert-menu",
-    "mailContext-saveAs",
-    "mailContext-print",
-  ];
-  checkMenuitems(mailContext, ...messageItems);
+  checkMenuitems(mailContext, "externalMessageTab");
   mailContext.hidePopup();
 
   tabmail.closeOtherTabs(0);
@@ -637,29 +513,7 @@ add_task(async function testMessageWindow() {
     aboutMessage.getMessagePaneBrowser()
   );
   await shownPromise;
-  let messageItems = [
-    "mailContext-selectall",
-    "mailContext-openConversation",
-    "mailContext-openContainingFolder",
-    "mailContext-replySender",
-    "mailContext-replyAll",
-    "mailContext-replyList",
-    "mailContext-forward",
-    "mailContext-forwardAsMenu",
-    "mailContext-redirect",
-    "mailContext-editAsNew",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-archive",
-    "mailContext-moveMenu",
-    "mailContext-copyMenu",
-    // "mailContext-calendar-convert-menu",
-    "mailContext-delete",
-    "mailContext-watchThread",
-    "mailContext-saveAs",
-    "mailContext-print",
-  ];
-  checkMenuitems(mailContext, ...messageItems);
+  checkMenuitems(mailContext, "messageWindow");
   mailContext.hidePopup();
 
   await BrowserTestUtils.closeWindow(win);
@@ -696,23 +550,7 @@ add_task(async function testExternalMessageWindow() {
     aboutMessage.getMessagePaneBrowser()
   );
   await shownPromise;
-  let messageItems = [
-    "mailContext-selectall",
-    "mailContext-replySender",
-    "mailContext-replyAll",
-    "mailContext-replyList",
-    "mailContext-forward",
-    "mailContext-forwardAsMenu",
-    "mailContext-redirect",
-    "mailContext-editAsNew",
-    "mailContext-tags",
-    "mailContext-mark",
-    "mailContext-copyMenu",
-    // "mailContext-calendar-convert-menu",
-    "mailContext-saveAs",
-    "mailContext-print",
-  ];
-  checkMenuitems(mailContext, ...messageItems);
+  checkMenuitems(mailContext, "externalMessageWindow");
   mailContext.hidePopup();
 
   await BrowserTestUtils.closeWindow(win);
