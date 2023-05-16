@@ -215,7 +215,9 @@ async function setKeyboardShortcuts() {
       case newContactKey.toLowerCase(): {
         // Ctrl/Cmd+n.
         event.preventDefault();
-        createContact();
+        if (!detailsPane.isEditing) {
+          createContact();
+        }
         break;
       }
     }

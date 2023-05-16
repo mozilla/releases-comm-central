@@ -849,7 +849,10 @@ add_task(async function test_basic_edit() {
   EventUtils.synthesizeMouseAtCenter(editButton, {}, abWindow);
   await inEditingMode();
 
-  // Headings reflect initial values.
+  // Try to trigger the creation of a new contact while in edit mode.
+  EventUtils.synthesizeKey("n", { ctrlKey: true }, abWindow);
+
+  // Headings reflect initial values and shouldn't have changed.
   assertEditHeadings("contact 1", "", "contact.1@invalid");
 
   // Check that pressing Tab can't get us stuck on an element that shouldn't
