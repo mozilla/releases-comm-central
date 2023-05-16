@@ -452,18 +452,26 @@ var commandController = {
     }
 
     let numSelectedMessages = isDummyMessage ? 1 : gDBView.numSelected;
-    let isNewsgroup = gFolder?.isSpecialFolder(
-      Ci.nsMsgFolderFlags.Newsgroup,
-      true
-    );
-    let canMove =
+
+    // Evaluate these properties only if needed, not once for each command.
+    let folder = () => {
+      if (gFolder) {
+        return gFolder;
+      }
+      if (gDBView.numSelected >= 1) {
+        return gDBView.hdrForFirstSelectedMessage?.folder;
+      }
+      return null;
+    };
+    let isNewsgroup = () =>
+      folder()?.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, true);
+    let canMove = () =>
       numSelectedMessages >= 1 &&
-      !isNewsgroup &&
-      (gFolder?.canDeleteMessages || gViewWrapper.isSynthetic);
+      (folder()?.canDeleteMessages || gViewWrapper.isSynthetic);
 
     switch (command) {
       case "cmd_cancel":
-        return numSelectedMessages == 1 && isNewsgroup;
+        return numSelectedMessages == 1 && isNewsgroup();
       case "cmd_openConversation":
         return gDBView
           .getSelectedMsgHdrs()
@@ -533,16 +541,16 @@ var commandController = {
       case "cmd_editDraftMsg":
         return (
           numSelectedMessages == 1 &&
-          gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)
+          folder()?.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)
         );
       case "cmd_newMsgFromTemplate":
       case "cmd_editTemplateMsg":
         return (
           numSelectedMessages == 1 &&
-          gFolder?.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)
+          folder()?.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)
         );
       case "cmd_replyGroup":
-        return isNewsgroup;
+        return isNewsgroup();
       case "cmd_markAsRead":
         return (
           numSelectedMessages >= 1 &&
@@ -590,7 +598,7 @@ var commandController = {
         // folders since we can't really move messages from there - only copy.
         let canMoveAgain = numSelectedMessages >= 1;
         if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
-          canMoveAgain = canMove;
+          canMoveAgain = canMove() && !isNewsgroup();
         }
         if (canMoveAgain) {
           let targetURI = Services.prefs.getStringPref(
@@ -601,7 +609,7 @@ var commandController = {
         return !!canMoveAgain;
       }
       case "cmd_deleteMessage":
-        return isNewsgroup || canMove;
+        return canMove();
       case "cmd_shiftDeleteMessage":
         return this._getViewCommandStatus(
           Ci.nsMsgViewCommandType.deleteNoTrash
@@ -610,7 +618,7 @@ var commandController = {
         return (
           numSelectedMessages == 1 &&
           !isDummyMessage &&
-          gDBView.hdrForFirstSelectedMessage?.folder?.server.canHaveFilters
+          folder()?.server.canHaveFilters
         );
       case "cmd_watchThread": {
         let enabledObj = {};

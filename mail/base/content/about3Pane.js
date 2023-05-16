@@ -3294,9 +3294,10 @@ var threadPane = {
   },
 
   _onItemActivate(event) {
-    if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
+    let folder = gFolder || gDBView.hdrForFirstSelectedMessage.folder;
+    if (folder?.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
       commandController.doCommand("cmd_editDraftMsg", event);
-    } else if (gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)) {
+    } else if (folder?.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)) {
       commandController.doCommand("cmd_newMsgFromTemplate", event);
     } else {
       commandController.doCommand("cmd_openMessage", event);
