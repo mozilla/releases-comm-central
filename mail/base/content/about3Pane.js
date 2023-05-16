@@ -1765,6 +1765,7 @@ var folderPane = {
   _onSelect(event) {
     threadPane.saveSelection();
     threadPane.hideIgnoredMessageNotification();
+    messagePane.clearAll();
 
     let uri = folderTree.rows[folderTree.selectedIndex]?.uri;
     if (!uri) {
@@ -1778,8 +1779,6 @@ var folderPane = {
     if (gViewWrapper?.isSynthetic) {
       return;
     }
-
-    messagePane.clearAll();
 
     document.head.querySelector(
       `link[rel="icon"]`
