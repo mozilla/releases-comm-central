@@ -5,7 +5,7 @@
 /* globals Enigmail, MailE10SUtils */
 
 // mailCommon.js
-/* globals commandController, dbViewWrapperListener */
+/* globals commandController, dbViewWrapperListener, nsMsgViewIndex_None */
 /* globals gDBView: true, gFolder: true, gViewWrapper: true */
 
 // msgHdrView.js
@@ -151,7 +151,8 @@ function displayMessage(uri, viewWrapper) {
   gDBView = gViewWrapper.dbView;
   let selection = (gDBView.selection = new TreeSelection());
   selection.view = gDBView;
-  selection.select(gDBView.findIndexOfMsgHdr(gMessage, true));
+  let index = gDBView.findIndexOfMsgHdr(gMessage, true);
+  selection.select(index == nsMsgViewIndex_None ? -1 : index);
   gDBView?.setJSTree({
     QueryInterface: ChromeUtils.generateQI(["nsIMsgJSTree"]),
     _inBatch: false,
