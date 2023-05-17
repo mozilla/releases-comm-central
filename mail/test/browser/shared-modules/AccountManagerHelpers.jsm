@@ -41,7 +41,7 @@ var mc = fdh.mc;
  * Waits until the Account Manager tree fully loads after first open.
  */
 function wait_for_account_tree_load(tab) {
-  mc.waitFor(
+  utils.waitFor(
     () => tab.browser.contentWindow.currentAccount != null,
     "Timeout waiting for currentAccount to become non-null"
   );
@@ -165,14 +165,16 @@ function remove_account(
     actionsButton.ownerGlobal
   );
   let actionsDd = content_tab_e(tab, "accountActionsDropdown");
-  mc.waitFor(() => actionsDd.state == "open" || actionsDd.state == "showing");
+  utils.waitFor(
+    () => actionsDd.state == "open" || actionsDd.state == "showing"
+  );
   let remove = content_tab_e(tab, "accountActionsDropdownRemove");
   EventUtils.synthesizeMouseAtCenter(
     remove,
     { clickCount: 1 },
     remove.ownerGlobal
   );
-  mc.waitFor(() => actionsDd.state == "closed");
+  utils.waitFor(() => actionsDd.state == "closed");
 
   let cdc = wh.wait_for_frame_load(
     tab.browser.contentWindow.gSubDialog._topDialog._frame,
@@ -196,7 +198,7 @@ function remove_account(
   }
 
   cdc.window.document.documentElement.querySelector("dialog").acceptDialog();
-  cdc.waitFor(
+  utils.waitFor(
     () =>
       !cdc.window.document.querySelector("dialog").getButton("accept").disabled,
     "Timeout waiting for finish of account removal",

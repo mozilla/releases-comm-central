@@ -16,6 +16,7 @@ var { select_attachments } = ChromeUtils.import(
 var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   add_attachments,
   close_compose_window,
@@ -344,7 +345,7 @@ add_task(function test_attachment_renamed() {
   cw.window.goDoCommand("cmd_renameAttachment");
 
   // Wait until we saw the attachment-renamed event.
-  cw.waitFor(function() {
+  utils.waitFor(function() {
     return eventCount == 1;
   });
 
@@ -366,7 +367,7 @@ add_task(function test_attachment_renamed() {
   cw.window.goDoCommand("cmd_renameAttachment");
 
   // Wait until we saw the attachment-renamed event.
-  cw.waitFor(function() {
+  utils.waitFor(function() {
     return eventCount == 2;
   });
 
@@ -388,7 +389,7 @@ add_task(function test_attachment_renamed() {
   cw.window.goDoCommand("cmd_renameAttachment");
 
   // Wait until we saw the attachment-renamed event.
-  cw.waitFor(function() {
+  utils.waitFor(function() {
     return eventCount == 3;
   });
 
@@ -469,7 +470,7 @@ add_task(function test_attachments_pane_toggle() {
 
   // Since we don't have any uploaded attachment, assert that the box remains
   // closed.
-  cw.waitFor(() => !attachmentArea.open);
+  utils.waitFor(() => !attachmentArea.open);
   Assert.ok(!attachmentArea.open);
 
   // Add an attachment. This should automatically open the box.
@@ -478,12 +479,12 @@ add_task(function test_attachments_pane_toggle() {
 
   // Press again, should toggle to closed.
   EventUtils.synthesizeKey("m", opts, cw.window);
-  cw.waitFor(() => !attachmentArea.open);
+  utils.waitFor(() => !attachmentArea.open);
   Assert.ok(!attachmentArea.open);
 
   // Press again, should toggle to open.
   EventUtils.synthesizeKey("m", opts, cw.window);
-  cw.waitFor(() => attachmentArea.open);
+  utils.waitFor(() => attachmentArea.open);
   Assert.ok(attachmentArea.open);
 
   close_compose_window(cw);

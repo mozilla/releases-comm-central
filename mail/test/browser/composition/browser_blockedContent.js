@@ -8,6 +8,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   get_msg_source,
   open_compose_new_mail,
@@ -118,7 +119,7 @@ add_task(async function test_paste_file_urls() {
 
   // Now wait for the paste, and for the file: based image to get converted
   // to data:.
-  cwc.waitFor(function() {
+  utils.waitFor(function() {
     let img = cwc.window.document
       .getElementById("messageEditor")
       .contentDocument.getElementById("tmp-img");

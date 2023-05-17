@@ -105,7 +105,7 @@ var NotificationWatcher = {
   },
   waitForNotification(aController) {
     if (!this.alerted) {
-      aController.waitFor(
+      utils.waitFor(
         () => this.alerted,
         "Timeout waiting for alert",
         ALERT_TIMEOUT,
@@ -117,7 +117,7 @@ var NotificationWatcher = {
       .getElementById("tabmail")
       .selectedTab.panel.querySelector("notificationbox");
     if (notificationBox && notificationBox._animating) {
-      aController.waitFor(
+      utils.waitFor(
         () => !notificationBox._animating,
         "Timeout waiting for notification box animation to finish",
         ALERT_TIMEOUT,

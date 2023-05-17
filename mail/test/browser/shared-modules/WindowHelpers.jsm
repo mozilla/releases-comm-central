@@ -753,7 +753,7 @@ function resize_to(aController, aWidth, aHeight) {
   // interacting window manager have its impact. This still may not be
   // sufficient.
   utils.sleep(0);
-  aController.waitFor(
+  utils.waitFor(
     () =>
       aController.window.outerWidth == aWidth &&
       aController.window.outerHeight == aHeight,

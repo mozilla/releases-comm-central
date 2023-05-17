@@ -8,6 +8,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   gMockFilePicker,
   gMockFilePickReg,
@@ -180,7 +181,7 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
   );
 
   let urls = null;
-  aController.waitFor(function() {
+  utils.waitFor(function() {
     urls = mailBody.querySelectorAll(
       "#cloudAttachmentList > .cloudAttachmentItem"
     );
@@ -747,7 +748,7 @@ async function subtest_removing_filelinks_removes_root_node() {
 
   // Wait for the root to be removed.
   let mailBody = get_compose_body(cw);
-  cw.waitFor(function() {
+  utils.waitFor(function() {
     let result = mailBody.querySelector(root.id);
     return result == null;
   }, "Timed out waiting for attachment container to be removed");
@@ -1394,7 +1395,7 @@ async function subtest_converting_filelink_to_normal_removes_url() {
     cw.window.convertSelectedToRegularAttachment();
 
     // Wait until the cloud file entry has been removed.
-    cw.waitFor(function() {
+    utils.waitFor(function() {
       let urls = list.querySelectorAll(".cloudAttachmentItem");
       return urls.length == kFiles.length - (i + 1);
     });

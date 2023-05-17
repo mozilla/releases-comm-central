@@ -350,7 +350,10 @@ function setup_msg_contents(
   EventUtils.sendString(aBody, aCwc.window);
 
   // Wait for the pill(s) to be created.
-  aCwc.waitFor(() => pillcount() == targetCount, `Creating pill for: ${aAddr}`);
+  utils.waitFor(
+    () => pillcount() == targetCount,
+    `Creating pill for: ${aAddr}`
+  );
 }
 
 /**
@@ -434,10 +437,7 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
   }
   aController.window.AddAttachments(attachments);
   if (aWaitAdded) {
-    aController.waitFor(
-      () => attachmentsDone,
-      "Attachments adding didn't finish"
-    );
+    utils.waitFor(() => attachmentsDone, "Attachments adding didn't finish");
   }
   utils.sleep(0);
 }
@@ -482,7 +482,7 @@ function rename_selected_cloud_attachment(aController, aName) {
   Services.prompt.value = aName;
   aController.window.RenameSelectedAttachment();
 
-  aController.waitFor(
+  utils.waitFor(
     () => attachmentRenamed || seenAlert,
     "Couldn't rename attachment"
   );
@@ -565,7 +565,7 @@ function convert_selected_to_cloud_attachment(
   bucket.addEventListener("attachment-uploading", collectConvertingAttachments);
   bucket.addEventListener("attachment-moving", collectConvertingAttachments);
   aController.window.convertSelectedToCloudAttachment(aProvider);
-  aController.waitFor(
+  utils.waitFor(
     () => attachmentsSubmitted == attachmentsSelected,
     "Couldn't start converting all attachments"
   );
@@ -575,7 +575,7 @@ function convert_selected_to_cloud_attachment(
     bucket.addEventListener("attachment-moved", collectConvertedAttachment);
 
     uploads = gMockCloudfileManager.resolveUploads();
-    aController.waitFor(
+    utils.waitFor(
       () => attachmentsConverted == attachmentsSelected,
       "Attachments uploading didn't finish"
     );
@@ -669,7 +669,7 @@ function add_cloud_attachments(
   let originalPromptService = Services.prompt;
   Services.prompt = mockPromptService;
   aController.window.attachToCloudNew(aProvider);
-  aController.waitFor(
+  utils.waitFor(
     () =>
       (!aExpectedAlerts &&
         attachmentsAdded > 0 &&
@@ -686,7 +686,7 @@ function add_cloud_attachments(
   if (aWaitUploaded) {
     bucket.addEventListener("attachment-uploaded", collectUploadedAttachments);
     uploads = gMockCloudfileManager.resolveUploads();
-    aController.waitFor(
+    utils.waitFor(
       () => attachmentsAdded == attachmentsUploaded,
       "Attachments uploading didn't finish"
     );

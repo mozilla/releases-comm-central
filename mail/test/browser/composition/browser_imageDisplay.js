@@ -8,6 +8,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   close_compose_window,
   open_compose_with_forward,
@@ -46,7 +47,6 @@ async function check_image_size(aController, aImage, aSrcStart) {
     () => aImage.complete,
     "waiting for image.complete"
   );
-  //aController.waitFor(() => aImage.complete);
   // There should not be a cid: URL now.
   Assert.ok(!aImage.src.startsWith("cid:"));
   if (aSrcStart) {

@@ -10,6 +10,7 @@ const EXPORTED_SYMBOLS = [
   "check_newsgroup_displayed",
 ];
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { get_about_3pane, right_click_on_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -35,7 +36,7 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   await right_click_on_folder(aFolder);
   let callback = function(controller) {
     // When the "stop button" is disabled, the panel is populated.
-    controller.waitFor(
+    utils.waitFor(
       () => controller.window.document.getElementById("stopButton").disabled
     );
     aFunction(controller);

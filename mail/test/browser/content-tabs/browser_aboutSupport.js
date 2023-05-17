@@ -4,6 +4,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { close_compose_window, wait_for_compose_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
@@ -109,22 +110,22 @@ async function open_about_support() {
     () => (l10nDone = true),
     console.error
   );
-  mc.waitFor(() => l10nDone, "Timeout waiting for L10n to complete.");
+  utils.waitFor(() => l10nDone, "Timeout waiting for L10n to complete.");
 
   // We have one variable that's asynchronously populated -- wait for it to be
   // populated.
-  mc.waitFor(
+  utils.waitFor(
     () => tab.browser.contentWindow.gAccountDetails !== undefined,
     "Timeout waiting for about:support's gAccountDetails to populate."
   );
 
-  mc.waitFor(
+  utils.waitFor(
     () => content_tab_e(tab, "accounts-tbody").children.length > 1,
     "Accounts sections didn't load."
   );
   // The population of the info fields is async, so we must wait until
   // the last one is done.
-  mc.waitFor(
+  utils.waitFor(
     () =>
       content_tab_e(tab, "intl-osprefs-regionalprefs").textContent.trim() != "",
     "Regional prefs section didn't load."

@@ -11,6 +11,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 const {
   open_compose_with_forward,
   open_compose_with_reply,
@@ -73,7 +74,7 @@ add_setup(async function() {
   Assert.ok(gInbox.msgStore.supportsCompaction);
   gInbox.compact(urlListener, null);
 
-  mc.waitFor(
+  utils.waitFor(
     function() {
       return urlListener.compactDone;
     },

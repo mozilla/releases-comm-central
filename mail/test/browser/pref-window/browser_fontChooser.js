@@ -12,6 +12,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { content_tab_e } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
@@ -85,7 +86,7 @@ add_setup(function() {
 
   let finished = false;
   buildFontList().then(() => (finished = true), console.error);
-  mc.waitFor(
+  utils.waitFor(
     () => finished,
     "Timeout waiting for font enumeration to complete."
   );
@@ -164,7 +165,7 @@ async function _verify_fonts_displayed(
     Services.prefs.getCharPref("font.default." + kLanguage) == "sans-serif";
   let displayPaneExpected = isSansDefault ? aSansSerif : aSerif;
   let displayPaneActual = content_tab_e(prefTab, "defaultFont");
-  mc.waitFor(
+  utils.waitFor(
     () => displayPaneActual.itemCount > 0,
     "No font names were populated in the font picker."
   );
@@ -187,7 +188,7 @@ async function _verify_fonts_displayed(
 
   // The font pickers are populated async so we need to wait for it.
   for (let fontElemId of ["serif", "sans-serif", "monospace"]) {
-    fontc.waitFor(
+    utils.waitFor(
       () => fontc.window.document.getElementById(fontElemId).label != "",
       "Timeout waiting for font picker '" + fontElemId + "' to populate."
     );

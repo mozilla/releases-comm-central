@@ -58,13 +58,3 @@ var MozMillController = function(win) {
     this
   );
 };
-
-MozMillController.prototype.waitFor = function(
-  callback,
-  message,
-  timeout,
-  interval,
-  thisObject
-) {
-  utils.waitFor(callback, message, timeout, interval, thisObject);
-};

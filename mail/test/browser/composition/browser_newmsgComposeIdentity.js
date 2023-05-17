@@ -9,6 +9,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   close_compose_window,
   open_compose_new_mail,
@@ -27,7 +28,6 @@ var {
 var { click_menus_in_sequence, plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -189,7 +189,7 @@ add_task(async function test_editing_identity() {
     compWin.window.document.getElementById("msgIdentityPopup"),
     [{ command: "cmd_customizeFromAddress" }]
   );
-  compWin.waitFor(
+  utils.waitFor(
     () => compWin.window.document.getElementById("msgIdentity").editable
   );
 

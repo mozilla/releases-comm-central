@@ -4,9 +4,7 @@
 
 "use strict";
 
-var controller = ChromeUtils.import(
-  "resource://testing-common/mozmill/controller.jsm"
-);
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var { open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
@@ -33,7 +31,7 @@ registerCleanupFunction(function() {
 async function waitForNotification(id, buttonToClickSelector, callback) {
   let notificationSelector = `#notification-popup > #${id}-notification`;
   let notification;
-  mc.waitFor(() => {
+  utils.waitFor(() => {
     notification = gDocument.querySelector(notificationSelector);
     return notification && !notification.hidden;
   });
@@ -46,7 +44,7 @@ async function waitForNotification(id, buttonToClickSelector, callback) {
     let button = notification.querySelector(buttonToClickSelector);
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, mc.window);
   }
-  mc.waitFor(() => !gDocument.querySelector(notificationSelector));
+  utils.waitFor(() => !gDocument.querySelector(notificationSelector));
 }
 
 add_task(async function test_install_corrupt_xpi() {

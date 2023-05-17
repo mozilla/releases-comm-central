@@ -8,6 +8,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   be_in_folder,
   close_message_window,
@@ -83,18 +84,18 @@ async function help_test_autohide(controller, menubar) {
     () => Services.focus.activeWindow == controller.window
   );
   await set_autohide_menubar(controller, menubar, true);
-  controller.waitFor(hiddenChecker(true), "Menubar should be hidden");
+  utils.waitFor(hiddenChecker(true), "Menubar should be hidden");
 
   menubar.focus();
   EventUtils.synthesizeKey("VK_ALT", {}, controller.window);
-  controller.waitFor(
+  utils.waitFor(
     hiddenChecker(false),
     "Menubar should be shown after pressing ALT!"
   );
 
   info("Menubar showing or not should toggle for ALT.");
   await set_autohide_menubar(controller, menubar, false);
-  controller.waitFor(hiddenChecker(false), "Menubar should be shown");
+  utils.waitFor(hiddenChecker(false), "Menubar should be shown");
   Assert.ok("help_test_autohide success");
 }
 

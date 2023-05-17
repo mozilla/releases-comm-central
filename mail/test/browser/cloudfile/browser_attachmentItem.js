@@ -8,6 +8,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   gMockFilePicker,
   gMockFilePickReg,
@@ -106,7 +107,7 @@ add_task(async function test_upload_cancel_repeat() {
     // Select the attachment, and choose to convert it to a Filelink
     select_attachments(cw, 0)[0];
     cw.window.convertSelectedToCloudAttachment(provider);
-    cw.waitFor(() => started);
+    utils.waitFor(() => started);
 
     await assert_can_cancel_upload(cw, provider, promise, file);
     await new Promise(resolve => setTimeout(resolve));
@@ -250,7 +251,7 @@ async function assert_can_cancel_upload(
     aController,
     aController.window.document.getElementById(kAttachmentItemContextID)
   );
-  aController.waitFor(() => cancelled);
+  utils.waitFor(() => cancelled);
 }
 
 /**
@@ -311,7 +312,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
   };
 
   add_cloud_attachments(cw, provider, false);
-  cw.waitFor(() => promises.length == kFiles.length);
+  utils.waitFor(() => promises.length == kFiles.length);
 
   let bucket = cw.window.document.getElementById("attachmentBucket");
   Assert.equal(

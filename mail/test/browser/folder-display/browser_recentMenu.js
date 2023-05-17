@@ -10,6 +10,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   archive_selected_messages,
   be_in_folder,
@@ -91,7 +92,7 @@ add_task(async function test_move_message() {
     mc.window.msgWindow,
     true
   );
-  mc.waitFor(
+  utils.waitFor(
     () => copyListener.copyDone,
     "Timeout waiting for copy to complete",
     10000,

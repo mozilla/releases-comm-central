@@ -8,6 +8,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   be_in_folder,
   create_folder,
@@ -122,7 +123,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
   let viewSourceController = wait_for_new_window("navigator:view-source");
 
-  viewSourceController.waitFor(
+  utils.waitFor(
     () =>
       viewSourceController.window.document
         .getElementById("content")
@@ -175,7 +176,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
     );
 
     if (expectedSource != contentReadable) {
-      viewSourceController.waitFor(
+      utils.waitFor(
         () =>
           viewSourceController.window.document.getElementById("content")
             .contentDocument != doc &&

@@ -8,6 +8,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   add_attachments,
   close_compose_window,
@@ -437,7 +438,7 @@ async function subtest_reordering(
   if (aOpenPanel) {
     // Close the panel.
     panel.hidePopup();
-    aCwc.waitFor(
+    utils.waitFor(
       () => panel.state == "closed",
       "Reordering panel didn't close"
     );
@@ -492,7 +493,7 @@ add_task(async function test_attachment_reordering() {
 
   // Click on the editor which should close the panel.
   EventUtils.synthesizeMouseAtCenter(editorEl, {}, editorEl.ownerGlobal);
-  cwc.waitFor(
+  utils.waitFor(
     () => panel.state == "closed",
     "Reordering panel didn't close when editor was clicked."
   );

@@ -105,7 +105,7 @@ function assert_element_not_visible(aElt, aWhy) {
  */
 function wait_for_element(aParent, aSelector) {
   let target = null;
-  lazy.mc.waitFor(function() {
+  utils.waitFor(function() {
     target = aParent.querySelector(aSelector);
     return target != null;
   }, "Timed out waiting for a target for selector: " + aSelector);
@@ -178,7 +178,7 @@ function wait_for_element_enabled(aController, aElement, aEnabled) {
     );
   }
 
-  aController.waitFor(
+  utils.waitFor(
     () => aElement.disabled != aEnabled,
     "Element should have eventually been " +
       (aEnabled ? "enabled" : "disabled") +
@@ -215,7 +215,7 @@ function check_element_visible(aController, aId) {
  * @param aId          id of the element to wait for
  */
 function wait_for_element_visible(aController, aId) {
-  lazy.mc.waitFor(function() {
+  utils.waitFor(function() {
     return check_element_visible(aController, aId);
   }, "Timed out waiting for element with ID=" + aId + " to become visible");
 }
@@ -227,7 +227,7 @@ function wait_for_element_visible(aController, aId) {
  * @param aId          id of the element to wait for
  */
 function wait_for_element_invisible(aController, aId) {
-  lazy.mc.waitFor(function() {
+  utils.waitFor(function() {
     return !check_element_visible(aController, aId);
   }, "Timed out waiting for element with ID=" + aId + " to become invisible");
 }

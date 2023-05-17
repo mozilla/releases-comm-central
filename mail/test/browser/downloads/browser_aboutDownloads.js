@@ -7,7 +7,7 @@
  */
 
 "use strict";
-
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
@@ -71,7 +71,7 @@ var downloadsView = {
     }
     let finished = false;
     Promise.all(succeededPromises).then(() => (finished = true), console.error);
-    mc.waitFor(() => finished, "Timeout waiting for downloads to complete.");
+    utils.waitFor(() => finished, "Timeout waiting for downloads to complete.");
   },
 };
 
@@ -117,7 +117,10 @@ function prepare_downloads_view() {
   downloads.Downloads.getList(downloads.Downloads.ALL)
     .then(list => list.addView(downloadsView))
     .then(() => (success = true), console.error);
-  mc.waitFor(() => success, "Timeout waiting for attaching our download view.");
+  utils.waitFor(
+    () => success,
+    "Timeout waiting for attaching our download view."
+  );
 }
 
 add_setup(async function() {
@@ -137,7 +140,7 @@ function open_about_downloads() {
   let preCount = mc.window.document.getElementById("tabmail").tabContainer
     .allTabs.length;
   let newTab = mc.window.openSavedFilesWnd();
-  mc.waitFor(
+  utils.waitFor(
     () =>
       mc.window.document.getElementById("tabmail").tabContainer.allTabs
         .length ==
@@ -195,7 +198,7 @@ async function subtest_save_attachment_files_in_list() {
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
 
   let length = attachmentFileNames.length;
-  mc.waitFor(
+  utils.waitFor(
     () => downloadsView.count == length,
     () =>
       "Timeout waiting for saving three attachment files; " +
@@ -256,7 +259,7 @@ add_task(async function test_remove_file() {
   await click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_remove" },
   ]);
-  mc.waitFor(
+  utils.waitFor(
     () => downloadsView.count == 2,
     "Timeout waiting for removing a saved attachment file."
   );
@@ -309,7 +312,7 @@ add_task(async function test_remove_multiple_files() {
   await click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_remove" },
   ]);
-  mc.waitFor(
+  utils.waitFor(
     () => downloadsView.count == 1,
     "Timeout waiting for removing two saved attachment files."
   );
@@ -352,7 +355,7 @@ add_task(async function test_clear_all_files() {
   await click_menus_in_sequence(contextMenu, [
     { command: "msgDownloadsCmd_clearDownloads" },
   ]);
-  mc.waitFor(
+  utils.waitFor(
     () => downloadsView.count == 0,
     "Timeout waiting for clearing all saved attachment files."
   );
@@ -370,7 +373,7 @@ function teardownTest() {
       }
     })
     .catch(console.error);
-  mc.waitFor(
+  utils.waitFor(
     () => downloadsView.count == 0,
     "Timeout waiting for clearing all saved attachment files."
   );

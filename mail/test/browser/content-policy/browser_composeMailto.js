@@ -4,6 +4,7 @@
 
 "use strict";
 
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { close_compose_window, wait_for_compose_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
@@ -86,7 +87,7 @@ add_task(async function test_checkInsertImage() {
 
   Assert.equal(childImages.length, 1, "Should be one image in the document");
 
-  gCwc.waitFor(() => childImages[0].complete);
+  utils.waitFor(() => childImages[0].complete);
 
   // Should be the only image, so just check the first.
   Assert.ok(

@@ -833,7 +833,7 @@ function assert_tab_titled_from(aTab, aWhat) {
     text = aWhat.mime2DecodedSubject;
   }
 
-  mc.waitFor(
+  utils.waitFor(
     () => aTab.title.includes(text),
     `Tab title should include '${text}' but does not. (Current title: '${aTab.title}')`
   );
@@ -1587,7 +1587,7 @@ async function empty_folder(aFolder, aController = mc) {
   while ((msgCount = aFolder.getTotalMessages(false)) > 0) {
     select_click_row(0, aController);
     press_delete(aController);
-    aController.waitFor(() => aFolder.getTotalMessages(false) < msgCount);
+    utils.waitFor(() => aFolder.getTotalMessages(false) < msgCount);
   }
 }
 
