@@ -10,6 +10,7 @@ EXTRA_JS_MODULES += [
     "modules/CustomizableItems.sys.mjs",
     "modules/CustomizableItemsDetails.mjs",
     "modules/CustomizationState.mjs",
+    "modules/ToolbarMigration.sys.mjs",
 ]
 
 BROWSER_CHROME_MANIFESTS += [

@@ -11,6 +11,7 @@ ChromeUtils.defineESModuleGetters(this, {
   getState: "resource:///modules/CustomizationState.mjs",
   registerExtension: "resource:///modules/CustomizableItems.sys.mjs",
   unregisterExtension: "resource:///modules/CustomizableItems.sys.mjs",
+  EXTENSION_PREFIX: "resource:///modules/CustomizableItems.sys.mjs",
 });
 var { ExtensionCommon } = ChromeUtils.import(
   "resource://gre/modules/ExtensionCommon.jsm"
@@ -94,7 +95,7 @@ this.browserAction = class extends ToolbarButtonAPI {
     if (this.windowURLs.includes(MAIN_WINDOW_URI)) {
       await registerExtension(this.extension.id, this.allowedSpaces);
       const currentToolbarState = getState();
-      const unifiedToolbarButtonId = `ext-${this.extension.id}`;
+      const unifiedToolbarButtonId = `${EXTENSION_PREFIX}${this.extension.id}`;
 
       // Load the cached allowed spaces. Make sure there are no awaited promises
       // before storing the updated allowed spaces, as it could have been changed
@@ -239,7 +240,7 @@ this.browserAction = class extends ToolbarButtonAPI {
 
   static #removeFromUnifiedToolbar(extensionId) {
     const currentToolbarState = getState();
-    const unifiedToolbarButtonId = `ext-${extensionId}`;
+    const unifiedToolbarButtonId = `${EXTENSION_PREFIX}${extensionId}`;
     let modifiedState = false;
     for (const space of Object.keys(currentToolbarState)) {
       if (currentToolbarState[space].includes(unifiedToolbarButtonId)) {
@@ -274,7 +275,7 @@ this.browserAction = class extends ToolbarButtonAPI {
           window.document.getElementById(this.id) ||
           (this.windowURLs.includes(MAIN_WINDOW_URI) &&
             window.document.querySelector(
-              `#unifiedToolbarContent [item-id="ext-${this.extension.id}"]`
+              `#unifiedToolbarContent [item-id="${EXTENSION_PREFIX}${this.extension.id}"]`
             ));
         const contexts = [
           "toolbar-context-menu",

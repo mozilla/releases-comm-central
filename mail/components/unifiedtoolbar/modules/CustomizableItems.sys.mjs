@@ -27,6 +27,8 @@ const DEFAULT_ITEMS_WITHOUT_SEARCH = ["spacer"];
  */
 const EXTENSIONS = [];
 
+export const EXTENSION_PREFIX = "ext-";
+
 /**
  * Add an extension button that is available in the given spaces. Defaults to
  * making the button only available in the mail space. To provide it in all
@@ -78,7 +80,7 @@ function getExtensionsForSpace(space, includeSpaceAgnostic = false) {
     extension =>
       (space && extension.spaces?.includes(space)) ||
       ((!space || includeSpaceAgnostic) && !extension.spaces?.length)
-  ).map(extension => `ext-${extension.id}`);
+  ).map(extension => `${EXTENSION_PREFIX}${extension.id}`);
 }
 
 /**

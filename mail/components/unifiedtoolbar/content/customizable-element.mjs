@@ -4,6 +4,10 @@
 
 import CUSTOMIZABLE_ITEMS from "resource:///modules/CustomizableItemsDetails.mjs";
 
+const { EXTENSION_PREFIX } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizableItems.sys.mjs"
+);
+
 const lazy = {};
 ChromeUtils.defineModuleGetter(
   lazy,
@@ -11,7 +15,7 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/ExtensionParent.jsm"
 );
 const browserActionFor = extensionId =>
-  lazy.ExtensionParent.apiManager.global.browserActionFor(
+  lazy.ExtensionParent.apiManager.global.browserActionFor?.(
     lazy.ExtensionParent.GlobalManager.getExtension(extensionId)
   );
 
@@ -42,8 +46,8 @@ export default class CustomizableElement extends HTMLLIElement {
 
     const itemId = this.getAttribute("item-id");
 
-    if (itemId.startsWith("ext-")) {
-      const extensionId = itemId.slice(4);
+    if (itemId.startsWith(EXTENSION_PREFIX)) {
+      const extensionId = itemId.slice(EXTENSION_PREFIX.length);
       this.append(template);
       this.#initializeForExtension(extensionId);
       return;

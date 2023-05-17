@@ -24,6 +24,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   EventEmitter: "resource://gre/modules/EventEmitter.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
+  migrateToolbarForSpace: "resource:///modules/ToolbarMigration.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
@@ -61,7 +62,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 35;
+    const UI_VERSION = 36;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -635,6 +636,10 @@ var MailMigrator = {
         // Both IMAP and POP settings currently use this domain
         this._migrateIncomingToOAuth2("outlook.office365.com");
         this._migrateSMTPToOAuth2("smtp.office365.com");
+      }
+
+      if (currentUIVersion < 36) {
+        lazy.migrateToolbarForSpace("mail");
       }
 
       // Migration tasks that may take a long time are not run immediately, but
