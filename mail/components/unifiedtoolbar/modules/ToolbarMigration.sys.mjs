@@ -92,13 +92,10 @@ const EMPTY_SET = "__empty";
 const XUL_TOOLBAR_DEFAULT_SET = {
   "mail-bar3":
     AppConstants.platform == "macosx"
-      ? "button-getmsg,button-newmsg,spacer,button-tag,qfb-show-filter-bar,spring,gloda-search,button-appmenu"
+      ? "button-getmsg,button-newmsg,button-tag,qfb-show-filter-bar,spring,gloda-search,button-appmenu"
       : "button-getmsg,button-newmsg,separator,button-tag,qfb-show-filter-bar,spring,gloda-search,button-appmenu",
   "tabbar-toolbar": "",
-  "toolbar-menubar":
-    AppConstants.platform == "macosx"
-      ? "menubar-items"
-      : "menubar-items,spring",
+  "toolbar-menubar": "menubar-items,spring",
 };
 const MESSENGER_WINDOW = "chrome://messenger/content/messenger.xhtml";
 const EXTENSION_WIDGET_SUFFIX = "-browserAction-toolbarbutton";
