@@ -68,7 +68,7 @@ add_setup(async function() {
   testMessages = [...testFolder.messages];
 
   NNTPServer.open();
-  NNTPServer.addGroup("news.group");
+  NNTPServer.addGroup("edit.menu.newsgroup");
   let nntpAccount = MailServices.accounts.createAccount();
   nntpAccount.incomingServer = MailServices.accounts.createIncomingServer(
     `${nntpAccount.key}user`,
@@ -77,8 +77,8 @@ add_setup(async function() {
   );
   nntpAccount.incomingServer.port = NNTPServer.port;
   nntpRootFolder = nntpAccount.incomingServer.rootFolder;
-  nntpRootFolder.createSubfolder("news.group", null);
-  nntpFolder = nntpRootFolder.getChildNamed("news.group");
+  nntpRootFolder.createSubfolder("edit.menu.newsgroup", null);
+  nntpFolder = nntpRootFolder.getChildNamed("edit.menu.newsgroup");
 
   IMAPServer.open();
   let imapAccount = MailServices.accounts.createAccount();

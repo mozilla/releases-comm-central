@@ -25,13 +25,13 @@ add_setup(async function() {
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
-  rootFolder.createSubfolder("folder a", null);
+  rootFolder.createSubfolder("threadTreeQuirksA", null);
   folderA = rootFolder
-    .getChildNamed("folder a")
+    .getChildNamed("threadTreeQuirksA")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  rootFolder.createSubfolder("folder b", null);
-  folderB = rootFolder.getChildNamed("folder b");
+  rootFolder.createSubfolder("threadTreeQuirksB", null);
+  folderB = rootFolder.getChildNamed("threadTreeQuirksB");
   trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 
   // Make some messages, then change their dates to simulate a different order.

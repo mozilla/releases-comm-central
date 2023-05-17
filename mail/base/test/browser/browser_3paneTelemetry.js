@@ -18,12 +18,12 @@ add_setup(async function() {
   let rootFolder = account.incomingServer.rootFolder;
 
   for (let type of ["Drafts", "SentMail", "Templates", "Junk", "Archive"]) {
-    rootFolder.createSubfolder(type, null);
-    folders[type] = rootFolder.getChildNamed(type);
+    rootFolder.createSubfolder(`telemetry${type}`, null);
+    folders[type] = rootFolder.getChildNamed(`telemetry${type}`);
     folders[type].setFlag(Ci.nsMsgFolderFlags[type]);
   }
-  rootFolder.createSubfolder("just a folder", null);
-  folders.Other = rootFolder.getChildNamed("just a folder");
+  rootFolder.createSubfolder("telemetryPlain", null);
+  folders.Other = rootFolder.getChildNamed("telemetryPlain");
 
   let tab = tabmail.currentTabInfo;
   let folderPaneVisibleAtStart = tab.folderPaneVisible;

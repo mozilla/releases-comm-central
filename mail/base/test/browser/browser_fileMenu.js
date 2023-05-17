@@ -65,9 +65,9 @@ add_setup(async function() {
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
-  rootFolder.createSubfolder("file menu", null);
+  rootFolder.createSubfolder("file menu inbox", null);
   inboxFolder = rootFolder
-    .getChildNamed("file menu")
+    .getChildNamed("file menu inbox")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   inboxFolder.setFlag(Ci.nsMsgFolderFlags.Inbox);
   inboxFolder.addMessageBatch(
@@ -75,8 +75,8 @@ add_setup(async function() {
   );
   testMessages = [...inboxFolder.messages];
 
-  rootFolder.createSubfolder("plain", null);
-  plainFolder = rootFolder.getChildNamed("plain");
+  rootFolder.createSubfolder("file menu plain", null);
+  plainFolder = rootFolder.getChildNamed("file menu plain");
 
   trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
 

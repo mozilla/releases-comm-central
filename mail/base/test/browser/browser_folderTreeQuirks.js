@@ -37,19 +37,19 @@ add_setup(async function() {
   trashFolder = rootFolder.getChildNamed("Trash");
   outboxFolder = rootFolder.getChildNamed("Outbox");
 
-  rootFolder.createSubfolder("folder a", null);
+  rootFolder.createSubfolder("folderTreeQuirksA", null);
   folderA = rootFolder
-    .getChildNamed("folder a")
+    .getChildNamed("folderTreeQuirksA")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  folderA.createSubfolder("folder b", null);
+  folderA.createSubfolder("folderTreeQuirksB", null);
   folderB = folderA
-    .getChildNamed("folder b")
+    .getChildNamed("folderTreeQuirksB")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  folderB.createSubfolder("folder c", null);
+  folderB.createSubfolder("folderTreeQuirksC", null);
   folderC = folderB
-    .getChildNamed("folder c")
+    .getChildNamed("folderTreeQuirksC")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   messageInjection.addSetsToFolders(
@@ -375,8 +375,8 @@ add_task(async function testFolderMove() {
   );
   await copyListener.promise;
 
-  let movedFolderB = newParentFolder.getChildNamed("folder b");
-  let movedFolderC = movedFolderB.getChildNamed("folder c");
+  let movedFolderB = newParentFolder.getChildNamed("folderTreeQuirksB");
+  let movedFolderC = movedFolderB.getChildNamed("folderTreeQuirksC");
 
   await checkModeListItems("all", [
     rootFolder,
@@ -489,10 +489,10 @@ add_task(async function testFolderRename() {
 
   // Rename `folderA`.
 
-  folderA.rename("renamed", window.msgWindow);
-  let renamedFolderA = rootFolder.getChildNamed("renamed");
-  let renamedFolderB = renamedFolderA.getChildNamed("folder b");
-  let renamedFolderC = renamedFolderB.getChildNamed("folder c");
+  folderA.rename("renamedA", window.msgWindow);
+  let renamedFolderA = rootFolder.getChildNamed("renamedA");
+  let renamedFolderB = renamedFolderA.getChildNamed("folderTreeQuirksB");
+  let renamedFolderC = renamedFolderB.getChildNamed("folderTreeQuirksC");
 
   await checkModeListItems("all", [
     rootFolder,
@@ -541,7 +541,7 @@ add_task(async function testFolderRename() {
 
   // Rename the folder back to its original name.
 
-  renamedFolderA.rename("folder a", window.msgWindow);
+  renamedFolderA.rename("folderTreeQuirksA", window.msgWindow);
 
   await checkModeListItems("all", [
     rootFolder,

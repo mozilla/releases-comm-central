@@ -20,9 +20,9 @@ add_setup(async function() {
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
-  rootFolder.createSubfolder("threads", null);
+  rootFolder.createSubfolder("cardsView", null);
   testFolder = rootFolder
-    .getChildNamed("threads")
+    .getChildNamed("cardsView")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   let generator = new MessageGenerator();

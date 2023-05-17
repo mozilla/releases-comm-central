@@ -31,8 +31,8 @@ add_setup(async function() {
   trashFolder = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Trash);
   trashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
-  rootFolder.createSubfolder("Virtual", null);
-  virtualFolder = rootFolder.getChildNamed("Virtual");
+  rootFolder.createSubfolder("folderTreePropsVirtual", null);
+  virtualFolder = rootFolder.getChildNamed("folderTreePropsVirtual");
   virtualFolder.flags |=
     Ci.nsMsgFolderFlags.Virtual | Ci.nsMsgFolderFlags.Favorite;
   let virtualFolderInfo = virtualFolder.msgDatabase.dBFolderInfo;

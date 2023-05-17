@@ -28,18 +28,18 @@ add_setup(async function() {
   let account = MailServices.accounts.accounts[0];
   let rootFolder = account.incomingServer.rootFolder;
 
-  rootFolder.createSubfolder("folderA", null);
+  rootFolder.createSubfolder("mailTabsA", null);
   folderA = rootFolder
-    .getChildNamed("folderA")
+    .getChildNamed("mailTabsA")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderA.addMessageBatch(
     generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
   );
   messagesA = [...folderA.messages];
 
-  rootFolder.createSubfolder("folderB", null);
+  rootFolder.createSubfolder("mailTabsB", null);
   folderB = rootFolder
-    .getChildNamed("folderB")
+    .getChildNamed("mailTabsB")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderB.addMessageBatch(
     generator.makeMessages({ count: 2 }).map(message => message.toMboxString())
@@ -93,7 +93,7 @@ add_task(async function testTabs() {
   Assert.equal(firstTab.folder, folderA);
   Assert.equal(
     folderTree.querySelector(".selected .name").textContent,
-    "folderA"
+    "mailTabsA"
   );
   Assert.equal(threadTree.view.rowCount, 5);
   Assert.equal(threadTree.selectedIndex, -1);

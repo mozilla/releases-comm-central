@@ -17,10 +17,10 @@ add_setup(function() {
   window.MailServices.accounts.createLocalMailAccount();
   testAccount = window.MailServices.accounts.accounts[0];
   let rootFolder = testAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("mailFolderA", null);
-  folderA = rootFolder.findSubFolder("mailFolderA");
-  rootFolder.createSubfolder("mailFolderB", null);
-  folderB = rootFolder.findSubFolder("mailFolderB");
+  rootFolder.createSubfolder("spacesToolbarA", null);
+  folderA = rootFolder.findSubFolder("spacesToolbarA");
+  rootFolder.createSubfolder("spacesToolbarB", null);
+  folderB = rootFolder.findSubFolder("spacesToolbarB");
 });
 
 registerCleanupFunction(async () => {
