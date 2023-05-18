@@ -1530,7 +1530,9 @@ Enigmail.msg = {
     }
 
     if (gSendEncrypted && gSendSigned) {
-      f |= EnigmailConstants.SEND_TWO_MIME_LAYERS;
+      if (Services.prefs.getBoolPref("mail.openpgp.separate_mime_layers")) {
+        f |= EnigmailConstants.SEND_TWO_MIME_LAYERS;
+      }
     }
 
     if (gSendEncrypted && gEncryptSubject) {

@@ -88,6 +88,15 @@ var EnigmailEncryption = {
       result.senderKeyIsExternal = true;
     }
 
+    // Some day we might need to look at flag SEND_TWO_MIME_LAYERS here,
+    // to decide which detached signature flag needs to be passed on
+    // to the RNP or GPGME layers. However, today those layers can
+    // derive their necessary behavior from being asked to do combined
+    // or single encryption/signing. This is because today we always
+    // create signed messages using the detached signature, and we never
+    // need the OpenPGP signature encoding that includes the message
+    // except when combining GPG signing with RNP encryption.
+
     var detachedSig =
       (usePgpMime || sendFlags & lazy.EnigmailConstants.SEND_ATTACHMENT) &&
       signMsg &&

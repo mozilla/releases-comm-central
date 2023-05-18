@@ -1995,6 +1995,14 @@ function enableRNPLibJS() {
       ctypes.uint32_t
     ),
 
+    rnp_op_encrypt_set_flags: librnp.declare(
+      "rnp_op_encrypt_set_flags",
+      abi,
+      rnp_result_t,
+      rnp_op_encrypt_t,
+      ctypes.uint32_t
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
@@ -2047,6 +2055,8 @@ function enableRNPLibJS() {
     RNP_SECURITY_PROHIBITED: 0,
     RNP_SECURITY_INSECURE: 1,
     RNP_SECURITY_DEFAULT: 2,
+
+    RNP_ENCRYPT_NOWRAP: 1,
 
     /* Common error codes */
     RNP_ERROR_GENERIC: 0x10000000, // 268435456

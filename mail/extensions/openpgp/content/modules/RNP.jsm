@@ -115,11 +115,21 @@ class RnpPrivateKeyUnlockTracker {
       return;
     }
     this.#rnpKeyHandle = handle;
-    let is_locked = new lazy.ctypes.bool();
-    if (RNPLib.rnp_key_is_locked(this.#rnpKeyHandle, is_locked.address())) {
-      throw new Error("rnp_key_is_locked failed");
+
+    if (!this.available()) {
+      // Not a private key. We tolerate this use to enable automatic
+      // handle releasing, for code that sometimes needs to track a
+      // secret key, and sometimes only a public key.
+      // The only functionality that is allowed on such a key is to
+      // call the .available() and the .release() methods.
+      this.#isLocked = false;
+    } else {
+      let is_locked = new lazy.ctypes.bool();
+      if (RNPLib.rnp_key_is_locked(this.#rnpKeyHandle, is_locked.address())) {
+        throw new Error("rnp_key_is_locked failed");
+      }
+      this.#isLocked = is_locked.value;
     }
-    this.#isLocked = is_locked.value;
 
     if (!this.#fingerprint) {
       let fingerprint = new lazy.ctypes.char.ptr();
@@ -3298,23 +3308,36 @@ var RNP = {
   },
 
   async encryptAndOrSign(plaintext, args, resultStatus) {
+    let signedInner;
+
     if (args.sign && args.senderKeyIsExternal) {
       if (!lazy.GPGME.allDependenciesLoaded()) {
         throw new Error(
           "invalid configuration, request to use external GnuPG key, but GPGME isn't working"
         );
       }
-      if (args.encrypt) {
-        throw new Error(
-          "internal error, unexpected request to sign and encrypt in a single step with external GnuPG key configuration"
-        );
-      }
-      if (!args.sigTypeDetached || args.sigTypeClear) {
+      if (args.sigTypeClear) {
         throw new Error(
           "unexpected signing request with external GnuPG key configuration"
         );
       }
-      return lazy.GPGME.signDetached(plaintext, args, resultStatus);
+
+      if (args.encrypt) {
+        // If we are asked to encrypt and sign at the same time, it
+        // means we're asked to produce the combined OpenPGP encoding.
+        // We ask GPG to produce a regular signature, and will then
+        // combine it with the encryption produced by RNP.
+        let orgEncrypt = args.encrypt;
+        args.encrypt = false;
+        signedInner = await lazy.GPGME.sign(plaintext, args, resultStatus);
+        args.encrypt = orgEncrypt;
+      } else {
+        // We aren't asked to encrypt, but sign only. That means the
+        // caller needs the detatched signature, either for MIME
+        // mime encoding with separate signature part, or for the nested
+        // approach with separate signing and encryption layers.
+        return lazy.GPGME.signDetached(plaintext, args, resultStatus);
+      }
     }
 
     resultStatus.exitCode = -1;
@@ -3322,15 +3345,20 @@ var RNP = {
     resultStatus.statusMsg = "";
     resultStatus.errorMsg = "";
 
-    let arr = plaintext.split("").map(e => e.charCodeAt());
-    var plaintext_array = lazy.ctypes.uint8_t.array()(arr);
+    let data_array;
+    if (args.sign && args.senderKeyIsExternal) {
+      data_array = lazy.ctypes.uint8_t.array()(signedInner);
+    } else {
+      let arr = plaintext.split("").map(e => e.charCodeAt());
+      data_array = lazy.ctypes.uint8_t.array()(arr);
+    }
 
     let input = new RNPLib.rnp_input_t();
     if (
       RNPLib.rnp_input_from_memory(
         input.address(),
-        plaintext_array,
-        plaintext_array.length,
+        data_array,
+        data_array.length,
         false
       )
     ) {
@@ -3350,7 +3378,7 @@ var RNP = {
       ) {
         throw new Error("rnp_op_encrypt_create failed");
       }
-    } else if (args.sign) {
+    } else if (args.sign && !args.senderKeyIsExternal) {
       op = new RNPLib.rnp_op_sign_t();
       if (args.sigTypeClear) {
         if (
@@ -3387,7 +3415,7 @@ var RNP = {
     let subKeyTracker = null;
 
     try {
-      if (args.sign || args.encryptToSender) {
+      if ((args.sign && !args.senderKeyIsExternal) || args.encryptToSender) {
         {
           // Use a temporary scope to ensure the senderKey variable
           // cannot be accessed later on.
@@ -3426,7 +3454,8 @@ var RNP = {
         if (args.encryptToSender) {
           this.addSuitableEncryptKey(senderKeyTracker.getHandle(), op);
         }
-        if (args.sign) {
+
+        if (args.sign && !args.senderKeyIsExternal) {
           // Prefer usable subkeys, because they are always newer
           // (or same age) as primary key.
 
@@ -3531,12 +3560,18 @@ var RNP = {
           throw new Error("rnp_op_encrypt_set_armor failed");
         }
 
+        if (args.sign && args.senderKeyIsExternal) {
+          if (RNPLib.rnp_op_encrypt_set_flags(op, RNPLib.RNP_ENCRYPT_NOWRAP)) {
+            throw new Error("rnp_op_encrypt_set_flags failed");
+          }
+        }
+
         let rv = RNPLib.rnp_op_encrypt_execute(op);
         if (rv) {
           throw new Error("rnp_op_encrypt_execute failed: " + rv);
         }
         RNPLib.rnp_op_encrypt_destroy(op);
-      } else {
+      } else if (args.sign && !args.senderKeyIsExternal) {
         if (RNPLib.rnp_op_sign_set_hash(op, "SHA256")) {
           throw new Error("rnp_op_sign_set_hash failed");
         }

@@ -569,6 +569,7 @@ function enableGPGMELibJS() {
     GPGME_DECRYPT_UNWRAP: 128,
     GPGME_DATA_ENCODING_ARMOR: 3,
     GPGME_SIG_MODE_DETACH: 1,
+    GPGME_SIG_MODE_NORMAL: 0,
 
     gpgme_key_t_revoked: 1,
     gpgme_key_t_expired: 2,

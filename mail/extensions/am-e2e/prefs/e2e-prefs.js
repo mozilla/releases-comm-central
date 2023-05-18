@@ -35,6 +35,10 @@ pref("mail.identity.default.is_gnupg_key_id", false);
 // The hexadecimal OpenPGP key ID externally configured by GnuPG used for an identity.
 pref("mail.identity.default.last_entered_external_gnupg_key_id", "");
 
+// When sending an OpenPGP message that is both signed and encrypted,
+// it's possible to use one combined MIME layer, or separate layers.
+pref("mail.openpgp.separate_mime_layers", true);
+
 // Load a JSON file that contains recipient key alias rules. See bug 1644085.
 // Suggested filename: openpgp-alias-rules.json
 // Simple filenames (without path) are loaded from the profile directory.
