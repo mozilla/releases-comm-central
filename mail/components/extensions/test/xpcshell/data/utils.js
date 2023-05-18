@@ -33,6 +33,11 @@ function assertDeepEqualNested(expected, actual, strict) {
     return actual === null;
   }
 
+  if (expected === undefined) {
+    browser.test.assertTrue(actual === undefined);
+    return actual === undefined;
+  }
+
   if (["boolean", "number", "string"].includes(typeof expected)) {
     browser.test.assertEq(typeof expected, typeof actual);
     browser.test.assertEq(expected, actual);

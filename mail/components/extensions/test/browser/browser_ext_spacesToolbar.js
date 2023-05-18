@@ -49,7 +49,7 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       await tabPromise;
     }
 
-    let tabs = tabmail.tabInfo.filter(tabInfo => !!tabInfo.spaceId);
+    let tabs = tabmail.tabInfo.filter(tabInfo => !!tabInfo.spaceButtonId);
     Assert.equal(
       test.openSpacesUrls.length,
       tabs.length,
@@ -59,7 +59,8 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       Assert.ok(
         tabmail.tabInfo.find(
           tabInfo =>
-            !!tabInfo.spaceId && tabInfo.browser.currentURI.spec == expectedUrl
+            !!tabInfo.spaceButtonId &&
+            tabInfo.browser.currentURI.spec == expectedUrl
         ),
         `Should have found a spaces tab with the expected url.`
       );
@@ -333,7 +334,7 @@ add_task(async function test_add_update_remove() {
     browser.test.log("updateButton(): Settings an invalid url.");
     await browser.test.assertRejects(
       browser.spacesToolbar.updateButton("button_2", {
-        url: "Invalid",
+        url: "invalid://url",
       }),
       /Failed to update button in the spaces toolbar: Invalid url./,
       "updateButton() with invalid url should throw."
@@ -683,7 +684,7 @@ add_task(async function test_open_programmatically() {
       url: url2,
     });
 
-    function clickSpaceButton(buttonId, url) {
+    async function clickSpaceButton(buttonId, url) {
       let loadPromise = new Promise(resolve => {
         let urlSeen = false;
         let listener = (tabId, changeInfo) => {
@@ -697,8 +698,20 @@ add_task(async function test_open_programmatically() {
         };
         browser.tabs.onUpdated.addListener(listener);
       });
-      browser.spacesToolbar.clickButton(buttonId);
-      return loadPromise;
+      let tab = await browser.spacesToolbar.clickButton(buttonId);
+      await loadPromise;
+
+      let queriedTabs = await browser.tabs.query({ spaceId: tab.spaceId });
+      browser.test.assertEq(
+        1,
+        queriedTabs.length,
+        "browser.tabs.query() should find exactly one tab belonging to the opened space"
+      );
+      browser.test.assertEq(
+        tab.id,
+        queriedTabs[0].id,
+        "browser.tabs.query() should find the correct tab belonging to the opened space"
+      );
     }
 
     // Open space #1.

@@ -61,6 +61,7 @@ module.exports = {
     messageListTracker: true,
     messageTracker: true,
     nsDummyMsgHeader: true,
+    spaceTracker: true,
     tabGetSender: true,
     tabTracker: true,
     windowTracker: true,

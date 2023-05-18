@@ -1095,10 +1095,10 @@ var gSpacesToolbar = {
         menuitem,
         url: properties.url,
         tabInSpace(tabInfo) {
-          // TODO: Store the spaceId in the XULStore (or somewhere), so the
+          // TODO: Store the spaceButtonId in the XULStore (or somewhere), so the
           // space is recognized after a restart. Or force closing of all spaces
           // on shutdown.
-          return tabInfo.spaceId == this.name ? 1 : 0;
+          return tabInfo.spaceButtonId == this.name ? 1 : 0;
         },
         open(where) {
           // The check if we should switch to an existing tab in this space was
@@ -1110,9 +1110,9 @@ var gSpacesToolbar = {
             { url: this.url, duplicate: true },
             where
           );
-          tab.spaceId = this.name;
-          // TODO: Make sure the spaceId is set during load, and not here, where
-          // it is too late.
+          tab.spaceButtonId = this.name;
+          // TODO: Make sure the spaceButtonId is set during load, and not here,
+          // where it might be too late.
           gSpacesToolbar.currentSpace = this;
           button.classList.add("current");
           return tab;

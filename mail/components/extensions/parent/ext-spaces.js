@@ -25,10 +25,94 @@ ChromeUtils.defineModuleGetter(
 
 XPCOMUtils.defineLazyGlobalGetters(this, ["InspectorUtils"]);
 
-var { makeWidgetId } = ExtensionCommon;
-
-var nativeSpaces = new Map();
 var windowURLs = ["chrome://messenger/content/messenger.xhtml"];
+
+/**
+ * Return the paths to the 16px and 32px icons defined in the manifest of this
+ * extension, if any.
+ *
+ * @param {ExtensionData} extension - the extension to retrieve the path object for
+ */
+function getManifestIcons(extension) {
+  if (extension.manifest.icons) {
+    let { icon: icon16 } = ExtensionParent.IconDetails.getPreferredIcon(
+      extension.manifest.icons,
+      extension,
+      16
+    );
+    let { icon: icon32 } = ExtensionParent.IconDetails.getPreferredIcon(
+      extension.manifest.icons,
+      extension,
+      32
+    );
+    return {
+      16: extension.baseURI.resolve(icon16),
+      32: extension.baseURI.resolve(icon32),
+    };
+  }
+  return null;
+}
+
+/**
+ * Convert WebExtension SpaceButtonProperties into a NativeButtonProperties
+ * object required by the gSpacesToolbar.* functions.
+ *
+ * @param {SpaceData} spaceData - @see mail/components/extensions/parent/ext-mail.js
+ * @returns {NativeButtonProperties} - @see mail/base/content/spacesToolbar.js
+ */
+function getNativeButtonProperties({
+  extension,
+  defaultUrl,
+  buttonProperties,
+}) {
+  const normalizeColor = color => {
+    if (typeof color == "string") {
+      let col = InspectorUtils.colorToRGBA(color);
+      if (!col) {
+        throw new ExtensionError(`Invalid color value: "${color}"`);
+      }
+      return [col.r, col.g, col.b, Math.round(col.a * 255)];
+    }
+    return color;
+  };
+
+  let hasThemeIcons =
+    buttonProperties.themeIcons && buttonProperties.themeIcons.length > 0;
+
+  // If themeIcons have been defined, ignore manifestIcons as fallback and use
+  // themeIcons for the default theme as well, following the behavior of
+  // WebExtension action buttons.
+  let fallbackManifestIcons = hasThemeIcons
+    ? null
+    : getManifestIcons(extension);
+
+  // Use _normalize() to bypass cache.
+  let icons = ExtensionParent.IconDetails._normalize(
+    {
+      path: buttonProperties.defaultIcons || fallbackManifestIcons,
+      themeIcons: hasThemeIcons ? buttonProperties.themeIcons : null,
+    },
+    extension
+  );
+  let iconStyles = new Map(getIconData(icons, extension).style);
+
+  let badgeStyles = new Map();
+  let bgColor = normalizeColor(buttonProperties.badgeBackgroundColor);
+  if (bgColor) {
+    badgeStyles.set(
+      "--spaces-button-badge-bg-color",
+      `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, ${bgColor[3] / 255})`
+    );
+  }
+
+  return {
+    title: buttonProperties.title || extension.name,
+    url: defaultUrl,
+    badgeText: buttonProperties.badgeText,
+    badgeStyles,
+    iconStyles,
+  };
+}
 
 ExtensionSupport.registerWindowListener("ext-spaces", {
   chromeURLs: windowURLs,
@@ -42,10 +126,11 @@ ExtensionSupport.registerWindowListener("ext-spaces", {
         });
       }
     });
-    for (let nativeSpaceId of [...nativeSpaces.keys()]) {
+    for (let spaceData of spaceTracker.getAll()) {
+      let nativeButtonProperties = getNativeButtonProperties(spaceData);
       await window.gSpacesToolbar.createToolbarButton(
-        nativeSpaceId,
-        nativeSpaces.get(nativeSpaceId).nativeButtonProperties
+        spaceData.spaceButtonId,
+        nativeButtonProperties
       );
     }
   },
@@ -53,248 +138,164 @@ ExtensionSupport.registerWindowListener("ext-spaces", {
 
 this.spaces = class extends ExtensionAPI {
   /**
-   * Return the paths to the 16px and 32px icons defined in the manifest of this
-   * extension, if any.
-   */
-  getManifestIcons() {
-    if (this.extension.manifest.icons) {
-      let { icon: icon16 } = ExtensionParent.IconDetails.getPreferredIcon(
-        this.extension.manifest.icons,
-        this.extension,
-        16
-      );
-      let { icon: icon32 } = ExtensionParent.IconDetails.getPreferredIcon(
-        this.extension.manifest.icons,
-        this.extension,
-        32
-      );
-      return {
-        16: this.extension.baseURI.resolve(icon16),
-        32: this.extension.baseURI.resolve(icon32),
-      };
-    }
-    return null;
-  }
-
-  /**
-   * Generate an id of the form <add-on-id>-spacesButton-<spaceId>.
-   *
-   * @param {string} spaceId - spaceId as used by the extension
-   * @returns {string} - native id representing the space, also used as the id
-   *   of the html element of the spaces toolbar button of this space
-   */
-  generateNativeSpaceId(spaceId) {
-    return `${this.widgetId}-spacesButton-${spaceId}`;
-  }
-
-  /**
-   * Convert WebExtension SpaceButtonProperties into a NativeButtonProperties
-   * object required by the gSpacesToolbar.* functions.
-   *
-   * @param {string} defaultUrl - the url for the default space tab
-   * @param {SpaceButtonProperties} buttonProperties - @see mail/components/extensions/schemas/spaces.json
-   *
-   * @returns {NativeButtonProperties} - @see mail/base/content/spacesToolbar.js
-   */
-  convertProperties(defaultUrl, buttonProperties) {
-    const normalizeColor = color => {
-      if (typeof color == "string") {
-        let col = InspectorUtils.colorToRGBA(color);
-        if (!col) {
-          throw new ExtensionError(`Invalid color value: "${color}"`);
-        }
-        return [col.r, col.g, col.b, Math.round(col.a * 255)];
-      }
-      return color;
-    };
-
-    let hasThemeIcons =
-      buttonProperties.themeIcons && buttonProperties.themeIcons.length > 0;
-
-    // If themeIcons have been defined, ignore manifestIcons as fallback and use
-    // themeIcons for the default theme as well, following the behavior of
-    // WebExtension action buttons.
-    let fallbackManifestIcons = hasThemeIcons ? null : this.getManifestIcons();
-
-    // Use _normalize() to bypass cache.
-    let icons = ExtensionParent.IconDetails._normalize(
-      {
-        path: buttonProperties.defaultIcons || fallbackManifestIcons,
-        themeIcons: hasThemeIcons ? buttonProperties.themeIcons : null,
-      },
-      this.extension
-    );
-    let iconStyles = new Map(getIconData(icons, this.extension).style);
-
-    let badgeStyles = new Map();
-    let bgColor = normalizeColor(buttonProperties.badgeBackgroundColor);
-    if (bgColor) {
-      badgeStyles.set(
-        "--spaces-button-badge-bg-color",
-        `rgba(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]}, ${bgColor[3] / 255})`
-      );
-    }
-
-    return {
-      title: buttonProperties.title || this.extension.name,
-      url: defaultUrl,
-      badgeText: buttonProperties.badgeText,
-      badgeStyles,
-      iconStyles,
-    };
-  }
-
-  /**
    * Called when an extension context is closed.
    */
   async close() {
-    let obsoleteNativeSpaceIds = [...nativeSpaces.keys()].filter(id =>
-      id.startsWith(this.generateNativeSpaceId(""))
-    );
-    for (let window of ExtensionSupport.openWindows) {
-      if (windowURLs.includes(window.location.href)) {
-        for (let nativeSpaceId of obsoleteNativeSpaceIds) {
-          await window.gSpacesToolbar.removeToolbarButton(nativeSpaceId);
+    let extensionId = this.extension.id;
+    for (let spaceData of spaceTracker.getAll()) {
+      if (spaceData.extension.id != extensionId) {
+        continue;
+      }
+      for (let window of ExtensionSupport.openWindows) {
+        if (windowURLs.includes(window.location.href)) {
+          await window.gSpacesToolbar.removeToolbarButton(
+            spaceData.spaceButtonId
+          );
         }
       }
-    }
-    for (let nativeSpaceId of obsoleteNativeSpaceIds) {
-      nativeSpaces.delete(nativeSpaceId);
+      spaceTracker.remove(spaceData);
     }
   }
 
   getAPI(context) {
     context.callOnClose(this);
-    this.widgetId = makeWidgetId(context.extension.id);
-    let self = this;
     let { tabManager } = context.extension;
 
     return {
       spaces: {
-        async create(spaceId, defaultUrl, buttonProperties) {
-          let nativeSpaceId = self.generateNativeSpaceId(spaceId);
-          if (nativeSpaces.has(nativeSpaceId)) {
+        async create(name, defaultUrl, buttonProperties) {
+          if (spaceTracker.fromSpaceName(name, context.extension)) {
             throw new ExtensionError(
-              `Failed to create new space: The id ${spaceId} is already used by this extension.`
+              `Failed to create space with name ${name}: Space already exists for this extension.`
             );
           }
 
           defaultUrl = context.uri.resolve(defaultUrl);
           if (!/((^https:)|(^http:)|(^moz-extension:))/i.test(defaultUrl)) {
             throw new ExtensionError(
-              `Failed to create new space: Invalid default url.`
+              `Failed to create space with name ${name}: Invalid default url.`
             );
           }
 
-          let nativeButtonProperties = self.convertProperties(
-            defaultUrl,
-            buttonProperties
-          );
           try {
+            let spaceData = spaceTracker.create(
+              name,
+              defaultUrl,
+              buttonProperties,
+              context.extension
+            );
+
+            let nativeButtonProperties = getNativeButtonProperties(spaceData);
             for (let window of ExtensionSupport.openWindows) {
               if (windowURLs.includes(window.location.href)) {
                 await window.gSpacesToolbar.createToolbarButton(
-                  nativeSpaceId,
+                  spaceData.spaceButtonId,
                   nativeButtonProperties
                 );
               }
             }
-            nativeSpaces.set(nativeSpaceId, {
-              defaultUrl,
-              buttonProperties,
-              nativeButtonProperties,
-            });
+
+            return spaceData.spaceId;
           } catch (error) {
-            throw new ExtensionError(`Failed to create space: ${error}`);
+            throw new ExtensionError(
+              `Failed to create space with name ${name}: ${error}`
+            );
           }
         },
         async remove(spaceId) {
-          let nativeSpaceId = self.generateNativeSpaceId(spaceId);
-          if (!nativeSpaces.has(nativeSpaceId)) {
+          let spaceData = spaceTracker.fromSpaceId(spaceId);
+          if (!spaceData) {
             throw new ExtensionError(
-              `Failed to remove space: A space with id ${spaceId} does not exist for this extension.`
+              `Failed to remove space with id ${spaceId}: Space does not exist.`
             );
           }
+          if (spaceData.extension?.id != context.extension.id) {
+            throw new ExtensionError(
+              `Failed to remove space with id ${spaceId}: Space does not belong to this extension.`
+            );
+          }
+
           try {
             for (let window of ExtensionSupport.openWindows) {
               if (windowURLs.includes(window.location.href)) {
-                await window.gSpacesToolbar.removeToolbarButton(nativeSpaceId);
+                await window.gSpacesToolbar.removeToolbarButton(
+                  spaceData.spaceButtonId
+                );
               }
             }
-            nativeSpaces.delete(nativeSpaceId);
+            spaceTracker.remove(spaceData);
           } catch (ex) {
-            throw new ExtensionError(`Failed to remove space: ${ex.message}`);
+            throw new ExtensionError(
+              `Failed to remove space with id ${spaceId}: ${ex.message}`
+            );
           }
         },
         async update(spaceId, updatedDefaultUrl, updatedButtonProperties) {
-          let nativeSpaceId = self.generateNativeSpaceId(spaceId);
-          if (!nativeSpaces.has(nativeSpaceId)) {
+          let spaceData = spaceTracker.fromSpaceId(spaceId);
+          if (!spaceData) {
             throw new ExtensionError(
-              `Failed to update space: A space with id ${spaceId} does not exist for this extension.`
+              `Failed to update space with id ${spaceId}: Space does not exist.`
             );
           }
-          let { defaultUrl, buttonProperties } = nativeSpaces.get(
-            nativeSpaceId
-          );
-          let changes = false;
+          if (spaceData.extension?.id != context.extension.id) {
+            throw new ExtensionError(
+              `Failed to update space with id ${spaceId}: Space does not belong to this extension.`
+            );
+          }
 
+          let changes = false;
           if (updatedDefaultUrl) {
             updatedDefaultUrl = context.uri.resolve(updatedDefaultUrl);
             if (
               !/((^https:)|(^http:)|(^moz-extension:))/i.test(updatedDefaultUrl)
             ) {
               throw new ExtensionError(
-                `Failed to update space: Invalid default url.`
+                `Failed to update space with id ${spaceId}: Invalid default url.`
               );
             }
-            defaultUrl = updatedDefaultUrl;
+            spaceData.defaultUrl = updatedDefaultUrl;
             changes = true;
           }
 
           if (updatedButtonProperties) {
             for (let [key, value] of Object.entries(updatedButtonProperties)) {
               if (value != null) {
-                buttonProperties[key] = value;
+                spaceData.buttonProperties[key] = value;
                 changes = true;
               }
             }
           }
 
           if (changes) {
-            let nativeButtonProperties = self.convertProperties(
-              defaultUrl,
-              buttonProperties
-            );
+            let nativeButtonProperties = getNativeButtonProperties(spaceData);
             try {
               for (let window of ExtensionSupport.openWindows) {
                 if (windowURLs.includes(window.location.href)) {
                   await window.gSpacesToolbar.updateToolbarButton(
-                    nativeSpaceId,
+                    spaceData.spaceButtonId,
                     nativeButtonProperties
                   );
                 }
               }
-              nativeSpaces.set(nativeSpaceId, {
-                defaultUrl,
-                buttonProperties,
-                nativeButtonProperties,
-              });
+              spaceTracker.update(spaceData);
             } catch (error) {
-              throw new ExtensionError(`Failed to update space: ${error}`);
+              throw new ExtensionError(
+                `Failed to update space with id ${spaceId}: ${error}`
+              );
             }
           }
         },
         async open(spaceId, windowId) {
-          let nativeSpaceId = self.generateNativeSpaceId(spaceId);
-          if (!nativeSpaces.has(nativeSpaceId)) {
+          let spaceData = spaceTracker.fromSpaceId(spaceId);
+          if (!spaceData) {
             throw new ExtensionError(
-              `Failed to open space: A space with id ${spaceId} does not exist for this extension.`
+              `Failed to open space with id ${spaceId}: Space does not exist.`
             );
           }
 
           let window = await getNormalWindowReady(context, windowId);
           let space = window.gSpacesToolbar.spaces.find(
-            space => space.name == nativeSpaceId
+            space => space.name == spaceData.spaceButtonId
           );
 
           let tabmail = window.document.getElementById("tabmail");

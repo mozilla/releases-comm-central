@@ -37,19 +37,19 @@ async function test_space(background, selectedTheme, manifestIcons) {
   extension.onMessage("checkTabs", async test => {
     let tabmail = document.getElementById("tabmail");
 
-    if (test.action && test.spaceId && test.url) {
+    if (test.action && test.spaceName && test.url) {
       let tabPromise =
         test.action == "switch"
           ? BrowserTestUtils.waitForEvent(tabmail.tabContainer, "TabSelect")
           : contentTabOpenPromise(tabmail, test.url);
       let button = window.document.getElementById(
-        `spaces_toolbar_mochi_test-spacesButton-${test.spaceId}`
+        `spaces_toolbar_mochi_test-spacesButton-${test.spaceName}`
       );
       button.click();
       await tabPromise;
     }
 
-    let tabs = tabmail.tabInfo.filter(tabInfo => !!tabInfo.spaceId);
+    let tabs = tabmail.tabInfo.filter(tabInfo => !!tabInfo.spaceButtonId);
     Assert.equal(
       test.openSpacesUrls.length,
       tabs.length,
@@ -59,7 +59,8 @@ async function test_space(background, selectedTheme, manifestIcons) {
       Assert.ok(
         tabmail.tabInfo.find(
           tabInfo =>
-            !!tabInfo.spaceId && tabInfo.browser.currentURI.spec == expectedUrl
+            !!tabInfo.spaceButtonId &&
+            tabInfo.browser.currentURI.spec == expectedUrl
         ),
         `Should have found a spaces tab with the expected url.`
       );
@@ -76,7 +77,7 @@ async function test_space(background, selectedTheme, manifestIcons) {
     );
 
     for (let {
-      id,
+      name,
       url,
       title,
       icons,
@@ -85,13 +86,13 @@ async function test_space(background, selectedTheme, manifestIcons) {
     } of expected) {
       // Check button.
       let button = window.document.getElementById(
-        `spaces_toolbar_mochi_test-spacesButton-${id}`
+        `spaces_toolbar_mochi_test-spacesButton-${name}`
       );
-      Assert.ok(button, `Button for id ${id} should exist.`);
+      Assert.ok(button, `Button for space ${name} should exist.`);
       Assert.equal(
         title,
         button.title,
-        `Title of button  ${id} should be correct.`
+        `Title of button for space ${name} should be correct.`
       );
 
       // Check button icon.
@@ -99,7 +100,7 @@ async function test_space(background, selectedTheme, manifestIcons) {
       Assert.equal(
         icons[selectedTheme],
         imgStyles.content,
-        `Icon of button ${id} with theme ${selectedTheme} should be correct.`
+        `Icon for button of space ${name} with theme ${selectedTheme} should be correct.`
       );
 
       // Check badge.
@@ -109,25 +110,25 @@ async function test_space(background, selectedTheme, manifestIcons) {
         Assert.equal(
           "block",
           badgeStyles.display,
-          `Button ${id} should have a badge.`
+          `Button of space ${name} should have a badge.`
         );
         Assert.equal(
           badgeText,
           badge.textContent,
-          `Badge of button ${id} should have the correct content.`
+          `Badge of button of space ${name} should have the correct content.`
         );
         if (badgeBackgroundColor) {
           Assert.equal(
             badgeBackgroundColor,
             badgeStyles.backgroundColor,
-            `Badge of button ${id} should have the correct backgroundColor.`
+            `Badge of button of space ${name} should have the correct backgroundColor.`
           );
         }
       } else {
         Assert.equal(
           "none",
           badgeStyles.display,
-          `Button ${id} should not have a badge.`
+          `Button of space ${name} should not have a badge.`
         );
       }
 
@@ -151,13 +152,13 @@ async function test_space(background, selectedTheme, manifestIcons) {
 
       // Check menuitem.
       let menuitem = window.document.getElementById(
-        `spaces_toolbar_mochi_test-spacesButton-${id}-menuitem`
+        `spaces_toolbar_mochi_test-spacesButton-${name}-menuitem`
       );
-      Assert.ok(menuitem, `Menuitem for id ${id} should exist.`);
+      Assert.ok(menuitem, `Menuitem for id ${name} should exist.`);
       Assert.equal(
         title,
         menuitem.label,
-        `Label of menuitem ${id} should be correct.`
+        `Label of menuitem of space ${name} should be correct.`
       );
 
       // Check menuitem icon.
@@ -165,7 +166,7 @@ async function test_space(background, selectedTheme, manifestIcons) {
       Assert.equal(
         icons[selectedTheme],
         menuitemStyles.listStyleImage,
-        `Icon of menuitem ${id} with theme ${selectedTheme} should be correct.`
+        `Icon of menuitem for space ${name} with theme ${selectedTheme} should be correct.`
       );
 
       pinnedPopup.hidePopup();
@@ -175,7 +176,7 @@ async function test_space(background, selectedTheme, manifestIcons) {
 
       //Check space and url.
       let space = window.gSpacesToolbar.spaces.find(
-        space => space.name == `spaces_toolbar_mochi_test-spacesButton-${id}`
+        space => space.name == `spaces_toolbar_mochi_test-spacesButton-${name}`
       );
       Assert.ok(space, "The space of this button should exists");
       Assert.equal(
@@ -199,12 +200,14 @@ add_task(async function test_add_update_remove() {
       ? browser.runtime.getURL(manifest.icons[16])
       : "chrome://messenger/content/extension.svg";
 
+    await window.sendMessage("checkUI", []);
+
     // Test create().
     browser.test.log("create(): Without id.");
     await browser.test.assertThrows(
       () => browser.spaces.create(),
       /Incorrect argument types for spaces.create./,
-      "create() without id should throw."
+      "create() without name should throw."
     );
 
     browser.test.log("create(): Without default url.");
@@ -217,14 +220,17 @@ add_task(async function test_add_update_remove() {
     browser.test.log("create(): With invalid default url.");
     await browser.test.assertRejects(
       browser.spaces.create("space_1", "invalid://url"),
-      /Failed to create new space: Invalid default url./,
+      /Failed to create space with name space_1: Invalid default url./,
       "create() with an invalid default url should throw."
     );
 
     browser.test.log("create(): With default url only.");
-    await browser.spaces.create("space_1", "https://test.invalid");
+    let space_1 = await browser.spaces.create(
+      "space_1",
+      "https://test.invalid"
+    );
     let expected_space_1 = {
-      id: "space_1",
+      name: "space_1",
       title: "Generated extension",
       url: "https://test.invalid",
       icons: {
@@ -236,19 +242,19 @@ add_task(async function test_add_update_remove() {
     browser.test.log("create(): With default url only, but existing id.");
     await browser.test.assertRejects(
       browser.spaces.create("space_1", "https://test.invalid"),
-      /Failed to create new space: The id space_1 is already used by this extension./,
+      /Failed to create space with name space_1: Space already exists for this extension./,
       "create() with existing id should throw."
     );
 
     browser.test.log("create(): With most properties.");
-    await browser.spaces.create("space_2", "/local/file.html", {
+    let space_2 = await browser.spaces.create("space_2", "/local/file.html", {
       title: "Google",
       defaultIcons: "default.png",
       badgeText: "12",
       badgeBackgroundColor: [50, 100, 150, 255],
     });
     let expected_space_2 = {
-      id: "space_2",
+      name: "space_2",
       title: "Google",
       url: browser.runtime.getURL("/local/file.html"),
       icons: {
@@ -269,17 +275,17 @@ add_task(async function test_add_update_remove() {
 
     browser.test.log("update(): With invalid id.");
     await browser.test.assertRejects(
-      browser.spaces.update("InvalidId"),
-      /Failed to update space: A space with id InvalidId does not exist for this extension./,
+      browser.spaces.update(1234),
+      /Failed to update space with id 1234: Space does not exist./,
       "update() with invalid id should throw."
     );
 
     browser.test.log("update(): Without properties.");
-    await browser.spaces.update("space_1");
+    await browser.spaces.update(space_1);
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     browser.test.log("update(): Updating the badge.");
-    await browser.spaces.update("space_2", {
+    await browser.spaces.update(space_2, {
       badgeText: "ok",
       badgeBackgroundColor: "green",
     });
@@ -288,7 +294,7 @@ add_task(async function test_add_update_remove() {
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     browser.test.log("update(): Removing the badge.");
-    await browser.spaces.update("space_2", {
+    await browser.spaces.update(space_2, {
       badgeText: "",
     });
     delete expected_space_2.badgeText;
@@ -296,14 +302,14 @@ add_task(async function test_add_update_remove() {
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     browser.test.log("update(): Changing the title.");
-    await browser.spaces.update("space_2", {
+    await browser.spaces.update(space_2, {
       title: "Some other title",
     });
     expected_space_2.title = "Some other title";
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     browser.test.log("update(): Removing the title.");
-    await browser.spaces.update("space_2", {
+    await browser.spaces.update(space_2, {
       title: "",
     });
     expected_space_2.title = "Generated extension";
@@ -311,12 +317,12 @@ add_task(async function test_add_update_remove() {
 
     browser.test.log("update(): Setting invalid default url.");
     await browser.test.assertRejects(
-      browser.spaces.update("space_2", "invalid://url"),
-      /Failed to update space: Invalid default url./,
+      browser.spaces.update(space_2, "invalid://url"),
+      `Failed to update space with id ${space_2}: Invalid default url.`,
       "update() with invalid default url should throw."
     );
 
-    await browser.spaces.update("space_2", "https://test.more.invalid", {
+    await browser.spaces.update(space_2, "https://test.more.invalid", {
       title: "Bing",
     });
     expected_space_2.title = "Bing";
@@ -333,13 +339,13 @@ add_task(async function test_add_update_remove() {
 
     browser.test.log("remove(): Removing with invalid id.");
     await browser.test.assertRejects(
-      browser.spaces.remove("InvalidId"),
-      /Failed to remove space: A space with id InvalidId does not exist for this extension./,
+      browser.spaces.remove(1234),
+      /Failed to remove space with id 1234: Space does not exist./,
       "remove() with invalid id should throw."
     );
 
     browser.test.log("remove(): Removing space_1.");
-    await browser.spaces.remove("space_1");
+    await browser.spaces.remove(space_1);
     await window.sendMessage("checkUI", [expected_space_2]);
 
     browser.test.notifyPass();
@@ -354,21 +360,21 @@ add_task(async function test_open_reload_close() {
 
     // Add spaces.
     let url1 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content.html`;
-    await browser.spaces.create("space_1", url1);
+    let space_1 = await browser.spaces.create("space_1", url1);
     let url2 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content_body.html`;
-    await browser.spaces.create("space_2", url2);
+    let space_2 = await browser.spaces.create("space_2", url2);
 
     // Open spaces.
     await window.sendMessage("checkTabs", {
       action: "open",
       url: url1,
-      spaceId: "space_1",
+      spaceName: "space_1",
       openSpacesUrls: [url1],
     });
     await window.sendMessage("checkTabs", {
       action: "open",
       url: url2,
-      spaceId: "space_2",
+      spaceName: "space_2",
       openSpacesUrls: [url1, url2],
     });
 
@@ -376,22 +382,22 @@ add_task(async function test_open_reload_close() {
     await window.sendMessage("checkTabs", {
       action: "switch",
       url: url1,
-      spaceId: "space_1",
+      spaceName: "space_1",
       openSpacesUrls: [url1, url2],
     });
     await window.sendMessage("checkTabs", {
       action: "switch",
       url: url2,
-      spaceId: "space_2",
+      spaceName: "space_2",
       openSpacesUrls: [url1, url2],
     });
 
     // TODO: Add test for tab reloading, once this has been implemented.
 
     // Remove spaces and check that related spaces tab are closed.
-    await browser.spaces.remove("space_1");
+    await browser.spaces.remove(space_1);
     await window.sendMessage("checkTabs", { openSpacesUrls: [url2] });
-    await browser.spaces.remove("space_2");
+    await browser.spaces.remove(space_2);
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
 
     browser.test.notifyPass();
@@ -408,19 +414,23 @@ add_task(async function test_icons() {
 
     // Test 1: Setting defaultIcons and themeIcons.
     browser.test.log("create(): Setting defaultIcons and themeIcons.");
-    await browser.spaces.create("space_1", "https://test.invalid", {
-      title: "Google",
-      defaultIcons: "default.png",
-      themeIcons: [
-        {
-          dark: "dark.png",
-          light: "light.png",
-          size: 16,
-        },
-      ],
-    });
+    let space_1 = await browser.spaces.create(
+      "space_1",
+      "https://test.invalid",
+      {
+        title: "Google",
+        defaultIcons: "default.png",
+        themeIcons: [
+          {
+            dark: "dark.png",
+            light: "light.png",
+            size: 16,
+          },
+        ],
+      }
+    );
     let expected_space_1 = {
-      id: "space_1",
+      name: "space_1",
       title: "Google",
       url: "https://test.invalid",
       icons: {
@@ -432,7 +442,7 @@ add_task(async function test_icons() {
     await window.sendMessage("checkUI", [expected_space_1]);
 
     // Clearing defaultIcons.
-    await browser.spaces.update("space_1", {
+    await browser.spaces.update(space_1, {
       defaultIcons: "",
     });
     expected_space_1.icons = {
@@ -443,7 +453,7 @@ add_task(async function test_icons() {
     await window.sendMessage("checkUI", [expected_space_1]);
 
     // Setting other defaultIcons.
-    await browser.spaces.update("space_1", {
+    await browser.spaces.update(space_1, {
       defaultIcons: "other.png",
     });
     expected_space_1.icons = {
@@ -454,7 +464,7 @@ add_task(async function test_icons() {
     await window.sendMessage("checkUI", [expected_space_1]);
 
     // Clearing themeIcons.
-    await browser.spaces.update("space_1", {
+    await browser.spaces.update(space_1, {
       themeIcons: [],
     });
     expected_space_1.icons = {
@@ -465,7 +475,7 @@ add_task(async function test_icons() {
     await window.sendMessage("checkUI", [expected_space_1]);
 
     // Setting other themeIcons.
-    await browser.spaces.update("space_1", {
+    await browser.spaces.update(space_1, {
       themeIcons: [
         {
           dark: "dark2.png",
@@ -483,20 +493,24 @@ add_task(async function test_icons() {
 
     // Test 2: Setting themeIcons only.
     browser.test.log("create(): Setting themeIcons only.");
-    await browser.spaces.create("space_2", "https://test.other.invalid", {
-      title: "Wikipedia",
-      themeIcons: [
-        {
-          dark: "dark2.png",
-          light: "light2.png",
-          size: 16,
-        },
-      ],
-    });
+    let space_2 = await browser.spaces.create(
+      "space_2",
+      "https://test.other.invalid",
+      {
+        title: "Wikipedia",
+        themeIcons: [
+          {
+            dark: "dark2.png",
+            light: "light2.png",
+            size: 16,
+          },
+        ],
+      }
+    );
     // Not specifying defaultIcons but only themeIcons should always use the
     // theme icons, even for the default theme (and not the extension icon).
     let expected_space_2 = {
-      id: "space_2",
+      name: "space_2",
       title: "Wikipedia",
       url: "https://test.other.invalid",
       icons: {
@@ -508,7 +522,7 @@ add_task(async function test_icons() {
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     // Clearing themeIcons.
-    await browser.spaces.update("space_2", {
+    await browser.spaces.update(space_2, {
       themeIcons: [],
     });
     expected_space_2.icons = {
@@ -520,12 +534,16 @@ add_task(async function test_icons() {
 
     // Test 3: Setting defaultIcons only.
     browser.test.log("create(): Setting defaultIcons only.");
-    await browser.spaces.create("space_3", "https://test.more.invalid", {
-      title: "Bing",
-      defaultIcons: "default.png",
-    });
+    let space_3 = await browser.spaces.create(
+      "space_3",
+      "https://test.more.invalid",
+      {
+        title: "Bing",
+        defaultIcons: "default.png",
+      }
+    );
     let expected_space_3 = {
-      id: "space_3",
+      name: "space_3",
       title: "Bing",
       url: "https://test.more.invalid",
       icons: {
@@ -541,7 +559,7 @@ add_task(async function test_icons() {
     ]);
 
     // Clearing defaultIcons and setting themeIcons.
-    await browser.spaces.update("space_3", {
+    await browser.spaces.update(space_3, {
       defaultIcons: "",
       themeIcons: [
         {
@@ -564,11 +582,15 @@ add_task(async function test_icons() {
 
     // Test 4: Setting no icons.
     browser.test.log("create(): Setting no icons.");
-    await browser.spaces.create("space_4", "https://duckduckgo.com", {
-      title: "DuckDuckGo",
-    });
+    let space_4 = await browser.spaces.create(
+      "space_4",
+      "https://duckduckgo.com",
+      {
+        title: "DuckDuckGo",
+      }
+    );
     let expected_space_4 = {
-      id: "space_4",
+      name: "space_4",
       title: "DuckDuckGo",
       url: "https://duckduckgo.com",
       icons: {
@@ -585,7 +607,7 @@ add_task(async function test_icons() {
     ]);
 
     // Setting and clearing default icons.
-    await browser.spaces.update("space_4", {
+    await browser.spaces.update(space_4, {
       defaultIcons: "default.png",
     });
     expected_space_4.icons = {
@@ -599,7 +621,7 @@ add_task(async function test_icons() {
       expected_space_3,
       expected_space_4,
     ]);
-    await browser.spaces.update("space_4", {
+    await browser.spaces.update(space_4, {
       defaultIcons: "",
     });
     expected_space_4.icons = {
@@ -643,12 +665,12 @@ add_task(async function test_open_programmatically() {
 
     // Add spaces.
     let url1 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content.html`;
-    await browser.spaces.create("space_1", url1);
+    let space_1 = await browser.spaces.create("space_1", url1);
     let url2 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content_body.html`;
-    await browser.spaces.create("space_2", url2);
+    let space_2 = await browser.spaces.create("space_2", url2);
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
 
-    function openSpace(spaceId, url) {
+    async function openSpace(spaceId, url) {
       let loadPromise = new Promise(resolve => {
         let urlSeen = false;
         let listener = (tabId, changeInfo) => {
@@ -662,21 +684,39 @@ add_task(async function test_open_programmatically() {
         };
         browser.tabs.onUpdated.addListener(listener);
       });
-      browser.spaces.open(spaceId);
-      return loadPromise;
+      let tab = await browser.spaces.open(spaceId);
+      await loadPromise;
+
+      browser.test.assertEq(
+        spaceId,
+        tab.spaceId,
+        "The opened tab should belong to the correct space"
+      );
+
+      let queriedTabs = await browser.tabs.query({ spaceId });
+      browser.test.assertEq(
+        1,
+        queriedTabs.length,
+        "browser.tabs.query() should find exactly one tab belonging to the opened space"
+      );
+      browser.test.assertEq(
+        tab.id,
+        queriedTabs[0].id,
+        "browser.tabs.query() should find the correct tab belonging to the opened space"
+      );
     }
 
     // Open space #1.
-    await openSpace("space_1", url1);
+    await openSpace(space_1, url1);
     await window.sendMessage("checkTabs", {
-      spaceId: "space_1",
+      spaceName: "space_1",
       openSpacesUrls: [url1],
     });
 
     // Open space #2.
-    await openSpace("space_2", url2);
+    await openSpace(space_2, url2);
     await window.sendMessage("checkTabs", {
-      spaceId: "space_2",
+      spaceName: "space_2",
       openSpacesUrls: [url1, url2],
     });
 
@@ -684,21 +724,21 @@ add_task(async function test_open_programmatically() {
     await window.sendMessage("checkTabs", {
       action: "switch",
       url: url1,
-      spaceId: "space_1",
+      spaceName: "space_1",
       openSpacesUrls: [url1, url2],
     });
 
     await window.sendMessage("checkTabs", {
       action: "switch",
       url: url2,
-      spaceId: "space_2",
+      spaceName: "space_2",
       openSpacesUrls: [url1, url2],
     });
 
     // Remove spaces and check that related spaces tab are closed.
-    await browser.spaces.remove("space_1");
+    await browser.spaces.remove(space_1);
     await window.sendMessage("checkTabs", { openSpacesUrls: [url2] });
-    await browser.spaces.remove("space_2");
+    await browser.spaces.remove(space_2);
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
 
     browser.test.notifyPass();

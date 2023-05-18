@@ -10,8 +10,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 var { ExtensionError, getInnerWindowID } = ExtensionUtils;
-
-var { defineLazyGetter } = ExtensionCommon;
+var { defineLazyGetter, makeWidgetId } = ExtensionCommon;
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
@@ -82,6 +81,7 @@ const NOTIFICATION_COLLAPSE_TIME = 200;
 })();
 
 let tabTracker;
+let spaceTracker;
 let windowTracker;
 
 // This function is pretty tightly tied to Extension.jsm.
@@ -516,6 +516,142 @@ class WindowTracker extends WindowTrackerBase {
 }
 
 /**
+ * Convenience class to keep track of and manage spaces.
+ */
+class SpaceTracker {
+  /**
+   * @typedef SpaceData
+   * @property {string} name - name of the space as used by the extension
+   * @property {integer} spaceId - id of the space as used by the tabs API
+   * @property {string} spaceButtonId - id of the button of this space in the
+   *   spaces toolbar
+   * @property {string} defaultUrl - the url for the default space tab
+   * @property {ButtonProperties} buttonProperties
+   *   @see mail/components/extensions/schemas/spaces.json
+   * @property {ExtensionData} extension - the extension the space belongs to
+   */
+
+  constructor() {
+    this._nextId = 1;
+    this._spaceData = new Map();
+    this._spaceIds = new Map();
+  }
+
+  /**
+   * Generate an id of the form <add-on-id>-spacesButton-<spaceId>.
+   *
+   * @param {string} name - name of the space as used by the extension
+   * @param {ExtensionData} extension
+   * @returns {string} id of the html element of the spaces toolbar button of
+   *   this space
+   */
+  _getSpaceButtonId(name, extension) {
+    return `${makeWidgetId(extension.id)}-spacesButton-${name}`;
+  }
+
+  /**
+   * Get the SpaceData for the space with the given name for the given extension.
+   *
+   * @param {string} name - name of the space as used by the extension
+   * @param {ExtensionData} extension
+   * @returns {SpaceData}
+   */
+  fromSpaceName(name, extension) {
+    let spaceButtonId = this._getSpaceButtonId(name, extension);
+    return this.fromSpaceButtonId(spaceButtonId);
+  }
+
+  /**
+   * Get the SpaceData for the space with the given spaceId.
+   *
+   * @param {integer} spaceId - id of the space as used by the tabs API
+   * @returns {SpaceData}
+   */
+  fromSpaceId(spaceId) {
+    let spaceButtonId = this._spaceIds.get(spaceId);
+    return this.fromSpaceButtonId(spaceButtonId);
+  }
+
+  /**
+   * Get the SpaceData for the space with the given spaceButtonId.
+   *
+   * @param {string} spaceButtonId - id of the html element of a spaces toolbar
+   *   button
+   * @returns {SpaceData}
+   */
+  fromSpaceButtonId(spaceButtonId) {
+    if (!spaceButtonId || !this._spaceData.has(spaceButtonId)) {
+      return null;
+    }
+    return this._spaceData.get(spaceButtonId);
+  }
+
+  /**
+   * Create a new space and return its SpaceData.
+   *
+   * @param {string} name - name of the space as used by the extension
+   * @param {string} defaultUrl - the url for the default space tab
+   * @param {ButtonProperties} buttonProperties
+   *   @see mail/components/extensions/schemas/spaces.json
+   * @param {ExtensionData} extension - the extension the space belongs to
+   * @returns {SpaceData}
+   */
+  create(name, defaultUrl, buttonProperties, extension) {
+    let spaceButtonId = this._getSpaceButtonId(name, extension);
+    if (this._spaceData.has(spaceButtonId)) {
+      return false;
+    }
+    let spaceId = this._nextId++;
+
+    let spaceData = {
+      name,
+      spaceId,
+      extension,
+      spaceButtonId,
+      defaultUrl,
+      buttonProperties,
+    };
+
+    this._spaceData.set(spaceButtonId, spaceData);
+    this._spaceIds.set(spaceId, spaceButtonId);
+    return spaceData;
+  }
+
+  /**
+   * Remove a space and its SpaceData from the tracker.
+   *
+   * @param {SpaceData} spaceData
+   */
+  remove(spaceData) {
+    if (!this._spaceData.has(spaceData.spaceButtonId)) {
+      return;
+    }
+    this._spaceData.delete(spaceData.spaceButtonId);
+  }
+
+  /**
+   * Update spaceData for a space in the tracker.
+   *
+   * @param {SpaceData} spaceData
+   */
+  update(spaceData) {
+    if (!this._spaceData.has(spaceData.spaceButtonId)) {
+      return;
+    }
+    this._spaceData.set(spaceData.spaceButtonId, spaceData);
+  }
+
+  /**
+   * Return the SpaceData of all spaces known to the tracker.
+   *
+   * @returns {SpaceData[]}
+   */
+  getAll() {
+    return this._spaceData.values();
+  }
+}
+
+/**
  * Tracks the opening and closing of tabs and maps them between their numeric WebExtension ID and
  * the native tab info objects.
  */
@@ -869,8 +1005,9 @@ class TabTracker extends TabTrackerBase {
 }
 
 tabTracker = new TabTracker();
+spaceTracker = new SpaceTracker();
 windowTracker = new WindowTracker();
-Object.assign(global, { tabTracker, windowTracker });
+Object.assign(global, { tabTracker, spaceTracker, windowTracker });
 
 /**
  * Extension-specific wrapper around a Thunderbird tab. Note that for actual
@@ -878,6 +1015,13 @@ Object.assign(global, { tabTracker, windowTracker });
  * TabmailTab subclass.
  */
 class Tab extends TabBase {
+  get spaceId() {
+    let spaceData = spaceTracker.fromSpaceButtonId(
+      this.nativeTab.spaceButtonId
+    );
+    return spaceData?.spaceId ?? undefined;
+  }
+
   /** What sort of tab is this? */
   get type() {
     switch (this.nativeTab.location?.href) {
@@ -900,13 +1044,23 @@ class Tab extends TabBase {
       return false;
     }
     let result = super.matches(queryInfo, context);
+
     let type = queryInfo.mailTab ? "mail" : queryInfo.type;
-    return result && (!type || this.type == type);
+    if (result && type && this.type != type) {
+      return false;
+    }
+
+    if (result && queryInfo.spaceId && this.spaceId != queryInfo.spaceId) {
+      return false;
+    }
+
+    return result;
   }
 
   /** Adds the mailTab property and removes some useless properties from a tab object. */
   convert(fallback) {
     let result = super.convert(fallback);
+    result.spaceId = this.spaceId;
     result.type = this.type;
     result.mailTab = result.type == "mail";
 

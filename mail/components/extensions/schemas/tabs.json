@@ -118,6 +118,12 @@
             "type": "boolean",
             "optional": true,
             "description": "Whether the tab is a 3-pane tab."
+          },
+          "spaceId": {
+            "type": "integer",
+            "description": "The id of the space.",
+            "minimum": 1,
+            "optional": true
           }
         }
       },
@@ -406,6 +412,12 @@
                 "type": "boolean",
                 "optional": true,
                 "description": "Whether the tab is a Thunderbird 3-pane tab."
+              },
+              "spaceId": {
+                "type": "integer",
+                "description": "The id of the space the tabs should belong to.",
+                "minimum": 1,
+                "optional": true
               },
               "type": {
                 "type": "string",

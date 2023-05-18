@@ -72,10 +72,10 @@
         "async": true,
         "parameters": [
           {
-            "name": "spaceId",
+            "name": "name",
             "type": "string",
             "pattern": "^[a-zA-Z0-9_]+$",
-            "description": "The unique id to assign to this space. May only contain alphanumeric characters and underscores."
+            "description": "The name to assign to this space. May only contain alphanumeric characters and underscores. Must be unique for this extension."
           },
           {
             "name": "defaultUrl",
@@ -88,6 +88,20 @@
             "$ref": "spaces.SpaceButtonProperties",
             "optional": true,
             "default": {}
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "spaceId",
+                "type": "integer",
+                "description": "The id of the space.",
+                "minimum": 1,
+                "optional": true
+              }
+            ]
           }
         ]
       },
@@ -98,10 +112,10 @@
         "async": true,
         "parameters": [
           {
-            "name": "name",
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9_]+$",
-            "description": "The name of the space which is to be removed. May only contain alphanumeric characters and underscores."
+            "name": "spaceId",
+            "type": "integer",
+            "description": "The id of the space.",
+            "minimum": 1
           }
         ]
       },
@@ -113,9 +127,9 @@
         "parameters": [
           {
             "name": "spaceId",
-            "type": "string",
-            "description": "The id of the space whose button is to be updated. May only contain alphanumeric characters and underscores.",
-            "pattern": "^[a-zA-Z0-9_]+$"
+            "type": "integer",
+            "description": "The id of the space.",
+            "minimum": 1
           },
           {
             "name": "defaultUrl",
@@ -139,9 +153,9 @@
         "parameters": [
           {
             "name": "spaceId",
-            "type": "string",
-            "description": "The id of the space. May only contain alphanumeric characters and underscores.",
-            "pattern": "^[a-zA-Z0-9_]+$"
+            "type": "integer",
+            "description": "The id of the space.",
+            "minimum": 1
           },
           {
             "name": "windowId",
@@ -157,7 +171,7 @@
             "parameters": [
               {
                 "name": "tab",
-                "$ref": "Tab",
+                "$ref": "tabs.Tab",
                 "optional": true,
                 "description": "Details about the opened or activated space tab."
               }
