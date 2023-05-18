@@ -9,42 +9,21 @@ the upstream pull request IDs.
 
 For licensing information, please refer to the included documentation.
 
-To update this copy, run "update_rnp.sh" in this directory from this directory
-within a complete build tree (including mozilla-central) as "mach python" is
-used.
+Updates to this copy are managed by "mach vendor". The configuration file
+is at rnp/moz.yaml.
 
-update_rnp.sh will generate rnp/src/lib/version.h from rnp/src/lib/version.h.in
-and modify rnp/src/lib/config.h.in so it can be processed by mozbuild at
-build time.
+    > cd comm/third_party/rnp
 
-You may pass a git revision to update_rnp.sh to update to that revision. Running
-without parameters updates to the latest master.
+    # validate the YAML config file
+    > mach vendor -v ./moz.yaml
+    ./moz.yaml: OK
 
-The following files and directories are removed by update_rnp.sh:
-.cirrus.yml
-.clang-format
-.codespellrc
-.github
-.gitignore
-_config.yml
-ci
-cmake
-git-hooks
-docker.sh
-travis.sh
-vcpkg.txt
-Brewfile
-CMakeLists.txt
-CMakeSettings.json
+    # check for new upstream versions
+    > mach vendor --check-for-update ./moz.yaml
+    v0.17.0 2023-02-27T16:49:53+02:00
 
-
-The following files were added or modified by MZLA Technologies to integrate
-with mozbuild:
-moz.build
-module.ver
-rnp.symbols
-src/lib/rnp/rnp_export.h
-src/version.h
+    # update to a new version
+    > mach vendor -r v0.16.3 ./moz.yaml
 
 
 Build notes:

@@ -1,0 +1,76 @@
+---
+schema: 1
+
+bugzilla:
+  product: "Thunderbird"
+  component: "Build Config"
+
+origin:
+  name: "rnp"
+  description: "High performance C++ OpenPGP library"
+
+  url: "https://www.rnpgp.org/"
+  license: BSD-2-Clause
+
+  release: v0.16.3
+
+  revision: v0.16.3
+
+  license-file: LICENSE.md
+
+vendoring:
+  url: https://github.com/rnpgp/rnp
+  source-hosting: github
+  tracking: tag
+  # Uncomment next line prior to updating to v0.17.0
+  # release-artifact: "rnp-{tag}.tar.gz"
+
+  skip-vendoring-steps:
+    - hg-add
+    - spurious-check
+    - update-moz-build
+
+  keep:
+    - module.ver
+    - rnp.symbols
+    - src/lib/rnp/rnp_export.h
+
+  exclude:
+    - "**"
+    - ".*"
+    - ".*/**"
+    # Uncomment below prior to v0.17.0 update
+    # - "src/libsexp/**"
+    # - "src/libsexp/.**"
+    # - "src/libsexp/.github/**"
+
+  include:
+    - doc/
+    - docs/
+    - include/
+    - src/common/
+    - src/examples/
+    - src/fuzzing/
+    - src/lib/
+    - src/librekey/
+    - src/librepgp/
+    # Uncomment prior to v0.17.0 update
+    # - src/libsexp/include/
+    # - src/libsexp/src/
+    # - src/libsexp/LICENSE.md
+    # - src/libsexp/README.adoc
+    # - src/libsexp/version.txt
+    - src/rnp/
+    - src/rnpkeys/
+    - src/tests/
+    - CHANGELOG.md
+    - LICENSE-OCB.md
+    - LICENSE.md
+    - README.adoc
+    - version.txt
+
+  update-actions:
+    - action: replace-in-file-regex
+      file: '{yaml_dir}/../README.rnp'
+      pattern: '\[(tag v[1-9\.]+|commit [0-9a-f]+)\]'
+      with: '[tag {revision}]'
