@@ -926,7 +926,7 @@ class TreeView extends HTMLElement {
     }
 
     // Prune the buffer of any rows outside of our desired buffer range.
-    if (ranges.pruneBefore) {
+    if (ranges.pruneBefore !== null) {
       const pruneBeforeRow = this.getRowAtIndex(ranges.pruneBefore);
       let rowToPrune = pruneBeforeRow.previousElementSibling;
       while (rowToPrune) {
@@ -936,7 +936,7 @@ class TreeView extends HTMLElement {
       }
     }
 
-    if (ranges.pruneAfter) {
+    if (ranges.pruneAfter !== null) {
       const pruneAfterRow = this.getRowAtIndex(ranges.pruneAfter);
       let rowToPrune = pruneAfterRow.nextElementSibling;
       while (rowToPrune) {
