@@ -36,37 +36,6 @@ e2e-autocrypt-headers =
     .label = Send OpenPGP public key(s) in the email headers for compatibility with Autocrypt
     .accesskey = t
 
-openpgp-key-user-id-label = Account / User ID
-openpgp-keygen-title-label =
-    .title = Generate OpenPGP Key
-openpgp-cancel-key =
-    .label = Cancel
-    .tooltiptext = Cancel Key Generation
-openpgp-key-gen-expiry-title =
-    .label = Key expiry
-openpgp-key-gen-expire-label = Key expires in
-openpgp-key-gen-days-label =
-    .label = days
-openpgp-key-gen-months-label =
-    .label = months
-openpgp-key-gen-years-label =
-    .label = years
-openpgp-key-gen-no-expiry-label =
-    .label = Key does not expire
-openpgp-key-gen-key-size-label = Key size
-openpgp-key-gen-console-label = Key Generation
-openpgp-key-gen-key-type-label = Key type
-openpgp-key-gen-key-type-rsa =
-    .label = RSA
-openpgp-key-gen-key-type-ecc =
-    .label = ECC (Elliptic Curve)
-openpgp-generate-key =
-    .label = Generate key
-    .tooltiptext = Generates a new OpenPGP compliant key for encryption and/or signing
-openpgp-advanced-prefs-button-label =
-    .label = Advanced…
-openpgp-keygen-desc = <a data-l10n-name="openpgp-keygen-desc-link">NOTE: Key generation may take up to several minutes to complete.</a> Do not exit the application while key generation is in progress. Actively browsing or performing disk-intensive operations during key generation will replenish the ‘randomness pool’ and speed-up the process. You will be alerted when key generation is completed.
-
 openpgp-key-created-label =
     .label = Created
 
