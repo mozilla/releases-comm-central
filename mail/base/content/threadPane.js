@@ -706,7 +706,6 @@ function ThreadPaneOnLoad() {
 }
 
 function ThreadPaneSelectionChanged() {
-  UpdateStatusMessageCounts(gFolderDisplay.displayedFolder);
   GetThreadTree().view.selectionChanged();
   UpdateSelectCol();
 }

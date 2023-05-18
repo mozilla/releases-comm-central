@@ -1327,14 +1327,7 @@ FolderDisplayWidget.prototype = {
   /**
    * Update the status bar to reflect our exciting message counts.
    */
-  onMessageCountsChanged() {
-    if (this.active) {
-      UpdateStatusMessageCounts(this.displayedFolder);
-    }
-    FolderDisplayListenerManager._fireListeners("onMessageCountsChanged", [
-      this,
-    ]);
-  },
+  onMessageCountsChanged() {},
   // @}
   /* ===== End IDBViewWrapperListener ===== */
 
@@ -1532,7 +1525,6 @@ FolderDisplayWidget.prototype = {
   _updateContextDisplay() {
     if (this.active) {
       UpdateStatusQuota(this.displayedFolder);
-      UpdateStatusMessageCounts(this.displayedFolder);
 
       // - mail view combo-box.
       this.onMailViewChanged();
@@ -2657,30 +2649,6 @@ function SetNewsFolderColumns() {
       "tooltiptext",
       bundle.getString("sizeColumnTooltip2")
     );
-  }
-}
-
-function UpdateStatusMessageCounts(folder) {
-  var unreadElement = document.getElementById("unreadMessageCount");
-  var totalElement = document.getElementById("totalMessageCount");
-  if (folder && !folder.isServer && unreadElement && totalElement) {
-    var numSelected = 0; // TODO
-    var bundle = document.getElementById("bundle_messenger");
-
-    var numUnread =
-      numSelected > 1
-        ? bundle.getFormattedString("selectedMsgStatus", [numSelected])
-        : bundle.getFormattedString("unreadMsgStatus", [
-            folder.getNumUnread(false),
-          ]);
-    var numTotal = bundle.getFormattedString("totalMsgStatus", [
-      folder.getTotalMessages(false),
-    ]);
-
-    unreadElement.setAttribute("value", numUnread);
-    totalElement.setAttribute("value", numTotal);
-    unreadElement.hidden = false;
-    totalElement.hidden = false;
   }
 }
 
