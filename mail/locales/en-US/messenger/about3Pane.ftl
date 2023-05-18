@@ -225,6 +225,9 @@ threadpane-column-header-unread-button =
 threadpane-column-label-unread-button =
   .label = Read status
 
+threadpane-read-cell-label = Read
+threadpane-unread-cell-label = Unread
+
 threadpane-column-header-sender = From
   .title = Sort by from
 threadpane-column-label-sender =

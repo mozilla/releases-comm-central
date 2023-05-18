@@ -4782,6 +4782,22 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           continue;
         }
 
+        if (column.id == "unreadButtonColHeader") {
+          let button = cell.querySelector("button");
+          if (propertiesSet.has("read")) {
+            document.l10n.setAttributes(button, "tree-list-view-row-read");
+            ariaLabelPromises.push(
+              document.l10n.formatValue("threadpane-read-cell-label")
+            );
+          } else {
+            document.l10n.setAttributes(button, "tree-list-view-row-not-read");
+            ariaLabelPromises.push(
+              document.l10n.formatValue("threadpane-unread-cell-label")
+            );
+          }
+          continue;
+        }
+
         if (column.id == "attachmentCol" && propertiesSet.has("attach")) {
           ariaLabelPromises.push(
             document.l10n.formatValue("threadpane-attachments-cell-label")
@@ -4936,6 +4952,18 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       if (propertiesSet.has("junk")) {
         ariaLabelPromises.push(
           document.l10n.formatValue("threadpane-spam-cell-label")
+        );
+      }
+
+      if (propertiesSet.has("read")) {
+        ariaLabelPromises.push(
+          document.l10n.formatValue("threadpane-read-cell-label")
+        );
+      }
+
+      if (propertiesSet.has("unread")) {
+        ariaLabelPromises.push(
+          document.l10n.formatValue("threadpane-unread-cell-label")
         );
       }
 
