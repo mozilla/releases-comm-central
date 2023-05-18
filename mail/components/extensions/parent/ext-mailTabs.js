@@ -52,20 +52,21 @@ function convertMailTab(tab, context) {
     messagePaneVisible: null,
   };
 
-  let nativeTab = tab.nativeTab;
-  mailTabObject.folderPaneVisible = nativeTab.folderPaneVisible;
-  mailTabObject.messagePaneVisible = nativeTab.messagePaneVisible;
-  mailTabObject.sortType = SORT_TYPE_MAP.get(nativeTab.sort.type);
-  mailTabObject.sortOrder = SORT_ORDER_MAP.get(nativeTab.sort.order);
-  if (nativeTab.sort.grouped) {
+  let about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
+  let { gViewWrapper, paneLayout } = about3Pane;
+  mailTabObject.folderPaneVisible = paneLayout.folderPaneVisible;
+  mailTabObject.messagePaneVisible = paneLayout.messagePaneVisible;
+  mailTabObject.sortType = SORT_TYPE_MAP.get(gViewWrapper?.primarySortType);
+  mailTabObject.sortOrder = SORT_ORDER_MAP.get(gViewWrapper?.primarySortOrder);
+  if (gViewWrapper?.showGroupedBySort) {
     mailTabObject.viewType = "groupedBySortType";
-  } else if (nativeTab.sort.threaded) {
+  } else if (gViewWrapper?.showThreaded) {
     mailTabObject.viewType = "groupedByThread";
   } else {
     mailTabObject.viewType = "ungrouped";
   }
   if (context.extension.hasPermission("accountsRead")) {
-    mailTabObject.displayedFolder = convertFolder(nativeTab.folder);
+    mailTabObject.displayedFolder = convertFolder(about3Pane.gFolder);
   }
   return mailTabObject;
 }
@@ -321,13 +322,11 @@ this.mailTabs = class extends ExtensionAPIPersistent {
             );
           }
 
-          if (nativeTab.mode.name == "mail3PaneTab") {
-            if (typeof folderPaneVisible == "boolean") {
-              nativeTab.folderPaneVisible = folderPaneVisible;
-            }
-            if (typeof messagePaneVisible == "boolean") {
-              nativeTab.messagePaneVisible = messagePaneVisible;
-            }
+          if (typeof folderPaneVisible == "boolean") {
+            about3Pane.paneLayout.folderPaneVisible = folderPaneVisible;
+          }
+          if (typeof messagePaneVisible == "boolean") {
+            about3Pane.paneLayout.messagePaneVisible = messagePaneVisible;
           }
         },
 

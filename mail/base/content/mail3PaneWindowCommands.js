@@ -306,13 +306,9 @@ function SwitchPaneFocus(event) {
   let { currentTabInfo } = tabmail;
   switch (currentTabInfo.mode.name) {
     case "mail3PaneTab": {
+      let { contentWindow, contentDocument } = currentTabInfo.chromeBrowser;
       let {
-        chromeBrowser,
-        folderPaneVisible,
-        messagePaneVisible,
-      } = currentTabInfo;
-      let { contentWindow, contentDocument } = chromeBrowser;
-      let {
+        paneLayout,
         folderTree,
         threadTree,
         webBrowser,
@@ -321,7 +317,7 @@ function SwitchPaneFocus(event) {
         accountCentralBrowser,
       } = contentWindow;
 
-      if (folderPaneVisible) {
+      if (paneLayout.folderPaneVisible) {
         panes.push(folderTree);
       }
 
@@ -331,7 +327,7 @@ function SwitchPaneFocus(event) {
         panes.push(accountCentralBrowser);
       }
 
-      if (messagePaneVisible) {
+      if (paneLayout.messagePaneVisible) {
         if (!webBrowser.hidden) {
           panes.push(webBrowser);
         } else if (!messageBrowser.hidden) {
@@ -341,7 +337,7 @@ function SwitchPaneFocus(event) {
         }
       }
 
-      if (focusedElement == chromeBrowser) {
+      if (focusedElement == currentTabInfo.chromeBrowser) {
         focusedElement = contentDocument.activeElement;
         if (
           focusedElement != folderTree &&

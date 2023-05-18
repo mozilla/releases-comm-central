@@ -167,6 +167,8 @@ add_task(async function test_message_pane_is_sticky() {
 add_task(async function test_message_pane_persistence_generally_works() {
   await be_in_folder(folder);
 
+  let tabmail = mc.window.document.getElementById("tabmail");
+
   // helper to open tabs with the folder pane in the desired states (1 for
   //  visible, 0 for hidden)
   async function openTabs(aConfig) {
@@ -175,8 +177,8 @@ add_task(async function test_message_pane_persistence_generally_works() {
         await open_folder_in_new_tab(folder);
       }
       if (
-        mc.window.document.getElementById("tabmail").currentTabInfo
-          .messagePaneVisible != messagePaneVisible
+        tabmail.currentAbout3Pane.paneLayout.messagePaneVisible !=
+        messagePaneVisible
       ) {
         toggle_message_pane();
       }
@@ -185,7 +187,7 @@ add_task(async function test_message_pane_persistence_generally_works() {
 
   // close everything but the first tab.
   function closeTabs() {
-    while (mc.window.document.getElementById("tabmail").tabInfo.length > 1) {
+    while (tabmail.tabInfo.length > 1) {
       close_tab(1);
     }
   }
@@ -195,18 +197,10 @@ add_task(async function test_message_pane_persistence_generally_works() {
       info("tab " + iTab);
 
       await switch_tab(iTab);
-      if (
-        mc.window.document.getElementById("tabmail").currentAbout3Pane.document
-          .readyState != "complete"
-      ) {
-        await BrowserTestUtils.waitForEvent(
-          mc.window.document.getElementById("tabmail").currentAbout3Pane,
-          "load"
-        );
+      if (tabmail.currentAbout3Pane.document.readyState != "complete") {
+        await BrowserTestUtils.waitForEvent(tabmail.currentAbout3Pane, "load");
         await new Promise(resolve =>
-          mc.window.document
-            .getElementById("tabmail")
-            .currentAbout3Pane.setTimeout(resolve)
+          tabmail.currentAbout3Pane.setTimeout(resolve)
         );
       }
 
@@ -227,7 +221,7 @@ add_task(async function test_message_pane_persistence_generally_works() {
   for (let config of configs) {
     await openTabs(config);
     await verifyTabs(config); // make sure openTabs did its job right
-    let state = mc.window.document.getElementById("tabmail").persistTabs();
+    let state = tabmail.persistTabs();
     closeTabs();
 
     Assert.equal(state.tabs[0].state.messagePaneVisible, config[0]);
@@ -240,7 +234,7 @@ add_task(async function test_message_pane_persistence_generally_works() {
     //  to change things.
     toggle_message_pane();
 
-    mc.window.document.getElementById("tabmail").restoreTabs(state);
+    tabmail.restoreTabs(state);
     await verifyTabs(config);
     closeTabs();
 

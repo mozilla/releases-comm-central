@@ -103,7 +103,8 @@ registerCleanupFunction(() => {
 });
 
 async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
-  let tab = document.getElementById("tabmail").currentTabInfo;
+  let tabmail = document.getElementById("tabmail");
+  let tab = tabmail.currentTabInfo;
   if (tab.chromeBrowser.contentDocument.readyState != "complete") {
     await BrowserTestUtils.waitForEvent(
       tab.chromeBrowser.contentWindow,
@@ -111,22 +112,23 @@ async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
     );
   }
 
+  let { paneLayout } = tabmail.currentAbout3Pane;
   if (folderPaneOpen !== null) {
     Assert.equal(
-      tab.folderPaneVisible,
+      paneLayout.folderPaneVisible,
       folderPaneOpen,
       "State of folder pane splitter is correct"
     );
-    tab.folderPaneVisible = folderPaneOpen;
+    paneLayout.folderPaneVisible = folderPaneOpen;
   }
 
   if (messagePaneOpen !== null) {
     Assert.equal(
-      tab.messagePaneVisible,
+      paneLayout.messagePaneVisible,
       messagePaneOpen,
       "State of message pane splitter is correct"
     );
-    tab.messagePaneVisible = messagePaneOpen;
+    paneLayout.messagePaneVisible = messagePaneOpen;
   }
 }
 

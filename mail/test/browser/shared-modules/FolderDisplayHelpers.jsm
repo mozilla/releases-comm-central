@@ -1984,12 +1984,11 @@ var assert_message_not_in_view = assert_messages_not_in_view;
  *  menus, splitters, etc. are set up right.
  */
 function assert_message_pane_visible() {
-  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let win = get_about_3pane();
   let messagePane = win.document.getElementById("messagePane");
 
   Assert.equal(
-    tab.messagePaneVisible,
+    win.paneLayout.messagePaneVisible,
     true,
     "The tab does not think that the message pane is visible, but it should!"
   );
@@ -2017,12 +2016,11 @@ function assert_message_pane_visible() {
  *  menus, splitters, etc. are set up right.
  */
 function assert_message_pane_hidden() {
-  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let win = get_about_3pane();
   let messagePane = win.document.getElementById("messagePane");
 
   Assert.equal(
-    tab.messagePaneVisible,
+    win.paneLayout.messagePaneVisible,
     false,
     "The tab thinks that the message pane is visible, but it shouldn't!"
   );

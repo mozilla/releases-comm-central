@@ -36,11 +36,10 @@ add_setup(async function() {
  * menus, splitters, etc. are set up right.
  */
 function assert_folder_pane_visible() {
-  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let win = get_about_3pane();
 
   Assert.equal(
-    tab.folderPaneVisible,
+    win.paneLayout.folderPaneVisible,
     true,
     "The tab does not think that the folder pane is visible, but it should!"
   );
@@ -70,11 +69,10 @@ function assert_folder_pane_visible() {
  * menus, splitters, etc. are set up right.
  */
 function assert_folder_pane_hidden() {
-  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let win = get_about_3pane();
 
   Assert.equal(
-    tab.folderPaneVisible,
+    win.paneLayout.folderPaneVisible,
     false,
     "The tab thinks that the folder pane is visible, but it shouldn't!"
   );
@@ -205,7 +203,10 @@ add_task(async function test_folder_pane_persistence_generally_works() {
       if (iTab != 0) {
         await open_folder_in_new_tab(folder);
       }
-      if (tabmail.currentTabInfo.folderPaneVisible != folderPaneVisible) {
+      if (
+        tabmail.currentAbout3Pane.paneLayout.folderPaneVisible !=
+        folderPaneVisible
+      ) {
         toggle_folder_pane();
       }
     }

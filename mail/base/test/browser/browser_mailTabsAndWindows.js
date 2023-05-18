@@ -87,6 +87,7 @@ add_task(async function testTabs() {
     folderTree,
     threadTree,
     messagePane,
+    paneLayout,
   } = firstChromeBrowser.contentWindow;
 
   firstTab.folder = folderA;
@@ -112,11 +113,11 @@ add_task(async function testTabs() {
   Assert.ok(BrowserTestUtils.is_visible(folderTree));
   Assert.ok(BrowserTestUtils.is_visible(firstMessageBrowser));
 
-  firstTab.folderPaneVisible = false;
+  paneLayout.folderPaneVisible = false;
   Assert.ok(BrowserTestUtils.is_hidden(folderTree));
   Assert.ok(BrowserTestUtils.is_visible(firstMessageBrowser));
 
-  firstTab.messagePaneVisible = false;
+  paneLayout.messagePaneVisible = false;
   Assert.ok(BrowserTestUtils.is_hidden(folderTree));
   Assert.ok(BrowserTestUtils.is_hidden(firstMessageBrowser));
   Assert.equal(
@@ -127,11 +128,11 @@ add_task(async function testTabs() {
   Assert.equal(firstTab.browser, null);
   Assert.equal(firstTab.linkedBrowser, null);
 
-  firstTab.folderPaneVisible = true;
+  paneLayout.folderPaneVisible = true;
   Assert.ok(BrowserTestUtils.is_visible(folderTree));
   Assert.ok(BrowserTestUtils.is_hidden(firstMessageBrowser));
 
-  firstTab.messagePaneVisible = true;
+  paneLayout.messagePaneVisible = true;
   Assert.ok(BrowserTestUtils.is_visible(folderTree));
   Assert.ok(BrowserTestUtils.is_visible(firstMessageBrowser));
   Assert.equal(
@@ -285,7 +286,6 @@ add_task(async function testTabs() {
 
   Assert.equal(thirdTab.folder, folderB);
   Assert.equal(thirdTab.message, messagesB[0]);
-  Assert.equal(thirdTab.messageURI, folderB.getUriForMsg(messagesB[0]));
 
   Assert.equal(thirdChromeBrowser.contentWindow.tabOrWindow, thirdTab);
 
@@ -313,7 +313,6 @@ add_task(async function testTabs() {
 
   Assert.equal(fourthTab.folder, folderB);
   Assert.equal(fourthTab.message, messagesB[1]);
-  Assert.equal(fourthTab.messageURI, folderB.getUriForMsg(messagesB[1]));
 
   Assert.equal(fourthChromeBrowser.contentWindow.tabOrWindow, fourthTab);
 

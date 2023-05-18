@@ -102,12 +102,12 @@ var mailTabType = {
               Services.telemetry.keyedScalarSet(
                 "tb.ui.configuration.pane_visibility",
                 "folderPane",
-                tab.folderPaneVisible
+                win.paneLayout.folderPaneVisible
               );
               Services.telemetry.keyedScalarSet(
                 "tb.ui.configuration.pane_visibility",
                 "messagePane",
-                tab.messagePaneVisible
+                win.paneLayout.messagePaneVisible
               );
             }
 
@@ -158,47 +158,6 @@ var mailTabType = {
           },
         });
 
-        // Layout properties.
-        Object.defineProperty(tab, "accountCentralVisible", {
-          get() {
-            return tab.chromeBrowser.contentDocument.body.classList.contains(
-              "account-central"
-            );
-          },
-        });
-        Object.defineProperty(tab, "folderPaneVisible", {
-          get() {
-            return !tab.chromeBrowser.contentWindow.folderPaneSplitter
-              ?.isCollapsed;
-          },
-          set(visible) {
-            tab.chromeBrowser.contentWindow.folderPaneSplitter.isCollapsed = !visible;
-          },
-        });
-        Object.defineProperty(tab, "messagePaneVisible", {
-          get() {
-            return !tab.chromeBrowser.contentWindow.messagePaneSplitter
-              ?.isCollapsed;
-          },
-          set(visible) {
-            tab.chromeBrowser.contentWindow.messagePaneSplitter.isCollapsed = !visible;
-          },
-        });
-        Object.defineProperty(tab, "sort", {
-          get() {
-            return {
-              type:
-                tab.chromeBrowser.contentWindow.gViewWrapper?.primarySortType,
-              order:
-                tab.chromeBrowser.contentWindow.gViewWrapper?.primarySortOrder,
-              grouped:
-                tab.chromeBrowser.contentWindow.gViewWrapper?.showGroupedBySort,
-              threaded:
-                tab.chromeBrowser.contentWindow.gViewWrapper?.showThreaded,
-            };
-          },
-        });
-
         // Content properties.
         Object.defineProperty(tab, "message", {
           get() {
@@ -227,9 +186,11 @@ var mailTabType = {
         }
         return {
           firstTab: tab.first,
-          folderPaneVisible: tab.folderPaneVisible,
+          folderPaneVisible:
+            tab.chromeBrowser.contentWindow.paneLayout.folderPaneVisible,
           folderURI: tab.folder.URI,
-          messagePaneVisible: tab.messagePaneVisible,
+          messagePaneVisible:
+            tab.chromeBrowser.contentWindow.paneLayout.messagePaneVisible,
         };
       },
       restoreTab(tabmail, persistedState) {
@@ -295,12 +256,12 @@ var mailTabType = {
         Services.telemetry.keyedScalarSet(
           "tb.ui.configuration.pane_visibility",
           "folderPane",
-          tab.folderPaneVisible
+          tab.chromeBrowser.contentWindow.paneLayout.folderPaneVisible
         );
         Services.telemetry.keyedScalarSet(
           "tb.ui.configuration.pane_visibility",
           "messagePane",
-          tab.messagePaneVisible
+          tab.chromeBrowser.contentWindow.paneLayout.messagePaneVisible
         );
       },
       supportsCommand(command, tab) {
@@ -353,7 +314,6 @@ var mailTabType = {
         });
 
         // Content properties.
-        tab.messageURI = messageURI;
         Object.defineProperty(tab, "message", {
           get() {
             return tab.chromeBrowser.contentWindow.gMessage;
@@ -366,15 +326,10 @@ var mailTabType = {
           },
         });
 
-        tab.chromeBrowser.addEventListener("messageURIChanged", function(
-          event
-        ) {
-          tab.messageURI = event.detail;
-        });
         return tab;
       },
       persistTab(tab) {
-        return { messageURI: tab.messageURI };
+        return { messageURI: tab.chromeBrowser.contentWindow.gMessageURI };
       },
       restoreTab(tabmail, persistedState) {
         tabmail.openTab("mailMessageTab", persistedState);

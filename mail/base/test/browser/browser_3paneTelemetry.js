@@ -25,17 +25,17 @@ add_setup(async function() {
   rootFolder.createSubfolder("telemetryPlain", null);
   folders.Other = rootFolder.getChildNamed("telemetryPlain");
 
-  let tab = tabmail.currentTabInfo;
-  let folderPaneVisibleAtStart = tab.folderPaneVisible;
-  let messagePaneVisibleAtStart = tab.messagePaneVisible;
+  let { paneLayout } = tabmail.currentAbout3Pane;
+  let folderPaneVisibleAtStart = paneLayout.folderPaneVisible;
+  let messagePaneVisibleAtStart = paneLayout.messagePaneVisible;
 
   registerCleanupFunction(function() {
     MailServices.accounts.removeAccount(account, false);
-    tabmail.closeOtherTabs(tab);
-    if (tab.folderPaneVisible != folderPaneVisibleAtStart) {
+    tabmail.closeOtherTabs(0);
+    if (paneLayout.folderPaneVisible != folderPaneVisibleAtStart) {
       goDoCommand("cmd_toggleFolderPane");
     }
-    if (tab.messagePaneVisible != messagePaneVisibleAtStart) {
+    if (paneLayout.messagePaneVisible != messagePaneVisibleAtStart) {
       goDoCommand("cmd_toggleMessagePane");
     }
   });
@@ -79,13 +79,13 @@ add_task(async function testFolderOpen() {
 });
 
 add_task(async function testPaneVisibility() {
-  let tab = tabmail.currentTabInfo;
-  tabmail.currentAbout3Pane.displayFolder(folders.Other.URI);
+  let { paneLayout, displayFolder } = tabmail.currentAbout3Pane;
+  displayFolder(folders.Other.URI);
   // Make the folder pane and message pane visible initially.
-  if (!tab.folderPaneVisible) {
+  if (!paneLayout.folderPaneVisible) {
     goDoCommand("cmd_toggleFolderPane");
   }
-  if (!tab.messagePaneVisible) {
+  if (!paneLayout.messagePaneVisible) {
     goDoCommand("cmd_toggleMessagePane");
   }
   // The scalar is updated by switching to the folder tab, so open another tab.

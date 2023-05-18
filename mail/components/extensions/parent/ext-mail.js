@@ -1222,13 +1222,13 @@ class Tab extends TabBase {
         {
           // If the messagePane is hidden or all browsers are hidden, there is
           // nothing to be loaded and we should return complete.
-          let contentWindow = this.nativeTab.chromeBrowser.contentWindow;
+          let about3Pane = this.nativeTab.chromeBrowser.contentWindow;
           isComplete =
-            !this.nativeTab.messagePaneVisible ||
+            !about3Pane.paneLayout?.messagePaneVisible ||
             this.browser?.webProgress?.isLoadingDocument === false ||
-            (contentWindow.webBrowser?.hidden &&
-              contentWindow.messageBrowser?.hidden &&
-              contentWindow.multiMessageBrowser?.hidden);
+            (about3Pane.webBrowser?.hidden &&
+              about3Pane.messageBrowser?.hidden &&
+              about3Pane.multiMessageBrowser?.hidden);
         }
         break;
       case "content":
