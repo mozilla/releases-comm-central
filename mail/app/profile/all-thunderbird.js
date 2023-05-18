@@ -279,7 +279,6 @@ pref("mail.spellcheck.inline", true);
 
 pref("mail.folder.views.version", 0);
 
-pref("mail.folderpane.showColumns", false);
 // Force the unit shown for the size of all folders. If empty, the unit
 // is determined automatically for each folder. Allowed values: KB/MB/<empty string>
 pref("mail.folderpane.sizeUnits", "");

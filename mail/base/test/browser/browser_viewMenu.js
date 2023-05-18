@@ -18,7 +18,6 @@ const viewMenuData = {
   messagePaneWide: {},
   messagePaneVertical: {},
   menu_showFolderPane: { checked: true },
-  menu_showFolderPaneCols: { disabled: true },
   menu_toggleThreadPaneHeader: { disabled: true, checked: true },
   menu_showMessage: {},
   menu_FolderViews: {},

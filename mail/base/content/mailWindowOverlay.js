@@ -334,23 +334,6 @@ function view_init(event) {
   );
   threadPaneAppMenuItem.setAttribute("disabled", !threadPaneHeaderVisible);
 
-  let colsEnabled = Services.prefs.getBoolPref("mail.folderpane.showColumns");
-  let folderPaneColsMenuItem = document.getElementById(
-    "menu_showFolderPaneCols"
-  );
-  if (!folderPaneColsMenuItem.hidden) {
-    // Hidden in the standalone msg window.
-    folderPaneColsMenuItem.setAttribute("checked", colsEnabled);
-  }
-
-  folderPaneColsMenuItem = document.getElementById(
-    "appmenu_showFolderPaneCols"
-  );
-  if (!folderPaneColsMenuItem.hidden) {
-    // Hidden in the standalone msg window.
-    folderPaneColsMenuItem.setAttribute("checked", colsEnabled);
-  }
-
   // Disable some menus if account manager is showing
   document.getElementById("viewSortMenu").disabled = accountCentralVisible;
 

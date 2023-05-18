@@ -246,20 +246,6 @@ function HideMenus() {
     folderPane_menuitem.setAttribute("hidden", "true");
   }
 
-  let folderPaneCols_menuitem = document.getElementById(
-    "menu_showFolderPaneCols"
-  );
-  if (folderPaneCols_menuitem) {
-    folderPaneCols_menuitem.setAttribute("hidden", "true");
-  }
-
-  folderPaneCols_menuitem = document.getElementById(
-    "appmenu_showFolderPaneCols"
-  );
-  if (folderPaneCols_menuitem) {
-    folderPaneCols_menuitem.setAttribute("hidden", "true");
-  }
-
   var showSearch_showMessage_Separator = document.getElementById(
     "menu_showSearch_showMessage_Separator"
   );
