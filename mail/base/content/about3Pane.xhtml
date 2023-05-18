@@ -180,6 +180,7 @@
       <td class="tree-view-row-flag flaggedcol-column">
         <button type="button"
                 class="button-flat tree-button-flag"
+                aria-hidden="true"
                 tabindex="-1">
           <img src="" alt="" />
         </button>
@@ -191,6 +192,7 @@
         <div class="thread-container">
           <button type="button"
                   class="button button-flat button-reset twisty"
+                  aria-hidden="true"
                   tabindex="-1">
             <img src="" alt="" class="twisty-icon" />
           </button>
@@ -202,6 +204,7 @@
       <td class="tree-view-row-unread unreadbuttoncolheader-column">
         <button type="button"
                 class="button-flat tree-button-unread"
+                aria-hidden="true"
                 tabindex="-1">
           <img src="" alt="" />
         </button>
@@ -212,6 +215,7 @@
       <td class="tree-view-row-spam junkstatuscol-column">
         <button type="button"
                 class="button-flat tree-button-spam"
+                aria-hidden="true"
                 tabindex="-1">
           <img src="" alt="" />
         </button>
@@ -231,12 +235,14 @@
         <button type="button"
                 class="button-flat tree-button-delete tree-button-request-delete"
                 tabindex="-1"
+                aria-hidden="true"
                 data-l10n-id="tree-list-view-row-delete">
           <img src="" alt="" />
         </button>
         <button type="button"
                 class="button-flat tree-button-restore tree-button-request-delete"
                 tabindex="-1"
+                aria-hidden="true"
                 data-l10n-id="tree-list-view-row-restore">
           <img src="" alt="" />
         </button>
@@ -251,7 +257,9 @@
             <img class="state forwarded" src="" data-l10n-id="threadpane-message-forwarded" />
             <img class="state redirected" src="" data-l10n-id="threadpane-message-redirected" />
             <button class="button-spam tree-button-spam"
-                    data-l10n-id="tree-list-view-row-spam" tabindex="-1">
+                    data-l10n-id="tree-list-view-row-spam"
+                    aria-hidden="true"
+                    tabindex="-1">
             </button>
             <span class="date"></span>
           </div>
@@ -259,6 +267,7 @@
             <div class="thread-card-subject-container">
               <button type="button"
                       class="button button-flat button-reset twisty"
+                      aria-hidden="true"
                       tabindex="-1">
                 <img src="" alt="" class="twisty-icon" />
               </button>
@@ -266,7 +275,10 @@
             </div>
             <img class="attachment-icon" src="" data-l10n-id="tree-list-view-row-attach" />
             <img class="tag-icon" src="" alt="" hidden="hidden" />
-            <button class="button-star tree-button-flag" tabindex="-1"></button>
+            <button class="button-star tree-button-flag"
+                    aria-hidden="true"
+                    tabindex="-1">
+            </button>
           </div>
         </div>
       </td>
