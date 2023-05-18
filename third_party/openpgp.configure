@@ -88,34 +88,6 @@ with only_when("--enable-compile-environment"):
 
 
 with only_when(in_tree_librnp):
-
-    @depends(build_environment, configure_cache, c_compiler)
-    @imports(_from="textwrap", _import="dedent")
-    @imports(_from="os.path", _import="join")
-    def rnp_version_string(build_env, configure_cache, compiler):
-        log.info("Determining librnp version from version.h.")
-        include_path = join(build_env.topsrcdir, "comm", "third_party", "rnp", "src", "lib")
-        check = dedent(
-            """\
-        #include "version.h"
-        RNP_VERSION_STRING_FULL
-        """
-        )
-        result = try_preprocess(
-            configure_cache,
-            compiler.wrapper + [compiler.compiler] + compiler.flags + ["-I", include_path],
-            "C",
-            check,
-        )
-        if result:
-            rnp_version = result.splitlines()[-1]
-            rnp_version = rnp_version.replace('"', "")
-        else:
-            raise FatalCheckError("Unable to determine RNP version string.")
-        return rnp_version
-
-    set_config("MZLA_LIBRNP_FULL_VERSION", rnp_version_string)
-
     # JSON-C --with-system-json
     system_lib_option(
         "--with-system-jsonc",

@@ -45,7 +45,6 @@ LOCAL_INCLUDES = [
 
 IQuote(
     "{}/src/lib".format(OBJDIR),
-    "{}/src/lib".format(SRCDIR),
 )
 
 # Set up defines for src/lib/config.h
@@ -54,7 +53,6 @@ rnp_defines = {
     "HAVE_ZLIB_H": True,
     "ENABLE_IDEA": True,
     "PACKAGE_BUGREPORT": '"https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"',
-    "PACKAGE_STRING": '"rnp {}"'.format(CONFIG["MZLA_LIBRNP_FULL_VERSION"])
 }
 if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
     LOCAL_INCLUDES += ["!../botan/build/include"]
@@ -84,14 +82,16 @@ elif CONFIG["MZLA_LIBRNP_BACKEND"] == "openssl":
     if CONFIG["MZLA_LIBRNP_OPENSSL_VERSION"][0] == "3":
         rnp_defines["CRYPTO_BACKEND_OPENSSL3"] = True
 
-GeneratedFile(
-    "src/lib/config.h",
-    script="/comm/python/rocbuild/process_cmake_define_files.py",
-    inputs=["src/lib/config.h.in"],
-    flags=[
+gen_files_flags = [
         "-D%s=%s" % (k, "1" if v is True else v)
         for k, v in rnp_defines.items()
-    ],
+    ]
+GeneratedFile(
+    "src/lib/version.h", "src/lib/config.h",
+    script="/comm/python/thirdroc/rnp_generated.py",
+    inputs=["src/lib/version.h.in", "src/lib/config.h.in"],
+    flags=["-V", f"{SRCDIR}/version.txt",
+           "-m", CONFIG["MOZ_APP_VERSION_DISPLAY"]] + gen_files_flags
 )
 
 if CONFIG["MOZ_SYSTEM_ZLIB"]:
