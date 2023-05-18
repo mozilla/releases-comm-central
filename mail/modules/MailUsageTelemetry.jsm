@@ -17,6 +17,8 @@ const WINDOW_TYPES = ["mail:3pane", "mail:messageWindow"];
 const WINDOW_URLS = [
   "chrome://messenger/content/messenger.xhtml",
   "chrome://messenger/content/messageWindow.xhtml",
+  "about:3pane",
+  "about:message",
 ];
 
 // The elements we consider to be interactive.
@@ -52,8 +54,13 @@ const MESSENGER_UI_CONTAINER_IDS = {
   participantListContextMenu: "chat",
 
   // Anything to do with the 3-pane tab or message window.
-  mailContext: "message-display",
+  folderPaneHeaderBar: "message-display",
+  folderPaneGetMessagesContext: "message-display",
+  folderPaneMoreContext: "message-display",
   folderPaneContext: "message-display",
+  threadPaneHeaderBar: "message-display",
+  threadPaneDisplayContext: "message-display",
+  mailContext: "message-display",
   singleMessage: "message-display",
   emailAddressPopup: "message-display",
   copyPopup: "message-display",
