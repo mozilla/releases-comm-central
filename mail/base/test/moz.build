@@ -18,5 +18,5 @@ XPCSHELL_TESTS_MANIFESTS += [
 ]
 
 TESTING_JS_MODULES += [
-    "../../../../browser/components/customizableui/test/CustomizableUITestUtils.jsm",
+    "../../../../browser/components/customizableui/test/CustomizableUITestUtils.sys.mjs",
 ]
