@@ -10,3 +10,9 @@
 #    'file1.h',
 #    'file2.h',
 # ]
+
+if CONFIG["MOZ_SYSTEM_ICU"]:
+    system_headers += [
+        "unicode/strenum.h",
+        "unicode/vtzone.h",
+    ]
