@@ -15,7 +15,7 @@ var gLockedPref = null;
 
 var gDefaultColor = "";
 
-window.addEventListener("DOMContentLoaded", folderPropsOnLoad);
+window.addEventListener("load", folderPropsOnLoad);
 document.addEventListener("dialogaccept", folderPropsOKButton);
 document.addEventListener("dialogcancel", folderCancelButton);
 
@@ -77,7 +77,6 @@ var gFolderPropsSink = {
 
   setQuotaData(folderQuota) {
     let quotaDetails = document.getElementById("quotaDetails");
-    let bundle = document.getElementById("bundle_messenger");
     let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
       Ci.nsIMessenger
     );
@@ -96,9 +95,9 @@ var gFolderPropsSink = {
       li.appendChild(progress);
 
       let percentage = document.createElement("span");
-      percentage.textContent = bundle.getFormattedString("quotaPercentUsed", [
-        Number((100n * BigInt(quota.usage)) / BigInt(quota.limit)),
-      ]);
+      document.l10n.setAttributes(percentage, "quota-percent-used", {
+        percent: Number((100n * BigInt(quota.usage)) / BigInt(quota.limit)),
+      });
       li.appendChild(percentage);
 
       li.appendChild(document.createTextNode(" — "));
@@ -177,8 +176,7 @@ function folderPropsOKButton(event) {
     // This throws an exception when an illegal folder name was entered.
     top.okCallback(
       document.getElementById("name").value,
-      window.arguments[0].name,
-      gMsgFolder.URI
+      window.arguments[0].name
     );
   } catch (e) {
     event.preventDefault();
@@ -386,16 +384,15 @@ function folderPropsOnLoad() {
     document.getElementById("sizeOnDisk").value = sizeOnDisk;
   } catch (e) {}
 
-  // select the initial tab
-  if (window.arguments[0].tabID) {
-    try {
-      document.getElementById(
-        "folderPropTabBox"
-      ).selectedTab = document.getElementById(window.arguments[0].tabID);
-    } catch (ex) {}
-  }
   onCheckKeepMsg();
   onUseDefaultRetentionSettings();
+
+  // select the initial tab
+  if (window.arguments[0].tabID) {
+    document.getElementById(
+      "folderPropTabBox"
+    ).selectedTab = document.getElementById(window.arguments[0].tabID);
+  }
 }
 
 function hideShowControls(serverType) {

@@ -512,13 +512,13 @@ var folderPaneContextMenu = {
         gFolder.toggleFlag(Ci.nsMsgFolderFlags.Favorite);
         break;
       case "folderPaneContext-properties":
-        folderPane.editFolder(gFolder);
+        folderPane.editFolder();
         break;
       case "folderPaneContext-markAllFoldersRead":
         topChromeWindow.MsgMarkAllFoldersRead([gFolder]);
         break;
       case "folderPaneContext-settings":
-        folderPane.editFolder(gFolder);
+        folderPane.editFolder();
         break;
     }
   },
@@ -1818,9 +1818,106 @@ var folderPane = {
       threadPaneHeader.onFolderSelected();
     }
 
+    this._updateStatusQuota();
+
     window.dispatchEvent(
       new CustomEvent("folderURIChanged", { bubbles: true, detail: uri })
     );
+  },
+
+  /**
+   * Update the quotaPanel to reflect current folder quota status.
+   */
+  _updateStatusQuota() {
+    if (top.window.document.getElementById("status-bar").hidden) {
+      return;
+    }
+    const quotaPanel = top.window.document.getElementById("quotaPanel");
+    if (!(gFolder && gFolder instanceof Ci.nsIMsgImapMailFolder)) {
+      quotaPanel.hidden = true;
+      return;
+    }
+
+    let tabListener = event => {
+      // Hide the pane if the new tab ain't us.
+      quotaPanel.hidden =
+        top.window.document.getElementById("tabmail").currentAbout3Pane ==
+        this.window;
+    };
+    top.window.document.removeEventListener("TabSelect", tabListener);
+
+    // For display on main window panel only include quota names containing
+    // "STORAGE" or "MESSAGE". This will exclude unusual quota names containing
+    // items like "MAILBOX" and "LEVEL" from the panel bargraph. All quota names
+    // will still appear on the folder properties quota window.
+    // Note: Quota name is typically something like "User Quota / STORAGE".
+    let folderQuota = gFolder
+      .getQuota()
+      .filter(
+        quota =>
+          quota.name.toUpperCase().includes("STORAGE") ||
+          quota.name.toUpperCase().includes("MESSAGE")
+      );
+    if (!folderQuota.length) {
+      quotaPanel.hidden = true;
+      return;
+    }
+    // If folderQuota not empty, find the index of the element with highest
+    //  percent usage and determine if it is above the panel display threshold.
+    let quotaUsagePercentage = q =>
+      Number((100n * BigInt(q.usage)) / BigInt(q.limit));
+    let highest = folderQuota.reduce((acc, current) =>
+      quotaUsagePercentage(acc) > quotaUsagePercentage(current) ? acc : current
+    );
+    let percent = quotaUsagePercentage(highest);
+    if (
+      percent <
+      Services.prefs.getIntPref("mail.quota.mainwindow_threshold.show")
+    ) {
+      quotaPanel.hidden = true;
+    } else {
+      quotaPanel.hidden = false;
+      top.window.document.addEventListener("TabSelect", tabListener);
+
+      top.window.document
+        .getElementById("quotaMeter")
+        .setAttribute("value", percent);
+
+      let usage;
+      let limit;
+      if (/STORAGE/i.test(highest.name)) {
+        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+          Ci.nsIMessenger
+        );
+        usage = messenger.formatFileSize(highest.usage * 1024);
+        limit = messenger.formatFileSize(highest.limit * 1024);
+      } else {
+        usage = highest.usage;
+        limit = highest.limit;
+      }
+
+      top.window.document.getElementById("quotaLabel").value = `${percent}%`;
+      top.window.document.l10n.setAttributes(
+        top.window.document.getElementById("quotaLabel"),
+        "quota-panel-percent-used",
+        { percent, usage, limit }
+      );
+      if (
+        percent <
+        Services.prefs.getIntPref("mail.quota.mainwindow_threshold.warning")
+      ) {
+        quotaPanel.classList.remove("alert-warning", "alert-critical");
+      } else if (
+        percent <
+        Services.prefs.getIntPref("mail.quota.mainwindow_threshold.critical")
+      ) {
+        quotaPanel.classList.remove("alert-critical");
+        quotaPanel.classList.add("alert-warning");
+      } else {
+        quotaPanel.classList.remove("alert-warning");
+        quotaPanel.classList.add("alert-critical");
+      }
+    }
   },
 
   _onContextMenu(event) {
@@ -1872,7 +1969,7 @@ var folderPane = {
 
     let folder = MailServices.folderLookup.getFolderForURL(row.uri);
     if (!folder || folder.isServer || folder.server.type == "nntp") {
-      // TODO: Fix NNTP group reordering and enable.
+      // TODO: Fix NNTP group reordering and enable. Bug 1822224.
       event.preventDefault();
       return;
     }
@@ -2140,11 +2237,11 @@ var folderPane = {
   /**
    * Opens the dialog to edit the properties for a folder
    *
-   * @param aFolder (optional) the folder to edit, if not the selected one
+   * @param {string} [tabID] - Id of initial tab to select in the folder
+   *   properties dialog.
    */
-  editFolder(aFolder) {
-    let folder = aFolder;
-
+  editFolder(tabID) {
+    let folder = gFolder;
     // If this is actually a server, send it off to that controller
     if (folder.isServer) {
       top.MsgAccountManager(null, folder.server);
@@ -2157,10 +2254,9 @@ var folderPane = {
     }
     let title = messengerBundle.GetStringFromName("folderProperties");
 
-    // xxx useless param
-    function editFolderCallback(aNewName, aOldName, aUri) {
-      if (aNewName != aOldName) {
-        folder.rename(aNewName, top.msgWindow);
+    function editFolderCallback(newName, oldName) {
+      if (newName != oldName) {
+        folder.rename(newName, top.msgWindow);
       }
     }
 
@@ -2206,6 +2302,7 @@ var folderPane = {
         msgWindow: top.msgWindow,
         title,
         okCallback: editFolderCallback,
+        tabID,
         name: folder.prettyName,
         rebuildSummaryCallback: rebuildSummary,
       }
@@ -3304,6 +3401,9 @@ var threadPane = {
     }
   },
 
+  /**
+   * Handle threadPane select events.
+   */
   _onSelect(event) {
     if (paneLayout.messagePaneSplitter.isCollapsed || !gDBView) {
       return;

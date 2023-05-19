@@ -679,6 +679,15 @@ function openActivityMgr() {
     .show(window);
 }
 
+/**
+ * Open the folder properties of current folder with the quota tab selected.
+ */
+function openFolderQuota() {
+  document
+    .getElementById("tabmail")
+    .currentAbout3Pane?.folderPane.editFolder("QuotaTab");
+}
+
 function openIMAccountMgr() {
   var win = Services.wm.getMostRecentWindow("Messenger:Accounts");
   if (win) {

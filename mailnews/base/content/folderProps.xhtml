@@ -12,7 +12,6 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderColors.css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/folderProps.dtd">
-
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:html="http://www.w3.org/1999/xhtml"
@@ -20,6 +19,7 @@
       scrolling="false">
 <head>
   <title>&folderProps.windowtitle.label;</title>
+  <link rel="localization" href="messenger/folderprops.ftl" />
   <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
   <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/retention.js"></script>
@@ -33,8 +33,6 @@
    - dialog to the max-content width of the xul:description elements. -->
 <dialog id="folderPropertiesDialog"
         buttons="accept,cancel">
-  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-
 <tabbox id="folderPropTabBox">
   <tabs id="folderPropTabs">
     <tab id="GeneralTab" label="&generalInfo.label;"/>
