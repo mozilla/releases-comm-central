@@ -1517,6 +1517,13 @@ ContactsService.prototype = {
         let buddyId = statement.getInt32(1);
         let tagId = statement.getInt32(2);
 
+        let account = IMServices.accounts.getAccountByNumericId(accountId);
+        // If the account was deleted without properly cleaning up the
+        // account_buddy, skip loading this account buddy.
+        if (!account) {
+          continue;
+        }
+
         if (!BuddiesById.hasOwnProperty(buddyId)) {
           console.error(
             "Corrupted database: account_buddy entry for account " +
@@ -1543,7 +1550,6 @@ ContactsService.prototype = {
           continue;
         }
 
-        let account = IMServices.accounts.getAccountByNumericId(accountId);
         let tag = TagsById[tagId];
         try {
           buddy._addAccount(account.loadBuddy(buddy, tag), tag);

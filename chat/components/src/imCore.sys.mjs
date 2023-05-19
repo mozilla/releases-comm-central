@@ -292,15 +292,17 @@ CoreService.prototype = {
       },
     });
 
-    let accounts = IMServices.accounts;
-    accounts.initAccounts();
+    IMServices.accounts.initAccounts();
     IMServices.contacts.initContacts();
     IMServices.conversations.initConversations();
     Services.obs.notifyObservers(this, "prpl-init");
 
     // Wait with automatic connections until the password service
     // is available.
-    if (accounts.autoLoginStatus == Ci.imIAccountsService.AUTOLOGIN_ENABLED) {
+    if (
+      IMServices.accounts.autoLoginStatus ==
+      Ci.imIAccountsService.AUTOLOGIN_ENABLED
+    ) {
       Services.logins.initializationPromise.then(() => {
         IMServices.accounts.processAutoLogin();
       });

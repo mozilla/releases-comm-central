@@ -164,7 +164,7 @@ UnknownAccountBuddy.prototype = GenericAccountBuddyPrototype;
  */
 function imAccount(aKey, aName, aPrplId) {
   if (!aKey.startsWith(kAccountKeyPrefix)) {
-    throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
+    throw Components.Exception(`Invalid key: ${aKey}`, Cr.NS_ERROR_INVALID_ARG);
   }
 
   this.id = aKey;
@@ -983,15 +983,7 @@ AccountsService.prototype = {
       .map(account => account.incomingServer.getCharValue("imAccount"))
       .filter(accountKey => accountKey?.startsWith(kAccountKeyPrefix));
     for (let account of accountIdArray) {
-      try {
-        if (!account) {
-          throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
-        }
-        new imAccount(account);
-      } catch (e) {
-        console.error(e);
-        dump(e + " " + e.toSource() + "\n");
-      }
+      new imAccount(account);
     }
 
     this._prefObserver = this.observe.bind(this);
@@ -1161,7 +1153,10 @@ AccountsService.prototype = {
 
   getAccountById(aAccountId) {
     if (!aAccountId.startsWith(kAccountKeyPrefix)) {
-      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
+      throw Components.Exception(
+        `Invalid id: ${aAccountId}`,
+        Cr.NS_ERROR_INVALID_ARG
+      );
     }
 
     let id = parseInt(aAccountId.substr(kAccountKeyPrefix.length));
