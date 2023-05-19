@@ -70,7 +70,7 @@ menupopup > :is(menu, menuitem)[disabled="true"],
 menupopup > :is(menu, menuitem)[disabled="true"]:hover,
 menupopup > :is(menu, menuitem)[checked="true"][disabled="true"],
 menupopup > :is(menu, menuitem)[checked="true"][disabled="true"]:hover {
-  color: var(--panel-description-color);
+  color: var(--text-color-deemphasized);
   background-color: transparent;
 }
 

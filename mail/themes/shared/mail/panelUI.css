@@ -263,7 +263,7 @@ menu.subviewbutton,
 .subviewbutton[disabled="true"]:hover,
 .subviewbutton[checked="true"][disabled="true"],
 .subviewbutton[checked="true"][disabled="true"]:hover {
-  color: var(--panel-description-color);
+  color: var(--text-color-deemphasized);
   background-color: transparent;
 }
 
@@ -431,7 +431,7 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
 .subview-subheader {
   font-size: inherit;
   font-weight: inherit;
-  color: var(--panel-description-color);
+  color: var(--text-color-deemphasized);
 }
 
 panelview .toolbarbutton-1 {
@@ -707,7 +707,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 }
 
 .subviewbutton.download > .toolbarbutton-text > .status-text {
-  color: var(--panel-description-color);
+  color: var(--text-color-deemphasized);
   font-size: .9em;
 }
 
