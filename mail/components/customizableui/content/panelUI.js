@@ -38,12 +38,16 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   AppMenuNotifications: "resource://gre/modules/AppMenuNotifications.sys.mjs",
-  PanelMultiView: "resource:///modules/PanelMultiView.sys.mjs",
 });
 ChromeUtils.defineModuleGetter(
   this,
   "ExtensionsUI",
   "resource:///modules/ExtensionsUI.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "PanelMultiView",
+  "resource:///modules/PanelMultiView.jsm"
 );
 
 /**
