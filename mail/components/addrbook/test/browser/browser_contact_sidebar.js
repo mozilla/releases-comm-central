@@ -235,18 +235,19 @@ add_task(async function() {
 
     // If it's an editable row, we should see the edit contact menu items.
     if (isEditable) {
-      EventUtils.synthesizeMouseAtCenter(
-        cardsContext.querySelector("#abContextEditContact"),
-        {},
-        sidebarWindow
+      cardsContext.activateItem(
+        cardsContext.querySelector("#abContextEditContact")
       );
+      await hiddenPromise;
       await inABEditingMode();
       composeWindow.focus();
       await TestUtils.waitForCondition(
         () => Services.focus.activeWindow == composeWindow
       );
     } else {
-      EventUtils.synthesizeKey("VK_ESCAPE", {}, composeWindow);
+      cardsContext.activateItem(
+        cardsContext.querySelector(`[command="cmd_addrBcc"]`)
+      );
       await hiddenPromise;
     }
   }
