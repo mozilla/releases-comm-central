@@ -552,11 +552,12 @@ class TreeView extends HTMLElement {
     this.#lastBufferRowIndex = 0;
     this.#firstVisibleRowIndex = 0;
 
-    // Temporarily set the height of the spacers to account for the full height
-    // height of the entire table to prevent the list from visually jumping up
-    // and down during rebuild.
-    this.table.spacerTop.setHeight(0);
-    let rowCount = this._view ? this._view.rowCount : 0;
+    // Set the height of the bottom spacer to account for the now-missing rows.
+    // We want to ensure that the overall scroll height does not decrease.
+    // Otherwise, we may lose our scroll position and cause unnecessary
+    // scrolling. However, we don't always want to change the height of the top
+    // spacer for the same reason.
+    let rowCount = this._view?.rowCount ?? 0;
     this.table.spacerBottom.setHeight(
       rowCount * this._rowElementClass.ROW_HEIGHT
     );
@@ -866,7 +867,7 @@ class TreeView extends HTMLElement {
    * request filling of the tolerance buffer when idle.
    */
   _ensureVisibleRowsAreDisplayed() {
-    let rowCount = this._view ? this._view.rowCount : 0;
+    let rowCount = this._view?.rowCount ?? 0;
     this.placeholder?.classList.toggle("show", !rowCount);
 
     if (!rowCount || this.#calculateVisibleRowCount() == 0) {
@@ -877,6 +878,7 @@ class TreeView extends HTMLElement {
       // Beyond the end of the list. We're about to scroll anyway, so clear
       // everything out and wait for it to happen. Don't call `invalidate` here,
       // or you'll end up in an infinite loop.
+      this.table.spacerTop.setHeight(0);
       this.#resetRowBuffer();
       return;
     }
