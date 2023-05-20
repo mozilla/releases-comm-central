@@ -183,6 +183,13 @@ folder-pane-header-context-hide =
 folder-pane-show-total-toggle =
   .label = Show Total Message Count
 
+folder-pane-mode-context-button =
+  .title = Folder mode options
+
+folder-pane-mode-context-toggle-compact-mode =
+  .label = Compact View
+  .accesskey = C
+
 ## Message thread pane
 
 threadpane-column-header-select =

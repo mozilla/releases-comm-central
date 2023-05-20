@@ -14,6 +14,7 @@
   --folder-pane-icon-new: var(--icon-add);
   --folder-pane-icon-more: var(--icon-more);
   --folder-pane-icon-download: var(--icon-cloud-download);
+  --folder-pane-icon-kebab: var(--icon-kebab);
 }
 
 @media not (prefers-contrast) {
@@ -273,17 +274,40 @@ body:not(.account-central) #accountCentralBrowser {
   margin-bottom: 3px;
 }
 
-#folderTree > li > .mode-name {
+#folderTree > li > .mode-container {
+  justify-content: space-between;
+  border-top: 1px solid var(--sidebar-border-color, var(--splitter-color));
+}
+
+#folderTree > li.unselectable > .mode-container {
+  margin: 0;
+  border-radius: 0;
+}
+
+#folderTree > li.unselectable > .mode-container:hover {
+  background-color: transparent;
+}
+
+#folderTree > li > .mode-container > .mode-name {
   font-weight: 600;
   font-size: 1.1rem;
   min-height: initial;
   padding-block: var(--folder-mode-name-padding);
   padding-inline-start: 12px;
-  border-top: 1px solid var(--sidebar-border-color, var(--splitter-color));
+  flex: 1;
 }
 
-#folderPaneHeaderBar[hidden] + #folderTree li.unselectable:first-of-type > .mode-name {
+#folderTree > li > .mode-container > .mode-button {
+  background-image: var(--icon-kebab);
+}
+
+#folderPaneHeaderBar[hidden] + #folderTree > li.unselectable:first-of-type > .mode-container {
   border-top-style: none;
+}
+
+.mode-container:not([hidden]) {
+  display: flex;
+  align-items: center;
 }
 
 .container {

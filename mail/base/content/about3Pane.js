@@ -1164,6 +1164,10 @@ var folderPane = {
       "folderPaneWriteMessage"
     ).hidden = this.isFolderPaneNewMsgBtnHidden();
     this.moreContext = document.getElementById("folderPaneMoreContext");
+    this.folderPaneModeContext = document.getElementById(
+      "folderPaneModeContext"
+    );
+
     document
       .getElementById("folderPaneMoreButton")
       .addEventListener("click", event => {
@@ -1255,6 +1259,7 @@ var folderPane = {
     let currentModes = this.activeModes;
     let mode = event.target.getAttribute("value");
     let index = this.activeModes.indexOf(mode);
+
     if (event.target.hasAttribute("checked")) {
       if (index == -1) {
         currentModes.push(mode);
@@ -1263,6 +1268,7 @@ var folderPane = {
       currentModes.splice(index, 1);
     }
     this.activeModes = currentModes;
+
     if (this.activeModes.length == 1 && this.activeModes.at(0) == "all") {
       this.updateContextCheckedFolderMode();
     }
@@ -1280,6 +1286,36 @@ var folderPane = {
       }
       item.removeAttribute("checked");
     }
+  },
+
+  /**
+   * Ensures all the folder pane mode context menuitems in the folder
+   * pane mode context menu are checked to reflect the current compact mode.
+   * @param {Event} event - The DOMEvent.
+   */
+  onFolderPaneModeContextOpening(event) {
+    let menuitem = this.folderPaneModeContext.querySelector(
+      "#compactFolderButton"
+    );
+    menuitem.removeAttribute("checked");
+    menuitem.removeAttribute("disabled");
+    const mode = event.target.closest("[data-mode]")?.getAttribute("data-mode");
+    if (!this.canModeBeCompact(mode)) {
+      menuitem.setAttribute("disabled", "true");
+      return;
+    }
+    if (this.isCompact) {
+      menuitem.setAttribute("checked", true);
+    }
+  },
+
+  /**
+   * Toggles the compact mode of the active modes that allow it.
+   *
+   * @param {Event} event - The DOMEvent.
+   */
+  compactFolderToggle(event) {
+    this.isCompact = event.target.hasAttribute("checked");
   },
 
   /**
@@ -1321,6 +1357,18 @@ var folderPane = {
   get canBeCompact() {
     return Object.values(this._modes).some(
       mode => mode.active && mode.canBeCompact
+    );
+  },
+
+  /**
+   * Do any of the active modes have a compact variant?
+   *
+   * @param {string} mode
+   * @type {boolean}
+   */
+  canModeBeCompact(mode) {
+    return Object.values(this._modes).some(
+      m => m.name == mode && m.active && m.canBeCompact
     );
   },
 
@@ -1377,13 +1425,21 @@ var folderPane = {
     container.dataset.mode = modeName;
 
     mode.container = container;
-    mode.containerHeader = container.querySelector(".mode-name");
-    mode.containerHeader.textContent = messengerBundle.GetStringFromName(
+    mode.containerHeader = container.querySelector(".mode-container");
+    mode.containerHeader.querySelector(
+      ".mode-name"
+    ).textContent = messengerBundle.GetStringFromName(
       `folderPaneModeHeader_${modeName}`
     );
     mode.containerList = container.querySelector("ul");
     this._initMode(mode);
     mode.active = true;
+    container.querySelector(".mode-button").addEventListener("click", event => {
+      this.onFolderPaneModeContextOpening(event);
+      this.folderPaneModeContext.openPopup(event.target, {
+        triggerEvent: event,
+      });
+    });
   },
 
   /**
