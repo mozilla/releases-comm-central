@@ -217,8 +217,8 @@ class MenuTestHelper {
 // function here, it will run before any other cleanup function has had a
 // chance to run. Instead, when it runs register another cleanup function
 // which will run last.
-registerCleanupFunction(function() {
-  registerCleanupFunction(function() {
+registerCleanupFunction(function () {
+  registerCleanupFunction(function () {
     let tabmail = document.getElementById("tabmail");
     if (tabmail.tabInfo.length > 1) {
       Assert.report(

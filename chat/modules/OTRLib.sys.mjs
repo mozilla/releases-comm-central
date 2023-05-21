@@ -122,7 +122,7 @@ export var OTRLibLoader = {
 };
 
 // Helper function to open files with the path properly encoded.
-var callWithFILEp = function() {
+var callWithFILEp = function () {
   // Windows filenames are in UTF-16.
   let charType = systemOS === "winnt" ? "jschar" : "char";
 

@@ -213,8 +213,8 @@ function AbPanelLoad() {
   // gets a chance to display quickly.
   setTimeout(ChangeDirectoryByURI, 0, abPopup.value);
 
-  mutationObs = new MutationObserver(function(aMutations) {
-    aMutations.forEach(function(mutation) {
+  mutationObs = new MutationObserver(function (aMutations) {
+    aMutations.forEach(function (mutation) {
       if (
         getSelectedDirectoryURI() == kAllDirectoryRoot + "?" &&
         mutation.type == "attributes" &&

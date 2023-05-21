@@ -561,7 +561,7 @@ var SearchSupport = {
         // This is a hack to handle this case
         let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
         timer.initWithCallback(
-          function() {
+          function () {
             SearchIntegration._handleRegisterFailure(!prefEnabled);
           },
           200,

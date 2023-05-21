@@ -25,7 +25,7 @@ var gXGmMsgid = "1278455344230334865";
 var gXGmThrid = "1266894439832287888";
 var gXGmLabels = '(\\Inbox \\Sent Important "Muy Importante" foo)';
 
-add_setup(async function() {
+add_setup(async function () {
   Services.prefs.setBoolPref(
     "mail.server.server1.autosync_offline_stores",
     false

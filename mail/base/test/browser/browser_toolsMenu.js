@@ -42,7 +42,7 @@ let helper = new MenuTestHelper("tasksMenu", toolsMenuData);
 let tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages;
 
-add_setup(async function() {
+add_setup(async function () {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   let generator = new MessageGenerator();

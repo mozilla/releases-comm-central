@@ -123,7 +123,7 @@ function prepare_downloads_view() {
   );
 }
 
-add_setup(async function() {
+add_setup(async function () {
   gMockFilePickReg.register();
 
   await prepare_messages();
@@ -367,7 +367,7 @@ add_task(async function test_clear_all_files() {
 
 function teardownTest() {
   downloads.Downloads.getList(downloads.Downloads.ALL)
-    .then(function(list) {
+    .then(function (list) {
       for (let download of downloadsView.items.keys()) {
         list.remove(download);
       }
@@ -379,7 +379,7 @@ function teardownTest() {
   );
 }
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   close_tab(downloadsTab);
   gMockFilePickReg.unregister();
 });

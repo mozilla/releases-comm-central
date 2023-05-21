@@ -212,7 +212,7 @@ async function testDeleteUndoRedoTask(undoId, redoId) {
 /**
  * Ensure the menu bar is visible and navigate to the task view.
  */
-add_setup(async function() {
+add_setup(async function () {
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });

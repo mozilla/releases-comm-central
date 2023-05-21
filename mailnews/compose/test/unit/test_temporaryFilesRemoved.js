@@ -75,7 +75,7 @@ async function checkResult() {
   do_test_finished();
 }
 
-add_task(async function() {
+add_task(async function () {
   gExpectedFiles = await getTemporaryFilesCount();
 
   // Ensure we have at least one mail account

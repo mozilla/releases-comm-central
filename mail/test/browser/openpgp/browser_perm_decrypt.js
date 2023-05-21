@@ -49,7 +49,7 @@ var gDecFolder;
 /**
  * Set up the base account, identity and keys needed for the tests.
  */
-add_setup(async function() {
+add_setup(async function () {
   aliceAcct = MailServices.accounts.createAccount();
   aliceAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",
@@ -147,7 +147,7 @@ add_task(async function testPermanentDecrypt() {
   );
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   // Reset the OpenPGP key and delete the account.
   aliceIdentity.setUnicharAttribute("openpgp_key_id", initialKeyIdPref);
   MailServices.accounts.removeIncomingServer(aliceAcct.incomingServer, false);

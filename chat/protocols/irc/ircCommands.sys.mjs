@@ -261,7 +261,7 @@ export var commands = [
         }
         params = [conv.name];
       }
-      params.forEach(function(joinParam) {
+      params.forEach(function (joinParam) {
         if (joinParam) {
           let chatroomfields = account.getChatRoomDefaultFieldValues(joinParam);
           conv = account.joinChat(chatroomfields);
@@ -295,7 +295,7 @@ export var commands = [
         {
           onRoomInfoAvailable(aRooms) {
             if (!pendingChats.length) {
-              (async function() {
+              (async function () {
                 // pendingChats has no rooms added yet, so ensure we wait a tick.
                 let t = 0;
                 const kMaxBlockTime = 10; // Unblock every 10ms.

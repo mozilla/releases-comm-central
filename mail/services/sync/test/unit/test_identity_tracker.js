@@ -20,7 +20,7 @@ const { TestUtils } = ChromeUtils.import(
 let engine, store, tracker;
 let accountA, smtpServerA, smtpServerB, identityA, identityB;
 
-add_setup(async function() {
+add_setup(async function () {
   engine = new IdentitiesEngine(Service);
   await engine.initialize();
   store = engine._store;

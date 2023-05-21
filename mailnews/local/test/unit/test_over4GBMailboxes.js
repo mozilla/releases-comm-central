@@ -70,7 +70,7 @@ function resetAlertPromise() {
   });
 }
 
-add_setup(async function() {
+add_setup(async function () {
   registerAlertTestUtils();
 
   localAccountUtils.loadLocalMailAccount();

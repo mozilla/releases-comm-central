@@ -100,7 +100,7 @@ export var ircServices = {
       return false;
     },
 
-    "001": function(aMessage) {
+    "001": function (aMessage) {
       // RPL_WELCOME
       // If SASL authentication failed, attempt IDENTIFY.
       ircServices.sendIdentify(this);
@@ -109,7 +109,7 @@ export var ircServices = {
       return false;
     },
 
-    "421": function(aMessage) {
+    "421": function (aMessage) {
       // ERR_UNKNOWNCOMMAND
       // <command> :Unknown command
       // IDENTIFY failed, try NICKSERV IDENTIFY.
@@ -245,7 +245,7 @@ export var servicesBase = {
         // the server time to process the log-in).
         this.nickservMessageQueue = [message];
         this.nickservAuthTimeout = setTimeout(
-          function() {
+          function () {
             this.isHandlingQueuedMessages = true;
             this.nickservMessageQueue.every(aMessage =>
               ircHandlers.handleMessage(this, aMessage)
@@ -297,7 +297,7 @@ export var servicesBase = {
      * bot. Only show these if the user wants to see server messages. See bug
      * 1521761.
      */
-    "freenode-connect": function(aMessage) {
+    "freenode-connect": function (aMessage) {
       // If the user would like to see server messages, fall through to the
       // standard handler.
       if (this._showServerTab) {

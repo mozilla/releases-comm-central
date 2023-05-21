@@ -29,7 +29,7 @@ function run_test() {
 
   // Change the startup order so we can test our services
   let oldStartupOrder = ssvc.wrappedJSObject.getStartupOrder;
-  ssvc.wrappedJSObject.getStartupOrder = function() {
+  ssvc.wrappedJSObject.getStartupOrder = function () {
     let origOrder = oldStartupOrder.call(this);
 
     let notify = origOrder[origOrder.length - 1];

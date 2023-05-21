@@ -25,7 +25,7 @@ var gLastKey;
 var gMessages = [];
 var gCopyService = MailServices.copy;
 
-add_setup(function() {
+add_setup(function () {
   // Turn off autosync_offline_stores because
   // fetching messages is invoked after copying the messages.
   // (i.e. The fetching process will be invoked after OnStopCopy)

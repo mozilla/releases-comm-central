@@ -38,7 +38,7 @@ function removeExpired() {
 }
 
 let errorTryAgain = document.getElementById("errorTryAgain");
-errorTryAgain.addEventListener("click", function() {
+errorTryAgain.addEventListener("click", function () {
   removeExpired();
 });
 

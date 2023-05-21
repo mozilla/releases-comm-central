@@ -141,7 +141,7 @@ function guessConfig(
     successCallback(resultConfig);
     return new Abortable();
   }
-  var progress = function(thisTry) {
+  var progress = function (thisTry) {
     progressCallback(
       protocolToString(thisTry.protocol),
       thisTry.hostname,
@@ -152,17 +152,17 @@ function guessConfig(
     );
   };
 
-  var updateConfig = function(config) {
+  var updateConfig = function (config) {
     resultConfig = config;
   };
 
-  var errorInCallback = function(e) {
+  var errorInCallback = function (e) {
     // The caller's errorCallback threw. Hopefully shouldn't happen for users.
     console.error(e);
     alertPrompt("Error in errorCallback for guessConfig()", e);
   };
 
-  var checkDone = function() {
+  var checkDone = function () {
     if (incomingEx) {
       try {
         errorCallback(incomingEx, resultConfig);
@@ -193,7 +193,7 @@ function guessConfig(
   };
 
   var logger = gAccountSetupLogger;
-  var HostTryToAccountServer = function(thisTry, server) {
+  var HostTryToAccountServer = function (thisTry, server) {
     server.type = protocolToString(thisTry.protocol);
     server.hostname = thisTry.hostname;
     server.port = thisTry.port;
@@ -223,7 +223,7 @@ function guessConfig(
     );
   };
 
-  var outgoingSuccess = function(thisTry, alternativeTries) {
+  var outgoingSuccess = function (thisTry, alternativeTries) {
     assert(thisTry.protocol == SMTP, "I only know SMTP for outgoing");
     // Ensure there are no previously saved outgoing errors, if we've got
     // success here.
@@ -250,7 +250,7 @@ function guessConfig(
     checkDone();
   };
 
-  var incomingSuccess = function(thisTry, alternativeTries) {
+  var incomingSuccess = function (thisTry, alternativeTries) {
     // Ensure there are no previously saved incoming errors, if we've got
     // success here.
     incomingEx = null;
@@ -276,14 +276,14 @@ function guessConfig(
     checkDone();
   };
 
-  var incomingError = function(ex) {
+  var incomingError = function (ex) {
     incomingEx = ex;
     checkDone();
     incomingHostDetector.cancel(new CancelOthersException());
     outgoingHostDetector.cancel(new CancelOthersException());
   };
 
-  var outgoingError = function(ex) {
+  var outgoingError = function (ex) {
     outgoingEx = ex;
     checkDone();
     incomingHostDetector.cancel(new CancelOthersException());
@@ -338,7 +338,7 @@ function GuessAbortable(
 }
 GuessAbortable.prototype = Object.create(Abortable.prototype);
 GuessAbortable.prototype.constructor = GuessAbortable;
-GuessAbortable.prototype.cancel = function(ex) {
+GuessAbortable.prototype.cancel = function (ex) {
   this._incomingHostDetector.cancel(ex);
   this._outgoingHostDetector.cancel(ex);
 };
@@ -542,7 +542,7 @@ HostDetector.prototype = {
     // assumption is generally sound, but not always: mechanisms like
     // the pref network.proxy.no_proxies_on can make imap.domain and
     // pop.domain resolve differently.
-    doProxy(this._hostsToTry[0].hostname, function(proxy) {
+    doProxy(this._hostsToTry[0].hostname, function (proxy) {
       for (let i = 0; i < me._hostsToTry.length; i++) {
         let thisTry = me._hostsToTry[i]; // {HostTry}
         if (thisTry.status != kNotTried) {
@@ -562,7 +562,7 @@ HostDetector.prototype = {
           timeout,
           proxy,
           new SSLErrorHandler(thisTry, me._log),
-          function(wiredata) {
+          function (wiredata) {
             // result callback
             if (me._cancel) {
               // Don't use response anymore.
@@ -572,7 +572,7 @@ HostDetector.prototype = {
             me._processResult(thisTry, wiredata);
             me._checkFinished();
           },
-          function(e) {
+          function (e) {
             // error callback
             if (me._cancel) {
               // Who set cancel to true already called mErrorCallback().
@@ -748,10 +748,7 @@ HostDetector.prototype = {
     var capa = thisTry.protocol == POP ? "STLS" : "STARTTLS";
     return (
       thisTry.socketType == STARTTLS &&
-      wiredata
-        .join("")
-        .toUpperCase()
-        .includes(capa)
+      wiredata.join("").toUpperCase().includes(capa)
     );
   },
 };
@@ -854,7 +851,7 @@ CMDS[SMTP] = ["EHLO we-guess.mozilla.org\r\n", "QUIT\r\n"];
  * @returns {Array of {HostTry}}
  */
 function sortTriesByPreference(tries) {
-  return tries.sort(function(a, b) {
+  return tries.sort(function (a, b) {
     // -1 = a is better; 1 = b is better; 0 = equal
     // Prefer SSL/STARTTLS above all else
     if (a.socketType != NONE && b.socketType == NONE) {
@@ -1271,7 +1268,7 @@ function SocketAbortable(transport) {
 }
 SocketAbortable.prototype = Object.create(Abortable.prototype);
 SocketAbortable.prototype.constructor = UserCancelledException;
-SocketAbortable.prototype.cancel = function(ex) {
+SocketAbortable.prototype.cancel = function (ex) {
   try {
     this._transport.close(Cr.NS_ERROR_ABORT);
   } catch (e) {

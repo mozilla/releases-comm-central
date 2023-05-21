@@ -16,7 +16,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 /**
  * Setup the mailboxes that will be used for this test.
  */
-add_setup(async function() {
+add_setup(async function () {
   setupIMAPPump("GMail");
 
   IMAPPump.mailbox.subscribed = true;

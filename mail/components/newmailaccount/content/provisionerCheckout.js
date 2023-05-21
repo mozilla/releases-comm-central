@@ -43,7 +43,7 @@ var provisionerCheckoutTabType = Object.create(specialTabs.contentTabType, {
  * special arguments "realName", "email" and "searchEngine" from the caller
  * of openTab, and passing those to our _setMonitoring function.
  */
-provisionerCheckoutTabType.openTab = function(aTab, aArgs) {
+provisionerCheckoutTabType.openTab = function (aTab, aArgs) {
   specialTabs.contentTabType.openTab.call(this, aTab, aArgs);
 
   // Since there's only one tab of this type ever (see the mode definition),
@@ -65,7 +65,7 @@ provisionerCheckoutTabType.openTab = function(aTab, aArgs) {
  * (for the context of this provisionerCheckoutTab "aTab"), and then we
  * unregister our observer that was registered in _setMonitoring.
  */
-provisionerCheckoutTabType.closeTab = function(aTab) {
+provisionerCheckoutTabType.closeTab = function (aTab) {
   specialTabs.contentTabType.closeTab.call(this, aTab);
   this._log.info("Performing account provisioner cleanup");
   this._log.info("Removing httpRequestObserver");
@@ -82,7 +82,7 @@ provisionerCheckoutTabType.closeTab = function(aTab) {
 /**
  * Serialize our tab into something we can restore later.
  */
-provisionerCheckoutTabType.persistTab = function(aTab) {
+provisionerCheckoutTabType.persistTab = function (aTab) {
   return {
     tabURI: aTab.browser.currentURI.spec,
     realName: this._realName,
@@ -95,7 +95,7 @@ provisionerCheckoutTabType.persistTab = function(aTab) {
  * Re-open the provisionerCheckoutTab with all of the stuff we stashed in
  * persistTab. This will automatically hook up our monitoring again.
  */
-provisionerCheckoutTabType.restoreTab = function(aTabmail, aPersistedState) {
+provisionerCheckoutTabType.restoreTab = function (aTabmail, aPersistedState) {
   aTabmail.openTab("provisionerCheckoutTab", {
     url: aPersistedState.tabURI,
     realName: aPersistedState.realName,
@@ -109,7 +109,7 @@ provisionerCheckoutTabType.restoreTab = function(aTabmail, aPersistedState) {
  * This function registers an observer to watch for HTTP requests where the
  * contentType contains text/xml.
  */
-provisionerCheckoutTabType._setMonitoring = function(
+provisionerCheckoutTabType._setMonitoring = function (
   aBrowser,
   aRealName,
   aEmail,

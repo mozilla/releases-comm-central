@@ -135,7 +135,7 @@ calFilterProperties.prototype = {
       return false;
     }
     let props = ["start", "end", "due", "status", "category", "occurrences", "onfilter"];
-    return props.every(function(prop) {
+    return props.every(function (prop) {
       return this[prop] == aFilterProps[prop];
     }, this);
   },
@@ -143,7 +143,7 @@ calFilterProperties.prototype = {
   clone() {
     let cloned = new calFilterProperties();
     let props = ["start", "end", "due", "status", "category", "occurrences", "onfilter"];
-    props.forEach(function(prop) {
+    props.forEach(function (prop) {
       cloned[prop] = this[prop];
     }, this);
 
@@ -211,7 +211,7 @@ calFilter.prototype = {
       "current",
       "currentview",
     ];
-    filters.forEach(function(filter) {
+    filters.forEach(function (filter) {
       if (!(filter in this.mDefinedFilters)) {
         this.defineFilter(filter, this.getPreDefinedFilterProperties(filter));
       }
@@ -795,7 +795,7 @@ calFilter.prototype = {
       return null;
     }
 
-    return aItems.filter(function(aItem) {
+    return aItems.filter(function (aItem) {
       let result = this.isItemInFilters(aItem);
 
       if (aCallback && typeof aCallback == "function") {
@@ -856,7 +856,7 @@ calFilter.prototype = {
     // the parent item doesn't match the filter, we can return the first future exception
     // that matches the filter
     let exMatch = null;
-    aItem.recurrenceInfo.getExceptionIds().forEach(function(rID) {
+    aItem.recurrenceInfo.getExceptionIds().forEach(function (rID) {
       let ex = aItem.recurrenceInfo.getExceptionFor(rID);
       if (
         ex &&

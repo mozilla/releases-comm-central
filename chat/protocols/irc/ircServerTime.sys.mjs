@@ -40,7 +40,7 @@ export var capServerTime = {
   isEnabled: () => true,
 
   commands: {
-    "server-time": function(aMessage) {
+    "server-time": function (aMessage) {
       if (
         aMessage.cap.subcommand === "LS" ||
         aMessage.cap.subcommand === "NEW"
@@ -57,7 +57,7 @@ export var capServerTime = {
       }
       return true;
     },
-    "znc.in/server-time-iso": function(aMessage) {
+    "znc.in/server-time-iso": function (aMessage) {
       // Only request legacy server time CAP if the standard one is not available.
       if (
         (aMessage.cap.subcommand === "LS" ||

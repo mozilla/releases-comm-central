@@ -344,7 +344,7 @@ async function ComposeMessage(
             MsgHdrToMimeMessage(
               hdr,
               null,
-              function(hdr, mimeMsg) {
+              function (hdr, mimeMsg) {
                 let catchAllHeaders = Services.prefs
                   .getStringPref("mail.compose.catchAllHeaders")
                   .split(",")
@@ -597,7 +597,7 @@ function viewEncryptedPart(message) {
    *
    * @param {string} data - The message data.
    */
-  let msgOpenMessageFromString = function(data) {
+  let msgOpenMessageFromString = function (data) {
     let tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
     tempFile.append("subPart.eml");
     tempFile.createUnique(0, 0o600);

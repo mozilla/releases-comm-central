@@ -346,10 +346,10 @@ function prepareIndexerForTesting() {
   GlodaIndexer._PAUSE_LATE_IS_BUSY_TIME = 10000000;
 
   delete GlodaIndexer._indexTokens;
-  GlodaIndexer.__defineGetter__("_indexTokens", function() {
+  GlodaIndexer.__defineGetter__("_indexTokens", function () {
     return GlodaIndexer._CPU_MAX_TOKENS_PER_BATCH;
   });
-  GlodaIndexer.__defineSetter__("_indexTokens", function() {});
+  GlodaIndexer.__defineSetter__("_indexTokens", function () {});
 
   // This includes making commits only happen when we the unit tests explicitly
   //  tell them to.

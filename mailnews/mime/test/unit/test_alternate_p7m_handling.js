@@ -18,7 +18,7 @@ var messageInjection = new MessageInjection({ mode: "local" });
 var inbox = messageInjection.getInboxFolder();
 var msgHdr;
 
-add_setup(async function() {
+add_setup(async function () {
   // Create a message with a p7m attachment.
   let synMsg = messageGenerator.makeMessage({
     attachments: [
@@ -40,7 +40,7 @@ add_task(async function test_mime_p7m_external_foo_pref() {
   Services.prefs.setBoolPref("mailnews.p7m_external", true);
 
   await new Promise(resolve => {
-    MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+    MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
       Assert.ok(aMimeMsg.allUserAttachments.length == 1);
       resolve();
     });
@@ -50,7 +50,7 @@ add_task(async function test_mime_p7m_external_all_external_pref() {
   Services.prefs.setBoolPref("mailnews.p7m_external", false);
 
   await new Promise(resolve => {
-    MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+    MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
       Assert.ok(aMimeMsg.allUserAttachments.length == 1);
       resolve();
     });

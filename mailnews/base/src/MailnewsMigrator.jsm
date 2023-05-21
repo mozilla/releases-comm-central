@@ -312,7 +312,7 @@ function migrateABRemoteContentSettings() {
 
   // Search through all of our local address books looking for a match.
   for (let addrbook of MailServices.ab.directories) {
-    let migrateAddress = function(aEmail) {
+    let migrateAddress = function (aEmail) {
       let uri = Services.io.newURI(
         "chrome://messenger/content/email=" + aEmail
       );

@@ -27,7 +27,7 @@ var { content_tab_e } = ChromeUtils.import(
 
 var gPopAccount, gOriginalAccountCount;
 
-add_setup(function() {
+add_setup(function () {
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 
@@ -50,7 +50,7 @@ add_setup(function() {
   );
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   if (gPopAccount) {
     // Remove our test account to leave the profile clean.
     MailServices.accounts.removeAccount(gPopAccount);
@@ -65,10 +65,10 @@ registerCleanupFunction(function() {
  * Check if the account manager dialog remembers the open state of accounts.
  */
 add_task(async function test_account_open_state() {
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_account_open_state(tab, true);
   });
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_account_open_state(tab, false);
   });
   // After this test all the accounts must be "open".
@@ -123,7 +123,7 @@ function subtest_check_account_open_state(tab, wishedState) {
  * Check if the default account is styled in bold.
  */
 add_task(async function test_default_account_highlight() {
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_default_account_highlight(tab);
   });
 });
@@ -167,7 +167,7 @@ function subtest_check_default_account_highlight(tab) {
  * created gPopAccount.
  */
 add_task(async function test_selection_after_account_deletion() {
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_selection_after_account_deletion(tab);
   });
 });

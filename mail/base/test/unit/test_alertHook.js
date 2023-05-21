@@ -35,7 +35,7 @@ var mockAlertsService;
 var cid;
 var mailnewsURL;
 
-add_setup(function() {
+add_setup(function () {
   // First register the mock alerts service.
   mockAlertsService = new MockAlertsService();
   cid = MockRegistrar.register(

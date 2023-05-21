@@ -203,13 +203,13 @@ export class AttachmentInfo {
       let { name, url } = this;
 
       async function saveToFile(path) {
-        let buffer = await new Promise(function(resolve, reject) {
+        let buffer = await new Promise(function (resolve, reject) {
           lazy.NetUtil.asyncFetch(
             {
               uri: Services.io.newURI(url),
               loadUsingSystemPrincipal: true,
             },
-            function(inputStream, status) {
+            function (inputStream, status) {
               if (Components.isSuccessCode(status)) {
                 resolve(lazy.NetUtil.readInputStream(inputStream));
               } else {

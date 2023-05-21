@@ -49,7 +49,7 @@ var b64Attachment =
   "SNQAAlmAY+71EgFoAAAAASUVORK5CYII=";
 var b64Size = 188;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("ComposeAttachmentA");
 
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
@@ -253,10 +253,7 @@ add_task(function test_delete_attachments() {
 
 function subtest_rename_attachment(cwc) {
   cwc.window.document.getElementById("loginTextbox").value = "renamed.txt";
-  cwc.window.document
-    .querySelector("dialog")
-    .getButton("accept")
-    .doCommand();
+  cwc.window.document.querySelector("dialog").getButton("accept").doCommand();
 }
 
 add_task(function test_rename_attachment() {
@@ -284,10 +281,7 @@ add_task(function test_rename_attachment() {
 });
 
 function subtest_open_attachment(cwc) {
-  cwc.window.document
-    .querySelector("dialog")
-    .getButton("cancel")
-    .doCommand();
+  cwc.window.document.querySelector("dialog").getButton("cancel").doCommand();
 }
 
 add_task(function test_open_attachment() {

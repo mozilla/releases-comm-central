@@ -7,7 +7,7 @@ async function installMozAM(filename) {
   BrowserTestUtils.loadURIString(browser, INSTALL_PAGE);
   await BrowserTestUtils.browserLoaded(browser);
 
-  await SpecialPowers.spawn(browser, [`${BASE}/${filename}`], async function(
+  await SpecialPowers.spawn(browser, [`${BASE}/${filename}`], async function (
     url
   ) {
     await content.wrappedJSObject.installMozAM(url);

@@ -75,7 +75,7 @@ let helper = new MenuTestHelper("messageMenu", messageMenuData);
 let tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages;
 
-add_setup(async function() {
+add_setup(async function () {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 

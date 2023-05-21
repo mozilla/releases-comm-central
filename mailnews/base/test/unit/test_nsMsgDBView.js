@@ -409,7 +409,7 @@ function ensure_view_ordering(
 
   let valueGetter =
     typeof aKeyOrValueGetter == "string"
-      ? function(msgHdr) {
+      ? function (msgHdr) {
           return msgHdr[aKeyOrValueGetter];
         }
       : aKeyOrValueGetter;
@@ -565,7 +565,7 @@ function test_sort_columns() {
   ensure_view_ordering(
     Ci.nsMsgViewSortType.byCustom,
     Ci.nsMsgViewSortOrder.ascending,
-    function(msgHdr) {
+    function (msgHdr) {
       return authorFirstLetterCustomColumn.getSortStringForRow(msgHdr);
     }
   );
@@ -1139,7 +1139,7 @@ function tests_for_all_views() {
   test_insert_remove_view_rows();
 }
 
-add_setup(function() {
+add_setup(function () {
   gMessages = setup_messages();
 });
 

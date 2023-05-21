@@ -746,18 +746,12 @@
 
     _boxKeyForDate(aDate) {
       if (aDate instanceof lazy.CalDateTime || aDate instanceof Ci.calIDateTime) {
-        return aDate
-          .getInTimezone(cal.dtz.defaultTimezone)
-          .toString()
-          .substring(0, 10);
+        return aDate.getInTimezone(cal.dtz.defaultTimezone).toString().substring(0, 10);
       }
       return [
         aDate.getFullYear(),
         (aDate.getMonth() + 1).toString().padStart(2, "0"),
-        aDate
-          .getDate()
-          .toString()
-          .padStart(2, "0"),
+        aDate.getDate().toString().padStart(2, "0"),
       ].join("-");
     }
 

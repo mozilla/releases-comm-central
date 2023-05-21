@@ -300,7 +300,7 @@ class ImapMailbox {
       }
 
       let generator = folder.includes("*") ? "allChildren" : "_children";
-      let possible = matching.reduce(function(arr, elem) {
+      let possible = matching.reduce(function (arr, elem) {
         return arr.concat(elem[generator]);
       }, []);
 
@@ -309,10 +309,10 @@ class ImapMailbox {
         continue;
       }
 
-      let parts = folder.split(/[*%]/).filter(function(str) {
+      let parts = folder.split(/[*%]/).filter(function (str) {
         return str.length > 0;
       });
-      matching = possible.filter(function(mailbox) {
+      matching = possible.filter(function (mailbox) {
         let index = 0,
           name = mailbox.fullName;
         for (var part of parts) {
@@ -339,13 +339,13 @@ class ImapMailbox {
     return manager.unicodeToMutf7(this.fullName.replace(/([\\"])/g, "\\$1"));
   }
   get allChildren() {
-    return this._children.reduce(function(arr, elem) {
+    return this._children.reduce(function (arr, elem) {
       return arr.concat(elem._allChildrenInternal);
     }, []);
   }
   get _allChildrenInternal() {
     return this._children.reduce(
-      function(arr, elem) {
+      function (arr, elem) {
         return arr.concat(elem._allChildrenInternal);
       },
       [this]
@@ -626,7 +626,7 @@ function formatArg(argument, spec) {
     // Strip the '(' and ')'...
     spec = spec.substring(1, spec.length - 1);
     // ... and apply to the rest
-    return argument.map(function(item) {
+    return argument.map(function (item) {
       return formatArg(item, spec);
     });
   }
@@ -1072,7 +1072,7 @@ class IMAP_RFC3501_handler {
     var scheme = args[0]; // already uppercased by type "atom"
     // |scheme| contained in |kAuthSchemes|?
     if (
-      !this.kAuthSchemes.some(function(s) {
+      !this.kAuthSchemes.some(function (s) {
         return s == scheme;
       })
     ) {
@@ -1089,7 +1089,7 @@ class IMAP_RFC3501_handler {
   }
   LOGIN(args) {
     if (
-      this.kCapabilities.some(function(c) {
+      this.kCapabilities.some(function (c) {
         return c == "LOGINDISABLED";
       })
     ) {
@@ -1116,7 +1116,7 @@ class IMAP_RFC3501_handler {
 
     var response = "* FLAGS (" + box.msgflags.join(" ") + ")\0";
     response += "* " + box._messages.length + " EXISTS\0* ";
-    response += box._messages.reduce(function(count, message) {
+    response += box._messages.reduce(function (count, message) {
       return count + (message.recent ? 1 : 0);
     }, 0);
     response += " RECENT\0";
@@ -1148,7 +1148,7 @@ class IMAP_RFC3501_handler {
 
     var response = "* FLAGS (" + box.msgflags.join(" ") + ")\0";
     response += "* " + box._messages.length + " EXISTS\0* ";
-    response += box._messages.reduce(function(count, message) {
+    response += box._messages.reduce(function (count, message) {
       return count + (message.recent ? 1 : 0);
     }, 0);
     response += " RECENT\0";
@@ -1322,7 +1322,7 @@ class IMAP_RFC3501_handler {
           line += box._messages.length;
           break;
         case "RECENT":
-          line += box._messages.reduce(function(count, message) {
+          line += box._messages.reduce(function (count, message) {
             return count + (message.recent ? 1 : 0);
           }, 0);
           break;
@@ -1333,7 +1333,7 @@ class IMAP_RFC3501_handler {
           line += box.uidvalidity;
           break;
         case "UNSEEN":
-          line += box._messages.reduce(function(count, message) {
+          line += box._messages.reduce(function (count, message) {
             return count + (message.flags.includes("\\Seen") ? 0 : 1);
           }, 0);
           break;
@@ -1666,7 +1666,7 @@ class IMAP_RFC3501_handler {
     }
     var messages;
     if (uid) {
-      messages = this._selectedMailbox._messages.filter(function(msg, i) {
+      messages = this._selectedMailbox._messages.filter(function (msg, i) {
         if (!set.includes(msg.uid)) {
           return false;
         }
@@ -1696,7 +1696,7 @@ class IMAP_RFC3501_handler {
     }
 
     if (parts[3]) {
-      parts[3] = parts[3].split(/\./).map(function(e) {
+      parts[3] = parts[3].split(/\./).map(function (e) {
         return parseInt(e);
       });
     }
@@ -1824,18 +1824,9 @@ class IMAP_RFC3501_handler {
     let year = date.getFullYear().toString();
     let month = date.toLocaleDateString("en-US", { month: "short" });
     let day = date.getDate().toString();
-    let hours = date
-      .getHours()
-      .toString()
-      .padStart(2, "0");
-    let minutes = date
-      .getMinutes()
-      .toString()
-      .padStart(2, "0");
-    let seconds = date
-      .getSeconds()
-      .toString()
-      .padStart(2, "0");
+    let hours = date.getHours().toString().padStart(2, "0");
+    let minutes = date.getMinutes().toString().padStart(2, "0");
+    let seconds = date.getSeconds().toString().padStart(2, "0");
     let offset = date.getTimezoneOffset();
     let tzoff =
       Math.floor(Math.abs(offset) / 60) * 100 + (Math.abs(offset) % 60);

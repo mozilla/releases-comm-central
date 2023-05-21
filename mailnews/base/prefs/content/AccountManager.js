@@ -52,7 +52,7 @@ var { ChatIcons } = ChromeUtils.importESModule(
   "resource:///modules/chatIcons.sys.mjs"
 );
 
-XPCOMUtils.defineLazyGetter(this, "gSubDialog", function() {
+XPCOMUtils.defineLazyGetter(this, "gSubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(
     "resource://gre/modules/SubDialog.sys.mjs"
   );
@@ -920,7 +920,7 @@ function onRemoveAccount(event) {
     result: false,
   };
 
-  let onCloseDialog = function() {
+  let onCloseDialog = function () {
     // If result is true, the account was removed.
     if (!removeArgs.result) {
       return;
@@ -1695,7 +1695,7 @@ var gAccountTree = {
     this._build();
 
     let mainTree = document.getElementById("accounttree");
-    mainTree.__defineGetter__("_orderableChildren", function() {
+    mainTree.__defineGetter__("_orderableChildren", function () {
       let rows = [...this.children];
       rows.pop();
       return rows;

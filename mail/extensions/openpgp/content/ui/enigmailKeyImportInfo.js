@@ -32,7 +32,7 @@ async function onLoad() {
 
   var keyList = window.arguments[0].keyList;
 
-  let onClickFunc = function(event) {
+  let onClickFunc = function (event) {
     let keyId = event.target.getAttribute("keyid");
     EnigmailWindows.openKeyDetails(window, keyId, false);
   };
@@ -166,6 +166,6 @@ function dlgClose(buttonNumber) {
   window.close();
 }
 
-document.addEventListener("dialogaccept", function(event) {
+document.addEventListener("dialogaccept", function (event) {
   dlgClose(0);
 });

@@ -76,7 +76,7 @@ class SMTP_RFC2821_handler {
     var scheme = args[0].toUpperCase();
     // |scheme| contained in |kAuthSchemes|?
     if (
-      !this.kAuthSchemes.some(function(s) {
+      !this.kAuthSchemes.some(function (s) {
         return s == scheme;
       })
     ) {

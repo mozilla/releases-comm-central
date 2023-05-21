@@ -34,17 +34,14 @@ async function wrappedTest(testInitCallback, ...attemptArgs) {
 
   let dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
-  ).then(async function(dialogWindow) {
+  ).then(async function (dialogWindow) {
     for (let args of attemptArgs) {
       if (args.url?.startsWith("/")) {
         args.url = CardDAVServer.origin + args.url;
       }
       await attemptInit(dialogWindow, args);
     }
-    dialogWindow.document
-      .querySelector("dialog")
-      .getButton("cancel")
-      .click();
+    dialogWindow.document.querySelector("dialog").getButton("cancel").click();
   });
   abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
   await dialogPromise;
@@ -146,10 +143,7 @@ function handlePasswordPrompt(expectedUsername, password, savePassword = true) {
       );
 
       if (!password) {
-        prompt.document
-          .querySelector("dialog")
-          .getButton("cancel")
-          .click();
+        prompt.document.querySelector("dialog").getButton("cancel").click();
         return;
       }
 
@@ -172,10 +166,7 @@ function handlePasswordPrompt(expectedUsername, password, savePassword = true) {
         Assert.ok(!checkbox.checked);
       }
 
-      prompt.document
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+      prompt.document.querySelector("dialog").getButton("accept").click();
     },
   });
 }
@@ -294,11 +285,11 @@ add_task(async function testDNS() {
   let _srv = DNS.srv;
   let _txt = DNS.txt;
 
-  DNS.srv = function(name) {
+  DNS.srv = function (name) {
     Assert.equal(name, "_carddavs._tcp.dnstest.invalid");
     return [{ prio: 0, weight: 0, host: "example.org", port: 443 }];
   };
-  DNS.txt = function(name) {
+  DNS.txt = function (name) {
     Assert.equal(name, "_carddavs._tcp.dnstest.invalid");
     return [
       {
@@ -311,7 +302,7 @@ add_task(async function testDNS() {
   let abWindow = await openAddressBookWindow();
   let dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
-  ).then(async function(dialogWindow) {
+  ).then(async function (dialogWindow) {
     await attemptInit(dialogWindow, {
       username: "carol@dnstest.invalid",
       password: "carol",
@@ -324,10 +315,7 @@ add_task(async function testDNS() {
         },
       ],
     });
-    dialogWindow.document
-      .querySelector("dialog")
-      .getButton("cancel")
-      .click();
+    dialogWindow.document.querySelector("dialog").getButton("cancel").click();
   });
   abWindow.createBook(Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
   await dialogPromise;
@@ -350,7 +338,7 @@ add_task(async function testEveryThingOK() {
 
   let dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
-  ).then(async function(dialogWindow) {
+  ).then(async function (dialogWindow) {
     await attemptInit(dialogWindow, {
       url: CardDAVServer.origin,
       password: "alice",
@@ -363,10 +351,7 @@ add_task(async function testEveryThingOK() {
     );
     availableBooks.children[0].checked = false;
 
-    dialogWindow.document
-      .querySelector("dialog")
-      .getButton("accept")
-      .click();
+    dialogWindow.document.querySelector("dialog").getButton("accept").click();
   });
   let syncPromise = new Promise(resolve => {
     let observer = {
@@ -432,7 +417,7 @@ add_task(async function testEveryThingOKAgain() {
 
   let dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
-  ).then(async function(dialogWindow) {
+  ).then(async function (dialogWindow) {
     await attemptInit(dialogWindow, {
       url: CardDAVServer.origin,
       password: "alice",
@@ -440,10 +425,7 @@ add_task(async function testEveryThingOKAgain() {
       expectedBooks: [DEFAULT_BOOKS[0]],
     });
 
-    dialogWindow.document
-      .querySelector("dialog")
-      .getButton("accept")
-      .click();
+    dialogWindow.document.querySelector("dialog").getButton("accept").click();
   });
   let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
 
@@ -512,7 +494,7 @@ add_task(async function testNoSavePassword() {
 
   let dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
-  ).then(async function(dialogWindow) {
+  ).then(async function (dialogWindow) {
     await attemptInit(dialogWindow, {
       url: CardDAVServer.origin,
       password: "alice",
@@ -526,10 +508,7 @@ add_task(async function testNoSavePassword() {
     );
     availableBooks.children[0].checked = false;
 
-    dialogWindow.document
-      .querySelector("dialog")
-      .getButton("accept")
-      .click();
+    dialogWindow.document.querySelector("dialog").getButton("accept").click();
   });
   let syncPromise = TestUtils.topicObserved("addrbook-directory-synced");
 
@@ -625,7 +604,7 @@ add_task(async function testNoName() {
 
   let dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
-  ).then(async function(dialogWindow) {
+  ).then(async function (dialogWindow) {
     await attemptInit(dialogWindow, {
       url: CardDAVServer.origin,
       password: "alice",
@@ -633,10 +612,7 @@ add_task(async function testNoName() {
       expectedBooks: [{ label: "noname", url: "/addressbooks/me/noname/" }],
     });
 
-    dialogWindow.document
-      .querySelector("dialog")
-      .getButton("accept")
-      .click();
+    dialogWindow.document.querySelector("dialog").getButton("accept").click();
   });
   let syncPromise = new Promise(resolve => {
     let observer = {

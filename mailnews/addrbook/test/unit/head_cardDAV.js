@@ -15,7 +15,7 @@ Cu.importGlobalProperties(["fetch"]);
 
 do_get_profile();
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   load("../../../resources/mailShutdown.js");
 });
 

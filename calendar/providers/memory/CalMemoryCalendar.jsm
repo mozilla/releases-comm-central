@@ -386,7 +386,7 @@ CalMemoryCalendar.prototype = {
       requestedFlag = cICL.OFFLINE_FLAG_DELETED_RECORD;
     }
 
-    let matchOffline = function(itemFlag, reqFlag) {
+    let matchOffline = function (itemFlag, reqFlag) {
       // Same as storage calendar sql query. For comparison:
       // reqFlag is :offline_journal (parameter),
       // itemFlag is offline_journal (field value)

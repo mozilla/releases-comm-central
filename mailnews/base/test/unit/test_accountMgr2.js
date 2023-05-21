@@ -9,7 +9,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-add_task(async function() {
+add_task(async function () {
   let mgr = MailServices.accounts;
 
   // Create a couple of test accounts.

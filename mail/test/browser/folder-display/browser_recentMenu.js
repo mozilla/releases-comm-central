@@ -37,7 +37,7 @@ var { MailServices } = ChromeUtils.import(
 var folder1, folder2;
 var gInitRecentMenuCount;
 
-add_setup(async function() {
+add_setup(async function () {
   // Ensure that there are no updated folders to ensure the recent folder
   // is empty.
   for (let folder of MailServices.accounts.allFolders) {

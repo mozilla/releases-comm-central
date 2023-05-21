@@ -34,7 +34,7 @@ let mockExternalProtocolService = {
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
 
-add_setup(async function() {
+add_setup(async function () {
   // Card 0.
   personalBook.addCard(
     VCardUtils.vCardToAbCard("BEGIN:VCARD\r\nEND:VCARD\r\n")

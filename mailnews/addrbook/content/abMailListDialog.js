@@ -249,7 +249,7 @@ function OnLoadNewMailList() {
   var listName = document.getElementById("ListName");
   if (listName) {
     setTimeout(
-      function(firstTextBox) {
+      function (firstTextBox) {
         firstTextBox.focus();
       },
       0,

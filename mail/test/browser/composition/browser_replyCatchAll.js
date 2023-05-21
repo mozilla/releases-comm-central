@@ -49,7 +49,7 @@ var identity2;
 var gAccount;
 var gFolder;
 
-add_setup(function() {
+add_setup(function () {
   requestLongerTimeout(4);
 
   // Now set up an account with some identities.
@@ -259,7 +259,7 @@ function checkCompIdentity(cwc, identityKey, from) {
   );
 }
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   await be_in_folder(gFolder);
   while (gFolder.getTotalMessages(false) > 0) {
     select_click_row(0);

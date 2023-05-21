@@ -75,7 +75,7 @@ function drag_n_drop_element(
 function synthesize_drag_start(aWindow, aDispatcher, aListener) {
   let dt;
 
-  let trapDrag = function(event) {
+  let trapDrag = function (event) {
     if (!event.dataTransfer) {
       throw new Error("no DataTransfer");
     }

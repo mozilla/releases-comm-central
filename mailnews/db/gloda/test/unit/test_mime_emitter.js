@@ -336,9 +336,9 @@ var messageInfos = [
   },
 ];
 
-add_setup(async function() {
+add_setup(async function () {
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
-  registerCleanupFunction(function() {
+  registerCleanupFunction(function () {
     GlodaDatastore.shutdown();
   });
 });
@@ -382,7 +382,7 @@ add_task(async function test_sane_bodies() {
   MsgHdrToMimeMessage(
     msgHdr,
     null,
-    function(aMsgHdr, aMimeMsg) {
+    function (aMsgHdr, aMimeMsg) {
       let bodyPart = aMimeMsg.parts[0];
       // (the \r gets gone, so it's only 59 per line)
       if (bodyPart.body.length > 20 * 1024 + 59) {
@@ -503,7 +503,7 @@ add_task(async function test_attachments_correctness() {
     MsgHdrToMimeMessage(
       msgHdr,
       null,
-      function(aMsgHdr, aMimeMsg) {
+      function (aMsgHdr, aMimeMsg) {
         try {
           let expected = expectedAttachmentsInfo[i];
           if ("firstAttachmentName" in expected) {
@@ -600,7 +600,7 @@ add_task(async function test_part12_not_an_attachment() {
     promiseResolve = resolve;
   });
 
-  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+  MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
     try {
       Assert.ok(aMimeMsg.allUserAttachments.length == 0);
       Assert.ok(aMimeMsg.allAttachments.length == 0);
@@ -627,7 +627,7 @@ async function stream_message(info) {
   let promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
-  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+  MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
     verify_stream_message(info, synMsg, aMsgHdr, aMimeMsg);
     promiseResolve();
   });

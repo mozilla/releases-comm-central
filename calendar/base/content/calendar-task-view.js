@@ -183,7 +183,7 @@ var taskDetailsView = {
 
       // Make any links open in the user's default browser, not in Thunderbird.
       for (let anchor of docFragment.querySelectorAll("a")) {
-        anchor.addEventListener("click", function(event) {
+        anchor.addEventListener("click", function (event) {
           event.preventDefault();
           if (event.isTrusted) {
             launchBrowser(anchor.getAttribute("href"), event);
@@ -452,7 +452,7 @@ function taskViewOnLoad() {
 
   // Setup customizeDone handler for the task action toolbox.
   let toolbox = document.getElementById("task-actions-toolbox");
-  toolbox.customizeDone = function(aEvent) {
+  toolbox.customizeDone = function (aEvent) {
     MailToolboxCustomizeDone(aEvent, "CustomizeTaskActionsToolbar");
   };
 

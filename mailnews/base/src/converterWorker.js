@@ -48,7 +48,7 @@
 async function maildirToMBox(maildir, mboxFilename, progressFn) {
   // Helper to format dates
   // eg "Thu Jan 18 12:34:56 2018"
-  let fmtUTC = function(d) {
+  let fmtUTC = function (d) {
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const monthNames = [
       "Jan",
@@ -69,25 +69,13 @@ async function maildirToMBox(maildir, mboxFilename, progressFn) {
       " " +
       monthNames[d.getUTCMonth()] +
       " " +
-      d
-        .getUTCDate()
-        .toString()
-        .padStart(2) +
+      d.getUTCDate().toString().padStart(2) +
       " " +
-      d
-        .getUTCHours()
-        .toString()
-        .padStart(2, "0") +
+      d.getUTCHours().toString().padStart(2, "0") +
       ":" +
-      d
-        .getUTCMinutes()
-        .toString()
-        .padStart(2, "0") +
+      d.getUTCMinutes().toString().padStart(2, "0") +
       ":" +
-      d
-        .getUTCSeconds()
-        .toString()
-        .padStart(2, "0") +
+      d.getUTCSeconds().toString().padStart(2, "0") +
       " " +
       d.getUTCFullYear()
     );
@@ -112,7 +100,7 @@ async function maildirToMBox(maildir, mboxFilename, progressFn) {
   );
   // We write out the mbox messages ordered by creation time.
   // Not ideal, but best we can do without parsing message.
-  files.sort(function(a, b) {
+  files.sort(function (a, b) {
     return a.creationDate - b.creationDate;
   });
 
@@ -190,7 +178,7 @@ async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
    * @param {string} s - Input string with chars in 0-255 range.
    * @returns {Uint8Array} The output bytes.
    */
-  let stringToBytes = function(str) {
+  let stringToBytes = function (str) {
     var bytes = new Uint8Array(str.length);
     for (let i = 0; i < str.length; i++) {
       bytes[i] = str.charCodeAt(i);
@@ -206,8 +194,8 @@ async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
    * @param {Uint8Array} bytes - The bytes to convert.
    * @returns {string} The byte values in string form.
    */
-  let bytesToString = function(bytes) {
-    return bytes.reduce(function(str, b) {
+  let bytesToString = function (bytes) {
+    return bytes.reduce(function (str, b) {
       return str + String.fromCharCode(b);
     }, "");
   };
@@ -220,7 +208,7 @@ async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
    *
    * @param {string} str - The bytes to append (as chars in range 0-255).
    */
-  let writeToMsg = async function(str) {
+  let writeToMsg = async function (str) {
     let mode = "append";
     if (!outPath) {
       outPath = PathUtils.join(curDirPath, ident.toString() + ".eml");
@@ -494,11 +482,11 @@ async function convertTreeMaildirToMBox(srcPath, destPath, progressFn) {
 }
 
 // propagate unhandled rejections to the error handler on the main thread
-self.addEventListener("unhandledrejection", function(error) {
+self.addEventListener("unhandledrejection", function (error) {
   throw error.reason;
 });
 
-self.addEventListener("message", function(e) {
+self.addEventListener("message", function (e) {
   // Unpack the request params from the main thread.
   let srcType = e.data.srcType;
   let destType = e.data.destType;
@@ -523,7 +511,7 @@ self.addEventListener("message", function(e) {
   // Go!
   costFn(srcRoot).then(totalCost => {
     let v = 0;
-    let progressFn = function(n) {
+    let progressFn = function (n) {
       v += n;
       self.postMessage({ msg: "progress", val: v, total: totalCost });
     };

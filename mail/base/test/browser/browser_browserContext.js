@@ -180,7 +180,7 @@ async function checkABrowser(browser, doc = browser.ownerDocument) {
   SpecialPowers.MockFilePicker.cleanup();
 }
 
-add_setup(async function() {
+add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());

@@ -58,7 +58,7 @@ add_task(async () => {
   let menu = abDocument.getElementById("bookContext");
   let menuItem = abDocument.getElementById("bookContextProperties");
 
-  let subtest = async function(expectedValues, newValues, buttonAction) {
+  let subtest = async function (expectedValues, newValues, buttonAction) {
     Assert.equal(booksList.selectedIndex, 2);
 
     let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
@@ -73,7 +73,7 @@ add_task(async () => {
 
     let dialogPromise = promiseLoadSubDialog(
       "chrome://messenger/content/addressbook/abCardDAVProperties.xhtml"
-    ).then(async function(dialogWindow) {
+    ).then(async function (dialogWindow) {
       let dialogDocument = dialogWindow.document;
 
       let nameInput = dialogDocument.getElementById("carddav-name");
@@ -124,10 +124,7 @@ add_task(async () => {
         readOnlyInput.checked = newValues.readOnly;
       }
 
-      dialogDocument
-        .querySelector("dialog")
-        .getButton(buttonAction)
-        .click();
+      dialogDocument.querySelector("dialog").getButton(buttonAction).click();
     });
     menu.activateItem(menuItem);
     await dialogPromise;

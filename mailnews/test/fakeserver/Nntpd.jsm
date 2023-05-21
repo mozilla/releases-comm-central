@@ -66,7 +66,7 @@ class NntpDaemon {
     }
     var min = 1 << 30;
     var max = 0;
-    group.keys.forEach(function(key) {
+    group.keys.forEach(function (key) {
       if (key < min) {
         min = key;
       }
@@ -130,10 +130,10 @@ function NewsArticle(text) {
  */
 function wildmat2regex(wildmat) {
   // Special characters in regex that aren't special in wildmat
-  wildmat = wildmat.replace(/[$+.()|{}^]/, function(str) {
+  wildmat = wildmat.replace(/[$+.()|{}^]/, function (str) {
     return "\\" + str;
   });
-  wildmat = wildmat.replace(/(\\*)([*?])/, function(str, p1, p2) {
+  wildmat = wildmat.replace(/(\\*)([*?])/, function (str, p1, p2) {
     // TODO: This function appears to be wrong on closer inspection.
     if (p1.length % 2 == 0) {
       return p2 == "*" ? ".*" : ".";
@@ -532,7 +532,7 @@ class NNTP_RFC2980_handler extends NNTP_RFC977_handler {
         high = 1.0 / 0.0;
       }
     }
-    return keys.filter(function(e) {
+    return keys.filter(function (e) {
       return low <= e && e <= high;
     });
   }

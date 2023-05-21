@@ -53,10 +53,7 @@ class NntpChannel extends MailChannel {
 
     if (uri.port < 1) {
       // Ensure the uri has a port so that memory cache works.
-      uri = uri
-        .mutate()
-        .setPort(this._server.port)
-        .finalize();
+      uri = uri.mutate().setPort(this._server.port).finalize();
     }
 
     // Two forms of the uri:
@@ -211,10 +208,7 @@ class NntpChannel extends MailChannel {
         // A full news url may look like
         // news://<host>:119/<Msg-ID>?group=<name>&key=<key>&header=quotebody.
         // Remove any query strings to keep the cache key stable.
-        uri = uri
-          .mutate()
-          .setQuery("")
-          .finalize();
+        uri = uri.mutate().setQuery("").finalize();
       }
 
       // Check if a memory cache is available for the current URI.

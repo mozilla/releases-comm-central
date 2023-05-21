@@ -8,7 +8,7 @@ var PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
 var Funcs = {};
 
 // Only what we need from libotr.js
-Funcs.generateKey = function(path, otrl_version, address) {
+Funcs.generateKey = function (path, otrl_version, address) {
   let libotr = ctypes.open(path);
 
   let abi = ctypes.default_abi;
@@ -46,15 +46,15 @@ Funcs.generateKey = function(path, otrl_version, address) {
 
 var worker = new PromiseWorker.AbstractWorker();
 
-worker.dispatch = function(method, args = []) {
+worker.dispatch = function (method, args = []) {
   return Funcs[method](...args);
 };
 
-worker.postMessage = function(res, ...args) {
+worker.postMessage = function (res, ...args) {
   self.postMessage(res, ...args);
 };
 
-worker.close = function() {
+worker.close = function () {
   self.close();
 };
 

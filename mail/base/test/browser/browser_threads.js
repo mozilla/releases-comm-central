@@ -12,7 +12,7 @@ let { threadPane, threadTree } = about3Pane;
 let { notificationBox } = threadPane;
 let rootFolder, testFolder, testMessages;
 
-add_setup(async function() {
+add_setup(async function () {
   Services.prefs.setStringPref(
     "mail.ignore_thread.learn_more_url",
     "http://mochi.test:8888/"

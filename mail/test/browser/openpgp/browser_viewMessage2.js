@@ -38,7 +38,7 @@ var aliceAcct;
 /**
  * Set up the base account, identity and keys needed for the tests.
  */
-add_setup(async function() {
+add_setup(async function () {
   aliceAcct = MailServices.accounts.createAccount();
   aliceAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",
@@ -94,18 +94,12 @@ add_task(async function testOpenVerifiedUnsignedEncrypted2() {
   let passPromptPromise2 = BrowserTestUtils.promiseAlertDialogOpen();
 
   ppWin.document.getElementById("password1Textbox").value = "WRONG-passphrase";
-  ppWin.document
-    .querySelector("dialog")
-    .getButton("accept")
-    .click();
+  ppWin.document.querySelector("dialog").getButton("accept").click();
 
   let ppWin2 = await passPromptPromise2;
 
   ppWin2.document.getElementById("password1Textbox").value = "alice-passphrase";
-  ppWin2.document
-    .querySelector("dialog")
-    .getButton("accept")
-    .click();
+  ppWin2.document.querySelector("dialog").getButton("accept").click();
 
   let mc = await openMessagePromise;
 

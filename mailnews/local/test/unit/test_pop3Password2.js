@@ -119,7 +119,7 @@ function testNext() {
   }
 }
 
-add_task(async function() {
+add_task(async function () {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);

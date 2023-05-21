@@ -61,7 +61,7 @@ var kReminderPref = "mail.compose.attachment_reminder";
 var gDrafts;
 var gOutbox;
 
-add_setup(async function() {
+add_setup(async function () {
   requestLongerTimeout(4);
 
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);

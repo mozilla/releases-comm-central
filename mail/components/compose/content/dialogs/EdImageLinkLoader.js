@@ -19,7 +19,7 @@ function OnLoadDialog() {
     editor &&
     editor.flags & Ci.nsIEditor.eEditorMailMask
   ) {
-    SetRelativeCheckbox = function() {
+    SetRelativeCheckbox = function () {
       SetAttachCheckbox();
     };
     // initialize the AttachSourceToMail checkbox

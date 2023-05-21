@@ -209,6 +209,6 @@ function setup_mailbox(type, mailboxPath) {
   return incomingServer.rootFolder;
 }
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });

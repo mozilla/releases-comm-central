@@ -31,7 +31,7 @@ var { click_menus_in_sequence, plan_for_new_window } = ChromeUtils.import(
 
 var warningText = new Map();
 
-add_setup(function() {
+add_setup(function () {
   // The wording of the warning message when private data is being exported
   // from the about:support page.
   let bundle = Services.strings.createBundle(
@@ -88,7 +88,7 @@ const ABOUT_SUPPORT_ERROR_STRINGS = new Map([
  * @returns the about:support tab.
  */
 async function open_about_support() {
-  let openAboutSupport = async function() {
+  let openAboutSupport = async function () {
     if (AppConstants.platform == "macosx") {
       mc.window.document.getElementById("aboutsupport_open").click();
     } else {

@@ -48,7 +48,7 @@ var gImportedKeyId;
 /**
  * Set up the base account and identity.
  */
-add_setup(function() {
+add_setup(function () {
   gAccount = MailServices.accounts.createAccount();
   gAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",
@@ -350,7 +350,7 @@ add_task(async function add_external_key() {
   );
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   mc.window.document.getElementById("tabmail").closeTab(gTab);
   gTab = null;
   tabDocument = null;

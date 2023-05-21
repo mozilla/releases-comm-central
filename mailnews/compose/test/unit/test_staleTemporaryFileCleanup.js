@@ -32,15 +32,15 @@ function collect_expected_temporary_files() {
 }
 
 function check_files_not_exist(files) {
-  files.forEach(function(file) {
+  files.forEach(function (file) {
     Assert.ok(!file.exists());
   });
 }
 
 function run_test() {
   gExpectedFiles = collect_expected_temporary_files();
-  registerCleanupFunction(function() {
-    gExpectedFiles.forEach(function(file) {
+  registerCleanupFunction(function () {
+    gExpectedFiles.forEach(function (file) {
       if (file.exists()) {
         file.remove(false);
       }

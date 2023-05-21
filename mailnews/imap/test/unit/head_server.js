@@ -181,14 +181,14 @@ function addImapMessage() {
   IMAPPump.mailbox.addMessage(imapMsg);
 }
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });
 
 // Setup the SMTP daemon and server
 function setupSmtpServerDaemon(handler) {
   if (!handler) {
-    handler = function(d) {
+    handler = function (d) {
       return new SMTP_RFC2821_handler(d);
     };
   }

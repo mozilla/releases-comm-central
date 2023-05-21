@@ -206,10 +206,7 @@ add_task(async () => {
         Assert.equal(colorElement.value, "#a8c2e1");
         nameElement.value = "A New Calendar!";
         colorElement.value = "#009900";
-        doc
-          .querySelector("dialog")
-          .getButton("accept")
-          .click();
+        doc.querySelector("dialog").getButton("accept").click();
       },
     }
   );
@@ -234,10 +231,7 @@ add_task(async () => {
         Assert.equal(nameElement.value, "A New Calendar!");
         Assert.equal(colorElement.value, "#009900");
         nameElement.value = "Mochitest 1";
-        doc
-          .querySelector("dialog")
-          .getButton("accept")
-          .click();
+        doc.querySelector("dialog").getButton("accept").click();
       },
     }
   );
@@ -261,10 +255,7 @@ add_task(async () => {
         let enabledElement = doc.getElementById("calendar-enabled-checkbox");
         Assert.ok(enabledElement.checked);
         enabledElement.checked = false;
-        doc
-          .querySelector("dialog")
-          .getButton("accept")
-          .click();
+        doc.querySelector("dialog").getButton("accept").click();
       },
     }
   );

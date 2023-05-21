@@ -37,7 +37,7 @@ var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 // Adds some messages directly to a mailbox (eg new mail)
 function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let URI = Services.io
       .newFileURI(message.file)
       .QueryInterface(Ci.nsIFileURL);
@@ -56,7 +56,7 @@ alertListener.prototype = {
   },
 };
 
-add_setup(function() {
+add_setup(function () {
   setupIMAPPump();
 
   var listener1 = new alertListener();

@@ -14,7 +14,7 @@ load("../../../resources/alertTestUtils.js");
 // Messages to load must have CRLF line endings, that is Windows style
 var gMessage = "bugmail10"; // message file used as the test message
 
-add_task(function() {
+add_task(function () {
   Services.prefs.setBoolPref(
     "mail.server.server1.autosync_offline_stores",
     false

@@ -71,7 +71,7 @@ function OnStopCopy(aStatus) {
   onStopCopyPromise.resolve();
 }
 
-add_setup(async function() {
+add_setup(async function () {
   // Load in the test files so we have a record of length and their data.
   for (var i = 0; i < gMsgFile.length; ++i) {
     gMsgFileData[i] = await IOUtils.readUTF8(gMsgFile[i].path);

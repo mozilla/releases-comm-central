@@ -19,7 +19,7 @@ function getBadgeStatus() {
 }
 
 // Set some prefs that apply to all the tests in this file
-add_setup(async function() {
+add_setup(async function () {
   await SpecialPowers.pushPrefEnv({
     set: [
       // We don't have pre-pinned certificates for the local mochitest server

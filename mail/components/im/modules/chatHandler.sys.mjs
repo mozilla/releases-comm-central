@@ -62,8 +62,8 @@ export var ChatCore = {
       mgr.notifyServerLoaded(inServer);
     }
 
-    IMServices.tags.getTags().forEach(function(aTag) {
-      aTag.getContacts().forEach(function(aContact) {
+    IMServices.tags.getTags().forEach(function (aTag) {
+      aTag.getContacts().forEach(function (aContact) {
         let name = aContact.preferredBuddy.normalizedName;
         allContacts[name] = aContact;
       });

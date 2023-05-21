@@ -164,7 +164,7 @@ var messages = [
   },
 ];
 
-add_setup(async function() {
+add_setup(async function () {
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   // Set up our detached/deleted attachments.

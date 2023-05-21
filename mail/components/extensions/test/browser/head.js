@@ -236,7 +236,7 @@ async function focusWindow(win) {
   let promise = new Promise(resolve => {
     win.addEventListener(
       "focus",
-      function() {
+      function () {
         resolve();
       },
       { capture: true, once: true }
@@ -297,7 +297,7 @@ function awaitBrowserLoaded(browser, wantLoad) {
   );
 }
 
-var awaitExtensionPanel = async function(
+var awaitExtensionPanel = async function (
   extension,
   win = window,
   awaitLoad = true
@@ -821,7 +821,7 @@ async function run_popup_test(configData) {
   }
 
   // Get camelCase API names from action type.
-  configData.apiName = configData.actionType.replace(/_([a-z])/g, function(g) {
+  configData.apiName = configData.actionType.replace(/_([a-z])/g, function (g) {
     return g[1].toUpperCase();
   });
   configData.moduleName =
@@ -841,7 +841,7 @@ async function run_popup_test(configData) {
                           <script src="popup.js"></script>
                         </body>
                       </html>`,
-      "popup.js": async function() {
+      "popup.js": async function () {
         // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
         await new Promise(resolve => window.setTimeout(resolve, 1000));
         await browser.runtime.sendMessage("popup opened");
@@ -849,13 +849,13 @@ async function run_popup_test(configData) {
         window.close();
       },
       "utils.js": await getUtilsJS(),
-      "helper.js": function() {
+      "helper.js": function () {
         window.actionType = browser.runtime.getManifest().description;
         // Get camelCase API names from action type.
-        window.apiName = window.actionType.replace(/_([a-z])/g, function(g) {
+        window.apiName = window.actionType.replace(/_([a-z])/g, function (g) {
           return g[1].toUpperCase();
         });
-        window.getPopupOpenedPromise = function() {
+        window.getPopupOpenedPromise = function () {
           return new Promise(resolve => {
             const handleMessage = async (message, sender, sendResponse) => {
               if (message && message == "popup opened") {
@@ -884,7 +884,7 @@ async function run_popup_test(configData) {
 
   switch (configData.testType) {
     case "open-with-mouse-click":
-      backend_script = async function(extension, configData) {
+      backend_script = async function (extension, configData) {
         let win = configData.window;
 
         await extension.startup();
@@ -964,10 +964,7 @@ async function run_popup_test(configData) {
               `Button should have been added to currentSet property of toolbar ${toolbarId}`
             );
             ok(
-              toolbar
-                .getAttribute("currentset")
-                .split(",")
-                .includes(buttonId),
+              toolbar.getAttribute("currentset").split(",").includes(buttonId),
               `Button should have been added to currentset attribute of toolbar ${toolbarId}`
             );
           }
@@ -1127,7 +1124,7 @@ async function run_popup_test(configData) {
       };
       if (configData.use_default_popup) {
         // With popup.
-        extensionDetails.files["background.js"] = async function() {
+        extensionDetails.files["background.js"] = async function () {
           browser.test.log("popup background script ran");
           let popupPromise = window.getPopupOpenedPromise();
           browser.test.sendMessage("ready");
@@ -1137,7 +1134,7 @@ async function run_popup_test(configData) {
         };
       } else if (configData.disable_button) {
         // Without popup and disabled button.
-        extensionDetails.files["background.js"] = async function() {
+        extensionDetails.files["background.js"] = async function () {
           browser.test.log("nopopup & button disabled background script ran");
           browser[window.apiName].onClicked.addListener(async (tab, info) => {
             browser.test.fail(
@@ -1149,7 +1146,7 @@ async function run_popup_test(configData) {
         };
       } else {
         // Without popup.
-        extensionDetails.files["background.js"] = async function() {
+        extensionDetails.files["background.js"] = async function () {
           let hasFiredBefore = false;
           browser.test.log("nopopup background script ran");
           browser[window.apiName].onClicked.addListener(async (tab, info) => {
@@ -1179,7 +1176,7 @@ async function run_popup_test(configData) {
 
     case "open-with-menu-command":
       extensionDetails.manifest.permissions = ["menus"];
-      backend_script = async function(extension, configData) {
+      backend_script = async function (extension, configData) {
         let win = configData.window;
         let buttonId = `${configData.actionType}_mochi_test-${configData.moduleName}-toolbarbutton`;
         let menuId = "toolbar-context-menu";
@@ -1252,7 +1249,7 @@ async function run_popup_test(configData) {
       };
       if (configData.use_default_popup) {
         // With popup.
-        extensionDetails.files["background.js"] = async function() {
+        extensionDetails.files["background.js"] = async function () {
           browser.test.log("popup background script ran");
           await new Promise(resolve => {
             browser.menus.create(
@@ -1278,7 +1275,7 @@ async function run_popup_test(configData) {
         };
       } else if (configData.disable_button) {
         // Without popup and disabled button.
-        extensionDetails.files["background.js"] = async function() {
+        extensionDetails.files["background.js"] = async function () {
           browser.test.log("nopopup & button disabled background script ran");
           await new Promise(resolve => {
             browser.menus.create(
@@ -1308,7 +1305,7 @@ async function run_popup_test(configData) {
         };
       } else {
         // Without popup.
-        extensionDetails.files["background.js"] = async function() {
+        extensionDetails.files["background.js"] = async function () {
           browser.test.log("nopopup background script ran");
           await new Promise(resolve => {
             browser.menus.create(
@@ -1376,7 +1373,7 @@ async function run_popup_test(configData) {
 
 async function run_action_button_order_test(configs, window, actionType) {
   // Get camelCase API names from action type.
-  let apiName = actionType.replace(/_([a-z])/g, function(g) {
+  let apiName = actionType.replace(/_([a-z])/g, function (g) {
     return g[1].toUpperCase();
   });
 

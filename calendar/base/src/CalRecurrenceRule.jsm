@@ -152,7 +152,7 @@ CalRecurrenceRule.prototype = {
     unwrapSetter(
       ICAL.Property,
       rawval,
-      function(val) {
+      function (val) {
         this.innerObject = val.getFirstValue();
       },
       this
@@ -197,7 +197,7 @@ CalRecurrenceRule.prototype = {
     unwrapSetter(
       ICAL.Time,
       rawval,
-      function(val) {
+      function (val) {
         if (
           val.timezone != ICAL.Timezone.utcTimezone &&
           val.timezone != ICAL.Timezone.localTimezone

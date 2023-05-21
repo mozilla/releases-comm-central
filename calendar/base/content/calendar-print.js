@@ -83,7 +83,7 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   }
 
   eventsCheckbox.addEventListener("change", updatePreview);
-  tasksCheckbox.addEventListener("change", function() {
+  tasksCheckbox.addEventListener("change", function () {
     tasksNotDueCheckbox.disabled = !this.checked;
     tasksCompletedCheckbox.disabled = !this.checked;
     updatePreview();
@@ -93,7 +93,7 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
   layout.addEventListener("change", onLayoutChange);
 
-  fromMinimonth.addEventListener("change", function() {
+  fromMinimonth.addEventListener("change", function () {
     if (toMinimonth.value < fromMinimonth.value) {
       toMinimonth.value = fromMinimonth.value;
     }
@@ -102,7 +102,7 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   });
   toMinimonth.addEventListener("change", updatePreview);
 
-  fromMonth.addEventListener("keydown", function(event) {
+  fromMonth.addEventListener("keydown", function (event) {
     if (event.key == "ArrowDown" && fromMonth.selectedIndex == 11) {
       fromMonth.selectedIndex = 0;
       fromYear.value++;
@@ -117,7 +117,7 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   });
   fromMonth.addEventListener("change", onMonthChange);
   fromYear.addEventListener("change", onMonthChange);
-  toMonth.addEventListener("keydown", function(event) {
+  toMonth.addEventListener("keydown", function (event) {
     if (event.key == "ArrowDown" && toMonth.selectedIndex == 11) {
       toMonth.selectedIndex = 0;
       toYear.value++;
@@ -133,7 +133,7 @@ const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
   toMonth.addEventListener("change", onMonthChange);
   toYear.addEventListener("change", onMonthChange);
 
-  fromDate.addEventListener("change", function() {
+  fromDate.addEventListener("change", function () {
     let fromValue = parseInt(fromDate.value, 10);
     for (let option of toDate.options) {
       option.hidden = option.value < fromValue;

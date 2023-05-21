@@ -70,7 +70,7 @@ function test_expected_included(actual, expected, description) {
   }
 }
 
-add_setup(async function() {
+add_setup(async function () {
   requestLongerTimeout(3);
 
   // These prefs can't be set in the manifest as they contain white-space.
@@ -103,7 +103,7 @@ add_setup(async function() {
   Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   gMockCloudfileManager.unregister();
   gMockFilePickReg.unregister();
   Services.prefs.clearUserPref(kDefaultSigKey);

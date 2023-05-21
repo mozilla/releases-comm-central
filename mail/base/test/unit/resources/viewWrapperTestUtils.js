@@ -110,7 +110,7 @@ var VWTU_testHelper = {
 
   postTest() {
     // Close all the views we opened.
-    this.active_view_wrappers.forEach(function(wrapper) {
+    this.active_view_wrappers.forEach(function (wrapper) {
       wrapper.close();
     });
     // Verify that the notification helper has no outstanding listeners.
@@ -131,10 +131,10 @@ var VWTU_testHelper = {
       do_throw(msg);
     }
     // Force the folder to forget about the message database.
-    this.active_virtual_folders.forEach(function(folder) {
+    this.active_virtual_folders.forEach(function (folder) {
       folder.msgDatabase = null;
     });
-    this.active_real_folders.forEach(function(folder) {
+    this.active_real_folders.forEach(function (folder) {
       folder.msgDatabase = null;
     });
 

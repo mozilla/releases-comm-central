@@ -6,7 +6,7 @@ var { MigrationTasks } = ChromeUtils.import(
   "resource:///modules/MailMigrator.jsm"
 );
 
-window.addEventListener("load", async function() {
+window.addEventListener("load", async function () {
   let list = document.getElementById("tasks");
   let itemTemplate = document.getElementById("taskItem");
   let progress = document.querySelector("progress");

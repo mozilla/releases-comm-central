@@ -492,10 +492,7 @@ async function handleAddingAttachment(dialogWindow, url) {
 
       let attachmentDocument = attachmentWindow.document;
       attachmentDocument.getElementById("loginTextbox").value = url;
-      attachmentDocument
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+      attachmentDocument.querySelector("dialog").getButton("accept").click();
     },
   });
   synthesizeMouseAtCenter(dialogDocument.querySelector("#button-attach-url"), {}, dialogWindow);
@@ -540,10 +537,7 @@ async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
             sendString(attendee, attendeesWindow);
             Assert.report(false, undefined, undefined, `Sent attendee ${attendee}`);
             // Windows needs the focus() call here.
-            attendeesDocument
-              .querySelector("dialog")
-              .getButton("accept")
-              .focus();
+            attendeesDocument.querySelector("dialog").getButton("accept").focus();
             synthesizeMouseAtCenter(
               attendeesDocument.querySelector("dialog").getButton("accept"),
               {},

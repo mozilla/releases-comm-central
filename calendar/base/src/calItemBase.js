@@ -456,7 +456,7 @@ calItemBase.prototype = {
       let parentProperties = this.mParentItem.wrappedJSObject.mProperties;
       let thisProperties = this.mProperties;
       properties = new Map(
-        (function*() {
+        (function* () {
           yield* parentProperties;
           yield* thisProperties;
         })()
@@ -1157,10 +1157,10 @@ makeMemberAttrProperty(calItemBase, "ALARMTIME", "alarmTime");
  * @param {*} dflt - The default value in case none is set.
  */
 function makeMemberAttr(ctor, varname, attr, dflt) {
-  let getter = function() {
+  let getter = function () {
     return varname in this ? this[varname] : dflt;
   };
-  let setter = function(value) {
+  let setter = function (value) {
     this.modify();
     this[varname] = value;
     return value;
@@ -1183,10 +1183,10 @@ function makeMemberAttr(ctor, varname, attr, dflt) {
  * @param {string} attr - The attribute name to be used.
  */
 function makeMemberAttrProperty(ctor, name, attr) {
-  let getter = function() {
+  let getter = function () {
     return this.getProperty(name);
   };
-  let setter = function(value) {
+  let setter = function (value) {
     this.modify();
     return this.setProperty(name, value);
   };

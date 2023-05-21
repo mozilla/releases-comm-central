@@ -17,7 +17,7 @@ let calDAVCalendar, icsCalendar, fileICSCalendar, storageCalendar;
 
 // TODO test caldav calendars
 
-add_setup(async function() {
+add_setup(async function () {
   await new Promise(resolve => cal.manager.startup({ onResult: resolve }));
 
   engine = new CalendarsEngine(Service);

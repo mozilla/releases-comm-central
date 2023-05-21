@@ -69,9 +69,9 @@ function POP3Pump() {
 }
 
 // nsIUrlListener implementation
-POP3Pump.prototype.OnStartRunningUrl = function(url) {};
+POP3Pump.prototype.OnStartRunningUrl = function (url) {};
 
-POP3Pump.prototype.OnStopRunningUrl = function(aUrl, aResult) {
+POP3Pump.prototype.OnStopRunningUrl = function (aUrl, aResult) {
   this._actualResult = aResult;
   if (aResult != Cr.NS_OK) {
     // If we have an error, clean up nicely.
@@ -90,7 +90,7 @@ POP3Pump.prototype.OnStopRunningUrl = function(aUrl, aResult) {
 
 // Setup the daemon and server
 // If the debugOption is set, then it will be applied to the server.
-POP3Pump.prototype._setupServerDaemon = function(aDebugOption) {
+POP3Pump.prototype._setupServerDaemon = function (aDebugOption) {
   this._daemon = new Pop3Daemon();
   function createHandler(d) {
     return new POP3_RFC1939_handler(d);
@@ -102,7 +102,7 @@ POP3Pump.prototype._setupServerDaemon = function(aDebugOption) {
   return [this._daemon, this._server];
 };
 
-POP3Pump.prototype._createPop3ServerAndLocalFolders = function() {
+POP3Pump.prototype._createPop3ServerAndLocalFolders = function () {
   if (typeof localAccountUtils.inboxFolder == "undefined") {
     localAccountUtils.loadLocalMailAccount();
   }
@@ -119,7 +119,7 @@ POP3Pump.prototype._createPop3ServerAndLocalFolders = function() {
   return this.fakeServer;
 };
 
-POP3Pump.prototype.resetPluggableStore = function(aStoreContractID) {
+POP3Pump.prototype.resetPluggableStore = function (aStoreContractID) {
   if (aStoreContractID == this._mailboxStoreContractID) {
     return;
   }
@@ -146,7 +146,7 @@ POP3Pump.prototype.resetPluggableStore = function(aStoreContractID) {
   this._mailboxStoreContractID = aStoreContractID;
 };
 
-POP3Pump.prototype._checkBusy = function() {
+POP3Pump.prototype._checkBusy = function () {
   if (this._tests.length == 0 && !this._finalCleanup) {
     this._incomingServer.closeCachedConnections();
 
@@ -184,7 +184,7 @@ POP3Pump.prototype._checkBusy = function() {
   this._testNext();
 };
 
-POP3Pump.prototype._testNext = function() {
+POP3Pump.prototype._testNext = function () {
   let thisFiles = this._tests.shift();
   if (!thisFiles) {
     // Exit.
@@ -224,7 +224,7 @@ POP3Pump.prototype._testNext = function() {
   }
 };
 
-POP3Pump.prototype.run = function(aExpectedResult) {
+POP3Pump.prototype.run = function (aExpectedResult) {
   do_test_pending();
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);

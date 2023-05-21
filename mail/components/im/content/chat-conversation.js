@@ -281,7 +281,7 @@
       );
 
       new MutationObserver(
-        function(aMutations) {
+        function (aMutations) {
           for (let mutation of aMutations) {
             if (mutation.oldValue == "dragging") {
               this._onSplitterChange();
@@ -894,7 +894,7 @@
           if (activeCompletions.length) {
             // Move active nicks to the front of the queue.
             activeCompletions.reverse();
-            activeCompletions.forEach(function(c) {
+            activeCompletions.forEach(function (c) {
               this._completions.splice(this._completions.indexOf(c), 1);
               this._completions.unshift(c);
             }, this);
@@ -1464,7 +1464,7 @@
     }
 
     getShowNickModifier() {
-      return function(aNode) {
+      return function (aNode) {
         if (!("_showNickRegExp" in this)) {
           if (!("_showNickList" in this)) {
             this._showNickList = {};

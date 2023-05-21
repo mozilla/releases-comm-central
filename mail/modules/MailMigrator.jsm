@@ -798,7 +798,7 @@ var MailMigrator = {
       "feed"
     );
 
-    let toBool = function(val) {
+    let toBool = function (val) {
       return val == "true";
     };
 
@@ -872,7 +872,7 @@ var MailMigrator = {
 
     let items = {};
 
-    let demangleURL = function(itemURI) {
+    let demangleURL = function (itemURI) {
       // Reverse the mapping that originally turned links/guids into URIs.
       let url = itemURI;
       url = url.replace("urn:feeditem:", "");
@@ -885,11 +885,11 @@ var MailMigrator = {
       return url;
     };
 
-    let toBool = function(s) {
+    let toBool = function (s) {
       return s == "true";
     };
 
-    let toInt = function(s) {
+    let toInt = function (s) {
       let t = parseInt(s);
       return Number.isNaN(t) ? 0 : t;
     };

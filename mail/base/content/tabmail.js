@@ -895,11 +895,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         if (!t.linkedPanel) {
           if (!tab.panel.id) {
             // No id set. Create our own.
-            tab.panel.id =
-              "unnamedTab" +
-              Math.random()
-                .toString()
-                .substring(2);
+            tab.panel.id = "unnamedTab" + Math.random().toString().substring(2);
             console.warn(`Tab mode ${aTabModeName} should set an id
             on the first argument of openTab.`);
           }

@@ -33,7 +33,7 @@ var { mc } = ChromeUtils.import(
 
 var gPopAccount, gImapAccount, gOriginalAccountCount;
 
-add_setup(function() {
+add_setup(function () {
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 
@@ -68,7 +68,7 @@ add_setup(function() {
   );
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   // Remove our test accounts to leave the profile clean.
   MailServices.accounts.removeAccount(gPopAccount);
   MailServices.accounts.removeAccount(gImapAccount);
@@ -83,7 +83,7 @@ registerCleanupFunction(function() {
  * pane switches.
  */
 add_task(async function test_account_dot_IDs() {
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_account_dot_IDs(tab);
   });
 });
@@ -173,11 +173,11 @@ function subtest_check_account_dot_IDs(tab) {
  * Check if form controls are properly disabled when their attached prefs are locked.
  */
 add_task(async function test_account_locked_prefs() {
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_locked_prefs_addressing(tab);
   });
 
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_locked_prefs_server(tab);
   });
 });
@@ -373,7 +373,7 @@ function subtest_check_locked_prefs_server(tab) {
  * even when empty. This is tested on the Reply-To field.
  */
 add_task(async function test_replyTo_leak() {
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_replyTo_leak(tab);
   });
 });
@@ -417,7 +417,7 @@ function subtest_check_replyTo_leak(tab) {
  * Check if onchange handlers are properly executed when panes are switched.
  */
 add_task(async function test_account_onchange_handler() {
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_onchange_handler(tab);
   });
 });

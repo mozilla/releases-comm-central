@@ -22,7 +22,7 @@ function checkDirs(aDirs, aDirArray) {
     }
   }
 
-  dirArray.forEach(function(value) {
+  dirArray.forEach(function (value) {
     Assert.equal(value, null);
   });
 }

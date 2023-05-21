@@ -1614,8 +1614,9 @@ class ImapClient {
       }
       this._nextAction = this._actionUidFetchHeaderResponse;
       this._sendTagged(
-        `UID FETCH ${highestUid +
-          1}:${latestUid} (UID ${extraItems}RFC822.SIZE FLAGS BODY.PEEK[HEADER])`
+        `UID FETCH ${
+          highestUid + 1
+        }:${latestUid} (UID ${extraItems}RFC822.SIZE FLAGS BODY.PEEK[HEADER])`
       );
     } else {
       this._folderSink.headerFetchCompleted(this);

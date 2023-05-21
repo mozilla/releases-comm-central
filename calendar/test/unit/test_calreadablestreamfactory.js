@@ -45,8 +45,9 @@ async function doBoundedReadableStreamTest({
         );
       }
       info(
-        `Enqueued ${i *
-          actualChunkSize} items across ${i} chunks at a rate of ${actualChunkSize} items per chunk`
+        `Enqueued ${
+          i * actualChunkSize
+        } items across ${i} chunks at a rate of ${actualChunkSize} items per chunk`
       );
     },
   });

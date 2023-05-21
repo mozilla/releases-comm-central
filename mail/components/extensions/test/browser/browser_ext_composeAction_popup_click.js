@@ -156,7 +156,7 @@ add_task(
           <script src="popup.js"></script>
         </body>
       </html>`,
-      "popup.js": async function() {
+      "popup.js": async function () {
         browser.test.sendMessage("popup opened");
         window.close();
       },
@@ -218,7 +218,7 @@ add_task(
           <script src="popup.js"></script>
         </body>
       </html>`,
-      "popup.js": async function() {
+      "popup.js": async function () {
         browser.test.sendMessage("popup opened");
         window.close();
       },

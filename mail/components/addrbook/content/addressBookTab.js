@@ -111,7 +111,7 @@ var addressBookTabType = {
     // Then run the given onload code.
     aTab.browser.addEventListener(
       "about-addressbook-ready",
-      function(event) {
+      function (event) {
         aTab.pageLoading = false;
         aTab.pageLoaded = true;
 

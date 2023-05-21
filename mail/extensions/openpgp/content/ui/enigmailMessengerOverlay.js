@@ -61,7 +61,7 @@ XPCOMUtils.defineLazyGetter(this, "l10n", () => {
 
 var Enigmail = {};
 
-Enigmail.getEnigmailSvc = function() {
+Enigmail.getEnigmailSvc = function () {
   return EnigmailCore.getService(window);
 };
 
@@ -109,7 +109,7 @@ Enigmail.msg = {
       "button-enigmail-decrypt"
     );
 
-    setTimeout(function() {
+    setTimeout(function () {
       // if nothing happened, then load all keys after 1 hour
       // to trigger the key check
       EnigmailKeyRing.getAllKeys();
@@ -475,7 +475,9 @@ Enigmail.msg = {
       return;
     }
     await new Promise(resolve => {
-      EnigmailMime.getMimeTreeFromUrl(url.spec, false, async function(mimeMsg) {
+      EnigmailMime.getMimeTreeFromUrl(url.spec, false, async function (
+        mimeMsg
+      ) {
         await Enigmail.msg.messageDecryptCb(event, isAuto, mimeMsg);
         await Enigmail.msg.notifyMessageDecryptDone();
         resolve();
@@ -1713,7 +1715,7 @@ Enigmail.msg = {
         // parent.gDBView.selectMsgByKey(msgKey);
         // ReloadMessage();
       })
-      .catch(async function(ex) {
+      .catch(async function (ex) {
         console.debug(ex);
         EnigmailDialog.alert(
           window,
@@ -1949,7 +1951,7 @@ Enigmail.msg = {
       return;
     }
 
-    let PromiseStreamListener = function() {
+    let PromiseStreamListener = function () {
       this._promise = new Promise((resolve, reject) => {
         this._resolve = resolve;
         this._reject = reject;
@@ -2247,7 +2249,7 @@ Enigmail.msg = {
 
     let cApi = EnigmailCryptoAPI();
     let promise = cApi.verifyAttachment(outFile1.path, outFile2.path);
-    promise.then(async function(message) {
+    promise.then(async function (message) {
       EnigmailDialog.info(
         window,
         l10n.formatValueSync("signature-verified-ok", {
@@ -2257,7 +2259,7 @@ Enigmail.msg = {
           message
       );
     });
-    promise.catch(async function(err) {
+    promise.catch(async function (err) {
       EnigmailDialog.alert(
         window,
         l10n.formatValueSync("signature-verify-failed", {
@@ -2476,7 +2478,7 @@ Enigmail.msg = {
     if (exitStatus) {
       if (statusFlagsObj.value & EnigmailConstants.IMPORTED_KEY) {
         if (exitCodeObj.keyList) {
-          let importKeyList = exitCodeObj.keyList.map(function(a) {
+          let importKeyList = exitCodeObj.keyList.map(function (a) {
             return a.id;
           });
           EnigmailDialog.keyImportDlg(window, importKeyList);

@@ -300,7 +300,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
  * @param aCalendar     (optional) A specific calendar to export
  */
 function exportEntireCalendar(aCalendar) {
-  let getItemsFromCal = async function(aCal) {
+  let getItemsFromCal = async function (aCal) {
     let items = await aCal.getItemsAsArray(Ci.calICalendar.ITEM_FILTER_ALL_ITEMS, 0, null, null);
     saveEventsToFile(items, aCal.name);
   };

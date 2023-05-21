@@ -25,7 +25,7 @@ function stop_server() {
   }
 }
 
-add_setup(function() {
+add_setup(function () {
   setupIMAPPump();
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",
@@ -33,7 +33,7 @@ add_setup(function() {
   );
 });
 
-add_setup(async function() {
+add_setup(async function () {
   let messageGenerator = new MessageGenerator();
   let messageString = messageGenerator.makeMessage().toMessageString();
   let dataUri = Services.io.newURI(

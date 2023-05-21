@@ -31,7 +31,7 @@ function MessageArchiver() {
  * let tests tweak the value.
  */
 MessageArchiver.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 100;
-MessageArchiver.canArchive = function(messages, isSingleFolder) {
+MessageArchiver.canArchive = function (messages, isSingleFolder) {
   if (messages.length == 0) {
     return false;
   }
@@ -69,7 +69,7 @@ MessageArchiver.canArchive = function(messages, isSingleFolder) {
 
   // Either we've selected a small number of messages or we just can't
   // fast-path the result; examine all the messages.
-  return messages.every(function(msg) {
+  return messages.every(function (msg) {
     let [identity] = lazy.MailUtils.getIdentityForHeader(msg);
     return Boolean(identity && identity.archiveEnabled);
   });

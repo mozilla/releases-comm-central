@@ -492,7 +492,7 @@ async function enigCreateKeyMsg() {
 async function enigmailRevokeKey() {
   var keyList = getSelectedKeys();
   let keyInfo = gKeyList[keyList[0]];
-  EnigRevokeKey(keyInfo, function(success) {
+  EnigRevokeKey(keyInfo, function (success) {
     if (success) {
       refreshKeys();
     }
@@ -588,7 +588,7 @@ async function enigmailImportFromClipbrd() {
         true,
         outParam.acceptance
       );
-      var keyList = preview.map(function(a) {
+      var keyList = preview.map(function (a) {
         return a.id;
       });
       EnigmailDialog.keyImportDlg(window, keyList);
@@ -774,8 +774,8 @@ function enigmailImportKeysFromUrl() {
   ) {
     return;
   }
-  var p = new Promise(function(resolve, reject) {
-    var cbFunc = async function(data) {
+  var p = new Promise(function (resolve, reject) {
+    var cbFunc = async function (data) {
       EnigmailLog.DEBUG("enigmailImportKeysFromUrl: _cbFunc()\n");
       var errorMsgObj = {};
 
@@ -834,13 +834,13 @@ function enigmailImportKeysFromUrl() {
     }
   });
 
-  p.then(function(errorMsgObj) {
-    var keyList = errorMsgObj.preview.map(function(a) {
+  p.then(function (errorMsgObj) {
+    var keyList = errorMsgObj.preview.map(function (a) {
       return a.id;
     });
     EnigmailDialog.keyImportDlg(window, keyList);
     refreshKeys();
-  }).catch(async function(reason) {
+  }).catch(async function (reason) {
     EnigmailDialog.alert(
       window,
       await document.l10n.formatValue("general-error", {

@@ -50,7 +50,7 @@ const kFiles = [
   "./data/body-utf16.eml",
 ];
 
-add_setup(async function() {
+add_setup(async function () {
   // Prepare the mock file picker.
   gMockFilePickReg.register();
   gMockFilePicker.returnFiles = collectFiles(kFiles);
@@ -61,7 +61,7 @@ add_setup(async function() {
   gCloudFileAccount = await gCloudFileProvider.createAccount("testAccount");
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   gMockFilePickReg.unregister();
   // Remove the cloudFile account and unregister the provider.
   await gCloudFileProvider.removeAccount(gCloudFileAccount);

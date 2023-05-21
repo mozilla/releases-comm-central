@@ -55,7 +55,7 @@ var kUsername = "test.smtp@fakeserver";
 var kPasswordWrong = "wrong";
 var kPasswordSaved = "smtptest";
 
-add_task(async function() {
+add_task(async function () {
   registerAlertTestUtils();
 
   function createHandler(d) {

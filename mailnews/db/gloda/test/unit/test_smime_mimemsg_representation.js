@@ -38,7 +38,7 @@ function initNSS() {
   Cc["@mozilla.org/psm;1"].getService(Ci.nsISupports);
 }
 
-add_setup(async function() {
+add_setup(async function () {
   initNSS();
   msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
@@ -67,7 +67,7 @@ add_task(async function test_smime_mimemsg() {
   MsgHdrToMimeMessage(
     msgHdr,
     null,
-    function(aMsgHdr, aMimeMsg) {
+    function (aMsgHdr, aMimeMsg) {
       // First make sure the MIME structure is as we expect it to be.
       Assert.equal(aMimeMsg.parts.length, 1);
       // Then, make sure the MimeUnknown part there has the encrypted flag
@@ -93,7 +93,7 @@ add_task(async function test_smime_mimemsg() {
   MsgHdrToMimeMessage(
     msgHdr,
     null,
-    function(aMsgHdr, aMimeMsg) {
+    function (aMsgHdr, aMimeMsg) {
       // First make sure the MIME structure is as we expect it to be.
       Assert.equal(aMimeMsg.parts.length, 1);
       // Then, make sure the MimeUnknown part there has the encrypted flag

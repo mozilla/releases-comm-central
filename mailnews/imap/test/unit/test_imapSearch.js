@@ -287,7 +287,7 @@ var searchTests = [
   },
 ];
 
-add_setup(async function() {
+add_setup(async function () {
   setupIMAPPump();
 
   // don't use offline store

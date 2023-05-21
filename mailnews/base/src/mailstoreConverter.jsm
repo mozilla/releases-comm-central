@@ -50,12 +50,12 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
   );
 
   // Return a promise that will complete once the worker is done.
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let worker = new ChromeWorker("resource:///modules/converterWorker.js");
     gConverterWorker = worker;
 
     // Helper to log error, clean up and reject with error message.
-    let bailout = function(errmsg) {
+    let bailout = function (errmsg) {
       log.error("bailing out (" + errmsg + ")");
       // Cleanup.
       log.info("Trying to remove converter folder: " + destDir.path);
@@ -64,7 +64,7 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
     };
 
     // Handle exceptions thrown by the worker thread.
-    worker.addEventListener("error", function(e) {
+    worker.addEventListener("error", function (e) {
       // (e is type ErrorEvent)
 
       // if we're lucky, the error will contain location info
@@ -76,7 +76,7 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
     });
 
     // Handle updates from the worker thread.
-    worker.addEventListener("message", function(e) {
+    worker.addEventListener("message", function (e) {
       let response = e.data;
       // log.debug("WORKER SAYS: " + JSON.stringify(response) + "\n");
       if (response.msg == "progress") {

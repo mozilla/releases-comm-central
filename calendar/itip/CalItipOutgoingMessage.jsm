@@ -52,7 +52,7 @@ class CalItipOutgoingMessage {
     }
 
     let { method, sender, autoResponse } = this;
-    let _sendItem = function(aSendToList, aSendItem) {
+    let _sendItem = function (aSendToList, aSendItem) {
       let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
       itipItem.init(cal.item.serialize(aSendItem));
       itipItem.responseMethod = method;

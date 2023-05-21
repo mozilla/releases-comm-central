@@ -167,7 +167,7 @@ Sanitizer.TIMESPAN_TODAY = 4;
 // in the uSec-since-epoch format that PRTime likes.  If we should
 // clear everything, return null.  Use ts if it is defined; otherwise
 // use the timeSpan pref.
-Sanitizer.getClearRange = function(ts) {
+Sanitizer.getClearRange = function (ts) {
   if (ts === undefined) {
     ts = Sanitizer.prefs.getIntPref("timeSpan");
   }
@@ -201,14 +201,14 @@ Sanitizer.getClearRange = function(ts) {
 };
 
 Sanitizer._prefs = null;
-Sanitizer.__defineGetter__("prefs", function() {
+Sanitizer.__defineGetter__("prefs", function () {
   return Sanitizer._prefs
     ? Sanitizer._prefs
     : (Sanitizer._prefs = Services.prefs.getBranch(Sanitizer.prefDomain));
 });
 
 // Shows sanitization UI
-Sanitizer.showUI = function(aParentWindow) {
+Sanitizer.showUI = function (aParentWindow) {
   Services.ww.openWindow(
     AppConstants.platform == "macosx" ? null : aParentWindow,
     "chrome://messenger/content/sanitize.xhtml",
@@ -222,12 +222,12 @@ Sanitizer.showUI = function(aParentWindow) {
  * Deletes privacy sensitive data in a batch, optionally showing the
  * sanitize UI, according to user preferences
  */
-Sanitizer.sanitize = function(aParentWindow) {
+Sanitizer.sanitize = function (aParentWindow) {
   Sanitizer.showUI(aParentWindow);
 };
 
 // this is called on startup and shutdown, to perform pending sanitizations
-Sanitizer._checkAndSanitize = function() {
+Sanitizer._checkAndSanitize = function () {
   const prefs = Sanitizer.prefs;
   if (
     prefs.getBoolPref(Sanitizer.prefShutdown) &&

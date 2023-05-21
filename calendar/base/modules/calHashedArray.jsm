@@ -16,7 +16,7 @@ var EXPORTED_SYMBOLS = ["cal"]; // even though it's defined in calUtils.jsm, imp
  *  - Deleting items is O(n)
  *  - Modifying items is fast.
  */
-cal.HashedArray = function() {
+cal.HashedArray = function () {
   this.clear();
 };
 
@@ -218,7 +218,7 @@ cal.HashedArray.prototype = {
  *  - Adding and deleting items is O(n)
  *  - Modifying items is fast.
  */
-cal.SortedHashedArray = function(comparator) {
+cal.SortedHashedArray = function (comparator) {
   cal.HashedArray.apply(this, arguments);
   if (!comparator) {
     throw new Error("Sorted Hashed Array needs a comparator");

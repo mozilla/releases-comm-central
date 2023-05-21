@@ -43,7 +43,7 @@ Conversation.prototype = {
 // Ensure that when iMsg.message is set to a message (including the empty
 // string), it returns that message. If not, it should return the original
 // message. This prevents regressions due to JS coercions.
-var test_null_message = function() {
+var test_null_message = function () {
   let originalMessage = "Hi!";
   let pMsg = new Message(
     "buddy",
@@ -73,7 +73,7 @@ var test_null_message = function() {
 
 // ROT13, used as an example transformation.
 function rot13(aString) {
-  return aString.replace(/[a-zA-Z]/g, function(c) {
+  return aString.replace(/[a-zA-Z]/g, function (c) {
     return String.fromCharCode(
       c.charCodeAt(0) + (c.toLowerCase() < "n" ? 1 : -1) * 13
     );
@@ -104,7 +104,7 @@ function rot13(aString) {
 // The test walks the sending path, which covers both.
 add_task(function test_message_transformation() {
   let conv = new Conversation();
-  conv.dispatchMessage = function(aMsg) {
+  conv.dispatchMessage = function (aMsg) {
     this.writeMessage("user", aMsg, { outgoing: true });
   };
 
@@ -167,7 +167,7 @@ add_task(function test_message_transformation() {
 // A test that cancels a message before it gets displayed.
 add_task(function test_cancel_display_message() {
   let conv = new Conversation();
-  conv.dispatchMessage = function(aMsg) {
+  conv.dispatchMessage = function (aMsg) {
     this.writeMessage("user", aMsg, { outgoing: true });
   };
 
@@ -192,7 +192,7 @@ add_task(function test_cancel_display_message() {
   ok(received, "The received-message notification was never fired.");
 });
 
-var test_update_message = function() {
+var test_update_message = function () {
   let conv = new Conversation();
 
   let uiConv = new UIConversation(conv);

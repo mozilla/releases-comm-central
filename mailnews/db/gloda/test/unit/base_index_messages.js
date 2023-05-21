@@ -703,7 +703,7 @@ async function test_attributes_fundamental_from_disk() {
     query,
     [fundamentalSyntheticMessage],
     verify_attributes_fundamental_from_disk,
-    function(smsg) {
+    function (smsg) {
       return smsg.messageId;
     }
   );

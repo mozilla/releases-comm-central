@@ -265,7 +265,7 @@ function createEventWithDialog(
   forceAllDay,
   attendees
 ) {
-  let onNewEvent = function(item, opcalendar, originalItem, listener, extresponse = null) {
+  let onNewEvent = function (item, opcalendar, originalItem, listener, extresponse = null) {
     if (item.id) {
       // If the item already has an id, then this is the result of
       // saving the item without closing, and then saving again.
@@ -320,7 +320,7 @@ function createEventWithDialog(
  * @param initialDate   (optional) The initial date for new task datepickers
  */
 function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
-  let onNewItem = function(item, opcalendar, originalItem, listener, extresponse = null) {
+  let onNewItem = function (item, opcalendar, originalItem, listener, extresponse = null) {
     if (item.id) {
       // If the item already has an id, then this is the result of
       // saving the item without closing, and then saving again.
@@ -396,7 +396,7 @@ function modifyEventWithDialog(aItem, aPromptOccurrence, initialDate = null, aCo
     return;
   }
 
-  let onModifyItem = function(item, calendar, originalItem, listener, extresponse = null) {
+  let onModifyItem = function (item, calendar, originalItem, listener, extresponse = null) {
     doTransaction("modify", item, calendar, originalItem, listener, extresponse);
   };
 
@@ -458,11 +458,11 @@ function openEventDialog(
 
   let isItemSupported;
   if (calendarItem.isTodo()) {
-    isItemSupported = function(aCalendar) {
+    isItemSupported = function (aCalendar) {
       return aCalendar.getProperty("capabilities.tasks.supported") !== false;
     };
   } else if (calendarItem.isEvent()) {
-    isItemSupported = function(aCalendar) {
+    isItemSupported = function (aCalendar) {
       return aCalendar.getProperty("capabilities.events.supported") !== false;
     };
   }
@@ -521,10 +521,10 @@ function openEventDialog(
   args.counterProposal = counterProposal;
   args.inTab = Services.prefs.getBoolPref("calendar.item.editInTab", false);
   // this will be called if file->new has been selected from within the dialog
-  args.onNewEvent = function(opcalendar) {
+  args.onNewEvent = function (opcalendar) {
     createEventWithDialog(opcalendar, null, null);
   };
-  args.onNewTodo = function(opcalendar) {
+  args.onNewTodo = function (opcalendar) {
     createTodoWithDialog(opcalendar);
   };
 

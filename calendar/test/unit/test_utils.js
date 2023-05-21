@@ -68,7 +68,7 @@ function test_getDefaultStartDate() {
 
   let oldNow = cal.dtz.now;
   let now = cal.createDateTime("20120101T000000");
-  cal.dtz.now = function() {
+  cal.dtz.now = function () {
     return now;
   };
 

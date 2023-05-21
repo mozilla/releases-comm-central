@@ -50,7 +50,7 @@ var gDraftFolder;
 // Setup the daemon and server
 function setupServerDaemon(handler) {
   if (!handler) {
-    handler = function(d) {
+    handler = function (d) {
       return new SMTP_RFC2821_handler(d);
     };
   }
@@ -273,6 +273,6 @@ function getMessageBody(content) {
   return content.slice(separatorIndex + 4, -2);
 }
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });

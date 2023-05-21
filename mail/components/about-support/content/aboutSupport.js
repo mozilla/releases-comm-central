@@ -91,7 +91,7 @@ window.addEventListener("load", function onload(event) {
 });
 
 function prefsTable(data) {
-  return sortedArrayFromObject(data).map(function([name, value]) {
+  return sortedArrayFromObject(data).map(function ([name, value]) {
     return $.new("tr", [
       $.new("td", name, "pref-name"),
       // Very long preference values can cause users problems when they
@@ -274,7 +274,7 @@ var snapshotFormatters = {
     profDirNode.setAttribute("class", CLASS_DATA_PRIVATE);
     let profLinkNode = document.createElement("a");
     profLinkNode.setAttribute("href", Services.io.newFileURI(currProfD).spec);
-    profLinkNode.addEventListener("click", function(event) {
+    profLinkNode.addEventListener("click", function (event) {
       openProfileDirectory();
       event.preventDefault();
     });
@@ -337,7 +337,7 @@ var snapshotFormatters = {
     let dateNow = new Date();
     $.append(
       $("crashes-tbody"),
-      data.submitted.map(function(crash) {
+      data.submitted.map(function (crash) {
         let date = new Date(crash.date);
         let timePassed = dateNow - date;
         let formattedDateStrId;
@@ -371,7 +371,7 @@ var snapshotFormatters = {
   addons(data) {
     $.append(
       $("addons-tbody"),
-      data.map(function(addon) {
+      data.map(function (addon) {
         return $.new("tr", [
           $.new("td", addon.name),
           $.new("td", addon.type),
@@ -470,7 +470,7 @@ var snapshotFormatters = {
     $.append(tbody, prefsTable(data));
     $("support-printing-clear-settings-button").addEventListener(
       "click",
-      function() {
+      function () {
         for (let name in data) {
           Services.prefs.clearUserPref(name);
         }
@@ -494,7 +494,7 @@ var snapshotFormatters = {
 
     // Read APZ info out of data.info, stripping it out in the process.
     let apzInfo = [];
-    let formatApzInfo = function(info) {
+    let formatApzInfo = function (info) {
       let out = [];
       for (let type of [
         "Wheel",
@@ -554,7 +554,7 @@ var snapshotFormatters = {
     if ("info" in data) {
       apzInfo = formatApzInfo(data.info);
 
-      let trs = sortedArrayFromObject(data.info).map(function([prop, val]) {
+      let trs = sortedArrayFromObject(data.info).map(function ([prop, val]) {
         let td = $.new("td", String(val));
         td.style["word-break"] = "break-all";
         return $.new("tr", [$.new("th", prop, "column"), td]);
@@ -572,7 +572,7 @@ var snapshotFormatters = {
       if (AppConstants.NIGHTLY_BUILD || AppConstants.MOZ_DEV_EDITION) {
         gpuProcessKillButton = $.new("button");
 
-        gpuProcessKillButton.addEventListener("click", function() {
+        gpuProcessKillButton.addEventListener("click", function () {
           windowUtils.terminateGPUProcess();
         });
 
@@ -594,7 +594,7 @@ var snapshotFormatters = {
     ) {
       let gpuDeviceResetButton = $.new("button");
 
-      gpuDeviceResetButton.addEventListener("click", function() {
+      gpuDeviceResetButton.addEventListener("click", function () {
         windowUtils.triggerDeviceReset();
       });
 
@@ -615,7 +615,7 @@ var snapshotFormatters = {
           let assembled = assembleFromGraphicsFailure(i, data);
           combined.push(assembled);
         }
-        combined.sort(function(a, b) {
+        combined.sort(function (a, b) {
           if (a.index < b.index) {
             return -1;
           }
@@ -626,7 +626,7 @@ var snapshotFormatters = {
         });
         $.append(
           $("graphics-failures-tbody"),
-          combined.map(function(val) {
+          combined.map(function (val) {
             return $.new("tr", [
               $.new("th", val.header, "column"),
               $.new("td", val.message),
@@ -640,7 +640,7 @@ var snapshotFormatters = {
             $.new("th", "LogFailure", "column"),
             $.new(
               "td",
-              data.failures.map(function(val) {
+              data.failures.map(function (val) {
                 return $.new("p", val);
               })
             ),
@@ -859,7 +859,7 @@ var snapshotFormatters = {
     if (crashGuards.length) {
       for (let guard of crashGuards) {
         let resetButton = $.new("button");
-        let onClickReset = function() {
+        let onClickReset = function () {
           Services.prefs.setIntPref(guard.prefName, 0);
           resetButton.removeEventListener("click", onClickReset);
           resetButton.disabled = true;
@@ -996,7 +996,7 @@ var snapshotFormatters = {
       }
       let button = $("enumerate-database-button");
       if (button) {
-        button.addEventListener("click", function(event) {
+        button.addEventListener("click", function (event) {
           let { KeyValueService } = ChromeUtils.importESModule(
             "resource://gre/modules/kvstore.sys.mjs"
           );
@@ -1119,7 +1119,7 @@ var snapshotFormatters = {
         $.new("th", null, null, { "data-l10n-id": "loaded-lib-versions" }),
       ]),
     ];
-    sortedArrayFromObject(data).forEach(function([name, val]) {
+    sortedArrayFromObject(data).forEach(function ([name, val]) {
       trs.push(
         $.new("tr", [
           $.new("td", name),
@@ -1619,7 +1619,7 @@ function setupEventListeners() {
 */
   let button = $("clear-startup-cache-button");
   if (button) {
-    button.addEventListener("click", async function(event) {
+    button.addEventListener("click", async function (event) {
       const [
         promptTitle,
         promptBody,
@@ -1655,7 +1655,7 @@ function setupEventListeners() {
   }
   button = $("restart-in-safe-mode-button");
   if (button) {
-    button.addEventListener("click", function(event) {
+    button.addEventListener("click", function (event) {
       if (
         Services.obs
           .enumerateObservers("restart-in-safe-mode")
@@ -1670,7 +1670,7 @@ function setupEventListeners() {
   if (AppConstants.MOZ_UPDATER) {
     button = $("update-dir-button");
     if (button) {
-      button.addEventListener("click", function(event) {
+      button.addEventListener("click", function (event) {
         // Get the update directory.
         let updateDir = Services.dirsvc.get("UpdRootD", Ci.nsIFile);
         if (!updateDir.exists()) {
@@ -1688,7 +1688,7 @@ function setupEventListeners() {
     }
     button = $("show-update-history-button");
     if (button) {
-      button.addEventListener("click", function(event) {
+      button.addEventListener("click", function (event) {
         window.browsingContext.topChromeWindow.openDialog(
           "chrome://mozapps/content/update/history.xhtml",
           "Update:History",
@@ -1699,7 +1699,7 @@ function setupEventListeners() {
   }
   button = $("verify-place-integrity-button");
   if (button) {
-    button.addEventListener("click", function(event) {
+    button.addEventListener("click", function (event) {
       PlacesDBUtils.checkAndFixDatabase().then(tasksStatusMap => {
         let logs = [];
         for (let [key, value] of tasksStatusMap) {
@@ -1715,7 +1715,7 @@ function setupEventListeners() {
   }
 
   // added for TB
-  $("send-via-email").addEventListener("click", function(event) {
+  $("send-via-email").addEventListener("click", function (event) {
     sendViaEmail();
   });
   // end of TB addition
@@ -1724,10 +1724,10 @@ function setupEventListeners() {
     copyRawDataToClipboard(this);
   });
 */
-  $("copy-to-clipboard").addEventListener("click", function(event) {
+  $("copy-to-clipboard").addEventListener("click", function (event) {
     copyContentsToClipboard();
   });
-  $("profile-dir-button").addEventListener("click", function(event) {
+  $("profile-dir-button").addEventListener("click", function (event) {
     openProfileDirectory();
   });
 }

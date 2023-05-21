@@ -35,7 +35,7 @@ var { MailServices } = ChromeUtils.import(
 
 var gDrafts;
 
-add_setup(async function() {
+add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 

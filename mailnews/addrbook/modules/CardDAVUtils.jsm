@@ -121,9 +121,7 @@ var CardDAVUtils = {
               // `token` is a base64-encoded string for SASL XOAUTH2. That is
               // not what we want, extract just the Bearer token part.
               // (See OAuth2Module.connect.)
-              atob(token)
-                .split("\x01")[1]
-                .slice(5)
+              atob(token).split("\x01")[1].slice(5)
             );
           },
           onFailure: reject,
@@ -508,10 +506,7 @@ var CardDAVUtils = {
       let name = r.querySelector("displayname")?.textContent;
       if (!name) {
         // The server didn't give a name, let's make one from the path.
-        name = url.pathname
-          .replace(/\/$/, "")
-          .split("/")
-          .slice(-1)[0];
+        name = url.pathname.replace(/\/$/, "").split("/").slice(-1)[0];
       }
       if (!name) {
         // That didn't work either, use the hostname.

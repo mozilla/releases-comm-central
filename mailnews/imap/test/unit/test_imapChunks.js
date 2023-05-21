@@ -61,7 +61,7 @@ add_task(async function run_the_test() {
   gSavedMsgFile.append(gFileName + ".eml");
 
   do_test_pending();
-  do_timeout(10000, function() {
+  do_timeout(10000, function () {
     do_throw(
       "SaveMessageToDisk did not complete within 10 seconds" +
         "(incorrect messageURI?). ABORTING."

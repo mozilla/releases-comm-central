@@ -119,7 +119,7 @@ function openActivityManager() {
 
 /* :::::::: The Tests ::::::::::::::: */
 
-add_setup(async function() {
+add_setup(async function () {
   folderA = await create_folder("SessionStoreA");
   await make_message_sets_in_folders([folderA], [{ count: 3 }]);
 
@@ -133,7 +133,7 @@ add_setup(async function() {
   Services.prefs.setBoolPref("calendar.integration.notify", false);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   folderA.server.rootFolder.propagateDelete(folderA, true);
   folderB.server.rootFolder.propagateDelete(folderB, true);
 

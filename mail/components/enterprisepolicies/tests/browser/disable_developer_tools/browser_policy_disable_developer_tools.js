@@ -32,7 +32,7 @@ add_task(async function test_updates_post_policy() {
   ok(devtoolsMenu.hidden, "The Web Developer item of the tools menu is hidden");
 });
 
-const expectErrorPage = async function(url) {
+const expectErrorPage = async function (url) {
   let tabmail = document.getElementById("tabmail");
   let index = tabmail.tabInfo.length;
   window.openContentTab("about:blank");
@@ -41,7 +41,7 @@ const expectErrorPage = async function(url) {
 
   BrowserTestUtils.loadURIString(browser, url);
   await BrowserTestUtils.browserLoaded(browser, false, url, true);
-  await SpecialPowers.spawn(browser, [url], async function() {
+  await SpecialPowers.spawn(browser, [url], async function () {
     ok(
       content.document.documentURI.startsWith(
         "about:neterror?e=blockedByPolicy"

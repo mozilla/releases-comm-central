@@ -92,10 +92,7 @@ class Theme {
   // the skin limitation for moz-extension:// urls.
   getFileUrl(url) {
     if (url.startsWith("moz-extension://")) {
-      url = url
-        .split("/")
-        .slice(3)
-        .join("/");
+      url = url.split("/").slice(3).join("/");
     }
     return this.extension.rootURI.resolve(url);
   }

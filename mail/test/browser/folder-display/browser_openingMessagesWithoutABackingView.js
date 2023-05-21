@@ -53,7 +53,7 @@ var msgHdrsInFolder = null;
 // Number of messages to open for multi-message tests
 var NUM_MESSAGES_TO_OPEN = 5;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("OpeningMessagesNoBackingViewA");
   await make_message_sets_in_folders([folder], [{ count: 10 }]);
 });

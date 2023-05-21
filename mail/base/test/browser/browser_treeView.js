@@ -1795,7 +1795,7 @@ async function subtestResize() {
     });
   }
 
-  let rowCount = function() {
+  let rowCount = function () {
     return list.querySelectorAll(`tr[is="test-row"]`).length;
   };
 

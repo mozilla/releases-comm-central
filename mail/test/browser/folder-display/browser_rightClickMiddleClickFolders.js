@@ -34,7 +34,7 @@ var {
 
 var folderA, folderB, folderC;
 
-add_setup(async function() {
+add_setup(async function () {
   folderA = await create_folder("RightClickMiddleClickFoldersA");
   folderB = await create_folder("RightClickMiddleClickFoldersB");
   folderC = await create_folder("RightClickMiddleClickFoldersC");
@@ -208,12 +208,12 @@ var global = this;
 function _generate_background_foreground_tests(aTests) {
   for (let test of aTests) {
     let helperFunc = global["_" + test + "_helper"];
-    global["test_" + test + "_background"] = async function() {
+    global["test_" + test + "_background"] = async function () {
       set_context_menu_background_tabs(true);
       await helperFunc(true);
       reset_context_menu_background_tabs();
     };
-    global["test_" + test + "_foreground"] = async function() {
+    global["test_" + test + "_foreground"] = async function () {
       set_context_menu_background_tabs(false);
       await helperFunc(false);
       reset_context_menu_background_tabs();

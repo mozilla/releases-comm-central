@@ -37,7 +37,7 @@ var { MailServices } = ChromeUtils.import(
 
 var gDrafts;
 
-add_setup(async function() {
+add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", true);
@@ -89,7 +89,7 @@ add_task(async function test_multipart_alternative() {
   press_delete();
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   Services.prefs.clearUserPref("mail.identity.id1.compose_html");
 
   // Some tests that open new windows don't return focus to the main window

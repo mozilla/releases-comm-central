@@ -50,7 +50,7 @@ let aboutMessage = get_about_message();
 
 var gDrafts;
 
-add_setup(async function() {
+add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 
@@ -180,12 +180,7 @@ add_task(async function test_no_mojibake() {
     () => getMsgHeaders(msg).get("").charset == "utf-7",
     "message charset correctly set"
   );
-  Assert.equal(
-    getMsgHeaders(msg, true)
-      .get("")
-      .trim(),
-    nonASCII
-  );
+  Assert.equal(getMsgHeaders(msg, true).get("").trim(), nonASCII);
 
   let rwc = open_compose_with_reply();
   await save_compose_message(rwc.window);
@@ -196,12 +191,7 @@ add_task(async function test_no_mojibake() {
   close_compose_window(rwc);
 
   let draftMsg = select_click_row(1);
-  Assert.equal(
-    getMsgHeaders(draftMsg)
-      .get("")
-      .charset.toUpperCase(),
-    "UTF-8"
-  );
+  Assert.equal(getMsgHeaders(draftMsg).get("").charset.toUpperCase(), "UTF-8");
   let text = getMsgHeaders(draftMsg, true).get("");
   // Delete message first before throwing so subsequent tests are not affected.
   press_delete(mc);
@@ -235,17 +225,7 @@ add_task(async function test_no_mojibake() {
   await save_compose_message(rwc.window);
   close_compose_window(rwc);
   msg = select_click_row(0);
-  Assert.equal(
-    getMsgHeaders(msg)
-      .get("")
-      .charset.toUpperCase(),
-    "UTF-8"
-  );
-  Assert.equal(
-    getMsgHeaders(msg, true)
-      .get("")
-      .trim(),
-    nonASCII
-  );
+  Assert.equal(getMsgHeaders(msg).get("").charset.toUpperCase(), "UTF-8");
+  Assert.equal(getMsgHeaders(msg, true).get("").trim(), nonASCII);
   press_delete(mc); // Delete message
 });

@@ -49,7 +49,7 @@ var setNormal;
  */
 var msgc;
 
-add_setup(async function() {
+add_setup(async function () {
   // Make sure the whole test runs with an unthreaded view in all folders.
   Services.prefs.setIntPref("mailnews.default_view_flags", 0);
   registerCleanupFunction(() => {

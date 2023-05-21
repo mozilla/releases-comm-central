@@ -19,7 +19,7 @@ const lazy = {};
 
 // lazy module getter
 
-XPCOMUtils.defineLazyGetter(lazy, "gMailBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "gMailBundle", function () {
   return Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );
@@ -734,7 +734,7 @@ MailGlue.prototype = {
           let { setTimeout } = ChromeUtils.importESModule(
             "resource://gre/modules/Timer.sys.mjs"
           );
-          setTimeout(function() {
+          setTimeout(function () {
             Services.tm.idleDispatchToMainThread(
               Services.startup.trackStartupCrashEnd
             );

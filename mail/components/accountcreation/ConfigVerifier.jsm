@@ -41,8 +41,9 @@ class ConfigVerifier {
   // @see {nsIUrlListener}
   OnStartRunningUrl(url) {
     this._log.debug(`Starting to verify configuration;
-      email as username=${this.config.incoming.username !=
-        this.config.identity.emailAddress}
+      email as username=${
+        this.config.incoming.username != this.config.identity.emailAddress
+      }
       savedUsername=${this.config.usernameSaved ? "true" : "false"},
       authMethod=${this.server.authMethod}`);
   }

@@ -38,7 +38,7 @@ export var capMultiPrefix = {
   isEnabled: () => true,
 
   commands: {
-    "multi-prefix": function(aMessage) {
+    "multi-prefix": function (aMessage) {
       // Request to use multi-prefix if it is supported.
       if (
         aMessage.cap.subcommand === "LS" ||

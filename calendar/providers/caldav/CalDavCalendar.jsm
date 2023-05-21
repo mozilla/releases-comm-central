@@ -1855,10 +1855,7 @@ CalDavCalendar.prototype = {
           if (newPath.charAt(newPath.length - 1) != "/") {
             newPath += "/";
           }
-          return this.mUri
-            .mutate()
-            .setPathQueryRef(newPath)
-            .finalize();
+          return this.mUri.mutate().setPathQueryRef(newPath).finalize();
         };
 
         if (!response.ok) {
@@ -2194,7 +2191,7 @@ CalDavCalendar.prototype = {
     let self = this;
     let modListener = {};
     modListener.QueryInterface = ChromeUtils.generateQI(["calIOperationListener"]);
-    modListener.onOperationComplete = function(
+    modListener.onOperationComplete = function (
       aCalendar,
       aStatus,
       aOperationType,

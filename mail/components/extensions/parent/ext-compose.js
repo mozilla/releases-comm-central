@@ -364,7 +364,7 @@ async function getComposeDetails(composeWindow, extension) {
     .map(h => {
       return {
         // All-lower-case-names are ugly, so capitalize first letters.
-        name: h.replace(/(^|-)[a-z]/g, function(match) {
+        name: h.replace(/(^|-)[a-z]/g, function (match) {
           return match.toUpperCase();
         }),
         value: composeFields.getHeader(h),

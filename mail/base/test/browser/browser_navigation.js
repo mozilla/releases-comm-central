@@ -25,7 +25,7 @@ let folderA,
   folderD,
   folderDMessages;
 
-add_setup(async function() {
+add_setup(async function () {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
 
   let generator = new MessageGenerator();

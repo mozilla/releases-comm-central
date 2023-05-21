@@ -11,7 +11,7 @@ add_task(function test_string_properties() {
   let root = localAccountUtils.incomingServer.rootMsgFolder;
 
   // Ensure unset properties return an error.
-  Assert.throws(function() {
+  Assert.throws(function () {
     root.getStringProperty("this-property-doesnt-exist");
   }, /NS_ERROR_.*/);
 
@@ -20,7 +20,7 @@ add_task(function test_string_properties() {
   Assert.equal(root.getStringProperty("test-property"), "wibble");
 
   // Keys are case-sensitive.
-  Assert.throws(function() {
+  Assert.throws(function () {
     root.getStringProperty("TEST-PROPERTY");
   }, /NS_ERROR_.*/);
 

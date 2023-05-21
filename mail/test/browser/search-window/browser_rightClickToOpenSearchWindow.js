@@ -22,7 +22,7 @@ var {
 );
 
 var folderA, folderB;
-add_setup(async function() {
+add_setup(async function () {
   folderA = await create_folder("RightClickToOpenSearchWindowA");
   folderB = await create_folder("RightClickToOpenSearchWindowB");
 });

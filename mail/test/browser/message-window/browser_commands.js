@@ -26,7 +26,7 @@ var { click_menus_in_sequence, close_window } = ChromeUtils.import(
 
 var folder1, folder2;
 
-add_setup(async function() {
+add_setup(async function () {
   folder1 = await create_folder("CopyFromFolder");
   folder2 = await create_folder("CopyToFolder");
   await make_message_sets_in_folders([folder1], [{ count: 1 }]);

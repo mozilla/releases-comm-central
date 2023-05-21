@@ -19,7 +19,7 @@ do_get_profile();
 /* import-globals-from ../../../test/resources/abSetup.js */
 load("../../../resources/abSetup.js");
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   load("../../../resources/mailShutdown.js");
 });
 

@@ -1087,7 +1087,7 @@ SubkeyListView.prototype = {
 
 function sigHandleDblClick(event) {}
 
-document.addEventListener("dialogaccept", async function(event) {
+document.addEventListener("dialogaccept", async function (event) {
   // Prevent the closing of the dialog to wait until all the SQLite operations
   // have properly been executed.
   event.preventDefault();

@@ -24,7 +24,7 @@ Services.scriptloader.loadSubScript(
 
 const testItems = {};
 
-add_setup(async function() {
+add_setup(async function () {
   await new Promise(resolve => do_calendar_startup(resolve));
 
   // Create events useful for testing.

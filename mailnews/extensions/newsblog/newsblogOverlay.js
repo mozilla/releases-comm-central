@@ -186,7 +186,7 @@ var FeedMessageHandler = {
    * @returns {void}
    */
   loadWebPage(aMessageHdr, aWhere) {
-    MsgHdrToMimeMessage(aMessageHdr, null, function(aMsgHdr, aMimeMsg) {
+    MsgHdrToMimeMessage(aMessageHdr, null, function (aMsgHdr, aMimeMsg) {
       if (
         aMimeMsg &&
         aMimeMsg.headers["content-base"] &&
@@ -370,7 +370,7 @@ function openComposeWindowForRSSArticle(
       MsgHdrToMimeMessage(
         msgHdr,
         null,
-        function(aMsgHdr, aMimeMsg) {
+        function (aMsgHdr, aMimeMsg) {
           if (
             aMimeMsg &&
             aMimeMsg.headers["content-base"] &&

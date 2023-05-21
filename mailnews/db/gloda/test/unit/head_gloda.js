@@ -14,6 +14,6 @@ do_get_profile();
 
 var gDEPTH = "../../../../../";
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });

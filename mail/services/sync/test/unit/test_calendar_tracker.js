@@ -14,7 +14,7 @@ const { Service } = ChromeUtils.importESModule(
 
 let engine, store, tracker;
 
-add_setup(async function() {
+add_setup(async function () {
   await new Promise(resolve => cal.manager.startup({ onResult: resolve }));
   cal.manager.getCalendars();
 

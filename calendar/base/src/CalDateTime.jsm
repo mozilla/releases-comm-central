@@ -88,7 +88,7 @@ CalDateTime.prototype = {
     unwrapSetter(
       ICAL.Timezone,
       rawval,
-      function(val) {
+      function (val) {
         this.innerObject.zone = val;
         return val;
       },
@@ -137,19 +137,19 @@ CalDateTime.prototype = {
     return this.toString();
   },
 
-  getInTimezone: unwrap(ICAL.Timezone, function(val) {
+  getInTimezone: unwrap(ICAL.Timezone, function (val) {
     return new CalDateTime(this.innerObject.convertToZone(val));
   }),
 
-  addDuration: unwrap(ICAL.Duration, function(val) {
+  addDuration: unwrap(ICAL.Duration, function (val) {
     this.innerObject.addDuration(val);
   }),
 
-  subtractDate: unwrap(ICAL.Time, function(val) {
+  subtractDate: unwrap(ICAL.Time, function (val) {
     return new lazy.CalDuration(this.innerObject.subtractDateTz(val));
   }),
 
-  compare: unwrap(ICAL.Time, function(val) {
+  compare: unwrap(ICAL.Time, function (val) {
     let a = this.innerObject;
     let b = val;
 

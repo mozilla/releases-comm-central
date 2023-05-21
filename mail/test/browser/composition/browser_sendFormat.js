@@ -45,7 +45,7 @@ add_setup(async () => {
   outboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue, true);
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   Services.prefs.setIntPref("mail.default_send_format", sendFormatPreference);
   Services.prefs.setIntPref("mailnews.display.html_as", htmlAsPreference);
   await empty_folder(draftsFolder);

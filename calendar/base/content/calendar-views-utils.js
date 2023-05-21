@@ -115,7 +115,7 @@ var calendarViewController = {
     let recurringItems = {};
     let extResponse = extResponseArg || { responseMode: Ci.calIItipItem.USER };
 
-    let getSavedItem = function(itemToDelete) {
+    let getSavedItem = function (itemToDelete) {
       // Get the parent item, saving it in our recurringItems object for
       // later use.
       let hashVal = itemToDelete.parentItem.hashId;

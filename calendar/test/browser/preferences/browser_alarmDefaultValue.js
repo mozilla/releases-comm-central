@@ -145,13 +145,10 @@ async function handleReminderDialog(remindersWindow) {
 
   Assert.equal(listbox.selectedItem.reminder.offset.days, DEFVALUE);
 
-  remindersDocument
-    .querySelector("dialog")
-    .getButton("accept")
-    .click();
+  remindersDocument.querySelector("dialog").getButton("accept").click();
 }
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   Services.prefs.clearUserPref("calendar.alarms.onforevents");
   Services.prefs.clearUserPref("calendar.alarms.eventalarmlen");
   Services.prefs.clearUserPref("calendar.alarms.eventalarmunit");

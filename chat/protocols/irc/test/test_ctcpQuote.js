@@ -45,7 +45,7 @@ var expectedOutputParams = [
 
 var outputParams = [];
 
-ircAccount.prototype.sendMessage = function(aCommand, aParams) {
+ircAccount.prototype.sendMessage = function (aCommand, aParams) {
   equal("PRIVMSG", aCommand);
   outputParams.push(aParams[1]);
 };

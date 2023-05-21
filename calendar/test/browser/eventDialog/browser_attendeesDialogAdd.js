@@ -6,7 +6,7 @@
 
 const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 
-add_setup(async function() {
+add_setup(async function () {
   await CalendarTestUtils.setCalendarView(window, "day");
   CalendarTestUtils.goToDate(window, 2023, 2, 18);
 });

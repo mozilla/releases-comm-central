@@ -58,7 +58,7 @@ function run_test() {
   localAccountUtils.loadLocalMailAccount();
   var folder = localAccountUtils.incomingServer.rootMsgFolder;
 
-  gTestFiles.forEach(function(test) {
+  gTestFiles.forEach(function (test) {
     dump("Testing " + test.name + "\n");
     var inFile = do_get_file(kDataRoot + test.name);
     var inStream = Cc[

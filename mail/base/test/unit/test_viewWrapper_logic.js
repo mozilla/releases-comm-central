@@ -329,7 +329,7 @@ add_task(function test_view_update_depth_logic() {
   // create an instance-specific dummy method that counts calls t
   //  _applyViewChanges
   let applyViewCount = 0;
-  viewWrapper._applyViewChanges = function() {
+  viewWrapper._applyViewChanges = function () {
     applyViewCount++;
   };
 

@@ -54,7 +54,7 @@ function getBrowser() {
 var previewObserver = {
   _loaded: false,
   load() {
-    let makeDate = function(aDateString) {
+    let makeDate = function (aDateString) {
       let array = aDateString.split(":");
       let now = new Date();
       return (
@@ -78,7 +78,7 @@ var previewObserver = {
       "message1",
       "message2",
       "message3",
-    ].forEach(function(aText) {
+    ].forEach(function (aText) {
       msg[aText] = bundle.getString(aText);
     });
     let conv = new Conversation(msg.nick2);
@@ -202,7 +202,7 @@ var previewObserver = {
     popup.appendChild(menuitem);
     popup.appendChild(document.createXULElement("menuseparator"));
 
-    variants.sort().forEach(function(aVariantName) {
+    variants.sort().forEach(function (aVariantName) {
       let displayName = aVariantName.replace(/_/g, " ");
       if (displayName != defaultVariant) {
         let menuitem = document.createXULElement("menuitem");
@@ -250,7 +250,7 @@ var previewObserver = {
 
     // Display all queued messages. Use a timeout so that message text
     // modifiers can be added with observers for this notification.
-    setTimeout(function() {
+    setTimeout(function () {
       for (let message of previewObserver.conv.messages) {
         aSubject.appendMessage(message, false);
       }

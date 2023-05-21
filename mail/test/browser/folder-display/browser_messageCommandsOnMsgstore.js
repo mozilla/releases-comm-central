@@ -44,7 +44,7 @@ let gInbox;
 let gOutbox;
 let gAutoRead;
 
-add_setup(async function() {
+add_setup(async function () {
   gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
 
@@ -75,7 +75,7 @@ add_setup(async function() {
   gInbox.compact(urlListener, null);
 
   utils.waitFor(
-    function() {
+    function () {
       return urlListener.compactDone;
     },
     "Timeout waiting for compact to complete",
@@ -323,7 +323,7 @@ add_task(async function test_mark_messages_forwarded() {
   );
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);
   // Clear all the created messages.
   await be_in_folder(gInbox.parent);

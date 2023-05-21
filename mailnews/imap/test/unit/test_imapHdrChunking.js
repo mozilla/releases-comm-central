@@ -62,7 +62,7 @@ var gFolderListener = new FolderIntPropertyChangedListener();
 /** Used to store a listener between tasks for inspecting chunking behaviour. */
 var gListener = new PromiseTestUtils.PromiseUrlListener();
 
-add_setup(async function() {
+add_setup(async function () {
   Assert.equal(
     OVERALL_MESSAGES % CHUNKING_SIZE !== 0,
     true,
@@ -102,7 +102,7 @@ add_task(async function uploadImapMessages() {
   // Add OVERALL_MESSAGES messages with uids 1,2,3...,OVERALL_MESSAGES.
   let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
   // Create the ImapMessages and store them on the mailbox.
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );

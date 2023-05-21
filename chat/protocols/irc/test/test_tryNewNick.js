@@ -39,7 +39,7 @@ function test_tryNewNick() {
   let account = new ircAccount(fakeProto, {
     name: "clokep@instantbird.org",
   });
-  account.LOG = function(aStr) {};
+  account.LOG = function (aStr) {};
   account.normalize = aStr => aStr;
 
   for (let currentNick in testData) {
@@ -82,7 +82,7 @@ function test_maxLength() {
   let account = new ircAccount(fakeProto, {
     name: "clokep@instantbird.org",
   });
-  account.LOG = function(aStr) {};
+  account.LOG = function (aStr) {};
   account._sentNickname = "abcdefghi";
   account.normalize = aStr => aStr;
 
@@ -115,13 +115,13 @@ function test_altNicks() {
   let account = new ircAccount(fakeProto, {
     name: "clokep@instantbird.org",
   });
-  account.LOG = function(aStr) {};
+  account.LOG = function (aStr) {};
   account.normalize = aStr => aStr;
 
   for (let currentNick in testData) {
     // Only one pref is touched in here, override the default to return
     // what this test needs.
-    account.getString = function(aStr) {
+    account.getString = function (aStr) {
       let data = testData[currentNick][0];
       if (Array.isArray(data)) {
         return data.join(",");

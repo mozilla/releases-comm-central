@@ -106,10 +106,7 @@ async function handlePasswordPrompt(password) {
       Assert.greater(checkbox.getBoundingClientRect().width, 0);
       Assert.ok(checkbox.checked);
 
-      prompt.document
-        .querySelector("dialog")
-        .getButton("accept")
-        .click();
+      prompt.document.querySelector("dialog").getButton("accept").click();
     },
   });
 }
@@ -122,11 +119,11 @@ async function handlePasswordPrompt(password) {
 add_task(async function testDNS() {
   var _srv = DNS.srv;
   var _txt = DNS.txt;
-  DNS.srv = function(name) {
+  DNS.srv = function (name) {
     Assert.equal(name, "_caldavs._tcp.dnstest.invalid");
     return [{ prio: 0, weight: 0, host: "example.org", port: 443 }];
   };
-  DNS.txt = function(name) {
+  DNS.txt = function (name) {
     Assert.equal(name, "_caldavs._tcp.dnstest.invalid");
     return [{ data: "path=/browser/comm/calendar/test/browser/data/dns.sjs" }];
   };

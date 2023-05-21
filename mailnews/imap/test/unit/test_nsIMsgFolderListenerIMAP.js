@@ -116,7 +116,7 @@ function doUpdateFolder(test) {
   if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
   } else {
-    do_timeout(1000, function() {
+    do_timeout(1000, function () {
       doUpdateFolder(test);
     });
   }
@@ -125,7 +125,7 @@ function doUpdateFolder(test) {
 // Adds some messages directly to a mailbox (eg new mail)
 function addMessagesToServer(messages, mailbox, localFolder) {
   // For every message we have, we need to convert it to a file:/// URI
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let URI = Services.io
       .newFileURI(message.file)
       .QueryInterface(Ci.nsIFileURL);
@@ -163,7 +163,7 @@ function copyMessages(messages, isMove, srcFolder, destFolder) {
   ];
   // We'll also get the msgAdded events when we go and update the destination
   // folder
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     // We can't use the headers directly, because the notifications we'll
     // receive are for message headers in the destination folder
     gExpectedEvents.push([
@@ -205,12 +205,12 @@ var gTestArray = [
   // Adding folders
   // Create another folder to move and copy messages around, and force initialization.
   function testAddFolder1() {
-    addFolder(gRootFolder, "folder2", function(folder) {
+    addFolder(gRootFolder, "folder2", function (folder) {
       gIMAPFolder2 = folder;
     });
   },
   function testAddFolder2() {
-    addFolder(gRootFolder, "folder3", function(folder) {
+    addFolder(gRootFolder, "folder3", function (folder) {
       gIMAPFolder3 = folder;
     });
   },
@@ -218,7 +218,7 @@ var gTestArray = [
   // Adding messages to folders
   function testCopyFileMessage1() {
     // Make sure the offline flag is not set for any of the folders
-    [gIMAPInbox, gIMAPFolder2, gIMAPFolder3].forEach(function(folder) {
+    [gIMAPInbox, gIMAPFolder2, gIMAPFolder3].forEach(function (folder) {
       folder.clearFlag(Ci.nsMsgFolderFlags.Offline);
     });
     copyFileMessage(gMsgFile1, gMsgId1, gIMAPInbox);
@@ -307,7 +307,7 @@ function run_test() {
   gRootFolder = gIMAPIncomingServer.rootFolder;
   gIMAPInbox = gRootFolder.getChildNamed("Inbox");
   gExpectedEvents = [
-    [MailServices.mfn.folderAdded, gRootFolder, "Trash", function(folder) {}],
+    [MailServices.mfn.folderAdded, gRootFolder, "Trash", function (folder) {}],
   ];
   gCurrStatus |= kStatus.onStopCopyDone | kStatus.functionCallDone;
 
@@ -326,7 +326,7 @@ function doTest(test) {
     dump(`Doing test ${test} (${testFn.name})\n`);
 
     // Set a limit of ten seconds; if the notifications haven't arrived by then there's a problem.
-    do_timeout(10000, function() {
+    do_timeout(10000, function () {
       if (gTest == test) {
         do_throw(
           "Notifications not received in 10000 ms for operation " +

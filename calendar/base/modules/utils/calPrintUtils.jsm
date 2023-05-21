@@ -253,7 +253,7 @@ let listView = {
     for (let item of items) {
       let itemNode = listItemTemplate.content.firstElementChild.cloneNode(true);
 
-      let setupTextRow = function(classKey, propValue, prefixKey) {
+      let setupTextRow = function (classKey, propValue, prefixKey) {
         if (propValue) {
           let prefix = lazy.cal.l10n.getCalString(prefixKey);
           itemNode.querySelector("." + classKey + "key").textContent = prefix;

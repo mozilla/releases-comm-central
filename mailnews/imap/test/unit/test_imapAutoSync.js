@@ -35,7 +35,7 @@ var gAutoSyncManager = Cc["@mozilla.org/imap/autosyncmgr;1"].getService(
 );
 var gTargetFolder;
 
-add_setup(function() {
+add_setup(function () {
   setupIMAPPump();
   addMessageToFolder(IMAPPump.inbox);
 });

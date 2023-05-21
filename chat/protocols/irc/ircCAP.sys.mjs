@@ -27,17 +27,14 @@ import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.s
  */
 export function capMessage(aMessage, aAccount) {
   // The CAP parameters are space separated as the last parameter.
-  let parameters = aMessage.params
-    .slice(-1)[0]
-    .trim()
-    .split(" ");
+  let parameters = aMessage.params.slice(-1)[0].trim().split(" ");
   // The subcommand is the second parameter...although sometimes it's the first
   // parameter.
   aMessage.cap = {
     subcommand: aMessage.params[aMessage.params.length >= 3 ? 1 : 0],
   };
 
-  const messages = parameters.map(function(aParameter) {
+  const messages = parameters.map(function (aParameter) {
     // Clone the original object.
     let message = Object.assign({}, aMessage);
     message.cap = Object.assign({}, aMessage.cap);
@@ -135,7 +132,7 @@ export var ircCAP = {
       return true;
     },
 
-    "410": function(aMessage) {
+    "410": function (aMessage) {
       // ERR_INVALIDCAPCMD
       // <unrecognized subcommand> :Invalid CAP subcommand
       this.WARN("Invalid subcommand: " + aMessage.params[1]);
@@ -151,7 +148,7 @@ export var capNotify = {
   isEnabled: () => true,
 
   commands: {
-    "cap-notify": function(aMessage) {
+    "cap-notify": function (aMessage) {
       // This negotiation is entirely optional. cap-notify may thus never be formally registered.
       if (
         aMessage.cap.subcommand === "LS" ||

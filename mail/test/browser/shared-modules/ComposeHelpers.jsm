@@ -260,7 +260,7 @@ function close_compose_window(aController, aShouldPrompt) {
 
   windowHelper.plan_for_window_close(aController);
   if (aShouldPrompt) {
-    windowHelper.plan_for_modal_dialog("commonDialogWindow", function(
+    windowHelper.plan_for_modal_dialog("commonDialogWindow", function (
       controller
     ) {
       controller.window.document
@@ -329,7 +329,7 @@ function setup_msg_contents(
   aBody,
   inputID = "toAddrInput"
 ) {
-  let pillcount = function() {
+  let pillcount = function () {
     return aCwc.window.document.querySelectorAll("mail-address-pill").length;
   };
   let targetCount = pillcount();
@@ -2238,10 +2238,7 @@ class FormatHelper {
           } else {
             win.document.getElementById("ColorInput").value = color;
           }
-          win.document
-            .querySelector("dialog")
-            .getButton("accept")
-            .click();
+          win.document.querySelector("dialog").getButton("accept").click();
         },
       }
     );

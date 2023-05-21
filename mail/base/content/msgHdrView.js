@@ -898,7 +898,7 @@ var messageProgressListener = {
           }
         }
 
-        img.addEventListener("load", function(event) {
+        img.addEventListener("load", function (event) {
           if (this.clientWidth > this.parentNode.clientWidth) {
             img.setAttribute("overflowing", "true");
             img.setAttribute("shrinktofit", "true");
@@ -1499,18 +1499,18 @@ function onShowAttachmentItemContextMenu() {
   }
   contextMenu.attachments = selectedAttachments;
 
-  var allSelectedDetached = selectedAttachments.every(function(attachment) {
+  var allSelectedDetached = selectedAttachments.every(function (attachment) {
     return attachment.isExternalAttachment;
   });
-  var allSelectedDeleted = selectedAttachments.every(function(attachment) {
+  var allSelectedDeleted = selectedAttachments.every(function (attachment) {
     return !attachment.hasFile;
   });
   var canDetachSelected =
     CanDetachAttachments() && !allSelectedDetached && !allSelectedDeleted;
-  let allSelectedHttp = selectedAttachments.every(function(attachment) {
+  let allSelectedHttp = selectedAttachments.every(function (attachment) {
     return attachment.isLinkAttachment;
   });
-  let allSelectedFile = selectedAttachments.every(function(attachment) {
+  let allSelectedFile = selectedAttachments.every(function (attachment) {
     return attachment.isFileAttachment;
   });
 
@@ -1571,10 +1571,10 @@ function onShowSaveAttachmentMenuMultiple() {
   let detachAllItem = document.getElementById("button-detachAllAttachments");
   let deleteAllItem = document.getElementById("button-deleteAllAttachments");
 
-  let allDetached = currentAttachments.every(function(attachment) {
+  let allDetached = currentAttachments.every(function (attachment) {
     return attachment.isExternalAttachment;
   });
-  let allDeleted = currentAttachments.every(function(attachment) {
+  let allDeleted = currentAttachments.every(function (attachment) {
     return !attachment.hasFile;
   });
   let canDetach = CanDetachAttachments() && !allDeleted && !allDetached;
@@ -1648,7 +1648,7 @@ var AttachmentListController = {
 
 var AttachmentMenuController = {
   canDetachFiles() {
-    let someNotDetached = currentAttachments.some(function(aAttachment) {
+    let someNotDetached = currentAttachments.some(function (aAttachment) {
       return !aAttachment.isExternalAttachment;
     });
 
@@ -1658,7 +1658,7 @@ var AttachmentMenuController = {
   },
 
   someFilesAvailable() {
-    return currentAttachments.some(function(aAttachment) {
+    return currentAttachments.some(function (aAttachment) {
       return aAttachment.hasFile;
     });
   },
@@ -1864,7 +1864,7 @@ function updateSaveAllAttachmentsButton() {
     return;
   }
 
-  let allDeleted = currentAttachments.every(function(attachment) {
+  let allDeleted = currentAttachments.every(function (attachment) {
     return !attachment.hasFile;
   });
   let single = currentAttachments.length == 1;
@@ -2213,7 +2213,7 @@ function HandleMultipleAttachments(attachments, action) {
       // (error about the xul cache being empty). For now, work around this by
       // doing the first helper app dialog right away, then waiting a bit
       // before we launch the rest.
-      let actionFunction = function(aAttachment) {
+      let actionFunction = function (aAttachment) {
         aAttachment.open(getMessagePaneBrowser().browsingContext);
       };
 
@@ -2229,9 +2229,9 @@ function HandleMultipleAttachments(attachments, action) {
       // Show one save dialog at a time, which allows to adjust the file name
       // and folder path for each attachment. For added convenience, we remember
       // the folder path of each file for the save dialog of the next one.
-      let saveAttachments = function(attachments) {
+      let saveAttachments = function (attachments) {
         if (attachments.length > 0) {
-          attachments[0].save(top.messenger).then(function() {
+          attachments[0].save(top.messenger).then(function () {
             saveAttachments(attachments.slice(1));
           });
         }

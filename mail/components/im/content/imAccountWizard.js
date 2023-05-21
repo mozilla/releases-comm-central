@@ -60,7 +60,7 @@ var accountWizard = {
       }
       return a.name > b.name ? 1 : 0;
     });
-    protos.forEach(function(proto) {
+    protos.forEach(function (proto) {
       let image = document.createElement("img");
       image.setAttribute("src", ChatIcons.getProtocolIconURI(proto));
       image.setAttribute("alt", "");
@@ -77,7 +77,7 @@ var accountWizard = {
     });
 
     // there is a strange selection bug without this timeout
-    setTimeout(function() {
+    setTimeout(function () {
       protoList.selectedIndex = 0;
     }, 0);
 

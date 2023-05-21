@@ -21,19 +21,19 @@ ChromeUtils.defineESModuleGetters(lazy, {
   PromptUtils: "resource://gre/modules/PromptUtils.sys.mjs",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "dialogsBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "dialogsBundle", function () {
   return Services.strings.createBundle(
     "chrome://global/locale/commonDialogs.properties"
   );
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "passwordsBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "passwordsBundle", function () {
   return Services.strings.createBundle(
     "chrome://passwordmgr/locale/passwordmgr.properties"
   );
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "brandFullName", function() {
+XPCOMUtils.defineLazyGetter(lazy, "brandFullName", function () {
   return Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandFullName");

@@ -27,7 +27,7 @@ async function notInEditingMode() {
   );
 }
 
-add_setup(async function() {
+add_setup(async function () {
   CardDAVServer.open("alice", "alice");
 
   book = createAddressBook(
@@ -45,7 +45,7 @@ add_setup(async function() {
   Services.logins.addLogin(loginInfo);
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   await promiseDirectoryRemoved(book.URI);
   CardDAVServer.close();
   CardDAVServer.reset();

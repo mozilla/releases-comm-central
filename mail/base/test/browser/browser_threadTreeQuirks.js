@@ -17,7 +17,7 @@ let aboutMessage = about3Pane.messageBrowser.contentWindow;
 let messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
 let rootFolder, folderA, folderB, trashFolder, sourceMessages, sourceMessageIDs;
 
-add_setup(async function() {
+add_setup(async function () {
   let generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();

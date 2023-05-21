@@ -116,7 +116,7 @@ var mailTabType = {
             // appearing to slow the program down.
             if (tab.first) {
               Services.obs.notifyObservers(window, "mail-startup-done");
-              requestIdleCallback(function() {
+              requestIdleCallback(function () {
                 if (!window.closed) {
                   Services.obs.notifyObservers(
                     window,

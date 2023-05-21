@@ -136,7 +136,7 @@ var TBDistCustomizer = {
   },
 };
 
-XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_ini", function() {
+XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_ini", function () {
   let ini = null;
   let iniFile = Services.dirsvc.get("XCurProcD", Ci.nsIFile);
   iniFile.append("distribution");
@@ -149,7 +149,7 @@ XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_ini", function() {
   return ini;
 });
 
-XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_locale", function() {
+XPCOMUtils.defineLazyGetter(TBDistCustomizer, "_locale", function () {
   return Services.locale.requestedLocale;
 });
 

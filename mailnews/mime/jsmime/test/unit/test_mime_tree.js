@@ -1,13 +1,13 @@
 "use strict";
-define(function(require) {
+define(function (require) {
   var assert = require("assert");
   var jsmime = require("jsmime");
   var fs = require("fs");
 
   function arrayTest(data, fn) {
-    fn.toString = function() {
+    fn.toString = function () {
       let text = Function.prototype.toString.call(this);
-      text = text.replace(/data\[([0-9]*)\]/g, function(m, p) {
+      text = text.replace(/data\[([0-9]*)\]/g, function (m, p) {
         return JSON.stringify(data[p]);
       });
       return text;
@@ -39,8 +39,8 @@ define(function(require) {
    */
   function read_file(file, start, end) {
     if (!(file in file_cache)) {
-      var realFile = new Promise(function(resolve, reject) {
-        fs.readFile("data/" + file, function(err, data) {
+      var realFile = new Promise(function (resolve, reject) {
+        fs.readFile("data/" + file, function (err, data) {
           if (err) {
             reject(err);
           } else {
@@ -48,7 +48,7 @@ define(function(require) {
           }
         });
       });
-      var loader = realFile.then(function(contents) {
+      var loader = realFile.then(function (contents) {
         var inStrForm = "";
         while (contents.length > 0) {
           inStrForm += String.fromCharCode.apply(
@@ -61,7 +61,7 @@ define(function(require) {
       });
       file_cache[file] = loader;
     }
-    return file_cache[file].then(function(contents) {
+    return file_cache[file].then(function (contents) {
       if (start !== undefined) {
         contents = contents.slice(start - 1, end - 1);
       }
@@ -93,7 +93,7 @@ define(function(require) {
       partspec.map(p => Promise.all([p[0], read_file(file, p[1], p[2])]))
     );
     var eol = extract_field(opts, "_eol");
-    var msgtext = read_file(file).then(function(msgcontents) {
+    var msgtext = read_file(file).then(function (msgcontents) {
       var packetize = extract_field(opts, "_split");
       if (packetize !== undefined) {
         msgcontents = msgcontents.split(packetize);
@@ -104,7 +104,7 @@ define(function(require) {
       return msgcontents;
     });
     if (eol !== undefined) {
-      results = results.then(function(results_) {
+      results = results.then(function (results_) {
         for (let part of results_) {
           part[1] = part[1].replace(/\r\n/g, eol);
         }
@@ -193,11 +193,11 @@ define(function(require) {
         assert.equal(this.stack.pop(), partNum);
       },
     };
-    opts.onerror = function(e) {
+    opts.onerror = function (e) {
       throw e;
     };
 
-    return Promise.all([message, results]).then(function(vals) {
+    return Promise.all([message, results]).then(function (vals) {
       let [message_, results_] = vals;
       // Clone the results array into uncheckedValues
       if (Array.isArray(results_)) {
@@ -214,7 +214,7 @@ define(function(require) {
         message_ = [message_];
       }
       var parser = new jsmime.MimeParser(emitter, opts);
-      message_.forEach(function(packet) {
+      message_.forEach(function (packet) {
         parser.deliverData(packet);
       });
       parser.deliverEOF();
@@ -227,7 +227,7 @@ define(function(require) {
     });
   }
 
-  suite("MimeParser", function() {
+  suite("MimeParser", function () {
     // This is the expected part specifier for the multipart-complex1 test file,
     // specified here because it is used in several cases.
     let mpart_complex1 = [
@@ -238,7 +238,7 @@ define(function(require) {
       ["5", 33, 35],
     ];
 
-    suite("Simple tests", function() {
+    suite("Simple tests", function () {
       let parser_tests = [
         // The following tests are either degenerate or error cases that should
         // work
@@ -282,14 +282,14 @@ define(function(require) {
           },
         ],
       ];
-      parser_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      parser_tests.forEach(function (data) {
+        arrayTest(data, function () {
           return testParser(data[1], data[2], data[3]);
         });
       });
     });
 
-    suite("Body tests", function() {
+    suite("Body tests", function () {
       let parser_tests = [
         // Body tests from data
         // (Note: line numbers are 1-based. Also, to capture trailing EOF, add 2
@@ -347,7 +347,7 @@ define(function(require) {
         ],
         [
           "Base64 decode line issues",
-          read_file("base64-2").then(function(s) {
+          read_file("base64-2").then(function (s) {
             return s.split(/(\r\n)/);
           }),
           { bodyformat: "decode" },
@@ -409,14 +409,14 @@ define(function(require) {
           },
         ],
       ];
-      parser_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      parser_tests.forEach(function (data) {
+        arrayTest(data, function () {
           return testParser(data[1], data[2], data[3]);
         });
       });
     });
 
-    suite("Torture tests", function() {
+    suite("Torture tests", function () {
       // Generate a very long message for tests
       let teststr = "a";
       for (let i = 0; i < 16; i++) {
@@ -499,14 +499,14 @@ define(function(require) {
           mpart_complex1
         ),
       ];
-      parser_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      parser_tests.forEach(function (data) {
+        arrayTest(data, function () {
           return testParser(data[1], data[2], data[3]);
         });
       });
     });
 
-    suite("Header tests", function() {
+    suite("Header tests", function () {
       let parser_tests = [
         // Basic cases for headers
         [
@@ -586,14 +586,14 @@ define(function(require) {
           },
         ],
       ];
-      parser_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      parser_tests.forEach(function (data) {
+        arrayTest(data, function () {
           return testParser(data[1], data[2], data[3]);
         });
       });
     });
 
-    suite("Charset tests", function() {
+    suite("Charset tests", function () {
       function buildTree(file, options) {
         var tree = new Map();
         var emitter = {
@@ -614,24 +614,21 @@ define(function(require) {
             }
           },
         };
-        return file.then(function(data) {
+        return file.then(function (data) {
           var parser = new jsmime.MimeParser(emitter, options);
           parser.deliverData(data);
           parser.deliverEOF();
           return tree;
         });
       }
-      test("Unicode decoding", function() {
+      test("Unicode decoding", function () {
         return buildTree(read_file("shift-jis-image"), {
           strformat: "unicode",
           bodyformat: "decode",
-        }).then(function(tree) {
+        }).then(function (tree) {
           // text/plain should be transcoded...
           assert.equal(
-            tree
-              .get("1")
-              .headers.get("Content-Type")
-              .get("charset"),
+            tree.get("1").headers.get("Content-Type").get("charset"),
             "Shift-JIS"
           );
           assert.equal(tree.get("1").headers.charset, "Shift-JIS");
@@ -655,12 +652,7 @@ define(function(require) {
               "\u3002\r\n"
           );
           // ... but not image/png
-          assert.ok(
-            !tree
-              .get("2")
-              .headers.get("Content-Type")
-              .has("charset")
-          );
+          assert.ok(!tree.get("2").headers.get("Content-Type").has("charset"));
           assert.equal(tree.get("2").headers.charset, "");
           assert.equal(
             tree.get("2").headers.get("Content-Description"),
@@ -693,18 +685,15 @@ define(function(require) {
           );
         });
       });
-      test("Fallback charset decoding", function() {
+      test("Fallback charset decoding", function () {
         return buildTree(read_file("shift-jis-image"), {
           strformat: "unicode",
           charset: "ISO-8859-1",
           bodyformat: "decode",
-        }).then(function(tree) {
+        }).then(function (tree) {
           // text/plain should be transcoded...
           assert.equal(
-            tree
-              .get("1")
-              .headers.get("Content-Type")
-              .get("charset"),
+            tree.get("1").headers.get("Content-Type").get("charset"),
             "Shift-JIS"
           );
           assert.equal(tree.get("1").headers.charset, "Shift-JIS");
@@ -728,12 +717,7 @@ define(function(require) {
               "\u3002\r\n"
           );
           // ... but not image/png
-          assert.ok(
-            !tree
-              .get("2")
-              .headers.get("Content-Type")
-              .has("charset")
-          );
+          assert.ok(!tree.get("2").headers.get("Content-Type").has("charset"));
           assert.equal(tree.get("2").headers.charset, "ISO-8859-1");
           assert.equal(
             tree.get("2").headers.get("Content-Description"),
@@ -766,19 +750,16 @@ define(function(require) {
           );
         });
       });
-      test("Forced charset decoding", function() {
+      test("Forced charset decoding", function () {
         return buildTree(read_file("shift-jis-image"), {
           strformat: "unicode",
           charset: "ISO-8859-1",
           "force-charset": true,
           bodyformat: "decode",
-        }).then(function(tree) {
+        }).then(function (tree) {
           // text/plain should be transcoded...
           assert.equal(
-            tree
-              .get("1")
-              .headers.get("Content-Type")
-              .get("charset"),
+            tree.get("1").headers.get("Content-Type").get("charset"),
             "Shift-JIS"
           );
           assert.equal(tree.get("1").headers.charset, "ISO-8859-1");
@@ -807,12 +788,7 @@ define(function(require) {
               "}\u0192b\u0192g\u201a\u00c5\u201a\u00a0\u201a\u00e9\u0081B\r\n"
           );
           // ... but not image/png
-          assert.ok(
-            !tree
-              .get("2")
-              .headers.get("Content-Type")
-              .has("charset")
-          );
+          assert.ok(!tree.get("2").headers.get("Content-Type").has("charset"));
           assert.equal(tree.get("2").headers.charset, "ISO-8859-1");
           assert.equal(
             tree.get("2").headers.get("Content-Description"),
@@ -845,11 +821,11 @@ define(function(require) {
           );
         });
       });
-      test("Charset conversion", function() {
+      test("Charset conversion", function () {
         return buildTree(read_file("charsets"), {
           strformat: "unicode",
           bodyformat: "decode",
-        }).then(function(tree) {
+        }).then(function (tree) {
           var numParts = 12;
           for (let i = 1; i < numParts; i += 2) {
             assert.equal(tree.get("" + i).body, tree.get("" + (i + 1)).body);

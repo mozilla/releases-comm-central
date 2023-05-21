@@ -302,7 +302,7 @@ function do_calendar_startup(callback) {
  */
 function monkeyPatch(obj, x, func) {
   let old = obj[x];
-  obj[x] = function() {
+  obj[x] = function () {
     let parent = old.bind(obj);
     let args = Array.from(arguments);
     args.unshift(parent);

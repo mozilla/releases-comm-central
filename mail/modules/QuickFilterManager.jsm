@@ -1104,7 +1104,7 @@ var MessageTextFilter = {
    */
   domBindExtra(aDocument, aMuxer, aNode) {
     // -- Keypresses for focus transferral and upsell
-    aNode.addEventListener("keypress", function(aEvent) {
+    aNode.addEventListener("keypress", function (aEvent) {
       // - Down key into the thread pane
       if (aEvent.keyCode == aEvent.DOM_VK_DOWN) {
         let threadTree = aDocument.getElementById("threadTree");
@@ -1117,7 +1117,7 @@ var MessageTextFilter = {
     // -- Blurring kills upsell.
     aNode.addEventListener(
       "blur",
-      function(aEvent) {
+      function (aEvent) {
         let panel = aDocument.getElementById("qfb-text-search-upsell");
         if (
           (Services.focus.activeWindow != aDocument.defaultView ||

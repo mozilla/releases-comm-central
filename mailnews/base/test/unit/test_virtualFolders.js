@@ -6,7 +6,7 @@ const { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
 
-add_task(function() {
+add_task(function () {
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
   let rootFolder = account.incomingServer.rootFolder;

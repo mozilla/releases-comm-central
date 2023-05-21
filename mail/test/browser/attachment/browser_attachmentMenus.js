@@ -182,7 +182,7 @@ var messages = [
   },
 ];
 
-add_setup(async function() {
+add_setup(async function () {
   messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
   /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
@@ -549,7 +549,7 @@ async function help_test_attachment_menus(index) {
 
 // Generate a test for each message in |messages|.
 for (let i = 0; i < messages.length; i++) {
-  add_task(function() {
+  add_task(function () {
     return help_test_attachment_menus(i);
   });
 }

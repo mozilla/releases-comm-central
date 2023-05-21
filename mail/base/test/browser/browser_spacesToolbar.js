@@ -12,7 +12,7 @@ var folderA;
 var folderB;
 var testAccount;
 
-add_setup(function() {
+add_setup(function () {
   // Set up two folders.
   window.MailServices.accounts.createLocalMailAccount();
   testAccount = window.MailServices.accounts.accounts[0];
@@ -188,7 +188,7 @@ add_task(async function testSpacesToolbarVisibility() {
   let pinnedButton = document.getElementById("spacesPinnedButton");
   Assert.ok(spacesToolbar, "The spaces toolbar exists");
 
-  let assertVisibility = async function(isHidden, msg) {
+  let assertVisibility = async function (isHidden, msg) {
     await TestUtils.waitForCondition(
       () => spacesToolbar.hidden == !isHidden,
       `The spaces toolbar should be ${!isHidden ? "visible" : "hidden"}: ${msg}`

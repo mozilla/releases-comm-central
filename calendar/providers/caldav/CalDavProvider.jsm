@@ -400,10 +400,7 @@ class CalDavDetector {
     let displayName = props["D:displayname"];
     let color = props["A:calendar-color"];
     if (!displayName) {
-      let fileName = decodeURI(uri.spec)
-        .split("/")
-        .filter(Boolean)
-        .pop();
+      let fileName = decodeURI(uri.spec).split("/").filter(Boolean).pop();
       displayName = fileName || uri.spec;
     }
 

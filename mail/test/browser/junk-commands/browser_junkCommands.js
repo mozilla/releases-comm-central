@@ -22,7 +22,7 @@ var {
 // One folder's enough
 var folder = null;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("JunkCommandsA");
   await make_message_sets_in_folders([folder], [{ count: 30 }]);
 });

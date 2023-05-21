@@ -5,7 +5,7 @@
 let tabmail = document.getElementById("tabmail");
 let writableBook, writableCard, readOnlyBook, readOnlyCard;
 
-add_setup(function() {
+add_setup(function () {
   writableBook = createAddressBook("writable book");
   writableCard = writableBook.addCard(createContact("writable", "card"));
 
@@ -13,7 +13,7 @@ add_setup(function() {
   readOnlyCard = readOnlyBook.addCard(createContact("read-only", "card"));
   readOnlyBook.setBoolValue("readOnly", true);
 
-  registerCleanupFunction(async function() {
+  registerCleanupFunction(async function () {
     await promiseDirectoryRemoved(writableBook.URI);
     await promiseDirectoryRemoved(readOnlyBook.URI);
   });

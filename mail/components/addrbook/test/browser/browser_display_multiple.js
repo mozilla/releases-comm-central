@@ -8,7 +8,7 @@ var { CalendarTestUtils } = ChromeUtils.import(
 
 var { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 
-add_setup(async function() {
+add_setup(async function () {
   let card1 = personalBook.addCard(createContact("victor", "test"));
   personalBook.addCard(createContact("romeo", "test", undefined, ""));
   let card3 = personalBook.addCard(createContact("oscar", "test"));

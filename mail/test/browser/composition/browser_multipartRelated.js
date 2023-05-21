@@ -38,7 +38,7 @@ var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 var gDrafts;
 
-add_setup(async function() {
+add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 
@@ -102,7 +102,7 @@ add_task(async function test_basic_multipart_related() {
   let fileURL = fileHandler.getURLSpecFromActualFile(file);
 
   // Add a simple image to our dialog
-  plan_for_modal_dialog("Mail:image", async function(dialog) {
+  plan_for_modal_dialog("Mail:image", async function (dialog) {
     // Insert the url of the image.
     dialog.window.focus();
     EventUtils.sendString(fileURL, dialog.window);
@@ -143,10 +143,7 @@ add_task(async function test_basic_multipart_related() {
     headers.get("2").getRawHeader("Content-Disposition")[0],
     'inline; filename="tb-logo.png"'
   );
-  let cid = headers
-    .get("2")
-    .getRawHeader("Content-ID")[0]
-    .slice(1, -1);
+  let cid = headers.get("2").getRawHeader("Content-ID")[0].slice(1, -1);
   if (!text.get("1").includes('src="cid:' + cid + '"')) {
     throw new Error("Expected HTML to refer to cid " + cid);
   }

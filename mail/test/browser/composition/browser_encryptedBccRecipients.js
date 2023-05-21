@@ -40,7 +40,7 @@ async function waitCheckEncryptionStateDone(win) {
 /**
  * Setup an account with OpenPGP for testing.
  */
-add_setup(async function() {
+add_setup(async function () {
   bobAcct = MailServices.accounts.createAccount();
   bobAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "bob",

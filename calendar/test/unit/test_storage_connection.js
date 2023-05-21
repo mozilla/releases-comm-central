@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-add_setup(async function() {
+add_setup(async function () {
   do_get_profile();
   await new Promise(resolve => cal.manager.startup({ onResult: resolve }));
 });

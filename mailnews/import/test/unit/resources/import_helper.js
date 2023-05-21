@@ -104,7 +104,7 @@ GenericImportHelper.prototype = {
     if (this.mInterface.GetProgress() != 100) {
       // use the helper object to check the progress of the import after 200 ms
       gGenericImportHelper = this;
-      do_timeout(200, function() {
+      do_timeout(200, function () {
         gGenericImportHelper.checkProgress();
       });
     } else {
@@ -558,7 +558,7 @@ SettingsImportHelper.prototype = {
   },
 
   _findExpectedAccount(account) {
-    return this.mExpected.filter(function(expectedAccount) {
+    return this.mExpected.filter(function (expectedAccount) {
       return (
         expectedAccount.incomingServer.type == account.incomingServer.type &&
         expectedAccount.incomingServer.username ==

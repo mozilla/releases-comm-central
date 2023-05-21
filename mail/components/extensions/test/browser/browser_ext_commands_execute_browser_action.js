@@ -42,7 +42,7 @@ async function testExecuteBrowserActionWithOptions_mv2(options = {}) {
           </body>
         </html>
       `,
-      "popup.js": function() {
+      "popup.js": function () {
         browser.runtime.sendMessage("from-browser-action-popup");
       },
     };
@@ -154,7 +154,7 @@ async function testExecuteActionWithOptions_mv3(options = {}) {
           </body>
         </html>
       `,
-      "popup.js": function() {
+      "popup.js": function () {
         browser.runtime.sendMessage("from-action-popup");
       },
     };

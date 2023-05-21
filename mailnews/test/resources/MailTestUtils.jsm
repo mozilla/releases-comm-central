@@ -478,7 +478,7 @@ var mailTestUtils = {
   _timer: null,
   do_timeout_function(aDelayInMS, aFunc, aFuncThis, aFuncArgs) {
     this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-    let wrappedFunc = function() {
+    let wrappedFunc = function () {
       try {
         aFunc.apply(aFuncThis, aFuncArgs);
       } catch (ex) {

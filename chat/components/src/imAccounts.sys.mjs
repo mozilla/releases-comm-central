@@ -520,7 +520,7 @@ imAccount.prototype = {
 
     this._pendingReconnectForConnectionInfoChange = true;
     executeSoon(
-      function() {
+      function () {
         delete this._pendingReconnectForConnectionInfoChange;
         // If the connection parameters have changed while we were
         // trying to connect, cancel the ongoing connection attempt and
@@ -682,7 +682,7 @@ imAccount.prototype = {
     }
 
     gUserCanceledPrimaryPasswordPrompt = true;
-    executeSoon(function() {
+    executeSoon(function () {
       gUserCanceledPrimaryPasswordPrompt = false;
     });
   },
@@ -830,7 +830,7 @@ imAccount.prototype = {
 
     if (!this._statusObserver) {
       this._statusObserver = {
-        observe: function(aSubject, aTopic, aData) {
+        observe: function (aSubject, aTopic, aData) {
           // Disconnect or reconnect the account automatically, otherwise notify
           // the prplAccount instance.
           let statusType = aSubject.statusType;

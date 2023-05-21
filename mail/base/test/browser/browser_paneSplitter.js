@@ -99,7 +99,7 @@ let testRunner = {
   },
 };
 
-add_setup(async function() {
+add_setup(async function () {
   let tab = tabmail.openTab("contentTab", {
     url:
       "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/paneSplitter.xhtml",

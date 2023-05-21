@@ -1956,20 +1956,20 @@ var EnigmailKeyRing = {
 /************************ INTERNAL FUNCTIONS ************************/
 
 function sortByUserId(keyListObj, sortDirection) {
-  return function(a, b) {
+  return function (a, b) {
     return a.userId < b.userId ? -sortDirection : sortDirection;
   };
 }
 
 const sortFunctions = {
   keyid(keyListObj, sortDirection) {
-    return function(a, b) {
+    return function (a, b) {
       return a.keyId < b.keyId ? -sortDirection : sortDirection;
     };
   },
 
   keyidshort(keyListObj, sortDirection) {
-    return function(a, b) {
+    return function (a, b) {
       return a.keyId.substr(-8, 8) < b.keyId.substr(-8, 8)
         ? -sortDirection
         : sortDirection;
@@ -1977,7 +1977,7 @@ const sortFunctions = {
   },
 
   fpr(keyListObj, sortDirection) {
-    return function(a, b) {
+    return function (a, b) {
       return keyListObj.keyList[a.keyNum].fpr < keyListObj.keyList[b.keyNum].fpr
         ? -sortDirection
         : sortDirection;
@@ -1985,7 +1985,7 @@ const sortFunctions = {
   },
 
   keytype(keyListObj, sortDirection) {
-    return function(a, b) {
+    return function (a, b) {
       return keyListObj.keyList[a.keyNum].secretAvailable <
         keyListObj.keyList[b.keyNum].secretAvailable
         ? -sortDirection
@@ -1994,7 +1994,7 @@ const sortFunctions = {
   },
 
   validity(keyListObj, sortDirection) {
-    return function(a, b) {
+    return function (a, b) {
       return lazy.EnigmailTrust.trustLevelsSorted().indexOf(
         lazy.EnigmailTrust.getTrustCode(keyListObj.keyList[a.keyNum])
       ) <
@@ -2007,7 +2007,7 @@ const sortFunctions = {
   },
 
   trust(keyListObj, sortDirection) {
-    return function(a, b) {
+    return function (a, b) {
       return lazy.EnigmailTrust.trustLevelsSorted().indexOf(
         keyListObj.keyList[a.keyNum].ownerTrust
       ) <
@@ -2020,7 +2020,7 @@ const sortFunctions = {
   },
 
   created(keyListObj, sortDirection) {
-    return function(a, b) {
+    return function (a, b) {
       return keyListObj.keyList[a.keyNum].keyCreated <
         keyListObj.keyList[b.keyNum].keyCreated
         ? -sortDirection
@@ -2029,7 +2029,7 @@ const sortFunctions = {
   },
 
   expiry(keyListObj, sortDirection) {
-    return function(a, b) {
+    return function (a, b) {
       return keyListObj.keyList[a.keyNum].expiryTime <
         keyListObj.keyList[b.keyNum].expiryTime
         ? -sortDirection

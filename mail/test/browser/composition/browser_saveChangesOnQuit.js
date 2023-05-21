@@ -48,7 +48,7 @@ var cwc = null; // compose window controller
 var folder = null;
 var gDraftFolder = null;
 
-add_setup(async function() {
+add_setup(async function () {
   requestLongerTimeout(3);
 
   folder = await create_folder("PromptToSaveTest");
@@ -201,7 +201,7 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
   // This is a hacky method for making sure that the second window
   // receives a CANCEL click in the popup dialog.
   var numOfPrompts = 0;
-  gMockPromptService.onPromptCallback = function() {
+  gMockPromptService.onPromptCallback = function () {
     numOfPrompts++;
 
     if (numOfPrompts > 1) {

@@ -13,7 +13,7 @@ if (!Services.logins.findLogins(ICSServer.origin, null, "test").length) {
 }
 
 let calendar;
-add_setup(async function() {
+add_setup(async function () {
   // TODO: item notifications from a cached ICS calendar occur outside of batches.
   // This isn't fatal but it shouldn't happen. Side-effects include alarms firing
   // twice - once from onAddItem then again at onLoad.

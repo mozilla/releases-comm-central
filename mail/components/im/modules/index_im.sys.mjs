@@ -193,7 +193,7 @@ Gloda.defineNoun(IMConversationNoun);
 
 // Needs to be set after calling defineNoun, otherwise it's replaced
 // by GlodaDatabind.jsm' implementation.
-IMConversationNoun.objFromRow = function(aRow) {
+IMConversationNoun.objFromRow = function (aRow) {
   // Row columns are:
   // 0 id
   // 1 title
@@ -651,9 +651,7 @@ var GlodaIMIndexer = {
   // Get the path of a log file relative to the logs directory - the last 4
   // components of the path.
   _getRelativePath(aLogPath) {
-    return PathUtils.split(aLogPath)
-      .slice(-4)
-      .join("/");
+    return PathUtils.split(aLogPath).slice(-4).join("/");
   },
 
   /**

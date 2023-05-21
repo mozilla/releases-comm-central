@@ -358,17 +358,14 @@ add_task(async function test_rename_and_delete() {
 
   let dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml"
-  ).then(async function(dialogWindow) {
+  ).then(async function (dialogWindow) {
     let dialogDocument = dialogWindow.document;
 
     let nameInput = dialogDocument.getElementById("name");
     Assert.equal(nameInput.value, "New Book");
     nameInput.value = "Old Book";
 
-    dialogDocument
-      .querySelector("dialog")
-      .getButton("accept")
-      .click();
+    dialogDocument.querySelector("dialog").getButton("accept").click();
   });
   menu.activateItem(propertiesMenuItem);
   await dialogPromise;
@@ -420,17 +417,14 @@ add_task(async function test_rename_and_delete() {
 
   dialogPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abEditListDialog.xhtml"
-  ).then(async function(dialogWindow) {
+  ).then(async function (dialogWindow) {
     let dialogDocument = dialogWindow.document;
 
     let nameInput = dialogDocument.getElementById("ListName");
     Assert.equal(nameInput.value, "New List");
     nameInput.value = "Old List";
 
-    dialogDocument
-      .querySelector("dialog")
-      .getButton("accept")
-      .click();
+    dialogDocument.querySelector("dialog").getButton("accept").click();
   });
   menu.activateItem(propertiesMenuItem);
   await dialogPromise;

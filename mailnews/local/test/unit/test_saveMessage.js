@@ -15,7 +15,7 @@ saveFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 function run_test() {
   registerCleanupFunction(teardown);
   do_test_pending();
-  do_timeout(10000, function() {
+  do_timeout(10000, function () {
     do_throw(
       "SaveMessageToDisk did not complete within 10 seconds" +
         "(incorrect messageURI?). ABORTING."

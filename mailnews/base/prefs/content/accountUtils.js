@@ -276,7 +276,7 @@ function openAccountSetupTab() {
 function openAccountSetupTabWithAccount(account, name, email) {
   // Define which actions we need to take after the account setup tab has been
   // loaded and we have access to its objects.
-  let onTabLoaded = function(event, browser, account) {
+  let onTabLoaded = function (event, browser, account) {
     let accountSetup = browser.contentWindow.gAccountSetup;
 
     if (account) {

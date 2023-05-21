@@ -22,8 +22,8 @@ add_setup(async () => {
 // a cleanup function here, it will run before any other cleanup function has
 // had a chance to run. Instead, when it runs register another cleanup
 // function which will run last.
-registerCleanupFunction(function() {
-  registerCleanupFunction(async function() {
+registerCleanupFunction(function () {
+  registerCleanupFunction(async function () {
     Assert.equal(
       MailServices.ab.directories.length,
       2,
@@ -130,10 +130,7 @@ async function createAddressBookWithUI(abName) {
 
   let abNameDialog = await newAddressBookPromise;
   EventUtils.sendString(abName, abNameDialog);
-  abNameDialog.document
-    .querySelector("dialog")
-    .getButton("accept")
-    .click();
+  abNameDialog.document.querySelector("dialog").getButton("accept").click();
 
   let addressBook = MailServices.ab.directories.find(
     directory => directory.dirName == abName
@@ -188,10 +185,7 @@ async function createMailingListWithUI(mlParent, mlName) {
 
   abListDocument.getElementById("abPopup").value = mlParent.URI;
   abListDocument.getElementById("ListName").value = mlName;
-  abListDocument
-    .querySelector("dialog")
-    .getButton("accept")
-    .click();
+  abListDocument.querySelector("dialog").getButton("accept").click();
 
   let list = mlParent.childNodes.find(list => list.dirName == mlName);
 

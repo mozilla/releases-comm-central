@@ -1003,7 +1003,7 @@ function flushPrefs() {
  * @param aCalendar     The calendar to refresh on notification
  */
 function timerCallback(aCalendar) {
-  this.notify = function(aTimer) {
+  this.notify = function (aTimer) {
     if (!aCalendar.getProperty("disabled") && aCalendar.canRefresh) {
       aCalendar.refresh();
     }

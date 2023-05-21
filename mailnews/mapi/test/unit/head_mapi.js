@@ -29,7 +29,7 @@ var POP3_PORT = 1024 + 121;
 // Setup the daemon and server
 function setupServerDaemon(handler) {
   if (!handler) {
-    handler = function(d) {
+    handler = function (d) {
       return new SMTP_RFC2821_handler(d);
     };
   }

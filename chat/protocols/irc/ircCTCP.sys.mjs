@@ -80,7 +80,7 @@ function ctcpHandleMessage(message, ircHandlers) {
   // command and parameters.
   let ctcpMessages = [];
   // eslint-disable-next-line no-control-regex
-  let otherMessage = rawCTCPParam.replace(/\x01([^\x01]*)\x01/g, function(
+  let otherMessage = rawCTCPParam.replace(/\x01([^\x01]*)\x01/g, function (
     aMatch,
     aMsg
   ) {

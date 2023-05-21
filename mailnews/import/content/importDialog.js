@@ -490,7 +490,7 @@ function ListFeedAccounts() {
   let index = 0;
   let feedRootFolders = FeedUtils.getAllRssServerRootFolders();
 
-  feedRootFolders.forEach(function(rootFolder) {
+  feedRootFolders.forEach(function (rootFolder) {
     item = document.createXULElement("richlistitem");
     let label = document.createXULElement("label");
     label.setAttribute("value", rootFolder.prettyName);
@@ -1010,7 +1010,7 @@ async function ImportFeeds() {
 
   acctName = server.rootFolder.prettyName;
 
-  let callback = function(aStatusReport, aLastFolder, aFeedWin) {
+  let callback = function (aStatusReport, aLastFolder, aFeedWin) {
     let message = gFeedsBundle.getFormattedString("ImportFeedsDone", [
       fileName,
       acctNewExist,

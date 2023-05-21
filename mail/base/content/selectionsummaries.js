@@ -20,7 +20,7 @@ function summarizeSelection(aMessageDisplay) {
   let selectedIndices = folderDisplay.selectedIndices;
   let dbView = folderDisplay.view.dbView;
 
-  let getThreadId = function(index) {
+  let getThreadId = function (index) {
     return dbView.getThreadContainingIndex(index).getRootHdr().messageKey;
   };
 
@@ -52,7 +52,7 @@ function summarizeThread(aSelectedMessages, aMessageDisplay) {
   const kSummaryURL = "chrome://messenger/content/multimessageview.xhtml";
 
   aMessageDisplay.singleMessageDisplay = false;
-  gSummaryFrameManager.loadAndCallback(kSummaryURL, function() {
+  gSummaryFrameManager.loadAndCallback(kSummaryURL, function () {
     let childWindow = gSummaryFrameManager.iframe.contentWindow;
     try {
       childWindow.gMessageSummary.summarize(
@@ -83,7 +83,7 @@ function summarizeMultipleSelection(aSelectedMessages, aMessageDisplay) {
   const kSummaryURL = "chrome://messenger/content/multimessageview.xhtml";
 
   aMessageDisplay.singleMessageDisplay = false;
-  gSummaryFrameManager.loadAndCallback(kSummaryURL, function() {
+  gSummaryFrameManager.loadAndCallback(kSummaryURL, function () {
     let childWindow = gSummaryFrameManager.iframe.contentWindow;
     try {
       childWindow.gMessageSummary.summarize(

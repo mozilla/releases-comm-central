@@ -222,8 +222,8 @@ var EnigmailArmor = {
       "armor.jsm: Enigmail.extractSignaturePart: part=" + part + "\n"
     );
 
-    return searchBlankLine(signatureBlock, function(offset) {
-      return indexOfNewline(signatureBlock, offset + 1, function(offset) {
+    return searchBlankLine(signatureBlock, function (offset) {
+      return indexOfNewline(signatureBlock, offset + 1, function (offset) {
         var beginIndex = signatureBlock.indexOf(
           "-----BEGIN PGP SIGNATURE-----",
           offset + 1
@@ -240,7 +240,7 @@ var EnigmailArmor = {
             .replace(/\r- -/g, "\r-");
         }
 
-        return indexOfNewline(signatureBlock, beginIndex, function(offset) {
+        return indexOfNewline(signatureBlock, beginIndex, function (offset) {
           var endIndex = signatureBlock.indexOf(
             "-----END PGP SIGNATURE-----",
             offset
@@ -251,12 +251,12 @@ var EnigmailArmor = {
 
           var signBlock = signatureBlock.substr(offset, endIndex - offset);
 
-          return searchBlankLine(signBlock, function(armorIndex) {
+          return searchBlankLine(signBlock, function (armorIndex) {
             if (part == lazy.EnigmailConstants.SIGNATURE_HEADERS) {
               return signBlock.substr(1, armorIndex);
             }
 
-            return indexOfNewline(signBlock, armorIndex + 1, function(
+            return indexOfNewline(signBlock, armorIndex + 1, function (
               armorIndex
             ) {
               if (part == lazy.EnigmailConstants.SIGNATURE_ARMOR) {

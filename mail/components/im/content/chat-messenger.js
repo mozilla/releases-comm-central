@@ -139,7 +139,7 @@ function buddyListContextMenu(aXulMenu) {
     "context-edit-buddy-separator",
     "context-alias",
     "context-delete",
-  ].forEach(function(aId) {
+  ].forEach(function (aId) {
     document.getElementById(aId).hidden = hide;
   });
 
@@ -1381,7 +1381,7 @@ var chatHandler = {
         findbar.open();
         browser.focus();
         delete this._pendingSearchTerm;
-        let eventListener = function() {
+        let eventListener = function () {
           findbar.onFindAgainCommand();
           if (findbar._findFailedString && browser._messageDisplayPending) {
             return;
@@ -1796,7 +1796,7 @@ var chatHandler = {
         "newIMContactMenuItem",
         "appmenu_newIMAccountMenuItem",
         "appmenu_newIMContactMenuItem",
-      ].forEach(function(aId) {
+      ].forEach(function (aId) {
         let elt = document.getElementById(aId);
         if (elt) {
           elt.hidden = true;
@@ -1809,7 +1809,7 @@ var chatHandler = {
 
     // initialize the customizeDone method on the customizeable toolbar
     var toolbox = document.getElementById("chat-view-toolbox");
-    toolbox.customizeDone = function(aEvent) {
+    toolbox.customizeDone = function (aEvent) {
       MailToolboxCustomizeDone(aEvent, "CustomizeChatToolbar");
     };
 
@@ -1821,7 +1821,7 @@ var chatHandler = {
     this._addObserver("buddy-verification-request-canceled");
     this._addObserver("conv-authorization-request");
     let listbox = document.getElementById("contactlistbox");
-    listbox.addEventListener("keypress", function(aEvent) {
+    listbox.addEventListener("keypress", function (aEvent) {
       let item = listbox.selectedItem;
       if (!item || !item.parentNode) {
         // empty list or item no longer in the list
@@ -1833,7 +1833,7 @@ var chatHandler = {
     listbox.addEventListener("click", this.onListItemClick.bind(this));
     document
       .getElementById("chatTabPanel")
-      .addEventListener("keypress", function(aEvent) {
+      .addEventListener("keypress", function (aEvent) {
         let accelKeyPressed =
           AppConstants.platform == "macosx" ? aEvent.metaKey : aEvent.ctrlKey;
         if (
@@ -2065,9 +2065,7 @@ chatLogTreeView.prototype = {
       group.push(new chatLogTreeLogItem(log, title, 1));
     }
 
-    let groupIDs = Object.keys(groups)
-      .sort()
-      .reverse();
+    let groupIDs = Object.keys(groups).sort().reverse();
 
     // Add firstgroups to groups and groupIDs.
     for (let groupID in firstgroups) {
@@ -2089,7 +2087,7 @@ chatLogTreeView.prototype = {
     if (yesterday) {
       this._rowMap.push(yesterday);
     }
-    groupIDs.forEach(function(aGroupID) {
+    groupIDs.forEach(function (aGroupID) {
       let group = groups[aGroupID];
       group.entries.sort((l1, l2) => l2.log.time - l1.log.time);
       this._rowMap.push(new chatLogTreeGroupItem(group.name, group.entries));

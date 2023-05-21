@@ -15,7 +15,7 @@ var server, daemon, incomingServer;
 
 const PORT = 143;
 
-add_setup(async function() {
+add_setup(async function () {
   // Disable new mail notifications
   Services.prefs.setBoolPref("mail.biff.play_sound", false);
   Services.prefs.setBoolPref("mail.biff.show_alert", false);

@@ -21,7 +21,7 @@ var { IMAPPump, setupIMAPPump, teardownIMAPPump } = ChromeUtils.import(
   "resource://testing-common/mailnews/IMAPpump.jsm"
 );
 
-add_setup(async function() {
+add_setup(async function () {
   setupIMAPPump();
   // Create a test filter.
   let filterList = IMAPPump.incomingServer.getFilterList(null);

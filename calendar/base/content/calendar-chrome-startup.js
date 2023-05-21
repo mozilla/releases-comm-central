@@ -120,11 +120,11 @@ async function loadCalendarComponent() {
 
   // Set up customizeDone handlers for our toolbars.
   let toolbox = document.getElementById("calendar-toolbox");
-  toolbox.customizeDone = function(aEvent) {
+  toolbox.customizeDone = function (aEvent) {
     MailToolboxCustomizeDone(aEvent, "CustomizeCalendarToolbar");
   };
   toolbox = document.getElementById("task-toolbox");
-  toolbox.customizeDone = function(aEvent) {
+  toolbox.customizeDone = function (aEvent) {
     MailToolboxCustomizeDone(aEvent, "CustomizeTaskToolbar");
   };
 

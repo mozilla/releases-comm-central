@@ -38,7 +38,7 @@ var contentGarbled = "Testar, ett tvÃ¥ tre.";
 // Latin1 content displayed as UTF-8.
 var contentReplaced = "Testar, ett tv� tre.";
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("viewsource");
   addToFolder("ISO-8859-1 header/ISO-8859-1 body", "ISO-8859-1", contentLatin1);
   addToFolder("ISO-8859-1 header/UTF-8 body", "ISO-8859-1", contentUTF8);

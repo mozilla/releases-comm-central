@@ -30,10 +30,10 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 const ADDONS_PROPERTIES = "chrome://messenger/locale/addons.properties";
 
-XPCOMUtils.defineLazyGetter(lazy, "addonsBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "addonsBundle", function () {
   return Services.strings.createBundle(ADDONS_PROPERTIES);
 });
-XPCOMUtils.defineLazyGetter(lazy, "brandShortName", function() {
+XPCOMUtils.defineLazyGetter(lazy, "brandShortName", function () {
   return Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandShortName");
@@ -489,7 +489,7 @@ var gXPInstallObserver = {
         break;
       }
       case "addon-install-started": {
-        let needsDownload = function(install) {
+        let needsDownload = function (install) {
           return install.state != lazy.AddonManager.STATE_DOWNLOADED;
         };
         // If all installs have already been downloaded then there is no need to
@@ -512,7 +512,7 @@ var gXPInstallObserver = {
         options.installs = installInfo.installs;
         options.contentWindow = browser.contentWindow;
         options.sourceURI = browser.currentURI;
-        options.eventCallback = function(event) {
+        options.eventCallback = function (event) {
           switch (event) {
             case "removed":
               options.contentWindow = null;

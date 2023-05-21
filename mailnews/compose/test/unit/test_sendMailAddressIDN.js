@@ -169,7 +169,7 @@ async function doSendTest(aRecipient, aRecipientExpected, waitForPrompt) {
     );
 
     server.performTest();
-    do_timeout(10000, function() {
+    do_timeout(10000, function () {
       if (!finished) {
         do_throw("Notifications of message send/copy not received");
       }
@@ -188,7 +188,7 @@ async function doSendTest(aRecipient, aRecipientExpected, waitForPrompt) {
   }
 }
 
-add_setup(function() {
+add_setup(function () {
   registerAlertTestUtils();
 
   // Ensure we have at least one mail account

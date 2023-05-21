@@ -62,7 +62,7 @@ GlodaMsgIndexer._original_indexerGetEnumerator =
 /**
  * Wrapper for GlodaMsgIndexer._indexerGetEnumerator to cause explosions.
  */
-GlodaMsgIndexer._indexerGetEnumerator = function(...aArgs) {
+GlodaMsgIndexer._indexerGetEnumerator = function (...aArgs) {
   if (stop_enumeration_after && !--stop_enumeration_after) {
     error_is_thrown = true;
     throw new Error(ENUMERATOR_SIGNAL_WORD);
@@ -73,7 +73,7 @@ GlodaMsgIndexer._indexerGetEnumerator = function(...aArgs) {
 
 var messageInjection;
 
-add_setup(function() {
+add_setup(function () {
   let msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   // We do not want the event-driven indexer crimping our style.

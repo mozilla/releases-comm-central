@@ -243,7 +243,7 @@ var cal = {
 
     for (let method of methods) {
       if (!(method in template)) {
-        adapter[method] = function() {};
+        adapter[method] = function () {};
       }
     }
     adapter.QueryInterface = ChromeUtils.generateQI([iface]);
@@ -259,10 +259,7 @@ var cal = {
   getUUID() {
     // generate uuids without braces to avoid problems with
     // CalDAV servers that don't support filenames with {}
-    return Services.uuid
-      .generateUUID()
-      .toString()
-      .replace(/[{}]/g, "");
+    return Services.uuid.generateUUID().toString().replace(/[{}]/g, "");
   },
 
   /**
@@ -560,7 +557,7 @@ function shutdownCleanup(obj, prop) {
  * @returns {Function} The QueryInterface function.
  */
 function makeQI(aInterfaces) {
-  return function(iid) {
+  return function (iid) {
     if (iid.equals(Ci.nsISupports)) {
       return this;
     }

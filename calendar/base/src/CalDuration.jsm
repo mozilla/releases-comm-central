@@ -79,11 +79,11 @@ CalDuration.prototype = {
     this.innerObject.fromSeconds(val);
   },
 
-  addDuration: unwrap(ICAL.Duration, function(val) {
+  addDuration: unwrap(ICAL.Duration, function (val) {
     this.innerObject.fromSeconds(this.innerObject.toSeconds() + val.toSeconds());
   }),
 
-  compare: unwrap(ICAL.Duration, function(val) {
+  compare: unwrap(ICAL.Duration, function (val) {
     return this.innerObject.compare(val);
   }),
 

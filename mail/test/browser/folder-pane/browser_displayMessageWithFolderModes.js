@@ -44,7 +44,7 @@ var smartInboxFolder;
 
 var msgHdr;
 
-add_setup(async function() {
+add_setup(async function () {
   assert_folder_mode("all");
   assert_folder_tree_view_row_count(7);
 
@@ -232,7 +232,7 @@ add_task(function test_switch_to_all_folders() {
   assert_folder_tree_view_row_count(10);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   // Remove our folders
   inboxFolder.propagateDelete(folder, true);
   inboxFolder.propagateDelete(dummyFolder, true);

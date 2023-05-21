@@ -26,7 +26,7 @@ var messageInjection = new MessageInjection({ mode: "local" });
 
 var gTestFolder;
 
-add_setup(async function() {
+add_setup(async function () {
   // Add 10 messages
   let messages = [];
   messages = messages.concat(gScenarioFactory.directReply(10));

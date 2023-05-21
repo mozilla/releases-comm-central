@@ -55,7 +55,7 @@ var gAutoRead;
 // Adjust timeout to take care of code coverage runs needing twice as long.
 requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 2 : 1);
 
-add_setup(async function() {
+add_setup(async function () {
   gAutoRead = Services.prefs.getBoolPref("mailnews.mark_message_read.auto");
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
 
@@ -721,7 +721,7 @@ add_task(async function test_tag_keys_disabled_in_content_tab() {
   mc.window.document.getElementById("tabmail").closeTab(tab);
 }).skip(); // TODO: not working
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   // Make sure archiving is enabled at the end
   enable_archiving(true);
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", gAutoRead);

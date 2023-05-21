@@ -151,7 +151,7 @@ add_task(async function test_content_tab_onbeforeunload() {
   let count = tabmail.tabContainer.allTabs.length;
   let tab = tabmail.tabInfo[count - 1];
   await SpecialPowers.spawn(tab.browser, [], () => {
-    content.addEventListener("beforeunload", function(event) {
+    content.addEventListener("beforeunload", function (event) {
       event.returnValue = "Green llama in your car";
     });
   });
@@ -171,7 +171,7 @@ add_task(async function test_content_tab_onbeforeunload() {
 // - window.close within tab
 // - zoom?
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   let tabmail = mc.window.document.getElementById("tabmail");
   while (tabmail.tabInfo.length > 1) {
     tabmail.closeTab(1);

@@ -29,7 +29,7 @@ function assertInteractionScalars(expectedAreas) {
   }
 }
 
-add_task(async function() {
+add_task(async function () {
   Services.telemetry.clearScalars();
 
   EventUtils.synthesizeMouseAtCenter(

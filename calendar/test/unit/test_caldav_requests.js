@@ -145,7 +145,7 @@ class CalDavServer {
 
       let headers = new LowerMap();
 
-      let headerIterator = function*(enumerator) {
+      let headerIterator = function* (enumerator) {
         while (enumerator.hasMoreElements()) {
           yield enumerator.getNext().QueryInterface(Ci.nsISupportsString);
         }

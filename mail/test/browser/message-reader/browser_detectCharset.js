@@ -20,7 +20,7 @@ var { close_window } = ChromeUtils.import(
 
 var gReferenceTextContent;
 
-add_setup(async function() {
+add_setup(async function () {
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
   Services.prefs.setIntPref("mailnews.display.html_as", 0);
   Services.prefs.setIntPref("mailnews.display.disallow_mime_handlers", 0);

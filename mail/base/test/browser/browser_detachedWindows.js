@@ -14,7 +14,7 @@ let tabmail = document.getElementById("tabmail");
 let testFolder;
 let testMessages;
 
-add_setup(async function() {
+add_setup(async function () {
   let generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();

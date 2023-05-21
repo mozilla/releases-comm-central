@@ -31,7 +31,7 @@ function alertPS(parent, aDialogTitle, aText) {
   alertResolve(aText);
 }
 
-add_setup(function() {
+add_setup(function () {
   registerAlertTestUtils();
   setupIMAPPump();
   Services.prefs.setBoolPref(

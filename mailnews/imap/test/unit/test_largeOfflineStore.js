@@ -21,7 +21,7 @@ Services.prefs.setCharPref(
 
 var gOfflineStoreSize;
 
-add_setup(async function() {
+add_setup(async function () {
   setupIMAPPump();
 
   // Figure out the name of the IMAP inbox

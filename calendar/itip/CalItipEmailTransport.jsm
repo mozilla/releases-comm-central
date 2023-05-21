@@ -197,7 +197,7 @@ class CalItipEmailTransport {
         if (aItipItem.autoResponse == Ci.calIItipItem.AUTO) {
           cal.LOG("sendXpcomMail: Found AUTO autoResponse type.");
         }
-        let cbEmail = function(aVal, aInd, aArr) {
+        let cbEmail = function (aVal, aInd, aArr) {
           let email = cal.email.getAttendeeEmail(aVal, true);
           if (!email.length) {
             cal.LOG("sendXpcomMail: Invalid recipient for email transport: " + aVal.toString());

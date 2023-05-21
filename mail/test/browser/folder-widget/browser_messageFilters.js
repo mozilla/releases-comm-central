@@ -42,7 +42,7 @@ var { gMockPromptService } = ChromeUtils.import(
 
 var folderA;
 
-add_setup(async function() {
+add_setup(async function () {
   setupNNTPDaemon();
 
   folderA = await create_folder("FolderToolbarA");

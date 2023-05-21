@@ -195,7 +195,7 @@ var contacts = [
   { email: "rjorden@hadleys-hope.invalid", name: "Newt", pdn: false },
 ];
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("DisplayNameA");
 
   for (let message of messages) {
@@ -233,7 +233,7 @@ async function check_display_name(index, columnName, expectedName) {
 
 // Generate a test for each message in |messages|.
 for (let [i, message] of messages.entries()) {
-  this["test_" + message.name] = async function(i, message) {
+  this["test_" + message.name] = async function (i, message) {
     await check_display_name(
       i,
       message.expected.column,

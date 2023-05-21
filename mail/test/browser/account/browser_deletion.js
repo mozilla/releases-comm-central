@@ -18,7 +18,7 @@ var { MailServices } = ChromeUtils.import(
 
 var gPopAccount, gImapAccount, gOriginalAccountCount;
 
-add_setup(function() {
+add_setup(function () {
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 
@@ -52,17 +52,17 @@ add_setup(function() {
   );
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   // There should be only the original accounts left.
   Assert.equal(MailServices.accounts.allServers.length, gOriginalAccountCount);
 });
 
 add_task(async function test_account_data_deletion() {
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_account_data_deletion1(tab);
   });
 
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_account_data_deletion2(tab);
   });
 });

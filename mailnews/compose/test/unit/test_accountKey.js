@@ -17,7 +17,7 @@ let MockNntpServiceFactory = {
   },
 };
 
-add_setup(async function() {
+add_setup(async function () {
   let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
   registrar.registerFactory(
     Components.ID("{4816dd44-fe15-4719-8cfb-a2f8ee46d787}"),

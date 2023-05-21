@@ -583,8 +583,9 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
 
       let color = tabData.badgeBackgroundColor;
       if (color) {
-        color = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${color[3] /
-          255})`;
+        color = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${
+          color[3] / 255
+        })`;
         node.setAttribute("badgeStyle", `background-color: ${color};`);
       } else {
         node.removeAttribute("badgeStyle");

@@ -254,7 +254,7 @@ var gSmtpServerListWindow = {
     }
 
     setTimeout(
-      function(aServerList) {
+      function (aServerList) {
         aServerList.ensureElementIsVisible(aServer);
         aServerList.selectItem(aServer);
       },

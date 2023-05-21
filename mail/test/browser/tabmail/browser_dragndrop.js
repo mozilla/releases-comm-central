@@ -57,7 +57,7 @@ var msgHdrsInFolder = [];
 // The number of messages in folder.
 var NUM_MESSAGES_IN_FOLDER = 15;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("MessageFolder");
   await make_message_sets_in_folders(
     [folder],
@@ -69,7 +69,7 @@ add_setup(async function() {
   await be_in_folder(folder);
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   folder.deleteSelf(null);
 });
 

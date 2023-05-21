@@ -103,7 +103,7 @@ CalIcalProperty.prototype = {
     unwrapSetter(
       ICAL.Time,
       rawval,
-      function(val) {
+      function (val) {
         if (
           val &&
           val.zone &&
@@ -210,7 +210,7 @@ CalIcalProperty.prototype = {
   paramIterator: null,
   getFirstParameterName() {
     let innerObject = this.innerObject;
-    this.paramIterator = (function*() {
+    this.paramIterator = (function* () {
       let defaultType = innerObject.getDefaultType();
       if (defaultType != innerObject.type) {
         yield "VALUE";
@@ -273,7 +273,7 @@ calIcalComponent.prototype = {
       kind = kind.toLowerCase();
     }
     let innerObject = this.innerObject;
-    this.componentIterator = (function*() {
+    this.componentIterator = (function* () {
       let comps = innerObject.getAllSubcomponents(kind);
       if (comps) {
         for (let comp of comps) {
@@ -477,7 +477,7 @@ calIcalComponent.prototype = {
       kind = kind.toLowerCase();
     }
     let innerObject = this.innerObject;
-    this.propertyIterator = (function*() {
+    this.propertyIterator = (function* () {
       let props = innerObject.getAllProperties(kind);
       if (!props) {
         return;
@@ -582,7 +582,7 @@ CalICSService.prototype = {
     // much pain with this method that I don't want it to break again.
     try {
       let worker = new ChromeWorker("resource:///components/calICSService-worker.js");
-      worker.onmessage = function(event) {
+      worker.onmessage = function (event) {
         let rc = Cr.NS_ERROR_FAILURE;
         let icalComp = null;
         try {
@@ -597,7 +597,7 @@ CalICSService.prototype = {
 
         listener.onParsingComplete(rc, icalComp);
       };
-      worker.onerror = function(event) {
+      worker.onerror = function (event) {
         cal.ERROR("[CalICSService] Error in parser worker: " + event.message);
         listener.onParsingComplete(Cr.NS_ERROR_FAILURE, null);
       };

@@ -352,7 +352,7 @@ class CardDAVDirectory extends SQLiteDirectory {
    *     - properties, the <prop> element, if any, containing properties
    *         of the object represented
    */
-  _readResponse = function*(dom) {
+  _readResponse = function* (dom) {
     if (!dom || dom.documentElement.localName != "multistatus") {
       throw Components.Exception(
         `Expected a multistatus response, but didn't get one`,

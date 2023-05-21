@@ -50,7 +50,7 @@ var msgBody =
   'pass.png"/>\n' +
   "</body>\n</html>\n";
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("exposedInContent");
 });
 

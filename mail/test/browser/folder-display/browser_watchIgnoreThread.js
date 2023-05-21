@@ -32,7 +32,7 @@ var { click_menus_in_sequence } = ChromeUtils.import(
 var folder;
 var thread1, thread2, thread3;
 
-add_setup(async function() {
+add_setup(async function () {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
   folder = await create_folder("WatchIgnoreThreadTest");
   thread1 = create_thread(3);

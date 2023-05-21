@@ -285,7 +285,7 @@ class nsMailServer {
    * Prepares for the next test.
    */
   resetTest() {
-    this._readers = this._readers.filter(function(reader) {
+    this._readers = this._readers.filter(function (reader) {
       return reader._isRunning;
     });
     this._test = true;
@@ -494,7 +494,7 @@ class nsMailReader {
         dump("SEND: " + response.split(" ", 1)[0] + "\n");
       } else if (this._debug == fsDebugAll) {
         var responses = response.split("\n");
-        responses.forEach(function(line) {
+        responses.forEach(function (line) {
           dump("SEND: " + line + "\n");
         });
       }

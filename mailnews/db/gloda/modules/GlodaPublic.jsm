@@ -23,7 +23,7 @@ const { GlodaMsgIndexer } = ChromeUtils.import(
  * Expose some junk
  */
 function proxy(aSourceObj, aSourceAttr, aDestObj, aDestAttr) {
-  aDestObj[aDestAttr] = function(...aArgs) {
+  aDestObj[aDestAttr] = function (...aArgs) {
     return aSourceObj[aSourceAttr](...aArgs);
   };
 }

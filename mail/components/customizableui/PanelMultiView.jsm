@@ -113,7 +113,7 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/CustomizableUI.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(lazy, "gBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "gBundle", function () {
   return Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );

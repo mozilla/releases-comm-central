@@ -3140,7 +3140,7 @@ function observeRecipientsChange() {
   // Observe childList changes of `To` and `Cc` address rows to check if we need
   // to show the public bulk recipients notification according to the threshold.
   // So far we're only counting recipient pills, not plain text addresses.
-  gRecipientObserver = new MutationObserver(function(mutations) {
+  gRecipientObserver = new MutationObserver(function (mutations) {
     if (mutations.some(m => m.type == "childList")) {
       checkPublicRecipientsLimit();
     }
@@ -3303,7 +3303,7 @@ function manageAttachmentNotification(aForce = false) {
 
   // Construct the notification as we don't have one.
   let msg = document.createElement("div");
-  msg.onclick = function(event) {
+  msg.onclick = function (event) {
     openOptionsDialog("paneCompose", "compositionAttachmentsCategory", {
       subdialog: "attachment_reminder_button",
     });
@@ -3354,7 +3354,7 @@ function manageAttachmentNotification(aForce = false) {
     "label",
     getComposeBundle().getString("remindLaterButton")
   );
-  remindButton.addEventListener("command", function(event) {
+  remindButton.addEventListener("command", function (event) {
     toggleAttachmentReminder(true);
   });
   remindButton.appendChild(remindLaterMenuPopup);
@@ -4049,7 +4049,7 @@ var attachmentWorker = new Worker("resource:///modules/AttachmentChecker.jsm");
 // run yet so we don't know.
 attachmentWorker.lastMessage = null;
 
-attachmentWorker.onerror = function(error) {
+attachmentWorker.onerror = function (error) {
   console.error("Attachment Notification Worker error!!! " + error.message);
   throw error;
 };
@@ -4065,7 +4065,7 @@ attachmentWorker.onerror = function(error) {
  *                 "keywords changed" event which usually shows the notification
  *                 if it was hidden. See manageAttachmentNotification().
  */
-attachmentWorker.onmessage = function(event, aManage = true) {
+attachmentWorker.onmessage = function (event, aManage = true) {
   // Exit if keywords haven't changed.
   if (
     !event ||
@@ -4394,10 +4394,7 @@ function onPasteOrDrop(e) {
       ["text/uri-list", "text/x-moz-url", "text/plain"].includes(t)
     );
     if (type) {
-      let url = dataTransfer
-        .getData(type)
-        .split("\n")[0]
-        .trim();
+      let url = dataTransfer.getData(type).split("\n")[0].trim();
       if (/^https?:\/\/\S+$/.test(url)) {
         e.preventDefault(); // We'll handle the pasting manually.
         getBrowser().contentDocument.execCommand("insertHTML", false, url);
@@ -4457,14 +4454,14 @@ function onPasteOrDrop(e) {
       needToPreventDefault = false;
     }
 
-    File.createFromNsIFile(nsFile).then(function(file) {
+    File.createFromNsIFile(nsFile).then(function (file) {
       if (file.lastModified < Date.now() - 60000) {
         // Not put in temp in the last minute. May be something other than
         // a copy-paste. Let's not allow that.
         return;
       }
 
-      let doTheInsert = function() {
+      let doTheInsert = function () {
         // Now run it through sanitation to make sure there wasn't any
         // unwanted things in the content.
         let ParserUtils = Cc["@mozilla.org/parserutils;1"].getService(
@@ -4479,7 +4476,7 @@ function onPasteOrDrop(e) {
 
       // Everything checks out. Convert file to data URL.
       let reader = new FileReader();
-      reader.addEventListener("load", function() {
+      reader.addEventListener("load", function () {
         let dataURL = reader.result;
         pendingConversions--;
         img.src = dataURL;
@@ -4487,7 +4484,7 @@ function onPasteOrDrop(e) {
           doTheInsert();
         }
       });
-      reader.addEventListener("error", function() {
+      reader.addEventListener("error", function () {
         pendingConversions--;
         if (pendingConversions == 0) {
           doTheInsert();
@@ -5491,7 +5488,7 @@ async function ComposeLoad() {
 
   // initialize the customizeDone method on the customizeable toolbar
   var toolbox = document.getElementById("compose-toolbox");
-  toolbox.customizeDone = function(aEvent) {
+  toolbox.customizeDone = function (aEvent) {
     MailToolboxCustomizeDone(aEvent, "CustomizeComposeToolbar");
   };
 
@@ -6225,7 +6222,7 @@ async function GenericSendMessage(msgType) {
           if (!gRecipientObserver) {
             // Re-create this observer as it is destroyed when the user dismisses
             // the warning.
-            gRecipientObserver = new MutationObserver(function(mutations) {
+            gRecipientObserver = new MutationObserver(function (mutations) {
               if (mutations.some(m => m.type == "childList")) {
                 checkPublicRecipientsLimit();
               }
@@ -9206,9 +9203,7 @@ nsAttachmentOpener.prototype = {
     // If we came here to display an attached message, make sure we provide a type.
     if (/[?&]part=/i.test(request.URI.query)) {
       let newQuery = request.URI.query + "&type=message/rfc822";
-      request.URI = request.URI.mutate()
-        .setQuery(newQuery)
-        .finalize();
+      request.URI = request.URI.mutate().setQuery(newQuery).finalize();
     }
     let newHandler = Cc[
       "@mozilla.org/uriloader/content-handler;1?type=application/x-message-display"
@@ -10722,7 +10717,7 @@ var gAttachmentNotifier = {
       return;
     }
 
-    this._obs = new MutationObserver(function(aMutations) {
+    this._obs = new MutationObserver(function (aMutations) {
       gAttachmentNotifier.timer.cancel();
       gAttachmentNotifier.timer.initWithCallback(
         gAttachmentNotifier.event,
@@ -11018,7 +11013,7 @@ function InitEditor() {
   // XXX: the error event fires twice for each load. Why??
   editor.document.body.addEventListener(
     "error",
-    function(event) {
+    function (event) {
       if (event.target.localName != "img") {
         return;
       }

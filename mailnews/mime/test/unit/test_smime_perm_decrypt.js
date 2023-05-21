@@ -62,7 +62,7 @@ function testCertValidity(cert, date) {
   return prom;
 }
 
-add_setup(async function() {
+add_setup(async function () {
   let messageInjection = new MessageInjection({ mode: "local" });
   gInbox = messageInjection.getInboxFolder();
   SmimeUtils.ensureNSS();

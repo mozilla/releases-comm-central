@@ -203,7 +203,7 @@ var caldata = {
       return -1;
     }
     if (!comptor) {
-      comptor = function(a, b) {
+      comptor = function (a, b) {
         return (a > b) - (a < b);
       };
     }

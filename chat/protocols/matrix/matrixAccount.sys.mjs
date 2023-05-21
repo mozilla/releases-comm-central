@@ -738,10 +738,7 @@ MatrixRoom.prototype = {
         windowLimit: MAX_CATCHUP_EVENTS,
       }
     );
-    const newestEvent = this.room
-      .getLiveTimeline()
-      .getEvents()
-      .at(-1);
+    const newestEvent = this.room.getLiveTimeline().getEvents().at(-1);
     // Start the window at the newest event.
     await timelineWindow.load(newestEvent.getId(), CATCHUP_PAGE_SIZE);
     // Check if the oldest event we want to see is already in the window
@@ -751,10 +748,7 @@ MatrixRoom.prototype = {
     let endIndex = -1;
     if (latestOldEvent) {
       const events = timelineWindow.getEvents();
-      endIndex = events
-        .slice()
-        .reverse()
-        .findIndex(checkEvent);
+      endIndex = events.slice().reverse().findIndex(checkEvent);
       if (endIndex >= 0) {
         endIndex = events.length - endIndex - 1;
       }
@@ -776,10 +770,7 @@ MatrixRoom.prototype = {
       );
       // Only search in the newly added events
       const events = timelineWindow.getEvents();
-      endIndex = events
-        .slice(0, -baseSize)
-        .reverse()
-        .findIndex(checkEvent);
+      endIndex = events.slice(0, -baseSize).reverse().findIndex(checkEvent);
       if (endIndex >= 0) {
         endIndex = events.length - baseSize - endIndex - 1;
       }
@@ -3426,7 +3417,7 @@ MatrixAccount.prototype = {
     }
 
     // Convert timespan in milli-seconds into a human-readable form.
-    let getNormalizedTime = function(aTime) {
+    let getNormalizedTime = function (aTime) {
       let valuesAndUnits = lazy.DownloadUtils.convertTimeUnits(aTime / 1000);
       // If the time is exact to the first set of units, trim off
       // the subsequent zeroes.

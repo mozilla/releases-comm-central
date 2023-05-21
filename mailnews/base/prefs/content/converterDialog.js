@@ -223,14 +223,17 @@ function startContinue(aSelectedStoreType, aResponse) {
     "chrome://messenger/locale/converterDialog.properties"
   );
 
-  document.getElementById("progress").addEventListener("progress", function(e) {
-    document.getElementById("progress").value = e.detail;
-    document.getElementById(
-      "progressPercent"
-    ).textContent = bundle.formatStringFromName("converterDialog.percentDone", [
-      e.detail,
-    ]);
-  });
+  document
+    .getElementById("progress")
+    .addEventListener("progress", function (e) {
+      document.getElementById("progress").value = e.detail;
+      document.getElementById(
+        "progressPercent"
+      ).textContent = bundle.formatStringFromName(
+        "converterDialog.percentDone",
+        [e.detail]
+      );
+    });
 
   document.getElementById("warningArea").hidden = true;
   document.getElementById("progressArea").hidden = false;
@@ -345,10 +348,10 @@ function startContinue(aSelectedStoreType, aResponse) {
           document.getElementById("progress")
         );
         pConvert
-          .then(function(val) {
+          .then(function (val) {
             promiseResolved(val);
           })
-          .catch(function(reason) {
+          .catch(function (reason) {
             promiseRejected(reason);
           });
       },
@@ -361,10 +364,10 @@ function startContinue(aSelectedStoreType, aResponse) {
       document.getElementById("progress")
     );
     pConvert
-      .then(function(val) {
+      .then(function (val) {
         promiseResolved(val);
       })
-      .catch(function(reason) {
+      .catch(function (reason) {
         promiseRejected(reason);
       });
   }

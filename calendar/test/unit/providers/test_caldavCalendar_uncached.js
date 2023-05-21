@@ -4,7 +4,7 @@
 
 var { CalDAVServer } = ChromeUtils.import("resource://testing-common/calendar/CalDAVServer.jsm");
 
-add_setup(async function() {
+add_setup(async function () {
   CalDAVServer.open();
   await CalDAVServer.putItemInternal(
     "5a9fa76c-93f3-4ad8-9f00-9e52aedd2821.ics",
@@ -22,7 +22,7 @@ add_setup(async function() {
 });
 registerCleanupFunction(() => CalDAVServer.close());
 
-add_task(async function() {
+add_task(async function () {
   calendarObserver._onAddItemPromise = PromiseUtils.defer();
   calendarObserver._onLoadPromise = PromiseUtils.defer();
   let calendar = createCalendar("caldav", CalDAVServer.url, false);

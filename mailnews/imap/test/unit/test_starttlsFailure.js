@@ -28,7 +28,7 @@ function alertPS(parent, aDialogTitle, aText) {
   gAlertResolve(aText);
 }
 
-add_setup(async function() {
+add_setup(async function () {
   // Set up IMAP fakeserver and incoming server.
   IMAPPump.daemon = new ImapDaemon();
   IMAPPump.server = makeServer(IMAPPump.daemon, "", { dropOnStartTLS: true });

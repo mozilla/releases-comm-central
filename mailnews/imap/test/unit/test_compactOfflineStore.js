@@ -42,7 +42,7 @@ var gMsgId5 = "bugmail6.m47LtAEf007542@mrapp51.mozilla.org";
 // Adds some messages directly to a mailbox (e.g. new mail).
 function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let URI = Services.io
       .newFileURI(message.file)
       .QueryInterface(Ci.nsIFileURL);
@@ -53,7 +53,7 @@ function addMessagesToServer(messages, mailbox) {
 
 function addGeneratedMessagesToServer(messages, mailbox) {
   // Create the ImapMessages and store them on the mailbox
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );
@@ -80,7 +80,7 @@ function checkOfflineStore(prevOfflineStoreSize) {
   Assert.ok(prevOfflineStoreSize > IMAPPump.inbox.filePath.fileSize + 100);
 }
 
-add_setup(function() {
+add_setup(function () {
   setupIMAPPump();
 
   gRootFolder = IMAPPump.incomingServer.rootFolder;

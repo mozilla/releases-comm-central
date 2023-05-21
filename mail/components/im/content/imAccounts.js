@@ -80,7 +80,7 @@ var gAccountManager = {
         if (!this.accountList.getRowCount()) {
           // This is horrible, but it works. Otherwise (at least on mac)
           // the wizard is not centered relatively to the account manager
-          setTimeout(function() {
+          setTimeout(function () {
             gAccountManager.new();
           }, 0);
         } else {
@@ -304,7 +304,7 @@ var gAccountManager = {
     let account = this.accountList.selectedItem.account;
     let text = account
       .getDebugMessages()
-      .map(function(dbgMsg) {
+      .map(function (dbgMsg) {
         let m = dbgMsg.message;
         let time = new Date(m.timeStamp);
         const dateTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
@@ -363,7 +363,7 @@ var gAccountManager = {
     clearTimeout(this.disableTimerID);
     this.accountList.focus();
     this.disableTimerID = setTimeout(
-      function(aItem) {
+      function (aItem) {
         gAccountManager.disableTimerID = 0;
         gAccountManager.disableCommandItems();
         aItem.setFocus();
@@ -400,7 +400,7 @@ var gAccountManager = {
   close() {
     // If a modal dialog is opened, we can't close this window now
     if (this.modalDialog) {
-      setTimeout(function() {
+      setTimeout(function () {
         window.close();
       }, 0);
     } else {
@@ -473,7 +473,7 @@ var gAccountManager = {
     this.disableCommandItems();
     // Horrible hack here too, see Bug 177
     setTimeout(
-      function(aThis) {
+      function (aThis) {
         try {
           aThis.accountList.selectedItem.setFocus();
         } catch (e) {

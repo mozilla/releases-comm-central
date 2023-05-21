@@ -29,7 +29,7 @@ add_task(async function test_unsigned() {
   SpecialPowers.spawn(
     tab.linkedBrowser,
     [`${BASE}/browser_webext_unsigned.xpi`],
-    async function(url) {
+    async function (url) {
       content.wrappedJSObject.installTrigger(url);
     }
   );

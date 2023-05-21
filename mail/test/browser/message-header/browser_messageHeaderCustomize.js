@@ -40,7 +40,7 @@ var { TelemetryTestUtils } = ChromeUtils.importESModule(
 
 var gFolder;
 
-add_setup(async function() {
+add_setup(async function () {
   Services.xulStore.removeDocument(
     "chrome://messenger/content/messenger.xhtml"
   );
@@ -170,7 +170,7 @@ add_task(async function test_customize_toolbar_buttons() {
     "The hide labels field is in the default state"
   );
 
-  let openMenuPopup = async function() {
+  let openMenuPopup = async function () {
     aboutMessage.document.getElementById("headerButtonStyle").focus();
 
     let menuPopupShown = BrowserTestUtils.waitForEvent(

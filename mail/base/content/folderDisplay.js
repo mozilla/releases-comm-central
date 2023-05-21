@@ -2505,7 +2505,7 @@ FolderDisplayWidget.prototype = {
     //  change logic gets to run to completion before we run ourselves.
     if (!aBounced) {
       let dis = this;
-      window.setTimeout(function() {
+      window.setTimeout(function () {
         dis.ensureRowIsVisible(aViewIndex, true);
       }, 0);
     }
@@ -2564,7 +2564,7 @@ FolderDisplayWidget.prototype = {
     //  change logic gets to run to completion before we run ourselves.
     if (!aBounced) {
       let dis = this;
-      window.setTimeout(function() {
+      window.setTimeout(function () {
         dis.ensureRowRangeIsVisible(aMinRow, aMaxRow, true);
       }, 0);
     }

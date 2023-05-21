@@ -63,13 +63,13 @@ add_task(async function test_addressBooks() {
       }
     }
 
-    let outsideEvent = function(action, ...args) {
+    let outsideEvent = function (action, ...args) {
       eventPromise = new Promise(resolve => {
         eventPromiseResolve = resolve;
       });
       return window.sendMessage("outsideEventsTest", action, ...args);
     };
-    let checkEvents = async function(...expectedEvents) {
+    let checkEvents = async function (...expectedEvents) {
       if (eventPromiseResolve) {
         await eventPromise;
       }
@@ -1455,20 +1455,20 @@ add_task(async function test_photos() {
       }
     }
 
-    let getDataUrl = function(file) {
+    let getDataUrl = function (file) {
       return new Promise((resolve, reject) => {
         var reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = function() {
+        reader.onload = function () {
           resolve(reader.result);
         };
-        reader.onerror = function(error) {
+        reader.onerror = function (error) {
           reject(new Error(error));
         };
       });
     };
 
-    let updateAndVerifyPhoto = async function(
+    let updateAndVerifyPhoto = async function (
       parentId,
       id,
       photoFile,
@@ -1492,19 +1492,19 @@ add_task(async function test_photos() {
       browser.test.assertEq(`${id}.png`, updatedPhoto.name);
       browser.test.assertEq(photoData, await getDataUrl(updatedPhoto));
     };
-    let normalizeVCard = function(vCard) {
+    let normalizeVCard = function (vCard) {
       return vCard
         .replaceAll("\r\n", "")
         .replaceAll("\n", "")
         .replaceAll(" ", "");
     };
-    let outsideEvent = function(action, ...args) {
+    let outsideEvent = function (action, ...args) {
       eventPromise = new Promise(resolve => {
         eventPromiseResolve = resolve;
       });
       return window.sendMessage("outsideEventsTest", action, ...args);
     };
-    let checkEvents = async function(...expectedEvents) {
+    let checkEvents = async function (...expectedEvents) {
       if (eventPromiseResolve) {
         await eventPromise;
       }

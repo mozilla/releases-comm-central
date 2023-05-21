@@ -30,7 +30,7 @@ let messageInjection = new MessageInjection(
   generator
 );
 
-add_setup(async function() {
+add_setup(async function () {
   account = MailServices.accounts.accounts[0];
   rootFolder = account.incomingServer.rootFolder;
   inboxFolder = rootFolder.getChildNamed("Inbox");

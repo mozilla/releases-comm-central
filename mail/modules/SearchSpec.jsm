@@ -113,7 +113,7 @@ SearchSpec.prototype = {
       owner.searching = true;
       this.owner._syntheticView.search(
         aDBView.QueryInterface(Ci.nsIMsgSearchNotify),
-        function() {
+        function () {
           owner.searching = false;
         }
       );

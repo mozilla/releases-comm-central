@@ -212,7 +212,7 @@ function MsgHdrToMimeMessage(
   // Gloda), unless the client asked for encrypted data, we pass to the client
   // callback a stripped-down version of the MIME structure where encrypted
   // parts have been removed.
-  let wrapCallback = function(aCallback, aCallbackThis) {
+  let wrapCallback = function (aCallback, aCallbackThis) {
     if (aOptions && aOptions.examineEncryptedParts) {
       return aCallback;
     }

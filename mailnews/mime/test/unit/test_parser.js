@@ -268,7 +268,7 @@ function test_parser(message, opts, results) {
       Assert.equal(this.stack.pop(), partNum);
     },
   };
-  opts.onerror = function(e) {
+  opts.onerror = function (e) {
     throw e;
   };
   MimeParser.parseSync(message, emitter, opts);

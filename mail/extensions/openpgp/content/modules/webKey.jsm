@@ -80,7 +80,7 @@ var EnigmailWks = {
     }
 
     observer.isCanceled = false;
-    observer.onCancel = function() {
+    observer.onCancel = function () {
       this.isCanceled = true;
     };
 
@@ -212,7 +212,7 @@ function performWkdUpload(keyList, win, observer) {
     let keyFpr = keyList[i].fpr;
     let senderIdent = keyList[i].identity;
 
-    let was_uploaded = new Promise(function(resolve, reject) {
+    let was_uploaded = new Promise(function (resolve, reject) {
       lazy.EnigmailLog.DEBUG(
         "webKey.jsm: performWkdUpload: _isSupported(): ident=" +
           senderIdent.email +
@@ -220,7 +220,7 @@ function performWkdUpload(keyList, win, observer) {
           keyFpr +
           "\n"
       );
-      EnigmailWks.isWksSupportedAsync(senderIdent.email, win, function(
+      EnigmailWks.isWksSupportedAsync(senderIdent.email, win, function (
         is_supported
       ) {
         if (observer.isCanceled) {
@@ -239,19 +239,19 @@ function performWkdUpload(keyList, win, observer) {
         );
         resolve(is_supported);
       });
-    }).then(function(is_supported) {
+    }).then(function (is_supported) {
       lazy.EnigmailLog.DEBUG(
         `webKey.jsm: performWkdUpload: _submitKey ${is_supported}\n`
       );
       if (is_supported) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
           EnigmailWks.submitKey(
             senderIdent,
             {
               fpr: keyFpr,
             },
             win,
-            function(success) {
+            function (success) {
               observer.onProgress(((i + 1) / numKeys) * 100);
               if (success) {
                 resolve(senderIdent);
@@ -271,14 +271,14 @@ function performWkdUpload(keyList, win, observer) {
   }
 
   return Promise.all(uploads)
-    .catch(function(reason) {
+    .catch(function (reason) {
       //let errorMsg = "Could not upload your key to the Web Key Service";
       return [];
     })
-    .then(function(senders) {
+    .then(function (senders) {
       let uploaded_uids = [];
       if (senders) {
-        senders.forEach(function(val) {
+        senders.forEach(function (val) {
           if (val !== null) {
             uploaded_uids.push(val.email);
           }

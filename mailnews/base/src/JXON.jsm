@@ -6,7 +6,7 @@
 
 var EXPORTED_SYMBOLS = ["JXON"];
 
-var JXON = new (function() {
+var JXON = new (function () {
   const sValueProp = "value"; /* you can customize these values */
   const sAttributesProp = "attr";
   const sAttrPref = "@";
@@ -139,7 +139,7 @@ var JXON = new (function() {
     return vResult;
   }
 
-  this.build = function(
+  this.build = function (
     oXMLParent,
     nVerbosity /* optional */,
     bFreeze /* optional */,

@@ -59,7 +59,7 @@
       }
 
       // Sort the regions by start position then end position.
-      regions = regions.sort(function(a, b) {
+      regions = regions.sort(function (a, b) {
         let start = a[0] - b[0];
         return start == 0 ? a[1] - b[1] : start;
       });

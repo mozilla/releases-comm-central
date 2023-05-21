@@ -38,7 +38,7 @@ var gOutboxFolder;
 var kBoxId = "compose-notification-bottom";
 var kNotificationId = "blockedContent";
 
-add_setup(async function() {
+add_setup(async function () {
   gOutboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
 });
 
@@ -86,13 +86,13 @@ add_task(async function test_paste_file_urls() {
   let tmpFile;
   let tmpFileURL;
   IOUtils.remove(dest, { ignoreAbsent: true })
-    .then(function() {
+    .then(function () {
       return IOUtils.copy(file.path, dest);
     })
-    .then(function() {
+    .then(function () {
       return IOUtils.setModificationTime(dest);
     })
-    .then(function() {
+    .then(function () {
       tmpFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
       tmpFile.initWithPath(dest);
       Assert.ok(tmpFile.exists(), "tmpFile's not there at " + dest);
@@ -113,13 +113,13 @@ add_task(async function test_paste_file_urls() {
         cwc.window
       );
     })
-    .catch(function(err) {
+    .catch(function (err) {
       throw new Error("Setting up img file FAILED: " + err);
     });
 
   // Now wait for the paste, and for the file: based image to get converted
   // to data:.
-  utils.waitFor(function() {
+  utils.waitFor(function () {
     let img = cwc.window.document
       .getElementById("messageEditor")
       .contentDocument.getElementById("tmp-img");

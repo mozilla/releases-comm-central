@@ -37,7 +37,7 @@ var MockCompleteGenericSendMessage = {
         "chrome://messenger/content/messengercompose/messengercompose.xhtml",
       ],
       onLoadWindow(window) {
-        window.CompleteGenericSendMessage = function(msgType) {
+        window.CompleteGenericSendMessage = function (msgType) {
           let items = [...window.gAttachmentBucket.itemChildren];
           for (let item of items) {
             if (item.attachment.sendViaCloud && item.cloudFileAccount) {

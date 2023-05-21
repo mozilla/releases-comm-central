@@ -29,7 +29,7 @@ var cth = ChromeUtils.import(
  */
 function open_pref_tab(aPaneID, aScrollTo) {
   let tab = cth.open_content_tab_with_click(
-    function() {
+    function () {
       fdh.mc.window.openOptionsDialog(aPaneID, aScrollTo);
     },
     "about:preferences",

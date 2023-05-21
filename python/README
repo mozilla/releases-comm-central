@@ -7,7 +7,7 @@ applies only to applications build from comm-central derived repositories
 
 What should not go here:
 
-* Vendored python modules (use third_party/python instead)
-* Python that is not MPL-compatible (see other-licenses/)
-* Python that has good reason to remain close to its "owning" (Mozilla)
+- Vendored python modules (use third_party/python instead)
+- Python that is not MPL-compatible (see other-licenses/)
+- Python that has good reason to remain close to its "owning" (Mozilla)
   module (e.g. it is only being consumed from there).

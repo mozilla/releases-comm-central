@@ -172,15 +172,8 @@ function test_roundtrip() {
   parser.getComponents().forEach(serializer.addComponent, serializer);
 
   equal(
-    serializer
-      .serializeToString()
-      .split("\r\n")
-      .sort()
-      .join("\r\n"),
-    str
-      .split("\r\n")
-      .sort()
-      .join("\r\n")
+    serializer.serializeToString().split("\r\n").sort().join("\r\n"),
+    str.split("\r\n").sort().join("\r\n")
   );
 
   // Test parseFromStream
@@ -202,14 +195,7 @@ function test_roundtrip() {
   everything.push(props[0].icalString.split("\r\n")[0]);
   everything.sort();
 
-  equal(
-    everything.join("\r\n"),
-    str
-      .split("\r\n")
-      .concat([""])
-      .sort()
-      .join("\r\n")
-  );
+  equal(everything.join("\r\n"), str.split("\r\n").concat([""]).sort().join("\r\n"));
 
   // Test serializeToStream/parseFromStream
   parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
@@ -230,12 +216,5 @@ function test_roundtrip() {
   everything.push(props[0].icalString.split("\r\n")[0]);
   everything.sort();
 
-  equal(
-    everything.join("\r\n"),
-    str
-      .split("\r\n")
-      .concat([""])
-      .sort()
-      .join("\r\n")
-  );
+  equal(everything.join("\r\n"), str.split("\r\n").concat([""]).sort().join("\r\n"));
 }

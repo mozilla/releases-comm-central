@@ -152,10 +152,7 @@ class ImapChannel extends MailChannel {
     try {
       let uri = this.URI;
       if (this.URI.spec.includes("?")) {
-        uri = uri
-          .mutate()
-          .setQuery("")
-          .finalize();
+        uri = uri.mutate().setQuery("").finalize();
       }
       // Check if a memory cache is available for the current URI.
       MailServices.imap.cacheStorage.asyncOpenURI(

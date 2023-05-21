@@ -34,7 +34,7 @@ var DISPLAY_NAME = "every day";
 
 var messageInjection;
 
-add_setup(function() {
+add_setup(function () {
   let msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);
@@ -43,7 +43,7 @@ add_setup(function() {
 /**
  * Create an e-mail so the identity can exist.
  */
-add_setup(async function() {
+add_setup(async function () {
   let [msgSet] = await messageInjection.makeNewSetsInFolders(
     [messageInjection.getInboxFolder()],
     [{ count: 1, from: [DISPLAY_NAME, EMAIL_ADDRESS] }]

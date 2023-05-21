@@ -28,7 +28,7 @@ var {
 var sig = "roses are red";
 var folder;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("SigStripTest");
   registerCleanupFunction(() => folder.deleteSelf(null));
 

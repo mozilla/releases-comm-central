@@ -31,7 +31,7 @@ var gKeyString = null;
 
 var gAccount = null;
 
-add_setup(function() {
+add_setup(function () {
   let server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
@@ -45,7 +45,7 @@ add_setup(function() {
   Services.prefs.setCharPref(gKeyString, "");
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   Services.prefs.setCharPref(gKeyString, gOldWhiteList);
 });
 

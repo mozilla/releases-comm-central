@@ -26,7 +26,7 @@ var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
 
 var gOutboxFolder;
 
-add_setup(async function() {
+add_setup(async function () {
   gOutboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
 });
 

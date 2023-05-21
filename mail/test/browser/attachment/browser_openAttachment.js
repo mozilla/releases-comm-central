@@ -45,7 +45,7 @@ function getNsIFileFromPath(path) {
   return file;
 }
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("OpenAttachment");
   await be_in_folder(folder);
 
@@ -81,7 +81,7 @@ add_setup(async function() {
   });
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   MockFilePicker.cleanup();
 
   await IOUtils.remove(savePath, { recursive: true });
@@ -211,10 +211,7 @@ async function singleClickAttachmentAndWaitForDialog(
           );
         }
 
-        dialogDocument
-          .querySelector("dialog")
-          .getButton(button)
-          .click();
+        dialogDocument.querySelector("dialog").getButton(button).click();
       },
     }
   );
@@ -276,7 +273,10 @@ function checkHandler(type, preferredAction, alwaysAskBeforeHandling) {
 function promiseFileOpened() {
   let __openFile = aboutMessage.AttachmentInfo.prototype._openFile;
   return new Promise(resolve => {
-    aboutMessage.AttachmentInfo.prototype._openFile = function(mimeInfo, file) {
+    aboutMessage.AttachmentInfo.prototype._openFile = function (
+      mimeInfo,
+      file
+    ) {
       aboutMessage.AttachmentInfo.prototype._openFile = __openFile;
       resolve({ mimeInfo, file });
     };
@@ -379,7 +379,7 @@ add_task(async function saveToDiskAlwaysAskPromptLocation() {
 
   let expectedFile = getNsIFileFromPath(tmpD);
   expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
-  MockFilePicker.showCallback = function(instance) {
+  MockFilePicker.showCallback = function (instance) {
     Assert.equal(instance.defaultString, expectedFile.leafName);
     Assert.equal(instance.defaultExtension, `test${messageIndex}`);
   };
@@ -505,7 +505,7 @@ add_task(async function saveToDiskPromptLocation() {
 
   let expectedFile = getNsIFileFromPath(tmpD);
   expectedFile.append(`attachment${messageIndex}.test${messageIndex}`);
-  MockFilePicker.showCallback = function(instance) {
+  MockFilePicker.showCallback = function (instance) {
     Assert.equal(instance.defaultString, expectedFile.leafName);
     Assert.equal(instance.defaultExtension, `test${messageIndex}`);
   };

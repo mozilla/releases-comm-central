@@ -114,7 +114,7 @@ let gMockWindowsIntegrationFactory = {
   },
 };
 
-add_setup(async function() {
+add_setup(async function () {
   // Register the mock alerts service
   let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
   registrar.registerFactory(
@@ -169,7 +169,7 @@ add_setup(async function() {
   account.addIdentity(identity2);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   put_bool_prefs_back();
   if (Services.appinfo.OS != "Darwin") {
     Services.prefs.setIntPref("alerts.totalOpenTime", gTotalOpenTime);

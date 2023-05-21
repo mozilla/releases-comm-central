@@ -18,6 +18,6 @@ load("../../../resources/abSetup.js");
 /* import-globals-from resources/import_helper.js */
 load("resources/import_helper.js");
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   load("../../../resources/mailShutdown.js");
 });

@@ -205,7 +205,7 @@ const tests = [
 /**
  * Initialize OpenPGP add testing keys.
  */
-add_setup(async function() {
+add_setup(async function () {
   do_get_profile();
 
   await OpenPGPTestUtils.initOpenPGP();

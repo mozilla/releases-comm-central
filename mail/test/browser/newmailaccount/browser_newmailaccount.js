@@ -62,7 +62,7 @@ var gProvisionerEnabled = Services.prefs.getBoolPref(kProvisionerEnabledPref);
 var gOldAcceptLangs = Services.locale.requestedLocales;
 var gNumAccounts;
 
-add_setup(async function() {
+add_setup(async function () {
   requestLongerTimeout(2);
 
   // Make sure we enable the Account Provisioner.
@@ -71,7 +71,7 @@ add_setup(async function() {
   Services.locale.requestedLocales = ["en-US"];
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   // Put the mail.provider.enabled pref back the way it was.
   Services.prefs.setBoolPref(kProvisionerEnabledPref, gProvisionerEnabled);
   // And same with the user languages
@@ -241,7 +241,7 @@ add_task(async function test_account_creation_from_provisioner() {
   EventUtils.synthesizeKey("VK_RETURN", {}, mc.window);
 
   // A special tab with the provisioner's API url should be loaded.
-  wait_for_content_tab_load(undefined, function(aURL) {
+  wait_for_content_tab_load(undefined, function (aURL) {
     return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
 
@@ -258,7 +258,7 @@ add_task(async function test_account_creation_from_provisioner() {
     .closeTab(mc.window.document.getElementById("tabmail").currentTabInfo);
   mc.window.document.getElementById("tabmail").undoCloseTab();
   // Wait for the page to be loaded again...
-  wait_for_content_tab_load(undefined, function(aURL) {
+  wait_for_content_tab_load(undefined, function (aURL) {
     return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
   tab = mc.window.document.getElementById("tabmail").currentTabInfo;
@@ -571,7 +571,7 @@ add_task(async function test_error_on_corrupt_XML() {
   );
 
   // A special tab with the provisioner's API url should be loaded.
-  wait_for_content_tab_load(undefined, function(aURL) {
+  wait_for_content_tab_load(undefined, function (aURL) {
     return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
   tab = mc.window.document.getElementById("tabmail").currentTabInfo;

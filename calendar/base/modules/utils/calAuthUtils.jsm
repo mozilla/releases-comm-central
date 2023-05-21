@@ -304,14 +304,14 @@ var calauth = {
       let hostKey = aChannel.URI.prePath + ":" + aAuthInfo.realm + ":" + requestedUser;
       gAuthCache.planForAuthInfo(hostKey);
 
-      let queuePrompt = function() {
+      let queuePrompt = function () {
         let asyncprompter = Cc["@mozilla.org/messenger/msgAsyncPrompter;1"].getService(
           Ci.nsIMsgAsyncPrompter
         );
         asyncprompter.queueAsyncAuthPrompt(hostKey, false, promptlistener);
       };
 
-      let finalSteps = function() {
+      let finalSteps = function () {
         // the prompt will fail if we are too early
         if (self.mWindow.document.readyState == "complete") {
           queuePrompt();
@@ -320,7 +320,7 @@ var calauth = {
         }
       };
 
-      let tryUntilReady = function() {
+      let tryUntilReady = function () {
         self.mWindow = lazy.cal.window.getCalendarWindow();
         if (!self.mWindow) {
           lazy.setTimeout(tryUntilReady, 1000);

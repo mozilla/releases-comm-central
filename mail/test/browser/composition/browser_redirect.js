@@ -41,7 +41,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-add_setup(function() {
+add_setup(function () {
   // Now set up an account with some identities.
   let acctMgr = MailServices.accounts;
   let account = acctMgr.createAccount();

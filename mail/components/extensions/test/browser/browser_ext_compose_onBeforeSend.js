@@ -179,7 +179,7 @@ add_task(async function testCancel() {
       "chrome://messenger/content/messengercompose/messengercompose.xhtml",
     ],
     onLoadWindow(window) {
-      window.CompleteGenericSendMessage = function(msgType) {
+      window.CompleteGenericSendMessage = function (msgType) {
         didTryToSendMessage = true;
         Services.obs.notifyObservers(
           {

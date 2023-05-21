@@ -67,7 +67,7 @@ var folder;
 var folderMore;
 var gInterestingMessage;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("MessageWindowA");
   folderMore = await create_folder("MesageHeaderMoreButton");
 
@@ -117,7 +117,7 @@ add_setup(async function() {
   aboutMessage.editContactInlineUI.panel.setAttribute("animate", false);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   // Delete created folder.
   folder.deleteSelf(null);
   folderMore.deleteSelf(null);

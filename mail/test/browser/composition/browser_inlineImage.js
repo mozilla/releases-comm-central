@@ -59,7 +59,7 @@ function putHTMLOnClipboard(html) {
   Services.clipboard.setData(trans, null, Ci.nsIClipboard.kGlobalClipboard);
 }
 
-add_setup(async function() {
+add_setup(async function () {
   gOutboxFolder = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
 });
 

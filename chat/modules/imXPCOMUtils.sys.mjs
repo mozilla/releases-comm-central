@@ -98,7 +98,7 @@ export function initLogModule(aModule, aObj = {}) {
 }
 
 const lazy = {};
-XPCOMUtils.defineLazyGetter(lazy, "gLogLevels", function() {
+XPCOMUtils.defineLazyGetter(lazy, "gLogLevels", function () {
   // This object functions both as an obsever as well as a dict keeping the
   // log levels with prefs; the log levels all start with "level" (i.e. "level"
   // for the global level, "level.irc" for the IRC module).  The dual-purpose
@@ -136,7 +136,7 @@ XPCOMUtils.defineLazyGetter(lazy, "gLogLevels", function() {
     .get("PRPL_LOG")
     .split(/[;,]/)
     .filter(n => n != "")
-    .forEach(function(env) {
+    .forEach(function (env) {
       let [, module, level] = env.match(/(?:(.*?)[:=])?(\d+)/);
       logLevels["level" + (module ? "." + module : "")] = parseInt(level, 10);
     });
@@ -194,7 +194,7 @@ ClassInfo.prototype = {
 
 export function l10nHelper(aChromeURL) {
   let bundle = Services.strings.createBundle(aChromeURL);
-  return function(aStringId) {
+  return function (aStringId) {
     try {
       if (arguments.length == 1) {
         return bundle.GetStringFromName(aStringId);

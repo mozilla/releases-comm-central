@@ -30,7 +30,7 @@ var {
 
 var folderA, folderB;
 
-add_setup(async function() {
+add_setup(async function () {
   folderA = await create_folder("FolderToolbarA");
   // we need one message to select and open
   folderB = await create_folder("FolderToolbarB");

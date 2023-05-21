@@ -46,7 +46,7 @@ var folder;
 var kBoxId = "mail-notification-top";
 var kNotificationValue = "maybeScam";
 
-add_setup(async function() {
+add_setup(async function () {
   gMockExtProtSvcReg.register();
 
   folder = await create_folder("PhishingBarA");
@@ -272,7 +272,7 @@ add_task(async function test_phishing_warning_for_local_domain() {
 
   let dialogAppeared = false;
 
-  plan_for_modal_dialog("commonDialogWindow", function(ctrler) {
+  plan_for_modal_dialog("commonDialogWindow", function (ctrler) {
     dialogAppeared = true;
   });
 

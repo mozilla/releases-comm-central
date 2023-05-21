@@ -132,7 +132,7 @@ export var isupportWATCH = {
       };
 
       // For each option, mark it as supported.
-      aMessage.isupport.value.split("").forEach(function(aWatchOpt) {
+      aMessage.isupport.value.split("").forEach(function (aWatchOpt) {
         if (watchOptToOption.hasOwnProperty(aWatchOpt)) {
           this[watchOptToOption[aWatchOpt]] = true;
         }
@@ -153,7 +153,7 @@ export var ircWATCH = {
   },
 
   commands: {
-    "251": function(aMessage) {
+    "251": function (aMessage) {
       // RPL_LUSERCLIENT
       // ":There are <integer> users and <integer> services on <integer> servers"
       // Assume that this will always be sent after the 005 handler on
@@ -173,7 +173,7 @@ export var ircWATCH = {
       return false;
     },
 
-    "301": function(aMessage) {
+    "301": function (aMessage) {
       // RPL_AWAY
       // <nick> :<away message>
       // Set the received away message.
@@ -187,7 +187,7 @@ export var ircWATCH = {
       return false;
     },
 
-    "303": function(aMessage) {
+    "303": function (aMessage) {
       // RPL_ISON
       // :*1<nick> *( " " <nick> )
       // We don't want ircBase to interfere with us, so override the ISON
@@ -195,7 +195,7 @@ export var ircWATCH = {
       return true;
     },
 
-    "512": function(aMessage) {
+    "512": function (aMessage) {
       // ERR_TOOMANYWATCH
       // Maximum size for WATCH-list is <watchlimit> entries
       this.ERROR(
@@ -204,13 +204,13 @@ export var ircWATCH = {
       return true;
     },
 
-    "597": function(aMessage) {
+    "597": function (aMessage) {
       // RPL_REAWAY
       // <nickname> <username> <hostname> <awaysince> :<away reason>
       return setStatus(this, aMessage.params[1], "AWAY");
     },
 
-    "598": function(aMessage) {
+    "598": function (aMessage) {
       // RPL_GONEAWAY
       // <nickname> <username> <hostname> <awaysince> :<away reason>
       // We use a negative index as inspircd versions < 2.0.18 don't send
@@ -222,7 +222,7 @@ export var ircWATCH = {
       );
     },
 
-    "599": function(aMessage) {
+    "599": function (aMessage) {
       // RPL_NOTAWAY
       // <nickname> <username> <hostname> <awaysince> :is no longer away
       // We use a negative index as inspircd versions < 2.0.18 don't send
@@ -234,65 +234,65 @@ export var ircWATCH = {
       );
     },
 
-    "600": function(aMessage) {
+    "600": function (aMessage) {
       // RPL_LOGON
       // <nickname> <username> <hostname> <signontime> :logged on
       return setStatus(this, aMessage.params[1], "AVAILABLE");
     },
 
-    "601": function(aMessage) {
+    "601": function (aMessage) {
       // RPL_LOGOFF
       // <nickname> <username> <hostname> <lastnickchange> :logged off
       return setStatus(this, aMessage.params[1], "OFFLINE");
     },
 
-    "602": function(aMessage) {
+    "602": function (aMessage) {
       // RPL_WATCHOFF
       // <nickname> <username> <hostname> <lastnickchange> :stopped watching
       return true;
     },
 
-    "603": function(aMessage) {
+    "603": function (aMessage) {
       // RPL_WATCHSTAT
       // You have <entrycount> and are on <onlistcount> WATCH entries
       // TODO I don't think we really need to care about this.
       return false;
     },
 
-    "604": function(aMessage) {
+    "604": function (aMessage) {
       // RPL_NOWON
       // <nickname> <username> <hostname> <lastnickchange> :is online
       return setStatus(this, aMessage.params[1], "AVAILABLE");
     },
 
-    "605": function(aMessage) {
+    "605": function (aMessage) {
       // RPL_NOWOFF
       // <nickname> <username> <hostname> <lastnickchange> :is offline
       return setStatus(this, aMessage.params[1], "OFFLINE");
     },
 
-    "606": function(aMessage) {
+    "606": function (aMessage) {
       // RPL_WATCHLIST
       // <entrylist>
       // TODO
       return false;
     },
 
-    "607": function(aMessage) {
+    "607": function (aMessage) {
       // RPL_ENDOFWATCHLIST
       // End of WATCH <parameter>
       // TODO
       return false;
     },
 
-    "608": function(aMessage) {
+    "608": function (aMessage) {
       // RPL_CLEARWATCH
       // Your WATCH list is now empty
       // Note that this is optional for servers to send, so ignore it.
       return true;
     },
 
-    "609": function(aMessage) {
+    "609": function (aMessage) {
       // RPL_NOWISAWAY
       // <nickname> <username> <hostname> <awaysince> :<away reason>
       return setStatus(this, aMessage.params[1], "AWAY");
@@ -395,7 +395,7 @@ export var ircMONITOR = {
   },
 
   commands: {
-    "251": function(aMessage) {
+    "251": function (aMessage) {
       // RPL_LUSERCLIENT
       // ":There are <integer> users and <integer> services on <integer> servers"
       // Assume that this will always be sent after the 005 handler on
@@ -416,7 +416,7 @@ export var ircMONITOR = {
       return false;
     },
 
-    "303": function(aMessage) {
+    "303": function (aMessage) {
       // RPL_ISON
       // :*1<nick> *( " " <nick> )
       // We don't want ircBase to interfere with us, so override the ISON
@@ -424,7 +424,7 @@ export var ircMONITOR = {
       return true;
     },
 
-    "730": function(aMessage) {
+    "730": function (aMessage) {
       // RPL_MONONLINE
       // :<server> 730 <nick> :nick!user@host[,nick!user@host]*
       // Mark each nick as online.
@@ -434,7 +434,7 @@ export var ircMONITOR = {
         .every(aResult => aResult);
     },
 
-    "731": function(aMessage) {
+    "731": function (aMessage) {
       // RPL_MONOFFLINE
       // :<server> 731 <nick> :nick[,nick1]*
       return aMessage.params[1]
@@ -443,19 +443,19 @@ export var ircMONITOR = {
         .every(aResult => aResult);
     },
 
-    "732": function(aMessage) {
+    "732": function (aMessage) {
       // RPL_MONLIST
       // :<server> 732 <nick> :nick[,nick1]*
       return false;
     },
 
-    "733": function(aMessage) {
+    "733": function (aMessage) {
       // RPL_ENDOFMONLIST
       // :<server> 733 <nick> :End of MONITOR list
       return false;
     },
 
-    "734": function(aMessage) {
+    "734": function (aMessage) {
       // ERR_MONLISTFULL
       // :<server> 734 <nick> <limit> <nicks> :Monitor list is full.
       this.ERROR(

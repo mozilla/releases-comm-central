@@ -18,13 +18,13 @@ var gMsgImapInboxFolder;
 // Adds some messages directly to a mailbox (eg new mail)
 function addMessagesToServer(messages, mailbox) {
   // Create the ImapMessages and store them on the mailbox
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let dataUri = "data:text/plain," + message.toMessageString();
     mailbox.addMessage(new ImapMessage(dataUri, mailbox.uidnext++, []));
   });
 }
 
-add_setup(function() {
+add_setup(function () {
   Services.prefs.setIntPref("mail.server.server1.autosync_max_age_days", 4);
 
   setupIMAPPump();

@@ -57,21 +57,21 @@ var groups = [
 function setupNNTPDaemon() {
   var daemon = new NntpDaemon();
 
-  groups.forEach(function(element) {
+  groups.forEach(function (element) {
     daemon.addGroup(element[0]);
   });
 
   var auto_add = do_get_file("postings/auto-add/");
   var files = [...auto_add.directoryEntries];
 
-  files.sort(function(a, b) {
+  files.sort(function (a, b) {
     if (a.leafName == b.leafName) {
       return 0;
     }
     return a.leafName < b.leafName ? -1 : 1;
   });
 
-  files.forEach(function(file) {
+  files.forEach(function (file) {
     var fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
       Ci.nsIFileInputStream
     );
@@ -118,7 +118,7 @@ var _account = null;
 function subscribeServer(incomingServer) {
   // Subscribe to newsgroups
   incomingServer.QueryInterface(Ci.nsINntpIncomingServer);
-  groups.forEach(function(element) {
+  groups.forEach(function (element) {
     if (element[1]) {
       incomingServer.subscribeToNewsgroup(element[0]);
     }
@@ -239,6 +239,6 @@ function make_article(file) {
   return new NewsArticle(post);
 }
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   load("../../../resources/mailShutdown.js");
 });

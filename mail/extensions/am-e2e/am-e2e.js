@@ -66,7 +66,7 @@ function onInit() {
   Services.prefs.addObserver("mail.e2ee.auto_disable", autoEncryptPrefObserver);
 }
 
-window.addEventListener("unload", function() {
+window.addEventListener("unload", function () {
   Services.prefs.removeObserver(
     "mail.e2ee.auto_enable",
     autoEncryptPrefObserver
@@ -1209,7 +1209,7 @@ async function openPgpRevokeKey(key) {
     return;
   }
 
-  EnigRevokeKey(key, function(success) {
+  EnigRevokeKey(key, function (success) {
     if (success) {
       document.l10n.setAttributes(
         document.getElementById("openPgpNotificationDescription"),

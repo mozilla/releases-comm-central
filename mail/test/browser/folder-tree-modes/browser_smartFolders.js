@@ -35,7 +35,7 @@ var smartInboxFolder;
 
 var inboxSet;
 
-add_setup(async function() {
+add_setup(async function () {
   about3Pane = get_about_3pane();
   rootFolder = inboxFolder.server.rootFolder;
   // Create a folder as a subfolder of the inbox
@@ -164,7 +164,7 @@ function assert_uri_not_found(folderURI, scopeList) {
   }
 }
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   about3Pane.folderPane.activeModes = ["all"];
   inboxFolder.propagateDelete(inboxSubfolder, true);
   inboxFolder.deleteMessages(

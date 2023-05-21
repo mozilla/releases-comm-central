@@ -11,7 +11,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   getMatrixTextForEvent: "resource:///modules/matrixTextForEvent.sys.mjs",
 });
 XPCOMUtils.defineLazyGetter(lazy, "domParser", () => new DOMParser());
-XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {
+XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return aTxt => cs.scanTXT(aTxt, cs.kEntities);
 });

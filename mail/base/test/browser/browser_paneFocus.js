@@ -14,7 +14,7 @@ let tasksButton = document.getElementById("tasksButton");
 let tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages, addressBook;
 
-add_setup(async function() {
+add_setup(async function () {
   let generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();

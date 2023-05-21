@@ -17,7 +17,7 @@ importScripts("resource:///modules/calendar/Ical.jsm");
 
 ICAL.design.strict = false;
 
-onmessage = function(event) {
+onmessage = function (event) {
   try {
     let comp = ICAL.parse(event.data);
     postMessage({ rc: NS_OK, data: comp });

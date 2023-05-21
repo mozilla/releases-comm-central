@@ -804,7 +804,7 @@ async function click_menus_in_sequence(aRootPopup, aActions, aKeepOpen) {
    * @param {object} actionObj - Contains attribute-value pairs to match.
    * @returns {Element|null} The matched node or null if no match.
    */
-  let findMatch = function(node, actionObj) {
+  let findMatch = function (node, actionObj) {
     // Ignore some elements and just use their children instead.
     if (node.localName == "hbox" || node.localName == "vbox") {
       for (let i = 0; i < node.children.length; i++) {

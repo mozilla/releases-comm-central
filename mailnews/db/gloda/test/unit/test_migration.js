@@ -40,7 +40,7 @@ const GLODA_OLD_BAD_MESSAGE_ID = 1;
 var msgGen;
 var messageInjection;
 
-add_setup(function() {
+add_setup(function () {
   msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);

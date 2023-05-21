@@ -268,7 +268,7 @@
         swappedColStateString = myColStateString;
       }
 
-      let isOutgoing = function(folder) {
+      let isOutgoing = function (folder) {
         return folder.isSpecialFolder(
           LazyModules.DBViewWrapper.prototype.OUTGOING_FOLDER_FLAGS,
           true
@@ -277,7 +277,7 @@
 
       let amIOutgoing = isOutgoing(gFolderDisplay.displayedFolder);
 
-      let colStateString = function(folder) {
+      let colStateString = function (folder) {
         return isOutgoing(folder) == amIOutgoing
           ? myColStateString
           : swappedColStateString;

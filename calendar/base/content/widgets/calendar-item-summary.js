@@ -689,7 +689,7 @@
 
       // Make any links open in the user's default browser, not in Thunderbird.
       for (let anchor of docFragment.querySelectorAll("a")) {
-        anchor.addEventListener("click", function(event) {
+        anchor.addEventListener("click", function (event) {
           event.preventDefault();
           if (event.isTrusted) {
             launchBrowser(anchor.getAttribute("href"), event);

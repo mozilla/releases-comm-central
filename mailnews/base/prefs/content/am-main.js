@@ -19,7 +19,7 @@ function onInit() {
   );
 }
 
-window.addEventListener("unload", function() {
+window.addEventListener("unload", function () {
   Services.obs.removeObserver(
     onDefaultIdentityChange,
     "account-default-identity-changed"

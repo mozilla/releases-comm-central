@@ -29,7 +29,7 @@ var folder;
 var kBoxId = "mail-notification-top";
 var kNotificationValue = "mdnRequested";
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("ReturnReceiptTest");
 
   // Create a message that requests a return receipt.

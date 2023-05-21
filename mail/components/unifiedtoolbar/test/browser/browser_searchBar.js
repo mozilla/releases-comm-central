@@ -73,7 +73,7 @@ function is_visible(element) {
   return true;
 }
 
-add_setup(async function() {
+add_setup(async function () {
   let tab = tabmail.openTab("contentTab", {
     url:
       "chrome://mochitests/content/browser/comm/mail/components/unifiedtoolbar/test/browser/files/searchBar.xhtml",

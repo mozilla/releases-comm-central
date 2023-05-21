@@ -150,10 +150,7 @@ var identitiesTracker = new (class extends EventEmitter {
 
       case "nsPref:changed":
         {
-          let key = data
-            .split(".")
-            .slice(2, 3)
-            .pop();
+          let key = data.split(".").slice(2, 3).pop();
 
           // Ignore update notifications for created identities, before they are
           // added to an account (looks like they are cloned from a default

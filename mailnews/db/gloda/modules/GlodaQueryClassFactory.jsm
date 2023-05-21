@@ -611,14 +611,14 @@ GlodaWildcardQueryClass.prototype = {
  *  the 'class'.
  */
 function GlodaQueryClassFactory(aNounDef) {
-  let newQueryClass = function(aOptions) {
+  let newQueryClass = function (aOptions) {
     GlodaQueryClass.call(this, aOptions);
   };
   newQueryClass.prototype = new GlodaQueryClass();
   newQueryClass.prototype._queryClass = newQueryClass;
   newQueryClass.prototype._nounDef = aNounDef;
 
-  let newNullClass = function(aCollection) {
+  let newNullClass = function (aCollection) {
     GlodaNullQueryClass.call(this);
     this.collection = aCollection;
   };
@@ -626,7 +626,7 @@ function GlodaQueryClassFactory(aNounDef) {
   newNullClass.prototype._queryClass = newNullClass;
   newNullClass.prototype._nounDef = aNounDef;
 
-  let newExplicitClass = function(aCollection) {
+  let newExplicitClass = function (aCollection) {
     GlodaExplicitQueryClass.call(this);
     this.collection = aCollection;
   };
@@ -634,7 +634,7 @@ function GlodaQueryClassFactory(aNounDef) {
   newExplicitClass.prototype._queryClass = newExplicitClass;
   newExplicitClass.prototype._nounDef = aNounDef;
 
-  let newWildcardClass = function(aCollection) {
+  let newWildcardClass = function (aCollection) {
     GlodaWildcardQueryClass.call(this);
     this.collection = aCollection;
   };

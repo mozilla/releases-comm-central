@@ -22,10 +22,7 @@ function init() {
   document.addEventListener("dialogaccept", quit);
   document.addEventListener("dialogcancel", quit);
 
-  document
-    .querySelector("dialog")
-    .getButton("accept")
-    .focus();
+  document.querySelector("dialog").getButton("accept").focus();
 }
 
 function quit() {

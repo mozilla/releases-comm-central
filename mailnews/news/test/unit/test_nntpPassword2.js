@@ -17,7 +17,7 @@ load("../../../resources/passwordStorage.js");
 // The basic daemon to use for testing Nntpd.jsm implementations
 var daemon = setupNNTPDaemon();
 
-add_task(async function() {
+add_task(async function () {
   let server = makeServer(NNTP_RFC4643_extension, daemon);
   server.start();
 

@@ -14,7 +14,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calHashedArray.js
 const EXPORTED_SYMBOLS = ["calitem"];
 
 var calitem = {
-  ItemDiff: (function() {
+  ItemDiff: (function () {
     /**
      * Given two sets of items, find out which items were added, changed or
      * removed.

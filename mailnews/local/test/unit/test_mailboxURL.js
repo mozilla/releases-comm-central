@@ -61,23 +61,14 @@ function run_test() {
 
   // We can set the username on the URLs with a host.
   url = Services.io.newURI("mailbox://user@domain@example.com/folder?number=1");
-  url
-    .mutate()
-    .setUsername("john")
-    .finalize();
+  url.mutate().setUsername("john").finalize();
   url = Services.io.newURI("mailbox://nobody@Local%20Folders/folder?number=2");
-  url
-    .mutate()
-    .setUsername("jane")
-    .finalize();
+  url.mutate().setUsername("jane").finalize();
 
   // It should throw on our file-style URLs.
   url = Services.io.newURI("mailbox://" + mailboxFileName + "?number=3");
   try {
-    url
-      .mutate()
-      .setUsername("noway")
-      .finalize();
+    url.mutate().setUsername("noway").finalize();
     do_throw("Should not be able to set username on file-style mailbox: URL");
   } catch (ex) {
     Assert.equal(ex.result, Cr.NS_ERROR_UNEXPECTED);

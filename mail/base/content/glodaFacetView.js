@@ -518,7 +518,7 @@ var FacetContext = {
     } else {
       scores = Gloda.scoreNounItems(items);
     }
-    let scoredItems = items.map(function(item, index) {
+    let scoredItems = items.map(function (item, index) {
       return [scores[index], item];
     });
     scoredItems.sort((a, b) => b[0] - a[0]);
@@ -1076,7 +1076,7 @@ function reachOutAndTouchFrame() {
   let parentWin = us.parent.domWindow;
   let aTab = (FacetContext.tab = parentWin.tab);
   parentWin.tab = null;
-  window.addEventListener("resize", function() {
+  window.addEventListener("resize", function () {
     document.getElementById("facet-date").build(true);
   });
   // we need to hook the context up as a listener in all cases since

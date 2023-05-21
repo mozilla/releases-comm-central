@@ -29,7 +29,7 @@ async function getDayBoxItem(attrSelector) {
 /**
  * Switches to the view to the calendar.
  */
-add_setup(function() {
+add_setup(function () {
   return CalendarTestUtils.setCalendarView(window, "month");
 });
 

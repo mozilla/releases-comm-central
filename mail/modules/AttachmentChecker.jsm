@@ -109,7 +109,7 @@ function getAttachmentKeywords(mailData, keywordsInCsv) {
 // This file is also used as a Worker.
 /* exported onmessage */
 /* globals postMessage */
-var onmessage = function(event) {
+var onmessage = function (event) {
   var keywordsFound = AttachmentChecker.getAttachmentKeywords(
     event.data[0],
     event.data[1]

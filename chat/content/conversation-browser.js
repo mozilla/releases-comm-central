@@ -24,7 +24,7 @@
     smileTextNode: "resource:///modules/imSmileys.sys.mjs",
   });
 
-  (function() {
+  (function () {
     // <browser> is lazily set up through setElementCreationCallback,
     // i.e. put into customElements the first time it's really seen.
     // Create a fake to ensure browser exists in customElements, since otherwise

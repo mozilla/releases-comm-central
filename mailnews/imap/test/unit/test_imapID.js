@@ -16,7 +16,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 var kIDResponse =
   '("name" "GImap" "vendor" "Google, Inc." "support-url" "http://mail.google.com/support")';
 
-add_setup(async function() {
+add_setup(async function () {
   setupIMAPPump("GMail");
   IMAPPump.daemon.idResponse = kIDResponse;
 

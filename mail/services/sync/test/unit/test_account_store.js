@@ -20,7 +20,7 @@ const { TestUtils } = ChromeUtils.import(
 let engine, store, tracker;
 let imapAccount, imapServer, pop3Account, pop3Server, smtpServer;
 
-add_setup(async function() {
+add_setup(async function () {
   engine = new AccountsEngine(Service);
   await engine.initialize();
   store = engine._store;

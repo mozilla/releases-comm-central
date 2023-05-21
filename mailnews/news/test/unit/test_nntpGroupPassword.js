@@ -6,7 +6,7 @@
 // The basic daemon to use for testing Nntpd.jsm implementations
 var daemon = setupNNTPDaemon();
 
-add_task(async function() {
+add_task(async function () {
   await Services.logins.initializationPromise;
 
   daemon.groupCredentials = {

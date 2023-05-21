@@ -23,7 +23,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-add_setup(function() {
+add_setup(function () {
   assert_folder_mode("all");
   assert_folder_tree_view_row_count(7);
 });
@@ -98,7 +98,7 @@ add_task(async function test_folder_names_in_recent_view_mode() {
   rootFolder2.propagateDelete(fDup3, true);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   // Hide the recent folders view enabled in the previous test. The activeModes
   // setter should take care of restoring the "all" view and prevent and empty
   // Folder pane.

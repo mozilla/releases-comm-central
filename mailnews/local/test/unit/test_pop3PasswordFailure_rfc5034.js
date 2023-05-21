@@ -35,7 +35,7 @@ var kUserName = "testpop3";
 var kInvalidPassword = "pop3test";
 var kValidPassword = "testpop3";
 
-add_setup(async function() {
+add_setup(async function () {
   // Enable debug for the sign on.
   Services.prefs.setBoolPref("signon.debug", true);
 

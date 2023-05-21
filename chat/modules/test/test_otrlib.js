@@ -15,7 +15,7 @@ const { OTRLibLoader } = ChromeUtils.importESModule(
 /**
  * Initialize libotr.
  */
-add_setup(async function() {
+add_setup(async function () {
   let libOTR = await OTRLibLoader.init();
   Assert.ok(libOTR.otrl_version, "libotr did load");
 });

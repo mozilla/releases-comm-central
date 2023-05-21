@@ -45,7 +45,7 @@ var groups = [
 function setupNNTPDaemon() {
   var daemon = new NntpDaemon();
 
-  groups.forEach(function(element) {
+  groups.forEach(function (element) {
     daemon.addGroup(element[0]);
   });
 
@@ -85,7 +85,7 @@ var _server = null;
 function subscribeServer(incomingServer) {
   // Subscribe to newsgroups
   incomingServer.QueryInterface(Ci.nsINntpIncomingServer);
-  groups.forEach(function(element) {
+  groups.forEach(function (element) {
     if (element[1]) {
       incomingServer.subscribeToNewsgroup(element[0]);
     }

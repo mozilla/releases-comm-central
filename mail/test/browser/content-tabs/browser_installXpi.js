@@ -19,12 +19,12 @@ var url =
 var gDocument;
 var gNewTab;
 
-add_setup(function() {
+add_setup(function () {
   gDocument = mc.window.document;
   gNewTab = open_content_tab_with_url(url + "installxpi.html");
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   mc.window.document.getElementById("tabmail").closeTab(gNewTab);
 });
 

@@ -699,10 +699,10 @@ var FeedSubscriptions = {
 
   folderItemSorter(aArray) {
     return aArray
-      .sort(function(a, b) {
+      .sort(function (a, b) {
         return a.name.toLowerCase() > b.name.toLowerCase();
       })
-      .sort(function(a, b) {
+      .sort(function (a, b) {
         return a.container < b.container;
       });
   },
@@ -748,7 +748,7 @@ var FeedSubscriptions = {
     // Get all the feed account folders.
     let feedRootFolders = FeedUtils.getAllRssServerRootFolders();
 
-    feedRootFolders.forEach(function(rootFolder) {
+    feedRootFolders.forEach(function (rootFolder) {
       feedContainers.push(this.makeFolderObject(rootFolder, 0));
       numFolders++;
     }, this);
@@ -1229,11 +1229,11 @@ var FeedSubscriptions = {
     } else {
       let feedsInFolder = this.getFeedsInFolder(item.folder);
       // Update the feeds database, for each feed in the folder.
-      feedsInFolder.forEach(function(feed) {
+      feedsInFolder.forEach(function (feed) {
         feed.quickMode = aChecked;
       });
       // Update the folder's feeds properties in the tree map.
-      item.children.forEach(function(feed) {
+      item.children.forEach(function (feed) {
         feed.quickMode = aChecked;
       });
     }
@@ -2810,7 +2810,7 @@ var FeedSubscriptions = {
     );
     let request = new Request(aFileUrl);
     await fetch(request)
-      .then(function(response) {
+      .then(function (response) {
         if (!response.ok) {
           // If the OPML file is not readable/accessible.
           statusReport = FeedUtils.strings.GetStringFromName(
@@ -2821,7 +2821,7 @@ var FeedSubscriptions = {
 
         return response.text();
       })
-      .then(function(responseText) {
+      .then(function (responseText) {
         if (responseText != null) {
           opmlDom = new DOMParser().parseFromString(
             responseText,
@@ -2845,7 +2845,7 @@ var FeedSubscriptions = {
           }
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         statusReport = FeedUtils.strings.GetStringFromName(
           "subscribe-errorOpeningFile"
         );

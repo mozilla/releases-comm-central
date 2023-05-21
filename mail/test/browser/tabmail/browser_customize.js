@@ -20,7 +20,7 @@ var { drag_n_drop_element } = ChromeUtils.import(
 
 var gCDHelper;
 
-add_setup(function() {
+add_setup(function () {
   gCDHelper = new CustomizeDialogHelper(
     "toolbar-menubar",
     "CustomizeMailToolbar",
@@ -29,7 +29,7 @@ add_setup(function() {
   Services.prefs.setBoolPref("mail.tabs.autoHide", false);
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   // Let's reset any and all of our changes to the toolbar
   await gCDHelper.restoreDefaultButtons(mc);
   Services.prefs.clearUserPref("mail.tabs.autoHide");
@@ -80,7 +80,7 @@ add_task(async function test_redirects_toolbarbutton_drops() {
     "wrapper-button-previousMsg",
     "wrapper-button-nextMsg",
     "wrapper-button-next",
-  ].forEach(function(aButtonId) {
+  ].forEach(function (aButtonId) {
     let button = ctw.window.document.getElementById(aButtonId);
 
     drag_n_drop_element(

@@ -195,11 +195,7 @@
      * @returns {boolean} Whether this modebox is visible for the given mode.
      */
     isVisibleInMode(mode = this.currentMode) {
-      return this.hasAttribute("mode")
-        ? this.getAttribute("mode")
-            .split(",")
-            .includes(mode)
-        : true;
+      return this.hasAttribute("mode") ? this.getAttribute("mode").split(",").includes(mode) : true;
     }
 
     /**

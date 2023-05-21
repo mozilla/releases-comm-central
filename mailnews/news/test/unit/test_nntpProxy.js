@@ -13,7 +13,7 @@ const PORT = 119;
 
 var daemon, localserver, server;
 
-add_setup(async function() {
+add_setup(async function () {
   daemon = setupNNTPDaemon();
   server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();

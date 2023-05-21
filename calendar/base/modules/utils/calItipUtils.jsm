@@ -218,7 +218,7 @@ var calitip = {
     }
     lazy.cal.LOG("iTIP method: " + imipMethod);
 
-    let isWritableCalendar = function(aCalendar) {
+    let isWritableCalendar = function (aCalendar) {
       /* TODO: missing ACL check for existing items (require callback API) */
       return (
         calitip.isSchedulingCalendar(aCalendar) && lazy.cal.acl.userCanAddItemsToCalendar(aCalendar)
@@ -862,7 +862,7 @@ var calitip = {
       }
     }
 
-    let hashMajorProps = function(aItem) {
+    let hashMajorProps = function (aItem) {
       const majorProps = {
         DTSTART: true,
         DTEND: true,
@@ -1052,7 +1052,7 @@ var calitip = {
     }
 
     for (let att of attendees) {
-      let resolveDelegation = function(e, i, a) {
+      let resolveDelegation = function (e, i, a) {
         if (e == att.id) {
           a[i] = att.toString();
         }
@@ -1489,7 +1489,7 @@ ItipItemFinder.prototype = {
                   let attendees = itipItemItem.getAttendees();
                   lazy.cal.ASSERT(attendees.length == 1, "invalid number of attendees in REFRESH!");
                   if (attendees.length > 0) {
-                    let action = function(opListener, partStat, extResponse) {
+                    let action = function (opListener, partStat, extResponse) {
                       if (!item.organizer) {
                         let org = calitip.createOrganizer(item.calendar);
                         if (org) {
@@ -1518,7 +1518,7 @@ ItipItemFinder.prototype = {
                     calitip.compare(itipItemItem, item) > 0
                   ) {
                     let newItem = updateItem(item, itipItemItem);
-                    let action = function(opListener, partStat, extResponse) {
+                    let action = function (opListener, partStat, extResponse) {
                       return newItem.calendar.modifyItem(newItem, item).then(
                         item =>
                           opListener.onOperationComplete(
@@ -1700,7 +1700,7 @@ ItipItemFinder.prototype = {
                     // Make sure the provider-specified properties are copied over
                     copyProviderProperties(this.mItipItem, itipItemItem, newItem);
 
-                    let action = function(opListener, partStat, extResponse) {
+                    let action = function (opListener, partStat, extResponse) {
                       // n.b.: this will only be processed in case of reply or
                       // declining the counter request - of sending the
                       // appropriate reply will be taken care within the
@@ -1908,7 +1908,7 @@ ItipItemFinder.prototype = {
     lazy.cal.LOG("iTIP operations: " + operations.length);
     let actionFunc = null;
     if (operations.length > 0) {
-      actionFunc = function(opListener, partStat = null, extResponse = null) {
+      actionFunc = function (opListener, partStat = null, extResponse = null) {
         for (let operation of operations) {
           try {
             operation(opListener, partStat, extResponse);

@@ -6,7 +6,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-add_setup(async function() {
+add_setup(async function () {
   let gAccount = createAccount();
   addIdentity(gAccount);
   let rootFolder = gAccount.incomingServer.rootFolder;

@@ -144,7 +144,7 @@ const PanelUI = {
       // Need to do fresh let-bindings per iteration
       let getKey = k;
       let id = v;
-      this.__defineGetter__(getKey, function() {
+      this.__defineGetter__(getKey, function () {
         delete this[getKey];
         // eslint-disable-next-line consistent-return
         return (this[getKey] = document.getElementById(id));

@@ -74,7 +74,7 @@ function ViewChangeByMenuitem(aMenuitem) {
  */
 var ViewPickerBinding = {
   _init() {
-    window.addEventListener("MailViewChanged", function(aEvent) {
+    window.addEventListener("MailViewChanged", function (aEvent) {
       ViewPickerBinding.updateDisplay(aEvent);
     });
   },

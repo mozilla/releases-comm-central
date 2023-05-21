@@ -9,7 +9,7 @@ const { storeState, getState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
 );
 
-add_setup(function() {
+add_setup(function () {
   // Ensure xulStore has a profile to refer to.
   do_get_profile();
 });

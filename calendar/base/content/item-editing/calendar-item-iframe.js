@@ -417,7 +417,7 @@ function onLoad() {
   // Stopping event propagation doesn't seem to work, so just overwrite the
   // function that does this.
   if (!gInTab) {
-    document.documentElement._hitEnter = function() {};
+    document.documentElement._hitEnter = function () {};
   }
 
   // set up our calendar event observer
@@ -1221,7 +1221,7 @@ function dateTimeControls2State(aStartDatepicker) {
     // warning dialog is showed.
     enableAcceptCommand(false);
     gWarning = true;
-    let callback = function() {
+    let callback = function () {
       Services.prompt.alert(null, document.title, stringWarning);
       gWarning = false;
       updateAccept();
@@ -1913,7 +1913,7 @@ function editAttendees() {
   let savedWindow = window;
   let calendar = getCurrentCalendar();
 
-  let callback = function(attendees, organizer, startTime, endTime) {
+  let callback = function (attendees, organizer, startTime, endTime) {
     savedWindow.attendees = attendees;
     savedWindow.organizer = organizer;
 
@@ -2688,7 +2688,7 @@ function editRepeat() {
   args.endTime = gEndTime;
 
   let savedWindow = window;
-  args.onOk = function(recurrenceInfo) {
+  args.onOk = function (recurrenceInfo) {
     savedWindow.recurrenceInfo = recurrenceInfo;
   };
 
@@ -3305,7 +3305,7 @@ function editStartTimezone() {
     editStartTimezone.complete
   );
 }
-editStartTimezone.complete = function(datetime) {
+editStartTimezone.complete = function (datetime) {
   let equalTimezones = false;
   if (gStartTimezone && gEndTimezone) {
     if (gStartTimezone == gEndTimezone) {
@@ -3325,7 +3325,7 @@ editStartTimezone.complete = function(datetime) {
 function editEndTimezone() {
   editTimezone("timezone-endtime", gEndTime.getInTimezone(gEndTimezone), editEndTimezone.complete);
 }
-editEndTimezone.complete = function(datetime) {
+editEndTimezone.complete = function (datetime) {
   gEndTimezone = datetime.timezone;
   updateDateTime();
 };
@@ -3408,7 +3408,7 @@ function editTimezone(aElementId, aDateTime, aCallback) {
   let args = {};
   args.time = aDateTime;
   args.calendar = getCurrentCalendar();
-  args.onOk = function(datetime) {
+  args.onOk = function (datetime) {
     cal.dtz.saveRecentTimezone(datetime.timezone.tzid);
     return aCallback(datetime);
   };
@@ -4031,7 +4031,7 @@ function checkUntilDate() {
       ? cal.dtz.dateTimeToJsDate(gUntilDate.getInTimezone(cal.dtz.floating))
       : "forever";
     gWarning = true;
-    let callback = function() {
+    let callback = function () {
       // Disable the "Save" and "Save and Close" commands as long as the
       // warning dialog is showed.
       enableAcceptCommand(false);

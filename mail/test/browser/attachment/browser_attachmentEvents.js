@@ -38,7 +38,7 @@ add_task(function test_attachments_added_on_single() {
   // Prepare to listen for attachments-added
   let eventCount = 0;
   let lastEvent;
-  let listener = function(event) {
+  let listener = function (event) {
     eventCount++;
     lastEvent = event;
   };
@@ -86,7 +86,7 @@ add_task(function test_attachments_added_on_multiple() {
   // Prepare to listen for attachments-added
   let eventCount = 0;
   let lastEvent;
-  let listener = function(event) {
+  let listener = function (event) {
     eventCount++;
     lastEvent = event;
   };
@@ -164,7 +164,7 @@ add_task(function test_attachments_removed_on_single() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
   let lastEvent;
-  let listener = function(event) {
+  let listener = function (event) {
     eventCount++;
     lastEvent = event;
   };
@@ -215,7 +215,7 @@ add_task(function test_attachments_removed_on_multiple() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
   let lastEvent;
-  let listener = function(event) {
+  let listener = function (event) {
     eventCount++;
     lastEvent = event;
   };
@@ -273,7 +273,7 @@ add_task(function test_attachments_removed_on_multiple() {
 add_task(function test_no_attachments_removed_on_none() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
-  let listener = function(event) {
+  let listener = function (event) {
     eventCount++;
   };
 
@@ -315,7 +315,7 @@ add_task(function test_attachment_renamed() {
   // Prepare to listen for attachment-renamed
   let eventCount = 0;
   let lastEvent;
-  let listener = function(event) {
+  let listener = function (event) {
     eventCount++;
     lastEvent = event;
   };
@@ -345,7 +345,7 @@ add_task(function test_attachment_renamed() {
   cw.window.goDoCommand("cmd_renameAttachment");
 
   // Wait until we saw the attachment-renamed event.
-  utils.waitFor(function() {
+  utils.waitFor(function () {
     return eventCount == 1;
   });
 
@@ -367,7 +367,7 @@ add_task(function test_attachment_renamed() {
   cw.window.goDoCommand("cmd_renameAttachment");
 
   // Wait until we saw the attachment-renamed event.
-  utils.waitFor(function() {
+  utils.waitFor(function () {
     return eventCount == 2;
   });
 
@@ -389,7 +389,7 @@ add_task(function test_attachment_renamed() {
   cw.window.goDoCommand("cmd_renameAttachment");
 
   // Wait until we saw the attachment-renamed event.
-  utils.waitFor(function() {
+  utils.waitFor(function () {
     return eventCount == 3;
   });
 
@@ -417,7 +417,7 @@ add_task(function test_attachment_renamed() {
 add_task(function test_no_attachment_renamed_on_blank() {
   // Prepare to listen for attachment-renamed
   let eventCount = 0;
-  let listener = function(event) {
+  let listener = function (event) {
     eventCount++;
   };
 

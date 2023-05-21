@@ -1,14 +1,14 @@
 "use strict";
-define(function(require) {
+define(function (require) {
   var assert = require("assert");
   var jsmime = require("jsmime");
   var headeremitter = jsmime.headeremitter;
   var MockDate = require("test/mock_date");
 
   function arrayTest(data, fn) {
-    fn.toString = function() {
+    fn.toString = function () {
       let text = Function.prototype.toString.call(this);
-      text = text.replace(/data\[([0-9]*)\]/g, function(m, p) {
+      text = text.replace(/data\[([0-9]*)\]/g, function (m, p) {
         return JSON.stringify(data[p]);
       });
       return text;
@@ -16,8 +16,8 @@ define(function(require) {
     return test(JSON.stringify(data[0]), fn);
   }
 
-  suite("headeremitter", function() {
-    suite("addAddresses", function() {
+  suite("headeremitter", function () {
+    suite("addAddresses", function () {
       let handler = {
         reset(expected) {
           this.output = "";
@@ -148,8 +148,8 @@ define(function(require) {
           'Group: "u@d" <a@a.c>,\r\n "u@c" <b@b.c>;',
         ],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           let emitter = headeremitter.makeStreamingEmitter(handler, {
             softMargin: 30,
             useASCII: false,
@@ -160,7 +160,7 @@ define(function(require) {
         });
       });
     });
-    suite("addAddresses (RFC 2047)", function() {
+    suite("addAddresses (RFC 2047)", function () {
       let handler = {
         reset(expected) {
           this.output = "";
@@ -205,8 +205,8 @@ define(function(require) {
             " =?UTF-8?Q?=2C_FirstName?=\r\n <a@b.c>",
         ],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           let emitter = headeremitter.makeStreamingEmitter(handler, {
             softMargin: 30,
             useASCII: true,
@@ -217,7 +217,7 @@ define(function(require) {
         });
       });
     });
-    suite("addUnstructured (RFC 2047)", function() {
+    suite("addUnstructured (RFC 2047)", function () {
       let handler = {
         reset(expected) {
           this.output = "";
@@ -311,8 +311,8 @@ define(function(require) {
             " =?UTF-8?B?w6huZXM=?=",
         ],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           let emitter = headeremitter.makeStreamingEmitter(handler, {
             softMargin: 30,
             useASCII: true,
@@ -323,7 +323,7 @@ define(function(require) {
         });
       });
     });
-    suite("addDate", function() {
+    suite("addDate", function () {
       let handler = {
         reset(expected) {
           this.output = "";
@@ -403,8 +403,8 @@ define(function(require) {
         // In addition, ES6 Date objects don't support leap seconds. Invalid dates
         // per RFC 5322 are handled in a later run of code.
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           let emitter = headeremitter.makeStreamingEmitter(handler, {});
           handler.reset(data[1]);
           emitter.addDate(new MockDate(data[0]));
@@ -413,21 +413,21 @@ define(function(require) {
       });
 
       // An invalid date should throw an error instead of make a malformed header.
-      test("Invalid dates", function() {
+      test("Invalid dates", function () {
         let emitter = headeremitter.makeStreamingEmitter(handler, {});
-        assert.throws(function() {
+        assert.throws(function () {
           emitter.addDate(new Date(NaN));
         }, /Cannot encode an invalid date/);
-        assert.throws(function() {
+        assert.throws(function () {
           emitter.addDate(new Date("1850-01-01"));
         }, /Date year is out of encodable range/);
-        assert.throws(function() {
+        assert.throws(function () {
           emitter.addDate(new Date("10000-01-01"));
         }, /Cannot encode an invalid date/);
       });
 
       // Test preferred breaking for the date header.
-      test("Break spot", function() {
+      test("Break spot", function () {
         let emitter = headeremitter.makeStreamingEmitter(handler, {
           softMargin: 30,
         });
@@ -437,7 +437,7 @@ define(function(require) {
         emitter.finish();
       });
 
-      test("Correctness of date", function() {
+      test("Correctness of date", function () {
         let emitter = headeremitter.makeStreamingEmitter(handler, {});
         handler.reset();
         let now = new Date();
@@ -452,7 +452,7 @@ define(function(require) {
       });
     });
 
-    suite("Header lengths", function() {
+    suite("Header lengths", function () {
       let handler = {
         reset(expected) {
           this.output = "";
@@ -494,8 +494,8 @@ define(function(require) {
           new Error(),
         ],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           let emitter = headeremitter.makeStreamingEmitter(handler, {
             softMargin: 30,
             hardMargin: 50,
@@ -503,11 +503,11 @@ define(function(require) {
           });
           handler.reset(data[1]);
           if (data[1] instanceof Error) {
-            assert.throws(function() {
+            assert.throws(function () {
               emitter.addAddresses(data[0]);
             }, /Cannot encode/);
           } else {
-            assert.doesNotThrow(function() {
+            assert.doesNotThrow(function () {
               emitter.addAddresses(data[0]);
             });
             emitter.finish(true);

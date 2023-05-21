@@ -45,7 +45,7 @@ var { MailServices } = ChromeUtils.import(
 
 var account = null;
 
-add_setup(async function() {
+add_setup(async function () {
   // Ensure we're in the tinderbox account as that has the right identities set
   // up for this test.
   let server = MailServices.accounts.findServer(
@@ -350,10 +350,7 @@ add_task(async function test_update_pill_before_send() {
   let dialogTitle;
   plan_for_modal_dialog("commonDialogWindow", cwc => {
     dialogTitle = cwc.window.document.getElementById("infoTitle").textContent;
-    cwc.window.document
-      .querySelector("dialog")
-      .getButton("accept")
-      .click();
+    cwc.window.document.querySelector("dialog").getButton("accept").click();
   });
   // Click the send button.
   EventUtils.synthesizeMouseAtCenter(

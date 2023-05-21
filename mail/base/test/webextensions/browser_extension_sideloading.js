@@ -97,7 +97,7 @@ add_task(async function test_sideloading() {
     permissions: ["<all_urls>"],
   });
 
-  testCleanup = async function() {
+  testCleanup = async function () {
     // clear out ExtensionsUI state about sideloaded extensions so
     // subsequent tests don't get confused.
     ExtensionsUI.sideloaded.clear();

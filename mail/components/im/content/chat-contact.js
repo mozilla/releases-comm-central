@@ -108,7 +108,7 @@
       // @implements {nsIObserver}
       this.observer = {
         QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
-        observe: function(subject, topic, data) {
+        observe: function (subject, topic, data) {
           if (
             topic == "contact-preferred-buddy-changed" ||
             topic == "contact-display-name-changed" ||
@@ -187,7 +187,7 @@
       label.setAttribute("hidden", "true");
       input.focus();
 
-      this._inputBlurListener = function(event) {
+      this._inputBlurListener = function (event) {
         this.finishAliasing(true);
       }.bind(this);
       input.addEventListener("blur", this._inputBlurListener);
@@ -195,7 +195,7 @@
       // Some keys (home/end for example) can make the selected item
       // of the richlistbox change without producing a blur event on
       // our textbox. Make sure we watch richlistbox selection changes.
-      this._parentSelectListener = function(event) {
+      this._parentSelectListener = function (event) {
         if (event.target == this.parentNode) {
           this.finishAliasing(true);
         }

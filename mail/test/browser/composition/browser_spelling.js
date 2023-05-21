@@ -26,7 +26,7 @@ async function checkMisspelledWords(editor, ...words) {
   return selection;
 }
 
-add_task(async function() {
+add_task(async function () {
   // Install en-NZ dictionary.
 
   let dictionary = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);

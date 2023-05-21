@@ -1,5 +1,5 @@
 "use strict";
-define(function(require) {
+define(function (require) {
   var assert = require("assert");
   var headerparser = require("jsmime").headerparser;
 
@@ -14,9 +14,9 @@ define(function(require) {
   }
 
   function arrayTest(data, fn) {
-    fn.toString = function() {
+    fn.toString = function () {
       let text = Function.prototype.toString.call(this);
-      text = text.replace(/data\[([0-9]*)\]/g, function(m, p) {
+      text = text.replace(/data\[([0-9]*)\]/g, function (m, p) {
         return JSON.stringify(data[p]);
       });
       return text;
@@ -25,9 +25,9 @@ define(function(require) {
   }
 
   function testHeader(header, tests) {
-    suite(header, function() {
-      tests.forEach(function(data) {
-        arrayTest(data, function() {
+    suite(header, function () {
+      tests.forEach(function (data) {
+        arrayTest(data, function () {
           smartDeepEqual(
             headerparser.parseStructuredHeader(header, data[0]),
             data[1]
@@ -47,7 +47,7 @@ define(function(require) {
     }
     return object;
   }
-  suite("Structured headers", function() {
+  suite("Structured headers", function () {
     // Ad-hoc header tests
     testHeader("Content-Type", [
       ["text/plain", makeCT("text", "plain", {})],
@@ -193,7 +193,7 @@ define(function(require) {
         ],
       ],
     ];
-    addressing_headers.forEach(function(header) {
+    addressing_headers.forEach(function (header) {
       testHeader(header, address_tests);
     });
 
@@ -208,7 +208,7 @@ define(function(require) {
       ["Thu, 06 Sep 2012 08:08:21 -0700", new Date("2012-09-06T08:08:21-0700")],
       ["This is so not a date", new Date(NaN)],
     ];
-    date_headers.forEach(function(header) {
+    date_headers.forEach(function (header) {
       testHeader(header, date_tests);
     });
 
@@ -228,7 +228,7 @@ define(function(require) {
         "<asd@asd.com> <asdf@asdf.com> <asdfg@asdfg.com>",
       ],
     ];
-    multiple_unstructured_headers.forEach(function(header) {
+    multiple_unstructured_headers.forEach(function (header) {
       testHeader(header, multiple_unstructured_tests);
     });
 
@@ -247,7 +247,7 @@ define(function(require) {
         "\u79c1\u306f\u4ef6\u540d\u5348\u524d",
       ],
     ];
-    unstructured_headers.forEach(function(header) {
+    unstructured_headers.forEach(function (header) {
       testHeader(header, unstructured_tests);
     });
   });

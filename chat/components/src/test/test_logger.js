@@ -171,7 +171,7 @@ var encodeName_output = [
   "%5c" + "fi" + "%3f%2a%26%25" + "le" + "%3c%3e", // eslint-disable-line no-useless-concat
 ];
 
-var test_queueFileOperation = async function() {
+var test_queueFileOperation = async function () {
   let dummyRejectedOperation = () => Promise.reject("Rejected!");
   let dummyResolvedOperation = () => Promise.resolve("Resolved!");
 
@@ -208,7 +208,7 @@ var test_queueFileOperation = async function() {
   await test_queueOrder(dummyRejectedOperation);
 };
 
-var test_getLogFolderPathForAccount = async function() {
+var test_getLogFolderPathForAccount = async function () {
   let path = getLogFolderPathForAccount(dummyAccount);
   equal(
     PathUtils.join(
@@ -221,7 +221,7 @@ var test_getLogFolderPathForAccount = async function() {
 };
 
 // Tests the global function getLogFilePathForConversation in logger.js.
-var test_getLogFilePathForConversation = async function() {
+var test_getLogFilePathForConversation = async function () {
   let path = getLogFilePathForConversation(dummyConv);
   let expectedPath = PathUtils.join(
     logDirPath,
@@ -239,7 +239,7 @@ var test_getLogFilePathForConversation = async function() {
   equal(path, expectedPath);
 };
 
-var test_getLogFilePathForMUC = async function() {
+var test_getLogFilePathForMUC = async function () {
   let path = getLogFilePathForConversation(dummyMUC);
   let expectedPath = PathUtils.join(
     logDirPath,
@@ -257,7 +257,7 @@ var test_getLogFilePathForMUC = async function() {
   equal(path, expectedPath);
 };
 
-var test_appendToFile = async function() {
+var test_appendToFile = async function () {
   const kStringToWrite = "Hello, world!";
   let path = PathUtils.join(
     Services.dirsvc.get("ProfD", Ci.nsIFile).path,
@@ -289,7 +289,7 @@ add_task(async function test_appendToFileHeader() {
 });
 
 // Tests the getLogPathsForConversation API defined in the imILogger interface.
-var test_getLogPathsForConversation = async function() {
+var test_getLogPathsForConversation = async function () {
   let logger = new Logger();
   let paths = await logger.getLogPathsForConversation(dummyConv);
   // The path should be null since a LogWriter hasn't been created yet.
@@ -304,12 +304,12 @@ var test_getLogPathsForConversation = async function() {
   closeLogWriter(dummyConv);
 };
 
-var test_logging = async function() {
+var test_logging = async function () {
   let logger = new Logger();
   let oneSec = 1000000; // Microseconds.
 
   // Creates a set of dummy messages for a conv (sets appropriate times).
-  let getMsgsForConv = function(aConv) {
+  let getMsgsForConv = function (aConv) {
     // Convert to seconds because that's what logMessage expects.
     let startTime = Math.round(aConv.startDate / oneSec);
     return [
@@ -359,7 +359,7 @@ var test_logging = async function() {
   let firstDayMsgs = getMsgsForConv(dummyConv);
   let secondDayMsgs = getMsgsForConv(dummyConv2);
 
-  let logMessagesForConv = async function(aConv, aMessages) {
+  let logMessagesForConv = async function (aConv, aMessages) {
     let logWriter = getLogWriter(aConv);
     for (let message of aMessages) {
       logWriter.logMessage(message);
@@ -379,7 +379,7 @@ var test_logging = async function() {
   // Write a zero-length file and a file with incorrect JSON for each day
   // to ensure they are handled correctly.
   let logDir = PathUtils.parent(getLogFilePathForConversation(dummyConv));
-  let createBadFiles = async function(aConv) {
+  let createBadFiles = async function (aConv) {
     let blankFile = PathUtils.join(
       logDir,
       getNewLogFileName((aConv.startDate + oneSec) / 1000)
@@ -394,7 +394,7 @@ var test_logging = async function() {
   await createBadFiles(dummyConv);
   await createBadFiles(dummyConv2);
 
-  let testMsgs = function(aMsgs, aExpectedMsgs, aExpectedSessions) {
+  let testMsgs = function (aMsgs, aExpectedMsgs, aExpectedSessions) {
     // Ensure the number of session messages is correct.
     let sessions = aMsgs.filter(aMsg => aMsg.who == "sessionstart").length;
     equal(sessions, aExpectedSessions);
@@ -415,7 +415,7 @@ var test_logging = async function() {
   };
 
   // Accepts time in seconds, reduces it to a date, and returns the value in millis.
-  let reduceTimeToDate = function(aTime) {
+  let reduceTimeToDate = function (aTime) {
     let date = new Date(aTime * 1000);
     date.setHours(0);
     date.setMinutes(0);
@@ -456,7 +456,7 @@ var test_logging = async function() {
   await IOUtils.remove(logFolder, { ignoreAbsent: false });
 };
 
-var test_logFileSplitting = async function() {
+var test_logFileSplitting = async function () {
   // Start clean, remove the log directory.
   await IOUtils.remove(logDirPath, { recursive: true });
   let logWriter = getLogWriter(dummyConv);
@@ -469,7 +469,7 @@ var test_logFileSplitting = async function() {
     outgoing: true,
   };
 
-  let logMessage = async function(aMessage) {
+  let logMessage = async function (aMessage) {
     logWriter.logMessage(aMessage);
     await logWriter._initialized;
     await gFilePromises.get(logWriter.currentPath);
@@ -483,7 +483,7 @@ var test_logFileSplitting = async function() {
   // The log writer's new start time should be the time of the message.
   equal(message.time * 1000, logWriter._startTime);
 
-  let getCurrentHeader = async function() {
+  let getCurrentHeader = async function () {
     return JSON.parse(
       (await IOUtils.readUTF8(logWriter.currentPath)).split("\n")[0]
     );
@@ -718,7 +718,7 @@ add_task(async function test_logDeletedMessageCleanup() {
   let logWriter = getLogWriter(dummyConv);
   let remoteId = "testId";
 
-  let logMessage = async function(aMessage) {
+  let logMessage = async function (aMessage) {
     logWriter.logMessage(aMessage);
     await logWriter._initialized;
     await gFilePromises.get(logWriter.currentPath);

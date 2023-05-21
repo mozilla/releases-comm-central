@@ -29,7 +29,7 @@ function InitWithToolbox(aToolbox) {
   dispatchCustomizationEvent("beforecustomization");
   gToolboxDocument = gToolbox.ownerDocument;
   gToolbox.customizing = true;
-  forEachCustomizableToolbar(function(toolbar) {
+  forEachCustomizableToolbar(function (toolbar) {
     toolbar.setAttribute("customizing", "true");
   });
   gPaletteBox = document.getElementById("palette-box");
@@ -64,7 +64,7 @@ function finishToolbarCustomization() {
   unwrapToolbarItems();
   persistCurrentSets();
   gToolbox.customizing = false;
-  forEachCustomizableToolbar(function(toolbar) {
+  forEachCustomizableToolbar(function (toolbar) {
     toolbar.removeAttribute("customizing");
   });
 
@@ -166,7 +166,7 @@ function persistCurrentSets() {
     return;
   }
 
-  forEachCustomizableToolbar(function(toolbar) {
+  forEachCustomizableToolbar(function (toolbar) {
     // Calculate currentset and store it in the attribute.
     var currentSet = toolbar.currentSet;
     toolbar.setAttribute("currentset", currentSet);
@@ -178,7 +178,7 @@ function persistCurrentSets() {
  * Wraps all items in all customizable toolbars in a toolbox.
  */
 function wrapToolbarItems() {
-  forEachCustomizableToolbar(function(toolbar) {
+  forEachCustomizableToolbar(function (toolbar) {
     for (let item of toolbar.children) {
       if (AppConstants.platform == "macosx") {
         if (
@@ -272,7 +272,7 @@ function wrapToolbarItem(aToolbarItem) {
  */
 function getCurrentItemIds() {
   var currentItems = {};
-  forEachCustomizableToolbar(function(toolbar) {
+  forEachCustomizableToolbar(function (toolbar) {
     var child = toolbar.firstElementChild;
     while (child) {
       if (isToolbarItem(child)) {
@@ -354,7 +354,7 @@ function cleanUpItemForPalette(aItem, aWrapper) {
   aItem.removeAttribute("checked");
   aItem.removeAttribute("collapsed");
 
-  aWrapper.querySelectorAll("[disabled]").forEach(function(aNode) {
+  aWrapper.querySelectorAll("[disabled]").forEach(function (aNode) {
     aNode.removeAttribute("disabled");
   });
 }
@@ -475,7 +475,7 @@ function restoreDefaultSet() {
   }
 
   // Restore the defaultset for fixed toolbars.
-  forEachCustomizableToolbar(function(toolbar) {
+  forEachCustomizableToolbar(function (toolbar) {
     var defaultSet = toolbar.getAttribute("defaultset");
     if (defaultSet) {
       toolbar.currentSet = defaultSet;
@@ -527,7 +527,7 @@ function updateToolboxProperty(aProp, aValue, aToolkitDefault) {
   gToolbox.setAttribute(aProp, aValue || toolboxDefault);
   Services.xulStore.persist(gToolbox, aProp);
 
-  forEachCustomizableToolbar(function(toolbar) {
+  forEachCustomizableToolbar(function (toolbar) {
     var toolbarDefault =
       toolbar.getAttribute("default" + aProp) || toolboxDefault;
     if (
@@ -556,9 +556,7 @@ function forEachCustomizableToolbar(callback) {
       .filter(isCustomizableToolbar)
       .forEach(callback);
   }
-  Array.from(gToolbox.children)
-    .filter(isCustomizableToolbar)
-    .forEach(callback);
+  Array.from(gToolbox.children).filter(isCustomizableToolbar).forEach(callback);
 }
 
 function isCustomizableToolbar(aElt) {

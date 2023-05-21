@@ -149,7 +149,7 @@ var paneLayout = {
         }
       }
 
-      splitter.storeAttr = function(attrName, attrValue) {
+      splitter.storeAttr = function (attrName, attrValue) {
         Services.xulStore.setValue(XULSTORE_URL, storeID, attrName, attrValue);
       };
 
@@ -3944,7 +3944,7 @@ var threadPane = {
       c.ordinal = columnStates[c.id]?.ordinal ?? 0;
     });
     // Sort columns by ordinal.
-    this.columns.sort(function(a, b) {
+    this.columns.sort(function (a, b) {
       return a.ordinal - b.ordinal;
     });
   },
@@ -4341,7 +4341,7 @@ var threadPane = {
    */
   showIgnoredMessageNotification(messages, subthreadOnly) {
     let threadIds = new Set();
-    messages.forEach(function(msg) {
+    messages.forEach(function (msg) {
       if (!threadIds.has(msg.threadId)) {
         threadIds.add(msg.threadId);
       }
@@ -4374,7 +4374,7 @@ var threadPane = {
         isDefault: true,
         popup: null,
         callback(aNotificationBar, aButton) {
-          messages.forEach(function(msg) {
+          messages.forEach(function (msg) {
             let msgDb = msg.folder.msgDatabase;
             if (subthreadOnly) {
               msgDb.markHeaderKilled(msg, false, null);
@@ -4603,7 +4603,7 @@ var messagePane = {
     messagePane.clearWebPage();
     messagePane.clearMessage();
 
-    let getThreadId = function(message) {
+    let getThreadId = function (message) {
       return gDBView.getThreadContainingMsgHdr(message).getRootHdr().messageKey;
     };
 
@@ -4620,7 +4620,7 @@ var messagePane = {
       oneThread ? "thread" : "multipleselection",
       messages,
       gDBView,
-      function(messages) {
+      function (messages) {
         threadTree.selectedIndices = messages
           .map(m => gDBView.findIndexOfMsgHdr(m, true))
           .filter(i => i != nsMsgViewIndex_None);

@@ -27,7 +27,7 @@ var { click_menus_in_sequence, close_window } = ChromeUtils.import(
 
 var folderToStoreMessages;
 
-add_setup(async function() {
+add_setup(async function () {
   folderToStoreMessages = await create_folder("QuoteTestFolder");
 });
 

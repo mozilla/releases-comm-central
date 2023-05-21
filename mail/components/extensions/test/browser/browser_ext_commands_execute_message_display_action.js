@@ -42,7 +42,7 @@ async function testExecuteMessageDisplayActionWithOptions(msg, options = {}) {
           </body>
         </html>
       `,
-      "popup.js": function() {
+      "popup.js": function () {
         browser.test.log("sending from-message-display-action-popup");
         browser.runtime.sendMessage("from-message-display-action-popup");
       },

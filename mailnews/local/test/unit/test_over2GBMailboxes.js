@@ -23,7 +23,7 @@ let gInboxFile;
 let gInbox;
 let gSmallMsgFile = do_get_file("../../../data/bugmail10");
 
-add_setup(async function() {
+add_setup(async function () {
   // Make sure we're using mbox.
   Services.prefs.setCharPref(
     "mail.serverDefaultStoreContractID",

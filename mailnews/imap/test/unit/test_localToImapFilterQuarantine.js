@@ -27,7 +27,7 @@ load("../../../resources/POP3pump.js");
 
 var gSubfolder;
 
-add_setup(function() {
+add_setup(function () {
   setupIMAPPump();
   // quarantine messages
   Services.prefs.setBoolPref("mailnews.downloadToTempFile", true);

@@ -138,7 +138,7 @@ var alarmObserver = {
   },
 };
 
-add_setup(async function() {
+add_setup(async function () {
   do_get_profile();
   await new Promise(resolve =>
     do_calendar_startup(() => {

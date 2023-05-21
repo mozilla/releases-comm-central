@@ -129,7 +129,7 @@ var SMTPServer = {
 
 var _srv = DNS.srv;
 var _txt = DNS.txt;
-DNS.srv = function(name) {
+DNS.srv = function (name) {
   if (["_caldavs._tcp.localhost", "_carddavs._tcp.localhost"].includes(name)) {
     return [{ prio: 0, weight: 0, host: "example.org", port: 443 }];
   }
@@ -143,7 +143,7 @@ DNS.srv = function(name) {
   }
   throw new Error(`Unexpected DNS SRV lookup: ${name}`);
 };
-DNS.txt = function(name) {
+DNS.txt = function (name) {
   if (name == "_caldavs._tcp.localhost") {
     return [{ data: "path=/browser/comm/calendar/test/browser/data/dns.sjs" }];
   }
@@ -926,7 +926,7 @@ add_task(async function test_full_account_setup() {
   Services.logins.removeAllLogins();
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   MockRegistrar.unregister(originalAlertsServiceCID);
   DNS.srv = _srv;
   DNS.txt = _txt;

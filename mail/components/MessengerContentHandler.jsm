@@ -579,7 +579,7 @@ MailDefaultHandler.prototype = {
           let uriSpec = Services.io.newFileURI(file).spec;
           lazy.NetUtil.asyncFetch(
             { uri: uriSpec, loadUsingSystemPrincipal: true },
-            function(inputStream, status) {
+            function (inputStream, status) {
               if (!Components.isSuccessCode(status)) {
                 return;
               }
@@ -769,10 +769,7 @@ class MessageDisplayContentHandler {
         "type=message/rfc822",
         "type=application/x-message-display"
       );
-      uri = mailnewsUrl
-        .mutate()
-        .setQuery(queryPart)
-        .finalize();
+      uri = mailnewsUrl.mutate().setQuery(queryPart).finalize();
     } else if (uri.scheme == "file") {
       uri = uri
         .mutate()

@@ -105,9 +105,6 @@ function getSpec(aFileName) {
     "../../../extensions/bayesian-spam-filter/test/unit/resources/" + aFileName
   );
   var uri = Services.io.newFileURI(file).QueryInterface(Ci.nsIURL);
-  uri = uri
-    .mutate()
-    .setQuery("type=application/x-message-display")
-    .finalize();
+  uri = uri.mutate().setQuery("type=application/x-message-display").finalize();
   return uri.spec;
 }

@@ -25,7 +25,7 @@ const goMenuData = {
 };
 let helper = new MenuTestHelper("menu_Go", goMenuData);
 
-add_setup(async function() {
+add_setup(async function () {
   document.getElementById("tabmail").clearRecentlyClosedTabs();
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 });

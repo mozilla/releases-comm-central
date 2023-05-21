@@ -66,7 +66,7 @@ function checkNewText(target) {
   }
 }
 
-new MutationObserver(function(aMutations) {
+new MutationObserver(function (aMutations) {
   for (let mutation of aMutations) {
     for (let node of mutation.addedNodes) {
       if (node instanceof HTMLElement) {

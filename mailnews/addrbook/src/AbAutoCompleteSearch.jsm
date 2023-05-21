@@ -503,7 +503,7 @@ AbAutoCompleteSearch.prototype = {
     // just filtered previous results. Only local results are sorted,
     // because the autocomplete widget doesn't let us alter the order of
     // results that have already been notified.
-    result._searchResults.sort(function(a, b) {
+    result._searchResults.sort(function (a, b) {
       // Order by 1) descending score, then 2) descending popularity,
       // then 3) any emails that actually match the search string,
       // 4) primary email before secondary for the same card, then

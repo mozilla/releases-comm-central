@@ -2947,7 +2947,7 @@ Enigmail.composeStateListener = {
 
     if (isEditable && !isEmpty) {
       if (!Enigmail.msg.timeoutId && !Enigmail.msg.dirty) {
-        Enigmail.msg.timeoutId = setTimeout(function() {
+        Enigmail.msg.timeoutId = setTimeout(function () {
           Enigmail.msg.decryptQuote(false);
         }, 0);
       }

@@ -109,7 +109,7 @@ AbLDAPAutoCompleteSearch.prototype = {
   _checkDuplicate(card, emailAddress) {
     var lcEmailAddress = emailAddress.toLocaleLowerCase();
 
-    return this._result._searchResults.some(function(result) {
+    return this._result._searchResults.some(function (result) {
       return result.value.toLocaleLowerCase() == lcEmailAddress;
     });
   },

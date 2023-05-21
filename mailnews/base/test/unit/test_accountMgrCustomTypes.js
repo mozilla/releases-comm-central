@@ -80,7 +80,7 @@ function run_test() {
 
   // Now let the bad type timeout, and watch it magically disappear!
   do_test_pending();
-  do_timeout(3000, function() {
+  do_timeout(3000, function () {
     Assert.equal(MailServices.accounts.accounts.length, 2);
 
     // It is now gone.

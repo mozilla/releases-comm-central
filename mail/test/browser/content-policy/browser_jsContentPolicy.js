@@ -141,7 +141,7 @@ var gMsgNo = 0;
 
 var messagePane = aboutMessage.document.getElementById("messagepane");
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("jsContentPolicy");
 });
 

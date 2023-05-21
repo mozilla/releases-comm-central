@@ -35,7 +35,7 @@ var { MailServices } = ChromeUtils.import(
 
 var gDrafts;
 
-add_setup(async function() {
+add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", false);
@@ -84,7 +84,7 @@ add_task(async function test_reply_format_flowed() {
   await subtest_reply_format_flowed(false);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   Services.prefs.clearUserPref("mail.identity.id1.compose_html");
   Services.prefs.clearUserPref("mailnews.send_plaintext_flowed");
 });

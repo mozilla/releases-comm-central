@@ -37,7 +37,7 @@ function alertPS(parent, aDialogTitle, aText) {
 
 function addGeneratedMessagesToServer(messages, mailbox) {
   // Create the ImapMessages and store them on the mailbox
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );
@@ -47,7 +47,7 @@ function addGeneratedMessagesToServer(messages, mailbox) {
 
 var gStreamedHdr = null;
 
-add_setup(async function() {
+add_setup(async function () {
   registerAlertTestUtils();
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",

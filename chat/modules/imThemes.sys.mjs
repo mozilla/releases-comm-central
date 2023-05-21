@@ -25,7 +25,7 @@ XPCOMUtils.defineLazyGetter(lazy, "gPrefBranch", () =>
   Services.prefs.getBranch(kMessagesStylePrefBranch)
 );
 
-XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {
+XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
@@ -884,7 +884,7 @@ function _serializeDOMObject(aDocument, aInitFunction) {
 }
 
 function serializeRange(aRange) {
-  return _serializeDOMObject(aRange.startContainer.ownerDocument, function(
+  return _serializeDOMObject(aRange.startContainer.ownerDocument, function (
     aEncoder
   ) {
     aEncoder.setRange(aRange);
@@ -892,7 +892,7 @@ function serializeRange(aRange) {
 }
 
 function serializeNode(aNode) {
-  return _serializeDOMObject(aNode.ownerDocument, function(aEncoder) {
+  return _serializeDOMObject(aNode.ownerDocument, function (aEncoder) {
     aEncoder.setNode(aNode);
   });
 }
@@ -1019,7 +1019,7 @@ SelectedMessage.prototype = {
       FILTER_SKIP: 3,
     };
     // helper filter function for the tree walker
-    let filter = function(node) {
+    let filter = function (node) {
       return node.className == "ib-msg-txt"
         ? NodeFilter.FILTER_ACCEPT
         : NodeFilter.FILTER_SKIP;
@@ -1153,7 +1153,7 @@ SelectedMessage.prototype = {
     }
 
     // then get the suitable replacements and templates for this message
-    let getLocalizedPrefWithDefault = function(aName, aDefault) {
+    let getLocalizedPrefWithDefault = function (aName, aDefault) {
       try {
         let prefBranch = Services.prefs.getBranch(
           "messenger.conversations.selections."
@@ -1212,7 +1212,7 @@ export function getMessagesForRange(aRange) {
   // Helper function to recursively look for _originalMsg JS
   // properties on DOM nodes, and stop when endNode is reached.
   // Found nodes are pushed into the rootNodes array.
-  let processSubtree = function(aNode) {
+  let processSubtree = function (aNode) {
     if (aNode._originalMsg) {
       // store the result
       if (!(aNode._originalMsg.id in messages)) {

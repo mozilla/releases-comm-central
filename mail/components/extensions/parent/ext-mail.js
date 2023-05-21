@@ -44,7 +44,7 @@ const MESSAGE_PROTOCOLS = ["imap", "mailbox", "news", "nntp", "snews"];
 
 const NOTIFICATION_COLLAPSE_TIME = 200;
 
-(function() {
+(function () {
   // Monkey-patch all processes to add the "messenger" alias in all contexts.
   Services.ppmm.loadProcessScript(
     "chrome://messenger/content/processScript.js",
@@ -54,11 +54,11 @@ const NOTIFICATION_COLLAPSE_TIME = 200;
   // This allows scripts to run in the compose document or message display
   // document if and only if the extension has permission.
   let { defaultConstructor } = ExtensionContent.contentScripts;
-  ExtensionContent.contentScripts.defaultConstructor = function(matcher) {
+  ExtensionContent.contentScripts.defaultConstructor = function (matcher) {
     let script = defaultConstructor.call(this, matcher);
 
     let { matchesWindowGlobal } = script;
-    script.matchesWindowGlobal = function(windowGlobal) {
+    script.matchesWindowGlobal = function (windowGlobal) {
       let { browsingContext, windowContext } = windowGlobal;
 
       if (
@@ -176,9 +176,9 @@ async function getRealFileForFile(file) {
   ].getService(Ci.nsPIExternalAppLauncher);
   extAppLauncher.deleteTemporaryFileOnExit(tempFile);
 
-  let bytes = await new Promise(function(resolve) {
+  let bytes = await new Promise(function (resolve) {
     let reader = new FileReader();
-    reader.onloadend = function() {
+    reader.onloadend = function () {
       resolve(new Uint8Array(reader.result));
     };
     reader.readAsArrayBuffer(file);
@@ -1487,7 +1487,7 @@ class Window extends WindowBase {
    */
   async setState(state) {
     let { window } = this;
-    const expectedState = (function() {
+    const expectedState = (function () {
       switch (state) {
         case "maximized":
           return window.STATE_MAXIMIZED;
@@ -1553,7 +1553,7 @@ class Window extends WindowBase {
 
       let onSizeModeChange;
       const promiseExpectedSizeMode = new Promise(resolve => {
-        onSizeModeChange = function() {
+        onSizeModeChange = function () {
           if (window.windowState == expectedState) {
             resolve();
           }
@@ -1909,10 +1909,7 @@ function folderURIToPath(accountId, uri) {
     return uri.substring(rootURI.length);
   }
   let path = Services.io.newURI(uri).filePath;
-  return path
-    .split("/")
-    .map(decodeURIComponent)
-    .join("/");
+  return path.split("/").map(decodeURIComponent).join("/");
 }
 
 /**

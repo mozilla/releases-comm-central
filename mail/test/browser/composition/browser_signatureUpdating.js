@@ -33,7 +33,7 @@ var { MailServices } = ChromeUtils.import(
 
 var cwc = null; // compose window controller
 
-add_setup(async function() {
+add_setup(async function () {
   requestLongerTimeout(2);
 
   // These prefs can't be set in the manifest as they contain white-space.
@@ -61,7 +61,7 @@ add_setup(async function() {
   await be_in_folder(inbox);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
   Services.prefs.clearUserPref("mail.identity.id1.compose_html");
   Services.prefs.clearUserPref("mail.identity.id1.htmlSigText");

@@ -49,13 +49,13 @@ var mockPromptService = {
   QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
 };
 
-add_setup(function() {
+add_setup(function () {
   Services.prompt = mockPromptService;
   gMockFilePickReg.register();
   gMockCloudfileManager.register();
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   gMockCloudfileManager.unregister();
   gMockFilePickReg.unregister();
   Services.prompt = originalPromptService;
@@ -85,7 +85,7 @@ add_task(async function test_upload_cancel_repeat() {
   // so that we're perpetually uploading...
   let promise;
   let started;
-  provider.uploadFile = function(window, aFile) {
+  provider.uploadFile = function (window, aFile) {
     return new Promise((resolve, reject) => {
       promise = { resolve, reject };
       started = true;
@@ -138,7 +138,7 @@ add_task(async function test_upload_multiple_and_cancel() {
   let cw = open_compose_new_mail();
 
   let promises = {};
-  provider.uploadFile = function(window, aFile) {
+  provider.uploadFile = function (window, aFile) {
     return new Promise((resolve, reject) => {
       promises[aFile.leafName] = { resolve, reject };
     });
@@ -194,7 +194,7 @@ async function assert_can_cancel_upload(
 
   // Override the provider's cancelFileUpload function.  We can do this because
   // it's assumed that the provider is a MockCloudfileAccount.
-  aProvider.cancelFileUpload = function(window, aFileToCancel) {
+  aProvider.cancelFileUpload = function (window, aFileToCancel) {
     if (aTargetFile.equals(aFileToCancel)) {
       aPromise.reject(
         Components.Exception(
@@ -297,7 +297,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
 
   // Override the uploadFile function of the MockCloudfileAccount.
   let promises = [];
-  provider.uploadFile = function(window, aFile) {
+  provider.uploadFile = function (window, aFile) {
     return new Promise((resolve, reject) => {
       promises.push({
         resolve,
@@ -404,7 +404,7 @@ add_task(async function test_error_conversion() {
   providerB.init("someOtherKey");
 
   let uploadPromise = null;
-  providerB.uploadFile = function(window, aFile) {
+  providerB.uploadFile = function (window, aFile) {
     return new Promise((resolve, reject) => {
       uploadPromise = { resolve, reject };
     });

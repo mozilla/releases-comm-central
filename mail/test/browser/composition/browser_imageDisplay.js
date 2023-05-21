@@ -31,7 +31,7 @@ var { click_menus_in_sequence, close_window } = ChromeUtils.import(
 
 var gImageFolder;
 
-add_setup(async function() {
+add_setup(async function () {
   gImageFolder = await create_folder("ImageFolder");
   registerCleanupFunction(() => {
     gImageFolder.deleteSelf(null);

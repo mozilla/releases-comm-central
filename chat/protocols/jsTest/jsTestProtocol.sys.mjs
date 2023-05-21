@@ -56,7 +56,7 @@ Account.prototype = {
     // do something here
     this.reportConnected();
     setTimeout(
-      function() {
+      function () {
         this._conv = new Conversation(this);
         this._conv.writeMessage("jstest", "You are now talking to /dev/null", {
           system: true,

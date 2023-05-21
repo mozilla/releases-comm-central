@@ -172,7 +172,7 @@ function run_test() {
   // Test: Add listeners
   var singleListeners = [];
 
-  var addAListener = function(flag) {
+  var addAListener = function (flag) {
     var listener = new gMFListener();
     MailServices.mfn.addListener(listener, flag);
     singleListeners.push(listener);
@@ -185,7 +185,7 @@ function run_test() {
 
   // Test: check whether the correct number of notifications have been received.
   // Then remove the listeners
-  var checkFlag = function(flag) {
+  var checkFlag = function (flag) {
     var listener = singleListeners.shift();
     Assert.equal(listener.mReceived, flag);
     listener.mRemoveSelf = true;
@@ -201,13 +201,13 @@ function run_test() {
   Assert.ok(!MailServices.mfn.hasListeners);
 
   // Test: Send notifications again. Check that we don't receive any notifications.
-  singleListeners.forEach(function(listener) {
+  singleListeners.forEach(function (listener) {
     listener.mReceived = 0;
   });
 
   NotifyMsgFolderListeners();
 
-  var checkNotReceived = function() {
+  var checkNotReceived = function () {
     Assert.equal(singleListeners.shift().mReceived, 0);
   };
   gIndividualFlags.forEach(checkNotReceived);

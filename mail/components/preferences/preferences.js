@@ -36,7 +36,7 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/AddonManager.jsm"
 );
 
-XPCOMUtils.defineLazyGetter(this, "gSubDialog", function() {
+XPCOMUtils.defineLazyGetter(this, "gSubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(
     "resource://gre/modules/SubDialog.sys.mjs"
   );
@@ -166,7 +166,7 @@ function init() {
     }
   });
 
-  categories.addEventListener("mousedown", function() {
+  categories.addEventListener("mousedown", function () {
     this.removeAttribute("keyboard-navigation");
   });
 
@@ -301,7 +301,7 @@ function friendlyPrefCategoryNameToInternalName(aName) {
 
 // This function is duplicated inside of utilityOverlay.js's openPreferences.
 function internalPrefCategoryNameToFriendlyName(aName) {
-  return (aName || "").replace(/^pane./, function(toReplace) {
+  return (aName || "").replace(/^pane./, function (toReplace) {
     return toReplace[4].toLowerCase();
   });
 }
@@ -420,7 +420,7 @@ function selectPrefPane(paneID, scrollPaneTo, otherArgs) {
  * @param subdialogID  ID of button to activate, opening a subdialog
  */
 function showTab(scrollPaneTo, subdialogID) {
-  setTimeout(function() {
+  setTimeout(function () {
     let scrollTarget = document.getElementById(scrollPaneTo);
     if (scrollTarget.closest("groupbox")) {
       scrollTarget = scrollTarget.closest("groupbox");

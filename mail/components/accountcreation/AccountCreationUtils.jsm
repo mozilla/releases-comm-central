@@ -169,20 +169,20 @@ UserCancelledException.prototype.constructor = UserCancelledException;
 function PromiseAbortable(promise, successCallback, errorCallback) {
   Abortable.call(this); // call super constructor
   let complete = false;
-  this.cancel = function(e) {
+  this.cancel = function (e) {
     if (!complete) {
       complete = true;
       errorCallback(e || new CancelledException());
     }
   };
   promise
-    .then(function(result) {
+    .then(function (result) {
       if (!complete) {
         successCallback(result);
         complete = true;
       }
     })
-    .catch(function(e) {
+    .catch(function (e) {
       if (!complete) {
         complete = true;
         errorCallback(e);
@@ -204,7 +204,7 @@ function TimeoutAbortable(setTimeoutID) {
 }
 TimeoutAbortable.prototype = Object.create(Abortable.prototype);
 TimeoutAbortable.prototype.constructor = TimeoutAbortable;
-TimeoutAbortable.prototype.cancel = function() {
+TimeoutAbortable.prototype.cancel = function () {
   clearTimeout(this._id);
 };
 
@@ -220,7 +220,7 @@ function IntervalAbortable(setIntervalID) {
 }
 IntervalAbortable.prototype = Object.create(Abortable.prototype);
 IntervalAbortable.prototype.constructor = IntervalAbortable;
-IntervalAbortable.prototype.cancel = function() {
+IntervalAbortable.prototype.cancel = function () {
   clearInterval(this._id);
 };
 
@@ -542,7 +542,7 @@ AddonInstaller.prototype.constructor = AddonInstaller;
  * @param {nsIAddon} addon
  * @returns {boolean} is OK
  */
-AddonInstaller.prototype.matches = function(addon) {
+AddonInstaller.prototype.matches = function (addon) {
   return (
     !this._id ||
     (this._id == addon.id &&
@@ -556,7 +556,7 @@ AddonInstaller.prototype.matches = function(addon) {
  *
  * @throws Exception in case of failure
  */
-AddonInstaller.prototype.install = async function() {
+AddonInstaller.prototype.install = async function () {
   if (await this.isInstalled()) {
     return;
   }
@@ -569,7 +569,7 @@ AddonInstaller.prototype.install = async function() {
  *
  * @returns {boolean} is already installed and enabled
  */
-AddonInstaller.prototype.isInstalled = async function() {
+AddonInstaller.prototype.isInstalled = async function () {
   if (!this._id) {
     return false;
   }
@@ -582,7 +582,7 @@ AddonInstaller.prototype.isInstalled = async function() {
  *
  * @returns {boolean} is already installed but disabled
  */
-AddonInstaller.prototype.isDisabled = async function() {
+AddonInstaller.prototype.isDisabled = async function () {
   if (!this._id) {
     return false;
   }
@@ -594,7 +594,7 @@ AddonInstaller.prototype.isDisabled = async function() {
  * Downloads and installs the addon.
  * The downloaded XPI will be checked using prompt().
  */
-AddonInstaller.prototype._installDirect = async function() {
+AddonInstaller.prototype._installDirect = async function () {
   var installer = (this._installer = await AddonManager.getInstallForURL(
     this._url,
     { name: this._name }
@@ -619,7 +619,7 @@ AddonInstaller.prototype._installDirect = async function() {
  *
  * @throws Exception If you want to cancel install, then throw an exception.
  */
-AddonInstaller.prototype.prompt = async function(info) {
+AddonInstaller.prototype.prompt = async function (info) {
   if (!this.matches(info.addon)) {
     // happens only when we got the wrong XPI
     throw new Exception(
@@ -628,7 +628,7 @@ AddonInstaller.prototype.prompt = async function(info) {
   }
 };
 
-AddonInstaller.prototype.cancel = function() {
+AddonInstaller.prototype.cancel = function () {
   if (this._installer) {
     try {
       this._installer.cancel();

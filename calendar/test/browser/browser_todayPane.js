@@ -762,7 +762,7 @@ add_task(async function testNewEvent() {
   async function checkEventDialogDate() {
     let dialogWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
     EventUtils.synthesizeMouseAtCenter(newEventButton, {}, window);
-    await dialogWindowPromise.then(async function(dialogWindow) {
+    await dialogWindowPromise.then(async function (dialogWindow) {
       let iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
       let iframeDocument = iframe.contentDocument;
 

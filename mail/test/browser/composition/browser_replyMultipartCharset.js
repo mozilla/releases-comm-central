@@ -45,7 +45,7 @@ var { click_menus_in_sequence, close_window } = ChromeUtils.import(
 
 var folder;
 
-add_setup(async function() {
+add_setup(async function () {
   requestLongerTimeout(2);
   folder = await create_folder("FolderWithMessages");
 });

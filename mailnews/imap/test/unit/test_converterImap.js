@@ -48,15 +48,15 @@ function checkConversion(aSource, aTarget) {
   }
 }
 
-var EventTarget = function() {
-  this.dispatchEvent = function(aEvent) {
+var EventTarget = function () {
+  this.dispatchEvent = function (aEvent) {
     if (aEvent.type == "progress") {
       dump("Progress: " + aEvent.detail + "\n");
     }
   };
 };
 
-add_setup(async function() {
+add_setup(async function () {
   // Force mbox.
   Services.prefs.setCharPref(
     "mail.serverDefaultStoreContractID",

@@ -13,7 +13,7 @@ function run_test() {
     { key: "MFCaF", value: "folderCache.json" },
   ];
 
-  items.forEach(function(item) {
+  items.forEach(function (item) {
     var dir = Services.dirsvc.get(item.key, Ci.nsIFile);
     dump(do_get_profile().path + " " + dir.path + "\n");
     Assert.ok(do_get_profile().equals(dir.parent));

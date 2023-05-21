@@ -430,7 +430,7 @@ function SwitchPaneFocus(event) {
 // determine the element to focus.
 addEventListener(
   "keypress",
-  function(event) {
+  function (event) {
     if (event.key == "F6" && Services.focus.focusedElement?.isRemoteBrowser) {
       event.preventDefault();
       SwitchPaneFocus(event);

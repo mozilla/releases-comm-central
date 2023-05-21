@@ -21,7 +21,7 @@ let engine, store, tracker;
 let accountA, smtpServerA, identityA;
 let accountB, identityB;
 
-add_setup(async function() {
+add_setup(async function () {
   engine = new IdentitiesEngine(Service);
   await engine.initialize();
   store = engine._store;

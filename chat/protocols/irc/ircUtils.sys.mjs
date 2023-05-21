@@ -10,7 +10,7 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/irc.properties")
 );
 
-XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {
+XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });

@@ -29,7 +29,7 @@ Conversation.prototype = {
 
 // ROT13, used as an example transformation.
 function rot13(aString) {
-  return aString.replace(/[a-zA-Z]/g, function(c) {
+  return aString.replace(/[a-zA-Z]/g, function (c) {
     return String.fromCharCode(
       c.charCodeAt(0) + (c.toLowerCase() < "n" ? 1 : -1) * 13
     );
@@ -39,7 +39,7 @@ function rot13(aString) {
 // A test that cancels a message before it can be sent.
 add_task(function test_cancel_send_message() {
   let conv = new Conversation();
-  conv.dispatchMessage = function(aMsg) {
+  conv.dispatchMessage = function (aMsg) {
     ok(
       false,
       "The message should have been halted in the conversation service."
@@ -75,18 +75,18 @@ add_task(function test_cancel_send_message() {
 // sending and displaying.
 add_task(function test_prpl_message_prep() {
   let conv = new Conversation();
-  conv.dispatchMessage = function(aMsg) {
+  conv.dispatchMessage = function (aMsg) {
     this.writeMessage("user", aMsg, { outgoing: true });
   };
 
-  conv.prepareForSending = function(aMsg) {
+  conv.prepareForSending = function (aMsg) {
     ok(aMsg.QueryInterface(Ci.imIOutgoingMessage), "Wrong message type.");
     equal(aMsg.message, msg, "Expected the original message.");
     prepared = true;
     return [prefix + aMsg.message];
   };
 
-  conv.prepareForDisplaying = function(aMsg) {
+  conv.prepareForDisplaying = function (aMsg) {
     equal(aMsg.displayMessage, prefix + msg, "Expected the prefixed message.");
     aMsg.displayMessage = aMsg.displayMessage.slice(prefix.length);
   };
@@ -127,10 +127,10 @@ add_task(function test_split_message_before_sending() {
   let msgs = msg.split("\n");
 
   let conv = new Conversation();
-  conv.dispatchMessage = function(aMsg) {
+  conv.dispatchMessage = function (aMsg) {
     equal(aMsg, msgs[msgCount++], "Sending an unexpected message.");
   };
-  conv.prepareForSending = function(aMsg) {
+  conv.prepareForSending = function (aMsg) {
     ok(aMsg.QueryInterface(Ci.imIOutgoingMessage), "Wrong message type.");
     prepared = true;
     return aMsg.message.split("\n");

@@ -124,7 +124,7 @@ Object.defineProperty(lazy, "DBConn", {
     }
     gDBConnWithPendingTransaction = gDBConnection;
     gDBConnection.beginTransaction();
-    executeSoon(function() {
+    executeSoon(function () {
       gDBConnWithPendingTransaction.commitTransaction();
       gDBConnWithPendingTransaction = null;
     });
@@ -563,8 +563,8 @@ Contact.prototype = {
     let hasTag = this.hasTag.bind(this);
     let newTag = this._tags[this._tags[0].id != aTag.id ? 0 : 1];
     let moved = false;
-    this._buddies.forEach(function(aBuddy) {
-      aBuddy._accounts.forEach(function(aAccountBuddy) {
+    this._buddies.forEach(function (aBuddy) {
+      aBuddy._accounts.forEach(function (aAccountBuddy) {
         if (aAccountBuddy.tag.id == aTag.id) {
           if (
             aBuddy._accounts.some(
@@ -939,7 +939,7 @@ Contact.prototype = {
     ];
 
     // Fire the notifications.
-    notifications.forEach(function(aTopic) {
+    notifications.forEach(function (aTopic) {
       this._notifyObservers(aTopic);
     }, this);
   },
@@ -1298,7 +1298,7 @@ Buddy.prototype = {
     ];
 
     // Fire the notifications.
-    notifications.forEach(function(aTopic) {
+    notifications.forEach(function (aTopic) {
       this._notifyObservers(aTopic);
     }, this);
   },
@@ -1434,7 +1434,7 @@ Buddy.prototype = {
           delete BuddiesById[this._id];
           this.destroy();
         } else {
-          this._accounts = this._accounts.filter(function(ab) {
+          this._accounts = this._accounts.filter(function (ab) {
             return (
               ab.account.numericId != aSubject.account.numericId ||
               ab.tag.id != aSubject.tag.id

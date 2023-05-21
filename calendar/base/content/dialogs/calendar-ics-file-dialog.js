@@ -247,10 +247,7 @@ function filterItemSummaries(searchString = "") {
       }
 
       if (description === undefined) {
-        description = s.item
-          .getProperty("description")
-          ?.toLowerCase()
-          .normalize();
+        description = s.item.getProperty("description")?.toLowerCase().normalize();
       }
       return description?.includes(term);
     });

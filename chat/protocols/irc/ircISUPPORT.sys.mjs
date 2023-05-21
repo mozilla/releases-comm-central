@@ -30,7 +30,7 @@ function isupportMessage(aMessage) {
   let message = aMessage;
   message.isupport = {};
 
-  return tokens.map(function(aToken) {
+  return tokens.map(function (aToken) {
     let newMessage = JSON.parse(JSON.stringify(message));
     newMessage.isupport.useDefault = aToken[0] == "-";
     let token = (newMessage.isupport.useDefault
@@ -52,7 +52,7 @@ export var ircISUPPORT = {
   commands: {
     // RPL_ISUPPORT
     // [-]<parameter>[=<value>] :are supported by this server
-    "005": function(message, ircHandlers) {
+    "005": function (message, ircHandlers) {
       let messages = isupportMessage(message);
 
       messages = messages.filter(

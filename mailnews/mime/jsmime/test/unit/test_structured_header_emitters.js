@@ -1,13 +1,13 @@
 "use strict";
-define(function(require) {
+define(function (require) {
   var assert = require("assert");
   var headeremitter = require("jsmime").headeremitter;
   var MockDate = require("test/mock_date");
 
   function arrayTest(data, fn) {
-    fn.toString = function() {
+    fn.toString = function () {
       let text = Function.prototype.toString.call(this);
-      text = text.replace(/data\[([0-9]*)\]/g, function(m, p) {
+      text = text.replace(/data\[([0-9]*)\]/g, function (m, p) {
         return JSON.stringify(data[p]);
       });
       return text;
@@ -16,9 +16,9 @@ define(function(require) {
   }
 
   function testHeader(header, tests) {
-    suite(header, function() {
-      tests.forEach(function(data) {
-        arrayTest(data, function() {
+    suite(header, function () {
+      tests.forEach(function (data) {
+        arrayTest(data, function () {
           assert.deepEqual(
             headeremitter.emitStructuredHeader(header, data[0], {
               softMargin: 100,
@@ -31,7 +31,7 @@ define(function(require) {
     });
   }
 
-  suite("Structured header emitters", function() {
+  suite("Structured header emitters", function () {
     // Ad-hoc header tests
     // TODO: add structured encoder tests for Content-Type when it is added.
 
@@ -77,7 +77,7 @@ define(function(require) {
         "undisclosed-recipients: ;",
       ],
     ];
-    addressing_headers.forEach(function(header) {
+    addressing_headers.forEach(function (header) {
       testHeader(header, address_tests);
     });
 
@@ -94,7 +94,7 @@ define(function(require) {
         "Thu, 6 Sep 2012 08:08:21 -0700",
       ],
     ];
-    date_headers.forEach(function(header) {
+    date_headers.forEach(function (header) {
       testHeader(header, date_tests);
     });
 
@@ -112,11 +112,11 @@ define(function(require) {
         "=?UTF-8?B?56eB44Gv5Lu25ZCN5Y2I5YmN?=",
       ],
     ];
-    unstructured_headers.forEach(function(header) {
+    unstructured_headers.forEach(function (header) {
       testHeader(header, unstructured_tests);
     });
 
-    test("emitStructuredHeaders", function() {
+    test("emitStructuredHeaders", function () {
       let headers = new Map();
       headers.set("From", [{ name: "", email: "bugzilla-daemon@mozilla.org" }]);
       headers.set("subject", ["[Bug 939557] browsercomps.dll failed to build"]);

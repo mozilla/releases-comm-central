@@ -1350,9 +1350,7 @@ var nsRewrapCommand = {
   doCommandParams(aCommand, aParams, aRefCon) {},
 
   doCommand(aCommand) {
-    GetCurrentEditor()
-      .QueryInterface(Ci.nsIEditorMailSupport)
-      .rewrap(false);
+    GetCurrentEditor().QueryInterface(Ci.nsIEditorMailSupport).rewrap(false);
   },
 };
 

@@ -400,7 +400,7 @@ function _expectEvent(aExpectedTarget, aExpectedEvent, aTestName) {
     aExpectedEvent.charAt(0) == "!"
       ? aExpectedEvent.substring(1)
       : aExpectedEvent;
-  var eventHandler = function(event) {
+  var eventHandler = function (event) {
     var epassed =
       !_gSeenEvent && event.target == aExpectedTarget && event.type == type;
     if (!epassed) {

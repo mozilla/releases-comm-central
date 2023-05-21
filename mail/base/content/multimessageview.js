@@ -23,11 +23,11 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 var gMessenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 // Set up our string formatter for localizing strings.
-XPCOMUtils.defineLazyGetter(this, "formatString", function() {
+XPCOMUtils.defineLazyGetter(this, "formatString", function () {
   let formatter = new PluralStringFormatter(
     "chrome://messenger/locale/multimessageview.properties"
   );
-  return function(...args) {
+  return function (...args) {
     return formatter.get(...args);
   };
 });
@@ -76,7 +76,7 @@ var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";
  * Iterate over the array until we hit the end or the maximum length,
  * whichever comes first.
  */
-LimitIterator.prototype[ITERATOR_SYMBOL] = function*() {
+LimitIterator.prototype[ITERATOR_SYMBOL] = function* () {
   let length = this.length;
   for (let i = 0; i < length; i++) {
     yield this._array[i];
@@ -229,10 +229,10 @@ MultiMessageSummary.prototype = {
       thread = aMsgOrThread;
       message = thread[0];
 
-      numUnread = thread.reduce(function(x, hdr) {
+      numUnread = thread.reduce(function (x, hdr) {
         return x + (hdr.isRead ? 0 : 1);
       }, 0);
-      isStarred = thread.some(function(hdr) {
+      isStarred = thread.some(function (hdr) {
         return hdr.isFlagged;
       });
 
@@ -328,7 +328,7 @@ MultiMessageSummary.prototype = {
       MsgHdrToMimeMessage(
         message,
         null,
-        function(aMsgHdr, aMimeMsg) {
+        function (aMsgHdr, aMimeMsg) {
           if (aMimeMsg == null) {
             // Shouldn't happen, but sometimes does?
             return;
@@ -382,7 +382,7 @@ MultiMessageSummary.prototype = {
     let keywords = new Set(aMsgHdr.getStringProperty("keywords").split(" "));
     let allTags = MailServices.tags.getAllTags();
 
-    return allTags.filter(function(tag) {
+    return allTags.filter(function (tag) {
       return keywords.has(tag.key);
     });
   },
@@ -396,7 +396,7 @@ MultiMessageSummary.prototype = {
   _addTagNodes(aTags, aTagsNode) {
     // Make sure the tags are sorted in their natural order.
     let sortedTags = [...aTags];
-    sortedTags.sort(function(a, b) {
+    sortedTags.sort(function (a, b) {
       return a.key.localeCompare(b.key) || a.ordinal.localeCompare(b.ordinal);
     });
 
@@ -697,7 +697,7 @@ MultipleSelectionSummarizer.prototype = {
 
       // Return only the messages for the threads we're actually showing. We
       // need to collapse our array-of-arrays into a flat array.
-      return threads.reduce(function(accum, curr) {
+      return threads.reduce(function (accum, curr) {
         accum.push(...curr);
         return accum;
       }, []);

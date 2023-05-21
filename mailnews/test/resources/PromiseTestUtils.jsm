@@ -22,7 +22,7 @@ var { MailServices } = ChromeUtils.import(
 
 var PromiseTestUtils = {};
 
-PromiseTestUtils.PromiseUrlListener = function(aWrapped) {
+PromiseTestUtils.PromiseUrlListener = function (aWrapped) {
   this.wrapped = aWrapped;
   this._promise = new Promise((resolve, reject) => {
     this._resolve = resolve;
@@ -60,7 +60,7 @@ PromiseTestUtils.PromiseUrlListener.prototype = {
  *   to pass all notifications through to. This gets called prior to the
  *   callback (or async resumption).
  */
-PromiseTestUtils.PromiseCopyListener = function(aWrapped) {
+PromiseTestUtils.PromiseCopyListener = function (aWrapped) {
   this.wrapped = aWrapped;
   this._promise = new Promise((resolve, reject) => {
     this._resolve = resolve;
@@ -118,7 +118,7 @@ PromiseTestUtils.PromiseCopyListener.prototype = {
  *   notifications through to. This gets called prior to the callback
  *   (or async resumption).
  */
-PromiseTestUtils.PromiseStreamListener = function(aWrapped) {
+PromiseTestUtils.PromiseStreamListener = function (aWrapped) {
   this.wrapped = aWrapped;
   this._promise = new Promise((resolve, reject) => {
     this._resolve = resolve;
@@ -176,7 +176,7 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
  *    "DeleteOrMoveMsgCompleted".
  * @returns {Promise} Promise that resolves when the event occurs.
  */
-PromiseTestUtils.promiseFolderEvent = function(folder, event) {
+PromiseTestUtils.promiseFolderEvent = function (folder, event) {
   return new Promise((resolve, reject) => {
     let folderListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
@@ -202,10 +202,10 @@ PromiseTestUtils.promiseFolderEvent = function(folder, event) {
  *   Example listener method is "msgsClassified".
  * @returns {Promise} Promise that resolves when the event occurs.
  */
-PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
+PromiseTestUtils.promiseFolderNotification = function (folder, listenerMethod) {
   return new Promise((resolve, reject) => {
     let mfnListener = {};
-    mfnListener[listenerMethod] = function() {
+    mfnListener[listenerMethod] = function () {
       let args = Array.from(arguments);
       let flag = true;
       for (let arg of args) {
@@ -239,7 +239,7 @@ PromiseTestUtils.promiseFolderNotification = function(folder, listenerMethod) {
  * @returns {Promise<nsIMsgFolder>} Promise that resolves with the new folder
  *   when the folder add completes.
  */
-PromiseTestUtils.promiseFolderAdded = function(folderName) {
+PromiseTestUtils.promiseFolderAdded = function (folderName) {
   return new Promise((resolve, reject) => {
     var listener = {
       folderAdded: aFolder => {
@@ -262,7 +262,7 @@ PromiseTestUtils.promiseFolderAdded = function(folderName) {
  * @param {integer} aDelay - Delay in milliseconds
  * @returns {Promise} Promise that resolves after the delay.
  */
-PromiseTestUtils.promiseDelay = function(aDelay) {
+PromiseTestUtils.promiseDelay = function (aDelay) {
   return new Promise((resolve, reject) => {
     let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     timer.initWithCallback(resolve, aDelay, Ci.nsITimer.TYPE_ONE_SHOT);
@@ -277,7 +277,7 @@ PromiseTestUtils.promiseDelay = function(aDelay) {
  *   notifications through to. This gets called prior to the callback
  *   (or async resumption).
  */
-PromiseTestUtils.PromiseSearchNotify = function(aSearchSession, aWrapped) {
+PromiseTestUtils.PromiseSearchNotify = function (aSearchSession, aWrapped) {
   this._searchSession = aSearchSession;
   this._searchSession.registerListener(this);
   this.wrapped = aWrapped;

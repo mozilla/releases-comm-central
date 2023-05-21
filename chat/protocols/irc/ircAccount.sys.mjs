@@ -1430,7 +1430,7 @@ ircAccount.prototype = {
 
     // Sort the list of channels, ignoring the prefixes of channel and user.
     let prefixes = this.userPrefixes.concat(this.channelPrefixes);
-    let sortWithoutPrefix = function(a, b) {
+    let sortWithoutPrefix = function (a, b) {
       a = this.normalize(a, prefixes);
       b = this.normalize(b, prefixes);
       if (a < b) {
@@ -1439,17 +1439,13 @@ ircAccount.prototype = {
       return a > b ? 1 : 0;
     }.bind(this);
     let sortChannels = channels =>
-      channels
-        .trim()
-        .split(/\s+/)
-        .sort(sortWithoutPrefix)
-        .join(" ");
+      channels.trim().split(/\s+/).sort(sortWithoutPrefix).join(" ");
 
     // Convert booleans into a human-readable form.
     let normalizeBool = aBool => lazy._(aBool ? "yes" : "no");
 
     // Convert timespan in seconds into a human-readable form.
-    let normalizeTime = function(aTime) {
+    let normalizeTime = function (aTime) {
       let valuesAndUnits = lazy.DownloadUtils.convertTimeUnits(aTime);
       // If the time is exact to the first set of units, trim off
       // the subsequent zeroes.
@@ -1948,10 +1944,7 @@ ircAccount.prototype = {
   joinChat(aComponents) {
     let channel = aComponents.getValue("channel");
     // Mildly sanitize input.
-    channel = channel
-      .trimLeft()
-      .split(",")[0]
-      .split(" ")[0];
+    channel = channel.trimLeft().split(",")[0].split(" ")[0];
     if (!channel) {
       this.ERROR("joinChat called without a valid channel name.");
       return null;

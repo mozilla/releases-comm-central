@@ -24,7 +24,7 @@ let { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 
-add_setup(function() {
+add_setup(function () {
   SmimeUtils.ensureNSS();
   SmimeUtils.loadCertificateAndKey(
     new FileUtils.File(getTestFilePath("../openpgp/data/smime/Bob.p12")),

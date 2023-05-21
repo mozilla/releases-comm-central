@@ -638,13 +638,13 @@ var gAccountSetup = {
     let fetch = null;
 
     let priority = (this._abortable = new PriorityOrderAbortable(
-      function(config, call) {
+      function (config, call) {
         // success
         self._abortable = null;
         self.stopLoadingState(call.foundMsg);
         self.foundConfig(config);
       },
-      function(e, allErrors) {
+      function (e, allErrors) {
         // all failed
         if (e instanceof CancelledException) {
           self.onStartOver();
@@ -758,13 +758,13 @@ var gAccountSetup = {
     let self = this;
     self._abortable = GuessConfig.guessConfig(
       domain,
-      function(type, hostname, port, socketType, done, config) {
+      function (type, hostname, port, socketType, done, config) {
         // progress
         gAccountSetupLogger.debug(
           `${hostname}:${port} socketType=${socketType} ${type}: progress callback`
         );
       },
-      function(config) {
+      function (config) {
         // success
         self._abortable = null;
         self.foundConfig(config);
@@ -774,7 +774,7 @@ var gAccountSetup = {
             : "account-setup-success-guess"
         );
       },
-      function(e, config) {
+      function (e, config) {
         // guessconfig failed
         if (e instanceof CancelledException) {
           return;
@@ -2009,20 +2009,20 @@ var gAccountSetup = {
     let self = this;
     this._abortable = GuessConfig.guessConfig(
       this._domain,
-      function(type, hostname, port, ssl, done, config) {
+      function (type, hostname, port, ssl, done, config) {
         // Progress.
         gAccountSetupLogger.debug(
           `progress callback host: ${hostname}, port: ${port}, type: ${type}`
         );
       },
-      function(config) {
+      function (config) {
         // Success.
         self._abortable = null;
         self._fillManualEditFields(config);
         self.stopLoadingState("account-setup-success-half-manual");
         self.validateManualEditComplete();
       },
-      function(e, config) {
+      function (e, config) {
         // guessConfig failed.
         if (e instanceof CancelledException) {
           return;
@@ -2163,7 +2163,7 @@ var gAccountSetup = {
       this._currentConfig,
       configFilledIn,
       true,
-      async function() {
+      async function () {
         // on OK
         await self.validateAndFinish(configFilledIn).catch(async ex => {
           let errorMessage = await document.l10n.formatValue(
@@ -2185,7 +2185,7 @@ var gAccountSetup = {
           notification.removeAttribute("dismissable");
         });
       },
-      function() {
+      function () {
         // on cancel, do nothing
       }
     );

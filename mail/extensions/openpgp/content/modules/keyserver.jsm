@@ -236,7 +236,7 @@ const accessHkpInternal = {
     return new Promise((resolve, reject) => {
       let xmlReq = null;
       if (listener && typeof listener === "object") {
-        listener.onCancel = function() {
+        listener.onCancel = function () {
           lazy.EnigmailLog.DEBUG(
             `keyserver.jsm: accessHkpInternal.accessKeyServer - onCancel() called\n`
           );
@@ -258,7 +258,7 @@ const accessHkpInternal = {
 
       xmlReq = new XMLHttpRequest();
 
-      xmlReq.onload = function() {
+      xmlReq.onload = function () {
         lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessHkpInternal: onload(): status=" +
             xmlReq.status +
@@ -342,7 +342,7 @@ const accessHkpInternal = {
         resolve(-1);
       };
 
-      xmlReq.onerror = function(e) {
+      xmlReq.onerror = function (e) {
         lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessHkpInternal.accessKeyServer: onerror: " +
             e +
@@ -375,7 +375,7 @@ const accessHkpInternal = {
         );
       };
 
-      xmlReq.onloadend = function() {
+      xmlReq.onloadend = function () {
         lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessHkpInternal.accessKeyServer: loadEnd\n"
         );
@@ -641,7 +641,7 @@ const accessKeyBase = {
     return new Promise((resolve, reject) => {
       let xmlReq = null;
       if (listener && typeof listener === "object") {
-        listener.onCancel = function() {
+        listener.onCancel = function () {
           lazy.EnigmailLog.DEBUG(
             `keyserver.jsm: accessKeyBase: accessKeyServer - onCancel() called\n`
           );
@@ -658,7 +658,7 @@ const accessKeyBase = {
 
       xmlReq = new XMLHttpRequest();
 
-      xmlReq.onload = function() {
+      xmlReq.onload = function () {
         lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: onload(): status=" + xmlReq.status + "\n"
         );
@@ -735,7 +735,7 @@ const accessKeyBase = {
         resolve(-1);
       };
 
-      xmlReq.onerror = function(e) {
+      xmlReq.onerror = function (e) {
         lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessKeyBase: onerror: " + e + "\n"
         );
@@ -766,7 +766,7 @@ const accessKeyBase = {
         );
       };
 
-      xmlReq.onloadend = function() {
+      xmlReq.onloadend = function () {
         lazy.EnigmailLog.DEBUG("keyserver.jsm: accessKeyBase: loadEnd\n");
       };
 
@@ -1057,7 +1057,7 @@ const accessVksServer = {
     return new Promise((resolve, reject) => {
       let xmlReq = null;
       if (listener && typeof listener === "object") {
-        listener.onCancel = function() {
+        listener.onCancel = function () {
           lazy.EnigmailLog.DEBUG(
             `keyserver.jsm: accessVksServer.accessKeyServer - onCancel() called\n`
           );
@@ -1079,7 +1079,7 @@ const accessVksServer = {
 
       xmlReq = new XMLHttpRequest();
 
-      xmlReq.onload = function() {
+      xmlReq.onload = function () {
         lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessVksServer.onload(): status=" +
             xmlReq.status +
@@ -1161,7 +1161,7 @@ const accessVksServer = {
         resolve(-1);
       };
 
-      xmlReq.onerror = function(e) {
+      xmlReq.onerror = function (e) {
         lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessVksServer.accessKeyServer: onerror: " + e + "\n"
         );
@@ -1192,7 +1192,7 @@ const accessVksServer = {
         );
       };
 
-      xmlReq.onloadend = function() {
+      xmlReq.onloadend = function () {
         lazy.EnigmailLog.DEBUG(
           "keyserver.jsm: accessVksServer.accessKeyServer: loadEnd\n"
         );

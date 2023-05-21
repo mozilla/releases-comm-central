@@ -45,7 +45,7 @@ CalPeriod.prototype = {
     unwrapSetter(
       ICAL.Time,
       rawval,
-      function(val) {
+      function (val) {
         this.innerObject.start = val;
       },
       this
@@ -59,7 +59,7 @@ CalPeriod.prototype = {
     unwrapSetter(
       ICAL.Time,
       rawval,
-      function(val) {
+      function (val) {
         if (this.innerObject.duration) {
           this.innerObject.duration = null;
         }

@@ -453,7 +453,7 @@ class LDAPDaemon {
           throw new Error("Bad 'and' filter");
         }
         let subFilters = ber.children.map(this.buildFilter);
-        return function(e) {
+        return function (e) {
           return subFilters.every(filt => filt(e));
         };
       }
@@ -463,7 +463,7 @@ class LDAPDaemon {
           throw new Error("Bad 'or' filter");
         }
         let subFilters = ber.children.map(this.buildFilter);
-        return function(e) {
+        return function (e) {
           return subFilters.some(filt => filt(e));
         };
       }
@@ -473,7 +473,7 @@ class LDAPDaemon {
           throw new Error("Bad 'not' filter");
         }
         let subFilter = this.buildFilter(ber.children[0]); // one child
-        return function(e) {
+        return function (e) {
           return !subFilter(e);
         };
       }
@@ -484,8 +484,8 @@ class LDAPDaemon {
         }
         let attrName = ber.children[0].asString().toLowerCase();
         let attrVal = ber.children[1].asString().toLowerCase();
-        return function(e) {
-          let attrs = Object.keys(e.attributes).reduce(function(c, key) {
+        return function (e) {
+          let attrs = Object.keys(e.attributes).reduce(function (c, key) {
             c[key.toLowerCase()] = e.attributes[key];
             return c;
           }, {});
@@ -498,8 +498,8 @@ class LDAPDaemon {
       case 7: {
         // present
         let attrName = ber.asString().toLowerCase();
-        return function(e) {
-          let attrs = Object.keys(e.attributes).reduce(function(c, key) {
+        return function (e) {
+          let attrs = Object.keys(e.attributes).reduce(function (c, key) {
             c[key.toLowerCase()] = e.attributes[key];
             return c;
           }, {});

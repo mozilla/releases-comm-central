@@ -215,7 +215,7 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
     ab.dropCard(card, false);
   }
 
-  aCardData.forEach(function(cd) {
+  aCardData.forEach(function (cd) {
     let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
       Ci.nsIAbCard
     );
@@ -225,7 +225,7 @@ function setupAddressBookData(aDirURI, aCardData, aMailListData) {
     ab.addCard(card);
   });
 
-  aMailListData.forEach(function(ld) {
+  aMailListData.forEach(function (ld) {
     let list = Cc[
       "@mozilla.org/addressbook/directoryproperty;1"
     ].createInstance(Ci.nsIAbDirectory);

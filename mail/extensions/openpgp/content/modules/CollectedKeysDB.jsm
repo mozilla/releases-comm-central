@@ -168,7 +168,7 @@ class CollectedKeysDB {
         .transaction("seen_keys")
         .objectStore("seen_keys")
         .index("emails");
-      index.openCursor(IDBKeyRange.only(email)).onsuccess = function(event) {
+      index.openCursor(IDBKeyRange.only(email)).onsuccess = function (event) {
         let cursor = event.target.result;
         if (!cursor) {
           // All results done.

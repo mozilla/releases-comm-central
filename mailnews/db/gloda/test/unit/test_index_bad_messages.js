@@ -46,7 +46,7 @@ var illegalMessageTemplates = [
 
 var messageInjection;
 
-add_setup(function() {
+add_setup(function () {
   let msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);

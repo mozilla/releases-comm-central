@@ -55,10 +55,7 @@ SimpleEnumerator.prototype = {
 };
 
 function newUID() {
-  return Services.uuid
-    .generateUUID()
-    .toString()
-    .substring(1, 37);
+  return Services.uuid.generateUUID().toString().substring(1, 37);
 }
 
 let abSortOrder = {

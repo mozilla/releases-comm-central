@@ -280,7 +280,7 @@ var gGeneralPane = {
     // is the one that gets displayed when the user first opens the dialog,
     // the dialog might stretch too much in an attempt to fit them all in.
     // XXX Shouldn't we perhaps just set a max-height on the richlistbox?
-    var _delayedPaneLoad = function(self) {
+    var _delayedPaneLoad = function (self) {
       self._loadAppHandlerData();
       self._rebuildVisibleTypes();
       self._sortVisibleTypes();
@@ -2428,7 +2428,7 @@ class HandlerRow {
     aEvent.stopPropagation();
 
     var handlerApp;
-    let onSelectionDone = function() {
+    let onSelectionDone = function () {
       // Rebuild the actions menu whether the user picked an app or canceled.
       // If they picked an app, we want to add the app to the menu and select it.
       // If they canceled, we want to go back to their previous selection.

@@ -48,7 +48,7 @@ async function waitCheckEncryptionStateDone(win) {
  * Setup a mail account with a private key and import the public key for the
  * receiver.
  */
-add_setup(async function() {
+add_setup(async function () {
   bobAcct = MailServices.accounts.createAccount();
   bobAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "bob",

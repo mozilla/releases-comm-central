@@ -338,7 +338,7 @@ function onAccept(event) {
     let errorArg = null;
     let saslMechanism = "";
 
-    let findDupeName = function(newName) {
+    let findDupeName = function (newName) {
       // Do not allow an already existing name.
       for (let ab of MailServices.ab.directories) {
         if (

@@ -36,7 +36,7 @@ var messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
 
 setupIMAPPump();
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   teardownIMAPPump();
 });
 

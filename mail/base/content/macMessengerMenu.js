@@ -12,7 +12,7 @@ var { MailServices } = ChromeUtils.import(
 // Load and add the menu item to the OS X Dock icon menu.
 addEventListener(
   "load",
-  function() {
+  function () {
     let dockMenuElement = document.getElementById("menu_mac_dockmenu");
     let nativeMenu = Cc[
       "@mozilla.org/widget/standalonenativemenu;1"
@@ -33,7 +33,7 @@ addEventListener(
  * Not doing this way could make DOM elements not available.
  */
 function loadListener(event) {
-  setTimeout(function() {
+  setTimeout(function () {
     let prefWin = Services.wm.getMostRecentWindow("Mail:Preferences");
     prefWin.gSubDialog.open(
       "chrome://messenger/content/preferences/dockoptions.xhtml"
@@ -46,7 +46,7 @@ function loadListener(event) {
  * This is done so subdialog opens as a child of it.
  */
 function PrefWindowObserver() {
-  this.observe = function(aSubject, aTopic, aData) {
+  this.observe = function (aSubject, aTopic, aData) {
     if (aTopic == "domwindowopened") {
       aSubject.addEventListener("load", loadListener, {
         capture: false,

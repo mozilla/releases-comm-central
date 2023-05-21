@@ -130,7 +130,7 @@ let helper = new MenuTestHelper("menu_View", viewMenuData);
 let tabmail = document.getElementById("tabmail");
 let inboxFolder, rootFolder, testMessages;
 
-add_setup(async function() {
+add_setup(async function () {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   let generator = new MessageGenerator();

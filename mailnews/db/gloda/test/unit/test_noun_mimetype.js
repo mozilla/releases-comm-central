@@ -28,7 +28,7 @@ var { MimeTypeNoun } = ChromeUtils.import(
 var passResults = [];
 var curPassResults;
 
-add_setup(async function() {
+add_setup(async function () {
   let msgGen = new MessageGenerator();
   let messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);

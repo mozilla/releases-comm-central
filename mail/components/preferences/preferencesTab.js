@@ -104,7 +104,7 @@ var preferencesTabType = {
     // Then run the given onload code.
     aTab.browser.addEventListener(
       "paneSelected",
-      function(event) {
+      function (event) {
         aTab.pageLoading = false;
         aTab.pageLoaded = true;
 

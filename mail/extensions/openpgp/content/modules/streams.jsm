@@ -62,7 +62,7 @@ var EnigmailStreams = {
       },
     };
 
-    listener.onDataAvailable = function(req, stream, offset, count) {
+    listener.onDataAvailable = function (req, stream, offset, count) {
       this.inStream.setInputStream(stream);
       this.data += this.inStream.readBytes(count);
     };

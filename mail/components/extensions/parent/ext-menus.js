@@ -611,7 +611,7 @@ var gMenuBuilder = {
 };
 
 // Called from different action popups.
-global.actionContextMenu = function(contextData) {
+global.actionContextMenu = function (contextData) {
   contextData.originalViewType = "tab";
   gMenuBuilder.build(contextData);
 };

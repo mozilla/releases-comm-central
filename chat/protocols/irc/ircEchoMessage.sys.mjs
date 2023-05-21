@@ -20,7 +20,7 @@ export var capEchoMessage = {
   isEnabled: () => true,
 
   commands: {
-    "echo-message": function(aMessage) {
+    "echo-message": function (aMessage) {
       if (
         aMessage.cap.subcommand === "LS" ||
         aMessage.cap.subcommand === "NEW"

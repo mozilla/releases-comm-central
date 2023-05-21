@@ -122,7 +122,7 @@ function fetchConfigFromExchange(
   let fetch3;
 
   let successive = new SuccessiveAbortable();
-  let priority = new PriorityOrderAbortable(function(xml, call) {
+  let priority = new PriorityOrderAbortable(function (xml, call) {
     // success
     readAutoDiscoverResponse(
       xml,
@@ -490,7 +490,7 @@ function getAddonsList(config, successCallback, errorCallback) {
   let fetch = new lazy.FetchHTTP(
     url,
     { allowCache: true, timeout: 10000 },
-    function(json) {
+    function (json) {
       let addons = readAddonsJSON(json);
       addons = addons.filter(addon => {
         // Find types matching the current config.
@@ -655,16 +655,16 @@ function detectStandardProtocols(config, domain, successCallback) {
 
   lazy.GuessConfig.guessConfig(
     domain,
-    function(type, hostname, port, ssl, done, config) {
+    function (type, hostname, port, ssl, done, config) {
       gAccountSetupLogger.info(
         `Probing exchange server ${hostname} for ${type} protocol support.`
       );
     },
-    function(probedConfig) {
+    function (probedConfig) {
       // Probing succeeded: found open protocols, yay!
       successCallback(probedConfig);
     },
-    function(e, probedConfig) {
+    function (e, probedConfig) {
       // Probing didn't find any open protocols.
       // Let's use the exchange (only) config that was listed then.
       config.subSource += "-guess";

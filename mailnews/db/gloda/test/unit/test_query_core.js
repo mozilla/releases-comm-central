@@ -37,7 +37,7 @@ var WidgetProvider = {
   },
 };
 
-add_setup(function() {
+add_setup(function () {
   // Don't initialize the index message state
   prepareIndexerForTesting();
   GlodaIndexer.registerIndexer(GenericIndexer);

@@ -58,7 +58,7 @@ function titleComptor(a, b) {
 function checkConsistancy(har, testItems, itemAccessor) {
   itemAccessor =
     itemAccessor ||
-    function(item) {
+    function (item) {
       return item;
     };
   for (let idx in testItems) {
@@ -86,13 +86,13 @@ function checkConsistancy(har, testItems, itemAccessor) {
 function testRemoveModify(har, testItems, postprocessFunc, itemAccessor, itemCreator) {
   postprocessFunc =
     postprocessFunc ||
-    function(a, b) {
+    function (a, b) {
       return [a, b];
     };
   itemCreator = itemCreator || (title => hashedCreateItem(title));
   itemAccessor =
     itemAccessor ||
-    function(item) {
+    function (item) {
       return item;
     };
 
@@ -181,7 +181,7 @@ function test_hashAccessor() {
   let comptor = (a, b) => titleComptor(a.item, b.item);
 
   har = new cal.SortedHashedArray(comptor);
-  har.hashAccessor = function(obj) {
+  har.hashAccessor = function (obj) {
     return obj.item.hashId;
   };
 

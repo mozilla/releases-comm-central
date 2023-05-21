@@ -76,7 +76,7 @@ export function queueFileOperation(aPath, aOperation) {
  * Note: This function creates parent directories if required.
  */
 export function appendToFile(aPath, aString, aCreate) {
-  return queueFileOperation(aPath, async function() {
+  return queueFileOperation(aPath, async function () {
     await IOUtils.makeDirectory(PathUtils.parent(aPath));
     const mode = aCreate ? "create" : "append";
     try {
@@ -728,7 +728,7 @@ function logsGroupedByDay(aEntries) {
 export function Logger() {
   IOUtils.profileBeforeChange.addBlocker(
     "Chat logger: writing all pending messages",
-    async function() {
+    async function () {
       for (let promise of gFilePromises.values()) {
         try {
           await promise;
@@ -886,7 +886,7 @@ Logger.prototype = {
   },
 
   async forEach(aCallback) {
-    let getAllSubdirs = async function(aPaths, aErrorMsg) {
+    let getAllSubdirs = async function (aPaths, aErrorMsg) {
       let entries = [];
       for (let path of aPaths) {
         try {

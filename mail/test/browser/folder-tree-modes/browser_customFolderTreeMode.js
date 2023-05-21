@@ -35,7 +35,7 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gInbox;
 
-add_setup(async function() {
+add_setup(async function () {
   let server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,

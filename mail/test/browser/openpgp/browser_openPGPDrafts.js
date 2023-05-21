@@ -47,7 +47,7 @@ let initialKeyIdPref = "";
  * Setup a mail account with a private key and an imported public key for an
  * address we can send messages to.
  */
-add_setup(async function() {
+add_setup(async function () {
   aliceAcct = MailServices.accounts.createAccount();
   aliceAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",

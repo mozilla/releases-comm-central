@@ -1617,7 +1617,7 @@ function archive_selected_messages(aController) {
   EventUtils.synthesizeKey("a", {}, aController.window);
 
   // Wait for the view rowCount to decrease by the number of selected messages.
-  let messagesDeletedFromView = function() {
+  let messagesDeletedFromView = function () {
     return dbView.rowCount == expectedCount;
   };
   utils.waitFor(
@@ -2145,7 +2145,7 @@ function _process_row_message_arguments(...aArgs) {
     }
   }
   // sort by integer value
-  desiredIndices.sort(function(a, b) {
+  desiredIndices.sort(function (a, b) {
     return a - b;
   });
 
@@ -2484,7 +2484,7 @@ function assert_visible(aViewIndexOrMessage) {
  */
 function assert_not_shown(aMessages) {
   let win = get_about_3pane();
-  aMessages.forEach(function(msg) {
+  aMessages.forEach(function (msg) {
     let viewIndex = win.gDBView.findIndexOfMsgHdr(msg, false);
     if (viewIndex !== nsMsgViewIndex_None) {
       throw new Error(

@@ -130,7 +130,7 @@ var FeedUtils = {
 
     // By default, Tb sorts by hostname, ie Feeds, Feeds-1, and not by alpha
     // prettyName.  Do the same as a stock install to match folderpane order.
-    rssRootFolders.sort(function(a, b) {
+    rssRootFolders.sort(function (a, b) {
       return a.hostname > b.hostname;
     });
 
@@ -388,7 +388,7 @@ var FeedUtils = {
           );
           feed.download(true, FeedUtils.progressNotifier);
 
-          Services.tm.mainThread.dispatch(function() {
+          Services.tm.mainThread.dispatch(function () {
             try {
               let done = getFeed.next().done;
               if (done) {
@@ -1155,7 +1155,7 @@ var FeedUtils = {
 
     if (this.isInTrash(aFolder)) {
       // Moving to trash. Unsubscribe.
-      affectedSubs.forEach(function(sub) {
+      affectedSubs.forEach(function (sub) {
         let feed = new lazy.Feed(sub.url, aFolder);
         FeedUtils.deleteFeed(feed);
       });
@@ -2128,20 +2128,20 @@ var FeedUtils = {
   },
 };
 
-XPCOMUtils.defineLazyGetter(FeedUtils, "log", function() {
+XPCOMUtils.defineLazyGetter(FeedUtils, "log", function () {
   return console.createInstance({
     prefix: "feeds",
     maxLogLevelPref: "feeds.loglevel",
   });
 });
 
-XPCOMUtils.defineLazyGetter(FeedUtils, "strings", function() {
+XPCOMUtils.defineLazyGetter(FeedUtils, "strings", function () {
   return Services.strings.createBundle(
     "chrome://messenger-newsblog/locale/newsblog.properties"
   );
 });
 
-XPCOMUtils.defineLazyGetter(FeedUtils, "stringsPrefs", function() {
+XPCOMUtils.defineLazyGetter(FeedUtils, "stringsPrefs", function () {
   return Services.strings.createBundle(
     "chrome://messenger/locale/prefs.properties"
   );

@@ -35,7 +35,7 @@ var gImapInboxOfflineStoreSize;
 // Adds some messages directly to a mailbox (e.g. new mail).
 function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI.
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let URI = Services.io
       .newFileURI(message.file)
       .QueryInterface(Ci.nsIFileURL);
@@ -44,7 +44,7 @@ function addMessagesToServer(messages, mailbox) {
   });
 }
 
-add_setup(async function() {
+add_setup(async function () {
   // We aren't interested in downloading messages automatically.
   Services.prefs.setBoolPref(
     "mail.server.server1.autosync_offline_stores",
@@ -176,7 +176,7 @@ add_task(async function addNewMsgs() {
   // Need to account for x-mozilla-status, status2, and envelope.
   gFirstMsgSize = messages[0].toMessageString().length + 102;
 
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );

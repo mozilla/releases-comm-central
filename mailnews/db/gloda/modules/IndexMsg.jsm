@@ -1053,7 +1053,7 @@ var GlodaMsgIndexer = {
       }
 
       // sort the folders by priority (descending)
-      foldersToProcess.sort(function(a, b) {
+      foldersToProcess.sort(function (a, b) {
         return b.indexingPriority - a.indexingPriority;
       });
 
@@ -2701,7 +2701,7 @@ var GlodaMsgIndexer = {
     folderDeleted(aFolder) {
       this.indexer._log.debug("folderDeleted notification");
       try {
-        let delFunc = function(aFolder, indexer) {
+        let delFunc = function (aFolder, indexer) {
           if (indexer._datastore._folderKnown(aFolder)) {
             indexer._log.info(
               "Processing deletion of folder " + aFolder.prettyName + "."
@@ -2833,7 +2833,7 @@ var GlodaMsgIndexer = {
       }
 
       // Purge any explicit indexing of said folder.
-      GlodaIndexer.purgeJobsUsingFilter(function(aJob) {
+      GlodaIndexer.purgeJobsUsingFilter(function (aJob) {
         return aJob.jobType == "folder" && aJob.id == folder.id;
       });
 

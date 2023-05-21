@@ -58,7 +58,7 @@ function MimeTextDecoder(charset, options) {
 
 // The following code loads custom MIME encoders.
 var CATEGORY_NAME = "custom-mime-encoder";
-Services.obs.addObserver(function(subject, topic, data) {
+Services.obs.addObserver(function (subject, topic, data) {
   subject = subject.QueryInterface(Ci.nsISupportsCString).data;
   if (data == CATEGORY_NAME) {
     let url = Services.catMan.getCategoryEntry(CATEGORY_NAME, subject);

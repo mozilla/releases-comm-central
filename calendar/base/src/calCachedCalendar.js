@@ -916,21 +916,21 @@ calCachedCalendar.prototype = {
     return this.mCachedCalendar.QueryInterface(Ci.calIOfflineStorage).deleteOfflineItem(item);
   },
 };
-(function() {
+(function () {
   function defineForwards(proto, targetName, functions, getters, gettersAndSetters) {
     function defineForwardGetter(attr) {
-      proto.__defineGetter__(attr, function() {
+      proto.__defineGetter__(attr, function () {
         return this[targetName][attr];
       });
     }
     function defineForwardGetterAndSetter(attr) {
       defineForwardGetter(attr);
-      proto.__defineSetter__(attr, function(value) {
+      proto.__defineSetter__(attr, function (value) {
         return (this[targetName][attr] = value);
       });
     }
     function defineForwardFunction(funcName) {
-      proto[funcName] = function(...args) {
+      proto[funcName] = function (...args) {
         let obj = this[targetName];
         return obj[funcName](...args);
       };

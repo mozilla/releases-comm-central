@@ -25,7 +25,7 @@ var {
 
 var folder = null;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("Forward Content Testing");
   await add_message_to_folder(
     [folder],

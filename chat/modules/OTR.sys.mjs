@@ -255,7 +255,7 @@ export var OTR = {
     let worker = new BasePromiseWorker("chrome://chat/content/otrWorker.js");
     return worker
       .post("generateKey", [OTRLib.path, OTRLib.otrl_version, address])
-      .then(function() {
+      .then(function () {
         let err = OTRLib.otrl_privkey_generate_finish(
           OTR.userstate,
           newkey,
@@ -265,7 +265,7 @@ export var OTR = {
           throw new Error("otrl_privkey_generate_calculate (" + err + ")");
         }
       })
-      .catch(function(err) {
+      .catch(function (err) {
         if (!newkey.isNull()) {
           OTRLib.otrl_privkey_generate_cancelled(OTR.userstate, newkey);
         }
@@ -422,7 +422,7 @@ export var OTR = {
   forgetFingerprints(fps) {
     let result = true;
     let write = false;
-    fps.forEach(function(obj, i) {
+    fps.forEach(function (obj, i) {
       if (!obj.purge) {
         return;
       }
@@ -477,7 +477,7 @@ export var OTR = {
 
   getFingerprintsForRecipient(account, protocol, recipient) {
     let fingers = OTR.knownFingerprints();
-    return fingers.filter(function(fg) {
+    return fingers.filter(function (fg) {
       return (
         fg.account == account &&
         fg.protocol == protocol &&

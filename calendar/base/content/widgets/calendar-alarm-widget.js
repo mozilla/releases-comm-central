@@ -393,9 +393,7 @@
       for (let menuItem of items) {
         pluralString = cal.l10n.getCalString(unitName(menuItem));
 
-        menuItem.label = PluralForm.get(unitValue.value, pluralString)
-          .replace("#1", "")
-          .trim();
+        menuItem.label = PluralForm.get(unitValue.value, pluralString).replace("#1", "").trim();
       }
     }
   }

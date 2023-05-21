@@ -254,7 +254,7 @@ add_task(async function test_popup_open_with_openPopup_in_message_window() {
           <script src="popup.js"></script>
         </body>
       </html>`,
-    "popup.js": async function() {
+    "popup.js": async function () {
       browser.test.sendMessage("popup opened");
       window.close();
     },

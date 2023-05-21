@@ -403,7 +403,7 @@ export var ircBase = {
       );
       return true;
     },
-    "001": function(aMessage) {
+    "001": function (aMessage) {
       // RPL_WELCOME
       // Welcome to the Internet Relay Network <nick>!<user>@<host>
       this._socket.resetPingTimer();
@@ -454,24 +454,24 @@ export var ircBase = {
       this.reportConnected();
       return serverMessage(this, aMessage);
     },
-    "002": function(aMessage) {
+    "002": function (aMessage) {
       // RPL_YOURHOST
       // Your host is <servername>, running version <ver>
       return serverMessage(this, aMessage);
     },
-    "003": function(aMessage) {
+    "003": function (aMessage) {
       // RPL_CREATED
       // This server was created <date>
       // TODO parse this date and keep it for some reason? Do we care?
       return serverMessage(this, aMessage);
     },
-    "004": function(aMessage) {
+    "004": function (aMessage) {
       // RPL_MYINFO
       // <servername> <version> <available user modes> <available channel modes>
       // TODO parse the available modes, let the UI respond and inform the user
       return serverMessage(this, aMessage);
     },
-    "005": function(aMessage) {
+    "005": function (aMessage) {
       // RPL_BOUNCE
       // Try server <server name>, port <port number>
       return serverMessage(this, aMessage);
@@ -480,60 +480,60 @@ export var ircBase = {
     /*
      * Handle response to TRACE message
      */
-    "200": function(aMessage) {
+    "200": function (aMessage) {
       // RPL_TRACELINK
       // Link <version & debug level> <destination> <next server>
       // V<protocol version> <link updateime in seconds> <backstream sendq>
       // <upstream sendq>
       return serverMessage(this, aMessage);
     },
-    "201": function(aMessage) {
+    "201": function (aMessage) {
       // RPL_TRACECONNECTING
       // Try. <class> <server>
       return serverMessage(this, aMessage);
     },
-    "202": function(aMessage) {
+    "202": function (aMessage) {
       // RPL_TRACEHANDSHAKE
       // H.S. <class> <server>
       return serverMessage(this, aMessage);
     },
-    "203": function(aMessage) {
+    "203": function (aMessage) {
       // RPL_TRACEUNKNOWN
       // ???? <class> [<client IP address in dot form>]
       return serverMessage(this, aMessage);
     },
-    "204": function(aMessage) {
+    "204": function (aMessage) {
       // RPL_TRACEOPERATOR
       // Oper <class> <nick>
       return serverMessage(this, aMessage);
     },
-    "205": function(aMessage) {
+    "205": function (aMessage) {
       // RPL_TRACEUSER
       // User <class> <nick>
       return serverMessage(this, aMessage);
     },
-    "206": function(aMessage) {
+    "206": function (aMessage) {
       // RPL_TRACESERVER
       // Serv <class> <int>S <int>C <server> <nick!user|*!*>@<host|server>
       // V<protocol version>
       return serverMessage(this, aMessage);
     },
-    "207": function(aMessage) {
+    "207": function (aMessage) {
       // RPL_TRACESERVICE
       // Service <class> <name> <type> <active type>
       return serverMessage(this, aMessage);
     },
-    "208": function(aMessage) {
+    "208": function (aMessage) {
       // RPL_TRACENEWTYPE
       // <newtype> 0 <client name>
       return serverMessage(this, aMessage);
     },
-    "209": function(aMessage) {
+    "209": function (aMessage) {
       // RPL_TRACECLASS
       // Class <class> <count>
       return serverMessage(this, aMessage);
     },
-    "210": function(aMessage) {
+    "210": function (aMessage) {
       // RPL_TRACERECONNECTION
       // Unused.
       return serverMessage(this, aMessage);
@@ -542,54 +542,54 @@ export var ircBase = {
     /*
      * Handle stats messages.
      **/
-    "211": function(aMessage) {
+    "211": function (aMessage) {
       // RPL_STATSLINKINFO
       // <linkname> <sendq> <sent messages> <sent Kbytes> <received messages>
       // <received Kbytes> <time open>
       return serverMessage(this, aMessage);
     },
-    "212": function(aMessage) {
+    "212": function (aMessage) {
       // RPL_STATSCOMMAND
       // <command> <count> <byte count> <remote count>
       return serverMessage(this, aMessage);
     },
-    "213": function(aMessage) {
+    "213": function (aMessage) {
       // RPL_STATSCLINE
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "214": function(aMessage) {
+    "214": function (aMessage) {
       // RPL_STATSNLINE
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "215": function(aMessage) {
+    "215": function (aMessage) {
       // RPL_STATSILINE
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "216": function(aMessage) {
+    "216": function (aMessage) {
       // RPL_STATSKLINE
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "217": function(aMessage) {
+    "217": function (aMessage) {
       // RPL_STATSQLINE
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "218": function(aMessage) {
+    "218": function (aMessage) {
       // RPL_STATSYLINE
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "219": function(aMessage) {
+    "219": function (aMessage) {
       // RPL_ENDOFSTATS
       // <stats letter> :End of STATS report
       return serverMessage(this, aMessage);
     },
 
-    "221": function(aMessage) {
+    "221": function (aMessage) {
       // RPL_UMODEIS
       // <user mode string>
       return this.setUserMode(
@@ -603,17 +603,17 @@ export var ircBase = {
     /*
      * Services
      */
-    "231": function(aMessage) {
+    "231": function (aMessage) {
       // RPL_SERVICEINFO
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "232": function(aMessage) {
+    "232": function (aMessage) {
       // RPL_ENDOFSERVICES
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "233": function(aMessage) {
+    "233": function (aMessage) {
       // RPL_SERVICE
       // Non-generic
       return serverMessage(this, aMessage);
@@ -622,12 +622,12 @@ export var ircBase = {
     /*
      * Server
      */
-    "234": function(aMessage) {
+    "234": function (aMessage) {
       // RPL_SERVLIST
       // <name> <server> <mask> <type> <hopcount> <info>
       return serverMessage(this, aMessage);
     },
-    "235": function(aMessage) {
+    "235": function (aMessage) {
       // RPL_SERVLISTEND
       // <mask> <type> :End of service listing
       return serverMessage(this, aMessage, true);
@@ -637,48 +637,48 @@ export var ircBase = {
      * Stats
      * TODO some of these have real information we could try to parse.
      */
-    "240": function(aMessage) {
+    "240": function (aMessage) {
       // RPL_STATSVLINE
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "241": function(aMessage) {
+    "241": function (aMessage) {
       // RPL_STATSLLINE
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "242": function(aMessage) {
+    "242": function (aMessage) {
       // RPL_STATSUPTIME
       // :Server Up %d days %d:%02d:%02d
       return serverMessage(this, aMessage);
     },
-    "243": function(aMessage) {
+    "243": function (aMessage) {
       // RPL_STATSOLINE
       // O <hostmask> * <name>
       return serverMessage(this, aMessage);
     },
-    "244": function(aMessage) {
+    "244": function (aMessage) {
       // RPL_STATSHLINE
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "245": function(aMessage) {
+    "245": function (aMessage) {
       // RPL_STATSSLINE
       // Non-generic
       // Note that this is given as 244 in RFC 2812, this seems to be incorrect.
       return serverMessage(this, aMessage);
     },
-    "246": function(aMessage) {
+    "246": function (aMessage) {
       // RPL_STATSPING
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "247": function(aMessage) {
+    "247": function (aMessage) {
       // RPL_STATSBLINE
       // Non-generic
       return serverMessage(this, aMessage);
     },
-    "250": function(aMessage) {
+    "250": function (aMessage) {
       // RPL_STATSDLINE
       // Non-generic
       return serverMessage(this, aMessage);
@@ -687,27 +687,27 @@ export var ircBase = {
     /*
      * LUSER messages
      */
-    "251": function(aMessage) {
+    "251": function (aMessage) {
       // RPL_LUSERCLIENT
       // :There are <integer> users and <integer> services on <integer> servers
       return serverMessage(this, aMessage);
     },
-    "252": function(aMessage) {
+    "252": function (aMessage) {
       // RPL_LUSEROP, 0 if not sent
       // <integer> :operator(s) online
       return serverMessage(this, aMessage);
     },
-    "253": function(aMessage) {
+    "253": function (aMessage) {
       // RPL_LUSERUNKNOWN, 0 if not sent
       // <integer> :unknown connection(s)
       return serverMessage(this, aMessage);
     },
-    "254": function(aMessage) {
+    "254": function (aMessage) {
       // RPL_LUSERCHANNELS, 0 if not sent
       // <integer> :channels formed
       return serverMessage(this, aMessage);
     },
-    "255": function(aMessage) {
+    "255": function (aMessage) {
       // RPL_LUSERME
       // :I have <integer> clients and <integer> servers
       return serverMessage(this, aMessage);
@@ -716,24 +716,24 @@ export var ircBase = {
     /*
      * ADMIN messages
      */
-    "256": function(aMessage) {
+    "256": function (aMessage) {
       // RPL_ADMINME
       // <server> :Administrative info
       return serverMessage(this, aMessage);
     },
-    "257": function(aMessage) {
+    "257": function (aMessage) {
       // RPL_ADMINLOC1
       // :<admin info>
       // City, state & country
       return serverMessage(this, aMessage);
     },
-    "258": function(aMessage) {
+    "258": function (aMessage) {
       // RPL_ADMINLOC2
       // :<admin info>
       // Institution details
       return serverMessage(this, aMessage);
     },
-    "259": function(aMessage) {
+    "259": function (aMessage) {
       // RPL_ADMINEMAIL
       // :<admin info>
       // TODO We could parse this for a contact email.
@@ -743,12 +743,12 @@ export var ircBase = {
     /*
      * TRACELOG
      */
-    "261": function(aMessage) {
+    "261": function (aMessage) {
       // RPL_TRACELOG
       // File <logfile> <debug level>
       return serverMessage(this, aMessage);
     },
-    "262": function(aMessage) {
+    "262": function (aMessage) {
       // RPL_TRACEEND
       // <server name> <version & debug level> :End of TRACE
       return serverMessage(this, aMessage, true);
@@ -757,7 +757,7 @@ export var ircBase = {
     /*
      * Try again.
      */
-    "263": function(aMessage) {
+    "263": function (aMessage) {
       // RPL_TRYAGAIN
       // <command> :Please wait a while and try again.
       if (aMessage.params[1] == "LIST" && this._pendingList) {
@@ -774,17 +774,17 @@ export var ircBase = {
       return serverMessage(this, aMessage);
     },
 
-    "265": function(aMessage) {
+    "265": function (aMessage) {
       // nonstandard
       // :Current Local Users: <integer>  Max: <integer>
       return serverMessage(this, aMessage);
     },
-    "266": function(aMessage) {
+    "266": function (aMessage) {
       // nonstandard
       // :Current Global Users: <integer>  Max: <integer>
       return serverMessage(this, aMessage);
     },
-    "300": function(aMessage) {
+    "300": function (aMessage) {
       // RPL_NONE
       // Non-generic
       return serverMessage(this, aMessage);
@@ -793,7 +793,7 @@ export var ircBase = {
     /*
      * Status messages
      */
-    "301": function(aMessage) {
+    "301": function (aMessage) {
       // RPL_AWAY
       // <nick> :<away message>
       // TODO set user as away on buddy list / conversation lists
@@ -804,14 +804,14 @@ export var ircBase = {
       }
       return this.setWhois(aMessage.params[1], { away: aMessage.params[2] });
     },
-    "302": function(aMessage) {
+    "302": function (aMessage) {
       // RPL_USERHOST
       // :*1<reply> *( " " <reply )"
       // reply = nickname [ "*" ] "=" ( "+" / "-" ) hostname
       // TODO Can tell op / away from this
       return false;
     },
-    "303": function(aMessage) {
+    "303": function (aMessage) {
       // RPL_ISON
       // :*1<nick> *( " " <nick> )"
       // Set the status of the buddies based the latest ISON response.
@@ -838,13 +838,13 @@ export var ircBase = {
       }
       return true;
     },
-    "305": function(aMessage) {
+    "305": function (aMessage) {
       // RPL_UNAWAY
       // :You are no longer marked as being away
       this.isAway = false;
       return true;
     },
-    "306": function(aMessage) {
+    "306": function (aMessage) {
       // RPL_NOWAWAY
       // :You have been marked as away
       this.isAway = true;
@@ -854,7 +854,7 @@ export var ircBase = {
     /*
      * WHOIS
      */
-    "311": function(aMessage) {
+    "311": function (aMessage) {
       // RPL_WHOISUSER
       // <nick> <user> <host> * :<real name>
       // <username>@<hostname>
@@ -872,7 +872,7 @@ export var ircBase = {
         connectedFrom: source,
       });
     },
-    "312": function(aMessage) {
+    "312": function (aMessage) {
       // RPL_WHOISSERVER
       // <nick> <server> :<server info>
       return this.setWhois(aMessage.params[1], {
@@ -880,12 +880,12 @@ export var ircBase = {
         serverInfo: aMessage.params[3],
       });
     },
-    "313": function(aMessage) {
+    "313": function (aMessage) {
       // RPL_WHOISOPERATOR
       // <nick> :is an IRC operator
       return this.setWhois(aMessage.params[1], { ircOp: true });
     },
-    "314": function(aMessage) {
+    "314": function (aMessage) {
       // RPL_WHOWASUSER
       // <nick> <user> <host> * :<real name>
       let source = aMessage.params[2] + "@" + aMessage.params[3];
@@ -895,24 +895,24 @@ export var ircBase = {
         connectedFrom: source,
       });
     },
-    "315": function(aMessage) {
+    "315": function (aMessage) {
       // RPL_ENDOFWHO
       // <name> :End of WHO list
       return false;
     },
-    "316": function(aMessage) {
+    "316": function (aMessage) {
       // RPL_WHOISCHANOP
       // Non-generic
       return false;
     },
-    "317": function(aMessage) {
+    "317": function (aMessage) {
       // RPL_WHOISIDLE
       // <nick> <integer> :seconds idle
       return this.setWhois(aMessage.params[1], {
         lastActivity: parseInt(aMessage.params[2]),
       });
     },
-    "318": function(aMessage) {
+    "318": function (aMessage) {
       // RPL_ENDOFWHOIS
       // <nick> :End of WHOIS list
       // We've received everything about WHOIS, tell the tooltip that is waiting
@@ -928,7 +928,7 @@ export var ircBase = {
       }
       return true;
     },
-    "319": function(aMessage) {
+    "319": function (aMessage) {
       // RPL_WHOISCHANNELS
       // <nick> :*( ( "@" / "+" ) <channel> " " )
       return this.setWhois(aMessage.params[1], {
@@ -939,13 +939,13 @@ export var ircBase = {
     /*
      * LIST
      */
-    "321": function(aMessage) {
+    "321": function (aMessage) {
       // RPL_LISTSTART
       // Channel :Users Name
       // Obsolete. Not used.
       return true;
     },
-    "322": function(aMessage) {
+    "322": function (aMessage) {
       // RPL_LIST
       // <channel> <# visible> :<topic>
       let name = aMessage.params[1];
@@ -970,7 +970,7 @@ export var ircBase = {
       }
       return true;
     },
-    "323": function(aMessage) {
+    "323": function (aMessage) {
       // RPL_LISTEND
       // :End of LIST
       this._sendRemainingRoomInfo();
@@ -980,7 +980,7 @@ export var ircBase = {
     /*
      * Channel functions
      */
-    "324": function(aMessage) {
+    "324": function (aMessage) {
       // RPL_CHANNELMODEIS
       // <channel> <mode> <mode params>
       this.getConversation(aMessage.params[1]).setMode(
@@ -991,13 +991,13 @@ export var ircBase = {
 
       return true;
     },
-    "325": function(aMessage) {
+    "325": function (aMessage) {
       // RPL_UNIQOPIS
       // <channel> <nickname>
       // TODO parse this and have the UI respond accordingly.
       return false;
     },
-    "331": function(aMessage) {
+    "331": function (aMessage) {
       // RPL_NOTOPIC
       // <channel> :No topic is set
       let conversation = this.getConversation(aMessage.params[1]);
@@ -1005,7 +1005,7 @@ export var ircBase = {
       conversation.setTopic("");
       return true;
     },
-    "332": function(aMessage) {
+    "332": function (aMessage) {
       // RPL_TOPIC
       // <channel> :<topic>
       // Update the topic UI
@@ -1014,7 +1014,7 @@ export var ircBase = {
       conversation.setTopic(topic ? ctcpFormatToText(topic) : "");
       return true;
     },
-    "333": function(aMessage) {
+    "333": function (aMessage) {
       // nonstandard
       // <channel> <nickname> <time>
       return true;
@@ -1023,7 +1023,7 @@ export var ircBase = {
     /*
      * Invitations
      */
-    "341": function(aMessage) {
+    "341": function (aMessage) {
       // RPL_INVITING
       // <channel> <nick>
       // Note that servers reply with parameters in the reverse order from the
@@ -1035,7 +1035,7 @@ export var ircBase = {
       );
       return true;
     },
-    "342": function(aMessage) {
+    "342": function (aMessage) {
       // RPL_SUMMONING
       // <user> :Summoning user to IRC
       return writeMessage(
@@ -1044,25 +1044,25 @@ export var ircBase = {
         lazy._("message.summoned", aMessage.params[0])
       );
     },
-    "346": function(aMessage) {
+    "346": function (aMessage) {
       // RPL_INVITELIST
       // <channel> <invitemask>
       // TODO what do we do?
       return false;
     },
-    "347": function(aMessage) {
+    "347": function (aMessage) {
       // RPL_ENDOFINVITELIST
       // <channel> :End of channel invite list
       // TODO what do we do?
       return false;
     },
-    "348": function(aMessage) {
+    "348": function (aMessage) {
       // RPL_EXCEPTLIST
       // <channel> <exceptionmask>
       // TODO what do we do?
       return false;
     },
-    "349": function(aMessage) {
+    "349": function (aMessage) {
       // RPL_ENDOFEXCEPTIONLIST
       // <channel> :End of channel exception list
       // TODO update UI?
@@ -1072,7 +1072,7 @@ export var ircBase = {
     /*
      * Version
      */
-    "351": function(aMessage) {
+    "351": function (aMessage) {
       // RPL_VERSION
       // <version>.<debuglevel> <server> :<comments>
       return serverMessage(this, aMessage);
@@ -1081,7 +1081,7 @@ export var ircBase = {
     /*
      * WHO
      */
-    "352": function(aMessage) {
+    "352": function (aMessage) {
       // RPL_WHOREPLY
       // <channel> <user> <host> <server> <nick> ( "H" / "G" ) ["*"] [ ("@" / "+" ) ] :<hopcount> <real name>
       // TODO parse and display this?
@@ -1091,7 +1091,7 @@ export var ircBase = {
     /*
      * NAMREPLY
      */
-    "353": function(aMessage) {
+    "353": function (aMessage) {
       // RPL_NAMREPLY
       // <target> ( "=" / "*" / "@" ) <channel> :[ "@" / "+" ] <nick> *( " " [ "@" / "+" ] <nick> )
       let conversation = this.getConversation(aMessage.params[2]);
@@ -1112,19 +1112,19 @@ export var ircBase = {
       return true;
     },
 
-    "361": function(aMessage) {
+    "361": function (aMessage) {
       // RPL_KILLDONE
       // Non-generic
       // TODO What is this?
       return false;
     },
-    "362": function(aMessage) {
+    "362": function (aMessage) {
       // RPL_CLOSING
       // Non-generic
       // TODO What is this?
       return false;
     },
-    "363": function(aMessage) {
+    "363": function (aMessage) {
       // RPL_CLOSEEND
       // Non-generic
       // TODO What is this?
@@ -1134,12 +1134,12 @@ export var ircBase = {
     /*
      * Links.
      */
-    "364": function(aMessage) {
+    "364": function (aMessage) {
       // RPL_LINKS
       // <mask> <server> :<hopcount> <server info>
       return serverMessage(this, aMessage);
     },
-    "365": function(aMessage) {
+    "365": function (aMessage) {
       // RPL_ENDOFLINKS
       // <mask> :End of LINKS list
       return true;
@@ -1148,7 +1148,7 @@ export var ircBase = {
     /*
      * Names
      */
-    "366": function(aMessage) {
+    "366": function (aMessage) {
       // RPL_ENDOFNAMES
       // <target> <channel> :End of NAMES list
       // All participants have already been added by the 353 handler.
@@ -1172,7 +1172,7 @@ export var ircBase = {
     /*
      * End of a bunch of lists
      */
-    "367": function(aMessage) {
+    "367": function (aMessage) {
       // RPL_BANLIST
       // <channel> <banmask>
       let conv = this.getConversation(aMessage.params[1]);
@@ -1181,7 +1181,7 @@ export var ircBase = {
       }
       return true;
     },
-    "368": function(aMessage) {
+    "368": function (aMessage) {
       // RPL_ENDOFBANLIST
       // <channel> :End of channel ban list
       let conv = this.getConversation(aMessage.params[1]);
@@ -1196,7 +1196,7 @@ export var ircBase = {
       conv.writeMessage(aMessage.origin, msg, { system: true });
       return true;
     },
-    "369": function(aMessage) {
+    "369": function (aMessage) {
       // RPL_ENDOFWHOWAS
       // <nick> :End of WHOWAS
       // We've received everything about WHOWAS, tell the tooltip that is waiting
@@ -1208,33 +1208,33 @@ export var ircBase = {
     /*
      * Server info
      */
-    "371": function(aMessage) {
+    "371": function (aMessage) {
       // RPL_INFO
       // :<string>
       return serverMessage(this, aMessage);
     },
-    "372": function(aMessage) {
+    "372": function (aMessage) {
       // RPL_MOTD
       // :- <text>
       return addMotd(this, aMessage);
     },
-    "373": function(aMessage) {
+    "373": function (aMessage) {
       // RPL_INFOSTART
       // Non-generic
       // This is unnecessary and servers just send RPL_INFO.
       return true;
     },
-    "374": function(aMessage) {
+    "374": function (aMessage) {
       // RPL_ENDOFINFO
       // :End of INFO list
       return true;
     },
-    "375": function(aMessage) {
+    "375": function (aMessage) {
       // RPL_MOTDSTART
       // :- <server> Message of the day -
       return addMotd(this, aMessage);
     },
-    "376": function(aMessage) {
+    "376": function (aMessage) {
       // RPL_ENDOFMOTD
       // :End of MOTD command
       // Show the MOTD if the user wants to see server messages or if
@@ -1255,18 +1255,18 @@ export var ircBase = {
     /*
      * OPER
      */
-    "381": function(aMessage) {
+    "381": function (aMessage) {
       // RPL_YOUREOPER
       // :You are now an IRC operator
       // TODO update UI accordingly to show oper status
       return serverMessage(this, aMessage);
     },
-    "382": function(aMessage) {
+    "382": function (aMessage) {
       // RPL_REHASHING
       // <config file> :Rehashing
       return serverMessage(this, aMessage);
     },
-    "383": function(aMessage) {
+    "383": function (aMessage) {
       // RPL_YOURESERVICE
       // You are service <servicename>
       this.WARN('Received "You are a service" message.');
@@ -1276,13 +1276,13 @@ export var ircBase = {
     /*
      * Info
      */
-    "384": function(aMessage) {
+    "384": function (aMessage) {
       // RPL_MYPORTIS
       // Non-generic
       // TODO Parse and display?
       return false;
     },
-    "391": function(aMessage) {
+    "391": function (aMessage) {
       // RPL_TIME
       // <server> :<string showing server's local time>
 
@@ -1292,25 +1292,25 @@ export var ircBase = {
       // should always be shown.
       return writeMessage(this, aMessage, msg, "system");
     },
-    "392": function(aMessage) {
+    "392": function (aMessage) {
       // RPL_USERSSTART
       // :UserID   Terminal  Host
       // TODO
       return false;
     },
-    "393": function(aMessage) {
+    "393": function (aMessage) {
       // RPL_USERS
       // :<username> <ttyline> <hostname>
       // TODO store into buddy list? List out?
       return false;
     },
-    "394": function(aMessage) {
+    "394": function (aMessage) {
       // RPL_ENDOFUSERS
       // :End of users
       // TODO Notify observers of the buddy list?
       return false;
     },
-    "395": function(aMessage) {
+    "395": function (aMessage) {
       // RPL_NOUSERS
       // :Nobody logged in
       // TODO clear buddy list?
@@ -1318,7 +1318,7 @@ export var ircBase = {
     },
 
     // Error messages, Implement Section 5.2 of RFC 2812
-    "401": function(aMessage) {
+    "401": function (aMessage) {
       // ERR_NOSUCHNICK
       // <nickname> :No such nick/channel
       // Can arise in response to /mode, /invite, /kill, /msg, /whois.
@@ -1340,13 +1340,13 @@ export var ircBase = {
         lazy._(msgId, aMessage.params[1])
       );
     },
-    "402": function(aMessage) {
+    "402": function (aMessage) {
       // ERR_NOSUCHSERVER
       // <server name> :No such server
       // TODO Parse & display an error to the user.
       return false;
     },
-    "403": function(aMessage) {
+    "403": function (aMessage) {
       // ERR_NOSUCHCHANNEL
       // <channel name> :No such channel
       return conversationErrorMessage(
@@ -1357,7 +1357,7 @@ export var ircBase = {
         false
       );
     },
-    "404": function(aMessage) {
+    "404": function (aMessage) {
       // ERR_CANNOTSENDTOCHAN
       // <channel name> :Cannot send to channel
       // Notify the user that they can't send to that channel.
@@ -1367,7 +1367,7 @@ export var ircBase = {
         "error.cannotSendToChannel"
       );
     },
-    "405": function(aMessage) {
+    "405": function (aMessage) {
       // ERR_TOOMANYCHANNELS
       // <channel name> :You have joined too many channels
       return conversationErrorMessage(
@@ -1377,7 +1377,7 @@ export var ircBase = {
         true
       );
     },
-    "406": function(aMessage) {
+    "406": function (aMessage) {
       // ERR_WASNOSUCHNICK
       // <nickname> :There was no such nickname
       // Can arise in response to WHOWAS.
@@ -1387,7 +1387,7 @@ export var ircBase = {
         lazy._("error.wasNoSuchNick", aMessage.params[1])
       );
     },
-    "407": function(aMessage) {
+    "407": function (aMessage) {
       // ERR_TOOMANYTARGETS
       // <target> :<error code> recipients. <abort message>
       return conversationErrorMessage(
@@ -1398,26 +1398,26 @@ export var ircBase = {
         false
       );
     },
-    "408": function(aMessage) {
+    "408": function (aMessage) {
       // ERR_NOSUCHSERVICE
       // <service name> :No such service
       // TODO
       return false;
     },
-    "409": function(aMessage) {
+    "409": function (aMessage) {
       // ERR_NOORIGIN
       // :No origin specified
       // TODO failed PING/PONG message, this should never occur?
       return false;
     },
-    "411": function(aMessage) {
+    "411": function (aMessage) {
       // ERR_NORECIPIENT
       // :No recipient given (<command>)
       // If this happens a real error with the protocol occurred.
       this.ERROR("ERR_NORECIPIENT: No recipient given for PRIVMSG.");
       return true;
     },
-    "412": function(aMessage) {
+    "412": function (aMessage) {
       // ERR_NOTEXTTOSEND
       // :No text to send
       // If this happens a real error with the protocol occurred: we should
@@ -1425,58 +1425,58 @@ export var ircBase = {
       this.ERROR("ERR_NOTEXTTOSEND: No text to send for PRIVMSG.");
       return true;
     },
-    "413": function(aMessage) {
+    "413": function (aMessage) {
       // ERR_NOTOPLEVEL
       // <mask> :No toplevel domain specified
       // If this response is received, a real error occurred in the protocol.
       this.ERROR("ERR_NOTOPLEVEL: Toplevel domain not specified.");
       return true;
     },
-    "414": function(aMessage) {
+    "414": function (aMessage) {
       // ERR_WILDTOPLEVEL
       // <mask> :Wildcard in toplevel domain
       // If this response is received, a real error occurred in the protocol.
       this.ERROR("ERR_WILDTOPLEVEL: Wildcard toplevel domain specified.");
       return true;
     },
-    "415": function(aMessage) {
+    "415": function (aMessage) {
       // ERR_BADMASK
       // <mask> :Bad Server/host mask
       // If this response is received, a real error occurred in the protocol.
       this.ERROR("ERR_BADMASK: Bad server/host mask specified.");
       return true;
     },
-    "421": function(aMessage) {
+    "421": function (aMessage) {
       // ERR_UNKNOWNCOMMAND
       // <command> :Unknown command
       // TODO This shouldn't occur.
       return false;
     },
-    "422": function(aMessage) {
+    "422": function (aMessage) {
       // ERR_NOMOTD
       // :MOTD File is missing
       // No message of the day to display.
       return true;
     },
-    "423": function(aMessage) {
+    "423": function (aMessage) {
       // ERR_NOADMININFO
       // <server> :No administrative info available
       // TODO
       return false;
     },
-    "424": function(aMessage) {
+    "424": function (aMessage) {
       // ERR_FILEERROR
       // :File error doing <file op> on <file>
       // TODO
       return false;
     },
-    "431": function(aMessage) {
+    "431": function (aMessage) {
       // ERR_NONICKNAMEGIVEN
       // :No nickname given
       // TODO
       return false;
     },
-    "432": function(aMessage) {
+    "432": function (aMessage) {
       // ERR_ERRONEUSNICKNAME
       // <nick> :Erroneous nickname
       let msg = lazy._("error.erroneousNickname", this._requestedNickname);
@@ -1497,7 +1497,7 @@ export var ircBase = {
       }
       return true;
     },
-    "433": function(aMessage) {
+    "433": function (aMessage) {
       // ERR_NICKNAMEINUSE
       // <nick> :Nickname is already in use
       // Try to get the desired nick back in 2.5 minutes if this happens when
@@ -1511,12 +1511,12 @@ export var ircBase = {
       }
       return this.tryNewNick(aMessage.params[1]);
     },
-    "436": function(aMessage) {
+    "436": function (aMessage) {
       // ERR_NICKCOLLISION
       // <nick> :Nickname collision KILL from <user>@<host>
       return this.tryNewNick(aMessage.params[1]);
     },
-    "437": function(aMessage) {
+    "437": function (aMessage) {
       // ERR_UNAVAILRESOURCE
       // <nick/channel> :Nick/channel is temporarily unavailable
       return conversationErrorMessage(
@@ -1526,13 +1526,13 @@ export var ircBase = {
         true
       );
     },
-    "441": function(aMessage) {
+    "441": function (aMessage) {
       // ERR_USERNOTINCHANNEL
       // <nick> <channel> :They aren't on that channel
       // TODO
       return false;
     },
-    "442": function(aMessage) {
+    "442": function (aMessage) {
       // ERR_NOTONCHANNEL
       // <channel> :You're not on that channel
       this.ERROR(
@@ -1542,7 +1542,7 @@ export var ircBase = {
       );
       return true;
     },
-    "443": function(aMessage) {
+    "443": function (aMessage) {
       // ERR_USERONCHANNEL
       // <user> <channel> :is already on channel
       this.getConversation(aMessage.params[2]).writeMessage(
@@ -1556,25 +1556,25 @@ export var ircBase = {
       );
       return true;
     },
-    "444": function(aMessage) {
+    "444": function (aMessage) {
       // ERR_NOLOGIN
       // <user> :User not logged in
       // TODO
       return false;
     },
-    "445": function(aMessage) {
+    "445": function (aMessage) {
       // ERR_SUMMONDISABLED
       // :SUMMON has been disabled
       // TODO keep track of this and disable UI associated?
       return false;
     },
-    "446": function(aMessage) {
+    "446": function (aMessage) {
       // ERR_USERSDISABLED
       // :USERS has been disabled
       // TODO Disabled all buddy list etc.
       return false;
     },
-    "451": function(aMessage) {
+    "451": function (aMessage) {
       // ERR_NOTREGISTERED
       // :You have not registered
       // If the server doesn't understand CAP it might return this error.
@@ -1585,7 +1585,7 @@ export var ircBase = {
       // TODO
       return false;
     },
-    "461": function(aMessage) {
+    "461": function (aMessage) {
       // ERR_NEEDMOREPARAMS
       // <command> :Not enough parameters
 
@@ -1601,19 +1601,19 @@ export var ircBase = {
 
       return false;
     },
-    "462": function(aMessage) {
+    "462": function (aMessage) {
       // ERR_ALREADYREGISTERED
       // :Unauthorized command (already registered)
       // TODO
       return false;
     },
-    "463": function(aMessage) {
+    "463": function (aMessage) {
       // ERR_NOPERMFORHOST
       // :Your host isn't among the privileged
       // TODO
       return false;
     },
-    "464": function(aMessage) {
+    "464": function (aMessage) {
       // ERR_PASSWDMISMATCH
       // :Password incorrect
       this.gotDisconnected(
@@ -1622,7 +1622,7 @@ export var ircBase = {
       );
       return true;
     },
-    "465": function(aMessage) {
+    "465": function (aMessage) {
       // ERR_YOUREBANEDCREEP
       // :You are banned from this server
       serverErrorMessage(this, aMessage, lazy._("error.banned"));
@@ -1632,17 +1632,17 @@ export var ircBase = {
       ); // Notify account manager.
       return true;
     },
-    "466": function(aMessage) {
+    "466": function (aMessage) {
       // ERR_YOUWILLBEBANNED
       return serverErrorMessage(this, aMessage, lazy._("error.bannedSoon"));
     },
-    "467": function(aMessage) {
+    "467": function (aMessage) {
       // ERR_KEYSET
       // <channel> :Channel key already set
       // TODO
       return false;
     },
-    "471": function(aMessage) {
+    "471": function (aMessage) {
       // ERR_CHANNELISFULL
       // <channel> :Cannot join channel (+l)
       return conversationErrorMessage(
@@ -1652,13 +1652,13 @@ export var ircBase = {
         true
       );
     },
-    "472": function(aMessage) {
+    "472": function (aMessage) {
       // ERR_UNKNOWNMODE
       // <char> :is unknown mode char to me for <channel>
       // TODO
       return false;
     },
-    "473": function(aMessage) {
+    "473": function (aMessage) {
       // ERR_INVITEONLYCHAN
       // <channel> :Cannot join channel (+i)
       return conversationErrorMessage(
@@ -1669,7 +1669,7 @@ export var ircBase = {
         false
       );
     },
-    "474": function(aMessage) {
+    "474": function (aMessage) {
       // ERR_BANNEDFROMCHAN
       // <channel> :Cannot join channel (+b)
       return conversationErrorMessage(
@@ -1680,7 +1680,7 @@ export var ircBase = {
         false
       );
     },
-    "475": function(aMessage) {
+    "475": function (aMessage) {
       // ERR_BADCHANNELKEY
       // <channel> :Cannot join channel (+k)
       return conversationErrorMessage(
@@ -1691,67 +1691,67 @@ export var ircBase = {
         false
       );
     },
-    "476": function(aMessage) {
+    "476": function (aMessage) {
       // ERR_BADCHANMASK
       // <channel> :Bad Channel Mask
       // TODO
       return false;
     },
-    "477": function(aMessage) {
+    "477": function (aMessage) {
       // ERR_NOCHANMODES
       // <channel> :Channel doesn't support modes
       // TODO
       return false;
     },
-    "478": function(aMessage) {
+    "478": function (aMessage) {
       // ERR_BANLISTFULL
       // <channel> <char> :Channel list is full
       // TODO
       return false;
     },
-    "481": function(aMessage) {
+    "481": function (aMessage) {
       // ERR_NOPRIVILEGES
       // :Permission Denied- You're not an IRC operator
       // TODO ask to auth?
       return false;
     },
-    "482": function(aMessage) {
+    "482": function (aMessage) {
       // ERR_CHANOPRIVSNEEDED
       // <channel> :You're not channel operator
       return conversationErrorMessage(this, aMessage, "error.notChannelOp");
     },
-    "483": function(aMessage) {
+    "483": function (aMessage) {
       // ERR_CANTKILLSERVER
       // :You can't kill a server!
       // TODO Display error?
       return false;
     },
-    "484": function(aMessage) {
+    "484": function (aMessage) {
       // ERR_RESTRICTED
       // :Your connection is restricted!
       // Indicates user mode +r
       // TODO
       return false;
     },
-    "485": function(aMessage) {
+    "485": function (aMessage) {
       // ERR_UNIQOPPRIVSNEEDED
       // :You're not the original channel operator
       // TODO ask to auth?
       return false;
     },
-    "491": function(aMessage) {
+    "491": function (aMessage) {
       // ERR_NOOPERHOST
       // :No O-lines for your host
       // TODO
       return false;
     },
-    "492": function(aMessage) {
+    "492": function (aMessage) {
       // ERR_NOSERVICEHOST
       // Non-generic
       // TODO
       return false;
     },
-    "501": function(aMessage) {
+    "501": function (aMessage) {
       // ERR_UMODEUNKNOWNFLAGS
       // :Unknown MODE flag
       return serverErrorMessage(
@@ -1760,7 +1760,7 @@ export var ircBase = {
         lazy._("error.unknownMode", aMessage.params[1])
       );
     },
-    "502": function(aMessage) {
+    "502": function (aMessage) {
       // ERR_USERSDONTMATCH
       // :Cannot change mode for other users
       return serverErrorMessage(this, aMessage, lazy._("error.mode.wrongUser"));

@@ -60,7 +60,7 @@ loader.lazyRequireGetter(
  * @param aConnection       The debugger connection to create the actor for.
  * @returns The mail actor for the connection.
  */
-exports.createRootActor = function(aConnection) {
+exports.createRootActor = function (aConnection) {
   let parameters = {
     tabList: new TBTabList(aConnection),
     addonList: new BrowserAddonList(aConnection),

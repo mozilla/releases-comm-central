@@ -45,7 +45,7 @@ var { MessageInjection } = ChromeUtils.import(
 var uniqueCounter = 0;
 var messageInjection;
 
-add_setup(async function() {
+add_setup(async function () {
   let msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);

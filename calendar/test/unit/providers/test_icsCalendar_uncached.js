@@ -19,7 +19,7 @@ ICSServer.putICSInternal(
 );
 registerCleanupFunction(() => ICSServer.close());
 
-add_task(async function() {
+add_task(async function () {
   calendarObserver._onAddItemPromise = PromiseUtils.defer();
   calendarObserver._onLoadPromise = PromiseUtils.defer();
   let calendar = createCalendar("ics", ICSServer.url, false);

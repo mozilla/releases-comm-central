@@ -45,7 +45,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   SessionStoreManager: "resource:///modules/SessionStoreManager.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function() {
+XPCOMUtils.defineLazyGetter(this, "PopupNotifications", function () {
   let { PopupNotifications } = ChromeUtils.import(
     "resource:///modules/GlobalPopupNotifications.jsm"
   );
@@ -386,7 +386,7 @@ var gMailInit = {
     updateTroubleshootMenuItem();
     // Initialize the customizeDone method on the customizeable toolbar.
     let toolbox = document.getElementById("mail-toolbox");
-    toolbox.customizeDone = function(aEvent) {
+    toolbox.customizeDone = function (aEvent) {
       MailToolboxCustomizeDone(aEvent, "CustomizeMailToolbar");
     };
 
@@ -907,7 +907,7 @@ async function loadStartFolder(initialUri) {
 
     // If appropriate, send unsent messages. This may end up prompting the user,
     // so we need to get it out of the flow of the normal load sequence.
-    setTimeout(function() {
+    setTimeout(function () {
       if (MailOfflineMgr.shouldSendUnsentMessages()) {
         SendUnsentMessages();
       }

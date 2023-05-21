@@ -81,7 +81,7 @@ class PromptCollection {
 XPCOMUtils.defineLazyGetter(
   PromptCollection.prototype,
   "domBundle",
-  function() {
+  function () {
     let bundle = Services.strings.createBundle(
       "chrome://global/locale/dom/dom.properties"
     );

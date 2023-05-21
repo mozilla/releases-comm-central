@@ -12,7 +12,7 @@ const { MessageGenerator } = ChromeUtils.import(
 );
 
 async function setup() {
-  let createSubfolder = async function(parentFolder, name) {
+  let createSubfolder = async function (parentFolder, name) {
     let promiseAdded = PromiseTestUtils.promiseFolderAdded(name);
     parentFolder.createSubfolder(name, null);
     await promiseAdded;

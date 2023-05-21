@@ -43,7 +43,7 @@ let identity;
  * Ensure the calendar manager is available, initialize the calendar and
  * identity we use for testing.
  */
-add_setup(async function() {
+add_setup(async function () {
   await new Promise(resolve => do_load_calmgr(resolve));
   calendar = CalendarTestUtils.createCalendar("Test", "memory");
   identity = MailServices.accounts.createIdentity();

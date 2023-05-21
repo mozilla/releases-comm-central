@@ -18,9 +18,9 @@ var gDebugLog;
 // Debug helper
 
 if (!kDebug) {
-  gDebugLog = function(m) {};
+  gDebugLog = function (m) {};
 } else {
-  gDebugLog = function(m) {
+  gDebugLog = function (m) {
     dump("\t *** nsOfflineStartup: " + m + "\n");
   };
 }

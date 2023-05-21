@@ -1,9 +1,9 @@
 "use strict";
-define(function(require) {
+define(function (require) {
   var assert = require("assert");
   var jsmime = require("jsmime");
 
-  suite("Custom decoder support", function() {
+  suite("Custom decoder support", function () {
     function customDecoder(values) {
       let value = values.join("");
       return atob(value);
@@ -11,7 +11,7 @@ define(function(require) {
     function customEncoder(value) {
       this.addText(btoa(value), true);
     }
-    test("addStructuredEncoder", function() {
+    test("addStructuredEncoder", function () {
       assert.equal(
         "X-Base64: String\r\n",
         jsmime.headeremitter.emitStructuredHeader("X-Base64", "String", {})
@@ -26,8 +26,8 @@ define(function(require) {
         jsmime.headeremitter.emitStructuredHeader("x-bASe64", "String", {})
       );
     });
-    test("addStructuredDecoder", function() {
-      assert.throws(function() {
+    test("addStructuredDecoder", function () {
+      assert.throws(function () {
         jsmime.headerparser.parseStructuredHeader("X-Base64", "U3RyaW5n");
       }, /Unknown structured header/);
       jsmime.headerparser.addStructuredDecoder("X-Base64", customDecoder);
@@ -35,7 +35,7 @@ define(function(require) {
         "String",
         jsmime.headerparser.parseStructuredHeader("X-Base64", "U3RyaW5n")
       );
-      assert.throws(function() {
+      assert.throws(function () {
         jsmime.headerparser.addStructuredDecoder("To", customDecoder);
       }, /Cannot override header/);
     });

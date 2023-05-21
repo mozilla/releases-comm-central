@@ -20,7 +20,7 @@ let calendar;
 /**
  * Initialize account, identity and calendar.
  */
-add_setup(async function() {
+add_setup(async function () {
   let account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",

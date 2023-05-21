@@ -40,7 +40,7 @@ var cwc = null; // compose window controller
 var folder;
 var gDrafts;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("Test");
   let thread1 = create_thread(10);
   await add_message_sets_to_folders([folder], [thread1]);
@@ -53,7 +53,7 @@ add_setup(async function() {
   Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
 });
 
@@ -107,7 +107,7 @@ add_task(async function test_forward_inline() {
   // test for x-forwarded-message id and exercise the js mime representation as
   // well
   return new Promise(resolve => {
-    MsgHdrToMimeMessage(fMsgHdr, null, function(aMsgHdr, aMimeMsg) {
+    MsgHdrToMimeMessage(fMsgHdr, null, function (aMsgHdr, aMimeMsg) {
       Assert.equal(
         aMimeMsg.headers["x-forwarded-message-id"],
         "<" + oMsgHdr.messageId + ">"
@@ -158,7 +158,7 @@ add_task(async function test_forward_as_attachments() {
   // test for x-forwarded-message id and exercise the js mime representation as
   // well
   return new Promise(resolve => {
-    MsgHdrToMimeMessage(fMsgHdr, null, function(aMsgHdr, aMimeMsg) {
+    MsgHdrToMimeMessage(fMsgHdr, null, function (aMsgHdr, aMimeMsg) {
       Assert.equal(
         aMimeMsg.headers["x-forwarded-message-id"],
         "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">"

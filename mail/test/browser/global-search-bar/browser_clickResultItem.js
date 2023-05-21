@@ -131,7 +131,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
   }
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   let tabmail = window.document.getElementById("tabmail");
   tabmail.selectTabByMode("mail3PaneTab");
   await be_in_folder(inboxFolder);

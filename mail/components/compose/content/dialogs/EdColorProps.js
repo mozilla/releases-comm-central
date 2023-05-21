@@ -448,7 +448,7 @@ function onAccept(event) {
       .QueryInterface(Ci.nsIFileURL).file;
     if (nsFile.exists()) {
       let reader = new FileReader();
-      reader.addEventListener("load", function() {
+      reader.addEventListener("load", function () {
         gBackgroundImage = reader.result;
         gDialog.BackgroundImageInput.value = reader.result;
         if (onAccept(event)) {

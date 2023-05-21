@@ -275,11 +275,11 @@ var DOMLinkHandler = {
       // To be on the safe side, only allow chrome:// favicons.
       let isAllowedPage =
         targetDoc.documentURI == "about:home" ||
-        ["about:neterror?", "about:blocked?", "about:certerror?"].some(function(
-          aStart
-        ) {
-          targetDoc.documentURI.startsWith(aStart);
-        });
+        ["about:neterror?", "about:blocked?", "about:certerror?"].some(
+          function (aStart) {
+            targetDoc.documentURI.startsWith(aStart);
+          }
+        );
 
       if (!isAllowedPage || !uri.schemeIs("chrome")) {
         // Be extra paraniod and just make sure we're not going to load
@@ -357,7 +357,7 @@ var contentTabBaseType = {
   // as specified in inContentWhitelist.
   inContentOverlays: [
     // about:addons
-    function(aDocument, aTab) {
+    function (aDocument, aTab) {
       Services.scriptloader.loadSubScript(
         "chrome://messenger/content/aboutAddonsExtra.js",
         aDocument.defaultView
@@ -365,7 +365,7 @@ var contentTabBaseType = {
     },
 
     // about:addressbook provides its own context menu.
-    function(aDocument, aTab) {
+    function (aDocument, aTab) {
       aTab.browser.removeAttribute("context");
     },
 
@@ -373,7 +373,7 @@ var contentTabBaseType = {
     null,
 
     // about:profiles
-    function(aDocument, aTab) {
+    function (aDocument, aTab) {
       let win = aDocument.defaultView;
       // Need a timeout to let the script run to create the needed buttons.
       win.setTimeout(() => {
@@ -390,7 +390,7 @@ var contentTabBaseType = {
     },
 
     // Other about:* pages.
-    function(aDocument, aTab) {
+    function (aDocument, aTab) {
       // Provide context menu for about:* pages.
       aTab.browser.setAttribute("context", "aboutPagesContext");
     },
@@ -891,7 +891,7 @@ var specialTabs = {
       /**
        * Override the browser custom element's version, which returns gBrowser.
        */
-      aTab.browser.getTabBrowser = function() {
+      aTab.browser.getTabBrowser = function () {
         return document.getElementById("tabmail");
       };
 

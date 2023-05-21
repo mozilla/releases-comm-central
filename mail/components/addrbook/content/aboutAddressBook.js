@@ -19,10 +19,10 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyGetter(this, "ABQueryUtils", function() {
+XPCOMUtils.defineLazyGetter(this, "ABQueryUtils", function () {
   return ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 });
-XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function() {
+XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function () {
   return ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
 });
 
@@ -44,7 +44,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   VCardProperties: "resource:///modules/VCardUtils.jsm",
   VCardPropertyEntry: "resource:///modules/VCardUtils.jsm",
 });
-XPCOMUtils.defineLazyGetter(this, "SubDialog", function() {
+XPCOMUtils.defineLazyGetter(this, "SubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(
     "resource://gre/modules/SubDialog.sys.mjs"
   );
@@ -384,7 +384,7 @@ function createList(cards) {
  */
 function importBook() {
   let createdDirectory;
-  let observer = function(subject) {
+  let observer = function (subject) {
     // It might be possible for more than one directory to be imported, select
     // the first one.
     if (!createdDirectory) {
@@ -3029,7 +3029,7 @@ var detailsPane = {
       card.primaryEmail;
 
     let template = document.getElementById("entryItem");
-    let createEntryItem = function(name) {
+    let createEntryItem = function (name) {
       let li = template.content.firstElementChild.cloneNode(true);
       if (name) {
         document.l10n.setAttributes(
@@ -3039,7 +3039,7 @@ var detailsPane = {
       }
       return li;
     };
-    let setEntryType = function(li, entry, allowed = ["work", "home"]) {
+    let setEntryType = function (li, entry, allowed = ["work", "home"]) {
       if (!entry.params.type) {
         return;
       }
@@ -3168,7 +3168,7 @@ var detailsPane = {
     list = section.querySelector("ul");
     list.replaceChildren();
 
-    let formatDate = function(date) {
+    let formatDate = function (date) {
       try {
         date = ICAL.VCardTime.fromDateAndOrTimeString(date);
       } catch (ex) {

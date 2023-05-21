@@ -302,7 +302,7 @@ FeedItem.prototype = {
         "Content-Transfer-Encoding: 8bit\n" +
         this.content;
 
-      this.enclosures.forEach(function(enclosure) {
+      this.enclosures.forEach(function (enclosure) {
         source += enclosure.convertToAttachment(boundaryID);
       });
 

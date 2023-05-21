@@ -12,7 +12,7 @@ var { MessageGenerator } = ChromeUtils.import(
 
 let folderA, messagesA, folderB, messagesB;
 
-add_setup(async function() {
+add_setup(async function () {
   let tabmail = document.getElementById("tabmail");
   if (tabmail.tabInfo.length > 1) {
     info(`Will close ${tabmail.tabInfo.length - 1} tabs left over from others`);

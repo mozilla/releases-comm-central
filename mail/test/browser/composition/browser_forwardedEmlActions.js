@@ -42,7 +42,7 @@ var msgsubject = "mail client suggestions";
 var msgbodyA = "know of a good email client?";
 var msgbodyB = "hi, i think you may know of an email client to recommend?";
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("FwdedEmlTest");
 
   let source =

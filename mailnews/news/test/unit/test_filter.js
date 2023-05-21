@@ -68,13 +68,13 @@ function testAttrib(handler, daemon, localserver) {
 var actionResults = {
   "1@regular.invalid": ["priority", 6],
   // "2@regular.invalid" should not be in database
-  "3@regular.invalid": function(header, folder) {
+  "3@regular.invalid": function (header, folder) {
     var flags = folder.msgDatabase.getThreadContainingMsgHdr(header).flags;
     var ignored = Ci.nsMsgMessageFlags.Ignored;
     // This is checking the thread's kill flag
     return (flags & ignored) == ignored;
   },
-  "4@regular.invalid": function(header, folder) {
+  "4@regular.invalid": function (header, folder) {
     var flags = folder.msgDatabase.getThreadContainingMsgHdr(header).flags;
     var watched = Ci.nsMsgMessageFlags.Watched;
     // This is checking the thread's watch flag
@@ -82,7 +82,7 @@ var actionResults = {
   },
   "5@regular.invalid": ["isFlagged", true],
   "6.odd@regular.invalid": ["isRead", false],
-  "7@regular.invalid": function(header, folder) {
+  "7@regular.invalid": function (header, folder) {
     return header.getStringProperty("keywords") == "tag";
   },
   "8.unread@regular.invalid": ["isRead", false],
@@ -146,7 +146,7 @@ function run_test() {
   createFilter(serverFilters, "message-id", "8.unread", "read");
   localserver.setFilterList(serverFilters);
 
-  handlers.forEach(function(handler) {
+  handlers.forEach(function (handler) {
     testAttrib(handler, daemon, localserver);
   });
 
@@ -173,7 +173,7 @@ function run_test() {
   folderFilters.loggingEnabled = true;
   folder.setFilterList(folderFilters);
 
-  handlers.forEach(function(handler) {
+  handlers.forEach(function (handler) {
     testAction(handler, daemon, localserver);
   });
 }

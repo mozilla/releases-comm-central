@@ -23,7 +23,7 @@ var {
 
 var folder;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("MessageSizeA");
 
   // Create messages with sizes in the byte, KB, and MB ranges.

@@ -389,7 +389,7 @@ var MimeTypeNoun = {
   _loadMimeTypes() {
     // get all the existing mime types!
     let query = Gloda.newQuery(this.id);
-    let nullFunc = function() {};
+    let nullFunc = function () {};
     this._universalCollection = query.getCollection(
       {
         onItemsAdded: nullFunc,

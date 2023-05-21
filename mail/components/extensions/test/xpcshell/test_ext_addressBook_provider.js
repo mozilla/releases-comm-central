@@ -6,7 +6,7 @@ var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
 
-add_task(async function() {
+add_task(async function () {
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       let id = "9b9074ff-8fa4-4c58-9c3b-bc9ea2e17db1";

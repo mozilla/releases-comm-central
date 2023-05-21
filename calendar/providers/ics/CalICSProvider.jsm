@@ -424,15 +424,8 @@ class ICSDetector {
     let displayName = props["D:displayname"];
     let color = props["A:calendar-color"];
     if (!displayName) {
-      let lastPath =
-        uri.filePath
-          .split("/")
-          .filter(Boolean)
-          .pop() || "";
-      let fileName = lastPath
-        .split(".")
-        .slice(0, -1)
-        .join(".");
+      let lastPath = uri.filePath.split("/").filter(Boolean).pop() || "";
+      let fileName = lastPath.split(".").slice(0, -1).join(".");
       displayName = fileName || lastPath || uri.spec;
     }
 

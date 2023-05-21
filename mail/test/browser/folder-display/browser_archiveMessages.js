@@ -33,7 +33,7 @@ var folder;
  */
 var NUM_MESSAGES_IN_THREAD = 6;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("ThreadedMessages");
   let thread = create_thread(NUM_MESSAGES_IN_THREAD);
   await add_message_sets_to_folders([folder], [thread]);

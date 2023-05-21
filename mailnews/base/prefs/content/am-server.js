@@ -238,7 +238,7 @@ function onAdvanced() {
       .getAttribute("value");
   }
 
-  let onCloseAdvanced = function() {
+  let onCloseAdvanced = function () {
     if (serverType == "imap") {
       document.getElementById("imap.dualUseFolders").checked =
         serverSettings.dualUseFolders;

@@ -14,7 +14,7 @@ let about3Pane = tabmail.currentAbout3Pane;
 let { threadPane, threadTree } = about3Pane;
 let rootFolder, testFolder, testMessages, displayContext, displayButton;
 
-add_setup(async function() {
+add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());

@@ -48,7 +48,7 @@ var kInsertNotificationPref =
 
 var kBoxId = "compose-notification-bottom";
 
-add_setup(function() {
+add_setup(function () {
   requestLongerTimeout(2);
 
   gMockCloudfileManager.register();
@@ -61,7 +61,7 @@ add_setup(function() {
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   gMockCloudfileManager.unregister();
   gMockFilePickReg.unregister();
   Services.prefs.setBoolPref(
@@ -310,7 +310,7 @@ add_task(async function test_no_offer_on_conversion() {
   // Override uploadFile to succeed instantaneously so that we don't have
   // to worry about waiting for the onStopRequest method being called
   // asynchronously.
-  provider.uploadFile = function(window, aFile) {
+  provider.uploadFile = function (window, aFile) {
     return Promise.resolve({
       id: 1,
       url: "https://some.cloud.net/1",
@@ -367,7 +367,7 @@ add_task(async function test_offer_then_upload_notifications() {
   // Override uploadFile to succeed instantaneously so that we don't have
   // to worry about waiting for the onStopRequest method being called
   // asynchronously.
-  provider.uploadFile = function(window, aFile) {
+  provider.uploadFile = function (window, aFile) {
     return Promise.resolve({
       id: 1,
       url: "https://some.cloud.net/1",

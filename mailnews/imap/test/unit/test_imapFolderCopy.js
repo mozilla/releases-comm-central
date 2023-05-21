@@ -19,7 +19,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-add_setup(function() {
+add_setup(function () {
   setupIMAPPump();
 
   gEmptyLocal1 = localAccountUtils.rootFolder.createLocalSubfolder("empty 1");

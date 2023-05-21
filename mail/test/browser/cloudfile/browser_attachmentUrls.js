@@ -93,7 +93,7 @@ function test_expected_included(actual, expected, description) {
   }
 }
 
-add_setup(async function() {
+add_setup(async function () {
   requestLongerTimeout(4);
 
   // These prefs can't be set in the manifest as they contain white-space.
@@ -126,7 +126,7 @@ add_setup(async function() {
   Services.prefs.setBoolPref("mail.compose.default_to_paragraph", false);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   gMockCloudfileManager.unregister();
   gMockFilePickReg.unregister();
   Services.prefs.clearUserPref(kDefaultSigKey);
@@ -181,7 +181,7 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
   );
 
   let urls = null;
-  utils.waitFor(function() {
+  utils.waitFor(function () {
     urls = mailBody.querySelectorAll(
       "#cloudAttachmentList > .cloudAttachmentItem"
     );
@@ -748,7 +748,7 @@ async function subtest_removing_filelinks_removes_root_node() {
 
   // Wait for the root to be removed.
   let mailBody = get_compose_body(cw);
-  utils.waitFor(function() {
+  utils.waitFor(function () {
     let result = mailBody.querySelector(root.id);
     return result == null;
   }, "Timed out waiting for attachment container to be removed");
@@ -1395,7 +1395,7 @@ async function subtest_converting_filelink_to_normal_removes_url() {
     cw.window.convertSelectedToRegularAttachment();
 
     // Wait until the cloud file entry has been removed.
-    utils.waitFor(function() {
+    utils.waitFor(function () {
       let urls = list.querySelectorAll(".cloudAttachmentItem");
       return urls.length == kFiles.length - (i + 1);
     });

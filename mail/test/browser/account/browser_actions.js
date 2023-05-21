@@ -29,7 +29,7 @@ var { MailServices } = ChromeUtils.import(
 
 var imapAccount, nntpAccount, originalAccountCount;
 
-add_setup(function() {
+add_setup(function () {
   // There may be pre-existing accounts from other tests.
   originalAccountCount = MailServices.accounts.allServers.length;
   // There already should be a Local Folders account created.
@@ -66,7 +66,7 @@ add_setup(function() {
   );
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   // Remove our test accounts to leave the profile clean.
   MailServices.accounts.removeAccount(nntpAccount);
   MailServices.accounts.removeAccount(imapAccount);
@@ -136,12 +136,12 @@ async function subtest_check_account_actions(
 
 add_task(async function test_account_actions() {
   // IMAP account: can be default, can be removed.
-  await open_advanced_settings(async function(tab) {
+  await open_advanced_settings(async function (tab) {
     await subtest_check_account_actions(tab, imapAccount.key, true, true, true);
   });
 
   // NNTP (News) account: can't be default, can be removed.
-  await open_advanced_settings(async function(tab) {
+  await open_advanced_settings(async function (tab) {
     await subtest_check_account_actions(
       tab,
       nntpAccount.key,
@@ -155,7 +155,7 @@ add_task(async function test_account_actions() {
   var localFoldersAccount = MailServices.accounts.FindAccountForServer(
     MailServices.accounts.localFoldersServer
   );
-  await open_advanced_settings(async function(tab) {
+  await open_advanced_settings(async function (tab) {
     await subtest_check_account_actions(
       tab,
       localFoldersAccount.key,
@@ -165,7 +165,7 @@ add_task(async function test_account_actions() {
     );
   });
   // SMTP server row: can't be removed, can't be default.
-  await open_advanced_settings(async function(tab) {
+  await open_advanced_settings(async function (tab) {
     await subtest_check_account_actions(tab, "smtp", false, false, true);
   });
 
@@ -176,7 +176,7 @@ add_task(async function test_account_actions() {
   Services.prefs.getDefaultBranch("").setBoolPref(disableItemPref, true);
   Services.prefs.lockPref(disableItemPref);
 
-  await open_advanced_settings(async function(tab) {
+  await open_advanced_settings(async function (tab) {
     await subtest_check_account_actions(
       tab,
       imapAccount.key,
@@ -195,7 +195,7 @@ add_task(async function test_account_actions() {
   Services.prefs.getDefaultBranch("").setBoolPref(disableItemPref, true);
   Services.prefs.lockPref(disableItemPref);
 
-  await open_advanced_settings(async function(tab) {
+  await open_advanced_settings(async function (tab) {
     await subtest_check_account_actions(
       tab,
       imapAccount.key,
@@ -214,7 +214,7 @@ add_task(async function test_account_actions() {
   Services.prefs.getDefaultBranch("").setBoolPref(disableItemPref, true);
   Services.prefs.lockPref(disableItemPref);
 
-  await open_advanced_settings(async function(tab) {
+  await open_advanced_settings(async function (tab) {
     await subtest_check_account_actions(
       tab,
       imapAccount.key,

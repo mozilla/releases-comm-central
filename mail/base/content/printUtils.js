@@ -21,13 +21,13 @@ XPCOMUtils.defineLazyGetter(this, "PrintUtils", () => {
     "chrome://global/content/printUtils.js",
     scope
   );
-  scope.PrintUtils.getTabDialogBox = function(browser) {
+  scope.PrintUtils.getTabDialogBox = function (browser) {
     if (!browser.tabDialogBox) {
       browser.tabDialogBox = new TabDialogBox(browser);
     }
     return browser.tabDialogBox;
   };
-  scope.PrintUtils.createBrowser = function({
+  scope.PrintUtils.createBrowser = function ({
     remoteType,
     initialBrowsingContextGroupId,
     userContextId,
@@ -100,7 +100,7 @@ XPCOMUtils.defineLazyGetter(this, "PrintUtils", () => {
   scope.PrintUtils.__defineGetter__("printBrowser", () =>
     document.getElementById("hiddenPrintContent")
   );
-  scope.PrintUtils.loadPrintBrowser = async function(url) {
+  scope.PrintUtils.loadPrintBrowser = async function (url) {
     let printBrowser = this.printBrowser;
     if (printBrowser.currentURI?.spec == url) {
       return;

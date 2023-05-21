@@ -172,18 +172,11 @@ var gSpacesToolbar = {
    * @returns {string} - The converted hexadecimal color.
    */
   _rgbToHex(color) {
-    let rgb = color
-      .split("(")[1]
-      .split(")")[0]
-      .split(",");
+    let rgb = color.split("(")[1].split(")")[0].split(",");
 
     // For each array element convert ot a base16 string and add zero if we get
     // only one character.
-    let hash = rgb.map(x =>
-      parseInt(x)
-        .toString(16)
-        .padStart(2, "0")
-    );
+    let hash = rgb.map(x => parseInt(x).toString(16).padStart(2, "0"));
 
     return `#${hash.join("")}`;
   },

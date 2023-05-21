@@ -271,7 +271,7 @@ var gBigFileObserver = {
         if (now >= notification.timeout) {
           gComposeNotification.removeNotification(notification);
         } else {
-          setTimeout(function() {
+          setTimeout(function () {
             gComposeNotification.removeNotification(notification);
           }, notification.timeout - now);
         }

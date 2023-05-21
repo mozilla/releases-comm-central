@@ -17,7 +17,7 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")
 );
 
-XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {
+XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
@@ -786,7 +786,7 @@ export var GenericAccountBuddyPrototype = {
     ];
 
     // Fire the notifications.
-    notifications.forEach(function(aTopic) {
+    notifications.forEach(function (aTopic) {
       this._notifyObservers(aTopic);
     }, this);
   },
@@ -1281,7 +1281,7 @@ export var GenericConvChatPrototype = {
   // Removes all participant in conversation.
   removeAllParticipants() {
     let stringNicknames = [];
-    this._participants.forEach(function(aParticipant) {
+    this._participants.forEach(function (aParticipant) {
       let stringNickname = Cc["@mozilla.org/supports-string;1"].createInstance(
         Ci.nsISupportsString
       );
@@ -1611,7 +1611,7 @@ export var GenericProtocolPrototype = {
       return;
     }
 
-    this.commands.forEach(function(command) {
+    this.commands.forEach(function (command) {
       if (!command.hasOwnProperty("name") || !command.hasOwnProperty("run")) {
         throw new Error("Every command must have a name and a run function.");
       }

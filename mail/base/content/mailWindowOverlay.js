@@ -507,7 +507,7 @@ function InitViewSortByMenu() {
     Ci.nsMsgViewSortType.byCustom,
   ].includes(primarySortType);
 
-  let setSortItemAttrs = function(id, sortKey) {
+  let setSortItemAttrs = function (id, sortKey) {
     let menuItem = document.getElementById(id);
     menuItem.setAttribute(
       "checked",
@@ -948,7 +948,7 @@ function InitMessageTags(parent, elementName = "menuitem", classes) {
     }
     item.setAttribute("value", tagInfo.key);
     item.setAttribute("type", "checkbox");
-    item.addEventListener("command", function(event) {
+    item.addEventListener("command", function (event) {
       goDoCommand("cmd_toggleTag", event);
     });
 
@@ -1296,7 +1296,7 @@ function MsgMarkAllFoldersRead(selectedFolders) {
     return;
   }
 
-  selectedServers.forEach(function(server) {
+  selectedServers.forEach(function (server) {
     for (let folder of server.rootFolder.descendants) {
       folder.markAllMessagesRead(msgWindow);
     }

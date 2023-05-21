@@ -20,7 +20,7 @@ setupIMAPPump("Dovecot");
 // create our own handler so that we can call imapd functions directly
 var handler;
 
-add_setup(function() {
+add_setup(function () {
   Services.prefs.setBoolPref(
     "mail.server.server1.autosync_offline_stores",
     false
@@ -29,7 +29,7 @@ add_setup(function() {
 
 // mbox mailboxes cannot contain both child mailboxes and messages, so this will
 // be one test case.
-add_setup(async function() {
+add_setup(async function () {
   IMAPPump.mailbox.flags = ["\\Marked", "\\NoInferiors"];
   IMAPPump.mailbox.subscribed = true;
   IMAPPump.daemon.createMailbox("Fruit", {});

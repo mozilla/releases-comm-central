@@ -629,11 +629,11 @@ async function interactiveUpdateTest(autoUpdate, checkFn) {
 // Individual tests can store a cleanup function in the testCleanup global
 // to ensure it gets called before the final check is performed.
 let testCleanup;
-add_task(async function() {
+add_task(async function () {
   let addons = await AddonManager.getAllAddons();
   let existingAddons = new Set(addons.map(a => a.id));
 
-  registerCleanupFunction(async function() {
+  registerCleanupFunction(async function () {
     if (testCleanup) {
       await testCleanup();
       testCleanup = null;

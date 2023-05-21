@@ -113,7 +113,7 @@ async function subTest(createTab, getBrowser, shouldRemove = true) {
 
 add_task(async function testFirstTab() {
   let createTab = async () => {
-    window.createTab = async function() {
+    window.createTab = async function () {
       let tabs = await browser.tabs.query({});
       browser.test.assertEq(1, tabs.length);
       await browser.tabs.update(tabs[0].id, { url: "test.html" });
@@ -137,7 +137,7 @@ add_task(async function testFirstTab() {
 
 add_task(async function testContentTab() {
   let createTab = async () => {
-    window.createTab = async function() {
+    window.createTab = async function () {
       let tab = await browser.tabs.create({ url: "test.html" });
       return tab.id;
     };
@@ -167,7 +167,7 @@ add_task(async function testContentTab() {
 
 add_task(async function testPopupWindow() {
   let createTab = async () => {
-    window.createTab = async function() {
+    window.createTab = async function () {
       let popup = await browser.windows.create({
         url: "test.html",
         type: "popup",

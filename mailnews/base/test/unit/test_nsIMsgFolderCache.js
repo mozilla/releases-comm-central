@@ -23,7 +23,7 @@ add_task(function test_basics() {
     cache.init(jsonFile, legacyFile);
 
     // getCacheElement has to be told to create non-existent keys.
-    Assert.throws(function() {
+    Assert.throws(function () {
       cache.getCacheElement("a/non/existent/key", false);
     }, /NS_ERROR_NOT_AVAILABLE/);
     let e1 = cache.getCacheElement("/made/up/path/Inbox", true);
@@ -72,27 +72,27 @@ add_task(function test_basics() {
     Assert.equal(e1.getCachedString("bar"), "日本語");
 
     // Check some disallowed conversions from String.
-    Assert.throws(function() {
+    Assert.throws(function () {
       e1.getCachedInt32("bar");
     }, /NS_ERROR_NOT_AVAILABLE/);
-    Assert.throws(function() {
+    Assert.throws(function () {
       e1.getCachedUInt32("bar");
     }, /NS_ERROR_NOT_AVAILABLE/);
-    Assert.throws(function() {
+    Assert.throws(function () {
       e1.getCachedInt64("bar");
     }, /NS_ERROR_NOT_AVAILABLE/);
 
     // Trying to read missing properties is an error.
-    Assert.throws(function() {
+    Assert.throws(function () {
       e1.getCachedInt32("non-existent-property");
     }, /NS_ERROR_NOT_AVAILABLE/);
-    Assert.throws(function() {
+    Assert.throws(function () {
       e1.getCachedUInt32("non-existent-property");
     }, /NS_ERROR_NOT_AVAILABLE/);
-    Assert.throws(function() {
+    Assert.throws(function () {
       e1.getCachedInt64("non-existent-property");
     }, /NS_ERROR_NOT_AVAILABLE/);
-    Assert.throws(function() {
+    Assert.throws(function () {
       e1.getCachedString("non-existent-property");
     }, /NS_ERROR_NOT_AVAILABLE/);
 

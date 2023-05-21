@@ -36,7 +36,7 @@ var {
 var folder = null,
   folder2 = null;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("SelectionA");
   folder2 = await create_folder("SelectionB");
   await make_message_sets_in_folders([folder, folder2], [{ count: 50 }]);

@@ -41,11 +41,11 @@
 var EXPORTED_SYMBOLS = ["MozMillController"];
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var MozMillController = function(win) {
+var MozMillController = function (win) {
   this.window = win;
 
   utils.waitFor(
-    function() {
+    function () {
       return (
         win != null &&
         win.document.readyState == "complete" &&

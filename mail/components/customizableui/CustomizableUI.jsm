@@ -28,7 +28,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   PanelMultiView: "resource:///modules/PanelMultiView.jsm",
 });
 
-XPCOMUtils.defineLazyGetter(lazy, "gWidgetsBundle", function() {
+XPCOMUtils.defineLazyGetter(lazy, "gWidgetsBundle", function () {
   const kUrl =
     "chrome://browser/locale/customizableui/customizableWidgets.properties";
   return Services.strings.createBundle(kUrl);
@@ -2850,7 +2850,7 @@ var CustomizableUIInternal = {
       aWidget[aEventName] = null;
       return;
     }
-    aWidget[aEventName] = function(...aArgs) {
+    aWidget[aEventName] = function (...aArgs) {
       // Wrap inside a try...catch to properly log errors, until bug 862627 is
       // fixed, which in turn might help bug 503244.
       try {
@@ -4477,7 +4477,7 @@ function WidgetGroupWrapper(aWidget) {
 
   this.__defineGetter__("provider", () => CustomizableUI.PROVIDER_API);
 
-  this.__defineSetter__("disabled", function(aValue) {
+  this.__defineSetter__("disabled", function (aValue) {
     aValue = !!aValue;
     aWidget.disabled = aValue;
     for (let [, instance] of aWidget.instances) {
@@ -4508,7 +4508,7 @@ function WidgetGroupWrapper(aWidget) {
     return wrapper;
   };
 
-  this.__defineGetter__("instances", function() {
+  this.__defineGetter__("instances", function () {
     // Can't use gBuildWindows here because some areas load lazily:
     let placement = CustomizableUIInternal.getPlacementOfWidget(aWidget.id);
     if (!placement) {
@@ -4522,7 +4522,7 @@ function WidgetGroupWrapper(aWidget) {
     return Array.from(buildAreas, node => this.forWindow(node.ownerGlobal));
   });
 
-  this.__defineGetter__("areaType", function() {
+  this.__defineGetter__("areaType", function () {
     let areaProps = gAreas.get(aWidget.currentArea);
     return areaProps && areaProps.get("type");
   });
@@ -4554,11 +4554,11 @@ function WidgetSingleWrapper(aWidget, aNode) {
   }
 
   this.__defineGetter__("disabled", () => aNode.disabled);
-  this.__defineSetter__("disabled", function(aValue) {
+  this.__defineSetter__("disabled", function (aValue) {
     aNode.disabled = !!aValue;
   });
 
-  this.__defineGetter__("anchor", function() {
+  this.__defineGetter__("anchor", function () {
     let anchorId;
     // First check for an anchor for the area:
     let placement = CustomizableUIInternal.getPlacementOfWidget(aWidget.id);
@@ -4572,7 +4572,7 @@ function WidgetSingleWrapper(aWidget, aNode) {
     return anchorId ? aNode.ownerDocument.getElementById(anchorId) : aNode;
   });
 
-  this.__defineGetter__("overflowed", function() {
+  this.__defineGetter__("overflowed", function () {
     return aNode.getAttribute("overflowedItem") == "true";
   });
 
@@ -4625,7 +4625,7 @@ function XULWidgetGroupWrapper(aWidgetId) {
     return wrapper;
   };
 
-  this.__defineGetter__("areaType", function() {
+  this.__defineGetter__("areaType", function () {
     let placement = CustomizableUIInternal.getPlacementOfWidget(aWidgetId);
     if (!placement) {
       return null;
@@ -4635,7 +4635,7 @@ function XULWidgetGroupWrapper(aWidgetId) {
     return areaProps && areaProps.get("type");
   });
 
-  this.__defineGetter__("instances", function() {
+  this.__defineGetter__("instances", function () {
     return Array.from(gBuildWindows, wins => this.forWindow(wins[0]));
   });
 
@@ -4657,7 +4657,7 @@ function XULWidgetSingleWrapper(aWidgetId, aNode, aDocument) {
   // If we keep a strong ref, the weak ref will never die, so null it out:
   aDocument = null;
 
-  this.__defineGetter__("node", function() {
+  this.__defineGetter__("node", function () {
     // If we've set this to null (further down), we're sure there's nothing to
     // be gotten here, so bail out early:
     if (!weakDoc) {
@@ -4691,7 +4691,7 @@ function XULWidgetSingleWrapper(aWidgetId, aNode, aDocument) {
     return null;
   });
 
-  this.__defineGetter__("anchor", function() {
+  this.__defineGetter__("anchor", function () {
     let anchorId;
     // First check for an anchor for the area:
     let placement = CustomizableUIInternal.getPlacementOfWidget(aWidgetId);
@@ -4709,7 +4709,7 @@ function XULWidgetSingleWrapper(aWidgetId, aNode, aDocument) {
       : node;
   });
 
-  this.__defineGetter__("overflowed", function() {
+  this.__defineGetter__("overflowed", function () {
     let node = this.node;
     if (!node) {
       return false;

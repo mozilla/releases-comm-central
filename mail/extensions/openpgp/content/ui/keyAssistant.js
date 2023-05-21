@@ -833,7 +833,7 @@ var gKeyAssistant = {
       // notifications. We must allow those notifications arrive while
       // ignoreExternal is still true.
       // Use settimeout to reset ignoreExternal to false afterwards.
-      setTimeout(function() {
+      setTimeout(function () {
         this.ignoreExternal = false;
       });
       return;
@@ -860,7 +860,7 @@ var gKeyAssistant = {
     // notifications. We must allow those notifications arrive while
     // ignoreExternal is still true.
     // Use settimeout to reset ignoreExternal to false afterwards.
-    setTimeout(function() {
+    setTimeout(function () {
       this.ignoreExternal = false;
     });
 

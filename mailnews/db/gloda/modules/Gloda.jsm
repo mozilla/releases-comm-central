@@ -660,7 +660,7 @@ var Gloda = {
       aNounDef.idAttr = "id";
     }
     if (!("comparator" in aNounDef)) {
-      aNounDef.comparator = function() {
+      aNounDef.comparator = function () {
         throw new Error(
           "Noun type '" + aNounDef.name + "' lacks a real comparator."
         );
@@ -682,7 +682,7 @@ var Gloda = {
       GlodaDatastore.createNounTable(aNounDef);
 
       if (!aNounDef.toParamAndValue) {
-        aNounDef.toParamAndValue = function(aThing) {
+        aNounDef.toParamAndValue = function (aThing) {
           if (aThing instanceof aNounDef.class) {
             return [null, aThing.id];
           }
@@ -708,7 +708,7 @@ var Gloda = {
       aNounDef.specialLoadAttribs = [];
 
       // - define the 'id' constrainer
-      let idConstrainer = function(...aArgs) {
+      let idConstrainer = function (...aArgs) {
         let constraint = [GlodaConstants.kConstraintIdIn, null, ...aArgs];
         this._constraints.push(constraint);
         return this;
@@ -1398,7 +1398,7 @@ var Gloda = {
         "special" in aAttrDef &&
         aAttrDef.special == GlodaConstants.kSpecialFulltext
       ) {
-        constrainer = function(...aArgs) {
+        constrainer = function (...aArgs) {
           let constraint = [
             GlodaConstants.kConstraintFulltext,
             aAttrDef,
@@ -1408,13 +1408,13 @@ var Gloda = {
           return this;
         };
       } else if (aAttrDef.canQuery || aAttrDef.attributeName.startsWith("_")) {
-        constrainer = function(...aArgs) {
+        constrainer = function (...aArgs) {
           let constraint = [GlodaConstants.kConstraintIn, aAttrDef, ...aArgs];
           this._constraints.push(constraint);
           return this;
         };
       } else {
-        constrainer = function() {
+        constrainer = function () {
           throw new Error(
             "Cannot query on attribute " +
               aAttrDef.attributeName +
@@ -1437,7 +1437,7 @@ var Gloda = {
       // - ranged value helper: fooRange
       if (objectNounDef.continuous) {
         // takes one or more tuples of [lower bound, upper bound]
-        let rangedConstrainer = function(...aArgs) {
+        let rangedConstrainer = function (...aArgs) {
           let constraint = [
             GlodaConstants.kConstraintRanges,
             aAttrDef,
@@ -1459,7 +1459,7 @@ var Gloda = {
         "special" in aAttrDef &&
         aAttrDef.special == GlodaConstants.kSpecialString
       ) {
-        let likeConstrainer = function(...aArgs) {
+        let likeConstrainer = function (...aArgs) {
           let constraint = [
             GlodaConstants.kConstraintStringLike,
             aAttrDef,
@@ -1482,7 +1482,7 @@ var Gloda = {
           let helperFunc = helper;
           aSubjectNounDef.queryClass.prototype[
             aAttrDef.boundName + name
-          ] = function(...aArgs) {
+          ] = function (...aArgs) {
             return helperFunc.call(this, aAttrDef, ...aArgs);
           };
         }

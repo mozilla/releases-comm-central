@@ -1466,7 +1466,7 @@
           }
         }
         if (ampmIndex) {
-          let makeFormatRegExp = function(string) {
+          let makeFormatRegExp = function (string) {
             // make expr to accept either as provided, lowercased, or uppercased
             let regExp = string.replace(/(\W)/g, "[$1]"); // escape punctuation
             let lowercased = string.toLowerCase();

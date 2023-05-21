@@ -157,7 +157,7 @@ var gDataMigrator = {
   checkEvolution() {
     function evoMigrate(aDataDir, aCallback) {
       let i = 1;
-      let evoDataMigrate = function(dataStore) {
+      let evoDataMigrate = function (dataStore) {
         console.debug("Migrating evolution data file in " + dataStore.path);
         if (dataStore.exists()) {
           let calendar = gDataMigrator.importICSToStorage(dataStore);

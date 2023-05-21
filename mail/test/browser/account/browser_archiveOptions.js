@@ -32,7 +32,7 @@ var { MailServices } = ChromeUtils.import(
 
 var defaultIdentity;
 
-add_setup(function() {
+add_setup(function () {
   defaultIdentity = MailServices.accounts.defaultAccount.defaultIdentity;
 });
 
@@ -78,18 +78,18 @@ add_task(async function test_archive_options_enabled() {
   defaultIdentity.archiveFolder = imapServer.rootFolder.URI;
 
   imapServer.isGMailServer = false;
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_archive_options_enabled(tab, account.key, true);
   });
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_archive_options_enabled(tab, defaultAccount.key, true);
   });
 
   imapServer.isGMailServer = true;
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_archive_options_enabled(tab, account.key, false);
   });
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_archive_options_enabled(tab, defaultAccount.key, false);
   });
 
@@ -97,7 +97,7 @@ add_task(async function test_archive_options_enabled() {
 });
 
 function subtest_initial_state(identity) {
-  plan_for_modal_dialog("archiveOptions", function(ac) {
+  plan_for_modal_dialog("archiveOptions", function (ac) {
     Assert.equal(
       ac.window.document.getElementById("archiveGranularity").selectedIndex,
       identity.archiveGranularity
@@ -127,7 +127,7 @@ add_task(function test_open_archive_options() {
 });
 
 function subtest_save_state(identity, granularity, kfs) {
-  plan_for_modal_dialog("archiveOptions", function(ac) {
+  plan_for_modal_dialog("archiveOptions", function (ac) {
     ac.window.document.getElementById(
       "archiveGranularity"
     ).selectedIndex = granularity;
@@ -171,11 +171,11 @@ function subtest_check_archive_enabled(tab, archiveEnabled) {
 }
 
 add_task(async function test_archive_enabled() {
-  await open_advanced_settings(function(amc) {
+  await open_advanced_settings(function (amc) {
     subtest_check_archive_enabled(amc, true);
   });
 
-  await open_advanced_settings(function(amc) {
+  await open_advanced_settings(function (amc) {
     subtest_check_archive_enabled(amc, false);
   });
 });

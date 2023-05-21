@@ -49,7 +49,7 @@ add_task(function test_addon_prefs() {
     mc.window
   );
 
-  plan_for_modal_dialog("mozmill-prefs", function(controller) {
+  plan_for_modal_dialog("mozmill-prefs", function (controller) {
     // Add | await new Promise(resolve => setTimeout(resolve, 1000));|
     // here to see the popup dialog.
     controller.window.close();

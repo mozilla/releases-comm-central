@@ -1,20 +1,20 @@
 "use strict";
-define(function(require) {
+define(function (require) {
   var headerparser = require("jsmime").headerparser;
   var assert = require("assert");
 
   function arrayTest(data, fn) {
-    fn.toString = function() {
+    fn.toString = function () {
       let text = Function.prototype.toString.call(this);
-      text = text.replace(/data\[([0-9]*)\]/g, function(m, p) {
+      text = text.replace(/data\[([0-9]*)\]/g, function (m, p) {
         return JSON.stringify(data[p]);
       });
       return text;
     };
     return test(data[0], fn);
   }
-  suite("headerparser", function() {
-    suite("parseParameterHeader", function() {
+  suite("headerparser", function () {
+    suite("parseParameterHeader", function () {
       let header_tests = [
         ["multipart/related", ["multipart/related", {}]],
         ["a ; b=v", ["a", { b: "v" }]],
@@ -30,8 +30,8 @@ define(function(require) {
         ["a;b", ["a", {}]],
         ['a;b=";";c=d', ["a", { b: ";", c: "d" }]],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           let testMap = new Map();
           for (let key in data[1][1]) {
             testMap.set(key, data[1][1][key]);
@@ -44,7 +44,7 @@ define(function(require) {
         });
       });
     });
-    suite("parseParameterHeader (2231/2047 support)", function() {
+    suite("parseParameterHeader (2231/2047 support)", function () {
       let header_tests = [
         // Copied from test_MIME_params.js and adapted
         ["attachment;", ["attachment", {}]],
@@ -290,8 +290,8 @@ define(function(require) {
           ["attachment", { filename: "5987" }],
         ],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           let testMap = new Map();
           for (let key in data[1][1]) {
             testMap.set(key, data[1][1][key]);
@@ -304,7 +304,7 @@ define(function(require) {
         });
       });
     });
-    suite("parseAddressingHeader", function() {
+    suite("parseAddressingHeader", function () {
       let header_tests = [
         ["", []],
         [
@@ -732,8 +732,8 @@ define(function(require) {
           ],
         ],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           assert.deepEqual(
             headerparser.parseAddressingHeader(data[0], false),
             data[1]
@@ -741,7 +741,7 @@ define(function(require) {
         });
       });
     });
-    suite("parseAddressingHeader (RFC 2047 support)", function() {
+    suite("parseAddressingHeader (RFC 2047 support)", function () {
       let header_tests = [
         ["Simple <a@b.c>", [{ name: "Simple", email: "a@b.c" }]],
         ["=?UTF-8?Q?Simple?= <a@b.c>", [{ name: "Simple", email: "a@b.c" }]],
@@ -879,8 +879,8 @@ define(function(require) {
           ],
         ],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           assert.deepEqual(
             headerparser.parseAddressingHeader(data[0], true),
             data[1]
@@ -888,7 +888,7 @@ define(function(require) {
         });
       });
     });
-    suite("parseDateHeader", function() {
+    suite("parseDateHeader", function () {
       let header_tests = [
         // Some basic tests, derived from searching for Date headers in a mailing
         // list archive.
@@ -975,8 +975,8 @@ define(function(require) {
         // A truly invalid date
         ["Coincident with the rapture", NaN],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           assert.equal(
             headerparser.parseDateHeader(data[0]).toString(),
             new Date(data[1]).toString()
@@ -985,7 +985,7 @@ define(function(require) {
       });
     });
 
-    suite("decodeRFC2047Words", function() {
+    suite("decodeRFC2047Words", function () {
       let header_tests = [
         // Some basic sanity tests for the test process
         ["Test", "Test"],
@@ -1164,13 +1164,13 @@ define(function(require) {
         ["=?us-ascii?B?VGVzdA==========?=", "Test"],
         ["=?us-ascii?B?VGVzdA===========?=", "Test"],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           assert.deepEqual(headerparser.decodeRFC2047Words(data[0]), data[1]);
         });
       });
     });
-    suite("8-bit header processing", function() {
+    suite("8-bit header processing", function () {
       let header_tests = [
         // Non-ASCII header values
         ["oxyg\xc3\xa8ne", "oxyg\u00e8ne", "UTF-8"],
@@ -1193,8 +1193,8 @@ define(function(require) {
         ["\xc3 =?UTF-8?Q?=a8?=", "\ufffd \ufffd", "UTF-8"],
         ["\xc3 =?UTF-8?Q?=a8?=", "\u00c3 \ufffd", "ISO-8859-1"],
       ];
-      header_tests.forEach(function(data) {
-        arrayTest(data, function() {
+      header_tests.forEach(function (data) {
+        arrayTest(data, function () {
           assert.deepEqual(
             headerparser.decodeRFC2047Words(
               headerparser.convert8BitHeader(

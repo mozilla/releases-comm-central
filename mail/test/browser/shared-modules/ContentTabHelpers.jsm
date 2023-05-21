@@ -398,7 +398,7 @@ function get_notification_bar_for_tab(aTab) {
 }
 
 function updateBlocklist(aController, aCallback) {
-  let observer = function() {
+  let observer = function () {
     Services.obs.removeObserver(observer, "blocklist-updated");
     aController.window.setTimeout(aCallback, 0);
   };

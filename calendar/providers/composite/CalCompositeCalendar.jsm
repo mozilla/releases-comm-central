@@ -101,7 +101,7 @@ CalCompositeCalendar.prototype = {
     this.mDefaultPref = aPrefPrefix + "-default";
     let cals = cal.manager.getCalendars();
 
-    cals.forEach(function(calendar) {
+    cals.forEach(function (calendar) {
       if (calendar.getProperty(this.mActivePref)) {
         this.addCalendar(calendar);
       }

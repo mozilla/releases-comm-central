@@ -1145,7 +1145,13 @@ class httpHooks {
       let etagListener = {};
       let self = this; // need to reference in callback
 
-      etagListener.onStreamComplete = function(aLoader, aContext, aStatus, aResultLength, aResult) {
+      etagListener.onStreamComplete = function (
+        aLoader,
+        aContext,
+        aStatus,
+        aResultLength,
+        aResult
+      ) {
         let multistatus;
         try {
           let str = new TextDecoder().decode(Uint8Array.from(aResult));

@@ -292,20 +292,20 @@ DateFacetVis.prototype = {
       .bottom(0)
       .height(d => Math.floor(d.items.length * binScale))
       .width(() => barWidth)
-      .left(function() {
+      .left(function () {
         return isRTL ? null : this.index * barPix;
       })
-      .right(function() {
+      .right(function () {
         return isRTL ? this.index * barPix : null;
       })
       .fillStyle("var(--barColor)")
-      .event("mouseover", function(d) {
+      .event("mouseover", function (d) {
         return this.fillStyle("var(--barHlColor)");
       })
-      .event("mouseout", function(d) {
+      .event("mouseout", function (d) {
         return this.fillStyle("var(--barColor)");
       })
-      .event("click", function(d) {
+      .event("click", function (d) {
         dis.constraints = [[d.startDate, d.endDate]];
         dis.binding.setAttribute("zoomedout", "false");
         FacetContext.addFacetConstraint(
@@ -323,7 +323,7 @@ DateFacetVis.prototype = {
       .bottom(0)
       .height(d => Math.floor(d * binScale))
       .width(() => barWidth)
-      .left(function() {
+      .left(function () {
         return this.index * barPix;
       })
       .fillStyle("var(--barHlColor)");
@@ -338,13 +338,13 @@ DateFacetVis.prototype = {
         .right(d => (isRTL ? Math.floor(width * d[0]) : null))
         .width(d => Math.floor(width * d[1]) - Math.floor(width * d[0]) - 1)
         .fillStyle("var(--dateColor)")
-        .event("mouseover", function(d) {
+        .event("mouseover", function (d) {
           return this.fillStyle("var(--dateHLColor)");
         })
-        .event("mouseout", function(d) {
+        .event("mouseout", function (d) {
           return this.fillStyle("var(--dateColor)");
         })
-        .event("click", function(d) {
+        .event("click", function (d) {
           dis.constraints = [[d[3], d[4]]];
           dis.binding.setAttribute("zoomedout", "false");
           FacetContext.addFacetConstraint(

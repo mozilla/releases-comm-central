@@ -25,7 +25,7 @@ function run_test() {
     );
   }
 
-  registerCleanupFunction(function() {
+  registerCleanupFunction(function () {
     // Remove the distribution.ini file
     if (iniFile.exists()) {
       iniFile.remove(true);

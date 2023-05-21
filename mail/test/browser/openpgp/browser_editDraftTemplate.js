@@ -66,7 +66,7 @@ function clearFolder(folder) {
   });
 }
 
-add_setup(async function() {
+add_setup(async function () {
   aliceAcct = MailServices.accounts.createAccount();
   aliceAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",
@@ -202,7 +202,7 @@ async function doTestSecState(isDraft, secure) {
   clearFolder(theFolder);
 }
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   MailServices.accounts.removeAccount(aliceAcct, true);
   await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);
 });

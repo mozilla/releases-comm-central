@@ -26,7 +26,7 @@ load("base_query_messages.js");
 // We want to go offline once the messages have already been indexed online.
 goOffline = true;
 
-add_setup(function() {
+add_setup(function () {
   msgGen = new MessageGenerator();
   messageInjection = new MessageInjection(
     { mode: "imap", offline: false },

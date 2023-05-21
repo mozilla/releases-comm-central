@@ -56,7 +56,7 @@ add_task(async () => {
 add_task(async () => {
   let mailingListWindowPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
-  ).then(async function(mlWindow) {
+  ).then(async function (mlWindow) {
     let mlDocument = mlWindow.document;
     let mlDocElement = mlDocument.querySelector("dialog");
 
@@ -181,7 +181,7 @@ add_task(async () => {
 add_task(async () => {
   let mailingListWindowPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abEditListDialog.xhtml"
-  ).then(async function(mlWindow) {
+  ).then(async function (mlWindow) {
     let mlDocument = mlWindow.document;
     let mlDocElement = mlDocument.querySelector("dialog");
 
@@ -276,8 +276,9 @@ add_task(async () => {
   Assert.equal(
     global.booksList.getRowAtIndex(3).querySelector("span").textContent,
     inputs.mlName + inputs.modification,
-    `mailing list ("${inputs.mlName +
-      inputs.modification}") is displayed in the address book list`
+    `mailing list ("${
+      inputs.mlName + inputs.modification
+    }") is displayed in the address book list`
   );
 
   Assert.ok(
@@ -360,7 +361,7 @@ add_task(async () => {
 add_task(async () => {
   let mailingListWindowPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abEditListDialog.xhtml"
-  ).then(async function(mailingListWindow) {
+  ).then(async function (mailingListWindow) {
     let mlDocument = mailingListWindow.document;
     let mlDocElement = mlDocument.querySelector("dialog");
 
@@ -429,8 +430,9 @@ add_task(async () => {
   Assert.equal(
     global.booksList.getRowAtIndex(3).querySelector("span").textContent,
     inputs.mlName + inputs.modification,
-    `mailing list ("${inputs.mlName +
-      inputs.modification}") is still displayed in the address book list`
+    `mailing list ("${
+      inputs.mlName + inputs.modification
+    }") is still displayed in the address book list`
   );
 
   // Open the mailing list dialog, the callback above interacts with it.

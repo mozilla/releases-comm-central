@@ -176,7 +176,7 @@ function test_stream_message(info) {
   return () => {
     let msgHdr = info._glodaMsg.folderMessage;
 
-    MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+    MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
       verify_message_content(
         info,
         info._synMsg,
@@ -191,7 +191,7 @@ function test_stream_message(info) {
 // Instrument GlodaFundAttr so we can check the count.
 var originalWhittler = GlodaFundAttr.contentWhittle;
 var whittleCount = 0;
-GlodaFundAttr.contentWhittle = function(...aArgs) {
+GlodaFundAttr.contentWhittle = function (...aArgs) {
   whittleCount++;
   return originalWhittler.apply(this, aArgs);
 };

@@ -45,7 +45,7 @@ class TestCalFilter extends CalendarFilteredViewMixin(class {}) {
 let testItems = {};
 let addedTestItems = {};
 
-add_setup(async function() {
+add_setup(async function () {
   await new Promise(resolve => do_calendar_startup(resolve));
 
   for (let [title, startDate, endDate] of [

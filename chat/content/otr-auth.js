@@ -22,7 +22,7 @@ var [mode, uiConv, contactInfo] = window.arguments;
 function showSection(selected, hideMenu) {
   document.getElementById("how").hidden = !!hideMenu;
   ["questionAndAnswer", "sharedSecret", "manualVerification", "ask"].forEach(
-    function(key) {
+    function (key) {
       document.getElementById(key).hidden = key !== selected;
     }
   );

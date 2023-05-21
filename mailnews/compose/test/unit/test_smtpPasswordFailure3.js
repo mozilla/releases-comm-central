@@ -69,7 +69,7 @@ function promptPasswordPS(
   return false;
 }
 
-add_task(async function() {
+add_task(async function () {
   function createHandler(d) {
     var handler = new SMTP_RFC2821_handler(d);
     handler.dropOnAuthFailure = true;

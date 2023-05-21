@@ -26,7 +26,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 
 var messageInjection = new MessageInjection({ mode: "local" });
 
-add_setup(async function() {
+add_setup(async function () {
   gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
     Ci.nsIMsgWindow
   );

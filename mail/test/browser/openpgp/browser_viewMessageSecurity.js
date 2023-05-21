@@ -59,7 +59,7 @@ var gInbox;
 /**
  * Set up the base account, identity and keys needed for the tests.
  */
-add_setup(async function() {
+add_setup(async function () {
   SmimeUtils.ensureNSS();
   SmimeUtils.loadCertificateAndKey(
     new FileUtils.File(getTestFilePath("data/smime/Bob.p12")),

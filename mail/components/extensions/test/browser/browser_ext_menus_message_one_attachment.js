@@ -163,7 +163,7 @@ function getExtensionDetails(...permissions) {
   };
 }
 
-add_setup(async function() {
+add_setup(async function () {
   await Services.search.init();
 
   gAccount = createAccount();

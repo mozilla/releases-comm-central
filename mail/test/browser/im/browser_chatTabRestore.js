@@ -39,7 +39,7 @@ async function wait_for_chat_tab_to_open(aController) {
   }
 
   utils.waitFor(
-    function() {
+    function () {
       let chatTabFound = false;
       for (let tab of mc.window.document.getElementById("tabmail").tabInfo) {
         if (tab.mode.type == "chat") {
@@ -66,7 +66,7 @@ async function wait_for_chat_tab_to_open(aController) {
  */
 add_task(async function test_chat_tab_restore() {
   // Close everything but the first tab.
-  let closeTabs = function() {
+  let closeTabs = function () {
     while (mc.window.document.getElementById("tabmail").tabInfo.length > 1) {
       mc.window.document.getElementById("tabmail").closeTab(1);
     }

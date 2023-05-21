@@ -34,7 +34,7 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   let win = get_about_3pane();
 
   await right_click_on_folder(aFolder);
-  let callback = function(controller) {
+  let callback = function (controller) {
     // When the "stop button" is disabled, the panel is populated.
     utils.waitFor(
       () => controller.window.document.getElementById("stopButton").disabled

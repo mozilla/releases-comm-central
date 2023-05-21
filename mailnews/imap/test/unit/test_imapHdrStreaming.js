@@ -28,7 +28,7 @@ var gMsgId1 = "200806061706.m56H6RWT004933@mrapp54.mozilla.org";
 // Adds some messages directly to a mailbox (e.g. new mail).
 function addMessagesToServer(messages, mailbox) {
   // For every message we have, we need to convert it to a file:/// URI.
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let URI = Services.io
       .newFileURI(message.file)
       .QueryInterface(Ci.nsIFileURL);
@@ -37,7 +37,7 @@ function addMessagesToServer(messages, mailbox) {
   });
 }
 
-add_setup(async function() {
+add_setup(async function () {
   // Add a couple of messages to the INBOX
   //   this is synchronous, afaik.
   addMessagesToServer(

@@ -49,7 +49,7 @@ let aboutMessage = get_about_message();
 var kBoxId = "mail-notification-top";
 var draftsFolder;
 
-add_setup(async function() {
+add_setup(async function () {
   requestLongerTimeout(2);
   draftsFolder = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });

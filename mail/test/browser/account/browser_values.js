@@ -36,7 +36,7 @@ var { mc } = ChromeUtils.import(
 
 var gPopAccount, gOriginalAccountCount;
 
-add_setup(function() {
+add_setup(function () {
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 
@@ -59,7 +59,7 @@ add_setup(function() {
   );
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   // Remove our test account to leave the profile clean.
   MailServices.accounts.removeAccount(gPopAccount);
   // There should be only the original accounts left.
@@ -72,7 +72,7 @@ registerCleanupFunction(function() {
  * prefill the currently default email address.
  */
 add_task(async function test_default_CC_address() {
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_default_CC_address(tab);
   });
 });
@@ -151,7 +151,7 @@ add_task(async function test_account_name() {
   let newUser = "somebody";
 
   // On NNTP there is no user name so just set new hostname.
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_account_name(nntpAccount, newHost, null, tab);
   });
 
@@ -160,7 +160,7 @@ add_task(async function test_account_name() {
 
   // On POP3 there is both user name and host name.
   // Set new host name first.
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_account_name(gPopAccount, newHost, null, tab);
   });
 
@@ -168,7 +168,7 @@ add_task(async function test_account_name() {
   Assert.equal(gPopAccount.incomingServer.prettyName, "nobody@" + newHost);
 
   // Set new host name first.
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_account_name(gPopAccount, null, newUser, tab);
   });
 
@@ -179,7 +179,7 @@ add_task(async function test_account_name() {
   newUser = "anotherbody";
 
   // Set user name and host name at once.
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_account_name(gPopAccount, newHost, newUser, tab);
   });
 
@@ -191,7 +191,7 @@ add_task(async function test_account_name() {
 
   newHost = "third.host.invalid";
   // Set the host name again.
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_account_name(gPopAccount, newHost, null, tab);
   });
 
@@ -260,7 +260,7 @@ add_task(async function test_invalid_junk_target() {
   branch.setCharPref("spamActionTargetFolder", "some random non-existent URI");
   let moveOnSpam = true;
   branch.setBoolPref("moveOnSpam", moveOnSpam);
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_invalid_junk_target(tab);
   });
 
@@ -295,10 +295,10 @@ add_task(async function test_invalid_hostname() {
   );
   let origHostname = branch.getCharPref("hostname");
 
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_invalid_hostname(tab, false, origHostname);
   });
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_invalid_hostname(tab, true, origHostname);
   });
 
@@ -344,7 +344,7 @@ function subtest_check_invalid_hostname(tab, exitSettings, originalHostname) {
     Assert.equal(hostname.value, originalHostname);
   } else {
     // If the hostname is bad, we should get a warning dialog.
-    plan_for_modal_dialog("commonDialogWindow", function(cdc) {
+    plan_for_modal_dialog("commonDialogWindow", function (cdc) {
       // Just dismiss it.
       cdc.window.document.documentElement
         .querySelector("dialog")
@@ -363,7 +363,7 @@ const badName = "trailing  space ";
 const badEmail = " leading_space@example.com";
 
 add_task(async function test_trailing_spaces() {
-  await open_advanced_settings(function(tab) {
+  await open_advanced_settings(function (tab) {
     subtest_check_trailing_spaces(tab);
   });
   Assert.equal(gPopAccount.incomingServer.prettyName, badName.trim());

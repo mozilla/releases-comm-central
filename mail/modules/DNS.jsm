@@ -431,13 +431,13 @@ if (typeof Components === "undefined") {
   let PromiseWorker = require("resource://gre/modules/workers/PromiseWorker.js");
 
   let worker = new PromiseWorker.AbstractWorker();
-  worker.dispatch = function(aMethod, aArgs = []) {
+  worker.dispatch = function (aMethod, aArgs = []) {
     return self[aMethod](...aArgs);
   };
-  worker.postMessage = function(...aArgs) {
+  worker.postMessage = function (...aArgs) {
     self.postMessage(...aArgs);
   };
-  worker.close = function() {
+  worker.close = function () {
     self.close();
   };
   self.addEventListener("message", msg => worker.handleMessage(msg));

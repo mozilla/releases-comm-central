@@ -28,7 +28,7 @@ var {
 
 var folder;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("MessagePaneVisibility");
   await make_message_sets_in_folders([folder], [{ count: 3 }]);
 });

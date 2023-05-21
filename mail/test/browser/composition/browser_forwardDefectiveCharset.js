@@ -35,7 +35,7 @@ var folder;
 // Some text from defective-charset.eml
 const SOME_SPANISH = "estos últimos meses siento";
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("FolderWithDefectiveCharset");
   registerCleanupFunction(() => folder.deleteSelf(null));
 });

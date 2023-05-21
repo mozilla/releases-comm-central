@@ -24,7 +24,7 @@ var gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
   Ci.nsIMsgWindow
 );
 
-add_setup(async function() {
+add_setup(async function () {
   setupIMAPPump("CUSTOM1");
   Services.prefs.setBoolPref(
     "mail.server.server1.autosync_offline_stores",

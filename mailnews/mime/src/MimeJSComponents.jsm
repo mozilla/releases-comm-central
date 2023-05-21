@@ -14,10 +14,10 @@ var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 
 function HeaderHandler() {
   this.value = "";
-  this.deliverData = function(str) {
+  this.deliverData = function (str) {
     this.value += str;
   };
-  this.deliverEOF = function() {};
+  this.deliverEOF = function () {};
 }
 
 function StringEnumerator(iterator) {

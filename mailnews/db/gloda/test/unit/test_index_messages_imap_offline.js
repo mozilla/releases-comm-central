@@ -23,7 +23,7 @@ var msgGen;
 var scenarios;
 var messageInjection;
 
-add_setup(async function() {
+add_setup(async function () {
   msgGen = new MessageGenerator();
   scenarios = new MessageScenarioFactory(msgGen);
   messageInjection = new MessageInjection(

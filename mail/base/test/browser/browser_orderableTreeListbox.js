@@ -372,7 +372,7 @@ async function subtestDragReorder2() {
  */
 async function subtestDragUndroppable() {
   let originalGetter = list.__lookupGetter__("_orderableChildren");
-  list.__defineGetter__("_orderableChildren", function() {
+  list.__defineGetter__("_orderableChildren", function () {
     let rows = [...this.children];
     rows.pop();
     return rows;
@@ -433,7 +433,7 @@ async function subtestDragUndroppable() {
   list.__defineGetter__("_orderableChildren", originalGetter);
 }
 
-add_setup(async function() {
+add_setup(async function () {
   // Make sure the whole test runs with an unthreaded view in all folders.
   Services.prefs.setIntPref("mailnews.default_view_flags", 0);
 

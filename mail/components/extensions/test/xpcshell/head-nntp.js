@@ -7,6 +7,6 @@
 var IS_NNTP = true;
 
 let wrappedCreateAccount = createAccount;
-createAccount = function(type = "nntp") {
+createAccount = function (type = "nntp") {
   return wrappedCreateAccount(type);
 };

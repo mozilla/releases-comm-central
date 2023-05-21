@@ -170,7 +170,7 @@ async function onAccept() {
   return rv;
 }
 
-document.addEventListener("dialogaccept", async function(event) {
+document.addEventListener("dialogaccept", async function (event) {
   // Prevent the closing of the dialog to wait until the call
   // to onAccept() has properly returned.
   event.preventDefault();

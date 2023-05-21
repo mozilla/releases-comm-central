@@ -422,7 +422,7 @@ function openDatabaseConn(filename, resolve, reject, waitms, maxtime) {
         reject(error);
         return;
       }
-      lazy.setTimeout(function() {
+      lazy.setTimeout(function () {
         openDatabaseConn(filename, resolve, reject, waitms, maxtime);
       }, waitms);
     });

@@ -32,7 +32,7 @@ registerCleanupFunction(() => {
 /**
  * Initialize account, identity and calendar.
  */
-add_setup(async function() {
+add_setup(async function () {
   if (MailServices.accounts.accounts.length == 0) {
     MailServices.accounts.createLocalMailAccount();
   }
@@ -93,10 +93,7 @@ add_task(async function testInvitationIdentityPrompt() {
           }
         }
 
-        win.document
-          .querySelector("dialog")
-          .getButton("accept")
-          .click();
+        win.document.querySelector("dialog").getButton("accept").click();
       },
     }
   );

@@ -182,7 +182,7 @@ async function runTest(testType) {
   let extension = ExtensionTestUtils.loadExtension({
     useAddonManager: "permanent",
     files: {
-      "background.js": function() {
+      "background.js": function () {
         if (browser.runtime.getManifest().name == "delayed") {
           function handleUpdateAvailable(details) {
             browser.test.sendMessage("update postponed by 1");

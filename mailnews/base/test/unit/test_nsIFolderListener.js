@@ -29,13 +29,13 @@ var folderListener = {
 var targetFolder;
 var messageInjection;
 
-add_setup(async function() {
+add_setup(async function () {
   let msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
 
   targetFolder = await messageInjection.makeEmptyFolder();
   targetFolder.AddFolderListener(folderListener);
-  registerCleanupFunction(function() {
+  registerCleanupFunction(function () {
     targetFolder.RemoveFolderListener(folderListener);
   });
 });

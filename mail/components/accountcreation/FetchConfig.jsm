@@ -46,7 +46,7 @@ const {
  */
 function fetchConfigFromDisk(domain, successCallback, errorCallback) {
   return new TimeoutAbortable(
-    runAsync(function() {
+    runAsync(function () {
       try {
         // <TB installdir>/isp/example.com.xml
         var configLocation = Services.dirsvc.get("CurProcD", Ci.nsIFile);
@@ -176,7 +176,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
   let fetch = new lazy.FetchHTTP(
     url,
     { timeout: 10000 }, // 10 seconds
-    function(result) {
+    function (result) {
       successCallback(lazy.readFromXML(result, "db"));
     },
     errorCallback
@@ -213,7 +213,7 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
 
   sucAbortable.current = getMX(
     sanitizedDomain,
-    function(mxHostname) {
+    function (mxHostname) {
       // success
       ddump("getmx took " + (Date.now() - time) + "ms");
       let sld = Services.eTLD.getBaseDomainFromHost(mxHostname);
@@ -274,7 +274,7 @@ function fetchConfigForMX(domain, successCallback, errorCallback) {
 function getMX(sanitizedDomain, successCallback, errorCallback) {
   return new PromiseAbortable(
     DNS.mx(sanitizedDomain),
-    function(records) {
+    function (records) {
       const filteredRecs = records.filter(record => record.host);
 
       if (filteredRecs.length > 0) {

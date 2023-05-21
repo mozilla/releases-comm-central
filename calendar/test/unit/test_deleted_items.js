@@ -8,7 +8,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
-add_setup(function() {
+add_setup(function () {
   // The deleted items service is started automatically by the start-up
   // procedure, but that doesn't happen in XPCShell tests. Add an observer
   // ourselves to simulate the behaviour.
@@ -64,7 +64,7 @@ add_task(async function test_deleted_items() {
   futureDate.timezone = cal.dtz.defaultTimezone;
   let useFutureDate = false;
   let oldNowFunction = cal.dtz.now;
-  cal.dtz.now = function() {
+  cal.dtz.now = function () {
     return (useFutureDate ? futureDate : referenceDate).clone();
   };
 

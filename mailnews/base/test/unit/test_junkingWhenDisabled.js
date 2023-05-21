@@ -49,7 +49,7 @@ var gCommandUpdater;
 var gDBView;
 var gTreeView;
 
-var CommandUpdaterWithPromise = function() {
+var CommandUpdaterWithPromise = function () {
   this.deferred = PromiseUtils.defer();
 };
 CommandUpdaterWithPromise.prototype = {
@@ -104,7 +104,7 @@ gMFListener.prototype = {
   },
 };
 
-add_setup(async function() {
+add_setup(async function () {
   // Set option so that when messages are marked as junk, they move to the junk folder
   Services.prefs.setBoolPref("mail.spam.manualMark", true);
 

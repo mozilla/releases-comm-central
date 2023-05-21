@@ -101,7 +101,7 @@ add_task(async function test_nsMsgDBView_headValues() {
   Assert.equal(treeView.rowCount, tests.length);
 
   // For each test, make sure that the display is correct.
-  tests.forEach(function(data, i) {
+  tests.forEach(function (data, i) {
     info("Checking data for " + uneval(data));
     let expected = data[1];
     for (let column in expected) {

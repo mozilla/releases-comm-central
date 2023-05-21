@@ -60,7 +60,7 @@ async function waitCheckEncryptionStateDone(win) {
  * Setup a mail account with a private key and import the public key for the
  * receiver.
  */
-add_setup(async function() {
+add_setup(async function () {
   // Encryption makes the compose process a little longer.
   requestLongerTimeout(5);
 

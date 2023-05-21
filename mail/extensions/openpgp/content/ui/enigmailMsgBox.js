@@ -175,6 +175,6 @@ function onKeyPress(event) {
   }
 }
 
-document.addEventListener("dialogaccept", function(event) {
+document.addEventListener("dialogaccept", function (event) {
   dlgClose("accept");
 });

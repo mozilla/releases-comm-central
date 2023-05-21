@@ -14,11 +14,11 @@ var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
-add_setup(async function() {
+add_setup(async function () {
   await CalendarTestUtils.openCalendarTab(window);
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   await CalendarTestUtils.closeCalendarTab(window);
   Services.prefs.setStringPref("calendar.timezone.local", "UTC");
 });

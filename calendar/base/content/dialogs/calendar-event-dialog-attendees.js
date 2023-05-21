@@ -639,7 +639,7 @@ window.addEventListener(
     dateTimePickerUI.addListeners();
     addEventListener("resize", layout);
 
-    dateTimePickerUI.start.addEventListener("change", function(event) {
+    dateTimePickerUI.start.addEventListener("change", function (event) {
       if (!updateByFunction) {
         updateEndDate();
         if (dateTimePickerUI.allDay.checked) {
@@ -648,7 +648,7 @@ window.addEventListener(
         updateRange();
       }
     });
-    dateTimePickerUI.end.addEventListener("change", function(event) {
+    dateTimePickerUI.end.addEventListener("change", function (event) {
       if (!updateByFunction) {
         checkDate();
         dateTimePickerUI.saveOldValues();
@@ -789,7 +789,7 @@ function checkDate() {
       updatePreviousValues();
     } else {
       // Don't allow for negative durations.
-      let callback = function() {
+      let callback = function () {
         Services.prompt.alert(null, document.title, cal.l10n.getCalString("warningEndBeforeStart"));
       };
       setTimeout(callback, 1);

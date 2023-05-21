@@ -47,7 +47,7 @@ async function testExecuteComposeActionWithOptions(options = {}) {
           </body>
       </html>
       `,
-      "popup.js": function() {
+      "popup.js": function () {
         browser.test.log("sending from-compose-action-popup");
         browser.runtime.sendMessage("from-compose-action-popup");
       },

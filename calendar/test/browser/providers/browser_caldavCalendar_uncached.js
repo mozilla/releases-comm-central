@@ -13,7 +13,7 @@ if (!Services.logins.findLogins(CalDAVServer.origin, null, "test").length) {
 }
 
 let calendar;
-add_setup(async function() {
+add_setup(async function () {
   calendarObserver._onLoadPromise = PromiseUtils.defer();
   calendar = createCalendar("caldav", CalDAVServer.url, false);
   await calendarObserver._onLoadPromise.promise;

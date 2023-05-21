@@ -266,7 +266,7 @@ var calImipBar = {
     // We need this to determine whether this is an outgoing or incoming message because
     // Thunderbird doesn't provide a distinct flag on message level to do so. Relying on
     // folder flags only may lead to false positives.
-    let isOutgoing = function(aMsgHdr) {
+    let isOutgoing = function (aMsgHdr) {
       if (!aMsgHdr) {
         return false;
       }
@@ -583,7 +583,7 @@ var calImipBar = {
           let methods = { receivedMethod: "PUBLISH", responseMethod: "PUBLISH" };
           let newItipItem = cal.itip.getModifiedItipItem(calImipBar.itipItem, saveitems, methods);
           // setup callback and trigger re-processing
-          let storeCopy = function(aItipItem, aRc, aActionFunc, aFoundItems) {
+          let storeCopy = function (aItipItem, aRc, aActionFunc, aFoundItems) {
             if (isFirstProcessing && aActionFunc && Components.isSuccessCode(aRc)) {
               _execAction(aActionFunc, aItipItem, window, aParticipantStatus);
             }

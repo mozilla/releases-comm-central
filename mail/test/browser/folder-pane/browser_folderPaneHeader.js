@@ -18,7 +18,7 @@ let tabmail,
   folderModesContextMenuPopup,
   totalCountBadge;
 
-add_setup(async function() {
+add_setup(async function () {
   tabmail = document.getElementById("tabmail");
   about3Pane = tabmail.currentAbout3Pane;
   folderPaneHeader = about3Pane.document.getElementById("folderPaneHeaderBar");

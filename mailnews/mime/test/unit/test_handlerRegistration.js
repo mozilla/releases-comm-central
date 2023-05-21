@@ -9,7 +9,7 @@ var { EnigmailVerify } = ChromeUtils.import(
 /**
  * Tests switching content-type handlers on demand.
  */
-add_task(function() {
+add_task(function () {
   const CONTRACT_ID = "@mozilla.org/mimecth;1?type=multipart/signed";
   const INTERFACE = Ci.nsIMimeContentTypeHandler;
 

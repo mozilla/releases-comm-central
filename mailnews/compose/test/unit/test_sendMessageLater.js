@@ -175,7 +175,7 @@ function sendMessageLater() {
 
     server.performTest();
 
-    do_timeout(10000, function() {
+    do_timeout(10000, function () {
       if (!finished) {
         do_throw("Notifications of message send/copy not received");
       }

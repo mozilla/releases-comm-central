@@ -5,7 +5,7 @@
 const HOSTNAME_DOMAIN = "browser_policy_clear_blocked_cookies.com";
 const ORIGIN_DOMAIN = "browser_policy_clear_blocked_cookies.org";
 
-add_setup(async function() {
+add_setup(async function () {
   const expiry = Date.now() + 24 * 60 * 60;
   Services.cookies.add(
     HOSTNAME_DOMAIN,

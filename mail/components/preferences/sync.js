@@ -144,7 +144,7 @@ var gSyncPane = {
         .addEventListener(eventType, callback.bind(gSyncPane));
     }
 
-    setEventListener("noFxaSignIn", "click", function() {
+    setEventListener("noFxaSignIn", "click", function () {
       window.browsingContext.topChromeWindow.gSync.initFxA();
       return false;
     });
@@ -153,20 +153,20 @@ var gSyncPane = {
       "click",
       gSyncPane.verifyFirefoxAccount
     );
-    setEventListener("fxaUnverifiedRemoveAccount", "click", function() {
+    setEventListener("fxaUnverifiedRemoveAccount", "click", function () {
       /* No warning as account can't have previously synced. */
       gSyncPane.unlinkFirefoxAccount(false);
     });
     setEventListener("fxaRejectedSignIn", "click", gSyncPane.reSignIn);
-    setEventListener("fxaRejectedRemoveAccount", "click", function() {
+    setEventListener("fxaRejectedRemoveAccount", "click", function () {
       gSyncPane.unlinkFirefoxAccount(true);
     });
-    setEventListener("photoButton", "click", function(event) {
+    setEventListener("photoButton", "click", function (event) {
       window.browsingContext.topChromeWindow.gSync.openFxAAvatarPage(
         "preferences"
       );
     });
-    setEventListener("verifiedManage", "click", function(event) {
+    setEventListener("verifiedManage", "click", function (event) {
       window.browsingContext.topChromeWindow.gSync.openFxAManagePage(
         "preferences"
       );
@@ -174,10 +174,10 @@ var gSyncPane = {
       // Stop attempts to open this link in an external browser.
       event.stopPropagation();
     });
-    setEventListener("fxaAccountSignOut", "click", function() {
+    setEventListener("fxaAccountSignOut", "click", function () {
       gSyncPane.unlinkFirefoxAccount(true);
     });
-    setEventListener("fxaDeviceNameCancel", "click", function() {
+    setEventListener("fxaDeviceNameCancel", "click", function () {
       // We explicitly blur the textbox because of bug 75324, then after
       // changing the state of the buttons, force focus to whatever the focus
       // manager thinks should be next (which on the mac, depends on an OSX
@@ -187,24 +187,24 @@ var gSyncPane = {
       this._updateComputerNameValue(false);
       this._focusAfterComputerNameTextbox();
     });
-    setEventListener("fxaDeviceNameSave", "click", function() {
+    setEventListener("fxaDeviceNameSave", "click", function () {
       // Work around bug 75324 - see above.
       this._blurComputerNameTextbox();
       this._toggleComputerNameControls(false);
       this._updateComputerNameValue(true);
       this._focusAfterComputerNameTextbox();
     });
-    setEventListener("fxaDeviceNameChangeDeviceName", "click", function() {
+    setEventListener("fxaDeviceNameChangeDeviceName", "click", function () {
       this._toggleComputerNameControls(true);
       this._focusComputerNameTextbox();
     });
-    setEventListener("syncShowSyncedSyncNow", "click", function() {
+    setEventListener("syncShowSyncedSyncNow", "click", function () {
       // syncing can take a little time to send the "started" notification, so
       // pretend we already got it.
       this._updateSyncNow(true);
       Weave.Service.sync({ why: "aboutprefs" });
     });
-    setEventListener("enginesLearnMore", "click", function(event) {
+    setEventListener("enginesLearnMore", "click", function (event) {
       // TODO: A real page.
       window.browsingContext.topChromeWindow.openContentTab(
         "https://example.org/?page=learnMore"
@@ -213,10 +213,10 @@ var gSyncPane = {
       // Stop attempts to open this link in an external browser.
       event.stopPropagation();
     });
-    setEventListener("syncChangeOptions", "click", function() {
+    setEventListener("syncChangeOptions", "click", function () {
       gSyncPane._chooseWhatToSync(true);
     });
-    setEventListener("syncSetup", "click", function() {
+    setEventListener("syncSetup", "click", function () {
       gSyncPane._chooseWhatToSync(false);
     });
   },

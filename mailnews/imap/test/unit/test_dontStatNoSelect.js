@@ -20,7 +20,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-add_setup(function() {
+add_setup(function () {
   var daemon = new ImapDaemon();
   daemon.createMailbox("folder 1", { subscribed: true });
   let folder1Mailbox = daemon.getMailbox("folder 1");

@@ -32,7 +32,7 @@ var { MessageInjection } = ChromeUtils.import(
 var msgGen = new MessageGenerator();
 var messageInjection;
 
-add_setup(function() {
+add_setup(function () {
   // Sanity check: figure out how many bytes the original text occupies in UTF-8 encoding
   Assert.equal(
     new TextEncoder().encode(originalText).length,
@@ -303,7 +303,7 @@ add_task(async function test_have_attachments() {
   let promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
-  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+  MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
     try {
       Assert.equal(aMimeMsg.allUserAttachments.length, number);
       promiseResolve();
@@ -330,7 +330,7 @@ async function message_attachments(info) {
     promiseResolve = resolve;
   });
 
-  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+  MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
     try {
       check_attachments(
         aMimeMsg,
@@ -432,7 +432,7 @@ async function bogus_messages(info) {
   let promise = new Promise(resolve => {
     promiseResolve = resolve;
   });
-  MsgHdrToMimeMessage(msgHdr, null, function(aMsgHdr, aMimeMsg) {
+  MsgHdrToMimeMessage(msgHdr, null, function (aMsgHdr, aMimeMsg) {
     try {
       check_bogus_parts(aMimeMsg, info);
       promiseResolve();

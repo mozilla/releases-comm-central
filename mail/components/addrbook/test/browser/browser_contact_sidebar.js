@@ -9,7 +9,7 @@ var dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );
 
-add_task(async function() {
+add_task(async function () {
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
@@ -28,7 +28,7 @@ add_task(async function() {
   let list = createMailingList("pèóplë named tēst");
   book2.addMailList(list);
 
-  registerCleanupFunction(async function() {
+  registerCleanupFunction(async function () {
     MailServices.accounts.removeAccount(account, true);
     await promiseDirectoryRemoved(book1.URI);
     await promiseDirectoryRemoved(book2.URI);

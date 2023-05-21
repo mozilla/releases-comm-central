@@ -25,7 +25,7 @@ let cardDAVBook;
 
 // TODO test ldap books
 
-add_setup(async function() {
+add_setup(async function () {
   engine = new AddressBooksEngine(Service);
   await engine.initialize();
   store = engine._store;

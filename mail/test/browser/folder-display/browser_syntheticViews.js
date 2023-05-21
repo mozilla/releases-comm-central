@@ -26,7 +26,7 @@ const { GlodaMsgIndexer } = ChromeUtils.import(
   "resource:///modules/gloda/IndexMsg.jsm"
 );
 
-add_setup(async function() {
+add_setup(async function () {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
   Services.prefs.setBoolPref("mailnews.start_page.enabled", false);
   Services.prefs.setIntPref("mailnews.default_view_flags", 0);

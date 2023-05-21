@@ -19,13 +19,10 @@ do_get_profile();
 function getSpec(aFileName) {
   var file = do_get_file("resources/" + aFileName);
   var uri = Services.io.newFileURI(file).QueryInterface(Ci.nsIURL);
-  uri = uri
-    .mutate()
-    .setQuery("type=application/x-message-display")
-    .finalize();
+  uri = uri.mutate().setQuery("type=application/x-message-display").finalize();
   return uri.spec;
 }
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   load("../../../../resources/mailShutdown.js");
 });

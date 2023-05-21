@@ -49,7 +49,7 @@ var gOutbox;
 var gCloudFileProvider;
 const kFiles = ["./data/attachment.txt"];
 
-add_setup(async function() {
+add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
   gOutbox = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
   gMockFilePickReg.register();
@@ -58,7 +58,7 @@ add_setup(async function() {
   await gCloudFileProvider.register(this);
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   gMockFilePickReg.unregister();
   await gCloudFileProvider.unregister();
 });

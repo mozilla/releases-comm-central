@@ -20,7 +20,7 @@ var { MessageInjection } = ChromeUtils.import(
 var msgGen;
 var messageInjection;
 
-add_setup(function() {
+add_setup(function () {
   msgGen = new MessageGenerator();
   // Tests in this file assume that returned folders are nsIMsgFolders and not
   //  handles which currently only local injection supports.

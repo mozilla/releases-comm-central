@@ -1565,12 +1565,12 @@ add_task(async function parseCounter_test() {
   ];
   /* eslint-enable object-curly-newline */
 
-  let getItem = function(aProperties) {
+  let getItem = function (aProperties) {
     let item = getIcs(aProperties);
     return createEventFromIcalString(item);
   };
 
-  let formatDt = function(aDateTime) {
+  let formatDt = function (aDateTime) {
     if (!aDateTime) {
       return null;
     }

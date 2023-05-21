@@ -12,7 +12,7 @@ var { TelemetryTestUtils } = ChromeUtils.importESModule(
 var tabmail = document.getElementById("tabmail");
 var folders = {};
 
-add_setup(async function() {
+add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
   let rootFolder = account.incomingServer.rootFolder;
@@ -29,7 +29,7 @@ add_setup(async function() {
   let folderPaneVisibleAtStart = paneLayout.folderPaneVisible;
   let messagePaneVisibleAtStart = paneLayout.messagePaneVisible;
 
-  registerCleanupFunction(function() {
+  registerCleanupFunction(function () {
     MailServices.accounts.removeAccount(account, false);
     tabmail.closeOtherTabs(0);
     if (paneLayout.folderPaneVisible != folderPaneVisibleAtStart) {

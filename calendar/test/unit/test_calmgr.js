@@ -310,7 +310,7 @@ add_test(function test_removeModes() {
   }
   function mockCalendar(memory) {
     let oldGetProperty = memory.wrappedJSObject.getProperty;
-    memory.wrappedJSObject.getProperty = function(name) {
+    memory.wrappedJSObject.getProperty = function (name) {
       if (name == "capabilities.removeModes") {
         return removeModes;
       }
@@ -318,7 +318,7 @@ add_test(function test_removeModes() {
     };
 
     let oldDeleteCalendar = memory.wrappedJSObject.deleteCalendar;
-    memory.wrappedJSObject.deleteCalendar = function(calendar, listener) {
+    memory.wrappedJSObject.deleteCalendar = function (calendar, listener) {
       deleteCalled = true;
       return oldDeleteCalendar.apply(this, arguments);
     };

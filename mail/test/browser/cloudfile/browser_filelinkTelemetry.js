@@ -38,7 +38,7 @@ let kInsertNotificationPref =
 let maxSize =
   Services.prefs.getIntPref("mail.compose.big_attachments.threshold_kb") * 1024;
 
-add_setup(function() {
+add_setup(function () {
   requestLongerTimeout(2);
 
   gMockCloudfileManager.register(cloudType);
@@ -47,7 +47,7 @@ add_setup(function() {
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   gMockCloudfileManager.unregister(cloudType);
   gMockFilePickReg.unregister();
   Services.prefs.clearUserPref(kInsertNotificationPref);

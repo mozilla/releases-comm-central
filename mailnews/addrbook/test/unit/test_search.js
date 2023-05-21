@@ -31,7 +31,7 @@ add_task(async () => {
     contacts[name] = book.addCard(card);
   }
 
-  let doSearch = async function(searchString, ...expectedContacts) {
+  let doSearch = async function (searchString, ...expectedContacts) {
     let foundCards = await new Promise(resolve => {
       let listener = {
         cards: [],

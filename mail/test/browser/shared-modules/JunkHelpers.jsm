@@ -65,7 +65,7 @@ async function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
   // explanation of why this is done.
   let realDeleteJunkInFolder = win.deleteJunkInFolder;
   let numMessagesDeleted = null;
-  let fakeDeleteJunkInFolder = function() {
+  let fakeDeleteJunkInFolder = function () {
     numMessagesDeleted = realDeleteJunkInFolder();
     return numMessagesDeleted;
   };

@@ -53,7 +53,7 @@ let testEmails = [
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
 
-  add_task(async function() {
+  add_task(async function () {
     await doMboxTest("test1", "../../../data/mbox_modern", 2);
     await doMboxTest("test2", "../../../data/mbox_mboxrd", 2);
     await doMboxTest("test3", "../../../data/mbox_unquoted", 2);
@@ -235,14 +235,14 @@ async function roundTripTest() {
  * @returns {Promise} resolved when when conversion is complete.
  */
 function doConvert(srcType, srcRoot, destType, destRoot) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let worker = new ChromeWorker("resource:///modules/converterWorker.js");
-    worker.addEventListener("message", function(ev) {
+    worker.addEventListener("message", function (ev) {
       if (ev.data.msg == "success") {
         resolve();
       }
     });
-    worker.addEventListener("error", function(ev) {
+    worker.addEventListener("error", function (ev) {
       reject(ev.message);
     });
     // Go.
@@ -337,7 +337,7 @@ async function recursiveMaildirCompare(rootA, rootB) {
   }
 
   // Compare the maildirs we found here.
-  let md5DirContents = async function(dirPath) {
+  let md5DirContents = async function (dirPath) {
     let checksums = [];
     for (let f of await listFiles(dirPath)) {
       checksums.push(await md5Sum(f));

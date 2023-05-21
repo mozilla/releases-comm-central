@@ -392,7 +392,7 @@ AccountConfig.kSourceExchange = "exchange"; // from Microsoft Exchange AutoDisco
  * @param password {String}
  * The password for the incoming server and (if necessary) the outgoing server
  */
-AccountConfig.replaceVariables = function(
+AccountConfig.replaceVariables = function (
   account,
   realname,
   emailfull,

@@ -69,7 +69,7 @@ var EnigmailFixExchangeMsg = {
 
     var self = this;
 
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       let url = lazy.EnigmailFuncs.getUrlFromUriSpec(
         self.hdr.folder.getUriForMsg(self.hdr)
       );
@@ -78,7 +78,7 @@ var EnigmailFixExchangeMsg = {
         "fixExchangeMsg.jsm: getting data from URL " + url + "\n"
       );
 
-      let s = lazy.EnigmailStreams.newStringStreamListener(function(data) {
+      let s = lazy.EnigmailStreams.newStringStreamListener(function (data) {
         lazy.EnigmailLog.DEBUG(
           "fixExchangeMsg.jsm: analyzeDecryptedData: got " +
             data.length +
@@ -410,10 +410,8 @@ var EnigmailFixExchangeMsg = {
     let ok =
       msgTree.headers.get("content-type").type.toLowerCase() ===
         "multipart/encrypted" &&
-      msgTree.headers
-        .get("content-type")
-        .get("protocol")
-        .toLowerCase() === "application/pgp-encrypted" &&
+      msgTree.headers.get("content-type").get("protocol").toLowerCase() ===
+        "application/pgp-encrypted" &&
       msgTree.subParts.length === 2 &&
       msgTree.subParts[0].headers.get("content-type").type.toLowerCase() ===
         "application/pgp-encrypted" &&

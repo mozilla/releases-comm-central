@@ -26,13 +26,13 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function() {
+XPCOMUtils.defineLazyGetter(this, "gViewSourceUtils", function () {
   let scope = {};
   Services.scriptloader.loadSubScript(
     "chrome://global/content/viewSourceUtils.js",
     scope
   );
-  scope.gViewSourceUtils.viewSource = async function(aArgs) {
+  scope.gViewSourceUtils.viewSource = async function (aArgs) {
     // Check if external view source is enabled. If so, try it. If it fails,
     // fallback to internal view source.
     if (Services.prefs.getBoolPref("view_source.editor.external")) {
@@ -234,7 +234,7 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
     panel.style.visibility = "hidden";
     toolbox.addEventListener(
       "beforecustomization",
-      function() {
+      function () {
         panel.style.removeProperty("visibility");
       },
       { capture: false, once: true }
@@ -633,7 +633,7 @@ function openAddonsMgr(aView) {
     let emWindow;
     let browserWindow;
 
-    let receivePong = function(aSubject, aTopic, aData) {
+    let receivePong = function (aSubject, aTopic, aData) {
       let browserWin = aSubject.browsingContext.topChromeWindow;
       if (!emWindow || browserWin == window /* favor the current window */) {
         emWindow = aSubject;

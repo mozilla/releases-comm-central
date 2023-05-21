@@ -57,7 +57,7 @@ function checkPersistentState(folder) {
   let dbFolderInfo = msgDatabase.dBFolderInfo;
   let state = dbFolderInfo.getCharProperty(PERSISTED_COLUMN_PROPERTY_NAME);
   Assert.equal(state, columnJSON);
-  do_timeout(0, function() {
+  do_timeout(0, function () {
     doTest(++gCurTestNum);
   });
 }
@@ -82,7 +82,7 @@ var copyListener = {
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function() {
+    do_timeout(0, function () {
       doTest(++gCurTestNum);
     });
   },
@@ -97,7 +97,7 @@ var urlListener = {
     // This can happen with a bunch of synchronous functions grouped together, and
     // can even cause tests to fail because they're still waiting for the listener
     // to return
-    do_timeout(0, function() {
+    do_timeout(0, function () {
       doTest(++gCurTestNum);
     });
   },
@@ -178,7 +178,7 @@ function doTest(test) {
     var testFn = gTestArray[test - 1];
     // Set a limit of 10 seconds; if the notifications haven't arrived by
     // then, there's a problem.
-    do_timeout(10000, function() {
+    do_timeout(10000, function () {
       if (gCurTestNum == test) {
         do_throw(
           "Notifications not received in 10000 ms for operation " + testFn.name

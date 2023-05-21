@@ -3,8 +3,5 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function newUID() {
-  return Services.uuid
-    .generateUUID()
-    .toString()
-    .substring(1, 37);
+  return Services.uuid.generateUUID().toString().substring(1, 37);
 }

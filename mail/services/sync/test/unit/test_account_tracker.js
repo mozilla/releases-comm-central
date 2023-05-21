@@ -19,7 +19,7 @@ const { TestUtils } = ChromeUtils.import(
 
 let engine, store, tracker;
 
-add_setup(async function() {
+add_setup(async function () {
   engine = new AccountsEngine(Service);
   await engine.initialize();
   store = engine._store;

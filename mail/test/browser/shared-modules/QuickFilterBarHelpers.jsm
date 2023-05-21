@@ -185,7 +185,7 @@ function toggle_boolean_constraints(...aArgs) {
  * Toggle the tag faceting buttons by tag key.  Wait for messages after.
  */
 function toggle_tag_constraints(...aArgs) {
-  aArgs.forEach(function(arg) {
+  aArgs.forEach(function (arg) {
     let tagId = "qfb-tag-" + arg;
     let button = about3Pane.document.getElementById(tagId);
     button.scrollIntoView();

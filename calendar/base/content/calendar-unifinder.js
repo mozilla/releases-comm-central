@@ -933,7 +933,7 @@ async function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
     unifinderTreeView.mFilter.endDate
   );
 
-  let refreshTreeInternalFunc = function() {
+  let refreshTreeInternalFunc = function () {
     aAddItemsInternalFunc(items);
   };
   setTimeout(refreshTreeInternalFunc, 0);

@@ -76,7 +76,7 @@ async function event_page_extension(eventName, actionCallback) {
   return rv;
 }
 
-add_task(async function() {
+add_task(async function () {
   await AddonTestUtils.promiseStartupManager();
 
   let account = createAccount();

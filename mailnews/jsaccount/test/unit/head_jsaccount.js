@@ -55,6 +55,6 @@ for (let { contractID, classID, source } of contracts) {
 // Ensure the profile directory is set up.
 do_get_profile();
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   load("../../../../mailnews/resources/mailShutdown.js");
 });

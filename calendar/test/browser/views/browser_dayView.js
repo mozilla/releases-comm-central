@@ -12,7 +12,7 @@ const TITLE1 = "Day View Event";
 const TITLE2 = "Day View Event Changed";
 const DESC = "Day View Event Description";
 
-add_setup(async function() {
+add_setup(async function () {
   let calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);

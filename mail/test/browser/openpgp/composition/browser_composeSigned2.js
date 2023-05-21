@@ -42,7 +42,7 @@ let aboutMessage = get_about_message();
  * Setup a mail account with a private key and import the public key for the
  * receiver.
  */
-add_setup(async function() {
+add_setup(async function () {
   bobAcct = MailServices.accounts.createAccount();
   bobAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "bob",
@@ -109,18 +109,12 @@ add_task(async function testSignedMessageComposition2() {
   let passPromptPromise2 = BrowserTestUtils.promiseAlertDialogOpen();
 
   ppWin.document.getElementById("password1Textbox").value = "WRONG-passphrase";
-  ppWin.document
-    .querySelector("dialog")
-    .getButton("accept")
-    .click();
+  ppWin.document.querySelector("dialog").getButton("accept").click();
 
   let ppWin2 = await passPromptPromise2;
 
   ppWin2.document.getElementById("password1Textbox").value = "bob-passphrase";
-  ppWin2.document
-    .querySelector("dialog")
-    .getButton("accept")
-    .click();
+  ppWin2.document.querySelector("dialog").getButton("accept").click();
 
   await sendMessageCompletePromise;
 

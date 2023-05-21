@@ -32,7 +32,7 @@ const keyDir = "../../../../../test/browser/openpgp/data/keys";
 /**
  * Initialize OpenPGP add testing keys.
  */
-add_setup(async function() {
+add_setup(async function () {
   do_get_profile();
 
   await OpenPGPTestUtils.initOpenPGP();
@@ -108,7 +108,7 @@ add_task(async function testSecretKeys() {
 
   let alreadyProvidedWrongPassword = false;
 
-  let getWrongPassword = function(win, keyId, resultFlags) {
+  let getWrongPassword = function (win, keyId, resultFlags) {
     if (alreadyProvidedWrongPassword) {
       resultFlags.canceled = true;
       return "";
@@ -127,7 +127,7 @@ add_task(async function testSecretKeys() {
 
   Assert.ok(importResult.exitCode != 0, "import should have failed");
 
-  let getGoodPassword = function(win, keyId, resultFlags) {
+  let getGoodPassword = function (win, keyId, resultFlags) {
     return backupPassword;
   };
 
@@ -155,7 +155,7 @@ add_task(async function testImportSecretKeyIsProtected() {
   let carolSec = await IOUtils.readUTF8(carolFile.path);
 
   // Carol's secret key is protected with password "x".
-  let getCarolPassword = function(win, keyId, resultFlags) {
+  let getCarolPassword = function (win, keyId, resultFlags) {
     return "x";
   };
 
@@ -196,7 +196,7 @@ add_task(async function testImportOfflinePrimaryKey() {
     do_get_file(`${keyDir}/ofelia-secret-subkeys.asc`).path
   );
 
-  let cancelPassword = function(win, keyId, resultFlags) {
+  let cancelPassword = function (win, keyId, resultFlags) {
     resultFlags.canceled = true;
     return "";
   };
@@ -228,7 +228,7 @@ add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
     ).path
   );
 
-  let cancelPassword = function(win, keyId, resultFlags) {
+  let cancelPassword = function (win, keyId, resultFlags) {
     resultFlags.canceled = true;
     return "";
   };
@@ -290,7 +290,7 @@ add_task(async function testNoSecretForExistingPublicSubkey() {
     do_get_file(`${keyDir}/two-enc-subkeys-one-deleted.sec.asc`).path
   );
 
-  let cancelPassword = function(win, keyId, resultFlags) {
+  let cancelPassword = function (win, keyId, resultFlags) {
     resultFlags.canceled = true;
     return "";
   };

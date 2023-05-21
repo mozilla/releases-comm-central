@@ -21,7 +21,7 @@ var { SmimeUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/smimeUtils.jsm"
 );
 
-add_setup(function() {
+add_setup(function () {
   let messageInjection = new MessageInjection({ mode: "local" });
   gInbox = messageInjection.getInboxFolder();
   SmimeUtils.ensureNSS();

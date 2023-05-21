@@ -281,7 +281,7 @@ function generateDocumentation() {
   for (let policyName in lazy.schema.properties) {
     let main_tbody = document.createElement("tbody");
     main_tbody.classList.add("collapsible");
-    main_tbody.addEventListener("click", function() {
+    main_tbody.addEventListener("click", function () {
       let content = this.nextElementSibling;
       content.classList.toggle("content");
     });
@@ -364,7 +364,7 @@ function init() {
     }
   }
 
-  window.addEventListener("hashchange", function() {
+  window.addEventListener("hashchange", function () {
     if (location.hash) {
       let sectionButton = document.getElementById(
         "category-" + location.hash.substring(1)

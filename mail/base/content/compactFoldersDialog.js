@@ -26,16 +26,16 @@ function compactDialogOnDOMContentLoaded() {
     .getElementById("compactFoldersText")
     .setAttribute("data-l10n-args", JSON.stringify({ data: args.compactSize }));
 
-  document.addEventListener("dialogaccept", function() {
+  document.addEventListener("dialogaccept", function () {
     args.buttonNumClicked = 0;
     args.checked = document.getElementById("neverAskCheckbox").checked;
   });
 
-  document.addEventListener("dialogcancel", function() {
+  document.addEventListener("dialogcancel", function () {
     args.buttonNumClicked = 1;
   });
 
-  document.addEventListener("dialogextra1", function() {
+  document.addEventListener("dialogextra1", function () {
     // Open the support article URL and leave the dialog open.
     let uri = Services.io.newURI(
       "https://support.mozilla.org/kb/compacting-folders"

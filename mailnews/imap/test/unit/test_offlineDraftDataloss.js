@@ -20,7 +20,7 @@ var { TestUtils } = ChromeUtils.importESModule(
 
 var gDraftsFolder;
 
-add_setup(function() {
+add_setup(function () {
   setupIMAPPump();
   Services.prefs.setBoolPref(
     "mail.server.default.autosync_offline_stores",

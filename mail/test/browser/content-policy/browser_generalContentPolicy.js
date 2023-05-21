@@ -865,7 +865,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   );
 
   // Now wait for the paste.
-  utils.waitFor(function() {
+  utils.waitFor(function () {
     let img = replyWindow.window.document
       .getElementById("messageEditor")
       .contentDocument.getElementById("tmp-img");

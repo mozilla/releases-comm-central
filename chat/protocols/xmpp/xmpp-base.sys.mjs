@@ -50,7 +50,7 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/xmpp.properties")
 );
 
-XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function() {
+XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
   let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
   return aTxt => cs.scanTXT(aTxt, cs.kEntities);
 });
@@ -1444,11 +1444,7 @@ export var XMPPAccountPrototype = {
   /* Generate unique id for a stanza. Using id and unique sid is defined in
    * RFC 6120 (Section 8.2.3, 4.7.3).
    */
-  generateId: () =>
-    Services.uuid
-      .generateUUID()
-      .toString()
-      .slice(1, -1),
+  generateId: () => Services.uuid.generateUUID().toString().slice(1, -1),
 
   _init(aProtoInstance, aImAccount) {
     GenericAccountPrototype._init.call(this, aProtoInstance, aImAccount);
@@ -1597,7 +1593,7 @@ export var XMPPAccountPrototype = {
       }
       this._shouldSendPresenceForIdlenessChange = true;
       executeSoon(
-        function() {
+        function () {
           if ("_shouldSendPresenceForIdlenessChange" in this) {
             this._sendPresence();
           }
@@ -1998,12 +1994,7 @@ export var XMPPAccountPrototype = {
         // JS property name.
         let capitalize = s => s[0].toUpperCase() + s.slice(1);
         let uncapitalize = s => s[0].toLowerCase() + s.slice(1);
-        return uncapitalize(
-          aStr
-            .split("-")
-            .map(capitalize)
-            .join("")
-        );
+        return uncapitalize(aStr.split("-").map(capitalize).join(""));
       };
       let condition = toCamelCase(error.condition);
       // Check if we have a handler property for this kind of error or a

@@ -89,7 +89,7 @@ var intlPhrases = [
 var msgGen;
 var messageInjection;
 
-add_setup(function() {
+add_setup(function () {
   msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
   glodaTestHelperInitialize(messageInjection);
@@ -242,7 +242,7 @@ async function msgSearchExpectCount(aCount, aFulltextStr) {
   // Brace yourself, brutal monkey-patching NOW
   let sql, args;
   let oldFunc = GlodaDatastore._queryFromSQLString;
-  GlodaDatastore._queryFromSQLString = function(aSql, aArgs) {
+  GlodaDatastore._queryFromSQLString = function (aSql, aArgs) {
     sql = aSql;
     args = aArgs;
   };

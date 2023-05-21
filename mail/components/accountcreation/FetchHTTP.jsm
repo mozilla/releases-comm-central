@@ -237,13 +237,13 @@ FetchHTTP.prototype = {
     }
 
     var me = this;
-    request.onload = function() {
+    request.onload = function () {
       me._response(true);
     };
-    request.onerror = function() {
+    request.onerror = function () {
       me._response(false);
     };
-    request.ontimeout = function() {
+    request.ontimeout = function () {
       me._response(false);
     };
     request.send(body);

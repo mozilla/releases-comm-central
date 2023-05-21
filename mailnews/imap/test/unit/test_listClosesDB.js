@@ -14,7 +14,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 
 var gSub3;
 
-add_setup(async function() {
+add_setup(async function () {
   setupIMAPPump();
 
   IMAPPump.daemon.createMailbox("folder1", { subscribed: true });

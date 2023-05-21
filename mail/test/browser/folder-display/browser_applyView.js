@@ -18,7 +18,7 @@ var { click_menus_in_sequence } = ChromeUtils.import(
 // These are for the reset/apply to other/apply to other+child tests.
 var folderSource, folderParent, folderChild1, folderChild2;
 
-add_setup(async function() {
+add_setup(async function () {
   folderSource = await create_folder("ColumnsApplySource");
 
   folderParent = await create_folder("ColumnsApplyParent");

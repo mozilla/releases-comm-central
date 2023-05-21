@@ -19,7 +19,7 @@ add_task(async function test_compose_format() {
   Services.telemetry.clearScalars();
 
   // Bare-bones code to initiate composing a message in given format.
-  let createCompose = function(fmt) {
+  let createCompose = function (fmt) {
     let msgCompose = Cc[
       "@mozilla.org/messengercompose/compose;1"
     ].createInstance(Ci.nsIMsgCompose);
@@ -61,7 +61,7 @@ add_task(async function test_compose_format() {
  */
 add_task(async function test_compose_type() {
   // Bare-bones code to initiate composing a message in given type.
-  let createCompose = function(type) {
+  let createCompose = function (type) {
     let msgCompose = Cc[
       "@mozilla.org/messengercompose/compose;1"
     ].createInstance(Ci.nsIMsgCompose);

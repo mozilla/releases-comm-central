@@ -17,7 +17,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
 var gFileName = "draft1";
 var gMsgFile = do_get_file("../../../data/" + gFileName);
 
-add_setup(async function() {
+add_setup(async function () {
   setupIMAPPump();
 
   /*

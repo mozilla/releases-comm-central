@@ -872,10 +872,10 @@ DBViewWrapper.prototype = {
     this._underlyingFolders = [];
 
     let dis = this;
-    this.__defineGetter__("searchFolders", function() {
+    this.__defineGetter__("searchFolders", function () {
       return dis._underlyingFolders;
     });
-    this.__defineSetter__("searchFolders", function(aSearchFolders) {
+    this.__defineSetter__("searchFolders", function (aSearchFolders) {
       dis._underlyingFolders = aSearchFolders;
       dis._applyViewChanges();
     });

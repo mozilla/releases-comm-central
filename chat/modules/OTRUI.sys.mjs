@@ -125,7 +125,7 @@ export var OTRUI = {
     let doc = win.document;
     // Account for unready windows
     if (doc.readyState !== "complete") {
-      let listen = function() {
+      let listen = function () {
         win.removeEventListener("load", listen);
         OTRUI.addMenus(win);
       };
@@ -260,7 +260,7 @@ export var OTRUI = {
 
     OTR.addObserver(OTRUI);
     OTR.loadFiles()
-      .then(function() {
+      .then(function () {
         Services.obs.addObserver(OTR, "new-ui-conversation");
         Services.obs.addObserver(OTR, "conversation-update-type");
         // Disabled until #76 is resolved.
@@ -278,7 +278,7 @@ export var OTRUI = {
 
         ChromeUtils.idleDispatch(OTRUI.genMissingKeys);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         // console.log("===> " + err + "\n");
         throw err;
       });
@@ -312,7 +312,7 @@ export var OTRUI = {
       contactInfo
     );
     windowRefs.set(name, win);
-    window.addEventListener("beforeunload", function() {
+    window.addEventListener("beforeunload", function () {
       otrAuth.disabled = false;
       windowRefs.delete(name);
     });

@@ -107,7 +107,7 @@ SearchIntegration = {
 
     // Encodes reserved XML characters
     _xmlEscapeString(s) {
-      return s.replace(/[<>&]/g, function(s) {
+      return s.replace(/[<>&]/g, function (s) {
         switch (s) {
           case "<":
             return "&lt;";

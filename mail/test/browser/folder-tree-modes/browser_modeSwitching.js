@@ -42,7 +42,7 @@ var appmenu_popup;
 var menu_state;
 var about3Pane;
 
-add_setup(async function() {
+add_setup(async function () {
   rootFolder = inboxFolder.server.rootFolder;
 
   // Create one folder with unread messages and one favorite folder.
@@ -316,7 +316,7 @@ add_task(async function test_toggling_modes() {
   check_scalars("all");
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   inboxFolder.propagateDelete(unreadFolder, true);
   inboxFolder.propagateDelete(favoriteFolder, true);
   toggle_main_menu(menu_state);

@@ -67,7 +67,7 @@ async function doScroll(view, scrollDown) {
   await scrollPromise;
 }
 
-add_task(async function() {
+add_task(async function () {
   let expectedVisibleHours = 3;
   let expectedStartHour = 3;
 

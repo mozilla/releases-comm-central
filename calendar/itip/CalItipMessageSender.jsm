@@ -197,7 +197,7 @@ class CalItipMessageSender {
             delegatorIds &&
             Services.prefs.getBoolPref("calendar.itip.notifyDelegatorOnReply", false)
           ) {
-            let getDelegator = function(aDelegatorId) {
+            let getDelegator = function (aDelegatorId) {
               let delegator = originalItem.getAttendeeById(aDelegatorId);
               if (delegator) {
                 replyTo.push(delegator);

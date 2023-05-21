@@ -24,7 +24,7 @@ var { AuthPLAIN, AuthLOGIN, AuthCRAM } = ChromeUtils.import(
 // Setup the daemon and server
 function setupServerDaemon(handler) {
   if (!handler) {
-    handler = function(d) {
+    handler = function (d) {
       return new SMTP_RFC2821_handler(d);
     };
   }

@@ -307,7 +307,7 @@ var calprovider = {
     let key = aCalendar.getProperty("imip.identity.key");
     if (key === null) {
       // take default account/identity:
-      let findIdentity = function(account) {
+      let findIdentity = function (account) {
         if (account && account.identities.length) {
           return account.defaultIdentity || account.identities[0];
         }

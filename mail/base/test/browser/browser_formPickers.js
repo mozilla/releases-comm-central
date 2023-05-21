@@ -37,7 +37,7 @@ async function checkABrowser(browser) {
 
   // Open the popup.
   let shownPromise = BrowserTestUtils.waitForEvent(picker, "popupshown");
-  await SpecialPowers.spawn(browser, [], function() {
+  await SpecialPowers.spawn(browser, [], function () {
     content.document.notifyUserGestureActivation();
     content.document.querySelector(`input[type="date"]`).showPicker();
   });
@@ -144,7 +144,7 @@ async function checkABrowser(browser) {
   });
 }
 
-add_setup(async function() {
+add_setup(async function () {
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());

@@ -11,7 +11,7 @@ const { MessageGenerator } = ChromeUtils.import(
 
 let book, emily, felix, testFolder;
 
-add_setup(async function() {
+add_setup(async function () {
   book = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
 
   emily = new AddrBookCard();
@@ -46,7 +46,7 @@ add_setup(async function() {
   );
 });
 
-add_task(async function() {
+add_task(async function () {
   let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   let { threadPane, threadTree, messageBrowser } = about3Pane;
   // Not `currentAboutMessage` as that's null right now.

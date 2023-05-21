@@ -90,7 +90,7 @@ var calemail = {
    * @returns {string} Valid string to use in a 'to' header of an email
    */
   createRecipientList(aAttendees) {
-    let cbEmail = function(aVal) {
+    let cbEmail = function (aVal) {
       let email = calemail.getAttendeeEmail(aVal, true);
       if (!email.length) {
         lazy.cal.LOG("Dropping invalid recipient for email transport: " + aVal.toString());

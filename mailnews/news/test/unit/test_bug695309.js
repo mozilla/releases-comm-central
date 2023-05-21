@@ -30,7 +30,7 @@ const { NetworkTestUtils } = ChromeUtils.import(
 var daemon, localserver, server;
 var highWater = 0;
 
-add_setup(async function() {
+add_setup(async function () {
   daemon = setupNNTPDaemon();
   server = makeServer(NNTP_RFC2980_handler, daemon);
   server.start();
@@ -78,7 +78,7 @@ add_task(async function trigger_bug() {
   // this) read the 200 logon instead of the 211 group.
   let testFolder = localserver.rootFolder.getChildNamed("test.filter");
   let asyncUrlListener = new PromiseTestUtils.PromiseUrlListener();
-  let promiseFolderEvent = function(folder, event) {
+  let promiseFolderEvent = function (folder, event) {
     return new Promise((resolve, reject) => {
       let folderListener = {
         QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),

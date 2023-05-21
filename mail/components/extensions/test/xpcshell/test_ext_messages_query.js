@@ -152,7 +152,7 @@ add_task(async function test_query() {
         );
       }
 
-      let subtest = async function(queryInfo, ...expectedMessageIndices) {
+      let subtest = async function (queryInfo, ...expectedMessageIndices) {
         if (!queryInfo.folder) {
           queryInfo.folder = folder1;
         }

@@ -30,7 +30,7 @@ const getTabElements = tabIndex => {
   return { tab, button, pane };
 };
 
-add_setup(async function() {
+add_setup(async function () {
   let tab = tabmail.openTab("contentTab", {
     url:
       "chrome://mochitests/content/browser/comm/mail/components/unifiedtoolbar/test/browser/files/unifiedToolbarTab.xhtml",

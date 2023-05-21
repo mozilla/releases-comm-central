@@ -29,7 +29,7 @@ var trashFolder;
 var trashSubfolder;
 var inboxSet;
 
-add_setup(async function() {
+add_setup(async function () {
   about3Pane = get_about_3pane();
   rootFolder = inboxFolder.server.rootFolder;
 
@@ -83,7 +83,7 @@ add_task(async function test_newly_added_folder() {
   await delete_messages(newSet);
 });
 
-registerCleanupFunction(async function() {
+registerCleanupFunction(async function () {
   inboxFolder.propagateDelete(inboxSubfolder, true);
   await delete_messages(inboxSet);
   trashFolder.propagateDelete(trashSubfolder, true);

@@ -291,7 +291,7 @@ const CustomizableWidgets = [
       node.classList.add("chromeclass-toolbar-additional");
       node.classList.add("toolbaritem-combined-buttons");
 
-      buttons.forEach(function(aButton, aIndex) {
+      buttons.forEach(function (aButton, aIndex) {
         if (aIndex != 0) {
           node.appendChild(aDocument.createXULElement("separator"));
         }
@@ -349,7 +349,7 @@ const CustomizableWidgets = [
       node.classList.add("chromeclass-toolbar-additional");
       node.classList.add("toolbaritem-combined-buttons");
 
-      buttons.forEach(function(aButton, aIndex) {
+      buttons.forEach(function (aButton, aIndex) {
         if (aIndex != 0) {
           node.appendChild(aDocument.createXULElement("separator"));
         }

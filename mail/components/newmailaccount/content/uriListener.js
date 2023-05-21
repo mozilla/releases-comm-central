@@ -199,7 +199,7 @@ TracingListener.prototype = {
       let tabmail = document.getElementById("tabmail");
       // Find the tab associated with this browser, and close it.
       let myTabInfo = tabmail.tabInfo.filter(
-        function(x) {
+        function (x) {
           return "browser" in x && x.browser == this.browser;
         }.bind(this)
       )[0];

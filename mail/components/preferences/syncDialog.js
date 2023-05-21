@@ -10,7 +10,7 @@ const engineItems = {
   configSyncPasswords: "services.sync.engine.passwords",
 };
 
-window.addEventListener("load", function() {
+window.addEventListener("load", function () {
   for (let [id, prefName] of Object.entries(engineItems)) {
     let element = document.getElementById(id);
     element.checked = Services.prefs.getBoolPref(prefName, false);
@@ -18,7 +18,7 @@ window.addEventListener("load", function() {
 
   let options = window.arguments[0];
   if (options.disconnectFun) {
-    window.addEventListener("dialogextra2", function() {
+    window.addEventListener("dialogextra2", function () {
       options.disconnectFun().then(disconnected => {
         if (disconnected) {
           window.close();
@@ -30,7 +30,7 @@ window.addEventListener("load", function() {
   }
 });
 
-window.addEventListener("dialogaccept", function() {
+window.addEventListener("dialogaccept", function () {
   for (let [id, prefName] of Object.entries(engineItems)) {
     let element = document.getElementById(id);
     Services.prefs.setBoolPref(prefName, element.checked);

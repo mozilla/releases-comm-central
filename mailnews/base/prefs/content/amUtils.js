@@ -259,7 +259,7 @@ function accountNameExists(aAccountName, aAccountKey) {
 function editSMTPServer(aServer) {
   let args = { server: aServer, result: false, addSmtpServer: "" };
 
-  let onCloseSMTPDialog = function() {
+  let onCloseSMTPDialog = function () {
     if (args.result) {
       gSmtpServerListWindow.refreshServerList(aServer, true);
     }

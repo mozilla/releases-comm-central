@@ -54,7 +54,7 @@ DevToolsStartup.prototype = {
     let devtoolsRegisterActors = DevToolsServer.registerActors.bind(
       DevToolsServer
     );
-    DevToolsServer.registerActors = function(options) {
+    DevToolsServer.registerActors = function (options) {
       devtoolsRegisterActors(options);
       if (options.root) {
         const {

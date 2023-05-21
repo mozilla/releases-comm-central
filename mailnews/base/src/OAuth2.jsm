@@ -114,10 +114,7 @@ OAuth2.prototype = {
     if (this.usePKCE) {
       // Convert base64 to base64url (rfc4648#section-5)
       const to_b64url = b =>
-        b
-          .replace(/\+/g, "-")
-          .replace(/\//g, "_")
-          .replace(/=/g, "");
+        b.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 
       params.append("code_challenge_method", "S256");
 

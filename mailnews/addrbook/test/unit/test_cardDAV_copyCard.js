@@ -55,7 +55,7 @@ add_task(async function copyCardToLocal() {
 });
 
 /** Remove the card from the local directory for the next step. */
-add_task(async function() {
+add_task(async function () {
   localDirectory.deleteCards(localDirectory.childCards);
   Assert.equal(localDirectory.childCards.length, 0);
 });
@@ -80,7 +80,7 @@ add_task(async function moveCardToLocal() {
  * Okay, let's go back again. First we'll need to remove the card from the
  * CardDAV directory.
  */
-add_task(async function() {
+add_task(async function () {
   let deletedPromise = observer.waitFor("addrbook-contact-deleted");
   cardDAVDirectory.deleteCards(cardDAVDirectory.childCards);
   await deletedPromise;
@@ -115,7 +115,7 @@ add_task(async function copyCardToCardDAV() {
 });
 
 /** Remove the card from the CardDAV directory again. */
-add_task(async function() {
+add_task(async function () {
   let deletedPromise = observer.waitFor("addrbook-contact-deleted");
   cardDAVDirectory.deleteCards(cardDAVDirectory.childCards);
   await deletedPromise;

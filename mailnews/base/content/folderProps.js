@@ -275,7 +275,7 @@ function folderPropsOnLoad() {
       );
     });
     let resetColorButton = document.getElementById("resetColor");
-    resetColorButton.addEventListener("click", function() {
+    resetColorButton.addEventListener("click", function () {
       colorInput.value = gDefaultColor;
       // Preview the default color.
       Services.obs.notifyObservers(

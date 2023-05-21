@@ -27,7 +27,7 @@ const PREF_PREFIX = "services.sync.engine";
 
 let prefsWindow, prefsDocument, tabmail;
 
-add_setup(async function() {
+add_setup(async function () {
   for (let engine of ALL_ENGINES) {
     Services.prefs.setBoolPref(`${PREF_PREFIX}.${engine}`, true);
   }

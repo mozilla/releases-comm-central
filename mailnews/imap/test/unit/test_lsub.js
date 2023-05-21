@@ -11,7 +11,7 @@ var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-add_setup(function() {
+add_setup(function () {
   setupIMAPPump();
 
   Services.prefs.setBoolPref(
@@ -21,7 +21,7 @@ add_setup(function() {
 });
 
 // Setup the mailboxes that will be used for this test.
-add_setup(async function() {
+add_setup(async function () {
   IMAPPump.mailbox.subscribed = true;
   IMAPPump.daemon.createMailbox("folder1", {
     subscribed: true,

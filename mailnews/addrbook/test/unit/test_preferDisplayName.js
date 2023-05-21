@@ -10,7 +10,7 @@ const { AddrBookCard } = ChromeUtils.import(
  * Tests that the mail.displayname.version preference is correctly incremented
  * if a card's DisplayName or PreferDisplayName properties change.
  */
-add_task(async function() {
+add_task(async function () {
   function getPrefValue() {
     return Services.prefs.getIntPref("mail.displayname.version", -999);
   }

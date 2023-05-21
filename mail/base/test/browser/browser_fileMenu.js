@@ -55,7 +55,7 @@ let helper = new MenuTestHelper("menu_File", fileMenuData);
 let tabmail = document.getElementById("tabmail");
 let inboxFolder, plainFolder, rootFolder, testMessages, trashFolder;
 
-add_setup(async function() {
+add_setup(async function () {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   let generator = new MessageGenerator();

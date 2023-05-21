@@ -163,7 +163,7 @@ XMPPSession.prototype = {
 
     // Sort results: Lower priority is more preferred and higher weight is
     // more preferred in equal priorities.
-    aResult.sort(function(a, b) {
+    aResult.sort(function (a, b) {
       return a.prio - b.prio || b.weight - a.weight;
     });
 

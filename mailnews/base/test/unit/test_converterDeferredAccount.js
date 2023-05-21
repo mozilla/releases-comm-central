@@ -50,8 +50,8 @@ var copyListenerWrap = {
   },
 };
 
-var EventTarget = function() {
-  this.dispatchEvent = function(event) {
+var EventTarget = function () {
+  this.dispatchEvent = function (event) {
     if (event.type == "progress") {
       log.trace("Progress: " + event.detail);
     }
@@ -171,7 +171,7 @@ function run_test() {
   run_next_test();
 }
 
-add_setup(async function() {
+add_setup(async function () {
   let msgFile = do_get_file("../../../data/bugmail10");
   // Add 1000 messages to the "Inbox" folder.
   for (let i = 0; i < 1000; i++) {
@@ -193,13 +193,13 @@ add_task(function testMaildirConversion() {
   let originalRootFolder = gServer.rootFolder.filePath;
 
   pConverted
-    .then(function(val) {
+    .then(function (val) {
       log.debug("Conversion done: " + originalRootFolder.path + " => " + val);
       let newRootFolder = gServer.rootFolder.filePath;
       checkConversion(originalRootFolder, newRootFolder);
       do_test_finished();
     })
-    .catch(function(reason) {
+    .catch(function (reason) {
       log.error("Conversion failed: " + reason.error);
       ok(false); // Fail the test!
     });

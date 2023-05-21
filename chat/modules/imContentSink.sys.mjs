@@ -380,7 +380,7 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
 
       // Cleanup the attributes of this node.
       let attrs = node.attributes;
-      let acceptFunction = function(aAttrRules, aAttr) {
+      let acceptFunction = function (aAttrRules, aAttr) {
         // An attribute is always accepted if its rule is true, or conditionally
         // accepted if its rule is a function that evaluates to true.
         // If its rule does not exist, it is removed.

@@ -391,7 +391,7 @@ export var Policies = {
               continue;
             }
             let reader = new FileReader();
-            reader.onloadend = function() {
+            reader.onloadend = function () {
               if (reader.readyState != reader.DONE) {
                 lazy.log.error(`Unable to read certificate - ${certfile.path}`);
                 return;
@@ -1189,7 +1189,7 @@ export var Policies = {
           await runOncePerModification(
             "removeSearchEngines",
             JSON.stringify(param.Remove),
-            async function() {
+            async function () {
               for (let engineName of param.Remove) {
                 let engine = Services.search.getEngineByName(engineName);
                 if (engine) {
@@ -1638,7 +1638,7 @@ let ChromeURLBlockPolicy = {
       return Ci.nsIContentPolicy.ACCEPT;
     }
     if (
-      gBlockedAboutPages.some(function(aboutPage) {
+      gBlockedAboutPages.some(function (aboutPage) {
         return contentLocation.spec.startsWith(aboutPage);
       })
     ) {

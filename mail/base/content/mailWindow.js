@@ -353,7 +353,7 @@ nsMsgStatusFeedback.prototype = {
   // unload - call to remove links to listeners etc.
   unload() {
     // Remove listeners for any active processes we have hooked ourselves into.
-    this._activeProcesses.forEach(function(element) {
+    this._activeProcesses.forEach(function (element) {
       element.removeListener(this);
     }, this);
   },
@@ -559,7 +559,7 @@ nsMsgStatusFeedback.prototype = {
 
       // For each activity that is in progress, get its status.
 
-      this._activeProcesses.forEach(function(element) {
+      this._activeProcesses.forEach(function (element) {
         if (
           element.state == Ci.nsIActivityProcess.STATE_INPROGRESS &&
           element.percentComplete != -1
@@ -619,7 +619,7 @@ nsMsgStatusFeedback.prototype = {
   },
 
   onRemovedActivity(aID) {
-    this._activeProcesses = this._activeProcesses.filter(function(element) {
+    this._activeProcesses = this._activeProcesses.filter(function (element) {
       if (element.id == aID) {
         element.removeListener(this);
         this.stopMeteors();

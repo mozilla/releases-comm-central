@@ -317,8 +317,9 @@ var UIFontSize = {
       dialog._frame.style.width = frameWidth;
     }
 
-    let boxMinWidth = `calc(${boxHorizontalBorder +
-      frameHorizontalMargin}px + ${frameMinWidth})`;
+    let boxMinWidth = `calc(${
+      boxHorizontalBorder + frameHorizontalMargin
+    }px + ${frameMinWidth})`;
 
     // Temporary fix to allow parent chrome to collapse properly to min width.
     // See Bug 1658722.

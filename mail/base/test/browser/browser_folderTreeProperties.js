@@ -15,7 +15,7 @@ let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 let { folderPane, folderTree, threadTree } = about3Pane;
 let rootFolder, trashFolder, trashFolderRows, virtualFolder, virtualFolderRows;
 
-add_setup(async function() {
+add_setup(async function () {
   Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
   FolderTreeProperties.resetColors();
 

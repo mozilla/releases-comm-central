@@ -22,7 +22,7 @@ const { PromiseTestUtils } = ChromeUtils.importESModule(
 
 let engine, store, tracker;
 
-add_setup(async function() {
+add_setup(async function () {
   engine = new AddressBooksEngine(Service);
   await engine.initialize();
   store = engine._store;

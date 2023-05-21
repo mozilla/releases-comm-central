@@ -153,7 +153,7 @@ var ExtensionSupport = {
     // aWindow.document.location.href will not be "about:blank" any more.
     aWindow.addEventListener(
       "load",
-      function() {
+      function () {
         ExtensionSupport._addToListAndNotify(aWindow, aID);
       },
       { once: true }
@@ -172,7 +172,7 @@ var ExtensionSupport = {
     openWindowList.add(aWindow);
     aWindow.addEventListener(
       "unload",
-      function() {
+      function () {
         ExtensionSupport._checkAndRunMatchingExtensions(aWindow, "unload");
       },
       { once: true }

@@ -72,7 +72,7 @@ add_task(async function test_setDefaultValues_tasks() {
   let item, alarm;
   let calnow = cal.dtz.now;
   let nowDate = cal.createDateTime("20150815T120000");
-  cal.dtz.now = function() {
+  cal.dtz.now = function () {
     return nowDate;
   };
 

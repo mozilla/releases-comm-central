@@ -1035,7 +1035,7 @@ function checkUntilDate() {
     );
     document.getElementById("repeat-until-date").value = repeatDate;
     checkUntilDate.warning = true;
-    let callback = function() {
+    let callback = function () {
       // No warning when the dialog is being closed with the Cancel button.
       if (!checkUntilDate.warning) {
         return;

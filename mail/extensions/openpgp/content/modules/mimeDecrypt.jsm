@@ -248,10 +248,7 @@ MimeDecryptHandler.prototype = {
         } else if (data.search(/^content-transfer-encoding:\s*/i) >= 0) {
           // extract content-transfer-encoding
           data = data.replace(/^content-transfer-encoding:\s*/i, "");
-          data = data
-            .replace(/;.*/, "")
-            .toLowerCase()
-            .trim();
+          data = data.replace(/;.*/, "").toLowerCase().trim();
           if (data.search(/base64/i) >= 0) {
             this.xferEncoding = ENCODING_BASE64;
           } else if (data.search(/quoted-printable/i) >= 0) {

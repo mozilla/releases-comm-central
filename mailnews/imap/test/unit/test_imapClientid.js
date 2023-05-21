@@ -29,7 +29,7 @@ var gTests = [
   },
 ];
 
-add_task(async function() {
+add_task(async function () {
   let daemon = new ImapDaemon();
   server = makeServer(daemon, "", {
     // Make username of server match the singons.txt file
@@ -53,7 +53,7 @@ add_task(async function() {
   server.resetTest();
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   incomingServer.closeCachedConnections();
   server.stop();
 

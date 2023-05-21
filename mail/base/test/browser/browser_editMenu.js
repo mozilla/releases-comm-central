@@ -48,7 +48,7 @@ let rootFolder, testFolder, testMessages;
 let nntpRootFolder, nntpFolder;
 let imapRootFolder, imapFolder;
 
-add_setup(async function() {
+add_setup(async function () {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   const generator = new MessageGenerator();

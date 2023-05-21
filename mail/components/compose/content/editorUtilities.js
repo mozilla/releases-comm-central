@@ -981,7 +981,7 @@ function onCopyOrCutShortened(aEvent) {
  */
 function shortenImageData(aImageData, aDialogField) {
   let shortened = false;
-  aDialogField.value = aImageData.replace(/^(data:.+;base64,)(.*)/i, function(
+  aDialogField.value = aImageData.replace(/^(data:.+;base64,)(.*)/i, function (
     match,
     nonDataPart,
     dataPart

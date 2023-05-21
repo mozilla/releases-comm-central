@@ -421,11 +421,7 @@ var calendarTaskButtonDNDObserver;
       // attachment list. These will appear as uris rather than file blobs so we
       // check the "filename" query parameter for a .ics extension.
       if (this._icsFilename.test(uri.query)) {
-        let url = uri
-          .mutate()
-          .setUsername("")
-          .setUserPass("")
-          .finalize().spec;
+        let url = uri.mutate().setUsername("").setUserPass("").finalize().spec;
 
         let resp = await fetch(new Request(url, { method: "GET" }));
         let txt = await resp.text();

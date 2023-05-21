@@ -57,7 +57,7 @@ var textAttachment =
 
 var binaryAttachment = textAttachment;
 
-add_setup(async function() {
+add_setup(async function () {
   folder = await create_folder("AttachmentA");
 
   var attachedMessage = msgGen.makeMessage({
@@ -319,7 +319,7 @@ add_task(async function test_attachment_name_click() {
 
   // Ensure the open dialog appears when clicking on the attachment name and
   // that the attachment list doesn't expand.
-  plan_for_modal_dialog("unknownContentTypeWindow", function() {});
+  plan_for_modal_dialog("unknownContentTypeWindow", function () {});
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentName"),
     { clickCount: 1 },

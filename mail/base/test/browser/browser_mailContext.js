@@ -123,7 +123,7 @@ function checkMenuitems(menu, mode) {
   Assert.deepEqual(actualItems, expectedItems);
 }
 
-add_setup(async function() {
+add_setup(async function () {
   let generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();

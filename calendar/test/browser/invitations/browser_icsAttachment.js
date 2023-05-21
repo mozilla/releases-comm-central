@@ -9,7 +9,7 @@
 /**
  * Set TB as default calendar app.
  */
-add_setup(function() {
+add_setup(function () {
   let shellSvc = Cc["@mozilla.org/mail/shell-service;1"].getService(Ci.nsIShellService);
   shellSvc.setDefaultClient(false, shellSvc.CALENDAR);
   ok(shellSvc.isDefaultClient(false, shellSvc.CALENDAR), "setDefaultClient works");

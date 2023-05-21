@@ -22,7 +22,7 @@ var messageInjection;
 /* import-globals-from base_index_junk.js */
 load("base_index_junk.js");
 
-add_setup(function() {
+add_setup(function () {
   // Set these preferences to stop the cache value "cachePDir" being fetched. This
   // avoids errors on the javascript console, for which the test would otherwise fail.
   // See bug 903402 for follow-up information.

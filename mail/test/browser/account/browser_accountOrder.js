@@ -26,7 +26,7 @@ var { mc } = ChromeUtils.import(
 
 var gPopAccount, gOriginalAccountCount;
 
-add_setup(function() {
+add_setup(function () {
   // There may be pre-existing accounts from other tests.
   gOriginalAccountCount = MailServices.accounts.allServers.length;
 
@@ -49,7 +49,7 @@ add_setup(function() {
   );
 });
 
-registerCleanupFunction(function() {
+registerCleanupFunction(function () {
   if (gPopAccount) {
     // Remove our test account to leave the profile clean.
     MailServices.accounts.removeAccount(gPopAccount);
@@ -60,7 +60,7 @@ registerCleanupFunction(function() {
 });
 
 add_task(async function test_account_open_state() {
-  await open_advanced_settings(async function(tab) {
+  await open_advanced_settings(async function (tab) {
     await subtest_check_account_order(tab);
   });
 });

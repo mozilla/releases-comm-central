@@ -56,13 +56,13 @@ var EnigmailPersistentCrypto = {
    * @returns {nsMsgKey} Message key of the new message
    **/
   async cryptMessage(hdr, destFolder, move, targetKey) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       let msgUriSpec = hdr.folder.getUriForMsg(hdr);
       let msgUrl = lazy.EnigmailFuncs.getUrlFromUriSpec(msgUriSpec);
 
       const crypt = new CryptMessageIntoFolder(destFolder, move, targetKey);
 
-      lazy.EnigmailMime.getMimeTreeFromUrl(msgUrl, true, async function(mime) {
+      lazy.EnigmailMime.getMimeTreeFromUrl(msgUrl, true, async function (mime) {
         try {
           let newMsgKey = await crypt.messageParseCallback(mime, hdr);
           resolve(newMsgKey);
@@ -518,10 +518,8 @@ CryptMessageIntoFolder.prototype = {
     return (
       mimePart.headers.get("content-type").type.toLowerCase() ===
         "application/pkcs7-mime" &&
-      mimePart.headers
-        .get("content-type")
-        .get("smime-type")
-        .toLowerCase() === "enveloped-data" &&
+      mimePart.headers.get("content-type").get("smime-type").toLowerCase() ===
+        "enveloped-data" &&
       mimePart.subParts.length === 0
     );
   },
@@ -534,10 +532,8 @@ CryptMessageIntoFolder.prototype = {
         if (
           mimePart.headers.get("content-type").type.toLowerCase() ===
             "multipart/encrypted" &&
-          mimePart.headers
-            .get("content-type")
-            .get("protocol")
-            .toLowerCase() === "application/pgp-encrypted" &&
+          mimePart.headers.get("content-type").get("protocol").toLowerCase() ===
+            "application/pgp-encrypted" &&
           mimePart.subParts.length === 2
         ) {
           return true;
@@ -1130,7 +1126,7 @@ CryptMessageIntoFolder.prototype = {
  */
 
 function formatHeader(headerLabel) {
-  return headerLabel.replace(/^.|(-.)/g, function(match) {
+  return headerLabel.replace(/^.|(-.)/g, function (match) {
     return match.toUpperCase();
   });
 }

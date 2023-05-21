@@ -254,21 +254,13 @@ function run_test() {
   Assert.ok(url.schemeIs("ldaps"));
   Assert.ok(!url.schemeIs("ldap"));
 
-  url = url
-    .mutate()
-    .setScheme("ldap")
-    .finalize()
-    .QueryInterface(Ci.nsILDAPURL);
+  url = url.mutate().setScheme("ldap").finalize().QueryInterface(Ci.nsILDAPURL);
   Assert.equal(url.options, 0);
   Assert.equal(
     url.spec,
     "ldap://localhost" + portAdpt + "/dc=short??one?(objectclass=*)"
   );
-  url = url
-    .mutate()
-    .setScheme("ldap")
-    .finalize()
-    .QueryInterface(Ci.nsILDAPURL);
+  url = url.mutate().setScheme("ldap").finalize().QueryInterface(Ci.nsILDAPURL);
   Assert.equal(url.options, 0);
   Assert.equal(
     url.spec,

@@ -218,10 +218,10 @@ PgpMimeEncrypt.prototype = {
     let allHdr = "";
 
     let addrParser = lazy.jsmime.headerparser.parseAddressingHeader;
-    let newsParser = function(s) {
+    let newsParser = function (s) {
       return lazy.jsmime.headerparser.parseStructuredHeader("Newsgroups", s);
     };
-    let noParser = function(s) {
+    let noParser = function (s) {
       return s;
     };
 

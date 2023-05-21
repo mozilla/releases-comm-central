@@ -23,7 +23,7 @@ var gFolder1, gRootFolder;
 // Adds some messages directly to a mailbox (eg new mail)
 function addMessagesToServer(messages, mailbox) {
   // Create the ImapMessages and store them on the mailbox
-  messages.forEach(function(message) {
+  messages.forEach(function (message) {
     let dataUri = Services.io.newURI(
       "data:text/plain;base64," + btoa(message.toMessageString())
     );
@@ -31,7 +31,7 @@ function addMessagesToServer(messages, mailbox) {
   });
 }
 
-add_setup(function() {
+add_setup(function () {
   localAccountUtils.loadLocalMailAccount();
 
   /*
@@ -70,7 +70,7 @@ add_setup(function() {
   Services.prefs.setIntPref("offline.download.download_messages", 2);
 });
 
-add_setup(function() {
+add_setup(function () {
   // make 10 messages
   let messageGenerator = new MessageGenerator();
   let scenarioFactory = new MessageScenarioFactory(messageGenerator);
