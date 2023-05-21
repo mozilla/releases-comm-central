@@ -79,8 +79,8 @@ function ctcpHandleMessage(message, ircHandlers) {
   // Split the raw message into the multiple CTCP messages and pull out the
   // command and parameters.
   let ctcpMessages = [];
-  // eslint-disable-next-line no-control-regex
   let otherMessage = rawCTCPParam.replace(
+    // eslint-disable-next-line no-control-regex
     /\x01([^\x01]*)\x01/g,
     function (aMatch, aMsg) {
       if (aMsg) {
