@@ -261,11 +261,8 @@ function view_init(event) {
     let chromeBrowser;
     ({ chromeBrowser, message } = tab);
     let { paneLayout, quickFilterBar } = chromeBrowser.contentWindow;
-    ({
-      accountCentralVisible,
-      folderPaneVisible,
-      messagePaneVisible,
-    } = paneLayout);
+    ({ accountCentralVisible, folderPaneVisible, messagePaneVisible } =
+      paneLayout);
     quickFilterBarVisible = quickFilterBar.filterer.visible;
     threadPaneHeaderVisible = true;
   } else if (tab?.mode.name == "mailMessageTab") {
@@ -337,9 +334,8 @@ function view_init(event) {
   // Disable some menus if account manager is showing
   document.getElementById("viewSortMenu").disabled = accountCentralVisible;
 
-  document.getElementById(
-    "viewMessageViewMenu"
-  ).disabled = accountCentralVisible;
+  document.getElementById("viewMessageViewMenu").disabled =
+    accountCentralVisible;
 
   document.getElementById("viewMessagesMenu").disabled = accountCentralVisible;
 
@@ -480,12 +476,8 @@ function InitViewSortByMenu() {
     return;
   }
 
-  let {
-    primarySortType,
-    primarySortOrder,
-    showGroupedBySort,
-    showThreaded,
-  } = gViewWrapper;
+  let { primarySortType, primarySortOrder, showGroupedBySort, showThreaded } =
+    gViewWrapper;
   let hiddenColumns = threadPane.columns
     .filter(c => c.hidden)
     .map(c => c.sortKey);
@@ -854,9 +846,8 @@ function InitViewBodyMenu() {
     AllowHTML_menuitem.hidden = !FeedMessageHandler.gShowSummary;
     Sanitized_menuitem.hidden = !FeedMessageHandler.gShowSummary;
     AsPlaintext_menuitem.hidden = !FeedMessageHandler.gShowSummary;
-    document.getElementById(
-      "viewFeedSummarySeparator"
-    ).hidden = !gShowFeedSummary;
+    document.getElementById("viewFeedSummarySeparator").hidden =
+      !gShowFeedSummary;
   }
 }
 

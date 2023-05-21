@@ -11,11 +11,8 @@
 var { get_cards_in_all_address_books_for_email } = ChromeUtils.import(
   "resource://testing-common/mozmill/AddressBookHelpers.jsm"
 );
-var {
-  close_window,
-  plan_for_modal_dialog,
-  wait_for_modal_dialog,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { close_window, plan_for_modal_dialog, wait_for_modal_dialog } =
+  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 async function openMessageFromFile(file) {
   let fileURL = Services.io

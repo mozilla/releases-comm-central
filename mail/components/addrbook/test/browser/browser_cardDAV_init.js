@@ -293,8 +293,7 @@ add_task(async function testDNS() {
     Assert.equal(name, "_carddavs._tcp.dnstest.invalid");
     return [
       {
-        data:
-          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        data: "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
       },
     ];
   };
@@ -310,8 +309,7 @@ add_task(async function testDNS() {
       expectedBooks: [
         {
           label: "You found me!",
-          url:
-            "https://example.org/browser/comm/mail/components/addrbook/test/browser/data/addressbook.sjs",
+          url: "https://example.org/browser/comm/mail/components/addrbook/test/browser/data/addressbook.sjs",
         },
       ],
     });

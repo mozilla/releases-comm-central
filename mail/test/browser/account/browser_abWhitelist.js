@@ -11,13 +11,10 @@ var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-var {
-  click_account_tree_row,
-  get_account_tree_row,
-  open_advanced_settings,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
-);
+var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  );
 var { FAKE_SERVER_HOSTNAME } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -62,8 +59,10 @@ function subtest_check_whitelist_init_and_save(tab) {
   let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
   click_account_tree_row(tab, accountRow);
 
-  let doc = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  let doc =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
 
   // At this point, we shouldn't have anything checked, but we should have
   // the two default address books (Personal and Collected) displayed
@@ -96,8 +95,10 @@ function subtest_check_whitelist_load_and_clear(tab) {
   let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
   click_account_tree_row(tab, accountRow);
 
-  let doc = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  let doc =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
   let list = doc.getElementById("whiteListAbURI");
   let whiteListURIs = Services.prefs.getCharPref(gKeyString).split(" ");
 
@@ -130,8 +131,10 @@ function subtest_check_whitelist_load_cleared(tab) {
   let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
   click_account_tree_row(tab, accountRow);
 
-  let doc = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  let doc =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
   let list = doc.getElementById("whiteListAbURI");
   let whiteListURIs = "";
 

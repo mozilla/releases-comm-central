@@ -157,9 +157,8 @@ async function createAndLoadMessage(
 
     // Append relevant Thunderbird headers to indicate a detached file.
     attachment.extraHeaders = {
-      "X-Mozilla-External-Attachment-URL": fileHandler.getURLSpecFromActualFile(
-        attachmentFile
-      ),
+      "X-Mozilla-External-Attachment-URL":
+        fileHandler.getURLSpecFromActualFile(attachmentFile),
       "X-Mozilla-Altered":
         'AttachmentDetached; date="Mon Apr 04 13:59:42 2022"',
     };

@@ -50,12 +50,8 @@ add_task(async function testAttachWebPage() {
   await CalendarTestUtils.setCalendarView(window, "month");
   window.goToDate(startDate);
 
-  let {
-    dialogWindow,
-    iframeWindow,
-    dialogDocument,
-    iframeDocument,
-  } = await CalendarTestUtils.editNewEvent(window);
+  let { dialogWindow, iframeWindow, dialogDocument, iframeDocument } =
+    await CalendarTestUtils.editNewEvent(window);
 
   await setData(dialogWindow, iframeWindow, {
     title: "Web Link Event",
@@ -178,12 +174,8 @@ add_task(async function testAttachProvider() {
   await CalendarTestUtils.setCalendarView(window, "month");
   window.goToDate(startDate);
 
-  let {
-    dialogWindow,
-    iframeWindow,
-    dialogDocument,
-    iframeDocument,
-  } = await CalendarTestUtils.editNewEvent(window);
+  let { dialogWindow, iframeWindow, dialogDocument, iframeDocument } =
+    await CalendarTestUtils.editNewEvent(window);
 
   await setData(dialogWindow, iframeWindow, {
     title: "Provider Attachment Event",

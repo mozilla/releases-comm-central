@@ -247,8 +247,8 @@ add_task(function test_can_quit_on_filter_changes() {
   let filterc = wait_for_existing_window("mailnews:filterlist");
 
   // There should already be 1 filter defined from previous test.
-  let filterCount = filterc.window.document.getElementById("filterList")
-    .itemCount;
+  let filterCount =
+    filterc.window.document.getElementById("filterList").itemCount;
   Assert.equal(filterCount, 1);
 
   let runButton = filterc.window.document.getElementById("runFiltersButton");

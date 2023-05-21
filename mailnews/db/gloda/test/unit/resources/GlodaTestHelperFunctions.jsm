@@ -135,7 +135,8 @@ function configureGlodaIndexing(aArgs) {
     log.debug(`Enabling hang injection in ${aArgs.hangWhile}.`);
     switch (aArgs.hangWhile) {
       case "streaming":
-        GlodaMsgIndexer._MsgHdrToMimeMessageFunc = _simulate_hang_on_MsgHdrToMimeMessage;
+        GlodaMsgIndexer._MsgHdrToMimeMessageFunc =
+          _simulate_hang_on_MsgHdrToMimeMessage;
         break;
       default:
         throw new Error(
@@ -146,7 +147,8 @@ function configureGlodaIndexing(aArgs) {
     log.debug(`Enabling fault injection in ${aArgs.hangWhile}.`);
     switch (aArgs.injectFaultIn) {
       case "streaming":
-        GlodaMsgIndexer._MsgHdrToMimeMessageFunc = _inject_failure_on_MsgHdrToMimeMessage;
+        GlodaMsgIndexer._MsgHdrToMimeMessageFunc =
+          _inject_failure_on_MsgHdrToMimeMessage;
         break;
       default:
         throw new Error(

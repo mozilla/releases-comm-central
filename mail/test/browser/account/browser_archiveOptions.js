@@ -9,13 +9,10 @@ var controller = ChromeUtils.import(
 );
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-var {
-  click_account_tree_row,
-  get_account_tree_row,
-  open_advanced_settings,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
-);
+var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  );
 var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -47,9 +44,8 @@ function subtest_check_archive_options_enabled(tab, accountKey, isEnabled) {
   let accountRow = get_account_tree_row(accountKey, "am-copies.xhtml", tab);
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById(
-    "contentFrame"
-  );
+  let iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
   let button = iframe.contentDocument.getElementById("archiveHierarchyButton");
 
   Assert.equal(button.disabled, !isEnabled);
@@ -128,12 +124,10 @@ add_task(function test_open_archive_options() {
 
 function subtest_save_state(identity, granularity, kfs) {
   plan_for_modal_dialog("archiveOptions", function (ac) {
-    ac.window.document.getElementById(
-      "archiveGranularity"
-    ).selectedIndex = granularity;
-    ac.window.document.getElementById(
-      "archiveKeepFolderStructure"
-    ).checked = kfs;
+    ac.window.document.getElementById("archiveGranularity").selectedIndex =
+      granularity;
+    ac.window.document.getElementById("archiveKeepFolderStructure").checked =
+      kfs;
     EventUtils.synthesizeKey("VK_RETURN", {}, ac.window);
     ac.window.document.querySelector("dialog").acceptDialog();
   });
@@ -160,9 +154,8 @@ function subtest_check_archive_enabled(tab, archiveEnabled) {
 
   click_account_tree_row(tab, 2);
 
-  let iframe = tab.browser.contentWindow.document.getElementById(
-    "contentFrame"
-  );
+  let iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
   let checkbox = iframe.contentDocument.getElementById(
     "identity.archiveEnabled"
   );
@@ -184,9 +177,8 @@ function subtest_disable_archive(tab) {
   defaultIdentity.archiveEnabled = true;
   click_account_tree_row(tab, 2);
 
-  let iframe = tab.browser.contentWindow.document.getElementById(
-    "contentFrame"
-  );
+  let iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
   let checkbox = iframe.contentDocument.getElementById(
     "identity.archiveEnabled"
   );

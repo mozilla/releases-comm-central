@@ -99,8 +99,9 @@ var gComposePane = {
   },
 
   updateUseReaderDefaults() {
-    let useReaderDefaultsChecked = Preferences.get("msgcompose.default_colors")
-      .value;
+    let useReaderDefaultsChecked = Preferences.get(
+      "msgcompose.default_colors"
+    ).value;
     gComposePane.enableElement(
       document.getElementById("textColorLabel"),
       !useReaderDefaultsChecked

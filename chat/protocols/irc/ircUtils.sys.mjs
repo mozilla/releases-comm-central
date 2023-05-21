@@ -141,23 +141,23 @@ export function ctcpFormatToHTML(aString) {
 // eslint-disable-next-line no-control-regex
 var M_IRC_COLORS_EXP = /^\x03(?:(\d\d?)(?:,(\d\d?))?)?/;
 var M_IRC_COLOR_MAP = {
-  "0": "white",
-  "1": "black",
-  "2": "navy", // blue (navy)
-  "3": "green",
-  "4": "red",
-  "5": "maroon", // brown (maroon)
-  "6": "purple",
-  "7": "orange", // orange (olive)
-  "8": "yellow",
-  "9": "lime", // light green (lime)
-  "10": "teal", // teal (a green/blue cyan)
-  "11": "aqua", // light cyan (cyan) (aqua)
-  "12": "blue", // light blue (royal)",
-  "13": "fuchsia", // pink (light purple) (fuchsia)
-  "14": "grey",
-  "15": "silver", // light grey (silver)
-  "99": "transparent",
+  0: "white",
+  1: "black",
+  2: "navy", // blue (navy)
+  3: "green",
+  4: "red",
+  5: "maroon", // brown (maroon)
+  6: "purple",
+  7: "orange", // orange (olive)
+  8: "yellow",
+  9: "lime", // light green (lime)
+  10: "teal", // teal (a green/blue cyan)
+  11: "aqua", // light cyan (cyan) (aqua)
+  12: "blue", // light blue (royal)",
+  13: "fuchsia", // pink (light purple) (fuchsia)
+  14: "grey",
+  15: "silver", // light grey (silver)
+  99: "transparent",
 };
 
 function mIRCColoring(aStack, aInput) {

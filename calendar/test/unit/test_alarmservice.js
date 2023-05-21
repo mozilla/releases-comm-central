@@ -548,11 +548,10 @@ add_task(async function test_notificationTimers() {
 
   alarmObserver.service.removeFiredNotificationTimer(item);
   // Should have three notification timers.
-  matchTimers(alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId], [
-    3600,
-    5400,
-    7320,
-  ]);
+  matchTimers(
+    alarmObserver.service.mNotificationTimerMap[item.calendar.id][item.hashId],
+    [3600, 5400, 7320]
+  );
 
   await memory.deleteItem(item);
   equal(

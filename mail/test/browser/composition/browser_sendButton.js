@@ -10,13 +10,10 @@
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-var {
-  create_contact,
-  create_mailing_list,
-  load_contacts_into_address_book,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AddressBookHelpers.jsm"
-);
+var { create_contact, create_mailing_list, load_contacts_into_address_book } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/AddressBookHelpers.jsm"
+  );
 var {
   be_in_folder,
   click_tree_row,
@@ -33,11 +30,8 @@ var {
   open_compose_new_mail,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var {
-  plan_for_modal_dialog,
-  wait_for_frame_load,
-  wait_for_modal_dialog,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { plan_for_modal_dialog, wait_for_frame_load, wait_for_modal_dialog } =
+  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

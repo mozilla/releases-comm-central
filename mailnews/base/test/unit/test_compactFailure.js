@@ -8,13 +8,8 @@ var { MockRegistrar } = ChromeUtils.importESModule(
 
 /* import-globals-from ../../../test/resources/logHelper.js */
 load("../../../resources/logHelper.js");
-var {
-  addMessagesToFolder,
-  MessageGenerator,
-  MessageScenarioFactory,
-} = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
-);
+var { addMessagesToFolder, MessageGenerator, MessageScenarioFactory } =
+  ChromeUtils.import("resource://testing-common/mailnews/MessageGenerator.jsm");
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
@@ -118,9 +113,8 @@ add_setup(function () {
 
 add_task(async function test_compact_without_failure() {
   // Setup open failure folder.
-  gTargetFolder = localAccountUtils.rootFolder.createLocalSubfolder(
-    "ShouldFail"
-  );
+  gTargetFolder =
+    localAccountUtils.rootFolder.createLocalSubfolder("ShouldFail");
   addMessagesToFolder(generate_messages(), gTargetFolder);
 
   await new Promise(resolve => {

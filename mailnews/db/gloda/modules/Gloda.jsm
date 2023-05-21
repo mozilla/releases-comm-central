@@ -1447,9 +1447,8 @@ var Gloda = {
           return this;
         };
 
-        aSubjectNounDef.queryClass.prototype[
-          aAttrDef.boundName + "Range"
-        ] = rangedConstrainer;
+        aSubjectNounDef.queryClass.prototype[aAttrDef.boundName + "Range"] =
+          rangedConstrainer;
       }
 
       // - string LIKE helper for special on-row attributes: fooLike
@@ -1469,9 +1468,8 @@ var Gloda = {
           return this;
         };
 
-        aSubjectNounDef.queryClass.prototype[
-          aAttrDef.boundName + "Like"
-        ] = likeConstrainer;
+        aSubjectNounDef.queryClass.prototype[aAttrDef.boundName + "Like"] =
+          likeConstrainer;
       }
 
       // - Custom helpers provided by the noun type...
@@ -1480,11 +1478,10 @@ var Gloda = {
           let helper = objectNounDef.queryHelpers[name];
           // we need a new closure...
           let helperFunc = helper;
-          aSubjectNounDef.queryClass.prototype[
-            aAttrDef.boundName + name
-          ] = function (...aArgs) {
-            return helperFunc.call(this, aAttrDef, ...aArgs);
-          };
+          aSubjectNounDef.queryClass.prototype[aAttrDef.boundName + name] =
+            function (...aArgs) {
+              return helperFunc.call(this, aAttrDef, ...aArgs);
+            };
         }
       }
     }
@@ -1735,9 +1732,8 @@ var Gloda = {
         if (aAttrDef.provider.optimize) {
           this._attrOptimizerOrderByNoun[subjectType].push(aAttrDef.provider);
         }
-        this._attrProvidersByNoun[subjectType][
-          aAttrDef.provider.providerName
-        ] = [];
+        this._attrProvidersByNoun[subjectType][aAttrDef.provider.providerName] =
+          [];
       }
       this._attrProvidersByNoun[subjectType][
         aAttrDef.provider.providerName
@@ -1745,9 +1741,8 @@ var Gloda = {
 
       subjectNounDef.attribsByBoundName[aAttrDef.boundName] = aAttrDef;
       if (aAttrDef.domExpose) {
-        subjectNounDef.domExposeAttribsByBoundName[
-          aAttrDef.boundName
-        ] = aAttrDef;
+        subjectNounDef.domExposeAttribsByBoundName[aAttrDef.boundName] =
+          aAttrDef;
       }
 
       if (

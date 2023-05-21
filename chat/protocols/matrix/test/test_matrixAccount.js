@@ -150,9 +150,8 @@ add_task(async function test_getGroupConversation() {
   await TestUtils.waitForTick();
   createdRoom.close();
 
-  const roomAlreadyBeingCreated = mockAccount.getGroupConversation(
-    "#lorem:example.com"
-  );
+  const roomAlreadyBeingCreated =
+    mockAccount.getGroupConversation("#lorem:example.com");
   ok(
     roomAlreadyBeingCreated.joining,
     "Joining room that is about to get replaced"
@@ -164,17 +163,15 @@ add_task(async function test_getGroupConversation() {
   ok(roomAlreadyBeingCreated._replacedBy, "Room got replaced");
   pendingRoom.forget();
 
-  const missingLocalRoom = mockAccount.getGroupConversation(
-    "!ipsum:example.com"
-  );
+  const missingLocalRoom =
+    mockAccount.getGroupConversation("!ipsum:example.com");
   await TestUtils.waitForTick();
   ok(!missingLocalRoom.joining, "Not joining missing room");
   ok(mockAccount.left, "Left missing room");
 
   mockAccount.left = false;
-  const unjoinableRemoteRoom = mockAccount.getGroupConversation(
-    "#test:matrix.org"
-  );
+  const unjoinableRemoteRoom =
+    mockAccount.getGroupConversation("#test:matrix.org");
   await TestUtils.waitForTick();
   ok(!unjoinableRemoteRoom.joining, "Not joining unjoinable room");
   ok(mockAccount.left, "Left unjoinable room");

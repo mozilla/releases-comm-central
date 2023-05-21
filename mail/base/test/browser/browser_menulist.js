@@ -14,9 +14,8 @@ add_task(async () => {
   ok(testDocument.URL == TEST_DOCUMENT_URL);
   let testWindow = testDocument.ownerGlobal;
   let MENULIST_CLASS = testWindow.customElements.get("menulist");
-  let MENULIST_EDITABLE_CLASS = testWindow.customElements.get(
-    "menulist-editable"
-  );
+  let MENULIST_EDITABLE_CLASS =
+    testWindow.customElements.get("menulist-editable");
 
   let menulists = testDocument.querySelectorAll("menulist");
   is(menulists.length, 3);

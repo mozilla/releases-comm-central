@@ -132,8 +132,8 @@ add_task(async function test_cid_image_view() {
   assert_selected_and_displayed(mc, msg);
 
   // Check image in the preview.
-  let messageDoc = get_about_message().document.getElementById("messagepane")
-    .contentDocument;
+  let messageDoc =
+    get_about_message().document.getElementById("messagepane").contentDocument;
   let image = messageDoc.getElementById("cidImage");
   await check_image_size(mc, image, gImageFolder.server.localStoreType + "://");
   image = messageDoc.getElementById("cidImageOrigin");

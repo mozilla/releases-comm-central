@@ -83,9 +83,8 @@ MimeMessageEmitter.prototype = {
     this._saneBodySize =
       options && "saneBodySize" in options ? options.saneBodySize : false;
 
-    this._mimeMsg.MsgHdrToMimeMessage.RESULT_RENDEVOUZ[
-      aUrl.spec
-    ] = this._curPart;
+    this._mimeMsg.MsgHdrToMimeMessage.RESULT_RENDEVOUZ[aUrl.spec] =
+      this._curPart;
   },
 
   complete() {

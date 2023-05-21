@@ -19,8 +19,8 @@ add_task(async function test_cp932_display() {
   let file = new FileUtils.File(getTestFilePath("data/charset-cp932.eml"));
   let msgc = await open_message_from_file(file);
   let aboutMessage = get_about_message(msgc.window);
-  let subjectText = aboutMessage.document.getElementById("expandedsubjectBox")
-    .textContent;
+  let subjectText =
+    aboutMessage.document.getElementById("expandedsubjectBox").textContent;
   let bodyText = aboutMessage.document
     .getElementById("messagepane")
     .contentDocument.querySelector("body").textContent;

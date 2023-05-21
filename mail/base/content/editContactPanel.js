@@ -111,20 +111,16 @@ var editContactInlineUI = {
     this.panel;
 
     // Update the labels accordingly.
-    document.getElementById(
-      "editContactPanelTitle"
-    ).textContent = bundle.GetStringFromName(type + "Title");
-    document.getElementById(
-      "editContactPanelEditDetailsButton"
-    ).label = bundle.GetStringFromName(type + "DetailsLabel");
-    document.getElementById(
-      "editContactPanelEditDetailsButton"
-    ).accessKey = bundle.GetStringFromName(type + "DetailsAccessKey");
+    document.getElementById("editContactPanelTitle").textContent =
+      bundle.GetStringFromName(type + "Title");
+    document.getElementById("editContactPanelEditDetailsButton").label =
+      bundle.GetStringFromName(type + "DetailsLabel");
+    document.getElementById("editContactPanelEditDetailsButton").accessKey =
+      bundle.GetStringFromName(type + "DetailsAccessKey");
 
     // We don't need a delete button for a read only card.
-    document.getElementById(
-      "editContactPanelDeleteContactButton"
-    ).hidden = !this._writeable;
+    document.getElementById("editContactPanelDeleteContactButton").hidden =
+      !this._writeable;
 
     var nameElement = document.getElementById("editContactName");
 
@@ -143,9 +139,8 @@ var editContactInlineUI = {
       aAnchorElement.getAttribute("emailAddress") ||
       aAnchorElement.emailAddress;
 
-    document.getElementById(
-      "editContactAddressBookList"
-    ).value = this._cardDetails.book.URI;
+    document.getElementById("editContactAddressBookList").value =
+      this._cardDetails.book.URI;
 
     // Is this card contained within mailing lists?
     let inMailList = false;

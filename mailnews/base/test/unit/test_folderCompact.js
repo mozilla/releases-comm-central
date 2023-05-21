@@ -238,8 +238,8 @@ var gTestArray = [
 
     // Save the first message key, which will change after compact with
     // rebuild.
-    let f2m2Key = gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID)
-      .messageKey;
+    let f2m2Key =
+      gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID).messageKey;
 
     // force expunged bytes count to get cached.
     gLocalFolder2.expungedBytes;
@@ -255,9 +255,10 @@ var gTestArray = [
     showMessages(localAccountUtils.inboxFolder, "before compactAll");
     // Save the key for the inbox message, we'll check after compact that it
     // did not change.
-    let preInboxMsg3Key = localAccountUtils.inboxFolder.msgDatabase.getMsgHdrForMessageID(
-      gMsg3ID
-    ).messageKey;
+    let preInboxMsg3Key =
+      localAccountUtils.inboxFolder.msgDatabase.getMsgHdrForMessageID(
+        gMsg3ID
+      ).messageKey;
 
     // We used to check here that the keys did not change during rebuild.
     // But that is no true in general, it was only conicidental since the
@@ -278,9 +279,10 @@ var gTestArray = [
     showMessages(gLocalFolder2, "after compactAll");
 
     // For the inbox, which was compacted but not rebuild, key is unchanged.
-    let postInboxMsg3Key = localAccountUtils.inboxFolder.msgDatabase.getMsgHdrForMessageID(
-      gMsg3ID
-    ).messageKey;
+    let postInboxMsg3Key =
+      localAccountUtils.inboxFolder.msgDatabase.getMsgHdrForMessageID(
+        gMsg3ID
+      ).messageKey;
     Assert.equal(preInboxMsg3Key, postInboxMsg3Key);
 
     // For folder2, which was rebuilt, keys change but all messages should exist.

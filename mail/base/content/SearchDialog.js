@@ -413,8 +413,9 @@ function getSearchFolders() {
     searchFolders.push(gCurrentFolder);
   }
 
-  var searchSubfolders = document.getElementById("checkSearchSubFolders")
-    .checked;
+  var searchSubfolders = document.getElementById(
+    "checkSearchSubFolders"
+  ).checked;
   if (
     gCurrentFolder &&
     (searchSubfolders || gCurrentFolder.isServer || gCurrentFolder.noSelect)
@@ -582,8 +583,9 @@ function OpenInFolder() {
 function saveAsVirtualFolder() {
   var searchFolderURIs = gCurrentFolder.URI;
 
-  var searchSubfolders = document.getElementById("checkSearchSubFolders")
-    .checked;
+  var searchSubfolders = document.getElementById(
+    "checkSearchSubFolders"
+  ).checked;
   if (
     gCurrentFolder &&
     (searchSubfolders || gCurrentFolder.isServer || gCurrentFolder.noSelect)

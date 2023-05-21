@@ -1405,12 +1405,16 @@ add_task(async function parseCounter_test() {
             original: "Room 1",
           },
           dtstart: {
-            proposed: /^Thursday, (September 10,|10 September) 2015 (9:00 PM|21:00) Europe\/Berlin$/,
-            original: /^Wednesday, (September 0?9,|0?9 September) 2015 (9:00 PM|21:00) Europe\/Berlin$/,
+            proposed:
+              /^Thursday, (September 10,|10 September) 2015 (9:00 PM|21:00) Europe\/Berlin$/,
+            original:
+              /^Wednesday, (September 0?9,|0?9 September) 2015 (9:00 PM|21:00) Europe\/Berlin$/,
           },
           dtend: {
-            proposed: /^Thursday, (September 10,|10 September) 2015 (10:00 PM|22:00) Europe\/Berlin$/,
-            original: /^Wednesday, (September 0?9,|0?9 September) 2015 (10:00 PM|22:00) Europe\/Berlin$/,
+            proposed:
+              /^Thursday, (September 10,|10 September) 2015 (10:00 PM|22:00) Europe\/Berlin$/,
+            original:
+              /^Wednesday, (September 0?9,|0?9 September) 2015 (10:00 PM|22:00) Europe\/Berlin$/,
           },
           comment: {
             proposed: "Sorry, I cannot make it that time.",

@@ -276,8 +276,8 @@ var gKeyAssistant = {
       }
     }
 
-    document.getElementById("keyAssistantIssues").hidden = !this
-      .problematicKeys;
+    document.getElementById("keyAssistantIssues").hidden =
+      !this.problematicKeys;
     document.l10n.setAttributes(
       document.getElementById("keyAssistantIssuesDescription"),
       "openpgp-key-assistant-recipients-issue-description",
@@ -737,8 +737,9 @@ var gKeyAssistant = {
   },
 
   async acceptSelectedKey(recipient, keyMetas) {
-    let selectedKey = document.querySelector('input[name="valid-key"]:checked')
-      ?.value;
+    let selectedKey = document.querySelector(
+      'input[name="valid-key"]:checked'
+    )?.value;
     if (!selectedKey) {
       // The accept button was enabled but nothing was selected.
       return;
@@ -880,9 +881,8 @@ var gKeyAssistant = {
       this.resetViews();
       this.buildMainView();
 
-      let notification = this.notificationBox.getNotificationWithValue(
-        "acceptedKeyUpdated"
-      );
+      let notification =
+        this.notificationBox.getNotificationWithValue("acceptedKeyUpdated");
 
       // If a notification already exists, simply update the message.
       if (notification) {

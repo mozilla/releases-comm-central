@@ -9,11 +9,8 @@
 
 "use strict";
 
-var {
-  async_wait_for_compose_window,
-  close_compose_window,
-  get_compose_body,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { async_wait_for_compose_window, close_compose_window, get_compose_body } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   assert_selected_and_displayed,
   be_in_folder,
@@ -26,11 +23,8 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var {
-  async_plan_for_new_window,
-  close_window,
-  wait_for_new_window,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { async_plan_for_new_window, close_window, wait_for_new_window } =
+  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

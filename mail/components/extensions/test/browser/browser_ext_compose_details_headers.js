@@ -180,8 +180,7 @@ add_task(async function testHeaders() {
         {
           // Multiple inputs, string.
           input: {
-            to:
-              "Molly Hooper <molly@bakerstreet.invalid>, Mrs Hudson <mrs_hudson@bakerstreet.invalid>",
+            to: "Molly Hooper <molly@bakerstreet.invalid>, Mrs Hudson <mrs_hudson@bakerstreet.invalid>",
           },
           expected: {
             to: [
@@ -287,8 +286,7 @@ add_task(async function testHeaders() {
         {
           // Override from with multiple string address
           input: {
-            from:
-              "Mycroft Holmes <mycroft@bakerstreet.invalid>, Mary Watson <mary@bakerstreet.invalid>",
+            from: "Mycroft Holmes <mycroft@bakerstreet.invalid>, Mary Watson <mary@bakerstreet.invalid>",
           },
           expected: {
             errorDescription:

@@ -221,9 +221,8 @@ class MessageInjection {
       this._mis.handleUriToRealFolder = {};
       this._mis.handleUriToFakeFolder = {};
       this._mis.realUriToFakeFolder = {};
-      this._mis.realUriToFakeFolder[
-        this._mis.inboxFolder.URI
-      ] = this._mis.daemon.getMailbox("INBOX");
+      this._mis.realUriToFakeFolder[this._mis.inboxFolder.URI] =
+        this._mis.daemon.getMailbox("INBOX");
     } else {
       throw new Error(
         "Illegal injection config option: " + this._mis.injectionConfig.mode
@@ -419,9 +418,8 @@ class MessageInjection {
       if (this._mis.trashFolder) {
         this._mis.trashHandle = this._mis.rootFolder.URI + "/Trash";
         let fakeFolder = this._mis.daemon.getMailbox("Trash");
-        this._mis.handleUriToRealFolder[
-          this._mis.trashHandle
-        ] = this._mis.trashFolder;
+        this._mis.handleUriToRealFolder[this._mis.trashHandle] =
+          this._mis.trashFolder;
         this._mis.handleUriToFakeFolder[this._mis.trashHandle] = fakeFolder;
         this._mis.realUriToFakeFolder[this._mis.trashFolder.URI] = fakeFolder;
       } else {

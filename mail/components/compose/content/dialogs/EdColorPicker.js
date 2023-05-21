@@ -120,16 +120,14 @@ function Startup() {
   // Use last-picked colors passed in, or those persistent on dialog
   if (TextType) {
     if (!("LastTextColor" in gColorObj) || !gColorObj.LastTextColor) {
-      gColorObj.LastTextColor = gDialog.LastPickedColor.getAttribute(
-        "LastTextColor"
-      );
+      gColorObj.LastTextColor =
+        gDialog.LastPickedColor.getAttribute("LastTextColor");
     }
     LastPickedColor = gColorObj.LastTextColor;
   } else if (HighlightType) {
     if (!("LastHighlightColor" in gColorObj) || !gColorObj.LastHighlightColor) {
-      gColorObj.LastHighlightColor = gDialog.LastPickedColor.getAttribute(
-        "LastHighlightColor"
-      );
+      gColorObj.LastHighlightColor =
+        gDialog.LastPickedColor.getAttribute("LastHighlightColor");
     }
     LastPickedColor = gColorObj.LastHighlightColor;
   } else {

@@ -469,14 +469,8 @@
       this._mouseMoveBlocked = true;
       requestAnimationFrame(() => (this._mouseMoveBlocked = false));
 
-      let {
-        wasCollapsed,
-        vertical,
-        negative,
-        pos,
-        size,
-        collapseSize,
-      } = this._dragStartInfo;
+      let { wasCollapsed, vertical, negative, pos, size, collapseSize } =
+        this._dragStartInfo;
 
       let delta = (vertical ? event.clientY : event.clientX) - pos;
       if (negative) {

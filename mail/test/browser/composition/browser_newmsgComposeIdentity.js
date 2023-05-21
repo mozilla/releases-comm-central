@@ -16,15 +16,10 @@ var {
   save_compose_message,
   wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var {
-  be_in_folder,
-  get_special_folder,
-  mc,
-  press_delete,
-  select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { be_in_folder, get_special_folder, mc, press_delete, select_click_row } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 var { click_menus_in_sequence, plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );

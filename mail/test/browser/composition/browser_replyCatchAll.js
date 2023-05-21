@@ -23,12 +23,10 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var {
-  assert_notification_displayed,
-  wait_for_notification_to_show,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
-);
+var { assert_notification_displayed, wait_for_notification_to_show } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+  );
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -113,8 +111,7 @@ add_task(async function test_reply_identity_selection() {
       warning: false,
     },
     {
-      desc:
-        "No catchAll, 'From' will be set to second id's email (without name).",
+      desc: "No catchAll, 'From' will be set to second id's email (without name).",
       to: "Mr.X <" + myIdentityEmail2 + ">",
       envelopeTo: "",
       catchAllId1: false,
@@ -138,8 +135,7 @@ add_task(async function test_reply_identity_selection() {
       warning: false,
     },
     {
-      desc:
-        "With catchAll #2, 'From' will be set to senders address (with name).",
+      desc: "With catchAll #2, 'From' will be set to senders address (with name).",
       to: myIdentityEmail2,
       envelopeTo: "Mr.X <" + myIdentityEmail2 + ">",
       catchAllId1: false,

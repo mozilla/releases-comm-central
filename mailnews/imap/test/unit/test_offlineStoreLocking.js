@@ -208,9 +208,8 @@ add_task(async function testOfflineBodyCopy() {
 
   // Verify that the moved Msg is not offline.
   try {
-    let movedMsg = IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(
-      gMovedMsgId
-    );
+    let movedMsg =
+      IMAPPump.inbox.msgDatabase.getMsgHdrForMessageID(gMovedMsgId);
     Assert.equal(0, movedMsg.flags & Ci.nsMsgMessageFlags.Offline);
   } catch (ex) {
     throw new Error(ex);

@@ -971,8 +971,9 @@ function subtest_page_navigation(model, direction, details) {
     // size.
     viewStart += 1;
     viewEnd -= 1;
-    let firstStart = getStartEndBoundary(widget.items[expect.first].element)
-      .start;
+    let firstStart = getStartEndBoundary(
+      widget.items[expect.first].element
+    ).start;
     Assert.equal(
       firstStart,
       viewStart - firstClipped,

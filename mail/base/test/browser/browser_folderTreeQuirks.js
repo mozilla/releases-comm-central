@@ -1155,11 +1155,8 @@ function expandAll(modeName) {
 
 var IMAPServer = {
   open() {
-    const {
-      ImapDaemon,
-      ImapMessage,
-      IMAP_RFC3501_handler,
-    } = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
+    const { ImapDaemon, ImapMessage, IMAP_RFC3501_handler } =
+      ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
     const { nsMailServer } = ChromeUtils.import(
       "resource://testing-common/mailnews/Maild.jsm"
     );

@@ -256,16 +256,18 @@ var EnigmailArmor = {
               return signBlock.substr(1, armorIndex);
             }
 
-            return indexOfNewline(signBlock, armorIndex + 1, function (
-              armorIndex
-            ) {
-              if (part == lazy.EnigmailConstants.SIGNATURE_ARMOR) {
-                return signBlock
-                  .substr(armorIndex, endIndex - armorIndex)
-                  .replace(/\s*/g, "");
+            return indexOfNewline(
+              signBlock,
+              armorIndex + 1,
+              function (armorIndex) {
+                if (part == lazy.EnigmailConstants.SIGNATURE_ARMOR) {
+                  return signBlock
+                    .substr(armorIndex, endIndex - armorIndex)
+                    .replace(/\s*/g, "");
+                }
+                return "";
               }
-              return "";
-            });
+            );
           });
         });
       });

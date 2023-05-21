@@ -417,12 +417,9 @@ class CalDavDetector {
     // Attempt to discover if the user is allowed to write to this calendar.
     let privs = props["D:current-user-privilege-set"];
     if (privs && privs instanceof Set) {
-      calendar.readOnly = ![
-        "D:write",
-        "D:write-content",
-        "D:write-properties",
-        "D:all",
-      ].some(priv => privs.has(priv));
+      calendar.readOnly = !["D:write", "D:write-content", "D:write-properties", "D:all"].some(
+        priv => privs.has(priv)
+      );
     }
     return calendar;
   }

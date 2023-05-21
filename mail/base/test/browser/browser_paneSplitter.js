@@ -101,8 +101,7 @@ let testRunner = {
 
 add_setup(async function () {
   let tab = tabmail.openTab("contentTab", {
-    url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/paneSplitter.xhtml",
+    url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/paneSplitter.xhtml",
   });
 
   await BrowserTestUtils.browserLoaded(tab.browser);
@@ -288,13 +287,8 @@ async function subtestDrag() {
 async function subtestDragSizeBounds() {
   info("subtestDragSizeBounds");
 
-  let {
-    splitter,
-    resized,
-    fill,
-    minSizeProperty,
-    maxSizeProperty,
-  } = testRunner;
+  let { splitter, resized, fill, minSizeProperty, maxSizeProperty } =
+    testRunner;
 
   // Various min or max sizes to set on the resized and fill elements.
   // NOTE: the sum of the max sizes is greater than 500px.

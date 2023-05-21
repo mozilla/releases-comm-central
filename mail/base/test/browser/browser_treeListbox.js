@@ -9,8 +9,7 @@ registerCleanupFunction(() => {
 
 async function withTab(callback) {
   let tab = tabmail.openTab("contentTab", {
-    url:
-      "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeListbox.xhtml",
+    url: "chrome://mochitests/content/browser/comm/mail/base/test/browser/files/treeListbox.xhtml",
   });
   await BrowserTestUtils.browserLoaded(tab.browser);
 

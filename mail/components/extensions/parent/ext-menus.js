@@ -121,9 +121,8 @@ var gMenuBuilder = {
 
   createAndInsertTopLevelElements(root, contextData, nextSibling) {
     const newWebExtensionGroupSeparator = () => {
-      let element = this.xulMenu.ownerDocument.createXULElement(
-        "menuseparator"
-      );
+      let element =
+        this.xulMenu.ownerDocument.createXULElement("menuseparator");
       element.classList.add("webextension-group-separator");
       return element;
     };
@@ -151,11 +150,8 @@ var gMenuBuilder = {
         rootElements.push(newWebExtensionGroupSeparator());
       }
     } else if (contextData.webExtContextData) {
-      let {
-        extensionId,
-        showDefaults,
-        overrideContext,
-      } = contextData.webExtContextData;
+      let { extensionId, showDefaults, overrideContext } =
+        contextData.webExtContextData;
       if (extensionId === root.extension.id) {
         rootElements = this.buildTopLevelElements(
           root,
@@ -1163,9 +1159,8 @@ const menuTracker = {
         break;
       }
       case "attachmentListContext": {
-        let attachmentList = menu.ownerGlobal.document.getElementById(
-          "attachmentList"
-        );
+        let attachmentList =
+          menu.ownerGlobal.document.getElementById("attachmentList");
         let allMessageAttachments = [...attachmentList.children].map(
           item => item.attachment
         );
@@ -1177,12 +1172,10 @@ const menuTracker = {
         break;
       }
       case "attachmentItemContext": {
-        let attachmentList = menu.ownerGlobal.document.getElementById(
-          "attachmentList"
-        );
-        let attachmentInfo = menu.ownerGlobal.document.getElementById(
-          "attachmentInfo"
-        );
+        let attachmentList =
+          menu.ownerGlobal.document.getElementById("attachmentList");
+        let attachmentInfo =
+          menu.ownerGlobal.document.getElementById("attachmentInfo");
 
         // If we opened the context menu from the attachment info area (the paperclip,
         // "1 attachment" label, filename, or file size, just grab the first (and

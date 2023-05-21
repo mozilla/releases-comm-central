@@ -122,12 +122,10 @@ function GlodaDatabind(aNounDef, aDatastore) {
       updateItems.join(", ") +
       " WHERE docid = ?1";
 
-    this._insertFulltextStmt = aDatastore._createAsyncStatement(
-      insertFulltextSql
-    );
-    this._updateFulltextStmt = aDatastore._createAsyncStatement(
-      updateFulltextSql
-    );
+    this._insertFulltextStmt =
+      aDatastore._createAsyncStatement(insertFulltextSql);
+    this._updateFulltextStmt =
+      aDatastore._createAsyncStatement(updateFulltextSql);
   }
 }
 

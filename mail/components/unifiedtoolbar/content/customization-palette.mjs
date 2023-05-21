@@ -5,10 +5,8 @@
 import ListBoxSelection from "./list-box-selection.mjs";
 import "./customizable-element.mjs"; // eslint-disable-line import/no-unassigned-import
 
-const {
-  getAvailableItemIdsForSpace,
-  MULTIPLE_ALLOWED_ITEM_IDS,
-} = ChromeUtils.importESModule("resource:///modules/CustomizableItems.sys.mjs");
+const { getAvailableItemIdsForSpace, MULTIPLE_ALLOWED_ITEM_IDS } =
+  ChromeUtils.importESModule("resource:///modules/CustomizableItems.sys.mjs");
 
 /**
  * Customization palette containing items that can be added to a customization

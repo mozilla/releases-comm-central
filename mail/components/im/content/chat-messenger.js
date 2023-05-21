@@ -47,9 +47,8 @@ function openChatContextMenu(popup) {
   spellchecker.init(textbox.editor);
   spellchecker.initFromEvent(gRangeParent, gRangeOffset);
   let onMisspelling = spellchecker.overMisspelling;
-  document.getElementById(
-    "spellCheckSuggestionsSeparator"
-  ).hidden = !onMisspelling;
+  document.getElementById("spellCheckSuggestionsSeparator").hidden =
+    !onMisspelling;
   document.getElementById("spellCheckAddToDictionary").hidden = !onMisspelling;
   let separator = document.getElementById("spellCheckAddSep");
   separator.hidden = !onMisspelling;
@@ -540,11 +539,8 @@ var chatHandler = {
   _updateChatButtonState() {
     delete this._chatButtonUpdatePending;
 
-    let [
-      unreadTargetedCount,
-      unreadTotalCount,
-      unreadOTRNotificationCount,
-    ] = this.countUnreadMessages();
+    let [unreadTargetedCount, unreadTotalCount, unreadOTRNotificationCount] =
+      this.countUnreadMessages();
     let unreadCount = unreadTargetedCount + unreadOTRNotificationCount;
 
     let chatButton = document.getElementById("button-chat");
@@ -868,9 +864,8 @@ var chatHandler = {
     }
   },
   focusConversation(aUIConv) {
-    let conv = document.getElementById("conversationsGroup").contactsById[
-      aUIConv.id
-    ];
+    let conv =
+      document.getElementById("conversationsGroup").contactsById[aUIConv.id];
     document.getElementById("contactlistbox").selectedItem = conv;
     if (conv.convView) {
       conv.convView.focus();
@@ -1866,11 +1861,8 @@ var chatHandler = {
     document.getElementById("conversationsGroup").sortComparator = (a, b) =>
       a.title.toLowerCase().localeCompare(b.title.toLowerCase());
 
-    const {
-      allContacts,
-      onlineContacts,
-      ChatCore,
-    } = ChromeUtils.importESModule("resource:///modules/chatHandler.sys.mjs");
+    const { allContacts, onlineContacts, ChatCore } =
+      ChromeUtils.importESModule("resource:///modules/chatHandler.sys.mjs");
     this.allContacts = allContacts;
     this.onlineContacts = onlineContacts;
     this.ChatCore = ChatCore;

@@ -260,14 +260,15 @@ function close_compose_window(aController, aShouldPrompt) {
 
   windowHelper.plan_for_window_close(aController);
   if (aShouldPrompt) {
-    windowHelper.plan_for_modal_dialog("commonDialogWindow", function (
-      controller
-    ) {
-      controller.window.document
-        .querySelector("dialog")
-        .getButton("extra1")
-        .doCommand();
-    });
+    windowHelper.plan_for_modal_dialog(
+      "commonDialogWindow",
+      function (controller) {
+        controller.window.document
+          .querySelector("dialog")
+          .getButton("extra1")
+          .doCommand();
+      }
+    );
     // Try to close, we should get a prompt to save.
     aController.window.goDoCommand("cmd_close");
     windowHelper.wait_for_modal_dialog();
@@ -702,9 +703,8 @@ function add_cloud_attachments(
  * @param aIndex the index of the attachment in the attachment pane
  */
 function delete_attachment(aComposeWindow, aIndex) {
-  let bucket = aComposeWindow.window.document.getElementById(
-    "attachmentBucket"
-  );
+  let bucket =
+    aComposeWindow.window.document.getElementById("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[aIndex];
 
   EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);

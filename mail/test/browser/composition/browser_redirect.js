@@ -8,10 +8,8 @@
 
 "use strict";
 
-var {
-  async_wait_for_compose_window,
-  close_compose_window,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { async_wait_for_compose_window, close_compose_window } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 var { async_plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
@@ -178,13 +176,11 @@ add_task(async function testRedirectToMe() {
 
   // Open Other Actions.
   let aboutMessage = get_about_message();
-  let otherActionsButton = aboutMessage.document.getElementById(
-    "otherActionsButton"
-  );
+  let otherActionsButton =
+    aboutMessage.document.getElementById("otherActionsButton");
   EventUtils.synthesizeMouseAtCenter(otherActionsButton, {}, aboutMessage);
-  let otherActionsPopup = aboutMessage.document.getElementById(
-    "otherActionsPopup"
-  );
+  let otherActionsPopup =
+    aboutMessage.document.getElementById("otherActionsPopup");
   let popupshown = BrowserTestUtils.waitForEvent(
     otherActionsPopup,
     "popupshown"

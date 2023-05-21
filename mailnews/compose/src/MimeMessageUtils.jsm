@@ -227,9 +227,10 @@ var MsgUtils = {
       ) {
         let msgHdr;
         try {
-          msgHdr = MailServices.messageServiceFromURI(
-            originalMsgURI
-          ).messageURIToMsgHdr(originalMsgURI);
+          msgHdr =
+            MailServices.messageServiceFromURI(
+              originalMsgURI
+            ).messageURIToMsgHdr(originalMsgURI);
         } catch (e) {
           console.warn(
             `messageServiceFromURI failed for ${originalMsgURI}\n${e.stack}`
@@ -333,13 +334,13 @@ var MsgUtils = {
     } else {
       recipients = compFields.cc;
     }
-    let recipientsDedup = MailServices.headerParser.removeDuplicateAddresses(
-      recipients
-    );
-    let recipientsWithoutMailList = MailServices.headerParser.removeDuplicateAddresses(
-      recipientsDedup,
-      mailLists
-    );
+    let recipientsDedup =
+      MailServices.headerParser.removeDuplicateAddresses(recipients);
+    let recipientsWithoutMailList =
+      MailServices.headerParser.removeDuplicateAddresses(
+        recipientsDedup,
+        mailLists
+      );
     if (recipientsDedup != recipientsWithoutMailList) {
       return recipients;
     }
@@ -373,13 +374,13 @@ var MsgUtils = {
     } else {
       recipients = compFields.cc;
     }
-    let recipientsDedup = MailServices.headerParser.removeDuplicateAddresses(
-      recipients
-    );
-    let recipientsWithoutMailList = MailServices.headerParser.removeDuplicateAddresses(
-      recipientsDedup,
-      mailLists
-    );
+    let recipientsDedup =
+      MailServices.headerParser.removeDuplicateAddresses(recipients);
+    let recipientsWithoutMailList =
+      MailServices.headerParser.removeDuplicateAddresses(
+        recipientsDedup,
+        mailLists
+      );
     if (recipientsDedup != recipientsWithoutMailList) {
       return compFields.replyTo || compFields.from;
     }

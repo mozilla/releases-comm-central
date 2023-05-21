@@ -46,9 +46,8 @@ var MailOfflineMgr = {
       // We do the go online stuff in our listener for the online state change.
       Services.io.offline = false;
       // resume managing offline status now that we are going back online.
-      Services.io.manageOfflineStatus = Services.prefs.getBoolPref(
-        "offline.autoDetect"
-      );
+      Services.io.manageOfflineStatus =
+        Services.prefs.getBoolPref("offline.autoDetect");
     } else {
       // going offline
       // Stop automatic management of the offline status since the user has

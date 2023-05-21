@@ -95,8 +95,9 @@ add_task(async function testEditNonRecurringEvent() {
   await modificationPromise;
 
   let viewWindow = await CalendarTestUtils.monthView.viewItemAt(window, 1, 1, 1);
-  let actualTitle = viewWindow.document.querySelector("#calendar-item-summary .item-title")
-    .textContent;
+  let actualTitle = viewWindow.document.querySelector(
+    "#calendar-item-summary .item-title"
+  ).textContent;
 
   Assert.equal(actualTitle, newTitle, "edit non-recurring event successful");
   await CalendarTestUtils.items.cancelItemDialog(viewWindow);

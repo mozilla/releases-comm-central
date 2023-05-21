@@ -185,9 +185,8 @@ async function setSendFormat(composeWindow, sendFormat) {
     await openPromise;
   }
   let optionsMenu = composeWindow.document.getElementById("optionsMenu");
-  let sendFormatMenu = composeWindow.document.getElementById(
-    "outputFormatMenu"
-  );
+  let sendFormatMenu =
+    composeWindow.document.getElementById("outputFormatMenu");
   let menuitem = composeWindow.document.getElementById(
     sendFormatToMenuitem.get(sendFormat)
   );
@@ -238,8 +237,8 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   // multipart/alternative.
   // TODO: Is there a better way to expose the content-type of the displayed
   // message?
-  let contentType = get_about_message().currentHeaderData["content-type"]
-    .headerValue;
+  let contentType =
+    get_about_message().currentHeaderData["content-type"].headerValue;
   if (plain && html) {
     Assert.ok(
       contentType.startsWith("multipart/alternative"),
@@ -263,8 +262,9 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   // NOTE: We have set the mailnews.display.html_as preference to show all parts
   // of the message, which means it will show both the plain text and html parts
   // if both were sent.
-  let messageBody = get_about_message().document.getElementById("messagepane")
-    .contentDocument.body;
+  let messageBody =
+    get_about_message().document.getElementById("messagepane").contentDocument
+      .body;
   let plainBody = messageBody.querySelector(".moz-text-flowed");
   let htmlBody = messageBody.querySelector(".moz-text-html");
   Assert.equal(

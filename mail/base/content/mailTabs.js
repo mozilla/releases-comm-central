@@ -137,10 +137,8 @@ var mailTabType = {
               return null;
             }
 
-            let {
-              messageBrowser,
-              webBrowser,
-            } = tab.chromeBrowser.contentWindow;
+            let { messageBrowser, webBrowser } =
+              tab.chromeBrowser.contentWindow;
             if (messageBrowser && !messageBrowser.hidden) {
               return messageBrowser.contentDocument.getElementById(
                 "messagepane"

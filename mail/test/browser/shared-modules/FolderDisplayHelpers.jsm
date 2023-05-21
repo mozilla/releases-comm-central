@@ -176,13 +176,8 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-var {
-  MessageGenerator,
-  MessageScenarioFactory,
-  SyntheticMessageSet,
-} = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
-);
+var { MessageGenerator, MessageScenarioFactory, SyntheticMessageSet } =
+  ChromeUtils.import("resource://testing-common/mailnews/MessageGenerator.jsm");
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
@@ -390,9 +385,8 @@ async function get_special_folder(
     [Ci.nsMsgFolderFlags.Inbox, "Inbox"],
   ]);
 
-  let folder = (aServer
-    ? aServer
-    : MailServices.accounts.localFoldersServer
+  let folder = (
+    aServer ? aServer : MailServices.accounts.localFoldersServer
   ).rootFolder.getFolderWithFlags(aFolderFlag);
 
   if (!folder && aCreate) {
@@ -609,8 +603,8 @@ var open_selected_message = open_selected_messages;
  */
 async function open_selected_message_in_new_tab(aBackground) {
   // get the current tab count so we can make sure the tab actually opened.
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
 
   // save the current tab as the 'other' tab
   otherTab = mc.window.document.getElementById("tabmail").currentTabInfo;
@@ -655,9 +649,8 @@ async function open_selected_message_in_new_tab(aBackground) {
  */
 async function open_selected_message_in_new_window() {
   let win = get_about_3pane();
-  let newWindowPromise = windowHelper.async_plan_for_new_window(
-    "mail:messageWindow"
-  );
+  let newWindowPromise =
+    windowHelper.async_plan_for_new_window("mail:messageWindow");
   mc.window.MsgOpenNewWindowForMessage(
     win.gDBView.hdrForFirstSelectedMessage,
     win.gViewWrapper
@@ -718,9 +711,8 @@ async function open_message_from_file(file) {
     .setQuery("type=application/x-message-display")
     .finalize();
 
-  let newWindowPromise = windowHelper.async_plan_for_new_window(
-    "mail:messageWindow"
-  );
+  let newWindowPromise =
+    windowHelper.async_plan_for_new_window("mail:messageWindow");
   let win = mc.window.openDialog(
     "chrome://messenger/content/messageWindow.xhtml",
     "_blank",
@@ -813,8 +805,8 @@ function assert_tab_mode_name(aTab, aModeName) {
  * @param aNumber The number of tabs that should be open.
  */
 function assert_number_of_tabs_open(aNumber) {
-  let actualNumber = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let actualNumber =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
   Assert.equal(actualNumber, aNumber, `There should be ${aNumber} tabs open`);
 }
 
@@ -855,14 +847,13 @@ function assert_tab_has_title(aTab, aTitle) {
  */
 function close_tab(aTabToClose) {
   if (typeof aTabToClose == "number") {
-    aTabToClose = mc.window.document.getElementById("tabmail").tabInfo[
-      aTabToClose
-    ];
+    aTabToClose =
+      mc.window.document.getElementById("tabmail").tabInfo[aTabToClose];
   }
 
   // Get the current tab count so we can make sure the tab actually closed.
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
 
   mc.window.document.getElementById("tabmail").closeTab(aTabToClose);
 
@@ -1728,8 +1719,10 @@ function wait_for_message_display_completion(aController, aLoadDemanded) {
   ) {
     win = get_about_message(aController?.window);
   } else {
-    win = aController.window.document.getElementById("messageBrowser")
-      .contentWindow;
+    win =
+      aController.window.document.getElementById(
+        "messageBrowser"
+      ).contentWindow;
   }
 
   let tabmail = mc.window.document.getElementById("tabmail");
@@ -2595,9 +2588,8 @@ function focus_thread_tree() {
  * Focus the (single) message pane.
  */
 function focus_message_pane() {
-  let messageBrowser = get_about_3pane().document.getElementById(
-    "messageBrowser"
-  );
+  let messageBrowser =
+    get_about_3pane().document.getElementById("messageBrowser");
   Assert.ok(
     BrowserTestUtils.is_visible(messageBrowser),
     "message browser is visible"
@@ -2862,7 +2854,8 @@ function assert_folders_selected_and_displayed(...aArgs) {
   }
 }
 
-var assert_folder_selected_and_displayed = assert_folders_selected_and_displayed;
+var assert_folder_selected_and_displayed =
+  assert_folders_selected_and_displayed;
 
 /**
  * Assert that there are the given number of rows (not including children of
@@ -3204,8 +3197,9 @@ function load_via_src_path(aPath, aScope) {
         "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
       )
     );
-  let thisFile = Services.io.newURI(thisFileURL).QueryInterface(Ci.nsIFileURL)
-    .file;
+  let thisFile = Services.io
+    .newURI(thisFileURL)
+    .QueryInterface(Ci.nsIFileURL).file;
 
   thisFile.setRelativePath;
   let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);

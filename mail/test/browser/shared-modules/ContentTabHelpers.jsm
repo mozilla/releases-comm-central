@@ -193,8 +193,9 @@ function open_content_tab_with_click(
     aController = mc;
   }
 
-  let preCount = aController.window.document.getElementById("tabmail")
-    .tabContainer.allTabs.length;
+  let preCount =
+    aController.window.document.getElementById("tabmail").tabContainer.allTabs
+      .length;
   if (typeof aElem != "function") {
     EventUtils.synthesizeMouseAtCenter(aElem, {}, aElem.ownerGlobal);
   } else {
@@ -212,8 +213,8 @@ function open_content_tab_with_click(
   );
 
   // We append new tabs at the end, so check the last one.
-  let expectedNewTab = aController.window.document.getElementById("tabmail")
-    .tabInfo[preCount];
+  let expectedNewTab =
+    aController.window.document.getElementById("tabmail").tabInfo[preCount];
   folderDisplayHelper.assert_selected_tab(expectedNewTab);
   folderDisplayHelper.assert_tab_mode_name(expectedNewTab, aTabType);
   wait_for_content_tab_load(expectedNewTab, aExpectedURL);

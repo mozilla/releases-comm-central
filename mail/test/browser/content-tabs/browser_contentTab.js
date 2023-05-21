@@ -8,12 +8,8 @@ var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
 
-var {
-  assert_content_tab_has_favicon,
-  open_content_tab_with_url,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
-);
+var { assert_content_tab_has_favicon, open_content_tab_with_url } =
+  ChromeUtils.import("resource://testing-common/mozmill/ContentTabHelpers.jsm");
 var { assert_element_visible, assert_element_not_visible } = ChromeUtils.import(
   "resource://testing-common/mozmill/DOMHelpers.jsm"
 );
@@ -22,14 +18,10 @@ var { be_in_folder, inboxFolder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-var {
-  assert_tab_has_title,
-  close_popup,
-  mc,
-  wait_for_popup_to_open,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { assert_tab_has_title, close_popup, mc, wait_for_popup_to_open } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 
 var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-tabs/html/";
@@ -106,9 +98,8 @@ add_task(async function test_spellcheck_in_content_tabs() {
     tabmail.selectedTab.browser
   );
   await wait_for_popup_to_open(browserContext);
-  let suggestions = mc.window.document.getElementsByClassName(
-    "spell-suggestion"
-  );
+  let suggestions =
+    mc.window.document.getElementsByClassName("spell-suggestion");
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
   let addToDict = mc.window.document.getElementById(
     "browserContext-spell-add-to-dictionary"

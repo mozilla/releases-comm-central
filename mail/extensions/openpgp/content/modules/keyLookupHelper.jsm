@@ -73,10 +73,11 @@ var KeyLookupHelper = {
           ks
         );
       } else if (ks.startsWith("hkp://") || ks.startsWith("hkps://")) {
-        foundKey = await lazy.EnigmailKeyServer.searchAndDownloadSingleResultNoImport(
-          identifier,
-          ks
-        );
+        foundKey =
+          await lazy.EnigmailKeyServer.searchAndDownloadSingleResultNoImport(
+            identifier,
+            ks
+          );
       }
       if (foundKey && "keyData" in foundKey) {
         let errorInfo = {};
@@ -118,12 +119,13 @@ var KeyLookupHelper = {
             keyList = keyList.filter(k => k.userIds.length);
             keyList = keyList.filter(k => !this.isExpiredOrRevoked(k.keyTrust));
             if (keyList.length && mode == "interactive-import") {
-              keyImported = await lazy.EnigmailKeyRing.importKeyDataWithConfirmation(
-                window,
-                keyList,
-                foundKey.keyData,
-                true
-              );
+              keyImported =
+                await lazy.EnigmailKeyRing.importKeyDataWithConfirmation(
+                  window,
+                  keyList,
+                  foundKey.keyData,
+                  true
+                );
               if (keyImported) {
                 // In interactive mode, don't offer the user to import keys multiple times.
                 // When silently collecting keys, it's fine to discover everything we can.
@@ -322,10 +324,8 @@ var KeyLookupHelper = {
       }
     }
 
-    let {
-      keyImported,
-      foundUnchanged,
-    } = await this._lookupAndImportOnKeyserver(mode, window, email);
+    let { keyImported, foundUnchanged } =
+      await this._lookupAndImportOnKeyserver(mode, window, email);
     resultKeyImported = wkdKeyImported || keyImported;
 
     if (

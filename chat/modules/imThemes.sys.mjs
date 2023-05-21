@@ -884,11 +884,12 @@ function _serializeDOMObject(aDocument, aInitFunction) {
 }
 
 function serializeRange(aRange) {
-  return _serializeDOMObject(aRange.startContainer.ownerDocument, function (
-    aEncoder
-  ) {
-    aEncoder.setRange(aRange);
-  });
+  return _serializeDOMObject(
+    aRange.startContainer.ownerDocument,
+    function (aEncoder) {
+      aEncoder.setRange(aRange);
+    }
+  );
 }
 
 function serializeNode(aNode) {

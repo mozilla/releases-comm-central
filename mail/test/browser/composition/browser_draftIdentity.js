@@ -23,12 +23,10 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var {
-  assert_notification_displayed,
-  wait_for_notification_to_show,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
-);
+var { assert_notification_displayed, wait_for_notification_to_show } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
+  );
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

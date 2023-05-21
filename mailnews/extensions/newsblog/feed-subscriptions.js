@@ -1463,7 +1463,10 @@ var FeedSubscriptions = {
     let isFolder = item.folder && !item.folder.isServer;
 
     // Enabled by default.
-    updateEnabled.disabled = quickMode.disabled = autotagEnable.disabled = false;
+    updateEnabled.disabled =
+      quickMode.disabled =
+      autotagEnable.disabled =
+        false;
 
     updateEnabled.parentNode
       .querySelectorAll("input,radio,label")
@@ -1662,21 +1665,18 @@ var FeedSubscriptions = {
     if (!options) {
       // Not passed a param, get values from the ui.
       options = FeedUtils.optionsTemplate;
-      options.updates.enabled = document.getElementById(
-        "updateEnabled"
-      ).checked;
+      options.updates.enabled =
+        document.getElementById("updateEnabled").checked;
       let biffUnits = document.getElementById("biffUnits").value;
       let units = document.getElementById("updateValue").value;
       let minutes =
         biffUnits == FeedUtils.kBiffUnitsMinutes ? units : units * 24 * 60;
       options.updates.updateUnits = biffUnits;
       options.updates.updateMinutes = Number(minutes);
-      options.category.enabled = document.getElementById(
-        "autotagEnable"
-      ).checked;
-      options.category.prefixEnabled = document.getElementById(
-        "autotagUsePrefix"
-      ).checked;
+      options.category.enabled =
+        document.getElementById("autotagEnable").checked;
+      options.category.prefixEnabled =
+        document.getElementById("autotagUsePrefix").checked;
       options.category.prefix = document.getElementById("autotagPrefix").value;
     }
 

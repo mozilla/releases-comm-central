@@ -9,13 +9,8 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var {
-  gMockFilePicker,
-  gMockFilePickReg,
-  select_attachments,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
-);
+var { gMockFilePicker, gMockFilePickReg, select_attachments } =
+  ChromeUtils.import("resource://testing-common/mozmill/AttachmentHelpers.jsm");
 var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
   "resource://testing-common/mozmill/CloudfileHelpers.jsm"
 );
@@ -31,11 +26,8 @@ var {
   open_compose_with_reply,
   type_in_composer,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var {
-  assert_next_nodes,
-  assert_previous_nodes,
-  wait_for_element,
-} = ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
+var { assert_next_nodes, assert_previous_nodes, wait_for_element } =
+  ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
 var {
   add_message_to_folder,
   assert_selected_and_displayed,

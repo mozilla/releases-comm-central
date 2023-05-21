@@ -607,9 +607,8 @@ this.messages = class extends ExtensionAPIPersistent {
         );
       }
       let destinationURI = folderPathToURI(accountId, path);
-      let destinationFolder = MailServices.folderLookup.getFolderForURL(
-        destinationURI
-      );
+      let destinationFolder =
+        MailServices.folderLookup.getFolderForURL(destinationURI);
       try {
         let promises = [];
         let folderMap = collectMessagesInFolders(messageIds);
@@ -631,8 +630,9 @@ this.messages = class extends ExtensionAPIPersistent {
               let file;
               let fileUrl = msgHdr.getStringProperty("dummyMsgUrl");
               if (fileUrl.startsWith("file://")) {
-                file = Services.io.newURI(fileUrl).QueryInterface(Ci.nsIFileURL)
-                  .file;
+                file = Services.io
+                  .newURI(fileUrl)
+                  .QueryInterface(Ci.nsIFileURL).file;
               } else {
                 file = await createTempFileMessage(msgHdr);
               }
@@ -943,9 +943,8 @@ this.messages = class extends ExtensionAPIPersistent {
            * @returns A boolean indicating if search was successful.
            */
           const isAddressMatch = (searchTerm, addressObjects) => {
-            let searchAddresses = MailServices.headerParser.makeFromDisplayAddress(
-              searchTerm
-            );
+            let searchAddresses =
+              MailServices.headerParser.makeFromDisplayAddress(searchTerm);
             if (!searchAddresses || searchAddresses.length == 0) {
               return false;
             }
@@ -1376,9 +1375,8 @@ this.messages = class extends ExtensionAPIPersistent {
             );
           }
           let destinationURI = folderPathToURI(accountId, path);
-          let destinationFolder = MailServices.folderLookup.getFolderForURL(
-            destinationURI
-          );
+          let destinationFolder =
+            MailServices.folderLookup.getFolderForURL(destinationURI);
           if (!destinationFolder) {
             throw new ExtensionError(`Folder not found: ${path}`);
           }

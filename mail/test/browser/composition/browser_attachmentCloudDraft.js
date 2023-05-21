@@ -34,11 +34,8 @@ var {
 var { get_notification, wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
-var {
-  plan_for_modal_dialog,
-  plan_for_new_window,
-  wait_for_modal_dialog,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { plan_for_modal_dialog, plan_for_new_window, wait_for_modal_dialog } =
+  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -506,8 +503,9 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   let upload = item.cloudFileUpload;
   let itemIcon = item.querySelector("img.attachmentcell-icon").src;
   let itemSize = item.querySelector(".attachmentcell-size").textContent;
-  let totalSize = cwc.window.document.getElementById("attachmentBucketSize")
-    .textContent;
+  let totalSize = cwc.window.document.getElementById(
+    "attachmentBucketSize"
+  ).textContent;
 
   Assert.equal(
     itemIcon,

@@ -12,13 +12,10 @@
 
 "use strict";
 
-var {
-  click_account_tree_row,
-  get_account_tree_row,
-  open_advanced_settings,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
-);
+var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  );
 var { FAKE_SERVER_HOSTNAME } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -103,8 +100,10 @@ function subtest_check_account_dot_IDs(tab) {
   );
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  let iframe =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
   // Check whether a standard element with "server.loginAtStartUp" stores its
   // value properly.
   let loginCheck = iframe.getElementById("server.loginAtStartUp");
@@ -119,8 +118,10 @@ function subtest_check_account_dot_IDs(tab) {
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
-  iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  iframe =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
 
   // Check by element properties.
   loginCheck = iframe.getElementById("server.loginAtStartUp");
@@ -196,8 +197,10 @@ function subtest_check_locked_prefs_addressing(tab) {
   );
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  let iframe =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
 
   // By default, 'use global LDAP server preferences' is set, not the
   // 'different LDAP server'.
@@ -244,8 +247,10 @@ function subtest_check_locked_prefs_addressing(tab) {
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
-  iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  iframe =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
 
   // We are now back and the 'different LDAP server' should still be selected
   // (the setting was saved).
@@ -280,8 +285,10 @@ function subtest_check_locked_prefs_server(tab) {
   );
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  let iframe =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
 
   // Top level leaveOnServer checkbox, disabled by default.
   let leaveOnServer = iframe.getElementById("pop3.leaveMessagesOnServer");
@@ -330,8 +337,10 @@ function subtest_check_locked_prefs_server(tab) {
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
-  iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  iframe =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
 
   // Now leaveOnServer was preserved as checked.
   leaveOnServer = iframe.getElementById("pop3.leaveMessagesOnServer");
@@ -385,8 +394,10 @@ function subtest_check_replyTo_leak(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  let iframe =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
 
   // The Reply-To field should be empty.
   let replyAddress = iframe.getElementById("identity.replyTo");
@@ -435,8 +446,10 @@ function subtest_check_onchange_handler(tab) {
   );
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  let iframe =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
 
   let autoSync = iframe.getElementById("autosyncValue");
   // 30 is the default value so check if we are in clean state.
@@ -460,8 +473,10 @@ function subtest_check_onchange_handler(tab) {
   accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xhtml", tab);
   click_account_tree_row(tab, accountRow);
 
-  iframe = tab.browser.contentWindow.document.getElementById("contentFrame")
-    .contentDocument;
+  iframe =
+    tab.browser.contentWindow.document.getElementById(
+      "contentFrame"
+    ).contentDocument;
 
   // The pane optimized the entered value a bit. So now we should find 5.
   autoSync = iframe.getElementById("autosyncValue");

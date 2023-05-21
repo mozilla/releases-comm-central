@@ -1112,7 +1112,8 @@
         );
 
         if (convTopHeight == convTopMinHeight) {
-          this.inputBox.parentNode.style.height = this.inputBox.parentNode.style.minHeight;
+          this.inputBox.parentNode.style.height =
+            this.inputBox.parentNode.style.minHeight;
           convTopHeight = parseInt(convTopStyle.getPropertyValue("height"));
           this.inputBox.parentNode.style.height =
             parseInt(this.inputBox.parentNode.style.minHeight) +
@@ -1216,7 +1217,8 @@
         this.inputBox.value.substr(0, this.inputBox.selectionStart) +
         aString +
         this.inputBox.value.substr(this.inputBox.selectionEnd);
-      this.inputBox.selectionStart = this.inputBox.selectionEnd = cursorPosition;
+      this.inputBox.selectionStart = this.inputBox.selectionEnd =
+        cursorPosition;
       this.inputValueChanged();
     }
 

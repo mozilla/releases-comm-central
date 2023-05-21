@@ -249,8 +249,9 @@ function checkNotification(
     is(icon, checkIcon, "Notification icon is correct");
   }
 
-  let description = panel.querySelector(".popup-notification-description")
-    .textContent;
+  let description = panel.querySelector(
+    ".popup-notification-description"
+  ).textContent;
   let expectedDescription = "webextPerms.header";
   if (permissions.length) {
     expectedDescription += "WithPerms";

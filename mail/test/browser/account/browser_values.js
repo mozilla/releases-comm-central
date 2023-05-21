@@ -9,13 +9,10 @@
 
 "use strict";
 
-var {
-  click_account_tree_row,
-  get_account_tree_row,
-  open_advanced_settings,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
-);
+var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  );
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
@@ -91,12 +88,11 @@ function subtest_check_default_CC_address(tab) {
   );
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById(
-    "contentFrame"
-  );
+  let iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
 
-  let defaultAddress = iframe.contentDocument.getElementById("identity.email")
-    .value;
+  let defaultAddress =
+    iframe.contentDocument.getElementById("identity.email").value;
   let ccCheck = iframe.contentDocument.getElementById("identity.doCc");
   let ccAddress = iframe.contentDocument.getElementById("identity.doCcList");
   // The CC checkbox is not enabled and the address value is empty.
@@ -216,9 +212,8 @@ function subtest_check_account_name(account, newHostname, newUsername, tab) {
   let accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById(
-    "contentFrame"
-  );
+  let iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
 
   if (newHostname) {
     let hostname = iframe.contentDocument.getElementById("server.hostName");
@@ -322,9 +317,8 @@ function subtest_check_invalid_hostname(tab, exitSettings, originalHostname) {
   );
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById(
-    "contentFrame"
-  );
+  let iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
   let hostname = iframe.contentDocument.getElementById("server.hostName");
   Assert.equal(hostname.value, originalHostname);
 
@@ -380,9 +374,8 @@ function subtest_check_trailing_spaces(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById(
-    "contentFrame"
-  );
+  let iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
 
   let accountName = iframe.contentDocument.getElementById("server.prettyName");
   let defaultAddress = iframe.contentDocument.getElementById("identity.email");

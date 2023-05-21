@@ -74,9 +74,8 @@ async function test_message_attachments(info) {
   let streamListener = new PromiseTestUtils.PromiseStreamListener({
     onStopRequest(request, statusCode) {
       request.QueryInterface(Ci.nsIMailChannel);
-      let msgHdrSinkContentType = request.attachments[0].getProperty(
-        "contentType"
-      );
+      let msgHdrSinkContentType =
+        request.attachments[0].getProperty("contentType");
       Assert.equal(msgHdrSinkContentType, info.testContentType);
     },
   });

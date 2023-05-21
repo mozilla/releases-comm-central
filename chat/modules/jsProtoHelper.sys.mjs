@@ -549,9 +549,8 @@ export var GenericAccountPrototype = {
     if (!this._pendingVerificationRequests) {
       return;
     }
-    this._pendingVerificationRequests = this._pendingVerificationRequests.filter(
-      r => r !== aRequest
-    );
+    this._pendingVerificationRequests =
+      this._pendingVerificationRequests.filter(r => r !== aRequest);
   },
   cancelPendingVerificationRequests() {
     if (!this._pendingVerificationRequests) {

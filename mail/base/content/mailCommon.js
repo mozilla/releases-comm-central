@@ -280,9 +280,8 @@ var commandController = {
     },
     cmd_createFilterFromMenu() {
       let msgHdr = gDBView.hdrForFirstSelectedMessage;
-      let emailAddress = MailServices.headerParser.extractHeaderAddressMailboxes(
-        msgHdr.author
-      );
+      let emailAddress =
+        MailServices.headerParser.extractHeaderAddressMailboxes(msgHdr.author);
       if (emailAddress) {
         top.MsgFilters(emailAddress, msgHdr.folder);
       }
@@ -363,7 +362,8 @@ var commandController = {
     cmd_space(event) {
       let messagePaneBrowser;
       if (window.messageBrowser) {
-        messagePaneBrowser = window.messageBrowser.contentWindow.getMessagePaneBrowser();
+        messagePaneBrowser =
+          window.messageBrowser.contentWindow.getMessagePaneBrowser();
       } else {
         messagePaneBrowser = window.getMessagePaneBrowser();
       }
@@ -710,7 +710,8 @@ var commandController = {
     let autodetectCharset;
     if (window.messageBrowser) {
       if (!window.messageBrowser.hidden) {
-        messagePaneBrowser = window.messageBrowser.contentWindow.getMessagePaneBrowser();
+        messagePaneBrowser =
+          window.messageBrowser.contentWindow.getMessagePaneBrowser();
         autodetectCharset =
           window.messageBrowser.contentWindow.autodetectCharset;
       }
@@ -765,9 +766,10 @@ var commandController = {
       if (!newMessageURI) {
         return;
       }
-      let msgHdr = MailServices.messageServiceFromURI(
-        newMessageURI
-      ).messageURIToMsgHdr(newMessageURI);
+      let msgHdr =
+        MailServices.messageServiceFromURI(newMessageURI).messageURIToMsgHdr(
+          newMessageURI
+        );
       resultIndex.value = gDBView.findIndexOfMsgHdr(msgHdr, true);
       resultKey.value = msgHdr.messageKey;
     } else {

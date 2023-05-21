@@ -89,7 +89,8 @@ function isLegalHostName(aHostName) {
    a printed form which ends in a dot.
   */
 
-  const hostPattern = /^(([a-z0-9]|[a-z0-9][a-z0-9\-]{0,61}[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]{0,61}[a-z0-9])\.?$/i;
+  const hostPattern =
+    /^(([a-z0-9]|[a-z0-9][a-z0-9\-]{0,61}[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]{0,61}[a-z0-9])\.?$/i;
   return aHostName.length <= 255 && hostPattern.test(aHostName)
     ? aHostName
     : null;

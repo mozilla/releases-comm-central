@@ -30,9 +30,8 @@ function onLoadArchiveOptions() {
  * Save the archive settings to the current identity.
  */
 function onAcceptArchiveOptions() {
-  gIdentity.archiveGranularity = document.getElementById(
-    "archiveGranularity"
-  ).selectedIndex;
+  gIdentity.archiveGranularity =
+    document.getElementById("archiveGranularity").selectedIndex;
   gIdentity.archiveKeepFolderStructure = document.getElementById(
     "archiveKeepFolderStructure"
   ).checked;

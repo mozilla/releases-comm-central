@@ -80,15 +80,12 @@ document.addEventListener("dialogaccept", async event => {
  * @param {nsIFile} targetFile - A target zip file to write to.
  */
 async function exportCurrentProfile(targetFile) {
-  let [
-    progressExporting,
-    progressExported,
-    buttonLabelFinish,
-  ] = await document.l10n.formatValues([
-    "export-dialog-exporting",
-    "export-dialog-exported",
-    "export-dialog-button-finish",
-  ]);
+  let [progressExporting, progressExported, buttonLabelFinish] =
+    await document.l10n.formatValues([
+      "export-dialog-exporting",
+      "export-dialog-exported",
+      "export-dialog-button-finish",
+    ]);
   document.getElementById("progressBar").hidden = false;
   let progressStatus = document.getElementById("progressStatus");
   progressStatus.value = progressExporting;

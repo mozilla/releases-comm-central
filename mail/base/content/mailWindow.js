@@ -823,9 +823,8 @@ nsBrowserAccess.prototype = {
     aSkipLoad
   ) {
     if (aWhere == Ci.nsIBrowserDOMWindow.OPEN_PRINT_BROWSER) {
-      let browser = PrintUtils.handleStaticCloneCreatedForPrint(
-        aOpenWindowInfo
-      );
+      let browser =
+        PrintUtils.handleStaticCloneCreatedForPrint(aOpenWindowInfo);
       return browser ? browser.browsingContext : null;
     }
 

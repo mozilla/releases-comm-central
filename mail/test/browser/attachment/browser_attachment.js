@@ -599,8 +599,8 @@ add_task(async function test_delete_attachment_key() {
       aboutMessage
     );
   }
-  let firstAttachment = aboutMessage.document.getElementById("attachmentList")
-    .firstElementChild;
+  let firstAttachment =
+    aboutMessage.document.getElementById("attachmentList").firstElementChild;
   EventUtils.synthesizeMouseAtCenter(
     firstAttachment,
     { clickCount: 1 },
@@ -729,8 +729,8 @@ add_task(async function test_delete_from_toolbar() {
     );
   }
 
-  let firstAttachment = aboutMessage.document.getElementById("attachmentList")
-    .firstElementChild;
+  let firstAttachment =
+    aboutMessage.document.getElementById("attachmentList").firstElementChild;
   EventUtils.synthesizeMouseAtCenter(
     firstAttachment,
     { clickCount: 1 },

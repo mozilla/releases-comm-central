@@ -13,13 +13,8 @@
  * You may also want to look into the test_viewWrapper_*.js tests as well.
  */
 
-var {
-  MessageGenerator,
-  MessageScenarioFactory,
-  SyntheticMessageSet,
-} = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
-);
+var { MessageGenerator, MessageScenarioFactory, SyntheticMessageSet } =
+  ChromeUtils.import("resource://testing-common/mailnews/MessageGenerator.jsm");
 const { TreeSelection } = ChromeUtils.importESModule(
   "chrome://messenger/content/tree-selection.mjs"
 );

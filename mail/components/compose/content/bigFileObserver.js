@@ -123,9 +123,8 @@ var gBigFileObserver = {
   },
 
   updateBigFileNotification() {
-    let bigFileNotification = gComposeNotification.getNotificationWithValue(
-      "bigAttachment"
-    );
+    let bigFileNotification =
+      gComposeNotification.getNotificationWithValue("bigAttachment");
     if (this.bigFiles.length) {
       if (bigFileNotification) {
         bigFileNotification.label = this.formatString(

@@ -689,9 +689,9 @@ class CalDavWebDavSyncHandler extends XMLResponseHandler {
           resp.href &&
           resp.href.length &&
           (!resp.status || // Draft 3 does not require
-          resp.status.length == 0 || // a status for created or updated items but
-          resp.status.indexOf(" 204") || // draft 0, 1 and 2 needed it so treat no status
-          resp.status.indexOf(" 200") || // Apple iCloud returns 200 status for each item
+            resp.status.length == 0 || // a status for created or updated items but
+            resp.status.indexOf(" 204") || // draft 0, 1 and 2 needed it so treat no status
+            resp.status.indexOf(" 200") || // Apple iCloud returns 200 status for each item
             resp.status.indexOf(" 201"))
         ) {
           // and status 201 and 204 the same

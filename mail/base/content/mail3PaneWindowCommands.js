@@ -373,11 +373,8 @@ function SwitchPaneFocus(event) {
       break;
     }
     case "addressBookTab": {
-      let {
-        booksList,
-        cardsPane,
-        detailsPane,
-      } = currentTabInfo.browser.contentWindow;
+      let { booksList, cardsPane, detailsPane } =
+        currentTabInfo.browser.contentWindow;
 
       if (detailsPane.isEditing) {
         panes.push(currentTabInfo.browser);

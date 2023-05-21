@@ -265,20 +265,20 @@ define(function (require) {
           {},
           {
             "": { "Content-Type": ['multipart/mixed; boundary="boundary"'] },
-            "1": {
+            1: {
               "Content-Type": ["application/octet-stream"],
               "Content-Transfer-Encoding": ["base64"],
             },
-            "2": {
+            2: {
               "Content-Type": ["image/png"],
               "Content-Transfer-Encoding": ["base64"],
             },
-            "3": {
+            3: {
               "Content-Type": ['multipart/related; boundary="boundary2"'],
             },
-            "3.1": { "Content-Type": ["text/html"] },
-            "4": { "Content-Type": ["text/plain"] },
-            "5": {},
+            3.1: { "Content-Type": ["text/html"] },
+            4: { "Content-Type": ["text/plain"] },
+            5: {},
           },
         ],
       ];
@@ -394,14 +394,14 @@ define(function (require) {
             "": {
               "Content-Type": ['multipart/mixed; boundary="iamaboundary"'],
             },
-            "1": { "Content-Type": ["message/rfc822"] },
+            1: { "Content-Type": ["message/rfc822"] },
             "1$": { Subject: ["I am a subject"] },
-            "2": {
+            2: {
               "Content-Type": ["message/global"],
               "Content-Transfer-Encoding": ["base64"],
             },
             "2$": { Subject: ["\u79c1\u306f\u3001\u4ef6\u540d\u5348\u524d"] },
-            "3": {
+            3: {
               "Content-Type": ["message/news"],
               "Content-Transfer-Encoding": ["quoted-printable"],
             },
@@ -515,20 +515,20 @@ define(function (require) {
           {},
           {
             "": { "Content-Type": ['multipart/mixed; boundary="boundary"'] },
-            "1": {
+            1: {
               "Content-Type": ["application/octet-stream"],
               "Content-Transfer-Encoding": ["base64"],
             },
-            "2": {
+            2: {
               "Content-Type": ["image/png"],
               "Content-Transfer-Encoding": ["base64"],
             },
-            "3": {
+            3: {
               "Content-Type": ['multipart/related; boundary="boundary2"'],
             },
-            "3.1": { "Content-Type": ["text/html"] },
-            "4": { "Content-Type": ["text/plain"] },
-            "5": {},
+            3.1: { "Content-Type": ["text/html"] },
+            4: { "Content-Type": ["text/plain"] },
+            5: {},
           },
         ],
         // 'From ' is not an [iterable] header

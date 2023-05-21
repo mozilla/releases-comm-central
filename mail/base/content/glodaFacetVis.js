@@ -174,13 +174,8 @@ DateFacetVis.prototype = {
   },
 
   render() {
-    let {
-      scale,
-      span,
-      rules,
-      barPixBudget,
-      labelTiers,
-    } = this.makeIdealScaleGivenSpace(this.allowedSpace);
+    let { scale, span, rules, barPixBudget, labelTiers } =
+      this.makeIdealScaleGivenSpace(this.allowedSpace);
 
     barPixBudget = Math.floor(barPixBudget);
 

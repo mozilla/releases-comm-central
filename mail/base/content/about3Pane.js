@@ -342,13 +342,8 @@ var folderPaneContextMenu = {
       showItem(id, commandController.isCommandEnabled(command));
     }
 
-    let {
-      canCreateSubfolders,
-      flags,
-      isServer,
-      isSpecialFolder,
-      server,
-    } = gFolder;
+    let { canCreateSubfolders, flags, isServer, isSpecialFolder, server } =
+      gFolder;
     let isJunk = flags & Ci.nsMsgFolderFlags.Junk;
     let isTrash = isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true);
     let isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
@@ -609,9 +604,8 @@ var folderPane = {
           let account = MailServices.accounts.createAccount();
           account.incomingServer = this._smartServer;
         }
-        this._smartServer.prettyName = messengerBundle.GetStringFromName(
-          "unifiedAccountName"
-        );
+        this._smartServer.prettyName =
+          messengerBundle.GetStringFromName("unifiedAccountName");
         let smartRoot = this._smartServer.rootFolder.QueryInterface(
           Ci.nsIMsgLocalMailFolder
         );
@@ -1140,9 +1134,8 @@ var folderPane = {
     folderTree.addEventListener("dragleave", this);
     folderTree.addEventListener("drop", this);
 
-    document.getElementById(
-      "folderPaneHeaderBar"
-    ).hidden = this.isFolderPaneHeaderHidden();
+    document.getElementById("folderPaneHeaderBar").hidden =
+      this.isFolderPaneHeaderHidden();
     const folderPaneGetMessages = document.getElementById(
       "folderPaneGetMessages"
     );
@@ -1160,9 +1153,8 @@ var folderPane = {
         top.MsgNewMessage(event);
       });
     folderPaneGetMessages.hidden = this.isFolderPaneGetMsgsBtnHidden();
-    document.getElementById(
-      "folderPaneWriteMessage"
-    ).hidden = this.isFolderPaneNewMsgBtnHidden();
+    document.getElementById("folderPaneWriteMessage").hidden =
+      this.isFolderPaneNewMsgBtnHidden();
     this.moreContext = document.getElementById("folderPaneMoreContext");
     this.folderPaneModeContext = document.getElementById(
       "folderPaneModeContext"
@@ -1419,18 +1411,14 @@ var folderPane = {
       return;
     }
 
-    let container = this._modeTemplate.content.firstElementChild.cloneNode(
-      true
-    );
+    let container =
+      this._modeTemplate.content.firstElementChild.cloneNode(true);
     container.dataset.mode = modeName;
 
     mode.container = container;
     mode.containerHeader = container.querySelector(".mode-container");
-    mode.containerHeader.querySelector(
-      ".mode-name"
-    ).textContent = messengerBundle.GetStringFromName(
-      `folderPaneModeHeader_${modeName}`
-    );
+    mode.containerHeader.querySelector(".mode-name").textContent =
+      messengerBundle.GetStringFromName(`folderPaneModeHeader_${modeName}`);
     mode.containerList = container.querySelector("ul");
     this._initMode(mode);
     mode.active = true;
@@ -1836,9 +1824,8 @@ var folderPane = {
       return;
     }
 
-    document.head.querySelector(
-      `link[rel="icon"]`
-    ).href = FolderUtils.getFolderIcon(gFolder);
+    document.head.querySelector(`link[rel="icon"]`).href =
+      FolderUtils.getFolderIcon(gFolder);
 
     // Clean up any existing view wrapper. This will invalidate the thread tree.
     gViewWrapper?.close();
@@ -2663,9 +2650,8 @@ var folderPane = {
 
   _updateWriteMessageWidgets() {
     const canWriteMessages = MailServices.accounts.allIdentities.length;
-    document.getElementById(
-      "folderPaneWriteMessage"
-    ).disabled = !canWriteMessages;
+    document.getElementById("folderPaneWriteMessage").disabled =
+      !canWriteMessages;
   },
 
   isFolderPaneGetMsgsBtnHidden() {
@@ -3918,9 +3904,8 @@ var threadPane = {
       return;
     }
 
-    const stringState = msgDatabase.dBFolderInfo.getCharProperty(
-      "columnStates"
-    );
+    const stringState =
+      msgDatabase.dBFolderInfo.getCharProperty("columnStates");
     if (!stringState) {
       // If we don't have a previously saved state, make sure to enforce the
       // default columns for the currently visible folder, otherwise the table

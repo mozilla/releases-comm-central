@@ -31,9 +31,8 @@ MockWindowsRegKey.prototype = {
     let child = new MockWindowsRegKey({});
     let newKeyPath = this._keyPath + "\\" + aRelPath;
     child._keyPath = newKeyPath;
-    child._registryData[newKeyPath] = this._registryData[this._keyPath][
-      aRelPath
-    ];
+    child._registryData[newKeyPath] =
+      this._registryData[this._keyPath][aRelPath];
     return child;
   },
 

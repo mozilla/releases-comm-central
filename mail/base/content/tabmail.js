@@ -1598,9 +1598,8 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         let oldPanel = [...this.panelContainer.children].find(p =>
           p.hasAttribute("selected")
         );
-        let tab = (this.currentTabInfo = this.tabInfo[
-          this.tabContainer.selectedIndex
-        ]);
+        let tab = (this.currentTabInfo =
+          this.tabInfo[this.tabContainer.selectedIndex]);
         // Update the selected attribute on the current and old tab panel.
         if (oldPanel) {
           // Remember what has focus for when we return to this tab. Check for
@@ -1694,9 +1693,8 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           titleChangeFunc.call(tab.mode.tabType, tab, tabNode);
         }
 
-        let defaultTabTitle = document.documentElement.getAttribute(
-          "defaultTabTitle"
-        );
+        let defaultTabTitle =
+          document.documentElement.getAttribute("defaultTabTitle");
         let oldLabel = tabNode.getAttribute("label");
         let newLabel = aTabNodeOrInfo ? tab.title : defaultTabTitle;
         if (oldLabel == newLabel) {

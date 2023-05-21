@@ -14,7 +14,8 @@ function setColors(target) {
   var senderColor = target.getAttribute("data-senderColor");
 
   if (senderColor) {
-    var regexp = /color:\s*hsl\(\s*(\d{1,3})\s*,\s*\d{1,3}\%\s*,\s*\d{1,3}\%\s*\)/;
+    var regexp =
+      /color:\s*hsl\(\s*(\d{1,3})\s*,\s*\d{1,3}\%\s*,\s*\d{1,3}\%\s*\)/;
     var parsed = regexp.exec(senderColor);
 
     if (parsed) {

@@ -542,9 +542,8 @@ var MailUtils = {
     // If we have a hint to help us pick one identity, search for a match.
     // Even if we only have one identity, check which hint might match.
     if (optionalHint) {
-      let hints = lazy.MailServices.headerParser.makeFromDisplayAddress(
-        optionalHint
-      );
+      let hints =
+        lazy.MailServices.headerParser.makeFromDisplayAddress(optionalHint);
 
       for (let hint of hints) {
         for (let identity of identities.filter(i => i.email)) {

@@ -114,9 +114,10 @@ add_task(async () => {
         browser.test.log("Open a new main window (messenger.xhtml).");
 
         let primedMainWindowInfo = await window.sendMessage("openMainWindow");
-        let [
-          { id: mainWindow },
-        ] = await listener.checkEvent("windows.onCreated", { type: "normal" });
+        let [{ id: mainWindow }] = await listener.checkEvent(
+          "windows.onCreated",
+          { type: "normal" }
+        );
         let [{ id: mainTab }] = await listener.checkEvent("tabs.onCreated", {
           index: 0,
           windowId: mainWindow,

@@ -111,9 +111,8 @@
       }
 
       if (folder.flags & Ci.nsMsgFolderFlags.Virtual) {
-        let srchFolderUri = msgDatabase.dBFolderInfo.getCharProperty(
-          "searchFolderUri"
-        );
+        let srchFolderUri =
+          msgDatabase.dBFolderInfo.getCharProperty("searchFolderUri");
         let folderUris = srchFolderUri.split("|");
         for (let uri of folderUris) {
           let realFolder = this.MailUtils.getOrCreateFolder(uri);
@@ -203,9 +202,8 @@
             if (msgHdr.flags & kMsgFlagHasRe) {
               msgSubject = msgSubject ? "Re: " + msgSubject : "Re: ";
             }
-            msgBox.querySelector(
-              ".folderSummary-subject"
-            ).textContent = msgSubject;
+            msgBox.querySelector(".folderSummary-subject").textContent =
+              msgSubject;
           }
 
           if (this.showSender) {
@@ -221,20 +219,18 @@
             folderSummarySender.value =
               addrs.length > 0 ? addrs[0].name || addrs[0].email : "";
             if (addrs.length > 1) {
-              let andOthersStr = this.messengerBundle.GetStringFromName(
-                "andOthers"
-              );
+              let andOthersStr =
+                this.messengerBundle.GetStringFromName("andOthers");
               folderSummarySender.value += " " + andOthersStr;
             }
           }
 
           if (this.showPreview) {
             // Get the preview text as a UTF-8 encoded string.
-            msgBox.querySelector(
-              ".folderSummary-previewText"
-            ).textContent = decodeURIComponent(
-              escape(msgHdr.getStringProperty("preview") || "")
-            );
+            msgBox.querySelector(".folderSummary-previewText").textContent =
+              decodeURIComponent(
+                escape(msgHdr.getStringProperty("preview") || "")
+              );
           }
           this.appendChild(msgBox);
           haveMsgsToShow = true;
@@ -267,9 +263,8 @@
           if (msgHdr.flags & kMsgFlagHasRe) {
             msgSubject = msgSubject ? "Re: " + msgSubject : "Re: ";
           }
-          msgBox.querySelector(
-            ".folderSummary-subject"
-          ).textContent = msgSubject;
+          msgBox.querySelector(".folderSummary-subject").textContent =
+            msgSubject;
         }
 
         if (this.showSender) {
@@ -285,20 +280,18 @@
           folderSummarySender.value =
             addrs.length > 0 ? addrs[0].name || addrs[0].email : "";
           if (addrs.length > 1) {
-            let andOthersStr = this.messengerBundle.GetStringFromName(
-              "andOthers"
-            );
+            let andOthersStr =
+              this.messengerBundle.GetStringFromName("andOthers");
             folderSummarySender.value += " " + andOthersStr;
           }
         }
 
         if (this.showPreview) {
           // Get the preview text as a UTF-8 encoded string.
-          msgBox.querySelector(
-            ".folderSummary-previewText"
-          ).textContent = decodeURIComponent(
-            escape(msgHdr.getStringProperty("preview") || "")
-          );
+          msgBox.querySelector(".folderSummary-previewText").textContent =
+            decodeURIComponent(
+              escape(msgHdr.getStringProperty("preview") || "")
+            );
         }
         this.appendChild(msgBox);
       }

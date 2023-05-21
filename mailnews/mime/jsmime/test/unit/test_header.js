@@ -784,8 +784,7 @@ define(function (require) {
             '[BCN-FC]" <Barcelona-Freecycle-noreply@yahoogroups.com>',
           [
             {
-              name:
-                "Jazzy Fern\u00E1ndez Nunoz jazzy.f.nunoz@example.com [BCN-FC]",
+              name: "Jazzy Fern\u00E1ndez Nunoz jazzy.f.nunoz@example.com [BCN-FC]",
               email: "Barcelona-Freecycle-noreply@yahoogroups.com",
             },
           ],
@@ -795,8 +794,7 @@ define(function (require) {
             '[BCN-FC]" <Barcelona-Freecycle-noreply@yahoogroups.com>',
           [
             {
-              name:
-                "Miriam Bernab\u00E9 Perell\u00F3 miriam@example.com [BCN-FC]",
+              name: "Miriam Bernab\u00E9 Perell\u00F3 miriam@example.com [BCN-FC]",
               email: "Barcelona-Freecycle-noreply@yahoogroups.com",
             },
           ],
@@ -836,8 +834,7 @@ define(function (require) {
             "<freecycle-berlin-noreply@yahoogroups.de>",
           [
             {
-              name:
-                '"Claudia Röhschicht" Claudia_Roehschicht@web.de [freecycle-berlin]',
+              name: '"Claudia Röhschicht" Claudia_Roehschicht@web.de [freecycle-berlin]',
               email: "freecycle-berlin-noreply@yahoogroups.de",
             },
           ],

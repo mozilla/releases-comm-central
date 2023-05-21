@@ -150,8 +150,7 @@ DNS.txt = function (name) {
   if (name == "_carddavs._tcp.localhost") {
     return [
       {
-        data:
-          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        data: "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
       },
     ];
   }
@@ -161,8 +160,7 @@ DNS.txt = function (name) {
   if (name == "_carddavs._tcp.example-imap.com") {
     return [
       {
-        data:
-          "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
+        data: "path=/browser/comm/mail/components/addrbook/test/browser/data/dns.sjs",
       },
     ];
   }

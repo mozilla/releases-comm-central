@@ -17,9 +17,8 @@ add_task(async function testTopicRestored() {
   await openChatTab();
   ok(BrowserTestUtils.is_visible(document.getElementById("chatPanel")));
 
-  const conversation = account.prplAccount.wrappedJSObject.makeMUC(
-    "logs topic"
-  );
+  const conversation =
+    account.prplAccount.wrappedJSObject.makeMUC("logs topic");
   let convNode = getConversationItem(conversation);
   ok(convNode);
 
@@ -47,9 +46,8 @@ add_task(async function testTopicRestored() {
 
   // Close and re-open conversation to get logs
   conversation.close();
-  const newConversation = account.prplAccount.wrappedJSObject.makeMUC(
-    "logs topic"
-  );
+  const newConversation =
+    account.prplAccount.wrappedJSObject.makeMUC("logs topic");
   convNode = getConversationItem(newConversation);
   ok(convNode);
 

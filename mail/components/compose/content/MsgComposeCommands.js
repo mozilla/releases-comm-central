@@ -298,8 +298,9 @@ this.__defineGetter__("browser", GetCurrentEditorElement);
 const inputObserver = {
   observe: (subject, topic, data) => {
     if (topic == "autocomplete-did-enter-text") {
-      let input = subject.QueryInterface(Ci.nsIAutoCompleteInput)
-        .wrappedJSObject;
+      let input = subject.QueryInterface(
+        Ci.nsIAutoCompleteInput
+      ).wrappedJSObject;
 
       // Interrupt if there's no input proxy, or the input doesn't have an ID,
       // the latter meaning that the autocomplete event was triggered within an
@@ -1744,9 +1745,8 @@ function updateEncryptedSubject() {
   document
     .getElementById("msgSubject")
     .classList.toggle("with-icon", warnSubjectUnencrypted);
-  document.getElementById(
-    "msgEncryptedSubjectIcon"
-  ).hidden = !warnSubjectUnencrypted;
+  document.getElementById("msgEncryptedSubjectIcon").hidden =
+    !warnSubjectUnencrypted;
 }
 
 function toggleEncryptedSubject() {
@@ -1814,9 +1814,8 @@ function setSecuritySettings(menu_id) {
     disableEnc || !gSelectedTechnologyIsPGP || !gSendEncrypted
   );
 
-  document.getElementById(
-    "menu_recipientStatus" + menu_id
-  ).disabled = disableEnc;
+  document.getElementById("menu_recipientStatus" + menu_id).disabled =
+    disableEnc;
   let manager = document.getElementById("menu_openManager" + menu_id);
   manager.disabled = disableEnc;
   manager.hidden = !gSelectedTechnologyIsPGP;
@@ -1928,12 +1927,10 @@ function msgComposeContextOnShowing(event) {
     // when there is no spellchecker but we might be able to spellcheck
     // add the add to dictionaries item. This will ensure that people
     // with no dictionaries will be able to download them
-    document.getElementById(
-      "spellCheckLanguageSeparator"
-    ).hidden = !showDictionaries;
-    document.getElementById(
-      "spellCheckAddDictionariesMain"
-    ).hidden = !showDictionaries;
+    document.getElementById("spellCheckLanguageSeparator").hidden =
+      !showDictionaries;
+    document.getElementById("spellCheckAddDictionariesMain").hidden =
+      !showDictionaries;
   } else {
     document.getElementById("spellCheckAddDictionariesMain").hidden = !false;
   }
@@ -2237,21 +2234,18 @@ async function updateAttachmentItemProperties(attachmentItem) {
     );
     gAttachmentBucket.setCloudIcon(attachmentItem, "");
   } else if (attachmentItem.attachment.sendViaCloud) {
-    let [
-      tooltipUnknownAccountText,
-      introText,
-      titleText,
-    ] = await document.l10n.formatValues([
-      "cloud-file-unknown-account-tooltip",
-      {
-        id: "cloud-file-placeholder-intro",
-        args: { filename: attachmentItem.attachment.name },
-      },
-      {
-        id: "cloud-file-placeholder-title",
-        args: { filename: attachmentItem.attachment.name },
-      },
-    ]);
+    let [tooltipUnknownAccountText, introText, titleText] =
+      await document.l10n.formatValues([
+        "cloud-file-unknown-account-tooltip",
+        {
+          id: "cloud-file-placeholder-intro",
+          args: { filename: attachmentItem.attachment.name },
+        },
+        {
+          id: "cloud-file-placeholder-title",
+          args: { filename: attachmentItem.attachment.name },
+        },
+      ]);
 
     // uploaded
     let tooltiptext;
@@ -3263,9 +3257,8 @@ function manageAttachmentNotification(aForce = false) {
     }
   }
 
-  let notification = gComposeNotification.getNotificationWithValue(
-    "attachmentReminder"
-  );
+  let notification =
+    gComposeNotification.getNotificationWithValue("attachmentReminder");
   if (removeNotification) {
     if (notification) {
       gComposeNotification.removeNotification(notification);
@@ -3754,9 +3747,8 @@ async function checkEncryptionState(trigger) {
           // notification at the time encryption was enabled.)
           // However, double check to avoid that we'll show it twice.
           const NOTIFICATION_NAME = "e2eeDisableNotification";
-          let notification = gComposeNotification.getNotificationWithValue(
-            NOTIFICATION_NAME
-          );
+          let notification =
+            gComposeNotification.getNotificationWithValue(NOTIFICATION_NAME);
           if (!notification) {
             gComposeNotification.appendNotification(
               NOTIFICATION_NAME,
@@ -3865,9 +3857,8 @@ async function checkEncryptionState(trigger) {
  *   ("OpenPGP" or "SMIME"), or null if none is possible.
  */
 function updateEncryptionTechReminder(technology) {
-  let enableNotification = gComposeNotification.getNotificationWithValue(
-    "enableNotification"
-  );
+  let enableNotification =
+    gComposeNotification.getNotificationWithValue("enableNotification");
   if (enableNotification) {
     gComposeNotification.removeNotification(enableNotification);
   }
@@ -3913,9 +3904,8 @@ function updateEncryptionTechReminder(technology) {
 async function notifyIdentityCannotEncrypt(show, addr) {
   const NOTIFICATION_NAME = "IdentityCannotEncrypt";
 
-  let notification = gComposeNotification.getNotificationWithValue(
-    NOTIFICATION_NAME
-  );
+  let notification =
+    gComposeNotification.getNotificationWithValue(NOTIFICATION_NAME);
 
   if (show) {
     if (!notification) {
@@ -3951,9 +3941,8 @@ async function notifyIdentityCannotEncrypt(show, addr) {
 function updateKeyCertNotifications(emailsWithMissing) {
   const NOTIFICATION_NAME = "keyNotification";
 
-  let notification = gComposeNotification.getNotificationWithValue(
-    NOTIFICATION_NAME
-  );
+  let notification =
+    gComposeNotification.getNotificationWithValue(NOTIFICATION_NAME);
   if (notification) {
     gComposeNotification.removeNotification(notification);
   }
@@ -5246,12 +5235,10 @@ async function adjustEncryptAfterIdentityChange(prevIdentity) {
       !anyIdentityHasConfiguredOpenPGP &&
       !anyIdentityHasConfiguredSMIMEEncryption;
     encOpt.disabled = !e2eeConfigured && !gSendEncrypted;
-    document.getElementById(
-      "encTech_OpenPGP_Toolbar"
-    ).disabled = !identityHasConfiguredOpenPGP;
-    document.getElementById(
-      "encTech_SMIME_Toolbar"
-    ).disabled = !identityHasConfiguredSMIME;
+    document.getElementById("encTech_OpenPGP_Toolbar").disabled =
+      !identityHasConfiguredOpenPGP;
+    document.getElementById("encTech_SMIME_Toolbar").disabled =
+      !identityHasConfiguredSMIME;
   }
   document.getElementById("encryptionMenu").hidden =
     !anyIdentityHasConfiguredOpenPGP &&
@@ -5282,13 +5269,11 @@ async function adjustEncryptAfterIdentityChange(prevIdentity) {
 
   // Enable the encryption menus of the technologies that are configured for
   // this identity.
-  document.getElementById(
-    "encTech_OpenPGP_Menubar"
-  ).disabled = !identityHasConfiguredOpenPGP;
+  document.getElementById("encTech_OpenPGP_Menubar").disabled =
+    !identityHasConfiguredOpenPGP;
 
-  document.getElementById(
-    "encTech_SMIME_Menubar"
-  ).disabled = !identityHasConfiguredSMIME;
+  document.getElementById("encTech_SMIME_Menubar").disabled =
+    !identityHasConfiguredSMIME;
 
   if (!prevIdentity) {
     // For identities without any e2ee setup, we want a good default
@@ -5826,17 +5811,15 @@ function updateEncryptOptionsMenuElements() {
       document.getElementById("menu_recipientStatus_Toolbar"),
       gSelectedTechnologyIsPGP ? "menu-manage-keys" : "menu-view-certificates"
     );
-    document.getElementById(
-      "menu_securityEncryptSubject_Toolbar"
-    ).hidden = !gSelectedTechnologyIsPGP;
+    document.getElementById("menu_securityEncryptSubject_Toolbar").hidden =
+      !gSelectedTechnologyIsPGP;
   }
   document.l10n.setAttributes(
     document.getElementById("menu_recipientStatus_Menubar"),
     gSelectedTechnologyIsPGP ? "menu-manage-keys" : "menu-view-certificates"
   );
-  document.getElementById(
-    "menu_securityEncryptSubject_Menubar"
-  ).hidden = !gSelectedTechnologyIsPGP;
+  document.getElementById("menu_securityEncryptSubject_Menubar").hidden =
+    !gSelectedTechnologyIsPGP;
 }
 
 /**
@@ -6972,9 +6955,8 @@ function Save() {
 }
 
 function SaveAsFile(saveAs) {
-  GetCurrentEditorElement().contentDocument.title = document.getElementById(
-    "msgSubject"
-  ).value;
+  GetCurrentEditorElement().contentDocument.title =
+    document.getElementById("msgSubject").value;
 
   if (gMsgCompose.bodyConvertible() == Ci.nsIMsgCompConvertible.Plain) {
     SaveDocument(saveAs, false, "text/plain");
@@ -7135,9 +7117,8 @@ function initSendFormatMenu() {
 function addRecipientsToIgnoreList(aAddressesToAdd) {
   if (gSpellCheckingEnabled) {
     // break the list of potentially many recipients back into individual names
-    let addresses = MailServices.headerParser.parseEncodedHeader(
-      aAddressesToAdd
-    );
+    let addresses =
+      MailServices.headerParser.parseEncodedHeader(aAddressesToAdd);
     let tokenizedNames = [];
 
     // Each name could consist of multiple word delimited by either commas or spaces, i.e. Green Lantern
@@ -7777,8 +7758,8 @@ function ComposeCanClose() {
     // and therefore need to be visible (to prevent user confusion)
     window.focus();
     let draftFolderURI = gCurrentIdentity.draftFolder;
-    let draftFolderName = MailUtils.getOrCreateFolder(draftFolderURI)
-      .prettyName;
+    let draftFolderName =
+      MailUtils.getOrCreateFolder(draftFolderURI).prettyName;
     let result = Services.prompt.confirmEx(
       window,
       getComposeBundle().getString("saveDlogTitle"),
@@ -9134,9 +9115,10 @@ function OpenSelectedAttachment() {
   let messagePrefix = /^mailbox-message:|^imap-message:|^news-message:/i;
   if (messagePrefix.test(attachmentUrl)) {
     // we must be dealing with a forwarded attachment, treat this special
-    let msgHdr = MailServices.messageServiceFromURI(
-      attachmentUrl
-    ).messageURIToMsgHdr(attachmentUrl);
+    let msgHdr =
+      MailServices.messageServiceFromURI(attachmentUrl).messageURIToMsgHdr(
+        attachmentUrl
+      );
     if (msgHdr) {
       MailUtils.openMessageInNewWindow(msgHdr);
     }
@@ -9849,9 +9831,8 @@ var envelopeDragObserver = {
 
         case "text/x-moz-message":
           isValidAttachment = true;
-          let msgHdr = MailServices.messageServiceFromURI(
-            data
-          ).messageURIToMsgHdr(data);
+          let msgHdr =
+            MailServices.messageServiceFromURI(data).messageURIToMsgHdr(data);
           prettyName = msgHdr.mime2DecodedSubject + ".eml";
           size = msgHdr.messageSize;
           break;
@@ -11367,9 +11348,8 @@ var gComposeNotificationBar = {
   },
 
   clearIdentityWarning() {
-    let idWarning = gComposeNotification.getNotificationWithValue(
-      "identityWarning"
-    );
+    let idWarning =
+      gComposeNotification.getNotificationWithValue("identityWarning");
     if (idWarning) {
       gComposeNotification.removeNotification(idWarning);
     }

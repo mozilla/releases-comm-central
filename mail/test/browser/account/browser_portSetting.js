@@ -4,13 +4,10 @@
 
 "use strict";
 
-var {
-  click_account_tree_row,
-  get_account_tree_row,
-  open_advanced_settings,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
-);
+var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  );
 var { FAKE_SERVER_HOSTNAME, mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -44,9 +41,8 @@ async function subtest_check_set_port_number(tab, dontSet) {
   let accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
   click_account_tree_row(tab, accountRow);
 
-  let iframe = tab.browser.contentWindow.document.getElementById(
-    "contentFrame"
-  );
+  let iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
   let portElem = iframe.contentDocument.getElementById("server.port");
   portElem.focus();
 

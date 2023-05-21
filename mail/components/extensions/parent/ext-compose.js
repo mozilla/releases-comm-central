@@ -52,9 +52,8 @@ async function parseComposeRecipientList(
   let recipients = [];
   for (let recipient of list) {
     if (typeof recipient == "string") {
-      let addressObjects = MailServices.headerParser.makeFromDisplayAddress(
-        recipient
-      );
+      let addressObjects =
+        MailServices.headerParser.makeFromDisplayAddress(recipient);
 
       for (let ao of addressObjects) {
         if (requireSingleValidEmail && !isValidAddress(ao.email)) {
@@ -681,14 +680,13 @@ async function createAttachment(data) {
       throw new ExtensionError(`Invalid attachment ID: ${data.id}`);
     }
 
-    let {
-      attachment: originalAttachment,
-      window: originalWindow,
-    } = composeAttachmentTracker.getAttachment(data.id);
+    let { attachment: originalAttachment, window: originalWindow } =
+      composeAttachmentTracker.getAttachment(data.id);
 
-    let originalAttachmentItem = originalWindow.gAttachmentBucket.findItemForAttachment(
-      originalAttachment
-    );
+    let originalAttachmentItem =
+      originalWindow.gAttachmentBucket.findItemForAttachment(
+        originalAttachment
+      );
 
     attachment.name = data.name || originalAttachment.name;
     attachment.size = originalAttachment.size;
@@ -1616,9 +1614,8 @@ this.compose = class extends ExtensionAPIPersistent {
         async listAttachments(tabId) {
           let tab = await getComposeTab(tabId);
 
-          let bucket = tab.nativeTab.document.getElementById(
-            "attachmentBucket"
-          );
+          let bucket =
+            tab.nativeTab.document.getElementById("attachmentBucket");
           let attachments = [];
           for (let item of bucket.itemChildren) {
             attachments.push(
@@ -1631,9 +1628,8 @@ this.compose = class extends ExtensionAPIPersistent {
           if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
             throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
           }
-          let { attachment } = composeAttachmentTracker.getAttachment(
-            attachmentId
-          );
+          let { attachment } =
+            composeAttachmentTracker.getAttachment(attachmentId);
           return composeAttachmentTracker.getFile(attachment);
         },
         async addAttachment(tabId, data) {
@@ -1650,18 +1646,16 @@ this.compose = class extends ExtensionAPIPersistent {
           if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
             throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
           }
-          let { attachment, window } = composeAttachmentTracker.getAttachment(
-            attachmentId
-          );
+          let { attachment, window } =
+            composeAttachmentTracker.getAttachment(attachmentId);
           if (window != tab.nativeTab) {
             throw new ExtensionError(
               `Attachment ${attachmentId} is not associated with tab ${tabId}`
             );
           }
 
-          let attachmentItem = window.gAttachmentBucket.findItemForAttachment(
-            attachment
-          );
+          let attachmentItem =
+            window.gAttachmentBucket.findItemForAttachment(attachment);
           if (!attachmentItem) {
             throw new ExtensionError(`Unexpected invalid attachment item`);
           }
@@ -1690,9 +1684,8 @@ this.compose = class extends ExtensionAPIPersistent {
           if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
             throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
           }
-          let { attachment, window } = composeAttachmentTracker.getAttachment(
-            attachmentId
-          );
+          let { attachment, window } =
+            composeAttachmentTracker.getAttachment(attachmentId);
           if (window != tab.nativeTab) {
             throw new ExtensionError(
               `Attachment ${attachmentId} is not associated with tab ${tabId}`

@@ -117,9 +117,8 @@ export function getAvailableItemIdsForSpace(
  * @returns {string[]} Array of item IDs to show by default in the space.
  */
 export function getDefaultItemIdsForSpace(space) {
-  return (lazy.glodaEnabled
-    ? DEFAULT_ITEMS
-    : DEFAULT_ITEMS_WITHOUT_SEARCH
+  return (
+    lazy.glodaEnabled ? DEFAULT_ITEMS : DEFAULT_ITEMS_WITHOUT_SEARCH
   ).concat(getExtensionsForSpace(space, true));
 }
 

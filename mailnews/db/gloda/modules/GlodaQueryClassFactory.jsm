@@ -304,29 +304,25 @@ GlodaQueryClass.prototype = {
             for (let rangeTuple of constraintValues) {
               let [lowerRValue, upperRValue] = rangeTuple;
               if (lowerRValue == null) {
-                let [upperParam, upperValue] = objectNounDef.toParamAndValue(
-                  upperRValue
-                );
+                let [upperParam, upperValue] =
+                  objectNounDef.toParamAndValue(upperRValue);
                 if (tParam == upperParam && tValue <= upperValue) {
                   foundMatch = true;
                   break;
                 }
               } else if (upperRValue == null) {
-                let [lowerParam, lowerValue] = objectNounDef.toParamAndValue(
-                  lowerRValue
-                );
+                let [lowerParam, lowerValue] =
+                  objectNounDef.toParamAndValue(lowerRValue);
                 if (tParam == lowerParam && tValue >= lowerValue) {
                   foundMatch = true;
                   break;
                 }
               } else {
                 // no one is null
-                let [upperParam, upperValue] = objectNounDef.toParamAndValue(
-                  upperRValue
-                );
-                let [lowerParam, lowerValue] = objectNounDef.toParamAndValue(
-                  lowerRValue
-                );
+                let [upperParam, upperValue] =
+                  objectNounDef.toParamAndValue(upperRValue);
+                let [lowerParam, lowerValue] =
+                  objectNounDef.toParamAndValue(lowerRValue);
                 if (
                   tParam == lowerParam &&
                   tValue >= lowerValue &&

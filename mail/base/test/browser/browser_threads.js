@@ -152,9 +152,8 @@ add_task(async function testIgnoreThread() {
 
   // Check the notification about the ignored thread.
 
-  let notification = notificationBox.getNotificationWithValue(
-    "ignoreThreadInfo"
-  );
+  let notification =
+    notificationBox.getNotificationWithValue("ignoreThreadInfo");
   let label = notification.shadowRoot.querySelector(
     "label.notification-message"
   );
@@ -234,9 +233,8 @@ add_task(async function testIgnoreSubthread() {
 
   // Check the notification about the ignored subthread.
 
-  let notification = notificationBox.getNotificationWithValue(
-    "ignoreThreadInfo"
-  );
+  let notification =
+    notificationBox.getNotificationWithValue("ignoreThreadInfo");
   let label = notification.shadowRoot.querySelector(
     "label.notification-message"
   );

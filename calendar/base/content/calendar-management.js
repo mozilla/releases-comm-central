@@ -473,21 +473,22 @@ function calendarListSetupContextMenu(event) {
   }
   if (calendar) {
     let stringName = composite.getCalendarById(calendar.id) ? "hideCalendar" : "showCalendar";
-    document.getElementById(
-      "list-calendars-context-togglevisible"
-    ).label = cal.l10n.getCalString(stringName, [calendar.name]);
+    document.getElementById("list-calendars-context-togglevisible").label = cal.l10n.getCalString(
+      stringName,
+      [calendar.name]
+    );
     let accessKey = document
       .getElementById("list-calendars-context-togglevisible")
       .getAttribute(composite.getCalendarById(calendar.id) ? "accesskeyhide" : "accesskeyshow");
     document.getElementById("list-calendars-context-togglevisible").accessKey = accessKey;
-    document.getElementById(
-      "list-calendars-context-showonly"
-    ).label = cal.l10n.getCalString("showOnlyCalendar", [calendar.name]);
+    document.getElementById("list-calendars-context-showonly").label = cal.l10n.getCalString(
+      "showOnlyCalendar",
+      [calendar.name]
+    );
     setupDeleteMenuitem("list-calendars-context-delete", calendar);
     document.getElementById("list-calendar-context-reload").hidden = !calendar.canRefresh;
-    document.getElementById(
-      "list-calendars-context-reload-menuseparator"
-    ).hidden = !calendar.canRefresh;
+    document.getElementById("list-calendars-context-reload-menuseparator").hidden =
+      !calendar.canRefresh;
   }
 }
 

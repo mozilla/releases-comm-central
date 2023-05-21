@@ -1844,8 +1844,10 @@ function convertAccount(account, includeFolders = true) {
 
   let folders = null;
   if (includeFolders) {
-    folders = traverseSubfolders(account.incomingServer.rootFolder, account.key)
-      .subFolders;
+    folders = traverseSubfolders(
+      account.incomingServer.rootFolder,
+      account.key
+    ).subFolders;
   }
 
   return {

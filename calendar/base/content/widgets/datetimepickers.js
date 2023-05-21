@@ -1163,7 +1163,8 @@
       // regexp derived from the Alphabetic ranges in
       // http://www.unicode.org/Public/UNIDATA/DerivedCoreProperties.txt)
       // (.*)? binds to null if no suffix.
-      let parseAlphShortDateRegex = /^\s*(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)(.*)?$/;
+      let parseAlphShortDateRegex =
+        /^\s*(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)\W{0,2}(\d+|[^\d\W]+)(.*)?$/;
       let datePartsArray = parseAlphShortDateRegex.exec(aValue);
       if (datePartsArray != null) {
         year = Number(datePartsArray[yearIndex]);

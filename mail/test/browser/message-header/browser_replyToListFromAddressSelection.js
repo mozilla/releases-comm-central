@@ -8,18 +8,12 @@
 
 "use strict";
 
-var {
-  close_compose_window,
-  open_compose_with_reply_to_list,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var {
-  assert_selected_and_displayed,
-  be_in_folder,
-  mc,
-  select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { close_compose_window, open_compose_with_reply_to_list } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { assert_selected_and_displayed, be_in_folder, mc, select_click_row } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -103,9 +97,8 @@ add_task(async function test_Reply_To_List_From_Address() {
 
   replyToListWindow = open_compose_with_reply_to_list();
 
-  var identityList = replyToListWindow.window.document.getElementById(
-    "msgIdentity"
-  );
+  var identityList =
+    replyToListWindow.window.document.getElementById("msgIdentity");
 
   // see if it's the correct identity selected
   if (!identityList.selectedItem.label.includes(identityString1)) {

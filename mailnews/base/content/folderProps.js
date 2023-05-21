@@ -119,9 +119,8 @@ var gFolderPropsSink = {
 
 function doEnabling() {
   var nameTextbox = document.getElementById("name");
-  document
-    .querySelector("dialog")
-    .getButton("accept").disabled = !nameTextbox.value;
+  document.querySelector("dialog").getButton("accept").disabled =
+    !nameTextbox.value;
 }
 
 function folderPropsOKButton(event) {
@@ -325,9 +324,8 @@ function folderPropsOnLoad() {
     }
 
     // set check for new mail checkbox
-    document.getElementById(
-      "folderCheckForNewMessages"
-    ).checked = gMsgFolder.getFlag(Ci.nsMsgFolderFlags.CheckNew);
+    document.getElementById("folderCheckForNewMessages").checked =
+      gMsgFolder.getFlag(Ci.nsMsgFolderFlags.CheckNew);
 
     // if gloda indexing is off, hide the related checkbox
     var glodaCheckbox = document.getElementById("folderIncludeInGlobalSearch");
@@ -355,9 +353,8 @@ function folderPropsOnLoad() {
     let users = [...imapFolder.getOtherUsersWithAccess()];
     if (users.length) {
       document.getElementById("folderOtherUsers").hidden = false;
-      document.getElementById("folderOtherUsersText").textContent = users.join(
-        ", "
-      );
+      document.getElementById("folderOtherUsersText").textContent =
+        users.join(", ");
     }
 
     // Disable "Repair Folder" when offline as that would cause the offline store
@@ -389,9 +386,8 @@ function folderPropsOnLoad() {
 
   // select the initial tab
   if (window.arguments[0].tabID) {
-    document.getElementById(
-      "folderPropTabBox"
-    ).selectedTab = document.getElementById(window.arguments[0].tabID);
+    document.getElementById("folderPropTabBox").selectedTab =
+      document.getElementById(window.arguments[0].tabID);
   }
 }
 

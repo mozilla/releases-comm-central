@@ -37,9 +37,8 @@ function OnLoadDialog() {
     }
     if (gMsgCompInputElement) {
       SetAttachCheckbox();
-      gMsgCompPrevMozDoNotSendAttribute = globalElement.getAttribute(
-        "moz-do-not-send"
-      );
+      gMsgCompPrevMozDoNotSendAttribute =
+        globalElement.getAttribute("moz-do-not-send");
     }
   }
 }
@@ -107,7 +106,8 @@ function SetAttachCheckbox() {
 }
 
 function DoAttachSourceCheckbox() {
-  gMsgCompPrevMozDoNotSendAttribute = (!gMsgCompAttachSourceElement.checked).toString();
+  gMsgCompPrevMozDoNotSendAttribute =
+    (!gMsgCompAttachSourceElement.checked).toString();
   globalElement.setAttribute(
     "moz-do-not-send",
     gMsgCompPrevMozDoNotSendAttribute

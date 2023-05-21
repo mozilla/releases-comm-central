@@ -6,7 +6,8 @@
  * Tests the UID attribute of identities.
  */
 add_task(async function testUID() {
-  const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+  const UUID_REGEXP =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
   // Create an identity and check it the UID is set when accessed.
 

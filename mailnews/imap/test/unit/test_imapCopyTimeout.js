@@ -44,9 +44,8 @@ add_task(async function createTargetFolder() {
   IMAPPump.daemon.copySleep = 5000;
   IMAPPump.incomingServer.rootFolder.createSubfolder("targetFolder", null);
   await PromiseTestUtils.promiseFolderAdded("targetFolder");
-  gTargetFolder = IMAPPump.incomingServer.rootFolder.getChildNamed(
-    "targetFolder"
-  );
+  gTargetFolder =
+    IMAPPump.incomingServer.rootFolder.getChildNamed("targetFolder");
   Assert.ok(gTargetFolder instanceof Ci.nsIMsgImapMailFolder);
   let listener = new PromiseTestUtils.PromiseUrlListener();
   gTargetFolder.updateFolderWithListener(null, listener);

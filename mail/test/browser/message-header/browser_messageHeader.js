@@ -452,8 +452,8 @@ add_task(async function test_clicking_ab_button_opens_inline_contact_editor() {
   let contactPanel = aboutMessage.document.getElementById("editContactPanel");
   Assert.notEqual(contactPanel.state, "open");
 
-  let recipientsList = aboutMessage.document.getElementById("expandedtoBox")
-    .recipientsList;
+  let recipientsList =
+    aboutMessage.document.getElementById("expandedtoBox").recipientsList;
   subtest_more_widget_ab_button_click(recipientsList);
 
   // Ok, if we're here, then the star has been clicked, and
@@ -557,8 +557,8 @@ add_task(
     let contactPanel = aboutMessage.document.getElementById("editContactPanel");
     Assert.notEqual(contactPanel.state, "open");
 
-    let recipientsList = aboutMessage.document.getElementById("expandedtoBox")
-      .recipientsList;
+    let recipientsList =
+      aboutMessage.document.getElementById("expandedtoBox").recipientsList;
     subtest_more_widget_ab_button_click(recipientsList);
 
     // Ok, if we're here, then the star has been clicked, and
@@ -661,9 +661,8 @@ add_task(async function test_add_contact_from_context_menu() {
   );
   Assert.ok(!addToAddressBookItem.hidden, "addToAddressBookItem is not hidden");
 
-  const editContactItem = aboutMessage.document.getElementById(
-    "editContactItem"
-  );
+  const editContactItem =
+    aboutMessage.document.getElementById("editContactItem");
   Assert.ok(editContactItem.hidden, "editContactItem is hidden");
 
   let recipientAdded = TestUtils.waitForCondition(
@@ -838,8 +837,8 @@ add_task(async function test_view_more_button() {
   assert_selected_and_displayed(mc, curMessage);
 
   // Get the sender address.
-  let node = aboutMessage.document.getElementById("expandedtoBox")
-    .recipientsList;
+  let node =
+    aboutMessage.document.getElementById("expandedtoBox").recipientsList;
   await subtest_more_widget_display(node);
   subtest_more_widget_activate(node);
 });
@@ -1000,8 +999,8 @@ add_task(async function test_show_all_header_mode() {
   await toggle_header_mode(true);
   wait_for_message_display_completion(mc);
   assert_selected_and_displayed(mc, curMessage);
-  let node = aboutMessage.document.getElementById("expandedtoBox")
-    .recipientsList;
+  let node =
+    aboutMessage.document.getElementById("expandedtoBox").recipientsList;
   await subtest_more_widget_display(node, true);
 
   await toggle_header_mode(false);

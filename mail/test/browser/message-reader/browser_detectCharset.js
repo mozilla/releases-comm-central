@@ -70,8 +70,9 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
     await reloadPromise;
   }
 
-  let textContent = aboutMessage.getMessagePaneBrowser().contentDocument
-    .documentElement.textContent;
+  let textContent =
+    aboutMessage.getMessagePaneBrowser().contentDocument.documentElement
+      .textContent;
   let charset = aboutMessage.currentCharacterSet;
   close_window(msgc);
   return { textContent, charset };

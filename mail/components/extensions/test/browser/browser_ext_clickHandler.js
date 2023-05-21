@@ -597,7 +597,8 @@ add_task(async function test_message() {
   let gFolder = subFolders.test0;
   let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.displayFolder(gFolder.URI);
-  let messagePane = about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
+  let messagePane =
+    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
   let loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
   about3Pane.threadTree.selectedIndex = 0;
   await loadedPromise;

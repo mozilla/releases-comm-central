@@ -558,9 +558,8 @@ async function reloadData(firstLoad) {
     );
   }
 
-  document.getElementById(
-    "key-detail-has-insecure"
-  ).hidden = !keyObj.hasIgnoredAttributes;
+  document.getElementById("key-detail-has-insecure").hidden =
+    !keyObj.hasIgnoredAttributes;
 }
 
 function setOkButtonState() {

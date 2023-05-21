@@ -716,9 +716,8 @@ function GetFilterEditorMsgWindow() {
   if (!gFilterEditorMsgWindow) {
     var msgWindowContractID = "@mozilla.org/messenger/msgwindow;1";
     var nsIMsgWindow = Ci.nsIMsgWindow;
-    gFilterEditorMsgWindow = Cc[msgWindowContractID].createInstance(
-      nsIMsgWindow
-    );
+    gFilterEditorMsgWindow =
+      Cc[msgWindowContractID].createInstance(nsIMsgWindow);
     gFilterEditorMsgWindow.domWindow = window;
     gFilterEditorMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   }

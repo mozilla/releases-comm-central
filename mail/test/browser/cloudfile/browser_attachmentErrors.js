@@ -14,13 +14,8 @@ XPCOMUtils.defineLazyGetter(this, "brandShortName", () =>
     .GetStringFromName("brandShortName")
 );
 
-var {
-  gMockFilePicker,
-  gMockFilePickReg,
-  select_attachments,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
-);
+var { gMockFilePicker, gMockFilePickReg, select_attachments } =
+  ChromeUtils.import("resource://testing-common/mozmill/AttachmentHelpers.jsm");
 var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
   "resource://testing-common/mozmill/CloudfileHelpers.jsm"
 );

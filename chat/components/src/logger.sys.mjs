@@ -446,7 +446,8 @@ export function closeLogWriter(aConversation) {
  *          that the log file represents, and the file type as a string.
  */
 function getDateFromFilename(aFilename) {
-  const kRegExp = /([\d]{4})-([\d]{2})-([\d]{2}).([\d]{2})([\d]{2})([\d]{2})([+-])([\d]{2})([\d]{2}).*\.([A-Za-z]+)$/;
+  const kRegExp =
+    /([\d]{4})-([\d]{2})-([\d]{2}).([\d]{2})([\d]{2})([\d]{2})([+-])([\d]{2})([\d]{2}).*\.([A-Za-z]+)$/;
 
   let r = aFilename.match(kRegExp);
   if (!r) {

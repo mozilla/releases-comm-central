@@ -16,9 +16,8 @@ add_setup(async () => {
   tabmail = document.getElementById("tabmail");
   about3Pane = tabmail.currentTabInfo.chromeBrowser.contentWindow;
   about3Pane.displayFolder(folder.URI);
-  messagePane = about3Pane.messageBrowser.contentDocument.getElementById(
-    "messagepane"
-  );
+  messagePane =
+    about3Pane.messageBrowser.contentDocument.getElementById("messagepane");
 });
 
 async function checkMessageBody(expected, message, browser) {

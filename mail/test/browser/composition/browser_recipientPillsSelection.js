@@ -8,11 +8,8 @@
 
 "use strict";
 
-var {
-  close_compose_window,
-  open_compose_new_mail,
-  setup_msg_contents,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { close_compose_window, open_compose_new_mail, setup_msg_contents } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { close_popup } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

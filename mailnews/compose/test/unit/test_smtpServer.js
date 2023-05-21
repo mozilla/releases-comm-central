@@ -41,7 +41,8 @@ add_task(async function test_attributes() {
  * Tests the UID attribute of servers.
  */
 add_task(async function testUID() {
-  const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+  const UUID_REGEXP =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
   // Create a server and check it the UID is set when accessed.
 

@@ -1409,10 +1409,8 @@ var EnigmailKeyRing = {
             key = this.getKeyById(entry.id);
           }
           if (key && this.isValidForEncryption(key)) {
-            let acceptanceResult = await lazy.PgpSqliteDb2.getFingerprintAcceptance(
-              null,
-              key.fpr
-            );
+            let acceptanceResult =
+              await lazy.PgpSqliteDb2.getFingerprintAcceptance(null, key.fpr);
             // If we don't have acceptance info for the key yet,
             // or, we have it and it isn't rejected,
             // then we accept the key for using it in alias definitions.
@@ -1495,9 +1493,8 @@ var EnigmailKeyRing = {
         continue;
       }
       if (!keyObj.secretAvailable) {
-        keyObj.acceptance = this.getAcceptanceStringFromAcceptanceLevel(
-          acceptanceLevel
-        );
+        keyObj.acceptance =
+          this.getAcceptanceStringFromAcceptanceLevel(acceptanceLevel);
       }
       found.push(keyObj);
     }

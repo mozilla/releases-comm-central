@@ -208,9 +208,8 @@ function initializeSearchRows(scope, searchTerms) {
 function updateSearchTermsListbox(matchAllValue) {
   var searchTerms = document.getElementById("searchTermList");
   searchTerms.setAttribute("disabled", matchAllValue);
-  var searchAttributeList = searchTerms.getElementsByTagName(
-    "search-attribute"
-  );
+  var searchAttributeList =
+    searchTerms.getElementsByTagName("search-attribute");
   var searchOperatorList = searchTerms.getElementsByTagName("search-operator");
   var searchValueList = searchTerms.getElementsByTagName("search-value");
   for (let i = 0; i < searchAttributeList.length; i++) {

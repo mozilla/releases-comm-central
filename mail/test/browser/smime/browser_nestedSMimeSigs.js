@@ -9,13 +9,10 @@
 
 "use strict";
 
-var {
-  open_message_from_file,
-  get_about_message,
-  smimeUtils_ensureNSS,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { open_message_from_file, get_about_message, smimeUtils_ensureNSS } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );

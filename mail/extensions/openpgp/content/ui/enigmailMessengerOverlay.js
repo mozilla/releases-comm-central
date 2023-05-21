@@ -475,13 +475,15 @@ Enigmail.msg = {
       return;
     }
     await new Promise(resolve => {
-      EnigmailMime.getMimeTreeFromUrl(url.spec, false, async function (
-        mimeMsg
-      ) {
-        await Enigmail.msg.messageDecryptCb(event, isAuto, mimeMsg);
-        await Enigmail.msg.notifyMessageDecryptDone();
-        resolve();
-      });
+      EnigmailMime.getMimeTreeFromUrl(
+        url.spec,
+        false,
+        async function (mimeMsg) {
+          await Enigmail.msg.messageDecryptCb(event, isAuto, mimeMsg);
+          await Enigmail.msg.notifyMessageDecryptDone();
+          resolve();
+        }
+      );
     });
   },
 
@@ -2904,9 +2906,10 @@ Enigmail.msg = {
     document.getElementById("openpgpKeyBox").removeAttribute("hidden");
 
     // Check if the proposed key to import was previously accepted.
-    let hasAreadyAcceptedOther = await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
-      Enigmail.msg.authorEmail
-    );
+    let hasAreadyAcceptedOther =
+      await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
+        Enigmail.msg.authorEmail
+      );
     if (hasAreadyAcceptedOther) {
       Enigmail.msg.notificationBox.appendNotification(
         "hasConflictingKeyOpenPGP",
@@ -3419,9 +3422,8 @@ Enigmail.msg = {
     }
 
     // Show extra keys if present in the message.
-    document.getElementById(
-      "otherEncryptionKeys"
-    ).collapsed = !showExtraKeysList;
+    document.getElementById("otherEncryptionKeys").collapsed =
+      !showExtraKeysList;
   },
 };
 

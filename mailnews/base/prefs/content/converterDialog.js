@@ -135,41 +135,38 @@ function placeAccountName(aServer) {
     }
 
     if (aServer.rootFolder.filePath.path != deferredToRootFolder) {
-      document.getElementById(
-        "warningSpan"
-      ).textContent = bundle.formatStringFromName(
-        "converterDialog.warningForDeferredAccount",
-        [
-          aServer.username,
-          deferredToAccountName,
-          deferredToAccountName,
-          deferredAccountsString,
-          accountsToConvert,
-          storeContractId,
-          brandShortName,
-        ]
-      );
+      document.getElementById("warningSpan").textContent =
+        bundle.formatStringFromName(
+          "converterDialog.warningForDeferredAccount",
+          [
+            aServer.username,
+            deferredToAccountName,
+            deferredToAccountName,
+            deferredAccountsString,
+            accountsToConvert,
+            storeContractId,
+            brandShortName,
+          ]
+        );
     } else {
-      document.getElementById(
-        "warningSpan"
-      ).textContent = bundle.formatStringFromName(
-        "converterDialog.warningForDeferredToAccount",
-        [
-          deferredToAccountName,
-          deferredAccountsString,
-          accountsToConvert,
-          storeContractId,
-          brandShortName,
-        ]
-      );
+      document.getElementById("warningSpan").textContent =
+        bundle.formatStringFromName(
+          "converterDialog.warningForDeferredToAccount",
+          [
+            deferredToAccountName,
+            deferredAccountsString,
+            accountsToConvert,
+            storeContractId,
+            brandShortName,
+          ]
+        );
     }
 
-    document.getElementById(
-      "messageSpan"
-    ).textContent = bundle.formatStringFromName(
-      "converterDialog.messageForDeferredAccount",
-      [accountsToConvert, storeContractId]
-    );
+    document.getElementById("messageSpan").textContent =
+      bundle.formatStringFromName("converterDialog.messageForDeferredAccount", [
+        accountsToConvert,
+        storeContractId,
+      ]);
     gServer = deferredToAccount.incomingServer;
   } else {
     // No account is deferred.
@@ -189,19 +186,17 @@ function placeAccountName(aServer) {
       tempName = aServer.hostName;
     }
 
-    document.getElementById(
-      "warningSpan"
-    ).textContent = bundle.formatStringFromName("converterDialog.warning", [
-      tempName,
-      storeContractId,
-      brandShortName,
-    ]);
-    document.getElementById(
-      "messageSpan"
-    ).textContent = bundle.formatStringFromName("converterDialog.message", [
-      tempName,
-      storeContractId,
-    ]);
+    document.getElementById("warningSpan").textContent =
+      bundle.formatStringFromName("converterDialog.warning", [
+        tempName,
+        storeContractId,
+        brandShortName,
+      ]);
+    document.getElementById("messageSpan").textContent =
+      bundle.formatStringFromName("converterDialog.message", [
+        tempName,
+        storeContractId,
+      ]);
     gServer = aServer;
   }
 
@@ -227,12 +222,8 @@ function startContinue(aSelectedStoreType, aResponse) {
     .getElementById("progress")
     .addEventListener("progress", function (e) {
       document.getElementById("progress").value = e.detail;
-      document.getElementById(
-        "progressPercent"
-      ).textContent = bundle.formatStringFromName(
-        "converterDialog.percentDone",
-        [e.detail]
-      );
+      document.getElementById("progressPercent").textContent =
+        bundle.formatStringFromName("converterDialog.percentDone", [e.detail]);
     });
 
   document.getElementById("warningArea").hidden = true;

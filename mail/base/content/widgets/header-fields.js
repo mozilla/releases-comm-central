@@ -305,9 +305,10 @@
 
       if (focusIndex >= 0) {
         // If we had focus before, restore focus to the same index, or the last node.
-        let focusNode = this.recipientsList.childNodes[
-          Math.min(focusIndex, this.recipientsList.childNodes.length - 1)
-        ];
+        let focusNode =
+          this.recipientsList.childNodes[
+            Math.min(focusIndex, this.recipientsList.childNodes.length - 1)
+          ];
         if (focusNode.contains(this.moreButton)) {
           // The button is focusable.
           this.moreButton.focus();

@@ -17,8 +17,9 @@ async function sub_test_toolbar_alignment(drawInTitlebar, hideMenu) {
   }
   await new Promise(resolve => requestAnimationFrame(resolve));
 
-  let size = document.getElementById("spacesToolbar").getBoundingClientRect()
-    .width;
+  let size = document
+    .getElementById("spacesToolbar")
+    .getBoundingClientRect().width;
 
   Assert.equal(
     document.getElementById("titlebar").getBoundingClientRect().left,

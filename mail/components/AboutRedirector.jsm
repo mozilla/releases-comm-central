@@ -67,8 +67,7 @@ AboutRedirector.prototype = {
       flags: Ci.nsIAboutModule.ALLOW_SCRIPT,
     },
     profiling: {
-      url:
-        "chrome://devtools/content/performance-new/aboutprofiling/index.xhtml",
+      url: "chrome://devtools/content/performance-new/aboutprofiling/index.xhtml",
       flags:
         Ci.nsIAboutModule.ALLOW_SCRIPT | Ci.nsIAboutModule.IS_SECURE_CHROME_UI,
     },

@@ -16,15 +16,13 @@ function initCommonRetentionSettings(retentionSettings) {
       ? retentionSettings.numHeadersToKeep
       : 2000;
 
-  document.getElementById(
-    "retention.applyToFlagged"
-  ).checked = !retentionSettings.applyToFlaggedMessages;
+  document.getElementById("retention.applyToFlagged").checked =
+    !retentionSettings.applyToFlaggedMessages;
 }
 
 function saveCommonRetentionSettings(aRetentionSettings) {
-  aRetentionSettings.retainByPreference = document.getElementById(
-    "retention.keepMsg"
-  ).value;
+  aRetentionSettings.retainByPreference =
+    document.getElementById("retention.keepMsg").value;
 
   aRetentionSettings.daysToKeepHdrs = document.getElementById(
     "retention.keepOldMsgMin"

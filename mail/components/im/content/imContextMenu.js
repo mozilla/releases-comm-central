@@ -41,8 +41,9 @@ imContextMenu.prototype = {
     nsContextMenu.contentData.browser.browsingContext.currentWindowGlobal
       ?.getActor("ChatAction")
       .reportHide();
-    let elt = document.getElementById("context-sep-messageactions")
-      .nextElementSibling;
+    let elt = document.getElementById(
+      "context-sep-messageactions"
+    ).nextElementSibling;
     // remove the action menuitems added last time we opened the popup
     while (elt && elt.localName != "menuseparator") {
       let tmp = elt.nextElementSibling;
@@ -82,9 +83,10 @@ imContextMenu.prototype = {
     this.showItem("context-copy", this.isContentSelected);
     this.showItem("context-selectall", !this.onLink || this.isContentSelected);
     if (!this.initedActions) {
-      let actor = nsContextMenu.contentData.browser.browsingContext.currentWindowGlobal?.getActor(
-        "ChatAction"
-      );
+      let actor =
+        nsContextMenu.contentData.browser.browsingContext.currentWindowGlobal?.getActor(
+          "ChatAction"
+        );
       if (actor?.actions) {
         this.initActions(actor.actions);
       } else {

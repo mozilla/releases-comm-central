@@ -10,20 +10,12 @@
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-var {
-  close_compose_window,
-  open_compose_new_mail,
-  save_compose_message,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var {
-  be_in_folder,
-  get_special_folder,
-  mc,
-  press_delete,
-  select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { close_compose_window, open_compose_new_mail, save_compose_message } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { be_in_folder, get_special_folder, mc, press_delete, select_click_row } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 var {
   click_menus_in_sequence,
   plan_for_modal_dialog,

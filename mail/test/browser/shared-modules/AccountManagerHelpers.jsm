@@ -27,13 +27,8 @@ var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
 
-var {
-  content_tab_e,
-  open_content_tab_with_url,
-  wait_for_content_tab_load,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
-);
+var { content_tab_e, open_content_tab_with_url, wait_for_content_tab_load } =
+  ChromeUtils.import("resource://testing-common/mozmill/ContentTabHelpers.jsm");
 
 var mc = fdh.mc;
 

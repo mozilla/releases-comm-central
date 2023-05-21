@@ -102,8 +102,8 @@ add_task(async function testSearchDialogFolderSelectedFromSyntheticView() {
   document.querySelector("#searchMailCmd").click();
 
   let dialogWindow = await dialogPromise;
-  let selectedFolder = dialogWindow.document.querySelector("#searchableFolders")
-    .label;
+  let selectedFolder =
+    dialogWindow.document.querySelector("#searchableFolders").label;
 
   Assert.ok(selectedFolder.includes(folderName), "a folder is selected");
   dialogWindow.close();

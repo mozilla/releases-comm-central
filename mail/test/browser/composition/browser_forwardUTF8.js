@@ -8,11 +8,8 @@
 
 "use strict";
 
-var {
-  close_compose_window,
-  get_compose_body,
-  open_compose_with_forward,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { close_compose_window, get_compose_body, open_compose_with_forward } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   assert_selected_and_displayed,
   be_in_folder,
@@ -85,8 +82,9 @@ async function forwardViaFolder(aFilePath) {
   let aboutMessage = get_about_message(msgc.window);
 
   // Copy the message to a folder.
-  let documentChild = aboutMessage.document.getElementById("messagepane")
-    .contentDocument.documentElement;
+  let documentChild =
+    aboutMessage.document.getElementById("messagepane").contentDocument
+      .documentElement;
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },

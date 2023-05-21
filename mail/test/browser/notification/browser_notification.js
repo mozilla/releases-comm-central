@@ -4,13 +4,10 @@
 
 "use strict";
 
-var {
-  be_in_folder,
-  create_folder,
-  make_message_sets_in_folders,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { be_in_folder, create_folder, make_message_sets_in_folders } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 var {
   plan_for_new_window,
   plan_for_window_close,

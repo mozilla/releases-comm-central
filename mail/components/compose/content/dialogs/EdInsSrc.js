@@ -57,37 +57,37 @@ function Startup() {
 }
 
 function replaceDataURIs(input) {
-  return input.replace(/(data:.+;base64,)([^"' >]+)/gi, function (
-    match,
-    nonDataPart,
-    dataPart
-  ) {
-    if (gShortDataStrings.has(dataPart)) {
-      // We found the exact same data URI, just return the shortened URI.
-      return nonDataPart + gShortDataStrings.get(dataPart);
+  return input.replace(
+    /(data:.+;base64,)([^"' >]+)/gi,
+    function (match, nonDataPart, dataPart) {
+      if (gShortDataStrings.has(dataPart)) {
+        // We found the exact same data URI, just return the shortened URI.
+        return nonDataPart + gShortDataStrings.get(dataPart);
+      }
+
+      let l = 5;
+      let key;
+      // Normally we insert the ellipsis after five characters but if it's not unique
+      // we include more data.
+      do {
+        key =
+          dataPart.substr(0, l) + "…" + dataPart.substr(dataPart.length - 10);
+        l++;
+      } while (gFullDataStrings.has(key) && l < dataPart.length - 10);
+      gFullDataStrings.set(key, dataPart);
+      gShortDataStrings.set(dataPart, key);
+
+      // Attach listeners. In case anyone copies/cuts from the HTML window,
+      // we want to restore the data URI on the clipboard.
+      if (!gListenerAttached) {
+        gDialog.srcInput.addEventListener("copy", onCopyOrCut);
+        gDialog.srcInput.addEventListener("cut", onCopyOrCut);
+        gListenerAttached = true;
+      }
+
+      return nonDataPart + key;
     }
-
-    let l = 5;
-    let key;
-    // Normally we insert the ellipsis after five characters but if it's not unique
-    // we include more data.
-    do {
-      key = dataPart.substr(0, l) + "…" + dataPart.substr(dataPart.length - 10);
-      l++;
-    } while (gFullDataStrings.has(key) && l < dataPart.length - 10);
-    gFullDataStrings.set(key, dataPart);
-    gShortDataStrings.set(dataPart, key);
-
-    // Attach listeners. In case anyone copies/cuts from the HTML window,
-    // we want to restore the data URI on the clipboard.
-    if (!gListenerAttached) {
-      gDialog.srcInput.addEventListener("copy", onCopyOrCut);
-      gDialog.srcInput.addEventListener("cut", onCopyOrCut);
-      gListenerAttached = true;
-    }
-
-    return nonDataPart + key;
-  });
+  );
 }
 
 function onCopyOrCut(event) {
@@ -99,17 +99,16 @@ function onCopyOrCut(event) {
   let clipboard = gDialog.srcInput.value.substring(startPos, endPos);
 
   // Add back the original data URIs we stashed away earlier.
-  clipboard = clipboard.replace(/(data:.+;base64,)([^"' >]+)/gi, function (
-    match,
-    nonDataPart,
-    key
-  ) {
-    if (!gFullDataStrings.has(key)) {
-      // User changed data URI.
-      return match;
+  clipboard = clipboard.replace(
+    /(data:.+;base64,)([^"' >]+)/gi,
+    function (match, nonDataPart, key) {
+      if (!gFullDataStrings.has(key)) {
+        // User changed data URI.
+        return match;
+      }
+      return nonDataPart + gFullDataStrings.get(key);
     }
-    return nonDataPart + gFullDataStrings.get(key);
-  });
+  );
   event.clipboardData.setData("text/plain", clipboard);
   if (event.type == "cut") {
     // We have to cut the selection manually.
@@ -145,17 +144,16 @@ function onAccept(event) {
   }
 
   // Add back the original data URIs we stashed away earlier.
-  html = html.replace(/(data:.+;base64,)([^"' >]+)/gi, function (
-    match,
-    nonDataPart,
-    key
-  ) {
-    if (!gFullDataStrings.has(key)) {
-      // User changed data URI.
-      return match;
+  html = html.replace(
+    /(data:.+;base64,)([^"' >]+)/gi,
+    function (match, nonDataPart, key) {
+      if (!gFullDataStrings.has(key)) {
+        // User changed data URI.
+        return match;
+      }
+      return nonDataPart + gFullDataStrings.get(key);
     }
-    return nonDataPart + gFullDataStrings.get(key);
-  });
+  );
 
   try {
     GetCurrentEditor().insertHTML(html);

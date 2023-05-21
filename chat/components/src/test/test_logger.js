@@ -621,8 +621,7 @@ add_task(async function test_logWithEdits() {
       {
         date: "2022-03-04T11:59:51.000Z",
         who: "@other:example.com",
-        text:
-          "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
+        text: "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
         flags: ["incoming", "isEncrypted"],
         remoteId: "$00zdmKvErkDR4wMaxZBCFsV1WwqPQRolP0kYiXPIXsQ",
         alias: "other",

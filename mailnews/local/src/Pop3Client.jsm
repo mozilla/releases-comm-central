@@ -369,7 +369,8 @@ class Pop3Client {
     this._logger.error(`${event.name}: a ${event.message} error occurred`);
     this._server.serverBusy = false;
     this.quit();
-    let secInfo = await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
+    let secInfo =
+      await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
       this.runningUri.failedSecInfo = secInfo;
       // Notify about the error directly. Due to the await above, the _onClose
@@ -653,9 +654,10 @@ class Pop3Client {
     this._authenticating = true;
 
     this._currentAuthMethod = this._nextAuthMethod;
-    this._nextAuthMethod = this._possibleAuthMethods[
-      this._possibleAuthMethods.indexOf(this._currentAuthMethod) + 1
-    ];
+    this._nextAuthMethod =
+      this._possibleAuthMethods[
+        this._possibleAuthMethods.indexOf(this._currentAuthMethod) + 1
+      ];
     this._logger.debug(`Current auth method: ${this._currentAuthMethod}`);
     this._nextAction = this._actionAuthResponse;
 

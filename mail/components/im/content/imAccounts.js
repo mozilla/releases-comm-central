@@ -154,9 +154,8 @@ var gAccountManager = {
       this.close();
       return;
     } else if (aTopic == "autologin-processed") {
-      let notification = this.msgNotificationBar.getNotificationWithValue(
-        "autoLoginStatus"
-      );
+      let notification =
+        this.msgNotificationBar.getNotificationWithValue("autoLoginStatus");
       if (notification) {
         notification.close();
       }
@@ -640,9 +639,8 @@ var gAccountManager = {
       }
     }
 
-    let notification = this.msgNotificationBar.getNotificationWithValue(
-      "autoLoginStatus"
-    );
+    let notification =
+      this.msgNotificationBar.getNotificationWithValue("autoLoginStatus");
     if (notification) {
       notification.close();
     }

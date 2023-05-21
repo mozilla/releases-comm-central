@@ -11,9 +11,8 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/ExtensionParent.jsm"
 );
 let browserActionFor = extensionId => {
-  const extension = lazy.ExtensionParent.GlobalManager.getExtension(
-    extensionId
-  );
+  const extension =
+    lazy.ExtensionParent.GlobalManager.getExtension(extensionId);
   if (!extension) {
     return null;
   }

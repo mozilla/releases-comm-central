@@ -260,8 +260,9 @@ add_task(async function test_message_pane_height_persistence() {
   // 3pane window.
   let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
-  let oldHeight = mc.window.document.getElementById("messagepaneboxwrapper")
-    .clientHeight;
+  let oldHeight = mc.window.document.getElementById(
+    "messagepaneboxwrapper"
+  ).clientHeight;
   let minHeight = Math.floor(
     mc.window.document
       .getElementById("messagepaneboxwrapper")
@@ -285,8 +286,9 @@ add_task(async function test_message_pane_height_persistence() {
   );
 
   // Check that the moving of the threadpane-splitter resulted in the correct height.
-  let actualHeight = mc.window.document.getElementById("messagepaneboxwrapper")
-    .clientHeight;
+  let actualHeight = mc.window.document.getElementById(
+    "messagepaneboxwrapper"
+  ).clientHeight;
 
   Assert.equal(
     newHeight,
@@ -314,8 +316,9 @@ add_task(async function test_message_pane_height_persistence() {
   await be_in_folder(folderA);
   assert_message_pane_visible();
 
-  actualHeight = mc.window.document.getElementById("messagepaneboxwrapper")
-    .clientHeight;
+  actualHeight = mc.window.document.getElementById(
+    "messagepaneboxwrapper"
+  ).clientHeight;
 
   Assert.equal(
     newHeight,
@@ -346,8 +349,9 @@ add_task(async function test_message_pane_height_persistence() {
   await be_in_folder(folderA);
   assert_message_pane_visible();
 
-  actualHeight = mc.window.document.getElementById("messagepaneboxwrapper")
-    .clientHeight;
+  actualHeight = mc.window.document.getElementById(
+    "messagepaneboxwrapper"
+  ).clientHeight;
   Assert.equal(
     oldHeight,
     actualHeight,
@@ -377,8 +381,9 @@ add_task(async function test_message_pane_width_persistence() {
   // 3pane window.
   let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
 
-  let oldWidth = mc.window.document.getElementById("messagepaneboxwrapper")
-    .clientWidth;
+  let oldWidth = mc.window.document.getElementById(
+    "messagepaneboxwrapper"
+  ).clientWidth;
   let minWidth = Math.floor(
     mc.window.document
       .getElementById("messagepaneboxwrapper")
@@ -403,8 +408,9 @@ add_task(async function test_message_pane_width_persistence() {
     0
   );
   // Check that the moving of the folderpane_splitter resulted in the correct width.
-  let actualWidth = mc.window.document.getElementById("messagepaneboxwrapper")
-    .clientWidth;
+  let actualWidth = mc.window.document.getElementById(
+    "messagepaneboxwrapper"
+  ).clientWidth;
 
   // FIXME: For whatever reasons the new width is off by one pixel on Mac OSX
   // But this test case is not for testing moving around a splitter but for
@@ -439,8 +445,9 @@ add_task(async function test_message_pane_width_persistence() {
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);
 
-  actualWidth = mc.window.document.getElementById("messagepaneboxwrapper")
-    .clientWidth;
+  actualWidth = mc.window.document.getElementById(
+    "messagepaneboxwrapper"
+  ).clientWidth;
   Assert.equal(
     newWidth,
     actualWidth,
@@ -456,8 +463,9 @@ add_task(async function test_message_pane_width_persistence() {
     -diffWidth,
     0
   );
-  actualWidth = mc.window.document.getElementById("messagepaneboxwrapper")
-    .clientWidth;
+  actualWidth = mc.window.document.getElementById(
+    "messagepaneboxwrapper"
+  ).clientWidth;
 
   // FIXME: For whatever reasons the new width is off by two pixels on Mac OSX
   // But this test case is not for testing moving around a splitter but for
@@ -486,8 +494,9 @@ add_task(async function test_message_pane_width_persistence() {
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);
 
-  actualWidth = mc.window.document.getElementById("messagepaneboxwrapper")
-    .clientWidth;
+  actualWidth = mc.window.document.getElementById(
+    "messagepaneboxwrapper"
+  ).clientWidth;
   Assert.equal(
     oldWidth,
     actualWidth,

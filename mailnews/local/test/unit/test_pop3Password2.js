@@ -189,9 +189,10 @@ add_task(async function () {
 
   localAccountUtils.incomingServer = MailServices.accounts.localFoldersServer;
 
-  var rootFolder = localAccountUtils.incomingServer.rootMsgFolder.QueryInterface(
-    Ci.nsIMsgLocalMailFolder
-  );
+  var rootFolder =
+    localAccountUtils.incomingServer.rootMsgFolder.QueryInterface(
+      Ci.nsIMsgLocalMailFolder
+    );
 
   // Note: Inbox is not created automatically when there is no deferred server,
   // so we need to create it.

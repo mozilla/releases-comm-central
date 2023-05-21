@@ -80,15 +80,15 @@ function ctcpHandleMessage(message, ircHandlers) {
   // command and parameters.
   let ctcpMessages = [];
   // eslint-disable-next-line no-control-regex
-  let otherMessage = rawCTCPParam.replace(/\x01([^\x01]*)\x01/g, function (
-    aMatch,
-    aMsg
-  ) {
-    if (aMsg) {
-      ctcpMessages.push(new CTCPMessage(message, aMsg));
+  let otherMessage = rawCTCPParam.replace(
+    /\x01([^\x01]*)\x01/g,
+    function (aMatch, aMsg) {
+      if (aMsg) {
+        ctcpMessages.push(new CTCPMessage(message, aMsg));
+      }
+      return "";
     }
-    return "";
-  });
+  );
 
   // If no CTCP messages were found, return false.
   if (!ctcpMessages.length) {

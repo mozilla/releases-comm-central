@@ -479,13 +479,11 @@ class ProfileImporterController extends ImporterController {
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
-    let [
-      filePickerTitleDir,
-      filePickerTitleZip,
-    ] = await document.l10n.formatValues([
-      "profile-file-picker-directory",
-      "profile-file-picker-archive-title",
-    ]);
+    let [filePickerTitleDir, filePickerTitleZip] =
+      await document.l10n.formatValues([
+        "profile-file-picker-directory",
+        "profile-file-picker-archive-title",
+      ]);
     if (type == "zip") {
       filePicker.init(window, filePickerTitleZip, filePicker.modeOpen);
       filePicker.appendFilter("", "*.zip");
@@ -531,15 +529,13 @@ class ProfileImporterController extends ImporterController {
     );
     document.getElementById("appSourceProfilePath").textContent =
       profile.dir.path;
-    document.getElementById(
-      "appSourceProfilePath"
-    ).textContent = this._sourceProfile.dir.path;
-    document.getElementById("appSourceProfileNameWrapper").hidden = !this
-      ._sourceProfile.name;
+    document.getElementById("appSourceProfilePath").textContent =
+      this._sourceProfile.dir.path;
+    document.getElementById("appSourceProfileNameWrapper").hidden =
+      !this._sourceProfile.name;
     if (this._sourceProfile.name) {
-      document.getElementById(
-        "appSourceProfileName"
-      ).textContent = this._sourceProfile.name;
+      document.getElementById("appSourceProfileName").textContent =
+        this._sourceProfile.name;
     }
     this._setItemsChecked(this._importer.SUPPORTED_ITEMS);
     document.getElementById("profileNextButton").disabled = Object.values(
@@ -615,15 +611,13 @@ class ProfileImporterController extends ImporterController {
       this._el.querySelector("#app-summary h1"),
       `from-app-${this._sourceAppName}`
     );
-    document.getElementById(
-      "appSummaryProfilePath"
-    ).textContent = this._sourceProfile.dir.path;
-    document.getElementById("appSummaryProfileNameWrapper").hidden = !this
-      ._sourceProfile.name;
+    document.getElementById("appSummaryProfilePath").textContent =
+      this._sourceProfile.dir.path;
+    document.getElementById("appSummaryProfileNameWrapper").hidden =
+      !this._sourceProfile.name;
     if (this._sourceProfile.name) {
-      document.getElementById(
-        "appSummaryProfileName"
-      ).textContent = this._sourceProfile.name;
+      document.getElementById("appSummaryProfileName").textContent =
+        this._sourceProfile.name;
     }
     document.getElementById("appSummaryItems").replaceChildren(
       ...Object.entries(this._getItemsChecked(true))
@@ -760,9 +754,8 @@ class AddrBookImporterController extends ImporterController {
    * Show the sources pane.
    */
   _showSources() {
-    document.getElementById(
-      "addrBookBackButton"
-    ).hidden = !Steps.hasStepHistory();
+    document.getElementById("addrBookBackButton").hidden =
+      !Steps.hasStepHistory();
     Steps.updateSteps(
       {
         returnTo: () => {
@@ -919,9 +912,8 @@ class AddrBookImporterController extends ImporterController {
   _showSummary() {
     Steps.updateSteps({}, 0);
     this._el.classList.add("final-step");
-    document.getElementById(
-      "addrBookSummaryPath"
-    ).textContent = this._sourceFile.path;
+    document.getElementById("addrBookSummaryPath").textContent =
+      this._sourceFile.path;
     let targetAddressBook = this._selectedAddressBook?.dirName;
     let newAddressBook = false;
     if (!targetAddressBook) {
@@ -1050,9 +1042,8 @@ class CalendarImporterController extends ImporterController {
    * Show the sources pane.
    */
   _showSources() {
-    document.getElementById(
-      "calendarBackButton"
-    ).hidden = !Steps.hasStepHistory();
+    document.getElementById("calendarBackButton").hidden =
+      !Steps.hasStepHistory();
     Steps.updateSteps(
       {
         returnTo: () => {
@@ -1182,9 +1173,8 @@ class CalendarImporterController extends ImporterController {
       1
     );
     this._el.classList.remove("final-step", "progress");
-    document.getElementById(
-      "calendarCalPath"
-    ).textContent = this._sourceFile.path;
+    document.getElementById("calendarCalPath").textContent =
+      this._sourceFile.path;
     let elList = document.getElementById("calendarList");
     elList.innerHTML = "";
 
@@ -1238,9 +1228,8 @@ class CalendarImporterController extends ImporterController {
   _showSummary() {
     Steps.updateSteps({}, 0);
     this._el.classList.add("final-step");
-    document.getElementById(
-      "calendarSummaryPath"
-    ).textContent = this._sourceFile.path;
+    document.getElementById("calendarSummaryPath").textContent =
+      this._sourceFile.path;
     let targetCalendar = this._selectedCalendar?.name;
     let newCalendar = false;
     if (!targetCalendar) {

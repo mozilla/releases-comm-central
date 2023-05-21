@@ -415,9 +415,8 @@ var CustomizableUIInternal = {
       );
 
       if (savedPanelPlacements.length) {
-        gSavedState.placements[
-          CustomizableUI.AREA_FIXED_OVERFLOW_PANEL
-        ] = savedPanelPlacements;
+        gSavedState.placements[CustomizableUI.AREA_FIXED_OVERFLOW_PANEL] =
+          savedPanelPlacements;
       }
     }
 
@@ -653,9 +652,8 @@ var CustomizableUIInternal = {
     ) {
       let id = aElement.getAttribute("customizationtarget");
       if (id) {
-        aElement._customizationTarget = aElement.ownerDocument.getElementById(
-          id
-        );
+        aElement._customizationTarget =
+          aElement.ownerDocument.getElementById(id);
       }
 
       if (!aElement._customizationTarget) {
@@ -2996,9 +2994,8 @@ var CustomizableUIInternal = {
         kPrefCustomizationState
       );
       gUIStateBeforeReset.uiDensity = Services.prefs.getIntPref(kPrefUIDensity);
-      gUIStateBeforeReset.autoTouchMode = Services.prefs.getBoolPref(
-        kPrefAutoTouchMode
-      );
+      gUIStateBeforeReset.autoTouchMode =
+        Services.prefs.getBoolPref(kPrefAutoTouchMode);
       gUIStateBeforeReset.currentTheme = gSelectedTheme;
       gUIStateBeforeReset.autoHideDownloadsButton = Services.prefs.getBoolPref(
         kPrefAutoHideDownloadsButton
@@ -3260,9 +3257,10 @@ var CustomizableUIInternal = {
         // Toolbars need to deal with overflown widgets (if any) - so
         // specialcase them:
         if (props.get("type") == CustomizableUI.TYPE_TOOLBAR) {
-          currentPlacements = this._getCurrentWidgetsInContainer(
-            container
-          ).filter(removableOrDefault);
+          currentPlacements =
+            this._getCurrentWidgetsInContainer(container).filter(
+              removableOrDefault
+            );
         } else {
           currentPlacements = currentPlacements.filter(item => {
             let itemNode = container.getElementsByAttribute("id", item)[0];

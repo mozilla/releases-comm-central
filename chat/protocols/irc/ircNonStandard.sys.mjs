@@ -113,7 +113,7 @@ export var ircNonStandard = {
       return true;
     },
 
-    "307": function (aMessage) {
+    307(aMessage) {
       // TODO RPL_SUSERHOST (AustHex)
       // TODO RPL_USERIP (Undernet)
       // <user ips>
@@ -127,7 +127,7 @@ export var ircNonStandard = {
       return false;
     },
 
-    "317": function (aMessage) {
+    317(aMessage) {
       // RPL_WHOISIDLE (Unreal & Charybdis)
       // <nick> <integer> <integer> :seconds idle, signon time
       // This is a non-standard extension to RPL_WHOISIDLE which includes the
@@ -139,19 +139,19 @@ export var ircNonStandard = {
       return false;
     },
 
-    "328": function (aMessage) {
+    328(aMessage) {
       // RPL_CHANNEL_URL (Bahamut & Austhex)
       // <channel> :<URL>
       return true;
     },
 
-    "329": function (aMessage) {
+    329(aMessage) {
       // RPL_CREATIONTIME (Bahamut & Unreal)
       // <channel> <creation time>
       return true;
     },
 
-    "330": function (aMessage) {
+    330(aMessage) {
       // TODO RPL_WHOWAS_TIME
 
       // RPL_WHOISACCOUNT (Charybdis, ircu & Quakenet)
@@ -167,34 +167,34 @@ export var ircNonStandard = {
       return true;
     },
 
-    "335": function (aMessage) {
+    335(aMessage) {
       // RPL_WHOISBOT (Unreal)
       // <nick> :is a \002Bot\002 on <network>
       return this.setWhois(aMessage.params[1], { bot: true });
     },
 
-    "338": function (aMessage) {
+    338(aMessage) {
       // RPL_CHANPASSOK
       // RPL_WHOISACTUALLY (ircu, Bahamut, Charybdis)
       // <nick> <user> <ip> :actually using host
       return true;
     },
 
-    "378": function (aMessage) {
+    378(aMessage) {
       // RPL_WHOISHOST (Unreal & Charybdis)
       // <nick> :is connecting from <host> <ip>
       let [host, ip] = aMessage.params[2].split(" ").slice(-2);
       return this.setWhois(aMessage.params[1], { host, ip });
     },
 
-    "379": function (aMessage) {
+    379(aMessage) {
       // RPL_WHOISMODES (Unreal, Inspircd)
       // <nick> :is using modes <modes>
       // Sent in response to a WHOIS on the user.
       return true;
     },
 
-    "396": function (aMessage) {
+    396(aMessage) {
       // RPL_HOSTHIDDEN (Charybdis, Hybrid, ircu, etc.)
       // RPL_VISIBLEHOST (Plexus)
       // RPL_YOURDISPLAYEDHOST (Inspircd)
@@ -205,7 +205,7 @@ export var ircNonStandard = {
       return true;
     },
 
-    "464": function (aMessage) {
+    464(aMessage) {
       // :Password required
       // If we receive a ZNC error message requesting a password, eat it since
       // a NOTICE AUTH will follow causing us to send the password. This numeric
@@ -217,7 +217,7 @@ export var ircNonStandard = {
       );
     },
 
-    "470": function (aMessage) {
+    470(aMessage) {
       // Channel forward (Unreal, inspircd)
       // <requested channel> <redirect channel>: You may not join this channel,
       // so you are automatically being transferred to the redirect channel.
@@ -234,19 +234,19 @@ export var ircNonStandard = {
       );
     },
 
-    "499": function (aMessage) {
+    499(aMessage) {
       // ERR_CHANOWNPRIVNEEDED (Unreal)
       // <channel> :You're not the channel owner (status +q is needed)
       return conversationErrorMessage(this, aMessage, "error.notChannelOwner");
     },
 
-    "671": function (aMessage) {
+    671(aMessage) {
       // RPL_WHOISSECURE (Unreal & Charybdis)
       // <nick> :is using a Secure connection
       return this.setWhois(aMessage.params[1], { secure: true });
     },
 
-    "998": function (aMessage) {
+    998(aMessage) {
       // irc.umich.edu shows an ASCII captcha that must be typed in by the user.
       this.getConversation(aMessage.origin).writeMessage(
         aMessage.origin,

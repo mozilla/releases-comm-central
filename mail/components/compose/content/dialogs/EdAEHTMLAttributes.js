@@ -131,15 +131,13 @@ function onSelectHTMLTreeItem() {
       gDialog.AddHTMLAttributeNameInput.value
     ).toLowerCase();
     var selectedItem = getSelectedItem(tree);
-    var selectedName = selectedItem.firstElementChild.firstElementChild.getAttribute(
-      "label"
-    );
+    var selectedName =
+      selectedItem.firstElementChild.firstElementChild.getAttribute("label");
 
     if (inputName == selectedName) {
       // Already editing selected name - just update the value input
-      gDialog.AddHTMLAttributeValueInput.value = GetTreeItemValueStr(
-        selectedItem
-      );
+      gDialog.AddHTMLAttributeValueInput.value =
+        GetTreeItemValueStr(selectedItem);
     } else {
       gDialog.AddHTMLAttributeNameInput.value = selectedName;
 

@@ -9,12 +9,10 @@
 const { JSAccountUtils } = ChromeUtils.import(
   "resource:///modules/jsaccount/JSAccountUtils.jsm"
 );
-var {
-  JaBaseIncomingServerProperties,
-  JaBaseIncomingServer,
-} = ChromeUtils.import(
-  "resource://testing-common/mailnews/testJaBaseIncomingServer.jsm"
-);
+var { JaBaseIncomingServerProperties, JaBaseIncomingServer } =
+  ChromeUtils.import(
+    "resource://testing-common/mailnews/testJaBaseIncomingServer.jsm"
+  );
 
 var xpcomFactory = JSAccountUtils.jaFactory(
   JaBaseIncomingServerProperties,

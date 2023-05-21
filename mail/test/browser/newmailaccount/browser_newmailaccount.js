@@ -461,8 +461,8 @@ add_task(async function test_html_characters_and_ampersands() {
     "Mail results loaded"
   );
 
-  let searchedTerms = tabDocument.getElementById("mailResultsTitle")
-    .textContent;
+  let searchedTerms =
+    tabDocument.getElementById("mailResultsTitle").textContent;
   Assert.notEqual(
     `One available address found for: "${CLEVER_STRING}"`,
     searchedTerms

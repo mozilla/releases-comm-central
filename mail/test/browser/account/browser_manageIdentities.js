@@ -155,9 +155,8 @@ add_setup(async function () {
   click_account_tree_row(tab, accountRow);
 
   // Click "Manage Identities" to show the list of identities.
-  let iframe = tab.browser.contentWindow.document.getElementById(
-    "contentFrame"
-  );
+  let iframe =
+    tab.browser.contentWindow.document.getElementById("contentFrame");
   gIdentitiesWin = await identitiesListDialogLoaded(iframe.contentWindow);
 });
 

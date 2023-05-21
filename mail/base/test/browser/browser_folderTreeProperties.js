@@ -164,9 +164,8 @@ async function subtestColors(rows, defaultHex, defaultRGB) {
 }
 
 async function openFolderProperties(row) {
-  let folderPaneContext = about3Pane.document.getElementById(
-    "folderPaneContext"
-  );
+  let folderPaneContext =
+    about3Pane.document.getElementById("folderPaneContext");
   let folderPaneContextProperties = about3Pane.document.getElementById(
     "folderPaneContext-properties"
   );

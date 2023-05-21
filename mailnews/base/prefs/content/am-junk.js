@@ -19,8 +19,9 @@ function onInit(aPageId, aServerId) {
 
   let deferredToURI = null;
   if (gDeferredToAccount) {
-    deferredToURI = MailServices.accounts.getAccount(gDeferredToAccount)
-      .incomingServer.serverURI;
+    deferredToURI =
+      MailServices.accounts.getAccount(gDeferredToAccount).incomingServer
+        .serverURI;
   }
 
   let spamActionTargetAccountElement = document.getElementById(
@@ -37,18 +38,15 @@ function onInit(aPageId, aServerId) {
   let moveOnSpamValue = moveOnSpamCheckbox.checked;
 
   // Check if there are any invalid junk targets and fix them.
-  [
-    spamActionTargetAccount,
-    spamActionTargetFolder,
-    moveOnSpamValue,
-  ] = sanitizeJunkTargets(
-    spamActionTargetAccount,
-    spamActionTargetFolder,
-    deferredToURI || aServerId,
-    document.getElementById("server.moveTargetMode").value,
-    MailUtils.getOrCreateFolder(aServerId).server.spamSettings,
-    moveOnSpamValue
-  );
+  [spamActionTargetAccount, spamActionTargetFolder, moveOnSpamValue] =
+    sanitizeJunkTargets(
+      spamActionTargetAccount,
+      spamActionTargetFolder,
+      deferredToURI || aServerId,
+      document.getElementById("server.moveTargetMode").value,
+      MailUtils.getOrCreateFolder(aServerId).server.spamSettings,
+      moveOnSpamValue
+    );
 
   spamActionTargetAccountElement.value = spamActionTargetAccount;
   spamActionTargetFolderElement.value = spamActionTargetFolder;
@@ -169,9 +167,8 @@ function updateSpamLevel(aValue) {
  * our hidden wsm element.
  */
 function onServerFilterListChange() {
-  document.getElementById(
-    "server.serverFilterName"
-  ).value = document.getElementById("useServerFilterList").value;
+  document.getElementById("server.serverFilterName").value =
+    document.getElementById("useServerFilterList").value;
 }
 
 /**
@@ -202,9 +199,8 @@ function updateJunkTargetsAndRetention() {
   onCheckItem("server.moveTargetMode", ["server.moveOnSpam"]);
   updateJunkTargets();
   onCheckItem("server.purgeSpam", ["server.moveOnSpam"]);
-  document.getElementById("purgeLabel").disabled = document.getElementById(
-    "server.purgeSpam"
-  ).disabled;
+  document.getElementById("purgeLabel").disabled =
+    document.getElementById("server.purgeSpam").disabled;
   updateJunkRetention();
 }
 

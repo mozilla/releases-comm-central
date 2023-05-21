@@ -95,14 +95,10 @@ add_task(async function compaction_indexing_pass_all_pending_commit() {
  *  (Simulating the user quitting before all compactions have been processed.)
  */
 add_task(async function test_sweep_performs_compaction() {
-  let [
-    [folder],
-    moveSet,
-    staySet,
-  ] = await messageInjection.makeFoldersWithSets(1, [
-    { count: 1 },
-    { count: 1 },
-  ]);
+  let [[folder], moveSet, staySet] = await messageInjection.makeFoldersWithSets(
+    1,
+    [{ count: 1 }, { count: 1 }]
+  );
 
   await waitForGlodaIndexer();
   Assert.ok(
@@ -157,18 +153,13 @@ add_task(async function test_sweep_performs_compaction() {
  */
 add_task(
   async function test_moves_and_deletions_on_compacted_folder_edge_case() {
-    let [
-      [folder],
-      compactMoveSet,
-      moveSet,
-      delSet,
-      staySet,
-    ] = await messageInjection.makeFoldersWithSets(1, [
-      { count: 1 },
-      { count: 1 },
-      { count: 1 },
-      { count: 1 },
-    ]);
+    let [[folder], compactMoveSet, moveSet, delSet, staySet] =
+      await messageInjection.makeFoldersWithSets(1, [
+        { count: 1 },
+        { count: 1 },
+        { count: 1 },
+        { count: 1 },
+      ]);
 
     await waitForGlodaIndexer();
     Assert.ok(
@@ -252,10 +243,8 @@ add_task(
  */
 add_task(async function test_compaction_interrupting_indexing() {
   // Create a folder with a message inside.
-  let [
-    [folder],
-    compactionFodderSet,
-  ] = await messageInjection.makeFoldersWithSets(1, [{ count: 1 }]);
+  let [[folder], compactionFodderSet] =
+    await messageInjection.makeFoldersWithSets(1, [{ count: 1 }]);
 
   await waitForGlodaIndexer();
   Assert.ok(...assertExpectedMessagesIndexed([compactionFodderSet]));
@@ -359,16 +348,12 @@ async function compaction_indexing_pass(aParam) {
   // Create 5 messages.  We will move just the third message so the first two
   //  message keep their keys and the last two change.  (We want 2 for both
   //  cases to avoid edge cases.)
-  let [
-    [folder],
-    sameSet,
-    moveSet,
-    shiftSet,
-  ] = await messageInjection.makeFoldersWithSets(1, [
-    { count: 2 },
-    { count: 1 },
-    { count: 2 },
-  ]);
+  let [[folder], sameSet, moveSet, shiftSet] =
+    await messageInjection.makeFoldersWithSets(1, [
+      { count: 2 },
+      { count: 1 },
+      { count: 2 },
+    ]);
 
   await waitForGlodaIndexer();
   Assert.ok(

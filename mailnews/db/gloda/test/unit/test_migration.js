@@ -64,18 +64,13 @@ add_task(async function test_fix_missing_contacts_and_fallout() {
   // - Create messages of the genres [from, to]: [inAB, inAB], [inAB, !inAB],
   //    [!inAB, inAB], [!inAB, !inAB].  The permutations are black box overkill.
   // Smear the messages over multiple folders for realism.
-  let [
-    ,
-    yesyesMsgSet,
-    yesnoMsgSet,
-    noyesMsgSet,
-    nonoMsgSet,
-  ] = await messageInjection.makeFoldersWithSets(3, [
-    { count: 2, from: abPeeps[0], to: [abPeeps[1]] },
-    { count: 2, from: abPeeps[1], to: nonAbPeeps },
-    { count: 2, from: nonAbPeeps[0], to: abPeeps },
-    { count: 2, from: nonAbPeeps[1], to: [nonAbPeeps[0]] },
-  ]);
+  let [, yesyesMsgSet, yesnoMsgSet, noyesMsgSet, nonoMsgSet] =
+    await messageInjection.makeFoldersWithSets(3, [
+      { count: 2, from: abPeeps[0], to: [abPeeps[1]] },
+      { count: 2, from: abPeeps[1], to: nonAbPeeps },
+      { count: 2, from: nonAbPeeps[0], to: abPeeps },
+      { count: 2, from: nonAbPeeps[1], to: [nonAbPeeps[0]] },
+    ]);
 
   // Union the yeses together; we don't care about their composition.
   let yesMsgSet = yesyesMsgSet.union(yesnoMsgSet).union(noyesMsgSet),

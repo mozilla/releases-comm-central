@@ -561,8 +561,9 @@ class ImapClient {
     folderName = this._encodeMailboxName(folderName);
     let mailboxName = this._getServerFolderName(parent);
     if (mailboxName) {
-      let delimiter = parent.QueryInterface(Ci.nsIMsgImapMailFolder)
-        .hierarchyDelimiter;
+      let delimiter = parent.QueryInterface(
+        Ci.nsIMsgImapMailFolder
+      ).hierarchyDelimiter;
       // @see nsImapCore.h.
       const ONLINE_HIERARCHY_SEPARATOR_UNKNOWN = "^";
       if (!delimiter || delimiter == ONLINE_HIERARCHY_SEPARATOR_UNKNOWN) {
@@ -924,7 +925,8 @@ class ImapClient {
       return;
     }
     this.logout();
-    let secInfo = await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
+    let secInfo =
+      await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
       this.runningUrl.failedSecInfo = secInfo;
     }
@@ -1102,9 +1104,10 @@ class ImapClient {
     this._authenticating = true;
 
     this._currentAuthMethod = this._nextAuthMethod;
-    this._nextAuthMethod = this._possibleAuthMethods[
-      this._possibleAuthMethods.indexOf(this._currentAuthMethod) + 1
-    ];
+    this._nextAuthMethod =
+      this._possibleAuthMethods[
+        this._possibleAuthMethods.indexOf(this._currentAuthMethod) + 1
+      ];
 
     switch (this._currentAuthMethod) {
       case "OLDLOGIN":
@@ -1419,24 +1422,24 @@ class ImapClient {
    * @param {Function} actionAfterResponse - A callback after handling the response.
    * @param {ImapResponse} res - Response received from the server.
    */
-  _actionListResponse = (
-    actionAfterResponse = this._actionFinishFolderDiscovery
-  ) => res => {
-    if (!this._hasInbox) {
-      this._hasInbox = res.mailboxes.some(
-        mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_INBOX
-      );
-    }
-    for (let mailbox of res.mailboxes) {
-      this._serverSink.possibleImapMailbox(
-        mailbox.name.replaceAll(mailbox.delimiter, "/"),
-        mailbox.delimiter,
-        mailbox.flags
-      );
-    }
+  _actionListResponse =
+    (actionAfterResponse = this._actionFinishFolderDiscovery) =>
+    res => {
+      if (!this._hasInbox) {
+        this._hasInbox = res.mailboxes.some(
+          mailbox => mailbox.flags & ImapUtils.FLAG_IMAP_INBOX
+        );
+      }
+      for (let mailbox of res.mailboxes) {
+        this._serverSink.possibleImapMailbox(
+          mailbox.name.replaceAll(mailbox.delimiter, "/"),
+          mailbox.delimiter,
+          mailbox.flags
+        );
+      }
 
-    actionAfterResponse(res);
-  };
+      actionAfterResponse(res);
+    };
 
   /**
    * Send LIST command.

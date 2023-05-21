@@ -254,9 +254,8 @@ var FolderNotificationHelper = {
     let newURI = aNewFolder.URI;
     // fix up our listener tables.
     if (oldURI in this._pendingFolderUriToViewWrapperLists) {
-      this._pendingFolderUriToViewWrapperLists[
-        newURI
-      ] = this._pendingFolderUriToViewWrapperLists[oldURI];
+      this._pendingFolderUriToViewWrapperLists[newURI] =
+        this._pendingFolderUriToViewWrapperLists[oldURI];
       delete this._pendingFolderUriToViewWrapperLists[oldURI];
     }
     if (oldURI in this._interestedWrappers) {

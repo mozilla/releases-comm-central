@@ -44,9 +44,8 @@ export class VCardTZComponent extends HTMLElement {
           document.createElement("option")
         );
         option.value = tzid;
-        option.textContent = lazy.cal.timezoneService.getTimezone(
-          tzid
-        ).displayName;
+        option.textContent =
+          lazy.cal.timezoneService.getTimezone(tzid).displayName;
       }
 
       this.querySelector(".remove-property-button").addEventListener(

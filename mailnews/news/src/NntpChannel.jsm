@@ -285,11 +285,8 @@ class NntpChannel extends MailChannel {
     let inputStream = pipe.inputStream;
     let outputStream = pipe.outputStream;
     if (this._newsFolder) {
-      this._newsFolder.QueryInterface(
-        Ci.nsIMsgNewsFolder
-      ).saveArticleOffline = this._newsFolder.shouldStoreMsgOffline(
-        this._articleNumber
-      );
+      this._newsFolder.QueryInterface(Ci.nsIMsgNewsFolder).saveArticleOffline =
+        this._newsFolder.shouldStoreMsgOffline(this._articleNumber);
     }
 
     this._server.wrappedJSObject.withClient(client => {

@@ -510,11 +510,8 @@ add_task(async function test_real_folder_mail_views_custom_last_5_days() {
 add_task(async function test_real_folder_mail_views_custom_not_junk() {
   let viewWrapper = make_view_wrapper();
 
-  let [
-    [folder],
-    setJunk,
-    setNotJunk,
-  ] = await messageInjection.makeFoldersWithSets(1, [{}, {}]);
+  let [[folder], setJunk, setNotJunk] =
+    await messageInjection.makeFoldersWithSets(1, [{}, {}]);
   setJunk.setJunk(true);
   setNotJunk.setJunk(false);
 

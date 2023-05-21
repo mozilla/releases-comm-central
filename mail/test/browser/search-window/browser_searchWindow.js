@@ -166,8 +166,8 @@ add_task(async function test_open_single_search_result_in_tab() {
   swc.window.focus();
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
 
   // Select one message
   swc.window.document.getElementById("threadTree").focus();
@@ -196,8 +196,8 @@ add_task(async function test_open_multiple_search_results_in_new_tabs() {
   swc.window.focus();
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
 
   // Select a bunch of messages
   swc.window.document.getElementById("threadTree").focus();

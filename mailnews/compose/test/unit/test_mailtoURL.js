@@ -153,8 +153,7 @@ var tests = [
     newshost: "",
   },
   {
-    url:
-      "mailto:fivea@example.com?to=%3D%3FUTF-8%3FQ%3Ffiveb%3F%3D@example.com",
+    url: "mailto:fivea@example.com?to=%3D%3FUTF-8%3FQ%3Ffiveb%3F%3D@example.com",
     to: "fivea@example.com, fiveb@example.com",
     cc: "",
     bcc: "",
@@ -388,8 +387,7 @@ var tests = [
     newshost: "",
   },
   {
-    url:
-      "mailto:?html-part=html%20part&html-body=html-body%20trumps%20earlier%20html-part",
+    url: "mailto:?html-part=html%20part&html-body=html-body%20trumps%20earlier%20html-part",
     to: "",
     cc: "",
     bcc: "",
@@ -645,8 +643,7 @@ var tests = [
     newshost: "",
   },
   {
-    url:
-      "mailto:?reply-to=%3D%3FUTF-8%3FB%3Fw4VrZQ%3D%3D%3F%3D%20%3Cake@example.org%3E",
+    url: "mailto:?reply-to=%3D%3FUTF-8%3FB%3Fw4VrZQ%3D%3D%3F%3D%20%3Cake@example.org%3E",
     to: "",
     cc: "",
     bcc: "",
@@ -736,8 +733,7 @@ var tests = [
     newshost: "news.example.org",
   },
   {
-    url:
-      "mailto:?%74%4F=to&%73%55%62%4A%65%43%74=subject&%62%4F%64%59=body&%63%43=cc&%62%43%63=bcc",
+    url: "mailto:?%74%4F=to&%73%55%62%4A%65%43%74=subject&%62%4F%64%59=body&%63%43=cc&%62%43%63=bcc",
     to: "to",
     cc: "cc",
     bcc: "bcc",
@@ -755,8 +751,7 @@ var tests = [
     newshost: "",
   },
   {
-    url:
-      "mailto:to1?%74%4F=to2&to=to3&subject=&%73%55%62%4A%65%43%74=subject&%62%4F%64%59=line1&body=line2&%63%43=cc1&cc=cc2&%62%43%63=bcc1&bcc=bcc2",
+    url: "mailto:to1?%74%4F=to2&to=to3&subject=&%73%55%62%4A%65%43%74=subject&%62%4F%64%59=line1&body=line2&%63%43=cc1&cc=cc2&%62%43%63=bcc1&bcc=bcc2",
     to: "to1, to2, to3",
     cc: "cc1, cc2",
     bcc: "bcc1, bcc2",

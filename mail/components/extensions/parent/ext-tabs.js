@@ -567,9 +567,8 @@ this.tabs = class extends ExtensionAPIPersistent {
             // handlers are actually loaded into the tab (and change its url).
             // All other urls are forwarded to the external protocol handler and
             // do not change the current tab.
-            let isContentUrl = /((^blob:)|(^https:)|(^http:)|(^moz-extension:))/i.test(
-              url
-            );
+            let isContentUrl =
+              /((^blob:)|(^https:)|(^http:)|(^moz-extension:))/i.test(url);
             let isWebExtProtocolUrl =
               /((^ext\+[a-z]+:)|(^web\+[a-z]+:))/i.test(url) &&
               hasWebHandlerApp(uri.scheme);

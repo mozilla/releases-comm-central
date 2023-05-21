@@ -398,9 +398,10 @@ var SearchSupport = {
         value.status = reindexTime;
         searchTerm.value = value;
         searchTerms.push(searchTerm);
-        this._headerEnumerator = this._currentFolderToIndex.msgDatabase.getFilterEnumerator(
-          searchTerms
-        );
+        this._headerEnumerator =
+          this._currentFolderToIndex.msgDatabase.getFilterEnumerator(
+            searchTerms
+          );
       }
 
       // iterate over the folder finding the next message to index

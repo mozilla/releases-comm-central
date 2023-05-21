@@ -107,7 +107,8 @@ var uiListener = new (class extends EventEmitter {
       this.lastSelected.set(tab, folder);
       this.emit("folder-changed", tab, folder);
     } else if (event.type == "messageURIChanged") {
-      let messages = nativeTab.chromeBrowser.contentWindow.gDBView?.getSelectedMsgHdrs();
+      let messages =
+        nativeTab.chromeBrowser.contentWindow.gDBView?.getSelectedMsgHdrs();
       if (messages) {
         this.emit("messages-changed", tab, messages);
       }

@@ -322,7 +322,8 @@ imAccount.prototype = {
         // If the account was disconnected with an error, save the debug messages.
         this._omittedDebugMessagesBeforeError += this._omittedDebugMessages;
         if (this._debugMessagesBeforeError) {
-          this._omittedDebugMessagesBeforeError += this._debugMessagesBeforeError.length;
+          this._omittedDebugMessagesBeforeError +=
+            this._debugMessagesBeforeError.length;
         }
         this._debugMessagesBeforeError = this._debugMessages;
       } else {

@@ -114,9 +114,8 @@ var otrAuth = {
         let receivedQuestionLabel = document.getElementById(
           "receivedQuestionLabel"
         );
-        let receivedQuestionDisplay = document.getElementById(
-          "receivedQuestion"
-        );
+        let receivedQuestionDisplay =
+          document.getElementById("receivedQuestion");
         let responseLabel = document.getElementById("responseLabel");
         if (contactInfo.question) {
           receivedQuestionLabel.hidden = false;

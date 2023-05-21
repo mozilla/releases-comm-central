@@ -281,12 +281,11 @@ function enigmailKeyMenu() {
   document.getElementById("ctxRevokeKey").hidden =
     keyList.length != 1 || !gKeyList[keyList[0]].secretAvailable;
 
-  document.getElementById(
-    "importFromClipbrd"
-  ).disabled = !Services.clipboard.hasDataMatchingFlavors(
-    ["text/plain"],
-    Ci.nsIClipboard.kGlobalClipboard
-  );
+  document.getElementById("importFromClipbrd").disabled =
+    !Services.clipboard.hasDataMatchingFlavors(
+      ["text/plain"],
+      Ci.nsIClipboard.kGlobalClipboard
+    );
 
   for (let item of document.querySelectorAll(
     ".requires-single-key-selection"

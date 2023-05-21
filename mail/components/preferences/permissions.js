@@ -365,10 +365,10 @@ var gPermissionManager = {
       var p = removedPermissions[i];
       this._removePermission(p);
     }
-    document.getElementById("removePermission").disabled = !this._permissions
-      .length;
-    document.getElementById("removeAllPermissions").disabled = !this
-      ._permissions.length;
+    document.getElementById("removePermission").disabled =
+      !this._permissions.length;
+    document.getElementById("removeAllPermissions").disabled =
+      !this._permissions.length;
   },
 
   onAllPermissionsDeleted() {

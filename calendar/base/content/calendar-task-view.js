@@ -127,24 +127,21 @@ var taskDetailsView = {
           .getElementById("calendar-task-details-category-row")
           .toggleAttribute("hidden", categories.length == 0)
       ) {
-        document.getElementById("calendar-task-details-category").textContent = categories.join(
-          ", "
-        );
+        document.getElementById("calendar-task-details-category").textContent =
+          categories.join(", ");
       }
 
       let taskStartDate = item[cal.dtz.startDateProp(item)];
       if (taskStartDate) {
-        document.getElementById("task-start-date").textContent = cal.dtz.getStringForDateTime(
-          taskStartDate
-        );
+        document.getElementById("task-start-date").textContent =
+          cal.dtz.getStringForDateTime(taskStartDate);
       }
       document.getElementById("task-start-row").toggleAttribute("hidden", !taskStartDate);
 
       let taskDueDate = item[cal.dtz.endDateProp(item)];
       if (taskDueDate) {
-        document.getElementById("task-due-date").textContent = cal.dtz.getStringForDateTime(
-          taskDueDate
-        );
+        document.getElementById("task-due-date").textContent =
+          cal.dtz.getStringForDateTime(taskDueDate);
       }
       document.getElementById("task-due-row").toggleAttribute("hidden", !taskDueDate);
 

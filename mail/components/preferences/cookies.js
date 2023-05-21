@@ -885,9 +885,8 @@ var gCookiesWindow = {
     }
     this._lastSelectedRanges = [];
 
-    document.getElementById("cookiesIntro").value = this._bundle.getString(
-      "cookiesAll"
-    );
+    document.getElementById("cookiesIntro").value =
+      this._bundle.getString("cookiesAll");
   },
 
   _cookieMatchesFilter(aCookie) {
@@ -970,9 +969,8 @@ var gCookiesWindow = {
       view.selection.select(0);
     }
 
-    document.getElementById(
-      "cookiesIntro"
-    ).value = gCookiesWindow._bundle.getString("cookiesFiltered");
+    document.getElementById("cookiesIntro").value =
+      gCookiesWindow._bundle.getString("cookiesFiltered");
   },
 
   setFilter(aFilterString) {

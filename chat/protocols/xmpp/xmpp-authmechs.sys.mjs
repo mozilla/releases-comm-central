@@ -47,8 +47,7 @@ function* PlainAuth(aUsername, aPassword, aDomain) {
       { mechanism: "PLAIN" },
       base64Data
     ),
-    log:
-      '<auth mechanism:="PLAIN"/> (base64 encoded username and password not logged)',
+    log: '<auth mechanism:="PLAIN"/> (base64 encoded username and password not logged)',
   };
 
   if (stanza.localName != "success") {
@@ -58,8 +57,7 @@ function* PlainAuth(aUsername, aPassword, aDomain) {
 
 // Handle SCRAM-SHA-1 authorization mechanism.
 const RFC3454 = {
-  A1:
-    "\u0221|[\u0234-\u024f]|[\u02ae-\u02af]|[\u02ef-\u02ff]|\
+  A1: "\u0221|[\u0234-\u024f]|[\u02ae-\u02af]|[\u02ef-\u02ff]|\
 [\u0350-\u035f]|[\u0370-\u0373]|[\u0376-\u0379]|[\u037b-\u037d]|\
 [\u037f-\u0383]|\u038b|\u038d|\u03a2|\u03cf|[\u03f7-\u03ff]|\u0487|\
 \u04cf|[\u04f6-\u04f7]|[\u04fa-\u04ff]|[\u0510-\u0530]|\
@@ -142,17 +140,14 @@ const RFC3454 = {
 [\u{80000}-\u{8fffd}]|[\u{90000}-\u{9fffd}]|[\u{a0000}-\u{afffd}]|\
 [\u{b0000}-\u{bfffd}]|[\u{c0000}-\u{cfffd}]|[\u{d0000}-\u{dfffd}]|\
 \u{e0000}|[\u{e0002}-\u{e001f}]|[\u{e0080}-\u{efffd}]",
-  B1:
-    "\u00ad|\u034f|\u1806|[\u180b-\u180d]|[\u200b-\u200d]|\u2060|\
+  B1: "\u00ad|\u034f|\u1806|[\u180b-\u180d]|[\u200b-\u200d]|\u2060|\
 [\ufe00-\ufe0f]|\ufeff",
   C12: "\u00a0|\u1680|[\u2000-\u200b]|\u202f|\u205f|\u3000",
   C21: "[\u0000-\u001f]|\u007f",
-  C22:
-    "[\u0080-\u009f]|\u06dd|\u070f|\u180e|\u200c|\u200d|\u2028|\u2029|\
+  C22: "[\u0080-\u009f]|\u06dd|\u070f|\u180e|\u200c|\u200d|\u2028|\u2029|\
 [\u2060-\u2063]|[\u206a-\u206f]|\ufeff|[\ufff9-\ufffc]",
   C3: "[\ue000-\uf8ff]|[\u{f0000}-\u{ffffd}]|[\u{100000}-\u{10fffd}]",
-  C4:
-    "[\ufdd0-\ufdef]|[\ufffe-\uffff]|[\u{1fffe}-\u{1ffff}]|\
+  C4: "[\ufdd0-\ufdef]|[\ufffe-\uffff]|[\u{1fffe}-\u{1ffff}]|\
 [\u{2fffe}-\u{2ffff}]|[\u{3fffe}-\u{3ffff}]|[\u{4fffe}-\u{4ffff}]|\
 [\u{5fffe}-\u{5ffff}]|[\u{6fffe}-\u{6ffff}]|[\u{7fffe}-\u{7ffff}]|\
 [\u{8fffe}-\u{8ffff}]|[\u{9fffe}-\u{9ffff}]|[\u{afffe}-\u{affff}]|\
@@ -163,16 +158,14 @@ const RFC3454 = {
   C7: "[\u2ff0-\u2ffb]",
   C8: "\u0340|\u0341|\u200e|\u200f|[\u202a-\u202e]|[\u206a-\u206f]",
   C9: "\u{e0001}|[\u{e0020}-\u{e007f}]",
-  D1:
-    "\u05be|\u05c0|\u05c3|[\u05d0-\u05ea]|[\u05f0-\u05f4]|\u061b|\u061f|\
+  D1: "\u05be|\u05c0|\u05c3|[\u05d0-\u05ea]|[\u05f0-\u05f4]|\u061b|\u061f|\
 [\u0621-\u063a]|[\u0640-\u064a]|[\u066d-\u066f]|[\u0671-\u06d5]|\
 \u06dd|[\u06e5-\u06e6]|[\u06fa-\u06fe]|[\u0700-\u070d]|\u0710|\
 [\u0712-\u072c]|[\u0780-\u07a5]|\u07b1|\u200f|\ufb1d|[\ufb1f-\ufb28]|\
 [\ufb2a-\ufb36]|[\ufb38-\ufb3c]|\ufb3e|[\ufb40-\ufb41]|\
 [\ufb43-\ufb44]|[\ufb46-\ufbb1]|[\ufbd3-\ufd3d]|[\ufd50-\ufd8f]|\
 [\ufd92-\ufdc7]|[\ufdf0-\ufdfc]|[\ufe70-\ufe74]|[\ufe76-\ufefc]",
-  D2:
-    "[\u0041-\u005a]|[\u0061-\u007a]|\u00aa|\u00b5|\u00ba|[\u00c0-\u00d6]|\
+  D2: "[\u0041-\u005a]|[\u0061-\u007a]|\u00aa|\u00b5|\u00ba|[\u00c0-\u00d6]|\
 [\u00d8-\u00f6]|[\u00f8-\u0220]|[\u0222-\u0233]|[\u0250-\u02ad]|\
 [\u02b0-\u02b8]|[\u02bb-\u02c1]|[\u02d0-\u02d1]|[\u02e0-\u02e4]|\
 \u02ee|\u037a|\u0386|[\u0388-\u038a]|\u038c|[\u038e-\u03a1]|\
@@ -533,8 +526,7 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
           null,
           btoa(clientFinalMessage)
         ),
-        log:
-          "<response/> (base64 encoded SCRAM response containing password not logged)",
+        log: "<response/> (base64 encoded SCRAM response containing password not logged)",
       };
     })();
 

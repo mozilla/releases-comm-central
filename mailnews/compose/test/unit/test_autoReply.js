@@ -34,9 +34,8 @@ var gServer;
 
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
-  gTemplateFolder = localAccountUtils.rootFolder.createLocalSubfolder(
-    "Templates"
-  );
+  gTemplateFolder =
+    localAccountUtils.rootFolder.createLocalSubfolder("Templates");
 
   gServer = setupServerDaemon();
   gServer.start();

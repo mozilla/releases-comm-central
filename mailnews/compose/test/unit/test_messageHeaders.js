@@ -149,8 +149,7 @@ async function testI18NEnvelope() {
   fields.subject = "Ceci n'est pas un référence obscure";
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
-    From:
-      "=?UTF-8?B?44Kx44OE44Kh44Or44Kz44Ki44OI44Or?= <from@tinderbox.invalid>",
+    From: "=?UTF-8?B?44Kx44OE44Kh44Or44Kz44Ki44OI44Or?= <from@tinderbox.invalid>",
     Organization: "=?UTF-8?Q?Comit=C3=A9_de_la_destruction_du_monde?=",
     To: "=?UTF-8?B?w4ltaWxl?= <nobody@tinderbox.invalid>",
     Cc: "=?UTF-8?Q?Andr=C3=A9_Chopin?= <alex@tinderbox.invalid>",

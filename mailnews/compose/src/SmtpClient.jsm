@@ -447,7 +447,8 @@ class SmtpClient {
     let secInfo = null;
     if (TCPSocketErrorEvent.isInstance(e)) {
       nsError = e.errorCode;
-      secInfo = await e.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
+      secInfo =
+        await e.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     }
     // Use nsresult to integrate with other parts of sending process, e.g.
     // MessageSend.jsm will show an error message depending on the nsresult.
@@ -631,9 +632,10 @@ class SmtpClient {
     this._authenticating = true;
 
     this._currentAuthMethod = this._nextAuthMethod;
-    this._nextAuthMethod = this._possibleAuthMethods[
-      this._possibleAuthMethods.indexOf(this._currentAuthMethod) + 1
-    ];
+    this._nextAuthMethod =
+      this._possibleAuthMethods[
+        this._possibleAuthMethods.indexOf(this._currentAuthMethod) + 1
+      ];
     this.logger.debug(`Current auth method: ${this._currentAuthMethod}`);
 
     switch (this._currentAuthMethod) {

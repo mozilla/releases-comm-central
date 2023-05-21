@@ -81,9 +81,8 @@ function initDialog() {
   }
 
   if (AppConstants.MOZ_APP_NAME == "thunderbird") {
-    document.getElementById(
-      "showTitlebar"
-    ).checked = !Services.prefs.getBoolPref("mail.tabs.drawInTitlebar");
+    document.getElementById("showTitlebar").checked =
+      !Services.prefs.getBoolPref("mail.tabs.drawInTitlebar");
     if (
       window.opener &&
       window.opener.document.documentElement.getAttribute("windowtype") ==

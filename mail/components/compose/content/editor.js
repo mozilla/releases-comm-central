@@ -175,8 +175,8 @@ var gEditorDocumentObserver = {
           window.InsertCharWindow = null;
         }
 
-        let domWindowUtils = GetCurrentEditorElement().contentWindow
-          .windowUtils;
+        let domWindowUtils =
+          GetCurrentEditorElement().contentWindow.windowUtils;
         // And extra styles for showing anchors, table borders, smileys, etc.
         domWindowUtils.loadSheetUsingURIString(
           kNormalStyleSheet,
@@ -237,7 +237,8 @@ function EditorLoadUrl(url) {
     if (url) {
       let loadURIOptions = {
         loadFlags: Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE,
-        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+        triggeringPrincipal:
+          Services.scriptSecurityManager.getSystemPrincipal(),
       };
       GetCurrentEditorElement().webNavigation.fixupAndLoadURIString(
         url,

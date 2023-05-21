@@ -1687,9 +1687,8 @@
      *   selected addresses should be appended.
      */
     createDNDPills(addressContainer, appendStart, targetAddress) {
-      let existingPills = addressContainer.querySelectorAll(
-        "mail-address-pill"
-      );
+      let existingPills =
+        addressContainer.querySelectorAll("mail-address-pill");
       let existingAddresses = [...existingPills].map(pill => pill.fullAddress);
       let selectedAddresses = [...this.getAllSelectedPills()].map(
         pill => pill.fullAddress

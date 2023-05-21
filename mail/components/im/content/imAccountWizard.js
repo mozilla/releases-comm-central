@@ -295,11 +295,8 @@ var accountWizard = {
     document.getElementById("protoSpecificGroupbox").hidden = !haveOptions;
     if (haveOptions) {
       var bundle = document.getElementById("accountsBundle");
-      document.getElementById(
-        "protoSpecificCaption"
-      ).textContent = bundle.getFormattedString("protoOptions", [
-        this.proto.name,
-      ]);
+      document.getElementById("protoSpecificCaption").textContent =
+        bundle.getFormattedString("protoOptions", [this.proto.name]);
     }
   },
 

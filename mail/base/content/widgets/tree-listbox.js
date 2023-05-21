@@ -277,9 +277,9 @@
           return;
         }
         // Find the closest ancestor that is still shown.
-        let existingAncestor = oldRowsData[
-          oldSelectedIndex
-        ].ancestors.find(row => newRows.includes(row));
+        let existingAncestor = oldRowsData[oldSelectedIndex].ancestors.find(
+          row => newRows.includes(row)
+        );
         if (existingAncestor) {
           // We search as if the existingAncestor is the full list. This keeps
           // the selection within the ancestor, or moves it to the ancestor if
@@ -704,10 +704,8 @@
         this.insertBefore(row, otherRow);
       } else {
         if (!reducedMotion) {
-          let {
-            top: otherTop,
-            height: otherHeight,
-          } = otherRow.getBoundingClientRect();
+          let { top: otherTop, height: otherHeight } =
+            otherRow.getBoundingClientRect();
           let { top: rowTop, height: rowHeight } = row.getBoundingClientRect();
           OrderableTreeListbox._animateTranslation(otherRow, rowHeight);
           OrderableTreeListbox._animateTranslation(

@@ -326,9 +326,8 @@ async function processFolderForJunk(aAll) {
     return;
   }
 
-  let tmpMsgHdr = MailServices.messageServiceFromURI(
-    tmpMsgURI
-  ).messageURIToMsgHdr(tmpMsgURI);
+  let tmpMsgHdr =
+    MailServices.messageServiceFromURI(tmpMsgURI).messageURIToMsgHdr(tmpMsgURI);
   let spamSettings = tmpMsgHdr.folder.server.spamSettings;
 
   // create a classifier instance to classify messages in the folder.
@@ -338,9 +337,8 @@ async function processFolderForJunk(aAll) {
     let index = aAll ? i : indices[i];
     try {
       let msgURI = gDBView.getURIForViewIndex(index);
-      let msgHdr = MailServices.messageServiceFromURI(
-        msgURI
-      ).messageURIToMsgHdr(msgURI);
+      let msgHdr =
+        MailServices.messageServiceFromURI(msgURI).messageURIToMsgHdr(msgURI);
       msgClassifier.analyzeMessage(msgHdr, spamSettings);
     } catch (ex) {
       // blow off errors here - dummy headers will fail
@@ -411,9 +409,10 @@ function deleteJunkInFolder() {
     } catch (ex) {
       continue; // blow off errors for dummy rows
     }
-    let msgHdr = MailServices.messageServiceFromURI(
-      messageUri
-    ).messageURIToMsgHdr(messageUri);
+    let msgHdr =
+      MailServices.messageServiceFromURI(messageUri).messageURIToMsgHdr(
+        messageUri
+      );
     let junkScore = msgHdr.getStringProperty("junkscore");
     var isJunk = junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
     // if the message is junk, select it.

@@ -594,9 +594,8 @@ ircChannel.prototype = {
 
         this.writeMessage(aSetter, msg, { system: true });
         // Store the new fields for reconnect.
-        this.chatRoomFields = this._account.getChatRoomDefaultFieldValues(
-          newFields
-        );
+        this.chatRoomFields =
+          this._account.getChatRoomDefaultFieldValues(newFields);
       } else if (aNewMode[i] == "b") {
         // A banmask was added or removed.
         let banMask = getNextParam();
@@ -861,7 +860,7 @@ ircSocket.prototype = {
     // Low level dequote: replace quote character \020 followed by 0, n, r or
     // \020 with a \0, \n, \r or \020, respectively. Any other character is
     // replaced with itself.
-    const lowDequote = { "0": "\0", n: "\n", r: "\r", "\x10": "\x10" };
+    const lowDequote = { 0: "\0", n: "\n", r: "\r", "\x10": "\x10" };
     let dequotedMessage = aRawMessage.replace(
       // eslint-disable-next-line no-control-regex
       /\x10./g,

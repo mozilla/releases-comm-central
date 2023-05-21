@@ -51,9 +51,8 @@ DevToolsStartup.prototype = {
     });
 
     // Make sure our root actor is always registered, no matter how devtools are called.
-    let devtoolsRegisterActors = DevToolsServer.registerActors.bind(
-      DevToolsServer
-    );
+    let devtoolsRegisterActors =
+      DevToolsServer.registerActors.bind(DevToolsServer);
     DevToolsServer.registerActors = function (options) {
       devtoolsRegisterActors(options);
       if (options.root) {

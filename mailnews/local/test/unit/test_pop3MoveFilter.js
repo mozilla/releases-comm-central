@@ -115,9 +115,8 @@ function setup_store(storeID) {
       localAccountUtils.loadLocalMailAccount();
     }
 
-    gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder(
-      "MoveFolder"
-    );
+    gMoveFolder =
+      localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
   };
 }
 

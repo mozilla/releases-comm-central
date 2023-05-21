@@ -134,11 +134,10 @@ var gSmtpServerListWindow = {
       aServer.port || noneSelected;
     document.getElementById("userNameValue").textContent =
       aServer.username || noneSelected;
-    document.getElementById(
-      "useSecureConnectionValue"
-    ).textContent = this.mBundle.getString(
-      "smtpServer-ConnectionSecurityType-" + aServer.socketType
-    );
+    document.getElementById("useSecureConnectionValue").textContent =
+      this.mBundle.getString(
+        "smtpServer-ConnectionSecurityType-" + aServer.socketType
+      );
 
     const AuthMethod = Ci.nsMsgAuthMethod;
     const SocketType = Ci.nsMsgSocketType;

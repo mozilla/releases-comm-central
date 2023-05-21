@@ -101,9 +101,8 @@ var sendLaterModule = {
     process.groupingStyle = Ci.nsIActivity.GROUPING_STYLE_BYCONTEXT;
     process.contextObj = this;
     process.contextType = "SendLater";
-    process.contextDisplayText = this.bundle.GetStringFromName(
-      "sendingMessages"
-    );
+    process.contextDisplayText =
+      this.bundle.GetStringFromName("sendingMessages");
 
     return process;
   },

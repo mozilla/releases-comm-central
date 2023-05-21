@@ -118,13 +118,9 @@ class ThunderbirdProfileMigrator {
     let filePicker = Cc["@mozilla.org/filepicker;1"].createInstance(
       Ci.nsIFilePicker
     );
-    let [
-      filePickerTitleZip,
-      filePickerTitleDir,
-    ] = await lazy.l10n.formatValues([
-      "import-select-profile-zip",
-      "import-select-profile-dir",
-    ]);
+    let [filePickerTitleZip, filePickerTitleDir] = await lazy.l10n.formatValues(
+      ["import-select-profile-zip", "import-select-profile-dir"]
+    );
     switch (type) {
       case "zip":
         filePicker.init(window, filePickerTitleZip, filePicker.modeOpen);

@@ -41,8 +41,7 @@ add_setup(async function () {
       to: "workers@springfield.invalid",
       subject: "no matching identity, like bcc/list",
       body: {
-        body:
-          "Alcohol is a way of life, alcohol is my way of life, and I aim to keep it.",
+        body: "Alcohol is a way of life, alcohol is my way of life, and I aim to keep it.",
       },
       clobberHeaders: {},
     })

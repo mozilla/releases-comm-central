@@ -1188,12 +1188,12 @@
           // it ends with a '*', then the string is an extended-value, which means
           // that its value may be %-encoded.
           if (doRFC2231 && name.endsWith("*")) {
-            token = token.replace(/%([0-9A-Fa-f]{2})/g, function (
-              match,
-              hexchars
-            ) {
-              return String.fromCharCode(parseInt(hexchars, 16));
-            });
+            token = token.replace(
+              /%([0-9A-Fa-f]{2})/g,
+              function (match, hexchars) {
+                return String.fromCharCode(parseInt(hexchars, 16));
+              }
+            );
           }
           matches.push([name, token]);
           // Clear the name, so we ignore anything afterwards.

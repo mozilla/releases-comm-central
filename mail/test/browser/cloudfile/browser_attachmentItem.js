@@ -9,20 +9,10 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var {
-  gMockFilePicker,
-  gMockFilePickReg,
-  select_attachments,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
-);
-var {
-  getFile,
-  gMockCloudfileManager,
-  MockCloudfileAccount,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
-);
+var { gMockFilePicker, gMockFilePickReg, select_attachments } =
+  ChromeUtils.import("resource://testing-common/mozmill/AttachmentHelpers.jsm");
+var { getFile, gMockCloudfileManager, MockCloudfileAccount } =
+  ChromeUtils.import("resource://testing-common/mozmill/CloudfileHelpers.jsm");
 var {
   add_cloud_attachments,
   convert_selected_to_cloud_attachment,
@@ -219,9 +209,8 @@ async function assert_can_cancel_upload(
   Assert.ok(!cmd.hidden, "cmd_cancelUpload should be shown");
   Assert.ok(!cmd.disabled, "cmd_cancelUpload should be enabled");
 
-  let attachmentItem = aController.window.document.getElementById(
-    "attachmentBucket"
-  ).selectedItem;
+  let attachmentItem =
+    aController.window.document.getElementById("attachmentBucket").selectedItem;
   let contextMenu = aController.window.document.getElementById(
     "msgComposeAttachmentItemContext"
   );

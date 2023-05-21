@@ -895,8 +895,8 @@ FolderDisplayWidget.prototype = {
     let passwordPromptRequired = false;
 
     if (Services.prefs.getBoolPref("mail.password_protect_local_cache")) {
-      passwordPromptRequired = this.view.displayedFolder.server
-        .passwordPromptRequired;
+      passwordPromptRequired =
+        this.view.displayedFolder.server.passwordPromptRequired;
     }
 
     return passwordPromptRequired;
@@ -1033,9 +1033,8 @@ FolderDisplayWidget.prototype = {
    *  that case.
    */
   onLoadingFolder(aDbFolderInfo) {
-    this._savedColumnStates = this._depersistColumnStatesFromDbFolderInfo(
-      aDbFolderInfo
-    );
+    this._savedColumnStates =
+      this._depersistColumnStatesFromDbFolderInfo(aDbFolderInfo);
 
     FolderDisplayListenerManager._fireListeners("onLoadingFolder", [
       this,
@@ -1750,8 +1749,8 @@ FolderDisplayWidget.prototype = {
 
     // - (everything after this point doesn't care that we are marked inactive)
     // save the folder pane's state always
-    this._folderPaneVisible = !document.getElementById("folderPaneBox")
-      .collapsed;
+    this._folderPaneVisible =
+      !document.getElementById("folderPaneBox").collapsed;
 
     if (this.view.dbView) {
       if (this.tree) {
@@ -2694,15 +2693,15 @@ function UpdateStatusQuota(folder) {
       document.getElementById("quotaPanel").hidden = false;
       document.getElementById("quotaMeter").setAttribute("value", percent);
       var bundle = document.getElementById("bundle_messenger");
-      document.getElementById(
-        "quotaLabel"
-      ).value = bundle.getFormattedString("percent", [percent]);
-      document.getElementById(
-        "quotaLabel"
-      ).tooltipText = bundle.getFormattedString("quotaTooltip2", [
-        highest.usage,
-        highest.limit,
-      ]);
+      document.getElementById("quotaLabel").value = bundle.getFormattedString(
+        "percent",
+        [percent]
+      );
+      document.getElementById("quotaLabel").tooltipText =
+        bundle.getFormattedString("quotaTooltip2", [
+          highest.usage,
+          highest.limit,
+        ]);
       let quotaPanel = document.getElementById("quotaPanel");
       if (
         percent <

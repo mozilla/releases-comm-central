@@ -109,7 +109,7 @@ export var ircServices = {
       return false;
     },
 
-    "421": function (aMessage) {
+    421(aMessage) {
       // ERR_UNKNOWNCOMMAND
       // <command> :Unknown command
       // IDENTIFY failed, try NICKSERV IDENTIFY.

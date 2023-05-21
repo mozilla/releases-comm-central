@@ -904,9 +904,8 @@ export var Policies = {
       if ("schemes" in param) {
         for (let scheme in param.schemes) {
           let handlerInfo = param.schemes[scheme];
-          let realHandlerInfo = lazy.gExternalProtocolService.getProtocolHandlerInfo(
-            scheme
-          );
+          let realHandlerInfo =
+            lazy.gExternalProtocolService.getProtocolHandlerInfo(scheme);
           processMIMEInfo(handlerInfo, realHandlerInfo);
         }
       }

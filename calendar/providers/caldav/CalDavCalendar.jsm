@@ -1633,12 +1633,9 @@ CalDavCalendar.prototype = {
           // Don't clear this.readOnly, only set it. The user may have write
           // privileges but not want to use them.
           if (!this.readOnly && privs && privs instanceof Set) {
-            this.readOnly = ![
-              "D:write",
-              "D:write-content",
-              "D:write-properties",
-              "D:all",
-            ].some(priv => privs.has(priv));
+            this.readOnly = !["D:write", "D:write-content", "D:write-properties", "D:all"].some(
+              priv => privs.has(priv)
+            );
           }
 
           this.setCalHomeSet(true);

@@ -196,9 +196,8 @@ this.browserAction = class extends ToolbarButtonAPI {
     this.toolboxId = "mail-toolbox";
     this.toolbarId = "mail-bar3";
 
-    this.allowedSpaces = this.extension.manifest[
-      this.manifest_name
-    ].allowed_spaces;
+    this.allowedSpaces =
+      this.extension.manifest[this.manifest_name].allowed_spaces;
 
     windowTracker.addListener("TabSelect", this);
   }

@@ -283,9 +283,8 @@ ContactIdentityCompleter.prototype = {
       // the set of identities owned by the contacts is automatically loaded as part
       //  of the contact loading...
       // (but only if we actually have any contacts)
-      this.identityCollection = this.contactCollection.subCollections[
-        GlodaConstants.NOUN_IDENTITY
-      ];
+      this.identityCollection =
+        this.contactCollection.subCollections[GlodaConstants.NOUN_IDENTITY];
 
       let contactNames = this.contactCollection.items.map(
         c => c.name.replace(" ", "").toLowerCase() || "x"

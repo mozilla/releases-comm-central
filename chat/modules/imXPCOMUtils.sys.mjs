@@ -125,9 +125,8 @@ XPCOMUtils.defineLazyGetter(lazy, "gLogLevels", function () {
   // Initialize with existing log level prefs.
   for (let pref of Services.prefs.getChildList(kLogLevelPref)) {
     if (Services.prefs.getPrefType(pref) == Services.prefs.PREF_INT) {
-      logLevels[
-        "level" + pref.substr(kLogLevelPref.length)
-      ] = Services.prefs.getIntPref(pref);
+      logLevels["level" + pref.substr(kLogLevelPref.length)] =
+        Services.prefs.getIntPref(pref);
     }
   }
 

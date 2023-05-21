@@ -28,9 +28,8 @@ class BaseMessageService {
 
   copyMessage(messageUri, copyListener, moveMessage, urlListener, msgWindow) {
     this._logger.debug("copyMessage", messageUri, moveMessage);
-    let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
-      messageUri
-    );
+    let { serverURI, folder, folderName, key } =
+      this._decomposeMessageUri(messageUri);
     let imapUrl = Services.io
       .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
@@ -64,9 +63,8 @@ class BaseMessageService {
     autodetectCharset
   ) {
     this._logger.debug("loadMessage", messageUri);
-    let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
-      messageUri
-    );
+    let { serverURI, folder, folderName, key } =
+      this._decomposeMessageUri(messageUri);
     let imapUrl = Services.io
       .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
@@ -99,9 +97,8 @@ class BaseMessageService {
     msgWindow
   ) {
     this._logger.debug("SaveMessageToDisk", messageUri);
-    let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
-      messageUri
-    );
+    let { serverURI, folder, folderName, key } =
+      this._decomposeMessageUri(messageUri);
     let imapUrl = Services.io
       .newURI(`${serverURI}/fetch>UID>/${folderName}>${key}`)
       .QueryInterface(Ci.nsIImapUrl);
@@ -132,9 +129,8 @@ class BaseMessageService {
       return Services.io.newURI(messageUri);
     }
 
-    let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
-      messageUri
-    );
+    let { serverURI, folder, folderName, key } =
+      this._decomposeMessageUri(messageUri);
     let delimiter =
       folder.QueryInterface(Ci.nsIMsgImapMailFolder).hierarchyDelimiter || "/";
     let imapUrl = Services.io
@@ -156,9 +152,8 @@ class BaseMessageService {
     localOnly
   ) {
     this._logger.debug("streamMessage", messageUri);
-    let { serverURI, folder, folderName, key } = this._decomposeMessageUri(
-      messageUri
-    );
+    let { serverURI, folder, folderName, key } =
+      this._decomposeMessageUri(messageUri);
     let url = `${serverURI}/fetch>UID>/${folderName}>${key}`;
     if (additionalHeader) {
       url += `?header=${additionalHeader}`;

@@ -110,7 +110,8 @@ var RNPLibLoader = {
       return dummyRNPLib;
     }
 
-    const rnp_version_str = RNPLib.rnp_version_string_full().readStringReplaceMalformed();
+    const rnp_version_str =
+      RNPLib.rnp_version_string_full().readStringReplaceMalformed();
     RNPLib.loadedVersion = rnp_version_str;
     RNPLib.expectedVersion = required_version_str;
 

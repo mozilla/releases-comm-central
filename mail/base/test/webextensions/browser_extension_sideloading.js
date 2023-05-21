@@ -25,7 +25,7 @@ async function createWebExtension(details) {
   };
 
   if (details.iconURL) {
-    options.manifest.icons = { "64": details.iconURL };
+    options.manifest.icons = { 64: details.iconURL };
   }
 
   let xpi = AddonTestUtils.createTempWebExtensionFile(options);

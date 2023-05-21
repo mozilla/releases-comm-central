@@ -280,7 +280,8 @@
         }
       );
       this.loadURI(Services.io.newURI("chrome://chat/content/conv.html"), {
-        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+        triggeringPrincipal:
+          Services.scriptSecurityManager.getSystemPrincipal(),
       });
     }
 

@@ -500,14 +500,12 @@ function enableSigningControls(do_enable) {
 
 function enableSelectButtons() {
   gSignCertName.disabled = !gSignCertName.value;
-  document.getElementById(
-    "signingCertClearButton"
-  ).disabled = !gSignCertName.value;
+  document.getElementById("signingCertClearButton").disabled =
+    !gSignCertName.value;
 
   gEncryptionCertName.disabled = !gEncryptionCertName.value;
-  document.getElementById(
-    "encryptionCertClearButton"
-  ).disabled = !gEncryptionCertName.value;
+  document.getElementById("encryptionCertClearButton").disabled =
+    !gEncryptionCertName.value;
 }
 
 function smimeClearCert(smime_cert) {

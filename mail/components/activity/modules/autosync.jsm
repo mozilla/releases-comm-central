@@ -110,8 +110,9 @@ var autosyncModule = {
       ]);
 
       let statusMsg;
-      let numOfMessages = this._syncInfoPerServer.get(folder.server)
-        .totalDownloads;
+      let numOfMessages = this._syncInfoPerServer.get(
+        folder.server
+      ).totalDownloads;
       if (numOfMessages) {
         statusMsg = this.bundle.formatStringFromName(
           "autosyncEventStatusText",

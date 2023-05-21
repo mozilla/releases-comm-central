@@ -16,11 +16,8 @@ var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
 
-var {
-  open_compose_new_mail,
-  close_compose_window,
-  add_attachments,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { open_compose_new_mail, close_compose_window, add_attachments } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   add_message_to_folder,
   be_in_folder,
@@ -283,8 +280,9 @@ add_task(async function test_message_drag() {
     "message"
   );
 
-  let attachment = cwc.window.document.getElementById("attachmentBucket")
-    .childNodes[0].attachment;
+  let attachment =
+    cwc.window.document.getElementById("attachmentBucket").childNodes[0]
+      .attachment;
   Assert.equal(
     attachment.name,
     "Dragons don't drop from the sky.eml",
@@ -317,8 +315,9 @@ add_task(async function test_link_drag() {
     "link"
   );
 
-  let attachment = cwc.window.document.getElementById("attachmentBucket")
-    .childNodes[0].attachment;
+  let attachment =
+    cwc.window.document.getElementById("attachmentBucket").childNodes[0]
+      .attachment;
   Assert.equal(
     attachment.name,
     "Example website",
@@ -520,9 +519,8 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
   // Add attachments (via mocked file picker).
   await ctrlSrc.window.AttachFile();
 
-  let srcAttachmentArea = ctrlSrc.window.document.getElementById(
-    "attachmentArea"
-  );
+  let srcAttachmentArea =
+    ctrlSrc.window.document.getElementById("attachmentArea");
 
   // Wait for attachment area to be visible and open in response.
   await TestUtils.waitForCondition(
@@ -565,9 +563,8 @@ add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
   // Add cloudFile attachments (via mocked file picker).
   await ctrlSrc.window.attachToCloudNew(gCloudFileAccount);
 
-  let srcAttachmentArea = ctrlSrc.window.document.getElementById(
-    "attachmentArea"
-  );
+  let srcAttachmentArea =
+    ctrlSrc.window.document.getElementById("attachmentArea");
 
   // Wait for attachment area to be visible and open in response.
   await TestUtils.waitForCondition(
@@ -623,9 +620,8 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
   await be_in_folder(folder);
   select_click_row(0);
   let aboutMessage = get_about_message();
-  let srcAttachmentArea = aboutMessage.document.getElementById(
-    "attachmentView"
-  );
+  let srcAttachmentArea =
+    aboutMessage.document.getElementById("attachmentView");
   Assert.ok(!srcAttachmentArea.collapsed, "Attachment area is visible");
 
   let srcBucket = aboutMessage.document.getElementById("attachmentList");

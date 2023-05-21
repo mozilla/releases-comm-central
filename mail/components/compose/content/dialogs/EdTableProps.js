@@ -153,9 +153,8 @@ function Startup() {
   gDialog.CellTab = document.getElementById("CellTab");
   gDialog.AdvancedEditCell = document.getElementById("AdvancedEditButton2");
   // Save "normal" tooltip message for Advanced Edit button
-  gDialog.AdvancedEditCellToolTipText = gDialog.AdvancedEditCell.getAttribute(
-    "tooltiptext"
-  );
+  gDialog.AdvancedEditCellToolTipText =
+    gDialog.AdvancedEditCell.getAttribute("tooltiptext");
 
   try {
     gTableElement = gActiveEditor.getElementOrParentByTagName("table", null);

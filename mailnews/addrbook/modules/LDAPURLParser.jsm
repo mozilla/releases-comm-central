@@ -13,9 +13,8 @@ class LDAPURLParser {
   parse(spec) {
     // The url is in the form of scheme://hostport/dn?attributes?scope?filter,
     // see RFC2255.
-    let matches = /^(ldaps?):\/\/\[?([^\s\]/]+)\]?:?(\d*)\/([^\s?]*)\??(.*)$/.exec(
-      spec
-    );
+    let matches =
+      /^(ldaps?):\/\/\[?([^\s\]/]+)\]?:?(\d*)\/([^\s?]*)\??(.*)$/.exec(spec);
     if (!matches) {
       throw Components.Exception(
         `Invalid LDAP URL: ${spec}`,

@@ -276,15 +276,12 @@ async function ComposeMessage(
           if (
             /^(.*[._-])?(do[._-]?not|no)[._-]?reply([._-].*)?@/i.test(email)
           ) {
-            let [
-              title,
-              message,
-              replyAnywayButton,
-            ] = await document.l10n.formatValues([
-              { id: "no-reply-title" },
-              { id: "no-reply-message", args: { email } },
-              { id: "no-reply-reply-anyway-button" },
-            ]);
+            let [title, message, replyAnywayButton] =
+              await document.l10n.formatValues([
+                { id: "no-reply-title" },
+                { id: "no-reply-message", args: { email } },
+                { id: "no-reply-reply-anyway-button" },
+              ]);
 
             let buttonFlags =
               Ci.nsIPrompt.BUTTON_TITLE_IS_STRING * Ci.nsIPrompt.BUTTON_POS_0 +
@@ -372,23 +369,25 @@ async function ComposeMessage(
                 if (identity.catchAll && matchingHint) {
                   // If name is not set in matchingHint, search trough other hints.
                   if (matchingHint.email && !matchingHint.name) {
-                    let hints = MailServices.headerParser.makeFromDisplayAddress(
-                      hdr.recipients +
-                        "," +
-                        hdr.ccList +
-                        "," +
-                        collectedHeaderAddresses
-                    );
+                    let hints =
+                      MailServices.headerParser.makeFromDisplayAddress(
+                        hdr.recipients +
+                          "," +
+                          hdr.ccList +
+                          "," +
+                          collectedHeaderAddresses
+                      );
                     for (let hint of hints) {
                       if (
                         hint.name &&
                         hint.email.toLowerCase() ==
                           matchingHint.email.toLowerCase()
                       ) {
-                        matchingHint = MailServices.headerParser.makeMailboxObject(
-                          hint.name,
-                          matchingHint.email
-                        );
+                        matchingHint =
+                          MailServices.headerParser.makeMailboxObject(
+                            hint.name,
+                            matchingHint.email
+                          );
                         break;
                       }
                     }
@@ -489,9 +488,8 @@ function SaveAsFile(uris) {
   let filenames = [];
 
   for (let uri of uris) {
-    let msgHdr = MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(
-      uri
-    );
+    let msgHdr =
+      MailServices.messageServiceFromURI(uri).messageURIToMsgHdr(uri);
     let nameBase = GenerateFilenameFromMsgHdr(msgHdr);
     let name = GenerateValidFilename(nameBase, ".eml");
 

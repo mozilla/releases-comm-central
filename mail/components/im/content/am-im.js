@@ -81,16 +81,13 @@ var account = {
     if (ChatEncryption.canConfigureEncryption(this.account.protocol)) {
       document.getElementById("imTabEncryption").hidden = false;
       document.querySelector(".otr-settings").hidden = !OTRUI.enabled;
-      document.getElementById(
-        "server.otrAllowMsgLog"
-      ).value = this.account.otrAllowMsgLog;
+      document.getElementById("server.otrAllowMsgLog").value =
+        this.account.otrAllowMsgLog;
       if (OTRUI.enabled) {
-        document.getElementById(
-          "server.otrVerifyNudge"
-        ).value = this.account.otrVerifyNudge;
-        document.getElementById(
-          "server.otrRequireEncryption"
-        ).value = this.account.otrRequireEncryption;
+        document.getElementById("server.otrVerifyNudge").value =
+          this.account.otrVerifyNudge;
+        document.getElementById("server.otrRequireEncryption").value =
+          this.account.otrRequireEncryption;
 
         let fpa = this.account.normalizedName;
         let fpp = this.account.protocol.normalizedName;
@@ -100,8 +97,8 @@ var account = {
         }
         document.getElementById("otrFingerprint").value = fp;
       }
-      document.querySelector(".chat-encryption-settings").hidden = !this.account
-        .protocol.canEncrypt;
+      document.querySelector(".chat-encryption-settings").hidden =
+        !this.account.protocol.canEncrypt;
       if (this.account.protocol.canEncrypt) {
         document.l10n.setAttributes(
           document.getElementById("chat-encryption-description"),

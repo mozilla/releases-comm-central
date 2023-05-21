@@ -855,8 +855,9 @@ MimeDecryptHandler.prototype = {
 
     if (this.decryptedHeaders && "subject" in this.decryptedHeaders) {
       try {
-        let msgDbHdr = this.uri.QueryInterface(Ci.nsIMsgMessageUrl)
-          .messageHeader;
+        let msgDbHdr = this.uri.QueryInterface(
+          Ci.nsIMsgMessageUrl
+        ).messageHeader;
         msgDbHdr.subject = this.decryptedHeaders.subject;
       } catch (x) {
         console.debug(x);

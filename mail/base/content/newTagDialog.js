@@ -44,9 +44,8 @@ function initializeForEditing(aTagKey) {
   document.title = messengerBundle.getString("editTagTitle");
 
   // extract the color and name for the current tag
-  document.getElementById(
-    "tagColorPicker"
-  ).value = MailServices.tags.getColorForKey(aTagKey);
+  document.getElementById("tagColorPicker").value =
+    MailServices.tags.getColorForKey(aTagKey);
   dialog.nameField.value = MailServices.tags.getTagForKey(aTagKey);
 }
 

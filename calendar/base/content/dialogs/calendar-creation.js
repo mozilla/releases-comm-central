@@ -814,9 +814,8 @@ function openCalendarPropertiesFromEvent(event) {
 
       // Update the calendar list item.
       listItem.querySelector(".calendar-name").value = calendar.name;
-      listItem.querySelector(".calendar-color").style.backgroundColor = calendar.getProperty(
-        "color"
-      );
+      listItem.querySelector(".calendar-color").style.backgroundColor =
+        calendar.getProperty("color");
     }
   }
 }

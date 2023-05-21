@@ -38,8 +38,7 @@ add_task(async function testExternalMessage() {
           read: null,
           recipients: ["Heinz <mueller@example.com>"],
           date: 958796995000,
-          body:
-            "This message has one normal attachment and one email attachment",
+          body: "This message has one normal attachment and one email attachment",
         },
         openExternalAttachedMessage: {
           headerMessageId: "sample-attached.eml@mime.sample",
@@ -56,12 +55,11 @@ add_task(async function testExternalMessage() {
         },
       };
 
-      let [
-        { displayedFolder, windowId: mainWindowId },
-      ] = await browser.mailTabs.query({
-        active: true,
-        currentWindow: true,
-      });
+      let [{ displayedFolder, windowId: mainWindowId }] =
+        await browser.mailTabs.query({
+          active: true,
+          currentWindow: true,
+        });
 
       // Open an external file, either from file or via API.
       async function openAndVerifyExternalMessage(

@@ -16,8 +16,8 @@ var { assert_tab_mode_name, mc } = ChromeUtils.import(
  */
 async function open_chat_tab() {
   // Get the current tab count so we can make sure the tab actually opened.
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
 
   mc.window.document.getElementById("tabmail").openTab("chat", {});
   await wait_for_chat_tab_to_open(mc);

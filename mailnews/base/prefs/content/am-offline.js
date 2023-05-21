@@ -213,9 +213,8 @@ function onAutosyncNotDownload() {
   // This function is called when the autosync version of offline.notDownload
   // is changed it simply copies the new checkbox value over to the element
   // driving the preference.
-  document.getElementById(
-    "offline.notDownload"
-  ).checked = document.getElementById("autosyncNotDownload").checked;
+  document.getElementById("offline.notDownload").checked =
+    document.getElementById("autosyncNotDownload").checked;
   onCheckItem1("offline.notDownloadMin", "offline.notDownload");
 }
 
@@ -291,16 +290,13 @@ function onSave() {
     gIncomingServer.retentionSettings
   );
 
-  retentionSettings.daysToKeepBodies = document.getElementById(
-    "nntp.removeBodyMin"
-  ).value;
-  retentionSettings.cleanupBodiesByDays = document.getElementById(
-    "nntp.removeBody"
-  ).checked;
+  retentionSettings.daysToKeepBodies =
+    document.getElementById("nntp.removeBodyMin").value;
+  retentionSettings.cleanupBodiesByDays =
+    document.getElementById("nntp.removeBody").checked;
 
-  downloadSettings.downloadByDate = document.getElementById(
-    "nntp.downloadMsg"
-  ).checked;
+  downloadSettings.downloadByDate =
+    document.getElementById("nntp.downloadMsg").checked;
   downloadSettings.downloadUnreadOnly = document.getElementById(
     "nntp.notDownloadRead"
   ).checked;
@@ -313,9 +309,8 @@ function onSave() {
 
   if (gImapIncomingServer) {
     // Set the pref on the incomingserver, and set the flag on all folders.
-    gImapIncomingServer.offlineDownload = document.getElementById(
-      "offline.folders"
-    ).checked;
+    gImapIncomingServer.offlineDownload =
+      document.getElementById("offline.folders").checked;
   }
 }
 

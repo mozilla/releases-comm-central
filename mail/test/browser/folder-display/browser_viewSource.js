@@ -9,15 +9,10 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var {
-  be_in_folder,
-  create_folder,
-  get_about_message,
-  mc,
-  select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { be_in_folder, create_folder, get_about_message, mc, select_click_row } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 var {
   click_menus_in_sequence,
   close_window,
@@ -107,8 +102,8 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   select_click_row(row);
 
   let aboutMessage = get_about_message();
-  let displayContent = aboutMessage.getMessagePaneBrowser().contentDocument.body
-    .textContent;
+  let displayContent =
+    aboutMessage.getMessagePaneBrowser().contentDocument.body.textContent;
   Assert.stringContains(
     displayContent,
     expectedDisplayed,
@@ -131,8 +126,9 @@ async function subtest(row, expectedDisplayed, expectedSource) {
     "Timeout waiting for the latin1 view-source document to load."
   );
 
-  let source = viewSourceController.window.document.getElementById("content")
-    .contentDocument.body.textContent;
+  let source =
+    viewSourceController.window.document.getElementById("content")
+      .contentDocument.body.textContent;
   Assert.stringContains(
     source,
     expectedSource,
@@ -143,9 +139,8 @@ async function subtest(row, expectedDisplayed, expectedSource) {
 
   // We can't use the menu on macOS.
   if (AppConstants.platform != "macosx") {
-    let theContent = viewSourceController.window.document.getElementById(
-      "content"
-    );
+    let theContent =
+      viewSourceController.window.document.getElementById("content");
     // Keep a reference to the originally loaded document.
     let doc = theContent.contentDocument;
 
@@ -157,9 +152,8 @@ async function subtest(row, expectedDisplayed, expectedSource) {
       viewSourceController.window.document.getElementById("viewmenu-popup"),
       "popupshown"
     );
-    let menuView = viewSourceController.window.document.getElementById(
-      "menu_view"
-    );
+    let menuView =
+      viewSourceController.window.document.getElementById("menu_view");
     EventUtils.synthesizeMouseAtCenter(menuView, {}, menuView.ownerGlobal);
     await popupshown;
 
@@ -186,8 +180,9 @@ async function subtest(row, expectedDisplayed, expectedSource) {
         "Timeout waiting utf-8 encoded view-source document to load."
       );
 
-      source = viewSourceController.window.document.getElementById("content")
-        .contentDocument.body.textContent;
+      source =
+        viewSourceController.window.document.getElementById("content")
+          .contentDocument.body.textContent;
       Assert.stringContains(
         source,
         contentReadable,

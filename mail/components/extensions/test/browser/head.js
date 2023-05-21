@@ -16,10 +16,8 @@ var { getCachedAllowedSpaces, setCachedAllowedSpaces } = ChromeUtils.import(
 const { storeState, getState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
 );
-const {
-  getDefaultItemIdsForSpace,
-  getAvailableItemIdsForSpace,
-} = ChromeUtils.importESModule("resource:///modules/CustomizableItems.sys.mjs");
+const { getDefaultItemIdsForSpace, getAvailableItemIdsForSpace } =
+  ChromeUtils.importESModule("resource:///modules/CustomizableItems.sys.mjs");
 
 var { ExtensionCommon } = ChromeUtils.import(
   "resource://gre/modules/ExtensionCommon.jsm"
@@ -644,9 +642,8 @@ async function openContextMenu(selector = "#img1", win = window) {
 }
 
 async function openContextMenuInPopup(extension, selector, win = window) {
-  let contentAreaContextMenu = win.top.document.getElementById(
-    "browserContext"
-  );
+  let contentAreaContextMenu =
+    win.top.document.getElementById("browserContext");
   let stack = getBrowserActionPopup(extension, win);
   let browser = stack.querySelector("browser");
   let popupShownPromise = BrowserTestUtils.waitForEvent(
@@ -672,9 +669,8 @@ async function closeExtensionContextMenu(
   modifiers = {},
   win = window
 ) {
-  let contentAreaContextMenu = win.top.document.getElementById(
-    "browserContext"
-  );
+  let contentAreaContextMenu =
+    win.top.document.getElementById("browserContext");
   let popupHiddenPromise = BrowserTestUtils.waitForEvent(
     contentAreaContextMenu,
     "popuphidden"

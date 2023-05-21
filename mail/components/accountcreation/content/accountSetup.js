@@ -205,8 +205,9 @@ var gAccountSetup = {
     }
 
     gAccountSetupLogger.debug("Initializing setup wizard");
-    gReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
-      .matches;
+    gReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
 
     // Store the main window.
     gMainWindow = Services.wm.getMostRecentWindow("mail:3pane");
@@ -1498,15 +1499,13 @@ var gAccountSetup = {
     config.incoming.auth = Sanitizer.integer(
       document.getElementById("incomingAuthMethod").value
     );
-    config.incoming.username = document.getElementById(
-      "incomingUsername"
-    ).value;
+    config.incoming.username =
+      document.getElementById("incomingUsername").value;
 
     // Outgoing server
 
-    config.outgoing.username = document.getElementById(
-      "outgoingUsername"
-    ).value;
+    config.outgoing.username =
+      document.getElementById("outgoingUsername").value;
 
     // The user specified a custom SMTP server.
     config.outgoing.existingServerKey = null;
@@ -1877,9 +1876,8 @@ var gAccountSetup = {
 
   onInputInUsername() {
     if (this.sameInOutUsernames) {
-      document.getElementById(
-        "outgoingUsername"
-      ).value = document.getElementById("incomingUsername").value;
+      document.getElementById("outgoingUsername").value =
+        document.getElementById("incomingUsername").value;
     }
     this.onChangedManualEdit();
   },
@@ -2211,9 +2209,8 @@ var gAccountSetup = {
     }
 
     if (configFilledIn.outgoing.addThisServer) {
-      let existingServer = CreateInBackend.checkOutgoingServerAlreadyExists(
-        configFilledIn
-      );
+      let existingServer =
+        CreateInBackend.checkOutgoingServerAlreadyExists(configFilledIn);
       if (existingServer) {
         configFilledIn.outgoing.addThisServer = false;
         configFilledIn.outgoing.existingServerKey = existingServer.key;
@@ -2542,11 +2539,10 @@ var gAccountSetup = {
 
     // Check if we have any address book left to set up and hide the
     // "Connect all" button if not.
-    document.getElementById(
-      "addressBooksSetupAll"
-    ).hidden = !document.querySelectorAll(
-      "#addressBooksSetup .linked-services-list button:not(.existing)"
-    ).length;
+    document.getElementById("addressBooksSetupAll").hidden =
+      !document.querySelectorAll(
+        "#addressBooksSetup .linked-services-list button:not(.existing)"
+      ).length;
   },
 
   /**
@@ -2756,11 +2752,10 @@ var gAccountSetup = {
 
     // Check if we have any calendar left to set up and hide the "Connect all"
     // button if not.
-    document.getElementById(
-      "calendarsSetupAll"
-    ).hidden = !document.querySelectorAll(
-      "#calendarsSetup .linked-services-list button:not(.existing)"
-    ).length;
+    document.getElementById("calendarsSetupAll").hidden =
+      !document.querySelectorAll(
+        "#calendarsSetup .linked-services-list button:not(.existing)"
+      ).length;
   },
 
   /**
@@ -2973,9 +2968,8 @@ var gSecurityWarningDialog = {
    * warning.
    */
   toggleAcknowledge() {
-    document.getElementById(
-      "insecureConfirmButton"
-    ).disabled = !document.getElementById("acknowledgeWarning").checked;
+    document.getElementById("insecureConfirmButton").disabled =
+      !document.getElementById("acknowledgeWarning").checked;
   },
 
   /**

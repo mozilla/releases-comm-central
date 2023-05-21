@@ -6,11 +6,8 @@
  * Tests related to message body.
  */
 
-var {
-  get_msg_source,
-  open_compose_new_mail,
-  setup_msg_contents,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { get_msg_source, open_compose_new_mail, setup_msg_contents } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   be_in_folder,
   get_special_folder,

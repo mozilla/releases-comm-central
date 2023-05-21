@@ -45,9 +45,8 @@ add_task(async function test_createTargetFolder() {
 
   IMAPPump.incomingServer.rootFolder.createSubfolder("targetFolder", null);
   await PromiseTestUtils.promiseFolderAdded("targetFolder");
-  gTargetFolder = IMAPPump.incomingServer.rootFolder.getChildNamed(
-    "targetFolder"
-  );
+  gTargetFolder =
+    IMAPPump.incomingServer.rootFolder.getChildNamed("targetFolder");
   Assert.ok(gTargetFolder instanceof Ci.nsIMsgImapMailFolder);
   // set folder to be checked for new messages when inbox is checked.
   gTargetFolder.setFlag(Ci.nsMsgFolderFlags.CheckNew);

@@ -46,15 +46,15 @@ function changeStoreType(aResponse) {
     // Set local path to the new account root folder which is present
     // in 'aResponse.newRootFolder'.
     document.getElementById("server.localPath").value = aResponse.newRootFolder;
-    gOriginalStoreType = document.getElementById("server.storeTypeMenulist")
-      .value;
+    gOriginalStoreType = document.getElementById(
+      "server.storeTypeMenulist"
+    ).value;
     MailUtils.restartApplication();
   } else {
     // The conversion failed or was cancelled.
     // Restore selected item to what was selected before conversion.
-    document.getElementById(
-      "server.storeTypeMenulist"
-    ).value = gOriginalStoreType;
+    document.getElementById("server.storeTypeMenulist").value =
+      gOriginalStoreType;
   }
 }
 

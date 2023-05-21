@@ -87,12 +87,8 @@ add_task(async () => {
           async pageLoad(tab, active = true) {
             while (true) {
               // Read the first event without consuming it.
-              let [
-                actualEvent,
-                actualTabId,
-                actualInfo,
-                actualTab,
-              ] = await this.nextEvent();
+              let [actualEvent, actualTabId, actualInfo, actualTab] =
+                await this.nextEvent();
               browser.test.assertEq("onUpdated", actualEvent);
               browser.test.assertEq(tab, actualTabId);
 

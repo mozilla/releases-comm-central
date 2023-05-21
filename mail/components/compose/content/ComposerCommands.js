@@ -165,18 +165,16 @@ function GetComposerCommandTable() {
   }
   if (!controller) {
     // create it
-    controller = Cc[
-      "@mozilla.org/embedcomp/base-command-controller;1"
-    ].createInstance();
+    controller =
+      Cc["@mozilla.org/embedcomp/base-command-controller;1"].createInstance();
 
     var editorController = controller.QueryInterface(Ci.nsIControllerContext);
     editorController.setCommandContext(GetCurrentEditorElement());
     window.content.controllers.insertControllerAt(0, controller);
 
     // Store the controller ID so we can be sure to get the right one later
-    gComposerJSCommandControllerID = window.content.controllers.getControllerId(
-      controller
-    );
+    gComposerJSCommandControllerID =
+      window.content.controllers.getControllerId(controller);
   }
 
   if (controller) {
@@ -198,9 +196,8 @@ function GetComposerCommandTable() {
  */
 function goUpdateCommandState(command) {
   try {
-    var controller = document.commandDispatcher.getControllerForCommand(
-      command
-    );
+    var controller =
+      document.commandDispatcher.getControllerForCommand(command);
     if (!(controller instanceof Ci.nsICommandController)) {
       return;
     }
@@ -299,9 +296,8 @@ function goDoCommandParams(command, paramValue) {
   try {
     let params = newCommandParams();
     params.setStringValue("state_attribute", paramValue);
-    let controller = document.commandDispatcher.getControllerForCommand(
-      command
-    );
+    let controller =
+      document.commandDispatcher.getControllerForCommand(command);
     if (controller && controller.isCommandEnabled(command)) {
       if (controller instanceof Ci.nsICommandController) {
         controller.doCommandWithParams(command, params);

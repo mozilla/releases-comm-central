@@ -132,7 +132,7 @@ export var ircCAP = {
       return true;
     },
 
-    "410": function (aMessage) {
+    410(aMessage) {
       // ERR_INVALIDCAPCMD
       // <unrecognized subcommand> :Invalid CAP subcommand
       this.WARN("Invalid subcommand: " + aMessage.params[1]);

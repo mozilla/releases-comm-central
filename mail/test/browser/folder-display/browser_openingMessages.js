@@ -63,8 +63,8 @@ add_setup(async function () {
 add_task(async function test_open_single_message_in_tab() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
   // Select one message
   let msgHdr = select_click_row(1);
@@ -100,8 +100,8 @@ add_task(async function test_open_single_message_in_tab() {
 add_task(async function test_open_multiple_messages_in_tabs() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
 
   // Select a bunch of messages

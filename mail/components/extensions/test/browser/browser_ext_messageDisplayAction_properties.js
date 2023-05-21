@@ -132,9 +132,10 @@ add_task(async () => {
   is(mainWindowTabs.length, 2);
 
   let messageWindow = Services.wm.getMostRecentWindow("mail:messageWindow");
-  let messageWindowButton = messageWindow.messageBrowser.contentDocument.getElementById(
-    "message_display_action_properties_mochi_test-messageDisplayAction-toolbarbutton"
-  );
+  let messageWindowButton =
+    messageWindow.messageBrowser.contentDocument.getElementById(
+      "message_display_action_properties_mochi_test-messageDisplayAction-toolbarbutton"
+    );
 
   extension.onMessage("checkProperty", async (property, expected) => {
     function checkButton(button, expectedIndex) {

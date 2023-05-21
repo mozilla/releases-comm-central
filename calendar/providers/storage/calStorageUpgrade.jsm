@@ -1666,16 +1666,8 @@ upgrade.v22 = function (db, version) {
     createFunction(db, "translateAttendee", 8, {
       onFunctionCall(storArgs) {
         try {
-          let [
-            aAttendeeId,
-            aCommonName,
-            aRsvp,
-            aRole,
-            aStatus,
-            aType,
-            aIsOrganizer,
-            aProperties,
-          ] = mapStorageArgs(storArgs);
+          let [aAttendeeId, aCommonName, aRsvp, aRole, aStatus, aType, aIsOrganizer, aProperties] =
+            mapStorageArgs(storArgs);
 
           let attendee = new lazy.CalAttendee();
 

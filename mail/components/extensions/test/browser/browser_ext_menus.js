@@ -263,7 +263,8 @@ async function subtest_message_panes(manifest) {
 
   info("Test the message pane in the 3-pane tab.");
 
-  let messagePane = about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
+  let messagePane =
+    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser();
 
   await subtest_content(
     extension,
@@ -651,9 +652,9 @@ async function subtest_compose(manifest) {
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  params.composeFields.body = await fetch(
-    `${URL_BASE}/content_body.html`
-  ).then(r => r.text());
+  params.composeFields.body = await fetch(`${URL_BASE}/content_body.html`).then(
+    r => r.text()
+  );
 
   for (let ordinal of ["first", "second", "third", "fourth"]) {
     let attachment = Cc[

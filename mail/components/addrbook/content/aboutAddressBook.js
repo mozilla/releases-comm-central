@@ -2123,7 +2123,10 @@ var cardsPane = {
         let addresses = card.emailAddresses;
 
         if (addresses.length == 0) {
-          writeMenuItem.hidden = writeMenu.hidden = writeMenuSeparator.hidden = true;
+          writeMenuItem.hidden =
+            writeMenu.hidden =
+            writeMenuSeparator.hidden =
+              true;
         } else if (addresses.length == 1) {
           writeMenuItem.hidden = writeMenuSeparator.hidden = false;
           writeMenu.hidden = true;
@@ -2395,8 +2398,9 @@ var cardsPane = {
           "application/x-moz-file-promise-dest-filename",
           primitive
         );
-        let leafName = primitive.value.QueryInterface(Ci.nsISupportsString)
-          .data;
+        let leafName = primitive.value.QueryInterface(
+          Ci.nsISupportsString
+        ).data;
         transferable.getTransferData(
           "application/x-moz-file-promise-dir",
           primitive
@@ -2693,9 +2697,8 @@ var detailsPane = {
         // the new card to display it. (If we're already editing the new card
         // when the server responds, that's just tough luck.)
         this.isEditing = false;
-        cardsPane.cardsList.selectedIndex = cardsPane.cardsList.view.getIndexForUID(
-          subject.UID
-        );
+        cardsPane.cardsList.selectedIndex =
+          cardsPane.cardsList.view.getIndexForUID(subject.UID);
         break;
       case "addrbook-contact-updated":
         subject.QueryInterface(Ci.nsIAbCard);
@@ -2819,8 +2822,8 @@ var detailsPane = {
 
     if (editing) {
       this.addContactBookList.hidden = !!this.currentCard;
-      this.addContactBookList.previousElementSibling.hidden = !!this
-        .currentCard;
+      this.addContactBookList.previousElementSibling.hidden =
+        !!this.currentCard;
 
       let book = booksList
         .getRowAtIndex(booksList.selectedIndex)
@@ -2870,9 +2873,8 @@ var detailsPane = {
 
     if (cards.length == 0) {
       this.node.hidden = true;
-      this.splitter.isCollapsed = document.body.classList.contains(
-        "layout-table"
-      );
+      this.splitter.isCollapsed =
+        document.body.classList.contains("layout-table");
       return;
     }
     if (cards.length == 1) {
@@ -2920,8 +2922,8 @@ var detailsPane = {
 
     let list = this.selectedCardsSection.querySelector("ul");
     list.replaceChildren();
-    let template = document.getElementById("selectedCard").content
-      .firstElementChild;
+    let template =
+      document.getElementById("selectedCard").content.firstElementChild;
     for (let card of cards) {
       let li = list.appendChild(template.cloneNode(true));
       li._card = card;
@@ -3018,9 +3020,8 @@ var detailsPane = {
 
     element.querySelector(".contact-photo").src =
       card.photoURL || "chrome://messenger/skin/icons/new/compact/user.svg";
-    element.querySelector(
-      ".contact-heading-name"
-    ).textContent = card.generateName(ABView.nameFormat);
+    element.querySelector(".contact-heading-name").textContent =
+      card.generateName(ABView.nameFormat);
     let nickname = element.querySelector(".contact-heading-nickname");
     let nicknameValue = vCardProperties.getFirstValue("nickname");
     nickname.hidden = !nicknameValue;
@@ -3257,9 +3258,8 @@ var detailsPane = {
     if (tz) {
       let li = list.appendChild(createEntryItem("time-zone"));
       try {
-        li.querySelector(
-          ".entry-value"
-        ).textContent = cal.timezoneService.getTimezone(tz).displayName;
+        li.querySelector(".entry-value").textContent =
+          cal.timezoneService.getTimezone(tz).displayName;
       } catch {
         li.querySelector(".entry-value").textContent = tz;
       }
@@ -3328,9 +3328,8 @@ var detailsPane = {
     this.currentCard = null;
     this.editCurrentContact(vCard);
     if (!vCard) {
-      this.vCardEdit.contactNameHeading.textContent = await document.l10n.formatValue(
-        "about-addressbook-new-contact-header"
-      );
+      this.vCardEdit.contactNameHeading.textContent =
+        await document.l10n.formatValue("about-addressbook-new-contact-header");
     }
   },
 
@@ -3609,9 +3608,8 @@ var detailsPane = {
 
     if (!card.directoryUID) {
       card = book.addCard(card);
-      cardsPane.cardsList.selectedIndex = cardsPane.cardsList.view.getIndexForUID(
-        card.UID
-      );
+      cardsPane.cardsList.selectedIndex =
+        cardsPane.cardsList.view.getIndexForUID(card.UID);
       // The selection change will update the UI.
     } else {
       book.modifyCard(card);
@@ -3718,8 +3716,8 @@ var detailsPane = {
 
     let list = this.selectedCardsSection.querySelector("ul");
     list.replaceChildren();
-    let template = document.getElementById("selectedCard").content
-      .firstElementChild;
+    let template =
+      document.getElementById("selectedCard").content.firstElementChild;
     for (let card of cards) {
       let li = list.appendChild(template.cloneNode(true));
       li._card = card;

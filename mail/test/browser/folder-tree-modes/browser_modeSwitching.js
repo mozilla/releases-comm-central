@@ -23,11 +23,8 @@ var { MailTelemetryForTests } = ChromeUtils.import(
 var { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
-var {
-  click_menus_in_sequence,
-  click_through_appmenu,
-  close_popup_sequence,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { click_menus_in_sequence, click_through_appmenu, close_popup_sequence } =
+  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var rootFolder;
 var unreadFolder;

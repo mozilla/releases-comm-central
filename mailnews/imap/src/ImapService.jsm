@@ -67,8 +67,9 @@ class ImapService {
   }
 
   discoverAllFolders(folder, urlListener, msgWindow) {
-    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
-      .imapIncomingServer;
+    let server = folder.QueryInterface(
+      Ci.nsIMsgImapMailFolder
+    ).imapIncomingServer;
     if (server.wrappedJSObject.hasDiscoveredFolders) {
       return;
     }
@@ -424,8 +425,9 @@ class ImapService {
   }
 
   downloadMessagesForOffline(messageIds, folder, urlListener, msgWindow) {
-    let server = folder.QueryInterface(Ci.nsIMsgImapMailFolder)
-      .imapIncomingServer;
+    let server = folder.QueryInterface(
+      Ci.nsIMsgImapMailFolder
+    ).imapIncomingServer;
     let imapUrl = Services.io
       .newURI(
         `imap://${server.hostName}:${server.port}/fetch>UID>/${folder.name}>${messageIds}`

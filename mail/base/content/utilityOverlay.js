@@ -355,7 +355,8 @@ function openPrivacyPolicy(where) {
  */
 function openTrustedLinkIn(url, where, params = {}) {
   if (!params.triggeringPrincipal) {
-    params.triggeringPrincipal = Services.scriptSecurityManager.getSystemPrincipal();
+    params.triggeringPrincipal =
+      Services.scriptSecurityManager.getSystemPrincipal();
   }
 
   openLinkIn(url, where, params);
@@ -380,9 +381,8 @@ function openWebLinkIn(url, where, params = {}) {
   }
 
   if (!params.triggeringPrincipal) {
-    params.triggeringPrincipal = Services.scriptSecurityManager.createNullPrincipal(
-      {}
-    );
+    params.triggeringPrincipal =
+      Services.scriptSecurityManager.createNullPrincipal({});
   }
   if (params.triggeringPrincipal.isSystemPrincipal) {
     throw new Error(
@@ -512,16 +512,14 @@ function buildHelpMenu() {
     "helpTroubleshootMode"
   );
   if (helpTroubleshootModeItem) {
-    helpTroubleshootModeItem.disabled = !Services.policies.isAllowed(
-      "safeMode"
-    );
+    helpTroubleshootModeItem.disabled =
+      !Services.policies.isAllowed("safeMode");
   }
   let appmenu_troubleshootModeItem = document.getElementById(
     "appmenu_troubleshootMode"
   );
   if (appmenu_troubleshootModeItem) {
-    appmenu_troubleshootModeItem.disabled = !Services.policies.isAllowed(
-      "safeMode"
-    );
+    appmenu_troubleshootModeItem.disabled =
+      !Services.policies.isAllowed("safeMode");
   }
 }

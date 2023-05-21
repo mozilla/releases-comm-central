@@ -871,15 +871,12 @@ const accessKeyBase = {
             uid += " (" + completions[hit].components.full_name.val + ")";
           }
           let key = {
-            keyId: completions[
-              hit
-            ].components.key_fingerprint.val.toUpperCase(),
-            keyLen: completions[
-              hit
-            ].components.key_fingerprint.nbits.toString(),
-            keyType: completions[
-              hit
-            ].components.key_fingerprint.algo.toString(),
+            keyId:
+              completions[hit].components.key_fingerprint.val.toUpperCase(),
+            keyLen:
+              completions[hit].components.key_fingerprint.nbits.toString(),
+            keyType:
+              completions[hit].components.key_fingerprint.algo.toString(),
             created: 0, //date.toDateString(),
             uid: [uid],
             status: "",

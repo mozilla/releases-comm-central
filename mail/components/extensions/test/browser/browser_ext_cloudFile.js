@@ -788,9 +788,8 @@ add_task(async function test_compose_window_MV3_event_page() {
           1,
           "onFileUpload should be the wake up event"
         );
-        let [
-          { cloudAccountId, composeTabId, aborting },
-        ] = await window.sendMessage("getEnvironment");
+        let [{ cloudAccountId, composeTabId, aborting }] =
+          await window.sendMessage("getEnvironment");
         browser.test.assertEq(tab.id, composeTabId);
         browser.test.assertEq(uploadAccount.id, cloudAccountId);
         browser.test.assertEq(name, "cloudFile1.txt");
@@ -827,9 +826,8 @@ add_task(async function test_compose_window_MV3_event_page() {
           1,
           "onFileRename should be the wake up event"
         );
-        let [
-          { cloudAccountId, fileId, composeTabId },
-        ] = await window.sendMessage("getEnvironment");
+        let [{ cloudAccountId, fileId, composeTabId }] =
+          await window.sendMessage("getEnvironment");
         browser.test.assertEq(tab.id, composeTabId);
         browser.test.assertEq(account.id, cloudAccountId);
         browser.test.assertEq(id, fileId);
@@ -867,9 +865,8 @@ add_task(async function test_compose_window_MV3_event_page() {
           2,
           "onFileUploadAbort should not be the wake up event"
         );
-        let [
-          { cloudAccountId, fileId, composeTabId },
-        ] = await window.sendMessage("getEnvironment");
+        let [{ cloudAccountId, fileId, composeTabId }] =
+          await window.sendMessage("getEnvironment");
         browser.test.assertEq(tab.id, composeTabId);
         browser.test.assertEq(account.id, cloudAccountId);
         browser.test.assertEq(id, fileId);

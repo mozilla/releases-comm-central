@@ -23,9 +23,8 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
   );
 
   // Send a new message in a MUC that is not currently open.
-  const conversation = account.prplAccount.wrappedJSObject.makeMUC(
-    "noSpaceBadge"
-  );
+  const conversation =
+    account.prplAccount.wrappedJSObject.makeMUC("noSpaceBadge");
   const messagePromise = waitForNotification(conversation, "new-text");
   conversation.writeMessage("spaceBadge", "just a normal message", {
     incoming: true,
@@ -158,9 +157,8 @@ add_task(async function test_spacesToolbarPinnedChatBadgeMUC() {
   );
 
   // Send a new message in a MUC that is not currently open.
-  const conversation = account.prplAccount.wrappedJSObject.makeMUC(
-    "noSpaceBadge"
-  );
+  const conversation =
+    account.prplAccount.wrappedJSObject.makeMUC("noSpaceBadge");
   const messagePromise = waitForNotification(conversation, "new-text");
   conversation.writeMessage("spaceBadge", "just a normal message", {
     incoming: true,

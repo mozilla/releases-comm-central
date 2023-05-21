@@ -137,8 +137,8 @@ function setupTest(test) {
 }
 
 function open_about_downloads() {
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
   let newTab = mc.window.openSavedFilesWnd();
   utils.waitFor(
     () =>
@@ -150,9 +150,8 @@ function open_about_downloads() {
 
   wait_for_browser_load(newTab.browser, "about:downloads");
   // We append new tabs at the end, so check the last one.
-  let expectedNewTab = mc.window.document.getElementById("tabmail").tabInfo[
-    preCount
-  ];
+  let expectedNewTab =
+    mc.window.document.getElementById("tabmail").tabInfo[preCount];
   return expectedNewTab;
 }
 

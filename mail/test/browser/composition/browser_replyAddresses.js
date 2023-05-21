@@ -350,8 +350,7 @@ add_task(async function testToCcReplyAll() {
  */
 add_task(async function testToCcReplyAllInternational() {
   let msg0 = create_message({
-    from:
-      "Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= <hideaki@example.com>",
+    from: "Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= <hideaki@example.com>",
     to:
       "Mr Burns <mrburns@example.com>, =?UTF-8?B?w4VrZQ==?= <ake@example.com>, " +
       "=?KOI8-R?Q?=E9=D7=C1=CE?= <ivan@example.com>, " +

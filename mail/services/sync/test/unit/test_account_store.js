@@ -34,11 +34,8 @@ add_setup(async function () {
   }
 
   imapAccount = MailServices.accounts.createAccount();
-  imapServer = imapAccount.incomingServer = MailServices.accounts.createIncomingServer(
-    "username",
-    "hostname",
-    "imap"
-  );
+  imapServer = imapAccount.incomingServer =
+    MailServices.accounts.createIncomingServer("username", "hostname", "imap");
   imapAccount.incomingServer.prettyName = "IMAP Server";
 
   Assert.ok(imapServer.UID);
@@ -48,11 +45,8 @@ add_setup(async function () {
   );
 
   pop3Account = MailServices.accounts.createAccount();
-  pop3Server = pop3Account.incomingServer = MailServices.accounts.createIncomingServer(
-    "username",
-    "hostname",
-    "pop3"
-  );
+  pop3Server = pop3Account.incomingServer =
+    MailServices.accounts.createIncomingServer("username", "hostname", "pop3");
   pop3Account.incomingServer.prettyName = "POP3 Server";
 
   Assert.ok(pop3Server.UID);

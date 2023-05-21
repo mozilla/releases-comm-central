@@ -539,8 +539,8 @@ add_task(
  *                     False otherwise.
  */
 function assert_any_notification(aCwc, aValue) {
-  let notification = aCwc.window.document.getElementById(kBoxId)
-    .currentNotification;
+  let notification =
+    aCwc.window.document.getElementById(kBoxId).currentNotification;
   if ((notification == null) == aValue) {
     throw new Error("Notification in wrong state");
   }

@@ -168,8 +168,8 @@ var MigrationWizard = {
   },
 
   onImportSourcePageAdvanced() {
-    var newSource = document.getElementById("importSourceGroup").selectedItem
-      .id;
+    var newSource =
+      document.getElementById("importSourceGroup").selectedItem.id;
 
     if (newSource == "nothing") {
       document.querySelector("wizard").cancel();
@@ -331,21 +331,18 @@ var MigrationWizard = {
           this._wiz.canRewind = true;
           this._wiz.rewind();
           this._wiz.canAdvance = true;
-          let [
-            zipFileTooBigTitle,
-            zipFileTooBigMessage,
-          ] = await document.l10n.formatValues([
-            "zip-file-too-big-title",
-            "zip-file-too-big-message",
-          ]);
+          let [zipFileTooBigTitle, zipFileTooBigMessage] =
+            await document.l10n.formatValues([
+              "zip-file-too-big-title",
+              "zip-file-too-big-message",
+            ]);
           Services.prompt.alert(
             window,
             zipFileTooBigTitle,
             zipFileTooBigMessage
           );
-          document.getElementById(
-            "importSourceGroup"
-          ).selectedItem = document.getElementById("thunderbird-dir");
+          document.getElementById("importSourceGroup").selectedItem =
+            document.getElementById("thunderbird-dir");
           return;
         default:
           document.getElementById("failed-message-default").hidden = e.message;

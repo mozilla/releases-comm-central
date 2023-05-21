@@ -116,26 +116,22 @@ function initCopiesAndFolder(identity) {
   document.getElementById("identity.stationeryFolder").value =
     copiesAndFoldersIdentity.stationeryFolder;
 
-  document.getElementById(
-    "identity.fccFolderPickerMode"
-  ).value = copiesAndFoldersIdentity.fccFolderPickerMode
-    ? copiesAndFoldersIdentity.fccFolderPickerMode
-    : 0;
-  document.getElementById(
-    "identity.draftsFolderPickerMode"
-  ).value = copiesAndFoldersIdentity.draftsFolderPickerMode
-    ? copiesAndFoldersIdentity.draftsFolderPickerMode
-    : 0;
-  document.getElementById(
-    "identity.archivesFolderPickerMode"
-  ).value = copiesAndFoldersIdentity.archivesFolderPickerMode
-    ? copiesAndFoldersIdentity.archivesFolderPickerMode
-    : 0;
-  document.getElementById(
-    "identity.tmplFolderPickerMode"
-  ).value = copiesAndFoldersIdentity.tmplFolderPickerMode
-    ? copiesAndFoldersIdentity.tmplFolderPickerMode
-    : 0;
+  document.getElementById("identity.fccFolderPickerMode").value =
+    copiesAndFoldersIdentity.fccFolderPickerMode
+      ? copiesAndFoldersIdentity.fccFolderPickerMode
+      : 0;
+  document.getElementById("identity.draftsFolderPickerMode").value =
+    copiesAndFoldersIdentity.draftsFolderPickerMode
+      ? copiesAndFoldersIdentity.draftsFolderPickerMode
+      : 0;
+  document.getElementById("identity.archivesFolderPickerMode").value =
+    copiesAndFoldersIdentity.archivesFolderPickerMode
+      ? copiesAndFoldersIdentity.archivesFolderPickerMode
+      : 0;
+  document.getElementById("identity.tmplFolderPickerMode").value =
+    copiesAndFoldersIdentity.tmplFolderPickerMode
+      ? copiesAndFoldersIdentity.tmplFolderPickerMode
+      : 0;
 
   document.getElementById("identity.doCc").checked =
     copiesAndFoldersIdentity.doCc;
@@ -281,8 +277,8 @@ function saveIdentitySettings(identity) {
       "identity.smtpServerKey"
     ).value;
 
-    let attachSignaturePath = document.getElementById("identity.signature")
-      .value;
+    let attachSignaturePath =
+      document.getElementById("identity.signature").value;
     identity.signature = null; // this is important so we don't accidentally inherit the default
 
     if (attachSignaturePath) {

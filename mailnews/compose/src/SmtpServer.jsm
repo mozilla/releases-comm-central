@@ -188,9 +188,8 @@ class SmtpServer {
     let incomingAccountKey = this._prefs.getCharPref("incomingAccount", "");
     let incomingServer;
     if (incomingAccountKey) {
-      incomingServer = MailServices.accounts.getIncomingServer(
-        incomingAccountKey
-      );
+      incomingServer =
+        MailServices.accounts.getIncomingServer(incomingAccountKey);
     } else {
       let useMatchingHostNameServer = Services.prefs.getBoolPref(
         "mail.smtp.useMatchingHostNameServer"

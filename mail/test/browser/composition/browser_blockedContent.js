@@ -9,19 +9,12 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var {
-  get_msg_source,
-  open_compose_new_mail,
-  setup_msg_contents,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var {
-  be_in_folder,
-  get_special_folder,
-  press_delete,
-  select_click_row,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { get_msg_source, open_compose_new_mail, setup_msg_contents } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { be_in_folder, get_special_folder, press_delete, select_click_row } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 var { wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );

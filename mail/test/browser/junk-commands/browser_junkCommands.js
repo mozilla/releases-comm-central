@@ -14,10 +14,8 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var {
-  delete_mail_marked_as_junk,
-  mark_selected_messages_as_junk,
-} = ChromeUtils.import("resource://testing-common/mozmill/JunkHelpers.jsm");
+var { delete_mail_marked_as_junk, mark_selected_messages_as_junk } =
+  ChromeUtils.import("resource://testing-common/mozmill/JunkHelpers.jsm");
 
 // One folder's enough
 var folder = null;

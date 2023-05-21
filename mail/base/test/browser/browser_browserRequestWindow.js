@@ -21,8 +21,7 @@ async function openBrowserRequestWindow() {
       null,
       "chrome,private,centerscreen,width=980,height=750",
       {
-        url:
-          "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.html",
+        url: "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.html",
         cancelled() {
           onCancelled();
         },

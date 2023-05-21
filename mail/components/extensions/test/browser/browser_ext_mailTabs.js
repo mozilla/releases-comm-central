@@ -156,10 +156,8 @@ add_task(async function test_update() {
       author: Ci.nsMsgViewSortType.byAuthor,
     };
 
-    let {
-      primarySortType,
-      primarySortOrder,
-    } = tabmail.currentAbout3Pane.gViewWrapper;
+    let { primarySortType, primarySortOrder } =
+      tabmail.currentAbout3Pane.gViewWrapper;
 
     Assert.equal(
       primarySortOrder,
@@ -194,11 +192,8 @@ add_task(async function test_update() {
       },
     };
 
-    let {
-      showThreaded,
-      showUnthreaded,
-      showGroupedBySort,
-    } = tabmail.currentAbout3Pane.gViewWrapper;
+    let { showThreaded, showUnthreaded, showGroupedBySort } =
+      tabmail.currentAbout3Pane.gViewWrapper;
 
     Assert.equal(
       showThreaded,
@@ -742,9 +737,8 @@ add_task(async function test_setSelectedMessages() {
       displayedFolder: "/test1",
     });
     // Check API return value of the foreground tab.
-    let {
-      messages: readMessagesA,
-    } = await browser.mailTabs.getSelectedMessages(foregroundTab);
+    let { messages: readMessagesA } =
+      await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
       [messages1[6].id, messages1[7].id],
       readMessagesA.map(m => m.id)
@@ -762,17 +756,15 @@ add_task(async function test_setSelectedMessages() {
       displayedFolder: "/test1",
     });
     // Check unchanged API return value of the foreground tab.
-    let {
-      messages: readMessagesB,
-    } = await browser.mailTabs.getSelectedMessages(foregroundTab);
+    let { messages: readMessagesB } =
+      await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
       [messages1[6].id, messages1[7].id],
       readMessagesB.map(m => m.id)
     );
     // Check API return value of the inactive background tab.
-    let {
-      messages: readMessagesC,
-    } = await browser.mailTabs.getSelectedMessages(backgroundTab);
+    let { messages: readMessagesC } =
+      await browser.mailTabs.getSelectedMessages(backgroundTab);
     window.assertDeepEqual(
       [messages2[0].id, messages2[3].id],
       readMessagesC.map(m => m.id)
@@ -780,9 +772,8 @@ add_task(async function test_setSelectedMessages() {
     // Switch to the background tab.
     await browser.tabs.update(backgroundTab, { active: true });
     // Check API return value of the background tab (now active).
-    let {
-      messages: readMessagesD,
-    } = await browser.mailTabs.getSelectedMessages(backgroundTab);
+    let { messages: readMessagesD } =
+      await browser.mailTabs.getSelectedMessages(backgroundTab);
     window.assertDeepEqual(
       [messages2[0].id, messages2[3].id],
       readMessagesD.map(m => m.id)
@@ -794,9 +785,8 @@ add_task(async function test_setSelectedMessages() {
       displayedFolder: "/test2",
     });
     // Check unchanged API return value of the foreground tab (now inactive).
-    let {
-      messages: readMessagesE,
-    } = await browser.mailTabs.getSelectedMessages(foregroundTab);
+    let { messages: readMessagesE } =
+      await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
       [messages1[6].id, messages1[7].id],
       readMessagesE.map(m => m.id)
@@ -810,9 +800,8 @@ add_task(async function test_setSelectedMessages() {
       messages2[4].id,
     ]);
     // Check API return value of the foreground tab.
-    let {
-      messages: readMessagesF,
-    } = await browser.mailTabs.getSelectedMessages(foregroundTab);
+    let { messages: readMessagesF } =
+      await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
       [messages2[2].id, messages2[4].id],
       readMessagesF.map(m => m.id)
@@ -824,9 +813,8 @@ add_task(async function test_setSelectedMessages() {
       displayedFolder: "/test2",
     });
     // Check API return value of the inactive background tab.
-    let {
-      messages: readMessagesG,
-    } = await browser.mailTabs.getSelectedMessages(backgroundTab);
+    let { messages: readMessagesG } =
+      await browser.mailTabs.getSelectedMessages(backgroundTab);
     window.assertDeepEqual(
       [messages2[0].id, messages2[3].id],
       readMessagesG.map(m => m.id)
@@ -835,17 +823,15 @@ add_task(async function test_setSelectedMessages() {
     // Clear selection in background tab.
     await browser.mailTabs.setSelectedMessages(backgroundTab, []);
     // Check API return value of the inactive background tab.
-    let {
-      messages: readMessagesH,
-    } = await browser.mailTabs.getSelectedMessages(backgroundTab);
+    let { messages: readMessagesH } =
+      await browser.mailTabs.getSelectedMessages(backgroundTab);
     browser.test.assertEq(0, readMessagesH.length);
 
     // Clear selection in foreground tab.
     await browser.mailTabs.setSelectedMessages(foregroundTab, []);
     // Check API return value of the foreground tab.
-    let {
-      messages: readMessagesI,
-    } = await browser.mailTabs.getSelectedMessages(foregroundTab);
+    let { messages: readMessagesI } =
+      await browser.mailTabs.getSelectedMessages(foregroundTab);
     browser.test.assertEq(0, readMessagesI.length);
 
     // Should throw if messages belong to different folders.

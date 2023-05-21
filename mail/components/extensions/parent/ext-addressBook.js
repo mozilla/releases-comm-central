@@ -118,8 +118,9 @@ async function getPhotoFile(id) {
 
   try {
     if (photoUrl.startsWith("file://")) {
-      let realFile = Services.io.newURI(photoUrl).QueryInterface(Ci.nsIFileURL)
-        .file;
+      let realFile = Services.io
+        .newURI(photoUrl)
+        .QueryInterface(Ci.nsIFileURL).file;
       let file = await File.createFromNsIFile(realFile);
       let type = getImageType(file.type);
       // Clone the File object to be able to give it the correct name, matching
@@ -1196,11 +1197,8 @@ this.addressBook = class extends ExtensionAPIPersistent {
           );
         },
         async quickSearch(parentId, queryInfo) {
-          const {
-            getSearchTokens,
-            getModelQuery,
-            generateQueryURI,
-          } = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
+          const { getSearchTokens, getModelQuery, generateQueryURI } =
+            ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 
           let searchString;
           if (typeof queryInfo == "string") {

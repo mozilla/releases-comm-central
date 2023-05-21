@@ -26,9 +26,8 @@ function Startup() {
   gDialog.collapseSpaces = document.getElementById("CollapseSpaces");
 
   // We persist the user's separator character
-  gDialog.sepCharacterInput.value = gDialog.sepRadioGroup.getAttribute(
-    "character"
-  );
+  gDialog.sepCharacterInput.value =
+    gDialog.sepRadioGroup.getAttribute("character");
 
   gIndex = gDialog.sepRadioGroup.getAttribute("index");
 

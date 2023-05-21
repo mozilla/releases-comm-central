@@ -144,10 +144,8 @@ var PendingCommitTracker = {
     let lastFolder = null;
 
     for (let glodaId in PendingCommitTracker._indexedMessagesPendingCommitByGlodaId) {
-      let [
-        msgHdr,
-        dirtyState,
-      ] = PendingCommitTracker._indexedMessagesPendingCommitByGlodaId[glodaId];
+      let [msgHdr, dirtyState] =
+        PendingCommitTracker._indexedMessagesPendingCommitByGlodaId[glodaId];
       // Mark this message as indexed.
       // It's conceivable the database could have gotten blown away, in which
       //  case the message headers are going to throw exceptions when we try
@@ -898,7 +896,8 @@ var GlodaMsgIndexer = {
         false
       );
     } else if (aEnumKind == this.kEnumAllMsgs) {
-      this._indexingEnumerator = this._indexingDatabase.reverseEnumerateMessages();
+      this._indexingEnumerator =
+        this._indexingDatabase.reverseEnumerateMessages();
     } else {
       throw new Error("Unknown enumerator type requested:" + aEnumKind);
     }
@@ -1191,8 +1190,8 @@ var GlodaMsgIndexer = {
     this._indexerGetEnumerator(this.kEnumIndexedMsgs);
 
     const HEADER_CHECK_SYNC_BLOCK_SIZE = this.HEADER_CHECK_SYNC_BLOCK_SIZE;
-    const FOLDER_COMPACTION_PASS_BATCH_SIZE = this
-      .FOLDER_COMPACTION_PASS_BATCH_SIZE;
+    const FOLDER_COMPACTION_PASS_BATCH_SIZE =
+      this.FOLDER_COMPACTION_PASS_BATCH_SIZE;
 
     // Tuples of [gloda id, message key, message-id header] from
     //  folderCompactionPassBlockFetch
@@ -1292,11 +1291,8 @@ var GlodaMsgIndexer = {
 
       if (!keepGlodaTuple) {
         if (mayHaveMoreGlodaMessages) {
-          [
-            oldGlodaId,
-            oldMessageKey,
-            oldHeaderMessageId,
-          ] = glodaIdsMsgKeysHeaderIds.pop();
+          [oldGlodaId, oldMessageKey, oldHeaderMessageId] =
+            glodaIdsMsgKeysHeaderIds.pop();
         } else {
           oldGlodaId = oldMessageKey = oldHeaderMessageId = null;
         }
@@ -2511,9 +2507,8 @@ var GlodaMsgIndexer = {
               let srcMsgHdr = aSrcMsgHdrs[iMsg];
               let destMsgHdr = aDestMsgHdrs[iMsg];
 
-              let [glodaId, dirtyStatus] = PendingCommitTracker.getGlodaState(
-                srcMsgHdr
-              );
+              let [glodaId, dirtyStatus] =
+                PendingCommitTracker.getGlodaState(srcMsgHdr);
               if (
                 glodaId >= GLODA_FIRST_VALID_MESSAGE_ID &&
                 dirtyStatus != GlodaMsgIndexer.kMessageFilthy
@@ -2555,9 +2550,8 @@ var GlodaMsgIndexer = {
             let srcFolderIsLocal =
               srcMsgFolder instanceof Ci.nsIMsgLocalMailFolder;
             for (let msgHdr of aSrcMsgHdrs) {
-              let [glodaId, dirtyStatus] = PendingCommitTracker.getGlodaState(
-                msgHdr
-              );
+              let [glodaId, dirtyStatus] =
+                PendingCommitTracker.getGlodaState(msgHdr);
               if (
                 glodaId >= GLODA_FIRST_VALID_MESSAGE_ID &&
                 dirtyStatus != GlodaMsgIndexer.kMessageFilthy
@@ -2639,9 +2633,8 @@ var GlodaMsgIndexer = {
       try {
         let val = null,
           newKey = aNewMsgHdr.messageKey;
-        let [glodaId, glodaDirty] = PendingCommitTracker.getGlodaState(
-          aNewMsgHdr
-        );
+        let [glodaId, glodaDirty] =
+          PendingCommitTracker.getGlodaState(aNewMsgHdr);
         // If we haven't indexed this message yet, take no action, and leave it
         // up to msgsClassified to take proper action.
         if (glodaId < GLODA_FIRST_VALID_MESSAGE_ID) {

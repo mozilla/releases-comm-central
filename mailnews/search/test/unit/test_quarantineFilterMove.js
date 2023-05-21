@@ -130,9 +130,8 @@ function run_test() {
   }
 
   gMoveFolder = localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder");
-  gMoveFolder2 = localAccountUtils.rootFolder.createLocalSubfolder(
-    "MoveFolder2"
-  );
+  gMoveFolder2 =
+    localAccountUtils.rootFolder.createLocalSubfolder("MoveFolder2");
 
   gTestArray.forEach(x => add_task(x));
   run_next_test();

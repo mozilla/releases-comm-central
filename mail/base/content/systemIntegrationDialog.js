@@ -53,9 +53,7 @@ var gSystemIntegrationDialog = {
 
       // If called from preferences, use only a simpler "Cancel" label on the
       // cancel button.
-      document
-        .querySelector("dialog")
-        .getButton("cancel").label = document
+      document.querySelector("dialog").getButton("cancel").label = document
         .querySelector("dialog")
         .getAttribute("buttonlabelcancel2");
     }
@@ -64,26 +62,20 @@ var gSystemIntegrationDialog = {
       this._mailCheckbox.removeAttribute("tooltiptext");
     }
 
-    this._newsCheckbox.checked = this._newsCheckbox.disabled = this._shellSvc.isDefaultClient(
-      false,
-      this._shellSvc.NEWS
-    );
+    this._newsCheckbox.checked = this._newsCheckbox.disabled =
+      this._shellSvc.isDefaultClient(false, this._shellSvc.NEWS);
     if (!this._newsCheckbox.disabled) {
       this._newsCheckbox.removeAttribute("tooltiptext");
     }
 
-    this._rssCheckbox.checked = this._rssCheckbox.disabled = this._shellSvc.isDefaultClient(
-      false,
-      this._shellSvc.RSS
-    );
+    this._rssCheckbox.checked = this._rssCheckbox.disabled =
+      this._shellSvc.isDefaultClient(false, this._shellSvc.RSS);
     if (!this._rssCheckbox.disabled) {
       this._rssCheckbox.removeAttribute("tooltiptext");
     }
 
-    this._calendarCheckbox.checked = this._calendarCheckbox.disabled = this._shellSvc.isDefaultClient(
-      false,
-      this._shellSvc.CALENDAR
-    );
+    this._calendarCheckbox.checked = this._calendarCheckbox.disabled =
+      this._shellSvc.isDefaultClient(false, this._shellSvc.CALENDAR);
 
     // read the raw pref value and not shellSvc.shouldCheckDefaultMail
     this._startupCheckbox.checked = Services.prefs.getBoolPref(

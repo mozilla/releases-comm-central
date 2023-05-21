@@ -45,9 +45,8 @@ function showMailIntegrationDialog() {
   const nsIShellService = Ci.nsIShellService;
 
   try {
-    var shellService = Cc["@mozilla.org/suite/shell-service;1"].getService(
-      nsIShellService
-    );
+    var shellService =
+      Cc["@mozilla.org/suite/shell-service;1"].getService(nsIShellService);
     var appTypesCheck =
       shellService.shouldBeDefaultClientFor &
       (nsIShellService.MAIL | nsIShellService.NEWS);

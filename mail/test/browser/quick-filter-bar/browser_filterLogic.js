@@ -71,15 +71,11 @@ add_task(async function test_filter_starred() {
 
 add_task(async function test_filter_simple_intersection_unread_and_starred() {
   let folder = await create_folder("QuickFilterBarFilterUnreadAndStarred");
-  let [
-    ,
-    readUnstarred,
-    unreadStarred,
-    readStarred,
-  ] = await make_message_sets_in_folders(
-    [folder],
-    [{ count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }]
-  );
+  let [, readUnstarred, unreadStarred, readStarred] =
+    await make_message_sets_in_folders(
+      [folder],
+      [{ count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }]
+    );
   readUnstarred.setRead(true);
   unreadStarred.setStarred(true);
   readStarred.setRead(true);
@@ -163,16 +159,11 @@ add_task(async function test_filter_tags() {
   const tagA = "$label1",
     tagB = "$label2",
     tagC = "$label3";
-  let [
-    setNoTag,
-    setTagA,
-    setTagB,
-    setTagAB,
-    setTagC,
-  ] = await make_message_sets_in_folders(
-    [folder],
-    [{ count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }]
-  );
+  let [setNoTag, setTagA, setTagB, setTagAB, setTagC] =
+    await make_message_sets_in_folders(
+      [folder],
+      [{ count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }, { count: 1 }]
+    );
   setTagA.addTag(tagA);
   setTagB.addTag(tagB);
   setTagAB.addTag(tagA);
@@ -219,22 +210,17 @@ add_task(async function test_filter_tags() {
 add_task(async function test_filter_text_single_word_and_predicates() {
   let folder = await create_folder("QuickFilterBarTextSingleWord");
   let whoFoo = ["zabba", "foo@madeup.invalid"];
-  let [
-    ,
-    setSenderFoo,
-    setRecipientsFoo,
-    setSubjectFoo,
-    setBodyFoo,
-  ] = await make_message_sets_in_folders(
-    [folder],
-    [
-      { count: 1 },
-      { count: 1, from: whoFoo },
-      { count: 1, to: [whoFoo] },
-      { count: 1, subject: "foo" },
-      { count: 1, body: { body: "foo" } },
-    ]
-  );
+  let [, setSenderFoo, setRecipientsFoo, setSubjectFoo, setBodyFoo] =
+    await make_message_sets_in_folders(
+      [folder],
+      [
+        { count: 1 },
+        { count: 1, from: whoFoo },
+        { count: 1, to: [whoFoo] },
+        { count: 1, subject: "foo" },
+        { count: 1, body: { body: "foo" } },
+      ]
+    );
   await be_in_folder(folder);
 
   // by default, sender/recipients/subject are selected
@@ -321,27 +307,20 @@ add_task(async function test_filter_or_operator() {
   let whoFoo = ["foo", "zabba@madeup.invalid"];
   let whoBar = ["zabba", "bar@madeup.invalid"];
   let whoTest = ["test", "test@madeup.invalid"];
-  let [
-    setInert,
-    setSenderFoo,
-    setToBar,
-    ,
-    ,
-    setSubject3,
-    setMail1,
-  ] = await make_message_sets_in_folders(
-    [folder],
-    [
-      { count: 1 },
-      { count: 1, from: whoFoo },
-      { count: 1, to: [whoBar] },
-      { count: 1, subject: "foo bar" },
-      { count: 1, subject: "bar test" },
-      { count: 1, subject: "test" },
-      { count: 1, to: [whoTest], subject: "logic" },
-      { count: 1, from: whoFoo, to: [whoBar], subject: "test" },
-    ]
-  );
+  let [setInert, setSenderFoo, setToBar, , , setSubject3, setMail1] =
+    await make_message_sets_in_folders(
+      [folder],
+      [
+        { count: 1 },
+        { count: 1, from: whoFoo },
+        { count: 1, to: [whoBar] },
+        { count: 1, subject: "foo bar" },
+        { count: 1, subject: "bar test" },
+        { count: 1, subject: "test" },
+        { count: 1, to: [whoTest], subject: "logic" },
+        { count: 1, from: whoFoo, to: [whoBar], subject: "test" },
+      ]
+    );
   await be_in_folder(folder);
 
   assert_text_constraints_checked("sender", "recipients", "subject");
@@ -431,14 +410,11 @@ add_task(async function test_filter_text_constraints_propagate() {
  */
 add_task(async function test_results_label() {
   let folder = await create_folder("QuickFilterBarResultsLabel");
-  let [
-    setImmortal,
-    setMortal,
-    setGoldfish,
-  ] = await make_message_sets_in_folders(
-    [folder],
-    [{ count: 1 }, { count: 1 }, { count: 1 }]
-  );
+  let [setImmortal, setMortal, setGoldfish] =
+    await make_message_sets_in_folders(
+      [folder],
+      [{ count: 1 }, { count: 1 }, { count: 1 }]
+    );
 
   await be_in_folder(folder);
 

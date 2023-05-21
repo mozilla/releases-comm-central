@@ -92,9 +92,8 @@ add_task(async function appendSmallMessage() {
 
 // Copy the huge message into a subfolder.
 add_task(async function copyHugeMessage() {
-  let trash = localAccountUtils.incomingServer.rootMsgFolder.getChildNamed(
-    "Trash"
-  );
+  let trash =
+    localAccountUtils.incomingServer.rootMsgFolder.getChildNamed("Trash");
   let copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     gInbox,

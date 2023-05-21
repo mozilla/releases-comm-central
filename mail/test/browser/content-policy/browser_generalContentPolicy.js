@@ -152,8 +152,7 @@ var TESTS = [
     type: "Image-Data",
     description: "img from data url should be allowed",
     shouldBeBlocked: false,
-    body:
-      '<img id="testelement" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAC4UlEQVR42o2UW0gUURzGZ7Wa3fW2667XF/OyPQSmmZaZEYWRFN1QEYxeCi3CCCmxl6CHEMzQyAi1IAktLxSipkJghl0swswShbxFD+Hiquvqus7OzNf5T7uhslsN/OCc//f9vz17zpzhOM+PD2Mjg2doXPCumg/3H4+KzLcu++yvL+WeNZZxUy3lnEzQmGqkuQJVfwvRPrqhutd6Z4Mw+mY75qZzIcvFCjSmGmnkIa+nMFXmHs7YXK4aet0UhiXbGUjLpyHMZWLFnK5AY6qRRh7yUs/6MP5xmW/Hh44oQC6CuHAQw28TMdCzDc7ZNAX3nDTykLe+1LfNtXe/N7aiWHOss1Yji0IhpMUDEK2pOHdSj1MZgcp4/VzxMC/1lF/RHHEfAP/kprp7fCgFsjMP0tIuhey9/jiUqPY6Jy/1sN5O96oC2u/yM7b5PCZmQBZ2KhSfNeJ8jt7rnLzU01bFmymDgvTPazSiJF2CLLFfklIUrHNJsHw3QZiOwvJUGMyDBvz8qMficADsY0bYx0PhXMlGZ7XGQRkUFNz5wE90ChfYJrIgMRFOSwyWx4JhHwn0zqgeov04uu5rBcpQVtRd4z9vs+axE4mHgwU4vun/ifAjCgvmDHRXB1jcKwpoqdC9m/icAMmWiuprfqi6qsVEHzNPGtdANdLIQ96JwXg0V+j63HvEl+TrCnqbjLLI/vPiZDSKctUw+XF/OKrmkMVzKNzEKRp5yEs9JQW6fPep0TsQ/vR2yPuhVyZAyoFkNmGkJwS11wPxIi4OX9PYC8nojo5WNPKQt6XS2E+9qy8yH7dZm9JVGzo10BMDu+0EYN8HeXYr6vy0mI+MVGgIClK0Ty9jQV7qWf1muy+sPyPhYWloR29TmDjxZQesM4fREBEBISubkaWMSSMPeV09Ko+3nxFTkGu42FwZ3t9TF2pp321CY2ycQmvSFgdp5PF2+9d8jxgGhomRzEh3keyqGTx9j34B1t40GMHNFqwAAAAASUVORK5CYII="/>\n',
+    body: '<img id="testelement" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAC4UlEQVR42o2UW0gUURzGZ7Wa3fW2667XF/OyPQSmmZaZEYWRFN1QEYxeCi3CCCmxl6CHEMzQyAi1IAktLxSipkJghl0swswShbxFD+Hiquvqus7OzNf5T7uhslsN/OCc//f9vz17zpzhOM+PD2Mjg2doXPCumg/3H4+KzLcu++yvL+WeNZZxUy3lnEzQmGqkuQJVfwvRPrqhutd6Z4Mw+mY75qZzIcvFCjSmGmnkIa+nMFXmHs7YXK4aet0UhiXbGUjLpyHMZWLFnK5AY6qRRh7yUs/6MP5xmW/Hh44oQC6CuHAQw28TMdCzDc7ZNAX3nDTykLe+1LfNtXe/N7aiWHOss1Yji0IhpMUDEK2pOHdSj1MZgcp4/VzxMC/1lF/RHHEfAP/kprp7fCgFsjMP0tIuhey9/jiUqPY6Jy/1sN5O96oC2u/yM7b5PCZmQBZ2KhSfNeJ8jt7rnLzU01bFmymDgvTPazSiJF2CLLFfklIUrHNJsHw3QZiOwvJUGMyDBvz8qMficADsY0bYx0PhXMlGZ7XGQRkUFNz5wE90ChfYJrIgMRFOSwyWx4JhHwn0zqgeov04uu5rBcpQVtRd4z9vs+axE4mHgwU4vun/ifAjCgvmDHRXB1jcKwpoqdC9m/icAMmWiuprfqi6qsVEHzNPGtdANdLIQ96JwXg0V+j63HvEl+TrCnqbjLLI/vPiZDSKctUw+XF/OKrmkMVzKNzEKRp5yEs9JQW6fPep0TsQ/vR2yPuhVyZAyoFkNmGkJwS11wPxIi4OX9PYC8nojo5WNPKQt6XS2E+9qy8yH7dZm9JVGzo10BMDu+0EYN8HeXYr6vy0mI+MVGgIClK0Ty9jQV7qWf1muy+sPyPhYWloR29TmDjxZQesM4fREBEBISubkaWMSSMPeV09Ko+3nxFTkGu42FwZ3t9TF2pp321CY2ycQmvSFgdp5PF2+9d8jxgGhomRzEh3keyqGTx9j34B1t40GMHNFqwAAAAASUVORK5CYII="/>\n',
     webPage: "remoteimagedata.html",
     checkForAllowed: async element => {
       await new Promise(window.requestAnimationFrame);
@@ -283,8 +282,8 @@ async function addMsgToFolderAndCheckContent(folder, test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been loaded
-  let messageDocument = get_about_message().getMessagePaneBrowser()
-    .contentDocument;
+  let messageDocument =
+    get_about_message().getMessagePaneBrowser().contentDocument;
   let testelement = messageDocument.getElementById("testelement");
   Assert.ok(testelement, "testelement should be found");
   if (test.shouldBeBlocked) {
@@ -471,8 +470,8 @@ async function checkContentTab(test) {
   }
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
 
   let newTab = open_content_tab_with_url(url + test.webPage);
 
@@ -516,8 +515,8 @@ async function checkAllowFeedMsg(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  let messageDocument = get_about_message().getMessagePaneBrowser()
-    .contentDocument;
+  let messageDocument =
+    get_about_message().getMessagePaneBrowser().contentDocument;
   if (
     !(await test.checkForAllowed(messageDocument.getElementById("testelement")))
   ) {
@@ -556,8 +555,8 @@ async function checkAllowForSenderWithPerms(test) {
   assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
-  let messageDocument = get_about_message().getMessagePaneBrowser()
-    .contentDocument;
+  let messageDocument =
+    get_about_message().getMessagePaneBrowser().contentDocument;
   if (
     !(await test.checkForAllowed(messageDocument.getElementById("testelement")))
   ) {
@@ -646,8 +645,8 @@ add_task(async function test_generalContentPolicy() {
         // Only want to do this for the test case which has the remote image.
 
         // Add the site to the whitelist.
-        let messageDocument = get_about_message().getMessagePaneBrowser()
-          .contentDocument;
+        let messageDocument =
+          get_about_message().getMessagePaneBrowser().contentDocument;
         let src = messageDocument.getElementById("testelement").src;
 
         let uri = Services.io.newURI(src);
@@ -835,12 +834,10 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
     mwc.window.document.querySelector("dialog").acceptDialog();
   });
 
-  let insertMenu = replyWindow.window.document.getElementById(
-    "InsertPopupButton"
-  );
-  let insertMenuPopup = replyWindow.window.document.getElementById(
-    "InsertPopup"
-  );
+  let insertMenu =
+    replyWindow.window.document.getElementById("InsertPopupButton");
+  let insertMenuPopup =
+    replyWindow.window.document.getElementById("InsertPopup");
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);

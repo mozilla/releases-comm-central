@@ -4,10 +4,8 @@
 
 /* import-globals-from preferences.js */
 
-var {
-  GenericConvIMPrototype,
-  GenericMessagePrototype,
-} = ChromeUtils.importESModule("resource:///modules/jsProtoHelper.sys.mjs");
+var { GenericConvIMPrototype, GenericMessagePrototype } =
+  ChromeUtils.importESModule("resource:///modules/jsProtoHelper.sys.mjs");
 var { getThemeByName, getThemeVariants } = ChromeUtils.importESModule(
   "resource:///modules/imThemes.sys.mjs"
 );

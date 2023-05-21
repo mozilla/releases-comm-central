@@ -738,12 +738,14 @@ var messageProgressListener = {
       "to" in currentHeaderData &&
       "reply-to" in currentHeaderData
     ) {
-      let replyToMailbox = MailServices.headerParser.extractHeaderAddressMailboxes(
-        currentHeaderData["reply-to"].headerValue
-      );
-      let fromMailboxes = MailServices.headerParser.extractHeaderAddressMailboxes(
-        currentHeaderData.from.headerValue
-      );
+      let replyToMailbox =
+        MailServices.headerParser.extractHeaderAddressMailboxes(
+          currentHeaderData["reply-to"].headerValue
+        );
+      let fromMailboxes =
+        MailServices.headerParser.extractHeaderAddressMailboxes(
+          currentHeaderData.from.headerValue
+        );
       let toMailboxes = MailServices.headerParser.extractHeaderAddressMailboxes(
         currentHeaderData.to.headerValue
       );
@@ -2407,11 +2409,8 @@ function InitOtherActionsViewBodyMenu() {
     ? document.getElementById(menuIDs[3])
     : null;
 
-  document.getElementById(
-    "otherActionsMenu_bodyAllParts"
-  ).hidden = !Services.prefs.getBoolPref(
-    "mailnews.display.show_all_body_parts_menu"
-  );
+  document.getElementById("otherActionsMenu_bodyAllParts").hidden =
+    !Services.prefs.getBoolPref("mailnews.display.show_all_body_parts_menu");
 
   // Clear all checkmarks.
   AllowHTML_menuitem.removeAttribute("checked");
@@ -2748,8 +2747,8 @@ const gMessageHeader = {
   },
 
   openCopyPopup(event, element) {
-    document.getElementById("copyCreateFilterFrom").disabled = !gFolder?.server
-      .canHaveFilters;
+    document.getElementById("copyCreateFilterFrom").disabled =
+      !gFolder?.server.canHaveFilters;
 
     let popup = document.getElementById(
       element.matches(`:scope[is="url-header-row"]`)
@@ -2786,8 +2785,8 @@ const gMessageHeader = {
       discoverKeyMenuItem.nextElementSibling.hidden = hidden; // Hide separator.
     }
 
-    document.getElementById("createFilterFrom").disabled = !gFolder?.server
-      .canHaveFilters;
+    document.getElementById("createFilterFrom").disabled =
+      !gFolder?.server.canHaveFilters;
 
     let popup = document.getElementById("emailAddressPopup");
     popup.headerField = element;
@@ -2809,9 +2808,8 @@ const gMessageHeader = {
       ?.QueryInterface(Ci.nsINntpIncomingServer)
       .containsNewsgroup(element.textContent);
     document.getElementById("subscribeToNewsgroupItem").hidden = subscribed;
-    document.getElementById(
-      "subscribeToNewsgroupSeparator"
-    ).hidden = subscribed;
+    document.getElementById("subscribeToNewsgroupSeparator").hidden =
+      subscribed;
 
     let popup = document.getElementById("newsgroupPopup");
     popup.headerField = element;
@@ -2836,9 +2834,8 @@ const gMessageHeader = {
 
     // We don't want to show "Open Browser With Message-ID" for non-nntp
     // messages.
-    document.getElementById(
-      "messageIdContext-openBrowserWithMsgId"
-    ).hidden = !gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false);
+    document.getElementById("messageIdContext-openBrowserWithMsgId").hidden =
+      !gFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false);
 
     let popup = document.getElementById("messageIdContext");
     popup.headerField = element;
@@ -3223,9 +3220,8 @@ function IsReplyAllEnabled() {
     addresses,
     ""
   );
-  let numAddresses = MailServices.headerParser.parseEncodedHeader(
-    uniqueAddresses
-  ).length;
+  let numAddresses =
+    MailServices.headerParser.parseEncodedHeader(uniqueAddresses).length;
 
   // I don't want to count my address in the number of addresses to reply
   // to, since I won't be emailing myself.
@@ -3759,12 +3755,10 @@ var gMessageNotificationBar = {
       aMimeHdr.extractHeader("Return-Receipt-To", false); // not
     let fromHdr = aMimeHdr.extractHeader("From", false);
 
-    let mdnAddr = MailServices.headerParser.extractHeaderAddressMailboxes(
-      mdnHdr
-    );
-    let fromAddr = MailServices.headerParser.extractHeaderAddressMailboxes(
-      fromHdr
-    );
+    let mdnAddr =
+      MailServices.headerParser.extractHeaderAddressMailboxes(mdnHdr);
+    let fromAddr =
+      MailServices.headerParser.extractHeaderAddressMailboxes(fromHdr);
 
     let authorName =
       MailServices.headerParser.extractFirstName(
@@ -3925,9 +3919,8 @@ function onRemoteContentOptionsShowing(aEvent) {
   );
 
   allowAllItem.collapsed = URLcount < 2;
-  document.getElementById(
-    "remoteContentOriginsMenuSeparator"
-  ).collapsed = urlSepar.collapsed = allowAllItem.collapsed && adrCount == 0;
+  document.getElementById("remoteContentOriginsMenuSeparator").collapsed =
+    urlSepar.collapsed = allowAllItem.collapsed && adrCount == 0;
 }
 
 /**

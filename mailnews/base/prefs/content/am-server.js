@@ -59,15 +59,15 @@ function changeStoreType(aResponse) {
     }
 
     document.getElementById("server.localPath").value = aResponse.newRootFolder;
-    gOriginalStoreType = document.getElementById("server.storeTypeMenulist")
-      .value;
+    gOriginalStoreType = document.getElementById(
+      "server.storeTypeMenulist"
+    ).value;
     MailUtils.restartApplication();
   } else {
     // The conversion failed or was cancelled.
     // Restore selected item to what was selected before conversion.
-    document.getElementById(
-      "server.storeTypeMenulist"
-    ).value = gOriginalStoreType;
+    document.getElementById("server.storeTypeMenulist").value =
+      gOriginalStoreType;
   }
 }
 
@@ -329,25 +329,22 @@ function onAdvanced() {
           );
 
           // Check if there are any invalid junk targets and fix them.
-          [
-            spamActionTargetAccount,
-            spamActionTargetFolder,
-            moveOnSpam,
-          ] = sanitizeJunkTargets(
-            spamActionTargetAccount,
-            spamActionTargetFolder,
-            deferredURI || account.incomingServer.serverURI,
-            parent.getAccountValue(
-              account,
-              accountValues,
-              "server",
-              "moveTargetMode",
-              "int",
-              true
-            ),
-            account.incomingServer.spamSettings,
-            moveOnSpam
-          );
+          [spamActionTargetAccount, spamActionTargetFolder, moveOnSpam] =
+            sanitizeJunkTargets(
+              spamActionTargetAccount,
+              spamActionTargetFolder,
+              deferredURI || account.incomingServer.serverURI,
+              parent.getAccountValue(
+                account,
+                accountValues,
+                "server",
+                "moveTargetMode",
+                "int",
+                true
+              ),
+              account.incomingServer.spamSettings,
+              moveOnSpam
+            );
 
           parent.setAccountValue(
             accountValues,

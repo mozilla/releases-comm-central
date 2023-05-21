@@ -188,8 +188,9 @@ add_task(async function () {
 
   eventPromise = BrowserTestUtils.waitForEvent(tabmail.tabContainer, "TabOpen");
   contentTab = window.openContentTab("https://example.org/");
-  contentTabPanel = contentTab.browser.closest(".contentTabInstance")
-    .parentNode;
+  contentTabPanel = contentTab.browser.closest(
+    ".contentTabInstance"
+  ).parentNode;
   event = await eventPromise;
   Assert.equal(
     event.target,

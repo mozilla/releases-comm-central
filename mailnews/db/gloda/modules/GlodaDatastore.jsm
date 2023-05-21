@@ -193,9 +193,11 @@ function QueryFromQueryCallback(aStatement, aNounDef, aCollection) {
 
   // the master collection holds the referencesByNounID
   this.referencesByNounID = {};
-  this.masterReferencesByNounID = this.collection.masterCollection.referencesByNounID;
+  this.masterReferencesByNounID =
+    this.collection.masterCollection.referencesByNounID;
   this.inverseReferencesByNounID = {};
-  this.masterInverseReferencesByNounID = this.collection.masterCollection.inverseReferencesByNounID;
+  this.masterInverseReferencesByNounID =
+    this.collection.masterCollection.inverseReferencesByNounID;
   // we need to contribute our references as we load things; we need this
   //  because of the potential for circular dependencies and our inability to
   //  put things into the caching layer (or collection's _idMap) until we have
@@ -207,9 +209,8 @@ function QueryFromQueryCallback(aStatement, aNounDef, aCollection) {
   }
   if (this.nounDef.parentColumnAttr) {
     if (this.nounDef.id in this.masterInverseReferencesByNounID) {
-      this.selfInverseReferences = this.masterInverseReferencesByNounID[
-        this.nounDef.id
-      ];
+      this.selfInverseReferences =
+        this.masterInverseReferencesByNounID[this.nounDef.id];
     } else {
       this.selfInverseReferences = this.masterInverseReferencesByNounID[
         this.nounDef.id
@@ -340,22 +341,18 @@ QueryFromQueryCallback.prototype = {
             } else {
               outReferences = masterReferences;
             }
-            let [
-              ,
-              notFoundCount,
-              notFound,
-            ] = GlodaCollectionManager.cacheLookupMany(
-              nounDef.id,
-              references,
-              outReferences
-            );
+            let [, notFoundCount, notFound] =
+              GlodaCollectionManager.cacheLookupMany(
+                nounDef.id,
+                references,
+                outReferences
+              );
 
             if (nounDef.parentColumnAttr) {
               let inverseReferences;
               if (nounDef.id in this.masterInverseReferencesByNounID) {
-                inverseReferences = this.masterInverseReferencesByNounID[
-                  nounDef.id
-                ];
+                inverseReferences =
+                  this.masterInverseReferencesByNounID[nounDef.id];
               } else {
                 inverseReferences = this.masterInverseReferencesByNounID[
                   nounDef.id
@@ -388,16 +385,15 @@ QueryFromQueryCallback.prototype = {
                 nounDef.id in this.collection.masterCollection.subCollections
                   ? this.collection.masterCollection.subCollections[nounDef.id]
                   : undefined;
-              this.collection.masterCollection.subCollections[
-                nounDef.id
-              ] = GlodaDatastore.queryFromQuery(
-                query,
-                QueryFromQueryResolver,
-                this.collection,
-                subCollection,
-                this.collection.masterCollection,
-                { becomeExplicit: true }
-              );
+              this.collection.masterCollection.subCollections[nounDef.id] =
+                GlodaDatastore.queryFromQuery(
+                  query,
+                  QueryFromQueryResolver,
+                  this.collection,
+                  subCollection,
+                  this.collection.masterCollection,
+                  { becomeExplicit: true }
+                );
             }
           }
 
@@ -417,16 +413,15 @@ QueryFromQueryCallback.prototype = {
               nounDef.id in this.collection.masterCollection.subCollections
                 ? this.collection.masterCollection.subCollections[nounDef.id]
                 : undefined;
-            this.collection.masterCollection.subCollections[
-              nounDef.id
-            ] = GlodaDatastore.queryFromQuery(
-              query,
-              QueryFromQueryResolver,
-              this.collection,
-              subCollection,
-              this.collection.masterCollection,
-              { becomeExplicit: true }
-            );
+            this.collection.masterCollection.subCollections[nounDef.id] =
+              GlodaDatastore.queryFromQuery(
+                query,
+                QueryFromQueryResolver,
+                this.collection,
+                subCollection,
+                this.collection.masterCollection,
+                { becomeExplicit: true }
+              );
           }
         } else {
           this.collection.deferredCount--;
@@ -1474,7 +1469,8 @@ var GlodaDatastore = {
       this._createTableSchema(aDBConnection, tableName, tableDef);
     }
 
-    aDBConnection.schemaVersion = this._actualSchemaVersion = this._schemaVersion;
+    aDBConnection.schemaVersion = this._actualSchemaVersion =
+      this._schemaVersion;
   },
 
   /**

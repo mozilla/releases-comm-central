@@ -68,9 +68,8 @@ add_setup(function () {
   let accountRow = get_account_tree_row(gAccount.key, "am-e2e.xhtml", gTab);
   click_account_tree_row(gTab, accountRow);
 
-  let iframe = gTab.browser.contentWindow.document.getElementById(
-    "contentFrame"
-  );
+  let iframe =
+    gTab.browser.contentWindow.document.getElementById("contentFrame");
 
   tabDocument = iframe.contentDocument;
   tabWindow = iframe.contentDocument.ownerGlobal;

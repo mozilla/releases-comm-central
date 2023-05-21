@@ -1152,9 +1152,8 @@ var MessageTextFilter = {
       let upsell = aDocument.getElementById("qfb-text-search-upsell");
       if (upsell.state == "open") {
         upsell.hidePopup();
-        let tabmail = aDocument.ownerGlobal.top.document.getElementById(
-          "tabmail"
-        );
+        let tabmail =
+          aDocument.ownerGlobal.top.document.getElementById("tabmail");
         tabmail.openTab("glodaFacet", {
           searcher: new lazy.GlodaMsgSearcher(null, aState.text),
         });

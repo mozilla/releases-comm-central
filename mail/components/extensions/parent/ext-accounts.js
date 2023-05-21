@@ -39,9 +39,8 @@ var accountsTracker = new (class extends EventEmitter {
       return false;
     }
     let values = this.monitoredAccounts.get(nativeAccount.key);
-    let propertyValue = this.getMonitoredProperties(nativeAccount)[
-      propertyName
-    ];
+    let propertyValue =
+      this.getMonitoredProperties(nativeAccount)[propertyName];
     if (propertyValue && values[propertyName] != propertyValue) {
       values[propertyName] = propertyValue;
       this.monitoredAccounts.set(nativeAccount.key, values);
@@ -107,9 +106,8 @@ var accountsTracker = new (class extends EventEmitter {
               // Fails for servers being removed.
               return;
             }
-            let nativeAccount = MailServices.accounts.FindAccountForServer(
-              server
-            );
+            let nativeAccount =
+              MailServices.accounts.FindAccountForServer(server);
 
             let name = this.getChangedMonitoredProperty(nativeAccount, "name");
             if (name) {

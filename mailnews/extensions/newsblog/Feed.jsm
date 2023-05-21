@@ -112,9 +112,8 @@ Feed.prototype = {
     // Get a unique sanitized name. Use title or description as a base;
     // these are mandatory by spec. Length of 80 is plenty.
     let folderName = (this.title || this.description || "").substr(0, 80);
-    let defaultName = lazy.FeedUtils.strings.GetStringFromName(
-      "ImportFeedsNew"
-    );
+    let defaultName =
+      lazy.FeedUtils.strings.GetStringFromName("ImportFeedsNew");
     return (this.mFolderName = lazy.FeedUtils.getSanitizedFolderName(
       this.server.rootMsgFolder,
       folderName,
@@ -274,9 +273,8 @@ Feed.prototype = {
         // since we last downloaded it and does not need to be parsed.
         error = lazy.FeedUtils.kNewsBlogNoNewItems;
       } else {
-        let [errType, errName] = lazy.FeedUtils.createTCPErrorFromFailedXHR(
-          request
-        );
+        let [errType, errName] =
+          lazy.FeedUtils.createTCPErrorFromFailedXHR(request);
         lazy.FeedUtils.log.info(
           "Feed.onDownloaded: request errType:errName:statusCode - " +
             errType +

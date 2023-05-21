@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {
-  TIMEOUT_MODAL_DIALOG,
-  checkMonthAlarmIcon,
-  handleDeleteOccurrencePrompt,
-} = ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
+var { TIMEOUT_MODAL_DIALOG, checkMonthAlarmIcon, handleDeleteOccurrencePrompt } =
+  ChromeUtils.import("resource://testing-common/calendar/CalendarUtils.jsm");
 var { cancelItemDialog, formatTime, saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
@@ -73,12 +70,8 @@ add_task(async function testEventDialog() {
   // Create new event on first day in view.
   EventUtils.synthesizeMouseAtCenter(monthView.getDayBox(window, 1, 1), {}, window);
 
-  let {
-    dialogWindow,
-    iframeWindow,
-    dialogDocument,
-    iframeDocument,
-  } = await CalendarTestUtils.editNewEvent(window);
+  let { dialogWindow, iframeWindow, dialogDocument, iframeDocument } =
+    await CalendarTestUtils.editNewEvent(window);
 
   // First check all standard-values are set correctly.
   let startPicker = iframeDocument.getElementById("event-starttime");

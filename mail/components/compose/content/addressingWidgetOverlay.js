@@ -1051,9 +1051,8 @@ function onPillPopupShowing(event) {
   // selected pills are mailing lists.
   let isNotMailingList = [...allSelectedPills].some(pill => !pill.isMailList);
   menu.querySelector("#expandList").hidden = isNotMailingList;
-  menu.querySelector(
-    "#pillContextBeforeExpandListSeparator"
-  ).hidden = isNotMailingList;
+  menu.querySelector("#pillContextBeforeExpandListSeparator").hidden =
+    isNotMailingList;
 
   // If any Newsgroup or Followup pill is selected, hide all move actions.
   if (
@@ -1195,9 +1194,8 @@ function showAddressRowMenuItemSetPreferButton(menuItem, preferButton) {
  * hidden status of menuitems and buttons.
  */
 function updateRecipientsVisibility() {
-  document.getElementById(
-    "extraAddressRowsMenuButton"
-  ).hidden = !document.querySelector("#extraAddressRowsMenu > :not([hidden])");
+  document.getElementById("extraAddressRowsMenuButton").hidden =
+    !document.querySelector("#extraAddressRowsMenu > :not([hidden])");
 
   let buttonbox = document.getElementById("extraAddressRowsArea");
   // Toggle the class to show/hide the pseudo element separator

@@ -625,9 +625,8 @@ add_task(async function testSpacesToolbarContextMenu() {
   await assertTab(secondMailTab, mailButton, "Opened second mail tab");
   await assertMailShown();
   // Displayed folder should be the same as in the first mail tab.
-  let [, secondMailTabInfo] = tabmail._getTabContextForTabbyThing(
-    secondMailTab
-  );
+  let [, secondMailTabInfo] =
+    tabmail._getTabContextForTabbyThing(secondMailTab);
   await TestUtils.waitForCondition(
     () => secondMailTabInfo.folder?.URI == folderB.URI,
     "Should display folder B in the second mail tab"
@@ -881,8 +880,9 @@ add_task(async function testSpacesToolbarMenubar() {
 }).__skipMe = AppConstants.platform == "macosx"; // Can't click menu bar on Mac.
 
 add_task(async function testSpacesToolbarOSX() {
-  let size = document.getElementById("spacesToolbar").getBoundingClientRect()
-    .width;
+  let size = document
+    .getElementById("spacesToolbar")
+    .getBoundingClientRect().width;
 
   // By default, macOS shouldn't need any custom styling.
   Assert.ok(

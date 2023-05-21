@@ -254,12 +254,10 @@ add_task(
     const folderCount = 4;
     const messageCount = 64;
 
-    let [
-      folders,
-      setOne,
-    ] = await messageInjection.makeFoldersWithSets(folderCount, [
-      { count: messageCount },
-    ]);
+    let [folders, setOne] = await messageInjection.makeFoldersWithSets(
+      folderCount,
+      [{ count: messageCount }]
+    );
 
     let virtFolder = messageInjection.makeVirtualFolder(folders, {});
     await view_open(viewWrapper, virtFolder);
@@ -276,12 +274,10 @@ add_task(
     const folderCount = 16;
     const messageCount = 256;
 
-    let [
-      folders,
-      setOne,
-    ] = await messageInjection.makeFoldersWithSets(folderCount, [
-      { subject: "foo", count: messageCount },
-    ]);
+    let [folders, setOne] = await messageInjection.makeFoldersWithSets(
+      folderCount,
+      [{ subject: "foo", count: messageCount }]
+    );
 
     let virtFolder = messageInjection.makeVirtualFolder(folders, {
       subject: "foo",
@@ -439,16 +435,10 @@ add_task(
   async function test_virtual_folder_mail_views_unread_with_one_folder() {
     let viewWrapper = make_view_wrapper();
 
-    let [
-      folders,
-      fooOne,
-      fooTwo,
-    ] = await messageInjection.makeFoldersWithSets(1, [
-      { subject: "foo 1" },
-      { subject: "foo 2" },
-      {},
-      {},
-    ]);
+    let [folders, fooOne, fooTwo] = await messageInjection.makeFoldersWithSets(
+      1,
+      [{ subject: "foo 1" }, { subject: "foo 2" }, {}, {}]
+    );
     let virtFolder = messageInjection.makeVirtualFolder(folders, {
       subject: "foo",
     });
@@ -486,16 +476,10 @@ add_task(
   async function test_virtual_folder_mail_views_unread_with_four_folders() {
     let viewWrapper = make_view_wrapper();
 
-    let [
-      folders,
-      fooOne,
-      fooTwo,
-    ] = await messageInjection.makeFoldersWithSets(4, [
-      { subject: "foo 1" },
-      { subject: "foo 2" },
-      {},
-      {},
-    ]);
+    let [folders, fooOne, fooTwo] = await messageInjection.makeFoldersWithSets(
+      4,
+      [{ subject: "foo 1" }, { subject: "foo 2" }, {}, {}]
+    );
     let virtFolder = messageInjection.makeVirtualFolder(folders, {
       subject: "foo",
     });

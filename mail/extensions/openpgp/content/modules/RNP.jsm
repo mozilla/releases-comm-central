@@ -966,10 +966,8 @@ var RNP = {
           // Usually, we don't allow user IDs reported as not valid
           uidOkToUse = !this.isBadUid(uid_handle);
 
-          let {
-            hasGoodSignature,
-            hasWeakSignature,
-          } = this.getUidSignatureQuality(keyObj.keyId, uid_handle);
+          let { hasGoodSignature, hasWeakSignature } =
+            this.getUidSignatureQuality(keyObj.keyId, uid_handle);
 
           if (hasWeakSignature) {
             keyObj.hasIgnoredAttributes = true;
@@ -3021,10 +3019,8 @@ var RNP = {
           // currently undecided. In other words, we keep the acceptance
           // if it's rejected or verified.
 
-          let currentAcceptance = await lazy.PgpSqliteDb2.getFingerprintAcceptance(
-            null,
-            k.fpr
-          );
+          let currentAcceptance =
+            await lazy.PgpSqliteDb2.getFingerprintAcceptance(null, k.fpr);
 
           if (!currentAcceptance || currentAcceptance == "undecided") {
             // Currently undecided, allowed to change.
@@ -3088,9 +3084,8 @@ var RNP = {
   },
 
   async revokeKey(keyFingerprint) {
-    let tracker = RnpPrivateKeyUnlockTracker.constructFromFingerprint(
-      keyFingerprint
-    );
+    let tracker =
+      RnpPrivateKeyUnlockTracker.constructFromFingerprint(keyFingerprint);
     if (!tracker.available()) {
       return;
     }
@@ -3766,9 +3761,8 @@ var RNP = {
                 RNPLib.rnp_buffer_destroy(fingerprint);
 
                 if (have_secret.value) {
-                  let isAccepted = await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(
-                    fpr
-                  );
+                  let isAccepted =
+                    await lazy.PgpSqliteDb2.isAcceptedAsPersonalKey(fpr);
                   if (isAccepted) {
                     foundHandle = handle;
                     have_handle = false;

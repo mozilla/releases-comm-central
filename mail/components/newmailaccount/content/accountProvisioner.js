@@ -160,8 +160,9 @@ var gAccountProvisioner = {
     }
 
     gAccountSetupLogger.debug("Initializing provisioner wizard");
-    gReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
-      .matches;
+    gReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
 
     // Store the main window.
     gMainWindow = Services.wm.getMostRecentWindow("mail:3pane");

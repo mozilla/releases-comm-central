@@ -176,8 +176,7 @@ var intlPhrases = [
     searchPhrases: [
       // Full-width lower.
       {
-        body:
-          "\uff34\uff28\uff35\uff2e\uff24\uff25\uff32\uff22\uff29\uff32\uff24",
+        body: "\uff34\uff28\uff35\uff2e\uff24\uff25\uff32\uff22\uff29\uff32\uff24",
         match: true,
       },
       // Half-width.

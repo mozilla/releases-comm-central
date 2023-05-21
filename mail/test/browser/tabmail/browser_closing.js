@@ -184,8 +184,8 @@ async function assertClose(fromTab, closeMethod, switchToTab, closingTabs) {
     closingTabs = [fromTab];
     desc = `closing tab #${fromTab.index}`;
   }
-  let numTabsBefore = mc.window.document.getElementById("tabmail").tabInfo
-    .length;
+  let numTabsBefore =
+    mc.window.document.getElementById("tabmail").tabInfo.length;
   for (let tab of closingTabs) {
     Assert.ok(
       tab.node.parentNode,

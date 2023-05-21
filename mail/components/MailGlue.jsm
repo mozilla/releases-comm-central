@@ -513,9 +513,8 @@ MailGlue.prototype = {
     // Inject scripts into some devtools windows.
     function _setupBrowserConsole(domWindow) {
       // Browser Console is an XHTML document.
-      domWindow.document.title = lazy.gMailBundle.GetStringFromName(
-        "errorConsoleTitle"
-      );
+      domWindow.document.title =
+        lazy.gMailBundle.GetStringFromName("errorConsoleTitle");
       Services.scriptloader.loadSubScript(
         "chrome://global/content/viewSourceUtils.js",
         domWindow

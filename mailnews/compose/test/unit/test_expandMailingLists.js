@@ -32,9 +32,8 @@ function checkPopulate(aTo, aCheckTo) {
   fields.to = aTo;
 
   // Set up some params
-  let params = Cc[MsgComposeParamsContractID].createInstance(
-    nsIMsgComposeParams
-  );
+  let params =
+    Cc[MsgComposeParamsContractID].createInstance(nsIMsgComposeParams);
 
   params.composeFields = fields;
 

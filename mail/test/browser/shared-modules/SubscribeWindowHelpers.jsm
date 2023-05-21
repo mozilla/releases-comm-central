@@ -17,11 +17,8 @@ var { get_about_3pane, right_click_on_folder } = ChromeUtils.import(
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
-var {
-  click_menus_in_sequence,
-  plan_for_modal_dialog,
-  wait_for_modal_dialog,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { click_menus_in_sequence, plan_for_modal_dialog, wait_for_modal_dialog } =
+  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 /**
  * Open a subscribe dialog from the context menu.

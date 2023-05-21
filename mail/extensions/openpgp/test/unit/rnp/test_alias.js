@@ -49,8 +49,7 @@ const tests = [
     expectedAliasKeys: null,
   },
   {
-    info:
-      "File maps Alice's address to Bob's (id) and Carol's (fingerprint) keys",
+    info: "File maps Alice's address to Bob's (id) and Carol's (fingerprint) keys",
     filename: `${mailNewsDir}/alias-1.json`,
     to: "alice@openpgp.example",
     expectedMissing: false,

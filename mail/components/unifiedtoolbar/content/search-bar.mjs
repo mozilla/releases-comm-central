@@ -76,9 +76,8 @@ export class SearchBar extends HTMLElement {
     });
 
     this.#input.setAttribute("aria-label", this.getAttribute("label"));
-    template.querySelector(
-      "slot[name=placeholder]"
-    ).textContent = this.getAttribute("label");
+    template.querySelector("slot[name=placeholder]").textContent =
+      this.getAttribute("label");
     this.#input.addEventListener("input", this.#onInput);
 
     const styles = document.createElement("link");
@@ -97,9 +96,8 @@ export class SearchBar extends HTMLElement {
     switch (attributeName) {
       case "label":
         this.#input.setAttribute("aria-label", newValue);
-        this.shadowRoot.querySelector(
-          "slot[name=placeholder]"
-        ).textContent = newValue;
+        this.shadowRoot.querySelector("slot[name=placeholder]").textContent =
+          newValue;
         break;
       case "disabled": {
         const isDisabled = this.hasAttribute("disabled");

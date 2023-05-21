@@ -1605,9 +1605,8 @@ var FeedUtils = {
     if ((status & 0xff0000) === 0x5a0000) {
       // Security module.
       const nsINSSErrorsService = Ci.nsINSSErrorsService;
-      let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
-        nsINSSErrorsService
-      );
+      let nssErrorsService =
+        Cc["@mozilla.org/nss_errors_service;1"].getService(nsINSSErrorsService);
       let errorClass;
 
       // getErrorClass()) will throw a generic NS_ERROR_FAILURE if the error

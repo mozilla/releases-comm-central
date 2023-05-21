@@ -405,9 +405,8 @@ var gPrivacyPane = {
   },
 
   updateDownloadedPhishingListState() {
-    document.getElementById(
-      "useDownloadedList"
-    ).disabled = !document.getElementById("enablePhishingDetector").checked;
+    document.getElementById("useDownloadedList").disabled =
+      !document.getElementById("enablePhishingDetector").checked;
   },
 
   /**

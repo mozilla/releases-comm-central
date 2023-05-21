@@ -3,7 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function subtestUID(type) {
-  const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+  const UUID_REGEXP =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
   // Create a server and check it the UID is set when accessed.
 

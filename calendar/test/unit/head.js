@@ -275,8 +275,9 @@ function do_calendar_startup(callback) {
     },
   };
 
-  let startupService = Cc["@mozilla.org/calendar/startup-service;1"].getService(Ci.nsISupports)
-    .wrappedJSObject;
+  let startupService = Cc["@mozilla.org/calendar/startup-service;1"].getService(
+    Ci.nsISupports
+  ).wrappedJSObject;
 
   if (startupService.started) {
     callback();

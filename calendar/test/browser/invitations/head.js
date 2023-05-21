@@ -669,8 +669,9 @@ async function doMajorExceptionTest(conf) {
     "organizer.id": "mailto:sender@example.com",
     status: "CONFIRMED",
   };
-  let originalPartStat = event.getAttendees().find(att => att.id == "mailto:receiver@example.com")
-    .participationStatus;
+  let originalPartStat = event
+    .getAttendees()
+    .find(att => att.id == "mailto:receiver@example.com").participationStatus;
 
   Assert.ok(
     !event.recurrenceInfo.getExceptionFor(recurrenceId),

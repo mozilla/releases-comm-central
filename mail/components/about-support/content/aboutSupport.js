@@ -420,9 +420,8 @@ var snapshotFormatters = {
       (a, b) => a + b,
       0
     );
-    document.querySelector(
-      "#remoteprocesses-row a"
-    ).textContent = remoteProcessesCount;
+    document.querySelector("#remoteprocesses-row a").textContent =
+      remoteProcessesCount;
 
     // Display the regular "web" process type first in the list,
     // and with special formatting.
@@ -1620,15 +1619,12 @@ function setupEventListeners() {
   let button = $("clear-startup-cache-button");
   if (button) {
     button.addEventListener("click", async function (event) {
-      const [
-        promptTitle,
-        promptBody,
-        restartButtonLabel,
-      ] = await document.l10n.formatValues([
-        { id: "startup-cache-dialog-title2" },
-        { id: "startup-cache-dialog-body2" },
-        { id: "restart-button-label" },
-      ]);
+      const [promptTitle, promptBody, restartButtonLabel] =
+        await document.l10n.formatValues([
+          { id: "startup-cache-dialog-title2" },
+          { id: "startup-cache-dialog-body2" },
+          { id: "restart-button-label" },
+        ]);
       const buttonFlags =
         Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
         Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +

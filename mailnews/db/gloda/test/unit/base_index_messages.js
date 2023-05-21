@@ -51,13 +51,8 @@ var { PromiseTestUtils } = ChromeUtils.import(
 var { MessageInjection } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageInjection.jsm"
 );
-var {
-  SyntheticMessageSet,
-  SyntheticPartMultiMixed,
-  SyntheticPartLeaf,
-} = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
-);
+var { SyntheticMessageSet, SyntheticPartMultiMixed, SyntheticPartLeaf } =
+  ChromeUtils.import("resource://testing-common/mailnews/MessageGenerator.jsm");
 var { TagNoun } = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
 
 // Whether we can expect fulltext results
@@ -459,7 +454,8 @@ async function test_attachment_flag() {
   });
   // Save it off for test_attributes_fundamental_from_disk.
   let msgSet = new SyntheticMessageSet([smsg]);
-  let folder = (fundamentalFolderHandle = await messageInjection.makeEmptyFolder());
+  let folder = (fundamentalFolderHandle =
+    await messageInjection.makeEmptyFolder());
   await messageInjection.addSetsToFolders([folder], [msgSet]);
 
   // If we need to go offline, let the indexing pass run, then force us offline.
@@ -531,7 +527,8 @@ async function test_attributes_fundamental() {
   fundamentalSyntheticMessage = smsg;
   let msgSet = new SyntheticMessageSet([smsg]);
   fundamentalMsgSet = msgSet;
-  let folder = (fundamentalFolderHandle = await messageInjection.makeEmptyFolder());
+  let folder = (fundamentalFolderHandle =
+    await messageInjection.makeEmptyFolder());
   await messageInjection.addSetsToFolders([folder], [msgSet]);
 
   // If we need to go offline, let the indexing pass run, then force us offline.
@@ -669,7 +666,8 @@ async function test_moved_message_attributes() {
           // And verify that the new url is still valid.
           let channel = NetUtil.newChannel({
             uri: attInfos.url,
-            loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+            loadingPrincipal:
+              Services.scriptSecurityManager.getSystemPrincipal(),
             securityFlags:
               Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
             contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,

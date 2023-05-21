@@ -44,9 +44,8 @@ function goQuitApplication() {
  */
 function getEnabledControllerForCommand(command) {
   // The first controller for which `supportsCommand` returns true.
-  let controllerA = top.document.commandDispatcher.getControllerForCommand(
-    command
-  );
+  let controllerA =
+    top.document.commandDispatcher.getControllerForCommand(command);
   if (controllerA?.isCommandEnabled(command)) {
     return controllerA;
   }

@@ -981,28 +981,27 @@ function onCopyOrCutShortened(aEvent) {
  */
 function shortenImageData(aImageData, aDialogField) {
   let shortened = false;
-  aDialogField.value = aImageData.replace(/^(data:.+;base64,)(.*)/i, function (
-    match,
-    nonDataPart,
-    dataPart
-  ) {
-    if (dataPart.length <= 35) {
-      return match;
-    }
+  aDialogField.value = aImageData.replace(
+    /^(data:.+;base64,)(.*)/i,
+    function (match, nonDataPart, dataPart) {
+      if (dataPart.length <= 35) {
+        return match;
+      }
 
-    shortened = true;
-    aDialogField.addEventListener("copy", onCopyOrCutShortened);
-    aDialogField.addEventListener("cut", onCopyOrCutShortened);
-    aDialogField.fullDataURI = aImageData;
-    aDialogField.removeAttribute("tooltiptext");
-    aDialogField.setAttribute("tooltip", "shortenedDataURI");
-    return (
-      nonDataPart +
-      dataPart.substring(0, 5) +
-      "…" +
-      dataPart.substring(dataPart.length - 30)
-    );
-  });
+      shortened = true;
+      aDialogField.addEventListener("copy", onCopyOrCutShortened);
+      aDialogField.addEventListener("cut", onCopyOrCutShortened);
+      aDialogField.fullDataURI = aImageData;
+      aDialogField.removeAttribute("tooltiptext");
+      aDialogField.setAttribute("tooltip", "shortenedDataURI");
+      return (
+        nonDataPart +
+        dataPart.substring(0, 5) +
+        "…" +
+        dataPart.substring(dataPart.length - 30)
+      );
+    }
+  );
   return shortened;
 }
 

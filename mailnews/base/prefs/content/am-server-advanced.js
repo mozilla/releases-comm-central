@@ -145,8 +145,7 @@ function onOk(event) {
 
 // Set radio element choices and picker states
 function updateInboxAccount(enablePicker) {
-  document.getElementById(
-    "deferredServerFolderPicker"
-  ).disabled = !enablePicker;
+  document.getElementById("deferredServerFolderPicker").disabled =
+    !enablePicker;
   document.getElementById("deferGetNewMail").disabled = !enablePicker;
 }

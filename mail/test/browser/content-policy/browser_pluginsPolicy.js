@@ -218,8 +218,8 @@ add_task(async function test_checkStandaloneMessageWindowDenied() {
 add_task(async function test_checkContentTab() {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
 
   let newTab = open_content_tab_with_url(url + "plugin.html");
 

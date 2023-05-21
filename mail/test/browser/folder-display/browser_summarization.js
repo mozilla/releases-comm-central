@@ -425,8 +425,8 @@ add_task(async function test_archive_and_delete_messages() {
   select_shift_click_row(2);
   let messages = mc.window.gFolderDisplay.selectedMessages;
 
-  let contentWindow = mc.window.document.getElementById("multimessage")
-    .contentWindow;
+  let contentWindow =
+    mc.window.document.getElementById("multimessage").contentWindow;
   // Archive selected messages.
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",

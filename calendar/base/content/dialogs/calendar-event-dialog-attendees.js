@@ -204,7 +204,8 @@ var eventBar = {
           this.eventBarBottom.offsetLeft + this.eventBarBottom.offsetWidth + this.dragDistance <=
             zoom.levels[zoom.currentLevel].dayWidth * numberDaysDisplayed
         ) {
-          this.eventBarTop.style.transform = this.eventBarBottom.style.transform = `translateX(${this.dragDistance}px)`;
+          this.eventBarTop.style.transform =
+            this.eventBarBottom.style.transform = `translateX(${this.dragDistance}px)`;
         }
         break;
       }

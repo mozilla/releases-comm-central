@@ -365,9 +365,10 @@ this.windows = class extends ExtensionAPIPersistent {
             }
 
             let nativeTabInfo = tabTracker.getTab(createData.tabId);
-            let tabmail = getTabBrowser(
-              nativeTabInfo
-            ).ownerDocument.getElementById("tabmail");
+            let tabmail =
+              getTabBrowser(nativeTabInfo).ownerDocument.getElementById(
+                "tabmail"
+              );
             let targetType = wantNormalWindow ? null : "popup";
             window = tabmail.replaceTabWithWindow(nativeTabInfo, targetType)[0];
           } else {

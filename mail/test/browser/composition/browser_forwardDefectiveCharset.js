@@ -46,8 +46,9 @@ add_task(async function test_forward_direct() {
 
   let cwc = open_compose_with_forward(msgc);
 
-  let mailText = cwc.window.document.getElementById("messageEditor")
-    .contentDocument.body.textContent;
+  let mailText =
+    cwc.window.document.getElementById("messageEditor").contentDocument.body
+      .textContent;
 
   Assert.ok(
     mailText.includes(SOME_SPANISH),
@@ -66,8 +67,9 @@ add_task(async function test_forward_from_folder() {
   let aboutMessage = get_about_message(msgc.window);
 
   // Copy the message to a folder.
-  let documentChild = aboutMessage.document.getElementById("messagepane")
-    .contentDocument.documentElement;
+  let documentChild =
+    aboutMessage.document.getElementById("messagepane").contentDocument
+      .documentElement;
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
@@ -94,8 +96,9 @@ add_task(async function test_forward_from_folder() {
 
   let cwc = open_compose_with_forward();
 
-  let mailText = cwc.window.document.getElementById("messageEditor")
-    .contentDocument.body.textContent;
+  let mailText =
+    cwc.window.document.getElementById("messageEditor").contentDocument.body
+      .textContent;
 
   Assert.ok(
     mailText.includes(SOME_SPANISH),

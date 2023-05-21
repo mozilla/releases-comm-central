@@ -292,9 +292,8 @@ MatrixParticipant.prototype = {
       const powerLevels = room.currentState
         .getStateEvents(lazy.MatrixSDK.EventType.RoomPowerLevels, "")
         ?.getContent();
-      const defaultLevel = lazy.MatrixPowerLevels.getUserDefaultLevel(
-        powerLevels
-      );
+      const defaultLevel =
+        lazy.MatrixPowerLevels.getUserDefaultLevel(powerLevels);
       const messageLevel = lazy.MatrixPowerLevels.getEventLevel(
         powerLevels,
         this._account._client.isRoomEncrypted(room.roomId)
@@ -1943,9 +1942,8 @@ MatrixAccount.prototype = {
   async loginToClient(loginType, loginInfo, retry = false) {
     try {
       if (this.getString("deviceDisplayName")) {
-        loginInfo.initial_device_display_name = this.getString(
-          "deviceDisplayName"
-        );
+        loginInfo.initial_device_display_name =
+          this.getString("deviceDisplayName");
       }
       const data = await this._client.login(loginType, loginInfo);
       if (data.error) {
@@ -2674,12 +2672,8 @@ MatrixAccount.prototype = {
     const uiRequest = this.addVerificationRequest(
       displayName,
       async () => {
-        const {
-          challenge,
-          challengeDescription,
-          handleResult,
-          cancel,
-        } = await startVerification(request);
+        const { challenge, challengeDescription, handleResult, cancel } =
+          await startVerification(request);
         _handleResult = handleResult;
         _cancel = cancel;
         return { challenge, challengeDescription };

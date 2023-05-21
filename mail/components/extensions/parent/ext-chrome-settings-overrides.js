@@ -125,8 +125,8 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
       // Registering a search engine can potentially take a long while,
       // or not complete at all (when searchInitialized is never resolved),
       // so we are deliberately not awaiting the returned promise here.
-      let searchStartupPromise = this.processSearchProviderManifestEntry().finally(
-        () => {
+      let searchStartupPromise =
+        this.processSearchProviderManifestEntry().finally(() => {
           if (
             pendingSearchSetupTasks.get(extension.id) === searchStartupPromise
           ) {
@@ -135,8 +135,7 @@ this.chrome_settings_overrides = class extends ExtensionAPI {
             // has finished initialising.
             ExtensionParent.apiManager.emit("searchEngineProcessed", extension);
           }
-        }
-      );
+        });
 
       // Save the promise so we can await at onUninstall.
       pendingSearchSetupTasks.set(extension.id, searchStartupPromise);

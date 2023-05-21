@@ -66,14 +66,12 @@ add_task(async function testTabs() {
   Assert.equal(firstChromeBrowser.currentURI.spec, "about:3pane");
   Assert.equal(tabmail.currentAbout3Pane, firstChromeBrowser.contentWindow);
 
-  let firstMessageBrowser = firstChromeBrowser.contentDocument.getElementById(
-    "messageBrowser"
-  );
+  let firstMessageBrowser =
+    firstChromeBrowser.contentDocument.getElementById("messageBrowser");
   Assert.equal(firstMessageBrowser.currentURI.spec, "about:message");
 
-  let firstMessagePane = firstMessageBrowser.contentDocument.getElementById(
-    "messagepane"
-  );
+  let firstMessagePane =
+    firstMessageBrowser.contentDocument.getElementById("messagepane");
   Assert.equal(firstMessagePane.currentURI.spec, "about:blank");
   Assert.equal(
     tabmail.currentAboutMessage,
@@ -83,12 +81,8 @@ add_task(async function testTabs() {
   Assert.equal(firstTab.browser, null);
   Assert.equal(firstTab.linkedBrowser, null);
 
-  let {
-    folderTree,
-    threadTree,
-    messagePane,
-    paneLayout,
-  } = firstChromeBrowser.contentWindow;
+  let { folderTree, threadTree, messagePane, paneLayout } =
+    firstChromeBrowser.contentWindow;
 
   firstTab.folder = folderA;
   Assert.equal(firstTab.folder, folderA);
@@ -148,12 +142,10 @@ add_task(async function testTabs() {
 
   // Select multiple messages.
 
-  let firstMultiMessageBrowser = firstChromeBrowser.contentDocument.getElementById(
-    "multiMessageBrowser"
-  );
-  let firstWebBrowser = firstChromeBrowser.contentDocument.getElementById(
-    "webBrowser"
-  );
+  let firstMultiMessageBrowser =
+    firstChromeBrowser.contentDocument.getElementById("multiMessageBrowser");
+  let firstWebBrowser =
+    firstChromeBrowser.contentDocument.getElementById("webBrowser");
 
   threadTree.selectedIndices = [1, 2];
   Assert.ok(BrowserTestUtils.is_hidden(firstWebBrowser));
@@ -232,15 +224,13 @@ add_task(async function testTabs() {
   Assert.equal(secondChromeBrowser.currentURI.spec, "about:3pane");
   Assert.equal(tabmail.currentAbout3Pane, secondChromeBrowser.contentWindow);
 
-  let secondMessageBrowser = secondChromeBrowser.contentDocument.getElementById(
-    "messageBrowser"
-  );
+  let secondMessageBrowser =
+    secondChromeBrowser.contentDocument.getElementById("messageBrowser");
   await ensureBrowserLoaded(secondMessageBrowser);
   Assert.equal(secondMessageBrowser.currentURI.spec, "about:message");
 
-  let secondMessagePane = secondMessageBrowser.contentDocument.getElementById(
-    "messagepane"
-  );
+  let secondMessagePane =
+    secondMessageBrowser.contentDocument.getElementById("messagepane");
   Assert.equal(secondMessagePane.currentURI.spec, "about:blank");
   Assert.equal(
     tabmail.currentAboutMessage,
@@ -277,9 +267,8 @@ add_task(async function testTabs() {
   Assert.equal(tabmail.currentAbout3Pane, null);
   Assert.equal(tabmail.currentAboutMessage, thirdChromeBrowser.contentWindow);
 
-  let thirdMessagePane = thirdChromeBrowser.contentDocument.getElementById(
-    "messagepane"
-  );
+  let thirdMessagePane =
+    thirdChromeBrowser.contentDocument.getElementById("messagepane");
   Assert.equal(thirdMessagePane.currentURI.spec, messageToURL(messagesB[0]));
   Assert.equal(thirdTab.browser, thirdMessagePane);
   Assert.equal(thirdTab.linkedBrowser, thirdMessagePane);
@@ -304,9 +293,8 @@ add_task(async function testTabs() {
   Assert.equal(tabmail.currentAbout3Pane, null);
   Assert.equal(tabmail.currentAboutMessage, fourthChromeBrowser.contentWindow);
 
-  let fourthMessagePane = fourthChromeBrowser.contentDocument.getElementById(
-    "messagepane"
-  );
+  let fourthMessagePane =
+    fourthChromeBrowser.contentDocument.getElementById("messagepane");
   Assert.equal(fourthMessagePane.currentURI.spec, messageToURL(messagesB[1]));
   Assert.equal(fourthTab.browser, fourthMessagePane);
   Assert.equal(fourthTab.linkedBrowser, fourthMessagePane);

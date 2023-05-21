@@ -274,9 +274,8 @@
               }
 
               const recentMenuItem = this._menu.childWrapper.firstElementChild;
-              const recentSubMenu = this._menu._getSubMenuForMenuItem(
-                recentMenuItem
-              );
+              const recentSubMenu =
+                this._menu._getSubMenuForMenuItem(recentMenuItem);
 
               // If this folder is already in the recent menu, return.
               if (
@@ -840,9 +839,8 @@
         let attributes = {};
 
         // First the SpecialFolder attribute.
-        attributes.SpecialFolder = LazyModules.FolderUtils.getSpecialFolderString(
-          folder
-        );
+        attributes.SpecialFolder =
+          LazyModules.FolderUtils.getSpecialFolderString(folder);
 
         // Now the biffState.
         let biffStates = ["NewMail", "NoMail", "UnknownMail"];
@@ -856,9 +854,8 @@
         attributes.IsServer = folder.isServer;
         attributes.IsSecure = folder.server.isSecure;
         attributes.ServerType = folder.server.type;
-        attributes.IsFeedFolder = !!LazyModules.FeedUtils.getFeedUrlsInFolder(
-          folder
-        );
+        attributes.IsFeedFolder =
+          !!LazyModules.FeedUtils.getFeedUrlsInFolder(folder);
 
         return attributes;
       }

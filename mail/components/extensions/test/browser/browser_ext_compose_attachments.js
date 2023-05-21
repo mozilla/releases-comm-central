@@ -943,10 +943,8 @@ add_task(async function test_compose_attachments() {
       let composeTab4 = await browser.compose.beginNew(tab4_details);
 
       // In this test we need to manually request the id of the added attachments.
-      let [
-        tab4_attachment1,
-        tab4_attachment2,
-      ] = await browser.compose.listAttachments(composeTab4.id);
+      let [tab4_attachment1, tab4_attachment2] =
+        await browser.compose.listAttachments(composeTab4.id);
 
       let [, addedReClone1] = await listener.checkEvent(
         "onAttachmentAdded",
@@ -992,10 +990,8 @@ add_task(async function test_compose_attachments() {
       let composeTab5 = await browser.compose.beginNew(tab5_details);
 
       // In this test we need to manually request the id of the added attachments.
-      let [
-        tab5_attachment1,
-        tab5_attachment2,
-      ] = await browser.compose.listAttachments(composeTab5.id);
+      let [tab5_attachment1, tab5_attachment2] =
+        await browser.compose.listAttachments(composeTab5.id);
 
       await listener.checkEvent(
         "onAttachmentAdded",
@@ -2167,9 +2163,8 @@ add_task(async function test_attachment_MV3_event_pages() {
   }
 
   async function removeAttachment(attachment) {
-    let item = composeWindow.gAttachmentBucket.findItemForAttachment(
-      attachment
-    );
+    let item =
+      composeWindow.gAttachmentBucket.findItemForAttachment(attachment);
     await composeWindow.RemoveAttachments([item]);
   }
 

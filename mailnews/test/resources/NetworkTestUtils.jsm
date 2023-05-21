@@ -145,18 +145,18 @@ SocksClient.prototype = {
     if (foundPort !== undefined) {
       this.write(
         "\x05\x00\x00" + // Header for response
-        "\x04" +
-        "\x00".repeat(15) +
-        "\x01" + // IPv6 address ::1
+          "\x04" +
+          "\x00".repeat(15) +
+          "\x01" + // IPv6 address ::1
           String.fromCharCode(foundPort >> 8) +
           String.fromCharCode(foundPort & 0xff) // Port number
       );
     } else {
       this.write(
         "\x05\x05\x00" + // Header for failed response
-        "\x04" +
-        "\x00".repeat(15) +
-        "\x01" + // IPv6 address ::1
+          "\x04" +
+          "\x00".repeat(15) +
+          "\x01" + // IPv6 address ::1
           "\x00\x00"
       );
       this.close();

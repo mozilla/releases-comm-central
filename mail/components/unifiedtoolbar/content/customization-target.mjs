@@ -127,15 +127,12 @@ class CustomizationTarget extends ListBoxSelection {
     }
     const isFirstElement = this.contextMenuFor === this.firstElementChild;
     const isLastElement = this.contextMenuFor === this.lastElementChild;
-    document.getElementById(
-      "customizationTargetBackward"
-    ).disabled = isFirstElement;
-    document.getElementById(
-      "customizationTargetForward"
-    ).disabled = isLastElement;
-    document.getElementById(
-      "customizationTargetStart"
-    ).disabled = isFirstElement;
+    document.getElementById("customizationTargetBackward").disabled =
+      isFirstElement;
+    document.getElementById("customizationTargetForward").disabled =
+      isLastElement;
+    document.getElementById("customizationTargetStart").disabled =
+      isFirstElement;
     document.getElementById("customizationTargetEnd").disabled = isLastElement;
   };
 

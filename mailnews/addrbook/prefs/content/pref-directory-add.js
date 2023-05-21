@@ -41,9 +41,8 @@ var ldapOfflineObserver = {
 function Startup() {
   gReplicationBundle = document.getElementById("bundle_replication");
 
-  document.getElementById("download").label = gReplicationBundle.getString(
-    "downloadButton"
-  );
+  document.getElementById("download").label =
+    gReplicationBundle.getString("downloadButton");
   document.getElementById("download").accessKey = gReplicationBundle.getString(
     "downloadButton.accesskey"
   );
@@ -122,11 +121,8 @@ var progressListener = {
       document.getElementById("download").label = gReplicationBundle.getString(
         "cancelDownloadButton"
       );
-      document.getElementById(
-        "download"
-      ).accessKey = gReplicationBundle.getString(
-        "cancelDownloadButton.accesskey"
-      );
+      document.getElementById("download").accessKey =
+        gReplicationBundle.getString("cancelDownloadButton.accesskey");
     }
 
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
@@ -190,9 +186,8 @@ function DownloadNow() {
 }
 
 function EndDownload(aStatus) {
-  document.getElementById("download").label = gReplicationBundle.getString(
-    "downloadButton"
-  );
+  document.getElementById("download").label =
+    gReplicationBundle.getString("downloadButton");
   document.getElementById("download").accessKey = gReplicationBundle.getString(
     "downloadButton.accesskey"
   );
@@ -311,9 +306,7 @@ function fillDefaultSettings() {
   // Disable the download button and add some text indicating why.
   document.getElementById("download").disabled = true;
   document.getElementById("downloadWarningMsg").hidden = false;
-  document.getElementById(
-    "downloadWarningMsg"
-  ).textContent = document
+  document.getElementById("downloadWarningMsg").textContent = document
     .getElementById("bundle_addressBook")
     .getString("abReplicationSaveSettings");
 }
@@ -452,9 +445,7 @@ function onCancel() {
 function setDownloadOfflineOnlineState(isOffline) {
   if (isOffline) {
     // Disable the download button and add some text indicating why.
-    document.getElementById(
-      "downloadWarningMsg"
-    ).textContent = document
+    document.getElementById("downloadWarningMsg").textContent = document
       .getElementById("bundle_addressBook")
       .getString("abReplicationOfflineWarning");
   }

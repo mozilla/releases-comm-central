@@ -97,10 +97,8 @@ MessageSend.prototype = {
       originalMsgURI,
       compType
     );
-    let {
-      embeddedAttachments,
-      embeddedObjects,
-    } = this._gatherEmbeddedAttachments(editor);
+    let { embeddedAttachments, embeddedObjects } =
+      this._gatherEmbeddedAttachments(editor);
 
     let bodyText = this._getBodyFromEditor(editor) || body;
     // Convert to a binary string. This is because MimeMessage requires it and:
@@ -479,12 +477,10 @@ MessageSend.prototype = {
           Ci.nsIPrompt.BUTTON_POS_0 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING +
           Ci.nsIPrompt.BUTTON_POS_1 * Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE +
           Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_SAVE;
-        let dialogTitle = this._composeBundle.GetStringFromName(
-          "SaveDialogTitle"
-        );
-        let buttonLabelRety = this._composeBundle.GetStringFromName(
-          "buttonLabelRetry2"
-        );
+        let dialogTitle =
+          this._composeBundle.GetStringFromName("SaveDialogTitle");
+        let buttonLabelRety =
+          this._composeBundle.GetStringFromName("buttonLabelRetry2");
         let buttonPressed = Services.prompt.confirmEx(
           this._parentWindow,
           dialogTitle,

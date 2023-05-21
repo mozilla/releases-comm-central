@@ -17,11 +17,8 @@ var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var {
-  add_attachments,
-  close_compose_window,
-  open_compose_new_mail,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { add_attachments, close_compose_window, open_compose_new_mail } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );

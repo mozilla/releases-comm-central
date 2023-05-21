@@ -25,9 +25,8 @@ add_setup(function () {
   gEmptyLocal1 = localAccountUtils.rootFolder.createLocalSubfolder("empty 1");
   gEmptyLocal2 = localAccountUtils.rootFolder.createLocalSubfolder("empty 2");
   gEmptyLocal3 = localAccountUtils.rootFolder.createLocalSubfolder("empty 3");
-  gNotEmptyLocal4 = localAccountUtils.rootFolder.createLocalSubfolder(
-    "not empty 4"
-  );
+  gNotEmptyLocal4 =
+    localAccountUtils.rootFolder.createLocalSubfolder("not empty 4");
 
   let messageGenerator = new MessageGenerator();
   let message = messageGenerator.makeMessage();

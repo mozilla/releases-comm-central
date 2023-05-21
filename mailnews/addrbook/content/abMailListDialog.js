@@ -128,9 +128,8 @@ function updateMailListMembers(mailList, parentDirectory) {
     .join();
 
   // Convert the addresses string into address objects.
-  let addressObjects = MailServices.headerParser.makeFromDisplayAddress(
-    addresses
-  );
+  let addressObjects =
+    MailServices.headerParser.makeFromDisplayAddress(addresses);
   let existingCards = mailList.childCards;
 
   // Work out which addresses need to be added...
@@ -176,9 +175,8 @@ function MailListOKButton(event) {
     // -----
 
     // Add mailing list to database
-    var mailList = Cc[
-      "@mozilla.org/addressbook/directoryproperty;1"
-    ].createInstance();
+    var mailList =
+      Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance();
     mailList = mailList.QueryInterface(Ci.nsIAbDirectory);
 
     if (updateMailList(mailList, true)) {

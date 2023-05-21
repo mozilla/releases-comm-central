@@ -878,9 +878,8 @@ class VCardEdit extends HTMLElement {
     if (defaultColumn) {
       defaultColumn.hidden = hideDefault;
     }
-    document.getElementById(
-      "addr-book-edit-email-default"
-    ).hidden = hideDefault;
+    document.getElementById("addr-book-edit-email-default").hidden =
+      hideDefault;
 
     // Add class to position legend absolute.
     document

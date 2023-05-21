@@ -17,9 +17,8 @@ var gHdr; // header of test message in local folder
 
 localAccountUtils.loadLocalMailAccount();
 // create a subfolder as a target for copies
-var gSubfolder = localAccountUtils.inboxFolder.createLocalSubfolder(
-  "subfolder"
-);
+var gSubfolder =
+  localAccountUtils.inboxFolder.createLocalSubfolder("subfolder");
 
 function run_test() {
   // make sure we're using berkeley mailbox format here since this test

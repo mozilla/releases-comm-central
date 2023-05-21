@@ -55,15 +55,12 @@ add_task(async function test_managers() {
       );
 
       let [bookUID, contactUID, listUID] = await window.sendMessage("get UIDs");
-      let [
-        foundBook,
-        foundContact,
-        foundList,
-      ] = await browser.testapi.testCanFindAddressBookItems(
-        bookUID,
-        contactUID,
-        listUID
-      );
+      let [foundBook, foundContact, foundList] =
+        await browser.testapi.testCanFindAddressBookItems(
+          bookUID,
+          contactUID,
+          listUID
+        );
       browser.test.assertEq("new book", foundBook.name);
       browser.test.assertEq("new contact", foundContact.properties.DisplayName);
       browser.test.assertEq("new list", foundList.name);
@@ -156,9 +153,8 @@ add_task(async function test_managers() {
                   return context.extension.folderManager.convert(realFolder);
                 },
                 async testCanGetMessage(messageId) {
-                  let realMessage = context.extension.messageManager.get(
-                    messageId
-                  );
+                  let realMessage =
+                    context.extension.messageManager.get(messageId);
                   return realMessage.subject;
                 },
                 async testCanConvertMessage() {
@@ -181,15 +177,18 @@ add_task(async function test_managers() {
                   contactUID,
                   listUID
                 ) {
-                  let foundBook = context.extension.addressBookManager.findAddressBookById(
-                    bookUID
-                  );
-                  let foundContact = context.extension.addressBookManager.findContactById(
-                    contactUID
-                  );
-                  let foundList = context.extension.addressBookManager.findMailingListById(
-                    listUID
-                  );
+                  let foundBook =
+                    context.extension.addressBookManager.findAddressBookById(
+                      bookUID
+                    );
+                  let foundContact =
+                    context.extension.addressBookManager.findContactById(
+                      contactUID
+                    );
+                  let foundList =
+                    context.extension.addressBookManager.findMailingListById(
+                      listUID
+                    );
 
                   return [
                     await context.extension.addressBookManager.convert(

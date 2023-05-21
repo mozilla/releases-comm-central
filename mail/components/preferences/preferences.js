@@ -385,8 +385,8 @@ function getClosestDisplayedHeader(element) {
 }
 
 function scrollContentTo(element) {
-  const STICKY_CONTAINER_HEIGHT = document.querySelector(".sticky-container")
-    .clientHeight;
+  const STICKY_CONTAINER_HEIGHT =
+    document.querySelector(".sticky-container").clientHeight;
   let mainContent = document.querySelector(".main-content");
   let top = element.getBoundingClientRect().top - STICKY_CONTAINER_HEIGHT;
   mainContent.scroll({

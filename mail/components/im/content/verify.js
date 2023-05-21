@@ -19,9 +19,8 @@ var verifySession = {
         subject: this.sessionVerification.subject,
       }
     );
-    document.getElementById(
-      "challenge"
-    ).textContent = this.sessionVerification.challenge;
+    document.getElementById("challenge").textContent =
+      this.sessionVerification.challenge;
     if (this.sessionVerification.challengeDescription) {
       let description = document.getElementById("challengeDescription");
       description.hidden = false;

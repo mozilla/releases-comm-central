@@ -45,11 +45,8 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/MouseEventHelpers.jsm"
 );
-var {
-  async_plan_for_new_window,
-  close_window,
-  wait_for_new_window,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { async_plan_for_new_window, close_window, wait_for_new_window } =
+  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var folder;
 var msgHdrsInFolder = [];
@@ -332,8 +329,8 @@ add_task(async function test_tab_undo() {
 });
 
 async function _synthesizeRecentlyClosedMenu() {
-  let tab = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs[1];
+  let tab =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs[1];
   EventUtils.synthesizeMouseAtCenter(
     tab,
     { type: "contextmenu", button: 2 },

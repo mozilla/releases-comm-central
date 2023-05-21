@@ -29,8 +29,7 @@ var gRegKeys = [
   // This is the property handler
   {
     root: Ci.nsIWindowsRegKey.ROOT_KEY_LOCAL_MACHINE,
-    key:
-      "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PropertySystem\\PropertyHandlers\\.wdseml",
+    key: "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PropertySystem\\PropertyHandlers\\.wdseml",
     name: "",
     value: "{5FA29220-36A1-40f9-89C6-F4B384B7642E}",
   },

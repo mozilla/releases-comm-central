@@ -28,9 +28,8 @@ var gSanitizePromptDialog = {
     var s = new Sanitizer();
     s.prefDomain = "privacy.cpd.";
 
-    document.getElementById(
-      "sanitizeDurationChoice"
-    ).value = Services.prefs.getIntPref("privacy.sanitize.timeSpan");
+    document.getElementById("sanitizeDurationChoice").value =
+      Services.prefs.getIntPref("privacy.sanitize.timeSpan");
 
     let sanitizeItemList = document.querySelectorAll(
       "#historyGroup > [preference]"
@@ -50,11 +49,8 @@ var gSanitizePromptDialog = {
 
     this.onReadGeneric();
 
-    document
-      .querySelector("dialog")
-      .getButton("accept").label = this.bundleBrowser.getString(
-      "sanitizeButtonOK"
-    );
+    document.querySelector("dialog").getButton("accept").label =
+      this.bundleBrowser.getString("sanitizeButtonOK");
 
     let warningIcon = document.getElementById("sanitizeEverythingWarningIcon");
     warningIcon.setAttribute(
@@ -99,9 +95,8 @@ var gSanitizePromptDialog = {
       window.resizeBy(0, -warningBox.getBoundingClientRect().height);
       warningBox.hidden = true;
     }
-    window.document.title = window.document.documentElement.getAttribute(
-      "noneverythingtitle"
-    );
+    window.document.title =
+      window.document.documentElement.getAttribute("noneverythingtitle");
   },
 
   sanitize() {

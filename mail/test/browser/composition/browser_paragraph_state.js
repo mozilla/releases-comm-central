@@ -8,11 +8,8 @@
 
 requestLongerTimeout(2);
 
-var {
-  close_compose_window,
-  open_compose_new_mail,
-  FormatHelper,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { close_compose_window, open_compose_new_mail, FormatHelper } =
+  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_newline_p() {
   let controller = open_compose_new_mail();

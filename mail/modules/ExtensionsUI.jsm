@@ -933,8 +933,8 @@ var ExtensionsUI = {
         }
       });
     } else if (topic == "webextension-optional-permission-prompt") {
-      let browser = getTopWindow().document.getElementById("tabmail")
-        .selectedBrowser;
+      let browser =
+        getTopWindow().document.getElementById("tabmail").selectedBrowser;
       let { name, icon, permissions, resolve } = subject.wrappedJSObject;
       let strings = this._buildStrings({
         type: "optional",
@@ -949,14 +949,8 @@ var ExtensionsUI = {
       }
       resolve(this.showPermissionsPrompt(browser, strings, icon));
     } else if (topic == "webextension-defaultsearch-prompt") {
-      let {
-        browser,
-        name,
-        icon,
-        respond,
-        currentEngine,
-        newEngine,
-      } = subject.wrappedJSObject;
+      let { browser, name, icon, respond, currentEngine, newEngine } =
+        subject.wrappedJSObject;
 
       let bundle = Services.strings.createBundle(ADDONS_PROPERTIES);
 

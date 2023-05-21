@@ -33,9 +33,8 @@ function isupportMessage(aMessage) {
   return tokens.map(function (aToken) {
     let newMessage = JSON.parse(JSON.stringify(message));
     newMessage.isupport.useDefault = aToken[0] == "-";
-    let token = (newMessage.isupport.useDefault
-      ? aToken.slice(1)
-      : aToken
+    let token = (
+      newMessage.isupport.useDefault ? aToken.slice(1) : aToken
     ).split("=");
     newMessage.isupport.parameter = token[0];
     newMessage.isupport.value = token[1] || null;

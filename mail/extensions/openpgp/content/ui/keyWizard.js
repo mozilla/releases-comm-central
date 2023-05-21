@@ -413,9 +413,8 @@ async function wizardCreateKey() {
   let sepPassphraseEnabled = Services.prefs.getBoolPref(
     "mail.openpgp.passphrases.enabled"
   );
-  document.getElementById(
-    "keygenPassphraseSection"
-  ).hidden = !sepPassphraseEnabled;
+  document.getElementById("keygenPassphraseSection").hidden =
+    !sepPassphraseEnabled;
 
   if (sepPassphraseEnabled) {
     let usingPP = LoginHelper.isPrimaryPasswordSet();
@@ -470,11 +469,8 @@ async function wizardExternalKey() {
   // If the user is already using an external GnuPG key, populate the input,
   // show the warning description, and enable the primary button.
   if (gIdentity.getBoolAttribute("is_gnupg_key_id")) {
-    document.getElementById(
-      "externalKey"
-    ).value = gIdentity.getUnicharAttribute(
-      "last_entered_external_gnupg_key_id"
-    );
+    document.getElementById("externalKey").value =
+      gIdentity.getUnicharAttribute("last_entered_external_gnupg_key_id");
     document.getElementById("openPgpExternalWarning").collapsed = false;
     kDialog.getButton("accept").removeAttribute("disabled");
   } else {
@@ -986,8 +982,9 @@ async function openPgpImportStart() {
       "mail.openpgp.passphrases.enabled"
     );
     if (allowSeparatePassphrases) {
-      keepPassphrases = document.getElementById("openPgpKeygenKeepPassphrases")
-        .checked;
+      keepPassphrases = document.getElementById(
+        "openPgpKeygenKeepPassphrases"
+      ).checked;
     }
 
     let exitCode = await EnigmailKeyRing.importSecKeyFromFile(

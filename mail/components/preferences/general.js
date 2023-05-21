@@ -614,9 +614,8 @@ var gGeneralPane = {
       // On OS X, if there is no selected custom sound then default one will
       // be played. We keep consistency by disabling the "Play sound" checkbox
       // if the user hasn't selected a custom sound file yet.
-      document.getElementById(
-        "newMailNotification"
-      ).disabled = !soundUrlLocation;
+      document.getElementById("newMailNotification").disabled =
+        !soundUrlLocation;
       document.getElementById("playSound").disabled = !soundUrlLocation;
       // The sound type radiogroup is hidden, but we have to keep the
       // play_sound.type pref set appropriately.
@@ -629,9 +628,8 @@ var gGeneralPane = {
     document.getElementById("mailnewsStartPageUrl").disabled = !Preferences.get(
       "mailnews.start_page.enabled"
     ).value;
-    document.getElementById(
-      "browseForStartPageUrl"
-    ).disabled = !Preferences.get("mailnews.start_page.enabled").value;
+    document.getElementById("browseForStartPageUrl").disabled =
+      !Preferences.get("mailnews.start_page.enabled").value;
   },
 
   updateShowAlert() {
@@ -979,9 +977,8 @@ var gGeneralPane = {
       }
     }
 
-    let defaultValue = element.firstElementChild.firstElementChild.getAttribute(
-      "value"
-    );
+    let defaultValue =
+      element.firstElementChild.firstElementChild.getAttribute("value");
     let languagePref = Preferences.get("font.language.group");
     let defaultType = this._readDefaultFontTypeForLanguage(languagePref.value);
     let listPref = Preferences.get(
@@ -1436,13 +1433,13 @@ var gGeneralPane = {
    * state of the automatic marking feature.
    */
   updateMarkAsReadOptions() {
-    let enableRadioGroup = Preferences.get("mailnews.mark_message_read.auto")
-      .value;
+    let enableRadioGroup = Preferences.get(
+      "mailnews.mark_message_read.auto"
+    ).value;
     let autoMarkAsPref = Preferences.get("mailnews.mark_message_read.delay");
     let autoMarkDisabled = !enableRadioGroup || autoMarkAsPref.locked;
-    document.getElementById(
-      "markAsReadAutoPreferences"
-    ).disabled = autoMarkDisabled;
+    document.getElementById("markAsReadAutoPreferences").disabled =
+      autoMarkDisabled;
     document.getElementById("secondsLabel").disabled = autoMarkDisabled;
     gGeneralPane.updateMarkAsReadTextbox();
   },
@@ -1452,10 +1449,12 @@ var gGeneralPane = {
    * Mark As Read On Delay feature.
    */
   updateMarkAsReadTextbox() {
-    let radioGroupEnabled = Preferences.get("mailnews.mark_message_read.auto")
-      .value;
-    let textBoxEnabled = Preferences.get("mailnews.mark_message_read.delay")
-      .value;
+    let radioGroupEnabled = Preferences.get(
+      "mailnews.mark_message_read.auto"
+    ).value;
+    let textBoxEnabled = Preferences.get(
+      "mailnews.mark_message_read.delay"
+    ).value;
     let intervalPref = Preferences.get(
       "mailnews.mark_message_read.delay.interval"
     );
@@ -1560,8 +1559,9 @@ var gGeneralPane = {
   readSmartSizeEnabled() {
     // The smart_size.enabled preference element is inverted="true", so its
     // value is the opposite of the actual pref value
-    var disabled = Preferences.get("browser.cache.disk.smart_size.enabled")
-      .value;
+    var disabled = Preferences.get(
+      "browser.cache.disk.smart_size.enabled"
+    ).value;
     this.updateCacheSizeUI(!disabled);
   },
 
@@ -1600,9 +1600,8 @@ var gGeneralPane = {
       Preferences.get("mail.purge_threshhold_mb").locked;
 
     document.getElementById("offlineCompactFolderMin").disabled = disabled;
-    document.getElementById(
-      "offlineCompactFolderAutomatically"
-    ).disabled = disabled;
+    document.getElementById("offlineCompactFolderAutomatically").disabled =
+      disabled;
   },
 
   /**
@@ -1708,17 +1707,13 @@ var gGeneralPane = {
       return;
     }
 
-    let [
-      title,
-      message,
-      okButton,
-      cancelButton,
-    ] = await document.l10n.formatValues([
-      { id: "update-in-progress-title" },
-      { id: "update-in-progress-message" },
-      { id: "update-in-progress-ok-button" },
-      { id: "update-in-progress-cancel-button" },
-    ]);
+    let [title, message, okButton, cancelButton] =
+      await document.l10n.formatValues([
+        { id: "update-in-progress-title" },
+        { id: "update-in-progress-message" },
+        { id: "update-in-progress-ok-button" },
+        { id: "update-in-progress-cancel-button" },
+      ]);
 
     // Continue is the cancel button which is BUTTON_POS_1 and is set as the
     // default so pressing escape or using a platform standard method of closing

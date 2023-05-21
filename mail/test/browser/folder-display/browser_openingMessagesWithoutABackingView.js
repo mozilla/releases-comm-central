@@ -64,8 +64,8 @@ add_setup(async function () {
 async function test_open_single_message_without_backing_view_in_tab() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
 
   let win = get_about_3pane();
@@ -107,8 +107,8 @@ add_task(test_open_single_message_without_backing_view_in_tab);
 async function test_open_multiple_messages_without_backing_views_in_tabs() {
   set_open_message_behavior("NEW_TAB");
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
 
   // Get a reference to a bunch of headers

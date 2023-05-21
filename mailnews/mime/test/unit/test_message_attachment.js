@@ -142,7 +142,8 @@ async function test_message_attachments(info) {
 
   // Check that the attachments' filenames are as expected. Just use a regex
   // here because it's simple.
-  let regex1 = /<legend class="moz-mime-attachment-header-name">(.*?)<\/legend>/gi;
+  let regex1 =
+    /<legend class="moz-mime-attachment-header-name">(.*?)<\/legend>/gi;
 
   for (let attachment of info.attachments) {
     let match = regex1.exec(streamedData);

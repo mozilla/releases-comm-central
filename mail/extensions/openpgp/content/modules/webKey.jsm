@@ -220,25 +220,27 @@ function performWkdUpload(keyList, win, observer) {
           keyFpr +
           "\n"
       );
-      EnigmailWks.isWksSupportedAsync(senderIdent.email, win, function (
-        is_supported
-      ) {
-        if (observer.isCanceled) {
-          lazy.EnigmailLog.DEBUG(
-            "webKey.jsm: performWkdUpload: canceled by user\n"
-          );
-          reject("canceled");
-        }
+      EnigmailWks.isWksSupportedAsync(
+        senderIdent.email,
+        win,
+        function (is_supported) {
+          if (observer.isCanceled) {
+            lazy.EnigmailLog.DEBUG(
+              "webKey.jsm: performWkdUpload: canceled by user\n"
+            );
+            reject("canceled");
+          }
 
-        lazy.EnigmailLog.DEBUG(
-          "webKey.jsm: performWkdUpload: ident=" +
-            senderIdent.email +
-            ", supported=" +
-            is_supported +
-            "\n"
-        );
-        resolve(is_supported);
-      });
+          lazy.EnigmailLog.DEBUG(
+            "webKey.jsm: performWkdUpload: ident=" +
+              senderIdent.email +
+              ", supported=" +
+              is_supported +
+              "\n"
+          );
+          resolve(is_supported);
+        }
+      );
     }).then(function (is_supported) {
       lazy.EnigmailLog.DEBUG(
         `webKey.jsm: performWkdUpload: _submitKey ${is_supported}\n`

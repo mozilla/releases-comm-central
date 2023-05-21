@@ -118,8 +118,8 @@ function addMsgToFolder(folder) {
 async function checkContentTab(msgURL) {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount = mc.window.document.getElementById("tabmail").tabContainer
-    .allTabs.length;
+  let preCount =
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
 
   let dataurl =
     "data:text/html,<html><head><title>test exposed</title>" +
