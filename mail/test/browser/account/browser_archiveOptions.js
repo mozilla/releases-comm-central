@@ -4,9 +4,6 @@
 
 "use strict";
 
-var controller = ChromeUtils.import(
-  "resource://testing-common/mozmill/controller.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =

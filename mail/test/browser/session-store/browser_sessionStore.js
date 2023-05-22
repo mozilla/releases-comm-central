@@ -13,9 +13,6 @@ var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
-var controller = ChromeUtils.import(
-  "resource://testing-common/mozmill/controller.jsm"
-);
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
@@ -226,7 +223,7 @@ async function test_restore_single_3pane_persistence() {
   let amController = openActivityManager();
 
   // close the 3pane window
-  close_window(new controller.MozMillController(mail3PaneWindow));
+  mail3PaneWindow.close();
   // Wait for window close async session write to finish.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
@@ -306,7 +303,7 @@ add_task(async function test_message_pane_height_persistence() {
   let amController = openActivityManager();
 
   // The 3pane window is closed.
-  close_window(new controller.MozMillController(mail3PaneWindow));
+  mail3PaneWindow.close();
   // Wait for window close async session write to finish.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
@@ -434,7 +431,7 @@ add_task(async function test_message_pane_width_persistence() {
   let amController = openActivityManager();
 
   // The 3pane window is closed.
-  close_window(new controller.MozMillController(mail3PaneWindow));
+  mail3PaneWindow.close();
   // Wait for window close async session write to finish.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
@@ -599,8 +596,7 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
     if (!enumerator.hasMoreElements()) {
       lastWindowState = window.getWindowStateForSessionPersistence();
     }
-
-    close_window(new controller.MozMillController(window));
+    window.close();
   }
 
   // Wait for session file to be created (removed in prior test) after

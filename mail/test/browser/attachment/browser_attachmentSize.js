@@ -8,10 +8,6 @@ var folder;
 var messenger;
 var epsilon;
 
-var controller = ChromeUtils.import(
-  "resource://testing-common/mozmill/controller.jsm"
-);
-
 var {
   create_body_part,
   create_deleted_attachment,
