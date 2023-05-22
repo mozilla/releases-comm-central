@@ -140,10 +140,11 @@ ExtensionSupport.registerWindowListener("ext-spacesToolbar", {
 });
 
 this.spacesToolbar = class extends ExtensionAPI {
-  /**
-   * Called when an extension context is closed.
-   */
-  async close() {
+  async onShutdown(isAppShutdown) {
+    if (isAppShutdown) {
+      return;
+    }
+
     let extensionId = this.extension.id;
     for (let spaceData of spaceTracker.getAll()) {
       if (spaceData.extension?.id != extensionId) {
@@ -161,7 +162,6 @@ this.spacesToolbar = class extends ExtensionAPI {
   }
 
   getAPI(context) {
-    context.callOnClose(this);
     this.widgetId = makeWidgetId(context.extension.id);
     let { tabManager } = context.extension;
 

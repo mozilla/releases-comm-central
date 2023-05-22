@@ -174,10 +174,11 @@ this.spaces = class extends ExtensionAPI {
     return true;
   }
 
-  /**
-   * Called when an extension context is closed.
-   */
-  async close() {
+  async onShutdown(isAppShutdown) {
+    if (isAppShutdown) {
+      return;
+    }
+
     let extensionId = this.extension.id;
     for (let spaceData of spaceTracker.getAll()) {
       if (spaceData.extension?.id != extensionId) {
@@ -195,7 +196,6 @@ this.spaces = class extends ExtensionAPI {
   }
 
   getAPI(context) {
-    context.callOnClose(this);
     let { tabManager } = context.extension;
     let self = this;
 
