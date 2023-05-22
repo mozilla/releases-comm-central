@@ -118,6 +118,31 @@
             "description": "The details of the active tab while the command occurred."
           }
         ]
+      },
+      {
+        "name": "onChanged",
+        "description": "Fired when a registered command's shortcut is changed.",
+        "type": "function",
+        "parameters": [
+          {
+            "type": "object",
+            "name": "changeInfo",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name of the shortcut."
+              },
+              "newShortcut": {
+                "type": "string",
+                "description": "The new shortcut active for this command, or blank if not active."
+              },
+              "oldShortcut": {
+                "type": "string",
+                "description": "The old shortcut which is no longer active for this command, or blank if the shortcut was previously inactive."
+              }
+            }
+          }
+        ]
       }
     ],
     "functions": [
