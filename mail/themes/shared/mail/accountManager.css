@@ -29,6 +29,7 @@ body {
 #accountTreeBox {
   display: flex;
   flex-direction: column;
+  max-width: 25em;
   min-width: 18em;
   height: 100vh;
   box-sizing: border-box;
