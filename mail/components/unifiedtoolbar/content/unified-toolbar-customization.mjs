@@ -86,6 +86,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
     this.append(template);
     this.#updateResetToDefault();
     this.addEventListener("keyup", this.#handleKeyboard);
+    this.addEventListener("keyup", this.#closeByKeyboard);
     this.addEventListener("keypress", this.#handleKeyboard);
     this.addEventListener("keydown", this.#handleKeyboard);
   }
@@ -131,6 +132,18 @@ class UnifiedToolbarCustomization extends HTMLElement {
     );
     for (const pane of tabPanes) {
       pane.removeItem(event.detail.itemId);
+    }
+  };
+
+  /**
+   * Close the customisation pane when Escape is released
+   *
+   * @param {KeyboardEvent} event - The keyboard event
+   */
+  #closeByKeyboard = event => {
+    if (event.key == "Escape") {
+      event.preventDefault();
+      this.toggle(false);
     }
   };
 
