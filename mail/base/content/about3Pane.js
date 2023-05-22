@@ -318,7 +318,7 @@ var folderPaneContextMenu = {
    */
   getCommandState(command) {
     let folder = this.activeFolder;
-    if (!folder) {
+    if (!folder || FolderUtils.isSmartTagsFolder(folder)) {
       return false;
     }
     if (this._commandStates === null) {
@@ -395,6 +395,7 @@ var folderPaneContextMenu = {
     let isTrash = isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true);
     let isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
     let isRealFolder = !isServer && !isVirtual;
+    let isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
     let serverType = server.type;
 
     showItem(
@@ -468,17 +469,22 @@ var folderPaneContextMenu = {
       flags & Ci.nsMsgFolderFlags.Queue
     );
 
-    showItem("folderPaneContext-favoriteFolder", !isServer);
+    showItem(
+      "folderPaneContext-favoriteFolder",
+      !isServer && !isSmartTagsFolder
+    );
     if (!isServer) {
       checkItem(
         "folderPaneContext-favoriteFolder",
         flags & Ci.nsMsgFolderFlags.Favorite
       );
     }
-    showItem("folderPaneContext-properties", !isServer);
+    showItem("folderPaneContext-properties", !isServer && !isSmartTagsFolder);
     showItem("folderPaneContext-markAllFoldersRead", isServer);
 
     showItem("folderPaneContext-settings", isServer);
+
+    showItem("folderPaneContext-manageTags", isSmartTagsFolder);
 
     let lastItem;
     for (let child of document.getElementById("folderPaneContext").children) {
@@ -573,6 +579,9 @@ var folderPaneContextMenu = {
         break;
       case "folderPaneContext-settings":
         folderPane.editFolder(folder);
+        break;
+      case "folderPaneContext-manageTags":
+        goDoCommand("cmd_manageTags");
         break;
     }
   },
@@ -1102,6 +1111,140 @@ var folderPane = {
         folderPane.getRowForFolder(childFolder)?.remove();
       },
     },
+    tags: {
+      name: "tags",
+      active: false,
+      canBeCompact: false,
+
+      init() {
+        this._smartServer = MailServices.accounts.findServer(
+          "nobody",
+          "smart mailboxes",
+          "none"
+        );
+        if (!this._smartServer) {
+          this._smartServer = MailServices.accounts.createIncomingServer(
+            "nobody",
+            "smart mailboxes",
+            "none"
+          );
+          // We don't want the "smart" server/account leaking out into the ui in
+          // other places, so set it as hidden.
+          this._smartServer.hidden = true;
+          let account = MailServices.accounts.createAccount();
+          account.incomingServer = this._smartServer;
+        }
+        this._smartServer.prettyName =
+          messengerBundle.GetStringFromName("unifiedAccountName");
+        let smartRoot = this._smartServer.rootFolder.QueryInterface(
+          Ci.nsIMsgLocalMailFolder
+        );
+        this._tagsFolder =
+          smartRoot.getChildWithURI(`${smartRoot.URI}/tags`, false, false) ??
+          smartRoot.createLocalSubfolder("tags");
+        this._tagsFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+
+        for (let tag of MailServices.tags.getAllTags()) {
+          try {
+            let folder = this._getVirtualFolder(tag);
+            this.containerList.appendChild(
+              folderPane._createTagRow(this.name, folder, tag)
+            );
+          } catch (ex) {
+            console.error(ex);
+          }
+        }
+        MailServices.accounts.saveVirtualFolders();
+      },
+
+      /**
+       * Get or create a virtual folder searching messages for `tag`.
+       *
+       * @param {nsIMsgTag} tag
+       * @returns {nsIMsgFolder}
+       */
+      _getVirtualFolder(tag) {
+        let folder = this._tagsFolder.getChildWithURI(
+          `${this._tagsFolder.URI}/${encodeURIComponent(tag.key)}`,
+          false,
+          false
+        );
+        if (folder) {
+          return folder;
+        }
+
+        let unwantedFlags =
+          Ci.nsMsgFolderFlags.Trash |
+          Ci.nsMsgFolderFlags.Junk |
+          Ci.nsMsgFolderFlags.Queue |
+          Ci.nsMsgFolderFlags.Virtual;
+        let searchFolders = [];
+        for (let server of MailServices.accounts.allServers) {
+          searchFolders.push(server.rootFolder);
+          for (let f of server.rootFolder.descendants) {
+            if (!f.isSpecialFolder(unwantedFlags, true)) {
+              searchFolders.push(f);
+            }
+          }
+        }
+
+        folder = this._tagsFolder.createLocalSubfolder(tag.key);
+        folder.flags |= Ci.nsMsgFolderFlags.Virtual;
+        folder.prettyName = tag.tag;
+
+        let msgDatabase = folder.msgDatabase;
+        let folderInfo = msgDatabase.dBFolderInfo;
+
+        folderInfo.setCharProperty(
+          "searchStr",
+          `AND (tag,contains,${tag.key})`
+        );
+        folderInfo.setCharProperty(
+          "searchFolderUri",
+          searchFolders.map(f => f.URI).join("|")
+        );
+        folderInfo.setUint32Property(
+          "searchFolderFlag",
+          Ci.nsMsgFolderFlags.Inbox
+        );
+        folderInfo.setBooleanProperty("searchOnline", false);
+        msgDatabase.summaryValid = true;
+        msgDatabase.close(true);
+
+        this._tagsFolder.notifyFolderAdded(folder);
+        return folder;
+      },
+
+      /**
+       * Update the UI to match changes in a tag. If the tag is no longer
+       * valid (i.e. it's been deleted) the row representing it will be
+       * removed. If the tag is new, a row for it will be created.
+       *
+       * @param {string} prefName - The full name of the preference that
+       *   changed causing this code to run.
+       */
+      changeTagFromPrefChange(prefName) {
+        let [, , key] = prefName.split(".");
+        if (!MailServices.tags.isValidKey(key)) {
+          let uri = `${this._tagsFolder.URI}/${encodeURIComponent(key)}`;
+          folderPane.getRowForFolder(uri)?.remove();
+          return;
+        }
+
+        let tag = MailServices.tags.getAllTags().find(t => t.key == key);
+        let folder = this._getVirtualFolder(tag);
+        let row = folderPane.getRowForFolder(folder);
+        folder.prettyName = tag.tag;
+        if (row) {
+          row.name = tag.tag;
+          row.icon.style.setProperty("--icon-color", tag.color);
+        } else {
+          this.containerList.appendChild(
+            folderPane._createTagRow(this.name, folder, tag)
+          );
+        }
+      },
+    },
   },
 
   /**
@@ -1147,6 +1290,7 @@ var folderPane = {
     );
 
     Services.prefs.addObserver("mail.accountmanager.accounts", this);
+    Services.prefs.addObserver("mailnews.tags.", this);
 
     Services.obs.addObserver(this, "folder-color-changed");
     Services.obs.addObserver(this, "folder-color-preview");
@@ -1212,6 +1356,7 @@ var folderPane = {
       return;
     }
     Services.prefs.removeObserver("mail.accountmanager.accounts", this);
+    Services.prefs.removeObserver("mailnews.tags.", this);
     Services.obs.removeObserver(this, "folder-color-changed");
     Services.obs.removeObserver(this, "folder-color-preview");
     Services.obs.removeObserver(this, "search-folders-changed");
@@ -1250,7 +1395,17 @@ var folderPane = {
   observe(subject, topic, data) {
     switch (topic) {
       case "nsPref:changed":
-        this._forAllActiveModes("changeAccountOrder");
+        if (data == "mail.accountmanager.accounts") {
+          this._forAllActiveModes("changeAccountOrder");
+        } else if (
+          data.startsWith("mailnews.tags.") &&
+          this._modes.tags.active
+        ) {
+          // The tags service isn't updated until immediately after the
+          // preferences change, so go to the back of the event queue before
+          // updating the UI.
+          setTimeout(() => this._modes.tags.changeTagFromPrefChange(data));
+        }
         break;
       case "search-folders-changed":
         if (this._modes.smart.active) {
@@ -1458,7 +1613,9 @@ var folderPane = {
     mode.container = container;
     mode.containerHeader = container.querySelector(".mode-container");
     mode.containerHeader.querySelector(".mode-name").textContent =
-      messengerBundle.GetStringFromName(`folderPaneModeHeader_${modeName}`);
+      messengerBundle.GetStringFromName(
+        modeName == "tags" ? "tag" : `folderPaneModeHeader_${modeName}`
+      );
     mode.containerList = container.querySelector("ul");
     this._initMode(mode);
     mode.active = true;
@@ -1526,6 +1683,23 @@ var folderPane = {
     let row = document.createElement("li", { is: "folder-tree-row" });
     row.modeName = modeName;
     row.setFolder(folder, nameStyle);
+    return row;
+  },
+
+  /**
+   * Create a FolderTreeRow representing a virtual folder for a tag.
+   *
+   * @param {string} modeName - The name of the mode this row belongs to.
+   * @param {nsIMsgFolder} folder - The virtual folder the row represents.
+   * @param {nsIMsgTag} tag - The tag the virtual folder searches for.
+   * @returns {FolderTreeRow}
+   */
+  _createTagRow(modeName, folder, tag) {
+    let row = document.createElement("li", { is: "folder-tree-row" });
+    row.modeName = modeName;
+    row.setFolder(folder);
+    row.dataset.tagKey = tag.key;
+    row.icon.style.setProperty("--icon-color", tag.color);
     return row;
   },
 

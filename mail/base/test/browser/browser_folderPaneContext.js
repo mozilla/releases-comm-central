@@ -29,6 +29,7 @@ const folderPaneContextData = {
   "folderPaneContext-properties": [...realFolders, "virtual"],
   "folderPaneContext-markAllFoldersRead": [...servers],
   "folderPaneContext-settings": [...servers],
+  "folderPaneContext-manageTags": ["tags"],
 };
 
 let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
@@ -40,6 +41,7 @@ let rootFolder,
   trashFolder,
   virtualFolder;
 let rssRootFolder, rssFeedFolder;
+let tagsFolder;
 
 add_setup(async function () {
   let account = MailServices.accounts.createAccount();
@@ -78,9 +80,13 @@ add_setup(async function () {
   await TestUtils.waitForCondition(() => rssRootFolder.subFolders.length == 2);
   rssFeedFolder = rssRootFolder.getChildNamed("Test Feed");
 
+  about3Pane.folderPane.activeModes = ["all", "tags"];
+  tagsFolder = about3Pane.folderPane._modes.tags._tagsFolder.subFolders[0];
+
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(rssAccount, false);
+    about3Pane.folderPane.activeModes = ["all"];
   });
 });
 
@@ -102,6 +108,8 @@ add_task(async function () {
   await rightClickOn(rssRootFolder, "rssRoot");
   leftClickOn(rssFeedFolder);
   await rightClickOn(rssFeedFolder, "rssFeed");
+  leftClickOn(tagsFolder);
+  await rightClickOn(tagsFolder, "tags");
 
   // Check the menu has the right items when the selected folder is not the
   // folder that was right-clicked on.
@@ -114,6 +122,7 @@ add_task(async function () {
   await rightClickOn(virtualFolder, "virtual");
   await rightClickOn(rssRootFolder, "rssRoot");
   await rightClickOn(rssFeedFolder, "rssFeed");
+  await rightClickOn(tagsFolder, "tags");
 });
 
 function leftClickOn(folder) {

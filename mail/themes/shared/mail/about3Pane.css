@@ -516,6 +516,10 @@ menuitem.server[data-server-type="rss"] {
   stroke: var(--color-amber-60);
 }
 
+#folderTree li[data-tag-key] > .container > .icon {
+  background-image: var(--icon-tag);
+}
+
 .name {
   flex: 1;
   margin-inline: 7px;

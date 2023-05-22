@@ -17,6 +17,7 @@ var FolderUtils = {
   getMostRecentFolders,
   getSpecialFolderString,
   canRenameDeleteJunkMail,
+  isSmartTagsFolder,
 };
 
 const { MailServices } = ChromeUtils.import(
@@ -272,7 +273,11 @@ function getFolderIcon(folder) {
   } else {
     switch (getSpecialFolderString(folder)) {
       case "Virtual":
-        iconName = "folder-filter.svg";
+        if (isSmartTagsFolder(folder)) {
+          iconName = "tag.svg";
+        } else {
+          iconName = "folder-filter.svg";
+        }
         break;
       case "Junk":
         iconName = "spam.svg";
@@ -305,6 +310,20 @@ function getFolderIcon(folder) {
   }
 
   return `chrome://messenger/skin/icons/new/compact/${iconName}`;
+}
+
+/**
+ * Checks if `folder` is a virtual folder for the Tags folder pane mode.
+ *
+ * @param {nsIMsgFolder} folder
+ * @returns {boolean}
+ */
+function isSmartTagsFolder(folder) {
+  return (
+    folder.isSpecialFolder(Ci.nsMsgFolderFlags.Virtual) &&
+    folder.server.hostName == "smart mailboxes" &&
+    folder.parent?.name == "tags"
+  );
 }
 
 /**

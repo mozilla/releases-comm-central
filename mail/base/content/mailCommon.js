@@ -427,6 +427,7 @@ var commandController = {
         // TODO: This shouldn't be here, or should return false if there are no accounts.
         return true;
       case "cmd_space":
+      case "cmd_manageTags":
         return true;
     }
 
@@ -517,7 +518,6 @@ var commandController = {
       case "cmd_tag8":
       case "cmd_tag9":
       case "cmd_addTag":
-      case "cmd_manageTags":
       case "cmd_removeTags":
       case "cmd_toggleTag":
       case "cmd_toggleRead":

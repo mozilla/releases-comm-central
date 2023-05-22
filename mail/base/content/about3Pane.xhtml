@@ -419,6 +419,10 @@
               class="menuitem-iconic"
               label="&folderContextSettings2.label;"
               accesskey="&folderContextSettings2.accesskey;"/>
+    <menuitem id="folderPaneContext-manageTags"
+              class="menuitem-iconic"
+              label="&manageTags.label;"
+              accesskey="&manageTags.accesskey;"/>
   </menupopup>
   <tooltip id="qfb-text-search-upsell">
     <div id="qfb-upsell-line-one"
@@ -468,6 +472,14 @@
                   type="checkbox"
                   closemenu="none"
                   data-l10n-id="show-recent-folders-label"
+                  oncommand="folderPane.toggleFolderMode(event);"/>
+        <menuseparator/>
+        <menuitem id="folderPaneMoreContextTags"
+                  class="folder-pane-mode"
+                  value="tags"
+                  type="checkbox"
+                  closemenu="none"
+                  data-l10n-id="show-tags-folders-label"
                   oncommand="folderPane.toggleFolderMode(event);"/>
         <menuseparator id="separatorAfterFolderModes"/>
         <menuitem id="folderPaneMoreContextCompactToggle"

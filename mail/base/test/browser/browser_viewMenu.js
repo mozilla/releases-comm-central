@@ -27,6 +27,7 @@ const viewMenuData = {
   menu_unreadFolders: {},
   menu_favoriteFolders: {},
   menu_recentFolders: {},
+  menu_tags: {},
   menu_compactMode: { disabled: true },
   menu_uiDensity: {},
   uiDensityCompact: { checked: true },
