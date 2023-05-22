@@ -1087,6 +1087,7 @@ var gSpacesToolbar = {
         button,
         menuitem,
         url: properties.url,
+        isExtensionSpace: true,
         tabInSpace(tabInfo) {
           // TODO: Store the spaceButtonId in the XULStore (or somewhere), so the
           // space is recognized after a restart. Or force closing of all spaces

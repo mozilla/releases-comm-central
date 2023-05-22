@@ -6,11 +6,14 @@
  * Helper Function, creates a test extension to verify expected button states.
  *
  * @param {Function} background - The background script executed by the test.
- * @param {string} selectedTheme - The selected theme (default, light or dark),
- *   used to select the expected button/menuitem icon.
- * @param {?object} manifestIcons - The icons entry of the extension manifest.
+ * @param {object} config - Additional config data for the test. Tests can
+ *   include arbitrary data, but the following have a dedicated purpose:
+ *   @param {string} selectedTheme - The selected theme (default, light or dark),
+ *     used to select the expected button/menuitem icon.
+ *   @param {?object} manifestIcons - The icons entry of the extension manifest.
+ *   @param {?object} permissions - Permissions assigned to the extension.
  */
-async function test_space(background, selectedTheme, manifestIcons) {
+async function test_space(background, config = {}) {
   let manifest = {
     manifest_version: 3,
     browser_specific_settings: {
@@ -22,8 +25,12 @@ async function test_space(background, selectedTheme, manifestIcons) {
     background: { scripts: ["utils.js", "background.js"] },
   };
 
-  if (manifestIcons) {
-    manifest.icons = manifestIcons;
+  if (config.manifestIcons) {
+    manifest.icons = config.manifestIcons;
+  }
+
+  if (config.permissions) {
+    manifest.permissions = config.permissions;
   }
 
   let extension = ExtensionTestUtils.loadExtension({
@@ -98,9 +105,9 @@ async function test_space(background, selectedTheme, manifestIcons) {
       // Check button icon.
       let imgStyles = window.getComputedStyle(button.querySelector("img"));
       Assert.equal(
-        icons[selectedTheme],
+        icons[config.selectedTheme],
         imgStyles.content,
-        `Icon for button of space ${name} with theme ${selectedTheme} should be correct.`
+        `Icon for button of space ${name} with theme ${config.selectedTheme} should be correct.`
       );
 
       // Check badge.
@@ -164,9 +171,9 @@ async function test_space(background, selectedTheme, manifestIcons) {
       // Check menuitem icon.
       let menuitemStyles = window.getComputedStyle(menuitem);
       Assert.equal(
-        icons[selectedTheme],
+        icons[config.selectedTheme],
         menuitemStyles.listStyleImage,
-        `Icon of menuitem for space ${name} with theme ${selectedTheme} should be correct.`
+        `Icon of menuitem for space ${name} with theme ${config.selectedTheme} should be correct.`
       );
 
       pinnedPopup.hidePopup();
@@ -186,6 +193,10 @@ async function test_space(background, selectedTheme, manifestIcons) {
       );
     }
     extension.sendMessage();
+  });
+
+  extension.onMessage("getConfig", async () => {
+    extension.sendMessage(config);
   });
 
   await extension.startup();
@@ -276,16 +287,16 @@ add_task(async function test_add_update_remove() {
     browser.test.log("update(): With invalid id.");
     await browser.test.assertRejects(
       browser.spaces.update(1234),
-      /Failed to update space with id 1234: Space does not exist./,
+      /Failed to update space with id 1234: Unknown id./,
       "update() with invalid id should throw."
     );
 
     browser.test.log("update(): Without properties.");
-    await browser.spaces.update(space_1);
+    await browser.spaces.update(space_1.id);
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     browser.test.log("update(): Updating the badge.");
-    await browser.spaces.update(space_2, {
+    await browser.spaces.update(space_2.id, {
       badgeText: "ok",
       badgeBackgroundColor: "green",
     });
@@ -294,7 +305,7 @@ add_task(async function test_add_update_remove() {
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     browser.test.log("update(): Removing the badge.");
-    await browser.spaces.update(space_2, {
+    await browser.spaces.update(space_2.id, {
       badgeText: "",
     });
     delete expected_space_2.badgeText;
@@ -302,14 +313,14 @@ add_task(async function test_add_update_remove() {
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     browser.test.log("update(): Changing the title.");
-    await browser.spaces.update(space_2, {
+    await browser.spaces.update(space_2.id, {
       title: "Some other title",
     });
     expected_space_2.title = "Some other title";
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     browser.test.log("update(): Removing the title.");
-    await browser.spaces.update(space_2, {
+    await browser.spaces.update(space_2.id, {
       title: "",
     });
     expected_space_2.title = "Generated extension";
@@ -317,12 +328,12 @@ add_task(async function test_add_update_remove() {
 
     browser.test.log("update(): Setting invalid default url.");
     await browser.test.assertRejects(
-      browser.spaces.update(space_2, "invalid://url"),
-      `Failed to update space with id ${space_2}: Invalid default url.`,
+      browser.spaces.update(space_2.id, "invalid://url"),
+      `Failed to update space with id ${space_2.id}: Invalid default url.`,
       "update() with invalid default url should throw."
     );
 
-    await browser.spaces.update(space_2, "https://test.more.invalid", {
+    await browser.spaces.update(space_2.id, "https://test.more.invalid", {
       title: "Bing",
     });
     expected_space_2.title = "Bing";
@@ -340,18 +351,21 @@ add_task(async function test_add_update_remove() {
     browser.test.log("remove(): Removing with invalid id.");
     await browser.test.assertRejects(
       browser.spaces.remove(1234),
-      /Failed to remove space with id 1234: Space does not exist./,
+      /Failed to remove space with id 1234: Unknown id./,
       "remove() with invalid id should throw."
     );
 
     browser.test.log("remove(): Removing space_1.");
-    await browser.spaces.remove(space_1);
+    await browser.spaces.remove(space_1.id);
     await window.sendMessage("checkUI", [expected_space_2]);
 
     browser.test.notifyPass();
   }
-  await test_space(background, "default");
-  await test_space(background, "default", { 16: "manifest.png" });
+  await test_space(background, { selectedTheme: "default" });
+  await test_space(background, {
+    selectedTheme: "default",
+    manifestIcons: { 16: "manifest.png" },
+  });
 });
 
 add_task(async function test_open_reload_close() {
@@ -395,14 +409,14 @@ add_task(async function test_open_reload_close() {
     // TODO: Add test for tab reloading, once this has been implemented.
 
     // Remove spaces and check that related spaces tab are closed.
-    await browser.spaces.remove(space_1);
+    await browser.spaces.remove(space_1.id);
     await window.sendMessage("checkTabs", { openSpacesUrls: [url2] });
-    await browser.spaces.remove(space_2);
+    await browser.spaces.remove(space_2.id);
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
 
     browser.test.notifyPass();
   }
-  await test_space(background, "default");
+  await test_space(background, { selectedTheme: "default" });
 });
 
 add_task(async function test_icons() {
@@ -442,7 +456,7 @@ add_task(async function test_icons() {
     await window.sendMessage("checkUI", [expected_space_1]);
 
     // Clearing defaultIcons.
-    await browser.spaces.update(space_1, {
+    await browser.spaces.update(space_1.id, {
       defaultIcons: "",
     });
     expected_space_1.icons = {
@@ -453,7 +467,7 @@ add_task(async function test_icons() {
     await window.sendMessage("checkUI", [expected_space_1]);
 
     // Setting other defaultIcons.
-    await browser.spaces.update(space_1, {
+    await browser.spaces.update(space_1.id, {
       defaultIcons: "other.png",
     });
     expected_space_1.icons = {
@@ -464,7 +478,7 @@ add_task(async function test_icons() {
     await window.sendMessage("checkUI", [expected_space_1]);
 
     // Clearing themeIcons.
-    await browser.spaces.update(space_1, {
+    await browser.spaces.update(space_1.id, {
       themeIcons: [],
     });
     expected_space_1.icons = {
@@ -475,7 +489,7 @@ add_task(async function test_icons() {
     await window.sendMessage("checkUI", [expected_space_1]);
 
     // Setting other themeIcons.
-    await browser.spaces.update(space_1, {
+    await browser.spaces.update(space_1.id, {
       themeIcons: [
         {
           dark: "dark2.png",
@@ -522,7 +536,7 @@ add_task(async function test_icons() {
     await window.sendMessage("checkUI", [expected_space_1, expected_space_2]);
 
     // Clearing themeIcons.
-    await browser.spaces.update(space_2, {
+    await browser.spaces.update(space_2.id, {
       themeIcons: [],
     });
     expected_space_2.icons = {
@@ -559,7 +573,7 @@ add_task(async function test_icons() {
     ]);
 
     // Clearing defaultIcons and setting themeIcons.
-    await browser.spaces.update(space_3, {
+    await browser.spaces.update(space_3.id, {
       defaultIcons: "",
       themeIcons: [
         {
@@ -607,7 +621,7 @@ add_task(async function test_icons() {
     ]);
 
     // Setting and clearing default icons.
-    await browser.spaces.update(space_4, {
+    await browser.spaces.update(space_4.id, {
       defaultIcons: "default.png",
     });
     expected_space_4.icons = {
@@ -621,7 +635,7 @@ add_task(async function test_icons() {
       expected_space_3,
       expected_space_4,
     ]);
-    await browser.spaces.update(space_4, {
+    await browser.spaces.update(space_4.id, {
       defaultIcons: "",
     });
     expected_space_4.icons = {
@@ -645,17 +659,17 @@ add_task(async function test_icons() {
       "thunderbird-compact-dark@mozilla.org"
     );
     await dark_theme.enable();
-    await test_space(background, "light", manifestIcons);
+    await test_space(background, { selectedTheme: "light", manifestIcons });
 
     let light_theme = await AddonManager.getAddonByID(
       "thunderbird-compact-light@mozilla.org"
     );
     await light_theme.enable();
-    await test_space(background, "dark", manifestIcons);
+    await test_space(background, { selectedTheme: "dark", manifestIcons });
 
     // Disabling a theme will enable the default theme.
     await light_theme.disable();
-    await test_space(background, "default", manifestIcons);
+    await test_space(background, { selectedTheme: "default", manifestIcons });
   }
 });
 
@@ -670,7 +684,7 @@ add_task(async function test_open_programmatically() {
     let space_2 = await browser.spaces.create("space_2", url2);
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
 
-    async function openSpace(spaceId, url) {
+    async function openSpace(space, url) {
       let loadPromise = new Promise(resolve => {
         let urlSeen = false;
         let listener = (tabId, changeInfo) => {
@@ -684,16 +698,16 @@ add_task(async function test_open_programmatically() {
         };
         browser.tabs.onUpdated.addListener(listener);
       });
-      let tab = await browser.spaces.open(spaceId);
+      let tab = await browser.spaces.open(space.id);
       await loadPromise;
 
       browser.test.assertEq(
-        spaceId,
+        space.id,
         tab.spaceId,
         "The opened tab should belong to the correct space"
       );
 
-      let queriedTabs = await browser.tabs.query({ spaceId });
+      let queriedTabs = await browser.tabs.query({ spaceId: space.id });
       browser.test.assertEq(
         1,
         queriedTabs.length,
@@ -736,12 +750,217 @@ add_task(async function test_open_programmatically() {
     });
 
     // Remove spaces and check that related spaces tab are closed.
-    await browser.spaces.remove(space_1);
+    await browser.spaces.remove(space_1.id);
     await window.sendMessage("checkTabs", { openSpacesUrls: [url2] });
-    await browser.spaces.remove(space_2);
+    await browser.spaces.remove(space_2.id);
     await window.sendMessage("checkTabs", { openSpacesUrls: [] });
 
     browser.test.notifyPass();
   }
-  await test_space(background, "default");
+  await test_space(background, { selectedTheme: "default" });
+});
+
+// Load a second extension parallel to the standard space test, which creates
+// two additional spaces.
+async function test_query({ permissions }) {
+  async function query_background() {
+    function verify(description, expected, spaces) {
+      browser.test.assertEq(
+        expected.length,
+        spaces.length,
+        `${description}: Should find the correct number of spaces`
+      );
+      window.assertDeepEqual(
+        spaces,
+        expected,
+        `${description}: Should find the correct spaces`
+      );
+    }
+
+    async function query(queryInfo, expected) {
+      let spaces =
+        queryInfo === null
+          ? await browser.spaces.query()
+          : await browser.spaces.query(queryInfo);
+      verify(`Query ${JSON.stringify(queryInfo)}`, expected, spaces);
+    }
+
+    let builtIn = [
+      {
+        id: 1,
+        name: "mail",
+        isBuiltIn: true,
+        isSelfOwned: false,
+      },
+      {
+        id: 2,
+        isBuiltIn: true,
+        isSelfOwned: false,
+        name: "addressbook",
+      },
+      {
+        id: 3,
+        isBuiltIn: true,
+        isSelfOwned: false,
+        name: "calendar",
+      },
+      {
+        id: 4,
+        isBuiltIn: true,
+        isSelfOwned: false,
+        name: "tasks",
+      },
+      {
+        id: 5,
+        isBuiltIn: true,
+        isSelfOwned: false,
+        name: "chat",
+      },
+      {
+        id: 6,
+        isBuiltIn: true,
+        isSelfOwned: false,
+        name: "settings",
+      },
+    ];
+
+    await window.sendMessage("checkTabs", { openSpacesUrls: [] });
+    let [{ other_1, other_11, permissions }] = await window.sendMessage(
+      "getConfig"
+    );
+    let hasManagement = permissions && permissions.includes("management");
+
+    // Verify space_1 from other extension.
+    let expected_other_1 = {
+      name: "space_1",
+      isBuiltIn: false,
+      isSelfOwned: true,
+    };
+    if (hasManagement) {
+      expected_other_1.extensionId = "spaces_toolbar_other@mochi.test";
+    }
+    verify("Check space_1 from other extension", other_1, expected_other_1);
+
+    // Verify space_11 from other extension.
+    let expected_other_11 = {
+      name: "space_11",
+      isBuiltIn: false,
+      isSelfOwned: true,
+    };
+    if (hasManagement) {
+      expected_other_11.extensionId = "spaces_toolbar_other@mochi.test";
+    }
+    verify("Check space_11 from other extension", other_11, expected_other_11);
+
+    // Manipulate isSelfOwned, because we got those from the other extension.
+    other_1.isSelfOwned = false;
+    other_11.isSelfOwned = false;
+
+    await query(null, [...builtIn, other_1, other_11]);
+    await query({}, [...builtIn, other_1, other_11]);
+    await query({ isSelfOwned: false }, [...builtIn, other_1, other_11]);
+    await query({ isBuiltIn: true }, [...builtIn]);
+    await query({ isBuiltIn: false }, [other_1, other_11]);
+    await query({ isSelfOwned: true }, []);
+    await query(
+      { extensionId: "spaces_toolbar_other@mochi.test" },
+      hasManagement ? [other_1, other_11] : []
+    );
+
+    // Add spaces.
+    let url1 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content.html`;
+    let space_1 = await browser.spaces.create("space_1", url1);
+    let url2 = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content_body.html`;
+    let space_2 = await browser.spaces.create("space_2", url2);
+
+    // Verify returned space_1
+    let expected_space_1 = {
+      name: "space_1",
+      isBuiltIn: false,
+      isSelfOwned: true,
+    };
+    if (hasManagement) {
+      expected_space_1.extensionId = "spaces_toolbar@mochi.test";
+    }
+    verify("Check space_1", space_1, expected_space_1);
+
+    // Verify returned space_2
+    let expected_space_2 = {
+      name: "space_2",
+      isBuiltIn: false,
+      isSelfOwned: true,
+    };
+    if (hasManagement) {
+      expected_space_2.extensionId = "spaces_toolbar@mochi.test";
+    }
+    verify("Check space_2", space_2, expected_space_2);
+
+    await query(null, [...builtIn, other_1, other_11, space_1, space_2]);
+    await query({ isSelfOwned: false }, [...builtIn, other_1, other_11]);
+    await query({ isBuiltIn: true }, [...builtIn]);
+    await query({ isBuiltIn: false }, [other_1, other_11, space_1, space_2]);
+    await query({ isSelfOwned: true }, [space_1, space_2]);
+    await query(
+      { extensionId: "spaces_toolbar_other@mochi.test" },
+      hasManagement ? [other_1, other_11] : []
+    );
+    await query(
+      { extensionId: "spaces_toolbar@mochi.test" },
+      hasManagement ? [space_1, space_2] : []
+    );
+
+    await query({ id: space_1.id }, [space_1]);
+    await query({ id: other_1.id }, [other_1]);
+    await query({ id: space_2.id }, [space_2]);
+    await query({ id: other_11.id }, [other_11]);
+    await query({ name: "space_1" }, [other_1, space_1]);
+    await query({ name: "space_2" }, [space_2]);
+    await query({ name: "space_11" }, [other_11]);
+
+    browser.test.notifyPass();
+  }
+
+  let otherExtension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        let url = `http://mochi.test:8888/browser/comm/mail/components/extensions/test/browser/data/content.html`;
+        let other_1 = await browser.spaces.create("space_1", url);
+        let other_11 = await browser.spaces.create("space_11", url);
+        browser.test.sendMessage("Done", { other_1, other_11 });
+        browser.test.notifyPass();
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 3,
+      browser_specific_settings: {
+        gecko: {
+          id: "spaces_toolbar_other@mochi.test",
+        },
+      },
+      permissions,
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  await otherExtension.startup();
+  let { other_1, other_11 } = await otherExtension.awaitMessage("Done");
+
+  await test_space(query_background, {
+    selectedTheme: "default",
+    other_1,
+    other_11,
+    permissions,
+  });
+
+  await otherExtension.awaitFinish();
+  await otherExtension.unload();
+}
+
+add_task(async function test_query_no_management_permission() {
+  await test_query({ permissions: [] });
+});
+
+add_task(async function test_query_management_permission() {
+  await test_query({ permissions: ["management"] });
 });

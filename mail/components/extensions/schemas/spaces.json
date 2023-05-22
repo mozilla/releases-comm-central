@@ -62,6 +62,35 @@
         },
         "minItems": 4,
         "maxItems": 4
+      },
+      {
+        "id": "Space",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The id of the space.",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "description": "The name of the space. Names are unique for a single extension, but different extensions may use the same name."
+          },
+          "isBuiltIn": {
+            "type": "boolean",
+            "description": "Whether this space is one of the default Thunderbird spaces, or an extension space."
+          },
+          "isSelfOwned": {
+            "type": "boolean",
+            "description": "Whether this space was created by this extension."
+          },
+          "extensionId": {
+            "type": "string",
+            "optional": true,
+            "description": "The id of the extension which owns the space. The <permission>management</permission> permission is required to include this property."
+          }
+        }
       }
     ],
     "functions": [
@@ -95,11 +124,89 @@
             "optional": true,
             "parameters": [
               {
-                "name": "spaceId",
+                "name": "space",
+                "$ref": "spaces.Space"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get",
+        "type": "function",
+        "description": "Retrieves details about the specified space.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "spaceId",
+            "type": "integer",
+            "description": "The id of the space.",
+            "minimum": 1
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "name": "space",
+                "$ref": "spaces.Space"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "query",
+        "type": "function",
+        "description": "Gets all spaces that have the specified properties, or all spaces if no properties are specified.",
+        "async": "callback",
+        "parameters": [
+          {
+            "type": "object",
+            "name": "queryInfo",
+            "optional": true,
+            "default": {},
+            "properties": {
+              "id": {
                 "type": "integer",
                 "description": "The id of the space.",
-                "minimum": 1,
-                "optional": true
+                "optional": true,
+                "minimum": 1
+              },
+              "name": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9_]+$",
+                "optional": true,
+                "description": "The name of the spaces (names are not unique)."
+              },
+              "isBuiltIn": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Spaces should be default Thunderbird spaces."
+              },
+              "isSelfOwned": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Spaces should have been created by this extension."
+              },
+              "extensionId": {
+                "type": "string",
+                "optional": true,
+                "description": "Id of the extension which should own the spaces. The <permission>management</permission> permission is required to be able to match against extension ids."
+              }
+            }
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "parameters": [
+              {
+                "name": "result",
+                "type": "array",
+                "items": {
+                  "$ref": "spaces.Space"
+                }
               }
             ]
           }

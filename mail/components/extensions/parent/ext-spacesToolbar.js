@@ -124,7 +124,12 @@ ExtensionSupport.registerWindowListener("ext-spacesToolbar", {
         });
       }
     });
+    // Add buttons of all extension spaces to the toolbar of each newly opened
+    // normal window.
     for (let spaceData of spaceTracker.getAll()) {
+      if (!spaceData.extension) {
+        continue;
+      }
       let nativeButtonProperties = convertProperties(spaceData);
       await window.gSpacesToolbar.createToolbarButton(
         spaceData.spaceButtonId,
@@ -141,7 +146,7 @@ this.spacesToolbar = class extends ExtensionAPI {
   async close() {
     let extensionId = this.extension.id;
     for (let spaceData of spaceTracker.getAll()) {
-      if (spaceData.extension.id != extensionId) {
+      if (spaceData.extension?.id != extensionId) {
         continue;
       }
       for (let window of ExtensionSupport.openWindows) {
@@ -182,7 +187,7 @@ this.spacesToolbar = class extends ExtensionAPI {
             );
           }
           try {
-            let spaceData = spaceTracker.create(
+            let spaceData = await spaceTracker.create(
               name,
               properties.url,
               properties,
@@ -289,7 +294,7 @@ this.spacesToolbar = class extends ExtensionAPI {
 
           let window = await getNormalWindowReady(context, windowId);
           let space = window.gSpacesToolbar.spaces.find(
-            space => space.name == spaceData.spaceButtonId
+            space => space.button.id == spaceData.spaceButtonId
           );
 
           let tabmail = window.document.getElementById("tabmail");

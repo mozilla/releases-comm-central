@@ -596,25 +596,72 @@ class SpaceTracker {
    * @param {ExtensionData} extension - the extension the space belongs to
    * @returns {SpaceData}
    */
-  create(name, defaultUrl, buttonProperties, extension) {
+  async create(name, defaultUrl, buttonProperties, extension) {
+    const add = (
+      name,
+      spaceButtonId,
+      defaultUrl,
+      buttonProperties,
+      extension
+    ) => {
+      let spaceId = this._nextId++;
+      let spaceData = {
+        name,
+        spaceId,
+        spaceButtonId,
+        defaultUrl,
+        buttonProperties,
+        extension,
+      };
+      this._spaceData.set(spaceButtonId, spaceData);
+      this._spaceIds.set(spaceId, spaceButtonId);
+      return spaceData;
+    };
+
+    // Before creating extension spaces, make sure we have added all built-in
+    // spaces to the tracker.
+    if (this._nextId == 1) {
+      let window = await getNormalWindowReady();
+      await new Promise(resolve => {
+        if (window.gSpacesToolbar.isLoaded) {
+          resolve();
+        } else {
+          window.addEventListener("spaces-toolbar-ready", resolve, {
+            once: true,
+          });
+        }
+      });
+      for (let nativeSpace of window.gSpacesToolbar.spaces) {
+        if (!nativeSpace.isExtensionSpace) {
+          add(nativeSpace.name, nativeSpace.button.id);
+        }
+      }
+    }
+
     let spaceButtonId = this._getSpaceButtonId(name, extension);
     if (this._spaceData.has(spaceButtonId)) {
       return false;
     }
-    let spaceId = this._nextId++;
+    return add(name, spaceButtonId, defaultUrl, buttonProperties, extension);
+  }
 
-    let spaceData = {
-      name,
-      spaceId,
-      extension,
-      spaceButtonId,
-      defaultUrl,
-      buttonProperties,
+  /**
+   * Return a WebExtension Space object, representing the given spaceData.
+   *
+   * @param {SpaceData} spaceData
+   * @returns {Space} - @see mail/components/extensions/schemas/spaces.json
+   */
+  convert(spaceData, extension) {
+    let space = {
+      id: spaceData.spaceId,
+      name: spaceData.name,
+      isBuiltIn: !spaceData.extension,
+      isSelfOwned: spaceData.extension?.id == extension.id,
     };
-
-    this._spaceData.set(spaceButtonId, spaceData);
-    this._spaceIds.set(spaceId, spaceButtonId);
-    return spaceData;
+    if (spaceData.extension && extension.hasPermission("management")) {
+      space.extensionId = spaceData.extension.id;
+    }
+    return space;
   }
 
   /**

@@ -126,7 +126,12 @@ ExtensionSupport.registerWindowListener("ext-spaces", {
         });
       }
     });
+    // Add buttons of all extension spaces to the toolbar of each newly opened
+    // normal window.
     for (let spaceData of spaceTracker.getAll()) {
+      if (!spaceData.extension) {
+        continue;
+      }
       let nativeButtonProperties = getNativeButtonProperties(spaceData);
       await window.gSpacesToolbar.createToolbarButton(
         spaceData.spaceButtonId,
@@ -138,12 +143,44 @@ ExtensionSupport.registerWindowListener("ext-spaces", {
 
 this.spaces = class extends ExtensionAPI {
   /**
+   * Match a WebExtension Space object against the provided queryInfo.
+   *
+   * @param {Space} space - @see mail/components/extensions/schemas/spaces.json
+   * @param {QueryInfo} queryInfo - @see mail/components/extensions/schemas/spaces.json
+   * @returns {boolean}
+   */
+  matchSpace(space, queryInfo) {
+    if (queryInfo.id != null && space.id != queryInfo.id) {
+      return false;
+    }
+    if (queryInfo.name != null && space.name != queryInfo.name) {
+      return false;
+    }
+    if (queryInfo.isBuiltIn != null && space.isBuiltIn != queryInfo.isBuiltIn) {
+      return false;
+    }
+    if (
+      queryInfo.isSelfOwned != null &&
+      space.isSelfOwned != queryInfo.isSelfOwned
+    ) {
+      return false;
+    }
+    if (
+      queryInfo.extensionId != null &&
+      space.extensionId != queryInfo.extensionId
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
    * Called when an extension context is closed.
    */
   async close() {
     let extensionId = this.extension.id;
     for (let spaceData of spaceTracker.getAll()) {
-      if (spaceData.extension.id != extensionId) {
+      if (spaceData.extension?.id != extensionId) {
         continue;
       }
       for (let window of ExtensionSupport.openWindows) {
@@ -160,6 +197,7 @@ this.spaces = class extends ExtensionAPI {
   getAPI(context) {
     context.callOnClose(this);
     let { tabManager } = context.extension;
+    let self = this;
 
     return {
       spaces: {
@@ -178,7 +216,7 @@ this.spaces = class extends ExtensionAPI {
           }
 
           try {
-            let spaceData = spaceTracker.create(
+            let spaceData = await spaceTracker.create(
               name,
               defaultUrl,
               buttonProperties,
@@ -195,7 +233,7 @@ this.spaces = class extends ExtensionAPI {
               }
             }
 
-            return spaceData.spaceId;
+            return spaceTracker.convert(spaceData, context.extension);
           } catch (error) {
             throw new ExtensionError(
               `Failed to create space with name ${name}: ${error}`
@@ -206,7 +244,7 @@ this.spaces = class extends ExtensionAPI {
           let spaceData = spaceTracker.fromSpaceId(spaceId);
           if (!spaceData) {
             throw new ExtensionError(
-              `Failed to remove space with id ${spaceId}: Space does not exist.`
+              `Failed to remove space with id ${spaceId}: Unknown id.`
             );
           }
           if (spaceData.extension?.id != context.extension.id) {
@@ -234,7 +272,7 @@ this.spaces = class extends ExtensionAPI {
           let spaceData = spaceTracker.fromSpaceId(spaceId);
           if (!spaceData) {
             throw new ExtensionError(
-              `Failed to update space with id ${spaceId}: Space does not exist.`
+              `Failed to update space with id ${spaceId}: Unknown id.`
             );
           }
           if (spaceData.extension?.id != context.extension.id) {
@@ -289,19 +327,36 @@ this.spaces = class extends ExtensionAPI {
           let spaceData = spaceTracker.fromSpaceId(spaceId);
           if (!spaceData) {
             throw new ExtensionError(
-              `Failed to open space with id ${spaceId}: Space does not exist.`
+              `Failed to open space with id ${spaceId}: Unknown id.`
             );
           }
 
           let window = await getNormalWindowReady(context, windowId);
           let space = window.gSpacesToolbar.spaces.find(
-            space => space.name == spaceData.spaceButtonId
+            space => space.button.id == spaceData.spaceButtonId
           );
 
           let tabmail = window.document.getElementById("tabmail");
           let currentTab = tabmail.selectedTab;
           let nativeTabInfo = window.gSpacesToolbar.openSpace(tabmail, space);
           return tabManager.convert(nativeTabInfo, currentTab);
+        },
+        async get(spaceId) {
+          let spaceData = spaceTracker.fromSpaceId(spaceId);
+          if (!spaceData) {
+            throw new ExtensionError(
+              `Failed to get space with id ${spaceId}: Unknown id.`
+            );
+          }
+          return spaceTracker.convert(spaceData, context.extension);
+        },
+        async query(queryInfo) {
+          let allSpaceData = [...spaceTracker.getAll()];
+          return allSpaceData
+            .map(spaceData =>
+              spaceTracker.convert(spaceData, context.extension)
+            )
+            .filter(space => self.matchSpace(space, queryInfo));
         },
       },
     };
