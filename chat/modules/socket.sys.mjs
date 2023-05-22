@@ -484,13 +484,13 @@ export var Socket = {
     }
 
     const nsITransportEventSinkStatus = {
-      0x804b0003: "STATUS_RESOLVING",
-      0x804b000b: "STATUS_RESOLVED",
-      0x804b0007: "STATUS_CONNECTING_TO",
-      0x804b0004: "STATUS_CONNECTED_TO",
-      0x804b0005: "STATUS_SENDING_TO",
-      0x804b000a: "STATUS_WAITING_FOR",
-      0x804b0006: "STATUS_RECEIVING_FROM",
+      0x4b0003: "STATUS_RESOLVING",
+      0x4b000b: "STATUS_RESOLVED",
+      0x4b0007: "STATUS_CONNECTING_TO",
+      0x4b0004: "STATUS_CONNECTED_TO",
+      0x4b0005: "STATUS_SENDING_TO",
+      0x4b000a: "STATUS_WAITING_FOR",
+      0x4b0006: "STATUS_RECEIVING_FROM",
     };
     let status = nsITransportEventSinkStatus[aStatus];
     this.DEBUG(
