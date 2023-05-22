@@ -11,8 +11,8 @@
 /* Special rules for dark system theme and default TB theme */
 
 :root[lwt-tree-brighttext]:not([lwt-tree]) {
-  --sidebar-background-color: #3a3a3a;
-  --sidebar-text-color: #f5f5f5;
+  --sidebar-background-color: var(--color-gray-80);
+  --sidebar-text-color: var(--color-gray-10);
 }
 
 :root[lwt-tree-brighttext]:not([lwt-tree]) treechildren::-moz-tree-row(current, focus) {
