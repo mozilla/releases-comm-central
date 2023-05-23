@@ -1256,6 +1256,11 @@ async function subtestExpandCollapse() {
     "rows property"
   );
 
+  function checkMultiSelect(...expectedIds) {
+    let selected = [...list.querySelectorAll(".selected")].map(row => row.id);
+    Assert.deepEqual(selected, expectedIds, "selection should be correct");
+  }
+
   function checkSelected(expectedIndex, expectedId) {
     Assert.equal(list.selectedIndex, expectedIndex, "selectedIndex is correct");
     let selected = [...list.querySelectorAll(".selected")].map(row => row.id);
@@ -1318,6 +1323,17 @@ async function subtestExpandCollapse() {
         content
       )
     );
+  }
+
+  function clickThread(id, expectedChange) {
+    info(`clicking the thread on ${id}`);
+    performChange(id, expectedChange, row => {
+      EventUtils.synthesizeMouseAtCenter(
+        row.querySelector(".tree-button-thread"),
+        {},
+        content
+      );
+    });
   }
 
   for (let id of idsWithoutChildren) {
@@ -1685,6 +1701,27 @@ async function subtestExpandCollapse() {
   checkRowsAreHidden();
   checkSelected(4, "row-3");
   listener.reset();
+
+  // Click thread for already expanded thread. Should select all in thread.
+  selectHandler.reset();
+  clickThread("row-3"); // Item with grandchildren.
+  Assert.ok(selectHandler.seenEvent, "'select' event fired");
+  Assert.equal(
+    selectHandler.selectedAtEvent,
+    4,
+    "selectedIndex was correct when 'select' event fired"
+  );
+  checkRowsAreHidden();
+  checkMultiSelect("row-3", "row-3-1", "row-3-1-1", "row-3-1-2");
+
+  // Click thread for collapsed thread. Should expand the thread and select all
+  // children.
+  list.collapseRowAtIndex(1); // Item with children that aren't selected.
+  Assert.equal(listener.collapsedIndex, 1, "row-2 fired 'collapsed' event");
+  checkRowsAreHidden("row-2-1", "row-2-2");
+  clickThread("row-2", "expanded");
+  Assert.equal(listener.expandedIndex, 1, "row-2 fired 'expanded' event");
+  checkMultiSelect("row-2", "row-2-1", "row-2-2");
 
   list.removeEventListener("collapsed", listener);
   list.removeEventListener("expanded", listener);

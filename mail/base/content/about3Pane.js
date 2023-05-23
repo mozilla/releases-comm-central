@@ -5213,27 +5213,23 @@ customElements.whenDefined("tree-view-table-row").then(() => {
         }
 
         if (column.id == "threadCol") {
-          let iconString, labelString;
+          let buttonL10nId, labelString;
           if (propertiesSet.has("ignore")) {
-            iconString = "tree-list-view-row-ignored-thread-icon";
+            buttonL10nId = "tree-list-view-row-ignored-thread-button";
             labelString = "tree-list-view-row-ignored-thread";
           } else if (propertiesSet.has("ignoreSubthread")) {
-            iconString = "tree-list-view-row-ignored-subthread-icon";
+            buttonL10nId = "tree-list-view-row-ignored-subthread-button";
             labelString = "tree-list-view-row-ignored-subthread";
           } else if (propertiesSet.has("watch")) {
-            iconString = "tree-list-view-row-watched-thread-icon";
+            buttonL10nId = "tree-list-view-row-watched-thread-button";
             labelString = "tree-list-view-row-watched-thread";
           } else if (this.classList.contains("children")) {
-            iconString = "tree-list-view-row-thread-icon";
+            buttonL10nId = "tree-list-view-row-thread-button";
           }
 
-          let icon = cell.querySelector("img");
-          if (iconString) {
-            document.l10n.setAttributes(icon, iconString);
-          } else {
-            icon.removeAttribute("data-l10n-id");
-            icon.setAttribute("alt", "");
-            icon.removeAttribute("title");
+          let button = cell.querySelector("button");
+          if (buttonL10nId) {
+            document.l10n.setAttributes(button, buttonL10nId);
           }
           if (labelString) {
             ariaLabelPromises.push(document.l10n.formatValue(labelString));

@@ -21,9 +21,22 @@
       align-items: center;
     }
 
+    button.threader {
+      width: 1em;
+      height: 1em;
+    }
+
     div.twisty {
       width: 1em;
       height: 1em;
+    }
+
+    tr[is="test-row"].children button.threader {
+      display: inline-block;
+    }
+
+    tr[is="test-row"] button.threader {
+      display: hidden;
     }
 
     tr[is="test-row"].children div.twisty {

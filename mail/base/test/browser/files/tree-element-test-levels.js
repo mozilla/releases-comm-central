@@ -27,7 +27,12 @@ window.addEventListener("load", () => {
       this.cell = this.appendChild(document.createElement("td"));
       let container = this.cell.appendChild(document.createElement("div"));
 
+      this.threader = container.appendChild(document.createElement("button"));
+      this.threader.textContent = "↳";
+      this.threader.classList.add("tree-button-thread");
+
       this.twisty = container.appendChild(document.createElement("div"));
+      this.twisty.textContent = "v";
       this.twisty.classList.add("twisty");
 
       this.d2 = container.appendChild(document.createElement("div"));

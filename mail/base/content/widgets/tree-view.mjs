@@ -272,6 +272,25 @@ class TreeView extends HTMLElement {
 
         let index = row.index;
 
+        if (event.target.classList.contains("tree-button-thread")) {
+          if (this._view.isContainerOpen(index)) {
+            let children = 0;
+            for (
+              let i = index + 1;
+              i < this._view.rowCount && this._view.getLevel(i) > 0;
+              i++
+            ) {
+              children++;
+            }
+            this._selectRange(index, index + children, event[accelKeyName]);
+          } else {
+            let addedRows = this.expandRowAtIndex(index);
+            this._selectRange(index, index + addedRows, event[accelKeyName]);
+          }
+          this.table.body.focus();
+          return;
+        }
+
         if (this._view.isContainer(index) && event.target.closest(".twisty")) {
           if (this._view.isContainerOpen(index)) {
             this.collapseRowAtIndex(index);
@@ -289,7 +308,7 @@ class TreeView extends HTMLElement {
         // image inside the selection column.
         if (event.target.classList.contains("tree-view-row-select-checkbox")) {
           if (event.shiftKey) {
-            this._selectRange(index, event[accelKeyName]);
+            this._selectRange(-1, index, event[accelKeyName]);
           } else {
             this._toggleSelected(index);
           }
@@ -355,7 +374,7 @@ class TreeView extends HTMLElement {
         if (event[accelKeyName] && !event.shiftKey) {
           this._toggleSelected(index);
         } else if (event.shiftKey) {
-          this._selectRange(index, event[accelKeyName]);
+          this._selectRange(-1, index, event[accelKeyName]);
         } else {
           this._selectSingle(index);
         }
@@ -443,7 +462,7 @@ class TreeView extends HTMLElement {
               // Change focus, but not selection.
               this.currentIndex = newIndex;
             } else if (event.shiftKey) {
-              this._selectRange(newIndex, event[accelKeyName]);
+              this._selectRange(-1, newIndex, event[accelKeyName]);
             } else {
               this._selectSingle(newIndex, true);
             }
@@ -1225,13 +1244,14 @@ class TreeView extends HTMLElement {
   /**
    * Start or extend a range selection to the given index and focus it.
    *
-   * @param {integer} index - The index to select.
+   * @param {number} start - Start index of selection. -1 for current index.
+   * @param {number} end - End index of selection.
    * @param {boolean} extend[false] - If the new selection range should extend
    *   the current selection.
    */
-  _selectRange(index, extend = false) {
-    this._selection.rangedSelect(-1, index, extend);
-    this.currentIndex = index;
+  _selectRange(start, end, extend = false) {
+    this._selection.rangedSelect(start, end, extend);
+    this.currentIndex = start == -1 ? end : start;
     this.onSelectionChanged();
   }
 
