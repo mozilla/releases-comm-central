@@ -85,17 +85,17 @@ add_task(async function testFavoriteFolders() {
   await checkModeListItems("favorite", []);
 
   folderB.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [rootFolder, folderB]);
+  await checkModeListItems("favorite", [rootFolder, folderA, folderB]);
 
   folderB.clearFlag(Ci.nsMsgFolderFlags.Favorite);
   await checkModeListItems("favorite", []);
 
   folderC.setFlag(Ci.nsMsgFolderFlags.Favorite);
   folderA.setFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [rootFolder, folderA, folderC]);
+  await checkModeListItems("favorite", [rootFolder, folderA, folderB, folderC]);
 
   folderA.clearFlag(Ci.nsMsgFolderFlags.Favorite);
-  await checkModeListItems("favorite", [rootFolder, folderC]);
+  await checkModeListItems("favorite", [rootFolder, folderA, folderB, folderC]);
 
   folderC.clearFlag(Ci.nsMsgFolderFlags.Favorite);
   await checkModeListItems("favorite", []);
@@ -361,7 +361,7 @@ add_task(async function testFolderMove() {
     newParentFolder,
   ]);
   await checkModeListItems("unread", [rootFolder, folderA, folderB, folderC]);
-  await checkModeListItems("favorite", [rootFolder, folderC]);
+  await checkModeListItems("favorite", [rootFolder, folderA, folderB, folderC]);
 
   // Move `folderB` from `folderA` to `newParentFolder`.
 
@@ -394,7 +394,12 @@ add_task(async function testFolderMove() {
     movedFolderB,
     movedFolderC,
   ]);
-  await checkModeListItems("favorite", [rootFolder, movedFolderC]);
+  await checkModeListItems("favorite", [
+    rootFolder,
+    newParentFolder,
+    movedFolderB,
+    movedFolderC,
+  ]);
 
   // Switch to compact mode for the return move.
 
@@ -482,6 +487,8 @@ add_task(async function testFolderRename() {
   await checkModeListItems("favorite", [
     rootFolder,
     extraFolders.aaa,
+    folderA,
+    folderB,
     folderC,
     extraFolders.ggg,
     extraFolders.zzz,
@@ -518,8 +525,10 @@ add_task(async function testFolderRename() {
   await checkModeListItems("favorite", [
     rootFolder,
     extraFolders.aaa,
-    renamedFolderC,
     extraFolders.ggg,
+    renamedFolderA,
+    renamedFolderB,
+    renamedFolderC,
     extraFolders.zzz,
   ]);
 

@@ -855,38 +855,29 @@ var folderPane = {
           return;
         }
 
-        if (!folderPane.getRowForFolder(folder.rootFolder, this.name)) {
-          folderPane._insertInServerOrder(
-            this.containerList,
-            folderPane._createServerRow(this.name, folder.server)
-          );
-        }
-
-        while (folder) {
-          let parentFolder = folderPane._getNonGmailParent(folder);
-          let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
-          if (parentRow) {
-            let folderRow = folderPane._createFolderRow(this.name, folder);
-            folderPane._addSubFolders(
-              folder,
-              folderRow,
-              this.name,
-              this._unreadFilter
-            );
-            parentRow.insertChildInOrder(folderRow);
-            break;
-          }
-          folder = parentFolder;
-        }
+        folderPane._addFolderAndAncestors(
+          this.containerList,
+          folder,
+          this.name
+        );
       },
 
       removeFolder(parentFolder, childFolder) {
-        this._removeFolder(childFolder);
+        folderPane._removeFolderAndAncestors(
+          childFolder,
+          this.name,
+          this._unreadFilter
+        );
 
         // If the folder is being moved, `childFolder.parent` is null so the
         // above code won't remove ancestors. Do this now.
         if (!childFolder.parent && parentFolder) {
-          this._removeFolder(parentFolder, true);
+          folderPane._removeFolderAndAncestors(
+            parentFolder,
+            this.name,
+            this._unreadFilter,
+            true
+          );
         }
 
         // Remove any stray rows that might be descendants of `childFolder`.
@@ -895,32 +886,6 @@ var folderPane = {
             row.remove();
           }
         }
-      },
-
-      _removeFolder(folder, childAlreadyGone = false) {
-        let folderRow = folderPane.getRowForFolder(folder, this.name);
-        if (folderPane._isCompact) {
-          folderRow?.remove();
-          return;
-        }
-
-        // If we get to a row for a folder that doesn't exist, or has children
-        // other than the one being removed, don't go any further.
-        if (
-          !folderRow ||
-          folderRow.childList.childElementCount > (childAlreadyGone ? 0 : 1)
-        ) {
-          return;
-        }
-
-        // Otherwise, move up the folder tree.
-        let parentFolder = folderPane._getNonGmailParent(folder);
-        if (parentFolder) {
-          this._removeFolder(parentFolder);
-        }
-
-        // Remove the row for this folder.
-        folderRow.remove();
       },
 
       changeUnreadCount(folder, unused, newValue) {
@@ -938,6 +903,10 @@ var folderPane = {
       active: false,
       canBeCompact: true,
 
+      _favoriteFilter(folder) {
+        return folder.flags & Ci.nsMsgFolderFlags.Favorite;
+      },
+
       initServer(server) {
         this.addFolder(null, server.rootFolder);
       },
@@ -953,7 +922,7 @@ var folderPane = {
 
       _addFolder(folder) {
         if (
-          !(folder.flags & Ci.nsMsgFolderFlags.Favorite) ||
+          !this._favoriteFilter(folder) ||
           folderPane.getRowForFolder(folder, this.name)
         ) {
           return;
@@ -967,74 +936,36 @@ var folderPane = {
           return;
         }
 
-        let serverRow = folderPane.getRowForFolder(
-          folder.rootFolder,
+        folderPane._addFolderAndAncestors(
+          this.containerList,
+          folder,
           this.name
-        );
-        if (!serverRow) {
-          serverRow = folderPane._insertInServerOrder(
-            this.containerList,
-            folderPane._createServerRow(this.name, folder.server)
-          );
-        }
-        serverRow.insertChildInOrder(
-          folderPane._createFolderRow(
-            this.name,
-            folder,
-            folderPane._isCompact ? "both" : "folder"
-          )
         );
       },
 
       removeFolder(parentFolder, childFolder) {
-        // This is tricky, `childFolder` could be a folder which was a favorite
-        // but isn't any more, or it could be a folder that got moved or
-        // renamed, or it could be a root folder of an account being removed.
-        // Since we store a URI for each row and not actual folders, getting
-        // potentially invalid rows is hard.
-        // The easiest way to handle all cases is to work out which rows should
-        // remain and remove the others.
+        folderPane._removeFolderAndAncestors(
+          childFolder,
+          this.name,
+          this._favoriteFilter
+        );
 
-        // Find all remaining favorite folders.
-        let validFolderURIs;
-        if (parentFolder) {
-          validFolderURIs = childFolder.rootFolder
-            .getFoldersWithFlags(Ci.nsMsgFolderFlags.Favorite)
-            .map(f => f.URI);
-        } else {
-          // The account is being removed.
-          validFolderURIs = [];
-        }
-
-        // Find all rows which might need removal.
-        let folderRows, serverRow;
-        if (folderPane._isCompact) {
-          folderRows = this.containerList.children;
-        } else {
-          serverRow = folderPane.getRowForFolder(
-            childFolder.rootFolder,
-            this.name
+        // If the folder is being moved, `childFolder.parent` is null so the
+        // above code won't remove ancestors. Do this now.
+        if (!childFolder.parent && parentFolder) {
+          folderPane._removeFolderAndAncestors(
+            parentFolder,
+            this.name,
+            this._favoriteFilter,
+            true
           );
-          if (!serverRow) {
-            return;
-          }
-          folderRows = serverRow.childList.children;
         }
 
-        // Remove the rows which don't belong to favorite folders.
-        let serverKey = childFolder.server.key;
-        for (let folderRow of [...folderRows]) {
-          if (
-            folderRow.dataset.serverKey == serverKey &&
-            !validFolderURIs.includes(folderRow.uri)
-          ) {
-            folderRow.remove();
+        // Remove any stray rows that might be descendants of `childFolder`.
+        for (let row of [...this.containerList.querySelectorAll("li")]) {
+          if (row.uri.startsWith(childFolder.URI + "/")) {
+            row.remove();
           }
-        }
-
-        // Remove the server row if it exists and has no child rows.
-        if (serverRow?.childList.childElementCount == 0) {
-          serverRow.remove();
         }
       },
 
@@ -1047,7 +978,16 @@ var folderPane = {
         }
 
         if (oldValue) {
-          this.removeFolder(folderPane._getNonGmailParent(folder), folder);
+          if (
+            folderPane._isCompact ||
+            !folder.getFolderWithFlags(Ci.nsMsgFolderFlags.Favorite)
+          ) {
+            folderPane._removeFolderAndAncestors(
+              folder,
+              this.name,
+              this._favoriteFilter
+            );
+          }
         } else {
           this._addFolder(folder);
         }
@@ -1550,10 +1490,87 @@ var folderPane = {
   },
 
   /**
+   * Adds a row representing a folder and any missing rows for ancestors of
+   * the folder.
+   *
+   * @param {HTMLUListElement} containerList - The list to add folders to.
+   * @param {nsIMsgFolder} folder
+   * @param {string} modeName - The name of the mode this row belongs to.
+   * @returns {FolderTreeRow}
+   */
+  _addFolderAndAncestors(containerList, folder, modeName) {
+    let folderRow = folderPane.getRowForFolder(folder, modeName);
+    if (folderRow) {
+      return folderRow;
+    }
+
+    if (folder.isServer) {
+      let serverRow = folderPane._createServerRow(modeName, folder.server);
+      this._insertInServerOrder(containerList, serverRow);
+      return serverRow;
+    }
+
+    let parentRow = this._addFolderAndAncestors(
+      containerList,
+      folderPane._getNonGmailParent(folder),
+      modeName
+    );
+    folderRow = folderPane._createFolderRow(modeName, folder);
+    parentRow.insertChildInOrder(folderRow);
+    return folderRow;
+  },
+
+  /**
    * @callback folderFilterCallback
    * @param {FolderTreeRow} row
-   * @returns {boolean} - True if the folder should be added to the parent row.
+   * @returns {boolean} - True if the folder should have a row in the tree.
    */
+  /**
+   * Removes the row representing a folder and the rows for any ancestors of
+   * the folder, as long as they don't have other descendants or match
+   * `filterFunction`.
+   *
+   * @param {nsIMsgFolder} folder
+   * @param {string} modeName - The name of the mode this row belongs to.
+   * @param {folderFilterCallback} [filterFunction] - Optional callback to stop
+   *   ascending.
+   * @param {boolean=false} childAlreadyGone - Is this function being called
+   *   to remove the parent of a row that's already been removed?
+   */
+  _removeFolderAndAncestors(
+    folder,
+    modeName,
+    filterFunction,
+    childAlreadyGone = false
+  ) {
+    let folderRow = folderPane.getRowForFolder(folder, modeName);
+    if (folderPane._isCompact) {
+      folderRow?.remove();
+      return;
+    }
+
+    // If we get to a row for a folder that doesn't exist, or has children
+    // other than the one being removed, don't go any further.
+    if (
+      !folderRow ||
+      folderRow.childList.childElementCount > (childAlreadyGone ? 0 : 1)
+    ) {
+      return;
+    }
+
+    // Otherwise, move up the folder tree.
+    let parentFolder = folderPane._getNonGmailParent(folder);
+    if (
+      parentFolder &&
+      (typeof filterFunction != "function" || !filterFunction(parentFolder))
+    ) {
+      this._removeFolderAndAncestors(parentFolder, modeName, filterFunction);
+    }
+
+    // Remove the row for this folder.
+    folderRow.remove();
+  },
+
   /**
    * Add all subfolders to a row representing a folder. Called recursively,
    * so all descendants are ultimately added.
