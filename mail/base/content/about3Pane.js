@@ -2018,9 +2018,13 @@ var folderPane = {
     }
 
     let folder = MailServices.folderLookup.getFolderForURL(row.uri);
-    if (!folder || folder.isServer || folder.server.type == "nntp") {
-      // TODO: Fix NNTP group reordering and enable. Bug 1822224.
+    if (!folder || folder.isServer) {
       event.preventDefault();
+      return;
+    }
+    if (folder.server.type == "nntp") {
+      event.dataTransfer.mozSetDataAt("text/x-moz-newsfolder", folder, 0);
+      event.dataTransfer.effectAllowed = "move";
       return;
     }
 
@@ -2114,12 +2118,20 @@ var folderPane = {
         }
       }
       event.dataTransfer.dropEffect = "copy";
-    } else {
-      return;
+    } else if (types.includes("text/x-moz-newsfolder")) {
+      let folder = event.dataTransfer
+        .mozGetDataAt("text/x-moz-newsfolder", 0)
+        .QueryInterface(Ci.nsIMsgFolder);
+      if (
+        targetFolder.isServer ||
+        targetFolder.server.type != "nntp" ||
+        folder == targetFolder ||
+        folder.server != targetFolder.server
+      ) {
+        return;
+      }
+      event.dataTransfer.dropEffect = "move";
     }
-
-    this._clearDropTarget();
-    row.classList.add("drop-target");
   },
 
   /**
@@ -2230,6 +2242,19 @@ var folderPane = {
           );
         }
       }
+    } else if (types.includes("text/x-moz-newsfolder")) {
+      let folder = event.dataTransfer
+        .mozGetDataAt("text/x-moz-newsfolder", 0)
+        .QueryInterface(Ci.nsIMsgFolder);
+
+      let mode = row.closest("li[data-mode]").dataset.mode;
+      let newsRoot = targetFolder.rootFolder.QueryInterface(
+        Ci.nsIMsgNewsFolder
+      );
+      newsRoot.reorderGroup(folder, targetFolder);
+      setTimeout(
+        () => (folderTree.selectedRow = this.getRowForFolder(folder, mode))
+      );
     }
 
     event.preventDefault();

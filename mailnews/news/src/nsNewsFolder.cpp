@@ -1159,11 +1159,8 @@ NS_IMETHODIMP nsMsgNewsFolder::ForgetAuthenticationCredentials() {
 }
 
 // change order of subfolders (newsgroups)
-// aOrientation = -1 ... aNewsgroupToMove aRefNewsgroup ...
-// aOrientation =  1 ... aRefNewsgroup aNewsgroupToMove ...
-NS_IMETHODIMP nsMsgNewsFolder::MoveFolder(nsIMsgFolder* aNewsgroupToMove,
-                                          nsIMsgFolder* aRefNewsgroup,
-                                          int32_t aOrientation) {
+NS_IMETHODIMP nsMsgNewsFolder::ReorderGroup(nsIMsgFolder* aNewsgroupToMove,
+                                            nsIMsgFolder* aRefNewsgroup) {
   // if folders are identical do nothing
   if (aNewsgroupToMove == aRefNewsgroup) return NS_OK;
 
@@ -1181,34 +1178,20 @@ NS_IMETHODIMP nsMsgNewsFolder::MoveFolder(nsIMsgFolder* aNewsgroupToMove,
     // aRefNewsgroup is no subfolder of this folder
     return NS_ERROR_INVALID_ARG;
 
-  // set new index for NewsgroupToMove
-  uint32_t indexMin, indexMax;
-  if (indexNewsgroupToMove < indexRefNewsgroup) {
-    if (aOrientation < 0) indexRefNewsgroup--;
-    indexMin = indexNewsgroupToMove;
-    indexMax = indexRefNewsgroup;
-  } else {
-    if (aOrientation > 0) indexRefNewsgroup++;
-    indexMin = indexRefNewsgroup;
-    indexMax = indexNewsgroupToMove;
-  }
+  // Move NewsgroupToMove to new index and set new sort order.
 
-  // move NewsgroupToMove to new index and set new sort order
-  NotifyFolderRemoved(aNewsgroupToMove);
+  nsCOMPtr<nsIMsgFolder> newsgroup = mSubFolders[indexNewsgroupToMove];
 
-  if (indexNewsgroupToMove != indexRefNewsgroup) {
-    nsCOMPtr<nsIMsgFolder> newsgroup = mSubFolders[indexNewsgroupToMove];
+  mSubFolders.RemoveObjectAt(indexNewsgroupToMove);
+  mSubFolders.InsertObjectAt(newsgroup, indexRefNewsgroup);
 
-    mSubFolders.RemoveObjectAt(indexNewsgroupToMove);
-
-    // indexRefNewsgroup is already set up correctly.
-    mSubFolders.InsertObjectAt(newsgroup, indexRefNewsgroup);
-  }
-
-  for (uint32_t i = indexMin; i <= indexMax; i++)
+  for (uint32_t i = 0; i < mSubFolders.Length(); i++) {
     mSubFolders[i]->SetSortOrder(kNewsSortOffset + i);
-
-  NotifyFolderAdded(aNewsgroupToMove);
+    nsAutoString name;
+    mSubFolders[i]->GetName(name);
+    NotifyFolderRemoved(mSubFolders[i]);
+    NotifyFolderAdded(mSubFolders[i]);
+  }
 
   // write changes back to file
   nsCOMPtr<nsINntpIncomingServer> nntpServer;
