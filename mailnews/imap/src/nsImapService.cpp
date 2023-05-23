@@ -2538,8 +2538,9 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     else if (!fullFolderName.IsEmpty()) {
       nsCOMPtr<nsIMsgFolder> imapFolder;
       mailnewsUrl->GetFolder(getter_AddRefs(imapFolder));
-      NS_ASSERTION(imapFolder,
-                   nsPrintfCString("No folder for imap url: %s", spec).get());
+      NS_ASSERTION(
+          imapFolder,
+          nsPrintfCString("No folder for imap url: %s", spec.get()).get());
 
       nsCOMPtr<nsIMsgMailSession> mailSession =
           do_GetService("@mozilla.org/messenger/services/session;1", &rv);
