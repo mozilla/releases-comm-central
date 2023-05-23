@@ -84,7 +84,6 @@ reference-jobs:
     - win64-rust
     - win64-rust-size
     - win64-sccache
-    - win64-vs2017
     - win64-vs2019
     - win64-winchecksec
 
