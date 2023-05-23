@@ -1115,7 +1115,6 @@ class Tab extends TabBase {
     for (let key of [
       "attention",
       "audible",
-      "cookieStoreId",
       "discarded",
       "hidden",
       "incognito",
@@ -1204,7 +1203,13 @@ class Tab extends TabBase {
 
   /** Returns the cookie store id. */
   get cookieStoreId() {
-    return 0;
+    if (this.browser && this.browser.contentPrincipal) {
+      return getCookieStoreIdForOriginAttributes(
+        this.browser.contentPrincipal.originAttributes
+      );
+    }
+
+    return DEFAULT_STORE;
   }
 
   /** Returns the discarded state. */

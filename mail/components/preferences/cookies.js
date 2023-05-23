@@ -6,6 +6,11 @@
 var { PluralForm } = ChromeUtils.importESModule(
   "resource://gre/modules/PluralForm.sys.mjs"
 );
+ChromeUtils.defineModuleGetter(
+  this,
+  "ContextualIdentityService",
+  "resource://gre/modules/ContextualIdentityService.jsm"
+);
 
 var gCookiesWindow = {
   _hosts: {},
@@ -548,8 +553,11 @@ var gCookiesWindow = {
   },
 
   _getUserContextString(aUserContextId) {
-    // Thunderbird ignores the context for now.
-    return this._bundle.getString("defaultUserContextLabel");
+    if (parseInt(aUserContextId, 10) == 0) {
+      return this._bundle.getString("defaultUserContextLabel");
+    }
+
+    return ContextualIdentityService.getUserContextLabel(aUserContextId);
   },
 
   _updateCookieData(aItem) {

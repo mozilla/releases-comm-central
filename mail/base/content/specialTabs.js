@@ -824,6 +824,9 @@ var specialTabs = {
       if (aArgs.skipLoad) {
         clone.querySelector("browser").setAttribute("nodefaultsrc", "true");
       }
+      if (aArgs.userContextId) {
+        aTab.browser.setAttribute("usercontextid", aArgs.userContextId);
+      }
       aTab.panel.setAttribute("id", "contentTabWrapper" + this.lastBrowserId);
       aTab.panel.appendChild(clone);
       aTab.root = clone;
@@ -965,6 +968,10 @@ var specialTabs = {
       return {
         tabURI: aTab.browser.currentURI.spec,
         linkHandler: aTab.browser.getAttribute("messagemanagergroup"),
+        userContextId: `${
+          aTab.browser.getAttribute("usercontextid") ||
+          Ci.nsIScriptSecurityManager.DEFAULT_USER_CONTEXT_ID
+        }`,
       };
     },
     restoreTab(aTabmail, aPersistedState) {
@@ -973,6 +980,7 @@ var specialTabs = {
         duplicate: aPersistedState.duplicate,
         linkHandler: aPersistedState.linkHandler,
         url: aPersistedState.tabURI,
+        userContextId: aPersistedState.userContextId,
       });
 
       if (aPersistedState.tabURI == "about:addons") {

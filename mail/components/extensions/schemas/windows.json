@@ -314,6 +314,11 @@
                 "optional": true,
                 "description": "Allow scripts running inside the window to close the window by calling <code>window.close()</code>."
               },
+              "cookieStoreId": {
+                "type": "string",
+                "optional": true,
+                "description": "The CookieStoreId to use for all tabs that were created when the window is opened."
+              },
               "titlePreface": {
                 "type": "string",
                 "optional": true,

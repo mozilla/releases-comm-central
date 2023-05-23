@@ -26,6 +26,8 @@ module.exports = {
     WindowManagerBase: true,
     WindowTrackerBase: true,
     getContainerForCookieStoreId: true,
+    getUserContextIdForCookieStoreId: true,
+    getCookieStoreIdForOriginAttributes: true,
     getCookieStoreIdForContainer: true,
     getCookieStoreIdForTab: true,
     isContainerCookieStoreId: true,

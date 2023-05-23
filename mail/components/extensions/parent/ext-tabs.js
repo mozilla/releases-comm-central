@@ -502,6 +502,15 @@ this.tabs = class extends ExtensionAPIPersistent {
             }
           }
 
+          let userContextId =
+            Services.scriptSecurityManager.DEFAULT_USER_CONTEXT_ID;
+          if (createProperties.cookieStoreId) {
+            userContextId = getUserContextIdForCookieStoreId(
+              extension,
+              createProperties.cookieStoreId
+            );
+          }
+
           let currentTab = tabmail.selectedTab;
           let active = createProperties.active ?? true;
           tabListener.initTabReady();
@@ -514,6 +523,7 @@ this.tabs = class extends ExtensionAPIPersistent {
               context.extension.policy.browsingContextGroupId,
             principal: context.extension.principal,
             duplicate: true,
+            userContextId,
           });
 
           if (createProperties.index) {
@@ -665,7 +675,6 @@ this.tabs = class extends ExtensionAPIPersistent {
           }
 
           // Make ext-tabs-base happy since it does a strict check.
-          queryInfo.cookieStoreId = null;
           queryInfo.screen = null;
 
           return Array.from(tabManager.query(queryInfo, context), tab =>

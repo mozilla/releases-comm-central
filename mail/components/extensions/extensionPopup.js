@@ -260,11 +260,14 @@ function loadRequestedUrl() {
     if (window.arguments[1].wrappedJSObject.allowScriptsToClose) {
       browser.setAttribute("allowscriptstoclose", "true");
     }
+    let tabParams = window.arguments[1].wrappedJSObject.tabs[0].tabParams;
+    if (tabParams.userContextId) {
+      browser.setAttribute("usercontextid", tabParams.userContextId);
+      // The usercontextid is only read on frame creation, so recreate it.
+      browser.replaceWith(browser);
+    }
     ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
-    MailE10SUtils.loadURI(
-      browser,
-      window.arguments[1].wrappedJSObject.tabs[0].tabParams.url
-    );
+    MailE10SUtils.loadURI(browser, tabParams.url);
   }
 }
 

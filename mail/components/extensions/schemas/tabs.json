@@ -97,6 +97,11 @@
             "optional": true,
             "description": "The height of the tab in pixels."
           },
+          "cookieStoreId": {
+            "type": "string",
+            "optional": true,
+            "description": "The CookieStoreId used for the tab."
+          },
           "type": {
             "type": "string",
             "enum": [
@@ -345,6 +350,11 @@
                 "optional": true,
                 "description": "Whether the tab should become the active tab in the window. Does not affect whether the window is focused (see :ref:`windows.update`). Defaults to <value>true</value>."
               },
+              "cookieStoreId": {
+                "type": "string",
+                "optional": true,
+                "description": "The CookieStoreId for the tab that opened this tab."
+              },
               "selected": {
                 "deprecated": "Please use ``createProperties.active``.",
                 "unsupported": true,
@@ -485,6 +495,19 @@
                 "optional": true,
                 "minimum": 0,
                 "description": "The position of the tabs within their windows."
+              },
+              "cookieStoreId": {
+                "choices": [
+                  {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "optional": true,
+                "description": "The CookieStoreId used for the tab."
               }
             }
           },

@@ -302,6 +302,14 @@ this.windows = class extends ExtensionAPIPersistent {
           // 10px offset is same to Chromium
           sanitizePositionParams(createData, windowTracker.topNormalWindow, 10);
 
+          let userContextId =
+            Services.scriptSecurityManager.DEFAULT_USER_CONTEXT_ID;
+          if (createData.cookieStoreId) {
+            userContextId = getUserContextIdForCookieStoreId(
+              extension,
+              createData.cookieStoreId
+            );
+          }
           let createWindowArgs = createData => {
             let allowScriptsToClose = !!createData.allowScriptsToClose;
             let url = createData.url || "about:blank";
@@ -315,7 +323,7 @@ this.windows = class extends ExtensionAPIPersistent {
               allowScriptsToClose,
               tabs: urls.map(url => ({
                 tabType: "contentTab",
-                tabParams: { url },
+                tabParams: { url, userContextId },
               })),
             };
             actionData.wrappedJSObject = actionData;
@@ -361,6 +369,13 @@ this.windows = class extends ExtensionAPIPersistent {
               return Promise.reject({
                 message:
                   "`tabId` may not be used in conjunction with `allowScriptsToClose`",
+              });
+            }
+
+            if (createData.cookieStoreId) {
+              return Promise.reject({
+                message:
+                  "`tabId` may not be used in conjunction with `cookieStoreId`",
               });
             }
 
