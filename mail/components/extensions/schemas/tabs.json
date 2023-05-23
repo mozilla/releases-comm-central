@@ -100,7 +100,7 @@
           "cookieStoreId": {
             "type": "string",
             "optional": true,
-            "description": "The CookieStoreId used for the tab."
+            "description": "The `CookieStore <|link-cookieStore|>`__ id used by the tab. Either a custom id created using the `contextualIdentities API <|link-contextualIdentity|>`__, or a built-in one: <value>firefox-default</value>, <value>firefox-container-1</value>, <value>firefox-container-2</value>, <value>firefox-container-3</value>, <value>firefox-container-4</value>, <value>firefox-container-5</value>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
           },
           "type": {
             "type": "string",
@@ -353,7 +353,7 @@
               "cookieStoreId": {
                 "type": "string",
                 "optional": true,
-                "description": "The CookieStoreId for the tab that opened this tab."
+                "description": "The `CookieStore <|link-cookieStore|>`__ id the new tab should use. Either a custom id created using the `contextualIdentities API <|link-contextualIdentity|>`__, or a built-in one: <value>firefox-default</value>, <value>firefox-container-1</value>, <value>firefox-container-2</value>, <value>firefox-container-3</value>, <value>firefox-container-4</value>, <value>firefox-container-5</value>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
               },
               "selected": {
                 "deprecated": "Please use ``createProperties.active``.",
@@ -500,14 +500,16 @@
                 "choices": [
                   {
                     "type": "array",
-                    "items": { "type": "string" }
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   {
                     "type": "string"
                   }
                 ],
                 "optional": true,
-                "description": "The CookieStoreId used for the tab."
+                "description": "The `CookieStore <|link-cookieStore|>`__ id(s) used by the tabs. Either custom ids created using the `contextualIdentities API <|link-contextualIdentity|>`__, or built-in ones: <value>firefox-default</value>, <value>firefox-container-1</value>, <value>firefox-container-2</value>, <value>firefox-container-3</value>, <value>firefox-container-4</value>, <value>firefox-container-5</value>. **Note:** The naming pattern was deliberately not changed for Thunderbird, but kept for compatibility reasons."
               }
             }
           },
