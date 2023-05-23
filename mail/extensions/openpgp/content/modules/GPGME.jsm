@@ -76,7 +76,7 @@ var GPGME = {
 
       let matchesEmail = false;
       let nextUid = key.contents.uids;
-      while (nextUid) {
+      while (nextUid && !nextUid.isNull()) {
         let uidEmail = nextUid.contents.email.readString();
         // Variable email is provided by the outer scope.
         if (uidEmail == email) {
