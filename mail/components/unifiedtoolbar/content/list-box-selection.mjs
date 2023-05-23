@@ -369,7 +369,8 @@ export default class ListBoxSelection extends HTMLUListElement {
   };
 
   /**
-   * Remove the item from this list if it was dropped into another list.
+   * Remove the item from this list if it was dropped into another list. Return
+   * it to its palette if dropped outside a valid target.
    *
    * @param {DragEvent} event - Drag end event.
    */
@@ -377,6 +378,13 @@ export default class ListBoxSelection extends HTMLUListElement {
     event.target.classList.remove("dragging");
     if (event.dataTransfer.dropEffect === "move") {
       this.handleDragSuccess(event.target);
+      return;
+    }
+    // If we can't move the item to the drop location, return it to its palette.
+    const palette = event.target.palette;
+    if (event.dataTransfer.dropEffect === "none" && palette !== this) {
+      event.preventDefault();
+      palette.returnItem(event.target);
     }
   };
 
