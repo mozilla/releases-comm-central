@@ -46,12 +46,6 @@
 !define CERTIFICATE_NAME_PREVIOUS   "Mozilla Corporation"
 !define CERTIFICATE_ISSUER_PREVIOUS "DigiCert Assured ID Code Signing CA-1"
 
-# AccessibleHandler.dll uses a different CLSID depending on release channel.
-# These defines must match HANDLER_CLSID defined in
-# accessible/ipc/win/handler/HandlerData.idl
-
-!define AccessibleHandlerCLSID "@MOZ_HANDLER_CLSID@"
-
 # ARCH is used when it is necessary to differentiate the x64 registry keys from
 # the x86 registry keys (e.g. the uninstall registry key).
 #ifdef HAVE_64BIT_BUILD
