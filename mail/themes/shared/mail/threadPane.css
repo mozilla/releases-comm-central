@@ -47,6 +47,14 @@
   color: var(--tree-view-color);
 }
 
+#threadTree tbody [data-properties~="dummy"]:not(:hover) {
+  background-color: var(--layout-background-2);
+}
+
+#threadTree tbody [data-properties~="dummy"] :is(button:not(.twisty)) {
+  display: none;
+}
+
 #threadTree tbody [data-properties~="unread"] {
   font-weight: bold;
 }

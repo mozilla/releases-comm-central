@@ -57,12 +57,11 @@ class MsgViewSortColumnInfo {
 
 // Reserve some bits in the msg flags for the view-only flags.
 // NOTE: this bit space is shared by nsMsgMessageFlags (and labels).
-#define MSG_VIEW_FLAGS 0xEE000000
-#define MSG_VIEW_FLAG_HASCHILDREN 0x40000000
-#define MSG_VIEW_FLAG_DUMMY 0x20000000
 #define MSG_VIEW_FLAG_ISTHREAD 0x8000000
-#define MSG_VIEW_FLAG_OUTGOING 0x2000000
-#define MSG_VIEW_FLAG_INCOMING 0x1000000
+#define MSG_VIEW_FLAG_DUMMY 0x20000000
+#define MSG_VIEW_FLAG_HASCHILDREN 0x40000000
+#define MSG_VIEW_FLAGS \
+  (MSG_VIEW_FLAG_HASCHILDREN | MSG_VIEW_FLAG_DUMMY | MSG_VIEW_FLAG_ISTHREAD)
 
 // Helper struct for sorting by numeric fields.
 // Associates a message with a key for ordering it in the view.

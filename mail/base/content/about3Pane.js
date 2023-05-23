@@ -61,6 +61,9 @@ const { getDefaultColumns } = ChromeUtils.importESModule(
   "chrome://messenger/content/thread-pane-columns.mjs"
 );
 
+// As defined in nsMsgDBView.h.
+const MSG_VIEW_FLAG_DUMMY = 0x20000000;
+
 /**
  * The TreeListbox widget that displays folders.
  */
@@ -3482,6 +3485,10 @@ var threadPane = {
   },
 
   _onItemActivate(event) {
+    if (gDBView.getFlagsAt(threadTree.selectedIndex) & MSG_VIEW_FLAG_DUMMY) {
+      return;
+    }
+
     let folder = gFolder || gDBView.hdrForFirstSelectedMessage.folder;
     if (folder?.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)) {
       commandController.doCommand("cmd_editDraftMsg", event);
@@ -3506,8 +3513,15 @@ var threadPane = {
         messagePane.clearMessages();
         return;
       case 1:
-        let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
-        messagePane.displayMessage(uri);
+        if (
+          gDBView.getFlagsAt(threadTree.selectedIndex) & MSG_VIEW_FLAG_DUMMY
+        ) {
+          messagePane.clearMessage();
+          messagePane.clearMessages();
+        } else {
+          let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
+          messagePane.displayMessage(uri);
+        }
         return;
       default:
         messagePane.displayMessages(gDBView.getSelectedMsgHdrs());
@@ -3680,7 +3694,7 @@ var threadPane = {
     let row =
       event.target.closest(`tr[is^="thread-"]`) ||
       threadTree.getRowAtIndex(threadTree.selectedIndex);
-    if (!row) {
+    if (!row || gDBView.getFlagsAt(row.index) & MSG_VIEW_FLAG_DUMMY) {
       return;
     }
 
