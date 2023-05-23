@@ -319,6 +319,23 @@ var MailUtils = {
   },
 
   /**
+   * Display the given folder in the 3pane of the most recent 3pane window.
+   *
+   * @param {string} folderURI - The URI of the folder to display
+   */
+  displayFolderIn3Pane(folderURI) {
+    // Try opening new tabs in a 3pane window
+    let win = Services.wm.getMostRecentWindow("mail:3pane");
+    let tabmail = win.document.getElementById("tabmail");
+    if (!tabmail.currentAbout3Pane) {
+      tabmail.switchToTab(tabmail.tabInfo[0]);
+      tabmail.updateCurrentTab();
+    }
+    tabmail.currentAbout3Pane.displayFolder(folderURI);
+    win.focus();
+  },
+
+  /**
    * Display this message header in a folder tab in a 3pane window. This is
    * useful when the message needs to be displayed in the context of its folder
    * or thread.
@@ -741,3 +758,40 @@ var MailUtils = {
     return null;
   },
 };
+
+/**
+ * A class that listens to notifications about folders, and deals with them
+ * appropriately.
+ * @implements {nsIObserver}
+ */
+class FolderNotificationManager {
+  QueryInterface = ChromeUtils.generateQI(["nsIObserver"]);
+
+  static #manager = null;
+
+  static init() {
+    if (FolderNotificationManager.#manager) {
+      return;
+    }
+    FolderNotificationManager.#manager = new FolderNotificationManager();
+  }
+
+  constructor() {
+    Services.obs.addObserver(this, "profile-before-change");
+    Services.obs.addObserver(this, "folder-attention");
+  }
+
+  observe(subject, topic, data) {
+    switch (topic) {
+      case "profile-before-change":
+        Services.obs.removeObserver(this, "profile-before-change");
+        Services.obs.removeObserver(this, "folder-attention");
+        return;
+      case "folder-attention":
+        MailUtils.displayFolderIn3Pane(
+          subject.QueryInterface(Ci.nsIMsgFolder).URI
+        );
+    }
+  }
+}
+FolderNotificationManager.init();

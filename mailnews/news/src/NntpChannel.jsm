@@ -17,6 +17,7 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
+  MailUtils: "resource:///modules/MailUtils.jsm",
   NntpUtils: "resource:///modules/NntpUtils.jsm",
 });
 
@@ -143,7 +144,7 @@ class NntpChannel extends MailChannel {
 
   open() {
     throw Components.Exception(
-      "open not implemented",
+      `${this.constructor.name}.open not implemented`,
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   }
@@ -162,22 +163,23 @@ class NntpChannel extends MailChannel {
       let bundle = Services.strings.createBundle(
         "chrome://messenger/locale/news.properties"
       );
+      let win = Services.wm.getMostRecentWindow("mail:3pane");
       let result = Services.prompt.confirm(
-        null,
+        win,
         null,
         bundle.formatStringFromName("autoSubscribeText", [this._groupName])
       );
-      if (result) {
-        this._server.subscribeToNewsgroup(this._groupName);
-      } else {
+      if (!result) {
         return;
       }
+      this._server.subscribeToNewsgroup(this._groupName);
+      let folder = this._server.findGroup(this._groupName);
+      lazy.MailUtils.displayFolderIn3Pane(folder.URI);
     }
 
     if (this._groupName && !this._articleNumber && !this._messageId) {
-      MailServices.mailSession.topmostMsgWindow.windowCommands.selectFolder(
-        this._server.findGroup(this._groupName).URI
-      );
+      let folder = this._server.findGroup(this._groupName);
+      lazy.MailUtils.displayFolderIn3Pane(folder.URI);
       return;
     }
 

@@ -1084,7 +1084,14 @@ var folderPane = {
     },
   },
 
+  /**
+   * Initialize the folder pane if needed.
+   * @returns {Promise<void>} when the folder pane is initialized.
+   */
   async init() {
+    if (this._initialized) {
+      return;
+    }
     if (window.openingState?.syntheticView) {
       // Just avoid initialising the pane. We won't be using it. The folder
       // listener is still required, because it does other things too.
@@ -4690,7 +4697,12 @@ function restoreState({
   }
 }
 
-function displayFolder(folderURI) {
+/**
+ * Set up the given folder to be selected in the folder pane.
+ * @param {nsIMsgFolder|string} folder - The folder to display, or its URI.
+ */
+function displayFolder(folder) {
+  let folderURI = folder instanceof Ci.nsIMsgFolder ? folder.URI : folder;
   if (folderTree.selectedRow?.uri == folderURI) {
     // Already set to display the right folder. Make sure not not to change
     // to the same folder in a different folder mode.

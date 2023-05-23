@@ -43,14 +43,18 @@ class ImapChannel extends MailChannel {
 
     // nsIChannel attributes.
     this.originalURI = uri;
-    this.URI = uri;
     this.loadInfo = loadInfo;
     this.contentLength = 0;
+
+    this.uri = uri;
+
+    uri = uri.QueryInterface(Ci.nsIMsgMessageUrl);
     try {
-      this.contentLength = uri.QueryInterface(
-        Ci.nsIMsgMessageUrl
-      ).messageHeader.messageSize;
-    } catch (e) {}
+      this.contentLength = uri.messageHeader.messageSize;
+    } catch (e) {
+      // Got passed an IMAP folder URL.
+      this._isFolderURL = this._server && !/#(\d+)$/.test(uri.spec);
+    }
   }
 
   /**
@@ -98,8 +102,13 @@ class ImapChannel extends MailChannel {
   }
 
   /**
+   * Get readonly URI.
    * @see nsIChannel
    */
+  get URI() {
+    return this.uri;
+  }
+
   get contentType() {
     return this._contentType || "message/rfc822";
   }
@@ -121,6 +130,14 @@ class ImapChannel extends MailChannel {
 
   asyncOpen(listener) {
     this._logger.debug(`asyncOpen ${this.URI.spec}`);
+    if (this._isFolderURL) {
+      let handler = Cc[
+        "@mozilla.org/uriloader/content-handler;1?type=x-application-imapfolder"
+      ].createInstance(Ci.nsIContentHandler);
+      handler.handleContent("x-application-imapfolder", null, this);
+      return;
+    }
+
     let url = new URL(this.URI.spec);
     this._listener = listener;
     if (url.searchParams.get("part")) {

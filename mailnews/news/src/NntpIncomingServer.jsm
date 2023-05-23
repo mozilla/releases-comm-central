@@ -427,6 +427,10 @@ class NntpIncomingServer extends MsgIncomingServer {
   }
 
   containsNewsgroup(name) {
+    // Get subFolders triggers populating _subscribed if it wasn't set already.
+    if (this._subscribed.size == 0) {
+      this.rootFolder.QueryInterface(Ci.nsIMsgNewsFolder).subFolders;
+    }
     return this._subscribed.has(name);
   }
 

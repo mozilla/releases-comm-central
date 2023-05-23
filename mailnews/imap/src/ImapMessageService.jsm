@@ -220,9 +220,19 @@ class BaseMessageService {
     pump.asyncRead(consumer);
   }
 
-  messageURIToMsgHdr(messageUri) {
-    let { folder, key } = this._decomposeMessageUri(messageUri);
-    return folder.GetMessageHeader(key);
+  /**
+   * Go from message uri to go nsIMsgDBHdr.
+   *
+   * @param {string} uri - A message uri to get the nsIMsgDBHdr for.
+   * @returns {?nsIMsgDBHdr} Hdr for the uri, or or null if failed.
+   */
+  messageURIToMsgHdr(uri) {
+    try {
+      let { folder, key } = this._decomposeMessageUri(uri);
+      return folder.GetMessageHeader(key);
+    } catch (e) {
+      return null;
+    }
   }
 
   Search(searchSession, msgWindow, folder, searchUri) {
@@ -252,11 +262,13 @@ class BaseMessageService {
    */
   _decomposeMessageUri(messageUri) {
     let matches = /imap-message:\/\/([^:/]+)\/(.+)#(\d+)/.exec(messageUri);
+    if (!matches) {
+      throw new Error(`Unexpected IMAP URL: ${messageUri}`);
+    }
     let [, host, folderName, key] = matches;
     let folder = lazy.MailUtils.getOrCreateFolder(
       `imap://${host}/${folderName}`
     );
-
     return { serverURI: folder.server.serverURI, folder, folderName, key };
   }
 }

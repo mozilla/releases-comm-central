@@ -438,11 +438,10 @@ var FeedUtils = {
    *
    * @param {String} aUrl - Feed url.
    * @param {nsIMsgFolder} aFolder - Folder.
-   * @param {nsIDOMWindow} aMsgWindow - The window.
    *
    * @returns {void}
    */
-  subscribeToFeed(aUrl, aFolder, aMsgWindow) {
+  subscribeToFeed(aUrl, aFolder) {
     // We don't support the ability to subscribe to several feeds at once yet.
     // For now, abort the subscription if we are already in the middle of
     // subscribing to a feed via drag and drop.
@@ -464,30 +463,6 @@ var FeedUtils = {
       aFolder = FeedUtils.createRssAccount().incomingServer.rootFolder;
     }
 
-    if (!aMsgWindow) {
-      let wlist = Services.wm.getEnumerator("mail:3pane");
-      if (wlist.hasMoreElements()) {
-        let win = wlist.getNext();
-        win.focus();
-        aMsgWindow = win.msgWindow;
-      } else {
-        // If there are no open windows, open one, pass it the URL, and
-        // during opening it will subscribe to the feed.
-        let arg = Cc["@mozilla.org/supports-string;1"].createInstance(
-          Ci.nsISupportsString
-        );
-        arg.data = aUrl;
-        Services.ww.openWindow(
-          null,
-          "chrome://messenger/content/messenger.xhtml",
-          "_blank",
-          "chrome,dialog=no,all",
-          arg
-        );
-        return;
-      }
-    }
-
     // If aUrl is a feed url, then it is either of the form
     // feed://example.org/feed.xml or feed:https://example.org/feed.xml.
     // Replace feed:// with http:// per the spec, then strip off feed:
@@ -495,10 +470,12 @@ var FeedUtils = {
     aUrl = aUrl.replace(/^feed:\x2f\x2f/i, "http://");
     aUrl = aUrl.replace(/^feed:/i, "");
 
+    let msgWindow = Services.wm.getMostRecentWindow("mail:3pane").msgWindow;
+
     // Make sure we aren't already subscribed to this feed before we attempt
     // to subscribe to it.
     if (FeedUtils.feedAlreadyExists(aUrl, aFolder.server)) {
-      aMsgWindow.statusFeedback.showStatusString(
+      msgWindow.statusFeedback.showStatusString(
         FeedUtils.strings.GetStringFromName("subscribe-feedAlreadySubscribed")
       );
       return;
@@ -509,7 +486,7 @@ var FeedUtils = {
     feed.quickMode = feed.server.getBoolValue("quickMode");
     feed.options = FeedUtils.getOptionsAcct(feed.server);
 
-    FeedUtils.progressNotifier.init(aMsgWindow, true);
+    FeedUtils.progressNotifier.init(msgWindow, true);
     FeedUtils.progressNotifier.mNumPendingFeedDownloads++;
     feed.download(true, FeedUtils.progressNotifier);
   },
@@ -1839,6 +1816,11 @@ var FeedUtils = {
     // not all feeds may have reported in for the first time.
     mNumPendingFeedDownloads: 0,
 
+    /**
+     * @param {?nsIMsgWindow} aMsgWindow - Associated aMsgWindow if any.
+     * @param {boolean} aSubscribeMode - Whether we're in subscribe mode.
+     * @returns {void}
+     */
     init(aMsgWindow, aSubscribeMode) {
       if (this.mNumPendingFeedDownloads == 0) {
         // If we aren't already in the middle of downloading feed items.
@@ -1892,10 +1874,11 @@ var FeedUtils = {
           // Add the feed to the databases.
           FeedUtils.addFeed(feed);
 
-          // Nice touch: select the folder that now contains the newly subscribed
-          // feed.  This is particularly nice if we just finished subscribing
+          // Nice touch: notify so the window ca select the folder that now
+          // contains the newly subscribed feed.
+          // This is particularly nice if we just finished subscribing
           // to a feed URL that the operating system gave us.
-          this.mMsgWindow.windowCommands.selectFolder(feed.folder.URI);
+          Services.obs.notifyObservers(feed.folder, "folder-subscribed");
 
           // Check for an existing feed subscriptions window and update it.
           let subscriptionsWindow = Services.wm.getMostRecentWindow(

@@ -2415,7 +2415,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   }
 
   if (externalLinkUrl) {
-    // everything after here is to handle clicking on an external link. We only
+    // Everything after here is to handle clicking on an external link. We only
     // want to do this if we didn't run the url through the various
     // nsImapService methods, which we can tell by seeing if the sinks have been
     // setup on the url or not.
@@ -2433,7 +2433,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     }
     // if the parent is null, then the folder doesn't really exist, so see if
     // the user wants to subscribe to it./
-    nsCOMPtr<nsIMsgFolder> aFolder;
+    nsCOMPtr<nsIMsgFolder> urlFolder;
     // now try to get the folder in question...
     nsCOMPtr<nsIMsgFolder> rootFolder;
     server->GetRootFolder(getter_AddRefs(rootFolder));
@@ -2441,10 +2441,10 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     nsCOMPtr<nsIMsgImapMailFolder> subFolder;
     if (imapRoot) {
       imapRoot->FindOnlineSubFolder(folderName, getter_AddRefs(subFolder));
-      aFolder = do_QueryInterface(subFolder);
+      urlFolder = do_QueryInterface(subFolder);
     }
     nsCOMPtr<nsIMsgFolder> parent;
-    if (aFolder) aFolder->GetParent(getter_AddRefs(parent));
+    if (urlFolder) urlFolder->GetParent(getter_AddRefs(parent));
     nsCString serverKey;
     nsAutoCString userPass;
     rv = mailnewsUrl->GetUserPass(userPass);
@@ -2461,8 +2461,8 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
       // to it.
       rv = imapRoot->FindOnlineSubFolder(fullFolderName,
                                          getter_AddRefs(subFolder));
-      aFolder = do_QueryInterface(subFolder);
-      if (aFolder) aFolder->GetParent(getter_AddRefs(parent));
+      urlFolder = do_QueryInterface(subFolder);
+      if (urlFolder) urlFolder->GetParent(getter_AddRefs(parent));
     }
     // if we couldn't get the fullFolderName, then we probably couldn't find
     // the other user's namespace, in which case, we shouldn't try to subscribe
@@ -2537,36 +2537,29 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     // in which case, we'll select it.
     else if (!fullFolderName.IsEmpty()) {
       nsCOMPtr<nsIMsgFolder> imapFolder;
-      nsCOMPtr<nsIImapServerSink> serverSink;
-
       mailnewsUrl->GetFolder(getter_AddRefs(imapFolder));
-      imapUrl->GetImapServerSink(getter_AddRefs(serverSink));
-      // need to see if this is a link click - one way is to check if the url is
-      // set up correctly if not, it's probably a url click. We need a better
-      // way of doing this.
-      if (!imapFolder) {
-        nsCOMPtr<nsIMsgMailSession> mailSession =
-            do_GetService("@mozilla.org/messenger/services/session;1", &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-        nsCOMPtr<nsIMsgWindow> msgWindow;
-        rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-        if (NS_SUCCEEDED(rv) && msgWindow) {
-          nsCString uri;
-          rootFolder->GetURI(uri);
-          uri.Append('/');
-          uri.Append(fullFolderName);
-          nsCOMPtr<nsIMsgWindowCommands> windowCommands;
-          msgWindow->GetWindowCommands(getter_AddRefs(windowCommands));
-          if (windowCommands) windowCommands->SelectFolder(uri);
-          // error out this channel, so it'll stop trying to run the url.
-          *aRetVal = nullptr;
-          rv = NS_ERROR_FAILURE;
-        } else {
-          // make sure the imap action is selectFolder, so the content type
-          // will be x-application-imapfolder, so ::HandleContent will
-          // know to open a new 3 pane window.
-          imapUrl->SetImapAction(nsIImapUrl::nsImapSelectFolder);
-        }
+      NS_ASSERTION(imapFolder,
+                   nsPrintfCString("No folder for imap url: %s", spec).get());
+
+      nsCOMPtr<nsIMsgMailSession> mailSession =
+          do_GetService("@mozilla.org/messenger/services/session;1", &rv);
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCOMPtr<nsIMsgWindow> msgWindow;
+      rv = mailSession->GetTopmostMsgWindow(getter_AddRefs(msgWindow));
+      if (NS_SUCCEEDED(rv) && msgWindow) {
+        // Clicked IMAP folder URL in the window.
+        nsCOMPtr<nsIObserverService> obsServ =
+            mozilla::services::GetObserverService();
+        obsServ->NotifyObservers(imapFolder, "folder-attention", nullptr);
+        // null out this channel, so it'll stop trying to run the url.
+        *aRetVal = nullptr;
+        rv = NS_OK;
+      } else {
+        // Got IMAP folder URL from command line (most likely).
+        // Set action to nsImapSelectFolder (x-application-imapfolder), so
+        // ::HandleContent will handle it.
+        imapUrl->SetImapAction(nsIImapUrl::nsImapSelectFolder);
+        HandleContent("x-application-imapfolder", nullptr, channel);
       }
     }
   }

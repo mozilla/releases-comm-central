@@ -85,6 +85,7 @@
 #include "nsITimer.h"
 #include "nsReadableUtils.h"
 #include "UrlListener.h"
+#include "nsIObserverService.h"
 
 #define NS_PARSEMAILMSGSTATE_CID                   \
   { /* 2B79AC51-1459-11d3-8097-006008128C4E */     \
@@ -5239,11 +5240,10 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
                   nsCOMPtr<nsIMsgFolder> msgFolder =
                       do_QueryInterface(foundFolder);
                   if (msgFolder) {
-                    msgFolder->GetURI(uri);
-                    nsCOMPtr<nsIMsgWindowCommands> windowCommands;
-                    msgWindow->GetWindowCommands(
-                        getter_AddRefs(windowCommands));
-                    if (windowCommands) windowCommands->SelectFolder(uri);
+                    nsCOMPtr<nsIObserverService> obsServ =
+                        mozilla::services::GetObserverService();
+                    obsServ->NotifyObservers(msgFolder, "folder-subscribed",
+                                             nullptr);
                   }
                 }
               }

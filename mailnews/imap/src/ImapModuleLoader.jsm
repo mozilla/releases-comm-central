@@ -35,6 +35,11 @@ var imapJSModules = [
     "ImapMessageService",
   ],
   [
+    "ImapFolderContentHandler",
+    "{d927a82f-2d15-4972-ab88-6d84601aae68}",
+    "@mozilla.org/uriloader/content-handler;1?type=x-application-imapfolder",
+  ],
+  [
     "ImapMessageMessageService",
     "{2532ae4f-a852-4c96-be45-1308ba23d62e}",
     "@mozilla.org/messenger/messageservice;1?type=imap-message",
