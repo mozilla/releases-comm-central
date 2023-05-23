@@ -918,6 +918,7 @@ add_task(async function testAccountOrder() {
     folderB,
     folderC,
   ];
+  let localExtraFolders = [rootFolder, outboxFolder, folderA, folderB, folderC];
   let smartServer = MailServices.accounts.findServer(
     "nobody",
     "smart mailboxes",
@@ -938,7 +939,11 @@ add_task(async function testAccountOrder() {
   // Check the initial items in the folder tree.
 
   await checkModeListItems("all", localFolders);
-  await checkModeListItems("smart", [...smartFolders, trashFolder]);
+  await checkModeListItems("smart", [
+    ...smartFolders,
+    trashFolder,
+    ...localExtraFolders,
+  ]);
   await checkModeListItems("unread", [rootFolder, folderA]);
   await checkModeListItems("favorite", [rootFolder, folderA]);
 
@@ -954,6 +959,7 @@ add_task(async function testAccountOrder() {
   let fooTrashFolder = fooRootFolder.getChildNamed("Trash");
   let fooOutboxFolder = fooRootFolder.getChildNamed("Outbox");
   let fooFolders = [fooRootFolder, fooTrashFolder, fooOutboxFolder];
+  let fooExtraFolders = [fooRootFolder, fooOutboxFolder];
 
   let bar = MailServices.accounts.createAccount();
   bar.incomingServer = MailServices.accounts.createIncomingServer(
@@ -965,6 +971,7 @@ add_task(async function testAccountOrder() {
   let barTrashFolder = barRootFolder.getChildNamed("Trash");
   let barOutboxFolder = barRootFolder.getChildNamed("Outbox");
   let barFolders = [barRootFolder, barTrashFolder, barOutboxFolder];
+  let barExtraFolders = [barRootFolder, barOutboxFolder];
 
   let generator = new MessageGenerator();
   fooTrashFolder
@@ -992,6 +999,9 @@ add_task(async function testAccountOrder() {
     fooTrashFolder,
     barTrashFolder,
     trashFolder,
+    ...fooExtraFolders,
+    ...barExtraFolders,
+    ...localExtraFolders,
   ]);
   await checkModeListItems("unread", [
     fooRootFolder,
@@ -1024,6 +1034,9 @@ add_task(async function testAccountOrder() {
     fooTrashFolder,
     barTrashFolder,
     trashFolder,
+    ...fooExtraFolders,
+    ...barExtraFolders,
+    ...localExtraFolders,
   ]);
   await checkModeListItems("unread", [
     fooRootFolder,
@@ -1055,6 +1068,9 @@ add_task(async function testAccountOrder() {
     barTrashFolder,
     trashFolder,
     fooTrashFolder,
+    ...barExtraFolders,
+    ...localExtraFolders,
+    ...fooExtraFolders,
   ]);
   await checkModeListItems("unread", [
     barRootFolder,
@@ -1086,6 +1102,9 @@ add_task(async function testAccountOrder() {
     fooTrashFolder,
     trashFolder,
     barTrashFolder,
+    ...fooExtraFolders,
+    ...localExtraFolders,
+    ...barExtraFolders,
   ]);
   await checkModeListItems("unread", [
     fooRootFolder,
@@ -1112,6 +1131,8 @@ add_task(async function testAccountOrder() {
     ...smartFolders,
     trashFolder,
     barTrashFolder,
+    ...localExtraFolders,
+    ...barExtraFolders,
   ]);
   await checkModeListItems("unread", [
     rootFolder,
@@ -1134,7 +1155,11 @@ add_task(async function testAccountOrder() {
   rootFolder.emptyTrash(null);
 
   await checkModeListItems("all", localFolders);
-  await checkModeListItems("smart", [...smartFolders, trashFolder]);
+  await checkModeListItems("smart", [
+    ...smartFolders,
+    trashFolder,
+    ...localExtraFolders,
+  ]);
   await checkModeListItems("unread", [rootFolder, folderA]);
   await checkModeListItems("favorite", []);
 });

@@ -737,15 +737,31 @@ var folderPane = {
       },
 
       initServer(server) {
-        if (["nntp", "rss"].includes(server.type)) {
-          for (let folder of server.rootFolder.subFolders) {
+        for (let folder of server.rootFolder.subFolders) {
+          if (!folderPane._isGmailFolder(folder)) {
             this.addFolder(server.rootFolder, folder);
+            continue;
           }
+
+          folder.subFolders.forEach(f => this.addFolder(server.rootFolder, f));
         }
       },
 
       addFolder(parentFolder, childFolder) {
-        if (!["nntp", "rss"].includes(childFolder.server.type)) {
+        if (folderPane.getRowForFolder(childFolder, this.name)) {
+          // If a row for this folder exists, do nothing.
+          return;
+        }
+        if (!parentFolder) {
+          // If this folder is the root folder for a server, do nothing.
+          return;
+        }
+        if (
+          this._folderTypes.some(ft =>
+            childFolder.isSpecialFolder(ft.flag, true)
+          )
+        ) {
+          // If this folder is a special folder, do nothing.
           return;
         }
 
