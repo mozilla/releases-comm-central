@@ -10,9 +10,9 @@ ChromeUtils.defineESModuleGetters(this, {
   SubDialogManager: "resource://gre/modules/SubDialog.sys.mjs",
 });
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  MailE10SUtils: "resource:///modules/MailE10SUtils.jsm",
-});
+var { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
+);
 
 // Load PrintUtils lazily and modify it to suit.
 XPCOMUtils.defineLazyGetter(this, "PrintUtils", () => {
