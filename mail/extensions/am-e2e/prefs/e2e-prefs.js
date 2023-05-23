@@ -34,6 +34,8 @@ pref("mail.identity.default.openpgp_key_id", "");
 pref("mail.identity.default.is_gnupg_key_id", false);
 // The hexadecimal OpenPGP key ID externally configured by GnuPG used for an identity.
 pref("mail.identity.default.last_entered_external_gnupg_key_id", "");
+// When using external GnuPG, also load public keys from GnuPG keyring
+pref("mail.openpgp.fetch_pubkeys_from_gnupg", false);
 
 // When sending an OpenPGP message that is both signed and encrypted,
 // it's possible to use one combined MIME layer, or separate layers.
