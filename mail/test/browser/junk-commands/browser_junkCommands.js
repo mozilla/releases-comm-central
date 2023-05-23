@@ -71,6 +71,11 @@ add_task(async function test_delete_junk_messages() {
   await be_in_folder(folder);
   select_click_row(1);
   let selectedMessages = select_shift_click_row(NUM_MESSAGES_TO_JUNK);
+  Assert.equal(
+    selectedMessages.length,
+    NUM_MESSAGES_TO_JUNK,
+    `should have selected correct number of msgs`
+  );
   // Mark these messages as junk
   mark_selected_messages_as_junk();
   // Now delete junk mail
