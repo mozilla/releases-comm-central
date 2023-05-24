@@ -447,7 +447,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
 @media (-moz-windows-classic) {
   .statusbarpanel:not(:-moz-lwtheme) {
     appearance: auto;
-    -moz-default-appearance: statusbarpanel;
   }
 
   label.statusbarpanel {
