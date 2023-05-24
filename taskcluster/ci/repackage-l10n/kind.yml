@@ -5,6 +5,7 @@
 loader: gecko_taskgraph.loader.single_dep:loader
 
 transforms:
+    - gecko_taskgraph.transforms.repackage_set_upstream_mac_kind:transforms
     - gecko_taskgraph.transforms.repackage_l10n:transforms
     - gecko_taskgraph.transforms.name_sanity:transforms
     - gecko_taskgraph.transforms.repackage:transforms
@@ -14,6 +15,8 @@ transforms:
 
 kind-dependencies:
     - shippable-l10n-signing
+    - shippable-l10n-mac-signing
+    - shippable-l10n-mac-notarization
     - toolchain
 
 only-for-build-platforms:
@@ -24,6 +27,14 @@ only-for-build-platforms:
     - win64-shippable/opt
 
 job-template:
+    upstream-mac-kind:
+        by-build-type:
+            debug: shippable-l10n-mac-signing
+            default:
+                by-project:
+                    ash: shippable-l10n-mac-signing
+                    try-comm-central: shippable-l10n-mac-signing
+                    default: shippable-l10n-mac-notarization
     worker-type: 'b-linux-gcp'
     mozharness:
         comm-checkout: true

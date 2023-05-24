@@ -16,8 +16,6 @@ transforms:
 
 kind-dependencies:
     - build
-    - build-notarization-part-1
-    - build-notarization-poller
 
 primary-dependency:
     - build
@@ -25,3 +23,8 @@ primary-dependency:
 only-for-attributes:
     - shippable
     - enable-build-signing
+
+not-for-build-platforms:
+    - macosx64-shippable/opt
+    - macosx64/opt
+    - macosx64/debug

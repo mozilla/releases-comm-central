@@ -227,11 +227,6 @@ workers:
             implementation: scriptworker-signing
             os: macosx
             worker-type: tb-depsigning-mac-v1
-        mac-notarization-poller:
-            provisioner: scriptworker-prov-v1
-            implementation: notarization-poller
-            os: macosx
-            worker-type: tb-mac-notarization-poller
         mac-signing:
             provisioner: scriptworker-prov-v1
             implementation: scriptworker-signing
@@ -280,10 +275,6 @@ workers:
             worker-type: misc-gcp
 
 mac-notarization:
-    mac-behavior:
-        by-project:
-            comm-(central|beta|esr.*): mac_notarize
-            default: mac_sign_and_pkg
     mac-entitlements:
         by-platform:
             macosx64.*:
