@@ -62,6 +62,19 @@ def eslint_wrapper(paths, config, **lintargs):
     return rv
 
 
+def stylelint_wrapper(paths, config, **lintargs):
+    comm_root = Path(lintargs["root"]) / "comm"
+
+    ignore_file = str(comm_root / ".stylelintignore")
+    lintargs.setdefault("extra_args", [])
+    lintargs["extra_args"].extend(["--ignore-path", ignore_file])
+
+    with pushd(comm_root):
+        rv = lint_wrapper(paths, config, **lintargs)
+
+    return rv
+
+
 def black_lint(paths, config, fix=None, **lintargs):
     from python.black import run_black
 

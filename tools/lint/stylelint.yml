@@ -1,0 +1,17 @@
+---
+stylelint:
+    description: CSS linter
+    # Stylelint infra handles its own path filtering, so just include cwd
+    include: ['.']
+    exclude: []
+    extensions: ['css']
+    support-files:
+        - 'package.json'
+        - 'comm/**/.stylelintrc.js'
+        - 'comm/.stylelintignore'
+        - 'tools/lint/stylelint/**'
+    type: external
+    stylelint-rc: comm/.stylelintrc.js
+    payload: commlint:stylelint_wrapper
+    wraps: stylelint:lint
+    setup: stylelint:setup

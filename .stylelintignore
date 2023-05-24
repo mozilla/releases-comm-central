@@ -1,0 +1,33 @@
+# Please DO NOT add more third party files to this file.
+# They should be added to tools/rewriting/ThirdPartyPaths.txt instead.
+#
+# Please also DO NOT add generated files that are for some reason checked
+# into source - add them to tools/rewriting/Generated.txt instead.
+
+# This file should only be used for exclusions where we have:
+# - preprocessed files
+# - intentionally invalid files
+# - build directories and other items that we need to ignore
+
+ # Always ignore node_modules.
+**/node_modules/**/*.*
+# Exclude expected objdirs.
+obj*/**
+
+# Exclude mozilla directory, this one is checked separately
+mozilla/**
+
+# These directories don't contain any js and are not meant to
+config/**
+other-licenses/**
+testing/**
+
+# We ignore all these directories by default, until we get them enabled.
+# If you are enabling a directory, please add directory specific exclusions
+# below.
+build/**
+suite/**
+
+# Empty file to ignore
+mail/components/im/messages/simple/Variants/Normal.css
+
