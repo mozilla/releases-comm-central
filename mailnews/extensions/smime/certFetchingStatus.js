@@ -202,13 +202,13 @@ boundListener.prototype.QueryInterface = ChromeUtils.generateQI([
   "nsILDAPMessageListener",
 ]);
 
-boundListener.prototype.onLDAPMessage = function(aMessage) {};
+boundListener.prototype.onLDAPMessage = function (aMessage) {};
 
-boundListener.prototype.onLDAPInit = function(aConn, aStatus) {
+boundListener.prototype.onLDAPInit = function (aConn, aStatus) {
   kickOffBind();
 };
 
-boundListener.prototype.onLDAPError = function(aStatus, aSecInfo, location) {
+boundListener.prototype.onLDAPError = function (aStatus, aSecInfo, location) {
   if (aSecInfo) {
     console.warn(`LDAP connection security error for ${location}`);
   } else {
@@ -223,7 +223,7 @@ ldapMessageListener.prototype.QueryInterface = ChromeUtils.generateQI([
   "nsILDAPMessageListener",
 ]);
 
-ldapMessageListener.prototype.onLDAPMessage = function(aMessage) {
+ldapMessageListener.prototype.onLDAPMessage = function (aMessage) {
   if (Ci.nsILDAPMessage.RES_SEARCH_RESULT == aMessage.type) {
     window.close();
     return;
@@ -249,9 +249,9 @@ ldapMessageListener.prototype.onLDAPMessage = function(aMessage) {
   }
 };
 
-ldapMessageListener.prototype.onLDAPInit = function(aConn, aStatus) {};
+ldapMessageListener.prototype.onLDAPInit = function (aConn, aStatus) {};
 
-ldapMessageListener.prototype.onLDAPError = function(
+ldapMessageListener.prototype.onLDAPError = function (
   aStatus,
   aSecInfo,
   location
