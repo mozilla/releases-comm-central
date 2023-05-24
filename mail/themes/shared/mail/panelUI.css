@@ -12,6 +12,7 @@
   Basically, the [extra 0.1px in the 1.1px] is there to avoid CSS rounding errors
   causing buttons to wrap. For gory details, refer to
   https://bugzilla.mozilla.org/show_bug.cgi?id=963365#c11 */
+  /* stylelint-disable-next-line */
   --menu-panel-button-width: calc(--menu-panel-width / 3 - 1.1px);
   /* Complement the .subviewbutton margin. */
   --arrowpanel-padding: 8px 0;

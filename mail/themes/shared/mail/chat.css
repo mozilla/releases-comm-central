@@ -914,7 +914,7 @@ toolbar[mode="text"] #button-chat {
   border-radius: 1em;
   box-shadow: 1px 1px 1px black;
   color: white;
-  font: xx-small Helvetica, Verdana, Tahoma;
+  font: xx-small Helvetica, Verdana, Tahoma, sans-serif;
   height: -moz-fit-content;
   min-width: 1em;
   text-align: center;

@@ -82,7 +82,6 @@
 :root[lwt-tree] {
   --tree-view-header-bg: var(--sidebar-background-color, Field);
   --listbox-selected-bg: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
-  --listbox-selected-color: var(--listbox-color);
   --listbox-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
   --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--selected-item-color));
   --listbox-selected-color: var(--sidebar-highlight-text-color, var(--selected-item-text-color));

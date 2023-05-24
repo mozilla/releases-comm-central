@@ -48,7 +48,7 @@
 }
 
 #folderTree treechildren::-moz-tree-cell-text {
-  font-family: -apple-system;
+  font-family: -apple-system, sans-serif;
   font-weight: 400;
 }
 

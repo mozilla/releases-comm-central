@@ -119,7 +119,7 @@
 }
 
 #weekdayNameLabel {
-  font-family: Trebuchet MS, Lucida Grande, Arial, Helvetica;
+  font-family: Trebuchet MS, Lucida Grande, Arial, Helvetica, sans-serif;
   padding-top: 4px;
   font-weight: bold;
   font-size: 18px;
