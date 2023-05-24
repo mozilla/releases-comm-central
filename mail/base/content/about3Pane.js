@@ -1226,10 +1226,22 @@ var folderPane = {
       currentModes.splice(index, 1);
     }
     this.activeModes = currentModes;
+    this.toggleCompactViewMenuItem();
 
     if (this.activeModes.length == 1 && this.activeModes.at(0) == "all") {
       this.updateContextCheckedFolderMode();
     }
+  },
+
+  toggleCompactViewMenuItem() {
+    let subMenuCompactBtn = document.querySelector(
+      "#folderPaneMoreContextCompactToggle"
+    );
+    if (this.canBeCompact) {
+      subMenuCompactBtn.removeAttribute("disabled");
+      return;
+    }
+    subMenuCompactBtn.setAttribute("disabled", "true");
   },
 
   /**
@@ -2762,6 +2774,12 @@ var folderPane = {
           this.isTotalMsgCountVisible()
             ? item.setAttribute("checked", true)
             : item.removeAttribute("checked");
+          break;
+        case "folderPaneMoreContextCompactToggle":
+          this.isCompact
+            ? item.setAttribute("checked", true)
+            : item.removeAttribute("checked");
+          this.toggleCompactViewMenuItem();
           break;
         default:
           item.removeAttribute("checked");
