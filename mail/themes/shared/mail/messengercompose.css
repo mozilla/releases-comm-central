@@ -282,7 +282,6 @@
   pointer-events: none;
   -moz-context-properties: fill;
   fill: currentColor;
-  background-size: contain;
   padding-inline: 25px 6px;
   border-radius: 3px;
   background-color: var(--drop-attachment-title-background);

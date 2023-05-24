@@ -376,7 +376,6 @@ html[dir="rtl"] .bar-count {
 }
 
 .bar-link {
-  display: inline-block;
   text-decoration: none;
   display: block;
   color: var(--linkColor);

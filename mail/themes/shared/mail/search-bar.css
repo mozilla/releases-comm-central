@@ -73,7 +73,6 @@ div {
   position: absolute;
   pointer-events: none;
   color: var(--search-field-placeholder);
-  inset-block: var(--padding-block);
   inset-inline-start: 1ch;
   inset-inline-end: var(--search-icon-clearance);
   flex-direction: column;
