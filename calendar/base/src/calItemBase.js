@@ -421,13 +421,13 @@ calItemBase.prototype = {
   set descriptionHTML(html) {
     if (html) {
       // We need to output a plaintext version of the description, even if we're
-      // using the ALTREP parameter.
+      // using the ALTREP parameter. We use the "preformatted" option in case
+      // the HTML contains a <pre/> tag with newlines.
       let mode =
         Ci.nsIDocumentEncoder.OutputDropInvisibleBreak |
-        Ci.nsIDocumentEncoder.OutputWrap |
         Ci.nsIDocumentEncoder.OutputLFLineBreak |
-        Ci.nsIDocumentEncoder.OutputBodyOnly;
-      let text = gParserUtils.convertToPlainText(html, mode, 80);
+        Ci.nsIDocumentEncoder.OutputPreformatted;
+      let text = gParserUtils.convertToPlainText(html, mode, 0);
 
       this.setProperty("DESCRIPTION", text);
 

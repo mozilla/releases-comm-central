@@ -1560,8 +1560,9 @@ function saveDialog(item) {
 
     // The editor gives us output wrapped in a body tag. We don't really want
     // that, so strip it. (Yes, it's a regex with HTML, but a _very_ specific
-    // one.)
-    item.descriptionHTML = editorOutput.replace(/^<body>(.+)<\/body>$/, "$1");
+    // one.) We use the `s` flag to match across newlines in case there's a
+    // <pre/> tag, in which case <br/> will not be inserted.
+    item.descriptionHTML = editorOutput.replace(/^<body>(.+)<\/body>$/s, "$1");
   }
 
   // Event Status
