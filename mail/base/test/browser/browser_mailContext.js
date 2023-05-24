@@ -52,7 +52,7 @@ let allThreePane = [
 ];
 let notExternal = [...allThreePane, ...onePane];
 
-const messagePaneData = {
+const mailContextData = {
   "mailContext-selectall": [
     ...singleSelectionMessagePane,
     ...onePane,
@@ -108,7 +108,7 @@ function checkMenuitems(menu, mode) {
   Assert.notEqual(menu.state, "closed");
 
   let expectedItems = [];
-  for (let [id, modes] of Object.entries(messagePaneData)) {
+  for (let [id, modes] of Object.entries(mailContextData)) {
     if (modes === true || modes.includes(mode)) {
       expectedItems.push(id);
     }
@@ -288,6 +288,10 @@ add_task(async function testMultipleMessages() {
   mailContext.hidePopup();
 });
 
+/**
+ * Tests the mailContext menu on the thread tree and message pane of a Drafts
+ * folder.
+ */
 add_task(async function testDraftsFolder() {
   let about3Pane = tabmail.currentAbout3Pane;
   about3Pane.restoreState({ folderURI: draftsFolder.URI });
