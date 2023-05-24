@@ -56,11 +56,6 @@ XPCOMUtils.defineLazyPreferenceGetter(
   window.isCorrectlySigned = function () {
     return true;
   };
-  // Load our permissions strings.
-  delete window.browserBundle;
-  window.browserBundle = Services.strings.createBundle(
-    "chrome://messenger/locale/addons.properties"
-  );
 
   // Load our theme screenshots.
   let _getScreenshotUrlForAddon = getScreenshotUrlForAddon;
@@ -140,6 +135,9 @@ XPCOMUtils.defineLazyPreferenceGetter(
   // to show the usage of Experiments in the permission list.
   await customElements.whenDefined("addon-permissions-list");
   AddonPermissionsList.prototype.renderExperimentOnly = function () {
+    let brandBundle = Services.strings.createBundle(
+      "chrome://branding/locale/brand.properties"
+    );
     let appName = brandBundle.GetStringFromName("brandShortName");
 
     this.textContent = "";
@@ -148,6 +146,9 @@ XPCOMUtils.defineLazyPreferenceGetter(
     section.hidden = false;
     let list = section.querySelector(".addon-permissions-list");
 
+    let browserBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/addons.properties"
+    );
     let msg = browserBundle.formatStringFromName(
       "webextPerms.description.experiment",
       [appName]
