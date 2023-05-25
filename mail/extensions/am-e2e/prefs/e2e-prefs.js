@@ -39,7 +39,7 @@ pref("mail.openpgp.fetch_pubkeys_from_gnupg", false);
 
 // When sending an OpenPGP message that is both signed and encrypted,
 // it's possible to use one combined MIME layer, or separate layers.
-pref("mail.openpgp.separate_mime_layers", true);
+pref("mail.openpgp.separate_mime_layers", false);
 
 // Load a JSON file that contains recipient key alias rules. See bug 1644085.
 // Suggested filename: openpgp-alias-rules.json
