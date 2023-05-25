@@ -5082,6 +5082,11 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       this.dataset.properties = properties.value.trim();
 
       for (let column of threadPane.columns) {
+        // Skip this column if it's hidden or it's the "select" column, since
+        // the selection state is communicated via the aria-activedescendant.
+        if (column.hidden || column.select) {
+          continue;
+        }
         let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);
         let textIndex = textColumns.indexOf(column.id);
 
