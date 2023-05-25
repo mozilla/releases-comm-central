@@ -37,6 +37,19 @@ async function openExtensionPopup(win, buttonId) {
   return { actionButton, panel, browser };
 }
 
+function getSmartServer() {
+  return MailServices.accounts.findServer("nobody", "smart mailboxes", "none");
+}
+
+function resetSmartMailboxes() {
+  let oldServer = getSmartServer();
+  // Clean up any leftover server from an earlier test.
+  if (oldServer) {
+    let oldAccount = MailServices.accounts.FindAccountForServer(oldServer);
+    MailServices.accounts.removeAccount(oldAccount, false);
+  }
+}
+
 class MenuTestHelper {
   /** @type {XULMenuElement} */
   menu;
@@ -248,5 +261,7 @@ registerCleanupFunction(function () {
       );
       MailServices.accounts.removeAccount(account, false);
     }
+
+    resetSmartMailboxes();
   });
 });

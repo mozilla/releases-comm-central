@@ -73,7 +73,7 @@ add_setup(async function () {
   let rssAccount = FeedUtils.createRssAccount("rss");
   rssRootFolder = rssAccount.incomingServer.rootFolder;
   FeedUtils.subscribeToFeed(
-    "https://example.org/browser/comm/mail/base/test/browser/files/rss.xml",
+    "https://example.org/browser/comm/mail/base/test/browser/files/rss.xml?folderPaneContext",
     rssRootFolder,
     null
   );

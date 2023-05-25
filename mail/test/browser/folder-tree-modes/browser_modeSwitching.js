@@ -192,9 +192,9 @@ async function subtest_toggle_unread_folders(show) {
     await assert_mode_selected(mode);
 
     // Mode is hierarchical, parent folders are shown.
-    // assert_folder_visible(inboxFolder.server.rootFolder);
-    // assert_folder_visible(inboxFolder);
-    // assert_folder_visible(unreadFolder);
+    assert_folder_visible(inboxFolder.server.rootFolder);
+    assert_folder_visible(inboxFolder);
+    assert_folder_visible(unreadFolder);
   } else {
     await assert_mode_not_selected(mode);
   }
@@ -212,7 +212,7 @@ async function subtest_toggle_favorite_folders(show) {
 
     // Mode is hierarchical, parent folders are shown.
     assert_folder_visible(inboxFolder.server.rootFolder);
-    // assert_folder_visible(inboxFolder);
+    assert_folder_visible(inboxFolder);
     assert_folder_visible(favoriteFolder);
   } else {
     await assert_mode_not_selected(mode);
@@ -262,6 +262,20 @@ async function subtest_toggle_compact(compact) {
 }
 
 /**
+ * Toggle the compact mode.
+ */
+async function subtest_toggle_tags(show) {
+  let mode = "tags";
+  select_mode_in_menu(mode);
+
+  if (show) {
+    await assert_mode_selected(mode);
+  } else {
+    await assert_mode_not_selected(mode);
+  }
+}
+
+/**
  * Check that the current mode(s) are accurately recorded in telemetry.
  * Note that `reportUIConfiguration` usually only runs at start-up.
  */
@@ -286,26 +300,30 @@ add_task(async function test_toggling_modes() {
   await subtest_toggle_smart_folders(true);
   check_scalars("all,smart");
 
+  await subtest_toggle_tags(true);
+  check_scalars("all,smart,tags");
+
   await subtest_toggle_unread_folders(true);
   await subtest_toggle_favorite_folders(true);
   await subtest_toggle_recent_folders(true);
-  check_scalars("all,smart,unread,favorite,recent");
+  check_scalars("all,smart,tags,unread,favorite,recent");
 
   await subtest_toggle_compact(true);
-  check_scalars("all,smart,unread,favorite,recent (compact)");
+  check_scalars("all,smart,tags,unread,favorite,recent (compact)");
 
   await subtest_toggle_unread_folders(false);
-  check_scalars("all,smart,favorite,recent (compact)");
+  check_scalars("all,smart,tags,favorite,recent (compact)");
 
   await subtest_toggle_compact(false);
-  check_scalars("all,smart,favorite,recent");
+  check_scalars("all,smart,tags,favorite,recent");
 
   await subtest_toggle_favorite_folders(false);
-  check_scalars("all,smart,recent");
+  check_scalars("all,smart,tags,recent");
 
   await subtest_toggle_all_folders(false);
   await subtest_toggle_recent_folders(false);
   await subtest_toggle_smart_folders(false);
+  await subtest_toggle_tags(false);
 
   // Confirm that the all folders mode is visible even after all the modes have
   // been deselected in order to ensure that the Folder Pane is never empty.
