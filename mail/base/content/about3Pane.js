@@ -1173,21 +1173,6 @@ var folderPane = {
           return folder;
         }
 
-        let unwantedFlags =
-          Ci.nsMsgFolderFlags.Trash |
-          Ci.nsMsgFolderFlags.Junk |
-          Ci.nsMsgFolderFlags.Queue |
-          Ci.nsMsgFolderFlags.Virtual;
-        let searchFolders = [];
-        for (let server of MailServices.accounts.allServers) {
-          searchFolders.push(server.rootFolder);
-          for (let f of server.rootFolder.descendants) {
-            if (!f.isSpecialFolder(unwantedFlags, true)) {
-              searchFolders.push(f);
-            }
-          }
-        }
-
         folder = this._tagsFolder.createLocalSubfolder(tag.key);
         folder.flags |= Ci.nsMsgFolderFlags.Virtual;
         folder.prettyName = tag.tag;
@@ -1199,10 +1184,7 @@ var folderPane = {
           "searchStr",
           `AND (tag,contains,${tag.key})`
         );
-        folderInfo.setCharProperty(
-          "searchFolderUri",
-          searchFolders.map(f => f.URI).join("|")
-        );
+        folderInfo.setCharProperty("searchFolderUri", "*");
         folderInfo.setUint32Property(
           "searchFolderFlag",
           Ci.nsMsgFolderFlags.Inbox

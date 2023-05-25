@@ -151,15 +151,17 @@ function checkVirtualFolder(tagKey, tagLabel, expectedFolderURIs) {
   let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
   Assert.equal(folder.prettyName, tagLabel);
   Assert.equal(wrappedFolder.searchString, `AND (tag,contains,${tagKey})`);
+  Assert.equal(wrappedFolder.searchFolderURIs, "*");
+
+  about3Pane.displayFolder(folder);
   Assert.deepEqual(
-    wrappedFolder.searchFolders.map(f => f.URI).sort(),
+    about3Pane.gViewWrapper._underlyingFolders.map(f => f.URI).sort(),
     expectedFolderURIs.sort()
   );
 }
 
 add_task(async function testFolderSelection() {
   let expectedFolderURIs = [
-    rootFolder.URI,
     folders.Inbox.URI,
     folders.Drafts.URI,
     folders.Templates.URI,
@@ -180,7 +182,7 @@ add_task(async function testFolderSelection() {
   // Add a subfolder to the inbox. It should be added to the searched folders.
   let newInboxFolder = folders.Inbox.createLocalSubfolder("tagsModeInbox2");
   expectedFolderURIs.push(newInboxFolder.URI);
-  checkVirtualFolder("$label1", "Important", expectedFolderURIs);
+  checkVirtualFolder("$label2", "Work", expectedFolderURIs);
 
   // Add a subfolder to the trash. It should NOT be added to the searched folders.
   folders.Trash.createLocalSubfolder("tagsModeTrash2");
@@ -196,9 +198,8 @@ add_task(async function testFolderSelection() {
   await TestUtils.waitForCondition(() => rssRootFolder.subFolders.length == 2);
   let rssFeedFolder = rssRootFolder.getChildNamed("Test Feed");
 
-  expectedFolderURIs.push(rssRootFolder.URI);
   expectedFolderURIs.push(rssFeedFolder.URI);
-  checkVirtualFolder("$label1", "Important", expectedFolderURIs);
+  checkVirtualFolder("$label2", "Work", expectedFolderURIs);
 
   // Delete the smart mailboxes server and check it is correctly recreated.
   about3Pane.folderPane.activeModes = ["all"];

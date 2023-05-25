@@ -997,10 +997,29 @@ DBViewWrapper.prototype = {
     // - retrieve virtual folder configuration
     if (aFolder.flags & Ci.nsMsgFolderFlags.Virtual) {
       let virtFolder = VirtualFolderHelper.wrapVirtualFolder(aFolder);
-      // Filter out the server roots; they only exist for UI reasons.
-      this._underlyingFolders = virtFolder.searchFolders.filter(
-        folder => !folder.isServer
-      );
+
+      if (virtFolder.searchFolderURIs == "*") {
+        // This is a special virtual folder that searches all folders in all
+        // accounts (except the unwanted types listed). Get those folders now.
+        let unwantedFlags =
+          Ci.nsMsgFolderFlags.Trash |
+          Ci.nsMsgFolderFlags.Junk |
+          Ci.nsMsgFolderFlags.Queue |
+          Ci.nsMsgFolderFlags.Virtual;
+        this._underlyingFolders = [];
+        for (let server of MailServices.accounts.allServers) {
+          for (let f of server.rootFolder.descendants) {
+            if (!f.isSpecialFolder(unwantedFlags, true)) {
+              this._underlyingFolders.push(f);
+            }
+          }
+        }
+      } else {
+        // Filter out the server roots; they only exist for UI reasons.
+        this._underlyingFolders = virtFolder.searchFolders.filter(
+          folder => !folder.isServer
+        );
+      }
       this._underlyingData =
         this._underlyingFolders.length > 1
           ? this.kUnderlyingMultipleFolder

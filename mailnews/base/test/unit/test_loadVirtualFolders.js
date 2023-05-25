@@ -26,9 +26,11 @@ function run_test() {
   localMailDir.append("Mail");
   localMailDir.append("Local Folders");
   localMailDir.append("unread-local");
-  localMailDir.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0644", 8));
+  localMailDir.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
   localMailDir.leafName = "invalidserver-local";
-  localMailDir.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0644", 8));
+  localMailDir.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+  localMailDir.leafName = "$label1";
+  localMailDir.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
 
   MailServices.accounts.loadVirtualFolders();
   let unreadLocal =
@@ -48,4 +50,15 @@ function run_test() {
   searchScope =
     invalidServer.msgDatabase.dBFolderInfo.getCharProperty("searchFolderUri");
   Assert.equal(searchScope, "mailbox://nobody@Local%20Folders/Inbox");
+
+  let tagsFolder =
+    localAccountUtils.incomingServer.rootMsgFolder.getChildNamed("$label1");
+  Assert.equal(
+    tagsFolder.msgDatabase.dBFolderInfo.getCharProperty("searchFolderUri"),
+    "*"
+  );
+  Assert.equal(
+    tagsFolder.msgDatabase.dBFolderInfo.getCharProperty("searchStr"),
+    "AND (tag,contains,$label1)"
+  );
 }

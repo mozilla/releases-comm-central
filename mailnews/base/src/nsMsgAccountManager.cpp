@@ -2894,6 +2894,11 @@ nsresult nsMsgAccountManager::WriteLineToOutputStream(
  * @param buffer On input, list of folder uri's, on output, verified list.
  */
 void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString& buffer) {
+  if (buffer.Equals("*")) {
+    // This is a special virtual folder that searches all folders in all
+    // accounts. Folders are chosen by the front end at search time.
+    return;
+  }
   nsCString verifiedFolders;
   nsTArray<nsCString> folderUris;
   ParseString(buffer, '|', folderUris);
@@ -2919,6 +2924,10 @@ void nsMsgAccountManager::ParseAndVerifyVirtualFolderScope(nsCString& buffer) {
 // This conveniently works to add a single folder as well.
 nsresult nsMsgAccountManager::AddVFListenersForVF(
     nsIMsgFolder* virtualFolder, const nsCString& srchFolderUris) {
+  if (srchFolderUris.Equals("*")) {
+    return NS_OK;
+  }
+
   nsresult rv;
   if (!m_dbService) {
     m_dbService = do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
