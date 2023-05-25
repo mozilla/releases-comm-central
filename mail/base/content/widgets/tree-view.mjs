@@ -1690,6 +1690,7 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
 
   #onKeyPress(event) {
     if (!event.altKey || !["ArrowRight", "ArrowLeft"].includes(event.key)) {
+      this.triggerTableHeaderRovingTab(event);
       return;
     }
 
@@ -1903,6 +1904,71 @@ class TreeViewTableHeader extends HTMLTableSectionElement {
         is: "tree-view-table-column-picker",
       });
       this.row.appendChild(picker);
+    }
+
+    this.updateRovingTab();
+  }
+
+  /**
+   * Get all currently visible columns of the table header.
+   *
+   * @returns {Array} An array of buttons.
+   */
+  get headerColumns() {
+    return this.row.querySelectorAll(`th:not([hidden]) button`);
+  }
+
+  /**
+   * Update the `tabindex` attribute of the currently visible columns.
+   */
+  updateRovingTab() {
+    for (let button of this.headerColumns) {
+      button.tabIndex = -1;
+    }
+    // Allow focus on the first available button.
+    this.headerColumns[0].tabIndex = 0;
+  }
+
+  /**
+   * Handles the keypress event on the table header.
+   *
+   * @param {Event} event - The keypress DOMEvent.
+   */
+  triggerTableHeaderRovingTab(event) {
+    if (!["ArrowRight", "ArrowLeft"].includes(event.key)) {
+      return;
+    }
+
+    const headerColumns = [...this.headerColumns];
+    let focusableButton = headerColumns.find(b => b.tabIndex != -1);
+    let elementIndex = headerColumns.indexOf(focusableButton);
+
+    // Find the adjacent focusable element based on the pressed key.
+    let isRTL = document.dir == "rtl";
+    if (
+      (isRTL && event.key == "ArrowLeft") ||
+      (!isRTL && event.key == "ArrowRight")
+    ) {
+      elementIndex++;
+      if (elementIndex > headerColumns.length - 1) {
+        elementIndex = 0;
+      }
+    } else if (
+      (!isRTL && event.key == "ArrowLeft") ||
+      (isRTL && event.key == "ArrowRight")
+    ) {
+      elementIndex--;
+      if (elementIndex == -1) {
+        elementIndex = headerColumns.length - 1;
+      }
+    }
+
+    // Move the focus to a new column and update the tabindex attribute.
+    let newFocusableButton = headerColumns[elementIndex];
+    if (newFocusableButton) {
+      focusableButton.tabIndex = -1;
+      newFocusableButton.tabIndex = 0;
+      newFocusableButton.focus();
     }
   }
 }

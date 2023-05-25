@@ -198,8 +198,9 @@ add_task(async function test_keypress_on_columns() {
   let row = about3Pane.threadTree.getRowAtIndex(0);
   EventUtils.synthesizeMouseAtCenter(row, {}, about3Pane);
 
-  // Press SHIFT+TAB to focus on the column picker.
+  // Press SHIFT+TAB and LEFT to focus on the column picker.
   EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, about3Pane);
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, about3Pane);
 
   Assert.equal(
     about3Pane.document.activeElement,
