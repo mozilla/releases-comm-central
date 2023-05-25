@@ -1212,7 +1212,7 @@ button.calview-toggle-item[role="tab"][aria-selected="false"]:hover:active {
 }
 
 #calendarControlBarMenu {
-  background-image: var(--icon-filter);
+  background-image: var(--icon-display-options);
 }
 
 .fgdragspacer {

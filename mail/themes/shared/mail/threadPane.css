@@ -719,6 +719,6 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
 }
 
 #threadPaneDisplayButton {
-  background-image: var(--icon-layout); /* TODO: Change with a display icon */
+  background-image: var(--icon-display-options);
   margin: 0;
 }

@@ -346,7 +346,7 @@ body.layout-table {
 
 #displayButton {
   --button-margin: 0;
-  background-image: var(--icon-filter);
+  background-image: var(--icon-display-options);
 }
 
 /* Hide list items for sorting in table view. */
