@@ -3333,6 +3333,7 @@ var threadPaneHeader = {
 
     this.folderName = document.getElementById("threadPaneFolderName");
     this.folderCount = document.getElementById("threadPaneFolderCount");
+    this.selectedCount = document.getElementById("threadPaneSelectedCount");
     this.filterButton = document.getElementById("threadPaneQuickFilterButton");
     this.filterButton.addEventListener("click", () =>
       goDoCommand("cmd_toggleQuickFilterBar")
@@ -3422,6 +3423,7 @@ var threadPaneHeader = {
     if (!gFolder && !gViewWrapper?.isSynthetic) {
       this.folderName.hidden = true;
       this.folderCount.hidden = true;
+      this.selectedCount.hidden = true;
       return;
     }
 
@@ -3460,6 +3462,53 @@ var threadPaneHeader = {
       "thread-pane-folder-message-count",
       { count: newValue }
     );
+  },
+
+  /**
+   * Clear the selected count indicator in the pane header.
+   */
+  clearSelectedCount() {
+    // Bail out if the pane is hidden as we don't need to update anything.
+    if (this.isHidden) {
+      return;
+    }
+
+    this.selectedCount.hidden = true;
+    this.selectedCount.textContent = "";
+    this.selectedCount.removeAttribute("data-l10n-id");
+    this.selectedCount.removeAttribute("data-l10n-args");
+  },
+
+  /**
+   * Count the number of currently selected messages, or if the single message
+   * is a thread, and update the selected count indicator.
+   *
+   * @param {boolean} isSingleMessage - If only one message is selected.
+   */
+  updateSelectedCount(isSingleMessage) {
+    // Bail out if the pane is hidden as we don't need to update anything.
+    if (this.isHidden) {
+      return;
+    }
+
+    if (isSingleMessage) {
+      const index = threadTree.selectedIndex;
+      // If this is not a thread or the thread is open, we don't show the count.
+      if (
+        !threadTree.view.isContainer(index) ||
+        threadTree.view.isContainerOpen(index)
+      ) {
+        this.clearSelectedCount();
+        return;
+      }
+    }
+
+    document.l10n.setAttributes(
+      this.selectedCount,
+      "thread-pane-folder-selected-count",
+      { count: gDBView.getSelectedMsgHdrs().length }
+    );
+    this.selectedCount.hidden = false;
   },
 };
 
@@ -3679,6 +3728,7 @@ var threadPane = {
       case 0:
         messagePane.clearMessage();
         messagePane.clearMessages();
+        threadPaneHeader.clearSelectedCount();
         return;
       case 1:
         if (
@@ -3686,13 +3736,17 @@ var threadPane = {
         ) {
           messagePane.clearMessage();
           messagePane.clearMessages();
+          threadPaneHeader.clearSelectedCount();
         } else {
           let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
           messagePane.displayMessage(uri);
+          threadPaneHeader.updateSelectedCount(true);
         }
         return;
       default:
         messagePane.displayMessages(gDBView.getSelectedMsgHdrs());
+        threadPaneHeader.updateSelectedCount(false);
+        break;
     }
   },
 

@@ -704,7 +704,7 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   margin-block: 0;
 }
 
-.thread-pane-total-count {
+.thread-pane-count-info {
   align-self: end;
   font-size: 1rem;
   font-weight: normal;

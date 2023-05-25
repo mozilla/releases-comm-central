@@ -19,6 +19,13 @@ thread-pane-folder-message-count =
     *[other] { $count } Messages
   }
 
+# Variables:
+# $count (Number) - The number of messages currently selected.
+thread-pane-folder-selected-count =
+  { $count ->
+    *[other] { $count } Selected
+  }
+
 thread-pane-header-context-table-view =
   .label = Table View
 

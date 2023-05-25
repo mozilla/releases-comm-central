@@ -106,9 +106,16 @@
       collapse-width="100" />
   <div id="threadPane">
     <div id="threadPaneHeaderBar" class="list-header-bar">
-      <div class="list-header-bar-container-start">
+      <div class="list-header-bar-container-start"
+           role="region"
+           aria-live="polite">
         <h2 id="threadPaneFolderName" class="list-header-title"></h2>
-        <span id="threadPaneFolderCount" class="thread-pane-total-count"></span>
+        <span id="threadPaneFolderCount"
+              class="thread-pane-count-info"
+              hidden="hidden"></span>
+        <span id="threadPaneSelectedCount"
+              class="thread-pane-count-info"
+              hidden="hidden"></span>
       </div>
       <div class="list-header-bar-container-end">
         <button id="threadPaneQuickFilterButton"
