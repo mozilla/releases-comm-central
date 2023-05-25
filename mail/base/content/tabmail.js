@@ -870,21 +870,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
         // Blur the currently focused element only if we're actually switching
         // to the newly opened tab.
         if (oldPanel && !background) {
-          // Remember what has focus for when we return to this tab. Check for
-          // anything inside tabmail-container rather than the panel because
-          // focus could be in the Today Pane.
-          let activeElement = Services.focus.getFocusedElementForWindow(
-            window,
-            true,
-            {}
-          );
-          let container = document.getElementById("tabmail-container");
-          if (container.contains(document.activeElement)) {
-            oldTab.lastActiveElement = activeElement;
-            document.activeElement.blur();
-          } else {
-            delete oldTab.lastActiveElement;
-          }
+          this.rememberLastActiveElement(oldTab);
           oldPanel.removeAttribute("selected");
         }
 
@@ -1584,6 +1570,36 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
     }
 
     /**
+     * Finds the active element and stores it on `tabInfo` for restoring focus
+     * when this tab next becomes active.
+     *
+     * @param {object} tabInfo
+     */
+    rememberLastActiveElement(tabInfo) {
+      // Check for anything inside tabmail-container rather than the panel
+      // because focus could be in the Today Pane.
+      let activeElement = document.activeElement;
+      let container = document.getElementById("tabmail-container");
+      if (container.contains(activeElement)) {
+        while (activeElement.localName == "browser") {
+          let next = activeElement.contentDocument?.activeElement;
+          if (!next || next.localName == "body") {
+            break;
+          }
+          activeElement = next;
+        }
+        // If the active element is inside a container, store the container
+        // instead of the element, so that `.focus()` returns focus to the
+        // right place.
+        tabInfo.lastActiveElement =
+          activeElement.closest("[aria-activedescendant]") ?? activeElement;
+        Services.focus.clearFocus(window);
+      } else {
+        delete tabInfo.lastActiveElement;
+      }
+    }
+
+    /**
      * UpdateCurrentTab - called in response to changing the current tab.
      */
     updateCurrentTab() {
@@ -1602,21 +1618,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
           this.tabInfo[this.tabContainer.selectedIndex]);
         // Update the selected attribute on the current and old tab panel.
         if (oldPanel) {
-          // Remember what has focus for when we return to this tab. Check for
-          // anything inside tabmail-container rather than the panel because
-          // focus could be in the Today Pane.
-          let activeElement = Services.focus.getFocusedElementForWindow(
-            window,
-            true,
-            {}
-          );
-          let container = document.getElementById("tabmail-container");
-          if (container.contains(document.activeElement)) {
-            oldTab.lastActiveElement = activeElement;
-            document.activeElement.blur();
-          } else {
-            delete oldTab.lastActiveElement;
-          }
+          this.rememberLastActiveElement(oldTab);
           oldPanel.removeAttribute("selected");
         }
 
