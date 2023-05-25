@@ -385,13 +385,13 @@ var commandController = {
         top.goDoCommand("cmd_nextUnreadMsg");
       }
     },
-    cmd_searchMessages() {
+    cmd_searchMessages(folder = gFolder) {
       // We always open a new search dialog for each search command.
       top.openDialog(
         "chrome://messenger/content/SearchDialog.xhtml",
         "_blank",
         "chrome,resizable,status,centerscreen,dialog=no",
-        { folder: gFolder }
+        { folder }
       );
     },
   },

@@ -231,6 +231,11 @@ var paneLayout = {
 
 var folderPaneContextMenu = {
   /**
+   * @type {XULPopupElement}
+   */
+  _menupopup: null,
+
+  /**
    * Commands handled by commandController.
    *
    * @type {Object.<string, string>}
@@ -251,9 +256,10 @@ var folderPaneContextMenu = {
   _commandStates: null,
 
   init() {
-    let folderPaneContext = document.getElementById("folderPaneContext");
-    folderPaneContext.addEventListener("popupshowing", this);
-    folderPaneContext.addEventListener("command", this);
+    this._menupopup = document.getElementById("folderPaneContext");
+    this._menupopup.addEventListener("popupshowing", this);
+    this._menupopup.addEventListener("popuphidden", this);
+    this._menupopup.addEventListener("command", this);
     folderTree.addEventListener("select", this);
   },
 
@@ -261,6 +267,9 @@ var folderPaneContextMenu = {
     switch (event.type) {
       case "popupshowing":
         this.onPopupShowing(event);
+        break;
+      case "popuphidden":
+        this.onPopupHidden(event);
         break;
       case "command":
         this.onCommand(event);
@@ -272,6 +281,35 @@ var folderPaneContextMenu = {
   },
 
   /**
+   * The folder that this context menu is operating on. This will be `gFolder`
+   * unless the menu was opened by right-clicking on another folder.
+   *
+   * @type {nsIMsgFolder}
+   */
+  get activeFolder() {
+    return this._overrideFolder || gFolder;
+  },
+
+  /**
+   * Override the folder that this context menu should operate on. The effect
+   * lasts until `clearOverrideFolder` is called by `onPopupHidden`.
+   *
+   * @param {nsIMsgFolder} folder
+   */
+  setOverrideFolder(folder) {
+    this._overrideFolder = folder;
+    this._commandStates = null;
+  },
+
+  /**
+   * Clear the overriding folder, and go back to using `gFolder`.
+   */
+  clearOverrideFolder() {
+    this._overrideFolder = null;
+    this._commandStates = null;
+  },
+
+  /**
    * Gets the enabled state of a command. If the state is unknown (because the
    * selected folder has changed) the states of all the commands are worked
    * out together to save unnecessary work.
@@ -279,7 +317,8 @@ var folderPaneContextMenu = {
    * @param {string} command
    */
   getCommandState(command) {
-    if (!gFolder) {
+    let folder = this.activeFolder;
+    if (!folder) {
       return false;
     }
     if (this._commandStates === null) {
@@ -292,7 +331,7 @@ var folderPaneContextMenu = {
         isServer,
         server,
         URI,
-      } = gFolder;
+      } = folder;
       let isJunk = flags & Ci.nsMsgFolderFlags.Junk;
       let isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
       let isNNTP = server.type == "nntp";
@@ -317,14 +356,18 @@ var folderPaneContextMenu = {
         cmd_compactFolder:
           !isVirtual &&
           (isServer || canCompact) &&
-          gFolder.isCommandEnabled("cmd_compactFolder"),
+          folder.isCommandEnabled("cmd_compactFolder"),
         cmd_emptyTrash: !isNNTP,
       };
     }
     return this._commandStates[command];
   },
 
-  onPopupShowing() {
+  onPopupShowing(event) {
+    if (event.target != this._menupopup) {
+      return;
+    }
+
     function showItem(id, show) {
       let item = document.getElementById(id);
       if (item) {
@@ -345,8 +388,9 @@ var folderPaneContextMenu = {
       showItem(id, commandController.isCommandEnabled(command));
     }
 
+    let folder = this.activeFolder;
     let { canCreateSubfolders, flags, isServer, isSpecialFolder, server } =
-      gFolder;
+      folder;
     let isJunk = flags & Ci.nsMsgFolderFlags.Junk;
     let isTrash = isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true);
     let isVirtual = flags & Ci.nsMsgFolderFlags.Virtual;
@@ -358,16 +402,16 @@ var folderPaneContextMenu = {
       (isServer && serverType != "none") ||
         (["nntp", "rss"].includes(serverType) && !isTrash && !isVirtual)
     );
-    let showPauseAll = isServer && FeedUtils.isFeedFolder(gFolder);
+    let showPauseAll = isServer && FeedUtils.isFeedFolder(folder);
     showItem("folderPaneContext-pauseAllUpdates", showPauseAll);
     if (showPauseAll) {
       let optionsAcct = FeedUtils.getOptionsAcct(server);
       checkItem("folderPaneContext-pauseAllUpdates", !optionsAcct.doBiff);
     }
-    let showPaused = !isServer && FeedUtils.getFeedUrlsInFolder(gFolder);
+    let showPaused = !isServer && FeedUtils.getFeedUrlsInFolder(folder);
     showItem("folderPaneContext-pauseUpdates", showPaused);
     if (showPaused) {
-      let properties = FeedUtils.getFolderProperties(gFolder);
+      let properties = FeedUtils.getFolderProperties(folder);
       checkItem(
         "folderPaneContext-pauseUpdates",
         properties.includes("isPaused")
@@ -450,73 +494,85 @@ var folderPaneContextMenu = {
     }
   },
 
+  onPopupHidden(event) {
+    if (event.target != this._menupopup) {
+      return;
+    }
+
+    folderTree
+      .querySelector(".context-menu-target")
+      ?.classList.remove("context-menu-target");
+    this.clearOverrideFolder();
+  },
+
   onCommand(event) {
+    let folder = this.activeFolder;
     // If commandController handles this command, ask it to do so.
     if (event.target.id in this._commands) {
-      commandController.doCommand(this._commands[event.target.id], event);
+      commandController.doCommand(this._commands[event.target.id], folder);
       return;
     }
 
     let topChromeWindow = window.browsingContext.topChromeWindow;
     switch (event.target.id) {
       case "folderPaneContext-getMessages":
-        topChromeWindow.MsgGetMessage();
+        topChromeWindow.MsgGetMessage([folder]);
         break;
       case "folderPaneContext-pauseAllUpdates":
         topChromeWindow.MsgPauseUpdates(
-          [gFolder],
+          [folder],
           event.target.getAttribute("checked") == "true"
         );
         break;
       case "folderPaneContext-pauseUpdates":
         topChromeWindow.MsgPauseUpdates(
-          [gFolder],
+          [folder],
           event.target.getAttribute("checked") == "true"
         );
         break;
       case "folderPaneContext-openNewTab":
-        topChromeWindow.MsgOpenNewTabForFolders([gFolder], {
+        topChromeWindow.MsgOpenNewTabForFolders([folder], {
           event,
           folderPaneVisible: !paneLayout.folderPaneSplitter.isCollapsed,
           messagePaneVisible: !paneLayout.messagePaneSplitter.isCollapsed,
         });
         break;
       case "folderPaneContext-openNewWindow":
-        topChromeWindow.MsgOpenNewWindowForFolder(gFolder.URI, -1);
+        topChromeWindow.MsgOpenNewWindowForFolder(folder.URI, -1);
         break;
       case "folderPaneContext-searchMessages":
-        commandController.doCommand("cmd_searchMessages");
+        commandController.doCommand("cmd_searchMessages", folder);
         break;
       case "folderPaneContext-subscribe":
-        topChromeWindow.MsgSubscribe(gFolder);
+        topChromeWindow.MsgSubscribe(folder);
         break;
       case "folderPaneContext-newsUnsubscribe":
-        topChromeWindow.MsgUnsubscribe([gFolder]);
+        topChromeWindow.MsgUnsubscribe([folder]);
         break;
       case "folderPaneContext-markMailFolderAllRead":
       case "folderPaneContext-markNewsgroupAllRead":
-        topChromeWindow.MsgMarkAllRead([gFolder]);
+        topChromeWindow.MsgMarkAllRead([folder]);
         break;
       case "folderPaneContext-emptyTrash":
-        folderPane.emptyTrash(gFolder);
+        folderPane.emptyTrash(folder);
         break;
       case "folderPaneContext-emptyJunk":
-        folderPane.emptyJunk(gFolder);
+        folderPane.emptyJunk(folder);
         break;
       case "folderPaneContext-sendUnsentMessages":
         topChromeWindow.SendUnsentMessages();
         break;
       case "folderPaneContext-favoriteFolder":
-        gFolder.toggleFlag(Ci.nsMsgFolderFlags.Favorite);
+        folder.toggleFlag(Ci.nsMsgFolderFlags.Favorite);
         break;
       case "folderPaneContext-properties":
-        folderPane.editFolder();
+        folderPane.editFolder(folder);
         break;
       case "folderPaneContext-markAllFoldersRead":
-        topChromeWindow.MsgMarkAllFoldersRead([gFolder]);
+        topChromeWindow.MsgMarkAllFoldersRead([folder]);
         break;
       case "folderPaneContext-settings":
-        folderPane.editFolder();
+        folderPane.editFolder(folder);
         break;
     }
   },
@@ -2027,9 +2083,16 @@ var folderPane = {
 
     if (event.button == 2) {
       // Mouse
-      folderTree.selectedIndex = folderTree.rows.indexOf(
-        event.target.closest("li")
-      );
+      let row = event.target.closest("li");
+      if (row.uri != gFolder.URI) {
+        // The right-clicked-on folder is not `gFolder`. Tell the context menu
+        // to use it instead. This override lasts until the context menu fires
+        // a "popuphidden" event.
+        folderPaneContextMenu.setOverrideFolder(
+          MailServices.folderLookup.getFolderForURL(row.uri)
+        );
+        row.classList.add("context-menu-target");
+      }
       popup.openPopupAtScreen(event.screenX, event.screenY, true);
     } else {
       // Keyboard
@@ -2360,11 +2423,11 @@ var folderPane = {
   /**
    * Opens the dialog to edit the properties for a folder
    *
+   * @param {nsIMsgFolder} [folder] - Folder to edit, if not the selected one.
    * @param {string} [tabID] - Id of initial tab to select in the folder
    *   properties dialog.
    */
-  editFolder(tabID) {
-    let folder = gFolder;
+  editFolder(folder = gFolder, tabID) {
     // If this is actually a server, send it off to that controller
     if (folder.isServer) {
       top.MsgAccountManager(null, folder.server);
@@ -5234,36 +5297,36 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
 commandController.registerCallback(
   "cmd_newFolder",
-  () => folderPane.newFolder(gFolder),
+  (folder = gFolder) => folderPane.newFolder(folder),
   () => folderPaneContextMenu.getCommandState("cmd_newFolder")
 );
-commandController.registerCallback("cmd_newVirtualFolder", () =>
-  folderPane.newVirtualFolder(undefined, undefined, gFolder)
+commandController.registerCallback("cmd_newVirtualFolder", (folder = gFolder) =>
+  folderPane.newVirtualFolder(undefined, undefined, folder)
 );
 commandController.registerCallback(
   "cmd_deleteFolder",
-  () => folderPane.deleteFolder(gFolder),
+  (folder = gFolder) => folderPane.deleteFolder(folder),
   () => folderPaneContextMenu.getCommandState("cmd_deleteFolder")
 );
 commandController.registerCallback(
   "cmd_renameFolder",
-  () => folderPane.renameFolder(gFolder),
+  (folder = gFolder) => folderPane.renameFolder(folder),
   () => folderPaneContextMenu.getCommandState("cmd_renameFolder")
 );
 commandController.registerCallback(
   "cmd_compactFolder",
-  () => {
-    if (gFolder.isServer) {
-      folderPane.compactAllFoldersForAccount(gFolder);
+  (folder = gFolder) => {
+    if (folder.isServer) {
+      folderPane.compactAllFoldersForAccount(folder);
     } else {
-      folderPane.compactFolder(gFolder);
+      folderPane.compactFolder(folder);
     }
   },
   () => folderPaneContextMenu.getCommandState("cmd_compactFolder")
 );
 commandController.registerCallback(
   "cmd_emptyTrash",
-  () => folderPane.emptyTrash(gFolder),
+  (folder = gFolder) => folderPane.emptyTrash(folder),
   () => folderPaneContextMenu.getCommandState("cmd_emptyTrash")
 );
 

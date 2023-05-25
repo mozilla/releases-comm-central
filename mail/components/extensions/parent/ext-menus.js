@@ -1154,7 +1154,7 @@ const menuTracker = {
           menu,
           tab,
           pageUrl,
-          selectedFolder: tab.folder,
+          selectedFolder: win.folderPaneContextMenu.activeFolder,
         });
         break;
       }

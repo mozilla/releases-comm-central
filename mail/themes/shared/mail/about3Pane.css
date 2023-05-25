@@ -336,6 +336,13 @@ li:not(.selected) > .container:hover {
   }
 }
 
+li.context-menu-target:not(.selected) > .container,
+li.context-menu-target:not(.selected) > .container:hover {
+  background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
+  outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
+  outline-offset: -1px;
+}
+
 #folderTree:focus-within li.selected > .container,
 #folderTree li.drop-target > .container {
   background-color: var(--treeitem-background-active);
