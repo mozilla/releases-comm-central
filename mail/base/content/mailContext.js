@@ -64,6 +64,11 @@ function openContextMenu({ data, target }, browser) {
 }
 
 var mailContextMenu = {
+  /**
+   * @type {XULPopupElement}
+   */
+  _menupopup: null,
+
   // Commands handled by commandController.
   _commands: {
     "mailContext-editDraftMsg": "cmd_editDraftMsg",
@@ -110,15 +115,70 @@ var mailContextMenu = {
   },
 
   init() {
-    let mailContext = document.getElementById("mailContext");
-    mailContext.addEventListener("popupshowing", event => {
-      if (event.target == mailContext) {
-        this.fillMailContextMenu(event);
-      }
-    });
-    mailContext.addEventListener("command", event =>
-      this.onMailContextMenuCommand(event)
-    );
+    this._menupopup = document.getElementById("mailContext");
+    this._menupopup.addEventListener("popupshowing", this);
+    this._menupopup.addEventListener("popuphidden", this);
+    this._menupopup.addEventListener("command", this);
+  },
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "popupshowing":
+        this.onPopupShowing(event);
+        break;
+      case "popuphidden":
+        this.onPopupHidden(event);
+        break;
+      case "command":
+        this.onCommand(event);
+        break;
+    }
+  },
+
+  onPopupShowing(event) {
+    if (event.target == this._menupopup) {
+      this.fillMailContextMenu(event);
+    }
+  },
+
+  onPopupHidden(event) {
+    if (event.target == this._menupopup) {
+      this.clearOverrideSelection();
+    }
+  },
+
+  onCommand(event) {
+    this.onMailContextMenuCommand(event);
+  },
+
+  /**
+   * Override the selection that this context menu should operate on. The
+   * effect lasts until `clearOverrideSelection` is called by `onPopupHidden`.
+   *
+   * @param {integer} index - The index of the row to use as selection.
+   */
+  setOverrideSelection(index) {
+    this._savedRanges = window.threadTree._selection._ranges;
+    window.threadTree._selection.selectEventsSuppressed = true;
+    window.threadTree._selection.select(index);
+  },
+
+  /**
+   * Clear the overriding selection, and go back to the previous selection.
+   */
+  clearOverrideSelection() {
+    if (!window.threadTree) {
+      return;
+    }
+    if (this._savedRanges) {
+      window.threadTree._selection._ranges = this._savedRanges;
+      window.threadTree._selection._updateCount();
+      delete this._savedRanges;
+    }
+    window.threadTree
+      .querySelector(".context-menu-target")
+      ?.classList.remove("context-menu-target");
+    window.threadTree._selection.selectEventsSuppressed = false;
   },
 
   setAsThreadPaneContextMenu() {

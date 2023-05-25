@@ -3861,15 +3861,18 @@ var threadPane = {
       return;
     }
 
-    if (!gDBView.selection.isSelected(row.index)) {
-      threadTree.selectedIndex = row.index;
-    }
-
     mailContextMenu.setAsThreadPaneContextMenu();
     let popup = document.getElementById("mailContext");
 
     if (event.button == 2) {
       // Mouse
+      if (!gDBView.selection.isSelected(row.index)) {
+        // The right-clicked-on row is not selected. Tell the context menu to
+        // use it instead. This override lasts until the context menu fires
+        // a "popuphidden" event.
+        mailContextMenu.setOverrideSelection(row.index);
+        row.classList.add("context-menu-target");
+      }
       popup.openPopupAtScreen(event.screenX, event.screenY, true);
     } else {
       // Keyboard
