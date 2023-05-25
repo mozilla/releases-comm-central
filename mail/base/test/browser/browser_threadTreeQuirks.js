@@ -9,7 +9,8 @@ const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
-let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+let tabmail = document.getElementById("tabmail");
+let about3Pane = tabmail.currentAbout3Pane;
 let threadTree = about3Pane.threadTree;
 // Not `currentAboutMessage` as (a) that's null right now, and (b) we'll be
 // testing things that happen when about:message is hidden.
@@ -229,9 +230,9 @@ add_task(async function testThreadUpdateKeepsSelection() {
     "correct message still loaded"
   );
 
-  // Wait to prove bad things didn't happen.
+  // Wait to prove unwanted selection or load didn't happen.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(f => setTimeout(f, 500));
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   threadTree.removeEventListener("select", reportBadSelectEvent);
   messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
@@ -335,7 +336,7 @@ add_task(async function testMessagePaneSelection() {
 
   // Wait to prove unwanted selection or load didn't happen.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
-  await new Promise(f => setTimeout(f, 500));
+  await new Promise(resolve => setTimeout(resolve, 500));
   threadTree.removeEventListener("select", reportBadSelectEvent);
   messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
 
@@ -373,6 +374,94 @@ add_task(async function testMessagePaneSelection() {
   await restoreMessages();
 });
 
+add_task(async function testNonSelectionContextMenu() {
+  let mailContext = about3Pane.document.getElementById("mailContext");
+  let openNewTabItem = about3Pane.document.getElementById(
+    "mailContext-openNewTab"
+  );
+
+  about3Pane.restoreState({
+    messagePaneVisible: true,
+    folderURI: folderA.URI,
+  });
+  about3Pane.sortController.sortUnthreaded();
+
+  threadTree.selectedIndices = [0];
+  await messageLoaded(0);
+  await subtest(1, sourceMessageIDs[5]);
+  await subtest(6, sourceMessageIDs[10]);
+
+  threadTree.selectedIndices = [3, 6, 9];
+  await BrowserTestUtils.browserLoaded(
+    messagePaneBrowser,
+    false,
+    "about:blank"
+  );
+  await subtest(0, sourceMessageIDs[0]);
+
+  async function subtest(testIndex, messageId) {
+    let originalSelection = threadTree.selectedIndices;
+
+    threadTree.addEventListener("select", reportBadSelectEvent);
+    messagePaneBrowser.addEventListener("load", reportBadLoad, true);
+
+    let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+    EventUtils.synthesizeMouseAtCenter(
+      threadTree.getRowAtIndex(testIndex).querySelector(".subjectcol-column"),
+      { type: "contextmenu" },
+      about3Pane
+    );
+    await shownPromise;
+
+    Assert.deepEqual(
+      threadTree.selectedIndices,
+      [testIndex],
+      "selection should be only the right-clicked-on row"
+    );
+
+    let hiddenPromise = BrowserTestUtils.waitForEvent(
+      mailContext,
+      "popuphidden"
+    );
+    let newTabPromise = BrowserTestUtils.waitForEvent(
+      tabmail,
+      "aboutMessageLoaded"
+    );
+    mailContext.activateItem(openNewTabItem);
+    await hiddenPromise;
+    let newTabEvent = await newTabPromise;
+    let newAboutMessage = newTabEvent.target;
+    await BrowserTestUtils.browserLoaded(
+      newAboutMessage.getMessagePaneBrowser()
+    );
+    Assert.equal(
+      newAboutMessage.gMessage.messageId,
+      messageId,
+      "correct message should have opened in a tab"
+    );
+
+    Assert.deepEqual(
+      threadTree.selectedIndices,
+      originalSelection,
+      "selection should be restored"
+    );
+
+    // Wait to prove unwanted selection or load didn't happen.
+    // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    Assert.equal(
+      tabmail.tabInfo.length,
+      2,
+      "only one new tab should have opened"
+    );
+
+    threadTree.removeEventListener("select", reportBadSelectEvent);
+    messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
+    tabmail.closeOtherTabs(0);
+  }
+});
+
 async function messageLoaded(index) {
   await BrowserTestUtils.browserLoaded(messagePaneBrowser);
   Assert.equal(
@@ -406,12 +495,7 @@ function reportBadSelectEvent() {
 }
 
 function reportBadLoad() {
-  Assert.report(
-    true,
-    undefined,
-    undefined,
-    "should not have reloaded the message"
-  );
+  Assert.report(true, undefined, undefined, "should not have loaded a message");
 }
 
 async function restoreMessages() {
