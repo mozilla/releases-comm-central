@@ -1196,6 +1196,7 @@ var folderPane = {
         this.subFolderContext.openPopup(event.target, { triggerEvent: event });
       });
     this.toggleTotalCountBadge();
+    this.toggleFolderSizes(this.isItemVisible("folderPaneFolderSize"));
     this.updateWidgets();
 
     this._initialized = true;
@@ -2844,6 +2845,11 @@ var folderPane = {
             : item.removeAttribute("checked");
           this.toggleCompactViewMenuItem();
           break;
+        case "folderPaneHeaderToggleFolderSize":
+          this.isItemVisible("folderPaneFolderSize")
+            ? item.setAttribute("checked", true)
+            : item.removeAttribute("checked");
+          break;
         default:
           item.removeAttribute("checked");
           break;
@@ -2899,6 +2905,25 @@ var folderPane = {
     let visible = !this.isTotalMsgCountVisible();
     for (let badge of document.querySelectorAll(".total-count")) {
       badge.hidden = visible;
+    }
+  },
+
+  /**
+   * Toggle the folder size option and update the XULStore.
+   */
+  toggleFolderSize(event) {
+    let show = !event.target.hasAttribute("checked");
+    this.updateXULStoreAttribute("folderPaneFolderSize", "visible", show);
+    this.toggleFolderSizes(!show);
+  },
+
+  /**
+   * Toggle the folder size info on each folder.
+   */
+  toggleFolderSizes(visible) {
+    const isHidden = !visible;
+    for (let row of document.querySelectorAll(`li[is="folder-tree-row"]`)) {
+      row.updateSizeCount(isHidden);
     }
   },
 
@@ -2972,6 +2997,8 @@ class FolderTreeRow extends HTMLLIElement {
   unreadCountLabel;
   /** @type {HTMLUListElement} */
   totalCountLabel;
+  /** @type {HTMLSpanElement} */
+  folderSizeLabel;
   /** @type {HTMLUListElement} */
   childList;
 
@@ -2983,6 +3010,7 @@ class FolderTreeRow extends HTMLLIElement {
     this.icon = this.querySelector(".icon");
     this.unreadCountLabel = this.querySelector(".unread-count");
     this.totalCountLabel = this.querySelector(".total-count");
+    this.folderSizeLabel = this.querySelector(".folder-size");
     this.childList = this.querySelector("ul");
   }
 
@@ -3013,7 +3041,7 @@ class FolderTreeRow extends HTMLLIElement {
   /**
    * The number of unread messages for this folder.
    *
-   * @type {number}
+   * @type {integer}
    */
   get unreadCount() {
     return parseInt(this.unreadCountLabel.textContent, 10) || 0;
@@ -3051,7 +3079,7 @@ class FolderTreeRow extends HTMLLIElement {
   /**
    * The total number of messages for this folder.
    *
-   * @type {number}
+   * @type {integer}
    */
   get totalCount() {
     return parseInt(this.totalCountLabel.textContent, 10) || 0;
@@ -3060,6 +3088,19 @@ class FolderTreeRow extends HTMLLIElement {
   set totalCount(value) {
     this.classList.toggle("total", value > 0);
     this.totalCountLabel.textContent = value;
+  }
+
+  /**
+   * The folder size for this folder.
+   *
+   * @type {integer}
+   */
+  get folderSize() {
+    return this.folderSizeLabel.textContent;
+  }
+
+  set folderSize(value) {
+    this.folderSizeLabel.textContent = value;
   }
 
   /**
@@ -3126,6 +3167,9 @@ class FolderTreeRow extends HTMLLIElement {
     const isCollapsed = this.classList.contains("collapsed");
     this.unreadCount = folder.getNumUnread(isCollapsed);
     this.totalCount = folder.getTotalMessages(isCollapsed);
+    if (folderPane.isItemVisible("folderPaneFolderSize")) {
+      this.folderSize = this.formatFolderSize(folder.sizeOnDisk);
+    }
     this.folderSortOrder = folder.sortOrder;
     if (folder.noSelect) {
       this.classList.add("noselect-folder");
@@ -3141,9 +3185,31 @@ class FolderTreeRow extends HTMLLIElement {
   }
 
   updateTotalMessageCount() {
-    this.totalCount = MailServices.folderLookup
-      .getFolderForURL(this.uri)
-      .getTotalMessages(this.classList.contains("collapsed"));
+    const folder = MailServices.folderLookup.getFolderForURL(this.uri);
+    this.totalCount = folder.getTotalMessages(
+      this.classList.contains("collapsed")
+    );
+    if (folderPane.isItemVisible("folderPaneFolderSize")) {
+      this.updateSizeCount(false, folder);
+    }
+  }
+
+  updateSizeCount(isHidden, folder = null) {
+    this.folderSizeLabel.hidden = isHidden;
+    if (!isHidden) {
+      folder = folder ?? MailServices.folderLookup.getFolderForURL(this.uri);
+      this.folderSize = this.formatFolderSize(folder.sizeOnDisk);
+    }
+  }
+
+  /**
+   * Format the folder file size to display in the folder pane.
+   *
+   * @param {integer} size - The folder size on disk.
+   * @returns {string} - The formatted folder size.
+   */
+  formatFolderSize(size) {
+    return size / 1024 < 1 ? "" : top.messenger.formatFileSize(size, true);
   }
 
   /**

@@ -153,7 +153,7 @@ quick-filter-bar-gloda-upsell-line2 = Press ‘Enter’ again to continue your s
 ## Folder pane
 
 folder-pane-get-messages-button =
-  .title = Get messages
+  .title = Get Messages
 
 folder-pane-get-all-messages-menuitem =
   .label = Get All New Messages
@@ -171,17 +171,21 @@ folder-pane-header-folder-modes =
 
 # Context menu item to toggle display of "Get messages" button in folder pane header
 folder-pane-header-context-toggle-get-messages =
-  .label = Show “Get messages”
+  .label = Show “Get Messages”
 
 # Context menu item to toggle display of "New Message" button in folder pane header
 folder-pane-header-context-toggle-new-message =
-  .label = Show “New message”
+  .label = Show “New Message”
 
 folder-pane-header-context-hide =
   .label = Hide Folder Pane Header
 
 folder-pane-show-total-toggle =
   .label = Show Total Message Count
+
+# Context menu item to show or hide folder sizes
+folder-pane-header-toggle-folder-size =
+  .label = Show Folder Size
 
 folder-pane-mode-context-button =
   .title = Folder mode options

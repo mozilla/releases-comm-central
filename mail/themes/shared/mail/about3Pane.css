@@ -588,6 +588,17 @@ menuitem.server[data-server-type="rss"] {
   color: var(--treeitem-background-active);
 }
 
+.folder-size {
+  font-size: .8rem;
+  font-weight: bold;
+  color: var(--layout-color-3);
+  margin-inline-end: 6px;
+}
+
+#folderTree:focus-within li.selected > .container > .folder-size {
+  color: currentColor;
+}
+
 /* Message browser pane. */
 
 #webBrowser,

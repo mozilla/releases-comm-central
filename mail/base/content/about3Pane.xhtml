@@ -95,6 +95,7 @@
         <span class="name" tabindex="-1"></span>
         <span class="folder-count-badge unread-count"></span>
         <span class="folder-count-badge total-count" hidden="hidden"></span>
+        <span class="folder-size" hidden="hidden"></span>
       </div>
       <ul></ul>
     </template>
@@ -486,6 +487,12 @@
               closemenu="none"
               data-l10n-id="folder-pane-show-total-toggle"
               oncommand="folderPane.toggleTotal(event);"/>
+    <menuitem id="folderPaneHeaderToggleFolderSize"
+              class="folder-pane-option"
+              type="checkbox"
+              closemenu="none"
+              data-l10n-id="folder-pane-header-toggle-folder-size"
+              oncommand="folderPane.toggleFolderSize(event);"/>
     <menuseparator id="separatorBeforeHideFolderPaneHeaderOption"/>
     <menuitem id="folderPaneHeaderHideMenuItem"
               data-l10n-id="folder-pane-header-context-hide"

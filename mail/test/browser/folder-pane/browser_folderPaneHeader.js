@@ -643,4 +643,117 @@ add_task(async function testTotalCountHidden() {
       ) == "false",
     "The customization data was saved"
   );
+
+  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    moreContext,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
+});
+
+add_task(async function testFolderSizeDefaultState() {
+  let folderSizeBadge = about3Pane.document.querySelector(".folder-size");
+  Assert.ok(
+    !moreContext
+      .querySelector("#folderPaneHeaderToggleFolderSize")
+      .hasAttribute("checked"),
+    "The folder size toggle is unchecked"
+  );
+  Assert.ok(folderSizeBadge.hidden, "The folder sizes are hidden");
+  Assert.notEqual(
+    Services.xulStore.getValue(
+      "chrome://messenger/content/messenger.xhtml",
+      "folderPaneFolderSize",
+      "visible"
+    ),
+    "true",
+    "The folder size xulStore attribute is set to not visible"
+  );
+});
+
+add_task(async function testFolderSizeVisible() {
+  let folderSizeBadge = about3Pane.document.querySelector(".folder-size");
+  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+  await shownPromise;
+
+  // Toggle folder size ON.
+  let toggleOnPromise = BrowserTestUtils.waitForCondition(
+    () => !folderSizeBadge.hidden,
+    "The folder sizes are visible"
+  );
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleFolderSize")
+  );
+  await toggleOnPromise;
+  // Check that toggle on was successful.
+  Assert.ok(
+    moreContext
+      .querySelector("#folderPaneHeaderToggleFolderSize")
+      .hasAttribute("checked"),
+    "The folder size toggle is checked"
+  );
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      Services.xulStore.getValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "folderPaneFolderSize",
+        "visible"
+      ) == "true",
+    "The folder size xulStore attribute is set to visible"
+  );
+
+  Assert.ok(!folderSizeBadge.hidden, "The folder sizes are visible");
+
+  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    moreContext,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
+});
+
+add_task(async function testFolderSizeHidden() {
+  let folderSizeBadge = about3Pane.document.querySelector(".folder-size");
+  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+  await shownPromise;
+
+  // Toggle folder sizes OFF.
+  let toggleOffPromise = BrowserTestUtils.waitForCondition(
+    () => folderSizeBadge.hidden,
+    "The folder sizes are hidden"
+  );
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleFolderSize")
+  );
+  await toggleOffPromise;
+
+  // Check that toggle was successful.
+  Assert.ok(
+    !moreContext
+      .querySelector("#folderPaneHeaderToggleFolderSize")
+      .getAttribute("checked"),
+    "The folder size toggle is unchecked"
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      Services.xulStore.getValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "folderPaneFolderSize",
+        "visible"
+      ) == "false",
+    "The folder size xulStore visible attribute was set to false"
+  );
+
+  Assert.ok(folderSizeBadge.hidden, "The folder sizes are hidden");
+
+  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    moreContext,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
 });
