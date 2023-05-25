@@ -8,6 +8,10 @@ const { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
 
+window.addEventListener("load", event => {
+  init();
+});
+
 function init() {
   /*
    * The C++ code passes a dialog param block using its integers as in and out

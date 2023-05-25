@@ -134,6 +134,7 @@
 #ifndef XP_MACOSX
   skin/classic/messenger/newmailalert.css                     (../shared/mail/newmailalert.css)
 #endif
+  skin/classic/messenger/profileDowngrade.css                    (../shared/mail/profileDowngrade.css)
   skin/classic/messenger/subscribe.css                        (../shared/mail/subscribe.css)
   skin/classic/messenger/tagColors.css                        (../shared/mail/tagColors.css)
   skin/classic/messenger/vcard.css                            (../shared/mail/vcard.css)

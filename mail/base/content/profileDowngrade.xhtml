@@ -4,21 +4,25 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://mozapps/skin/profile/profileDowngrade.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/profileDowngrade.css" type="text/css"?>
 
-<!DOCTYPE window [
+<!DOCTYPE html [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
-<!ENTITY % profileDTD SYSTEM "chrome://mozapps/locale/profile/profileDowngrade.dtd">
+<!ENTITY % profileDTD SYSTEM "chrome://messenger/locale/profileDowngrade.dtd">
 %profileDTD;
 ]>
-
-<window xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        title="&window.title;"
-        onload="init()"
-        style="&window.style;">
-<dialog buttonlabelextra1="&window.create;"
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      scrolling="false">
+<head>
+  <title>&window.title;</title>
+  <script defer="defer" src="chrome://global/content/customElements.js"></script>
+  <script defer="defer" src="profileDowngrade.js"></script>
+</head>
+<body>
+<xul:dialog buttonlabelextra1="&window.create;"
 #ifdef XP_WIN
         buttonlabelaccept="&window.quit-win;"
 #else
@@ -26,23 +30,19 @@
 #endif
         buttons="accept,extra1" buttonpack="end"
         nobuttonspacer="true">
-
-  <script src="profileDowngrade.js"/>
-  <script src="chrome://global/content/customElements.js"/>
-
-  <hbox flex="1" align="start">
-    <html:img src="chrome://messenger/skin/icons/new/activity/info.svg"
+  <div id="contentWrapper">
+    <img src="chrome://messenger/skin/icons/new/activity/info.svg"
               alt=""
               role="presentation" />
-    <vbox flex="1">
-      <description id="nosync">&window.nosync2;</description>
-      <hbox>
-        <label class="text-link" value="&window.moreinfo;"
-               onclick="moreInfo(event)"
-               onkeypress="moreInfo(event)"/>
-      </hbox>
-    </vbox>
-  </hbox>
-
-</dialog>
-</window>
+    <div>
+      <p id="nosync">&window.nosync2;</p>
+      <p>
+        <a class="text-link"
+           onclick="moreInfo(event);"
+           onkeypress="moreInfo(event);">&window.moreinfo;</a>
+      </p>
+    </div>
+  </div>
+</xul:dialog>
+</body>
+</html>
