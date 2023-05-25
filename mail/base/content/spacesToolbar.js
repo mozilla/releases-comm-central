@@ -1073,7 +1073,8 @@ var gSpacesToolbar = {
           document.getElementById("spacesPopupRevealSeparator")
         );
 
-      // Set icons.
+      // Set icons. The unified toolbar customization also relies on the CSS
+      // variables of the img.
       for (let style of this.SUPPORTED_ICON_STYLES) {
         if (properties.iconStyles.has(style)) {
           img.style.setProperty(style, properties.iconStyles.get(style));

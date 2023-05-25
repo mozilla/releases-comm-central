@@ -17,6 +17,20 @@ import {
 } from "resource:///modules/ButtonStyle.mjs";
 
 /**
+ * Set of names of the built in spaces.
+ *
+ * @type {Set<string>}
+ */
+const BUILTIN_SPACES = new Set([
+  "mail",
+  "addressbook",
+  "calendar",
+  "tasks",
+  "chat",
+  "settings",
+]);
+
+/**
  * Customization palette container for the unified toolbar. Contained in a
  * custom element for state management. When visible, the document should have
  * the customizingUnifiedToolbar class.
@@ -198,14 +212,22 @@ class UnifiedToolbarCustomization extends HTMLElement {
     if (activeSpace) {
       tab.setAttribute("selected", true);
     }
-    //TODO names of extension spaces won't work like this.
-    document.l10n.setAttributes(tab, `customize-space-tab-${space.name}`);
+    const isBuiltinSpace = BUILTIN_SPACES.has(space.name);
+    if (isBuiltinSpace) {
+      document.l10n.setAttributes(tab, `customize-space-tab-${space.name}`);
+    } else {
+      const title = space.button.title;
+      tab.textContent = title;
+      tab.title = title;
+      tab.style = space.button.querySelector("img").style.cssText;
+    }
     const tabPane = document.createElement(
       "unified-toolbar-customization-pane"
     );
     tabPane.id = paneId;
     tabPane.setAttribute("space", space.name);
     tabPane.setAttribute("aria-labelledby", tabId);
+    tabPane.toggleAttribute("builtin-space", isBuiltinSpace);
     tabPane.hidden = !activeSpace;
     return { tab, tabPane };
   }
@@ -262,6 +284,12 @@ class UnifiedToolbarCustomization extends HTMLElement {
     const newTabs = gSpacesToolbar.spaces.map(space => {
       if (tabSpaces.includes(space.name)) {
         const tab = existingTabs[tabSpaces.indexOf(space.name)];
+        if (!BUILTIN_SPACES.has(space.name)) {
+          const title = space.button.title;
+          tab.textContent = title;
+          tab.title = title;
+          tab.style = space.button.querySelector("img").style.cssText;
+        }
         return [tab, tab.pane];
       }
       const { tab, tabPane } = this.#makeSpaceTab(space);

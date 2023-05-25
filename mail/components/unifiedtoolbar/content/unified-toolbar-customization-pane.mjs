@@ -23,6 +23,8 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
  * Attributes:
  * - space: Identifier of the space this pane is for. Changes are not observed.
  * - current-items: Currently used items in this space.
+ * - builtin-space: Boolean indicating if the space is a built in space (true) or an
+ *   extension provided space (false).
  */
 class UnifiedToolbarCustomizationPane extends HTMLElement {
   constructor() {
@@ -113,7 +115,9 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
     this.#spaceSpecificTitle = template.querySelector(".space-specific-title");
     document.l10n.setAttributes(
       this.#spaceSpecificTitle,
-      `customize-palette-${space}-specific-title`
+      this.hasAttribute("builtin-space")
+        ? `customize-palette-${space}-specific-title`
+        : "customize-palette-extension-specific-title"
     );
     this.#spaceSpecificTitle.id = `${space}PaletteTitle`;
     this.#spaceSpecificPalette = template.querySelector(
