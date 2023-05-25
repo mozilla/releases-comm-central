@@ -34,6 +34,7 @@ var gSelectVirtual = {
       }
     }
 
+    // Add the top level of the folder tree.
     for (let account of FolderUtils.allAccountsSorted(true)) {
       let server = account.incomingServer;
       if (
@@ -44,6 +45,25 @@ var gSelectVirtual = {
       }
 
       gFolderTreeView._rowMap.push(new FolderRow(server.rootFolder));
+    }
+
+    // Recursively expand the tree to show all selected folders.
+    function expandToSelected(row, i) {
+      hiddenFolders.delete(row._folder);
+      for (let folder of hiddenFolders) {
+        if (row._folder.isAncestorOf(folder)) {
+          gFolderTreeView.toggleOpenState(i);
+          for (let j = row.children.length - 1; j >= 0; j--) {
+            expandToSelected(row.children[j], i + j + 1);
+          }
+          break;
+        }
+      }
+    }
+
+    let hiddenFolders = new Set(gSelectVirtual._selectedList);
+    for (let i = gFolderTreeView.rowCount - 1; i >= 0; i--) {
+      expandToSelected(gFolderTreeView._rowMap[i], i);
     }
 
     this._treeElement = document.getElementById("folderPickerTree");
