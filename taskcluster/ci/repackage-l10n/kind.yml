@@ -32,9 +32,8 @@ job-template:
             debug: shippable-l10n-mac-signing
             default:
                 by-project:
-                    ash: shippable-l10n-mac-signing
-                    try-comm-central: shippable-l10n-mac-signing
-                    default: shippable-l10n-mac-notarization
+                    comm-(central|beta|esr.*): shippable-l10n-mac-notarization
+                    default: shippable-l10n-mac-signing
     worker-type: 'b-linux-gcp'
     mozharness:
         comm-checkout: true
