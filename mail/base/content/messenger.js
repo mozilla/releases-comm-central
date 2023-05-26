@@ -577,7 +577,7 @@ async function loadPostAccountWizard() {
 
   // Restore the previous folder selection before shutdown, or select the first
   // inbox folder of a newly created account.
-  selectFirstFolder();
+  await selectFirstFolder();
 
   gSpacesToolbar.onLoad();
 }
@@ -634,7 +634,7 @@ function showSystemIntegrationDialog() {
 /**
  * Properly select the starting folder or message header if we have one.
  */
-function selectFirstFolder() {
+async function selectFirstFolder() {
   let startFolderURI = null;
   let startMsgHdr = null;
 
@@ -666,9 +666,9 @@ function selectFirstFolder() {
   // method to run even if startFolderURI is null otherwise our UI won't
   // properly restore.
   if (startMsgHdr) {
-    Services.tm.dispatchToMainThread(() => loadStartMsgHdr(startMsgHdr));
+    await loadStartMsgHdr(startMsgHdr);
   } else {
-    Services.tm.dispatchToMainThread(() => loadStartFolder(startFolderURI));
+    await loadStartFolder(startFolderURI);
   }
 }
 
@@ -725,7 +725,7 @@ async function atStartupRestoreTabs(aDontRestoreFirstTab) {
   }
 
   // it's now safe to load extra Tabs.
-  Services.tm.dispatchToMainThread(loadExtraTabs);
+  loadExtraTabs();
   SessionStoreManager._restored = true;
   Services.obs.notifyObservers(window, "mail-tabs-session-restored");
 
