@@ -16,7 +16,6 @@ GECKO_STRINGS_PATTERNS = (
     "{lang}/extensions/spellcheck/**",
     "{lang}/netwerk/**",
     "{lang}/security/**",
-    "{lang}/services/**",
     "{lang}/toolkit/**",
 )
 

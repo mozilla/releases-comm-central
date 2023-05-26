@@ -94,10 +94,6 @@ locales = [
 [[includes]]
     path = "{mozilla}/devtools/client/locales/l10n.toml"
 
-[[paths]]
-    reference = "{mozilla}/services/sync/locales/en-US/**"
-    l10n = "{l}services/sync/**"
-
 [[includes]]
     path = "{mozilla}/toolkit/locales/l10n.toml"
 

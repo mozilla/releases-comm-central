@@ -18,7 +18,6 @@ l10n:
         - dom/locales/en-US
         - netwerk/locales/en-US
         - security/manager/locales/en-US
-        - services/sync/locales/en-US
         - toolkit/locales/en-US
     # files not supported by compare-locales,
     # and also not relevant to this linter
