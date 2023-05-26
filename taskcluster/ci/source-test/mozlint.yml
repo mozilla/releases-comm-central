@@ -236,6 +236,23 @@ shellcheck:
             root-path: comm
             mozlint-config: shellcheck.yml
 
+stylelint:
+    description: CSS lint check
+    treeherder:
+        symbol: stylelint
+    run:
+        using: run-task
+        cwd: '{checkout}'
+        command: >
+            cp -r /build/node_modules_eslint node_modules &&
+            ./mach commlint -v -l stylelint -f treeherder
+            -f json:/builds/worker/mozlint.json
+            comm/*
+    optimization:
+        skip-unless-mozlint:
+            root-path: comm
+            mozlint-config: stylelint.yml
+
 trojan-source:
     description: Trojan Source attack - CVE-2021-42572
     platform: lint/opt
