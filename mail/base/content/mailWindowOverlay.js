@@ -329,7 +329,7 @@ function view_init(event) {
   let threadPaneAppMenuItem = document.getElementById(
     "appmenu_toggleThreadPaneHeader"
   );
-  threadPaneAppMenuItem.setAttribute("disabled", !threadPaneHeaderVisible);
+  threadPaneAppMenuItem.toggleAttribute("disabled", !threadPaneHeaderVisible);
 
   // Disable some menus if account manager is showing
   document.getElementById("viewSortMenu").disabled = accountCentralVisible;
