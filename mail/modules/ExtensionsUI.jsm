@@ -24,10 +24,8 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   AddonManagerPrivate: "resource://gre/modules/AddonManager.jsm",
   AMTelemetry: "resource://gre/modules/AddonManager.jsm",
-
   ExtensionData: "resource://gre/modules/Extension.jsm",
   ExtensionParent: "resource://gre/modules/ExtensionParent.jsm",
-  OriginControls: "resource://gre/modules/ExtensionPermissions.jsm",
 });
 
 const { PERMISSIONS_WITH_MESSAGE } = ChromeUtils.importESModule(
@@ -231,11 +229,6 @@ for (let perm of [
  */
 var gXPInstallObserver = {
   pendingInstalls: new WeakMap(),
-
-  showInstallConfirmation(browser, installInfo, height = undefined) {
-    throw new Error("showInstallConfirmation not implemented");
-    // Thunderbird does not seem to use this code path.
-  },
 
   // IDs of addon install related notifications
   NOTIFICATION_IDS: [
@@ -1223,7 +1216,6 @@ var ExtensionsUI = {
       timeout: Date.now() + 30000,
       popupIconURL: icon,
       name: addon.name,
-      message,
     };
 
     return PopupNotifications.show(
@@ -1235,78 +1227,6 @@ var ExtensionsUI = {
       null,
       options
     );
-  },
-
-  // Populate extension toolbar popup menu with origin controls.
-  // TODO: probably some tb changes wanted here???
-  originControlsMenu(popup, extensionId) {
-    let policy = WebExtensionPolicy.getByID(extensionId);
-    if (!policy?.extension.originControls) {
-      return;
-    }
-
-    let win = popup.ownerGlobal;
-    let tab = win.gBrowser.selectedTab;
-    let uri = tab.linkedBrowser?.currentURI;
-    let state = lazy.OriginControls.getState(policy, tab);
-
-    let doc = popup.ownerDocument;
-    let whenClicked, alwaysOn, allDomains;
-    let separator = doc.createXULElement("menuseparator");
-
-    let headerItem = doc.createXULElement("menuitem");
-    headerItem.setAttribute("disabled", true);
-
-    if (state.noAccess) {
-      doc.l10n.setAttributes(headerItem, "origin-controls-no-access");
-    } else {
-      doc.l10n.setAttributes(headerItem, "origin-controls-options");
-    }
-
-    if (state.allDomains) {
-      allDomains = doc.createXULElement("menuitem");
-      allDomains.setAttribute("type", "radio");
-      allDomains.setAttribute("checked", state.hasAccess);
-      doc.l10n.setAttributes(allDomains, "origin-controls-option-all-domains");
-    }
-
-    if (state.whenClicked) {
-      whenClicked = doc.createXULElement("menuitem");
-      whenClicked.setAttribute("type", "radio");
-      whenClicked.setAttribute("checked", !state.hasAccess);
-      doc.l10n.setAttributes(
-        whenClicked,
-        "origin-controls-option-when-clicked"
-      );
-      whenClicked.addEventListener("command", async () => {
-        await lazy.OriginControls.setWhenClicked(policy, uri);
-        win.gUnifiedExtensions.updateAttention();
-      });
-    }
-
-    if (state.alwaysOn) {
-      alwaysOn = doc.createXULElement("menuitem");
-      alwaysOn.setAttribute("type", "radio");
-      alwaysOn.setAttribute("checked", state.hasAccess);
-      doc.l10n.setAttributes(alwaysOn, "origin-controls-option-always-on", {
-        domain: uri.host,
-      });
-      alwaysOn.addEventListener("command", async () => {
-        await lazy.OriginControls.setAlwaysOn(policy, uri);
-        win.gUnifiedExtensions.updateAttention();
-      });
-    }
-
-    // Insert all before Pin to toolbar OR Manage Extension, after any
-    // extension's menu items.
-    let items = [headerItem, whenClicked, alwaysOn, allDomains, separator];
-    let manageItem =
-      popup.querySelector(".customize-context-manageExtension") ||
-      popup.querySelector(".unified-extensions-context-menu-pin-to-toolbar");
-    items.forEach(item => item && popup.insertBefore(item, manageItem));
-
-    let cleanup = () => items.forEach(item => item?.remove());
-    popup.addEventListener("popuphidden", cleanup, { once: true });
   },
 };
 
