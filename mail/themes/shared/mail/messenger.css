@@ -992,8 +992,8 @@ statuspanel:not([label]) {
 /* Status bar */
 
 .statusbar {
-  appearance: auto;
-  -moz-default-appearance: statusbar;
+  background-color: var(--layout-background-1);
+  border-top: 1px solid var(--splitter-color);
   min-height: 22px;
 }
 
@@ -1004,7 +1004,7 @@ statuspanel:not([label]) {
   background-color: var(--lwt-accent-color);
   background-image: var(--lwt-header-image), var(--lwt-additional-images);
   color: var(--lwt-text-color);
-  border-top: 1px solid var(--lwt-tabs-border-color);
+  border-top-color: var(--lwt-tabs-border-color);
 }
 
 @media (prefers-color-scheme: dark) {

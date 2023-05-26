@@ -227,15 +227,6 @@
       transform: scaleX(-1);
     }
   }
-
-  /**
-   * Style the statusbar differently since we're setting a transparent
-   * background for the entire :root element.
-   */
-  .statusbar {
-    -moz-default-appearance: none;
-    background-color: -moz-Dialog;
-  }
 }
 
 #tabbar-toolbar {
@@ -368,10 +359,6 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
 
 treechildren::-moz-tree-cell-text {
   padding-inline-start: 5px;
-}
-
-.statusbarpanel {
-  appearance: none;
 }
 
 /* Status panel */

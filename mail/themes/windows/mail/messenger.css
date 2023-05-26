@@ -426,7 +426,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
 }
 
 .statusbarpanel {
-  appearance: none;
   border-inline-end: 1px solid ThreeDLightShadow;
 }
 
@@ -445,10 +444,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
 }
 
 @media (-moz-windows-classic) {
-  .statusbarpanel:not(:-moz-lwtheme) {
-    appearance: auto;
-  }
-
   label.statusbarpanel {
     margin: 1px;
     padding-block: 2px;
