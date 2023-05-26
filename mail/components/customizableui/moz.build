@@ -9,9 +9,6 @@ DIRS += [
 ]
 
 EXTRA_JS_MODULES += [
-    "CustomizableUI.jsm",
-    "CustomizableWidgets.jsm",
-    "DragPositionManager.jsm",
-    "PanelMultiView.jsm",
-    "SearchWidgetTracker.jsm",
+    "CustomizableUI.sys.mjs",
+    "PanelMultiView.sys.mjs",
 ]

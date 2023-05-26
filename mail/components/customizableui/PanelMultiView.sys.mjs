@@ -97,21 +97,9 @@
  *       └───┴───┴── Open views
  */
 
-"use strict";
-
-var EXPORTED_SYMBOLS = ["PanelMultiView", "PanelView"];
-
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
-
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "CustomizableUI",
-  "resource:///modules/CustomizableUI.jsm"
-);
 
 XPCOMUtils.defineLazyGetter(lazy, "gBundle", function () {
   return Services.strings.createBundle(
@@ -269,7 +257,7 @@ var AssociatedToNode = class {
 /**
  * This is associated to <panelmultiview> elements.
  */
-var PanelMultiView = class extends AssociatedToNode {
+export class PanelMultiView extends AssociatedToNode {
   /**
    * Tries to open the specified <panel> and displays the main view specified
    * with the "mainViewId" attribute on the <panelmultiview> node it contains.
@@ -1226,12 +1214,12 @@ var PanelMultiView = class extends AssociatedToNode {
       }
     }
   }
-};
+}
 
 /**
  * This is associated to <panelview> elements.
  */
-var PanelView = class extends AssociatedToNode {
+export class PanelView extends AssociatedToNode {
   constructor(node) {
     super(node);
 
@@ -1347,14 +1335,6 @@ var PanelView = class extends AssociatedToNode {
 
     header.append(backButton, h1);
     this.node.prepend(header);
-  }
-
-  /**
-   * Also make sure that the correct method is called on CustomizableWidget.
-   */
-  dispatchCustomEvent(...args) {
-    lazy.CustomizableUI.ensureSubviewListeners(this.node);
-    return super.dispatchCustomEvent(...args);
   }
 
   /**
@@ -1716,4 +1696,4 @@ var PanelView = class extends AssociatedToNode {
       this.selectedElement = null;
     }
   }
-};
+}

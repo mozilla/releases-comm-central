@@ -16,9 +16,6 @@
   initUiDensityAppMenu gSpacesToolbar MailServices
    */
 
-var { CustomizableUI } = ChromeUtils.import(
-  "resource:///modules/CustomizableUI.jsm"
-);
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
@@ -38,16 +35,13 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   AppMenuNotifications: "resource://gre/modules/AppMenuNotifications.sys.mjs",
+  CustomizableUI: "resource:///modules/CustomizableUI.sys.mjs",
+  PanelMultiView: "resource:///modules/PanelMultiView.sys.mjs",
 });
 ChromeUtils.defineModuleGetter(
   this,
   "ExtensionsUI",
   "resource:///modules/ExtensionsUI.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "PanelMultiView",
-  "resource:///modules/PanelMultiView.jsm"
 );
 
 /**
@@ -128,7 +122,6 @@ const PanelUI = {
     }
 
     window.addEventListener("activate", this);
-    CustomizableUI.addListener(this);
 
     Services.obs.notifyObservers(
       null,
@@ -211,8 +204,6 @@ const PanelUI = {
         button.removeEventListener("keypress", this);
       }
     });
-
-    CustomizableUI.removeListener(this);
   },
 
   /**
@@ -446,48 +437,8 @@ const PanelUI = {
    *
    * @param aViewId the ID of the subview to show.
    * @param aAnchor the element that spawned the subview.
-   * @param aEvent the event triggering the view showing.
    */
-  async showSubView(aViewId, aAnchor, aEvent) {
-    let domEvent = null;
-    if (aEvent) {
-      if (aEvent.type == "mousedown" && aEvent.button != 0) {
-        return;
-      }
-      if (
-        aEvent.type == "keypress" &&
-        aEvent.key != " " &&
-        aEvent.key != "Enter"
-      ) {
-        return;
-      }
-      if (aEvent.type == "command" && aEvent.inputSource != null) {
-        // Synthesize a new DOM mouse event to pass on the inputSource.
-        domEvent = document.createEvent("MouseEvent");
-        domEvent.initNSMouseEvent(
-          "click",
-          true,
-          true,
-          null,
-          0,
-          aEvent.screenX,
-          aEvent.screenY,
-          0,
-          0,
-          false,
-          false,
-          false,
-          false,
-          0,
-          aEvent.target,
-          0,
-          aEvent.inputSource
-        );
-      } else if (aEvent.mozInputSource != null || aEvent.type == "keypress") {
-        domEvent = aEvent;
-      }
-    }
-
+  async showSubView(aViewId, aAnchor) {
     this._ensureEventListenersAdded();
     let viewNode = document.getElementById(aViewId);
     if (!viewNode) {
@@ -505,74 +456,6 @@ const PanelUI = {
     let container = aAnchor.closest("panelmultiview");
     if (container) {
       container.showSubView(aViewId, aAnchor);
-    } else if (!aAnchor.open) {
-      aAnchor.open = true;
-
-      let tempPanel = document.createXULElement("panel");
-      tempPanel.setAttribute("type", "arrow");
-      tempPanel.setAttribute("id", "customizationui-widget-panel");
-      tempPanel.setAttribute("class", "cui-widget-panel panel-no-padding");
-      tempPanel.setAttribute("viewId", aViewId);
-      if (aAnchor.getAttribute("tabspecific")) {
-        tempPanel.setAttribute("tabspecific", true);
-      }
-      if (this._disableAnimations) {
-        tempPanel.setAttribute("animate", "false");
-      }
-      tempPanel.setAttribute("context", "");
-      document
-        .getElementById(CustomizableUI.AREA_NAVBAR)
-        .appendChild(tempPanel);
-      // If the view has a footer, set a convenience class on the panel.
-      tempPanel.classList.toggle(
-        "cui-widget-panelWithFooter",
-        viewNode.querySelector(".panel-subview-footer")
-      );
-
-      let multiView = document.createXULElement("panelmultiview");
-      multiView.setAttribute("id", "customizationui-widget-multiview");
-      multiView.setAttribute("viewCacheId", "appMenu-viewCache");
-      multiView.setAttribute("mainViewId", viewNode.id);
-      tempPanel.appendChild(multiView);
-      viewNode.classList.add("cui-widget-panelview");
-
-      let viewShown = false;
-      let panelRemover = () => {
-        viewNode.classList.remove("cui-widget-panelview");
-        if (viewShown) {
-          CustomizableUI.removePanelCloseListeners(tempPanel);
-          tempPanel.removeEventListener("popuphidden", panelRemover);
-        }
-        aAnchor.open = false;
-
-        PanelMultiView.removePopup(tempPanel);
-      };
-
-      if (aAnchor.parentNode.id == "PersonalToolbar") {
-        tempPanel.classList.add("bookmarks-toolbar");
-      }
-
-      let anchor = this._getPanelAnchor(aAnchor);
-
-      if (aAnchor != anchor && aAnchor.id) {
-        anchor.setAttribute("consumeanchor", aAnchor.id);
-      }
-
-      try {
-        viewShown = await PanelMultiView.openPopup(tempPanel, anchor, {
-          position: "bottomright topright",
-          triggerEvent: domEvent,
-        });
-      } catch (ex) {
-        console.error(ex);
-      }
-
-      if (viewShown) {
-        CustomizableUI.addPanelCloseListeners(tempPanel);
-        tempPanel.addEventListener("popuphidden", panelRemover);
-      } else {
-        panelRemover();
-      }
     }
   },
 
