@@ -201,6 +201,22 @@ folder-pane-mode-context-toggle-compact-mode =
   .label = Compact View
   .accesskey = C
 
+# Variables:
+# $count (Number) - Number of unread messages.
+folder-pane-unread-aria-label =
+  { $count ->
+    [one] 1 unread message
+    *[other] { $count } unread messages
+  }
+
+# Variables:
+# $count (Number) - Number of total messages.
+folder-pane-total-aria-label =
+  { $count ->
+    [one] 1 total message
+    *[other] { $count } total messages
+  }
+
 ## Message thread pane
 
 threadpane-column-header-select =

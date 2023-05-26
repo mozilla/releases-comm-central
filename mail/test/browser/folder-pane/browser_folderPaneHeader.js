@@ -6,6 +6,10 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+var { add_message_sets_to_folders, create_thread } = ChromeUtils.import(
+  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
 let tabmail,
   about3Pane,
   folderPaneHeader,
@@ -42,6 +46,13 @@ add_setup(async function () {
     );
   });
 });
+
+async function assertAriaLabel(row, expectedLabel) {
+  await BrowserTestUtils.waitForCondition(
+    () => row.getAttribute("aria-label") === expectedLabel,
+    "The selected row aria-label should match the expected value"
+  );
+}
 
 add_task(function testFolderPaneHeaderDefaultState() {
   Assert.ok(!folderPaneHeader.hidden, "The folder pane header is visible");
@@ -567,6 +578,19 @@ add_task(async function testTotalCountDefaultState() {
     "true",
     "The customization data was saved"
   );
+
+  let acc1 = MailServices.accounts.accounts[0];
+  let rootFolder1 = acc1.incomingServer.rootFolder;
+  let inbox = rootFolder1.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  await add_message_sets_to_folders([inbox], [create_thread(10)]);
+
+  about3Pane.folderTree.selectedIndex = 1;
+  let row = about3Pane.folderTree.getRowAtIndex(1);
+  await assertAriaLabel(row, "Inbox, 10 unread messages");
+
+  about3Pane.threadTree.selectedIndex = 0;
+  about3Pane.threadTree.expandRowAtIndex(0);
+  await assertAriaLabel(row, "Inbox, 9 unread messages");
 });
 
 add_task(async function testTotalCountVisible() {
@@ -608,48 +632,9 @@ add_task(async function testTotalCountVisible() {
   );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
   await menuHiddenPromise;
-});
 
-add_task(async function testTotalCountHidden() {
-  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
-  await shownPromise;
-
-  // Toggle total count OFF.
-  let toggleOffPromise = BrowserTestUtils.waitForCondition(
-    () => totalCountBadge.hidden,
-    "The total count badges are hidden"
-  );
-  EventUtils.synthesizeMouseAtCenter(
-    moreContext.querySelector("#folderPaneHeaderToggleTotalCount"),
-    {},
-    about3Pane
-  );
-  await toggleOffPromise;
-
-  // Check that toggle was successful.
-  Assert.ok(
-    !moreContext
-      .querySelector("#folderPaneHeaderToggleTotalCount")
-      .getAttribute("checked"),
-    "The total count toggle is unchecked"
-  );
-  await BrowserTestUtils.waitForCondition(
-    () =>
-      Services.xulStore.getValue(
-        "chrome://messenger/content/messenger.xhtml",
-        "totalMsgCount",
-        "visible"
-      ) == "false",
-    "The customization data was saved"
-  );
-
-  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
-    moreContext,
-    "popuphidden"
-  );
-  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
-  await menuHiddenPromise;
+  let row = about3Pane.folderTree.getRowAtIndex(1);
+  await assertAriaLabel(row, "Inbox, 9 unread messages, 10 total messages");
 });
 
 add_task(async function testFolderSizeDefaultState() {
@@ -712,6 +697,12 @@ add_task(async function testFolderSizeVisible() {
   );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
   await menuHiddenPromise;
+
+  let row = about3Pane.folderTree.getRowAtIndex(1);
+  await assertAriaLabel(
+    row,
+    `Inbox, 9 unread messages, 10 total messages, ${row.folderSize}`
+  );
 });
 
 add_task(async function testFolderSizeHidden() {
@@ -756,4 +747,49 @@ add_task(async function testFolderSizeHidden() {
   );
   EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
   await menuHiddenPromise;
+});
+
+add_task(async function testTotalCountHidden() {
+  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+  await shownPromise;
+
+  // Toggle total count OFF.
+  let toggleOffPromise = BrowserTestUtils.waitForCondition(
+    () => totalCountBadge.hidden,
+    "The total count badges are hidden"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    moreContext.querySelector("#folderPaneHeaderToggleTotalCount"),
+    {},
+    about3Pane
+  );
+  await toggleOffPromise;
+
+  // Check that toggle was successful.
+  Assert.ok(
+    !moreContext
+      .querySelector("#folderPaneHeaderToggleTotalCount")
+      .getAttribute("checked"),
+    "The total count toggle is unchecked"
+  );
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      Services.xulStore.getValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "totalMsgCount",
+        "visible"
+      ) == "false",
+    "The customization data was saved"
+  );
+
+  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    moreContext,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
+
+  let row = about3Pane.folderTree.getRowAtIndex(1);
+  await assertAriaLabel(row, "Inbox, 9 unread messages");
 });
