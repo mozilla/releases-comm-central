@@ -708,18 +708,21 @@ var commandController = {
 
     let messagePaneBrowser;
     let autodetectCharset;
-    if (window.messageBrowser) {
-      if (!window.messageBrowser.hidden) {
-        messagePaneBrowser =
-          window.messageBrowser.contentWindow.getMessagePaneBrowser();
-        autodetectCharset =
-          window.messageBrowser.contentWindow.autodetectCharset;
+    let selection;
+    if (!mailContextMenu.selectionIsOverridden) {
+      if (window.messageBrowser) {
+        if (!window.messageBrowser.hidden) {
+          messagePaneBrowser =
+            window.messageBrowser.contentWindow.getMessagePaneBrowser();
+          autodetectCharset =
+            window.messageBrowser.contentWindow.autodetectCharset;
+        }
+      } else {
+        messagePaneBrowser = window.getMessagePaneBrowser();
+        autodetectCharset = window.autodetectCharset;
       }
-    } else {
-      messagePaneBrowser = window.getMessagePaneBrowser();
-      autodetectCharset = window.autodetectCharset;
+      selection = messagePaneBrowser?.contentWindow?.getSelection();
     }
-    let selection = messagePaneBrowser?.contentWindow?.getSelection();
 
     if (event && event.shiftKey) {
       window.browsingContext.topChromeWindow.ComposeMessage(

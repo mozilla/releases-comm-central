@@ -114,6 +114,14 @@ var mailContextMenu = {
     "mailContext-recalculateJunkScore": "cmd_recalculateJunkScore",
   },
 
+  /**
+   * The saved selection, if we have overridden it for the context menu.
+   *
+   * @see `setOverrideSelection`
+   * @type {integer[][]}
+   */
+  _savedRanges: null,
+
   init() {
     this._menupopup = document.getElementById("mailContext");
     this._menupopup.addEventListener("popupshowing", this);
@@ -161,6 +169,16 @@ var mailContextMenu = {
     this._savedRanges = window.threadTree._selection._ranges;
     window.threadTree._selection.selectEventsSuppressed = true;
     window.threadTree._selection.select(index);
+  },
+
+  /**
+   * Has the real selection been overridden by a right-click on a message that
+   * wasn't selected?
+   *
+   * @type {boolean}
+   */
+  get selectionIsOverridden() {
+    return !!this._savedRanges;
   },
 
   /**

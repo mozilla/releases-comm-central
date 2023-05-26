@@ -379,6 +379,7 @@ add_task(async function testNonSelectionContextMenu() {
   let openNewTabItem = about3Pane.document.getElementById(
     "mailContext-openNewTab"
   );
+  let replyItem = about3Pane.document.getElementById("mailContext-replySender");
 
   about3Pane.restoreState({
     messagePaneVisible: true,
@@ -388,8 +389,8 @@ add_task(async function testNonSelectionContextMenu() {
 
   threadTree.selectedIndices = [0];
   await messageLoaded(0);
-  await subtest(1, sourceMessageIDs[5]);
-  await subtest(6, sourceMessageIDs[10]);
+  await subtestOpenTab(1, sourceMessageIDs[5]);
+  await subtestReply(6, sourceMessageIDs[10]);
 
   threadTree.selectedIndices = [3, 6, 9];
   await BrowserTestUtils.browserLoaded(
@@ -397,9 +398,9 @@ add_task(async function testNonSelectionContextMenu() {
     false,
     "about:blank"
   );
-  await subtest(0, sourceMessageIDs[0]);
+  await subtestOpenTab(0, sourceMessageIDs[0]);
 
-  async function subtest(testIndex, messageId) {
+  async function doContextMenu(testIndex, messageId, itemToActivate) {
     let originalSelection = threadTree.selectedIndices;
 
     threadTree.addEventListener("select", reportBadSelectEvent);
@@ -413,6 +414,7 @@ add_task(async function testNonSelectionContextMenu() {
     );
     await shownPromise;
 
+    Assert.ok(about3Pane.mailContextMenu.selectionIsOverridden);
     Assert.deepEqual(
       threadTree.selectedIndices,
       [testIndex],
@@ -423,23 +425,10 @@ add_task(async function testNonSelectionContextMenu() {
       mailContext,
       "popuphidden"
     );
-    let newTabPromise = BrowserTestUtils.waitForEvent(
-      tabmail,
-      "aboutMessageLoaded"
-    );
-    mailContext.activateItem(openNewTabItem);
+    mailContext.activateItem(itemToActivate);
     await hiddenPromise;
-    let newTabEvent = await newTabPromise;
-    let newAboutMessage = newTabEvent.target;
-    await BrowserTestUtils.browserLoaded(
-      newAboutMessage.getMessagePaneBrowser()
-    );
-    Assert.equal(
-      newAboutMessage.gMessage.messageId,
-      messageId,
-      "correct message should have opened in a tab"
-    );
 
+    Assert.ok(!about3Pane.mailContextMenu.selectionIsOverridden);
     Assert.deepEqual(
       threadTree.selectedIndices,
       originalSelection,
@@ -450,15 +439,65 @@ add_task(async function testNonSelectionContextMenu() {
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 500));
 
+    threadTree.removeEventListener("select", reportBadSelectEvent);
+    messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
+  }
+
+  // Opening a new tab should open the clicked-on message, not the selected.
+  async function subtestOpenTab(testIndex, messageId) {
+    let newAboutMessagePromise = BrowserTestUtils.waitForEvent(
+      tabmail,
+      "aboutMessageLoaded"
+    ).then(async function (event) {
+      await BrowserTestUtils.browserLoaded(
+        event.target.getMessagePaneBrowser()
+      );
+      return event.target;
+    });
+    await doContextMenu(testIndex, messageId, openNewTabItem);
+
+    let newAboutMessage = await newAboutMessagePromise;
+    Assert.equal(
+      newAboutMessage.gMessage.messageId,
+      messageId,
+      "correct message should have opened in a tab"
+    );
     Assert.equal(
       tabmail.tabInfo.length,
       2,
       "only one new tab should have opened"
     );
-
-    threadTree.removeEventListener("select", reportBadSelectEvent);
-    messagePaneBrowser.removeEventListener("load", reportBadLoad, true);
     tabmail.closeOtherTabs(0);
+  }
+
+  // Replying should quote the clicked-on message, not the selected, even when
+  // some text is selected in the message pane.
+  async function subtestReply(testIndex, messageId) {
+    Assert.stringContains(
+      messagePaneBrowser.contentDocument.body.textContent,
+      "Hello Bob Bell!"
+    );
+    messagePaneBrowser.contentWindow
+      .getSelection()
+      .selectAllChildren(messagePaneBrowser.contentDocument.body);
+
+    let composeWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+    await doContextMenu(testIndex, messageId, replyItem);
+    let composeWindow = await composeWindowPromise;
+    let composeBody =
+      composeWindow.GetCurrentEditorElement().contentDocument.body.textContent;
+
+    Assert.stringContains(
+      composeBody,
+      "Hello Felix Flowers!",
+      "new message should quote the right-clicked-on message"
+    );
+    Assert.ok(
+      !composeBody.includes("Hello Bob Bell!"),
+      "new message should not quote the selected message"
+    );
+
+    await BrowserTestUtils.closeWindow(composeWindow);
   }
 });
 
