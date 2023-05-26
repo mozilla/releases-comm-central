@@ -226,21 +226,25 @@ openpgp-key-issue-notification-from =
 
 # Variables:
 # $addr (String) - Email address with key issues.
-openpgp-key-issue-notification-one =
-    End-to-end encryption requires resolving key issues for { $addr }
-# Variables:
-# $count (Number) - Number of recipients with key issues.
-openpgp-key-issue-notification-many =
-    End-to-end encryption requires resolving key issues for { $count } recipients.
+openpgp-key-issue-notification-single = End-to-end encryption requires resolving key issues for { $addr }.
 
 # Variables:
-# $addr (String) - Email address with certificate issues.
-smime-cert-issue-notification-one =
-    End-to-end encryption requires resolving certificate issues for { $addr }.
+# $count (Number) - Number of recipients with key issues.
+openpgp-key-issue-notification-multi =
+    { $count ->
+       *[other] End-to-end encryption requires resolving key issues for { $count } recipients.
+    }
+
+# Variables:
+# $addr (String) - mail address with certificate issues.
+smime-cert-issue-notification-single = End-to-end encryption requires resolving certificate issues for { $addr }.
+
 # Variables:
 # $count (Number) - Number of recipients with certificate issues.
-smime-cert-issue-notification-many =
-    End-to-end encryption requires resolving certificate issues for { $count } recipients.
+smime-cert-issue-notification-multi =
+    { $count ->
+       *[other] End-to-end encryption requires resolving certificate issues for { $count } recipients.
+    }
 
 key-notification-disable-encryption =
     .label = Do Not Encrypt

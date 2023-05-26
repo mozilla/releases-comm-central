@@ -3993,16 +3993,16 @@ function updateKeyCertNotifications(emailsWithMissing) {
 
   if (emailsWithMissing.length == 1) {
     let id = gSelectedTechnologyIsPGP
-      ? "openpgp-key-issue-notification-one"
-      : "smime-cert-issue-notification-one";
+      ? "openpgp-key-issue-notification-single"
+      : "smime-cert-issue-notification-single";
     label = {
       "l10n-id": id,
       "l10n-args": { addr: emailsWithMissing[0] },
     };
   } else {
     let id = gSelectedTechnologyIsPGP
-      ? "openpgp-key-issue-notification-many"
-      : "smime-cert-issue-notification-many";
+      ? "openpgp-key-issue-notification-multi"
+      : "smime-cert-issue-notification-multi";
 
     label = {
       "l10n-id": id,
