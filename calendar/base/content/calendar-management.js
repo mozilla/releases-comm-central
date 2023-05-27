@@ -12,9 +12,6 @@
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-// Temporary bundle for 78 to get the "Enable" string from the addons.properties file.
-var bundle;
-
 /**
  * Get this window's currently selected calendar.
  *
@@ -187,12 +184,7 @@ async function loadCalendarManager() {
     updateCalendarStatusIndicators(item);
 
     let enable = item.querySelector(".calendar-enable-button");
-    if (calendar.getProperty("disabled")) {
-      if (!bundle) {
-        bundle = Services.strings.createBundle("chrome://messenger/locale/addons.properties");
-      }
-      enable.textContent = bundle.GetStringFromName("webextPerms.sideloadEnable.label");
-    }
+    document.l10n.setAttributes(enable, "calendar-enable-button");
 
     enable.hidden = forceDisabled || !calendar.getProperty("disabled");
 
@@ -332,13 +324,6 @@ async function loadCalendarManager() {
           // Update the "ENABLE" button.
           let enableButton = item.querySelector(".calendar-enable-button");
           enableButton.hidden = !value;
-          // We need to set the string if the button was hidden on creation.
-          if (value && enableButton.textContent == "") {
-            if (!bundle) {
-              bundle = Services.strings.createBundle("chrome://messenger/locale/addons.properties");
-            }
-            enableButton.textContent = bundle.GetStringFromName("webextPerms.sideloadEnable.label");
-          }
           // Update the color preview.
           let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
           let colorMarker = item.querySelector(".calendar-color");
