@@ -123,8 +123,11 @@ NewMailNotificationService.prototype = {
     return unreadCount;
   },
 
-  // Filter out special folders and then ask for observers to see if
-  // we should monitor unread messages in this folder
+  /**
+   * Filter out special folders and then ask for observers to see if
+   * we should monitor unread messages in this folder.
+   * @param {nsIMsgFolder} aFolder - The folder we're asking about.
+   */
   confirmShouldCount(aFolder) {
     let shouldCount = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
       Ci.nsISupportsPRBool
@@ -134,7 +137,7 @@ NewMailNotificationService.prototype = {
     // If it's not a mail folder we don't count it by default
     if (!(aFolder.flags & Ci.nsMsgFolderFlags.Mail)) {
       shouldCount.data = false;
-    } else if (aFolder.server.type == "rss") {
+    } else if (aFolder.server?.type == "rss") {
       // For whatever reason, RSS folders have the 'Mail' flag.
       shouldCount.data = false;
     } else if (
