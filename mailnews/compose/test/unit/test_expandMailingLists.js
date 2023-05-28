@@ -20,8 +20,8 @@ var { MailServices } = ChromeUtils.import(
 /**
  * Helper to check population worked as expected.
  *
- * @param aTo - text in the To field
- * @param aCheckTo - the expected To addresses (after possible list population)
+ * @param {string} aTo - Text in the To field.
+ * @param {string} aCheckTo - The expected To addresses (after possible list population).
  */
 function checkPopulate(aTo, aCheckTo) {
   let msgCompose = Cc[MsgComposeContractID].createInstance(nsIMsgCompose);

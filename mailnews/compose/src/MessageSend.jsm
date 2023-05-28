@@ -1228,7 +1228,9 @@ MessageSend.prototype = {
   /**
    * Collect embedded objects as attachments.
    *
-   * @returns {{embeddedAttachments: nsIMsgAttachment[], embeddedObjects: []}}
+   * @returns {object} collected
+   * @returns {nsIMsgAttachment[]} collected.embeddedAttachments
+   * @returns {object[]} collected.embeddedObjects objects {element, url}
    */
   _gatherEmbeddedAttachments(editor) {
     let embeddedAttachments = [];
@@ -1334,7 +1336,9 @@ MessageSend.prototype = {
   /**
    * Restore embedded objects in editor to their original urls.
    *
-   * @param {{element: Element, url: string}[]} - An array of embedded objects.
+   * @param {object[]} embeddedObjects - An array of embedded objects.
+   * @param {Element} embeddedObjects.element
+   * @param {string} embeddedObjects.url
    */
   _restoreEditorContent(embeddedObjects) {
     for (let { element, url } of embeddedObjects) {

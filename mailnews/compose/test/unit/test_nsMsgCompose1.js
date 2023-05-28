@@ -7,8 +7,8 @@
 /**
  * Helper to check population worked as expected.
  *
- * @param aTo - text in the To field
- * @param aCheckTo - the expected To addresses (after possible ist population)
+ * @param {string} aTo - Text in the To field.
+ * @param {string} aCheckTo - The expected To addresses (after possible list population)
  */
 function checkPopulate(aTo, aCheckTo) {
   var msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(

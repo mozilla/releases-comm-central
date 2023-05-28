@@ -471,8 +471,6 @@ class MimeMessage {
   /**
    * Pass a stream and other params to this._composeSecure to start crypto
    * encapsulation.
-   *
-   * @param {nsIOutputStream} stream - The stream to write to.
    */
   _startCryptoEncapsulation() {
     let recipients = [

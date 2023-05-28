@@ -299,7 +299,7 @@ class SmtpService {
   /**
    * Save SMTP server keys to prefs.
    *
-   * @params {string[]} keys - The key list to save.
+   * @param {string[]} keys - The key list to save.
    */
   _saveSmtpServerKeys(keys) {
     return Services.prefs.setCharPref("mail.smtpservers", keys.join(","));

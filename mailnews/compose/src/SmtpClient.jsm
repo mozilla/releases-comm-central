@@ -400,8 +400,7 @@ class SmtpClient {
   /**
    * Data listener for chunks of data emitted by the server
    *
-   * @event
-   * @param {Event} evt Event object. See `evt.data` for the chunk received
+   * @param {Event} evt - Event object. See `evt.data` for the chunk received
    */
   _onData = async evt => {
     // Prevent blocking the main thread, otherwise onclose/onerror may not be
@@ -420,9 +419,6 @@ class SmtpClient {
 
   /**
    * More data can be buffered in the socket, `waitDrain` is reset to false
-   *
-   * @event
-   * @param {Event} evt Event object. Not used
    */
   _onDrain = () => {
     this.waitDrain = false;
@@ -497,9 +493,6 @@ class SmtpClient {
 
   /**
    * Indicates that the socket has been closed
-   *
-   * @event
-   * @param {Event} evt Event object. Not used
    */
   _onClose = () => {
     this.logger.debug("Socket closed.");
@@ -514,8 +507,7 @@ class SmtpClient {
    * This is not a socket data handler but the handler for data emitted by the parser,
    * so this data is safe to use as it is always complete (server might send partial chunks)
    *
-   * @event
-   * @param {object} command Parsed data
+   * @param {object} command - Parsed data.
    */
   _onCommand(command) {
     if (command.statusCode < 200 || command.statusCode >= 400) {
@@ -907,7 +899,7 @@ class SmtpClient {
    * try HELO instead, otherwise initiate TLS upgrade. If the upgrade
    * succeeds restart the EHLO
    *
-   * @param {string} str Message from the server
+   * @param {string} command - Message from the server.
    */
   _actionSTARTTLS(command) {
     if (!command.success) {
