@@ -8,7 +8,7 @@
 /* globals loadEventsFromFile */
 
 const { MockFilePicker } = ChromeUtils.importESModule(
-  "resource://specialpowers/MockFilePicker.sys.mjs"
+  "resource://testing-common/MockFilePicker.sys.mjs"
 );
 const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(Ci.nsIChromeRegistry);
 

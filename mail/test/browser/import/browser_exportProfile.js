@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 const { MockFilePicker } = ChromeUtils.importESModule(
-  "resource://specialpowers/MockFilePicker.sys.mjs"
+  "resource://testing-common/MockFilePicker.sys.mjs"
 );
 
 add_task(async function testProfileExport() {

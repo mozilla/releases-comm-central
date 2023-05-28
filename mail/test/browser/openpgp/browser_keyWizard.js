@@ -28,7 +28,7 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { MockFilePicker } = ChromeUtils.importESModule(
-  "resource://specialpowers/MockFilePicker.sys.mjs"
+  "resource://testing-common/MockFilePicker.sys.mjs"
 );
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"

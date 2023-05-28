@@ -9,7 +9,7 @@
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 const { MockFilePicker } = ChromeUtils.importESModule(
-  "resource://specialpowers/MockFilePicker.sys.mjs"
+  "resource://testing-common/MockFilePicker.sys.mjs"
 );
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
