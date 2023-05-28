@@ -267,8 +267,8 @@ class MsgIncomingServer {
   /**
    * Set up getters/setters for attributes that map directly to pref values.
    *
-   * @param {string[]} - An array of attributes, each attribute is defined by
-   *   its type, name and corresponding prefName.
+   * @param {string[]} attributes - An array of attributes. Each attribute is
+   *   defined by its type, name and corresponding prefName.
    */
   _mapAttrsToPrefs(attributes) {
     for (let [type, attrName, prefName] of attributes) {
@@ -1190,7 +1190,7 @@ class MsgIncomingServer {
    * @param {string} message - The text inside the prompt.
    * @param {string} title - The title of the prompt.
    */
-  async getPasswordWithUIAsync(promptMessage, promptTitle) {
+  async getPasswordWithUIAsync(message, title) {
     if (this._passwordPromise) {
       await this._passwordPromise;
       return this.password;
@@ -1201,7 +1201,7 @@ class MsgIncomingServer {
       deferred.reject = reject;
     });
     try {
-      this.getPasswordWithUI(promptMessage, promptTitle);
+      this.getPasswordWithUI(message, title);
     } catch (e) {
       deferred.reject(e);
       throw e;

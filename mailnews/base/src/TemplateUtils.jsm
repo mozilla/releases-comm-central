@@ -52,12 +52,12 @@ const _weekdayFormatter = new Services.intl.DateTimeFormat(undefined, {
  * "yesterday" (localized).  If it's in the last week, it returns the day
  * of the week. If it's before that, it returns the date.
  *
- * @param time {Date}
- *        the time (better be in the past!)
+ * @param {Date} time - The time (better be in the past!)
  * @returns {string} A "human-friendly" representation of that time
- *                   relative to now.
+ *   relative to now.
  */
 function makeFriendlyDateAgo(time) {
+  // TODO: use Intl.RelativeTimeFormat instead.
   // Figure out when today begins
   let now = new Date();
   let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());

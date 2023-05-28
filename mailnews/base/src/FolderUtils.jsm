@@ -26,7 +26,8 @@ const { MailServices } = ChromeUtils.import(
 /**
  * Returns a string representation of a folder's "special" type.
  *
- * @param aFolder  the nsIMsgFolder whose special type should be returned
+ * @param {nsIMsgFolder} aFolder - The folder whose special type to return.
+ * @returns {string} the special type of the folder.
  */
 function getSpecialFolderString(aFolder) {
   let flags = aFolder.flags;
@@ -64,11 +65,11 @@ function getSpecialFolderString(aFolder) {
  * This function is meant to be used with trees. It returns the property list
  * for all of the common properties that css styling is based off of.
  *
- * @param nsIMsgFolder aFolder - the folder whose properties should be returned
- *                               as a string
- * @param bool aOpen - true if the folder is open/expanded
+ * @param {nsIMsgFolder} aFolder - The folder whose properties should be
+ *   returned as a string.
+ * @param {boolean} aOpen - Whether the folder is open (not expanded).
  *
- * @returns A string of the property names, delimited by space.
+ * @returns {string} A string of the property names, delimited by space.
  */
 function getFolderProperties(aFolder, aOpen) {
   const nsIMsgFolder = Ci.nsIMsgFolder;
@@ -133,7 +134,7 @@ function getFolderProperties(aFolder, aOpen) {
  * (3) IM accounts, (4) RSS, (5) News, (9) others (no server)
  * This ordering is encoded in the .sortOrder property of each server type.
  *
- * @param aServer  the server object to be tested
+ * @param {nsIMsgIncomingServer} aServer -The server to get sort order for.
  */
 function getServerSortOrder(aServer) {
   // If there is no server sort this object to the end.
@@ -158,7 +159,7 @@ function compareAccounts(aAccount1, aAccount2) {
 /**
  * Returns a list of accounts sorted by server type.
  *
- * @param aExcludeIMAccounts  Remove IM accounts from the list?
+ * @param {boolean} aExcludeIMAccounts - Remove IM accounts from the list?
  */
 function allAccountsSorted(aExcludeIMAccounts) {
   // This is a HACK to work around bug 41133. If we have one of the
@@ -179,11 +180,12 @@ function allAccountsSorted(aExcludeIMAccounts) {
 /**
  * Returns the most recently used/modified folders from the passed in list.
  *
- * @param aFolderList       The array of nsIMsgFolders to search for recent folders.
- * @param aMaxHits          How many folders to return.
- * @param aTimeProperty     Which folder time property to use.
- *                          Use "MRMTime" for most recently modified time.
- *                          Use "MRUTime" for most recently used time.
+ * @param {nsIMsgFolder[]} aFolderList - The array of folders to search
+ *   for recent folders.
+ * @param {integer} aMaxHits - How many folders to return.
+ * @param {"MRMTime"|"MRUTime"} aTimeProperty - Which folder time property to
+ *   use. Use "MRMTime" for most recently modified time.
+ *   Use "MRUTime" for most recently used time.
  */
 function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
   let recentFolders = [];
@@ -195,7 +197,7 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
    * it will pop the oldest folder, ensuring that we end up with the
    * right number.
    *
-   * @param aFolder  The folder to check for recency.
+   * @param {nsIMsgFolders} aFolder - The folder to check for recency.
    */
   let oldestTime = 0;
   function addIfRecent(aFolder) {
@@ -225,11 +227,11 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
 /**
  * A locale dependent comparison function to produce a case-insensitive sort order
  * used to sort folder names.
- * Returns positive number if aString1 > aString2, negative number if aString1 > aString2,
- *         otherwise 0.
  *
- * @param aString1  first string to compare
- * @param aString2  second string to compare
+ * @param {string} aString1 - First string to compare.
+ * @param {string} aString2 - Second string to compare.
+ * @returns {interger} A positive number if aString1 > aString2,
+ *    negative number if aString1 > aString2, otherwise 0.
  */
 function folderNameCompare(aString1, aString2) {
   // TODO: improve this as described in bug 992651.
@@ -238,6 +240,12 @@ function folderNameCompare(aString1, aString2) {
     .localeCompare(aString2.toLocaleLowerCase());
 }
 
+/**
+ * Get the icon to use for this folder.
+ *
+ * @param {nsIMsgFolder} folder - The folder to get icon for.
+ * @returns {string} URL of suitable icon.
+ */
 function getFolderIcon(folder) {
   let iconName;
   if (folder.isServer) {

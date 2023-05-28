@@ -22,11 +22,11 @@ let gConverterWorker = null;
  *
  * @param {string} aMailstoreContractId - XPCOM id of new mailstore type.
  * @param {nsIMsgServer} aServer - server to migrate.
- * @param aEventTarget                  - if set, element to send progress events.
+ * @param {?Element} aEventTarget - If set, element to send progress events.
  *
- * @returns {Promise} - Resolves with a string containing the new root
- *                     directory for the migrated server.
- *                     Rejects with an error message.
+ * @returns {Promise<string>} - Resolves with a string containing the new root
+ *   directory for the migrated server.
+ *   Rejects with an error message.
  */
 function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
   let accountRootFolder = aServer.rootFolder.filePath;

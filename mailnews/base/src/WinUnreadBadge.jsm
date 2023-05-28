@@ -68,7 +68,7 @@ function getCanvasAsImgContainer(canvas, width, height) {
 /**
  * Draw text centered in the middle of a CanvasRenderingContext2D.
  *
- * @param {CanvasRenderingContext2D} ctx - The canvas context to operate on.
+ * @param {CanvasRenderingContext2D} cxt - The canvas context to operate on.
  * @param {string} text - The text to draw.
  */
 function drawUnreadCountText(cxt, text) {

@@ -22,6 +22,7 @@ var gConnecting = {};
  * @class
  * @param {?string} scope - The scope as specified by RFC 6749 Section 3.3.
  *   Will not be included in the requests if falsy.
+ * @param {object} issuerDetails
  * @param {string} issuerDetails.authorizationEndpoint - The authorization
  *   endpoint as defined by RFC 6749 Section 3.1.
  * @param {string} issuerDetails.clientId - The client_id as specified by RFC

@@ -26,20 +26,21 @@ var VirtualFolderHelper = {
    * If the call to addSubfolder fails (and therefore throws), we will NOT catch
    *  it.
    *
-   * @param aFolderName The name of the new folder to create.
-   * @param aParentFolder The folder in which to create the search folder.
-   * @param aSearchFolders A list of nsIMsgFolders that you want to use as the
-   *     sources for the virtual folder OR a string that is the already '|'
-   *     delimited list of folder URIs to use.
+   * @param {string} aFolderName - The name of the new folder to create.
+   * @param {nsIMsgFolder} aParentFolder - The folder in which to create the
+   *   search folder.
+   * @param {nsIMsgFolder[]} aSearchFolders A list of nsIMsgFolders that you
+   *   want to use as the sources for the virtual folder OR a string that is
+   *   the already '|' delimited list of folder URIs to use.
    * @param {nsIMsgSearchTerms[]} aSearchTerms - The search terms to
-   *     use for the virtual folder.
-   * @param aOnlineSearch Should the search attempt to use the server's search
-   *     capabilities when possible and appropriate?
-   *
-   * @returns The VirtualFolderWrapper wrapping the newly created folder.  You
-   *     would probably only want this for its virtualFolder attribute which has
-   *     the nsIMsgFolder we created.  Be careful about accessing any of the
-   *     other attributes, as they will bring its message database back to life.
+   *   use for the virtual folder.
+   * @param {boolean} aOnlineSearch Should the search attempt to use the
+   *    server's search capabilities when possible and appropriate?
+   * @returns {VirtualFolderWrapper} The VirtualFolderWrapper wrapping the
+   *   newly created folder. You would probably only want this for its
+   *   virtualFolder attribute which has the nsIMsgFolder we created.
+   *   Be careful about accessing any of the other attributes, as they will
+   *   bring its message database back to life.
    */
   createNewVirtualFolder(
     aFolderName,
@@ -70,6 +71,8 @@ var VirtualFolderHelper = {
   /**
    * Given an existing nsIMsgFolder that is a virtual folder, wrap it into a
    *  VirtualFolderWrapper.
+   *
+   * @param {nsIMsgFolder} aMsgFolder - The folder to use.
    */
   wrapVirtualFolder(aMsgFolder) {
     return new VirtualFolderWrapper(aMsgFolder);
@@ -113,14 +116,16 @@ var VirtualFolderHelper = {
  *  forcing the folder to forget about the database when you are done by
  *  setting the database to null (unless you know with confidence someone else
  *  definitely wants the database around and will clean it up.)
+ *
+ * @param {nsIMsgFolder} aVirtualFolder - Folder to wrap.
  */
 function VirtualFolderWrapper(aVirtualFolder) {
   this.virtualFolder = aVirtualFolder;
 }
 VirtualFolderWrapper.prototype = {
   /**
-   * @returns the list of nsIMsgFolders that this virtual folder is a
-   *     search over.
+   * @returns {nsIMsgFolders[]} The list of nsIMsgFolders that this virtual
+   *   folder is a search over.
    */
   get searchFolders() {
     return this.dbFolderInfo
@@ -133,8 +138,8 @@ VirtualFolderWrapper.prototype = {
   /**
    * Set the search folders that back this virtual folder.
    *
-   * @param {string|nsIMsgFolder[]} - aFolders Either a "|"-delimited string of
-   *   folder URIs or a list of folders
+   * @param {string|nsIMsgFolder[]} aFolders - Either a "|"-delimited string of
+   *   folder URIs or a list of folders.
    */
   set searchFolders(aFolders) {
     if (typeof aFolders == "string") {
@@ -147,23 +152,24 @@ VirtualFolderWrapper.prototype = {
   },
 
   /**
-   * @returns a "|"-delimited string containing the URIs of the folders that back
-   *     this virtual folder.
+   * @returns {string} a "|"-delimited string containing the URIs of the folders
+   *   that back this virtual folder.
    */
   get searchFolderURIs() {
     return this.dbFolderInfo.getCharProperty("searchFolderUri");
   },
 
   /**
-   * @returns the list of search terms that define this virtual folder.
+   * @returns {nsIMsgSearchTerm[]} The list of search terms that define this
+   *   virtual folder.
    */
   get searchTerms() {
     return this.searchTermsSession.searchTerms;
   },
   /**
-   * @returns a newly created filter with the search terms loaded into it that
-   *     define this virtual folder.  The filter is apparently useful as an
-   *     nsIMsgSearchSession stand-in to some code.
+   * @returns {nsIMsgFilterList} A newly created filter with the search terms
+   *   loaded into it that define this virtual folder. The filter is apparently
+   *   useful as an nsIMsgSearchSession stand-in to some code.
    */
   get searchTermsSession() {
     // Temporary means it doesn't get exposed to the UI and doesn't get saved to
@@ -200,9 +206,9 @@ VirtualFolderWrapper.prototype = {
   },
 
   /**
-   * @returns the set of search terms that define this virtual folder as a
-   *     string.  You may prefer to use |searchTerms| which converts them
-   *     into a list of nsIMsgSearchTerms instead.
+   * @returns {string} the set of search terms that define this virtual folder
+   *   as a string. You may prefer to use |searchTerms| which converts them
+   *   into a list of nsIMsgSearchTerms instead.
    */
   get searchString() {
     return this.dbFolderInfo.getCharProperty("searchStr");
@@ -210,30 +216,34 @@ VirtualFolderWrapper.prototype = {
   /**
    * Set the search that defines this virtual folder from a string.  If you have
    *  a list of nsIMsgSearchTerms, you should use |searchTerms| instead.
+   *
+   * @param {string} aSearchString
    */
   set searchString(aSearchString) {
     this.dbFolderInfo.setCharProperty("searchStr", aSearchString);
   },
 
   /**
-   * @returns whether the virtual folder is configured for online search.
+   * @returns {boolean} whether the virtual folder is configured for online search.
    */
   get onlineSearch() {
     return this.dbFolderInfo.getBooleanProperty("searchOnline", false);
   },
   /**
    * Set whether the virtual folder is configured for online search.
+   *
+   * @param {boolean} aOnlineSearch
    */
   set onlineSearch(aOnlineSearch) {
     this.dbFolderInfo.setBooleanProperty("searchOnline", aOnlineSearch);
   },
 
   /**
-   * @returns the dBFolderInfo associated with the virtual folder directly.  May
-   *     be null.  Will cause the message database to be opened, which may have
-   *     memory bloat/leak ramifications, so make sure the folder's database was
-   *     already going to be opened anyways or that you call
-   *     |cleanUpMessageDatabase|.
+   * @returns {?nsIDBFolderInfo} The dBFolderInfo associated with the virtual
+   *   folder directly. Maybe null.  Will cause the message database to be
+   *   opened, which may have memory bloat/leak ramifications, so make sure
+   *    the folder's database was already going to be opened anyways or that you
+   *   call |cleanUpMessageDatabase|.
    */
   get dbFolderInfo() {
     let msgDatabase = this.virtualFolder.msgDatabase;

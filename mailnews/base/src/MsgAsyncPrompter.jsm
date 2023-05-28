@@ -415,22 +415,20 @@ class MsgAuthPrompt {
    *
    * Puts up a dialog with a password field and an optional, labelled checkbox.
    *
-   * @param {string} dialogTitle
-   *        Text to appear in the title of the dialog.
-   * @param {string} text
-   *        Text to appear in the body of the dialog.
-   * @param {object} password
-   *        Contains the default value for the password field when this method
-   *        is called (null value is ok).  Upon return, if the user pressed OK,
-   *        then this parameter contains a newly allocated string value.
-   *        Otherwise, the parameter's value is unmodified.
-   * @param {string} checkMsg
-   *        Text to appear with the checkbox.  If null, check box will not be shown.
-   * @param {object} checkValue
-   *        Contains the initial checked state of the checkbox when this method
-   *        is called and the final checked state after this method returns.
+   * @param {string} dialogTitle - Text to appear in the title of the dialog.
+   * @param {string} text - Text to appear in the body of the dialog.
+   * @param {?object} password - Contains the default value for the password
+   *   field when this method is called (null value is ok).
+   *   Upon return, if the user pressed OK, then this parameter contains a
+   *   newly allocated string value.
+   *   Otherwise, the parameter's value is unmodified.
+   * @param {?string} checkMsg - Text to appear with the checkbox.  If null,
+   *   check box will not be shown.
+   * @param {?object} checkValue - Contains the initial checked state of the
+   *   checkbox when this method is called and the final checked state after
+   *   this method returns.
    *
-   * @returns true for OK, false for Cancel.
+   * @returns {boolean} true for OK, false for Cancel.
    */
   promptPassword2(dialogTitle, text, password, checkMsg, checkValue) {
     return nsIPrompt_promptPassword(
@@ -447,22 +445,18 @@ class MsgAuthPrompt {
    * dialog with a username and password field, depending on flags also a
    * domain field.
    *
-   * @param {nsIChannel} channel
-   *        The channel that requires authentication.
-   * @param {number} level
-   *        One of the level constants from nsIAuthPrompt2. See there for
-   *        descriptions of the levels.
-   * @param {object} authInfo
-   *        Authentication information object. The implementation should fill in
-   *        this object with the information entered by the user before
-   *        returning.
-   * @param {string} checkMsg
+   * @param {nsIChannel} channel - The channel that requires authentication.
+   * @param {number} level - One of the level constants from nsIAuthPrompt2.
+   *   See there for descriptions of the levels.
+   * @param {nsIAuthInformation} authInfo - Authentication information object.
+   *   The implementation should fill in this object with the information
+   *   entered by the user before returning.
+   * @param {string} checkboxLabel
    *        Text to appear with the checkbox.  If null, check box will not be shown.
    * @param {object} checkValue
    *        Contains the initial checked state of the checkbox when this method
    *        is called and the final checked state after this method returns.
-   *
-   * @returns true for OK, false for Cancel.
+   * @returns {boolean} true for OK, false for Cancel.
    */
   promptAuth(channel, level, authInfo, checkboxLabel, checkValue) {
     let title = lazy.dialogsBundle.formatStringFromName(
@@ -496,33 +490,23 @@ class MsgAuthPrompt {
 }
 
 /**
- * Implements nsIPrompt.promptUsernameAndPassword as it was before the check
- * box option was removed.
- *
- * Puts up a dialog with an edit field, a password field, and an optional,
- * labelled checkbox.
- *
- * @param {string} dialogTitle
- *        Text to appear in the title of the dialog.
- * @param {string} text
- *        Text to appear in the body of the dialog.
- * @param {object} username
- *        Contains the default value for the username field when this method
- *        is called (null value is ok).  Upon return, if the user pressed OK,
- *        then this parameter contains a newly allocated string value.
- *        Otherwise, the parameter's value is unmodified.
- * @param {object} password
- *        Contains the default value for the password field when this method
- *        is called (null value is ok).  Upon return, if the user pressed OK,
- *        then this parameter contains a newly allocated string value.
- *        Otherwise, the parameter's value is unmodified.
- * @param {string} checkMsg
- *        Text to appear with the checkbox.  If null, check box will not be shown.
- * @param {object} checkValue
- *        Contains the initial checked state of the checkbox when this method
- *        is called and the final checked state after this method returns.
- *
- * @returns true for OK, false for Cancel.
+ * @param {string} dialogTitle - Text to appear in the title of the dialog.
+ * @param {string} text - Text to appear in the body of the dialog.
+ * @param {?object} username
+ *   Contains the default value for the username field when this method
+ *   is called (null value is ok). Upon return, if the user pressed OK,
+ *   then this parameter contains a newly allocated string value.
+ * @param {?object} password - Contains the default value for the password
+ *   field when this method is called (null value is ok).
+ *   Upon return, if the user pressed OK, then this parameter contains a
+ *   newly allocated string value.
+ *   Otherwise, the parameter's value is unmodified.
+ * @param {?string} checkMsg - Text to appear with the checkbox. If null,
+ *   check box will not be shown.
+ * @param {?object} checkValue - Contains the initial checked state of the
+ *   checkbox when this method is called and the final checked state after
+ *   this method returns.
+ * @returns {boolean} true for OK, false for Cancel.
  */
 function nsIPrompt_promptUsernameAndPassword(
   dialogTitle,
@@ -577,22 +561,20 @@ function nsIPrompt_promptUsernameAndPassword(
  *
  * Puts up a dialog with a password field and an optional, labelled checkbox.
  *
- * @param {string} dialogTitle
- *        Text to appear in the title of the dialog.
- * @param {string} text
- *        Text to appear in the body of the dialog.
- * @param {object} password
- *        Contains the default value for the password field when this method
- *        is called (null value is ok).  Upon return, if the user pressed OK,
- *        then this parameter contains a newly allocated string value.
- *        Otherwise, the parameter's value is unmodified.
- * @param {string} checkMsg
- *        Text to appear with the checkbox.  If null, check box will not be shown.
- * @param {object} checkValue
- *        Contains the initial checked state of the checkbox when this method
- *        is called and the final checked state after this method returns.
+ * @param {string} dialogTitle - Text to appear in the title of the dialog.
+ * @param {string} text - Text to appear in the body of the dialog.
+ * @param {?object} password - Contains the default value for the password
+ *   field when this method is called (null value is ok).
+ *   Upon return, if the user pressed OK, then this parameter contains a
+ *   newly allocated string value.
+ *   Otherwise, the parameter's value is unmodified.
+ * @param {?string} checkMsg - Text to appear with the checkbox. If null,
+ *   check box will not be shown.
+ * @param {?object} checkValue - Contains the initial checked state of the
+ *   checkbox when this method is called and the final checked state after
+ *   this method returns.
  *
- * @returns true for OK, false for Cancel.
+ * @returns {boolean} true for OK, false for Cancel.
  */
 function nsIPrompt_promptPassword(
   dialogTitle,

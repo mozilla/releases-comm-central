@@ -23,7 +23,7 @@ class MailAuthenticator {
   /**
    * Get the hostname for a connection.
    *
-   * @returns string
+   * @returns {string}
    */
   get hostname() {
     throw Components.Exception(
@@ -35,7 +35,7 @@ class MailAuthenticator {
   /**
    * Get the username for a connection.
    *
-   * @returns string
+   * @returns {string}
    */
   get username() {
     throw Components.Exception(
@@ -57,7 +57,7 @@ class MailAuthenticator {
   /**
    * Get the password for a connection.
    *
-   * @returns string
+   * @returns {string}
    */
   getPassword() {
     throw Components.Exception(
@@ -71,7 +71,7 @@ class MailAuthenticator {
    *
    * @param {string} password - The password, used as HMAC-MD5 secret.
    * @param {string} challenge - The base64 encoded server challenge.
-   * @returns string
+   * @returns {string}
    */
   getCramMd5Token(password, challenge) {
     // Hash the challenge.
@@ -87,7 +87,7 @@ class MailAuthenticator {
   /**
    * Get the OAuth token for a connection.
    *
-   * @returns string
+   * @returns {string}
    */
   async getOAuthToken() {
     throw Components.Exception(
@@ -167,9 +167,9 @@ class MailAuthenticator {
   /**
    * Show a dialog for authentication failure.
    *
-   * @param {nsIMsgWindow} - The associated msg window.
-   * @param {string} - A user defined account name or the server hostname.
-   * @returns {number} - 0: Retry; 1: Cancel; 2: New password.
+   * @param {nsIMsgWindow} msgWindow - The associated msg window.
+   * @param {string} accountname - A user defined account name or the server hostname.
+   * @returns {number} 0: Retry; 1: Cancel; 2: New password.
    */
   _promptAuthFailed(msgWindow, accountname) {
     let bundle = Services.strings.createBundle(
@@ -267,7 +267,7 @@ class SmtpAuthenticator extends MailAuthenticator {
   /**
    * Get the ByteString form of the current password.
    *
-   * @returns string
+   * @returns {string}
    */
   getByteStringPassword() {
     return MailStringUtils.stringToByteString(this.getPassword());
@@ -276,7 +276,7 @@ class SmtpAuthenticator extends MailAuthenticator {
   /**
    * Get the PLAIN auth token for a connection.
    *
-   * @returns string
+   * @returns {string}
    */
   getPlainToken() {
     // According to rfc4616#section-2, password should be UTF-8 BinaryString
@@ -340,7 +340,7 @@ class IncomingServerAuthenticator extends MailAuthenticator {
   /**
    * Get the ByteString form of the current password.
    *
-   * @returns string
+   * @returns {string}
    */
   async getByteStringPassword() {
     return MailStringUtils.stringToByteString(await this.getPassword());
@@ -349,7 +349,7 @@ class IncomingServerAuthenticator extends MailAuthenticator {
   /**
    * Get the PLAIN auth token for a connection.
    *
-   * @returns string
+   * @returns {string}
    */
   async getPlainToken() {
     // According to rfc4616#section-2, password should be UTF-8 BinaryString
@@ -386,7 +386,7 @@ class IncomingServerAuthenticator extends MailAuthenticator {
  */
 class NntpAuthenticator extends IncomingServerAuthenticator {
   /**
-   * @type string - NNTP server has no userName pref, need to pass it in.
+   * @returns {string} - NNTP server has no userName pref, need to pass it in.
    */
   get username() {
     return this._username;

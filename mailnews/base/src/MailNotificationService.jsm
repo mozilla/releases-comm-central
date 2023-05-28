@@ -16,6 +16,7 @@ var { MailServices } = ChromeUtils.import(
 
 /**
  * Constructor.
+ *
  * @implements {mozINewMailNotificationService}
  * @implements {nsIFolderListener}
  * @implements {nsIObserver}
@@ -126,6 +127,7 @@ NewMailNotificationService.prototype = {
   /**
    * Filter out special folders and then ask for observers to see if
    * we should monitor unread messages in this folder.
+   *
    * @param {nsIMsgFolder} aFolder - The folder we're asking about.
    */
   confirmShouldCount(aFolder) {

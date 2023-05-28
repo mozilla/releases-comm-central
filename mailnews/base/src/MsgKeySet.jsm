@@ -77,7 +77,7 @@ class MsgKeySet {
    *
    * @param {number} low - The smallest value of the input range.
    * @param {number} high - The largest value of the input range.
-   * @returns {[number, number]}
+   * @returns {number[]} - Array of lenght two with [low, high].
    */
   getLastMissingRange(low, high) {
     let length = this._ranges.length;

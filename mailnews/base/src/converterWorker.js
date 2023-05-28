@@ -175,7 +175,7 @@ async function mboxToMaildir(mboxPath, maildirPath, progressFn) {
    * Helper. Convert a string into a Uint8Array, using no encoding. The low
    * byte of each 16 bit character will be used, the high byte discarded.
    *
-   * @param {string} s - Input string with chars in 0-255 range.
+   * @param {string} str - Input string with chars in 0-255 range.
    * @returns {Uint8Array} The output bytes.
    */
   let stringToBytes = function (str) {
