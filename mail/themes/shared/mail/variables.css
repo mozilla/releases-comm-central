@@ -6,6 +6,7 @@
 
 /* Default variables */
 
+:host,
 :root {
   --transition-duration: 120ms;
   --transition-timing: ease;
