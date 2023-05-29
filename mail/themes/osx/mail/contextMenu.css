@@ -15,11 +15,16 @@ menupopup::part(content) {
 
 menupopup .menu-iconic-icon {
   width: 16px;
+  margin-inline-start: 0;
+}
+
+menupopup > menu::after {
+  line-height: 0;
 }
 
 menupopup > menu > .menu-text,
 menupopup > menuitem > .menu-text {
-  margin-inline-start: 16px !important;
+  margin-inline-start: 21px !important;
 }
 
 menupopup > menuitem > .menu-right {
