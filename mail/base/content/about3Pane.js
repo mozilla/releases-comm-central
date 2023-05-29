@@ -2248,7 +2248,12 @@ var folderPane = {
         return;
       }
       event.dataTransfer.dropEffect = "move";
+    } else {
+      return;
     }
+
+    this._clearDropTarget();
+    row.classList.add("drop-target");
   },
 
   /**
