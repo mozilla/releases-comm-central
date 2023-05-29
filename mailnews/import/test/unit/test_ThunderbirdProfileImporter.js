@@ -4,6 +4,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+// It is necessary to manually disable `xpc::IsInAutomation` since
+// `resetPrefs` will flip the preference to re-enable `once`-synced
+// preference change assertions, and also change the value of those
+// preferences.
+Services.prefs.setBoolPref(
+  "security.turn_off_all_security_so_that_viruses_can_take_over_this_computer",
+  false
+);
+
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
