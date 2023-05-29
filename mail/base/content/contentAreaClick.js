@@ -82,26 +82,6 @@ function hRefForClickEvent(aEvent, aDontCheckInputElement) {
   return [href, linkText];
 }
 
-function messagePaneOnResize(aEvent) {
-  // Scale any overflowing images, exclude http content.
-  let browser = getMessagePaneBrowser();
-  let doc = browser && browser.contentDocument ? browser.contentDocument : null;
-  if (!doc || doc.URL.startsWith("http") || !doc.images) {
-    return;
-  }
-
-  for (let img of doc.images) {
-    if (
-      img.clientWidth - doc.body.offsetWidth >= 0 &&
-      (img.clientWidth <= img.naturalWidth || !img.naturalWidth)
-    ) {
-      img.setAttribute("overflowing", true);
-    } else {
-      img.removeAttribute("overflowing");
-    }
-  }
-}
-
 /**
  * Check whether the click target's or its ancestor's href
  * points to an anchor on the page.

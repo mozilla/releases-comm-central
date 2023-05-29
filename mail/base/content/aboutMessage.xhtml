@@ -142,7 +142,8 @@
                  forcemessagemanager="true"
                  maychangeremoteness="true"
                  messagemanagergroup="single-page"
-                 onclick="return contentAreaClick(event);"/>
+                 onclick="return contentAreaClick(event);"
+                 onresize="messagePaneOnResize();"/>
         <splitter id="attachment-splitter" orient="vertical"
                   resizebefore="closest" resizeafter="closest"
                   collapse="after" collapsed="true"/>

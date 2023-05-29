@@ -42,6 +42,22 @@ function getMessagePaneBrowser() {
   return document.getElementById("messagepane");
 }
 
+function messagePaneOnResize() {
+  const doc = getMessagePaneBrowser().contentDocument;
+  // Bail out if it's http content or we don't have images.
+  if (doc?.URL.startsWith("http") || !doc?.images) {
+    return;
+  }
+
+  for (let img of doc.images) {
+    img.toggleAttribute(
+      "overflowing",
+      img.clientWidth - doc.body.offsetWidth >= 0 &&
+        (img.clientWidth <= img.naturalWidth || !img.naturalWidth)
+    );
+  }
+}
+
 function ReloadMessage() {
   if (!gMessageURI) {
     return;
