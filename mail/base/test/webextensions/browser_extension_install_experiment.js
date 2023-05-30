@@ -56,10 +56,10 @@ async function testExperimentPrompt(filename) {
   await installFile(filename);
 
   let panel = await promisePopupNotificationShown("addon-webext-permissions");
-  checkNotification(
+  await checkNotification(
     panel,
     isDefaultIcon,
-    [["webextPerms.description.experiment"]],
+    [["webext-perms-description-experiment"]],
     false,
     true
   );

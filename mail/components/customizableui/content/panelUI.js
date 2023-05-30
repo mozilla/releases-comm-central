@@ -809,26 +809,35 @@ var gExtensionsNotifications = {
     ExtensionsUI.off("change", this.boundUpdate);
   },
 
-  _createAddonButton(text, icon, callback) {
+  get l10n() {
+    if (this._l10n) {
+      return this._l10n;
+    }
+    return (this._l10n = new Localization(
+      ["messenger/addonNotifications.ftl", "branding/brand.ftl"],
+      true
+    ));
+  },
+
+  _createAddonButton(l10nId, addon, callback) {
+    let text = this.l10n.formatValueSync(l10nId, { addonName: addon.name });
     let button = document.createXULElement("toolbarbutton");
+    button.setAttribute("wrap", "true");
     button.setAttribute("label", text);
     button.setAttribute("tooltiptext", text);
     const DEFAULT_EXTENSION_ICON =
       "chrome://messenger/skin/icons/new/compact/extension.svg";
-    button.setAttribute("image", icon || DEFAULT_EXTENSION_ICON);
-    button.className = "addon-banner-item";
+    button.setAttribute("image", addon.iconURL || DEFAULT_EXTENSION_ICON);
+    button.className = "addon-banner-item subviewbutton";
 
     button.addEventListener("command", callback);
     PanelUI.addonNotificationContainer.appendChild(button);
   },
 
   updateAlerts() {
-    let tabmail = document.getElementById("tabmail");
+    let gBrowser = document.getElementById("tabmail");
     let sideloaded = ExtensionsUI.sideloaded;
     let updates = ExtensionsUI.updates;
-    let bundle = Services.strings.createBundle(
-      "chrome://messenger/locale/addons.properties"
-    );
 
     let container = PanelUI.addonNotificationContainer;
 
@@ -841,34 +850,25 @@ var gExtensionsNotifications = {
       if (++items > 4) {
         break;
       }
-      let text = bundle.formatStringFromName("webextPerms.updateMenuItem", [
-        update.addon.name,
-      ]);
-      this._createAddonButton(text, update.addon.iconURL, evt => {
-        ExtensionsUI.showUpdate(tabmail, update);
-      });
+      this._createAddonButton(
+        "webext-perms-update-menu-item",
+        update.addon,
+        evt => {
+          ExtensionsUI.showUpdate(gBrowser, update);
+        }
+      );
     }
 
-    let appName;
     for (let addon of sideloaded) {
       if (++items > 4) {
         break;
       }
-      if (!appName) {
-        let brandBundle = document.getElementById("bundle_brand");
-        appName = brandBundle.getString("brandShortName");
-      }
-
-      let text = bundle.formatStringFromName("webextPerms.sideloadMenuItem", [
-        addon.name,
-        appName,
-      ]);
-      this._createAddonButton(text, addon.iconURL, evt => {
+      this._createAddonButton("webext-perms-sideload-menu-item", addon, evt => {
         // We need to hide the main menu manually because the toolbarbutton is
         // removed immediately while processing this event, and PanelUI is
         // unable to identify which panel should be closed automatically.
         PanelUI.hide();
-        ExtensionsUI.showSideloaded(tabmail, addon);
+        ExtensionsUI.showSideloaded(gBrowser, addon);
       });
     }
   },

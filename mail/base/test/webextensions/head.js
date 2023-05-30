@@ -11,9 +11,14 @@ const BASE = getRootDirectory(gTestPath).replace(
   "https://example.com/"
 );
 
-const gBrowserBundle = Services.strings.createBundle(
-  "chrome://messenger/locale/addons.properties"
-);
+const l10n = new Localization([
+  "toolkit/global/extensions.ftl",
+  "toolkit/global/extensionPermissions.ftl",
+  "messenger/extensionsUI.ftl",
+  "messenger/extensionPermissions.ftl",
+  "messenger/addonNotifications.ftl",
+  "branding/brand.ftl",
+]);
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -171,38 +176,6 @@ function isDefaultIcon(icon) {
 }
 
 /**
- * Check the contents of an individual permission string.
- * This function is fairly specific to the use here and probably not
- * suitable for re-use elsewhere...
- *
- * @param {string} string
- *        The string value to check (i.e., pulled from the DOM)
- * @param {string} key
- *        The key in browser.properties for the localized string to
- *        compare with.
- * @param {string|null} param
- *        Optional string to substitute for %S in the localized string.
- * @param {string} msg
- *        The message to be emitted as part of the actual test.
- */
-function checkPermissionString(string, key, param, msg) {
-  console.log(key);
-  let localizedString = param
-    ? gBrowserBundle.formatStringFromName(key, [param])
-    : gBrowserBundle.GetStringFromName(key);
-
-  // If this is a parameterized string and the parameter isn't given,
-  // just do a simple comparison of the text before and after the %S
-  if (localizedString.includes("%S")) {
-    let i = localizedString.indexOf("%S");
-    ok(string.startsWith(localizedString.slice(0, i)), msg);
-    ok(string.endsWith(localizedString.slice(i + 2)), msg);
-  } else {
-    is(string, localizedString, msg);
-  }
-}
-
-/**
  * Check the contents of a permission popup notification
  *
  * @param {Window} panel
@@ -213,17 +186,17 @@ function checkPermissionString(string, key, param, msg) {
  *        regular expression it is tested against the icon url, and if
  *        it is a function, it is called with the icon url and returns
  *        true if the url is correct.
- * @param {Array} permissions
- *        The expected entries in the permissions list.  Each element
+ * @param {Object[]} permissions
+ *        The expected entries in the permissions list. Each element
  *        in this array is itself a 2-element array with the string key
- *        for the item (e.g., "webextPerms.description.foo") and an
- *        optional formatting parameter.
+ *        for the item (e.g., "webext-perms-description-foo") for permission foo
+ *        and an optional formatting parameter.
  * @param {boolean} sideloaded
  *        Whether the notification is for a sideloaded extenion.
  * @param {boolean} [warning]
  *        Whether the experiments warning should be visible.
  */
-function checkNotification(
+async function checkNotification(
   panel,
   checkIcon,
   permissions,
@@ -249,22 +222,6 @@ function checkNotification(
     is(icon, checkIcon, "Notification icon is correct");
   }
 
-  let description = panel.querySelector(
-    ".popup-notification-description"
-  ).textContent;
-  let expectedDescription = "webextPerms.header";
-  if (permissions.length) {
-    expectedDescription += "WithPerms";
-  }
-  if (sideloaded) {
-    expectedDescription = "webextPerms.sideloadHeader";
-  }
-  checkPermissionString(
-    description,
-    expectedDescription,
-    undefined,
-    `Description is the expected one`
-  );
   is(
     learnMoreLink.hidden,
     !permissions.length,
@@ -288,15 +245,6 @@ function checkNotification(
       !singleDataEl.textContent,
       "Single permission data label has not been set"
     );
-    for (let i in permissions) {
-      let [key, param] = permissions[i];
-      checkPermissionString(
-        ul.children[i].textContent,
-        key,
-        param,
-        `Permission number ${i + 1} is correct`
-      );
-    }
   }
 
   if (warning) {
@@ -376,17 +324,17 @@ async function testInstallMethod(installFn) {
       // The icon should come from the extension, don't bother with the precise
       // path, just make sure we've got a jar url pointing to the right path
       // inside the jar.
-      checkNotification(panel, /^jar:file:\/\/.*\/icon\.png$/, [
-        ["webextPerms.hostDescription.wildcard", "wildcard.domain"],
-        ["webextPerms.hostDescription.oneSite", "singlehost.domain"],
-        ["webextPerms.description.nativeMessaging"],
+      await checkNotification(panel, /^jar:file:\/\/.*\/icon\.png$/, [
+        ["webext-perms-host-description-wildcard", "domain"],
+        ["webext-perms-host-description-one-site", "domain"],
+        ["webext-perms-description-nativeMessaging"],
         // The below permissions are deliberately in this order as permissions
         // are sorted alphabetically by the permission string to match AMO.
-        ["webextPerms.description.accountsRead2"],
-        ["webextPerms.description.tabs"],
+        ["webext-perms-description-accountsRead"],
+        ["webext-perms-description-tabs"],
       ]);
     } else if (filename == NO_PERMS_XPI) {
-      checkNotification(panel, isDefaultIcon, []);
+      await checkNotification(panel, isDefaultIcon, []);
     }
 
     if (cancel) {

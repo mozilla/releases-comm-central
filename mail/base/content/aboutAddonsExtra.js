@@ -28,6 +28,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
 
 (async function () {
   window.MozXULElement.insertFTLIfNeeded("messenger/aboutAddonsExtra.ftl");
+  window.MozXULElement.insertFTLIfNeeded("messenger/extensionPermissions.ftl");
   UIFontSize.registerWindow(window);
 
   // Consume clicks on a-tags and let openTrustedLinkIn() decide how to open them.
@@ -135,27 +136,15 @@ XPCOMUtils.defineLazyPreferenceGetter(
   // to show the usage of Experiments in the permission list.
   await customElements.whenDefined("addon-permissions-list");
   AddonPermissionsList.prototype.renderExperimentOnly = function () {
-    let brandBundle = Services.strings.createBundle(
-      "chrome://branding/locale/brand.properties"
-    );
-    let appName = brandBundle.GetStringFromName("brandShortName");
-
     this.textContent = "";
     let frag = importTemplate("addon-permissions-list");
     let section = frag.querySelector(".addon-permissions-required");
     section.hidden = false;
     let list = section.querySelector(".addon-permissions-list");
 
-    let browserBundle = Services.strings.createBundle(
-      "chrome://messenger/locale/addons.properties"
-    );
-    let msg = browserBundle.formatStringFromName(
-      "webextPerms.description.experiment",
-      [appName]
-    );
     let item = document.createElement("li");
+    document.l10n.setAttributes(item, "webext-perms-description-experiment");
     item.classList.add("permission-info", "permission-checked");
-    item.appendChild(document.createTextNode(msg));
     list.appendChild(item);
 
     this.appendChild(frag);

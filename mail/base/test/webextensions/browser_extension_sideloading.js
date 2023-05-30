@@ -145,12 +145,12 @@ add_task(async function test_sideloading() {
   let panel = await popupPromise;
 
   // Check the contents of the notification, then choose "Cancel"
-  checkNotification(
+  await checkNotification(
     panel,
     /\/foo-icon\.png$/,
     [
-      ["webextPerms.hostDescription.allUrls"],
-      ["webextPerms.description.accountsRead2"],
+      ["webext-perms-host-description-all-urls"],
+      ["webext-perms-description-accountsRead"],
     ],
     kSideloaded
   );
@@ -196,10 +196,10 @@ add_task(async function test_sideloading() {
   popupPromise = promisePopupNotificationShown("addon-webext-permissions");
   clickEnableExtension(addonElement);
   panel = await popupPromise;
-  checkNotification(
+  await checkNotification(
     panel,
     DEFAULT_ICON_URL,
-    [["webextPerms.hostDescription.allUrls"]],
+    [["webext-perms-host-description-all-urls"]],
     kSideloaded
   );
 
@@ -240,10 +240,10 @@ add_task(async function test_sideloading() {
   ExtensionsUI.showSideloaded(tabmail, addon3);
 
   panel = await popupPromise;
-  checkNotification(
+  await checkNotification(
     panel,
     DEFAULT_ICON_URL,
-    [["webextPerms.hostDescription.allUrls"]],
+    [["webext-perms-host-description-all-urls"]],
     kSideloaded
   );
 
