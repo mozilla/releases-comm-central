@@ -619,6 +619,10 @@ html|header.message-security-header html|h3 {
   font-weight: 600;
 }
 
+#signatureKey {
+  flex-wrap: wrap;
+}
+
 #otherEncryptionKeysList {
   margin: 9px 6px;
 }
