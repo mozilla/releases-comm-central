@@ -5168,15 +5168,6 @@ var messagePane = {
     messagePane.clearWebPage();
     messagePane.clearMessages();
 
-    let msgHdr = top.messenger.msgHdrFromURI(messageURI);
-    let index = threadTree.view.findIndexOfMsgHdr(msgHdr, true);
-    if (index == nsMsgViewIndex_None) {
-      // Change to correct folder if needed.
-      displayFolder(msgHdr.folder.URI);
-      index = threadTree.view.findIndexOfMsgHdr(msgHdr, true);
-    }
-    threadTree.selectedIndex = index;
-
     messageBrowser.contentWindow.displayMessage(messageURI, gViewWrapper);
     messageBrowser.hidden = false;
   },
@@ -5336,6 +5327,30 @@ function displayFolder(folder) {
     );
   }
   folderTree.selectedRow = row;
+}
+
+/**
+ * Update the thread pane selection if it doesn't already match `msgHdr`.
+ * The selected folder will be changed if necessary. If the selection
+ * changes, the message pane will also be updated (via a "select" event).
+ *
+ * @param {nsIMsgDBHdr} msgHdr
+ */
+function selectMessage(msgHdr) {
+  if (
+    gDBView?.numSelected == 1 &&
+    gDBView.hdrForFirstSelectedMessage == msgHdr
+  ) {
+    return;
+  }
+
+  let index = threadTree.view.findIndexOfMsgHdr(msgHdr, true);
+  if (index == nsMsgViewIndex_None) {
+    // Change to correct folder if needed.
+    displayFolder(msgHdr.folder.URI);
+    index = threadTree.view.findIndexOfMsgHdr(msgHdr, true);
+  }
+  threadTree.selectedIndex = index;
 }
 
 var folderListener = {

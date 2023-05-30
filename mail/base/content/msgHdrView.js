@@ -3140,13 +3140,12 @@ function OpenMessageForMessageId(messageId) {
 
   // If message was found open corresponding message.
   if (msgHdr) {
-    let uri = msgHdr.folder.getUriForMsg(msgHdr);
-    let tabmail = top.window.document.getElementById("tabmail");
-    if (tabmail?.currentAbout3Pane) {
+    if (parent.location == "about:3pane") {
       // Message in 3pane.
-      tabmail.currentAbout3Pane.messagePane.displayMessage(uri);
+      parent.selectMessage(msgHdr);
     } else {
       // Message in tab, standalone message window.
+      let uri = msgHdr.folder.getUriForMsg(msgHdr);
       window.displayMessage(uri);
     }
     return;

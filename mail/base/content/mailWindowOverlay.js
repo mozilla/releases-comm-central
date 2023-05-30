@@ -1245,17 +1245,10 @@ function MsgOpenNewWindowForMessage(aMsgHdr, aView) {
  * @param aMsgHdr The message header to display.
  */
 function MsgDisplayMessageInFolderTab(aMsgHdr) {
-  const nsMsgViewIndex_None = 0xffffffff;
-
   let tabmail = document.getElementById("tabmail");
   tabmail.switchToTab(0);
-
-  let about3Pane = tabmail.currentAbout3Pane;
-  about3Pane.displayFolder(aMsgHdr.folder.URI);
-  let index = about3Pane.gDBView.findIndexOfMsgHdr(aMsgHdr, true);
-  if (index != nsMsgViewIndex_None) {
-    about3Pane.threadTree.selectedIndex = index;
-  }
+  tabmail.currentAbout3Pane.selectMessage(aMsgHdr);
+  tabmail.currentAbout3Pane.paneLayout.messagePaneVisible = true;
 }
 
 function MsgMarkAllRead(folders) {
