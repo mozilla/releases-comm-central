@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { BasePromiseWorker } = ChromeUtils.import(
-  "resource://gre/modules/PromiseWorker.jsm"
-);
+import { BasePromiseWorker } from "resource://gre/modules/PromiseWorker.sys.mjs";
 import { ctypes } from "resource://gre/modules/ctypes.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { CLib } from "resource:///modules/CLib.sys.mjs";

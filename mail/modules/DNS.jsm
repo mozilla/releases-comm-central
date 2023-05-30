@@ -15,8 +15,8 @@ if (typeof Components !== "undefined") {
   var { ctypes } = ChromeUtils.importESModule(
     "resource://gre/modules/ctypes.sys.mjs"
   );
-  var { BasePromiseWorker } = ChromeUtils.import(
-    "resource://gre/modules/PromiseWorker.jsm"
+  var { BasePromiseWorker } = ChromeUtils.importESModule(
+    "resource://gre/modules/PromiseWorker.sys.mjs"
   );
 }
 
