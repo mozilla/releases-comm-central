@@ -2619,10 +2619,13 @@ Enigmail.msg = {
     }
 
     if (failures) {
-      let info = await document.l10n.formatValue("decrypt-and-copy-failures", {
-        failures,
-        total,
-      });
+      let info = await document.l10n.formatValue(
+        "decrypt-and-copy-failures-multiple",
+        {
+          failures,
+          total,
+        }
+      );
       Services.prompt.alert(null, document.title, info);
     }
   },

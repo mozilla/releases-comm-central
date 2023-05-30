@@ -195,7 +195,7 @@ var commandController = {
 
       if (failures) {
         let info = await document.l10n.formatValue(
-          "decrypt-and-copy-failures",
+          "decrypt-and-copy-failures-multiple",
           {
             failures,
             total,
