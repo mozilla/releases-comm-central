@@ -261,15 +261,31 @@ add_task(async function testBrokenMSExchangeEncryption() {
 
   // Delete the message.
   press_delete();
-}).skip(); // TODO
+});
 
 /**
  * Test the working keyboard shortcut event listener for the message header.
  * Ctrl+Alt+S for Windows and Linux, Control+Cmd+S for macOS.
  */
 add_task(async function testMessageSecurityShortcut() {
-  // Create an S/MIME message and add it to the inbox folder.
-  await add_message_to_folder([gInbox], create_encrypted_smime_message());
+  // Add an S/MIME message to the inbox folder.
+  let smimeFile = new FileUtils.File(
+    getTestFilePath("data/smime/alice.env.eml")
+  );
+
+  // Add the fetched S/MIME message to the inbox folder.
+  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  MailServices.copy.copyFileMessage(
+    smimeFile,
+    gInbox,
+    null,
+    false,
+    0,
+    "",
+    copyListener,
+    null
+  );
+  await copyListener.promise;
 
   // Select the first row, which should contain the S/MIME message.
   select_click_row(0);
@@ -279,7 +295,8 @@ add_task(async function testMessageSecurityShortcut() {
     aboutMessage.document
       .getElementById("encryptionTechBtn")
       .querySelector("span").textContent,
-    "S/MIME"
+    "S/MIME",
+    "should indicate S/MIME encrypted"
   );
 
   let modifiers =
@@ -301,7 +318,7 @@ add_task(async function testMessageSecurityShortcut() {
   select_click_row(0);
   // Delete the message.
   press_delete();
-}).skip(); // TODO
+});
 
 registerCleanupFunction(async function tearDown() {
   // Reset the OpenPGP key and delete the account.

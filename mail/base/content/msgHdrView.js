@@ -414,7 +414,7 @@ async function OnLoadMsgHeaderPane() {
   let shortcut = await document.l10n.formatValue(
     "message-header-show-security-info-key"
   );
-  document.addEventListener("keypress", event => {
+  top.document.addEventListener("keypress", event => {
     if (
       event.ctrlKey &&
       (event.altKey || event.metaKey) &&
