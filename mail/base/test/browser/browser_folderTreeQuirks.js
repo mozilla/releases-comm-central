@@ -779,45 +779,14 @@ add_task(async function testGmailFolders() {
   gmailAccount.defaultIdentity = gmailIdentity;
 
   let gmailRootFolder = gmailServer.rootFolder;
-
-  // Fetch the folders from the server. We haven't added the [Gmail] folder to
-  // the server yet, because for some reason we can't set the `isGMailServer`
-  // flag until after calling this function, but it must be set before the
-  // folder appears or the folder tree misbehaves.
-  // In reality there's going to be some lag between setting the flag and the
-  // folders appearing, so this hack seems justified.
-  gmailServer.performBiff(window.msgWindow);
+  gmailServer.performExpand(window.msgWindow);
   await TestUtils.waitForCondition(
-    () => gmailRootFolder.subFolders.length == 2
+    () => gmailRootFolder.subFolders.length == 3,
+    "waiting for folders to be created"
   );
-
-  // All of the above needs to happen before the `isGMailServer` flag sticks.
-  // This flag helps the front end behave correctly.
-  gmailServer.QueryInterface(Ci.nsIImapIncomingServer);
-  gmailServer.isGMailServer = true;
 
   let gmailInboxFolder = gmailRootFolder.getChildNamed("INBOX");
   let gmailTrashFolder = gmailRootFolder.getChildNamed("Trash");
-
-  await checkModeListItems("all", [
-    gmailRootFolder,
-    gmailInboxFolder,
-    gmailTrashFolder,
-    rootFolder,
-    inboxFolder,
-    trashFolder,
-    outboxFolder,
-    folderA,
-    folderB,
-    folderC,
-  ]);
-
-  // Now add the [Gmail] folder to the server and go looking for it.
-  IMAPServer.createGmailMailboxes();
-  gmailServer.performExpand(window.msgWindow);
-  await TestUtils.waitForCondition(() => gmailRootFolder.subFolders.length > 2);
-
-  // Get the folder and test the utility functions with it.
   let gmailGmailFolder = gmailRootFolder.getChildNamed("[Gmail]");
   let gmailAllMailFolder = gmailGmailFolder.getChildNamed("All Mail");
 
@@ -900,7 +869,7 @@ add_task(async function testGmailFolders() {
   ]);
 
   MailServices.accounts.removeAccount(gmailAccount, false);
-}).__skipMe = AppConstants.DEBUG; // Too unreliable.
+});
 
 add_task(async function testAccountOrder() {
   // Make some changes to the main account so that it appears in all modes.
@@ -1189,8 +1158,14 @@ function expandAll(modeName) {
 
 var IMAPServer = {
   open() {
-    const { ImapDaemon, ImapMessage, IMAP_RFC3501_handler } =
-      ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
+    const {
+      ImapDaemon,
+      ImapMessage,
+      IMAP_GMAIL_extension,
+      IMAP_RFC3348_extension,
+      IMAP_RFC3501_handler,
+      mixinExtension,
+    } = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
     const { nsMailServer } = ChromeUtils.import(
       "resource://testing-common/mailnews/Maild.jsm"
     );
@@ -1203,22 +1178,6 @@ var IMAPServer = {
       flags: ["\\Trash"],
       subscribed: true,
     });
-    this.server = new nsMailServer(
-      daemon => new IMAP_RFC3501_handler(daemon),
-      this.daemon
-    );
-    this.server.start();
-
-    registerCleanupFunction(() => this.close());
-  },
-  close() {
-    this.server.stop();
-  },
-  get port() {
-    return this.server.port;
-  },
-
-  createGmailMailboxes() {
     this.daemon.createMailbox("[Gmail]", {
       flags: ["\\NoSelect"],
       subscribed: true,
@@ -1228,5 +1187,20 @@ var IMAPServer = {
       subscribed: true,
       specialUseFlag: "\\AllMail",
     });
+    this.server = new nsMailServer(daemon => {
+      let handler = new IMAP_RFC3501_handler(daemon);
+      mixinExtension(handler, IMAP_GMAIL_extension);
+      mixinExtension(handler, IMAP_RFC3348_extension);
+      return handler;
+    }, this.daemon);
+    this.server.start();
+
+    registerCleanupFunction(() => this.close());
+  },
+  close() {
+    this.server.stop();
+  },
+  get port() {
+    return this.server.port;
   },
 };
