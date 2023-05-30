@@ -3687,33 +3687,24 @@ var threadPaneHeader = {
   },
 
   /**
-   * Count the number of currently selected messages, or if the single message
-   * is a thread, and update the selected count indicator.
-   *
-   * @param {boolean} isSingleMessage - If only one message is selected.
+   * Count the number of currently selected messages and update the selected
+   * message count indicator.
    */
-  updateSelectedCount(isSingleMessage) {
+  updateSelectedCount() {
     // Bail out if the pane is hidden as we don't need to update anything.
     if (this.isHidden) {
       return;
     }
 
-    if (isSingleMessage) {
-      const index = threadTree.selectedIndex;
-      // If this is not a thread or the thread is open, we don't show the count.
-      if (
-        !threadTree.view.isContainer(index) ||
-        threadTree.view.isContainerOpen(index)
-      ) {
-        this.clearSelectedCount();
-        return;
-      }
+    let count = gDBView?.getSelectedMsgHdrs().length;
+    if (count < 2) {
+      this.clearSelectedCount();
+      return;
     }
-
     document.l10n.setAttributes(
       this.selectedCount,
       "thread-pane-folder-selected-count",
-      { count: gDBView.getSelectedMsgHdrs().length }
+      { count }
     );
     this.selectedCount.hidden = false;
   },
@@ -3947,12 +3938,12 @@ var threadPane = {
         } else {
           let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
           messagePane.displayMessage(uri);
-          threadPaneHeader.updateSelectedCount(true);
+          threadPaneHeader.updateSelectedCount();
         }
         return;
       default:
         messagePane.displayMessages(gDBView.getSelectedMsgHdrs());
-        threadPaneHeader.updateSelectedCount(false);
+        threadPaneHeader.updateSelectedCount();
         break;
     }
   },
