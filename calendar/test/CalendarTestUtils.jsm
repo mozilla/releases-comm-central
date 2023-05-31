@@ -850,6 +850,7 @@ const CalendarTestUtils = {
 
     if (target) {
       this.scrollViewToTarget(target, true);
+      await new Promise(resolve => win.setTimeout(resolve));
       EventUtils.synthesizeMouse(target, 1, 1, { clickCount: 2 }, win);
     } else {
       EventUtils.synthesizeMouseAtCenter(
@@ -967,9 +968,7 @@ const CalendarTestUtils = {
         ? "chrome://calendar/content/calendar-event-dialog.xhtml"
         : "chrome://calendar/content/calendar-summary-dialog.xhtml";
 
-    return BrowserTestUtils.domWindowOpened(null, async win => {
-      await BrowserTestUtils.waitForEvent(win, "load");
-
+    return BrowserTestUtils.domWindowOpenedAndLoaded(null, async win => {
       if (win.document.documentURI != uri) {
         return false;
       }
