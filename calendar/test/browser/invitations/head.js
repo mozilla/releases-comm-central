@@ -123,7 +123,7 @@ async function openImipMessage(file) {
 async function clickAction(win, id) {
   let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
   let action = aboutMessage.document.getElementById(id);
-  Assert.ok(!action.hidden, `button "#${id}" shown"`);
+  await TestUtils.waitForCondition(() => !action.hidden, `button "#${id}" shown`);
 
   EventUtils.synthesizeMouseAtCenter(action, {}, aboutMessage);
   await TestUtils.waitForCondition(() => action.hidden, `button "#${id}" hidden`);
@@ -139,7 +139,7 @@ async function clickAction(win, id) {
 async function clickMenuAction(win, buttonId, actionId) {
   let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
   let actionButton = aboutMessage.document.getElementById(buttonId);
-  Assert.ok(!actionButton.hidden, `"${buttonId}" shown`);
+  await TestUtils.waitForCondition(() => !actionButton.hidden, `"${buttonId}" shown`);
 
   let actionMenu = actionButton.querySelector("menupopup");
   let menuShown = BrowserTestUtils.waitForEvent(actionMenu, "popupshown");
