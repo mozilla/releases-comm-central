@@ -8,100 +8,138 @@
 
 "use strict";
 
-var { CustomizeDialogHelper } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CustomizationHelpers.jsm"
-);
-var { close_popup, mc, wait_for_popup_to_open } = ChromeUtils.import(
+const { close_popup, mc, wait_for_popup_to_open } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { drag_n_drop_element } = ChromeUtils.import(
+
+const { drag_n_drop_element } = ChromeUtils.import(
   "resource://testing-common/mozmill/MouseEventHelpers.jsm"
 );
 
-var gCDHelper;
+const { click_through_appmenu } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
+const { wait_for_element_visible, wait_for_element_invisible } =
+  ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
 
 add_setup(function () {
-  gCDHelper = new CustomizeDialogHelper(
-    "toolbar-menubar",
-    "CustomizeMailToolbar",
-    "mailnews:customizeToolbar"
-  );
   Services.prefs.setBoolPref("mail.tabs.autoHide", false);
 });
 
-registerCleanupFunction(async function () {
+registerCleanupFunction(function () {
   // Let's reset any and all of our changes to the toolbar
-  await gCDHelper.restoreDefaultButtons(mc);
   Services.prefs.clearUserPref("mail.tabs.autoHide");
 });
 
 /**
- * Test that we can access the customize context menu by right
- * clicking on the tabs toolbar.
+ * Test that we can access the unified toolbar by clicking
+ * customize on the toolbar context menu
  */
-add_task(async function test_open_context_menu() {
+add_task(async function test_open_unified_by_context() {
   // First, ensure that the context menu is closed.
   let contextPopup = mc.window.document.getElementById("toolbar-context-menu");
-  Assert.notEqual(contextPopup.state, "open");
+  Assert.notEqual(
+    contextPopup.state,
+    "open",
+    "Context menu is currently open!"
+  );
 
-  // Right click on the tab bar
+  // Right click on the tab bar.
   EventUtils.synthesizeMouseAtCenter(
     mc.window.document.getElementById("tabmail-tabs"),
     { type: "contextmenu" },
     window
   );
 
-  // Ensure that the popup opened
+  // Ensure that the popup opened.
   await wait_for_popup_to_open(contextPopup);
+  Assert.equal(contextPopup.state, "open", "Context menu was not opened!");
+
+  const customizeButton = document.getElementById("CustomizeMailToolbar");
+  // Click customize.
+  contextPopup.activateItem(customizeButton);
+
+  // Wait for hidden css attribute on unified toolbar
+  // customization to be removed.
+  await wait_for_element_visible(
+    window,
+    "unifiedToolbarCustomizationContainer"
+  );
+
+  // Ensure messengerWindow (HTML element) has customizingUnifiedToolbar class,
+  // which means unified toolbar customization should be open.
+  Assert.ok(
+    document
+      .getElementById("messengerWindow")
+      .classList.contains("customizingUnifiedToolbar"),
+    "customizingUnifiedToolbar class not found on messengerWindow element"
+  );
+
+  // Click cancel.
+  const cancelButton = document.getElementById(
+    "unifiedToolbarCustomizationCancel"
+  );
+  cancelButton.click();
+
+  // Wait for hidden css attribute on Unified Toolbar
+  // customization to be added.
+  await wait_for_element_invisible(
+    window,
+    "unifiedToolbarCustomizationContainer"
+  );
 
   await close_popup(mc, contextPopup);
 });
 
 /**
- * Test that, when customizing the toolbars, if the user drags an item onto
- * the tab bar, they're redirected to the toolbar directly to the right of
- * the tab bar.
+ * Test that we can access the unified toolbar customization by clicking
+ * the toolbar layout menu option
  */
-add_task(async function test_redirects_toolbarbutton_drops() {
-  Services.prefs.setBoolPref("toolkit.customization.unsafe_drag_events", true);
-  // Restore the default buttons to get defined starting conditions.
-  await gCDHelper.restoreDefaultButtons(mc);
+add_task(async function test_open_unified_by_menu() {
+  // First, ensure that the menu is closed.
+  let appMenu = mc.window.document.getElementById("appMenu-popup");
+  Assert.notEqual(
+    appMenu.getAttribute("panelopen"),
+    "true",
+    "appMenu-popup is currently open!"
+  );
 
-  let tabbar = mc.window.document.getElementById("tabmail-tabs");
-  let toolbar = mc.window.document.getElementById("tabbar-toolbar");
+  // Click through app menu to view unified toolbar.
+  click_through_appmenu(
+    [{ id: "appmenu_View" }, { id: "appmenu_Toolbars" }],
+    { id: "appmenu_toolbarLayout" },
+    window
+  );
 
-  // First, let's open up the customize toolbar window.
-  let ctw = await gCDHelper.open(mc);
+  // Wait for hidden css attribute on unified toolbar
+  // customization to be removed.
+  await wait_for_element_visible(
+    window,
+    "unifiedToolbarCustomizationContainer"
+  );
 
-  // Let's grab some items from the customize window, and try dropping
-  // them on the tab bar
-  [
-    "wrapper-button-previous",
-    "wrapper-button-previousMsg",
-    "wrapper-button-nextMsg",
-    "wrapper-button-next",
-  ].forEach(function (aButtonId) {
-    let button = ctw.window.document.getElementById(aButtonId);
+  // Ensure messengerWindow (HTML element) has customizingUnifiedToolbar class,
+  // which means unified toolbar customization should be open.
+  Assert.ok(
+    document
+      .getElementById("messengerWindow")
+      .classList.contains("customizingUnifiedToolbar"),
+    "customizingUnifiedToolbar class not found on messengerWindow element"
+  );
 
-    drag_n_drop_element(
-      button,
-      ctw.window,
-      tabbar,
-      mc.window,
-      0.5,
-      0.5,
-      ctw.window
-    );
+  // Click cancel.
+  const cancelButton = document.getElementById(
+    "unifiedToolbarCustomizationCancel"
+  );
+  cancelButton.click();
 
-    // Now let's check to make sure that this button is now the first
-    // item in the tab bar toolbar.
-    Assert.equal(
-      toolbar.firstElementChild.id,
-      aButtonId,
-      "Button was not added as first child!"
-    );
-  });
+  // Wait for hidden css attribute on unified toolbar
+  // customization to be added.
+  await wait_for_element_invisible(
+    window,
+    "unifiedToolbarCustomizationContainer"
+  );
 
-  gCDHelper.close(ctw);
-  Services.prefs.clearUserPref("toolkit.customization.unsafe_drag_events");
+  await close_popup(mc, appMenu);
 });

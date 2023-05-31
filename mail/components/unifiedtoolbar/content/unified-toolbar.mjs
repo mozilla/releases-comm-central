@@ -201,9 +201,7 @@ class UnifiedToolbar extends HTMLElement {
   };
 
   #handleCustomizeCommand = () => {
-    this.#ensureCustomizationInserted().then(() =>
-      document.querySelector("unified-toolbar-customization").toggle(true)
-    );
+    this.showCustomization();
   };
 
   #handleSpaceChange = event => {
@@ -342,6 +340,14 @@ class UnifiedToolbar extends HTMLElement {
       }
     }
     this.#showToolbarForSpace(gSpacesToolbar.currentSpace?.name ?? "mail");
+  }
+
+  /**
+   * Opens the customization UI for the unified toolbar.
+   */
+  async showCustomization() {
+    await this.#ensureCustomizationInserted();
+    document.querySelector("unified-toolbar-customization").toggle(true);
   }
 }
 customElements.define("unified-toolbar", UnifiedToolbar);

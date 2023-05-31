@@ -181,6 +181,12 @@ function overlayRepositionDialog() {
 }
 
 function CustomizeMailToolbar(toolboxId, customizePopupId) {
+  if (toolboxId === "mail-toolbox") {
+    // Open the unified toolbar customization panel only for mail.
+    document.querySelector("unified-toolbar").showCustomization();
+    return;
+  }
+
   // Disable the toolbar context menu items
   var menubar = document.getElementById("mail-menubar");
   for (var i = 0; i < menubar.children.length; ++i) {
