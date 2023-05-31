@@ -6,13 +6,12 @@
 !*.mjs
 !*.jsx
 !*.sjs
+!*.xhtml
+!*.html
 
-# Not currently enabled, but planning to soon.
-# These files are disabled due to parsing errors when using Prettier.
-# Bug 1560186
-# !*.html
-# !*.xhtml
-# !*.xml
+# Exclude xhtml/html test files.
+**/test*/**/*.xhtml
+**/test*/**/*.html
 
 # Preference files.
 calendar/base/calendar.js
@@ -36,8 +35,78 @@ suite/**
 
 try_task_config.json
 
-#Intentionally incorrect
+# Intentionally incorrect
 mailnews/test/data/alias-9.json
+
+# Ignore .inc.(x)html files, since they may contain preprocessor directives/
+# incomplete HTML.
+**/*.inc.xhtml
+**/*.inc.html
+
+
+# Ignore preprocessed xhtml/html files
+calendar/base/content/dialogs/calendar-event-dialog.xhtml
+calendar/base/content/widgets/*.xhtml
+mail/base/content/about3Pane.xhtml
+mail/base/content/aboutDialog.xhtml
+mail/base/content/aboutMessage.xhtml
+mail/base/content/browserRequest.xhtml
+mail/base/content/buildconfig.html
+mail/base/content/hiddenWindowMac.xhtml
+mail/base/content/messageWindow.xhtml
+mail/base/content/messenger.xhtml
+mail/base/content/newTagDialog.xhtml
+mail/base/content/profileDowngrade.xhtml
+mail/base/content/SearchDialog.xhtml
+mail/base/content/viewSource.xhtml
+mail/components/about-support/content/aboutSupport.xhtml
+mail/components/activity/content/activity.xhtml
+mail/components/addrbook/content/aboutAddressBook.xhtml
+mail/components/addrbook/content/abSearchDialog.xhtml
+mail/components/compose/content/messengercompose.xhtml
+mail/components/downloads/content/aboutDownloads.xhtml
+mail/components/extensions/extensionPopup.xhtml
+mail/components/migration/content/migration.xhtml
+mail/components/preferences/colors.xhtml
+mail/components/preferences/cookies.xhtml
+mail/components/preferences/dockoptions.xhtml
+mail/components/preferences/preferences.xhtml
+mail/components/preferences/tagDialog.xhtml
+mail/extensions/am-e2e/am-e2e.xhtml
+mail/extensions/mailviews/content/mailViewSetup.xhtml
+mailnews/base/content/virtualFolderProperties.xhtml
+mailnews/base/prefs/content/AccountManager.xhtml
+mailnews/base/prefs/content/AccountWizard.xhtml
+mailnews/base/prefs/content/am-addressing.xhtml
+mailnews/base/prefs/content/am-copies.xhtml
+mailnews/base/prefs/content/am-identity-edit.xhtml
+mailnews/import/content/aboutImport.xhtml
+mailnews/search/content/CustomHeaders.xhtml
+mailnews/search/content/FilterEditor.xhtml
+
+# Chat template files that are space sensitive
+mail/components/im/messages/bubbles/*.html
+mail/components/im/messages/bubbles/Incoming/*.html
+mail/components/im/messages/dark/*.html
+mail/components/im/messages/dark/Incoming/*.html
+mail/components/im/messages/mail/*.html
+mail/components/im/messages/mail/Incoming/*.html
+mail/components/im/messages/mail/Outgoing/*.html
+mail/components/im/messages/papersheets/*.html
+mail/components/im/messages/papersheets/Incoming/*.html
+mail/components/im/messages/simple/*.html
+mail/components/im/messages/simple/Incoming/*.html
+
+
+# (x)html files that currently fail and need investigation/fixing.
+# DTD strings issues
+mail/base/content/FilterListDialog.xhtml
+mail/base/content/sanitize.xhtml
+mailnews/addrbook/prefs/content/pref-directory-add.xhtml
+mailnews/base/prefs/content/removeAccount.xhtml
+
+# Documentation Jinja templates
+docs/_templates/**
 
 ##############################################################################
 # The list below is copied from ThirdPartyPaths.txt. Prettier doesn't currently
