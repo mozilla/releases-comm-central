@@ -177,6 +177,11 @@ function verifyOpenAccountHubTab() {
   openAccountSetupTab();
 }
 
+let _resolveDelayedStartup;
+var delayedStartupPromise = new Promise(resolve => {
+  _resolveDelayedStartup = resolve;
+});
+
 var gMailInit = {
   onBeforeInitialXULLayout() {
     // Set a sane starting width/height for all resolutions on new profiles.
@@ -369,6 +374,7 @@ var gMailInit = {
     msgDBCacheManager.init();
 
     this.delayedStartupFinished = true;
+    _resolveDelayedStartup(window);
     Services.obs.notifyObservers(window, "browser-delayed-startup-finished");
 
     // Notify observer to resolve the browserStartupPromise, which is used for the

@@ -436,29 +436,7 @@ MailDefaultHandler.prototype = {
         /^[a-z]+:/.test(uri.split("+")[1])
       ) {
         getOrOpen3PaneWindow()
-          .then(
-            win =>
-              new Promise((resolve, reject) => {
-                if (!win.gMailInit?.delayedStartupFinished) {
-                  let obs = (finishedWindow, topic, data) => {
-                    if (finishedWindow != win) {
-                      return;
-                    }
-                    Services.obs.removeObserver(
-                      obs,
-                      "browser-delayed-startup-finished"
-                    );
-                    resolve(win);
-                  };
-                  Services.obs.addObserver(
-                    obs,
-                    "browser-delayed-startup-finished"
-                  );
-                } else {
-                  resolve(win);
-                }
-              })
-          )
+          .then(win => win.delayedStartupPromise)
           .then(win => {
             win.gTabmail.openTab("contentTab", {
               url: uri,

@@ -686,23 +686,7 @@ var ExtensionsUI = {
     Services.obs.addObserver(this, "webextension-optional-permission-prompt");
     Services.obs.addObserver(this, "webextension-defaultsearch-prompt");
 
-    // TODO: await delayedStartupPromise instead once Thunderbird has that.
-    await new Promise((resolve, reject) => {
-      let window = Services.wm.getMostRecentWindow("mail:3pane");
-      if (!window.gMailInit?.delayedStartupFinished) {
-        let obs = (observedWindow, topic, data) => {
-          if (observedWindow != window) {
-            return;
-          }
-          Services.obs.removeObserver(obs, "browser-delayed-startup-finished");
-          resolve();
-        };
-        Services.obs.addObserver(obs, "browser-delayed-startup-finished");
-      } else {
-        resolve();
-      }
-    });
-
+    await Services.wm.getMostRecentWindow("mail:3pane").delayedStartupPromise;
     this._checkForSideloaded();
   },
 
