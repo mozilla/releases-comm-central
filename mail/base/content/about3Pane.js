@@ -2129,6 +2129,9 @@ var folderPane = {
       // At this point `dbViewWrapperListener.onCreatedView` gets called,
       // setting up gDBView and scrolling threadTree to the right end.
 
+      threadPane.updateListRole(
+        !gViewWrapper?.showThreaded && !gViewWrapper?.showGroupedBySort
+      );
       threadPane.restoreSortIndicator();
       threadPane.restoreSelection();
       threadPaneHeader.onFolderSelected();
@@ -4914,6 +4917,16 @@ var threadPane = {
         break;
     }
   },
+
+  /**
+   * Update the ARIA Role of the tree view table body to properly communicate
+   * to assistive techonology the type of list we're rendering.
+   *
+   * @param {boolean} isListbox - If the list should have a listbox role.
+   */
+  updateListRole(isListbox) {
+    threadTree.table.body.setAttribute("role", isListbox ? "listbox" : "tree");
+  },
 };
 
 var messagePane = {
@@ -5316,6 +5329,18 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       let ariaLabelPromises = [];
 
       const propertiesSet = new Set(properties.value.split(" "));
+
+      if (propertiesSet.has("dummy")) {
+        const cell = this.querySelector(".subjectcol-column");
+        const textIndex = textColumns.indexOf("subjectCol");
+        const label = cellTexts[textIndex];
+        const span = cell.querySelector(".subject-line span");
+        cell.title = span.textContent = label;
+        this.setAttribute("aria-label", label);
+        this.dataset.properties = "dummy";
+        return;
+      }
+
       this.dataset.properties = properties.value.trim();
 
       for (let column of threadPane.columns) {
@@ -5775,6 +5800,7 @@ var sortController = {
     }
   },
   sortByThread() {
+    threadPane.updateListRole(false);
     gViewWrapper.showThreaded = true;
     this.sortThreadPane("byDate");
   },
@@ -5856,18 +5882,23 @@ var sortController = {
   },
   toggleThreaded() {
     if (gViewWrapper.showThreaded) {
+      threadPane.updateListRole(true);
       gViewWrapper.showUnthreaded = true;
     } else {
+      threadPane.updateListRole(false);
       gViewWrapper.showThreaded = true;
     }
   },
   sortThreaded() {
+    threadPane.updateListRole(false);
     gViewWrapper.showThreaded = true;
   },
   groupBySort() {
+    threadPane.updateListRole(false);
     gViewWrapper.showGroupedBySort = true;
   },
   sortUnthreaded() {
+    threadPane.updateListRole(true);
     gViewWrapper.showUnthreaded = true;
   },
   sortAscending() {

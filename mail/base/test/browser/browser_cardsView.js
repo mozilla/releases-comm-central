@@ -53,6 +53,17 @@ add_task(async function testSwitchToCardsView() {
     "The tree view should not switch to a card layout"
   );
 
+  Assert.equal(
+    threadTree.table.body.getAttribute("role"),
+    "tree",
+    "The message list table should be presented as Tree View"
+  );
+  Assert.equal(
+    threadTree.getRowAtIndex(0).getAttribute("role"),
+    "treeitem",
+    "The message row should be presented as Tree Item"
+  );
+
   displayContext = about3Pane.document.getElementById(
     "threadPaneDisplayContext"
   );
@@ -89,6 +100,16 @@ add_task(async function testSwitchToCardsView() {
     threadTree.getAttribute("rows"),
     "thread-card",
     "tree view in cards layout"
+  );
+  Assert.equal(
+    threadTree.table.body.getAttribute("role"),
+    "tree",
+    "The message list table should remain as Tree View"
+  );
+  Assert.equal(
+    threadTree.getRowAtIndex(0).getAttribute("role"),
+    "treeitem",
+    "The message row should remain as Tree Item"
   );
 
   let row = threadTree.getRowAtIndex(0);
