@@ -8,40 +8,46 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/colors.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
-<!DOCTYPE html [
-  <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar-invitations-dialog.dtd"> %dtd1;
-]>
+<!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar-invitations-dialog.dtd">
+%dtd1; ]>
 
-<html id="calendar-invitations-dialog" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      icon="calendar-general-dialog"
-      lightweightthemes="true"
-      persist="screenX screenY"
-      style="min-width: 600px; min-height: 350px;"
-      scrolling="false">
-<head>
-  <title>&calendar.invitations.dialog.invitations.text;</title>
-  <link rel="localization" href="calendar/calendar-invitations-dialog.ftl" />
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-invitations-dialog.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog class="scrollable" buttons="accept,cancel">
-  <div id="invitationContainer">
-    <richlistbox id="invitations-listbox"/>
-    <hbox id="updating-box" align="center" pack="center" hidden="true">
-      <label value="&calendar.invitations.dialog.statusmessage.updating.text;"
-             crop="end"/>
-      <html:img class="calendar-invitations-updating-icon"
-                src="chrome://global/skin/icons/loading.png" alt="" />
-    </hbox>
-    <hbox id="noinvitations-box" align="center" pack="center" hidden="true">
-      <label value="&calendar.invitations.dialog.statusmessage.noinvitations.text;"
-             crop="end"/>
-    </hbox>
-  </div>
-</dialog>
-</html:body>
+<html
+  id="calendar-invitations-dialog"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  icon="calendar-general-dialog"
+  lightweightthemes="true"
+  persist="screenX screenY"
+  style="min-width: 600px; min-height: 350px"
+  scrolling="false"
+>
+  <head>
+    <title>&calendar.invitations.dialog.invitations.text;</title>
+    <link rel="localization" href="calendar/calendar-invitations-dialog.ftl" />
+    <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-invitations-dialog.js"></script>
+  </head>
+  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <dialog class="scrollable" buttons="accept,cancel">
+      <div id="invitationContainer">
+        <richlistbox id="invitations-listbox" />
+        <hbox id="updating-box" align="center" pack="center" hidden="true">
+          <label value="&calendar.invitations.dialog.statusmessage.updating.text;" crop="end" />
+          <html:img
+            class="calendar-invitations-updating-icon"
+            src="chrome://global/skin/icons/loading.png"
+            alt=""
+          />
+        </hbox>
+        <hbox id="noinvitations-box" align="center" pack="center" hidden="true">
+          <label
+            value="&calendar.invitations.dialog.statusmessage.noinvitations.text;"
+            crop="end"
+          />
+        </hbox>
+      </div>
+    </dialog>
+  </html:body>
 </html>

@@ -13,204 +13,215 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/shared/input-fields.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
-<!DOCTYPE html [
-  <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd1;
-  <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" > %dtd2;
-]>
-<html id="calendar-event-dialog-attendees-v2" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      windowtype="Calendar:EventDialog:Attendees"
-      orient="vertical"
-      lightweightthemes="true"
-      scrolling="false"
-      style="min-width: 800px; min-height: 500px;">
-<head>
-  <title>&invite.title.label;</title>
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
-  <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"></script>
-  <script defer="defer" src="chrome://calendar/content/widgets/datetimepickers.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-event-dialog-attendees.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog defaultButton="none">
-  <hbox align="center" pack="end">
-    <spacer flex="1"/>
-    <label value="&event.freebusy.zoom;" control="zoom-menulist"/>
-    <toolbarbutton id="zoom-out-button"
-                   class="zoom-out-icon"/>
-    <toolbarbutton id="zoom-in-button"
-                   class="zoom-in-icon"/>
-  </hbox>
-  <hbox id="outer" flex="1">
-    <vbox class="attendee-list-container">
-      <box id="spacer"></box>
-      <vbox id="attendee-list" flex="1"></vbox>
-    </vbox>
-    <splitter/>
-    <vbox flex="1" class="attendees-grid-container">
-      <box id="day-header-outer">
-        <stack>
-          <hbox id="day-header-inner"></hbox>
-          <html:div id="event-bar-top" draggable="true"></html:div>
-        </stack>
-      </box>
-      <vbox id="freebusy-grid"
-            flex="1">
-        <stack>
-          <html:div id="freebusy-grid-background"></html:div>
-          <html:div id="freebusy-grid-inner"></html:div>
-          <html:div id="event-bar-bottom" draggable="true"></html:div>
-        </stack>
-      </vbox>
-    </vbox>
-  </hbox>
-  <hbox>
-    <hbox flex="1">
-      <hbox flex="1">
-        <table xmlns="http://www.w3.org/1999/xhtml">
-          <tr>
-            <td>
-              <img class="role-icon"
-                   attendeerole="REQ-PARTICIPANT"
-                   src="chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
-                   alt="" />
-            </td>
-            <td>&event.attendee.role.required;</td>
-          </tr>
-          <tr>
-            <td>
-              <img class="role-icon"
-                   attendeerole="OPT-PARTICIPANT"
-                   src="chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
-                   alt="" />
-            </td>
-            <td>&event.attendee.role.optional;</td>
-          </tr>
-          <tr>
-            <td>
-              <img class="role-icon"
-                   attendeerole="NON-PARTICIPANT"
-                   src="chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
-                   alt="" />
-            </td>
-            <td>&event.attendee.role.nonparticipant;</td>
-          </tr>
-          <tr>
-            <td>
-              <img class="role-icon"
-                   attendeerole="CHAIR"
-                   src="chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
-                   alt="" />
-            </td>
-            <td>&event.attendee.role.chair;</td>
-          </tr>
-        </table>
+<!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendar.dtd"> %dtd1;
+<!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" >
+%dtd2; ]>
+<html
+  id="calendar-event-dialog-attendees-v2"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  windowtype="Calendar:EventDialog:Attendees"
+  orient="vertical"
+  lightweightthemes="true"
+  scrolling="false"
+  style="min-width: 800px; min-height: 500px"
+>
+  <head>
+    <title>&invite.title.label;</title>
+    <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+    <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+    <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+    <script defer="defer" src="chrome://calendar/content/widgets/calendar-minimonth.js"></script>
+    <script defer="defer" src="chrome://calendar/content/widgets/datetimepickers.js"></script>
+    <script
+      defer="defer"
+      src="chrome://calendar/content/calendar-event-dialog-attendees.js"
+    ></script>
+  </head>
+  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <dialog defaultButton="none">
+      <hbox align="center" pack="end">
+        <spacer flex="1" />
+        <label value="&event.freebusy.zoom;" control="zoom-menulist" />
+        <toolbarbutton id="zoom-out-button" class="zoom-out-icon" />
+        <toolbarbutton id="zoom-in-button" class="zoom-in-icon" />
       </hbox>
-      <hbox flex="1">
-        <table xmlns="http://www.w3.org/1999/xhtml">
-          <tr>
-            <td>
-              <img class="usertype-icon"
-                   usertype="INDIVIDUAL"
-                   src="chrome://calendar/skin/shared/attendee-icons.png"
-                   alt="" />
-            </td>
-            <td>&event.attendee.usertype.individual;</td>
-          </tr>
-          <tr>
-            <td>
-              <img class="usertype-icon"
-                   usertype="GROUP"
-                   src="chrome://calendar/skin/shared/attendee-icons.png"
-                   alt="" />
-            </td>
-            <td>&event.attendee.usertype.group;</td>
-          </tr>
-          <tr>
-            <td>
-              <img class="usertype-icon"
-                   usertype="RESOURCE"
-                   src="chrome://calendar/skin/shared/attendee-icons.png"
-                   alt="" />
-            </td>
-            <td>&event.attendee.usertype.resource;</td>
-          </tr>
-          <tr>
-            <td>
-              <img class="usertype-icon"
-                   usertype="ROOM"
-                   src="chrome://calendar/skin/shared/attendee-icons.png"
-                   alt="" />
-            </td>
-            <td>&event.attendee.usertype.room;</td>
-          </tr>
-        </table>
+      <hbox id="outer" flex="1">
+        <vbox class="attendee-list-container">
+          <box id="spacer"></box>
+          <vbox id="attendee-list" flex="1"></vbox>
+        </vbox>
+        <splitter />
+        <vbox flex="1" class="attendees-grid-container">
+          <box id="day-header-outer">
+            <stack>
+              <hbox id="day-header-inner"></hbox>
+              <html:div id="event-bar-top" draggable="true"></html:div>
+            </stack>
+          </box>
+          <vbox id="freebusy-grid" flex="1">
+            <stack>
+              <html:div id="freebusy-grid-background"></html:div>
+              <html:div id="freebusy-grid-inner"></html:div>
+              <html:div id="event-bar-bottom" draggable="true"></html:div>
+            </stack>
+          </vbox>
+        </vbox>
       </hbox>
-      <hbox flex="1">
-        <table xmlns="http://www.w3.org/1999/xhtml">
-          <tr>
-            <td><xul:box class="legend" status="BUSY_TENTATIVE"/></td>
-            <td>&event.freebusy.legend.busy_tentative;</td>
-          </tr>
-          <tr>
-            <td><xul:box class="legend" status="BUSY"/></td>
-            <td>&event.freebusy.legend.busy;</td>
-          </tr>
-          <tr>
-            <td><xul:box class="legend" status="BUSY_UNAVAILABLE"/></td>
-            <td>&event.freebusy.legend.busy_unavailable;</td>
-          </tr>
-          <tr>
-            <td><xul:box class="legend" status="UNKNOWN"/></td>
-            <td>&event.freebusy.legend.unknown;</td>
-          </tr>
-        </table>
+      <hbox>
+        <hbox flex="1">
+          <hbox flex="1">
+            <table xmlns="http://www.w3.org/1999/xhtml">
+              <tr>
+                <td>
+                  <img
+                    class="role-icon"
+                    attendeerole="REQ-PARTICIPANT"
+                    src="chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
+                    alt=""
+                  />
+                </td>
+                <td>&event.attendee.role.required;</td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    class="role-icon"
+                    attendeerole="OPT-PARTICIPANT"
+                    src="chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
+                    alt=""
+                  />
+                </td>
+                <td>&event.attendee.role.optional;</td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    class="role-icon"
+                    attendeerole="NON-PARTICIPANT"
+                    src="chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
+                    alt=""
+                  />
+                </td>
+                <td>&event.attendee.role.nonparticipant;</td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    class="role-icon"
+                    attendeerole="CHAIR"
+                    src="chrome://calendar/skin/shared/calendar-event-dialog-attendees.png"
+                    alt=""
+                  />
+                </td>
+                <td>&event.attendee.role.chair;</td>
+              </tr>
+            </table>
+          </hbox>
+          <hbox flex="1">
+            <table xmlns="http://www.w3.org/1999/xhtml">
+              <tr>
+                <td>
+                  <img
+                    class="usertype-icon"
+                    usertype="INDIVIDUAL"
+                    src="chrome://calendar/skin/shared/attendee-icons.png"
+                    alt=""
+                  />
+                </td>
+                <td>&event.attendee.usertype.individual;</td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    class="usertype-icon"
+                    usertype="GROUP"
+                    src="chrome://calendar/skin/shared/attendee-icons.png"
+                    alt=""
+                  />
+                </td>
+                <td>&event.attendee.usertype.group;</td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    class="usertype-icon"
+                    usertype="RESOURCE"
+                    src="chrome://calendar/skin/shared/attendee-icons.png"
+                    alt=""
+                  />
+                </td>
+                <td>&event.attendee.usertype.resource;</td>
+              </tr>
+              <tr>
+                <td>
+                  <img
+                    class="usertype-icon"
+                    usertype="ROOM"
+                    src="chrome://calendar/skin/shared/attendee-icons.png"
+                    alt=""
+                  />
+                </td>
+                <td>&event.attendee.usertype.room;</td>
+              </tr>
+            </table>
+          </hbox>
+          <hbox flex="1">
+            <table xmlns="http://www.w3.org/1999/xhtml">
+              <tr>
+                <td><xul:box class="legend" status="BUSY_TENTATIVE" /></td>
+                <td>&event.freebusy.legend.busy_tentative;</td>
+              </tr>
+              <tr>
+                <td><xul:box class="legend" status="BUSY" /></td>
+                <td>&event.freebusy.legend.busy;</td>
+              </tr>
+              <tr>
+                <td><xul:box class="legend" status="BUSY_UNAVAILABLE" /></td>
+                <td>&event.freebusy.legend.busy_unavailable;</td>
+              </tr>
+              <tr>
+                <td><xul:box class="legend" status="UNKNOWN" /></td>
+                <td>&event.freebusy.legend.unknown;</td>
+              </tr>
+            </table>
+          </hbox>
+        </hbox>
+        <vbox>
+          <table xmlns="http://www.w3.org/1999/xhtml">
+            <tr>
+              <td></td>
+              <td>
+                <xul:checkbox id="all-day" label="&event.alldayevent.label;" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <xul:label control="event-starttime" value="&newevent.from.label;" />
+              </td>
+              <td>
+                <xul:datetimepicker id="event-starttime" />
+              </td>
+              <td id="timezone-starttime-cell" hidden="true">
+                <xul:label id="timezone-starttime" class="text-link" hyperlink="true" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <xul:label control="event-endtime" value="&newevent.to.label;" />
+              </td>
+              <td>
+                <xul:datetimepicker id="event-endtime" />
+              </td>
+              <td id="timezone-endtime-cell" hidden="true">
+                <xul:label id="timezone-endtime" class="text-link" hyperlink="true" />
+              </td>
+            </tr>
+          </table>
+        </vbox>
       </hbox>
-    </hbox>
-    <vbox>
-      <table xmlns="http://www.w3.org/1999/xhtml">
-        <tr>
-          <td></td>
-          <td>
-            <xul:checkbox id="all-day"
-                          label="&event.alldayevent.label;"/>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <xul:label control="event-starttime" value="&newevent.from.label;"/>
-          </td>
-          <td>
-            <xul:datetimepicker id="event-starttime"/>
-          </td>
-          <td id="timezone-starttime-cell"
-              hidden="true">
-            <xul:label id="timezone-starttime"
-                       class="text-link"
-                       hyperlink="true"/>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <xul:label control="event-endtime" value="&newevent.to.label;"/>
-          </td>
-          <td>
-            <xul:datetimepicker id="event-endtime"/>
-          </td>
-          <td id="timezone-endtime-cell"
-              hidden="true">
-            <xul:label id="timezone-endtime"
-                       class="text-link"
-                       hyperlink="true"/>
-          </td>
-        </tr>
-      </table>
-    </vbox>
-  </hbox>
-</dialog>
-</html:body>
+    </dialog>
+  </html:body>
 </html>

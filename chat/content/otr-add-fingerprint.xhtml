@@ -7,57 +7,85 @@
 <?xml-stylesheet href="chrome://chat/skin/otrFingerprintDialog.css" type="text/css"?>
 
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      windowtype="OTR:AddFinger"
-      width="540" height="200"
-      scrolling="false">
-<head>
-  <title data-l10n-id="otr-add-finger-title"></title>
-  <link rel="localization" href="messenger/otr/add-finger.ftl" />
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://chat/content/otr-add-fingerprint.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <dialog buttons="accept,cancel"
-          buttondisabledaccept="true">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  windowtype="OTR:AddFinger"
+  width="540"
+  height="200"
+  scrolling="false"
+>
+  <head>
+    <title data-l10n-id="otr-add-finger-title"></title>
+    <link rel="localization" href="messenger/otr/add-finger.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://chat/content/otr-add-fingerprint.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog buttons="accept,cancel" buttondisabledaccept="true">
       <hbox align="center" pack="center" class="header-container">
         <vbox>
-          <html:img class="header-icon"
-                    src="chrome://messenger/skin/icons/login.svg"
-                    alt="" />
+          <html:img
+            class="header-icon"
+            src="chrome://messenger/skin/icons/login.svg"
+            alt=""
+          />
         </vbox>
         <vbox flex="1">
-          <description id="otrDescription"/>
+          <description id="otrDescription" />
         </vbox>
       </hbox>
       <hbox class="form-control" align="center">
-        <label data-l10n-id="otr-add-finger-fingerprint"
-               class="label-box"
-               control="fingerprint"/>
+        <label
+          data-l10n-id="otr-add-finger-fingerprint"
+          class="label-box"
+          control="fingerprint"
+        />
         <hbox class="input-control" align="center" flex="1">
-          <html:input id="fingerprint" type="text"
-                      data-l10n-id="otr-add-finger-input"
-                      class="input-field"
-                      oninput="otrAddFinger.oninput(this);"
-                      onblur="otrAddFinger.onblur(this);"
-                      pattern="[ 0-9a-fA-F]*"
-                      minlength="44"
-                      maxlength="44"/>
+          <html:input
+            id="fingerprint"
+            type="text"
+            data-l10n-id="otr-add-finger-input"
+            class="input-field"
+            oninput="otrAddFinger.oninput(this);"
+            onblur="otrAddFinger.onblur(this);"
+            pattern="[ 0-9a-fA-F]*"
+            minlength="44"
+            maxlength="44"
+          />
         </hbox>
-        <html:img id="fingerWarning" class="warning-icon"
-                  src="chrome://global/skin/icons/warning.svg" alt=""
-                  width="16" height="16" hidden="hidden" />
+        <html:img
+          id="fingerWarning"
+          class="warning-icon"
+          src="chrome://global/skin/icons/warning.svg"
+          alt=""
+          width="16"
+          height="16"
+          hidden="hidden"
+        />
       </hbox>
       <vbox class="input-helper-container" flex="1" align="end">
-        <label id="fingerError"
-               data-l10n-id="otr-add-finger-tooltip-error"
-               class="msg-error"
-               hidden="true"/>
-        <label id="keyCount" class="input-helper" value="0/40"/>
+        <label
+          id="fingerError"
+          data-l10n-id="otr-add-finger-tooltip-error"
+          class="msg-error"
+          hidden="true"
+        />
+        <label id="keyCount" class="input-helper" value="0/40" />
       </vbox>
-  </dialog>
-</html:body>
+    </dialog>
+  </html:body>
 </html>

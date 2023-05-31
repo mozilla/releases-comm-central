@@ -16,164 +16,201 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/calendar-summary-dialog.css"?>
 
-<!DOCTYPE html [
-  <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd" >
-  <!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd" >
-  <!ENTITY % dialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" >
-  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
-  %globalDTD;
-  %calendarDTD;
-  %dialogDTD;
-  %brandDTD;
-]>
-<html id="calendar-summary-dialog" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      icon="calendar-general-dialog"
-      windowtype="Calendar:EventSummaryDialog"
-      lightweightthemes="true"
-      persist="screenX screenY"
-      scrolling="false">
-<head>
-  <title><!-- item title --></title>
-  <link rel="localization" href="toolkit/global/textActions.ftl" />
-  <link rel="localization" href="calendar/calendar-summary-dialog.ftl" />
-  <link rel="localization" href="calendar/calendar-editable-item.ftl" />
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-dialog-utils.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-item-editing.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calApplicationUtils.js"></script>
-  <script defer="defer" src="chrome://calendar/content/widgets/calendar-item-summary.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-summary-dialog.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttons=",">
-  <toolbox id="summary-toolbox"
-           class="mail-toolbox"
-           mode="full"
-           defaultmode="full"
-           iconsize="small"
-           defaulticonsize="small"
-           labelalign="end"
-           defaultlabelalign="end">
-    <toolbar id="summary-toolbar"
-             toolboxid="summary-toolbox"
-             class="chromeclass-toolbar themeable-full"
-             customizable="false"
-             labelalign="end"
-             defaultlabelalign="end">
-      <toolbarbutton id="saveandcloseButton"
-                     tooltiptext="&summary.dialog.saveclose.tooltiptext;"
-                     label="&summary.dialog.saveclose.label;"
-                     oncommand="saveAndClose('NONE');"
-                     class="cal-event-toolbarbutton toolbarbutton-1 saveandcloseButton"/>
-      <toolbarbutton is="toolbarbutton-menu-button" id="acceptButton"
-                     type="menu"
-                     tooltiptext="&summary.dialog.accept.tooltiptext;"
-                     label="&summary.dialog.accept.label;"
-                     oncommand="reply('AUTO', 'ACCEPTED');"
-                     class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
-        <menupopup id="acceptDropdown">
-          <menuitem id="acceptButton_Send"
-                    tooltiptext="&summary.dialog.send.tooltiptext;"
-                    label="&summary.dialog.send.label;"
-                    oncommand="reply('AUTO', 'ACCEPTED'); event.stopPropagation();"/>
-          <menuitem id="acceptButton_DontSend"
-                    tooltiptext="&summary.dialog.dontsend.tooltiptext;"
-                    label="&summary.dialog.dontsend.label;"
-                    oncommand="reply('NONE', 'ACCEPTED'); event.stopPropagation();"/>
-        </menupopup>
-      </toolbarbutton>
-      <toolbarbutton is="toolbarbutton-menu-button" id="tentativeButton"
-                     type="menu"
-                     tooltiptext="&summary.dialog.tentative.tooltiptext;"
-                     label="&summary.dialog.tentative.label;"
-                     oncommand="reply('AUTO', 'TENTATIVE');"
-                     class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
-        <menupopup id="tentativeDropdown">
-          <menuitem id="tenatativeButton_Send"
-                    tooltiptext="&summary.dialog.send.tooltiptext;"
-                    label="&summary.dialog.send.label;"
-                    oncommand="reply('AUTO', 'TENTATIVE'); event.stopPropagation();"/>
-          <menuitem id="tenativeButton_DontSend"
-                    tooltiptext="&summary.dialog.dontsend.tooltiptext;"
-                    label="&summary.dialog.dontsend.label;"
-                    oncommand="reply('NONE', 'TENTATIVE'); event.stopPropagation();"/>
-        </menupopup>
-      </toolbarbutton>
-      <toolbarbutton is="toolbarbutton-menu-button" id="declineButton"
-                     type="menu"
-                     tooltiptext="&summary.dialog.decline.tooltiptext;"
-                     label="&summary.dialog.decline.label;"
-                     oncommand="reply('AUTO', 'DECLINED');"
-                     class="cal-event-toolbarbutton toolbarbutton-1 replyButton">
-        <menupopup id="declineDropdown">
-          <menuitem id="declineButton_Send"
-                    tooltiptext="&summary.dialog.send.tooltiptext;"
-                    label="&summary.dialog.send.label;"
-                    oncommand="reply('AUTO', 'DECLINED'); event.stopPropagation();"/>
-          <menuitem id="declineButton_DontSend"
-                    tooltiptext="&summary.dialog.dontsend.tooltiptext;"
-                    label="&summary.dialog.dontsend.label;"
-                    oncommand="reply('NONE', 'DECLINED'); event.stopPropagation();"/>
-        </menupopup>
-      </toolbarbutton>
-    </toolbar>
-  </toolbox>
-
-  <vbox id="status-notifications">
-    <!-- notificationbox will be added here lazily. -->
-  </vbox>
-  <calendar-item-summary id="calendar-item-summary" flex="1"/>
-
-  <!-- LOCATION LINK CONTEXT MENU -->
-  <menupopup id="location-link-context-menu">
-    <menuitem id="location-link-context-menu-copy"
-              label="&calendar.copylink.label;"
-              accesskey="&calendar.copylink.accesskey;"
-              oncommand="locationCopyLink(this.parentNode.triggerNode)"/>
-  </menupopup>
-  <!-- ATTENDEES CONTEXT MENU -->
-  <menupopup id="attendee-popup">
-    <menu id="attendee-popup-copy-menu"
-          data-l10n-id="text-action-copy">
-      <menupopup>
-        <menuitem id="attendee-popup-copy-menu-common-name"
-                  oncommand="copyLabelToClipboard(event)"/>
-        <menuitem id="attendee-popup-copy-menu-id"
-                  oncommand="copyLabelToClipboard(event)"/>
-      </menupopup>
-    </menu>
-    <menuitem id="attendee-popup-sendemail"
-              label="&event.email.attendees.label;"
-              accesskey="&event.email.attendees.accesskey;"
-              oncommand="sendMailToAttendees()"/>
-  </menupopup>
-  <hbox id="calendar-summary-dialog-custom-button-footer" hidden="true">
-    <spacer class="button-spacer" flex="1"/>
-
-    <button id="calendar-summary-dialog-edit-button"
-            default="true"
-            dlgtype="accept"
-            hidden="true"
-            data-l10n-id="calendar-summary-dialog-edit-button" />
-
-    <button id="calendar-summary-dialog-edit-menu-button"
+<!DOCTYPE html [ <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
+<!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd" >
+<!ENTITY % dialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd" >
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+%globalDTD; %calendarDTD; %dialogDTD; %brandDTD; ]>
+<html
+  id="calendar-summary-dialog"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  icon="calendar-general-dialog"
+  windowtype="Calendar:EventSummaryDialog"
+  lightweightthemes="true"
+  persist="screenX screenY"
+  scrolling="false"
+>
+  <head>
+    <title><!-- item title --></title>
+    <link rel="localization" href="toolkit/global/textActions.ftl" />
+    <link rel="localization" href="calendar/calendar-summary-dialog.ftl" />
+    <link rel="localization" href="calendar/calendar-editable-item.ftl" />
+    <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
+    <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-dialog-utils.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-item-editing.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calApplicationUtils.js"></script>
+    <script defer="defer" src="chrome://calendar/content/widgets/calendar-item-summary.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-summary-dialog.js"></script>
+  </head>
+  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <dialog buttons=",">
+      <toolbox
+        id="summary-toolbox"
+        class="mail-toolbox"
+        mode="full"
+        defaultmode="full"
+        iconsize="small"
+        defaulticonsize="small"
+        labelalign="end"
+        defaultlabelalign="end"
+      >
+        <toolbar
+          id="summary-toolbar"
+          toolboxid="summary-toolbox"
+          class="chromeclass-toolbar themeable-full"
+          customizable="false"
+          labelalign="end"
+          defaultlabelalign="end"
+        >
+          <toolbarbutton
+            id="saveandcloseButton"
+            tooltiptext="&summary.dialog.saveclose.tooltiptext;"
+            label="&summary.dialog.saveclose.label;"
+            oncommand="saveAndClose('NONE');"
+            class="cal-event-toolbarbutton toolbarbutton-1 saveandcloseButton"
+          />
+          <toolbarbutton
+            is="toolbarbutton-menu-button"
+            id="acceptButton"
             type="menu"
-            hidden="true"
-            data-l10n-id="calendar-summary-dialog-edit-menu-button">
-      <menupopup id="edit-button-context-menu">
-        <menuitem id="edit-button-context-menu-this-occurrence"
-                  data-l10n-id="edit-button-context-menu-this-occurrence"
-                  oncommand="onEditThisOccurrence()"/>
-        <menuitem id="edit-button-context-menu-all-occurrences"
-                  data-l10n-id="edit-button-context-menu-all-occurrences"
-                  oncommand="onEditAllOccurrences()"/>
+            tooltiptext="&summary.dialog.accept.tooltiptext;"
+            label="&summary.dialog.accept.label;"
+            oncommand="reply('AUTO', 'ACCEPTED');"
+            class="cal-event-toolbarbutton toolbarbutton-1 replyButton"
+          >
+            <menupopup id="acceptDropdown">
+              <menuitem
+                id="acceptButton_Send"
+                tooltiptext="&summary.dialog.send.tooltiptext;"
+                label="&summary.dialog.send.label;"
+                oncommand="reply('AUTO', 'ACCEPTED'); event.stopPropagation();"
+              />
+              <menuitem
+                id="acceptButton_DontSend"
+                tooltiptext="&summary.dialog.dontsend.tooltiptext;"
+                label="&summary.dialog.dontsend.label;"
+                oncommand="reply('NONE', 'ACCEPTED'); event.stopPropagation();"
+              />
+            </menupopup>
+          </toolbarbutton>
+          <toolbarbutton
+            is="toolbarbutton-menu-button"
+            id="tentativeButton"
+            type="menu"
+            tooltiptext="&summary.dialog.tentative.tooltiptext;"
+            label="&summary.dialog.tentative.label;"
+            oncommand="reply('AUTO', 'TENTATIVE');"
+            class="cal-event-toolbarbutton toolbarbutton-1 replyButton"
+          >
+            <menupopup id="tentativeDropdown">
+              <menuitem
+                id="tenatativeButton_Send"
+                tooltiptext="&summary.dialog.send.tooltiptext;"
+                label="&summary.dialog.send.label;"
+                oncommand="reply('AUTO', 'TENTATIVE'); event.stopPropagation();"
+              />
+              <menuitem
+                id="tenativeButton_DontSend"
+                tooltiptext="&summary.dialog.dontsend.tooltiptext;"
+                label="&summary.dialog.dontsend.label;"
+                oncommand="reply('NONE', 'TENTATIVE'); event.stopPropagation();"
+              />
+            </menupopup>
+          </toolbarbutton>
+          <toolbarbutton
+            is="toolbarbutton-menu-button"
+            id="declineButton"
+            type="menu"
+            tooltiptext="&summary.dialog.decline.tooltiptext;"
+            label="&summary.dialog.decline.label;"
+            oncommand="reply('AUTO', 'DECLINED');"
+            class="cal-event-toolbarbutton toolbarbutton-1 replyButton"
+          >
+            <menupopup id="declineDropdown">
+              <menuitem
+                id="declineButton_Send"
+                tooltiptext="&summary.dialog.send.tooltiptext;"
+                label="&summary.dialog.send.label;"
+                oncommand="reply('AUTO', 'DECLINED'); event.stopPropagation();"
+              />
+              <menuitem
+                id="declineButton_DontSend"
+                tooltiptext="&summary.dialog.dontsend.tooltiptext;"
+                label="&summary.dialog.dontsend.label;"
+                oncommand="reply('NONE', 'DECLINED'); event.stopPropagation();"
+              />
+            </menupopup>
+          </toolbarbutton>
+        </toolbar>
+      </toolbox>
+
+      <vbox id="status-notifications">
+        <!-- notificationbox will be added here lazily. -->
+      </vbox>
+      <calendar-item-summary id="calendar-item-summary" flex="1" />
+
+      <!-- LOCATION LINK CONTEXT MENU -->
+      <menupopup id="location-link-context-menu">
+        <menuitem
+          id="location-link-context-menu-copy"
+          label="&calendar.copylink.label;"
+          accesskey="&calendar.copylink.accesskey;"
+          oncommand="locationCopyLink(this.parentNode.triggerNode)"
+        />
       </menupopup>
-    </button>
-  </hbox>
-</dialog>
-</html:body>
+      <!-- ATTENDEES CONTEXT MENU -->
+      <menupopup id="attendee-popup">
+        <menu id="attendee-popup-copy-menu" data-l10n-id="text-action-copy">
+          <menupopup>
+            <menuitem
+              id="attendee-popup-copy-menu-common-name"
+              oncommand="copyLabelToClipboard(event)"
+            />
+            <menuitem id="attendee-popup-copy-menu-id" oncommand="copyLabelToClipboard(event)" />
+          </menupopup>
+        </menu>
+        <menuitem
+          id="attendee-popup-sendemail"
+          label="&event.email.attendees.label;"
+          accesskey="&event.email.attendees.accesskey;"
+          oncommand="sendMailToAttendees()"
+        />
+      </menupopup>
+      <hbox id="calendar-summary-dialog-custom-button-footer" hidden="true">
+        <spacer class="button-spacer" flex="1" />
+
+        <button
+          id="calendar-summary-dialog-edit-button"
+          default="true"
+          dlgtype="accept"
+          hidden="true"
+          data-l10n-id="calendar-summary-dialog-edit-button"
+        />
+
+        <button
+          id="calendar-summary-dialog-edit-menu-button"
+          type="menu"
+          hidden="true"
+          data-l10n-id="calendar-summary-dialog-edit-menu-button"
+        >
+          <menupopup id="edit-button-context-menu">
+            <menuitem
+              id="edit-button-context-menu-this-occurrence"
+              data-l10n-id="edit-button-context-menu-this-occurrence"
+              oncommand="onEditThisOccurrence()"
+            />
+            <menuitem
+              id="edit-button-context-menu-all-occurrences"
+              data-l10n-id="edit-button-context-menu-all-occurrences"
+              oncommand="onEditAllOccurrences()"
+            />
+          </menupopup>
+        </button>
+      </hbox>
+    </dialog>
+  </html:body>
 </html>

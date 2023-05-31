@@ -3,280 +3,283 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-  <meta charset="utf-8" />
-  <title id="title"></title>
-  <style>
-    table {
-      width: 100%;
-      border: 1px black outset;
-      border-spacing: 0;
-      page-break-inside: avoid;
-      display: grid;
-    }
+  <head>
+    <meta charset="utf-8" />
+    <title id="title"></title>
+    <style>
+      table {
+        width: 100%;
+        border: 1px black outset;
+        border-spacing: 0;
+        page-break-inside: avoid;
+        display: grid;
+      }
 
-    tbody, tr, th, td {
-      display: contents;
-    }
+      tbody,
+      tr,
+      th,
+      td {
+        display: contents;
+      }
 
-    th > div,
-    td > div {
-      border: 1px black inset;
-      padding: 2px;
-      overflow: hidden;
-    }
+      th > div,
+      td > div {
+        border: 1px black inset;
+        padding: 2px;
+        overflow: hidden;
+      }
 
-    td > div {
-      min-height: 100px;
-    }
+      td > div {
+        min-height: 100px;
+      }
 
-    .day-title {
-      text-align: end;
-      font-size: 13px;
-    }
+      .day-title {
+        text-align: end;
+        font-size: 13px;
+      }
 
-    ul {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
 
-    li {
-      margin-block-start: 2px;
-      padding: 2px;
-      font-size: 11px;
-    }
+      li {
+        margin-block-start: 2px;
+        padding: 2px;
+        font-size: 11px;
+      }
 
-    #list-container .vevent {
-      border: 1px solid black;
-      padding: 0;
-      margin-bottom: 10px;
-    }
+      #list-container .vevent {
+        border: 1px solid black;
+        padding: 0;
+        margin-bottom: 10px;
+      }
 
-    #list-container .key {
-      font-style: italic;
-      margin-inline-start: 3px;
-    }
+      #list-container .key {
+        font-style: italic;
+        margin-inline-start: 3px;
+      }
 
-    #list-container .value {
-      margin-inline-start: 20px;
-    }
+      #list-container .value {
+        margin-inline-start: 20px;
+      }
 
-    #list-container .summarykey {
-      display: none;
-    }
+      #list-container .summarykey {
+        display: none;
+      }
 
-    #list-container .summary {
-      font-weight: bold;
-      margin: 0;
-      padding: 3px;
-    }
+      #list-container .summary {
+        font-weight: bold;
+        margin: 0;
+        padding: 3px;
+      }
 
-    #list-container .description {
-      white-space: pre-wrap;
-    }
+      #list-container .description {
+        white-space: pre-wrap;
+      }
 
-    #month-container table {
-      grid-template-columns: repeat(7, 1fr);
-    }
+      #month-container table {
+        grid-template-columns: repeat(7, 1fr);
+      }
 
-    #month-container .month-title {
-      grid-column: 1 / 8;
-    }
+      #month-container .month-title {
+        grid-column: 1 / 8;
+      }
 
-    #week-container table {
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: min-content 2fr 2fr 1fr 1fr;
-    }
+      #week-container table {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: min-content 2fr 2fr 1fr 1fr;
+      }
 
-    #week-container .week-title {
-      grid-column: 1 / 3;
-    }
+      #week-container .week-title {
+        grid-column: 1 / 3;
+      }
 
-    #week-container .monday-box > div {
-      grid-column: 1;
-      grid-row: 2;
-    }
+      #week-container .monday-box > div {
+        grid-column: 1;
+        grid-row: 2;
+      }
 
-    #week-container .tuesday-box > div {
-      grid-column: 1;
-      grid-row: 3;
-    }
+      #week-container .tuesday-box > div {
+        grid-column: 1;
+        grid-row: 3;
+      }
 
-    #week-container .wednesday-box > div {
-      grid-column: 1;
-      grid-row: 4 / 6;
-    }
-  </style>
-</head>
-<body>
-  <!-- This is what is printed when printing the calendar.
+      #week-container .wednesday-box > div {
+        grid-column: 1;
+        grid-row: 4 / 6;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- This is what is printed when printing the calendar.
        It is filled dynamically by calPrintUtils.jsm. -->
-  <div id="list-container"></div>
-  <div id="month-container"></div>
-  <div id="week-container"></div>
-  <div id="tasks-list-box" hidden="true">
-    <h3 id="tasks-title"></h3>
-    <ul id="task-container" class="taskList"></ul>
-  </div>
-
-  <!-- List item template for the "list" layout. -->
-  <template id="list-item-template">
-    <div class="vevent">
-      <div class="row summaryrow">
-        <div class="key summarykey"></div>
-        <div class="value summary"></div>
-      </div>
-      <div class="row intervalrow">
-        <div class="key intervalkey"></div>
-        <div class="value dtstart"></div>
-      </div>
-      <div class="row locationrow">
-        <div class="key locationkey"></div>
-        <div class="value location"></div>
-      </div>
-      <div class="row descriptionrow">
-        <div class="key descriptionkey"></div>
-        <div class="value description"></div>
-      </div>
+    <div id="list-container"></div>
+    <div id="month-container"></div>
+    <div id="week-container"></div>
+    <div id="tasks-list-box" hidden="true">
+      <h3 id="tasks-title"></h3>
+      <ul id="task-container" class="taskList"></ul>
     </div>
-  </template>
 
-  <!-- Month template for the "monthly grid" layout. -->
-  <template id="month-template">
-    <table>
-      <tr>
-        <th><div class="month-title"></div></th>
-      </tr>
-      <tr>
-        <th><div></div></th>
-        <th><div></div></th>
-        <th><div></div></th>
-        <th><div></div></th>
-        <th><div></div></th>
-        <th><div></div></th>
-        <th><div></div></th>
-      </tr>
-    </table>
-  </template>
+    <!-- List item template for the "list" layout. -->
+    <template id="list-item-template">
+      <div class="vevent">
+        <div class="row summaryrow">
+          <div class="key summarykey"></div>
+          <div class="value summary"></div>
+        </div>
+        <div class="row intervalrow">
+          <div class="key intervalkey"></div>
+          <div class="value dtstart"></div>
+        </div>
+        <div class="row locationrow">
+          <div class="key locationkey"></div>
+          <div class="value location"></div>
+        </div>
+        <div class="row descriptionrow">
+          <div class="key descriptionkey"></div>
+          <div class="value description"></div>
+        </div>
+      </div>
+    </template>
 
-  <!-- Week template for the "monthly grid" layout. -->
-  <template id="month-week-template">
-    <tr>
-      <td>
-        <div>
-          <div class="day-title"></div>
-          <ul class="items"></ul>
-        </div>
-      </td>
-      <td>
-        <div>
-          <div class="day-title"></div>
-          <ul class="items"></ul>
-        </div>
-      </td>
-      <td>
-        <div>
-          <div class="day-title"></div>
-          <ul class="items"></ul>
-        </div>
-      </td>
-      <td>
-        <div>
-          <div class="day-title"></div>
-          <ul class="items"></ul>
-        </div>
-      </td>
-      <td>
-        <div>
-          <div class="day-title"></div>
-          <ul class="items"></ul>
-        </div>
-      </td>
-      <td>
-        <div>
-          <div class="day-title"></div>
-          <ul class="items"></ul>
-        </div>
-      </td>
-      <td>
-        <div>
-          <div class="day-title"></div>
-          <ul class="items"></ul>
-        </div>
-      </td>
-    </tr>
-  </template>
+    <!-- Month template for the "monthly grid" layout. -->
+    <template id="month-template">
+      <table>
+        <tr>
+          <th><div class="month-title"></div></th>
+        </tr>
+        <tr>
+          <th><div></div></th>
+          <th><div></div></th>
+          <th><div></div></th>
+          <th><div></div></th>
+          <th><div></div></th>
+          <th><div></div></th>
+          <th><div></div></th>
+        </tr>
+      </table>
+    </template>
 
-  <!-- Week template for the "weekly planner" layout. -->
-  <template id="week-template">
-    <table>
+    <!-- Week template for the "monthly grid" layout. -->
+    <template id="month-week-template">
       <tr>
-        <th>
-          <div class="week-title"></div>
-        </th>
-      </tr>
-      <tr>
-        <td class="monday-box">
+        <td>
           <div>
             <div class="day-title"></div>
             <ul class="items"></ul>
           </div>
         </td>
-        <td class="tuesday-box">
+        <td>
           <div>
             <div class="day-title"></div>
             <ul class="items"></ul>
           </div>
         </td>
-        <td class="wednesday-box">
+        <td>
           <div>
             <div class="day-title"></div>
             <ul class="items"></ul>
           </div>
         </td>
-        <td class="thursday-box">
+        <td>
           <div>
             <div class="day-title"></div>
             <ul class="items"></ul>
           </div>
         </td>
-        <td class="friday-box">
+        <td>
           <div>
             <div class="day-title"></div>
             <ul class="items"></ul>
           </div>
         </td>
-        <td class="saturday-box">
+        <td>
           <div>
             <div class="day-title"></div>
             <ul class="items"></ul>
           </div>
         </td>
-        <td class="sunday-box">
+        <td>
           <div>
-            <div class="day-title sunday-title"></div>
+            <div class="day-title"></div>
             <ul class="items"></ul>
           </div>
         </td>
       </tr>
-    </table>
-  </template>
+    </template>
 
-  <!-- List item template for the "monthly grid" and "weekly planner" layouts. -->
-  <template id="item-template">
-    <li class="category-color-box calendar-color-box">
-      <span class="item-interval"></span>
-      <span class="item-title"></span>
-    </li>
-  </template>
+    <!-- Week template for the "weekly planner" layout. -->
+    <template id="week-template">
+      <table>
+        <tr>
+          <th>
+            <div class="week-title"></div>
+          </th>
+        </tr>
+        <tr>
+          <td class="monday-box">
+            <div>
+              <div class="day-title"></div>
+              <ul class="items"></ul>
+            </div>
+          </td>
+          <td class="tuesday-box">
+            <div>
+              <div class="day-title"></div>
+              <ul class="items"></ul>
+            </div>
+          </td>
+          <td class="wednesday-box">
+            <div>
+              <div class="day-title"></div>
+              <ul class="items"></ul>
+            </div>
+          </td>
+          <td class="thursday-box">
+            <div>
+              <div class="day-title"></div>
+              <ul class="items"></ul>
+            </div>
+          </td>
+          <td class="friday-box">
+            <div>
+              <div class="day-title"></div>
+              <ul class="items"></ul>
+            </div>
+          </td>
+          <td class="saturday-box">
+            <div>
+              <div class="day-title"></div>
+              <ul class="items"></ul>
+            </div>
+          </td>
+          <td class="sunday-box">
+            <div>
+              <div class="day-title sunday-title"></div>
+              <ul class="items"></ul>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </template>
 
-  <!-- Template for tasks with no due date. -->
-  <template id="task-template">
-    <li>
-      <input type="checkbox" class="task-checkbox" disabled="disabled" />
-      <span class="task-title"></span>
-    </li>
-  </template>
-</body>
+    <!-- List item template for the "monthly grid" and "weekly planner" layouts. -->
+    <template id="item-template">
+      <li class="category-color-box calendar-color-box">
+        <span class="item-interval"></span>
+        <span class="item-title"></span>
+      </li>
+    </template>
+
+    <!-- Template for tasks with no due date. -->
+    <template id="task-template">
+      <li>
+        <input type="checkbox" class="task-checkbox" disabled="disabled" />
+        <span class="task-title"></span>
+      </li>
+    </template>
+  </body>
 </html>

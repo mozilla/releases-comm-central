@@ -6,44 +6,44 @@
 <!-- Style sheets -->
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 
-<!DOCTYPE html
-[
-  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-  %brandDTD;
-  <!ENTITY % migrationDtd SYSTEM "chrome://calendar/locale/migration.dtd">
-  %migrationDtd;
-]>
-<html id="migration-wizard" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      branded="true"
-      windowtype="Calendar:MigrationWizard"
-      scrolling="false">
-<head>
-  <title>&migration.title;</title>
-  <link rel="localization" href="toolkit/global/wizard.ftl" />
-  <script defer="defer" src="chrome://calendar/content/import-export.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-migration-dialog.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <wizard style="width:100vw; height:100vh;">
-    <wizardpage id="wizardPage1"
-                pageid="initialPage"
-                next="progressPage"
-                label="&migration.welcome;">
-      <label id="wizard-desc" control="datasource-list">&migration.list.description;</label>
-      <vbox id="datasource-list" flex="1"/>
-    </wizardpage>
+<!DOCTYPE html [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+%brandDTD;
+<!ENTITY % migrationDtd SYSTEM "chrome://calendar/locale/migration.dtd">
+%migrationDtd; ]>
+<html
+  id="migration-wizard"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  branded="true"
+  windowtype="Calendar:MigrationWizard"
+  scrolling="false"
+>
+  <head>
+    <title>&migration.title;</title>
+    <link rel="localization" href="toolkit/global/wizard.ftl" />
+    <script defer="defer" src="chrome://calendar/content/import-export.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-migration-dialog.js"></script>
+  </head>
+  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <wizard style="width: 100vw; height: 100vh">
+      <wizardpage
+        id="wizardPage1"
+        pageid="initialPage"
+        next="progressPage"
+        label="&migration.welcome;"
+      >
+        <label id="wizard-desc" control="datasource-list">&migration.list.description;</label>
+        <vbox id="datasource-list" flex="1" />
+      </wizardpage>
 
-    <wizardpage id="wizardPage2"
-                pageid="progressPage"
-                label="&migration.importing;">
-      <label control="migrate-progressmeter">&migration.progress.description;</label>
-      <vbox flex="1">
-        <html:progress id="migrate-progressmeter" value="0" max="100"/>
-        <label value="" flex="1" id="progress-label"/>
-      </vbox>
-    </wizardpage>
-  </wizard>
-</html:body>
+      <wizardpage id="wizardPage2" pageid="progressPage" label="&migration.importing;">
+        <label control="migrate-progressmeter">&migration.progress.description;</label>
+        <vbox flex="1">
+          <html:progress id="migrate-progressmeter" value="0" max="100" />
+          <label value="" flex="1" id="progress-label" />
+        </vbox>
+      </wizardpage>
+    </wizard>
+  </html:body>
 </html>

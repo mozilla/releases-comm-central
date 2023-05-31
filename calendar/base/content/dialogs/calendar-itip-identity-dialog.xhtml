@@ -11,29 +11,32 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      lightweightthemes="true">
-<head>
-  <title data-l10n-id="calendar-itip-identity-dialog-title"></title>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  lightweightthemes="true"
+>
+  <head>
+    <title data-l10n-id="calendar-itip-identity-dialog-title"></title>
 
-  <link rel="localization" href="calendar/calendar-itip-identity-dialog.ftl" />
+    <link rel="localization" href="calendar/calendar-itip-identity-dialog.ftl" />
 
-  <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-itip-identity-dialog.js"></script>
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-</head>
+    <script defer="defer" src="chrome://calendar/content/calendar-ui-utils.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-itip-identity-dialog.js"></script>
+    <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+  </head>
 
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <dialog buttons="accept,cancel">
+  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <dialog buttons="accept,cancel">
+      <html:div
+        id="calendar-itip-identity-warning"
+        data-l10n-id="calendar-itip-identity-warning"
+      ></html:div>
 
-    <html:div id="calendar-itip-identity-warning"
-              data-l10n-id="calendar-itip-identity-warning"></html:div>
+      <label id="identity-menu-label" control="identity-menu" />
 
-    <label id="identity-menu-label" control="identity-menu"/>
-
-    <menulist id="identity-menu"/>
-  </dialog>
-</html:body>
+      <menulist id="identity-menu" />
+    </dialog>
+  </html:body>
 </html>

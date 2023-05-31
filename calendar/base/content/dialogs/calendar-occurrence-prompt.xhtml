@@ -9,44 +9,53 @@
 <?xml-stylesheet href="chrome://calendar/skin/shared/calendar-occurrence-prompt.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://calendar/locale/calendar-occurrence-prompt.dtd">
-<html id="calendar-occurrence-prompt" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      lightweightthemes="true"
-      scrolling="false">
-<head>
-  <title><!-- windowtitle.${itemType}.${action} --></title>
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-occurrence-prompt.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttons="accept,cancel">
-  <vbox id="occurrence-prompt-header" pack="center">
-    <label id="title-label" crop="end"/>
-    <label id="isrepeating-label"/>
-  </vbox>
+<html
+  id="calendar-occurrence-prompt"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  scrolling="false"
+>
+  <head>
+    <title><!-- windowtitle.${itemType}.${action} --></title>
+    <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
+    <script defer="defer" src="chrome://calendar/content/calendar-occurrence-prompt.js"></script>
+  </head>
+  <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <dialog buttons="accept,cancel">
+      <vbox id="occurrence-prompt-header" pack="center">
+        <label id="title-label" crop="end" />
+        <label id="isrepeating-label" />
+      </vbox>
 
-  <vbox id="accept-buttons-box" flex="1" pack="center">
-    <button id="accept-occurrence-button"
-            default="true"
-            dlgtype="accept"
-            class="occurrence-accept-buttons"
-            accesskey="&buttons.occurrence.accesskey;"
-            oncommand="exitOccurrenceDialog(1)"
-            pack="start"/>
-    <!-- XXXphilipp Button is hidden until all following is implemented -->
-    <button id="accept-allfollowing-button"
-            class="occurrence-accept-buttons"
-            accesskey="&buttons.allfollowing.accesskey;"
-            oncommand="exitOccurrenceDialog(2)"
-            hidden="true"
-            pack="start"/>
-    <button id="accept-parent-button"
-            class="occurrence-accept-buttons"
-            accesskey="&buttons.parent.accesskey;"
-            oncommand="exitOccurrenceDialog(3)"
-            pack="start"/>
-  </vbox>
-</dialog>
-</html:body>
+      <vbox id="accept-buttons-box" flex="1" pack="center">
+        <button
+          id="accept-occurrence-button"
+          default="true"
+          dlgtype="accept"
+          class="occurrence-accept-buttons"
+          accesskey="&buttons.occurrence.accesskey;"
+          oncommand="exitOccurrenceDialog(1)"
+          pack="start"
+        />
+        <!-- XXXphilipp Button is hidden until all following is implemented -->
+        <button
+          id="accept-allfollowing-button"
+          class="occurrence-accept-buttons"
+          accesskey="&buttons.allfollowing.accesskey;"
+          oncommand="exitOccurrenceDialog(2)"
+          hidden="true"
+          pack="start"
+        />
+        <button
+          id="accept-parent-button"
+          class="occurrence-accept-buttons"
+          accesskey="&buttons.parent.accesskey;"
+          oncommand="exitOccurrenceDialog(3)"
+          pack="start"
+        />
+      </vbox>
+    </dialog>
+  </html:body>
 </html>
