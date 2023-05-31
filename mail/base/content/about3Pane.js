@@ -3627,22 +3627,22 @@ var threadPaneHeader = {
     }
 
     // Hide any potential stale data if we don't have a folder.
-    if (!gFolder && !gViewWrapper?.isSynthetic) {
+    if (!gFolder && !gDBView && !gViewWrapper?.isSynthetic) {
       this.folderName.hidden = true;
       this.folderCount.hidden = true;
       this.selectedCount.hidden = true;
       return;
     }
 
-    this.folderName.hidden = false;
-    this.folderCount.hidden = false;
-
     this.folderName.textContent = gFolder?.name ?? document.title;
     document.l10n.setAttributes(
       this.folderCount,
       "thread-pane-folder-message-count",
-      { count: gFolder?.getTotalMessages(false) || gDBView?.rowCount }
+      { count: gFolder?.getTotalMessages(false) || gDBView?.rowCount || 0 }
     );
+
+    this.folderName.hidden = false;
+    this.folderCount.hidden = false;
   },
 
   /**
@@ -3672,21 +3672,6 @@ var threadPaneHeader = {
   },
 
   /**
-   * Clear the selected count indicator in the pane header.
-   */
-  clearSelectedCount() {
-    // Bail out if the pane is hidden as we don't need to update anything.
-    if (this.isHidden) {
-      return;
-    }
-
-    this.selectedCount.hidden = true;
-    this.selectedCount.textContent = "";
-    this.selectedCount.removeAttribute("data-l10n-id");
-    this.selectedCount.removeAttribute("data-l10n-args");
-  },
-
-  /**
    * Count the number of currently selected messages and update the selected
    * message count indicator.
    */
@@ -3698,7 +3683,7 @@ var threadPaneHeader = {
 
     let count = gDBView?.getSelectedMsgHdrs().length;
     if (count < 2) {
-      this.clearSelectedCount();
+      this.selectedCount.hidden = true;
       return;
     }
     document.l10n.setAttributes(
@@ -3926,7 +3911,7 @@ var threadPane = {
       case 0:
         messagePane.clearMessage();
         messagePane.clearMessages();
-        threadPaneHeader.clearSelectedCount();
+        threadPaneHeader.selectedCount.hidden = true;
         return;
       case 1:
         if (
@@ -3934,7 +3919,7 @@ var threadPane = {
         ) {
           messagePane.clearMessage();
           messagePane.clearMessages();
-          threadPaneHeader.clearSelectedCount();
+          threadPaneHeader.selectedCount.hidden = true;
         } else {
           let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
           messagePane.displayMessage(uri);
