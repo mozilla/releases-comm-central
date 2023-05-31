@@ -1209,7 +1209,7 @@ var MessageTextFilter = {
     // Update the text if it has changed (linux does weird things with empty
     // text if we're transitioning emptytext to emptytext).
     let desiredValue = aFilterValue.text || "";
-    if (aNode.value != desiredValue) {
+    if (aNode.value != desiredValue && aNode != aMuxer.activeElement) {
       aNode.value = desiredValue;
     }
 

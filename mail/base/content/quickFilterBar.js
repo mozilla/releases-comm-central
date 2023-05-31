@@ -43,6 +43,15 @@ customElements.define("toggle-button", ToggleButton, { extends: "button" });
 var quickFilterBar = {
   _filterer: null,
 
+  /**
+   * The UI element that last triggered a search. This can be used to avoid
+   * updating the element when a search returns - in particular the text box,
+   * which the user may still be typing into.
+   *
+   * @type {Element}
+   */
+  activeElement: null,
+
   init() {
     this._bindUI();
     this.updateRovingTab();
@@ -195,7 +204,7 @@ var quickFilterBar = {
           try {
             let postValue = domNode.pressed ? true : null;
             this.filterer.setFilterValue(filterDef.name, postValue);
-            this.deferredUpdateSearch();
+            this.deferredUpdateSearch(domNode);
           } catch (ex) {
             console.error(ex);
           }
@@ -215,7 +224,7 @@ var quickFilterBar = {
           );
           this.filterer.setFilterValue(filterDef.name, postValue, !update);
           if (update) {
-            this.deferredUpdateSearch();
+            this.deferredUpdateSearch(domNode);
           }
         };
       }
@@ -320,30 +329,29 @@ var quickFilterBar = {
 
   /**
    * For UI responsiveness purposes, defer the actual initiation of the search
-   *  until after the button click handling has completed and had the ability
-   *  to paint such.
+   * until after the button click handling has completed and had the ability
+   * to paint such.
+   *
+   * @param {Element} activeElement - The element that triggered a call to
+   *   this function, if any.
    */
-  deferredUpdateSearch() {
-    setTimeout(() => this._deferredInvocUpdateSearch(), 10);
-  },
-
-  /**
-   * The actual helper function to call updateSearch for deferredUpdateSearch
-   *  that makes 'this' relevant.
-   */
-  _deferredInvocUpdateSearch() {
-    this.updateSearch();
+  deferredUpdateSearch(activeElement) {
+    setTimeout(() => this.updateSearch(activeElement), 10);
   },
 
   /**
    * Update the user terms part of the search definition to reflect the active
-   *  filterer's current state.
+   * filterer's current state.
+   *
+   * @param {Element?} activeElement - The element that triggered a call to
+   *   this function, if any.
    */
-  updateSearch() {
+  updateSearch(activeElement) {
     if (!this._filterer || !gViewWrapper?.search) {
       return;
     }
 
+    this.activeElement = activeElement;
     this.filterer.displayedFolder = gFolder;
 
     let [terms, listeners] = this.filterer.createSearchTerms(
