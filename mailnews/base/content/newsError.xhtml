@@ -3,23 +3,29 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html [
-  <!ENTITY % htmlDTD
-    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "DTD/xhtml1-strict.dtd">
-  %htmlDTD;
-  <!ENTITY % netErrorDTD
+<!DOCTYPE html [ <!ENTITY % htmlDTD PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+%htmlDTD;
+<!ENTITY % netErrorDTD
     SYSTEM "chrome://messenger/locale/newsError.dtd">
-  %netErrorDTD;
-]>
+%netErrorDTD; ]>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src chrome:"/>
+    <meta http-equiv="Content-Security-Policy" content="default-src chrome:" />
     <title>&newsError.title;</title>
-    <link rel="stylesheet" href="chrome://global/skin/aboutNetError.css" type="text/css" media="all" />
+    <link
+      rel="stylesheet"
+      href="chrome://global/skin/aboutNetError.css"
+      type="text/css"
+      media="all"
+    />
     <!-- If the location of the favicon is changed here, the FAVICON_ERRORPAGE_URL symbol in
          toolkit/components/places/src/nsFaviconService.h should be updated. -->
-    <link rel="icon" type="image/png" id="favicon" href="chrome://global/skin/icons/warning.svg"/>
+    <link
+      rel="icon"
+      type="image/png"
+      id="favicon"
+      href="chrome://global/skin/icons/warning.svg"
+    />
   </head>
   <body>
     <div id="errorPageContainer">
@@ -32,9 +38,13 @@
         </div>
         <div id="errorLongDesc">
           <ul>
-            <li>&serverResponded.title; <span id="ngResp"/></li>
+            <li>&serverResponded.title; <span id="ngResp" /></li>
             <li>&articleExpired.title;</li>
-            <li id="messageIdDesc">&trySearching.title; &lt;<span id="msgId"/>&gt; (<span id="msgKey"/>)</li>
+            <li id="messageIdDesc">
+              &trySearching.title; &lt;<span id="msgId" />&gt; (<span
+                id="msgKey"
+              />)
+            </li>
           </ul>
         </div>
       </div>
@@ -42,6 +52,6 @@
            the "errorTryAgain" id to piggyback on toolkit's CSS. -->
       <button id="errorTryAgain">&removeExpiredArticles.title;</button>
     </div>
-    <script src="chrome://messenger/content/newsError.js"/>
+    <script src="chrome://messenger/content/newsError.js" />
   </body>
 </html>

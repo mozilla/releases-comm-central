@@ -9,62 +9,85 @@
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/addressbook/abAddressBookNameDialog.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      width="540" height="210"
-      scrolling="false">
-<head>
-  <title><!-- addressBookTitleEdit --></title>
-  <link rel="localization" href="messenger/addressbook/abCardDAVProperties.ftl" />
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/addressbook/abCardDAVProperties.js"></script>
-</head>
-<body>
-<xul:dialog id="carddav-properties-dialog">
-  <div id="carddav-properties-table">
-    <div>
-      <xul:label control="carddav-name"
-                 value="&name.label;"
-                 accesskey="&name.accesskey;"/>
-    </div>
-    <div class="input-container">
-      <input id="carddav-name"
-             type="text"
-             class="input-inline"/>
-    </div>
-    <div>
-      <xul:label data-l10n-id="carddav-url-label"
-                 data-l10n-attrs="value,accesskey"
-                 control="carddav-url"/>
-    </div>
-    <div class="input-container">
-      <input id="carddav-url"
-             type="url"
-             class="input-inline"
-             readonly="readonly"/>
-    </div>
-    <div id="carddav-refreshActive-cell">
-      <xul:checkbox id="carddav-refreshActive"
-                    data-l10n-id="carddav-refreshinterval-label"
-                    data-l10n-attrs="label,accesskey"
-                    control="carddav-refreshInterval"/>
-    </div>
-    <div id="carddav-refreshInterval-cell">
-      <xul:menulist id="carddav-refreshInterval">
-        <xul:menupopup>
-          <!-- This will be filled programmatically to reduce the number of needed strings -->
-        </xul:menupopup>
-      </xul:menulist>
-    </div>
-    <div></div>
-    <div>
-      <xul:checkbox id="carddav-readOnly"
-                    data-l10n-id="carddav-readonly-label"
-                    data-l10n-attrs="label,accesskey"/>
-    </div>
-  </div>
-</xul:dialog>
-</body>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  width="540"
+  height="210"
+  scrolling="false"
+>
+  <head>
+    <title><!-- addressBookTitleEdit --></title>
+    <link
+      rel="localization"
+      href="messenger/addressbook/abCardDAVProperties.ftl"
+    />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/addressbook/abCardDAVProperties.js"
+    ></script>
+  </head>
+  <body>
+    <xul:dialog id="carddav-properties-dialog">
+      <div id="carddav-properties-table">
+        <div>
+          <xul:label
+            control="carddav-name"
+            value="&name.label;"
+            accesskey="&name.accesskey;"
+          />
+        </div>
+        <div class="input-container">
+          <input id="carddav-name" type="text" class="input-inline" />
+        </div>
+        <div>
+          <xul:label
+            data-l10n-id="carddav-url-label"
+            data-l10n-attrs="value,accesskey"
+            control="carddav-url"
+          />
+        </div>
+        <div class="input-container">
+          <input
+            id="carddav-url"
+            type="url"
+            class="input-inline"
+            readonly="readonly"
+          />
+        </div>
+        <div id="carddav-refreshActive-cell">
+          <xul:checkbox
+            id="carddav-refreshActive"
+            data-l10n-id="carddav-refreshinterval-label"
+            data-l10n-attrs="label,accesskey"
+            control="carddav-refreshInterval"
+          />
+        </div>
+        <div id="carddav-refreshInterval-cell">
+          <xul:menulist id="carddav-refreshInterval">
+            <xul:menupopup>
+              <!-- This will be filled programmatically to reduce the number of needed strings -->
+            </xul:menupopup>
+          </xul:menulist>
+        </div>
+        <div></div>
+        <div>
+          <xul:checkbox
+            id="carddav-readOnly"
+            data-l10n-id="carddav-readonly-label"
+            data-l10n-attrs="label,accesskey"
+          />
+        </div>
+      </div>
+    </xul:dialog>
+  </body>
 </html>

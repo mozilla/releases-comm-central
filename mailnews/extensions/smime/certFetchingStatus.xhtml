@@ -8,21 +8,33 @@
 
 <!DOCTYPE html SYSTEM "chrome://messenger-smime/locale/certFetchingStatus.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      scrolling="false">
-<head>
-  <title>&title.label;</title>
-  <script defer="defer" src="chrome://messenger-smime/content/certFetchingStatus.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog id="certFetchingStatus"
-        buttons="cancel"
-        buttonlabelcancel="&stop.label;">
-  <stringbundle id="bundle_ldap" src="chrome://mozldap/locale/ldap.properties"/>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  scrolling="false"
+>
+  <head>
+    <title>&title.label;</title>
+    <script
+      defer="defer"
+      src="chrome://messenger-smime/content/certFetchingStatus.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog
+      id="certFetchingStatus"
+      buttons="cancel"
+      buttonlabelcancel="&stop.label;"
+    >
+      <stringbundle
+        id="bundle_ldap"
+        src="chrome://mozldap/locale/ldap.properties"
+      />
 
-  <description>&info.message;</description>
-</dialog>
-</html:body>
+      <description>&info.message;</description>
+    </dialog>
+  </html:body>
 </html>

@@ -10,29 +10,53 @@
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/msgSynchronize.dtd">
 
-<html id="selectOffline" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      windowtype="mailnews:selectOffline"
-      lightweightthemes="true"
-      width="450" height="400"
-      persist="width height screenX screenY"
-      scrolling="false">
-<head>
-  <title>&MsgSelect.label;</title>
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
-  <script defer="defer" src="chrome://messenger/content/msgSelectOfflineFolders.js"></script>
-  <style id="folderColorsStyle"></style>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog>
-  <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
-  <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
+<html
+  id="selectOffline"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  windowtype="mailnews:selectOffline"
+  lightweightthemes="true"
+  width="450"
+  height="400"
+  persist="width height screenX screenY"
+  scrolling="false"
+>
+  <head>
+    <title>&MsgSelect.label;</title>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/jsTreeView.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/msgSelectOfflineFolders.js"
+    ></script>
+    <style id="folderColorsStyle"></style>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog>
+      <stringbundle
+        id="bundle_messenger"
+        src="chrome://messenger/locale/messenger.properties"
+      />
+      <stringbundle
+        id="bundle_brand"
+        src="chrome://branding/locale/brand.properties"
+      />
 
-  <label class="desc" control="synchronizeTree">&MsgSelectDesc.label;</label>
+      <label class="desc" control="synchronizeTree"
+        >&MsgSelectDesc.label;</label
+      >
 
-  <tree id="synchronizeTree"
+      <tree
+        id="synchronizeTree"
         flex="1"
         hidecolumnpicker="true"
         seltype="multiple"
@@ -40,14 +64,26 @@
         simplelist="true"
         mode="offline"
         onkeypress="gSelectOffline.onKeyPress(event);"
-        onclick="gSelectOffline.onClick(event);">
-    <treecols>
-      <treecol id="folderNameCol" persist="hidden width" label="&MsgSelectItems.label;" primary="true"/>
-      <splitter class="tree-splitter"/>
-      <treecol id="syncCol" style="flex: 1 auto" persist="hidden width" label="&MsgSelectInd.label;" cycler="true"/>
-    </treecols>
-    <treechildren/>
-  </tree>
-</dialog>
-</html:body>
+        onclick="gSelectOffline.onClick(event);"
+      >
+        <treecols>
+          <treecol
+            id="folderNameCol"
+            persist="hidden width"
+            label="&MsgSelectItems.label;"
+            primary="true"
+          />
+          <splitter class="tree-splitter" />
+          <treecol
+            id="syncCol"
+            style="flex: 1 auto"
+            persist="hidden width"
+            label="&MsgSelectInd.label;"
+            cycler="true"
+          />
+        </treecols>
+        <treechildren />
+      </tree>
+    </dialog>
+  </html:body>
 </html>

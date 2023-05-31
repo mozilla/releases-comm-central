@@ -10,40 +10,60 @@
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger-smime/locale/msgCompSecurityInfo.dtd">
-<html id="msgCompSecurityInfo" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      lightweightthemes="true"
-      scrolling="false">
-<head>
-  <title>&title.label;</title>
-  <link rel="localization" href="branding/brand.ftl" />
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://messenger-smime/content/msgCompSecurityInfo.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttons="accept">
-  <stringbundle id="bundle_smime_comp_info" src="chrome://messenger-smime/locale/msgCompSecurityInfo.properties"/>
+<html
+  id="msgCompSecurityInfo"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  scrolling="false"
+>
+  <head>
+    <title>&title.label;</title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger-smime/content/msgCompSecurityInfo.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog buttons="accept">
+      <stringbundle
+        id="bundle_smime_comp_info"
+        src="chrome://messenger-smime/locale/msgCompSecurityInfo.properties"
+      />
 
-  <separator class="thin"/>
-  <label value="&status.certificates;" control="infolist"/>
+      <separator class="thin" />
+      <label value="&status.certificates;" control="infolist" />
 
-  <richlistbox id="infolist"
-               class="theme-listbox"
-               flex="1"
-               onselect="onSelectionChange(event);">
-    <treecols>
-      <treecol id="recipientHeader" label="&tree.recipient;"/>
-      <treecol id="statusHeader" label="&tree.status;"/>
-      <treecol id="issuedDateHeader" label="&tree.issuedDate;"/>
-      <treecol id="expiresDateHeader" label="&tree.expiresDate;"/>
-    </treecols>
-  </richlistbox>
-  <hbox pack="start">
-    <button id="viewCertButton" disabled="true"
-            label="&view.label;" accesskey="&view.accesskey;"
-            oncommand="viewSelectedCert();"/>
-  </hbox>
-</dialog>
-</html:body>
+      <richlistbox
+        id="infolist"
+        class="theme-listbox"
+        flex="1"
+        onselect="onSelectionChange(event);"
+      >
+        <treecols>
+          <treecol id="recipientHeader" label="&tree.recipient;" />
+          <treecol id="statusHeader" label="&tree.status;" />
+          <treecol id="issuedDateHeader" label="&tree.issuedDate;" />
+          <treecol id="expiresDateHeader" label="&tree.expiresDate;" />
+        </treecols>
+      </richlistbox>
+      <hbox pack="start">
+        <button
+          id="viewCertButton"
+          disabled="true"
+          label="&view.label;"
+          accesskey="&view.accesskey;"
+          oncommand="viewSelectedCert();"
+        />
+      </hbox>
+    </dialog>
+  </html:body>
 </html>

@@ -7,41 +7,71 @@
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/addressbook/pref-directory.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      scrolling="false">
-<head>
-  <title>&pref.ldap.window.title;</title>
-  <link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
-  <script defer="defer" src="chrome://messenger/content/addressbook/abCommon.js"></script>
-  <script defer="defer" src="chrome://messenger/content/addressbook/pref-editdirectories.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog id="editDirectories"
-        buttons="accept">
-  <stringbundle id="bundle_addressBook"
-                src="chrome://messenger/locale/addressbook/addressBook.properties"/>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  scrolling="false"
+>
+  <head>
+    <title>&pref.ldap.window.title;</title>
+    <link
+      rel="localization"
+      href="messenger/addressbook/aboutAddressBook.ftl"
+    />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/addressbook/abCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/addressbook/pref-editdirectories.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog id="editDirectories" buttons="accept">
+      <stringbundle
+        id="bundle_addressBook"
+        src="chrome://messenger/locale/addressbook/addressBook.properties"
+      />
 
-  <label value="&directoriesText.label;"
-         accesskey="&directoriesText.accesskey;" control="directoriesList"/>
-  <hbox flex="1">
-    <richlistbox id="directoriesList"
-                 flex="1"
-                 onselect="selectDirectory();"
-                 ondblclick="dblClickDirectory(event);"/>
-    <vbox>
-      <button id="addButton" label="&addDirectory.label;"
-              accesskey="&addDirectory.accesskey;"
-              oncommand="addDirectory();"/>
-      <button id="editButton" label="&editDirectory.label;"
-              accesskey="&editDirectory.accesskey;" disabled="true"
-              oncommand="editDirectory();"/>
-      <button id="removeButton" label="&deleteDirectory.label;"
-              accesskey="&deleteDirectory.accesskey;" disabled="true"
-              oncommand="removeDirectory();"/>
-    </vbox>
-  </hbox>
-</dialog>
-</html:body>
+      <label
+        value="&directoriesText.label;"
+        accesskey="&directoriesText.accesskey;"
+        control="directoriesList"
+      />
+      <hbox flex="1">
+        <richlistbox
+          id="directoriesList"
+          flex="1"
+          onselect="selectDirectory();"
+          ondblclick="dblClickDirectory(event);"
+        />
+        <vbox>
+          <button
+            id="addButton"
+            label="&addDirectory.label;"
+            accesskey="&addDirectory.accesskey;"
+            oncommand="addDirectory();"
+          />
+          <button
+            id="editButton"
+            label="&editDirectory.label;"
+            accesskey="&editDirectory.accesskey;"
+            disabled="true"
+            oncommand="editDirectory();"
+          />
+          <button
+            id="removeButton"
+            label="&deleteDirectory.label;"
+            accesskey="&deleteDirectory.accesskey;"
+            disabled="true"
+            oncommand="removeDirectory();"
+          />
+        </vbox>
+      </hbox>
+    </dialog>
+  </html:body>
 </html>

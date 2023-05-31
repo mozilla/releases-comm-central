@@ -8,69 +8,88 @@
 <?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE html [
-  <!ENTITY %  accountDTD SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
-  %accountDTD;
-  <!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd" >
-  %newsblogDTD;
-  <!ENTITY %       imDTD SYSTEM "chrome://messenger/locale/imAccountWizard.dtd" >
-  %imDTD;
-]>
+<!DOCTYPE html [ <!ENTITY % accountDTD SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
+%accountDTD;
+<!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd" >
+%newsblogDTD;
+<!ENTITY %       imDTD SYSTEM "chrome://messenger/locale/imAccountWizard.dtd" >
+%imDTD; ]>
 
-<html id="FeedAccountWizard" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      lightweightthemes="true"
-      scrolling="false">
-<head>
-  <title>&feedWindowTitle.label;</title>
-  <link rel="localization" href="toolkit/global/wizard.ftl" />
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger-newsblog/content/feedAccountWizard.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <wizard>
-    <!-- Account setup page : User gets a choice to enter a name for the account -->
-    <!-- Defaults : Feed account name -> default string -->
-    <wizardpage id="accountsetuppage"
-                pageid="accountsetuppage"
-                label="&accnameTitle.label;">
-      <vbox flex="1">
-        <description>&accnameDesc.label;</description>
-        <separator class="thin"/>
-        <hbox align="center" class="input-container">
-          <label id="prettyNameLabel" class="label"
-                 value="&accnameLabel.label;"
-                 accesskey="&accnameLabel.accesskey;"
-                 control="prettyName"/>
-          <html:input id="prettyName" type="text" class="input-inline"
-                      value="&feeds.accountName;"
-                      aria-labelledby="prettyNameLabel"
-                      oninput="FeedAccountWizard.accountSetupPageValidate();"/>
-        </hbox>
-      </vbox>
-    </wizardpage>
+<html
+  id="FeedAccountWizard"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  scrolling="false"
+>
+  <head>
+    <title>&feedWindowTitle.label;</title>
+    <link rel="localization" href="toolkit/global/wizard.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger-newsblog/content/feedAccountWizard.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <wizard>
+      <!-- Account setup page : User gets a choice to enter a name for the account -->
+      <!-- Defaults : Feed account name -> default string -->
+      <wizardpage
+        id="accountsetuppage"
+        pageid="accountsetuppage"
+        label="&accnameTitle.label;"
+      >
+        <vbox flex="1">
+          <description>&accnameDesc.label;</description>
+          <separator class="thin" />
+          <hbox align="center" class="input-container">
+            <label
+              id="prettyNameLabel"
+              class="label"
+              value="&accnameLabel.label;"
+              accesskey="&accnameLabel.accesskey;"
+              control="prettyName"
+            />
+            <html:input
+              id="prettyName"
+              type="text"
+              class="input-inline"
+              value="&feeds.accountName;"
+              aria-labelledby="prettyNameLabel"
+              oninput="FeedAccountWizard.accountSetupPageValidate();"
+            />
+          </hbox>
+        </vbox>
+      </wizardpage>
 
-    <!-- Done page : Summarizes information collected to create a feed account -->
-    <wizardpage id="done"
-                pageid="done"
-                label="&accountSummaryTitle.label;">
-      <vbox flex="1">
-        <description>&accountSummaryInfo.label;</description>
-        <separator class="thin"/>
-        <hbox id="account.name"
-              align="center">
-          <label id="account.name.label"
-                 class="label"
-                 value="&accnameLabel.label;"/>
-          <label id="account.name.text"
-                 class="label"/>
-        </hbox>
-        <separator/>
-        <spacer flex="1"/>
-      </vbox>
-    </wizardpage>
-  </wizard>
-</html:body>
+      <!-- Done page : Summarizes information collected to create a feed account -->
+      <wizardpage id="done" pageid="done" label="&accountSummaryTitle.label;">
+        <vbox flex="1">
+          <description>&accountSummaryInfo.label;</description>
+          <separator class="thin" />
+          <hbox id="account.name" align="center">
+            <label
+              id="account.name.label"
+              class="label"
+              value="&accnameLabel.label;"
+            />
+            <label id="account.name.text" class="label" />
+          </hbox>
+          <separator />
+          <spacer flex="1" />
+        </vbox>
+      </wizardpage>
+    </wizard>
+  </html:body>
 </html>

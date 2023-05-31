@@ -8,140 +8,218 @@
 <?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE html [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+<!DOCTYPE html [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % importDTD SYSTEM "chrome://messenger/locale/importDialog.dtd" >
-%importDTD;
-]>
+%importDTD; ]>
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      lightweightthemes="true"
-      width="720" height="520"
-      scrolling="false">
-<head>
-  <title>&importDialog.windowTitle;</title>
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger-newsblog/content/feed-subscriptions.js"></script>
-  <script defer="defer" src="chrome://messenger/content/importDialog.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  width="720"
+  height="520"
+  scrolling="false"
+>
+  <head>
+    <title>&importDialog.windowTitle;</title>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger-newsblog/content/feed-subscriptions.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/importDialog.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <stringbundle
+      id="bundle_importMsgs"
+      src="chrome://messenger/locale/importMsgs.properties"
+    />
+    <stringbundle
+      id="bundle_addressbook"
+      src="chrome://messenger/locale/addressbook/addressBook.properties"
+    />
+    <stringbundle
+      id="bundle_morkImportMsgs"
+      src="chrome://messenger/locale/morkImportMsgs.properties"
+    />
+    <stringbundle
+      id="bundle_vcardImportMsgs"
+      src="chrome://messenger/locale/vCardImportMsgs.properties"
+    />
+    <stringbundle
+      id="bundle_feeds"
+      src="chrome://messenger-newsblog/locale/newsblog.properties"
+    />
 
-  <stringbundle id="bundle_importMsgs" src="chrome://messenger/locale/importMsgs.properties"/>
-  <stringbundle id="bundle_addressbook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
-  <stringbundle id="bundle_morkImportMsgs" src="chrome://messenger/locale/morkImportMsgs.properties"/>
-  <stringbundle id="bundle_vcardImportMsgs" src="chrome://messenger/locale/vCardImportMsgs.properties"/>
-  <stringbundle id="bundle_feeds" src="chrome://messenger-newsblog/locale/newsblog.properties"/>
+    <hbox
+      class="box-header"
+      id="header"
+      title="&importTitle.label;"
+      description="&importShortDesc.label;"
+    />
 
-  <hbox class="box-header" id="header"
-       title="&importTitle.label;"
-       description="&importShortDesc.label;"/>
-
-  <vbox id="stateBox" flex="1" style="min-height: 30em">
-    <vbox class="wizard-box">
-      <description>&importDescription1.label;</description>
-      <description>&importDescription2.label;</description>
-      <separator/>
-      <radiogroup id="importFields">
-        <radio id="allRadio"
-               value="all"
-               label="&importAll.label;"
-               accesskey="&importAll.accesskey;"/>
-        <separator/>
-        <label control="importFields">&select.label;</label>
-        <separator class="thin"/>
-        <vbox class="indent">
-          <radio id="addressbookRadio"
-                 value="addressbook"
-                 label="&importAddressbook.label;"
-                 accesskey="&importAddressbook.accesskey;"/>
-          <radio id="mailRadio"
-                 value="mail"
-                 label="&importMail.label;"
-                 accesskey="&importMail.accesskey;"/>
-          <radio id="feedsRadio"
-                 value="feeds"
-                 label="&importFeeds.label;"
-                 accesskey="&importFeeds.accesskey;"/>
-          <radio id="settingsRadio"
-                 value="settings"
-                 label="&importSettings.label;"
-                 accesskey="&importSettings.accesskey;"/>
-          <radio id="filtersRadio"
-                 value="filters"
-                 label="&importFilters.label;"
-                 accesskey="&importFilters.accesskey;"/>
-        </vbox>
-      </radiogroup>
-    </vbox>
-    <vbox class="wizard-box" hidden="true">
-      <vbox>
-        <vbox id="moduleBox">
-          <vbox>
-            <label id="fileLabel"
-                   control="moduleList"
-                   value="&selectDescription.label;"
-                   accesskey="&selectDescription.accesskey;"/>
-            <label id="accountLabel"
-                   control="moduleList"
-                   value="&selectDescriptionB.label;"
-                   accesskey="&selectDescription.accesskey;"
-                   hidden="true"/>
+    <vbox id="stateBox" flex="1" style="min-height: 30em">
+      <vbox class="wizard-box">
+        <description>&importDescription1.label;</description>
+        <description>&importDescription2.label;</description>
+        <separator />
+        <radiogroup id="importFields">
+          <radio
+            id="allRadio"
+            value="all"
+            label="&importAll.label;"
+            accesskey="&importAll.accesskey;"
+          />
+          <separator />
+          <label control="importFields">&select.label;</label>
+          <separator class="thin" />
+          <vbox class="indent">
+            <radio
+              id="addressbookRadio"
+              value="addressbook"
+              label="&importAddressbook.label;"
+              accesskey="&importAddressbook.accesskey;"
+            />
+            <radio
+              id="mailRadio"
+              value="mail"
+              label="&importMail.label;"
+              accesskey="&importMail.accesskey;"
+            />
+            <radio
+              id="feedsRadio"
+              value="feeds"
+              label="&importFeeds.label;"
+              accesskey="&importFeeds.accesskey;"
+            />
+            <radio
+              id="settingsRadio"
+              value="settings"
+              label="&importSettings.label;"
+              accesskey="&importSettings.accesskey;"
+            />
+            <radio
+              id="filtersRadio"
+              value="filters"
+              label="&importFilters.label;"
+              accesskey="&importFilters.accesskey;"
+            />
           </vbox>
-          <richlistbox id="moduleList"
-                       height="200px"
-                       onselect="ImportSelectionChanged(); enableAdvance();"/>
-        </vbox>
-        <label id="noModuleLabel" hidden="true">&noModulesFound.label;</label>
+        </radiogroup>
       </vbox>
-      <vbox>
-        <hbox flex="1">
-          <description flex="1" control="moduleList" id="description" class="box-padded"/>
-        </hbox>
-        <hbox id="acctName-box" flex="1" class="input-container" style="visibility: hidden;">
-          <label control="acctName" class="box-padded"
-                 accesskey="&acctName.accesskey;"
-                 value="&acctName.label;"/>
-          <html:input id="acctName" type="text" class="input-inline"
-                      aria-labelledby="acctName"/>
+      <vbox class="wizard-box" hidden="true">
+        <vbox>
+          <vbox id="moduleBox">
+            <vbox>
+              <label
+                id="fileLabel"
+                control="moduleList"
+                value="&selectDescription.label;"
+                accesskey="&selectDescription.accesskey;"
+              />
+              <label
+                id="accountLabel"
+                control="moduleList"
+                value="&selectDescriptionB.label;"
+                accesskey="&selectDescription.accesskey;"
+                hidden="true"
+              />
+            </vbox>
+            <richlistbox
+              id="moduleList"
+              height="200px"
+              onselect="ImportSelectionChanged(); enableAdvance();"
+            />
+          </vbox>
+          <label id="noModuleLabel" hidden="true">&noModulesFound.label;</label>
+        </vbox>
+        <vbox>
+          <hbox flex="1">
+            <description
+              flex="1"
+              control="moduleList"
+              id="description"
+              class="box-padded"
+            />
+          </hbox>
+          <hbox
+            id="acctName-box"
+            flex="1"
+            class="input-container"
+            style="visibility: hidden"
+          >
+            <label
+              control="acctName"
+              class="box-padded"
+              accesskey="&acctName.accesskey;"
+              value="&acctName.label;"
+            />
+            <html:input
+              id="acctName"
+              type="text"
+              class="input-inline"
+              aria-labelledby="acctName"
+            />
+          </hbox>
+        </vbox>
+      </vbox>
+      <vbox class="wizard-box" hidden="true">
+        <spacer flex="1" />
+        <html:fieldset>
+          <label id="progressTitle" class="header">&title.label;</label>
+          <label
+            class="indent"
+            id="progressStatus"
+            value="&processing.label;"
+          />
+          <vbox class="box-padded">
+            <html:progress id="progressMeter" value="5" max="100" />
+          </vbox>
+        </html:fieldset>
+      </vbox>
+      <vbox class="wizard-box" flex="1" hidden="true">
+        <description id="status" />
+        <hbox style="overflow: auto" class="inset" flex="1">
+          <description id="results" flex="1" />
         </hbox>
       </vbox>
     </vbox>
-    <vbox class="wizard-box" hidden="true">
-      <spacer flex="1"/>
-      <html:fieldset>
-        <label id="progressTitle" class="header">&title.label;</label>
-        <label class="indent" id="progressStatus" value="&processing.label;"/>
-        <vbox class="box-padded">
-          <html:progress id="progressMeter" value="5" max="100"/>
-        </vbox>
-      </html:fieldset>
-    </vbox>
-    <vbox class="wizard-box" flex="1" hidden="true">
-      <description id="status"/>
-      <hbox style="overflow: auto" class="inset" flex="1">
-        <description id="results" flex="1"/>
-      </hbox>
-    </vbox>
-  </vbox>
 
-  <separator/>
+    <separator />
 
-  <separator class="groove"/>
+    <separator class="groove" />
 
-  <hbox class="box-padded">
-    <spacer flex="1"/>
-    <button id="back" label="&back.label;" disabled="true"
-            oncommand="back();"/>
-    <button id="forward" label="&forward.label;" nextval="&forward.label;" finishedval="&finish.label;"
-            oncommand="next();"/>
-    <separator orient="vertical"/>
-    <button id="cancel" label="&cancel.label;"
-            oncommand="window.close();"/>
-  </hbox>
-
-</html:body>
+    <hbox class="box-padded">
+      <spacer flex="1" />
+      <button
+        id="back"
+        label="&back.label;"
+        disabled="true"
+        oncommand="back();"
+      />
+      <button
+        id="forward"
+        label="&forward.label;"
+        nextval="&forward.label;"
+        finishedval="&finish.label;"
+        oncommand="next();"
+      />
+      <separator orient="vertical" />
+      <button id="cancel" label="&cancel.label;" oncommand="window.close();" />
+    </hbox>
+  </html:body>
 </html>

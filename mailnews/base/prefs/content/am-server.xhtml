@@ -7,463 +7,668 @@
 <?xml-stylesheet href="chrome://messenger/skin/icons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 
-<!DOCTYPE html [
-<!ENTITY % trashDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
-%trashDTD;
-]>
+<!DOCTYPE html [ <!ENTITY % trashDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
+%trashDTD; ]>
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml">
-<head>
-  <title>&serverSettings.label;</title>
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/am-server.js"></script>
-  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
-  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/menulist-charsetpicker.js"></script>
-  <script>
-    // FIXME: move to script file.
-    window.addEventListener("load", event => { parent.onPanelLoaded('am-server.xhtml'); });
-  </script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <vbox id="containerBox" flex="1">
-    <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+>
+  <head>
+    <title>&serverSettings.label;</title>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/am-server.js"
+    ></script>
+    <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+    <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/menulist-charsetpicker.js"
+    ></script>
+    <script>
+      // FIXME: move to script file.
+      window.addEventListener("load", event => {
+        parent.onPanelLoaded("am-server.xhtml");
+      });
+    </script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <vbox id="containerBox" flex="1">
+      <stringbundle
+        id="bundle_messenger"
+        src="chrome://messenger/locale/messenger.properties"
+      />
 
-    <label hidden="true" wsm_persist="true" id="server.type"/>
-    <label hidden="true"
-           wsm_persist="true"
-           preftype="string"
-           prefattribute="value"
-           prefstring="mail.server.%serverkey%.storeContractID"
-           genericattr="true"
-           id="server.storeContractID"/>
+      <label hidden="true" wsm_persist="true" id="server.type" />
+      <label
+        hidden="true"
+        wsm_persist="true"
+        preftype="string"
+        prefattribute="value"
+        prefstring="mail.server.%serverkey%.storeContractID"
+        genericattr="true"
+        id="server.storeContractID"
+      />
 
-    <hbox class="dialogheader">
-      <label class="dialogheader-title" value="&serverSettings.label;"/>
-    </hbox>
+      <hbox class="dialogheader">
+        <label class="dialogheader-title" value="&serverSettings.label;" />
+      </hbox>
 
-    <separator class="thin"/>
+      <separator class="thin" />
 
-    <div xmlns="http://www.w3.org/1999/xhtml" id="amServerSetting">
-      <div>
-        <xul:label value="&serverType.label;"/>
+      <div xmlns="http://www.w3.org/1999/xhtml" id="amServerSetting">
+        <div>
+          <xul:label value="&serverType.label;" />
+        </div>
+        <div>
+          <xul:label id="servertypeVerbose" />
+        </div>
+        <div style="grid-row: 2">
+          <xul:label
+            value="&serverName.label;"
+            accesskey="&serverName.accesskey;"
+            control="server.hostName"
+          />
+        </div>
+        <div class="input-container" style="grid-row: 2">
+          <xul:label
+            id="fixedServerName"
+            collapsed="true"
+            use="server.hostName"
+          />
+          <html:input
+            id="server.hostName"
+            type="text"
+            wsm_persist="true"
+            size="20"
+            prefstring="mail.server.%serverkey%.hostname"
+            class="uri-element input-flex input-inline"
+            aria-labelledby="fixedServerName"
+          />
+        </div>
+        <div class="input-container" style="grid-row: 2">
+          <xul:label
+            value="&port.label;"
+            accesskey="&port.accesskey;"
+            control="server.port"
+          />
+          <xul:label id="fixedServerPort" collapsed="true" use="server.port" />
+          <html:input
+            id="server.port"
+            type="number"
+            class="size3"
+            min="1"
+            max="65535"
+            wsm_persist="true"
+            preftype="int"
+            prefstring="mail.server.%serverkey%.port"
+          />
+          <xul:label value="&serverPortDefault.label;" />
+          <xul:label id="defaultPort" />
+        </div>
+        <div hidefor="nntp" style="grid-row: 3">
+          <xul:label
+            value="&userName.label;"
+            accesskey="&userName.accesskey;"
+            control="server.username"
+          />
+        </div>
+        <div class="input-container" hidefor="nntp" style="grid-row: 3">
+          <xul:label
+            id="fixedUserName"
+            collapsed="true"
+            use="server.username"
+          />
+          <html:input
+            id="server.username"
+            type="text"
+            wsm_persist="true"
+            size="20"
+            class="input-flex input-inline"
+            prefstring="mail.server.%serverkey%.username"
+            aria-labelledby="fixedUserName"
+          />
+        </div>
       </div>
-      <div>
-        <xul:label id="servertypeVerbose"/>
-      </div>
-      <div style="grid-row: 2;">
-        <xul:label value="&serverName.label;" accesskey="&serverName.accesskey;"
-                   control="server.hostName"/>
-      </div>
-      <div class="input-container" style="grid-row: 2;">
-        <xul:label id="fixedServerName" collapsed="true" use="server.hostName"/>
-        <html:input id="server.hostName"
-                    type="text"
-                    wsm_persist="true"
-                    size="20"
-                    prefstring="mail.server.%serverkey%.hostname"
-                    class="uri-element input-flex input-inline"
-                    aria-labelledby="fixedServerName"/>
-      </div>
-      <div class="input-container" style="grid-row: 2;">
-        <xul:label value="&port.label;"
-                   accesskey="&port.accesskey;" control="server.port"/>
-        <xul:label id="fixedServerPort"
-                   collapsed="true" use="server.port"/>
-        <html:input id="server.port" type="number"
-                    class="size3"
-                    min="1" max="65535"
-                    wsm_persist="true"
-                    preftype="int"
-                    prefstring="mail.server.%serverkey%.port"/>
-        <xul:label value="&serverPortDefault.label;"/>
-        <xul:label id="defaultPort"/>
-      </div>
-      <div hidefor="nntp" style="grid-row: 3;">
-        <xul:label value="&userName.label;"
-                   accesskey="&userName.accesskey;"
-                   control="server.username"/>
-      </div>
-      <div class="input-container" hidefor="nntp" style="grid-row: 3;">
-        <xul:label id="fixedUserName" collapsed="true" use="server.username"/>
-        <html:input id="server.username"
-                    type="text"
-                    wsm_persist="true"
-                    size="20"
-                    class="input-flex input-inline"
-                    prefstring="mail.server.%serverkey%.username"
-                    aria-labelledby="fixedUserName"/>
-      </div>
-    </div>
 
-    <separator/>
+      <separator />
 
-    <html:div>
-    <html:fieldset>
-      <html:legend>&securitySettings.label;</html:legend>
-      <html:table>
-        <html:tr>
-          <html:td>
-            <label value="&connectionSecurity.label;"
-                   accesskey="&connectionSecurity.accesskey;"
-                   control="server.socketType"/>
-          </html:td>
-          <html:td>
-            <menulist wsm_persist="true" id="server.socketType"
-                      oncommand="secureSelect();" style="width:100%;">
-              <menupopup id="server.socketTypePopup">
-                <menuitem value="0" label="&connectionSecurityType-0.label;"/>
-                <menuitem id="connectionSecurityType-1"
-                          value="1" label="&connectionSecurityType-1.label;"
-                          disabled="true"/>
-                <menuitem value="2" label="&connectionSecurityType-2.label;"
-                          hidefor="nntp"/>
-                <menuitem value="3" label="&connectionSecurityType-3.label;"/>
-              </menupopup>
-            </menulist>
-          </html:td>
-        </html:tr>
-        <html:tr>
-          <html:td>
-            <label value="&authMethod.label;"
-                   accesskey="&authMethod.accesskey;"
-                   control="server.authMethod"
-                   hidefor="nntp"/>
-          </html:td>
-          <html:td>
-            <menulist id="server.authMethod"
-                      wsm_persist="true"
-                      preftype="int"
-                      prefstring="mail.server.%serverkey%.authMethod"
+      <html:div>
+        <html:fieldset>
+          <html:legend>&securitySettings.label;</html:legend>
+          <html:table>
+            <html:tr>
+              <html:td>
+                <label
+                  value="&connectionSecurity.label;"
+                  accesskey="&connectionSecurity.accesskey;"
+                  control="server.socketType"
+                />
+              </html:td>
+              <html:td>
+                <menulist
+                  wsm_persist="true"
+                  id="server.socketType"
+                  oncommand="secureSelect();"
+                  style="width: 100%"
+                >
+                  <menupopup id="server.socketTypePopup">
+                    <menuitem
+                      value="0"
+                      label="&connectionSecurityType-0.label;"
+                    />
+                    <menuitem
+                      id="connectionSecurityType-1"
+                      value="1"
+                      label="&connectionSecurityType-1.label;"
+                      disabled="true"
+                    />
+                    <menuitem
+                      value="2"
+                      label="&connectionSecurityType-2.label;"
                       hidefor="nntp"
-                      style="width:100%;">
-              <menupopup id="server.authMethodPopup">
-                <menuitem id="authMethod-no" value="1"/>
-                <menuitem id="authMethod-old" value="2"/>
-                <menuitem id="authMethod-password-cleartext" value="3"/>
-                <menuitem id="authMethod-password-encrypted" value="4"/>
-                <menuitem id="authMethod-kerberos" value="5"/>
-                <menuitem id="authMethod-ntlm" value="6"/>
-                <menuitem id="authMethod-external" value="7"/>
-                <menuitem id="authMethod-oauth2" value="10"/>
-                <menuitem id="authMethod-anysecure" value="8"/>
-                <menuitem id="authMethod-any" value="9"/>
-              </menupopup>
-            </menulist>
-          </html:td>
-        </html:tr>
-      </html:table>
-    </html:fieldset>
-    </html:div>
-
-    <html:div>
-    <html:fieldset>
-      <html:legend>&serverSettings.label;</html:legend>
-      <vbox align="start">
-      <checkbox wsm_persist="true"
-                id="server.loginAtStartUp"
-                label="&loginAtStartup.label;"
-                accesskey="&loginAtStartup.accesskey;"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.login_at_startup"/>
-      </vbox>
-      <hbox align="center">
-        <checkbox wsm_persist="true"
-                  id="server.doBiff"
-                  label="&biffStart.label;"
-                  accesskey="&biffStart.accesskey;"
-                  oncommand="onCheckItem('server.biffMinutes', [this.id]);"
-                  prefattribute="value"
-                  prefstring="mail.server.%serverkey%.check_new_mail"/>
-        <html:input id="server.biffMinutes" type="number"
-                    class="size3" min="1"
-                    wsm_persist="true"
-                    aria-labelledby="server.doBiff server.biffMinutes biffEnd"
-                    preftype="int"
-                    prefstring="mail.server.%serverkey%.check_time"/>
-        <label id="biffEnd"
-               control="server.biffMinutes"
-               value="&biffEnd.label;"/>
-      </hbox>
-      <vbox align="start"
-            hidefor="pop3,nntp">
-        <checkbox wsm_persist="true"
-                  id="imap.useIdle"
-                  label="&useIdleNotifications.label;"
-                  accesskey="&useIdleNotifications.accesskey;"
-                  prefattribute="value"
-                  prefstring="mail.server.%serverkey%.use_idle"/>
-      </vbox>
-
-    <!-- Necessary for POP3 (Bug 480945) -->
-    <!-- https://bugzilla.mozilla.org/show_bug.cgi?id=480945 -->
-    <vbox align="start" hidefor="imap,nntp">
-      <checkbox wsm_persist="true" id="server.downloadOnBiff"
-                label="&downloadOnBiff.label;" prefattribute="value"
-                accesskey="&downloadOnBiff.accesskey;"
-                prefstring="mail.server.%serverkey%.download_on_biff"/>
-    </vbox>
-    <!-- POP3 -->
-    <vbox align="start" hidefor="imap,nntp">
-      <checkbox wsm_persist="true" id="pop3.headersOnly"
-                label="&headersOnly.label;"
-                accesskey="&headersOnly.accesskey;"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.headers_only"/>
-
-      <checkbox wsm_persist="true" id="pop3.leaveMessagesOnServer"
-                label="&leaveOnServer.label;" oncommand="setupMailOnServerUI();"
-                accesskey="&leaveOnServer.accesskey;"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.leave_on_server"/>
-
-      <hbox align="center">
-        <checkbox wsm_persist="true" id="pop3.deleteByAgeFromServer" class="indent"
-                  label="&deleteByAgeFromServer.label;" oncommand="setupAgeMsgOnServerUI();"
-                  accesskey="&deleteByAgeFromServer.accesskey;"
-                  prefattribute="value"
-                  prefstring="mail.server.%serverkey%.delete_by_age_from_server"/>
-        <html:input id="pop3.numDaysToLeaveOnServer" type="number"
-                    class="size3" min="1"
-                    wsm_persist="true"
-                    aria-labelledby="pop3.deleteByAgeFromServer pop3.numDaysToLeaveOnServer daysEnd"
-                    preftype="int"
-                    prefstring="mail.server.%serverkey%.num_days_to_leave_on_server"/>
-        <label id="daysEnd" control="pop3.numDaysToLeaveOnServer" value="&daysEnd.label;"/>
-      </hbox>
-
-      <checkbox wsm_persist="true" id="pop3.deleteMailLeftOnServer" class="indent"
-                label="&deleteOnServer2.label;"
-                accesskey="&deleteOnServer2.accesskey;"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.delete_mail_left_on_server"/>
-
-    <!-- hidden elements for data transfer to and from advanced... dialog -->
-    <hbox flex="1" hidefor="imap,nntp" hidden="true">
-      <checkbox hidden="true" wsm_persist="true" id="pop3.deferGetNewMail"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.deferGetNewMail"/>
-      <label hidden="true" wsm_persist="true" id="pop3.deferredToAccount"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.deferredToAccount"/>
-
-    </hbox>
-    </vbox>
-    <!-- IMAP -->
-    <label hidden="true" wsm_persist="true" id="imap.trashFolderName"
-                  prefattribute="value"
-                  prefstring="mail.server.%serverkey%.trash_folder_name"/>
-
-    <separator class="thin"/>
-
-    <hbox align="center" hidefor="pop3,nntp">
-      <label value="&deleteMessagePrefix.label;" align="start"
-             control="imap.deleteModel"/>
-    </hbox>
-    <vbox>
-      <hbox align="center"
-            id="imap.deleteModel.box"
-            hidefor="pop3,nntp"
-            flex="1">
-        <radiogroup id="imap.deleteModel"
-                    wsm_persist="true"
-                    oncommand="selectImapDeleteModel(this.value);"
-                    prefstring="mail.server.%serverkey%.delete_model">
-          <hbox class="specialFolderPickerGrid">
-            <vbox>
-              <hbox flex="1" align="center">
-                <radio id="modelMoveToTrash"
-                       value="1"
-                       label="&modelMoveToTrash.label;"
-                       accesskey="&modelMoveToTrash.accesskey;"/>
-                <menulist id="msgTrashFolderPicker"
-                          class="folderMenuItem"
-                          style="max-width:300px;" flex="1" crop="center"
-                          aria-labelledby="modelMoveToTrash"
-                          displayformat="verbose">
-                  <menupopup is="folder-menupopup" id="msgTrashFolderPopup"
-                             mode="filing"
-                             showFileHereLabel="true"
-                             oncommand="folderPickerChange(event);"/>
+                    />
+                    <menuitem
+                      value="3"
+                      label="&connectionSecurityType-3.label;"
+                    />
+                  </menupopup>
                 </menulist>
-              </hbox>
-              <hbox flex="1" align="center">
-                <radio id="modelMarkDeleted"
-                       value="0"
-                       label="&modelMarkDeleted.label;"
-                       accesskey="&modelMarkDeleted.accesskey;"/>
-              </hbox>
-              <hbox flex="1" align="center">
-                <radio id="modelDeleteImmediately"
-                       value="2"
-                       label="&modelDeleteImmediately.label;"
-                       accesskey="&modelDeleteImmediately.accesskey;"/>
-              </hbox>
-            </vbox>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:td>
+                <label
+                  value="&authMethod.label;"
+                  accesskey="&authMethod.accesskey;"
+                  control="server.authMethod"
+                  hidefor="nntp"
+                />
+              </html:td>
+              <html:td>
+                <menulist
+                  id="server.authMethod"
+                  wsm_persist="true"
+                  preftype="int"
+                  prefstring="mail.server.%serverkey%.authMethod"
+                  hidefor="nntp"
+                  style="width: 100%"
+                >
+                  <menupopup id="server.authMethodPopup">
+                    <menuitem id="authMethod-no" value="1" />
+                    <menuitem id="authMethod-old" value="2" />
+                    <menuitem id="authMethod-password-cleartext" value="3" />
+                    <menuitem id="authMethod-password-encrypted" value="4" />
+                    <menuitem id="authMethod-kerberos" value="5" />
+                    <menuitem id="authMethod-ntlm" value="6" />
+                    <menuitem id="authMethod-external" value="7" />
+                    <menuitem id="authMethod-oauth2" value="10" />
+                    <menuitem id="authMethod-anysecure" value="8" />
+                    <menuitem id="authMethod-any" value="9" />
+                  </menupopup>
+                </menulist>
+              </html:td>
+            </html:tr>
+          </html:table>
+        </html:fieldset>
+      </html:div>
+
+      <html:div>
+        <html:fieldset>
+          <html:legend>&serverSettings.label;</html:legend>
+          <vbox align="start">
+            <checkbox
+              wsm_persist="true"
+              id="server.loginAtStartUp"
+              label="&loginAtStartup.label;"
+              accesskey="&loginAtStartup.accesskey;"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.login_at_startup"
+            />
+          </vbox>
+          <hbox align="center">
+            <checkbox
+              wsm_persist="true"
+              id="server.doBiff"
+              label="&biffStart.label;"
+              accesskey="&biffStart.accesskey;"
+              oncommand="onCheckItem('server.biffMinutes', [this.id]);"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.check_new_mail"
+            />
+            <html:input
+              id="server.biffMinutes"
+              type="number"
+              class="size3"
+              min="1"
+              wsm_persist="true"
+              aria-labelledby="server.doBiff server.biffMinutes biffEnd"
+              preftype="int"
+              prefstring="mail.server.%serverkey%.check_time"
+            />
+            <label
+              id="biffEnd"
+              control="server.biffMinutes"
+              value="&biffEnd.label;"
+            />
           </hbox>
-        </radiogroup>
-      </hbox>
-      <hbox pack="end">
-        <!-- This button should have identical attributes to the
+          <vbox align="start" hidefor="pop3,nntp">
+            <checkbox
+              wsm_persist="true"
+              id="imap.useIdle"
+              label="&useIdleNotifications.label;"
+              accesskey="&useIdleNotifications.accesskey;"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.use_idle"
+            />
+          </vbox>
+
+          <!-- Necessary for POP3 (Bug 480945) -->
+          <!-- https://bugzilla.mozilla.org/show_bug.cgi?id=480945 -->
+          <vbox align="start" hidefor="imap,nntp">
+            <checkbox
+              wsm_persist="true"
+              id="server.downloadOnBiff"
+              label="&downloadOnBiff.label;"
+              prefattribute="value"
+              accesskey="&downloadOnBiff.accesskey;"
+              prefstring="mail.server.%serverkey%.download_on_biff"
+            />
+          </vbox>
+          <!-- POP3 -->
+          <vbox align="start" hidefor="imap,nntp">
+            <checkbox
+              wsm_persist="true"
+              id="pop3.headersOnly"
+              label="&headersOnly.label;"
+              accesskey="&headersOnly.accesskey;"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.headers_only"
+            />
+
+            <checkbox
+              wsm_persist="true"
+              id="pop3.leaveMessagesOnServer"
+              label="&leaveOnServer.label;"
+              oncommand="setupMailOnServerUI();"
+              accesskey="&leaveOnServer.accesskey;"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.leave_on_server"
+            />
+
+            <hbox align="center">
+              <checkbox
+                wsm_persist="true"
+                id="pop3.deleteByAgeFromServer"
+                class="indent"
+                label="&deleteByAgeFromServer.label;"
+                oncommand="setupAgeMsgOnServerUI();"
+                accesskey="&deleteByAgeFromServer.accesskey;"
+                prefattribute="value"
+                prefstring="mail.server.%serverkey%.delete_by_age_from_server"
+              />
+              <html:input
+                id="pop3.numDaysToLeaveOnServer"
+                type="number"
+                class="size3"
+                min="1"
+                wsm_persist="true"
+                aria-labelledby="pop3.deleteByAgeFromServer pop3.numDaysToLeaveOnServer daysEnd"
+                preftype="int"
+                prefstring="mail.server.%serverkey%.num_days_to_leave_on_server"
+              />
+              <label
+                id="daysEnd"
+                control="pop3.numDaysToLeaveOnServer"
+                value="&daysEnd.label;"
+              />
+            </hbox>
+
+            <checkbox
+              wsm_persist="true"
+              id="pop3.deleteMailLeftOnServer"
+              class="indent"
+              label="&deleteOnServer2.label;"
+              accesskey="&deleteOnServer2.accesskey;"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.delete_mail_left_on_server"
+            />
+
+            <!-- hidden elements for data transfer to and from advanced... dialog -->
+            <hbox flex="1" hidefor="imap,nntp" hidden="true">
+              <checkbox
+                hidden="true"
+                wsm_persist="true"
+                id="pop3.deferGetNewMail"
+                prefattribute="value"
+                prefstring="mail.server.%serverkey%.deferGetNewMail"
+              />
+              <label
+                hidden="true"
+                wsm_persist="true"
+                id="pop3.deferredToAccount"
+                prefattribute="value"
+                prefstring="mail.server.%serverkey%.deferredToAccount"
+              />
+            </hbox>
+          </vbox>
+          <!-- IMAP -->
+          <label
+            hidden="true"
+            wsm_persist="true"
+            id="imap.trashFolderName"
+            prefattribute="value"
+            prefstring="mail.server.%serverkey%.trash_folder_name"
+          />
+
+          <separator class="thin" />
+
+          <hbox align="center" hidefor="pop3,nntp">
+            <label
+              value="&deleteMessagePrefix.label;"
+              align="start"
+              control="imap.deleteModel"
+            />
+          </hbox>
+          <vbox>
+            <hbox
+              align="center"
+              id="imap.deleteModel.box"
+              hidefor="pop3,nntp"
+              flex="1"
+            >
+              <radiogroup
+                id="imap.deleteModel"
+                wsm_persist="true"
+                oncommand="selectImapDeleteModel(this.value);"
+                prefstring="mail.server.%serverkey%.delete_model"
+              >
+                <hbox class="specialFolderPickerGrid">
+                  <vbox>
+                    <hbox flex="1" align="center">
+                      <radio
+                        id="modelMoveToTrash"
+                        value="1"
+                        label="&modelMoveToTrash.label;"
+                        accesskey="&modelMoveToTrash.accesskey;"
+                      />
+                      <menulist
+                        id="msgTrashFolderPicker"
+                        class="folderMenuItem"
+                        style="max-width: 300px"
+                        flex="1"
+                        crop="center"
+                        aria-labelledby="modelMoveToTrash"
+                        displayformat="verbose"
+                      >
+                        <menupopup
+                          is="folder-menupopup"
+                          id="msgTrashFolderPopup"
+                          mode="filing"
+                          showFileHereLabel="true"
+                          oncommand="folderPickerChange(event);"
+                        />
+                      </menulist>
+                    </hbox>
+                    <hbox flex="1" align="center">
+                      <radio
+                        id="modelMarkDeleted"
+                        value="0"
+                        label="&modelMarkDeleted.label;"
+                        accesskey="&modelMarkDeleted.accesskey;"
+                      />
+                    </hbox>
+                    <hbox flex="1" align="center">
+                      <radio
+                        id="modelDeleteImmediately"
+                        value="2"
+                        label="&modelDeleteImmediately.label;"
+                        accesskey="&modelDeleteImmediately.accesskey;"
+                      />
+                    </hbox>
+                  </vbox>
+                </hbox>
+              </radiogroup>
+            </hbox>
+            <hbox pack="end">
+              <!-- This button should have identical attributes to the
              server.popAdvancedButton except the hidefor attribute. -->
-        <button label="&advancedButton.label;"
+              <button
+                label="&advancedButton.label;"
                 accesskey="&advancedButton.accesskey;"
                 oncommand="onAdvanced();"
                 wsm_persist="true"
                 id="server.imapAdvancedButton"
                 prefstring="mail.server.%serverkey%.advanced.disable"
-                hidefor="pop3,nntp"/>
+                hidefor="pop3,nntp"
+              />
+            </hbox>
+          </vbox>
+
+          <!-- Advanced IMAP settings -->
+          <hbox flex="1" hidefor="pop3,nntp" hidden="true">
+            <checkbox
+              hidden="true"
+              wsm_persist="true"
+              id="imap.dualUseFolders"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.dual_use_folders"
+            />
+            <checkbox
+              hidden="true"
+              wsm_persist="true"
+              id="imap.usingSubscription"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.using_subscription"
+            />
+            <label
+              hidden="true"
+              wsm_persist="true"
+              id="imap.maximumConnectionsNumber"
+            />
+            <label
+              hidden="true"
+              wsm_persist="true"
+              id="imap.personalNamespace"
+            />
+            <label hidden="true" wsm_persist="true" id="imap.publicNamespace" />
+            <label
+              hidden="true"
+              wsm_persist="true"
+              id="imap.otherUsersNamespace"
+            />
+            <label hidden="true" wsm_persist="true" id="imap.serverDirectory" />
+            <checkbox
+              hidden="true"
+              wsm_persist="true"
+              id="imap.overrideNamespaces"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.override_namespaces"
+            />
+          </hbox>
+
+          <!-- NNTP -->
+          <hbox hidefor="pop3,imap" align="center">
+            <checkbox
+              id="nntp.notifyOn"
+              wsm_persist="true"
+              label="&maxMessagesStart.label;"
+              accesskey="&maxMessagesStart.accesskey;"
+              oncommand="onCheckItem('nntp.maxArticles', [this.id]);"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.notify.on"
+            />
+            <html:input
+              id="nntp.maxArticles"
+              type="number"
+              class="size4"
+              min="1"
+              wsm_persist="true"
+              aria-labelledby="nntp.notifyOn nntp.maxArticles maxMessagesEnd"
+              preftype="int"
+              prefstring="mail.server.%serverkey%.max_articles"
+            />
+            <label
+              control="nntp.maxArticles"
+              value="&maxMessagesEnd.label;"
+              id="maxMessagesEnd"
+            />
+          </hbox>
+          <checkbox
+            hidefor="pop3,imap"
+            wsm_persist="true"
+            id="nntp.pushAuth"
+            label="&alwaysAuthenticate.label;"
+            accesskey="&alwaysAuthenticate.accesskey;"
+            prefattribute="value"
+            prefstring="mail.server.%serverkey%.always_authenticate"
+          />
+        </html:fieldset>
+      </html:div>
+
+      <html:div>
+        <html:fieldset>
+          <html:legend>&messageStorage.label;</html:legend>
+
+          <hbox align="end">
+            <vbox align="start" flex="1" id="exitHandlingBox=">
+              <checkbox
+                hidefor="pop3,nntp"
+                wsm_persist="true"
+                id="imap.cleanupInboxOnExit"
+                label="&expungeOnExit.label;"
+                accesskey="&expungeOnExit.accesskey;"
+                prefattribute="value"
+                prefstring="mail.server.%serverkey%.cleanup_inbox_on_exit"
+              />
+              <checkbox
+                hidefor="nntp"
+                wsm_persist="true"
+                id="server.emptyTrashOnExit"
+                label="&emptyTrashOnExit.label;"
+                accesskey="&emptyTrashOnExit.accesskey;"
+                prefattribute="value"
+                prefstring="mail.server.%serverkey%.empty_trash_on_exit"
+              />
+            </vbox>
+            <button
+              label="&advancedButton.label;"
+              accesskey="&advancedButton.accesskey;"
+              oncommand="onAdvanced();"
+              wsm_persist="true"
+              id="server.popAdvancedButton"
+              prefstring="mail.server.%serverkey%.advanced.disable"
+              hidefor="imap,nntp"
+            />
+          </hbox>
+          <hbox align="center">
+            <label
+              value="&storeType.label;"
+              accesskey="&storeType.accesskey;"
+              control="server.storeTypeMenulist"
+            />
+            <menulist
+              id="server.storeTypeMenulist"
+              oncommand="clickStoreTypeMenu(this);"
+            >
+              <menupopup id="server.storeTypeMenupopup">
+                <menuitem
+                  id="server.mboxStore"
+                  value="@mozilla.org/msgstore/berkeleystore;1"
+                  label="&mboxStore2.label;"
+                />
+                <menuitem
+                  id="server.maildirStore"
+                  value="@mozilla.org/msgstore/maildirstore;1"
+                  label="&maildirStore.label;"
+                />
+              </menupopup>
+            </menulist>
+          </hbox>
+
+          <hbox align="center" hidefor="imap,pop3">
+            <label
+              id="nntp.newsrcFilePath.label"
+              value="&newsrcFilePath1.label;"
+              control="nntp.newsrcFilePath"
+            />
+            <hbox class="input-container" flex="1">
+              <html:input
+                id="nntp.newsrcFilePath"
+                type="text"
+                readonly="readonly"
+                wsm_persist="true"
+                datatype="nsIFile"
+                prefstring="mail.server.%serverkey%.newsrc.file"
+                class="uri-element input-inline"
+                aria-labelledby="nntp.newsrcFilePath.label"
+              />
+            </hbox>
+            <button
+              id="browseForNewsrc"
+              label="&browseNewsrc.label;"
+              filepickertitle="&newsrcPicker1.label;"
+              accesskey="&browseNewsrc.accesskey;"
+              oncommand="BrowseForNewsrc();"
+            />
+          </hbox>
+
+          <separator class="thin" />
+
+          <hbox align="center">
+            <label
+              id="server.localPath.label"
+              value="&localPath1.label;"
+              control="server.localPath"
+            />
+            <hbox class="input-container" flex="1">
+              <html:input
+                id="server.localPath"
+                type="text"
+                readonly="readonly"
+                wsm_persist="true"
+                datatype="nsIFile"
+                prefstring="mail.server.%serverkey%.directory"
+                class="uri-element input-inline"
+                aria-labelledby="server.localPath.label"
+              />
+            </hbox>
+            <button
+              id="browseForLocalFolder"
+              label="&browseFolder.label;"
+              filepickertitle="&localFolderPicker.label;"
+              accesskey="&browseFolder.accesskey;"
+              oncommand="BrowseForLocalFolders();"
+            />
+          </hbox>
+        </html:fieldset>
+      </html:div>
+
+      <hbox hidefor="imap,pop3" align="center" iscontrolcontainer="true">
+        <separator class="thin" />
+        <label value="&serverDefaultCharset2.label;" control="nntp.charset" />
+        <menulist
+          is="menulist-charsetpicker-viewing"
+          id="nntp.charset"
+          hidable="true"
+          hidefor="imap,pop3"
+          wsm_persist="true"
+          preftype="string"
+          prefstring="mail.server.%serverkey%.charset"
+        />
       </hbox>
     </vbox>
-
-    <!-- Advanced IMAP settings -->
-    <hbox flex="1" hidefor="pop3,nntp" hidden="true">
-      <checkbox hidden="true" wsm_persist="true" id="imap.dualUseFolders"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.dual_use_folders"/>
-      <checkbox hidden="true" wsm_persist="true" id="imap.usingSubscription"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.using_subscription"/>
-      <label hidden="true" wsm_persist="true" id="imap.maximumConnectionsNumber"/>
-      <label hidden="true" wsm_persist="true" id="imap.personalNamespace"/>
-      <label hidden="true" wsm_persist="true" id="imap.publicNamespace"/>
-      <label hidden="true" wsm_persist="true" id="imap.otherUsersNamespace"/>
-      <label hidden="true" wsm_persist="true" id="imap.serverDirectory"/>
-      <checkbox hidden="true" wsm_persist="true" id="imap.overrideNamespaces"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.override_namespaces"/>
-    </hbox>
-
-    <!-- NNTP -->
-    <hbox hidefor="pop3,imap" align="center">
-      <checkbox id="nntp.notifyOn"
-                wsm_persist="true"
-                label="&maxMessagesStart.label;"
-                accesskey="&maxMessagesStart.accesskey;"
-                oncommand="onCheckItem('nntp.maxArticles', [this.id]);"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.notify.on"/>
-      <html:input id="nntp.maxArticles" type="number"
-                  class="size4" min="1"
-                  wsm_persist="true"
-                  aria-labelledby="nntp.notifyOn nntp.maxArticles maxMessagesEnd"
-                  preftype="int"
-                  prefstring="mail.server.%serverkey%.max_articles"/>
-      <label control="nntp.maxArticles" value="&maxMessagesEnd.label;" id="maxMessagesEnd"/>
-    </hbox>
-    <checkbox hidefor="pop3,imap" wsm_persist="true" id="nntp.pushAuth"
-              label="&alwaysAuthenticate.label;"
-              accesskey="&alwaysAuthenticate.accesskey;"
-              prefattribute="value"
-              prefstring="mail.server.%serverkey%.always_authenticate"/>
-    </html:fieldset>
-    </html:div>
-
-    <html:div>
-    <html:fieldset>
-      <html:legend>&messageStorage.label;</html:legend>
-
-      <hbox align="end">
-        <vbox align="start" flex="1" id="exitHandlingBox=">
-          <checkbox hidefor="pop3,nntp"
-                    wsm_persist="true"
-                    id="imap.cleanupInboxOnExit"
-                    label="&expungeOnExit.label;"
-                    accesskey="&expungeOnExit.accesskey;"
-                    prefattribute="value"
-                    prefstring="mail.server.%serverkey%.cleanup_inbox_on_exit"/>
-          <checkbox hidefor="nntp"
-                    wsm_persist="true"
-                    id="server.emptyTrashOnExit"
-                    label="&emptyTrashOnExit.label;"
-                    accesskey="&emptyTrashOnExit.accesskey;"
-                    prefattribute="value"
-                    prefstring="mail.server.%serverkey%.empty_trash_on_exit"/>
-        </vbox>
-        <button label="&advancedButton.label;"
-                accesskey="&advancedButton.accesskey;"
-                oncommand="onAdvanced();"
-                wsm_persist="true"
-                id="server.popAdvancedButton"
-                prefstring="mail.server.%serverkey%.advanced.disable"
-                hidefor="imap,nntp"/>
-      </hbox>
-      <hbox align="center">
-        <label value="&storeType.label;"
-               accesskey="&storeType.accesskey;"
-               control="server.storeTypeMenulist"/>
-        <menulist id="server.storeTypeMenulist"
-                  oncommand="clickStoreTypeMenu(this);">
-          <menupopup id="server.storeTypeMenupopup">
-            <menuitem id="server.mboxStore"
-                      value="@mozilla.org/msgstore/berkeleystore;1"
-                      label="&mboxStore2.label;"/>
-            <menuitem id="server.maildirStore"
-                      value="@mozilla.org/msgstore/maildirstore;1"
-                      label="&maildirStore.label;"/>
-          </menupopup>
-        </menulist>
-      </hbox>
-
-      <hbox align="center" hidefor="imap,pop3">
-        <label id="nntp.newsrcFilePath.label" value="&newsrcFilePath1.label;"
-               control="nntp.newsrcFilePath"/>
-        <hbox class="input-container" flex="1">
-          <html:input id="nntp.newsrcFilePath"
-                      type="text"
-                      readonly="readonly"
-                      wsm_persist="true"
-                      datatype="nsIFile"
-                      prefstring="mail.server.%serverkey%.newsrc.file"
-                      class="uri-element input-inline"
-                      aria-labelledby="nntp.newsrcFilePath.label"/>
-        </hbox>
-        <button id="browseForNewsrc"
-                label="&browseNewsrc.label;"
-                filepickertitle="&newsrcPicker1.label;"
-                accesskey="&browseNewsrc.accesskey;"
-                oncommand="BrowseForNewsrc();"/>
-      </hbox>
-
-      <separator class="thin"/>
-
-      <hbox align="center">
-        <label id="server.localPath.label" value="&localPath1.label;"
-               control="server.localPath"/>
-        <hbox class="input-container" flex="1">
-          <html:input id="server.localPath"
-                      type="text"
-                      readonly="readonly"
-                      wsm_persist="true"
-                      datatype="nsIFile"
-                      prefstring="mail.server.%serverkey%.directory"
-                      class="uri-element input-inline"
-                      aria-labelledby="server.localPath.label"/>
-        </hbox>
-        <button id="browseForLocalFolder"
-                label="&browseFolder.label;"
-                filepickertitle="&localFolderPicker.label;"
-                accesskey="&browseFolder.accesskey;"
-                oncommand="BrowseForLocalFolders();"/>
-      </hbox>
-
-    </html:fieldset>
-    </html:div>
-
-    <hbox hidefor="imap,pop3" align="center" iscontrolcontainer="true">
-
-    <separator class="thin"/>
-      <label value="&serverDefaultCharset2.label;" control="nntp.charset"/>
-      <menulist is="menulist-charsetpicker-viewing" id="nntp.charset"
-                hidable="true"
-                hidefor="imap,pop3"
-                wsm_persist="true"
-                preftype="string"
-                prefstring="mail.server.%serverkey%.charset"/>
-    </hbox>
-  </vbox>
-</html:body>
+  </html:body>
 </html>

@@ -8,39 +8,58 @@
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/messengercompose/sendProgress.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      style="min-width:56ch; min-height: 8em;"
-      lightweightthemes="true"
-      scrolling="false">
-<head>
-  <title>&sendDialog.title;</title>
-  <link rel="localization" href="branding/brand.ftl" />
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://messenger/content/messengercompose/sendProgress.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <dialog id="sendProgress" buttons="cancel">
-    <hbox flex="1">
-      <vbox align="end">
-        <hbox flex="1" align="center">
-          <label value="&status.label;"/>
-        </hbox>
-        <hbox flex="1" align="center">
-          <label value="&progress.label;"/>
-        </hbox>
-      </vbox>
-      <vbox flex="1">
-        <hbox flex="1" align="center">
-          <label id="dialog.status" crop="center"/>
-        </hbox>
-        <hbox class="thin-separator" flex="1" style="display:flex; align-items:center;">
-          <html:progress id="dialog.progress" value="0" max="100" style="flex:1;"/>
-          <label id="dialog.progressText" value=""/>
-        </hbox>
-      </vbox>
-    </hbox>
-  </dialog>
-</html:body>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  style="min-width: 56ch; min-height: 8em"
+  lightweightthemes="true"
+  scrolling="false"
+>
+  <head>
+    <title>&sendDialog.title;</title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/sendProgress.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog id="sendProgress" buttons="cancel">
+      <hbox flex="1">
+        <vbox align="end">
+          <hbox flex="1" align="center">
+            <label value="&status.label;" />
+          </hbox>
+          <hbox flex="1" align="center">
+            <label value="&progress.label;" />
+          </hbox>
+        </vbox>
+        <vbox flex="1">
+          <hbox flex="1" align="center">
+            <label id="dialog.status" crop="center" />
+          </hbox>
+          <hbox
+            class="thin-separator"
+            flex="1"
+            style="display: flex; align-items: center"
+          >
+            <html:progress
+              id="dialog.progress"
+              value="0"
+              max="100"
+              style="flex: 1"
+            />
+            <label id="dialog.progressText" value="" />
+          </hbox>
+        </vbox>
+      </hbox>
+    </dialog>
+  </html:body>
 </html>

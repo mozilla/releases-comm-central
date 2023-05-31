@@ -9,150 +9,214 @@
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/am-server-advanced.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      scrolling="false">
-<head>
-  <title>&serverAdvanced.label;</title>
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/am-server-advanced.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttons="accept,cancel" style="width:100vw; height:100vh;">
-  <stringbundle id="bundle_prefs"
-                src="chrome://messenger/locale/prefs.properties"/>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  scrolling="false"
+>
+  <head>
+    <title>&serverAdvanced.label;</title>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/am-server-advanced.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog buttons="accept,cancel" style="width: 100vw; height: 100vh">
+      <stringbundle
+        id="bundle_prefs"
+        src="chrome://messenger/locale/prefs.properties"
+      />
 
-    <label id="serverPrettyName"/>
+      <label id="serverPrettyName" />
 
-    <separator class="thin"/>
+      <separator class="thin" />
 
-    <!-- IMAP Panel -->
-    <vbox id="imapPanel">
-      <hbox align="center">
-        <label id="serverDirectoryLabel"
-               value="&serverDirectory.label;"
-               accesskey="&serverDirectory.accesskey;"
-               control="serverDirectory"/>
-        <hbox class="input-container">
-          <html:input id="serverDirectory"
-                      type="text"
-                      class="input-inline"
-                      aria-labelledby="serverDirectoryLabel"
-                      amsa_persist="true"/>
+      <!-- IMAP Panel -->
+      <vbox id="imapPanel">
+        <hbox align="center">
+          <label
+            id="serverDirectoryLabel"
+            value="&serverDirectory.label;"
+            accesskey="&serverDirectory.accesskey;"
+            control="serverDirectory"
+          />
+          <hbox class="input-container">
+            <html:input
+              id="serverDirectory"
+              type="text"
+              class="input-inline"
+              aria-labelledby="serverDirectoryLabel"
+              amsa_persist="true"
+            />
+          </hbox>
         </hbox>
-      </hbox>
 
-      <checkbox id="usingSubscription" amsa_persist="true"
-                label="&usingSubscription.label;"
-                accesskey="&usingSubscription.accesskey;"/>
+        <checkbox
+          id="usingSubscription"
+          amsa_persist="true"
+          label="&usingSubscription.label;"
+          accesskey="&usingSubscription.accesskey;"
+        />
 
-      <checkbox id="dualUseFolders" amsa_persist="true"
-                label="&dualUseFolders.label;"
-                accesskey="&dualUseFolders.accesskey;"/>
+        <checkbox
+          id="dualUseFolders"
+          amsa_persist="true"
+          label="&dualUseFolders.label;"
+          accesskey="&dualUseFolders.accesskey;"
+        />
 
-      <separator class="groove"/>
-      <hbox align="center">
-        <label id="maximumConnectionsNumberLabel"
-               control="maximumConnectionsNumber"
-               value="&maximumConnectionsNumber.label;"
-               accesskey="&maximumConnectionsNumber.accesskey;"/>
-        <html:input id="maximumConnectionsNumber" type="number"
-                    class="size3 input-inline"
-                    min="1" max="1000"
-                    amsa_persist="true"
-                    aria-labelledby="maximumConnectionsNumberLabel"/>
-      </hbox>
+        <separator class="groove" />
+        <hbox align="center">
+          <label
+            id="maximumConnectionsNumberLabel"
+            control="maximumConnectionsNumber"
+            value="&maximumConnectionsNumber.label;"
+            accesskey="&maximumConnectionsNumber.accesskey;"
+          />
+          <html:input
+            id="maximumConnectionsNumber"
+            type="number"
+            class="size3 input-inline"
+            min="1"
+            max="1000"
+            amsa_persist="true"
+            aria-labelledby="maximumConnectionsNumberLabel"
+          />
+        </hbox>
 
-      <separator class="groove"/>
-      <description>&namespaceDesc.label;</description>
-      <hbox class="indent">
-        <vbox>
-          <hbox flex="1" align="center">
-            <label id="personalNamespaceLabel"
-                   control="personalNamespace" value="&personalNamespace.label;"
-                   accesskey="&personalNamespace.accesskey;"/>
-          </hbox>
-          <hbox flex="1" align="center">
-            <label id="publicNamespaceLabel"
-                   control="publicNamespace" value="&publicNamespace.label;"
-                   accesskey="&publicNamespace.accesskey;"/>
-          </hbox>
-          <hbox flex="1" align="center">
-            <label id="otherUsersNamespaceLabel"
-                   control="otherUsersNamespace"
-                   value="&otherUsersNamespace.label;"
-                   accesskey="&otherUsersNamespace.accesskey;"/>
-          </hbox>
-        </vbox>
-        <vbox>
-          <html:input id="personalNamespace"
-                      type="text"
-                      class="input-inline"
-                      aria-labelledby="personalNamespaceLabel"
-                      amsa_persist="true"/>
-          <html:input id="publicNamespace"
-                      type="text"
-                      class="input-inline"
-                      aria-labelledby="publicNamespaceLabel"
-                      amsa_persist="true"/>
-          <html:input id="otherUsersNamespace"
-                      type="text"
-                      class="input-inline"
-                      aria-labelledby="otherUsersNamespaceLabel"
-                      amsa_persist="true"/>
-        </vbox>
-      </hbox>
-      <hbox class="indent">
-        <checkbox id="overrideNamespaces" amsa_persist="true"
-                  label="&overrideNamespaces.label;"
-                  accesskey="&overrideNamespaces.accesskey;"/>
-      </hbox>
-    </vbox>
-
-    <!-- POP3 Panel -->
-    <vbox id="pop3Panel">
-      <label flex="1" control="folderStorage">&pop3DeferringDesc.label;</label>
-      <hbox align="center">
-        <radiogroup id="folderStorage"
-                    flex="1"
-                    orient="horizontal"
-                    amsa_persist="true"
-                    onselect="updateInboxAccount(this.selectedIndex == 1);">
-          <vbox flex="1">
-            <hbox>
-              <radio id="deferToCurrentAccount"
-                     value="currentAccount"
-                     label="&accountInbox.label;"
-                     accesskey="&accountInbox.accesskey;"/>
+        <separator class="groove" />
+        <description>&namespaceDesc.label;</description>
+        <hbox class="indent">
+          <vbox>
+            <hbox flex="1" align="center">
+              <label
+                id="personalNamespaceLabel"
+                control="personalNamespace"
+                value="&personalNamespace.label;"
+                accesskey="&personalNamespace.accesskey;"
+              />
             </hbox>
+            <hbox flex="1" align="center">
+              <label
+                id="publicNamespaceLabel"
+                control="publicNamespace"
+                value="&publicNamespace.label;"
+                accesskey="&publicNamespace.accesskey;"
+              />
+            </hbox>
+            <hbox flex="1" align="center">
+              <label
+                id="otherUsersNamespaceLabel"
+                control="otherUsersNamespace"
+                value="&otherUsersNamespace.label;"
+                accesskey="&otherUsersNamespace.accesskey;"
+              />
+            </hbox>
+          </vbox>
+          <vbox>
+            <html:input
+              id="personalNamespace"
+              type="text"
+              class="input-inline"
+              aria-labelledby="personalNamespaceLabel"
+              amsa_persist="true"
+            />
+            <html:input
+              id="publicNamespace"
+              type="text"
+              class="input-inline"
+              aria-labelledby="publicNamespaceLabel"
+              amsa_persist="true"
+            />
+            <html:input
+              id="otherUsersNamespace"
+              type="text"
+              class="input-inline"
+              aria-labelledby="otherUsersNamespaceLabel"
+              amsa_persist="true"
+            />
+          </vbox>
+        </hbox>
+        <hbox class="indent">
+          <checkbox
+            id="overrideNamespaces"
+            amsa_persist="true"
+            label="&overrideNamespaces.label;"
+            accesskey="&overrideNamespaces.accesskey;"
+          />
+        </hbox>
+      </vbox>
+
+      <!-- POP3 Panel -->
+      <vbox id="pop3Panel">
+        <label flex="1" control="folderStorage"
+          >&pop3DeferringDesc.label;</label
+        >
+        <hbox align="center">
+          <radiogroup
+            id="folderStorage"
+            flex="1"
+            orient="horizontal"
+            amsa_persist="true"
+            onselect="updateInboxAccount(this.selectedIndex == 1);"
+          >
             <vbox flex="1">
               <hbox>
-                <radio id="deferToOtherAccount"
-                       value="otherAccount"
-                       label="&deferToServer.label;"
-                       accesskey="&deferToServer.accesskey;">
-                </radio>
-                <menulist id="deferredServerFolderPicker"
-                          class="folderMenuItem"
-                          flex="1"
-                          aria-labelledby="deferToServer">
-                  <menupopup is="folder-menupopup" id="deferredServerPopup"
-                             expandFolders="false"
-                             mode="deferred"
-                             oncommand="this.selectFolder(event.target._folder);"/>
-                </menulist>
+                <radio
+                  id="deferToCurrentAccount"
+                  value="currentAccount"
+                  label="&accountInbox.label;"
+                  accesskey="&accountInbox.accesskey;"
+                />
               </hbox>
-              <checkbox amsa_persist="true" id="deferGetNewMail"
-                        label="&deferGetNewMail.label;" class="indent"
-                        accesskey="&deferGetNewMail.accesskey;"/>
+              <vbox flex="1">
+                <hbox>
+                  <radio
+                    id="deferToOtherAccount"
+                    value="otherAccount"
+                    label="&deferToServer.label;"
+                    accesskey="&deferToServer.accesskey;"
+                  >
+                  </radio>
+                  <menulist
+                    id="deferredServerFolderPicker"
+                    class="folderMenuItem"
+                    flex="1"
+                    aria-labelledby="deferToServer"
+                  >
+                    <menupopup
+                      is="folder-menupopup"
+                      id="deferredServerPopup"
+                      expandFolders="false"
+                      mode="deferred"
+                      oncommand="this.selectFolder(event.target._folder);"
+                    />
+                  </menulist>
+                </hbox>
+                <checkbox
+                  amsa_persist="true"
+                  id="deferGetNewMail"
+                  label="&deferGetNewMail.label;"
+                  class="indent"
+                  accesskey="&deferGetNewMail.accesskey;"
+                />
+              </vbox>
             </vbox>
-          </vbox>
-        </radiogroup>
-      </hbox>
-
-    </vbox>
-</dialog>
-</html:body>
+          </radiogroup>
+        </hbox>
+      </vbox>
+    </dialog>
+  </html:body>
 </html>

@@ -9,42 +9,71 @@
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/markByDate.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      lightweightthemes="true"
-      scrolling="false">
-<head>
-  <title>&messageMarkByDate.label;</title>
-  <link rel="localization" href="branding/brand.ftl" />
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://messenger/content/dateFormat.js"></script>
-  <script defer="defer" src="chrome://messenger/content/markByDate.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttons="accept,cancel">
-  <hbox align="center" pack="end">
-    <label id="lowerDateLabel" control="lowerDate"
-           value="&markByDateLower.label;"
-           accesskey="&markByDateLower.accesskey;"/>
-    <html:input id="lowerDate"
-                type="text"
-                class="input-inline"
-                aria-labelledby="lowerDateLabel"
-                size="11"/>
-  </hbox>
-  <hbox align="center" pack="end">
-    <label id="upperDateLabel" control="upperDate"
-           value="&markByDateUpper.label;"
-           accesskey="&markByDateUpper.accesskey;"/>
-    <html:input id="upperDate"
-                type="text"
-                class="input-inline"
-                aria-labelledby="upperDateLabel"
-                size="11"/>
-  </hbox>
-</dialog>
-</html:body>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  scrolling="false"
+>
+  <head>
+    <title>&messageMarkByDate.label;</title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dateFormat.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/markByDate.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog buttons="accept,cancel">
+      <hbox align="center" pack="end">
+        <label
+          id="lowerDateLabel"
+          control="lowerDate"
+          value="&markByDateLower.label;"
+          accesskey="&markByDateLower.accesskey;"
+        />
+        <html:input
+          id="lowerDate"
+          type="text"
+          class="input-inline"
+          aria-labelledby="lowerDateLabel"
+          size="11"
+        />
+      </hbox>
+      <hbox align="center" pack="end">
+        <label
+          id="upperDateLabel"
+          control="upperDate"
+          value="&markByDateUpper.label;"
+          accesskey="&markByDateUpper.accesskey;"
+        />
+        <html:input
+          id="upperDate"
+          type="text"
+          class="input-inline"
+          aria-labelledby="upperDateLabel"
+          size="11"
+        />
+      </hbox>
+    </dialog>
+  </html:body>
 </html>

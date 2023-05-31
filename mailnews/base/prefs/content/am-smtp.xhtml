@@ -7,88 +7,115 @@
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/am-advanced.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml">
-<head>
-  <title>&smtpServer.label;</title>
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/am-smtp.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <stringbundle id="bundle_messenger"
-                src="chrome://messenger/locale/messenger.properties"/>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+>
+  <head>
+    <title>&smtpServer.label;</title>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+    <script defer="defer" src="chrome://messenger/content/am-smtp.js"></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <stringbundle
+      id="bundle_messenger"
+      src="chrome://messenger/locale/messenger.properties"
+    />
 
-  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
-    <hbox class="dialogheader">
-      <label class="dialogheader-title" value="&smtpServer.label;"/>
-    </hbox>
+    <vbox flex="1" style="overflow: auto"
+      ><vbox id="containerBox" flex="1">
+        <hbox class="dialogheader">
+          <label class="dialogheader-title" value="&smtpServer.label;" />
+        </hbox>
 
-    <separator class="thin"/>
-    <label control="smtpList">&smtpDescription.label;</label>
-    <separator class="thin"/>
+        <separator class="thin" />
+        <label control="smtpList">&smtpDescription.label;</label>
+        <separator class="thin" />
 
-    <hbox flex="1">
-      <richlistbox id="smtpList"
-                   onselect="gSmtpServerListWindow.onSelectionChanged(event);"
-                   ondblclick="gSmtpServerListWindow.onEditServer(event);"
-                   seltype="single"
-                   flex="1"
-                   style="height:400px"/>
+        <hbox flex="1">
+          <richlistbox
+            id="smtpList"
+            onselect="gSmtpServerListWindow.onSelectionChanged(event);"
+            ondblclick="gSmtpServerListWindow.onEditServer(event);"
+            seltype="single"
+            flex="1"
+            style="height: 400px"
+          />
 
-      <vbox>
-        <button id="addButton"
-                oncommand="gSmtpServerListWindow.onAddServer(event);"
-                label="&smtpListAdd.label;"
-                accesskey="&smtpListAdd.accesskey;"/>
-        <button id="editButton"
-                oncommand="gSmtpServerListWindow.onEditServer(event);"
-                label="&smtpListEdit.label;"
-                accesskey="&smtpListEdit.accesskey;"/>
-        <separator/>
-        <button id="deleteButton" disabled="true"
-                oncommand="gSmtpServerListWindow.onDeleteServer(event);"
-                label="&smtpListDelete.label;"
-                accesskey="&smtpListDelete.accesskey;"/>
-        <button id="setDefaultButton" disabled="true"
-                oncommand="gSmtpServerListWindow.onSetDefaultServer(event);"
-                label="&smtpListSetDefault.label;"
-                accesskey="&smtpListSetDefault.accesskey;"/>
-      </vbox>
-    </hbox>
+          <vbox>
+            <button
+              id="addButton"
+              oncommand="gSmtpServerListWindow.onAddServer(event);"
+              label="&smtpListAdd.label;"
+              accesskey="&smtpListAdd.accesskey;"
+            />
+            <button
+              id="editButton"
+              oncommand="gSmtpServerListWindow.onEditServer(event);"
+              label="&smtpListEdit.label;"
+              accesskey="&smtpListEdit.accesskey;"
+            />
+            <separator />
+            <button
+              id="deleteButton"
+              disabled="true"
+              oncommand="gSmtpServerListWindow.onDeleteServer(event);"
+              label="&smtpListDelete.label;"
+              accesskey="&smtpListDelete.accesskey;"
+            />
+            <button
+              id="setDefaultButton"
+              disabled="true"
+              oncommand="gSmtpServerListWindow.onSetDefaultServer(event);"
+              label="&smtpListSetDefault.label;"
+              accesskey="&smtpListSetDefault.accesskey;"
+            />
+          </vbox>
+        </hbox>
 
-    <separator/>
+        <separator />
 
-    <label class="header">&serverDetails.label;</label>
-    <html:table id="smtpServerInfoBox">
-      <html:tr>
-        <html:th id="descriptionLabel">&serverDescription.label;</html:th>
-        <html:td id="descriptionValue"></html:td>
-      </html:tr>
-      <html:tr>
-        <html:th id="nameLabel">&serverName.label;</html:th>
-        <html:td id="nameValue"></html:td>
-      </html:tr>
-      <html:tr>
-        <html:th id="portLabel">&serverPort.label;</html:th>
-        <html:td id="portValue"></html:td>
-      </html:tr>
-      <html:tr>
-        <html:th id="userNameLabel">&userName.label;</html:th>
-        <html:td id="userNameValue"></html:td>
-      </html:tr>
-      <html:tr>
-        <html:th id="authMethodLabel">&authMethod.label;</html:th>
-        <html:td id="authMethodValue"></html:td>
-      </html:tr>
-      <html:tr>
-        <html:th id="connectionSecurityLabel">&connectionSecurity.label;</html:th>
-        <html:td id="useSecureConnectionValue"></html:td>
-      </html:tr>
-    </html:table>
-    <separator flex="1"/>
-  </vbox></vbox>
-</html:body>
+        <label class="header">&serverDetails.label;</label>
+        <html:table id="smtpServerInfoBox">
+          <html:tr>
+            <html:th id="descriptionLabel">&serverDescription.label;</html:th>
+            <html:td id="descriptionValue"></html:td>
+          </html:tr>
+          <html:tr>
+            <html:th id="nameLabel">&serverName.label;</html:th>
+            <html:td id="nameValue"></html:td>
+          </html:tr>
+          <html:tr>
+            <html:th id="portLabel">&serverPort.label;</html:th>
+            <html:td id="portValue"></html:td>
+          </html:tr>
+          <html:tr>
+            <html:th id="userNameLabel">&userName.label;</html:th>
+            <html:td id="userNameValue"></html:td>
+          </html:tr>
+          <html:tr>
+            <html:th id="authMethodLabel">&authMethod.label;</html:th>
+            <html:td id="authMethodValue"></html:td>
+          </html:tr>
+          <html:tr>
+            <html:th id="connectionSecurityLabel"
+              >&connectionSecurity.label;</html:th
+            >
+            <html:td id="useSecureConnectionValue"></html:td>
+          </html:tr>
+        </html:table>
+        <separator flex="1" /> </vbox
+    ></vbox>
+  </html:body>
 </html>

@@ -7,175 +7,344 @@
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/am-offline.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml">
-<head>
-  <script defer="defer" src="chrome://messenger/content/retention.js"></script>
-  <script defer="defer" src="chrome://messenger/content/am-offline.js"></script>
-  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
-  <script>
-    // FIXME: move to script file.
-    window.addEventListener("load", event => { parent.onPanelLoaded('am-offline.xhtml'); });
-  </script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <vbox id="containerBox" flex="1">
-    <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+>
+  <head>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/retention.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/am-offline.js"
+    ></script>
+    <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+    <script>
+      // FIXME: move to script file.
+      window.addEventListener("load", event => {
+        parent.onPanelLoaded("am-offline.xhtml");
+      });
+    </script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <vbox id="containerBox" flex="1">
+      <stringbundle
+        id="bundle_prefs"
+        src="chrome://messenger/locale/prefs.properties"
+      />
 
-    <label hidden="true" wsm_persist="true" id="server.type"/>
-    <label id="imap.autoSyncMaxAgeDays" hidden="true"
-           wsm_persist="true" preftype="int"
-           prefstring="mail.server.%serverkey%.autosync_max_age_days"/>
+      <label hidden="true" wsm_persist="true" id="server.type" />
+      <label
+        id="imap.autoSyncMaxAgeDays"
+        hidden="true"
+        wsm_persist="true"
+        preftype="int"
+        prefstring="mail.server.%serverkey%.autosync_max_age_days"
+      />
 
-    <hbox id="headertitle" class="dialogheader">
-      <label class="dialogheader-title"/>
-    </hbox>
-
-    <separator class="thin"/>
-
-    <html:div>
-    <html:fieldset id="offline.titlebox" hidefor="pop3,none,rss">
-      <html:legend>&syncGroupTitle.label;</html:legend>
-
-      <vbox>
-        <checkbox hidefor="pop3,nntp,none"
-                  id="offline.folders" label="&allFoldersOffline2.label;"
-                  oncommand="toggleOffline()"
-                  accesskey="&allFoldersOffline2.accesskey;"/>
-
-        <description hidefor="pop3,nntp,none,rss">&allFoldersOfflineNote.label;</description>
-
-        <separator class="thin" hidefor="pop3,nntp,none"/>
-
-        <hbox hidefor="pop3,nntp,none" pack="end">
-          <button label="&offlineImapAdvancedOffline.label;" accesskey="&offlineImapAdvancedOffline.accesskey;"
-                  oncommand="onClickSelect()" id="selectImapFoldersButton" class="selectForOfflineUseButton"/>
-        </hbox>
-
-        <hbox hidefor="pop3,imap,none" pack="end">
-          <button label="&offlineSelectNntp.label;" accesskey="&offlineSelectNntp.accesskey;"
-                  oncommand="onClickSelect()" id="selectNewsgroupsButton" class="selectForOfflineUseButton"/>
-        </hbox>
-      </vbox>
-    </html:fieldset>
-    </html:div>
-
-    <html:div>
-    <html:fieldset id="diskspace.titlebox">
-      <html:legend hidefor="pop3,none,rss">&diskspaceGroupTitle.label;</html:legend>
-
-    <description hidefor="pop3,nntp,none,rss">&doNotDownloadImap.label;</description>
-    <description hidefor="pop3,imap,none,rss">&doNotDownloadNntp.label;</description>
-    <description hidefor="imap,nntp,none,rss">&doNotDownloadPop3Movemail.label;</description>
-
-    <!-- IMAP Autosync Preference -->
-    <radiogroup hidefor="pop3,nntp,none,rss" id="autosyncSelect" class="indent">
-      <radio id="useAutosync.AllMsg" value="0" accesskey="&allAutosync.accesskey;"
-             label="&allAutosync.label;" oncommand="onAutosyncChange();"/>
-      <hbox flex="1" align="center">
-        <radio id="useAutosync.ByAge" accesskey="&ageAutosync.accesskey;"
-               value="1" label="&ageAutosyncBefore.label;" oncommand="onAutosyncChange();"/>
-        <html:input id="autosyncValue" type="number"
-                    class="size4 input-inline autosync" min="1"
-                    onchange="onAutosyncChange();"
-                    aria-labelledby="ageAutosyncBefore autosyncValue ageAutosyncMiddle autosyncInterval ageAutosyncAfter"/>
-        <label id="ageAutosyncMiddle" control="autosyncValue" value="&ageAutosyncMiddle.label;"/>
-        <menulist id="autosyncInterval" onselect="onAutosyncChange();">
-          <menupopup>
-            <menuitem label="&dayAgeInterval.label;" value="1"/>
-            <menuitem label="&weekAgeInterval.label;" value="7"/>
-            <menuitem label="&monthAgeInterval.label;" value="31"/>
-            <menuitem label="&yearAgeInterval.label;" value="365"/>
-          </menupopup>
-        </menulist>
-        <label id="ageAutosyncAfter" control="autosyncInterval" value="&ageAutosyncAfter.label;"/>
+      <hbox id="headertitle" class="dialogheader">
+        <label class="dialogheader-title" />
       </hbox>
-    </radiogroup>
 
-    <hbox align="center" class="indent" hidefor="rss">
-        <checkbox hidefor="pop3,imap,none"
-                  id="nntp.notDownloadRead" wsm_persist="true"
-                  label="&nntpNotDownloadRead.label;"
-                  accesskey="&nntpNotDownloadRead.accesskey;"/>
-    </hbox>
+      <separator class="thin" />
 
-    <hbox align="center" class="indent" hidefor="none,rss">
-        <checkbox wsm_persist="true" id="offline.notDownload" hidefor="imap"
-                  label="&offlineNotDownload.label;"
-                  accesskey="&offlineNotDownload.accesskey;"
-                  oncommand="onCheckItem('offline.notDownloadMin', [this.id]);"/>
-        <checkbox wsm_persist="true" id="autosyncNotDownload" hidefor="pop3,nntp"
-                  label="&autosyncNotDownload.label;"
-                  accesskey="&autosyncNotDownload.accesskey;"
-                  oncommand="onAutosyncNotDownload();"/>
-        <html:input id="offline.notDownloadMin" type="number"
-                    class="size4 input-inline"
-                    min="1" value="50"
-                    wsm_persist="true"
-                    aria-labelledby="offline.notDownload offline.notDownloadMin kbLabel"/>
-        <label value="&kb.label;" control="offline.notDownloadMin" id="kbLabel"/>
-    </hbox>
+      <html:div>
+        <html:fieldset id="offline.titlebox" hidefor="pop3,none,rss">
+          <html:legend>&syncGroupTitle.label;</html:legend>
 
-    <hbox align="center" class="indent" hidefor="pop3,imap,none,rss">
-        <checkbox wsm_persist="true" id="nntp.downloadMsg"
-                  label="&nntpDownloadMsg.label;"
-                  accesskey="&nntpDownloadMsg.accesskey;"
-                  oncommand="onCheckItem('nntp.downloadMsgMin', [this.id]);"/>
-        <html:input id="nntp.downloadMsgMin" type="number"
-                    class="size2 input-inline" min="1" value="30"
-                    wsm_persist="true"
-                    aria-labelledby="nntp.downloadMsg nntp.downloadMsgMin daysOldLabel"/>
-        <label value="&daysOld.label;" control="nntp.downloadMsgMin"
-               id="daysOldLabel"/>
-    </hbox>
+          <vbox>
+            <checkbox
+              hidefor="pop3,nntp,none"
+              id="offline.folders"
+              label="&allFoldersOffline2.label;"
+              oncommand="toggleOffline()"
+              accesskey="&allFoldersOffline2.accesskey;"
+            />
 
-    <vbox align="start">
-    <separator hidefor="none,rss"/>
-    <label id="retentionDescription" hidefor="imap,pop3" class="desc" control="retention.keepMsg">&retentionCleanup.label;</label>
-    <label id="retentionDescriptionImap" hidefor="pop3,nntp,none,rss" class="desc" control="retention.keepMsg">&retentionCleanupImap.label;</label>
-    <label id="retentionDescriptionPop" hidefor="imap,nntp,none,rss" class="desc" control="retention.keepMsg">&retentionCleanupPop.label;</label>
+            <description hidefor="pop3,nntp,none,rss"
+              >&allFoldersOfflineNote.label;</description
+            >
 
-    <radiogroup hidefor="" confirmfor="imap,pop3" id="retention.keepMsg" class="indent"
-                oncommand="warnServerRemove(this);">
-        <radio id="retention.keepAllMsg" value="1" accesskey="&retentionKeepAll.accesskey;"
-            label="&retentionKeepAll.label;" oncommand="onCheckKeepMsg();"/>
-        <hbox flex="1" align="center">
-            <radio id="retention.keepNewMsg" accesskey="&retentionKeepRecent.accesskey;"
-                value="3" label="&retentionKeepRecent.label;" oncommand="onCheckKeepMsg();"/>
-            <html:input id="retention.keepNewMsgMin" type="number"
-                        class="size4 input-inline"
-                        min="1" value="2000"
-                        aria-labelledby="retention.keepNewMsg retention.keepNewMsgMin newMsgLabel"/>
-            <label value="&message.label;" control="retention.keepNewMsgMin" id="newMsgLabel"/>
-        </hbox>
-        <hbox flex="1" align="center">
-            <radio id="retention.keepOldMsg" accesskey="&retentionKeepMsg.accesskey;"
-                value="2" label="&retentionKeepMsg.label;" oncommand="onCheckKeepMsg();"/>
-            <html:input id="retention.keepOldMsgMin" type="number"
-                        class="size4 input-inline" min="1" value="30"
-                        aria-labelledby="retention.keepOldMsg retention.keepOldMsgMin oldMsgLabel"/>
-            <label value="&daysOld.label;" control="retention.keepOldMsgMin" id="oldMsgLabel"/>
-        </hbox>
-    </radiogroup>
+            <separator class="thin" hidefor="pop3,nntp,none" />
 
-    <hbox align="center" class="indent">
-      <checkbox id="retention.applyToFlagged"
-                label="&retentionApplyToFlagged.label;" hidefor=""
+            <hbox hidefor="pop3,nntp,none" pack="end">
+              <button
+                label="&offlineImapAdvancedOffline.label;"
+                accesskey="&offlineImapAdvancedOffline.accesskey;"
+                oncommand="onClickSelect()"
+                id="selectImapFoldersButton"
+                class="selectForOfflineUseButton"
+              />
+            </hbox>
+
+            <hbox hidefor="pop3,imap,none" pack="end">
+              <button
+                label="&offlineSelectNntp.label;"
+                accesskey="&offlineSelectNntp.accesskey;"
+                oncommand="onClickSelect()"
+                id="selectNewsgroupsButton"
+                class="selectForOfflineUseButton"
+              />
+            </hbox>
+          </vbox>
+        </html:fieldset>
+      </html:div>
+
+      <html:div>
+        <html:fieldset id="diskspace.titlebox">
+          <html:legend hidefor="pop3,none,rss"
+            >&diskspaceGroupTitle.label;</html:legend
+          >
+
+          <description hidefor="pop3,nntp,none,rss"
+            >&doNotDownloadImap.label;</description
+          >
+          <description hidefor="pop3,imap,none,rss"
+            >&doNotDownloadNntp.label;</description
+          >
+          <description hidefor="imap,nntp,none,rss"
+            >&doNotDownloadPop3Movemail.label;</description
+          >
+
+          <!-- IMAP Autosync Preference -->
+          <radiogroup
+            hidefor="pop3,nntp,none,rss"
+            id="autosyncSelect"
+            class="indent"
+          >
+            <radio
+              id="useAutosync.AllMsg"
+              value="0"
+              accesskey="&allAutosync.accesskey;"
+              label="&allAutosync.label;"
+              oncommand="onAutosyncChange();"
+            />
+            <hbox flex="1" align="center">
+              <radio
+                id="useAutosync.ByAge"
+                accesskey="&ageAutosync.accesskey;"
+                value="1"
+                label="&ageAutosyncBefore.label;"
+                oncommand="onAutosyncChange();"
+              />
+              <html:input
+                id="autosyncValue"
+                type="number"
+                class="size4 input-inline autosync"
+                min="1"
+                onchange="onAutosyncChange();"
+                aria-labelledby="ageAutosyncBefore autosyncValue ageAutosyncMiddle autosyncInterval ageAutosyncAfter"
+              />
+              <label
+                id="ageAutosyncMiddle"
+                control="autosyncValue"
+                value="&ageAutosyncMiddle.label;"
+              />
+              <menulist id="autosyncInterval" onselect="onAutosyncChange();">
+                <menupopup>
+                  <menuitem label="&dayAgeInterval.label;" value="1" />
+                  <menuitem label="&weekAgeInterval.label;" value="7" />
+                  <menuitem label="&monthAgeInterval.label;" value="31" />
+                  <menuitem label="&yearAgeInterval.label;" value="365" />
+                </menupopup>
+              </menulist>
+              <label
+                id="ageAutosyncAfter"
+                control="autosyncInterval"
+                value="&ageAutosyncAfter.label;"
+              />
+            </hbox>
+          </radiogroup>
+
+          <hbox align="center" class="indent" hidefor="rss">
+            <checkbox
+              hidefor="pop3,imap,none"
+              id="nntp.notDownloadRead"
+              wsm_persist="true"
+              label="&nntpNotDownloadRead.label;"
+              accesskey="&nntpNotDownloadRead.accesskey;"
+            />
+          </hbox>
+
+          <hbox align="center" class="indent" hidefor="none,rss">
+            <checkbox
+              wsm_persist="true"
+              id="offline.notDownload"
+              hidefor="imap"
+              label="&offlineNotDownload.label;"
+              accesskey="&offlineNotDownload.accesskey;"
+              oncommand="onCheckItem('offline.notDownloadMin', [this.id]);"
+            />
+            <checkbox
+              wsm_persist="true"
+              id="autosyncNotDownload"
+              hidefor="pop3,nntp"
+              label="&autosyncNotDownload.label;"
+              accesskey="&autosyncNotDownload.accesskey;"
+              oncommand="onAutosyncNotDownload();"
+            />
+            <html:input
+              id="offline.notDownloadMin"
+              type="number"
+              class="size4 input-inline"
+              min="1"
+              value="50"
+              wsm_persist="true"
+              aria-labelledby="offline.notDownload offline.notDownloadMin kbLabel"
+            />
+            <label
+              value="&kb.label;"
+              control="offline.notDownloadMin"
+              id="kbLabel"
+            />
+          </hbox>
+
+          <hbox align="center" class="indent" hidefor="pop3,imap,none,rss">
+            <checkbox
+              wsm_persist="true"
+              id="nntp.downloadMsg"
+              label="&nntpDownloadMsg.label;"
+              accesskey="&nntpDownloadMsg.accesskey;"
+              oncommand="onCheckItem('nntp.downloadMsgMin', [this.id]);"
+            />
+            <html:input
+              id="nntp.downloadMsgMin"
+              type="number"
+              class="size2 input-inline"
+              min="1"
+              value="30"
+              wsm_persist="true"
+              aria-labelledby="nntp.downloadMsg nntp.downloadMsgMin daysOldLabel"
+            />
+            <label
+              value="&daysOld.label;"
+              control="nntp.downloadMsgMin"
+              id="daysOldLabel"
+            />
+          </hbox>
+
+          <vbox align="start">
+            <separator hidefor="none,rss" />
+            <label
+              id="retentionDescription"
+              hidefor="imap,pop3"
+              class="desc"
+              control="retention.keepMsg"
+              >&retentionCleanup.label;</label
+            >
+            <label
+              id="retentionDescriptionImap"
+              hidefor="pop3,nntp,none,rss"
+              class="desc"
+              control="retention.keepMsg"
+              >&retentionCleanupImap.label;</label
+            >
+            <label
+              id="retentionDescriptionPop"
+              hidefor="imap,nntp,none,rss"
+              class="desc"
+              control="retention.keepMsg"
+              >&retentionCleanupPop.label;</label
+            >
+
+            <radiogroup
+              hidefor=""
+              confirmfor="imap,pop3"
+              id="retention.keepMsg"
+              class="indent"
+              oncommand="warnServerRemove(this);"
+            >
+              <radio
+                id="retention.keepAllMsg"
+                value="1"
+                accesskey="&retentionKeepAll.accesskey;"
+                label="&retentionKeepAll.label;"
+                oncommand="onCheckKeepMsg();"
+              />
+              <hbox flex="1" align="center">
+                <radio
+                  id="retention.keepNewMsg"
+                  accesskey="&retentionKeepRecent.accesskey;"
+                  value="3"
+                  label="&retentionKeepRecent.label;"
+                  oncommand="onCheckKeepMsg();"
+                />
+                <html:input
+                  id="retention.keepNewMsgMin"
+                  type="number"
+                  class="size4 input-inline"
+                  min="1"
+                  value="2000"
+                  aria-labelledby="retention.keepNewMsg retention.keepNewMsgMin newMsgLabel"
+                />
+                <label
+                  value="&message.label;"
+                  control="retention.keepNewMsgMin"
+                  id="newMsgLabel"
+                />
+              </hbox>
+              <hbox flex="1" align="center">
+                <radio
+                  id="retention.keepOldMsg"
+                  accesskey="&retentionKeepMsg.accesskey;"
+                  value="2"
+                  label="&retentionKeepMsg.label;"
+                  oncommand="onCheckKeepMsg();"
+                />
+                <html:input
+                  id="retention.keepOldMsgMin"
+                  type="number"
+                  class="size4 input-inline"
+                  min="1"
+                  value="30"
+                  aria-labelledby="retention.keepOldMsg retention.keepOldMsgMin oldMsgLabel"
+                />
+                <label
+                  value="&daysOld.label;"
+                  control="retention.keepOldMsgMin"
+                  id="oldMsgLabel"
+                />
+              </hbox>
+            </radiogroup>
+
+            <hbox align="center" class="indent">
+              <checkbox
+                id="retention.applyToFlagged"
+                label="&retentionApplyToFlagged.label;"
+                hidefor=""
                 accesskey="&retentionApplyToFlagged.accesskey;"
-                checked="true"/>
-    </hbox>
-    <hbox align="center" class="indent" hidefor="pop3,imap,none,rss">
-        <checkbox id="nntp.removeBody" accesskey="&nntpRemoveMsgBody.accesskey;"
-                  label="&nntpRemoveMsgBody.label;" oncommand="onCheckItem('nntp.removeBodyMin', [this.id]);"/>
-        <html:input id="nntp.removeBodyMin" type="number"
-                    class="size2 input-inline" min="1" value="30"
-                    aria-labelledby="nntp.removeBody nntp.removeBodyMin daysOldMsg"/>
-        <label value="&daysOld.label;" control="nntp.removeBodyMin" id="daysOldMsg"/>
-    </hbox>
+                checked="true"
+              />
+            </hbox>
+            <hbox align="center" class="indent" hidefor="pop3,imap,none,rss">
+              <checkbox
+                id="nntp.removeBody"
+                accesskey="&nntpRemoveMsgBody.accesskey;"
+                label="&nntpRemoveMsgBody.label;"
+                oncommand="onCheckItem('nntp.removeBodyMin', [this.id]);"
+              />
+              <html:input
+                id="nntp.removeBodyMin"
+                type="number"
+                class="size2 input-inline"
+                min="1"
+                value="30"
+                aria-labelledby="nntp.removeBody nntp.removeBodyMin daysOldMsg"
+              />
+              <label
+                value="&daysOld.label;"
+                control="nntp.removeBodyMin"
+                id="daysOldMsg"
+              />
+            </hbox>
+          </vbox>
+        </html:fieldset>
+      </html:div>
     </vbox>
-    </html:fieldset>
-    </html:div>
-  </vbox>
-</html:body>
+  </html:body>
 </html>

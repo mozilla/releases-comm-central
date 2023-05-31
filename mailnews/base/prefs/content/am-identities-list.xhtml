@@ -7,61 +7,94 @@
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/am-identities-list.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      style="min-width:600px;"
-      scrolling="false">
-<head>
-  <title><!-- identity-list-title --></title>
-  <script defer="defer" src="chrome://messenger/content/am-identities-list.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttons="accept"
-        buttonlabelaccept="&identitiesListClose.label;"
-        buttonaccesskeyaccept="&identitiesListClose.accesskey;"
-        style="width:100vw; height:100vh;">
-<stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  style="min-width: 600px"
+  scrolling="false"
+>
+  <head>
+    <title><!-- identity-list-title --></title>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/am-identities-list.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog
+      buttons="accept"
+      buttonlabelaccept="&identitiesListClose.label;"
+      buttonaccesskeyaccept="&identitiesListClose.accesskey;"
+      style="width: 100vw; height: 100vh"
+    >
+      <stringbundle
+        id="bundle_prefs"
+        src="chrome://messenger/locale/prefs.properties"
+      />
 
-<commandset>
-  <command id="cmd_add"     oncommand="openIdentityEditor(null);"/>
-  <command id="cmd_edit"    oncommand="onEdit(event);" disabled="true"/>
-  <command id="cmd_default" oncommand="onSetDefault(event);" disabled="true"/>
-  <command id="cmd_delete"  oncommand="onDelete(event);" disabled="true"/>
-</commandset>
+      <commandset>
+        <command id="cmd_add" oncommand="openIdentityEditor(null);" />
+        <command id="cmd_edit" oncommand="onEdit(event);" disabled="true" />
+        <command
+          id="cmd_default"
+          oncommand="onSetDefault(event);"
+          disabled="true"
+        />
+        <command id="cmd_delete" oncommand="onDelete(event);" disabled="true" />
+      </commandset>
 
-<keyset>
-  <key keycode="VK_INSERT" command="cmd_add"/>
-  <key keycode="VK_DELETE" command="cmd_delete"/>
-</keyset>
+      <keyset>
+        <key keycode="VK_INSERT" command="cmd_add" />
+        <key keycode="VK_DELETE" command="cmd_delete" />
+      </keyset>
 
-<label control="identitiesList">&identitiesListManageDesc.label;</label>
+      <label control="identitiesList">&identitiesListManageDesc.label;</label>
 
-<separator class="thin"/>
+      <separator class="thin" />
 
-<hbox flex="1">
-  <richlistbox id="identitiesList"
-               ondblclick="onEdit(event);"
-               onselect="updateButtons();"
-               seltype="single"
-               flex="1"
-               style="min-height:10em;"/>
+      <hbox flex="1">
+        <richlistbox
+          id="identitiesList"
+          ondblclick="onEdit(event);"
+          onselect="updateButtons();"
+          seltype="single"
+          flex="1"
+          style="min-height: 10em"
+        />
 
-  <vbox>
-    <button id="addButton"
-            command="cmd_add" label="&identitiesListAdd.label;"
-            accesskey="&identitiesListAdd.accesskey;"/>
-    <button id="editButton" disabled="true"
-            command="cmd_edit" label="&identitiesListEdit.label;"
-            accesskey="&identitiesListEdit.accesskey;"/>
-    <button id="setDefaultButton" disabled="true"
-            command="cmd_default" label="&identitiesListDefault.label;"
-            accesskey="&identitiesListDefault.accesskey;"/>
-    <button id="deleteButton" disabled="true"
-            command="cmd_delete" label="&identitiesListDelete.label;"
-            accesskey="&identitiesListDelete.accesskey;"/>
-  </vbox>
-</hbox>
-</dialog>
-</html:body>
+        <vbox>
+          <button
+            id="addButton"
+            command="cmd_add"
+            label="&identitiesListAdd.label;"
+            accesskey="&identitiesListAdd.accesskey;"
+          />
+          <button
+            id="editButton"
+            disabled="true"
+            command="cmd_edit"
+            label="&identitiesListEdit.label;"
+            accesskey="&identitiesListEdit.accesskey;"
+          />
+          <button
+            id="setDefaultButton"
+            disabled="true"
+            command="cmd_default"
+            label="&identitiesListDefault.label;"
+            accesskey="&identitiesListDefault.accesskey;"
+          />
+          <button
+            id="deleteButton"
+            disabled="true"
+            command="cmd_delete"
+            label="&identitiesListDelete.label;"
+            accesskey="&identitiesListDelete.accesskey;"
+          />
+        </vbox>
+      </hbox>
+    </dialog>
+  </html:body>
 </html>

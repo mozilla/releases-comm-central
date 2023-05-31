@@ -1,4 +1,5 @@
-<?xml version="1.0"?> <!-- -*- Mode: xml; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- -->
+<?xml version="1.0"?>
+<!-- -*- Mode: xml; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- -->
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
@@ -9,32 +10,54 @@
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/renameFolderDialog.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      lightweightthemes="true"
-      scrolling="false">
-<head>
-  <title>&renameFolderDialog.title;</title>
-  <link rel="localization" href="branding/brand.ftl" />
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://messenger/content/renameFolderDialog.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttonlabelaccept="&accept.label;"
-        buttonaccesskeyaccept="&accept.accesskey;">
-
-  <html:label id="nameLabel"
-              for="name"
-              style="display:inline-block;"
-              accesskey="&rename.accesskey;">&rename.label;</html:label>
-  <html:input id="name"
-              type="text"
-              class="input-inline"
-              aria-labelledby="nameLabel"
-              oninput="doEnabling();"/>
-</dialog>
-</html:body>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  scrolling="false"
+>
+  <head>
+    <title>&renameFolderDialog.title;</title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/renameFolderDialog.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog
+      buttonlabelaccept="&accept.label;"
+      buttonaccesskeyaccept="&accept.accesskey;"
+    >
+      <html:label
+        id="nameLabel"
+        for="name"
+        style="display: inline-block"
+        accesskey="&rename.accesskey;"
+        >&rename.label;</html:label
+      >
+      <html:input
+        id="name"
+        type="text"
+        class="input-inline"
+        aria-labelledby="nameLabel"
+        oninput="doEnabling();"
+      />
+    </dialog>
+  </html:body>
 </html>

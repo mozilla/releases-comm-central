@@ -9,66 +9,96 @@
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/fieldMapImport.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      lightweightthemes="true"
-      width="640" height="480"
-      scrolling="false">
-<head>
-  <link rel="localization" href="messenger/addressbook/fieldMapImport.ftl" />
-  <title data-l10n-id="import-ab-csv-dialog-title"></title>
-  <script defer="defer" src="chrome://messenger/content/fieldMapImport.js"></script>
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <dialog buttons="accept,cancel"
-          data-l10n-id="import-ab-csv-dialog"
-          data-l10n-attrs="buttonlabelaccept,buttonaccesskeyaccept">
-    <hbox align="center">
-      <label id="labelRecordNumber"/>
-      <spacer flex="1"/>
-      <button id="previous" oncommand="nextPreviousOnCommand(event);"
-              label="&fieldMapImport.previous.label;"
-              accesskey="&fieldMapImport.previous.accesskey;"/>
-      <button id="next" oncommand="nextPreviousOnCommand(event);"
-              label="&fieldMapImport.next.label;"
-              accesskey="&fieldMapImport.next.accesskey;"/>
-    </hbox>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  width="640"
+  height="480"
+  scrolling="false"
+>
+  <head>
+    <link rel="localization" href="messenger/addressbook/fieldMapImport.ftl" />
+    <title data-l10n-id="import-ab-csv-dialog-title"></title>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/fieldMapImport.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog
+      buttons="accept,cancel"
+      data-l10n-id="import-ab-csv-dialog"
+      data-l10n-attrs="buttonlabelaccept,buttonaccesskeyaccept"
+    >
+      <hbox align="center">
+        <label id="labelRecordNumber" />
+        <spacer flex="1" />
+        <button
+          id="previous"
+          oncommand="nextPreviousOnCommand(event);"
+          label="&fieldMapImport.previous.label;"
+          accesskey="&fieldMapImport.previous.accesskey;"
+        />
+        <button
+          id="next"
+          oncommand="nextPreviousOnCommand(event);"
+          label="&fieldMapImport.next.label;"
+          accesskey="&fieldMapImport.next.accesskey;"
+        />
+      </hbox>
 
-    <hbox align="center">
-      <checkbox id="skipFirstRecord"
-                label="&fieldMapImport.skipFirstRecord.label;"
-                accesskey="&fieldMapImport.skipFirstRecord.accessKey;"/>
-    </hbox>
+      <hbox align="center">
+        <checkbox
+          id="skipFirstRecord"
+          label="&fieldMapImport.skipFirstRecord.label;"
+          accesskey="&fieldMapImport.skipFirstRecord.accessKey;"
+        />
+      </hbox>
 
-    <separator class="thin"/>
-    <label control="fieldList">&fieldMapImport.text;</label>
-    <separator class="thin"/>
+      <separator class="thin" />
+      <label control="fieldList">&fieldMapImport.text;</label>
+      <separator class="thin" />
 
-    <!-- field list -->
-    <hbox flex="1">
-      <richlistbox id="fieldList"
-                   flex="1"
-                   onselect="disableMoveButtons();">
-        <treecols>
-          <treecol id="checkedHeader"/>
-          <treecol id="fieldNameHeader" label="&fieldMapImport.fieldListTitle;"/>
-          <treecol id="sampleDataHeader" label="&fieldMapImport.dataTitle;"/>
-        </treecols>
-      </richlistbox>
+      <!-- field list -->
+      <hbox flex="1">
+        <richlistbox id="fieldList" flex="1" onselect="disableMoveButtons();">
+          <treecols>
+            <treecol id="checkedHeader" />
+            <treecol
+              id="fieldNameHeader"
+              label="&fieldMapImport.fieldListTitle;"
+            />
+            <treecol id="sampleDataHeader" label="&fieldMapImport.dataTitle;" />
+          </treecols>
+        </richlistbox>
 
-      <vbox>
-        <spacer flex="1"/>
-        <button id="upButton" class="up" label="&fieldMapImport.up.label;"
-                accesskey="&fieldMapImport.up.accesskey;"
-                oncommand="moveItem(true);"/>
-        <button id="downButton" class="down" label="&fieldMapImport.down.label;"
-                accesskey="&fieldMapImport.down.accesskey;"
-                oncommand="moveItem(false);"/>
-        <spacer flex="1"/>
-      </vbox>
-    </hbox>
-  </dialog>
-</html:body>
+        <vbox>
+          <spacer flex="1" />
+          <button
+            id="upButton"
+            class="up"
+            label="&fieldMapImport.up.label;"
+            accesskey="&fieldMapImport.up.accesskey;"
+            oncommand="moveItem(true);"
+          />
+          <button
+            id="downButton"
+            class="down"
+            label="&fieldMapImport.down.label;"
+            accesskey="&fieldMapImport.down.accesskey;"
+            oncommand="moveItem(false);"
+          />
+          <spacer flex="1" />
+        </vbox>
+      </hbox>
+    </dialog>
+  </html:body>
 </html>

@@ -5,106 +5,148 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE html [
-<!ENTITY % accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd" >%accountNoIdentDTD;
+<!DOCTYPE html [ <!ENTITY % accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd">
+%accountNoIdentDTD;
 <!ENTITY % accountServerTopDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">%accountServerTopDTD;
 ]>
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml">
-<head>
-  <title>&accountTitle.label;</title>
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/am-serverwithnoidentities.js"></script>
-  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
-  <script>
-    // FIXME: move to script file.
-    window.addEventListener("load", event => { parent.onPanelLoaded('am-serverwithnoidentities.xhtml'); });
-  </script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
- <vbox id="containerBox" flex="1">
-  <hbox class="dialogheader">
-    <label class="dialogheader-title" value="&accountTitle.label;"/>
-  </hbox>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+>
+  <head>
+    <title>&accountTitle.label;</title>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/am-serverwithnoidentities.js"
+    ></script>
+    <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+    <script>
+      // FIXME: move to script file.
+      window.addEventListener("load", event => {
+        parent.onPanelLoaded("am-serverwithnoidentities.xhtml");
+      });
+    </script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <vbox id="containerBox" flex="1">
+      <hbox class="dialogheader">
+        <label class="dialogheader-title" value="&accountTitle.label;" />
+      </hbox>
 
-  <separator class="thin"/>
+      <separator class="thin" />
 
-  <label hidden="true"
-         wsm_persist="true"
-         preftype="string"
-         prefattribute="value"
-         prefstring="mail.server.%serverkey%.storeContractID"
-         genericattr="true"
-         id="server.storeContractID"/>
+      <label
+        hidden="true"
+        wsm_persist="true"
+        preftype="string"
+        prefattribute="value"
+        prefstring="mail.server.%serverkey%.storeContractID"
+        genericattr="true"
+        id="server.storeContractID"
+      />
 
-  <description class="secDesc">&accountSettingsDesc.label;</description>
-  <hbox class="input-container">
-    <label id="server.prettyName.label" value="&accountName.label;"
-           control="server.prettyName" accesskey="&accountName.accesskey;"/>
-    <html:input id="server.prettyName"
+      <description class="secDesc">&accountSettingsDesc.label;</description>
+      <hbox class="input-container">
+        <label
+          id="server.prettyName.label"
+          value="&accountName.label;"
+          control="server.prettyName"
+          accesskey="&accountName.accesskey;"
+        />
+        <html:input
+          id="server.prettyName"
+          type="text"
+          wsm_persist="true"
+          class="input-inline"
+          onblur="parent.setAccountLabel(gAccount.key, this.value);"
+          prefstring="mail.server.%serverkey%.name"
+          aria-labelledby="server.prettyName.label"
+        />
+      </hbox>
+
+      <separator class="thin" />
+
+      <html:div>
+        <html:fieldset>
+          <html:legend>&messageStorage.label;</html:legend>
+
+          <vbox align="start">
+            <checkbox
+              wsm_persist="true"
+              id="server.emptyTrashOnExit"
+              label="&emptyTrashOnExit.label;"
+              accesskey="&emptyTrashOnExit.accesskey;"
+              prefattribute="value"
+              prefstring="mail.server.%serverkey%.empty_trash_on_exit"
+            />
+            <hbox align="center">
+              <label
+                value="&storeType.label;"
+                accesskey="&storeType.accesskey;"
+                control="server.storeTypeMenulist"
+              />
+              <menulist
+                id="server.storeTypeMenulist"
+                oncommand="clickStoreTypeMenu(this);"
+              >
+                <menupopup id="server.storeTypeMenupopup">
+                  <menuitem
+                    id="server.mboxStore"
+                    value="@mozilla.org/msgstore/berkeleystore;1"
+                    label="&mboxStore2.label;"
+                  />
+                  <menuitem
+                    id="server.maildirStore"
+                    value="@mozilla.org/msgstore/maildirstore;1"
+                    label="&maildirStore.label;"
+                  />
+                </menupopup>
+              </menulist>
+            </hbox>
+          </vbox>
+
+          <separator class="thin" />
+
+          <hbox align="center">
+            <label
+              id="server.localPath.label"
+              value="&localPath1.label;"
+              control="server.localPath"
+            />
+            <hbox class="input-container" flex="1">
+              <html:input
+                id="server.localPath"
                 type="text"
+                readonly="readonly"
                 wsm_persist="true"
-                class="input-inline"
-                onblur="parent.setAccountLabel(gAccount.key, this.value);"
-                prefstring="mail.server.%serverkey%.name"
-                aria-labelledby="server.prettyName.label"/>
-  </hbox>
-
-  <separator class="thin"/>
-
-  <html:div>
-  <html:fieldset>
-    <html:legend>&messageStorage.label;</html:legend>
-
-    <vbox align="start">
-      <checkbox wsm_persist="true" id="server.emptyTrashOnExit"
-                label="&emptyTrashOnExit.label;"
-                accesskey="&emptyTrashOnExit.accesskey;"
-                prefattribute="value"
-                prefstring="mail.server.%serverkey%.empty_trash_on_exit"/>
-      <hbox align="center">
-        <label value="&storeType.label;"
-               accesskey="&storeType.accesskey;"
-               control="server.storeTypeMenulist"/>
-        <menulist id="server.storeTypeMenulist"
-                  oncommand="clickStoreTypeMenu(this);">
-          <menupopup id="server.storeTypeMenupopup">
-            <menuitem id="server.mboxStore"
-                      value="@mozilla.org/msgstore/berkeleystore;1"
-                      label="&mboxStore2.label;"/>
-            <menuitem id="server.maildirStore"
-                      value="@mozilla.org/msgstore/maildirstore;1"
-                      label="&maildirStore.label;"/>
-          </menupopup>
-        </menulist>
-      </hbox>
+                datatype="nsIFile"
+                prefstring="mail.server.%serverkey%.directory"
+                class="uri-element input-inline"
+                aria-labelledby="server.localPath.label"
+              />
+            </hbox>
+            <button
+              id="browseForLocalFolder"
+              label="&browseFolder.label;"
+              filepickertitle="&localFolderPicker.label;"
+              accesskey="&browseFolder.accesskey;"
+              oncommand="BrowseForLocalFolders()"
+            />
+          </hbox>
+        </html:fieldset>
+      </html:div>
     </vbox>
-
-    <separator class="thin"/>
-
-    <hbox align="center">
-      <label id="server.localPath.label" value="&localPath1.label;"
-             control="server.localPath"/>
-      <hbox class="input-container" flex="1">
-        <html:input id="server.localPath"
-                    type="text"
-                    readonly="readonly"
-                    wsm_persist="true"
-                    datatype="nsIFile"
-                    prefstring="mail.server.%serverkey%.directory"
-                    class="uri-element input-inline"
-                    aria-labelledby="server.localPath.label"/>
-      </hbox>
-        <button id="browseForLocalFolder" label="&browseFolder.label;"
-                filepickertitle="&localFolderPicker.label;"
-                accesskey="&browseFolder.accesskey;"
-                oncommand="BrowseForLocalFolders()"/>
-    </hbox>
-  </html:fieldset>
-  </html:div>
-  </vbox>
-</html:body>
+  </html:body>
 </html>

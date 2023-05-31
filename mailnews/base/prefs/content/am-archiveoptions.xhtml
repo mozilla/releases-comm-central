@@ -9,101 +9,131 @@
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/am-archiveoptions.dtd">
 
-<html id="archiveOptions" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      width="350" height="350"
-      persist="width height"
-      scrolling="false">
-<head>
-  <title>&dialogTitle.label;</title>
-  <script defer="defer" src="chrome://messenger/content/am-archiveoptions.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog style="width:100vw; height:100vh;">
-  <vbox flex="1">
-    <label>&archiveGranularityPrefix.label;</label>
-    <radiogroup id="archiveGranularity">
-      <radio label="&archiveFlat.label;" accesskey="&archiveFlat.accesskey;"
-             class="indent"/>
-      <radio label="&archiveYearly.label;"
-             accesskey="&archiveYearly.accesskey;" class="indent"/>
-      <radio label="&archiveMonthly.label;"
-             accesskey="&archiveMonthly.accesskey;" class="indent"/>
-    </radiogroup>
-    <checkbox id="archiveKeepFolderStructure"
-              label="&keepFolderStructure.label;"
-              accesskey="&keepFolderStructure.accesskey;"/>
+<html
+  id="archiveOptions"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  width="350"
+  height="350"
+  persist="width height"
+  scrolling="false"
+>
+  <head>
+    <title>&dialogTitle.label;</title>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/am-archiveoptions.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog style="width: 100vw; height: 100vh">
+      <vbox flex="1">
+        <label>&archiveGranularityPrefix.label;</label>
+        <radiogroup id="archiveGranularity">
+          <radio
+            label="&archiveFlat.label;"
+            accesskey="&archiveFlat.accesskey;"
+            class="indent"
+          />
+          <radio
+            label="&archiveYearly.label;"
+            accesskey="&archiveYearly.accesskey;"
+            class="indent"
+          />
+          <radio
+            label="&archiveMonthly.label;"
+            accesskey="&archiveMonthly.accesskey;"
+            class="indent"
+          />
+        </radiogroup>
+        <checkbox
+          id="archiveKeepFolderStructure"
+          label="&keepFolderStructure.label;"
+          accesskey="&keepFolderStructure.accesskey;"
+        />
 
-    <html:div>
-    <html:fieldset flex="1">
-      <html:legend>&archiveExample.label;</html:legend>
-      <hbox flex="1">
-      <tree id="archiveTree" hidecolumnpicker="true" disabled="true" flex="1" style="min-height:8em;">
-        <treecols>
-          <treecol id="folderNameCol"
-                   primary="true"
-                   hideheader="true"
-                   style="flex: 1 auto"/>
-        </treecols>
-        <treechildren>
-          <treeitem class="root">
-            <treerow>
-              <treecell properties="specialFolder-Archive"
-                        label="&archiveFolderName.label;"/>
-            </treerow>
-            <treechildren>
-              <treeitem id="folders">
-                <treerow>
-                  <treecell label="&inboxFolderName.label;"/>
-                </treerow>
-              </treeitem>
-              <treeitem class="year">
-                <treerow>
-                  <treecell label="2020"/>
-                </treerow>
+        <html:div>
+          <html:fieldset flex="1">
+            <html:legend>&archiveExample.label;</html:legend>
+            <hbox flex="1">
+              <tree
+                id="archiveTree"
+                hidecolumnpicker="true"
+                disabled="true"
+                flex="1"
+                style="min-height: 8em"
+              >
+                <treecols>
+                  <treecol
+                    id="folderNameCol"
+                    primary="true"
+                    hideheader="true"
+                    style="flex: 1 auto"
+                  />
+                </treecols>
                 <treechildren>
-                  <treeitem class="month">
+                  <treeitem class="root">
                     <treerow>
-                      <treecell label="2020-11"/>
+                      <treecell
+                        properties="specialFolder-Archive"
+                        label="&archiveFolderName.label;"
+                      />
                     </treerow>
-                    <treechildren/>
-                  </treeitem>
-                  <treeitem class="month">
-                    <treerow>
-                      <treecell label="2020-12"/>
-                    </treerow>
-                    <treechildren/>
+                    <treechildren>
+                      <treeitem id="folders">
+                        <treerow>
+                          <treecell label="&inboxFolderName.label;" />
+                        </treerow>
+                      </treeitem>
+                      <treeitem class="year">
+                        <treerow>
+                          <treecell label="2020" />
+                        </treerow>
+                        <treechildren>
+                          <treeitem class="month">
+                            <treerow>
+                              <treecell label="2020-11" />
+                            </treerow>
+                            <treechildren />
+                          </treeitem>
+                          <treeitem class="month">
+                            <treerow>
+                              <treecell label="2020-12" />
+                            </treerow>
+                            <treechildren />
+                          </treeitem>
+                        </treechildren>
+                      </treeitem>
+                      <treeitem class="year">
+                        <treerow>
+                          <treecell label="2021" />
+                        </treerow>
+                        <treechildren>
+                          <treeitem class="month">
+                            <treerow>
+                              <treecell label="2021-01" />
+                            </treerow>
+                            <treechildren />
+                          </treeitem>
+                          <treeitem class="month">
+                            <treerow>
+                              <treecell label="2021-02" />
+                            </treerow>
+                            <treechildren />
+                          </treeitem>
+                        </treechildren>
+                      </treeitem>
+                    </treechildren>
                   </treeitem>
                 </treechildren>
-              </treeitem>
-              <treeitem class="year">
-                <treerow>
-                  <treecell label="2021"/>
-                </treerow>
-                <treechildren>
-                  <treeitem class="month">
-                    <treerow>
-                      <treecell label="2021-01"/>
-                    </treerow>
-                    <treechildren/>
-                  </treeitem>
-                  <treeitem class="month">
-                    <treerow>
-                      <treecell label="2021-02"/>
-                    </treerow>
-                    <treechildren/>
-                  </treeitem>
-                </treechildren>
-              </treeitem>
-            </treechildren>
-          </treeitem>
-        </treechildren>
-      </tree>
-      </hbox>
-    </html:fieldset>
-    </html:div>
-  </vbox>
-</dialog>
-</html:body>
+              </tree>
+            </hbox>
+          </html:fieldset>
+        </html:div>
+      </vbox>
+    </dialog>
+  </html:body>
 </html>

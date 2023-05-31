@@ -9,31 +9,45 @@
 <?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      lightweightthemes="true"
-      width="600" height="150"
-      scrolling="false">
-<head>
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://messenger/content/shutdownWindow.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttons="cancel">
-  <stringbundle id="bundle_shutdown" src="chrome://messenger/locale/shutdownWindow.properties"/>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  width="600"
+  height="150"
+  scrolling="false"
+>
+  <head>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/shutdownWindow.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog buttons="cancel">
+      <stringbundle
+        id="bundle_shutdown"
+        src="chrome://messenger/locale/shutdownWindow.properties"
+      />
 
-  <vbox align="center">
-    <label id="shutdownStatus_label" value="" />
-    <separator class="thin" />
-  </vbox>
+      <vbox align="center">
+        <label id="shutdownStatus_label" value="" />
+        <separator class="thin" />
+      </vbox>
 
-  <html:progress id="shutdown_progressmeter" max="100" />
+      <html:progress id="shutdown_progressmeter" max="100" />
 
-  <vbox align="center">
-    <label id="shutdownTask_label" value="" />
-    <separator class="thick" />
-  </vbox>
-</dialog>
-</html:body>
+      <vbox align="center">
+        <label id="shutdownTask_label" value="" />
+        <separator class="thick" />
+      </vbox>
+    </dialog>
+  </html:body>
 </html>

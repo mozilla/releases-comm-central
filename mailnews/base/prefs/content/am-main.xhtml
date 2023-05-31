@@ -5,222 +5,340 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
-<!DOCTYPE html SYSTEM "chrome://messenger/locale/am-main.dtd" >
+<!DOCTYPE html SYSTEM "chrome://messenger/locale/am-main.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml">
-<head>
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/am-identity-edit.js"></script>
-  <script defer="defer" src="chrome://messenger/content/am-main.js"></script>
-  <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
-  <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
-  <script>
-    // FIXME: move to script file.
-    window.addEventListener("load", event => { parent.onPanelLoaded('am-main.xhtml'); });
-  </script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <vbox id="containerBox" flex="1">
-    <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
-    <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+>
+  <head>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/am-identity-edit.js"
+    ></script>
+    <script defer="defer" src="chrome://messenger/content/am-main.js"></script>
+    <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
+    <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+    <script>
+      // FIXME: move to script file.
+      window.addEventListener("load", event => {
+        parent.onPanelLoaded("am-main.xhtml");
+      });
+    </script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <vbox id="containerBox" flex="1">
+      <stringbundle
+        id="bundle_prefs"
+        src="chrome://messenger/locale/prefs.properties"
+      />
+      <stringbundle
+        id="bundle_messenger"
+        src="chrome://messenger/locale/messenger.properties"
+      />
 
-    <hbox id="am-main-title" class="dialogheader">
-      <label class="dialogheader-title" defaultTitle="&accountTitle.label;"/>
-    </hbox>
+      <hbox id="am-main-title" class="dialogheader">
+        <label class="dialogheader-title" defaultTitle="&accountTitle.label;" />
+      </hbox>
 
-    <separator class="thin"/>
+      <separator class="thin" />
 
-    <hbox class="input-container">
-      <label id="server.prettyName.label" value="&accountName.label;"
-             control="server.prettyName" accesskey="&accountName.accesskey;"/>
-      <html:input id="server.prettyName"
+      <hbox class="input-container">
+        <label
+          id="server.prettyName.label"
+          value="&accountName.label;"
+          control="server.prettyName"
+          accesskey="&accountName.accesskey;"
+        />
+        <html:input
+          id="server.prettyName"
+          type="text"
+          wsm_persist="true"
+          class="input-inline"
+          onblur="serverPrettyNameOnBlur(event);"
+          prefstring="mail.server.%serverkey%.name"
+          aria-labelledby="server.prettyName.label"
+        />
+      </hbox>
+
+      <separator />
+
+      <html:div>
+        <html:fieldset>
+          <html:legend>&identityTitle.label;</html:legend>
+          <description>&identityDesc.label;</description>
+          <separator class="thin" />
+          <html:table class="identity-table">
+            <html:tr>
+              <html:th>
+                <label
+                  id="identity.fullName.label.label"
+                  value="&name.label;"
+                  control="identity.fullName"
+                  accesskey="&name.accesskey;"
+                />
+              </html:th>
+              <html:td>
+                <html:input
+                  id="identity.fullName"
+                  type="text"
+                  class="input-inline"
+                  aria-labelledby="identity.fullName.label"
+                  wsm_persist="true"
+                  size="30"
+                  prefstring="mail.identity.%identitykey%.fullName"
+                />
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
+                <label
+                  id="identity.email.label"
+                  value="&email.label;"
+                  control="identity.email"
+                  accesskey="&email.accesskey;"
+                />
+              </html:th>
+              <html:td>
+                <html:input
+                  id="identity.email"
+                  type="email"
+                  wsm_persist="true"
+                  prefstring="mail.identity.%identitykey%.useremail"
+                  class="uri-element input-inline"
+                  aria-labelledby="identity.email.label"
+                />
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
+                <label
+                  id="identity.replyTo.label"
+                  value="&replyTo.label;"
+                  control="identity.replyTo"
+                  accesskey="&replyTo.accesskey;"
+                />
+              </html:th>
+              <html:td>
+                <html:input
+                  id="identity.replyTo"
                   type="text"
                   wsm_persist="true"
+                  prefstring="mail.identity.%identitykey%.reply_to"
+                  class="uri-element input-inline"
+                  placeholder="&replyTo.placeholder;"
+                  aria-labelledby="identity.replyTo.label"
+                />
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
+                <label
+                  id="identity.organization.label"
+                  value="&organization.label;"
+                  control="identity.organization"
+                  accesskey="&organization.accesskey;"
+                />
+              </html:th>
+              <html:td>
+                <html:input
+                  id="identity.organization"
+                  type="text"
+                  wsm_persist="true"
+                  prefstring="mail.identity.%identitykey%.organization"
                   class="input-inline"
-                  onblur="serverPrettyNameOnBlur(event);"
-                  prefstring="mail.server.%serverkey%.name"
-                  aria-labelledby="server.prettyName.label"/>
-    </hbox>
+                  aria-labelledby="identity.organization.label"
+                />
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
+                <label
+                  value="&signatureText.label;"
+                  control="identity.htmlSigText"
+                  accesskey="&signatureText.accesskey;"
+                />
+              </html:th>
+              <html:td style="width: 100%">
+                <hbox align="center">
+                  <checkbox
+                    id="identity.htmlSigFormat"
+                    wsm_persist="true"
+                    label="&signatureHtml.label;"
+                    prefattribute="value"
+                    accesskey="&signatureHtml.accesskey;"
+                    style="width: 100%"
+                    prefstring="mail.identity.%identitykey%.htmlSigFormat"
+                  />
+                </hbox>
+              </html:td>
+            </html:tr>
+          </html:table>
 
-    <separator/>
+          <hbox
+            class="indent"
+            flex="1"
+            style="min-height: 100px; display: flex"
+          >
+            <html:textarea
+              id="identity.htmlSigText"
+              wsm_persist="true"
+              rows="4"
+              style="flex-grow: 1"
+              prefstring="mail.identity.%identitykey%.htmlSigText"
+              class="signatureBox"
+            />
+          </hbox>
 
-    <html:div>
-    <html:fieldset>
-      <html:legend>&identityTitle.label;</html:legend>
-      <description>&identityDesc.label;</description>
-      <separator class="thin"/>
-      <html:table class="identity-table">
-        <html:tr>
-          <html:th>
-            <label id="identity.fullName.label.label" value="&name.label;"
-                   control="identity.fullName" accesskey="&name.accesskey;"/>
-          </html:th>
-          <html:td>
-            <html:input id="identity.fullName"
-                        type="text"
-                        class="input-inline"
-                        aria-labelledby="identity.fullName.label"
-                        wsm_persist="true" size="30"
-                        prefstring="mail.identity.%identitykey%.fullName"/>
-          </html:td>
-        </html:tr>
-        <html:tr>
-          <html:th>
-            <label id="identity.email.label" value="&email.label;"
-                   control="identity.email" accesskey="&email.accesskey;"/>
-          </html:th>
-          <html:td>
-            <html:input id="identity.email"
-                        type="email"
-                        wsm_persist="true"
-                        prefstring="mail.identity.%identitykey%.useremail"
-                        class="uri-element input-inline"
-                        aria-labelledby="identity.email.label"/>
-          </html:td>
-        </html:tr>
-        <html:tr>
-          <html:th>
-            <label id="identity.replyTo.label" value="&replyTo.label;"
-                   control="identity.replyTo" accesskey="&replyTo.accesskey;"/>
-          </html:th>
-          <html:td>
-            <html:input id="identity.replyTo"
-                        type="text"
-                        wsm_persist="true"
-                        prefstring="mail.identity.%identitykey%.reply_to"
-                        class="uri-element input-inline"
-                        placeholder="&replyTo.placeholder;"
-                        aria-labelledby="identity.replyTo.label"/>
-          </html:td>
-        </html:tr>
-        <html:tr>
-          <html:th>
-            <label id="identity.organization.label" value="&organization.label;"
-                   control="identity.organization" accesskey="&organization.accesskey;"/>
-          </html:th>
-          <html:td>
-            <html:input id="identity.organization"
-                        type="text"
-                        wsm_persist="true"
-                        prefstring="mail.identity.%identitykey%.organization"
-                        class="input-inline"
-                        aria-labelledby="identity.organization.label"/>
-          </html:td>
-        </html:tr>
-        <html:tr>
-          <html:th>
-            <label value="&signatureText.label;" control="identity.htmlSigText"
-                   accesskey="&signatureText.accesskey;"/>
-          </html:th>
-          <html:td style="width:100%;">
-            <hbox align="center">
-              <checkbox id="identity.htmlSigFormat" wsm_persist="true" label="&signatureHtml.label;"
-                        prefattribute="value" accesskey="&signatureHtml.accesskey;" style="width:100%;"
-                        prefstring="mail.identity.%identitykey%.htmlSigFormat"/>
-            </hbox>
-          </html:td>
-        </html:tr>
-      </html:table>
+          <hbox align="center">
+            <checkbox
+              id="identity.attachSignature"
+              wsm_persist="true"
+              label="&signatureFile.label;"
+              flex="1"
+              accesskey="&signatureFile.accesskey;"
+              oncommand="setupSignatureItems();"
+              prefattribute="value"
+              prefstring="mail.identity.%identitykey%.attach_signature"
+            />
+          </hbox>
 
-      <hbox class="indent" flex="1" style="min-height:100px; display:flex;">
-        <html:textarea id="identity.htmlSigText" wsm_persist="true" rows="4" style="flex-grow: 1;"
-                       prefstring="mail.identity.%identitykey%.htmlSigText" class="signatureBox"/>
-      </hbox>
+          <hbox align="center" class="indent input-container">
+            <html:input
+              id="identity.signature"
+              type="text"
+              datatype="nsIFile"
+              wsm_persist="true"
+              name="identity.signature"
+              aria-labelledby="identity.attachSignature"
+              prefstring="mail.identity.%identitykey%.sig_file"
+              class="uri-element input-inline"
+            />
+            <button
+              class="push"
+              name="browse"
+              label="&choose.label;"
+              accesskey="&choose.accesskey;"
+              oncommand="selectFile()"
+              wsm_persist="true"
+              id="identity.sigbrowsebutton"
+              prefstring="mail.identity.%identitykey%.sigbrowse.disable"
+            />
+          </hbox>
+
+          <hbox align="center">
+            <checkbox
+              wsm_persist="true"
+              id="identity.attachVCard"
+              label="&attachVCard.label;"
+              flex="1"
+              accesskey="&attachVCard.accesskey;"
+              prefattribute="value"
+              prefstring="mail.identity.%identitykey%.attach_vcard"
+            />
+            <button
+              class="push"
+              name="editVCard"
+              label="&editVCard.label;"
+              accesskey="&editVCard.accesskey;"
+              oncommand="editVCard()"
+            />
+            <html:input
+              id="identity.escapedVCard"
+              type="hidden"
+              value=""
+              wsm_persist="true"
+              pref="true"
+              preftype="string"
+              prefattribute="value"
+              prefstring="mail.identity.%identitykey%.escapedVCard"
+            />
+          </hbox>
+
+          <separator class="thin" />
+
+          <hbox align="center" class="input-container" hidefor="nntp">
+            <checkbox
+              id="identity.catchAll"
+              wsm_persist="true"
+              prefattribute="value"
+              label="&catchAll.label;"
+              accesskey="&catchAll.accesskey;"
+              style="margin-block: auto"
+              prefstring="mail.identity.%identitykey%.catchAll"
+            />
+            <html:input
+              id="identity.catchAllHint"
+              type="text"
+              wsm_persist="true"
+              prefstring="mail.identity.%identitykey%.catchAllHint"
+              class="input-inline"
+              oninput="handleInputCatchAllHint(event);"
+              placeholder="list@example.com, *@example.com"
+              aria-labelledby="identity.catchAll"
+            />
+          </hbox>
+
+          <separator class="thin" />
+
+          <hbox align="center">
+            <label
+              value="&smtpName.label;"
+              control="identity.smtpServerKey"
+              accesskey="&smtpName.accesskey;"
+            />
+            <menulist
+              wsm_persist="true"
+              id="identity.smtpServerKey"
+              flex="1"
+              pref="true"
+              preftype="string"
+              prefattribute="value"
+              prefstring="mail.identity.%identitykey%.smtpServer"
+            >
+              <menupopup id="smtpPopup">
+                <menuitem
+                  value=""
+                  label="&smtpDefaultServer.label;"
+                  id="useDefaultItem"
+                />
+                <menuseparator />
+                <!-- list will be inserted here -->
+              </menupopup>
+            </menulist>
+            <button
+              id="editSmtp"
+              label="&smtpServerEdit.label;"
+              accesskey="&smtpServerEdit.accesskey;"
+              oncommand="editCurrentSMTP();"
+            />
+          </hbox>
+        </html:fieldset>
+      </html:div>
+
+      <separator class="thin" />
 
       <hbox align="center">
-        <checkbox id="identity.attachSignature"
-                  wsm_persist="true"
-                  label="&signatureFile.label;"
-                  flex="1"
-                  accesskey="&signatureFile.accesskey;"
-                  oncommand="setupSignatureItems();"
-                  prefattribute="value"
-                  prefstring="mail.identity.%identitykey%.attach_signature"/>
+        <spacer flex="1" />
+        <button
+          label="&manageIdentities.label;"
+          oncommand="manageIdentities(event);"
+          accesskey="&manageIdentities.accesskey;"
+          wsm_persist="true"
+          id="identity.manageIdentitiesbutton"
+        />
       </hbox>
-
-      <hbox align="center" class="indent input-container">
-        <html:input id="identity.signature"
-                    type="text"
-                    datatype="nsIFile"
-                    wsm_persist="true"
-                    name="identity.signature"
-                    aria-labelledby="identity.attachSignature"
-                    prefstring="mail.identity.%identitykey%.sig_file"
-                    class="uri-element input-inline"/>
-        <button class="push" name="browse" label="&choose.label;"
-                accesskey="&choose.accesskey;"
-                oncommand="selectFile()"
-                wsm_persist="true" id="identity.sigbrowsebutton"
-                prefstring="mail.identity.%identitykey%.sigbrowse.disable"/>
-      </hbox>
-
-      <hbox align="center">
-        <checkbox wsm_persist="true" id="identity.attachVCard" label="&attachVCard.label;" flex="1"
-                  accesskey="&attachVCard.accesskey;"
-                  prefattribute="value"
-                  prefstring="mail.identity.%identitykey%.attach_vcard"/>
-        <button class="push" name="editVCard" label="&editVCard.label;"
-                accesskey="&editVCard.accesskey;"
-                oncommand="editVCard()"/>
-        <html:input id="identity.escapedVCard" type="hidden" value=""
-                    wsm_persist="true"
-                    pref="true" preftype="string" prefattribute="value"
-                    prefstring="mail.identity.%identitykey%.escapedVCard" />
-      </hbox>
-
-      <separator class="thin"/>
-
-      <hbox align="center" class="input-container" hidefor="nntp">
-        <checkbox id="identity.catchAll"
-                  wsm_persist="true"
-                  prefattribute="value"
-                  label="&catchAll.label;"
-                  accesskey="&catchAll.accesskey;"
-                  style="margin-block:auto;"
-                  prefstring="mail.identity.%identitykey%.catchAll"/>
-        <html:input id="identity.catchAllHint"
-                    type="text"
-                    wsm_persist="true"
-                    prefstring="mail.identity.%identitykey%.catchAllHint"
-                    class="input-inline"
-                    oninput="handleInputCatchAllHint(event);"
-                    placeholder="list@example.com, *@example.com"
-                    aria-labelledby="identity.catchAll"/>
-      </hbox>
-
-      <separator class="thin"/>
-
-      <hbox align="center">
-        <label value="&smtpName.label;" control="identity.smtpServerKey"
-               accesskey="&smtpName.accesskey;"/>
-        <menulist wsm_persist="true" id="identity.smtpServerKey" flex="1"
-                  pref="true" preftype="string" prefattribute="value"
-                  prefstring="mail.identity.%identitykey%.smtpServer">
-          <menupopup id="smtpPopup">
-            <menuitem value="" label="&smtpDefaultServer.label;" id="useDefaultItem"/>
-            <menuseparator/>
-            <!-- list will be inserted here -->
-          </menupopup>
-        </menulist>
-        <button id="editSmtp"
-                label="&smtpServerEdit.label;"
-                accesskey="&smtpServerEdit.accesskey;"
-                oncommand="editCurrentSMTP();"/>
-      </hbox>
-    </html:fieldset>
-    </html:div>
-
-    <separator class="thin"/>
-
-    <hbox align="center">
-      <spacer flex="1"/>
-      <button label="&manageIdentities.label;" oncommand="manageIdentities(event);"
-              accesskey="&manageIdentities.accesskey;"
-              wsm_persist="true" id="identity.manageIdentitiesbutton"/>
-    </hbox>
-  </vbox>
-</html:body>
+    </vbox>
+  </html:body>
 </html>

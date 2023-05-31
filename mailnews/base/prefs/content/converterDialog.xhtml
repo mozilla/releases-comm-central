@@ -3,17 +3,18 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
-<!DOCTYPE html [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+<!DOCTYPE html [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % converterDTD SYSTEM "chrome://messenger/locale/converterDialog.dtd">
-%converterDTD;
-]>
+%converterDTD; ]>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="UTF-8" />
     <title>&converterDialog.title;</title>
-    <link rel="stylesheet" href="chrome://messenger/skin/shared/converterDialog.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/converterDialog.css"
+    />
     <script src="chrome://messenger/content/converterDialog.js"></script>
   </head>
 
@@ -25,7 +26,9 @@
         <button onclick="cancelConversion(window.arguments[2]);">
           &converterDialog.cancelButton;
         </button>
-        <button onclick="startContinue(window.arguments[1], window.arguments[2]);">
+        <button
+          onclick="startContinue(window.arguments[1], window.arguments[2]);"
+        >
           &converterDialog.continueButton;
         </button>
       </div>

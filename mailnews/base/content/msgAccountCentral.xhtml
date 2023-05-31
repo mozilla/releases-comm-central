@@ -7,13 +7,14 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      windowtype="mail:accountcentral"
-      lightweightthemes="true">
-
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  windowtype="mail:accountcentral"
+  lightweightthemes="true"
+>
   <head>
-    <link rel="localization" href="branding/brand.ftl"/>
-    <link rel="localization" href="messenger/accountCentral.ftl"/>
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/accountCentral.ftl" />
 
     <script src="chrome://communicator/content/utilityOverlay.js"></script>
     <script src="chrome://messenger/content/msgAccountCentral.js"></script>
@@ -21,140 +22,198 @@
 
   <body onload="OnInit();">
     <main id="accountCentral">
-
-      <header id="headerFirstRun" class="account-central-header" hidden="hidden">
-        <img id="brandLogo" src="chrome://branding/content/about-logo.svg"
-             alt="" />
+      <header
+        id="headerFirstRun"
+        class="account-central-header"
+        hidden="hidden"
+      >
+        <img
+          id="brandLogo"
+          src="chrome://branding/content/about-logo.svg"
+          alt=""
+        />
         <aside>
-          <h1 class="account-central-title"
-              data-l10n-id="account-central-title"></h1>
+          <h1
+            class="account-central-title"
+            data-l10n-id="account-central-title"
+          ></h1>
           <div class="account-central-version">
             <span id="version"></span>
-            <a id="releasenotes" data-l10n-id="release-notes"
-               onclick="openAboutDialog();"
-               onkeypress="if (event.key == 'Enter') { openAboutDialog(); }">
-              <img src="chrome://messenger/skin/icons/new/compact/info.svg" alt="" />
+            <a
+              id="releasenotes"
+              data-l10n-id="release-notes"
+              onclick="openAboutDialog();"
+              onkeypress="if (event.key == 'Enter') { openAboutDialog(); }"
+            >
+              <img
+                src="chrome://messenger/skin/icons/new/compact/info.svg"
+                alt=""
+              />
             </a>
           </div>
         </aside>
       </header>
 
-      <header id="headerExistingAccounts" class="account-central-header summary-header">
+      <header
+        id="headerExistingAccounts"
+        class="account-central-header summary-header"
+      >
         <span id="accountLogo"></span>
         <aside>
           <h1 id="accountName"></h1>
         </aside>
         <aside class="settings-btn-container">
-          <button id="settingsButton" type="button"
-                  data-l10n-id="account-settings"
-                  class="btn-link" onclick="viewSettings(null);">
-          </button>
+          <button
+            id="settingsButton"
+            type="button"
+            data-l10n-id="account-settings"
+            class="btn-link"
+            onclick="viewSettings(null);"
+          ></button>
         </aside>
       </header>
 
       <section id="accountFeaturesSection" class="account-central-section">
         <aside class="row-container account-options">
-          <button id="nntpSubscriptionButton" type="button"
-                  data-l10n-id="nntp-subscription" class="btn-link btn-inline"
-                  onclick="subscribe();" hidden="hidden">
-          </button>
-          <button id="rssSubscriptionButton" type="button"
-                  data-l10n-id="rss-subscription" class="btn-link btn-inline"
-                  onclick="subscribe();" hidden="hidden">
-          </button>
-          <button id="readButton" type="button"
-                  data-l10n-id="read" class="btn-link btn-inline"
-                  onclick="readMessages();" hidden="hidden">
-          </button>
-          <button id="composeButton" type="button"
-                  data-l10n-id="compose" class="btn-link btn-inline"
-                  onclick="window.browsingContext.topChromeWindow.MsgNewMessage(event);" hidden="hidden">
-          </button>
-          <button id="searchButton" type="button"
-                  data-l10n-id="search" class="btn-link btn-inline"
-                  onclick="searchMessages();" hidden="hidden">
-          </button>
-          <button id="filterButton" type="button"
-                  data-l10n-id="filter" class="btn-link btn-inline"
-                  onclick="createMsgFilters();" hidden="hidden">
-          </button>
-          <button id="e2eButton" type="button"
-                  data-l10n-id="e2e" class="btn-link btn-inline"
-                  onclick="viewSettings('am-e2e.xhtml');" hidden="hidden">
-          </button>
+          <button
+            id="nntpSubscriptionButton"
+            type="button"
+            data-l10n-id="nntp-subscription"
+            class="btn-link btn-inline"
+            onclick="subscribe();"
+            hidden="hidden"
+          ></button>
+          <button
+            id="rssSubscriptionButton"
+            type="button"
+            data-l10n-id="rss-subscription"
+            class="btn-link btn-inline"
+            onclick="subscribe();"
+            hidden="hidden"
+          ></button>
+          <button
+            id="readButton"
+            type="button"
+            data-l10n-id="read"
+            class="btn-link btn-inline"
+            onclick="readMessages();"
+            hidden="hidden"
+          ></button>
+          <button
+            id="composeButton"
+            type="button"
+            data-l10n-id="compose"
+            class="btn-link btn-inline"
+            onclick="window.browsingContext.topChromeWindow.MsgNewMessage(event);"
+            hidden="hidden"
+          ></button>
+          <button
+            id="searchButton"
+            type="button"
+            data-l10n-id="search"
+            class="btn-link btn-inline"
+            onclick="searchMessages();"
+            hidden="hidden"
+          ></button>
+          <button
+            id="filterButton"
+            type="button"
+            data-l10n-id="filter"
+            class="btn-link btn-inline"
+            onclick="createMsgFilters();"
+            hidden="hidden"
+          ></button>
+          <button
+            id="e2eButton"
+            type="button"
+            data-l10n-id="e2e"
+            class="btn-link btn-inline"
+            onclick="viewSettings('am-e2e.xhtml');"
+            hidden="hidden"
+          ></button>
         </aside>
       </section>
 
-      <section id="accountSetupSection" class="account-central-section setup-section zebra">
+      <section
+        id="accountSetupSection"
+        class="account-central-section setup-section zebra"
+      >
         <h2 id="setupTitle" class="section-title"></h2>
 
         <aside class="row-container">
-          <button id="setupEmail"
-                  type="button"
-                  data-l10n-id="email-label"
-                  class="btn-hub btn-inline"
-                  onclick="top.openAccountSetupTab();">
-          </button>
+          <button
+            id="setupEmail"
+            type="button"
+            data-l10n-id="email-label"
+            class="btn-hub btn-inline"
+            onclick="top.openAccountSetupTab();"
+          ></button>
           <div class="account-description">
             <p data-l10n-id="email-description"></p>
           </div>
 
-          <button id="setupAddressBook"
-                  type="button"
-                  data-l10n-id="addressbook-label"
-                  class="btn-hub btn-inline"
-                  onclick="top.addNewAddressBook('CARDDAV');">
-          </button>
+          <button
+            id="setupAddressBook"
+            type="button"
+            data-l10n-id="addressbook-label"
+            class="btn-hub btn-inline"
+            onclick="top.addNewAddressBook('CARDDAV');"
+          ></button>
           <div class="account-description">
             <p data-l10n-id="addressbook-description"></p>
           </div>
 
-          <button id="setupCalendar"
-                  type="button"
-                  data-l10n-id="calendar-label"
-                  class="btn-hub btn-inline"
-                  onclick="window.browsingContext.topChromeWindow.cal.window.openCalendarWizard(window);">
-          </button>
+          <button
+            id="setupCalendar"
+            type="button"
+            data-l10n-id="calendar-label"
+            class="btn-hub btn-inline"
+            onclick="window.browsingContext.topChromeWindow.cal.window.openCalendarWizard(window);"
+          ></button>
           <div class="account-description">
             <p data-l10n-id="calendar-description"></p>
           </div>
 
-          <button id="setupChat"
-                  type="button"
-                  data-l10n-id="chat-label"
-                  class="btn-hub btn-inline"
-                  onclick="top.AddIMAccount();">
-          </button>
+          <button
+            id="setupChat"
+            type="button"
+            data-l10n-id="chat-label"
+            class="btn-hub btn-inline"
+            onclick="top.AddIMAccount();"
+          ></button>
           <div class="account-description">
             <p data-l10n-id="chat-description"></p>
           </div>
 
-          <button id="setupFilelink"
-                  type="button"
-                  data-l10n-id="filelink-label"
-                  class="btn-hub btn-inline"
-                  onclick="top.openOptionsDialog('paneCompose', 'compositionAttachmentsCategory');">
-          </button>
+          <button
+            id="setupFilelink"
+            type="button"
+            data-l10n-id="filelink-label"
+            class="btn-hub btn-inline"
+            onclick="top.openOptionsDialog('paneCompose', 'compositionAttachmentsCategory');"
+          ></button>
           <div class="account-description">
             <p data-l10n-id="filelink-description"></p>
           </div>
 
-          <button id="setupFeeds"
-                  type="button"
-                  data-l10n-id="feeds-label"
-                  class="btn-hub btn-inline"
-                  onclick="top.AddFeedAccount();">
-          </button>
+          <button
+            id="setupFeeds"
+            type="button"
+            data-l10n-id="feeds-label"
+            class="btn-hub btn-inline"
+            onclick="top.AddFeedAccount();"
+          ></button>
           <div class="account-description">
             <p data-l10n-id="feeds-description"></p>
           </div>
 
-          <button id="setupNewsgroups"
-                  type="button"
-                  data-l10n-id="newsgroups-label"
-                  class="btn-hub btn-inline"
-                  onclick="top.openNewsgroupAccountWizard();">
-          </button>
+          <button
+            id="setupNewsgroups"
+            type="button"
+            data-l10n-id="newsgroups-label"
+            class="btn-hub btn-inline"
+            onclick="top.openNewsgroupAccountWizard();"
+          ></button>
           <div class="account-description">
             <p data-l10n-id="newsgroups-description"></p>
           </div>
@@ -168,12 +227,13 @@
           <p data-l10n-id="import-paragraph2"></p>
         </aside>
         <aside class="row-container">
-          <button id="importButton"
-                  type="button"
-                  data-l10n-id="import-label"
-                  class="btn-hub btn-inline"
-                  onclick="top.toImport();">
-          </button>
+          <button
+            id="importButton"
+            type="button"
+            data-l10n-id="import-label"
+            class="btn-hub btn-inline"
+            onclick="top.toImport();"
+          ></button>
         </aside>
       </section>
 
@@ -182,13 +242,18 @@
 
         <aside class="row-container">
           <p data-l10n-id="about-paragraph"></p>
-          <p id="donationParagraph" data-l10n-id="about-paragraph-consider-donation">
-            <a href="https://give.thunderbird.net/en-US/?utm_source=account_hub_tb_release&amp;utm_medium=referral&amp;utm_content=paragraph_text"
-               class="donation-link"
-               data-l10n-name="donation-link"
-               onclick="openLink(event);"
-               onkeypress="if (event.key == 'Enter') { openLink(event); }"
-               tabindex="0"></a>
+          <p
+            id="donationParagraph"
+            data-l10n-id="about-paragraph-consider-donation"
+          >
+            <a
+              href="https://give.thunderbird.net/en-US/?utm_source=account_hub_tb_release&amp;utm_medium=referral&amp;utm_content=paragraph_text"
+              class="donation-link"
+              data-l10n-name="donation-link"
+              onclick="openLink(event);"
+              onkeypress="if (event.key == 'Enter') { openLink(event); }"
+              tabindex="0"
+            ></a>
           </p>
         </aside>
       </section>
@@ -197,37 +262,44 @@
         <h2 class="section-title" data-l10n-id="resources-title"></h2>
 
         <aside class="row-container">
-          <a id="featuresLink"
-             href="https://www.thunderbird.net/en-US/features/"
-             class="resource-link"
-             data-l10n-id="explore-link"
-             onclick="openLink(event);"
-             onkeypress="if (event.key == 'Enter') { openLink(event); }"
-             tabindex="0"></a>
-          <a id="supportLink"
-             href="https://support.mozilla.org/products/thunderbird"
-             class="resource-link"
-             data-l10n-id="support-link"
-             onclick="openLink(event);"
-             onkeypress="if (event.key == 'Enter') { openLink(event); }"
-             tabindex="0"></a>
-          <a id="involvedLink"
-             href="https://www.thunderbird.net/en-US/get-involved/"
-             class="resource-link"
-             data-l10n-id="involved-link"
-             onclick="openLink(event);"
-             onkeypress="if (event.key == 'Enter') { openLink(event); }"
-             tabindex="0"></a>
-          <a id="developerLink"
-             href="https://developer.thunderbird.net/"
-             class="resource-link"
-             data-l10n-id="developer-link"
-             onclick="openLink(event);"
-             onkeypress="if (event.key == 'Enter') { openLink(event); }"
-             tabindex="0"></a>
+          <a
+            id="featuresLink"
+            href="https://www.thunderbird.net/en-US/features/"
+            class="resource-link"
+            data-l10n-id="explore-link"
+            onclick="openLink(event);"
+            onkeypress="if (event.key == 'Enter') { openLink(event); }"
+            tabindex="0"
+          ></a>
+          <a
+            id="supportLink"
+            href="https://support.mozilla.org/products/thunderbird"
+            class="resource-link"
+            data-l10n-id="support-link"
+            onclick="openLink(event);"
+            onkeypress="if (event.key == 'Enter') { openLink(event); }"
+            tabindex="0"
+          ></a>
+          <a
+            id="involvedLink"
+            href="https://www.thunderbird.net/en-US/get-involved/"
+            class="resource-link"
+            data-l10n-id="involved-link"
+            onclick="openLink(event);"
+            onkeypress="if (event.key == 'Enter') { openLink(event); }"
+            tabindex="0"
+          ></a>
+          <a
+            id="developerLink"
+            href="https://developer.thunderbird.net/"
+            class="resource-link"
+            data-l10n-id="developer-link"
+            onclick="openLink(event);"
+            onkeypress="if (event.key == 'Enter') { openLink(event); }"
+            tabindex="0"
+          ></a>
         </aside>
       </section>
-
     </main>
   </body>
 </html>

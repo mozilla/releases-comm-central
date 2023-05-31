@@ -7,63 +7,90 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/shared/cardDAV.css" type="text/css"?>
 
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      scrolling="false"
-      style="min-width: 540px; min-height: 210px;">
-<head>
-  <title data-l10n-id="carddav-window-title"></title>
-  <link rel="localization" href="branding/brand.ftl" />
-  <link rel="localization" href="messenger/addressbook/abCardDAVDialog.ftl" />
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/addressbook/abCardDAVDialog.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog id="carddav-dialog"
-        data-l10n-id="carddav-dialog"
-        data-l10n-attrs="buttonlabelaccept,buttonaccesskeyaccept">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  scrolling="false"
+  style="min-width: 540px; min-height: 210px"
+>
+  <head>
+    <title data-l10n-id="carddav-window-title"></title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/addressbook/abCardDAVDialog.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/addressbook/abCardDAVDialog.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog
+      id="carddav-dialog"
+      data-l10n-id="carddav-dialog"
+      data-l10n-attrs="buttonlabelaccept,buttonaccesskeyaccept"
+    >
+      <html:div id="carddav-properties-table">
+        <html:div>
+          <label
+            control="carddav-username"
+            data-l10n-id="carddav-username-label"
+            data-l10n-attrs="value,accesskey"
+          />
+        </html:div>
+        <html:div class="input-container">
+          <html:input
+            id="carddav-username"
+            type="text"
+            oninput="fillLocationPlaceholder();"
+          />
+        </html:div>
+        <html:div>
+          <label
+            control="carddav-location"
+            data-l10n-id="carddav-location-label"
+            data-l10n-attrs="value,accesskey"
+          />
+        </html:div>
+        <html:div class="input-container">
+          <html:input
+            id="carddav-location"
+            type="url"
+            data-l10n-id="carddav-location"
+            data-l10n-attrs="default-placeholder"
+            required="required"
+            onblur="handleCardDAVURLBlur(event);"
+            oninput="handleCardDAVURLInput(event);"
+          />
+        </html:div>
+      </html:div>
 
-  <html:div id="carddav-properties-table">
-    <html:div>
-      <label control="carddav-username"
-             data-l10n-id="carddav-username-label"
-             data-l10n-attrs="value,accesskey"/>
-    </html:div>
-    <html:div class="input-container">
-      <html:input id="carddav-username" type="text"
-                  oninput="fillLocationPlaceholder();"/>
-    </html:div>
-    <html:div>
-      <label control="carddav-location"
-             data-l10n-id="carddav-location-label"
-             data-l10n-attrs="value,accesskey"/>
-    </html:div>
-    <html:div class="input-container">
-      <html:input id="carddav-location" type="url"
-                  data-l10n-id="carddav-location"
-                  data-l10n-attrs="default-placeholder"
-                  required="required"
-                  onblur="handleCardDAVURLBlur(event);"
-                  oninput="handleCardDAVURLInput(event);"/>
-    </html:div>
-  </html:div>
-
-  <html:div id="carddav-statusArea">
-    <html:div id="carddav-statusContainer">
-      <html:img id="carddav-statusImage" alt="" />
-      <html:span id="carddav-statusMessage">&#160;</html:span>
-      <!-- Include 160 = nbsp, to make the element occupy the
+      <html:div id="carddav-statusArea">
+        <html:div id="carddav-statusContainer">
+          <html:img id="carddav-statusImage" alt="" />
+          <html:span id="carddav-statusMessage">&#160;</html:span>
+          <!-- Include 160 = nbsp, to make the element occupy the
            full height, for at least one line. With a normal space,
            it does not have sufficient height. -->
-    </html:div>
-  </html:div>
+        </html:div>
+      </html:div>
 
-  <vbox id="carddav-resultsArea" hidden="true" flex="1">
-    <label id="carddav-availableBooksHeader" data-l10n-id="carddav-available-books"/>
-    <vbox id="carddav-availableBooks" class="indent" flex="1"></vbox>
-  </vbox>
-</dialog>
-</html:body>
+      <vbox id="carddav-resultsArea" hidden="true" flex="1">
+        <label
+          id="carddav-availableBooksHeader"
+          data-l10n-id="carddav-available-books"
+        />
+        <vbox id="carddav-availableBooks" class="indent" flex="1"></vbox>
+      </vbox>
+    </dialog>
+  </html:body>
 </html>
