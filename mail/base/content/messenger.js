@@ -730,8 +730,10 @@ async function atStartupRestoreTabs(aDontRestoreFirstTab) {
     }
   }
 
-  // it's now safe to load extra Tabs.
+  // It's now safe to load extra Tabs.
   loadExtraTabs();
+
+  // Note: The tabs have not finished loading at this point.
   SessionStoreManager._restored = true;
   Services.obs.notifyObservers(window, "mail-tabs-session-restored");
 

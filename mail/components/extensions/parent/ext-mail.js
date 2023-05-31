@@ -1859,20 +1859,44 @@ async function getNormalWindowReady(context, windowId) {
     window = windowTracker.topNormalWindow;
   }
 
+  // Wait for session restore.
   await new Promise((resolve, reject) => {
-    if (!window?.gMailInit || !window.gMailInit.delayedStartupFinished) {
-      let obs = (finishedWindow, topic, data) => {
-        if (window && finishedWindow != window) {
+    if (!window.SessionStoreManager._restored) {
+      let obs = (observedWindow, topic, data) => {
+        if (observedWindow != window) {
           return;
         }
-        Services.obs.removeObserver(obs, "browser-delayed-startup-finished");
+        Services.obs.removeObserver(obs, "mail-tabs-session-restored");
         resolve();
       };
-      Services.obs.addObserver(obs, "browser-delayed-startup-finished");
+      Services.obs.addObserver(obs, "mail-tabs-session-restored");
     } else {
       resolve();
     }
   });
+
+  // Wait for all mail3PaneTab's to have been fully restored and loaded.
+  for (let tabInfo of window.gTabmail.tabInfo) {
+    let { chromeBrowser, mode, closed } = tabInfo;
+    if (!closed && mode.name == "mail3PaneTab") {
+      await new Promise(resolve => {
+        if (
+          chromeBrowser.contentDocument.readyState == "complete" &&
+          chromeBrowser.currentURI.spec == "about:3pane"
+        ) {
+          resolve();
+        } else {
+          chromeBrowser.contentWindow.addEventListener(
+            "load",
+            () => resolve(),
+            {
+              once: true,
+            }
+          );
+        }
+      });
+    }
+  }
 
   return window;
 }
@@ -2219,16 +2243,13 @@ var messageTracker = new (class extends EventEmitter {
         }
       },
     };
-    // Wait till app startup has finished, before adding window listeners.
-    getNormalWindowReady().then(() => {
-      try {
-        windowTracker.addListener("MsgLoaded", this._messageOpenListener);
-        this._messageOpenListener.registered = true;
-      } catch (ex) {
-        // May fail during XPCSHELL tests, which mock the WindowWatcher but do
-        // not implement registerNotification.
-      }
-    });
+    try {
+      windowTracker.addListener("MsgLoaded", this._messageOpenListener);
+      this._messageOpenListener.registered = true;
+    } catch (ex) {
+      // Fails during XPCSHELL tests, which mock the WindowWatcher but do not
+      // implement registerNotification.
+    }
   }
 
   cleanup() {

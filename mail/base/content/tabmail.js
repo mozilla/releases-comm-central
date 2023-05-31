@@ -1383,7 +1383,7 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 
     /**
      * Attempts to restore tabs persisted from a prior call to
-     * |persistTabs|.  This is currently a synchronous operation, but in
+     * |persistTabs|. This is currently a synchronous operation, but in
      * the future this may kick off an asynchronous mechanism to restore
      * the tabs one-by-one.
      */

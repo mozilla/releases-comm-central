@@ -195,7 +195,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
      * @param {?Integer} tabId - The tab id to get
      * @returns {Tab} The matching tab, or the active tab
      */
-    function getTabOrActive(tabId) {
+    async function getTabOrActive(tabId) {
       let tab;
       if (tabId) {
         tab = tabManager.get(tabId);
@@ -205,14 +205,49 @@ this.mailTabs = class extends ExtensionAPIPersistent {
       }
 
       if (tab && tab.type == "mail") {
+        let windowId = windowTracker.getId(getTabWindow(tab.nativeTab));
+        // Before doing anything with the mail tab, ensure its outer window is
+        // fully loaded.
+        await getNormalWindowReady(context, windowId);
         return tab;
       }
       throw new ExtensionError(`Invalid mail tab ID: ${tabId}`);
     }
 
+    /**
+     * Set the currently displayed folder in the given tab.
+     * @param {NativeTabInfo} nativeTabInfo
+     * @param {nsIMsgFolder} folder
+     * @param {boolean} restorePreviousSelection - Select the previously selected
+     *   messages of the folder, after it has been set.
+     */
+    async function setFolder(nativeTabInfo, folder, restorePreviousSelection) {
+      let about3Pane = nativeTabInfo.chromeBrowser.contentWindow;
+      if (!nativeTabInfo.folder || nativeTabInfo.folder.URI != folder.URI) {
+        await new Promise(resolve => {
+          let listener = event => {
+            if (event.detail == folder.URI) {
+              about3Pane.removeEventListener("folderURIChanged", listener);
+              resolve();
+            }
+          };
+          about3Pane.addEventListener("folderURIChanged", listener);
+          if (restorePreviousSelection) {
+            about3Pane.restoreState({
+              folderURI: folder.URI,
+            });
+          } else {
+            about3Pane.threadPane.forgetSelection(folder.URI);
+            nativeTabInfo.folder = folder;
+          }
+        });
+      }
+    }
+
     return {
       mailTabs: {
         async query({ active, currentWindow, lastFocusedWindow, windowId }) {
+          await getNormalWindowReady();
           return Array.from(
             tabManager.query(
               {
@@ -237,12 +272,12 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         },
 
         async get(tabId) {
-          let tab = getTabOrActive(tabId);
+          let tab = await getTabOrActive(tabId);
           return convertMailTab(tab, context);
         },
         async getCurrent() {
           try {
-            let tab = getTabOrActive();
+            let tab = await getTabOrActive();
             return convertMailTab(tab, context);
           } catch (e) {
             // Do not throw, if the active tab is not a mail tab, but return undefined.
@@ -251,7 +286,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         },
 
         async update(tabId, args) {
-          let tab = getTabOrActive(tabId);
+          let tab = await getTabOrActive(tabId);
           let { nativeTab } = tab;
           let about3Pane = nativeTab.chromeBrowser.contentWindow;
 
@@ -271,21 +306,19 @@ this.mailTabs = class extends ExtensionAPIPersistent {
                 'Updating the displayed folder requires the "accountsRead" permission'
               );
             }
-            let uri = folderPathToURI(
+
+            let folderUri = folderPathToURI(
               displayedFolder.accountId,
               displayedFolder.path
             );
-            about3Pane.restoreState({
-              folderURI: uri,
-            });
-            let folder = MailServices.folderLookup.getFolderForURL(uri);
+            let folder = MailServices.folderLookup.getFolderForURL(folderUri);
             if (!folder) {
               throw new ExtensionError(
                 `Folder "${displayedFolder.path}" for account ` +
                   `"${displayedFolder.accountId}" not found.`
               );
             }
-            tab.nativeTab.folder = folder;
+            await setFolder(nativeTab, folder, true);
           }
 
           if (sortType) {
@@ -332,7 +365,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         },
 
         async getSelectedMessages(tabId) {
-          let tab = getTabOrActive(tabId);
+          let tab = await getTabOrActive(tabId);
           let dbView = tab.nativeTab.chromeBrowser.contentWindow?.gDBView;
           let messageList = dbView ? dbView.getSelectedMsgHdrs() : [];
           return messageListTracker.startList(messageList, extension);
@@ -348,7 +381,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
             );
           }
 
-          let tab = getTabOrActive(tabId);
+          let tab = await getTabOrActive(tabId);
           let refFolder, refMsgId;
           let msgHdrs = [];
           for (let messageId of messageIds) {
@@ -367,7 +400,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           }
 
           if (refFolder) {
-            tab.nativeTab.folder = refFolder;
+            await setFolder(tab.nativeTab, refFolder, false);
           }
           let about3Pane = tab.nativeTab.chromeBrowser.contentWindow;
           about3Pane.threadTree.selectedIndices = msgHdrs.map(
@@ -377,7 +410,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
         },
 
         async setQuickFilter(tabId, state) {
-          let tab = getTabOrActive(tabId);
+          let tab = await getTabOrActive(tabId);
           let nativeTab = tab.nativeTab;
           let about3Pane = nativeTab.chromeBrowser.contentWindow;
 
