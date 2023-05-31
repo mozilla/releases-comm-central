@@ -788,6 +788,10 @@ add_task(async function testGmailFolders() {
   let gmailInboxFolder = gmailRootFolder.getChildNamed("INBOX");
   let gmailTrashFolder = gmailRootFolder.getChildNamed("Trash");
   let gmailGmailFolder = gmailRootFolder.getChildNamed("[Gmail]");
+  await TestUtils.waitForCondition(
+    () => gmailGmailFolder.subFolders.length == 1,
+    "waiting for All Mail folder to be created"
+  );
   let gmailAllMailFolder = gmailGmailFolder.getChildNamed("All Mail");
 
   Assert.ok(
