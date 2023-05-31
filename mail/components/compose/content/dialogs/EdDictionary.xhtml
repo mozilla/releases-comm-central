@@ -12,61 +12,78 @@
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorPersonalDictionary.dtd">
-<window id="dictionaryDlg"
-        title="&windowTitle.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        persist="screenX screenY"
-        lightweightthemes="true"
-        onload="Startup()">
-<dialog buttonlabelaccept="&CloseButton.label;"
-        buttonaccesskeyaccept="&CloseButton.accessKey;"
-        buttons="accept">
+<window
+  id="dictionaryDlg"
+  title="&windowTitle.label;"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  persist="screenX screenY"
+  lightweightthemes="true"
+  onload="Startup()"
+>
+  <dialog
+    buttonlabelaccept="&CloseButton.label;"
+    buttonaccesskeyaccept="&CloseButton.accessKey;"
+    buttons="accept"
+  >
+    <script src="chrome://messenger/content/globalOverlay.js" />
+    <script src="chrome://global/content/editMenuOverlay.js" />
+    <!-- Methods common to all editor dialogs -->
+    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
+    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
+    <script src="chrome://messenger/content/messengercompose/EdDictionary.js" />
+    <script src="chrome://messenger/content/dialogShadowDom.js" />
 
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <!-- Methods common to all editor dialogs -->
-  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdDictionary.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
-  <hbox flex="1">
-    <div xmlns="http://www.w3.org/1999/xhtml" class="grid-two-column">
-      <div class="flex-items-center grid-item-span-row">
-        <xul:label id="WordInputLabel"
-                   value="&wordEditField.label;"
-                   control="WordInput"
-                   accesskey="&wordEditField.accessKey;"/>
+    <hbox flex="1">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="grid-two-column">
+        <div class="flex-items-center grid-item-span-row">
+          <xul:label
+            id="WordInputLabel"
+            value="&wordEditField.label;"
+            control="WordInput"
+            accesskey="&wordEditField.accessKey;"
+          />
+        </div>
+        <div>
+          <input
+            id="WordInput"
+            type="text"
+            style="width: 14.5em"
+            aria-labelledby="WordInputLabel"
+          />
+        </div>
+        <div>
+          <xul:button
+            id="AddWord"
+            oncommand="AddWord()"
+            label="&AddButton.label;"
+            accesskey="&AddButton.accessKey;"
+          />
+        </div>
+        <div class="flex-items-center grid-item-span-row">
+          <xul:label
+            value="&DictionaryList.label;"
+            control="DictionaryList"
+            accesskey="&DictionaryList.accessKey;"
+          />
+        </div>
+        <div>
+          <xul:richlistbox
+            id="DictionaryList"
+            height="150px"
+            style="width: 15em"
+          />
+        </div>
+        <div>
+          <xul:button
+            id="RemoveWord"
+            oncommand="RemoveWord()"
+            label="&RemoveButton.label;"
+            accesskey="&RemoveButton.accessKey;"
+          />
+        </div>
       </div>
-      <div>
-        <input id="WordInput" type="text" style="width:14.5em;"
-               aria-labelledby="WordInputLabel"/>
-      </div>
-      <div>
-        <xul:button id="AddWord"
-                    oncommand="AddWord()"
-                    label="&AddButton.label;"
-                    accesskey="&AddButton.accessKey;"/>
-      </div>
-      <div class="flex-items-center grid-item-span-row">
-        <xul:label value="&DictionaryList.label;"
-                   control="DictionaryList"
-                   accesskey="&DictionaryList.accessKey;"/>
-      </div>
-      <div>
-        <xul:richlistbox id="DictionaryList"
-                         height="150px"
-                         style="width:15em;"/>
-      </div>
-      <div>
-        <xul:button id="RemoveWord"
-                    oncommand="RemoveWord()"
-                    label="&RemoveButton.label;"
-                    accesskey="&RemoveButton.accessKey;"/>
-      </div>
-    </div>
-  </hbox>
-</dialog>
+    </hbox>
+  </dialog>
 </window>

@@ -11,34 +11,57 @@
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertSource.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      lightweightthemes="true"
-      style="min-height: 430px; min-width: 600px;"
-      scrolling="false">
-<head>
-  <title>&windowTitle.label;</title>
-  <link rel="localization" href="branding/brand.ftl" />
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/dialogShadowDom.js"></script>
-  <script defer="defer" src="chrome://messenger/content/messengercompose/editorUtilities.js"></script>
-  <script defer="defer" src="chrome://messenger/content/messengercompose/EdDialogCommon.js"></script>
-  <script defer="defer" src="chrome://messenger/content/messengercompose/EdInsSrc.js"></script>
-</head>
-<body>
-<xul:dialog buttonlabelaccept="&insertButton.label;"
-        buttonaccesskeyaccept="&insertButton.accesskey;">
-  <p id="srcMessage">&sourceEditField.label;</p>
-  <textarea id="srcInput" style="flex: 1;" rows="18" cols="70"></textarea>
-  <p>
-    &example.label;
-    <code class="bold">
-      &exampleOpenTag.label; <i>&exampleText.label;</i> &exampleCloseTag.label;
-    </code>
-  </p>
-  <hr />
-</xul:dialog>
-</body>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  style="min-height: 430px; min-width: 600px"
+  scrolling="false"
+>
+  <head>
+    <title>&windowTitle.label;</title>
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/dialogShadowDom.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/editorUtilities.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdDialogCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/messengercompose/EdInsSrc.js"
+    ></script>
+  </head>
+  <body>
+    <xul:dialog
+      buttonlabelaccept="&insertButton.label;"
+      buttonaccesskeyaccept="&insertButton.accesskey;"
+    >
+      <p id="srcMessage">&sourceEditField.label;</p>
+      <textarea id="srcInput" style="flex: 1" rows="18" cols="70"></textarea>
+      <p>
+        &example.label;
+        <code class="bold">
+          &exampleOpenTag.label;
+          <i>&exampleText.label;</i> &exampleCloseTag.label;
+        </code>
+      </p>
+      <hr />
+    </xul:dialog>
+  </body>
 </html>

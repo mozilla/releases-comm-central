@@ -13,47 +13,80 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorInsertChars.dtd">
 
-<window title="&windowTitle.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="Startup()"
-        onfocus="onFocus()"
-        lightweightthemes="true"
-        style="min-width: 20em">
-<dialog id="insertCharsDlg"
-        buttonlabelaccept="&insertButton.label;"
-        buttonlabelcancel="&closeButton.label;">
+<window
+  title="&windowTitle.label;"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  onload="Startup()"
+  onfocus="onFocus()"
+  lightweightthemes="true"
+  style="min-width: 20em"
+>
+  <dialog
+    id="insertCharsDlg"
+    buttonlabelaccept="&insertButton.label;"
+    buttonlabelcancel="&closeButton.label;"
+  >
+    <!-- Methods common to all editor dialogs -->
+    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
+    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
+    <script src="chrome://messenger/content/messengercompose/EdInsertChars.js" />
+    <script src="chrome://messenger/content/dialogShadowDom.js" />
 
-  <!-- Methods common to all editor dialogs -->
-  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdInsertChars.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
+    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
 
-  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-
-  <html:fieldset>
-    <html:legend>&category.label;</html:legend>
-    <radiogroup id="CatGrp" persist="category letter_index char_index">
-      <radio id="AccentUpper" label="&accentUpper.label;"   oncommand="ChangeCategory(this.id)"/>
-      <radio id="AccentLower" label="&accentLower.label;"   oncommand="ChangeCategory(this.id)"/>
-      <radio id="Upper"       label="&otherUpper.label;"    oncommand="ChangeCategory(this.id)"/>
-      <radio id="Lower"       label="&otherLower.label;"    oncommand="ChangeCategory(this.id)"/>
-      <radio id="Symbol"      label="&commonSymbols.label;" oncommand="ChangeCategory(this.id)"/>
-    </radiogroup>
-    <spacer class="spacer"/>
-  </html:fieldset>
-  <html:div class="grid-two-column-equalsize">
-    <!-- value is set in JS from editor.properties strings -->
-    <label id="LatinL_Label" control="LatinL" value="&letter.label;" accesskey="&letter.accessKey;"/>
-    <menulist id="LatinL" oncommand="SelectLatinLetter()">
-      <menupopup/>
-    </menulist>
-    <label id="LatinM_Label" control="LatinM" value="&character.label;" accesskey="&character.accessKey;"/>
-    <menulist id="LatinM" oncommand="SelectLatinModifier()">
-      <menupopup/>
-    </menulist>
-  </html:div>
-  <separator class="groove"/>
-</dialog>
+    <html:fieldset>
+      <html:legend>&category.label;</html:legend>
+      <radiogroup id="CatGrp" persist="category letter_index char_index">
+        <radio
+          id="AccentUpper"
+          label="&accentUpper.label;"
+          oncommand="ChangeCategory(this.id)"
+        />
+        <radio
+          id="AccentLower"
+          label="&accentLower.label;"
+          oncommand="ChangeCategory(this.id)"
+        />
+        <radio
+          id="Upper"
+          label="&otherUpper.label;"
+          oncommand="ChangeCategory(this.id)"
+        />
+        <radio
+          id="Lower"
+          label="&otherLower.label;"
+          oncommand="ChangeCategory(this.id)"
+        />
+        <radio
+          id="Symbol"
+          label="&commonSymbols.label;"
+          oncommand="ChangeCategory(this.id)"
+        />
+      </radiogroup>
+      <spacer class="spacer" />
+    </html:fieldset>
+    <html:div class="grid-two-column-equalsize">
+      <!-- value is set in JS from editor.properties strings -->
+      <label
+        id="LatinL_Label"
+        control="LatinL"
+        value="&letter.label;"
+        accesskey="&letter.accessKey;"
+      />
+      <menulist id="LatinL" oncommand="SelectLatinLetter()">
+        <menupopup />
+      </menulist>
+      <label
+        id="LatinM_Label"
+        control="LatinM"
+        value="&character.label;"
+        accesskey="&character.accessKey;"
+      />
+      <menulist id="LatinM" oncommand="SelectLatinModifier()">
+        <menupopup />
+      </menulist>
+    </html:div>
+    <separator class="groove" />
+  </dialog>
 </window>

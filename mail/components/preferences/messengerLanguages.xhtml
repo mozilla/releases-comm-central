@@ -6,63 +6,88 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 
-<window type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        data-l10n-id="messenger-languages-window2"
-        onload="gMessengerLanguagesDialog.onLoad();">
-<dialog id="MessengerLanguagesDialog"
-        buttons="accept,cancel">
+<window
+  type="child"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  data-l10n-id="messenger-languages-window2"
+  onload="gMessengerLanguagesDialog.onLoad();"
+>
+  <dialog id="MessengerLanguagesDialog" buttons="accept,cancel">
+    <linkset>
+      <html:link rel="localization" href="branding/brand.ftl" />
+      <html:link
+        rel="localization"
+        href="messenger/preferences/languages.ftl"
+      />
+    </linkset>
 
-  <linkset>
-    <html:link rel="localization" href="branding/brand.ftl"/>
-    <html:link rel="localization" href="messenger/preferences/languages.ftl"/>
-  </linkset>
+    <script src="chrome://global/content/preferencesBindings.js" />
+    <script src="chrome://messenger/content/preferences/messengerLanguages.js" />
 
-  <script src="chrome://global/content/preferencesBindings.js"/>
-  <script src="chrome://messenger/content/preferences/messengerLanguages.js"/>
-
-  <vbox id="messengerLanguagesDialogPane"
-        class="prefpane largeDialogContainer"
-        flex="1">
-    <description data-l10n-id="messenger-languages-description"/>
-    <hbox flex="1">
-      <vbox flex="1">
-        <richlistbox id="selectedLocales" flex="1"/>
-        <menulist id="availableLocales"
-                  class="available-locales-list"
-                  data-l10n-id="messenger-languages-select-language"
-                  data-l10n-attrs="placeholder,label">
-          <menupopup/>
-        </menulist>
-      </vbox>
-      <vbox>
-        <button id="up"
-                class="action-button"
-                disabled="true"
-                data-l10n-id="languages-customize-moveup"/>
-        <button id="down"
-                class="action-button"
-                disabled="true"
-                data-l10n-id="languages-customize-movedown"/>
-        <button id="remove"
-                class="action-button"
-                disabled="true"
-                data-l10n-id="languages-customize-remove"/>
-        <vbox flex="1" pack="end">
-          <button id="add"
-                  class="add-messenger-language action-button"
-                  data-l10n-id="languages-customize-add"
-                  disabled="true"/>
+    <vbox
+      id="messengerLanguagesDialogPane"
+      class="prefpane largeDialogContainer"
+      flex="1"
+    >
+      <description data-l10n-id="messenger-languages-description" />
+      <hbox flex="1">
+        <vbox flex="1">
+          <richlistbox id="selectedLocales" flex="1" />
+          <menulist
+            id="availableLocales"
+            class="available-locales-list"
+            data-l10n-id="messenger-languages-select-language"
+            data-l10n-attrs="placeholder,label"
+          >
+            <menupopup />
+          </menulist>
         </vbox>
-      </vbox>
-    </hbox>
-    <hbox id="warning-message" class="message-bar message-bar-warning" hidden="true">
-      <html:img class="message-bar-icon"
-                src="chrome://global/skin/icons/warning.svg" alt="" />
-      <description class="message-bar-description" data-l10n-id="messenger-languages-error"/>
-    </hbox>
-    <separator class="thin"/>
-  </vbox>
-</dialog>
+        <vbox>
+          <button
+            id="up"
+            class="action-button"
+            disabled="true"
+            data-l10n-id="languages-customize-moveup"
+          />
+          <button
+            id="down"
+            class="action-button"
+            disabled="true"
+            data-l10n-id="languages-customize-movedown"
+          />
+          <button
+            id="remove"
+            class="action-button"
+            disabled="true"
+            data-l10n-id="languages-customize-remove"
+          />
+          <vbox flex="1" pack="end">
+            <button
+              id="add"
+              class="add-messenger-language action-button"
+              data-l10n-id="languages-customize-add"
+              disabled="true"
+            />
+          </vbox>
+        </vbox>
+      </hbox>
+      <hbox
+        id="warning-message"
+        class="message-bar message-bar-warning"
+        hidden="true"
+      >
+        <html:img
+          class="message-bar-icon"
+          src="chrome://global/skin/icons/warning.svg"
+          alt=""
+        />
+        <description
+          class="message-bar-description"
+          data-l10n-id="messenger-languages-error"
+        />
+      </hbox>
+      <separator class="thin" />
+    </vbox>
+  </dialog>
 </window>

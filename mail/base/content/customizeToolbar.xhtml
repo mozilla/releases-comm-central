@@ -4,9 +4,8 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE dialog [
-<!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">%customizeToolbarDTD;
-]>
+<!DOCTYPE dialog [ <!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
+%customizeToolbarDTD; ]>
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/customizeToolbar.css" type="text/css"?>
@@ -22,59 +21,85 @@
 <?xml-stylesheet href="chrome://calendar/skin/shared/dialogs/calendar-event-dialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/calendar-toolbar.css" type="text/css"?>
 
-<window id="CustomizeToolbarWindow"
-        title="&dialog.title;"
-        lightweightthemes="true"
-        windowtype="mailnews:customizeToolbar"
-        onload="overlayOnLoad();"
-        onunload="onUnload();"
-        style="max-width: 92ch; min-height: 36em;"
-        persist="width height"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml">
+<window
+  id="CustomizeToolbarWindow"
+  title="&dialog.title;"
+  lightweightthemes="true"
+  windowtype="mailnews:customizeToolbar"
+  onload="overlayOnLoad();"
+  onunload="onUnload();"
+  style="max-width: 92ch; min-height: 36em"
+  persist="width height"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+>
+  <script src="chrome://messenger/content/customizeToolbar.js" />
+  <script src="chrome://messenger/content/mailCore.js" />
+  <stringbundle
+    id="stringBundle"
+    src="chrome://messenger/locale/customizeToolbar.properties"
+  />
 
-<script src="chrome://messenger/content/customizeToolbar.js"/>
-<script src="chrome://messenger/content/mailCore.js"/>
-<stringbundle id="stringBundle" src="chrome://messenger/locale/customizeToolbar.properties"/>
+  <keyset id="CustomizeToolbarKeyset">
+    <key id="cmd_close1" keycode="VK_ESCAPE" oncommand="onClose();" />
+    <key id="cmd_close2" keycode="VK_RETURN" oncommand="onClose();" />
+  </keyset>
 
-<keyset id="CustomizeToolbarKeyset">
-  <key id="cmd_close1" keycode="VK_ESCAPE" oncommand="onClose();"/>
-  <key id="cmd_close2" keycode="VK_RETURN" oncommand="onClose();"/>
-</keyset>
+  <vbox id="main-box" flex="1">
+    <description id="instructions"> &instructions.description; </description>
 
-<vbox id="main-box" flex="1">
-  <description id="instructions">
-  &instructions.description;
-  </description>
+    <vbox
+      flex="1"
+      id="palette-box"
+      ondragstart="onToolbarDragStart(event)"
+      ondragover="onPaletteDragOver(event)"
+      ondrop="onPaletteDrop(event)"
+    />
 
-  <vbox flex="1" id="palette-box"
-        ondragstart="onToolbarDragStart(event)"
-        ondragover="onPaletteDragOver(event)"
-        ondrop="onPaletteDrop(event)"/>
-
-  <hbox id="buttonBox" align="center">
-    <hbox id="titlebarSettings" hidden="true">
-      <checkbox id="showTitlebar" oncommand="updateTitlebar();" label="&showTitlebar2.label;"/>
-    </hbox>
-    <label id="modelistLabel" value="&show.label;" control="modelist"/>
-    <menulist id="modelist"
-              value="icons"
-              oncommand="overlayUpdateToolbarMode(this.value, 'mail-toolbox');">
-      <menupopup id="modelistpopup">
-        <menuitem id="modefull" value="full" label="&iconsAndText.label;"/>
-        <menuitem id="modeicons" value="icons" label="&icons.label;"/>
-        <menuitem id="modetext" value="text" label="&text.label;"/>
-        <menuitem id="textbesideiconItem" value="textbesideicon" label="&iconsBesideText.label;"/>
-      </menupopup>
-    </menulist>
-    <checkbox id="smallicons" oncommand="updateIconSize(this.checked ? 'small' : 'large');" label="&useSmallIcons.label;"/>
+    <hbox id="buttonBox" align="center">
+      <hbox id="titlebarSettings" hidden="true">
+        <checkbox
+          id="showTitlebar"
+          oncommand="updateTitlebar();"
+          label="&showTitlebar2.label;"
+        />
+      </hbox>
+      <label id="modelistLabel" value="&show.label;" control="modelist" />
+      <menulist
+        id="modelist"
+        value="icons"
+        oncommand="overlayUpdateToolbarMode(this.value, 'mail-toolbox');"
+      >
+        <menupopup id="modelistpopup">
+          <menuitem id="modefull" value="full" label="&iconsAndText.label;" />
+          <menuitem id="modeicons" value="icons" label="&icons.label;" />
+          <menuitem id="modetext" value="text" label="&text.label;" />
+          <menuitem
+            id="textbesideiconItem"
+            value="textbesideicon"
+            label="&iconsBesideText.label;"
+          />
+        </menupopup>
+      </menulist>
+      <checkbox
+        id="smallicons"
+        oncommand="updateIconSize(this.checked ? 'small' : 'large');"
+        label="&useSmallIcons.label;"
+      />
     </hbox>
     <hbox align="center">
-      <button id="restoreDefault" label="&restoreDefaultSet.label;" oncommand="restoreDefaultSet();"/>
-      <spacer flex="1"/>
-      <button id="donebutton" label="&saveChanges.label;" oncommand="onClose();"
-              default="true"/>
-  </hbox>
-</vbox>
-
+      <button
+        id="restoreDefault"
+        label="&restoreDefaultSet.label;"
+        oncommand="restoreDefaultSet();"
+      />
+      <spacer flex="1" />
+      <button
+        id="donebutton"
+        label="&saveChanges.label;"
+        oncommand="onClose();"
+        default="true"
+      />
+    </hbox>
+  </vbox>
 </window>

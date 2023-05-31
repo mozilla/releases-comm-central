@@ -7,33 +7,46 @@
 
 <!DOCTYPE window>
 
-<window type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        data-l10n-id="attachment-reminder-window"
-        onload="gAttachmentReminderOptionsDialog.init();"
-        style="min-width: 38em;">
-  <dialog id="attachmentReminderOptionsDialog"
-          dlgbuttons="accept,cancel">
-    <script src="chrome://messenger/content/preferences/attachmentReminder.js"/>
+<window
+  type="child"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  data-l10n-id="attachment-reminder-window"
+  onload="gAttachmentReminderOptionsDialog.init();"
+  style="min-width: 38em"
+>
+  <dialog id="attachmentReminderOptionsDialog" dlgbuttons="accept,cancel">
+    <script src="chrome://messenger/content/preferences/attachmentReminder.js" />
 
     <linkset>
-      <html:link rel="localization" href="branding/brand.ftl"/>
-      <html:link rel="localization" href="messenger/preferences/attachment-reminder.ftl"/>
+      <html:link rel="localization" href="branding/brand.ftl" />
+      <html:link
+        rel="localization"
+        href="messenger/preferences/attachment-reminder.ftl"
+      />
     </linkset>
 
     <vbox>
-      <label control="keywordList" data-l10n-id="attachment-reminder-label"/>
+      <label control="keywordList" data-l10n-id="attachment-reminder-label" />
       <hbox>
-        <richlistbox id="keywordList" flex="1"
-                     ondblclick="gAttachmentReminderOptionsDialog.editKeyword();"/>
+        <richlistbox
+          id="keywordList"
+          flex="1"
+          ondblclick="gAttachmentReminderOptionsDialog.editKeyword();"
+        />
         <vbox>
-          <button data-l10n-id="keyword-new-button"
-                  oncommand="gAttachmentReminderOptionsDialog.addKeyword();"/>
-          <button data-l10n-id="keyword-edit-button"
-                  oncommand="gAttachmentReminderOptionsDialog.editKeyword();"/>
-          <button data-l10n-id="keyword-remove-button"
-                  oncommand="gAttachmentReminderOptionsDialog.removeKeyword();"/>
+          <button
+            data-l10n-id="keyword-new-button"
+            oncommand="gAttachmentReminderOptionsDialog.addKeyword();"
+          />
+          <button
+            data-l10n-id="keyword-edit-button"
+            oncommand="gAttachmentReminderOptionsDialog.editKeyword();"
+          />
+          <button
+            data-l10n-id="keyword-remove-button"
+            oncommand="gAttachmentReminderOptionsDialog.removeKeyword();"
+          />
         </vbox>
       </hbox>
     </vbox>

@@ -4,133 +4,202 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE html>
-<html id="accountSetup" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      windowtype="mail:accountsetup">
-<head>
-  <title data-l10n-id="account-setup-tab-title"></title>
-  <meta name="color-scheme" content="light dark" />
-  <link rel="icon" href="chrome://messenger/skin/icons/new/compact/new-mail.svg" />
+<html
+  id="accountSetup"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  windowtype="mail:accountsetup"
+>
+  <head>
+    <title data-l10n-id="account-setup-tab-title"></title>
+    <meta name="color-scheme" content="light dark" />
+    <link
+      rel="icon"
+      href="chrome://messenger/skin/icons/new/compact/new-mail.svg"
+    />
 
-  <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
-  <link rel="stylesheet" href="chrome://messenger/skin/menulist.css" />
-  <link rel="stylesheet" href="chrome://messenger/skin/inContentDialog.css" />
-  <link rel="stylesheet" href="chrome://messenger/skin/accountSetup.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/menulist.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/inContentDialog.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/accountSetup.css" />
 
-  <link rel="localization" href="branding/brand.ftl" />
-  <link rel="localization" href="messenger/accountcreation/accountSetup.ftl" />
+    <link rel="localization" href="branding/brand.ftl" />
+    <link
+      rel="localization"
+      href="messenger/accountcreation/accountSetup.ftl"
+    />
 
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/accountcreation/accountSetup.js"></script>
-</head>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/accountUtils.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/accountcreation/accountSetup.js"
+    ></script>
+  </head>
 
-<body>
-  <!-- Native HTML dialog used for setup cancel confirmation. -->
-  <dialog id="confirmExitDialog" class="account-setup-dialog">
-    <div class="dialog-container vertical">
-      <h2 class="dialog-title">
-        <img src="chrome://messenger/skin/icons/new/compact/info.svg" alt=""
-             class="dialog-header-image" />
-        <span data-l10n-id="exit-dialog-title"></span>
-      </h2>
+  <body>
+    <!-- Native HTML dialog used for setup cancel confirmation. -->
+    <dialog id="confirmExitDialog" class="account-setup-dialog">
+      <div class="dialog-container vertical">
+        <h2 class="dialog-title">
+          <img
+            src="chrome://messenger/skin/icons/new/compact/info.svg"
+            alt=""
+            class="dialog-header-image"
+          />
+          <span data-l10n-id="exit-dialog-title"></span>
+        </h2>
 
-      <div class="dialog-container">
-        <p data-l10n-id="exit-dialog-description"
-           class="dialog-description indent"></p>
-      </div>
+        <div class="dialog-container">
+          <p
+            data-l10n-id="exit-dialog-description"
+            class="dialog-description indent"
+          ></p>
+        </div>
 
-      <label class="toggle-container-with-text indent">
-        <input id="useWithoutAccount" type="checkbox"
-               onchange="gAccountSetup.toggleExitDialogButton(event);" />
-        <span data-l10n-id="account-setup-no-account-checkbox"
-              data-l10n-attrs="accesskey">
-        </span>
-      </label>
-    </div>
-
-    <menu class="dialog-menu-container">
-      <button id="exitDialogConfirmButton"
-              data-l10n-id="exit-dialog-confirm-button"></button>
-      <button id="exitDialogCancelButton"
-              data-l10n-id="exit-dialog-cancel-button"
-              class="primary"></button>
-    </menu>
-  </dialog>
-
-  <!-- Native HTML dialog used for Exchange confirmation. -->
-  <dialog id="exchangeDialog" class="account-setup-dialog">
-    <div class="dialog-container">
-      <img src="chrome://messenger/skin/icons/new/compact/question.svg" alt=""
-           class="dialog-header-image" />
-      <p id="exchangeDialogQuestion" class="dialog-description"></p>
-    </div>
-    <menu class="dialog-menu-container">
-      <button id="exchangeDialogCancelButton"
-              data-l10n-id="exchange-dialog-cancel-button"></button>
-      <button id="exchangeDialogConfirmButton"
-              data-l10n-id="exchange-dialog-confirm-button"
-              class="primary"></button>
-    </menu>
-  </dialog>
-
-  <!-- Native HTML dialog used for insecure password confirmation. -->
-  <dialog id="insecureDialog" class="account-setup-dialog dialog-critical">
-    <div class="dialog-container vertical">
-      <h2 class="warning-title">
-        <img src="chrome://messenger/skin/icons/new/compact/warning.svg" alt=""
-             class="dialog-header-image warning-icon" />
-        <span data-l10n-id="account-setup-insecure-title"></span>
-      </h2>
-
-      <section id="insecureSectionIncoming"
-               class="insecure-section content-blocking-category"
-               hidden="hidden">
-        <h3 data-l10n-id="account-setup-insecure-incoming-title"></h3>
-        <p id="warningIncoming"></p>
-        <p id="detailsIncoming" class="insecure-section-description indent"></p>
-      </section>
-
-      <section id="insecureSectionOutgoing"
-               class="insecure-section content-blocking-category"
-               hidden="hidden">
-        <h3 data-l10n-id="account-setup-insecure-outgoing-title"></h3>
-        <p id="warningOutgoing"></p>
-        <p id="detailsOutgoing" class="insecure-section-description indent"></p>
-      </section>
-
-      <p class="dialog-footnote" data-l10n-id="account-setup-insecure-description">
-        <a href="https://support.mozilla.org/products/thunderbird"
-           data-l10n-name="thunderbird-faq-link"></a>
-      </p>
-    </div>
-
-    <menu class="dialog-menu-container two-columns">
-      <aside>
-        <label class="toggle-container-with-text">
-          <input id="acknowledgeWarning" type="checkbox"
-                 onchange="gSecurityWarningDialog.toggleAcknowledge();"/>
-          <span data-l10n-id="account-setup-insecure-server-checkbox"
-                data-l10n-attrs="accesskey">
+        <label class="toggle-container-with-text indent">
+          <input
+            id="useWithoutAccount"
+            type="checkbox"
+            onchange="gAccountSetup.toggleExitDialogButton(event);"
+          />
+          <span
+            data-l10n-id="account-setup-no-account-checkbox"
+            data-l10n-attrs="accesskey"
+          >
           </span>
         </label>
-      </aside>
+      </div>
 
-      <aside>
-        <button data-l10n-id="insecure-dialog-cancel-button"
-                onclick="gSecurityWarningDialog.onCancel();"></button>
-        <button id="insecureConfirmButton"
-                data-l10n-id="insecure-dialog-confirm-button"
-                class="primary"
-                disable="disabled"
-                onclick="gSecurityWarningDialog.onOK();"></button>
-      </aside>
-    </menu>
-  </dialog>
+      <menu class="dialog-menu-container">
+        <button
+          id="exitDialogConfirmButton"
+          data-l10n-id="exit-dialog-confirm-button"
+        ></button>
+        <button
+          id="exitDialogCancelButton"
+          data-l10n-id="exit-dialog-cancel-button"
+          class="primary"
+        ></button>
+      </menu>
+    </dialog>
 
-  <!-- Native HTML dialog for Calendar synchronization. This is a streamlined
+    <!-- Native HTML dialog used for Exchange confirmation. -->
+    <dialog id="exchangeDialog" class="account-setup-dialog">
+      <div class="dialog-container">
+        <img
+          src="chrome://messenger/skin/icons/new/compact/question.svg"
+          alt=""
+          class="dialog-header-image"
+        />
+        <p id="exchangeDialogQuestion" class="dialog-description"></p>
+      </div>
+      <menu class="dialog-menu-container">
+        <button
+          id="exchangeDialogCancelButton"
+          data-l10n-id="exchange-dialog-cancel-button"
+        ></button>
+        <button
+          id="exchangeDialogConfirmButton"
+          data-l10n-id="exchange-dialog-confirm-button"
+          class="primary"
+        ></button>
+      </menu>
+    </dialog>
+
+    <!-- Native HTML dialog used for insecure password confirmation. -->
+    <dialog id="insecureDialog" class="account-setup-dialog dialog-critical">
+      <div class="dialog-container vertical">
+        <h2 class="warning-title">
+          <img
+            src="chrome://messenger/skin/icons/new/compact/warning.svg"
+            alt=""
+            class="dialog-header-image warning-icon"
+          />
+          <span data-l10n-id="account-setup-insecure-title"></span>
+        </h2>
+
+        <section
+          id="insecureSectionIncoming"
+          class="insecure-section content-blocking-category"
+          hidden="hidden"
+        >
+          <h3 data-l10n-id="account-setup-insecure-incoming-title"></h3>
+          <p id="warningIncoming"></p>
+          <p
+            id="detailsIncoming"
+            class="insecure-section-description indent"
+          ></p>
+        </section>
+
+        <section
+          id="insecureSectionOutgoing"
+          class="insecure-section content-blocking-category"
+          hidden="hidden"
+        >
+          <h3 data-l10n-id="account-setup-insecure-outgoing-title"></h3>
+          <p id="warningOutgoing"></p>
+          <p
+            id="detailsOutgoing"
+            class="insecure-section-description indent"
+          ></p>
+        </section>
+
+        <p
+          class="dialog-footnote"
+          data-l10n-id="account-setup-insecure-description"
+        >
+          <a
+            href="https://support.mozilla.org/products/thunderbird"
+            data-l10n-name="thunderbird-faq-link"
+          ></a>
+        </p>
+      </div>
+
+      <menu class="dialog-menu-container two-columns">
+        <aside>
+          <label class="toggle-container-with-text">
+            <input
+              id="acknowledgeWarning"
+              type="checkbox"
+              onchange="gSecurityWarningDialog.toggleAcknowledge();"
+            />
+            <span
+              data-l10n-id="account-setup-insecure-server-checkbox"
+              data-l10n-attrs="accesskey"
+            >
+            </span>
+          </label>
+        </aside>
+
+        <aside>
+          <button
+            data-l10n-id="insecure-dialog-cancel-button"
+            onclick="gSecurityWarningDialog.onCancel();"
+          ></button>
+          <button
+            id="insecureConfirmButton"
+            data-l10n-id="insecure-dialog-confirm-button"
+            class="primary"
+            disable="disabled"
+            onclick="gSecurityWarningDialog.onOK();"
+          ></button>
+        </aside>
+      </menu>
+    </dialog>
+
+    <!-- Native HTML dialog for Calendar synchronization. This is a streamlined
     version of the calendar-properties-dialog.xhtml with fewer properties:
     - Name
     - Color
@@ -141,796 +210,1124 @@
     This dialog should be kept synced with the calendar-properties-dialog.xhtml
     if one of these properties changes.
   -->
-  <dialog id="calendarDialog" class="account-setup-dialog">
-    <div class="dialog-container vertical">
-      <div class="dialog-container">
-        <img src="chrome://messenger/skin/icons/new/compact/new-event.svg" alt=""
-             class="dialog-header-image small" />
-        <p data-l10n-id="calendar-dialog-title" class="dialog-description"></p>
+    <dialog id="calendarDialog" class="account-setup-dialog">
+      <div class="dialog-container vertical">
+        <div class="dialog-container">
+          <img
+            src="chrome://messenger/skin/icons/new/compact/new-event.svg"
+            alt=""
+            class="dialog-header-image small"
+          />
+          <p
+            data-l10n-id="calendar-dialog-title"
+            class="dialog-description"
+          ></p>
+        </div>
+
+        <section class="calendar-dialog-form">
+          <label
+            for="calendarName"
+            data-l10n-id="account-setup-calendar-name-label"
+          >
+          </label>
+          <div class="input-control">
+            <input
+              id="calendarName"
+              type="text"
+              autocomplete="off"
+              class="input-field input-grow"
+              data-l10n-id="account-setup-calendar-name-input"
+              required="required"
+            />
+          </div>
+
+          <label
+            for="calendarColor"
+            data-l10n-id="account-setup-calendar-color-label"
+          >
+          </label>
+          <div class="input-control">
+            <input id="calendarColor" type="color" />
+          </div>
+
+          <label
+            for="calendarRefresh"
+            data-l10n-id="account-setup-calendar-refresh-label"
+          >
+          </label>
+          <div class="input-control">
+            <select id="calendarRefresh" class="input-grow">
+              <option
+                data-l10n-id="account-setup-calendar-refresh-manual"
+                value="0"
+              ></option>
+              <option
+                data-l10n-id="account-setup-calendar-refresh-interval"
+                data-l10n-args='{ "count": 1 }'
+                value="1"
+              ></option>
+              <option
+                data-l10n-id="account-setup-calendar-refresh-interval"
+                data-l10n-args='{ "count": 5 }'
+                value="5"
+              ></option>
+              <option
+                data-l10n-id="account-setup-calendar-refresh-interval"
+                data-l10n-args='{ "count": 15 }'
+                value="15"
+              ></option>
+              <option
+                data-l10n-id="account-setup-calendar-refresh-interval"
+                data-l10n-args='{ "count": 30 }'
+                value="30"
+                selected="selected"
+              ></option>
+              <option
+                data-l10n-id="account-setup-calendar-refresh-interval"
+                data-l10n-args='{ "count": 60 }'
+                value="60"
+              ></option>
+            </select>
+          </div>
+        </section>
+
+        <section class="indent">
+          <label class="toggle-container-with-text">
+            <input id="calendarReadOnly" type="checkbox" />
+            <span
+              data-l10n-id="account-setup-calendar-read-only"
+              data-l10n-attrs="accesskey"
+            >
+            </span>
+          </label>
+
+          <label
+            id="calendarShowRemindersRow"
+            class="toggle-container-with-text"
+          >
+            <input
+              id="calendarShowReminders"
+              type="checkbox"
+              checked="checked"
+            />
+            <span
+              data-l10n-id="account-setup-calendar-show-reminders"
+              data-l10n-attrs="accesskey"
+            >
+            </span>
+          </label>
+
+          <label class="toggle-container-with-text">
+            <input
+              id="calendarOfflineSupport"
+              type="checkbox"
+              checked="checked"
+            />
+            <span
+              data-l10n-id="account-setup-calendar-offline-support"
+              data-l10n-attrs="accesskey"
+            >
+            </span>
+          </label>
+        </section>
       </div>
 
-      <section class="calendar-dialog-form">
-        <label for="calendarName"
-               data-l10n-id="account-setup-calendar-name-label">
-        </label>
-        <div class="input-control">
-          <input id="calendarName" type="text"
-                 autocomplete="off"
-                 class="input-field input-grow"
-                 data-l10n-id="account-setup-calendar-name-input"
-                 required="required" />
-        </div>
+      <menu class="dialog-menu-container">
+        <button
+          id="calendarDialogCancelButton"
+          data-l10n-id="calendar-dialog-cancel-button"
+        ></button>
+        <button
+          id="calendarDialogConfirmButton"
+          data-l10n-id="calendar-dialog-confirm-button"
+          class="primary"
+        ></button>
+      </menu>
+    </dialog>
 
-        <label for="calendarColor"
-               data-l10n-id="account-setup-calendar-color-label">
-        </label>
-        <div class="input-control">
-          <input id="calendarColor" type="color" />
-        </div>
-
-        <label for="calendarRefresh"
-               data-l10n-id="account-setup-calendar-refresh-label">
-        </label>
-        <div class="input-control">
-          <select id="calendarRefresh" class="input-grow">
-            <option data-l10n-id="account-setup-calendar-refresh-manual"
-                    value="0"></option>
-            <option data-l10n-id="account-setup-calendar-refresh-interval"
-                    data-l10n-args='{ "count": 1 }' value="1"></option>
-            <option data-l10n-id="account-setup-calendar-refresh-interval"
-                    data-l10n-args='{ "count": 5 }' value="5"></option>
-            <option data-l10n-id="account-setup-calendar-refresh-interval"
-                    data-l10n-args='{ "count": 15 }' value="15"></option>
-            <option data-l10n-id="account-setup-calendar-refresh-interval"
-                    data-l10n-args='{ "count": 30 }' value="30"
-                    selected="selected"></option>
-            <option data-l10n-id="account-setup-calendar-refresh-interval"
-                    data-l10n-args='{ "count": 60 }' value="60"></option>
-          </select>
-        </div>
-      </section>
-
-      <section class="indent">
-        <label class="toggle-container-with-text">
-          <input id="calendarReadOnly" type="checkbox" />
-          <span data-l10n-id="account-setup-calendar-read-only"
-                data-l10n-attrs="accesskey">
-          </span>
-        </label>
-
-        <label id="calendarShowRemindersRow" class="toggle-container-with-text">
-          <input id="calendarShowReminders" type="checkbox" checked="checked" />
-          <span data-l10n-id="account-setup-calendar-show-reminders"
-                data-l10n-attrs="accesskey">
-          </span>
-        </label>
-
-        <label class="toggle-container-with-text">
-          <input id="calendarOfflineSupport" type="checkbox" checked="checked" />
-          <span data-l10n-id="account-setup-calendar-offline-support"
-                data-l10n-attrs="accesskey">
-          </span>
-        </label>
-      </section>
-    </div>
-
-    <menu class="dialog-menu-container">
-      <button id="calendarDialogCancelButton"
-              data-l10n-id="calendar-dialog-cancel-button"></button>
-      <button id="calendarDialogConfirmButton"
-              data-l10n-id="calendar-dialog-confirm-button"
-              class="primary"></button>
-    </menu>
-  </dialog>
-
-  <header>
-    <h1 id="accountSetupTitle"
+    <header>
+      <h1
+        id="accountSetupTitle"
         data-l10n-id="account-setup-title"
-        class="title">
-    </h1>
-    <p id="accountSetupDescription"
-       data-l10n-id="account-setup-description"
-       class="description">
-    </p>
-    <p id="accountSetupDescriptionSecondary"
-       data-l10n-id="account-setup-secondary-description"
-       class="description">
-    </p>
-  </header>
+        class="title"
+      ></h1>
+      <p
+        id="accountSetupDescription"
+        data-l10n-id="account-setup-description"
+        class="description"
+      ></p>
+      <p
+        id="accountSetupDescriptionSecondary"
+        data-l10n-id="account-setup-secondary-description"
+        class="description"
+      ></p>
+    </header>
 
-  <section class="main-container">
-    <aside id="setupView" class="column first-column">
-
-      <form id="form" onsubmit="gAccountSetup.onFormSubmit(event);">
-        <!-- Hidden submit field to enable the natural Enter keypress to
+    <section class="main-container">
+      <aside id="setupView" class="column first-column">
+        <form id="form" onsubmit="gAccountSetup.onFormSubmit(event);">
+          <!-- Hidden submit field to enable the natural Enter keypress to
           submit the form. We do this because we have the Continue and Done
           button outside the form and we want to only handle the Enter to
           submit on the primary fields inside the form. -->
-        <input type="submit" hidden="hidden" />
-        <label for="realname"
-               data-l10n-id="account-setup-name-label"
-               data-l10n-attrs="accesskey">
-        </label>
-        <div class="input-control">
-          <input id="realname" type="text"
-                 autocomplete="off"
-                 class="input-field"
-                 data-l10n-id="account-setup-name-input"
-                 oninput="gAccountSetup.onInputRealname();"
-                 required="required" />
-          <img id="realnameInfo"
-               src="chrome://messenger/skin/icons/new/compact/info.svg"
-               data-l10n-id="account-setup-name-info-icon"
-               alt=""
-               class="form-icon" />
-          <img id="realnameWarning"
-               src="chrome://messenger/skin/icons/new/compact/warning.svg"
-               data-l10n-id="account-setup-name-warning-icon"
-               alt=""
-               class="form-icon icon-warning" />
-        </div>
-
-        <label for="email"
-               data-l10n-id="account-setup-email-label"
-               data-l10n-attrs="accesskey">
-        </label>
-        <div class="input-control">
-          <input id="email" type="email"
-                 autocomplete="off"
-                 data-l10n-id="account-setup-email-input"
-                 class="input-field"
-                 oninput="gAccountSetup.onInputEmail();"
-                 required="required" />
-          <img id="emailInfo"
-               src="chrome://messenger/skin/icons/new/compact/info.svg"
-               data-l10n-id="account-setup-email-info-icon"
-               alt=""
-               class="form-icon" />
-          <img id="emailWarning"
-               src="chrome://messenger/skin/icons/new/compact/warning.svg"
-               data-l10n-id="account-setup-email-warning-icon"
-               alt=""
-               class="form-icon icon-warning" />
-        </div>
-
-        <div class="provisioner-button-container">
-          <button id="provisionerButton" type="button"
-                  data-l10n-id="account-provisioner-button"
-                  data-l10n-attrs="accesskey"
-                  class="btn-link btn-link-new-email"
-                  onclick="openAccountProvisionerTab();">
-          </button>
-        </div>
-
-        <label for="password"
-               data-l10n-id="account-setup-password-label"
-               data-l10n-attrs="accesskey">
-        </label>
-        <div class="input-control">
-          <input id="password" type="password"
-                 autocomplete="off"
-                 class="input-field"
-                 oninput="gAccountSetup.onInputPassword();" />
-          <button id="passwordToggleButton"
-                  type="button"
-                  onclick="gAccountSetup.passwordToggle(event);"
-                  data-l10n-id="account-setup-password-toggle-show"
-                  class="form-toggle-button"
-                  hidden="hidden">
-            <img id="passwordInfo"
-                 src="chrome://messenger/skin/icons/new/compact/hidden.svg"
-                 class="form-icon"
-                 alt="" />
-          </button>
-        </div>
-
-        <div class="remember-button-container">
-          <label class="toggle-container-with-text">
-            <input id="rememberPassword" type="checkbox" checked="checked" />
-            <span data-l10n-id="account-setup-remember-password"
-                  data-l10n-attrs="accesskey">
-            </span>
-          </label>
-        </div>
-
-        <div id="usernameRow" hidden="hidden">
-          <!-- This is only used for Exchange AutoDiscover, and even then
-              only when absolutely necessary and known to be needed. -->
-          <label for="usernameEx"
-                 data-l10n-id="account-setup-exchange-label"
-                 data-l10n-attrs="accesskey">
+          <input type="submit" hidden="hidden" />
+          <label
+            for="realname"
+            data-l10n-id="account-setup-name-label"
+            data-l10n-attrs="accesskey"
+          >
           </label>
           <div class="input-control">
-            <input id="usernameEx" type="text"
-                   data-l10n-id="account-setup-exchange-input"
-                   class="input-field"
-                   oninput="gAccountSetup.onInputUsername();" />
-            <img id="usernameExInfo"
-                 src="chrome://messenger/skin/icons/new/compact/info.svg"
-                 class="form-icon"
-                 data-l10n-id="account-setup-exchange-info-icon"
-                 alt="" />
+            <input
+              id="realname"
+              type="text"
+              autocomplete="off"
+              class="input-field"
+              data-l10n-id="account-setup-name-input"
+              oninput="gAccountSetup.onInputRealname();"
+              required="required"
+            />
+            <img
+              id="realnameInfo"
+              src="chrome://messenger/skin/icons/new/compact/info.svg"
+              data-l10n-id="account-setup-name-info-icon"
+              alt=""
+              class="form-icon"
+            />
+            <img
+              id="realnameWarning"
+              src="chrome://messenger/skin/icons/new/compact/warning.svg"
+              data-l10n-id="account-setup-name-warning-icon"
+              alt=""
+              class="form-icon icon-warning"
+            />
           </div>
-        </div>
-      </form>
 
-      <section id="accountSetupNotifications" class="account-setup-notifications">
-        <!-- Notifications will be lazily loaded here. -->
-      </section>
-
-      <!-- Results area -->
-      <section id="resultsArea" hidden="hidden">
-        <h4 id="resultAreaTitle" class="section-title"></h4>
-
-        <!-- IMAP -->
-        <div id="resultsOption-imap" class="content-blocking-category results-option">
-          <label class="toggle-container-with-text">
-            <input id="resultSelect-imap" type="radio"
-                   value="imap"
-                   name="resultsServerType"
-                   onchange="gAccountSetup.onResultServerTypeChanged();" />
-            <span class="strong">IMAP</span>
-            <p class="result-indent"
-               data-l10n-id="account-setup-result-imap-description">
-            </p>
+          <label
+            for="email"
+            data-l10n-id="account-setup-email-label"
+            data-l10n-attrs="accesskey"
+          >
           </label>
-          <aside class="result-details">
-            <section class="result-details-row">
-              <img src="chrome://messenger/skin/icons/new/compact/inbox.svg" alt="" />
-              <div id="incomingTitle-imap" class="result-details-title">
-                <h4 data-l10n-id="account-setup-incoming-title"></h4>
-              </div>
-              <div id="incomingInfo-imap" class="result-host-info"></div>
-            </section>
+          <div class="input-control">
+            <input
+              id="email"
+              type="email"
+              autocomplete="off"
+              data-l10n-id="account-setup-email-input"
+              class="input-field"
+              oninput="gAccountSetup.onInputEmail();"
+              required="required"
+            />
+            <img
+              id="emailInfo"
+              src="chrome://messenger/skin/icons/new/compact/info.svg"
+              data-l10n-id="account-setup-email-info-icon"
+              alt=""
+              class="form-icon"
+            />
+            <img
+              id="emailWarning"
+              src="chrome://messenger/skin/icons/new/compact/warning.svg"
+              data-l10n-id="account-setup-email-warning-icon"
+              alt=""
+              class="form-icon icon-warning"
+            />
+          </div>
 
-            <section class="result-details-row">
-              <img src="chrome://messenger/skin/icons/new/compact/outbox.svg" alt="" />
-              <div id="outgoingTitle-imap" class="result-details-title">
-                <h4 data-l10n-id="account-setup-outgoing-title"></h4>
-              </div>
-              <div id="outgoingInfo-imap" class="result-host-info"></div>
-            </section>
+          <div class="provisioner-button-container">
+            <button
+              id="provisionerButton"
+              type="button"
+              data-l10n-id="account-provisioner-button"
+              data-l10n-attrs="accesskey"
+              class="btn-link btn-link-new-email"
+              onclick="openAccountProvisionerTab();"
+            ></button>
+          </div>
 
-            <section class="result-details-row">
-              <img src="chrome://messenger/skin/icons/new/compact/contact.svg" alt="" />
-              <div class="result-details-title">
-                <h4 data-l10n-id="account-setup-username-title"></h4>
-              </div>
-              <div id="usernameInfo-imap" class="result-host-info"></div>
-            </section>
-          </aside>
-        </div>
-
-        <!-- POP3 -->
-        <div id="resultsOption-pop3" class="content-blocking-category results-option">
-          <label class="toggle-container-with-text">
-            <input id="resultSelect-pop3" type="radio"
-                   value="pop3"
-                   name="resultsServerType"
-                   onchange="gAccountSetup.onResultServerTypeChanged();" />
-            <span class="strong">POP3</span>
-            <p class="result-indent"
-               data-l10n-id="account-setup-result-pop-description">
-            </p>
+          <label
+            for="password"
+            data-l10n-id="account-setup-password-label"
+            data-l10n-attrs="accesskey"
+          >
           </label>
-          <aside class="result-details">
-            <section class="result-details-row">
-              <img src="chrome://messenger/skin/icons/new/compact/inbox.svg" alt="" />
-              <div id="incomingTitle-pop3" class="result-details-title">
-                <h4 data-l10n-id="account-setup-incoming-title"></h4>
-              </div>
-              <div id="incomingInfo-pop3" class="result-host-info"></div>
-            </section>
+          <div class="input-control">
+            <input
+              id="password"
+              type="password"
+              autocomplete="off"
+              class="input-field"
+              oninput="gAccountSetup.onInputPassword();"
+            />
+            <button
+              id="passwordToggleButton"
+              type="button"
+              onclick="gAccountSetup.passwordToggle(event);"
+              data-l10n-id="account-setup-password-toggle-show"
+              class="form-toggle-button"
+              hidden="hidden"
+            >
+              <img
+                id="passwordInfo"
+                src="chrome://messenger/skin/icons/new/compact/hidden.svg"
+                class="form-icon"
+                alt=""
+              />
+            </button>
+          </div>
 
-            <section class="result-details-row">
-              <img src="chrome://messenger/skin/icons/new/compact/outbox.svg" alt="" />
-              <div id="outgoingTitle-pop3" class="result-details-title">
-                <h4 data-l10n-id="account-setup-outgoing-title"></h4>
-              </div>
-              <div id="outgoingInfo-pop3" class="result-host-info"></div>
-            </section>
+          <div class="remember-button-container">
+            <label class="toggle-container-with-text">
+              <input id="rememberPassword" type="checkbox" checked="checked" />
+              <span
+                data-l10n-id="account-setup-remember-password"
+                data-l10n-attrs="accesskey"
+              >
+              </span>
+            </label>
+          </div>
 
-            <section class="result-details-row">
-              <img src="chrome://messenger/skin/icons/new/compact/contact.svg" alt="" />
-              <div class="result-details-title">
-                <h4 data-l10n-id="account-setup-username-title"></h4>
-              </div>
-              <div id="usernameInfo-pop3" class="result-host-info"></div>
-            </section>
-          </aside>
-        </div>
-
-        <!-- EXCHANGE -->
-        <div id="resultsOption-exchange" class="content-blocking-category results-option">
-          <label class="toggle-container-with-text">
-            <input id="resultSelect-exchange" type="radio"
-                   value="exchange"
-                   name="resultsServerType"
-                   onchange="gAccountSetup.onResultServerTypeChanged();" />
-            <span class="strong">
-              Exchange/Office365
-            </span>
-            <p class="result-indent"
-               data-l10n-id="account-setup-result-exchange2-description">
-            </p>
-          </label>
-          <aside class="result-details">
-            <section class="result-details-row">
-              <img src="chrome://messenger/skin/icons/new/compact/inbox.svg" alt="" />
-              <div id="incomingTitle-exchange" class="result-details-title">
-                <h4 data-l10n-id="account-setup-exchange-title"></h4>
-              </div>
-              <div id="resultExchangeHostname" class="result-host-info"></div>
-            </section>
-            <aside id="installAddonInfo">
-              <p id="resultAddonIntro"></p>
-              <div id="resultAddonInstallRows"></div>
-            </aside>
-          </aside>
-        </div>
-      </section>
-      <!-- END Results area -->
-
-      <!-- Manual edit area -->
-      <section id="manualConfigArea" hidden="hidden">
-        <h4 class="section-title" data-l10n-id="account-setup-manual-config-title"></h4>
-
-        <!-- Incoming server section -->
-        <fieldset class="manual-config-grid content-blocking-category"
-                  aria-describedby="manualConfigDescription">
-          <legend data-l10n-id="account-setup-incoming-server-legend"></legend>
-
-          <!-- Incoming Protocol -->
-          <aside>
-            <label for="incomingProtocol"
-                   data-l10n-id="account-setup-protocol-label"
-                   class="option-label">
+          <div id="usernameRow" hidden="hidden">
+            <!-- This is only used for Exchange AutoDiscover, and even then
+              only when absolutely necessary and known to be needed. -->
+            <label
+              for="usernameEx"
+              data-l10n-id="account-setup-exchange-label"
+              data-l10n-attrs="accesskey"
+            >
             </label>
             <div class="input-control">
-              <select id="incomingProtocol"
-                      onchange="gAccountSetup.onChangedProtocolIncoming();">
-                <option value="1">IMAP</option>
-                <option value="2">POP3</option>
-                <option id="incomingProtocolExchange"
-                        value="3"
-                        hidden="hidden">Exchange</option>
-              </select>
+              <input
+                id="usernameEx"
+                type="text"
+                data-l10n-id="account-setup-exchange-input"
+                class="input-field"
+                oninput="gAccountSetup.onInputUsername();"
+              />
+              <img
+                id="usernameExInfo"
+                src="chrome://messenger/skin/icons/new/compact/info.svg"
+                class="form-icon"
+                data-l10n-id="account-setup-exchange-info-icon"
+                alt=""
+              />
             </div>
-          </aside>
+          </div>
+        </form>
 
-          <!-- Incoming Server -->
-          <aside>
-            <label for="incomingHostname"
-                   data-l10n-id="account-setup-hostname-label"
-                   class="option-label">
-            </label>
-            <div class="input-control">
-              <input id="incomingHostname"
-                     type="text"
-                     placeholder="mail.example.com"
-                     onchange="gAccountSetup.onChangeHostname();"
-                     oninput="gAccountSetup.manualConfigChanged();"
-                     class="host uri-element input-field" />
-            </div>
-          </aside>
-
-          <!-- Incoming Port -->
-          <section>
-            <aside>
-              <label for="incomingPort"
-                     data-l10n-id="account-setup-port-label"
-                     class="option-label">
-              </label>
-              <input id="incomingPort"
-                     type="number"
-                     min="1" max="65535"
-                     onchange="gAccountSetup.onChangedPortIncoming();"
-                     oninput="gAccountSetup.manualConfigChanged();"
-                     class="input-field" />
-            </aside>
-          </section>
-
-          <!-- Incoming SSL -->
-          <aside>
-            <label for="incomingSsl"
-                   data-l10n-id="account-setup-ssl-label"
-                   class="option-label">
-            </label>
-            <div class="input-control">
-              <select id="incomingSsl"
-                      class="security"
-                      onchange="gAccountSetup.onChangedSSLIncoming();">
-                <!-- @see nsMsgSocketType -->
-                <option data-l10n-id="ssl-autodetect-option" value="-1"></option>
-                <option data-l10n-id="ssl-noencryption-option" value="0"></option>
-                <option value="2">STARTTLS</option>
-                <option value="3">SSL/TLS</option>
-              </select>
-            </div>
-          </aside>
-
-          <!-- Incoming Authentication -->
-          <aside>
-            <label for="incomingAuthMethod"
-                   data-l10n-id="account-setup-auth-label"
-                   class="option-label">
-            </label>
-            <div class="input-control">
-              <select id="incomingAuthMethod"
-                      class="auth"
-                      onchange="gAccountSetup.onChangedInAuth();">
-                <option data-l10n-id="ssl-autodetect-option" value="0"></option>
-                <!-- Values defined in nsMsgAuthMethod. -->
-                <option data-l10n-id="ssl-cleartext-password-option" value="3"></option>
-                <option data-l10n-id="ssl-encrypted-password-option" value="4"></option>
-                <option value="5">Kerberos / GSSAPI</option>
-                <option value="6">NTLM</option>
-                <option id="in-authMethod-oauth2" value="10" hidden="hidden">OAuth2</option>
-              </select>
-            </div>
-          </aside>
-
-          <!-- Incoming Username -->
-          <aside>
-            <label for="incomingUsername"
-                   data-l10n-id="account-setup-username-label"
-                   class="option-label">
-            </label>
-            <div class="input-control">
-              <input id="incomingUsername"
-                     type="text"
-                     data-l10n-id="account-setup-email-input"
-                     oninput="gAccountSetup.onInputInUsername();"
-                     class="username input-field" />
-            </div>
-          </aside>
-        </fieldset>
-
-        <!-- Outgoing server section -->
-        <fieldset class="manual-config-grid content-blocking-category"
-                  aria-describedby="manualConfigDescription">
-          <legend data-l10n-id="account-setup-outgoing-server-legend"></legend>
-
-          <!-- Outgoing Server -->
-          <aside>
-            <label for="outgoingHostname"
-                   data-l10n-id="account-setup-hostname-label"
-                   class="option-label">
-            </label>
-            <div class="input-control">
-              <input id="outgoingHostname"
-                     type="text"
-                     placeholder="mail.example.com"
-                     onchange="gAccountSetup.onChangeHostname();"
-                     oninput="gAccountSetup.manualConfigChanged();"
-                     class="input-field" />
-            </div>
-          </aside>
-
-          <!-- Outgoing Port -->
-          <section>
-            <aside>
-              <label for="outgoingPort"
-                     data-l10n-id="account-setup-port-label"
-                     class="option-label">
-              </label>
-              <input id="outgoingPort"
-                     type="number"
-                     min="1" max="65535"
-                     onchange="gAccountSetup.onChangedPortOutgoing();"
-                     oninput="gAccountSetup.manualConfigChanged();"
-                     class="input-field" />
-            </aside>
-          </section>
-
-          <!-- Outgoing SSL -->
-          <aside>
-            <label for="outgoingSsl"
-                   data-l10n-id="account-setup-ssl-label"
-                   class="option-label">
-            </label>
-            <div class="input-control">
-              <select id="outgoingSsl"
-                      class="security"
-                      onchange="gAccountSetup.onChangedSSLOutgoing();">
-                <!-- Values defined in nsMsgSocketType. -->
-                <option data-l10n-id="ssl-autodetect-option" value="-1"></option>
-                <option data-l10n-id="ssl-noencryption-option" value="0"></option>
-                <option value="2">STARTTLS</option>
-                <option value="3">SSL/TLS</option>
-              </select>
-            </div>
-          </aside>
-
-          <!-- Outgoing Authentication -->
-          <aside>
-            <label for="outgoingAuthMethod"
-                   data-l10n-id="account-setup-auth-label"
-                   class="option-label">
-            </label>
-            <div class="input-control">
-              <select id="outgoingAuthMethod"
-                      class="auth"
-                      onchange="gAccountSetup.onChangedOutAuth(event);">
-                <option data-l10n-id="ssl-autodetect-option" value="0"></option>
-                <!-- @see incoming -->
-                <option id="outNoAuth" data-l10n-id="ssl-no-authentication-option" value="1"></option>
-                <option data-l10n-id="ssl-cleartext-password-option" value="3"></option>
-                <option data-l10n-id="ssl-encrypted-password-option" value="4"></option>
-                <option value="5">Kerberos / GSSAPI</option>
-                <option value="6">NTLM</option>
-                <option id="out-authMethod-oauth2" value="10" hidden="hidden">OAuth2</option>
-              </select>
-            </div>
-          </aside>
-
-          <!-- Outgoing Username -->
-          <aside>
-            <label for="outgoingUsername"
-                   data-l10n-id="account-setup-username-label"
-                   class="option-label">
-            </label>
-            <div class="input-control">
-              <input id="outgoingUsername"
-                     type="text"
-                     data-l10n-id="account-setup-email-input"
-                     oninput="gAccountSetup.onInputOutUsername();"
-                     class="username input-field" />
-            </div>
-          </aside>
-        </fieldset>
-
-        <div class="link-row">
-          <button id="advancedSetupButton"
-                  class="btn-link"
-                  data-l10n-id="account-setup-advanced-setup-button"
-                  data-l10n-attrs="accesskey"
-                  onclick="gAccountSetup.onAdvancedSetup();">
-          </button>
-        </div>
-      </section>
-      <!-- END Manual edit area -->
-
-      <div class="action-buttons-container">
-        <aside>
-          <button id="stopButton" type="button"
-                  data-l10n-id="account-setup-button-stop"
-                  data-l10n-attrs="accesskey"
-                  onclick="gAccountSetup.onStop();"
-                  hidden="hidden">
-          </button>
-          <button id="reTestButton" type="button"
-                  data-l10n-id="account-setup-button-retest"
-                  data-l10n-attrs="accesskey"
-                  onclick="gAccountSetup.testManualConfig();"
-                  hidden="hidden">
-          </button>
-          <button id="manualConfigButton" type="button"
-                  data-l10n-id="account-setup-button-manual-config"
-                  data-l10n-attrs="accesskey"
-                  class="btn-link"
-                  onclick="gAccountSetup.onManualEdit();"
-                  hidden="hidden">
-          </button>
-        </aside>
-
-        <aside class="buttons-container-last">
-          <button id="cancelButton" type="button"
-                  data-l10n-id="account-setup-button-cancel"
-                  data-l10n-attrs="accesskey"
-                  onclick="gAccountSetup.onCancel();">
-          </button>
-          <button id="continueButton" type="button"
-                  data-l10n-id="account-setup-button-continue"
-                  data-l10n-attrs="accesskey"
-                  class="primary"
-                  onclick="gAccountSetup.onContinue();"
-                  disabled="disabled">
-          </button>
-          <button id="createButton" type="button"
-                  data-l10n-id="account-setup-button-done"
-                  data-l10n-attrs="accesskey"
-                  class="primary"
-                  onclick="gAccountSetup.onCreate();"
-                  hidden="hidden"
-                  disabled="disabled">
-          </button>
-        </aside>
-      </div>
-
-      <p id="manualConfigDescription"
-         data-l10n-id="account-setup-auto-description"
-         class="autoconfig-note tip-caption"
-         hidden="hidden">
-      </p>
-
-      <p id="footDescription"
-         data-l10n-id="account-setup-privacy-footnote2"
-         class="foot-note tip-caption">
-      </p>
-    </aside><!-- END first column "setupView"-->
-
-    <aside id="successView" class="column first-column success-column" hidden="hidden">
-      <section class="account-success-block">
-        <img src="chrome://messenger/skin/icons/new/compact/mail-secure.svg"
-             class="account-type-image"
-             alt="" />
-        <aside>
-          <span id="newAccountName" class="account-name"></span>
-          <span id="newAccountEmail" class="account-email"></span>
-        </aside>
-        <span id="newAccountProtocol" class="protocol-type"></span>
-      </section>
-
-      <section class="quick-links">
-        <button id="settingsButton" type="button"
-                data-l10n-id="account-setup-settings-button"
-                class="quick-link">
-        </button>
-        <button id="encryptionButton" type="button"
-                data-l10n-id="account-setup-encryption-button"
-                class="quick-link">
-        </button>
-        <button id="signatureButton" type="button"
-                data-l10n-id="account-setup-signature-button"
-                class="quick-link">
-        </button>
-        <button id="dictionariesButton" type="button"
-                data-l10n-id="account-setup-dictionaries-button"
-                class="quick-link"
-                onclick="openDictionariesTab();">
-        </button>
-      </section>
-
-      <section id="linkedServices">
-        <h3 data-l10n-id="account-setup-linked-services-title"></h3>
-        <p id="linkedServicesDescription" class="tip-caption"></p>
-
-        <section id="syncNotifications" class="account-setup-notifications">
+        <section
+          id="accountSetupNotifications"
+          class="account-setup-notifications"
+        >
           <!-- Notifications will be lazily loaded here. -->
         </section>
 
-        <aside class="services-buttons-container">
-          <section id="linkedAddressBooks"
-                   class="content-blocking-category linked-services-section opened"
-                   hidden="hidden">
-            <button type="button" class="linked-services-button"
-                    onclick="gAccountSetup.toggleSetupContainer(event);">
-              <aside>
-                <span class="account-name"
-                      data-l10n-id="account-setup-address-books-button">
-                </span>
-                <p id="addressBooksCountDescription"
-                   class="linked-services-description">
-                </p>
+        <!-- Results area -->
+        <section id="resultsArea" hidden="hidden">
+          <h4 id="resultAreaTitle" class="section-title"></h4>
+
+          <!-- IMAP -->
+          <div
+            id="resultsOption-imap"
+            class="content-blocking-category results-option"
+          >
+            <label class="toggle-container-with-text">
+              <input
+                id="resultSelect-imap"
+                type="radio"
+                value="imap"
+                name="resultsServerType"
+                onchange="gAccountSetup.onResultServerTypeChanged();"
+              />
+              <span class="strong">IMAP</span>
+              <p
+                class="result-indent"
+                data-l10n-id="account-setup-result-imap-description"
+              ></p>
+            </label>
+            <aside class="result-details">
+              <section class="result-details-row">
+                <img
+                  src="chrome://messenger/skin/icons/new/compact/inbox.svg"
+                  alt=""
+                />
+                <div id="incomingTitle-imap" class="result-details-title">
+                  <h4 data-l10n-id="account-setup-incoming-title"></h4>
+                </div>
+                <div id="incomingInfo-imap" class="result-host-info"></div>
+              </section>
+
+              <section class="result-details-row">
+                <img
+                  src="chrome://messenger/skin/icons/new/compact/outbox.svg"
+                  alt=""
+                />
+                <div id="outgoingTitle-imap" class="result-details-title">
+                  <h4 data-l10n-id="account-setup-outgoing-title"></h4>
+                </div>
+                <div id="outgoingInfo-imap" class="result-host-info"></div>
+              </section>
+
+              <section class="result-details-row">
+                <img
+                  src="chrome://messenger/skin/icons/new/compact/contact.svg"
+                  alt=""
+                />
+                <div class="result-details-title">
+                  <h4 data-l10n-id="account-setup-username-title"></h4>
+                </div>
+                <div id="usernameInfo-imap" class="result-host-info"></div>
+              </section>
+            </aside>
+          </div>
+
+          <!-- POP3 -->
+          <div
+            id="resultsOption-pop3"
+            class="content-blocking-category results-option"
+          >
+            <label class="toggle-container-with-text">
+              <input
+                id="resultSelect-pop3"
+                type="radio"
+                value="pop3"
+                name="resultsServerType"
+                onchange="gAccountSetup.onResultServerTypeChanged();"
+              />
+              <span class="strong">POP3</span>
+              <p
+                class="result-indent"
+                data-l10n-id="account-setup-result-pop-description"
+              ></p>
+            </label>
+            <aside class="result-details">
+              <section class="result-details-row">
+                <img
+                  src="chrome://messenger/skin/icons/new/compact/inbox.svg"
+                  alt=""
+                />
+                <div id="incomingTitle-pop3" class="result-details-title">
+                  <h4 data-l10n-id="account-setup-incoming-title"></h4>
+                </div>
+                <div id="incomingInfo-pop3" class="result-host-info"></div>
+              </section>
+
+              <section class="result-details-row">
+                <img
+                  src="chrome://messenger/skin/icons/new/compact/outbox.svg"
+                  alt=""
+                />
+                <div id="outgoingTitle-pop3" class="result-details-title">
+                  <h4 data-l10n-id="account-setup-outgoing-title"></h4>
+                </div>
+                <div id="outgoingInfo-pop3" class="result-host-info"></div>
+              </section>
+
+              <section class="result-details-row">
+                <img
+                  src="chrome://messenger/skin/icons/new/compact/contact.svg"
+                  alt=""
+                />
+                <div class="result-details-title">
+                  <h4 data-l10n-id="account-setup-username-title"></h4>
+                </div>
+                <div id="usernameInfo-pop3" class="result-host-info"></div>
+              </section>
+            </aside>
+          </div>
+
+          <!-- EXCHANGE -->
+          <div
+            id="resultsOption-exchange"
+            class="content-blocking-category results-option"
+          >
+            <label class="toggle-container-with-text">
+              <input
+                id="resultSelect-exchange"
+                type="radio"
+                value="exchange"
+                name="resultsServerType"
+                onchange="gAccountSetup.onResultServerTypeChanged();"
+              />
+              <span class="strong"> Exchange/Office365 </span>
+              <p
+                class="result-indent"
+                data-l10n-id="account-setup-result-exchange2-description"
+              ></p>
+            </label>
+            <aside class="result-details">
+              <section class="result-details-row">
+                <img
+                  src="chrome://messenger/skin/icons/new/compact/inbox.svg"
+                  alt=""
+                />
+                <div id="incomingTitle-exchange" class="result-details-title">
+                  <h4 data-l10n-id="account-setup-exchange-title"></h4>
+                </div>
+                <div id="resultExchangeHostname" class="result-host-info"></div>
+              </section>
+              <aside id="installAddonInfo">
+                <p id="resultAddonIntro"></p>
+                <div id="resultAddonInstallRows"></div>
               </aside>
-              <span class="linked-service-dropdown">
-                <img src="chrome://messenger/skin/icons/new/compact/nav-right.svg" alt="" />
-              </span>
-            </button>
+            </aside>
+          </div>
+        </section>
+        <!-- END Results area -->
 
-            <div id="addressBooksSetup" class="linked-services-container">
-              <ul class="linked-services-list"></ul>
-              <button id="addressBooksSetupAll"
-                      data-l10n-id="account-setup-connect-all-address-books"
-                      class="btn-link self-center"
-                      onclick="gAccountSetup.setupAllAddressBooks();"
-                      hidden="hidden">
-              </button>
-            </div>
-          </section>
+        <!-- Manual edit area -->
+        <section id="manualConfigArea" hidden="hidden">
+          <h4
+            class="section-title"
+            data-l10n-id="account-setup-manual-config-title"
+          ></h4>
 
-          <section class="indent">
-            <button id="addressBookCardDAVButton" type="button"
-                    data-l10n-id="account-setup-address-book-carddav-button"
-                    class="quick-link"
-                    onclick="addNewAddressBook('CARDDAV');">
-            </button>
+          <!-- Incoming server section -->
+          <fieldset
+            class="manual-config-grid content-blocking-category"
+            aria-describedby="manualConfigDescription"
+          >
+            <legend
+              data-l10n-id="account-setup-incoming-server-legend"
+            ></legend>
 
-            <button id="addressBookLDAPButton" type="button"
-                    data-l10n-id="account-setup-address-book-ldap-button"
-                    class="quick-link"
-                    onclick="addNewAddressBook('LDAP');">
-            </button>
-          </section>
+            <!-- Incoming Protocol -->
+            <aside>
+              <label
+                for="incomingProtocol"
+                data-l10n-id="account-setup-protocol-label"
+                class="option-label"
+              >
+              </label>
+              <div class="input-control">
+                <select
+                  id="incomingProtocol"
+                  onchange="gAccountSetup.onChangedProtocolIncoming();"
+                >
+                  <option value="1">IMAP</option>
+                  <option value="2">POP3</option>
+                  <option
+                    id="incomingProtocolExchange"
+                    value="3"
+                    hidden="hidden"
+                  >
+                    Exchange
+                  </option>
+                </select>
+              </div>
+            </aside>
 
-          <section id="linkedCalendars"
-                   class="content-blocking-category linked-services-section opened"
-                   hidden="hidden">
-            <button type="button" class="linked-services-button"
-                    onclick="gAccountSetup.toggleSetupContainer(event);">
+            <!-- Incoming Server -->
+            <aside>
+              <label
+                for="incomingHostname"
+                data-l10n-id="account-setup-hostname-label"
+                class="option-label"
+              >
+              </label>
+              <div class="input-control">
+                <input
+                  id="incomingHostname"
+                  type="text"
+                  placeholder="mail.example.com"
+                  onchange="gAccountSetup.onChangeHostname();"
+                  oninput="gAccountSetup.manualConfigChanged();"
+                  class="host uri-element input-field"
+                />
+              </div>
+            </aside>
+
+            <!-- Incoming Port -->
+            <section>
               <aside>
-                <span class="account-name"
-                      data-l10n-id="account-setup-calendars-button">
-                </span>
-                <p id="calendarsCountDescription"
-                   class="linked-services-description">
-                </p>
+                <label
+                  for="incomingPort"
+                  data-l10n-id="account-setup-port-label"
+                  class="option-label"
+                >
+                </label>
+                <input
+                  id="incomingPort"
+                  type="number"
+                  min="1"
+                  max="65535"
+                  onchange="gAccountSetup.onChangedPortIncoming();"
+                  oninput="gAccountSetup.manualConfigChanged();"
+                  class="input-field"
+                />
               </aside>
-              <span class="linked-service-dropdown">
-                <img src="chrome://messenger/skin/icons/new/compact/nav-right.svg" alt="" />
-              </span>
-            </button>
+            </section>
 
-            <div id="calendarsSetup" class="linked-services-container">
-              <ul class="linked-services-list"></ul>
-              <button id="calendarsSetupAll"
-                      data-l10n-id="account-setup-connect-all-calendars"
-                      class="btn-link self-center"
-                      onclick="gAccountSetup.setupAllCalendars();"
-                      hidden="hidden">
+            <!-- Incoming SSL -->
+            <aside>
+              <label
+                for="incomingSsl"
+                data-l10n-id="account-setup-ssl-label"
+                class="option-label"
+              >
+              </label>
+              <div class="input-control">
+                <select
+                  id="incomingSsl"
+                  class="security"
+                  onchange="gAccountSetup.onChangedSSLIncoming();"
+                >
+                  <!-- @see nsMsgSocketType -->
+                  <option
+                    data-l10n-id="ssl-autodetect-option"
+                    value="-1"
+                  ></option>
+                  <option
+                    data-l10n-id="ssl-noencryption-option"
+                    value="0"
+                  ></option>
+                  <option value="2">STARTTLS</option>
+                  <option value="3">SSL/TLS</option>
+                </select>
+              </div>
+            </aside>
+
+            <!-- Incoming Authentication -->
+            <aside>
+              <label
+                for="incomingAuthMethod"
+                data-l10n-id="account-setup-auth-label"
+                class="option-label"
+              >
+              </label>
+              <div class="input-control">
+                <select
+                  id="incomingAuthMethod"
+                  class="auth"
+                  onchange="gAccountSetup.onChangedInAuth();"
+                >
+                  <option
+                    data-l10n-id="ssl-autodetect-option"
+                    value="0"
+                  ></option>
+                  <!-- Values defined in nsMsgAuthMethod. -->
+                  <option
+                    data-l10n-id="ssl-cleartext-password-option"
+                    value="3"
+                  ></option>
+                  <option
+                    data-l10n-id="ssl-encrypted-password-option"
+                    value="4"
+                  ></option>
+                  <option value="5">Kerberos / GSSAPI</option>
+                  <option value="6">NTLM</option>
+                  <option id="in-authMethod-oauth2" value="10" hidden="hidden">
+                    OAuth2
+                  </option>
+                </select>
+              </div>
+            </aside>
+
+            <!-- Incoming Username -->
+            <aside>
+              <label
+                for="incomingUsername"
+                data-l10n-id="account-setup-username-label"
+                class="option-label"
+              >
+              </label>
+              <div class="input-control">
+                <input
+                  id="incomingUsername"
+                  type="text"
+                  data-l10n-id="account-setup-email-input"
+                  oninput="gAccountSetup.onInputInUsername();"
+                  class="username input-field"
+                />
+              </div>
+            </aside>
+          </fieldset>
+
+          <!-- Outgoing server section -->
+          <fieldset
+            class="manual-config-grid content-blocking-category"
+            aria-describedby="manualConfigDescription"
+          >
+            <legend
+              data-l10n-id="account-setup-outgoing-server-legend"
+            ></legend>
+
+            <!-- Outgoing Server -->
+            <aside>
+              <label
+                for="outgoingHostname"
+                data-l10n-id="account-setup-hostname-label"
+                class="option-label"
+              >
+              </label>
+              <div class="input-control">
+                <input
+                  id="outgoingHostname"
+                  type="text"
+                  placeholder="mail.example.com"
+                  onchange="gAccountSetup.onChangeHostname();"
+                  oninput="gAccountSetup.manualConfigChanged();"
+                  class="input-field"
+                />
+              </div>
+            </aside>
+
+            <!-- Outgoing Port -->
+            <section>
+              <aside>
+                <label
+                  for="outgoingPort"
+                  data-l10n-id="account-setup-port-label"
+                  class="option-label"
+                >
+                </label>
+                <input
+                  id="outgoingPort"
+                  type="number"
+                  min="1"
+                  max="65535"
+                  onchange="gAccountSetup.onChangedPortOutgoing();"
+                  oninput="gAccountSetup.manualConfigChanged();"
+                  class="input-field"
+                />
+              </aside>
+            </section>
+
+            <!-- Outgoing SSL -->
+            <aside>
+              <label
+                for="outgoingSsl"
+                data-l10n-id="account-setup-ssl-label"
+                class="option-label"
+              >
+              </label>
+              <div class="input-control">
+                <select
+                  id="outgoingSsl"
+                  class="security"
+                  onchange="gAccountSetup.onChangedSSLOutgoing();"
+                >
+                  <!-- Values defined in nsMsgSocketType. -->
+                  <option
+                    data-l10n-id="ssl-autodetect-option"
+                    value="-1"
+                  ></option>
+                  <option
+                    data-l10n-id="ssl-noencryption-option"
+                    value="0"
+                  ></option>
+                  <option value="2">STARTTLS</option>
+                  <option value="3">SSL/TLS</option>
+                </select>
+              </div>
+            </aside>
+
+            <!-- Outgoing Authentication -->
+            <aside>
+              <label
+                for="outgoingAuthMethod"
+                data-l10n-id="account-setup-auth-label"
+                class="option-label"
+              >
+              </label>
+              <div class="input-control">
+                <select
+                  id="outgoingAuthMethod"
+                  class="auth"
+                  onchange="gAccountSetup.onChangedOutAuth(event);"
+                >
+                  <option
+                    data-l10n-id="ssl-autodetect-option"
+                    value="0"
+                  ></option>
+                  <!-- @see incoming -->
+                  <option
+                    id="outNoAuth"
+                    data-l10n-id="ssl-no-authentication-option"
+                    value="1"
+                  ></option>
+                  <option
+                    data-l10n-id="ssl-cleartext-password-option"
+                    value="3"
+                  ></option>
+                  <option
+                    data-l10n-id="ssl-encrypted-password-option"
+                    value="4"
+                  ></option>
+                  <option value="5">Kerberos / GSSAPI</option>
+                  <option value="6">NTLM</option>
+                  <option id="out-authMethod-oauth2" value="10" hidden="hidden">
+                    OAuth2
+                  </option>
+                </select>
+              </div>
+            </aside>
+
+            <!-- Outgoing Username -->
+            <aside>
+              <label
+                for="outgoingUsername"
+                data-l10n-id="account-setup-username-label"
+                class="option-label"
+              >
+              </label>
+              <div class="input-control">
+                <input
+                  id="outgoingUsername"
+                  type="text"
+                  data-l10n-id="account-setup-email-input"
+                  oninput="gAccountSetup.onInputOutUsername();"
+                  class="username input-field"
+                />
+              </div>
+            </aside>
+          </fieldset>
+
+          <div class="link-row">
+            <button
+              id="advancedSetupButton"
+              class="btn-link"
+              data-l10n-id="account-setup-advanced-setup-button"
+              data-l10n-attrs="accesskey"
+              onclick="gAccountSetup.onAdvancedSetup();"
+            ></button>
+          </div>
+        </section>
+        <!-- END Manual edit area -->
+
+        <div class="action-buttons-container">
+          <aside>
+            <button
+              id="stopButton"
+              type="button"
+              data-l10n-id="account-setup-button-stop"
+              data-l10n-attrs="accesskey"
+              onclick="gAccountSetup.onStop();"
+              hidden="hidden"
+            ></button>
+            <button
+              id="reTestButton"
+              type="button"
+              data-l10n-id="account-setup-button-retest"
+              data-l10n-attrs="accesskey"
+              onclick="gAccountSetup.testManualConfig();"
+              hidden="hidden"
+            ></button>
+            <button
+              id="manualConfigButton"
+              type="button"
+              data-l10n-id="account-setup-button-manual-config"
+              data-l10n-attrs="accesskey"
+              class="btn-link"
+              onclick="gAccountSetup.onManualEdit();"
+              hidden="hidden"
+            ></button>
+          </aside>
+
+          <aside class="buttons-container-last">
+            <button
+              id="cancelButton"
+              type="button"
+              data-l10n-id="account-setup-button-cancel"
+              data-l10n-attrs="accesskey"
+              onclick="gAccountSetup.onCancel();"
+            ></button>
+            <button
+              id="continueButton"
+              type="button"
+              data-l10n-id="account-setup-button-continue"
+              data-l10n-attrs="accesskey"
+              class="primary"
+              onclick="gAccountSetup.onContinue();"
+              disabled="disabled"
+            ></button>
+            <button
+              id="createButton"
+              type="button"
+              data-l10n-id="account-setup-button-done"
+              data-l10n-attrs="accesskey"
+              class="primary"
+              onclick="gAccountSetup.onCreate();"
+              hidden="hidden"
+              disabled="disabled"
+            ></button>
+          </aside>
+        </div>
+
+        <p
+          id="manualConfigDescription"
+          data-l10n-id="account-setup-auto-description"
+          class="autoconfig-note tip-caption"
+          hidden="hidden"
+        ></p>
+
+        <p
+          id="footDescription"
+          data-l10n-id="account-setup-privacy-footnote2"
+          class="foot-note tip-caption"
+        ></p>
+      </aside>
+      <!-- END first column "setupView"-->
+
+      <aside
+        id="successView"
+        class="column first-column success-column"
+        hidden="hidden"
+      >
+        <section class="account-success-block">
+          <img
+            src="chrome://messenger/skin/icons/new/compact/mail-secure.svg"
+            class="account-type-image"
+            alt=""
+          />
+          <aside>
+            <span id="newAccountName" class="account-name"></span>
+            <span id="newAccountEmail" class="account-email"></span>
+          </aside>
+          <span id="newAccountProtocol" class="protocol-type"></span>
+        </section>
+
+        <section class="quick-links">
+          <button
+            id="settingsButton"
+            type="button"
+            data-l10n-id="account-setup-settings-button"
+            class="quick-link"
+          ></button>
+          <button
+            id="encryptionButton"
+            type="button"
+            data-l10n-id="account-setup-encryption-button"
+            class="quick-link"
+          ></button>
+          <button
+            id="signatureButton"
+            type="button"
+            data-l10n-id="account-setup-signature-button"
+            class="quick-link"
+          ></button>
+          <button
+            id="dictionariesButton"
+            type="button"
+            data-l10n-id="account-setup-dictionaries-button"
+            class="quick-link"
+            onclick="openDictionariesTab();"
+          ></button>
+        </section>
+
+        <section id="linkedServices">
+          <h3 data-l10n-id="account-setup-linked-services-title"></h3>
+          <p id="linkedServicesDescription" class="tip-caption"></p>
+
+          <section id="syncNotifications" class="account-setup-notifications">
+            <!-- Notifications will be lazily loaded here. -->
+          </section>
+
+          <aside class="services-buttons-container">
+            <section
+              id="linkedAddressBooks"
+              class="content-blocking-category linked-services-section opened"
+              hidden="hidden"
+            >
+              <button
+                type="button"
+                class="linked-services-button"
+                onclick="gAccountSetup.toggleSetupContainer(event);"
+              >
+                <aside>
+                  <span
+                    class="account-name"
+                    data-l10n-id="account-setup-address-books-button"
+                  >
+                  </span>
+                  <p
+                    id="addressBooksCountDescription"
+                    class="linked-services-description"
+                  ></p>
+                </aside>
+                <span class="linked-service-dropdown">
+                  <img
+                    src="chrome://messenger/skin/icons/new/compact/nav-right.svg"
+                    alt=""
+                  />
+                </span>
               </button>
-            </div>
-          </section>
 
-          <section class="indent">
-            <button id="createCalendarButton" type="button"
-                    data-l10n-id="account-setup-calendar-button"
-                    class="quick-link"
-                    onclick="showCalendarWizard();">
-            </button>
-          </section>
+              <div id="addressBooksSetup" class="linked-services-container">
+                <ul class="linked-services-list"></ul>
+                <button
+                  id="addressBooksSetupAll"
+                  data-l10n-id="account-setup-connect-all-address-books"
+                  class="btn-link self-center"
+                  onclick="gAccountSetup.setupAllAddressBooks();"
+                  hidden="hidden"
+                ></button>
+              </div>
+            </section>
 
-        </aside>
-      </section>
+            <section class="indent">
+              <button
+                id="addressBookCardDAVButton"
+                type="button"
+                data-l10n-id="account-setup-address-book-carddav-button"
+                class="quick-link"
+                onclick="addNewAddressBook('CARDDAV');"
+              ></button>
 
-      <section class="final-buttons-container">
-        <button id="finishButton" type="button"
-                data-l10n-id="account-setup-button-finish"
-                data-l10n-attrs="accesskey"
-                class="primary"
-                onclick="gAccountSetup.onFinish();">
-        </button>
-      </section>
-    </aside><!-- END first column "successView"-->
+              <button
+                id="addressBookLDAPButton"
+                type="button"
+                data-l10n-id="account-setup-address-book-ldap-button"
+                class="quick-link"
+                onclick="addNewAddressBook('LDAP');"
+              ></button>
+            </section>
 
-    <aside class="column second-column">
-      <article id="step1">
-        <img src="chrome://messenger/skin/illustrations/octopus-setup.svg"
-             data-l10n-id="account-setup-step1-image"
-             alt="" />
-      </article>
-      <article id="step2" hidden="hidden">
-        <img src="chrome://messenger/skin/illustrations/sloth.svg"
-             data-l10n-id="account-setup-step2-image"
-             alt="" />
-      </article>
-      <article id="step3" class="tip-caption" hidden="hidden">
-        <img src="chrome://messenger/skin/illustrations/form.svg"
-             data-l10n-id="account-setup-step3-image"
-             alt="" />
-        <p data-l10n-id="account-setup-selection-help"></p>
-        <a href="https://support.mozilla.org/products/thunderbird/emails-thunderbird/set-up-email-thunderbird"
-           data-l10n-id="account-setup-documentation-help"></a>
-        - <a href="https://support.mozilla.org/products/thunderbird"
-             data-l10n-id="account-setup-forum-help"></a>
-        - <a href="https://www.mozilla.org/privacy/thunderbird/"
-             data-l10n-id="account-setup-privacy-help"></a>
-      </article>
-      <article id="step4" class="tip-caption" hidden="hidden">
-        <img src="chrome://messenger/skin/illustrations/connection-error.svg"
-             data-l10n-id="account-setup-step4-image"
-             alt="" />
-        <p data-l10n-id="account-setup-selection-error"></p>
-        <a href="https://support.mozilla.org/products/thunderbird/emails-thunderbird/set-up-email-thunderbird"
-           data-l10n-id="account-setup-documentation-help"></a>
-        - <a href="https://support.mozilla.org/products/thunderbird"
-             data-l10n-id="account-setup-forum-help"></a>
-      </article>
-      <article id="step5" class="tip-caption" hidden="hidden">
-        <img src="chrome://messenger/skin/illustrations/accounts.svg"
-             data-l10n-id="account-setup-step5-image"
-             alt="" />
-        <p data-l10n-id="account-setup-success-help"></p>
-        <a href="https://support.mozilla.org/products/thunderbird/learn-basics-get-started"
-           data-l10n-id="account-setup-getting-started"></a>
-        - <a href="https://support.mozilla.org/products/thunderbird"
-             data-l10n-id="account-setup-forum-help"></a>
-        - <a href="https://www.mozilla.org/privacy/thunderbird/"
-             data-l10n-id="account-setup-privacy-help"></a>
-      </article>
-    </aside><!-- END second column-->
-  </section>
+            <section
+              id="linkedCalendars"
+              class="content-blocking-category linked-services-section opened"
+              hidden="hidden"
+            >
+              <button
+                type="button"
+                class="linked-services-button"
+                onclick="gAccountSetup.toggleSetupContainer(event);"
+              >
+                <aside>
+                  <span
+                    class="account-name"
+                    data-l10n-id="account-setup-calendars-button"
+                  >
+                  </span>
+                  <p
+                    id="calendarsCountDescription"
+                    class="linked-services-description"
+                  ></p>
+                </aside>
+                <span class="linked-service-dropdown">
+                  <img
+                    src="chrome://messenger/skin/icons/new/compact/nav-right.svg"
+                    alt=""
+                  />
+                </span>
+              </button>
 
-</body>
+              <div id="calendarsSetup" class="linked-services-container">
+                <ul class="linked-services-list"></ul>
+                <button
+                  id="calendarsSetupAll"
+                  data-l10n-id="account-setup-connect-all-calendars"
+                  class="btn-link self-center"
+                  onclick="gAccountSetup.setupAllCalendars();"
+                  hidden="hidden"
+                ></button>
+              </div>
+            </section>
+
+            <section class="indent">
+              <button
+                id="createCalendarButton"
+                type="button"
+                data-l10n-id="account-setup-calendar-button"
+                class="quick-link"
+                onclick="showCalendarWizard();"
+              ></button>
+            </section>
+          </aside>
+        </section>
+
+        <section class="final-buttons-container">
+          <button
+            id="finishButton"
+            type="button"
+            data-l10n-id="account-setup-button-finish"
+            data-l10n-attrs="accesskey"
+            class="primary"
+            onclick="gAccountSetup.onFinish();"
+          ></button>
+        </section>
+      </aside>
+      <!-- END first column "successView"-->
+
+      <aside class="column second-column">
+        <article id="step1">
+          <img
+            src="chrome://messenger/skin/illustrations/octopus-setup.svg"
+            data-l10n-id="account-setup-step1-image"
+            alt=""
+          />
+        </article>
+        <article id="step2" hidden="hidden">
+          <img
+            src="chrome://messenger/skin/illustrations/sloth.svg"
+            data-l10n-id="account-setup-step2-image"
+            alt=""
+          />
+        </article>
+        <article id="step3" class="tip-caption" hidden="hidden">
+          <img
+            src="chrome://messenger/skin/illustrations/form.svg"
+            data-l10n-id="account-setup-step3-image"
+            alt=""
+          />
+          <p data-l10n-id="account-setup-selection-help"></p>
+          <a
+            href="https://support.mozilla.org/products/thunderbird/emails-thunderbird/set-up-email-thunderbird"
+            data-l10n-id="account-setup-documentation-help"
+          ></a>
+          -
+          <a
+            href="https://support.mozilla.org/products/thunderbird"
+            data-l10n-id="account-setup-forum-help"
+          ></a>
+          -
+          <a
+            href="https://www.mozilla.org/privacy/thunderbird/"
+            data-l10n-id="account-setup-privacy-help"
+          ></a>
+        </article>
+        <article id="step4" class="tip-caption" hidden="hidden">
+          <img
+            src="chrome://messenger/skin/illustrations/connection-error.svg"
+            data-l10n-id="account-setup-step4-image"
+            alt=""
+          />
+          <p data-l10n-id="account-setup-selection-error"></p>
+          <a
+            href="https://support.mozilla.org/products/thunderbird/emails-thunderbird/set-up-email-thunderbird"
+            data-l10n-id="account-setup-documentation-help"
+          ></a>
+          -
+          <a
+            href="https://support.mozilla.org/products/thunderbird"
+            data-l10n-id="account-setup-forum-help"
+          ></a>
+        </article>
+        <article id="step5" class="tip-caption" hidden="hidden">
+          <img
+            src="chrome://messenger/skin/illustrations/accounts.svg"
+            data-l10n-id="account-setup-step5-image"
+            alt=""
+          />
+          <p data-l10n-id="account-setup-success-help"></p>
+          <a
+            href="https://support.mozilla.org/products/thunderbird/learn-basics-get-started"
+            data-l10n-id="account-setup-getting-started"
+          ></a>
+          -
+          <a
+            href="https://support.mozilla.org/products/thunderbird"
+            data-l10n-id="account-setup-forum-help"
+          ></a>
+          -
+          <a
+            href="https://www.mozilla.org/privacy/thunderbird/"
+            data-l10n-id="account-setup-privacy-help"
+          ></a>
+        </article>
+      </aside>
+      <!-- END second column-->
+    </section>
+  </body>
 </html>

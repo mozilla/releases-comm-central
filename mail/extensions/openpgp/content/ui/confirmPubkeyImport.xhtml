@@ -9,43 +9,48 @@
 
 <!DOCTYPE window>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width:55em;">
-<dialog id="confirmPubkeyImportDialog"
-        data-l10n-id="pubkey-import-button"
-        data-l10n-attrs="buttonlabelaccept"
-        buttons="accept,cancel">
-    <script src="chrome://openpgp/content/ui/confirmPubkeyImport.js"/>
+<window
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  style="width: 55em"
+>
+  <dialog
+    id="confirmPubkeyImportDialog"
+    data-l10n-id="pubkey-import-button"
+    data-l10n-attrs="buttonlabelaccept"
+    buttons="accept,cancel"
+  >
+    <script src="chrome://openpgp/content/ui/confirmPubkeyImport.js" />
 
     <linkset>
-      <html:link rel="localization" href="branding/brand.ftl"/>
-      <html:link rel="localization" href="messenger/openpgp/openpgp.ftl"/>
-      <html:link rel="localization" href="messenger/openpgp/oneRecipientStatus.ftl"/>
+      <html:link rel="localization" href="branding/brand.ftl" />
+      <html:link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+      <html:link
+        rel="localization"
+        href="messenger/openpgp/oneRecipientStatus.ftl"
+      />
     </linkset>
 
     <vbox>
-      <description id="importInfo"/>
+      <description id="importInfo" />
 
       <vbox id="importKeyListContainer">
-        <vbox id="importKeyList"/>
+        <vbox id="importKeyList" />
       </vbox>
 
-      <separator/>
+      <separator />
 
       <vbox id="acceptancePanel">
-      <description id="acceptInfo"/>
-      <html:div>
-        <html:fieldset>
-          <radiogroup id="acceptanceRadio" class="indent">
-            <radio id="acceptUndecided" value="undecided" selected="true"/>
-            <radio id="acceptUnverified" value="unverified"/>
-          </radiogroup>
-        </html:fieldset>
-      </html:div>
-
+        <description id="acceptInfo" />
+        <html:div>
+          <html:fieldset>
+            <radiogroup id="acceptanceRadio" class="indent">
+              <radio id="acceptUndecided" value="undecided" selected="true" />
+              <radio id="acceptUnverified" value="unverified" />
+            </radiogroup>
+          </html:fieldset>
+        </html:div>
       </vbox>
     </vbox>
-
-</dialog>
+  </dialog>
 </window>

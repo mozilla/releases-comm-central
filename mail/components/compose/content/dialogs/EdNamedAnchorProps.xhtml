@@ -11,47 +11,57 @@
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window [
-<!ENTITY % edNamedAnchorProperties SYSTEM "chrome://messenger/locale/messengercompose/EdNamedAnchorProperties.dtd">
+<!DOCTYPE window [ <!ENTITY % edNamedAnchorProperties SYSTEM "chrome://messenger/locale/messengercompose/EdNamedAnchorProperties.dtd">
 %edNamedAnchorProperties;
 <!ENTITY % edDialogOverlay SYSTEM "chrome://messenger/locale/messengercompose/EdDialogOverlay.dtd">
-%edDialogOverlay;
-]>
+%edDialogOverlay; ]>
 
-<window title="&windowTitle.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        lightweightthemes="true"
-        onload="Startup()">
-<dialog>
+<window
+  title="&windowTitle.label;"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  lightweightthemes="true"
+  onload="Startup()"
+>
+  <dialog>
+    <script src="chrome://messenger/content/globalOverlay.js" />
+    <script src="chrome://global/content/editMenuOverlay.js" />
+    <!-- Methods common to all editor dialogs -->
+    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
+    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
+    <script src="chrome://messenger/content/messengercompose/EdNamedAnchorProps.js" />
+    <script src="chrome://messenger/content/dialogShadowDom.js" />
 
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <!-- Methods common to all editor dialogs -->
-  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdNamedAnchorProps.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
+    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
 
-  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-
-  <label id="nameLabel"
-         control="nameInput"
-         value="&anchorNameEditField.label;"
-         accesskey="&anchorNameEditField.accessKey;"/>
-  <html:input id="nameInput" type="text" class="MinWidth20em input-inline"
-              oninput="ChangeName()"
-              title="&nameInput.tooltip;"
-              aria-labelledby="nameLabel"/>
-  <spacer class="spacer"/>
-  <vbox id="AdvancedEdit">
-    <hbox flex="1" style="margin-top: 0.2em" align="center">
-      <!-- This will right-align the button -->
-      <spacer flex="1"/>
-      <button id="AdvancedEditButton1" oncommand="onAdvancedEdit()" label="&AdvancedEditButton.label;"
-              accesskey="&AdvancedEditButton.accessKey;" tooltiptext="&AdvancedEditButton.tooltip;"/>
-    </hbox>
-    <separator id="advancedSeparator" class="groove"/>
-  </vbox>
-</dialog>
+    <label
+      id="nameLabel"
+      control="nameInput"
+      value="&anchorNameEditField.label;"
+      accesskey="&anchorNameEditField.accessKey;"
+    />
+    <html:input
+      id="nameInput"
+      type="text"
+      class="MinWidth20em input-inline"
+      oninput="ChangeName()"
+      title="&nameInput.tooltip;"
+      aria-labelledby="nameLabel"
+    />
+    <spacer class="spacer" />
+    <vbox id="AdvancedEdit">
+      <hbox flex="1" style="margin-top: 0.2em" align="center">
+        <!-- This will right-align the button -->
+        <spacer flex="1" />
+        <button
+          id="AdvancedEditButton1"
+          oncommand="onAdvancedEdit()"
+          label="&AdvancedEditButton.label;"
+          accesskey="&AdvancedEditButton.accessKey;"
+          tooltiptext="&AdvancedEditButton.tooltip;"
+        />
+      </hbox>
+      <separator id="advancedSeparator" class="groove" />
+    </vbox>
+  </dialog>
 </window>

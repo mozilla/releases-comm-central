@@ -3,89 +3,121 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd" [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % facetViewDTD SYSTEM "chrome://messenger/locale/glodaFacetView.dtd">
-%facetViewDTD;
-]>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<head>
-  <!-- Themes -->
-  <link rel="stylesheet"
-        href="chrome://messenger/skin/glodaFacetView.css"
-        type="text/css"/>
-  <!-- Custom elements -->
-  <script src="chrome://messenger/content/glodaFacet.js"></script>
-  <!-- Global Context -->
-  <script src="chrome://messenger/content/glodaFacetView.js"></script>
-  <!-- Libs -->
-  <script src="chrome://messenger/content/protovis-r2.6-modded.js"></script>
-  <!-- Facet Binding Stuff that doesn't belong in XBL -->
-  <script src="chrome://messenger/content/glodaFacetVis.js"></script>
-</head>
-<body id="body" onload="reachOutAndTouchFrame()"
-      onmouseup="return clickOnBody(event)">
-  <facet-popup-menu class="popup-menu" variety="invisible"/>
-  <div id="gloda-facet-view">
-    <div class="facets facets-sidebar" id="facets">
-      <h1 id="filter-header-label">&glodaFacetView.filters.label;</h1>
-      <div>
-        <facet-boolean id="facet-fromMe" type="boolean" attr="fromMe" uninitialized="true"/>
-        <facet-boolean id="facet-toMe" type="boolean" attr="toMe" uninitialized="true"/>
-        <facet-boolean id="facet-star" type="boolean" attr="star" uninitialized="true"/><br/>
-        <facet-boolean-filtered id="facet-attachmentTypes"
-                                type="boolean-filtered"
-                                attr="attachmentTypes"
-                                groupDisplayProperty="categoryLabel"
-                                uninitialized="true"/>
+%facetViewDTD; ]>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+>
+  <head>
+    <!-- Themes -->
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/glodaFacetView.css"
+      type="text/css"
+    />
+    <!-- Custom elements -->
+    <script src="chrome://messenger/content/glodaFacet.js"></script>
+    <!-- Global Context -->
+    <script src="chrome://messenger/content/glodaFacetView.js"></script>
+    <!-- Libs -->
+    <script src="chrome://messenger/content/protovis-r2.6-modded.js"></script>
+    <!-- Facet Binding Stuff that doesn't belong in XBL -->
+    <script src="chrome://messenger/content/glodaFacetVis.js"></script>
+  </head>
+  <body
+    id="body"
+    onload="reachOutAndTouchFrame()"
+    onmouseup="return clickOnBody(event)"
+  >
+    <facet-popup-menu class="popup-menu" variety="invisible" />
+    <div id="gloda-facet-view">
+      <div class="facets facets-sidebar" id="facets">
+        <h1 id="filter-header-label">&glodaFacetView.filters.label;</h1>
+        <div>
+          <facet-boolean
+            id="facet-fromMe"
+            type="boolean"
+            attr="fromMe"
+            uninitialized="true"
+          />
+          <facet-boolean
+            id="facet-toMe"
+            type="boolean"
+            attr="toMe"
+            uninitialized="true"
+          />
+          <facet-boolean
+            id="facet-star"
+            type="boolean"
+            attr="star"
+            uninitialized="true"
+          /><br />
+          <facet-boolean-filtered
+            id="facet-attachmentTypes"
+            type="boolean-filtered"
+            attr="attachmentTypes"
+            groupDisplayProperty="categoryLabel"
+            uninitialized="true"
+          />
+        </div>
       </div>
-    </div>
 
-    <div id="main-column">
-      <div id="header">
-        <div id="query-explanation"/>
-        <a id="gloda-showall" class="results-message-showall-button"
-           title="&glodaFacetView.openEmailAsList.tooltip;"
-           onclick="FacetContext.showActiveSetInTab();"
-           onkeypress="if (event.charCode == KeyEvent.DOM_VK_SPACE) { FacetContext.showActiveSetInTab(); event.preventDefault(); }"
-           tabindex="0">
-          &glodaFacetView.openEmailAsList.label;
-        </a>
-      </div>
-      <div id="data-column">
-        <!-- facet-results-message is put before facet-date here so that it gets upgraded first.
+      <div id="main-column">
+        <div id="header">
+          <div id="query-explanation" />
+          <a
+            id="gloda-showall"
+            class="results-message-showall-button"
+            title="&glodaFacetView.openEmailAsList.tooltip;"
+            onclick="FacetContext.showActiveSetInTab();"
+            onkeypress="if (event.charCode == KeyEvent.DOM_VK_SPACE) { FacetContext.showActiveSetInTab(); event.preventDefault(); }"
+            tabindex="0"
+          >
+            &glodaFacetView.openEmailAsList.label;
+          </a>
+        </div>
+        <div id="data-column">
+          <!-- facet-results-message is put before facet-date here so that it gets upgraded first.
         facet-date uses width of facet-results-message for the visualization. Using order property
         we can show facet-date before facet-results-message -->
-        <facet-results-message id="results" class="results"/>
-        <facet-date id="facet-date" class="facetious" type="date"/>
-        <div class="loading" id="showLoading">
-          <span class="loading">
-            <img class="loading"
-                 src="chrome://global/skin/icons/loading.png"
-                 alt="" />
-            &glodaFacetView.loading.label;
-          </span>
+          <facet-results-message id="results" class="results" />
+          <facet-date id="facet-date" class="facetious" type="date" />
+          <div class="loading" id="showLoading">
+            <span class="loading">
+              <img
+                class="loading"
+                src="chrome://global/skin/icons/loading.png"
+                alt=""
+              />
+              &glodaFacetView.loading.label;
+            </span>
           </div>
-        <div id="showEmpty" class="empty">
-          <span class="empty">
-            <img class="empty"
-                 src="chrome://messenger/skin/icons/empty-search-results.svg"
-                 alt="" />
-            <br/>
-            &glodaFacetView.empty.label;
-          </span>
+          <div id="showEmpty" class="empty">
+            <span class="empty">
+              <img
+                class="empty"
+                src="chrome://messenger/skin/icons/empty-search-results.svg"
+                alt=""
+              />
+              <br />
+              &glodaFacetView.empty.label;
+            </span>
           </div>
-        <button id="showMore" class="show-more" tabindex="0"
-                onclick="FacetContext.showMore()"
-                onkeypress="if (event.charCode == KeyEvent.DOM_VK_SPACE) { FacetContext.showMore(); event.preventDefault() }"
-                >&glodaFacetView.pageMore.label;
-        </button>
+          <button
+            id="showMore"
+            class="show-more"
+            tabindex="0"
+            onclick="FacetContext.showMore()"
+            onkeypress="if (event.charCode == KeyEvent.DOM_VK_SPACE) { FacetContext.showMore(); event.preventDefault() }"
+          >
+            &glodaFacetView.pageMore.label;
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

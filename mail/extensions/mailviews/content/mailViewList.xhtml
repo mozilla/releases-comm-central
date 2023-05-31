@@ -8,39 +8,56 @@
 <?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE window [
-<!ENTITY % mailViewLisDTD SYSTEM "chrome://messenger/locale/mailViewList.dtd">
+<!DOCTYPE window [ <!ENTITY % mailViewLisDTD SYSTEM "chrome://messenger/locale/mailViewList.dtd">
 %mailViewLisDTD;
 <!ENTITY % FilterListDialogDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">
-%FilterListDialogDTD;
-]>
+%FilterListDialogDTD; ]>
 
-<window id="mailViewListDialog"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="mailViewListOnLoad();"
-        windowtype="mailnews:mailviewlist"
-        lightweightthemes="true"
-        title="&mailViewListTitle.label;"
-        width="400" height="340"
-        persist="screenX screenY width height">
-<dialog buttons="accept">
+<window
+  id="mailViewListDialog"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  onload="mailViewListOnLoad();"
+  windowtype="mailnews:mailviewlist"
+  lightweightthemes="true"
+  title="&mailViewListTitle.label;"
+  width="400"
+  height="340"
+  persist="screenX screenY width height"
+>
+  <dialog buttons="accept">
+    <script src="chrome://messenger/content/mailViewList.js" />
+    <script src="chrome://messenger/content/dialogShadowDom.js" />
 
-  <script src="chrome://messenger/content/mailViewList.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
+    <vbox flex="1">
+      <hbox flex="1">
+        <richlistbox
+          id="mailViewList"
+          flex="1"
+          onselect="onMailViewSelect(event);"
+        />
 
-  <vbox flex="1">
-    <hbox flex="1">
-      <richlistbox id="mailViewList"
-                   flex="1"
-                   onselect="onMailViewSelect(event);"/>
-
-      <vbox>
-        <button id="newButton" label="&newButton.label;" accesskey="&newButton.accesskey;" oncommand="onNewMailView();"/>
-        <button id="editButton" label="&editButton.label;" accesskey="&editButton.accesskey;" oncommand="onEditMailView();"/>
-        <button id="deleteButton" label="&deleteButton.label;" accesskey="&deleteButton.accesskey;" oncommand="onDeleteMailView();"/>
-      </vbox>
-    </hbox>
-  </vbox>
-</dialog>
+        <vbox>
+          <button
+            id="newButton"
+            label="&newButton.label;"
+            accesskey="&newButton.accesskey;"
+            oncommand="onNewMailView();"
+          />
+          <button
+            id="editButton"
+            label="&editButton.label;"
+            accesskey="&editButton.accesskey;"
+            oncommand="onEditMailView();"
+          />
+          <button
+            id="deleteButton"
+            label="&deleteButton.label;"
+            accesskey="&deleteButton.accesskey;"
+            oncommand="onDeleteMailView();"
+          />
+        </vbox>
+      </hbox>
+    </vbox>
+  </dialog>
 </window>

@@ -10,156 +10,245 @@
 <?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
-<!DOCTYPE html [
- <!ENTITY % accountsDTD SYSTEM "chrome://chat/locale/accounts.dtd">
- <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
- <!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
- %accountsDTD;
- %brandDTD;
- %chatDTD;
-]>
+<!DOCTYPE html [ <!ENTITY % accountsDTD SYSTEM "chrome://chat/locale/accounts.dtd">
+<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
+<!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
+%accountsDTD; %brandDTD; %chatDTD; ]>
 
-<html id="accountManager" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      windowtype="Messenger:Accounts"
-      scrolling="false"
-      lightweightthemes="true"
-      persist="width height screenX screenY">
-<head>
-  <title>&accountsWindow.title;</title>
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/imAccounts.js"></script>
-  <script defer="defer" src="chrome://messenger/content/accountUtils.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/imStatusSelector.js"></script>
-  <script defer="defer" src="chrome://global/content/nsTransferable.js"></script>
-  <script defer="defer" src="chrome://chat/content/chat-account-richlistitem.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<html
+  id="accountManager"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  windowtype="Messenger:Accounts"
+  scrolling="false"
+  lightweightthemes="true"
+  persist="width height screenX screenY"
+>
+  <head>
+    <title>&accountsWindow.title;</title>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/chat/imAccounts.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/accountUtils.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/chat/imStatusSelector.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/nsTransferable.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://chat/content/chat-account-richlistitem.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <stringbundle
+      id="accountsBundle"
+      src="chrome://messenger/locale/imAccounts.properties"
+    />
 
-  <stringbundle id="accountsBundle" src="chrome://messenger/locale/imAccounts.properties"/>
+    <commandset id="accountsCommands">
+      <command
+        id="cmd_connect"
+        accesskey="&account.connect.accesskey;"
+        label="&account.connect.label;"
+        oncommand="gAccountManager.connect()"
+      />
+      <command
+        id="cmd_disconnect"
+        label="&account.disconnect.label;"
+        accesskey="&account.disconnect.accesskey;"
+        oncommand="gAccountManager.disconnect()"
+      />
+      <command
+        id="cmd_cancelReconnection"
+        label="&account.cancelReconnection.label;"
+        accesskey="&account.cancelReconnection.accesskey;"
+        oncommand="gAccountManager.cancelReconnection()"
+      />
+      <command
+        id="cmd_copyDebugLog"
+        label="&account.copyDebugLog.label;"
+        accesskey="&account.copyDebugLog.accesskey;"
+        oncommand="gAccountManager.copyDebugLog();"
+      />
+      <command
+        id="cmd_edit"
+        label="&account.edit.label;"
+        accesskey="&account.edit.accesskey;"
+        oncommand="gAccountManager.edit()"
+      />
+      <command
+        id="cmd_new"
+        label="&accountManager.newAccount.label;"
+        accesskey="&accountManager.newAccount.accesskey;"
+        oncommand="gAccountManager.new()"
+      />
+      <command
+        id="cmd_close"
+        label="&accountManager.close.label;"
+        accesskey="&accountManager.close.accesskey;"
+        oncommand="gAccountManager.close()"
+      />
+    </commandset>
 
-  <commandset id="accountsCommands">
-    <command id="cmd_connect"
-             accesskey="&account.connect.accesskey;"
-             label="&account.connect.label;"
-             oncommand="gAccountManager.connect()"/>
-    <command id="cmd_disconnect"
-             label="&account.disconnect.label;"
-             accesskey="&account.disconnect.accesskey;"
-             oncommand="gAccountManager.disconnect()"/>
-    <command id="cmd_cancelReconnection"
-             label="&account.cancelReconnection.label;"
-             accesskey="&account.cancelReconnection.accesskey;"
-             oncommand="gAccountManager.cancelReconnection()"/>
-    <command id="cmd_copyDebugLog"
-             label="&account.copyDebugLog.label;"
-             accesskey="&account.copyDebugLog.accesskey;"
-             oncommand="gAccountManager.copyDebugLog();"/>
-    <command id="cmd_edit"
-             label="&account.edit.label;"
-             accesskey="&account.edit.accesskey;"
-             oncommand="gAccountManager.edit()"/>
-    <command id="cmd_new"
-             label="&accountManager.newAccount.label;"
-             accesskey="&accountManager.newAccount.accesskey;"
-             oncommand="gAccountManager.new()"/>
-    <command id="cmd_close"
-             label="&accountManager.close.label;"
-             accesskey="&accountManager.close.accesskey;"
-             oncommand="gAccountManager.close()"/>
-  </commandset>
+    <keyset id="accountsKeys">
+      <key id="key_close1" key="w" modifiers="accel" command="cmd_close" />
+      <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close" />
+      <key
+        id="key_close3"
+        command="cmd_close"
+        key="&accountManager.close.commandkey;"
+        modifiers="accel,shift"
+      />
+    </keyset>
 
-  <keyset id="accountsKeys">
-    <key id="key_close1" key="w" modifiers="accel" command="cmd_close"/>
-    <key id="key_close2" keycode="VK_ESCAPE" command="cmd_close"/>
-    <key id="key_close3" command="cmd_close"
-         key="&accountManager.close.commandkey;" modifiers="accel,shift"/>
-  </keyset>
+    <menupopup
+      id="accountsContextMenu"
+      onpopupshowing="gAccountManager.onContextMenuShowing(event)"
+    >
+      <menuitem
+        id="context_connect"
+        command="cmd_connect"
+        class="im-context-account-item"
+      />
+      <menuitem
+        id="context_disconnect"
+        command="cmd_disconnect"
+        class="im-context-account-item"
+      />
+      <menuitem
+        id="context_cancelReconnection"
+        command="cmd_cancelReconnection"
+        class="im-context-account-item"
+      />
+      <menuitem id="context_copyDebugLog" command="cmd_copyDebugLog" />
+      <menuseparator
+        id="context_accountsItemsSeparator"
+        class="im-context-account-item"
+      />
+      <menuitem command="cmd_new" />
+      <menuseparator class="im-context-account-item" />
+      <menuitem command="cmd_edit" class="im-context-account-item" />
+    </menupopup>
 
-  <menupopup id="accountsContextMenu"
-             onpopupshowing="gAccountManager.onContextMenuShowing(event)">
-    <menuitem id="context_connect"
-              command="cmd_connect"
-              class="im-context-account-item"/>
-    <menuitem id="context_disconnect"
-              command="cmd_disconnect"
-              class="im-context-account-item"/>
-    <menuitem id="context_cancelReconnection"
-              command="cmd_cancelReconnection"
-              class="im-context-account-item"/>
-    <menuitem id="context_copyDebugLog"
-              command="cmd_copyDebugLog"/>
-    <menuseparator id="context_accountsItemsSeparator"
-                   class="im-context-account-item"/>
-    <menuitem command="cmd_new"/>
-    <menuseparator class="im-context-account-item"/>
-    <menuitem command="cmd_edit" class="im-context-account-item"/>
-  </menupopup>
-
-  <html:div class="displayUserAccount">
-    <stack id="statusImageStack">
-      <html:img id="userIcon"
-                class="userIcon"
-                alt=""
-                onclick="statusSelector.userIconClick();" />
-      <button type="menu"
-              id="statusTypeIcon"
-              class="statusTypeIcon"
-              status="available">
-        <menupopup id="setStatusTypeMenupopup"
-                   oncommand="statusSelector.editStatus(event);">
-          <menuitem id="statusTypeAvailable" label="&status.available;"
-                    status="available" class="menuitem-iconic"/>
-          <menuitem id="statusTypeUnavailable" label="&status.unavailable;"
-                    status="unavailable" class="menuitem-iconic"/>
-          <menuseparator id="statusTypeOfflineSeparator"/>
-          <menuitem id="statusTypeOffline" label="&status.offline;"
-                    status="offline" class="menuitem-iconic"/>
-        </menupopup>
-      </button>
-    </stack>
-    <html:div id="displayNameAndstatusMessageGrid">
-      <label id="displayName" onclick="statusSelector.displayNameClick();"
-             align="center"
-             pack="center"/>
-      <!-- FIXME: A keyboard user cannot focus the hidden input, nor click
+    <html:div class="displayUserAccount">
+      <stack id="statusImageStack">
+        <html:img
+          id="userIcon"
+          class="userIcon"
+          alt=""
+          onclick="statusSelector.userIconClick();"
+        />
+        <button
+          type="menu"
+          id="statusTypeIcon"
+          class="statusTypeIcon"
+          status="available"
+        >
+          <menupopup
+            id="setStatusTypeMenupopup"
+            oncommand="statusSelector.editStatus(event);"
+          >
+            <menuitem
+              id="statusTypeAvailable"
+              label="&status.available;"
+              status="available"
+              class="menuitem-iconic"
+            />
+            <menuitem
+              id="statusTypeUnavailable"
+              label="&status.unavailable;"
+              status="unavailable"
+              class="menuitem-iconic"
+            />
+            <menuseparator id="statusTypeOfflineSeparator" />
+            <menuitem
+              id="statusTypeOffline"
+              label="&status.offline;"
+              status="offline"
+              class="menuitem-iconic"
+            />
+          </menupopup>
+        </button>
+      </stack>
+      <html:div id="displayNameAndstatusMessageGrid">
+        <label
+          id="displayName"
+          onclick="statusSelector.displayNameClick();"
+          align="center"
+          pack="center"
+        />
+        <!-- FIXME: A keyboard user cannot focus the hidden input, nor click
          - the above label in order to reveal it. -->
-      <html:input id="displayNameInput"
-                  class="statusMessageInput input-inline"
-                  hidden="hidden"/>
-      <html:hr />
-      <label id="statusMessageLabel" crop="end" value=""
-             onclick="statusSelector.statusMessageClick();"/>
-      <html:input id="statusMessageInput"
-                  class="statusMessageInput input-inline"
-                  value=""
-                  hidden="hidden"/>
+        <html:input
+          id="displayNameInput"
+          class="statusMessageInput input-inline"
+          hidden="hidden"
+        />
+        <html:hr />
+        <label
+          id="statusMessageLabel"
+          crop="end"
+          value=""
+          onclick="statusSelector.statusMessageClick();"
+        />
+        <html:input
+          id="statusMessageInput"
+          class="statusMessageInput input-inline"
+          value=""
+          hidden="hidden"
+        />
+      </html:div>
     </html:div>
-  </html:div>
 
-  <hbox flex="1" ondblclick="gAccountManager.new();">
-    <vbox flex="1" id="noAccountScreen" align="center" pack="center">
-      <hbox id="noAccountBox" align="start">
-        <vbox id="noAccountInnerBox" flex="1">
-          <label id="noAccountTitle" value="&accountManager.noAccount.title;"/>
-          <description id="noAccountDesc">&accountManager.noAccount.description;</description>
-        </vbox>
-      </hbox>
-    </vbox>
+    <hbox flex="1" ondblclick="gAccountManager.new();">
+      <vbox flex="1" id="noAccountScreen" align="center" pack="center">
+        <hbox id="noAccountBox" align="start">
+          <vbox id="noAccountInnerBox" flex="1">
+            <label
+              id="noAccountTitle"
+              value="&accountManager.noAccount.title;"
+            />
+            <description id="noAccountDesc"
+              >&accountManager.noAccount.description;</description
+            >
+          </vbox>
+        </hbox>
+      </vbox>
 
-    <vbox id="accounts-notification-box" flex="1">
-      <!-- notificationbox will be added here lazily. -->
-      <richlistbox id="accountlist" flex="1" context="accountsContextMenu"
-                   onselect="gAccountManager.onAccountSelect();"/>
-    </vbox>
-  </hbox>
+      <vbox id="accounts-notification-box" flex="1">
+        <!-- notificationbox will be added here lazily. -->
+        <richlistbox
+          id="accountlist"
+          flex="1"
+          context="accountsContextMenu"
+          onselect="gAccountManager.onAccountSelect();"
+        />
+      </vbox>
+    </hbox>
 
-  <hbox id="bottombuttons" align="center">
-    <button id="newaccount" command="cmd_new"/>
-    <spacer flex="1"/>
-    <button id="close" command="cmd_close"/>
-  </hbox>
-</html:body>
+    <hbox id="bottombuttons" align="center">
+      <button id="newaccount" command="cmd_new" />
+      <spacer flex="1" />
+      <button id="close" command="cmd_close" />
+    </hbox>
+  </html:body>
 </html>

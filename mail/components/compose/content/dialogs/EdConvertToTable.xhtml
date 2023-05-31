@@ -13,43 +13,74 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EdConvertToTable.dtd">
 
-<window title="&windowTitle.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="Startup()"
-        lightweightthemes="true"
-        style="min-width:20em">
-<dialog>
+<window
+  title="&windowTitle.label;"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  onload="Startup()"
+  lightweightthemes="true"
+  style="min-width: 20em"
+>
+  <dialog>
+    <script src="chrome://messenger/content/globalOverlay.js" />
+    <script src="chrome://global/content/editMenuOverlay.js" />
+    <!-- Methods common to all editor dialogs -->
+    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
+    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
+    <!--- Element-specific methods -->
+    <script src="chrome://messenger/content/messengercompose/EdConvertToTable.js" />
+    <script src="chrome://messenger/content/dialogShadowDom.js" />
 
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <!-- Methods common to all editor dialogs -->
-  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
-  <!--- Element-specific methods -->
-  <script src="chrome://messenger/content/messengercompose/EdConvertToTable.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
-
-  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
-  <description class="wrap" flex="1">&instructions1.label;</description>
-  <description class="wrap" flex="1">&instructions2.label;</description>
-  <radiogroup id="SepRadioGroup" persist="index character" index="0" character="">
-    <radio id="comma" label="&commaRadio.label;" oncommand="SelectCharacter('0');"/>
-    <radio id="space" label="&spaceRadio.label;" oncommand="SelectCharacter('1');"/>
-    <hbox>
-      <spacer class="radio-spacer"/>
-      <checkbox id="CollapseSpaces" label="&collapseSpaces.label;"
-                checked="true" persist="checked"
-                tooltiptext="&collapseSpaces.tooltip;"/>
-    </hbox>
-    <hbox align="center">
-      <radio id="other" label="&otherRadio.label;" oncommand="SelectCharacter('2');"/>
-      <html:input id="SepCharacterInput" type="text" aria-labelledby="other"
-                  class="narrow input-inline" oninput="InputSepCharacter()"/>
-    </hbox>
-  </radiogroup>
-  <spacer class="spacer"/>
-  <checkbox id="DeleteSepCharacter" label="&deleteCharCheck.label;" persist="checked"/>
-  <spacer class="spacer"/>
-</dialog>
+    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
+    <description class="wrap" flex="1">&instructions1.label;</description>
+    <description class="wrap" flex="1">&instructions2.label;</description>
+    <radiogroup
+      id="SepRadioGroup"
+      persist="index character"
+      index="0"
+      character=""
+    >
+      <radio
+        id="comma"
+        label="&commaRadio.label;"
+        oncommand="SelectCharacter('0');"
+      />
+      <radio
+        id="space"
+        label="&spaceRadio.label;"
+        oncommand="SelectCharacter('1');"
+      />
+      <hbox>
+        <spacer class="radio-spacer" />
+        <checkbox
+          id="CollapseSpaces"
+          label="&collapseSpaces.label;"
+          checked="true"
+          persist="checked"
+          tooltiptext="&collapseSpaces.tooltip;"
+        />
+      </hbox>
+      <hbox align="center">
+        <radio
+          id="other"
+          label="&otherRadio.label;"
+          oncommand="SelectCharacter('2');"
+        />
+        <html:input
+          id="SepCharacterInput"
+          type="text"
+          aria-labelledby="other"
+          class="narrow input-inline"
+          oninput="InputSepCharacter()"
+        />
+      </hbox>
+    </radiogroup>
+    <spacer class="spacer" />
+    <checkbox
+      id="DeleteSepCharacter"
+      label="&deleteCharCheck.label;"
+      persist="checked"
+    />
+    <spacer class="spacer" />
+  </dialog>
 </window>

@@ -9,53 +9,68 @@
 
 <!DOCTYPE window>
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="gAppManagerDialog.init();"
-        data-l10n-id="app-manager-window-dialog2"
-        style="min-width: 30em;">
-<dialog id="appManager"
-        buttons="accept,cancel">
+<window
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  onload="gAppManagerDialog.init();"
+  data-l10n-id="app-manager-window-dialog2"
+  style="min-width: 30em"
+>
+  <dialog id="appManager" buttons="accept,cancel">
+    <script src="chrome://global/content/preferencesBindings.js" />
+    <script src="chrome://messenger/content/preferences/general.js" />
+    <script src="chrome://messenger/content/preferences/applicationManager.js" />
 
-  <script src="chrome://global/content/preferencesBindings.js"/>
-  <script src="chrome://messenger/content/preferences/general.js"/>
-  <script src="chrome://messenger/content/preferences/applicationManager.js"/>
+    <commandset id="appManagerCommandSet">
+      <command
+        id="cmd_delete"
+        oncommand="gAppManagerDialog.remove();"
+        disabled="true"
+      />
+    </commandset>
 
-  <commandset id="appManagerCommandSet">
-    <command id="cmd_delete"
-             oncommand="gAppManagerDialog.remove();"
-             disabled="true"/>
-  </commandset>
+    <keyset id="appManagerKeyset">
+      <key id="delete" keycode="VK_DELETE" command="cmd_delete" />
+    </keyset>
 
-  <keyset id="appManagerKeyset">
-    <key id="delete" keycode="VK_DELETE" command="cmd_delete"/>
-  </keyset>
+    <stringbundle
+      id="appManagerBundle"
+      src="chrome://messenger/locale/preferences/applicationManager.properties"
+    />
+    <stringbundle
+      id="bundlePreferences"
+      src="chrome://messenger/locale/preferences/preferences.properties"
+    />
 
-  <stringbundle id="appManagerBundle" src="chrome://messenger/locale/preferences/applicationManager.properties"/>
-  <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
+    <linkset>
+      <html:link
+        rel="localization"
+        href="messenger/preferences/application-manager.ftl"
+      />
+    </linkset>
 
-  <linkset>
-    <html:link rel="localization" href="messenger/preferences/application-manager.ftl"/>
-  </linkset>
-
-  <description id="appDescription"/>
-  <separator class="thin"/>
-  <hbox flex="1">
-    <richlistbox id="appList"
-                 onselect="gAppManagerDialog.onSelect();"
-                 flex="1"
-                 style="min-height: 150px;"/>
-    <vbox>
-      <button id="remove"
-              data-l10n-id="remove-app-button"
-              command="cmd_delete"/>
-      <spacer flex="1"/>
+    <description id="appDescription" />
+    <separator class="thin" />
+    <hbox flex="1">
+      <richlistbox
+        id="appList"
+        onselect="gAppManagerDialog.onSelect();"
+        flex="1"
+        style="min-height: 150px"
+      />
+      <vbox>
+        <button
+          id="remove"
+          data-l10n-id="remove-app-button"
+          command="cmd_delete"
+        />
+        <spacer flex="1" />
+      </vbox>
+    </hbox>
+    <vbox id="appDetails">
+      <separator class="thin" />
+      <label id="appType" />
+      <html:input id="appLocation" type="text" readonly="readonly" />
     </vbox>
-  </hbox>
-  <vbox id="appDetails">
-    <separator class="thin"/>
-    <label id="appType"/>
-    <html:input id="appLocation" type="text" readonly="readonly"/>
-  </vbox>
-</dialog>
+  </dialog>
 </window>

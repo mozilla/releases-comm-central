@@ -4,35 +4,46 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+>
   <head>
     <title data-l10n-id="config-sync-dailog-title"></title>
 
     <link rel="stylesheet" href="chrome://global/skin/global.css" />
-    <link rel="stylesheet" href="chrome://messenger/skin/preferences/preferences.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger/skin/preferences/preferences.css"
+    />
 
-    <link rel="localization" href="messenger/preferences/preferences.ftl"/>
-    <link rel="localization" href="messenger/preferences/sync-dialog.ftl"/>
+    <link rel="localization" href="messenger/preferences/preferences.ftl" />
+    <link rel="localization" href="messenger/preferences/sync-dialog.ftl" />
 
     <script src="chrome://messenger/content/preferences/syncDialog.js"></script>
   </head>
   <body>
-    <xul:dialog id="configSyncDialog"
-                buttons="accept,cancel,extra2"
-                style="min-width: 49em;"
-                data-l10n-attrs="buttonlabelaccept, buttonaccesskeyaccept, buttonlabelextra2, buttonaccesskeyextra2"
-                data-l10n-id="sync-dialog">
+    <xul:dialog
+      id="configSyncDialog"
+      buttons="accept,cancel,extra2"
+      style="min-width: 49em"
+      data-l10n-attrs="buttonlabelaccept, buttonaccesskeyaccept, buttonlabelextra2, buttonaccesskeyextra2"
+      data-l10n-id="sync-dialog"
+    >
       <div id="configSyncDialogContent">
         <ul id="configSyncList" class="config-list">
           <li id="configAccountsContainer">
             <div class="config-item">
-              <input type="checkbox"
-                     id="configSyncAccount"
-                     name="configSynced"/>
-              <label for="configSyncAccount"
-                     id="configSyncAccountLabel"
-                     data-l10n-id="show-synced-item-account">
+              <input
+                type="checkbox"
+                id="configSyncAccount"
+                name="configSynced"
+              />
+              <label
+                for="configSyncAccount"
+                id="configSyncAccountLabel"
+                data-l10n-id="show-synced-item-account"
+              >
               </label>
             </div>
             <!-- For when we get per-account controls: -->
@@ -134,45 +145,61 @@
           </li>
           <li>
             <div class="config-item">
-              <input type="checkbox"
-                     id="configSyncIdentity"
-                     name="configSynced"/>
-              <label id="configSyncIdentityLabel"
-                     for="configSyncIdentity"
-                     data-l10n-id="show-synced-item-identity">
+              <input
+                type="checkbox"
+                id="configSyncIdentity"
+                name="configSynced"
+              />
+              <label
+                id="configSyncIdentityLabel"
+                for="configSyncIdentity"
+                data-l10n-id="show-synced-item-identity"
+              >
               </label>
             </div>
           </li>
           <li>
             <div class="config-item">
-              <input type="checkbox"
-                     id="configSyncAddress"
-                     name="configSynced"/>
-              <label id="configSyncAddressLabel"
-                     for="configSyncAddress"
-                     data-l10n-id="show-synced-item-address">
+              <input
+                type="checkbox"
+                id="configSyncAddress"
+                name="configSynced"
+              />
+              <label
+                id="configSyncAddressLabel"
+                for="configSyncAddress"
+                data-l10n-id="show-synced-item-address"
+              >
               </label>
             </div>
           </li>
           <li>
             <div class="config-item">
-              <input type="checkbox"
-                     id="configSyncCalendar"
-                     name="configSynced"/>
-              <label id="configSyncCalendarLabel"
-                     for="configSyncCalendar"
-                     data-l10n-id="show-synced-item-calendar">
+              <input
+                type="checkbox"
+                id="configSyncCalendar"
+                name="configSynced"
+              />
+              <label
+                id="configSyncCalendarLabel"
+                for="configSyncCalendar"
+                data-l10n-id="show-synced-item-calendar"
+              >
               </label>
             </div>
           </li>
           <li>
             <div class="config-item">
-              <input type="checkbox"
-                     id="configSyncPasswords"
-                     name="configSynced"/>
-              <label id="configSyncPasswordsLabel"
-                     for="configSyncPasswords"
-                     data-l10n-id="show-synced-item-passwords">
+              <input
+                type="checkbox"
+                id="configSyncPasswords"
+                name="configSynced"
+              />
+              <label
+                id="configSyncPasswordsLabel"
+                for="configSyncPasswords"
+                data-l10n-id="show-synced-item-passwords"
+              >
               </label>
             </div>
           </li>

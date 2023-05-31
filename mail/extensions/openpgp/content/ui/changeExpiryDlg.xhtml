@@ -8,61 +8,86 @@
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
 
-<window data-l10n-id="openpgp-change-key-expiry-title"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width: 50em; height: 22em"
-        persist="width height"
-        onload="onLoad();">
-<dialog id="changeExpiryDlg"
-        buttons="cancel,accept">
-  <script src="chrome://openpgp/content/ui/changeExpiryDlg.js"/>
-  <linkset>
-    <html:link rel="localization" href="messenger/openpgp/changeExpiryDlg.ftl"/>
-    <html:link rel="localization" href="messenger/openpgp/openpgp.ftl"/>
-  </linkset>
+<window
+  data-l10n-id="openpgp-change-key-expiry-title"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  style="width: 50em; height: 22em"
+  persist="width height"
+  onload="onLoad();"
+>
+  <dialog id="changeExpiryDlg" buttons="cancel,accept">
+    <script src="chrome://openpgp/content/ui/changeExpiryDlg.js" />
+    <linkset>
+      <html:link
+        rel="localization"
+        href="messenger/openpgp/changeExpiryDlg.ftl"
+      />
+      <html:link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+    </linkset>
 
-  <html:legend id="info-current-expiry"></html:legend>
+    <html:legend id="info-current-expiry"></html:legend>
 
-  <hbox class="inline-notification-container info-container self-center">
-    <hbox class="inline-notification-wrapper align-center">
-      <html:img class="notification-image"
-                src="chrome://messenger/skin/icons/information.svg"
-                alt="" />
-      <description data-l10n-id="info-explanation-1"/>
+    <hbox class="inline-notification-container info-container self-center">
+      <hbox class="inline-notification-wrapper align-center">
+        <html:img
+          class="notification-image"
+          src="chrome://messenger/skin/icons/information.svg"
+          alt=""
+        />
+        <description data-l10n-id="info-explanation-1" />
+      </hbox>
     </hbox>
-  </hbox>
 
-  <description data-l10n-id="info-explanation-2"/>
+    <description data-l10n-id="info-explanation-2" />
 
-  <separator/>
+    <separator />
 
-  <html:div>
-    <html:fieldset>
-      <radiogroup id="radio-expire-or-not" value="keep-existing" class="indent"
-                   onselect="enableExpiryInput()">
-          <radio id="radio-expire-keep" value="keep-existing"
-                 data-l10n-id="expire-dont-change"/>
+    <html:div>
+      <html:fieldset>
+        <radiogroup
+          id="radio-expire-or-not"
+          value="keep-existing"
+          class="indent"
+          onselect="enableExpiryInput()"
+        >
+          <radio
+            id="radio-expire-keep"
+            value="keep-existing"
+            data-l10n-id="expire-dont-change"
+          />
           <hbox align="center">
-            <radio id="radio-expire-yes" value="expire"
-                   data-l10n-id="expire-in-label"/>
-            <menulist id="expire-months" sizetopopup="always"
-                      value="24"
-                      disabled="true">
-              <menupopup id="monthsPopup"
-                         onpopupshowing="resizeMonthsPopup(event);">
+            <radio
+              id="radio-expire-yes"
+              value="expire"
+              data-l10n-id="expire-in-label"
+            />
+            <menulist
+              id="expire-months"
+              sizetopopup="always"
+              value="24"
+              disabled="true"
+            >
+              <menupopup
+                id="monthsPopup"
+                onpopupshowing="resizeMonthsPopup(event);"
+              >
               </menupopup>
             </menulist>
-            <label id="expire-months-label"
-                   data-l10n-id="expire-in-months"
-                   class="startSpacing"
-                   disabled="true"/>
+            <label
+              id="expire-months-label"
+              data-l10n-id="expire-in-months"
+              class="startSpacing"
+              disabled="true"
+            />
           </hbox>
-          <radio id="radio-expire-no" value="do-not-expire"
-                 data-l10n-id="expire-never-label"/>
-      </radiogroup>
-    </html:fieldset>
-  </html:div>
-
-</dialog>
+          <radio
+            id="radio-expire-no"
+            value="do-not-expire"
+            data-l10n-id="expire-never-label"
+          />
+        </radiogroup>
+      </html:fieldset>
+    </html:div>
+  </dialog>
 </window>

@@ -11,261 +11,414 @@
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/keyDetails.css" type="text/css"?>
 
 <!DOCTYPE html>
-<html id="enigmailKeyDetailsDlg" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      width="840" height="650">
-<head>
-  <title data-l10n-id="openpgp-key-details-doc-title"></title>
-  <html:link rel="localization" href="branding/brand.ftl"/>
-  <html:link rel="localization" href="messenger/openpgp/openpgp.ftl"/>
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://openpgp/content/ui/enigmailCommon.js"></script>
-  <script defer="defer" src="chrome://openpgp/content/ui/enigmailKeyManager.js"></script>
-  <script defer="defer" src="chrome://openpgp/content/ui/keyDetailsDlg.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttons="accept,cancel"
-        data-l10n-id="openpgp-card-details-close-window-label">
-  <vbox>
-    <html:div class="key-details-container">
-      <html:aside class="key-details-grid">
-        <label class="key-detail-label"
-               data-l10n-id="openpgp-key-details-user-id3-label"/>
+<html
+  id="enigmailKeyDetailsDlg"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  width="840"
+  height="650"
+>
+  <head>
+    <title data-l10n-id="openpgp-key-details-doc-title"></title>
+    <html:link rel="localization" href="branding/brand.ftl" />
+    <html:link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://openpgp/content/ui/enigmailCommon.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://openpgp/content/ui/enigmailKeyManager.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://openpgp/content/ui/keyDetailsDlg.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog
+      buttons="accept,cancel"
+      data-l10n-id="openpgp-card-details-close-window-label"
+    >
+      <vbox>
+        <html:div class="key-details-container">
+          <html:aside class="key-details-grid">
+            <label
+              class="key-detail-label"
+              data-l10n-id="openpgp-key-details-user-id3-label"
+            />
 
-        <richlistbox id="userIds" class="additional-key-identity plain"
-                     flex="1"/>
+            <richlistbox
+              id="userIds"
+              class="additional-key-identity plain"
+              flex="1"
+            />
 
-        <label class="key-detail-label"
-               data-l10n-id="openpgp-key-details-key-type-label"/>
-        <hbox class="input-container">
-          <html:input id="keyType" type="text" class="plain"
-                      readonly="readonly" value="?"/>
-        </hbox>
+            <label
+              class="key-detail-label"
+              data-l10n-id="openpgp-key-details-key-type-label"
+            />
+            <hbox class="input-container">
+              <html:input
+                id="keyType"
+                type="text"
+                class="plain"
+                readonly="readonly"
+                value="?"
+              />
+            </hbox>
 
-        <label class="key-detail-label"
-               data-l10n-id="openpgp-key-details-key-id-label"/>
-        <hbox class="input-container">
-          <html:input id="keyId" type="text" class="plain"
-                      readonly="readonly" value="?"/>
-        </hbox>
+            <label
+              class="key-detail-label"
+              data-l10n-id="openpgp-key-details-key-id-label"
+            />
+            <hbox class="input-container">
+              <html:input
+                id="keyId"
+                type="text"
+                class="plain"
+                readonly="readonly"
+                value="?"
+              />
+            </hbox>
 
-        <label class="key-detail-label"
-               data-l10n-id="openpgp-key-details-fingerprint-label"/>
-        <hbox class="input-container">
-          <html:input id="fingerprint" type="text" class="plain"
-                      readonly="readonly" value="?"/>
-        </hbox>
+            <label
+              class="key-detail-label"
+              data-l10n-id="openpgp-key-details-fingerprint-label"
+            />
+            <hbox class="input-container">
+              <html:input
+                id="fingerprint"
+                type="text"
+                class="plain"
+                readonly="readonly"
+                value="?"
+              />
+            </hbox>
 
-        <label class="key-detail-label"
-               data-l10n-id="openpgp-key-details-created-header"/>
-        <hbox class="input-container">
-          <html:input id="keyCreated" type="text" class="plain"
-                      readonly="readonly" value="?"/>
-        </hbox>
+            <label
+              class="key-detail-label"
+              data-l10n-id="openpgp-key-details-created-header"
+            />
+            <hbox class="input-container">
+              <html:input
+                id="keyCreated"
+                type="text"
+                class="plain"
+                readonly="readonly"
+                value="?"
+              />
+            </hbox>
 
-        <label class="key-detail-label"
-               data-l10n-id="openpgp-key-details-expiry-header"/>
-        <hbox class="input-container">
-          <html:input id="keyExpiry" type="text" class="plain"
-                      readonly="readonly" value="?"/>
-        </hbox>
-      </html:aside>
+            <label
+              class="key-detail-label"
+              data-l10n-id="openpgp-key-details-expiry-header"
+            />
+            <hbox class="input-container">
+              <html:input
+                id="keyExpiry"
+                type="text"
+                class="plain"
+                readonly="readonly"
+                value="?"
+              />
+            </hbox>
+          </html:aside>
 
-      <html:aside>
-        <vbox>
-          <button id="refreshOnlineButton"
-                  data-l10n-id="openpgp-key-man-refresh-online"
-                  oncommand="refreshOnline()"/>
-          <button id="changeExpiryButton"
-                  data-l10n-id="openpgp-key-man-change-expiry"
-                  oncommand="changeExpiry()" hidden="true"/>
-        </vbox>
-      </html:aside>
-    </html:div>
-
-    <html:div id="key-detail-has-insecure" hidden="hidden">
-      <html:span class="tail-with-learn-more"
-                 data-l10n-id="openpgp-key-details-attr-ignored"></html:span>
-      <label is="text-link"
-             href="https://support.mozilla.org/kb/openpgp-unsafe-key-properties-ignored"
-             data-l10n-id="e2e-learn-more"/>
-
-    </html:div>
-  </vbox>
-
-  <separator/>
-
-  <tabbox flex="1" style="margin:5px" id="mainTabs">
-    <tabs id="mainTabBox">
-      <tab id="acceptanceTab" data-l10n-id="openpgp-acceptance-label"/>
-      <tab id="emailAddressesTab" data-l10n-id="openpgp-key-man-ignored-ids"/>
-      <tab id="passphraseTab" data-l10n-id="openpgp-passphrase-protection"/>
-      <tab id="signaturesTab" data-l10n-id="openpgp-key-details-signatures-tab"/>
-      <tab id="structureTab" data-l10n-id="openpgp-key-details-structure-tab"/>
-    </tabs>
-
-    <tabpanels flex="1" id="mainTabPanel">
-       <!-- Acceptance Tab -->
-      <vbox id="acceptancePanel" flex="1">
-        <description id="acceptanceIntro"/>
-        <separator class="thin"/>
-
-        <html:div>
-          <html:fieldset>
-            <radiogroup id="acceptanceRadio" hidden="true" class="indent"
-                        oncommand="onAcceptanceChanged();">
-              <radio id="acceptRejected" value="rejected"
-                     data-l10n-id="openpgp-acceptance-rejected-label"/>
-              <radio id="acceptUndecided" value="undecided"
-                     data-l10n-id="openpgp-acceptance-undecided-label"/>
-              <radio id="acceptUnverified" value="unverified"
-                     data-l10n-id="openpgp-acceptance-unverified-label"/>
-              <radio id="acceptVerified" value="verified"
-                     data-l10n-id="openpgp-acceptance-verified-label"/>
-            </radiogroup>
-            <radiogroup id="personalRadio" class="indent" hidden="true">
-              <radio id="notPersonal" value="not_personal"
-                     data-l10n-id="openpgp-personal-no-label"/>
-              <radio id="yesPersonal" value="personal"
-                     data-l10n-id="openpgp-personal-yes-label"/>
-            </radiogroup>
-          </html:fieldset>
+          <html:aside>
+            <vbox>
+              <button
+                id="refreshOnlineButton"
+                data-l10n-id="openpgp-key-man-refresh-online"
+                oncommand="refreshOnline()"
+              />
+              <button
+                id="changeExpiryButton"
+                data-l10n-id="openpgp-key-man-change-expiry"
+                oncommand="changeExpiry()"
+                hidden="true"
+              />
+            </vbox>
+          </html:aside>
         </html:div>
 
-        <separator class="thin"/>
-        <description id="acceptanceVerification"/>
+        <html:div id="key-detail-has-insecure" hidden="hidden">
+          <html:span
+            class="tail-with-learn-more"
+            data-l10n-id="openpgp-key-details-attr-ignored"
+          ></html:span>
+          <label
+            is="text-link"
+            href="https://support.mozilla.org/kb/openpgp-unsafe-key-properties-ignored"
+            data-l10n-id="e2e-learn-more"
+          />
+        </html:div>
       </vbox>
 
-       <!-- email addresses tab -->
-      <vbox id="emailAddressesPanel" flex="1">
-        <description data-l10n-id="openpgp-ign-addr-intro"/>
-        <separator class="thin"/>
+      <separator />
 
-        <vbox id="addressesListContainer">
-          <vbox id="addressesList" class="indent"/>
-        </vbox>
-      </vbox>
+      <tabbox flex="1" style="margin: 5px" id="mainTabs">
+        <tabs id="mainTabBox">
+          <tab id="acceptanceTab" data-l10n-id="openpgp-acceptance-label" />
+          <tab
+            id="emailAddressesTab"
+            data-l10n-id="openpgp-key-man-ignored-ids"
+          />
+          <tab
+            id="passphraseTab"
+            data-l10n-id="openpgp-passphrase-protection"
+          />
+          <tab
+            id="signaturesTab"
+            data-l10n-id="openpgp-key-details-signatures-tab"
+          />
+          <tab
+            id="structureTab"
+            data-l10n-id="openpgp-key-details-structure-tab"
+          />
+        </tabs>
 
-      <!-- passphrase tab -->
-      <vbox id="passphrasePanel" flex="1">
-        <description id="passphraseStatus"/>
-        <separator class="thin"/>
-        <description id="passphraseInstruction"/>
-        <separator class="thin"/>
+        <tabpanels flex="1" id="mainTabPanel">
+          <!-- Acceptance Tab -->
+          <vbox id="acceptancePanel" flex="1">
+            <description id="acceptanceIntro" />
+            <separator class="thin" />
 
-        <vbox id="unlockBox">
-          <hbox>
-            <button id="unlock"
-                    data-l10n-id="openpgp-passphrase-unlock"
-                    oncommand="unlock()"/>
-          </hbox>
-        </vbox>
+            <html:div>
+              <html:fieldset>
+                <radiogroup
+                  id="acceptanceRadio"
+                  hidden="true"
+                  class="indent"
+                  oncommand="onAcceptanceChanged();"
+                >
+                  <radio
+                    id="acceptRejected"
+                    value="rejected"
+                    data-l10n-id="openpgp-acceptance-rejected-label"
+                  />
+                  <radio
+                    id="acceptUndecided"
+                    value="undecided"
+                    data-l10n-id="openpgp-acceptance-undecided-label"
+                  />
+                  <radio
+                    id="acceptUnverified"
+                    value="unverified"
+                    data-l10n-id="openpgp-acceptance-unverified-label"
+                  />
+                  <radio
+                    id="acceptVerified"
+                    value="verified"
+                    data-l10n-id="openpgp-acceptance-verified-label"
+                  />
+                </radiogroup>
+                <radiogroup id="personalRadio" class="indent" hidden="true">
+                  <radio
+                    id="notPersonal"
+                    value="not_personal"
+                    data-l10n-id="openpgp-personal-no-label"
+                  />
+                  <radio
+                    id="yesPersonal"
+                    value="personal"
+                    data-l10n-id="openpgp-personal-yes-label"
+                  />
+                </radiogroup>
+              </html:fieldset>
+            </html:div>
 
-        <vbox id="lockBox">
-          <hbox>
-            <label data-l10n-id="openpgp-passphrase-new"/>
-            <html:input id="passwordInput" type="password" class="input-inline"
-                        oninput="onPasswordInput();"/>
-          </hbox>
-          <hbox>
-            <label data-l10n-id="openpgp-passphrase-new-repeat"/>
-            <html:input id="passwordConfirm" type="password" class="input-inline"
-                        oninput="onPasswordInput();"/>
-            <button id="setPassphrase" disabled="true"
-                    oncommand="setPassphrase();"/>
-          </hbox>
-          <separator class="thin"/>
-        </vbox>
+            <separator class="thin" />
+            <description id="acceptanceVerification" />
+          </vbox>
 
-        <hbox>
-          <button id="removeProtection" hidden="true"
-                  data-l10n-id="openpgp-remove-protection"
-                  oncommand="useAutoPassphrase()"/>
-          <button id="usePrimaryPassword" hidden="true"
-                  data-l10n-id="openpgp-use-primary-password"
-                  oncommand="useAutoPassphrase()"/>
-        </hbox>
-      </vbox>
+          <!-- email addresses tab -->
+          <vbox id="emailAddressesPanel" flex="1">
+            <description data-l10n-id="openpgp-ign-addr-intro" />
+            <separator class="thin" />
 
-      <!-- certifications tab -->
-      <vbox id="signaturesPanel">
-        <tree id="signatures_tree" flex="1"
+            <vbox id="addressesListContainer">
+              <vbox id="addressesList" class="indent" />
+            </vbox>
+          </vbox>
+
+          <!-- passphrase tab -->
+          <vbox id="passphrasePanel" flex="1">
+            <description id="passphraseStatus" />
+            <separator class="thin" />
+            <description id="passphraseInstruction" />
+            <separator class="thin" />
+
+            <vbox id="unlockBox">
+              <hbox>
+                <button
+                  id="unlock"
+                  data-l10n-id="openpgp-passphrase-unlock"
+                  oncommand="unlock()"
+                />
+              </hbox>
+            </vbox>
+
+            <vbox id="lockBox">
+              <hbox>
+                <label data-l10n-id="openpgp-passphrase-new" />
+                <html:input
+                  id="passwordInput"
+                  type="password"
+                  class="input-inline"
+                  oninput="onPasswordInput();"
+                />
+              </hbox>
+              <hbox>
+                <label data-l10n-id="openpgp-passphrase-new-repeat" />
+                <html:input
+                  id="passwordConfirm"
+                  type="password"
+                  class="input-inline"
+                  oninput="onPasswordInput();"
+                />
+                <button
+                  id="setPassphrase"
+                  disabled="true"
+                  oncommand="setPassphrase();"
+                />
+              </hbox>
+              <separator class="thin" />
+            </vbox>
+
+            <hbox>
+              <button
+                id="removeProtection"
+                hidden="true"
+                data-l10n-id="openpgp-remove-protection"
+                oncommand="useAutoPassphrase()"
+              />
+              <button
+                id="usePrimaryPassword"
+                hidden="true"
+                data-l10n-id="openpgp-use-primary-password"
+                oncommand="useAutoPassphrase()"
+              />
+            </hbox>
+          </vbox>
+
+          <!-- certifications tab -->
+          <vbox id="signaturesPanel">
+            <tree
+              id="signatures_tree"
+              flex="1"
               hidecolumnpicker="true"
-              ondblclick="sigHandleDblClick(event)">
+              ondblclick="sigHandleDblClick(event)"
+            >
+              <treecols>
+                <treecol
+                  id="sig_uid_col"
+                  style="flex: 1 auto"
+                  data-l10n-id="openpgp-key-details-uid-certified-col"
+                  primary="true"
+                />
+                <splitter class="tree-splitter" />
+                <treecol
+                  id="sig_keyid_col"
+                  data-l10n-id="openpgp-key-id-label"
+                  persist="width"
+                  minwidth="140"
+                />
+                <splitter class="tree-splitter" />
+                <treecol
+                  id="sig_created_col"
+                  data-l10n-id="openpgp-key-details-created-label"
+                  persist="width"
+                  minwidth="100"
+                />
+              </treecols>
 
-          <treecols>
-            <treecol id="sig_uid_col"
-                     style="flex: 1 auto"
-                     data-l10n-id="openpgp-key-details-uid-certified-col"
-                     primary="true"/>
-            <splitter class="tree-splitter"/>
-            <treecol id="sig_keyid_col"
-                     data-l10n-id="openpgp-key-id-label"
-                     persist="width"
-                     minwidth="140"/>
-            <splitter class="tree-splitter"/>
-            <treecol id="sig_created_col"
-                     data-l10n-id="openpgp-key-details-created-label"
-                     persist="width"
-                     minwidth="100"/>
-          </treecols>
+              <treechildren />
+            </tree>
+          </vbox>
 
-          <treechildren/>
-        </tree>
-      </vbox>
-
-      <!-- structure tab -->
-      <vbox id ="structurePanel">
-        <hbox flex="1">
-          <tree id="subkeyList" flex="1"
+          <!-- structure tab -->
+          <vbox id="structurePanel">
+            <hbox flex="1">
+              <tree
+                id="subkeyList"
+                flex="1"
                 enableColumnDrag="true"
-                hidecolumnpicker="false">
+                hidecolumnpicker="false"
+              >
+                <treecols>
+                  <treecol
+                    id="keyTypeCol"
+                    data-l10n-id="openpgp-key-details-key-part-label"
+                    style="width: 71px"
+                    persist="width"
+                  />
+                  <splitter class="tree-splitter" />
+                  <treecol
+                    id="keyUsageCol"
+                    data-l10n-id="openpgp-key-details-usage-label"
+                    style="flex: 1 auto"
+                  />
+                  <splitter class="tree-splitter" />
+                  <treecol
+                    id="keyIdCol"
+                    style="width: 77px"
+                    data-l10n-id="openpgp-key-details-id-label"
+                    persist="width"
+                  />
+                  <splitter class="tree-splitter" />
+                  <treecol
+                    id="algoCol"
+                    style="width: 60px"
+                    data-l10n-id="openpgp-key-details-algorithm-label"
+                    persist="width"
+                  />
+                  <splitter class="tree-splitter" />
+                  <treecol
+                    id="sizeCol"
+                    style="width: 37px"
+                    data-l10n-id="openpgp-key-details-size-label"
+                    persist="width"
+                  />
+                  <splitter class="tree-splitter" />
+                  <treecol
+                    id="createdCol"
+                    style="width: 70px"
+                    data-l10n-id="openpgp-key-details-created-label"
+                    persist="width"
+                  />
+                  <splitter class="tree-splitter" />
+                  <treecol
+                    id="expiryCol"
+                    style="width: 70px"
+                    data-l10n-id="openpgp-key-details-expiry-label"
+                    persist="width"
+                  />
+                </treecols>
 
-            <treecols>
-              <treecol id="keyTypeCol"
-                       data-l10n-id="openpgp-key-details-key-part-label"
-                       style="width:71px"
-                       persist="width"/>
-              <splitter class="tree-splitter"/>
-              <treecol id="keyUsageCol"
-                       data-l10n-id="openpgp-key-details-usage-label"
-                       style="flex: 1 auto"/>
-              <splitter class="tree-splitter"/>
-              <treecol id="keyIdCol" style="width:77px"
-                       data-l10n-id="openpgp-key-details-id-label"
-                       persist="width"/>
-              <splitter class="tree-splitter"/>
-              <treecol id="algoCol" style="width:60px"
-                       data-l10n-id="openpgp-key-details-algorithm-label"
-                       persist="width"/>
-              <splitter class="tree-splitter"/>
-              <treecol id="sizeCol" style="width:37px"
-                       data-l10n-id="openpgp-key-details-size-label"
-                       persist="width"/>
-              <splitter class="tree-splitter"/>
-              <treecol id="createdCol" style="width:70px"
-                       data-l10n-id="openpgp-key-details-created-label"
-                       persist="width"/>
-              <splitter class="tree-splitter"/>
-              <treecol id="expiryCol" style="width:70px"
-                       data-l10n-id="openpgp-key-details-expiry-label"
-                       persist="width"/>
-            </treecols>
-
-            <treechildren id="keyListChildren"/>
-
-          </tree>
-        </hbox>
-        <label id="legendMissingSecret"
-               class="tip-caption"
-               data-l10n-id="openpgp-key-details-legend-secret-missing"
-               hidden="true"/>
-      </vbox>
-
-    </tabpanels>
-  </tabbox>
-</dialog>
-</html:body>
+                <treechildren id="keyListChildren" />
+              </tree>
+            </hbox>
+            <label
+              id="legendMissingSecret"
+              class="tip-caption"
+              data-l10n-id="openpgp-key-details-legend-secret-missing"
+              hidden="true"
+            />
+          </vbox>
+        </tabpanels>
+      </tabbox>
+    </dialog>
+  </html:body>
 </html>

@@ -7,90 +7,114 @@
 
 <!DOCTYPE window>
 
-<window type="child"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        data-l10n-id="receipts-dialog-window"
-        onload="enableDisableAllowedReceipts();">
-  <dialog id="ReturnReceiptsDialog"
-          dlgbuttons="accept,cancel">
-    <script src="chrome://global/content/preferencesBindings.js"/>
-    <script src="chrome://messenger/content/preferences/receipts.js"/>
+<window
+  type="child"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  data-l10n-id="receipts-dialog-window"
+  onload="enableDisableAllowedReceipts();"
+>
+  <dialog id="ReturnReceiptsDialog" dlgbuttons="accept,cancel">
+    <script src="chrome://global/content/preferencesBindings.js" />
+    <script src="chrome://messenger/content/preferences/receipts.js" />
 
     <linkset>
-      <html:link rel="localization" href="messenger/preferences/receipts.ftl"/>
+      <html:link rel="localization" href="messenger/preferences/receipts.ftl" />
     </linkset>
 
     <vbox id="returnReceiptSettings" align="start">
-      <checkbox id="alwaysRequest" data-l10n-id="return-receipt-checkbox-control"
-                preference="mail.receipt.request_return_receipt_on"/>
+      <checkbox
+        id="alwaysRequest"
+        data-l10n-id="return-receipt-checkbox-control"
+        preference="mail.receipt.request_return_receipt_on"
+      />
     </vbox>
 
-    <separator class="thin"/>
-    <separator class="groove"/>
-    <separator class="thin"/>
+    <separator class="thin" />
+    <separator class="groove" />
+    <separator class="thin" />
 
-    <label control="receiptFolder" data-l10n-id="receipt-arrive-label"/>
-    <radiogroup id="receiptFolder" class="indent" preference="mail.incorporate.return_receipt">
-      <radio value="0" data-l10n-id="receipt-leave-radio-control"/>
-      <radio value="1" data-l10n-id="receipt-move-radio-control"/>
+    <label control="receiptFolder" data-l10n-id="receipt-arrive-label" />
+    <radiogroup
+      id="receiptFolder"
+      class="indent"
+      preference="mail.incorporate.return_receipt"
+    >
+      <radio value="0" data-l10n-id="receipt-leave-radio-control" />
+      <radio value="1" data-l10n-id="receipt-move-radio-control" />
     </radiogroup>
 
-    <separator class="thin"/>
-    <separator class="groove"/>
-    <separator class="thin"/>
+    <separator class="thin" />
+    <separator class="groove" />
+    <separator class="thin" />
 
-    <label control="receiptSend" data-l10n-id="receipt-request-label"/>
-    <radiogroup id="receiptSend" class="indent" preference="mail.mdn.report.enabled"
-                oncommand="enableDisableAllowedReceipts();">
-      <radio value="false" data-l10n-id="receipt-return-never-radio-control"/>
-      <radio value="true" data-l10n-id="receipt-return-some-radio-control"/>
+    <label control="receiptSend" data-l10n-id="receipt-request-label" />
+    <radiogroup
+      id="receiptSend"
+      class="indent"
+      preference="mail.mdn.report.enabled"
+      oncommand="enableDisableAllowedReceipts();"
+    >
+      <radio value="false" data-l10n-id="receipt-return-never-radio-control" />
+      <radio value="true" data-l10n-id="receipt-return-some-radio-control" />
 
       <vbox class="indent">
         <hbox align="center">
           <hbox flex="1">
-            <label id="notInToCcLabel"
-                   data-l10n-id="receipt-not-to-cc-label"
-                   control="notInToCcPref"/>
+            <label
+              id="notInToCcLabel"
+              data-l10n-id="receipt-not-to-cc-label"
+              control="notInToCcPref"
+            />
           </hbox>
-          <menulist id="notInToCcPref" preference="mail.mdn.report.not_in_to_cc">
+          <menulist
+            id="notInToCcPref"
+            preference="mail.mdn.report.not_in_to_cc"
+          >
             <menupopup>
-              <menuitem value="0" data-l10n-id="receipt-send-never-label"/>
-              <menuitem value="1" data-l10n-id="receipt-send-always-label"/>
-              <menuitem value="2" data-l10n-id="receipt-send-ask-label"/>
+              <menuitem value="0" data-l10n-id="receipt-send-never-label" />
+              <menuitem value="1" data-l10n-id="receipt-send-always-label" />
+              <menuitem value="2" data-l10n-id="receipt-send-ask-label" />
             </menupopup>
           </menulist>
         </hbox>
         <hbox align="center">
           <hbox flex="1">
-            <label id="outsideDomainLabel"
-                   data-l10n-id="sender-outside-domain-label"
-                   control="outsideDomainPref"/>
+            <label
+              id="outsideDomainLabel"
+              data-l10n-id="sender-outside-domain-label"
+              control="outsideDomainPref"
+            />
           </hbox>
-          <menulist id="outsideDomainPref" preference="mail.mdn.report.outside_domain">
+          <menulist
+            id="outsideDomainPref"
+            preference="mail.mdn.report.outside_domain"
+          >
             <menupopup>
-              <menuitem value="0" data-l10n-id="receipt-send-never-label"/>
-              <menuitem value="1" data-l10n-id="receipt-send-always-label"/>
-              <menuitem value="2" data-l10n-id="receipt-send-ask-label"/>
+              <menuitem value="0" data-l10n-id="receipt-send-never-label" />
+              <menuitem value="1" data-l10n-id="receipt-send-always-label" />
+              <menuitem value="2" data-l10n-id="receipt-send-ask-label" />
             </menupopup>
           </menulist>
         </hbox>
         <hbox align="center">
           <hbox flex="1">
-            <label id="otherCasesLabel"
-                   data-l10n-id="other-cases-text-label"
-                   control="otherCasesPref"/>
+            <label
+              id="otherCasesLabel"
+              data-l10n-id="other-cases-text-label"
+              control="otherCasesPref"
+            />
           </hbox>
           <menulist id="otherCasesPref" preference="mail.mdn.report.other">
             <menupopup>
-              <menuitem value="0" data-l10n-id="receipt-send-never-label"/>
-              <menuitem value="1" data-l10n-id="receipt-send-always-label"/>
-              <menuitem value="2" data-l10n-id="receipt-send-ask-label"/>
+              <menuitem value="0" data-l10n-id="receipt-send-never-label" />
+              <menuitem value="1" data-l10n-id="receipt-send-always-label" />
+              <menuitem value="2" data-l10n-id="receipt-send-ask-label" />
             </menupopup>
           </menulist>
         </hbox>
       </vbox>
     </radiogroup>
-    <separator/>
+    <separator />
   </dialog>
 </window>

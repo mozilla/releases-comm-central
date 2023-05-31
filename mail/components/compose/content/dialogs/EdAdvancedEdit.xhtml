@@ -16,172 +16,228 @@
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EdAdvancedEdit.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        style="min-width: 40em;"
-        title="&WindowTitle.label;"
-        lightweightthemes="true"
-        onload="Startup()">
-<dialog id="advancedEditDlg">
+<window
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  style="min-width: 40em"
+  title="&WindowTitle.label;"
+  lightweightthemes="true"
+  onload="Startup()"
+>
+  <dialog id="advancedEditDlg">
+    <script src="chrome://messenger/content/globalOverlay.js" />
+    <script src="chrome://global/content/editMenuOverlay.js" />
+    <!-- Methods common to all editor dialogs -->
+    <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
+    <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js" />
+    <!-- element page functions -->
+    <script src="chrome://messenger/content/messengercompose/EdAEHTMLAttributes.js" />
+    <script src="chrome://messenger/content/messengercompose/EdAECSSAttributes.js" />
+    <script src="chrome://messenger/content/messengercompose/EdAEJSEAttributes.js" />
+    <script src="chrome://messenger/content/messengercompose/EdAEAttributes.js" />
 
-  <script src="chrome://messenger/content/globalOverlay.js"/>
-  <script src="chrome://global/content/editMenuOverlay.js"/>
-  <!-- Methods common to all editor dialogs -->
-  <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
-  <!-- element page functions -->
-  <script src="chrome://messenger/content/messengercompose/EdAEHTMLAttributes.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdAECSSAttributes.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdAEJSEAttributes.js"/>
-  <script src="chrome://messenger/content/messengercompose/EdAEAttributes.js"/>
+    <!-- global dialog functions -->
+    <script src="chrome://messenger/content/messengercompose/EdAdvancedEdit.js" />
+    <script src="chrome://messenger/content/dialogShadowDom.js" />
 
-  <!-- global dialog functions -->
-  <script src="chrome://messenger/content/messengercompose/EdAdvancedEdit.js"/>
-  <script src="chrome://messenger/content/dialogShadowDom.js"/>
+    <spacer id="location" offsetY="50" persist="offsetX offsetY" />
 
-  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
+    <hbox>
+      <label value="&currentattributesfor.label;" />
+      <label class="header" id="tagLabel" />
+    </hbox>
 
-  <hbox>
-    <label value="&currentattributesfor.label;"/>
-    <label class="header" id="tagLabel"/>
-  </hbox>
+    <separator class="thin" />
 
-  <separator class="thin"/>
-
-  <tabbox flex="1">
-    <tabs>
-      <tab label="&tabHTML.label;"/>
-      <tab label="&tabCSS.label;"/>
-      <tab label="&tabJSE.label;" id="tabJSE"/>
-    </tabs>
-    <tabpanels flex="1">
-      <!-- ============================================================== -->
-      <!--                        HTML Attributes                         -->
-      <!-- ============================================================== -->
-      <vbox>
-        <tree id="HTMLATree" class="AttributesTree" flex="1"
-              hidecolumnpicker="true" seltype="single"
-              onselect="onSelectHTMLTreeItem();"
-              onclick="onSelectHTMLTreeItem();"
-              ondblclick="editHTMLAttributeValue(event.target);">
-          <treecols>
-            <treecol id="HTMLAttrCol" label="&tree.attributeHeader.label;"/>
-            <splitter class="tree-splitter"/>
-            <treecol id="HTMLValCol" label="&tree.valueHeader.label;"/>
-          </treecols>
-          <treechildren id="HTMLAList" flex="1"/>
-        </tree>
-        <hbox align="center">
-          <label value="&editAttribute.label;"/>
-          <spacer flex="1"/>
-          <button label="&removeAttribute.label;" oncommand="RemoveHTMLAttribute();"/>
-        </hbox>
-        <hbox>
-          <vbox flex="1">
-            <label control="AddHTMLAttributeNameInput" value="&AttName.label;"/>
-            <menulist is="menulist-editable" id="AddHTMLAttributeNameInput"
-                      class="editorAdvancedEditableMenulist"
-                      editable="true" flex="1"
-                      oninput="onInputHTMLAttributeName();"
-                      oncommand="onInputHTMLAttributeName();"/>
-          </vbox>
-          <vbox flex="1">
-            <label id="AddHTMLAttributeValueLabel" control="AddHTMLAttributeValueInput"
-                   value="&AttValue.label;"/>
+    <tabbox flex="1">
+      <tabs>
+        <tab label="&tabHTML.label;" />
+        <tab label="&tabCSS.label;" />
+        <tab label="&tabJSE.label;" id="tabJSE" />
+      </tabs>
+      <tabpanels flex="1">
+        <!-- ============================================================== -->
+        <!--                        HTML Attributes                         -->
+        <!-- ============================================================== -->
+        <vbox>
+          <tree
+            id="HTMLATree"
+            class="AttributesTree"
+            flex="1"
+            hidecolumnpicker="true"
+            seltype="single"
+            onselect="onSelectHTMLTreeItem();"
+            onclick="onSelectHTMLTreeItem();"
+            ondblclick="editHTMLAttributeValue(event.target);"
+          >
+            <treecols>
+              <treecol id="HTMLAttrCol" label="&tree.attributeHeader.label;" />
+              <splitter class="tree-splitter" />
+              <treecol id="HTMLValCol" label="&tree.valueHeader.label;" />
+            </treecols>
+            <treechildren id="HTMLAList" flex="1" />
+          </tree>
+          <hbox align="center">
+            <label value="&editAttribute.label;" />
+            <spacer flex="1" />
+            <button
+              label="&removeAttribute.label;"
+              oncommand="RemoveHTMLAttribute();"
+            />
+          </hbox>
+          <hbox>
             <vbox flex="1">
+              <label
+                control="AddHTMLAttributeNameInput"
+                value="&AttName.label;"
+              />
+              <menulist
+                is="menulist-editable"
+                id="AddHTMLAttributeNameInput"
+                class="editorAdvancedEditableMenulist"
+                editable="true"
+                flex="1"
+                oninput="onInputHTMLAttributeName();"
+                oncommand="onInputHTMLAttributeName();"
+              />
+            </vbox>
+            <vbox flex="1">
+              <label
+                id="AddHTMLAttributeValueLabel"
+                control="AddHTMLAttributeValueInput"
+                value="&AttValue.label;"
+              />
+              <vbox flex="1">
+                <hbox flex="1" class="input-container">
+                  <html:input
+                    id="AddHTMLAttributeValueTextbox"
+                    type="text"
+                    class="input-inline"
+                    onchange="onInputHTMLAttributeValue();"
+                    aria-labelledby="AddHTMLAttributeValueLabel"
+                  />
+                </hbox>
+                <hbox flex="1" collapsed="true">
+                  <menulist
+                    is="menulist-editable"
+                    id="AddHTMLAttributeValueMenulist"
+                    editable="true"
+                    flex="1"
+                    oninput="onInputHTMLAttributeValue();"
+                    oncommand="onInputHTMLAttributeValue();"
+                  />
+                </hbox>
+              </vbox>
+            </vbox>
+          </hbox>
+        </vbox>
+        <!-- ============================================================== -->
+        <!--                         CSS Attributes                         -->
+        <!-- ============================================================== -->
+        <vbox>
+          <tree
+            id="CSSATree"
+            class="AttributesTree"
+            flex="1"
+            hidecolumnpicker="true"
+            seltype="single"
+            onselect="onSelectCSSTreeItem();"
+            onclick="onSelectCSSTreeItem();"
+            ondblclick="editCSSAttributeValue(event.target);"
+          >
+            <treecols>
+              <treecol id="CSSPropCol" label="&tree.propertyHeader.label;" />
+              <splitter class="tree-splitter" />
+              <treecol id="CSSValCol" label="&tree.valueHeader.label;" />
+            </treecols>
+            <treechildren id="CSSAList" flex="1" />
+          </tree>
+          <hbox align="center">
+            <label value="&editAttribute.label;" />
+            <spacer flex="1" />
+            <button
+              label="&removeAttribute.label;"
+              oncommand="RemoveCSSAttribute();"
+            />
+          </hbox>
+          <hbox>
+            <vbox flex="1">
+              <label
+                id="AddCSSAttributeNameLabel"
+                value="&PropertyName.label;"
+              />
+              <html:input
+                id="AddCSSAttributeNameInput"
+                type="text"
+                class="input-inline"
+                onchange="onInputCSSAttributeName();"
+                aria-labelledby="AddCSSAttributeNameLabel"
+              />
+            </vbox>
+            <vbox flex="1">
+              <label id="AddCSSAttributeValueLabel" value="&AttValue.label;" />
+              <html:input
+                id="AddCSSAttributeValueInput"
+                type="text"
+                class="input-inline"
+                onchange="onChangeCSSAttribute();"
+                aria-labelledby="AddCSSAttributeValueLabel"
+              />
+            </vbox>
+          </hbox>
+        </vbox>
+        <!-- ============================================================== -->
+        <!--                    JavaScript Event Handlers                   -->
+        <!-- ============================================================== -->
+        <vbox>
+          <tree
+            id="JSEATree"
+            class="AttributesTree"
+            flex="1"
+            hidecolumnpicker="true"
+            seltype="single"
+            onselect="onSelectJSETreeItem();"
+            onclick="onSelectJSETreeItem();"
+            ondblclick="editJSEAttributeValue(event.target);"
+          >
+            <treecols>
+              <treecol id="AttrCol" label="&tree.attributeHeader.label;" />
+              <splitter class="tree-splitter" />
+              <treecol id="HeaderCol" label="&tree.valueHeader.label;" />
+            </treecols>
+            <treechildren id="JSEAList" flex="1" />
+          </tree>
+          <hbox align="center">
+            <label value="&editAttribute.label;" />
+            <spacer flex="1" />
+            <button
+              label="&removeAttribute.label;"
+              oncommand="RemoveJSEAttribute()"
+            />
+          </hbox>
+          <hbox>
+            <vbox flex="1">
+              <label value="&AttName.label;" />
+              <menulist
+                id="AddJSEAttributeNameList"
+                oncommand="onSelectJSEAttribute();"
+              />
+            </vbox>
+            <vbox flex="1">
+              <label id="AddJSEAttributeValueLabel" value="&AttValue.label;" />
               <hbox flex="1" class="input-container">
-                <html:input id="AddHTMLAttributeValueTextbox" type="text"
-                            class="input-inline"
-                            onchange="onInputHTMLAttributeValue();"
-                            aria-labelledby="AddHTMLAttributeValueLabel"/>
-              </hbox>
-              <hbox flex="1" collapsed="true">
-                <menulist is="menulist-editable" id="AddHTMLAttributeValueMenulist"
-                          editable="true" flex="1"
-                          oninput="onInputHTMLAttributeValue();"
-                          oncommand="onInputHTMLAttributeValue();"/>
+                <html:input
+                  id="AddJSEAttributeValueInput"
+                  type="text"
+                  class="input-inline"
+                  onchange="onInputJSEAttributeValue();"
+                  aria-labelledby="AddJSEAttributeValueLabel"
+                />
               </hbox>
             </vbox>
-          </vbox>
-        </hbox>
-      </vbox>
-      <!-- ============================================================== -->
-      <!--                         CSS Attributes                         -->
-      <!-- ============================================================== -->
-      <vbox>
-        <tree id="CSSATree" class="AttributesTree" flex="1"
-              hidecolumnpicker="true" seltype="single"
-              onselect="onSelectCSSTreeItem();"
-              onclick="onSelectCSSTreeItem();"
-              ondblclick="editCSSAttributeValue(event.target);">
-          <treecols>
-            <treecol id="CSSPropCol" label="&tree.propertyHeader.label;"/>
-            <splitter class="tree-splitter"/>
-            <treecol id="CSSValCol" label="&tree.valueHeader.label;"/>
-          </treecols>
-          <treechildren id="CSSAList" flex="1"/>
-        </tree>
-        <hbox align="center">
-          <label value="&editAttribute.label;"/>
-          <spacer flex="1"/>
-          <button label="&removeAttribute.label;" oncommand="RemoveCSSAttribute();"/>
-        </hbox>
-        <hbox>
-          <vbox flex="1">
-            <label id="AddCSSAttributeNameLabel" value="&PropertyName.label;"/>
-            <html:input id="AddCSSAttributeNameInput" type="text"
-                        class="input-inline"
-                        onchange="onInputCSSAttributeName();"
-                        aria-labelledby="AddCSSAttributeNameLabel"/>
-          </vbox>
-          <vbox flex="1">
-            <label id="AddCSSAttributeValueLabel" value="&AttValue.label;"/>
-            <html:input id="AddCSSAttributeValueInput" type="text"
-                        class="input-inline"
-                        onchange="onChangeCSSAttribute();"
-                        aria-labelledby="AddCSSAttributeValueLabel"/>
-          </vbox>
-        </hbox>
-      </vbox>
-      <!-- ============================================================== -->
-      <!--                    JavaScript Event Handlers                   -->
-      <!-- ============================================================== -->
-      <vbox>
-        <tree id="JSEATree" class="AttributesTree" flex="1"
-              hidecolumnpicker="true" seltype="single"
-              onselect="onSelectJSETreeItem();"
-              onclick="onSelectJSETreeItem();"
-              ondblclick="editJSEAttributeValue(event.target);">
-          <treecols>
-            <treecol id="AttrCol" label="&tree.attributeHeader.label;"/>
-            <splitter class="tree-splitter"/>
-            <treecol id="HeaderCol" label="&tree.valueHeader.label;"/>
-          </treecols>
-          <treechildren id="JSEAList" flex="1"/>
-        </tree>
-        <hbox align="center">
-          <label value="&editAttribute.label;"/>
-          <spacer flex="1"/>
-          <button label="&removeAttribute.label;" oncommand="RemoveJSEAttribute()"/>
-        </hbox>
-        <hbox>
-          <vbox flex="1">
-            <label value="&AttName.label;"/>
-            <menulist id="AddJSEAttributeNameList"
-                      oncommand="onSelectJSEAttribute();"/>
-          </vbox>
-          <vbox flex="1">
-            <label id="AddJSEAttributeValueLabel" value="&AttValue.label;"/>
-            <hbox flex="1" class="input-container">
-              <html:input id="AddJSEAttributeValueInput" type="text"
-                          class="input-inline"
-                          onchange="onInputJSEAttributeValue();"
-                          aria-labelledby="AddJSEAttributeValueLabel"/>
-            </hbox>
-          </vbox>
-        </hbox>
-      </vbox>
-    </tabpanels>
-  </tabbox>
-</dialog>
+          </hbox>
+        </vbox>
+      </tabpanels>
+    </tabbox>
+  </dialog>
 </window>
