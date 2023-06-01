@@ -98,7 +98,7 @@
         "name": "create",
         "type": "function",
         "description": "Creates a new space and adds its button to the spaces toolbar.",
-        "async": true,
+        "async": "callback",
         "parameters": [
           {
             "name": "name",
