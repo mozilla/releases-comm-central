@@ -550,9 +550,6 @@ NS_IMETHODIMP nsImapService::CopyMessage(const nsACString& aSrcMailboxURI,
   NS_ENSURE_ARG_POINTER(aMailboxCopy);
 
   nsresult rv;
-  nsCOMPtr<nsISupports> streamSupport;
-  streamSupport = aMailboxCopy;
-
   nsCOMPtr<nsIMsgFolder> folder;
   nsAutoCString msgKey;
   rv = DecomposeImapURI(aSrcMailboxURI, getter_AddRefs(folder), msgKey);
@@ -579,7 +576,7 @@ NS_IMETHODIMP nsImapService::CopyMessage(const nsACString& aSrcMailboxURI,
       nsCOMPtr<nsIURI> dummyURI;
       rv =
           FetchMessage(imapUrl, imapAction, folder, imapMessageSink, aMsgWindow,
-                       streamSupport, msgKey, false, getter_AddRefs(dummyURI));
+                       aMailboxCopy, msgKey, false, getter_AddRefs(dummyURI));
     }  // if we got an imap message sink
   }    // if we decomposed the imap message
   return rv;
@@ -593,7 +590,6 @@ NS_IMETHODIMP nsImapService::CopyMessages(
   NS_ENSURE_TRUE(!aKeys.IsEmpty(), NS_ERROR_INVALID_ARG);
 
   nsresult rv;
-  nsCOMPtr<nsISupports> streamSupport = aMailboxCopy;
   nsCOMPtr<nsIMsgFolder> folder = srcFolder;
   nsCOMPtr<nsIImapMessageSink> imapMessageSink(do_QueryInterface(folder, &rv));
   if (NS_SUCCEEDED(rv)) {
@@ -622,7 +618,7 @@ NS_IMETHODIMP nsImapService::CopyMessages(
     imapUrl->SetCopyState(aMailboxCopy);
     // now try to display the message
     rv = FetchMessage(imapUrl, action, folder, imapMessageSink, aMsgWindow,
-                      streamSupport, messageIds, false, aURL);
+                      aMailboxCopy, messageIds, false, aURL);
     // ### end of copy operation should know how to do the delete.if this is a
     // move
 

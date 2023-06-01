@@ -191,11 +191,12 @@ nsresult nsMsgCopyService::QueueRequest(nsCopyRequest* aRequest,
       // For copy folder, see if both destination folder (root)
       // (ie, Local Folder) and folder name (ie, abc) are the same.
       if (copyRequest->m_dstFolderName == aRequest->m_dstFolderName &&
-          copyRequest->m_dstFolder.get() == aRequest->m_dstFolder.get()) {
+          SameCOMIdentity(copyRequest->m_dstFolder, aRequest->m_dstFolder)) {
         *aCopyImmediately = false;
         break;
       }
-    } else if (copyRequest->m_dstFolder.get() == aRequest->m_dstFolder.get()) {
+    } else if (SameCOMIdentity(copyRequest->m_dstFolder,
+                               aRequest->m_dstFolder)) {
       // If dst are same and we already have a request, we cannot copy
       // immediately.
       *aCopyImmediately = false;
@@ -315,15 +316,15 @@ nsCopyRequest* nsMsgCopyService::FindRequest(nsISupports* aSupport,
   uint32_t cnt = m_copyRequests.Length();
   for (uint32_t i = 0; i < cnt; i++) {
     copyRequest = m_copyRequests.ElementAt(i);
-    if (copyRequest->m_srcSupport.get() == aSupport &&
-        copyRequest->m_dstFolder.get() == dstFolder)
+    if (SameCOMIdentity(copyRequest->m_srcSupport, aSupport) &&
+        SameCOMIdentity(copyRequest->m_dstFolder.get(), dstFolder))
       break;
 
     // When copying folders the notification of the message copy serves as a
     // proxy for the folder copy. Check for that here.
     if (copyRequest->m_requestType == nsCopyFoldersType) {
       // If the src is different then check next request.
-      if (copyRequest->m_srcSupport.get() != aSupport) {
+      if (!SameCOMIdentity(copyRequest->m_srcSupport, aSupport)) {
         copyRequest = nullptr;
         continue;
       }
@@ -471,11 +472,8 @@ nsMsgCopyService::CopyFolder(nsIMsgFolder* srcFolder, nsIMsgFolder* dstFolder,
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> curFolder;
 
-  nsCOMPtr<nsISupports> support;
-  support = srcFolder;
-
   copyRequest = new nsCopyRequest();
-  rv = copyRequest->Init(nsCopyFoldersType, support, dstFolder, isMove,
+  rv = copyRequest->Init(nsCopyFoldersType, srcFolder, dstFolder, isMove,
                          0 /* new msg flags, not used */, EmptyCString(),
                          listener, window, false);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -494,16 +492,14 @@ nsMsgCopyService::CopyFileMessage(nsIFile* file, nsIMsgFolder* dstFolder,
   nsresult rv = NS_ERROR_NULL_POINTER;
   nsCopyRequest* copyRequest;
   nsCopySource* copySource = nullptr;
-  nsCOMPtr<nsISupports> fileSupport;
 
   NS_ENSURE_ARG_POINTER(file);
   NS_ENSURE_ARG_POINTER(dstFolder);
 
   copyRequest = new nsCopyRequest();
   if (!copyRequest) return rv;
-  fileSupport = file;
 
-  rv = copyRequest->Init(nsCopyFileMessageType, fileSupport, dstFolder, isDraft,
+  rv = copyRequest->Init(nsCopyFileMessageType, file, dstFolder, isDraft,
                          aMsgFlags, aNewMsgKeywords, listener, window, false);
   if (NS_FAILED(rv)) goto done;
 
