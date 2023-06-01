@@ -1105,13 +1105,17 @@ var MessageTextFilter = {
   domBindExtra(aDocument, aMuxer, aNode) {
     // -- Keypresses for focus transferral and upsell
     aNode.addEventListener("keypress", function (aEvent) {
-      // - Down key into the thread pane
+      // - Down key into the thread pane. Calls `preventDefault` to stop the
+      // event from causing scrolling, but that prevents the tree from
+      // selecting a message if necessary, so we must do it here.
       if (aEvent.keyCode == aEvent.DOM_VK_DOWN) {
         let threadTree = aDocument.getElementById("threadTree");
-        threadTree.focus();
-        return false;
+        threadTree.table.body.focus();
+        if (threadTree.selectedIndex == -1) {
+          threadTree.selectedIndex = 0;
+        }
+        aEvent.preventDefault();
       }
-      return true;
     });
 
     // -- Blurring kills upsell.
