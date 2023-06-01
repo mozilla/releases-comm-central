@@ -1209,9 +1209,7 @@ nsresult nsMsgLocalMailFolder::InitCopyState(
   mCopyState->m_dataBufferSize = COPY_BUFFER_SIZE;
   mCopyState->m_destDB = msgDB;
 
-  nsresult rv;
-  mCopyState->m_srcSupport = do_QueryInterface(aSupport, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  mCopyState->m_srcSupport = aSupport;
   mCopyState->m_messages = messages.Clone();
   mCopyState->m_curCopyIndex = 0;
   mCopyState->m_isMove = isMove;
@@ -1650,7 +1648,7 @@ nsMsgLocalMailFolder::CopyFileMessage(nsIFile* aFile, nsIMsgDBHdr* msgToReplace,
   nsParseMailMessageState* parseMsgState = nullptr;
   int64_t fileSize = 0;
 
-  nsCOMPtr<nsISupports> fileSupport(do_QueryInterface(aFile, &rv));
+  nsCOMPtr<nsISupports> fileSupport(aFile);
 
   aFile->GetFileSize(&fileSize);
   if (!CheckIfSpaceForCopy(msgWindow, nullptr, fileSupport, false, fileSize))

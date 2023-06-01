@@ -6377,8 +6377,7 @@ nsresult nsImapMailFolder::CopyMessagesWithStream(
     nsIMsgCopyServiceListener* listener, bool allowUndo) {
   NS_ENSURE_ARG_POINTER(srcFolder);
   nsresult rv;
-  nsCOMPtr<nsISupports> aSupport(do_QueryInterface(srcFolder, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsISupports> aSupport(srcFolder);
   rv = InitCopyState(aSupport, messages, isMove, false, isCrossServerOp, 0,
                      EmptyCString(), listener, msgWindow, allowUndo);
   if (NS_FAILED(rv)) return rv;

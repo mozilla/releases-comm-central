@@ -551,8 +551,7 @@ NS_IMETHODIMP nsImapService::CopyMessage(const nsACString& aSrcMailboxURI,
 
   nsresult rv;
   nsCOMPtr<nsISupports> streamSupport;
-  streamSupport = do_QueryInterface(aMailboxCopy, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  streamSupport = aMailboxCopy;
 
   nsCOMPtr<nsIMsgFolder> folder;
   nsAutoCString msgKey;
@@ -594,45 +593,40 @@ NS_IMETHODIMP nsImapService::CopyMessages(
   NS_ENSURE_TRUE(!aKeys.IsEmpty(), NS_ERROR_INVALID_ARG);
 
   nsresult rv;
-  nsCOMPtr<nsISupports> streamSupport = do_QueryInterface(aMailboxCopy, &rv);
-  if (!streamSupport || NS_FAILED(rv)) return rv;
-
+  nsCOMPtr<nsISupports> streamSupport = aMailboxCopy;
   nsCOMPtr<nsIMsgFolder> folder = srcFolder;
+  nsCOMPtr<nsIImapMessageSink> imapMessageSink(do_QueryInterface(folder, &rv));
   if (NS_SUCCEEDED(rv)) {
-    nsCOMPtr<nsIImapMessageSink> imapMessageSink(
-        do_QueryInterface(folder, &rv));
-    if (NS_SUCCEEDED(rv)) {
-      // we generate the uri for the first message so that way on down the line,
-      // GetMessage in nsCopyMessageStreamListener will get an unescaped
-      // username and be able to find the msg hdr. See bug 259656 for details
-      nsCString uri;
-      srcFolder->GenerateMessageURI(aKeys[0], uri);
+    // we generate the uri for the first message so that way on down the line,
+    // GetMessage in nsCopyMessageStreamListener will get an unescaped
+    // username and be able to find the msg hdr. See bug 259656 for details
+    nsCString uri;
+    srcFolder->GenerateMessageURI(aKeys[0], uri);
 
-      nsCString messageIds;
-      // TODO: AllocateImapUidString() maxes out at 950 keys or so... it
-      // updates the numKeys passed in, but here the resulting value is
-      // ignored. Does this need sorting out?
-      uint32_t numKeys = aKeys.Length();
-      AllocateImapUidString(aKeys.Elements(), numKeys, nullptr, messageIds);
-      nsCOMPtr<nsIImapUrl> imapUrl;
-      nsAutoCString urlSpec;
-      char hierarchyDelimiter = GetHierarchyDelimiter(folder);
-      rv = CreateStartOfImapUrl(uri, getter_AddRefs(imapUrl), folder,
-                                aUrlListener, urlSpec, hierarchyDelimiter);
-      nsImapAction action;
-      if (moveMessage)  // don't use ?: syntax here, it seems to break the Mac.
-        action = nsIImapUrl::nsImapOnlineToOfflineMove;
-      else
-        action = nsIImapUrl::nsImapOnlineToOfflineCopy;
-      imapUrl->SetCopyState(aMailboxCopy);
-      // now try to display the message
-      rv = FetchMessage(imapUrl, action, folder, imapMessageSink, aMsgWindow,
-                        streamSupport, messageIds, false, aURL);
-      // ### end of copy operation should know how to do the delete.if this is a
-      // move
+    nsCString messageIds;
+    // TODO: AllocateImapUidString() maxes out at 950 keys or so... it
+    // updates the numKeys passed in, but here the resulting value is
+    // ignored. Does this need sorting out?
+    uint32_t numKeys = aKeys.Length();
+    AllocateImapUidString(aKeys.Elements(), numKeys, nullptr, messageIds);
+    nsCOMPtr<nsIImapUrl> imapUrl;
+    nsAutoCString urlSpec;
+    char hierarchyDelimiter = GetHierarchyDelimiter(folder);
+    rv = CreateStartOfImapUrl(uri, getter_AddRefs(imapUrl), folder,
+                              aUrlListener, urlSpec, hierarchyDelimiter);
+    nsImapAction action;
+    if (moveMessage)  // don't use ?: syntax here, it seems to break the Mac.
+      action = nsIImapUrl::nsImapOnlineToOfflineMove;
+    else
+      action = nsIImapUrl::nsImapOnlineToOfflineCopy;
+    imapUrl->SetCopyState(aMailboxCopy);
+    // now try to display the message
+    rv = FetchMessage(imapUrl, action, folder, imapMessageSink, aMsgWindow,
+                      streamSupport, messageIds, false, aURL);
+    // ### end of copy operation should know how to do the delete.if this is a
+    // move
 
-    }  // if we got an imap message sink
-  }    // if we decomposed the imap message
+  }  // if we got an imap message sink
   return rv;
 }
 

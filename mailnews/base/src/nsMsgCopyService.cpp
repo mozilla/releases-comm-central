@@ -400,7 +400,7 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
   if (!copyRequest) return NS_ERROR_OUT_OF_MEMORY;
 
   nsTArray<RefPtr<nsIMsgDBHdr>> unprocessed = messages.Clone();
-  aSupport = do_QueryInterface(srcFolder, &rv);
+  aSupport = srcFolder;
 
   rv = copyRequest->Init(nsCopyMessagesType, aSupport, dstFolder, isMove,
                          0 /* new msg flags, not used */, EmptyCString(),
@@ -472,8 +472,7 @@ nsMsgCopyService::CopyFolder(nsIMsgFolder* srcFolder, nsIMsgFolder* dstFolder,
   nsCOMPtr<nsIMsgFolder> curFolder;
 
   nsCOMPtr<nsISupports> support;
-  support = do_QueryInterface(srcFolder, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  support = srcFolder;
 
   copyRequest = new nsCopyRequest();
   rv = copyRequest->Init(nsCopyFoldersType, support, dstFolder, isMove,
@@ -502,8 +501,7 @@ nsMsgCopyService::CopyFileMessage(nsIFile* file, nsIMsgFolder* dstFolder,
 
   copyRequest = new nsCopyRequest();
   if (!copyRequest) return rv;
-  fileSupport = do_QueryInterface(file, &rv);
-  if (NS_FAILED(rv)) goto done;
+  fileSupport = file;
 
   rv = copyRequest->Init(nsCopyFileMessageType, fileSupport, dstFolder, isDraft,
                          aMsgFlags, aNewMsgKeywords, listener, window, false);
