@@ -91,7 +91,6 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell** aDocShell) {
 }
 
 NS_IMETHODIMP nsMsgWindow::CloseWindow() {
-  mMsgWindowCommands = nullptr;
   mStatusFeedback = nullptr;
 
   StopUrls();
@@ -132,19 +131,6 @@ NS_IMETHODIMP nsMsgWindow::SetStatusFeedback(
     webProgress->AddProgressListener(webProgressListener,
                                      nsIWebProgress::NOTIFY_ALL);
   }
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::SetWindowCommands(
-    nsIMsgWindowCommands* aMsgWindowCommands) {
-  mMsgWindowCommands = aMsgWindowCommands;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgWindow::GetWindowCommands(
-    nsIMsgWindowCommands** aMsgWindowCommands) {
-  NS_ENSURE_ARG_POINTER(aMsgWindowCommands);
-  NS_IF_ADDREF(*aMsgWindowCommands = mMsgWindowCommands);
   return NS_OK;
 }
 

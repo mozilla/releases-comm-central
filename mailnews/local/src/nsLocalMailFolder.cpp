@@ -2105,7 +2105,6 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           newHdr = mCopyState->m_newHdr;
           CopyHdrPropertiesWithSkipList(newHdr, mCopyState->m_message,
                                         "storeToken msgOffset"_ns);
-          //          UpdateNewMsgHdr(mCopyState->m_message, newHdr);
           // We need to copy more than just what UpdateNewMsgHdr does. In fact,
           // I think we want to copy almost every property other than
           // storeToken and msgOffset.
@@ -2639,8 +2638,7 @@ nsMsgLocalMailFolder::MarkMsgsOnPop3Server(
   return rv;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::DeleteDownloadMsg(nsIMsgDBHdr* aMsgHdr,
-                                                      bool* aDoSelect) {
+NS_IMETHODIMP nsMsgLocalMailFolder::DeleteDownloadMsg(nsIMsgDBHdr* aMsgHdr) {
   uint32_t numMsgs;
   char* newMsgId;
 
@@ -2671,19 +2669,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DeleteDownloadMsg(nsIMsgDBHdr* aMsgHdr,
 
         UpdateNewMsgHdr(msgDBHdr, aMsgHdr);
 
-#if DOWNLOAD_NOTIFY_STYLE == DOWNLOAD_NOTIFY_LAST
-        msgDBHdr->GetMessageKey(&mDownloadOldKey);
-        msgDBHdr->GetThreadParent(&mDownloadOldParent);
-        msgDBHdr->GetFlags(&mDownloadOldFlags);
-        mDatabase->DeleteHeader(msgDBHdr, nullptr, false, false);
-        // Tell caller we want to select this message
-        if (aDoSelect) *aDoSelect = true;
-#else
         mDatabase->DeleteHeader(msgDBHdr, nullptr, false, true);
-        // Tell caller we want to select this message
-        if (aDoSelect && mDownloadState == DOWNLOAD_STATE_GOTMSG)
-          *aDoSelect = true;
-#endif
         mDownloadMessages.RemoveElementAt(i);
         break;
       }
@@ -2691,28 +2677,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DeleteDownloadMsg(nsIMsgDBHdr* aMsgHdr,
   }
 
   return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgLocalMailFolder::SelectDownloadMsg() {
-#if DOWNLOAD_NOTIFY_STYLE == DOWNLOAD_NOTIFY_LAST
-  if (mDownloadState >= DOWNLOAD_STATE_GOTMSG) {
-    nsresult rv = GetDatabase();
-    if (!mDatabase) return rv;
-  }
-  mDatabase->NotifyKeyDeletedAll(mDownloadOldKey, mDownloadOldParent,
-                                 mDownloadOldFlags, nullptr);
-}
-#endif
-
-if (mDownloadState == DOWNLOAD_STATE_GOTMSG && mDownloadWindow) {
-  nsAutoCString newuri;
-  nsBuildLocalMessageURI(mBaseMessageURI, mDownloadSelectKey, newuri);
-  nsCOMPtr<nsIMsgWindowCommands> windowCommands;
-  mDownloadWindow->GetWindowCommands(getter_AddRefs(windowCommands));
-  if (windowCommands) windowCommands->SelectMessage(newuri);
-  mDownloadState = DOWNLOAD_STATE_DIDSEL;
-}
-return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
@@ -2891,36 +2855,6 @@ nsMsgLocalMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
     if (aUrl) {
       rv = aUrl->GetSpec(aSpec);
       NS_ENSURE_SUCCESS(rv, rv);
-    }
-
-    if (strstr(aSpec.get(), "uidl=")) {
-      nsCOMPtr<nsIPop3URL> popurl = do_QueryInterface(aUrl, &rv);
-      if (NS_SUCCEEDED(rv)) {
-        nsCString messageuri;
-        rv = popurl->GetMessageUri(messageuri);
-        if (NS_SUCCEEDED(rv)) {
-          NS_ENSURE_SUCCESS(rv, rv);
-          nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
-          rv = GetMsgDBHdrFromURI(messageuri, getter_AddRefs(msgDBHdr));
-          if (NS_SUCCEEDED(rv)) {
-            GetDatabase();
-            if (mDatabase)
-              mDatabase->DeleteHeader(msgDBHdr, nullptr, true, true);
-          }
-
-          nsCOMPtr<nsIPop3Sink> pop3sink;
-          nsCString newMessageUri;
-          rv = popurl->GetPop3Sink(getter_AddRefs(pop3sink));
-          if (NS_SUCCEEDED(rv)) {
-            pop3sink->GetMessageUri(newMessageUri);
-            if (msgWindow) {
-              nsCOMPtr<nsIMsgWindowCommands> windowCommands;
-              msgWindow->GetWindowCommands(getter_AddRefs(windowCommands));
-              if (windowCommands) windowCommands->SelectMessage(newMessageUri);
-            }
-          }
-        }
-      }
     }
 
     if (mFlags & nsMsgFolderFlags::Inbox) {

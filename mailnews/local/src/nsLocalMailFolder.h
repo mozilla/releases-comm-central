@@ -271,15 +271,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
   // state variables for DownloadMessagesForOffline
 
-  // Do we notify the owning window of Delete's before or after
-  // Adding the new msg?
-#define DOWNLOAD_NOTIFY_FIRST 1
-#define DOWNLOAD_NOTIFY_LAST 2
-
-#ifndef DOWNLOAD_NOTIFY_STYLE
-#  define DOWNLOAD_NOTIFY_STYLE DOWNLOAD_NOTIFY_FIRST
-#endif
-
   nsCOMArray<nsIMsgDBHdr> mDownloadMessages;
   nsCOMPtr<nsIMsgWindow> mDownloadWindow;
   nsMsgKey mDownloadSelectKey;
@@ -288,12 +279,6 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 #define DOWNLOAD_STATE_INITED 1
 #define DOWNLOAD_STATE_GOTMSG 2
 #define DOWNLOAD_STATE_DIDSEL 3
-
-#if DOWNLOAD_NOTIFY_STYLE == DOWNLOAD_NOTIFY_LAST
-  nsMsgKey mDownloadOldKey;
-  nsMsgKey mDownloadOldParent;
-  uint32_t mDownloadOldFlags;
-#endif
 };
 
 #endif  // nsMsgLocalMailFolder_h__

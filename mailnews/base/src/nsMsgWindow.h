@@ -33,7 +33,6 @@ class nsMsgWindow : public nsIMsgWindow,
   nsCOMPtr<nsIMsgStatusFeedback> mStatusFeedback;
   nsCOMPtr<nsITransactionManager> mTransactionManager;
   nsCOMPtr<nsIMsgFolder> mOpenFolder;
-  nsCOMPtr<nsIMsgWindowCommands> mMsgWindowCommands;
   // These are used by the backend protocol code to attach
   // notification callbacks to channels, e.g., nsIBadCertListner2.
   nsCOMPtr<nsIInterfaceRequestor> mNotificationCallbacks;

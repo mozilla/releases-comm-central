@@ -31,8 +31,11 @@
 #include "nsEmbedCID.h"
 #include "nsMsgUtils.h"
 #include "nsServiceManagerUtils.h"
+#include "nsISupportsPrimitives.h"
+#include "nsIObserverService.h"
 #include "nsIPop3Service.h"
 #include "mozilla/Logging.h"
+#include "mozilla/Services.h"
 
 /* for logging to Error Console */
 #include "nsIScriptError.h"
@@ -591,30 +594,55 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
     if (!hdr) return NS_ERROR_FAILURE;
 
     nsCOMPtr<nsIMsgLocalMailFolder> localFolder = do_QueryInterface(m_folder);
-    bool doSelect = false;
-
-    // aSize is only set for partial messages. For full messages,
-    // check to see if we're replacing an old partial message.
-    if (!aSize && localFolder)
-      (void)localFolder->DeleteDownloadMsg(hdr, &doSelect);
 
     // If a header already exists for this message (for example, when
     // getting a complete message when a partial exists), then update the new
     // header from the old.
+    nsCOMPtr<nsIMsgDBHdr> oldMsgHdr;
     if (!m_origMessageUri.IsEmpty() && localFolder) {
-      nsCOMPtr<nsIMsgDBHdr> oldMsgHdr;
       rv = GetMsgDBHdrFromURI(m_origMessageUri, getter_AddRefs(oldMsgHdr));
-      if (NS_SUCCEEDED(rv) && oldMsgHdr)
+      if (NS_SUCCEEDED(rv) && oldMsgHdr) {
         localFolder->UpdateNewMsgHdr(oldMsgHdr, hdr);
+      }
     }
     m_msgStore->FinishNewMessage(m_outFileStream, hdr);
     m_newMailParser->PublishMsgHeader(aMsgWindow);
     m_newMailParser->ApplyForwardAndReplyFilter(aMsgWindow);
     if (aSize) hdr->SetUint32Property("onlineSize", aSize);
 
-    // if DeleteDownloadMsg requested it, select the new message
-    else if (doSelect)
-      (void)localFolder->SelectDownloadMsg();
+    if (oldMsgHdr) {
+      // We had the partial message, but got the full now.
+      nsCOMPtr<nsIMsgFolder> oldMsgFolder;
+      rv = oldMsgHdr->GetFolder(getter_AddRefs(oldMsgFolder));
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCString oldURI;
+      rv = oldMsgFolder->GetUriForMsg(oldMsgHdr, oldURI);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      nsCOMPtr<nsIMsgFolder> newMsgFolder;
+      rv = hdr->GetFolder(getter_AddRefs(newMsgFolder));
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCString newURI;
+      rv = newMsgFolder->GetUriForMsg(hdr, newURI);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      // Delete old header before notifying.
+      nsCOMPtr<nsIMsgDatabase> db;
+      rv = m_folder->GetMsgDatabase(getter_AddRefs(db));
+      NS_ENSURE_SUCCESS(rv, rv);
+      rv = db->DeleteHeader(oldMsgHdr, nullptr, false, true);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      nsCOMPtr<nsIObserverService> obsServ =
+          mozilla::services::GetObserverService();
+      nsCOMPtr<nsISupportsString> origUri =
+          do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv);
+      if (NS_SUCCEEDED(rv)) {
+        origUri->SetData(NS_ConvertUTF8toUTF16(oldURI));
+        obsServ->NotifyObservers(origUri, "message-content-updated",
+                                 NS_ConvertUTF8toUTF16(newURI).get());
+      }
+    }
   }
 
 #ifdef DEBUG

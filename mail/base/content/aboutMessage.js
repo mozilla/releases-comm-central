@@ -97,6 +97,7 @@ window.addEventListener("DOMContentLoaded", event => {
   );
 
   preferenceObserver.init();
+  Services.obs.addObserver(msgObserver, "message-content-updated");
 
   if (parent == top) {
     // Standalone message display? Focus the message pane.
@@ -113,6 +114,7 @@ window.addEventListener("unload", () => {
   OnUnloadMsgHeaderPane();
   MailServices.mailSession.RemoveFolderListener(folderListener);
   preferenceObserver.cleanUp();
+  Services.obs.removeObserver(msgObserver, "message-content-updated");
   gViewWrapper?.close();
 });
 
@@ -269,6 +271,22 @@ var folderListener = {
       return;
     }
     messageHistory.onMessageRemoved(parentFolder, msg);
+  },
+};
+
+var msgObserver = {
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
+
+  observe(subject, topic, data) {
+    if (
+      topic == "message-content-updated" &&
+      gMessageURI == subject.QueryInterface(Ci.nsISupportsString).data
+    ) {
+      // This notification is triggered after a partial pop3 message was
+      // fully downloaded. The old message URI is now gone. To reload the
+      // message, we display it with its new URI.
+      displayMessage(data, gViewWrapper);
+    }
   },
 };
 
