@@ -950,29 +950,6 @@ add_task(async function test_browser_action_menu_mv2() {
   );
 }).skip(); // TODO
 
-add_task(async function test_browser_action_menu_tabstoolbar_mv2() {
-  await subtest_action_menu(
-    window,
-    {
-      menuId: "toolbar-context-menu",
-      elementId: "menus_mochi_test-browserAction-toolbarbutton",
-      context: "browser_action",
-    },
-    {
-      pageUrl: "about:blank",
-      menuItemId: "browser_action",
-    },
-    { active: true, index: 0, mailTab: true },
-    {
-      manifest_version: 2,
-      browser_action: {
-        default_title: "This is a test",
-        default_area: "tabstoolbar",
-      },
-    }
-  );
-}).skip(); // TODO
-
 add_task(async function test_message_display_action_menu_pane_mv2() {
   let tab = await openMessageInTab(gMessage);
   // No check for menu entries in nonActionButtonElements as the header-toolbar
@@ -1096,28 +1073,7 @@ add_task(async function test_browser_action_menu_mv3() {
     }
   );
 }).skip(); // TODO
-add_task(async function test_browser_action_menu_tabstoolbar_mv3() {
-  await subtest_action_menu(
-    window,
-    {
-      menuId: "toolbar-context-menu",
-      elementId: "menus_mochi_test-browserAction-toolbarbutton",
-      context: "action",
-    },
-    {
-      pageUrl: "about:blank",
-      menuItemId: "action",
-    },
-    { active: true, index: 0, mailTab: true },
-    {
-      manifest_version: 3,
-      action: {
-        default_title: "This is a test",
-        default_area: "tabstoolbar",
-      },
-    }
-  );
-}).skip(); // TODO
+
 add_task(async function test_message_display_action_menu_pane_mv3() {
   let tab = await openMessageInTab(gMessage);
   // No check for menu entries in nonActionButtonElements as the header-toolbar

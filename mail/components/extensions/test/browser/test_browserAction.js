@@ -16,26 +16,23 @@ add_setup(async () => {
 // This test uses a command from the menus API to open the popup.
 add_task(async function test_popup_open_with_menu_command_mv2() {
   info("3-pane tab");
-  for (let area of [null, "tabstoolbar"]) {
-    let testConfig = {
-      actionType: "browser_action",
-      testType: "open-with-menu-command",
-      default_area: area,
-      window,
-    };
+  let testConfig = {
+    actionType: "browser_action",
+    testType: "open-with-menu-command",
+    window,
+  };
 
-    await run_popup_test({
-      ...testConfig,
-    });
-    await run_popup_test({
-      ...testConfig,
-      use_default_popup: true,
-    });
-    await run_popup_test({
-      ...testConfig,
-      disable_button: true,
-    });
-  }
+  await run_popup_test({
+    ...testConfig,
+  });
+  await run_popup_test({
+    ...testConfig,
+    use_default_popup: true,
+  });
+  await run_popup_test({
+    ...testConfig,
+    disable_button: true,
+  });
 
   info("Message window");
   {
@@ -64,27 +61,24 @@ add_task(async function test_popup_open_with_menu_command_mv2() {
 
 add_task(async function test_popup_open_with_menu_command_mv3() {
   info("3-pane tab");
-  for (let area of [null, "tabstoolbar"]) {
-    let testConfig = {
-      manifest_version: 3,
-      actionType: "action",
-      testType: "open-with-menu-command",
-      default_area: area,
-      window,
-    };
+  let testConfig = {
+    manifest_version: 3,
+    actionType: "action",
+    testType: "open-with-menu-command",
+    window,
+  };
 
-    await run_popup_test({
-      ...testConfig,
-    });
-    await run_popup_test({
-      ...testConfig,
-      use_default_popup: true,
-    });
-    await run_popup_test({
-      ...testConfig,
-      disable_button: true,
-    });
-  }
+  await run_popup_test({
+    ...testConfig,
+  });
+  await run_popup_test({
+    ...testConfig,
+    use_default_popup: true,
+  });
+  await run_popup_test({
+    ...testConfig,
+    disable_button: true,
+  });
 
   info("Message window");
   {
@@ -253,22 +247,18 @@ add_task(async function test_button_order() {
     [
       {
         name: "addon1",
-        area: "maintoolbar",
         toolbar: "unified-toolbar",
       },
       {
         name: "addon2",
-        area: "tabstoolbar",
         toolbar: "unified-toolbar",
       },
       {
         name: "addon3",
-        area: "maintoolbar",
         toolbar: "unified-toolbar",
       },
       {
         name: "addon4",
-        area: "tabstoolbar",
         toolbar: "unified-toolbar",
       },
     ],
@@ -282,13 +272,11 @@ add_task(async function test_button_order() {
     [
       {
         name: "addon1",
-        area: "maintoolbar",
         toolbar: "mail-bar3",
         default_windows: ["messageDisplay"],
       },
       {
         name: "addon2",
-        area: "maintoolbar",
         toolbar: "mail-bar3",
         default_windows: ["messageDisplay"],
       },

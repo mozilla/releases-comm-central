@@ -3,93 +3,83 @@
     "namespace": "manifest",
     "types": [
       {
-        "id": "ActionManifest",
-        "type": "object",
-        "additionalProperties": {
-          "$ref": "UnrecognizedProperty"
-        },
-        "properties": {
-          "default_label": {
-            "type": "string",
-            "description": "The label of the action button, defaults to its title. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback.",
-            "optional": true,
-            "preprocess": "localize"
-          },
-          "default_title": {
-            "type": "string",
-            "description": "The title of the action button. This shows up in the tooltip and the label. Defaults to the add-on name.",
-            "optional": true,
-            "preprocess": "localize"
-          },
-          "default_icon": {
-            "$ref": "IconPath",
-            "description": "The paths to one or more icons for the action button.",
-            "optional": true
-          },
-          "theme_icons": {
-            "type": "array",
-            "optional": true,
-            "minItems": 1,
-            "items": {
-              "$ref": "ThemeIcons"
-            },
-            "description": "Specifies dark and light icons to be used with themes. The ``light`` icon is used on dark backgrounds and vice versa. **Note:** The default theme uses the ``default_icon`` for light backgrounds (if specified)."
-          },
-          "default_popup": {
-            "type": "string",
-            "format": "relativeUrl",
-            "optional": true,
-            "description": "The html document to be opened as a popup when the user clicks on the action button.",
-            "preprocess": "localize"
-          },
-          "browser_style": {
-            "type": "boolean",
-            "optional": true,
-            "description": "Enable browser styles. See the `MDN documentation on browser styles <|link-mdn-browser-styles|>`__ for more information.",
-            "default": false
-          },
-          "default_area": {
-            "description": "Defines the location the action button will appear. This will always behave like <value>maintoolbar</value>. The <value>tabstoolbar</value> area should no longer be used.",
-            "type": "string",
-            "enum": ["maintoolbar", "tabstoolbar"],
-            "optional": true
-          },
-          "default_windows": {
-            "description": "Defines the windows, the action button should appear in. Defaults to showing it only in the <value>normal</value> Thunderbird window, but can also be shown in the <value>messageDisplay</value> window.",
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": ["normal", "messageDisplay"]
-            },
-            "default": ["normal"],
-            "optional": true
-          },
-          "allowed_spaces": {
-            "description": "Defines the spaces, in which the action button can appear in the toolbar of the normal Thunderbird window. Defaults to only allowing the action in the <value>mail</value> space. The <value>default</value> space is for tabs that don't belong to any space. If this is an empty array, the action button is shown in all spaces.",
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "mail",
-                "addressbook",
-                "calendar",
-                "tasks",
-                "chat",
-                "settings",
-                "default"
-              ]
-            },
-            "default": ["mail"],
-            "optional": true
-          }
-        }
-      },
-      {
         "$extend": "WebExtensionManifest",
         "properties": {
           "action": {
             "min_manifest_version": 3,
-            "$ref": "ActionManifest",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "UnrecognizedProperty"
+            },
+            "properties": {
+              "default_label": {
+                "type": "string",
+                "description": "The label of the action button, defaults to its title. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback.",
+                "optional": true,
+                "preprocess": "localize"
+              },
+              "default_title": {
+                "type": "string",
+                "description": "The title of the action button. This shows up in the tooltip and the label. Defaults to the add-on name.",
+                "optional": true,
+                "preprocess": "localize"
+              },
+              "default_icon": {
+                "$ref": "IconPath",
+                "description": "The paths to one or more icons for the action button.",
+                "optional": true
+              },
+              "theme_icons": {
+                "type": "array",
+                "optional": true,
+                "minItems": 1,
+                "items": {
+                  "$ref": "ThemeIcons"
+                },
+                "description": "Specifies dark and light icons to be used with themes. The ``light`` icon is used on dark backgrounds and vice versa. **Note:** The default theme uses the ``default_icon`` for light backgrounds (if specified)."
+              },
+              "default_popup": {
+                "type": "string",
+                "format": "relativeUrl",
+                "optional": true,
+                "description": "The html document to be opened as a popup when the user clicks on the action button.",
+                "preprocess": "localize"
+              },
+              "browser_style": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Enable browser styles. See the `MDN documentation on browser styles <|link-mdn-browser-styles|>`__ for more information.",
+                "default": false
+              },
+              "default_windows": {
+                "description": "Defines the windows, the action button should appear in. Defaults to showing it only in the <value>normal</value> Thunderbird window, but can also be shown in the <value>messageDisplay</value> window.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["normal", "messageDisplay"]
+                },
+                "default": ["normal"],
+                "optional": true
+              },
+              "allowed_spaces": {
+                "description": "Defines for which spaces the action button will be added to Thunderbird's unified toolbar. Defaults to only allowing the action in the <value>mail</value> space. The <value>default</value> space is for tabs that don't belong to any space. If this is an empty array, the action button is shown in all spaces.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mail",
+                    "addressbook",
+                    "calendar",
+                    "tasks",
+                    "chat",
+                    "settings",
+                    "default"
+                  ]
+                },
+                "default": ["mail"],
+                "optional": true
+              }
+            },
             "optional": true
           }
         }
@@ -99,7 +89,85 @@
         "properties": {
           "browser_action": {
             "max_manifest_version": 2,
-            "$ref": "ActionManifest",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "UnrecognizedProperty"
+            },
+            "properties": {
+              "default_label": {
+                "type": "string",
+                "description": "The label of the browserAction button, defaults to its title. Can be set to an empty string to not display any label. If the containing toolbar is configured to display text only, the title will be used as fallback.",
+                "optional": true,
+                "preprocess": "localize"
+              },
+              "default_title": {
+                "type": "string",
+                "description": "The title of the browserAction button. This shows up in the tooltip and the label. Defaults to the add-on name.",
+                "optional": true,
+                "preprocess": "localize"
+              },
+              "default_icon": {
+                "$ref": "IconPath",
+                "description": "The paths to one or more icons for the browserAction button.",
+                "optional": true
+              },
+              "theme_icons": {
+                "type": "array",
+                "optional": true,
+                "minItems": 1,
+                "items": {
+                  "$ref": "ThemeIcons"
+                },
+                "description": "Specifies dark and light icons to be used with themes. The ``light`` icon is used on dark backgrounds and vice versa. **Note:** The default theme uses the ``default_icon`` for light backgrounds (if specified)."
+              },
+              "default_popup": {
+                "type": "string",
+                "format": "relativeUrl",
+                "optional": true,
+                "description": "The html document to be opened as a popup when the user clicks on the browserAction button.",
+                "preprocess": "localize"
+              },
+              "browser_style": {
+                "type": "boolean",
+                "optional": true,
+                "description": "Enable browser styles. See the `MDN documentation on browser styles <|link-mdn-browser-styles|>`__ for more information.",
+                "default": false
+              },
+              "default_area": {
+                "description": "Defines the location the browserAction button will appear. Deprecated and ignored. Replaced by ``allowed_spaces``",
+                "type": "string",
+                "enum": ["maintoolbar", "tabstoolbar"],
+                "optional": true
+              },
+              "default_windows": {
+                "description": "Defines the windows, the browserAction button should appear in. Defaults to showing it only in the <value>normal</value> Thunderbird window, but can also be shown in the <value>messageDisplay</value> window.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["normal", "messageDisplay"]
+                },
+                "default": ["normal"],
+                "optional": true
+              },
+              "allowed_spaces": {
+                "description": "Defines for which spaces the browserAction button will be added to Thunderbird's unified toolbar. Defaults to only allowing the browserAction in the <value>mail</value> space. The <value>default</value> space is for tabs that don't belong to any space. If this is an empty array, the browserAction button is shown in all spaces.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "mail",
+                    "addressbook",
+                    "calendar",
+                    "tasks",
+                    "chat",
+                    "settings",
+                    "default"
+                  ]
+                },
+                "default": ["mail"],
+                "optional": true
+              }
+            },
             "optional": true
           }
         }
@@ -108,7 +176,7 @@
   },
   {
     "namespace": "action",
-    "description": "Use an action to put a button in the mail window toolbar. In addition to its icon, an action button can also have a tooltip, a badge, and a popup.",
+    "description": "Use the action API to add a button to Thunderbird's unified toolbar. In addition to its icon, an action button can also have a tooltip, a badge, and a popup.",
     "permissions": ["manifest:action", "manifest:browser_action"],
     "min_manifest_version": 3,
     "types": [
@@ -758,6 +826,7 @@
   },
   {
     "namespace": "browserAction",
+    "description": "Use the browserAction API to add a button to Thunderbird's unified toolbar. In addition to its icon, a browserAction button can also have a tooltip, a badge, and a popup.",
     "permissions": ["manifest:action", "manifest:browser_action"],
     "max_manifest_version": 2,
     "$import": "action"

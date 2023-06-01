@@ -34,20 +34,6 @@ add_task(async function test_popup_open_with_click() {
       ...testConfig,
       use_default_popup: true,
     });
-    await run_popup_test({
-      ...testConfig,
-      default_area: "tabstoolbar",
-    });
-    await run_popup_test({
-      ...testConfig,
-      disable_button: true,
-      default_area: "tabstoolbar",
-    });
-    await run_popup_test({
-      ...testConfig,
-      use_default_popup: true,
-      default_area: "tabstoolbar",
-    });
   }
 
   info("Message window");
