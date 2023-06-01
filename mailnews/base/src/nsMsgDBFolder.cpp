@@ -5531,8 +5531,7 @@ nsresult nsMsgDBFolder::MessagesInKeyOrder(
 
 nsMsgKeySetU::nsMsgKeySetU() : hiKeySet(nullptr) {}
 
-nsMsgKeySetU::~nsMsgKeySetU() {
-}
+nsMsgKeySetU::~nsMsgKeySetU() {}
 
 const uint32_t kLowerBits = 0x7fffffff;
 

@@ -75,9 +75,7 @@ nsMsgKeySet::nsMsgKeySet(/* MSG_NewsHost* host*/) {
 #endif
 }
 
-nsMsgKeySet::~nsMsgKeySet() {
-  PR_FREEIF(m_data);
-}
+nsMsgKeySet::~nsMsgKeySet() { PR_FREEIF(m_data); }
 
 bool nsMsgKeySet::Grow() {
   int32_t new_size;
