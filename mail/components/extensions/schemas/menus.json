@@ -28,7 +28,7 @@
   {
     "namespace": "menus",
     "permissions": ["menus"],
-    "description": "The menus API allows to add items to Thunderbirds menus. You can choose what types of objects your context menu additions apply to, such as images, hyperlinks, and pages.",
+    "description": "The menus API allows to add items to Thunderbird's menus. You can choose what types of objects your context menu additions apply to, such as images, hyperlinks, and pages.",
     "properties": {
       "ACTION_MENU_TOP_LEVEL_LIMIT": {
         "value": 6,
@@ -485,9 +485,19 @@
                 "description": "Whether this context menu item is enabled or disabled. Defaults to true."
               },
               "command": {
-                "type": "string",
                 "optional": true,
-                "description": "Specifies a command to issue for the context click. Currently supports internal commands <value>_execute_action</value>, <value>_execute_compose_action</value> and <value>_execute_message_display_action</value>."
+                "choices": [
+                  {
+                    "type": "string",
+                    "max_manifest_version": 2,
+                    "description": "Specifies a command to issue for the context click. Currently supports internal commands <value>_execute_browser_action</value>, <value>_execute_compose_action</value> and <value>_execute_message_display_action</value>."
+                  },
+                  {
+                    "type": "string",
+                    "min_manifest_version": 3,
+                    "description": "Specifies a command to issue for the context click. Currently supports internal commands <value>_execute_action</value>, <value>_execute_compose_action</value> and <value>_execute_message_display_action</value>."
+                  }
+                ]
               }
             }
           },

@@ -135,17 +135,16 @@
             "optional": true
           },
           "newsgroups": {
+            "description": "A single newsgroup name or an array of newsgroup names.",
             "choices": [
               {
-                "type": "string",
-                "description": "A newsgroup name."
+                "type": "string"
               },
               {
                 "type": "array",
                 "items": {
                   "type": "string"
-                },
-                "description": "An array of newsgroup names."
+                }
               }
             ],
             "optional": true

@@ -15,61 +15,123 @@
         "$extend": "WebExtensionManifest",
         "properties": {
           "commands": {
-            "type": "object",
             "optional": true,
-            "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a :ref:`commands.CommandsShortcut`. The <em>name</em> may also be one of the following built-in special shortcuts: \n * <value>_execute_action</value> \n * <value>_execute_compose_action</value> \n * <value>_execute_message_display_action</value>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
-            "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "UnrecognizedProperty"
-              },
-              "properties": {
-                "suggested_key": {
+            "choices": [
+              {
+                "type": "object",
+                "max_manifest_version": 2,
+                "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a :ref:`commands.CommandsShortcut`. The <em>name</em> may also be one of the following built-in special shortcuts: \n * <value>_execute_browser_action</value> \n * <value>_execute_compose_action</value> \n * <value>_execute_message_display_action</value>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
+                "additionalProperties": {
                   "type": "object",
-                  "optional": true,
+                  "additionalProperties": {
+                    "$ref": "UnrecognizedProperty"
+                  },
                   "properties": {
-                    "default": {
-                      "$ref": "KeyName",
-                      "optional": true
+                    "suggested_key": {
+                      "type": "object",
+                      "optional": true,
+                      "properties": {
+                        "default": {
+                          "$ref": "KeyName",
+                          "optional": true
+                        },
+                        "mac": {
+                          "$ref": "KeyName",
+                          "optional": true
+                        },
+                        "linux": {
+                          "$ref": "KeyName",
+                          "optional": true
+                        },
+                        "windows": {
+                          "$ref": "KeyName",
+                          "optional": true
+                        },
+                        "chromeos": {
+                          "type": "string",
+                          "optional": true
+                        },
+                        "android": {
+                          "type": "string",
+                          "optional": true
+                        },
+                        "ios": {
+                          "type": "string",
+                          "optional": true
+                        },
+                        "additionalProperties": {
+                          "type": "string",
+                          "deprecated": "Unknown platform name",
+                          "optional": true
+                        }
+                      }
                     },
-                    "mac": {
-                      "$ref": "KeyName",
-                      "optional": true
-                    },
-                    "linux": {
-                      "$ref": "KeyName",
-                      "optional": true
-                    },
-                    "windows": {
-                      "$ref": "KeyName",
-                      "optional": true
-                    },
-                    "chromeos": {
+                    "description": {
                       "type": "string",
-                      "optional": true
-                    },
-                    "android": {
-                      "type": "string",
-                      "optional": true
-                    },
-                    "ios": {
-                      "type": "string",
-                      "optional": true
-                    },
-                    "additionalProperties": {
-                      "type": "string",
-                      "deprecated": "Unknown platform name",
+                      "preprocess": "localize",
                       "optional": true
                     }
                   }
-                },
-                "description": {
-                  "type": "string",
-                  "preprocess": "localize",
-                  "optional": true
+                }
+              },
+              {
+                "type": "object",
+                "min_manifest_version": 3,
+                "description": "A <em>dictionary object</em> defining one or more commands as <em>name-value</em> pairs, the <em>name</em> being the name of the command and the <em>value</em> being a :ref:`commands.CommandsShortcut`. The <em>name</em> may also be one of the following built-in special shortcuts: \n * <value>_execute_action</value> \n * <value>_execute_compose_action</value> \n * <value>_execute_message_display_action</value>\nExample: <literalinclude>includes/commands/manifest.json<lang>JSON</lang></literalinclude>",
+                "additionalProperties": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "UnrecognizedProperty"
+                  },
+                  "properties": {
+                    "suggested_key": {
+                      "type": "object",
+                      "optional": true,
+                      "properties": {
+                        "default": {
+                          "$ref": "KeyName",
+                          "optional": true
+                        },
+                        "mac": {
+                          "$ref": "KeyName",
+                          "optional": true
+                        },
+                        "linux": {
+                          "$ref": "KeyName",
+                          "optional": true
+                        },
+                        "windows": {
+                          "$ref": "KeyName",
+                          "optional": true
+                        },
+                        "chromeos": {
+                          "type": "string",
+                          "optional": true
+                        },
+                        "android": {
+                          "type": "string",
+                          "optional": true
+                        },
+                        "ios": {
+                          "type": "string",
+                          "optional": true
+                        },
+                        "additionalProperties": {
+                          "type": "string",
+                          "deprecated": "Unknown platform name",
+                          "optional": true
+                        }
+                      }
+                    },
+                    "description": {
+                      "type": "string",
+                      "preprocess": "localize",
+                      "optional": true
+                    }
+                  }
                 }
               }
-            }
+            ]
           }
         }
       }

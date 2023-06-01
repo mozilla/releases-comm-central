@@ -583,7 +583,7 @@
       {
         "name": "enable",
         "type": "function",
-        "description": "Enables the messageDisplayAction button for a tab. By default, a messageDisplayAction button is enabled.",
+        "description": "Enables the messageDisplayAction button for a specific tab (if a ``tabId`` is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well. By default, a messageDisplayAction button is enabled.",
         "async": "callback",
         "parameters": [
           {
@@ -604,7 +604,7 @@
       {
         "name": "disable",
         "type": "function",
-        "description": "Disables the messageDisplayAction button for a tab.",
+        "description": "Disables the messageDisplayAction button for a specific tab (if a ``tabId`` is provided), or for all tabs which do not have a custom enable state. Once the enable state of a tab has been updated individually, all further changes to its state have to be done individually as well.",
         "async": "callback",
         "parameters": [
           {
