@@ -45,6 +45,7 @@ var quickFilterBar = {
 
   init() {
     this._bindUI();
+    this.updateRovingTab();
 
     // Show the toolbar, unless it has been previously hidden.
     if (
@@ -84,6 +85,81 @@ var quickFilterBar = {
         this._showFilterBar(false);
       }
     });
+
+    for (let buttonGroup of this.rovingGroups) {
+      buttonGroup.addEventListener("keypress", event => {
+        this.triggerQFTRovingTab(event);
+      });
+    }
+  },
+
+  /**
+   * Get all button groups with the roving-group class.
+   *
+   * @returns {Array} An array of buttons.
+   */
+  get rovingGroups() {
+    return document.querySelectorAll("#quick-filter-bar .roving-group");
+  },
+
+  /**
+   * Update the `tabindex` attribute of the buttons.
+   */
+  updateRovingTab() {
+    for (let buttonGroup of this.rovingGroups) {
+      for (let button of buttonGroup.querySelectorAll("button")) {
+        button.tabIndex = -1;
+      }
+      // Allow focus on the first available button.
+      buttonGroup.querySelector("button").tabIndex = 0;
+    }
+  },
+
+  /**
+   * Handles the keypress event on the button group.
+   *
+   * @param {Event} event - The keypress DOMEvent.
+   */
+  triggerQFTRovingTab(event) {
+    if (!["ArrowRight", "ArrowLeft"].includes(event.key)) {
+      return;
+    }
+
+    let buttonGroup = [
+      ...event.target
+        .closest(".roving-group")
+        .querySelectorAll(`[is="toggle-button"]`),
+    ];
+    let focusableButton = buttonGroup.find(b => b.tabIndex != -1);
+    let elementIndex = buttonGroup.indexOf(focusableButton);
+
+    // Find the adjacent focusable element based on the pressed key.
+    let isRTL = document.dir == "rtl";
+    if (
+      (isRTL && event.key == "ArrowLeft") ||
+      (!isRTL && event.key == "ArrowRight")
+    ) {
+      elementIndex++;
+      if (elementIndex > buttonGroup.length - 1) {
+        elementIndex = 0;
+      }
+    } else if (
+      (!isRTL && event.key == "ArrowLeft") ||
+      (isRTL && event.key == "ArrowRight")
+    ) {
+      elementIndex--;
+      if (elementIndex == -1) {
+        elementIndex = buttonGroup.length - 1;
+      }
+    }
+
+    // Move the focus to a button and update the tabindex attribute.
+    let newFocusableButton = buttonGroup[elementIndex];
+    if (newFocusableButton) {
+      focusableButton.tabIndex = -1;
+      newFocusableButton.tabIndex = 0;
+      newFocusableButton.focus();
+    }
   },
 
   get filterer() {
