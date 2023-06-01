@@ -359,8 +359,8 @@ class nsMsgKeySetU {
 
  protected:
   nsMsgKeySetU();
-  nsMsgKeySet* loKeySet;
-  nsMsgKeySet* hiKeySet;
+  RefPtr<nsMsgKeySet> loKeySet;
+  RefPtr<nsMsgKeySet> hiKeySet;
 };
 
 #endif

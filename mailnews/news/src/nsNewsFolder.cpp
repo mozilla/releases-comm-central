@@ -68,7 +68,7 @@ nsMsgNewsFolder::nsMsgNewsFolder(void)
   mFolderSize = kSizeUnknown;
 }
 
-nsMsgNewsFolder::~nsMsgNewsFolder(void) { delete mReadSet; }
+nsMsgNewsFolder::~nsMsgNewsFolder(void) {}
 
 NS_IMPL_ADDREF_INHERITED(nsMsgNewsFolder, nsMsgDBFolder)
 NS_IMPL_RELEASE_INHERITED(nsMsgNewsFolder, nsMsgDBFolder)
@@ -549,6 +549,7 @@ nsMsgNewsFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
 NS_IMETHODIMP
 nsMsgNewsFolder::UpdateSummaryFromNNTPInfo(int32_t oldest, int32_t youngest,
                                            int32_t total) {
+  NS_ENSURE_STATE(mReadSet);
   /* First, mark all of the articles now known to be expired as read. */
   if (oldest > 1) {
     nsCString oldSet;
@@ -1244,7 +1245,6 @@ nsMsgNewsFolder::GetNewsrcLine(nsACString& newsrcLine) {
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::SetReadSetFromStr(const nsACString& newsrcLine) {
-  delete mReadSet;
   mReadSet = nsMsgKeySet::Create(PromiseFlatCString(newsrcLine).get());
   NS_ENSURE_TRUE(mReadSet, NS_ERROR_OUT_OF_MEMORY);
 
@@ -1554,7 +1554,6 @@ NS_IMETHODIMP nsMsgNewsFolder::Shutdown(bool shutdownChildren) {
     // and we outlive the db, so it's safe to delete it here.
     nsCOMPtr<nsINewsDatabase> db = do_QueryInterface(mDatabase);
     if (db) db->SetReadSet(nullptr);
-    delete mReadSet;
     mReadSet = nullptr;
   }
   return nsMsgDBFolder::Shutdown(shutdownChildren);

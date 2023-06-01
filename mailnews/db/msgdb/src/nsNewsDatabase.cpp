@@ -188,10 +188,8 @@ NS_IMETHODIMP nsNewsDatabase::MarkAllRead(nsTArray<nsMsgKey>& aThoseMarked) {
   nsCString knownArts;
   if (m_dbFolderInfo) {
     m_dbFolderInfo->GetKnownArtsSet(getter_Copies(knownArts));
-    nsMsgKeySet* knownKeys = nsMsgKeySet::Create(knownArts.get());
+    RefPtr<nsMsgKeySet> knownKeys = nsMsgKeySet::Create(knownArts.get());
     if (knownKeys) lowWater = knownKeys->GetFirstMember();
-
-    delete knownKeys;
   }
   if (lowWater == nsMsgKey_None) GetLowWaterArticleNum(&lowWater);
   GetHighWaterArticleNum(&highWater);

@@ -118,7 +118,7 @@ class nsMsgNewsFolder : public nsMsgDBFolder, public nsIMsgNewsFolder {
 
   nsCString mOptionLines;
   nsCString mUnsubscribedNewsgroupLines;
-  nsMsgKeySet* mReadSet;
+  RefPtr<nsMsgKeySet> mReadSet;
 
   nsCOMPtr<nsIFile> mNewsrcFilePath;
 

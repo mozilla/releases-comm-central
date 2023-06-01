@@ -21,13 +21,13 @@ class MSG_NewsHost;
 
 class nsMsgKeySet {
  public:
+  NS_INLINE_DECL_REFCOUNTING(nsMsgKeySet);
   // Creates an empty set.
   static nsMsgKeySet* Create(/* MSG_NewsHost* host = NULL*/);
 
   // Creates a set from the list of numbers, as might be found in a
   // newsrc file.
   static nsMsgKeySet* Create(const char* str /* , MSG_NewsHost* host = NULL*/);
-  ~nsMsgKeySet();
 
   // FirstNonMember() returns the lowest non-member of the set that is
   // greater than 0.
@@ -102,6 +102,7 @@ class nsMsgKeySet {
 #ifdef NEWSRC_DOES_HOST_STUFF
   MSG_NewsHost* m_host;
 #endif
+  ~nsMsgKeySet();
 };
 
 #endif /* _nsMsgKeySet_H_ */
