@@ -230,6 +230,148 @@ for (let perm of [
 var gXPInstallObserver = {
   pendingInstalls: new WeakMap(),
 
+  // Themes do not have a permission prompt and instead call for an install
+  // confirmation.
+  showInstallConfirmation(browser, installInfo, height = undefined) {
+    let document = getTopWindow().document;
+    // If the confirmation notification is already open cache the installInfo
+    // and the new confirmation will be shown later
+    if (
+      PopupNotifications.getNotification("addon-install-confirmation", browser)
+    ) {
+      let pending = this.pendingInstalls.get(browser);
+      if (pending) {
+        pending.push(installInfo);
+      } else {
+        this.pendingInstalls.set(browser, [installInfo]);
+      }
+      return;
+    }
+
+    let showNextConfirmation = () => {
+      let pending = this.pendingInstalls.get(browser);
+      if (pending && pending.length) {
+        this.showInstallConfirmation(browser, pending.shift());
+      }
+    };
+
+    // If all installs have already been cancelled in some way then just show
+    // the next confirmation.
+    if (
+      installInfo.installs.every(
+        i => i.state != lazy.AddonManager.STATE_DOWNLOADED
+      )
+    ) {
+      showNextConfirmation();
+      return;
+    }
+
+    // Make notifications persistent
+    var options = {
+      displayURI: installInfo.originatingURI,
+      persistent: true,
+      hideClose: true,
+      popupOptions: {
+        position: "bottomright topright",
+      },
+    };
+
+    let acceptInstallation = () => {
+      for (let install of installInfo.installs) {
+        install.install();
+      }
+      installInfo = null;
+
+      Services.telemetry
+        .getHistogramById("SECURITY_UI")
+        .add(
+          Ci.nsISecurityUITelemetry.WARNING_CONFIRM_ADDON_INSTALL_CLICK_THROUGH
+        );
+    };
+
+    let cancelInstallation = () => {
+      if (installInfo) {
+        for (let install of installInfo.installs) {
+          // The notification may have been closed because the add-ons got
+          // cancelled elsewhere, only try to cancel those that are still
+          // pending install.
+          if (install.state != lazy.AddonManager.STATE_CANCELLED) {
+            install.cancel();
+          }
+        }
+      }
+
+      showNextConfirmation();
+    };
+
+    options.eventCallback = event => {
+      switch (event) {
+        case "removed":
+          cancelInstallation();
+          break;
+        case "shown":
+          let addonList = document.getElementById(
+            "addon-install-confirmation-content"
+          );
+          while (addonList.lastChild) {
+            addonList.lastChild.remove();
+          }
+
+          for (let install of installInfo.installs) {
+            let container = document.createXULElement("hbox");
+
+            let name = document.createXULElement("label");
+            name.setAttribute("value", install.addon.name);
+            name.setAttribute("class", "addon-install-confirmation-name");
+            container.appendChild(name);
+
+            addonList.appendChild(container);
+          }
+          break;
+      }
+    };
+
+    options.learnMoreURL = Services.urlFormatter.formatURLPref(
+      "app.support.baseURL"
+    );
+
+    let msgId;
+    let notification = document.getElementById(
+      "addon-install-confirmation-notification"
+    );
+    msgId = "addon-confirm-install-message";
+    notification.removeAttribute("warning");
+    options.learnMoreURL += "find-and-install-add-ons";
+    const addonCount = installInfo.installs.length;
+    const messageString = lazy.l10n.formatValueSync(msgId, { addonCount });
+
+    const [acceptMsg, cancelMsg] = lazy.l10n.formatMessagesSync([
+      "addon-install-accept-button",
+      "addon-install-cancel-button",
+    ]);
+    const action = buildNotificationAction(acceptMsg, acceptInstallation);
+    const secondaryAction = buildNotificationAction(cancelMsg, () => {});
+
+    if (height) {
+      notification.style.minHeight = height + "px";
+    }
+
+    let popup = PopupNotifications.show(
+      browser,
+      "addon-install-confirmation",
+      messageString,
+      THUNDERBIRD_ANCHOR_ID,
+      action,
+      [secondaryAction],
+      options
+    );
+    removeNotificationOnEnd(popup, installInfo.installs);
+
+    Services.telemetry
+      .getHistogramById("SECURITY_UI")
+      .add(Ci.nsISecurityUITelemetry.WARNING_CONFIRM_ADDON_INSTALL);
+  },
+
   // IDs of addon install related notifications
   NOTIFICATION_IDS: [
     "addon-install-blocked",
@@ -643,8 +785,41 @@ var gXPInstallObserver = {
         break;
       }
       case "addon-install-confirmation": {
-        throw new Error("addon-install-confirmation not implemented");
-        // Thunderbird doesn't do this.
+        let showNotification = () => {
+          let height;
+          if (PopupNotifications.isPanelOpen) {
+            let rect = getTopWindow()
+              .document.getElementById("addon-progress-notification")
+              .getBoundingClientRect();
+            height = rect.height;
+          }
+
+          this._removeProgressNotification(browser);
+          this.showInstallConfirmation(browser, installInfo, height);
+        };
+
+        let progressNotification = PopupNotifications.getNotification(
+          "addon-progress",
+          browser
+        );
+        if (progressNotification) {
+          let downloadDuration = Date.now() - progressNotification._startTime;
+          let securityDelay =
+            Services.prefs.getIntPref("security.dialog_enable_delay") -
+            downloadDuration;
+          if (securityDelay > 0) {
+            getTopWindow().setTimeout(() => {
+              // The download may have been cancelled during the security delay
+              if (
+                PopupNotifications.getNotification("addon-progress", browser)
+              ) {
+                showNotification();
+              }
+            }, securityDelay);
+            break;
+          }
+        }
+        showNotification();
       }
     }
   },
