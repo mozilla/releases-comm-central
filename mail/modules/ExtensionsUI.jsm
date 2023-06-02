@@ -331,17 +331,14 @@ var gXPInstallObserver = {
       }
     };
 
-    options.learnMoreURL = Services.urlFormatter.formatURLPref(
-      "app.support.baseURL"
-    );
-
     let msgId;
     let notification = document.getElementById(
       "addon-install-confirmation-notification"
     );
     msgId = "addon-confirm-install-message";
     notification.removeAttribute("warning");
-    options.learnMoreURL += "find-and-install-add-ons";
+    options.learnMoreURL =
+      "https://support.thunderbird.net/kb/installing-addon-thunderbird";
     const addonCount = installInfo.installs.length;
     const messageString = lazy.l10n.formatValueSync(msgId, { addonCount });
 
