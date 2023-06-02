@@ -100,6 +100,18 @@ registerCleanupFunction(() => {
   setCachedAllowedSpaces(new Map());
 });
 
+/**
+ * Enforce a certain state in the unified toolbar.
+ * @param {Object} state - A dictionary with arrays of buttons assigned to a space
+ */
+async function enforceState(state) {
+  const stateChangeObserved = TestUtils.topicObserved(
+    "unified-toolbar-state-change"
+  );
+  storeState(state);
+  await stateChangeObserved;
+}
+
 async function check3PaneState(folderPaneOpen = null, messagePaneOpen = null) {
   let tabmail = document.getElementById("tabmail");
   let tab = tabmail.currentTabInfo;
