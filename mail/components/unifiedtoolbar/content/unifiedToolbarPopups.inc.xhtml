@@ -35,7 +35,7 @@
            showFileHereLabel="true"
            recentLabel="&moveCopyMsgRecentMenu.label;"
            recentAccessKey="&moveCopyMsgRecentMenu.accesskey;"
-           oncommand="goDoCommand('cmd_moveMessage', event.target._folder)"/>
+           oncommand="goDoCommand('cmd_moveMessage', event.target._folder);event.stopPropagation()"/>
 <menupopup is="folder-menupopup" id="toolbarFolderLocationPopup"
            class="menulist-menupopup"
            mode="notDeferred"
