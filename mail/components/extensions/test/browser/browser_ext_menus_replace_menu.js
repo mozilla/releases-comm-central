@@ -277,7 +277,7 @@ add_task(async function overrideContext_in_extension_tab() {
   tabmail.closeTab(tabmail.currentTabInfo);
 });
 
-async function run_overrideContext_test_in_popup(testWindow, buttonId) {
+async function run_overrideContext_test_in_popup(testWindow, buttonSelector) {
   function extensionPopupScript() {
     document.addEventListener(
       "contextmenu",
@@ -399,7 +399,7 @@ async function run_overrideContext_test_in_popup(testWindow, buttonId) {
     `${makeWidgetId(extension.id)}-menuitem-_popup_1`,
     `${makeWidgetId(extension.id)}-menuitem-_popup_2`,
   ];
-  const button = testWindow.document.getElementById(buttonId);
+  const button = testWindow.document.querySelector(buttonSelector);
   Assert.ok(button, "Button created");
   EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, testWindow);
   await extension.awaitMessage("menu-registered");
@@ -504,9 +504,9 @@ async function run_overrideContext_test_in_popup(testWindow, buttonId) {
 add_task(async function overrideContext_in_extension_browser_action_popup() {
   await run_overrideContext_test_in_popup(
     window,
-    "overridecontext_mochi_test-browserAction-toolbarbutton"
+    `.unified-toolbar [extension="overrideContext@mochi.test"]`
   );
-}).skip(); // TODO
+});
 
 add_task(async function overrideContext_in_extension_compose_action_popup() {
   let account = createAccount();
@@ -516,7 +516,7 @@ add_task(async function overrideContext_in_extension_compose_action_popup() {
   await focusWindow(composeWindow);
   await run_overrideContext_test_in_popup(
     composeWindow,
-    "overridecontext_mochi_test-composeAction-toolbarbutton"
+    "#overridecontext_mochi_test-composeAction-toolbarbutton"
   );
   composeWindow.close();
 });
@@ -535,7 +535,7 @@ add_task(
 
     await run_overrideContext_test_in_popup(
       about3Pane.messageBrowser.contentWindow,
-      "overridecontext_mochi_test-messageDisplayAction-toolbarbutton"
+      "#overridecontext_mochi_test-messageDisplayAction-toolbarbutton"
     );
 
     about3Pane.displayFolder(rootFolder);
@@ -555,7 +555,7 @@ add_task(
     await focusWindow(messageWindow);
     await run_overrideContext_test_in_popup(
       messageWindow.messageBrowser.contentWindow,
-      "overridecontext_mochi_test-messageDisplayAction-toolbarbutton"
+      "#overridecontext_mochi_test-messageDisplayAction-toolbarbutton"
     );
     messageWindow.close();
   }
@@ -575,7 +575,7 @@ add_task(
     let tabmail = document.getElementById("tabmail");
     await run_overrideContext_test_in_popup(
       tabmail.currentAboutMessage,
-      "overridecontext_mochi_test-messageDisplayAction-toolbarbutton"
+      "#overridecontext_mochi_test-messageDisplayAction-toolbarbutton"
     );
     tabmail.closeOtherTabs(0);
   }
