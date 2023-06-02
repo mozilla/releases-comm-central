@@ -158,7 +158,7 @@ add_task(async function test_theme_icons() {
   );
 
   await extension.unload();
-}).skip(); // TODO
+}).skip(); // TODO (Bug 1828322)
 
 add_task(async function test_button_order() {
   info("3-pane tab");
