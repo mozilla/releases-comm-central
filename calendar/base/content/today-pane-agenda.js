@@ -168,7 +168,11 @@
       }
 
       this.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_EVENT;
-      await this.activate();
+      if (this.isActive) {
+        await this.refreshItems();
+      } else {
+        await this.activate();
+      }
       this.selectedIndex = 0;
     }
 
