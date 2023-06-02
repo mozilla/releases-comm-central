@@ -135,6 +135,9 @@ class UnifiedToolbar extends HTMLElement {
       window.addEventListener("spaces-toolbar-ready", () => this.initialize(), {
         once: true,
       });
+      document
+        .getElementById("cmd_CustomizeMailToolbar")
+        .setAttribute("disabled", true);
     }
 
     this.append(template);
@@ -197,6 +200,15 @@ class UnifiedToolbar extends HTMLElement {
     event.stopPropagation();
     const popup = document.getElementById("unifiedToolbarMenu");
     popup.openPopupAtScreen(event.screenX, event.screenY, true, event);
+    if (gSpacesToolbar.isLoaded) {
+      document
+        .getElementById("unifiedToolbarCustomize")
+        .removeAttribute("disabled");
+    } else {
+      document
+        .getElementById("unifiedToolbarCustomize")
+        .setAttribute("disabled", true);
+    }
     ToolbarContextMenu.updateExtension(popup);
   };
 
@@ -340,12 +352,18 @@ class UnifiedToolbar extends HTMLElement {
       }
     }
     this.#showToolbarForSpace(gSpacesToolbar.currentSpace?.name ?? "mail");
+    document
+      .getElementById("cmd_CustomizeMailToolbar")
+      .removeAttribute("disabled");
   }
 
   /**
    * Opens the customization UI for the unified toolbar.
    */
   async showCustomization() {
+    if (!gSpacesToolbar.isLoaded) {
+      return;
+    }
     await this.#ensureCustomizationInserted();
     document.querySelector("unified-toolbar-customization").toggle(true);
   }
