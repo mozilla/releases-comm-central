@@ -4413,8 +4413,11 @@ var threadPane = {
 
   /**
    * Restore the previously saved thread tree selection.
+   *
+   * @param {boolean} [discard=true] - If false, the selection data should be
+   *   kept after restoring the selection, otherwise it is forgotten.
    */
-  restoreSelection() {
+  restoreSelection(discard = true) {
     if (!this._savedSelections.has(gFolder?.URI)) {
       return;
     }
@@ -4456,7 +4459,10 @@ var threadPane = {
       threadTree.scrollToIndex(currentIndex, true);
       threadTree.currentIndex = currentIndex;
     }
-    this._savedSelections.delete(gFolder.URI);
+
+    if (discard) {
+      this._savedSelections.delete(gFolder.URI);
+    }
   },
 
   /**

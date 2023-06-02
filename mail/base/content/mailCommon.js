@@ -868,7 +868,15 @@ var dbViewWrapperListener = {
     }
   },
   onDestroyingView(folderIsComingBack) {
-    if (!folderIsComingBack && window.threadTree) {
+    if (!window.threadTree) {
+      return;
+    }
+
+    if (folderIsComingBack) {
+      // We'll get a new view of the same folder (e.g. with a quick filter) -
+      // try to preserve the selection.
+      window.threadPane.saveSelection();
+    } else {
       if (gDBView) {
         gDBView.setJSTree(null);
       }
@@ -881,6 +889,10 @@ var dbViewWrapperListener = {
   onDisplayingFolder() {},
   onLeavingFolder() {},
   onMessagesLoaded(all) {
+    // Try to restore what was selected. Keep the saved selection (if there is
+    // one) until we have all of the messages.
+    window.threadPane?.restoreSelection(all);
+
     if (all) {
       window.threadTree?.invalidate();
     }
