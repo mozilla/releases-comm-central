@@ -362,13 +362,11 @@ add_task(async function testOpenMessagesInTabs() {
           "browser.messageDisplay.open() should reject, if invalid messageId is specified"
         );
 
-        // TODO: This fails because searching for a message closes folders
-        // that aren't displayed, and we don't register displayed folders yet.
-        // await browser.test.assertRejects(
-        //   browser.messageDisplay.open({ headerMessageId: "1" }),
-        //   `Unknown or invalid headerMessageId: 1.`,
-        //   "browser.messageDisplay.open() should reject, if invalid headerMessageId is specified"
-        // );
+        await browser.test.assertRejects(
+          browser.messageDisplay.open({ headerMessageId: "1" }),
+          `Unknown or invalid headerMessageId: 1.`,
+          "browser.messageDisplay.open() should reject, if invalid headerMessageId is specified"
+        );
 
         await browser.test.assertRejects(
           browser.messageDisplay.open({}),
