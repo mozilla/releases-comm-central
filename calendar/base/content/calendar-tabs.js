@@ -205,10 +205,10 @@ var calendarItemTabType = {
     let strName;
     if (aTab.mode.type == "calendarEvent") {
       strName = aArgs.calendarEvent.title ? "editEventDialog" : "newEventDialog";
-      aTab.tabNode.setIcon("chrome://calendar/skin/shared/icons/event.svg");
+      aTab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/calendar.svg");
     } else if (aTab.mode.type == "calendarTask") {
       strName = aArgs.calendarEvent.title ? "editTaskDialog" : "newTaskDialog";
-      aTab.tabNode.setIcon("chrome://calendar/skin/shared/icons/task.svg");
+      aTab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/tasks.svg");
     } else {
       throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
