@@ -384,6 +384,7 @@ export default class ListBoxSelection extends HTMLUListElement {
     const palette = event.target.palette;
     if (event.dataTransfer.dropEffect === "none" && palette !== this) {
       event.preventDefault();
+      this.handleDragSuccess(event.target);
       palette.returnItem(event.target);
     }
   };
