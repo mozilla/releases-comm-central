@@ -267,13 +267,9 @@ var quickFilterBar = {
    *  filtering.  This is expected to be called by |reflectFiltererState| and
    *  when something happens event-wise in terms of search.
    *
-   * We can have one of four states:
+   * We can have one of two states:
    * - No filter is active; no attributes exposed for CSS to do anything.
    * - A filter is active and we are still searching; filterActive=searching.
-   * - A filter is active, completed searching, and we have results;
-   *   filterActive=matches.
-   * - A filter is active, completed searching, and we have no results;
-   *   filterActive=nomatches.
    */
   reflectFiltererResults() {
     let threadPane = document.getElementById("threadTree");
@@ -295,16 +291,6 @@ var quickFilterBar = {
         threadPane.setAttribute("filterActive", "searching");
         this.domNode.setAttribute("filterActive", "searching");
       }, 500);
-    } else if (gDBView.numMsgsInView) {
-      // filter completed, results
-      // some matches
-      threadPane.setAttribute("filterActive", "matches");
-      this.domNode.setAttribute("filterActive", "matches");
-    } else {
-      // filter completed, no results
-      // no matches! :(
-      threadPane.setAttribute("filterActive", "nomatches");
-      this.domNode.setAttribute("filterActive", "nomatches");
     }
   },
 

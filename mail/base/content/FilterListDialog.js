@@ -1103,7 +1103,6 @@ function updateCountBox() {
       len,
       gFilterBundle.getString("filterCountItems")
     ).replace("#1", len);
-    countBox.removeAttribute("filterActive");
     return;
   }
 
@@ -1111,9 +1110,5 @@ function updateCountBox() {
   countBox.value = gFilterBundle.getFormattedString(
     "filterCountVisibleOfTotal",
     [len, sum]
-  );
-  countBox.setAttribute(
-    "filterActive",
-    len == 0 && sum > 0 ? "nomatches" : "matches"
   );
 }

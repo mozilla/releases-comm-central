@@ -87,14 +87,6 @@ checkbox:not([label]) .checkbox-label-box {
   min-width: 15em;
 }
 
-#countBox[filterActive="matches"] {
-  color: #4e9a06;
-}
-
-#countBox[filterActive="nomatches"] {
-  color: #c00;
-}
-
 #statusbar {
   height: 1.8em;
   padding: 2px 4px;

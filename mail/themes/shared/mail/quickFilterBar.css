@@ -37,13 +37,8 @@
 
 #qfb-results-label {
   margin: 3px;
-  color: var(--color-green-60);
   text-align: end;
   align-self: center;
-}
-
-#quick-filter-bar[filterActive="nomatches"] #qfb-results-label {
-  color: var(--color-red-50);
 }
 
 #qfb-qs-textbox {
@@ -159,10 +154,6 @@
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: .3;
-}
-
-#threadTree[filterActive="nomatches"] {
-  background-image: url("chrome://messenger/skin/icons/search-not-found.svg");
 }
 
 #threadTree[filterActive="searching"] {
