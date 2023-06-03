@@ -8,15 +8,25 @@ add_task(async function testQuery() {
       "background.js": async () => {
         // There should be a single mailtab at startup.
         let tabs = await browser.tabs.query({});
+
         browser.test.assertEq(1, tabs.length, "Found one tab at startup");
         browser.test.assertEq("mail", tabs[0].type, "Tab is mail tab");
-        let mailTabId = tabs[0].id;
+        let mailTab = tabs[0];
 
         // Create a content tab.
         let contentTab = await browser.tabs.create({ url: "test.html" });
         browser.test.assertTrue(
-          contentTab.id != mailTabId,
+          contentTab.id != mailTab.id,
           "Id of content tab is different from mail tab"
+        );
+
+        // Query spaces.
+        let spaces = await browser.spaces.query({ id: mailTab.spaceId });
+        browser.test.assertEq(1, spaces.length, "Found one matching space");
+        browser.test.assertEq(
+          "mail",
+          spaces[0].name,
+          "Space is the mail space"
         );
 
         // Query for all tabs.
@@ -32,11 +42,20 @@ add_task(async function testQuery() {
           "Id of content tab is correct"
         );
 
+        // Query for the mail tab using spaceId.
+        tabs = await browser.tabs.query({ spaceId: mailTab.spaceId });
+        browser.test.assertEq(1, tabs.length, "Found one mail tab");
+        browser.test.assertEq(
+          mailTab.id,
+          tabs[0].id,
+          "Id of mail tab is correct"
+        );
+
         // Query for the mail tab using type.
         tabs = await browser.tabs.query({ type: "mail" });
         browser.test.assertEq(1, tabs.length, "Found one mail tab");
         browser.test.assertEq(
-          mailTabId,
+          mailTab.id,
           tabs[0].id,
           "Id of mail tab is correct"
         );
@@ -45,7 +64,7 @@ add_task(async function testQuery() {
         tabs = await browser.tabs.query({ mailTab: true });
         browser.test.assertEq(1, tabs.length, "Found one mail tab");
         browser.test.assertEq(
-          mailTabId,
+          mailTab.id,
           tabs[0].id,
           "Id of mail tab is correct"
         );
@@ -54,7 +73,7 @@ add_task(async function testQuery() {
         tabs = await browser.tabs.query({ mailTab: true, type: "content" });
         browser.test.assertEq(1, tabs.length, "Found one mail tab");
         browser.test.assertEq(
-          mailTabId,
+          mailTab.id,
           tabs[0].id,
           "Id of mail tab is correct"
         );
