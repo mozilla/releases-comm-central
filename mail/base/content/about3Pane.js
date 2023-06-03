@@ -486,6 +486,46 @@ var folderPaneContextMenu = {
 
     showItem("folderPaneContext-manageTags", isSmartTagsFolder);
 
+    // If source folder is virtual, allow only "move" within its own server.
+    // Don't show "copy" and "again" and don't show "recent" and "favorite".
+    // Also, check if this is a top-level smart folder, e.g., virtual "Inbox"
+    // in unified folder view. If so, don't show "move".
+    let movePopup = document.getElementById("folderContext-movePopup");
+    if (isVirtual) {
+      showItem("folderPaneContext-copyMenu", false);
+      showItem("folderPaneContext-moveToFolderAgain", false);
+      let folder = this.activeFolder;
+      let showMove = true;
+      if (
+        folder.server.hostName == "smart mailboxes" &&
+        folder.parent.isServer
+      ) {
+        showMove = false;
+      }
+      showItem("folderPaneContext-moveMenu", showMove);
+      if (showMove) {
+        let rootURI = MailUtils.getOrCreateFolder(
+          this.activeFolder.rootFolder.URI
+        );
+        movePopup.parentFolder = rootURI;
+      }
+    } else {
+      // Non-virtual. Don't allow move or copy of special use or root folder.
+      let okToMoveCopy = !(isServer || flags & Ci.nsMsgFolderFlags.SpecialUse);
+      if (okToMoveCopy) {
+        // Set the move menu to show all accounts.
+        movePopup.parentFolder = null;
+      }
+      showItem("folderPaneContext-moveMenu", okToMoveCopy);
+      showItem("folderPaneContext-copyMenu", okToMoveCopy);
+      if (okToMoveCopy) {
+        top.initMoveToFolderAgainMenu(
+          document.getElementById("folderPaneContext-moveToFolderAgain")
+        );
+      }
+      showItem("folderPaneContext-moveToFolderAgain", okToMoveCopy);
+    }
+
     let lastItem;
     for (let child of document.getElementById("folderPaneContext").children) {
       if (child.localName == "menuseparator") {
@@ -509,6 +549,43 @@ var folderPaneContextMenu = {
       .querySelector(".context-menu-target")
       ?.classList.remove("context-menu-target");
     this.clearOverrideFolder();
+  },
+
+  /**
+   * Check if transfer mode selected from folder context window, move or copy,
+   * is allowed. If not, silently change to the appropriate mode.
+   * Do the transfer and return true if moved, false if copied.
+   *
+   * @param {boolean} isMove
+   * @param {nsIMsgFolder} sourceFolder
+   * @param {nsIMsgFolder} targetFolder
+   */
+  transferFolder(isMove, sourceFolder, targetFolder) {
+    if (isMove && sourceFolder.server != targetFolder.server) {
+      // Do a move of folder only within same server.
+      // Don't allow folder move across servers; only folder copy allowed.
+      // Note: This restriction will be removed if/when bug 1828372 change is
+      // in place.
+      // Can't move folder inter-server, change to copy.
+      isMove = false;
+    } else if (!isMove && sourceFolder.server == targetFolder.server) {
+      // Don't allow folder copy within the same server; only move allowed.
+      // Can't copy folder intra-server, change to move.
+      isMove = true;
+    }
+    // Do the transfer. A slight delay in calling copyFolder() helps the
+    // folder-menupopup chain of items get properly closed so the next folder
+    // context popup can occur.
+    setTimeout(() =>
+      MailServices.copy.copyFolder(
+        sourceFolder,
+        targetFolder,
+        isMove,
+        null,
+        top.msgWindow
+      )
+    );
+    return isMove;
   },
 
   onCommand(event) {
@@ -583,6 +660,56 @@ var folderPaneContextMenu = {
       case "folderPaneContext-manageTags":
         goDoCommand("cmd_manageTags");
         break;
+      default: {
+        // Handle folder context menu items move to, copy to.
+        let isMove = false;
+        let isCopy = false;
+        let targetFolder;
+        if (
+          document
+            .getElementById("folderPaneContext-moveMenu")
+            .contains(event.target)
+        ) {
+          // A move is requested via foldermenu-popup.
+          isMove = true;
+        } else if (
+          document
+            .getElementById("folderPaneContext-copyMenu")
+            .contains(event.target)
+        ) {
+          // A copy is requested via foldermenu-popup.
+          isCopy = true;
+        } else if (
+          document
+            .getElementById("folderPaneContext-moveToFolderAgain")
+            .contains(event.target)
+        ) {
+          // A move|copy again requested via foldermenu-popup
+          targetFolder = MailUtils.getOrCreateFolder(
+            Services.prefs.getStringPref("mail.last_msg_movecopy_target_uri")
+          );
+          if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
+            isMove = true;
+          } else {
+            isCopy = true;
+          }
+        }
+        if (isMove || isCopy) {
+          if (!targetFolder) {
+            targetFolder = event.target._folder;
+          }
+          isMove = this.transferFolder(isMove, folder, targetFolder);
+          // Save in prefs the target folder URI and if this was a move or
+          // copy. This is to fill in the next folder or message context
+          // menu item "Move|Copy to <TargetFolderName> Again".
+          Services.prefs.setStringPref(
+            "mail.last_msg_movecopy_target_uri",
+            targetFolder.URI
+          );
+          Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
+        }
+        break;
+      }
     }
   },
 };
@@ -2498,13 +2625,22 @@ var folderPane = {
       let sourceFolder = event.dataTransfer
         .mozGetDataAt("text/x-moz-folder", 0)
         .QueryInterface(Ci.nsIMsgFolder);
+      let isMove = sourceFolder.server == targetFolder.server;
       MailServices.copy.copyFolder(
         sourceFolder,
         targetFolder,
-        sourceFolder.server == targetFolder.server,
+        isMove,
         null,
         top.msgWindow
       );
+      // Save in prefs the target folder URI and if this was a move or copy.
+      // This is to fill in the next folder or message context menu item
+      // "Move|Copy to <TargetFolderName> Again".
+      Services.prefs.setStringPref(
+        "mail.last_msg_movecopy_target_uri",
+        targetFolder.URI
+      );
+      Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
     } else if (types.includes("application/x-moz-file")) {
       for (let i = 0; i < event.dataTransfer.mozItemCount; i++) {
         let extFile = event.dataTransfer

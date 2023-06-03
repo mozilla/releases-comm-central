@@ -350,6 +350,7 @@
 
       set parentFolder(val) {
         this._parentFolder = val;
+        this._teardown();
       }
 
       get parentFolder() {
