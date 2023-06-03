@@ -2095,6 +2095,16 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
       });
     }
 
+    this.#button.addEventListener("contextmenu", event => {
+      event.stopPropagation();
+      const table = this.closest("table");
+      if (table.editable) {
+        table
+          .querySelector("#columnPickerMenuPopup")
+          .openPopup(event.target, { triggerEvent: event });
+      }
+    });
+
     // This is the column handling the thread toggling.
     if (column.thread) {
       this.#button.classList.add("tree-view-header-thread");

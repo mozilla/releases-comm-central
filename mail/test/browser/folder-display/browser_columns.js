@@ -238,6 +238,36 @@ add_task(async function test_keypress_on_columns() {
   // Close the column picker.
   EventUtils.synthesizeKey("VK_ESCAPE", {}, about3Pane);
   await hiddenPromise;
+
+  // Move the focus to another column.
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, about3Pane);
+  Assert.notEqual(
+    about3Pane.document.activeElement,
+    about3Pane.document.querySelector(
+      `th[is="tree-view-table-column-picker"] button`
+    ),
+    "The column picker should not be focused"
+  );
+
+  shownPromise = BrowserTestUtils.waitForEvent(colPickerPopup, "popupshown");
+  // Right clicking on a column header should trigger the column picker
+  // menupopup.
+  EventUtils.synthesizeMouseAtCenter(
+    about3Pane.document.activeElement,
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+
+  hiddenPromise = BrowserTestUtils.waitForEvent(
+    colPickerPopup,
+    "popuphidden",
+    undefined,
+    event => event.originalTarget == colPickerPopup
+  );
+  // Close the column picker.
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, about3Pane);
+  await hiddenPromise;
 });
 
 /**
