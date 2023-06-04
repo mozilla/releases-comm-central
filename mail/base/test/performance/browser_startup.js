@@ -75,7 +75,7 @@ const startupPhases = {
         "resource:///modules/index_im.sys.mjs",
         "resource:///modules/MsgDBCacheManager.jsm",
         "resource:///modules/PeriodicFilterManager.jsm",
-        "resource://gre/modules/Blocklist.jsm",
+        "resource://gre/modules/Blocklist.sys.mjs",
         "resource://gre/modules/NewTabUtils.sys.mjs",
         "resource://gre/modules/Sqlite.sys.mjs",
         // Bug 1660907: These core modules shouldn't really be being loaded

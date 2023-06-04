@@ -10,11 +10,9 @@ ChromeUtils.defineModuleGetter(
   "AddonManager",
   "resource://gre/modules/AddonManager.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "AddonRepository",
-  "resource://gre/modules/addons/AddonRepository.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  AddonRepository: "resource://gre/modules/addons/AddonRepository.sys.mjs",
+});
 
 /* This dialog provides an interface for managing what language the messenger is
  * displayed in.

@@ -13,8 +13,8 @@ var { TestUtils } = ChromeUtils.importESModule(
 var { ExtensionsUI } = ChromeUtils.import(
   "resource:///modules/ExtensionsUI.jsm"
 );
-var { AddonTestUtils } = ChromeUtils.import(
-  "resource://testing-common/AddonTestUtils.jsm"
+var { AddonTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/AddonTestUtils.sys.mjs"
 );
 var { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"

@@ -1,10 +1,8 @@
 /* globals openAddonsMgr, openContentTab */
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "AddonTestUtils",
-  "resource://testing-common/AddonTestUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  AddonTestUtils: "resource://testing-common/AddonTestUtils.sys.mjs",
+});
 
 const BASE = getRootDirectory(gTestPath).replace(
   "chrome://mochitests/content/",
