@@ -489,7 +489,7 @@ var folderPaneContextMenu = {
     // If source folder is virtual, allow only "move" within its own server.
     // Don't show "copy" and "again" and don't show "recent" and "favorite".
     // Also, check if this is a top-level smart folder, e.g., virtual "Inbox"
-    // in unified folder view. If so, don't show "move".
+    // in unified folder view or a Tags folder. If so, don't show "move".
     let movePopup = document.getElementById("folderContext-movePopup");
     if (isVirtual) {
       showItem("folderPaneContext-copyMenu", false);
@@ -497,8 +497,9 @@ var folderPaneContextMenu = {
       let folder = this.activeFolder;
       let showMove = true;
       if (
-        folder.server.hostName == "smart mailboxes" &&
-        folder.parent.isServer
+        (folder.server.hostName == "smart mailboxes" &&
+          folder.parent.isServer) ||
+        isSmartTagsFolder
       ) {
         showMove = false;
       }
