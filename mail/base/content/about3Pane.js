@@ -553,8 +553,9 @@ var folderPaneContextMenu = {
   },
 
   /**
-   * Check if transfer mode selected from folder context window, move or copy,
-   * is allowed. If not, silently change to the appropriate mode.
+   * Check if the transfer mode selected from folder context menu is "copy".
+   * If "copy" (!isMove) is selected and the copy is within the same server,
+   * silently change to mode "move".
    * Do the transfer and return true if moved, false if copied.
    *
    * @param {boolean} isMove
@@ -562,14 +563,7 @@ var folderPaneContextMenu = {
    * @param {nsIMsgFolder} targetFolder
    */
   transferFolder(isMove, sourceFolder, targetFolder) {
-    if (isMove && sourceFolder.server != targetFolder.server) {
-      // Do a move of folder only within same server.
-      // Don't allow folder move across servers; only folder copy allowed.
-      // Note: This restriction will be removed if/when bug 1828372 change is
-      // in place.
-      // Can't move folder inter-server, change to copy.
-      isMove = false;
-    } else if (!isMove && sourceFolder.server == targetFolder.server) {
+    if (!isMove && sourceFolder.server == targetFolder.server) {
       // Don't allow folder copy within the same server; only move allowed.
       // Can't copy folder intra-server, change to move.
       isMove = true;
@@ -2626,13 +2620,11 @@ var folderPane = {
       let sourceFolder = event.dataTransfer
         .mozGetDataAt("text/x-moz-folder", 0)
         .QueryInterface(Ci.nsIMsgFolder);
-      let isMove = sourceFolder.server == targetFolder.server;
-      MailServices.copy.copyFolder(
-        sourceFolder,
-        targetFolder,
+      let isMove = event.dataTransfer.dropEffect == "move";
+      isMove = folderPaneContextMenu.transferFolder(
         isMove,
-        null,
-        top.msgWindow
+        sourceFolder,
+        targetFolder
       );
       // Save in prefs the target folder URI and if this was a move or copy.
       // This is to fill in the next folder or message context menu item
