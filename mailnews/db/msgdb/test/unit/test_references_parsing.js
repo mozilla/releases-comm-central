@@ -52,7 +52,8 @@ var refsAndResults = [
  * Parse the references in refsAndResults and ensure their references match
  *  the corresponding results.
  *
- * @param aMsgHdr A message header that you don't mind if we mess with.
+ * @param {nsIMsgDBHdr} aMsgHdr - A message header that you don't mind if we
+ *   mess with.
  */
 function test_references_header_parsing(aMsgHdr) {
   var iCase, iResult, refString, results;
