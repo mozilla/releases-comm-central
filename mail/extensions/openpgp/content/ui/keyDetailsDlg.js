@@ -106,9 +106,9 @@ async function onLoad() {
 
   await reloadData(true);
 
-  let sepPassphraseEnabled = Services.prefs.getBoolPref(
-    "mail.openpgp.passphrases.enabled"
-  );
+  let sepPassphraseEnabled =
+    gModePersonal &&
+    Services.prefs.getBoolPref("mail.openpgp.passphrases.enabled");
   document.getElementById("passphraseTab").hidden = !sepPassphraseEnabled;
   document.getElementById("passphrasePanel").hidden = !sepPassphraseEnabled;
   if (sepPassphraseEnabled) {
