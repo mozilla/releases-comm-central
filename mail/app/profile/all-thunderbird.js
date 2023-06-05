@@ -850,7 +850,7 @@ pref("mail.ignore_thread.learn_more_url", "https://support.thunderbird.net/kb/ig
 
 // Density control for the entire Thunderbird UI.
 // The possible values are 0=compact, 1=normal, 2=touch.
-pref("mail.uidensity", 1);
+pref("mail.uidensity", 0);
 
 // Font size control for the entire Thunderbird UI. The value represents the
 // pixel value which will be applied as inline style to the root element of the
