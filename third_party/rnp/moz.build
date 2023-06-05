@@ -19,6 +19,18 @@ def IQuote(*paths):
         CXXFLAGS += flags + [p]
 
 
+def get_defines(defines):
+    """For DEFINES that are False, do not include them in the preprocesser
+    commandline. Such preprocessor macros will be #undef'd in the output file while
+    allowing the build code to be explicit (and hopefully more readable)."""
+
+    for define, value in defines.items():
+        if value is True:
+            yield ("-D%s" % define)
+        elif value is not False:
+            yield ("-D%s=%s" % (define, value))
+
+
 COMPILE_FLAGS["WARNINGS_CFLAGS"] += [
     "-Wall",
     "-Wextra",
@@ -41,6 +53,7 @@ LOCAL_INCLUDES = [
     "src",
     "src/common",
     "src/lib",
+    "src/libsexp/include"
 ]
 
 IQuote(
@@ -51,7 +64,12 @@ IQuote(
 rnp_defines = {
     "HAVE_BZLIB_H": True,
     "HAVE_ZLIB_H": True,
+    "ENABLE_SM2": False,
     "ENABLE_IDEA": True,
+    "ENABLE_AEAD": True,
+    "ENABLE_BLOWFISH": True,
+    "ENABLE_CAST5": True,
+    "ENABLE_RIPEMD160": True,
     "PACKAGE_BUGREPORT": '"https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"',
 }
 if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
@@ -61,7 +79,6 @@ if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
 
     rnp_defines.update({
         "CRYPTO_BACKEND_BOTAN": True,
-        "ENABLE_AEAD": True,
         "ENABLE_TWOFISH": True,
         "ENABLE_BRAINPOOL": True,
     })
@@ -71,8 +88,6 @@ elif CONFIG["MZLA_LIBRNP_BACKEND"] == "openssl":
 
     rnp_defines.update({
         "CRYPTO_BACKEND_OPENSSL": True,
-        # Not supported with RNP+OpenSSL https://github.com/rnpgp/rnp/issues/1642
-        "ENABLE_AEAD": False,
         # Not supported by OpenSSL https://github.com/openssl/openssl/issues/2046
         "ENABLE_TWOFISH": False,
         # Supported, but not with RHEL's OpenSSL, disabled for now;
@@ -82,10 +97,9 @@ elif CONFIG["MZLA_LIBRNP_BACKEND"] == "openssl":
     if CONFIG["MZLA_LIBRNP_OPENSSL_VERSION"][0] == "3":
         rnp_defines["CRYPTO_BACKEND_OPENSSL3"] = True
 
-gen_files_flags = [
-        "-D%s=%s" % (k, "1" if v is True else v)
-        for k, v in rnp_defines.items()
-    ]
+
+gen_files_flags = [d for d in get_defines(rnp_defines)]
+
 GeneratedFile(
     "src/lib/version.h", "src/lib/config.h",
     script="/comm/python/thirdroc/rnp_generated.py",
@@ -164,6 +178,14 @@ SOURCES += [
     "src/librepgp/stream-parse.cpp",
     "src/librepgp/stream-sig.cpp",
     "src/librepgp/stream-write.cpp",
+    # libsexp
+    "src/libsexp/src/ext-key-format.cpp",
+    "src/libsexp/src/sexp-char-defs.cpp",
+    "src/libsexp/src/sexp-error.cpp",
+    "src/libsexp/src/sexp-input.cpp",
+    "src/libsexp/src/sexp-object.cpp",
+    "src/libsexp/src/sexp-output.cpp",
+    "src/libsexp/src/sexp-simple-string.cpp",
 ]
 
 if CONFIG["MZLA_LIBRNP_BACKEND"] == "botan":
