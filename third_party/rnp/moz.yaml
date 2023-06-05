@@ -22,8 +22,7 @@ vendoring:
   url: https://github.com/rnpgp/rnp
   source-hosting: github
   tracking: tag
-  # Uncomment next line prior to updating to v0.17.0
-  # release-artifact: "rnp-{tag}.tar.gz"
+  release-artifact: "rnp-{tag}.tar.gz"
 
   skip-vendoring-steps:
     - hg-add
@@ -39,10 +38,9 @@ vendoring:
     - "**"
     - ".*"
     - ".*/**"
-    # Uncomment below prior to v0.17.0 update
-    # - "src/libsexp/**"
-    # - "src/libsexp/.**"
-    # - "src/libsexp/.github/**"
+    - "src/libsexp/**"
+    - "src/libsexp/.**"
+    - "src/libsexp/.github/**"
 
   include:
     - doc/
@@ -54,12 +52,11 @@ vendoring:
     - src/lib/
     - src/librekey/
     - src/librepgp/
-    # Uncomment prior to v0.17.0 update
-    # - src/libsexp/include/
-    # - src/libsexp/src/
-    # - src/libsexp/LICENSE.md
-    # - src/libsexp/README.adoc
-    # - src/libsexp/version.txt
+    - src/libsexp/include/
+    - src/libsexp/src/
+    - src/libsexp/LICENSE.md
+    - src/libsexp/README.adoc
+    - src/libsexp/version.txt
     - src/rnp/
     - src/rnpkeys/
     - src/tests/
@@ -74,3 +71,4 @@ vendoring:
       file: '{yaml_dir}/../README.rnp'
       pattern: '\[(tag v[1-9\.]+|commit [0-9a-f]+)\]'
       with: '[tag {revision}]'
+
