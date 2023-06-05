@@ -12,7 +12,6 @@ from fluent.migratetb.transforms import (
 )
 
 
-
 def migrate(ctx):
     """Bug 1834662 - Migrate addon/extension stuff, part {index}."""
 
