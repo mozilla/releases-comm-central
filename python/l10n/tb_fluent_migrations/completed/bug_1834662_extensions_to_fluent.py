@@ -12,6 +12,7 @@ from fluent.migratetb.transforms import (
 )
 
 
+
 def migrate(ctx):
     """Bug 1834662 - Migrate addon/extension stuff, part {index}."""
 
@@ -73,14 +74,15 @@ def migrate(ctx):
                 id=FTL.Identifier("webext-perms-description-compose-save"),
                 value=COPY(
                     "mail/chrome/messenger/addons.properties",
-                    "webextPerms.description.compose-save",
+                    "webextPerms.description.compose.save",
                 ),
             ),
             FTL.Message(
                 id=FTL.Identifier("webext-perms-description-experiment"),
-                value=COPY(
+                value=REPLACE(
                     "mail/chrome/messenger/addons.properties",
                     "webextPerms.description.experiment",
+                    {"%1$S": TERM_REFERENCE("brand-short-name")},
                 ),
             ),
             FTL.Message(
