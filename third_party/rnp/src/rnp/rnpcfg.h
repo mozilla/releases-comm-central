@@ -43,6 +43,7 @@
 #define CFG_OUTFILE "outfile"            /* name/path of the output file */
 #define CFG_NO_OUTPUT "no_output"        /* do not output any data - just verify or process */
 #define CFG_INFILE "infile"              /* name/path of the input file */
+#define CFG_SETFNAME "setfname"          /* file name to embed into the literal data packet */
 #define CFG_RESULTS "results"            /* name/path for results, not used right now */
 #define CFG_KEYSTOREFMT "keystorefmt"    /* keyring format : GPG, G10, KBX */
 #define CFG_COREDUMPS "coredumps"        /* enable/disable core dumps. 1 or 0. */
@@ -61,6 +62,7 @@
 #define CFG_CREATION "creation"         /* signature validity start */
 #define CFG_CIPHER "cipher"             /* symmetric encryption algorithm as string */
 #define CFG_HASH "hash"                 /* hash algorithm used, string like 'SHA1'*/
+#define CFG_WEAK_HASH "weak-hash"       /* allow weak algorithms */
 #define CFG_S2K_ITER "s2k-iter"         /* number of S2K hash iterations to perform */
 #define CFG_S2K_MSEC "s2k-msec"         /* number of milliseconds S2K should target */
 #define CFG_ENCRYPT_PK "encrypt_pk"     /* public key should be used during encryption */
@@ -87,9 +89,12 @@
 #define CFG_NOTTY "notty" /* disable tty usage and do input/output via stdin/stdout */
 #define CFG_FIX_25519_BITS "fix-25519-bits"   /* fix Cv25519 secret key via --edit-key */
 #define CFG_CHK_25519_BITS "check-25519-bits" /* check Cv25519 secret key bits */
+#define CFG_ADD_SUBKEY "add-subkey"           /* add subkey to existing primary */
+#define CFG_SET_KEY_EXPIRE "key-expire"       /* set/update key expiration time */
 #define CFG_SOURCE "source"                   /* source for the detached signature */
-#define CFG_NOWRAP "no-wrap"  /* do not wrap the output in a literal data packet */
-#define CFG_CURTIME "curtime" /* date or timestamp to override the system's time */
+#define CFG_NOWRAP "no-wrap"            /* do not wrap the output in a literal data packet */
+#define CFG_CURTIME "curtime"           /* date or timestamp to override the system's time */
+#define CFG_ALLOW_HIDDEN "allow-hidden" /* allow hidden recipients */
 
 /* rnp keyring setup variables */
 #define CFG_KR_PUB_FORMAT "kr-pub-format"

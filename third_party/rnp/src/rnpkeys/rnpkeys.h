@@ -14,6 +14,7 @@
 
 typedef enum {
     /* commands */
+    CMD_NONE = 0,
     CMD_LIST_KEYS = 260,
     CMD_EXPORT_KEY,
     CMD_IMPORT,
@@ -32,6 +33,7 @@ typedef enum {
     OPT_USERID,
     OPT_HOMEDIR,
     OPT_NUMBITS,
+    OPT_ALLOW_WEAK_HASH,
     OPT_HASH_ALG,
     OPT_COREDUMPS,
     OPT_PASSWDFD,
@@ -54,6 +56,8 @@ typedef enum {
     OPT_FIX_25519_BITS,
     OPT_CHK_25519_BITS,
     OPT_CURTIME,
+    OPT_ADD_SUBKEY,
+    OPT_SET_EXPIRE,
 
     /* debug */
     OPT_DEBUG
@@ -71,6 +75,6 @@ void print_usage(const char *usagemsg);
  * @param cfg configuration with settings from command line
  * @return true on success, or false otherwise.
  */
-bool rnpkeys_init(cli_rnp_t *rnp, const rnp_cfg &cfg);
+bool rnpkeys_init(cli_rnp_t &rnp, const rnp_cfg &cfg);
 
 #endif /* _rnpkeys_ */

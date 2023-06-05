@@ -44,7 +44,7 @@
 #define DEFAULT_Z_LEVEL 6
 
 /* Default AEAD algorithm */
-#define DEFAULT_AEAD_ALG PGP_AEAD_EAX
+#define DEFAULT_AEAD_ALG PGP_AEAD_OCB
 
 /* Default AEAD chunk bits, equals to 256K chunks */
 #define DEFAULT_AEAD_CHUNK_BITS 12
@@ -60,6 +60,11 @@
 
 /* Default RSA key length */
 #define DEFAULT_RSA_NUMBITS 2048
+
+/* Default ElGamal key length */
+#define DEFAULT_ELGAMAL_NUMBITS 2048
+#define ELGAMAL_MIN_P_BITLEN 1024
+#define ELGAMAL_MAX_P_BITLEN 4096
 
 /* Default, min and max DSA key length */
 #define DSA_MIN_P_BITLEN 1024

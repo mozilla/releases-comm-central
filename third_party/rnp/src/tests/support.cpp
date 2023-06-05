@@ -26,7 +26,7 @@
 
 #include "support.h"
 #include "rnp_tests.h"
-#include "file-utils.h"
+#include "str-utils.h"
 #include <librepgp/stream-ctx.h>
 #include "pgp-key.h"
 #include "librepgp/stream-armor.h"
@@ -75,21 +75,11 @@ unsetenv(const char *name)
 }
 #endif
 
-/* Check if a file is empty
- * Use with assert_true and rnp_assert_false(rstate, .
- */
-bool
-file_empty(const char *path)
-{
-    return file_size(path) == 0;
-}
-
 std::string
 file_to_str(const std::string &path)
 {
     // TODO: wstring path _WIN32
     std::ifstream infile(path);
-    assert_true(infile);
     return std::string(std::istreambuf_iterator<char>(infile),
                        std::istreambuf_iterator<char>());
 }
@@ -99,9 +89,15 @@ file_to_vec(const std::string &path)
 {
     // TODO: wstring path _WIN32
     std::ifstream stream(path, std::ios::in | std::ios::binary);
-    assert_true(stream);
     return std::vector<uint8_t>((std::istreambuf_iterator<char>(stream)),
                                 std::istreambuf_iterator<char>());
+}
+
+void
+str_to_file(const std::string &path, const char *str)
+{
+    std::ofstream stream(path, std::ios::out | std::ios::binary);
+    stream.write(str, strlen(str));
 }
 
 off_t
@@ -246,7 +242,7 @@ delete_recursively(const char *path)
 
 #ifdef WINSHELLAPI
     SHFILEOPSTRUCTA fileOp = {};
-    fileOp.fFlags = FOF_NOCONFIRMATION;
+    fileOp.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI;
     assert_true(fullpath.size() < MAX_PATH);
     char newFrom[MAX_PATH + 1];
     strcpy_s(newFrom, fullpath.c_str());
@@ -257,7 +253,7 @@ delete_recursively(const char *path)
     fileOp.hNameMappings = NULL;
     fileOp.hwnd = NULL;
     fileOp.lpszProgressTitle = NULL;
-    assert_int_equal(0, SHFileOperationA(&fileOp));
+    SHFileOperationA(&fileOp);
 #else
     nftw(path, remove_cb, 64, FTW_DEPTH | FTW_PHYS);
 #endif
@@ -266,6 +262,7 @@ delete_recursively(const char *path)
 void
 copy_recursively(const char *src, const char *dst)
 {
+    assert_true(src != nullptr);
     /* sanity check, we should only be copying things to /tmp/ */
     assert_true(is_tmp_path(dst));
 
@@ -352,20 +349,25 @@ make_temp_dir()
 #error Unsupported platform
 #endif
 
+void
+clean_temp_dir(const char *path)
+{
+    if (!getenv("RNP_KEEP_TEMP")) {
+        delete_recursively(path);
+    }
+}
+
 bool
 bin_eq_hex(const uint8_t *data, size_t len, const char *val)
 {
-    uint8_t *dec;
-    size_t   stlen = strlen(val);
+    size_t stlen = strlen(val);
     if (stlen != len * 2) {
         return false;
     }
 
-    assert_non_null(dec = (uint8_t *) malloc(len));
-    assert_true(rnp::hex_decode(val, dec, len));
-    bool res = !memcmp(data, dec, len);
-    free(dec);
-    return res;
+    std::vector<uint8_t> dec(len);
+    rnp::hex_decode(val, dec.data(), len);
+    return !memcmp(data, dec.data(), len);
 }
 
 bool
@@ -402,20 +404,6 @@ cmp_keyfp(const pgp_fingerprint_t &fp, const std::string &val)
     return bin_eq_hex(fp.fingerprint, fp.length, val.c_str());
 }
 
-int
-test_value_equal(const char *what, const char *expected_value, const uint8_t v[], size_t v_len)
-{
-    assert_int_equal(strlen(expected_value), v_len * 2);
-    char *produced = (char *) calloc(1, v_len * 2 + 1);
-    if (!produced) {
-        return -1;
-    }
-    rnp::hex_encode(v, v_len, produced, v_len * 2 + 1);
-    assert_string_equal(produced, expected_value);
-    free(produced);
-    return 0;
-}
-
 void
 test_ffi_init(rnp_ffi_t *ffi)
 {
@@ -431,21 +419,6 @@ mpi_empty(const pgp_mpi_t &val)
 {
     pgp_mpi_t zero{};
     return (val.len == 0) && !memcmp(val.mpi, zero.mpi, PGP_MPINT_SIZE);
-}
-
-char *
-uint_to_string(char *buff, const int buffsize, unsigned int num, int base)
-{
-    char *ptr;
-    ptr = &buff[buffsize - 1];
-    *ptr = '\0';
-
-    do {
-        *--ptr = "0123456789abcdef"[num % base];
-        num /= base;
-    } while (num != 0);
-
-    return ptr;
 }
 
 bool
@@ -598,7 +571,7 @@ ffi_asserting_password_provider(rnp_ffi_t        ffi,
                                 char *           buf,
                                 size_t           buf_len)
 {
-    assert_false(true);
+    EXPECT_TRUE(false);
     return false;
 }
 
@@ -625,7 +598,7 @@ asserting_password_callback(const pgp_password_ctx_t *ctx,
                             size_t                    password_size,
                             void *                    userdata)
 {
-    assert_false(true);
+    EXPECT_TRUE(false);
     return false;
 }
 
@@ -649,7 +622,7 @@ unused_getkeycb(rnp_ffi_t   ffi,
                 const char *identifier,
                 bool        secret)
 {
-    assert_true(false);
+    EXPECT_TRUE(false);
 }
 
 bool
@@ -660,7 +633,7 @@ unused_getpasscb(rnp_ffi_t        ffi,
                  char *           buf,
                  size_t           buf_len)
 {
-    assert_true(false);
+    EXPECT_TRUE(false);
     return false;
 }
 
@@ -783,38 +756,10 @@ check_json_pkt_type(json_object *pkt, int tag)
     return check_json_field_int(hdr, "tag", tag);
 }
 
-static bool
-ishex(const std::string &hexid)
-{
-    /* duplicates str_is_hex from fficli.cpp */
-    size_t hexlen = hexid.length();
-    size_t hexidx = 0;
-    if ((hexlen >= 2) && (hexid[0] == '0') && ((hexid[1] == 'x') || (hexid[1] == 'X'))) {
-        hexidx += 2;
-    }
-
-    for (size_t i = hexidx; i < hexlen; i++) {
-        if ((hexid[i] >= '0') && (hexid[i] <= '9')) {
-            continue;
-        }
-        if ((hexid[i] >= 'a') && (hexid[i] <= 'f')) {
-            continue;
-        }
-        if ((hexid[i] >= 'A') && (hexid[i] <= 'F')) {
-            continue;
-        }
-        if ((hexid[i] == ' ') || (hexid[i] == '\t')) {
-            continue;
-        }
-        return false;
-    }
-    return true;
-}
-
 pgp_key_t *
 rnp_tests_get_key_by_id(rnp_key_store_t *keyring, const std::string &keyid, pgp_key_t *after)
 {
-    if (!keyring || keyid.empty() || !ishex(keyid)) {
+    if (!keyring || keyid.empty() || !rnp::is_hex(keyid)) {
         return NULL;
     }
     pgp_key_id_t keyid_bin = {};
@@ -830,7 +775,7 @@ rnp_tests_get_key_by_id(rnp_key_store_t *keyring, const std::string &keyid, pgp_
 pgp_key_t *
 rnp_tests_get_key_by_grip(rnp_key_store_t *keyring, const std::string &grip)
 {
-    if (!keyring || grip.empty() || !ishex(grip)) {
+    if (!keyring || grip.empty() || !rnp::is_hex(grip)) {
         return NULL;
     }
     pgp_key_grip_t grip_bin = {};
@@ -855,7 +800,7 @@ rnp_tests_get_key_by_grip(rnp_key_store_t *keyring, const pgp_key_grip_t &grip)
 pgp_key_t *
 rnp_tests_get_key_by_fpr(rnp_key_store_t *keyring, const std::string &keyid)
 {
-    if (!keyring || keyid.empty() || !ishex(keyid)) {
+    if (!keyring || keyid.empty() || !rnp::is_hex(keyid)) {
         return NULL;
     }
     std::vector<uint8_t> keyid_bin(PGP_FINGERPRINT_SIZE, 0);
@@ -1051,6 +996,7 @@ export_key(rnp_key_handle_t key, bool armored, bool secret)
     return res;
 }
 
+#if 0
 void
 dump_key_stdout(rnp_key_handle_t key, bool secret)
 {
@@ -1062,6 +1008,7 @@ dump_key_stdout(rnp_key_handle_t key, bool secret)
     auto sec = export_key(key, true, true);
     printf("%.*s", (int) sec.size(), (char *) sec.data());
 }
+#endif
 
 bool
 write_transferable_key(pgp_transferable_key_t &key, pgp_dest_t &dst, bool armor)
@@ -1189,58 +1136,81 @@ bool
 sm2_enabled()
 {
     bool enabled = false;
-    if (rnp_supports_feature(RNP_FEATURE_PK_ALG, "SM2", &enabled)) {
-        return false;
-    }
-    return enabled;
+    return !rnp_supports_feature(RNP_FEATURE_PK_ALG, "SM2", &enabled) && enabled;
 }
 
 bool
 aead_eax_enabled()
 {
     bool enabled = false;
-    if (rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "EAX", &enabled)) {
-        return false;
-    }
-    return enabled;
+    return !rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "EAX", &enabled) && enabled;
 }
 
 bool
 aead_ocb_enabled()
 {
     bool enabled = false;
-    if (rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "OCB", &enabled)) {
-        return false;
-    }
-    return enabled;
+    return !rnp_supports_feature(RNP_FEATURE_AEAD_ALG, "OCB", &enabled) && enabled;
+}
+
+bool
+aead_ocb_aes_only()
+{
+    return aead_ocb_enabled() && !strcmp(rnp_backend_string(), "OpenSSL");
 }
 
 bool
 twofish_enabled()
 {
     bool enabled = false;
-    if (rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "Twofish", &enabled)) {
-        return false;
-    }
-    return enabled;
+    return !rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "Twofish", &enabled) && enabled;
 }
 
 bool
 idea_enabled()
 {
     bool enabled = false;
-    if (rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "IDEA", &enabled)) {
-        return false;
-    }
-    return enabled;
+    return !rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "IDEA", &enabled) && enabled;
 }
 
 bool
 brainpool_enabled()
 {
     bool enabled = false;
-    if (rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP256r1", &enabled)) {
+    return !rnp_supports_feature(RNP_FEATURE_CURVE, "brainpoolP256r1", &enabled) && enabled;
+}
+
+bool
+blowfish_enabled()
+{
+    bool enabled = false;
+    return !rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "BLOWFISH", &enabled) && enabled;
+}
+
+bool
+cast5_enabled()
+{
+    bool enabled = false;
+    return !rnp_supports_feature(RNP_FEATURE_SYMM_ALG, "CAST5", &enabled) && enabled;
+}
+
+bool
+ripemd160_enabled()
+{
+    bool enabled = false;
+    return !rnp_supports_feature(RNP_FEATURE_HASH_ALG, "RIPEMD160", &enabled) && enabled;
+}
+
+bool
+test_load_gpg_check_key(rnp_key_store_t *pub, rnp_key_store_t *sec, const char *id)
+{
+    pgp_key_t *key = rnp_tests_get_key_by_id(pub, id);
+    if (!key) {
         return false;
     }
-    return enabled;
+    if (!(key = rnp_tests_get_key_by_id(sec, id))) {
+        return false;
+    }
+    pgp_password_provider_t pswd_prov(string_copy_password_callback, (void *) "password");
+    return key->is_protected() && key->unlock(pswd_prov) && key->lock();
 }

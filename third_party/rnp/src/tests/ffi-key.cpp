@@ -613,6 +613,36 @@ TEST_F(rnp_tests, test_ffi_key_generate_misc)
     assert_rnp_success(rnp_ffi_destroy(ffi));
 }
 
+TEST_F(rnp_tests, test_ffi_sec_key_offline_operations)
+{
+    rnp_ffi_t ffi = NULL;
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+
+    /* generate subkey for offline secret key */
+    assert_true(import_all_keys(ffi, "data/test_key_edge_cases/alice-s2k-101-1-subs.pgp"));
+    rnp_key_handle_t primary = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669FFDE3C", &primary));
+    rnp_op_generate_t subop = NULL;
+    assert_rnp_failure(rnp_op_generate_subkey_create(&subop, ffi, primary, "ECDSA"));
+    /* unlock/unprotect offline secret key */
+    assert_rnp_failure(rnp_key_unlock(primary, "password"));
+    assert_rnp_failure(rnp_key_unprotect(primary, "password"));
+    /* add userid */
+    assert_int_equal(rnp_key_add_uid(primary, "new_uid", "SHA256", 2147317200, 0x00, false),
+                     RNP_ERROR_NO_SUITABLE_KEY);
+    rnp_key_handle_destroy(primary);
+    /* generate subkey for offline secret key on card */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_true(import_all_keys(ffi, "data/test_key_edge_cases/alice-s2k-101-2-card.pgp"));
+    primary = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669FFDE3C", &primary));
+    subop = NULL;
+    assert_rnp_failure(rnp_op_generate_subkey_create(&subop, ffi, primary, "ECDSA"));
+    rnp_key_handle_destroy(primary);
+
+    rnp_ffi_destroy(ffi);
+}
+
 TEST_F(rnp_tests, test_ffi_key_generate_rsa)
 {
     rnp_ffi_t ffi = NULL;
@@ -1150,7 +1180,7 @@ TEST_F(rnp_tests, test_ffi_key_generate_ex)
     /* preferred ciphers */
     assert_rnp_success(rnp_op_generate_clear_pref_ciphers(keygen));
     assert_rnp_failure(rnp_op_generate_add_pref_cipher(keygen, "unknown"));
-    assert_rnp_success(rnp_op_generate_add_pref_cipher(keygen, "BLOWFISH"));
+    assert_true(!rnp_op_generate_add_pref_cipher(keygen, "BLOWFISH") == blowfish_enabled());
     assert_rnp_success(rnp_op_generate_clear_pref_ciphers(keygen));
     assert_rnp_success(rnp_op_generate_add_pref_cipher(keygen, "CAMELLIA256"));
     assert_rnp_success(rnp_op_generate_add_pref_cipher(keygen, "AES256"));
@@ -3813,7 +3843,7 @@ check_key_autocrypt(rnp_output_t       memout,
                     bool               base64 = false)
 {
     rnp_ffi_t ffi = NULL;
-    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+    rnp_ffi_create(&ffi, "GPG", "GPG");
 
     uint8_t *buf = NULL;
     size_t   len = 0;
@@ -3991,7 +4021,6 @@ TEST_F(rnp_tests, test_ffi_key_export_autocrypt)
     /* export secret key: make sure public is exported */
     assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
     assert_true(import_all_keys(ffi, "data/test_key_validity/alice-sub-sec.pgp"));
-    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC));
     assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669ffde3c", &key));
     assert_rnp_success(rnp_output_to_memory(&output, 0));
     assert_rnp_success(rnp_key_export_autocrypt(key, NULL, NULL, output, 0));
@@ -4153,7 +4182,7 @@ is_weak_signature(rnp_ffi_t ffi, rnp_signature_handle_t sig)
     return res;
 }
 
-const std::string
+static const std::string
 get_uid_str(rnp_uid_handle_t uid)
 {
     uint32_t type = 0;
@@ -4354,5 +4383,60 @@ TEST_F(rnp_tests, test_ffi_sha1_self_signatures)
     rnp_key_handle_destroy(sub);
     rnp_key_handle_destroy(key);
 
+    rnp_ffi_destroy(ffi);
+}
+
+TEST_F(rnp_tests, test_reprotect_keys)
+{
+    rnp_ffi_t ffi = NULL;
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+    /* Cast5-encrypted keys */
+    assert_true(
+      load_keys_gpg(ffi, "data/keyrings/1/pubring.gpg", "data/keyrings/1/secring-cast5.gpg"));
+
+    rnp_identifier_iterator_t it = NULL;
+    assert_rnp_success(rnp_identifier_iterator_create(ffi, &it, "fingerprint"));
+    assert_non_null(it);
+    const char *ident = NULL;
+    do {
+        ident = NULL;
+        assert_rnp_success(rnp_identifier_iterator_next(it, &ident));
+        if (!ident) {
+            break;
+        }
+        rnp_key_handle_t key = NULL;
+        assert_rnp_success(rnp_locate_key(ffi, "fingerprint", ident, &key));
+        if (cast5_enabled()) {
+            assert_rnp_success(rnp_key_unprotect(key, "password"));
+            assert_rnp_success(rnp_key_protect(key, "password", "AES256", NULL, NULL, 65536));
+        } else {
+            assert_rnp_failure(rnp_key_unprotect(key, "password"));
+        }
+        rnp_key_handle_destroy(key);
+    } while (1);
+    assert_rnp_success(rnp_identifier_iterator_destroy(it));
+    /* AES-encrypted keys */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_true(
+      load_keys_gpg(ffi, "data/keyrings/1/pubring.gpg", "data/keyrings/1/secring.gpg"));
+    assert_rnp_success(rnp_identifier_iterator_create(ffi, &it, "fingerprint"));
+    assert_non_null(it);
+    do {
+        ident = NULL;
+        assert_rnp_success(rnp_identifier_iterator_next(it, &ident));
+        if (!ident) {
+            break;
+        }
+        rnp_key_handle_t key = NULL;
+        assert_rnp_success(rnp_locate_key(ffi, "fingerprint", ident, &key));
+        assert_rnp_success(rnp_key_unprotect(key, "password"));
+        if (cast5_enabled()) {
+            assert_rnp_success(rnp_key_protect(key, "password", "CAST5", NULL, NULL, 65536));
+        } else {
+            assert_rnp_success(rnp_key_protect(key, "password", "AES128", NULL, NULL, 65536));
+        }
+        rnp_key_handle_destroy(key);
+    } while (1);
+    assert_rnp_success(rnp_identifier_iterator_destroy(it));
     rnp_ffi_destroy(ffi);
 }

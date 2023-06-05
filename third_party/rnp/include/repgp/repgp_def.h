@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2017-2020, 2023 [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * This code is originally derived from software contributed to
@@ -462,7 +462,8 @@ typedef enum pgp_op_t {
     PGP_OP_VERIFY = 9,      /* signature verification */
     PGP_OP_ADD_USERID = 10, /* adding a userid */
     PGP_OP_MERGE_INFO = 11, /* merging information from one key to another */
-    PGP_OP_ENCRYPT = 12     /* public-key encryption */
+    PGP_OP_ENCRYPT = 12,    /* public-key encryption */
+    PGP_OP_CERTIFY = 13     /* key certification */
 } pgp_op_t;
 
 /** Hashing Algorithm Numbers.
@@ -496,5 +497,9 @@ typedef enum pgp_key_store_format_t {
     PGP_KEY_STORE_KBX,
     PGP_KEY_STORE_G10,
 } pgp_key_store_format_t;
+
+namespace rnp {
+enum class AuthType { None, MDC, AEADv1 };
+}
 
 #endif

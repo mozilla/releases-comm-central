@@ -53,11 +53,13 @@ find_package(JSON-C 0.11 REQUIRED)
 add_executable(rnp
   rnp.cpp
   fficli.cpp
-  ../rnpkeys/tui.cpp
-  ../lib/logging.cpp
   rnpcfg.cpp
-  $<TARGET_OBJECTS:rnp-common>
+  ../rnpkeys/tui.cpp
 )
+
+if(BUILD_SHARED_LIBS)
+  target_sources(rnp PRIVATE ../lib/logging.cpp $<TARGET_OBJECTS:rnp-common>)
+endif(BUILD_SHARED_LIBS)
 
 target_include_directories(rnp
   PRIVATE
@@ -83,13 +85,7 @@ if(MSVC)
     PRIVATE
       "${GETOPT_LIBRARY}"
     )
-endif()
-
-if(WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-  target_link_libraries(rnp PRIVATE regex)
-elseif(MSVC)
-  add_compile_definitions(RNP_USE_STD_REGEX)
-endif()
+endif(MSVC)
 
 include(GNUInstallDirs)
 install(TARGETS rnp

@@ -41,6 +41,23 @@
 extern struct option options[];
 extern const char *  usage;
 
+optdefs_t
+get_short_cmd(int ch)
+{
+    switch (ch) {
+    case 'V':
+        return CMD_VERSION;
+    case 'g':
+        return CMD_GENERATE_KEY;
+    case 'l':
+        return CMD_LIST_KEYS;
+    case 'h':
+        [[fallthrough]];
+    default:
+        return CMD_HELP;
+    }
+}
+
 #ifndef RNP_RUN_TESTS
 int
 main(int argc, char **argv)
@@ -50,88 +67,70 @@ int
 rnpkeys_main(int argc, char **argv)
 #endif
 {
-    cli_rnp_t rnp = {};
-    rnp_cfg   cfg;
-    optdefs_t cmd = (optdefs_t) 0;
-    int       optindex = 0;
-    int       ret = EXIT_FAILURE;
-    int       ch;
-
     if (argc < 2) {
         print_usage(usage);
         return EXIT_FAILURE;
     }
 
+    cli_rnp_t rnp = {};
 #if !defined(RNP_RUN_TESTS) && defined(_WIN32)
-    bool args_are_substituted = false;
     try {
-        args_are_substituted = rnp_win_substitute_cmdline_args(&argc, &argv);
+        rnp.substitute_args(&argc, &argv);
     } catch (std::exception &ex) {
         RNP_LOG("Error converting arguments ('%s')", ex.what());
         return EXIT_FAILURE;
     }
 #endif
 
-    while ((ch = getopt_long(argc, argv, "Vgl", options, &optindex)) != -1) {
+    rnp_cfg   cfg;
+    optdefs_t cmd = CMD_NONE;
+    int       optindex = 0;
+    int       ch;
+
+    while ((ch = getopt_long(argc, argv, "Vglh", options, &optindex)) != -1) {
+        /* Check for unsupported command/option */
+        if (ch == '?') {
+            print_usage(usage);
+            return EXIT_FAILURE;
+        }
+
+        optdefs_t newcmd = cmd;
         if (ch >= CMD_LIST_KEYS) {
-            /* getopt_long returns 0 for long options */
-            if (!setoption(cfg, &cmd, options[optindex].val, optarg)) {
+            if (!setoption(cfg, &newcmd, options[optindex].val, optarg)) {
                 ERR_MSG("Failed to process argument --%s", options[optindex].name);
-                goto end;
+                return EXIT_FAILURE;
             }
         } else {
-            switch (ch) {
-            case 'V':
-                cli_rnp_print_praise();
-                ret = EXIT_SUCCESS;
-                goto end;
-            case 'g':
-                cmd = CMD_GENERATE_KEY;
-                break;
-            case 'l':
-                cmd = CMD_LIST_KEYS;
-                break;
-            case '?':
-                print_usage(usage);
-                ret = EXIT_FAILURE;
-                goto end;
-            default:
-                cmd = CMD_HELP;
-                break;
-            }
+            newcmd = get_short_cmd(ch);
         }
+
+        if (cmd && newcmd != cmd) {
+            ERR_MSG("Conflicting commands!");
+            return EXIT_FAILURE;
+        }
+        cmd = newcmd;
     }
 
-    if (!rnpkeys_init(&rnp, cfg)) {
-        ret = EXIT_FAILURE;
-        goto end;
+    /* No initialization required for these two commands. */
+    if (cmd == CMD_HELP || cmd == CMD_VERSION) {
+        return cli_rnp_t::ret_code(rnp_cmd(&rnp, cmd, NULL));
+    }
+
+    if (!rnpkeys_init(rnp, cfg)) {
+        return EXIT_FAILURE;
     }
 
     if (!cli_rnp_setup(&rnp)) {
-        ret = EXIT_FAILURE;
-        goto end;
+        return EXIT_FAILURE;
     }
 
     /* now do the required action for each of the command line args */
-    ret = EXIT_SUCCESS;
     if (optind == argc) {
-        if (!rnp_cmd(&rnp, cmd, NULL)) {
-            ret = EXIT_FAILURE;
-        }
-    } else {
-        for (int i = optind; i < argc; i++) {
-            if (!rnp_cmd(&rnp, cmd, argv[i])) {
-                ret = EXIT_FAILURE;
-            }
-        }
+        return cli_rnp_t::ret_code(rnp_cmd(&rnp, cmd, NULL));
     }
-
-end:
-    rnp.end();
-#if !defined(RNP_RUN_TESTS) && defined(_WIN32)
-    if (args_are_substituted) {
-        rnp_win_clear_args(argc, argv);
+    bool success = true;
+    for (int i = optind; i < argc; i++) {
+        success = success && rnp_cmd(&rnp, cmd, argv[i]);
     }
-#endif
-    return ret;
+    return cli_rnp_t::ret_code(success);
 }

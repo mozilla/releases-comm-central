@@ -60,7 +60,7 @@
 #include "utils.h"
 
 static const char *
-pgp_sa_to_botan_string(pgp_symm_alg_t alg)
+pgp_sa_to_botan_string(int alg, bool silent = false)
 {
     switch (alg) {
 #if defined(BOTAN_HAS_IDEA) && defined(ENABLE_IDEA)
@@ -73,12 +73,12 @@ pgp_sa_to_botan_string(pgp_symm_alg_t alg)
         return "TripleDES";
 #endif
 
-#if defined(BOTAN_HAS_CAST)
+#if defined(BOTAN_HAS_CAST) && defined(ENABLE_CAST5)
     case PGP_SA_CAST5:
         return "CAST-128";
 #endif
 
-#if defined(BOTAN_HAS_BLOWFISH)
+#if defined(BOTAN_HAS_BLOWFISH) && defined(ENABLE_BLOWFISH)
     case PGP_SA_BLOWFISH:
         return "Blowfish";
 #endif
@@ -111,10 +111,10 @@ pgp_sa_to_botan_string(pgp_symm_alg_t alg)
         return "Camellia-256";
 #endif
 
-    case PGP_SA_PLAINTEXT:
-        return NULL; // ???
     default:
-        RNP_LOG("Unsupported PGP symmetric alg %d", (int) alg);
+        if (!silent) {
+            RNP_LOG("Unsupported symmetric algorithm %d", alg);
+        }
         return NULL;
     }
 }
@@ -164,8 +164,7 @@ pgp_cipher_cfb_start(pgp_crypt_t *  crypt,
     memset(crypt, 0x0, sizeof(*crypt));
 
     const char *cipher_name = pgp_sa_to_botan_string(alg);
-    if (cipher_name == NULL) {
-        RNP_LOG("Unsupported algorithm: %d", alg);
+    if (!cipher_name) {
         return false;
     }
 
@@ -444,21 +443,10 @@ pgp_key_size(pgp_symm_alg_t alg)
     }
 }
 
-/**
-\ingroup HighLevel_Supported
-\brief Is this Symmetric Algorithm supported?
-\param alg Symmetric Algorithm to check
-\return 1 if supported; else 0
-*/
 bool
-pgp_is_sa_supported(pgp_symm_alg_t alg)
+pgp_is_sa_supported(int alg, bool silent)
 {
-    const char *cipher_name = pgp_sa_to_botan_string(alg);
-    if (cipher_name != NULL)
-        return true;
-
-    RNP_LOG("Warning: cipher %d not supported", (int) alg);
-    return false;
+    return pgp_sa_to_botan_string(alg, silent);
 }
 
 #if defined(ENABLE_AEAD)

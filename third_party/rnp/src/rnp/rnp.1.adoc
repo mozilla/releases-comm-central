@@ -172,7 +172,7 @@ or to _stdout_. +
 The following OpenPGP headers may be specified:
 +
 --
-*msg*::: _-----BEGIN PGP MESSAGE-----_
+*msg* (default) ::: _-----BEGIN PGP MESSAGE-----_
 *pubkey*::: _-----BEGIN PGP PUBLIC KEY BLOCK-----_
 *seckey*::: _-----BEGIN PGP SECRET KEY BLOCK-----_
 *sign*::: _-----BEGIN PGP SIGNATURE-----_
@@ -325,6 +325,18 @@ Override system's time with a specified value. +
 By default RNP uses system's time in all signature/key checks, however in some scenarios it could be needed to override this. +
 +
 *TIME* may be specified in the same way as *--creation*.
+
+*--set-filename* _FNAME_::
+Override or set a file name, stored inside of OpenPGP message. +
++
+By default RNP will store input filename (or empty string for *stdin*/*env* input) in the resulting OpenPGP message during encryption or embedded signing.
+This option allows to override this. Special value *_CONSOLE* may be used for "for your eyes only"-message. Refer OpenPGP documentation for the details.
+
+*--allow-hidden* ::
+Allow hidden recipient support. +
++
+Sender of an encrypted message may wish to hide recipient's key by setting a Key ID field to all zeroes.
+In this case receiver has to try every available secret key, checking for a valid decrypted session key. This option is disabled by default.
 
 == EXIT STATUS
 

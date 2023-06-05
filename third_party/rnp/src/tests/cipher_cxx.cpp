@@ -45,11 +45,13 @@ decode_hex(const char *hex)
         return {};
     }
     std::vector<uint8_t> data(strlen(hex) / 2);
-    assert_true(rnp::hex_decode(hex, data.data(), data.size()));
+    if (!rnp::hex_decode(hex, data.data(), data.size())) {
+        throw std::invalid_argument("hex");
+    }
     return data;
 }
 
-void
+static void
 test_cipher(pgp_symm_alg_t    alg,
             pgp_cipher_mode_t mode,
             size_t            tag_size,
@@ -134,8 +136,20 @@ test_cipher(pgp_symm_alg_t    alg,
     }
     // decrypt in pieces
     std::vector<uint8_t> decrypted(ct.size());
-    // all except the last block
+    // all except the last block but see below for openssl
     nonfinal_bytes = rnp_round_up(ct.size(), ud) - ud;
+#ifdef CRYPTO_BACKEND_OPENSSL
+    /* Since ossl backend sets tag explicitly tag bytes cannot be
+       split between two blocks.
+       The issue may easily occur is (for example)
+          us = 16
+          ct.size() = 24
+          tag_size=16
+    */
+    if (ct.size() - nonfinal_bytes < tag_size) {
+        nonfinal_bytes = ct.size() - tag_size;
+    }
+#endif // CRYPTO_BACKEND_OPENSSL
     output_written = 0;
     input_consumed = 0;
     while (input_consumed != nonfinal_bytes) {
@@ -143,7 +157,8 @@ test_cipher(pgp_symm_alg_t    alg,
                                 decrypted.size() - output_written,
                                 &written,
                                 (const uint8_t *) ct.data() + input_consumed,
-                                ud,
+                                // ++++                                    ud,
+                                std::min(ud, nonfinal_bytes - input_consumed),
                                 &consumed));
         output_written += written;
         input_consumed += consumed;
@@ -160,7 +175,7 @@ test_cipher(pgp_symm_alg_t    alg,
     assert_memory_equal(decrypted.data(), pt.data(), pt.size());
 
     // decrypt with a bad tag
-    if (tag_size) {
+    if (tag_size != 0) {
         dec.reset(Cipher::decryption(alg, mode, tag_size, disable_padding).release());
         assert_true(dec->set_key(key.data(), key.size()));
         assert_true(dec->set_iv(iv.data(), iv.size()));
@@ -169,8 +184,14 @@ test_cipher(pgp_symm_alg_t    alg,
         }
         // decrypt in pieces
         std::vector<uint8_t> decrypted(ct.size());
-        // all except the last block
+        // all except the last block but see above for openssl
         nonfinal_bytes = rnp_round_up(ct.size(), ud) - ud;
+#ifdef CRYPTO_BACKEND_OPENSSL
+        if (ct.size() - nonfinal_bytes < tag_size) {
+            nonfinal_bytes = ct.size() - tag_size;
+        }
+#endif // CRYPTO_BACKEND_OPENSSL
+
         output_written = 0;
         input_consumed = 0;
         while (input_consumed != nonfinal_bytes) {
@@ -178,7 +199,8 @@ test_cipher(pgp_symm_alg_t    alg,
                                     decrypted.size() - output_written,
                                     &written,
                                     (const uint8_t *) ct.data() + input_consumed,
-                                    ud,
+                                    // ++++                                    ud,
+                                    std::min(ud, nonfinal_bytes - input_consumed),
                                     &consumed));
             output_written += written;
             input_consumed += consumed;
@@ -216,7 +238,48 @@ TEST_F(rnp_tests, test_cipher_idea)
 
 TEST_F(rnp_tests, test_cipher_aes_128_ocb)
 {
-    // RFC 7253
+    // RFC 7253 -- Appendix A -- Sample Results
+    // ( The first ten test sets )
+    test_cipher(PGP_SA_AES_128,
+                PGP_CIPHER_MODE_OCB,
+                16,
+                false,
+                "000102030405060708090A0B0C0D0E0F", // key
+                "BBAA99887766554433221100",         // nounce
+                nullptr,                            // ad
+                nullptr,                            // data
+                "785407BFFFC8AD9EDCC5520AC9111EE6");
+
+    test_cipher(PGP_SA_AES_128,
+                PGP_CIPHER_MODE_OCB,
+                16,
+                false,
+                "000102030405060708090A0B0C0D0E0F",
+                "BBAA99887766554433221101",
+                "0001020304050607",
+                "0001020304050607",
+                "6820B3657B6F615A5725BDA0D3B4EB3A257C9AF1F8F03009");
+
+    test_cipher(PGP_SA_AES_128,
+                PGP_CIPHER_MODE_OCB,
+                16,
+                false,
+                "000102030405060708090A0B0C0D0E0F",
+                "BBAA99887766554433221102",
+                "0001020304050607",
+                nullptr,
+                "81017F8203F081277152FADE694A0A00");
+
+    test_cipher(PGP_SA_AES_128,
+                PGP_CIPHER_MODE_OCB,
+                16,
+                false,
+                "000102030405060708090A0B0C0D0E0F",
+                "BBAA99887766554433221103",
+                nullptr,
+                "0001020304050607",
+                "45DD69F8F5AAE72414054CD1F35D82760B2CD00D2F99BFA9");
+
     test_cipher(PGP_SA_AES_128,
                 PGP_CIPHER_MODE_OCB,
                 16,
@@ -226,6 +289,58 @@ TEST_F(rnp_tests, test_cipher_aes_128_ocb)
                 "000102030405060708090A0B0C0D0E0F",
                 "000102030405060708090A0B0C0D0E0F",
                 "571D535B60B277188BE5147170A9A22C3AD7A4FF3835B8C5701C1CCEC8FC3358");
+
+    test_cipher(PGP_SA_AES_128,
+                PGP_CIPHER_MODE_OCB,
+                16,
+                false,
+                "000102030405060708090A0B0C0D0E0F",
+                "BBAA99887766554433221105",
+                "000102030405060708090A0B0C0D0E0F",
+                nullptr,
+                "8CF761B6902EF764462AD86498CA6B97");
+
+    test_cipher(PGP_SA_AES_128,
+                PGP_CIPHER_MODE_OCB,
+                16,
+                false,
+                "000102030405060708090A0B0C0D0E0F",
+                "BBAA99887766554433221106",
+                nullptr,
+                "000102030405060708090A0B0C0D0E0F",
+                "5CE88EC2E0692706A915C00AEB8B2396F40E1C743F52436BDF06D8FA1ECA343D");
+
+    test_cipher(
+      PGP_SA_AES_128,
+      PGP_CIPHER_MODE_OCB,
+      16,
+      false,
+      "000102030405060708090A0B0C0D0E0F",
+      "BBAA99887766554433221107",
+      "000102030405060708090A0B0C0D0E0F1011121314151617",
+      "000102030405060708090A0B0C0D0E0F1011121314151617",
+      "1CA2207308C87C010756104D8840CE1952F09673A448A122C92C62241051F57356D7F3C90BB0E07F");
+
+    test_cipher(PGP_SA_AES_128,
+                PGP_CIPHER_MODE_OCB,
+                16,
+                false,
+                "000102030405060708090A0B0C0D0E0F",
+                "BBAA99887766554433221108",
+                "000102030405060708090A0B0C0D0E0F1011121314151617",
+                nullptr,
+                "6DC225A071FC1B9F7C69F93B0F1E10DE");
+
+    test_cipher(
+      PGP_SA_AES_128,
+      PGP_CIPHER_MODE_OCB,
+      16,
+      false,
+      "000102030405060708090A0B0C0D0E0F",
+      "BBAA99887766554433221109",
+      nullptr,
+      "000102030405060708090A0B0C0D0E0F1011121314151617",
+      "221BD0DE7FA6FE993ECCD769460A0AF2D6CDED0C395B1C3CE725F32494B9F914D85C0B1EB38357FF");
 }
 
 TEST_F(rnp_tests, test_cipher_aes_128_cbc)

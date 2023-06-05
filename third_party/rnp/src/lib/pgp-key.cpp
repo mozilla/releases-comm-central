@@ -435,23 +435,42 @@ pgp_key_t *
 find_suitable_key(pgp_op_t            op,
                   pgp_key_t *         key,
                   pgp_key_provider_t *key_provider,
-                  uint8_t             desired_usage,
                   bool                no_primary)
 {
-    assert(desired_usage);
     if (!key) {
         return NULL;
     }
-    if (!no_primary && key->valid() && (key->flags() & desired_usage)) {
+    bool secret = false;
+    switch (op) {
+    case PGP_OP_ENCRYPT:
+        break;
+    case PGP_OP_SIGN:
+    case PGP_OP_CERTIFY:
+        secret = true;
+        break;
+    default:
+        RNP_LOG("Unsupported operation: %d", (int) op);
+        return NULL;
+    }
+    /* Return if specified primary key fits our needs */
+    if (!no_primary && key->usable_for(op)) {
         return key;
     }
-    pgp_key_request_ctx_t ctx(op, key->is_secret(), PGP_KEY_SEARCH_FINGERPRINT);
-
+    /* Check for the case when we need to look up for a secret key */
+    pgp_key_request_ctx_t ctx(op, secret, PGP_KEY_SEARCH_FINGERPRINT);
+    if (!no_primary && secret && key->is_public() && key->usable_for(op, true)) {
+        ctx.search.by.fingerprint = key->fp();
+        pgp_key_t *sec = pgp_request_key(key_provider, &ctx);
+        if (sec && sec->usable_for(op)) {
+            return sec;
+        }
+    }
+    /* Now look up for subkeys */
     pgp_key_t *subkey = NULL;
     for (auto &fp : key->subkey_fps()) {
         ctx.search.by.fingerprint = fp;
         pgp_key_t *cur = pgp_request_key(key_provider, &ctx);
-        if (!cur || !(cur->flags() & desired_usage) || !cur->valid()) {
+        if (!cur || !cur->usable_for(op)) {
             continue;
         }
         if (!subkey || (cur->creation() > subkey->creation())) {
@@ -1187,6 +1206,55 @@ pgp_key_t::can_encrypt() const
     return flags_ & PGP_KF_ENCRYPT;
 }
 
+bool
+pgp_key_t::has_secret() const
+{
+    if (!is_secret()) {
+        return false;
+    }
+    if ((format == PGP_KEY_STORE_GPG) && !pkt_.sec_len) {
+        return false;
+    }
+    if (pkt_.sec_protection.s2k.usage == PGP_S2KU_NONE) {
+        return true;
+    }
+    switch (pkt_.sec_protection.s2k.specifier) {
+    case PGP_S2KS_SIMPLE:
+    case PGP_S2KS_SALTED:
+    case PGP_S2KS_ITERATED_AND_SALTED:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool
+pgp_key_t::usable_for(pgp_op_t op, bool if_secret) const
+{
+    switch (op) {
+    case PGP_OP_ADD_SUBKEY:
+        return is_primary() && can_sign() && (if_secret || has_secret());
+    case PGP_OP_SIGN:
+        return can_sign() && valid() && (if_secret || has_secret());
+    case PGP_OP_CERTIFY:
+        return can_certify() && valid() && (if_secret || has_secret());
+    case PGP_OP_DECRYPT:
+        return can_encrypt() && valid() && (if_secret || has_secret());
+    case PGP_OP_UNLOCK:
+    case PGP_OP_PROTECT:
+    case PGP_OP_UNPROTECT:
+        return has_secret();
+    case PGP_OP_VERIFY:
+        return can_sign() && valid();
+    case PGP_OP_ADD_USERID:
+        return is_primary() && can_sign() && (if_secret || has_secret());
+    case PGP_OP_ENCRYPT:
+        return can_encrypt() && valid();
+    default:
+        return false;
+    }
+}
+
 uint32_t
 pgp_key_t::expiration() const
 {
@@ -1425,8 +1493,7 @@ bool
 pgp_key_t::unlock(const pgp_password_provider_t &provider, pgp_op_t op)
 {
     // sanity checks
-    if (!is_secret()) {
-        RNP_LOG("key is not a secret key");
+    if (!usable_for(PGP_OP_UNLOCK)) {
         return false;
     }
     // see if it's already unlocked
@@ -1627,24 +1694,18 @@ pgp_key_t::write_autocrypt(pgp_dest_t &dst, pgp_key_t &sub, uint32_t uid)
         RNP_LOG("No valid binding for subkey");
         return false;
     }
+    if (is_secret() || sub.is_secret()) {
+        RNP_LOG("Public key required");
+        return false;
+    }
 
     try {
         /* write all or nothing */
         rnp::MemoryDest memdst;
-        if (is_secret()) {
-            pgp_key_pkt_t pkt(pkt_, true);
-            pkt.write(memdst.dst());
-        } else {
-            pkt().write(memdst.dst());
-        }
+        pkt().write(memdst.dst());
         get_uid(uid).pkt.write(memdst.dst());
         cert->sig.write(memdst.dst());
-        if (sub.is_secret()) {
-            pgp_key_pkt_t pkt(sub.pkt(), true);
-            pkt.write(memdst.dst());
-        } else {
-            sub.pkt().write(memdst.dst());
-        }
+        sub.pkt().write(memdst.dst());
         binding->sig.write(memdst.dst());
         dst_write(&dst, memdst.memory(), memdst.writeb());
         return !dst.werr;
@@ -1963,6 +2024,11 @@ pgp_key_t::validate_binding(pgp_signature_info_t &      sinfo,
                             const pgp_key_t &           subkey,
                             const rnp::SecurityContext &ctx) const
 {
+    if (!is_primary() || !subkey.is_subkey()) {
+        RNP_LOG("Invalid binding signature key type(s)");
+        sinfo.valid = false;
+        return;
+    }
     auto hash = signature_hash_binding(*sinfo.sig, pkt(), subkey.pkt());
     validate_sig(sinfo, *hash, ctx);
     if (!sinfo.valid || !(sinfo.sig->key_flags() & PGP_KF_SIGN)) {
@@ -2125,7 +2191,7 @@ pgp_key_t::validate_subkey(pgp_key_t *primary, const rnp::SecurityContext &ctx)
      * non-expired binding signature, and is not revoked. */
     validity_.reset();
     validity_.validated = true;
-    if (!primary || !primary->valid()) {
+    if (!primary || (!primary->valid() && !primary->expired())) {
         return;
     }
     /* validate signatures if needed */
@@ -2150,7 +2216,7 @@ pgp_key_t::validate_subkey(pgp_key_t *primary, const rnp::SecurityContext &ctx)
             return;
         }
     }
-    validity_.valid = has_binding;
+    validity_.valid = has_binding && primary->valid();
     if (!validity_.valid) {
         validity_.expired = has_expired;
     }

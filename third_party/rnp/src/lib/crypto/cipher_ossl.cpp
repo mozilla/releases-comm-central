@@ -24,6 +24,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <cassert>
+#include <algorithm>
+
 #include "cipher_ossl.hpp"
 #include "utils.h"
 #include "types.h"
@@ -52,6 +54,18 @@ Cipher_OpenSSL::create(pgp_symm_alg_t     alg,
 #if !defined(ENABLE_IDEA)
     if (alg == PGP_SA_IDEA) {
         RNP_LOG("IDEA support has been disabled");
+        return nullptr;
+    }
+#endif
+#if !defined(ENABLE_BLOWFISH)
+    if (alg == PGP_SA_BLOWFISH) {
+        RNP_LOG("Blowfish support has been disabled");
+        return nullptr;
+    }
+#endif
+#if !defined(ENABLE_CAST5)
+    if (alg == PGP_SA_CAST5) {
+        RNP_LOG("CAST5 support has been disabled");
         return nullptr;
     }
 #endif
@@ -162,10 +176,6 @@ Cipher_OpenSSL::set_ad(const uint8_t *ad, size_t ad_length)
         RNP_LOG("Failed to set AD: %lu", ERR_peek_last_error());
         return false;
     }
-    if ((size_t) outlen != ad_length) {
-        RNP_LOG("Failed to set AD");
-        return false;
-    }
     return true;
 }
 
@@ -213,7 +223,7 @@ Cipher_OpenSSL::finish(uint8_t *      output,
     if (input_length > INT_MAX) {
         return false;
     }
-    if (input_length < m_tag_size) {
+    if (!m_encrypt && input_length < m_tag_size) {
         RNP_LOG("Insufficient input for final block (missing tag)");
         return false;
     }
@@ -229,8 +239,9 @@ Cipher_OpenSSL::finish(uint8_t *      output,
             RNP_LOG("Failed to set expected AEAD tag: %lu", ERR_peek_last_error());
             return false;
         }
-        input_length -= m_tag_size;
-        *input_consumed += m_tag_size;
+        size_t ats = std::min(m_tag_size, input_length);
+        input_length -= ats;    // m_tag_size;
+        *input_consumed += ats; // m_tag_size;
     }
     int outl = 0;
     if (EVP_CipherUpdate(m_ctx, output, &outl, input, (int) input_length) != 1) {

@@ -136,6 +136,7 @@ typedef uint32_t rnp_result_t;
  */
 #define RNP_VERIFY_IGNORE_SIGS_ON_DECRYPT (1U << 0)
 #define RNP_VERIFY_REQUIRE_ALL_SIGS (1U << 1)
+#define RNP_VERIFY_ALLOW_HIDDEN_RECIPIENT (1U << 2)
 
 /**
  * Return a constant string describing the result code
@@ -188,7 +189,7 @@ RNP_API uint32_t rnp_version_patch(uint32_t version);
  *  This function is only useful for non-releases. For releases,
  *  it will return 0.
  *
- *  The intended usage is to provide a form of versioning for the master
+ *  The intended usage is to provide a form of versioning for the main
  *  branch.
  *
  *  @return the unix timestamp of the last commit, or 0 if unavailable
@@ -311,6 +312,10 @@ typedef bool (*rnp_password_cb)(rnp_ffi_t        ffi,
  *  to verify a signature, the signer's keyid may be used first to request the key.
  *  If that is not successful, the signer's fingerprint (if available) may be used.
  *
+ *  Please note that there is a special case with 'hidden' recipient, with all-zero keyid. In
+ *  this case implementation should load all available secret keys for the decryption attempt
+ *  (or do nothing, in this case decryption to the hidden recipient would fail).
+ *
  *  Situations in which this callback would be used include:
  *   - When decrypting data that includes a public-key encrypted session key,
  *     and the key is not found in the keyrings.
@@ -371,6 +376,17 @@ RNP_API rnp_result_t rnp_ffi_create(rnp_ffi_t * ffi,
 RNP_API rnp_result_t rnp_ffi_destroy(rnp_ffi_t ffi);
 
 RNP_API rnp_result_t rnp_ffi_set_log_fd(rnp_ffi_t ffi, int fd);
+
+/**
+ * @brief Set key provider callback. This callback would be called in case when required public
+ *        or secret key is not loaded to the keyrings.
+ *
+ * @param ffi initialized ffi object, cannot be NULL.
+ * @param getkeycb callback function. See rnp_get_key_cb documentation for details.
+ * @param getkeycb_ctx implementation-specific context, which would be passed to the getkeycb
+ *                      on invocation.
+ * @return RNP_SUCCESS on success, or any other value on error.
+ */
 RNP_API rnp_result_t rnp_ffi_set_key_provider(rnp_ffi_t      ffi,
                                               rnp_get_key_cb getkeycb,
                                               void *         getkeycb_ctx);
@@ -1502,6 +1518,18 @@ RNP_API rnp_result_t rnp_signature_packet_to_json(rnp_signature_handle_t sig,
  */
 RNP_API rnp_result_t rnp_signature_remove(rnp_key_handle_t key, rnp_signature_handle_t sig);
 
+/**
+ * @brief Export a signature.
+ *
+ * @param sig signature handle, cannot be NULL.
+ * @param output destination of the data stream.
+ * @param flags must be RNP_KEY_EXPORT_ARMORED or 0.
+ * @return RNP_SUCCESS or error code if failed.
+ */
+RNP_API rnp_result_t rnp_signature_export(rnp_signature_handle_t sig,
+                                          rnp_output_t           output,
+                                          uint32_t               flags);
+
 /** Free signature handle.
  *
  * @param sig signature handle.
@@ -2184,7 +2212,9 @@ RNP_API rnp_result_t rnp_op_sign_set_hash(rnp_op_sign_t op, const char *hash);
 /** @brief Set signature creation time. By default current time is used.
  *  @param op opaque signing context. Must be successfully initialized with one of the
  *         rnp_op_sign_*_create functions.
- *  @param create creation time in seconds since Jan, 1 1970 UTC
+ *  @param create creation time in seconds since Jan, 1 1970 UTC. 32 bit unsigned integer
+ *                datatype is used here instead of 64 bit (like modern timestamps do) because
+ *                in OpenPGP messages times are stored as 32-bit unsigned integers.
  *  @return RNP_SUCCESS or error code if failed
  */
 RNP_API rnp_result_t rnp_op_sign_set_creation_time(rnp_op_sign_t op, uint32_t create);
@@ -2209,7 +2239,9 @@ RNP_API rnp_result_t rnp_op_sign_set_file_name(rnp_op_sign_t op, const char *fil
 
 /** @brief Set input's file modification date. Makes sense only for embedded signature.
  *  @param op opaque signing context. Must be initialized with rnp_op_sign_create function
- *  @param mtime modification time in seconds since Jan, 1 1970 UTC.
+ *  @param mtime modification time in seconds since Jan, 1 1970 UTC. 32 bit unsigned integer
+ *               datatype is used here instead of 64 bit (like modern timestamps do) because
+ *               in OpenPGP messages times are stored as 32-bit unsigned integers.
  *  @return RNP_SUCCESS or error code if failed
  */
 RNP_API rnp_result_t rnp_op_sign_set_file_mtime(rnp_op_sign_t op, uint32_t mtime);
@@ -2271,6 +2303,11 @@ RNP_API rnp_result_t rnp_op_verify_detached_create(rnp_op_verify_t *op,
  *                unknown key(s).
  *              RNP_VERIFY_REQUIRE_ALL_SIGS - require that all signatures (if any) must be
  *                valid for successful run of rnp_op_verify_execute().
+ *              RNP_VERIFY_ALLOW_HIDDEN_RECIPIENT - allow hidden recipient during the
+ *                decryption.
+ *
+ *              Note: all flags are set at once, if some flag is not present in the subsequent
+ *              call then it will be unset.
  * @return RNP_SUCCESS or error code if failed
  */
 RNP_API rnp_result_t rnp_op_verify_set_flags(rnp_op_verify_t op, uint32_t flags);
@@ -2857,17 +2894,17 @@ RNP_API rnp_result_t rnp_op_encrypt_set_cipher(rnp_op_encrypt_t op, const char *
  *
  * @param op opaque encrypting context. Must be allocated and initialized.
  * @param alg NULL-terminated AEAD algorithm name. Use "None" to disable AEAD, or "EAX", "OCB"
- * to use the corresponding algorithm.
+ *            to use the corresponding algorithm.
  * @return RNP_SUCCESS or error code if failed
  */
 RNP_API rnp_result_t rnp_op_encrypt_set_aead(rnp_op_encrypt_t op, const char *alg);
 
 /**
- * @brief set chunk length for AEAD mode via number of chunk size bits (refer OpenPGP
- * specificationf for the details).
+ * @brief set chunk length for AEAD mode via number of chunk size bits (refer to the OpenPGP
+ *        specification for the details).
  *
  * @param op opaque encrypting context. Must be allocated and initialized.
- * @param bits number of bits, currently it must be between 0 to 56.
+ * @param bits number of bits, currently it must be from 0 to 16.
  * @return RNP_SUCCESS or error code if failed
  */
 RNP_API rnp_result_t rnp_op_encrypt_set_aead_bits(rnp_op_encrypt_t op, int bits);
@@ -2913,7 +2950,9 @@ RNP_API rnp_result_t rnp_op_encrypt_set_file_name(rnp_op_encrypt_t op, const cha
  * @brief set the internally stored file modification date for the data being encrypted
  *
  * @param op opaque encrypted context. Must be allocated and initialized
- * @param mtime time in seconds since Jan, 1 1970.
+ * @param mtime time in seconds since Jan, 1 1970. 32 bit unsigned integer datatype is used
+ *              here instead of 64 bit (like modern timestamps do) because in OpenPGP messages
+ *              times are stored as 32-bit unsigned integers.
  * @return RNP_SUCCESS on success, or any other value on error
  */
 RNP_API rnp_result_t rnp_op_encrypt_set_file_mtime(rnp_op_encrypt_t op, uint32_t mtime);

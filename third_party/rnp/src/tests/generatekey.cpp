@@ -234,6 +234,12 @@ cipher_supported(const std::string &cipher)
     if (!twofish_enabled() && lowercase(cipher) == "twofish") {
         return false;
     }
+    if (!blowfish_enabled() && lowercase(cipher) == "blowfish") {
+        return false;
+    }
+    if (!cast5_enabled() && lowercase(cipher) == "cast5") {
+        return false;
+    }
     return true;
 }
 
@@ -584,7 +590,7 @@ ask_expert_details(cli_rnp_t *ctx, rnp_cfg &ops, const char *rsp)
     ops.set_int(CFG_PASSFD, pipefd[0]);
     write_pass_to_pipe(pipefd[1], 2);
     close(pipefd[1]);
-    if (!rnpkeys_init(ctx, ops)) {
+    if (!rnpkeys_init(*ctx, ops)) {
         close(pipefd[0]); // otherwise will be closed via passfp
         goto end;
     }
@@ -917,6 +923,7 @@ TEST_F(rnp_tests, generatekeyECDSA_explicitlySetSmallOutputDigest_DigestAlgAdjus
 
     ops.set_bool(CFG_EXPERT, true);
     ops.set_str(CFG_HASH, "SHA1");
+    ops.set_bool(CFG_WEAK_HASH, true);
     ops.set_int(CFG_S2K_ITER, 1);
     ops.add_str(CFG_USERID, "expert_small_digest");
     assert_true(ask_expert_details(&rnp, ops, "19\n2\n"));
@@ -1081,6 +1088,7 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         pgp_userid_pkt_t uid;
         uid.tag = PGP_PKT_USER_ID;
         uid.uid = (uint8_t *) malloc(4);
+        assert_non_null(uid.uid);
         uid.uid_len = 4;
         memcpy(uid.uid, "fake", 4);
 

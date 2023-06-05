@@ -217,6 +217,15 @@ struct pgp_key_t {
     bool             can_sign() const;
     bool             can_certify() const;
     bool             can_encrypt() const;
+    bool             has_secret() const;
+    /**
+     * @brief Check whether key is usable for the specified operation.
+     *
+     * @param op operation to check.
+     * @param if_secret check whether secret part of this key could be usable for op.
+     * @return true if key (or corresponding secret key) is usable or false otherwise.
+     */
+    bool usable_for(pgp_op_t op, bool if_secret = false) const;
     /** @brief Get key's expiration time in seconds. If 0 then it doesn't expire. */
     uint32_t expiration() const;
     /** @brief Check whether key is expired. Must be validated before that. */
@@ -625,7 +634,7 @@ bool pgp_subkey_set_expiration(pgp_key_t *                    sub,
                                const pgp_password_provider_t &prov,
                                rnp::SecurityContext &         ctx);
 
-/** find a key suitable for a particular operation
+/** Find a key or it's subkey, suitable for a particular operation
  *
  *  If the key passed is suitable, it will be returned.
  *  Otherwise, its subkeys (if it is a primary w/subs)
@@ -634,7 +643,6 @@ bool pgp_subkey_set_expiration(pgp_key_t *                    sub,
  *
  *  @param op the operation for which the key should be suitable
  *  @param key the key
- *  @param desired_usage
  *  @param key_provider the key provider. This will be used
  *         if/when subkeys are checked.
  *  @param no_primary set true if only subkeys must be returned
@@ -645,7 +653,6 @@ bool pgp_subkey_set_expiration(pgp_key_t *                    sub,
 pgp_key_t *find_suitable_key(pgp_op_t            op,
                              pgp_key_t *         key,
                              pgp_key_provider_t *key_provider,
-                             uint8_t             desired_usage,
                              bool                no_primary = false);
 
 /*

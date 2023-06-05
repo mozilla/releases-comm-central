@@ -72,7 +72,7 @@ configure_file(version.h.in version.h)
 
 # Checks feature in CRYPTO_BACKEND and puts the result into variable whose name is stored in RESULT_VARNAME variable.
 function(backend_has_feature FEATURE RESULT_VARNAME)
-  if (CRYPTO_BACKEND STREQUAL "botan")
+  if (CRYPTO_BACKEND_LOWERCASE STREQUAL "botan")
     check_cxx_symbol_exists("BOTAN_HAS_${FEATURE}" botan/build.h ${RESULT_VARNAME})
   else()
   message(STATUS "Looking for OpenSSL feature ${FEATURE}")
@@ -134,13 +134,13 @@ if(CRYPTO_BACKEND_BOTAN)
       # base
       BIGINT FFI HEX_CODEC PGP_S2K
       # symmetric ciphers
-      BLOCK_CIPHER AES BLOWFISH CAMELLIA CAST_128 DES
+      BLOCK_CIPHER AES CAMELLIA DES
       # cipher modes
       MODE_CBC MODE_CFB
       # RNG
       AUTO_RNG AUTO_SEEDING_RNG HMAC HMAC_DRBG
       # hash
-      CRC24 HASH MD5 SHA1 SHA2_32 SHA2_64 SHA3 RIPEMD_160
+      CRC24 HASH MD5 SHA1 SHA2_32 SHA2_64 SHA3
       # public-key core
       DL_GROUP DL_PUBLIC_KEY_FAMILY ECC_GROUP ECC_PUBLIC_KEY_CRYPTO PUBLIC_KEY_CRYPTO
       # public-key algs
@@ -160,6 +160,9 @@ if(CRYPTO_BACKEND_BOTAN)
   resolve_feature_state(ENABLE_TWOFISH "TWOFISH")
   resolve_feature_state(ENABLE_IDEA "IDEA")
   # Botan supports Brainpool curves together with SECP via the ECC_GROUP define
+  resolve_feature_state(ENABLE_BLOWFISH "BLOWFISH")
+  resolve_feature_state(ENABLE_CAST5 "CAST_128")
+  resolve_feature_state(ENABLE_RIPEMD160 "RIPEMD_160")
   set(CMAKE_REQUIRED_INCLUDES)
 endif()
 if(CRYPTO_BACKEND_OPENSSL)
@@ -167,10 +170,11 @@ if(CRYPTO_BACKEND_OPENSSL)
   set(_openssl_required_features
     # symmetric ciphers
     AES-128-ECB AES-192-ECB AES-256-ECB AES-128-CBC AES-192-CBC AES-256-CBC
-    BF-ECB CAMELLIA-128-ECB CAMELLIA-192-ECB CAMELLIA-256-ECB CAST5-ECB
+    AES-128-OCB AES-192-OCB AES-256-OCB
+    CAMELLIA-128-ECB CAMELLIA-192-ECB CAMELLIA-256-ECB
     DES-EDE3
     # hashes
-    MD5 SHA1 SHA224 SHA256 SHA384 SHA512 SHA3-256 SHA3-512 RIPEMD160
+    MD5 SHA1 SHA224 SHA256 SHA384 SHA512 SHA3-256 SHA3-512
     # curves
     PRIME256V1 SECP384R1 SECP521R1 SECP256K1
     # public key
@@ -187,10 +191,13 @@ if(CRYPTO_BACKEND_OPENSSL)
 
   resolve_feature_state(ENABLE_BRAINPOOL "BRAINPOOLP256R1;BRAINPOOLP384R1;BRAINPOOLP512R1")
   resolve_feature_state(ENABLE_IDEA "IDEA-ECB;IDEA-CBC")
+  resolve_feature_state(ENABLE_BLOWFISH "BF-ECB")
+  resolve_feature_state(ENABLE_CAST5 "CAST5-ECB")
+  resolve_feature_state(ENABLE_RIPEMD160 "RIPEMD160")
+  resolve_feature_state(ENABLE_AEAD "AES-128-OCB;AES-192-OCB;AES-256-OCB")
   openssl_nope(ENABLE_SM2 "it's on our roadmap, see https://github.com/rnpgp/rnp/issues/1877")
   #resolve_feature_state(ENABLE_SM2 "SM2;SM3;SM4-ECB")
   openssl_nope(ENABLE_TWOFISH "Twofish isn't and won't be supported by OpenSSL, see https://github.com/openssl/openssl/issues/2046")
-  openssl_nope(ENABLE_AEAD "it's on our roadmap, see https://github.com/rnpgp/rnp/issues/1642")
 endif()
 
 configure_file(config.h.in config.h)
@@ -291,7 +298,6 @@ add_library(librnp-obj OBJECT
   pass-provider.cpp
   pgp-key.cpp
   rnp.cpp
-  $<TARGET_OBJECTS:rnp-common>
 )
 
 get_target_property(_comp_options librnp-obj COMPILE_OPTIONS)
@@ -322,6 +328,8 @@ elseif (CRYPTO_BACKEND_OPENSSL)
   target_link_libraries(librnp-obj PRIVATE OpenSSL::Crypto)
 endif()
 
+target_link_libraries(librnp-obj PRIVATE sexp)
+
 set_target_properties(librnp-obj PROPERTIES CXX_VISIBILITY_PRESET hidden)
 if (TARGET BZip2::BZip2)
   target_link_libraries(librnp-obj PRIVATE BZip2::BZip2)
@@ -336,16 +344,29 @@ else()
 endif()
 
 add_library(librnp $<TARGET_OBJECTS:librnp-obj> $<TARGET_OBJECTS:rnp-common>)
+if (OpenSSL::applink)
+  target_link_libraries(librnp PRIVATE OpenSSL::applink)
+endif(OpenSSL::applink)
+
 set_target_properties(librnp
   PROPERTIES
     VERSION "${RNP_VERSION}"
     SOVERSION "${RNP_VERSION_MAJOR}"
-    PREFIX "lib"
     OUTPUT_NAME "rnp"
 )
 
 if (BUILD_SHARED_LIBS)
   add_library(librnp-static STATIC $<TARGET_OBJECTS:librnp-obj> $<TARGET_OBJECTS:rnp-common>)
+  if (OpenSSL::applink)
+    target_link_libraries(librnp-static PRIVATE OpenSSL::applink)
+  endif(OpenSSL::applink)
+  if (WIN32)
+    set_target_properties(librnp-static PROPERTIES OUTPUT_NAME "rnp-static")
+  else (WIN32)
+# On Unix like systems we will build/install/pack shared and static libraries librnp.so and librnp.a
+# On Windows we will build/install/pack dynamic, import and  static libraries rnp.dll, rnp.lib and rnp-static.lib
+    set_target_properties(librnp-static PROPERTIES OUTPUT_NAME "rnp")
+  endif (WIN32)
  # Limit symbols export only to rnp_* functions.
   if (APPLE)
     # use -export_symbols_list on Apple OSs
@@ -361,10 +382,14 @@ endif()
 
 foreach (prop LINK_LIBRARIES INTERFACE_LINK_LIBRARIES INCLUDE_DIRECTORIES INTERFACE_INCLUDE_DIRECTORIES)
   get_target_property(val librnp-obj ${prop})
-  set_property(TARGET librnp PROPERTY ${prop} ${val})
   if (BUILD_SHARED_LIBS)
     set_property(TARGET librnp-static PROPERTY ${prop} ${val})
+    list(REMOVE_ITEM val "$<LINK_ONLY:sexp>")
+    set_property(TARGET librnp PROPERTY ${prop} ${val})
+  else()
+    set_property(TARGET librnp PROPERTY ${prop} ${val})
   endif()
+
 endforeach()
 
 generate_export_header(librnp
@@ -389,16 +414,40 @@ else()
 endif()
 
 # add these to the rnp-targets export
+# On Unix like systems we will build/install/pack shared and static libraries librnp.so and librnp.a
+# On Windows we will build/install/pack dynamic, import and  static libraries rnp.dll, rnp.lib and rnp-static.lib
+
+# If a client application uses shared rnp library, sexp is statically linked to librnp.so
+# If a client application uses static rnp library, it still needs libsexp.a
+
+if (BUILD_SHARED_LIBS)
+# both static and shared libraries
 install(TARGETS librnp
-  EXPORT rnp-targets
-  LIBRARY
-    DESTINATION  "${CMAKE_INSTALL_LIBDIR}"
-    COMPONENT runtime
-    ${namelink_component}
-  ARCHIVE 
-    DESTINATION  "${CMAKE_INSTALL_LIBDIR}"
-    COMPONENT development
+    EXPORT rnp-targets
+    LIBRARY
+      DESTINATION  "${CMAKE_INSTALL_LIBDIR}"
+      COMPONENT runtime
+      ${namelink_component}
+    ARCHIVE
+      DESTINATION  "${CMAKE_INSTALL_LIBDIR}"
+      COMPONENT development
+  )
+
+  install(TARGETS librnp-static sexp
+    EXPORT rnp-targets
+    ARCHIVE
+      DESTINATION  "${CMAKE_INSTALL_LIBDIR}"
+      COMPONENT development
+  )
+else(BUILD_SHARED_LIBS)
+# static libraries only
+install(TARGETS librnp sexp
+    EXPORT rnp-targets
+    ARCHIVE
+      DESTINATION  "${CMAKE_INSTALL_LIBDIR}"
+      COMPONENT development
 )
+endif(BUILD_SHARED_LIBS)
 
 # install dll only for windows
 if (WIN32)
@@ -407,7 +456,7 @@ if (WIN32)
       DESTINATION "${CMAKE_INSTALL_BINDIR}"
       COMPONENT runtime
   )
-endif()
+endif(WIN32)
 
 # install headers
 install(
@@ -474,8 +523,6 @@ function(get_linked_libs libsvar dirsvar tgt)
   list(APPEND visited_targets ${tgt})
   if (imported)
     get_target_property(linkedlibs ${tgt} INTERFACE_LINK_LIBRARIES)
-  else()
-    get_target_property(linkedlibs ${tgt} LINK_LIBRARIES)
   endif()
   set(libs)
   foreach (lib ${linkedlibs})

@@ -194,16 +194,15 @@ set_pass_fd(FILE **file, int passfd)
 static char *
 ptimestr(char *dest, size_t size, time_t t)
 {
-    struct tm *tm;
-
-    tm = rnp_gmtime(t);
+    struct tm tm = {};
+    rnp_gmtime(t, tm);
     (void) snprintf(dest,
                     size,
                     "%s%04d-%02d-%02d",
                     rnp_y2k38_warning(t) ? ">=" : "",
-                    tm->tm_year + 1900,
-                    tm->tm_mon + 1,
-                    tm->tm_mday);
+                    tm.tm_year + 1900,
+                    tm.tm_mon + 1,
+                    tm.tm_mday);
     return dest;
 }
 
@@ -307,7 +306,7 @@ rnp_get_output_filename(const std::string &path, std::string &res, cli_rnp_t &rn
 }
 
 static bool
-stdin_getpass(const char *prompt, char *buffer, size_t size, cli_rnp_t *rnp)
+stdin_getpass(const char *prompt, char *buffer, size_t size, cli_rnp_t &rnp)
 {
 #ifndef _WIN32
     struct termios saved_flags, noecho_flags;
@@ -316,7 +315,7 @@ stdin_getpass(const char *prompt, char *buffer, size_t size, cli_rnp_t *rnp)
     bool  ok = false;
     FILE *in = NULL;
     FILE *out = NULL;
-    FILE *userio_in = (rnp && rnp->userio_in) ? rnp->userio_in : stdin;
+    FILE *userio_in = rnp.userio_in ? rnp.userio_in : stdin;
 
     // validate args
     if (!buffer) {
@@ -325,7 +324,7 @@ stdin_getpass(const char *prompt, char *buffer, size_t size, cli_rnp_t *rnp)
     // doesn't hurt
     *buffer = '\0';
 
-    if (!rnp->cfg().get_bool(CFG_NOTTY)) {
+    if (!rnp.cfg().get_bool(CFG_NOTTY)) {
 #ifndef _WIN32
         in = fopen("/dev/tty", "w+ce");
 #endif
@@ -334,7 +333,7 @@ stdin_getpass(const char *prompt, char *buffer, size_t size, cli_rnp_t *rnp)
 
     if (!in) {
         in = userio_in;
-        out = (rnp && rnp->userio_out) ? rnp->userio_out : stdout;
+        out = rnp.userio_out ? rnp.userio_out : stdout;
     }
 
     // TODO: Implement alternative for hiding password entry on Windows
@@ -383,6 +382,7 @@ ffi_pass_callback_stdin(rnp_ffi_t        ffi,
     char *     buffer = NULL;
     bool       ok = false;
     bool       protect = false;
+    bool       add_subkey = false;
     bool       decrypt_symmetric = false;
     bool       encrypt_symmetric = false;
     bool       is_primary = false;
@@ -394,6 +394,8 @@ ffi_pass_callback_stdin(rnp_ffi_t        ffi,
 
     if (!strcmp(pgp_context, "protect")) {
         protect = true;
+    } else if (!strcmp(pgp_context, "add subkey")) {
+        add_subkey = true;
     } else if (!strcmp(pgp_context, "decrypt (symmetric)")) {
         decrypt_symmetric = true;
     } else if (!strcmp(pgp_context, "encrypt (symmetric)")) {
@@ -407,7 +409,7 @@ ffi_pass_callback_stdin(rnp_ffi_t        ffi,
         (void) rnp_key_is_primary(key, &is_primary);
     }
 
-    if (protect && rnp->reuse_password_for_subkey && !is_primary) {
+    if ((protect || add_subkey) && rnp->reuse_password_for_subkey && !is_primary) {
         char *primary_fprint = NULL;
         if (rnp_key_get_primary_fprint(key, &primary_fprint) == RNP_SUCCESS &&
             !rnp->reuse_primary_fprint.empty() &&
@@ -438,7 +440,7 @@ start:
         snprintf(prompt, sizeof(prompt), "Enter password for %s to %s: ", target, pgp_context);
     }
 
-    if (!stdin_getpass(prompt, buf, buf_len, rnp)) {
+    if (!stdin_getpass(prompt, buf, buf_len, *rnp)) {
         goto done;
     }
     if (protect || encrypt_symmetric) {
@@ -448,7 +450,7 @@ start:
             snprintf(prompt, sizeof(prompt), "Repeat password: ");
         }
 
-        if (!stdin_getpass(prompt, buffer, buf_len, rnp)) {
+        if (!stdin_getpass(prompt, buffer, buf_len, *rnp)) {
             goto done;
         }
         if (strcmp(buf, buffer) != 0) {
@@ -463,7 +465,7 @@ start:
             }
         }
     }
-    if (protect && is_primary) {
+    if ((protect || add_subkey) && is_primary) {
         if (cli_rnp_get_confirmation(
               rnp, "Would you like to use the same password to protect subkey(s)?")) {
             char *primary_fprint = NULL;
@@ -523,6 +525,26 @@ ffi_pass_callback_string(rnp_ffi_t        ffi,
     return true;
 }
 
+static void
+ffi_key_callback(rnp_ffi_t   ffi,
+                 void *      app_ctx,
+                 const char *identifier_type,
+                 const char *identifier,
+                 bool        secret)
+{
+    cli_rnp_t *rnp = static_cast<cli_rnp_t *>(app_ctx);
+
+    if (rnp::str_case_eq(identifier_type, "keyid") &&
+        rnp::str_case_eq(identifier, "0000000000000000")) {
+        if (rnp->hidden_msg) {
+            return;
+        }
+        ERR_MSG("This message has hidden recipient. Will attempt to use all secret keys for "
+                "decryption.");
+        rnp->hidden_msg = true;
+    }
+}
+
 #ifdef _WIN32
 void
 rnpffiInvalidParameterHandler(const wchar_t *expression,
@@ -532,6 +554,32 @@ rnpffiInvalidParameterHandler(const wchar_t *expression,
                               uintptr_t      pReserved)
 {
     // do nothing as within release CRT all params are NULL
+}
+#endif
+
+cli_rnp_t::~cli_rnp_t()
+{
+    end();
+#ifdef _WIN32
+    if (subst_argv) {
+        rnp_win_clear_args(subst_argc, subst_argv);
+    }
+#endif
+}
+
+int
+cli_rnp_t::ret_code(bool success)
+{
+    return success ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+#ifdef _WIN32
+void
+cli_rnp_t::substitute_args(int *argc, char ***argv)
+{
+    rnp_win_substitute_cmdline_args(argc, argv);
+    subst_argc = *argc;
+    subst_argv = *argv;
 }
 #endif
 
@@ -600,6 +648,11 @@ cli_rnp_t::init(const rnp_cfg &cfg)
 
     // by default use stdin password provider
     if (rnp_ffi_set_pass_provider(ffi, ffi_pass_callback_stdin, this)) {
+        goto done;
+    }
+
+    // set key provider, currently for informational purposes only
+    if (rnp_ffi_set_key_provider(ffi, ffi_key_callback, this)) {
         goto done;
     }
 
@@ -959,8 +1012,149 @@ done:
 }
 
 bool
+cli_rnp_t::set_key_expire(const std::string &key)
+{
+    std::vector<rnp_key_handle_t> keys;
+    if (!cli_rnp_keys_matching_string(
+          this, keys, key, CLI_SEARCH_SECRET | CLI_SEARCH_SUBKEYS)) {
+        ERR_MSG("Secret keys matching '%s' not found.", key.c_str());
+        return false;
+    }
+    bool     res = false;
+    uint32_t expiration = 0;
+    if (keys.size() > 1) {
+        ERR_MSG("Ambiguous input: too many keys found for '%s'.", key.c_str());
+        goto done;
+    }
+    if (!cfg().get_expiration(CFG_SET_KEY_EXPIRE, expiration) ||
+        rnp_key_set_expiration(keys[0], expiration)) {
+        ERR_MSG("Failed to set key expiration.");
+        goto done;
+    }
+    res = cli_rnp_save_keyrings(this);
+done:
+    if (res) {
+        cli_rnp_print_key_info(stdout, ffi, keys[0], true, false);
+    }
+    clear_key_handles(keys);
+    return res;
+}
+
+bool
+cli_rnp_t::add_new_subkey(const std::string &key)
+{
+    rnp_cfg &lcfg = cfg();
+    if (!cli_rnp_set_generate_params(lcfg, true)) {
+        ERR_MSG("Subkey generation setup failed.");
+        return false;
+    }
+    std::vector<rnp_key_handle_t> keys;
+    if (!cli_rnp_keys_matching_string(this, keys, key, CLI_SEARCH_SECRET)) {
+        ERR_MSG("Secret keys matching '%s' not found.", key.c_str());
+        return false;
+    }
+    bool              res = false;
+    rnp_op_generate_t genkey = NULL;
+    rnp_key_handle_t  subkey = NULL;
+    char *            password = NULL;
+
+    if (keys.size() > 1) {
+        ERR_MSG("Ambiguous input: too many keys found for '%s'.", key.c_str());
+        goto done;
+    }
+    if (rnp_op_generate_subkey_create(
+          &genkey, ffi, keys[0], cfg().get_cstr(CFG_KG_SUBKEY_ALG))) {
+        ERR_MSG("Failed to initialize subkey generation.");
+        goto done;
+    }
+    if (cfg().has(CFG_KG_SUBKEY_BITS) &&
+        rnp_op_generate_set_bits(genkey, cfg().get_int(CFG_KG_SUBKEY_BITS))) {
+        ERR_MSG("Failed to set subkey bits.");
+        goto done;
+    }
+    if (cfg().has(CFG_KG_SUBKEY_CURVE) &&
+        rnp_op_generate_set_curve(genkey, cfg().get_cstr(CFG_KG_SUBKEY_CURVE))) {
+        ERR_MSG("Failed to set subkey curve.");
+        goto done;
+    }
+    if (cfg().has(CFG_KG_SUBKEY_EXPIRATION)) {
+        uint32_t expiration = 0;
+        if (!cfg().get_expiration(CFG_KG_SUBKEY_EXPIRATION, expiration) ||
+            rnp_op_generate_set_expiration(genkey, expiration)) {
+            ERR_MSG("Failed to set subkey expiration.");
+            goto done;
+        }
+    }
+    // TODO : set DSA qbits
+    if (rnp_op_generate_set_hash(genkey, cfg().get_cstr(CFG_KG_HASH))) {
+        ERR_MSG("Failed to set hash algorithm.");
+        goto done;
+    }
+    if (rnp_op_generate_execute(genkey) || rnp_op_generate_get_key(genkey, &subkey)) {
+        ERR_MSG("Subkey generation failed.");
+        goto done;
+    }
+    if (rnp_request_password(ffi, subkey, "protect", &password)) {
+        ERR_MSG("Failed to obtain protection password.");
+        goto done;
+    }
+    if (*password) {
+        rnp_result_t ret = rnp_key_protect(subkey,
+                                           password,
+                                           cfg().get_cstr(CFG_KG_PROT_ALG),
+                                           NULL,
+                                           cfg().get_cstr(CFG_KG_PROT_HASH),
+                                           cfg().get_int(CFG_KG_PROT_ITERATIONS));
+        rnp_buffer_clear(password, strlen(password) + 1);
+        rnp_buffer_destroy(password);
+        if (ret) {
+            ERR_MSG("Failed to protect key.");
+            goto done;
+        }
+    } else {
+        rnp_buffer_destroy(password);
+    }
+    res = cli_rnp_save_keyrings(this);
+done:
+    if (res) {
+        cli_rnp_print_key_info(stdout, ffi, keys[0], true, false);
+        if (subkey) {
+            cli_rnp_print_key_info(stdout, ffi, subkey, true, false);
+        }
+    }
+    clear_key_handles(keys);
+    rnp_op_generate_destroy(genkey);
+    rnp_key_handle_destroy(subkey);
+    return res;
+}
+
+bool
 cli_rnp_t::edit_key(const std::string &key)
 {
+    int edit_options = 0;
+
+    if (cfg().get_bool(CFG_CHK_25519_BITS)) {
+        edit_options++;
+    }
+    if (cfg().get_bool(CFG_FIX_25519_BITS)) {
+        edit_options++;
+    }
+    if (cfg().get_bool(CFG_ADD_SUBKEY)) {
+        edit_options++;
+    }
+    if (cfg().has(CFG_SET_KEY_EXPIRE)) {
+        edit_options++;
+    }
+
+    if (!edit_options) {
+        ERR_MSG("You should specify one of the editing options for --edit-key.");
+        return false;
+    }
+    if (edit_options > 1) {
+        ERR_MSG("Only one key edit option can be executed at a time.");
+        return false;
+    }
+
     if (cfg().get_bool(CFG_CHK_25519_BITS)) {
         return fix_cv25519_subkey(key, true);
     }
@@ -968,8 +1162,14 @@ cli_rnp_t::edit_key(const std::string &key)
         return fix_cv25519_subkey(key, false);
     }
 
-    /* more options, like --passwd, --unprotect, --expiration are to come */
-    ERR_MSG("You should specify at least one editing option for --edit-key.");
+    if (cfg().get_bool(CFG_ADD_SUBKEY)) {
+        return add_new_subkey(key);
+    }
+
+    if (cfg().has(CFG_SET_KEY_EXPIRE)) {
+        return set_key_expire(key);
+    }
+
     return false;
 }
 
@@ -1508,57 +1708,12 @@ done:
     return res;
 }
 
-static size_t
-hex_prefix_len(const std::string &str)
-{
-    if ((str.length() >= 2) && (str[0] == '0') && ((str[1] == 'x') || (str[1] == 'X'))) {
-        return 2;
-    }
-    return 0;
-}
-
-static bool
-str_is_hex(const std::string &hexid)
-{
-    for (size_t i = hex_prefix_len(hexid); i < hexid.length(); i++) {
-        if ((hexid[i] >= '0') && (hexid[i] <= '9')) {
-            continue;
-        }
-        if ((hexid[i] >= 'a') && (hexid[i] <= 'f')) {
-            continue;
-        }
-        if ((hexid[i] >= 'A') && (hexid[i] <= 'F')) {
-            continue;
-        }
-        if ((hexid[i] == ' ') || (hexid[i] == '\t')) {
-            continue;
-        }
-        return false;
-    }
-    return true;
-}
-
-static std::string
-strip_hex_str(const std::string &str)
-{
-    std::string res = "";
-    for (size_t idx = hex_prefix_len(str); idx < str.length(); idx++) {
-        char ch = str[idx];
-        if ((ch == ' ') || (ch == '\t')) {
-            continue;
-        }
-        res.push_back(ch);
-    }
-    return res;
-}
-
 static bool
 key_matches_string(rnp_key_handle_t handle, const std::string &str)
 {
     bool   matches = false;
     char * id = NULL;
     size_t idlen = 0;
-    size_t len = str.length();
 #ifndef RNP_USE_STD_REGEX
     regex_t r = {};
 #else
@@ -1571,8 +1726,9 @@ key_matches_string(rnp_key_handle_t handle, const std::string &str)
         matches = true;
         goto done;
     }
-    if (str_is_hex(str) && (len >= RNP_KEYID_SIZE)) {
-        std::string hexstr = strip_hex_str(str);
+    if (rnp::is_hex(str) && (str.length() >= RNP_KEYID_SIZE)) {
+        std::string hexstr = rnp::strip_hex(str);
+        size_t      len = hexstr.length();
 
         /* check whether it's key id */
         if ((len == RNP_KEYID_SIZE * 2) || (len == RNP_KEYID_SIZE)) {
@@ -2357,6 +2513,10 @@ cli_rnp_t::init_io(Operation op, rnp_input_t *input, rnp_output_t *output)
             return false;
         }
     }
+    /* Update CFG_SETFNAME to insert into literal packet */
+    if (!cfg().has(CFG_SETFNAME) && !is_pathin) {
+        cfg().set_str(CFG_SETFNAME, "");
+    }
 
     if (!output) {
         return true;
@@ -2502,8 +2662,12 @@ cli_rnp_sign(const rnp_cfg &cfg, cli_rnp_t *rnp, rnp_input_t input, rnp_output_t
     }
 
     if (!cleartext && !detached) {
-        const std::string &fname = cfg.get_str(CFG_INFILE);
-        if (!fname.empty()) {
+        if (cfg.has(CFG_SETFNAME)) {
+            if (rnp_op_sign_set_file_name(op, cfg.get_str(CFG_SETFNAME).c_str())) {
+                goto done;
+            }
+        } else if (cfg.has(CFG_INFILE)) {
+            const std::string &fname = cfg.get_str(CFG_INFILE);
             if (rnp_op_sign_set_file_name(op, extract_filename(fname).c_str())) {
                 goto done;
             }
@@ -2572,13 +2736,18 @@ cli_rnp_encrypt_and_sign(const rnp_cfg &cfg,
 
     rnp_op_encrypt_set_armor(op, cfg.get_bool(CFG_ARMOR));
 
-    fname = cfg.get_str(CFG_INFILE);
-    if (!fname.empty()) {
+    if (cfg.has(CFG_SETFNAME)) {
+        if (rnp_op_encrypt_set_file_name(op, cfg.get_str(CFG_SETFNAME).c_str())) {
+            goto done;
+        }
+    } else if (cfg.has(CFG_INFILE)) {
+        const std::string &fname = cfg.get_str(CFG_INFILE);
         if (rnp_op_encrypt_set_file_name(op, extract_filename(fname).c_str())) {
             goto done;
         }
         rnp_op_encrypt_set_file_mtime(op, rnp_filemtime(fname.c_str()));
     }
+
     if (rnp_op_encrypt_set_compression(op, cfg.get_cstr(CFG_ZALG), cfg.get_int(CFG_ZLEVEL))) {
         goto done;
     }
@@ -2604,9 +2773,19 @@ cli_rnp_encrypt_and_sign(const rnp_cfg &cfg,
     if (cfg.get_bool(CFG_ENCRYPT_SK)) {
         std::string halg = cfg.get_hashalg();
         std::string ealg = cfg.get_str(CFG_CIPHER);
+        size_t      iterations = cfg.get_int(CFG_S2K_ITER);
+        size_t      msec = cfg.get_int(CFG_S2K_MSEC);
+
+        if (msec != DEFAULT_S2K_MSEC) {
+            if (rnp_calculate_iterations(halg.c_str(), msec, &iterations)) {
+                ERR_MSG("Failed to calculate S2K iterations");
+                goto done;
+            }
+        }
 
         for (int i = 0; i < cfg.get_int(CFG_PASSWORDC, 1); i++) {
-            if (rnp_op_encrypt_add_password(op, NULL, halg.c_str(), 0, ealg.c_str())) {
+            if (rnp_op_encrypt_add_password(
+                  op, NULL, halg.c_str(), iterations, ealg.c_str())) {
                 ERR_MSG("Failed to add encrypting password");
                 goto done;
             }
@@ -2683,6 +2862,36 @@ cli_rnp_setup(cli_rnp_t *rnp)
         }
     }
     rnp->pswdtries = rnp->cfg().get_pswdtries();
+    return true;
+}
+
+bool
+cli_rnp_check_weak_hash(cli_rnp_t *rnp)
+{
+    if (rnp->cfg().has(CFG_WEAK_HASH)) {
+        return true;
+    }
+
+    uint32_t security_level = 0;
+
+    if (rnp_get_security_rule(rnp->ffi,
+                              RNP_FEATURE_HASH_ALG,
+                              rnp->cfg().get_hashalg().c_str(),
+                              rnp->cfg().time(),
+                              NULL,
+                              NULL,
+                              &security_level)) {
+        ERR_MSG("Failed to get security rules for hash algorithm \'%s\'!",
+                rnp->cfg().get_hashalg().c_str());
+        return false;
+    }
+
+    if (security_level < RNP_SECURITY_DEFAULT) {
+        ERR_MSG("Hash algorithm \'%s\' is cryptographically weak!",
+                rnp->cfg().get_hashalg().c_str());
+        return false;
+    }
+    /* TODO: check other weak algorithms and key sizes */
     return true;
 }
 
@@ -2779,17 +2988,17 @@ cli_rnp_print_signatures(cli_rnp_t *rnp, const std::vector<rnp_op_verify_signatu
         rnp_op_verify_signature_get_times(sig, &create, &expiry);
 
         time_t crtime = create;
+        auto   str = rnp_ctime(crtime);
         fprintf(resfp,
                 "%s made %s%s",
                 title.c_str(),
                 rnp_y2k38_warning(crtime) ? ">=" : "",
-                rnp_ctime(crtime));
+                str.c_str());
         if (expiry) {
             crtime = rnp_timeadd(crtime, expiry);
-            fprintf(resfp,
-                    "Valid until %s%s\n",
-                    rnp_y2k38_warning(crtime) ? ">=" : "",
-                    rnp_ctime(crtime));
+            str = rnp_ctime(crtime);
+            fprintf(
+              resfp, "Valid until %s%s\n", rnp_y2k38_warning(crtime) ? ">=" : "", str.c_str());
         }
 
         rnp_signature_handle_t handle = NULL;
@@ -2831,6 +3040,29 @@ cli_rnp_print_signatures(cli_rnp_t *rnp, const std::vector<rnp_op_verify_signatu
                 si,
                 unknownc,
                 su);
+    }
+}
+
+static void
+cli_rnp_inform_of_hidden_recipient(rnp_op_verify_t op)
+{
+    size_t recipients = 0;
+    rnp_op_verify_get_recipient_count(op, &recipients);
+    if (!recipients) {
+        return;
+    }
+    for (size_t idx = 0; idx < recipients; idx++) {
+        rnp_recipient_handle_t recipient = NULL;
+        rnp_op_verify_get_recipient_at(op, idx, &recipient);
+        char *keyid = NULL;
+        rnp_recipient_get_keyid(recipient, &keyid);
+        bool hidden = keyid && !strcmp(keyid, "0000000000000000");
+        rnp_buffer_destroy(keyid);
+        if (hidden) {
+            ERR_MSG("Warning: message has hidden recipient, but it was ignored. Use "
+                    "--allow-hidden to override this.");
+            break;
+        }
     }
 }
 
@@ -2893,13 +3125,20 @@ cli_rnp_process_file(cli_rnp_t *rnp)
             goto done;
         }
         ret = rnp_op_verify_create(&verify, rnp->ffi, input, output);
-        if (!ret && !rnp->cfg().get_bool(CFG_NO_OUTPUT)) {
-            /* This would happen if user requested decryption instead of verification */
-            ret = rnp_op_verify_set_flags(verify, RNP_VERIFY_IGNORE_SIGS_ON_DECRYPT);
-        }
-        if (!ret && rnp->cfg().get_bool(CFG_NO_OUTPUT)) {
-            /* Currently CLI requires all signatures to be valid for success */
-            ret = rnp_op_verify_set_flags(verify, RNP_VERIFY_REQUIRE_ALL_SIGS);
+        if (!ret) {
+            uint32_t flags = 0;
+            if (!rnp->cfg().get_bool(CFG_NO_OUTPUT)) {
+                /* This would happen if user requested decryption instead of verification */
+                flags = flags | RNP_VERIFY_IGNORE_SIGS_ON_DECRYPT;
+            } else {
+                /* Currently CLI requires all signatures to be valid for success */
+                flags = flags | RNP_VERIFY_REQUIRE_ALL_SIGS;
+            }
+            if (rnp->cfg().get_bool(CFG_ALLOW_HIDDEN)) {
+                /* Allow hidden recipient */
+                flags = flags | RNP_VERIFY_ALLOW_HIDDEN_RECIPIENT;
+            }
+            ret = rnp_op_verify_set_flags(verify, flags);
         }
     }
     if (ret) {
@@ -2908,6 +3147,11 @@ cli_rnp_process_file(cli_rnp_t *rnp)
     }
 
     res = !rnp_op_verify_execute(verify);
+
+    /* Check whether we had hidden recipient on verification/decryption failure */
+    if (!res && !rnp->cfg().get_bool(CFG_ALLOW_HIDDEN)) {
+        cli_rnp_inform_of_hidden_recipient(verify);
+    }
 
     rnp_op_verify_get_signature_count(verify, &scount);
     if (!scount) {

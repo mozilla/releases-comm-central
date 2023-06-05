@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2017-2023, [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -84,13 +84,12 @@ typedef struct pgp_dest_compressed_param_t {
 } pgp_dest_compressed_param_t;
 
 typedef struct pgp_dest_encrypted_param_t {
-    pgp_dest_packet_param_t    pkt;     /* underlying packet-related params */
-    rnp_ctx_t *                ctx;     /* rnp operation context with additional parameters */
-    bool                       has_mdc; /* encrypted with mdc, i.e. tag 18 */
-    bool                       aead;    /* we use AEAD encryption */
-    pgp_crypt_t                encrypt; /* encrypting crypto */
-    std::unique_ptr<rnp::Hash> mdc;     /* mdc SHA1 hash */
-    pgp_aead_alg_t             aalg;    /* AEAD algorithm used */
+    pgp_dest_packet_param_t    pkt; /* underlying packet-related params */
+    rnp_ctx_t *                ctx; /* rnp operation context with additional parameters */
+    rnp::AuthType              auth_type; /* Authentication type: MDC, AEAD or none */
+    pgp_crypt_t                encrypt;   /* encrypting crypto */
+    std::unique_ptr<rnp::Hash> mdc;       /* mdc SHA1 hash */
+    pgp_aead_alg_t             aalg;      /* AEAD algorithm used */
     uint8_t                    iv[PGP_AEAD_MAX_NONCE_LEN]; /* iv for AEAD mode */
     uint8_t                    ad[PGP_AEAD_MAX_AD_LEN];    /* additional data for AEAD mode */
     size_t                     adlen;    /* length of additional data, including chunk idx */
@@ -296,7 +295,7 @@ encrypted_dst_write_cfb(pgp_dest_t *dst, const void *buf, size_t len)
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
-    if (param->has_mdc) {
+    if (param->auth_type == rnp::AuthType::MDC) {
         try {
             param->mdc->add(buf, len);
         } catch (const std::exception &e) {
@@ -457,7 +456,7 @@ encrypted_dst_finish(pgp_dest_t *dst)
 {
     pgp_dest_encrypted_param_t *param = (pgp_dest_encrypted_param_t *) dst->param;
 
-    if (param->aead) {
+    if (param->auth_type == rnp::AuthType::AEADv1) {
 #if !defined(ENABLE_AEAD)
         RNP_LOG("AEAD is not enabled.");
         rnp_result_t res = RNP_ERROR_NOT_IMPLEMENTED;
@@ -475,7 +474,7 @@ encrypted_dst_finish(pgp_dest_t *dst)
             finish_streamed_packet(&param->pkt);
             return res;
         }
-    } else if (param->has_mdc) {
+    } else if (param->auth_type == rnp::AuthType::MDC) {
         uint8_t mdcbuf[MDC_V1_SIZE];
         mdcbuf[0] = MDC_PKT_TAG;
         mdcbuf[1] = MDC_V1_SIZE - 2;
@@ -503,7 +502,7 @@ encrypted_dst_close(pgp_dest_t *dst, bool discard)
         return;
     }
 
-    if (param->aead) {
+    if (param->auth_type == rnp::AuthType::AEADv1) {
 #if defined(ENABLE_AEAD)
         pgp_cipher_aead_destroy(&param->encrypt);
 #endif
@@ -527,13 +526,8 @@ encrypted_add_recipient(pgp_write_handler_t *handler,
     rnp_result_t                ret = RNP_ERROR_GENERIC;
 
     /* Use primary key if good for encryption, otherwise look in subkey list */
-    userkey =
-      find_suitable_key(PGP_OP_ENCRYPT_SYM, userkey, handler->key_provider, PGP_KF_ENCRYPT);
+    userkey = find_suitable_key(PGP_OP_ENCRYPT, userkey, handler->key_provider);
     if (!userkey) {
-        return RNP_ERROR_NO_SUITABLE_KEY;
-    }
-    if (!userkey->valid()) {
-        RNP_LOG("attempt to use invalid key as recipient");
         return RNP_ERROR_NO_SUITABLE_KEY;
     }
 
@@ -658,27 +652,19 @@ encrypted_add_password(rnp_symmetric_pass_info_t * pass,
                        bool                        singlepass)
 {
     pgp_sk_sesskey_t skey = {};
-    unsigned         s2keylen; /* length of the s2k key */
     pgp_crypt_t      kcrypt;
 
-    skey.alg = param->ctx->ealg;
     skey.s2k = pass->s2k;
 
-    if (!param->aead) {
+    if (param->auth_type != rnp::AuthType::AEADv1) {
         skey.version = PGP_SKSK_V4;
-        /* Following algorithm may differ from ctx's one if not singlepass */
-        if (singlepass) {
-            s2keylen = keylen;
-        } else if ((s2keylen = pgp_key_size(skey.alg)) == 0) {
-            return RNP_ERROR_BAD_PARAMETERS;
-        }
-
         if (singlepass) {
             /* if there are no public keys then we do not encrypt session key in the packet */
+            skey.alg = param->ctx->ealg;
             skey.enckeylen = 0;
-            memcpy(key, pass->key.data(), s2keylen);
+            memcpy(key, pass->key.data(), keylen);
         } else {
-            /* Currently we are using the same sym algo for key and stream encryption */
+            /* We may use different algo for CEK and KEK */
             skey.enckeylen = keylen + 1;
             skey.enckey[0] = param->ctx->ealg;
             memcpy(&skey.enckey[1], key, keylen);
@@ -702,6 +688,7 @@ encrypted_add_password(rnp_symmetric_pass_info_t * pass,
         }
 
         skey.version = PGP_SKSK_V5;
+        skey.alg = pass->s2k_cipher;
         skey.aalg = param->ctx->aalg;
         skey.ivlen = pgp_cipher_aead_nonce_len(skey.aalg);
         skey.enckeylen = keylen + pgp_cipher_aead_tag_len(skey.aalg);
@@ -754,7 +741,7 @@ encrypted_start_cfb(pgp_dest_encrypted_param_t *param, uint8_t *enckey)
     uint8_t  enchdr[PGP_MAX_BLOCK_SIZE + 2]; /* encrypted header */
     unsigned blsize;
 
-    if (param->has_mdc) {
+    if (param->auth_type == rnp::AuthType::MDC) {
         /* initializing the mdc */
         dst_write(param->pkt.writedst, &mdcver, 1);
 
@@ -778,7 +765,7 @@ encrypted_start_cfb(pgp_dest_encrypted_param_t *param, uint8_t *enckey)
         enchdr[blsize] = enchdr[blsize - 2];
         enchdr[blsize + 1] = enchdr[blsize - 1];
 
-        if (param->has_mdc) {
+        if (param->auth_type == rnp::AuthType::MDC) {
             param->mdc->add(enchdr, blsize + 2);
         }
     } catch (const std::exception &e) {
@@ -790,7 +777,7 @@ encrypted_start_cfb(pgp_dest_encrypted_param_t *param, uint8_t *enckey)
 
     /* RFC 4880, 5.13: Unlike the Symmetrically Encrypted Data Packet, no special CFB
      * resynchronization is done after encrypting this prefix data. */
-    if (!param->has_mdc) {
+    if (param->auth_type == rnp::AuthType::None) {
         pgp_cipher_cfb_resync(&param->encrypt, enchdr + 2);
     }
 
@@ -894,12 +881,13 @@ init_encrypted_dst(pgp_write_handler_t *handler, pgp_dest_t *dst, pgp_dest_t *wr
         RNP_LOG("%s", e.what());
         return RNP_ERROR_OUT_OF_MEMORY;
     }
-    param->has_mdc = true;
-    param->aead = handler->ctx->aalg != PGP_AEAD_NONE;
+    param->auth_type =
+      handler->ctx->aalg == PGP_AEAD_NONE ? rnp::AuthType::MDC : rnp::AuthType::AEADv1;
     param->aalg = handler->ctx->aalg;
     param->ctx = handler->ctx;
     param->pkt.origdst = writedst;
-    dst->write = param->aead ? encrypted_dst_write_aead : encrypted_dst_write_cfb;
+    dst->write = param->auth_type == rnp::AuthType::AEADv1 ? encrypted_dst_write_aead :
+                                                             encrypted_dst_write_cfb;
     dst->finish = encrypted_dst_finish;
     dst->close = encrypted_dst_close;
     dst->type = PGP_STREAM_ENCRYPTED;
@@ -914,7 +902,7 @@ init_encrypted_dst(pgp_write_handler_t *handler, pgp_dest_t *dst, pgp_dest_t *wr
         goto finish;
     }
 
-    if ((pkeycount > 0) || (skeycount > 1) || param->aead) {
+    if ((pkeycount > 0) || (skeycount > 1) || (param->auth_type == rnp::AuthType::AEADv1)) {
         try {
             handler->ctx->ctx->rng.get(enckey.data(), keylen);
         } catch (const std::exception &e) {
@@ -943,10 +931,12 @@ init_encrypted_dst(pgp_write_handler_t *handler, pgp_dest_t *dst, pgp_dest_t *wr
     /* Initializing partial packet writer */
     param->pkt.partial = true;
     param->pkt.indeterminate = false;
-    if (param->aead) {
+    if (param->auth_type == rnp::AuthType::AEADv1) {
         param->pkt.tag = PGP_PKT_AEAD_ENCRYPTED;
     } else {
-        param->pkt.tag = param->has_mdc ? PGP_PKT_SE_IP_DATA : PGP_PKT_SE_DATA;
+        /* We do not generate PGP_PKT_SE_DATA, leaving this just in case */
+        param->pkt.tag =
+          param->auth_type == rnp::AuthType::MDC ? PGP_PKT_SE_IP_DATA : PGP_PKT_SE_DATA;
     }
 
     /* initializing partial data length writer */
@@ -957,7 +947,7 @@ init_encrypted_dst(pgp_write_handler_t *handler, pgp_dest_t *dst, pgp_dest_t *wr
         goto finish;
     }
 
-    if (param->aead) {
+    if (param->auth_type == rnp::AuthType::AEADv1) {
         /* initialize AEAD encryption */
         ret = encrypted_start_aead(param, enckey.data());
     } else {

@@ -72,6 +72,7 @@ static const char *usage =
   "    --detach           Produce detached signature.\n"
   "    -u, --userid       Specify signing key(s) via uid/keyid/fingerprint.\n"
   "    --hash             Specify hash algorithm, used during signing.\n"
+  "    --allow-weak-hash  Allow usage of a weak hash algorithm.\n"
   "  --clearsign          Cleartext-sign data.\n"
   "  -d, --decrypt        Decrypt and output data, verifying signatures.\n"
   "  -v, --verify         Verify signatures, without outputting data.\n"
@@ -91,8 +92,12 @@ static const char *usage =
   "  --overwrite          Overwrite output file without a prompt.\n"
   "  --password           Password used during operation.\n"
   "  --pass-fd num        Read password(s) from the file descriptor.\n"
+  "  --s2k-iterations     Set the number of iterations for the S2K process.\n"
+  "  --s2k-msec           Calculate S2K iterations value based on a provided time in "
+  "milliseconds.\n"
   "  --notty              Do not output anything to the TTY.\n"
   "  --current-time       Override system's time.\n"
+  "  --set-filename       Override file name, stored inside of OpenPGP message.\n"
   "\n"
   "See man page for a detailed listing and explanation.\n"
   "\n";
@@ -124,6 +129,7 @@ enum optdefs {
     OPT_HOMEDIR,
     OPT_DETACHED,
     OPT_HASH_ALG,
+    OPT_ALLOW_WEAK_HASH,
     OPT_OUTPUT,
     OPT_RESULTS,
     OPT_COREDUMPS,
@@ -150,6 +156,10 @@ enum optdefs {
     OPT_SOURCE,
     OPT_NOWRAP,
     OPT_CURTIME,
+    OPT_SETFNAME,
+    OPT_ALLOW_HIDDEN,
+    OPT_S2K_ITER,
+    OPT_S2K_MSEC,
 
     /* debug */
     OPT_DEBUG
@@ -167,7 +177,7 @@ static struct option options[] = {
   {"verify-cat", no_argument, NULL, CMD_VERIFY_CAT},
   {"symmetric", no_argument, NULL, CMD_SYM_ENCRYPT},
   {"dearmor", no_argument, NULL, CMD_DEARMOR},
-  {"enarmor", required_argument, NULL, CMD_ENARMOR},
+  {"enarmor", optional_argument, NULL, CMD_ENARMOR},
   /* file listing commands */
   {"list-packets", no_argument, NULL, CMD_LIST_PACKETS},
   /* debugging commands */
@@ -213,6 +223,11 @@ static struct option options[] = {
   {"source", required_argument, NULL, OPT_SOURCE},
   {"no-wrap", no_argument, NULL, OPT_NOWRAP},
   {"current-time", required_argument, NULL, OPT_CURTIME},
+  {"set-filename", required_argument, NULL, OPT_SETFNAME},
+  {"allow-hidden", no_argument, NULL, OPT_ALLOW_HIDDEN},
+  {"s2k-iterations", required_argument, NULL, OPT_S2K_ITER},
+  {"s2k-msec", required_argument, NULL, OPT_S2K_MSEC},
+  {"allow-weak-hash", no_argument, NULL, OPT_ALLOW_WEAK_HASH},
 
   {NULL, 0, NULL, 0},
 };
@@ -222,7 +237,7 @@ static void
 print_usage(const char *usagemsg)
 {
     cli_rnp_print_praise();
-    ERR_MSG("%s", usagemsg);
+    puts(usagemsg);
 }
 
 /* do a command once for a specified config */
@@ -310,8 +325,8 @@ setcmd(rnp_cfg &cfg, int cmd, const char *arg)
         cfg.set_bool(CFG_KEYSTORE_DISABLED, true);
         break;
     case CMD_ENARMOR: {
-        std::string msgt = arg;
-        if (msgt == "msg") {
+        std::string msgt = arg ? arg : "";
+        if (msgt.empty() || (msgt == "msg")) {
             msgt = "message";
         } else if (msgt == "pubkey") {
             msgt = "public key";
@@ -336,6 +351,11 @@ setcmd(rnp_cfg &cfg, int cmd, const char *arg)
     default:
         newcmd = CMD_HELP;
         break;
+    }
+
+    if (cfg.has(CFG_COMMAND) && cfg.get_int(CFG_COMMAND) != newcmd) {
+        ERR_MSG("Conflicting commands!");
+        return false;
     }
 
     cfg.set_int(CFG_COMMAND, newcmd);
@@ -392,6 +412,9 @@ setoption(rnp_cfg &cfg, int val, const char *arg)
         return true;
     case OPT_HASH_ALG:
         return cli_rnp_set_hash(cfg, arg);
+    case OPT_ALLOW_WEAK_HASH:
+        cfg.set_bool(CFG_WEAK_HASH, true);
+        return true;
     case OPT_PASSWDFD:
         cfg.set_str(CFG_PASSFD, arg);
         return true;
@@ -437,9 +460,9 @@ setoption(rnp_cfg &cfg, int val, const char *arg)
         return true;
     case OPT_AEAD: {
         std::string argstr = arg ? arg : "";
-        if (argstr.empty() || (argstr == "1") || rnp::str_case_eq(argstr, "eax")) {
+        if ((argstr == "1") || rnp::str_case_eq(argstr, "eax")) {
             argstr = "EAX";
-        } else if ((argstr == "2") || rnp::str_case_eq(argstr, "ocb")) {
+        } else if (argstr.empty() || (argstr == "2") || rnp::str_case_eq(argstr, "ocb")) {
             argstr = "OCB";
         } else {
             ERR_MSG("Wrong AEAD algorithm: %s", argstr.c_str());
@@ -485,6 +508,30 @@ setoption(rnp_cfg &cfg, int val, const char *arg)
     case OPT_CURTIME:
         cfg.set_str(CFG_CURTIME, arg);
         return true;
+    case OPT_SETFNAME:
+        cfg.set_str(CFG_SETFNAME, arg);
+        return true;
+    case OPT_ALLOW_HIDDEN:
+        cfg.set_bool(CFG_ALLOW_HIDDEN, true);
+        return true;
+    case OPT_S2K_ITER: {
+        int iterations = 0;
+        if (!rnp::str_to_int(arg, iterations) || !iterations) {
+            ERR_MSG("Wrong iterations value: %s", arg);
+            return false;
+        }
+        cfg.set_int(CFG_S2K_ITER, iterations);
+        return true;
+    }
+    case OPT_S2K_MSEC: {
+        int msec = 0;
+        if (!rnp::str_to_int(arg, msec) || !msec) {
+            ERR_MSG("Invalid s2k msec value: %s", arg);
+            return false;
+        }
+        cfg.set_int(CFG_S2K_MSEC, msec);
+        return true;
+    }
     case OPT_DEBUG:
         ERR_MSG("Option --debug is deprecated, ignoring.");
         return true;
@@ -493,6 +540,60 @@ setoption(rnp_cfg &cfg, int val, const char *arg)
     }
 
     return false;
+}
+
+static bool
+set_short_option(rnp_cfg &cfg, int ch, const char *arg)
+{
+    switch (ch) {
+    case 'V':
+        return setcmd(cfg, CMD_VERSION, arg);
+    case 'd':
+        return setcmd(cfg, CMD_DECRYPT, arg);
+    case 'e':
+        return setcmd(cfg, CMD_ENCRYPT, arg);
+    case 'c':
+        return setcmd(cfg, CMD_SYM_ENCRYPT, arg);
+    case 's':
+        return setcmd(cfg, CMD_SIGN, arg);
+    case 'v':
+        return setcmd(cfg, CMD_VERIFY, arg);
+    case 'r':
+        if (!strlen(optarg)) {
+            ERR_MSG("Recipient should not be empty");
+        } else {
+            cfg.add_str(CFG_RECIPIENTS, optarg);
+        }
+        break;
+    case 'u':
+        if (!optarg) {
+            ERR_MSG("No userid argument provided");
+            return false;
+        }
+        cfg.add_str(CFG_SIGNERS, optarg);
+        break;
+    case 'z':
+        if ((strlen(optarg) != 1) || (optarg[0] < '0') || (optarg[0] > '9')) {
+            ERR_MSG("Bad compression level: %s. Should be 0..9", optarg);
+        } else {
+            cfg.set_int(CFG_ZLEVEL, optarg[0] - '0');
+        }
+        break;
+    case 'f':
+        if (!optarg) {
+            ERR_MSG("No keyfile argument provided");
+            return false;
+        }
+        cfg.set_str(CFG_KEYFILE, optarg);
+        cfg.set_bool(CFG_KEYSTORE_DISABLED, true);
+        break;
+    case 'h':
+        [[fallthrough]];
+    default:
+        return setcmd(cfg, CMD_HELP, optarg);
+    }
+
+    return true;
 }
 
 #ifndef RNP_RUN_TESTS
@@ -504,160 +605,91 @@ int
 rnp_main(int argc, char **argv)
 #endif
 {
-    cli_rnp_t rnp = {};
-    rnp_cfg   cfg;
-    int       optindex;
-    int       ret = EXIT_ERROR;
-    int       ch;
-    bool      disable_ks = false;
-
     if (argc < 2) {
         print_usage(usage);
         return EXIT_ERROR;
     }
 
+    cli_rnp_t rnp = {};
 #if !defined(RNP_RUN_TESTS) && defined(_WIN32)
-    bool args_are_substituted = false;
     try {
-        args_are_substituted = rnp_win_substitute_cmdline_args(&argc, &argv);
+        rnp.substitute_args(&argc, &argv);
     } catch (std::exception &ex) {
         RNP_LOG("Error converting arguments ('%s')", ex.what());
         return EXIT_ERROR;
     }
 #endif
 
+    rnp_cfg cfg;
     cfg.load_defaults();
-    optindex = 0;
 
     /* TODO: These options should be set after initialising the context. */
-    while ((ch = getopt_long(argc, argv, "S:Vdecr:su:vz:f:", options, &optindex)) != -1) {
-        if (ch >= CMD_ENCRYPT) {
-            /* getopt_long returns 0 for long options */
-            if (!setoption(cfg, options[optindex].val, optarg)) {
-                goto finish;
-            }
-        } else {
-            int cmd = 0;
-            switch (ch) {
-            case 'V':
-                cmd = CMD_VERSION;
-                break;
-            case 'd':
-                cmd = CMD_DECRYPT;
-                break;
-            case 'e':
-                cmd = CMD_ENCRYPT;
-                break;
-            case 'c':
-                cmd = CMD_SYM_ENCRYPT;
-                break;
-            case 's':
-                cmd = CMD_SIGN;
-                break;
-            case 'v':
-                cmd = CMD_VERIFY;
-                break;
-            case 'r':
-                if (!strlen(optarg)) {
-                    ERR_MSG("Recipient should not be empty");
-                } else {
-                    cfg.add_str(CFG_RECIPIENTS, optarg);
-                }
-                break;
-            case 'u':
-                if (!optarg) {
-                    ERR_MSG("No userid argument provided");
-                    goto finish;
-                }
-                cfg.add_str(CFG_SIGNERS, optarg);
-                break;
-            case 'z':
-                if ((strlen(optarg) != 1) || (optarg[0] < '0') || (optarg[0] > '9')) {
-                    ERR_MSG("Bad compression level: %s. Should be 0..9", optarg);
-                } else {
-                    cfg.set_int(CFG_ZLEVEL, optarg[0] - '0');
-                }
-                break;
-            case 'f':
-                if (!optarg) {
-                    ERR_MSG("No keyfile argument provided");
-                    goto finish;
-                }
-                cfg.set_str(CFG_KEYFILE, optarg);
-                cfg.set_bool(CFG_KEYSTORE_DISABLED, true);
-                break;
-            case '?':
-                print_usage(usage);
-                ret = EXIT_FAILURE;
-                goto finish;
-            default:
-                cmd = CMD_HELP;
-                break;
-            }
+    int optindex = 0;
+    int ch;
+    while ((ch = getopt_long(argc, argv, "S:Vdecr:su:vz:f:h", options, &optindex)) != -1) {
+        /* Check for unsupported command/option */
+        if (ch == '?') {
+            print_usage(usage);
+            return EXIT_FAILURE;
+        }
 
-            if (cmd && !setcmd(cfg, cmd, optarg)) {
-                goto finish;
-            }
+        bool res = ch >= CMD_ENCRYPT ? setoption(cfg, options[optindex].val, optarg) :
+                                       set_short_option(cfg, ch, optarg);
+        if (!res) {
+            return EXIT_ERROR;
         }
     }
 
     switch (cfg.get_int(CFG_COMMAND)) {
     case CMD_HELP:
         print_usage(usage);
-        ret = EXIT_SUCCESS;
-        goto finish;
+        return EXIT_SUCCESS;
     case CMD_VERSION:
         cli_rnp_print_praise();
-        ret = EXIT_SUCCESS;
-        goto finish;
+        return EXIT_SUCCESS;
     default:;
     }
 
     if (!cli_cfg_set_keystore_info(cfg)) {
         ERR_MSG("fatal: cannot set keystore info");
-        goto finish;
+        return EXIT_ERROR;
     }
 
     if (!rnp.init(cfg)) {
         ERR_MSG("fatal: cannot initialise");
-        goto finish;
+        return EXIT_ERROR;
     }
 
-    disable_ks = rnp.cfg().get_bool(CFG_KEYSTORE_DISABLED);
+    if (!cli_rnp_check_weak_hash(&rnp)) {
+        ERR_MSG("Weak hash algorithm detected. Pass --allow-weak-hash option if you really "
+                "want to use it.");
+        return EXIT_ERROR;
+    }
+
+    bool disable_ks = rnp.cfg().get_bool(CFG_KEYSTORE_DISABLED);
     if (!disable_ks && !rnp.load_keyrings(rnp.cfg().get_bool(CFG_NEEDSSECKEY))) {
         ERR_MSG("fatal: failed to load keys");
-        goto finish;
+        return EXIT_ERROR;
     }
 
     /* load the keyfile if any */
     if (disable_ks && !rnp.cfg().get_str(CFG_KEYFILE).empty() && !cli_rnp_add_key(&rnp)) {
         ERR_MSG("fatal: failed to load key(s) from the file");
-        goto finish;
+        return EXIT_ERROR;
     }
 
     if (!cli_rnp_setup(&rnp)) {
-        goto finish;
+        return EXIT_ERROR;
     }
 
     /* now do the required action for each of the command line args */
-    ret = EXIT_SUCCESS;
     if (optind == argc) {
-        if (!rnp_cmd(&rnp))
-            ret = EXIT_FAILURE;
-    } else {
-        for (int i = optind; i < argc; i++) {
-            rnp.cfg().set_str(CFG_INFILE, argv[i]);
-            if (!rnp_cmd(&rnp)) {
-                ret = EXIT_FAILURE;
-            }
-        }
+        return cli_rnp_t::ret_code(rnp_cmd(&rnp));
     }
-finish:
-    rnp.end();
-#if !defined(RNP_RUN_TESTS) && defined(_WIN32)
-    if (args_are_substituted) {
-        rnp_win_clear_args(argc, argv);
+    bool success = true;
+    for (int i = optind; i < argc; i++) {
+        rnp.cfg().set_str(CFG_INFILE, argv[i]);
+        success = success && rnp_cmd(&rnp);
     }
-#endif
-    return ret;
+    return cli_rnp_t::ret_code(success);
 }

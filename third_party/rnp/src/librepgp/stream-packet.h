@@ -40,12 +40,12 @@
 #define PGP_MAX_OLD_LEN_INDETERMINATE_PKT_SIZE 0x40000000
 
 typedef struct pgp_packet_hdr_t {
-    pgp_pkt_type_t tag;
-    uint8_t        hdr[PGP_MAX_HEADER_SIZE];
-    size_t         hdr_len;
-    size_t         pkt_len;
-    bool           partial;
-    bool           indeterminate;
+    pgp_pkt_type_t tag;                      /* packet tag */
+    uint8_t        hdr[PGP_MAX_HEADER_SIZE]; /* PGP packet header, needed for AEAD */
+    size_t         hdr_len;                  /* length of the header */
+    size_t         pkt_len;       /* packet body length if non-partial and non-indeterminate */
+    bool           partial;       /* partial length packet */
+    bool           indeterminate; /* indeterminate length packet */
 } pgp_packet_hdr_t;
 
 /* structure for convenient writing or parsing of non-stream packets */
@@ -248,7 +248,7 @@ int get_packet_type(uint8_t ptag);
  *  @param src source to peek from
  *  @return packet tag or -1 if read failed or packet header is malformed
  */
-int stream_pkt_type(pgp_source_t *src);
+int stream_pkt_type(pgp_source_t &src);
 
 /** @brief Peek length of the packet header. Returns false on error.
  *  @param src source to read length from
@@ -256,7 +256,7 @@ int stream_pkt_type(pgp_source_t *src);
  *  @return true on success or false if there is a read error or packet length
  *          is ill-formed
  **/
-bool stream_pkt_hdr_len(pgp_source_t *src, size_t *hdrlen);
+bool stream_pkt_hdr_len(pgp_source_t &src, size_t &hdrlen);
 
 bool stream_old_indeterminate_pkt_len(pgp_source_t *src);
 

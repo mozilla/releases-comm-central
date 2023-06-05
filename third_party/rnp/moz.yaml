@@ -12,9 +12,9 @@ origin:
   url: "https://www.rnpgp.org/"
   license: BSD-2-Clause
 
-  release: v0.16.3
+  release: v0.17.0 (2023-05-02T08:01:48Z).
 
-  revision: v0.16.3
+  revision: v0.17.0
 
   license-file: LICENSE.md
 

@@ -71,11 +71,6 @@ char *mkdtemp(char *templ);
 
 extern rnp::SecurityContext global_ctx;
 
-/* Check if a file is empty
- * Use with assert_true and rnp_assert_false(rstate, .
- */
-bool file_empty(const char *path);
-
 off_t file_size(const char *path);
 
 /* Read file contents into the std::string */
@@ -83,6 +78,9 @@ std::string file_to_str(const std::string &path);
 
 /* Read binary file contents into the vector */
 std::vector<uint8_t> file_to_vec(const std::string &path);
+
+/* Write string contents to the file */
+void str_to_file(const std::string &path, const char *str);
 
 /* Concatenate multiple strings into a full path.
  * A directory separator is added between components.
@@ -120,6 +118,8 @@ void copy_recursively(const char *src, const char *dst);
  */
 char *make_temp_dir(void);
 
+void clean_temp_dir(const char *path);
+
 /* check whether bin value is equals hex string */
 bool bin_eq_hex(const uint8_t *data, size_t len, const char *val);
 
@@ -131,19 +131,9 @@ bool cmp_keyid(const pgp_key_id_t &id, const std::string &val);
 /* check whether key fp is equal to hex string */
 bool cmp_keyfp(const pgp_fingerprint_t &fp, const std::string &val);
 
-/*
- */
-int test_value_equal(const char *  what,
-                     const char *  expected_value,
-                     const uint8_t v[],
-                     size_t        v_len);
-
 void test_ffi_init(rnp_ffi_t *ffi);
 
 bool mpi_empty(const pgp_mpi_t &val);
-/*
- */
-char *uint_to_string(char *buff, const int buffsize, unsigned int num, int base);
 
 bool write_pass_to_pipe(int fd, size_t count);
 /* Setup readable pipe with default password inside */
@@ -265,6 +255,13 @@ size_t   get_key_uids(rnp_key_handle_t key);
 bool     check_sub_valid(rnp_key_handle_t key, size_t idx, bool validity);
 bool     check_uid_valid(rnp_key_handle_t key, size_t idx, bool valid);
 bool     check_uid_primary(rnp_key_handle_t key, size_t idx, bool primary);
+void     check_loaded_keys(const char *                    format,
+                           bool                            armored,
+                           uint8_t *                       buf,
+                           size_t                          buf_len,
+                           const char *                    id_type,
+                           const std::vector<std::string> &expected_ids,
+                           bool                            secret);
 
 /* create bogus key handle with NULL pub/sec keys */
 rnp_key_handle_t bogus_key_handle(rnp_ffi_t ffi);
@@ -272,18 +269,27 @@ rnp_key_handle_t bogus_key_handle(rnp_ffi_t ffi);
 bool sm2_enabled();
 bool aead_eax_enabled();
 bool aead_ocb_enabled();
+bool aead_ocb_aes_only();
 bool twofish_enabled();
 bool idea_enabled();
 bool brainpool_enabled();
+bool blowfish_enabled();
+bool cast5_enabled();
+bool ripemd160_enabled();
 
 inline size_t
 rnp_round_up(size_t n, size_t align_to)
 {
-    if (n % align_to) {
+    if (n % align_to || n == 0) {
         n += align_to - (n % align_to);
     }
     return n;
 }
+
+/* load g10/g23 gpg key and verify that it can be
+   unprotected/protected
+*/
+bool test_load_gpg_check_key(rnp_key_store_t *pub, rnp_key_store_t *sec, const char *id);
 
 #define MD5_FROM 1325376000
 #define SHA1_DATA_FROM 1547856000

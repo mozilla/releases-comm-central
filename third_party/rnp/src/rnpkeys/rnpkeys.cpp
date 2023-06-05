@@ -39,6 +39,7 @@
 #include <stdarg.h>
 #include "rnpkeys.h"
 #include "str-utils.h"
+#include <set>
 
 const char *usage =
   "Manipulate OpenPGP keys and keyrings.\n"
@@ -53,6 +54,7 @@ const char *usage =
   "    --expiration         Set key and subkey expiration time.\n"
   "    --cipher             Set cipher used to encrypt a secret key.\n"
   "    --hash               Set hash which is used for key derivation.\n"
+  "    --allow-weak-hash    Allow usage of a weak hash algorithm.\n"
   "  -l, --list-keys        List keys in the keyrings.\n"
   "    --secret             List secret keys instead of public ones.\n"
   "    --with-sigs          List signatures as well.\n"
@@ -68,8 +70,10 @@ const char *usage =
   "  --revoke-key           Revoke a key specified.\n"
   "  --remove-key           Remove a key specified.\n"
   "  --edit-key             Edit key properties.\n"
+  "    --add-subkey         Add new subkey.\n"
   "    --check-cv25519-bits Check whether Cv25519 subkey bits are correct.\n"
   "    --fix-cv25519-bits   Fix Cv25519 subkey bits.\n"
+  "    --set-expire         Set key expiration time.\n"
   "\n"
   "Other options:\n"
   "  --homedir              Override home directory (default is ~/.rnp/).\n"
@@ -133,7 +137,10 @@ struct option options[] = {
   {"notty", no_argument, NULL, OPT_NOTTY},
   {"fix-cv25519-bits", no_argument, NULL, OPT_FIX_25519_BITS},
   {"check-cv25519-bits", no_argument, NULL, OPT_CHK_25519_BITS},
+  {"add-subkey", no_argument, NULL, OPT_ADD_SUBKEY},
+  {"set-expire", required_argument, NULL, OPT_SET_EXPIRE},
   {"current-time", required_argument, NULL, OPT_CURTIME},
+  {"allow-weak-hash", no_argument, NULL, OPT_ALLOW_WEAK_HASH},
   {NULL, 0, NULL, 0},
 };
 
@@ -162,22 +169,15 @@ print_keys_info(cli_rnp_t *rnp, FILE *fp, const char *filter)
 }
 
 static bool
-imported_key_changed(json_object *key)
-{
-    const char *pub = json_obj_get_str(key, "public");
-    const char *sec = json_obj_get_str(key, "secret");
-
-    if (pub && ((!strcmp(pub, "updated") || !strcmp(pub, "new")))) {
-        return true;
-    }
-    return sec && ((!strcmp(sec, "updated") || !strcmp(sec, "new")));
-}
-
-static bool
 import_keys(cli_rnp_t *rnp, rnp_input_t input, const std::string &inname)
 {
-    bool res = false;
-    bool updated = false;
+    std::set<std::string> new_pub_keys;
+    std::set<std::string> new_sec_keys;
+    std::set<std::string> updated_keys;
+    bool                  res = false;
+    bool                  updated = false;
+    size_t                unchanged_keys = 0;
+    size_t                processed_keys = 0;
 
     uint32_t flags = RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS |
                      RNP_LOAD_SAVE_SINGLE | RNP_LOAD_SAVE_BASE64;
@@ -219,23 +219,55 @@ import_keys(cli_rnp_t *rnp, rnp_input_t input, const std::string &inname)
             json_object_put(jso);
             break;
         }
+        processed_keys += json_object_array_length(keys);
         for (size_t idx = 0; idx < (size_t) json_object_array_length(keys); idx++) {
             json_object *    keyinfo = json_object_array_get_idx(keys, idx);
             rnp_key_handle_t key = NULL;
-            if (!keyinfo || !imported_key_changed(keyinfo)) {
+            if (!keyinfo) {
                 continue;
             }
+            std::string pub_status = json_obj_get_str(keyinfo, "public");
+            std::string sec_status = json_obj_get_str(keyinfo, "secret");
             const char *fphex = json_obj_get_str(keyinfo, "fingerprint");
+
+            if (pub_status == "new") {
+                new_pub_keys.insert(fphex);
+                updated = true;
+            }
+            if (sec_status == "new") {
+                new_sec_keys.insert(fphex);
+                updated = true;
+            }
+            if (pub_status == "updated" || sec_status == "updated") {
+                updated_keys.insert(fphex);
+                updated = true;
+            }
+            if (pub_status == "unchanged" || sec_status == "unchanged") {
+                if (!new_pub_keys.count(fphex) && !new_sec_keys.count(fphex) &&
+                    !updated_keys.count(fphex)) {
+                    unchanged_keys++;
+                    continue;
+                }
+            }
             if (rnp_locate_key(rnp->ffi, "fingerprint", fphex, &key) || !key) {
                 ERR_MSG("failed to locate key with fingerprint %s", fphex);
                 continue;
             }
             cli_rnp_print_key_info(stdout, rnp->ffi, key, true, false);
             rnp_key_handle_destroy(key);
-            updated = true;
         }
         json_object_put(jso);
     } while (1);
+
+    // print statistics
+    ERR_MSG("Import finished: %lu key%s processed, %lu new public keys, %lu new secret keys, "
+            "%lu updated, %lu unchanged.",
+            processed_keys,
+            (processed_keys != 1) ? "s" : "",
+            new_pub_keys.size(),
+            new_sec_keys.size(),
+            updated_keys.size(),
+            unchanged_keys);
 
     if (updated) {
         // set default key if we didn't have one
@@ -352,7 +384,7 @@ void
 print_usage(const char *usagemsg)
 {
     cli_rnp_print_praise();
-    ERR_MSG("%s", usagemsg);
+    puts(usagemsg);
 }
 
 /* do a command once for a specified file 'f' */
@@ -484,6 +516,9 @@ setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg)
         cfg.set_int(CFG_NUMBITS, bits);
         return true;
     }
+    case OPT_ALLOW_WEAK_HASH:
+        cfg.set_bool(CFG_WEAK_HASH, true);
+        return true;
     case OPT_HASH_ALG:
         return cli_rnp_set_hash(cfg, arg);
     case OPT_S2K_ITER: {
@@ -573,6 +608,12 @@ setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg)
     case OPT_CURTIME:
         cfg.set_str(CFG_CURTIME, arg);
         return true;
+    case OPT_ADD_SUBKEY:
+        cfg.set_bool(CFG_ADD_SUBKEY, true);
+        return true;
+    case OPT_SET_EXPIRE:
+        cfg.set_str(CFG_SET_KEY_EXPIRE, arg);
+        return true;
     default:
         *cmd = CMD_HELP;
         return true;
@@ -580,10 +621,9 @@ setoption(rnp_cfg &cfg, optdefs_t *cmd, int val, const char *arg)
 }
 
 bool
-rnpkeys_init(cli_rnp_t *rnp, const rnp_cfg &cfg)
+rnpkeys_init(cli_rnp_t &rnp, const rnp_cfg &cfg)
 {
     rnp_cfg rnpcfg;
-    bool    ret = false;
     rnpcfg.load_defaults();
     rnpcfg.set_int(CFG_NUMBITS, DEFAULT_RSA_NUMBITS);
     rnpcfg.set_str(CFG_IO_RESS, "<stdout>");
@@ -591,18 +631,18 @@ rnpkeys_init(cli_rnp_t *rnp, const rnp_cfg &cfg)
 
     if (!cli_cfg_set_keystore_info(rnpcfg)) {
         ERR_MSG("fatal: cannot set keystore info");
-        goto end;
+        return false;
     }
-    if (!rnp->init(rnpcfg)) {
+    if (!rnp.init(rnpcfg)) {
         ERR_MSG("fatal: failed to initialize rnpkeys");
-        goto end;
+        return false;
+    }
+    if (!cli_rnp_check_weak_hash(&rnp)) {
+        ERR_MSG("Weak hash algorithm detected. Pass --allow-weak-hash option if you really "
+                "want to use it.");
+        return false;
     }
     /* TODO: at some point we should check for error here */
-    (void) rnp->load_keyrings(true);
-    ret = true;
-end:
-    if (!ret) {
-        rnp->end();
-    }
-    return ret;
+    (void) rnp.load_keyrings(true);
+    return true;
 }
