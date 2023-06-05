@@ -6699,13 +6699,20 @@ function checkPublicRecipientsLimit() {
 
   // Reuse the existing notification since one is shown already.
   if (notification) {
-    document.l10n.setAttributes(
-      notification.messageText,
-      "many-public-recipients-notice",
-      {
-        count: publicAddressPillsCount,
-      }
-    );
+    if (publicAddressPillsCount > 1) {
+      document.l10n.setAttributes(
+        notification.messageText,
+        "public-recipients-notice-multi",
+        {
+          count: publicAddressPillsCount,
+        }
+      );
+    } else {
+      document.l10n.setAttributes(
+        notification.messageText,
+        "public-recipients-notice-single"
+      );
+    }
     return;
   }
 
@@ -6756,13 +6763,13 @@ function checkPublicRecipientsLimit() {
     },
   };
 
-  // NOTE: setting "many-public-recipients-notice" below, after the notification
+  // NOTE: setting "public-recipients-notice-single" below, after the notification
   // has been appended, so that the notification can be found and no further
   // notifications are appended.
   notification = gComposeNotification.appendNotification(
     "warnPublicRecipientsNotification",
     {
-      label: "", // "many-public-recipients-notice"
+      label: "", // "public-recipients-notice-single"
       priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
       eventCallback(state) {
         if (state == "dismissed") {
@@ -6773,13 +6780,22 @@ function checkPublicRecipientsLimit() {
     [bccButton, ignoreButton]
   );
 
-  document.l10n.setAttributes(
-    notification.messageText,
-    "many-public-recipients-notice",
-    {
-      count: publicAddressPillsCount,
+  if (notification) {
+    if (publicAddressPillsCount > 1) {
+      document.l10n.setAttributes(
+        notification.messageText,
+        "public-recipients-notice-multi",
+        {
+          count: publicAddressPillsCount,
+        }
+      );
+    } else {
+      document.l10n.setAttributes(
+        notification.messageText,
+        "public-recipients-notice-single"
+      );
     }
-  );
+  }
 }
 
 /**
