@@ -125,9 +125,11 @@ var RNPLibLoader = {
 
     RNPLib.loaded = true;
 
-    let hasOfficialVersion = rnp_version_str.includes(".MZLA");
+    let hasOfficialVersion =
+      rnp_version_str.includes(".MZLA") ||
+      rnp_version_str.match("^[0-9]+.[0-9]+.[0-9]+(.[0-9]+)?$");
     if (!hasOfficialVersion) {
-      RNPLib.loadErrorReason = `RNP version is missing version string .MZLA and is assumed to be an unofficial version with unknown capabilities.`;
+      RNPLib.loadErrorReason = `RNP reports unexpected version information, it's considered an unofficial version with unknown capabilities.`;
       RNPLib.loadStatus = "libs-rnp-status-unofficial";
     } else {
       RNPLib.loadedOfficial = true;
