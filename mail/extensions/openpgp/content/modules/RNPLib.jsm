@@ -1996,6 +1996,14 @@ function enableRNPLibJS() {
       ctypes.uint32_t
     ),
 
+    rnp_op_encrypt_set_aead: librnp.declare(
+      "rnp_op_encrypt_set_aead",
+      abi,
+      rnp_result_t,
+      rnp_op_encrypt_t,
+      ctypes.char.ptr
+    ),
+
     rnp_op_encrypt_set_flags: librnp.declare(
       "rnp_op_encrypt_set_flags",
       abi,

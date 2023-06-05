@@ -3539,8 +3539,12 @@ var RNP = {
           }
         }
 
-        // TODO decide if our compatibility requirements allow us to
-        // use AEAD
+        // Don't use AEAD as long as RNP uses v5 packets which aren't
+        // widely compatible with other clients.
+        if (RNPLib.rnp_op_encrypt_set_aead(op, "NONE")) {
+          throw new Error("rnp_op_encrypt_set_aead failed");
+        }
+
         if (RNPLib.rnp_op_encrypt_set_cipher(op, "AES256")) {
           throw new Error("rnp_op_encrypt_set_cipher failed");
         }
