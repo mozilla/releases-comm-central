@@ -1258,6 +1258,9 @@ function reportPreferences() {
     "calendar.alarms.playsound",
     "calendar.alarms.show",
     "calendar.alarms.showmissed",
+
+    // Unlisted
+    "mail.operate_on_msgs_in_collapsed_threads",
   ];
 
   let integerPrefs = [
