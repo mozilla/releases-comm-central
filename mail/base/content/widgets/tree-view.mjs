@@ -362,7 +362,7 @@ class TreeView extends HTMLElement {
             new CustomEvent("toggle-spam", {
               bubbles: true,
               detail: {
-                isJunk: row.dataset.properties.includes("notjunk"),
+                isJunk: row.dataset.properties.split(" ").includes("junk"),
                 index,
               },
             })

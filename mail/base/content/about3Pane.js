@@ -3932,8 +3932,8 @@ var threadPane = {
     this.treeTable.addEventListener("toggle-spam", event => {
       gDBView.applyCommandToIndices(
         event.detail.isJunk
-          ? Ci.nsMsgViewCommandType.junk
-          : Ci.nsMsgViewCommandType.unjunk,
+          ? Ci.nsMsgViewCommandType.unjunk
+          : Ci.nsMsgViewCommandType.junk,
         [event.detail.index]
       );
     });
