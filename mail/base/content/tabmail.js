@@ -1459,7 +1459,9 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
       switch (this.currentTabInfo.mode.name) {
         case "mail3PaneTab": {
           let messageBrowser = this.currentAbout3Pane.messageBrowser;
-          return messageBrowser.hidden ? null : messageBrowser.contentWindow;
+          return messageBrowser && !messageBrowser.hidden
+            ? messageBrowser.contentWindow
+            : null;
         }
         case "mailMessageTab":
           return this.currentTabInfo.chromeBrowser.contentWindow;
