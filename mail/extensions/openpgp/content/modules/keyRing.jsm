@@ -1637,43 +1637,21 @@ var EnigmailKeyRing = {
     return res;
   },
 
-  // Only use an Autocrypt header if our key has a very simple structure.
-  // This avoids the scenario that we send a simpler structure, that
-  // misses some userIDs or subKeys, and the user imports an incomplete
-  // key. A correspondent might eventually require additional attributes
-  // of a more complex key. However, when receicing a newer version of
-  // a key, which has the same key ID, we wouldn't notify the user about
-  // an updated key, if only structural details changed, such as
-  // added/removed userIds or added subKeys.
   getAutocryptKey(keyId, email) {
     let keyObj = this.getKeyById(keyId);
-    if (!keyObj) {
+    if (
+      !keyObj ||
+      !keyObj.subKeys.length ||
+      !keyObj.userIds.length ||
+      !keyObj.keyUseFor.includes("s")
+    ) {
       return null;
     }
-    if (keyObj.subKeys.length == 0 || !keyObj.iSimpleOneSubkeySameExpiry()) {
-      return null;
-    }
-    if (!keyObj.userIds.length) {
-      return null;
-    }
-    if (!keyObj.keyUseFor.includes("s")) {
-      return null;
-    }
-    let subKey = keyObj.subKeys[0];
-    if (!subKey.keyUseFor.includes("e")) {
-      return null;
-    }
-    switch (subKey.keyTrust) {
-      case "e":
-      case "r":
-        return null;
-    }
-
     let uid = keyObj.getUserIdWithEmail(email);
     if (!uid) {
       return null;
     }
-    return lazy.RNP.getAutocryptKeyB64(keyId, "0x" + subKey.keyId, uid.userId);
+    return lazy.RNP.getAutocryptKeyB64(keyId, null, uid.userId);
   },
 
   alreadyCheckedGnuPG: new Set(),

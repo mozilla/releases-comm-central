@@ -4496,12 +4496,31 @@ var RNP = {
     return true;
   },
 
+  /**
+   * Get a minimal Autocrypt-compatible key for the given key ID.
+   * If subKeyId is given, it must refer to an existing encryption subkey.
+   * This is a wrapper around RNP function rnp_key_export_autocrypt.
+   *
+   * @param {string} primaryKeyId - the ID of a primary key
+   * @param {?string} subKeyId - the ID of an encryption subkey or null
+   * @param {string} uidString - the ID of a primary key
+   * @returns {string} - The encoded key, or the empty string on failure.
+   */
   getAutocryptKeyB64(primaryKeyId, subKeyId, uidString) {
+    let subHandle = null;
+
+    if (subKeyId) {
+      subHandle = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, subKeyId);
+      if (subHandle.isNull()) {
+        // Although subKeyId is optional, if it's given, it must be valid.
+        return "";
+      }
+    }
+
     let primHandle = this.getKeyHandleByKeyIdOrFingerprint(
       RNPLib.ffi,
       primaryKeyId
     );
-    let subHandle = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, subKeyId);
 
     let output_to_memory = new RNPLib.rnp_output_t();
     if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
@@ -4510,7 +4529,7 @@ var RNP = {
 
     let result = "";
 
-    if (!primHandle.isNull() && !subHandle.isNull()) {
+    if (!primHandle.isNull()) {
       if (
         RNPLib.rnp_key_export_autocrypt(
           primHandle,
@@ -4558,7 +4577,7 @@ var RNP = {
     if (!primHandle.isNull()) {
       RNPLib.rnp_key_handle_destroy(primHandle);
     }
-    if (!subHandle.isNull()) {
+    if (subHandle) {
       RNPLib.rnp_key_handle_destroy(subHandle);
     }
     return result;
