@@ -36,16 +36,18 @@ var mailTabType = {
       },
       true
     );
-    browser.addEventListener("DOMLinkAdded", event => {
-      if (event.target.rel == "icon") {
+    let linkRelIconHandler = event => {
+      if (event.target.rel != "icon") {
+        return;
+      }
+      // Allow 3pane and message tab to set a tab favicon. Mail content should
+      // not be allowed to do that.
+      if (event.target.ownerGlobal.frameElement == browser) {
         tabmail.setTabFavIcon(tab, event.target.href);
       }
-    });
-    browser.addEventListener("DOMLinkChanged", event => {
-      if (event.target.rel == "icon") {
-        tabmail.setTabFavIcon(tab, event.target.href);
-      }
-    });
+    };
+    browser.addEventListener("DOMLinkAdded", linkRelIconHandler);
+    browser.addEventListener("DOMLinkChanged", linkRelIconHandler);
     if (onDOMContentLoaded) {
       browser.addEventListener(
         "DOMContentLoaded",

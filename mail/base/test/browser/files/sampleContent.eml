@@ -12,13 +12,20 @@ This is a multi-part message in MIME format.
 Content-Type: text/html; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-<p>This is a page of sample content for tests.</p>
-<p><a href="https://www.thunderbird.net/">Link to a web page</a></p>
-<form>
-  <input type="text" />
-</form>
-<p><img src="cid:logo" width="304" height="84" /></p>
-
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="icon" href="http://mochi.test:8888/browser/comm/mail/base/test/browser/files/tb-logo.png" />
+  </head>
+  <body>
+    <p>This is a page of sample content for tests.</p>
+    <p><a href="https://www.thunderbird.net/">Link to a web page</a></p>
+    <form>
+      <input type="text" />
+    </form>
+    <p><img src="cid:logo" width="304" height="84" /></p>
+  </body>
+</html>
 
 ----------------CHOPCHOP0
 Content-Type: image/png; charset=ISO-8859-1; format=flowed;
