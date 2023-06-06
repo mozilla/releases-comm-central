@@ -15,11 +15,9 @@ const EXPORTED_SYMBOLS = [
 
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "ViewPopup",
-  "resource:///modules/ExtensionPopups.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  ViewPopup: "resource:///modules/ExtensionPopups.sys.mjs",
+});
 ChromeUtils.defineModuleGetter(
   lazy,
   "ExtensionSupport",

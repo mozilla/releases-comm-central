@@ -4,15 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
+/* This file is a much-modified copy of browser/components/extensions/ExtensionPopups.sys.mjs. */
 
-/* This file is a much-modified copy of browser/components/extensions/ExtensionPopups.jsm. */
-
-var EXPORTED_SYMBOLS = ["BasePopup", "ViewPopup"];
-
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
@@ -25,9 +19,8 @@ ChromeUtils.defineESModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
-const { AppConstants } = ChromeUtils.importESModule(
-  "resource://gre/modules/AppConstants.sys.mjs"
-);
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
+
 const { ExtensionUtils } = ChromeUtils.import(
   "resource://gre/modules/ExtensionUtils.jsm"
 );
@@ -51,7 +44,7 @@ XPCOMUtils.defineLazyGetter(lazy, "standaloneStylesheets", () => {
 
 const REMOTE_PANEL_ID = "webextension-remote-preload-panel";
 
-class BasePopup {
+export class BasePopup {
   constructor(
     extension,
     viewNode,
@@ -420,7 +413,7 @@ class BasePopup {
   }
 }
 
-class ViewPopup extends BasePopup {
+export class ViewPopup extends BasePopup {
   constructor(
     extension,
     window,

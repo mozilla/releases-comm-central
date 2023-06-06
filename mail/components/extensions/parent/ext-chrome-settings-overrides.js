@@ -5,7 +5,7 @@
 /* global searchInitialized */
 
 // Copy of browser/components/extensions/parent/ext-chrome-settings-overrides.js
-// minus HomePage.jsm (+ dependent ExtensionControlledPopup.jsm and
+// minus HomePage.jsm (+ dependent ExtensionControlledPopup.sys.mjs and
 // ExtensionPermissions.jsm usage).
 
 "use strict";
