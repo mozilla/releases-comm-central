@@ -62,7 +62,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 36;
+    const UI_VERSION = 37;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -640,6 +640,12 @@ var MailMigrator = {
 
       if (currentUIVersion < 36) {
         lazy.migrateToolbarForSpace("mail");
+      }
+
+      if (currentUIVersion < 37) {
+        if (!Services.prefs.prefHasUserValue("mail.uidensity")) {
+          Services.prefs.setIntPref("mail.uidensity", 0);
+        }
       }
 
       // Migration tasks that may take a long time are not run immediately, but

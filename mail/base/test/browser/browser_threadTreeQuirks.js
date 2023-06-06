@@ -386,6 +386,7 @@ add_task(async function testNonSelectionContextMenu() {
     folderURI: folderA.URI,
   });
   about3Pane.sortController.sortUnthreaded();
+  threadTree.scrollToIndex(0, true);
 
   threadTree.selectedIndices = [0];
   await messageLoaded(0);
@@ -585,6 +586,7 @@ add_task(async function testThreadTreeA11yRoles() {
   );
 
   about3Pane.sortController.groupBySort();
+  threadTree.scrollToIndex(0, true);
 
   await BrowserTestUtils.waitForCondition(
     () => threadTree.table.body.getAttribute("role") == "tree",

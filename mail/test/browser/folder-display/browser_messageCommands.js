@@ -498,7 +498,17 @@ async function yearly_archive(keep_structure) {
   let lastMsgDate = new Date(lastMsgHdr.date / 1000);
   let lastMsgYear = lastMsgDate.getFullYear().toString();
 
+  win.threadTree.scrollToIndex(0, true);
+  await TestUtils.waitForCondition(
+    () => win.threadTree.getRowAtIndex(0),
+    "Row 0 scrolled into view"
+  );
   select_click_row(0);
+  win.threadTree.scrollToIndex(12, true);
+  await TestUtils.waitForCondition(
+    () => win.threadTree.getRowAtIndex(12),
+    "Row 12 scrolled into view"
+  );
   select_control_click_row(12);
 
   // Press the archive key. The results should go into two separate years.
