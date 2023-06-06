@@ -13,6 +13,7 @@ transforms:
     - gecko_taskgraph.transforms.shippable_l10n_signing:transforms
     - gecko_taskgraph.transforms.signing:transforms
     - gecko_taskgraph.transforms.task:transforms
+    - comm_taskgraph.transforms.signing:transforms
 
 kind-dependencies:
     - shippable-l10n-mac-signing

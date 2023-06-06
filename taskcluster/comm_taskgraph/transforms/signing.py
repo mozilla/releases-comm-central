@@ -4,7 +4,19 @@
 
 from taskgraph.transforms.base import TransformSequence
 
+from gecko_taskgraph.util.signed_artifacts import is_notarization_kind
+
 transforms = TransformSequence()
+
+
+def check_notarization(dependencies):
+    """
+    Determine whether a signing job is the last step of a notarization
+    by looking at its dependencies.
+    """
+    for dep in dependencies:
+        if is_notarization_kind(dep):
+            return True
 
 
 @transforms.add
@@ -58,16 +70,19 @@ def check_for_no_formats(config, jobs):
     """
     Check for signed artifacts without signature formats and remove them to
     avoid scriptworker errors.
+    Signing jobs that use macOS notarization do not have formats, so keep
+    those.
     """
     for job in jobs:
-        task = job["task"]
-        payload = task["payload"]
+        if not check_notarization(job["dependencies"]):
+            task = job["task"]
+            payload = task["payload"]
 
-        if "upstreamArtifacts" in payload:
-            for artifact in payload["upstreamArtifacts"]:
-                if "formats" in artifact and not artifact["formats"]:
-                    for remove_path in artifact["paths"]:
-                        job["release-artifacts"].remove(remove_path)
+            if "upstreamArtifacts" in payload:
+                for artifact in payload["upstreamArtifacts"]:
+                    if "formats" in artifact and not artifact["formats"]:
+                        for remove_path in artifact["paths"]:
+                            job["release-artifacts"].remove(remove_path)
 
-                    payload["upstreamArtifacts"].remove(artifact)
+                        payload["upstreamArtifacts"].remove(artifact)
         yield job
