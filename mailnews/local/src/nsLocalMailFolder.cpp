@@ -27,6 +27,7 @@
 #include "nsString.h"
 #include "nsIMsgFolderCacheElement.h"
 #include "nsUnicharUtils.h"
+#include "nsMsgUtils.h"
 #include "nsICopyMessageStreamListener.h"
 #include "nsIMsgCopyService.h"
 #include "nsMsgTxn.h"
@@ -1479,7 +1480,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder* srcFolder,
 // "this" is the parent of the new dest folder.
 nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
     nsIMsgFolder* srcFolder, nsIMsgWindow* msgWindow,
-    nsIMsgCopyServiceListener* listener, bool moveMsgs) {
+    nsIMsgCopyServiceListener* listener) {
   mInitialized = true;
 
   nsString folderName;
@@ -1510,10 +1511,8 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
   }
 
   if (msgArray.Length() > 0)  // if only srcFolder has messages..
-    // Allow move of copied messages but keep source folder in place.
-    newMsgFolder->CopyMessages(srcFolder, msgArray, moveMsgs, msgWindow,
-                               listener, true /* is folder*/,
-                               false /* allowUndo */);
+    newMsgFolder->CopyMessages(srcFolder, msgArray, false, msgWindow, listener,
+                               true /* is folder*/, false /* allowUndo */);
   else {
     nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
         do_QueryInterface(newMsgFolder);
@@ -1522,7 +1521,7 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
       // was finished copying. But since there are no messages, we have to call
       // them explicitly.
       nsCOMPtr<nsISupports> srcSupports = do_QueryInterface(srcFolder);
-      localFolder->CopyAllSubFolders(srcFolder, msgWindow, listener, moveMsgs);
+      localFolder->CopyAllSubFolders(srcFolder, msgWindow, listener);
       return localFolder->OnCopyCompleted(srcSupports, true);
     }
   }
@@ -1532,37 +1531,26 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
 nsresult  // copy the sub folders
 nsMsgLocalMailFolder::CopyAllSubFolders(nsIMsgFolder* srcFolder,
                                         nsIMsgWindow* msgWindow,
-                                        nsIMsgCopyServiceListener* listener,
-                                        bool isMove) {
+                                        nsIMsgCopyServiceListener* listener) {
   nsTArray<RefPtr<nsIMsgFolder>> subFolders;
   nsresult rv = srcFolder->GetSubFolders(subFolders);
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (nsIMsgFolder* folder : subFolders) {
-    CopyFolderAcrossServer(folder, msgWindow, listener, isMove);
+    CopyFolderAcrossServer(folder, msgWindow, listener);
   }
   return NS_OK;
 }
 
-// "this" is the destination (parent) folder that srcFolder is copied to.
 NS_IMETHODIMP
 nsMsgLocalMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
                                  nsIMsgWindow* msgWindow,
                                  nsIMsgCopyServiceListener* listener) {
   NS_ENSURE_ARG_POINTER(srcFolder);
-  nsresult rv;
-  bool sameServer;
-  rv = IsOnSameServer(this, srcFolder, &sameServer);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (sameServer) {
-    // Do a pure folder move only within the same server
-    rv = CopyFolderLocal(srcFolder, true /* move */, msgWindow, listener);
-  } else {
-    // Doing a folder copy across servers or an "impure" folder move (just the
-    // messages moved but the source folder remains in place).
-    rv = CopyFolderAcrossServer(srcFolder, msgWindow, listener, isMoveFolder);
-  }
-  return rv;
+  // isMoveFolder == true when "this" and srcFolder are on same server
+  return isMoveFolder
+             ? CopyFolderLocal(srcFolder, isMoveFolder, msgWindow, listener)
+             : CopyFolderAcrossServer(srcFolder, msgWindow, listener);
 }
 
 NS_IMETHODIMP
@@ -1773,34 +1761,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::GetNewMessages(nsIMsgWindow* aWindow,
 }
 
 nsresult nsMsgLocalMailFolder::WriteStartOfNewMessage() {
-  // If moving, delete the message in source folder that was just copied.
-  // It will have index one less than the current index.
-  // But only do this if source folder is imap.
-  // Could be optimized (DeleteMessages() operate on non-array)?
-  nsresult rv;
-  uint32_t idx = mCopyState->m_curCopyIndex;
-  if (mCopyState->m_isMove && idx) {
-    nsCOMPtr<nsIMsgFolder> srcFolder =
-        do_QueryInterface(mCopyState->m_srcSupport, &rv);
-    if (NS_SUCCEEDED(rv) && srcFolder) {
-      // Delete source messages as we go only if they come from
-      // an imap folder.
-      nsCString protocolType;
-      if (NS_SUCCEEDED(srcFolder->GetURI(protocolType))) {
-        if (StringHead(protocolType, 5).LowerCaseEqualsLiteral("imap:")) {
-          // Create "array" of one message header to delete
-          idx--;
-          if (idx < mCopyState->m_messages.Length()) {
-            // Above check avoids a possible MOZ_CRASH after error recovery.
-            RefPtr<nsIMsgDBHdr> msg = mCopyState->m_messages[idx];
-            srcFolder->DeleteMessages({msg}, mCopyState->m_msgWindow, true,
-                                      true, nullptr, mCopyState->m_allowUndo);
-          }
-        }
-      }
-    }
-  }
-
   // CopyFileMessage() and CopyMessages() from servers other than pop3
   if (mCopyState->m_parseMsgState) {
     // Make sure the parser knows where the "From " separator is.
@@ -2274,29 +2234,25 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       }
     }
 
-    // Now allow folder or nested folders move of their msgs from Local Folders.
-    // The original source folder(s) remain, just the msgs are moved (after
-    // copy they are deleted).
-    if (multipleCopiesFinished) {
-      nsCOMPtr<nsIMsgFolder> srcFolder;
-      srcFolder = do_QueryInterface(mCopyState->m_srcSupport);
-      if (mCopyState->m_isFolder) {
-        // Copy or move all subfolders then notify completion
-        CopyAllSubFolders(srcFolder, nullptr, nullptr, mCopyState->m_isMove);
-      }
+    if (!mCopyState->m_isMove) {
+      if (multipleCopiesFinished) {
+        nsCOMPtr<nsIMsgFolder> srcFolder;
+        srcFolder = do_QueryInterface(mCopyState->m_srcSupport);
+        if (mCopyState->m_isFolder)
+          CopyAllSubFolders(
+              srcFolder, nullptr,
+              nullptr);  // Copy all subfolders then notify completion
 
-      if (mCopyState->m_msgWindow && mCopyState->m_undoMsgTxn) {
-        nsCOMPtr<nsITransactionManager> txnMgr;
-        mCopyState->m_msgWindow->GetTransactionManager(getter_AddRefs(txnMgr));
-        if (txnMgr) {
-          RefPtr<nsLocalMoveCopyMsgTxn> txn = mCopyState->m_undoMsgTxn;
-          txnMgr->DoTransaction(txn);
+        if (mCopyState->m_msgWindow && mCopyState->m_undoMsgTxn) {
+          nsCOMPtr<nsITransactionManager> txnMgr;
+          mCopyState->m_msgWindow->GetTransactionManager(
+              getter_AddRefs(txnMgr));
+          if (txnMgr) {
+            RefPtr<nsLocalMoveCopyMsgTxn> txn = mCopyState->m_undoMsgTxn;
+            txnMgr->DoTransaction(txn);
+          }
         }
-      }
 
-      // If this is done on move of selected messages between "mailbox" folders,
-      // the source messages are never deleted. So do this only on msg copy.
-      if (!mCopyState->m_isMove) {
         // enable the dest folder
         EnableNotifications(allMessageCountNotifications, true);
         if (srcFolder && !mCopyState->m_isFolder) {

@@ -1905,22 +1905,3 @@ already_AddRefed<nsIStreamListener> SyncStreamListenerCreate() {
   NS_ENSURE_SUCCESS(rv, nullptr);
   return listener.forget();
 }
-
-// Determine if folder1 and folder2 reside on the same server
-nsresult IsOnSameServer(nsIMsgFolder* folder1, nsIMsgFolder* folder2,
-                        bool* sameServer) {
-  NS_ENSURE_ARG_POINTER(folder1);
-  NS_ENSURE_ARG_POINTER(folder2);
-  NS_ENSURE_ARG_POINTER(sameServer);
-
-  nsCOMPtr<nsIMsgIncomingServer> server1;
-  nsresult rv = folder1->GetServer(getter_AddRefs(server1));
-  NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);
-
-  nsCOMPtr<nsIMsgIncomingServer> server2;
-  rv = folder2->GetServer(getter_AddRefs(server2));
-  NS_ENSURE_SUCCESS(rv, NS_MSG_INVALID_OR_MISSING_SERVER);
-
-  NS_ENSURE_TRUE(server2, NS_ERROR_NULL_POINTER);
-  return server2->Equals(server1, sameServer);
-}

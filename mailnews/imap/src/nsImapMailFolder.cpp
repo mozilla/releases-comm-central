@@ -6301,23 +6301,11 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded,
 
   if (!mailCopyState->m_streamCopy) return NS_OK;
 
-  if (mailCopyState->m_isMove) {
-    nsCOMPtr<nsIMsgFolder> srcFolder(
-        do_QueryInterface(mailCopyState->m_srcSupport, &rv));
-    if (NS_SUCCEEDED(rv) && srcFolder) {
-      uint32_t idx = mailCopyState->m_curIndex - 1;
-      // Create "array" of one message header to delete
-      RefPtr<nsIMsgDBHdr> msg = mailCopyState->m_messages[idx];
-      srcFolder->DeleteMessages({msg}, nullptr, true, true, nullptr, false);
-    }
-  }
-
   if (mailCopyState->m_curIndex < mailCopyState->m_messages.Length()) {
-    MOZ_LOG(IMAP, mozilla::LogLevel::Info,
-            ("CopyNextStreamMessage: %s %u of %u",
-             mailCopyState->m_isMove ? "Moving" : "Copying",
-             mailCopyState->m_curIndex,
-             (uint32_t)mailCopyState->m_messages.Length()));
+    MOZ_LOG(
+        IMAP, mozilla::LogLevel::Info,
+        ("CopyNextStreamMessage: Copying %u of %u", mailCopyState->m_curIndex,
+         (uint32_t)mailCopyState->m_messages.Length()));
     nsIMsgDBHdr* message = mailCopyState->m_messages[mailCopyState->m_curIndex];
     bool isRead;
     message->GetIsRead(&isRead);
@@ -6336,7 +6324,9 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded,
       nsCOMPtr<nsIMsgFolder> srcFolder(
           do_QueryInterface(mailCopyState->m_srcSupport, &rv));
       if (NS_SUCCEEDED(rv) && srcFolder) {
-        // we want to send this notification now that the source messages have
+        srcFolder->DeleteMessages(mailCopyState->m_messages, nullptr, true,
+                                  true, nullptr, false);
+        // we want to send this notification after the source messages have
         // been deleted.
         nsCOMPtr<nsIMsgLocalMailFolder> popFolder(do_QueryInterface(srcFolder));
         if (popFolder)  // needed if move pop->imap to notify FE
@@ -6848,9 +6838,18 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
   // copying between folders on the same nsIMsgIncomingServer, in order to
   // support undo. In that case we _do_ want to go ahead with the delete now.
 
+  nsCOMPtr<nsIMsgIncomingServer> srcServer;
+  if (NS_SUCCEEDED(rv)) {
+    rv = srcFolder->GetServer(getter_AddRefs(srcServer));
+  }
+  nsCOMPtr<nsIMsgIncomingServer> destServer;
+  if (NS_SUCCEEDED(rv)) {
+    rv = GetServer(getter_AddRefs(destServer));
+  }
   bool sameServer;
-  rv = IsOnSameServer(srcFolder, this, &sameServer);
-
+  if (NS_SUCCEEDED(rv)) {
+    rv = destServer->Equals(srcServer, &sameServer);
+  }
   if (NS_SUCCEEDED(rv) && sameServer && isMove &&
       (deleteToTrash || deleteImmediately)) {
     DeleteStoreMessages(keysToDelete, srcFolder);
@@ -6988,10 +6987,20 @@ nsImapMailFolder::CopyMessages(
   UpdateTimestamps(allowUndo);
 
   nsresult rv;
+  nsCOMPtr<nsIMsgIncomingServer> srcServer;
+  nsCOMPtr<nsIMsgIncomingServer> dstServer;
   nsCOMPtr<nsISupports> srcSupport = do_QueryInterface(srcFolder);
+  bool sameServer = false;
 
-  bool sameServer;
-  rv = IsOnSameServer(srcFolder, this, &sameServer);
+  rv = srcFolder->GetServer(getter_AddRefs(srcServer));
+  if (NS_FAILED(rv)) goto done;
+
+  rv = GetServer(getter_AddRefs(dstServer));
+  if (NS_FAILED(rv)) goto done;
+
+  NS_ENSURE_TRUE(dstServer, NS_ERROR_NULL_POINTER);
+
+  rv = dstServer->Equals(srcServer, &sameServer);
   if (NS_FAILED(rv)) goto done;
 
   // in theory, if allowUndo is true, then this is a user initiated
@@ -7126,14 +7135,11 @@ done:
   return rv;
 }
 
-// This is used when copying an imap or local/pop3 folder to an imap server.
-// It does not allow completely moving an imap or local/pop3 folder to an imap
-// server since only the messages can be moved between servers.
 class nsImapFolderCopyState final : public nsIUrlListener,
                                     public nsIMsgCopyServiceListener {
  public:
   nsImapFolderCopyState(nsIMsgFolder* destParent, nsIMsgFolder* srcFolder,
-                        bool isMoveMessages, nsIMsgWindow* msgWindow,
+                        bool isMoveFolder, nsIMsgWindow* msgWindow,
                         nsIMsgCopyServiceListener* listener);
 
   NS_DECL_ISUPPORTS
@@ -7149,7 +7155,7 @@ class nsImapFolderCopyState final : public nsIUrlListener,
   nsCOMPtr<nsISupports> m_origSrcFolder;
   nsCOMPtr<nsIMsgFolder> m_curDestParent;
   nsCOMPtr<nsIMsgFolder> m_curSrcFolder;
-  bool m_isMoveMessages;
+  bool m_isMoveFolder;
   nsCOMPtr<nsIMsgCopyServiceListener> m_copySrvcListener;
   nsCOMPtr<nsIMsgWindow> m_msgWindow;
   int32_t m_childIndex;
@@ -7161,12 +7167,12 @@ NS_IMPL_ISUPPORTS(nsImapFolderCopyState, nsIUrlListener,
                   nsIMsgCopyServiceListener)
 
 nsImapFolderCopyState::nsImapFolderCopyState(
-    nsIMsgFolder* destParent, nsIMsgFolder* srcFolder, bool isMoveMessages,
+    nsIMsgFolder* destParent, nsIMsgFolder* srcFolder, bool isMoveFolder,
     nsIMsgWindow* msgWindow, nsIMsgCopyServiceListener* listener) {
   m_origSrcFolder = do_QueryInterface(srcFolder);
   m_curDestParent = destParent;
   m_curSrcFolder = srcFolder;
-  m_isMoveMessages = isMoveMessages;
+  m_isMoveFolder = isMoveFolder;
   m_msgWindow = msgWindow;
   m_copySrvcListener = listener;
   m_childIndex = -1;
@@ -7292,7 +7298,7 @@ nsImapFolderCopyState::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
               do_GetService("@mozilla.org/messenger/messagecopyservice;1", &rv);
           NS_ENSURE_SUCCESS(rv, rv);
           rv = copyService->CopyMessages(m_curSrcFolder, msgArray, newMsgFolder,
-                                         m_isMoveMessages, this, m_msgWindow,
+                                         m_isMoveFolder, this, m_msgWindow,
                                          false /* allowUndo */);
         } break;
       }
@@ -7330,21 +7336,18 @@ NS_IMETHODIMP nsImapFolderCopyState::OnStopCopy(nsresult aStatus) {
   return NS_OK;
 }
 
-// "this" is the destination (parent) imap folder that srcFolder is copied to.
-// srcFolder may be another imap or a local/pop3 folder.
+// "this" is the parent of the copied folder.
 NS_IMETHODIMP
 nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
                              nsIMsgWindow* msgWindow,
                              nsIMsgCopyServiceListener* listener) {
   NS_ENSURE_ARG_POINTER(srcFolder);
-  nsresult rv;
-  bool sameServer;
-  rv = IsOnSameServer(this, srcFolder, &sameServer);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (sameServer) {
-    // If folder move or copy is attempted within the same server/account
-    // ("this" and srcFolder are on the same server), only a move of the
-    // folder is allowed to avoid possible duplicate folders.
+
+  nsresult rv = NS_OK;
+
+  if (isMoveFolder)  // move folder permitted when dstFolder and the srcFolder
+                     // are on same server
+  {
     uint32_t folderFlags = 0;
     if (srcFolder) srcFolder->GetFlags(&folderFlags);
 
@@ -7440,21 +7443,13 @@ nsImapMailFolder::CopyFolder(nsIMsgFolder* srcFolder, bool isMoveFolder,
 
       rv = imapService->MoveFolder(srcFolder, this, this, msgWindow);
     }
-  } else  // Folder copy or move attempted across servers/accounts.
+  } else  // copying folder (should only be across server?)
   {
-    // The source folder and any sub-folders and their messages will be copied
-    // to the destination server/account. If a move is done (e.g., ctrl key NOT
-    // held down during the drop, setting parameter isMoveFolder to be true)
-    // this will cause only the messages in the folders to be truly moved and
-    // the source folders will remain in place and the messages that were
-    // successfully moved will be marked as deleted (not moved to trash).
-    RefPtr<nsImapFolderCopyState> folderCopier = new nsImapFolderCopyState(
-        this, srcFolder,
-        isMoveFolder,  // Always copy folders; if true only move the messages
-        msgWindow, listener);
     // NOTE: the copystate object must hold itself in existence until complete,
     // as we're not keeping hold of it here.
-    rv = folderCopier->StartNextCopy();
+    RefPtr<nsImapFolderCopyState> folderCopier = new nsImapFolderCopyState(
+        this, srcFolder, isMoveFolder, msgWindow, listener);
+    return folderCopier->StartNextCopy();
   }
   return rv;
 }

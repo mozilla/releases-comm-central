@@ -271,29 +271,14 @@ nsresult nsMsgCopyService::DoNextCopy() {
       } else if (copyRequest->m_requestType == nsCopyFoldersType) {
         NS_ENSURE_STATE(copySource);
         copySource->m_processed = true;
-
-        nsCOMPtr<nsIMsgFolder> dstFolder = copyRequest->m_dstFolder;
-        nsCOMPtr<nsIMsgFolder> srcFolder = copySource->m_msgFolder;
-
-        // Call the imap or local CopyFolder()
-        rv = dstFolder->CopyFolder(
-            srcFolder, copyRequest->m_isMoveOrDraftOrTemplate,
+        rv = copyRequest->m_dstFolder->CopyFolder(
+            copySource->m_msgFolder, copyRequest->m_isMoveOrDraftOrTemplate,
             copyRequest->m_msgWindow, copyRequest->m_listener);
         // If it's a copy folder operation and the destination
         // folder already exists, CopyFolder() returns an error w/o sending
         // a completion notification, so clear it here.
-        if (NS_FAILED(rv)) {
-          ClearRequest(copyRequest, rv);
-        } else {
-          // If folder transfer was not within the same server and if a folder
-          // move was requested, set the move flag false to avoid removing the
-          // list of marked deleted messages in the source folder.
-          if (copyRequest->m_isMoveOrDraftOrTemplate) {
-            bool sameServer;
-            IsOnSameServer(dstFolder, srcFolder, &sameServer);
-            if (!sameServer) copyRequest->m_isMoveOrDraftOrTemplate = false;
-          }
-        }
+        if (NS_FAILED(rv)) ClearRequest(copyRequest, rv);
+
       } else if (copyRequest->m_requestType == nsCopyFileMessageType) {
         nsCOMPtr<nsIFile> aFile(
             do_QueryInterface(copyRequest->m_srcSupport, &rv));

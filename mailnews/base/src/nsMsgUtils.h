@@ -456,7 +456,4 @@ nsresult SyncCopyStream(nsIInputStream* src, nsIOutputStream* dest,
 // Used for "@mozilla.org/network/sync-stream-listener;1".
 already_AddRefed<nsIStreamListener> SyncStreamListenerCreate();
 
-nsresult IsOnSameServer(nsIMsgFolder* folder1, nsIMsgFolder* folder2,
-                        bool* sameServer);
-
 #endif
