@@ -191,7 +191,7 @@ function checkHeader({ listName, selectionCount, selectionType } = {}) {
       "selection header should be visible"
     );
     Assert.deepEqual(abDocument.l10n.getAttributes(selectionHeader), {
-      id: `about-addressbook-selection-${selectionType}-header`,
+      id: `about-addressbook-selection-${selectionType}-header2`,
       args: {
         count: selectionCount,
       },

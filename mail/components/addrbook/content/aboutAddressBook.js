@@ -2894,12 +2894,12 @@ var detailsPane = {
     let headerString;
     if (contacts.length) {
       if (lists.length) {
-        headerString = "about-addressbook-selection-mixed-header";
+        headerString = "about-addressbook-selection-mixed-header2";
       } else {
-        headerString = "about-addressbook-selection-contacts-header";
+        headerString = "about-addressbook-selection-contacts-header2";
       }
     } else {
-      headerString = "about-addressbook-selection-lists-header";
+      headerString = "about-addressbook-selection-lists-header2";
     }
     document.l10n.setAttributes(
       document.getElementById("viewSelectionCount"),

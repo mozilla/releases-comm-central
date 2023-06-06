@@ -209,14 +209,25 @@ about-addressbook-placeholder-no-search-results = No contacts found
 ## Details
 
 # Variables:
-# $count (Number) - The number of selected items (will never be fewer than two)
-about-addressbook-selection-mixed-header = { $count } selected contacts and lists
+# $count (Number) - The number of selected items (will never be fewer than 2).
+about-addressbook-selection-mixed-header2 =
+    { $count ->
+       *[other] { $count } selected address book entries
+    }
 # Variables:
 # $count (Number) - The number of selected contacts
-about-addressbook-selection-contacts-header = { $count } selected contacts
+about-addressbook-selection-contacts-header2 =
+    { $count ->
+       [one] { $count } selected contact
+       *[other] { $count } selected contacts
+    }
 # Variables:
 # $count (Number) - The number of selected lists
-about-addressbook-selection-lists-header = { $count } selected lists
+about-addressbook-selection-lists-header2 =
+    { $count ->
+       [one] { $count } selected list
+       *[other] { $count } selected lists
+    }
 
 about-addressbook-details-edit-photo =
   .title = Edit contact photo
