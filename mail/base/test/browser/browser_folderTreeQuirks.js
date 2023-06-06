@@ -336,6 +336,112 @@ add_task(async function testCompactUnreadFolders() {
 });
 
 /**
+ * Tests the Smart Folders mode.
+ */
+add_task(async function testSmartFolders() {
+  folderPane.activeModes = ["smart"];
+
+  // Check the mode is set up correctly.
+  let localExtraFolders = [rootFolder, outboxFolder, folderA, folderB, folderC];
+  let smartServer = MailServices.accounts.findServer(
+    "nobody",
+    "smart mailboxes",
+    "none"
+  );
+  let smartInbox = [smartServer.rootFolder.getChildNamed("Inbox"), inboxFolder];
+  let otherSmartFolders = [
+    smartServer.rootFolder.getChildNamed("Drafts"),
+    smartServer.rootFolder.getChildNamed("Templates"),
+    smartServer.rootFolder.getChildNamed("Sent"),
+    smartServer.rootFolder.getChildNamed("Archives"),
+    smartServer.rootFolder.getChildNamed("Junk"),
+    smartServer.rootFolder.getChildNamed("Trash"),
+  ];
+  await checkModeListItems("smart", [
+    ...smartInbox,
+    ...otherSmartFolders,
+    trashFolder,
+    ...localExtraFolders,
+  ]);
+
+  // Add some subfolders of existing folders.
+  rootFolder.createSubfolder("folderTreeQuirksX", null);
+  let folderX = rootFolder.getChildNamed("folderTreeQuirksX");
+  inboxFolder.createSubfolder("folderTreeQuirksY", null);
+  let folderY = inboxFolder.getChildNamed("folderTreeQuirksY");
+  folderY.createSubfolder("folderTreeQuirksYY", null);
+  let folderYY = folderY.getChildNamed("folderTreeQuirksYY");
+  folderB.createSubfolder("folderTreeQuirksZ", null);
+  let folderZ = folderB.getChildNamed("folderTreeQuirksZ");
+
+  // Check the folders are listed in the right order.
+  await checkModeListItems("smart", [
+    ...smartInbox,
+    folderY,
+    folderYY,
+    ...otherSmartFolders,
+    trashFolder,
+    ...localExtraFolders,
+    folderZ,
+    folderX,
+  ]);
+
+  // Check the hierarchy.
+  let rootRow = folderPane.getRowForFolder(rootFolder);
+  let inboxRow = folderPane.getRowForFolder(inboxFolder);
+  let trashRow = folderPane.getRowForFolder(trashFolder);
+  let rowB = folderPane.getRowForFolder(folderB);
+  let rowX = folderPane.getRowForFolder(folderX);
+  let rowY = folderPane.getRowForFolder(folderY);
+  let rowYY = folderPane.getRowForFolder(folderYY);
+  let rowZ = folderPane.getRowForFolder(folderZ);
+  Assert.equal(rowX.parentNode.parentNode, rootRow);
+  Assert.equal(rowY.parentNode.parentNode, inboxRow);
+  Assert.equal(rowYY.parentNode.parentNode, rowY);
+  Assert.equal(rowZ.parentNode.parentNode, rowB);
+
+  // Delete the added folders.
+  folderX.deleteSelf(null);
+  folderY.deleteSelf(null);
+  folderZ.deleteSelf(null);
+  folderX = trashFolder.getChildNamed("folderTreeQuirksX");
+  folderY = trashFolder.getChildNamed("folderTreeQuirksY");
+  folderYY = folderY.getChildNamed("folderTreeQuirksYY");
+  folderZ = trashFolder.getChildNamed("folderTreeQuirksZ");
+
+  // Check they appear in the trash.
+  await checkModeListItems("smart", [
+    ...smartInbox,
+    ...otherSmartFolders,
+    trashFolder,
+    folderX,
+    folderY,
+    folderYY,
+    folderZ,
+    ...localExtraFolders,
+  ]);
+
+  // Check the hierarchy.
+  rowX = folderPane.getRowForFolder(folderX);
+  rowY = folderPane.getRowForFolder(folderY);
+  rowYY = folderPane.getRowForFolder(folderYY);
+  rowZ = folderPane.getRowForFolder(folderZ);
+  Assert.equal(rowX.parentNode.parentNode, trashRow);
+  Assert.equal(rowY.parentNode.parentNode, trashRow);
+  Assert.equal(rowYY.parentNode.parentNode, rowY);
+  Assert.equal(rowZ.parentNode.parentNode, trashRow);
+
+  // Empty the trash and check everything is back to normal.
+  rootFolder.emptyTrash(null, null);
+  await checkModeListItems("smart", [
+    ...smartInbox,
+    ...otherSmartFolders,
+    trashFolder,
+    ...localExtraFolders,
+  ]);
+});
+
+/**
  * Tests that after moving a folder it is in the right place in the tree,
  * with any subfolders if they should be shown.
  */

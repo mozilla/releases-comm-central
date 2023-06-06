@@ -957,18 +957,10 @@ var folderPane = {
           return;
         }
 
-        let serverRow = folderPane.getRowForFolder(
-          childFolder.rootFolder,
+        let folderRow = folderPane._addFolderAndAncestors(
+          this.containerList,
+          childFolder,
           this.name
-        );
-        if (!serverRow) {
-          serverRow = folderPane._insertInServerOrder(
-            this.containerList,
-            folderPane._createServerRow(this.name, childFolder.server)
-          );
-        }
-        let folderRow = serverRow.insertChildInOrder(
-          folderPane._createFolderRow(this.name, childFolder)
         );
         folderPane._addSubFolders(childFolder, folderRow, this.name);
       },
