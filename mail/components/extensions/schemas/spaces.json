@@ -1,6 +1,7 @@
 [
   {
     "namespace": "spaces",
+    "min_manifest_version": 3,
     "types": [
       {
         "id": "SpaceButtonProperties",
