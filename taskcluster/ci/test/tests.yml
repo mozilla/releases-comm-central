@@ -49,9 +49,9 @@ xpcshell:
                     default: default
     chunks:
         by-test-platform:
-            .*-ccov.*/.*: 8
-            .*-tsan.*/opt: 8
-            default: 4
+            .*-ccov.*/.*: 10
+            .*-tsan.*/opt: 10
+            default: 5
     instance-size: default
     max-run-time:
         by-variant:
