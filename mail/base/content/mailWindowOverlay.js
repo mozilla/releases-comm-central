@@ -24,11 +24,12 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+
   BrowserToolboxLauncher:
     "resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs",
 });
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AddonManager: "resource://gre/modules/AddonManager.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",

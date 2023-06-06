@@ -15,9 +15,12 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   AccountConfig: "resource:///modules/accountcreation/AccountConfig.jsm",
-  AddonManager: "resource://gre/modules/AddonManager.jsm",
   cal: "resource:///modules/calendar/calUtils.jsm",
   CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
   ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.jsm",

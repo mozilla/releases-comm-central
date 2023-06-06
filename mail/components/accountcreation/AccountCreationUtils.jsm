@@ -15,8 +15,8 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/accountcreation/Sanitizer.jsm"
 );
 
-const { AddonManager } = ChromeUtils.import(
-  "resource://gre/modules/AddonManager.jsm"
+const { AddonManager } = ChromeUtils.importESModule(
+  "resource://gre/modules/AddonManager.sys.mjs"
 );
 const { ConsoleAPI } = ChromeUtils.importESModule(
   "resource://gre/modules/Console.sys.mjs"

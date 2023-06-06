@@ -30,11 +30,9 @@ var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
 var paneDeck = document.getElementById("paneDeck");
 var defaultPane = "paneGeneral";
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "AddonManager",
-  "resource://gre/modules/AddonManager.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+});
 
 XPCOMUtils.defineLazyGetter(this, "gSubDialog", function () {
   const { SubDialogManager } = ChromeUtils.importESModule(

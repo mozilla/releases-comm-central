@@ -35,6 +35,7 @@ if (AppConstants.NIGHTLY_BUILD) {
 
 ChromeUtils.defineESModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.sys.mjs",
+  AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
 
   LightweightThemeConsumer:
@@ -47,7 +48,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  AddonManager: "resource://gre/modules/AddonManager.jsm",
   cal: "resource:///modules/calendar/calUtils.jsm",
   ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
   MailMigrator: "resource:///modules/MailMigrator.jsm",
@@ -622,8 +622,8 @@ MailGlue.prototype = {
     // updates.
     let currentVersion = Services.appinfo.version;
     if (this.previousVersion != "0" && this.previousVersion != currentVersion) {
-      let { AddonManager } = ChromeUtils.import(
-        "resource://gre/modules/AddonManager.jsm"
+      let { AddonManager } = ChromeUtils.importESModule(
+        "resource://gre/modules/AddonManager.sys.mjs"
       );
       let { XPIDatabase } = ChromeUtils.import(
         "resource://gre/modules/addons/XPIDatabase.jsm"
