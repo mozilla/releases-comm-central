@@ -29,10 +29,6 @@
 <!ENTITY calendar.removecalendar.label          "Remove Selected Calendar…">
 <!ENTITY calendar.removecalendar.accesskey      "R">
 
-
-<!ENTITY calendar.menu.customize.label          "Customize…">
-<!ENTITY calendar.menu.customize.accesskey      "C">
-
 <!ENTITY showUnifinderCmd.label                 "Find Events">
 <!ENTITY showUnifinderCmd.accesskey             "F">
 <!ENTITY showUnifinderCmd.tooltip               "Toggle the find events pane">

@@ -853,11 +853,8 @@ const CalendarTestUtils = {
       await new Promise(resolve => win.setTimeout(resolve));
       EventUtils.synthesizeMouse(target, 1, 1, { clickCount: 2 }, win);
     } else {
-      EventUtils.synthesizeMouseAtCenter(
-        win.document.getElementById(`calendar-new${type}-button`),
-        {},
-        win
-      );
+      let buttonId = `sidePanelNew${type[0].toUpperCase()}${type.slice(1).toLowerCase()}`;
+      EventUtils.synthesizeMouseAtCenter(win.document.getElementById(buttonId), {}, win);
     }
 
     let dialogWindow = await dialogPromise;

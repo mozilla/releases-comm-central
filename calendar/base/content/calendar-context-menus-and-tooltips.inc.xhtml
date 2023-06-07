@@ -203,24 +203,6 @@
     </menu>
   </menupopup>
 
-  <!-- CALENDAR TOOLBAR CONTEXT MENU -->
-  <menupopup id="calendar-toolbar-context"
-             onpopupshowing="onViewToolbarsPopupShowing(event, ['navigation-toolbox', 'calendar-toolbox']);">
-    <menuseparator id="customizeCalendarToolbarMenuSeparator"/>
-    <menuitem id="CustomizeCalendarToolbar"
-              label="&calendar.menu.customize.label;"
-              accesskey="&calendar.menu.customize.accesskey;"
-              oncommand="CustomizeMailToolbar('calendar-toolbox', 'CustomizeCalendarToolbar')"/>
-  </menupopup>
-  <menupopup id="task-toolbar-context"
-             onpopupshowing="onViewToolbarsPopupShowing(event, ['navigation-toolbox', 'task-toolbox']);">
-    <menuseparator id="customizeTaskToolbarMenuSeparator"/>
-    <menuitem id="CustomizeTaskToolbar"
-              label="&calendar.menu.customize.label;"
-              accesskey="&calendar.menu.customize.accesskey;"
-              oncommand="CustomizeMailToolbar('task-toolbox', 'CustomizeTaskToolbar')"/>
-  </menupopup>
-
   <!-- CALENDAR LIST CONTEXT MENU -->
   <menupopup id="list-calendars-context-menu">
     <menuitem id="list-calendars-context-togglevisible"

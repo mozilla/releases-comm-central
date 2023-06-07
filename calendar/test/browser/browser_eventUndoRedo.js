@@ -71,7 +71,7 @@ async function testAddUndoRedoEvent(undoId, redoId) {
   Assert.ok(await isDisabled(undo), `#${undoId} is disabled`);
   Assert.ok(await isDisabled(redo), `#${redoId} is disabled`);
 
-  let newBtn = document.getElementById("calendar-newevent-button");
+  let newBtn = document.getElementById("sidePanelNewEvent");
   let windowOpened = CalendarTestUtils.waitForEventDialog("edit");
   EventUtils.synthesizeMouseAtCenter(newBtn, {});
 

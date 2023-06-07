@@ -8,7 +8,7 @@
 
 /* globals loadCalendarManager, injectCalendarCommandController, getViewBox,
    observeViewDaySelect, getViewBox, calendarController, calendarUpdateNewItemsCommand,
-   TodayPane, setUpInvitationsManager, changeMode, MailToolboxCustomizeDone,
+   TodayPane, setUpInvitationsManager, changeMode,
    prepareCalendarUnifinder, taskViewOnLoad, taskEdit, tearDownInvitationsManager,
    unloadCalendarManager, removeCalendarCommandController, finishCalendarUnifinder,
    PanelUI, changeMenuForTask, setupDeleteMenuitem, getMinimonth, currentView,
@@ -59,9 +59,6 @@ async function loadCalendarComponent() {
 
   // Set up the command controller from calendar-command-controller.js
   injectCalendarCommandController();
-
-  // Set up calendar appmenu buttons.
-  setUpCalendarAppMenuButtons();
 
   // Set up calendar deactivation for this window.
   calendarDeactivator.registerWindow(window);
@@ -118,16 +115,6 @@ async function loadCalendarComponent() {
     changeMode("mail");
   }
 
-  // Set up customizeDone handlers for our toolbars.
-  let toolbox = document.getElementById("calendar-toolbox");
-  toolbox.customizeDone = function (aEvent) {
-    MailToolboxCustomizeDone(aEvent, "CustomizeCalendarToolbar");
-  };
-  toolbox = document.getElementById("task-toolbox");
-  toolbox.customizeDone = function (aEvent) {
-    MailToolboxCustomizeDone(aEvent, "CustomizeTaskToolbar");
-  };
-
   updateTodayPaneButton();
 
   prepareCalendarUnifinder();
@@ -171,16 +158,6 @@ async function uninstallLightningAddon() {
     console.error("Error while attempting to uninstall Lightning addon:", err);
   }
 }
-
-/**
- * Set up calendar appmenu buttons by adding event listeners to the buttons.
- */
-function setUpCalendarAppMenuButtons() {
-  PanelUI.initAppMenuButton("calendar-appmenu-button", "calendar-toolbox");
-  PanelUI.initAppMenuButton("task-appmenu-button", "task-toolbox");
-  PanelUI.initAppMenuButton("calendar-item-appmenu-button", "event-toolbox");
-}
-
 /**
  * Migrate calendar UI. This function is called at each startup and can be used
  * to change UI items that require js code intervention
@@ -390,8 +367,8 @@ function updateTodayPaneButtonDate() {
 function getToolboxIdForCurrentTabType() {
   // A mapping from calendar tab types to toolbox ids.
   const calendarToolboxIds = {
-    calendar: "calendar-toolbox",
-    tasks: "task-toolbox",
+    calendar: null,
+    tasks: null,
     calendarEvent: "event-toolbox",
     calendarTask: "event-toolbox",
   };
@@ -401,7 +378,7 @@ function getToolboxIdForCurrentTabType() {
   }
   let tabType = tabmail.currentTabInfo.mode.type;
 
-  return calendarToolboxIds[tabType] || "mail-toolbox";
+  return calendarToolboxIds[tabType] || null;
 }
 
 /**
@@ -420,6 +397,9 @@ function calendarOnToolbarsPopupShowing(aEvent, aInsertPoint) {
 
   let toolboxes = [];
   let toolboxId = getToolboxIdForCurrentTabType();
+  if (!toolboxId) {
+    return;
+  }
 
   // We add navigation-toolbox ("Menu Bar") for all tab types except
   // mail tabs because mail-toolbox already includes navigation-toolbox,
@@ -437,6 +417,9 @@ function calendarOnToolbarsPopupShowing(aEvent, aInsertPoint) {
  */
 function customizeMailToolbarForTabType() {
   let toolboxId = getToolboxIdForCurrentTabType();
+  if (!toolboxId) {
+    return;
+  }
   if (toolboxId == "event-toolbox") {
     onCommandCustomize();
   } else {

@@ -9,7 +9,6 @@ calendar.jar:
     skin/classic/calendar/calendar-daypicker.css                         (calendar-daypicker.css)
     skin/classic/calendar/calendar-task-tree.css                         (calendar-task-tree.css)
     skin/classic/calendar/calendar-task-view.css                         (calendar-task-view.css)
-    skin/classic/calendar/calendar-toolbar.css                           (calendar-toolbar.css)
     skin/classic/calendar/calendar-unifinder.css                         (calendar-unifinder.css)
     skin/classic/calendar/calendar-views.css                             (calendar-views.css)
     skin/classic/calendar/calendar-alarm-dialog.css                      (dialogs/calendar-alarm-dialog.css)

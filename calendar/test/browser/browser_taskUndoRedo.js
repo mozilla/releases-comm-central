@@ -63,7 +63,7 @@ async function taskAddUndoRedoTask(undoId, redoId) {
   Assert.ok(await isDisabled(undo), `#${undoId} is disabled`);
   Assert.ok(await isDisabled(redo), `#${redoId} is disabled`);
 
-  let newBtn = document.getElementById("task-newtask-button");
+  let newBtn = document.getElementById("sidePanelNewTask");
   let windowPromise = CalendarTestUtils.waitForEventDialog("edit");
   EventUtils.synthesizeMouseAtCenter(newBtn, {});
 

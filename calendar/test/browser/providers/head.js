@@ -293,7 +293,7 @@ let syncChangesTest = {
     );
 
     // Synchronize.
-    EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-synchronize-button"), {});
+    EventUtils.synthesizeMouseAtCenter(document.getElementById("refreshCalendar"), {});
 
     // Verify that the item we added appears in the calendar view.
     let item = await CalendarTestUtils.multiweekView.waitForItemAt(window, 2, 3, 1);
@@ -342,7 +342,7 @@ let syncChangesTest = {
     );
 
     // Synchronize.
-    EventUtils.synthesizeMouseAtCenter(document.getElementById("calendar-synchronize-button"), {});
+    EventUtils.synthesizeMouseAtCenter(document.getElementById("refreshCalendar"), {});
 
     // Verify that the item has updated in the calendar view.
     await CalendarTestUtils.multiweekView.waitForNoItemAt(window, 2, 3, 1);

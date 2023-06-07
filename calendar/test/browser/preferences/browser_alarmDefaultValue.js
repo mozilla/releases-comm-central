@@ -58,6 +58,7 @@ add_task(async function testDefaultAlarms() {
   await promptPromise;
 
   // Create New Task.
+  await openTasksTab();
   ({ dialogWindow, iframeWindow, iframeDocument } = await CalendarTestUtils.editNewTask(window));
 
   Assert.equal(iframeDocument.querySelector(".item-alarm").value, "custom");
@@ -146,6 +147,23 @@ async function handleReminderDialog(remindersWindow) {
   Assert.equal(listbox.selectedItem.reminder.offset.days, DEFVALUE);
 
   remindersDocument.querySelector("dialog").getButton("accept").click();
+}
+
+async function openTasksTab() {
+  let tabmail = document.getElementById("tabmail");
+  let tasksMode = tabmail.tabModes.tasks;
+
+  if (tasksMode.tabs.length == 1) {
+    tabmail.selectedTab = tasksMode.tabs[0];
+  } else {
+    let tasksTabButton = document.getElementById("tasksButton");
+    EventUtils.synthesizeMouseAtCenter(tasksTabButton, { clickCount: 1 });
+  }
+
+  is(tasksMode.tabs.length, 1, "tasks tab is open");
+  is(tabmail.selectedTab, tasksMode.tabs[0], "tasks tab is selected");
+
+  await new Promise(resolve => setTimeout(resolve));
 }
 
 registerCleanupFunction(function () {

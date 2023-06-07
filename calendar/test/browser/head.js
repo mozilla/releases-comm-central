@@ -96,8 +96,13 @@ async function _openNewCalendarItemTab(tabMode) {
   let previousTabCount = itemTabs.length;
 
   Services.prefs.setBoolPref("calendar.item.editInTab", true);
-  CalendarTestUtils.openCalendarTab(window);
-  let buttonId = tabMode == "calendarTask" ? "calendar-newtask-button" : "calendar-newevent-button";
+  let buttonId = "sidePanelNewEvent";
+  if (tabMode == "calendarTask") {
+    await openTasksTab();
+    buttonId = "sidePanelNewTask";
+  } else {
+    await CalendarTestUtils.openCalendarTab(window);
+  }
 
   let newItemButton = document.getElementById(buttonId);
   EventUtils.synthesizeMouseAtCenter(newItemButton, { clickCount: 1 });

@@ -12,43 +12,10 @@
   list-style-image: var(--icon-tasks);
 }
 
-/* Toolbar buttons */
-#calendar-synchronize-button,
-#task-synchronize-button {
-  list-style-image: var(--icon-sync);
-}
-
-#extractEventButton,
-#task-newevent-button,
-#calendar-newevent-button {
+#extractEventButton {
   list-style-image: var(--icon-new-event);
 }
 
-#extractTaskButton,
-#task-newtask-button,
-#calendar-newtask-button {
+#extractTaskButton {
   list-style-image:var(--icon-new-task);
-}
-
-#calendar-edit-button,
-#task-edit-button {
-  list-style-image: var(--icon-pencil);
-}
-
-#calendar-delete-button,
-#task-delete-button {
-  list-style-image: var(--icon-trash);
-}
-
-#calendar-goto-today-button {
-  list-style-image: var(--icon-calendar-today);
-}
-
-#calendar-print-button,
-#task-print-button {
-  list-style-image: var(--icon-print);
-}
-
-#calendar-unifinder-button {
-  list-style-image: var(--icon-search);
 }

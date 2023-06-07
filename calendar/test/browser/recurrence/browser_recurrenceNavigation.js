@@ -16,7 +16,7 @@ add_task(async function testRecurrenceNavigation() {
   let eventDate = cal.createDateTime("20200201T000001Z");
   window.goToDate(eventDate);
 
-  let newEventBtn = document.querySelector("#calendar-newevent-button");
+  let newEventBtn = document.querySelector("#sidePanelNewEvent");
   let getEventWin = CalendarTestUtils.waitForEventDialog("edit");
   EventUtils.synthesizeMouseAtCenter(newEventBtn, {});
 
@@ -100,7 +100,7 @@ add_task(async function testRecurrenceCreationOfMonths() {
   let eventDate = cal.createDateTime("20200101T000001Z");
   window.goToDate(eventDate);
 
-  let newEventBtn = document.querySelector("#calendar-newevent-button");
+  let newEventBtn = document.querySelector("#sidePanelNewEvent");
   let getEventWin = CalendarTestUtils.waitForEventDialog("edit");
   EventUtils.synthesizeMouseAtCenter(newEventBtn, {});
 
