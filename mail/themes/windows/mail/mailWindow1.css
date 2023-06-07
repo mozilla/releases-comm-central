@@ -442,27 +442,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-@media (-moz-windows-glass) {
-  /* lesser transparency on Glass background */
-  #tabbar-toolbar menulist:not(:-moz-lwtheme,[open="true"]) {
-    background-color: rgba(227, 237, 246, .7);
-  }
-
-  /* lesser transparency on Glass background */
-  #tabbar-toolbar menulist:not(:-moz-lwtheme,[open="true"]):hover {
-    background-color: rgba(136, 197, 213, .85);
-  }
-
-  #tabbar-toolbar #viewPickerLabel:not(:-moz-lwtheme,:-moz-window-inactive) {
-    margin-inline-start: 4px;
-    margin-inline-end: 0;
-    padding-inline-start: 2px;
-    padding-inline-end: 5px;
-    background-color: rgba(255, 255, 255, .3);
-    border-radius: 4px;
-  }
-}
-
 @media not (-moz-windows-non-native-menus) {
   #viewPickerPopup > menu > .menu-text {
     padding-inline-start: 0 !important;

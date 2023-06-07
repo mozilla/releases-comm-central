@@ -395,19 +395,12 @@ function calendarOnToolbarsPopupShowing(aEvent, aInsertPoint) {
     return;
   }
 
-  let toolboxes = [];
+  let toolboxes = ["navigation-toolbox"];
   let toolboxId = getToolboxIdForCurrentTabType();
-  if (!toolboxId) {
-    return;
-  }
 
-  // We add navigation-toolbox ("Menu Bar") for all tab types except
-  // mail tabs because mail-toolbox already includes navigation-toolbox,
-  // so we do not need to add it separately in that case.
-  if (toolboxId != "mail-toolbox") {
-    toolboxes.push("navigation-toolbox");
+  if (toolboxId) {
+    toolboxes.push(toolboxId);
   }
-  toolboxes.push(toolboxId);
 
   onViewToolbarsPopupShowing(aEvent, toolboxes, aInsertPoint);
 }

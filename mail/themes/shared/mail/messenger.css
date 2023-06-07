@@ -384,11 +384,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton
   padding-inline-start: 2px;
 }
 
-:root[uidensity="touch"] #tabbar-toolbar .toolbarbutton-1,
-:root[uidensity="touch"] #tabbar-toolbar .toolbarbutton-menubutton-button {
-  min-width: 25px;
-}
-
 .toolbarbutton-1 .toolbarbutton-icon {
   /* NOTE: At the moment, these rule can be applied to either xul:image elements
    * (the plain toolbarbutton elements, defined in mozilla) or html:img
@@ -465,10 +460,7 @@ toolbar[brighttext] .toolbarbutton-1:not(:hover,:active,[open]) >
   opacity: .3;
 }
 
-#alltabs-button,
-#tabbar-toolbar menulist,
-#tabbar-toolbar .toolbarbutton-1,
-#tabbar-toolbar .toolbarbutton-1[is="toolbarbutton-menu-button"] {
+#alltabs-button {
   margin-block: 3px;
 }
 
@@ -745,17 +737,6 @@ html|*.addon-webext-perm-list {
 
 html|ul.addon-installed-list {
   margin-top: 0;
-}
-
-#tabbar-toolbar {
-  appearance: none;
-  padding: 0;
-}
-
-#tabbar-toolbar[customizing="true"] {
-  min-width: 48px;
-  min-height: 16px;
-  margin-inline-start: 20px !important;
 }
 
 .chromeclass-toolbar {

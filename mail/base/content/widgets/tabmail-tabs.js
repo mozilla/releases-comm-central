@@ -95,42 +95,6 @@
           return;
         }
 
-        if (
-          dt.mozGetDataAt("text/toolbarwrapper-id/messengerWindow", 0) != null
-        ) {
-          event.preventDefault();
-          event.stopPropagation();
-
-          // Dispatch event to the toolbar
-          let evt = document.createEvent("DragEvent");
-          evt.initDragEvent(
-            "dragover",
-            true,
-            true,
-            window,
-            0,
-            0,
-            0,
-            0,
-            0,
-            false,
-            false,
-            false,
-            false,
-            0,
-            null,
-            event.dataTransfer
-          );
-
-          if (this.mToolbar.firstElementChild) {
-            this.mToolbar.firstElementChild.dispatchEvent(evt);
-          } else {
-            this.mToolbar.dispatchEvent(evt);
-          }
-
-          return;
-        }
-
         // Bug 516247:
         // in case the user is dragging something else than a tab, and
         // keeps hovering over a tab, we assume he wants to switch to this tab.
@@ -272,46 +236,6 @@
           return;
         }
 
-        // If we're dragging a toolbar button, let's prepend the tabs toolbar
-        // with that button, and then bail out.
-        let buttonId = dt.mozGetDataAt(
-          "text/toolbarwrapper-id/messengerWindow",
-          0
-        );
-
-        if (buttonId != null) {
-          event.preventDefault();
-          event.stopPropagation();
-
-          let evt = document.createEvent("DragEvent");
-          evt.initDragEvent(
-            "drop",
-            true,
-            true,
-            window,
-            0,
-            0,
-            0,
-            0,
-            0,
-            false,
-            false,
-            false,
-            false,
-            0,
-            null,
-            event.dataTransfer
-          );
-
-          if (this.mToolbar.firstElementChild) {
-            this.mToolbar.firstElementChild.dispatchEvent(evt);
-          } else {
-            this.mToolbar.dispatchEvent(evt);
-          }
-
-          return;
-        }
-
         let draggedTab = dt.mozGetDataAt("application/x-moz-tabmail-tab", 0);
 
         if (!draggedTab) {
@@ -431,8 +355,6 @@
       this.arrowScrollboxWidth = 0;
 
       this.arrowScrollbox = this.querySelector("arrowscrollbox");
-
-      this.mToolbar = document.getElementById(this.getAttribute("tabtoolbar"));
 
       this.mCollapseToolbar = document.getElementById(
         this.getAttribute("collapsetoolbar")

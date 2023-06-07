@@ -181,7 +181,7 @@ function overlayRepositionDialog() {
 }
 
 function CustomizeMailToolbar(toolboxId, customizePopupId) {
-  if (toolboxId === "mail-toolbox") {
+  if (toolboxId === "mail-toolbox" && window.tabmail) {
     // Open the unified toolbar customization panel only for mail.
     document.querySelector("unified-toolbar").showCustomization();
     return;
@@ -205,9 +205,6 @@ function CustomizeMailToolbar(toolboxId, customizePopupId) {
 
   let externalToolbars = [];
   if (toolbox.getAttribute("id") == "mail-toolbox") {
-    if (document.getElementById("tabbar-toolbar")) {
-      externalToolbars.push(document.getElementById("tabbar-toolbar"));
-    }
     if (
       AppConstants.platform != "macosx" &&
       document.getElementById("toolbar-menubar")
@@ -375,21 +372,27 @@ function onViewToolbarsPopupShowing(
   let firstMenuItem = insertPoint || popup.firstElementChild;
 
   for (let toolboxId of toolboxIds) {
+    let toolbars = [];
     let toolbox = document.getElementById(toolboxId);
 
-    // We consider child nodes that have a toolbarname attribute.
-    let toolbars = Array.from(toolbox.querySelectorAll("[toolbarname]"));
+    if (toolbox) {
+      // We consider child nodes that have a toolbarname attribute.
+      toolbars = toolbars.concat(
+        Array.from(toolbox.querySelectorAll("[toolbarname]"))
+      );
+    }
 
-    // On main Window add the folder pane toolbar to the list of toolbars that
-    // can be shown and hidden.
-    if (document.getElementById("tabmail")) {
-      if (toolbox.getAttribute("id") === "mail-toolbox") {
-        if (
-          AppConstants.platform != "macosx" &&
-          document.getElementById("toolbar-menubar")
-        ) {
-          toolbars.push(document.getElementById("toolbar-menubar"));
-        }
+    if (
+      toolboxId == "mail-toolbox" &&
+      toolbars.every(
+        toolbar => toolbar.getAttribute("id") !== "toolbar-menubar"
+      )
+    ) {
+      if (
+        AppConstants.platform != "macosx" &&
+        document.getElementById("toolbar-menubar")
+      ) {
+        toolbars.push(document.getElementById("toolbar-menubar"));
       }
     }
 

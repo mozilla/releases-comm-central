@@ -229,10 +229,6 @@
   }
 }
 
-#tabbar-toolbar {
-  color: inherit;
-}
-
 toolbar:not(.inline-toolbar,.contentTabToolbar,:-moz-lwtheme) {
   appearance: auto;
   -moz-default-appearance: menubar;

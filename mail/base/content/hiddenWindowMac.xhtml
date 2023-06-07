@@ -29,7 +29,6 @@
 <script src="chrome://communicator/content/utilityOverlay.js"/>
 <script src="chrome://messenger/content/mailCore.js"/>
 <script src="chrome://messenger/content/newmailaccount/uriListener.js"/>
-<script src="chrome://messenger/content/customizable-toolbar.js"/>
 <script src="chrome://global/content/macWindowMenu.js"/>
 
 <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
@@ -85,32 +84,17 @@
 
       <vbox id="titlebar">
         <!-- Menu -->
-        <toolbar is="customizable-toolbar" id="toolbar-menubar"
+        <toolbar id="toolbar-menubar"
                  class="chromeclass-menubar themeable-full"
                  type="menubar"
-                 customizable="true"
-                 toolboxid="mail-toolbox"
-                 defaultset="menubar-items"
                  context="toolbar-context-menu">
-          <toolbaritem id="menubar-items" align="center">
 # The entire main menubar is placed into messenger-menubar.inc.xhtml, so that it
 # can be shared with other top level windows.
 #include messenger-menubar.inc.xhtml
-          </toolbaritem>
         </toolbar>
       </vbox>
     </toolbox>
   </box>
-  <toolbox id="mail-toolbox"
-           class="mail-toolbox"
-           mode="full"
-           defaultmode="full"
-           iconsize="small"
-           defaulticonsize="small"
-           labelalign="end"
-           defaultlabelalign="end">
-#include mainMailToolbar.inc.xhtml
-  </toolbox>
 
 <browser id="hiddenBrowser" disablehistory="true"/>
 

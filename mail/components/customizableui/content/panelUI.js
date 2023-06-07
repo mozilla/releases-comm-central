@@ -81,7 +81,6 @@ const PanelUI = {
   init() {
     this._initElements();
     this.initAppMenuButton("button-appmenu", "mail-toolbox");
-    this.initAppMenuButton("button-chat-appmenu", "chat-view-toolbox");
 
     this.menuButton = this.menuButtonMail;
 

@@ -43,8 +43,6 @@
 <?xml-stylesheet href="chrome://calendar/skin/shared/widgets/minimonth.css" type="text/css"?>
 <?xml-stylesheet href="chrome://calendar/skin/widgets/calendar-widgets.css" type="text/css"?>
 
-<?xml-stylesheet href="chrome://calendar/skin/shared/calendar-toolbar.css" type="text/css"?>
-
 # All DTD information is stored in a separate file so that it can be shared by
 # hiddenWindowMac.xhtml.
 <!DOCTYPE html [
@@ -139,7 +137,6 @@
   <script defer="defer" src="chrome://messenger/content/tabmail-tab.js"></script>
   <script defer="defer" src="chrome://messenger/content/tabmail-tabs.js"></script>
   <script defer="defer" src="chrome://messenger/content/tabmail.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/toolbarbutton-badge-button.js"></script>
   <script defer="defer" src="chrome://messenger/content/messenger-customization.js"></script>
   <script defer="defer" src="chrome://messenger/content/customizable-toolbar.js"></script>
 #ifdef NIGHTLY_BUILD
@@ -467,16 +464,11 @@
     <vbox id="titlebar">
       <html:unified-toolbar></html:unified-toolbar>
       <!-- Menu -->
-      <toolbar is="customizable-toolbar" id="toolbar-menubar"
+      <toolbar id="toolbar-menubar"
                class="chromeclass-menubar themeable-full"
                type="menubar"
-               customizable="true"
-               toolboxid="mail-toolbox"
 #ifdef XP_MACOSX
-               defaultset="menubar-items"
                autohide="true"
-#else
-               defaultset="menubar-items,spring"
 #endif
 #ifndef XP_MACOSX
                data-l10n-id="toolbar-context-menu-menu-bar"
@@ -486,11 +478,9 @@
                mode="icons"
                insertbefore="tabs-toolbar"
                prependmenuitem="true">
-        <toolbaritem id="menubar-items" align="center">
 # The entire main menubar is placed into messenger-menubar.inc.xhtml, so that it
 # can be shared with other top level windows.
 #include messenger-menubar.inc.xhtml
-        </toolbaritem>
       </toolbar>
 
       <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
@@ -499,9 +489,8 @@
               align="end"
               setfocus="false"
               alltabsbutton="alltabs-button"
-              collapsetoolbar="tabs-toolbar"
-              tabtoolbar="tabbar-toolbar"
-              context="toolbar-context-menu">
+              context="toolbar-context-menu"
+              collapsetoolbar="tabs-toolbar">
           <html:img class="tab-drop-indicator"
                     src="chrome://messenger/skin/icons/tab-drag-indicator.svg"
                     alt=""
@@ -515,16 +504,6 @@
                  class="tabmail-tab" crop="end"/>
           </arrowscrollbox>
         </tabs>
-
-        <toolbar is="customizable-toolbar" id="tabbar-toolbar"
-                 toolboxid="mail-toolbox"
-                 class="themeable-full"
-                 context="toolbar-context-menu"
-                 customizable="true"
-                 mode="icons" defaultmode="icons" lockmode="true"
-                 iconsize="small" defaulticonsize="small" lockiconsize="true"
-                 defaultset="">
-        </toolbar>
 
         <toolbarbutton class="toolbarbutton-1 tabs-alltabs-button"
                         id="alltabs-button"
@@ -559,28 +538,6 @@
              tabcontainer="tabmail-tabs">
      <tabbox id="tabmail-tabbox" flex="1" eventnode="document" tabcontainer="tabmail-tabs">
       <tabpanels id="tabpanelcontainer" flex="1" class="plain" selectedIndex="0">
-
-        <!-- mailContent is the container used for the "wide" layout. Normally,
-             all it contains is the "messengerBox" box.  However, in "wide" mode
-             the message pane and its splitter transplant themselves into the box
-             (respectively, messagepanebox and threadpane-splitter).  This gives us
-             the folder pane next to the thread view, with the message pane/reader
-             beneath both of them. -->
-        <box id="mailContent" orient="vertical" flex="1">
-          <!-- mail-toolbox with the main toolbarbuttons -->
-          <toolbox id="mail-toolbox"
-                   class="mail-toolbox"
-                   mode="full"
-                   defaultmode="full"
-#ifdef XP_MACOSX
-                   iconsize="small"
-                   defaulticonsize="small"
-#endif
-                   labelalign="end"
-                   defaultlabelalign="end">
-#include mainMailToolbar.inc.xhtml
-          </toolbox>
-        </box> <!-- end of mailContent -->
 #include ../../components/im/content/chat-messenger.inc.xhtml
 #include ../../../calendar/base/content/calendar-tab-panels.inc.xhtml
 #include ../../../calendar/base/content/item-editing/calendar-item-panel.inc.xhtml

@@ -390,12 +390,6 @@ var gMailInit = {
    */
   async _loadComponentsAtStartup() {
     updateTroubleshootMenuItem();
-    // Initialize the customizeDone method on the customizeable toolbar.
-    let toolbox = document.getElementById("mail-toolbox");
-    toolbox.customizeDone = function (aEvent) {
-      MailToolboxCustomizeDone(aEvent, "CustomizeMailToolbar");
-    };
-
     // The calendar component needs to be loaded before restoring any tabs.
     await loadCalendarComponent();
 
