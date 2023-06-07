@@ -120,31 +120,55 @@ const XUL_TOOLBAR_DEFAULT_SET = {
 const MESSENGER_WINDOW = "chrome://messenger/content/messenger.xhtml";
 const EXTENSION_WIDGET_SUFFIX = "-browserAction-toolbarbutton";
 
-/**
- * Get the available extension IDs with buttons for a space.
- *
- * @returns {string[]} IDs of the extensions that are available in this profile.
- */
-function getExtensionIds() {
-  return Object.keys(
-    JSON.parse(
-      Services.prefs.getStringPref("extensions.webextensions.uuids", "{}")
-    )
-  );
-}
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "extensionIds",
+  "extensions.webextensions.uuids",
+  "{}",
+  null,
+  value => Object.keys(JSON.parse(value))
+);
 
 /**
  * Get the extension ID from a XUL toolbar button ID of an extension.
  *
  * @param {string} buttonId - ID of the XUL toolbar button.
- * @param {string[]} extensionIds - Available extension IDs.
  * @returns {?string} ID of the extension the button belonged to.
  */
-function getExtensionIdFromExtensionButton(buttonId, extensionIds) {
+function getExtensionIdFromExtensionButton(buttonId) {
   const widgetId = buttonId.slice(0, -EXTENSION_WIDGET_SUFFIX.length);
-  return extensionIds.find(
+  return lazy.extensionIds.find(
     extensionId => lazy.ExtensionCommon.makeWidgetId(extensionId) === widgetId
   );
+}
+
+/**
+ * Convert the string contents of an old toolbar *set attribute to an array of
+ * item IDs.
+ *
+ * @param {string} setString - Contents of the set attribute.
+ * @returns {string[]} Array of items in the set.
+ */
+function toolbarSetAttributeToArray(setString) {
+  if (!setString || setString === EMPTY_SET) {
+    return [];
+  }
+  return setString.split(",").filter(Boolean);
+}
+
+/**
+ * Get the default set (without extensions) of a XUL toolbar.
+ *
+ * @param {string} toolbarId - ID of the XUL toolbar element.
+ * @param {string} window - URI of the window the toolbar is in.
+ * @returns {string} defaultset attribute of the given XUL toolbar.
+ */
+function getOldToolbarDefaultContents(toolbarId, window = MESSENGER_WINDOW) {
+  let setString = Services.xulStore.getValue(window, toolbarId, "defaultset");
+  if (!setString) {
+    setString = XUL_TOOLBAR_DEFAULT_SET[toolbarId];
+  }
+  return setString;
 }
 
 /**
@@ -158,15 +182,9 @@ function getExtensionIdFromExtensionButton(buttonId, extensionIds) {
 function getOldToolbarContents(toolbarId, window = MESSENGER_WINDOW) {
   let setString = Services.xulStore.getValue(window, toolbarId, "currentset");
   if (!setString) {
-    setString = Services.xulStore.getValue(window, toolbarId, "defaultset");
+    setString = getOldToolbarDefaultContents(toolbarId, window);
   }
-  if (!setString) {
-    setString = XUL_TOOLBAR_DEFAULT_SET[toolbarId];
-  }
-  if (setString === EMPTY_SET) {
-    return [];
-  }
-  return setString.split(",").filter(Boolean);
+  return toolbarSetAttributeToArray(setString);
 }
 
 /**
@@ -174,20 +192,16 @@ function getOldToolbarContents(toolbarId, window = MESSENGER_WINDOW) {
  * items that are not supported in the unified toolbar.
  *
  * @param {string[]} items - XUL toolbar item IDs to convert.
- * @param {string[]} extensionIds - Extensions IDs in the profile.
  * @returns {string[]} Unified toolbar item IDs.
  */
-function convertContents(items, extensionIds) {
+function convertContents(items) {
   return items
     .map(itemId => {
       if (MIGRATION_MAP.hasOwnProperty(itemId)) {
         return MIGRATION_MAP[itemId];
       }
       if (itemId.endsWith(EXTENSION_WIDGET_SUFFIX)) {
-        const extensionId = getExtensionIdFromExtensionButton(
-          itemId,
-          extensionIds
-        );
+        const extensionId = getExtensionIdFromExtensionButton(itemId);
         if (extensionId) {
           return `${EXTENSION_PREFIX}${extensionId}`;
         }
@@ -201,18 +215,13 @@ function convertContents(items, extensionIds) {
  * Get the unified toolbar item IDs for items that were in the tab bar and the
  * menu bar areas.
  *
- * @param {string[]} extensionIds - Extension IDs in the profile.
  * @returns {string[]} Item IDs that were available in any tab in the XUL
  *   toolbars.
  */
-function getGlobalItems(extensionIds) {
-  const tabsContent = convertContents(
-    getOldToolbarContents("tabbar-toolbar"),
-    extensionIds
-  );
+function getGlobalItems() {
+  const tabsContent = convertContents(getOldToolbarContents("tabbar-toolbar"));
   const menubarContent = convertContents(
-    getOldToolbarContents("toolbar-menubar"),
-    extensionIds
+    getOldToolbarContents("toolbar-menubar")
   );
   return [...menubarContent, ...tabsContent];
 }
@@ -228,23 +237,21 @@ function getGlobalItems(extensionIds) {
  * returned.
  *
  * @param {string} space - Name of the space to get the items for.
- * @param {string[]} extensionIds - Available extensions in the profile.
  * @returns {string[]} Unified toolbar item IDs based on the old contents of the
  *   xul toolbar of the space.
  */
-function getItemsForSpace(space, extensionIds) {
+function getItemsForSpace(space) {
   let spaceContent = [];
   if (TOOLBAR_FOR_SPACE.hasOwnProperty(space)) {
     spaceContent = convertContents(
-      getOldToolbarContents(TOOLBAR_FOR_SPACE[space]),
-      extensionIds
+      getOldToolbarContents(TOOLBAR_FOR_SPACE[space])
     );
   } else {
     spaceContent = getDefaultItemIdsForSpace(space);
   }
-  const newContents = [...spaceContent, ...getGlobalItems(extensionIds)];
+  const newContents = [...spaceContent, ...getGlobalItems()];
   const availableItems = getAvailableItemIdsForSpace(space, true).concat(
-    extensionIds.map(id => `${EXTENSION_PREFIX}${id}`)
+    lazy.extensionIds.map(id => `${EXTENSION_PREFIX}${id}`)
   );
   const encounteredItems = new Set();
   const finalItems = newContents.filter((itemId, index, items) => {
@@ -267,10 +274,8 @@ function getItemsForSpace(space, extensionIds) {
  * specific store for extensions.
  *
  * @param {string} space - Name of the migrated space.
- * @param {string[]} extensionIds - Available extensions in the profile.
- * @param {string[]} items - Unified toolbar item IDs in the migrated space.
  */
-function convertExtensionState(space, extensionIds) {
+function convertExtensionState(space) {
   if (
     !Services.xulStore.hasValue(
       MESSENGER_WINDOW,
@@ -285,7 +290,7 @@ function convertExtensionState(space, extensionIds) {
     .split(",")
     .filter(Boolean);
   const extensionsInExtensionSet = extensionSet.map(buttonId =>
-    getExtensionIdFromExtensionButton(buttonId, extensionIds)
+    getExtensionIdFromExtensionButton(buttonId)
   );
   const cachedAllowedSpaces = lazy.getCachedAllowedSpaces();
   for (const extensionId of extensionsInExtensionSet) {
@@ -296,6 +301,71 @@ function convertExtensionState(space, extensionIds) {
     cachedAllowedSpaces.set(extensionId, allowedSpaces);
   }
   lazy.setCachedAllowedSpaces(cachedAllowedSpaces);
+}
+
+/**
+ * Check if the XUL toolbar matches the default state.
+ *
+ * @param {string} toolbarId - ID of the old XUL toolbar element to check the
+ *   state of.
+ * @returns {boolean} If the toolbar with the given ID has a currentset matching
+ *   the default state for that toolbar.
+ */
+function oldToolbarContainsDefaultItems(toolbarId) {
+  // Fast path: if there is no current set, the contents of the toolbar were
+  // never modified.
+  if (!Services.xulStore.hasValue(MESSENGER_WINDOW, toolbarId, "currentset")) {
+    return true;
+  }
+  const toolbarContents = getOldToolbarContents(toolbarId);
+  let defaultContents = toolbarSetAttributeToArray(
+    getOldToolbarDefaultContents(toolbarId)
+  );
+  const extensionContents = toolbarSetAttributeToArray(
+    Services.xulStore.getValue(MESSENGER_WINDOW, toolbarId, "extensionset")
+  );
+  // Extensions are inserted before the appmenu button, which is usually at the
+  // end of the default set.
+  if (extensionContents.length) {
+    const appmenuIndex = defaultContents.findIndex(
+      itemId => itemId === "button-appmenu"
+    );
+    if (appmenuIndex !== -1) {
+      defaultContents.splice(appmenuIndex, 0, ...extensionContents);
+    } else {
+      defaultContents = defaultContents.concat(extensionContents);
+    }
+  }
+  return (
+    toolbarContents.length === defaultContents.length &&
+    toolbarContents.every((itemId, index) => itemId === defaultContents[index])
+  );
+}
+
+/**
+ * Check if the XUL toolbar customization state is equivalent to its default set
+ * for a given space.
+ *
+ * @param {string} space - Name of the space to check the default set for.
+ * @returns {boolean} If the state of the old XUL toolbars matches the default
+ *   set for that space. True if we don't know any toolbar for the given space.
+ */
+function stateMatchesDefault(space) {
+  if (!TOOLBAR_FOR_SPACE.hasOwnProperty(space)) {
+    return true;
+  }
+  if (!oldToolbarContainsDefaultItems(TOOLBAR_FOR_SPACE[space])) {
+    return false;
+  }
+  if (space === "mail") {
+    if (!oldToolbarContainsDefaultItems("tabbar-toolbar")) {
+      return false;
+    }
+    if (!oldToolbarContainsDefaultItems("toolbar-menubar")) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
@@ -324,15 +394,21 @@ export function clearXULToolbarState(toolbarId) {
  */
 export function migrateToolbarForSpace(space) {
   const state = getState();
+  // If the mail toolbar areas are all in their default state, we don't want to
+  // migrate their contents.
+  const mailToolbarInDefaultState =
+    space === "mail" && stateMatchesDefault(space);
   // Don't migrate contents if the state of the space is already customized.
-  if (state[space]) {
+  if (state[space] || mailToolbarInDefaultState) {
+    if (mailToolbarInDefaultState && TOOLBAR_FOR_SPACE.hasOwnProperty(space)) {
+      clearXULToolbarState(TOOLBAR_FOR_SPACE[space]);
+    }
     return;
   }
-  const extensionIds = getExtensionIds();
-  state[space] = getItemsForSpace(space, extensionIds);
+  state[space] = getItemsForSpace(space);
   storeState(state);
   if (TOOLBAR_FOR_SPACE.hasOwnProperty(space)) {
-    convertExtensionState(space, extensionIds);
+    convertExtensionState(space);
     // Remove all the state for the old toolbar of the space.
     clearXULToolbarState(TOOLBAR_FOR_SPACE[space]);
   }

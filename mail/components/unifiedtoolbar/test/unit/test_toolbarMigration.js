@@ -9,6 +9,9 @@ const { migrateToolbarForSpace, clearXULToolbarState } =
 const { getState, storeState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
 );
+const { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
 
 const MESSENGER_WINDOW = "chrome://messenger/content/messenger.xhtml";
 
@@ -90,19 +93,7 @@ add_task(function test_migration_defaults() {
 
   const newState = getState();
 
-  Assert.deepEqual(
-    newState.mail,
-    [
-      "get-messages",
-      "write-message",
-      "tag-message",
-      "quick-filter-bar",
-      "spacer",
-      "search-bar",
-      "spacer",
-    ],
-    "Default states were combined and migrated"
-  );
+  Assert.ok(!newState.mail, "New default state was preserved");
   Assert.ok(
     !Services.xulStore.hasValue(MESSENGER_WINDOW, "mail-bar3", "currentset"),
     "Old toolbar state is cleared"
@@ -401,4 +392,40 @@ add_task(function test_clear_xul_toolbar_state() {
     ),
     "Old toolbar default state is cleared"
   );
+});
+
+add_task(function test_migration_defaults_with_extension() {
+  setXULToolbarState(
+    AppConstants.platform == "macosx"
+      ? "button-getmsg,button-newmsg,button-tag,qfb-show-filter-bar,spring,gloda-search,extension1,extension2,button-appmenu"
+      : "button-getmsg,button-newmsg,separator,button-tag,qfb-show-filter-bar,spring,gloda-search,extension1,extension2,button-appmenu"
+  );
+  setXULToolbarState("", "", "toolbar-menubar");
+  setXULToolbarState("", "", "tabbar-toolbar");
+  Services.xulStore.setValue(
+    MESSENGER_WINDOW,
+    "mail-bar3",
+    "extensionset",
+    "extension1,extension2"
+  );
+
+  migrateToolbarForSpace("mail");
+
+  const newState = getState();
+
+  Assert.ok(!newState.mail, "New default state was preserved");
+  Assert.ok(
+    !Services.xulStore.hasValue(MESSENGER_WINDOW, "mail-bar3", "currentset"),
+    "Old toolbar state is cleared"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(MESSENGER_WINDOW, "mail-bar3", "defaultset"),
+    "Old toolbar default state is cleared"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(MESSENGER_WINDOW, "mail-bar3", "extensionset"),
+    "Old toolbar extension state is cleared"
+  );
+
+  storeState({});
 });
