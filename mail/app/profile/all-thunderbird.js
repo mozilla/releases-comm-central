@@ -146,7 +146,7 @@ pref("datareporting.healthreport.infoURL", "https://www.mozilla.org/thunderbird/
 pref("datareporting.policy.dataSubmissionEnabled", true);
 pref("datareporting.policy.dataSubmissionPolicyAcceptedVersion", 0);
 pref("datareporting.policy.dataSubmissionPolicyBypassNotification", false);
-pref("datareporting.policy.currentPolicyVersion", 1);
+pref("datareporting.policy.currentPolicyVersion", 2);
 pref("datareporting.policy.firstRunURL", "https://www.mozilla.org/thunderbird/legal/privacy/");
 #endif
 
