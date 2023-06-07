@@ -161,7 +161,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
     Trash: styles.getPropertyValue("--folder-color-trash"),
     Archive: styles.getPropertyValue("--folder-color-archive"),
     Templates: styles.getPropertyValue("--folder-color-template"),
-    Spam: styles.getPropertyValue("--folder-color-spam"),
+    Junk: styles.getPropertyValue("--folder-color-spam"),
     Virtual: styles.getPropertyValue("--folder-color-folder-filter"),
     RSS: styles.getPropertyValue("--folder-color-rss"),
     Newsgroup: styles.getPropertyValue("--folder-color-newsletter"),
