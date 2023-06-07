@@ -14,7 +14,11 @@
                             maxlength="192"
                             data-l10n-id="quick-filter-bar-textbox"
                             data-l10n-attrs="placeholder" />
-        <div class="roving-group button-group">
+        <button id="qfd-dropdown"
+                class="button button-flat icon-button icon-only"
+                data-l10n-id="quick-filter-bar-dropdown">
+        </button>
+        <div class="roving-group button-group quickFilterButtons">
           <button is="toggle-button" id="qfb-unread"
                   class="button collapsible-button icon-button check-button"
                   data-l10n-id="quick-filter-bar-unread">
@@ -77,3 +81,38 @@
         </div>
       </div>
     </div>
+    <xul:menupopup id="quickFilterButtonsContext"
+                   class="no-accel-menupopup"
+                   position="bottomleft topleft"
+                   onpopupshowing="quickFilterBar.updateCheckedStateQuickFilterButtons();">
+      <xul:menuitem id="quickFilterButtonsContextUnreadToggle"
+                    class="quick-filter-menuitem"
+                    type="checkbox"
+                    value="unread"
+                    closemenu="none"
+                    data-l10n-id="quick-filter-bar-dropdown-unread"/>
+      <xul:menuitem id="quickFilterButtonsContextStarredToggle"
+                    class="quick-filter-menuitem"
+                    type="checkbox"
+                    value="starred"
+                    closemenu="none"
+                    data-l10n-id="quick-filter-bar-dropdown-starred"/>
+      <xul:menuitem id="quickFilterButtonsContextInaddrbookToggle"
+                    class="quick-filter-menuitem"
+                    type="checkbox"
+                    value="addrBook"
+                    closemenu="none"
+                    data-l10n-id="quick-filter-bar-dropdown-inaddrbook"/>
+      <xul:menuitem id="quickFilterButtonsContextTagsToggle"
+                    class="quick-filter-menuitem"
+                    type="checkbox"
+                    value="tags"
+                    closemenu="none"
+                    data-l10n-id="quick-filter-bar-dropdown-tags"/>
+      <xul:menuitem id="quickFilterButtonsContextAttachmentToggle"
+                    class="quick-filter-menuitem"
+                    type="checkbox"
+                    value="attachment"
+                    closemenu="none"
+                    data-l10n-id="quick-filter-bar-dropdown-attachment"/>
+    </xul:menupopup>

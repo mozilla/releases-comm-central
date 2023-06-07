@@ -35,6 +35,11 @@
   background-image: var(--icon-attachment);
 }
 
+#qfd-dropdown {
+  background-image: var(--icon-filter);
+  display: none;
+}
+
 #qfb-results-label {
   margin: 3px;
   text-align: end;
@@ -52,6 +57,21 @@
 @media (-moz-platform: windows-win7) {
   #qfb-qs-textbox {
     margin-block: 4px;
+  }
+}
+
+@container threadPane (max-width: 499px) {
+  #qfb-qs-textbox {
+    min-width: 200px;
+  }
+
+  #qfd-dropdown {
+    display: inline-block;
+    min-width: 22px;
+  }
+
+  .button-group.quickFilterButtons{
+    display: none;
   }
 }
 

@@ -95,6 +95,12 @@ var quickFilterBar = {
       }
     });
 
+    document.getElementById("qfd-dropdown").addEventListener("click", event => {
+      document
+        .getElementById("quickFilterButtonsContext")
+        .openPopup(event.target, { triggerEvent: event });
+    });
+
     for (let buttonGroup of this.rovingGroups) {
       buttonGroup.addEventListener("keypress", event => {
         this.triggerQFTRovingTab(event);
@@ -197,10 +203,12 @@ var quickFilterBar = {
   _bindUI() {
     for (let filterDef of QuickFilterManager.filterDefs) {
       let domNode = document.getElementById(filterDef.domId);
+      let menuItemNode = document.getElementById(filterDef.menuItemID);
 
-      let handler;
+      let handlerDomId, handlerMenuItems;
+
       if (!("onCommand" in filterDef)) {
-        handler = event => {
+        handlerDomId = event => {
           try {
             let postValue = domNode.pressed ? true : null;
             this.filterer.setFilterValue(filterDef.name, postValue);
@@ -209,8 +217,20 @@ var quickFilterBar = {
             console.error(ex);
           }
         };
+        handlerMenuItems = event => {
+          try {
+            let postValue = menuItemNode.hasAttribute("checked") ? true : null;
+            this.filterer.setFilterValue(filterDef.name, postValue);
+            this.deferredUpdateSearch();
+          } catch (ex) {
+            console.error(ex);
+          }
+        };
       } else {
-        handler = event => {
+        handlerDomId = event => {
+          if (filterDef.name == "tags") {
+            filterDef.callID = "button";
+          }
           let filterValues = this.filterer.filterValues;
           let preValue =
             filterDef.name in filterValues
@@ -227,16 +247,54 @@ var quickFilterBar = {
             this.deferredUpdateSearch(domNode);
           }
         };
+        handlerMenuItems = event => {
+          if (filterDef.name == "tags") {
+            filterDef.callID = "menuItem";
+          }
+          let filterValues = this.filterer.filterValues;
+          let preValue =
+            filterDef.name in filterValues
+              ? filterValues[filterDef.name]
+              : null;
+          let [postValue, update] = filterDef.onCommand(
+            preValue,
+            menuItemNode,
+            event,
+            document
+          );
+          this.filterer.setFilterValue(filterDef.name, postValue, !update);
+          if (update) {
+            this.deferredUpdateSearch();
+          }
+        };
       }
+
       if (domNode.namespaceURI == document.documentElement.namespaceURI) {
-        domNode.addEventListener("click", handler);
+        domNode.addEventListener("click", handlerDomId);
       } else {
-        domNode.addEventListener("command", handler);
+        domNode.addEventListener("command", handlerDomId);
+      }
+      if (menuItemNode !== null) {
+        menuItemNode.addEventListener("command", handlerMenuItems);
       }
 
       if ("domBindExtra" in filterDef) {
         filterDef.domBindExtra(document, this, domNode);
       }
+    }
+  },
+
+  /**
+   * Ensure all the quick filter menuitems in the quick filter dropdown menu are
+   * checked to reflect their current state.
+   */
+  updateCheckedStateQuickFilterButtons() {
+    for (let item of document.querySelectorAll(".quick-filter-menuitem")) {
+      if (Object.hasOwn(this.filterer.filterValues, `${item.value}`)) {
+        item.setAttribute("checked", true);
+        continue;
+      }
+      item.removeAttribute("checked");
     }
   },
 
@@ -256,6 +314,7 @@ var quickFilterBar = {
         }
 
         let domNode = document.getElementById(filterDef.domId);
+
         let value =
           filterDef.name in filterValues ? filterValues[filterDef.name] : null;
         if (!("reflectInDOM" in filterDef)) {

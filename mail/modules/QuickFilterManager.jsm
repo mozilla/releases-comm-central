@@ -383,7 +383,7 @@ var QuickFilterManager = {
    *     the state when unchecked.  Implement this function if that is not what
    *     you need.  The function should return a tuple of [new state, should
    *     update the search] as its result.
-   * @param {function(aDomNode, aFilterValue, aDoc, aMuxer)}
+   * @param {function(aDomNode, aFilterValue, aDoc, aMuxer, aCallId)}
    *     [aFilterDef.reflectInDOM]
    *     If omitted, we assume the widget referenced by domId has a checked
    *     attribute and assign the filter value coerced to a boolean to the
@@ -567,6 +567,7 @@ QuickFilterManager.defineFilter({
 QuickFilterManager.defineFilter({
   name: "unread",
   domId: "qfb-unread",
+  menuItemID: "quickFilterButtonsContextUnreadToggle",
   appendTerms(aTermCreator, aTerms, aFilterValue) {
     let term, value;
     term = aTermCreator.createTerm();
@@ -587,6 +588,7 @@ QuickFilterManager.defineFilter({
 QuickFilterManager.defineFilter({
   name: "starred",
   domId: "qfb-starred",
+  menuItemID: "quickFilterButtonsContextStarredToggle",
   appendTerms(aTermCreator, aTerms, aFilterValue) {
     let term, value;
     term = aTermCreator.createTerm();
@@ -607,6 +609,7 @@ QuickFilterManager.defineFilter({
 QuickFilterManager.defineFilter({
   name: "addrBook",
   domId: "qfb-inaddrbook",
+  menuItemID: "quickFilterButtonsContextInaddrbookToggle",
   appendTerms(aTermCreator, aTerms, aFilterValue) {
     let term, value;
     let firstBook = true;
@@ -650,6 +653,8 @@ QuickFilterManager.defineFilter({
 var TagFacetingFilter = {
   name: "tags",
   domId: "qfb-tags",
+  menuItemID: "quickFilterButtonsContextTagsToggle",
+  callID: "",
 
   /**
    * @returns true if the constaint is only on has tags/does not have tags,
@@ -823,7 +828,13 @@ var TagFacetingFilter = {
    * - We want to initiate a faceting pass if we just got checked.
    */
   onCommand(aState, aNode, aEvent, aDocument) {
-    let checked = aNode.pressed ? true : null;
+    let checked;
+    if (aNode.tagName == "button") {
+      checked = aNode.pressed ? true : null;
+    } else {
+      checked = aNode.hasAttribute("checked") ? true : null;
+    }
+
     if (!checked) {
       aDocument.getElementById("quickFilterBarTagsContainer").hidden = true;
     }
@@ -847,8 +858,14 @@ var TagFacetingFilter = {
       .addEventListener("ValueChange", commandHandler);
   },
 
-  reflectInDOM(aNode, aFilterValue, aDocument, aMuxer) {
-    aNode.pressed = aFilterValue;
+  reflectInDOM(aNode, aFilterValue, aDocument, aMuxer, aCallId) {
+    if (aCallId !== null && aCallId == "menuItem") {
+      aFilterValue
+        ? aNode.setAttribute("checked", aFilterValue)
+        : aNode.removeAttribute("checked");
+    } else {
+      aNode.pressed = aFilterValue;
+    }
     if (aFilterValue != null && typeof aFilterValue == "object") {
       this._populateTagBar(aFilterValue, aDocument, aMuxer);
     } else {
@@ -954,6 +971,7 @@ QuickFilterManager.defineFilter(TagFacetingFilter);
 QuickFilterManager.defineFilter({
   name: "attachment",
   domId: "qfb-attachment",
+  menuItemID: "quickFilterButtonsContextAttachmentToggle",
   appendTerms(aTermCreator, aTerms, aFilterValue) {
     let term, value;
     term = aTermCreator.createTerm();

@@ -45,6 +45,26 @@ thread-pane-header-context-hide =
 quick-filter-bar-sticky =
     .title = Keep filters applied when switching folders
 
+# The tooltip for the filter button that replaces the quick filter buttons with
+# a dropdown menu.
+quick-filter-bar-dropdown =
+    .title = Quick filter menu
+
+quick-filter-bar-dropdown-unread =
+    .label = Unread
+
+quick-filter-bar-dropdown-starred =
+    .label = Starred
+
+quick-filter-bar-dropdown-inaddrbook =
+    .label = Contact
+
+quick-filter-bar-dropdown-tags =
+    .label = Tags
+
+quick-filter-bar-dropdown-attachment =
+    .label = Attachment
+
 # The tooltip for the filter button that causes us to filter results to only
 # include unread messages.
 quick-filter-bar-unread =
