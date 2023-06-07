@@ -37,12 +37,6 @@ interface nsIMsgWindow : nsISupports {
   readonly attribute nsIDocShell messageWindowDocShell;
 
   /**
-   * These are currently used to set notification callbacks on
-   * protocol channels to handle things like bad cert exceptions.
-   */
-  attribute nsIInterfaceRequestor notificationCallbacks;
-
-  /**
     Has a running url been stopped? If you care about checking
     this flag, you need to clear it before you start your operation since
     there's no convenient place to clear it.

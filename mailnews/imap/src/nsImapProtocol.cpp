@@ -880,23 +880,6 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
       if (channelListener)  // only over-ride if we have a non null channel
                             // listener
         aRealStreamListener = channelListener;
-      nsCOMPtr<nsIMsgWindow> msgWindow;
-      GetMsgWindow(getter_AddRefs(msgWindow));
-      if (!msgWindow) GetTopmostMsgWindow(getter_AddRefs(msgWindow));
-      if (msgWindow) {
-        // Set up the MockChannel to attempt nsIProgressEventSink callbacks on
-        // the messageWindow, with fallback to the docShell (and the
-        // loadgroup).
-        nsCOMPtr<nsIDocShell> docShell;
-        msgWindow->GetMessageWindowDocShell(getter_AddRefs(docShell));
-        nsCOMPtr<nsIInterfaceRequestor> ir(do_QueryInterface(docShell));
-        nsCOMPtr<nsIInterfaceRequestor> interfaceRequestor;
-        msgWindow->GetNotificationCallbacks(getter_AddRefs(interfaceRequestor));
-        nsCOMPtr<nsIInterfaceRequestor> aggregateIR;
-        NS_NewInterfaceRequestorAggregation(interfaceRequestor, ir,
-                                            getter_AddRefs(aggregateIR));
-        m_mockChannel->SetNotificationCallbacks(aggregateIR);
-      }
     }
 
     // since we'll be making calls directly from the imap thread to the channel

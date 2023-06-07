@@ -355,21 +355,10 @@ class ConfigVerifier {
    */
   verifyLogon() {
     this._log.info("verifyLogon for server at " + this.server.hostName);
-    // Save away the old callbacks.
-    let saveCallbacks = this.msgWindow.notificationCallbacks;
-    // Set our own callbacks - this works because verifyLogon will
-    // synchronously create the transport and use the notification callbacks.
-    // Our listener listens both for the url and cert errors.
-    this.msgWindow.notificationCallbacks = this;
-    // try to work around bug where backend is clearing password.
-    try {
-      this.server.password = this.config.incoming.password;
-      let uri = this.server.verifyLogon(this, this.msgWindow);
-      // clear msgWindow so url won't prompt for passwords.
-      uri.QueryInterface(Ci.nsIMsgMailNewsUrl).msgWindow = null;
-    } finally {
-      // restore them
-      this.msgWindow.notificationCallbacks = saveCallbacks;
-    }
+
+    this.server.password = this.config.incoming.password;
+    let uri = this.server.verifyLogon(this, this.msgWindow);
+    // clear msgWindow so url won't prompt for passwords.
+    uri.QueryInterface(Ci.nsIMsgMailNewsUrl).msgWindow = null;
   }
 }
