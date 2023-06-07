@@ -3107,10 +3107,14 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
           }
           nsCString folderURI;
           folder->GetURI(folderURI);
+          folderURI.Insert('|', 0);
+          folderURI.Append('|');
 
           int32_t index = searchURI.Find(folderURI);
           if (index == kNotFound) {
             searchURI.Cut(0, 1);
+            folderURI.Cut(0, 1);
+            folderURI.SetLength(folderURI.Length() - 1);
             searchURI.Append(folderURI);
             dbFolderInfo->SetCharProperty(kSearchFolderUriProp, searchURI);
             nsCOMPtr<nsIObserverService> obs =
@@ -3208,8 +3212,12 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderRemoved(nsIMsgFolder* parentFolder,
         // remove last '|' we added
         searchURI.SetLength(searchURI.Length() - 1);
 
-        // if saved search is empty now, delete it.
-        if (searchURI.IsEmpty()) {
+        uint32_t vfFolderFlag;
+        dbFolderInfo->GetUint32Property("searchFolderFlag", 0, &vfFolderFlag);
+
+        // If saved search is empty now, delete it. But not if it's a smart
+        // folder.
+        if (searchURI.IsEmpty() && !vfFolderFlag) {
           db = nullptr;
           dbFolderInfo = nullptr;
 
@@ -3220,8 +3228,11 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderRemoved(nsIMsgFolder* parentFolder,
           if (!parent) continue;
           parent->PropagateDelete(savedSearch, true);
         } else {
-          // remove leading '|' we added (or one after |folderURI, if first URI)
-          searchURI.Cut(0, 1);
+          if (!searchURI.IsEmpty()) {
+            // Remove leading '|' we added (or one after |folderURI, if first
+            // URI).
+            searchURI.Cut(0, 1);
+          }
           dbFolderInfo->SetCharProperty(kSearchFolderUriProp, searchURI);
           nsCOMPtr<nsIObserverService> obs =
               mozilla::services::GetObserverService();

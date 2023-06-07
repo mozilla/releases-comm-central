@@ -3471,10 +3471,11 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
 
     child->SetParent(nullptr);
     rv = child->RecursiveDelete(deleteStorage);
-    if (NS_SUCCEEDED(rv))
+    if (NS_SUCCEEDED(rv)) {
       // unlink it from this child's list
       mSubFolders.RemoveObjectAt(0);
-    else {
+      NotifyFolderRemoved(child);
+    } else {
       // setting parent back if we failed for some reason
       child->SetParent(this);
       break;
