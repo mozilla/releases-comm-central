@@ -838,7 +838,7 @@
       let endIndex = startIndex + shadows - 1;
 
       // All columns have the same orient and pixels per minutes.
-      let sizeAttr = this.getAttribute("orient") == "vertical" ? "height" : "width";
+      let sizeProp = this.getAttribute("orient") == "vertical" ? "height" : "width";
       let pixPerMin = this.pixelsPerMinute;
 
       for (let i = 0; i < allColumns.length; i++) {
@@ -846,25 +846,24 @@
         if (i == startIndex) {
           fgboxes.dragbox.setAttribute("dragging", "true");
           fgboxes.box.setAttribute("dragging", "true");
-          fgboxes.dragspacer.setAttribute(sizeAttr, startMin * pixPerMin);
-          fgboxes.dragbox.setAttribute(
-            sizeAttr,
+          fgboxes.dragspacer.style[sizeProp] = `${startMin * pixPerMin}px`;
+          fgboxes.dragbox.style[sizeProp] = `${
             ((i == endIndex ? endMin : MINUTES_IN_DAY) - startMin) * pixPerMin
-          );
+          }px`;
           fgboxes.startlabel.value = startStr;
           fgboxes.endlabel.value = i == endIndex ? endStr : "";
         } else if (i == endIndex) {
           fgboxes.dragbox.setAttribute("dragging", "true");
           fgboxes.box.setAttribute("dragging", "true");
-          fgboxes.dragspacer.setAttribute(sizeAttr, 0);
-          fgboxes.dragbox.setAttribute(sizeAttr, endMin * pixPerMin);
+          fgboxes.dragspacer.style[sizeProp] = "0";
+          fgboxes.dragbox.style[sizeProp] = `${endMin * pixPerMin}px`;
           fgboxes.startlabel.value = "";
           fgboxes.endlabel.value = endStr;
         } else if (i > startIndex && i < endIndex) {
           fgboxes.dragbox.setAttribute("dragging", "true");
           fgboxes.box.setAttribute("dragging", "true");
-          fgboxes.dragspacer.setAttribute(sizeAttr, 0);
-          fgboxes.dragbox.setAttribute(sizeAttr, MINUTES_IN_DAY * pixPerMin);
+          fgboxes.dragspacer.style[sizeProp] = "0";
+          fgboxes.dragbox.style[sizeProp] = `${MINUTES_IN_DAY * pixPerMin}px`;
           fgboxes.startlabel.value = "";
           fgboxes.endlabel.value = "";
         } else {
