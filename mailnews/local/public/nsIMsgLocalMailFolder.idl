@@ -46,8 +46,22 @@ interface nsIMsgLocalMailFolder : nsISupports {
    */
   nsIMsgDatabase getDatabaseWithReparse(in nsIUrlListener aReparseUrlListener, in nsIMsgWindow aMsgWindow);
   void parseFolder(in nsIMsgWindow aMsgWindow, in nsIUrlListener listener);
-  void copyFolderLocal(in nsIMsgFolder srcFolder, in boolean isMove, in nsIMsgWindow msgWindow, in nsIMsgCopyServiceListener listener );
-  void copyAllSubFolders(in nsIMsgFolder srcFolder, in nsIMsgWindow msgWindow, in nsIMsgCopyServiceListener listener );
+  void copyFolderLocal(in nsIMsgFolder srcFolder, in boolean isMove, in nsIMsgWindow msgWindow, in nsIMsgCopyServiceListener listener);
+
+  /**
+   * Does copy of same level subfolders of the srcFolder to the destination
+   * (this) local folder. If isMove is true, the messages in the subfolders are
+   * deleted (or marked deleted if source is imap) after the copy completes; so
+   * effectively, the folders are copied and only the messages are moved.
+   *
+   * @param srcFolder The folder one level above subfolders being copied
+   * @param msgWindow Window for notification callbacks, can be null
+   * @param listener  Listener which receive operation notifications, can be null
+   * @param isMove    If true, after copy completes, delete the source messages
+   */
+  void copyAllSubFolders(in nsIMsgFolder srcFolder, in nsIMsgWindow msgWindow,
+                         in nsIMsgCopyServiceListener listener, in boolean isMove);
+
   void onCopyCompleted(in nsISupports aSrcSupport, in boolean aMoveCopySucceeded);
   attribute boolean checkForNewMessagesAfterParsing;
   void markMsgsOnPop3Server(in Array<nsIMsgDBHdr> aMessages, in int32_t aMark);

@@ -198,7 +198,8 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
                               nsIMsgFolder** folder) override;
   nsresult CopyFolderAcrossServer(nsIMsgFolder* srcFolder,
                                   nsIMsgWindow* msgWindow,
-                                  nsIMsgCopyServiceListener* listener);
+                                  nsIMsgCopyServiceListener* listener,
+                                  bool moveMsgs);
 
   nsresult CreateSubFolders(nsIFile* path);
   nsresult GetTrashFolder(nsIMsgFolder** trashFolder);
