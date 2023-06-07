@@ -91,6 +91,7 @@
 /* buttons are disabled in the preview, but we want them to look active. */
 .toolbar-target .unified-toolbar-button[disabled] {
   color: inherit;
+  opacity: 1;
 }
 
 [is="customization-target"] [is="customizable-element"] .live-content {
