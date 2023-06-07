@@ -10,6 +10,7 @@ import {
   MULTIPLE_ALLOWED_ITEM_IDS,
   EXTENSION_PREFIX,
   getAvailableItemIdsForSpace,
+  getDefaultItemIdsForSpace,
 } from "resource:///modules/CustomizableItems.sys.mjs";
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
@@ -223,26 +224,35 @@ function getGlobalItems(extensionIds) {
  * Filters out any items not available and items that appear multiple times, if
  * they can't be repeated. The first instance is kept.
  *
+ * If there is no old toolbar for the given space, only the global items are
+ * returned.
+ *
  * @param {string} space - Name of the space to get the items for.
  * @param {string[]} extensionIds - Available extensions in the profile.
  * @returns {string[]} Unified toolbar item IDs based on the old contents of the
  *   xul toolbar of the space.
  */
 function getItemsForSpace(space, extensionIds) {
-  const spaceContent = convertContents(
-    getOldToolbarContents(TOOLBAR_FOR_SPACE[space]),
-    extensionIds
-  );
+  let spaceContent = [];
+  if (TOOLBAR_FOR_SPACE.hasOwnProperty(space)) {
+    spaceContent = convertContents(
+      getOldToolbarContents(TOOLBAR_FOR_SPACE[space]),
+      extensionIds
+    );
+  } else {
+    spaceContent = getDefaultItemIdsForSpace(space);
+  }
   const newContents = [...spaceContent, ...getGlobalItems(extensionIds)];
   const availableItems = getAvailableItemIdsForSpace(space, true).concat(
     extensionIds.map(id => `${EXTENSION_PREFIX}${id}`)
   );
   const encounteredItems = new Set();
-  const finalItems = newContents.filter(itemId => {
+  const finalItems = newContents.filter((itemId, index, items) => {
     if (
       (encounteredItems.has(itemId) &&
         !MULTIPLE_ALLOWED_ITEM_IDS.has(itemId)) ||
-      !availableItems.includes(itemId)
+      !availableItems.includes(itemId) ||
+      (itemId === "spacer" && index > 0 && items[index - 1] === itemId)
     ) {
       return false;
     }
@@ -289,6 +299,18 @@ function convertExtensionState(space, extensionIds) {
 }
 
 /**
+ * Remove all the persisted state of a XUL toolbar from the XUL store.
+ *
+ * @param {string} toolbarId - Element ID of the XUL toolbar to clear the state
+ *   of.
+ */
+export function clearXULToolbarState(toolbarId) {
+  Services.xulStore.removeValue(MESSENGER_WINDOW, toolbarId, "currentset");
+  Services.xulStore.removeValue(MESSENGER_WINDOW, toolbarId, "defaultset");
+  Services.xulStore.removeValue(MESSENGER_WINDOW, toolbarId, "extensionset");
+}
+
+/**
  * Migrate the old xul toolbar contents for a given space to the unified toolbar
  * if the unified toolbar has not yet been customized.
  *
@@ -306,27 +328,12 @@ export function migrateToolbarForSpace(space) {
   if (state[space]) {
     return;
   }
-  if (!TOOLBAR_FOR_SPACE.hasOwnProperty(space)) {
-    throw new Error(`Migration for space "${space}" not supported`);
-  }
   const extensionIds = getExtensionIds();
   state[space] = getItemsForSpace(space, extensionIds);
   storeState(state);
-  convertExtensionState(space, extensionIds);
-  // Remove all the state for the old toolbar of the space.
-  Services.xulStore.removeValue(
-    MESSENGER_WINDOW,
-    TOOLBAR_FOR_SPACE[space],
-    "currentset"
-  );
-  Services.xulStore.removeValue(
-    MESSENGER_WINDOW,
-    TOOLBAR_FOR_SPACE[space],
-    "defaultset"
-  );
-  Services.xulStore.removeValue(
-    MESSENGER_WINDOW,
-    TOOLBAR_FOR_SPACE[space],
-    "extensionset"
-  );
+  if (TOOLBAR_FOR_SPACE.hasOwnProperty(space)) {
+    convertExtensionState(space, extensionIds);
+    // Remove all the state for the old toolbar of the space.
+    clearXULToolbarState(TOOLBAR_FOR_SPACE[space]);
+  }
 }

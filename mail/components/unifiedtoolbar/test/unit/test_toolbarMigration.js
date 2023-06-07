@@ -4,9 +4,8 @@
 
 "use strict";
 
-const { migrateToolbarForSpace } = ChromeUtils.importESModule(
-  "resource:///modules/ToolbarMigration.sys.mjs"
-);
+const { migrateToolbarForSpace, clearXULToolbarState } =
+  ChromeUtils.importESModule("resource:///modules/ToolbarMigration.sys.mjs");
 const { getState, storeState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
 );
@@ -228,7 +227,6 @@ add_task(function test_calendar_migration_defaults() {
       "edit-event",
       "delete-event",
       "spacer",
-      "spacer",
     ],
     "Default states were combined and migrated"
   );
@@ -278,7 +276,6 @@ add_task(function test_tasks_migration() {
       "delete-event",
       "print-event",
       "spacer",
-      "spacer",
       "add-ons-and-themes",
     ],
     "Items were combined and migrated"
@@ -321,7 +318,6 @@ add_task(function test_tasks_migration_defaults() {
       "edit-event",
       "delete-event",
       "spacer",
-      "spacer",
     ],
     "Default states were combined and migrated"
   );
@@ -343,4 +339,66 @@ add_task(function test_tasks_migration_defaults() {
   );
 
   storeState({});
+});
+
+add_task(function test_global_items_migration() {
+  setXULToolbarState(
+    "menubar-items,spring,button-addons",
+    "",
+    "toolbar-menubar"
+  );
+  setXULToolbarState("button-delete", "", "tabbar-toolbar");
+
+  migrateToolbarForSpace("settings");
+
+  const newState = getState();
+
+  Assert.deepEqual(newState.settings, [
+    "spacer",
+    "search-bar",
+    "spacer",
+    "add-ons-and-themes",
+  ]);
+
+  storeState({});
+});
+
+add_task(function test_global_items_migration_defaults() {
+  setXULToolbarState("", "", "toolbar-menubar");
+  setXULToolbarState("", "", "tabbar-toolbar");
+
+  migrateToolbarForSpace("settings");
+
+  const newState = getState();
+
+  Assert.deepEqual(newState.settings, ["spacer", "search-bar", "spacer"]);
+
+  storeState({});
+});
+
+add_task(function test_clear_xul_toolbar_state() {
+  setXULToolbarState(
+    "menubar-items,spring,button-addons",
+    "menubar-items,spring",
+    "toolbar-menubar"
+  );
+
+  clearXULToolbarState("toolbar-menubar");
+
+  Assert.ok(
+    !Services.xulStore.hasValue(
+      MESSENGER_WINDOW,
+      "toolbar-menubar",
+      "currentset"
+    ),
+    "Old toolbar state is cleared"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(
+      MESSENGER_WINDOW,
+      "toolbar-menubar",
+      "defaultset"
+    ),
+    "Old toolbar default state is cleared"
+  );
 });

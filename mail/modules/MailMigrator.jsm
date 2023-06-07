@@ -25,6 +25,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   EventEmitter: "resource://gre/modules/EventEmitter.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
   migrateToolbarForSpace: "resource:///modules/ToolbarMigration.sys.mjs",
+  clearXULToolbarState: "resource:///modules/ToolbarMigration.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
@@ -651,6 +652,12 @@ var MailMigrator = {
       if (currentUIVersion < 38) {
         lazy.migrateToolbarForSpace("calendar");
         lazy.migrateToolbarForSpace("tasks");
+        lazy.migrateToolbarForSpace("chat");
+        lazy.migrateToolbarForSpace("settings");
+        lazy.migrateToolbarForSpace("addressbook");
+        // Clear menubar and tabbar XUL toolbar state.
+        lazy.clearXULToolbarState("tabbar-toolbar");
+        lazy.clearXULToolbarState("toolbar-menubar");
       }
 
       // Migration tasks that may take a long time are not run immediately, but
