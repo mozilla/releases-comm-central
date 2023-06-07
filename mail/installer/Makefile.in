@@ -26,7 +26,6 @@ MOZ_CHROME_LOCALE_ENTRIES=@RESPATH@/chrome/
 
 MOZ_PKG_DUPEFLAGS = \
 	-f $(srcdir)/allowed-dupes.mn \
-	-f $(topsrcdir)/browser/installer/allowed-dupes.mn \
 	$(NULL)
 
 MOZ_NONLOCALIZED_PKG_LIST = \

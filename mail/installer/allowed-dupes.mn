@@ -7,23 +7,15 @@
 
 # browser (see bug 1451050, bug 1476934, 1818999)
 defaults/settings/main/anti-tracking-url-decoration.json
-defaults/settings/main/example.json
-defaults/settings/main/url-classifier-skip-urls.json
 defaults/settings/thunderbird/anti-tracking-url-decoration.json
-defaults/settings/thunderbird/hijack-blocklists.json
 
 # mail
-chrome/chat/content/chat/conv.html
-chrome/classic/skin/classic/messenger/icons/accounts.svg
 chrome/classic/skin/classic/messenger/icons/addon-install-confirm.svg
 chrome/classic/skin/classic/messenger/icons/new-mail-alert.png
-chrome/classic/skin/classic/messenger/icons/spelling.svg
 chrome/classic/skin/classic/messenger/icons/connection-insecure.svg
 chrome/classic/skin/classic/messenger/icons/message-encrypted-notok.svg
 chrome/classic/skin/classic/messenger/icons/new/compact/compress.svg
 chrome/classic/skin/classic/messenger/icons/new/compact/density-compact.svg
-chrome/classic/skin/classic/messenger/openpgp/openPgpComposeStatus.css
-chrome/classic/skin/classic/messenger/smime/msgCompSecurityInfo.css
 chrome/messenger/content/branding/icon32.png
 chrome/messenger/content/branding/icon48.png
 chrome/messenger/content/branding/icon64.png
@@ -35,66 +27,27 @@ chrome/messenger/skin/classic/messenger/messages/simple/Incoming/Context.html
 chrome/messenger/skin/classic/messenger/messages/simple/Incoming/NextContext.html
 chrome/messenger/skin/classic/messenger/messages/mail/Incoming/buddy_icon.svg
 chrome/messenger/skin/classic/messenger/messages/mail/Outgoing/buddy_icon.svg
-chrome/devtools/modules/devtools/client/themes/splitters.css
-chrome/devtools/skin/splitters.css
 chrome/icons/default/default32.png
 chrome/icons/default/default48.png
 chrome/icons/default/default64.png
 chrome/icons/default/default128.png
 chrome/icons/default/default256.png
 
-# calendar
-components/calUtils.js
-chrome/calendar/content/calUtils.js
-
 # Variants of paths in mozilla/browser/installer/allowed-dupes.mn:
 # bug 658850
 @MOZ_APP_NAME@
 @MOZ_APP_NAME@-bin
-# devtools reduction is bug 1311178
-chrome/devtools/content/dom/content/dom-view.css
-chrome/devtools/content/dom/index.html
-chrome/devtools/content/dom/main.js
-chrome/devtools/content/framework/toolbox-options.js
-chrome/devtools/content/inspector/fonts/fonts.js
-chrome/devtools/content/inspector/index.xhtml
-chrome/devtools/content/memory/initializer.js
-chrome/devtools/content/projecteditor/lib/helpers/readdir.js
-chrome/devtools/content/shared/frame-script-utils.js
-chrome/devtools/content/shared/theme-switching.js
-chrome/devtools/modules/devtools/client/dom/content/dom-view.css
-chrome/devtools/modules/devtools/client/dom/index.html
-chrome/devtools/modules/devtools/client/dom/main.js
-chrome/devtools/modules/devtools/client/framework/toolbox-options.js
-chrome/devtools/modules/devtools/client/inspector/fonts/fonts.js
-chrome/devtools/modules/devtools/client/inspector/index.xhtml
-chrome/devtools/modules/devtools/client/jsonview/css/controls.png
-chrome/devtools/modules/devtools/client/jsonview/css/controls@2x.png
-chrome/devtools/modules/devtools/client/memory/initializer.js
-chrome/devtools/modules/devtools/client/projecteditor/lib/helpers/readdir.js
-chrome/devtools/modules/devtools/client/shared/frame-script-utils.js
-chrome/devtools/modules/devtools/client/shared/theme-switching.js
-chrome/devtools/modules/devtools/client/themes/common.css
-chrome/devtools/modules/devtools/client/themes/toolbars.css
-chrome/devtools/modules/devtools/client/themes/variables.css
-chrome/devtools/skin/common.css
-chrome/devtools/skin/toolbars.css
-chrome/devtools/skin/images/controls.png
-chrome/devtools/skin/images/controls@2x.png
-chrome/devtools/skin/images/debugger-blackbox.svg
-chrome/devtools/skin/images/debugger-prettyprint.svg
-chrome/devtools/skin/images/filetypes/store.svg
-chrome/devtools/skin/images/itemToggle.svg
-chrome/devtools/skin/images/security-state-broken.svg
-chrome/devtools/skin/images/security-state-local.svg
-chrome/devtools/skin/images/security-state-secure.svg
-chrome/devtools/skin/images/tabs-icon.svg
-chrome/devtools/skin/images/tool-storage.svg
-chrome/devtools/skin/images/tool-styleeditor.svg
-chrome/devtools/skin/promisedebugger.css
-chrome/devtools/skin/variables.css
-modules/devtools/client/framework/gDevTools.jsm
-modules/devtools/gDevTools.jsm
+
+# Row and column icons are duplicated
+res/table-remove-column-active.gif
+res/table-remove-row-active.gif
+res/table-remove-column-hover.gif
+res/table-remove-row-hover.gif
+res/table-remove-column.gif
+res/table-remove-row.gif
+
+res/multilocale.txt
+update.locale
 
 # Bug 1496075 - Switch searchplugins to Web Extensions
 chrome/messenger/search-extensions/amazon/favicon.ico
@@ -102,10 +55,6 @@ chrome/messenger/search-extensions/amazondotcn/favicon.ico
 chrome/messenger/search-extensions/amazondotcom/favicon.ico
 chrome/messenger/search-extensions/mercadolibre/favicon.ico
 chrome/messenger/search-extensions/mercadolivre/favicon.ico
-
-# Bug 1699889 - Temporarily cloned icons will be resolved when toolkit svgs updated
-chrome/toolkit/skin/classic/global/icons/check.svg
-chrome/devtools/skin/images/check.svg
 
 # Windows artifact builds hack - bug 1714650
 chrome/remote/content/server/HTTPD.jsm
