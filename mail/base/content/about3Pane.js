@@ -2370,7 +2370,13 @@ var folderPane = {
 
     if (event.button == 2) {
       // Mouse
+      if (event.target.closest(".mode-container")) {
+        return;
+      }
       let row = event.target.closest("li");
+      if (!row) {
+        return;
+      }
       if (row.uri != gFolder.URI) {
         // The right-clicked-on folder is not `gFolder`. Tell the context menu
         // to use it instead. This override lasts until the context menu fires
