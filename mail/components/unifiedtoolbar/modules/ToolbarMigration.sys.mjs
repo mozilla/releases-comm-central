@@ -14,14 +14,11 @@ import {
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
-const { ExtensionCommon } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionCommon.jsm"
-);
-
 const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   getCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.jsm",
   setCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.jsm",
+  ExtensionCommon: "resource://gre/modules/ExtensionCommon.jsm",
 });
 
 /**
@@ -69,6 +66,22 @@ const MIGRATION_MAP = {
   extractEventButton: "add-as-event",
   extractTaskButton: "add-as-task",
   "menubar-items": null,
+  "calendar-synchronize-button": "synchronize",
+  "calendar-newevent-button": "new-event",
+  "calendar-newtask-button": "new-task",
+  "calendar-goto-today-button": "go-to-today",
+  "calendar-edit-button": "edit-event",
+  "calendar-delete-button": "delete-event",
+  "calendar-print-button": "print-event",
+  "calendar-unifinder-button": "unifinder",
+  "calendar-appmenu-button": null,
+  "task-synchronize-button": "synchronize",
+  "task-newevent-button": "new-event",
+  "task-newtask-button": "new-task",
+  "task-edit-button": "edit-event",
+  "task-delete-button": "delete-event",
+  "task-print-button": "print-event",
+  "task-appmenu-button": null,
 };
 
 /**
@@ -76,6 +89,8 @@ const MIGRATION_MAP = {
  */
 const TOOLBAR_FOR_SPACE = {
   mail: "mail-bar3",
+  calendar: "calendar-toolbar2",
+  tasks: "task-toolbar2",
 };
 
 /**
@@ -96,6 +111,10 @@ const XUL_TOOLBAR_DEFAULT_SET = {
       : "button-getmsg,button-newmsg,separator,button-tag,qfb-show-filter-bar,spring,gloda-search,button-appmenu",
   "tabbar-toolbar": "",
   "toolbar-menubar": "menubar-items,spring",
+  "calendar-toolbar2":
+    "calendar-synchronize-button,calendar-newevent-button,calendar-newtask-button,calendar-edit-button,calendar-delete-button,spring,calendar-appmenu-button",
+  "task-toolbar2":
+    "task-synchronize-button,task-newevent-button,task-newtask-button,task-edit-button,task-delete-button,spring,task-appmenu-button",
 };
 const MESSENGER_WINDOW = "chrome://messenger/content/messenger.xhtml";
 const EXTENSION_WIDGET_SUFFIX = "-browserAction-toolbarbutton";
@@ -123,7 +142,7 @@ function getExtensionIds() {
 function getExtensionIdFromExtensionButton(buttonId, extensionIds) {
   const widgetId = buttonId.slice(0, -EXTENSION_WIDGET_SUFFIX.length);
   return extensionIds.find(
-    extensionId => ExtensionCommon.makeWidgetId(extensionId) === widgetId
+    extensionId => lazy.ExtensionCommon.makeWidgetId(extensionId) === widgetId
   );
 }
 

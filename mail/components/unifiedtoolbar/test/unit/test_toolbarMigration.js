@@ -158,3 +158,189 @@ add_task(function test_migration_noop() {
 
   storeState({});
 });
+
+add_task(function test_calendar_migration() {
+  setXULToolbarState(
+    "calendar-synchronize-button,calendar-newevent-button,separator,calendar-edit-button,calendar-delete-button,spring,calendar-unifinder-button,calendar-appmenu-button",
+    "",
+    "calendar-toolbar2"
+  );
+  setXULToolbarState(
+    "menubar-items,spring,button-addons",
+    "",
+    "toolbar-menubar"
+  );
+  setXULToolbarState("button-delete", "", "tabbar-toolbar");
+
+  migrateToolbarForSpace("calendar");
+
+  const newState = getState();
+
+  Assert.deepEqual(
+    newState.calendar,
+    [
+      "synchronize",
+      "new-event",
+      "edit-event",
+      "delete-event",
+      "spacer",
+      "unifinder",
+      "spacer",
+      "add-ons-and-themes",
+    ],
+    "Items were combined and migrated"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(
+      MESSENGER_WINDOW,
+      "calendar-toolbar2",
+      "currentset"
+    ),
+    "Old toolbar state is cleared"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(
+      MESSENGER_WINDOW,
+      "calendar-toolbar2",
+      "defaultset"
+    ),
+    "Old toolbar default state is cleared"
+  );
+
+  storeState({});
+});
+
+add_task(function test_calendar_migration_defaults() {
+  setXULToolbarState("", "", "calendar-toolbar2");
+  setXULToolbarState("", "", "toolbar-menubar");
+  setXULToolbarState("", "", "tabbar-toolbar");
+
+  migrateToolbarForSpace("calendar");
+
+  const newState = getState();
+
+  Assert.deepEqual(
+    newState.calendar,
+    [
+      "synchronize",
+      "new-event",
+      "new-task",
+      "edit-event",
+      "delete-event",
+      "spacer",
+      "spacer",
+    ],
+    "Default states were combined and migrated"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(
+      MESSENGER_WINDOW,
+      "calendar-toolbar2",
+      "currentset"
+    ),
+    "Old toolbar state is cleared"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(
+      MESSENGER_WINDOW,
+      "calendar-toolbar2",
+      "defaultset"
+    ),
+    "Old toolbar default state is cleared"
+  );
+
+  storeState({});
+});
+
+add_task(function test_tasks_migration() {
+  setXULToolbarState(
+    "task-synchronize-button,task-newtask-button,task-edit-button,task-delete-button,task-print-button,spring,task-appmenu-button",
+    "",
+    "task-toolbar2"
+  );
+  setXULToolbarState(
+    "menubar-items,spring,button-addons",
+    "",
+    "toolbar-menubar"
+  );
+  setXULToolbarState("button-delete", "", "tabbar-toolbar");
+
+  migrateToolbarForSpace("tasks");
+
+  const newState = getState();
+
+  Assert.deepEqual(
+    newState.tasks,
+    [
+      "synchronize",
+      "new-task",
+      "edit-event",
+      "delete-event",
+      "print-event",
+      "spacer",
+      "spacer",
+      "add-ons-and-themes",
+    ],
+    "Items were combined and migrated"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(
+      MESSENGER_WINDOW,
+      "task-toolbar2",
+      "currentset"
+    ),
+    "Old toolbar state is cleared"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(
+      MESSENGER_WINDOW,
+      "task-toolbar2",
+      "defaultset"
+    ),
+    "Old toolbar default state is cleared"
+  );
+
+  storeState({});
+});
+
+add_task(function test_tasks_migration_defaults() {
+  setXULToolbarState("", "", "task-toolbar2");
+  setXULToolbarState("", "", "toolbar-menubar");
+  setXULToolbarState("", "", "tabbar-toolbar");
+
+  migrateToolbarForSpace("tasks");
+
+  const newState = getState();
+
+  Assert.deepEqual(
+    newState.tasks,
+    [
+      "synchronize",
+      "new-event",
+      "new-task",
+      "edit-event",
+      "delete-event",
+      "spacer",
+      "spacer",
+    ],
+    "Default states were combined and migrated"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(
+      MESSENGER_WINDOW,
+      "task-toolbar2",
+      "currentset"
+    ),
+    "Old toolbar state is cleared"
+  );
+  Assert.ok(
+    !Services.xulStore.hasValue(
+      MESSENGER_WINDOW,
+      "task-toolbar2",
+      "defaultset"
+    ),
+    "Old toolbar default state is cleared"
+  );
+
+  storeState({});
+});
