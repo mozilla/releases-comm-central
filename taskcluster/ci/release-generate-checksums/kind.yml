@@ -64,9 +64,9 @@ jobs:
                 by-release-level:
                     production:
                         stage_product: "thunderbird"
-                        bucket_name: "net-mozaws-prod-delivery-archive"
+                        bucket_name: "moz-fx-productdelivery-pr-38b5-productdelivery"
                     staging:
                         stage_product: "thunderbird"
-                        bucket_name: "net-mozaws-stage-delivery-archive"
+                        bucket_name: "moz-fx-productdelivery-no-7d6a-productdelivery"
         treeherder:
             platform: thunderbird-release/opt
