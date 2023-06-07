@@ -514,11 +514,7 @@ pref("browser.helperApps.deleteTempFileOnExit", true);
 #endif
 
 // Not used in Thunderbird.
-#ifdef NIGHTLY_BUILD
 pref("browser.startup.homepage.abouthome_cache.enabled", true);
-#else
-pref("browser.startup.homepage.abouthome_cache.enabled", false);
-#endif
 
 pref("spellchecker.dictionary", "");
 // Dictionary download preference
