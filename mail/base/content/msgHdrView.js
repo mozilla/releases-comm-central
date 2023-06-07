@@ -2479,6 +2479,8 @@ const gHeaderCustomize = {
    * @type {object}
    * @property {boolean} showAvatar - If the profile picutre of the sender
    *   should be showed.
+   * @property {boolean} showBigAvatar - If a big profile picutre of the sender
+   *   should be showed.
    * @property {boolean} showFullAddress - If the sender recipient should always
    *   show the full name and email address.
    * @property {boolean} hideLabels - If the labels column should be hidden.
@@ -2492,6 +2494,7 @@ const gHeaderCustomize = {
    */
   customizeData: {
     showAvatar: false,
+    showBigAvatar: false,
     showFullAddress: false,
     hideLabels: false,
     subjectLarge: false,
@@ -2549,6 +2552,11 @@ const gHeaderCustomize = {
     );
 
     header.classList.toggle(
+      "message-header-show-big-avatar",
+      this.customizeData.showBigAvatar || false
+    );
+
+    header.classList.toggle(
       "message-header-show-sender-full-address",
       this.customizeData.showFullAddress || false
     );
@@ -2596,6 +2604,9 @@ const gHeaderCustomize = {
     document.getElementById("headerShowAvatar").checked =
       this.customizeData.showAvatar || false;
 
+    document.getElementById("headerShowBigAvatar").checked =
+      this.customizeData.showBigAvatar || false;
+
     document.getElementById("headerShowFullAddress").checked =
       this.customizeData.showFullAddress || false;
 
@@ -2628,7 +2639,19 @@ const gHeaderCustomize = {
    * @param {Event} event - The checkbox command event.
    */
   toggleAvatar(event) {
-    this.customizeData.showAvatar = event.target.checked;
+    const isChecked = event.target.checked;
+    this.customizeData.showAvatar = isChecked;
+    document.getElementById("headerShowBigAvatar").disabled = !isChecked;
+    this.updateLayout();
+  },
+
+  /**
+   * Show big or small profile picture of the sender recipient.
+   *
+   * @param {Event} event - The checkbox command event.
+   */
+  toggleBigAvatar(event) {
+    this.customizeData.showBigAvatar = event.target.checked;
     this.updateLayout();
   },
 

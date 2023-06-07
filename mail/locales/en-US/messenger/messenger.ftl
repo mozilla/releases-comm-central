@@ -266,6 +266,10 @@ message-header-show-recipient-avatar =
     .label = Show sender’s profile picture
     .accesskey = p
 
+message-header-show-big-avatar =
+    .label = Larger profile picture
+    .accesskey = g
+
 message-header-hide-label-column =
     .label = Hide labels column
     .accesskey = l

@@ -32,6 +32,18 @@
   --recipient-multi-line-gap: 3px;
 }
 
+:root .message-header-show-big-avatar {
+  --recipient-avatar-size: 40px;
+}
+
+:root[uidensity="compact"] .message-header-show-big-avatar {
+  --recipient-avatar-size: 36px;
+}
+
+:root[uidensity="touch"] .message-header-show-big-avatar {
+  --recipient-avatar-size: 44px;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --recipient-avatar-color: var(--color-gray-40);

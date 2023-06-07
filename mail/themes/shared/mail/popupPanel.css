@@ -142,6 +142,11 @@ html|input.editContactTextbox[readonly] {
   margin-inline-start: 0;
 }
 
+.popup-panel label.indent,
+.popup-panel checkbox.indent {
+  margin-inline-start: 23px;
+}
+
 .popup-panel-buttons-container {
   display: flex;
   align-items: center;
