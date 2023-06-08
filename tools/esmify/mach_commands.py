@@ -77,7 +77,8 @@ def load_exclusion_files():
         with open(path, "r") as f:
             for line in f:
                 p = path_sep_to_native(re.sub("\*$", "", line.strip()))
-                excluded_from_imports_prefix.append(p)
+                # Drop the "comm/" prefix from ThirdPartyPaths.txt
+                excluded_from_imports_prefix.append(p[5:])
 
 
 def is_excluded_from_imports(path):
