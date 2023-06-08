@@ -386,6 +386,26 @@ function initializeHeaderViewTables() {
   }
 }
 
+/**
+ * Show security info dialog when keyboard shortcut it invoked.
+ * @param {Event} event - keypress event
+ */
+async function msgSecurityKeypressHandler(event) {
+  // Add the keyboard shortcut event listener for the message header.
+  // Ctrl+Alt+S / Cmd+Control+S. We don't use the Alt/Option key on macOS
+  // because it alters the pressed key to an ASCII character. See bug 1692263.
+  let shortcut = await document.l10n.formatValue(
+    "message-header-show-security-info-key"
+  );
+  if (
+    event.ctrlKey &&
+    (event.altKey || event.metaKey) &&
+    event.key.toLowerCase() == shortcut.toLowerCase()
+  ) {
+    showMessageReadSecurityInfo();
+  }
+}
+
 async function OnLoadMsgHeaderPane() {
   // Load any preferences that at are global with regards to
   // displaying a message...
@@ -408,21 +428,7 @@ async function OnLoadMsgHeaderPane() {
 
   initializeHeaderViewTables();
 
-  // Add the keyboard shortcut event listener for the message header.
-  // Ctrl+Alt+S / Cmd+Control+S. We don't use the Alt/Option key on macOS
-  // because it alters the pressed key to an ASCII character. See bug 1692263.
-  let shortcut = await document.l10n.formatValue(
-    "message-header-show-security-info-key"
-  );
-  top.document.addEventListener("keypress", event => {
-    if (
-      event.ctrlKey &&
-      (event.altKey || event.metaKey) &&
-      event.key.toLowerCase() == shortcut.toLowerCase()
-    ) {
-      showMessageReadSecurityInfo();
-    }
-  });
+  top.document.addEventListener("keypress", msgSecurityKeypressHandler);
 
   headerToolbarNavigation.init();
 
@@ -473,6 +479,8 @@ function OnUnloadMsgHeaderPane() {
   );
 
   clearFolderDBListener();
+
+  top.document.removeEventListener("keypress", msgSecurityKeypressHandler);
 
   // Dispatch an event letting any listeners know that we have unloaded
   // the message pane.
