@@ -2980,17 +2980,24 @@ var folderPane = {
    * Deletes everything (folders and messages) in the selected folder.
    * The folder is only emptied if it has the proper Junk flag.
    *
-   * @param [aFolder] - The folder to empty. If unspecified, the currently
-   *   selected folder is used, if it is junk.
+   * @param {nsIMsgFolder} folder - The folder to empty.
+   * @param {boolean} [prompt=true] - If the user should be prompted.
    */
-  emptyJunk(aFolder) {
-    let folder = aFolder;
-
+  emptyJunk(folder, prompt = true) {
     if (!folder || !folder.getFlag(Ci.nsMsgFolderFlags.Junk)) {
       return;
     }
 
-    if (!this._checkConfirmationPrompt("emptyJunk", folder)) {
+    if (prompt && !this._checkConfirmationPrompt("emptyJunk", folder)) {
+      return;
+    }
+
+    if (folder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
+      // This is the unified junk folder.
+      let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(folder);
+      for (let searchFolder of wrappedFolder.searchFolders) {
+        this.emptyJunk(searchFolder, false);
+      }
       return;
     }
 
@@ -2999,15 +3006,13 @@ var folderPane = {
       folder.propagateDelete(subFolder, true);
     }
 
+    let messages = [...folder.messages];
+    if (!messages.length) {
+      return;
+    }
+
     // Now delete the messages
-    folder.deleteMessages(
-      [...folder.messages],
-      top.msgWindow,
-      true,
-      false,
-      null,
-      false
-    );
+    folder.deleteMessages(messages, top.msgWindow, true, false, null, false);
   },
 
   /**
