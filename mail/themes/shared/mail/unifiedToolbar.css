@@ -7,6 +7,7 @@
 :root {
   --unified-toolbar-padding: 6px;
   --unified-drag-space: 30px;
+  --unified-customization-padding: 30px;
 }
 
 :root[uidensity="compact"] {
@@ -108,10 +109,11 @@ unified-toolbar-customization {
 .customizingUnifiedToolbar unified-toolbar-customization {
   display: flex;
   height: 100%;
-  background: var(--layout-background-3);
+  background-color: color-mix(in srgb, var(--layout-background-0) 50%, var(--color-black));
   color: var(--layout-color-1);
   flex: 1;
   overflow: hidden;
+  padding: var(--unified-customization-padding);
 }
 
 #customizationHeading {
@@ -123,10 +125,16 @@ unified-toolbar-customization {
 }
 
 #unifiedToolbarCustomizationContainer {
+  background-color: var(--layout-background-3);
+  border-radius: 6px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  position: relative;
   --customization-footer-padding: 12px;
+  box-shadow:
+    0 2px 12px -3px rgba(0, 0, 0, 0.5),
+    0 2px 24px -6px rgba(0, 0, 0, 0.5);
 }
 
 #unifiedToolbarCustomizationContainer div[role="tabpanel"] {
@@ -140,6 +148,7 @@ unified-toolbar-customization {
   align-items: center;
   user-select: none;
   background: var(--layout-background-1);
+  border-radius: 0 0 6px 6px;
   /* We need at least 1rem of padding to ensure the
    * #unifiedToolbarCustomizationUnsavedChanges can be displayed in it */
   padding-block: max(calc(var(--customization-footer-padding) * 2), 1rem);
@@ -162,8 +171,8 @@ unified-toolbar-customization {
 
 #unifiedToolbarCustomizationUnsavedChanges {
   position: fixed;
-  inset-block-end: calc((var(--customization-footer-padding) * 2 - 1em) / 2);
-  inset-inline-end: var(--customization-footer-padding);
+  inset-block-end: calc((var(--customization-footer-padding) * 2 - 1em) / 2 + var(--unified-customization-padding));
+  inset-inline-end: calc(var(--customization-footer-padding) + var(--unified-customization-padding));
 }
 
 #customizationTabs {
