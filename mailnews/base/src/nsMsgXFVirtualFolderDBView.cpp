@@ -471,6 +471,8 @@ nsMsgXFVirtualFolderDBView::OnNewSearch() {
       // Sort the results.
       m_sortValid = false;
       Sort(m_sortType, m_sortOrder);
+    } else if (mJSTree) {
+      mJSTree->Invalidate();
     }
   }
 
