@@ -133,8 +133,10 @@ export default class CustomizableElement extends HTMLLIElement {
     if (this.disabled) {
       this.attributeChangedCallback("disabled");
     }
-    this.querySelector(".preview-label").textContent =
-      extension.name || extensionId;
+    const previewLabel = this.querySelector(".preview-label");
+    const labelText = extension.name || extensionId;
+    previewLabel.textContent = labelText;
+    previewLabel.title = labelText;
     const { IconDetails } = lazy.ExtensionParent;
     if (extension.manifest.icons) {
       let { icon } = IconDetails.getPreferredIcon(

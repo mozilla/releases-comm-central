@@ -128,6 +128,7 @@
   text-overflow: ellipsis;
   flex-shrink: 1;
   max-width: 50ch;
+  pointer-events: none;
 }
 
 global-search-bar:not([hidden]) {

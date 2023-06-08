@@ -137,10 +137,10 @@ h2 {
 }
 
 [is="customization-palette"] [is="customizable-element"] {
-  width: 8em;
-  height: 4em;
+  width: 96px;
+  height: 4rem;
   background: var(--layout-background-3);
-  padding: 0.5rem;
+  padding: 9px;
   border-radius: 6px;
   overflow: hidden;
 }
@@ -155,7 +155,7 @@ h2 {
   align-items: center;
   text-align: center;
   overflow: hidden;
-  gap: 0.5rem;
+  gap: 9px;
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
@@ -169,9 +169,16 @@ h2 {
 }
 
 .preview-label {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: break-word;
   text-overflow: ellipsis;
   user-select: none;
+  padding-inline: 3px;
+  padding-block-end: 3px;
+  max-width: 100%;
 }
 
 /* Drag and drop state styling */
