@@ -79,6 +79,7 @@
   display: flex;
   align-items: center;
   margin-inline-start: -3px;
+  flex-wrap: wrap;
 }
 
 #qfb-boolean-mode {
@@ -144,6 +145,7 @@
 
 #quickFilterBarContainer {
   display: flex;
+  flex-wrap: wrap;
 }
 
 #quickFilterBarSecondFilters {
@@ -158,6 +160,7 @@
   --button-padding: 3px;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 #quick-filter-bar-filter-text-bar > .button-group > .button {
