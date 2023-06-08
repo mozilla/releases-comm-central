@@ -298,7 +298,6 @@ function initializeSearchWindowWidgets() {
     Ci.nsIMsgWindow
   );
   msgWindow.domWindow = window;
-  msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
   gStatusFeedback = new nsMsgStatusFeedback();
   msgWindow.statusFeedback = gStatusFeedback;

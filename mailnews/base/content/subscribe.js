@@ -174,7 +174,6 @@ function SubscribeOnLoad() {
   gStatusFeedback = new nsMsgStatusFeedback();
   msgWindow.statusFeedback = gStatusFeedback;
   msgWindow.rootDocShell.allowAuth = true;
-  msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
   // look in arguments[0] for parameters
   if (window.arguments && window.arguments[0]) {

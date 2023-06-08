@@ -275,7 +275,6 @@ function InitMsgWindow() {
   msgWindow.statusFeedback = statusFeedback;
   MailServices.mailSession.AddMsgWindow(msgWindow);
   msgWindow.rootDocShell.allowAuth = true;
-  msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   // Ensure we don't load xul error pages into the main window
   msgWindow.rootDocShell.useErrorPages = false;
 

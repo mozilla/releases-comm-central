@@ -111,7 +111,6 @@ function onLoad() {
     "@mozilla.org/messenger/msgwindow;1"
   ].createInstance(Ci.nsIMsgWindow);
   gFilterListMsgWindow.domWindow = window;
-  gFilterListMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   gFilterListMsgWindow.statusFeedback = gStatusFeedback;
 
   gServerMenu = document.getElementById("serverMenu");

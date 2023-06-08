@@ -711,19 +711,6 @@ function UpdateAfterCustomHeaderChange() {
   updateSearchAttributes();
 }
 
-// if you use msgWindow, please make sure that destructor gets called when you close the "window"
-function GetFilterEditorMsgWindow() {
-  if (!gFilterEditorMsgWindow) {
-    var msgWindowContractID = "@mozilla.org/messenger/msgwindow;1";
-    var nsIMsgWindow = Ci.nsIMsgWindow;
-    gFilterEditorMsgWindow =
-      Cc[msgWindowContractID].createInstance(nsIMsgWindow);
-    gFilterEditorMsgWindow.domWindow = window;
-    gFilterEditorMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
-  }
-  return gFilterEditorMsgWindow;
-}
-
 function SetBusyCursor(window, enable) {
   // setCursor() is only available for chrome windows.
   // However one of our frames is the start page which

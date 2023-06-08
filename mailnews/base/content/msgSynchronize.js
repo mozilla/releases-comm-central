@@ -90,7 +90,6 @@ function selectOnLoad() {
     Ci.nsIMsgWindow
   );
   gMsgWindow.domWindow = window;
-  gMsgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
 
   gSynchronizeTree = document.getElementById("synchronizeTree");
 
