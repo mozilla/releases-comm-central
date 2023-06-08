@@ -800,6 +800,9 @@ var folderPane = {
           Ci.nsIMsgLocalMailFolder
         );
 
+        let allFlags = 0;
+        this._folderTypes.forEach(folderType => (allFlags |= folderType.flag));
+
         for (let folderType of this._folderTypes) {
           let folder = smartRoot.getChildWithURI(
             `${smartRoot.URI}/${folderType.name}`,
@@ -809,12 +812,24 @@ var folderPane = {
           if (!folder) {
             try {
               let searchFolders = [];
+
+              function recurse(folder) {
+                for (let sf of folder.subFolders) {
+                  // Add all of the subfolders except the ones that belong to
+                  // a different folder type.
+                  if (!(sf.flags & allFlags)) {
+                    searchFolders.push(sf);
+                    recurse(sf);
+                  }
+                }
+              }
+
               for (let server of MailServices.accounts.allServers) {
                 for (let f of server.rootFolder.getFoldersWithFlags(
                   folderType.flag
                 )) {
                   searchFolders.push(f);
-                  searchFolders = searchFolders.concat(f.descendants);
+                  recurse(f);
                 }
               }
 
@@ -860,14 +875,8 @@ var folderPane = {
 
       _addSearchedFolder(parentFolder, childFolder) {
         let flags = childFolder.flags;
-        let folderType = this._folderTypes.find(
-          ft => childFolder.isSpecialFolder(ft.flag, true) && ft.list
-        );
-        if (!folderType) {
-          return;
-        }
-
-        if (folderType.flag & flags) {
+        let folderType = this._folderTypes.find(ft => flags & ft.flag);
+        if (folderType) {
           // The folder has the flag for this type.
           let folderRow = folderPane._createFolderRow(
             this.name,
@@ -875,23 +884,31 @@ var folderPane = {
             "server"
           );
           folderPane._insertInServerOrder(folderType.list, folderRow);
-        } else {
-          // The folder is a descendant of one which has the flag.
-          let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
-          if (!parentRow) {
-            // This is awkward: `childFolder` is searched but `parentFolder` is
-            // not. Displaying the unsearched folder is probably the least
-            // confusing way to handle this situation.
-            this._addSearchedFolder(
-              folderPane._getNonGmailParent(parentFolder),
-              parentFolder
-            );
-            parentRow = folderPane.getRowForFolder(parentFolder, this.name);
-          }
-          parentRow.insertChildInOrder(
-            folderPane._createFolderRow(this.name, childFolder)
-          );
+          return;
         }
+
+        folderType = this._folderTypes.find(
+          ft => childFolder.isSpecialFolder(ft.flag, true) && ft.list
+        );
+        if (!folderType) {
+          return;
+        }
+
+        // The folder is a descendant of one which has the flag.
+        let parentRow = folderPane.getRowForFolder(parentFolder, this.name);
+        if (!parentRow) {
+          // This is awkward: `childFolder` is searched but `parentFolder` is
+          // not. Displaying the unsearched folder is probably the least
+          // confusing way to handle this situation.
+          this._addSearchedFolder(
+            folderPane._getNonGmailParent(parentFolder),
+            parentFolder
+          );
+          parentRow = folderPane.getRowForFolder(parentFolder, this.name);
+        }
+        parentRow.insertChildInOrder(
+          folderPane._createFolderRow(this.name, childFolder)
+        );
       },
 
       changeSearchedFolders(smartFolder) {
