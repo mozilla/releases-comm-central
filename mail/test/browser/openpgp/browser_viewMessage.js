@@ -41,6 +41,8 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
+
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 // TODO: Enable for S/MIME test
 //const MSG_TEXT_SMIME = "This is a test message from Alice to Bob.";
@@ -56,6 +58,14 @@ var aliceAcct;
  * Set up the base account, identity and keys needed for the tests.
  */
 add_setup(async function () {
+  // This test assumes the standalone message window.
+  Services.prefs.setIntPref(
+    "mail.openMessageBehavior",
+    MailConsts.OpenMessageBehavior.NEW_WINDOW
+  );
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mail.openMessageBehavior");
+  });
   aliceAcct = MailServices.accounts.createAccount();
   aliceAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",
@@ -264,7 +274,7 @@ add_task(async function testOpenForwardedEncrypted() {
   );
 
   close_window(mc);
-}).skip(); // TODO can't open message attachments yet
+}).skip(); // TODO: broken functionality - bug 1837247
 
 /**
  * Test that opening a message that is signed by a verified key shows as such.
@@ -763,7 +773,7 @@ add_task(async function testUpdateMessageSignature() {
     "signed unverified icon should be displayed"
   );
   close_window(mc);
-}).skip(); // TODO
+});
 
 // After test testUpdateMessageSignature acceptance of Bob's key
 // has changed from verified to unverified.
@@ -818,7 +828,7 @@ add_task(async function testOpenSignedInlineWithLeadingWS() {
     "encrypted icon is not displayed"
   );
   close_window(mc);
-}).skip(); // TODO
+}).skip(); // TODO: broken functionality, the message shows invalid sig
 
 /**
  * Test that an encrypted inline message, with nbsp encoded as qp
