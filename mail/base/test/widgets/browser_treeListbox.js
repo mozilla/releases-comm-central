@@ -12,6 +12,7 @@ async function withTab(callback) {
     url: "chrome://mochitests/content/browser/comm/mail/base/test/widgets/files/treeListbox.xhtml",
   });
   await BrowserTestUtils.browserLoaded(tab.browser);
+  await new Promise(resolve => requestAnimationFrame(resolve));
 
   tab.browser.focus();
   await SpecialPowers.spawn(tab.browser, [], callback);
