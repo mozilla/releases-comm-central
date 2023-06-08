@@ -93,13 +93,16 @@
             onpopupshowing="RefreshViewPopup(this);">
   <menuitem id="viewPickerAll" value="0"
             label="&viewAll.label;"
-            type="radio"/>
+            type="radio"
+            oncommand="ViewChangeByMenuitem(this);"/>
   <menuitem id="viewPickerUnread" value="1"
             label="&viewUnread.label;"
-            type="radio"/>
+            type="radio"
+            oncommand="ViewChangeByMenuitem(this);"/>
   <menuitem id="viewPickerNotDeleted" value="3"
             label="&viewNotDeleted.label;"
-            type="radio"/>
+            type="radio"
+            oncommand="ViewChangeByMenuitem(this);"/>
   <menuseparator id="afterViewPickerUnreadSeparator"/>
   <menu id="viewPickerTags" label="&viewTags.label;">
     <menupopup id="viewPickerTagsPopup"
@@ -114,10 +117,12 @@
   <menuseparator id="afterViewPickerCustomViewsSeparator"/>
   <menuitem id="viewPickerVirtualFolder"
             value="7"
-            label="&viewVirtualFolder.label;"/>
+            label="&viewVirtualFolder.label;"
+            oncommand="ViewChangeByMenuitem(this);"/>
   <menuitem id="viewPickerCustomize"
             value="8"
-            label="&viewCustomizeView.label;"/>
+            label="&viewCustomizeView.label;"
+            oncommand="ViewChangeByMenuitem(this);"/>
 </menupopup>
 <menupopup id="messageHistoryPopup">
 </menupopup>

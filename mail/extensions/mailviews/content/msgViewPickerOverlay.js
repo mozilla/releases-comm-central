@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// TODO: Fix undefined things in this file.
-/* eslint-disable no-undef */
+/* globals OpenOrFocusWindow */ // From mailWindowOverlay.js
+/* globals GetSelectedMsgFolders */ // From messenger.js
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -36,15 +36,21 @@ var gMailViewList = null;
 // perform the view/action requested by the aValue string
 // and set the view picker label to the aLabel string
 function ViewChange(aValue) {
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  let viewWrapper = about3Pane.gViewWrapper;
+  if (!viewWrapper) {
+    return;
+  }
+
   if (aValue == kViewItemCustomize || aValue == kViewItemVirtual) {
     // restore to the previous view value, in case they cancel
     ViewPickerBinding.updateDisplay();
     if (aValue == kViewItemCustomize) {
       LaunchCustomizeDialog();
     } else {
-      gFolderTreeController.newVirtualFolder(
+      about3Pane.folderPane.newVirtualFolder(
         ViewPickerBinding.currentViewLabel,
-        gFolderDisplay.view.search.viewTerms
+        viewWrapper.search.viewTerms
       );
     }
     return;
@@ -54,10 +60,10 @@ function ViewChange(aValue) {
   if (isNaN(aValue)) {
     // split off the tag key
     var tagkey = aValue.substr(kViewTagMarker.length);
-    gFolderDisplay.view.setMailView(kViewItemTags, tagkey);
+    viewWrapper.setMailView(kViewItemTags, tagkey);
   } else {
     var numval = Number(aValue);
-    gFolderDisplay.view.setMailView(numval, null);
+    viewWrapper.setMailView(numval, null);
   }
   ViewPickerBinding.updateDisplay();
 }
@@ -96,18 +102,24 @@ var ViewPickerBinding = {
    * everything but tags.  for tags it's the ":"-prefixed tagname.
    */
   get currentViewValue() {
-    if (gFolderDisplay.view.mailViewIndex == kViewItemTags) {
-      return kViewTagMarker + gFolderDisplay.view.mailViewData;
+    let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+    let viewWrapper = about3Pane.gViewWrapper;
+    if (!viewWrapper) {
+      return "";
     }
-    return gFolderDisplay.view.mailViewIndex + "";
+    if (viewWrapper.mailViewIndex == kViewItemTags) {
+      return kViewTagMarker + viewWrapper.mailViewData;
+    }
+    return viewWrapper.mailViewIndex + "";
   },
 
   /**
    * @returns The label for the current mail view value.
    */
   get currentViewLabel() {
-    let viewPicker = document.getElementById("viewPicker");
-    return viewPicker.getAttribute("label");
+    return document.querySelector(
+      `#toolbarViewPickerPopup [value="${this.currentViewValue}"]`
+    )?.label;
   },
 
   /**
@@ -242,6 +254,11 @@ function RefreshCustomViewsPopup(parent, elementName = "menuitem", classes) {
     if (kViewItemFirstCustom + i == currentView) {
       item.setAttribute("checked", true);
     }
+
+    item.addEventListener("command", () =>
+      ViewChange(kViewItemFirstCustom + i)
+    );
+
     parent.appendChild(item);
   }
 }
@@ -261,10 +278,13 @@ function RefreshTagsPopup(parent, elementName = "menuitem", classes) {
   }
 
   // Create tag menu items.
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+  let viewWrapper = about3Pane.gViewWrapper;
+  if (!viewWrapper) {
+    return;
+  }
   const currentTagKey =
-    gFolderDisplay.view.mailViewIndex == kViewItemTags
-      ? gFolderDisplay.view.mailViewData
-      : "";
+    viewWrapper.mailViewIndex == kViewItemTags ? viewWrapper.mailViewData : "";
 
   const tagArray = MailServices.tags.getAllTags();
 
@@ -284,6 +304,11 @@ function RefreshTagsPopup(parent, elementName = "menuitem", classes) {
     if (classes) {
       item.setAttribute("class", classes);
     }
+
+    item.addEventListener("command", () =>
+      ViewChange(kViewTagMarker + tagInfo.key)
+    );
+
     parent.appendChild(item);
   });
 }
