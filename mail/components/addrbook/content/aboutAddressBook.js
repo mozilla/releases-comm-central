@@ -2034,10 +2034,26 @@ var cardsPane = {
       }
     }
 
+    // Adjust strings to match translations.
+    let actionString;
+    switch (action) {
+      case "delete-contacts":
+        actionString =
+          count > 1 ? "delete-contacts-multi" : "delete-contacts-single";
+        break;
+      case "remove-contacts":
+        actionString =
+          count > 1 ? "remove-contacts-multi" : "remove-contacts-single";
+        break;
+      default:
+        actionString = action;
+        break;
+    }
+
     let [title, message] = await document.l10n.formatValues([
       { id: `about-addressbook-confirm-${action}-title`, args: { count } },
       {
-        id: `about-addressbook-confirm-${action}`,
+        id: `about-addressbook-confirm-${actionString}`,
         args: { count, name, list },
       },
     ]);
@@ -3651,8 +3667,8 @@ var detailsPane = {
         args: { count: 1 },
       },
       {
-        id: "about-addressbook-confirm-delete-contacts",
-        args: { name, count: 1 },
+        id: "about-addressbook-confirm-delete-contacts-single",
+        args: { name },
       },
     ]);
 

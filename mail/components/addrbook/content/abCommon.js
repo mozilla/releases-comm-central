@@ -52,13 +52,31 @@ async function AbDelete() {
     }
   }
 
+  // Adjust strings to match translations.
+  let actionString;
+  switch (action) {
+    case "delete-contacts":
+      actionString = !cards.length
+        ? "delete-contacts-single"
+        : "delete-contacts-multi";
+      break;
+    case "remove-contacts":
+      actionString = !cards.length
+        ? "remove-contacts-single"
+        : "remove-contacts-multi";
+      break;
+    default:
+      actionString = action;
+      break;
+  }
+
   let [title, message] = await document.l10n.formatValues([
     {
       id: `about-addressbook-confirm-${action}-title`,
       args: { count: cards.length },
     },
     {
-      id: `about-addressbook-confirm-${action}`,
+      id: `about-addressbook-confirm-${actionString}`,
       args: {
         count: cards.length,
         name,
