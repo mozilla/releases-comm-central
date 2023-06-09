@@ -57,6 +57,11 @@ class BaseMessageService {
     }
   }
 
+  /**
+   * @param {string} messageURI - Message URI.
+   * @param {?nsIMsgWindow} [msgWindow] - Message window.
+   * @returns {nsIURI}
+   */
   getUrlForUri(messageURI, msgWindow) {
     let uri = Services.io
       .newURI(this._createMessageIdUrl(messageURI))
@@ -68,6 +73,10 @@ class BaseMessageService {
     return uri;
   }
 
+  /**
+   * @param {string} uri - The message URI.
+   * @returns {?nsIMsgDBHdr} The message for the URI, or null.
+   */
   messageURIToMsgHdr(uri) {
     let [folder, key] = this._decomposeNewsMessageURI(uri);
     return folder?.GetMessageHeader(key);
@@ -130,9 +139,50 @@ class BaseMessageService {
     });
   }
 
-  streamMessage(messageUri, consumer, msgWindow, urlListener, convertData) {
+  streamMessage(
+    messageUri,
+    consumer,
+    msgWindow,
+    urlListener,
+    convertData,
+    additionalHeader
+  ) {
     this._logger.debug("streamMessage", messageUri);
-    this.loadMessage(messageUri, consumer, msgWindow, urlListener, false);
+    let [folder, key] = this._decomposeNewsMessageURI(messageUri);
+
+    let uri = this.getUrlForUri(messageUri, msgWindow);
+    if (additionalHeader) {
+      // NOTE: jsmimeemitter relies on this.
+      let url = new URL(uri.spec);
+      let params = new URLSearchParams(`?header=${additionalHeader}`);
+      for (let [key, value] of params.entries()) {
+        url.searchParams.set(key, value);
+      }
+      uri = uri.mutate().setQuery(url.search).finalize();
+    }
+
+    uri = uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
+    uri.msgIsInLocalCache = folder.hasMsgOffline(key);
+    if (urlListener) {
+      uri.RegisterListener(urlListener);
+    }
+
+    let streamListener = consumer.QueryInterface(Ci.nsIStreamListener);
+    let channel = new lazy.NntpChannel(uri.QueryInterface(Ci.nsINntpUrl));
+    let listener = streamListener;
+    if (convertData) {
+      let converter = Cc["@mozilla.org/streamConverters;1"].getService(
+        Ci.nsIStreamConverterService
+      );
+      listener = converter.asyncConvertData(
+        "message/rfc822",
+        "*/*",
+        streamListener,
+        channel
+      );
+    }
+    channel.asyncOpen(listener);
+    return uri;
   }
 
   /**

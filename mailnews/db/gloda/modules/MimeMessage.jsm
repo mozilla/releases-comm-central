@@ -78,6 +78,10 @@ function CallbackStreamListener(aMsgHdr, aCallbackThis, aCallback) {
   activeStreamListeners[hdrURI] = this;
 }
 
+/**
+ * @implements {nsIRequestObserver}
+ * @implements {nsIStreamListener}
+ */
 CallbackStreamListener.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
@@ -123,22 +127,16 @@ CallbackStreamListener.prototype = {
     this._callbacks = null;
   },
 
-  /* okay, our onDataAvailable should actually never be called.  the stream
-     converter is actually eating everything except the start and stop
-     notification. */
   // nsIStreamListener part
+
+  /**
+   * Our onDataAvailable should actually never be called. The stream converter
+   * is actually eating everything except the start and stop notification.
+   */
   onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
-    dump("this should not be happening! arrgggggh!\n");
-    console.error(
-      "Did you try to stream an nttp message? Doesn't work. See bug 545365."
+    throw new Error(
+      `The stream converter should have grabbed the data for ${aRequest?.URI.spec}`
     );
-    if (this._stream === null) {
-      this._stream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
-        Ci.nsIScriptableInputStream
-      );
-      this._stream.init(aInputStream);
-    }
-    this._stream.read(aCount);
   },
 };
 

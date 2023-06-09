@@ -37,6 +37,7 @@ class NntpChannel extends MailChannel {
   ]);
 
   _logger = lazy.NntpUtils.logger;
+  _status = Cr.NS_OK;
 
   /**
    * @param {nsIURI} uri - The uri to construct the channel from.
@@ -77,7 +78,7 @@ class NntpChannel extends MailChannel {
 
     // nsIChannel attributes.
     this.originalURI = uri;
-    this.URI = uri;
+    this.URI = uri.QueryInterface(Ci.nsIMsgMailNewsUrl);
     this.loadInfo = loadInfo || {
       QueryInterface: ChromeUtils.generateQI(["nsILoadInfo"]),
       loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
@@ -91,7 +92,7 @@ class NntpChannel extends MailChannel {
    * @see nsIRequest
    */
   get status() {
-    return Cr.NS_OK;
+    return this._status;
   }
 
   /**
@@ -105,6 +106,10 @@ class NntpChannel extends MailChannel {
     }
 
     if (isNew) {
+      if (Services.io.offline) {
+        this._status = Cr.NS_ERROR_OFFLINE;
+        return;
+      }
       // It's a new entry, needs to read from the server.
       let tee = Cc["@mozilla.org/network/stream-listener-tee;1"].createInstance(
         Ci.nsIStreamListenerTee
@@ -151,10 +156,10 @@ class NntpChannel extends MailChannel {
 
   asyncOpen(listener) {
     this._logger.debug("asyncOpen", this.URI.spec);
+    let url = new URL(this.URI.spec);
     this._listener = listener;
-    if (this.URI.spec.endsWith("?list-ids")) {
+    if (url.searchParams.has("list-ids")) {
       // Triggered by newsError.js.
-      let url = new URL(this.URI.spec);
       this._removeExpired(decodeURIComponent(url.pathname.slice(1)));
       return;
     }
@@ -183,8 +188,7 @@ class NntpChannel extends MailChannel {
       return;
     }
 
-    this._cacheEntry = null;
-    if (this.URI.spec.includes("?part=") || this.URI.spec.includes("&part=")) {
+    if (url.searchParams.has("part")) {
       let converter = Cc["@mozilla.org/streamConverters;1"].getService(
         Ci.nsIStreamConverterService
       );
@@ -206,7 +210,7 @@ class NntpChannel extends MailChannel {
       }
 
       let uri = this.URI;
-      if (this.URI.spec.includes("?")) {
+      if (url.search) {
         // A full news url may look like
         // news://<host>:119/<Msg-ID>?group=<name>&key=<key>&header=quotebody.
         // Remove any query strings to keep the cache key stable.
@@ -223,6 +227,12 @@ class NntpChannel extends MailChannel {
     } catch (e) {
       this._logger.warn(e);
       this._readFromServer();
+    }
+    if (this._status == Cr.NS_ERROR_OFFLINE) {
+      throw new Components.Exception(
+        "The requested action could not be completed in the offline state",
+        Cr.NS_ERROR_OFFLINE
+      );
     }
   }
 
@@ -282,6 +292,7 @@ class NntpChannel extends MailChannel {
    * Retrieve the article from the server.
    */
   _readFromServer() {
+    this._logger.debug("Read from server");
     let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
     pipe.init(true, true, 0, 0);
     let inputStream = pipe.inputStream;
@@ -296,11 +307,8 @@ class NntpChannel extends MailChannel {
       try {
         msgWindow = this.URI.msgWindow;
       } catch (e) {}
-      client.startRunningUrl(
-        null,
-        msgWindow,
-        this.URI.QueryInterface(Ci.nsIMsgMailNewsUrl)
-      );
+      client.startRunningUrl(null, msgWindow, this.URI);
+      client.channel = this;
       this._listener.onStartRequest(this);
       client.onOpen = () => {
         if (this._messageId) {
@@ -314,6 +322,7 @@ class NntpChannel extends MailChannel {
       };
 
       client.onData = data => {
+        this.contentLength += data.length;
         outputStream.write(data, data.length);
         this._listener.onDataAvailable(this, inputStream, 0, data.length);
       };
@@ -351,11 +360,7 @@ class NntpChannel extends MailChannel {
       try {
         msgWindow = this.URI.msgWindow;
       } catch (e) {}
-      client.startRunningUrl(
-        null,
-        msgWindow,
-        this.URI.QueryInterface(Ci.nsIMsgMailNewsUrl)
-      );
+      client.startRunningUrl(null, msgWindow, this.URI);
       this._listener.onStartRequest(this);
       client.onOpen = () => {
         client.listgroup(groupName);

@@ -189,11 +189,11 @@ class NntpClient {
           res.status >= 400 &&
           res.status < 500
         ) {
-          if (this._articleNumber) {
+          if (this._messageId || this._articleNumber) {
             let uri = `about:newserror?r=${res.statusText}`;
 
-            if (this._articleNumber.startsWith("<")) {
-              uri += `&m=${encodeURIComponent(this._articleNumber)}`;
+            if (this._messageId) {
+              uri += `&m=${encodeURIComponent(this._messageId)}`;
             } else {
               let msgId = this._newsFolder?.getMessageIdForKey(
                 this._articleNumber
@@ -355,12 +355,13 @@ class NntpClient {
    * Get a single article by group name and article number.
    *
    * @param {string} groupName - The group name.
-   * @param {string} articleNumber - The article number.
+   * @param {integer} articleNumber - The article number.
    */
   getArticleByArticleNumber(groupName, articleNumber) {
     this._newsFolder = this._server.rootFolder.getChildNamed(groupName);
     this._nextGroupName = this._getNextGroupName(groupName);
     this._articleNumber = articleNumber;
+    this._messageId = "";
     this._firstGroupCommand = this._actionArticle;
     this._actionModeReader(this._actionGroup);
   }
@@ -371,7 +372,8 @@ class NntpClient {
    * @param {string} messageId - The message id.
    */
   getArticleByMessageId(messageId) {
-    this._articleNumber = `<${messageId}>`;
+    this._messageId = `<${messageId}>`;
+    this._articleNumber = 0;
     this._actionModeReader(this._actionArticle);
   }
 
@@ -404,7 +406,7 @@ class NntpClient {
   /**
    * Load a news uri directly, see rfc5538 about supported news uri.
    *
-   * @param {string} uir - The news uri to load.
+   * @param {string} uri - The news uri to load.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
    * @param {nsIStreamListener} streamListener - The listener for the request.
    */
@@ -728,9 +730,10 @@ class NntpClient {
 
   /**
    * Send `ARTICLE` request to the server.
+   * @see {@link https://www.rfc-editor.org/rfc/rfc3977#section-6.2.1|RFC 3977 §6.2.1}
    */
   _actionArticle = () => {
-    this._sendCommand(`ARTICLE ${this._articleNumber}`);
+    this._sendCommand(`ARTICLE ${this._articleNumber || this._messageId}`);
     this._nextAction = this._actionArticleResponse;
     this._newsFolder?.notifyDownloadBegin(this._articleNumber);
     this._downloadingToFolder = true;
@@ -927,7 +930,7 @@ class NntpClient {
     if (this._downloadingToFolder) {
       // If we're in the middle of sending a message to the folder, make sure
       // the folder knows we're aborting.
-      this._newsFolder.notifyDownloadEnd(Cr.NS_ERROR_FAILURE);
+      this._newsFolder?.notifyDownloadEnd(Cr.NS_ERROR_FAILURE);
       this._downloadingToFolder = false;
     }
     this._done = true;
