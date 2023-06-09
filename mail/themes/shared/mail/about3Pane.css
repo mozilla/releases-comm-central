@@ -402,12 +402,12 @@ li.context-menu-target:not(.selected) > .container:hover {
   --icon-color: var(--primary);
 }
 
-#folderTree li[data-server-type="nntp"] > .container > .icon {
-  background-image: var(--icon-newsletter);
-}
-
 #folderTree li:is([data-server-type="imap"], [data-server-type="pop3"]) > .container > .icon {
   background-image: var(--icon-mail);
+}
+
+menuitem.server:is([data-server-type="imap"], [data-server-type="pop3"]) {
+  list-style-image: var(--icon-mail);
 }
 
 #folderTree li:is([data-server-type="imap"], [data-server-type="pop3"])[data-server-secure="true"]
