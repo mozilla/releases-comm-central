@@ -20,6 +20,12 @@
   padding-inline: 10px;
 }
 
+#calendar-ics-file-dialog-items-container,
+#calendar-ics-file-dialog-progress-pane,
+#calendar-ics-file-dialog-result-pane {
+  flex: 1 1 0;
+}
+
 #calendar-ics-file-dialog-calendar-menu-label {
   margin-top: 1em;
 }
