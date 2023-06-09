@@ -1216,6 +1216,12 @@ class TreeView extends HTMLElement {
 
     let row = this.getRowAtIndex(index);
     if (row) {
+      // We need to clear the attribute in order to let screen readers know that
+      // a new message has been selected even if the ID is identical. For
+      // example when we delete the first message with ID 0, the next message
+      // becomes ID 0 itself. Therefore the attribute wouldn't trigger the screen
+      // reader to announce the new message without being cleared first.
+      this.table.body.setAttribute("aria-activedescendant", "");
       row.classList.add("current");
       this.table.body.setAttribute("aria-activedescendant", row.id);
     }
