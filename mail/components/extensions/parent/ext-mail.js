@@ -535,6 +535,78 @@ class SpaceTracker {
     this._nextId = 1;
     this._spaceData = new Map();
     this._spaceIds = new Map();
+
+    // Keep this in sync with the default spaces in gSpacesToolbar.
+    let builtInSpaces = [
+      {
+        name: "mail",
+        spaceButtonId: "mailButton",
+        tabInSpace: tabInfo =>
+          ["folder", "mail3PaneTab", "mailMessageTab"].includes(
+            tabInfo.mode.name
+          )
+            ? 1
+            : 0,
+      },
+      {
+        name: "addressbook",
+        spaceButtonId: "addressBookButton",
+        tabInSpace: tabInfo => (tabInfo.mode.name == "addressBookTab" ? 1 : 0),
+      },
+      {
+        name: "calendar",
+        spaceButtonId: "calendarButton",
+        tabInSpace: tabInfo => (tabInfo.mode.name == "calendar" ? 1 : 0),
+      },
+      {
+        name: "tasks",
+        spaceButtonId: "tasksButton",
+        tabInSpace: tabInfo => (tabInfo.mode.name == "tasks" ? 1 : 0),
+      },
+      {
+        name: "chat",
+        spaceButtonId: "chatButton",
+        tabInSpace: tabInfo => (tabInfo.mode.name == "chat" ? 1 : 0),
+      },
+      {
+        name: "settings",
+        spaceButtonId: "settingsButton",
+        tabInSpace: tabInfo => {
+          switch (tabInfo.mode.name) {
+            case "preferencesTab":
+              // A primary tab that the open method creates.
+              return 1;
+            case "contentTab":
+              let url = tabInfo.urlbar?.value;
+              if (url == "about:accountsettings" || url == "about:addons") {
+                // A secondary tab, that is related to this space.
+                return 2;
+              }
+          }
+          return 0;
+        },
+      },
+    ];
+    for (let builtInSpace of builtInSpaces) {
+      this._add(builtInSpace);
+    }
+  }
+
+  findSpaceForTab(tabInfo) {
+    for (let spaceData of this._spaceData.values()) {
+      if (spaceData.tabInSpace(tabInfo)) {
+        return spaceData;
+      }
+    }
+    return undefined;
+  }
+
+  _add(spaceData) {
+    let spaceId = this._nextId++;
+    let { spaceButtonId } = spaceData;
+    this._spaceData.set(spaceButtonId, { ...spaceData, spaceId });
+    this._spaceIds.set(spaceId, spaceButtonId);
+    return { ...spaceData, spaceId };
   }
 
   /**
@@ -597,52 +669,18 @@ class SpaceTracker {
    * @returns {SpaceData}
    */
   async create(name, defaultUrl, buttonProperties, extension) {
-    const add = (
-      name,
-      spaceButtonId,
-      defaultUrl,
-      buttonProperties,
-      extension
-    ) => {
-      let spaceId = this._nextId++;
-      let spaceData = {
-        name,
-        spaceId,
-        spaceButtonId,
-        defaultUrl,
-        buttonProperties,
-        extension,
-      };
-      this._spaceData.set(spaceButtonId, spaceData);
-      this._spaceIds.set(spaceId, spaceButtonId);
-      return spaceData;
-    };
-
-    // Before creating extension spaces, make sure we have added all built-in
-    // spaces to the tracker.
-    if (this._nextId == 1) {
-      let window = await getNormalWindowReady();
-      await new Promise(resolve => {
-        if (window.gSpacesToolbar.isLoaded) {
-          resolve();
-        } else {
-          window.addEventListener("spaces-toolbar-ready", resolve, {
-            once: true,
-          });
-        }
-      });
-      for (let nativeSpace of window.gSpacesToolbar.spaces) {
-        if (!nativeSpace.isExtensionSpace) {
-          add(nativeSpace.name, nativeSpace.button.id);
-        }
-      }
-    }
-
     let spaceButtonId = this._getSpaceButtonId(name, extension);
     if (this._spaceData.has(spaceButtonId)) {
       return false;
     }
-    return add(name, spaceButtonId, defaultUrl, buttonProperties, extension);
+    return this._add({
+      name,
+      spaceButtonId,
+      tabInSpace: tabInfo => (tabInfo.spaceButtonId == spaceButtonId ? 1 : 0),
+      defaultUrl,
+      buttonProperties,
+      extension,
+    });
   }
 
   /**
@@ -1063,9 +1101,12 @@ Object.assign(global, { tabTracker, spaceTracker, windowTracker });
  */
 class Tab extends TabBase {
   get spaceId() {
-    let spaceData = spaceTracker.fromSpaceButtonId(
-      this.nativeTab.spaceButtonId
-    );
+    let tabWindow = getTabWindow(this.nativeTab);
+    if (getWebExtensionWindowType(tabWindow) != "normal") {
+      return undefined;
+    }
+
+    let spaceData = spaceTracker.findSpaceForTab(this.nativeTab);
     return spaceData?.spaceId ?? undefined;
   }
 
@@ -1860,7 +1901,7 @@ async function getNormalWindowReady(context, windowId) {
   }
 
   // Wait for session restore.
-  await new Promise((resolve, reject) => {
+  await new Promise(resolve => {
     if (!window.SessionStoreManager._restored) {
       let obs = (observedWindow, topic, data) => {
         if (observedWindow != window) {

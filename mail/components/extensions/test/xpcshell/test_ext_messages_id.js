@@ -247,7 +247,6 @@ add_task(
         false /* do not save */,
         true /* do not ask */
       );
-      console.log("REMOVED");
     });
 
     await extension.startup();

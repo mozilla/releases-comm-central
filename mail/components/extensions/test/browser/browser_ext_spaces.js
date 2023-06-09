@@ -964,3 +964,84 @@ add_task(async function test_query_no_management_permission() {
 add_task(async function test_query_management_permission() {
   await test_query({ permissions: ["management"] });
 });
+
+// Test built-in spaces to make sure the space definition of the spaceTracker in
+// ext-mails.js is matching the actual space definition in spacesToolbar.js
+add_task(async function test_builtIn_spaces() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        const checkSpace = async (spaceId, spaceName) => {
+          let spaces = await browser.spaces.query({ id: spaceId });
+          browser.test.assertEq(spaces.length, 1, "Should find a single space");
+          browser.test.assertEq(
+            spaces[0].isBuiltIn,
+            true,
+            "Should find a built-in space"
+          );
+          browser.test.assertEq(
+            spaces[0].name,
+            spaceName,
+            "Should find the correct space"
+          );
+        };
+
+        // Test the already open mail space.
+
+        let mailTabs = await browser.tabs.query({ type: "mail" });
+        browser.test.assertEq(
+          mailTabs.length,
+          1,
+          "Should find a single mail tab"
+        );
+        await checkSpace(mailTabs[0].spaceId, "mail");
+
+        // Test all other spaces.
+
+        let builtInSpaces = [
+          "addressbook",
+          "calendar",
+          "tasks",
+          "chat",
+          "settings",
+        ];
+
+        for (let spaceName of builtInSpaces) {
+          await new Promise(resolve => {
+            const listener = async tab => {
+              await checkSpace(tab.spaceId, spaceName);
+              browser.tabs.remove(tab.id);
+              browser.tabs.onCreated.removeListener(listener);
+              resolve();
+            };
+            browser.tabs.onCreated.addListener(listener);
+            browser.test.sendMessage("openSpace", spaceName);
+          });
+        }
+
+        browser.test.notifyPass();
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      manifest_version: 2,
+      browser_specific_settings: {
+        gecko: {
+          id: "built-in-spaces@mochi.test",
+        },
+      },
+      background: { scripts: ["utils.js", "background.js"] },
+    },
+  });
+
+  extension.onMessage("openSpace", async spaceName => {
+    window.gSpacesToolbar.openSpace(
+      window.document.getElementById("tabmail"),
+      window.gSpacesToolbar.spaces.find(space => space.name == spaceName)
+    );
+  });
+
+  await extension.startup();
+  await extension.awaitFinish();
+  await extension.unload();
+});
