@@ -164,37 +164,34 @@ async function getAttachment(msgHdr, partName) {
     return null;
   }
 
-  if (attachment.url.startsWith("news://")) {
-    attachment.raw = new Uint8Array(attachment.body.length);
-    for (var i = 0; i < attachment.body.length; i++) {
-      attachment.raw[i] = attachment.body.charCodeAt(i);
-    }
-  } else {
-    let channel = Services.io.newChannelFromURI(
-      Services.io.newURI(attachment.url),
-      null,
-      Services.scriptSecurityManager.getSystemPrincipal(),
-      null,
-      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-      Ci.nsIContentPolicy.TYPE_OTHER
-    );
+  let channel = Services.io.newChannelFromURI(
+    Services.io.newURI(attachment.url),
+    null,
+    Services.scriptSecurityManager.getSystemPrincipal(),
+    null,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+    Ci.nsIContentPolicy.TYPE_OTHER
+  );
 
-    attachment.raw = await new Promise((resolve, reject) => {
-      let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
-        Ci.nsIStreamLoader
-      );
-      listener.init({
-        onStreamComplete(loader, context, status, resultLength, result) {
-          if (Components.isSuccessCode(status)) {
-            resolve(Uint8Array.from(result));
-          } else {
-            reject(new Error(`Failed to read attachment content: ${status}`));
-          }
-        },
-      });
-      channel.asyncOpen(listener, null);
+  attachment.raw = await new Promise((resolve, reject) => {
+    let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
+      Ci.nsIStreamLoader
+    );
+    listener.init({
+      onStreamComplete(loader, context, status, resultLength, result) {
+        if (Components.isSuccessCode(status)) {
+          resolve(Uint8Array.from(result));
+        } else {
+          reject(
+            new Error(
+              `Failed to read attachment ${attachment.url} content: ${status}`
+            )
+          );
+        }
+      },
     });
-  }
+    channel.asyncOpen(listener, null);
+  });
 
   return attachment;
 }
@@ -375,35 +372,6 @@ async function getMimeMessage(msgHdr, partName = "") {
       );
     }
     return subMimeMsg;
-  }
-
-  // Use jsmime based MimeParser to read NNTP messages, which are not
-  // supported by MsgHdrToMimeMessage. No encryption support!
-  if (msgHdr.folder?.server.type == "nntp") {
-    let raw = await getRawMessage(msgHdr);
-    let mimeMsg = MimeParser.extractMimeMsg(raw, {
-      decodeSubMessages: !partName,
-      getMimePart: partName,
-    });
-    if (!mimeMsg) {
-      return null;
-    }
-
-    // Re-build news:// URL, which is not provided by MimeParser.extractMimeMsg().
-    let msgUri = msgHdr.folder.getUriForMsg(msgHdr);
-    let baseUrl = new URL(
-      MailServices.messageServiceFromURI(msgUri).getUrlForUri(msgUri).spec
-    );
-    if (partName) {
-      baseUrl.searchParams.set("part", mimeMsg.partName);
-      mimeMsg.url = baseUrl.href;
-    } else if (mimeMsg.attachments) {
-      for (let attachment of mimeMsg.attachments) {
-        baseUrl.searchParams.set("part", attachment.partName);
-        attachment.url = baseUrl.href;
-      }
-    }
-    return mimeMsg;
   }
 
   let mimeMsg = await new Promise(resolve => {

@@ -372,7 +372,10 @@ add_task(
               partName: "1.2",
               name: "message1.eml",
               size:
-                platform.os != "win" && account.type == "none" ? 2517 : 2601,
+                platform.os != "win" &&
+                (account.type == "none" || account.type == "nntp")
+                  ? 2517
+                  : 2601,
               text: "Message-ID: <sample-attached.eml@mime.sample>",
             },
             {
@@ -396,7 +399,11 @@ add_task(
             {
               partName: "1.2.1.5",
               name: "message2.eml",
-              size: platform.os != "win" && account.type == "none" ? 838 : 867,
+              size:
+                platform.os != "win" &&
+                (account.type == "none" || account.type == "nntp")
+                  ? 838
+                  : 867,
               text: "Message-ID: <sample-nested-attached.eml@mime.sample>",
             },
             {
