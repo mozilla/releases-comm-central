@@ -9,7 +9,9 @@
 
 const EXPORTED_SYMBOLS = ["FolderTreeProperties"];
 
-const { JSONFile } = ChromeUtils.import("resource://gre/modules/JSONFile.jsm");
+const { JSONFile } = ChromeUtils.importESModule(
+  "resource://gre/modules/JSONFile.sys.mjs"
+);
 
 var jsonFile = new JSONFile({
   path: PathUtils.join(PathUtils.profileDir, "folderTree.json"),

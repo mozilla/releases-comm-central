@@ -6,11 +6,10 @@
 var { PluralForm } = ChromeUtils.importESModule(
   "resource://gre/modules/PluralForm.sys.mjs"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "ContextualIdentityService",
-  "resource://gre/modules/ContextualIdentityService.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  ContextualIdentityService:
+    "resource://gre/modules/ContextualIdentityService.sys.mjs",
+});
 
 var gCookiesWindow = {
   _hosts: {},
