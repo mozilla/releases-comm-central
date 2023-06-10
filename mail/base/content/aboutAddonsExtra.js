@@ -16,8 +16,8 @@ const THUNDERBIRD_THEME_PREVIEWS = new Map([
 ]);
 
 var { UIFontSize } = ChromeUtils.import("resource:///modules/UIFontSize.jsm");
-XPCOMUtils.defineLazyModuleGetters(this, {
-  ExtensionData: "resource://gre/modules/Extension.jsm",
+ChromeUtils.defineESModuleGetters(this, {
+  ExtensionData: "resource://gre/modules/Extension.sys.mjs",
 });
 
 XPCOMUtils.defineLazyPreferenceGetter(

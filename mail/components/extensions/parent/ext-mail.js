@@ -12,8 +12,11 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 var { ExtensionError, getInnerWindowID } = ExtensionUtils;
 var { defineLazyGetter, makeWidgetId } = ExtensionCommon;
 
+ChromeUtils.defineESModuleGetters(this, {
+  ExtensionContent: "resource://gre/modules/ExtensionContent.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
-  ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
 });
 

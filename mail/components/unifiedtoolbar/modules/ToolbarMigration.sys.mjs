@@ -16,10 +16,14 @@ import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  ExtensionCommon: "resource://gre/modules/ExtensionCommon.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   getCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.jsm",
   setCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.jsm",
-  ExtensionCommon: "resource://gre/modules/ExtensionCommon.jsm",
 });
 
 /**

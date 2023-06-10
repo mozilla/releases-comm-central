@@ -5,8 +5,8 @@
 // mail/base/content/specialTabs.js
 /* globals contentTabBaseType, DOMLinkHandler */
 
-var { ExtensionParent } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionParent.jsm"
+var { ExtensionParent } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionParent.sys.mjs"
 );
 
 /**

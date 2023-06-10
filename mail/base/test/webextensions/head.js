@@ -2,6 +2,7 @@
 
 ChromeUtils.defineESModuleGetters(this, {
   AddonTestUtils: "resource://testing-common/AddonTestUtils.sys.mjs",
+  Management: "resource://gre/modules/Extension.sys.mjs",
 });
 
 const BASE = getRootDirectory(gTestPath).replace(
@@ -17,12 +18,6 @@ const l10n = new Localization([
   "messenger/addonNotifications.ftl",
   "branding/brand.ftl",
 ]);
-
-ChromeUtils.defineModuleGetter(
-  this,
-  "Management",
-  "resource://gre/modules/Extension.jsm"
-);
 
 var { CustomizableUITestUtils } = ChromeUtils.import(
   "resource://testing-common/CustomizableUITestUtils.jsm"

@@ -4,8 +4,8 @@
 
 "use strict";
 
-var { ExtensionTestUtils } = ChromeUtils.import(
-  "resource://testing-common/ExtensionXPCShellUtils.jsm"
+var { ExtensionTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
 
 add_task(async function test_managers() {
@@ -129,8 +129,8 @@ add_task(async function test_managers() {
         },
       ],
       "implementation.js": () => {
-        var { ExtensionCommon } = ChromeUtils.import(
-          "resource://gre/modules/ExtensionCommon.jsm"
+        var { ExtensionCommon } = ChromeUtils.importESModule(
+          "resource://gre/modules/ExtensionCommon.sys.mjs"
         );
         var { MailServices } = ChromeUtils.import(
           "resource:///modules/MailServices.jsm"

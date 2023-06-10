@@ -5,11 +5,9 @@
 import { UnifiedToolbarButton } from "./unified-toolbar-button.mjs";
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "ExtensionParent",
-  "resource://gre/modules/ExtensionParent.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  ExtensionParent: "resource://gre/modules/ExtensionParent.sys.mjs",
+});
 let browserActionFor = extensionId => {
   const extension =
     lazy.ExtensionParent.GlobalManager.getExtension(extensionId);

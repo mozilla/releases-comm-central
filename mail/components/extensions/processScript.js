@@ -10,16 +10,18 @@
 // injections, add |messenger| alias to those files until the test passes again,
 // and then find out why the monkeypatching is not catching it.
 
-const { ExtensionContent } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionContent.jsm"
+const { ExtensionContent } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionContent.sys.mjs"
 );
-const { ExtensionPageChild } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionPageChild.jsm"
+const { ExtensionPageChild } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionPageChild.sys.mjs"
 );
-const { ExtensionUtils } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionUtils.jsm"
+const { ExtensionUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionUtils.sys.mjs"
 );
-const { Schemas } = ChromeUtils.import("resource://gre/modules/Schemas.jsm");
+const { Schemas } = ChromeUtils.importESModule(
+  "resource://gre/modules/Schemas.sys.mjs"
+);
 
 let getContext = ExtensionContent.getContext;
 let initExtensionContext = ExtensionContent.initExtensionContext;

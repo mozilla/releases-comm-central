@@ -13,8 +13,8 @@ ChromeUtils.defineESModuleGetters(this, {
   unregisterExtension: "resource:///modules/CustomizableItems.sys.mjs",
   EXTENSION_PREFIX: "resource:///modules/CustomizableItems.sys.mjs",
 });
-var { ExtensionCommon } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionCommon.jsm"
+var { ExtensionCommon } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionCommon.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"

@@ -986,6 +986,6 @@ class nsContextMenu {
   }
 }
 
-XPCOMUtils.defineLazyModuleGetters(nsContextMenu, {
-  WebNavigationFrames: "resource://gre/modules/WebNavigationFrames.jsm",
+ChromeUtils.defineESModuleGetters(nsContextMenu, {
+  WebNavigationFrames: "resource://gre/modules/WebNavigationFrames.sys.mjs",
 });

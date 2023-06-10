@@ -9,11 +9,9 @@ const { EXTENSION_PREFIX } = ChromeUtils.importESModule(
 );
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "ExtensionParent",
-  "resource://gre/modules/ExtensionParent.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  ExtensionParent: "resource://gre/modules/ExtensionParent.sys.mjs",
+});
 const browserActionFor = extensionId =>
   lazy.ExtensionParent.apiManager.global.browserActionFor?.(
     lazy.ExtensionParent.GlobalManager.getExtension(extensionId)

@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-var { ExtensionParent } = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+var { ExtensionParent } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionParent.sys.mjs"
+);
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 ChromeUtils.defineModuleGetter(this, "MsgAuthPrompt", "resource:///modules/MsgAsyncPrompter.jsm");

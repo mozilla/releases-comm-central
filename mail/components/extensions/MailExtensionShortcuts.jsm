@@ -8,17 +8,15 @@ const EXPORTED_SYMBOLS = ["MailExtensionShortcuts"];
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-const { ExtensionShortcuts } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionShortcuts.jsm"
+const { ExtensionShortcuts } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionShortcuts.sys.mjs"
 );
 
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "ExtensionParent",
-  "resource://gre/modules/ExtensionParent.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  ExtensionParent: "resource://gre/modules/ExtensionParent.sys.mjs",
+});
 
 XPCOMUtils.defineLazyGetter(lazy, "browserActionFor", () => {
   return lazy.ExtensionParent.apiManager.global.browserActionFor;

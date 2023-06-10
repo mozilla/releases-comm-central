@@ -10,8 +10,8 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/ExtensionToolbarButtons.jsm"
 );
 
-var { ExtensionCommon } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionCommon.jsm"
+var { ExtensionCommon } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionCommon.sys.mjs"
 );
 var { makeWidgetId } = ExtensionCommon;
 

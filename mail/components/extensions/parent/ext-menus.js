@@ -21,13 +21,13 @@ var { SelectionUtils } = ChromeUtils.importESModule(
 
 var { DefaultMap, ExtensionError } = ExtensionUtils;
 
-var { ExtensionParent } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionParent.jsm"
+var { ExtensionParent } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionParent.sys.mjs"
 );
 var { IconDetails, StartupCache } = ExtensionParent;
 
-var { ExtensionCommon } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionCommon.jsm"
+var { ExtensionCommon } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionCommon.sys.mjs"
 );
 var { makeWidgetId } = ExtensionCommon;
 
