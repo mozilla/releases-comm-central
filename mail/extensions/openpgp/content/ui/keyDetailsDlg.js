@@ -41,11 +41,9 @@ var { RNP, RnpPrivateKeyUnlockTracker } = ChromeUtils.import(
   "chrome://openpgp/content/modules/RNP.jsm"
 );
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "LoginHelper",
-  "resource://gre/modules/LoginHelper.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  LoginHelper: "resource://gre/modules/LoginHelper.sys.mjs",
+});
 
 var gModePersonal = false;
 
