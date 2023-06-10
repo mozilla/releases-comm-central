@@ -42,6 +42,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
 
   OsEnvironment: "resource://gre/modules/OsEnvironment.sys.mjs",
+  PdfJs: "resource://pdf.js/PdfJs.sys.mjs",
 
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.sys.mjs",
@@ -54,7 +55,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   MailServices: "resource:///modules/MailServices.jsm",
   MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
-  PdfJs: "resource://pdf.js/PdfJs.jsm",
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
 });
 
@@ -219,10 +219,10 @@ let JSWINDOWACTORS = {
 
   Pdfjs: {
     parent: {
-      moduleURI: "resource://pdf.js/PdfjsParent.jsm",
+      esModuleURI: "resource://pdf.js/PdfjsParent.sys.mjs",
     },
     child: {
-      moduleURI: "resource://pdf.js/PdfjsChild.jsm",
+      esModuleURI: "resource://pdf.js/PdfjsChild.sys.mjs",
     },
     enablePreference: PREF_PDFJS_ISDEFAULT_CACHE_STATE,
     allFrames: true,
