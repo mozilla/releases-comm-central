@@ -759,10 +759,8 @@ add_task(async function testTotalCountHidden() {
     () => totalCountBadge.hidden,
     "The total count badges are hidden"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    moreContext.querySelector("#folderPaneHeaderToggleTotalCount"),
-    {},
-    about3Pane
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleTotalCount")
   );
   await toggleOffPromise;
 
@@ -792,4 +790,56 @@ add_task(async function testTotalCountHidden() {
 
   let row = about3Pane.folderTree.getRowAtIndex(1);
   await assertAriaLabel(row, "Inbox, 9 unread messages");
+});
+
+add_task(async function testHideLocalFoldersXULStore() {
+  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+  await shownPromise;
+
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleLocalFolders")
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      Services.xulStore.getValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "folderPaneLocalFolders",
+        "hidden"
+      ) == "true",
+    "The customization data to hide local folders should be saved"
+  );
+
+  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    moreContext,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
+
+  shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+  await shownPromise;
+
+  Assert.ok(
+    moreContext
+      .querySelector("#folderPaneHeaderToggleLocalFolders")
+      .hasAttribute("checked"),
+    "The hide local folders menuitem should be checked"
+  );
+
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleLocalFolders")
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      Services.xulStore.getValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "folderPaneLocalFolders",
+        "hidden"
+      ) == "false",
+    "The customization data to hide local folders should be saved"
+  );
 });

@@ -21,7 +21,9 @@ let account,
   outboxFolder,
   folderA,
   folderB,
-  folderC;
+  folderC,
+  moreButton,
+  moreContext;
 let generator = new MessageGenerator();
 let messageInjection = new MessageInjection(
   {
@@ -36,6 +38,8 @@ add_setup(async function () {
   inboxFolder = rootFolder.getChildNamed("Inbox");
   trashFolder = rootFolder.getChildNamed("Trash");
   outboxFolder = rootFolder.getChildNamed("Outbox");
+  moreButton = about3Pane.document.querySelector("#folderPaneMoreButton");
+  moreContext = about3Pane.document.getElementById("folderPaneMoreContext");
 
   rootFolder.createSubfolder("folderTreeQuirksA", null);
   folderA = rootFolder
@@ -68,6 +72,9 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(account, false);
     Services.prefs.clearUserPref("ui.prefersReducedMotion");
     folderPane.activeModes = ["all"];
+    Services.xulStore.removeDocument(
+      "chrome://messenger/content/messenger.xhtml"
+    );
   });
 });
 
@@ -1240,6 +1247,31 @@ add_task(async function testAccountOrder() {
     ...localExtraFolders,
   ]);
   await checkModeListItems("unread", [rootFolder, folderA]);
+  await checkModeListItems("favorite", []);
+
+  let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
+  await shownPromise;
+
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleLocalFolders")
+  );
+  // Force a 500ms timeout due to a weird intermittent macOS issue that prevents
+  // the Escape key press from closing the menupopup.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    moreContext,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
+
+  // All instances of local folders shouldn't be present.
+  await checkModeListItems("all", []);
+  await checkModeListItems("smart", [...smartFolders, trashFolder]);
+  await checkModeListItems("unread", []);
   await checkModeListItems("favorite", []);
 });
 

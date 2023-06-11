@@ -214,6 +214,9 @@ folder-pane-show-total-toggle =
 folder-pane-header-toggle-folder-size =
   .label = Show Folder Size
 
+folder-pane-header-hide-local-folders =
+  .label = Hide Local Folders
+
 folder-pane-mode-context-button =
   .title = Folder mode options
 
