@@ -46,6 +46,7 @@
   max-width: 100vw;
   border: 1px solid var(--layout-border-0);
   gap: 6px;
+  min-height: calc(1rem + 2 * var(--button-padding));
 }
 
 .toolbar-target .button.unified-toolbar-button {
