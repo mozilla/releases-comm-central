@@ -35,8 +35,8 @@ nsresult nsImapURI2FullName(const char* rootURI, const char* hostName,
 }
 
 /* parses ImapMessageURI */
-nsresult nsParseImapMessageURI(const nsACString& uri, nsCString& folderURI,
-                               uint32_t* key, char** part) {
+nsresult nsParseImapMessageURI(const nsACString& uri, nsACString& folderURI,
+                               nsMsgKey* key, nsACString& mimePart) {
   if (!key) return NS_ERROR_NULL_POINTER;
 
   const nsPromiseFlatCString& uriStr = PromiseFlatCString(uri);
@@ -78,17 +78,17 @@ nsresult nsParseImapMessageURI(const nsACString& uri, nsCString& folderURI,
 
     *key = strtoul(keyStr.get(), nullptr, 10);
 
-    if (part && keyEndSeparator != -1) {
+    if (keyEndSeparator != -1) {
       int32_t partPos = uriStr.Find("part=", keyEndSeparator);
       if (partPos != -1) {
-        *part = ToNewCString(Substring(uriStr, keyEndSeparator));
+        mimePart = Substring(uriStr, keyEndSeparator);
       }
     }
   }
   return NS_OK;
 }
 
-nsresult nsBuildImapMessageURI(const char* baseURI, uint32_t key,
+nsresult nsBuildImapMessageURI(const char* baseURI, nsMsgKey key,
                                nsACString& uri) {
   uri.Append(baseURI);
   uri.Append('#');

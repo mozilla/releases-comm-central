@@ -112,8 +112,6 @@ class nsImapService : public nsIImapService,
   // just a little helper method...maybe it should be a macro? which helps break
   // down a imap message uri into the folder and message key equivalents
   nsresult DecomposeImapURI(const nsACString& aMessageURI,
-                            nsIMsgFolder** aFolder, nsACString& msgKey);
-  nsresult DecomposeImapURI(const nsACString& aMessageURI,
                             nsIMsgFolder** aFolder, nsMsgKey* msgKey);
 
   nsCOMPtr<nsICacheStorage> mCacheStorage;
