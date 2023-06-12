@@ -2688,7 +2688,23 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
 
   m_loadingVirtualFolders = true;
 
-  nsresult rv;
+  // Before loading virtual folders, ensure that all real folders exist.
+  // Some may not have been created yet, which would break virtual folders
+  // that depend on them.
+  nsTArray<RefPtr<nsIMsgIncomingServer>> allServers;
+  nsresult rv = GetAllServers(allServers);
+  NS_ENSURE_SUCCESS(rv, rv);
+  for (auto server : allServers) {
+    if (server) {
+      nsCOMPtr<nsIMsgFolder> rootFolder;
+      server->GetRootFolder(getter_AddRefs(rootFolder));
+      if (rootFolder) {
+        nsTArray<RefPtr<nsIMsgFolder>> dummy;
+        rootFolder->GetSubFolders(dummy);
+      }
+    }
+  }
+
   if (!m_dbService) {
     m_dbService = do_GetService("@mozilla.org/msgDatabase/msgDBService;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
