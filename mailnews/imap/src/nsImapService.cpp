@@ -742,10 +742,10 @@ NS_IMETHODIMP nsImapService::SaveMessageToDisk(
 }
 
 /* fetching RFC822 messages */
-/* imap4://HOST>fetch><UID>>MAILBOXPATH>x */
+/* imap4://HOST>fetch>UID>MAILBOXPATH>x */
 /*   'x' is the message UID */
 /* will set the 'SEEN' flag */
-NS_IMETHODIMP nsImapService::AddImapFetchToUrl(
+nsresult nsImapService::AddImapFetchToUrl(
     nsIMsgMailNewsUrl* aUrl, nsIMsgFolder* aImapMailFolder,
     const nsACString& aMessageIdentifierList,
     const nsACString& aAdditionalHeader) {

@@ -53,6 +53,11 @@ class nsImapService : public nsIImapService,
   virtual ~nsImapService();
   char GetHierarchyDelimiter(nsIMsgFolder* aMsgFolder);
 
+  nsresult AddImapFetchToUrl(nsIMsgMailNewsUrl* aUrl,
+                             nsIMsgFolder* aImapMailFolder,
+                             const nsACString& aMessageIdentifierList,
+                             const nsACString& aAdditionalHeader);
+
   nsresult GetFolderName(nsIMsgFolder* aImapFolder, nsACString& aFolderName);
 
   // This is called by both FetchMessage and StreamMessage

@@ -52,11 +52,6 @@ interface nsIImapService : nsISupports
                           in nsIUrlListener aUrlListener,
                           in nsIMsgWindow aMsgWindow);
 
-  void addImapFetchToUrl(in nsIMsgMailNewsUrl aURL,
-                         in nsIMsgFolder aImapMailFolder,
-                         in ACString aMessageIdentifierList,
-                         in ACString aAdditionalHeader);
-
   void fetchMessage(in nsIImapUrl aUrl,
                     in nsImapState aImapAction,
                     in nsIMsgFolder aImapMailFolder,
