@@ -9,3 +9,7 @@ tb-debian-mingw:
 
 thunderbird-flatpak:
     symbol: I(flatpak)
+
+tb-atn:
+    symbol: I(tb-atn)
+    parent: debian11-base
