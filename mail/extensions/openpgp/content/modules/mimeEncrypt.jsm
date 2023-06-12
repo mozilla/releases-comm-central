@@ -435,7 +435,7 @@ PgpMimeEncrypt.prototype = {
       "\r\n" +
       'Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"\r\n' +
       "Content-Description: OpenPGP digital signature\r\n" +
-      'Content-Disposition: attachment; filename="OpenPGP_signature"\r\n\r\n';
+      'Content-Disposition: attachment; filename="OpenPGP_signature.asc"\r\n\r\n';
     if (this.mimeStructure == MIME_OUTER_ENC_INNER_SIG) {
       this.appendToCryptoInput(sigHeader);
     } else {
