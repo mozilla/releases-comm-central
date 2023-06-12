@@ -35,6 +35,7 @@ treeherder:
         'L10n': 'Localised Repacks'
         'L10n-Rpk': 'Localized Repackaged Repacks'
         'l10n-bump': 'L10n Bumper'
+        'langpack': 'Langpack uploads to ATN'
         'ms': 'Complete MAR signing'
         'MSI': 'Repack installers into MSIs'
         'MSIs': 'Signing of Repacked installers of MSIs'
