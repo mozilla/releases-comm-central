@@ -324,6 +324,10 @@ add_task(async function enter_msg_hdr_toolbar() {
   );
   let headerButtons = headerToolbar.querySelectorAll(BUTTONS_SELECTOR);
 
+  // Create an array of all the menu popups on message header.
+  let msgHdrMenupopups = headerToolbar.querySelectorAll(".no-icon-menupopup");
+  let menupopupToOpen, msgHdrActiveElement;
+
   // Press tab while on the message selected.
   EventUtils.synthesizeKey("KEY_Tab", {}, about3Pane);
   Assert.equal(
@@ -347,6 +351,63 @@ add_task(async function enter_msg_hdr_toolbar() {
         previousElement.tabIndex == -1,
       "The roving tab index was updated"
     );
+    msgHdrActiveElement = aboutMessage.document.activeElement;
+
+    // Simulate Enter and Space keypress events to ensure the menus in the
+    // message header buttons area are keyboard accessible.
+    if (
+      msgHdrActiveElement.hasAttribute("type") &&
+      msgHdrActiveElement.getAttribute("type") == "menu"
+    ) {
+      let parentID = msgHdrActiveElement.parentElement.id;
+      for (let menupopup of msgHdrMenupopups) {
+        if (
+          menupopup.id.replace("Dropdown", "") ==
+            parentID.replace("Button", "") ||
+          menupopup.id.replace("Popup", "") ==
+            msgHdrActiveElement.id.replace("Button", "")
+        ) {
+          menupopupToOpen = menupopup;
+        }
+      }
+
+      let menupopupOpenEnterPromise = BrowserTestUtils.waitForEvent(
+        menupopupToOpen,
+        "popupshown"
+      );
+      EventUtils.synthesizeKey("KEY_Enter", {}, about3Pane);
+      await menupopupOpenEnterPromise;
+
+      let menupopupClosePromise = BrowserTestUtils.waitForEvent(
+        menupopupToOpen,
+        "popuphidden"
+      );
+      EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+      await menupopupClosePromise;
+
+      Assert.equal(
+        msgHdrActiveElement.id,
+        headerButtons[i].id,
+        "The correct button is focused"
+      );
+
+      let menupopupOpenSpacePromise = BrowserTestUtils.waitForEvent(
+        menupopupToOpen,
+        "popupshown"
+      );
+      // Simulate Space keypress.
+      EventUtils.synthesizeKey(" ", {}, about3Pane);
+      await menupopupOpenSpacePromise;
+
+      EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+      await menupopupClosePromise;
+
+      Assert.equal(
+        msgHdrActiveElement.id,
+        headerButtons[i].id,
+        "The correct button is focused after opening and closing the menupopup"
+      );
+    }
   }
 
   // Simulate the Arrow Left keypress to make sure the correct button gets the
@@ -372,6 +433,7 @@ add_task(async function enter_msg_hdr_toolbar() {
     "The sender is now focused"
   );
 }).__skipMe = AppConstants.platform == "macosx";
+
 // Full keyboard navigation on OSX only works if Full Keyboard Access setting is
 // set to All Control in System Keyboard Preferences. This also works with the
 // setting, Keyboard > Keyboard navigation, in addition to
