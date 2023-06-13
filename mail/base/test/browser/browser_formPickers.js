@@ -24,7 +24,11 @@ async function checkABrowser(browser) {
     browser.webProgress?.isLoadingDocument ||
     browser.currentURI?.spec == "about:blank"
   ) {
-    await BrowserTestUtils.browserLoaded(browser);
+    await BrowserTestUtils.browserLoaded(
+      browser,
+      undefined,
+      url => url != "about:blank"
+    );
   }
 
   let win = browser.ownerGlobal;
@@ -32,7 +36,7 @@ async function checkABrowser(browser) {
 
   // Date picker
 
-  let picker = doc.getElementById(browser.getAttribute("datetimepicker"));
+  let picker = win.top.document.getElementById("DateTimePickerPanel");
   Assert.ok(picker, "date/time picker exists");
 
   // Open the popup.
@@ -64,7 +68,7 @@ async function checkABrowser(browser) {
 
   // Select drop-down
 
-  let menulist = doc.getElementById(browser.getAttribute("selectmenulist"));
+  let menulist = win.top.document.getElementById("ContentSelectDropdown");
   Assert.ok(menulist, "select menulist exists");
   let menupopup = menulist.menupopup;
 
@@ -88,7 +92,7 @@ async function checkABrowser(browser) {
 
   // Click the second option. This sets the value and closes the menulist.
   hiddenPromise = BrowserTestUtils.waitForEvent(menulist, "popuphidden");
-  EventUtils.synthesizeMouseAtCenter(menupopup.children[1], {}, win);
+  menupopup.activateItem(menupopup.children[1]);
   await hiddenPromise;
 
   // Sometimes the next change doesn't happen soon enough.
@@ -171,7 +175,7 @@ add_task(async function testMessagePane() {
 
   about3Pane.messagePane.displayWebPage(TEST_DOCUMENT_URL);
   await checkABrowser(about3Pane.webBrowser);
-}).skip(); // TODO: Pickers not working in this browser.
+});
 
 add_task(async function testContentTab() {
   let tab = window.openContentTab(TEST_DOCUMENT_URL);
@@ -234,13 +238,13 @@ add_task(async function testExtensionBrowserAction() {
 
   let { panel, browser } = await openExtensionPopup(
     window,
-    "formpickers_mochi_test-browserAction-toolbarbutton"
+    "ext-formpickers\\@mochi.test"
   );
   await checkABrowser(browser);
   panel.hidePopup();
 
   await extension.unload();
-}).skip(); // TODO: No toolbar, no browser action.
+});
 
 add_task(async function testExtensionComposeAction() {
   let extension = ExtensionTestUtils.loadExtension({
@@ -310,10 +314,13 @@ add_task(async function testExtensionMessageDisplayAction() {
   let messageWindowPromise = BrowserTestUtils.domWindowOpened();
   window.MsgOpenNewWindowForMessage([...testFolder.messages][0]);
   let messageWindow = await messageWindowPromise;
-  await BrowserTestUtils.waitForEvent(messageWindow, "load");
+  let { target: aboutMessage } = await BrowserTestUtils.waitForEvent(
+    messageWindow,
+    "aboutMessageLoaded"
+  );
 
   let { panel, browser } = await openExtensionPopup(
-    messageWindow,
+    aboutMessage,
     "formpickers_mochi_test-messageDisplayAction-toolbarbutton"
   );
   await checkABrowser(browser);
@@ -321,7 +328,7 @@ add_task(async function testExtensionMessageDisplayAction() {
 
   await extension.unload();
   await BrowserTestUtils.closeWindow(messageWindow);
-}).skip(); // TODO: Toolbar broken.
+});
 
 add_task(async function testBrowserRequestWindow() {
   let requestWindow = await new Promise(resolve => {

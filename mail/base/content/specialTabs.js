@@ -813,8 +813,6 @@ var specialTabs = {
       aTab.browser.setAttribute("type", "content");
       aTab.browser.setAttribute("flex", "1");
       aTab.browser.setAttribute("autocompletepopup", "PopupAutoComplete");
-      aTab.browser.setAttribute("datetimepicker", "DateTimePickerPanel");
-      aTab.browser.setAttribute("selectmenulist", "ContentSelectDropdown");
       aTab.browser.setAttribute("context", "browserContext");
       aTab.browser.setAttribute("maychangeremoteness", "true");
       aTab.browser.setAttribute("onclick", "return contentAreaClick(event);");

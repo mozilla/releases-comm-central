@@ -15,10 +15,13 @@ async function focusWindow(win) {
 }
 
 async function openExtensionPopup(win, buttonId) {
-  await focusWindow(win);
+  await focusWindow(win.top);
 
   let actionButton = await TestUtils.waitForCondition(
-    () => win.document.getElementById(buttonId),
+    () =>
+      win.document.querySelector(
+        `#${buttonId}, [item-id="${buttonId}"] button`
+      ),
     "waiting for the action button to exist"
   );
   await TestUtils.waitForCondition(
@@ -27,7 +30,9 @@ async function openExtensionPopup(win, buttonId) {
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {}, win);
 
-  let panel = win.document.getElementById("webextension-remote-preload-panel");
+  let panel = win.top.document.getElementById(
+    "webextension-remote-preload-panel"
+  );
   let browser = panel.querySelector("browser");
   await TestUtils.waitForCondition(
     () => browser.clientWidth > 100,

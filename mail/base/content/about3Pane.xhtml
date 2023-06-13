@@ -315,6 +315,7 @@
                  hidden="true"
                  nodefaultsrc="true"
                  context="browserContext"
+                 autocompletepopup="PopupAutoComplete"
                  forcemessagemanager="true"
                  messagemanagergroup="single-page"
                  maychangeremoteness="true" />
@@ -617,8 +618,12 @@
               class="menuitem-iconic"
               data-l10n-id="folder-pane-get-all-messages-menuitem"
               oncommand="top.MsgGetMessagesForAllAuthenticatedAccounts();"/>
-  <menuseparator id="separatorAfterItemGetAllNewMessages"/>
-</menupopup>
+    <menuseparator id="separatorAfterItemGetAllNewMessages"/>
+  </menupopup>
 #include mailContext.inc.xhtml
+  <panel is="autocomplete-richlistbox-popup" id="PopupAutoComplete"
+         type="autocomplete"
+         role="group"
+         noautofocus="true"/>
 </popupset>
 </html>

@@ -299,7 +299,7 @@ add_task(async function testExtensionBrowserAction() {
 
   let { panel, browser } = await openExtensionPopup(
     window,
-    "browsercontext_mochi_test-browserAction-toolbarbutton"
+    "ext-browsercontext\\@mochi.test"
   );
   await TestUtils.waitForCondition(
     () => browser.clientWidth > 100,
@@ -309,7 +309,7 @@ add_task(async function testExtensionBrowserAction() {
   panel.hidePopup();
 
   await extension.unload();
-}).skip(); // TODO: No toolbar, no browser action.
+});
 
 add_task(async function testExtensionComposeAction() {
   let extension = ExtensionTestUtils.loadExtension({
@@ -381,10 +381,13 @@ add_task(async function testExtensionMessageDisplayAction() {
   let messageWindowPromise = BrowserTestUtils.domWindowOpened();
   window.MsgOpenNewWindowForMessage([...testFolder.messages][0]);
   let messageWindow = await messageWindowPromise;
-  await BrowserTestUtils.waitForEvent(messageWindow, "load");
+  let { target: aboutMessage } = await BrowserTestUtils.waitForEvent(
+    messageWindow,
+    "aboutMessageLoaded"
+  );
 
   let { panel, browser } = await openExtensionPopup(
-    messageWindow,
+    aboutMessage,
     "browsercontext_mochi_test-messageDisplayAction-toolbarbutton"
   );
   await checkABrowser(browser);
@@ -392,4 +395,4 @@ add_task(async function testExtensionMessageDisplayAction() {
 
   await extension.unload();
   await BrowserTestUtils.closeWindow(messageWindow);
-}).skip(); // TODO: Toolbar broken.
+});
