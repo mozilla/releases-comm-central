@@ -904,7 +904,8 @@ var FeedUtils = {
   async getFavicon(folder, feedURL) {
     if (
       !Services.prefs.getBoolPref("browser.chrome.site_icons") ||
-      !Services.prefs.getBoolPref("browser.chrome.favicons")
+      !Services.prefs.getBoolPref("browser.chrome.favicons") ||
+      !Services.prefs.getBoolPref("places.history.enabled")
     ) {
       return "";
     }
