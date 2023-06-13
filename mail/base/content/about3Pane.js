@@ -1630,18 +1630,43 @@ var folderPane = {
    * @param {Event} event - The DOMEvent.
    */
   onFolderPaneModeContextOpening(event) {
-    let menuitem = this.folderPaneModeContext.querySelector(
+    this.mode = event.target.closest("[data-mode]")?.dataset.mode;
+
+    // If folder mode is at the top or the only one,
+    // it can't be moved up, so disable "Move Up".
+    const moveUpMenuItem = this.folderPaneModeContext.querySelector(
+      "#folderPaneModeMoveUp"
+    );
+    moveUpMenuItem.removeAttribute("disabled");
+    // Apply attribute mode to context menu option to allow
+    // for sorting later
+    if (this.activeModes.at(0) == this.mode) {
+      moveUpMenuItem.setAttribute("disabled", "true");
+    }
+
+    // If folder mode is at the bottom or the only one,
+    // it can't be moved down, so disable "Move Down".
+    const moveDownMenuItem = this.folderPaneModeContext.querySelector(
+      "#folderPaneModeMoveDown"
+    );
+    moveDownMenuItem.removeAttribute("disabled");
+    // Apply attribute mode to context menu option to allow
+    // for sorting later
+    if (this.activeModes.at(-1) == this.mode) {
+      moveDownMenuItem.setAttribute("disabled", "true");
+    }
+
+    let compactMenuItem = this.folderPaneModeContext.querySelector(
       "#compactFolderButton"
     );
-    menuitem.removeAttribute("checked");
-    menuitem.removeAttribute("disabled");
-    const mode = event.target.closest("[data-mode]")?.getAttribute("data-mode");
-    if (!this.canModeBeCompact(mode)) {
-      menuitem.setAttribute("disabled", "true");
+    compactMenuItem.removeAttribute("checked");
+    compactMenuItem.removeAttribute("disabled");
+    if (!this.canModeBeCompact(this.mode)) {
+      compactMenuItem.setAttribute("disabled", "true");
       return;
     }
     if (this.isCompact) {
-      menuitem.setAttribute("checked", true);
+      compactMenuItem.setAttribute("checked", true);
     }
   },
 
@@ -1652,6 +1677,42 @@ var folderPane = {
    */
   compactFolderToggle(event) {
     this.isCompact = event.target.hasAttribute("checked");
+  },
+
+  /**
+   * Moves active folder mode up
+   *
+   * @param {Event} event - The DOMEvent.
+   */
+  moveFolderModeUp(event) {
+    let currentModes = this.activeModes;
+    const mode = this.mode;
+    const index = currentModes.indexOf(mode);
+
+    if (index > 0) {
+      const prev = currentModes[index - 1];
+      currentModes[index - 1] = currentModes[index];
+      currentModes[index] = prev;
+    }
+    this.activeModes = currentModes;
+  },
+
+  /**
+   * Moves active folder mode down
+   *
+   * @param {Event} event - The DOMEvent.
+   */
+  moveFolderModeDown(event) {
+    let currentModes = this.activeModes;
+    const mode = this.mode;
+    const index = currentModes.indexOf(mode);
+
+    if (index < currentModes.length - 1) {
+      const next = currentModes[index + 1];
+      currentModes[index + 1] = currentModes[index];
+      currentModes[index] = next;
+    }
+    this.activeModes = currentModes;
   },
 
   /**

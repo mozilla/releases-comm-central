@@ -39,7 +39,6 @@ add_setup(async function () {
   folderModesContextMenuPopup = about3Pane.document.getElementById(
     "folderModesContextMenuPopup"
   );
-
   registerCleanupFunction(() => {
     Services.xulStore.removeDocument(
       "chrome://messenger/content/messenger.xhtml"

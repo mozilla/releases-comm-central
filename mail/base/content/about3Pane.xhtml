@@ -567,6 +567,17 @@
   <menupopup id="folderPaneModeContext"
              class="no-accel-menupopup"
              position="bottomleft topleft">
+    <menuitem id="folderPaneModeMoveUp"
+             class="folder-pane-mode"
+             value="moveup"
+             data-l10n-id="folder-pane-mode-move-up"
+             oncommand="folderPane.moveFolderModeUp(event);"/>
+   <menuitem id="folderPaneModeMoveDown"
+             class="folder-pane-mode"
+             value="movedown"
+             data-l10n-id="folder-pane-mode-move-down"
+             oncommand="folderPane.moveFolderModeDown(event);"/>
+    <menuseparator id="separatorBeforeCompactFolderOption"/>
     <menuitem id="compactFolderButton"
               class="compact-folder-button folder-pane-mode"
               value="compact"
