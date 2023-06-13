@@ -863,6 +863,7 @@ var folderPane = {
           }
           let row = folderPane._createFolderRow(this.name, folder);
           this.containerList.appendChild(row);
+          folderType.folderURI = folder.URI;
           folderType.list = row.childList;
 
           // Display the searched folders for this type.
@@ -870,6 +871,7 @@ var folderPane = {
           for (let searchFolder of wrappedFolder.searchFolders) {
             if (searchFolder != folder) {
               this._addSearchedFolder(
+                folderType,
                 folderPane._getNonGmailParent(searchFolder),
                 searchFolder
               );
@@ -879,10 +881,8 @@ var folderPane = {
         MailServices.accounts.saveVirtualFolders();
       },
 
-      _addSearchedFolder(parentFolder, childFolder) {
-        let flags = childFolder.flags;
-        let folderType = this._folderTypes.find(ft => flags & ft.flag);
-        if (folderType) {
+      _addSearchedFolder(folderType, parentFolder, childFolder) {
+        if (folderType.flag & childFolder.flags) {
           // The folder has the flag for this type.
           let folderRow = folderPane._createFolderRow(
             this.name,
@@ -893,10 +893,10 @@ var folderPane = {
           return;
         }
 
-        folderType = this._folderTypes.find(
-          ft => childFolder.isSpecialFolder(ft.flag, true) && ft.list
-        );
-        if (!folderType) {
+        if (!childFolder.isSpecialFolder(folderType.flag, true)) {
+          // This folder is searched by the virtual folder but it hasn't got
+          // the flag of this type and no ancestor has the flag of this type.
+          // We don't have a good way of displaying it.
           return;
         }
 
@@ -907,6 +907,7 @@ var folderPane = {
           // not. Displaying the unsearched folder is probably the least
           // confusing way to handle this situation.
           this._addSearchedFolder(
+            folderType,
             folderPane._getNonGmailParent(parentFolder),
             parentFolder
           );
@@ -918,6 +919,15 @@ var folderPane = {
       },
 
       changeSearchedFolders(smartFolder) {
+        let folderType = this._folderTypes.find(
+          ft => ft.folderURI == smartFolder.URI
+        );
+        if (!folderType) {
+          // This virtual folder isn't one of the smart folders. It's probably
+          // one of the tags virtual folders.
+          return;
+        }
+
         let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(smartFolder);
         let smartFolderRow = folderPane.getRowForFolder(smartFolder, this.name);
         let searchFolderURIs = wrappedFolder.searchFolders.map(sf => sf.URI);
@@ -940,6 +950,7 @@ var folderPane = {
             !existingRowURIs.includes(searchFolder.URI)
           ) {
             this._addSearchedFolder(
+              folderType,
               folderPane._getNonGmailParent(searchFolder),
               searchFolder
             );
