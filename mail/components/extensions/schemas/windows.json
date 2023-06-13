@@ -10,15 +10,7 @@
         "id": "WindowType",
         "type": "string",
         "description": "The type of a window. Under some circumstances a window may not be assigned a type property.",
-        "enum": [
-          "normal",
-          "popup",
-          "panel",
-          "app",
-          "devtools",
-          "messageCompose",
-          "messageDisplay"
-        ]
+        "enum": ["normal", "popup", "messageCompose", "messageDisplay"]
       },
       {
         "id": "WindowState",

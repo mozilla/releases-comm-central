@@ -408,7 +408,7 @@ function getWebExtensionWindowType(window) {
     case "mail:3pane":
       return "normal";
     default:
-      return null;
+      return "unknown";
   }
 }
 
@@ -449,7 +449,8 @@ class WindowTracker extends WindowTrackerBase {
    * @returns {boolean} True, if the window is supported by the windows API
    */
   isBrowserWindow(window) {
-    return !!getWebExtensionWindowType(window);
+    let type = getWebExtensionWindowType(window);
+    return !!type && type != "unknown";
   }
 
   /**
@@ -1481,7 +1482,7 @@ class Window extends WindowBase {
   get type() {
     let type = getWebExtensionWindowType(this.window);
     if (!type) {
-      throw new Error("Windows API encountered an unknown window type.");
+      throw new Error("Windows API encountered an invalid window type.");
     }
     return type;
   }
