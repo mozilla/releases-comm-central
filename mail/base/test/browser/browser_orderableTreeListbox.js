@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* eslint mozilla/no-arbitrary-setTimeout: off */
-
 let dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
 );
 
-let WAIT_TIME = 0;
+let waitTime = 0;
 
 let tabmail = document.getElementById("tabmail");
 registerCleanupFunction(() => {
@@ -19,7 +17,7 @@ registerCleanupFunction(() => {
 
 async function withMotion(subtest) {
   Services.prefs.setIntPref("ui.prefersReducedMotion", 0);
-  WAIT_TIME = 300;
+  waitTime = 300;
   await TestUtils.waitForCondition(
     () => !matchMedia("(prefers-reduced-motion)").matches
   );
@@ -28,7 +26,7 @@ async function withMotion(subtest) {
 
 async function withoutMotion(subtest) {
   Services.prefs.setIntPref("ui.prefersReducedMotion", 1);
-  WAIT_TIME = 0;
+  waitTime = 0;
   await TestUtils.waitForCondition(
     () => matchMedia("(prefers-reduced-motion)").matches
   );
@@ -44,17 +42,25 @@ async function orderWithKeys(key) {
   list.addEventListener("select", selectHandler);
   list.addEventListener("ordered", orderedHandler);
   EventUtils.synthesizeKey(key, { altKey: true }, win);
-  await new Promise(resolve => win.setTimeout(resolve, WAIT_TIME));
+  await new Promise(resolve => win.setTimeout(resolve, waitTime));
   list.removeEventListener("select", selectHandler);
   list.removeEventListener("ordered", orderedHandler);
 
   await checkNoTransformations();
 }
 
-async function startDrag(index) {
+async function waitForTransition(shouldWait) {
+  if (shouldWait && waitTime) {
+    await BrowserTestUtils.waitForEvent(list, "transitionend");
+  }
+  await new Promise(resolve => win.setTimeout(resolve));
+}
+
+async function startDrag(index, shouldWait = false) {
   let listRect = list.getBoundingClientRect();
   let clientY = listRect.top + index * 32 + 4;
 
+  let transitionPromise = waitForTransition(shouldWait);
   dragService.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_NONE);
   [, dataTransfer] = EventUtils.synthesizeDragOver(
     list.rows[index],
@@ -69,16 +75,17 @@ async function startDrag(index) {
     }
   );
 
-  await new Promise(resolve => setTimeout(resolve, WAIT_TIME));
+  await transitionPromise;
 }
 
-async function continueDrag(index) {
+async function continueDrag(index, shouldWait = false) {
   let listRect = list.getBoundingClientRect();
   let destClientX = listRect.left + listRect.width / 2;
   let destClientY = listRect.top + index * 32 + 4;
   let destScreenX = win.mozInnerScreenX + destClientX;
   let destScreenY = win.mozInnerScreenY + destClientY;
 
+  let transitionPromise = waitForTransition(shouldWait);
   let result = EventUtils.sendDragEvent(
     {
       type: "dragover",
@@ -93,14 +100,15 @@ async function continueDrag(index) {
     win
   );
 
-  await new Promise(resolve => setTimeout(resolve, WAIT_TIME));
+  await transitionPromise;
   return result;
 }
 
-async function endDrag(index) {
+async function endDrag(index, shouldWait = false) {
   let listRect = list.getBoundingClientRect();
   let clientY = listRect.top + index * 32 + 4;
 
+  let transitionPromise = waitForTransition(shouldWait);
   EventUtils.synthesizeDropAfterDragOver(false, dataTransfer, list, win, {
     clientY,
     _domDispatchOnly: true,
@@ -108,7 +116,7 @@ async function endDrag(index) {
   list.dispatchEvent(new CustomEvent("dragend", { bubbles: true }));
   dragService.endDragSession(true);
 
-  await new Promise(resolve => setTimeout(resolve, WAIT_TIME));
+  await transitionPromise;
 }
 
 function checkRowOrder(expectedOrder) {
@@ -290,6 +298,8 @@ async function subtestKeyReorder() {
   await orderWithKeys("KEY_ArrowUp");
   Assert.ok(orderedHandler.seenEvent);
   checkRowOrder("1 2 2-1 2-2 3 3-1 3-2 3-3 4 5 5-1 5-2");
+
+  await checkNoTransformations();
 }
 
 /** Drag the first item to the end. */
@@ -299,10 +309,10 @@ async function subtestDragReorder1() {
 
   checkYPositions(1, 33, 129, 257, 289);
 
-  await startDrag(0);
+  await startDrag(0, true);
   checkYPositions(1, 33, 129, 257, 289);
 
-  await continueDrag(2);
+  await continueDrag(2, true);
   checkYPositions(52, 1, 129, 257, 289);
   await continueDrag(3);
   checkYPositions(84, 1, 129, 257, 289);
@@ -310,22 +320,22 @@ async function subtestDragReorder1() {
   checkYPositions(116, 1, 129, 257, 289);
   await continueDrag(5);
   checkYPositions(148, 1, 129, 257, 289);
-  await continueDrag(6);
+  await continueDrag(6, true);
   checkYPositions(180, 1, 97, 257, 289);
   await continueDrag(7);
   checkYPositions(212, 1, 97, 257, 289);
-  await continueDrag(8);
+  await continueDrag(8, true);
   checkYPositions(244, 1, 97, 225, 289);
   await continueDrag(9);
   checkYPositions(276, 1, 97, 225, 289);
-  await continueDrag(10);
+  await continueDrag(10, true);
   checkYPositions(308, 1, 97, 225, 257);
   await continueDrag(11);
   checkYPositions(340, 1, 97, 225, 257);
   await continueDrag(12);
   checkYPositions(353, 1, 97, 225, 257);
 
-  await endDrag(12);
+  await endDrag(12, true);
   list.removeEventListener("ordered", orderedHandler);
 
   Assert.ok(orderedHandler.seenEvent);
@@ -339,22 +349,22 @@ async function subtestDragReorder2() {
   orderedHandler.reset();
   list.addEventListener("ordered", orderedHandler);
 
-  await startDrag(11);
+  await startDrag(11, true);
   checkYPositions(340, 1, 97, 225, 257);
 
-  await continueDrag(9);
+  await continueDrag(9, true);
   checkYPositions(276, 1, 97, 225, 289);
 
-  await continueDrag(7);
+  await continueDrag(7, true);
   checkYPositions(212, 1, 97, 257, 289);
 
-  await continueDrag(4);
+  await continueDrag(4, true);
   checkYPositions(116, 1, 129, 257, 289);
 
-  await continueDrag(1);
+  await continueDrag(1, true);
   checkYPositions(20, 33, 129, 257, 289);
 
-  await endDrag(0);
+  await endDrag(0, true);
   list.removeEventListener("ordered", orderedHandler);
 
   Assert.ok(orderedHandler.seenEvent);
@@ -383,10 +393,10 @@ async function subtestDragUndroppable() {
 
   checkYPositions(1, 33, 129, 257, 289);
 
-  await startDrag(0);
+  await startDrag(0, true);
   checkYPositions(1, 33, 129, 257, 289);
 
-  await continueDrag(8);
+  await continueDrag(8, true);
   checkYPositions(244, 1, 97, 225, 289);
   await continueDrag(9);
   checkYPositions(257, 1, 97, 225, 289);
@@ -397,7 +407,7 @@ async function subtestDragUndroppable() {
   await continueDrag(12);
   checkYPositions(257, 1, 97, 225, 289);
 
-  await endDrag(12);
+  await endDrag(12, true);
   list.removeEventListener("ordered", orderedHandler);
 
   Assert.ok(orderedHandler.seenEvent);
@@ -425,9 +435,9 @@ async function subtestDragUndroppable() {
   checkRowOrder("2 2-1 2-2 3 3-1 3-2 3-3 4 1 5 5-1 5-2");
 
   orderedHandler.reset();
-  await startDrag(8);
-  await continueDrag(1);
-  await endDrag(1);
+  await startDrag(8, true);
+  await continueDrag(1, true);
+  await endDrag(1, true);
   checkRowOrder("1 2 2-1 2-2 3 3-1 3-2 3-3 4 5 5-1 5-2");
 
   list.__defineGetter__("_orderableChildren", originalGetter);
