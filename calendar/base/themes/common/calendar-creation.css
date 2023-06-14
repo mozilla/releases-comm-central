@@ -54,12 +54,12 @@ td {
 /* Network Calendar List */
 
 #network-calendar-list {
+  flex: 1 1 0;
   appearance: none;
   margin: 0;
   border-style: none;
   background-color: transparent;
   color: inherit;
-  max-height: 300px;
   padding: 0 10px;
 }
 
