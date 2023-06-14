@@ -229,7 +229,7 @@ export class AttachmentInfo {
           tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
           tempFile.append("subPart.eml");
           tempFile.createUnique(0, 0o600);
-          saveToFile(tempFile.path);
+          await saveToFile(tempFile.path);
 
           this.#temporaryFiles.set(url, tempFile);
         }
