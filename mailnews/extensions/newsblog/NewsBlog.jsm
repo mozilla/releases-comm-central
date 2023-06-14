@@ -11,9 +11,6 @@ FeedDownloader.prototype = {
   downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow) {
     FeedUtils.downloadFeed(aFolder, aUrlListener, aIsBiff, aMsgWindow);
   },
-  subscribeToFeed(aUrl, aFolder, aMsgWindow) {
-    FeedUtils.subscribeToFeed(aUrl, aFolder, aMsgWindow);
-  },
   updateSubscriptionsDS(aFolder, aOrigFolder, aAction) {
     FeedUtils.updateSubscriptionsDS(aFolder, aOrigFolder, aAction);
   },

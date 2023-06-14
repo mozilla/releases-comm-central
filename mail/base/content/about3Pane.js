@@ -2659,6 +2659,20 @@ var folderPane = {
         return;
       }
       event.dataTransfer.dropEffect = "move";
+    } else if (
+      types.includes("text/x-moz-url-data") ||
+      types.includes("text/x-moz-url")
+    ) {
+      // Allow subscribing to feeds by dragging an url to a feed account.
+      if (
+        targetFolder.server.type == "rss" &&
+        !targetFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Trash, true) &&
+        event.dataTransfer.items.length == 1 &&
+        FeedUtils.getFeedUriFromDataTransfer(event.dataTransfer)
+      ) {
+        return;
+      }
+      event.dataTransfer.dropEffect = "link";
     } else {
       return;
     }
@@ -2795,6 +2809,14 @@ var folderPane = {
       setTimeout(
         () => (folderTree.selectedRow = this.getRowForFolder(folder, mode))
       );
+    } else if (
+      types.includes("text/x-moz-url-data") ||
+      types.includes("text/x-moz-url")
+    ) {
+      // This is a potential rss feed. A link image as well as link text url
+      // should be handled; try to extract a url from non moz apps as well.
+      let feedURI = FeedUtils.getFeedUriFromDataTransfer(event.dataTransfer);
+      FeedUtils.subscribeToFeed(feedURI.spec, targetFolder);
     }
 
     event.preventDefault();

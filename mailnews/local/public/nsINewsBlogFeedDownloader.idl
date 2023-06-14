@@ -17,14 +17,6 @@ interface nsINewsBlogFeedDownloader : nsISupports
                     in nsIMsgWindow aMsgWindow);
 
   /**
-   * A convient method to subscribe to feeds without going through the Subscribe
-   * dialog; used by drag and drop and commandline.
-   */
-  void subscribeToFeed(in string aUrl,
-                       in nsIMsgFolder aFolder,
-                       in nsIMsgWindow aMsgWindow);
-
-  /**
    * Called when the RSS Incoming Server detects a change to an RSS folder name,
    * such as delete (move to trash), move/copy, or rename. We then need to update
    * the feeds.rdf subscriptions data source.

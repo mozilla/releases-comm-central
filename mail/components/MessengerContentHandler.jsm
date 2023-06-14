@@ -17,6 +17,7 @@ const { MailServices } = ChromeUtils.import(
 const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
+  FeedUtils: "resource:///modules/FeedUtils.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   MimeParser: "resource:///modules/mimeParser.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
@@ -409,9 +410,7 @@ MailDefaultHandler.prototype = {
       // Protocols are able to contain file endings like '.ics'.
       if (/^https?:/i.test(uri) || /^feed:/i.test(uri)) {
         getOrOpen3PaneWindow().then(win => {
-          Cc["@mozilla.org/newsblog-feed-downloader;1"]
-            .getService(Ci.nsINewsBlogFeedDownloader)
-            .subscribeToFeed(uri, null, null);
+          lazy.FeedUtils.subscribeToFeed(uri, null);
         });
       } else if (/^webcals?:\/\//i.test(uri)) {
         getOrOpen3PaneWindow().then(win => {

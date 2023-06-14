@@ -640,19 +640,9 @@ async function selectFirstFolder() {
 
   if ("arguments" in window && window.arguments.length > 0) {
     let arg0 = window.arguments[0];
-    // If the argument is a string, it is either a folder URI or a feed URI.
+    // If the argument is a string, it is folder URI.
     if (typeof arg0 == "string") {
-      // Filter out any feed urls that came in as arguments to the new window.
-      if (arg0.toLowerCase().startsWith("feed:")) {
-        let feedHandler = Cc[
-          "@mozilla.org/newsblog-feed-downloader;1"
-        ].getService(Ci.nsINewsBlogFeedDownloader);
-        if (feedHandler) {
-          feedHandler.subscribeToFeed(arg0, null, msgWindow);
-        }
-      } else {
-        startFolderURI = arg0;
-      }
+      startFolderURI = arg0;
     } else if (arg0) {
       // arg0 is an object
       if ("wrappedJSObject" in arg0 && arg0.wrappedJSObject) {
