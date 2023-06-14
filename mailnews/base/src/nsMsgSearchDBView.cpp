@@ -196,8 +196,23 @@ nsMsgSearchDBView::OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
     nsMsgViewIndex deletedIndex = FindHdr(aHdrDeleted);
     uint32_t savedFlags = 0;
     if (deletedIndex != nsMsgViewIndex_None) {
+      // Check if this message is currently selected. If it is, tell the front
+      // end to be prepared for a delete.
+      nsCOMPtr<nsIMsgDBViewCommandUpdater> commandUpdater(
+          do_QueryReferent(mCommandUpdater));
+      bool isMsgSelected = false;
+      if (mTreeSelection && commandUpdater) {
+        mTreeSelection->IsSelected(deletedIndex, &isMsgSelected);
+        if (isMsgSelected) commandUpdater->UpdateNextMessageAfterDelete();
+      }
+
       savedFlags = m_flags[deletedIndex];
       RemoveByIndex(deletedIndex);
+
+      if (isMsgSelected) {
+        // Now tell the front end that the delete happened.
+        commandUpdater->SelectedMessageRemoved();
+      }
     }
 
     nsCOMPtr<nsIMsgThread> thread;

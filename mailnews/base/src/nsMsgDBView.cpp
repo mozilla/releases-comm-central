@@ -5805,13 +5805,19 @@ nsMsgDBView::OnHdrDeleted(nsIMsgDBHdr* aHdrChanged, nsMsgKey aParentKey,
     // to be prepared for a delete.
     nsCOMPtr<nsIMsgDBViewCommandUpdater> commandUpdater(
         do_QueryReferent(mCommandUpdater));
+    bool isMsgSelected = false;
     if (mTreeSelection && commandUpdater) {
-      bool isMsgSelected = false;
       mTreeSelection->IsSelected(deletedIndex, &isMsgSelected);
       if (isMsgSelected) commandUpdater->UpdateNextMessageAfterDelete();
     }
 
     RemoveByIndex(deletedIndex);
+
+    if (isMsgSelected) {
+      // Now tell the front end that the delete happened.
+      commandUpdater->SelectedMessageRemoved();
+      m_deletingRows = false;
+    }
   }
 
   return NS_OK;

@@ -535,6 +535,11 @@ interface nsIMsgDBViewCommandUpdater : nsISupports
   * @return   true if we did summarize, false otherwise.
   */
   boolean summarizeSelection();
+
+  /**
+   * Tell the front end that the selected message was removed and it should update.
+   */
+  void selectedMessageRemoved();
 };
 
 /**

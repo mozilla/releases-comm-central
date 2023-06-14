@@ -257,21 +257,6 @@ var folderListener = {
 
   onFolderRemoved(parentFolder, childFolder) {},
   onMessageRemoved(parentFolder, msg) {
-    // Close the tab or window if the displayed message is deleted.
-    if (
-      parent.location.href != "about:3pane" &&
-      Services.prefs.getBoolPref("mail.close_message_window.on_delete") &&
-      msg == gMessage
-    ) {
-      let topWindow = window.browsingContext.topChromeWindow;
-      let tabmail = topWindow.document.getElementById("tabmail");
-      if (tabmail) {
-        tabmail.closeTab(window.tabOrWindow);
-      } else {
-        topWindow.close();
-      }
-      return;
-    }
     messageHistory.onMessageRemoved(parentFolder, msg);
   },
 };

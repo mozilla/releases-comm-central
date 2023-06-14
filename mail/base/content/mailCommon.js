@@ -840,6 +840,9 @@ var dbViewWrapperListener = {
     summarizeSelection() {
       return true;
     },
+    selectedMessageRemoved() {
+      dbViewWrapperListener.onMessagesRemoved();
+    },
   },
 
   get shouldUseMailViews() {
@@ -930,7 +933,10 @@ var dbViewWrapperListener = {
       return;
     }
 
-    if (this._nextViewIndexAfterDelete != null) {
+    if (
+      this._nextViewIndexAfterDelete != null &&
+      this._nextViewIndexAfterDelete != nsMsgViewIndex_None
+    ) {
       // Select the next message in the view, based on what we were told in
       // updateNextMessageAfterDelete.
       if (this._nextViewIndexAfterDelete >= rowCount) {
@@ -957,6 +963,18 @@ var dbViewWrapperListener = {
             window.threadTree.dispatchEvent(new CustomEvent("select"));
           }
         } else if (parent?.location != "about:3pane") {
+          if (
+            Services.prefs.getBoolPref("mail.close_message_window.on_delete")
+          ) {
+            // Close the tab or window if the displayed message is deleted.
+            let tabmail = top.document.getElementById("tabmail");
+            if (tabmail) {
+              tabmail.closeTab(window.tabOrWindow);
+            } else {
+              top.close();
+            }
+            return;
+          }
           gDBView.selection.select(this._nextViewIndexAfterDelete);
           window.displayMessage(
             gDBView.getURIForViewIndex(this._nextViewIndexAfterDelete),
