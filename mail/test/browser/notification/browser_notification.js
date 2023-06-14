@@ -93,24 +93,6 @@ var gMockAlertsServiceFactory = {
   },
 };
 
-let gMockWindowsIntegration = {
-  QueryInterface: ChromeUtils.generateQI([
-    "nsIMessengerOSIntegration",
-    "nsIMessengerWindowsIntegration",
-  ]),
-
-  // Do not suppress notification, so that the tests can pass on Treeherder.
-  suppressNotification: false,
-
-  updateUnreadCount() {},
-};
-
-let gMockWindowsIntegrationFactory = {
-  createInstance() {
-    return gMockWindowsIntegration;
-  },
-};
-
 add_setup(async function () {
   // Register the mock alerts service
   let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
@@ -120,14 +102,6 @@ add_setup(async function () {
     "@mozilla.org/system-alerts-service;1",
     gMockAlertsServiceFactory
   );
-  if (Services.appinfo.OS == "WINNT") {
-    registrar.registerFactory(
-      Components.ID("{a1e1bf40-4275-46b5-897f-71c20b6931cd}"),
-      "",
-      "@mozilla.org/messenger/osintegration;1",
-      gMockWindowsIntegrationFactory
-    );
-  }
 
   // Ensure we have enabled new mail notifications
   remember_and_set_bool_pref("mail.biff.show_alert", true);

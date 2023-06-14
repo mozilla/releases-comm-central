@@ -9,26 +9,26 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var iNMNS = Ci.mozINewMailNotificationService;
-
 /*
  * Register listener for a particular event, make sure it shows up in the right lists
  * of listeners (and not the wrong ones) and doesn't show up after being removed
  */
 add_test(function testListeners() {
   let notif = MailServices.newMailNotification.wrappedJSObject;
-  let listener = { a: 1 };
+  let listener = { onCountChanged: () => {} };
 
-  notif.addListener(listener, iNMNS.count);
-  let list = notif._listenersForFlag(iNMNS.count);
+  notif.addListener(listener, Ci.mozINewMailNotificationService.count);
+  let list = notif._listenersForFlag(Ci.mozINewMailNotificationService.count);
   Assert.equal(list.length, 1);
   Assert.equal(list[0], listener);
 
-  let newlist = notif._listenersForFlag(iNMNS.messages);
+  let newlist = notif._listenersForFlag(
+    Ci.mozINewMailNotificationService.messages
+  );
   Assert.equal(newlist.length, 0);
 
   notif.removeListener(listener);
-  list = notif._listenersForFlag(iNMNS.count);
+  list = notif._listenersForFlag(Ci.mozINewMailNotificationService.count);
   Assert.equal(list.length, 0);
 
   run_next_test();
@@ -40,24 +40,30 @@ add_test(function testListeners() {
  */
 add_test(function testMultiListeners() {
   let notif = MailServices.newMailNotification.wrappedJSObject;
-  let l1 = { a: 1 };
+  let l1 = { onCountChanged: () => {} };
   let l2 = { b: 2 };
 
-  notif.addListener(l1, iNMNS.count | iNMNS.messages);
+  notif.addListener(
+    l1,
+    Ci.mozINewMailNotificationService.count |
+      Ci.mozINewMailNotificationService.messages
+  );
   // do_check_eq(notif._listeners.length, 1);
-  notif.addListener(l2, iNMNS.messages);
+  notif.addListener(l2, Ci.mozINewMailNotificationService.messages);
   // do_check_eq(notif._listeners.length, 2);
-  let list = notif._listenersForFlag(iNMNS.count);
+  let list = notif._listenersForFlag(Ci.mozINewMailNotificationService.count);
   Assert.equal(list.length, 1);
   Assert.equal(list[0], l1);
 
-  let newlist = notif._listenersForFlag(iNMNS.messages);
+  let newlist = notif._listenersForFlag(
+    Ci.mozINewMailNotificationService.messages
+  );
   Assert.equal(newlist.length, 2);
 
   notif.removeListener(l1);
-  list = notif._listenersForFlag(iNMNS.count);
+  list = notif._listenersForFlag(Ci.mozINewMailNotificationService.count);
   Assert.equal(list.length, 0);
-  newlist = notif._listenersForFlag(iNMNS.messages);
+  newlist = notif._listenersForFlag(Ci.mozINewMailNotificationService.messages);
   Assert.equal(newlist.length, 1);
   Assert.equal(newlist[0], l2);
   notif.removeListener(l2);
@@ -65,14 +71,14 @@ add_test(function testMultiListeners() {
   run_next_test();
 });
 
-var countInboxesPref = "mail.notification.count.inbox_only";
-
 /* Make sure we get a notification call when the unread count changes on an Inbox */
 add_test(function testNotifyInbox() {
   let notified = false;
+  let count = 0;
   let mockListener = {
-    onCountChanged: function TNU_onCountChanged(count) {
+    onCountChanged: function TNU_onCountChanged(updatedCount) {
       notified = true;
+      count = updatedCount;
     },
   };
   let folder = {
@@ -80,35 +86,118 @@ add_test(function testNotifyInbox() {
     flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Inbox,
   };
 
-  let notif = MailServices.newMailNotification.wrappedJSObject;
-  notif.addListener(mockListener, iNMNS.count);
+  const notificationService = MailServices.newMailNotification.wrappedJSObject;
 
-  notif.onFolderIntPropertyChanged(folder, "TotalUnreadMessages", 0, 2);
-  Assert.ok(notified);
+  // Set up the notification service to start with a non-zero unread count to
+  // verify this value is correctly passed to new listeners. Do this before any
+  // listeners are added.
+  const startCount = 3;
+  notificationService._mUnreadCount = startCount;
 
-  // Special folders should never count
-  let special = {
-    URI: "Test Special",
-    flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Junk,
-  };
+  // Add a listener for count updates.
+  notificationService.addListener(
+    mockListener,
+    Ci.mozINewMailNotificationService.count
+  );
+
+  // Verify that a new listener is notified of the current count.
+  Assert.ok(notified, "New listeners should be notified of count when added.");
+  Assert.equal(
+    count,
+    startCount,
+    "New listener notification should contain the current unread count."
+  );
+
+  // Verify that listeners are notified of subsequent changes.
   notified = false;
-  notif.onFolderIntPropertyChanged(special, "TotalUnreadMessages", 0, 2);
-  Assert.ok(!notified);
+  const updatedInboxCount = 5;
+  notificationService.onFolderIntPropertyChanged(
+    folder,
+    "TotalUnreadMessages",
+    startCount,
+    updatedInboxCount
+  );
+  Assert.ok(
+    notified,
+    "Listeners should be notified of changes in inbox unread count."
+  );
+  Assert.equal(
+    count,
+    updatedInboxCount,
+    "Notification should contain updated inbox unread count."
+  );
 
-  // by default, non-inbox should not count
+  // Sanity check.
+  Assert.ok(
+    Services.prefs.getBoolPref("mail.notification.count.inbox_only", false),
+    "`inbox_only` pref should be true for test."
+  );
+
+  // Verify that listeners are not notified of changes outside of the inbox.
   let nonInbox = {
     URI: "Test Non-Inbox",
     flags: Ci.nsMsgFolderFlags.Mail,
   };
   notified = false;
-  notif.onFolderIntPropertyChanged(nonInbox, "TotalUnreadMessages", 0, 2);
-  Assert.ok(!notified);
+  notificationService.onFolderIntPropertyChanged(
+    nonInbox,
+    "TotalUnreadMessages",
+    0,
+    2
+  );
+  Assert.ok(
+    !notified,
+    "Listeners should not be notified of changes in unread count outside of inbox by default."
+  );
+  Assert.equal(
+    count,
+    updatedInboxCount,
+    "Total unread message count should not have changed."
+  );
 
-  // Try setting the pref to count non-inboxes and notifying a non-inbox
-  Services.prefs.setBoolPref(countInboxesPref, false);
+  // Verify that, when `inbox_only` is false, unread messages outside of the
+  // inbox are counted.
+  Services.prefs.setBoolPref("mail.notification.count.inbox_only", false);
   notified = false;
-  notif.onFolderIntPropertyChanged(nonInbox, "TotalUnreadMessages", 0, 2);
-  Assert.ok(notified);
+  const updatedNonInboxCount = 2;
+  const updatedTotalCount = updatedInboxCount + updatedNonInboxCount;
+  notificationService.onFolderIntPropertyChanged(
+    nonInbox,
+    "TotalUnreadMessages",
+    0,
+    updatedNonInboxCount
+  );
+  Assert.ok(
+    notified,
+    "Listeners should be notified of changes in unread count outside of inbox when pref is set."
+  );
+  Assert.equal(
+    count,
+    updatedTotalCount,
+    "Notification should contain total unread count for all counted folders."
+  );
+
+  // Verify that listeners are never informed of updates in special folders.
+  let special = {
+    URI: "Test Special",
+    flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Junk,
+  };
+  notified = false;
+  notificationService.onFolderIntPropertyChanged(
+    special,
+    "TotalUnreadMessages",
+    0,
+    2
+  );
+  Assert.ok(
+    !notified,
+    "Listeners should not be notified of changes in special folder unread count."
+  );
+  Assert.equal(
+    count,
+    updatedTotalCount,
+    "Total unread message count should not have changed."
+  );
 
   run_next_test();
 });

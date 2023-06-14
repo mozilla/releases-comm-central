@@ -91,19 +91,8 @@ NewMailNotificationService.prototype = {
         total += this._countUnread(rootFolder);
       }
     }
+
     this._mUnreadCount = total;
-    if (!this.countNew) {
-      this._log.info(
-        "NMNS_initUnread notifying listeners: " +
-          total +
-          " total unread messages"
-      );
-      this._notifyListeners(
-        Ci.mozINewMailNotificationService.count,
-        "onCountChanged",
-        total
-      );
-    }
   },
 
   // Count all the unread messages below the given folder
@@ -351,6 +340,13 @@ NewMailNotificationService.prototype = {
         return;
       }
     }
+
+    // Ensure that first-time listeners get an accurate mail count.
+    if (flags & Ci.mozINewMailNotificationService.count) {
+      const count = this.countNew ? this._mNewCount : this._mUnreadCount;
+      aListener.onCountChanged(count);
+    }
+
     // If we get here, the listener wasn't already in the list
     this._listeners.push({ obj: aListener, flags });
   },

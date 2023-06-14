@@ -60,11 +60,25 @@ class MailNotificationManager {
       Ci.nsIFolderListener.intPropertyChanged
     );
 
+    // Ensure that OS integration is defined before we attempt to initialize the
+    // system tray icon.
+    XPCOMUtils.defineLazyGetter(this, "_osIntegration", () => {
+      try {
+        return Cc["@mozilla.org/messenger/osintegration;1"].getService(
+          Ci.nsIMessengerOSIntegration
+        );
+      } catch (e) {
+        // We don't have OS integration on all platforms.
+        return null;
+      }
+    });
+
     if (["macosx", "win"].includes(AppConstants.platform)) {
       // We don't have indicator for unread count on Linux yet.
       Cc["@mozilla.org/newMailNotificationService;1"]
         .getService(Ci.mozINewMailNotificationService)
         .addListener(this, Ci.mozINewMailNotificationService.count);
+
       Services.obs.addObserver(this, "unread-im-count-changed");
       Services.obs.addObserver(this, "profile-before-change");
     }
@@ -72,27 +86,12 @@ class MailNotificationManager {
     if (AppConstants.platform == "macosx") {
       Services.obs.addObserver(this, "new-directed-incoming-message");
     }
+
     if (AppConstants.platform == "win") {
-      Services.obs.addObserver(this, "profile-after-change");
       Services.obs.addObserver(this, "windows-refresh-badge-tray");
       Services.prefs.addObserver("mail.biff.show_badge", this);
       Services.prefs.addObserver("mail.biff.show_tray_icon_always", this);
     }
-
-    XPCOMUtils.defineLazyGetter(this, "_osIntegration", () => {
-      try {
-        let osIntegration = Cc[
-          "@mozilla.org/messenger/osintegration;1"
-        ].getService(Ci.nsIMessengerOSIntegration);
-        if (AppConstants.platform == "win") {
-          osIntegration.QueryInterface(Ci.nsIMessengerWindowsIntegration);
-        }
-        return osIntegration;
-      } catch (e) {
-        // We don't have OS integration on all platforms.
-        return null;
-      }
-    });
   }
 
   observe(subject, topic, data) {
@@ -115,10 +114,6 @@ class MailNotificationManager {
         this._animateDockIcon();
         return;
       case "windows-refresh-badge-tray":
-        this._updateUnreadCount();
-        return;
-      case "profile-after-change":
-        // enabling initial display of tray icon on windows
         this._updateUnreadCount();
         return;
       case "profile-before-change":
@@ -154,12 +149,6 @@ class MailNotificationManager {
    */
   onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
     if (!Services.prefs.getBoolPref("mail.biff.show_alert")) {
-      return;
-    }
-    if (
-      AppConstants.platform == "win" &&
-      this._osIntegration.suppressNotification
-    ) {
       return;
     }
 
