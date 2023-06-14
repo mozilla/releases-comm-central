@@ -114,7 +114,7 @@ var gMenuBuilder = {
         onTab: true,
       };
     }
-    throw new Error(
+    throw new ExtensionError(
       `Unexpected overrideContext: ${webExtContextData.overrideContext}`
     );
   },
@@ -949,7 +949,7 @@ class MenuItem {
 
   addChild(child) {
     if (child.parent) {
-      throw new Error("Child MenuItem already has a parent.");
+      throw new ExtensionError("Child MenuItem already has a parent.");
     }
     this.children.push(child);
     child.parent = this;
@@ -958,7 +958,9 @@ class MenuItem {
   detachChild(child) {
     let idx = this.children.indexOf(child);
     if (idx < 0) {
-      throw new Error("Child MenuItem not found, it cannot be removed.");
+      throw new ExtensionError(
+        "Child MenuItem not found, it cannot be removed."
+      );
     }
     this.children.splice(idx, 1);
     child.parent = null;

@@ -57,7 +57,7 @@ function getDataUrl(file) {
       resolve(reader.result);
     };
     reader.onerror = function (error) {
-      reject(new Error(error));
+      reject(new ExtensionError(error));
     };
   });
 }
@@ -72,7 +72,7 @@ function getDataUrl(file) {
 function getImageType(contentType) {
   let typeParts = contentType.toLowerCase().split("/");
   if (typeParts[0] != "image" || !["jpeg", "png"].includes(typeParts[1])) {
-    throw new Error(`Unsupported image format: ${contentType}`);
+    throw new ExtensionError(`Unsupported image format: ${contentType}`);
   }
   return typeParts[1];
 }

@@ -19,7 +19,7 @@ import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
 
-var { DefaultWeakMap, promiseEvent } = ExtensionUtils;
+var { DefaultWeakMap, ExtensionError, promiseEvent } = ExtensionUtils;
 
 const POPUP_LOAD_TIMEOUT_MS = 200;
 
@@ -92,7 +92,7 @@ export class BasePopup {
     this.window.removeEventListener("unload", this);
 
     this.destroyed = true;
-    this.browserLoadedDeferred.reject(new Error("Popup destroyed"));
+    this.browserLoadedDeferred.reject(new ExtensionError("Popup destroyed"));
     // Ignore unhandled rejections if the "attach" method is not called.
     this.browserLoaded.catch(() => {});
 

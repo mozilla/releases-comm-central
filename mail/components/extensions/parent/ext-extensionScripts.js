@@ -88,7 +88,7 @@ class ExtensionScriptParent {
 
   destroy() {
     if (this.destroyed) {
-      throw new Error("Unable to destroy ExtensionScriptParent twice");
+      throw new ExtensionError("Unable to destroy ExtensionScriptParent twice");
     }
 
     scripts.delete(this);
@@ -171,7 +171,7 @@ this.extensionScripts = class extends ExtensionAPI {
         async unregister(scriptId) {
           const script = parentScriptsMap.get(scriptId);
           if (!script) {
-            console.error(new Error(`No such script ID: ${scriptId}`));
+            console.error(new ExtensionError(`No such script ID: ${scriptId}`));
 
             return;
           }

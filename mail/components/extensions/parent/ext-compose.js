@@ -822,7 +822,9 @@ class MsgOperationObserver {
   onStatus(msgID, msg) {}
   onStopSending(msgID, status, msg, returnFile) {
     if (!Components.isSuccessCode(status)) {
-      this.deliveryCallbacks.reject(new Error("Message operation failed"));
+      this.deliveryCallbacks.reject(
+        new ExtensionError("Message operation failed")
+      );
       return;
     }
     // In case of success, this is only called for sendNow, stating the
@@ -916,11 +918,11 @@ async function goDoCommand(composeWindow, extension, mode) {
   ]);
 
   if (!commands.has(mode)) {
-    throw new Error(`Unsupported mode: ${mode}`);
+    throw new ExtensionError(`Unsupported mode: ${mode}`);
   }
 
   if (!composeWindow.defaultController.isCommandEnabled(commands.get(mode))) {
-    throw new Error(
+    throw new ExtensionError(
       `Message compose window not ready for the requested command`
     );
   }

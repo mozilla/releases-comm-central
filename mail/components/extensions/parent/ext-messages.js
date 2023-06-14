@@ -183,7 +183,7 @@ async function getAttachment(msgHdr, partName) {
           resolve(Uint8Array.from(result));
         } else {
           reject(
-            new Error(
+            new ExtensionError(
               `Failed to read attachment ${attachment.url} content: ${status}`
             )
           );
@@ -298,7 +298,9 @@ async function getRawMessage(msgHdr) {
           resolve(this._data.join(""));
         } else {
           reject(
-            new Error(`Error while streaming message <${msgUri}>: ${status}`)
+            new ExtensionError(
+              `Error while streaming message <${msgUri}>: ${status}`
+            )
           );
         }
       },
@@ -731,7 +733,7 @@ this.messages = class extends ExtensionAPIPersistent {
           }
           let messageHeader = convertMessage(msgHdr, context.extension);
           if (messageHeader.id != messageId) {
-            throw new Error(
+            throw new ExtensionError(
               "Unexpected Error: Returned message does not equal requested message."
             );
           }

@@ -1482,7 +1482,9 @@ class Window extends WindowBase {
   get type() {
     let type = getWebExtensionWindowType(this.window);
     if (!type) {
-      throw new Error("Windows API encountered an invalid window type.");
+      throw new ExtensionError(
+        "Windows API encountered an invalid window type."
+      );
     }
     return type;
   }
@@ -1596,7 +1598,7 @@ class Window extends WindowBase {
         case "fullscreen":
           return window.STATE_FULLSCREEN;
       }
-      throw new Error(`Unexpected window state: ${state}`);
+      throw new ExtensionError(`Unexpected window state: ${state}`);
     })();
 
     const initialState = window.windowState;
@@ -1639,7 +1641,7 @@ class Window extends WindowBase {
         break;
 
       default:
-        throw new Error(`Unexpected window state: ${state}`);
+        throw new ExtensionError(`Unexpected window state: ${state}`);
     }
 
     if (window.windowState != expectedState) {
@@ -2406,14 +2408,14 @@ var messageTracker = new (class extends EventEmitter {
         .newURI(msgIdentifier.dummyMsgUrl)
         .QueryInterface(Ci.nsIFileURL).file;
       if (!file?.exists()) {
-        throw new Error("File does not exist");
+        throw new ExtensionError("File does not exist");
       }
       if (
         msgIdentifier.dummyMsgLastModifiedTime &&
         Math.floor(file.lastModifiedTime / 1000000) !=
           msgIdentifier.dummyMsgLastModifiedTime
       ) {
-        throw new Error("File has been modified");
+        throw new ExtensionError("File has been modified");
       }
     } catch (ex) {
       console.error(ex);
