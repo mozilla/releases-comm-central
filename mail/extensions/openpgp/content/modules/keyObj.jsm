@@ -261,7 +261,10 @@ class EnigmailKeyObj {
 
     for (let sk in this.subKeys) {
       if (this.subKeys[sk].keyUseFor.search(/s/) >= 0) {
-        if (this.subKeys[sk].keyTrust.search(/e/i) >= 0) {
+        if (
+          this.subKeys[sk].keyTrust.search(/e/i) >= 0 &&
+          exceptionReason != "ignoreExpired"
+        ) {
           ++expired;
         } else if (this.subKeys[sk].keyTrust.search(/r/i) >= 0) {
           ++revoked;
@@ -372,7 +375,10 @@ class EnigmailKeyObj {
       }
 
       if (sk.keyUseFor.search(/e/) >= 0) {
-        if (sk.keyTrust.search(/e/i) >= 0) {
+        if (
+          sk.keyTrust.search(/e/i) >= 0 &&
+          exceptionReason != "ignoreExpired"
+        ) {
           ++expired;
         } else if (sk.keyTrust.search(/r/i) >= 0) {
           ++revoked;

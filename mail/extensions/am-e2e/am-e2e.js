@@ -639,7 +639,7 @@ async function keyExternalSuccess(keyId) {
  */
 function useOpenPGPKey(keyId) {
   // Rebuild the UI so that any new keys are listed.
-  gKeyId = keyId;
+  gKeyId = keyId.toUpperCase();
 
   // Update the identity with the key obtained from the key wizard.
   gIdentity.setUnicharAttribute("openpgp_key_id", keyId || "");
@@ -677,7 +677,7 @@ function closeNotification() {
 }
 
 /**
- * Refresh the UI on init or after a successful OpenPGP Key generation.
+ * Refresh the UI on init or after a successful OpenPGP key generation.
  */
 async function reloadOpenPgpUI() {
   let result = {};
@@ -780,8 +780,8 @@ async function reloadOpenPgpUI() {
     return b.keyCreated - a.keyCreated;
   });
 
-  // If the user has an external Key saved, and the pref is TRUE,
-  // we show it on top of the list.
+  // If the user has an external key saved, and the allow_external_gnupg
+  // pref is true, we show it on top of the list.
   if (externalKey) {
     let container = document.createXULElement("vbox");
     container.id = `openPgpOption${externalKey}`;
