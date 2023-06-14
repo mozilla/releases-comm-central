@@ -530,6 +530,11 @@ pref("profile.force.migration", "");
 pref("alerts.totalOpenTime", 10000);
 #endif
 
+// Disable new windows notifications until they are fully supported by Thunderbird (bug 1838139).
+#ifdef XP_WIN
+pref("alerts.useSystemBackend", false);
+#endif
+
 // analyze urls in mail messages for scams
 pref("mail.phishing.detection.enabled", true);
 // If phishing detection is enabled, allow fine grained control
