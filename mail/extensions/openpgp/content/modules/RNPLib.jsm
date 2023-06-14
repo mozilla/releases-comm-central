@@ -22,7 +22,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
 });
 
-const MIN_RNP_VERSION = [0, 16, 3];
+const MIN_RNP_VERSION = [0, 17, 0];
 
 var systemOS = Services.appinfo.OS.toLowerCase();
 var abi = ctypes.default_abi;
