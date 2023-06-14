@@ -54,8 +54,8 @@ PER_PROJECT_PARAMETERS = {
         "target_tasks_method": "mozilla_beta_tasks",
         "release_type": "beta",
     },
-    "comm-esr102": {
-        "target_tasks_method": "mozilla_esr102_tasks",
+    "comm-esr115": {
+        "target_tasks_method": "mozilla_esr115_tasks",
         "release_type": "release",
     },
 }

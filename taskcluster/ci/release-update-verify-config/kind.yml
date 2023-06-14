@@ -51,7 +51,7 @@ job-defaults:
         last-watershed:
             by-release-type:
                 beta: "79.0b2"
-                release: "102.0"
+                release: "115.0"
                 default: "default"
 
 jobs:

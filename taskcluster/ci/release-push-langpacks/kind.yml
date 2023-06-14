@@ -32,7 +32,7 @@ job-template:
             PATH: /builds/worker/bin:/usr/local/bin:/usr/bin:/bin
         channel:
             by-project:
-                comm-esr102:
+                comm-esr115:
                     by-platform:
                         # ja-JP-mac is only langpack on mac, and is unlisted always
                         macosx64.*: unlisted
