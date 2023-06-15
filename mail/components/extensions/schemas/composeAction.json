@@ -41,7 +41,7 @@
                 "type": "string",
                 "format": "relativeUrl",
                 "optional": true,
-                "description": "The html document to be opened as a popup when the user clicks on the composeAction button.",
+                "description": "The html document to be opened as a popup when the user clicks on the composeAction button. Ignored for action buttons with type <value>menu</value>.",
                 "preprocess": "localize"
               },
               "browser_style": {
@@ -55,6 +55,13 @@
                 "type": "string",
                 "enum": ["maintoolbar", "formattoolbar"],
                 "optional": true
+              },
+              "type": {
+                "description": "Specifies the type of the button. Default type is <code>button</code>.",
+                "type": "string",
+                "enum": ["button", "menu"],
+                "optional": true,
+                "default": "button"
               }
             },
             "optional": true
@@ -663,7 +670,7 @@
       {
         "name": "openPopup",
         "type": "function",
-        "description": "Opens the action's popup window in the specified window. Defaults to the current window. Returns false if the popup could not be opened because the action is disabled or has been removed from the toolbar.",
+        "description": "Opens the action's popup window in the specified window. Defaults to the current window. Returns false if the popup could not be opened because the action has no popup, is of type <value>menu</value>, is disabled or has been removed from the toolbar.",
         "async": "callback",
         "parameters": [
           {

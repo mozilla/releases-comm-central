@@ -183,13 +183,17 @@ this.browserAction = class extends ToolbarButtonAPI {
       extension.manifestVersion < 3 ? "browser_action" : "action";
     this.manifestName =
       extension.manifestVersion < 3 ? "browserAction" : "action";
-    let manifest = extension.manifest[this.manifest_name];
+    this.manifest = extension.manifest[this.manifest_name];
+    // browserAction was renamed to action in MV3, but its module name is
+    // still "browserAction" because that is the name used in ext-mail.json,
+    // independently from the manifest version.
+    this.moduleName = "browserAction";
 
     this.windowURLs = [];
-    if (manifest.default_windows.includes("normal")) {
+    if (this.manifest.default_windows.includes("normal")) {
       this.windowURLs.push(MAIN_WINDOW_URI);
     }
-    if (manifest.default_windows.includes("messageDisplay")) {
+    if (this.manifest.default_windows.includes("messageDisplay")) {
       this.windowURLs.push(MESSAGE_WINDOW_URI);
     }
 
@@ -276,19 +280,33 @@ this.browserAction = class extends ToolbarButtonAPI {
             window.document.querySelector(
               `#unifiedToolbarContent [item-id="${EXTENSION_PREFIX}${this.extension.id}"]`
             ));
+
+        // This needs to work in normal window and message window.
+        let tab = tabTracker.activeTab;
+        let browser = tab.linkedBrowser || tab.getBrowser?.();
+
         const contexts = [
           "toolbar-context-menu",
           "customizationPanelItemContextMenu",
           "unifiedToolbarMenu",
         ];
-
         if (contexts.includes(menu.id) && node && node.contains(trigger)) {
-          // This needs to work in normal window and message window.
-          let tab = tabTracker.activeTab;
-          let browser = tab.linkedBrowser || tab.getBrowser?.();
           const action =
             this.extension.manifestVersion < 3 ? "onBrowserAction" : "onAction";
+          global.actionContextMenu({
+            tab,
+            pageUrl: browser?.currentURI?.spec,
+            extension: this.extension,
+            [action]: true,
+            menu,
+          });
+        }
 
+        if (menu.dataset.actionMenu == this.manifestName) {
+          const action =
+            this.extension.manifestVersion < 3
+              ? "inBrowserActionMenu"
+              : "inActionMenu";
           global.actionContextMenu({
             tab,
             pageUrl: browser?.currentURI?.spec,

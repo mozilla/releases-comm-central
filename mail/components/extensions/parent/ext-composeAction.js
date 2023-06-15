@@ -38,6 +38,9 @@ this.composeAction = class extends ToolbarButtonAPI {
     super(extension, global);
     this.manifest_name = "compose_action";
     this.manifestName = "composeAction";
+    this.manifest = extension.manifest[this.manifest_name];
+    this.moduleName = this.manifestName;
+
     this.windowURLs = [
       "chrome://messenger/content/messengercompose/messengercompose.xhtml",
     ];
@@ -84,18 +87,28 @@ this.composeAction = class extends ToolbarButtonAPI {
         const menu = event.target;
         const trigger = menu.triggerNode;
         const node = window.document.getElementById(this.id);
+
         const contexts = [
           "format-toolbar-context-menu",
           "toolbar-context-menu",
           "customizationPanelItemContextMenu",
         ];
-
         if (contexts.includes(menu.id) && node && node.contains(trigger)) {
           global.actionContextMenu({
             tab: window,
             pageUrl: window.browser.currentURI.spec,
             extension: this.extension,
             onComposeAction: true,
+            menu,
+          });
+        }
+
+        if (menu.dataset.actionMenu == "composeAction") {
+          global.actionContextMenu({
+            tab: window,
+            pageUrl: window.browser.currentURI.spec,
+            extension: this.extension,
+            inComposeActionMenu: true,
             menu,
           });
         }

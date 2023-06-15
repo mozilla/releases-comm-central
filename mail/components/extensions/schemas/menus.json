@@ -46,6 +46,7 @@
               "all_message_attachments",
               "audio",
               "compose_action",
+              "compose_action_menu",
               "compose_attachments",
               "compose_body",
               "editable",
@@ -55,6 +56,7 @@
               "link",
               "message_attachments",
               "message_display_action",
+              "message_display_action_menu",
               "message_list",
               "page",
               "password",
@@ -67,12 +69,12 @@
           {
             "type": "string",
             "max_manifest_version": 2,
-            "enum": ["browser_action"]
+            "enum": ["browser_action", "browser_action_menu"]
           },
           {
             "type": "string",
             "min_manifest_version": 3,
-            "enum": ["action"]
+            "enum": ["action", "action_menu"]
           }
         ],
         "description": "The different contexts a menu can appear in. Specifying <value>all</value> is equivalent to the combination of all other contexts excluding <value>tab</value> and <value>tools_menu</value>. More information about each context can be found in the `Supported UI Elements <|link-ui-elements|>`__ article on developer.thunderbird.net."

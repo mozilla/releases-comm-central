@@ -37,6 +37,9 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
     super(extension, global);
     this.manifest_name = "message_display_action";
     this.manifestName = "messageDisplayAction";
+    this.manifest = extension.manifest[this.manifest_name];
+    this.moduleName = this.manifestName;
+
     this.windowURLs = [
       "chrome://messenger/content/messenger.xhtml",
       "chrome://messenger/content/messageWindow.xhtml",
@@ -158,14 +161,24 @@ this.messageDisplayAction = class extends ToolbarButtonAPI {
         const menu = event.target;
         const trigger = menu.triggerNode;
         const node = window.document.getElementById(this.id);
-        const contexts = ["header-toolbar-context-menu"];
 
+        const contexts = ["header-toolbar-context-menu"];
         if (contexts.includes(menu.id) && node && node.contains(trigger)) {
           global.actionContextMenu({
             tab: window.tabOrWindow,
             pageUrl: window.getMessagePaneBrowser().currentURI.spec,
             extension: this.extension,
             onMessageDisplayAction: true,
+            menu,
+          });
+        }
+
+        if (menu.dataset.actionMenu == "messageDisplayAction") {
+          global.actionContextMenu({
+            tab: window.tabOrWindow,
+            pageUrl: window.getMessagePaneBrowser().currentURI.spec,
+            extension: this.extension,
+            inMessageDisplayActionMenu: true,
             menu,
           });
         }

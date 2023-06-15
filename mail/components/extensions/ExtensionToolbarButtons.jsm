@@ -160,12 +160,14 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
     this.paint = this.paint.bind(this);
     this.unpaint = this.unpaint.bind(this);
 
-    this.widgetId = makeWidgetId(extension.id);
-    this.id =
-      this.manifestName == "action"
-        ? `${this.widgetId}-browserAction-toolbarbutton`
-        : `${this.widgetId}-${this.manifestName}-toolbarbutton`;
+    if (this.manifest?.type == "menu" && this.manifest.default_popup) {
+      console.warn(
+        `The "default_popup" manifest entry is not supported for action buttons with type "menu".`
+      );
+    }
 
+    this.widgetId = makeWidgetId(extension.id);
+    this.id = `${this.widgetId}-${this.moduleName}-toolbarbutton`;
     this.eventQueue = [];
 
     let options = extension.manifest[entryName];
@@ -176,6 +178,7 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
       badgeText: "",
       badgeBackgroundColor: null,
       popup: options.default_popup || "",
+      type: options.type,
     };
     this.globals = Object.create(this.defaults);
 
@@ -234,7 +237,22 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
    */
   makeButton(window) {
     let { document } = window;
-    let button = document.createXULElement("toolbarbutton");
+    let button;
+    switch (this.globals.type) {
+      case "menu":
+        {
+          button = document.createXULElement("toolbarbutton");
+          button.setAttribute("type", "menu");
+          button.setAttribute("wantdropmarker", "true");
+          let menupopup = document.createXULElement("menupopup");
+          menupopup.dataset.actionMenu = this.manifestName;
+          button.appendChild(menupopup);
+        }
+        break;
+      case "button":
+        button = document.createXULElement("toolbarbutton");
+        break;
+    }
     button.id = this.id;
     button.classList.add("toolbarbutton-1");
     button.classList.add("webextension-action");
@@ -498,11 +516,19 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
    */
   handleEvent(event) {
     let window = event.target.ownerGlobal;
-
     switch (event.type) {
       case "click":
       case "mousedown":
         if (event.button == 0) {
+          // Bail out, if this is a menu typed action button or any of its menu entries.
+          if (
+            event.target.tagName == "menu" ||
+            event.target.tagName == "menuitem" ||
+            event.target.getAttribute("type") == "menu"
+          ) {
+            return;
+          }
+
           this.lastClickInfo = {
             button: 0,
             modifiers: this.global.clickModifiersFromEvent(event),
@@ -788,11 +814,7 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
       [this.manifestName]: {
         onClicked: new EventManager({
           context,
-          // browserAction was renamed to action in MV3, but its module name is
-          // still "browserAction" because that is the name used in ext-mail.json,
-          // independently from the manifest version.
-          module:
-            this.manifestName == "action" ? "browserAction" : this.manifestName,
+          module: this.moduleName,
           event: "onClicked",
           inputHandling: true,
           extensionApi: this,
@@ -845,6 +867,12 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
         },
 
         async setPopup(details) {
+          if (this.manifest?.type == "menu") {
+            console.warn(
+              `Popups are not supported for action buttons with type "menu".`
+            );
+          }
+
           // Note: Chrome resolves arguments to setIcon relative to the calling
           // context, but resolves arguments to setPopup relative to the extension
           // root.
@@ -859,6 +887,12 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
         },
 
         getPopup(details) {
+          if (this.manifest?.type == "menu") {
+            console.warn(
+              `Popups are not supported for action buttons with type "menu".`
+            );
+          }
+
           return action.getProperty(details, "popup");
         },
 
@@ -882,6 +916,13 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
         },
 
         openPopup(options) {
+          if (this.manifest?.type == "menu") {
+            console.warn(
+              `Popups are not supported for action buttons with type "menu".`
+            );
+            return false;
+          }
+
           let window;
           if (options?.windowId) {
             window = action.global.windowTracker.getWindow(

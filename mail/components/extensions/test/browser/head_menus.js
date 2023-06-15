@@ -215,7 +215,9 @@ async function getMenuExtension(manifest) {
         let contexts = [
           "audio",
           "compose_action",
+          "compose_action_menu",
           "message_display_action",
+          "message_display_action_menu",
           "editable",
           "frame",
           "image",
@@ -232,9 +234,9 @@ async function getMenuExtension(manifest) {
           "tools_menu",
         ];
         if (browser.runtime.getManifest().manifest_version > 2) {
-          contexts.push("action");
+          contexts.push("action", "action_menu");
         } else {
-          contexts.push("browser_action");
+          contexts.push("browser_action", "browser_action_menu");
         }
 
         for (let context of contexts) {

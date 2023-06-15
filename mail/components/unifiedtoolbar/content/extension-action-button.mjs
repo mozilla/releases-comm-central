@@ -55,6 +55,17 @@ class ExtensionActionButton extends UnifiedToolbarButton {
     this.applyTabData(contextData);
     if (this.#action.extension.hasPermission("menus")) {
       document.addEventListener("popupshowing", this.#action);
+      if (this.#action.defaults.type == "menu") {
+        let menupopup = document.createXULElement("menupopup");
+        menupopup.setAttribute("data-action-menu", this.#action.manifestName);
+        menupopup.addEventListener("popuphiding", event => {
+          if (event.target.state === "open") {
+            return;
+          }
+          this.removeAttribute("aria-pressed");
+        });
+        this.appendChild(menupopup);
+      }
     }
   }
 
@@ -104,13 +115,26 @@ class ExtensionActionButton extends UnifiedToolbarButton {
     } else {
       this.style.removeProperty(BADGE_BACKGROUND_COLOR);
     }
-    this.toggleAttribute("popup", tabData.popup);
+    this.toggleAttribute("popup", tabData.popup || tabData.type == "menu");
     if (!tabData.popup) {
       this.removeAttribute("aria-pressed");
     }
   }
 
   handleClick = event => {
+    // If there is a menupopup associated with this button, open it, instead of
+    // executing the click action.
+    const menupopup = this.querySelector("menupopup");
+    if (menupopup) {
+      event.preventDefault();
+      event.stopPropagation();
+      menupopup.openPopup(this, {
+        position: "after_start",
+        triggerEvent: event,
+      });
+      this.setAttribute("aria-pressed", "true");
+      return;
+    }
     this.#action?.handleEvent(event);
   };
 

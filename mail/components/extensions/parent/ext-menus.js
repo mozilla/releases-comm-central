@@ -180,7 +180,8 @@ var gMenuBuilder = {
       rootElements = this.buildTopLevelElements(root, contextData, 1, true);
       if (
         rootElements.length &&
-        !this.itemsToCleanUp.has(this.xulMenu.lastElementChild)
+        !this.itemsToCleanUp.has(this.xulMenu.lastElementChild) &&
+        this.xulMenu.firstChild
       ) {
         // All extension menu items are appended at the end.
         // Prepend separator if this is the first extension menu item.
@@ -626,6 +627,11 @@ const contextsMap = {
   onBrowserAction: "browser_action",
   onComposeAction: "compose_action",
   onMessageDisplayAction: "message_display_action",
+  inActionMenu: "action_menu",
+  inBrowserActionMenu: "browser_action_menu",
+  inComposeActionMenu: "compose_action_menu",
+  inMessageDisplayActionMenu: "message_display_action_menu",
+
   onComposeBody: "compose_body",
   onTab: "tab",
   inToolsMenu: "tools_menu",
