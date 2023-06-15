@@ -220,6 +220,29 @@ function checkCardsListed(...expectedCards) {
       card.isMailList ? card.dirName : card.displayName
     )
   );
+
+  let abWindow = getAddressBookWindow();
+  let cardsList = abWindow.document.getElementById("cards");
+  for (let i = 0; i < expectedCards.length; i++) {
+    let row = cardsList.getRowAtIndex(i);
+    Assert.equal(
+      row.classList.contains("MailList"),
+      expectedCards[i].isMailList,
+      `row ${
+        expectedCards[i].isMailList ? "should" : "should not"
+      } be a mailing list row`
+    );
+    Assert.equal(
+      row.address.textContent,
+      expectedCards[i].primaryEmail ?? "",
+      "correct address should be displayed"
+    );
+    Assert.equal(
+      row.avatar.childElementCount,
+      1,
+      "only one avatar image should be displayed"
+    );
+  }
 }
 
 function checkNamesListed(...expectedNames) {
@@ -236,7 +259,14 @@ function checkNamesListed(...expectedNames) {
   for (let i = 0; i < expectedCount; i++) {
     Assert.equal(
       cardsList.view.getCellText(i, { id: "GeneratedName" }),
-      expectedNames[i]
+      expectedNames[i],
+      "view should give the correct name"
+    );
+    Assert.equal(
+      cardsList.getRowAtIndex(i).querySelector(".generatedname-column, .name")
+        .textContent,
+      expectedNames[i],
+      "correct name should be displayed"
     );
   }
 }

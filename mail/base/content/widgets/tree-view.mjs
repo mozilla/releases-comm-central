@@ -1221,7 +1221,7 @@ class TreeView extends HTMLElement {
       // example when we delete the first message with ID 0, the next message
       // becomes ID 0 itself. Therefore the attribute wouldn't trigger the screen
       // reader to announce the new message without being cleared first.
-      this.table.body.setAttribute("aria-activedescendant", "");
+      this.table.body.removeAttribute("aria-activedescendant");
       row.classList.add("current");
       this.table.body.setAttribute("aria-activedescendant", row.id);
     }

@@ -1240,9 +1240,9 @@ customElements.whenDefined("tree-view-table-row").then(() => {
       let dataContainer = container.appendChild(document.createElement("div"));
       dataContainer.classList.add("ab-card-row-data");
 
-      let firstLine = dataContainer.appendChild(document.createElement("p"));
-      firstLine.classList.add("ab-card-first-line");
-      this.name = firstLine.appendChild(document.createElement("span"));
+      this.firstLine = dataContainer.appendChild(document.createElement("p"));
+      this.firstLine.classList.add("ab-card-first-line");
+      this.name = this.firstLine.appendChild(document.createElement("span"));
       this.name.classList.add("name");
 
       let secondLine = dataContainer.appendChild(document.createElement("p"));
@@ -1259,17 +1259,12 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
     /**
      * Override the row setter to generate the layout.
+     *
+     * @note This element could be recycled, make sure you set or clear all
+     * properties.
      */
     set index(index) {
-      if (this._index == index) {
-        return;
-      }
       super.index = index;
-
-      let props = this.view.getRowProperties(index);
-      if (props) {
-        this.classList.add(props);
-      }
 
       let card = this.view.getCardFromRow(index);
       this.name.textContent = this.view.getCellText(index, {
@@ -1285,37 +1280,45 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           .querySelector(`menuitem[value="addrbook"]`)
           .getAttribute("checked") === "true"
       ) {
-        let addressBookName = document.createElement("span");
-        addressBookName.classList.add("address-book-name");
-        let firstLine = this.querySelector(".ab-card-first-line");
+        let addressBookName = this.querySelector(".address-book-name");
+        if (!addressBookName) {
+          addressBookName = document.createElement("span");
+          addressBookName.classList.add("address-book-name");
+          this.firstLine.appendChild(addressBookName);
+        }
         addressBookName.textContent = this.view.getCellText(index, {
           id: "addrbook",
         });
-        firstLine.appendChild(addressBookName);
+      } else {
+        this.querySelector(".address-book-name")?.remove();
       }
 
       // Don't try to fetch the avatar or show the parent AB if this is a list.
       if (!card.isMailList) {
+        this.classList.remove("MailList");
         let photoURL = card.photoURL;
         if (photoURL) {
           let img = document.createElement("img");
           img.alt = this.name.textContent;
           img.src = photoURL;
-          this.avatar.appendChild(img);
+          this.avatar.replaceChildren(img);
         } else {
           let letter = document.createElement("span");
           letter.textContent = Array.from(
             this.name.textContent
           )[0]?.toUpperCase();
           letter.setAttribute("aria-hidden", "true");
-          this.avatar.appendChild(letter);
+          this.avatar.replaceChildren(letter);
         }
         this.address.textContent = card.primaryEmail;
       } else {
-        let img = this.avatar.appendChild(document.createElement("img"));
+        this.classList.add("MailList");
+        let img = document.createElement("img");
         img.alt = "";
         img.src = "chrome://messenger/skin/icons/new/compact/user-list-alt.svg";
+        this.avatar.replaceChildren(img);
         this.avatar.classList.add("is-mail-list");
+        this.address.textContent = "";
       }
 
       this.cell.setAttribute("aria-label", this.name.textContent);
@@ -1353,16 +1356,15 @@ customElements.whenDefined("tree-view-table-row").then(() => {
 
     /**
      * Override the row setter to generate the layout.
+     *
+     * @note This element could be recycled, make sure you set or clear all
+     * properties.
      */
     set index(index) {
-      if (this._index == index) {
-        return;
-      }
       super.index = index;
-      let props = this.view.getRowProperties(index);
-      if (props) {
-        this.classList.add(props);
-      }
+
+      let card = this.view.getCardFromRow(index);
+      this.classList.toggle("MailList", card.isMailList);
 
       for (let column of cardsPane.COLUMNS) {
         let cell = this.querySelector(`.${column.id.toLowerCase()}-column`);

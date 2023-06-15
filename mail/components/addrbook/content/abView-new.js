@@ -554,7 +554,7 @@ abViewCard.prototype = {
     return [];
   },
   getProperties() {
-    return this.card.isMailList ? "MailList" : "";
+    return "";
   },
   get directory() {
     return this._directory;
