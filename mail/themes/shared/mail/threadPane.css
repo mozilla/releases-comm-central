@@ -47,7 +47,7 @@
   color: var(--tree-view-color);
 }
 
-#threadTree tbody [data-properties~="dummy"]:not(:hover) {
+#threadTree tbody [data-properties~="dummy"]:not(:hover, .selected) {
   background-color: var(--layout-background-2);
 }
 
