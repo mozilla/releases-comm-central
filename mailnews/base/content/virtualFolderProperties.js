@@ -273,7 +273,7 @@ function onOK(event) {
     Services.obs.notifyObservers(gMsgFolder, "folder-color-changed", color);
 
     if (window.arguments[0].onOKCallback) {
-      window.arguments[0].onOKCallback(virtualFolderWrapper.virtualFolder.URI);
+      window.arguments[0].onOKCallback();
     }
 
     return;

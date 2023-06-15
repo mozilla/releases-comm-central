@@ -3166,9 +3166,10 @@ var folderPane = {
   editVirtualFolder(aFolder) {
     let folder = aFolder;
 
-    // xxx should pass the folder object
-    function editVirtualCallback(aUri) {
-      // TODO: we need to reload the folder if it is the currently loaded folder...
+    function editVirtualCallback() {
+      if (gFolder == folder) {
+        folderTree.dispatchEvent(new CustomEvent("select"));
+      }
     }
     window.openDialog(
       "chrome://messenger/content/virtualFolderProperties.xhtml",
