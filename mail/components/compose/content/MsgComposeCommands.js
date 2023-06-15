@@ -294,6 +294,55 @@ document.addEventListener("focusin", event => {
 // For WebExtensions.
 this.__defineGetter__("browser", GetCurrentEditorElement);
 
+/**
+ * @implements {nsIXULBrowserWindow}
+ */
+var XULBrowserWindow = {
+  // Used to show the link-being-hovered-over in the status bar. Do nothing here.
+  setOverLink(url, anchorElt) {},
+
+  // Called before links are navigated to to allow us to retarget them if needed.
+  onBeforeLinkTraversal(originalTarget, linkURI, linkNode, isAppTab) {
+    return originalTarget;
+  },
+
+  // Called by BrowserParent::RecvShowTooltip.
+  showTooltip(xDevPix, yDevPix, tooltip, direction, browser) {
+    if (
+      Cc["@mozilla.org/widget/dragservice;1"]
+        .getService(Ci.nsIDragService)
+        .getCurrentSession()
+    ) {
+      return;
+    }
+
+    let elt = document.getElementById("remoteBrowserTooltip");
+    elt.label = tooltip;
+    elt.style.direction = direction;
+    elt.openPopupAtScreen(
+      xDevPix / window.devicePixelRatio,
+      yDevPix / window.devicePixelRatio,
+      false,
+      null
+    );
+  },
+
+  // Called by BrowserParent::RecvHideTooltip.
+  hideTooltip() {
+    let elt = document.getElementById("remoteBrowserTooltip");
+    elt.hidePopup();
+  },
+
+  getTabCount() {
+    return 1;
+  },
+};
+window
+  .getInterface(Ci.nsIWebNavigation)
+  .QueryInterface(Ci.nsIDocShellTreeItem)
+  .treeOwner.QueryInterface(Ci.nsIInterfaceRequestor)
+  .getInterface(Ci.nsIAppWindow).XULBrowserWindow = window.XULBrowserWindow;
+
 // Observer for the autocomplete input.
 const inputObserver = {
   observe: (subject, topic, data) => {

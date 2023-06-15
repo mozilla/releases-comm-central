@@ -629,7 +629,7 @@ async function synthesizeMouseAtCenterAndRetry(selector, event, browser) {
     await BrowserTestUtils.synthesizeMouseAtCenter(selector, event, browser);
     success = await Promise.race([clickPromise, failPromise]);
   }
-  Assert.ok(success, "Should have received click event on content link");
+  Assert.ok(success, `Should have received ${type} event.`);
 }
 
 async function openContextMenu(selector = "#img1", win = window) {
