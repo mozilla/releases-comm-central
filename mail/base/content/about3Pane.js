@@ -2366,7 +2366,6 @@ var folderPane = {
       document.body.classList.remove("account-central");
       accountCentralBrowser.hidden = true;
 
-      quickFilterBar.activeElement = null;
       threadPane.restoreColumns();
 
       gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
