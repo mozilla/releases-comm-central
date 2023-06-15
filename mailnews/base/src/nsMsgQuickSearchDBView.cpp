@@ -300,27 +300,26 @@ nsMsgQuickSearchDBView::OnSearchDone(nsresult status) {
     nsCString searchUri;
     m_viewFolder->GetURI(searchUri);
     uint32_t count = m_hdrHits.Count();
-    // Build up message keys. The hits are in descending order but the cache
-    // expects them to be in ascending key order.
-    for (uint32_t i = count; i > 0; i--) {
+    // Build up message keys. The cache expects them to be sorted.
+    for (uint32_t i = 0; i < count; i++) {
       nsMsgKey key;
-      m_hdrHits[i - 1]->GetMessageKey(&key);
+      m_hdrHits[i]->GetMessageKey(&key);
       keyArray.AppendElement(key);
     }
-    if (m_db) {
-      nsTArray<nsMsgKey> staleHits;
-      nsresult rv = m_db->RefreshCache(searchUri, keyArray, staleHits);
-      NS_ENSURE_SUCCESS(rv, rv);
-      for (nsMsgKey staleKey : staleHits) {
-        nsCOMPtr<nsIMsgDBHdr> hdrDeleted;
-        m_db->GetMsgHdrForKey(staleKey, getter_AddRefs(hdrDeleted));
-        if (hdrDeleted) OnHdrDeleted(hdrDeleted, nsMsgKey_None, 0, this);
-      }
+    keyArray.Sort();
+    nsTArray<nsMsgKey> staleHits;
+    nsresult rv = m_db->RefreshCache(searchUri, keyArray, staleHits);
+    NS_ENSURE_SUCCESS(rv, rv);
+    for (nsMsgKey staleKey : staleHits) {
+      nsCOMPtr<nsIMsgDBHdr> hdrDeleted;
+      m_db->GetMsgHdrForKey(staleKey, getter_AddRefs(hdrDeleted));
+      if (hdrDeleted) OnHdrDeleted(hdrDeleted, nsMsgKey_None, 0, this);
     }
+
     nsCOMPtr<nsIMsgDatabase> virtDatabase;
     nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-    nsresult rv = m_viewFolder->GetDBFolderInfoAndDB(
-        getter_AddRefs(dbFolderInfo), getter_AddRefs(virtDatabase));
+    rv = m_viewFolder->GetDBFolderInfoAndDB(getter_AddRefs(dbFolderInfo),
+                                            getter_AddRefs(virtDatabase));
     NS_ENSURE_SUCCESS(rv, rv);
     uint32_t numUnread = 0;
     size_t numTotal = m_origKeys.Length();

@@ -4599,7 +4599,14 @@ NS_IMETHODIMP nsMsgDatabase::RefreshCache(const nsACString& aSearchFolderUri,
   uint32_t rowCount;
   table->GetCount(GetEnv(), &rowCount);
   aStaleHits.Clear();
-  // should assert that each array is sorted
+
+#ifdef DEBUG
+  for (uint64_t i = 1; i < aNewHits.Length(); i++) {
+    NS_ASSERTION(aNewHits[i - 1] < aNewHits[i],
+                 "cached hits for storage not sorted correctly");
+  }
+#endif
+
   while (newHitIndex < aNewHits.Length() || tableRowIndex < rowCount) {
     mdbOid oid;
     nsMsgKey tableRowKey = nsMsgKey_None;
