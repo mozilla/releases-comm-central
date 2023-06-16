@@ -192,23 +192,16 @@ add_task(async function testImportSecretKeyIsProtected() {
 });
 
 add_task(async function testImportOfflinePrimaryKey() {
-  let keyBlock = await IOUtils.readUTF8(
-    do_get_file(`${keyDir}/ofelia-secret-subkeys.asc`).path
-  );
-
-  let cancelPassword = function (win, keyId, resultFlags) {
-    resultFlags.canceled = true;
-    return "";
-  };
-
-  let importResult = await RNP.importSecKeyBlockImpl(
+  let importResult = await OpenPGPTestUtils.importPrivateKey(
     null,
-    cancelPassword,
-    false,
-    keyBlock
+    do_get_file(`${keyDir}/ofelia-secret-subkeys.asc`)
   );
 
-  Assert.ok(importResult.exitCode == 0);
+  Assert.equal(
+    importResult[0],
+    "0x97DCDA5E56EBB822",
+    "expected key id should have been reported"
+  );
 
   let primaryKey = await RNP.findKeyByEmail("<ofelia@openpgp.example>", false);
 
@@ -219,6 +212,41 @@ add_task(async function testImportOfflinePrimaryKey() {
     "31C31DF1DFB67601",
     "should obtain key ID of encryption subkey"
   );
+
+  let sigSubKey = RNP.getSuitableSubkey(primaryKey, "sign");
+  let keyIdSig = RNP.getKeyIDFromHandle(sigSubKey);
+  Assert.equal(
+    keyIdSig,
+    "1BC8F5764D348FE1",
+    "should obtain key ID of signing subkey"
+  );
+
+  // Test that we can sign with a signing subkey
+  // (this ensures that our code can unlock the secret subkey).
+  // Ofelia's key has no secret key for the primary key available,
+  // which further ensures that signing used the subkey.
+
+  let sourceText = "we-sign-this-text";
+  let signResult = {};
+
+  let signArgs = {
+    aliasKeys: new Map(),
+    armor: true,
+    bcc: [],
+    encrypt: false,
+    encryptToSender: false,
+    sender: "0x97DCDA5E56EBB822",
+    senderKeyIsExternal: false,
+    sigTypeClear: true,
+    sigTypeDetached: false,
+    sign: true,
+    signatureHash: "SHA256",
+    to: ["<alice@openpgp.example>"],
+  };
+
+  await RNP.encryptAndOrSign(sourceText, signArgs, signResult);
+
+  Assert.ok(!signResult.exitCode, "signing with subkey should work");
 });
 
 add_task(async function testSecretForPreferredSignSubkeyIsMissing() {
