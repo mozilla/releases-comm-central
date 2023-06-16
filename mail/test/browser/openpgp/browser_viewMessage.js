@@ -902,6 +902,39 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
   close_window(mc);
 });
 
+/**
+ * Test that it's possible to decrypt an OpenPGP encrypted message
+ * using a revoked key. (Also signed, unknown signer key.)
+ */
+add_task(async function testOpenEncryptedForRevokedKey() {
+  await OpenPGPTestUtils.importPrivateKey(
+    window,
+    new FileUtils.File(
+      getTestFilePath(
+        "data/keys/carol@pgp.icu-0xEF2FD01608AFD744-revoked-secret.asc"
+      )
+    )
+  );
+
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath("data/eml/enc-to-carol@pgp.icu-revoked.eml")
+    )
+  );
+  let aboutMessage = get_about_message(mc.window);
+
+  Assert.ok(
+    getMsgBodyTxt(mc).includes("billie-jean"),
+    "message text is in body"
+  );
+  Assert.ok(
+    OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
+    "encrypted icon is displayed"
+  );
+  close_window(mc);
+  await OpenPGPTestUtils.removeKeyById("0xEF2FD01608AFD744", true);
+});
+
 registerCleanupFunction(async function tearDown() {
   MailServices.accounts.removeAccount(aliceAcct, true);
   await OpenPGPTestUtils.removeKeyById("0xf231550c4f47e38e", true);
