@@ -120,6 +120,8 @@ function checkMenuitems(menu, mode) {
       actualItems.push(item.id);
     }
   }
+  let diff = expectedItems.filter(x => !actualItems.includes(x));
+  Assert.equal(diff.length, 0, `Should have expected items; diff: ${diff}`);
   Assert.deepEqual(actualItems, expectedItems);
 }
 

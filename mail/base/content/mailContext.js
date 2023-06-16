@@ -243,7 +243,7 @@ var mailContextMenu = {
       context.onLink && !context.onMailtoLink
     );
     showItem("mailContext-copylink", context.onLink && !context.onMailtoLink);
-    // showItem("mailContext-savelink", false);
+    showItem("mailContext-savelink", context.onLink);
     showItem(
       "mailContext-reportPhishingURL",
       context.onLink && !context.onMailtoLink
@@ -310,18 +310,34 @@ var mailContextMenu = {
     // Hide things that don't work yet.
     for (let id of [
       "mailContext-openInBrowser",
-      "mailContext-savelink",
       "mailContext-recalculateJunkScore",
       "mailContext-calendar-convert-menu",
     ]) {
       showItem(id, false);
     }
 
+    let onSpecialItem =
+      this.context?.isContentSelected ||
+      this.context?.onCanvas ||
+      this.context?.onLink ||
+      this.context?.onImage ||
+      this.context?.onAudio ||
+      this.context?.onVideo ||
+      this.context?.onTextInput;
+
+    for (let id of ["mailContext-tags", "mailContext-mark"]) {
+      showItem(id, !onSpecialItem);
+    }
+
     // Ask commandController about the commands it controls.
     for (let [id, command] of Object.entries(this._commands)) {
-      showItem(id, commandController.isCommandEnabled(command));
+      showItem(
+        id,
+        !onSpecialItem && commandController.isCommandEnabled(command)
+      );
     }
     for (let [id, command] of Object.entries(this._alwaysVisibleCommands)) {
+      showItem(id, !onSpecialItem);
       enableItem(id, commandController.isCommandEnabled(command));
     }
 
@@ -350,7 +366,7 @@ var mailContextMenu = {
       "mailContext-openContainingFolder",
       (!isDummyMessage && !inAbout3Pane) || gViewWrapper.isSynthetic
     );
-    setSingleSelection("mailContext-forwardAsMenu");
+    setSingleSelection("mailContext-forwardAsMenu", !onSpecialItem);
     showItem(
       "mailContext-multiForwardAsAttachment",
       numSelectedMessages > 1 &&
@@ -367,8 +383,8 @@ var mailContextMenu = {
 
     setSingleSelection("mailContext-copyMessageUrl", !!isNewsgroup);
     // Disable move if we can't delete message(s) from this folder.
-    showItem("mailContext-moveMenu", canMove);
-    showItem("mailContext-copyMenu", canCopy);
+    showItem("mailContext-moveMenu", canMove && !onSpecialItem);
+    showItem("mailContext-copyMenu", canCopy && !onSpecialItem);
 
     top.initMoveToFolderAgainMenu(
       document.getElementById("mailContext-moveToFolderAgain")
@@ -481,18 +497,21 @@ var mailContextMenu = {
       case "mailContext-copylink":
         goDoCommand("cmd_copyLink");
         break;
-      // case "mailContext-savelink":
-      //   top.saveURL(
-      //     this.context.linkURL,
-      //     this.context.linkTextStr,
-      //     null,
-      //     true,
-      //     null,
-      //     null,
-      //     null,
-      //     this.browsingContext.window.document
-      //   );
-      //   break;
+      case "mailContext-savelink":
+        top.saveURL(
+          this.context.linkURL, // URL
+          null, // originalURL
+          this.context.linkTextStr, // fileName
+          null, // filePickerTitleKey
+          true, // shouldBypassCache
+          false, // skipPrompt
+          null, // referrerInfo
+          null, // cookieJarSettings
+          this.browsingContext.window.document, // sourceDocument
+          null, // isContentWindowPrivate,
+          Services.scriptSecurityManager.getSystemPrincipal() // principal
+        );
+        break;
       case "mailContext-reportPhishingURL":
         PhishingDetector.reportPhishingURL(this.context.linkURL);
         break;
@@ -521,15 +540,17 @@ var mailContextMenu = {
         break;
       case "mailContext-saveimage":
         top.saveURL(
-          this.context.imageInfo.currentSrc,
-          null,
-          null,
-          "SaveImageTitle",
-          false,
-          null,
-          null,
-          null,
-          this.browsingContext.window.document
+          this.context.imageInfo.currentSrc, // URL
+          null, // originalURL
+          this.context.linkTextStr, // fileName
+          "SaveImageTitle", // filePickerTitleKey
+          true, // shouldBypassCache
+          false, // skipPrompt
+          null, // referrerInfo
+          null, // cookieJarSettings
+          this.browsingContext.window.document, // sourceDocument
+          null, // isContentWindowPrivate,
+          Services.scriptSecurityManager.getSystemPrincipal() // principal
         );
         break;
 
