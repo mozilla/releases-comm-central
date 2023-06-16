@@ -530,6 +530,19 @@ const PanelUI = {
           item.disabled = !canBeCompact;
         }
       }
+
+      let propertiesMenuItem = document.getElementById("appmenu_properties");
+      if (about3Pane.gFolder?.server.type == "nntp") {
+        document.l10n.setAttributes(
+          propertiesMenuItem,
+          "menu-edit-newsgroup-properties"
+        );
+      } else {
+        document.l10n.setAttributes(
+          propertiesMenuItem,
+          "menu-edit-folder-properties"
+        );
+      }
     }
 
     InitAppFolderViewsMenu();

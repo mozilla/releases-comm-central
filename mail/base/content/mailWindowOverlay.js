@@ -167,45 +167,41 @@ function InitEditMessagesMenu() {
   document.commandDispatcher.updateCommands("create-menu-edit");
 
   let chromeBrowser, folderTreeActive, folderIsNewsgroup;
+  let tab = document.getElementById("tabmail")?.currentTabInfo;
+  if (tab?.mode.name == "mail3PaneTab") {
+    chromeBrowser = tab.chromeBrowser;
+    folderTreeActive =
+      chromeBrowser.contentDocument.activeElement.id == "folderTree";
+    let folder = chromeBrowser.contentWindow.gFolder;
+    folderIsNewsgroup = folder?.server.type == "nntp";
+  } else if (tab?.mode.name == "mailMessageTab") {
+    chromeBrowser = tab.chromeBrowser;
+  } else {
+    chromeBrowser = document.getElementById("messageBrowser");
+  }
 
   let deleteController = getEnabledControllerForCommand("cmd_delete");
-  if (deleteController?.wrappedJSObject) {
-    // If the controller is a JS object, it must be one we've implemented,
-    // not the built-in controller for textboxes.
-    let tab = document.getElementById("tabmail")?.currentTabInfo;
-    if (tab?.mode.name == "mail3PaneTab") {
-      chromeBrowser = tab.chromeBrowser;
-      folderTreeActive =
-        chromeBrowser.contentDocument.activeElement.id == "folderTree";
-      if (folderTreeActive) {
-        let folder = chromeBrowser.contentWindow.gFolder;
-        folderIsNewsgroup = folder?.server.type == "nntp";
-      }
-    } else if (tab?.mode.name == "mailMessageTab") {
-      chromeBrowser = tab.chromeBrowser;
-    } else {
-      chromeBrowser = document.getElementById("messageBrowser");
-    }
-  }
+  // If the controller is a JS object, it must be one we've implemented,
+  // not the built-in controller for textboxes.
 
   let dbView = chromeBrowser?.contentWindow.gDBView;
   let numSelected = dbView?.numSelected;
 
   let deleteMenuItem = document.getElementById("menu_delete");
-  if (folderTreeActive) {
-    let value = folderIsNewsgroup ? "unsubscribe-newsgroup" : "delete-folder";
-    document.l10n.setAttributes(deleteMenuItem, `menu-edit-${value}`);
-  } else if (numSelected) {
+  if (deleteController?.wrappedJSObject && folderTreeActive) {
+    let value = folderIsNewsgroup
+      ? "menu-edit-unsubscribe-newsgroup"
+      : "menu-edit-delete-folder";
+    document.l10n.setAttributes(deleteMenuItem, value);
+  } else if (deleteController?.wrappedJSObject && numSelected) {
     let message = dbView?.hdrForFirstSelectedMessage;
     let value;
     if (message && message.flags & Ci.nsMsgMessageFlags.IMAPDeleted) {
-      value = "undelete-messages";
+      value = "menu-edit-undelete-messages";
     } else {
-      value = "delete-messages";
+      value = "menu-edit-delete-messages";
     }
-    document.l10n.setAttributes(deleteMenuItem, `menu-edit-${value}`, {
-      count: numSelected,
-    });
+    document.l10n.setAttributes(deleteMenuItem, value, { count: numSelected });
   } else {
     document.l10n.setAttributes(deleteMenuItem, "text-action-delete");
   }
@@ -214,6 +210,17 @@ function InitEditMessagesMenu() {
   let favoriteFolderMenu = document.getElementById("menu_favoriteFolder");
   if (!favoriteFolderMenu.hasAttribute("disabled")) {
     // TODO: Reimplement this as a command.
+  }
+
+  let propertiesController = getEnabledControllerForCommand("cmd_properties");
+  let propertiesMenuItem = document.getElementById("menu_properties");
+  if (tab?.mode.name == "mail3PaneTab" && propertiesController) {
+    let value = folderIsNewsgroup
+      ? "menu-edit-newsgroup-properties"
+      : "menu-edit-folder-properties";
+    document.l10n.setAttributes(propertiesMenuItem, value);
+  } else {
+    document.l10n.setAttributes(propertiesMenuItem, "menu-edit-properties");
   }
 }
 

@@ -93,6 +93,18 @@ class MenuTestHelper {
   }
 
   /**
+   * Clicks on the menu and waits for it to open.
+   */
+  async openMenu() {
+    let shownPromise = BrowserTestUtils.waitForEvent(
+      this.menu.menupopup,
+      "popupshown"
+    );
+    EventUtils.synthesizeMouseAtCenter(this.menu, {});
+    await shownPromise;
+  }
+
+  /**
    * Check that an item matches the expected state.
    *
    * @param {XULElement} actual - A <menu> or <menuitem>.
@@ -177,6 +189,7 @@ class MenuTestHelper {
     }
 
     popup.hidePopup();
+    await new Promise(resolve => setTimeout(resolve));
   }
 
   /**
@@ -199,7 +212,7 @@ class MenuTestHelper {
     }
 
     // Open the menu and all submenus and check the items.
-    EventUtils.synthesizeMouseAtCenter(this.menu, {});
+    await this.openMenu();
     await this.iterate(this.menu.menupopup, data, true);
 
     // Report any unexpected items.
@@ -214,20 +227,45 @@ class MenuTestHelper {
    * @param {MenuData} data - The expected values to test against.
    */
   async testItems(data) {
-    let shownPromise = BrowserTestUtils.waitForEvent(
-      this.menu.menupopup,
-      "popupshown"
-    );
-    EventUtils.synthesizeMouseAtCenter(this.menu, {});
-    await shownPromise;
-
+    await this.openMenu();
     await this.iterate(this.menu.menupopup, data);
 
     for (let id of Object.keys(data)) {
       Assert.report(true, undefined, undefined, `extra item ${id} in data`);
     }
 
-    this.menu.menupopup.hidePopup();
+    if (this.menu.menupopup.state != "closed") {
+      let hiddenPromise = BrowserTestUtils.waitForEvent(
+        this.menu.menupopup,
+        "popuphidden"
+      );
+      this.menu.menupopup.hidePopup();
+      await hiddenPromise;
+    }
+    await new Promise(resolve => setTimeout(resolve));
+  }
+
+  /**
+   * Activates the item in the menu.
+   *
+   * @note This currently only works on top-level items.
+   * @param {string} menuItemID - The item to activate.
+   * @param {MenuData} [data] - If given, the expected state of the menu item
+   *   before activation.
+   */
+  async activateItem(menuItemID, data) {
+    await this.openMenu();
+    let hiddenPromise = BrowserTestUtils.waitForEvent(
+      this.menu.menupopup,
+      "popuphidden"
+    );
+    let item = document.getElementById(menuItemID);
+    if (data) {
+      this.checkItem(item, data);
+    }
+    this.menu.menupopup.activateItem(item);
+    await hiddenPromise;
+    await new Promise(resolve => setTimeout(resolve));
   }
 }
 

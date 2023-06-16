@@ -181,6 +181,18 @@ menu-edit-undelete-messages =
         }
     .accesskey = d
 
+menu-edit-properties =
+    .label = Properties
+    .accesskey = o
+
+menu-edit-folder-properties =
+    .label = Folder Properties
+    .accesskey = o
+
+menu-edit-newsgroup-properties =
+    .label = Newsgroup Properties
+    .accesskey = o
+
 ## Message Menu
 
 redirect-msg-menuitem =

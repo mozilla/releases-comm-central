@@ -44,7 +44,7 @@ if (AppConstants.platform == "linux") {
 let helper = new MenuTestHelper("menu_Edit", editMenuData);
 
 let tabmail = document.getElementById("tabmail");
-let rootFolder, testFolder, testMessages;
+let rootFolder, testFolder, testMessages, virtualFolder;
 let nntpRootFolder, nntpFolder;
 let imapRootFolder, imapFolder;
 
@@ -66,6 +66,14 @@ add_setup(async function () {
     generator.makeMessages({}).map(message => message.toMboxString())
   );
   testMessages = [...testFolder.messages];
+
+  rootFolder.createSubfolder("edit menu virtual", null);
+  virtualFolder = rootFolder.getChildNamed("edit menu virtual");
+  virtualFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
+  let msgDatabase = virtualFolder.msgDatabase;
+  let folderInfo = msgDatabase.dBFolderInfo;
+  folderInfo.setCharProperty("searchStr", "ALL");
+  folderInfo.setCharProperty("searchFolderUri", testFolder.URI);
 
   NNTPServer.open();
   NNTPServer.addGroup("edit.menu.newsgroup");
@@ -135,12 +143,12 @@ add_task(async function testDeleteItem() {
   // calling cmd_delete actually attempts to unsubscribe the folder.
 
   displayFolder(nntpFolder);
-  await helper.testItems({
-    menu_delete: { l10nID: "menu-edit-unsubscribe-newsgroup" },
-  });
-  let promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
-  goDoCommand("cmd_delete");
-  await promptPromise;
+  await Promise.all([
+    BrowserTestUtils.promiseAlertDialog("cancel"),
+    helper.activateItem("menu_delete", {
+      l10nID: "menu-edit-unsubscribe-newsgroup",
+    }),
+  ]);
 
   // Check that a mail account shows "Delete Folder". The account can't be
   // deleted this way so the menu item should be disabled.
@@ -158,12 +166,10 @@ add_task(async function testDeleteItem() {
   // the folder.
 
   displayFolder(testFolder);
-  await helper.testItems({
-    menu_delete: { l10nID: "menu-edit-delete-folder" },
-  });
-  promptPromise = BrowserTestUtils.promiseAlertDialog("cancel");
-  goDoCommand("cmd_delete");
-  await promptPromise;
+  await Promise.all([
+    BrowserTestUtils.promiseAlertDialog("cancel"),
+    helper.activateItem("menu_delete", { l10nID: "menu-edit-delete-folder" }),
+  ]);
   await new Promise(resolve => setTimeout(resolve));
 
   // Focus the Quick Filter bar text box and check the menu item shows "Delete".
@@ -225,19 +231,16 @@ add_task(async function testDeleteItem() {
 
   threadTree.table.body.focus();
   threadTree.selectedIndices = [0, 1, 3];
-  await helper.testItems({
-    menu_delete: {
+  await Promise.all([
+    new PromiseTestUtils.promiseFolderEvent(
+      testFolder,
+      "DeleteOrMoveMsgCompleted"
+    ),
+    helper.activateItem("menu_delete", {
       l10nID: "menu-edit-delete-messages",
       l10nArgs: { count: 3 },
-    },
-  });
-  let deleteListener = new PromiseTestUtils.promiseFolderEvent(
-    testFolder,
-    "DeleteOrMoveMsgCompleted"
-  );
-  goDoCommand("cmd_delete");
-  await deleteListener.promise;
-  await new Promise(resolve => setTimeout(resolve));
+    }),
+  ]);
 
   // Load an IMAP folder with the "just mark deleted" model. With no messages
   // selected check the menu item shows "Delete".
@@ -261,13 +264,10 @@ add_task(async function testDeleteItem() {
 
   threadTree.selectedIndex = 0;
   let message = dbView.getMsgHdrAt(0);
-  await helper.testItems({
-    menu_delete: {
-      l10nID: "menu-edit-delete-messages",
-      l10nArgs: { count: 1 },
-    },
+  await helper.activateItem("menu_delete", {
+    l10nID: "menu-edit-delete-messages",
+    l10nArgs: { count: 1 },
   });
-  goDoCommand("cmd_delete");
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
   Assert.ok(
@@ -280,13 +280,10 @@ add_task(async function testDeleteItem() {
 
   // The delete operation moved the selection, go back.
   threadTree.selectedIndex = 0;
-  await helper.testItems({
-    menu_delete: {
-      l10nID: "menu-edit-undelete-messages",
-      l10nArgs: { count: 1 },
-    },
+  await helper.activateItem("menu_delete", {
+    l10nID: "menu-edit-undelete-messages",
+    l10nArgs: { count: 1 },
   });
-  goDoCommand("cmd_delete");
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
   Assert.ok(
@@ -314,7 +311,7 @@ add_task(async function testDeleteItem() {
       l10nArgs: { count: 3 },
     },
   });
-  goDoCommand("cmd_delete");
+  await helper.activateItem("menu_delete");
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
   Assert.ok(
@@ -326,13 +323,10 @@ add_task(async function testDeleteItem() {
   // cmd_delete clears the flag on the messages.
 
   threadTree.selectedIndices = [1, 3, 5];
-  await helper.testItems({
-    menu_delete: {
-      l10nID: "menu-edit-undelete-messages",
-      l10nArgs: { count: 3 },
-    },
+  await helper.activateItem("menu_delete", {
+    l10nID: "menu-edit-undelete-messages",
+    l10nArgs: { count: 3 },
   });
-  goDoCommand("cmd_delete");
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(r => setTimeout(r, 1000));
   Assert.ok(
@@ -349,7 +343,70 @@ add_task(async function testDeleteItem() {
       l10nArgs: { count: 3 },
     },
   });
+
+  Services.focus.focusedWindow = window;
 }).__skipMe = AppConstants.DEBUG; // Too unreliable.
+
+/**
+ * Tests the "Properties" item in the menu is enabled/disabled as expected,
+ * and has the correct label.
+ */
+add_task(async function testPropertiesItem() {
+  async function testDialog(folder, data, which = "folderProps.xhtml") {
+    await Promise.all([
+      BrowserTestUtils.promiseAlertDialog(
+        undefined,
+        `chrome://messenger/content/${which}`,
+        {
+          callback(win) {
+            Assert.ok(true, "folder properties dialog opened");
+            Assert.equal(
+              win.gMsgFolder.URI,
+              folder.URI,
+              "dialog has correct folder"
+            );
+            win.document.querySelector("dialog").getButton("cancel").click();
+          },
+        }
+      ),
+      helper.activateItem("menu_properties", data),
+    ]);
+    await SimpleTest.promiseFocus(window);
+  }
+
+  let { displayFolder } = tabmail.currentAbout3Pane;
+
+  displayFolder(rootFolder);
+  await helper.testItems({
+    menu_properties: { disabled: true, l10nID: "menu-edit-properties" },
+  });
+
+  displayFolder(testFolder);
+  await testDialog(testFolder, { l10nID: "menu-edit-folder-properties" });
+
+  displayFolder(virtualFolder);
+  await testDialog(
+    virtualFolder,
+    { l10nID: "menu-edit-folder-properties" },
+    "virtualFolderProperties.xhtml"
+  );
+
+  displayFolder(imapRootFolder);
+  await helper.testItems({
+    menu_properties: { disabled: true, l10nID: "menu-edit-properties" },
+  });
+
+  displayFolder(imapFolder);
+  await testDialog(imapFolder, { l10nID: "menu-edit-folder-properties" });
+
+  displayFolder(nntpRootFolder);
+  await helper.testItems({
+    menu_properties: { disabled: true, l10nID: "menu-edit-properties" },
+  });
+
+  displayFolder(nntpFolder);
+  await testDialog(nntpFolder, { l10nID: "menu-edit-newsgroup-properties" });
+});
 
 var NNTPServer = {
   open() {

@@ -245,6 +245,7 @@ var folderPaneContextMenu = {
     "folderPaneContext-remove": "cmd_deleteFolder",
     "folderPaneContext-rename": "cmd_renameFolder",
     "folderPaneContext-compact": "cmd_compactFolder",
+    "folderPaneContext-properties": "cmd_properties",
   },
 
   /**
@@ -358,6 +359,7 @@ var folderPaneContextMenu = {
           (isServer || canCompact) &&
           folder.isCommandEnabled("cmd_compactFolder"),
         cmd_emptyTrash: !isNNTP,
+        cmd_properties: !isServer && !FolderUtils.isSmartTagsFolder(folder),
       };
     }
     return this._commandStates[command];
@@ -479,7 +481,6 @@ var folderPaneContextMenu = {
         flags & Ci.nsMsgFolderFlags.Favorite
       );
     }
-    showItem("folderPaneContext-properties", !isServer && !isSmartTagsFolder);
     showItem("folderPaneContext-markAllFoldersRead", isServer);
 
     showItem("folderPaneContext-settings", isServer);
@@ -5994,6 +5995,11 @@ commandController.registerCallback(
   "cmd_emptyTrash",
   (folder = gFolder) => folderPane.emptyTrash(folder),
   () => folderPaneContextMenu.getCommandState("cmd_emptyTrash")
+);
+commandController.registerCallback(
+  "cmd_properties",
+  (folder = gFolder) => folderPane.editFolder(folder),
+  () => folderPaneContextMenu.getCommandState("cmd_properties")
 );
 
 // Delete commands, which change behaviour based on the active element.
