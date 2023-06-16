@@ -323,6 +323,18 @@ class RnpPrivateKeyUnlockTracker {
   }
 
   /**
+   * Check that this tracker has a reference to a private key.
+   *
+   * @returns {boolean} - true if the tracked key is a secret/private
+   */
+  isSecret() {
+    return (
+      this.#rnpKeyHandle &&
+      RNPLib.getSecretAvailableFromHandle(this.#rnpKeyHandle)
+    );
+  }
+
+  /**
    * Check that this tracker has a reference to a valid private key.
    * The check will fail e.g. for offline secret keys, where a
    * primary key is marked as being a secret key, but not having
@@ -3430,7 +3442,7 @@ var RNP = {
         // Manually configured external key overrides the check for
         // a valid personal key.
         if (!args.senderKeyIsExternal) {
-          if (!senderKeyTracker.available()) {
+          if (!senderKeyTracker.isSecret()) {
             throw new Error(
               `configured sender key ${args.sender} isn't available`
             );
