@@ -71,7 +71,7 @@ CalTimezone.prototype = {
     return displayName;
   },
 
-  tostring() {
+  toString() {
     return this.innerObject.toString();
   },
 };
