@@ -2484,6 +2484,9 @@ const gHeaderCustomize = {
   /**
    * The object storing all saved customization options.
    *
+   * @note Any keys added to this object should also be added to the telemetry
+   * scalar tb.ui.configuration.message_header.
+   *
    * @type {object}
    * @property {boolean} showAvatar - If the profile picutre of the sender
    *   should be showed.

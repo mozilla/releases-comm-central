@@ -481,11 +481,12 @@ tb.ui.configuration:
     kind: uint
     keyed: true
     keys:
+      - showAvatar
+      - showBigAvatar
+      - showFullAddress
+      - hideLabels
       - subjectLarge
       - buttonStyle
-      - hideLabels
-      - showAvatar
-      - showFullAddress
     notification_emails:
       - "telemetry-client-dev@thunderbird.net"
     record_in_processes:
