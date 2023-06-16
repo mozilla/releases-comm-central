@@ -232,10 +232,8 @@ tr[data-properties~="tagged"] .tag-icon {
   stroke: color-mix(in srgb, currentColor 30%, transparent);
 }
 
-[is="tree-view-table-body"]:focus > .selected .button-star,
-[is="tree-view-table-body"]:focus-within > .selected .button-star,
 [is="tree-view-table-body"]:focus > .selected:not([data-properties~="flagged"]) .button-star,
-[is="tree-view-table-body"] > .selected:focus-within:not([data-properties~="flagged"]) .button-star {
+[is="tree-view-table-body"]:focus-within > .selected:not([data-properties~="flagged"]) .button-star {
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: color-mix(in srgb, currentColor 70%, transparent);
 }
