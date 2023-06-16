@@ -3463,9 +3463,10 @@ var RNP = {
         }
 
         if (args.sign && !args.senderKeyIsExternal) {
+          let signingKeyTrackerReference = senderKeyTracker;
+
           // Prefer usable subkeys, because they are always newer
           // (or same age) as primary key.
-
           let usableSubKeyHandle = this.getSuitableSubkey(
             senderKeyTracker.getHandle(),
             str_sign
@@ -3476,35 +3477,38 @@ var RNP = {
           ) {
             throw new Error("no suitable (sub)key found for " + str_sign);
           }
-
           if (usableSubKeyHandle) {
             subKeyTracker = new RnpPrivateKeyUnlockTracker(usableSubKeyHandle);
             subKeyTracker.setAllowPromptingUserForPassword(true);
             subKeyTracker.setAllowAutoUnlockWithCachedPasswords(true);
+            if (subKeyTracker.available()) {
+              signingKeyTrackerReference = subKeyTracker;
+            }
           }
 
-          let signingKeyHandle = null;
-          if (usableSubKeyHandle && usableSubKeyHandle.available()) {
-            await usableSubKeyHandle.unlock();
-            signingKeyHandle = usableSubKeyHandle.getHandle();
-          } else {
-            await senderKeyTracker.unlock();
-            signingKeyHandle = senderKeyTracker.getHandle();
-          }
+          await signingKeyTrackerReference.unlock();
 
           if (args.encrypt) {
             if (
-              RNPLib.rnp_op_encrypt_add_signature(op, signingKeyHandle, null)
+              RNPLib.rnp_op_encrypt_add_signature(
+                op,
+                signingKeyTrackerReference.getHandle(),
+                null
+              )
             ) {
               throw new Error("rnp_op_encrypt_add_signature failed");
             }
           } else if (
-            RNPLib.rnp_op_sign_add_signature(op, signingKeyHandle, null)
+            RNPLib.rnp_op_sign_add_signature(
+              op,
+              signingKeyTrackerReference.getHandle(),
+              null
+            )
           ) {
             throw new Error("rnp_op_sign_add_signature failed");
           }
           // This was just a reference, no ownership.
-          signingKeyHandle = null;
+          signingKeyTrackerReference = null;
         }
       }
 
