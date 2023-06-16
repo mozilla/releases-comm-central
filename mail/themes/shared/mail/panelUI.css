@@ -794,6 +794,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   background-image: url(chrome://messenger/skin/icons/app-update-badge.svg);
   background-repeat: no-repeat;
   background-position: center;
+  margin-inline-start: 6px;
   -moz-context-properties: fill;
   fill: var(--color-green-60);
 }
