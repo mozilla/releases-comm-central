@@ -21,6 +21,8 @@
 
 let gAcceptButton;
 
+window.addEventListener("DOMContentLoaded", onLoad);
+
 /**
  * onload() handler.
  */
