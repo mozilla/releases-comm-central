@@ -2,9 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+html {
+  width: 840px;
+  height: 650px;
+  min-width: 840px;
+  min-height: 650px;
+}
+
 body {
-  font-size: inherit; /* accountManage.css pulls in preferences.css that sets font-size ... */
   overflow: auto;
+}
+
+body > dialog,
+button {
+  font-size: 1rem;  /* accountManage.css pulls in preferences.css that sets font-size ... */
 }
 
 .key-details-container {

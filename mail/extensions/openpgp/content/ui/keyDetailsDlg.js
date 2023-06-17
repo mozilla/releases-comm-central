@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-// from enigmailCommon.js:
-/* global GetEnigmailSvc */
-
 // from enigmailKeyManager.js:
 /* global l10n */
 
@@ -27,9 +24,6 @@ var { EnigmailKeyRing } = ChromeUtils.import(
 );
 var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
-);
-var { EnigmailDialog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/dialog.jsm"
 );
 var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
@@ -377,11 +371,6 @@ function isAccepted(value) {
 }
 
 async function reloadData(firstLoad) {
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc) {
-    throw new Error("GetEnigmailSvc failed");
-  }
-
   gUserId = null;
 
   var treeChildren = document.getElementById("keyListChildren");
@@ -721,10 +710,6 @@ function genRevocationCert() {
     "", true, "*.asc",
     defaultFileName, ["XXXasciiArmorFile", "*.asc"];
   if (!outFile) return -1;
-
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc)
-    return -1;
 
   return 0;
   */

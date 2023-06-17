@@ -1,0 +1,80 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+.enigmailGroupbox {
+  border-radius: 4px;
+  border-style: groove;
+  border-width: thin;
+  padding: 3px;
+  margin: 3px;
+  border-color: lightgrey;
+}
+
+.enigmailGroupboxMargin {
+  margin: 10px 3px;
+}
+
+.enigmailDialogTitle {
+  font-size: 120%;
+  font-weight: bold;
+  padding-bottom: 6px;
+}
+
+.enigmailDialogBody {
+  -moz-user-focus: normal;
+  user-select: text;
+  cursor: text !important;
+  white-space: pre-wrap;
+  unicode-bidi: plaintext;
+}
+
+.enigmailKeyImportHeader {
+  font-weight: bold;
+  color: #888;
+}
+
+.enigmailKeyImportUserId {
+  font-weight: bold;
+}
+
+.enigmailKeyImportDetails {
+  color: blue;
+}
+
+.enigmailKeyImportDetails:hover {
+  text-decoration: underline;
+}
+
+treechildren::-moz-tree-cell-text(enigmailOwnKey) {
+  font-weight: bold;
+}
+
+treechildren::-moz-tree-cell-text(enigKeyInactive) {
+  color: gray;
+  font-style: italic;
+}
+
+/*
+   the following styles are available for the key trust
+   columnm in the key manager:
+    enigmail_keyValid_unknown
+    enigmail_keyValid_revoked
+    enigmail_keyValid_expired
+    enigmail_keyTrust_untrusted
+    enigmail_keyTrust_marginal
+    enigmail_keyTrust_full
+    enigmail_keyTrust_ultimate
+    enigmail_keyTrust_unknown
+
+They can be applied using:
+treechildren::-moz-tree-cell(STYLE) {}
+treechildren::-moz-tree-cell-text(STYLE) {}
+*/
+
+th {
+  font-weight: normal;
+  text-align: start;
+}

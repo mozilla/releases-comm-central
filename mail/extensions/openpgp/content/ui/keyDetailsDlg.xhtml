@@ -1,12 +1,9 @@
 <?xml version="1.0"?>
-<!--
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
--->
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/openpgp/enigmail.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/keyDetails.css" type="text/css"?>
 
@@ -16,33 +13,19 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  width="840"
-  height="650"
 >
   <head>
     <title data-l10n-id="openpgp-key-details-doc-title"></title>
-    <html:link rel="localization" href="branding/brand.ftl" />
-    <html:link rel="localization" href="messenger/openpgp/openpgp.ftl" />
-    <script
-      defer="defer"
-      src="chrome://messenger/content/globalOverlay.js"
-    ></script>
-    <script
-      defer="defer"
-      src="chrome://global/content/editMenuOverlay.js"
-    ></script>
-    <script
-      defer="defer"
-      src="chrome://openpgp/content/ui/enigmailCommon.js"
-    ></script>
+    <link rel="localization" href="branding/brand.ftl" />
+    <link rel="localization" href="messenger/openpgp/openpgp.ftl" />
+    <script defer="defer" src="chrome://messenger/content/globalOverlay.js" />
+    <script defer="defer" src="chrome://global/content/editMenuOverlay.js" />
+    <script defer="defer" src="chrome://openpgp/content/ui/enigmailCommon.js" />
     <script
       defer="defer"
       src="chrome://openpgp/content/ui/enigmailKeyManager.js"
-    ></script>
-    <script
-      defer="defer"
-      src="chrome://openpgp/content/ui/keyDetailsDlg.js"
-    ></script>
+    />
+    <script defer="defer" src="chrome://openpgp/content/ui/keyDetailsDlg.js" />
   </head>
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -51,120 +34,118 @@
       buttons="accept,cancel"
       data-l10n-id="openpgp-card-details-close-window-label"
     >
-      <vbox>
-        <html:div class="key-details-container">
-          <html:aside class="key-details-grid">
-            <label
-              class="key-detail-label"
-              data-l10n-id="openpgp-key-details-user-id3-label"
-            />
-
-            <richlistbox
-              id="userIds"
-              class="additional-key-identity plain"
-              flex="1"
-            />
-
-            <label
-              class="key-detail-label"
-              data-l10n-id="openpgp-key-details-key-type-label"
-            />
-            <hbox class="input-container">
-              <html:input
-                id="keyType"
-                type="text"
-                class="plain"
-                readonly="readonly"
-                value="?"
-              />
-            </hbox>
-
-            <label
-              class="key-detail-label"
-              data-l10n-id="openpgp-key-details-key-id-label"
-            />
-            <hbox class="input-container">
-              <html:input
-                id="keyId"
-                type="text"
-                class="plain"
-                readonly="readonly"
-                value="?"
-              />
-            </hbox>
-
-            <label
-              class="key-detail-label"
-              data-l10n-id="openpgp-key-details-fingerprint-label"
-            />
-            <hbox class="input-container">
-              <html:input
-                id="fingerprint"
-                type="text"
-                class="plain"
-                readonly="readonly"
-                value="?"
-              />
-            </hbox>
-
-            <label
-              class="key-detail-label"
-              data-l10n-id="openpgp-key-details-created-header"
-            />
-            <hbox class="input-container">
-              <html:input
-                id="keyCreated"
-                type="text"
-                class="plain"
-                readonly="readonly"
-                value="?"
-              />
-            </hbox>
-
-            <label
-              class="key-detail-label"
-              data-l10n-id="openpgp-key-details-expiry-header"
-            />
-            <hbox class="input-container">
-              <html:input
-                id="keyExpiry"
-                type="text"
-                class="plain"
-                readonly="readonly"
-                value="?"
-              />
-            </hbox>
-          </html:aside>
-
-          <html:aside>
-            <vbox>
-              <button
-                id="refreshOnlineButton"
-                data-l10n-id="openpgp-key-man-refresh-online"
-                oncommand="refreshOnline()"
-              />
-              <button
-                id="changeExpiryButton"
-                data-l10n-id="openpgp-key-man-change-expiry"
-                oncommand="changeExpiry()"
-                hidden="true"
-              />
-            </vbox>
-          </html:aside>
-        </html:div>
-
-        <html:div id="key-detail-has-insecure" hidden="hidden">
-          <html:span
-            class="tail-with-learn-more"
-            data-l10n-id="openpgp-key-details-attr-ignored"
-          ></html:span>
+      <html:div class="key-details-container">
+        <html:aside class="key-details-grid">
           <label
-            is="text-link"
-            href="https://support.mozilla.org/kb/openpgp-unsafe-key-properties-ignored"
-            data-l10n-id="e2e-learn-more"
+            class="key-detail-label"
+            data-l10n-id="openpgp-key-details-user-id3-label"
           />
-        </html:div>
-      </vbox>
+
+          <richlistbox
+            id="userIds"
+            class="additional-key-identity plain"
+            flex="1"
+          />
+
+          <label
+            class="key-detail-label"
+            data-l10n-id="openpgp-key-details-key-type-label"
+          />
+          <hbox class="input-container">
+            <html:input
+              id="keyType"
+              type="text"
+              class="plain"
+              readonly="readonly"
+              value="?"
+            />
+          </hbox>
+
+          <label
+            class="key-detail-label"
+            data-l10n-id="openpgp-key-details-key-id-label"
+          />
+          <hbox class="input-container">
+            <html:input
+              id="keyId"
+              type="text"
+              class="plain"
+              readonly="readonly"
+              value="?"
+            />
+          </hbox>
+
+          <label
+            class="key-detail-label"
+            data-l10n-id="openpgp-key-details-fingerprint-label"
+          />
+          <hbox class="input-container">
+            <html:input
+              id="fingerprint"
+              type="text"
+              class="plain"
+              readonly="readonly"
+              value="?"
+            />
+          </hbox>
+
+          <label
+            class="key-detail-label"
+            data-l10n-id="openpgp-key-details-created-header"
+          />
+          <hbox class="input-container">
+            <html:input
+              id="keyCreated"
+              type="text"
+              class="plain"
+              readonly="readonly"
+              value="?"
+            />
+          </hbox>
+
+          <label
+            class="key-detail-label"
+            data-l10n-id="openpgp-key-details-expiry-header"
+          />
+          <hbox class="input-container">
+            <html:input
+              id="keyExpiry"
+              type="text"
+              class="plain"
+              readonly="readonly"
+              value="?"
+            />
+          </hbox>
+        </html:aside>
+
+        <html:aside>
+          <vbox>
+            <button
+              id="refreshOnlineButton"
+              data-l10n-id="openpgp-key-man-refresh-online"
+              oncommand="refreshOnline()"
+            />
+            <button
+              id="changeExpiryButton"
+              data-l10n-id="openpgp-key-man-change-expiry"
+              oncommand="changeExpiry()"
+              hidden="true"
+            />
+          </vbox>
+        </html:aside>
+      </html:div>
+
+      <html:div id="key-detail-has-insecure" hidden="hidden">
+        <html:span
+          class="tail-with-learn-more"
+          data-l10n-id="openpgp-key-details-attr-ignored"
+        ></html:span>
+        <label
+          is="text-link"
+          href="https://support.mozilla.org/kb/openpgp-unsafe-key-properties-ignored"
+          data-l10n-id="e2e-learn-more"
+        />
+      </html:div>
 
       <separator />
 
