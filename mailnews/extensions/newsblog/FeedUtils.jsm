@@ -994,6 +994,7 @@ var FeedUtils = {
       .then(blobToBase64)
       .catch(e => {
         return discoverFaviconURL(url)
+          .catch(() => discoverFaviconURL(uri.prePath))
           .then(fetchFavicon)
           .then(blobToBase64)
           .catch(() => "");
