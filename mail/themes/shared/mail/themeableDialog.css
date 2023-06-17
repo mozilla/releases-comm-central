@@ -596,3 +596,13 @@ separator.groove:not([orient="vertical"]) {
   height: 48px;
   width: 48px;
 }
+
+p {
+  margin: 2px 4px;
+}
+
+hr {
+  width: 100%;
+  border-top: 1px solid var(--field-border-color);
+  border-bottom: 0;
+}

@@ -4,90 +4,70 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/contextMenu.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
-
-<window
-  data-l10n-id="openpgp-change-key-expiry-title"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/changeExpiryDlg.css" type="text/css"?>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  style="width: 50em; height: 22em"
-  persist="width height"
-  onload="onLoad();"
+  lightweightthemes="true"
+  scrolling="false"
 >
-  <dialog id="changeExpiryDlg" buttons="cancel,accept">
-    <script src="chrome://openpgp/content/ui/changeExpiryDlg.js" />
-    <linkset>
-      <html:link
-        rel="localization"
-        href="messenger/openpgp/changeExpiryDlg.ftl"
-      />
-      <html:link rel="localization" href="messenger/openpgp/openpgp.ftl" />
-    </linkset>
-
-    <html:legend id="info-current-expiry"></html:legend>
-
-    <hbox class="inline-notification-container info-container self-center">
-      <hbox class="inline-notification-wrapper align-center">
-        <html:img
+  <head>
+    <title data-l10n-id="openpgp-change-expiry-title"></title>
+    <link rel="localization" href="messenger/openpgp/changeExpiryDlg.ftl" />
+    <script
+      defer="defer"
+      src="chrome://openpgp/content/ui/changeExpiryDlg.js"
+    ></script>
+  </head>
+  <body>
+    <xul:dialog id="changeExpiryDlg" buttons="cancel,accept">
+      <div class="inline-notification-container info-container self-center">
+        <img
           class="notification-image"
           src="chrome://messenger/skin/icons/information.svg"
           alt=""
         />
-        <description data-l10n-id="info-explanation-1" />
-      </hbox>
-    </hbox>
+        <p data-l10n-id="info-explanation-1"></p>
+      </div>
 
-    <description data-l10n-id="info-explanation-2" />
+      <p id="info-current-expiry"></p>
 
-    <separator />
+      <p id="longerUsage" data-l10n-id="info-explanation-2"></p>
 
-    <html:div>
-      <html:fieldset>
-        <radiogroup
-          id="radio-expire-or-not"
-          value="keep-existing"
-          class="indent"
-          onselect="enableExpiryInput()"
-        >
-          <radio
+      <fieldset>
+        <div>
+          <input
             id="radio-expire-keep"
-            value="keep-existing"
-            data-l10n-id="expire-dont-change"
+            type="radio"
+            name="expiry"
+            value="-1"
+            checked="checked"
           />
-          <hbox align="center">
-            <radio
-              id="radio-expire-yes"
-              value="expire"
-              data-l10n-id="expire-in-label"
-            />
-            <menulist
-              id="expire-months"
-              sizetopopup="always"
-              value="24"
-              disabled="true"
-            >
-              <menupopup
-                id="monthsPopup"
-                onpopupshowing="resizeMonthsPopup(event);"
-              >
-              </menupopup>
-            </menulist>
-            <label
-              id="expire-months-label"
-              data-l10n-id="expire-in-months"
-              class="startSpacing"
-              disabled="true"
-            />
-          </hbox>
-          <radio
-            id="radio-expire-no"
-            value="do-not-expire"
-            data-l10n-id="expire-never-label"
+          <label
+            for="radio-expire-keep"
+            data-l10n-id="expire-no-change-label"
           />
-        </radiogroup>
-      </html:fieldset>
-    </html:div>
-  </dialog>
-</window>
+        </div>
+
+        <div>
+          <input id="radio-expire-yes" type="radio" name="expiry" value="" />
+          <label for="radio-expire-yes" data-l10n-id="expire-in-time-label" />
+
+          <select id="expiry-in"></select>
+        </div>
+
+        <div>
+          <input id="radio-expire-no" type="radio" name="expiry" value="0" />
+          <label
+            for="radio-expire-no"
+            data-l10n-id="expire-never-expire-label"
+          />
+        </div>
+      </fieldset>
+    </xul:dialog>
+  </body>
+</html>
