@@ -38,7 +38,10 @@ class ConfigVerifier {
     });
   }
 
-  // @see {nsIUrlListener}
+  /**
+   * @param {nsIURI} url - The URL being processed.
+   * @see {nsIUrlListener}
+   */
   OnStartRunningUrl(url) {
     this._log.debug(`Starting to verify configuration;
       email as username=${
@@ -48,7 +51,11 @@ class ConfigVerifier {
       authMethod=${this.server.authMethod}`);
   }
 
-  // @see {nsIUrlListener}
+  /**
+   * @param {nsIURI} url - The URL being processed.
+   * @param {nsresult} status - A result code of URL processing.
+   * @see {nsIUrlListener}
+   */
   OnStopRunningUrl(url, status) {
     if (Components.isSuccessCode(status)) {
       this._log.debug(`Configuration verified successfully!`);
@@ -153,9 +160,11 @@ class ConfigVerifier {
     this._failed(aPreviousUrl);
   }
 
+  /**
+   * Clear out the server we had created for use during testing.
+   */
   cleanup() {
     try {
-      // Avoid pref pollution, clear out server prefs.
       if (this.server) {
         MailServices.accounts.removeIncomingServer(this.server, true);
         this.server = null;
@@ -165,8 +174,12 @@ class ConfigVerifier {
     }
   }
 
+  /**
+   * @param {nsIURI} url - The URL being processed.
+   */
   _failed(url) {
     this.cleanup();
+    url = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
     let code = url.errorCode || "login-error-unknown";
     let msg = url.errorMessage;
     // *Only* for known (!) username/password errors, show our message.
@@ -337,14 +350,12 @@ class ConfigVerifier {
         ) {
           this.verifyLogon();
         } else {
-          // Avoid pref pollution, clear out server prefs.
-          MailServices.accounts.removeIncomingServer(this.server, true);
+          this.cleanup();
           resolve(config);
         }
       } catch (e) {
         this._log.info("verifyConfig failed: " + e);
-        // Avoid pref pollution, clear out server prefs.
-        MailServices.accounts.removeIncomingServer(this.server, true);
+        this.cleanup();
         reject(e);
       }
     });
