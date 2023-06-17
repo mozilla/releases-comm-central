@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include <algorithm>
 #include "msgCore.h"
 #include "prmem.h"
 #include "nsArrayUtils.h"
@@ -14,7 +15,6 @@
 #include "nsIMsgDatabase.h"
 #include "nsIMsgFolder.h"
 #include "MailNewsTypes2.h"
-#include "nsQuickSort.h"
 #include "nsIMsgImapMailFolder.h"
 #include "nsImapCore.h"
 #include "nsMsgFolderFlags.h"
@@ -4330,11 +4330,12 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType,
     if (!dbToUse) return NS_ERROR_FAILURE;
   }
 
-  viewSortInfo qsPrivateData;
-  qsPrivateData.view = this;
-  qsPrivateData.isSecondarySort = false;
-  qsPrivateData.ascendingSort = (sortOrder == nsMsgViewSortOrder::ascending);
-  qsPrivateData.db = dbToUse;
+  viewSortInfo qsPrivateData{
+      .view = this,
+      .db = dbToUse,
+      .isSecondarySort = false,
+      .ascendingSort = (sortOrder == nsMsgViewSortOrder::ascending),
+  };
 
   switch (fieldType) {
     case kCollationKey: {
@@ -4358,9 +4359,13 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType,
         rv = GetCollationKey(msgHdr, sortType, info->key, colHandler);
         NS_ENSURE_SUCCESS(rv, rv);
       }
+
       // Perform the sort.
-      NS_QuickSort(pPtrBase.Elements(), pPtrBase.Length(), sizeof(IdKey*),
-                   FnSortIdKey, &qsPrivateData);
+      std::sort(pPtrBase.begin(), pPtrBase.end(),
+                [&qsPrivateData](const auto& lhs, const auto& rhs) {
+                  return FnSortIdKey(&lhs, &rhs, &qsPrivateData) < 0;
+                });
+
       // Now update the view state to reflect the new order.
       for (uint32_t i = 0; i < arraySize; ++i) {
         m_keys[i] = pPtrBase[i]->id;
@@ -4395,9 +4400,13 @@ NS_IMETHODIMP nsMsgDBView::Sort(nsMsgViewSortTypeValue sortType,
           NS_ENSURE_SUCCESS(rv, rv);
         }
       }
+
       // Perform the sort.
-      NS_QuickSort(pPtrBase.Elements(), pPtrBase.Length(), sizeof(IdUint32*),
-                   FnSortIdUint32, &qsPrivateData);
+      std::sort(pPtrBase.begin(), pPtrBase.end(),
+                [&qsPrivateData](const auto& lhs, const auto& rhs) {
+                  return FnSortIdUint32(&lhs, &rhs, &qsPrivateData) < 0;
+                });
+
       // Now update the view state to reflect the new order.
       for (uint32_t i = 0; i < arraySize; ++i) {
         m_keys[i] = pPtrBase[i]->id;
