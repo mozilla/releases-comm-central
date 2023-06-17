@@ -13,19 +13,25 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 - 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 /**
  * Represents a poll end/closure event.
  */
 class PollEndEvent extends _ExtensibleEvent.ExtensibleEvent {
-  /**
-   * The poll start event ID referenced by the response.
-   */
-
-  /**
-   * The closing message for the event.
-   */
-
   /**
    * Creates a new PollEndEvent from a pure format. Note that the event is *not*
    * parsed here: it will be treated as a literal m.poll.response primary typed event.
@@ -33,7 +39,13 @@ class PollEndEvent extends _ExtensibleEvent.ExtensibleEvent {
    */
   constructor(wireFormat) {
     super(wireFormat);
+    /**
+     * The poll start event ID referenced by the response.
+     */
     _defineProperty(this, "pollEventId", void 0);
+    /**
+     * The closing message for the event.
+     */
     _defineProperty(this, "closingMessage", void 0);
     const rel = this.wireContent["m.relates_to"];
     if (!_extensible_events.REFERENCE_RELATION.matches(rel?.rel_type) || typeof rel?.event_id !== "string") {

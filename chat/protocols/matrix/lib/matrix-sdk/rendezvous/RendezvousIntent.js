@@ -19,9 +19,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let RendezvousIntent;
-exports.RendezvousIntent = RendezvousIntent;
-(function (RendezvousIntent) {
+let RendezvousIntent = /*#__PURE__*/function (RendezvousIntent) {
   RendezvousIntent["LOGIN_ON_NEW_DEVICE"] = "login.start";
   RendezvousIntent["RECIPROCATE_LOGIN_ON_EXISTING_DEVICE"] = "login.reciprocate";
-})(RendezvousIntent || (exports.RendezvousIntent = RendezvousIntent = {}));
+  return RendezvousIntent;
+}({});
+exports.RendezvousIntent = RendezvousIntent;

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.SlidingSyncSdk = void 0;
 var _room = require("./models/room");
 var _logger = require("./logger");
-var utils = _interopRequireWildcard(require("./utils"));
+var _utils = require("./utils");
 var _eventTimeline = require("./models/event-timeline");
 var _client = require("./client");
 var _sync = require("./sync");
@@ -15,11 +15,23 @@ var _slidingSync = require("./sliding-sync");
 var _event = require("./@types/event");
 var _roomState = require("./models/room-state");
 var _roomMember = require("./models/room-member");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 // Number of consecutive failed syncs that will lead to a syncState of ERROR as opposed
 // to RECONNECTING. This is needed to inform the client of server issues when the
 // keepAlive is successful but the server /sync fails.
@@ -45,24 +57,12 @@ class ExtensionE2EE {
 
   async onResponse(data) {
     // Handle device list updates
-    if (data["device_lists"]) {
-      await this.crypto.handleDeviceListChanges({
-        oldSyncToken: "yep" // XXX need to do this so the device list changes get processed :(
-      }, data["device_lists"]);
+    if (data.device_lists) {
+      await this.crypto.processDeviceLists(data.device_lists);
     }
 
-    // Handle one_time_keys_count
-    if (data["device_one_time_keys_count"]) {
-      const currentCount = data["device_one_time_keys_count"].signed_curve25519 || 0;
-      this.crypto.updateOneTimeKeyCount(currentCount);
-    }
-    if (data["device_unused_fallback_key_types"] || data["org.matrix.msc2732.device_unused_fallback_key_types"]) {
-      // The presence of device_unused_fallback_key_types indicates that the
-      // server supports fallback keys. If there's no unused
-      // signed_curve25519 fallback key we need a new one.
-      const unusedFallbackKeys = data["device_unused_fallback_key_types"] || data["org.matrix.msc2732.device_unused_fallback_key_types"];
-      this.crypto.setNeedsNewFallback(Array.isArray(unusedFallbackKeys) && !unusedFallbackKeys.includes("signed_curve25519"));
-    }
+    // Handle one_time_keys_count and unused_fallback_key_types
+    await this.crypto.processKeyCounts(data.device_one_time_keys_count, data["device_unused_fallback_key_types"] || data["org.matrix.msc2732.device_unused_fallback_key_types"]);
     this.crypto.onSyncCompleted({});
   }
 }
@@ -499,7 +499,7 @@ class SlidingSyncSdk {
     }
     if (roomData.invite_state) {
       const inviteStateEvents = mapEvents(this.client, room.roomId, roomData.invite_state);
-      this.injectRoomEvents(room, inviteStateEvents);
+      await this.injectRoomEvents(room, inviteStateEvents);
       if (roomData.initial) {
         room.recalculate();
         this.client.store.storeRoom(room);
@@ -564,7 +564,7 @@ class SlidingSyncSdk {
         }
     } */
 
-    this.injectRoomEvents(room, stateEvents, timelineEvents, roomData.num_live);
+    await this.injectRoomEvents(room, stateEvents, timelineEvents, roomData.num_live);
 
     // we deliberately don't add ephemeral events to the timeline
     room.addEphemeralEvents(ephemeralEvents);
@@ -587,8 +587,8 @@ class SlidingSyncSdk {
         await this.syncOpts.cryptoCallbacks.onCryptoEvent(room, e);
       }
     };
-    await utils.promiseMapSeries(stateEvents, processRoomEvent);
-    await utils.promiseMapSeries(timelineEvents, processRoomEvent);
+    await (0, _utils.promiseMapSeries)(stateEvents, processRoomEvent);
+    await (0, _utils.promiseMapSeries)(timelineEvents, processRoomEvent);
     ephemeralEvents.forEach(function (e) {
       client.emit(_client.ClientEvent.Event, e);
     });
@@ -608,7 +608,7 @@ class SlidingSyncSdk {
    * @param numLive - the number of events in timelineEventList which just happened,
    * supplied from the server.
    */
-  injectRoomEvents(room, stateEventList, timelineEventList, numLive) {
+  async injectRoomEvents(room, stateEventList, timelineEventList, numLive) {
     timelineEventList = timelineEventList || [];
     stateEventList = stateEventList || [];
     numLive = numLive || 0;
@@ -667,11 +667,11 @@ class SlidingSyncSdk {
     // if the timeline has any state events in it.
     // This also needs to be done before running push rules on the events as they need
     // to be decorated with sender etc.
-    room.addLiveEvents(timelineEventList, {
+    await room.addLiveEvents(timelineEventList, {
       fromCache: true
     });
     if (liveTimelineEvents.length > 0) {
-      room.addLiveEvents(liveTimelineEvents, {
+      await room.addLiveEvents(liveTimelineEvents, {
         fromCache: false
       });
     }

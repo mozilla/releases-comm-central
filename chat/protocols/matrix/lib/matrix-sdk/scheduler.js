@@ -4,16 +4,37 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.MatrixScheduler = void 0;
-var utils = _interopRequireWildcard(require("./utils"));
 var _logger = require("./logger");
 var _event = require("./@types/event");
+var _utils = require("./utils");
 var _httpApi = require("./http-api");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /**
+                                                                                                                                                                                                                                                                                                                                                                                              * This is an internal module which manages queuing, scheduling and retrying
+                                                                                                                                                                                                                                                                                                                                                                                              * of requests.
+                                                                                                                                                                                                                                                                                                                                                                                              */
 const DEBUG = false; // set true to enable console logging.
+
+/**
+ * The function to invoke to process (send) events in the queue.
+ * @param event - The event to send.
+ * @returns Resolved/rejected depending on the outcome of the request.
+ */
 
 // eslint-disable-next-line camelcase
 class MatrixScheduler {
@@ -149,7 +170,7 @@ class MatrixScheduler {
         debuglog("retry(%s) err=%s event_id=%s waitTime=%s", obj.attempts, err, obj.event.getId(), waitTimeMs);
         if (waitTimeMs === -1) {
           // give up (you quitter!)
-          debuglog("Queue '%s' giving up on event %s", queueName, obj.event.getId());
+          _logger.logger.info("Queue '%s' giving up on event %s", queueName, obj.event.getId());
           // remove this from the queue
           this.clearQueue(queueName, err);
         } else {
@@ -190,7 +211,7 @@ class MatrixScheduler {
       return false;
     }
     let removed = false;
-    utils.removeElement(this.queues[name], element => {
+    (0, _utils.removeElement)(this.queues[name], element => {
       if (element.event.getId() === event.getId()) {
         // XXX we should probably reject the promise?
         // https://github.com/matrix-org/matrix-js-sdk/issues/496
@@ -229,15 +250,15 @@ class MatrixScheduler {
     if (!this.queues[queueName]) {
       this.queues[queueName] = [];
     }
-    const defer = utils.defer();
+    const deferred = (0, _utils.defer)();
     this.queues[queueName].push({
       event: event,
-      defer: defer,
+      defer: deferred,
       attempts: 0
     });
     debuglog("Queue algorithm dumped event %s into queue '%s'", event.getId(), queueName);
     this.startProcessingQueues();
-    return defer.promise;
+    return deferred.promise;
   }
   startProcessingQueues() {
     if (!this.procFn) return;
@@ -258,10 +279,10 @@ class MatrixScheduler {
     if (index >= 0) {
       this.activeQueues.splice(index, 1);
     }
-    debuglog("Stopping queue '%s' as it is now empty", queueName);
+    _logger.logger.info("Stopping queue '%s' as it is now empty", queueName);
   }
   clearQueue(queueName, err) {
-    debuglog("clearing queue '%s'", queueName);
+    _logger.logger.info("clearing queue '%s'", queueName);
     let obj;
     while (obj = this.removeNextEvent(queueName)) {
       obj.defer.reject(err);

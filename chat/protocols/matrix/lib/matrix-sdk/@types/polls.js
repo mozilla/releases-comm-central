@@ -35,6 +35,10 @@ const M_POLL_KIND_UNDISCLOSED = new _matrixEventsSdk.UnstableValue("m.poll.undis
 /**
  * Any poll kind.
  */
+
+/**
+ * Known poll kind namespaces.
+ */
 exports.M_POLL_KIND_UNDISCLOSED = M_POLL_KIND_UNDISCLOSED;
 /**
  * The namespaced value for m.poll.start
@@ -43,6 +47,18 @@ const M_POLL_START = new _matrixEventsSdk.UnstableValue("m.poll.start", "org.mat
 
 /**
  * The m.poll.start type within event content
+ */
+
+/**
+ * A poll answer.
+ */
+
+/**
+ * The event definition for an m.poll.start event (in content)
+ */
+
+/**
+ * The content for an m.poll.start event
  */
 exports.M_POLL_START = M_POLL_START;
 /**
@@ -53,6 +69,14 @@ const M_POLL_RESPONSE = new _matrixEventsSdk.UnstableValue("m.poll.response", "o
 /**
  * The m.poll.response type within event content
  */
+
+/**
+ * The event definition for an m.poll.response event (in content)
+ */
+
+/**
+ * The content for an m.poll.response event
+ */
 exports.M_POLL_RESPONSE = M_POLL_RESPONSE;
 /**
  * The namespaced value for m.poll.end
@@ -61,5 +85,9 @@ const M_POLL_END = new _matrixEventsSdk.UnstableValue("m.poll.end", "org.matrix.
 
 /**
  * The event definition for an m.poll.end event (in content)
+ */
+
+/**
+ * The content for an m.poll.end event
  */
 exports.M_POLL_END = M_POLL_END;

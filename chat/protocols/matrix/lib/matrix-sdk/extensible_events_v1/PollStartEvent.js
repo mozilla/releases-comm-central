@@ -14,19 +14,32 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 - 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 /**
  * Represents a poll answer. Note that this is represented as a subtype and is
  * not registered as a parsable event - it is implied for usage exclusively
  * within the PollStartEvent parsing.
  */
 class PollAnswerSubevent extends _MessageEvent.MessageEvent {
-  /**
-   * The answer ID.
-   */
-
   constructor(wireFormat) {
     super(wireFormat);
+    /**
+     * The answer ID.
+     */
     _defineProperty(this, "id", void 0);
     const id = wireFormat.content.id;
     if (!id || typeof id !== "string") {
@@ -66,40 +79,35 @@ class PollAnswerSubevent extends _MessageEvent.MessageEvent {
 exports.PollAnswerSubevent = PollAnswerSubevent;
 class PollStartEvent extends _ExtensibleEvent.ExtensibleEvent {
   /**
-   * The question being asked, as a MessageEvent node.
-   */
-
-  /**
-   * The interpreted kind of poll. Note that this will infer a value that is known to the
-   * SDK rather than verbatim - this means unknown types will be represented as undisclosed
-   * polls.
-   *
-   * To get the raw kind, use rawKind.
-   */
-
-  /**
-   * The true kind as provided by the event sender. Might not be valid.
-   */
-
-  /**
-   * The maximum number of selections a user is allowed to make.
-   */
-
-  /**
-   * The possible answers for the poll.
-   */
-
-  /**
    * Creates a new PollStartEvent from a pure format. Note that the event is *not*
    * parsed here: it will be treated as a literal m.poll.start primary typed event.
    * @param wireFormat - The event.
    */
   constructor(wireFormat) {
     super(wireFormat);
+    /**
+     * The question being asked, as a MessageEvent node.
+     */
     _defineProperty(this, "question", void 0);
+    /**
+     * The interpreted kind of poll. Note that this will infer a value that is known to the
+     * SDK rather than verbatim - this means unknown types will be represented as undisclosed
+     * polls.
+     *
+     * To get the raw kind, use rawKind.
+     */
     _defineProperty(this, "kind", void 0);
+    /**
+     * The true kind as provided by the event sender. Might not be valid.
+     */
     _defineProperty(this, "rawKind", void 0);
+    /**
+     * The maximum number of selections a user is allowed to make.
+     */
     _defineProperty(this, "maxSelections", void 0);
+    /**
+     * The possible answers for the poll.
+     */
     _defineProperty(this, "answers", void 0);
     const poll = _polls.M_POLL_START.findIn(this.wireContent);
     if (!poll?.question) {

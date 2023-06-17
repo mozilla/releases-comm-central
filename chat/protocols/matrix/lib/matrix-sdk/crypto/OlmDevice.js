@@ -11,7 +11,21 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 // The maximum size of an event is 65K, and we base64 the content, so this is a
 // reasonable approximation to the biggest plaintext we can encrypt.
 const MAX_PLAINTEXT_LENGTH = 65536 * 3 / 4;
@@ -39,6 +53,13 @@ function checkPayloadLength(payloadString) {
     throw new PayloadTooLargeError(`Message too long (${payloadString.length} bytes). ` + `The maximum for an encrypted message is ${MAX_PLAINTEXT_LENGTH} bytes.`);
   }
 }
+
+/** data stored in the session store about an inbound group session */
+
+/* eslint-disable camelcase */
+
+/* eslint-enable camelcase */
+
 /**
  * Manages the olm cryptography functions. Each OlmDevice has a single
  * OlmAccount and a number of OlmSessions.
@@ -48,46 +69,40 @@ function checkPayloadLength(payloadString) {
 class OlmDevice {
   // set by consumers
 
-  /** Curve25519 key for the account, unknown until we load the account from storage in init() */
-
-  /** Ed25519 key for the account, unknown until we load the account from storage in init() */
-
-  // we don't bother stashing outboundgroupsessions in the cryptoStore -
-  // instead we keep them here.
-
-  // Store a set of decrypted message indexes for each group session.
-  // This partially mitigates a replay attack where a MITM resends a group
-  // message into the room.
-  //
-  // When we decrypt a message and the message index matches a previously
-  // decrypted message, one possible cause of that is that we are decrypting
-  // the same event, and may not indicate an actual replay attack.  For
-  // example, this could happen if we receive events, forget about them, and
-  // then re-fetch them when we backfill.  So we store the event ID and
-  // timestamp corresponding to each message index when we first decrypt it,
-  // and compare these against the event ID and timestamp every time we use
-  // that same index.  If they match, then we're probably decrypting the same
-  // event and we don't consider it a replay attack.
-  //
-  // Keys are strings of form "<senderKey>|<session_id>|<message_index>"
-  // Values are objects of the form "{id: <event id>, timestamp: <ts>}"
-
-  // Keep track of sessions that we're starting, so that we don't start
-  // multiple sessions for the same device at the same time.
-  // set by consumers
-
-  // Used by olm to serialise prekey message decryptions
-  // set by consumers
-
   constructor(cryptoStore) {
     this.cryptoStore = cryptoStore;
     _defineProperty(this, "pickleKey", "DEFAULT_KEY");
+    // set by consumers
+    /** Curve25519 key for the account, unknown until we load the account from storage in init() */
     _defineProperty(this, "deviceCurve25519Key", null);
+    /** Ed25519 key for the account, unknown until we load the account from storage in init() */
     _defineProperty(this, "deviceEd25519Key", null);
     _defineProperty(this, "maxOneTimeKeys", null);
+    // we don't bother stashing outboundgroupsessions in the cryptoStore -
+    // instead we keep them here.
     _defineProperty(this, "outboundGroupSessionStore", {});
+    // Store a set of decrypted message indexes for each group session.
+    // This partially mitigates a replay attack where a MITM resends a group
+    // message into the room.
+    //
+    // When we decrypt a message and the message index matches a previously
+    // decrypted message, one possible cause of that is that we are decrypting
+    // the same event, and may not indicate an actual replay attack.  For
+    // example, this could happen if we receive events, forget about them, and
+    // then re-fetch them when we backfill.  So we store the event ID and
+    // timestamp corresponding to each message index when we first decrypt it,
+    // and compare these against the event ID and timestamp every time we use
+    // that same index.  If they match, then we're probably decrypting the same
+    // event and we don't consider it a replay attack.
+    //
+    // Keys are strings of form "<senderKey>|<session_id>|<message_index>"
+    // Values are objects of the form "{id: <event id>, timestamp: <ts>}"
     _defineProperty(this, "inboundGroupSessionMessageIndexes", {});
+    // Keep track of sessions that we're starting, so that we don't start
+    // multiple sessions for the same device at the same time.
     _defineProperty(this, "sessionsInProgress", {});
+    // set by consumers
+    // Used by olm to serialise prekey message decryptions
     _defineProperty(this, "olmPrekeyPromise", Promise.resolve());
   }
 

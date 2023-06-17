@@ -8,13 +8,29 @@ var _exportNames = {
   createClient: true,
   createRoomWidgetClient: true,
   ContentHelpers: true,
+  SecretStorage: true,
   createNewMatrixCall: true,
   GroupCallEvent: true,
   GroupCallIntent: true,
   GroupCallState: true,
-  GroupCallType: true
+  GroupCallType: true,
+  CryptoEvent: true,
+  DeviceVerificationStatus: true,
+  Crypto: true
 };
-exports.ContentHelpers = void 0;
+exports.Crypto = exports.ContentHelpers = void 0;
+Object.defineProperty(exports, "CryptoEvent", {
+  enumerable: true,
+  get: function () {
+    return _crypto.CryptoEvent;
+  }
+});
+Object.defineProperty(exports, "DeviceVerificationStatus", {
+  enumerable: true,
+  get: function () {
+    return _Crypto.DeviceVerificationStatus;
+  }
+});
 Object.defineProperty(exports, "GroupCallEvent", {
   enumerable: true,
   get: function () {
@@ -39,6 +55,7 @@ Object.defineProperty(exports, "GroupCallType", {
     return _groupCall.GroupCallType;
   }
 });
+exports.SecretStorage = void 0;
 exports.createClient = createClient;
 Object.defineProperty(exports, "createNewMatrixCall", {
   enumerable: true,
@@ -252,6 +269,18 @@ Object.keys(_roomState).forEach(function (key) {
     }
   });
 });
+var _typedEventEmitter = require("./models/typed-event-emitter");
+Object.keys(_typedEventEmitter).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _typedEventEmitter[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _typedEventEmitter[key];
+    }
+  });
+});
 var _user = require("./models/user");
 Object.keys(_user).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
@@ -261,6 +290,18 @@ Object.keys(_user).forEach(function (key) {
     enumerable: true,
     get: function () {
       return _user[key];
+    }
+  });
+});
+var _device = require("./models/device");
+Object.keys(_device).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _device[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _device[key];
     }
   });
 });
@@ -422,8 +463,13 @@ Object.keys(_roomSummary).forEach(function (key) {
 });
 var _ContentHelpers = _interopRequireWildcard(require("./content-helpers"));
 exports.ContentHelpers = _ContentHelpers;
+var _SecretStorage = _interopRequireWildcard(require("./secret-storage"));
+exports.SecretStorage = _SecretStorage;
 var _call = require("./webrtc/call");
 var _groupCall = require("./webrtc/groupCall");
+var _crypto = require("./crypto");
+var _Crypto = _interopRequireWildcard(require("./crypto-api"));
+exports.Crypto = _Crypto;
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 /*
@@ -444,12 +490,31 @@ limitations under the License.
 
 // used to be located here
 
+/**
+ * Types supporting cryptography.
+ *
+ * The most important is {@link Crypto.CryptoApi}, an instance of which can be retrieved via
+ * {@link MatrixClient.getCrypto}.
+ */
+
+/**
+ * Backwards compatibility re-export
+ * @internal
+ * @deprecated use {@link Crypto.CryptoApi}
+ */
+
+/**
+ * Backwards compatibility re-export
+ * @internal
+ * @deprecated use {@link Crypto.DeviceVerificationStatus}
+ */
+
 let cryptoStoreFactory = () => new _memoryCryptoStore.MemoryCryptoStore();
 
 /**
  * Configure a different factory to be used for creating crypto stores
  *
- * @param fac - a function which will return a new {@link CryptoStore}
+ * @param fac - a function which will return a new `CryptoStore`
  */
 function setCryptoStoreFactory(fac) {
   cryptoStoreFactory = fac;

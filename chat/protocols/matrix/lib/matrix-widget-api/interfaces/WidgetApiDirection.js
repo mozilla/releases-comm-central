@@ -5,7 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.WidgetApiDirection = void 0;
 exports.invertedDirection = invertedDirection;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -21,14 +20,12 @@ exports.invertedDirection = invertedDirection;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var WidgetApiDirection;
-exports.WidgetApiDirection = WidgetApiDirection;
-
-(function (WidgetApiDirection) {
+var WidgetApiDirection = /*#__PURE__*/function (WidgetApiDirection) {
   WidgetApiDirection["ToWidget"] = "toWidget";
   WidgetApiDirection["FromWidget"] = "fromWidget";
-})(WidgetApiDirection || (exports.WidgetApiDirection = WidgetApiDirection = {}));
-
+  return WidgetApiDirection;
+}({});
+exports.WidgetApiDirection = WidgetApiDirection;
 function invertedDirection(dir) {
   if (dir === WidgetApiDirection.ToWidget) {
     return WidgetApiDirection.FromWidget;
@@ -38,3 +35,4 @@ function invertedDirection(dir) {
     throw new Error("Invalid direction");
   }
 }
+//# sourceMappingURL=WidgetApiDirection.js.map

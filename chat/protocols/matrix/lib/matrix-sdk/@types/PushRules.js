@@ -22,57 +22,59 @@ limitations under the License.
 */
 // allow camelcase as these are things that go onto the wire
 /* eslint-disable camelcase */
-let PushRuleActionName;
-exports.PushRuleActionName = PushRuleActionName;
-(function (PushRuleActionName) {
+let PushRuleActionName = /*#__PURE__*/function (PushRuleActionName) {
   PushRuleActionName["DontNotify"] = "dont_notify";
   PushRuleActionName["Notify"] = "notify";
   PushRuleActionName["Coalesce"] = "coalesce";
-})(PushRuleActionName || (exports.PushRuleActionName = PushRuleActionName = {}));
-let TweakName;
-exports.TweakName = TweakName;
-(function (TweakName) {
+  return PushRuleActionName;
+}({});
+exports.PushRuleActionName = PushRuleActionName;
+let TweakName = /*#__PURE__*/function (TweakName) {
   TweakName["Highlight"] = "highlight";
   TweakName["Sound"] = "sound";
-})(TweakName || (exports.TweakName = TweakName = {}));
-let ConditionOperator;
-exports.ConditionOperator = ConditionOperator;
-(function (ConditionOperator) {
+  return TweakName;
+}({});
+exports.TweakName = TweakName;
+let ConditionOperator = /*#__PURE__*/function (ConditionOperator) {
   ConditionOperator["ExactEquals"] = "==";
   ConditionOperator["LessThan"] = "<";
   ConditionOperator["GreaterThan"] = ">";
   ConditionOperator["GreaterThanOrEqual"] = ">=";
   ConditionOperator["LessThanOrEqual"] = "<=";
-})(ConditionOperator || (exports.ConditionOperator = ConditionOperator = {}));
+  return ConditionOperator;
+}({});
+exports.ConditionOperator = ConditionOperator;
 const DMMemberCountCondition = "2";
 exports.DMMemberCountCondition = DMMemberCountCondition;
 function isDmMemberCountCondition(condition) {
   return condition === "==2" || condition === "2";
 }
-let ConditionKind;
-exports.ConditionKind = ConditionKind;
-(function (ConditionKind) {
+let ConditionKind = /*#__PURE__*/function (ConditionKind) {
   ConditionKind["EventMatch"] = "event_match";
   ConditionKind["EventPropertyIs"] = "event_property_is";
+  ConditionKind["EventPropertyContains"] = "event_property_contains";
   ConditionKind["ContainsDisplayName"] = "contains_display_name";
   ConditionKind["RoomMemberCount"] = "room_member_count";
   ConditionKind["SenderNotificationPermission"] = "sender_notification_permission";
   ConditionKind["CallStarted"] = "call_started";
   ConditionKind["CallStartedPrefix"] = "org.matrix.msc3914.call_started";
-})(ConditionKind || (exports.ConditionKind = ConditionKind = {}));
-let PushRuleKind;
-exports.PushRuleKind = PushRuleKind;
-(function (PushRuleKind) {
+  return ConditionKind;
+}({}); // XXX: custom conditions are possible but always fail, and break the typescript discriminated union so ignore them here
+// IPushRuleCondition<Exclude<string, ConditionKind>> unfortunately does not resolve this at the time of writing.
+exports.ConditionKind = ConditionKind;
+let PushRuleKind = /*#__PURE__*/function (PushRuleKind) {
   PushRuleKind["Override"] = "override";
   PushRuleKind["ContentSpecific"] = "content";
   PushRuleKind["RoomSpecific"] = "room";
   PushRuleKind["SenderSpecific"] = "sender";
   PushRuleKind["Underride"] = "underride";
-})(PushRuleKind || (exports.PushRuleKind = PushRuleKind = {}));
-let RuleId;
-exports.RuleId = RuleId;
-(function (RuleId) {
+  return PushRuleKind;
+}({});
+exports.PushRuleKind = PushRuleKind;
+let RuleId = /*#__PURE__*/function (RuleId) {
   RuleId["Master"] = ".m.rule.master";
+  RuleId["IsUserMention"] = ".org.matrix.msc3952.is_user_mention";
+  RuleId["IsRoomMention"] = ".org.matrix.msc3952.is_room_mention";
   RuleId["ContainsDisplayName"] = ".m.rule.contains_display_name";
   RuleId["ContainsUserName"] = ".m.rule.contains_user_name";
   RuleId["AtRoomNotification"] = ".m.rule.roomnotif";
@@ -93,5 +95,7 @@ exports.RuleId = RuleId;
   RuleId["PollStartOneToOneUnstable"] = ".org.matrix.msc3930.rule.poll_start_one_to_one";
   RuleId["PollEndOneToOne"] = ".m.rule.poll_end_one_to_one";
   RuleId["PollEndOneToOneUnstable"] = ".org.matrix.msc3930.rule.poll_end_one_to_one";
-})(RuleId || (exports.RuleId = RuleId = {}));
+  return RuleId;
+}({});
 /* eslint-enable camelcase */
+exports.RuleId = RuleId;

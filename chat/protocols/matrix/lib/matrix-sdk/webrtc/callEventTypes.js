@@ -10,10 +10,10 @@ exports.SDPStreamMetadataPurpose = exports.SDPStreamMetadataKey = void 0;
 // TODO: Change to "sdp_stream_metadata" when MSC3077 is merged
 const SDPStreamMetadataKey = "org.matrix.msc3077.sdp_stream_metadata";
 exports.SDPStreamMetadataKey = SDPStreamMetadataKey;
-let SDPStreamMetadataPurpose;
-exports.SDPStreamMetadataPurpose = SDPStreamMetadataPurpose;
-(function (SDPStreamMetadataPurpose) {
+let SDPStreamMetadataPurpose = /*#__PURE__*/function (SDPStreamMetadataPurpose) {
   SDPStreamMetadataPurpose["Usermedia"] = "m.usermedia";
   SDPStreamMetadataPurpose["Screenshare"] = "m.screenshare";
-})(SDPStreamMetadataPurpose || (exports.SDPStreamMetadataPurpose = SDPStreamMetadataPurpose = {}));
+  return SDPStreamMetadataPurpose;
+}({});
 /* eslint-enable camelcase */
+exports.SDPStreamMetadataPurpose = SDPStreamMetadataPurpose;

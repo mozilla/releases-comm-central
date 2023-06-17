@@ -19,12 +19,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let ReceiptType;
-exports.ReceiptType = ReceiptType;
-(function (ReceiptType) {
+let ReceiptType = /*#__PURE__*/function (ReceiptType) {
   ReceiptType["Read"] = "m.read";
   ReceiptType["FullyRead"] = "m.fully_read";
   ReceiptType["ReadPrivate"] = "m.read.private";
-})(ReceiptType || (exports.ReceiptType = ReceiptType = {}));
+  return ReceiptType;
+}({});
+exports.ReceiptType = ReceiptType;
 const MAIN_ROOM_TIMELINE = "main";
+
+// We will only hold a synthetic receipt if we do not have a real receipt or the synthetic is newer.
+// map: receipt type → user Id → receipt
 exports.MAIN_ROOM_TIMELINE = MAIN_ROOM_TIMELINE;

@@ -20,16 +20,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let LocalStorageErrors;
-exports.LocalStorageErrors = LocalStorageErrors;
-(function (LocalStorageErrors) {
+let LocalStorageErrors = /*#__PURE__*/function (LocalStorageErrors) {
   LocalStorageErrors["Global"] = "Global";
   LocalStorageErrors["SetItemError"] = "setItem";
   LocalStorageErrors["GetItemError"] = "getItem";
   LocalStorageErrors["RemoveItemError"] = "removeItem";
   LocalStorageErrors["ClearError"] = "clear";
   LocalStorageErrors["QuotaExceededError"] = "QuotaExceededError";
-})(LocalStorageErrors || (exports.LocalStorageErrors = LocalStorageErrors = {}));
+  return LocalStorageErrors;
+}({});
+exports.LocalStorageErrors = LocalStorageErrors;
 /**
  * Used in element-web as a temporary hack to handle all the localStorage errors on the highest level possible
  * As of 15.11.2021 (DD/MM/YYYY) we're not properly handling local storage exceptions anywhere.

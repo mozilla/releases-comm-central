@@ -29,6 +29,8 @@ const DEFAULT_BITSIZE = 256;
 
 /* eslint-disable camelcase */
 
+/* eslint-enable camelcase */
+
 function keyFromAuthData(authData, password) {
   if (!global.Olm) {
     throw new Error("Olm is not available");

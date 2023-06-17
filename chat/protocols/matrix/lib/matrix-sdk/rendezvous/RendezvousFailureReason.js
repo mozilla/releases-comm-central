@@ -19,9 +19,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let RendezvousFailureReason;
-exports.RendezvousFailureReason = RendezvousFailureReason;
-(function (RendezvousFailureReason) {
+let RendezvousFailureReason = /*#__PURE__*/function (RendezvousFailureReason) {
   RendezvousFailureReason["UserDeclined"] = "user_declined";
   RendezvousFailureReason["OtherDeviceNotSignedIn"] = "other_device_not_signed_in";
   RendezvousFailureReason["OtherDeviceAlreadySignedIn"] = "other_device_already_signed_in";
@@ -33,4 +31,6 @@ exports.RendezvousFailureReason = RendezvousFailureReason;
   RendezvousFailureReason["DataMismatch"] = "data_mismatch";
   RendezvousFailureReason["UnsupportedTransport"] = "unsupported_transport";
   RendezvousFailureReason["HomeserverLacksSupport"] = "homeserver_lacks_support";
-})(RendezvousFailureReason || (exports.RendezvousFailureReason = RendezvousFailureReason = {}));
+  return RendezvousFailureReason;
+}({});
+exports.RendezvousFailureReason = RendezvousFailureReason;

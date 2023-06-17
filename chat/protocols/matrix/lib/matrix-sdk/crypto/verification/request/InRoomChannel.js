@@ -9,7 +9,22 @@ var _logger = require("../../../logger");
 var _event = require("../../../@types/event");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2018 New Vector Ltd
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2019 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 const MESSAGE_TYPE = _event.EventType.RoomMessage;
 const M_REFERENCE = "m.reference";
 const M_RELATES_TO = "m.relates_to";
@@ -111,13 +126,13 @@ class InRoomChannel {
     // part of a verification request, so be noisy when rejecting something
     if (type === _VerificationRequest.REQUEST_TYPE) {
       if (!content || typeof content.to !== "string" || !content.to.length) {
-        _logger.logger.log("InRoomChannel: validateEvent: " + "no valid to " + (content && content.to));
+        _logger.logger.log("InRoomChannel: validateEvent: " + "no valid to " + content.to);
         return false;
       }
 
       // ignore requests that are not direct to or sent by the syncing user
       if (!InRoomChannel.getOtherPartyUserId(event, client)) {
-        _logger.logger.log("InRoomChannel: validateEvent: " + `not directed to or sent by me: ${event.getSender()}` + `, ${content && content.to}`);
+        _logger.logger.log("InRoomChannel: validateEvent: " + `not directed to or sent by me: ${event.getSender()}` + `, ${content.to}`);
         return false;
       }
     }
@@ -190,9 +205,16 @@ class InRoomChannel {
     if (!this.requestEventId) {
       this.requestEventId = InRoomChannel.getTransactionId(event);
     }
+
+    // With pendingEventOrdering: "chronological", we will see events that have been sent but not yet reflected
+    // back via /sync. These are "local echoes" and are identifiable by their txnId
+    const isLocalEcho = !!event.getTxnId();
+
+    // Alternatively, we may see an event that we sent that is reflected back via /sync. These are "remote echoes"
+    // and have a transaction ID in the "unsigned" data
     const isRemoteEcho = !!event.getUnsigned().transaction_id;
     const isSentByUs = event.getSender() === this.client.getUserId();
-    return request.handleEvent(type, event, isLiveEvent, isRemoteEcho, isSentByUs);
+    return request.handleEvent(type, event, isLiveEvent, isLocalEcho || isRemoteEcho, isSentByUs);
   }
 
   /**

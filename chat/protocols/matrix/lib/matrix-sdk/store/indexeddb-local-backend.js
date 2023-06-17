@@ -5,14 +5,26 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.LocalIndexedDBStoreBackend = void 0;
 var _syncAccumulator = require("../sync-accumulator");
-var utils = _interopRequireWildcard(require("../utils"));
-var IndexedDBHelpers = _interopRequireWildcard(require("../indexeddb-helpers"));
+var _utils = require("../utils");
+var _indexeddbHelpers = require("../indexeddb-helpers");
 var _logger = require("../logger");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 const DB_MIGRATIONS = [db => {
   // Make user store, clobber based on user ID. (userId property of User objects)
   db.createObjectStore("users", {
@@ -110,7 +122,7 @@ function reqAsCursorPromise(req) {
 class LocalIndexedDBStoreBackend {
   static exists(indexedDB, dbName) {
     dbName = "matrix-js-sdk:" + (dbName || "default");
-    return IndexedDBHelpers.exists(indexedDB, dbName);
+    return (0, _indexeddbHelpers.exists)(indexedDB, dbName);
   }
   /**
    * Does the actual reading from and writing to the indexeddb
@@ -129,7 +141,7 @@ class LocalIndexedDBStoreBackend {
     _defineProperty(this, "db", void 0);
     _defineProperty(this, "disconnected", true);
     _defineProperty(this, "_isNewlyCreated", false);
-    _defineProperty(this, "isPersisting", false);
+    _defineProperty(this, "syncToDatabasePromise", void 0);
     _defineProperty(this, "pendingUserPresenceData", []);
     this.dbName = "matrix-js-sdk:" + dbName;
     this.syncAccumulator = new _syncAccumulator.SyncAccumulator();
@@ -140,7 +152,7 @@ class LocalIndexedDBStoreBackend {
    * grant permission.
    * @returns Promise which resolves if successfully connected.
    */
-  connect() {
+  connect(onClose) {
     if (!this.disconnected) {
       _logger.logger.log(`LocalIndexedDBStoreBackend.connect: already connected or connecting`);
       return Promise.resolve();
@@ -171,7 +183,15 @@ class LocalIndexedDBStoreBackend {
       // add a poorly-named listener for when deleteDatabase is called
       // so we can close our db connections.
       this.db.onversionchange = () => {
-        this.db?.close();
+        this.db?.close(); // this does not call onclose
+        this.disconnected = true;
+        this.db = undefined;
+        onClose?.();
+      };
+      this.db.onclose = () => {
+        this.disconnected = true;
+        this.db = undefined;
+        onClose?.();
       };
       await this.init();
     });
@@ -334,7 +354,7 @@ class LocalIndexedDBStoreBackend {
     if (copy) {
       // We must deep copy the stored data so that the /sync processing code doesn't
       // corrupt the internal state of the sync accumulator (it adds non-clonable keys)
-      return Promise.resolve(utils.deepCopy(data));
+      return Promise.resolve((0, _utils.deepCopy)(data));
     } else {
       return Promise.resolve(data);
     }
@@ -347,20 +367,30 @@ class LocalIndexedDBStoreBackend {
       this.syncAccumulator.accumulate(syncData);
     });
   }
+
+  /**
+   * Sync users and all accumulated sync data to the database.
+   * If a previous sync is in flight, the new data will be added to the
+   * next sync and the current sync's promise will be returned.
+   * @param userTuples - The user tuples
+   * @returns Promise which resolves if the data was persisted.
+   */
   async syncToDatabase(userTuples) {
-    if (this.isPersisting) {
+    if (this.syncToDatabasePromise) {
       _logger.logger.warn("Skipping syncToDatabase() as persist already in flight");
       this.pendingUserPresenceData.push(...userTuples);
-      return;
-    } else {
-      userTuples.unshift(...this.pendingUserPresenceData);
-      this.isPersisting = true;
+      return this.syncToDatabasePromise;
     }
+    userTuples.unshift(...this.pendingUserPresenceData);
+    this.syncToDatabasePromise = this.doSyncToDatabase(userTuples);
+    return this.syncToDatabasePromise;
+  }
+  async doSyncToDatabase(userTuples) {
     try {
       const syncData = this.syncAccumulator.getJSON(true);
       await Promise.all([this.persistUserPresenceEvents(userTuples), this.persistAccountData(syncData.accountData), this.persistSyncData(syncData.nextBatch, syncData.roomsData)]);
     } finally {
-      this.isPersisting = false;
+      this.syncToDatabasePromise = undefined;
     }
   }
 
@@ -372,7 +402,7 @@ class LocalIndexedDBStoreBackend {
    */
   persistSyncData(nextBatch, roomsData) {
     _logger.logger.log("Persisting sync data up to", nextBatch);
-    return utils.promiseTry(() => {
+    return (0, _utils.promiseTry)(() => {
       const txn = this.db.transaction(["sync"], "readwrite");
       const store = txn.objectStore("sync");
       store.put({
@@ -394,7 +424,7 @@ class LocalIndexedDBStoreBackend {
    * @returns Promise which resolves if the events were persisted.
    */
   persistAccountData(accountData) {
-    return utils.promiseTry(() => {
+    return (0, _utils.promiseTry)(() => {
       const txn = this.db.transaction(["accountData"], "readwrite");
       const store = txn.objectStore("accountData");
       for (const event of accountData) {
@@ -414,7 +444,7 @@ class LocalIndexedDBStoreBackend {
    * @returns Promise which resolves if the users were persisted.
    */
   persistUserPresenceEvents(tuples) {
-    return utils.promiseTry(() => {
+    return (0, _utils.promiseTry)(() => {
       const txn = this.db.transaction(["users"], "readwrite");
       const store = txn.objectStore("users");
       for (const tuple of tuples) {
@@ -435,7 +465,7 @@ class LocalIndexedDBStoreBackend {
    * @returns A list of presence events in their raw form.
    */
   getUserPresenceEvents() {
-    return utils.promiseTry(() => {
+    return (0, _utils.promiseTry)(() => {
       const txn = this.db.transaction(["users"], "readonly");
       const store = txn.objectStore("users");
       return selectQuery(store, undefined, cursor => {
@@ -450,7 +480,7 @@ class LocalIndexedDBStoreBackend {
    */
   loadAccountData() {
     _logger.logger.log(`LocalIndexedDBStoreBackend: loading account data...`);
-    return utils.promiseTry(() => {
+    return (0, _utils.promiseTry)(() => {
       const txn = this.db.transaction(["accountData"], "readonly");
       const store = txn.objectStore("accountData");
       return selectQuery(store, undefined, cursor => {
@@ -468,7 +498,7 @@ class LocalIndexedDBStoreBackend {
    */
   loadSyncData() {
     _logger.logger.log(`LocalIndexedDBStoreBackend: loading sync data...`);
-    return utils.promiseTry(() => {
+    return (0, _utils.promiseTry)(() => {
       const txn = this.db.transaction(["sync"], "readonly");
       const store = txn.objectStore("sync");
       return selectQuery(store, undefined, cursor => {
@@ -527,6 +557,13 @@ class LocalIndexedDBStoreBackend {
     const store = txn.objectStore("to_device_queue");
     store.delete(id);
     await txnAsPromise(txn);
+  }
+
+  /*
+   * Close the database
+   */
+  async destroy() {
+    this.db?.close();
   }
 }
 exports.LocalIndexedDBStoreBackend = LocalIndexedDBStoreBackend;

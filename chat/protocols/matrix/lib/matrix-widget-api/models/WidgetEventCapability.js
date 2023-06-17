@@ -4,19 +4,15 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.WidgetEventCapability = exports.EventKind = exports.EventDirection = void 0;
-
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -32,60 +28,48 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var EventKind;
-exports.EventKind = EventKind;
-
-(function (EventKind) {
+var EventKind = /*#__PURE__*/function (EventKind) {
   EventKind["Event"] = "event";
   EventKind["State"] = "state_event";
   EventKind["ToDevice"] = "to_device";
-})(EventKind || (exports.EventKind = EventKind = {}));
-
-var EventDirection;
-exports.EventDirection = EventDirection;
-
-(function (EventDirection) {
+  return EventKind;
+}({});
+exports.EventKind = EventKind;
+var EventDirection = /*#__PURE__*/function (EventDirection) {
   EventDirection["Send"] = "send";
   EventDirection["Receive"] = "receive";
-})(EventDirection || (exports.EventDirection = EventDirection = {}));
-
+  return EventDirection;
+}({});
+exports.EventDirection = EventDirection;
 var WidgetEventCapability = /*#__PURE__*/function () {
   function WidgetEventCapability(direction, eventType, kind, keyStr, raw) {
     _classCallCheck(this, WidgetEventCapability);
-
     this.direction = direction;
     this.eventType = eventType;
     this.kind = kind;
     this.keyStr = keyStr;
     this.raw = raw;
   }
-
   _createClass(WidgetEventCapability, [{
     key: "matchesAsStateEvent",
     value: function matchesAsStateEvent(direction, eventType, stateKey) {
       if (this.kind !== EventKind.State) return false; // not a state event
-
       if (this.direction !== direction) return false; // direction mismatch
-
       if (this.eventType !== eventType) return false; // event type mismatch
-
       if (this.keyStr === null) return true; // all state keys are allowed
-
       if (this.keyStr === stateKey) return true; // this state key is allowed
-      // Default not allowed
 
+      // Default not allowed
       return false;
     }
   }, {
     key: "matchesAsToDeviceEvent",
     value: function matchesAsToDeviceEvent(direction, eventType) {
       if (this.kind !== EventKind.ToDevice) return false; // not a to-device event
-
       if (this.direction !== direction) return false; // direction mismatch
-
       if (this.eventType !== eventType) return false; // event type mismatch
-      // Checks passed, the event is allowed
 
+      // Checks passed, the event is allowed
       return true;
     }
   }, {
@@ -93,20 +77,17 @@ var WidgetEventCapability = /*#__PURE__*/function () {
     value: function matchesAsRoomEvent(direction, eventType) {
       var msgtype = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       if (this.kind !== EventKind.Event) return false; // not a room event
-
       if (this.direction !== direction) return false; // direction mismatch
-
       if (this.eventType !== eventType) return false; // event type mismatch
 
       if (this.eventType === "m.room.message") {
         if (this.keyStr === null) return true; // all message types are allowed
-
         if (this.keyStr === msgtype) return true; // this message type is allowed
       } else {
         return true; // already passed the check for if the event is allowed
-      } // Default not allowed
+      }
 
-
+      // Default not allowed
       return false;
     }
   }], [{
@@ -116,8 +97,9 @@ var WidgetEventCapability = /*#__PURE__*/function () {
       // https://github.com/matrix-org/matrix-widget-api/issues/22
       eventType = eventType.replace(/#/g, '\\#');
       stateKey = stateKey !== null && stateKey !== undefined ? "#".concat(stateKey) : '';
-      var str = "org.matrix.msc2762.".concat(direction, ".state_event:").concat(eventType).concat(stateKey); // cheat by sending it through the processor
+      var str = "org.matrix.msc2762.".concat(direction, ".state_event:").concat(eventType).concat(stateKey);
 
+      // cheat by sending it through the processor
       return WidgetEventCapability.findEventCapabilities([str])[0];
     }
   }, {
@@ -125,8 +107,9 @@ var WidgetEventCapability = /*#__PURE__*/function () {
     value: function forToDeviceEvent(direction, eventType) {
       // TODO: Enable support for m.* namespace once the MSC lands.
       // https://github.com/matrix-org/matrix-widget-api/issues/56
-      var str = "org.matrix.msc3819.".concat(direction, ".to_device:").concat(eventType); // cheat by sending it through the processor
+      var str = "org.matrix.msc3819.".concat(direction, ".to_device:").concat(eventType);
 
+      // cheat by sending it through the processor
       return WidgetEventCapability.findEventCapabilities([str])[0];
     }
   }, {
@@ -134,8 +117,9 @@ var WidgetEventCapability = /*#__PURE__*/function () {
     value: function forRoomEvent(direction, eventType) {
       // TODO: Enable support for m.* namespace once the MSC lands.
       // https://github.com/matrix-org/matrix-widget-api/issues/22
-      var str = "org.matrix.msc2762.".concat(direction, ".event:").concat(eventType); // cheat by sending it through the processor
+      var str = "org.matrix.msc2762.".concat(direction, ".event:").concat(eventType);
 
+      // cheat by sending it through the processor
       return WidgetEventCapability.findEventCapabilities([str])[0];
     }
   }, {
@@ -144,30 +128,31 @@ var WidgetEventCapability = /*#__PURE__*/function () {
       // TODO: Enable support for m.* namespace once the MSC lands.
       // https://github.com/matrix-org/matrix-widget-api/issues/22
       msgtype = msgtype === null || msgtype === undefined ? '' : msgtype;
-      var str = "org.matrix.msc2762.".concat(direction, ".event:m.room.message#").concat(msgtype); // cheat by sending it through the processor
+      var str = "org.matrix.msc2762.".concat(direction, ".event:m.room.message#").concat(msgtype);
 
+      // cheat by sending it through the processor
       return WidgetEventCapability.findEventCapabilities([str])[0];
     }
+
     /**
      * Parses a capabilities request to find all the event capability requests.
      * @param {Iterable<Capability>} capabilities The capabilities requested/to parse.
      * @returns {WidgetEventCapability[]} An array of event capability requests. May be empty, but never null.
      */
-
   }, {
     key: "findEventCapabilities",
     value: function findEventCapabilities(capabilities) {
       var parsed = [];
-
       var _iterator = _createForOfIteratorHelper(capabilities),
-          _step;
-
+        _step;
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
           var cap = _step.value;
           var _direction = null;
           var eventSegment = void 0;
-          var _kind = null; // TODO: Enable support for m.* namespace once the MSCs land.
+          var _kind = null;
+
+          // TODO: Enable support for m.* namespace once the MSCs land.
           // https://github.com/matrix-org/matrix-widget-api/issues/22
           // https://github.com/matrix-org/matrix-widget-api/issues/56
 
@@ -196,19 +181,18 @@ var WidgetEventCapability = /*#__PURE__*/function () {
             _kind = EventKind.ToDevice;
             eventSegment = cap.substring("org.matrix.msc3819.receive.to_device:".length);
           }
+          if (_direction === null || _kind === null || eventSegment === undefined) continue;
 
-          if (_direction === null || _kind === null) continue; // The capability uses `#` as a separator between event type and state key/msgtype,
+          // The capability uses `#` as a separator between event type and state key/msgtype,
           // so we split on that. However, a # is also valid in either one of those so we
           // join accordingly.
           // Eg: `m.room.message##m.text` is "m.room.message" event with msgtype "#m.text".
-
           var expectingKeyStr = eventSegment.startsWith("m.room.message#") || _kind === EventKind.State;
-
           var _keyStr = null;
-
           if (eventSegment.includes('#') && expectingKeyStr) {
             // Dev note: regex is difficult to write, so instead the rules are manually written
             // out. This is probably just as understandable as a boring regex though, so win-win?
+
             // Test cases:
             // str                      eventSegment        keyStr
             // -------------------------------------------------------------
@@ -219,22 +203,24 @@ var WidgetEventCapability = /*#__PURE__*/function () {
             // m.room.message\##test    m.room.message#     test
             // m.room.message\\##test   m.room.message\#    test
             // m.room.message\\###test  m.room.message\#    #test
+
             // First step: explode the string
-            var parts = eventSegment.split('#'); // To form the eventSegment, we'll keep finding parts of the exploded string until
+            var parts = eventSegment.split('#');
+
+            // To form the eventSegment, we'll keep finding parts of the exploded string until
             // there's one that doesn't end with the escape character (\). We'll then join those
             // segments together with the exploding character. We have to remember to consume the
             // escape character as well.
-
             var idx = parts.findIndex(function (p) {
               return !p.endsWith("\\");
             });
             eventSegment = parts.slice(0, idx + 1).map(function (p) {
               return p.endsWith('\\') ? p.substring(0, p.length - 1) : p;
-            }).join('#'); // The keyStr is whatever is left over.
+            }).join('#');
 
+            // The keyStr is whatever is left over.
             _keyStr = parts.slice(idx + 1).join('#');
           }
-
           parsed.push(new WidgetEventCapability(_direction, eventSegment, _kind, _keyStr, cap));
         }
       } catch (err) {
@@ -242,12 +228,10 @@ var WidgetEventCapability = /*#__PURE__*/function () {
       } finally {
         _iterator.f();
       }
-
       return parsed;
     }
   }]);
-
   return WidgetEventCapability;
 }();
-
 exports.WidgetEventCapability = WidgetEventCapability;
+//# sourceMappingURL=WidgetEventCapability.js.map

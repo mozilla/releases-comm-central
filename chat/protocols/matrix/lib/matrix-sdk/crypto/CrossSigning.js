@@ -10,9 +10,26 @@ var _olmlib = require("./olmlib");
 var _logger = require("../logger");
 var _indexeddbCryptoStore = require("../crypto/store/indexeddb-crypto-store");
 var _aes = require("./aes");
+var _cryptoApi = require("../crypto-api");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2019 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /**
+                                                                                                                                                                                                                                                                                                                                                                                              * Cross signing methods
+                                                                                                                                                                                                                                                                                                                                                                                              */
 const KEY_REQUEST_TIMEOUT_MS = 1000 * 60;
 function publicKeyFromKeyInfo(keyInfo) {
   // `keys` is an object with { [`ed25519:${pubKey}`]: pubKey }
@@ -21,12 +38,6 @@ function publicKeyFromKeyInfo(keyInfo) {
   return Object.values(keyInfo.keys)[0];
 }
 class CrossSigningInfo {
-  // This tracks whether we've ever verified this user with any identity.
-  // When you verify a user, any devices online at the time that receive
-  // the verifying signature via the homeserver will latch this to true
-  // and can use it in the future to detect cases where the user has
-  // become unverified later for any reason.
-
   /**
    * Information about a user's cross-signing keys
    *
@@ -41,6 +52,11 @@ class CrossSigningInfo {
     this.cacheCallbacks = cacheCallbacks;
     _defineProperty(this, "keys", {});
     _defineProperty(this, "firstUse", true);
+    // This tracks whether we've ever verified this user with any identity.
+    // When you verify a user, any devices online at the time that receive
+    // the verifying signature via the homeserver will latch this to true
+    // and can use it in the future to detect cases where the user has
+    // become unverified later for any reason.
     _defineProperty(this, "crossSigningVerifiedBefore", false);
   }
   static fromStorage(obj, userId) {
@@ -497,16 +513,16 @@ function deviceToObject(device, userId) {
     signatures: device.signatures
   };
 }
-let CrossSigningLevel;
+let CrossSigningLevel = /*#__PURE__*/function (CrossSigningLevel) {
+  CrossSigningLevel[CrossSigningLevel["MASTER"] = 4] = "MASTER";
+  CrossSigningLevel[CrossSigningLevel["USER_SIGNING"] = 2] = "USER_SIGNING";
+  CrossSigningLevel[CrossSigningLevel["SELF_SIGNING"] = 1] = "SELF_SIGNING";
+  return CrossSigningLevel;
+}({});
 /**
  * Represents the ways in which we trust a user
  */
 exports.CrossSigningLevel = CrossSigningLevel;
-(function (CrossSigningLevel) {
-  CrossSigningLevel[CrossSigningLevel["MASTER"] = 4] = "MASTER";
-  CrossSigningLevel[CrossSigningLevel["USER_SIGNING"] = 2] = "USER_SIGNING";
-  CrossSigningLevel[CrossSigningLevel["SELF_SIGNING"] = 1] = "SELF_SIGNING";
-})(CrossSigningLevel || (exports.CrossSigningLevel = CrossSigningLevel = {}));
 class UserTrustLevel {
   constructor(crossSigningVerified, crossSigningVerifiedBefore, tofu) {
     this.crossSigningVerified = crossSigningVerified;
@@ -545,25 +561,23 @@ class UserTrustLevel {
 }
 
 /**
- * Represents the ways in which we trust a device
+ * Represents the ways in which we trust a device.
+ *
+ * @deprecated Use {@link DeviceVerificationStatus}.
  */
 exports.UserTrustLevel = UserTrustLevel;
-class DeviceTrustLevel {
-  constructor(crossSigningVerified, tofu, localVerified, trustCrossSignedDevices) {
-    this.crossSigningVerified = crossSigningVerified;
-    this.tofu = tofu;
-    this.localVerified = localVerified;
-    this.trustCrossSignedDevices = trustCrossSignedDevices;
+class DeviceTrustLevel extends _cryptoApi.DeviceVerificationStatus {
+  constructor(crossSigningVerified, tofu, localVerified, trustCrossSignedDevices, signedByOwner = false) {
+    super({
+      crossSigningVerified,
+      tofu,
+      localVerified,
+      trustCrossSignedDevices,
+      signedByOwner
+    });
   }
   static fromUserTrustLevel(userTrustLevel, localVerified, trustCrossSignedDevices) {
-    return new DeviceTrustLevel(userTrustLevel.isCrossSigningVerified(), userTrustLevel.isTofu(), localVerified, trustCrossSignedDevices);
-  }
-
-  /**
-   * @returns true if this device is verified via any means
-   */
-  isVerified() {
-    return Boolean(this.isLocallyVerified() || this.trustCrossSignedDevices && this.isCrossSigningVerified());
+    return new DeviceTrustLevel(userTrustLevel.isCrossSigningVerified(), userTrustLevel.isTofu(), localVerified, trustCrossSignedDevices, true);
   }
 
   /**
@@ -593,7 +607,7 @@ function createCryptoStoreCacheCallbacks(store, olmDevice) {
   return {
     getCrossSigningKeyCache: async function (type, _expectedPublicKey) {
       const key = await new Promise(resolve => {
-        return store.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
+        store.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_ACCOUNT], txn => {
           store.getSecretStorePrivateKey(txn, resolve, type);
         });
       });
@@ -682,7 +696,7 @@ async function requestKeysDuringVerification(baseApis, userId, deviceId) {
     })();
 
     // We call getCrossSigningKey() for its side-effects
-    return Promise.race([Promise.all([crossSigning.getCrossSigningKey("master"), crossSigning.getCrossSigningKey("self_signing"), crossSigning.getCrossSigningKey("user_signing"), backupKeyPromise]), timeout]).then(resolve, reject);
+    Promise.race([Promise.all([crossSigning.getCrossSigningKey("master"), crossSigning.getCrossSigningKey("self_signing"), crossSigning.getCrossSigningKey("user_signing"), backupKeyPromise]), timeout]).then(resolve, reject);
   }).catch(e => {
     _logger.logger.warn("Cross-signing: failure while requesting keys:", e);
   });

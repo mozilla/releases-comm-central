@@ -11,7 +11,21 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 // /sync requests allow you to set a timeout= but the request may continue
 // beyond that and wedge forever, so we need to track how long we are willing
 // to keep open the connection. This constant is *ADDED* to the timeout= value
@@ -26,20 +40,34 @@ const MSC3575_STATE_KEY_LAZY = "$LAZY";
 /**
  * Represents a subscription to a room or set of rooms. Controls which events are returned.
  */
+
+/**
+ * Controls which rooms are returned in a given list.
+ */
+
+/**
+ * Represents a list subscription.
+ */
+
+/**
+ * A complete Sliding Sync request.
+ */
+
+/**
+ * A complete Sliding Sync response
+ */
 exports.MSC3575_STATE_KEY_LAZY = MSC3575_STATE_KEY_LAZY;
-let SlidingSyncState;
+let SlidingSyncState = /*#__PURE__*/function (SlidingSyncState) {
+  SlidingSyncState["RequestFinished"] = "FINISHED";
+  SlidingSyncState["Complete"] = "COMPLETE";
+  return SlidingSyncState;
+}({});
 /**
  * Internal Class. SlidingList represents a single list in sliding sync. The list can have filters,
  * multiple sliding windows, and maintains the index-\>room_id mapping.
  */
 exports.SlidingSyncState = SlidingSyncState;
-(function (SlidingSyncState) {
-  SlidingSyncState["RequestFinished"] = "FINISHED";
-  SlidingSyncState["Complete"] = "COMPLETE";
-})(SlidingSyncState || (exports.SlidingSyncState = SlidingSyncState = {}));
 class SlidingList {
-  // returned data
-
   /**
    * Construct a new sliding list.
    * @param list - The range, sort and filter values to use for this list.
@@ -47,6 +75,7 @@ class SlidingList {
   constructor(list) {
     _defineProperty(this, "list", void 0);
     _defineProperty(this, "isModified", void 0);
+    // returned data
     _defineProperty(this, "roomIndexToRoomId", {});
     _defineProperty(this, "joinedCount", 0);
     this.replaceList(list);
@@ -129,15 +158,15 @@ class SlidingList {
 /**
  * When onResponse extensions should be invoked: before or after processing the main response.
  */
-let ExtensionState;
+let ExtensionState = /*#__PURE__*/function (ExtensionState) {
+  ExtensionState["PreProcess"] = "ExtState.PreProcess";
+  ExtensionState["PostProcess"] = "ExtState.PostProcess";
+  return ExtensionState;
+}({});
 /**
  * An interface that must be satisfied to register extensions
  */
 exports.ExtensionState = ExtensionState;
-(function (ExtensionState) {
-  ExtensionState["PreProcess"] = "ExtState.PreProcess";
-  ExtensionState["PostProcess"] = "ExtState.PostProcess";
-})(ExtensionState || (exports.ExtensionState = ExtensionState = {}));
 /**
  * Events which can be fired by the SlidingSync class. These are designed to provide different levels
  * of information when processing sync responses.
@@ -150,13 +179,13 @@ exports.ExtensionState = ExtensionState;
  *  - Lifecycle (state=Complete)
  *  - List (at most once per list)
  */
-let SlidingSyncEvent;
-exports.SlidingSyncEvent = SlidingSyncEvent;
-(function (SlidingSyncEvent) {
+let SlidingSyncEvent = /*#__PURE__*/function (SlidingSyncEvent) {
   SlidingSyncEvent["RoomData"] = "SlidingSync.RoomData";
   SlidingSyncEvent["Lifecycle"] = "SlidingSync.Lifecycle";
   SlidingSyncEvent["List"] = "SlidingSync.List";
-})(SlidingSyncEvent || (exports.SlidingSyncEvent = SlidingSyncEvent = {}));
+  return SlidingSyncEvent;
+}({});
+exports.SlidingSyncEvent = SlidingSyncEvent;
 /**
  * SlidingSync is a high-level data structure which controls the majority of sliding sync.
  * It has no hooks into JS SDK except for needing a MatrixClient to perform the HTTP request.
@@ -164,21 +193,6 @@ exports.SlidingSyncEvent = SlidingSyncEvent;
  * To hook this up with the JS SDK, you need to use SlidingSyncSdk.
  */
 class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
-  // flag set when resend() is called because we cannot rely on detecting AbortError in JS SDK :(
-
-  // the txn_id to send with the next request.
-
-  // a list (in chronological order of when they were sent) of objects containing the txn ID and
-  // a defer to resolve/reject depending on whether they were successfully sent or not.
-
-  // map of extension name to req/resp handler
-
-  // the *desired* room subscriptions
-
-  // map of custom subscription name to the subscription
-
-  // map of room ID to custom subscription name
-
   /**
    * Create a new sliding sync instance
    * @param proxyBaseUrl - The base URL of the sliding sync proxy
@@ -196,13 +210,21 @@ class SlidingSync extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "lists", void 0);
     _defineProperty(this, "listModifiedCount", 0);
     _defineProperty(this, "terminated", false);
+    // flag set when resend() is called because we cannot rely on detecting AbortError in JS SDK :(
     _defineProperty(this, "needsResend", false);
+    // the txn_id to send with the next request.
     _defineProperty(this, "txnId", null);
+    // a list (in chronological order of when they were sent) of objects containing the txn ID and
+    // a defer to resolve/reject depending on whether they were successfully sent or not.
     _defineProperty(this, "txnIdDefers", []);
+    // map of extension name to req/resp handler
     _defineProperty(this, "extensions", {});
     _defineProperty(this, "desiredRoomSubscriptions", new Set());
+    // the *desired* room subscriptions
     _defineProperty(this, "confirmedRoomSubscriptions", new Set());
+    // map of custom subscription name to the subscription
     _defineProperty(this, "customSubscriptions", new Map());
+    // map of room ID to custom subscription name
     _defineProperty(this, "roomIdToCustomSubscription", new Map());
     _defineProperty(this, "pendingReq", void 0);
     _defineProperty(this, "abortController", void 0);

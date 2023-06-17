@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.assertPresent = assertPresent;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -20,8 +19,10 @@ exports.assertPresent = assertPresent;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 function assertPresent(obj, key) {
   if (!obj[key]) {
-    throw new Error("".concat(key, " is required"));
+    throw new Error("".concat(String(key), " is required"));
   }
 }
+//# sourceMappingURL=utils.js.map

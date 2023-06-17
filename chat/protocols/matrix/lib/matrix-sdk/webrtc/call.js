@@ -11,7 +11,7 @@ exports.supportsMatrixCall = supportsMatrixCall;
 var _uuid = require("uuid");
 var _sdpTransform = require("sdp-transform");
 var _logger = require("../logger");
-var utils = _interopRequireWildcard(require("../utils"));
+var _utils = require("../utils");
 var _event = require("../@types/event");
 var _randomstring = require("../randomstring");
 var _callEventTypes = require("./callEventTypes");
@@ -20,26 +20,41 @@ var _typedEventEmitter = require("../models/typed-event-emitter");
 var _deviceinfo = require("../crypto/deviceinfo");
 var _groupCall = require("./groupCall");
 var _httpApi = require("../http-api");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-var MediaType;
-(function (MediaType) {
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015, 2016 OpenMarket Ltd
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 New Vector Ltd
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2019, 2020 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2021 - 2022 Šimon Brandner <simon.bra.ag@gmail.com>
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /**
+                                                                                                                                                                                                                                                                                                                                                                                              * This is an internal module. See {@link createNewMatrixCall} for the public API.
+                                                                                                                                                                                                                                                                                                                                                                                              */
+var MediaType = /*#__PURE__*/function (MediaType) {
   MediaType["AUDIO"] = "audio";
   MediaType["VIDEO"] = "video";
-})(MediaType || (MediaType = {}));
-var CodecName; // add more as needed
-// Used internally to specify modifications to codec parameters in SDP
-(function (CodecName) {
+  return MediaType;
+}(MediaType || {});
+var CodecName = /*#__PURE__*/function (CodecName) {
   CodecName["OPUS"] = "opus";
-})(CodecName || (CodecName = {}));
-let CallState;
-exports.CallState = CallState;
-(function (CallState) {
+  return CodecName;
+}(CodecName || {}); // add more as needed
+// Used internally to specify modifications to codec parameters in SDP
+let CallState = /*#__PURE__*/function (CallState) {
   CallState["Fledgling"] = "fledgling";
   CallState["InviteSent"] = "invite_sent";
   CallState["WaitLocalMedia"] = "wait_local_media";
@@ -49,28 +64,28 @@ exports.CallState = CallState;
   CallState["Connected"] = "connected";
   CallState["Ringing"] = "ringing";
   CallState["Ended"] = "ended";
-})(CallState || (exports.CallState = CallState = {}));
-let CallType;
-exports.CallType = CallType;
-(function (CallType) {
+  return CallState;
+}({});
+exports.CallState = CallState;
+let CallType = /*#__PURE__*/function (CallType) {
   CallType["Voice"] = "voice";
   CallType["Video"] = "video";
-})(CallType || (exports.CallType = CallType = {}));
-let CallDirection;
-exports.CallDirection = CallDirection;
-(function (CallDirection) {
+  return CallType;
+}({});
+exports.CallType = CallType;
+let CallDirection = /*#__PURE__*/function (CallDirection) {
   CallDirection["Inbound"] = "inbound";
   CallDirection["Outbound"] = "outbound";
-})(CallDirection || (exports.CallDirection = CallDirection = {}));
-let CallParty;
-exports.CallParty = CallParty;
-(function (CallParty) {
+  return CallDirection;
+}({});
+exports.CallDirection = CallDirection;
+let CallParty = /*#__PURE__*/function (CallParty) {
   CallParty["Local"] = "local";
   CallParty["Remote"] = "remote";
-})(CallParty || (exports.CallParty = CallParty = {}));
-let CallEvent;
-exports.CallEvent = CallEvent;
-(function (CallEvent) {
+  return CallParty;
+}({});
+exports.CallParty = CallParty;
+let CallEvent = /*#__PURE__*/function (CallEvent) {
   CallEvent["Hangup"] = "hangup";
   CallEvent["State"] = "state";
   CallEvent["Error"] = "error";
@@ -83,13 +98,11 @@ exports.CallEvent = CallEvent;
   CallEvent["LengthChanged"] = "length_changed";
   CallEvent["DataChannel"] = "datachannel";
   CallEvent["SendVoipEvent"] = "send_voip_event";
-})(CallEvent || (exports.CallEvent = CallEvent = {}));
-let CallErrorCode;
-/**
- * The version field that we set in m.call.* events
- */
-exports.CallErrorCode = CallErrorCode;
-(function (CallErrorCode) {
+  CallEvent["PeerConnectionCreated"] = "peer_connection_created";
+  return CallEvent;
+}({});
+exports.CallEvent = CallEvent;
+let CallErrorCode = /*#__PURE__*/function (CallErrorCode) {
   CallErrorCode["UserHangup"] = "user_hangup";
   CallErrorCode["LocalOfferFailed"] = "local_offer_failed";
   CallErrorCode["NoUserMedia"] = "no_user_media";
@@ -108,7 +121,12 @@ exports.CallErrorCode = CallErrorCode;
   CallErrorCode["UserBusy"] = "user_busy";
   CallErrorCode["Transferred"] = "transferred";
   CallErrorCode["NewSession"] = "new_session";
-})(CallErrorCode || (exports.CallErrorCode = CallErrorCode = {}));
+  return CallErrorCode;
+}({});
+/**
+ * The version field that we set in m.call.* events
+ */
+exports.CallErrorCode = CallErrorCode;
 const VOIP_PROTO_VERSION = "1";
 
 /** The fallback ICE server to use for STUN or TURN protocols. */
@@ -120,7 +138,8 @@ const CALL_TIMEOUT_MS = 60 * 1000; // ms
 const CALL_LENGTH_INTERVAL = 1000; // ms
 /** The time after which we end the call, if ICE got disconnected */
 const ICE_DISCONNECTED_TIMEOUT = 30 * 1000; // ms
-
+/** The time after which we try a ICE restart, if ICE got disconnected */
+const ICE_RECONNECTING_TIMEOUT = 2 * 1000; // ms
 class CallError extends Error {
   constructor(code, msg, err) {
     // Still don't think there's any way to have proper nested errors
@@ -142,6 +161,24 @@ function getCodecParamMods(isPtt) {
   }];
   return mods;
 }
+
+/**
+ * These now all have the call object as an argument. Why? Well, to know which call a given event is
+ * about you have three options:
+ *  1. Use a closure as the callback that remembers what call it's listening to. This can be
+ *     a pain because you need to pass the listener function again when you remove the listener,
+ *     which might be somewhere else.
+ *  2. Use not-very-well-known fact that EventEmitter sets 'this' to the emitter object in the
+ *     callback. This doesn't really play well with modern Typescript and eslint and doesn't work
+ *     with our pattern of re-emitting events.
+ *  3. Pass the object in question as an argument to the callback.
+ *
+ * Now that we have group calls which have to deal with multiple call objects, this will
+ * become more important, and I think methods 1 and 2 are just going to cause issues.
+ */
+
+// The key of the transceiver map (purpose + media type, separated by ':')
+
 // generates keys for the map of transceivers
 // kind is unfortunately a string rather than MediaType as this is the type of
 // track.kind
@@ -149,37 +186,6 @@ function getTransceiverKey(purpose, kind) {
   return purpose + ":" + kind;
 }
 class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
-  // whether this call should have push-to-talk semantics
-  // This should be set by the consumer on incoming & outgoing calls.
-
-  // A queue for candidates waiting to go out.
-  // We try to amalgamate candidates into a single candidate message where
-  // possible
-
-  // our transceivers for each purpose and type of media
-
-  // The party ID of the other side: undefined if we haven't chosen a partner
-  // yet, null if we have but they didn't send a party ID.
-
-  // The logic of when & if a call is on hold is nontrivial and explained in is*OnHold
-  // This flag represents whether we want the other party to be on hold
-
-  // the stats for the call at the point it ended. We can't get these after we
-  // tear the call down, so we just grab a snapshot before we stop the call.
-  // The typescript definitions have this type as 'any' :(
-
-  // Perfect negotiation state: https://www.w3.org/TR/webrtc/#perfect-negotiation-example
-
-  // If candidates arrive before we've picked an opponent (which, in particular,
-  // will happen if the opponent sends candidates eagerly before the user answers
-  // the call) we buffer them up here so we can then add the ones from the party we pick
-
-  // Used to keep the timer for the delay before actually stopping our
-  // video track after muting (see setLocalVideoMuted)
-
-  // Used to allow connection without Video and Audio. To establish a webrtc connection without media a Data channel is
-  // needed At the moment this property is true if we allow MatrixClient with isVoipWithNoMediaAllowed = true
-
   /**
    * Construct a new Matrix Call.
    * @param opts - Config options.
@@ -195,31 +201,50 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "ourPartyId", void 0);
     _defineProperty(this, "peerConn", void 0);
     _defineProperty(this, "toDeviceSeq", 0);
+    // whether this call should have push-to-talk semantics
+    // This should be set by the consumer on incoming & outgoing calls.
     _defineProperty(this, "isPtt", false);
     _defineProperty(this, "_state", CallState.Fledgling);
     _defineProperty(this, "client", void 0);
     _defineProperty(this, "forceTURN", void 0);
     _defineProperty(this, "turnServers", void 0);
+    // A queue for candidates waiting to go out.
+    // We try to amalgamate candidates into a single candidate message where
+    // possible
     _defineProperty(this, "candidateSendQueue", []);
     _defineProperty(this, "candidateSendTries", 0);
     _defineProperty(this, "candidatesEnded", false);
     _defineProperty(this, "feeds", []);
+    // our transceivers for each purpose and type of media
     _defineProperty(this, "transceivers", new Map());
     _defineProperty(this, "inviteOrAnswerSent", false);
     _defineProperty(this, "waitForLocalAVStream", false);
     _defineProperty(this, "successor", void 0);
     _defineProperty(this, "opponentMember", void 0);
     _defineProperty(this, "opponentVersion", void 0);
+    // The party ID of the other side: undefined if we haven't chosen a partner
+    // yet, null if we have but they didn't send a party ID.
     _defineProperty(this, "opponentPartyId", void 0);
     _defineProperty(this, "opponentCaps", void 0);
     _defineProperty(this, "iceDisconnectedTimeout", void 0);
+    _defineProperty(this, "iceReconnectionTimeOut", void 0);
     _defineProperty(this, "inviteTimeout", void 0);
     _defineProperty(this, "removeTrackListeners", new Map());
+    // The logic of when & if a call is on hold is nontrivial and explained in is*OnHold
+    // This flag represents whether we want the other party to be on hold
     _defineProperty(this, "remoteOnHold", false);
+    // the stats for the call at the point it ended. We can't get these after we
+    // tear the call down, so we just grab a snapshot before we stop the call.
+    // The typescript definitions have this type as 'any' :(
     _defineProperty(this, "callStatsAtEnd", void 0);
+    // Perfect negotiation state: https://www.w3.org/TR/webrtc/#perfect-negotiation-example
     _defineProperty(this, "makingOffer", false);
     _defineProperty(this, "ignoreOffer", false);
+    _defineProperty(this, "isSettingRemoteAnswerPending", false);
     _defineProperty(this, "responsePromiseChain", void 0);
+    // If candidates arrive before we've picked an opponent (which, in particular,
+    // will happen if the opponent sends candidates eagerly before the user answers
+    // the call) we buffer them up here so we can then add the ones from the party we pick
     _defineProperty(this, "remoteCandidateBuffer", new Map());
     _defineProperty(this, "remoteAssertedIdentity", void 0);
     _defineProperty(this, "remoteSDPStreamMetadata", void 0);
@@ -229,13 +254,20 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "opponentDeviceInfo", void 0);
     _defineProperty(this, "opponentSessionId", void 0);
     _defineProperty(this, "groupCallId", void 0);
+    // Used to keep the timer for the delay before actually stopping our
+    // video track after muting (see setLocalVideoMuted)
     _defineProperty(this, "stopVideoTrackTimer", void 0);
+    // Used to allow connection without Video and Audio. To establish a webrtc connection without media a Data channel is
+    // needed At the moment this property is true if we allow MatrixClient with isVoipWithNoMediaAllowed = true
     _defineProperty(this, "isOnlyDataChannelAllowed", void 0);
+    _defineProperty(this, "stats", void 0);
+    /**
+     * Internal
+     */
     _defineProperty(this, "gotLocalIceCandidate", event => {
       if (event.candidate) {
         if (this.candidatesEnded) {
-          _logger.logger.warn(`Call ${this.callId} gotLocalIceCandidate() got candidate after candidates have ended - ignoring!`);
-          return;
+          _logger.logger.warn(`Call ${this.callId} gotLocalIceCandidate() got candidate after candidates have ended!`);
         }
         _logger.logger.debug(`Call ${this.callId} got local ICE ${event.candidate.sdpMid} ${event.candidate.candidate}`);
         if (this.callHasEnded()) return;
@@ -252,12 +284,13 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "onIceGatheringStateChange", event => {
       _logger.logger.debug(`Call ${this.callId} onIceGatheringStateChange() ice gathering state changed to ${this.peerConn.iceGatheringState}`);
       if (this.peerConn?.iceGatheringState === "complete") {
-        this.queueCandidate(null);
+        this.queueCandidate(null); // We should leave it to WebRTC to announce the end
+        _logger.logger.debug(`Call ${this.callId} onIceGatheringStateChange() ice gathering state complete, set candidates have ended`);
       }
     });
     _defineProperty(this, "getLocalOfferFailed", err => {
       _logger.logger.error(`Call ${this.callId} getLocalOfferFailed() running`, err);
-      this.emit(CallEvent.Error, new CallError(CallErrorCode.LocalOfferFailed, "Failed to get local offer!", err));
+      this.emit(CallEvent.Error, new CallError(CallErrorCode.LocalOfferFailed, "Failed to get local offer!", err), this);
       this.terminate(CallParty.Local, CallErrorCode.LocalOfferFailed, false);
     });
     _defineProperty(this, "getUserMediaFailed", err => {
@@ -266,7 +299,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
         return;
       }
       _logger.logger.warn(`Call ${this.callId} getUserMediaFailed() failed to get user media - ending call`, err);
-      this.emit(CallEvent.Error, new CallError(CallErrorCode.NoUserMedia, "Couldn't start capturing media! Is your microphone set up and " + "does this app have permission?", err));
+      this.emit(CallEvent.Error, new CallError(CallErrorCode.NoUserMedia, "Couldn't start capturing media! Is your microphone set up and " + "does this app have permission?", err), this);
       this.terminate(CallParty.Local, CallErrorCode.NoUserMedia, false);
     });
     _defineProperty(this, "onIceConnectionStateChanged", () => {
@@ -274,32 +307,46 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
         return; // because ICE can still complete as we're ending the call
       }
 
-      _logger.logger.debug(`Call ${this.callId} onIceConnectionStateChanged() running (state=${this.peerConn?.iceConnectionState})`);
+      _logger.logger.debug(`Call ${this.callId} onIceConnectionStateChanged() running (state=${this.peerConn?.iceConnectionState}, conn=${this.peerConn?.connectionState})`);
 
       // ideally we'd consider the call to be connected when we get media but
       // chrome doesn't implement any of the 'onstarted' events yet
       if (["connected", "completed"].includes(this.peerConn?.iceConnectionState ?? "")) {
         clearTimeout(this.iceDisconnectedTimeout);
         this.iceDisconnectedTimeout = undefined;
+        if (this.iceReconnectionTimeOut) {
+          clearTimeout(this.iceReconnectionTimeOut);
+        }
         this.state = CallState.Connected;
         if (!this.callLengthInterval && !this.callStartTime) {
           this.callStartTime = Date.now();
           this.callLengthInterval = setInterval(() => {
-            this.emit(CallEvent.LengthChanged, Math.round((Date.now() - this.callStartTime) / 1000));
+            this.emit(CallEvent.LengthChanged, Math.round((Date.now() - this.callStartTime) / 1000), this);
           }, CALL_LENGTH_INTERVAL);
         }
       } else if (this.peerConn?.iceConnectionState == "failed") {
+        this.candidatesEnded = false;
         // Firefox for Android does not yet have support for restartIce()
         // (the types say it's always defined though, so we have to cast
         // to prevent typescript from warning).
         if (this.peerConn?.restartIce) {
           this.candidatesEnded = false;
+          _logger.logger.debug(`Call ${this.callId} onIceConnectionStateChanged() ice restart (state=${this.peerConn?.iceConnectionState})`);
           this.peerConn.restartIce();
         } else {
           _logger.logger.info(`Call ${this.callId} onIceConnectionStateChanged() hanging up call (ICE failed and no ICE restart method)`);
           this.hangup(CallErrorCode.IceFailed, false);
         }
       } else if (this.peerConn?.iceConnectionState == "disconnected") {
+        this.candidatesEnded = false;
+        this.iceReconnectionTimeOut = setTimeout(() => {
+          _logger.logger.info(`Call ${this.callId} onIceConnectionStateChanged() ICE restarting because of ICE disconnected, (state=${this.peerConn?.iceConnectionState}, conn=${this.peerConn?.connectionState})`);
+          if (this.peerConn?.restartIce) {
+            this.candidatesEnded = false;
+            this.peerConn.restartIce();
+          }
+          this.iceReconnectionTimeOut = undefined;
+        }, ICE_RECONNECTING_TIMEOUT);
         this.iceDisconnectedTimeout = setTimeout(() => {
           _logger.logger.info(`Call ${this.callId} onIceConnectionStateChanged() hanging up call (ICE disconnected for too long)`);
           this.hangup(CallErrorCode.IceFailed, false);
@@ -341,7 +388,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       }
     });
     _defineProperty(this, "onDataChannel", ev => {
-      this.emit(CallEvent.DataChannel, ev.channel);
+      this.emit(CallEvent.DataChannel, ev.channel, this);
     });
     _defineProperty(this, "onNegotiationNeeded", async () => {
       _logger.logger.info(`Call ${this.callId} onNegotiationNeeded() negotiation is needed!`);
@@ -403,7 +450,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       });
     }
     for (const server of this.turnServers) {
-      utils.checkObjectHasKeys(server, ["urls"]);
+      (0, _utils.checkObjectHasKeys)(server, ["urls"]);
     }
     this.callId = genCallID();
     // If the Client provides calls without audio and video we need a datachannel for a webrtc connection
@@ -433,7 +480,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
    */
   createDataChannel(label, options) {
     const dataChannel = this.peerConn.createDataChannel(label, options);
-    this.emit(CallEvent.DataChannel, dataChannel);
+    this.emit(CallEvent.DataChannel, dataChannel, this);
     return dataChannel;
   }
   getOpponentMember() {
@@ -460,7 +507,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
   set state(state) {
     const oldState = this._state;
     this._state = state;
-    this.emit(CallEvent.State, state, oldState);
+    this.emit(CallEvent.State, state, oldState, this);
   }
   get type() {
     // we may want to look for a video receiver here rather than a track to match the
@@ -617,7 +664,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       audioMuted,
       videoMuted
     }));
-    this.emit(CallEvent.FeedsChanged, this.feeds);
+    this.emit(CallEvent.FeedsChanged, this.feeds, this);
     _logger.logger.info(`Call ${this.callId} pushRemoteFeed() pushed stream (streamId=${stream.id}, active=${stream.active}, purpose=${purpose})`);
   }
 
@@ -653,7 +700,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       stream,
       purpose
     }));
-    this.emit(CallEvent.FeedsChanged, this.feeds);
+    this.emit(CallEvent.FeedsChanged, this.feeds, this);
     _logger.logger.info(`Call ${this.callId} pushRemoteFeedWithoutMetadata() pushed stream (streamId=${stream.id}, active=${stream.active})`);
   }
   pushNewLocalFeed(stream, purpose, addToPeerConnection = true) {
@@ -702,10 +749,6 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
           // about 6 video tracks to exceed the maximum size of an Olm-encrypted
           // Matrix event.
           const transceiver = this.transceivers.get(tKey);
-
-          // this is what would allow us to use addTransceiver(), but it's not available
-          // on Firefox yet. We call it anyway if we have it.
-          if (transceiver.sender.setStreams) transceiver.sender.setStreams(callFeed.stream);
           transceiver.sender.replaceTrack(track);
           // set the direction to indicate we're going to start sending again
           // (this will trigger the re-negotiation)
@@ -728,7 +771,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       }
     }
     _logger.logger.info(`Call ${this.callId} pushLocalFeed() pushed stream (id=${callFeed.stream.id}, active=${callFeed.stream.active}, purpose=${callFeed.purpose})`);
-    this.emit(CallEvent.FeedsChanged, this.feeds);
+    this.emit(CallEvent.FeedsChanged, this.feeds, this);
   }
 
   /**
@@ -760,7 +803,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       }
     }
     this.feeds = [];
-    this.emit(CallEvent.FeedsChanged, this.feeds);
+    this.emit(CallEvent.FeedsChanged, this.feeds, this);
   }
   deleteFeedByStream(stream) {
     const feed = this.getFeedByStreamId(stream.id);
@@ -773,7 +816,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
   deleteFeed(feed) {
     feed.dispose();
     this.feeds.splice(this.feeds.indexOf(feed), 1);
-    this.emit(CallEvent.FeedsChanged, this.feeds);
+    this.emit(CallEvent.FeedsChanged, this.feeds, this);
   }
 
   // The typescript definitions have this type as 'any' :(
@@ -816,6 +859,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       _logger.logger.debug(`Call ${this.callId} initWithInvite() did not get any SDPStreamMetadata! Can not send/receive multiple streams`);
     }
     this.peerConn = this.createPeerConnection();
+    this.emit(CallEvent.PeerConnectionCreated, this.peerConn, this);
     // we must set the party ID before await-ing on anything: the call event
     // handler will start giving us more call events (eg. candidates) so if
     // we haven't set the party ID, we'll ignore them.
@@ -823,6 +867,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     await this.initOpponentCrypto();
     try {
       await this.peerConn.setRemoteDescription(invite.offer);
+      _logger.logger.debug(`Call ${this.callId} initWithInvite() set remote description: ${invite.offer.type}`);
       await this.addBufferedIceCandidates();
     } catch (e) {
       _logger.logger.debug(`Call ${this.callId} initWithInvite() failed to set remote description`, e);
@@ -855,6 +900,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
           if (this.peerConn.signalingState != "closed") {
             this.peerConn.close();
           }
+          this.stats?.removeStatsReportGatherer(this.callId);
           this.emit(CallEvent.Hangup, this);
         }
       }, invite.lifetime - event.getLocalAge());
@@ -883,7 +929,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       // TODO: Figure out how to do this
       _logger.logger.warn(`Call ${this.callId} shouldAnswerWithMediaType() unable to answer with ${type} because the other side isn't sending it either.`);
       return false;
-    } else if (!utils.isNullOrUndefined(wantedValue) && wantedValue !== valueOfTheOtherSide && !this.opponentSupportsSDPStreamMetadata()) {
+    } else if (!(0, _utils.isNullOrUndefined)(wantedValue) && wantedValue !== valueOfTheOtherSide && !this.opponentSupportsSDPStreamMetadata()) {
       _logger.logger.warn(`Call ${this.callId} shouldAnswerWithMediaType() unable to answer with ${type}=${wantedValue} because the other side doesn't support it. Answering with ${type}=${valueOfTheOtherSide}.`);
       return valueOfTheOtherSide;
     }
@@ -961,7 +1007,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       }
     }
     this.successor = newCall;
-    this.emit(CallEvent.Replaced, newCall);
+    this.emit(CallEvent.Replaced, newCall, this);
     this.hangup(CallErrorCode.Replaced, true);
   }
 
@@ -1023,7 +1069,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       await this.updateLocalUsermediaStream(stream, audio, video);
     } catch (error) {
       _logger.logger.error(`Call ${this.callId} upgradeCall() failed to upgrade the call`, error);
-      this.emit(CallEvent.Error, new CallError(CallErrorCode.NoUserMedia, "Failed to get camera access: ", error));
+      this.emit(CallEvent.Error, new CallError(CallErrorCode.NoUserMedia, "Failed to get camera access: ", error), this);
     }
   }
 
@@ -1194,6 +1240,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       return this.isLocalVideoMuted();
     }
     if (!this.hasUserMediaVideoSender && !muted) {
+      this.localUsermediaFeed?.setAudioVideoMuted(null, muted);
       await this.upgradeCall(false, true);
       return this.isLocalVideoMuted();
     }
@@ -1290,7 +1337,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     }
     this.updateMuteStatus();
     this.sendMetadataUpdate();
-    this.emit(CallEvent.RemoteHoldUnhold, this.remoteOnHold);
+    this.emit(CallEvent.RemoteHoldUnhold, this.remoteOnHold, this);
   }
 
   /**
@@ -1393,7 +1440,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
         code = CallErrorCode.UnknownDevices;
         message = "Unknown devices present in the room";
       }
-      this.emit(CallEvent.Error, new CallError(code, message, error));
+      this.emit(CallEvent.Error, new CallError(code, message, error), this);
       throw error;
     }
 
@@ -1499,11 +1546,6 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       return;
     }
   }
-
-  /**
-   * Internal
-   */
-
   async onRemoteIceCandidatesReceived(ev) {
     if (this.callHasEnded()) {
       //debuglog("Ignoring remote ICE candidate because call has ended");
@@ -1557,8 +1599,12 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       _logger.logger.warn(`Call ${this.callId} onAnswerReceived() did not get any SDPStreamMetadata! Can not send/receive multiple streams`);
     }
     try {
+      this.isSettingRemoteAnswerPending = true;
       await this.peerConn.setRemoteDescription(content.answer);
+      this.isSettingRemoteAnswerPending = false;
+      _logger.logger.debug(`Call ${this.callId} onAnswerReceived() set remote description: ${content.answer.type}`);
     } catch (e) {
+      this.isSettingRemoteAnswerPending = false;
       _logger.logger.debug(`Call ${this.callId} onAnswerReceived() failed to set remote description`, e);
       this.terminate(CallParty.Local, CallErrorCode.SetRemoteDescription, false);
       return;
@@ -1608,8 +1654,9 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     const polite = this.direction === CallDirection.Inbound;
 
     // Here we follow the perfect negotiation logic from
-    // https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation
-    const offerCollision = description.type === "offer" && (this.makingOffer || this.peerConn.signalingState !== "stable");
+    // https://w3c.github.io/webrtc-pc/#perfect-negotiation-example
+    const readyForOffer = !this.makingOffer && (this.peerConn.signalingState === "stable" || this.isSettingRemoteAnswerPending);
+    const offerCollision = description.type === "offer" && !readyForOffer;
     this.ignoreOffer = !polite && offerCollision;
     if (this.ignoreOffer) {
       _logger.logger.info(`Call ${this.callId} onNegotiateReceived() ignoring colliding negotiate event because we're impolite`);
@@ -1623,7 +1670,10 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       _logger.logger.warn(`Call ${this.callId} onNegotiateReceived() received negotiation event without SDPStreamMetadata!`);
     }
     try {
-      await this.peerConn.setRemoteDescription(description);
+      this.isSettingRemoteAnswerPending = description.type == "answer";
+      await this.peerConn.setRemoteDescription(description); // SRD rolls back as needed
+      this.isSettingRemoteAnswerPending = false;
+      _logger.logger.debug(`Call ${this.callId} onNegotiateReceived() set remote description: ${description.type}`);
       if (description.type === "offer") {
         let answer;
         try {
@@ -1635,23 +1685,25 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
           return;
         }
         await this.peerConn.setLocalDescription(answer);
+        _logger.logger.debug(`Call ${this.callId} onNegotiateReceived() create an answer`);
         this.sendVoipEvent(_event.EventType.CallNegotiate, {
           description: this.peerConn.localDescription?.toJSON(),
           [_callEventTypes.SDPStreamMetadataKey]: this.getLocalSDPStreamMetadata(true)
         });
       }
     } catch (err) {
+      this.isSettingRemoteAnswerPending = false;
       _logger.logger.warn(`Call ${this.callId} onNegotiateReceived() failed to complete negotiation`, err);
     }
     const newLocalOnHold = this.isLocalOnHold();
     if (prevLocalOnHold !== newLocalOnHold) {
-      this.emit(CallEvent.LocalHoldUnhold, newLocalOnHold);
+      this.emit(CallEvent.LocalHoldUnhold, newLocalOnHold, this);
       // also this one for backwards compat
       this.emit(CallEvent.HoldUnhold, newLocalOnHold);
     }
   }
   updateRemoteSDPStreamMetadata(metadata) {
-    this.remoteSDPStreamMetadata = utils.recursivelyAssign(this.remoteSDPStreamMetadata || {}, metadata, true);
+    this.remoteSDPStreamMetadata = (0, _utils.recursivelyAssign)(this.remoteSDPStreamMetadata || {}, metadata, true);
     for (const feed of this.getRemoteFeeds()) {
       const streamId = feed.stream.id;
       const metadata = this.remoteSDPStreamMetadata[streamId];
@@ -1671,7 +1723,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       id: content.asserted_identity.id,
       displayName: content.asserted_identity.display_name
     };
-    this.emit(CallEvent.AssertedIdentityChanged);
+    this.emit(CallEvent.AssertedIdentityChanged, this);
   }
   callHasEnded() {
     // This exists as workaround to typescript trying to be clever and erroring
@@ -1690,6 +1742,12 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
   async wrappedGotLocalOffer() {
     this.makingOffer = true;
     try {
+      // XXX: in what situations do we believe gotLocalOffer actually throws? It appears
+      // to handle most of its exceptions itself and terminate the call. I'm not entirely
+      // sure it would ever throw, so I can't add a test for these lines.
+      // Also the tense is different between "gotLocalOffer" and "getLocalOfferFailed" so
+      // it's not entirely clear whether getLocalOfferFailed is just misnamed or whether
+      // they've been cross-polinated somehow at some point.
       await this.gotLocalOffer();
     } catch (e) {
       this.getLocalOfferFailed(e);
@@ -1766,7 +1824,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
         code = CallErrorCode.UnknownDevices;
         message = "Unknown devices present in the room";
       }
-      this.emit(CallEvent.Error, new CallError(code, message, error));
+      this.emit(CallEvent.Error, new CallError(code, message, error), this);
       this.terminate(CallParty.Local, code, false);
 
       // no need to carry on & send the candidate queue, but we also
@@ -1799,7 +1857,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
    *       [96685:23:0518/162603.933430:ERROR:sdp_offer_answer.cc(4302)] Failed to set local video description recv parameters for m-section with mid='2'. (INVALID_PARAMETER)
    */
   getRidOfRTXCodecs() {
-    // RTCRtpReceiver.getCapabilities and RTCRtpSender.getCapabilities don't seem to be supported on FF
+    // RTCRtpReceiver.getCapabilities and RTCRtpSender.getCapabilities don't seem to be supported on FF before v113
     if (!RTCRtpReceiver.getCapabilities || !RTCRtpSender.getCapabilities) return;
     const recvCodecs = RTCRtpReceiver.getCapabilities("video").codecs;
     const sendCodecs = RTCRtpSender.getCapabilities("video").codecs;
@@ -1811,7 +1869,8 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       }
     }
     const screenshareVideoTransceiver = this.transceivers.get(getTransceiverKey(_callEventTypes.SDPStreamMetadataPurpose.Screenshare, "video"));
-    if (screenshareVideoTransceiver) screenshareVideoTransceiver.setCodecPreferences(codecs);
+    // setCodecPreferences isn't supported on FF (as of v113)
+    screenshareVideoTransceiver?.setCodecPreferences?.(codecs);
   }
   /**
    * @internal
@@ -1838,7 +1897,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
         userId: this.invitee || this.getOpponentMember()?.userId,
         opponentDeviceId: this.opponentDeviceId,
         content
-      });
+      }, this);
       const userId = this.invitee || this.getOpponentMember().userId;
       if (this.client.getUseE2eForGroupCall()) {
         if (!this.opponentDeviceInfo) {
@@ -1862,7 +1921,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
         roomId: this.roomId,
         content: realContent,
         userId: this.invitee || this.getOpponentMember()?.userId
-      });
+      }, this);
       await this.client.sendEvent(this.roomId, eventType, realContent);
     }
   }
@@ -2013,6 +2072,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     if (this.peerConn && this.peerConn.signalingState !== "closed") {
       this.peerConn.close();
     }
+    this.stats?.removeStatsReportGatherer(this.callId);
     if (shouldEmit) {
       this.emit(CallEvent.Hangup, this);
     }
@@ -2080,7 +2140,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
         _logger.logger.debug(`Call ${this.callId} sendCandidateQueue() failed to send candidates on attempt ${this.candidateSendTries}. Giving up on this call.`, error);
         const code = CallErrorCode.SignallingFailed;
         const message = "Signalling failed";
-        this.emit(CallEvent.Error, new CallError(code, message, error));
+        this.emit(CallEvent.Error, new CallError(code, message, error), this);
         this.hangup(code, false);
         return;
       }
@@ -2151,6 +2211,7 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     // create the peer connection now so it can be gathering candidates while we get user
     // media (assuming a candidate pool size is configured)
     this.peerConn = this.createPeerConnection();
+    this.emit(CallEvent.PeerConnectionCreated, this.peerConn, this);
     this.gotCallFeedsForInvite(callFeeds, requestScreenshareFeed);
   }
   createPeerConnection() {
@@ -2169,6 +2230,9 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     pc.addEventListener("track", this.onTrack);
     pc.addEventListener("negotiationneeded", this.onNegotiationNeeded);
     pc.addEventListener("datachannel", this.onDataChannel);
+    const opponentMember = this.getOpponentMember();
+    const opponentMemberId = opponentMember ? opponentMember.userId : "unknown";
+    this.stats?.addStatsReportGatherer(this.callId, opponentMemberId, pc);
     return pc;
   }
   partyIdMatches(msg) {
@@ -2199,6 +2263,9 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
     }
     this.opponentCaps = msg.capabilities || {};
     this.opponentMember = this.client.getRoom(this.roomId).getMember(ev.getSender()) ?? undefined;
+    if (this.opponentMember) {
+      this.stats?.updateOpponentMember(this.callId, this.opponentMember.userId);
+    }
   }
   async addBufferedIceCandidates() {
     const bufferedCandidates = this.remoteCandidateBuffer.get(this.opponentPartyId);
@@ -2220,12 +2287,18 @@ class MatrixCall extends _typedEventEmitter.TypedEventEmitter {
       } catch (err) {
         if (!this.ignoreOffer) {
           _logger.logger.info(`Call ${this.callId} addIceCandidates() failed to add remote ICE candidate`, err);
+        } else {
+          _logger.logger.debug(`Call ${this.callId} addIceCandidates() failed to add remote ICE candidate because ignoring offer`, err);
         }
       }
     }
   }
   get hasPeerConnection() {
     return Boolean(this.peerConn);
+  }
+  initStats(stats, peerId = "unknown") {
+    this.stats = stats;
+    this.stats.start();
   }
 }
 exports.MatrixCall = MatrixCall;

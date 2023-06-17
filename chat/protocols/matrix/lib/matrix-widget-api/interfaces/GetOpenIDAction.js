@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.OpenIDRequestState = void 0;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -20,11 +19,11 @@ exports.OpenIDRequestState = void 0;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var OpenIDRequestState;
-exports.OpenIDRequestState = OpenIDRequestState;
-
-(function (OpenIDRequestState) {
+var OpenIDRequestState = /*#__PURE__*/function (OpenIDRequestState) {
   OpenIDRequestState["Allowed"] = "allowed";
   OpenIDRequestState["Blocked"] = "blocked";
   OpenIDRequestState["PendingUserConfirmation"] = "request";
-})(OpenIDRequestState || (exports.OpenIDRequestState = OpenIDRequestState = {}));
+  return OpenIDRequestState;
+}({});
+exports.OpenIDRequestState = OpenIDRequestState;
+//# sourceMappingURL=GetOpenIDAction.js.map

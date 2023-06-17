@@ -12,7 +12,21 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 const RULEKINDS_IN_ORDER = [_PushRules.PushRuleKind.Override, _PushRules.PushRuleKind.ContentSpecific, _PushRules.PushRuleKind.RoomSpecific, _PushRules.PushRuleKind.SenderSpecific, _PushRules.PushRuleKind.Underride];
 
 // The default override rules to apply to the push rules that arrive from the server.
@@ -33,6 +47,34 @@ const DEFAULT_OVERRIDE_RULES = [{
     pattern: "m.reaction"
   }],
   actions: [_PushRules.PushRuleActionName.DontNotify]
+}, {
+  rule_id: _PushRules.RuleId.IsUserMention,
+  default: true,
+  enabled: true,
+  conditions: [{
+    kind: _PushRules.ConditionKind.EventPropertyContains,
+    key: "content.org\\.matrix\\.msc3952\\.mentions.user_ids",
+    value: "" // The user ID is dynamically added in rewriteDefaultRules.
+  }],
+
+  actions: [_PushRules.PushRuleActionName.Notify, {
+    set_tweak: _PushRules.TweakName.Highlight
+  }]
+}, {
+  rule_id: _PushRules.RuleId.IsRoomMention,
+  default: true,
+  enabled: true,
+  conditions: [{
+    kind: _PushRules.ConditionKind.EventPropertyIs,
+    key: "content.org\\.matrix\\.msc3952\\.mentions.room",
+    value: true
+  }, {
+    kind: _PushRules.ConditionKind.SenderNotificationPermission,
+    key: "room"
+  }],
+  actions: [_PushRules.PushRuleActionName.Notify, {
+    set_tweak: _PushRules.TweakName.Highlight
+  }]
 }, {
   // For homeservers which don't support MSC3786 yet
   rule_id: ".org.matrix.msc3786.rule.room.server_acl",
@@ -73,14 +115,12 @@ class PushProcessor {
    */
   constructor(client) {
     this.client = client;
+    /**
+     * Maps the original key from the push rules to a list of property names
+     * after unescaping.
+     */
     _defineProperty(this, "parsedKeys", new Map());
   }
-
-  /**
-   * Maps the original key from the push rules to a list of property names
-   * after unescaping.
-   */
-
   /**
    * Convert a list of actions into a object with the actions as keys and their values
    * @example
@@ -113,9 +153,10 @@ class PushProcessor {
    * where applicable. Useful for upgrading push rules to more strict
    * conditions when the server is falling behind on defaults.
    * @param incomingRules - The client's existing push rules
+   * @param userId - The Matrix ID of the client.
    * @returns The rewritten rules
    */
-  static rewriteDefaultRules(incomingRules) {
+  static rewriteDefaultRules(incomingRules, userId = undefined) {
     let newRules = JSON.parse(JSON.stringify(incomingRules)); // deep clone
 
     // These lines are mostly to make the tests happy. We shouldn't run into these
@@ -127,8 +168,21 @@ class PushProcessor {
 
     // Merge the client-level defaults with the ones from the server
     const globalOverrides = newRules.global.override;
-    for (const override of DEFAULT_OVERRIDE_RULES) {
-      const existingRule = globalOverrides.find(r => r.rule_id === override.rule_id);
+    for (const originalOverride of DEFAULT_OVERRIDE_RULES) {
+      const existingRule = globalOverrides.find(r => r.rule_id === originalOverride.rule_id);
+
+      // Dynamically add the user ID as the value for the is_user_mention rule.
+      let override;
+      if (originalOverride.rule_id === _PushRules.RuleId.IsUserMention) {
+        // If the user ID wasn't provided, skip the rule.
+        if (!userId) {
+          continue;
+        }
+        override = JSON.parse(JSON.stringify(originalOverride)); // deep clone
+        override.conditions[0].value = userId;
+      } else {
+        override = originalOverride;
+      }
       if (existingRule) {
         // Copy over the actions, default, and conditions. Don't touch the user's preference.
         existingRule.default = override.default;
@@ -274,6 +328,8 @@ class PushProcessor {
         return this.eventFulfillsEventMatchCondition(cond, ev);
       case _PushRules.ConditionKind.EventPropertyIs:
         return this.eventFulfillsEventPropertyIsCondition(cond, ev);
+      case _PushRules.ConditionKind.EventPropertyContains:
+        return this.eventFulfillsEventPropertyContains(cond, ev);
       case _PushRules.ConditionKind.ContainsDisplayName:
         return this.eventFulfillsDisplayNameCondition(cond, ev);
       case _PushRules.ConditionKind.RoomMemberCount:
@@ -402,6 +458,24 @@ class PushProcessor {
     }
     return cond.value === this.valueForDottedKey(cond.key, ev);
   }
+
+  /**
+   * Check whether the given event matches the push rule condition by fetching
+   * the property from the event and comparing exactly against the condition's
+   * value.
+   * @param cond - The push rule condition to check for a match.
+   * @param ev - The event to check for a match.
+   */
+  eventFulfillsEventPropertyContains(cond, ev) {
+    if (!cond.key || cond.value === undefined) {
+      return false;
+    }
+    const val = this.valueForDottedKey(cond.key, ev);
+    if (!Array.isArray(val)) {
+      return false;
+    }
+    return val.includes(cond.value);
+  }
   eventFulfillsCallStartedCondition(_cond, ev) {
     // Since servers don't support properly sending push notification
     // about MSC3401 call events, we do the handling ourselves
@@ -520,7 +594,7 @@ class PushProcessor {
     if (!rulesets) {
       return null;
     }
-    if (ev.getSender() === this.client.credentials.userId) {
+    if (ev.getSender() === this.client.getSafeUserId()) {
       return null;
     }
     return this.matchingRuleFromKindSet(ev, rulesets.global);
@@ -538,9 +612,16 @@ class PushProcessor {
       // rule but otherwise not
       actionObj.tweaks.highlight = rule.kind == _PushRules.PushRuleKind.ContentSpecific;
     }
-    return actionObj;
+    return {
+      actions: actionObj,
+      rule
+    };
   }
   ruleMatchesEvent(rule, ev) {
+    // Disable the deprecated mentions push rules if the new mentions property exists.
+    if (this.client.supportsIntentionalMentions() && ev.getContent()["org.matrix.msc3952.mentions"] !== undefined && (rule.rule_id === _PushRules.RuleId.ContainsUserName || rule.rule_id === _PushRules.RuleId.ContainsDisplayName || rule.rule_id === _PushRules.RuleId.AtRoomNotification)) {
+      return false;
+    }
     return !rule.conditions?.some(cond => !this.eventFulfillsCondition(cond, ev));
   }
 
@@ -548,6 +629,12 @@ class PushProcessor {
    * Get the user's push actions for the given event
    */
   actionsForEvent(ev) {
+    const {
+      actions
+    } = this.pushActionsForEventAndRulesets(ev, this.client.pushRules);
+    return actions || {};
+  }
+  actionsAndRuleForEvent(ev) {
     return this.pushActionsForEventAndRulesets(ev, this.client.pushRules);
   }
 

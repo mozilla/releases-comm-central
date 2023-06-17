@@ -15,7 +15,21 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 /**
  * The recommended defaults for a tree space's power levels. Note that this
  * is UNSTABLE and subject to breaking changes without notice.
@@ -50,18 +64,18 @@ const DEFAULT_TREE_POWER_LEVELS_TEMPLATE = {
  * Note that this is UNSTABLE and subject to breaking changes without notice.
  */
 exports.DEFAULT_TREE_POWER_LEVELS_TEMPLATE = DEFAULT_TREE_POWER_LEVELS_TEMPLATE;
-let TreePermissions; // "Admin" or PL100
+let TreePermissions = /*#__PURE__*/function (TreePermissions) {
+  TreePermissions["Viewer"] = "viewer";
+  TreePermissions["Editor"] = "editor";
+  TreePermissions["Owner"] = "owner";
+  return TreePermissions;
+}({}); // "Admin" or PL100
 /**
  * Represents a [MSC3089](https://github.com/matrix-org/matrix-doc/pull/3089)
  * file tree Space. Note that this is UNSTABLE and subject to breaking changes
  * without notice.
  */
 exports.TreePermissions = TreePermissions;
-(function (TreePermissions) {
-  TreePermissions["Viewer"] = "viewer";
-  TreePermissions["Editor"] = "editor";
-  TreePermissions["Owner"] = "owner";
-})(TreePermissions || (exports.TreePermissions = TreePermissions = {}));
 class MSC3089TreeSpace {
   constructor(client, roomId) {
     this.client = client;

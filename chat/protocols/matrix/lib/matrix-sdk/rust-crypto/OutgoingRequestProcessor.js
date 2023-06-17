@@ -7,21 +7,28 @@ exports.OutgoingRequestProcessor = void 0;
 var _matrixSdkCryptoJs = require("@matrix-org/matrix-sdk-crypto-js");
 var _logger = require("../logger");
 var _httpApi = require("../http-api");
-/*
-Copyright 2023 The Matrix.org Foundation C.I.C.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
+/**
+ * Common interface for all the request types returned by `OlmMachine.outgoingRequests`.
+ */
 
 /**
  * OutgoingRequestManager: turns `OutgoingRequest`s from the rust sdk into HTTP requests
@@ -38,7 +45,7 @@ class OutgoingRequestProcessor {
     this.olmMachine = olmMachine;
     this.http = http;
   }
-  async makeOutgoingRequest(msg) {
+  async makeOutgoingRequest(msg, uiaCallback) {
     let resp;
 
     /* refer https://docs.rs/matrix-sdk-crypto/0.6.0/matrix_sdk_crypto/requests/enum.OutgoingRequests.html
@@ -60,6 +67,8 @@ class OutgoingRequestProcessor {
     } else if (msg instanceof _matrixSdkCryptoJs.RoomMessageRequest) {
       const path = `/_matrix/client/v3/room/${encodeURIComponent(msg.room_id)}/send/` + `${encodeURIComponent(msg.event_type)}/${encodeURIComponent(msg.txn_id)}`;
       resp = await this.rawJsonRequest(_httpApi.Method.Put, path, {}, msg.body);
+    } else if (msg instanceof _matrixSdkCryptoJs.SigningKeysUploadRequest) {
+      resp = await this.makeRequestWithUIA(_httpApi.Method.Post, "/_matrix/client/v3/keys/device_signing/upload", {}, msg.body, uiaCallback);
     } else {
       _logger.logger.warn("Unsupported outgoing message", Object.getPrototypeOf(msg));
       resp = "";
@@ -67,6 +76,21 @@ class OutgoingRequestProcessor {
     if (msg.id) {
       await this.olmMachine.markRequestAsSent(msg.id, msg.type, resp);
     }
+  }
+  async makeRequestWithUIA(method, path, queryParams, body, uiaCallback) {
+    if (!uiaCallback) {
+      return await this.rawJsonRequest(method, path, queryParams, body);
+    }
+    const parsedBody = JSON.parse(body);
+    const makeRequest = async auth => {
+      const newBody = _objectSpread(_objectSpread({}, parsedBody), {}, {
+        auth
+      });
+      const resp = await this.rawJsonRequest(method, path, queryParams, JSON.stringify(newBody));
+      return JSON.parse(resp);
+    };
+    const resp = await uiaCallback(makeRequest);
+    return JSON.stringify(resp);
   }
   async rawJsonRequest(method, path, queryParams, body) {
     const opts = {

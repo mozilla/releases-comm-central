@@ -8,20 +8,34 @@ var _logger = require("./logger");
 var _httpApi = require("./http-api");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2018 New Vector Ltd
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2019 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 // Dev note: Auto discovery is part of the spec.
 // See: https://matrix.org/docs/spec/client_server/r0.4.0.html#server-discovery
-let AutoDiscoveryAction;
-exports.AutoDiscoveryAction = AutoDiscoveryAction;
-(function (AutoDiscoveryAction) {
+let AutoDiscoveryAction = /*#__PURE__*/function (AutoDiscoveryAction) {
   AutoDiscoveryAction["SUCCESS"] = "SUCCESS";
   AutoDiscoveryAction["IGNORE"] = "IGNORE";
   AutoDiscoveryAction["PROMPT"] = "PROMPT";
   AutoDiscoveryAction["FAIL_PROMPT"] = "FAIL_PROMPT";
   AutoDiscoveryAction["FAIL_ERROR"] = "FAIL_ERROR";
-})(AutoDiscoveryAction || (exports.AutoDiscoveryAction = AutoDiscoveryAction = {}));
-var AutoDiscoveryError;
-(function (AutoDiscoveryError) {
+  return AutoDiscoveryAction;
+}({});
+exports.AutoDiscoveryAction = AutoDiscoveryAction;
+var AutoDiscoveryError = /*#__PURE__*/function (AutoDiscoveryError) {
   AutoDiscoveryError["Invalid"] = "Invalid homeserver discovery response";
   AutoDiscoveryError["GenericFailure"] = "Failed to get autodiscovery configuration from server";
   AutoDiscoveryError["InvalidHsBaseUrl"] = "Invalid base_url for m.homeserver";
@@ -31,40 +45,13 @@ var AutoDiscoveryError;
   AutoDiscoveryError["InvalidIs"] = "Invalid identity server discovery response";
   AutoDiscoveryError["MissingWellknown"] = "No .well-known JSON file found";
   AutoDiscoveryError["InvalidJson"] = "Invalid JSON";
-})(AutoDiscoveryError || (AutoDiscoveryError = {}));
+  return AutoDiscoveryError;
+}(AutoDiscoveryError || {});
 /**
  * Utilities for automatically discovery resources, such as homeservers
  * for users to log in to.
  */
 class AutoDiscovery {
-  // Dev note: the constants defined here are related to but not
-  // exactly the same as those in the spec. This is to hopefully
-  // translate the meaning of the states in the spec, but also
-  // support our own if needed.
-
-  /**
-   * The auto discovery failed. The client is expected to communicate
-   * the error to the user and refuse logging in.
-   */
-
-  /**
-   * The auto discovery failed, however the client may still recover
-   * from the problem. The client is recommended to that the same
-   * action it would for PROMPT while also warning the user about
-   * what went wrong. The client may also treat this the same as
-   * a FAIL_ERROR state.
-   */
-
-  /**
-   * The auto discovery didn't fail but did not find anything of
-   * interest. The client is expected to prompt the user for more
-   * information, or fail if it prefers.
-   */
-
-  /**
-   * The auto discovery was successful.
-   */
-
   /**
    * Validates and verifies client configuration information for purposes
    * of logging in. Such information includes the homeserver URL
@@ -97,7 +84,7 @@ class AutoDiscovery {
         base_url: null
       }
     };
-    if (!wellknown || !wellknown["m.homeserver"]) {
+    if (!wellknown?.["m.homeserver"]) {
       _logger.logger.error("No m.homeserver key in config");
       clientConfig["m.homeserver"].state = AutoDiscovery.FAIL_PROMPT;
       clientConfig["m.homeserver"].error = AutoDiscovery.ERROR_INVALID;
@@ -121,7 +108,7 @@ class AutoDiscovery {
 
     // Step 3: Make sure the homeserver URL points to a homeserver.
     const hsVersions = await this.fetchWellKnownObject(`${hsUrl}/_matrix/client/versions`);
-    if (!hsVersions || !hsVersions.raw?.["versions"]) {
+    if (!hsVersions?.raw?.["versions"]) {
       _logger.logger.error("Invalid /versions response");
       clientConfig["m.homeserver"].error = AutoDiscovery.ERROR_INVALID_HOMESERVER;
 
@@ -291,7 +278,7 @@ class AutoDiscovery {
     }
     const response = await this.fetchWellKnownObject(`https://${domain}/.well-known/matrix/client`);
     if (!response) return {};
-    return response.raw || {};
+    return response.raw ?? {};
   }
 
   /**
@@ -402,6 +389,10 @@ class AutoDiscovery {
   }
 }
 exports.AutoDiscovery = AutoDiscovery;
+// Dev note: the constants defined here are related to but not
+// exactly the same as those in the spec. This is to hopefully
+// translate the meaning of the states in the spec, but also
+// support our own if needed.
 _defineProperty(AutoDiscovery, "ERROR_INVALID", AutoDiscoveryError.Invalid);
 _defineProperty(AutoDiscovery, "ERROR_GENERIC_FAILURE", AutoDiscoveryError.GenericFailure);
 _defineProperty(AutoDiscovery, "ERROR_INVALID_HS_BASE_URL", AutoDiscoveryError.InvalidHsBaseUrl);
@@ -412,8 +403,27 @@ _defineProperty(AutoDiscovery, "ERROR_INVALID_IS", AutoDiscoveryError.InvalidIs)
 _defineProperty(AutoDiscovery, "ERROR_MISSING_WELLKNOWN", AutoDiscoveryError.MissingWellknown);
 _defineProperty(AutoDiscovery, "ERROR_INVALID_JSON", AutoDiscoveryError.InvalidJson);
 _defineProperty(AutoDiscovery, "ALL_ERRORS", Object.keys(AutoDiscoveryError));
+/**
+ * The auto discovery failed. The client is expected to communicate
+ * the error to the user and refuse logging in.
+ */
 _defineProperty(AutoDiscovery, "FAIL_ERROR", AutoDiscoveryAction.FAIL_ERROR);
+/**
+ * The auto discovery failed, however the client may still recover
+ * from the problem. The client is recommended to that the same
+ * action it would for PROMPT while also warning the user about
+ * what went wrong. The client may also treat this the same as
+ * a FAIL_ERROR state.
+ */
 _defineProperty(AutoDiscovery, "FAIL_PROMPT", AutoDiscoveryAction.FAIL_PROMPT);
+/**
+ * The auto discovery didn't fail but did not find anything of
+ * interest. The client is expected to prompt the user for more
+ * information, or fail if it prefers.
+ */
 _defineProperty(AutoDiscovery, "PROMPT", AutoDiscoveryAction.PROMPT);
+/**
+ * The auto discovery was successful.
+ */
 _defineProperty(AutoDiscovery, "SUCCESS", AutoDiscoveryAction.SUCCESS);
 _defineProperty(AutoDiscovery, "fetchFn", void 0);

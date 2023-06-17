@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.WidgetKind = void 0;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -20,11 +19,11 @@ exports.WidgetKind = void 0;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var WidgetKind;
-exports.WidgetKind = WidgetKind;
-
-(function (WidgetKind) {
+var WidgetKind = /*#__PURE__*/function (WidgetKind) {
   WidgetKind["Room"] = "room";
   WidgetKind["Account"] = "account";
   WidgetKind["Modal"] = "modal";
-})(WidgetKind || (exports.WidgetKind = WidgetKind = {}));
+  return WidgetKind;
+}({});
+exports.WidgetKind = WidgetKind;
+//# sourceMappingURL=WidgetKind.js.map

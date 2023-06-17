@@ -20,6 +20,7 @@ var algorithms = _interopRequireWildcard(require("./algorithms"));
 var _CrossSigning = require("./CrossSigning");
 var _EncryptionSetup = require("./EncryptionSetup");
 var _SecretStorage = require("./SecretStorage");
+var _api = require("./api");
 var _OutgoingRoomKeyRequestManager = require("./OutgoingRoomKeyRequestManager");
 var _indexeddbCryptoStore = require("./store/indexeddb-crypto-store");
 var _QRCode = require("./verification/QRCode");
@@ -41,6 +42,8 @@ var _client = require("../client");
 var _typedEventEmitter = require("../models/typed-event-emitter");
 var _roomState = require("../models/room-state");
 var _utils = require("../utils");
+var _secretStorage = require("../secret-storage");
+var _deviceConverter = require("./device-converter");
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -48,7 +51,26 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2016 OpenMarket Ltd
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 Vector Creations Ltd
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2018-2019 New Vector Ltd
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2019-2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
+/* re-exports for backwards compatibility */
+
 const DeviceVerification = _deviceinfo.DeviceInfo.DeviceVerification;
 const defaultVerificationMethods = {
   [_QRCode.ReciprocateQRCode.NAME]: _QRCode.ReciprocateQRCode,
@@ -73,9 +95,21 @@ function isCryptoAvailable() {
   return Boolean(global.Olm);
 }
 const MIN_FORCE_SESSION_INTERVAL_MS = 60 * 60 * 1000;
-let CryptoEvent;
-exports.CryptoEvent = CryptoEvent;
-(function (CryptoEvent) {
+
+/* eslint-disable camelcase */
+
+/**
+ * The parameters of a room key request. The details of the request may
+ * vary with the crypto algorithm, but the management and storage layers for
+ * outgoing requests expect it to have 'room_id' and 'session_id' properties.
+ */
+
+/* eslint-enable camelcase */
+
+/* eslint-disable camelcase */
+
+/* eslint-enable camelcase */
+let CryptoEvent = /*#__PURE__*/function (CryptoEvent) {
   CryptoEvent["DeviceVerificationChanged"] = "deviceVerificationChanged";
   CryptoEvent["UserTrustStatusChanged"] = "userTrustStatusChanged";
   CryptoEvent["UserCrossSigningUpdated"] = "userCrossSigningUpdated";
@@ -90,7 +124,9 @@ exports.CryptoEvent = CryptoEvent;
   CryptoEvent["WillUpdateDevices"] = "crypto.willUpdateDevices";
   CryptoEvent["DevicesUpdated"] = "crypto.devicesUpdated";
   CryptoEvent["KeysChanged"] = "crossSigning.keysChanged";
-})(CryptoEvent || (exports.CryptoEvent = CryptoEvent = {}));
+  return CryptoEvent;
+}({});
+exports.CryptoEvent = CryptoEvent;
 class Crypto extends _typedEventEmitter.TypedEventEmitter {
   /**
    * @returns The version of Olm.
@@ -142,23 +178,51 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "toDeviceVerificationRequests", void 0);
     _defineProperty(this, "inRoomVerificationRequests", void 0);
     _defineProperty(this, "trustCrossSignedDevices", true);
+    // the last time we did a check for the number of one-time-keys on the server.
     _defineProperty(this, "lastOneTimeKeyCheck", null);
     _defineProperty(this, "oneTimeKeyCheckInProgress", false);
+    // EncryptionAlgorithm instance for each room
     _defineProperty(this, "roomEncryptors", new Map());
+    // map from algorithm to DecryptionAlgorithm instance, for each room
     _defineProperty(this, "roomDecryptors", new Map());
     _defineProperty(this, "deviceKeys", {});
+    // type: key
     _defineProperty(this, "globalBlacklistUnverifiedDevices", false);
     _defineProperty(this, "globalErrorOnUnknownDevices", true);
+    // list of IncomingRoomKeyRequests/IncomingRoomKeyRequestCancellations
+    // we received in the current sync.
     _defineProperty(this, "receivedRoomKeyRequests", []);
     _defineProperty(this, "receivedRoomKeyRequestCancellations", []);
+    // true if we are currently processing received room key requests
     _defineProperty(this, "processingRoomKeyRequests", false);
+    // controls whether device tracking is delayed
+    // until calling encryptEvent or trackRoomDevices,
+    // or done immediately upon enabling room encryption.
     _defineProperty(this, "lazyLoadMembers", false);
+    // in case lazyLoadMembers is true,
+    // track if an initial tracking of all the room members
+    // has happened for a given room. This is delayed
+    // to avoid loading room members as long as possible.
     _defineProperty(this, "roomDeviceTrackingState", {});
+    // The timestamp of the last time we forced establishment
+    // of a new session for each device, in milliseconds.
+    // {
+    //     userId: {
+    //         deviceId: 1234567890000,
+    //     },
+    // }
+    // Map: user Id → device Id → timestamp
     _defineProperty(this, "lastNewSessionForced", new _utils.MapWithDefault(() => new _utils.MapWithDefault(() => 0)));
+    // This flag will be unset whilst the client processes a sync response
+    // so that we don't start requesting keys until we've actually finished
+    // processing the response.
     _defineProperty(this, "sendKeyRequestsImmediately", false);
     _defineProperty(this, "oneTimeKeyCount", void 0);
     _defineProperty(this, "needsNewFallback", void 0);
     _defineProperty(this, "fallbackCleanup", void 0);
+    /*
+     * Event handler for DeviceList's userNewDevices event
+     */
     _defineProperty(this, "onDeviceListUserCrossSigningUpdated", async userId => {
       if (userId === this.userId) {
         // An update to our own cross-signing key.
@@ -233,6 +297,16 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
         _logger.logger.error("Error handling toDeviceEvent:", e);
       }
     });
+    /**
+     * Handle key verification requests sent as timeline events
+     *
+     * @internal
+     * @param event - the timeline event
+     * @param room - not used
+     * @param atStart - not used
+     * @param removed - not used
+     * @param whether - this is a live event
+     */
     _defineProperty(this, "onTimelineEvent", (event, room, atStart, removed, {
       liveEvent = true
     } = {}) => {
@@ -270,14 +344,14 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
       }
 
       // try to get key from secret storage
-      const storedKey = await this.getSecret("m.megolm_backup.v1");
+      const storedKey = await this.secretStorage.get("m.megolm_backup.v1");
       if (storedKey) {
         // ensure that the key is in the right format.  If not, fix the key and
         // store the fixed version
         const fixedKey = fixBackupKey(storedKey);
         if (fixedKey) {
-          const keys = await this.getSecretStorageKey();
-          await this.storeSecret("m.megolm_backup.v1", fixedKey, [keys[0]]);
+          const keys = await this.secretStorage.getKey();
+          await this.secretStorage.store("m.megolm_backup.v1", fixedKey, [keys[0]]);
         }
         return olmlib.decodeBase64(fixedKey || storedKey);
       }
@@ -382,17 +456,23 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *
    * @returns True if trusting cross-signed devices
    */
+  getTrustCrossSignedDevices() {
+    return this.trustCrossSignedDevices;
+  }
+
+  /**
+   * @deprecated Use {@link Crypto.CryptoApi#getTrustCrossSignedDevices}.
+   */
   getCryptoTrustCrossSignedDevices() {
     return this.trustCrossSignedDevices;
   }
 
   /**
    * See getCryptoTrustCrossSignedDevices
-    * This may be set before initCrypto() is called to ensure no races occur.
    *
    * @param val - True to trust cross-signed devices
    */
-  setCryptoTrustCrossSignedDevices(val) {
+  setTrustCrossSignedDevices(val) {
     this.trustCrossSignedDevices = val;
     for (const userId of this.deviceList.getKnownUserIds()) {
       const devices = this.deviceList.getRawStoredDevicesForUser(userId);
@@ -407,6 +487,13 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
         }
       }
     }
+  }
+
+  /**
+   * @deprecated Use {@link Crypto.CryptoApi#setTrustCrossSignedDevices}.
+   */
+  setCryptoTrustCrossSignedDevices(val) {
+    this.setTrustCrossSignedDevices(val);
   }
 
   /**
@@ -587,7 +674,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     // done as part of setting up secret storage later.
     const crossSigningPrivateKeys = builder.crossSigningCallbacks.privateKeys;
     if (crossSigningPrivateKeys.size && !this.baseApis.cryptoCallbacks.saveCrossSigningKeys) {
-      const secretStorage = new _SecretStorage.SecretStorage(builder.accountDataClientAdapter, builder.ssssCryptoCallbacks, undefined);
+      const secretStorage = new _secretStorage.ServerSideSecretStorageImpl(builder.accountDataClientAdapter, builder.ssssCryptoCallbacks);
       if (await secretStorage.hasKey()) {
         _logger.logger.log("Storing new cross-signing private keys in secret storage");
         // This is writing to in-memory account data in
@@ -647,7 +734,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     _logger.logger.log("Bootstrapping Secure Secret Storage");
     const delegateCryptoCallbacks = this.baseApis.cryptoCallbacks;
     const builder = new _EncryptionSetup.EncryptionSetupBuilder(this.baseApis.store.accountData, delegateCryptoCallbacks);
-    const secretStorage = new _SecretStorage.SecretStorage(builder.accountDataClientAdapter, builder.ssssCryptoCallbacks, undefined);
+    const secretStorage = new _secretStorage.ServerSideSecretStorageImpl(builder.accountDataClientAdapter, builder.ssssCryptoCallbacks);
 
     // the ID of the new SSSS key, if we create one
     let newKeyId = null;
@@ -660,7 +747,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
       const {
         keyId,
         keyInfo
-      } = await secretStorage.addKey(_SecretStorage.SECRET_STORAGE_ALGORITHM_V1_AES, opts);
+      } = await secretStorage.addKey(_secretStorage.SECRET_STORAGE_ALGORITHM_V1_AES, opts);
       if (privateKey) {
         // make the private key available to encrypt 4S secrets
         builder.ssssCryptoCallbacks.addPrivateKey(keyId, keyInfo, privateKey);
@@ -702,9 +789,9 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
         _logger.logger.warn("Cross-signing keys not available, skipping signature on key backup");
       }
     };
-    const oldSSSSKey = await this.getSecretStorageKey();
+    const oldSSSSKey = await this.secretStorage.getKey();
     const [oldKeyId, oldKeyInfo] = oldSSSSKey || [null, null];
-    const storageExists = !setupNewSecretStorage && oldKeyInfo && oldKeyInfo.algorithm === _SecretStorage.SECRET_STORAGE_ALGORITHM_V1_AES;
+    const storageExists = !setupNewSecretStorage && oldKeyInfo && oldKeyInfo.algorithm === _secretStorage.SECRET_STORAGE_ALGORITHM_V1_AES;
 
     // Log all relevant state for easier parsing of debug logs.
     _logger.logger.log({
@@ -762,7 +849,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     } else {
       // 4S is already set up
       _logger.logger.log("Secret storage exists");
-      if (oldKeyInfo && oldKeyInfo.algorithm === _SecretStorage.SECRET_STORAGE_ALGORITHM_V1_AES) {
+      if (oldKeyInfo && oldKeyInfo.algorithm === _secretStorage.SECRET_STORAGE_ALGORITHM_V1_AES) {
         // make sure that the default key has the information needed to
         // check the passphrase
         await ensureCanCheckPassphrase(oldKeyId, oldKeyInfo);
@@ -840,21 +927,45 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     await builder.persist(this);
     _logger.logger.log("Secure Secret Storage ready");
   }
+
+  /**
+   * @deprecated Use {@link MatrixClient#secretStorage} and {@link SecretStorage.ServerSideSecretStorage#addKey}.
+   */
   addSecretStorageKey(algorithm, opts, keyID) {
     return this.secretStorage.addKey(algorithm, opts, keyID);
   }
+
+  /**
+   * @deprecated Use {@link MatrixClient#secretStorage} and {@link SecretStorage.ServerSideSecretStorage#hasKey}.
+   */
   hasSecretStorageKey(keyID) {
     return this.secretStorage.hasKey(keyID);
   }
+
+  /**
+   * @deprecated Use {@link MatrixClient#secretStorage} and {@link SecretStorage.ServerSideSecretStorage#getKey}.
+   */
   getSecretStorageKey(keyID) {
     return this.secretStorage.getKey(keyID);
   }
+
+  /**
+   * @deprecated Use {@link MatrixClient#secretStorage} and {@link SecretStorage.ServerSideSecretStorage#store}.
+   */
   storeSecret(name, secret, keys) {
     return this.secretStorage.store(name, secret, keys);
   }
+
+  /**
+   * @deprecated Use {@link MatrixClient#secretStorage} and {@link SecretStorage.ServerSideSecretStorage#get}.
+   */
   getSecret(name) {
     return this.secretStorage.get(name);
   }
+
+  /**
+   * @deprecated Use {@link MatrixClient#secretStorage} and {@link SecretStorage.ServerSideSecretStorage#isStored}.
+   */
   isSecretStored(name) {
     return this.secretStorage.isStored(name);
   }
@@ -864,12 +975,24 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     }
     return this.secretStorage.request(name, devices);
   }
+
+  /**
+   * @deprecated Use {@link MatrixClient#secretStorage} and {@link SecretStorage.ServerSideSecretStorage#getDefaultKeyId}.
+   */
   getDefaultSecretStorageKeyId() {
     return this.secretStorage.getDefaultKeyId();
   }
+
+  /**
+   * @deprecated Use {@link MatrixClient#secretStorage} and {@link SecretStorage.ServerSideSecretStorage#setDefaultKeyId}.
+   */
   setDefaultSecretStorageKeyId(k) {
     return this.secretStorage.setDefaultKeyId(k);
   }
+
+  /**
+   * @deprecated Use {@link MatrixClient#secretStorage} and {@link SecretStorage.ServerSideSecretStorage#checkKey}.
+   */
   checkSecretStorageKey(key, info) {
     return this.secretStorage.checkKey(key, info);
   }
@@ -1090,6 +1213,11 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *
    * @returns the key ID
    */
+  getCrossSigningKeyId(type = _api.CrossSigningKey.Master) {
+    return Promise.resolve(this.getCrossSigningId(type));
+  }
+
+  // old name, for backwards compatibility
   getCrossSigningId(type) {
     return this.crossSigningInfo.getId(type);
   }
@@ -1123,10 +1251,19 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   /**
    * Check whether a given device is trusted.
    *
-   * @param userId - The ID of the user whose devices is to be checked.
+   * @param userId - The ID of the user whose device is to be checked.
    * @param deviceId - The ID of the device to check
-   *
-   * @returns
+   */
+  async getDeviceVerificationStatus(userId, deviceId) {
+    const device = this.deviceList.getStoredDevice(userId, deviceId);
+    if (!device) {
+      return null;
+    }
+    return this.checkDeviceInfoTrust(userId, device);
+  }
+
+  /**
+   * @deprecated Use {@link Crypto.CryptoApi.getDeviceVerificationStatus}.
    */
   checkDeviceTrust(userId, deviceId) {
     const device = this.deviceList.getStoredDevice(userId, deviceId);
@@ -1139,7 +1276,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    * @param userId - The ID of the user whose devices is to be checked.
    * @param device - The device info object to check
    *
-   * @returns
+   * @deprecated Use {@link Crypto.CryptoApi.getDeviceVerificationStatus}.
    */
   checkDeviceInfoTrust(userId, device) {
     const trustedLocally = !!device?.isVerified();
@@ -1168,11 +1305,6 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     const userCrossSigning = this.deviceList.getStoredCrossSigningForUser(this.userId);
     return userCrossSigning?.checkDeviceTrust(userCrossSigning, device, false, true).isCrossSigningVerified() ?? false;
   }
-
-  /*
-   * Event handler for DeviceList's userNewDevices event
-   */
-
   /**
    * Check the copy of our cross-signing key that we have in the device list and
    * see if we can get the private key. If so, mark it as trusted.
@@ -1422,8 +1554,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *
    * @param value - whether to blacklist all unverified devices by default
    *
-   * @deprecated For external code, use {@link MatrixClient#setGlobalBlacklistUnverifiedDevices}. For
-   *   internal code, set {@link MatrixClient#globalBlacklistUnverifiedDevices} directly.
+   * @deprecated Set {@link Crypto.CryptoApi#globalBlacklistUnverifiedDevices | CryptoApi.globalBlacklistUnverifiedDevices} directly.
    */
   setGlobalBlacklistUnverifiedDevices(value) {
     this.globalBlacklistUnverifiedDevices = value;
@@ -1432,8 +1563,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   /**
    * @returns whether to blacklist all unverified devices by default
    *
-   * @deprecated For external code, use {@link MatrixClient#getGlobalBlacklistUnverifiedDevices}. For
-   *   internal code, reference {@link MatrixClient#globalBlacklistUnverifiedDevices} directly.
+   * @deprecated Reference {@link Crypto.CryptoApi#globalBlacklistUnverifiedDevices | CryptoApi.globalBlacklistUnverifiedDevices} directly.
    */
   getGlobalBlacklistUnverifiedDevices() {
     return this.globalBlacklistUnverifiedDevices;
@@ -1455,23 +1585,6 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
         device_keys: deviceKeys
       });
     });
-  }
-
-  /**
-   * Stores the current one_time_key count which will be handled later (in a call of
-   * onSyncCompleted). The count is e.g. coming from a /sync response.
-   *
-   * @param currentCount - The current count of one_time_keys to be stored
-   */
-  updateOneTimeKeyCount(currentCount) {
-    if (isFinite(currentCount)) {
-      this.oneTimeKeyCount = currentCount;
-    } else {
-      throw new TypeError("Parameter for updateOneTimeKeyCount has to be a number");
-    }
-  }
-  setNeedsNewFallback(needsNewFallback) {
-    this.needsNewFallback = needsNewFallback;
   }
   getNeedsNewFallback() {
     return !!this.needsNewFallback;
@@ -1597,7 +1710,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
         fallbackJson["signed_curve25519:" + keyId] = k;
         promises.push(this.signObject(k));
       }
-      this.setNeedsNewFallback(false);
+      this.needsNewFallback = false;
     }
     const oneTimeKeys = await this.olmDevice.getOneTimeKeys();
     const oneTimeJson = {};
@@ -1651,6 +1764,48 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    */
   getStoredDevicesForUser(userId) {
     return this.deviceList.getStoredDevicesForUser(userId);
+  }
+
+  /**
+   * Get the device information for the given list of users.
+   *
+   * @param userIds - The users to fetch.
+   * @param downloadUncached - If true, download the device list for users whose device list we are not
+   *    currently tracking. Defaults to false, in which case such users will not appear at all in the result map.
+   *
+   * @returns A map `{@link DeviceMap}`.
+   */
+  async getUserDeviceInfo(userIds, downloadUncached = false) {
+    const deviceMapByUserId = new Map();
+    // Keep the users without device to download theirs keys
+    const usersWithoutDeviceInfo = [];
+    for (const userId of userIds) {
+      const deviceInfos = await this.getStoredDevicesForUser(userId);
+      // If there are device infos for a userId, we transform it into a map
+      // Else, the keys will be downloaded after
+      if (deviceInfos) {
+        const deviceMap = new Map(
+        // Convert DeviceInfo to Device
+        deviceInfos.map(deviceInfo => [deviceInfo.deviceId, (0, _deviceConverter.deviceInfoToDevice)(deviceInfo, userId)]));
+        deviceMapByUserId.set(userId, deviceMap);
+      } else {
+        usersWithoutDeviceInfo.push(userId);
+      }
+    }
+
+    // Download device info for users without device infos
+    if (downloadUncached && usersWithoutDeviceInfo.length > 0) {
+      const newDeviceInfoMap = await this.downloadKeys(usersWithoutDeviceInfo);
+      newDeviceInfoMap.forEach((deviceInfoMap, userId) => {
+        const deviceMap = new Map();
+        // Convert DeviceInfo to Device
+        deviceInfoMap.forEach((deviceInfo, deviceId) => deviceMap.set(deviceId, (0, _deviceConverter.deviceInfoToDevice)(deviceInfo, userId)));
+
+        // Put the new device infos into the returned map
+        deviceMapByUserId.set(userId, deviceMap);
+      });
+    }
+    return deviceMapByUserId;
   }
 
   /**
@@ -2068,6 +2223,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
       throw new Error("Room encryption algorithm doesn't support session discarding");
     }
     alg.forceDiscardSession();
+    return Promise.resolve();
   }
 
   /**
@@ -2249,7 +2405,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *
    * @returns resolves once the sessions are complete, to
    *    an Object mapping from userId to deviceId to
-   *    {@link OlmSessionResult}
+   *    `IOlmSessionResult`
    */
   ensureOlmSessionsForUsers(users, force) {
     // map user Id → DeviceInfo[]
@@ -2441,18 +2597,12 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
   }
 
   /**
-   * Handle the notification from /sync or /keys/changes that device lists have
+   * Handle the notification from /sync that device lists have
    * been changed.
    *
-   * @param syncData - Object containing sync tokens associated with this sync
-   * @param syncDeviceLists - device_lists field from /sync, or response from
-   * /keys/changes
+   * @param deviceLists - device_lists field from /sync
    */
-  async handleDeviceListChanges(syncData, syncDeviceLists) {
-    // Initial syncs don't have device change lists. We'll either get the complete list
-    // of changes for the interval or will have invalidated everything in willProcessSync
-    if (!syncData.oldSyncToken) return;
-
+  async processDeviceLists(deviceLists) {
     // Here, we're relying on the fact that we only ever save the sync data after
     // sucessfully saving the device list data, so we're guaranteed that the device
     // list store is at least as fresh as the sync token from the sync store, ie.
@@ -2461,7 +2611,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     // If we didn't make this assumption, we'd have to use the /keys/changes API
     // to get key changes between the sync token in the device list and the 'old'
     // sync token used here to make sure we didn't miss any.
-    await this.evalDeviceListChanges(syncDeviceLists);
+    await this.evalDeviceListChanges(deviceLists);
   }
 
   /**
@@ -2703,6 +2853,33 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
       return true;
     });
   }
+
+  /**
+   * Stores the current one_time_key count which will be handled later (in a call of
+   * onSyncCompleted).
+   *
+   * @param currentCount - The current count of one_time_keys to be stored
+   */
+  updateOneTimeKeyCount(currentCount) {
+    if (isFinite(currentCount)) {
+      this.oneTimeKeyCount = currentCount;
+    } else {
+      throw new TypeError("Parameter for updateOneTimeKeyCount has to be a number");
+    }
+  }
+  processKeyCounts(oneTimeKeysCounts, unusedFallbackKeys) {
+    if (oneTimeKeysCounts !== undefined) {
+      this.updateOneTimeKeyCount(oneTimeKeysCounts["signed_curve25519"] || 0);
+    }
+    if (unusedFallbackKeys !== undefined) {
+      // If `unusedFallbackKeys` is defined, that means `device_unused_fallback_key_types`
+      // is present in the sync response, which indicates that the server supports fallback keys.
+      //
+      // If there's no unused signed_curve25519 fallback key, we need a new one.
+      this.needsNewFallback = !unusedFallbackKeys.includes("signed_curve25519");
+    }
+    return Promise.resolve();
+  }
   /**
    * Handle a key event
    *
@@ -2777,18 +2954,6 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
     };
     this.handleVerificationEvent(event, this.toDeviceVerificationRequests, createRequest);
   }
-
-  /**
-   * Handle key verification requests sent as timeline events
-   *
-   * @internal
-   * @param event - the timeline event
-   * @param room - not used
-   * @param atStart - not used
-   * @param removed - not used
-   * @param whether - this is a live event
-   */
-
   async handleVerificationEvent(event, requestsMap, createRequest, isLiveEvent = true) {
     // Wait for event to get its final ID with pendingEventOrdering: "chronological", since DM channels depend on it.
     if (event.isSending() && event.status != _event2.EventStatus.SENT) {
@@ -3122,7 +3287,7 @@ class Crypto extends _typedEventEmitter.TypedEventEmitter {
    *
    * @param algorithm -  crypto algorithm
    *
-   * @throws {@link DecryptionError} if the algorithm is unknown
+   * @throws `DecryptionError` if the algorithm is unknown
    */
   getRoomDecryptor(roomId, algorithm) {
     let decryptors;
@@ -3215,23 +3380,19 @@ function fixBackupKey(key) {
  * Represents a received m.room_key_request event
  */
 class IncomingRoomKeyRequest {
-  /** user requesting the key */
-
-  /** device requesting the key */
-
-  /** unique id for the request */
-
-  /**
-   * callback which, when called, will ask
-   *    the relevant crypto algorithm implementation to share the keys for
-   *    this request.
-   */
-
   constructor(event) {
+    /** user requesting the key */
     _defineProperty(this, "userId", void 0);
+    /** device requesting the key */
     _defineProperty(this, "deviceId", void 0);
+    /** unique id for the request */
     _defineProperty(this, "requestId", void 0);
     _defineProperty(this, "requestBody", void 0);
+    /**
+     * callback which, when called, will ask
+     *    the relevant crypto algorithm implementation to share the keys for
+     *    this request.
+     */
     _defineProperty(this, "share", void 0);
     const content = event.getContent();
     this.userId = event.getSender();
@@ -3249,15 +3410,12 @@ class IncomingRoomKeyRequest {
  */
 exports.IncomingRoomKeyRequest = IncomingRoomKeyRequest;
 class IncomingRoomKeyRequestCancellation {
-  /** user requesting the cancellation */
-
-  /** device requesting the cancellation */
-
-  /** unique id for the request to be cancelled */
-
   constructor(event) {
+    /** user requesting the cancellation */
     _defineProperty(this, "userId", void 0);
+    /** device requesting the cancellation */
     _defineProperty(this, "deviceId", void 0);
+    /** unique id for the request to be cancelled */
     _defineProperty(this, "requestId", void 0);
     const content = event.getContent();
     this.userId = event.getSender();

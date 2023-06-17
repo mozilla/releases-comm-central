@@ -8,12 +8,23 @@ var _logger = require("../logger");
 var _utils = require("../utils");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 class RemoteIndexedDBStoreBackend {
-  // The currently in-flight requests to the actual backend
-  // seq: promise
-  // Once we start connecting, we keep the promise and re-use it
-  // if we try to connect again
+  // Callback for when the IndexedDB gets closed unexpectedly
 
   /**
    * An IndexedDB store backend where the actual backend sits in a web
@@ -30,11 +41,17 @@ class RemoteIndexedDBStoreBackend {
     this.dbName = dbName;
     _defineProperty(this, "worker", void 0);
     _defineProperty(this, "nextSeq", 0);
+    // The currently in-flight requests to the actual backend
     _defineProperty(this, "inFlight", {});
+    // seq: promise
+    // Once we start connecting, we keep the promise and re-use it
+    // if we try to connect again
     _defineProperty(this, "startPromise", void 0);
     _defineProperty(this, "onWorkerMessage", ev => {
       const msg = ev.data;
-      if (msg.command == "cmd_success" || msg.command == "cmd_fail") {
+      if (msg.command == "closed") {
+        this.onClose?.();
+      } else if (msg.command == "cmd_success" || msg.command == "cmd_fail") {
         if (msg.seq === undefined) {
           _logger.logger.error("Got reply from worker with no seq");
           return;
@@ -63,7 +80,8 @@ class RemoteIndexedDBStoreBackend {
    * grant permission.
    * @returns Promise which resolves if successfully connected.
    */
-  connect() {
+  connect(onClose) {
+    this.onClose = onClose;
     return this.ensureStarted().then(() => this.doCmd("connect"));
   }
 
@@ -171,6 +189,12 @@ class RemoteIndexedDBStoreBackend {
       });
       return def.promise;
     });
+  }
+  /*
+   * Destroy the web worker
+   */
+  async destroy() {
+    this.worker?.terminate();
   }
 }
 exports.RemoteIndexedDBStoreBackend = RemoteIndexedDBStoreBackend;

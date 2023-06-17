@@ -19,9 +19,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let HttpApiEvent;
-exports.HttpApiEvent = HttpApiEvent;
-(function (HttpApiEvent) {
+let HttpApiEvent = /*#__PURE__*/function (HttpApiEvent) {
   HttpApiEvent["SessionLoggedOut"] = "Session.logged_out";
   HttpApiEvent["NoConsent"] = "no_consent";
-})(HttpApiEvent || (exports.HttpApiEvent = HttpApiEvent = {}));
+  return HttpApiEvent;
+}({});
+exports.HttpApiEvent = HttpApiEvent;

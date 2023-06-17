@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.isErrorResponse = isErrorResponse;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -20,11 +19,12 @@ exports.isErrorResponse = isErrorResponse;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 function isErrorResponse(responseData) {
   if ("error" in responseData) {
     var err = responseData;
     return !!err.error.message;
   }
-
   return false;
 }
+//# sourceMappingURL=IWidgetApiErrorResponse.js.map

@@ -8,7 +8,21 @@ var _eventTimeline = require("./models/event-timeline");
 var _logger = require("./logger");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 /**
  * @internal
  */
@@ -27,11 +41,6 @@ const debuglog = DEBUG ? _logger.logger.log.bind(_logger.logger) : function () {
  */
 const DEFAULT_PAGINATE_LOOP_LIMIT = 5;
 class TimelineWindow {
-  // these will be TimelineIndex objects; they delineate the 'start' and
-  // 'end' of the window.
-  //
-  // start.index is inclusive; end.index is exclusive.
-
   /**
    * Construct a TimelineWindow.
    *
@@ -56,6 +65,10 @@ class TimelineWindow {
     this.client = client;
     this.timelineSet = timelineSet;
     _defineProperty(this, "windowLimit", void 0);
+    // these will be TimelineIndex objects; they delineate the 'start' and
+    // 'end' of the window.
+    //
+    // start.index is inclusive; end.index is exclusive.
     _defineProperty(this, "start", void 0);
     _defineProperty(this, "end", void 0);
     _defineProperty(this, "eventCount", 0);
@@ -315,7 +328,7 @@ class TimelineWindow {
     // (inclusive).
     let timeline = this.start.timeline;
     // eslint-disable-next-line no-constant-condition
-    while (true) {
+    while (timeline) {
       const events = timeline.getEvents();
 
       // For the first timeline in the chain, we want to start at

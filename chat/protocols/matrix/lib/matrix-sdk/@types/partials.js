@@ -19,45 +19,45 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let Visibility;
-exports.Visibility = Visibility;
-(function (Visibility) {
+let Visibility = /*#__PURE__*/function (Visibility) {
   Visibility["Public"] = "public";
   Visibility["Private"] = "private";
-})(Visibility || (exports.Visibility = Visibility = {}));
-let Preset;
-exports.Preset = Preset;
-(function (Preset) {
+  return Visibility;
+}({});
+exports.Visibility = Visibility;
+let Preset = /*#__PURE__*/function (Preset) {
   Preset["PrivateChat"] = "private_chat";
   Preset["TrustedPrivateChat"] = "trusted_private_chat";
   Preset["PublicChat"] = "public_chat";
-})(Preset || (exports.Preset = Preset = {}));
+  return Preset;
+}({});
+exports.Preset = Preset;
 // Knock and private are reserved keywords which are not yet implemented.
-let JoinRule;
-exports.JoinRule = JoinRule;
-(function (JoinRule) {
+let JoinRule = /*#__PURE__*/function (JoinRule) {
   JoinRule["Public"] = "public";
   JoinRule["Invite"] = "invite";
   JoinRule["Private"] = "private";
   JoinRule["Knock"] = "knock";
   JoinRule["Restricted"] = "restricted";
-})(JoinRule || (exports.JoinRule = JoinRule = {}));
-let RestrictedAllowType;
-exports.RestrictedAllowType = RestrictedAllowType;
-(function (RestrictedAllowType) {
+  return JoinRule;
+}({});
+exports.JoinRule = JoinRule;
+let RestrictedAllowType = /*#__PURE__*/function (RestrictedAllowType) {
   RestrictedAllowType["RoomMembership"] = "m.room_membership";
-})(RestrictedAllowType || (exports.RestrictedAllowType = RestrictedAllowType = {}));
-let GuestAccess;
-exports.GuestAccess = GuestAccess;
-(function (GuestAccess) {
+  return RestrictedAllowType;
+}({});
+exports.RestrictedAllowType = RestrictedAllowType;
+let GuestAccess = /*#__PURE__*/function (GuestAccess) {
   GuestAccess["CanJoin"] = "can_join";
   GuestAccess["Forbidden"] = "forbidden";
-})(GuestAccess || (exports.GuestAccess = GuestAccess = {}));
-let HistoryVisibility;
-exports.HistoryVisibility = HistoryVisibility;
-(function (HistoryVisibility) {
+  return GuestAccess;
+}({});
+exports.GuestAccess = GuestAccess;
+let HistoryVisibility = /*#__PURE__*/function (HistoryVisibility) {
   HistoryVisibility["Invited"] = "invited";
   HistoryVisibility["Joined"] = "joined";
   HistoryVisibility["Shared"] = "shared";
   HistoryVisibility["WorldReadable"] = "world_readable";
-})(HistoryVisibility || (exports.HistoryVisibility = HistoryVisibility = {}));
+  return HistoryVisibility;
+}({});
+exports.HistoryVisibility = HistoryVisibility;

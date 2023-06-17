@@ -37,10 +37,6 @@ class HTTPError extends Error {
 }
 exports.HTTPError = HTTPError;
 class MatrixError extends HTTPError {
-  // The Matrix 'errcode' value, e.g. "M_FORBIDDEN".
-
-  // The raw Matrix error JSON used to construct this object.
-
   /**
    * Construct a Matrix error. This is a JavaScript Error with additional
    * information specific to the standard Matrix error response.
@@ -59,7 +55,9 @@ class MatrixError extends HTTPError {
     this.httpStatus = httpStatus;
     this.url = url;
     this.event = event;
+    // The Matrix 'errcode' value, e.g. "M_FORBIDDEN".
     _defineProperty(this, "errcode", void 0);
+    // The raw Matrix error JSON used to construct this object.
     _defineProperty(this, "data", void 0);
     this.errcode = errorJson.errcode;
     this.name = errorJson.errcode || "Unknown error code";

@@ -3,9 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
 var _WidgetApi = require("./WidgetApi");
-
 Object.keys(_WidgetApi).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _WidgetApi[key]) return;
@@ -16,9 +14,7 @@ Object.keys(_WidgetApi).forEach(function (key) {
     }
   });
 });
-
 var _ClientWidgetApi = require("./ClientWidgetApi");
-
 Object.keys(_ClientWidgetApi).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _ClientWidgetApi[key]) return;
@@ -29,9 +25,7 @@ Object.keys(_ClientWidgetApi).forEach(function (key) {
     }
   });
 });
-
 var _Symbols = require("./Symbols");
-
 Object.keys(_Symbols).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _Symbols[key]) return;
@@ -42,9 +36,7 @@ Object.keys(_Symbols).forEach(function (key) {
     }
   });
 });
-
 var _ITransport = require("./transport/ITransport");
-
 Object.keys(_ITransport).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _ITransport[key]) return;
@@ -55,9 +47,7 @@ Object.keys(_ITransport).forEach(function (key) {
     }
   });
 });
-
 var _PostmessageTransport = require("./transport/PostmessageTransport");
-
 Object.keys(_PostmessageTransport).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _PostmessageTransport[key]) return;
@@ -68,9 +58,7 @@ Object.keys(_PostmessageTransport).forEach(function (key) {
     }
   });
 });
-
 var _ICustomWidgetData = require("./interfaces/ICustomWidgetData");
-
 Object.keys(_ICustomWidgetData).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _ICustomWidgetData[key]) return;
@@ -81,9 +69,7 @@ Object.keys(_ICustomWidgetData).forEach(function (key) {
     }
   });
 });
-
 var _IJitsiWidgetData = require("./interfaces/IJitsiWidgetData");
-
 Object.keys(_IJitsiWidgetData).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _IJitsiWidgetData[key]) return;
@@ -94,9 +80,7 @@ Object.keys(_IJitsiWidgetData).forEach(function (key) {
     }
   });
 });
-
 var _IStickerpickerWidgetData = require("./interfaces/IStickerpickerWidgetData");
-
 Object.keys(_IStickerpickerWidgetData).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _IStickerpickerWidgetData[key]) return;
@@ -107,9 +91,7 @@ Object.keys(_IStickerpickerWidgetData).forEach(function (key) {
     }
   });
 });
-
 var _IWidget = require("./interfaces/IWidget");
-
 Object.keys(_IWidget).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _IWidget[key]) return;
@@ -120,9 +102,7 @@ Object.keys(_IWidget).forEach(function (key) {
     }
   });
 });
-
 var _WidgetType = require("./interfaces/WidgetType");
-
 Object.keys(_WidgetType).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _WidgetType[key]) return;
@@ -133,9 +113,7 @@ Object.keys(_WidgetType).forEach(function (key) {
     }
   });
 });
-
 var _IWidgetApiErrorResponse = require("./interfaces/IWidgetApiErrorResponse");
-
 Object.keys(_IWidgetApiErrorResponse).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _IWidgetApiErrorResponse[key]) return;
@@ -146,9 +124,7 @@ Object.keys(_IWidgetApiErrorResponse).forEach(function (key) {
     }
   });
 });
-
 var _IWidgetApiRequest = require("./interfaces/IWidgetApiRequest");
-
 Object.keys(_IWidgetApiRequest).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _IWidgetApiRequest[key]) return;
@@ -159,9 +135,7 @@ Object.keys(_IWidgetApiRequest).forEach(function (key) {
     }
   });
 });
-
 var _IWidgetApiResponse = require("./interfaces/IWidgetApiResponse");
-
 Object.keys(_IWidgetApiResponse).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _IWidgetApiResponse[key]) return;
@@ -172,9 +146,7 @@ Object.keys(_IWidgetApiResponse).forEach(function (key) {
     }
   });
 });
-
 var _WidgetApiAction = require("./interfaces/WidgetApiAction");
-
 Object.keys(_WidgetApiAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _WidgetApiAction[key]) return;
@@ -185,9 +157,7 @@ Object.keys(_WidgetApiAction).forEach(function (key) {
     }
   });
 });
-
 var _WidgetApiDirection = require("./interfaces/WidgetApiDirection");
-
 Object.keys(_WidgetApiDirection).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _WidgetApiDirection[key]) return;
@@ -198,9 +168,7 @@ Object.keys(_WidgetApiDirection).forEach(function (key) {
     }
   });
 });
-
 var _ApiVersion = require("./interfaces/ApiVersion");
-
 Object.keys(_ApiVersion).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _ApiVersion[key]) return;
@@ -211,9 +179,7 @@ Object.keys(_ApiVersion).forEach(function (key) {
     }
   });
 });
-
 var _Capabilities = require("./interfaces/Capabilities");
-
 Object.keys(_Capabilities).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _Capabilities[key]) return;
@@ -224,9 +190,7 @@ Object.keys(_Capabilities).forEach(function (key) {
     }
   });
 });
-
 var _CapabilitiesAction = require("./interfaces/CapabilitiesAction");
-
 Object.keys(_CapabilitiesAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _CapabilitiesAction[key]) return;
@@ -237,9 +201,7 @@ Object.keys(_CapabilitiesAction).forEach(function (key) {
     }
   });
 });
-
 var _ContentLoadedAction = require("./interfaces/ContentLoadedAction");
-
 Object.keys(_ContentLoadedAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _ContentLoadedAction[key]) return;
@@ -250,9 +212,7 @@ Object.keys(_ContentLoadedAction).forEach(function (key) {
     }
   });
 });
-
 var _ScreenshotAction = require("./interfaces/ScreenshotAction");
-
 Object.keys(_ScreenshotAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _ScreenshotAction[key]) return;
@@ -263,9 +223,7 @@ Object.keys(_ScreenshotAction).forEach(function (key) {
     }
   });
 });
-
 var _StickerAction = require("./interfaces/StickerAction");
-
 Object.keys(_StickerAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _StickerAction[key]) return;
@@ -276,9 +234,7 @@ Object.keys(_StickerAction).forEach(function (key) {
     }
   });
 });
-
 var _StickyAction = require("./interfaces/StickyAction");
-
 Object.keys(_StickyAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _StickyAction[key]) return;
@@ -289,9 +245,7 @@ Object.keys(_StickyAction).forEach(function (key) {
     }
   });
 });
-
 var _SupportedVersionsAction = require("./interfaces/SupportedVersionsAction");
-
 Object.keys(_SupportedVersionsAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _SupportedVersionsAction[key]) return;
@@ -302,9 +256,7 @@ Object.keys(_SupportedVersionsAction).forEach(function (key) {
     }
   });
 });
-
 var _VisibilityAction = require("./interfaces/VisibilityAction");
-
 Object.keys(_VisibilityAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _VisibilityAction[key]) return;
@@ -315,9 +267,7 @@ Object.keys(_VisibilityAction).forEach(function (key) {
     }
   });
 });
-
 var _GetOpenIDAction = require("./interfaces/GetOpenIDAction");
-
 Object.keys(_GetOpenIDAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _GetOpenIDAction[key]) return;
@@ -328,9 +278,7 @@ Object.keys(_GetOpenIDAction).forEach(function (key) {
     }
   });
 });
-
 var _OpenIDCredentialsAction = require("./interfaces/OpenIDCredentialsAction");
-
 Object.keys(_OpenIDCredentialsAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _OpenIDCredentialsAction[key]) return;
@@ -341,9 +289,7 @@ Object.keys(_OpenIDCredentialsAction).forEach(function (key) {
     }
   });
 });
-
 var _WidgetKind = require("./interfaces/WidgetKind");
-
 Object.keys(_WidgetKind).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _WidgetKind[key]) return;
@@ -354,9 +300,7 @@ Object.keys(_WidgetKind).forEach(function (key) {
     }
   });
 });
-
 var _ModalButtonKind = require("./interfaces/ModalButtonKind");
-
 Object.keys(_ModalButtonKind).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _ModalButtonKind[key]) return;
@@ -367,9 +311,7 @@ Object.keys(_ModalButtonKind).forEach(function (key) {
     }
   });
 });
-
 var _ModalWidgetActions = require("./interfaces/ModalWidgetActions");
-
 Object.keys(_ModalWidgetActions).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _ModalWidgetActions[key]) return;
@@ -380,9 +322,7 @@ Object.keys(_ModalWidgetActions).forEach(function (key) {
     }
   });
 });
-
 var _SetModalButtonEnabledAction = require("./interfaces/SetModalButtonEnabledAction");
-
 Object.keys(_SetModalButtonEnabledAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _SetModalButtonEnabledAction[key]) return;
@@ -393,9 +333,7 @@ Object.keys(_SetModalButtonEnabledAction).forEach(function (key) {
     }
   });
 });
-
 var _WidgetConfigAction = require("./interfaces/WidgetConfigAction");
-
 Object.keys(_WidgetConfigAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _WidgetConfigAction[key]) return;
@@ -406,9 +344,7 @@ Object.keys(_WidgetConfigAction).forEach(function (key) {
     }
   });
 });
-
 var _SendEventAction = require("./interfaces/SendEventAction");
-
 Object.keys(_SendEventAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _SendEventAction[key]) return;
@@ -419,9 +355,7 @@ Object.keys(_SendEventAction).forEach(function (key) {
     }
   });
 });
-
 var _SendToDeviceAction = require("./interfaces/SendToDeviceAction");
-
 Object.keys(_SendToDeviceAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _SendToDeviceAction[key]) return;
@@ -432,9 +366,7 @@ Object.keys(_SendToDeviceAction).forEach(function (key) {
     }
   });
 });
-
 var _ReadEventAction = require("./interfaces/ReadEventAction");
-
 Object.keys(_ReadEventAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _ReadEventAction[key]) return;
@@ -445,9 +377,7 @@ Object.keys(_ReadEventAction).forEach(function (key) {
     }
   });
 });
-
 var _IRoomEvent = require("./interfaces/IRoomEvent");
-
 Object.keys(_IRoomEvent).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _IRoomEvent[key]) return;
@@ -458,9 +388,7 @@ Object.keys(_IRoomEvent).forEach(function (key) {
     }
   });
 });
-
 var _NavigateAction = require("./interfaces/NavigateAction");
-
 Object.keys(_NavigateAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _NavigateAction[key]) return;
@@ -471,9 +399,7 @@ Object.keys(_NavigateAction).forEach(function (key) {
     }
   });
 });
-
 var _TurnServerActions = require("./interfaces/TurnServerActions");
-
 Object.keys(_TurnServerActions).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _TurnServerActions[key]) return;
@@ -484,9 +410,7 @@ Object.keys(_TurnServerActions).forEach(function (key) {
     }
   });
 });
-
 var _ReadRelationsAction = require("./interfaces/ReadRelationsAction");
-
 Object.keys(_ReadRelationsAction).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _ReadRelationsAction[key]) return;
@@ -497,9 +421,7 @@ Object.keys(_ReadRelationsAction).forEach(function (key) {
     }
   });
 });
-
 var _WidgetEventCapability = require("./models/WidgetEventCapability");
-
 Object.keys(_WidgetEventCapability).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _WidgetEventCapability[key]) return;
@@ -510,9 +432,7 @@ Object.keys(_WidgetEventCapability).forEach(function (key) {
     }
   });
 });
-
 var _url = require("./models/validation/url");
-
 Object.keys(_url).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _url[key]) return;
@@ -523,9 +443,7 @@ Object.keys(_url).forEach(function (key) {
     }
   });
 });
-
 var _utils = require("./models/validation/utils");
-
 Object.keys(_utils).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _utils[key]) return;
@@ -536,9 +454,7 @@ Object.keys(_utils).forEach(function (key) {
     }
   });
 });
-
 var _Widget = require("./models/Widget");
-
 Object.keys(_Widget).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _Widget[key]) return;
@@ -549,9 +465,7 @@ Object.keys(_Widget).forEach(function (key) {
     }
   });
 });
-
 var _WidgetParser = require("./models/WidgetParser");
-
 Object.keys(_WidgetParser).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _WidgetParser[key]) return;
@@ -562,9 +476,7 @@ Object.keys(_WidgetParser).forEach(function (key) {
     }
   });
 });
-
 var _urlTemplate = require("./templating/url-template");
-
 Object.keys(_urlTemplate).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _urlTemplate[key]) return;
@@ -575,9 +487,7 @@ Object.keys(_urlTemplate).forEach(function (key) {
     }
   });
 });
-
 var _SimpleObservable = require("./util/SimpleObservable");
-
 Object.keys(_SimpleObservable).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _SimpleObservable[key]) return;
@@ -588,9 +498,7 @@ Object.keys(_SimpleObservable).forEach(function (key) {
     }
   });
 });
-
 var _WidgetDriver = require("./driver/WidgetDriver");
-
 Object.keys(_WidgetDriver).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   if (key in exports && exports[key] === _WidgetDriver[key]) return;
@@ -601,3 +509,4 @@ Object.keys(_WidgetDriver).forEach(function (key) {
     }
   });
 });
+//# sourceMappingURL=index.js.map

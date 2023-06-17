@@ -11,14 +11,26 @@ var _typedEventEmitter = require("../models/typed-event-emitter");
 var _call = require("./call");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2021 Šimon Brandner <simon.bra.ag@gmail.com>
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 const POLLING_INTERVAL = 200; // ms
 const SPEAKING_THRESHOLD = -60; // dB
 exports.SPEAKING_THRESHOLD = SPEAKING_THRESHOLD;
 const SPEAKING_SAMPLE_COUNT = 8; // samples
-let CallFeedEvent;
-exports.CallFeedEvent = CallFeedEvent;
-(function (CallFeedEvent) {
+let CallFeedEvent = /*#__PURE__*/function (CallFeedEvent) {
   CallFeedEvent["NewStream"] = "new_stream";
   CallFeedEvent["MuteStateChanged"] = "mute_state_changed";
   CallFeedEvent["LocalVolumeChanged"] = "local_volume_changed";
@@ -26,7 +38,9 @@ exports.CallFeedEvent = CallFeedEvent;
   CallFeedEvent["ConnectedChanged"] = "connected_changed";
   CallFeedEvent["Speaking"] = "speaking";
   CallFeedEvent["Disposed"] = "disposed";
-})(CallFeedEvent || (exports.CallFeedEvent = CallFeedEvent = {}));
+  return CallFeedEvent;
+}({});
+exports.CallFeedEvent = CallFeedEvent;
 class CallFeed extends _typedEventEmitter.TypedEventEmitter {
   constructor(opts) {
     super();
@@ -121,6 +135,7 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
   }
   updateStream(oldStream, newStream) {
     if (newStream === oldStream) return;
+    const wasMeasuringVolumeActivity = this.measuringVolumeActivity;
     if (oldStream) {
       oldStream.removeEventListener("addtrack", this.onAddTrack);
       this.measureVolumeActivity(false);
@@ -129,6 +144,7 @@ class CallFeed extends _typedEventEmitter.TypedEventEmitter {
     newStream.addEventListener("addtrack", this.onAddTrack);
     if (this.hasAudioTrack) {
       this.initVolumeMeasuring();
+      if (wasMeasuringVolumeActivity) this.measureVolumeActivity(true);
     } else {
       this.measureVolumeActivity(false);
     }

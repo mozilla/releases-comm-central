@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.MatrixWidgetType = void 0;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -20,11 +19,11 @@ exports.MatrixWidgetType = void 0;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var MatrixWidgetType;
-exports.MatrixWidgetType = MatrixWidgetType;
-
-(function (MatrixWidgetType) {
+var MatrixWidgetType = /*#__PURE__*/function (MatrixWidgetType) {
   MatrixWidgetType["Custom"] = "m.custom";
   MatrixWidgetType["JitsiMeet"] = "m.jitsi";
   MatrixWidgetType["Stickerpicker"] = "m.stickerpicker";
-})(MatrixWidgetType || (exports.MatrixWidgetType = MatrixWidgetType = {}));
+  return MatrixWidgetType;
+}({});
+exports.MatrixWidgetType = MatrixWidgetType;
+//# sourceMappingURL=WidgetType.js.map

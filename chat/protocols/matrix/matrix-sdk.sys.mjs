@@ -79,6 +79,10 @@ let loader = Loader({
     "matrix-sdk": matrixPath + "matrix_sdk",
     "matrix-sdk/@types": matrixPath + "matrix_sdk/types",
     "matrix-sdk/@types/requests": matrixPath + "empty.js",
+    // The entire directory can't be mapped from crypto-api to crypto_api since
+    // there's also a matrix-sdk/crypto-api.js.
+    "matrix-sdk/crypto-api/verification":
+      matrixPath + "matrix_sdk/crypto_api/verification.js",
     "matrix-sdk/http-api": matrixPath + "matrix_sdk/http_api",
     "matrix-sdk/rust-crypto": matrixPath + "matrix_sdk/rust_crypto",
 
@@ -213,5 +217,4 @@ export let MatrixSDK = require("matrix-sdk/browser-index.js");
 export let MatrixCrypto = require("matrix-sdk/crypto");
 export let { SyncState } = require("matrix-sdk/sync");
 export let OlmLib = require("matrix-sdk/crypto/olmlib");
-export let { SasEvent } = require("matrix-sdk/crypto/verification/SAS");
 export let { ReceiptType } = require("matrix-sdk/@types/read_receipts");

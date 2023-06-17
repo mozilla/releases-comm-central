@@ -10,6 +10,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/client.js",
     "matrix-sdk/content-helpers.js",
     "matrix-sdk/content-repo.js",
+    "matrix-sdk/crypto-api.js",
     "matrix-sdk/embedded.js",
     "matrix-sdk/errors.js",
     "matrix-sdk/event-mapper.js",
@@ -25,9 +26,11 @@ EXTRA_JS_MODULES.matrix.matrix_sdk += [
     "matrix-sdk/pushprocessor.js",
     "matrix-sdk/randomstring.js",
     "matrix-sdk/realtime-callbacks.js",
+    "matrix-sdk/receipt-accumulator.js",
     "matrix-sdk/ReEmitter.js",
     "matrix-sdk/room-hierarchy.js",
     "matrix-sdk/scheduler.js",
+    "matrix-sdk/secret-storage.js",
     "matrix-sdk/service-types.js",
     "matrix-sdk/sliding-sync-sdk.js",
     "matrix-sdk/sliding-sync.js",
@@ -45,6 +48,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto += [
     "matrix-sdk/crypto/CrossSigning.js",
     "matrix-sdk/crypto/crypto.js",
     "matrix-sdk/crypto/dehydration.js",
+    "matrix-sdk/crypto/device-converter.js",
     "matrix-sdk/crypto/deviceinfo.js",
     "matrix-sdk/crypto/DeviceList.js",
     "matrix-sdk/crypto/EncryptionSetup.js",
@@ -55,6 +59,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto += [
     "matrix-sdk/crypto/OutgoingRoomKeyRequestManager.js",
     "matrix-sdk/crypto/recoverykey.js",
     "matrix-sdk/crypto/RoomList.js",
+    "matrix-sdk/crypto/SecretSharing.js",
     "matrix-sdk/crypto/SecretStorage.js",
 ]
 
@@ -87,6 +92,10 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.crypto.verification.request += [
     "matrix-sdk/crypto/verification/request/VerificationRequest.js",
 ]
 
+EXTRA_JS_MODULES.matrix.matrix_sdk.crypto_api += [
+    "matrix-sdk/crypto-api/verification.js",
+]
+
 EXTRA_JS_MODULES.matrix.matrix_sdk.extensible_events_v1 += [
      "matrix-sdk/extensible_events_v1/ExtensibleEvent.js",
      "matrix-sdk/extensible_events_v1/InvalidEventError.js",
@@ -109,6 +118,7 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.http_api += [
 
 EXTRA_JS_MODULES.matrix.matrix_sdk.models += [
     "matrix-sdk/models/beacon.js",
+    "matrix-sdk/models/device.js",
     "matrix-sdk/models/event-context.js",
     "matrix-sdk/models/event-status.js",
     "matrix-sdk/models/event-timeline-set.js",
@@ -153,6 +163,8 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.rendezvous.transports += [
 EXTRA_JS_MODULES.matrix.matrix_sdk.rust_crypto += [
     "matrix-sdk/rust-crypto/browserify-index.js",
     "matrix-sdk/rust-crypto/constants.js",
+    "matrix-sdk/rust-crypto/CrossSigningIdentity.js",
+    "matrix-sdk/rust-crypto/device-converter.js",
     "matrix-sdk/rust-crypto/index.js",
     "matrix-sdk/rust-crypto/KeyClaimManager.js",
     "matrix-sdk/rust-crypto/OutgoingRequestProcessor.js",
@@ -195,6 +207,27 @@ EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc += [
     "matrix-sdk/webrtc/groupCall.js",
     "matrix-sdk/webrtc/groupCallEventHandler.js",
     "matrix-sdk/webrtc/mediaHandler.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc.stats += [
+    "matrix-sdk/webrtc/stats/callStatsReportGatherer.js",
+    "matrix-sdk/webrtc/stats/connectionStats.js",
+    "matrix-sdk/webrtc/stats/connectionStatsBuilder.js",
+    "matrix-sdk/webrtc/stats/connectionStatsReportBuilder.js",
+    "matrix-sdk/webrtc/stats/groupCallStats.js",
+    "matrix-sdk/webrtc/stats/statsReport.js",
+    "matrix-sdk/webrtc/stats/statsReportEmitter.js",
+    "matrix-sdk/webrtc/stats/summaryStatsReportGatherer.js",
+    "matrix-sdk/webrtc/stats/trackStatsBuilder.js",
+    "matrix-sdk/webrtc/stats/transportStatsBuilder.js",
+    "matrix-sdk/webrtc/stats/valueFormatter.js",
+]
+
+EXTRA_JS_MODULES.matrix.matrix_sdk.webrtc.stats.media += [
+    "matrix-sdk/webrtc/stats/media/mediaSsrcHandler.js",
+    "matrix-sdk/webrtc/stats/media/mediaTrackHandler.js",
+    "matrix-sdk/webrtc/stats/media/mediaTrackStats.js",
+    "matrix-sdk/webrtc/stats/media/mediaTrackStatsHandler.js",
 ]
 
 # Dependencies of the Matrix SDK.

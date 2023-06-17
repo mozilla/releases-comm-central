@@ -22,14 +22,50 @@ var _OlmDevice = require("../crypto/OlmDevice");
 var _eventStatus = require("./event-status");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /**
+                                                                                                                                                                                                                                                                                                                                                                                              * This is an internal module. See {@link MatrixEvent} and {@link RoomEvent} for
+                                                                                                                                                                                                                                                                                                                                                                                              * the public classes.
+                                                                                                                                                                                                                                                                                                                                                                                              */
+/* eslint-disable camelcase */
+
+/**
+ * When an event is a visibility change event, as per MSC3531,
+ * the visibility change implied by the event.
+ */
+
+/* eslint-enable camelcase */
+
+/**
+ * Message hiding, as specified by https://github.com/matrix-org/matrix-doc/pull/3531.
+ */
+
+/**
+ * Variant of `MessageVisibility` for the case in which the message should be displayed.
+ */
+
+/**
+ * Variant of `MessageVisibility` for the case in which the message should be hidden.
+ */
+
 // A singleton implementing `IMessageVisibilityVisible`.
 const MESSAGE_VISIBLE = Object.freeze({
   visible: true
 });
-let MatrixEventEvent;
-exports.MatrixEventEvent = MatrixEventEvent;
-(function (MatrixEventEvent) {
+let MatrixEventEvent = /*#__PURE__*/function (MatrixEventEvent) {
   MatrixEventEvent["Decrypted"] = "Event.decrypted";
   MatrixEventEvent["BeforeRedaction"] = "Event.beforeRedaction";
   MatrixEventEvent["VisibilityChange"] = "Event.visibilityChange";
@@ -37,103 +73,10 @@ exports.MatrixEventEvent = MatrixEventEvent;
   MatrixEventEvent["Status"] = "Event.status";
   MatrixEventEvent["Replaced"] = "Event.replaced";
   MatrixEventEvent["RelationsCreated"] = "Event.relationsCreated";
-})(MatrixEventEvent || (exports.MatrixEventEvent = MatrixEventEvent = {}));
+  return MatrixEventEvent;
+}({});
+exports.MatrixEventEvent = MatrixEventEvent;
 class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
-  /* Message hiding, as specified by https://github.com/matrix-org/matrix-doc/pull/3531.
-   Note: We're returning this object, so any value stored here MUST be frozen.
-  */
-
-  // Not all events will be extensible-event compatible, so cache a flag in
-  // addition to a falsy cached event value. We check the flag later on in
-  // a public getter to decide if the cache is valid.
-
-  /* curve25519 key which we believe belongs to the sender of the event. See
-   * getSenderKey()
-   */
-
-  /* ed25519 key which the sender of this event (for olm) or the creator of
-   * the megolm session (for megolm) claims to own. See getClaimedEd25519Key()
-   */
-
-  /* curve25519 keys of devices involved in telling us about the
-   * senderCurve25519Key and claimedEd25519Key.
-   * See getForwardingCurve25519KeyChain().
-   */
-
-  /* where the decryption key is untrusted
-   */
-
-  /* if we have a process decrypting this event, a Promise which resolves
-   * when it is finished. Normally null.
-   */
-
-  /* flag to indicate if we should retry decrypting this event after the
-   * first attempt (eg, we have received new data which means that a second
-   * attempt may succeed)
-   */
-
-  /* The txnId with which this event was sent if it was during this session,
-   * allows for a unique ID which does not change when the event comes back down sync.
-   */
-
-  /**
-   * A reference to the thread this event belongs to
-   */
-
-  /*
-   * True if this event is an encrypted event which we failed to decrypt, the receiver's device is unverified and
-   * the sender has disabled encrypting to unverified devices.
-   */
-
-  /* Set an approximate timestamp for the event relative the local clock.
-   * This will inherently be approximate because it doesn't take into account
-   * the time between the server putting the 'age' field on the event as it sent
-   * it to us and the time we're now constructing this event, but that's better
-   * than assuming the local clock is in sync with the origin HS's clock.
-   */
-
-  /**
-   * The room member who sent this event, or null e.g.
-   * this is a presence event. This is only guaranteed to be set for events that
-   * appear in a timeline, ie. do not guarantee that it will be set on state
-   * events.
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * The room member who is the target of this event, e.g.
-   * the invitee, the person being banned, etc.
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * The sending status of the event.
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * most recent error associated with sending the event, if any
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * True if this event is 'forward looking', meaning
-   * that getDirectionalContent() will return event.content and not event.prev_content.
-   * Only state events may be backwards looking
-   * Default: true. <strong>This property is experimental and may change.</strong>
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /* If the event is a `m.key.verification.request` (or to_device `m.key.verification.start`) event,
-   * `Crypto` will set this the `VerificationRequest` for the event
-   * so it can be easily accessed from the timeline.
-   */
-
   /**
    * Construct a Matrix Event object
    *
@@ -152,30 +95,108 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
     // field that Element never otherwise looks at, but it will still take up a lot
     // of space if we don't intern it.
     this.event = event;
-    _defineProperty(this, "pushActions", null);
+    // applied push rule and action for this event
+    _defineProperty(this, "pushDetails", {});
     _defineProperty(this, "_replacingEvent", null);
     _defineProperty(this, "_localRedactionEvent", null);
     _defineProperty(this, "_isCancelled", false);
     _defineProperty(this, "clearEvent", void 0);
+    /* Message hiding, as specified by https://github.com/matrix-org/matrix-doc/pull/3531.
+     Note: We're returning this object, so any value stored here MUST be frozen.
+    */
     _defineProperty(this, "visibility", MESSAGE_VISIBLE);
+    // Not all events will be extensible-event compatible, so cache a flag in
+    // addition to a falsy cached event value. We check the flag later on in
+    // a public getter to decide if the cache is valid.
     _defineProperty(this, "_hasCachedExtEv", false);
     _defineProperty(this, "_cachedExtEv", undefined);
+    /* curve25519 key which we believe belongs to the sender of the event. See
+     * getSenderKey()
+     */
     _defineProperty(this, "senderCurve25519Key", null);
+    /* ed25519 key which the sender of this event (for olm) or the creator of
+     * the megolm session (for megolm) claims to own. See getClaimedEd25519Key()
+     */
     _defineProperty(this, "claimedEd25519Key", null);
+    /* curve25519 keys of devices involved in telling us about the
+     * senderCurve25519Key and claimedEd25519Key.
+     * See getForwardingCurve25519KeyChain().
+     */
     _defineProperty(this, "forwardingCurve25519KeyChain", []);
+    /* where the decryption key is untrusted
+     */
     _defineProperty(this, "untrusted", null);
+    /* if we have a process decrypting this event, a Promise which resolves
+     * when it is finished. Normally null.
+     */
     _defineProperty(this, "decryptionPromise", null);
+    /* flag to indicate if we should retry decrypting this event after the
+     * first attempt (eg, we have received new data which means that a second
+     * attempt may succeed)
+     */
     _defineProperty(this, "retryDecryption", false);
+    /* The txnId with which this event was sent if it was during this session,
+     * allows for a unique ID which does not change when the event comes back down sync.
+     */
     _defineProperty(this, "txnId", void 0);
+    /**
+     * A reference to the thread this event belongs to
+     */
     _defineProperty(this, "thread", void 0);
     _defineProperty(this, "threadId", void 0);
+    /*
+     * True if this event is an encrypted event which we failed to decrypt, the receiver's device is unverified and
+     * the sender has disabled encrypting to unverified devices.
+     */
     _defineProperty(this, "encryptedDisabledForUnverifiedDevices", false);
+    /* Set an approximate timestamp for the event relative the local clock.
+     * This will inherently be approximate because it doesn't take into account
+     * the time between the server putting the 'age' field on the event as it sent
+     * it to us and the time we're now constructing this event, but that's better
+     * than assuming the local clock is in sync with the origin HS's clock.
+     */
     _defineProperty(this, "localTimestamp", void 0);
+    /**
+     * The room member who sent this event, or null e.g.
+     * this is a presence event. This is only guaranteed to be set for events that
+     * appear in a timeline, ie. do not guarantee that it will be set on state
+     * events.
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "sender", null);
+    /**
+     * The room member who is the target of this event, e.g.
+     * the invitee, the person being banned, etc.
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "target", null);
+    /**
+     * The sending status of the event.
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "status", null);
+    /**
+     * most recent error associated with sending the event, if any
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "error", null);
+    /**
+     * True if this event is 'forward looking', meaning
+     * that getDirectionalContent() will return event.content and not event.prev_content.
+     * Only state events may be backwards looking
+     * Default: true. <strong>This property is experimental and may change.</strong>
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "forwardLooking", true);
+    /* If the event is a `m.key.verification.request` (or to_device `m.key.verification.start`) event,
+     * `Crypto` will set this the `VerificationRequest` for the event
+     * so it can be easily accessed from the timeline.
+     */
     _defineProperty(this, "verificationRequest", void 0);
     _defineProperty(this, "reEmitter", void 0);
     ["state_key", "type", "sender", "room_id", "membership"].forEach(prop => {
@@ -683,7 +704,7 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
       // highlighting when the user's name is mentioned rely on this happening. We also want
       // to set the push actions before emitting so that any notification listeners don't
       // pick up the wrong contents.
-      this.setPushActions(null);
+      this.setPushDetails();
       if (options.emit !== false) {
         this.emit(MatrixEventEvent.Decrypted, this, err);
       }
@@ -1018,16 +1039,42 @@ class MatrixEvent extends _typedEventEmitter.TypedEventEmitter {
    * @returns push actions
    */
   getPushActions() {
-    return this.pushActions;
+    return this.pushDetails.actions || null;
+  }
+
+  /**
+   * Get the push details, if known, for this event
+   *
+   * @returns push actions
+   */
+  getPushDetails() {
+    return this.pushDetails;
   }
 
   /**
    * Set the push actions for this event.
+   * Clears rule from push details if present
+   * @deprecated use `setPushDetails`
    *
    * @param pushActions - push actions
    */
   setPushActions(pushActions) {
-    this.pushActions = pushActions;
+    this.pushDetails = {
+      actions: pushActions || undefined
+    };
+  }
+
+  /**
+   * Set the push details for this event.
+   *
+   * @param pushActions - push actions
+   * @param rule - the executed push rule
+   */
+  setPushDetails(pushActions, rule) {
+    this.pushDetails = {
+      actions: pushActions,
+      rule
+    };
   }
 
   /**

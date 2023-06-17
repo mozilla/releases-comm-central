@@ -40,5 +40,24 @@ class ExtensibleEvent {
    * event to the room.
    * @returns The serialized event.
    */
+
+  /**
+   * Determines if this event is equivalent to the provided event type.
+   * This is recommended over `instanceof` checks due to issues in the JS
+   * runtime (and layering of dependencies in some projects).
+   *
+   * Implementations should pass this check off to their super classes
+   * if their own checks fail. Some primary implementations do not extend
+   * fallback classes given they support the primary type first. Thus,
+   * those classes may return false if asked about their fallback
+   * representation.
+   *
+   * Note that this only checks primary event types: legacy events, like
+   * m.room.message, should/will fail this check.
+   * @param primaryEventType - The (potentially namespaced) event
+   * type.
+   * @returns True if this event *could* be represented as the
+   * given type.
+   */
 }
 exports.ExtensibleEvent = ExtensibleEvent;

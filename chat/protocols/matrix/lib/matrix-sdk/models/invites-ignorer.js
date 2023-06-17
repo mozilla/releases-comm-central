@@ -37,14 +37,19 @@ const IGNORE_INVITES_ACCOUNT_EVENT_KEY = new _matrixEventsSdk.UnstableValue("m.i
 
 /// The types of recommendations understood.
 exports.IGNORE_INVITES_ACCOUNT_EVENT_KEY = IGNORE_INVITES_ACCOUNT_EVENT_KEY;
-var PolicyRecommendation;
+var PolicyRecommendation = /*#__PURE__*/function (PolicyRecommendation) {
+  PolicyRecommendation["Ban"] = "m.ban";
+  return PolicyRecommendation;
+}(PolicyRecommendation || {});
 /**
  * The various scopes for policies.
  */
-(function (PolicyRecommendation) {
-  PolicyRecommendation["Ban"] = "m.ban";
-})(PolicyRecommendation || (PolicyRecommendation = {}));
-let PolicyScope;
+let PolicyScope = /*#__PURE__*/function (PolicyScope) {
+  PolicyScope["User"] = "m.policy.user";
+  PolicyScope["Room"] = "m.policy.room";
+  PolicyScope["Server"] = "m.policy.server";
+  return PolicyScope;
+}({});
 /**
  * A container for ignored invites.
  *
@@ -56,11 +61,6 @@ let PolicyScope;
  * our data structures.
  */
 exports.PolicyScope = PolicyScope;
-(function (PolicyScope) {
-  PolicyScope["User"] = "m.policy.user";
-  PolicyScope["Room"] = "m.policy.room";
-  PolicyScope["Server"] = "m.policy.server";
-})(PolicyScope || (exports.PolicyScope = PolicyScope = {}));
 class IgnoredInvites {
   constructor(client) {
     this.client = client;
@@ -179,7 +179,7 @@ class IgnoredInvites {
           }
           let regexp;
           try {
-            regexp = new RegExp((0, _utils.globToRegexp)(glob, false));
+            regexp = new RegExp((0, _utils.globToRegexp)(glob));
           } catch (ex) {
             // Assume invalid event.
             continue;

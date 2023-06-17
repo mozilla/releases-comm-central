@@ -1,5 +1,5 @@
 This directory contains the Matrix Client-Server SDK for Javascript available
-at https://github.com/matrix-org/matrix-js-sdk/. Current version is v24.0.0.
+at https://github.com/matrix-org/matrix-js-sdk/. Current version is v26.0.1.
 
 The following npm dependencies are included:
 
@@ -10,7 +10,7 @@ The following npm dependencies are included:
 * content-type: https://www.npmjs.com/package/content-type v1.0.5
 * events: https://www.npmjs.com/package/events v3.3.0
 * matrix-events-sdk: https://www.npmjs.com/package/matrix-events-sdk v0.0.1
-* matrix-widget-api: https://www.npmjs.com/package/matrix-widget-api v1.1.1
+* matrix-widget-api: https://www.npmjs.com/package/matrix-widget-api v1.4.0
 * p-retry: https://www.npmjs.com/package/p-retry v4.6.2
 * retry: https://www.npmjs.com/package/retry v0.13.1
 * sdp-transform: https://www.npmjs.com/package/sdp-transform v2.14.1
@@ -120,6 +120,15 @@ from the package.
 The matrix-widget-api includes raw JS modules and Typescript definition files.
 We only want the JS modules. So we want all the js files in `lib/**/*.js`
 from the package.
+
+```
+hg rm chat/protocols/matrix/lib/matrix-widget-api/
+hg revert chat/protocols/matrix/lib/matrix-widget-api/LICENSE
+cp -R ../../matrix-js-sdk/node_modules/matrix-widget-api/lib/* chat/protocols/matrix/lib/matrix-widget-api
+rm chat/protocols/matrix/lib/matrix-widget-api/**/*.ts
+rm chat/protocols/matrix/lib/matrix-widget-api/**/*.js.map
+hg add chat/protocols/matrix/lib/matrix-widget-api/
+```
 
 ### Updating sdp-transform
 

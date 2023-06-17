@@ -3,23 +3,38 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.PollEvent = exports.Poll = void 0;
+exports.isPollEvent = exports.PollEvent = exports.Poll = void 0;
+var _matrixEventsSdk = require("matrix-events-sdk");
 var _polls = require("../@types/polls");
 var _relations = require("./relations");
 var _typedEventEmitter = require("./typed-event-emitter");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-let PollEvent;
-exports.PollEvent = PollEvent;
-(function (PollEvent) {
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
+let PollEvent = /*#__PURE__*/function (PollEvent) {
   PollEvent["New"] = "Poll.new";
   PollEvent["End"] = "Poll.end";
   PollEvent["Update"] = "Poll.update";
   PollEvent["Responses"] = "Poll.Responses";
   PollEvent["Destroy"] = "Poll.Destroy";
   PollEvent["UndecryptableRelations"] = "Poll.UndecryptableRelations";
-})(PollEvent || (exports.PollEvent = PollEvent = {}));
+  return PollEvent;
+}({});
+exports.PollEvent = PollEvent;
 const filterResponseRelations = (relationEvents, pollEndTimestamp) => {
   const responseEvents = relationEvents.filter(event => {
     if (event.isDecryptionFailure()) {
@@ -35,11 +50,6 @@ const filterResponseRelations = (relationEvents, pollEndTimestamp) => {
   };
 };
 class Poll extends _typedEventEmitter.TypedEventEmitter {
-  /**
-   * Keep track of undecryptable relations
-   * As incomplete result sets affect poll results
-   */
-
   constructor(rootEvent, matrixClient, room) {
     super();
     this.rootEvent = rootEvent;
@@ -51,6 +61,10 @@ class Poll extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "relationsNextBatch", void 0);
     _defineProperty(this, "responses", null);
     _defineProperty(this, "endEvent", void 0);
+    /**
+     * Keep track of undecryptable relations
+     * As incomplete result sets affect poll results
+     */
     _defineProperty(this, "undecryptableRelationEventIds", new Set());
     _defineProperty(this, "countUndecryptableEvents", events => {
       const undecryptableEventIds = events.filter(event => event.isDecryptionFailure()).map(event => event.getId());
@@ -208,4 +222,16 @@ class Poll extends _typedEventEmitter.TypedEventEmitter {
     return !!endEventSender && (endEventSender === this.rootEvent.getSender() || roomCurrentState.maySendRedactionForEvent(this.rootEvent, endEventSender));
   }
 }
+
+/**
+ * Tests whether the event is a start, response or end poll event.
+ *
+ * @param event - Event to test
+ * @returns true if the event is a poll event, else false
+ */
 exports.Poll = Poll;
+const isPollEvent = event => {
+  const eventType = event.getType();
+  return _matrixEventsSdk.M_POLL_START.matches(eventType) || _polls.M_POLL_RESPONSE.matches(eventType) || _polls.M_POLL_END.matches(eventType);
+};
+exports.isPollEvent = isPollEvent;

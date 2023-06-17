@@ -16,7 +16,23 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /**
+                                                                                                                                                                                                                                                                                                                                                                                              * Manages the list of other users' devices
+                                                                                                                                                                                                                                                                                                                                                                                              */
 /* State transition diagram for DeviceList.deviceTrackingStatus
  *
  *                                |
@@ -37,37 +53,15 @@ function _toPrimitive(input, hint) { if (typeof input !== "object" || input === 
  *   +----------------------- UP_TO_DATE ------------------------+
  */
 // constants for DeviceList.deviceTrackingStatus
-let TrackingStatus; // user-Id → device-Id → DeviceInfo
-exports.TrackingStatus = TrackingStatus;
-(function (TrackingStatus) {
+let TrackingStatus = /*#__PURE__*/function (TrackingStatus) {
   TrackingStatus[TrackingStatus["NotTracked"] = 0] = "NotTracked";
   TrackingStatus[TrackingStatus["PendingDownload"] = 1] = "PendingDownload";
   TrackingStatus[TrackingStatus["DownloadInProgress"] = 2] = "DownloadInProgress";
   TrackingStatus[TrackingStatus["UpToDate"] = 3] = "UpToDate";
-})(TrackingStatus || (exports.TrackingStatus = TrackingStatus = {}));
+  return TrackingStatus;
+}({}); // user-Id → device-Id → DeviceInfo
+exports.TrackingStatus = TrackingStatus;
 class DeviceList extends _typedEventEmitter.TypedEventEmitter {
-  // map of identity keys to the user who owns it
-
-  // which users we are tracking device status for.
-  // loaded from storage in load()
-
-  // The 'next_batch' sync token at the point the data was written,
-  // ie. a token representing the point immediately after the
-  // moment represented by the snapshot in the db.
-
-  // Set whenever changes are made other than setting the sync token
-
-  // Promise resolved when device data is saved
-
-  // Function that resolves the save promise
-
-  // The time the save is scheduled for
-
-  // The timer used to delay the save
-
-  // True if we have fetched data from the server or loaded a non-empty
-  // set of device data from the store
-
   constructor(baseApis, cryptoStore, olmDevice,
   // Maximum number of user IDs per request to prevent server overload (#1619)
   keyDownloadChunkSize = 250) {
@@ -76,15 +70,28 @@ class DeviceList extends _typedEventEmitter.TypedEventEmitter {
     this.keyDownloadChunkSize = keyDownloadChunkSize;
     _defineProperty(this, "devices", {});
     _defineProperty(this, "crossSigningInfo", {});
+    // map of identity keys to the user who owns it
     _defineProperty(this, "userByIdentityKey", {});
+    // which users we are tracking device status for.
     _defineProperty(this, "deviceTrackingStatus", {});
+    // loaded from storage in load()
+    // The 'next_batch' sync token at the point the data was written,
+    // ie. a token representing the point immediately after the
+    // moment represented by the snapshot in the db.
     _defineProperty(this, "syncToken", null);
     _defineProperty(this, "keyDownloadsInProgressByUser", new Map());
+    // Set whenever changes are made other than setting the sync token
     _defineProperty(this, "dirty", false);
+    // Promise resolved when device data is saved
     _defineProperty(this, "savePromise", null);
+    // Function that resolves the save promise
     _defineProperty(this, "resolveSavePromise", null);
+    // The time the save is scheduled for
     _defineProperty(this, "savePromiseTime", null);
+    // The timer used to delay the save
     _defineProperty(this, "saveTimer", null);
+    // True if we have fetched data from the server or loaded a non-empty
+    // set of device data from the store
     _defineProperty(this, "hasFetched", null);
     _defineProperty(this, "serialiser", void 0);
     this.serialiser = new DeviceListUpdateSerialiser(baseApis, olmDevice, this);
@@ -96,7 +103,7 @@ class DeviceList extends _typedEventEmitter.TypedEventEmitter {
   async load() {
     await this.cryptoStore.doTxn("readonly", [_indexeddbCryptoStore.IndexedDBCryptoStore.STORE_DEVICE_DATA], txn => {
       this.cryptoStore.getEndToEndDeviceData(txn, deviceData => {
-        this.hasFetched = Boolean(deviceData && deviceData.devices);
+        this.hasFetched = Boolean(deviceData?.devices);
         this.devices = deviceData ? deviceData.devices : {};
         this.crossSigningInfo = deviceData ? deviceData.crossSigningInfo || {} : {};
         this.deviceTrackingStatus = deviceData ? deviceData.trackingStatus : {};
@@ -608,14 +615,7 @@ class DeviceList extends _typedEventEmitter.TypedEventEmitter {
  */
 exports.DeviceList = DeviceList;
 class DeviceListUpdateSerialiser {
-  // users which are queued for download
-  // userId -> true
-
-  // deferred which is resolved when the queued users are downloaded.
-  // non-null indicates that we have users queued for download.
-
   // The sync token we send with the requests
-
   /*
    * @param baseApis - Base API object
    * @param olmDevice - The Olm Device
@@ -626,7 +626,11 @@ class DeviceListUpdateSerialiser {
     this.olmDevice = olmDevice;
     this.deviceList = deviceList;
     _defineProperty(this, "downloadInProgress", false);
+    // users which are queued for download
+    // userId -> true
     _defineProperty(this, "keyDownloadsQueuedByUser", {});
+    // deferred which is resolved when the queued users are downloaded.
+    // non-null indicates that we have users queued for download.
     _defineProperty(this, "queuedQueryDeferred", void 0);
     _defineProperty(this, "syncToken", void 0);
   }

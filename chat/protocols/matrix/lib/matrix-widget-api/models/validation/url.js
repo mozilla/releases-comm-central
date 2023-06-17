@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.isValidUrl = isValidUrl;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -20,22 +19,21 @@ exports.isValidUrl = isValidUrl;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 function isValidUrl(val) {
   if (!val) return false; // easy: not valid if not present
 
   try {
     var parsed = new URL(val);
-
     if (parsed.protocol !== "http" && parsed.protocol !== "https") {
       return false;
     }
-
     return true;
   } catch (e) {
     if (e instanceof TypeError) {
       return false;
     }
-
     throw e;
   }
 }
+//# sourceMappingURL=url.js.map

@@ -11,7 +11,21 @@ var _event = require("../../../@types/event");
 var _typedEventEmitter = require("../../../models/typed-event-emitter");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2018 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 // How long after the event's timestamp that the request times out
 const TIMEOUT_FROM_EVENT_TS = 10 * 60 * 1000; // 10 minutes
 
@@ -36,16 +50,16 @@ const DONE_TYPE = EVENT_PREFIX + "done";
 exports.DONE_TYPE = DONE_TYPE;
 const READY_TYPE = EVENT_PREFIX + "ready";
 exports.READY_TYPE = READY_TYPE;
-let Phase; // Legacy export fields
-exports.Phase = Phase;
-(function (Phase) {
+let Phase = /*#__PURE__*/function (Phase) {
   Phase[Phase["Unsent"] = 1] = "Unsent";
   Phase[Phase["Requested"] = 2] = "Requested";
   Phase[Phase["Ready"] = 3] = "Ready";
   Phase[Phase["Started"] = 4] = "Started";
   Phase[Phase["Cancelled"] = 5] = "Cancelled";
   Phase[Phase["Done"] = 6] = "Done";
-})(Phase || (exports.Phase = Phase = {}));
+  return Phase;
+}({}); // Legacy export fields
+exports.Phase = Phase;
 const PHASE_UNSENT = Phase.Unsent;
 exports.PHASE_UNSENT = PHASE_UNSENT;
 const PHASE_REQUESTED = Phase.Requested;
@@ -58,26 +72,17 @@ const PHASE_CANCELLED = Phase.Cancelled;
 exports.PHASE_CANCELLED = PHASE_CANCELLED;
 const PHASE_DONE = Phase.Done;
 exports.PHASE_DONE = PHASE_DONE;
-let VerificationRequestEvent;
-exports.VerificationRequestEvent = VerificationRequestEvent;
-(function (VerificationRequestEvent) {
+let VerificationRequestEvent = /*#__PURE__*/function (VerificationRequestEvent) {
   VerificationRequestEvent["Change"] = "change";
-})(VerificationRequestEvent || (exports.VerificationRequestEvent = VerificationRequestEvent = {}));
+  return VerificationRequestEvent;
+}({});
+exports.VerificationRequestEvent = VerificationRequestEvent;
 /**
  * State machine for verification requests.
  * Things that differ based on what channel is used to
  * send and receive verification events are put in `InRoomChannel` or `ToDeviceChannel`.
  */
 class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
-  // we keep a copy of the QR Code data (including other user master key) around
-  // for QR reciprocate verification, to protect against
-  // cross-signing identity reset between the .ready and .start event
-  // and signing the wrong key after .start
-
-  // The timestamp when we received the request event from the other side
-
-  // Used in tests only
-
   constructor(channel, verificationMethods, client) {
     super();
     this.channel = channel;
@@ -92,11 +97,17 @@ class VerificationRequest extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "verifierHasFinished", false);
     _defineProperty(this, "_cancelled", false);
     _defineProperty(this, "_chosenMethod", null);
+    // we keep a copy of the QR Code data (including other user master key) around
+    // for QR reciprocate verification, to protect against
+    // cross-signing identity reset between the .ready and .start event
+    // and signing the wrong key after .start
     _defineProperty(this, "_qrCodeData", null);
+    // The timestamp when we received the request event from the other side
     _defineProperty(this, "requestReceivedAt", null);
     _defineProperty(this, "commonMethods", []);
     _defineProperty(this, "_phase", void 0);
     _defineProperty(this, "_cancellingUserId", void 0);
+    // Used in tests only
     _defineProperty(this, "_verifier", void 0);
     _defineProperty(this, "cancelOnTimeout", async () => {
       try {

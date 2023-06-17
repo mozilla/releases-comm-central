@@ -17,27 +17,42 @@ var _NamespacedValue = require("../NamespacedValue");
 var _logger = require("../logger");
 var _readReceipt = require("./read-receipt");
 var _read_receipts = require("../@types/read_receipts");
+var _feature = require("../feature");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-let ThreadEvent;
-exports.ThreadEvent = ThreadEvent;
-(function (ThreadEvent) {
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2021 - 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
+let ThreadEvent = /*#__PURE__*/function (ThreadEvent) {
   ThreadEvent["New"] = "Thread.new";
   ThreadEvent["Update"] = "Thread.update";
   ThreadEvent["NewReply"] = "Thread.newReply";
   ThreadEvent["ViewThread"] = "Thread.viewThread";
   ThreadEvent["Delete"] = "Thread.delete";
-})(ThreadEvent || (exports.ThreadEvent = ThreadEvent = {}));
-let FeatureSupport;
-exports.FeatureSupport = FeatureSupport;
-(function (FeatureSupport) {
+  return ThreadEvent;
+}({});
+exports.ThreadEvent = ThreadEvent;
+let FeatureSupport = /*#__PURE__*/function (FeatureSupport) {
   FeatureSupport[FeatureSupport["None"] = 0] = "None";
   FeatureSupport[FeatureSupport["Experimental"] = 1] = "Experimental";
   FeatureSupport[FeatureSupport["Stable"] = 2] = "Stable";
-})(FeatureSupport || (exports.FeatureSupport = FeatureSupport = {}));
+  return FeatureSupport;
+}({});
+exports.FeatureSupport = FeatureSupport;
 function determineFeatureSupport(stable, unstable) {
   if (stable) {
     return FeatureSupport.Stable;
@@ -48,19 +63,13 @@ function determineFeatureSupport(stable, unstable) {
   }
 }
 class Thread extends _readReceipt.ReadReceipt {
-  /**
-   * A reference to all the events ID at the bottom of the threads
-   */
-
-  /**
-   * An array of events to add to the timeline once the thread has been initialised
-   * with server suppport.
-   */
-
   constructor(id, rootEvent, opts) {
     super();
     this.id = id;
     this.rootEvent = rootEvent;
+    /**
+     * A reference to all the events ID at the bottom of the threads
+     */
     _defineProperty(this, "timelineSet", void 0);
     _defineProperty(this, "timeline", []);
     _defineProperty(this, "_currentUserParticipated", false);
@@ -73,6 +82,10 @@ class Thread extends _readReceipt.ReadReceipt {
     _defineProperty(this, "client", void 0);
     _defineProperty(this, "pendingEventOrdering", void 0);
     _defineProperty(this, "initialEventsFetched", !Thread.hasServerSideSupport);
+    /**
+     * An array of events to add to the timeline once the thread has been initialised
+     * with server suppport.
+     */
     _defineProperty(this, "replayEvents", []);
     _defineProperty(this, "onBeforeRedaction", (event, redaction) => {
       if (event?.isRelation(THREAD_RELATION_TYPE.name) && this.room.eventShouldLiveIn(event).threadId === this.id && event.getId() !== this.id &&
@@ -100,7 +113,10 @@ class Thread extends _readReceipt.ReadReceipt {
     _defineProperty(this, "onTimelineEvent", (event, room, toStartOfTimeline) => {
       // Add a synthesized receipt when paginating forward in the timeline
       if (!toStartOfTimeline) {
-        room.addLocalEchoReceipt(event.getSender(), event, _read_receipts.ReceiptType.Read);
+        const sender = event.getSender();
+        if (sender && room && this.shouldSendLocalEchoReceipt(sender, event)) {
+          room.addLocalEchoReceipt(sender, event, _read_receipts.ReceiptType.Read);
+        }
       }
       this.onEcho(event, toStartOfTimeline ?? false);
     });
@@ -166,6 +182,22 @@ class Thread extends _readReceipt.ReadReceipt {
   static setServerSideFwdPaginationSupport(status) {
     Thread.hasServerSideFwdPaginationSupport = status;
   }
+  shouldSendLocalEchoReceipt(sender, event) {
+    const recursionSupport = this.client.canSupport.get(_feature.Feature.RelationsRecursion) ?? _feature.ServerSupport.Unsupported;
+    if (recursionSupport === _feature.ServerSupport.Unsupported) {
+      // Normally we add a local receipt, but if we don't have
+      // recursion support, then events may arrive out of order, so we
+      // only create a receipt if it's after our existing receipt.
+      const oldReceiptEventId = this.getReadReceiptForUserId(sender)?.eventId;
+      if (oldReceiptEventId) {
+        const receiptEvent = this.findEventById(oldReceiptEventId);
+        if (receiptEvent && receiptEvent.getTs() > event.getTs()) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
   get roomState() {
     return this.room.getLiveTimeline().getState(_eventTimeline.EventTimeline.FORWARDS);
   }
@@ -178,6 +210,34 @@ class Thread extends _readReceipt.ReadReceipt {
       });
       this.timeline = this.events;
     }
+  }
+
+  /**
+   * TEMPORARY. Only call this when MSC3981 is not available, and we have some
+   * late-arriving events to insert, because we recursively found them as part
+   * of populating a thread. When we have MSC3981 we won't need it, because
+   * they will all be supplied by the homeserver in one request, and they will
+   * already be in the right order in that response.
+   * This is a copy of addEventToTimeline above, modified to call
+   * insertEventIntoTimeline so this event is inserted into our best guess of
+   * the right place based on timestamp. (We should be using Sync Order but we
+   * don't have it.)
+   *
+   * @internal
+   */
+  insertEventIntoTimeline(event) {
+    const eventId = event.getId();
+    if (!eventId) {
+      return;
+    }
+    // If the event is already in this thread, bail out
+    if (this.findEventById(eventId)) {
+      return;
+    }
+    this.timelineSet.insertEventIntoTimeline(event, this.liveTimeline, this.roomState);
+
+    // As far as we know, timeline should always be the same as events
+    this.timeline = this.events;
   }
   addEvents(events, toStartOfTimeline) {
     events.forEach(ev => this.addEvent(ev, toStartOfTimeline, false));
@@ -222,7 +282,12 @@ class Thread extends _readReceipt.ReadReceipt {
          */
         this.replayEvents?.push(event);
       } else {
-        this.addEventToTimeline(event, toStartOfTimeline);
+        const recursionSupport = this.client.canSupport.get(_feature.Feature.RelationsRecursion) ?? _feature.ServerSupport.Unsupported;
+        if (recursionSupport === _feature.ServerSupport.Unsupported) {
+          this.insertEventIntoTimeline(event);
+        } else {
+          this.addEventToTimeline(event, toStartOfTimeline);
+        }
       }
       // Apply annotations and replace relations to the relations of the timeline only
       this.timelineSet.relations?.aggregateParentEvent(event);
@@ -380,18 +445,23 @@ class Thread extends _readReceipt.ReadReceipt {
 
   // XXX: Workaround for https://github.com/matrix-org/matrix-spec-proposals/pull/2676/files#r827240084
   async fetchEditsWhereNeeded(...events) {
-    return Promise.all(events.filter(e => e.isEncrypted()).map(event => {
-      if (event.isRelation()) return; // skip - relations don't get edits
-      return this.client.relations(this.roomId, event.getId(), _event.RelationType.Replace, event.getType(), {
-        limit: 1
-      }).then(relations => {
-        if (relations.events.length) {
-          event.makeReplaced(relations.events[0]);
+    const recursionSupport = this.client.canSupport.get(_feature.Feature.RelationsRecursion) ?? _feature.ServerSupport.Unsupported;
+    if (recursionSupport === _feature.ServerSupport.Unsupported) {
+      return Promise.all(events.filter(isAnEncryptedThreadMessage).map(async event => {
+        try {
+          const relations = await this.client.relations(this.roomId, event.getId(), _event.RelationType.Replace, event.getType(), {
+            limit: 1
+          });
+          if (relations.events.length) {
+            const editEvent = relations.events[0];
+            event.makeReplaced(editEvent);
+            this.insertEventIntoTimeline(editEvent);
+          }
+        } catch (e) {
+          _logger.logger.error("Failed to load edits for encrypted thread event", e);
         }
-      }).catch(e => {
-        _logger.logger.error("Failed to load edits for encrypted thread event", e);
-      });
-    }));
+      }));
+    }
   }
   setEventMetadata(event) {
     if (event) {
@@ -543,22 +613,32 @@ class Thread extends _readReceipt.ReadReceipt {
     return this.room.setThreadUnreadNotificationCount(this.id, type, count);
   }
 }
+
+/**
+ * Decide whether an event deserves to have its potential edits fetched.
+ *
+ * @returns true if this event is encrypted and is a message that is part of a
+ * thread - either inside it, or a root.
+ */
 exports.Thread = Thread;
 _defineProperty(Thread, "hasServerSideSupport", FeatureSupport.None);
 _defineProperty(Thread, "hasServerSideListSupport", FeatureSupport.None);
 _defineProperty(Thread, "hasServerSideFwdPaginationSupport", FeatureSupport.None);
+function isAnEncryptedThreadMessage(event) {
+  return event.isEncrypted() && (event.isRelation(THREAD_RELATION_TYPE.name) || event.isThreadRoot);
+}
 const FILTER_RELATED_BY_SENDERS = new _NamespacedValue.ServerControlledNamespacedValue("related_by_senders", "io.element.relation_senders");
 exports.FILTER_RELATED_BY_SENDERS = FILTER_RELATED_BY_SENDERS;
 const FILTER_RELATED_BY_REL_TYPES = new _NamespacedValue.ServerControlledNamespacedValue("related_by_rel_types", "io.element.relation_types");
 exports.FILTER_RELATED_BY_REL_TYPES = FILTER_RELATED_BY_REL_TYPES;
 const THREAD_RELATION_TYPE = new _NamespacedValue.ServerControlledNamespacedValue("m.thread", "io.element.thread");
 exports.THREAD_RELATION_TYPE = THREAD_RELATION_TYPE;
-let ThreadFilterType;
-exports.ThreadFilterType = ThreadFilterType;
-(function (ThreadFilterType) {
+let ThreadFilterType = /*#__PURE__*/function (ThreadFilterType) {
   ThreadFilterType[ThreadFilterType["My"] = 0] = "My";
   ThreadFilterType[ThreadFilterType["All"] = 1] = "All";
-})(ThreadFilterType || (exports.ThreadFilterType = ThreadFilterType = {}));
+  return ThreadFilterType;
+}({});
+exports.ThreadFilterType = ThreadFilterType;
 function threadFilterTypeToFilter(type) {
   switch (type) {
     case ThreadFilterType.My:

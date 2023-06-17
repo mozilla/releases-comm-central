@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.BuiltInModalButtonID = void 0;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -20,9 +19,12 @@ exports.BuiltInModalButtonID = void 0;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var BuiltInModalButtonID;
-exports.BuiltInModalButtonID = BuiltInModalButtonID;
-
-(function (BuiltInModalButtonID) {
+var BuiltInModalButtonID = /*#__PURE__*/function (BuiltInModalButtonID) {
   BuiltInModalButtonID["Close"] = "m.close";
-})(BuiltInModalButtonID || (exports.BuiltInModalButtonID = BuiltInModalButtonID = {}));
+  return BuiltInModalButtonID;
+}({}); // Types for a normal modal requesting the opening a modal widget
+// Types for a modal widget receiving notifications that its buttons have been pressed
+// Types for a modal widget requesting close
+// Types for a normal widget being notified that the modal widget it opened has been closed
+exports.BuiltInModalButtonID = BuiltInModalButtonID;
+//# sourceMappingURL=ModalWidgetActions.js.map

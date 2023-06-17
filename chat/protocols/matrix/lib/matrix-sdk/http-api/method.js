@@ -19,11 +19,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let Method;
-exports.Method = Method;
-(function (Method) {
+let Method = /*#__PURE__*/function (Method) {
   Method["Get"] = "GET";
   Method["Put"] = "PUT";
   Method["Post"] = "POST";
   Method["Delete"] = "DELETE";
-})(Method || (exports.Method = Method = {}));
+  return Method;
+}({});
+exports.Method = Method;

@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.WidgetApiToWidgetAction = exports.WidgetApiFromWidgetAction = void 0;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -20,10 +19,7 @@ exports.WidgetApiToWidgetAction = exports.WidgetApiFromWidgetAction = void 0;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var WidgetApiToWidgetAction;
-exports.WidgetApiToWidgetAction = WidgetApiToWidgetAction;
-
-(function (WidgetApiToWidgetAction) {
+var WidgetApiToWidgetAction = /*#__PURE__*/function (WidgetApiToWidgetAction) {
   WidgetApiToWidgetAction["SupportedApiVersions"] = "supported_api_versions";
   WidgetApiToWidgetAction["Capabilities"] = "capabilities";
   WidgetApiToWidgetAction["NotifyCapabilities"] = "notify_capabilities";
@@ -36,12 +32,10 @@ exports.WidgetApiToWidgetAction = WidgetApiToWidgetAction;
   WidgetApiToWidgetAction["SendEvent"] = "send_event";
   WidgetApiToWidgetAction["SendToDevice"] = "send_to_device";
   WidgetApiToWidgetAction["UpdateTurnServers"] = "update_turn_servers";
-})(WidgetApiToWidgetAction || (exports.WidgetApiToWidgetAction = WidgetApiToWidgetAction = {}));
-
-var WidgetApiFromWidgetAction;
-exports.WidgetApiFromWidgetAction = WidgetApiFromWidgetAction;
-
-(function (WidgetApiFromWidgetAction) {
+  return WidgetApiToWidgetAction;
+}({});
+exports.WidgetApiToWidgetAction = WidgetApiToWidgetAction;
+var WidgetApiFromWidgetAction = /*#__PURE__*/function (WidgetApiFromWidgetAction) {
   WidgetApiFromWidgetAction["SupportedApiVersions"] = "supported_api_versions";
   WidgetApiFromWidgetAction["ContentLoaded"] = "content_loaded";
   WidgetApiFromWidgetAction["SendSticker"] = "m.sticker";
@@ -58,4 +52,8 @@ exports.WidgetApiFromWidgetAction = WidgetApiFromWidgetAction;
   WidgetApiFromWidgetAction["MSC2931Navigate"] = "org.matrix.msc2931.navigate";
   WidgetApiFromWidgetAction["MSC2974RenegotiateCapabilities"] = "org.matrix.msc2974.request_capabilities";
   WidgetApiFromWidgetAction["MSC3869ReadRelations"] = "org.matrix.msc3869.read_relations";
-})(WidgetApiFromWidgetAction || (exports.WidgetApiFromWidgetAction = WidgetApiFromWidgetAction = {}));
+  WidgetApiFromWidgetAction["MSC3973UserDirectorySearch"] = "org.matrix.msc3973.user_directory_search";
+  return WidgetApiFromWidgetAction;
+}({});
+exports.WidgetApiFromWidgetAction = WidgetApiFromWidgetAction;
+//# sourceMappingURL=WidgetApiAction.js.map

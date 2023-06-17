@@ -22,13 +22,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 // Types for MSC3488 - m.location: Extending events with location data
-let LocationAssetType;
-exports.LocationAssetType = LocationAssetType;
-(function (LocationAssetType) {
+let LocationAssetType = /*#__PURE__*/function (LocationAssetType) {
   LocationAssetType["Self"] = "m.self";
   LocationAssetType["Pin"] = "m.pin";
-})(LocationAssetType || (exports.LocationAssetType = LocationAssetType = {}));
+  return LocationAssetType;
+}({});
+exports.LocationAssetType = LocationAssetType;
 const M_ASSET = new _NamespacedValue.UnstableValue("m.asset", "org.matrix.msc3488.asset");
+
+/**
+ * The event definition for an m.asset event (in content)
+ */
 exports.M_ASSET = M_ASSET;
 const M_TIMESTAMP = new _NamespacedValue.UnstableValue("m.ts", "org.matrix.msc3488.ts");
 /**
@@ -36,4 +40,33 @@ const M_TIMESTAMP = new _NamespacedValue.UnstableValue("m.ts", "org.matrix.msc34
  */
 exports.M_TIMESTAMP = M_TIMESTAMP;
 const M_LOCATION = new _NamespacedValue.UnstableValue("m.location", "org.matrix.msc3488.location");
+
+/* From the spec at:
+ * https://github.com/matrix-org/matrix-doc/blob/matthew/location/proposals/3488-location.md
+{
+    "type": "m.room.message",
+    "content": {
+        "body": "Matthew was at geo:51.5008,0.1247;u=35 as of Sat Nov 13 18:50:58 2021",
+        "msgtype": "m.location",
+        "geo_uri": "geo:51.5008,0.1247;u=35",
+        "m.location": {
+            "uri": "geo:51.5008,0.1247;u=35",
+            "description": "Matthew's whereabouts",
+        },
+        "m.asset": {
+            "type": "m.self"
+        },
+        "m.text": "Matthew was at geo:51.5008,0.1247;u=35 as of Sat Nov 13 18:50:58 2021",
+        "m.ts": 1636829458432,
+    }
+}
+*/
+
+/**
+ * The content for an m.location event
+ */
+
+/**
+ * Possible content for location events as sent over the wire
+ */
 exports.M_LOCATION = M_LOCATION;

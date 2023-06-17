@@ -21,15 +21,15 @@ limitations under the License.
 */
 // Types relating to the /search API
 /* eslint-disable camelcase */
-var GroupKey;
-(function (GroupKey) {
+var GroupKey = /*#__PURE__*/function (GroupKey) {
   GroupKey["RoomId"] = "room_id";
   GroupKey["Sender"] = "sender";
-})(GroupKey || (GroupKey = {}));
-let SearchOrderBy;
-exports.SearchOrderBy = SearchOrderBy;
-(function (SearchOrderBy) {
+  return GroupKey;
+}(GroupKey || {});
+let SearchOrderBy = /*#__PURE__*/function (SearchOrderBy) {
   SearchOrderBy["Recent"] = "recent";
   SearchOrderBy["Rank"] = "rank";
-})(SearchOrderBy || (exports.SearchOrderBy = SearchOrderBy = {}));
+  return SearchOrderBy;
+}({});
 /* eslint-enable camelcase */
+exports.SearchOrderBy = SearchOrderBy;

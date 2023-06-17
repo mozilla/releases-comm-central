@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ModalButtonKind = void 0;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -20,13 +19,13 @@ exports.ModalButtonKind = void 0;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var ModalButtonKind;
-exports.ModalButtonKind = ModalButtonKind;
-
-(function (ModalButtonKind) {
+var ModalButtonKind = /*#__PURE__*/function (ModalButtonKind) {
   ModalButtonKind["Primary"] = "m.primary";
   ModalButtonKind["Secondary"] = "m.secondary";
   ModalButtonKind["Warning"] = "m.warning";
   ModalButtonKind["Danger"] = "m.danger";
   ModalButtonKind["Link"] = "m.link";
-})(ModalButtonKind || (exports.ModalButtonKind = ModalButtonKind = {}));
+  return ModalButtonKind;
+}({});
+exports.ModalButtonKind = ModalButtonKind;
+//# sourceMappingURL=ModalButtonKind.js.map

@@ -26,19 +26,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-async function initRustCrypto(http, userId, deviceId) {
+/**
+ * Create a new `RustCrypto` implementation
+ *
+ * @param http - Low-level HTTP interface: used to make outgoing requests required by the rust SDK.
+ *     We expect it to set the access token, etc.
+ * @param userId - The local user's User ID.
+ * @param deviceId - The local user's Device ID.
+ * @param secretStorage - Interface to server-side secret storage.
+ */
+async function initRustCrypto(http, userId, deviceId, secretStorage) {
   // initialise the rust matrix-sdk-crypto-js, if it hasn't already been done
   await RustSdkCryptoJs.initAsync();
 
   // enable tracing in the rust-sdk
-  new RustSdkCryptoJs.Tracing(RustSdkCryptoJs.LoggerLevel.Debug).turnOn();
+  new RustSdkCryptoJs.Tracing(RustSdkCryptoJs.LoggerLevel.Trace).turnOn();
   const u = new RustSdkCryptoJs.UserId(userId);
   const d = new RustSdkCryptoJs.DeviceId(deviceId);
   _logger.logger.info("Init OlmMachine");
 
   // TODO: use the pickle key for the passphrase
   const olmMachine = await RustSdkCryptoJs.OlmMachine.initialize(u, d, _constants.RUST_SDK_STORE_PREFIX, "test pass");
-  const rustCrypto = new _rustCrypto.RustCrypto(olmMachine, http, userId, deviceId);
+  const rustCrypto = new _rustCrypto.RustCrypto(olmMachine, http, userId, deviceId, secretStorage);
+  await olmMachine.registerRoomKeyUpdatedCallback(sessions => rustCrypto.onRoomKeysUpdated(sessions));
   _logger.logger.info("Completed rust crypto-sdk setup");
   return rustCrypto;
 }

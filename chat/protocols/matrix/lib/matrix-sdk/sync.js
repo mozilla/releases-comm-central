@@ -9,7 +9,7 @@ exports.defaultClientOpts = defaultClientOpts;
 exports.defaultSyncApiOpts = defaultSyncApiOpts;
 var _user = require("./models/user");
 var _room = require("./models/room");
-var utils = _interopRequireWildcard(require("./utils"));
+var _utils = require("./utils");
 var _filter = require("./filter");
 var _eventTimeline = require("./models/event-timeline");
 var _logger = require("./logger");
@@ -22,13 +22,32 @@ var _roomMember = require("./models/room-member");
 var _beacon = require("./models/beacon");
 var _sync = require("./@types/sync");
 var _feature = require("./feature");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /*
+                                                                                                                                                                                                                                                                                                                                                                                              * TODO:
+                                                                                                                                                                                                                                                                                                                                                                                              * This class mainly serves to take all the syncing logic out of client.js and
+                                                                                                                                                                                                                                                                                                                                                                                              * into a separate file. It's all very fluid, and this class gut wrenches a lot
+                                                                                                                                                                                                                                                                                                                                                                                              * of MatrixClient props (e.g. http). Given we want to support WebSockets as
+                                                                                                                                                                                                                                                                                                                                                                                              * an alternative syncing API, we may want to have a proper syncing interface
+                                                                                                                                                                                                                                                                                                                                                                                              * for HTTP and WS at some point.
+                                                                                                                                                                                                                                                                                                                                                                                              */
 const DEBUG = true;
 
 // /sync requests allow you to set a timeout= but the request may continue
@@ -41,18 +60,18 @@ const BUFFER_PERIOD_MS = 80 * 1000;
 // to RECONNECTING. This is needed to inform the client of server issues when the
 // keepAlive is successful but the server /sync fails.
 const FAILED_SYNC_ERROR_THRESHOLD = 3;
-let SyncState; // Room versions where "insertion", "batch", and "marker" events are controlled
-// by power-levels. MSC2716 is supported in existing room versions but they
-// should only have special meaning when the room creator sends them.
-exports.SyncState = SyncState;
-(function (SyncState) {
+let SyncState = /*#__PURE__*/function (SyncState) {
   SyncState["Error"] = "ERROR";
   SyncState["Prepared"] = "PREPARED";
   SyncState["Stopped"] = "STOPPED";
   SyncState["Syncing"] = "SYNCING";
   SyncState["Catchup"] = "CATCHUP";
   SyncState["Reconnecting"] = "RECONNECTING";
-})(SyncState || (exports.SyncState = SyncState = {}));
+  return SyncState;
+}({}); // Room versions where "insertion", "batch", and "marker" events are controlled
+// by power-levels. MSC2716 is supported in existing room versions but they
+// should only have special meaning when the room creator sends them.
+exports.SyncState = SyncState;
 const MSC2716_ROOM_VERSIONS = ["org.matrix.msc2716v3"];
 function getFilterName(userId, suffix) {
   // scope this on the user ID because people may login on many accounts
@@ -69,12 +88,12 @@ function debuglog(...params) {
 /**
  * Options passed into the constructor of SyncApi by MatrixClient
  */
-var SetPresence;
-(function (SetPresence) {
+var SetPresence = /*#__PURE__*/function (SetPresence) {
   SetPresence["Offline"] = "offline";
   SetPresence["Online"] = "online";
   SetPresence["Unavailable"] = "unavailable";
-})(SetPresence || (SetPresence = {}));
+  return SetPresence;
+}(SetPresence || {});
 /** add default settings to an IStoredClientOpts */
 function defaultClientOpts(opts) {
   return _objectSpread({
@@ -91,12 +110,7 @@ function defaultSyncApiOpts(syncOpts) {
   }, syncOpts);
 }
 class SyncApi {
-  // additional data (eg. error object for failed sync)
-
-  // accumulator of sync events in the current sync response
-  // Number of consecutive failed /sync requests
   // flag set if the store needs to be cleared before we can start
-
   /**
    * Construct an entity which is able to sync with a homeserver.
    * @param client - The matrix client instance to use.
@@ -113,12 +127,15 @@ class SyncApi {
     _defineProperty(this, "abortController", void 0);
     _defineProperty(this, "syncState", null);
     _defineProperty(this, "syncStateData", void 0);
+    // additional data (eg. error object for failed sync)
     _defineProperty(this, "catchingUp", false);
     _defineProperty(this, "running", false);
     _defineProperty(this, "keepAliveTimer", void 0);
     _defineProperty(this, "connectionReturnedDefer", void 0);
     _defineProperty(this, "notifEvents", []);
+    // accumulator of sync events in the current sync response
     _defineProperty(this, "failedSyncCount", 0);
+    // Number of consecutive failed /sync requests
     _defineProperty(this, "storeIsInvalid", false);
     _defineProperty(this, "getPushRules", async () => {
       try {
@@ -217,6 +234,12 @@ class SyncApi {
       };
     });
     _defineProperty(this, "savedSyncPromise", void 0);
+    /**
+     * Event handler for the 'online' event
+     * This event is generally unreliable and precise behaviour
+     * varies between browsers, so we poll for connectivity too,
+     * but this might help us reconnect a little faster.
+     */
     _defineProperty(this, "onOnline", () => {
       debuglog("Browser thinks we are back online");
       this.startKeepAlives(0);
@@ -370,7 +393,7 @@ class SyncApi {
 
       // FIXME: Mostly duplicated from injectRoomEvents but not entirely
       // because "state" in this API is at the BEGINNING of the chunk
-      const oldStateEvents = utils.deepCopy(response.state).map(client.getEventMapper());
+      const oldStateEvents = (0, _utils.deepCopy)(response.state).map(client.getEventMapper());
       const stateEvents = response.state.map(client.getEventMapper());
       const messages = response.messages.chunk.map(client.getEventMapper());
 
@@ -440,7 +463,7 @@ class SyncApi {
     }, undefined, {
       localTimeoutMs: 50 * 1000,
       abortSignal: this.abortController?.signal
-    }).then(res => {
+    }).then(async res => {
       if (this._peekRoom !== peekRoom) {
         debuglog("Stopped peeking in room %s", peekRoom.roomId);
         return;
@@ -474,7 +497,7 @@ class SyncApi {
       const events = res.chunk.filter(function (e) {
         return e.room_id === peekRoom.roomId && e.event_id;
       }).map(this.client.getEventMapper());
-      peekRoom.addLiveEvents(events);
+      await peekRoom.addLiveEvents(events);
       this.peekPoll(peekRoom, res.end);
     }, err => {
       _logger.logger.error("[%s] Peek poll failed: %s", peekRoom.roomId, err);
@@ -724,7 +747,6 @@ class SyncApi {
 
       // Reset after a successful sync
       this.failedSyncCount = 0;
-      await this.client.store.setSyncData(data);
       const syncEventData = {
         oldSyncToken: syncToken ?? undefined,
         nextSyncToken: data.next_batch,
@@ -745,6 +767,10 @@ class SyncApi {
         // Emit the exception for client handling
         this.client.emit(_client.ClientEvent.SyncUnexpectedError, e);
       }
+
+      // Persist after processing as `unsigned` may get mutated
+      // with an `org.matrix.msc4023.thread_id`
+      await this.client.store.setSyncData(data);
 
       // update this as it may have changed
       syncEventData.catchingUp = this.catchingUp;
@@ -774,7 +800,7 @@ class SyncApi {
         }
 
         // tell databases that everything is now in a consistent state and can be saved.
-        this.client.store.save();
+        await this.client.store.save();
       }
     }
     if (!this.running) {
@@ -941,7 +967,7 @@ class SyncApi {
 
     // handle presence events (User objects)
     if (Array.isArray(data.presence?.events)) {
-      data.presence.events.filter(utils.noUnsafeEventProps).map(client.getEventMapper()).forEach(function (presenceEvent) {
+      data.presence.events.filter(_utils.noUnsafeEventProps).map(client.getEventMapper()).forEach(function (presenceEvent) {
         let user = client.store.getUser(presenceEvent.getSender());
         if (user) {
           user.setPresenceEvent(presenceEvent);
@@ -956,7 +982,7 @@ class SyncApi {
 
     // handle non-room account_data
     if (Array.isArray(data.account_data?.events)) {
-      const events = data.account_data.events.filter(utils.noUnsafeEventProps).map(client.getEventMapper());
+      const events = data.account_data.events.filter(_utils.noUnsafeEventProps).map(client.getEventMapper());
       const prevEventsMap = events.reduce((m, c) => {
         m[c.getType()] = client.store.getAccountData(c.getType());
         return m;
@@ -979,7 +1005,7 @@ class SyncApi {
 
     // handle to-device events
     if (data.to_device && Array.isArray(data.to_device.events) && data.to_device.events.length > 0) {
-      let toDeviceMessages = data.to_device.events.filter(utils.noUnsafeEventProps);
+      let toDeviceMessages = data.to_device.events.filter(_utils.noUnsafeEventProps);
       if (this.syncOpts.cryptoCallbacks) {
         toDeviceMessages = await this.syncOpts.cryptoCallbacks.preprocessToDeviceMessages(toDeviceMessages);
       }
@@ -1043,7 +1069,7 @@ class SyncApi {
     this.notifEvents = [];
 
     // Handle invites
-    await utils.promiseMapSeries(inviteRooms, async inviteObj => {
+    await (0, _utils.promiseMapSeries)(inviteRooms, async inviteObj => {
       const room = inviteObj.room;
       const stateEvents = this.mapSyncEventsFormat(inviteObj.invite_state, room);
       await this.injectRoomEvents(room, stateEvents);
@@ -1074,7 +1100,7 @@ class SyncApi {
     });
 
     // Handle joins
-    await utils.promiseMapSeries(joinRooms, async joinObj => {
+    await (0, _utils.promiseMapSeries)(joinRooms, async joinObj => {
       const room = joinObj.room;
       const stateEvents = this.mapSyncEventsFormat(joinObj.state, room);
       // Prevent events from being decrypted ahead of time
@@ -1227,7 +1253,7 @@ class SyncApi {
     });
 
     // Handle leaves (e.g. kicked rooms)
-    await utils.promiseMapSeries(leaveRooms, async leaveObj => {
+    await (0, _utils.promiseMapSeries)(leaveRooms, async leaveObj => {
       const room = leaveObj.room;
       const stateEvents = this.mapSyncEventsFormat(leaveObj.state, room);
       const events = this.mapSyncEventsFormat(leaveObj.timeline, room);
@@ -1267,8 +1293,8 @@ class SyncApi {
 
     // Handle device list updates
     if (data.device_lists) {
-      if (this.syncOpts.crypto) {
-        await this.syncOpts.crypto.handleDeviceListChanges(syncEventData, data.device_lists);
+      if (this.syncOpts.cryptoCallbacks) {
+        await this.syncOpts.cryptoCallbacks.processDeviceLists(data.device_lists);
       } else {
         // FIXME if we *don't* have a crypto module, we still need to
         // invalidate the device lists. But that would require a
@@ -1276,18 +1302,8 @@ class SyncApi {
       }
     }
 
-    // Handle one_time_keys_count
-    if (this.syncOpts.crypto && data.device_one_time_keys_count) {
-      const currentCount = data.device_one_time_keys_count.signed_curve25519 || 0;
-      this.syncOpts.crypto.updateOneTimeKeyCount(currentCount);
-    }
-    if (this.syncOpts.crypto && (data.device_unused_fallback_key_types || data["org.matrix.msc2732.device_unused_fallback_key_types"])) {
-      // The presence of device_unused_fallback_key_types indicates that the
-      // server supports fallback keys. If there's no unused
-      // signed_curve25519 fallback key we need a new one.
-      const unusedFallbackKeys = data.device_unused_fallback_key_types || data["org.matrix.msc2732.device_unused_fallback_key_types"];
-      this.syncOpts.crypto.setNeedsNewFallback(Array.isArray(unusedFallbackKeys) && !unusedFallbackKeys.includes("signed_curve25519"));
-    }
+    // Handle one_time_keys_count and unused fallback keys
+    await this.syncOpts.cryptoCallbacks?.processKeyCounts(data.device_one_time_keys_count, data.device_unused_fallback_key_types ?? data["org.matrix.msc2732.device_unused_fallback_key_types"]);
   }
 
   /**
@@ -1310,7 +1326,7 @@ class SyncApi {
       this.pokeKeepAlive();
     }
     if (!this.connectionReturnedDefer) {
-      this.connectionReturnedDefer = utils.defer();
+      this.connectionReturnedDefer = (0, _utils.defer)();
     }
     return this.connectionReturnedDefer.promise;
   }
@@ -1370,17 +1386,17 @@ class SyncApi {
     // to
     // [{stuff+Room+isBrandNewRoom}, {stuff+Room+isBrandNewRoom}]
     const client = this.client;
-    return Object.keys(obj).filter(k => !(0, utils.unsafeProp)(k)).map(roomId => {
-      const arrObj = obj[roomId];
+    return Object.keys(obj).filter(k => !(0, _utils.unsafeProp)(k)).map(roomId => {
       let room = client.store.getRoom(roomId);
       let isBrandNewRoom = false;
       if (!room) {
         room = this.createRoom(roomId);
         isBrandNewRoom = true;
       }
-      arrObj.room = room;
-      arrObj.isBrandNewRoom = isBrandNewRoom;
-      return arrObj;
+      return _objectSpread(_objectSpread({}, obj[roomId]), {}, {
+        room,
+        isBrandNewRoom
+      });
     });
   }
   mapSyncEventsFormat(obj, room, decrypt = true) {
@@ -1390,7 +1406,7 @@ class SyncApi {
     const mapper = this.client.getEventMapper({
       decrypt
     });
-    return obj.events.filter(utils.noUnsafeEventProps).map(function (e) {
+    return obj.events.filter(_utils.noUnsafeEventProps).map(function (e) {
       if (room) {
         e.room_id = room.roomId;
       }
@@ -1504,7 +1520,7 @@ class SyncApi {
     // if the timeline has any state events in it.
     // This also needs to be done before running push rules on the events as they need
     // to be decorated with sender etc.
-    room.addLiveEvents(timelineEventList || [], {
+    await room.addLiveEvents(timelineEventList || [], {
       fromCache,
       timelineWasEmpty
     });
@@ -1547,13 +1563,6 @@ class SyncApi {
     this.syncStateData = data;
     this.client.emit(_client.ClientEvent.Sync, this.syncState, old, data);
   }
-
-  /**
-   * Event handler for the 'online' event
-   * This event is generally unreliable and precise behaviour
-   * varies between browsers, so we poll for connectivity too,
-   * but this might help us reconnect a little faster.
-   */
 }
 exports.SyncApi = SyncApi;
 function createNewUser(client, userId) {

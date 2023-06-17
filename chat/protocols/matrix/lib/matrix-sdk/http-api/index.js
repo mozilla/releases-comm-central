@@ -20,7 +20,7 @@ Object.keys(_prefix).forEach(function (key) {
     }
   });
 });
-var utils = _interopRequireWildcard(require("../utils"));
+var _utils = require("../utils");
 var callbacks = _interopRequireWildcard(require("../realtime-callbacks"));
 var _method = require("./method");
 Object.keys(_method).forEach(function (key) {
@@ -74,7 +74,21 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 class MatrixHttpApi extends _fetch.FetchHttpApi {
   constructor(...args) {
     super(...args);
@@ -105,12 +119,12 @@ class MatrixHttpApi extends _fetch.FetchHttpApi {
       total: 0,
       abortController
     };
-    const defer = utils.defer();
+    const deferred = (0, _utils.defer)();
     if (global.XMLHttpRequest) {
       const xhr = new global.XMLHttpRequest();
       const timeoutFn = function () {
         xhr.abort();
-        defer.reject(new Error("Timeout"));
+        deferred.reject(new Error("Timeout"));
       };
 
       // set an initial timeout of 30s; we'll advance it each time we get a progress notification
@@ -128,16 +142,16 @@ class MatrixHttpApi extends _fetch.FetchHttpApi {
                 throw new Error("No response body.");
               }
               if (xhr.status >= 400) {
-                defer.reject((0, _utils2.parseErrorResponse)(xhr, xhr.responseText));
+                deferred.reject((0, _utils2.parseErrorResponse)(xhr, xhr.responseText));
               } else {
-                defer.resolve(JSON.parse(xhr.responseText));
+                deferred.resolve(JSON.parse(xhr.responseText));
               }
             } catch (err) {
               if (err.name === "AbortError") {
-                defer.reject(err);
+                deferred.reject(err);
                 return;
               }
-              defer.reject(new _errors.ConnectionError("request failed", err));
+              deferred.reject(new _errors.ConnectionError("request failed", err));
             }
             break;
         }
@@ -182,16 +196,16 @@ class MatrixHttpApi extends _fetch.FetchHttpApi {
         abortSignal: abortController.signal
       }).then(response => {
         return this.opts.onlyData ? response : response.json();
-      }).then(defer.resolve, defer.reject);
+      }).then(deferred.resolve, deferred.reject);
     }
 
     // remove the upload from the list on completion
-    upload.promise = defer.promise.finally(() => {
-      utils.removeElement(this.uploads, elem => elem === upload);
+    upload.promise = deferred.promise.finally(() => {
+      (0, _utils.removeElement)(this.uploads, elem => elem === upload);
     });
     abortController.signal.addEventListener("abort", () => {
-      utils.removeElement(this.uploads, elem => elem === upload);
-      defer.reject(new DOMException("Aborted", "AbortError"));
+      (0, _utils.removeElement)(this.uploads, elem => elem === upload);
+      deferred.reject(new DOMException("Aborted", "AbortError"));
     });
     this.uploads.push(upload);
     return upload.promise;

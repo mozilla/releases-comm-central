@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.UnstableApiVersion = exports.MatrixApiVersion = exports.CurrentApiVersions = void 0;
-
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -20,18 +19,13 @@ exports.UnstableApiVersion = exports.MatrixApiVersion = exports.CurrentApiVersio
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var MatrixApiVersion;
-exports.MatrixApiVersion = MatrixApiVersion;
-
-(function (MatrixApiVersion) {
+var MatrixApiVersion = /*#__PURE__*/function (MatrixApiVersion) {
   MatrixApiVersion["Prerelease1"] = "0.0.1";
   MatrixApiVersion["Prerelease2"] = "0.0.2";
-})(MatrixApiVersion || (exports.MatrixApiVersion = MatrixApiVersion = {}));
-
-var UnstableApiVersion;
-exports.UnstableApiVersion = UnstableApiVersion;
-
-(function (UnstableApiVersion) {
+  return MatrixApiVersion;
+}({}); //V010 = "0.1.0", // first release
+exports.MatrixApiVersion = MatrixApiVersion;
+var UnstableApiVersion = /*#__PURE__*/function (UnstableApiVersion) {
   UnstableApiVersion["MSC2762"] = "org.matrix.msc2762";
   UnstableApiVersion["MSC2871"] = "org.matrix.msc2871";
   UnstableApiVersion["MSC2931"] = "org.matrix.msc2931";
@@ -40,8 +34,12 @@ exports.UnstableApiVersion = UnstableApiVersion;
   UnstableApiVersion["MSC3819"] = "org.matrix.msc3819";
   UnstableApiVersion["MSC3846"] = "town.robin.msc3846";
   UnstableApiVersion["MSC3869"] = "org.matrix.msc3869";
-})(UnstableApiVersion || (exports.UnstableApiVersion = UnstableApiVersion = {}));
-
-var CurrentApiVersions = [MatrixApiVersion.Prerelease1, MatrixApiVersion.Prerelease2, //MatrixApiVersion.V010,
-UnstableApiVersion.MSC2762, UnstableApiVersion.MSC2871, UnstableApiVersion.MSC2931, UnstableApiVersion.MSC2974, UnstableApiVersion.MSC2876, UnstableApiVersion.MSC3819, UnstableApiVersion.MSC3846, UnstableApiVersion.MSC3869];
+  UnstableApiVersion["MSC3973"] = "org.matrix.msc3973";
+  return UnstableApiVersion;
+}({});
+exports.UnstableApiVersion = UnstableApiVersion;
+var CurrentApiVersions = [MatrixApiVersion.Prerelease1, MatrixApiVersion.Prerelease2,
+//MatrixApiVersion.V010,
+UnstableApiVersion.MSC2762, UnstableApiVersion.MSC2871, UnstableApiVersion.MSC2931, UnstableApiVersion.MSC2974, UnstableApiVersion.MSC2876, UnstableApiVersion.MSC3819, UnstableApiVersion.MSC3846, UnstableApiVersion.MSC3869, UnstableApiVersion.MSC3973];
 exports.CurrentApiVersions = CurrentApiVersions;
+//# sourceMappingURL=ApiVersion.js.map

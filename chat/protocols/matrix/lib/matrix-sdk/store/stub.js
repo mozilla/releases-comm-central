@@ -33,6 +33,7 @@ limitations under the License.
 class StubStore {
   constructor() {
     _defineProperty(this, "accountData", new Map());
+    // stub
     _defineProperty(this, "fromToken", null);
   }
   /** @returns whether or not the database was newly created in this session. */
@@ -187,7 +188,9 @@ class StubStore {
   /**
    * Save does nothing as there is no backing data store.
    */
-  save() {}
+  save() {
+    return Promise.resolve();
+  }
 
   /**
    * Startup does nothing.
@@ -251,6 +254,9 @@ class StubStore {
   }
   async removeToDeviceBatch(id) {
     return Promise.resolve();
+  }
+  async destroy() {
+    // Nothing to do
   }
 }
 exports.StubStore = StubStore;

@@ -4,22 +4,36 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.FetchHttpApi = void 0;
-var utils = _interopRequireWildcard(require("../utils"));
+var _utils = require("../utils");
 var _method = require("./method");
 var _errors = require("./errors");
 var _interface = require("./interface");
 var _utils2 = require("./utils");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /**
+                                                                                                                                                                                                                                                                                                                                                                                              * This is an internal module. See {@link MatrixHttpApi} for the public class.
+                                                                                                                                                                                                                                                                                                                                                                                              */
 class FetchHttpApi {
   constructor(eventEmitter, opts) {
     this.eventEmitter = eventEmitter;
     this.opts = opts;
     _defineProperty(this, "abortController", new AbortController());
-    utils.checkObjectHasKeys(opts, ["baseUrl", "prefix"]);
+    (0, _utils.checkObjectHasKeys)(opts, ["baseUrl", "prefix"]);
     opts.onlyData = !!opts.onlyData;
     opts.useAuthorizationHeader = opts.useAuthorizationHeader ?? true;
   }
@@ -235,13 +249,15 @@ class FetchHttpApi {
    * @param path - The HTTP path <b>after</b> the supplied prefix e.g. "/createRoom".
    * @param queryParams - A dict of query params (these will NOT be urlencoded).
    * @param prefix - The full prefix to use e.g. "/_matrix/client/v2_alpha", defaulting to this.opts.prefix.
-   * @param baseUrl - The baseUrl to use e.g. "https://matrix.org/", defaulting to this.opts.baseUrl.
+   * @param baseUrl - The baseUrl to use e.g. "https://matrix.org", defaulting to this.opts.baseUrl.
    * @returns URL
    */
   getUrl(path, queryParams, prefix, baseUrl) {
-    const url = new URL((baseUrl ?? this.opts.baseUrl) + (prefix ?? this.opts.prefix) + path);
+    const baseUrlWithFallback = baseUrl ?? this.opts.baseUrl;
+    const baseUrlWithoutTrailingSlash = baseUrlWithFallback.endsWith("/") ? baseUrlWithFallback.slice(0, -1) : baseUrlWithFallback;
+    const url = new URL(baseUrlWithoutTrailingSlash + (prefix ?? this.opts.prefix) + path);
     if (queryParams) {
-      utils.encodeParams(queryParams, url.searchParams);
+      (0, _utils.encodeParams)(queryParams, url.searchParams);
     }
     return url;
   }

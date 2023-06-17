@@ -30,11 +30,9 @@ limitations under the License.
 class ReEmitter {
   constructor(target) {
     this.target = target;
-    _defineProperty(this, "reEmitters", new Map());
+    // Map from emitter to event name to re-emitter
+    _defineProperty(this, "reEmitters", new WeakMap());
   }
-
-  // Map from emitter to event name to re-emitter
-
   reEmit(source, eventNames) {
     let reEmittersByEvent = this.reEmitters.get(source);
     if (!reEmittersByEvent) {
@@ -42,6 +40,8 @@ class ReEmitter {
       this.reEmitters.set(source, reEmittersByEvent);
     }
     for (const eventName of eventNames) {
+      if (reEmittersByEvent.has(eventName)) continue;
+
       // We include the source as the last argument for event handlers which may need it,
       // such as read receipt listeners on the client class which won't have the context
       // of the room.

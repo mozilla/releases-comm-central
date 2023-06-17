@@ -6,22 +6,36 @@ Object.defineProperty(exports, "__esModule", {
 exports.SyncAccumulator = exports.Category = void 0;
 var _logger = require("./logger");
 var _utils = require("./utils");
-var _event = require("./@types/event");
-var _read_receipts = require("./@types/read_receipts");
 var _sync = require("./@types/sync");
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+var _receiptAccumulator = require("./receipt-accumulator");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 - 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /**
+                                                                                                                                                                                                                                                                                                                                                                                              * This is an internal module. See {@link SyncAccumulator} for the public class.
+                                                                                                                                                                                                                                                                                                                                                                                              */
+/* eslint-disable camelcase */
 /* eslint-enable camelcase */
-let Category;
-exports.Category = Category;
-(function (Category) {
+let Category = /*#__PURE__*/function (Category) {
   Category["Invite"] = "invite";
   Category["Leave"] = "leave";
   Category["Join"] = "join";
-})(Category || (exports.Category = Category = {}));
+  return Category;
+}({});
+exports.Category = Category;
 function isTaggedEvent(event) {
   return "_localTs" in event && event["_localTs"] !== undefined;
 }
@@ -37,19 +51,17 @@ function isTaggedEvent(event) {
  * rather than asking the server to do an initial sync on startup.
  */
 class SyncAccumulator {
-  // $event_type: Object
-  // $roomId: { ... sync 'invite' json data ... }
-
-  // the /sync token which corresponds to the last time rooms were
-  // accumulated. We remember this so that any caller can obtain a
-  // coherent /sync response and know at what point they should be
-  // streaming from without losing events.
-
   constructor(opts = {}) {
     this.opts = opts;
     _defineProperty(this, "accountData", {});
+    // $event_type: Object
     _defineProperty(this, "inviteRooms", {});
+    // $roomId: { ... sync 'invite' json data ... }
     _defineProperty(this, "joinRooms", {});
+    // the /sync token which corresponds to the last time rooms were
+    // accumulated. We remember this so that any caller can obtain a
+    // coherent /sync response and know at what point they should be
+    // streaming from without losing events.
     _defineProperty(this, "nextBatch", null);
     this.opts.maxTimelineEntries = this.opts.maxTimelineEntries || 50;
   }
@@ -211,8 +223,7 @@ class SyncAccumulator {
         _unreadNotifications: {},
         _unreadThreadNotifications: {},
         _summary: {},
-        _readReceipts: {},
-        _threadReadReceipts: {}
+        _receipts: new _receiptAccumulator.ReceiptAccumulator()
       };
     }
     const currentData = this.joinRooms[roomId];
@@ -234,57 +245,22 @@ class SyncAccumulator {
       const JOINED_COUNT_KEY = "m.joined_member_count";
       const acc = currentData._summary;
       const sum = data.summary;
-      acc[HEROES_KEY] = sum[HEROES_KEY] || acc[HEROES_KEY];
-      acc[JOINED_COUNT_KEY] = sum[JOINED_COUNT_KEY] || acc[JOINED_COUNT_KEY];
-      acc[INVITED_COUNT_KEY] = sum[INVITED_COUNT_KEY] || acc[INVITED_COUNT_KEY];
+      acc[HEROES_KEY] = sum[HEROES_KEY] ?? acc[HEROES_KEY];
+      acc[JOINED_COUNT_KEY] = sum[JOINED_COUNT_KEY] ?? acc[JOINED_COUNT_KEY];
+      acc[INVITED_COUNT_KEY] = sum[INVITED_COUNT_KEY] ?? acc[INVITED_COUNT_KEY];
     }
-    data.ephemeral?.events?.forEach(e => {
-      // We purposefully do not persist m.typing events.
-      // Technically you could refresh a browser before the timer on a
-      // typing event is up, so it'll look like you aren't typing when
-      // you really still are. However, the alternative is worse. If
-      // we do persist typing events, it will look like people are
-      // typing forever until someone really does start typing (which
-      // will prompt Synapse to send down an actual m.typing event to
-      // clobber the one we persisted).
-      if (e.type !== _event.EventType.Receipt || !e.content) {
-        // This means we'll drop unknown ephemeral events but that
-        // seems okay.
-        return;
-      }
-      // Handle m.receipt events. They clobber based on:
-      //   (user_id, receipt_type)
-      // but they are keyed in the event as:
-      //   content:{ $event_id: { $receipt_type: { $user_id: {json} }}}
-      // so store them in the former so we can accumulate receipt deltas
-      // quickly and efficiently (we expect a lot of them). Fold the
-      // receipt type into the key name since we only have 1 at the
-      // moment (m.read) and nested JSON objects are slower and more
-      // of a hassle to work with. We'll inflate this back out when
-      // getJSON() is called.
-      Object.keys(e.content).forEach(eventId => {
-        Object.entries(e.content[eventId]).forEach(([key, value]) => {
-          if (!(0, _utils.isSupportedReceiptType)(key)) return;
-          for (const userId of Object.keys(value)) {
-            const data = e.content[eventId][key][userId];
-            const receipt = {
-              data: e.content[eventId][key][userId],
-              type: key,
-              eventId: eventId
-            };
-            if (!data.thread_id || data.thread_id === _read_receipts.MAIN_ROOM_TIMELINE) {
-              currentData._readReceipts[userId] = receipt;
-            } else {
-              currentData._threadReadReceipts = _objectSpread(_objectSpread({}, currentData._threadReadReceipts), {}, {
-                [data.thread_id]: _objectSpread(_objectSpread({}, currentData._threadReadReceipts[data.thread_id] ?? {}), {}, {
-                  [userId]: receipt
-                })
-              });
-            }
-          }
-        });
-      });
-    });
+
+    // We purposefully do not persist m.typing events.
+    // Technically you could refresh a browser before the timer on a
+    // typing event is up, so it'll look like you aren't typing when
+    // you really still are. However, the alternative is worse. If
+    // we do persist typing events, it will look like people are
+    // typing forever until someone really does start typing (which
+    // will prompt Synapse to send down an actual m.typing event to
+    // clobber the one we persisted).
+
+    // Persist the receipts
+    currentData._receipts.consumeEphemeralEvents(data.ephemeral?.events);
 
     // if we got a limited sync, we need to remove all timeline entries or else
     // we will have gaps in the timeline.
@@ -394,28 +370,10 @@ class SyncAccumulator {
       Object.keys(roomData._accountData).forEach(evType => {
         roomJson.account_data.events.push(roomData._accountData[evType]);
       });
-
-      // Add receipt data
-      const receiptEvent = {
-        type: _event.EventType.Receipt,
-        room_id: roomId,
-        content: {
-          // $event_id: { "m.read": { $user_id: $json } }
-        }
-      };
-      const receiptEventContent = new _utils.MapWithDefault(() => new _utils.MapWithDefault(() => new Map()));
-      for (const [userId, receiptData] of Object.entries(roomData._readReceipts)) {
-        receiptEventContent.getOrCreate(receiptData.eventId).getOrCreate(receiptData.type).set(userId, receiptData.data);
-      }
-      for (const threadReceipts of Object.values(roomData._threadReadReceipts)) {
-        for (const [userId, receiptData] of Object.entries(threadReceipts)) {
-          receiptEventContent.getOrCreate(receiptData.eventId).getOrCreate(receiptData.type).set(userId, receiptData.data);
-        }
-      }
-      receiptEvent.content = (0, _utils.recursiveMapToObject)(receiptEventContent);
+      const receiptEvent = roomData._receipts.buildAccumulatedReceiptEvent(roomId);
 
       // add only if we have some receipt data
-      if (receiptEventContent.size > 0) {
+      if (receiptEvent) {
         roomJson.ephemeral.events.push(receiptEvent);
       }
 

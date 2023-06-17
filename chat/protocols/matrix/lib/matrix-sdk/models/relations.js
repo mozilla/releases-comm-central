@@ -11,14 +11,28 @@ var _typedEventEmitter = require("./typed-event-emitter");
 var _room = require("./room");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-let RelationsEvent;
-exports.RelationsEvent = RelationsEvent;
-(function (RelationsEvent) {
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2019, 2021, 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
+let RelationsEvent = /*#__PURE__*/function (RelationsEvent) {
   RelationsEvent["Add"] = "Relations.add";
   RelationsEvent["Remove"] = "Relations.remove";
   RelationsEvent["Redaction"] = "Relations.redaction";
-})(RelationsEvent || (exports.RelationsEvent = RelationsEvent = {}));
+  return RelationsEvent;
+}({});
+exports.RelationsEvent = RelationsEvent;
 const matchesEventType = (eventType, targetEventType, altTargetEventTypes = []) => [targetEventType, ...altTargetEventTypes].includes(eventType);
 
 /**
@@ -49,6 +63,12 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "targetEvent", null);
     _defineProperty(this, "creationEmitted", false);
     _defineProperty(this, "client", void 0);
+    /**
+     * Listens for event status changes to remove cancelled events.
+     *
+     * @param event - The event whose status has changed
+     * @param status - The new status
+     */
     _defineProperty(this, "onEventStatus", (event, status) => {
       if (!event.isSending()) {
         // Sending is done, so we don't need to listen anymore
@@ -62,6 +82,16 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
       event.removeListener(_event.MatrixEventEvent.Status, this.onEventStatus);
       this.removeEvent(event);
     });
+    /**
+     * For relations that have been redacted, we want to remove them from
+     * aggregation data sets and emit an update event.
+     *
+     * To do so, we listen for `Event.beforeRedaction`, which happens:
+     *   - after the server accepted the redaction and remote echoed back to us
+     *   - before the original event has been marked redacted in the client
+     *
+     * @param redactedEvent - The original relation event that is about to be redacted.
+     */
     _defineProperty(this, "onBeforeRedaction", async redactedEvent => {
       if (!this.relations.has(redactedEvent)) {
         return;
@@ -137,14 +167,6 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
     }
     this.emit(RelationsEvent.Remove, event);
   }
-
-  /**
-   * Listens for event status changes to remove cancelled events.
-   *
-   * @param event - The event whose status has changed
-   * @param status - The new status
-   */
-
   /**
    * Get all relation events in this collection.
    *
@@ -205,18 +227,6 @@ class Relations extends _typedEventEmitter.TypedEventEmitter {
       eventsFromSender.delete(event);
     }
   }
-
-  /**
-   * For relations that have been redacted, we want to remove them from
-   * aggregation data sets and emit an update event.
-   *
-   * To do so, we listen for `Event.beforeRedaction`, which happens:
-   *   - after the server accepted the redaction and remote echoed back to us
-   *   - before the original event has been marked redacted in the client
-   *
-   * @param redactedEvent - The original relation event that is about to be redacted.
-   */
-
   /**
    * Get all events in this collection grouped by key and sorted by descending
    * event count in each group.

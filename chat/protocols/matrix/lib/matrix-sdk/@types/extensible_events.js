@@ -23,6 +23,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Types and utilities for MSC1767: Extensible events (version 1) in Matrix
+
+/**
+ * Represents the stable and unstable values of a given namespace.
+ */
+
+/**
+ * Represents a namespaced value, if the value is a string. Used to extract provided types
+ * from a TSNamespace<N> (in cases where only stable *or* unstable is provided).
+ */
+
+/**
+ * Creates a type which is V when T is `never`, otherwise T.
+ */
+// See https://github.com/microsoft/TypeScript/issues/23182#issuecomment-379091887 for details on the array syntax.
+
 /**
  * The namespaced value for m.message
  */
@@ -30,6 +46,10 @@ const M_MESSAGE = new _matrixEventsSdk.UnstableValue("m.message", "org.matrix.ms
 
 /**
  * An m.message event rendering
+ */
+
+/**
+ * The content for an m.message event
  */
 exports.M_MESSAGE = M_MESSAGE;
 /**
@@ -49,6 +69,10 @@ const M_HTML = new _matrixEventsSdk.UnstableValue("m.html", "org.matrix.msc1767.
 /**
  * The content for an m.html event
  */
+
+/**
+ * The content for an m.message, m.text, or m.html event
+ */
 exports.M_HTML = M_HTML;
 /**
  * The namespaced value for an m.reference relation
@@ -57,6 +81,18 @@ const REFERENCE_RELATION = new _matrixEventsSdk.NamespacedValue("m.reference");
 
 /**
  * Represents any relation type
+ */
+
+/**
+ * An m.relates_to relationship
+ */
+
+/**
+ * Partial types for a Matrix Event.
+ */
+
+/**
+ * Represents a potentially namespaced event type.
  */
 exports.REFERENCE_RELATION = REFERENCE_RELATION;
 /**

@@ -19,7 +19,23 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2021, 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /**
+                                                                                                                                                                                                                                                                                                                                                                                              * Defines m.olm encryption/decryption
+                                                                                                                                                                                                                                                                                                                                                                                              */
 // determine whether the key can be shared with invitees
 function isRoomSharedHistory(room) {
   const visibilityEvent = room?.currentState?.getStateEvents("m.room.history_visibility", "");
@@ -31,6 +47,9 @@ function isRoomSharedHistory(room) {
   const visibility = visibilityEvent?.getContent()?.history_visibility;
   return ["world_readable", "shared"].includes(visibility);
 }
+
+// map user Id → device Id → IBlockedDevice
+
 /**
  * Tests whether an encrypted content has a ciphertext.
  * Ciphertext can be a string or object depending on the content type {@link IEncryptedContent}.
@@ -48,12 +67,6 @@ const hasCiphertext = content => {
  * @internal
  */
 class OutboundSessionInfo {
-  /** number of times this session has been used */
-
-  /** when the session was created (ms since the epoch) */
-
-  /** devices with which we have shared the session key `userId -> {deviceId -> SharedWithData}` */
-
   /**
    * @param sharedHistory - whether the session can be freely shared with
    *    other group members, according to the room history visibility settings
@@ -61,8 +74,11 @@ class OutboundSessionInfo {
   constructor(sessionId, sharedHistory = false) {
     this.sessionId = sessionId;
     this.sharedHistory = sharedHistory;
+    /** number of times this session has been used */
     _defineProperty(this, "useCount", 0);
+    /** when the session was created (ms since the epoch) */
     _defineProperty(this, "creationTime", void 0);
+    /** devices with which we have shared the session key `userId -> {deviceId -> SharedWithData}` */
     _defineProperty(this, "sharedWithDevices", new _utils.MapWithDefault(() => new Map()));
     _defineProperty(this, "blockedDevicesNotified", new _utils.MapWithDefault(() => new Map()));
     this.creationTime = new Date().getTime();
@@ -122,19 +138,17 @@ class OutboundSessionInfo {
  * @param params - parameters, as per {@link EncryptionAlgorithm}
  */
 class MegolmEncryption extends _base.EncryptionAlgorithm {
-  // the most recent attempt to set up a session. This is used to serialise
-  // the session setups, so that we have a race-free view of which session we
-  // are using, and which devices we have shared the keys with. It resolves
-  // with an OutboundSessionInfo (or undefined, for the first message in the
-  // room).
-
-  // Map of outbound sessions by sessions ID. Used if we need a particular
-  // session (the session we're currently using to send is always obtained
-  // using setupPromise).
-
   constructor(params) {
     super(params);
+    // the most recent attempt to set up a session. This is used to serialise
+    // the session setups, so that we have a race-free view of which session we
+    // are using, and which devices we have shared the keys with. It resolves
+    // with an OutboundSessionInfo (or undefined, for the first message in the
+    // room).
     _defineProperty(this, "setupPromise", Promise.resolve(null));
+    // Map of outbound sessions by sessions ID. Used if we need a particular
+    // session (the session we're currently using to send is always obtained
+    // using setupPromise).
     _defineProperty(this, "outboundSessions", {});
     _defineProperty(this, "sessionRotationPeriodMsgs", void 0);
     _defineProperty(this, "sessionRotationPeriodMs", void 0);
@@ -937,15 +951,13 @@ class MegolmEncryption extends _base.EncryptionAlgorithm {
  */
 exports.MegolmEncryption = MegolmEncryption;
 class MegolmDecryption extends _base.DecryptionAlgorithm {
-  // events which we couldn't decrypt due to unknown sessions /
-  // indexes, or which we could only decrypt with untrusted keys:
-  // map from senderKey|sessionId to Set of MatrixEvents
-
-  // this gets stubbed out by the unit tests.
-
   constructor(params) {
     super(params);
+    // events which we couldn't decrypt due to unknown sessions /
+    // indexes, or which we could only decrypt with untrusted keys:
+    // map from senderKey|sessionId to Set of MatrixEvents
     _defineProperty(this, "pendingEvents", new Map());
+    // this gets stubbed out by the unit tests.
     _defineProperty(this, "olmlib", olmlib);
     _defineProperty(this, "roomId", void 0);
     _defineProperty(this, "prefixedLogger", void 0);

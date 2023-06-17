@@ -52,4 +52,12 @@ const M_TOPIC = new _NamespacedValue.UnstableValue("m.topic", "org.matrix.msc376
 /**
  * The event content for an m.topic event (in content)
  */
+
+/**
+ * The event definition for an m.topic event (in content)
+ */
+
+/**
+ * The event content for an m.room.topic event
+ */
 exports.M_TOPIC = M_TOPIC;

@@ -22,11 +22,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let InvalidStoreState;
-exports.InvalidStoreState = InvalidStoreState;
-(function (InvalidStoreState) {
+let InvalidStoreState = /*#__PURE__*/function (InvalidStoreState) {
   InvalidStoreState[InvalidStoreState["ToggledLazyLoading"] = 0] = "ToggledLazyLoading";
-})(InvalidStoreState || (exports.InvalidStoreState = InvalidStoreState = {}));
+  return InvalidStoreState;
+}({});
+exports.InvalidStoreState = InvalidStoreState;
 class InvalidStoreError extends Error {
   constructor(reason, value) {
     const message = `Store is invalid because ${reason}, ` + `please stop the client, delete all data and start the client again`;
@@ -38,11 +38,11 @@ class InvalidStoreError extends Error {
 }
 exports.InvalidStoreError = InvalidStoreError;
 _defineProperty(InvalidStoreError, "TOGGLED_LAZY_LOADING", InvalidStoreState.ToggledLazyLoading);
-let InvalidCryptoStoreState;
-exports.InvalidCryptoStoreState = InvalidCryptoStoreState;
-(function (InvalidCryptoStoreState) {
+let InvalidCryptoStoreState = /*#__PURE__*/function (InvalidCryptoStoreState) {
   InvalidCryptoStoreState["TooNew"] = "TOO_NEW";
-})(InvalidCryptoStoreState || (exports.InvalidCryptoStoreState = InvalidCryptoStoreState = {}));
+  return InvalidCryptoStoreState;
+}({});
+exports.InvalidCryptoStoreState = InvalidCryptoStoreState;
 class InvalidCryptoStoreError extends Error {
   constructor(reason) {
     const message = `Crypto store is invalid because ${reason}, ` + `please stop the client, delete all data and start the client again`;

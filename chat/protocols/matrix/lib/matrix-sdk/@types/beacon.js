@@ -70,4 +70,57 @@ limitations under the License.
 const M_BEACON_INFO = new _NamespacedValue.UnstableValue("m.beacon_info", "org.matrix.msc3672.beacon_info");
 exports.M_BEACON_INFO = M_BEACON_INFO;
 const M_BEACON = new _NamespacedValue.UnstableValue("m.beacon", "org.matrix.msc3672.beacon");
+
+/**
+ * m.beacon_info Event example from the spec
+ * https://github.com/matrix-org/matrix-spec-proposals/pull/3672
+ * @example
+ * ```
+ * {
+ *   "type": "m.beacon_info",
+ *   "state_key": "@matthew:matrix.org",
+ *   "content": {
+ *     "m.beacon_info": {
+ *       "description": "The Matthew Tracker", // same as an `m.location` description
+ *       "timeout": 86400000, // how long from the last event until we consider the beacon inactive in milliseconds
+ *     },
+ *     "m.ts": 1436829458432, // creation timestamp of the beacon on the client
+ *     "m.asset": {
+ *       "type": "m.self" // the type of asset being tracked as per MSC3488
+ *     }
+ *   }
+ * }
+ * ```
+ */
+
+/**
+ * m.beacon_info.* event content
+ */
+
+/**
+ * m.beacon event example
+ * https://github.com/matrix-org/matrix-spec-proposals/pull/3672
+ * @example
+ * ```
+ * {
+ *   "type": "m.beacon",
+ *   "sender": "@matthew:matrix.org",
+ *   "content": {
+ *       "m.relates_to": { // from MSC2674: https://github.com/matrix-org/matrix-doc/pull/2674
+ *           "rel_type": "m.reference", // from MSC3267: https://github.com/matrix-org/matrix-doc/pull/3267
+ *           "event_id": "$beacon_info"
+ *       },
+ *       "m.location": {
+ *           "uri": "geo:51.5008,0.1247;u=35",
+ *           "description": "Arbitrary beacon information"
+ *       },
+ *       "m.ts": 1636829458432,
+ *   }
+ * }
+ * ```
+ */
+
+/**
+ * Content of an m.beacon event
+ */
 exports.M_BEACON = M_BEACON;

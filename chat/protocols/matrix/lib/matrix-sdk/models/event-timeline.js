@@ -9,24 +9,28 @@ var _roomState = require("./room-state");
 var _event = require("../@types/event");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-let Direction;
-exports.Direction = Direction;
-(function (Direction) {
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2016 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
+let Direction = /*#__PURE__*/function (Direction) {
   Direction["Backward"] = "b";
   Direction["Forward"] = "f";
-})(Direction || (exports.Direction = Direction = {}));
+  return Direction;
+}({});
+exports.Direction = Direction;
 class EventTimeline {
-  /**
-   * Symbolic constant for methods which take a 'direction' argument:
-   * refers to the start of the timeline, or backwards in time.
-   */
-
-  /**
-   * Symbolic constant for methods which take a 'direction' argument:
-   * refers to the end of the timeline, or forwards in time.
-   */
-
   /**
    * Static helper method to set sender and target properties
    *
@@ -83,6 +87,8 @@ class EventTimeline {
     _defineProperty(this, "baseIndex", 0);
     _defineProperty(this, "startState", void 0);
     _defineProperty(this, "endState", void 0);
+    // If we have a roomId then we delegate pagination token storage to the room state objects `startState` and
+    // `endState`, but for things like the notification timeline which mix multiple rooms we store the tokens ourselves.
     _defineProperty(this, "startToken", null);
     _defineProperty(this, "endToken", null);
     _defineProperty(this, "prevTimeline", null);
@@ -327,6 +333,10 @@ class EventTimeline {
    * @param options - addEvent options
    */
 
+  /**
+   * @deprecated In favor of the overload with `IAddEventOptions`
+   */
+
   addEvent(event, toStartOfTimelineOrOpts, roomState) {
     let toStartOfTimeline = !!toStartOfTimelineOrOpts;
     let timelineWasEmpty;
@@ -381,6 +391,43 @@ class EventTimeline {
   }
 
   /**
+   * Insert a new event into the timeline, and update the state.
+   *
+   * TEMPORARY: until we have recursive relations, we need this function
+   * to exist to allow us to insert events in timeline order, which is our
+   * best guess for Sync Order.
+   * This is a copy of addEvent above, modified to allow inserting an event at
+   * a specific index.
+   *
+   * @internal
+   */
+  insertEvent(event, insertIndex, roomState) {
+    const timelineSet = this.getTimelineSet();
+    if (timelineSet.room) {
+      EventTimeline.setEventMetadata(event, roomState, false);
+
+      // modify state but only on unfiltered timelineSets
+      if (event.isState() && timelineSet.room.getUnfilteredTimelineSet() === timelineSet) {
+        roomState.setStateEvents([event], {});
+        // it is possible that the act of setting the state event means we
+        // can set more metadata (specifically sender/target props), so try
+        // it again if the prop wasn't previously set. It may also mean that
+        // the sender/target is updated (if the event set was a room member event)
+        // so we want to use the *updated* member (new avatar/name) instead.
+        //
+        // However, we do NOT want to do this on member events if we're going
+        // back in time, else we'll set the .sender value for BEFORE the given
+        // member event, whereas we want to set the .sender value for the ACTUAL
+        // member event itself.
+        if (!event.sender || event.getType() === _event.EventType.RoomMember) {
+          EventTimeline.setEventMetadata(event, roomState, false);
+        }
+      }
+    }
+    this.events.splice(insertIndex, 0, event); // insert element
+  }
+
+  /**
    * Remove an event from the timeline
    *
    * @param eventId -  ID of event to be removed
@@ -410,5 +457,13 @@ class EventTimeline {
   }
 }
 exports.EventTimeline = EventTimeline;
+/**
+ * Symbolic constant for methods which take a 'direction' argument:
+ * refers to the start of the timeline, or backwards in time.
+ */
 _defineProperty(EventTimeline, "BACKWARDS", Direction.Backward);
+/**
+ * Symbolic constant for methods which take a 'direction' argument:
+ * refers to the end of the timeline, or forwards in time.
+ */
 _defineProperty(EventTimeline, "FORWARDS", Direction.Forward);

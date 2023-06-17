@@ -42,7 +42,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   MatrixSDK: "resource:///modules/matrix-sdk.sys.mjs",
   OlmLib: "resource:///modules/matrix-sdk.sys.mjs",
   ReceiptType: "resource:///modules/matrix-sdk.sys.mjs",
-  SasEvent: "resource:///modules/matrix-sdk.sys.mjs",
   SyncState: "resource:///modules/matrix-sdk.sys.mjs",
 });
 
@@ -1487,7 +1486,7 @@ async function startVerification(request) {
     }
   }
   const sasEventPromise = new Promise(resolve =>
-    request.verifier.once(lazy.SasEvent.ShowSas, resolve)
+    request.verifier.once(lazy.MatrixSDK.Crypto.VerifierEvent.ShowSas, resolve)
   );
   request.verifier.verify();
   const sasEvent = await sasEventPromise;
@@ -2367,7 +2366,7 @@ MatrixAccount.prototype = {
     );
 
     this._client.on(
-      lazy.MatrixCrypto.CryptoEvent.UserTrustStatusChanged,
+      lazy.MatrixSDK.CryptoEvent.UserTrustStatusChanged,
       (userId, trustLevel) => {
         this.updateConvDeviceTrust(
           conv =>
@@ -2377,7 +2376,7 @@ MatrixAccount.prototype = {
       }
     );
 
-    this._client.on(lazy.MatrixCrypto.CryptoEvent.DevicesUpdated, users => {
+    this._client.on(lazy.MatrixSDK.CryptoEvent.DevicesUpdated, users => {
       if (users.includes(this.userId)) {
         this.reportSessionsChanged();
         this.updateEncryptionStatus();
@@ -2395,22 +2394,19 @@ MatrixAccount.prototype = {
 
     // From the SDK documentation: Fires when the user's cross-signing keys
     // have changed or cross-signing has been enabled/disabled
-    this._client.on(lazy.MatrixCrypto.CryptoEvent.KeysChanged, () => {
+    this._client.on(lazy.MatrixSDK.CryptoEvent.KeysChanged, () => {
       this.reportSessionsChanged();
       this.updateEncryptionStatus();
       this.updateConvDeviceTrust();
     });
-    this._client.on(lazy.MatrixCrypto.CryptoEvent.KeyBackupStatus, () => {
+    this._client.on(lazy.MatrixSDK.CryptoEvent.KeyBackupStatus, () => {
       this.bootstrapSSSS();
       this.updateEncryptionStatus();
     });
 
-    this._client.on(
-      lazy.MatrixCrypto.CryptoEvent.VerificationRequest,
-      request => {
-        this.handleIncomingVerificationRequest(request);
-      }
-    );
+    this._client.on(lazy.MatrixSDK.CryptoEvent.VerificationRequest, request => {
+      this.handleIncomingVerificationRequest(request);
+    });
 
     // TODO Other events to handle:
     //  Room.localEchoUpdated

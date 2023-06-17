@@ -5,65 +5,36 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RoomMemberEvent = exports.RoomMember = void 0;
 var _contentRepo = require("../content-repo");
-var utils = _interopRequireWildcard(require("../utils"));
+var _utils = require("../utils");
 var _logger = require("../logger");
 var _typedEventEmitter = require("./typed-event-emitter");
 var _event = require("../@types/event");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-let RoomMemberEvent;
-exports.RoomMemberEvent = RoomMemberEvent;
-(function (RoomMemberEvent) {
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
+let RoomMemberEvent = /*#__PURE__*/function (RoomMemberEvent) {
   RoomMemberEvent["Membership"] = "RoomMember.membership";
   RoomMemberEvent["Name"] = "RoomMember.name";
   RoomMemberEvent["PowerLevel"] = "RoomMember.powerLevel";
   RoomMemberEvent["Typing"] = "RoomMember.typing";
-})(RoomMemberEvent || (exports.RoomMemberEvent = RoomMemberEvent = {}));
+  return RoomMemberEvent;
+}({});
+exports.RoomMemberEvent = RoomMemberEvent;
 class RoomMember extends _typedEventEmitter.TypedEventEmitter {
-  // used by sync.ts
-
-  // XXX these should be read-only
-  /**
-   * True if the room member is currently typing.
-   */
-
-  /**
-   * The human-readable name for this room member. This will be
-   * disambiguated with a suffix of " (\@user_id:matrix.org)" if another member shares the
-   * same displayname.
-   */
-
-  /**
-   * The ambiguous displayname of this room member.
-   */
-
-  /**
-   * The power level for this room member.
-   */
-
-  /**
-   * The normalised power level (0-100) for this room member.
-   */
-
-  /**
-   * The User object for this room member, if one exists.
-   */
-
-  /**
-   * The membership state for this room member e.g. 'join'.
-   */
-
-  /**
-   * True if the member's name is disambiguated.
-   */
-
-  /**
-   * The events describing this RoomMember.
-   */
-
   /**
    * Construct a new room member.
    *
@@ -77,14 +48,45 @@ class RoomMember extends _typedEventEmitter.TypedEventEmitter {
     _defineProperty(this, "_isOutOfBand", false);
     _defineProperty(this, "modified", -1);
     _defineProperty(this, "requestedProfileInfo", false);
+    // used by sync.ts
+    // XXX these should be read-only
+    /**
+     * True if the room member is currently typing.
+     */
     _defineProperty(this, "typing", false);
+    /**
+     * The human-readable name for this room member. This will be
+     * disambiguated with a suffix of " (\@user_id:matrix.org)" if another member shares the
+     * same displayname.
+     */
     _defineProperty(this, "name", void 0);
+    /**
+     * The ambiguous displayname of this room member.
+     */
     _defineProperty(this, "rawDisplayName", void 0);
+    /**
+     * The power level for this room member.
+     */
     _defineProperty(this, "powerLevel", 0);
+    /**
+     * The normalised power level (0-100) for this room member.
+     */
     _defineProperty(this, "powerLevelNorm", 0);
+    /**
+     * The User object for this room member, if one exists.
+     */
     _defineProperty(this, "user", void 0);
+    /**
+     * The membership state for this room member e.g. 'join'.
+     */
     _defineProperty(this, "membership", void 0);
+    /**
+     * True if the member's name is disambiguated.
+     */
     _defineProperty(this, "disambiguate", false);
+    /**
+     * The events describing this RoomMember.
+     */
     _defineProperty(this, "events", {});
     this.name = userId;
     this.rawDisplayName = userId;
@@ -138,8 +140,8 @@ class RoomMember extends _typedEventEmitter.TypedEventEmitter {
 
     // not quite raw: we strip direction override chars so it can safely be inserted into
     // blocks of text without breaking the text direction
-    this.rawDisplayName = utils.removeDirectionOverrideChars(event.getDirectionalContent().displayname ?? "");
-    if (!this.rawDisplayName || !utils.removeHiddenChars(this.rawDisplayName)) {
+    this.rawDisplayName = (0, _utils.removeDirectionOverrideChars)(event.getDirectionalContent().displayname ?? "");
+    if (!this.rawDisplayName || !(0, _utils.removeHiddenChars)(this.rawDisplayName)) {
       this.rawDisplayName = this.userId;
     }
     if (oldMembership !== this.membership) {
@@ -319,7 +321,7 @@ function shouldDisambiguate(selfUserId, displayName, roomState) {
 
   // First check if the displayname is something we consider truthy
   // after stripping it of zero width characters and padding spaces
-  if (!utils.removeHiddenChars(displayName)) return false;
+  if (!(0, _utils.removeHiddenChars)(displayName)) return false;
   if (!roomState) return false;
 
   // Next check if the name contains something that look like a mxid
@@ -340,11 +342,11 @@ function shouldDisambiguate(selfUserId, displayName, roomState) {
 }
 function calculateDisplayName(selfUserId, displayName, disambiguate) {
   if (!displayName || displayName === selfUserId) return selfUserId;
-  if (disambiguate) return utils.removeDirectionOverrideChars(displayName) + " (" + selfUserId + ")";
+  if (disambiguate) return (0, _utils.removeDirectionOverrideChars)(displayName) + " (" + selfUserId + ")";
 
   // First check if the displayname is something we consider truthy
   // after stripping it of zero width characters and padding spaces
-  if (!utils.removeHiddenChars(displayName)) return selfUserId;
+  if (!(0, _utils.removeHiddenChars)(displayName)) return selfUserId;
 
   // We always strip the direction override characters (LRO and RLO).
   // These override the text direction for all subsequent characters
@@ -357,5 +359,5 @@ function calculateDisplayName(selfUserId, displayName, disambiguate) {
   // names should flip into the correct direction automatically based on
   // the characters, and you can still embed rtl in ltr or vice versa
   // with the embed chars or marker chars.
-  return utils.removeDirectionOverrideChars(displayName);
+  return (0, _utils.removeDirectionOverrideChars)(displayName);
 }

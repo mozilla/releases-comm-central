@@ -20,22 +20,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let ServerSupport;
-exports.ServerSupport = ServerSupport;
-(function (ServerSupport) {
+let ServerSupport = /*#__PURE__*/function (ServerSupport) {
   ServerSupport[ServerSupport["Stable"] = 0] = "Stable";
   ServerSupport[ServerSupport["Unstable"] = 1] = "Unstable";
   ServerSupport[ServerSupport["Unsupported"] = 2] = "Unsupported";
-})(ServerSupport || (exports.ServerSupport = ServerSupport = {}));
-let Feature;
-exports.Feature = Feature;
-(function (Feature) {
+  return ServerSupport;
+}({});
+exports.ServerSupport = ServerSupport;
+let Feature = /*#__PURE__*/function (Feature) {
   Feature["Thread"] = "Thread";
   Feature["ThreadUnreadNotifications"] = "ThreadUnreadNotifications";
   Feature["LoginTokenRequest"] = "LoginTokenRequest";
   Feature["RelationBasedRedactions"] = "RelationBasedRedactions";
   Feature["AccountDataDeletion"] = "AccountDataDeletion";
-})(Feature || (exports.Feature = Feature = {}));
+  Feature["RelationsRecursion"] = "RelationsRecursion";
+  return Feature;
+}({});
+exports.Feature = Feature;
 const featureSupportResolver = {
   [Feature.Thread]: {
     unstablePrefixes: ["org.matrix.msc3440"],
@@ -53,6 +54,9 @@ const featureSupportResolver = {
   },
   [Feature.AccountDataDeletion]: {
     unstablePrefixes: ["org.matrix.msc3391"]
+  },
+  [Feature.RelationsRecursion]: {
+    unstablePrefixes: ["org.matrix.msc3981"]
   }
 };
 async function buildFeatureSupportMap(versions) {

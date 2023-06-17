@@ -6,26 +6,41 @@ Object.defineProperty(exports, "__esModule", {
 exports.MSC3906Rendezvous = void 0;
 var _matrixEventsSdk = require("matrix-events-sdk");
 var _ = require(".");
+var _client = require("../client");
 var _feature = require("../feature");
 var _logger = require("../logger");
 var _utils = require("../utils");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-var PayloadType;
-(function (PayloadType) {
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
+var PayloadType = /*#__PURE__*/function (PayloadType) {
   PayloadType["Start"] = "m.login.start";
   PayloadType["Finish"] = "m.login.finish";
   PayloadType["Progress"] = "m.login.progress";
-})(PayloadType || (PayloadType = {}));
-var Outcome;
-(function (Outcome) {
+  return PayloadType;
+}(PayloadType || {});
+var Outcome = /*#__PURE__*/function (Outcome) {
   Outcome["Success"] = "success";
   Outcome["Failure"] = "failure";
   Outcome["Verified"] = "verified";
   Outcome["Declined"] = "declined";
   Outcome["Unsupported"] = "unsupported";
-})(Outcome || (Outcome = {}));
+  return Outcome;
+}(Outcome || {});
 const LOGIN_TOKEN_PROTOCOL = new _matrixEventsSdk.UnstableValue("login_token", "org.matrix.msc3906.login_token");
 
 /**
@@ -68,9 +83,15 @@ class MSC3906Rendezvous {
   async startAfterShowingCode() {
     const checksum = await this.channel.connect();
     _logger.logger.info(`Connected to secure channel with checksum: ${checksum} our intent is ${this.ourIntent}`);
+
+    // in r1 of MSC3882 the availability is exposed as a capability
+    const capabilities = await this.client.getCapabilities();
+    // in r0 of MSC3882 the availability is exposed as a feature flag
     const features = await (0, _feature.buildFeatureSupportMap)(await this.client.getVersions());
+    const capability = _client.UNSTABLE_MSC3882_CAPABILITY.findIn(capabilities);
+
     // determine available protocols
-    if (features.get(_feature.Feature.LoginTokenRequest) === _feature.ServerSupport.Unsupported) {
+    if (!capability?.enabled && features.get(_feature.Feature.LoginTokenRequest) === _feature.ServerSupport.Unsupported) {
       _logger.logger.info("Server doesn't support MSC3882");
       await this.send({
         type: PayloadType.Finish,

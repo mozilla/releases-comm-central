@@ -8,7 +8,7 @@ var _matrixEventsSdk = require("matrix-events-sdk");
 var _eventTimelineSet = require("./event-timeline-set");
 var _eventTimeline = require("./event-timeline");
 var _contentRepo = require("../content-repo");
-var utils = _interopRequireWildcard(require("../utils"));
+var _utils = require("../utils");
 var _event = require("./event");
 var _eventStatus = require("./event-status");
 var _roomMember = require("./room-member");
@@ -25,22 +25,34 @@ var _read_receipts = require("../@types/read_receipts");
 var _relationsContainer = require("./relations-container");
 var _readReceipt = require("./read-receipt");
 var _poll = require("./poll");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2023 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 // These constants are used as sane defaults when the homeserver doesn't support
 // the m.room_versions capability. In practice, KNOWN_SAFE_ROOM_VERSION should be
 // the same as the common default room version whereas SAFE_ROOM_VERSIONS are the
 // room versions which are considered okay for people to run without being asked
 // to upgrade (ie: "stable"). Eventually, we should remove these when all homeservers
 // return an m.room_versions capability.
-const KNOWN_SAFE_ROOM_VERSION = "9";
+const KNOWN_SAFE_ROOM_VERSION = "10";
 exports.KNOWN_SAFE_ROOM_VERSION = KNOWN_SAFE_ROOM_VERSION;
-const SAFE_ROOM_VERSIONS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+const SAFE_ROOM_VERSIONS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 // When inserting a visibility event affecting event `eventId`, we
 // need to scan through existing visibility events for `eventId`.
 // In theory, this could take an unlimited amount of time if:
@@ -56,15 +68,13 @@ const SAFE_ROOM_VERSIONS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 // an extremely uncommon case (possibly a DoS) is a small
 // price to pay to keep matrix-js-sdk responsive.
 const MAX_NUMBER_OF_VISIBILITY_EVENTS_TO_SCAN_THROUGH = 30;
-let NotificationCountType;
-exports.NotificationCountType = NotificationCountType;
-(function (NotificationCountType) {
+let NotificationCountType = /*#__PURE__*/function (NotificationCountType) {
   NotificationCountType["Highlight"] = "highlight";
   NotificationCountType["Total"] = "total";
-})(NotificationCountType || (exports.NotificationCountType = NotificationCountType = {}));
-let RoomEvent;
-exports.RoomEvent = RoomEvent;
-(function (RoomEvent) {
+  return NotificationCountType;
+}({});
+exports.NotificationCountType = NotificationCountType;
+let RoomEvent = /*#__PURE__*/function (RoomEvent) {
   RoomEvent["MyMembership"] = "Room.myMembership";
   RoomEvent["Tags"] = "Room.tags";
   RoomEvent["AccountData"] = "Room.accountData";
@@ -80,87 +90,10 @@ exports.RoomEvent = RoomEvent;
   RoomEvent["CurrentStateUpdated"] = "Room.CurrentStateUpdated";
   RoomEvent["HistoryImportedWithinTimeline"] = "Room.historyImportedWithinTimeline";
   RoomEvent["UnreadNotifications"] = "Room.UnreadNotifications";
-})(RoomEvent || (exports.RoomEvent = RoomEvent = {}));
+  return RoomEvent;
+}({});
+exports.RoomEvent = RoomEvent;
 class Room extends _readReceipt.ReadReceipt {
-  // Pending in-flight requests { string: MatrixEvent }
-
-  // Useful to know at what point the current user has started using threads in this room
-
-  /**
-   * A record of the latest unthread receipts per user
-   * This is useful in determining whether a user has read a thread or not
-   */
-
-  // any filtered timeline sets we're maintaining for this room
-  // filter_id: timelineSet
-
-  // read by megolm via getter; boolean value - null indicates "use global value"
-
-  // flags to stop logspam about missing m.room.create events
-
-  // XXX: These should be read-only
-  /**
-   * The human-readable display name for this room.
-   */
-
-  /**
-   * The un-homoglyphed name for this room.
-   */
-
-  /**
-   * Dict of room tags; the keys are the tag name and the values
-   * are any metadata associated with the tag - e.g. `{ "fav" : { order: 1 } }`
-   */
-  // $tagName: { $metadata: $value }
-  /**
-   * accountData Dict of per-room account_data events; the keys are the
-   * event type and the values are the events.
-   */
-  // $eventType: $event
-  /**
-   * The room summary.
-   */
-
-  // legacy fields
-  /**
-   * The live event timeline for this room, with the oldest event at index 0.
-   * Present for backwards compatibility - prefer getLiveTimeline().getEvents()
-   */
-
-  /**
-   * oldState The state of the room at the time of the oldest
-   * event in the live timeline. Present for backwards compatibility -
-   * prefer getLiveTimeline().getState(EventTimeline.BACKWARDS).
-   */
-
-  /**
-   * currentState The state of the room at the time of the
-   * newest event in the timeline. Present for backwards compatibility -
-   * prefer getLiveTimeline().getState(EventTimeline.FORWARDS).
-   */
-
-  /**
-   * A collection of events known by the client
-   * This is not a comprehensive list of the threads that exist in this room
-   */
-
-  /**
-   * A mapping of eventId to all visibility changes to apply
-   * to the event, by chronological order, as per
-   * https://github.com/matrix-org/matrix-doc/pull/3531
-   *
-   * # Invariants
-   *
-   * - within each list, all events are classed by
-   *   chronological order;
-   * - all events are events such that
-   *  `asVisibilityEvent()` returns a non-null `IVisibilityChange`;
-   * - within each list with key `eventId`, all events
-   *   are in relation to `eventId`.
-   *
-   * @experimental
-   */
-
   /**
    * Construct a new Room.
    *
@@ -194,34 +127,111 @@ class Room extends _readReceipt.ReadReceipt {
     this.opts = opts;
     _defineProperty(this, "reEmitter", void 0);
     _defineProperty(this, "txnToEvent", new Map());
+    // Pending in-flight requests { string: MatrixEvent }
     _defineProperty(this, "notificationCounts", {});
     _defineProperty(this, "threadNotifications", new Map());
     _defineProperty(this, "cachedThreadReadReceipts", new Map());
+    // Useful to know at what point the current user has started using threads in this room
     _defineProperty(this, "oldestThreadedReceiptTs", Infinity);
+    /**
+     * A record of the latest unthread receipts per user
+     * This is useful in determining whether a user has read a thread or not
+     */
     _defineProperty(this, "unthreadedReceipts", new Map());
     _defineProperty(this, "timelineSets", void 0);
     _defineProperty(this, "polls", new Map());
+    /**
+     * Empty array if the timeline sets have not been initialised. After initialisation:
+     * 0: All threads
+     * 1: Threads the current user has participated in
+     */
     _defineProperty(this, "threadsTimelineSets", []);
+    // any filtered timeline sets we're maintaining for this room
     _defineProperty(this, "filteredTimelineSets", {});
+    // filter_id: timelineSet
     _defineProperty(this, "timelineNeedsRefresh", false);
     _defineProperty(this, "pendingEventList", void 0);
+    // read by megolm via getter; boolean value - null indicates "use global value"
     _defineProperty(this, "blacklistUnverifiedDevices", void 0);
     _defineProperty(this, "selfMembership", void 0);
     _defineProperty(this, "summaryHeroes", null);
+    // flags to stop logspam about missing m.room.create events
     _defineProperty(this, "getTypeWarning", false);
     _defineProperty(this, "getVersionWarning", false);
     _defineProperty(this, "membersPromise", void 0);
+    // XXX: These should be read-only
+    /**
+     * The human-readable display name for this room.
+     */
     _defineProperty(this, "name", void 0);
+    /**
+     * The un-homoglyphed name for this room.
+     */
     _defineProperty(this, "normalizedName", void 0);
+    /**
+     * Dict of room tags; the keys are the tag name and the values
+     * are any metadata associated with the tag - e.g. `{ "fav" : { order: 1 } }`
+     */
     _defineProperty(this, "tags", {});
+    // $tagName: { $metadata: $value }
+    /**
+     * accountData Dict of per-room account_data events; the keys are the
+     * event type and the values are the events.
+     */
     _defineProperty(this, "accountData", new Map());
+    // $eventType: $event
+    /**
+     * The room summary.
+     */
     _defineProperty(this, "summary", null);
+    /**
+     * The live event timeline for this room, with the oldest event at index 0.
+     *
+     * @deprecated Present for backwards compatibility.
+     *             Use getLiveTimeline().getEvents() instead
+     */
     _defineProperty(this, "timeline", void 0);
+    /**
+     * oldState The state of the room at the time of the oldest event in the live timeline.
+     *
+     * @deprecated Present for backwards compatibility.
+     *             Use getLiveTimeline().getState(EventTimeline.BACKWARDS) instead
+     */
     _defineProperty(this, "oldState", void 0);
+    /**
+     * currentState The state of the room at the time of the newest event in the timeline.
+     *
+     * @deprecated Present for backwards compatibility.
+     *             Use getLiveTimeline().getState(EventTimeline.FORWARDS) instead.
+     */
     _defineProperty(this, "currentState", void 0);
     _defineProperty(this, "relations", new _relationsContainer.RelationsContainer(this.client, this));
+    /**
+     * A collection of events known by the client
+     * This is not a comprehensive list of the threads that exist in this room
+     */
     _defineProperty(this, "threads", new Map());
+    /**
+     * @deprecated This value is unreliable. It may not contain the last thread.
+     *             Use {@link Room.getLastThread} instead.
+     */
     _defineProperty(this, "lastThread", void 0);
+    /**
+     * A mapping of eventId to all visibility changes to apply
+     * to the event, by chronological order, as per
+     * https://github.com/matrix-org/matrix-doc/pull/3531
+     *
+     * # Invariants
+     *
+     * - within each list, all events are classed by
+     *   chronological order;
+     * - all events are events such that
+     *  `asVisibilityEvent()` returns a non-null `IVisibilityChange`;
+     * - within each list with key `eventId`, all events
+     *   are in relation to `eventId`.
+     *
+     * @experimental
+     */
     _defineProperty(this, "visibilityEvents", new Map());
     _defineProperty(this, "threadTimelineSetsPromise", null);
     _defineProperty(this, "threadsReady", false);
@@ -334,7 +344,8 @@ class Room extends _readReceipt.ReadReceipt {
       try {
         this.threadTimelineSetsPromise = Promise.all([this.createThreadTimelineSet(), this.createThreadTimelineSet(_thread.ThreadFilterType.My)]);
         const timelineSets = await this.threadTimelineSetsPromise;
-        this.threadsTimelineSets.push(...timelineSets);
+        this.threadsTimelineSets[0] = timelineSets[0];
+        this.threadsTimelineSets[1] = timelineSets[1];
         return timelineSets;
       } catch (e) {
         this.threadTimelineSetsPromise = null;
@@ -537,7 +548,7 @@ class Room extends _readReceipt.ReadReceipt {
     if (!this.pendingEventList) {
       throw new Error("Cannot call removePendingEvent with pendingEventOrdering == " + this.opts.pendingEventOrdering);
     }
-    const removed = utils.removeElement(this.pendingEventList, function (ev) {
+    const removed = (0, _utils.removeElement)(this.pendingEventList, function (ev) {
       return ev.getId() == eventId;
     }, false);
     this.savePendingEvents();
@@ -586,6 +597,48 @@ class Room extends _readReceipt.ReadReceipt {
     } else {
       return Number.MIN_SAFE_INTEGER;
     }
+  }
+
+  /**
+   * Returns the last live event of this room.
+   * "last" means latest timestamp.
+   * Instead of using timestamps, it would be better to do the comparison based on the order of the homeserver DAG.
+   * Unfortunately, this information is currently not available in the client.
+   * See {@link https://github.com/matrix-org/matrix-js-sdk/issues/3325}.
+   * "live of this room" means from all live timelines: the room and the threads.
+   *
+   * @returns MatrixEvent if there is a last event; else undefined.
+   */
+  getLastLiveEvent() {
+    const roomEvents = this.getLiveTimeline().getEvents();
+    const lastRoomEvent = roomEvents[roomEvents.length - 1];
+    const lastThread = this.getLastThread();
+    if (!lastThread) return lastRoomEvent;
+    const lastThreadEvent = lastThread.events[lastThread.events.length - 1];
+    return (lastRoomEvent?.getTs() ?? 0) > (lastThreadEvent?.getTs() ?? 0) ? lastRoomEvent : lastThreadEvent;
+  }
+
+  /**
+   * Returns the last thread of this room.
+   * "last" means latest timestamp of the last thread event.
+   * Instead of using timestamps, it would be better to do the comparison based on the order of the homeserver DAG.
+   * Unfortunately, this information is currently not available in the client.
+   * See {@link https://github.com/matrix-org/matrix-js-sdk/issues/3325}.
+   *
+   * @returns the thread with the most recent event in its live time line. undefined if there is no thread.
+   */
+  getLastThread() {
+    return this.getThreads().reduce((lastThread, thread) => {
+      if (!lastThread) return thread;
+      const threadEvent = thread.events[thread.events.length - 1];
+      const lastThreadEvent = lastThread.events[lastThread.events.length - 1];
+      if ((threadEvent?.getTs() ?? 0) >= (lastThreadEvent?.getTs() ?? 0)) {
+        // Last message of current thread is newer → new last thread.
+        // Equal also means newer, because it was added to the thread map later.
+        return thread;
+      }
+      return lastThread;
+    }, undefined);
   }
 
   /**
@@ -712,7 +765,7 @@ class Room extends _readReceipt.ReadReceipt {
       rawMembersEvents = await this.loadMembersFromServer();
       _logger.logger.log(`LL: got ${rawMembersEvents.length} ` + `members from server for room ${this.roomId}`);
     }
-    const memberEvents = rawMembersEvents.filter(utils.noUnsafeEventProps).map(this.client.getEventMapper());
+    const memberEvents = rawMembersEvents.filter(_utils.noUnsafeEventProps).map(this.client.getEventMapper());
     return {
       memberEvents,
       fromServer
@@ -1591,33 +1644,60 @@ class Room extends _readReceipt.ReadReceipt {
     this.on(_thread.ThreadEvent.Delete, this.onThreadDelete);
     this.threadsReady = true;
   }
+
+  /**
+   * Calls {@link processPollEvent} for a list of events.
+   *
+   * @param events - List of events
+   */
   async processPollEvents(events) {
-    const processPollStartEvent = event => {
-      if (!_matrixEventsSdk.M_POLL_START.matches(event.getType())) return;
+    for (const event of events) {
+      try {
+        // Continue if the event is a clear text, non-poll event.
+        if (!event.isEncrypted() && !(0, _poll.isPollEvent)(event)) continue;
+
+        /**
+         * Try to decrypt the event. Promise resolution does not guarantee a successful decryption.
+         * Retry is handled in {@link processPollEvent}.
+         */
+        await this.client.decryptEventIfNeeded(event);
+        this.processPollEvent(event);
+      } catch (err) {
+        _logger.logger.warn("Error processing poll event", event.getId(), err);
+      }
+    }
+  }
+
+  /**
+   * Processes poll events:
+   * If the event has a decryption failure, it will listen for decryption and tries again.
+   * If it is a poll start event (`m.poll.start`),
+   * it creates and stores a Poll model and emits a PollEvent.New event.
+   * If the event is related to a poll, it will add it to the poll.
+   * Noop for other cases.
+   *
+   * @param event - Event that could be a poll event
+   */
+  async processPollEvent(event) {
+    if (event.isDecryptionFailure()) {
+      event.once(_event.MatrixEventEvent.Decrypted, maybeDecryptedEvent => {
+        this.processPollEvent(maybeDecryptedEvent);
+      });
+      return;
+    }
+    if (_matrixEventsSdk.M_POLL_START.matches(event.getType())) {
       try {
         const poll = new _poll.Poll(event, this.client, this);
         this.polls.set(event.getId(), poll);
         this.emit(_poll.PollEvent.New, poll);
       } catch {}
       // poll creation can fail for malformed poll start events
-    };
-
-    const processPollRelationEvent = event => {
-      const relationEventId = event.relationEventId;
-      if (relationEventId && this.polls.has(relationEventId)) {
-        const poll = this.polls.get(relationEventId);
-        poll?.onNewRelation(event);
-      }
-    };
-    const processPollEvent = event => {
-      processPollStartEvent(event);
-      processPollRelationEvent(event);
-    };
-    for (const event of events) {
-      try {
-        await this.client.decryptEventIfNeeded(event);
-        processPollEvent(event);
-      } catch {}
+      return;
+    }
+    const relationEventId = event.relationEventId;
+    if (relationEventId && this.polls.has(relationEventId)) {
+      const poll = this.polls.get(relationEventId);
+      poll?.onNewRelation(event);
     }
   }
 
@@ -1626,6 +1706,7 @@ class Room extends _readReceipt.ReadReceipt {
    * @internal
    */
   async fetchRoomThreadList(filter) {
+    if (this.threadsTimelineSets.length === 0) return;
     const timelineSet = filter === _thread.ThreadFilterType.My ? this.threadsTimelineSets[1] : this.threadsTimelineSets[0];
     const {
       chunk: events,
@@ -1700,11 +1781,20 @@ class Room extends _readReceipt.ReadReceipt {
       };
     }
     const parentEventId = event.getAssociatedId();
-    const parentEvent = this.findEventById(parentEventId) ?? events?.find(e => e.getId() === parentEventId);
+    let parentEvent;
+    if (parentEventId) {
+      parentEvent = this.findEventById(parentEventId) ?? events?.find(e => e.getId() === parentEventId);
+    }
 
     // Treat relations and redactions as extensions of their parents so evaluate parentEvent instead
     if (parentEvent && (event.isRelation() || event.isRedaction())) {
       return this.eventShouldLiveIn(parentEvent, events, roots);
+    }
+    if (!event.isRelation()) {
+      return {
+        shouldLiveInRoom: true,
+        shouldLiveInThread: false
+      };
     }
 
     // Edge case where we know the event is a relation but don't have the parentEvent
@@ -1715,10 +1805,20 @@ class Room extends _readReceipt.ReadReceipt {
         threadId: event.relationEventId
       };
     }
+    const unsigned = event.getUnsigned();
+    if (typeof unsigned[_event2.UNSIGNED_THREAD_ID_FIELD.name] === "string") {
+      return {
+        shouldLiveInRoom: false,
+        shouldLiveInThread: true,
+        threadId: unsigned[_event2.UNSIGNED_THREAD_ID_FIELD.name]
+      };
+    }
 
-    // We've exhausted all scenarios, can safely assume that this event should live in the room timeline only
+    // We've exhausted all scenarios,
+    // we cannot assume that it lives in the main timeline as this may be a relation for an unknown thread
+    // adding the event in the wrong timeline causes stuck notifications and can break ability to send read receipts
     return {
-      shouldLiveInRoom: true,
+      shouldLiveInRoom: false,
       shouldLiveInThread: false
     };
   }
@@ -1730,12 +1830,13 @@ class Room extends _readReceipt.ReadReceipt {
     return threadId ? this.getThread(threadId) : null;
   }
   addThreadedEvents(threadId, events, toStartOfTimeline = false) {
-    let thread = this.getThread(threadId);
-    if (!thread) {
+    const thread = this.getThread(threadId);
+    if (thread) {
+      thread.addEvents(events, toStartOfTimeline);
+    } else {
       const rootEvent = this.findEventById(threadId) ?? events.find(e => e.getId() === threadId);
-      thread = this.createThread(threadId, rootEvent, events, toStartOfTimeline);
+      this.createThread(threadId, rootEvent, events, toStartOfTimeline);
     }
-    thread.addEvents(events, toStartOfTimeline);
   }
 
   /**
@@ -2158,7 +2259,11 @@ class Room extends _readReceipt.ReadReceipt {
    * @throws If `duplicateStrategy` is not falsey, 'replace' or 'ignore'.
    */
 
-  addLiveEvents(events, duplicateStrategyOrOpts, fromCache = false) {
+  /**
+   * @deprecated In favor of the overload with `IAddLiveEventOptions`
+   */
+
+  async addLiveEvents(events, duplicateStrategyOrOpts, fromCache = false) {
     let duplicateStrategy = duplicateStrategyOrOpts;
     let timelineWasEmpty = false;
     if (typeof duplicateStrategyOrOpts === "object") {
@@ -2194,6 +2299,9 @@ class Room extends _readReceipt.ReadReceipt {
       fromCache,
       timelineWasEmpty
     };
+
+    // List of extra events to check for being parents of any relations encountered
+    const neighbouringEvents = [...events];
     for (const event of events) {
       // TODO: We should have a filter to say "only add state event types X Y Z to the timeline".
       this.processLiveEvent(event);
@@ -2206,17 +2314,38 @@ class Room extends _readReceipt.ReadReceipt {
         }
       }
 
-      const {
+      let {
         shouldLiveInRoom,
         shouldLiveInThread,
         threadId
-      } = this.eventShouldLiveIn(event, events, threadRoots);
+      } = this.eventShouldLiveIn(event, neighbouringEvents, threadRoots);
+      if (!shouldLiveInThread && !shouldLiveInRoom && event.isRelation()) {
+        try {
+          const parentEvent = new _event.MatrixEvent(await this.client.fetchRoomEvent(this.roomId, event.relationEventId));
+          neighbouringEvents.push(parentEvent);
+          if (parentEvent.threadRootId) {
+            threadRoots.add(parentEvent.threadRootId);
+            const unsigned = event.getUnsigned();
+            unsigned[_event2.UNSIGNED_THREAD_ID_FIELD.name] = parentEvent.threadRootId;
+            event.setUnsigned(unsigned);
+          }
+          ({
+            shouldLiveInRoom,
+            shouldLiveInThread,
+            threadId
+          } = this.eventShouldLiveIn(event, neighbouringEvents, threadRoots));
+        } catch (e) {
+          _logger.logger.error("Failed to load parent event of unhandled relation", e);
+        }
+      }
       if (shouldLiveInThread && !eventsByThread[threadId ?? ""]) {
         eventsByThread[threadId ?? ""] = [];
       }
       eventsByThread[threadId ?? ""]?.push(event);
       if (shouldLiveInRoom) {
         this.addLiveEvent(event, options);
+      } else if (!shouldLiveInThread && event.isRelation()) {
+        this.relations.aggregateChildEvent(event);
       }
     }
     Object.entries(eventsByThread).forEach(([threadId, threadEvents]) => {
@@ -2227,6 +2356,7 @@ class Room extends _readReceipt.ReadReceipt {
     // Indices to the events array, for readability
     const ROOM = 0;
     const THREAD = 1;
+    const UNKNOWN_RELATION = 2;
     if (this.client.supportsThreads()) {
       const threadRoots = this.findThreadRoots(events);
       return events.reduce((memo, event) => {
@@ -2242,11 +2372,14 @@ class Room extends _readReceipt.ReadReceipt {
           event.setThreadId(threadId ?? "");
           memo[THREAD].push(event);
         }
+        if (!shouldLiveInThread && !shouldLiveInRoom) {
+          memo[UNKNOWN_RELATION].push(event);
+        }
         return memo;
-      }, [[], []]);
+      }, [[], [], []]);
     } else {
       // When `experimentalThreadSupport` is disabled treat all events as timelineEvents
-      return [events, []];
+      return [events, [], []];
     }
   }
 
@@ -2258,6 +2391,10 @@ class Room extends _readReceipt.ReadReceipt {
     for (const event of events) {
       if (event.isRelation(_thread.THREAD_RELATION_TYPE.name)) {
         threadRoots.add(event.relationEventId ?? "");
+      }
+      const unsigned = event.getUnsigned();
+      if (typeof unsigned[_event2.UNSIGNED_THREAD_ID_FIELD.name] === "string") {
+        threadRoots.add(unsigned[_event2.UNSIGNED_THREAD_ID_FIELD.name]);
       }
     }
     return threadRoots;
@@ -2405,7 +2542,7 @@ class Room extends _readReceipt.ReadReceipt {
 
     const oldName = this.name;
     this.name = this.calculateRoomName(this.myUserId);
-    this.normalizedName = (0, utils.normalize)(this.name);
+    this.normalizedName = (0, _utils.normalize)(this.name);
     this.summary = new _roomSummary.RoomSummary(this.roomId, {
       title: this.name
     });
@@ -2555,11 +2692,17 @@ class Room extends _readReceipt.ReadReceipt {
    * @param msc3946ProcessDynamicPredecessor - if true, look for an
    * m.room.predecessor state event and use it if found (MSC3946).
    * @returns null if this room has no predecessor. Otherwise, returns
-   * the roomId and last eventId of the predecessor room.
+   * the roomId, last eventId and viaServers of the predecessor room.
+   *
    * If msc3946ProcessDynamicPredecessor is true, use m.predecessor events
    * as well as m.room.create events to find predecessors.
+   *
    * Note: if an m.predecessor event is used, eventId may be undefined
    * since last_known_event_id is optional.
+   *
+   * Note: viaServers may be undefined, and will definitely be undefined if
+   * this predecessor comes from a RoomCreate event (rather than a
+   * RoomPredecessor, which has the optional via_servers property).
    */
   findPredecessor(msc3946ProcessDynamicPredecessor = false) {
     const currentState = this.getLiveTimeline().getState(_eventTimeline.EventTimeline.FORWARDS);
@@ -2662,7 +2805,7 @@ class Room extends _readReceipt.ReadReceipt {
         return true;
       });
       // make sure members have stable order
-      otherMembers.sort((a, b) => utils.compare(a.userId, b.userId));
+      otherMembers.sort((a, b) => (0, _utils.compare)(a.userId, b.userId));
       // only 5 first members, immitate summaryHeroes
       otherMembers = otherMembers.slice(0, 5);
       otherNames = otherMembers.map(m => m.name);
@@ -2909,13 +3052,13 @@ const ALLOWED_TRANSITIONS = {
   [_eventStatus.EventStatus.NOT_SENT]: [_eventStatus.EventStatus.SENDING, _eventStatus.EventStatus.QUEUED, _eventStatus.EventStatus.CANCELLED],
   [_eventStatus.EventStatus.CANCELLED]: []
 };
-let RoomNameType;
-exports.RoomNameType = RoomNameType;
-(function (RoomNameType) {
+let RoomNameType = /*#__PURE__*/function (RoomNameType) {
   RoomNameType[RoomNameType["EmptyRoom"] = 0] = "EmptyRoom";
   RoomNameType[RoomNameType["Generated"] = 1] = "Generated";
   RoomNameType[RoomNameType["Actual"] = 2] = "Actual";
-})(RoomNameType || (exports.RoomNameType = RoomNameType = {}));
+  return RoomNameType;
+}({});
+exports.RoomNameType = RoomNameType;
 // Can be overriden by IMatrixClientCreateOpts::memberNamesToRoomNameFn
 function memberNamesToRoomName(names, count) {
   const countWithoutMe = count - 1;

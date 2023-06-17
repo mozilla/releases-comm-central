@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.RoomStateEvent = exports.RoomState = void 0;
 var _roomMember = require("./room-member");
 var _logger = require("../logger");
-var utils = _interopRequireWildcard(require("../utils"));
+var _utils = require("../utils");
 var _event = require("../@types/event");
 var _event2 = require("./event");
 var _partials = require("../@types/partials");
@@ -14,51 +14,41 @@ var _typedEventEmitter = require("./typed-event-emitter");
 var _beacon = require("./beacon");
 var _ReEmitter = require("../ReEmitter");
 var _beacon2 = require("../@types/beacon");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 // possible statuses for out-of-band member loading
-var OobStatus;
-(function (OobStatus) {
+var OobStatus = /*#__PURE__*/function (OobStatus) {
   OobStatus[OobStatus["NotStarted"] = 0] = "NotStarted";
   OobStatus[OobStatus["InProgress"] = 1] = "InProgress";
   OobStatus[OobStatus["Finished"] = 2] = "Finished";
-})(OobStatus || (OobStatus = {}));
-let RoomStateEvent;
-exports.RoomStateEvent = RoomStateEvent;
-(function (RoomStateEvent) {
+  return OobStatus;
+}(OobStatus || {});
+let RoomStateEvent = /*#__PURE__*/function (RoomStateEvent) {
   RoomStateEvent["Events"] = "RoomState.events";
   RoomStateEvent["Members"] = "RoomState.members";
   RoomStateEvent["NewMember"] = "RoomState.newMember";
   RoomStateEvent["Update"] = "RoomState.update";
   RoomStateEvent["BeaconLiveness"] = "RoomState.BeaconLiveness";
   RoomStateEvent["Marker"] = "RoomState.Marker";
-})(RoomStateEvent || (exports.RoomStateEvent = RoomStateEvent = {}));
+  return RoomStateEvent;
+}({});
+exports.RoomStateEvent = RoomStateEvent;
 class RoomState extends _typedEventEmitter.TypedEventEmitter {
-  // userId: RoomMember
-  // stores fuzzy matches to a list of userIDs (applies utils.removeHiddenChars to keys)
-
-  // 3pid invite state_key to m.room.member invite
-  // cache of the number of joined members
-  // joined members count from summary api
-  // once set, we know the server supports the summary api
-  // and we should only trust that
-  // we could also only trust that before OOB members
-  // are loaded but doesn't seem worth the hassle atm
-
-  // same for invited member count
-
-  // XXX: Should be read-only
-  // The room member dictionary, keyed on the user's ID.
-  // userId: RoomMember
-  // The state events dictionary, keyed on the event type and then the state_key value.
-  // Map<eventType, Map<stateKey, MatrixEvent>>
-  // The pagination token for this state.
-
   /**
    * Construct room state.
    *
@@ -95,16 +85,32 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
     this.oobMemberFlags = oobMemberFlags;
     _defineProperty(this, "reEmitter", new _ReEmitter.TypedReEmitter(this));
     _defineProperty(this, "sentinels", {});
+    // userId: RoomMember
+    // stores fuzzy matches to a list of userIDs (applies utils.removeHiddenChars to keys)
     _defineProperty(this, "displayNameToUserIds", new Map());
     _defineProperty(this, "userIdsToDisplayNames", {});
     _defineProperty(this, "tokenToInvite", {});
+    // 3pid invite state_key to m.room.member invite
     _defineProperty(this, "joinedMemberCount", null);
+    // cache of the number of joined members
+    // joined members count from summary api
+    // once set, we know the server supports the summary api
+    // and we should only trust that
+    // we could also only trust that before OOB members
+    // are loaded but doesn't seem worth the hassle atm
     _defineProperty(this, "summaryJoinedMemberCount", null);
+    // same for invited member count
     _defineProperty(this, "invitedMemberCount", null);
     _defineProperty(this, "summaryInvitedMemberCount", null);
     _defineProperty(this, "modified", -1);
+    // XXX: Should be read-only
+    // The room member dictionary, keyed on the user's ID.
     _defineProperty(this, "members", {});
+    // userId: RoomMember
+    // The state events dictionary, keyed on the event type and then the state_key value.
     _defineProperty(this, "events", new Map());
+    // Map<eventType, Map<stateKey, MatrixEvent>>
+    // The pagination token for this state.
     _defineProperty(this, "paginationToken", null);
     _defineProperty(this, "beacons", new Map());
     _defineProperty(this, "_liveBeaconIds", []);
@@ -370,15 +376,16 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
     });
     this.emit(RoomStateEvent.Update, this);
   }
-  processBeaconEvents(events, matrixClient) {
+  async processBeaconEvents(events, matrixClient) {
     if (!events.length ||
     // discard locations if we have no beacons
     !this.beacons.size) {
       return;
     }
-    const beaconByEventIdDict = [...this.beacons.values()].reduce((dict, beacon) => _objectSpread(_objectSpread({}, dict), {}, {
-      [beacon.beaconInfoId]: beacon
-    }), {});
+    const beaconByEventIdDict = [...this.beacons.values()].reduce((dict, beacon) => {
+      dict[beacon.beaconInfoId] = beacon;
+      return dict;
+    }, {});
     const processBeaconRelation = (beaconInfoEventId, event) => {
       if (!_beacon2.M_BEACON.matches(event.getType())) {
         return;
@@ -388,20 +395,23 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
         beacon.addLocations([event]);
       }
     };
-    events.forEach(event => {
+    for (const event of events) {
       const relatedToEventId = event.getRelation()?.event_id;
       // not related to a beacon we know about; discard
       if (!relatedToEventId || !beaconByEventIdDict[relatedToEventId]) return;
-      matrixClient.decryptEventIfNeeded(event);
-      if (event.isBeingDecrypted() || event.isDecryptionFailure()) {
-        // add an event listener for once the event is decrypted.
-        event.once(_event2.MatrixEventEvent.Decrypted, async () => {
-          processBeaconRelation(relatedToEventId, event);
-        });
-      } else {
+      if (!_beacon2.M_BEACON.matches(event.getType()) && !event.isEncrypted()) return;
+      try {
+        await matrixClient.decryptEventIfNeeded(event);
         processBeaconRelation(relatedToEventId, event);
+      } catch {
+        if (event.isDecryptionFailure()) {
+          // add an event listener for once the event is decrypted.
+          event.once(_event2.MatrixEventEvent.Decrypted, async () => {
+            processBeaconRelation(relatedToEventId, event);
+          });
+        }
       }
-    });
+    }
   }
 
   /**
@@ -627,7 +637,7 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
    * @returns An array of user IDs or an empty array.
    */
   getUserIdsWithDisplayName(displayName) {
-    return this.displayNameToUserIds.get(utils.removeHiddenChars(displayName)) ?? [];
+    return this.displayNameToUserIds.get((0, _utils.removeHiddenChars)(displayName)) ?? [];
   }
 
   /**
@@ -662,7 +672,7 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
       powerLevels = powerLevelsEvent.getContent();
     }
     let requiredLevel = 50;
-    if (utils.isNumber(powerLevels[action])) {
+    if ((0, _utils.isNumber)(powerLevels[action])) {
       requiredLevel = powerLevels[action];
     }
     return powerLevel >= requiredLevel;
@@ -779,7 +789,7 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
     }
     const powerLevelsEvent = this.getStateEvents(_event.EventType.RoomPowerLevels, "");
     let notifLevel = 50;
-    if (powerLevelsEvent && powerLevelsEvent.getContent() && powerLevelsEvent.getContent().notifications && utils.isNumber(powerLevelsEvent.getContent().notifications[notifLevelKey])) {
+    if (powerLevelsEvent && powerLevelsEvent.getContent() && powerLevelsEvent.getContent().notifications && (0, _utils.isNumber)(powerLevelsEvent.getContent().notifications[notifLevelKey])) {
       notifLevel = powerLevelsEvent.getContent().notifications[notifLevelKey];
     }
     return member.powerLevel >= notifLevel;
@@ -821,11 +831,17 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
    * @param msc3946ProcessDynamicPredecessor - if true, look for an
    * m.room.predecessor state event and use it if found (MSC3946).
    * @returns null if this room has no predecessor. Otherwise, returns
-   * the roomId and last eventId of the predecessor room.
+   * the roomId, last eventId and viaServers of the predecessor room.
+   *
    * If msc3946ProcessDynamicPredecessor is true, use m.predecessor events
    * as well as m.room.create events to find predecessors.
+   *
    * Note: if an m.predecessor event is used, eventId may be undefined
    * since last_known_event_id is optional.
+   *
+   * Note: viaServers may be undefined, and will definitely be undefined if
+   * this predecessor comes from a RoomCreate event (rather than a
+   * RoomPredecessor, which has the optional via_servers property).
    */
   findPredecessor(msc3946ProcessDynamicPredecessor = false) {
     // Note: the tests for this function are against Room.findPredecessor,
@@ -840,10 +856,15 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
         if (typeof eventId !== "string") {
           eventId = undefined;
         }
+        let viaServers = content.via_servers;
+        if (!Array.isArray(viaServers)) {
+          viaServers = undefined;
+        }
         if (typeof roomId === "string") {
           return {
             roomId,
-            eventId
+            eventId,
+            viaServers
           };
         }
       }
@@ -889,7 +910,7 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
       // We clobber the user_id > name lookup but the name -> [user_id] lookup
       // means we need to remove that user ID from that array rather than nuking
       // the lot.
-      const strippedOldName = utils.removeHiddenChars(oldName);
+      const strippedOldName = (0, _utils.removeHiddenChars)(oldName);
       const existingUserIds = this.displayNameToUserIds.get(strippedOldName);
       if (existingUserIds) {
         // remove this user ID from this array
@@ -898,7 +919,7 @@ class RoomState extends _typedEventEmitter.TypedEventEmitter {
       }
     }
     this.userIdsToDisplayNames[userId] = displayName;
-    const strippedDisplayname = displayName && utils.removeHiddenChars(displayName);
+    const strippedDisplayname = displayName && (0, _utils.removeHiddenChars)(displayName);
     // an empty stripped displayname (undefined/'') will be set to MXID in room-member.js
     if (strippedDisplayname) {
       const arr = this.displayNameToUserIds.get(strippedDisplayname) ?? [];

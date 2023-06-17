@@ -13,7 +13,21 @@ var _logger = require("../logger");
 var _typedEventEmitter = require("../models/typed-event-emitter");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 - 2021 Vector Creations Ltd
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /* eslint-disable @babel/no-invalid-this */
 /**
  * This is an internal module. See {@link IndexedDBStore} for the public class.
  */
@@ -67,18 +81,39 @@ class IndexedDBStore extends _memory.MemoryStore {
     _defineProperty(this, "backend", void 0);
     _defineProperty(this, "startedUp", false);
     _defineProperty(this, "syncTs", 0);
+    // Records the last-modified-time of each user at the last point we saved
+    // the database, such that we can derive the set if users that have been
+    // modified since we last saved.
     _defineProperty(this, "userModifiedMap", {});
+    // user_id : timestamp
     _defineProperty(this, "emitter", new _typedEventEmitter.TypedEventEmitter());
     _defineProperty(this, "on", this.emitter.on.bind(this.emitter));
+    _defineProperty(this, "onClose", () => {
+      this.emitter.emit("closed");
+    });
+    /**
+     * @returns Promise which resolves with a sync response to restore the
+     * client state to where it was at the last save, or null if there
+     * is no saved sync data.
+     */
     _defineProperty(this, "getSavedSync", this.degradable(() => {
       return this.backend.getSavedSync();
     }, "getSavedSync"));
+    /** @returns whether or not the database was newly created in this session. */
     _defineProperty(this, "isNewlyCreated", this.degradable(() => {
       return this.backend.isNewlyCreated();
     }, "isNewlyCreated"));
+    /**
+     * @returns If there is a saved sync, the nextBatch token
+     * for this sync, otherwise null.
+     */
     _defineProperty(this, "getSavedSyncToken", this.degradable(() => {
       return this.backend.getNextBatchToken();
     }, "getSavedSyncToken"));
+    /**
+     * Delete all data from this store.
+     * @returns Promise which resolves if the data was deleted from the database.
+     */
     _defineProperty(this, "deleteAllData", this.degradable(() => {
       super.deleteAllData();
       return this.backend.clearDatabase().then(() => {
@@ -107,9 +142,22 @@ class IndexedDBStore extends _memory.MemoryStore {
     _defineProperty(this, "setSyncData", this.degradable(syncData => {
       return this.backend.setSyncData(syncData);
     }, "setSyncData"));
+    /**
+     * Returns the out-of-band membership events for this room that
+     * were previously loaded.
+     * @returns the events, potentially an empty array if OOB loading didn't yield any new members
+     * @returns in case the members for this room haven't been stored yet
+     */
     _defineProperty(this, "getOutOfBandMembers", this.degradable(roomId => {
       return this.backend.getOutOfBandMembers(roomId);
     }, "getOutOfBandMembers"));
+    /**
+     * Stores the out-of-band membership events for this room. Note that
+     * it still makes sense to store an empty array as the OOB status for the room is
+     * marked as fetched, and getOutOfBandMembers will return an empty array instead of null
+     * @param membershipEvents - the membership events to store
+     * @returns when all members have been stored
+     */
     _defineProperty(this, "setOutOfBandMembers", this.degradable((roomId, membershipEvents) => {
       super.setOutOfBandMembers(roomId, membershipEvents);
       return this.backend.setOutOfBandMembers(roomId, membershipEvents);
@@ -143,7 +191,7 @@ class IndexedDBStore extends _memory.MemoryStore {
       return Promise.resolve();
     }
     _logger.logger.log(`IndexedDBStore.startup: connecting to backend`);
-    return this.backend.connect().then(() => {
+    return this.backend.connect(this.onClose).then(() => {
       _logger.logger.log(`IndexedDBStore.startup: loading presence events`);
       return this.backend.getUserPresenceEvents();
     }).then(userPresenceEvents => {
@@ -156,15 +204,16 @@ class IndexedDBStore extends _memory.MemoryStore {
         this.userModifiedMap[u.userId] = u.getLastModifiedTime();
         this.storeUser(u);
       });
+      this.startedUp = true;
     });
   }
 
-  /**
-   * @returns Promise which resolves with a sync response to restore the
-   * client state to where it was at the last save, or null if there
-   * is no saved sync data.
+  /*
+   * Close the database and destroy any associated workers
    */
-
+  destroy() {
+    return this.backend.destroy();
+  }
   /**
    * Whether this store would like to save its data
    * Note that obviously whether the store wants to save or

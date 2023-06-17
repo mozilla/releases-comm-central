@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_MSC2716_MARKER = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.ToDeviceMessageId = exports.RoomType = exports.RoomCreateTypeField = exports.RelationType = exports.PUSHER_ENABLED = exports.PUSHER_DEVICE_ID = exports.MsgType = exports.MSC3912_RELATION_BASED_REDACTIONS_PROP = exports.LOCAL_NOTIFICATION_SETTINGS_PREFIX = exports.EventType = exports.EVENT_VISIBILITY_CHANGE_TYPE = void 0;
+exports.UNSTABLE_MSC3089_TREE_SUBTYPE = exports.UNSTABLE_MSC3089_LEAF = exports.UNSTABLE_MSC3089_BRANCH = exports.UNSTABLE_MSC3088_PURPOSE = exports.UNSTABLE_MSC3088_ENABLED = exports.UNSTABLE_MSC2716_MARKER = exports.UNSTABLE_ELEMENT_FUNCTIONAL_USERS = exports.UNSIGNED_THREAD_ID_FIELD = exports.ToDeviceMessageId = exports.RoomType = exports.RoomCreateTypeField = exports.RelationType = exports.PUSHER_ENABLED = exports.PUSHER_DEVICE_ID = exports.MsgType = exports.MSC3912_RELATION_BASED_REDACTIONS_PROP = exports.LOCAL_NOTIFICATION_SETTINGS_PREFIX = exports.EventType = exports.EVENT_VISIBILITY_CHANGE_TYPE = void 0;
 var _NamespacedValue = require("../NamespacedValue");
 /*
 Copyright 2020 The Matrix.org Foundation C.I.C.
@@ -20,9 +20,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-let EventType;
-exports.EventType = EventType;
-(function (EventType) {
+let EventType = /*#__PURE__*/function (EventType) {
   EventType["RoomCanonicalAlias"] = "m.room.canonical_alias";
   EventType["RoomCreate"] = "m.room.create";
   EventType["RoomJoinRules"] = "m.room.join_rules";
@@ -83,18 +81,18 @@ exports.EventType = EventType;
   EventType["Dummy"] = "m.dummy";
   EventType["GroupCallPrefix"] = "org.matrix.msc3401.call";
   EventType["GroupCallMemberPrefix"] = "org.matrix.msc3401.call.member";
-})(EventType || (exports.EventType = EventType = {}));
-let RelationType;
-exports.RelationType = RelationType;
-(function (RelationType) {
+  return EventType;
+}({});
+exports.EventType = EventType;
+let RelationType = /*#__PURE__*/function (RelationType) {
   RelationType["Annotation"] = "m.annotation";
   RelationType["Replace"] = "m.replace";
   RelationType["Reference"] = "m.reference";
   RelationType["Thread"] = "m.thread";
-})(RelationType || (exports.RelationType = RelationType = {}));
-let MsgType;
-exports.MsgType = MsgType;
-(function (MsgType) {
+  return RelationType;
+}({});
+exports.RelationType = RelationType;
+let MsgType = /*#__PURE__*/function (MsgType) {
   MsgType["Text"] = "m.text";
   MsgType["Emote"] = "m.emote";
   MsgType["Notice"] = "m.notice";
@@ -104,16 +102,18 @@ exports.MsgType = MsgType;
   MsgType["Location"] = "m.location";
   MsgType["Video"] = "m.video";
   MsgType["KeyVerificationRequest"] = "m.key.verification.request";
-})(MsgType || (exports.MsgType = MsgType = {}));
+  return MsgType;
+}({});
+exports.MsgType = MsgType;
 const RoomCreateTypeField = "type";
 exports.RoomCreateTypeField = RoomCreateTypeField;
-let RoomType;
-exports.RoomType = RoomType;
-(function (RoomType) {
+let RoomType = /*#__PURE__*/function (RoomType) {
   RoomType["Space"] = "m.space";
   RoomType["UnstableCall"] = "org.matrix.msc3417.call";
   RoomType["ElementVideo"] = "io.element.video";
-})(RoomType || (exports.RoomType = RoomType = {}));
+  return RoomType;
+}({});
+exports.RoomType = RoomType;
 const ToDeviceMessageId = "org.matrix.msgid";
 
 /**
@@ -229,4 +229,12 @@ const PUSHER_DEVICE_ID = new _NamespacedValue.UnstableValue("device_id", "org.ma
  */
 exports.PUSHER_DEVICE_ID = PUSHER_DEVICE_ID;
 const LOCAL_NOTIFICATION_SETTINGS_PREFIX = new _NamespacedValue.UnstableValue("m.local_notification_settings", "org.matrix.msc3890.local_notification_settings");
+
+/**
+ * https://github.com/matrix-org/matrix-doc/pull/4023
+ *
+ * @experimental
+ */
 exports.LOCAL_NOTIFICATION_SETTINGS_PREFIX = LOCAL_NOTIFICATION_SETTINGS_PREFIX;
+const UNSIGNED_THREAD_ID_FIELD = new _NamespacedValue.UnstableValue("thread_id", "org.matrix.msc4023.thread_id");
+exports.UNSIGNED_THREAD_ID_FIELD = UNSIGNED_THREAD_ID_FIELD;

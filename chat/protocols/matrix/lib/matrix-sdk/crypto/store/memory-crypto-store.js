@@ -5,14 +5,26 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.MemoryCryptoStore = void 0;
 var _logger = require("../../logger");
-var utils = _interopRequireWildcard(require("../../utils"));
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+var _utils = require("../../utils");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2017 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 /**
  * Internal module. in-memory storage for e2e.
  */
@@ -28,6 +40,7 @@ class MemoryCryptoStore {
     _defineProperty(this, "notifiedErrorDevices", {});
     _defineProperty(this, "inboundGroupSessions", {});
     _defineProperty(this, "inboundGroupSessionsWithheld", {});
+    // Opaque device data object
     _defineProperty(this, "deviceData", null);
     _defineProperty(this, "rooms", {});
     _defineProperty(this, "sessionsNeedingBackup", {});
@@ -35,7 +48,6 @@ class MemoryCryptoStore {
     _defineProperty(this, "parkedSharedHistory", new Map());
   }
   // keyed by room ID
-
   /**
    * Ensure the database exists and is up-to-date.
    *
@@ -68,7 +80,7 @@ class MemoryCryptoStore {
    */
   getOrAddOutgoingRoomKeyRequest(request) {
     const requestBody = request.requestBody;
-    return utils.promiseTry(() => {
+    return (0, _utils.promiseTry)(() => {
       // first see if we already have an entry for this request.
       const existing = this._getOutgoingRoomKeyRequest(requestBody);
       if (existing) {
@@ -111,7 +123,7 @@ class MemoryCryptoStore {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   _getOutgoingRoomKeyRequest(requestBody) {
     for (const existing of this.outgoingRoomKeyRequests) {
-      if (utils.deepCompare(existing.requestBody, requestBody)) {
+      if ((0, _utils.deepCompare)(existing.requestBody, requestBody)) {
         return existing;
       }
     }
@@ -259,7 +271,7 @@ class MemoryCryptoStore {
       deviceSessions = {};
       this.sessions[deviceKey] = deviceSessions;
     }
-    deviceSessions[sessionId] = sessionInfo;
+    (0, _utils.safeSet)(deviceSessions, sessionId, sessionInfo);
   }
   async storeEndToEndSessionProblem(deviceKey, type, fixed) {
     const problems = this.sessionProblems[deviceKey] = this.sessionProblems[deviceKey] || [];
@@ -302,11 +314,11 @@ class MemoryCryptoStore {
       if (userId in notifiedErrorDevices) {
         if (!(deviceInfo.deviceId in notifiedErrorDevices[userId])) {
           ret.push(device);
-          (0, utils.safeSet)(notifiedErrorDevices[userId], deviceInfo.deviceId, true);
+          (0, _utils.safeSet)(notifiedErrorDevices[userId], deviceInfo.deviceId, true);
         }
       } else {
         ret.push(device);
-        (0, utils.safeSet)(notifiedErrorDevices, userId, {
+        (0, _utils.safeSet)(notifiedErrorDevices, userId, {
           [deviceInfo.deviceId]: true
         });
       }

@@ -7,15 +7,24 @@ exports.ReadReceipt = void 0;
 exports.synthesizeReceipt = synthesizeReceipt;
 var _read_receipts = require("../@types/read_receipts");
 var _typedEventEmitter = require("./typed-event-emitter");
-var utils = _interopRequireWildcard(require("../utils"));
+var _utils = require("../utils");
 var _event = require("./event");
 var _event2 = require("../@types/event");
 var _room = require("./room");
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2022 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
 function synthesizeReceipt(userId, event, receiptType) {
   return new _event.MatrixEvent({
     content: {
@@ -37,7 +46,12 @@ const ReceiptPairSyntheticIndex = 1;
 class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
   constructor(...args) {
     super(...args);
-    _defineProperty(this, "receipts", new utils.MapWithDefault(() => new Map()));
+    // receipts should clobber based on receipt_type and user_id pairs hence
+    // the form of this structure. This is sub-optimal for the exposed APIs
+    // which pass in an event ID and get back some receipts, so we also store
+    // a pre-cached list for this purpose.
+    // Map: receipt type → user Id → receipt
+    _defineProperty(this, "receipts", new _utils.MapWithDefault(() => new Map()));
     _defineProperty(this, "receiptCacheByEventId", new Map());
     _defineProperty(this, "timeline", void 0);
   }
@@ -207,7 +221,7 @@ class ReadReceipt extends _typedEventEmitter.TypedEventEmitter {
    */
   getUsersReadUpTo(event) {
     return this.getReceiptsForEvent(event).filter(function (receipt) {
-      return utils.isSupportedReceiptType(receipt.type);
+      return (0, _utils.isSupportedReceiptType)(receipt.type);
     }).map(function (receipt) {
       return receipt.userId;
     });

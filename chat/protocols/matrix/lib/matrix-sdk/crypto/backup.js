@@ -18,17 +18,35 @@ var _crypto = require("./crypto");
 var _httpApi = require("../http-api");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /**
+                                                                                                                                                                                                                                                                                                                                                                                              * Classes for dealing with key backup.
+                                                                                                                                                                                                                                                                                                                                                                                              */
 const KEY_BACKUP_KEYS_PER_REQUEST = 200;
 const KEY_BACKUP_CHECK_RATE_LIMIT = 5000; // ms
 
+/* eslint-disable camelcase */
+
+/* eslint-enable camelcase */
+/** A function used to get the secret key for a backup.
+ */
 /**
  * Manages the key backup.
  */
 class BackupManager {
-  // The info dict from /room_keys/version
-  // Have we checked the server for a backup we can use?
-  // Are we currently sending backups?
   // When did we last try to check the server for a given session id?
 
   constructor(baseApis, getKey) {
@@ -36,8 +54,11 @@ class BackupManager {
     this.getKey = getKey;
     _defineProperty(this, "algorithm", void 0);
     _defineProperty(this, "backupInfo", void 0);
+    // The info dict from /room_keys/version
     _defineProperty(this, "checkedForBackup", void 0);
+    // Have we checked the server for a backup we can use?
     _defineProperty(this, "sendingBackups", void 0);
+    // Are we currently sending backups?
     _defineProperty(this, "sessionLastCheckAttemptedTime", {});
     this.checkedForBackup = false;
     this.sendingBackups = false;

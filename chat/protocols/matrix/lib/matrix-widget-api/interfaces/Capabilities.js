@@ -7,7 +7,6 @@ exports.VideoConferenceCapabilities = exports.StickerpickerCapabilities = export
 exports.getTimelineRoomIDFromCapability = getTimelineRoomIDFromCapability;
 exports.isTimelineCapability = isTimelineCapability;
 exports.isTimelineCapabilityFor = isTimelineCapabilityFor;
-
 /*
  * Copyright 2020 - 2021 The Matrix.org Foundation C.I.C.
  *
@@ -23,51 +22,48 @@ exports.isTimelineCapabilityFor = isTimelineCapabilityFor;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var MatrixCapabilities;
-exports.MatrixCapabilities = MatrixCapabilities;
-
-(function (MatrixCapabilities) {
+var MatrixCapabilities = /*#__PURE__*/function (MatrixCapabilities) {
   MatrixCapabilities["Screenshots"] = "m.capability.screenshot";
   MatrixCapabilities["StickerSending"] = "m.sticker";
   MatrixCapabilities["AlwaysOnScreen"] = "m.always_on_screen";
   MatrixCapabilities["RequiresClient"] = "io.element.requires_client";
   MatrixCapabilities["MSC2931Navigate"] = "org.matrix.msc2931.navigate";
   MatrixCapabilities["MSC3846TurnServers"] = "town.robin.msc3846.turn_servers";
-})(MatrixCapabilities || (exports.MatrixCapabilities = MatrixCapabilities = {}));
-
+  MatrixCapabilities["MSC3973UserDirectorySearch"] = "org.matrix.msc3973.user_directory_search";
+  return MatrixCapabilities;
+}({});
+exports.MatrixCapabilities = MatrixCapabilities;
 var StickerpickerCapabilities = [MatrixCapabilities.StickerSending];
 exports.StickerpickerCapabilities = StickerpickerCapabilities;
 var VideoConferenceCapabilities = [MatrixCapabilities.AlwaysOnScreen];
+
 /**
  * Determines if a capability is a capability for a timeline.
  * @param {Capability} capability The capability to test.
  * @returns {boolean} True if a timeline capability, false otherwise.
  */
-
 exports.VideoConferenceCapabilities = VideoConferenceCapabilities;
-
 function isTimelineCapability(capability) {
   // TODO: Change when MSC2762 becomes stable.
   return capability === null || capability === void 0 ? void 0 : capability.startsWith("org.matrix.msc2762.timeline:");
 }
+
 /**
  * Determines if a capability is a timeline capability for the given room.
  * @param {Capability} capability The capability to test.
  * @param {string | Symbols.AnyRoom} roomId The room ID, or `Symbols.AnyRoom` for that designation.
  * @returns {boolean} True if a matching capability, false otherwise.
  */
-
-
 function isTimelineCapabilityFor(capability, roomId) {
   return capability === "org.matrix.msc2762.timeline:".concat(roomId);
 }
+
 /**
  * Gets the room ID described by a timeline capability.
  * @param {string} capability The capability to parse.
  * @returns {string} The room ID.
  */
-
-
 function getTimelineRoomIDFromCapability(capability) {
   return capability.substring(capability.indexOf(":") + 1);
 }
+//# sourceMappingURL=Capabilities.js.map

@@ -9,7 +9,23 @@ var _roomState = require("../models/room-state");
 var _utils = require("../utils");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */ /**
+                                                                                                                                                                                                                                                                                                                                                                                              * This is an internal module. See {@link MemoryStore} for the public class.
+                                                                                                                                                                                                                                                                                                                                                                                              */
 function isValidFilterId(filterId) {
   const isValidStr = typeof filterId === "string" && !!filterId && filterId !== "undefined" &&
   // exclude these as we've serialized undefined in localStorage before
@@ -17,33 +33,33 @@ function isValidFilterId(filterId) {
   return isValidStr || typeof filterId === "number";
 }
 class MemoryStore {
-  // roomId: Room
-  // userId: User
-
-  // userId: {
-  //    filterId: Filter
-  // }
-
-  // type: content
-
-  // roomId: [member events]
-
   /**
    * Construct a new in-memory data store for the Matrix Client.
    * @param opts - Config options
    */
   constructor(opts = {}) {
     _defineProperty(this, "rooms", {});
+    // roomId: Room
     _defineProperty(this, "users", {});
+    // userId: User
     _defineProperty(this, "syncToken", null);
+    // userId: {
+    //    filterId: Filter
+    // }
     _defineProperty(this, "filters", new _utils.MapWithDefault(() => new Map()));
     _defineProperty(this, "accountData", new Map());
+    // type: content
     _defineProperty(this, "localStorage", void 0);
     _defineProperty(this, "oobMembers", new Map());
+    // roomId: [member events]
     _defineProperty(this, "pendingEvents", {});
     _defineProperty(this, "clientOptions", void 0);
     _defineProperty(this, "pendingToDeviceBatches", []);
     _defineProperty(this, "nextToDeviceBatchId", 0);
+    /**
+     * Called when a room member in a room being tracked by this store has been
+     * updated.
+     */
     _defineProperty(this, "onRoomMember", (event, state, member) => {
       if (member.membership === "invite") {
         // We do NOT add invited members because people love to typo user IDs
@@ -100,12 +116,6 @@ class MemoryStore {
       this.onRoomMember(null, room.currentState, m);
     });
   }
-
-  /**
-   * Called when a room member in a room being tracked by this store has been
-   * updated.
-   */
-
   /**
    * Retrieve a room by its' room ID.
    * @param roomId - The room ID.
@@ -298,7 +308,9 @@ class MemoryStore {
    * @param force - True to force a save (but the memory
    *     store still can't save anything)
    */
-  save(force) {}
+  save(force) {
+    return Promise.resolve();
+  }
 
   /**
    * Startup does nothing as this store doesn't require starting up.
@@ -398,6 +410,9 @@ class MemoryStore {
   removeToDeviceBatch(id) {
     this.pendingToDeviceBatches = this.pendingToDeviceBatches.filter(batch => batch.id !== id);
     return Promise.resolve();
+  }
+  async destroy() {
+    // Nothing to do
   }
 }
 exports.MemoryStore = MemoryStore;

@@ -7,68 +7,31 @@ exports.UserEvent = exports.User = void 0;
 var _typedEventEmitter = require("./typed-event-emitter");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-let UserEvent;
-exports.UserEvent = UserEvent;
-(function (UserEvent) {
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2015 - 2021 The Matrix.org Foundation C.I.C.
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
+let UserEvent = /*#__PURE__*/function (UserEvent) {
   UserEvent["DisplayName"] = "User.displayName";
   UserEvent["AvatarUrl"] = "User.avatarUrl";
   UserEvent["Presence"] = "User.presence";
   UserEvent["CurrentlyActive"] = "User.currentlyActive";
   UserEvent["LastPresenceTs"] = "User.lastPresenceTs";
-})(UserEvent || (exports.UserEvent = UserEvent = {}));
+  return UserEvent;
+}({});
+exports.UserEvent = UserEvent;
 class User extends _typedEventEmitter.TypedEventEmitter {
-  /**
-   * The 'displayname' of the user if known.
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * The 'avatar_url' of the user if known.
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * The presence status message if known.
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * The presence enum if known.
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * Timestamp (ms since the epoch) for when we last received presence data for this user.
-   * We can subtract lastActiveAgo from this to approximate an absolute value for when a user was last active.
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * The time elapsed in ms since the user interacted proactively with the server,
-   * or we saw a message from the user
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * Whether we should consider lastActiveAgo to be an approximation
-   * and that the user should be seen as active 'now'
-   * @privateRemarks
-   * Should be read-only
-   */
-
-  /**
-   * The events describing this user.
-   * @privateRemarks
-   * Should be read-only
-   */
-
   /**
    * Construct a new User. A User must have an ID and can optionally have extra information associated with it.
    * @param userId - Required. The ID of this user.
@@ -77,14 +40,57 @@ class User extends _typedEventEmitter.TypedEventEmitter {
     super();
     this.userId = userId;
     _defineProperty(this, "modified", -1);
+    /**
+     * The 'displayname' of the user if known.
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "displayName", void 0);
     _defineProperty(this, "rawDisplayName", void 0);
+    /**
+     * The 'avatar_url' of the user if known.
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "avatarUrl", void 0);
+    /**
+     * The presence status message if known.
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "presenceStatusMsg", void 0);
+    /**
+     * The presence enum if known.
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "presence", "offline");
+    /**
+     * Timestamp (ms since the epoch) for when we last received presence data for this user.
+     * We can subtract lastActiveAgo from this to approximate an absolute value for when a user was last active.
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "lastActiveAgo", 0);
+    /**
+     * The time elapsed in ms since the user interacted proactively with the server,
+     * or we saw a message from the user
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "lastPresenceTs", 0);
+    /**
+     * Whether we should consider lastActiveAgo to be an approximation
+     * and that the user should be seen as active 'now'
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "currentlyActive", false);
+    /**
+     * The events describing this user.
+     * @privateRemarks
+     * Should be read-only
+     */
     _defineProperty(this, "events", {});
     this.displayName = userId;
     this.rawDisplayName = userId;

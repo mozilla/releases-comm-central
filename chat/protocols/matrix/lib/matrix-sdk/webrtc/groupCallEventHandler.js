@@ -12,26 +12,38 @@ var _event = require("../@types/event");
 var _sync = require("../sync");
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-let GroupCallEventHandlerEvent;
-exports.GroupCallEventHandlerEvent = GroupCallEventHandlerEvent;
-(function (GroupCallEventHandlerEvent) {
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); } /*
+                                                                                                                                                                                                                                                                                                                                                                                          Copyright 2021 Šimon Brandner <simon.bra.ag@gmail.com>
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                                                                                                                                                                                                                                                                                                          you may not use this file except in compliance with the License.
+                                                                                                                                                                                                                                                                                                                                                                                          You may obtain a copy of the License at
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                              http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                          Unless required by applicable law or agreed to in writing, software
+                                                                                                                                                                                                                                                                                                                                                                                          distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                                                                                                                                                                                                                                                                                                          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                                                                                                                                                                                                                                                                                                          See the License for the specific language governing permissions and
+                                                                                                                                                                                                                                                                                                                                                                                          limitations under the License.
+                                                                                                                                                                                                                                                                                                                                                                                          */
+let GroupCallEventHandlerEvent = /*#__PURE__*/function (GroupCallEventHandlerEvent) {
   GroupCallEventHandlerEvent["Incoming"] = "GroupCall.incoming";
   GroupCallEventHandlerEvent["Outgoing"] = "GroupCall.outgoing";
   GroupCallEventHandlerEvent["Ended"] = "GroupCall.ended";
   GroupCallEventHandlerEvent["Participants"] = "GroupCall.participants";
-})(GroupCallEventHandlerEvent || (exports.GroupCallEventHandlerEvent = GroupCallEventHandlerEvent = {}));
+  return GroupCallEventHandlerEvent;
+}({});
+exports.GroupCallEventHandlerEvent = GroupCallEventHandlerEvent;
 class GroupCallEventHandler {
-  // roomId -> GroupCall
-
-  // All rooms we know about and whether we've seen a 'Room' event
-  // for them. The promise will be fulfilled once we've processed that
-  // event which means we're "up to date" on what calls are in a room
-  // and get
-
   constructor(client) {
     this.client = client;
     _defineProperty(this, "groupCalls", new Map());
+    // roomId -> GroupCall
+    // All rooms we know about and whether we've seen a 'Room' event
+    // for them. The promise will be fulfilled once we've processed that
+    // event which means we're "up to date" on what calls are in a room
+    // and get
     _defineProperty(this, "roomDeferreds", new Map());
     _defineProperty(this, "onRoomsChanged", room => {
       this.createGroupCallForRoom(room);
@@ -42,10 +54,10 @@ class GroupCallEventHandler {
         const groupCallId = event.getStateKey();
         const content = event.getContent();
         const currentGroupCall = this.groupCalls.get(state.roomId);
-        if (!currentGroupCall && !content["m.terminated"]) {
+        if (!currentGroupCall && !content["m.terminated"] && !event.isRedacted()) {
           this.createGroupCallFromRoomStateEvent(event);
         } else if (currentGroupCall && currentGroupCall.groupCallId === groupCallId) {
-          if (content["m.terminated"]) {
+          if (content["m.terminated"] || event.isRedacted()) {
             currentGroupCall.terminate(false);
           } else if (content["m.type"] !== currentGroupCall.type) {
             // TODO: Handle the callType changing when the room state changes
@@ -111,7 +123,7 @@ class GroupCallEventHandler {
     const sortedCallEvents = callEvents.sort((a, b) => b.getTs() - a.getTs());
     for (const callEvent of sortedCallEvents) {
       const content = callEvent.getContent();
-      if (content["m.terminated"]) {
+      if (content["m.terminated"] || callEvent.isRedacted()) {
         continue;
       }
       _logger.logger.debug(`GroupCallEventHandler createGroupCallForRoom() choosing group call from possible calls (stateKey=${callEvent.getStateKey()}, ts=${callEvent.getTs()}, roomId=${room.roomId}, numOfPossibleCalls=${callEvents.length})`);

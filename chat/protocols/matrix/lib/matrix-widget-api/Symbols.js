@@ -4,7 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Symbols = void 0;
-
 /*
  * Copyright 2021 The Matrix.org Foundation C.I.C.
  *
@@ -20,9 +19,9 @@ exports.Symbols = void 0;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var Symbols;
-exports.Symbols = Symbols;
-
-(function (Symbols) {
+var Symbols = /*#__PURE__*/function (Symbols) {
   Symbols["AnyRoom"] = "*";
-})(Symbols || (exports.Symbols = Symbols = {}));
+  return Symbols;
+}({});
+exports.Symbols = Symbols;
+//# sourceMappingURL=Symbols.js.map
