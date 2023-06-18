@@ -729,7 +729,7 @@ var RNP = {
 
         let keyObj = {};
         try {
-          if (RNP.isBadKey(handle)) {
+          if (RNP.isBadKey(handle, null, ffi)) {
             continue;
           }
 
@@ -1051,7 +1051,7 @@ var RNP = {
           keyObj.hasIgnoredAttributes = true;
         }
 
-        if (!RNP.isBadKey(sub_handle)) {
+        if (!RNP.isBadKey(sub_handle, handle, null)) {
           let subKeyObj = {};
           this.addKeyAttributes(sub_handle, meta, subKeyObj, true, forListing);
           keyObj.subKeys.push(subKeyObj);
@@ -1214,7 +1214,7 @@ var RNP = {
   },
   */
 
-  isBadKey(handle) {
+  isBadKey(handle, knownPrimaryKey, knownContextFFI) {
     let validTill64 = new lazy.ctypes.uint64_t();
     if (RNPLib.rnp_key_valid_till64(handle, validTill64.address())) {
       throw new Error("rnp_key_valid_till64 failed");
@@ -1243,6 +1243,28 @@ var RNP = {
     if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
       throw new Error("rnp_key_is_revoked failed");
     }
+
+    if (!key_revoked.value) {
+      // Also check if the primary key was revoked. If the primary key
+      // is revoked, the subkey is considered revoked, too.
+      if (knownPrimaryKey) {
+        if (RNPLib.rnp_key_is_revoked(knownPrimaryKey, key_revoked.address())) {
+          throw new Error("rnp_key_is_revoked failed");
+        }
+      } else if (knownContextFFI) {
+        let primaryHandle = this.getPrimaryKeyHandleIfSub(
+          knownContextFFI,
+          handle
+        );
+        if (!primaryHandle.isNull()) {
+          if (RNPLib.rnp_key_is_revoked(primaryHandle, key_revoked.address())) {
+            throw new Error("rnp_key_is_revoked failed");
+          }
+          RNPLib.rnp_key_handle_destroy(primaryHandle);
+        }
+      }
+    }
+
     return !key_revoked.value;
   },
 
@@ -1461,7 +1483,10 @@ var RNP = {
                 throw new Error("rnp_signature_get_signer failed");
               }
 
-              if (signerHandle.isNull() || this.isBadKey(signerHandle)) {
+              if (
+                signerHandle.isNull() ||
+                this.isBadKey(signerHandle, null, RNPLib.ffi)
+              ) {
                 if (!ignoreUnknownUid) {
                   sigObj.userId = "?";
                   sigObj.sigKnown = false;
@@ -2078,7 +2103,7 @@ var RNP = {
       }
 
       have_signer_key = true;
-      use_signer_key = !this.isBadKey(signer_key);
+      use_signer_key = !this.isBadKey(signer_key, null, RNPLib.ffi);
     }
 
     if (use_signer_key) {
@@ -3159,7 +3184,7 @@ var RNP = {
       }
     }
 
-    if (!key.isNull() && this.isBadKey(key)) {
+    if (!key.isNull() && this.isBadKey(key, null, ffi)) {
       RNPLib.rnp_key_handle_destroy(key);
       key = new RNPLib.rnp_key_handle_t();
     }
@@ -3227,7 +3252,9 @@ var RNP = {
       if (RNPLib.rnp_key_get_subkey_at(primary, i, sub_handle.address())) {
         throw new Error("rnp_key_get_subkey_at failed");
       }
-      let skip = this.isBadKey(sub_handle) || this.isKeyExpired(sub_handle);
+      let skip =
+        this.isBadKey(sub_handle, primary, null) ||
+        this.isKeyExpired(sub_handle);
       if (!skip) {
         let key_revoked = new lazy.ctypes.bool();
         if (RNPLib.rnp_key_is_revoked(sub_handle, key_revoked.address())) {
@@ -3718,7 +3745,7 @@ var RNP = {
         if (is_subkey.value) {
           continue;
         }
-        if (this.isBadKey(handle)) {
+        if (this.isBadKey(handle, null, RNPLib.ffi)) {
           continue;
         }
         let key_revoked = new lazy.ctypes.bool();
