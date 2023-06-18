@@ -1511,7 +1511,10 @@ function clearRunOnceModification(actionName) {
 
 function replacePathVariables(path) {
   if (path.includes("${home}")) {
-    return path.replace("${home}", lazy.FileUtils.getFile("Home", []).path);
+    return path.replace(
+      "${home}",
+      Services.dirsvc.get("Home", Ci.nsIFile).path
+    );
   }
   return path;
 }

@@ -326,7 +326,7 @@ var GlodaIMIndexer = {
 
     this._knownFiles = {};
 
-    let dir = FileUtils.getFile("ProfD", ["logs"]);
+    let dir = new FileUtils.File(PathUtils.join(PathUtils.profileDir, "logs"));
     if (!dir.exists() || !dir.isDirectory()) {
       return;
     }
@@ -787,7 +787,7 @@ var GlodaIMIndexer = {
   },
 
   *_worker_logsFolderSweep(aJob) {
-    let dir = FileUtils.getFile("ProfD", ["logs"]);
+    let dir = new FileUtils.File(PathUtils.join(PathUtils.profileDir, "logs"));
     if (!dir.exists() || !dir.isDirectory()) {
       // If the folder does not exist, then we are done.
       yield GlodaConstants.kWorkDone;

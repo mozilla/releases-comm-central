@@ -5,7 +5,6 @@
 var EXPORTED_SYMBOLS = ["CalDeletedItems"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { FileUtils } = ChromeUtils.importESModule("resource://gre/modules/FileUtils.sys.mjs");
 
 /**
  * Handles remembering deleted items.
@@ -97,7 +96,11 @@ CalDeletedItems.prototype = {
       return;
     }
 
-    let file = FileUtils.getFile("ProfD", ["calendar-data", "deleted.sqlite"]);
+    let nsFile = Components.Constructor("@mozilla.org/file/local;1", "nsIFile", "initWithPath");
+    let file = new nsFile(PathUtils.join(PathUtils.profileDir, "calendar-data", "deleted.sqlite"));
+    if (!file.exists()) {
+      file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
+    }
     this.mDB = Services.storage.openDatabase(file);
 
     // If this database needs changing, please start using a real schema

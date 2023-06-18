@@ -2816,12 +2816,15 @@ export var XMPPAccountPrototype = {
     istream.setData(content, content.length);
 
     let fileName = resource._photoHash + "." + kExt[type];
-    let file = lazy.FileUtils.getFile("ProfD", [
-      "icons",
-      this.protocol.normalizedName,
-      this.normalizedName,
-      fileName,
-    ]);
+    let file = new lazy.FileUtils.File(
+      PathUtils.join(
+        PathUtils.profileDir,
+        "icons",
+        this.protocol.normalizedName,
+        this.normalizedName,
+        fileName
+      )
+    );
     let ostream = lazy.FileUtils.openSafeFileOutputStream(file);
     return new Promise(resolve => {
       lazy.NetUtil.asyncCopy(istream, ostream, rc => {

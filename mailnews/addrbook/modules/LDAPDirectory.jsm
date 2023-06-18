@@ -76,7 +76,9 @@ class LDAPDirectory extends AddrBookDirectory {
   }
 
   get replicationFile() {
-    return lazy.FileUtils.getFile("ProfD", [this.replicationFileName]);
+    return new lazy.FileUtils.File(
+      PathUtils.join(PathUtils.profileDir, this.replicationFileName)
+    );
   }
 
   get protocolVersion() {

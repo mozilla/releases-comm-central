@@ -50,10 +50,7 @@ add_setup(async function () {
   await be_in_folder(folder);
 
   // @see logic for tmpD in msgHdrView.js
-  tmpD = PathUtils.join(
-    Services.dirsvc.get("TmpD", Ci.nsIFile).path,
-    "pid-" + Services.appinfo.processID
-  );
+  tmpD = PathUtils.join(PathUtils.tempDir, "pid-" + Services.appinfo.processID);
 
   savePath = await IOUtils.createUniqueDirectory(tmpD, "saveDestination");
   Services.prefs.setStringPref("browser.download.dir", savePath);
@@ -64,10 +61,12 @@ add_setup(async function () {
   Services.prefs.setBoolPref("browser.download.useDownloadDir", true);
   Services.prefs.setIntPref("security.dialog_enable_delay", 0);
 
-  let mockedExecutable = FileUtils.getFile("TmpD", ["mockedExecutable"]);
-  if (!mockedExecutable.exists()) {
-    mockedExecutable.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o755);
-  }
+  let mockExePath = PathUtils.join(PathUtils.tempDir, "mockedExecutable");
+  await IOUtils.write(mockExePath, new Uint8Array(), {
+    mode: "appendOrCreate",
+  });
+  await IOUtils.setPermissions(mockExePath, 0o755);
+  let mockedExecutable = await IOUtils.getFile(mockExePath);
 
   mockedHandlerApp = Cc[
     "@mozilla.org/uriloader/local-handler-app;1"

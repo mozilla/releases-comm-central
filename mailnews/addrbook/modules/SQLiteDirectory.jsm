@@ -174,7 +174,9 @@ class SQLiteDirectory extends AddrBookDirectory {
 
     // Make sure we always have a file. If a file is not created, the
     // filename may be accidentally reused.
-    let file = lazy.FileUtils.getFile("ProfD", [fileName]);
+    let file = new lazy.FileUtils.File(
+      PathUtils.join(PathUtils.profileDir, fileName)
+    );
     if (!file.exists()) {
       file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
     }
@@ -199,7 +201,9 @@ class SQLiteDirectory extends AddrBookDirectory {
   }
 
   get _dbConnection() {
-    this._file = lazy.FileUtils.getFile("ProfD", [this.fileName]);
+    this._file = new lazy.FileUtils.File(
+      PathUtils.join(PathUtils.profileDir, this.fileName)
+    );
     let connection = openConnectionTo(this._file);
 
     // SQLite cache size can be set by the cacheSize preference, in KiB.
