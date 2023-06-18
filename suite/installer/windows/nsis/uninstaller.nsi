@@ -150,16 +150,6 @@ UninstPage custom un.preConfirm un.leaveConfirm
 ; Remove Files Page
 !insertmacro MUI_UNPAGE_INSTFILES
 
-; Don't setup the survey controls, functions, etc. when the application has
-; defined NO_UNINSTALL_SURVEY
-!ifndef NO_UNINSTALL_SURVEY
-!define MUI_PAGE_CUSTOMFUNCTION_PRE un.preFinish
-!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-!define MUI_FINISHPAGE_SHOWREADME ""
-!define MUI_FINISHPAGE_SHOWREADME_TEXT $(SURVEY_TEXT)
-!define MUI_FINISHPAGE_SHOWREADME_FUNCTION un.Survey
-!endif
-
 !insertmacro MUI_UNPAGE_FINISH
 
 ; Use the default dialog for IDD_VERIFY for a simple Banner
@@ -396,14 +386,6 @@ SectionEnd
 ################################################################################
 # Helper Functions
 
-; Don't setup the survey controls, functions, etc. when the application has
-; defined NO_UNINSTALL_SURVEY
-!ifndef NO_UNINSTALL_SURVEY
-Function un.Survey
-  Exec "$\"$TmpVal$\" $\"${SurveyURL}$\""
-FunctionEnd
-!endif
-
 ################################################################################
 # Language
 
@@ -519,37 +501,6 @@ Function un.leaveConfirm
     ${un.ManualCloseAppPrompt} "${WindowClass}" "$(WARN_MANUALLY_CLOSE_APP_UNINSTALL)"
   ${EndIf}
 FunctionEnd
-
-!ifndef NO_UNINSTALL_SURVEY
-Function un.preFinish
-  ; Do not modify the finish page if there is a reboot pending
-  ${Unless} ${RebootFlag}
-    ; Setup the survey controls, functions, etc.
-    StrCpy $TmpVal "SOFTWARE\Microsoft\IE Setup\Setup"
-    ClearErrors
-    ReadRegStr $0 HKLM $TmpVal "Path"
-    ${If} ${Errors}
-      !insertmacro MUI_INSTALLOPTIONS_WRITE "ioSpecial.ini" "settings" "NumFields" "3"
-    ${Else}
-      ExpandEnvStrings $0 "$0" ; this value will usually contain %programfiles%
-      ${If} $0 != "\"
-        StrCpy $0 "$0\"
-      ${EndIf}
-      StrCpy $0 "$0\iexplore.exe"
-      ClearErrors
-      GetFullPathName $TmpVal $0
-      ${If} ${Errors}
-        !insertmacro MUI_INSTALLOPTIONS_WRITE "ioSpecial.ini" "settings" "NumFields" "3"
-      ${Else}
-        ; When we add an optional action to the finish page the cancel button
-        ; is enabled. This disables it and leaves the finish button as the
-        ; only choice.
-        !insertmacro MUI_INSTALLOPTIONS_WRITE "ioSpecial.ini" "settings" "cancelenabled" "0"
-      ${EndIf}
-    ${EndIf}
-  ${EndUnless}
-FunctionEnd
-!endif
 
 ################################################################################
 # Initialization Functions
