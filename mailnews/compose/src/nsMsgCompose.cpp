@@ -4715,7 +4715,9 @@ void nsMsgCompose::TagConvertible(Element* node, int32_t* _retval) {
 /**
  * Note: Helper function. Parameters are not checked.
  */
-void nsMsgCompose::_NodeTreeConvertible(Element* node, int32_t* _retval) {
+NS_IMETHODIMP
+nsMsgCompose::NodeTreeConvertible(Element* node, int32_t* _retval) {
+  NS_ENSURE_ARG_POINTER(_retval);
   int32_t result;
 
   // Check this node
@@ -4730,13 +4732,14 @@ void nsMsgCompose::_NodeTreeConvertible(Element* node, int32_t* _retval) {
     nsCOMPtr<Element> domElement = do_QueryInterface(pItem);
     if (domElement) {
       int32_t curresult;
-      _NodeTreeConvertible(domElement, &curresult);
+      NodeTreeConvertible(domElement, &curresult);
 
       if (curresult > result) result = curresult;
     }
   }
 
   *_retval = result;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -4752,8 +4755,7 @@ nsMsgCompose::BodyConvertible(int32_t* _retval) {
   // get the top level element, which contains <html>
   nsCOMPtr<Element> rootElement = rootDocument->GetDocumentElement();
   if (!rootElement) return NS_ERROR_UNEXPECTED;
-
-  _NodeTreeConvertible(rootElement, _retval);
+  NodeTreeConvertible(rootElement, _retval);
   return NS_OK;
 }
 

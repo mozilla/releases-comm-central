@@ -66,6 +66,33 @@ async function checkMsgFile(aFilePath, aConvertibility) {
 }
 
 /**
+ * Tests nodeTreeConvertible() can be called from JavaScript.
+ */
+add_task(async function test_msg_nodeTreeConvertible() {
+  let msgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
+    Ci.nsIMsgCompose
+  );
+
+  let textDoc = new DOMParser().parseFromString(
+    "<p>Simple Text</p>",
+    "text/html"
+  );
+  Assert.equal(
+    msgCompose.nodeTreeConvertible(textDoc.documentElement),
+    Ci.nsIMsgCompConvertible.Plain
+  );
+
+  let htmlDoc = new DOMParser().parseFromString(
+    '<p>Complex <span style="font-weight: bold">Text</span></p>',
+    "text/html"
+  );
+  Assert.equal(
+    msgCompose.nodeTreeConvertible(htmlDoc.documentElement),
+    Ci.nsIMsgCompConvertible.No
+  );
+});
+
+/**
  * Tests that we only open one compose window for one instance of a draft.
  */
 add_task(async function test_msg_convertibility() {

@@ -82,7 +82,6 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
                            nsTArray<nsMsgMailList>& mailListResolved,
                            nsTArray<nsMsgRecipient>& aListMembers);
   void TagConvertible(mozilla::dom::Element* node, int32_t* _retval);
-  void _NodeTreeConvertible(mozilla::dom::Element* node, int32_t* _retval);
   MOZ_CAN_RUN_SCRIPT nsresult MoveToAboveQuote(void);
   MOZ_CAN_RUN_SCRIPT nsresult MoveToBeginningOfDocument(void);
   MOZ_CAN_RUN_SCRIPT nsresult MoveToEndOfDocument(void);

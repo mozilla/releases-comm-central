@@ -20,6 +20,8 @@ interface mozIDOMWindowProxy;
 interface nsIEditor;
 interface nsIMsgWindow;
 
+webidl Element;
+
 typedef long MSG_ComposeSaveType;
 
 [scriptable, uuid(6953e50a-7531-11d3-85fe-006008948010)]
@@ -168,6 +170,13 @@ interface nsIMsgCompose : nsIMsgSendListener {
    * @return a value from nsIMsgCompConvertible.
    */
   long bodyConvertible();
+
+  /**
+   * The level of "convertibility" of the provided node to plaintext.
+   *
+   * @return a value from nsIMsgCompConvertible.
+   */
+  long nodeTreeConvertible(in Element aNode);
 
   /**
    * The identity currently selected for the message compose object. When set
