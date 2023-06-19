@@ -2,19 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals CanDetachAttachments
-  currentAttachments FullScreen
-  getIconForAttachment goUpdateAttachmentCommands initAddonPrefsMenu
-  initAppMenuPopup
-  InitAppmenuViewMessagesMenu InitAppFolderViewsMenu InitAppViewSortByMenu
-  InitMessageTags InitRecentlyClosedTabsPopup
-  InitViewLayoutStyleMenu initSearchMessagesMenu
-  MozXULElement msgWindow
-  onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
-  RefreshViewPopup SanitizeAttachmentDisplayName
-  updateEditUIVisibility UpdateFullZoomMenu
-  initUiDensityAppMenu gSpacesToolbar MailServices
-   */
+/* import-globals-from ../../../base/content/globalOverlay.js */
+/* import-globals-from ../../../base/content/mailCore.js */
+/* import-globals-from ../../../base/content/mailWindowOverlay.js */
+/* import-globals-from ../../../base/content/messenger.js */
+/* import-globals-from ../../../extensions/mailviews/content/msgViewPickerOverlay.js */
 
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
@@ -501,51 +493,57 @@ const PanelUI = {
    */
   _onFoldersViewShow(event) {
     let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-    if (about3Pane) {
-      const paneHeaderMenuitem = event.target.querySelector(
-        '[name="paneheader"]'
-      );
-      if (about3Pane.folderPane.isFolderPaneHeaderHidden()) {
-        paneHeaderMenuitem.removeAttribute("checked");
-      } else {
-        paneHeaderMenuitem.setAttribute("checked", "true");
-      }
+    let folder = about3Pane.gFolder;
 
-      let { activeModes, canBeCompact, isCompact } = about3Pane.folderPane;
-      if (isCompact) {
-        activeModes.push("compact");
-      }
+    const paneHeaderMenuitem = event.target.querySelector(
+      '[name="paneheader"]'
+    );
+    if (about3Pane.folderPane.isFolderPaneHeaderHidden()) {
+      paneHeaderMenuitem.removeAttribute("checked");
+    } else {
+      paneHeaderMenuitem.setAttribute("checked", "true");
+    }
 
-      for (let item of event.target.querySelectorAll('[name="viewmessages"]')) {
-        let mode = item.getAttribute("value");
-        if (activeModes.includes(mode)) {
-          item.setAttribute("checked", "true");
-          if (mode == "all") {
-            item.disabled = activeModes.length == 1;
-          }
-        } else {
-          item.removeAttribute("checked");
+    let { activeModes, canBeCompact, isCompact } = about3Pane.folderPane;
+    if (isCompact) {
+      activeModes.push("compact");
+    }
+
+    for (let item of event.target.querySelectorAll('[name="viewmessages"]')) {
+      let mode = item.getAttribute("value");
+      if (activeModes.includes(mode)) {
+        item.setAttribute("checked", "true");
+        if (mode == "all") {
+          item.disabled = activeModes.length == 1;
         }
-        if (mode == "compact") {
-          item.disabled = !canBeCompact;
-        }
-      }
-
-      let propertiesMenuItem = document.getElementById("appmenu_properties");
-      if (about3Pane.gFolder?.server.type == "nntp") {
-        document.l10n.setAttributes(
-          propertiesMenuItem,
-          "menu-edit-newsgroup-properties"
-        );
       } else {
-        document.l10n.setAttributes(
-          propertiesMenuItem,
-          "menu-edit-folder-properties"
-        );
+        item.removeAttribute("checked");
+      }
+      if (mode == "compact") {
+        item.disabled = !canBeCompact;
       }
     }
 
-    InitAppFolderViewsMenu();
+    goUpdateCommand("cmd_properties");
+    let propertiesMenuItem = document.getElementById("appmenu_properties");
+    if (folder?.server.type == "nntp") {
+      document.l10n.setAttributes(
+        propertiesMenuItem,
+        "menu-edit-newsgroup-properties"
+      );
+    } else {
+      document.l10n.setAttributes(
+        propertiesMenuItem,
+        "menu-edit-folder-properties"
+      );
+    }
+
+    let favoriteFolderMenu = document.getElementById("appmenu_favoriteFolder");
+    if (folder?.getFlag(Ci.nsMsgFolderFlags.Favorite)) {
+      favoriteFolderMenu.setAttribute("checked", "true");
+    } else {
+      favoriteFolderMenu.removeAttribute("checked");
+    }
   },
 
   _onToolsMenuShown(event) {
@@ -560,13 +558,6 @@ const PanelUI = {
       if (notificationsChanged) {
         this._clearAllNotifications();
       }
-      return;
-    }
-
-    if (
-      (window.fullScreen && FullScreen.navToolboxHidden) ||
-      document.fullscreenElement
-    ) {
       return;
     }
 

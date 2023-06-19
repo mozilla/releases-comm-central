@@ -348,6 +348,32 @@ add_task(async function testDeleteItem() {
 }).__skipMe = AppConstants.DEBUG; // Too unreliable.
 
 /**
+ * Tests the "Favorite Folder" item in the menu is checked/unchecked as expected.
+ */
+add_task(async function testFavoriteFolderItem() {
+  let { displayFolder } = tabmail.currentAbout3Pane;
+
+  testFolder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+  displayFolder(testFolder);
+  await helper.testItems({ menu_favoriteFolder: {} });
+
+  testFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
+  await helper.activateItem("menu_favoriteFolder", { checked: true });
+  Assert.ok(
+    !testFolder.getFlag(Ci.nsMsgFolderFlags.Favorite),
+    "favorite flag should be cleared"
+  );
+
+  await helper.activateItem("menu_favoriteFolder", {});
+  Assert.ok(
+    testFolder.getFlag(Ci.nsMsgFolderFlags.Favorite),
+    "favorite flag should be set"
+  );
+
+  testFolder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
+});
+
+/**
  * Tests the "Properties" item in the menu is enabled/disabled as expected,
  * and has the correct label.
  */

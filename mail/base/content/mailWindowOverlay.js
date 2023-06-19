@@ -166,13 +166,13 @@ function file_init() {
 function InitEditMessagesMenu() {
   document.commandDispatcher.updateCommands("create-menu-edit");
 
-  let chromeBrowser, folderTreeActive, folderIsNewsgroup;
+  let chromeBrowser, folderTreeActive, folder, folderIsNewsgroup;
   let tab = document.getElementById("tabmail")?.currentTabInfo;
   if (tab?.mode.name == "mail3PaneTab") {
     chromeBrowser = tab.chromeBrowser;
     folderTreeActive =
       chromeBrowser.contentDocument.activeElement.id == "folderTree";
-    let folder = chromeBrowser.contentWindow.gFolder;
+    folder = chromeBrowser.contentWindow.gFolder;
     folderIsNewsgroup = folder?.server.type == "nntp";
   } else if (tab?.mode.name == "mailMessageTab") {
     chromeBrowser = tab.chromeBrowser;
@@ -206,10 +206,12 @@ function InitEditMessagesMenu() {
     document.l10n.setAttributes(deleteMenuItem, "text-action-delete");
   }
 
-  // initialize the favorite Folder checkbox in the edit menu
+  // Initialize the Favorite Folder checkbox in the Edit menu.
   let favoriteFolderMenu = document.getElementById("menu_favoriteFolder");
-  if (!favoriteFolderMenu.hasAttribute("disabled")) {
-    // TODO: Reimplement this as a command.
+  if (folder?.getFlag(Ci.nsMsgFolderFlags.Favorite)) {
+    favoriteFolderMenu.setAttribute("checked", "true");
+  } else {
+    favoriteFolderMenu.removeAttribute("checked");
   }
 
   let propertiesController = getEnabledControllerForCommand("cmd_properties");
@@ -233,14 +235,6 @@ function initSearchMessagesMenu() {
     "mailnews.database.global.indexer.enabled"
   );
   document.getElementById("glodaSearchCmd").hidden = !glodaEnabled;
-}
-
-function InitAppFolderViewsMenu() {
-  // Initialize the favorite Folder checkbox in the appmenu menu.
-  let favoriteAppFolderMenu = document.getElementById("appmenu_favoriteFolder");
-  if (!favoriteAppFolderMenu.hasAttribute("disabled")) {
-    // TODO: Reimplement this as a command.
-  }
 }
 
 function InitGoMessagesMenu() {
@@ -1174,11 +1168,6 @@ function MsgUnsubscribe(folders) {
   }
 }
 
-function ToggleFavoriteFolderFlag() {
-  var folder = GetFirstSelectedMsgFolder();
-  folder.toggleFlag(Ci.nsMsgFolderFlags.Favorite);
-}
-
 function MsgOpenNewWindowForFolder(folderURI, msgKeyToSelect) {
   window.openDialog(
     "chrome://messenger/content/messenger.xhtml",
@@ -1845,10 +1834,13 @@ function initAppMenuPopup() {
   InitGoMessagesMenu();
   menu_new_init();
   CommandUpdate_UndoRedo();
-  InitAppFolderViewsMenu();
   document.commandDispatcher.updateCommands("create-menu-tasks");
   UIFontSize.updateAppMenuButton(window);
   initUiDensityAppMenu();
+
+  document.getElementById("appmenu_FolderViews").disabled =
+    document.getElementById("tabmail").currentTabInfo.mode.name !=
+    "mail3PaneTab";
 }
 
 /**

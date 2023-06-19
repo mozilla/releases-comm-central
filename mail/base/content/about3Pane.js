@@ -246,6 +246,7 @@ var folderPaneContextMenu = {
     "folderPaneContext-rename": "cmd_renameFolder",
     "folderPaneContext-compact": "cmd_compactFolder",
     "folderPaneContext-properties": "cmd_properties",
+    "folderPaneContext-favoriteFolder": "cmd_toggleFavoriteFolder",
   },
 
   /**
@@ -340,6 +341,7 @@ var folderPaneContextMenu = {
         // `folderPane.deleteFolder` has a special case for this.
         deletable = true;
       }
+      let isSmartTagsFolder = FolderUtils.isSmartTagsFolder(folder);
       let showNewFolderItem =
         (!isNNTP && canCreateSubfolders) || flags & Ci.nsMsgFolderFlags.Inbox;
 
@@ -359,7 +361,8 @@ var folderPaneContextMenu = {
           (isServer || canCompact) &&
           folder.isCommandEnabled("cmd_compactFolder"),
         cmd_emptyTrash: !isNNTP,
-        cmd_properties: !isServer && !FolderUtils.isSmartTagsFolder(folder),
+        cmd_properties: !isServer && !isSmartTagsFolder,
+        cmd_toggleFavoriteFolder: !isServer && !isSmartTagsFolder,
       };
     }
     return this._commandStates[command];
@@ -471,16 +474,10 @@ var folderPaneContextMenu = {
       flags & Ci.nsMsgFolderFlags.Queue
     );
 
-    showItem(
+    checkItem(
       "folderPaneContext-favoriteFolder",
-      !isServer && !isSmartTagsFolder
+      flags & Ci.nsMsgFolderFlags.Favorite
     );
-    if (!isServer) {
-      checkItem(
-        "folderPaneContext-favoriteFolder",
-        flags & Ci.nsMsgFolderFlags.Favorite
-      );
-    }
     showItem("folderPaneContext-markAllFoldersRead", isServer);
 
     showItem("folderPaneContext-settings", isServer);
@@ -640,9 +637,6 @@ var folderPaneContextMenu = {
         break;
       case "folderPaneContext-sendUnsentMessages":
         topChromeWindow.SendUnsentMessages();
-        break;
-      case "folderPaneContext-favoriteFolder":
-        folder.toggleFlag(Ci.nsMsgFolderFlags.Favorite);
         break;
       case "folderPaneContext-properties":
         folderPane.editFolder(folder);
@@ -6000,6 +5994,11 @@ commandController.registerCallback(
   "cmd_properties",
   (folder = gFolder) => folderPane.editFolder(folder),
   () => folderPaneContextMenu.getCommandState("cmd_properties")
+);
+commandController.registerCallback(
+  "cmd_toggleFavoriteFolder",
+  (folder = gFolder) => folder.toggleFlag(Ci.nsMsgFolderFlags.Favorite),
+  () => folderPaneContextMenu.getCommandState("cmd_toggleFavoriteFolder")
 );
 
 // Delete commands, which change behaviour based on the active element.
