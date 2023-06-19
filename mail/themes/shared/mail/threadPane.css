@@ -643,6 +643,10 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   white-space: nowrap;
 }
 
+[data-properties~="dummy"] > td > .thread-card-container > .thread-card-row:first-child {
+  display: none;
+}
+
 .thread-card-subject-container .sender {
   font-weight: 400;
 }
@@ -660,6 +664,10 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   flex: 1 1 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+[data-properties~="dummy"] .thread-card-subject-container .subject {
+  padding-inline-start: 9px;
 }
 
 .thread-card-container .date {
