@@ -89,8 +89,8 @@ add_task(async function test_archive_options_enabled() {
   MailServices.accounts.removeAccount(account);
 });
 
-function subtest_initial_state(identity) {
-  plan_for_modal_dialog("archiveOptions", function (ac) {
+async function subtest_initial_state(identity) {
+  plan_for_modal_dialog("archiveOptions", async function (ac) {
     Assert.equal(
       ac.window.document.getElementById("archiveGranularity").selectedIndex,
       identity.archiveGranularity
@@ -109,12 +109,12 @@ function subtest_initial_state(identity) {
   wait_for_modal_dialog("archiveOptions");
 }
 
-add_task(function test_open_archive_options() {
+add_task(async function test_open_archive_options() {
   for (let granularity = 0; granularity < 3; granularity++) {
     defaultIdentity.archiveGranularity = granularity;
     for (let kfs = 0; kfs < 2; kfs++) {
       defaultIdentity.archiveKeepFolderStructure = kfs;
-      subtest_initial_state(defaultIdentity);
+      await subtest_initial_state(defaultIdentity);
     }
   }
 });
