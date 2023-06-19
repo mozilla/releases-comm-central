@@ -106,6 +106,13 @@ def debugqa(arg):
 
 set_config("MOZ_DEBUGQA", debugqa)
 
+with only_when(target_has_linux_kernel & compile_environment):
+    option(env='MOZ_NO_PIE_COMPAT',
+           help='Enable non-PIE wrapper')
+
+    set_config('MOZ_NO_PIE_COMPAT',
+               depends_if('MOZ_NO_PIE_COMPAT')(lambda _: True))
+
 # Miscellaneous programs
 # ==============================================================
 
