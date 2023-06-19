@@ -2686,7 +2686,7 @@ var folderPane = {
    * expires and with a different row, the timer is cleared and a new one
    * started. If `row` is falsy or isn't collapsed the timer is cleared.
    *
-   * @param {HTMLLIElement?} row
+   * @param {?HTMLLIElement} row
    */
   _timedExpand(row) {
     if (this._expandRow == row) {
@@ -2700,6 +2700,7 @@ var folderPane = {
     }
     this._expandRow = row;
     this._expandTimer = setTimeout(() => {
+      this._autoExpandedRow = this._expandRow;
       folderTree.expandRow(this._expandRow);
       delete this._expandRow;
       delete this._expandTimer;
@@ -2712,6 +2713,10 @@ var folderPane = {
 
   _onDrop(event) {
     this._timedExpand();
+    if (this._autoExpandedRow) {
+      folderTree.collapseRow(this._autoExpandedRow);
+      delete this._autoExpandedRow;
+    }
     this._clearDropTarget();
     if (event.dataTransfer.dropEffect == "none") {
       // Somehow this is possible. It should not be possible.
