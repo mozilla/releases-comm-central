@@ -283,6 +283,16 @@ function get_about_message(win = mc.window) {
   throw new Error("The current tab is not a mail3PaneTab or mailMessageTab.");
 }
 
+function ready_about_win(win) {
+  if (win.document.readyState == "complete") {
+    return;
+  }
+  utils.waitFor(
+    () => win.document.readyState == "complete",
+    `About win should complete loading`
+  );
+}
+
 function get_about_3pane_or_about_message(win = mc.window) {
   let doc = win.document;
   let tabmail = doc.getElementById("tabmail");
@@ -302,7 +312,9 @@ function get_about_3pane_or_about_message(win = mc.window) {
 }
 
 function get_db_view(win = mc.window) {
-  return get_about_3pane_or_about_message(win).gDBView;
+  let aboutMessageWin = get_about_3pane_or_about_message(win);
+  ready_about_win(aboutMessageWin);
+  return aboutMessageWin.gDBView;
 }
 
 function smimeUtils_ensureNSS() {
@@ -2677,8 +2689,10 @@ function assert_thread_tree_focused() {
  */
 function assert_message_pane_focused() {
   // TODO: this doesn't work.
+  // let aboutMessageWin =  get_about_3pane_or_about_message();
+  // ready_about_win(aboutMessageWin);
   // Assert.equal(
-  //   get_about_3pane_or_about_message().document.activeElement.id,
+  //   aboutMessageWin.document.activeElement.id,
   //   "messageBrowser"
   // );
 }
