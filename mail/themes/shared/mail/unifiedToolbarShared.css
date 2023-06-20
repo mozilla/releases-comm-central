@@ -12,6 +12,22 @@
   --toolbar-button-badge-bg-color: var(--color-red-70);
   --toolbar-button-badge-padding: 1px 3px;
   --toolbar-button-badge-font: 0.8rem;
+  --badge-inset-block-start: 1px;
+  --badge-inset-inline-nudge: 0px;
+  --badge-inset-inline-end: 2px;
+}
+
+/* UI Density customization */
+:root[uidensity="compact"] {
+  --badge-inset-block-start: 0px;
+  --badge-inset-inline-nudge: 4px;
+  --badge-inset-inline-end: 0px;
+}
+
+:root[uidensity="touch"] {
+  --badge-inset-block-start: 4px;
+  --badge-inset-inline-nudge: -3px;
+  --badge-inset-inline-end: 3px;
 }
 
 @media (-moz-windows-accent-color-in-titlebar) {
@@ -92,12 +108,16 @@
   color: var(--toolbar-button-badge-text-color);
   line-height: 1em;
   position: absolute;
-  inset-inline-end: -3px;
-  inset-block-start: -2px;
+  inset-inline-end: var(--badge-inset-inline-end);
+  inset-block-start: var(--badge-inset-block-start);
   max-width: 3ch;
   overflow: hidden;
   text-overflow: ellipsis;
   text-overflow: clip;
+}
+
+.unified-toolbar-button[popup][badge]::after {
+  inset-inline-end: 14px;
 }
 
 .unified-toolbar-button[badge]:-moz-window-inactive::after {
@@ -107,7 +127,8 @@
 /* If the text is shown after the icon, move the badge to be over the icon */
 .icons-beside-text .unified-toolbar-button[badge]::after {
   inset-inline-end: unset;
-  inset-inline-start: 10px;
+  inset-inline-start: calc(var(--icon-size) - var(--badge-inset-inline-nudge));
+  inset-block-start: var(--badge-inset-block-start);
 }
 
 /* With text only, just show the badge after the label */
@@ -118,8 +139,13 @@
 /* If we are showing the text below the icon, move the badge in toward the
  * center of the button. */
 .icons-above-text .unified-toolbar-button[badge]::after {
-  inset-inline-end: 0;
-  inset-block-start: 8px;
+  inset-inline-end: unset;
+  inset-inline-start: 51%;
+}
+
+.icons-above-text .unified-toolbar-button[popup][badge]::after {
+  inset-inline-start: unset;
+  inset-inline-end: 38%;
 }
 
 .unified-toolbar-button .button-label {
