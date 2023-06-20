@@ -761,17 +761,17 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   padding-block: calc(var(--appmenu-button-padding) + 3px);
   border-radius: var(--arrowpanel-menuitem-border-radius);
   color: var(--button-color);
-  background-color: var(--button-background-color);
+  background-color: color-mix(in srgb, currentColor 7%, transparent);;
   margin-bottom: 4px;
   font-weight: 600;
 }
 
 .panel-banner-item:not([disabled]):hover {
-  background-color: var(--button-hover-background-color);
+  background-color: var(--arrowpanel-dimmed);
 }
 
 .panel-banner-item:not([disabled]):hover:active {
-  background-color: var(--button-active-background-color);
+  background-color: var(--arrowpanel-dimmed-further);
 }
 
 .panel-banner-item > .toolbarbutton-text {
