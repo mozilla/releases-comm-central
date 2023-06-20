@@ -348,15 +348,18 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
   info(
     `Checking standalong msg win; test=${test.type}; shouldLoad=${loadAllowed}`
   );
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   // Open it
   set_open_message_behavior("NEW_WINDOW");
   open_selected_message();
-  let msgc = await newWindowPromise;
-  wait_for_message_display_completion(msgc, true);
+
+  let win = await winPromise;
+  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
+  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
+
   if (
     (await test.checkForAllowed(
-      get_about_message(msgc.window)
+      get_about_message(win)
         .getMessagePaneBrowser()
         .contentDocument.getElementById("testelement")
     )) != loadAllowed
@@ -367,8 +370,9 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
     );
   }
 
-  // Clean up, close the window
-  close_message_window(msgc);
+  let closed = BrowserTestUtils.domWindowClosed(win);
+  win.close();
+  await closed;
 }
 
 /**
@@ -899,8 +903,8 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
 
 add_task(async function test_insertImageIntoReply() {
   await subtest_insertImageIntoReplyForward(true);
-});
+}).skip(AppConstants.platform == "linux" && Services.env.get("MOZ_HEADLESS")); // No clipboard in headless.
 
 add_task(async function test_insertImageIntoForward() {
   await subtest_insertImageIntoReplyForward(false);
-});
+}).skip(AppConstants.platform == "linux" && Services.env.get("MOZ_HEADLESS")); // No clipboard in headless.;
