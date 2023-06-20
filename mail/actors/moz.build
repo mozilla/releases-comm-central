@@ -4,7 +4,7 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    "../../../browser/modules/FaviconLoader.jsm",
+    "../../../browser/modules/FaviconLoader.sys.mjs",
 ]
 
 FINAL_TARGET_FILES.actors += [
