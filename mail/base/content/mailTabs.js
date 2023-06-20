@@ -199,6 +199,29 @@ var mailTabType = {
           return;
         }
 
+        // Manually call onTabRestored, since it is usually called by openTab(),
+        // which is skipped for the first tab.
+        let restoreState = tabmail._restoringTabState;
+        if (restoreState) {
+          for (let tabMonitor of tabmail.tabMonitors) {
+            try {
+              if (
+                "onTabRestored" in tabMonitor &&
+                restoreState &&
+                tabMonitor.monitorName in restoreState.ext
+              ) {
+                tabMonitor.onTabRestored(
+                  tabmail.tabInfo[0],
+                  restoreState.ext[tabMonitor.monitorName],
+                  false
+                );
+              }
+            } catch (ex) {
+              console.error(ex);
+            }
+          }
+        }
+
         let { chromeBrowser, closed } = tabmail.tabInfo[0];
         if (
           chromeBrowser.contentDocument.readyState == "complete" &&

@@ -137,6 +137,12 @@
     "scopes": ["addon_parent"],
     "paths": [["pkcs11"]]
   },
+  "sessions": {
+    "url": "chrome://messenger/content/parent/ext-sessions.js",
+    "schema": "chrome://messenger/content/schemas/sessions.json",
+    "scopes": ["addon_parent"],
+    "paths": [["sessions"]]
+  },
   "spaces": {
     "url": "chrome://messenger/content/parent/ext-spaces.js",
     "schema": "chrome://messenger/content/schemas/spaces.json",

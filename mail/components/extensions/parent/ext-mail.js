@@ -12,6 +12,10 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 var { ExtensionError, getInnerWindowID } = ExtensionUtils;
 var { defineLazyGetter, makeWidgetId } = ExtensionCommon;
 
+var { ExtensionSupport } = ChromeUtils.import(
+  "resource:///modules/ExtensionSupport.jsm"
+);
+
 ChromeUtils.defineESModuleGetters(this, {
   ExtensionContent: "resource://gre/modules/ExtensionContent.sys.mjs",
 });
@@ -755,6 +759,25 @@ class TabTracker extends TabTrackerBase {
     this._movingTabs = new Map();
 
     this._handleTabDestroyed = this._handleTabDestroyed.bind(this);
+
+    ExtensionSupport.registerWindowListener("ext-sessions", {
+      chromeURLs: [MAIN_WINDOW_URI],
+      onLoadWindow(window) {
+        window.gTabmail.registerTabMonitor({
+          monitorName: "extensionSession",
+          onTabTitleChanged(aTab) {},
+          onTabClosing(aTab) {},
+          onTabPersist(aTab) {
+            return aTab._ext.extensionSession;
+          },
+          onTabRestored(aTab, aState) {
+            aTab._ext.extensionSession = aState;
+          },
+          onTabSwitched(aNewTab, aOldTab) {},
+          onTabOpened(aTab) {},
+        });
+      },
+    });
   }
 
   /**

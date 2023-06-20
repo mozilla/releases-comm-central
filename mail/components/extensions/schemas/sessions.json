@@ -1,0 +1,76 @@
+[
+  {
+    "namespace": "sessions",
+    "functions": [
+      {
+        "name": "setTabValue",
+        "type": "function",
+        "description": "Store a key/value pair associated with a given tab.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer",
+            "description": "ID of the tab with which you want to associate the data. Error is thrown if ID is invalid."
+          },
+          {
+            "name": "key",
+            "type": "string",
+            "description": "Key that you can later use to retrieve this particular data value."
+          },
+          {
+            "name": "value",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "getTabValue",
+        "type": "function",
+        "description": "Retrieve a previously stored value for a given tab, given its key.",
+        "async": "callback",
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer",
+            "description": "ID of the tab whose data you are trying to retrieve. Error is thrown if ID is invalid."
+          },
+          {
+            "name": "key",
+            "type": "string",
+            "description": "Key identifying the particular value to retrieve."
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "optional": true,
+            "parameters": [
+              {
+                "type": "string",
+                "optional": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "removeTabValue",
+        "type": "function",
+        "description": "Remove a key/value pair from a given tab.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer",
+            "description": "ID of the tab whose data you are trying to remove. Error is thrown if ID is invalid."
+          },
+          {
+            "name": "key",
+            "type": "string",
+            "description": "Key identifying the particular value to remove."
+          }
+        ]
+      }
+    ]
+  }
+]
