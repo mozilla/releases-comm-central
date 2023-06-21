@@ -379,6 +379,41 @@
               label="&folderContextRename.label;"
               accesskey="&folderContextRename.accesskey;"/>
     <menuseparator/>
+    <menu id="folderPaneContext-moveMenu"
+              class="menu-iconic"
+              label="&moveMsgToMenu.label;"
+              accesskey="&moveMsgToMenu.accesskey;">
+      <menupopup is="folder-menupopup" id="folderContext-movePopup"
+                 mode="filing"
+                 showAccountsFileHere="true"
+                 showFileHereLabel="true"
+                 showRecent="true"
+                 recentLabel="&contextMoveCopyMsgRecentMenu.label;"
+                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
+                 showFavorites="true"
+                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
+    </menu>
+    <menu id="folderPaneContext-copyMenu"
+          class="menu-iconic"
+          label="&copyMsgToMenu.label;"
+          accesskey="&copyMsgToMenu.accesskey;">
+      <menupopup is="folder-menupopup" id="folderContext-copyPopup"
+                 mode="filing"
+                 showAccountsFileHere="true"
+                 showFileHereLabel="true"
+                 showRecent="true"
+                 recentLabel="&contextMoveCopyMsgRecentMenu.label;"
+                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
+                 showFavorites="true"
+                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
+    </menu>
+    <menuitem id="folderPaneContext-moveToFolderAgain"
+              class="menuitem-iconic"
+              label="&moveToFolderAgain.label;"
+              accesskey="&moveToFolderAgain.accesskey;"/>
+    <menuseparator/>
     <menuitem id="folderPaneContext-compact"
               class="menuitem-iconic"
               label="&folderContextCompact.label;"
@@ -425,40 +460,6 @@
               label="&manageTags.label;"
               accesskey="&manageTags.accesskey;"/>
     <menuseparator/>
-    <menu id="folderPaneContext-moveMenu"
-          class="menu-iconic"
-          label="&moveMsgToMenu.label;"
-          accesskey="&moveMsgToMenu.accesskey;">
-      <menupopup is="folder-menupopup" id="folderContext-movePopup"
-                 mode="filing"
-                 showAccountsFileHere="true"
-                 showFileHereLabel="true"
-                 showRecent="true"
-                 recentLabel="&contextMoveCopyMsgRecentMenu.label;"
-                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
-                 showFavorites="true"
-                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
-    </menu>
-    <menu id="folderPaneContext-copyMenu"
-          class="menu-iconic"
-          label="&copyMsgToMenu.label;"
-          accesskey="&copyMsgToMenu.accesskey;">
-      <menupopup is="folder-menupopup" id="folderContext-copyPopup"
-                 mode="filing"
-                 showAccountsFileHere="true"
-                 showFileHereLabel="true"
-                 showRecent="true"
-                 recentLabel="&contextMoveCopyMsgRecentMenu.label;"
-                 recentAccessKey="&contextMoveCopyMsgRecentMenu.accesskey;"
-                 showFavorites="true"
-                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"/>
-    </menu>
-    <menuitem id="folderPaneContext-moveToFolderAgain"
-              class="menuitem-iconic"
-              label="&moveToFolderAgain.label;"
-              accesskey="&moveToFolderAgain.accesskey;"/>
   </menupopup>
   <tooltip id="qfb-text-search-upsell">
     <div id="qfb-upsell-line-one"
