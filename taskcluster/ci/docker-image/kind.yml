@@ -19,6 +19,11 @@ reference-jobs:
     - debian11-base
     - debian11-packages
     - debian11-raw
+    - deb12-toolchain-build
+    - debian12-amd64-build
+    - debian12-base
+    - debian12-packages
+    - debian12-raw
     - fetch
     - funsize-update-generator
     - image_builder
