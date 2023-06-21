@@ -1205,6 +1205,15 @@ class Tab extends TabBase {
     return false;
   }
 
+  /**
+   * This property is a signal of whether any extension has specified a blocker
+   * to prevent discarding. Since TB does not support control over discarding,
+   * the value should be true.
+   */
+  get autoDiscardable() {
+    return true;
+  }
+
   /** Returns the XUL browser for the tab. */
   get browser() {
     if (this.type == "messageCompose") {
