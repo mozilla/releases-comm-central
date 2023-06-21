@@ -171,23 +171,6 @@ function FolderDisplayWidget() {
    */
   this._notificationsPendingActivation = [];
 
-  /**
-   * Create a fake tree object for if/when this folder is in the background.
-   * Hide the tree using CSS, because if it's not attached to the document or
-   * is hidden="true", it won't fire select events and stuff will break.
-   */
-  this._fakeTree = document.createXULElement("tree");
-  this._fakeTree.setAttribute("style", "visibility: collapse");
-  this._fakeTree.appendChild(document.createXULElement("treechildren"));
-  document.documentElement.appendChild(this._fakeTree);
-
-  /**
-   * Create a fake tree selection for cases where we have opened a background
-   * tab. We'll get rid of this as soon as we've switched to the tab for the
-   * first time, and have a real tree selection.
-   */
-  this._fakeTreeSelection = new TreeSelection(this._fakeTree);
-
   this._mostRecentSelectionCounts = [];
   this._mostRecentCurrentIndices = [];
 }
@@ -224,9 +207,6 @@ FolderDisplayWidget.prototype = {
   get treeSelection() {
     // If we haven't switched to this tab yet, dbView will exist but
     // dbView.selection won't, so use the fake tree selection instead.
-    if (this._fakeTreeSelection) {
-      return this._fakeTreeSelection;
-    }
     if (this.view.dbView) {
       return this.view.dbView.selection;
     }
@@ -859,9 +839,6 @@ FolderDisplayWidget.prototype = {
     this.view.close();
     this.messenger.setWindow(null, null);
     this.messenger = null;
-    this._fakeTree.remove();
-    this._fakeTree = null;
-    this._fakeTreeSelection = null;
   },
   // @}
 
@@ -1635,11 +1612,6 @@ FolderDisplayWidget.prototype = {
     this._active = true;
     this._runNotificationsPendingActivation();
 
-    // Make sure we get rid of this._fakeTreeSelection, whether we use it below
-    // or not.
-    let fakeTreeSelection = this._fakeTreeSelection;
-    this._fakeTreeSelection = null;
-
     FolderDisplayListenerManager._fireListeners("onMakeActive", [
       this,
       aWasInactive,
@@ -1658,17 +1630,6 @@ FolderDisplayWidget.prototype = {
       //  to active
       if (wasInactive) {
         if (this.tree) {
-          // We might have assigned our JS tree selection to
-          //  this.view.dbView.selection back in _hookUpFakeTree. If we've
-          //  done so, null the selection out so that the line after this
-          //  causes a real selection to be created.
-          // If we haven't done so, we're fine as selection would be null here
-          //  anyway. (The fake tree selection should persist only till the
-          //  first time the tab is switched to.)
-          if (fakeTreeSelection) {
-            this.view.dbView.selection = null;
-          }
-
           // Setting the 'view' attribute on treeBox results in the following
           //  effective calls, noting that in makeInactive we made sure to null
           //  out its view so that it won't try and clean up any views or their
@@ -1680,9 +1641,6 @@ FolderDisplayWidget.prototype = {
           //   nsTreeBodyObject::SetView)
           this.tree.view = this.view.dbView;
 
-          if (fakeTreeSelection) {
-            fakeTreeSelection.duplicateSelection(this.view.dbView.selection);
-          }
           if (this._savedFirstVisibleRow != null) {
             this.tree.scrollToRow(this._savedFirstVisibleRow);
           }
@@ -1761,43 +1719,9 @@ FolderDisplayWidget.prototype = {
       this.messagePaneCollapsed = document.getElementById(
         "messagepaneboxwrapper"
       ).collapsed;
-
-      this.hookUpFakeTree(true);
     }
   },
   // @}
-
-  /**
-   * Called when we want to "disable" the real treeBox for a while and hook up
-   * the fake tree box to the db view. This also takes care of our
-   * treeSelection object.
-   *
-   * @param aNullRealTreeBoxView true if we want to null out the real tree box.
-   *          We don't want to null out the view if we're opening a background
-   *          tab, for example.
-   * @private
-   */
-  hookUpFakeTree(aNullRealTreeBoxView) {
-    // save off the tree selection object.  the nsTreeBodyFrame will make the
-    //  view forget about it when our view is removed, so it's up to us to
-    //  save it.
-    // We use this.treeSelection instead of this.view.dbView.selection here,
-    //  so that we get the fake tree selection if we have it.
-    let treeSelection = this.treeSelection;
-    // if we want to, make the tree forget about the view right now so we can
-    //  tell the db view about its selection object so it can try and keep it
-    //  up-to-date even while hidden in the background
-    if (aNullRealTreeBoxView && this.tree) {
-      this.tree.view = null;
-    }
-    // (and tell the db view about its selection again...)
-    this.view.dbView.selection = treeSelection;
-
-    // hook the dbview up to the fake tree box
-    this._fakeTree.view = this.view.dbView;
-    this.view.dbView.setTree(this._fakeTree);
-    treeSelection.tree = this._fakeTree;
-  },
 
   /**
    * @name Command Support
