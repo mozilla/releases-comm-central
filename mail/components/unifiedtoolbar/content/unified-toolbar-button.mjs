@@ -22,10 +22,15 @@
  *   Observed for changes.
  * - badge: When set, the value of the attribute is shown as badge.
  * - aria-pressed: set to "false" to make the button behave like a toggle.
+ * Events:
+ * - buttondisabled: Fired when the button gets disabled while it is keyboard
+ *   navigable.
+ * - buttonenabled: Fired when the button gets enabled again but isn't marked to
+ *   be keyboard navigable.
  */
 export class UnifiedToolbarButton extends HTMLButtonElement {
   static get observedAttributes() {
-    return ["label", "label-id"];
+    return ["label", "label-id", "disabled"];
   }
 
   /**
@@ -106,8 +111,22 @@ export class UnifiedToolbarButton extends HTMLButtonElement {
   }
 
   attributeChangedCallback(attribute) {
-    if (attribute === "label" || attribute === "label-id") {
-      this.#updateLabel();
+    switch (attribute) {
+      case "label":
+      case "label-id":
+        this.#updateLabel();
+        break;
+      case "disabled":
+        if (!this.hasConnected) {
+          return;
+        }
+        if (this.disabled && this.tabIndex !== -1) {
+          this.tabIndex = -1;
+          this.dispatchEvent(new CustomEvent("buttondisabled"));
+        } else if (!this.disabled && this.tabIndex === -1) {
+          this.dispatchEvent(new CustomEvent("buttonenabled"));
+        }
+        break;
     }
   }
 

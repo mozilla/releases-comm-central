@@ -85,6 +85,10 @@ add_task(function test_format() {
         typeof item.hasContextMenu === "boolean",
       `hasContextMenu must be undefined or a boolean for ${item.id}`
     );
+    Assert.ok(
+      item.skipFocus === undefined || typeof item.skipFocus === "boolean",
+      `skipFocus must be undefined or a boolean for ${item.id}`
+    );
   }
 });
 

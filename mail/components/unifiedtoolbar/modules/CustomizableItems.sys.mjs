@@ -128,3 +128,7 @@ export function getDefaultItemIdsForSpace(space) {
 export const MULTIPLE_ALLOWED_ITEM_IDS = new Set(
   CUSTOMIZABLE_ITEMS.filter(item => item.allowMultiple).map(item => item.id)
 );
+
+export const SKIP_FOCUS_ITEM_IDS = new Set(
+  CUSTOMIZABLE_ITEMS.filter(item => item.skipFocus).map(item => item.id)
+);

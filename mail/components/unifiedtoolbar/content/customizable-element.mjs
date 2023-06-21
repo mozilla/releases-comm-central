@@ -27,7 +27,7 @@ const browserActionFor = extensionId =>
  */
 export default class CustomizableElement extends HTMLLIElement {
   static get observedAttributes() {
-    return ["disabled"];
+    return ["disabled", "tabindex"];
   }
 
   connectedCallback() {
@@ -60,12 +60,39 @@ export default class CustomizableElement extends HTMLLIElement {
   }
 
   attributeChangedCallback(attribute) {
-    if (attribute !== "disabled") {
-      return;
-    }
-    const isDisabled = this.hasAttribute("disabled");
-    for (const child of this.querySelector(".live-content")?.children ?? []) {
-      child.toggleAttribute("disabled", isDisabled);
+    switch (attribute) {
+      case "disabled": {
+        const isDisabled = this.disabled;
+        for (const child of this.querySelector(".live-content")?.children ??
+          []) {
+          child.toggleAttribute("disabled", isDisabled);
+        }
+        break;
+      }
+      case "tabindex": {
+        const tabIndex = this.getAttribute("tabindex");
+        if (tabIndex === null) {
+          return;
+        }
+        if (this.details?.skipFocus && tabIndex !== "-1") {
+          this.removeAttribute("tabindex");
+          // Let the container know that an element that shouldn't be focused is
+          // currently marked with a tabindex instruction.
+          if (this.hasConnected) {
+            this.dispatchEvent(new CustomEvent("buttondisabled"));
+          }
+          return;
+        }
+        const tabIndexNumber = parseInt(tabIndex, 10);
+        for (const child of this.querySelector(".live-content")?.children ??
+          []) {
+          child.tabIndex = tabIndexNumber;
+        }
+        if (tabIndex !== "-1") {
+          this.removeAttribute("tabindex");
+        }
+        break;
+      }
     }
   }
 
@@ -93,9 +120,20 @@ export default class CustomizableElement extends HTMLLIElement {
       this.querySelector(".live-content").append(
         contentTemplate.content.cloneNode(true)
       );
-      if (this.hasAttribute("disabled")) {
+      if (this.disabled) {
         this.attributeChangedCallback("disabled");
       }
+    }
+    if (itemDetails.skipFocus) {
+      this.classList.add("skip-focus");
+    }
+    if (this.hasAttribute("tabindex")) {
+      this.attributeChangedCallback("tabindex");
+    }
+    // We need to manually re-emit this event, since it might've been emitted
+    // after we cloned the template.
+    if (this.querySelector(".live-content button[disabled]")) {
+      this.dispatchEvent(new CustomEvent("buttondisabled"));
     }
     document.l10n.setAttributes(
       this.querySelector(".preview-label"),
@@ -130,6 +168,14 @@ export default class CustomizableElement extends HTMLLIElement {
     this.querySelector(".live-content").append(extensionButton);
     if (this.disabled) {
       this.attributeChangedCallback("disabled");
+    }
+    if (this.hasAttribute("tabindex")) {
+      this.attributeChangedCallback("tabindex");
+    }
+    // We need to manually re-emit this event, since it might've been emitted
+    // before the button was attached to the DOM.
+    if (this.querySelector(".live-content button[disabled]")) {
+      this.dispatchEvent(new CustomEvent("buttondisabled"));
     }
     const previewLabel = this.querySelector(".preview-label");
     const labelText = extension.name || extensionId;
@@ -231,6 +277,21 @@ export default class CustomizableElement extends HTMLLIElement {
    */
   get hasContextMenu() {
     return Boolean(this.details?.hasContextMenu);
+  }
+
+  /**
+   * @type {boolean}
+   */
+  get disabled() {
+    return this.hasAttribute("disabled");
+  }
+
+  set disabled(value) {
+    this.toggleAttribute("disabled", value);
+  }
+
+  focus() {
+    this.querySelector(".live-content *:first-child")?.focus();
   }
 }
 customElements.define("customizable-element", CustomizableElement, {

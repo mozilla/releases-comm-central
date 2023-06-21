@@ -6,6 +6,7 @@ const {
   getAvailableItemIdsForSpace,
   getDefaultItemIdsForSpace,
   MULTIPLE_ALLOWED_ITEM_IDS,
+  SKIP_FOCUS_ITEM_IDS,
 } = ChromeUtils.importESModule("resource:///modules/CustomizableItems.sys.mjs");
 
 const { default: CUSTOMIZABLE_ITEMS } = ChromeUtils.importESModule(
@@ -98,6 +99,25 @@ add_task(function test_multipleAllowedItemIds() {
       MULTIPLE_ALLOWED_ITEM_IDS.has(item.id),
       Boolean(item.allowMultiple),
       `Set's state should matche the allowMultiple value of ${item.allowMultiple} for ${item.id}`
+    );
+  }
+});
+
+add_task(function test_skipFocusItemIds() {
+  Assert.equal(
+    typeof SKIP_FOCUS_ITEM_IDS.has,
+    "function",
+    "Skip focus item IDs should be set-like"
+  );
+  Assert.ok(
+    Array.from(SKIP_FOCUS_ITEM_IDS).every(itemId => typeof itemId === "string"),
+    "Every item in the set should be a string"
+  );
+  for (const item of CUSTOMIZABLE_ITEMS) {
+    Assert.equal(
+      SKIP_FOCUS_ITEM_IDS.has(item.id),
+      Boolean(item.skipFocus),
+      `Set's state should match the skipFocus value of ${item.skipFocus} for ${item.id}`
     );
   }
 });

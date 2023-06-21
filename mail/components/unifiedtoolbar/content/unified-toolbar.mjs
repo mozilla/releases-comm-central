@@ -19,6 +19,7 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   getDefaultItemIdsForSpace: "resource:///modules/CustomizableItems.sys.mjs",
   getAvailableItemIdsForSpace: "resource:///modules/CustomizableItems.sys.mjs",
+  SKIP_FOCUS_ITEM_IDS: "resource:///modules/CustomizableItems.sys.mjs",
 });
 
 /**
@@ -129,6 +130,21 @@ class UnifiedToolbar extends HTMLElement {
       .querySelector("#unifiedToolbarContainer")
       .addEventListener("contextmenu", this.#handleContextMenu);
     this.#toolbarContent = template.querySelector("#unifiedToolbarContent");
+
+    this.#toolbarContent.addEventListener("keydown", this.#handleKey, {
+      capture: true,
+    });
+    this.#toolbarContent.addEventListener(
+      "buttondisabled",
+      this.#handleButtonDisabled,
+      { capture: true }
+    );
+    this.#toolbarContent.addEventListener(
+      "buttonenabled",
+      this.#handleButtonEnabled,
+      { capture: true }
+    );
+
     if (gSpacesToolbar.isLoaded) {
       this.initialize();
     } else {
@@ -221,6 +237,92 @@ class UnifiedToolbar extends HTMLElement {
     this.#showToolbarForSpace(event.detail?.name ?? "default");
   };
 
+  #handleKey = event => {
+    // Don't handle any key events within menupopups that are children of the
+    // toolbar contents.
+    if (event.target.closest("menupopup")) {
+      return;
+    }
+    switch (event.key) {
+      case "ArrowLeft":
+      case "ArrowRight": {
+        event.preventDefault();
+        event.stopPropagation();
+        const rightIsForward = document.dir !== "rtl";
+        //TODO groups split by search bar.
+        const focusableChildren = Array.from(
+          this.querySelectorAll(
+            `li[is="customizable-element"]:not([disabled], .skip-focus)`
+          )
+        ).filter(
+          element => !element.querySelector(".live-content button[disabled]")
+        );
+        if (!focusableChildren.length) {
+          return;
+        }
+        const activeItem = document.activeElement.closest(
+          'li[is="customizable-element"]'
+        );
+        const activeIndex = focusableChildren.indexOf(activeItem);
+        if (activeIndex === -1) {
+          return;
+        }
+        if (!activeItem) {
+          focusableChildren[0].focus();
+          return;
+        }
+        const isForward = rightIsForward === (event.key === "ArrowRight");
+        const delta = isForward ? 1 : -1;
+        const focusableSibling = focusableChildren.at(activeIndex + delta);
+        if (focusableSibling) {
+          focusableSibling.tabIndex = 0;
+          focusableSibling.focus();
+        } else if (isForward) {
+          focusableChildren[0].tabIndex = 0;
+          focusableChildren[0].focus();
+        } else {
+          focusableChildren.at(-1).tabIndex = 0;
+          focusableChildren.at(-1).focus();
+        }
+        activeItem.tabIndex = -1;
+      }
+    }
+  };
+
+  #handleButtonDisabled = () => {
+    if (
+      this.#toolbarContent.querySelector(
+        'li[is="customizable-element"]:not(.skip-focus) .live-content button[tabindex="0"]'
+      )
+    ) {
+      return;
+    }
+    const newItem = this.#toolbarContent
+      .querySelector(
+        'li[is="customizable-element"]:not([disabled], .skip-focus) .live-content button:not([disabled])'
+      )
+      ?.closest('li[is="customizable-element"]');
+    if (newItem) {
+      newItem.tabIndex = 0;
+    }
+  };
+
+  #handleButtonEnabled = event => {
+    if (
+      this.#toolbarContent.querySelector(
+        'li[is="customizable-element"]:not(.skip-focus) .live-content button[tabindex="0"]'
+      )
+    ) {
+      return;
+    }
+    // If there is currently no focusable button, make the button triggering the
+    // event available.
+    const newItem = event.target.closest('li[is="customizable-element"]');
+    if (newItem) {
+      newItem.tabIndex = 0;
+    }
+  };
+
   /**
    * Make sure the customization for unified toolbar is injected into the
    * document.
@@ -275,6 +377,7 @@ class UnifiedToolbar extends HTMLElement {
     // Handling elements which might occur more than once requires us to keep
     // track which existing elements we've already used.
     const elementTypeOffset = {};
+    let focusableElementSet = false;
     const wantedElements = itemIds.map(itemId => {
       // We want to re-use existing elements to reduce flicker when switching
       // spaces and to preserve widget specific state, like a search string.
@@ -286,12 +389,31 @@ class UnifiedToolbar extends HTMLElement {
         const existingElement = existingElements[nthChild];
         elementTypeOffset[itemId] = nthChild + 1;
         existingElement.hidden = false;
+        if (
+          !existingElement.details.skipFocus &&
+          existingElement.querySelector(".live-content button:not([disabled])")
+        ) {
+          if (focusableElementSet) {
+            existingElement.tabIndex = -1;
+          } else {
+            existingElement.tabIndex = 0;
+            focusableElementSet = true;
+          }
+        }
         return existingElement;
       }
       const element = document.createElement("li", {
         is: "customizable-element",
       });
       element.setAttribute("item-id", itemId);
+      if (!lazy.SKIP_FOCUS_ITEM_IDS.has(itemId)) {
+        if (focusableElementSet) {
+          element.tabIndex = -1;
+        } else {
+          element.tabIndex = 0;
+          focusableElementSet = true;
+        }
+      }
       return element;
     });
     for (const element of this.#toolbarContent.children) {
@@ -366,6 +488,10 @@ class UnifiedToolbar extends HTMLElement {
     }
     await this.#ensureCustomizationInserted();
     document.querySelector("unified-toolbar-customization").toggle(true);
+  }
+
+  focus() {
+    this.firstElementChild.focus();
   }
 }
 customElements.define("unified-toolbar", UnifiedToolbar);

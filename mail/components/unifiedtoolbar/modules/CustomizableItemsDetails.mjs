@@ -27,6 +27,8 @@
  *   for the template of this item.
  * @property {boolean} [hasContextMenu] - Indicates that this item has its own
  *   context menu, and the global unified toolbar one shouldn't be shown.
+ * @property {boolean} [skipFocus] - If this item should be skipped in keyboard
+ *   focus navigation.
  */
 
 /**
@@ -38,6 +40,7 @@ export default [
     id: "spacer",
     labelId: "spacer",
     allowMultiple: true,
+    skipFocus: true,
   },
   {
     // This item gets filtered out when gloda is disabled.
@@ -48,6 +51,7 @@ export default [
       "chrome://messenger/content/unifiedtoolbar/global-search-bar.mjs",
     ],
     hasContextMenu: true,
+    skipFocus: true,
   },
   {
     id: "write-message",
@@ -380,6 +384,7 @@ export default [
     labelId: "toolbar-throbber",
     spaces: ["mail"],
     templateId: "throbberTemplate",
+    skipFocus: true,
   },
   // Calendar & Tasks space
   {
