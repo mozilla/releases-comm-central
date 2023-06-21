@@ -3467,8 +3467,7 @@ NS_IMETHODIMP nsMsgDBFolder::RecursiveDelete(bool deleteStorage) {
 
   int32_t count = mSubFolders.Count();
   while (count > 0) {
-    nsIMsgFolder* child = mSubFolders[0];
-
+    nsCOMPtr<nsIMsgFolder> child(mSubFolders[0]);
     child->SetParent(nullptr);
     rv = child->RecursiveDelete(deleteStorage);
     if (NS_SUCCEEDED(rv)) {
