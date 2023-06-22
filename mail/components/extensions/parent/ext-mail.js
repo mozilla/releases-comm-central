@@ -1183,6 +1183,7 @@ class Tab extends TabBase {
     for (let key of [
       "attention",
       "audible",
+      "autoDiscardable",
       "discarded",
       "hidden",
       "incognito",
