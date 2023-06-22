@@ -533,46 +533,50 @@ var messageProgressListener = {
     "nsISupportsWeakReference",
   ]),
 
-  onStateChange(webProgress, request, stateFlags) {
-    if (request instanceof Ci.nsIMailChannel) {
-      request.QueryInterface(Ci.nsIMailChannel);
-      if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
-        request.smimeHeaderSink = smimeHeaderSink;
-        this.onStartHeaders();
-      } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-        currentCharacterSet = request.mailCharacterSet;
-        request.QueryInterface(Ci.nsIChannel);
-        request.smimeHeaderSink = null;
-        this.processHeaders(request.headerNames, request.headerValues);
-        if (request.imipItem) {
-          calImipBar.showImipBar(request.imipItem, request.imipMethod);
-        }
-        for (let attachment of request.attachments) {
-          this.handleAttachment(
-            attachment.getProperty("contentType"),
-            attachment.getProperty("url"),
-            attachment.getProperty("displayName"),
-            attachment.getProperty("uri"),
-            attachment.getProperty("notDownloaded")
-          );
-          for (let key of [
-            "X-Mozilla-PartURL",
-            "X-Mozilla-PartSize",
-            "X-Mozilla-PartDownloaded",
-            "Content-Description",
-            "Content-Type",
-            "Content-Encoding",
-          ]) {
-            if (attachment.hasKey(key)) {
-              this.addAttachmentField(key, attachment.getProperty(key));
-            }
+  async onStateChange(webProgress, request, stateFlags) {
+    if (!(request instanceof Ci.nsIMailChannel)) {
+      return;
+    }
+    if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
+      request.smimeHeaderSink = smimeHeaderSink;
+      this.onStartHeaders();
+    } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+      // onStopRequest may not have been called. Give events time to unwind.
+      if (request.isPending()) {
+        await new Promise(resolve => setTimeout(resolve));
+      }
+      currentCharacterSet = request.mailCharacterSet;
+      request.smimeHeaderSink = null;
+      this.processHeaders(request.headerNames, request.headerValues);
+      if (request.imipItem) {
+        calImipBar.showImipBar(request.imipItem, request.imipMethod);
+      }
+      for (let attachment of request.attachments) {
+        this.handleAttachment(
+          attachment.getProperty("contentType"),
+          attachment.getProperty("url"),
+          attachment.getProperty("displayName"),
+          attachment.getProperty("uri"),
+          attachment.getProperty("notDownloaded")
+        );
+        for (let key of [
+          "X-Mozilla-PartURL",
+          "X-Mozilla-PartSize",
+          "X-Mozilla-PartDownloaded",
+          "Content-Description",
+          "Content-Type",
+          "Content-Encoding",
+        ]) {
+          if (attachment.hasKey(key)) {
+            this.addAttachmentField(key, attachment.getProperty(key));
           }
         }
-        this.onEndAllAttachments();
-        let uri = request.URI.QueryInterface(Ci.nsIMsgMailNewsUrl);
-        this.onEndMsgHeaders(uri);
-        this.onEndMsgDownload(uri);
       }
+      this.onEndAllAttachments();
+      request.QueryInterface(Ci.nsIChannel);
+      let uri = request.URI.QueryInterface(Ci.nsIMsgMailNewsUrl);
+      this.onEndMsgHeaders(uri);
+      this.onEndMsgDownload(uri);
     }
   },
 

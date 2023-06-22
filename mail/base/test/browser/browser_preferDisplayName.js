@@ -72,6 +72,7 @@ add_task(async function () {
   // in question, and selecting it would do that, so select it first.
   threadTree.selectedIndex = 2;
   await BrowserTestUtils.browserLoaded(messagePaneBrowser);
+  await new Promise(resolve => setTimeout(resolve));
 
   // Check the initial state of everything.
 

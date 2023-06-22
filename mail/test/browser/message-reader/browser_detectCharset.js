@@ -68,6 +68,8 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
     );
     await hiddenPromise;
     await reloadPromise;
+
+    await new Promise(resolve => setTimeout(resolve));
   }
 
   let textContent =
