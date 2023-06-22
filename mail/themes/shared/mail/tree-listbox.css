@@ -37,7 +37,6 @@
     --listbox-border-type: dashed;
     --tree-view-bg: var(--color-white);
     --tree-view-color: var(--color-ink-90);
-    --tree-view-header-bg: var(--color-gray-05);
     --tree-view-header-hover-bg: var(--color-gray-20);
     --tree-view-header-hover-active-bg: var(--color-gray-30);
     --tree-view-header-border-color: var(--color-gray-30);
@@ -51,7 +50,6 @@
       --listbox-focused-selected-bg: var(--color-blue-60);
       --tree-view-bg: var(--color-gray-90);
       --tree-view-color: var(--color-gray-30);
-      --tree-view-header-bg: var(--color-gray-80);
       --tree-view-header-hover-bg: var(--color-gray-70);
       --tree-view-header-hover-active-bg: var(--color-gray-90);
       --tree-view-header-border-color: var(--splitter-color);
@@ -73,14 +71,12 @@
   :root:not(:-moz-lwtheme) {
     --tree-view-bg: Field;
     --tree-view-color: FieldText;
-    --tree-view-header-bg: Field;
     --tree-view-header-hover-bg: color-mix(in srgb, Field 70%, hsl(0, 0%, 50%));
     --tree-view-header-border-color: ThreeDShadow;
   }
 }
 
 :root[lwt-tree] {
-  --tree-view-header-bg: var(--sidebar-background-color, Field);
   --listbox-selected-bg: color-mix(in srgb, transparent 70%, var(--sidebar-highlight-background-color));
   --listbox-hover: color-mix(in srgb, transparent 80%, var(--sidebar-highlight-background-color));
   --listbox-focused-selected-bg: var(--sidebar-highlight-background-color, var(--selected-item-color));
@@ -213,7 +209,7 @@ th[is="tree-view-table-header-cell"] {
   padding: 0;
   position: relative;
   overflow: hidden;
-  background-color: var(--sidebar-background-color, var(--tree-view-header-bg));
+  background-color: var(--tree-view-bg);
 }
 
 th[is="tree-view-table-header-cell"][data-type="icon"] {
@@ -379,7 +375,7 @@ th[is="tree-view-table-column-picker"] {
   width: 25px;
   min-width: 25px;
   padding: 0;
-  background-color: var(--sidebar-background-color, var(--tree-view-header-bg));
+  background-color: var(--tree-view-bg);
 }
 
 @media (-moz-overlay-scrollbars) {

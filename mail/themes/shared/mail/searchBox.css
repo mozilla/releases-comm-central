@@ -23,7 +23,7 @@
   appearance: none;
   color: FieldText;
   background-color: Field;
-  border: 1px solid;
+  border: 1px solid color-mix(in srgb, currentColor 50%, transparent);
   border-radius: var(--button-border-radius);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   outline: none;
@@ -58,7 +58,7 @@
 .gloda-search:-moz-lwtheme,
 .remote-gloda-search:-moz-lwtheme,
 :root[lwt-tree] .themeableSearchBox,
-#peopleSearchInput:not([focused="true"]):-moz-lwtheme {
+:root[lwt-tree] #peopleSearchInput:not([focused="true"]) {
   color: var(--toolbar-field-color);
   background-color: var(--toolbar-field-background-color);
   border-color: var(--toolbar-field-border-color);
@@ -75,7 +75,7 @@
 .gloda-search:-moz-lwtheme:focus,
 :root[lwt-tree] .themeableSearchBox:focus,
 :root[lwt-tree] .themeableSearchBox[focused="true"],
-#peopleSearchInput:-moz-lwtheme[focused="true"],
+:root[lwt-tree] #peopleSearchInput[focused="true"],
 .remote-gloda-search:-moz-lwtheme[focused="true"] {
   color: var(--toolbar-field-focus-color);
   background-color: var(--toolbar-field-focus-background-color);

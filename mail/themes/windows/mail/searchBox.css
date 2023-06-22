@@ -27,7 +27,6 @@
 
 .searchBox,
 .themeableSearchBox {
-  border-color: hsla(240, 5%, 5%, 0.25);
   padding-block: 0;
   padding-inline: 4px 2px;
   margin-block: 2px;

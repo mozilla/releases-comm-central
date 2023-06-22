@@ -72,7 +72,6 @@ hr {
 }
 
 #navigation-toolbox:-moz-lwtheme,
-#ab-toolbox:-moz-lwtheme,
 #compose-toolbox:-moz-lwtheme {
   background-color: var(--lwt-accent-color);
   background-image: var(--lwt-additional-images);
@@ -80,62 +79,21 @@ hr {
   background-position: var(--lwt-background-alignment);
 }
 
-/* TODO bug 1695280: Remove these media selectors and merge the rule below
-   with the ruleset above. We must set background properties on :root and not
-   #navigation-toolbox on Windows 7/8 due to a WebRender bug that hides the
-   minimize/maximize/close buttons. */
-@media not (-moz-platform: windows-win7) {
-  @media not (-moz-platform: windows-win8) {
-    #navigation-toolbox:-moz-lwtheme {
-      background-color: var(--lwt-accent-color);
-    }
-
-    /* When a theme defines both theme_frame and additional_backgrounds, show
-       the latter atop the former. */
-   :root[lwtheme-image] #navigation-toolbox {
-     background-image: var(--lwt-header-image), var(--lwt-additional-images);
-     background-repeat: no-repeat, var(--lwt-background-tiling);
-     background-position: right top, var(--lwt-background-alignment);
-   }
-
-   #navigation-toolbox:-moz-window-inactive:-moz-lwtheme {
-     background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
-   }
-  }
-}
-/* TODO bug 1695280: Remove this block. */
-@media (-moz-platform: windows-win7),
-       (-moz-platform: windows-win8) {
-  :root:-moz-lwtheme {
-    background-color: var(--lwt-accent-color);
-    background-image: var(--lwt-additional-images);
-    background-repeat: var(--lwt-background-tiling);
-    background-position: var(--lwt-background-alignment);
-  }
-
-  :root[lwtheme-image] {
-    background-image: var(--lwt-header-image, linear-gradient(transparent, transparent)),  var(--lwt-additional-images) !important;
-    background-repeat: no-repeat, var(--lwt-background-tiling);
-    background-position: right top, var(--lwt-background-alignment) !important;
-  }
-
-  :root:-moz-lwtheme:-moz-window-inactive {
-    background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
-  }
+:root:not([tabsintitlebar]) #navigation-toolbox:-moz-lwtheme {
+  color: var(--toolbar-color, inherit);
+  background-color: var(--toolbar-bgcolor);
 }
 
 /* When a theme defines both theme_frame and additional_backgrounds, show
    the latter atop the former. */
 :root[lwtheme-image] #navigation-toolbox,
-:root[lwtheme-image] #ab-toolbox,
 :root[lwtheme-image] #compose-toolbox {
   background-image: var(--lwt-header-image), var(--lwt-additional-images);
   background-repeat: no-repeat, var(--lwt-background-tiling);
   background-position: right top, var(--lwt-background-alignment);
 }
 
-#navigation-toolbox:-moz-window-inactive:-moz-lwtheme,
-#ab-toolbox:-moz-window-inactive:-moz-lwtheme,
+:root[tabsintitlebar] #navigation-toolbox:-moz-window-inactive:-moz-lwtheme,
 #compose-toolbox:-moz-window-inactive:-moz-lwtheme {
   background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
 }

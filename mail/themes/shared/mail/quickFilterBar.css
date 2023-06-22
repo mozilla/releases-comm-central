@@ -10,6 +10,11 @@
     var(--sidebar-border-color, var(--tree-view-header-border-color));
 }
 
+:root[lwt-tree] #quick-filter-bar:-moz-lwtheme {
+  background-color: color-mix(in srgb, var(--toolbar-bgcolor) 50%, transparent);
+  color: var(--lwt-text-color);
+}
+
 #qfb-sticky {
   background-image: var(--icon-pin);
   height: auto;

@@ -692,9 +692,15 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   align-items: center;
   justify-content: space-between;
   gap: 6px;
+  color: var(--layout-color-1);
   padding: var(--thread-pane-header-padding);
   background-color: var(--layout-background-1);
   border-bottom: 1px solid var(--layout-border-0);
+}
+
+:root[lwt-tree] .list-header-bar:-moz-lwtheme {
+  background-color: color-mix(in srgb, var(--toolbar-bgcolor) 50%, transparent);
+  color: var(--toolbar-color, inherit);
 }
 
 .list-header-bar-container-start,
@@ -707,7 +713,6 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
 .list-header-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--layout-color-2);
   margin-block: 0;
 }
 
@@ -716,7 +721,6 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   font-size: 1rem;
   font-weight: normal;
   padding-inline-start: 9px;
-  color: var(--layout-color-2);
 }
 
 #threadPaneQuickFilterButton {

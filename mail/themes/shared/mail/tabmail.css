@@ -50,7 +50,8 @@
 #tabs-toolbar {
   appearance: none;
   --tabs-top-border-width: 1px;
-  background-color: var(--tabs-toolbar-background-color);
+  background-image: linear-gradient(to top, var(--chrome-content-separator-color) 0,
+                                    var(--tabs-toolbar-background-color) 1px);
   box-shadow: var(--tabs-toolbar-box-shadow);
   padding-top: 3px;
   padding-inline: 3px;
