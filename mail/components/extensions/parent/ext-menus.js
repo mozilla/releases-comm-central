@@ -149,6 +149,21 @@ var gMenuBuilder = {
       if (rootElements.length && !this.itemsToCleanUp.has(nextSibling)) {
         rootElements.push(newWebExtensionGroupSeparator());
       }
+    } else if (
+      contextData.inActionMenu ||
+      contextData.inBrowserActionMenu ||
+      contextData.inComposeActionMenu ||
+      contextData.inMessageDisplayActionMenu
+    ) {
+      if (contextData.extension.id !== root.extension.id) {
+        return;
+      }
+      rootElements = this.buildTopLevelElements(
+        root,
+        contextData,
+        Infinity,
+        false
+      );
     } else if (contextData.webExtContextData) {
       let { extensionId, showDefaults, overrideContext } =
         contextData.webExtContextData;
@@ -176,6 +191,7 @@ var gMenuBuilder = {
       }
       // Fall through to show default extension menu items.
     }
+
     if (!rootElements) {
       rootElements = this.buildTopLevelElements(root, contextData, 1, true);
       if (

@@ -85,9 +85,13 @@ this.composeAction = class extends ToolbarButtonAPI {
     switch (event.type) {
       case "popupshowing":
         const menu = event.target;
+        // Exit early, if this is not a menupopup (for example a tooltip).
+        if (menu.tagName != "menupopup") {
+          return;
+        }
+
         const trigger = menu.triggerNode;
         const node = window.document.getElementById(this.id);
-
         const contexts = [
           "format-toolbar-context-menu",
           "toolbar-context-menu",
@@ -103,7 +107,10 @@ this.composeAction = class extends ToolbarButtonAPI {
           });
         }
 
-        if (menu.dataset.actionMenu == "composeAction") {
+        if (
+          menu.dataset.actionMenu == "composeAction" &&
+          this.extension.id == menu.dataset.extensionId
+        ) {
           global.actionContextMenu({
             tab: window,
             pageUrl: window.browser.currentURI.spec,

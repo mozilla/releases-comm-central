@@ -57,7 +57,8 @@ class ExtensionActionButton extends UnifiedToolbarButton {
       document.addEventListener("popupshowing", this.#action);
       if (this.#action.defaults.type == "menu") {
         let menupopup = document.createXULElement("menupopup");
-        menupopup.setAttribute("data-action-menu", this.#action.manifestName);
+        menupopup.dataset.actionMenu = this.#action.manifestName;
+        menupopup.dataset.extensionId = this.#action.extension.id;
         menupopup.addEventListener("popuphiding", event => {
           if (event.target.state === "open") {
             return;

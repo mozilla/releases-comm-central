@@ -273,6 +273,15 @@ this.browserAction = class extends ToolbarButtonAPI {
     switch (event.type) {
       case "popupshowing":
         const menu = event.target;
+        // Exit early, if this is not a menupopup (for example a tooltip).
+        if (menu.tagName != "menupopup") {
+          return;
+        }
+
+        // This needs to work in normal window and message window.
+        let tab = tabTracker.activeTab;
+        let browser = tab.linkedBrowser || tab.getBrowser?.();
+
         const trigger = menu.triggerNode;
         const node =
           window.document.getElementById(this.id) ||
@@ -280,11 +289,6 @@ this.browserAction = class extends ToolbarButtonAPI {
             window.document.querySelector(
               `#unifiedToolbarContent [item-id="${EXTENSION_PREFIX}${this.extension.id}"]`
             ));
-
-        // This needs to work in normal window and message window.
-        let tab = tabTracker.activeTab;
-        let browser = tab.linkedBrowser || tab.getBrowser?.();
-
         const contexts = [
           "toolbar-context-menu",
           "customizationPanelItemContextMenu",
@@ -302,7 +306,10 @@ this.browserAction = class extends ToolbarButtonAPI {
           });
         }
 
-        if (menu.dataset.actionMenu == this.manifestName) {
+        if (
+          menu.dataset.actionMenu == this.manifestName &&
+          this.extension.id == menu.dataset.extensionId
+        ) {
           const action =
             this.extension.manifestVersion < 3
               ? "inBrowserActionMenu"

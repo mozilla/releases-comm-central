@@ -246,6 +246,7 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
           button.setAttribute("wantdropmarker", "true");
           let menupopup = document.createXULElement("menupopup");
           menupopup.dataset.actionMenu = this.manifestName;
+          menupopup.dataset.extensionId = this.extension.id;
           button.appendChild(menupopup);
         }
         break;
