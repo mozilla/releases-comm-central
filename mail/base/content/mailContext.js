@@ -115,12 +115,12 @@ var mailContextMenu = {
   },
 
   /**
-   * The saved selection, if we have overridden it for the context menu.
+   * If we have overridden the selection for the context menu.
    *
    * @see `setOverrideSelection`
-   * @type {integer[][]}
+   * @type {boolean}
    */
-  _savedRanges: null,
+  _selectionIsOverridden: false,
 
   init() {
     this._menupopup = document.getElementById("mailContext");
@@ -166,7 +166,8 @@ var mailContextMenu = {
    * @param {integer} index - The index of the row to use as selection.
    */
   setOverrideSelection(index) {
-    this._savedRanges = window.threadTree._selection._ranges;
+    this._selectionIsOverridden = true;
+    window.threadPane.saveSelection();
     window.threadTree._selection.selectEventsSuppressed = true;
     window.threadTree._selection.select(index);
   },
@@ -178,7 +179,7 @@ var mailContextMenu = {
    * @type {boolean}
    */
   get selectionIsOverridden() {
-    return !!this._savedRanges;
+    return this._selectionIsOverridden;
   },
 
   /**
@@ -188,15 +189,17 @@ var mailContextMenu = {
     if (!window.threadTree) {
       return;
     }
-    if (this._savedRanges) {
-      window.threadTree._selection._ranges = this._savedRanges;
-      window.threadTree._selection._updateCount();
-      delete this._savedRanges;
+    if (this._selectionIsOverridden) {
+      window.threadTree._selection.selectEventsSuppressed = true;
+      window.threadPane.restoreSelection(undefined, false);
+      this._selectionIsOverridden = false;
     }
     window.threadTree
       .querySelector(".context-menu-target")
       ?.classList.remove("context-menu-target");
     window.threadTree._selection.selectEventsSuppressed = false;
+    window.threadTree.invalidate();
+    window.threadTree.table.body.focus();
   },
 
   setAsThreadPaneContextMenu() {

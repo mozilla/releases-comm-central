@@ -184,10 +184,12 @@ function displayMessage(uri, viewWrapper) {
     invalidate() {},
     invalidateRange(startIndex, endIndex) {},
     rowCountChanged(index, count) {
+      let wasSuppressed = gDBView.selection.selectEventsSuppressed;
       gDBView.selection.selectEventsSuppressed = true;
       gDBView.selection.adjustSelection(index, count);
-      gDBView.selection.selectEventsSuppressed = false;
+      gDBView.selection.selectEventsSuppressed = wasSuppressed;
     },
+    currentIndex: null,
   });
 
   if (gMessage.flags & Ci.nsMsgMessageFlags.HasRe) {

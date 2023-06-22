@@ -911,7 +911,7 @@ nsresult nsMsgDBView::RestoreSelection(nsMsgKey aCurrentMsgKey,
   if (aCurrentMsgKey != nsMsgKey_None)
     currentViewPosition = FindKey(aCurrentMsgKey, true);
 
-  if (mTreeSelection) mTreeSelection->SetCurrentIndex(currentViewPosition);
+  if (mJSTree) mJSTree->SetCurrentIndex(currentViewPosition);
 
   // Make sure the current message is once again visible in the thread pane
   // so we don't have to go search for it in the thread pane

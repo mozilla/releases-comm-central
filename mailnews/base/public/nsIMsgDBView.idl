@@ -549,4 +549,5 @@ interface nsIMsgJSTree : nsISupports
   void invalidate();
   void invalidateRange(in long startIndex, in long endIndex);
   void rowCountChanged(in long index, in long count);
+  attribute long currentIndex;
 };

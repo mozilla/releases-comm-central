@@ -74,8 +74,8 @@ add_task(async function testExpandCollapseUpdates() {
     about3Pane
   );
   await selectPromise;
-  Assert.equal(threadTree.view.rowCount, 11, "thread collapsed");
-  Assert.equal(threadTree.selectedIndex, 5, "thread root still selected");
+  // Thread root still selected.
+  await validateTree(11, [5], 5);
   Assert.ok(
     BrowserTestUtils.is_hidden(about3Pane.messageBrowser),
     "messageBrowser became hidden"
@@ -93,8 +93,8 @@ add_task(async function testExpandCollapseUpdates() {
     about3Pane
   );
   await selectPromise;
-  Assert.equal(threadTree.view.rowCount, 15, "thread expanded");
-  Assert.equal(threadTree.selectedIndex, 5, "thread root still selected");
+  await messageLoaded(10);
+  await validateTree(15, [5], 5);
   Assert.ok(
     BrowserTestUtils.is_hidden(about3Pane.multiMessageBrowser),
     "multiMessageBrowser became hidden"
@@ -103,15 +103,14 @@ add_task(async function testExpandCollapseUpdates() {
     BrowserTestUtils.is_visible(about3Pane.messageBrowser),
     "messageBrowser became visible"
   );
-  await messageLoaded(10);
 
   // Collapsing all rows while the first message in a thread is selected should
   // update the message display.
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_collapseAllThreads");
   await selectPromise;
-  Assert.equal(threadTree.view.rowCount, 3, "all threads collapsed");
-  Assert.equal(threadTree.selectedIndex, 1, "thread root still selected");
+  // Thread root still selected.
+  await validateTree(3, [1], 1);
   Assert.ok(
     BrowserTestUtils.is_hidden(about3Pane.messageBrowser),
     "messageBrowser became hidden"
@@ -126,8 +125,8 @@ add_task(async function testExpandCollapseUpdates() {
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_expandAllThreads");
   await selectPromise;
-  Assert.equal(threadTree.view.rowCount, 15, "all threads expanded");
-  Assert.equal(threadTree.selectedIndex, 5, "thread root still selected");
+  await messageLoaded(10);
+  await validateTree(15, [5], 5);
   Assert.ok(
     BrowserTestUtils.is_hidden(about3Pane.multiMessageBrowser),
     "multiMessageBrowser became hidden"
@@ -136,7 +135,6 @@ add_task(async function testExpandCollapseUpdates() {
     BrowserTestUtils.is_visible(about3Pane.messageBrowser),
     "messageBrowser became visible"
   );
-  await messageLoaded(10);
 
   // Collapsing all rows while a message inside a thread is selected should
   // select the first message in the thread and update the message display.
@@ -146,8 +144,8 @@ add_task(async function testExpandCollapseUpdates() {
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_collapseAllThreads");
   await selectPromise;
-  Assert.equal(threadTree.view.rowCount, 3, "all threads collapsed");
-  Assert.equal(threadTree.selectedIndex, 0, "thread root became selected");
+  // Thread root became selected.
+  await validateTree(3, [0], 0);
   Assert.ok(
     BrowserTestUtils.is_hidden(about3Pane.messageBrowser),
     "messageBrowser became hidden"
@@ -162,8 +160,8 @@ add_task(async function testExpandCollapseUpdates() {
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_expandAllThreads");
   await selectPromise;
-  Assert.equal(threadTree.view.rowCount, 15, "all threads expanded");
-  Assert.equal(threadTree.selectedIndex, 0, "thread root still selected");
+  await messageLoaded(5);
+  await validateTree(15, [0], 0);
   Assert.ok(
     BrowserTestUtils.is_hidden(about3Pane.multiMessageBrowser),
     "multiMessageBrowser became hidden"
@@ -172,7 +170,6 @@ add_task(async function testExpandCollapseUpdates() {
     BrowserTestUtils.is_visible(about3Pane.messageBrowser),
     "messageBrowser became visible"
   );
-  await messageLoaded(5);
 
   // Select several things and collapse all.
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
@@ -190,12 +187,8 @@ add_task(async function testExpandCollapseUpdates() {
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_collapseAllThreads");
   await selectPromise;
-  Assert.equal(threadTree.view.rowCount, 3, "all threads collapsed");
-  Assert.deepEqual(
-    threadTree.selectedIndices,
-    [0, 1],
-    "thread roots became selected"
-  );
+  // Thread roots became selected.
+  await validateTree(3, [0, 1], 1);
   Assert.ok(
     BrowserTestUtils.is_hidden(about3Pane.messageBrowser),
     "messageBrowser stayed hidden"
@@ -223,7 +216,8 @@ add_task(async function testThreadUpdateKeepsSelection() {
   threadTree.addEventListener("select", reportBadSelectEvent);
   messagePaneBrowser.addEventListener("load", reportBadLoad, true);
   await move([sourceMessages[1]], folderA, folderB);
-  Assert.equal(threadTree.selectedIndex, 0, "selection should have moved");
+  // Selection should have moved.
+  await validateTree(2, [0], 0);
   Assert.equal(
     aboutMessage.gMessage.messageId,
     sourceMessageIDs[5],
@@ -247,7 +241,7 @@ add_task(async function testArchiveDeleteUpdates() {
   });
   about3Pane.sortController.sortUnthreaded();
 
-  threadTree.focus();
+  threadTree.table.body.focus();
   threadTree.selectedIndex = 3;
   await messageLoaded(7);
 
@@ -258,37 +252,37 @@ add_task(async function testArchiveDeleteUpdates() {
   let selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_delete");
   await selectPromise;
-  Assert.equal(selectCount, 1, "'select' event should've happened only once");
-  Assert.equal(threadTree.selectedIndex, 3, "selection should have updated");
   await messageLoaded(8);
+  await validateTree(14, [3], 3);
+  Assert.equal(selectCount, 1, "'select' event should've happened only once");
 
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_delete");
   await selectPromise;
-  Assert.equal(selectCount, 2, "'select' event should've happened only once");
-  Assert.equal(threadTree.selectedIndex, 3, "selection should have updated");
   await messageLoaded(9);
+  await validateTree(13, [3], 3);
+  Assert.equal(selectCount, 2, "'select' event should've happened only once");
 
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_archive");
   await selectPromise;
-  Assert.equal(selectCount, 3, "'select' event should've happened only once");
-  Assert.equal(threadTree.selectedIndex, 3, "selection should have updated");
   await messageLoaded(10);
+  await validateTree(12, [3], 3);
+  Assert.equal(selectCount, 3, "'select' event should've happened only once");
 
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_archive");
   await selectPromise;
-  Assert.equal(selectCount, 4, "'select' event should've happened only once");
-  Assert.equal(threadTree.selectedIndex, 3, "selection should have updated");
   await messageLoaded(11);
+  await validateTree(11, [3], 3);
+  Assert.equal(selectCount, 4, "'select' event should've happened only once");
 
   selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   goDoCommand("cmd_delete");
   await selectPromise;
-  Assert.equal(selectCount, 5, "'select' event should've happened only once");
-  Assert.equal(threadTree.selectedIndex, 3, "selection should have updated");
   await messageLoaded(12);
+  await validateTree(10, [3], 3);
+  Assert.equal(selectCount, 5, "'select' event should've happened only once");
 
   threadTree.removeEventListener("select", onSelect);
 
@@ -305,9 +299,10 @@ add_task(async function testMessagePaneSelection() {
   about3Pane.sortController.sortThreadPane("byDate");
   about3Pane.sortController.sortDescending();
 
-  threadTree.focus();
+  threadTree.table.body.focus();
   threadTree.selectedIndex = 1;
   await messageLoaded(7);
+  await validateTree(3, [1], 1);
 
   // Check the initial selection in about:message.
   Assert.equal(aboutMessage.gDBView.selection.getRangeCount(), 1);
@@ -321,6 +316,7 @@ add_task(async function testMessagePaneSelection() {
   threadTree.addEventListener("select", reportBadSelectEvent);
   messagePaneBrowser.addEventListener("load", reportBadLoad, true);
   await move(sourceMessages.slice(9, 10), folderA, folderB);
+  await validateTree(4, [2], 2);
 
   Assert.deepEqual(
     Array.from(folderB.messages, m => m.messageId),
@@ -365,6 +361,8 @@ add_task(async function testMessagePaneSelection() {
     "the right messages were kept"
   );
 
+  await validateTree(3, [2], 2);
+
   // Check the selection in about:message again.
   Assert.equal(aboutMessage.gDBView.selection.getRangeCount(), 1);
   aboutMessage.gDBView.selection.getRangeAt(0, min, max);
@@ -388,8 +386,9 @@ add_task(async function testNonSelectionContextMenu() {
   about3Pane.sortController.sortUnthreaded();
   threadTree.scrollToIndex(0, true);
 
-  threadTree.selectedIndices = [0];
+  threadTree.selectedIndex = 0;
   await messageLoaded(0);
+  await validateTree(15, [0], 0);
   await subtestOpenTab(1, sourceMessageIDs[5]);
   await subtestReply(6, sourceMessageIDs[10]);
 
@@ -421,6 +420,17 @@ add_task(async function testNonSelectionContextMenu() {
       [testIndex],
       "selection should be only the right-clicked-on row"
     );
+    let contextTargetRows = threadTree.querySelectorAll(".context-menu-target");
+    Assert.equal(
+      contextTargetRows.length,
+      1,
+      "one row should have .context-menu-target"
+    );
+    Assert.equal(
+      contextTargetRows[0].index,
+      testIndex,
+      "correct row has .context-menu-target"
+    );
 
     let hiddenPromise = BrowserTestUtils.waitForEvent(
       mailContext,
@@ -430,10 +440,22 @@ add_task(async function testNonSelectionContextMenu() {
     await hiddenPromise;
 
     Assert.ok(!about3Pane.mailContextMenu.selectionIsOverridden);
-    Assert.deepEqual(
+    Assert.equal(
+      document.activeElement,
+      tabmail.tabInfo[0].chromeBrowser,
+      "about:3pane should have focus after context menu"
+    );
+    Assert.equal(
+      about3Pane.document.activeElement,
+      threadTree.table.body,
+      "table body should have focus after context menu"
+    );
+
+    // Selection should be restored.
+    await validateTree(
+      15,
       threadTree.selectedIndices,
-      originalSelection,
-      "selection should be restored"
+      originalSelection.at(-1)
     );
 
     // Wait to prove unwanted selection or load didn't happen.
@@ -510,6 +532,49 @@ async function messageLoaded(index) {
     aboutMessage.gMessage.messageId,
     sourceMessageIDs[index],
     "correct message loaded"
+  );
+}
+
+async function validateTree(rowCount, selectedIndices, currentIndex) {
+  Assert.equal(threadTree.view.rowCount, rowCount, "row count of view");
+  await TestUtils.waitForCondition(
+    () => threadTree.table.body.rows.length == rowCount,
+    "waiting table row count to match the view's row count"
+  );
+
+  Assert.deepEqual(
+    threadTree.selectedIndices,
+    selectedIndices,
+    "table's selected indices"
+  );
+  let selectedRows = Array.from(threadTree.querySelectorAll(".selected"));
+  Assert.equal(
+    selectedRows.length,
+    selectedIndices.length,
+    "number of rows with .selected class"
+  );
+  for (let index of selectedIndices) {
+    let row = threadTree.getRowAtIndex(index);
+    Assert.ok(
+      selectedRows.includes(row),
+      `.selected row at ${index} is expected`
+    );
+  }
+
+  Assert.equal(threadTree.currentIndex, currentIndex, "table's current index");
+  let currentRows = threadTree.querySelectorAll(".current");
+  Assert.equal(currentRows.length, 1, "one row should have .current");
+  Assert.equal(
+    currentRows[0],
+    threadTree.getRowAtIndex(currentIndex),
+    ".current row is expected"
+  );
+
+  let contextTargetRows = threadTree.querySelectorAll(".context-menu-target");
+  Assert.equal(
+    contextTargetRows.length,
+    0,
+    "no rows should have .context-menu-target"
   );
 }
 

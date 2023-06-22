@@ -936,7 +936,10 @@ var dbViewWrapperListener = {
       if (this._nextViewIndexAfterDelete >= rowCount) {
         this._nextViewIndexAfterDelete = rowCount - 1;
       }
-      if (this._nextViewIndexAfterDelete > -1) {
+      if (
+        this._nextViewIndexAfterDelete > -1 &&
+        !mailContextMenu.selectionIsOverridden
+      ) {
         if (location.href == "about:3pane") {
           // A "select" event should fire here, but setting the selected index
           // might not fire it. OTOH, we want it to fire only once, so see if

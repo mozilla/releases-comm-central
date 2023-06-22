@@ -664,6 +664,10 @@ export class TreeSelection {
    *  false is assigned, even if the value was already false.
    */
   set selectEventsSuppressed(suppress) {
+    if (this._selectEventsSuppressed == suppress) {
+      return;
+    }
+
     this._selectEventsSuppressed = suppress;
     if (!suppress) {
       this._fireSelectionChanged();
