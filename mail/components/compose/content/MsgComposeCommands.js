@@ -9898,8 +9898,13 @@ var envelopeDragObserver = {
           isValidAttachment = true;
           let msgHdr =
             MailServices.messageServiceFromURI(data).messageURIToMsgHdr(data);
-          prettyName = msgHdr.mime2DecodedSubject + ".eml";
+          prettyName = msgHdr.mime2DecodedSubject;
+          if (Services.prefs.getBoolPref("mail.forward_add_extension")) {
+            prettyName += ".eml";
+          }
+
           size = msgHdr.messageSize;
+          contentType = "message/rfc822";
           break;
 
         // Data type representing:

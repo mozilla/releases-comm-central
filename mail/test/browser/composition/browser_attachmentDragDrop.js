@@ -260,6 +260,7 @@ add_task(async function test_message_drag() {
   let msgUrl = MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
 
   let cwc = open_compose_new_mail();
+  let attachmentBucket = cwc.window.document.getElementById("attachmentBucket");
 
   await simulateDragAndDrop(
     cwc.window,
@@ -280,15 +281,58 @@ add_task(async function test_message_drag() {
     "message"
   );
 
-  let attachment =
-    cwc.window.document.getElementById("attachmentBucket").childNodes[0]
-      .attachment;
+  let attachment = attachmentBucket.childNodes[0].attachment;
   Assert.equal(
     attachment.name,
     "Dragons don't drop from the sky.eml",
-    "Message has expected file name"
+    "attachment should have expected file name"
   );
-  Assert.notEqual(attachment, 0, "Message is not 0 bytes");
+  Assert.equal(
+    attachment.contentType,
+    "message/rfc822",
+    "attachment should say it's a message"
+  );
+  Assert.notEqual(attachment, 0, "attachment should not be 0 bytes");
+
+  // Clear the added attachment.
+  await cwc.window.RemoveAttachments([attachmentBucket.childNodes[0]]);
+
+  // Try the same with mail.forward_add_extension false.
+  Services.prefs.setBoolPref("mail.forward_add_extension", false);
+
+  await simulateDragAndDrop(
+    cwc.window,
+    [
+      [
+        { type: "text/x-moz-message", data: msgStr },
+        { type: "text/x-moz-url", data: msgUrl.spec },
+        {
+          type: "application/x-moz-file-promise-url",
+          data: msgUrl.spec + "?fileName=" + encodeURIComponent("message.eml"),
+        },
+        {
+          type: "application/x-moz-file-promise",
+          data: new window.messageFlavorDataProvider(),
+        },
+      ],
+    ],
+    "message"
+  );
+
+  let attachment2 = attachmentBucket.childNodes[0].attachment;
+  Assert.equal(
+    attachment2.name,
+    "Dragons don't drop from the sky",
+    "attachment2 should have expected file name"
+  );
+  Assert.equal(
+    attachment2.contentType,
+    "message/rfc822",
+    "attachment2 should say it's a message"
+  );
+  Assert.notEqual(attachment2, 0, "attachment2 should not be 0 bytes");
+
+  Services.prefs.clearUserPref("mail.forward_add_extension");
 
   close_compose_window(cwc);
   await be_in_folder(inboxFolder);
