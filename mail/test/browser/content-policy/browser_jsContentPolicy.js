@@ -84,34 +84,46 @@ function addToFolder(aSubject, aBody, aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
-/*
+/**
  * Runs in the browser process via SpecialPowers.spawn to check JavaScript
  * is disabled.
  */
 function assertJSDisabled() {
-  Assert.ok(content.location.href);
+  Assert.ok(content.location.href, "current content location");
+  Assert.equal(
+    content.document.readyState,
+    "complete",
+    "should be fully loaded"
+  );
   Assert.ok(
     !content.wrappedJSObject.jsIsTurnedOn,
     "JS should not be turned on in content."
   );
 
   let noscript = content.document.querySelector("noscript");
+  Assert.ok(!!noscript, "noscript element should be found in doc");
   let display = content.getComputedStyle(noscript).display;
   Assert.equal(display, "inline", "noscript display should be 'inline'");
 }
 
-/*
+/**
  * Runs in the browser process via SpecialPowers.spawn to check JavaScript
  * is enabled.
  */
 function assertJSEnabled() {
-  Assert.ok(content.location.href);
+  Assert.ok(content.location.href, "current content location");
+  Assert.equal(
+    content.document.readyState,
+    "complete",
+    "should be fully loaded"
+  );
   Assert.ok(
     content.wrappedJSObject.jsIsTurnedOn,
     "JS should be turned on in content."
   );
 
   let noscript = content.document.querySelector("noscript");
+  Assert.ok(!!noscript, "noscript element should be found in doc");
   let display = content.getComputedStyle(noscript).display;
   Assert.equal(display, "none", "noscript display should be 'none'");
 }
@@ -192,8 +204,13 @@ add_task(async function testJsInNonMessageContent() {
  */
 add_task(async function testJsInRemoteContent() {
   // load something non-message-like in the message pane
-  let loadedPromise = BrowserTestUtils.browserLoaded(messagePane);
-  MailE10SUtils.loadURI(messagePane, url + "remote-noscript.html");
+  let pageURL = url + "remote-noscript.html";
+  let loadedPromise = BrowserTestUtils.browserLoaded(
+    messagePane,
+    false,
+    pageURL
+  );
+  MailE10SUtils.loadURI(messagePane, pageURL);
   await loadedPromise;
 
   await SpecialPowers.spawn(messagePane, [], assertJSEnabled);
