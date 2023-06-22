@@ -8,6 +8,8 @@
 
 /* import-globals-from ../../../../components/compose/content/MsgComposeCommands.js */
 /* import-globals-from ../../../../components/compose/content/addressingWidgetOverlay.js */
+/* global MsgAccountManager */
+/* global gCurrentIdentity */
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -717,6 +719,8 @@ Enigmail.msg = {
       UpdateAttachmentBucket(bucketList.hasChildNodes());
     }
 
+    this.warnUserIfSenderKeyExpired();
+
     //this.processFinalState();
     if (selectedElement) {
       selectedElement.focus();
@@ -1191,7 +1195,7 @@ Enigmail.msg = {
   },
 
   getSenderUserId() {
-    let keyId = gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
+    let keyId = gCurrentIdentity?.getUnicharAttribute("openpgp_key_id");
     return keyId ? "0x" + keyId : null;
   },
 
@@ -2739,6 +2743,63 @@ Enigmail.msg = {
       return 1;
     }
     return 0;
+  },
+
+  isSenderKeyExpired() {
+    const senderKeyId = this.getSenderUserId();
+
+    if (senderKeyId) {
+      const key = EnigmailKeyRing.getKeyById(senderKeyId);
+      return key?.expiryTime && Math.round(Date.now() / 1000) > key.expiryTime;
+    }
+
+    return false;
+  },
+
+  removeNotificationIfPresent(name) {
+    const notif = gComposeNotification.getNotificationWithValue(name);
+    if (notif) {
+      gComposeNotification.removeNotification(notif);
+    }
+  },
+
+  warnUserThatSenderKeyExpired() {
+    const label = {
+      "l10n-id": "openpgp-selection-status-error",
+      "l10n-args": { key: this.getSenderUserId() },
+    };
+
+    const buttons = [
+      {
+        "l10n-id": "settings-context-open-account-settings-item2",
+        callback() {
+          MsgAccountManager(
+            "am-e2e.xhtml",
+            MailServices.accounts.getServersForIdentity(gCurrentIdentity)[0]
+          );
+          Services.wm.getMostRecentWindow("mail:3pane")?.focus();
+          return true;
+        },
+      },
+    ];
+
+    gComposeNotification.appendNotification(
+      "openpgpSenderKeyExpired",
+      {
+        label,
+        priority: gComposeNotification.PRIORITY_WARNING_MEDIUM,
+      },
+      buttons
+    );
+  },
+
+  warnUserIfSenderKeyExpired() {
+    if (!this.isSenderKeyExpired()) {
+      this.removeNotificationIfPresent("openpgpSenderKeyExpired");
+      return;
+    }
+
+    this.warnUserThatSenderKeyExpired();
   },
 
   /**
