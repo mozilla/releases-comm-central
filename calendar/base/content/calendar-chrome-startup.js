@@ -122,6 +122,10 @@ async function loadCalendarComponent() {
   taskViewOnLoad();
   taskEdit.onLoad();
 
+  document.getElementById("calSidebar").style.width = `${document
+    .getElementById("calSidebar")
+    .getAttribute("width")}px`;
+
   Services.obs.notifyObservers(window, "calendar-startup-done");
 }
 

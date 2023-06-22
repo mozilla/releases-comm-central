@@ -1776,6 +1776,15 @@ var chatHandler = {
       aList.selectedItem = conversations[newIndex];
     }
   },
+  /**
+   * Restores the width in pixels stored on the width attribute of an element as
+   * CSS width, so it is used for flex layout calculations. Useful for restoring
+   * elements that were sized by a XUL splitter.
+   *
+   * @param {Element} element - Element to transfer the width attribute to CSS for.
+   */
+  _restoreWidth: element =>
+    (element.style.width = `${element.getAttribute("width")}px`),
   async init() {
     Notifications.init();
     if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
@@ -1888,6 +1897,9 @@ var chatHandler = {
         OTRUI.init();
       });
     }
+
+    this._restoreWidth(document.getElementById("listPaneBox"));
+    this._restoreWidth(document.getElementById("contextPane"));
   },
 };
 
