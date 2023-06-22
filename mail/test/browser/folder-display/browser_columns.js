@@ -22,6 +22,7 @@ var {
   open_folder_in_new_tab,
   switch_tab,
   wait_for_all_messages_to_load,
+  select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -834,5 +835,49 @@ add_task(async function test_reset_columns_gloda_collection() {
     undefined,
     undefined,
     "Test ran to completion successfully"
+  );
+});
+
+add_task(async function test_double_click_column_picker() {
+  let doubleClickFolder = await create_folder("double click folder");
+  await make_message_sets_in_folders([doubleClickFolder], [{ count: 1 }]);
+  await be_in_folder(doubleClickFolder);
+  await select_click_row(0);
+
+  let tabmail = document.getElementById("tabmail");
+  const currentTabInfo = tabmail.currentTabInfo;
+  let about3Pane = tabmail.currentAbout3Pane;
+
+  let colPicker = about3Pane.document.querySelector(
+    `th[is="tree-view-table-column-picker"] button`
+  );
+  let colPickerPopup = about3Pane.document.querySelector(
+    `th[is="tree-view-table-column-picker"] menupopup`
+  );
+
+  let shownPromise = BrowserTestUtils.waitForEvent(
+    colPickerPopup,
+    "popupshown"
+  );
+  EventUtils.synthesizeMouseAtCenter(colPicker, {}, about3Pane);
+  await shownPromise;
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    colPickerPopup,
+    "popuphidden",
+    undefined,
+    event => event.originalTarget == colPickerPopup
+  );
+
+  const menuItem = colPickerPopup.querySelector('[value="threadCol"]');
+  menuItem.dispatchEvent(new MouseEvent("dblclick", { button: 0 }));
+
+  // The column picker menupopup doesn't close automatically on purpose.
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, about3Pane);
+  await hiddenPromise;
+
+  Assert.deepEqual(
+    tabmail.currentTabInfo,
+    currentTabInfo,
+    "No message was opened in a tab"
   );
 });

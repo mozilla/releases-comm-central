@@ -4175,9 +4175,10 @@ var threadPane = {
   },
 
   _onDoubleClick(event) {
-    if (event.target.closest("button")) {
+    if (event.target.closest("button") || event.target.closest("menupopup")) {
       // Prevent item activation if double click happens on a button inside the
-      // row. E.g.: Thread toggle, spam, favorite, etc.
+      // row. E.g.: Thread toggle, spam, favorite, etc. or in a menupopup like
+      // the column picker.
       return;
     }
     this._onItemActivate(event);
