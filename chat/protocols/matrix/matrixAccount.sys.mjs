@@ -3314,9 +3314,11 @@ MatrixAccount.prototype = {
     if (roomInit.is_direct && roomInit.invite) {
       try {
         const userDeviceMap = await this._client.downloadKeys(roomInit.invite);
-        const shouldEncrypt = Object.values(userDeviceMap).every(
-          deviceMap => Object.keys(deviceMap).length > 0
-        );
+        // Encrypt if there are devices and each user has at least 1 device
+        // capable of encryption.
+        const shouldEncrypt =
+          userDeviceMap.size > 0 &&
+          [...userDeviceMap.values()].every(deviceMap => deviceMap.size > 0);
         if (shouldEncrypt) {
           if (!roomInit.initial_state) {
             roomInit.initial_state = [];
