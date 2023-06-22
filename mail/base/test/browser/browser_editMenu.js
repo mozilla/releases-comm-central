@@ -33,7 +33,7 @@ const editMenuData = {
   searchMailCmd: {},
   glodaSearchCmd: {},
   searchAddressesCmd: {},
-  menu_favoriteFolder: {},
+  menu_favoriteFolder: { disabled: true },
   menu_properties: { disabled: true },
   "calendar-properties-menuitem": { disabled: true },
 };
