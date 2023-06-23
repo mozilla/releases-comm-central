@@ -1390,6 +1390,14 @@ var folderPane = {
       return;
     }
 
+    try {
+      // We could be here before `loadPostAccountWizard` loads the virtual
+      // folders, and we need them, so do it now.
+      MailServices.accounts.loadVirtualFolders();
+    } catch (e) {
+      console.error(e);
+    }
+
     await FolderTreeProperties.ready;
 
     this._modeTemplate = document.getElementById("modeTemplate");
