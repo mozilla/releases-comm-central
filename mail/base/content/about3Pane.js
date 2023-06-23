@@ -4406,10 +4406,21 @@ var threadPane = {
     }
   },
 
-  _onContextMenu(event) {
+  _onContextMenu(event, retry = false) {
     let row =
       event.target.closest(`tr[is^="thread-"]`) ||
-      threadTree.getRowAtIndex(threadTree.selectedIndex);
+      threadTree.getRowAtIndex(threadTree.currentIndex);
+    const isMouse = event.button == 2;
+    if (!isMouse && !row) {
+      // Scroll selected row we're triggering the context menu for into view.
+      threadTree.scrollToIndex(threadTree.currentIndex, true);
+      row = threadTree.getRowAtIndex(threadTree.currentIndex);
+      // Try again once in the next frame.
+      if (!row && !retry) {
+        window.requestAnimationFrame(() => this._onContextMenu(event, true));
+        return;
+      }
+    }
     if (!row || gDBView.getFlagsAt(row.index) & MSG_VIEW_FLAG_DUMMY) {
       return;
     }
@@ -4417,8 +4428,7 @@ var threadPane = {
     mailContextMenu.setAsThreadPaneContextMenu();
     let popup = document.getElementById("mailContext");
 
-    if (event.button == 2) {
-      // Mouse
+    if (isMouse) {
       if (!gDBView.selection.isSelected(row.index)) {
         // The right-clicked-on row is not selected. Tell the context menu to
         // use it instead. This override lasts until the context menu fires
@@ -4428,7 +4438,6 @@ var threadPane = {
       }
       popup.openPopupAtScreen(event.screenX, event.screenY, true);
     } else {
-      // Keyboard
       popup.openPopup(row, "after_end", 0, 0, true);
     }
 
