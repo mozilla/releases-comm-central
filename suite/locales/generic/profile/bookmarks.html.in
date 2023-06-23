@@ -19,23 +19,21 @@ Do Not Edit! -->
         @seamonkey_l10n@
         <DT><A HREF="http://www.mozillazine.org/">@mozillazine@</A>
     </DL><p>
-    <DT><H3>@seamonkey_and_mozilla@</H3>
+    <DT><H3>@seamonkey_and_support@</H3>
     <DL><p>
         <DT><A HREF="https://www.seamonkey-project.org/">@seamonkey_long@</a>
         @seamonkey_l10n_long@
-        <DT><A HREF="https://www.mozilla.org/">@mozilla_org_long@</A>
         <DT><H3>@extend_seamonkey@</H3>
         <DL><p>
             <DT><A HREF="https://addons.thunderbird.net/@AB_CD@/seamonkey/">@seamonkey_addons@</a>
             <DT><A HREF="https://addons.thunderbird.net/@AB_CD@/seamonkey/themes">@seamonkey_themes@</a>
             <DT><A HREF="https://addons.thunderbird.net/@AB_CD@/seamonkey/dictionaries">@seamonkey_dictionaries@</a>
-            <DT><A HREF="https://addons.thunderbird.net/@AB_CD@/seamonkey/plugins">@seamonkey_plugins@</a>
         </DL><p>
         <DT><H3>@community_support@</H3>
         <DL><p>
             <DT><A HREF="https://www.seamonkey-project.org/community">@seamonkey_community@</a>
-            <DT><A HREF="http://www.mozillazine.org/">@mozillazine@</A>
-            <DT><A HREF="http://forums.mozillazine.org/viewforum.php?f=40">@seamonkey_support@</A>
+            <DT><A HREF="https://www.mozillazine.org/">@mozillazine@</A>
+            <DT><A HREF="https://forums.mozillazine.org/viewforum.php?f=40">@seamonkey_support@</A>
         </DL><p>
     </DL><p>
 #include bookmarks.extra
