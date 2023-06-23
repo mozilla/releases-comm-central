@@ -29,7 +29,7 @@ const { MailServices } = ChromeUtils.import(
  * @param {AccountConfig} config - The account to create
  * @returns {nsIMsgAccount} - the newly created account
  */
-function createAccountInBackend(config) {
+async function createAccountInBackend(config) {
   // incoming server
   let inServer = MailServices.accounts.createIncomingServer(
     config.incoming.username,
@@ -80,7 +80,7 @@ function createAccountInBackend(config) {
   }
 
   if (config.rememberPassword && config.incoming.password) {
-    rememberPassword(inServer, config.incoming.password);
+    await rememberPassword(inServer, config.incoming.password);
   }
 
   if (inServer.authMethod == Ci.nsMsgAuthMethod.OAuth2) {
@@ -167,7 +167,7 @@ function createAccountInBackend(config) {
       outServer.username = username;
       outServer.password = config.outgoing.password;
       if (config.rememberPassword && config.outgoing.password) {
-        rememberPassword(outServer, config.outgoing.password);
+        await rememberPassword(outServer, config.outgoing.password);
       }
     }
 
@@ -295,7 +295,7 @@ function setFolders(identity, server) {
   identity.tmplFolderPickerMode = 0;
 }
 
-function rememberPassword(server, password) {
+async function rememberPassword(server, password) {
   let passwordURI;
   if (server instanceof Ci.nsIMsgIncomingServer) {
     passwordURI = server.localStoreType + "://" + server.hostName;
@@ -310,7 +310,7 @@ function rememberPassword(server, password) {
   );
   login.init(passwordURI, null, passwordURI, server.username, password, "", "");
   try {
-    Services.logins.addLogin(login);
+    await Services.logins.addLoginAsync(login);
   } catch (e) {
     if (e.message.includes("This login already exists")) {
       // TODO modify

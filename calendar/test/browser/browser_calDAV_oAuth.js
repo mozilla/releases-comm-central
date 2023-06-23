@@ -36,10 +36,12 @@ function setPref(calendarId, key, value) {
  *
  * @param {string[][]} - Zero or more arrays consisting of origin, realm, username, and password.
  */
-function setLogins(...logins) {
+async function setLogins(...logins) {
   Services.logins.removeAllLogins();
   for (let [origin, realm, username, password] of logins) {
-    Services.logins.addLogin(new LoginInfo(origin, null, realm, username, password, "", ""));
+    await Services.logins.addLoginAsync(
+      new LoginInfo(origin, null, realm, username, password, "", "")
+    );
   }
 }
 
@@ -109,93 +111,93 @@ add_task(function testCalendarOAuth_username_none() {
 // Currently a new token is not requested on failure.
 
 /** Expired token stored with calendar ID. */
-add_task(function testCalendarOAuth_id_expired() {
+add_task(async function testCalendarOAuth_id_expired() {
   let calendarId = "testCalendarOAuth_id_expired";
-  setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, "expired_token"]);
-  return subtest(calendarId, calendarId);
+  await setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, "expired_token"]);
+  await subtest(calendarId, calendarId);
 }).skip(); // Broken.
 
 /** Expired token stored with session ID. */
-add_task(function testCalendarOAuth_sessionId_expired() {
+add_task(async function testCalendarOAuth_sessionId_expired() {
   let calendarId = "testCalendarOAuth_sessionId_expired";
   setPref(calendarId, "sessionId", "test_session");
-  setLogins(["oauth:test_session", "Google CalDAV v2", "test_session", "expired_token"]);
-  return subtest(calendarId, "test_session");
+  await setLogins(["oauth:test_session", "Google CalDAV v2", "test_session", "expired_token"]);
+  await subtest(calendarId, "test_session");
 }).skip(); // Broken.
 
 /** Expired token stored with calendar ID, username set. */
-add_task(function testCalendarOAuth_username_expired() {
+add_task(async function testCalendarOAuth_username_expired() {
   let calendarId = "testCalendarOAuth_username_expired";
   setPref(calendarId, "username", USERNAME);
-  setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, "expired_token"]);
-  return subtest(calendarId, USERNAME);
+  await setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, "expired_token"]);
+  await subtest(calendarId, USERNAME);
 }).skip(); // Broken.
 
 // Test making a request with a valid token, using Lightning's client ID and secret.
 
 /** Valid token stored with calendar ID. */
-add_task(function testCalendarOAuth_id_valid() {
+add_task(async function testCalendarOAuth_id_valid() {
   let calendarId = "testCalendarOAuth_id_valid";
-  setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, VALID_TOKEN]);
-  return subtest(calendarId);
+  await setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, VALID_TOKEN]);
+  await subtest(calendarId);
 });
 
 /** Valid token stored with session ID. */
-add_task(function testCalendarOAuth_sessionId_valid() {
+add_task(async function testCalendarOAuth_sessionId_valid() {
   let calendarId = "testCalendarOAuth_sessionId_valid";
   setPref(calendarId, "sessionId", "test_session");
-  setLogins(["oauth:test_session", "Google CalDAV v2", "test_session", VALID_TOKEN]);
-  return subtest(calendarId);
+  await setLogins(["oauth:test_session", "Google CalDAV v2", "test_session", VALID_TOKEN]);
+  await subtest(calendarId);
 });
 
 /** Valid token stored with calendar ID, username set. */
-add_task(function testCalendarOAuth_username_valid() {
+add_task(async function testCalendarOAuth_username_valid() {
   let calendarId = "testCalendarOAuth_username_valid";
   setPref(calendarId, "username", USERNAME);
-  setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, VALID_TOKEN]);
-  return subtest(calendarId, USERNAME);
+  await setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, VALID_TOKEN]);
+  await subtest(calendarId, USERNAME);
 });
 
 // Test making a request with a valid token, using Thunderbird's client ID and secret.
 
 /** Valid token stored with calendar ID. */
-add_task(function testCalendarOAuthTB_id_valid() {
+add_task(async function testCalendarOAuthTB_id_valid() {
   let calendarId = "testCalendarOAuthTB_id_valid";
-  setLogins([ORIGIN, SCOPE, calendarId, VALID_TOKEN]);
-  return subtest(calendarId);
+  await setLogins([ORIGIN, SCOPE, calendarId, VALID_TOKEN]);
+  await subtest(calendarId);
 });
 
 /** Valid token stored with session ID. */
-add_task(function testCalendarOAuthTB_sessionId_valid() {
+add_task(async function testCalendarOAuthTB_sessionId_valid() {
   let calendarId = "testCalendarOAuthTB_sessionId_valid";
   setPref(calendarId, "sessionId", "test_session");
-  setLogins([ORIGIN, SCOPE, "test_session", VALID_TOKEN]);
-  return subtest(calendarId);
+  await setLogins([ORIGIN, SCOPE, "test_session", VALID_TOKEN]);
+  await subtest(calendarId);
 });
 
 /** Valid token stored with calendar ID, username set. */
-add_task(function testCalendarOAuthTB_username_valid() {
+add_task(async function testCalendarOAuthTB_username_valid() {
   let calendarId = "testCalendarOAuthTB_username_valid";
   setPref(calendarId, "username", USERNAME);
-  setLogins([ORIGIN, SCOPE, calendarId, VALID_TOKEN]);
-  return subtest(calendarId, USERNAME);
+  await setLogins([ORIGIN, SCOPE, calendarId, VALID_TOKEN]);
+  await subtest(calendarId, USERNAME);
 });
 
 /** Valid token stored with username, exact scope. */
-add_task(function testCalendarOAuthTB_username_validSingle() {
+add_task(async function testCalendarOAuthTB_username_validSingle() {
   let calendarId = "testCalendarOAuthTB_username_validSingle";
   setPref(calendarId, "username", USERNAME);
-  setLogins(
+  await setLogins(
     [ORIGIN, SCOPE, USERNAME, VALID_TOKEN],
     [ORIGIN, "other_scope", USERNAME, "other_refresh_token"]
   );
-  return subtest(calendarId);
+  await subtest(calendarId);
 });
 
 /** Valid token stored with username, many scopes. */
-add_task(function testCalendarOAuthTB_username_validMultiple() {
+add_task(async function testCalendarOAuthTB_username_validMultiple() {
   let calendarId = "testCalendarOAuthTB_username_validMultiple";
   setPref(calendarId, "username", USERNAME);
-  setLogins([ORIGIN, "scope test_scope other_scope", USERNAME, VALID_TOKEN]);
-  return subtest(calendarId);
+  await setLogins([ORIGIN, "scope test_scope other_scope", USERNAME, VALID_TOKEN]);
+  await subtest(calendarId);
 });

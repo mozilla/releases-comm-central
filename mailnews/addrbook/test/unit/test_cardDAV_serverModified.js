@@ -10,7 +10,7 @@
 add_task(async () => {
   CardDAVServer.modifyCardOnPut = true;
 
-  let directory = initDirectory();
+  let directory = await initDirectory();
   await directory.fetchAllFromServer();
 
   observer.init();

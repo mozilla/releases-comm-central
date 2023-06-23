@@ -544,11 +544,7 @@ var CardDAVUtils = {
                 "",
                 ""
               );
-              try {
-                Services.logins.addLogin(newLoginInfo);
-              } catch (ex) {
-                console.error(ex);
-              }
+              Services.logins.addLoginAsync(newLoginInfo).catch(console.error);
               oAuth._isNew = false;
             }
             book.setStringValue("carddav.username", username);
@@ -657,7 +653,7 @@ class NotificationCallbacks {
     }
     return returnValue;
   }
-  saveAuth() {
+  async saveAuth() {
     if (this.shouldSaveAuth) {
       let newLoginInfo = Cc[
         "@mozilla.org/login-manager/loginInfo;1"
@@ -672,7 +668,7 @@ class NotificationCallbacks {
         ""
       );
       try {
-        Services.logins.addLogin(newLoginInfo);
+        await Services.logins.addLoginAsync(newLoginInfo);
       } catch (ex) {
         console.error(ex);
       }

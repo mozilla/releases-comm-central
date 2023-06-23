@@ -331,7 +331,7 @@ class MsgAuthPrompt {
       aUsername.value,
       aPassword.value
     );
-    Services.logins.addLogin(newLogin);
+    Services.logins.addLoginAsync(newLogin);
 
     return ok;
   }
@@ -403,7 +403,7 @@ class MsgAuthPrompt {
         aPassword.value
       );
 
-      Services.logins.addLogin(newLogin);
+      Services.logins.addLoginAsync(newLogin);
     }
 
     return ok;

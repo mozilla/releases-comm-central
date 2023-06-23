@@ -419,7 +419,7 @@ var calauth = {
    * @param {string} aOrigin - The corresponding origin
    * @param {string} aRealm - The password realm (unused on branch)
    */
-  passwordManagerSave(aUsername, aPassword, aOrigin, aRealm) {
+  async passwordManagerSave(aUsername, aPassword, aOrigin, aRealm) {
     lazy.cal.ASSERT(aUsername);
     lazy.cal.ASSERT(aPassword);
 
@@ -445,7 +445,7 @@ var calauth = {
           return;
         }
       }
-      Services.logins.addLogin(newLoginInfo);
+      await Services.logins.addLoginAsync(newLoginInfo);
     } catch (exc) {
       // Only show the message if its not an abort, which can happen if
       // the user canceled the primary password dialog

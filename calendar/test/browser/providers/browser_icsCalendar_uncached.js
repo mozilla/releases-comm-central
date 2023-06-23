@@ -5,15 +5,15 @@
 var { ICSServer } = ChromeUtils.import("resource://testing-common/calendar/ICSServer.jsm");
 
 ICSServer.open("bob", "bob");
-if (!Services.logins.findLogins(ICSServer.origin, null, "test").length) {
-  // Save a username and password to the login manager.
-  let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(Ci.nsILoginInfo);
-  loginInfo.init(ICSServer.origin, null, "test", "bob", "bob", "", "");
-  Services.logins.addLogin(loginInfo);
-}
 
 let calendar;
 add_setup(async function () {
+  if (!Services.logins.findLogins(ICSServer.origin, null, "test").length) {
+    // Save a username and password to the login manager.
+    let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(Ci.nsILoginInfo);
+    loginInfo.init(ICSServer.origin, null, "test", "bob", "bob", "", "");
+    await Services.logins.addLoginAsync(loginInfo);
+  }
   calendarObserver._onLoadPromise = PromiseUtils.defer();
   calendar = createCalendar("ics", ICSServer.url, false);
   await calendarObserver._onLoadPromise.promise;

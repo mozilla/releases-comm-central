@@ -19,7 +19,7 @@ add_task(async () => {
   CardDAVServer.putCardInternal("copyme.vcf", initialVCard);
 
   localDirectory = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
-  cardDAVDirectory = initDirectory();
+  cardDAVDirectory = await initDirectory();
   await cardDAVDirectory.fetchAllFromServer();
 
   observer.init();

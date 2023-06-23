@@ -12,7 +12,7 @@ registerCleanupFunction(() => {
 /**
  * Test password is migrated when changing hostname/username.
  */
-add_task(function testMigratePasswordOnChangeUsernameHostname() {
+add_task(async function testMigratePasswordOnChangeUsernameHostname() {
   // Add two logins.
   let loginItems = [
     ["news://news.localhost", "user-nntp", "password-nntp"],
@@ -23,7 +23,7 @@ add_task(function testMigratePasswordOnChangeUsernameHostname() {
       Ci.nsILoginInfo
     );
     login.init(uri, null, uri, username, password, "", "");
-    Services.logins.addLogin(login);
+    await Services.logins.addLoginAsync(login);
   }
 
   // Create a nntp server, check the password can be found correctly.

@@ -27,7 +27,7 @@ async function subtest() {
     "BEGIN:VCARD\r\nUID:delete-me\r\nFN:Please delete me.\r\nEND:VCARD\r\n"
   );
 
-  directory = initDirectory();
+  directory = await initDirectory();
 
   info("Initial sync with server.");
   await directory.fetchAllFromServer();

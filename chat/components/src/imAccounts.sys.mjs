@@ -628,7 +628,10 @@ imAccount.prototype = {
     return !this.protocol.noPassword && !this.protocol.passwordOptional;
   },
   set password(aPassword) {
-    this._password = aPassword;
+    this._setPassword(aPassword);
+  },
+  async _setPassword(password) {
+    this._password = password;
     if (gUserCanceledPrimaryPasswordPrompt) {
       return;
     }
@@ -641,7 +644,7 @@ imAccount.prototype = {
       null,
       passwordURI,
       this.normalizedName,
-      aPassword,
+      password,
       "",
       ""
     );
@@ -650,7 +653,7 @@ imAccount.prototype = {
       let saved = false;
       for (let login of logins) {
         if (newLogin.matches(login, true)) {
-          if (aPassword) {
+          if (password) {
             Services.logins.modifyLogin(login, newLogin);
           } else {
             Services.logins.removeLogin(login);
@@ -659,8 +662,8 @@ imAccount.prototype = {
           break;
         }
       }
-      if (!saved && aPassword) {
-        Services.logins.addLogin(newLogin);
+      if (!saved && password) {
+        await Services.logins.addLoginAsync(newLogin);
       }
     } catch (e) {
       this._handlePrimaryPasswordException(e);
@@ -668,11 +671,11 @@ imAccount.prototype = {
 
     this._connectionInfoChanged();
     if (
-      aPassword &&
+      password &&
       this._connectionErrorReason == Ci.imIAccount.ERROR_MISSING_PASSWORD
     ) {
       this._connectionErrorReason = Ci.imIAccount.NO_ERROR;
-    } else if (!aPassword && this._passwordRequired) {
+    } else if (!password && this._passwordRequired) {
       this._connectionErrorReason = Ci.imIAccount.ERROR_MISSING_PASSWORD;
     }
     this._sendUpdateNotification();

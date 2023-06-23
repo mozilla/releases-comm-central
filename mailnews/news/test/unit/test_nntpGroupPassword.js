@@ -33,7 +33,7 @@ add_task(async function () {
     "",
     ""
   );
-  Services.logins.addLogin(loginInfo1);
+  await Services.logins.addLoginAsync(loginInfo1);
   var loginInfo2 = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
@@ -46,7 +46,7 @@ add_task(async function () {
     "",
     ""
   );
-  Services.logins.addLogin(loginInfo2);
+  await Services.logins.addLoginAsync(loginInfo2);
   try {
     var prefix = "news://localhost:" + server.port + "/";
     var transaction;

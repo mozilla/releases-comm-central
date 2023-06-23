@@ -42,10 +42,10 @@ function setPref(dirPrefId, key, value) {
  * @param {string[][]} - Zero or more arrays consisting of origin, realm,
  *   username, and password.
  */
-function setLogins(...logins) {
+async function setLogins(...logins) {
   Services.logins.removeAllLogins();
   for (let [origin, realm, username, password] of logins) {
-    Services.logins.addLogin(
+    await Services.logins.addLoginAsync(
       new LoginInfo(origin, null, realm, username, password, "", "")
     );
   }
@@ -104,40 +104,45 @@ add_task(function testAddressBookOAuth_uid_none() {
 // it. Currently a new token is not requested on failure.
 
 /** Expired token stored with UID. */
-add_task(function testAddressBookOAuth_uid_expired() {
+add_task(async function testAddressBookOAuth_uid_expired() {
   let dirPrefId = "uid_expired";
   let uid = "testAddressBookOAuth_uid_expired";
-  setLogins([ORIGIN, SCOPE, uid, "expired_token"]);
-  return subtest(dirPrefId, uid, uid);
+  await setLogins([ORIGIN, SCOPE, uid, "expired_token"]);
+  await subtest(dirPrefId, uid, uid);
 }).skip(); // Broken.
 
 // Test making a request with a valid token.
 
 /** Valid token stored with UID. This is the old way of storing the token. */
-add_task(function testAddressBookOAuth_uid_valid() {
+add_task(async function testAddressBookOAuth_uid_valid() {
   let dirPrefId = "uid_valid";
   let uid = "testAddressBookOAuth_uid_valid";
-  setLogins([ORIGIN, SCOPE, uid, VALID_TOKEN]);
-  return subtest(dirPrefId, uid);
+  await setLogins([ORIGIN, SCOPE, uid, VALID_TOKEN]);
+  await subtest(dirPrefId, uid);
 });
 
 /** Valid token stored with username, exact scope. */
-add_task(function testAddressBookOAuth_username_validSingle() {
+add_task(async function testAddressBookOAuth_username_validSingle() {
   let dirPrefId = "username_validSingle";
   let uid = "testAddressBookOAuth_username_validSingle";
   setPref(dirPrefId, "carddav.username", USERNAME);
-  setLogins(
+  await setLogins(
     [ORIGIN, SCOPE, USERNAME, VALID_TOKEN],
     [ORIGIN, "other_scope", USERNAME, "other_refresh_token"]
   );
-  return subtest(dirPrefId, uid);
+  await subtest(dirPrefId, uid);
 });
 
 /** Valid token stored with username, many scopes. */
-add_task(function testAddressBookOAuth_username_validMultiple() {
+add_task(async function testAddressBookOAuth_username_validMultiple() {
   let dirPrefId = "username_validMultiple";
   let uid = "testAddressBookOAuth_username_validMultiple";
   setPref(dirPrefId, "carddav.username", USERNAME);
-  setLogins([ORIGIN, "scope test_scope other_scope", USERNAME, VALID_TOKEN]);
-  return subtest(dirPrefId, uid);
+  await setLogins([
+    ORIGIN,
+    "scope test_scope other_scope",
+    USERNAME,
+    VALID_TOKEN,
+  ]);
+  await subtest(dirPrefId, uid);
 });

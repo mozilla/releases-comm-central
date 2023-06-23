@@ -707,7 +707,7 @@ add_task(async function test_add_photo_carddav3() {
     Ci.nsILoginInfo
   );
   loginInfo.init(CardDAVServer.origin, null, "test", "alice", "alice", "", "");
-  Services.logins.addLogin(loginInfo);
+  await Services.logins.addLoginAsync(loginInfo);
 
   // Create a new contact. We'll add a photo to this contact.
 
@@ -797,7 +797,7 @@ add_task(async function test_add_photo_carddav4() {
     Ci.nsILoginInfo
   );
   loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
-  Services.logins.addLogin(loginInfo);
+  await Services.logins.addLoginAsync(loginInfo);
 
   // Create a new contact. We'll add a photo to this contact.
 

@@ -5,15 +5,15 @@
 var { ICSServer } = ChromeUtils.import("resource://testing-common/calendar/ICSServer.jsm");
 
 ICSServer.open("bob", "bob");
-if (!Services.logins.findLogins(ICSServer.origin, null, "test").length) {
-  // Save a username and password to the login manager.
-  let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(Ci.nsILoginInfo);
-  loginInfo.init(ICSServer.origin, null, "test", "bob", "bob", "", "");
-  Services.logins.addLogin(loginInfo);
-}
 
 let calendar;
 add_setup(async function () {
+  if (!Services.logins.findLogins(ICSServer.origin, null, "test").length) {
+    // Save a username and password to the login manager.
+    let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(Ci.nsILoginInfo);
+    loginInfo.init(ICSServer.origin, null, "test", "bob", "bob", "", "");
+    await Services.logins.addLoginAsync(loginInfo);
+  }
   // TODO: item notifications from a cached ICS calendar occur outside of batches.
   // This isn't fatal but it shouldn't happen. Side-effects include alarms firing
   // twice - once from onAddItem then again at onLoad.

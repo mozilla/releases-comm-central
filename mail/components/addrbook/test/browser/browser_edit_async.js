@@ -42,7 +42,7 @@ add_setup(async function () {
     Ci.nsILoginInfo
   );
   loginInfo.init(CardDAVServer.origin, null, "test", "alice", "alice", "", "");
-  Services.logins.addLogin(loginInfo);
+  await Services.logins.addLoginAsync(loginInfo);
 });
 
 registerCleanupFunction(async function () {

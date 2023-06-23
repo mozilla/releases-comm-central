@@ -421,7 +421,7 @@ let alertUtilsMsgAuthPrompt = {
       aUsername.value,
       aPassword.value
     );
-    Services.logins.addLogin(newLogin);
+    Services.logins.addLoginAsync(newLogin);
 
     return ok;
   },
@@ -462,7 +462,7 @@ let alertUtilsMsgAuthPrompt = {
         aPassword.value
       );
 
-      Services.logins.addLogin(newLogin);
+      Services.logins.addLoginAsync(newLogin);
     }
 
     return ok;

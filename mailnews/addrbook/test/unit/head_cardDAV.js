@@ -19,7 +19,7 @@ registerCleanupFunction(function () {
   load("../../../resources/mailShutdown.js");
 });
 
-function initDirectory() {
+async function initDirectory() {
   // Set up a new directory and get the cards from the server. Do this by
   // creating an instance of CardDAVDirectory rather than through the address
   // book manager, so that we can access the internals of the directory.
@@ -52,7 +52,7 @@ function initDirectory() {
       Ci.nsILoginInfo
     );
     loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
-    Services.logins.addLogin(loginInfo);
+    await Services.logins.addLoginAsync(loginInfo);
   }
 
   let directory = new CardDAVDirectory();

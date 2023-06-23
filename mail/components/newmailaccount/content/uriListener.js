@@ -152,7 +152,7 @@ TracingListener.prototype = {
     this.oldListener.onStartRequest(aRequest);
   },
 
-  onStopRequest(/* nsIRequest */ aRequest, /* int */ aStatusCode) {
+  async onStopRequest(/* nsIRequest */ aRequest, /* int */ aStatusCode) {
     const { CreateInBackend } = ChromeUtils.import(
       "resource:///modules/accountcreation/CreateInBackend.jsm"
     );
@@ -194,7 +194,7 @@ TracingListener.prototype = {
       );
 
       // Create the new account in the back end.
-      newAccount = CreateInBackend.createAccountInBackend(accountConfig);
+      newAccount = await CreateInBackend.createAccountInBackend(accountConfig);
 
       let tabmail = document.getElementById("tabmail");
       // Find the tab associated with this browser, and close it.

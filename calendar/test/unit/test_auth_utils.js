@@ -24,11 +24,11 @@ add_task(async function test_password_manager() {
   checkLoginCount(0);
 
   // Save the password
-  cal.auth.passwordManagerSave(USERNAME, PASSWORD, ORIGIN, REALM);
+  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, ORIGIN, REALM);
   checkLoginCount(1);
 
   // Save again, should modify the existing login
-  cal.auth.passwordManagerSave(USERNAME, PASSWORD, ORIGIN, REALM);
+  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, ORIGIN, REALM);
   checkLoginCount(1);
 
   // Retrieve the saved password
@@ -45,8 +45,8 @@ add_task(async function test_password_manager() {
   Assert.equal(passout.value, PASSWORD);
   Assert.ok(found);
 
-  Assert.throws(
-    () => cal.auth.passwordManagerSave(USERNAME, PASSWORD, ORIGIN, REALM),
+  await Assert.rejects(
+    cal.auth.passwordManagerSave(USERNAME, PASSWORD, ORIGIN, REALM),
     /NS_ERROR_NOT_AVAILABLE/
   );
   Services.prefs.clearUserPref("signon.rememberSignons");
@@ -71,9 +71,9 @@ add_task(async function test_password_manager_origins() {
   checkLoginCount(0);
 
   // The scheme of the origin should be normalized to lowercase, this won't add any new passwords
-  cal.auth.passwordManagerSave(USERNAME, PASSWORD, "OAUTH:xpcshell@example.com", REALM);
+  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "OAUTH:xpcshell@example.com", REALM);
   checkLoginCount(1);
-  cal.auth.passwordManagerSave(USERNAME, PASSWORD, "oauth:xpcshell@example.com", REALM);
+  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "oauth:xpcshell@example.com", REALM);
   checkLoginCount(1);
 
   // Make sure that the prePath isn't used for oauth, because that is only the scheme
@@ -81,13 +81,13 @@ add_task(async function test_password_manager_origins() {
   Assert.ok(!found);
 
   // Save a https url with a path (only prePath should be used)
-  cal.auth.passwordManagerSave(USERNAME, PASSWORD, "https://example.com/withpath", REALM);
+  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "https://example.com/withpath", REALM);
   found = cal.auth.passwordManagerGet(USERNAME, {}, "https://example.com", REALM);
   Assert.ok(found);
   checkLoginCount(2);
 
   // Entering something that is not an URL should assume https
-  cal.auth.passwordManagerSave(USERNAME, PASSWORD, "example.net", REALM);
+  await cal.auth.passwordManagerSave(USERNAME, PASSWORD, "example.net", REALM);
   found = cal.auth.passwordManagerGet(USERNAME, {}, "https://example.net", REALM);
   Assert.ok(found);
   checkLoginCount(3);

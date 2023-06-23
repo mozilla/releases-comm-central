@@ -149,7 +149,7 @@ OAuth2Module.prototype = {
         "",
         ""
       );
-      Services.logins.addLogin(login);
+      Services.logins.addLoginAsync(login);
     }
   },
 

@@ -18,7 +18,7 @@ async function subtest() {
     "BEGIN:VCARD\r\nUID:delete-me\r\nFN:I'm going to be deleted.\r\nEND:VCARD\r\n"
   );
 
-  let directory = initDirectory();
+  let directory = await initDirectory();
 
   // We'll only use this for the initial sync, so I think it's okay to use
   // bulkAddCards and not get a notification for every contact.
@@ -318,7 +318,7 @@ add_task(async function testExpiredToken() {
     "BEGIN:VCARD\r\nUID:third\r\nFN:Third Person\r\nEND:VCARD\r\n"
   );
 
-  let directory = initDirectory();
+  let directory = await initDirectory();
 
   info("Initial sync with server.");
   await directory.fetchAllFromServer();
