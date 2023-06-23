@@ -72,7 +72,8 @@ async function onLoad() {
     return;
   }
 
-  setTimeout(resizeDlg, 0);
+  setTimeout(resizeDlg);
+  setTimeout(() => window.sizeToContent());
 }
 
 function buildKeyGroupBox(keyObj) {
