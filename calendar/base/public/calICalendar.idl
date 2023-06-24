@@ -20,7 +20,7 @@ interface calISchedulingSupport;
 interface calIDateTime;
 interface calIOperation;
 interface calIStatusObserver;
-interface nsIDOMChromeWindow;
+interface nsIDOMWindow;
 
 
 [scriptable, uuid(b18782c0-6557-4e8e-931d-4bf052f0a31e)]
@@ -508,7 +508,7 @@ interface calICompositeCalendar : calICalendar
   /**
    * Sets a statusobserver for status notifications like startMeteors() and StopMeteors().
    */
-  void setStatusObserver(in calIStatusObserver aStatusObserver, in nsIDOMChromeWindow aWindow);
+  void setStatusObserver(in calIStatusObserver aStatusObserver, in nsIDOMWindow aWindow);
 };
 
 /**

@@ -4,13 +4,13 @@
 
 #include "nsISupports.idl"
 interface calICalendar;
-interface nsIDOMChromeWindow;
+interface nsIDOMWindow;
 
 [scriptable, uuid(60160f68-4514-41b4-a19d-2f2cf0143426)]
 interface calIStatusObserver : nsISupports
 {
 
- void initialize(in nsIDOMChromeWindow aWindow);
+ void initialize(in nsIDOMWindow aWindow);
 
  /**
   * Starts the display of an operation to check a series of calendars

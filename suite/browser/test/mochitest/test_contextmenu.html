@@ -857,8 +857,7 @@ function startTest() {
                     .QueryInterface(Ci.nsIDocShellTreeItem)
                     .rootTreeItem
                     .QueryInterface(Ci.nsIInterfaceRequestor)
-                    .getInterface(Ci.nsIDOMWindow)
-                    .QueryInterface(Ci.nsIDOMChromeWindow);
+                    .getInterface(Ci.nsIDOMWindow);
     contextMenu = chromeWin.document.getElementById("contentAreaContextMenu");
     ok(contextMenu, "Got context menu XUL");
 
