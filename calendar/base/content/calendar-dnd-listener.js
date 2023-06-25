@@ -33,34 +33,36 @@ var calendarTaskButtonDNDObserver;
     /**
      * Converts an email message to a calendar item.
      *
-     * @param {object} aItem - The target calIItemBase.
-     * @param {object} aMsgHdr - The nsIMsgHdr to convert from.
+     * @param {calIItemBase} item - The target calIItemBase.
+     * @param {nsIMsgDBHdr} message - The nsIMsgDBHdr to convert from.
      */
-    async calendarItemFromMessage(aItem, aMsgHdr) {
-      let msgFolder = aMsgHdr.folder;
-      let msgUri = msgFolder.getUriForMsg(aMsgHdr);
+    async calendarItemFromMessage(item, message) {
+      let folder = message.folder;
+      let msgUri = folder.getUriForMsg(message);
 
-      aItem.calendar = getSelectedCalendar();
-      aItem.title = aMsgHdr.mime2DecodedSubject;
-      aItem.setProperty("URL", `mid:${aMsgHdr.messageId}`);
+      item.calendar = getSelectedCalendar();
+      item.title = message.mime2DecodedSubject;
+      item.setProperty("URL", `mid:${message.messageId}`);
 
-      cal.dtz.setDefaultStartEndHour(aItem);
-      cal.alarms.setDefaultValues(aItem);
+      cal.dtz.setDefaultStartEndHour(item);
+      cal.alarms.setDefaultValues(item);
 
-      let plainTextMessage = "";
+      let content = "";
       await new Promise((resolve, reject) => {
         let streamListener = {
           QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
           onDataAvailable(request, inputStream, offset, count) {
-            plainTextMessage = msgFolder.getMsgTextFromStream(
+            let text = folder.getMsgTextFromStream(
               inputStream,
-              aMsgHdr.charset,
-              65536,
-              32768,
-              false,
-              true,
-              {}
+              message.charset,
+              count, // bytesToRead
+              32768, // maxOutputLen
+              false, // compressQuotes
+              true, // stripHTMLTags
+              {} // out contentType
             );
+            // If we ever got text, we're good. Ignore further chunks.
+            content ||= text;
           },
           onStartRequest(request) {},
           onStopRequest(request, statusCode) {
@@ -80,7 +82,7 @@ var calendarTaskButtonDNDObserver;
           false
         );
       });
-      aItem.setProperty("DESCRIPTION", plainTextMessage);
+      item.setProperty("DESCRIPTION", content);
     },
 
     /**

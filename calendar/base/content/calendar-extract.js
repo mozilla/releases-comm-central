@@ -95,15 +95,17 @@ var calendarExtract = {
       let listener = {
         QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
         onDataAvailable(request, inputStream, offset, count) {
-          content = folder.getMsgTextFromStream(
+          let text = folder.getMsgTextFromStream(
             inputStream,
             message.charset,
-            65536,
-            32768,
-            false,
-            true,
-            {}
+            count, // bytesToRead
+            32768, // maxOutputLen
+            false, // compressQuotes
+            true, // stripHTMLTags
+            {} // out contentType
           );
+          // If we ever got text, we're good. Ignore further chunks.
+          content ||= text;
         },
         onStartRequest(request) {},
         onStopRequest(request, statusCode) {
