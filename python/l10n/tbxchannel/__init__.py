@@ -35,6 +35,7 @@ def get_thunderbird_xc_config(topsrcdir, strings_path):
                     # ESR goes last (e.g. esr102 goes after esr115).
                     "comm": "comm-central",
                     "comm-beta": "releases/comm-beta",
+                    "comm-esr115": "releases/comm-esr115",
                     "comm-esr102": "releases/comm-esr102",
                 },
                 "config_files": [
