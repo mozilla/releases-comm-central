@@ -114,7 +114,7 @@ for size in 16 32 48 64 128; do
 done
 
 appstream-compose --prefix="${appdir}" --origin=flatpak --basename=org.mozilla.Thunderbird org.mozilla.Thunderbird
-#appstream-util mirror-screenshots "${appdir}"/share/app-info/xmls/org.mozilla.firefox.xml.gz "https://dl.flathub.org/repo/screenshots/org.mozilla.firefox-${FLATPAK_BRANCH}" build/screenshots "build/screenshots/org.mozilla.firefox-${FLATPAK_BRANCH}"
+appstream-util mirror-screenshots "${appdir}"/share/app-info/xmls/org.mozilla.Thunderbird.xml.gz "https://dl.flathub.org/repo/screenshots/org.mozilla.Thunderbird-${FLATPAK_BRANCH}" build/screenshots "build/screenshots/org.mozilla.Thunderbird-${FLATPAK_BRANCH}"
 
 # XXX: we used to `install -D` before which automatically created the components
 # of target, now we need to manually do this since we're symlinking
@@ -154,7 +154,7 @@ flatpak build-finish build                                      \
 
 flatpak build-export --disable-sandbox --no-update-summary --exclude='/share/runtime/langpack/*/*' repo build "$FLATPAK_BRANCH"
 flatpak build-export --disable-sandbox --no-update-summary --metadata=metadata.locale --files=files/share/runtime/langpack repo build "$FLATPAK_BRANCH"
-#ostree commit --repo=repo --canonical-permissions --branch=screenshots/x86_64 build/screenshots
+ostree commit --repo=repo --canonical-permissions --branch=screenshots/x86_64 build/screenshots
 flatpak build-update-repo --generate-static-deltas repo
 tar cvfJ flatpak.tar.xz repo
 
