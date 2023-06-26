@@ -8,7 +8,9 @@ add_task(async function testGrantingBuddyRequest() {
     "prpl-mochitest"
   );
   const prplAccount = account.prplAccount.wrappedJSObject;
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   await openChatTab();
@@ -58,7 +60,9 @@ add_task(async function testCancellingBuddyRequest() {
     "prpl-mochitest"
   );
   const prplAccount = account.prplAccount.wrappedJSObject;
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   await openChatTab();
@@ -111,7 +115,9 @@ add_task(async function testDenyingBuddyRequest() {
     "prpl-mochitest"
   );
   const prplAccount = account.prplAccount.wrappedJSObject;
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   await openChatTab();
@@ -156,7 +162,9 @@ add_task(async function testGrantingChatRequest() {
     "prpl-mochitest"
   );
   const prplAccount = account.prplAccount.wrappedJSObject;
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   await openChatTab();
@@ -206,7 +214,9 @@ add_task(async function testCancellingChatRequest() {
     "prpl-mochitest"
   );
   const prplAccount = account.prplAccount.wrappedJSObject;
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   await openChatTab();
@@ -260,7 +270,9 @@ add_task(async function testDenyingChatRequest() {
     "prpl-mochitest"
   );
   const prplAccount = account.prplAccount.wrappedJSObject;
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   await openChatTab();
@@ -307,7 +319,9 @@ add_task(async function testUndenyableChatRequest() {
     "prpl-mochitest"
   );
   const prplAccount = account.prplAccount.wrappedJSObject;
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   await openChatTab();

@@ -7,7 +7,9 @@ add_task(async function testCollapse() {
     "testuser",
     "prpl-mochitest"
   );
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   await openChatTab();
@@ -74,7 +76,9 @@ add_task(async function testGrouping() {
     "testuser",
     "prpl-mochitest"
   );
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   await openChatTab();
@@ -146,7 +150,9 @@ add_task(async function testSystemMessageReplacement() {
     "testuser",
     "prpl-mochitest"
   );
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   await openChatTab();

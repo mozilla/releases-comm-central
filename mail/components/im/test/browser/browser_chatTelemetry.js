@@ -13,7 +13,9 @@ add_task(async function testMessageThemeTelemetry() {
     "testuser",
     "prpl-mochitest"
   );
+  let passwordPromise = TestUtils.topicObserved("account-updated");
   account.password = "this is a test";
+  await passwordPromise;
   account.connect();
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent");
