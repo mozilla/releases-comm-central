@@ -42,7 +42,6 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
 
   // Send a new targeted message in the conversation.
   const unreadContainer = chatButton.querySelector(".spaces-badge-container");
-  const unreadContainerText = unreadContainer.textContent;
   const unreadCountChanged = TestUtils.topicObserved("unread-im-count-changed");
   conversation.writeMessage("spaceBadge", "new direct message", {
     incoming: true,
@@ -52,9 +51,9 @@ add_task(async function test_spacesToolbarChatBadgeMUC() {
   ok(chatButton.classList.contains("has-badge"), "Unread badge is shown");
 
   // Fluent doesn't immediately apply the translation, wait for it.
-  await TestUtils.waitForCondition(
-    () => unreadContainer.textContent !== unreadContainerText
-  );
+  if (document.hasPendingL10nMutations) {
+    await BrowserTestUtils.waitForEvent(document, "L10nMutationsFinished");
+  }
 
   is(unreadContainer.textContent, "1", "Unread count is in badge");
   ok(unreadContainer.title);
@@ -100,7 +99,6 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
   }
 
   // Send a new message in a DM conversation that is not currently open.
-  const unreadContainerText = unreadContainer.textContent;
   let unreadCountChanged = TestUtils.topicObserved("unread-im-count-changed");
   const conversation = account.prplAccount.wrappedJSObject.makeDM("spaceBadge");
   conversation.writeMessage("spaceBadge", "new direct message", {
@@ -110,9 +108,9 @@ add_task(async function test_spacesToolbarChatBadgeDM() {
   ok(chatButton.classList.contains("has-badge"), "Unread badge is shown");
 
   // Fluent doesn't immediately apply the translation, wait for it.
-  await TestUtils.waitForCondition(
-    () => unreadContainer.textContent !== unreadContainerText
-  );
+  if (document.hasPendingL10nMutations) {
+    await BrowserTestUtils.waitForEvent(document, "L10nMutationsFinished");
+  }
 
   is(unreadContainer.textContent, "1", "Unread count is in badge");
   ok(unreadContainer.title);
