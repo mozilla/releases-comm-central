@@ -56,17 +56,13 @@ customize-change-appearance = Change appearance…
 
 customize-button-style-label = Button style:
 
-customize-button-style-icons-beside-text =
-  .label = Icons beside text
+customize-button-style-icons-beside-text-option = Icons beside text
 
-customize-button-style-icons-above-text =
-  .label = Icons above text
+customize-button-style-icons-above-text-option = Icons above text
 
-customize-button-style-icons-only =
-  .label = Icons only
+customize-button-style-icons-only-option = Icons only
 
-customize-button-style-text-only =
-  .label = Text only
+customize-button-style-text-only-option = Text only
 
 customize-cancel = Cancel
 

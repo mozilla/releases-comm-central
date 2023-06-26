@@ -155,14 +155,10 @@ unified-toolbar-customization {
   padding-inline: var(--customization-footer-padding);
 }
 
-#buttonStyleLabel {
+#buttonStyleContainer {
   display: flex;
   align-items: center;
   gap: 3px;
-}
-
-#buttonStyle {
-  display: inline flex;
 }
 
 #customizationFooter div:last-child {

@@ -76,10 +76,7 @@ class UnifiedToolbarCustomization extends HTMLElement {
         this.toggle(false);
       });
     this.#buttonStyle = template.querySelector("#buttonStyle");
-    this.#buttonStyle.addEventListener(
-      "command",
-      this.#handleButtonStyleChange
-    );
+    this.#buttonStyle.addEventListener("change", this.#handleButtonStyleChange);
     this.addEventListener("itemchange", this.#handleItemChange, {
       capture: true,
     });
@@ -117,10 +114,12 @@ class UnifiedToolbarCustomization extends HTMLElement {
   };
 
   #handleButtonStyleChange = event => {
-    Services.prefs.setIntPref(
-      BUTTON_STYLE_PREF,
-      BUTTON_STYLE_MAP.indexOf(event.target.value)
-    );
+    for (const pane of this.querySelectorAll(
+      "unified-toolbar-customization-pane"
+    )) {
+      pane.updateButtonStyle(event.target.value);
+    }
+    this.#updateUnsavedChangesState();
   };
 
   #handleSettingsButton = event => {
@@ -185,7 +184,10 @@ class UnifiedToolbarCustomization extends HTMLElement {
     const tabPanes = Array.from(
       this.querySelectorAll("unified-toolbar-customization-pane")
     );
-    const unsavedChanges = tabPanes.some(tabPane => tabPane.hasChanges);
+    const unsavedChanges =
+      tabPanes.some(tabPane => tabPane.hasChanges) ||
+      this.#buttonStyle.value !=
+        BUTTON_STYLE_MAP[Services.prefs.getIntPref(BUTTON_STYLE_PREF, 0)];
     const otherSpacesHaveUnsavedChanges =
       unsavedChanges &&
       tabPanes.some(tabPane => tabPane.hidden && tabPane.hasChanges);
@@ -255,6 +257,10 @@ class UnifiedToolbarCustomization extends HTMLElement {
       tabPanes
         .filter(pane => !pane.matchesDefaultState)
         .map(pane => [pane.getAttribute("space"), pane.itemIds])
+    );
+    Services.prefs.setIntPref(
+      BUTTON_STYLE_PREF,
+      BUTTON_STYLE_MAP.indexOf(this.#buttonStyle.value)
     );
     // Toggle happens before saving, so the newly restored buttons don't have to
     // be updated when the globalOverlay flag on tabmail goes away.

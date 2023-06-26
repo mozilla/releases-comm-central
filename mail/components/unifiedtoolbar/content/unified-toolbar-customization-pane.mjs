@@ -14,10 +14,6 @@ const { getDefaultItemIdsForSpace } = ChromeUtils.importESModule(
   "resource:///modules/CustomizableItems.sys.mjs"
 );
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
 /**
  * Template ID: unifiedToolbarCustomizationPaneTemplate
  * Attributes:
@@ -27,24 +23,6 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
  *   extension provided space (false).
  */
 class UnifiedToolbarCustomizationPane extends HTMLElement {
-  constructor() {
-    super();
-    XPCOMUtils.defineLazyPreferenceGetter(
-      this,
-      "buttonStyle",
-      BUTTON_STYLE_PREF,
-      0,
-      (preference, prevVal, newVal) => {
-        if (preference !== BUTTON_STYLE_PREF) {
-          return;
-        }
-        this.#toolbarTarget.classList.remove(prevVal);
-        this.#toolbarTarget.classList.add(newVal);
-      },
-      value => BUTTON_STYLE_MAP[value]
-    );
-  }
-
   /**
    * Reference to the customization target for the main toolbar area.
    *
@@ -109,7 +87,6 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
     );
 
     this.#toolbarTarget = template.querySelector(".toolbar-target");
-    this.#toolbarTarget.classList.add(this.buttonStyle);
     this.#toolbarTarget.setAttribute("space", space);
 
     this.#spaceSpecificTitle = template.querySelector(".space-specific-title");
@@ -196,6 +173,10 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
       this.#spaceSpecificTitle.hidden = this.#spaceSpecificPalette.isEmpty;
       this.#spaceSpecificPalette.hidden = this.#spaceSpecificPalette.isEmpty;
     }
+
+    this.updateButtonStyle(
+      BUTTON_STYLE_MAP[Services.prefs.getIntPref(BUTTON_STYLE_PREF, 0)]
+    );
   }
 
   /**
@@ -264,6 +245,17 @@ class UnifiedToolbarCustomizationPane extends HTMLElement {
    */
   get itemIds() {
     return this.#toolbarTarget.itemIds;
+  }
+
+  /**
+   * Update the class of the toolbar preview to reflect the selected button
+   * style.
+   *
+   * @param {string} value - The class to apply.
+   */
+  updateButtonStyle(value) {
+    this.#toolbarTarget.classList.remove(...BUTTON_STYLE_MAP);
+    this.#toolbarTarget.classList.add(value);
   }
 }
 customElements.define(

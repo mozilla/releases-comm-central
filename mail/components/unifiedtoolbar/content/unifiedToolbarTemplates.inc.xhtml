@@ -57,22 +57,20 @@
                 data-l10n-id="customize-change-appearance"></button>
       </div>
       <div>
-        <label id="buttonStyleLabel">
-          <span data-l10n-id="customize-button-style-label"></span>
-          <xul:menulist id="buttonStyle" value="icons-beside-text">
-            <xul:menupopup>
-              <xul:menuitem value="icons-beside-text"
-                            data-l10n-id="customize-button-style-icons-beside-text"
-                            default="default" />
-              <xul:menuitem value="icons-above-text"
-                            data-l10n-id="customize-button-style-icons-above-text" />
-              <xul:menuitem value="icons-only"
-                            data-l10n-id="customize-button-style-icons-only" />
-              <xul:menuitem value="text-only"
-                            data-l10n-id="customize-button-style-text-only" />
-            </xul:menupopup>
-          </xul:menulist>
-        </label>
+        <label id="buttonStyleLabel"
+               for="buttonStyle"
+               data-l10n-id="customize-button-style-label"></label>
+        <select id="buttonStyle" class="select">
+          <option value="icons-beside-text"
+                  data-l10n-id="customize-button-style-icons-beside-text-option"
+                  selected="selected"></option>
+          <option value="icons-above-text"
+                  data-l10n-id="customize-button-style-icons-above-text-option"></option>
+          <option value="icons-only"
+                  data-l10n-id="customize-button-style-icons-only-option"></option>
+          <option value="text-only"
+                  data-l10n-id="customize-button-style-text-only-option"></option>
+        </select>
       </div>
       <div>
         <button id="unifiedToolbarCustomizationCancel"
