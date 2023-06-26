@@ -437,7 +437,6 @@ async function OnLoadMsgHeaderPane() {
     .getElementById("encryptionTechBtn")
     .addEventListener("click", showMessageReadSecurityInfo);
   let panel = document.getElementById("messageSecurityPanel");
-  panel.addEventListener("popupshown", onMessageSecurityPopupShown);
   panel.addEventListener("popuphidden", onMessageSecurityPopupHidden);
 
   // Set the flag/star button on click listener.

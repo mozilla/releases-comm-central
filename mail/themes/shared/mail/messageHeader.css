@@ -533,7 +533,7 @@ button.email-action-button:focus-visible {
 
 /* Encryption security pane */
 #messageSecurityPanel {
-  width: 37rem;
+  --panel-width: 37rem;
 }
 
 #messageSecurityPanel .security-panel-body {

@@ -66,31 +66,6 @@ function showMessageSecurityPanel() {
 }
 
 /**
- * Resize the popup panel after all content has been loaded.
- */
-function onMessageSecurityPopupShown() {
-  let panel = document.getElementById("messageSecurityPanel");
-  let contentHeight =
-    panel.querySelector(".message-security-header").scrollHeight +
-    panel.querySelector(".message-security-body").scrollHeight;
-
-  // Keep the same width of the panel, which is defined in CSS.
-  // The height is a sum between:
-  // - The height of the panel body, including header and scrollable area.
-  // - The height different between the panel height and the body height,
-  //   multiplied by 2 in order to account for padding, margin, and border
-  //   radius which can change based on the UI density settings. This is faster
-  //   than getting the computed style of each element.
-  panel.sizeTo(
-    panel.clientWidth,
-    contentHeight +
-      (panel.clientHeight -
-        panel.querySelector(".security-panel-body").scrollHeight) *
-        2
-  );
-}
-
-/**
  * Reset all values and clear the text of the message security popup panel.
  */
 function onMessageSecurityPopupHidden() {
@@ -114,11 +89,6 @@ function onMessageSecurityPopupHidden() {
   for (let node of keyList.children) {
     keyList.removeChild(node);
   }
-
-  // Clear the previously set size.
-  let popup = document.getElementById("messageSecurityPanel");
-  popup.removeAttribute("height");
-  popup.removeAttribute("width");
 }
 
 async function viewSignatureKey() {
