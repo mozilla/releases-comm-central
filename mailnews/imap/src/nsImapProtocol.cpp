@@ -6345,6 +6345,12 @@ void nsImapProtocol::OnEnsureExistsFolder(const char* aSourceMailbox) {
     }
   }
   List(aSourceMailbox, false);  // how to tell if that succeeded?
+  // If List() produces OK tagged response and an untagged "* LIST" response
+  // then the folder exists on the server. For simplicity, just look for
+  // a general untagged response.
+  bool folderExists = false;
+  if (GetServerStateParser().LastCommandSuccessful())
+    folderExists = GetServerStateParser().UntaggedResponse();
 
   // try converting aSourceMailbox to canonical format
   nsImapNamespace* nsForMailbox = nullptr;
@@ -6361,18 +6367,25 @@ void nsImapProtocol::OnEnsureExistsFolder(const char* aSourceMailbox) {
     m_runningUrl->AllocateCanonicalPath(
         aSourceMailbox, kOnlineHierarchySeparatorUnknown, getter_Copies(name));
 
-  bool exists = false;
-  if (m_imapServerSink) m_imapServerSink->FolderVerifiedOnline(name, &exists);
+  // Also check that the folder has been verified to exist in server sink.
+  bool verifiedExists = false;
+  if (folderExists && m_imapServerSink)
+    m_imapServerSink->FolderVerifiedOnline(name, &verifiedExists);
 
-  if (exists) {
+  // If folder exists on server and is verified and known to exists in server
+  // sink, just subscribe the folder. Otherwise, create a new folder and
+  // then subscribe and do list again to make sure it's created.
+  if (folderExists && verifiedExists) {
     Subscribe(aSourceMailbox);
   } else {
     bool created = CreateMailboxRespectingSubscriptions(aSourceMailbox);
     if (created) {
       List(aSourceMailbox, false);
+      // Check that we see an untagged response indicating folder now exists.
+      folderExists = GetServerStateParser().UntaggedResponse();
     }
   }
-  if (!GetServerStateParser().LastCommandSuccessful())
+  if (!GetServerStateParser().LastCommandSuccessful() || !folderExists)
     FolderNotCreated(aSourceMailbox);
 }
 
