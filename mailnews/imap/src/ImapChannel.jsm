@@ -59,6 +59,23 @@ class ImapChannel extends MailChannel {
 
   /**
    * @see nsIRequest
+   * @returns {string}
+   */
+  get name() {
+    return this.URI?.spec;
+  }
+
+  /**
+   * @see nsIRequest
+   * @returns {boolean}
+   */
+  isPending() {
+    return !!this._pending;
+  }
+
+  /**
+   * @see nsIRequest
+   * @returns {nsresult}
    */
   get status() {
     return this._status;
@@ -229,6 +246,7 @@ class ImapChannel extends MailChannel {
       onStartRequest: () => {
         this._listener.onStartRequest(this);
         this.URI.SetUrlState(true, Cr.NS_OK);
+        this._pending = true;
       },
       onStopRequest: (request, status) => {
         this._listener.onStopRequest(this, status);
@@ -236,6 +254,7 @@ class ImapChannel extends MailChannel {
         try {
           this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
         } catch (e) {}
+        this._pending = false;
       },
       onDataAvailable: (request, stream, offset, count) => {
         this.contentLength += count;
@@ -263,6 +282,7 @@ class ImapChannel extends MailChannel {
       client.startRunningUrl(null, null, this.URI);
       client.channel = this;
       this._listener.onStartRequest(this);
+      this._pending = true;
       client.onReady = () => {
         client.fetchMessage(this.URI.folder, this._msgKey);
       };
@@ -279,6 +299,7 @@ class ImapChannel extends MailChannel {
         } catch (e) {}
         this._listener.onStopRequest(this, status);
       };
+      this._pending = false;
     });
   }
 

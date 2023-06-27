@@ -90,6 +90,23 @@ class NntpChannel extends MailChannel {
 
   /**
    * @see nsIRequest
+   * @returns {string}
+   */
+  get name() {
+    return this.URI?.spec;
+  }
+
+  /**
+   * @see nsIRequest
+   * @returns {boolean}
+   */
+  isPending() {
+    return !!this._pending;
+  }
+
+  /**
+   * @see nsIRequest
+   * @returns {nsresult}
    */
   get status() {
     return this._status;
@@ -269,12 +286,14 @@ class NntpChannel extends MailChannel {
     pump.asyncRead({
       onStartRequest: () => {
         this._listener.onStartRequest(this);
+        this._pending = true;
       },
       onStopRequest: (request, status) => {
         this._listener.onStopRequest(this, status);
         try {
           this.loadGroup?.removeRequest(this, null, Cr.NS_OK);
         } catch (e) {}
+        this._pending = false;
       },
       onDataAvailable: (request, stream, offset, count) => {
         this.contentLength += count;
@@ -310,6 +329,7 @@ class NntpChannel extends MailChannel {
       client.startRunningUrl(null, msgWindow, this.URI);
       client.channel = this;
       this._listener.onStartRequest(this);
+      this._pending = true;
       client.onOpen = () => {
         if (this._messageId) {
           client.getArticleByMessageId(this._messageId);
@@ -341,6 +361,7 @@ class NntpChannel extends MailChannel {
         this._newsFolder?.msgDatabase.commit(
           Ci.nsMsgDBCommitType.kSessionCommit
         );
+        this._pending = false;
       };
     });
   }
@@ -362,6 +383,7 @@ class NntpChannel extends MailChannel {
       } catch (e) {}
       client.startRunningUrl(null, msgWindow, this.URI);
       this._listener.onStartRequest(this);
+      this._pending = true;
       client.onOpen = () => {
         client.listgroup(groupName);
       };
@@ -373,6 +395,7 @@ class NntpChannel extends MailChannel {
       client.onDone = status => {
         newsFolder.removeMessages([...allKeys]);
         this._listener.onStopRequest(this, status);
+        this._pending = false;
       };
     });
   }

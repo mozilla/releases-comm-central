@@ -532,7 +532,14 @@ var messageProgressListener = {
     "nsISupportsWeakReference",
   ]),
 
-  async onStateChange(webProgress, request, stateFlags) {
+  /**
+   * @param {nsIWebProgress} webProgress
+   * @param {nsIRequest} request
+   * @param {integer} stateFlags
+   * @param {nsresult} status
+   * @see {nsIWebProgressListener}
+   */
+  async onStateChange(webProgress, request, stateFlags, status) {
     if (!(request instanceof Ci.nsIMailChannel)) {
       return;
     }
