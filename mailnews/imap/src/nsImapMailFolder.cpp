@@ -6301,14 +6301,17 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded,
 
   if (!mailCopyState->m_streamCopy) return NS_OK;
 
-  if (mailCopyState->m_isMove) {
+  uint32_t idx = mailCopyState->m_curIndex;
+  if (mailCopyState->m_isMove && idx) {
     nsCOMPtr<nsIMsgFolder> srcFolder(
         do_QueryInterface(mailCopyState->m_srcSupport, &rv));
     if (NS_SUCCEEDED(rv) && srcFolder) {
-      uint32_t idx = mailCopyState->m_curIndex - 1;
       // Create "array" of one message header to delete
-      RefPtr<nsIMsgDBHdr> msg = mailCopyState->m_messages[idx];
-      srcFolder->DeleteMessages({msg}, nullptr, true, true, nullptr, false);
+      idx--;
+      if (idx < mailCopyState->m_messages.Length()) {
+        RefPtr<nsIMsgDBHdr> msg = mailCopyState->m_messages[idx];
+        srcFolder->DeleteMessages({msg}, nullptr, true, true, nullptr, false);
+      }
     }
   }
 
