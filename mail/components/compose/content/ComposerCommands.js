@@ -825,7 +825,7 @@ function GetOutputFlags(aMimeType, aWrapColumn) {
 // returns number of column where to wrap
 function GetWrapColumn() {
   try {
-    return GetCurrentEditor().wrapWidth;
+    return GetCurrentEditor().QueryInterface(Ci.nsIEditorMailSupport).wrapWidth;
   } catch (e) {}
   return 0;
 }

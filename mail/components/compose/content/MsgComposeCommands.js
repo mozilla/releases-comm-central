@@ -3157,7 +3157,8 @@ function ComposeFieldsReady() {
   // If we are in plain text, we need to set the wrap column
   if (!gMsgCompose.composeHTML) {
     try {
-      gMsgCompose.editor.wrapWidth = gMsgCompose.wrapLength;
+      gMsgCompose.editor.QueryInterface(Ci.nsIEditorMailSupport).wrapWidth =
+        gMsgCompose.wrapLength;
     } catch (e) {
       dump("### textEditor.wrapWidth exception text: " + e + " - failed\n");
     }

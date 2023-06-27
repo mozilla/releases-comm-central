@@ -1093,7 +1093,7 @@ function GetOutputFlags(aMimeType, aWrapColumn) {
 const nsIWebBrowserPersist = Ci.nsIWebBrowserPersist;
 function GetWrapColumn() {
   try {
-    return GetCurrentEditor().wrapWidth;
+    return GetCurrentEditor().QueryInterface(Ci.nsIEditorMailSupport).wrapWidth;
   } catch (e) {}
   return 0;
 }
