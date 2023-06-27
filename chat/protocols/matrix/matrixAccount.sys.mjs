@@ -2295,7 +2295,7 @@ MatrixAccount.prototype = {
               break;
             }
           }
-          this.getDirectConversation(interlocutorId);
+          this.getDirectConversation(interlocutorId, room.roomId, room.name);
         } else {
           this.getGroupConversation(room.roomId, room.name);
         }
@@ -2480,7 +2480,7 @@ MatrixAccount.prototype = {
             );
             continue;
           }
-          conv = this.getDirectConversation(interlocutorId);
+          conv = this.getDirectConversation(interlocutorId, roomId, room.name);
         } else {
           if (this._pendingRoomInvites.has(roomId)) {
             const room = this._client.getRoom(roomId);
@@ -3221,6 +3221,9 @@ MatrixAccount.prototype = {
 
   /**
    * Returns the direct conversation according to the room-id or user-id.
+   * If the room ID is specified, it is the preferred way of identifying the
+   * conversation to return.
+   *
    * 1) If we have a direct conversation already, we will return that.
    * 2) If the room exists on the server, we will join it. It will not do
    *    anything if we are already joined, it will just create the
@@ -3236,6 +3239,13 @@ MatrixAccount.prototype = {
    */
   getDirectConversation(userId, roomID, roomName) {
     let DMRoomId = this.getDMRoomIdForUserId(userId);
+    if (roomID && DMRoomId !== roomID) {
+      this.setDirectRoom(userId, roomID);
+      DMRoomId = roomID;
+    }
+    if (!DMRoomId && roomID) {
+      DMRoomId = roomID;
+    }
     if (DMRoomId && this.roomList.has(DMRoomId)) {
       return this.roomList.get(DMRoomId);
     }
@@ -3243,11 +3253,11 @@ MatrixAccount.prototype = {
     // If user is invited to the room then DMRoomId will be null. In such
     // cases, we will pass roomID so that user will be joined to the room
     // and we will create corresponding conversation.
-    if (DMRoomId || roomID) {
-      let conv = new MatrixRoom(this, false, roomName || DMRoomId || roomID);
-      this.roomList.set(DMRoomId || roomID, conv);
+    if (DMRoomId) {
+      let conv = new MatrixRoom(this, false, roomName || DMRoomId);
+      this.roomList.set(DMRoomId, conv);
       this._client
-        .joinRoom(DMRoomId || roomID)
+        .joinRoom(DMRoomId)
         .catch(error => {
           conv.close();
           throw error;
@@ -3261,9 +3271,7 @@ MatrixAccount.prototype = {
           }
         })
         .catch(error => {
-          this.ERROR(
-            "Error creating conversation " + (DMRoomId || roomID) + ": " + error
-          );
+          this.ERROR("Error creating conversation " + DMRoomId + ": " + error);
           if (!conv.room) {
             conv.forget();
           }
