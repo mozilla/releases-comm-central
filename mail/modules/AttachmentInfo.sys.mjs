@@ -202,25 +202,44 @@ export class AttachmentInfo {
 
       let { name, url } = this;
 
-      async function saveToFile(path) {
-        let buffer = await new Promise(function (resolve, reject) {
+      let sourceURI = Services.io.newURI(url);
+      async function saveToFile(path, isTmp = false) {
+        let buffer = await new Promise((resolve, reject) => {
           lazy.NetUtil.asyncFetch(
             {
-              uri: Services.io.newURI(url),
+              uri: sourceURI,
               loadUsingSystemPrincipal: true,
             },
-            function (inputStream, status) {
+            (inputStream, status) => {
               if (Components.isSuccessCode(status)) {
                 resolve(lazy.NetUtil.readInputStream(inputStream));
               } else {
                 reject(
-                  new Components.Exception("Failed to fetch attachment", status)
+                  new Components.Exception(`Failed to fetch ${path}`, status)
                 );
               }
             }
           );
         });
         await IOUtils.write(path, new Uint8Array(buffer));
+
+        if (!isTmp) {
+          // Create a download so that saved files show up under... Saved Files.
+          let file = await IOUtils.getFile(path);
+          lazy.Downloads.createDownload({
+            source: {
+              url: sourceURI.spec,
+            },
+            target: file,
+            startTime: new Date(),
+          })
+            .then(async download => {
+              await download.start();
+              let list = await lazy.Downloads.getList(lazy.Downloads.ALL);
+              await list.add(download);
+            })
+            .catch(console.error);
+        }
       }
 
       if (this.contentType == "message/rfc822") {
@@ -229,7 +248,7 @@ export class AttachmentInfo {
           tempFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
           tempFile.append("subPart.eml");
           tempFile.createUnique(0, 0o600);
-          await saveToFile(tempFile.path);
+          await saveToFile(tempFile.path, true);
 
           this.#temporaryFiles.set(url, tempFile);
         }
@@ -288,10 +307,10 @@ export class AttachmentInfo {
           .getService(Ci.nsPIExternalAppLauncher)
           .deleteTemporaryFileOnExit(tempFile);
 
-        await saveToFile(tempFile.path);
-        // Before opening from the temp dir, make the file read only so that
+        await saveToFile(tempFile.path, true);
+        // Before opening from the temp dir, make the file read-only so that
         // users don't edit and lose their edits...
-        tempFile.permissions = 0o400;
+        await IOUtils.setPermissions(tempFile.path, 0o400); // Set read-only
         this._openFile(mimeInfo, tempFile);
       };
 
@@ -344,7 +363,6 @@ export class AttachmentInfo {
             // their location on disk instead of copied to a temporary file.
             if (this.isExternalAttachment) {
               openLocalFile(mimeInfo);
-
               return;
             }
 
