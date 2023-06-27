@@ -110,82 +110,16 @@ var EnigmailMime = {
     return paramArr;
   },
 
-  /***
-   * determine the "charset" part of a mail content type.
+  /**
+   * Determine the "charset" part of a mail content type.
    *
-   * @contentTypeStr: the string containing all parts of a content-type.
-   *               (e.g. multipart/mixed; charset="utf-8") --> returns "utf-8"
+   * @param {string} contentTypeStr - the string containing all parts of a
+   *   content-type (e.g. multipart/mixed; charset="utf-8") --> returns "utf-8"
    *
-   * @return: String containing the charset parameter; or null
+   * @returns {?string} A string containing the charset parameter; or null
    */
-
   getCharset(contentTypeStr) {
     return EnigmailMime.getParameter(contentTypeStr, "charset");
-  },
-
-  /**
-   * Convert a MIME header value into a UTF-8 encoded representation following RFC 2047
-   */
-  encodeHeaderValue(aStr) {
-    let ret = "";
-
-    let exp = /[^\x01-\x7F]/; // eslint-disable-line no-control-regex
-    if (aStr.search(exp) >= 0) {
-      let s = lazy.EnigmailData.convertFromUnicode(aStr, "utf-8");
-      ret = "=?UTF-8?B?" + btoa(s) + "?=";
-    } else {
-      ret = aStr;
-    }
-
-    return ret;
-  },
-
-  /**
-   * format MIME header with maximum length of 72 characters.
-   */
-  formatHeaderData(hdrValue) {
-    let header;
-    if (Array.isArray(hdrValue)) {
-      header = hdrValue.join("").split(" ");
-    } else {
-      header = hdrValue.split(/ +/);
-    }
-
-    let line = "";
-    let lines = [];
-
-    for (let i = 0; i < header.length; i++) {
-      if (line.length + header[i].length >= 72) {
-        lines.push(line + "\r\n");
-        line = " " + header[i];
-      } else {
-        line += " " + header[i];
-      }
-    }
-
-    lines.push(line);
-
-    return lines.join("").trim();
-  },
-
-  /**
-   * Correctly encode and format a set of email addresses for RFC 2047
-   */
-  formatEmailAddress(addressData) {
-    const adrArr = addressData.split(/, */);
-
-    for (let i in adrArr) {
-      try {
-        const m = adrArr[i].match(
-          /(.*[\w\s]+?)<([\w-][\w.-]+@[\w-][\w.-]+[a-zA-Z]{1,4})>/
-        );
-        if (m && m.length == 3) {
-          adrArr[i] = this.encodeHeaderValue(m[1]) + " <" + m[2] + ">";
-        }
-      } catch (ex) {}
-    }
-
-    return adrArr.join(", ");
   },
 
   /**
@@ -219,10 +153,17 @@ var EnigmailMime = {
   },
 
   /***
-   * determine if the message data contains a first mime part with content-type = "text/rfc822-headers"
-   * if so, extract the corresponding field(s)
+   * Determine if the message data contains a first mime part with
+   * content-type = "text/rfc822-headers"
+   * If so, extract the corresponding field(s).
+   *
+   * @param {string} contentData - The message data to extract from
+   * @returns {object} headers
+   * @returns {object} headers.newHeaders
+   * @returns {integer} headers.startPos
+   * @returns {integer} headers.endPos
+   * @returns {integer} headers.securityLevel
    */
-
   extractProtectedHeaders(contentData) {
     // find first MIME delimiter. Anything before that delimiter is the top MIME structure
     let m = contentData.search(/^--/m);
