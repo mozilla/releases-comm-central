@@ -38,6 +38,7 @@
 /* Density variations */
 
 :root {
+  --messenger-body-border: 1px;
   --spaces-icon-size: 20px;
   --spaces-padding: 7px;
   --spaces-gap: 15px;
@@ -47,7 +48,7 @@
   --spaces-button-badge-padding: 1px 6px;
   --spaces-button-badge-font: 0.9rem;
   --spaces-menuitem-current-indicator-size: 3px;
-  --spaces-total-width: calc(2 * var(--spaces-padding) + var(--spaces-icon-size) + 2 * var(--spaces-button-padding) + 1px);
+  --spaces-total-width: calc(2 * var(--spaces-padding) + var(--spaces-icon-size) + 2 * var(--spaces-button-padding) + var(--messenger-body-border));
 }
 
 :root[uidensity="compact"] {
@@ -72,6 +73,14 @@
   --spaces-button-badge-padding: 3px 8px;
   --spaces-button-badge-font: 1rem;
   --spaces-menuitem-current-indicator-size: 4px;
+}
+
+/* DPI variations */
+
+@media (min-resolution: 1.45dppx) and (max-resolution: 1.95dppx) {
+  :root {
+    --messenger-body-border: 0px; /* Keep the px unit. */
+  }
 }
 
 /* The spaces toolbar is using fixed positioning instead of being the left most
