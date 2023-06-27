@@ -965,6 +965,10 @@ nsresult nsMsgAccountManager::LoadAccounts() {
   // for now safeguard multiple calls to this function
   if (m_accountsLoaded) return NS_OK;
 
+  // If we have code trying to do things after we've unloaded accounts,
+  // ignore it.
+  if (m_shutdownInProgress || m_haveShutdown) return NS_ERROR_FAILURE;
+
   // Make sure correct modules are loaded before creating any server.
   nsCOMPtr<nsIObserver> moduleLoader;
   moduleLoader =
@@ -978,9 +982,6 @@ nsresult nsMsgAccountManager::LoadAccounts() {
     mailSession->AddFolderListener(
         this, nsIFolderListener::added | nsIFolderListener::removed |
                   nsIFolderListener::intPropertyChanged);
-  // If we have code trying to do things after we've unloaded accounts,
-  // ignore it.
-  if (m_shutdownInProgress || m_haveShutdown) return NS_ERROR_FAILURE;
 
   // Ensure biff service has started
   nsCOMPtr<nsIMsgBiffManager> biffService =
