@@ -1062,7 +1062,7 @@ async function reloadOpenPgpUI() {
     document.l10n.setAttributes(backupItem, "openpgp-key-backup-key");
     backupItem.addEventListener("command", event => {
       event.stopPropagation();
-      openPgpExportSecretKey(`0x${key.keyId}`, `0x${key.fpr}`);
+      openPgpExportSecretKey(`0x${key.keyId}`, `${key.fpr}`);
     });
 
     let revokeItem = document.createXULElement("menuitem");
