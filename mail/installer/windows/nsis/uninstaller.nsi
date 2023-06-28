@@ -99,7 +99,7 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 
 !insertmacro un.ChangeMUIHeaderImage
 !insertmacro un.CheckForFilesInUse
-!insertmacro un.CleanUpdateDirectories
+!insertmacro un.CleanMaintenanceServiceLogs
 !insertmacro un.CleanVirtualStore
 !insertmacro un.DeleteShortcuts
 !insertmacro un.GetLongPath
@@ -283,8 +283,8 @@ Section "Uninstall"
     ApplicationID::UninstallJumpLists "$AppUserModelID"
   ${EndIf}
 
-  ; Remove the updates directory
-  ${un.CleanUpdateDirectories} "Thunderbird" "Mozilla\updates"
+  ; Clean up old maintenance service logs
+  ${un.CleanMaintenanceServiceLogs} "Thunderbird"
 
   ; Remove any app model id's stored in the registry for this install path
   DeleteRegValue HKCU "Software\Mozilla\${AppName}\TaskBarIDs" "$INSTDIR"
