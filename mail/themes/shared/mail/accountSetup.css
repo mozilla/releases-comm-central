@@ -827,6 +827,7 @@ button.existing:dir(rtl) {
 .calendar-dialog-form select {
   padding-inline-start: 9px;
   padding-block: 0;
+  line-height: var(--in-content-button-height);
 }
 
 .calendar-dialog-form select:not([size], [multiple]) {
