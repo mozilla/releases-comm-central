@@ -186,6 +186,7 @@ toolbarbutton.formatting-button {
 }
 
 #titlebar {
+  z-index: 1;
   height: 22px;
 }
 
