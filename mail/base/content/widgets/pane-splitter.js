@@ -322,6 +322,23 @@
     }
 
     /**
+     * If the splitter is disabled.
+     *
+     * @type {boolean}
+     */
+    get isDisabled() {
+      return this.hasAttribute("disabled");
+    }
+
+    set isDisabled(disabled) {
+      if (disabled) {
+        this.setAttribute("disabled", true);
+        return;
+      }
+      this.removeAttribute("disabled");
+    }
+
+    /**
      * Update styling to reflect the current state.
      */
     _updateStyling() {
@@ -385,7 +402,7 @@
     }
 
     _onMouseDown(event) {
-      if (!this.resizeElement) {
+      if (!this.resizeElement || this.isDisabled) {
         return;
       }
       if (event.buttons != 1) {

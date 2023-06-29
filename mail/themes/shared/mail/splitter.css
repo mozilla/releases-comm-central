@@ -101,7 +101,7 @@ hr[is="pane-splitter"][resize-direction="horizontal"]:is(
   transform-origin: right;
 }
 
-hr[is="pane-splitter"].splitter-collapsed:is(
+hr[is="pane-splitter"]:not([disabled]).splitter-collapsed:is(
   :hover,
   .splitter-resizing
 )::after {
@@ -109,7 +109,7 @@ hr[is="pane-splitter"].splitter-collapsed:is(
   transform: scaleY(1);
 }
 
-hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
+hr[is="pane-splitter"][resize-direction="horizontal"]:not([disabled]).splitter-collapsed:is(
   :hover,
   .splitter-resizing
 )::after {
@@ -131,30 +131,30 @@ hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
 
 /* Splitter cursors. */
 
-hr[is="pane-splitter"] {
+hr[is="pane-splitter"]:not([disabled]) {
   cursor: ns-resize;
 }
 
-hr[is="pane-splitter"].splitter-collapsed:not(.splitter-before) {
+hr[is="pane-splitter"]:not([disabled]).splitter-collapsed:not(.splitter-before) {
   cursor: s-resize;
 }
 
-hr[is="pane-splitter"].splitter-collapsed.splitter-before {
+hr[is="pane-splitter"]:not([disabled]).splitter-collapsed.splitter-before {
   cursor: n-resize;
 }
 
-hr[is="pane-splitter"][resize-direction="horizontal"] {
+hr[is="pane-splitter"][resize-direction="horizontal"]:not([disabled]) {
   cursor: ew-resize;
 }
 
-hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
+hr[is="pane-splitter"][resize-direction="horizontal"]:not([disabled]).splitter-collapsed:is(
   .splitter-before:dir(ltr),
   :not(.splitter-before):dir(rtl)
 ) {
   cursor: w-resize;
 }
 
-hr[is="pane-splitter"][resize-direction="horizontal"].splitter-collapsed:is(
+hr[is="pane-splitter"][resize-direction="horizontal"]:not([disabled]).splitter-collapsed:is(
   :not(.splitter-before):dir(ltr),
   .splitter-before:dir(rtl)
 ) {
