@@ -66,7 +66,7 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 !insertmacro AddDisabledDDEHandlerValues
 !insertmacro AddHandlerValues
 !insertmacro CheckIfRegistryKeyExists
-!insertmacro CleanUpdateDirectories
+!insertmacro CleanMaintenanceServiceLogs
 !insertmacro CleanVirtualStore
 !insertmacro FindSMProgramsDir
 !insertmacro GetLongPath
@@ -84,7 +84,7 @@ VIAddVersionKey "OriginalFilename" "helper.exe"
 
 !insertmacro un.ChangeMUIHeaderImage
 !insertmacro un.CheckForFilesInUse
-!insertmacro un.CleanUpdateDirectories
+!insertmacro un.CleanMaintenanceServiceLogs
 !insertmacro un.CleanVirtualStore
 !insertmacro un.DeleteShortcuts
 !insertmacro un.GetLongPath
@@ -195,7 +195,7 @@ Section "Uninstall"
   ${EndIf}
 
   ; Remove the updates directory for Vista and above
-  ${un.CleanUpdateDirectories} "Mozilla\SeaMonkey" "Mozilla\updates"
+  ${un.CleanMaintenanceServiceLogs} "Mozilla\SeaMonkey"
 
   ; Remove any app model id's stored in the registry for this install path
   DeleteRegValue HKCU "Software\Mozilla\${AppName}\TaskBarIDs" "$INSTDIR"

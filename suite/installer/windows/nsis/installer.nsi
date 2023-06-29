@@ -71,7 +71,7 @@ VIAddVersionKey "OriginalFilename" "setup.exe"
 !insertmacro ChangeMUIHeaderImage
 !insertmacro CheckForFilesInUse
 !insertmacro CheckIfRegistryKeyExists
-!insertmacro CleanUpdateDirectories
+!insertmacro CleanMaintenanceServiceLogs
 !insertmacro CopyFilesFromDir
 !insertmacro CreateRegKey
 !insertmacro FindSMProgramsDir
@@ -198,9 +198,6 @@ Section "-InstallStartCleanup"
 
   ; setup the application model id registration value
   ${InitHashAppModelId} "$INSTDIR" "Software\Mozilla\${AppName}\TaskBarIDs"
-
-  ; Remove the updates directory for Windows 7 and above
-  ${CleanUpdateDirectories} "Mozilla\SeaMonkey" "Mozilla\updates"
 
   ${RemoveDeprecatedFiles}
 
