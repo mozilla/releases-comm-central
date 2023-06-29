@@ -2494,12 +2494,12 @@ const gHeaderCustomize = {
    * scalar tb.ui.configuration.message_header.
    *
    * @type {object}
-   * @property {boolean} showAvatar - If the profile picutre of the sender
-   *   should be showed.
-   * @property {boolean} showBigAvatar - If a big profile picutre of the sender
-   *   should be showed.
-   * @property {boolean} showFullAddress - If the sender recipient should always
-   *   show the full name and email address.
+   * @property {boolean} showAvatar - If the profile picture of the sender
+   *   should be shown.
+   * @property {boolean} showBigAvatar - If a big profile picture of the sender
+   *   should be shown.
+   * @property {boolean} showFullAddress - If the sender should always be
+   *   shown with the full name and email address.
    * @property {boolean} hideLabels - If the labels column should be hidden.
    * @property {boolean} subjectLarge - If the font size of the subject line
    *   should be increased.
@@ -2510,11 +2510,11 @@ const gHeaderCustomize = {
    *   - "only-text" = only text
    */
   customizeData: {
-    showAvatar: false,
+    showAvatar: true,
     showBigAvatar: false,
-    showFullAddress: false,
-    hideLabels: false,
-    subjectLarge: false,
+    showFullAddress: true,
+    hideLabels: true,
+    subjectLarge: true,
     buttonStyle: "default",
   },
 
@@ -2526,10 +2526,9 @@ const gHeaderCustomize = {
       "messageHeaderCustomizationPanel"
     );
 
-    let xulStore = Services.xulStore;
-    if (xulStore.hasValue(this.docURL, "messageHeader", "layout")) {
+    if (Services.xulStore.hasValue(this.docURL, "messageHeader", "layout")) {
       this.customizeData = JSON.parse(
-        xulStore.getValue(this.docURL, "messageHeader", "layout")
+        Services.xulStore.getValue(this.docURL, "messageHeader", "layout")
       );
       this.updateLayout();
     }
@@ -2550,6 +2549,12 @@ const gHeaderCustomize = {
 
     // Bail out if we don't have anything to customize.
     if (!Object.keys(this.customizeData).length) {
+      header.classList.add(
+        "message-header-large-subject",
+        "message-header-show-recipient-avatar",
+        "message-header-show-sender-full-address",
+        "message-header-hide-label-column"
+      );
       return;
     }
 

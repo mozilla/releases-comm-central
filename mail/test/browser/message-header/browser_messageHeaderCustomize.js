@@ -70,46 +70,47 @@ add_task(async function test_customize_toolbar_buttons() {
   // Confirm we're starting from a clean state.
   let header = aboutMessage.document.getElementById("messageHeader");
   Assert.ok(
-    !header.classList.contains("message-header-show-recipient-avatar"),
-    "The From recipient is not showing the avatar"
+    header.classList.contains("message-header-show-recipient-avatar"),
+    "The From recipient is showing the avatar"
   );
   let avatar = aboutMessage.document.querySelector(".recipient-avatar");
-  await assertVisibility(avatar, false, "The recipient avatar is hidden");
+  await assertVisibility(avatar, true, "The recipient avatar is shown");
 
   Assert.ok(
-    !header.classList.contains("message-header-show-sender-full-address"),
-    "The From recipient is not showing the full address on two lines"
+    header.classList.contains("message-header-show-sender-full-address"),
+    "The From recipient is showing the full address on two lines"
   );
   let multiLine = aboutMessage.document.querySelector(".recipient-multi-line");
   await assertVisibility(
     multiLine,
-    false,
-    "The recipient multi line is hidden"
+    true,
+    "The recipient multi line is visible"
   );
   let singleLine = aboutMessage.document.querySelector(
     ".recipient-single-line"
   );
   await assertVisibility(
     singleLine,
-    true,
-    "he recipient single line is visible"
+    false,
+    "he recipient single line is hidden"
   );
 
   Assert.ok(
-    !header.classList.contains("message-header-hide-label-column"),
-    "The labels column is visible"
+    header.classList.contains("message-header-hide-label-column"),
+    "The labels column is hidden"
   );
 
   let firstLabel = aboutMessage.document.querySelector(".message-header-label");
-  Assert.ok(
-    firstLabel.style.minWidth != "0px",
-    "The first label has a min-width value"
+  Assert.equal(
+    firstLabel.style.minWidth,
+    "0px",
+    "The first label has no min-width value"
   );
-  await assertVisibility(firstLabel, true, "The labels column is visible");
+  await assertVisibility(firstLabel, false, "The labels column is hidden");
 
   Assert.ok(
-    !header.classList.contains("message-header-large-subject"),
-    "The message header doesn't have a large subject"
+    header.classList.contains("message-header-large-subject"),
+    "The message header has a large subject"
   );
   Assert.ok(
     !header.classList.contains("message-header-buttons-only-icons"),
@@ -148,11 +149,11 @@ add_task(async function test_customize_toolbar_buttons() {
     "The buttons style is in the default state"
   );
   let subjectLarge = aboutMessage.document.getElementById("headerSubjectLarge");
-  Assert.ok(!subjectLarge.checked, "The subject field is in the default state");
+  Assert.ok(subjectLarge.checked, "The subject field is in the default state");
 
   let showAvatar = aboutMessage.document.getElementById("headerShowAvatar");
   Assert.ok(
-    !showAvatar.checked,
+    showAvatar.checked,
     "The show avatar field is in the default state"
   );
 
@@ -160,13 +161,13 @@ add_task(async function test_customize_toolbar_buttons() {
     "headerShowFullAddress"
   );
   Assert.ok(
-    !showFullAddress.checked,
+    showFullAddress.checked,
     "The show full address field is in the default state"
   );
 
   let hideLabels = aboutMessage.document.getElementById("headerHideLabels");
   Assert.ok(
-    !hideLabels.checked,
+    hideLabels.checked,
     "The hide labels field is in the default state"
   );
 
@@ -199,19 +200,19 @@ add_task(async function test_customize_toolbar_buttons() {
     "The buttons are showing only text"
   );
   Assert.ok(
-    !header.classList.contains("message-header-large-subject"),
+    header.classList.contains("message-header-large-subject"),
     "The subject line wasn't changed"
   );
   Assert.ok(
-    !header.classList.contains("message-header-show-recipient-avatar"),
+    header.classList.contains("message-header-show-recipient-avatar"),
     "The avatar visibility wasn't changed"
   );
   Assert.ok(
-    !header.classList.contains("message-header-show-sender-full-address"),
+    header.classList.contains("message-header-show-sender-full-address"),
     "The full address visibility wasn't changed"
   );
   Assert.ok(
-    !header.classList.contains("message-header-hide-label-column"),
+    header.classList.contains("message-header-hide-label-column"),
     "The labels column visibility wasn't changed"
   );
 
@@ -223,7 +224,7 @@ add_task(async function test_customize_toolbar_buttons() {
     "The buttons are showing only icons"
   );
   Assert.ok(
-    !header.classList.contains("message-header-large-subject"),
+    header.classList.contains("message-header-large-subject"),
     "The subject line wasn't changed"
   );
 
@@ -235,51 +236,51 @@ add_task(async function test_customize_toolbar_buttons() {
     () =>
       !header.classList.contains("message-header-buttons-only-icons") &&
       !header.classList.contains("message-header-buttons-only-text") &&
-      !header.classList.contains("message-header-large-subject") &&
-      !header.classList.contains("message-header-show-recipient-avatar") &&
-      !header.classList.contains("message-header-show-sender-full-address") &&
-      !header.classList.contains("message-header-hide-label-column"),
+      header.classList.contains("message-header-large-subject") &&
+      header.classList.contains("message-header-show-recipient-avatar") &&
+      header.classList.contains("message-header-show-sender-full-address") &&
+      header.classList.contains("message-header-hide-label-column"),
     "The message header is clear of any custom style"
   );
 
   EventUtils.synthesizeMouseAtCenter(subjectLarge, {}, aboutMessage);
   await BrowserTestUtils.waitForCondition(
-    () => header.classList.contains("message-header-large-subject"),
+    () => !header.classList.contains("message-header-large-subject"),
     "The subject line was changed"
   );
 
   EventUtils.synthesizeMouseAtCenter(showAvatar, {}, aboutMessage);
   await BrowserTestUtils.waitForCondition(
-    () => header.classList.contains("message-header-show-recipient-avatar"),
+    () => !header.classList.contains("message-header-show-recipient-avatar"),
     "The avatar style was changed"
   );
-  await assertVisibility(avatar, true, "The recipient avatar is visible");
+  await assertVisibility(avatar, false, "The recipient avatar is hidden");
 
   EventUtils.synthesizeMouseAtCenter(showFullAddress, {}, aboutMessage);
   await BrowserTestUtils.waitForCondition(
-    () => header.classList.contains("message-header-show-sender-full-address"),
+    () => !header.classList.contains("message-header-show-sender-full-address"),
     "The full address style was changed"
   );
   await assertVisibility(
     multiLine,
-    true,
-    "The recipient multi line is visible"
+    false,
+    "The recipient multi line is hidden"
   );
   await assertVisibility(
     singleLine,
-    false,
-    "The recipient single line is hidden"
+    true,
+    "The recipient single line is visible"
   );
 
   EventUtils.synthesizeMouseAtCenter(hideLabels, {}, aboutMessage);
   await BrowserTestUtils.waitForCondition(
-    () => header.classList.contains("message-header-hide-label-column"),
+    () => !header.classList.contains("message-header-hide-label-column"),
     "The labels column style was changed"
   );
-  await assertVisibility(firstLabel, false, "The first label is hidden");
+  await assertVisibility(firstLabel, true, "The first label is visible");
   await BrowserTestUtils.waitForCondition(
-    () => firstLabel.style.minWidth == "0px",
-    "The first label doesn't have min-width value"
+    () => firstLabel.style.minWidth != "0px",
+    "The first label has a min-width value"
   );
 
   await openMenuPopup();
@@ -291,7 +292,7 @@ add_task(async function test_customize_toolbar_buttons() {
     "The buttons are showing only icons"
   );
   await BrowserTestUtils.waitForCondition(
-    () => header.classList.contains("message-header-large-subject"),
+    () => !header.classList.contains("message-header-large-subject"),
     "The subject line edit was maintained"
   );
 
@@ -311,15 +312,15 @@ add_task(async function test_customize_toolbar_buttons() {
 
   MailTelemetryForTests.reportUIConfiguration();
   scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "subjectLarge", 1);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "subjectLarge", 0);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "buttonStyle", 1);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "hideLabels", 1);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "showAvatar", 1);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "hideLabels", 0);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "showAvatar", 0);
   TelemetryTestUtils.assertKeyedScalar(
     scalars,
     scalarName,
     "showFullAddress",
-    1
+    0
   );
 
   popupShown = BrowserTestUtils.waitForEvent(popup, "popupshown");
@@ -352,36 +353,36 @@ add_task(async function test_customize_toolbar_buttons() {
   await panelHidden;
 
   await BrowserTestUtils.waitForCondition(
-    () => !header.classList.contains("message-header-large-subject"),
-    "The subject line is not enlarged anymore"
+    () => header.classList.contains("message-header-large-subject"),
+    "The subject line is large again"
   );
-  await assertVisibility(avatar, false, "The recipient avatar is hidden");
+  await assertVisibility(avatar, true, "The recipient avatar is visible");
   await assertVisibility(
     multiLine,
-    false,
-    "The recipient multi line is hidden"
+    true,
+    "The recipient multi line is visible"
   );
   await assertVisibility(
     singleLine,
-    true,
-    "he recipient single line is visible"
+    false,
+    "he recipient single line is hidden"
   );
   await BrowserTestUtils.waitForCondition(
-    () => firstLabel.style.minWidth != "0px",
-    "The first label has a min-width value"
+    () => firstLabel.style.minWidth == "0px",
+    "The first label has no min-width value"
   );
-  await assertVisibility(firstLabel, true, "The labels column is visible");
+  await assertVisibility(firstLabel, false, "The labels column is hidden");
 
   MailTelemetryForTests.reportUIConfiguration();
   scalars = TelemetryTestUtils.getProcessScalars("parent", true);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "subjectLarge", 0);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "subjectLarge", 1);
   TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "buttonStyle", 0);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "hideLabels", 0);
-  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "showAvatar", 0);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "hideLabels", 1);
+  TelemetryTestUtils.assertKeyedScalar(scalars, scalarName, "showAvatar", 1);
   TelemetryTestUtils.assertKeyedScalar(
     scalars,
     scalarName,
     "showFullAddress",
-    0
+    1
   );
 });

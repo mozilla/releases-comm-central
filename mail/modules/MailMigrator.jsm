@@ -63,7 +63,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 38;
+    const UI_VERSION = 39;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -658,6 +658,32 @@ var MailMigrator = {
         // Clear menubar and tabbar XUL toolbar state.
         lazy.clearXULToolbarState("tabbar-toolbar");
         lazy.clearXULToolbarState("toolbar-menubar");
+      }
+
+      if (currentUIVersion < 39) {
+        // Set old defaults for message header customization in existing
+        // profiles without any customization settings.
+        if (
+          !Services.xulStore.hasValue(
+            "chrome://messenger/content/messenger.xhtml",
+            "messageHeader",
+            "layout"
+          )
+        ) {
+          Services.xulStore.setValue(
+            "chrome://messenger/content/messenger.xhtml",
+            "messageHeader",
+            "layout",
+            JSON.stringify({
+              showAvatar: false,
+              showBigAvatar: false,
+              showFullAddress: false,
+              hideLabels: false,
+              subjectLarge: false,
+              buttonStyle: "default",
+            })
+          );
+        }
       }
 
       // Migration tasks that may take a long time are not run immediately, but

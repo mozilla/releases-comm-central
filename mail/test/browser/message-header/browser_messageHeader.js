@@ -804,6 +804,8 @@ function help_get_num_lines(node) {
  * Test that the "more" button displays when it should.
  *
  * @param {HTMLOListElement} node - The recipients container of a header row.
+ * @param {boolean} [showAll=false] - If we're currently showing all the
+ *   recipients.
  */
 async function subtest_more_widget_display(node, showAll = false) {
   // Test that the `To` element doesn't have more than max lines.
@@ -888,7 +890,7 @@ add_task(async function test_view_more_button() {
   // refresh and fetch the proper recipients row width in order to avoid an
   // unexpected recipients wrapping. This happens because the width calculation
   // happens before the message header layout is fully generated.
-  let prevMessage = select_click_row(-1);
+  let prevMessage = select_click_row(-3);
   wait_for_message_display_completion(mc);
   assert_selected_and_displayed(mc, prevMessage);
 
