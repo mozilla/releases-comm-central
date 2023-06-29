@@ -3887,14 +3887,67 @@ var threadPaneHeader = {
 
   /**
    * Update the context menu to reflect the currently selected display options.
+   *
+   * @param {Event} event - The popupshowing DOMEvent.
    */
-  updateDisplayContextMenu() {
+  updateDisplayContextMenu(event) {
+    if (event.target.id != "threadPaneDisplayContext") {
+      return;
+    }
     const isTableLayout = document.body.classList.contains("layout-table");
     document
       .getElementById(
         isTableLayout ? "threadPaneTableView" : "threadPaneCardsView"
       )
       .setAttribute("checked", "true");
+  },
+
+  /**
+   * Update the menuitems inside the thread pane sort menupopup.
+   *
+   * @param {Event} event - The popupshowing DOMEvent.
+   */
+  updateThreadPaneSortMenu(event) {
+    if (event.target.id != "menu_threadPaneSortPopup") {
+      return;
+    }
+
+    const hiddenColumns = threadPane.columns
+      .filter(c => c.hidden)
+      .map(c => c.sortKey);
+
+    // Update menuitem to reflect sort key.
+    for (const menuitem of event.target.querySelectorAll(`[name="sortby"]`)) {
+      const sortKey = menuitem.getAttribute("value");
+      menuitem.setAttribute(
+        "checked",
+        gViewWrapper.primarySortType == Ci.nsMsgViewSortType[sortKey]
+      );
+      if (hiddenColumns.includes(sortKey)) {
+        menuitem.setAttribute("disabled", "true");
+      } else {
+        menuitem.removeAttribute("disabled");
+      }
+    }
+
+    // Update sort direction menu items.
+    event.target
+      .querySelector(`[value="ascending"]`)
+      .setAttribute("checked", gViewWrapper.isSortedAscending);
+    event.target
+      .querySelector(`[value="descending"]`)
+      .setAttribute("checked", !gViewWrapper.isSortedAscending);
+
+    // Update the threaded and groupedBy menu items.
+    event.target
+      .querySelector(`[value="threaded"]`)
+      .setAttribute("checked", gViewWrapper.showThreaded);
+    event.target
+      .querySelector(`[value="unthreaded"]`)
+      .setAttribute("checked", gViewWrapper.showUnthreaded);
+    event.target
+      .querySelector(`[value="group"]`)
+      .setAttribute("checked", gViewWrapper.showGroupedBySort);
   },
 
   /**
