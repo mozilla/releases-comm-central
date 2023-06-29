@@ -8773,12 +8773,13 @@ nsImapCacheStreamListener::OnStopRequest(nsIRequest* request,
   nsresult rv = NS_OK;
   if (!mCache2 || !mStarting) {
     rv = mListener->OnStopRequest(mChannelToUse, aStatus);
-    nsCOMPtr<nsILoadGroup> loadGroup;
-    mChannelToUse->GetLoadGroup(getter_AddRefs(loadGroup));
-    if (loadGroup) loadGroup->RemoveRequest(mChannelToUse, nullptr, aStatus);
-
     mListener = nullptr;
-    mChannelToUse->Close();
+
+    // Don't allow the request to be removed from the load group here, or
+    // events will happen out of order and the front end will get confused.
+    nsCOMPtr<nsIImapMockChannel> channel(mChannelToUse);
+    NS_DispatchToMainThread(NS_NewRunnableFunction(
+        "Delayed nsImapMockChannel::Close", [channel] { channel->Close(); }));
     mChannelToUse = nullptr;
   }
   return rv;
@@ -8889,23 +8890,28 @@ nsresult nsImapMockChannel::NotifyStartEndReadFromCache(bool start) {
 }
 
 NS_IMETHODIMP nsImapMockChannel::Close() {
-  if (mReadingFromCache)
+  nsCOMPtr<nsILoadGroup> loadGroup;
+  GetLoadGroup(getter_AddRefs(loadGroup));
+
+  if (mReadingFromCache) {
     NotifyStartEndReadFromCache(false);
-  else {
+  } else {
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_url);
     if (mailnewsUrl) {
       nsCOMPtr<nsICacheEntry> cacheEntry;
       mailnewsUrl->GetMemCacheEntry(getter_AddRefs(cacheEntry));
       if (cacheEntry) cacheEntry->MarkValid();
-      // remove the channel from the load group
-      nsCOMPtr<nsILoadGroup> loadGroup;
-      GetLoadGroup(getter_AddRefs(loadGroup));
-      // if the mock channel wasn't initialized with a load group then
-      // use our load group (they may differ)
-      if (!loadGroup) mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
-      if (loadGroup)
-        loadGroup->RemoveRequest((nsIRequest*)this, nullptr, NS_OK);
+      // If the mock channel wasn't initialized with a load group then use our
+      // load group (they may differ).
+      if (!loadGroup) {
+        mailnewsUrl->GetLoadGroup(getter_AddRefs(loadGroup));
+      }
     }
+  }
+
+  // Remove the channel from the load group.
+  if (loadGroup) {
+    loadGroup->RemoveRequest((nsIRequest*)this, nullptr, NS_OK);
   }
 
   m_channelListener = nullptr;
