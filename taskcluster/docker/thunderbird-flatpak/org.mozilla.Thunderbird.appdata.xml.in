@@ -65,6 +65,11 @@
   <url type="donation">https://give.thunderbird.net/</url>
   <url type="translate">https://www.thunderbird.net/en-US/get-involved/#translation</url>
   <url type="contact">https://www.thunderbird.net/contact/</url>
+  
+  <screenshots>
+    <screenshot type="default">https://raw.githubusercontent.com/thundernest/flatpak-screenshots/main/image_1.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/thundernest/flatpak-screenshots/main/image_2.png</screenshot>
+  </screenshots>
 
   <project_group>Mozilla</project_group>
   <project_license>MPL-2.0</project_license>
