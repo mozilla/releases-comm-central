@@ -5,11 +5,11 @@
 
 tb-debian-mingw:
     symbol: I(tb-mingw)
-    parent: debian12-amd64-build
+    parent: debian11-amd64-build
 
 thunderbird-flatpak:
     symbol: I(flatpak)
 
 tb-atn:
     symbol: I(tb-atn)
-    parent: debian12-base
+    parent: debian11-base
