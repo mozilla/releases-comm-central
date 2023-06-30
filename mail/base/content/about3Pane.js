@@ -5312,12 +5312,18 @@ var threadPane = {
 
   /**
    * Update the ARIA Role of the tree view table body to properly communicate
-   * to assistive techonology the type of list we're rendering.
+   * to assistive techonology the type of list we're rendering and toggles the
+   * threaded class on the tree table header.
    *
    * @param {boolean} isListbox - If the list should have a listbox role.
    */
   updateListRole(isListbox) {
     threadTree.table.body.setAttribute("role", isListbox ? "listbox" : "tree");
+    if (isListbox) {
+      threadTree.table.header.classList.remove("threaded");
+    } else {
+      threadTree.table.header.classList.add("threaded");
+    }
   },
 };
 
