@@ -210,7 +210,7 @@ function setStatus(status, message, args) {
   window.dispatchEvent(new CustomEvent("status-changed"));
 }
 
-window.addEventListener("dialogaccept", event => {
+window.addEventListener("dialogaccept", async event => {
   if (uiElements.resultsArea.hidden) {
     event.preventDefault();
     check();
@@ -223,7 +223,7 @@ window.addEventListener("dialogaccept", event => {
 
   for (let checkbox of uiElements.availableBooks.children) {
     if (checkbox.checked) {
-      let book = checkbox._book.create();
+      let book = await checkbox._book.create();
       if (window.arguments[0]) {
         // Pass the UID of the book back to the opening window.
         window.arguments[0].newDirectoryUID = book.UID;

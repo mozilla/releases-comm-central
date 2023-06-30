@@ -332,6 +332,7 @@ class MsgAuthPrompt {
       aPassword.value
     );
     Services.logins.addLoginAsync(newLogin);
+    Services.tm.spinEventLoopUntilEmpty();
 
     return ok;
   }
@@ -404,6 +405,7 @@ class MsgAuthPrompt {
       );
 
       Services.logins.addLoginAsync(newLogin);
+      Services.tm.spinEventLoopUntilEmpty();
     }
 
     return ok;

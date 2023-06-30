@@ -150,6 +150,8 @@ OAuth2Module.prototype = {
         ""
       );
       Services.logins.addLoginAsync(login);
+      // FIXME: get/set refreshToken needs to move to async. Remove spin.
+      Services.tm.spinEventLoopUntilEmpty();
     }
   },
 

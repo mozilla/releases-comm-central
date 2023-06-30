@@ -422,6 +422,7 @@ let alertUtilsMsgAuthPrompt = {
       aPassword.value
     );
     Services.logins.addLoginAsync(newLogin);
+    Services.tm.spinEventLoopUntilEmpty();
 
     return ok;
   },

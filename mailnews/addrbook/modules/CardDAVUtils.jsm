@@ -515,7 +515,7 @@ var CardDAVUtils = {
       foundBooks.push({
         url,
         name,
-        create() {
+        async create() {
           let dirPrefId = MailServices.ab.newAddressBook(
             this.name,
             null,
@@ -544,7 +544,11 @@ var CardDAVUtils = {
                 "",
                 ""
               );
-              Services.logins.addLoginAsync(newLoginInfo).catch(console.error);
+              try {
+                await Services.logins.addLoginAsync(newLoginInfo);
+              } catch (ex) {
+                console.error(ex);
+              }
               oAuth._isNew = false;
             }
             book.setStringValue("carddav.username", username);
