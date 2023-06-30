@@ -1658,59 +1658,26 @@ function updateComposeItems() {
 /**
  * Disables or restores all toolbar items (menus/buttons) in the window.
  *
- * @param aDisable  true = disable all items. false = restore items to the state
- *                  stored before disabling them.
+ * @param {boolean} disable - Meaning true = disable all items, false = restore
+ *   items to the state stored before disabling them.
  */
-function updateAllItems(aDisable) {
-  function getDisabledState(aElement) {
-    if ("disabled" in aElement) {
-      return aElement.disabled ? "true" : "false";
-    } else if (!aElement.hasAttribute("disabled")) {
-      return "";
-    }
-    return aElement.getAttribute("disabled");
-  }
-
-  function setDisabledState(aElement, aValue) {
-    if ("disabled" in aElement) {
-      aElement.disabled = aValue == "true";
-    } else if (aValue == "") {
-      aElement.removeAttribute("disabled");
+function updateAllItems(disable) {
+  for (let item of document.querySelectorAll(
+    "menu, toolbarbutton, [command], [oncommand]"
+  )) {
+    if (disable) {
+      // Disable all items
+      item.setAttribute("stateBeforeSend", item.getAttribute("disabled"));
+      item.setAttribute("disabled", "disabled");
     } else {
-      aElement.setAttribute("disabled", aValue);
-    }
-  }
-
-  // This array will contain HTMLCollection objects as members.
-  let commandItemCollections = [];
-  commandItemCollections.push(document.getElementsByTagName("menu"));
-  commandItemCollections.push(document.getElementsByTagName("toolbarbutton"));
-  commandItemCollections.push(document.querySelectorAll("[command]"));
-  commandItemCollections.push(document.querySelectorAll("[oncommand]"));
-  for (let itemCollection of commandItemCollections) {
-    for (let item = 0; item < itemCollection.length; item++) {
-      let commandItem = itemCollection[item];
-      if (aDisable) {
-        // Any element can appear multiple times in the commandItemCollections
-        // list so only act on it if we didn't already set the "stateBeforeSend"
-        // attribute on previous visit.
-        if (!commandItem.hasAttribute("stateBeforeSend")) {
-          commandItem.setAttribute(
-            "stateBeforeSend",
-            getDisabledState(commandItem)
-          );
-          setDisabledState(commandItem, "true");
-        }
-      } else if (commandItem.hasAttribute("stateBeforeSend")) {
-        // Any element can appear multiple times in the commandItemCollections
-        // list so only act on it if it still has the "stateBeforeSend"
-        // attribute.
-        setDisabledState(
-          commandItem,
-          commandItem.getAttribute("stateBeforeSend")
-        );
-        commandItem.removeAttribute("stateBeforeSend");
+      // Restore initial state
+      let stateBeforeSend = item.getAttribute("stateBeforeSend");
+      if (stateBeforeSend == "disabled" || stateBeforeSend == "true") {
+        item.setAttribute("disabled", stateBeforeSend);
+      } else {
+        item.removeAttribute("disabled");
       }
+      item.removeAttribute("stateBeforeSend");
     }
   }
 }
