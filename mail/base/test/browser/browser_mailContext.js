@@ -250,6 +250,27 @@ add_task(async function testSingleMessage() {
   await shownPromise;
   checkMenuitems(mailContext, "singleMessageTree");
   mailContext.hidePopup();
+
+  // Open the menu through the keyboard.
+
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  const row = threadTree.getRowAtIndex(0);
+  await row.focus();
+  EventUtils.synthesizeMouseAtCenter(
+    row,
+    {
+      type: "contextmenu",
+      button: 0,
+    },
+    about3Pane
+  );
+  await shownPromise;
+  Assert.ok(
+    BrowserTestUtils.is_visible(mailContext),
+    "Context menu is shown through keyboard action"
+  );
+  mailContext.hidePopup();
+  Assert.ok(BrowserTestUtils.is_hidden(mailContext), "Context menu is hidden");
 });
 
 /**
