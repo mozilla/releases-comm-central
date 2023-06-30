@@ -18,10 +18,6 @@ function icsNSResolver(prefix) {
   return ns[prefix] || null;
 }
 
-function icsXPathFirst(aNode, aExpr, aType) {
-  return cal.xml.evalXPathFirst(aNode, aExpr, icsNSResolver, aType);
-}
-
 var calICSCalendarClassID = Components.ID("{f8438bff-a3c9-4ed5-b23f-2663b5469abf}");
 var calICSCalendarInterfaces = [
   "calICalendar",
@@ -1160,9 +1156,11 @@ class httpHooks {
           cal.LOG("[calICSCalendar] Failed to fetch channel etag");
         }
 
-        self.#etag = icsXPathFirst(
+        self.#etag = cal.xml.evalXPathFirst(
           multistatus,
-          "/D:propfind/D:response/D:propstat/D:prop/D:getetag"
+          "/D:propfind/D:response/D:propstat/D:prop/D:getetag",
+          icsNSResolver,
+          XPathResult.ANY_TYPE
         );
         aRespFunc();
       };

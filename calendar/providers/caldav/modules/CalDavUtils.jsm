@@ -2,21 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-
 /**
  * Various utility functions for the caldav provider
  */
 
-/* exported CalDavXmlns, CalDavTagsToXmlns, CalDavNsUnresolver, CalDavNsResolver, CalDavXPath,
- *          CalDavXPathFirst */
+/* exported CalDavXmlns, CalDavTagsToXmlns, CalDavNsUnresolver, CalDavNsResolver */
 const EXPORTED_SYMBOLS = [
   "CalDavXmlns",
   "CalDavTagsToXmlns",
   "CalDavNsUnresolver",
   "CalDavNsResolver",
-  "CalDavXPath",
-  "CalDavXPathFirst",
 ];
 
 /**
@@ -82,29 +77,4 @@ function CalDavNsResolver(aPrefix) {
   /* eslint-enable id-length */
 
   return namespaces[aPrefix] || null;
-}
-
-/**
- * Run an xpath expression on the given node, using the caldav namespace resolver
- *
- * @param {Element} aNode - The context node to search from
- * @param {string} aExpr - The XPath expression to search for
- * @param {?XPathResult} aType - (optional) Force a result type, must be an XPathResult constant
- * @returns {Element[]} Array of found elements
- */
-function CalDavXPath(aNode, aExpr, aType) {
-  return cal.xml.evalXPath(aNode, aExpr, CalDavNsResolver, aType);
-}
-
-/**
- * Run an xpath expression on the given node, using the caldav namespace resolver. Returns the first
- * result.
- *
- * @param {Element} aNode - The context node to search from
- * @param {string} aExpr - The XPath expression to search for
- * @param {?XPathResult} aType - (optional) Force a result type, must be an XPathResult constant
- * @returns {?Element} The found element, or null.
- */
-function CalDavXPathFirst(aNode, aExpr, aType) {
-  return cal.xml.evalXPathFirst(aNode, aExpr, CalDavNsResolver, aType);
 }

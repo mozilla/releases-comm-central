@@ -20,44 +20,32 @@ var calxml = {
    * - a number, string or boolean value
    * - an array of strings or DOM elements
    *
-   * @param aNode     The context node to search from
+   * @param {Node|Document} aNode     The context node to search from
    * @param aExpr     The XPath expression to search for
    * @param aResolver (optional) The namespace resolver to use for the expression
    * @param aType     (optional) Force a result type, must be an XPathResult constant
    * @returns The result, see above for details.
    */
   evalXPath(aNode, aExpr, aResolver, aType) {
-    const XPR = {
-      // XPathResultType
-      ANY_TYPE: 0,
-      NUMBER_TYPE: 1,
-      STRING_TYPE: 2,
-      BOOLEAN_TYPE: 3,
-      UNORDERED_NODE_ITERATOR_TYPE: 4,
-      ORDERED_NODE_ITERATOR_TYPE: 5,
-      UNORDERED_NODE_SNAPSHOT_TYPE: 6,
-      ORDERED_NODE_SNAPSHOT_TYPE: 7,
-      ANY_UNORDERED_NODE_TYPE: 8,
-      FIRST_ORDERED_NODE_TYPE: 9,
-    };
+    /** @type Document */
     let doc = aNode.ownerDocument ? aNode.ownerDocument : aNode;
     let resolver = aResolver || doc.createNSResolver(doc.documentElement);
-    let resultType = aType || XPR.ANY_TYPE;
+    let resultType = aType || XPathResult.ANY_TYPE;
 
     let result = doc.evaluate(aExpr, aNode, resolver, resultType, null);
     let returnResult, next;
     switch (result.resultType) {
-      case XPR.NUMBER_TYPE:
+      case XPathResult.NUMBER_TYPE:
         returnResult = result.numberValue;
         break;
-      case XPR.STRING_TYPE:
+      case XPathResult.STRING_TYPE:
         returnResult = result.stringValue;
         break;
-      case XPR.BOOLEAN_TYPE:
+      case XPathResult.BOOLEAN_TYPE:
         returnResult = result.booleanValue;
         break;
-      case XPR.UNORDERED_NODE_ITERATOR_TYPE:
-      case XPR.ORDERED_NODE_ITERATOR_TYPE:
+      case XPathResult.UNORDERED_NODE_ITERATOR_TYPE:
+      case XPathResult.ORDERED_NODE_ITERATOR_TYPE:
         returnResult = [];
         while ((next = result.iterateNext())) {
           if (next.nodeType == next.TEXT_NODE || next.nodeType == next.CDATA_SECTION_NODE) {
@@ -69,8 +57,8 @@ var calxml = {
           }
         }
         break;
-      case XPR.UNORDERED_NODE_SNAPSHOT_TYPE:
-      case XPR.ORDERED_NODE_SNAPSHOT_TYPE:
+      case XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE:
+      case XPathResult.ORDERED_NODE_SNAPSHOT_TYPE:
         returnResult = [];
         for (let i = 0; i < result.snapshotLength; i++) {
           next = result.snapshotItem(i);
@@ -83,8 +71,8 @@ var calxml = {
           }
         }
         break;
-      case XPR.ANY_UNORDERED_NODE_TYPE:
-      case XPR.FIRST_ORDERED_NODE_TYPE:
+      case XPathResult.ANY_UNORDERED_NODE_TYPE:
+      case XPathResult.FIRST_ORDERED_NODE_TYPE:
         returnResult = result.singleNodeValue;
         break;
       default:
