@@ -16,3 +16,6 @@ edit-button-context-menu-this-occurrence =
 edit-button-context-menu-all-occurrences =
   .label = Edit all occurrences
   .accesskey = a
+
+description-context-menu-copy-link-text =
+  .label = Copy Link Text

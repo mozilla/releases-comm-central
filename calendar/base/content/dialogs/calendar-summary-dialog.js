@@ -11,6 +11,10 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
+ChromeUtils.defineESModuleGetters(this, {
+  SelectionUtils: "resource://gre/modules/SelectionUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyGetter(this, "gStatusNotification", () => {
   return new MozElements.NotificationBox(async element => {
     let box = document.getElementById("status-notifications");
@@ -319,6 +323,43 @@ function onAttendeeContextMenu(event) {
   }
 
   copyMenu.hidden = false;
+}
+
+/**
+ * Initializes the context menu used for the event description area in the
+ * event summary.
+ *
+ * @param {Event} event
+ */
+function openDescriptionContextMenu(event) {
+  const popup = document.getElementById("description-popup");
+  const link = event.target.closest("a") ? event.target.closest("a").getAttribute("href") : null;
+  const linkText = event.target.closest("a") ? event.target.closest("a").text : null;
+  const copyLinkTextMenuItem = document.getElementById("description-context-menu-copy-link-text");
+  const copyLinkLocationMenuItem = document.getElementById(
+    "description-context-menu-copy-link-location"
+  );
+  const selectionCollapsed = SelectionUtils.getSelectionDetails(window).docSelectionIsCollapsed;
+
+  // Hide copy command if there is no text selected.
+  popup.querySelector('[command="cmd_copy"]').hidden = selectionCollapsed;
+
+  copyLinkLocationMenuItem.hidden = !link;
+  copyLinkTextMenuItem.hidden = !link;
+  popup.querySelector("#calendar-summary-description-context-menuseparator").hidden =
+    selectionCollapsed && !link;
+  copyLinkTextMenuItem.setAttribute("text", linkText);
+
+  popup.openPopupAtScreen(event.screenX, event.screenY, true, event);
+  event.preventDefault();
+}
+
+/**
+ * Copies the link text in a calender event description
+ * @param {Event} event
+ */
+async function copyLinkTextToClipboard(event) {
+  return navigator.clipboard.writeText(event.target.getAttribute("text"));
 }
 
 /**

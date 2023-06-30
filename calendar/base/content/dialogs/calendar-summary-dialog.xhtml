@@ -180,6 +180,22 @@
           oncommand="sendMailToAttendees()"
         />
       </menupopup>
+      <menupopup id="description-popup" onpopupshowing="goUpdateGlobalEditMenuItems(true);">
+        <menuitem data-l10n-id="text-action-copy" command="cmd_copy" />
+        <menuitem
+          id="description-context-menu-copy-link-location"
+          label="&calendar.copylink.label;"
+          accesskey="&calendar.copylink.accesskey;"
+          oncommand="goDoCommand('cmd_copyLink')"
+        />
+        <menuitem
+          id="description-context-menu-copy-link-text"
+          data-l10n-id="description-context-menu-copy-link-text"
+          oncommand="copyLinkTextToClipboard(event)"
+        />
+        <menuseparator id="calendar-summary-description-context-menuseparator" />
+        <menuitem data-l10n-id="text-action-select-all" command="cmd_selectAll" />
+      </menupopup>
       <hbox id="calendar-summary-dialog-custom-button-footer" hidden="true">
         <spacer class="button-spacer" flex="1" />
 

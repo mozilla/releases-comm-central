@@ -161,7 +161,8 @@
           </hbox>
           <iframe class="item-description"
                   type="content"
-                  flex="1">
+                  flex="1"
+                  oncontextmenu="openDescriptionContextMenu(event);">
           </iframe>
         </box>
 
@@ -699,7 +700,7 @@
 
       itemDescription.contentDocument.body.appendChild(docFragment);
 
-      let link = itemDescription.contentDocument.createElement("link");
+      const link = itemDescription.contentDocument.createElement("link");
       link.rel = "stylesheet";
       link.href = "chrome://messenger/skin/shared/editorContent.css";
       itemDescription.contentDocument.head.appendChild(link);
