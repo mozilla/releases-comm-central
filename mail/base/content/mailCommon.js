@@ -841,7 +841,17 @@ var dbViewWrapperListener = {
       return true;
     },
     selectedMessageRemoved() {
-      dbViewWrapperListener.onMessagesRemoved();
+      // We need to invalidate the tree, but this method could get called
+      // multiple times, so we won't invalidate until we get to the end of the
+      // event loop.
+      if (this._timeout) {
+        return;
+      }
+      this._timeout = setTimeout(() => {
+        dbViewWrapperListener.onMessagesRemoved();
+        window.threadTree?.invalidate();
+        delete this._timeout;
+      });
     },
   },
 
