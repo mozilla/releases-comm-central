@@ -25,11 +25,11 @@
           <xul:image class="autocomplete-icon" allowevents="true"/>
         </children>
 
-        <xul:hbox class="textbox-input-box" flex="1" xbl:inherits="context,tooltiptext=inputtooltiptext">
+        <xul:hbox class="textbox-input-box" flex="1" xbl:inherits="context">
           <children/>
           <html:input anonid="input" class="autocomplete-textbox textbox-input"
                       allowevents="true"
-                      xbl:inherits="tooltiptext=inputtooltiptext,value,type,maxlength,disabled,size,readonly,placeholder,tabindex,accesskey,mozactionhint,userAction"/>
+                      xbl:inherits="value,type,maxlength,disabled,size,readonly,placeholder,tabindex,accesskey,mozactionhint,userAction"/>
         </xul:hbox>
         <children includes="hbox"/>
       </xul:hbox>
