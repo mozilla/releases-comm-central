@@ -29,9 +29,25 @@ var {
   set_filter_text,
   toggle_boolean_constraints,
   toggle_tag_constraints,
+  toggle_quick_filter_bar,
+  cleanup_qfb_button,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/QuickFilterBarHelpers.jsm"
 );
+
+add_setup(async function () {
+  // Quick filter bar is hidden by default, need to toggle it on. To toggle
+  // quick filter bar, we need to be inside folder
+  const folder = await create_folder("QuickFilterBarFilterStickySetup");
+  await be_in_folder(folder);
+  await toggle_quick_filter_bar();
+});
+
+registerCleanupFunction(async function () {
+  await cleanup_qfb_button();
+  // Quick filter bar is hidden by default, need to toggle it off.
+  await toggle_quick_filter_bar();
+});
 
 /**
  * Persist the current settings through folder change and inherit into a new tab.
