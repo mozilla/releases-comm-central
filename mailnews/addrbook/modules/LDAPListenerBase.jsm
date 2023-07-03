@@ -12,7 +12,7 @@ class LDAPListenerBase {
   /**
    * @see nsILDAPMessageListener
    */
-  onLDAPInit() {
+  async onLDAPInit() {
     let outPassword = {};
     if (this._directory.authDn && this._directory.saslMechanism != "GSSAPI") {
       // If authDn is set, we're expected to use it to get a password.
@@ -23,7 +23,7 @@ class LDAPListenerBase {
       let authPrompt = Services.ww.getNewAuthPrompter(
         Services.wm.getMostRecentWindow(null)
       );
-      authPrompt.promptPassword(
+      await authPrompt.asyncPromptPassword(
         bundle.GetStringFromName("authPromptTitle"),
         bundle.formatStringFromName("authPromptText", [
           this._directory.lDAPURL.host,

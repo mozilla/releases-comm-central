@@ -95,7 +95,7 @@ function getLDAPOperation() {
   gLdapOperation.init(gLdapConnection, new LDAPMessageListener(), null);
 }
 
-function getPassword() {
+async function getPassword() {
   // we only need a password if we are using credentials
   if (!gLogin) {
     return null;
@@ -107,7 +107,7 @@ function getPassword() {
   // nsLDAPAutocompleteSession uses asciiHost instead of host for the prompt
   // text, I think we should be consistent.
   if (
-    authPrompter.promptPassword(
+    await authPrompter.asyncPromptPassword(
       strBundle.getString("authPromptTitle"),
       strBundle.getFormattedString("authPromptText", [
         gLdapServerURL.asciiHost,
@@ -129,10 +129,10 @@ function getPassword() {
 class BindListener {
   QueryInterface = ChromeUtils.generateQI(["nsILDAPMessageListener"]);
 
-  onLDAPInit(conn, status) {
+  async onLDAPInit(conn, status) {
     // Kick off bind.
     getLDAPOperation();
-    gLdapOperation.simpleBind(getPassword());
+    gLdapOperation.simpleBind(await getPassword());
   }
 
   onLDAPMessage(message) {}
