@@ -390,7 +390,10 @@ class UnifiedToolbar extends HTMLElement {
         elementTypeOffset[itemId] = nthChild + 1;
         existingElement.hidden = false;
         if (
-          !existingElement.details.skipFocus &&
+          !(
+            existingElement.details?.skipFocus ||
+            lazy.SKIP_FOCUS_ITEM_IDS.has(itemId)
+          ) &&
           existingElement.querySelector(".live-content button:not([disabled])")
         ) {
           if (focusableElementSet) {

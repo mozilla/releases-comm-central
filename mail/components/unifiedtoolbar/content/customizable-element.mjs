@@ -152,13 +152,13 @@ export default class CustomizableElement extends HTMLLIElement {
     if (!extensionAction?.extension) {
       return;
     }
-    if (!customElements.get("extension-action-button")) {
-      await import("./extension-action-button.mjs");
-    }
     this.details = {
       allowMultiple: false,
       spaces: extensionAction.allowedSpaces ?? ["mail"],
     };
+    if (!customElements.get("extension-action-button")) {
+      await import("./extension-action-button.mjs");
+    }
     const { extension } = extensionAction;
     this.classList.add("extension-action");
     const extensionButton = document.createElement("button", {
