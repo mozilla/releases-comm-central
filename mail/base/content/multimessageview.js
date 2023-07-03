@@ -160,7 +160,7 @@ MultiMessageSummary.prototype = {
 
     // Enable/disable the archive button as appropriate.
     let archiveBtn = document.getElementById("hdrArchiveButton");
-    archiveBtn.collapsed = !MessageArchiver.canArchive(aMessages);
+    archiveBtn.hidden = !MessageArchiver.canArchive(aMessages);
 
     // Set archive and delete button listeners.
     let topChromeWindow = window.browsingContext.topChromeWindow;
