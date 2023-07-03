@@ -70,6 +70,8 @@ menulist::part(icon) {
 
 #addressingWidget {
   -moz-user-focus: none;
+  height: 15em;
+  margin-bottom: 12px;
 }
 
 .dummy-row,
