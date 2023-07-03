@@ -141,6 +141,7 @@ add_setup(async function () {
   let messages = [
     ...generator.makeMessages({ count: 5 }),
     ...generator.makeMessages({ count: 5, msgsPerThread: 5 }),
+    ...generator.makeMessages({ count: 200 }),
   ];
   let messageStrings = messages.map(message => message.toMboxString());
   testFolder.addMessageBatch(messageStrings);
@@ -222,6 +223,7 @@ add_task(async function testSingleMessage() {
   let threadTree = about3Pane.threadTree;
   let loadedPromise = BrowserTestUtils.browserLoaded(about3Pane.messageBrowser);
   about3Pane.threadTree.selectedIndex = 0;
+  threadTree.scrollToIndex(0, true);
   await loadedPromise;
 
   // Open the menu from the message pane.
@@ -270,6 +272,33 @@ add_task(async function testSingleMessage() {
     "Context menu is shown through keyboard action"
   );
   mailContext.hidePopup();
+
+  // Open the menu on a message that is scrolled out of view.
+
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  await row.focus();
+  threadTree.scrollToIndex(200, true);
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
+  Assert.equal(threadTree.currentIndex, 0, "Row 0 is the current row");
+  Assert.ok(
+    !threadTree.getRowAtIndex(threadTree.currentIndex),
+    "Current row is scrolled out of view"
+  );
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree,
+    {
+      type: "contextmenu",
+      button: 0,
+    },
+    about3Pane
+  );
+  await shownPromise;
+  Assert.ok(
+    threadTree.getRowAtIndex(threadTree.currentIndex),
+    "Current row is scrolled into view when showing context menu"
+  );
+  mailContext.hidePopup();
+
   Assert.ok(BrowserTestUtils.is_hidden(mailContext), "Context menu is hidden");
 });
 
@@ -287,6 +316,7 @@ add_task(async function testMultipleMessages() {
   let about3Pane = tabmail.currentAbout3Pane;
   let mailContext = about3Pane.document.getElementById("mailContext");
   let threadTree = about3Pane.threadTree;
+  threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
 
   // The message pane browser isn't visible.
@@ -308,6 +338,34 @@ add_task(async function testMultipleMessages() {
     about3Pane
   );
   checkMenuitems(mailContext, "multipleMessagesTree");
+  mailContext.hidePopup();
+
+  // Open the menu in the thread pane on a message scrolled out of view.
+  threadTree.selectAll();
+  threadTree.currentIndex = 200;
+  await TestUtils.waitForTick();
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
+  threadTree.scrollToIndex(0, true);
+  await new Promise(resolve => window.requestAnimationFrame(resolve));
+  Assert.ok(
+    !threadTree.getRowAtIndex(threadTree.currentIndex),
+    "Current row is scrolled out of view"
+  );
+
+  const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree,
+    {
+      type: "contextmenu",
+      button: 0,
+    },
+    about3Pane
+  );
+  await shownPromise;
+  Assert.ok(
+    threadTree.getRowAtIndex(threadTree.currentIndex),
+    "Current row is scrolled into view when popup is shown"
+  );
   mailContext.hidePopup();
 });
 
