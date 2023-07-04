@@ -3618,13 +3618,12 @@ class FolderTreeRow extends HTMLLIElement {
     }
 
     Promise.allSettled(ariaLabelPromises).then(results => {
-      this.setAttribute(
-        "aria-label",
-        results
-          .map(settledPromise => settledPromise.value ?? "")
-          .filter(value => value.trim() != "")
-          .join(", ")
-      );
+      const folderLabel = results
+        .map(settledPromise => settledPromise.value ?? "")
+        .filter(value => value.trim() != "")
+        .join(", ");
+      this.setAttribute("aria-label", folderLabel);
+      this.title = folderLabel;
     });
   }
 
