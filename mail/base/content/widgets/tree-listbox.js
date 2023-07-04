@@ -198,6 +198,18 @@
             }
             break;
           }
+          case "Enter": {
+            const selected = this.selectedRow;
+            if (!selected?.classList.contains("children")) {
+              return;
+            }
+            if (selected.classList.contains("collapsed")) {
+              this.expandRow(selected);
+            } else {
+              this.collapseRow(selected);
+            }
+            break;
+          }
           default:
             return;
         }

@@ -649,6 +649,17 @@ async function subtestExpandCollapse() {
   checkRowsAreHidden();
   checkSelected(6, "row-3-1-1");
 
+  // Toggle expansion of row 3-1 with Enter key.
+
+  list.selectedIndex = 5;
+  pressKey("row-3-1", "KEY_Enter", "collapsed");
+  checkRowsAreHidden("row-3-1-1", "row-3-1-2");
+  checkSelected(5, "row-3-1");
+
+  pressKey("row-3-1", "KEY_Enter", "expanded");
+  checkRowsAreHidden();
+  checkSelected(5, "row-3-1");
+
   // Same again, with a RTL tree.
 
   info("switching to RTL");
