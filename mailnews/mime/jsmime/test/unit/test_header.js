@@ -3,6 +3,17 @@ define(function (require) {
   var headerparser = require("jsmime").headerparser;
   var assert = require("assert");
 
+  function smartDeepEqual(actual, expected) {
+    assert.deepEqual(actual, expected);
+    // XXX: instanceof Map don't work for actual. Unclear why.
+    if ("entries" in actual && "entries" in expected) {
+      assert.deepEqual(
+        Array.from(actual.entries()),
+        Array.from(expected.entries())
+      );
+    }
+  }
+
   function arrayTest(data, fn) {
     fn.toString = function () {
       let text = Function.prototype.toString.call(this);
@@ -212,7 +223,7 @@ define(function (require) {
         ],
         [
           "attachment; filename=IT839\x04\xB5(m8)2.pdf;",
-          ["attachment", { filename: "IT839\u0004\u00b5(m8)2.pdf" }],
+          ["attachment", { filename: "IT839\u00b5(m8)2.pdf" }],
         ],
         ["attachment; filename*=utf-8''%41", ["attachment", { filename: "A" }]],
         // See bug 651185 and bug 703015
@@ -289,6 +300,11 @@ define(function (require) {
             "-8''5987",
           ["attachment", { filename: "5987" }],
         ],
+        // ABC\u202Etxt.zip dir switch char in middle.
+        [
+          "attachment; filename*=UTF-8''%41%42%43%E2%80%AE%2E%74%78%74%2E%7A%69%70",
+          ["attachment", { filename: "ABC .txt.zip" }],
+        ],
       ];
       header_tests.forEach(function (data) {
         arrayTest(data, function () {
@@ -297,7 +313,7 @@ define(function (require) {
             testMap.set(key, data[1][1][key]);
           }
           testMap.preSemi = data[1][0];
-          assert.deepEqual(
+          smartDeepEqual(
             headerparser.parseParameterHeader(data[0], true, true),
             testMap
           );

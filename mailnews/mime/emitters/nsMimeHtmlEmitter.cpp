@@ -297,37 +297,43 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
                                                    bool aIsExternalAttachment) {
   nsresult rv = NS_OK;
 
+  nsCString uriString;
+
+  nsCOMPtr<nsIMsgMessageUrl> msgurl(do_QueryInterface(mURL, &rv));
   if (NS_SUCCEEDED(rv)) {
-    nsCString uriString;
+    // HACK: news urls require us to use the originalSpec. Everyone
+    // else uses GetURI to get the RDF resource which describes the message.
+    nsCOMPtr<nsINntpUrl> nntpUrl(do_QueryInterface(mURL, &rv));
+    if (NS_SUCCEEDED(rv) && nntpUrl)
+      rv = msgurl->GetOriginalSpec(uriString);
+    else
+      rv = msgurl->GetUri(uriString);
+  }
 
-    nsCOMPtr<nsIMsgMessageUrl> msgurl(do_QueryInterface(mURL, &rv));
-    if (NS_SUCCEEDED(rv)) {
-      // HACK: news urls require us to use the originalSpec. Everyone
-      // else uses GetURI to get the RDF resource which describes the message.
-      nsCOMPtr<nsINntpUrl> nntpUrl(do_QueryInterface(mURL, &rv));
-      if (NS_SUCCEEDED(rv) && nntpUrl)
-        rv = msgurl->GetOriginalSpec(uriString);
-      else
-        rv = msgurl->GetUri(uriString);
-    }
+  // The attachment name has already been RFC2047 processed
+  // upstream of us.  (Namely, mime_decode_filename has been called, deferring
+  // to nsIMimeHeaderParam.decodeParameter.)
+  // But we'l send it through decoding ourselves as well, since we do some
+  // more adjustments, such as removing spoofy chars.
 
-    // we need to convert the attachment name from UTF-8 to unicode before
-    // we emit it.  The attachment name has already been rfc2047 processed
-    // upstream of us.  (Namely, mime_decode_filename has been called, deferring
-    // to nsIMimeHeaderParam.decodeParameter.)
-    nsString unicodeHeaderValue;
-    CopyUTF8toUTF16(name, unicodeHeaderValue);
+  nsCString decodedName(name);
+  nsCOMPtr<nsIMimeConverter> mimeConverter =
+      do_GetService("@mozilla.org/messenger/mimeconverter;1", &rv);
 
-    nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel);
-    if (mailChannel) {
-      mailChannel->HandleAttachmentFromMIME(nsDependentCString(contentType),
-                                            nsDependentCString(url), name,
-                                            uriString, aIsExternalAttachment);
-    }
+  if (NS_SUCCEEDED(rv)) {
+    mimeConverter->DecodeMimeHeaderToUTF8(name, nullptr, false, true,
+                                          decodedName);
+  }
+
+  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel);
+  if (mailChannel) {
+    mailChannel->HandleAttachmentFromMIME(nsDependentCString(contentType),
+                                          nsDependentCString(url), decodedName,
+                                          uriString, aIsExternalAttachment);
   }
 
   // List the attachments for printing.
-  rv = StartAttachmentInBody(name, contentType, url);
+  rv = StartAttachmentInBody(decodedName, contentType, url);
 
   return rv;
 }

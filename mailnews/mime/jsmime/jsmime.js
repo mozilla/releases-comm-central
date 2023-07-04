@@ -714,7 +714,7 @@
           } catch (ex) {}
         }
       }
-      return headerValue;
+      return cleanToken(headerValue);
     }
 
     /**
@@ -740,6 +740,7 @@
        * Decode a single RFC 2047 token. This function is inline so that we can
        * easily close over the lastCharset/currentDecoder variables, needed for
        * handling bad RFC 2047 productions properly.
+       * E.g. =?iso-8859-1?q?this=20is=20some=20text?=
        */
       function decode2047Token(token, isLastToken) {
         let tokenParts = token.split("?");
@@ -866,7 +867,7 @@
 
       // After the for loop, we'll have a set of decoded strings. Concatenate them
       // together to make the return value.
-      return components.join("");
+      return cleanToken(components.join(""));
     }
 
     // Structured field decoders
@@ -1342,6 +1343,10 @@
             // Bad charset, don't add anything.
           }
         }
+      }
+
+      for (let [key, value] of values.entries()) {
+        values.set(key, cleanToken(value));
       }
 
       // Finally, return the values computed above.

@@ -153,6 +153,16 @@ add_setup(async function () {
         },
       ],
     },
+    // No texdir change in the filename please.
+    {
+      attachments: [
+        {
+          body: textAttachment,
+          filename: "ABC\u202EE.txt.zip",
+          sanitizedFilename: "ABC.E.txt.zip",
+        },
+      ],
+    },
   ];
 
   // Add another evilly-named attachment for Windows tests, to ensure that
