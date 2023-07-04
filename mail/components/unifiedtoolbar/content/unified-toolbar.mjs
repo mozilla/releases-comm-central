@@ -15,6 +15,10 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+var { AppConstants } = ChromeUtils.importESModule(
+  "resource://gre/modules/AppConstants.sys.mjs"
+);
+
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   getDefaultItemIdsForSpace: "resource:///modules/CustomizableItems.sys.mjs",
@@ -163,6 +167,10 @@ class UnifiedToolbar extends HTMLElement {
       .addEventListener("command", this.#handleCustomizeCommand);
 
     document
+      .getElementById("menuBarToggleVisible")
+      .addEventListener("command", this.#handleMenuBarCommand);
+
+    document
       .getElementById("spacesToolbar")
       .addEventListener("spacechange", this.#handleSpaceChange);
 
@@ -215,6 +223,24 @@ class UnifiedToolbar extends HTMLElement {
     event.preventDefault();
     event.stopPropagation();
     const popup = document.getElementById("unifiedToolbarMenu");
+
+    // If not Mac OS, set checked attribute for menu item, otherwise remove item.
+    const menuBarMenuItem = document.getElementById("menuBarToggleVisible");
+    if (AppConstants.platform != "macosx") {
+      const menubarToolbar = document.getElementById("toolbar-menubar");
+      menuBarMenuItem.setAttribute(
+        "checked",
+        menubarToolbar.getAttribute("autohide") != "true"
+      );
+    } else if (menuBarMenuItem) {
+      menuBarMenuItem.remove();
+      // Remove the menubar separator as well.
+      const menuBarSeparator = document.getElementById(
+        "menuBarToggleMenuSeparator"
+      );
+      menuBarSeparator.remove();
+    }
+
     popup.openPopupAtScreen(event.screenX, event.screenY, true, event);
     if (gSpacesToolbar.isLoaded) {
       document
@@ -230,6 +256,20 @@ class UnifiedToolbar extends HTMLElement {
 
   #handleCustomizeCommand = () => {
     this.showCustomization();
+  };
+
+  #handleMenuBarCommand = () => {
+    const menubarToolbar = document.getElementById("toolbar-menubar");
+    const menuItem = document.getElementById("menuBarToggleVisible");
+
+    if (menubarToolbar.getAttribute("autohide") != "true") {
+      menubarToolbar.setAttribute("autohide", "true");
+      menuItem.removeAttribute("checked");
+    } else {
+      menuItem.setAttribute("checked", true);
+      menubarToolbar.removeAttribute("autohide");
+    }
+    Services.xulStore.persist(menubarToolbar, "autohide");
   };
 
   #handleSpaceChange = event => {
