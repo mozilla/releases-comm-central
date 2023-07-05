@@ -245,19 +245,18 @@ var statusSelector = {
   },
 
   userIconClick() {
-    const nsIFilePicker = Ci.nsIFilePicker;
-    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    let fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
     let bundle = Services.strings.createBundle(
       "chrome://messenger/locale/chat.properties"
     );
     fp.init(
       window,
       bundle.GetStringFromName("userIconFilePickerTitle"),
-      nsIFilePicker.modeOpen
+      Ci.nsIFilePicker.modeOpen
     );
-    fp.appendFilters(nsIFilePicker.filterImages);
+    fp.appendFilters(Ci.nsIFilePicker.filterImages);
     fp.open(rv => {
-      if (rv != nsIFilePicker.returnOK || !fp.file) {
+      if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
         return;
       }
       IMServices.core.globalUserStatus.setUserIcon(fp.file);

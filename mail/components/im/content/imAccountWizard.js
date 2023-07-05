@@ -502,9 +502,8 @@ var accountWizard = {
     let prefURL = PREF_EXTENSIONS_GETMOREPROTOCOLSURL;
     var getMore = document.getElementById("getMoreProtocols");
     var showGetMore = false;
-    const nsIPrefBranch = Ci.nsIPrefBranch;
 
-    if (Services.prefs.getPrefType(prefURL) != nsIPrefBranch.PREF_INVALID) {
+    if (Services.prefs.getPrefType(prefURL) != Ci.nsIPrefBranch.PREF_INVALID) {
       try {
         var getMoreURL = Services.urlFormatter.formatURLPref(prefURL);
         getMore.setAttribute("getMoreURL", getMoreURL);
