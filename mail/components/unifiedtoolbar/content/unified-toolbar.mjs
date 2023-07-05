@@ -476,7 +476,7 @@ class UnifiedToolbar extends HTMLElement {
         element.remove();
       }
     }
-    this.#showToolbarForSpace(gSpacesToolbar.currentSpace?.name ?? "mail");
+    this.#showToolbarForSpace(gSpacesToolbar.currentSpace?.name ?? "default");
     document
       .getElementById("cmd_CustomizeMailToolbar")
       .removeAttribute("disabled");

@@ -332,13 +332,23 @@ class UnifiedToolbarCustomization extends HTMLElement {
    *   be active.
    */
   toggle(visible) {
-    if (visible && gSpacesToolbar.currentSpace) {
+    if (visible) {
       this.initialize(true);
-      document
-        .getElementById(
+      let tabToSelect;
+      if (gSpacesToolbar.currentSpace) {
+        tabToSelect = document.getElementById(
           `unified-toolbar-customization-tab-${gSpacesToolbar.currentSpace.name}`
-        )
-        ?.select();
+        );
+      }
+      if (
+        !tabToSelect &&
+        !this.querySelector(`unified-toolbar-tab[selected="true"]`)
+      ) {
+        tabToSelect = this.querySelector("unified-toolbar-tab");
+      }
+      if (tabToSelect) {
+        tabToSelect.select();
+      }
     }
 
     document.getElementById("tabmail").globalOverlay = visible;
