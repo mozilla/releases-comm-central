@@ -62,14 +62,6 @@
 
             Services.obs.removeObserver(this.observer, "conversation-loaded");
 
-            // Report the active chat message theme via telemetry. This is not
-            // inside the conv browser itself, since the browser is also used
-            // for the theme preview in the settings.
-            Services.telemetry.scalarSet(
-              "tb.chat.active_message_theme",
-              `${this.convBrowser.theme.name}:${this.convBrowser.theme.variant}`
-            );
-
             return;
           }
 

@@ -572,20 +572,3 @@ tb.ui.interaction:
     release_channel_collection: opt-out
     record_in_processes:
       - "main"
-
-tb.chat:
-  active_message_theme:
-    bug_numbers:
-      - 1767004
-    description: >
-      Records the currently active chat message theme and variant.
-    expires: "117"
-    kind: string
-    keyed: false
-    notification_emails:
-      - "telemetry-client-dev@thunderbird.net"
-    products:
-      - "thunderbird"
-    release_channel_collection: opt-out
-    record_in_processes:
-      - "main"
