@@ -223,9 +223,18 @@ class LDAPMessageListener {
     }
 
     if (Ci.nsILDAPMessage.RES_SEARCH_ENTRY == message.type) {
-      let outBinValues = message.getBinaryValues(USER_CERT_ATTRIBUTE);
-      for (let i = 0; i < outBinValues.length; ++i) {
-        importCert(outBinValues[i]);
+      let outBinValues = null;
+      try {
+        // This call may throw if the result message is empty or doesn't
+        // contain this attribute.
+        // It's an allowed condition that the attribute is missing on
+        // the server, so we silently ignore a failure to obtain it.
+        outBinValues = message.getBinaryValues(USER_CERT_ATTRIBUTE);
+      } catch (ex) {}
+      if (outBinValues) {
+        for (let i = 0; i < outBinValues.length; ++i) {
+          importCert(outBinValues[i]);
+        }
       }
     }
   }
