@@ -116,9 +116,20 @@ add_task(async function test_open_customization() {
 add_task(async function test_add_item() {
   const initialState = getState();
   const customization = await openCustomization();
+  const firstTab = customization.querySelector("unified-toolbar-tab");
+  await TestUtils.waitForCondition(
+    () => document.activeElement === firstTab,
+    "Focus on first tab"
+  );
   EventUtils.synthesizeKey("KEY_Tab");
   // Focus on toolbar preview.
-  await TestUtils.waitForTick();
+  const tabPane = customization.querySelector(
+    "unified-toolbar-customization-pane:not([hidden])"
+  );
+  await TestUtils.waitForCondition(
+    () => document.activeElement === tabPane,
+    "Focus in visible tab pane"
+  );
   EventUtils.synthesizeKey("KEY_Tab");
   // Focus on search box.
   await TestUtils.waitForTick();
@@ -126,6 +137,15 @@ add_task(async function test_add_item() {
   // Focus on search box button.
   await TestUtils.waitForTick();
   EventUtils.synthesizeKey("KEY_Tab");
+  // Focus possibly on the scroll container.
+  if (
+    tabPane.shadowRoot?.activeElement.classList.contains(
+      "customization-palettes"
+    )
+  ) {
+    await TestUtils.waitForTick();
+    EventUtils.synthesizeKey("KEY_Tab");
+  }
   // Focus on mail space palette.
   await TestUtils.waitForTick();
   EventUtils.synthesizeKey("KEY_Enter");
