@@ -5816,7 +5816,6 @@ nsMsgDBView::OnHdrDeleted(nsIMsgDBHdr* aHdrChanged, nsMsgKey aParentKey,
     if (isMsgSelected) {
       // Now tell the front end that the delete happened.
       commandUpdater->SelectedMessageRemoved();
-      m_deletingRows = false;
     }
   }
 
