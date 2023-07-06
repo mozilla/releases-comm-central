@@ -450,20 +450,19 @@ function setupFixedUI() {
 }
 
 function BrowseForNewsrc() {
-  const nsIFilePicker = Ci.nsIFilePicker;
-  const nsIFile = Ci.nsIFile;
-
   var newsrcTextBox = document.getElementById("nntp.newsrcFilePath");
-  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
   fp.init(
     window,
     document.getElementById("browseForNewsrc").getAttribute("filepickertitle"),
-    nsIFilePicker.modeSave
+    Ci.nsIFilePicker.modeSave
   );
 
   var currentNewsrcFile;
   try {
-    currentNewsrcFile = Cc["@mozilla.org/file/local;1"].createInstance(nsIFile);
+    currentNewsrcFile = Cc["@mozilla.org/file/local;1"].createInstance(
+      Ci.nsIFile
+    );
     currentNewsrcFile.initWithPath(newsrcTextBox.value);
   } catch (e) {
     dump("Failed to create nsIFile instance for the current newsrc file.\n");
@@ -474,10 +473,10 @@ function BrowseForNewsrc() {
     fp.defaultString = currentNewsrcFile.leafName;
   }
 
-  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
   fp.open(rv => {
-    if (rv != nsIFilePicker.returnOK || !fp.file) {
+    if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
       return;
     }
     newsrcTextBox.value = fp.file.path;

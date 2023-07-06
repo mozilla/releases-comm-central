@@ -11,21 +11,20 @@ var { MailServices } = ChromeUtils.import(
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 function BrowseForLocalFolders() {
-  const nsIFilePicker = Ci.nsIFilePicker;
-  const nsIFile = Ci.nsIFile;
-
   var currentFolderTextBox = document.getElementById("server.localPath");
-  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
   fp.init(
     window,
     document
       .getElementById("browseForLocalFolder")
       .getAttribute("filepickertitle"),
-    nsIFilePicker.modeGetFolder
+    Ci.nsIFilePicker.modeGetFolder
   );
 
-  var currentFolder = Cc["@mozilla.org/file/local;1"].createInstance(nsIFile);
+  var currentFolder = Cc["@mozilla.org/file/local;1"].createInstance(
+    Ci.nsIFile
+  );
   try {
     currentFolder.initWithPath(currentFolderTextBox.value);
     fp.displayDirectory = currentFolder;
@@ -36,7 +35,7 @@ function BrowseForLocalFolders() {
   }
 
   fp.open(rv => {
-    if (rv != nsIFilePicker.returnOK || !fp.file) {
+    if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
       return;
     }
     // Retrieve the selected folder.

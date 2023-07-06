@@ -360,14 +360,12 @@ function saveAddressingAndCompositionSettings(identity) {
 }
 
 function selectFile() {
-  const nsIFilePicker = Ci.nsIFilePicker;
-
-  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 
   var prefBundle = document.getElementById("bundle_prefs");
   var title = prefBundle.getString("choosefile");
-  fp.init(window, title, nsIFilePicker.modeOpen);
-  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.init(window, title, Ci.nsIFilePicker.modeOpen);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
   // Get current signature folder, if there is one.
   // We can set that to be the initial folder so that users
@@ -378,7 +376,7 @@ function selectFile() {
   }
 
   fp.open(rv => {
-    if (rv != nsIFilePicker.returnOK || !fp.file) {
+    if (rv != Ci.nsIFilePicker.returnOK || !fp.file) {
       return;
     }
     document.getElementById("identity.signature").value = fp.file.path;

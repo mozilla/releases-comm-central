@@ -33,8 +33,6 @@ var contentWindow;
 
 var gPageData;
 
-var nsIMsgIdentity = Ci.nsIMsgIdentity;
-var nsIMsgIncomingServer = Ci.nsIMsgIncomingServer;
 var gPrefsBundle, gMessengerBundle;
 
 // the current nsIMsgAccount
