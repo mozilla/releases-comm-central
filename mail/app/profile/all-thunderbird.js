@@ -1006,7 +1006,7 @@ pref("devtools.gridinspector.showGridLineNumbers", false);
 pref("devtools.gridinspector.showInfiniteLines", false);
 // Max number of grid highlighters that can be displayed
 pref("devtools.gridinspector.maxHighlighters", 3);
- 
+
 // Whether or not simplified highlighters should be used when
 // prefers-reduced-motion is enabled.
 pref("devtools.inspector.simple-highlighters-reduced-motion", false);
@@ -1409,10 +1409,10 @@ pref("services.sync.engine.identities", true);
 pref("services.sync.engine.prefs", false);
 #endif
 
-// End of year donation appeal.
-pref("app.donation.eoy.version", 1);
+// Donation appeal.
+pref("app.donation.eoy.version", 2);
 pref("app.donation.eoy.version.viewed", 0);
-pref("app.donation.eoy.url", "https://www.thunderbird.net/thunderbird/102.0/eoy/");
+pref("app.donation.eoy.url", "https://www.thunderbird.net/thunderbird/115.0/appeal/");
 
 // IMAP-JS disabled, Bug 1707547.
 pref("mailnews.imap.jsmodule", false);
