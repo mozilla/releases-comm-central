@@ -913,7 +913,8 @@ class TreeView extends HTMLElement {
     // are no rows already in the buffer.
     if (
       this.#lastBufferRowIndex == 0 &&
-      this.table.body.childElementCount == 0
+      this.table.body.childElementCount == 0 &&
+      ranges.visibleRows.first == 0
     ) {
       this._addRowAtIndex(0);
     }
