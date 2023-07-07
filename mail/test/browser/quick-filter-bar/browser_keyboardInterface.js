@@ -38,18 +38,9 @@ var folder;
 
 add_setup(async function () {
   folder = await create_folder("QuickFilterBarKeyboardInterface");
-  // We need a message so we can select it so we can find in message.
+  // we need a message so we can select it so we can find in message
   await make_message_sets_in_folders([folder], [{ count: 1 }]);
   await be_in_folder(folder);
-
-  // Quick filter bar is hidden by default, need to toggle it on.
-  await toggle_quick_filter_bar();
-});
-
-registerCleanupFunction(async function () {
-  await cleanup_qfb_button();
-  // Quick filter bar is hidden by default, need to toggle it off.
-  await toggle_quick_filter_bar();
 });
 
 /**
@@ -176,6 +167,10 @@ add_task(function test_control_shift_k_shows_quick_filter_bar() {
   EventUtils.synthesizeKey("VK_ESCAPE", {});
   assert_quick_filter_bar_visible(false);
   teardownTest();
+});
+
+registerCleanupFunction(async () => {
+  await cleanup_qfb_button();
 });
 
 function teardownTest() {

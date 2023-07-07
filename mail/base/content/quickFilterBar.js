@@ -56,17 +56,15 @@ var quickFilterBar = {
     this._bindUI();
     this.updateRovingTab();
 
-    // Hide the toolbar, unless it has been previously shown.
+    // Show the toolbar, unless it has been previously hidden.
     if (
       Services.xulStore.getValue(
         XULSTORE_URL,
         "quickFilterBar",
         "collapsed"
-      ) === "false"
+      ) !== "true"
     ) {
-      this._showFilterBar(true, true);
-    } else {
-      this._showFilterBar(false, true);
+      this._showFilterBar(true);
     }
 
     commandController.registerCallback("cmd_showQuickFilterBar", () => {
@@ -435,31 +433,20 @@ var quickFilterBar = {
     // dump(tab.folderDisplay.view.search.prettyString());
   },
 
-  /**
-   * Shows and hides quick filter bar, and sets the XUL Store value for the
-   * quick filter bar status.
-   *
-   * @param {boolean} show - Filter Status.
-   * @param {boolean} [init=false] - Initial Function Call.
-   */
-  _showFilterBar(show, init = false) {
-    this.filterer.visible = show;
-    if (!show) {
+  _showFilterBar(aShow) {
+    this.filterer.visible = aShow;
+    if (!aShow) {
       this.filterer.clear();
       this.updateSearch();
-      // Cannot call the below function when threadTree hasn't been initialized yet.
-      if (!init) {
-        threadTree.table.body.focus();
-      }
+      threadTree.table.body.focus();
     }
     this.reflectFiltererState();
     Services.xulStore.setValue(
       XULSTORE_URL,
       "quickFilterBar",
       "collapsed",
-      !show
+      !aShow
     );
-
     window.dispatchEvent(new Event("qfbtoggle"));
   },
 

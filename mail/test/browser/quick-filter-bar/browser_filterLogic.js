@@ -41,20 +41,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-add_setup(async function () {
-  // Quick filter bar is hidden by default, need to toggle it on. To toggle
-  // quick filter bar, need to be inside folder
-  const folder = await create_folder("QuickFilterBarFilterFilterLogicSetup");
-  await be_in_folder(folder);
-  await toggle_quick_filter_bar();
-});
-
-registerCleanupFunction(async function () {
-  await cleanup_qfb_button();
-  // Quick filter bar is hidden by default, need to toggle it off.
-  await toggle_quick_filter_bar();
-});
-
 add_task(async function test_filter_unread() {
   let folder = await create_folder("QuickFilterBarFilterUnread");
   let [unread, read] = await make_message_sets_in_folders(
@@ -453,6 +439,10 @@ add_task(async function test_results_label() {
   await delete_messages(setImmortal);
   assert_results_label_count(0);
   teardownTest();
+});
+
+registerCleanupFunction(async () => {
+  await cleanup_qfb_button();
 });
 
 function teardownTest() {
