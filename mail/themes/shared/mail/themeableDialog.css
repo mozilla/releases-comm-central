@@ -378,11 +378,7 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
 
 button menupopup menuseparator,
 menulist menupopup menuseparator {
-  appearance: none;
-  margin: 2px 0;
-  padding: 0;
-  border-top: 1px solid var(--box-border-color);
-  border-bottom: none;
+  padding-inline: 8px;
 }
 
 :root[lwt-tree] .autocomplete-richlistbox {

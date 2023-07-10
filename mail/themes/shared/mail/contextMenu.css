@@ -126,12 +126,7 @@ menubar:not(:-moz-lwtheme) > menu menupopup >
 }
 
 menupopup > menuseparator {
-  appearance: none !important;
-  min-height: 0;
-  border-top: 1px solid var(--panel-separator-color);
-  border-bottom: none;
-  margin: 4px 8px;
-  padding: 0;
+  padding-inline: 8px;
 }
 
 #ContentSelectDropdown > menupopup {

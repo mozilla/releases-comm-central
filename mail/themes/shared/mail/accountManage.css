@@ -62,11 +62,7 @@ fieldset:last-of-type {
 }
 
 .openpgp-more-btn > menupopup > menuseparator {
-  appearance: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--in-content-box-border-color);
-  border-bottom: none;
+  padding-inline: 8px;
 }
 
 #archiveHierarchyButton,

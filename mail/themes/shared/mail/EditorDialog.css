@@ -273,14 +273,6 @@ tree.list {
   min-height: 200px;
 }
 
-#AddJSEAttributeNameList > menupopup > menuseparator,
-#AddHTMLAttributeNameInput > menupopup > menuseparator {
-  appearance: none;
-  margin-block: 3px;
-  padding-block: 0;
-  border-top-color: #d7d7d7;
-}
-
 html|fieldset {
   margin: 1em 3px 3px 3px;
   padding: 3px 0 6px;
