@@ -139,7 +139,7 @@ h2 {
 
 [is="customization-palette"] [is="customizable-element"] {
   width: 96px;
-  height: 4rem;
+  height: calc(25px + 2.4rem); /* icon: 16px, gap: 9px, 2.4rem = ~2lh */
   background: var(--layout-background-3);
   padding: 9px;
   border-radius: 6px;
@@ -178,7 +178,6 @@ h2 {
   text-overflow: ellipsis;
   user-select: none;
   padding-inline: 3px;
-  padding-block-end: 3px;
   max-width: 100%;
 }
 
