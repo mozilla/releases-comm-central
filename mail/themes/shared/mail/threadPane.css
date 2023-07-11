@@ -311,8 +311,17 @@ tr[data-properties~="unread"] .tree-view-row-unread > .tree-button-unread > img 
 [is="tree-view-table-body"]:focus > .selected > .tree-view-row-unread > .tree-button-unread > img,
 [is="tree-view-table-body"]:focus-within > .selected > .tree-view-row-unread > .tree-button-unread > img,
 [is="tree-view-table-body"] > .selected:focus-within > .tree-view-row-unread > .tree-button-unread > img {
-  fill: currentColor;
+  fill: transparent;
   stroke: currentColor;
+}
+
+[is="tree-view-table-body"]:focus > tr[data-properties~="unread"].selected >
+  .tree-view-row-unread > .tree-button-unread > img,
+[is="tree-view-table-body"]:focus-within > tr[data-properties~="unread"].selected >
+  .tree-view-row-unread > .tree-button-unread > img,
+[is="tree-view-table-body"] > tr[data-properties~="unread"].selected:focus-within >
+ .tree-view-row-unread > .tree-button-unread > img {
+  fill: currentColor;
 }
 
 tr[data-properties~="unread"].selected .tree-view-row-unread button {
