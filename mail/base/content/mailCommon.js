@@ -797,6 +797,8 @@ var commandController = {
 
     if (window.threadTree) {
       window.threadTree.expandRowAtIndex(resultIndex.value);
+      // Do an instant scroll before setting the index to avoid animation.
+      window.threadTree.scrollToIndex(resultIndex.value, true);
       window.threadTree.selectedIndex = resultIndex.value;
       // Focus the thread tree, unless the message pane has focus.
       if (
@@ -804,7 +806,11 @@ var commandController = {
         window.messageBrowser.contentWindow?.getMessagePaneBrowser()
           .contentWindow
       ) {
-        window.threadTree.table.body.focus();
+        // There's something strange going on here – calling `focus`
+        // immediately can cause the scroll position to return to where it was
+        // before changing folders, which starts a cascade of "scroll" events
+        // until the tree scrolls to the top.
+        setTimeout(() => window.threadTree.table.body.focus());
       }
     } else {
       gViewWrapper.dbView.selection.select(resultIndex.value);

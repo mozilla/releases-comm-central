@@ -1017,24 +1017,24 @@ class TreeView extends HTMLElement {
     const topOfRow = this._rowElementClass.ROW_HEIGHT * index;
     let scrollTop = this.scrollTop;
     const visibleHeight = this.#calculateVisibleHeight();
+    const behavior = instant ? "instant" : "auto";
 
+    // Scroll up to the row.
     if (topOfRow < scrollTop) {
-      this.scrollTo({
-        left: 0,
-        top: topOfRow,
-        behavior: instant ? "instant" : "auto",
-      });
+      this.scrollTo({ top: topOfRow, behavior });
       return;
     }
 
+    // Scroll down to the row.
     const bottomOfRow = topOfRow + this._rowElementClass.ROW_HEIGHT;
     if (bottomOfRow > scrollTop + visibleHeight) {
-      this.scrollTo({
-        left: 0,
-        top: bottomOfRow - visibleHeight,
-        behavior: instant ? "instant" : "auto",
-      });
+      this.scrollTo({ top: bottomOfRow - visibleHeight, behavior });
+      return;
     }
+
+    // Call `scrollTo` even if the row is in view, to stop any earlier smooth
+    // scrolling that might be happening.
+    this.scrollTo({ top: this.scrollTop, behavior });
   }
 
   /**
