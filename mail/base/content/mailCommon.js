@@ -265,7 +265,6 @@ var commandController = {
         return;
       }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
-      gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.markMessagesRead);
       gViewWrapper.dbView.doCommand(Ci.nsMsgViewCommandType.deleteMsg);
     },
     cmd_shiftDeleteMessage() {

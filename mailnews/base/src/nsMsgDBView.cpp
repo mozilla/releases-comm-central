@@ -3079,6 +3079,11 @@ nsresult nsMsgDBView::DeleteMessages(nsIMsgWindow* window,
     if (dontAsk) prefBranch->SetBoolPref(activePref, false);
   }
 
+  if (!deleteStorage) {
+    rv = m_folder->MarkMessagesRead(hdrs, true);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+
   if (mDeleteModel != nsMsgImapDeleteModels::IMAPDelete) {
     m_deletingRows = true;
   }
