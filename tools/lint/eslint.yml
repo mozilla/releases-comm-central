@@ -10,8 +10,6 @@ eslint:
         - 'comm/.eslintignore'
         - 'comm/.prettierignore'
         - 'tools/lint/eslint/**'
-        # Files that can influence global variables
-        - 'toolkit/modules/Services.jsm'
     type: external
     payload: commlint:eslint_wrapper
     wraps: eslint:lint
