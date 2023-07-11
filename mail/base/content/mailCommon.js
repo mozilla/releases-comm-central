@@ -917,9 +917,7 @@ var dbViewWrapperListener = {
     window.quickFilterBar?.onMessagesChanged();
   },
   onMailViewChanged() {},
-  onSortChanged() {
-    window.threadTree?.invalidate();
-  },
+  onSortChanged() {},
   onMessagesRemoved() {
     window.quickFilterBar?.onMessagesChanged();
 

@@ -1009,6 +1009,15 @@ class TreeView extends HTMLElement {
   }
 
   /**
+   * Index of the last visible or partly visible row.
+   *
+   * @returns {integer}
+   */
+  getLastVisibleIndex() {
+    return this.#lastVisibleRowIndex;
+  }
+
+  /**
    * Ensures that the row at `index` is on the screen.
    *
    * @param {integer} index

@@ -4550,7 +4550,7 @@ var threadPane = {
     },
     ensureRowIsVisible(index) {
       if (!this._inBatch) {
-        threadTree.scrollToIndex(index);
+        threadTree.scrollToIndex(index, true);
       }
     },
     invalidate() {
@@ -6233,7 +6233,9 @@ var sortController = {
     );
 
     if (!grouped) {
+      threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
       gViewWrapper.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
+      threadTree.style.scrollBehavior = null;
       // Respect user's last expandAll/collapseAll choice, post sort direction change.
       threadPane.restoreThreadState();
       return;
@@ -6330,9 +6332,9 @@ var sortController = {
       return;
     }
 
-    threadPane.saveSelection();
+    threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
     gViewWrapper.sortAscending();
-    threadPane.restoreSelection();
+    threadTree.style.scrollBehavior = null;
   },
   sortDescending() {
     if (gViewWrapper.showGroupedBySort && gViewWrapper.isSingleFolder) {
@@ -6342,9 +6344,9 @@ var sortController = {
       return;
     }
 
-    threadPane.saveSelection();
+    threadTree.style.scrollBehavior = "auto"; // Avoid smooth scroll.
     gViewWrapper.sortDescending();
-    threadPane.restoreSelection();
+    threadTree.style.scrollBehavior = null;
   },
   convertSortTypeToColumnID(sortKey) {
     let columnID;
