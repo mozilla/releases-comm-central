@@ -175,6 +175,8 @@ MultiMessageSummary.prototype = {
       }
     };
 
+    headerToolbarNavigation.init();
+
     let summarizer = this._summarizers[aType];
     if (!summarizer) {
       throw new Error('Unknown summarizer "' + aType + '"');
@@ -355,7 +357,6 @@ MultiMessageSummary.prototype = {
         throw e;
       }
     }
-
     return row;
   },
 
@@ -610,7 +611,6 @@ ThreadSummarizer.prototype = {
         ])
       );
     }
-
     return summarizedMessages;
   },
 };
@@ -735,3 +735,110 @@ var gMessageSummary = new MultiMessageSummary();
 
 gMessageSummary.registerSummarizer(new ThreadSummarizer());
 gMessageSummary.registerSummarizer(new MultipleSelectionSummarizer());
+
+/**
+ * Roving tab navigation for the header buttons.
+ */
+const headerToolbarNavigation = {
+  /**
+   * If the roving tab has already been loaded.
+   *
+   * @type {boolean}
+   */
+  isLoaded: false,
+  /**
+   * Get all currently visible buttons of the message header toolbar.
+   *
+   * @returns {Array} An array of buttons.
+   */
+  get headerButtons() {
+    return this.headerToolbar.querySelectorAll(
+      `toolbarbutton:not([hidden="true"])`
+    );
+  },
+
+  init() {
+    // Bail out if we already initialized this.
+    if (this.isLoaded) {
+      return;
+    }
+    this.headerToolbar = document.getElementById("header-view-toolbar");
+    this.headerToolbar.addEventListener("keypress", event => {
+      this.triggerMessageHeaderRovingTab(event);
+    });
+    this.updateRovingTab();
+    this.isLoaded = true;
+  },
+
+  /**
+   * Update the `tabindex` attribute of the currently visible buttons.
+   */
+  updateRovingTab() {
+    for (const button of this.headerButtons) {
+      button.tabIndex = -1;
+    }
+    // Allow focus on the first available button.
+    // We use `setAttribute` to guarantee compatibility with XUL toolbarbuttons.
+    this.headerButtons[0].setAttribute("tabindex", "0");
+  },
+
+  /**
+   * Handles the keypress event on the message header toolbar.
+   *
+   * @param {Event} event - The keypress DOMEvent.
+   */
+  triggerMessageHeaderRovingTab(event) {
+    // Expected keyboard actions are Left, Right, Home, End, Space, and Enter.
+    if (!["ArrowRight", "ArrowLeft", " ", "Enter"].includes(event.key)) {
+      return;
+    }
+
+    const headerButtons = [...this.headerButtons];
+    const focusableButton = headerButtons.find(b => b.tabIndex != -1);
+    let elementIndex = headerButtons.indexOf(focusableButton);
+
+    // TODO: Remove once the buttons are updated to not be XUL
+    // NOTE: Normally a button click handler would cover Enter and Space key
+    // events. However, we need to prevent the default behavior and explicitly
+    // trigger the button click because the XUL toolbarbuttons do not work when
+    // the Enter key is pressed. They do work when the Space key is pressed.
+    // However, if the toolbarbutton is a dropdown menu, the Space key
+    // does not open the menu.
+    if (
+      event.key == "Enter" ||
+      (event.key == " " && event.target.hasAttribute("type"))
+    ) {
+      event.preventDefault();
+      event.target.click();
+      return;
+    }
+
+    // Find the adjacent focusable element based on the pressed key.
+    const isRTL = document.dir == "rtl";
+    if (
+      (isRTL && event.key == "ArrowLeft") ||
+      (!isRTL && event.key == "ArrowRight")
+    ) {
+      elementIndex++;
+      if (elementIndex > headerButtons.length - 1) {
+        elementIndex = 0;
+      }
+    } else if (
+      (!isRTL && event.key == "ArrowLeft") ||
+      (isRTL && event.key == "ArrowRight")
+    ) {
+      elementIndex--;
+      if (elementIndex == -1) {
+        elementIndex = headerButtons.length - 1;
+      }
+    }
+
+    // Move the focus to a new toolbar button and update the tabindex attribute.
+    const newFocusableButton = headerButtons[elementIndex];
+    if (newFocusableButton) {
+      focusableButton.tabIndex = -1;
+      newFocusableButton.setAttribute("tabindex", "0");
+      newFocusableButton.focus();
+    }
+  },
+};

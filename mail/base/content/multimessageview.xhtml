@@ -10,7 +10,11 @@
 <!ENTITY % startDTD SYSTEM "chrome://messenger/locale/multimessageview.dtd">
 %startDTD; ]>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+>
   <head>
     <link
       rel="stylesheet"
@@ -36,7 +40,8 @@
       type="text/css"
       href="chrome://messenger/skin/multimessageview.css"
     />
-    <title>&window.title;</title>
+    <link rel="localization" href="messenger/multimessageview.ftl" />
+    <title data-l10n-id="multi-message-window-title"></title>
     <script src="chrome://messenger/content/multimessageview.js" />
   </head>
   <body>
@@ -45,23 +50,23 @@
         id="header-view-toolbox"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       >
-        <hbox id="header-view-toolbar">
+        <hbox id="header-view-toolbar" class="header-buttons-container">
           <toolbarbutton
             id="hdrArchiveButton"
             class="toolbarbutton-1 message-header-view-button hdrArchiveButton"
-            label="&archiveButton.label;"
+            data-l10n-id="multi-message-archive-button"
           />
           <toolbarbutton
             id="hdrTrashButton"
             class="toolbarbutton-1 message-header-view-button hdrTrashButton"
-            label="&deleteButton.label;"
+            data-l10n-id="multi-message-delete-button"
           />
         </hbox>
       </vbox>
       <h1 id="heading">
-        <span id="summary_title">&selectedmessages.label;</span>&#x200B;<span
-          id="summary_subtitle"
-        />
+        <span id="summary_title" data-l10n-id="selected-messages-label"></span
+        >&#x200B;
+        <span id="summary_subtitle" />
       </h1>
     </div>
     <div id="content">

@@ -399,6 +399,70 @@ add_task(async function test_mark_thread_as_read() {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
 }).__skipMe = true; // See bug 654362.
 
+add_task(async function roving_multi_message_buttons() {
+  await be_in_folder(unreadFolder);
+  select_click_row(0);
+  let curMessages = select_shift_click_row(1);
+  assert_selected_and_displayed(curMessages);
+
+  let multiMsgView = get_about_3pane().multiMessageBrowser;
+  const BUTTONS_SELECTOR = `toolbarbutton:not([hidden="true"]`;
+  let headerToolbar = multiMsgView.contentDocument.getElementById(
+    "header-view-toolbar"
+  );
+  let headerButtons = headerToolbar.querySelectorAll(BUTTONS_SELECTOR);
+
+  // Press tab twice while on the message selected to access the multi message
+  // view header buttons.
+  EventUtils.synthesizeKey("KEY_Tab", {});
+  EventUtils.synthesizeKey("KEY_Tab", {});
+  Assert.equal(
+    headerButtons[0].id,
+    multiMsgView.contentDocument.activeElement.id,
+    "focused on first msgHdr toolbar button"
+  );
+
+  // Simulate the Arrow Right keypress to make sure the correct button gets the
+  // focus.
+  for (let i = 1; i < headerButtons.length; i++) {
+    let previousElement = document.activeElement;
+    EventUtils.synthesizeKey("KEY_ArrowRight", {});
+    Assert.equal(
+      multiMsgView.contentDocument.activeElement.id,
+      headerButtons[i].id,
+      "The next button is focused"
+    );
+    Assert.ok(
+      multiMsgView.contentDocument.activeElement.tabIndex == 0 &&
+        previousElement.tabIndex == -1,
+      "The roving tab index was updated"
+    );
+  }
+
+  // Simulate the Arrow Left keypress to make sure the correct button gets the
+  // focus.
+  for (let i = headerButtons.length - 2; i > -1; i--) {
+    let previousElement = document.activeElement;
+    EventUtils.synthesizeKey("KEY_ArrowLeft", {});
+    Assert.equal(
+      multiMsgView.contentDocument.activeElement.id,
+      headerButtons[i].id,
+      "The previous button is focused"
+    );
+    Assert.ok(
+      multiMsgView.contentDocument.activeElement.tabIndex == 0 &&
+        previousElement.tabIndex == -1,
+      "The roving tab index was updated"
+    );
+  }
+
+  // Check that once the Escape key is pressed twice, focus will move back to
+  // the selected messages.
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  assert_selected_and_displayed(curMessages);
+}).__skipMe = AppConstants.platform == "macosx";
+
 add_task(async function test_shift_delete_prompt() {
   await be_in_folder(shiftDeleteFolder);
   let curMessage = select_click_row(0);
