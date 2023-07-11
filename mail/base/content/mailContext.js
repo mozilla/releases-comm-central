@@ -27,17 +27,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   TagUtils: "resource:///modules/TagUtils.jsm",
 });
 
-window.addEventListener("DOMContentLoaded", event => {
-  if (
-    event.target != document ||
-    window.browsingContext.parent != window.browsingContext.top
-  ) {
-    return;
-  }
-
-  mailContextMenu.init();
-});
-
 /**
  * Called by ContextMenuParent if this window is about:3pane, or is
  * about:message but not contained by about:3pane.

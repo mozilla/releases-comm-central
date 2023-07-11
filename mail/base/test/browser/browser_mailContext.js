@@ -120,9 +120,30 @@ function checkMenuitems(menu, mode) {
       actualItems.push(item.id);
     }
   }
-  let diff = expectedItems.filter(x => !actualItems.includes(x));
-  Assert.equal(diff.length, 0, `Should have expected items; diff: ${diff}`);
+
+  let notFoundItems = expectedItems.filter(i => !actualItems.includes(i));
+  if (notFoundItems.length) {
+    Assert.report(
+      true,
+      undefined,
+      undefined,
+      "items expected but not found: " + notFoundItems.join(", ")
+    );
+  }
+
+  let unexpectedItems = actualItems.filter(i => !expectedItems.includes(i));
+  if (unexpectedItems.length) {
+    Assert.report(
+      true,
+      undefined,
+      undefined,
+      "items found but not expected: " + unexpectedItems.join(", ")
+    );
+  }
+
   Assert.deepEqual(actualItems, expectedItems);
+
+  menu.hidePopup();
 }
 
 add_setup(async function () {
@@ -174,16 +195,18 @@ add_setup(async function () {
 add_task(async function testNoMessages() {
   let about3Pane = tabmail.currentAbout3Pane;
   let mailContext = about3Pane.document.getElementById("mailContext");
-  let threadTree = about3Pane.threadTree;
-  about3Pane.messagePane.clearAll();
+  let { messageBrowser, messagePane, threadTree } = about3Pane;
+  messagePane.clearAll();
 
   // The message pane browser isn't visible.
 
-  Assert.ok(BrowserTestUtils.is_hidden(about3Pane.messageBrowser));
-  Assert.equal(about3Pane.messageBrowser.currentURI.spec, "about:message");
+  Assert.ok(
+    BrowserTestUtils.is_hidden(messageBrowser),
+    "message browser should be hidden"
+  );
+  Assert.equal(messageBrowser.currentURI.spec, "about:message");
   Assert.equal(
-    about3Pane.messageBrowser.contentWindow.getMessagePaneBrowser().currentURI
-      .spec,
+    messageBrowser.contentWindow.getMessagePaneBrowser().currentURI.spec,
     "about:blank"
   );
   EventUtils.synthesizeMouseAtCenter(
@@ -199,9 +222,7 @@ add_task(async function testNoMessages() {
     threadTree,
     treeRect.x + treeRect.width / 2,
     treeRect.bottom - 10,
-    {
-      type: "contextmenu",
-    },
+    { type: "contextmenu" },
     about3Pane
   );
   checkMenuitems(mailContext);
@@ -220,38 +241,43 @@ add_task(async function testSingleMessage() {
 
   let about3Pane = tabmail.currentAbout3Pane;
   let mailContext = about3Pane.document.getElementById("mailContext");
-  let threadTree = about3Pane.threadTree;
-  let loadedPromise = BrowserTestUtils.browserLoaded(about3Pane.messageBrowser);
-  about3Pane.threadTree.selectedIndex = 0;
+  let { gDBView, messageBrowser, threadTree } = about3Pane;
+  let messagePaneBrowser = messageBrowser.contentWindow.getMessagePaneBrowser();
+
+  let loadedPromise = BrowserTestUtils.browserLoaded(
+    messagePaneBrowser,
+    undefined,
+    url => url.endsWith(gDBView.getKeyAt(0))
+  );
+  threadTree.selectedIndex = 0;
   threadTree.scrollToIndex(0, true);
   await loadedPromise;
 
   // Open the menu from the message pane.
 
-  Assert.ok(BrowserTestUtils.is_visible(about3Pane.messageBrowser));
+  Assert.ok(
+    BrowserTestUtils.is_visible(messageBrowser),
+    "message browser should be visible"
+  );
   let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
-    about3Pane.messageBrowser
+    messagePaneBrowser
   );
   await shownPromise;
   checkMenuitems(mailContext, "singleMessage");
-  mailContext.hidePopup();
 
   // Open the menu from the thread pane.
 
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(0),
-    {
-      type: "contextmenu",
-    },
+    { type: "contextmenu" },
     about3Pane
   );
   await shownPromise;
   checkMenuitems(mailContext, "singleMessageTree");
-  mailContext.hidePopup();
 
   // Open the menu through the keyboard.
 
@@ -260,10 +286,7 @@ add_task(async function testSingleMessage() {
   await row.focus();
   EventUtils.synthesizeMouseAtCenter(
     row,
-    {
-      type: "contextmenu",
-      button: 0,
-    },
+    { type: "contextmenu", button: 0 },
     about3Pane
   );
   await shownPromise;
@@ -286,10 +309,7 @@ add_task(async function testSingleMessage() {
   );
   EventUtils.synthesizeMouseAtCenter(
     threadTree,
-    {
-      type: "contextmenu",
-      button: 0,
-    },
+    { type: "contextmenu", button: 0 },
     about3Pane
   );
   await shownPromise;
@@ -315,14 +335,20 @@ add_task(async function testMultipleMessages() {
 
   let about3Pane = tabmail.currentAbout3Pane;
   let mailContext = about3Pane.document.getElementById("mailContext");
-  let threadTree = about3Pane.threadTree;
+  let { messageBrowser, multiMessageBrowser, threadTree } = about3Pane;
   threadTree.scrollToIndex(1, true);
   threadTree.selectedIndices = [1, 2, 3];
 
   // The message pane browser isn't visible.
 
-  Assert.ok(BrowserTestUtils.is_hidden(about3Pane.messageBrowser));
-  Assert.ok(BrowserTestUtils.is_visible(about3Pane.multiMessageBrowser));
+  Assert.ok(
+    BrowserTestUtils.is_hidden(messageBrowser),
+    "message browser should be hidden"
+  );
+  Assert.ok(
+    BrowserTestUtils.is_visible(multiMessageBrowser),
+    "multimessage browser should be visible"
+  );
   EventUtils.synthesizeMouseAtCenter(
     about3Pane.document.getElementById("messagePane"),
     { type: "contextmenu" }
@@ -332,13 +358,10 @@ add_task(async function testMultipleMessages() {
   // Open the menu from the thread pane.
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(2),
-    {
-      type: "contextmenu",
-    },
+    { type: "contextmenu" },
     about3Pane
   );
   checkMenuitems(mailContext, "multipleMessagesTree");
-  mailContext.hidePopup();
 
   // Open the menu in the thread pane on a message scrolled out of view.
   threadTree.selectAll();
@@ -355,10 +378,7 @@ add_task(async function testMultipleMessages() {
   const shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree,
-    {
-      type: "contextmenu",
-      button: 0,
-    },
+    { type: "contextmenu", button: 0 },
     about3Pane
   );
   await shownPromise;
@@ -384,38 +404,42 @@ add_task(async function testDraftsFolder() {
   );
 
   let mailContext = about3Pane.document.getElementById("mailContext");
-  let threadTree = about3Pane.threadTree;
+  let { gDBView, messageBrowser, threadTree } = about3Pane;
+  let messagePaneBrowser = messageBrowser.contentWindow.getMessagePaneBrowser();
 
-  let loadedPromise = BrowserTestUtils.browserLoaded(about3Pane.messageBrowser);
-  about3Pane.threadTree.selectedIndex = 0;
+  let loadedPromise = BrowserTestUtils.browserLoaded(
+    messagePaneBrowser,
+    undefined,
+    url => url.endsWith(gDBView.getKeyAt(0))
+  );
+  threadTree.selectedIndex = 0;
   await loadedPromise;
 
   // Open the menu from the message pane.
 
-  Assert.ok(BrowserTestUtils.is_visible(about3Pane.messageBrowser));
+  Assert.ok(
+    BrowserTestUtils.is_visible(messageBrowser),
+    "message browser should be visible"
+  );
   let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
-    about3Pane.messageBrowser
+    messagePaneBrowser
   );
   await shownPromise;
   checkMenuitems(mailContext, "draftsFolder");
-  mailContext.hidePopup();
 
   // Open the menu from the thread pane.
 
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(0),
-    {
-      type: "contextmenu",
-    },
+    { type: "contextmenu" },
     about3Pane
   );
   await shownPromise;
   checkMenuitems(mailContext, "draftsFolderTree");
-  mailContext.hidePopup();
 });
 
 /**
@@ -450,69 +474,76 @@ add_task(async function testSyntheticFolder() {
 
   let about3Pane = tabmail.currentAbout3Pane;
   let mailContext = about3Pane.document.getElementById("mailContext");
-  let threadTree = about3Pane.threadTree;
+  let { gDBView, messageBrowser, threadTree } = about3Pane;
+  let messagePaneBrowser = messageBrowser.contentWindow.getMessagePaneBrowser();
 
-  let loadedPromise = BrowserTestUtils.browserLoaded(about3Pane.messageBrowser);
-  about3Pane.threadTree.selectedIndex = 0;
+  let loadedPromise = BrowserTestUtils.browserLoaded(
+    messagePaneBrowser,
+    undefined,
+    url => url.endsWith(gDBView.getKeyAt(0))
+  );
+  threadTree.selectedIndex = 0;
   await loadedPromise;
 
   // Open the menu from the message pane.
 
-  Assert.ok(BrowserTestUtils.is_visible(about3Pane.messageBrowser));
+  Assert.ok(
+    BrowserTestUtils.is_visible(messageBrowser),
+    "message browser should be visible"
+  );
   let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
-    about3Pane.messageBrowser
+    messagePaneBrowser
   );
   await shownPromise;
   checkMenuitems(mailContext, "syntheticFolderDraft");
-  mailContext.hidePopup();
 
   // Open the menu from the thread pane.
 
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(0),
-    {
-      type: "contextmenu",
-    },
+    { type: "contextmenu" },
     about3Pane
   );
   await shownPromise;
   checkMenuitems(mailContext, "syntheticFolderDraftTree");
-  mailContext.hidePopup();
 
-  loadedPromise = BrowserTestUtils.browserLoaded(about3Pane.messageBrowser);
-  about3Pane.threadTree.selectedIndex = 5;
+  loadedPromise = BrowserTestUtils.browserLoaded(
+    messagePaneBrowser,
+    undefined,
+    url => url.endsWith(gDBView.getKeyAt(5))
+  );
+  threadTree.selectedIndex = 5;
   await loadedPromise;
 
   // Open the menu from the message pane.
 
-  Assert.ok(BrowserTestUtils.is_visible(about3Pane.messageBrowser));
+  Assert.ok(
+    BrowserTestUtils.is_visible(messageBrowser),
+    "message browser should be visible"
+  );
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     ":root",
     { type: "contextmenu" },
-    about3Pane.messageBrowser
+    messagePaneBrowser
   );
   await shownPromise;
   checkMenuitems(mailContext, "syntheticFolder");
-  mailContext.hidePopup();
 
   // Open the menu from the thread pane.
 
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     threadTree.getRowAtIndex(5),
-    {
-      type: "contextmenu",
-    },
+    { type: "contextmenu" },
     about3Pane
   );
   await shownPromise;
   checkMenuitems(mailContext, "syntheticFolderTree");
-  mailContext.hidePopup();
 
   tabmail.closeOtherTabs(0);
 });
@@ -537,7 +568,6 @@ add_task(async function testMessageTab() {
   );
   await shownPromise;
   checkMenuitems(mailContext, "messageTab");
-  mailContext.hidePopup();
 
   tabmail.closeOtherTabs(0);
 });
@@ -573,7 +603,6 @@ add_task(async function testExternalMessageTab() {
   );
   await shownPromise;
   checkMenuitems(mailContext, "externalMessageTab");
-  mailContext.hidePopup();
 
   tabmail.closeOtherTabs(0);
 });
@@ -599,7 +628,6 @@ add_task(async function testMessageWindow() {
   );
   await shownPromise;
   checkMenuitems(mailContext, "messageWindow");
-  mailContext.hidePopup();
 
   await BrowserTestUtils.closeWindow(win);
 });
@@ -636,7 +664,6 @@ add_task(async function testExternalMessageWindow() {
   );
   await shownPromise;
   checkMenuitems(mailContext, "externalMessageWindow");
-  mailContext.hidePopup();
 
   await BrowserTestUtils.closeWindow(win);
 });

@@ -126,6 +126,8 @@ window.addEventListener("DOMContentLoaded", async event => {
   // happens in the "aboutMessageLoaded" event from aboutMessage.js.
   // For the webBrowser, we can do it here directly.
   top.contentProgress.addProgressListenerToBrowser(webBrowser);
+
+  mailContextMenu.init();
 });
 
 window.addEventListener("unload", () => {

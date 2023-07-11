@@ -8,6 +8,9 @@
 /* globals commandController, dbViewWrapperListener, nsMsgViewIndex_None */
 /* globals gDBView: true, gFolder: true, gViewWrapper: true */
 
+// mailContext.js
+/* globals mailContextMenu */
+
 // msgHdrView.js
 /* globals AdjustHeaderView ClearCurrentHeaders ClearPendingReadTimer
    HideMessageHeaderPane OnLoadMsgHeaderPane OnTagsChange
@@ -102,6 +105,10 @@ window.addEventListener("DOMContentLoaded", event => {
   if (parent == top) {
     // Standalone message display? Focus the message pane.
     getMessagePaneBrowser().focus();
+  }
+
+  if (window.parent == window.top) {
+    mailContextMenu.init();
   }
 
   window.dispatchEvent(
