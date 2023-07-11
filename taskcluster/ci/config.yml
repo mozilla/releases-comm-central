@@ -77,6 +77,11 @@ try:
 release-promotion:
     products:
         - 'thunderbird'
+    rebuild-kinds:
+        - docker-image
+        - fetch
+        - packages
+        - toolchain
     flavors:
         promote_thunderbird:
             product: thunderbird
