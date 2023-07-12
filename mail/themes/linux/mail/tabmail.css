@@ -8,18 +8,9 @@
  * Tabmail Tabs
  */
 
-:root:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
-  appearance: auto;
-  -moz-default-appearance: menubar;
-}
-
 #tabs-toolbar {
   -moz-window-dragging: drag;
   padding-block-end: 0;
-}
-
-#tabs-toolbar:not(:-moz-lwtheme) {
-  color: -moz-menubartext;
 }
 
 #tabpanelcontainer:-moz-lwtheme {
