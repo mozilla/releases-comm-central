@@ -22,18 +22,19 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 
 var OpenPGPMasterpass = {
   _initDone: false,
+  _sdr: null,
 
   getSDR() {
-    if (!this.sdr) {
+    if (!this._sdr) {
       try {
-        this.sdr = Cc["@mozilla.org/security/sdr;1"].getService(
+        this._sdr = Cc["@mozilla.org/security/sdr;1"].getService(
           Ci.nsISecretDecoderRing
         );
       } catch (ex) {
         lazy.EnigmailLog.writeException("masterpass.jsm", ex);
       }
     }
-    return this.sdr;
+    return this._sdr;
   },
 
   filename: "encrypted-openpgp-passphrase.txt",
@@ -144,18 +145,36 @@ var OpenPGPMasterpass = {
     }
   },
 
-  // returns password
   async _ensurePasswordCreatedAndCached() {
     if (this.cachedPassword) {
       return;
     }
 
+    let sdr = this.getSDR();
+    if (!sdr) {
+      throw new Error("Failed to obtain the SDR service.");
+    }
+
     if (await IOUtils.exists(this.getPassPath().path)) {
+      let encryptedPass = await IOUtils.readUTF8(this.getPassPath().path);
+      encryptedPass = encryptedPass.trim();
+      if (!encryptedPass) {
+        throw new Error(
+          "Failed to obtain encrypted password data from file " +
+            this.getPassPath().path
+        );
+      }
+
       try {
-        this.cachedPassword = await this._readPasswordFromFile();
+        this.cachedPassword = sdr.decryptString(encryptedPass);
+        // This is the success scenario, in which we return early.
         return;
       } catch (e) {
         // This code handles the corruption described in bug 1790610.
+
+        // Failure to decrypt should be the only scenario that
+        // reaches this code path.
+
         // Is a primary password set?
         let tokenDB = Cc["@mozilla.org/security/pk11tokendb;1"].getService(
           Ci.nsIPK11TokenDB
@@ -247,7 +266,6 @@ var OpenPGPMasterpass = {
     // (This may fail if the user has a primary password set,
     // but refuses to enter it.)
     let newPass = this.generatePassword();
-    let sdr = this.getSDR();
     let encryptedPass = sdr.encryptString(newPass);
     if (!encryptedPass) {
       throw new Error("cannot create OpenPGP password");
@@ -310,11 +328,5 @@ var OpenPGPMasterpass = {
 
     await this.ensurePasswordIsCached();
     return this.cachedPassword;
-  },
-
-  async _readPasswordFromFile() {
-    let encryptedPass = await IOUtils.readUTF8(this.getPassPath().path);
-    let sdr = this.getSDR();
-    return sdr.decryptString(encryptedPass.trim());
   },
 };
