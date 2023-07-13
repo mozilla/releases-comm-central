@@ -150,7 +150,8 @@ flatpak build-finish build                                      \
         --talk-name="org.gtk.vfs.*"                             \
         --talk-name=org.a11y.Bus                                \
         --talk-name=org.freedesktop.Notifications               \
-        --system-talk-name=org.freedesktop.NetworkManager
+        --system-talk-name=org.freedesktop.NetworkManager       \
+        --command=thunderbird
 
 flatpak build-export --disable-sandbox --no-update-summary --exclude='/share/runtime/langpack/*/*' repo build "$FLATPAK_BRANCH"
 flatpak build-export --disable-sandbox --no-update-summary --metadata=metadata.locale --files=files/share/runtime/langpack repo build "$FLATPAK_BRANCH"
