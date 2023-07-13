@@ -72,8 +72,6 @@ nsresult mime_generate_headers(nsIMsgCompFields* fields,
 char* mime_make_separator(const char* prefix);
 char* mime_gen_content_id(uint32_t aPartNum, const char* aEmailAddress);
 
-char* msg_generate_message_id(nsIMsgIdentity*);
-
 bool mime_7bit_data_p(const char* string, uint32_t size);
 
 char* mime_fix_header_1(const char* string, bool addr_p, bool news_p);

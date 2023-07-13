@@ -160,6 +160,8 @@ function createMessage(aAttachment) {
   let fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
+  fields.from = "Nobody <nobody@tinderbox.test>";
+
   let attachments = [];
   if (aAttachment) {
     let attachment = Cc[

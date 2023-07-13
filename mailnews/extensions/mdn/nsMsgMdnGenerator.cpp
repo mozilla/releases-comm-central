@@ -432,7 +432,8 @@ nsresult nsMsgMdnGenerator::CreateFirstPart() {
 
   if (compUtils) {
     nsCString msgId;
-    rv = compUtils->MsgGenerateMessageId(m_identity, getter_Copies(msgId));
+    rv = compUtils->MsgGenerateMessageIdFromIdentity(m_identity,
+                                                     getter_Copies(msgId));
     tmpBuffer = PR_smprintf("Message-ID: %s" CRLF, msgId.get());
     PUSH_N_FREE_STRING(tmpBuffer);
   }

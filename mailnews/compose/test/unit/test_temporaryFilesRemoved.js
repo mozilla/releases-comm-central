@@ -91,6 +91,7 @@ add_task(async function () {
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
 
+  fields.from = "Nobody <nobody@tinderbox.test>";
   fields.body = "body text";
   // set multipart for nsemail.html
   fields.useMultipartAlternative = true;

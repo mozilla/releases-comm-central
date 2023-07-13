@@ -58,6 +58,8 @@ add_task(async function saveDraft() {
   let fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
+  fields.from = "Nobody <nobody@tinderbox.test>";
+
   let params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);

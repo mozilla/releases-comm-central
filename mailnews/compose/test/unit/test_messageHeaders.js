@@ -329,6 +329,28 @@ async function testOtherHeadersAgentParam(sendAgent, minimalAgent) {
   });
 }
 
+/**
+ * Tests that the message ID is generated using the domain of the address in the
+ * From header rather than the domain of the identity's address.
+ */
+async function testMessageIdUseFromDomain() {
+  let fields = new CompFields();
+  let identity = getSmtpIdentity("from@tinderbox.test", getBasicSmtpServer());
+  // Set the From header to an address that uses a different domain than
+  // the identity.
+  fields.from = "Nobody <nobody@another-tinderbox.test>";
+
+  let msgHdr = await richCreateMessage(fields, [], identity);
+  let msgData = mailTestUtils.loadMessageToString(msgHdr.folder, msgHdr);
+  let headers = MimeParser.extractHeaders(msgData);
+
+  // As of bug 1727181, the identity does not override the message-id header.
+  Assert.ok(headers.has("Message-Id"));
+  Assert.ok(
+    headers.getRawHeader("Message-Id")[0].endsWith("@another-tinderbox.test>")
+  );
+}
+
 async function testOtherHeadersFullAgent() {
   await testOtherHeadersAgentParam(true, false);
 }
@@ -706,6 +728,7 @@ var tests = [
   testSendHeaders,
   testContentHeaders,
   testSentMessage,
+  testMessageIdUseFromDomain,
 ];
 
 function run_test() {

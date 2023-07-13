@@ -6,6 +6,7 @@
 #include "nsMsgCompUtils.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
+#include "nsStringFwd.h"
 #include "prmem.h"
 #include "nsIStringBundle.h"
 #include "nsIIOService.h"
@@ -42,6 +43,9 @@
 #include "nsIRandomGenerator.h"
 #include "nsID.h"
 
+char* msg_generate_message_id(const char* host);
+char* msg_generate_message_id_from_identity(nsIMsgIdentity*);
+
 NS_IMPL_ISUPPORTS(nsMsgCompUtils, nsIMsgCompUtils)
 
 nsMsgCompUtils::nsMsgCompUtils() {}
@@ -56,11 +60,19 @@ NS_IMETHODIMP nsMsgCompUtils::MimeMakeSeparator(const char* prefix,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompUtils::MsgGenerateMessageId(nsIMsgIdentity* identity,
-                                                   char** _retval) {
+NS_IMETHODIMP nsMsgCompUtils::MsgGenerateMessageIdFromHost(const char* host,
+                                                           char** _retval) {
+  NS_ENSURE_ARG_POINTER(host);
+  NS_ENSURE_ARG_POINTER(_retval);
+  *_retval = msg_generate_message_id(host);
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgCompUtils::MsgGenerateMessageIdFromIdentity(
+    nsIMsgIdentity* identity, char** _retval) {
   NS_ENSURE_ARG_POINTER(identity);
   NS_ENSURE_ARG_POINTER(_retval);
-  *_retval = msg_generate_message_id(identity);
+  *_retval = msg_generate_message_id_from_identity(identity);
   return NS_OK;
 }
 
@@ -525,40 +537,50 @@ static bool isValidHost(const char* host) {
   return nullptr != host;
 }
 
-char* msg_generate_message_id(nsIMsgIdentity* identity) {
+char* msg_generate_message_id(const char* host) {
+  if (!isValidHost(host)) {
+    // If we couldn't find a valid host name to use, we can't generate a
+    // valid message ID, so bail, and let NNTP and SMTP generate them.
+    return nullptr;
+  }
+
+  // Generate 128-bit UUID for the local part of the ID. `nsID` provides us with
+  // cryptographically-secure generation.
+  nsID uuid = nsID::GenerateUUID();
+  char uuidString[NSID_LENGTH];
+  uuid.ToProvidedString(uuidString);
+  // Drop first and last characters (curly braces).
+  uuidString[NSID_LENGTH - 2] = 0;
+  return PR_smprintf("<%s@%s>", uuidString + 1, host);
+}
+
+char* msg_generate_message_id_from_identity(nsIMsgIdentity* identity) {
   const char* host = 0;
 
   nsCString forcedFQDN;
   nsCString from;
   nsresult rv = NS_OK;
 
+  // Check if the identity forces an FQDN.
   rv = identity->GetCharAttribute("FQDN", forcedFQDN);
-
   if (NS_SUCCEEDED(rv) && !forcedFQDN.IsEmpty()) host = forcedFQDN.get();
 
   if (!isValidHost(host)) {
+    // If no FQDN is forced, or one is forced but is invalid, try to retrieve a
+    // domain from the identity's email address.
     nsresult rv = identity->GetEmail(from);
     if (NS_SUCCEEDED(rv) && !from.IsEmpty()) host = strchr(from.get(), '@');
 
-    // No '@'? Munged address, anti-spam?
-    // see bug #197203
-    if (host) ++host;
+    // There might not be an '@' in the email address (e.g., due to anti-spam;
+    // see bug 197203), in which case the result is a null pointer. We have no
+    // more fallback options here.
+    if (!host) return nullptr;
+
+    // Move one character right so `host` starts after the '@' symbol.
+    ++host;
   }
 
-  if (!isValidHost(host))
-    // If we couldn't find a valid host name to use, we can't generate a
-    // valid message ID, so bail, and let NNTP and SMTP generate them.
-    return 0;
-
-  // Generate 128-bit UUID for the local part. We use the high-entropy
-  // GenerateGlobalRandomBytes to make tracking more difficult.
-  nsID uuid;
-  GenerateGlobalRandomBytes((unsigned char*)&uuid, sizeof(nsID));
-  char uuidString[NSID_LENGTH];
-  uuid.ToProvidedString(uuidString);
-  // Drop first and last characters (curly braces).
-  uuidString[NSID_LENGTH - 2] = 0;
-  return PR_smprintf("<%s@%s>", uuidString + 1, host);
+  return msg_generate_message_id(host);
 }
 
 // this is to guarantee the folded line will never be greater

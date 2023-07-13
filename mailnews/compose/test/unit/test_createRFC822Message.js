@@ -45,6 +45,7 @@ add_task(async function testCreateRFC822Message() {
   let fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
+  fields.from = "Somebody <somebody@tinderbox.invalid>";
   fields.to = "Nobody <nobody@tinderbox.invalid>";
   fields.subject = "Test createRFC822Message";
 

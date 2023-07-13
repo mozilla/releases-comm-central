@@ -4,6 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["MimeMessage"];
 
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 let { MimeMultiPart, MimePart } = ChromeUtils.import(
   "resource:///modules/MimePart.jsm"
 );
@@ -153,9 +156,24 @@ class MimeMessage {
         !this._compFields.newsgroups ||
         this._userIdentity.getBoolAttribute("generate_news_message_id"))
     ) {
-      messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-        .createInstance(Ci.nsIMsgCompUtils)
-        .msgGenerateMessageId(this._userIdentity);
+      // Try to use the domain name of the From header to generate the message ID. We
+      // specifically don't use the nsIMsgIdentity associated with the account, because
+      // the user might have changed the address in the From header to use a different
+      // domain, and we don't want to leak the relationship between the domains.
+      const fromHdr = MailServices.headerParser.parseEncodedHeaderW(
+        this._compFields.from
+      );
+      const fromAddr = fromHdr[0].email;
+
+      // Extract the host from the address, if any, and generate a message ID from it.
+      // If we can't get a host for the message ID, let SMTP populate the header.
+      const atIndex = fromAddr.indexOf("@");
+      if (atIndex >= 0) {
+        messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+          .createInstance(Ci.nsIMsgCompUtils)
+          .msgGenerateMessageIdFromHost(fromAddr.slice(atIndex + 1));
+      }
+
       this._compFields.messageId = messageId;
     }
     let headers = new Map([
