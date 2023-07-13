@@ -70,8 +70,16 @@ def get_multi_translate(l10n_strings: FluentTranslator):
 
 
 def build_template(
-    output: Path, template: Path, l10n_base: Path, locales: List[str], fluent_resources: List[str]
+    output: Path,
+    template: Path,
+    l10n_base: Path,
+    locales: List[str],
+    fluent_resources: List[str],
+    is_beta: bool,
 ):
+    wmclass = "thunderbird"
+    if is_beta:
+        wmclass = wmclass + "-beta"
     locales_plus = locales + ["en-US"]
     l10n_strings = FluentTranslator(l10n_base.resolve(), locales_plus, fluent_resources)
 
@@ -79,7 +87,9 @@ def build_template(
         jinja_template = jinja2.Template(fp.read())
 
     translate_multi = get_multi_translate(l10n_strings)
-    result = jinja_template.render(strings=l10n_strings, translate=translate_multi)
+    result = jinja_template.render(
+        strings=l10n_strings, translate=translate_multi, wmclass=wmclass
+    )
 
     with open(output, "w") as fp:
         fp.write(result)
@@ -109,11 +119,27 @@ def get_strings(l10n_base, rev, fluent_files):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-o", dest="output", type=Path, help="Output file")
-    parser.add_argument("-t", dest="template", type=Path, help="Jinja2 template file")
-    parser.add_argument("-l", dest="l10n_base", type=Path, help="l10n-central root path")
-    parser.add_argument("-L", dest="locales_file", type=Path, help="List of supported locales")
-    parser.add_argument("-f", dest="fluent_files", type=str, action="extend", nargs="+")
+
+    parser.add_argument("-o", dest="output", type=Path, required=True, help="Output file")
+    parser.add_argument(
+        "-t", dest="template", type=Path, required=True, help="Jinja2 template file"
+    )
+    parser.add_argument(
+        "-l", dest="l10n_base", type=Path, required=True, help="l10n-central root path"
+    )
+    parser.add_argument(
+        "-L", dest="locales_file", type=Path, required=True, help="List of supported locales"
+    )
+    parser.add_argument(
+        "-f", dest="fluent_files", type=str, arequired=True, ction="extend", nargs="+"
+    )
+    parser.add_argument(
+        "--beta",
+        dest="is_beta",
+        action="store_true",
+        default=False,
+        help="Mark this build a beta version",
+    )
 
     args = parser.parse_args()
 
@@ -124,7 +150,9 @@ def main():
 
     get_strings(args.l10n_base, comm_l10n_rev, args.fluent_files)
 
-    build_template(args.output, args.template, args.l10n_base, locales, args.fluent_files)
+    build_template(
+        args.output, args.template, args.l10n_base, locales, args.fluent_files, args.is_beta
+    )
 
 
 if __name__ == "__main__":
