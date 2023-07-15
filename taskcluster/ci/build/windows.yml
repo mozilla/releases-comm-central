@@ -341,7 +341,7 @@ win64-plain/debug:
         platform: windows2012-64/debug
         symbol: Bp
         tier: 2
-    worker-type: b-win2012
+    worker-type: b-win2022
     worker:
         max-run-time: 7200
         env:
@@ -385,7 +385,7 @@ win64-plain/opt:
         platform: windows2012-64/opt
         symbol: Bp
         tier: 2
-    worker-type: b-win2012
+    worker-type: b-win2022
     worker:
         max-run-time: 7200
         env:

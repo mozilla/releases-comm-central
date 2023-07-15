@@ -175,7 +175,7 @@ workers:
             implementation: docker-worker
             os: linux
             worker-type: '{alias}'
-        b-win2012:
+        b-win2022:
             provisioner: 'comm-{level}'
             implementation: generic-worker
             os: windows
