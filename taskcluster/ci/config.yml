@@ -179,7 +179,7 @@ workers:
             provisioner: 'comm-{level}'
             implementation: generic-worker
             os: windows
-            worker-type: '{alias}-azure'
+            worker-type: '{alias}'
         images:
             provisioner: 'comm-{level}'
             implementation: docker-worker
