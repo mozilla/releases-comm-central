@@ -12,6 +12,7 @@ let addressBookButton = document.getElementById("addressBookButton");
 let calendarButton = document.getElementById("calendarButton");
 let tasksButton = document.getElementById("tasksButton");
 let tabmail = document.getElementById("tabmail");
+
 let rootFolder, testFolder, testMessages, addressBook;
 
 add_setup(async function () {
@@ -21,6 +22,9 @@ add_setup(async function () {
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
+
+  // Quick Filter Bar needs to be toggled on for F6 focus shift to be accurate.
+  goDoCommand("cmd_showQuickFilterBar");
 
   rootFolder.createSubfolder("paneFocus", null);
   testFolder = rootFolder
@@ -71,6 +75,8 @@ add_task(async function testMail3PaneTab() {
     accountCentralBrowser,
   } = about3Pane;
 
+  // Reset focus to accountCentralBrowser because QFB was toggled on.
+  accountCentralBrowser.focus();
   info("Displaying the root folder");
   about3Pane.displayFolder(rootFolder.URI);
   cycle(
