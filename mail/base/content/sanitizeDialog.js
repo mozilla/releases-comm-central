@@ -84,6 +84,7 @@ var gSanitizePromptDialog = {
       if (warningBox.hidden) {
         warningBox.hidden = false;
       }
+      window.sizeToContent();
       window.document.title = this.bundleBrowser.getString(
         "sanitizeDialog2.everything.title"
       );
