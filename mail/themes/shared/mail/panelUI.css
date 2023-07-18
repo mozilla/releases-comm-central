@@ -1118,13 +1118,6 @@ menulist[open="true"]:not([disabled="true"]) {
   margin-block-start: 2px;
 }
 
-.checkbox-description {
-  margin-inline-start: 27px;
-  font-size: 0.95rem;
-  opacity: 0.8;
-  margin-block: -5px 6px;
-}
-
 /* Tools */
 
 #appmenu_import {

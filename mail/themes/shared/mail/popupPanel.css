@@ -204,3 +204,10 @@ html|input.editContactTextbox[readonly] {
 .popup-panel-buttons-container > button.primary:not([disabled]):hover:active {
   background-color: var(--button-primary-active-background-color);
 }
+
+.checkbox-description {
+  margin-inline-start: 23px;
+  font-size: 0.95rem;
+  opacity: 0.8;
+  margin-block: -5px 6px;
+}
