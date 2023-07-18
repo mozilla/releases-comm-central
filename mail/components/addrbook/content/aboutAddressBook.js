@@ -4247,7 +4247,7 @@ var photoDialog = {
   _getUseableURL(dataTransfer) {
     let data = dataTransfer.getData("text/plain");
 
-    return /^https?:\/\//.test(data) ? data : null;
+    return data.startsWith("https://") ? data : null;
   },
 
   _onDragOver(event) {

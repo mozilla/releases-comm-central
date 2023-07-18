@@ -532,7 +532,7 @@ async function subtest_paste_url() {
     Ci.nsISupportsString
   );
   wrapper1.data =
-    "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/photo1.jpg";
+    "https://example.com/browser/comm/mail/components/addrbook/test/browser/data/photo1.jpg";
   let transfer1 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
@@ -571,7 +571,7 @@ async function subtest_paste_url() {
     Ci.nsISupportsString
   );
   wrapper2.data =
-    "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/photo2.jpg";
+    "https://example.com/browser/comm/mail/components/addrbook/test/browser/data/photo2.jpg";
   let transfer2 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
@@ -607,7 +607,7 @@ async function subtest_paste_url() {
     Ci.nsISupportsString
   );
   wrapper3.data =
-    "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/fake.jpg";
+    "https://example.com/browser/comm/mail/components/addrbook/test/browser/data/fake.jpg";
   let transfer3 = Cc["@mozilla.org/widget/transferable;1"].createInstance(
     Ci.nsITransferable
   );
