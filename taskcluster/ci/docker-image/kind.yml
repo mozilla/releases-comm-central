@@ -42,6 +42,9 @@ reference-jobs:
     - ubuntu2004-base
     - ubuntu2004-packages
     - ubuntu2004-raw
+    - ubuntu2204-raw
+    - ubuntu2204-packages
+    - ubuntu2204-base
     - update-verify
 
 transforms:
