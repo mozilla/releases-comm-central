@@ -9,6 +9,8 @@
 /** Document Zoom Management Code
  *
  * Forked from M-C since we don't provide a global gBrowser variable.
+ *
+ * TODO: Move to dedicated js module - see bug 1841768.
  */
 
 var ZoomManager = {
@@ -89,29 +91,31 @@ var ZoomManager = {
     return (this.zoomValues = zoomValues);
   },
 
-  enlarge() {
-    var i = this.zoomValues.indexOf(this.snap(this.zoom)) + 1;
+  enlarge(browser = getBrowser()) {
+    const i =
+      this.zoomValues.indexOf(this.snap(this.getZoomForBrowser(browser))) + 1;
     if (i < this.zoomValues.length) {
-      this.zoom = this.zoomValues[i];
+      this.setZoomForBrowser(browser, this.zoomValues[i]);
     }
   },
 
-  reduce() {
-    var i = this.zoomValues.indexOf(this.snap(this.zoom)) - 1;
+  reduce(browser = getBrowser()) {
+    const i =
+      this.zoomValues.indexOf(this.snap(this.getZoomForBrowser(browser))) - 1;
     if (i >= 0) {
-      this.zoom = this.zoomValues[i];
+      this.setZoomForBrowser(browser, this.zoomValues[i]);
     }
   },
 
-  reset() {
-    this.zoom = 1;
+  reset(browser = getBrowser()) {
+    this.setZoomForBrowser(browser, 1);
   },
 
-  toggleZoom() {
-    var zoomLevel = this.zoom;
+  toggleZoom(browser = getBrowser()) {
+    const zoomLevel = this.getZoomForBrowser();
 
     this.useFullZoom = !this.useFullZoom;
-    this.zoom = zoomLevel;
+    this.setZoomForBrowser(browser, zoomLevel);
   },
 
   snap(aVal) {

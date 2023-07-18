@@ -12,7 +12,7 @@
 /* globals mailContextMenu */
 
 // globalOverlay.js
-/* globals goDoCommand */
+/* globals goDoCommand, goUpdateCommand */
 
 // mail-offline.js
 /* globals MailOfflineMgr */
@@ -4276,33 +4276,43 @@ var threadPane = {
    * Handle threadPane select events.
    */
   _onSelect(event) {
-    if (paneLayout.messagePaneSplitter.isCollapsed || !gDBView) {
-      return;
-    }
-    messagePane.clearWebPage();
-    switch (gDBView.numSelected) {
-      case 0:
-        messagePane.clearMessage();
-        messagePane.clearMessages();
-        threadPaneHeader.selectedCount.hidden = true;
-        return;
-      case 1:
-        if (
-          gDBView.getFlagsAt(threadTree.selectedIndex) & MSG_VIEW_FLAG_DUMMY
-        ) {
+    if (!paneLayout.messagePaneVisible.isCollapsed && gDBView) {
+      messagePane.clearWebPage();
+      switch (gDBView.numSelected) {
+        case 0:
           messagePane.clearMessage();
           messagePane.clearMessages();
           threadPaneHeader.selectedCount.hidden = true;
-        } else {
-          let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
-          messagePane.displayMessage(uri);
+          break;
+        case 1:
+          if (
+            gDBView.getFlagsAt(threadTree.selectedIndex) & MSG_VIEW_FLAG_DUMMY
+          ) {
+            messagePane.clearMessage();
+            messagePane.clearMessages();
+            threadPaneHeader.selectedCount.hidden = true;
+          } else {
+            let uri = gDBView.getURIForViewIndex(threadTree.selectedIndex);
+            messagePane.displayMessage(uri);
+            threadPaneHeader.updateSelectedCount();
+          }
+          break;
+        default:
+          messagePane.displayMessages(gDBView.getSelectedMsgHdrs());
           threadPaneHeader.updateSelectedCount();
-        }
-        return;
-      default:
-        messagePane.displayMessages(gDBView.getSelectedMsgHdrs());
-        threadPaneHeader.updateSelectedCount();
-        break;
+          break;
+      }
+    }
+
+    // Update the state of the zoom commands, since the view has changed.
+    const commandsToUpdate = [
+      "cmd_fullZoomReduce",
+      "cmd_fullZoomEnlarge",
+      "cmd_fullZoomReset",
+      "cmd_fullZoomToggle",
+    ];
+    for (const command of commandsToUpdate) {
+      top.goUpdateCommand(command);
     }
   },
 
@@ -6664,26 +6674,51 @@ commandController.registerCallback(
   () => !this.messageBrowser.hidden
 );
 
+/**
+ * Helper function for the zoom commands, which returns the browser that is
+ * currently visible in the message pane or null if no browser is visible.
+ *
+ * @returns {?XULElement} - A XUL browser or null.
+ */
+function visibleMessagePaneBrowser() {
+  if (!webBrowser.hidden) {
+    return webBrowser;
+  }
+
+  if (!messageBrowser.hidden) {
+    // If the message browser is the one visible, actually return the
+    // element showing the message's content, since that's the one zoom
+    // commands should apply to.
+    return messageBrowser.contentDocument.getElementById("messagepane");
+  }
+
+  if (!multiMessageBrowser.hidden) {
+    return multiMessageBrowser;
+  }
+
+  return null;
+}
+
 // Zoom.
 commandController.registerCallback(
   "cmd_fullZoomReduce",
-  () => top.ZoomManager.reduce(),
-  () => !webBrowser.hidden || !messageBrowser.hidden
+  () => top.ZoomManager.reduce(visibleMessagePaneBrowser()),
+  () => visibleMessagePaneBrowser() != null
 );
 commandController.registerCallback(
   "cmd_fullZoomEnlarge",
-  () => top.ZoomManager.enlarge(),
-  () => !webBrowser.hidden || !messageBrowser.hidden
+  () => top.ZoomManager.enlarge(visibleMessagePaneBrowser()),
+  () => visibleMessagePaneBrowser() != null
 );
 commandController.registerCallback(
   "cmd_fullZoomReset",
-  () => top.ZoomManager.reset(),
-  () => !webBrowser.hidden || !messageBrowser.hidden
+  () => top.ZoomManager.reset(visibleMessagePaneBrowser()),
+  () => visibleMessagePaneBrowser() != null
 );
 commandController.registerCallback(
   "cmd_fullZoomToggle",
-  () => top.ZoomManager.toggleZoom(),
-  () => !webBrowser.hidden || !messageBrowser.hidden
+  () => top.ZoomManager.toggleZoom(visibleMessagePaneBrowser()),
+  () => visibleMessagePaneBrowser() != null
 );
 
 // Browser commands.

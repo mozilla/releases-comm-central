@@ -139,7 +139,7 @@ var mailTabType = {
               return null;
             }
 
-            let { messageBrowser, webBrowser } =
+            const { messageBrowser, webBrowser } =
               tab.chromeBrowser.contentWindow;
             if (messageBrowser && !messageBrowser.hidden) {
               return messageBrowser.contentDocument.getElementById(
@@ -149,6 +149,7 @@ var mailTabType = {
             if (webBrowser && !webBrowser.hidden) {
               return webBrowser;
             }
+
             return null;
           },
         });
