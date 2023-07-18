@@ -131,7 +131,7 @@ def main():
         "-L", dest="locales_file", type=Path, required=True, help="List of supported locales"
     )
     parser.add_argument(
-        "-f", dest="fluent_files", type=str, arequired=True, ction="extend", nargs="+"
+        "-f", dest="fluent_files", type=str, required=True, ction="extend", nargs="+"
     )
     parser.add_argument(
         "--beta",
