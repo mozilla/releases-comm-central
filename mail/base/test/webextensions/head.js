@@ -259,8 +259,8 @@ async function checkNotification(
  * @returns {Promise}
  */
 async function testInstallMethod(installFn) {
-  const PERMS_XPI = "browser_webext_permissions.xpi";
-  const NO_PERMS_XPI = "browser_webext_nopermissions.xpi";
+  const PERMS_XPI = "addons/browser_webext_permissions.xpi";
+  const NO_PERMS_XPI = "addons/browser_webext_nopermissions.xpi";
   const ID = "permissions@test.mozilla.org";
 
   await SpecialPowers.pushPrefEnv({
@@ -446,9 +446,12 @@ async function interactiveUpdateTest(autoUpdate, checkFn) {
   }
 
   // Install version 1.0 of the test extension
-  let addon = await promiseInstallAddon(`${BASE}/browser_webext_update1.xpi`, {
-    source: FAKE_INSTALL_SOURCE,
-  });
+  let addon = await promiseInstallAddon(
+    `${BASE}/addons/browser_webext_update1.xpi`,
+    {
+      source: FAKE_INSTALL_SOURCE,
+    }
+  );
   ok(addon, "Addon was installed");
   is(addon.version, "1.0", "Version 1 of the addon is installed");
 

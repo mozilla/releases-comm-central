@@ -1,0 +1,35 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+BROWSER_CHROME_MANIFESTS += [
+    "browser.ini",
+]
+
+addons = [
+    "browser_webext_experiment",
+    "browser_webext_experiment_permissions",
+    "browser_webext_experiment_update1",
+    "browser_webext_experiment_update2",
+    "browser_webext_nopermissions",
+    "browser_webext_permissions",
+    "browser_webext_unsigned",
+    "browser_webext_update1",
+    "browser_webext_update2",
+    "browser_webext_update_icon1",
+    "browser_webext_update_icon2",
+    "browser_webext_update_origins1",
+    "browser_webext_update_origins2",
+    "browser_webext_update_perms1",
+    "browser_webext_update_perms2",
+]
+
+output_dir = OBJDIR_FILES._tests.testing.mochitest.browser.comm.mail.base.test.webextensions.addons
+
+for addon in addons:
+    indir = "addons/%s" % addon
+    path = "%s.xpi" % indir
+
+    GeneratedFile(path, script="/toolkit/mozapps/extensions/test/create_xpi.py", inputs=[indir])
+
+    output_dir += ["!%s" % path]

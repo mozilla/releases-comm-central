@@ -77,6 +77,8 @@ async function testExperimentPrompt(filename) {
 }
 
 add_task(async () => {
-  await testExperimentPrompt("browser_webext_experiment.xpi");
-  await testExperimentPrompt("browser_webext_experiment_permissions.xpi");
+  await testExperimentPrompt("addons/browser_webext_experiment.xpi");
+  await testExperimentPrompt(
+    "addons/browser_webext_experiment_permissions.xpi"
+  );
 });

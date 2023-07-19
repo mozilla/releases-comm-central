@@ -1,0 +1,7 @@
+{
+  "manifest_version": 2,
+  "name": "WebExtension Experiment Update Test",
+  "description": "Test for extensions being updated from a simple WebExtension to an Experiment.",
+  "version": "1.0",
+  "applications": { "gecko": { "id": "experiment_update@test.mozilla.org" } }
+}

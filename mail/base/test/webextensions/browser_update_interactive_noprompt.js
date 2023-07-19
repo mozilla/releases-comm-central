@@ -59,7 +59,7 @@ async function testUpdateNoPrompt(
 // are added.
 add_task(() =>
   testUpdateNoPrompt(
-    "browser_webext_update_perms1.xpi",
+    "addons/browser_webext_update_perms1.xpi",
     "update_perms@tests.mozilla.org"
   )
 );
@@ -68,7 +68,7 @@ add_task(() =>
 // showing a notification prompt.
 add_task(() =>
   testUpdateNoPrompt(
-    "browser_webext_update_origins1.xpi",
+    "addons/browser_webext_update_origins1.xpi",
     "update_origins@tests.mozilla.org"
   )
 );
@@ -76,7 +76,7 @@ add_task(() =>
 // Test that an Experiment is not prompting for additional permissions.
 add_task(() =>
   testUpdateNoPrompt(
-    "browser_webext_experiment.xpi",
+    "addons/browser_webext_experiment.xpi",
     "experiment_test@tests.mozilla.org"
   )
 );

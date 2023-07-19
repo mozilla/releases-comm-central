@@ -101,16 +101,16 @@ async function testNoPrompt(origUrl, id) {
 // Test that an update that adds new non-promptable permissions is just
 // applied without showing a notification dialog.
 add_task(() =>
-  testNoPrompt(`${BASE}/browser_webext_update_perms1.xpi`, ID_PERMS)
+  testNoPrompt(`${BASE}/addons/browser_webext_update_perms1.xpi`, ID_PERMS)
 );
 
 // Test that an update that narrows origin permissions is just applied without
 // showing a notification prompt
 add_task(() =>
-  testNoPrompt(`${BASE}/browser_webext_update_origins1.xpi`, ID_ORIGINS)
+  testNoPrompt(`${BASE}/addons/browser_webext_update_origins1.xpi`, ID_ORIGINS)
 );
 
 // Test that an Experiment is not prompting for additional permissions.
 add_task(() =>
-  testNoPrompt(`${BASE}/browser_webext_experiment.xpi`, ID_EXPERIMENT)
+  testNoPrompt(`${BASE}/addons/browser_webext_experiment.xpi`, ID_EXPERIMENT)
 );

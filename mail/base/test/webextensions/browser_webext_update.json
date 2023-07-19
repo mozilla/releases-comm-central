@@ -4,7 +4,7 @@
       "updates": [
         {
           "version": "2.0",
-          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/browser_webext_update2.xpi",
+          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/addons/browser_webext_update2.xpi",
           "applications": {
             "gecko": {
               "strict_min_version": "1"
@@ -17,7 +17,7 @@
       "updates": [
         {
           "version": "2.0",
-          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/browser_webext_update_icon2.xpi",
+          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/addons/browser_webext_update_icon2.xpi",
           "applications": {
             "gecko": {
               "strict_min_version": "1"
@@ -30,7 +30,7 @@
       "updates": [
         {
           "version": "2.0",
-          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/browser_webext_update_perms2.xpi",
+          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/addons/browser_webext_update_perms2.xpi",
           "applications": {
             "gecko": {
               "strict_min_version": "1"
@@ -43,7 +43,7 @@
       "updates": [
         {
           "version": "2.0",
-          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/browser_webext_update_origins2.xpi",
+          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/addons/browser_webext_update_origins2.xpi",
           "applications": {
             "gecko": {
               "strict_min_version": "1"
@@ -56,7 +56,7 @@
       "updates": [
         {
           "version": "2.0",
-          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/browser_webext_experiment_permissions.xpi",
+          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/addons/browser_webext_experiment_permissions.xpi",
           "applications": {
             "gecko": {
               "strict_min_version": "1"
@@ -69,7 +69,7 @@
       "updates": [
         {
           "version": "2.0",
-          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/browser_webext_experiment_update2.xpi",
+          "update_link": "https://example.com/browser/comm/mail/base/test/webextensions/addons/browser_webext_experiment_update2.xpi",
           "applications": {
             "gecko": {
               "strict_min_version": "1"

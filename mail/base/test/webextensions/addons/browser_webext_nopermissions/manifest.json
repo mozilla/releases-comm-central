@@ -1,0 +1,8 @@
+{
+  "manifest_version": 2,
+  "name": "no permissions",
+  "description": "test an extension with no permissions",
+  "version": "1.0",
+
+  "applications": { "gecko": { "id": "nopermissions@test.mozilla.org" } }
+}

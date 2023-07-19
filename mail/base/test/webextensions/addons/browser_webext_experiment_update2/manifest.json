@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "WebExtension Experiment Update Test",
+  "description": "Test for extensions being updated from a simple WebExtension to an Experiment.",
+  "version": "2.0",
+  "applications": { "gecko": { "id": "experiment_update@test.mozilla.org" } },
+  "permissions": ["accountsRead"],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "experiment_apis": {
+    "myapi": {
+      "schema": "schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["myapi"]],
+        "script": "implementation.js"
+      }
+    }
+  }
+}

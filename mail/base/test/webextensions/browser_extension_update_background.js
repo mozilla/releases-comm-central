@@ -230,7 +230,7 @@ function checkDefaultIcon(icon) {
 
 add_task(() =>
   backgroundUpdateTest(
-    `${BASE}/browser_webext_update1.xpi`,
+    `${BASE}/addons/browser_webext_update1.xpi`,
     ID,
     checkDefaultIcon
   )
@@ -246,7 +246,7 @@ function checkNonDefaultIcon(icon) {
 
 add_task(() =>
   backgroundUpdateTest(
-    `${BASE}/browser_webext_update_icon1.xpi`,
+    `${BASE}/addons/browser_webext_update_icon1.xpi`,
     ID_ICON,
     checkNonDefaultIcon
   )
@@ -256,7 +256,7 @@ add_task(() =>
 // upgraded to an Experiment prompts for the permission update.
 add_task(() =>
   backgroundUpdateTest(
-    `${BASE}/browser_webext_experiment_update1.xpi`,
+    `${BASE}/addons/browser_webext_experiment_update1.xpi`,
     ID_EXPERIMENT,
     checkDefaultIcon
   )

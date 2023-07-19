@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "test",
+  "description": "test",
+  "version": "1.0",
+
+  "applications": {
+    "gecko": {
+      "id": "update_origins@tests.mozilla.org"
+    }
+  },
+
+  "permissions": ["<all_urls>"]
+}

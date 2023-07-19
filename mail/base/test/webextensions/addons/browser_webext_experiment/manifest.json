@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "Extension containing an experimental API",
+  "version": "1.0",
+  "applications": {
+    "gecko": {
+      "id": "experiment_test@tests.mozilla.org"
+    }
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "experiment_apis": {
+    "myapi": {
+      "schema": "schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["myapi"]],
+        "script": "implementation.js"
+      }
+    }
+  }
+}

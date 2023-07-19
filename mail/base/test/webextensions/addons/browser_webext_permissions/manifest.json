@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+  "name": "permissions test",
+  "description": "permissions test",
+  "version": "1.4",
+
+  "applications": { "gecko": { "id": "permissions@test.mozilla.org" } },
+
+  "icons": {
+    "64": "icon.png"
+  },
+
+  "permissions": [
+    "tabs",
+    "accountsRead",
+    "nativeMessaging",
+    "http://singlehost.domain/*",
+    "https://singlehost.domain/*",
+    "http://*.wildcard.domain/*",
+    "https://*.wildcard.domain/*"
+  ]
+}

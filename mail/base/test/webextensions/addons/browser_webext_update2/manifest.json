@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "test",
+  "description": "test",
+  "version": "2.0",
+
+  "applications": {
+    "gecko": {
+      "id": "update2@tests.mozilla.org"
+    }
+  },
+
+  "permissions": ["accountsRead", "cookies", "<all_urls>"]
+}

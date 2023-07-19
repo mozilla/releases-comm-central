@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+
+Name: icon.png
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: oe7agxsy8xwqKgbMiGLJ+Q==
+SHA1-Digest: k7LfDhI6qJRSM9kDommZSZQ1CUA=
+
+Name: manifest.json
+Digest-Algorithms: MD5 SHA1
+MD5-Digest: EMnunII/Qa1Zb/wUcPoWFA==
+SHA1-Digest: d9djTTzgKhUy/rRkZFDi3lRg0qI=
+
