@@ -32,345 +32,232 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   color-scheme: light dark;
 }
 
-/* ..... Draw in titlebar ..... */
+@media (-moz-windows-default-theme) {
+  :root:not(:-moz-lwtheme) {
+    background-color: var(--color-gray-10);
+  }
 
-:root[tabsintitlebar][sizemode="normal"] #titlebar {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-titlebar;
-}
+  :root[tabsintitlebar]:-moz-lwtheme {
+    background-color: var(--lwt-accent-color);
+  }
 
-:root[tabsintitlebar][sizemode="maximized"] #titlebar {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-titlebar-maximized;
-}
+  :root[tabsintitlebar]:-moz-lwtheme:-moz-window-inactive {
+    background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+  }
 
-@media (-moz-platform: windows-win7) and (-moz-windows-default-theme),
-       (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
-  :root[tabsintitlebar][sizemode="normal"] #titlebar {
-    appearance: none;
+  :root[tabsintitlebar] #navigation-toolbox {
+    margin-top: -1px;
+  }
+
+  :root[tabsintitlebar] #toolbar-menubar:not([inactive="true"]) {
+    margin-top: 1px;
+  }
+
+  @media (-moz-windows-accent-color-in-titlebar: 0) {
+    :root[sizemode=normal][tabsintitlebar] {
+      border-top: 1px solid rgba(0, 0, 0, 0.7);
+    }
+    :root[sizemode=normal][tabsintitlebar][always-use-accent-color-for-window-border]:not(:-moz-window-inactive) {
+      border-top-color: AccentColor;
+    }
+    :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
+      background-color: var(--color-gray-30);
+    }
+  }
+
+  @media (-moz-windows-accent-color-in-titlebar) {
+    :root[sizemode=normal][tabsintitlebar] {
+      border-top: 1px solid AccentColor;
+    }
+    :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
+      background-color: AccentColor;
+    }
+
+    :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive,:-moz-lwtheme) {
+      color: AccentColorText;
+    }
+  }
+
+  :root[sizemode=normal][tabsintitlebar]:-moz-window-inactive {
+    border-top-color: rgba(0, 0, 0, 0.3);
   }
 }
 
-@media (-moz-windows-classic) {
-  :root[tabsintitlebar] #navigation-toolbox > #toolbar-menubar {
-    border-bottom: none;
-  }
-
-  :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox > #toolbar-menubar {
-    margin-top: 4px;
-  }
+.titlebar-buttonbox,
+.titlebar-button {
+  appearance: none !important;
 }
 
-/* The button box must appear on top of the navigation-toolbox in order for
- * click and hover mouse events to work properly for the button in the restored
- * window state. Otherwise, elements in the navigation-toolbox, like the menubar,
- * can swallow those events. It will also place the buttons above the fog on
- * themes with Aero Glass.
- */
-.titlebar-buttonbox {
-  z-index: 1;
+.titlebar-button {
+  border: none;
+  margin: 0 !important;
+  padding: 9px 17px;
+  -moz-context-properties: stroke;
+  stroke: currentColor;
 }
 
-.titlebar-buttonbox {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-button-box;
-  position: relative;
-}
-
-@media (-moz-windows-classic) {
-  .titlebar-buttonbox {
-    appearance: none;
+@media (-moz-windows-default-theme) {
+  @media (-moz-windows-accent-color-in-titlebar) {
+    .titlebar-button:not(:-moz-window-inactive,:-moz-lwtheme) {
+      stroke: AccentColorText;
+    }
   }
 }
 
-:root[sizemode="maximized"] .titlebar-buttonbox {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-button-box-maximized;
+.titlebar-buttonbox > .titlebar-button > .toolbarbutton-icon {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
 }
 
 .titlebar-min {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-button-minimize;
-}
-
-@media (-moz-windows-classic: 0) {
-  .titlebar-min {
-    margin-inline-end: 2px;
-  }
+  list-style-image: url("chrome://messenger/skin/window-controls/minimize.svg");
+  margin-inline-end: 2px;
 }
 
 .titlebar-max {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-button-maximize;
+  list-style-image: url("chrome://messenger/skin/window-controls/maximize.svg");
 }
 
 .titlebar-restore {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-button-restore;
+  list-style-image: url("chrome://messenger/skin/window-controls/restore.svg");
+}
+
+.titlebar-restore:-moz-locale-dir(rtl) {
+  transform: scaleX(-1);
 }
 
 .titlebar-close {
-  appearance: auto;
-  -moz-default-appearance: -moz-window-button-close;
+  list-style-image: url("chrome://messenger/skin/window-controls/close.svg");
 }
 
-@media (-moz-windows-compositor) {
-  @media (-moz-platform: windows-win7),
-         (-moz-platform: windows-win8) {
-    :root {
-      appearance: auto;
-      -moz-default-appearance: -moz-win-borderless-glass;
-      background-color: transparent;
-    }
+:root[lwtheme-image] .titlebar-button {
+  -moz-context-properties: unset;
+}
+:root[lwtheme-image] .titlebar-min {
+  list-style-image: url("chrome://messenger/skin/window-controls/minimize-themes.svg");
+}
+:root[lwtheme-image] .titlebar-max {
+  list-style-image: url("chrome://messenger/skin/window-controls/maximize-themes.svg");
+}
+:root[lwtheme-image] .titlebar-restore {
+  list-style-image: url("chrome://messenger/skin/window-controls/restore-themes.svg");
+}
+:root[lwtheme-image] .titlebar-close {
+  list-style-image: url("chrome://messenger/skin/window-controls/close-themes.svg");
+}
 
-    /* These should be hidden w/ glass enabled. Windows draws its own buttons. */
-    .titlebar-button {
-      display: none;
-    }
+/* the 12px image renders a 10px icon, and the 10px upscaled gets rounded to 12.5, which
+ * rounds up to 13px, which makes the icon one pixel too big on 1.25dppx. Fix: */
+@media (min-resolution: 1.20dppx) and (max-resolution: 1.45dppx) {
+  .titlebar-button > .toolbarbutton-icon {
+    width: 11.5px;
+    height: 11.5px;
+  }
+}
 
-    :root[sizemode="normal"] .titlebar-buttonbox:-moz-lwtheme {
-      margin-top: -2px;
-    }
-
-    :root[sizemode="maximized"] .titlebar-buttonbox {
-      margin-inline-end: 3px;
-    }
+/* 175% dpi should result in the same device pixel sizes as 150% dpi. */
+@media (min-resolution: 1.70dppx) and (max-resolution: 1.95dppx) {
+  .titlebar-button {
+    padding-left: 14.1px;
+    padding-right: 14.1px;
   }
 
-  @media (-moz-platform: windows-win10) {
-    @media (-moz-windows-default-theme) {
-      :root:not(:-moz-lwtheme) {
-        background-color: var(--color-gray-10);
-      }
+  .titlebar-button > .toolbarbutton-icon {
+    width: 10.8px;
+    height: 10.8px;
+  }
+}
 
-      :root[tabsintitlebar]:-moz-lwtheme {
-        background-color: var(--lwt-accent-color);
-      }
+/* 225% dpi should result in the same device pixel sizes as 200% dpi. */
+@media (min-resolution: 2.20dppx) and (max-resolution: 2.45dppx) {
+  .titlebar-button {
+    padding-left: 15.3333px;
+    padding-right: 15.3333px;
+  }
 
-      :root[tabsintitlebar]:-moz-lwtheme:-moz-window-inactive {
-        background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
-      }
+  .titlebar-button > .toolbarbutton-icon {
+    width: 10.8px;
+    height: 10.8px;
+  }
+}
 
-      :root[tabsintitlebar] #navigation-toolbox {
-        margin-top: -1px;
-      }
+/* 275% dpi should result in the same device pixel sizes as 250% dpi. */
+@media (min-resolution: 2.70dppx) and (max-resolution: 2.95dppx) {
+  /* NB: todo: this should also change padding on the buttons
+   * themselves, but without a device to test this on, it's
+   * impossible to know by how much. */
+  .titlebar-button > .toolbarbutton-icon {
+    width: 10.8px;
+    height: 10.8px;
+  }
+}
 
-      :root[tabsintitlebar] #toolbar-menubar:not([inactive="true"]) {
-        margin-top: 1px;
-      }
+@media (-moz-windows-default-theme) {
+  .titlebar-button:hover {
+    background-color: hsla(0, 0%, 0%, .12);
+  }
 
-      @media (-moz-windows-accent-color-in-titlebar: 0) {
-        :root[sizemode=normal][tabsintitlebar] {
-          border-top: 1px solid rgba(0, 0, 0, 0.7);
-        }
-        :root[sizemode=normal][tabsintitlebar][always-use-accent-color-for-window-border]:not(:-moz-window-inactive) {
-          border-top-color: AccentColor;
-        }
-        :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
-          background-color: var(--color-gray-30);
-        }
-      }
+  .titlebar-button:hover:active {
+    background-color: hsla(0, 0%, 0%, .22);
+  }
 
-      @media (-moz-windows-accent-color-in-titlebar) {
-        :root[sizemode=normal][tabsintitlebar] {
-          border-top: 1px solid AccentColor;
-        }
-        :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
-          background-color: AccentColor;
-        }
+  .titlebar-button:not(:hover) > .toolbarbutton-icon:-moz-window-inactive {
+    opacity: 0.5;
+  }
 
-        :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive,:-moz-lwtheme) {
-          color: AccentColorText;
-        }
-      }
+  .titlebar-close:hover {
+    stroke: white;
+    background-color: var(--color-red-60);
+  }
 
-      :root[sizemode=normal][tabsintitlebar]:-moz-window-inactive {
-        border-top-color: rgba(0, 0, 0, 0.3);
-      }
+  .titlebar-close:hover:active {
+    background-color: var(--color-red-50);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .titlebar-button:hover {
+      background-color: hsla(0, 0%, 100%, .12);
     }
 
-    @media (prefers-contrast) {
-      #tabmail-container {
-        appearance: auto;
-        -moz-default-appearance: -moz-win-exclude-glass;
-      }
+    .titlebar-button:hover:active {
+      background-color: hsla(0, 0%, 100%, .22);
     }
 
-    .titlebar-buttonbox,
-    .titlebar-button {
-      appearance: none !important;
+    .titlebar-close:hover {
+      background-color: var(--color-red-70);
     }
 
-    .titlebar-button {
-      border: none;
-      margin: 0 !important;
-      padding: 9px 17px;
-      -moz-context-properties: stroke;
-      stroke: currentColor;
+    .titlebar-close:hover:active {
+      background-color: var(--color-red-60);
     }
+  }
+}
 
-    @media (-moz-windows-default-theme) {
-      @media (-moz-windows-accent-color-in-titlebar) {
-        .titlebar-button:not(:-moz-window-inactive,:-moz-lwtheme) {
-          stroke: AccentColorText;
-        }
-      }
-    }
+@media (prefers-contrast) {
+  .titlebar-button {
+    stroke: ButtonText;
+    background-color: Field;
+  }
+  .titlebar-button:hover {
+    stroke: SelectedItemText;
+    background-color: SelectedItem;
+  }
 
-    .titlebar-buttonbox > .titlebar-button > .toolbarbutton-icon {
-      display: inline-flex;
-      width: 12px;
-      height: 12px;
-    }
+  .titlebar-min {
+    list-style-image: url("chrome://messenger/skin/window-controls/minimize-highcontrast.svg");
+  }
 
-    .titlebar-min {
-      list-style-image: url("chrome://messenger/skin/window-controls/minimize.svg");
-    }
+  .titlebar-max {
+    list-style-image: url("chrome://messenger/skin/window-controls/maximize-highcontrast.svg");
+  }
 
-    .titlebar-max {
-      list-style-image: url("chrome://messenger/skin/window-controls/maximize.svg");
-    }
+  .titlebar-restore {
+    list-style-image: url("chrome://messenger/skin/window-controls/restore-highcontrast.svg");
+  }
 
-    .titlebar-restore {
-      list-style-image: url("chrome://messenger/skin/window-controls/restore.svg");
-    }
-
-    .titlebar-restore:-moz-locale-dir(rtl) {
-      transform: scaleX(-1);
-    }
-
-    .titlebar-close {
-      list-style-image: url("chrome://messenger/skin/window-controls/close.svg");
-    }
-
-    :root[lwtheme-image] .titlebar-button {
-      -moz-context-properties: unset;
-    }
-    :root[lwtheme-image] .titlebar-min {
-      list-style-image: url("chrome://messenger/skin/window-controls/minimize-themes.svg");
-    }
-    :root[lwtheme-image] .titlebar-max {
-      list-style-image: url("chrome://messenger/skin/window-controls/maximize-themes.svg");
-    }
-    :root[lwtheme-image] .titlebar-restore {
-      list-style-image: url("chrome://messenger/skin/window-controls/restore-themes.svg");
-    }
-    :root[lwtheme-image] .titlebar-close {
-      list-style-image: url("chrome://messenger/skin/window-controls/close-themes.svg");
-    }
-
-    /* the 12px image renders a 10px icon, and the 10px upscaled gets rounded to 12.5, which
-     * rounds up to 13px, which makes the icon one pixel too big on 1.25dppx. Fix: */
-    @media (min-resolution: 1.20dppx) and (max-resolution: 1.45dppx) {
-      .titlebar-button > .toolbarbutton-icon {
-        width: 11.5px;
-        height: 11.5px;
-      }
-    }
-
-    /* 175% dpi should result in the same device pixel sizes as 150% dpi. */
-    @media (min-resolution: 1.70dppx) and (max-resolution: 1.95dppx) {
-      .titlebar-button {
-        padding-left: 14.1px;
-        padding-right: 14.1px;
-      }
-
-      .titlebar-button > .toolbarbutton-icon {
-        width: 10.8px;
-        height: 10.8px;
-      }
-    }
-
-    /* 225% dpi should result in the same device pixel sizes as 200% dpi. */
-    @media (min-resolution: 2.20dppx) and (max-resolution: 2.45dppx) {
-      .titlebar-button {
-        padding-left: 15.3333px;
-        padding-right: 15.3333px;
-      }
-
-      .titlebar-button > .toolbarbutton-icon {
-        width: 10.8px;
-        height: 10.8px;
-      }
-    }
-
-    /* 275% dpi should result in the same device pixel sizes as 250% dpi. */
-    @media (min-resolution: 2.70dppx) and (max-resolution: 2.95dppx) {
-      /* NB: todo: this should also change padding on the buttons
-       * themselves, but without a device to test this on, it's
-       * impossible to know by how much. */
-      .titlebar-button > .toolbarbutton-icon {
-        width: 10.8px;
-        height: 10.8px;
-      }
-    }
-
-    @media (-moz-windows-default-theme) {
-      .titlebar-button:hover {
-        background-color: hsla(0, 0%, 0%, .12);
-      }
-
-      .titlebar-button:hover:active {
-        background-color: hsla(0, 0%, 0%, .22);
-      }
-
-      .titlebar-button:not(:hover) > .toolbarbutton-icon:-moz-window-inactive {
-        opacity: 0.5;
-      }
-
-      .titlebar-close:hover {
-        stroke: white;
-        background-color: var(--color-red-60);
-      }
-
-      .titlebar-close:hover:active {
-        background-color: var(--color-red-50);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .titlebar-button:hover {
-          background-color: hsla(0, 0%, 100%, .12);
-        }
-
-        .titlebar-button:hover:active {
-          background-color: hsla(0, 0%, 100%, .22);
-        }
-
-        .titlebar-close:hover {
-          background-color: var(--color-red-70);
-        }
-
-        .titlebar-close:hover:active {
-          background-color: var(--color-red-60);
-        }
-      }
-    }
-    @media (prefers-contrast) {
-      .titlebar-button {
-        stroke: ButtonText;
-        background-color: Field;
-      }
-      .titlebar-button:hover {
-        stroke: SelectedItemText;
-        background-color: SelectedItem;
-      }
-
-      .titlebar-min {
-        list-style-image: url("chrome://messenger/skin/window-controls/minimize-highcontrast.svg");
-      }
-
-      .titlebar-max {
-        list-style-image: url("chrome://messenger/skin/window-controls/maximize-highcontrast.svg");
-      }
-
-      .titlebar-restore {
-        list-style-image: url("chrome://messenger/skin/window-controls/restore-highcontrast.svg");
-      }
-
-      .titlebar-close {
-        list-style-image: url("chrome://messenger/skin/window-controls/close-highcontrast.svg");
-      }
-    }
+  .titlebar-close {
+    list-style-image: url("chrome://messenger/skin/window-controls/close-highcontrast.svg");
   }
 }
 
@@ -386,77 +273,13 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-@media (-moz-windows-non-native-menus) {
-  #viewPickerPopup > menu,
-  #viewPickerPopup > menuitem {
-    padding-inline-start: 1em;
-  }
+#viewPickerPopup > menu,
+#viewPickerPopup > menuitem {
+  padding-inline-start: 1em;
 }
 
-@media (-moz-windows-default-theme) {
-  :root:not([lwt-tree],:-moz-lwtheme) #folderTree {
-    background-color: #fafafa;
-  }
-}
-
-@media (-moz-platform: windows-win7) and (-moz-windows-default-theme) {
-  @media (-moz-windows-glass: 0) {
-    #messengerWindow:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
-      background-color: var(--color-gray-30);
-    }
-  }
-}
-
-@media (-moz-platform: windows-win7) and (-moz-windows-default-theme),
-       (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
-  @media (-moz-windows-compositor) {
-    :root:not(:-moz-lwtheme) {
-      --lwt-tabs-border-color: var(--glassShadowColor);
-    }
-
-    #messengerWindow[sizemode=normal] #tabpanelcontainer {
-      border: 1px solid var(--glassShadowColor);
-      border-top: none;
-      background-clip: padding-box;
-    }
-
-    #messengerWindow[sizemode=normal] #toolbar-menubar {
-      border-right: 1px solid var(--glassShadowColor);
-      border-left: 1px solid var(--glassShadowColor);
-      background-clip: padding-box;
-    }
-
-    #messengerWindow[sizemode=normal] .statusbar {
-      margin-top: -1px;
-      border: 1px solid var(--glassShadowColor);
-      border-top-color: threedshadow;
-      border-radius: 1px 1px 0 0;
-      background-clip: padding-box;
-    }
-  }
-}
-
-@media (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
-  #messengerWindow:not([tabsintitlebar]) #navigation-toolbox:not(:-moz-lwtheme) {
-    background-color: var(--color-gray-30);
-  }
-}
-
-@media not (-moz-windows-non-native-menus) {
-  #viewPickerPopup > menu > .menu-text {
-    padding-inline-start: 0 !important;
-  }
-}
-
-@media (-moz-windows-compositor: 0) {
-  @media (-moz-windows-default-theme) {
-    #messengerWindow:not(:-moz-lwtheme) {
-      background-color: rgb(185, 209, 234);
-    }
-    #messengerWindow:not(:-moz-lwtheme):-moz-window-inactive {
-      background-color: rgb(215, 228, 242);
-    }
-  }
+:root:not([lwt-tree],:-moz-lwtheme) #folderTree {
+  background-color: #fafafa;
 }
 
 /* Global notification popup */
