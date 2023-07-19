@@ -48,8 +48,8 @@ def mach_sys_path(mozilla_dir):
     )
 
 
-def initialize(topsrcdir):
-    driver = mach_init.initialize(topsrcdir)
+def initialize(topsrcdir, args=()):
+    driver = mach_init.initialize(topsrcdir, args)
 
     # Add comm Python module paths
     sys.path.extend(mach_sys_path(topsrcdir))
