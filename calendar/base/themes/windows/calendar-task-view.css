@@ -49,10 +49,3 @@
     }
   }
 }
-
-@media (-moz-platform: windows-win7) {
-  #view-task-edit-field,
-  #task-text-filter-field {
-    margin-block: 4px;
-  }
-}

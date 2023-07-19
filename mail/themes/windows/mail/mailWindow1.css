@@ -45,14 +45,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
   }
 
-  :root[tabsintitlebar] #navigation-toolbox {
-    margin-top: -1px;
-  }
-
-  :root[tabsintitlebar] #toolbar-menubar:not([inactive="true"]) {
-    margin-top: 1px;
-  }
-
   @media (-moz-windows-accent-color-in-titlebar: 0) {
     :root[sizemode=normal][tabsintitlebar] {
       border-top: 1px solid rgba(0, 0, 0, 0.7);
@@ -66,9 +58,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 
   @media (-moz-windows-accent-color-in-titlebar) {
-    :root[sizemode=normal][tabsintitlebar] {
-      border-top: 1px solid AccentColor;
-    }
     :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
       background-color: AccentColor;
     }
@@ -76,10 +65,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive,:-moz-lwtheme) {
       color: AccentColorText;
     }
-  }
-
-  :root[sizemode=normal][tabsintitlebar]:-moz-window-inactive {
-    border-top-color: rgba(0, 0, 0, 0.3);
   }
 }
 

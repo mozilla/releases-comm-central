@@ -4,31 +4,12 @@
 
 @import url("chrome://messenger/skin/shared/primaryToolbar.css");
 
-@media (-moz-windows-compositor: 0),
-       (-moz-windows-default-theme: 0) {
-/* We want a 4px gap between the tabs-toolbar and the toolbar-menubar
-   when the toolbar-menu is displayed. 1px is taken care of by the (light)
-   outer shadow of the tab, the remaining 3 is these margins. */
-  #toolbar-menubar:not([autohide="true"]) ~ #tabs-toolbar,
-  #toolbar-menubar[autohide="true"]:not([inactive]) ~ #tabs-toolbar {
-    margin-top: 3px;
-  }
-
-  :root[tabsintitlebar] #navigation-toolbox:not(:-moz-lwtheme) {
-    color: CaptionText;
-  }
-
-  :root[tabsintitlebar] #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
-    color: InactiveCaptionText;
-  }
-}
-
 #navigation-toolbox,
 #toolbar-menubar {
   appearance: none;
 }
 
-@media (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu[disabled="true"] {
     background-color: transparent;
   }
@@ -46,46 +27,6 @@
   }
 }
 
-@media (-moz-windows-classic) {
-  /**
-   * In the classic themes, the titlebar has a horizontal gradient, which is
-   * problematic for reading the text of background tabs when they're in the
-   * titlebar. We side-step this issue by layering our own background underneath
-   * the tabs.
-   */
-  :root[tabsintitlebar] #tabs-toolbar:not(:-moz-lwtheme) {
-    background-image: linear-gradient(transparent, ActiveCaption);
-    background-size: auto 200%;
-  }
-
-  :root[tabsintitlebar] #tabs-toolbar:not(:-moz-lwtheme):-moz-window-inactive {
-    background-image: linear-gradient(transparent, InactiveCaption);
-  }
-
-  /**
-   * With the tabmail-tabs element z-index'd above the nav-bar, we now get the
-   * scrollbox button borders leaking over the nav-bar highlight. This transparent bottom
-   * border forces the scrollbox button borders to terminate a pixel early, working
-   * around the issue.
-   */
-  :root[tabsintitlebar] #tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-up),
-  :root[tabsintitlebar] #tabmail-arrowscrollbox:not(:-moz-lwtheme)::part(scrollbutton-down) {
-    border-bottom: 1px solid transparent;
-  }
-
-  :root[tabsintitlebar] .mail-toolbox:not(:-moz-lwtheme),
-  :root[tabsintitlebar] .contentTabToolbox:not(:-moz-lwtheme) {
-    box-shadow: none;
-  }
-
-  /* End classic titlebar gradient */
-
-  :root[tabsintitlebar] :is(#tabs-toolbar,#toolbar-menubar)
-  toolbarbutton:not(:-moz-lwtheme) {
-    color: inherit;
-  }
-}
-
 .mail-toolbox::after,
 .contentTabToolbox::after {
   content: "";
@@ -100,137 +41,7 @@
 
 /* ::::: toolbar buttons on tabbar toolbar ::::: */
 
-@media (-moz-windows-compositor: 0) {
-  #toolbar-menubar {
-    background-color: transparent !important
-  }
-
-  :root[tabsintitlebar]:not([lwt-tree]) #titlebar:-moz-lwtheme {
-    appearance: none !important;
-  }
-
-  :root[tabsintitlebar][sizemode="maximized"]:not([lwt-tree]) #titlebar:-moz-lwtheme {
-    margin-top: 4px;
-  }
-
-  #print-preview-toolbar:not(:-moz-lwtheme) {
-    appearance: auto;
-    -moz-default-appearance: -moz-win-browsertabbar-toolbox;
-  }
-
-  @media (-moz-windows-default-theme) {
-    #messengerWindow {
-      background-color: rgb(185, 209, 234);
-    }
-    #messengerWindow:-moz-window-inactive {
-      background-color: rgb(215, 228, 242);
-    }
-
-    #toolbar-menubar:not([autohide=true],:-moz-lwtheme),
-    #tabs-toolbar:not(:-moz-lwtheme) {
-      background-color: transparent;
-    }
-    #toolbar-menubar[autohide=true] {
-      background-color: transparent !important;
-    }
-  }
-}
-
-@media (-moz-windows-compositor) and (-moz-windows-default-theme) {
-  #navigation-toolbox:not(:-moz-lwtheme),
-  #tabs-toolbar {
-    background-color: transparent;
-  }
-
-  #mail-toolbox:not(:-moz-lwtheme),
-  .glodaTabToolbar {
-    color: black;
-  }
-
-  #mail-menubar > menu:not(:-moz-lwtheme) {
-    color: inherit;
-  }
-
-  /* Use a different color only on Windows 8 and higher for inactive windows.
-   * On Win 7, the menubar fog disappears for inactive windows, and renders gray
-   * illegible.
-   */
-  @media not all and (-moz-platform: windows-win7) {
-    #toolbar-menubar:not(:-moz-lwtheme):-moz-window-inactive {
-      color: ThreeDShadow;
-    }
-  }
-}
-
-@media (-moz-windows-glass) {
-  .mail-toolbox:not(:-moz-lwtheme)::after,
-  .contentTabToolbox:not(:-moz-lwtheme)::after {
-    --chrome-content-separator-color: #aabccf;
-  }
-
-  #tabs-toolbar {
-    order: 10;
-  }
-
-  #toolbar-menubar {
-    order: 20;
-    -moz-window-dragging: no-drag;
-    box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
-    background-color: var(--toolbar-bgcolor);
-    padding-bottom: 1px !important;
-    padding-top: 2px;
-  }
-
-  /* Don't apply the full negative margin for the Spaces Toolbar. */
-  :root[spacestoolbar="true"] #toolbar-menubar {
-    margin-inline-start: -1px !important;
-  }
-
-  #toolbar-menubar:-moz-lwtheme {
-    background-color: var(--toolbar-bgcolor);
-    color: var(--toolbar-color, inherit);
-    box-shadow: none;
-  }
-
-  #navigation-toolbox > #toolbar-menubar:not(:-moz-lwtheme) {
-    appearance: none;
-    border-bottom: 1px solid #aabccf;
-  }
-
-  #tabs-toolbar:not(:-moz-lwtheme) {
-    position: relative;
-  }
-
-  #navigation-toolbox:not(:-moz-lwtheme)::before {
-    box-shadow: 0 30px 30px 30px rgba(174, 189, 204, 0.85);
-    content: "";
-    display: flex;
-    margin: 0 60px; /* (30px + 30px) from box-shadow */
-    pointer-events: none;
-    width: -moz-available;
-    z-index: -1;
-  }
-}
-
-@media (-moz-platform: windows-win8) {
-  @media (-moz-windows-default-theme) {
-    #messengerWindow[darkwindowframe="true"]:not(:-moz-lwtheme,:-moz-window-inactive) #navigation-toolbox {
-      color: white;
-    }
-  }
-  @media (-moz-windows-default-theme: 0) {
-    #messengerWindow #navigation-toolbox:not(:-moz-lwtheme) {
-      color: CaptionText;
-    }
-
-    #messengerWindow #navigation-toolbox:not(:-moz-lwtheme):-moz-window-inactive {
-      color: InactiveCaptionText;
-    }
-  }
-}
-
-@media (-moz-platform: windows-win8) and (-moz-windows-default-theme),
-       (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
+@media (-moz-windows-default-theme) {
   #navigation-toolbox > #toolbar-menubar {
     background-color: transparent;
     padding-top: 0;

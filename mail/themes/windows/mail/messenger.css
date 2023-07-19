@@ -8,55 +8,44 @@
 
 @import url("chrome://messenger/skin/shared/messenger.css");
 
-@media not (-moz-windows-non-native-menus) {
-  .menu-iconic > .menu-iconic-left,
-  .menuitem-iconic > .menu-iconic-left {
-    display: flex;
-    padding-top: 0;
-  }
+/* UI Density customization */
+:root {
+  --menuitem-vertical-padding: 3px;
+}
+:root[uidensity="compact"] {
+  --menuitem-vertical-padding: 1px;
 }
 
-@media (-moz-windows-non-native-menus) {
-  /* UI Density customization */
-  :root {
-    --menuitem-vertical-padding: 3px;
-  }
-  :root[uidensity="compact"] {
-    --menuitem-vertical-padding: 1px;
-  }
-
-  :root[uidensity="touch"] {
-    --menuitem-vertical-padding: 8px;
-  }
-
-  menupopup > menu,
-  menupopup > menuitem {
-    padding-block: var(--menuitem-vertical-padding);
-  }
-
-  menulist > menupopup > menu,
-  menulist > menupopup > menuitem {
-    padding-inline-end: 5px;
-  }
-
-  menulist > menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
-  menulist > menupopup:not([needsgutter]) > menuitem:not([icon], .menuitem-iconic) {
-    padding-inline-start: 1em;
-  }
-
-  menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
-  menupopup:not([needsgutter]) > menuitem:not([checked="true"], [icon], .menuitem-iconic) {
-    padding-inline-start: 32px;
-  }
-
-  .folderMenuItem > .menu-iconic-left,
-  .menuitem-iconic > .menu-iconic-left {
-    display: flex;
-  }
+:root[uidensity="touch"] {
+  --menuitem-vertical-padding: 8px;
 }
 
-@media (-moz-windows-default-theme: 0),
-       (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
+menupopup > menu,
+menupopup > menuitem {
+  padding-block: var(--menuitem-vertical-padding);
+}
+
+menulist > menupopup > menu,
+menulist > menupopup > menuitem {
+  padding-inline-end: 5px;
+}
+
+menulist > menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
+menulist > menupopup:not([needsgutter]) > menuitem:not([icon], .menuitem-iconic) {
+  padding-inline-start: 1em;
+}
+
+menupopup:not([needsgutter]) > menu:not([icon], .menu-iconic),
+menupopup:not([needsgutter]) > menuitem:not([checked="true"], [icon], .menuitem-iconic) {
+  padding-inline-start: 32px;
+}
+
+.folderMenuItem > .menu-iconic-left,
+.menuitem-iconic > .menu-iconic-left {
+  display: flex;
+}
+
+@media (-moz-windows-default-theme: 0) {
   #menubar-items > #mail-menubar > menu {
     appearance: none;
   }
@@ -64,9 +53,7 @@
   #menubar-items > #mail-menubar > menu:not([disabled="true"]) {
     color: inherit;
   }
-}
 
-@media (-moz-windows-default-theme: 0) {
   #menubar-items > #mail-menubar > menu[_moz-menuactive="true"] {
     color: -moz-MenuHoverText;
   }
@@ -74,38 +61,6 @@
 
 .titlebar-buttonbox-container {
   align-items: stretch;
-}
-
-@media (-moz-platform: windows-win7),
-       (-moz-platform: windows-win8) {
-  /* Preserve window control buttons position at the top of the button box. */
-  .titlebar-buttonbox-container {
-    align-items: flex-start;
-  }
-}
-
-@media (-moz-platform: windows-win7) {
-  @media (-moz-windows-default-theme) and (-moz-windows-glass: 0) {
-    #messengerWindow[sizemode="normal"] .titlebar-buttonbox-container {
-      padding-top: 4px;
-    }
-  }
-}
-
-@media (-moz-platform: windows-win8) {
-  #messengerWindow[sizemode="normal"] .titlebar-buttonbox-container {
-    padding-top: 3px;
-  }
-}
-
-@media (-moz-windows-classic) {
-  #messengerWindow[sizemode="normal"] .titlebar-buttonbox-container {
-    padding-top: 3px;
-  }
-
-  :root[tabsintitlebar][sizemode="normal"] #toolbar-menubar {
-    margin-top: 4px;
-  }
 }
 
 .inline-toolbar {
@@ -294,44 +249,6 @@ treechildren::-moz-tree-indentation {
   width: 12px;
 }
 
-@media (-moz-windows-classic) {
-  treecol[hideheader="true"],
-  .tree-columnpicker-button[hideheader="true"] {
-    border-width: 0;
-  }
-
-  :root[lwt-tree] treecol:not([hideheader="true"]),
-  :root[lwt-tree] .tree-columnpicker-button:not([hideheader="true"]) {
-    border-top-width: 0;
-    border-inline-start-width: 0;
-  }
-
-  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(hover) {
-    border-color: transparent;
-    background-color: transparent;
-  }
-
-  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(selected) {
-    border-color: transparent;
-    background-color: -moz-cellhighlight;
-  }
-
-  :root:not(:-moz-lwtheme) tree:not(#threadTree) > treechildren::-moz-tree-row(selected, focus),
-  :root:not(:-moz-lwtheme) #threadTree > treechildren::-moz-tree-row(untagged, selected, focus) {
-    border-color: SelectedItemText;
-    background-color: SelectedItem;
-  }
-
-  /* Add a window top border for webextension themes */
-  :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox:-moz-lwtheme {
-    background-image: linear-gradient(to bottom,
-          ThreeDLightShadow 0, ThreeDLightShadow 1px,
-          ThreeDHighlight 1px, ThreeDHighlight 2px,
-          ActiveBorder 2px, ActiveBorder 4px, transparent 4px),
-          var(--lwt-header-image), var(--lwt-additional-images);
-  }
-}
-
 :root[lwt-tree] treechildren::-moz-tree-row(hover) {
   background-color: hsla(0,0%,50%,.15);
   border-color: transparent;
@@ -372,13 +289,6 @@ button.notification-button[is="toolbarbutton-menu-button"] {
   }
 }
 
-@media (-moz-windows-compositor: 0) {
-  #print-preview-toolbar:not(:-moz-lwtheme) {
-    appearance: auto;
-    -moz-default-appearance: -moz-win-browsertabbar-toolbox;
-  }
-}
-
 /* ::::: primary toolbar buttons ::::: */
 
 .toolbarbutton-1[disabled=true] .toolbarbutton-icon,
@@ -404,50 +314,12 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
   appearance: none;
 }
 
-@media (-moz-windows-compositor) {
-  #unifinder-searchBox,
-  #task-addition-box {
-    border-top: none;
-    background-color: -moz-dialog;
-  }
-
-  @media (-moz-platform: windows-win10) {
-    /* See bug 1715990 about why we do this ourselves on HCM */
-    @media (prefers-contrast) {
-      :root[tabsintitlebar]:not(:-moz-lwtheme) {
-        background-color: ActiveCaption;
-      }
-
-      :root[tabsintitlebar]:not(:-moz-lwtheme):-moz-window-inactive {
-        background-color: InactiveCaption;
-      }
-    }
-  }
-}
-
 .statusbarpanel {
   border-inline-end: 1px solid ThreeDLightShadow;
 }
 
 .statusbarpanel:-moz-lwtheme {
   border-inline-end-color: var(--lwt-tabs-border-color);
-}
-
-@media (-moz-platform: windows-win7) and (-moz-windows-default-theme),
-       (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
-  #status-bar:not(:-moz-lwtheme) {
-    appearance: none;
-    border-style: none;
-    border-top: 1px solid ThreeDShadow;
-    background-color: var(--toolbar-bgcolor);
-  }
-}
-
-@media (-moz-windows-classic) {
-  label.statusbarpanel {
-    margin: 1px;
-    padding-block: 2px;
-  }
 }
 
 /* Status panel */
@@ -521,35 +393,6 @@ fieldset > radiogroup {
 
 #navigation-toolbox {
   appearance: none;
-}
-
-@media (-moz-platform: windows-win7) {
-  @media (-moz-windows-default-theme) and (-moz-windows-glass: 0) {
-    /* Add a window top border behind the titlebar */
-    :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox-background {
-      background-image: linear-gradient(to bottom, ThreeDDarkShadow 0,
-                                        ThreeDDarkShadow 1px, ThreeDHighlight 1px,
-                                        ThreeDHighlight 2px, transparent 2px);
-    }
-  }
-  @media (-moz-windows-classic) {
-    /* Add a window top border behind the titlebar */
-    :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox-background {
-      background-image: linear-gradient(to bottom, ThreeDLightShadow 0,
-                                        ThreeDLightShadow 1px, ThreeDHighlight 1px,
-                                        ThreeDHighlight 2px, ActiveBorder 2px,
-                                        ActiveBorder 4px, transparent 4px);
-    }
-  }
-
-  @media (prefers-contrast) {
-    /* Add a window top border behind the titlebar */
-    :root[tabsintitlebar][sizemode="normal"] #navigation-toolbox-background {
-      background-image: linear-gradient(to bottom, ThreeDLightShadow 0,
-                                        ThreeDLightShadow 1px, ThreeDHighlight 1px,
-                                        ThreeDHighlight 2px, transparent 2px);
-    }
-  }
 }
 
 /* UI Density customization */

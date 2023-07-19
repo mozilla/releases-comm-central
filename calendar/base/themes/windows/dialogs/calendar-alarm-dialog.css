@@ -8,12 +8,6 @@
   padding: 0;
 }
 
-@media not (-moz-windows-non-native-menus) {
-  menupopup[is="calendar-snooze-popup"] {
-    color-scheme: unset !important;
-  }
-}
-
 menupopup[is="calendar-snooze-popup"] > menuitem {
   padding: 2px 5px;
 }

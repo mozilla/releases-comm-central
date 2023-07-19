@@ -3,15 +3,3 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/activity/activity.css");
-
-@media (-moz-windows-glass) {
-  :root:not(:-moz-lwtheme) .activityview {
-    border: 1px solid hsla(240, 5%, 5%, .3);
-    background-clip: padding-box;
-  }
-
-  :root:not(:-moz-lwtheme) #clearListButton {
-    margin-inline-start: 0;
-    margin-bottom: 0;
-  }
-}

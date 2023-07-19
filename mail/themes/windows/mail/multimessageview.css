@@ -11,20 +11,6 @@
   --header-text-color: WindowText;
 }
 
-@media not (prefers-color-scheme: dark) {
-  @media (-moz-windows-compositor) and (-moz-windows-default-theme) {
-    :root {
-      --header-background-color: #f8f8f8;
-    }
-  }
-
-  @media (-moz-platform: windows-win7) and (-moz-windows-default-theme) {
-    :root {
-      --header-background-color: rgb(233, 239, 245);
-    }
-  }
-}
-
 .star {
   top: 0.6em;
 }

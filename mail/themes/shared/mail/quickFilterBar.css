@@ -59,12 +59,6 @@
   max-width: 450px;
 }
 
-@media (-moz-platform: windows-win7) {
-  #qfb-qs-textbox {
-    margin-block: 4px;
-  }
-}
-
 @container threadPane (max-width: 499px) {
   #qfb-qs-textbox {
     min-width: 200px;

@@ -116,30 +116,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
     appearance: none;
     padding-inline: 2px;
   }
-}
 
-@media (-moz-platform: windows-win7) and (-moz-windows-default-theme) {
-  :root:not([lwt-tree]) #listPaneBox {
-    background-color: rgb(238, 243, 250);
-  }
-
-  #conversationsBox {
-    background-color: rgb(233, 239, 245);
-  }
-
-  .conv-nicklist-header,
-  .conv-logs-header-label {
-    background-color: rgb(233, 239, 245);
-  }
-}
-
-@media (-moz-platform: windows-win8) and (-moz-windows-default-theme) {
-  :root:not([lwt-tree]) #listPaneBox {
-    background-color: -moz-Dialog;
-  }
-}
-
-@media (-moz-platform: windows-win10) and (-moz-windows-default-theme) {
   :root:not([lwt-tree],:-moz-lwtheme) #listPaneBox {
     background-color: #fafafa;
   }

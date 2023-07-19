@@ -21,54 +21,25 @@ menupopup:not([type="arrow"]) {
   }
 }
 
-@media (-moz-windows-non-native-menus) {
-  menupopup[needsgutter] menu:not([icon], .menu-iconic),
-  menupopup[needsgutter] menuitem:not([checked="true"], [icon], .menuitem-iconic) {
-    padding-inline-start: 32px;
-  }
-
-  menupopup > :is(menu, menuitem):not([needsgutter]) >
-    menuitem:not([icon], .menuitem-iconic) {
-    padding-inline-start: 1em;
-  }
-
-  menuitem[checked="true"] {
-    padding-inline-start: 8px;
-  }
+menupopup[needsgutter] menu:not([icon], .menu-iconic),
+menupopup[needsgutter] menuitem:not([checked="true"], [icon], .menuitem-iconic) {
+  padding-inline-start: 32px;
 }
 
-@media (-moz-windows-non-native-menus: 0) {
-  menupopup {
-    appearance: none;
-    background-color: transparent;
-    border: none;
-    /* Somehow the double border radius is needed to look correct. */
-    border-radius: calc(2 * var(--arrowpanel-border-radius));
-  }
+menupopup > :is(menu, menuitem):not([needsgutter]) >
+  menuitem:not([icon], .menuitem-iconic) {
+  padding-inline-start: 1em;
+}
 
-  menupopup:not([type="arrow"])::part(content) {
-    --panel-shadow-margin: 4px;
-    --panel-shadow: 0 0 4px hsla(0, 0%, 0%, 0.2);
-  }
+menuitem[checked="true"] {
+  padding-inline-start: 8px;
+}
 
-  /* Override popup.css */
-  menulist > menupopup {
-    --panel-background: var(--arrowpanel-background);
-    --panel-border-color: var(--arrowpanel-border-color);
-  }
+menuitem:is([type="checkbox"], [checked="true"], [type="radio"]) >
+  .menu-iconic-left > .menu-iconic-icon {
+  display: none;
+}
 
-  :is(.menuitem-iconic, .menu-iconic) > .menu-iconic-left,
-  menupopup > menuitem:is([type="checkbox"],[type="radio"]) > .menu-iconic-left,
-  menupopup > menuitem > .menu-text {
-    appearance: none;
-  }
-
-  menuitem[checked="true"] > .menu-iconic-left > .menu-iconic-icon {
-    display: block;
-  }
-
-  .menu-text, .menu-iconic-text,
-  menupopup > :is(menu, menuitem) > .menu-text {
-    margin-inline-start: 8px !important;
-  }
+menuitem[checked="true"] > .menu-iconic-left > .menu-iconic-icon {
+  display: initial;
 }

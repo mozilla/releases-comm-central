@@ -4,9 +4,7 @@
 
 @import url("chrome://messenger/skin/shared/EditorDialog.css");
 
-@media (-moz-windows-non-native-menus) {
-  menulist > menupopup > menuitem,
-  menulist > menupopup > menu {
-    padding-block: 0.2em;
-  }
+menulist > menupopup > menuitem,
+menulist > menupopup > menu {
+  padding-block: 0.2em;
 }

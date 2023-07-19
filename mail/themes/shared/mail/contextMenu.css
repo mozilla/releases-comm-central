@@ -117,7 +117,7 @@ menubar:not(:-moz-lwtheme) > menu menupopup >
   background-color: -moz-MenuHover;
 }
 
-@media (-moz-platform: windows-win10) and (-moz-windows-default-theme){
+@media (-moz-platform: windows) and (-moz-windows-default-theme){
   menubar:not(:-moz-lwtheme) > menu menupopup >
     :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
     color: inherit;

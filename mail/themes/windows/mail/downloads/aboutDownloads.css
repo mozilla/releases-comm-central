@@ -4,12 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/aboutDownloads.css");
 
-@media (-moz-windows-glass) {
-  #downloadTopBox:not(:-moz-lwtheme) {
-    --chrome-content-separator-color: #aabccf;
-  }
-}
-
 @media (-moz-windows-default-theme) {
   #downloadTopBox:not(:-moz-lwtheme) {
     --chrome-content-separator-color: #c2c2c2;
