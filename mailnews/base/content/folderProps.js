@@ -468,11 +468,10 @@ function onUseDefaultRetentionSettings() {
   document.getElementById("retention.keepOldMsgMinLabel").disabled = useDefault;
 
   var keepMsg = document.getElementById("retention.keepMsg").value;
-  const nsIMsgRetentionSettings = Ci.nsIMsgRetentionSettings;
   document.getElementById("retention.keepOldMsgMin").disabled =
-    useDefault || keepMsg != nsIMsgRetentionSettings.nsMsgRetainByAge;
+    useDefault || keepMsg != Ci.nsIMsgRetentionSettings.nsMsgRetainByAge;
   document.getElementById("retention.keepNewMsgMin").disabled =
-    useDefault || keepMsg != nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
+    useDefault || keepMsg != Ci.nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
 }
 
 function RebuildSummaryInformation() {

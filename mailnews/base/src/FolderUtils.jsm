@@ -73,7 +73,6 @@ function getSpecialFolderString(aFolder) {
  * @returns {string} A string of the property names, delimited by space.
  */
 function getFolderProperties(aFolder, aOpen) {
-  const nsIMsgFolder = Ci.nsIMsgFolder;
   let properties = [];
 
   properties.push("folderNameCol");
@@ -85,10 +84,10 @@ function getFolderProperties(aFolder, aOpen) {
 
   // Now set the biffState
   switch (aFolder.biffState) {
-    case nsIMsgFolder.nsMsgBiffState_NewMail:
+    case Ci.nsIMsgFolder.nsMsgBiffState_NewMail:
       properties.push("biffState-NewMail");
       break;
-    case nsIMsgFolder.nsMsgBiffState_NoMail:
+    case Ci.nsIMsgFolder.nsMsgBiffState_NoMail:
       properties.push("biffState-NoMail");
       break;
     default:
