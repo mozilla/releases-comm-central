@@ -143,6 +143,7 @@ flatpak build-finish build                                      \
         --filesystem=xdg-download:rw                            \
         --filesystem=~/.gnupg                                   \
         --filesystem=xdg-run/gnupg:ro                           \
+        --filesystem=xdg-run/speech-dispatcher:ro               \
         --filesystem=/run/.heim_org.h5l.kcm-socket              \
         --device=dri                                            \
         --own-name="org.mozilla.Thunderbird.*"                  \
