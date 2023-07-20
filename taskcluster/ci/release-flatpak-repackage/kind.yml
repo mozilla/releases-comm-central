@@ -28,7 +28,7 @@ job-defaults:
         implementation: docker-worker
         os: linux
         max-run-time: 7200
-        docker-image: {in-tree: thunderbird-flatpak}
+        docker-image: {in-tree: tb-flatpak}
         artifacts:
             - name: public/build
               type: directory

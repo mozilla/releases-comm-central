@@ -4,7 +4,7 @@ MAINTAINER tb-builds@thunderbird.net
 RUN mkdir /scripts/
 WORKDIR /scripts/
 
-# Copy everything in the docker/thunderbird-flatpak folder but the Dockerfile
+# Copy everything in the docker/tb-flatpak folder but the Dockerfile
 COPY [^D]* /scripts/
 
 RUN /scripts/make_venv.sh

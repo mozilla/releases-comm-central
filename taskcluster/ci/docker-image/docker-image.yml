@@ -7,7 +7,7 @@ tb-debian-mingw:
     symbol: I(tb-mingw)
     parent: debian12-amd64-build
 
-thunderbird-flatpak:
+tb-flatpak:
     symbol: I(flatpak)
 
 tb-atn:
