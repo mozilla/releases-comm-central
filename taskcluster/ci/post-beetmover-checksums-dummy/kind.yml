@@ -20,5 +20,3 @@ jobs:
         shipping-phase: promote
         shipping-product: thunderbird
         worker-type: succeed
-        worker:
-            implementation: succeed
