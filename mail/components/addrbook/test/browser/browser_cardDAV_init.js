@@ -50,7 +50,7 @@ async function wrappedTest(testInitCallback, ...attemptArgs) {
   await closeAddressBookWindow();
   await CardDAVServer.close();
 
-  let logins = Services.logins.getAllLogins();
+  let logins = await Services.logins.getAllLogins();
   Assert.equal(logins.length, 0, "no faulty logins were saved");
 }
 

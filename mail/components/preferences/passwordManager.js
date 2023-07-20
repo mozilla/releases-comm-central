@@ -38,7 +38,7 @@ let removeAllButton;
 let signonsTree;
 
 let signonReloadDisplay = {
-  observe(subject, topic, data) {
+  async observe(subject, topic, data) {
     if (topic == "passwordmgr-storage-changed") {
       switch (data) {
         case "addLogin":
@@ -49,10 +49,10 @@ let signonReloadDisplay = {
             return;
           }
           signons.length = 0;
-          LoadSignons();
+          await LoadSignons();
           // apply the filter if needed
           if (filterField && filterField.value != "") {
-            FilterPasswords();
+            await FilterPasswords();
           }
           signonsTree.ensureRowIsVisible(
             signonsTree.view.selection.currentIndex
@@ -73,7 +73,7 @@ let dateAndTimeFormatter = new Services.intl.DateTimeFormat(undefined, {
   timeStyle: "short",
 });
 
-function Startup() {
+async function Startup() {
   // be prepared to reload the display if anything changes
   Services.obs.addObserver(signonReloadDisplay, "passwordmgr-storage-changed");
 
@@ -101,7 +101,7 @@ function Startup() {
       SignonColumnSort(sortField);
     });
 
-  LoadSignons();
+  await LoadSignons();
 
   // filter the table if requested by caller
   if (
@@ -109,7 +109,7 @@ function Startup() {
     window.arguments[0] &&
     window.arguments[0].filterString
   ) {
-    setFilter(window.arguments[0].filterString);
+    await setFilter(window.arguments[0].filterString);
   }
 
   FocusFilterBox();
@@ -125,9 +125,9 @@ function Shutdown() {
   );
 }
 
-function setFilter(aFilterString) {
+async function setFilter(aFilterString) {
   filterField.value = aFilterString;
-  FilterPasswords();
+  await FilterPasswords();
 }
 
 let signonsTreeView = {
@@ -293,10 +293,10 @@ function SortTree(column, ascending) {
   }
 }
 
-function LoadSignons() {
+async function LoadSignons() {
   // loads signons into table
   try {
-    signons = Services.logins.getAllLogins();
+    signons = await Services.logins.getAllLogins();
   } catch (e) {
     signons = [];
   }
@@ -357,7 +357,7 @@ function SignonSelected() {
   }
 }
 
-function DeleteSignon() {
+async function DeleteSignon() {
   let syncNeeded = signonsTreeView._filterSet.length != 0;
   let tree = signonsTree;
   let view = signonsTreeView;
@@ -399,7 +399,7 @@ function DeleteSignon() {
     removeAllButton.setAttribute("disabled", "true");
   }
   tree.view.selection.selectEventsSuppressed = false;
-  FinalizeSignonDeletions(syncNeeded);
+  await FinalizeSignonDeletions(syncNeeded);
 }
 
 async function DeleteAllSignons() {
@@ -448,7 +448,7 @@ async function DeleteAllSignons() {
   // disable buttons
   removeButton.setAttribute("disabled", "true");
   removeAllButton.setAttribute("disabled", "true");
-  FinalizeSignonDeletions(syncNeeded);
+  await FinalizeSignonDeletions(syncNeeded);
 }
 
 async function TogglePasswordVisible() {
@@ -459,7 +459,7 @@ async function TogglePasswordVisible() {
       showingPasswords ? "hide-passwords" : "show-passwords"
     );
     document.getElementById("passwordCol").hidden = !showingPasswords;
-    FilterPasswords();
+    await FilterPasswords();
   }
 
   // Notify observers that the password visibility toggling is
@@ -486,7 +486,7 @@ async function AskUserShowPasswords() {
   ); // 0=="Yes" button
 }
 
-function FinalizeSignonDeletions(syncNeeded) {
+async function FinalizeSignonDeletions(syncNeeded) {
   for (let s = 0; s < deletedSignons.length; s++) {
     Services.logins.removeLogin(deletedSignons[s]);
   }
@@ -494,7 +494,7 @@ function FinalizeSignonDeletions(syncNeeded) {
   // See bug 405389.
   if (syncNeeded) {
     try {
-      signons = Services.logins.getAllLogins();
+      signons = await Services.logins.getAllLogins();
     } catch (e) {
       signons = [];
     }
@@ -560,7 +560,7 @@ function SignonColumnSort(column) {
   );
 }
 
-function SignonClearFilter() {
+async function SignonClearFilter() {
   let singleSelection = signonsTreeView.selection.count == 1;
 
   // Clear the Tree Display
@@ -569,7 +569,7 @@ function SignonClearFilter() {
   signonsTreeView._filterSet = [];
 
   // Just reload the list to make sure deletions are respected
-  LoadSignons();
+  await LoadSignons();
 
   // Restore selection
   if (singleSelection) {
@@ -641,9 +641,9 @@ function SignonSaveState() {
   }
 }
 
-function FilterPasswords() {
+async function FilterPasswords() {
   if (filterField.value == "") {
-    SignonClearFilter();
+    await SignonClearFilter();
     return;
   }
 
