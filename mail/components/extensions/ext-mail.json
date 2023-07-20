@@ -141,6 +141,7 @@
     "url": "chrome://messenger/content/parent/ext-sessions.js",
     "schema": "chrome://messenger/content/schemas/sessions.json",
     "scopes": ["addon_parent"],
+    "events": ["uninstall"],
     "paths": [["sessions"]]
   },
   "spaces": {

@@ -45,13 +45,9 @@ this.sessions = class extends ExtensionAPI {
     };
   }
 
-  onShutdown(isAppShutdown) {
-    if (isAppShutdown) {
-      return;
-    }
-
+  static onUninstall(extensionId) {
     // Remove session data.
-    let widgetId = makeWidgetId(this.extension.id);
+    let widgetId = makeWidgetId(extensionId);
     for (let window of Services.wm.getEnumerator("mail:3pane")) {
       for (let tabInfo of window.gTabmail.tabInfo) {
         if (
