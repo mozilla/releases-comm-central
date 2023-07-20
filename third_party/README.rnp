@@ -25,6 +25,11 @@ is at rnp/moz.yaml.
     # update to a new version
     > mach vendor -r v0.16.3 ./moz.yaml
 
+    # If there are patches to apply in moz.yaml, the process is a little different
+    > mach vendor ./moz.yaml --patch-mode none
+    # followed by
+    > mach vendor ./moz.yaml --patch-mode only
+
 
 Build notes:
 
