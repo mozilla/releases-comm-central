@@ -3,7 +3,12 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
+  --thread-pane-container-gap: 3px;
   --thread-pane-header-padding: 3px 6px;
+}
+
+:root[uidensity="compact"] {
+  --thread-pane-container-gap: 0;
 }
 
 :root[uidensity="touch"] {
@@ -611,8 +616,10 @@ tr[is="thread-card"][data-properties~="new"] {
 .thread-card-container {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: var(--thread-pane-container-gap);
   height: 100%;
-  padding: 6px 12px;
+  padding-inline: 12px;
   box-sizing: border-box;
   border-bottom: 1px solid var(--layout-background-3);
 }
@@ -644,7 +651,6 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
 }
 
 .thread-card-row {
-  flex: 1 1 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
