@@ -1,17 +1,9 @@
 "use strict";
 
 async function installFile(filename) {
-  const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(
-    Ci.nsIChromeRegistry
-  );
-  let chromeUrl = Services.io.newURI(gTestPath);
-  let fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);
-  let file = fileUrl.QueryInterface(Ci.nsIFileURL).file;
-  file.leafName = filename;
-
   let MockFilePicker = SpecialPowers.MockFilePicker;
   MockFilePicker.init(window);
-  MockFilePicker.setFiles([file]);
+  MockFilePicker.setFiles([new FileUtils.File(getTestFilePath(filename))]);
   MockFilePicker.afterOpenCallback = MockFilePicker.cleanup;
 
   let { document } = await openAddonsMgr("addons://list/extension");
