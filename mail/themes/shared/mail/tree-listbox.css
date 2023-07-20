@@ -66,9 +66,6 @@
     --listbox-selected-bg: color-mix(in srgb, transparent 80%, var(--listbox-focused-selected-bg));
     --listbox-selected-outline: 2px solid SelectedItem;
     --listbox-border-type: solid;
-  }
-
-  :root:not(:-moz-lwtheme) {
     --tree-view-bg: Field;
     --tree-view-color: FieldText;
     --tree-view-header-hover-bg: color-mix(in srgb, Field 70%, hsl(0, 0%, 50%));
