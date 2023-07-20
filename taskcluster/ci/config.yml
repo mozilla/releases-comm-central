@@ -217,6 +217,14 @@ workers:
                 by-release-level:
                     production: comm-3-beetmover
                     staging: comm-1-beetmover
+        shipit:
+            provisioner: scriptworker-k8s
+            implementation: shipit
+            os: scriptworker
+            worker-type:
+                by-release-level:
+                    production: 'comm-3-shipit'
+                    staging: 'comm-1-shipit'
         linux-depsigning:
             provisioner: scriptworker-k8s
             implementation: scriptworker-signing
