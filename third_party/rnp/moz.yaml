@@ -66,9 +66,11 @@ vendoring:
     - README.adoc
     - version.txt
 
+  patches:
+    - ../patches/rnp/bug1843535_gcc13_missing_header.patch
+
   update-actions:
     - action: replace-in-file-regex
       file: '{yaml_dir}/../README.rnp'
-      pattern: '\[(tag v[1-9\.]+|commit [0-9a-f]+)\]'
+      pattern: '\[(tag v[0-9\.]+|commit [0-9a-f]+)\]'
       with: '[tag {revision}]'
-
