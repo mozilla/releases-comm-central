@@ -573,6 +573,7 @@ tr[data-properties~="junk"] :is(.tree-view-row-spam > .tree-button-spam > img, .
   background-repeat: no-repeat;
   background-position-x: 1px;
   background-position-y: center;
+  padding-inline-start: var(--tree-header-cell-padding) !important;
   -moz-context-properties: stroke, fill-opacity;
   stroke: currentColor;
   fill-opacity: 0.3;
