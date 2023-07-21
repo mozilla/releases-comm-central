@@ -72,8 +72,8 @@ chrome/messenger/search-extensions/mercadolibre/favicon.ico
 chrome/messenger/search-extensions/mercadolivre/favicon.ico
 
 # Windows artifact builds hack - bug 1714650
-chrome/remote/content/server/HTTPD.jsm
-components/httpd.js
+chrome/remote/content/server/httpd.sys.mjs
+components/httpd.sys.mjs
 
 # Bug 1723628 - Empty files to stop the tests crashing
 chrome/messenger/skin/classic/messenger/messages/mail/Footer.html
