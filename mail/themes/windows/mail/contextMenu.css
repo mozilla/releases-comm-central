@@ -34,12 +34,3 @@ menupopup > :is(menu, menuitem):not([needsgutter]) >
 menuitem[checked="true"] {
   padding-inline-start: 8px;
 }
-
-menuitem:is([type="checkbox"], [checked="true"], [type="radio"]) >
-  .menu-iconic-left > .menu-iconic-icon {
-  display: none;
-}
-
-menuitem[checked="true"] > .menu-iconic-left > .menu-iconic-icon {
-  display: initial;
-}

@@ -208,31 +208,6 @@ var gMailInit = {
     AutoHideMenubar.init();
     TabsInTitlebar.init();
 
-    if (AppConstants.platform == "win") {
-      // On Win8 set an attribute when the window frame color is too dark for black text.
-      if (
-        window.matchMedia("(-moz-platform: windows-win8)").matches &&
-        window.matchMedia("(-moz-windows-default-theme)").matches
-      ) {
-        let { Windows8WindowFrameColor } = ChromeUtils.importESModule(
-          "resource:///modules/Windows8WindowFrameColor.sys.mjs"
-        );
-        let windowFrameColor = new Color(...Windows8WindowFrameColor.get());
-        // Default to black for foreground text.
-        if (!windowFrameColor.isContrastRatioAcceptable(new Color(0, 0, 0))) {
-          document.documentElement.setAttribute("darkwindowframe", "true");
-        }
-      } else if (AppConstants.isPlatformAndVersionAtLeast("win", "10")) {
-        // 17763 is the build number of Windows 10 version 1809
-        if (getWindowsVersionInfo().buildNumber < 17763) {
-          document.documentElement.setAttribute(
-            "always-use-accent-color-for-window-border",
-            ""
-          );
-        }
-      }
-    }
-
     // Call this after we set attributes that might change toolbars' computed
     // text color.
     ToolbarIconColor.init();
