@@ -302,6 +302,19 @@ var snapshotFormatters = {
     // end of TB addition
   },
 
+  async legacyUserStylesheets(legacyUserStylesheets) {
+    $("legacyUserStylesheets-enabled").textContent =
+      legacyUserStylesheets.active;
+    $("legacyUserStylesheets-types").textContent =
+      new Intl.ListFormat(undefined, { style: "short", type: "unit" }).format(
+        legacyUserStylesheets.types
+      ) ||
+      document.l10n.setAttributes(
+        $("legacyUserStylesheets-types"),
+        "legacy-user-stylesheets-no-stylesheets-found"
+      );
+  },
+
   crashes(data) {
     if (!AppConstants.MOZ_CRASHREPORTER) {
       return;
