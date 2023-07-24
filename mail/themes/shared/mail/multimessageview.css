@@ -25,8 +25,6 @@
   }
 
   #headingWrapper {
-    --header-background-color: #323234;
-    --header-text-color: var(--body-text-color);
     --splitter-color: #606064;
     --toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
     --toolbarbutton-hover-bordercolor: rgba(179, 179, 179, 0.4);
@@ -53,8 +51,8 @@ body {
   gap: 6px;
   flex-wrap: wrap;
   padding: 9px 6px;
-  color: var(--header-text-color);
-  background-color: var(--header-background-color);
+  color: var(--layout-color-1);
+  background-color: var(--layout-background-1);
   border-bottom: 1px solid var(--splitter-color);
 }
 

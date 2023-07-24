@@ -6,11 +6,6 @@
 
 /* windows-specific overrides for multimessageview.css*/
 
-:root {
-  --header-background-color: ButtonFace;
-  --header-text-color: WindowText;
-}
-
 .star {
   top: 0.6em;
 }

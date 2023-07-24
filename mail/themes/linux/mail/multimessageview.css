@@ -6,11 +6,6 @@
 
 /* linux-specific overrides for multimessageview.css*/
 
-:root {
-  --header-background-color: AppWorkspace;
-  --header-text-color: WindowText;
-}
-
 .star {
   top: 0.5em;
 }

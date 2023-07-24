@@ -6,11 +6,6 @@
 
 /* osx-specific overrides for multimessageview.css*/
 
-:root {
-  --header-background-color: -moz-Dialog;
-  --header-text-color: -moz-DialogText;
-}
-
 .star {
   top: 0.6em;
 }

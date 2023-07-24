@@ -76,7 +76,7 @@
 :root[uidensity="compact"] {
   --folder-mode-name-padding: 3px;
   --folder-tree-header-gap: 6px;
-  --folder-tree-header-padding: 4px 6px;
+  --folder-tree-header-padding: 3px 6px;
 }
 
 :root[uidensity="touch"] {
@@ -274,7 +274,7 @@ body:not(.account-central) #accountCentralBrowser {
   margin-bottom: 3px;
 }
 
-#folderTree > li > .mode-container {
+#folderTree > li:not(:first-of-type) > .mode-container {
   justify-content: space-between;
   border-top: 1px solid var(--sidebar-border-color, var(--splitter-color));
 }

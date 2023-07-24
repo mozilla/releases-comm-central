@@ -2,10 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+:root {
+  --qfb-padding: 3px;
+}
+
+:root[uidensity="compact"] {
+  --qfb-padding: 0 3px;
+}
+
 #quick-filter-bar {
   --button-margin: 3px;
   background-color: var(--layout-background-1);
-  padding: 3px;
+  padding: var(--qfb-padding);
   border-bottom: 1px solid
     var(--sidebar-border-color, var(--tree-view-header-border-color));
 }

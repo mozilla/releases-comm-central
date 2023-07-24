@@ -5,18 +5,18 @@
 @import url("chrome://messenger/skin/shared/unifiedToolbarShared.css");
 
 :root {
-  --unified-toolbar-padding: 6px;
+  --unified-toolbar-padding: 7px;
   --unified-drag-space: 30px;
   --unified-customization-padding: 30px;
 }
 
 :root[uidensity="compact"] {
-  --unified-toolbar-padding: 3px;
+  --unified-toolbar-padding: 4px;
   --unified-drag-space: 15px;
 }
 
 :root[uidensity="touch"] {
-  --unified-toolbar-padding: 9px;
+  --unified-toolbar-padding: 10px;
 }
 
 :root[sizemode="fullscreen"],
@@ -48,6 +48,10 @@ unified-toolbar {
   padding-block: var(--unified-toolbar-padding);
   min-width: 0;
   overflow: hidden;
+}
+
+#unifiedToolbar .button.toolbar-button {
+  margin-block: 0;
 }
 
 #unifiedToolbarContainer .titlebar-buttonbox-container {

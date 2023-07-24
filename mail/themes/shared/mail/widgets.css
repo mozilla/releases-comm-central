@@ -13,7 +13,7 @@
   color: var(--button-text-color);
   border: var(--button-border-size) solid var(--button-border-color);
   border-radius: var(--button-border-radius);
-  padding: var( --button-padding);
+  padding: var(--button-padding);
   margin: var(--button-margin);
   min-width: 6em;
   -moz-context-properties: fill, stroke;
@@ -231,13 +231,13 @@
 }
 
 .button.check-button.icon-button {
-  background-position: calc(var(--button-padding) + var(--button-pressed-indicator-padding)) center;
+  background-position: calc(var(--button-padding) * 1.2 + var(--button-pressed-indicator-padding)) center;
   padding-inline-start: calc(var(--button-padding) * 2 + var(--icon-size) + var(--button-pressed-indicator-padding));
 }
 
 .button.check-button.icon-button:dir(rtl),
 .button.check-button.icon-button:-moz-locale-dir(rtl) {
-  background-position-x: right calc(var(--button-padding) + var(--button-pressed-indicator-padding));
+  background-position-x: right calc(var(--button-padding) * 1.2 + var(--button-pressed-indicator-padding));
 }
 
 .button.check-button.icon-only {

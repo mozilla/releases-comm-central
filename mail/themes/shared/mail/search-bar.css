@@ -10,7 +10,7 @@ form {
   --padding-block: 6px;
   --search-icon-clearance: 30px;
   position: relative;
-  min-height: max(1.2em, calc(1em + 2 * var(--padding-block)));
+  min-height: max(1.2em, calc(1.2em + 2 * var(--padding-block)));
   height: 100%;
   max-height: 2em;
 }

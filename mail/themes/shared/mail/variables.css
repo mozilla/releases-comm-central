@@ -287,7 +287,5 @@
 
 :root[uidensity="touch"] {
   --tab-min-height: 39px;
-  --button-margin: 9px;
-  --button-padding: 9px;
   --button-pressed-indicator-padding: 3px;
 }
