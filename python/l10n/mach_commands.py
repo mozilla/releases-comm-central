@@ -7,7 +7,7 @@ import logging
 import os.path
 from pathlib import Path
 
-from mutlh.decorators import Command, CommandArgument
+from mach.decorators import Command, CommandArgument
 
 
 # https://stackoverflow.com/a/14117511
@@ -176,7 +176,11 @@ def run_migration_tests(command_context, test_paths=None, **kwargs):
         test_paths = []
     command_context.activate_virtualenv()
 
-    from tbxchannel.tb_migration_test import inspect_migration, prepare_object_dir, test_migration
+    from tbxchannel.tb_migration_test import (
+        inspect_migration,
+        prepare_object_dir,
+        test_migration,
+    )
 
     rv = 0
     with_context = []
@@ -215,13 +219,11 @@ def run_migration_tests(command_context, test_paths=None, **kwargs):
     return rv
 
 
-from mutlh.decorators import Command, CommandArgument
-
-
 @Command(
     "tb-l10n-quarantine-to-strings",
     category="thunderbird",
     description="Publish quarantines strings to comm-l10n.",
+    virtualenv_name="tb_common",
 )
 @CommandArgument(
     "--quarantine-path",
