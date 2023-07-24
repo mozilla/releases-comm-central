@@ -133,7 +133,6 @@ jobs:
             tooltool-downloads: internal
             extra-config:
                 mozconfig_platform: win64
-        use-sccache: true
         fetches:
             toolchain:
                 - linux64-binutils
@@ -144,7 +143,6 @@ jobs:
                 - linux64-node
                 - linux64-rust-cross
                 - linux64-rust-size
-                - linux64-sccache
                 - linux64-winchecksec
                 - linux64-wine
                 - nsis
