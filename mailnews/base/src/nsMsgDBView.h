@@ -362,10 +362,10 @@ class nsMsgDBView : public nsIMsgDBView,
                         uint32_t* result,
                         nsIMsgCustomColumnHandler* colHandler = nullptr);
 
-  static int FnSortIdKey(const void* pItem1, const void* pItem2,
-                         void* privateData);
-  static int FnSortIdUint32(const void* pItem1, const void* pItem2,
-                            void* privateData);
+  static int FnSortIdKey(const IdKey* pItem1, const IdKey* pItem2,
+                         viewSortInfo* sortInfo);
+  static int FnSortIdUint32(const IdUint32* pItem1, const IdUint32* pItem2,
+                            viewSortInfo* sortInfo);
 
   nsresult GetStatusSortValue(nsIMsgDBHdr* msgHdr, uint32_t* result);
   nsresult GetLocationCollationKey(nsIMsgDBHdr* msgHdr,
