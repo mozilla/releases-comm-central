@@ -14,19 +14,24 @@ import sys
 
 from build import mach_initialize as mach_init
 
+# Individual files that provide mach commands
+MACH_MODULES = [
+    "comm/python/l10n/mach_commands.py",
+    "comm/tools/lint/mach_commands.py",
+    "comm/tools/esmify/mach_commands.py",
+    "comm/mail/components/storybook/mach_commands.py",
+]
+
+CATEGORIES = {
+    "thunderbird": {
+        "short": "Thunderbird Development",
+        "long": "Mach commands that aid Thunderbird Development",
+        "priority": 65,
+    },
+}
+
 
 def mach_sys_path(mozilla_dir):
-    # We need the "mach" module to access the logic to parse virtualenv
-    # requirements. Since that depends on "packaging" (and, transitively,
-    # "pyparsing"), we add those to the path too.
-    sys.path[0:0] = [
-        os.path.join(mozilla_dir, module)
-        for module in (
-            os.path.join("python", "mach"),
-            os.path.join("third_party", "python", "packaging"),
-            os.path.join("third_party", "python", "pyparsing"),
-        )
-    ]
     from mach.requirements import MachEnvRequirements
 
     requirements = MachEnvRequirements.from_requirements_definition(
@@ -43,33 +48,17 @@ def mach_sys_path(mozilla_dir):
     )
 
 
-def initialize(topsrcdir, args=()):
+def initialize(topsrcdir):
+    driver = mach_init.initialize(topsrcdir)
+
     # Add comm Python module paths
     sys.path.extend(mach_sys_path(topsrcdir))
 
-    CATEGORIES = {
-        "thunderbird": {
-            "short": "Thunderbird Development",
-            "long": "Mach commands that aid Thunderbird Development",
-            "priority": 65,
-        },
-    }
-    mach_init.CATEGORIES.update(CATEGORIES)
+    # Define Thunderbird mach command categories
+    for category, meta in CATEGORIES.items():
+        driver.define_category(category, meta["short"], meta["long"], meta["priority"])
 
-    from mach.command_util import MACH_COMMANDS, MachCommandReference
-
-    # Additional Thunderbird mach commands
-    COMM_MACH_COMMANDS = {
-        "commlint": MachCommandReference("comm/tools/lint/mach_commands.py"),
-        "tb-add-missing-ftls": MachCommandReference("comm/python/l10n/mach_commands.py"),
-        "tb-fluent-migration-test": MachCommandReference("comm/python/l10n/mach_commands.py"),
-        "tb-l10n-quarantine-to-strings": MachCommandReference("comm/python/l10n/mach_commands.py"),
-        "tb-l10n-x-channel": MachCommandReference("comm/python/l10n/mach_commands.py"),
-        "tb-esmify": MachCommandReference("comm/tools/esmify/mach_commands.py"),
-        "tb-storybook": MachCommandReference("comm/mail/components/storybook/mach_commands.py"),
-    }
-    MACH_COMMANDS.update(COMM_MACH_COMMANDS)
-
-    driver = mach_init.initialize(topsrcdir, args)
+    for path in MACH_MODULES:
+        driver.load_commands_from_file(os.path.join(topsrcdir, path))
 
     return driver

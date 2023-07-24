@@ -1,8 +1,7 @@
 pth:comm/python/l10n
+pth:comm/python/mutlh
 pth:comm/python/rocbuild
 pth:comm/python/thirdroc
 pth:comm/taskcluster
 pth:comm/testing/marionette
 vendored:comm/third_party/python/fluent.migratetb
-vendored:third_party/python/packaging
-vendored:third_party/python/typing_extensions
