@@ -14,16 +14,19 @@ import sys
 
 from build import mach_initialize as mach_init
 
-CATEGORIES = {
-    "thunderbird": {
-        "short": "Thunderbird Development",
-        "long": "Mach commands that aid Thunderbird Development",
-        "priority": 65,
-    },
-}
-
 
 def mach_sys_path(mozilla_dir):
+    # We need the "mach" module to access the logic to parse virtualenv
+    # requirements. Since that depends on "packaging" (and, transitively,
+    # "pyparsing"), we add those to the path too.
+    sys.path[0:0] = [
+        os.path.join(mozilla_dir, module)
+        for module in (
+            os.path.join("python", "mach"),
+            os.path.join("third_party", "python", "packaging"),
+            os.path.join("third_party", "python", "pyparsing"),
+        )
+    ]
     from mach.requirements import MachEnvRequirements
 
     requirements = MachEnvRequirements.from_requirements_definition(
@@ -40,20 +43,23 @@ def mach_sys_path(mozilla_dir):
     )
 
 
-def initialize(topsrcdir):
-    driver = mach_init.initialize(topsrcdir)
-
+def initialize(topsrcdir, args=()):
     # Add comm Python module paths
     sys.path.extend(mach_sys_path(topsrcdir))
 
-    # Define Thunderbird mach command categories
-    for category, meta in CATEGORIES.items():
-        driver.define_category(category, meta["short"], meta["long"], meta["priority"])
+    CATEGORIES = {
+        "thunderbird": {
+            "short": "Thunderbird Development",
+            "long": "Mach commands that aid Thunderbird Development",
+            "priority": 65,
+        },
+    }
+    mach_init.CATEGORIES.update(CATEGORIES)
 
-    from mach.util import MachCommandReference
+    from mach.command_util import MACH_COMMANDS, MachCommandReference
 
     # Additional Thunderbird mach commands
-    MACH_COMMANDS = {
+    COMM_MACH_COMMANDS = {
         "commlint": MachCommandReference("comm/tools/lint/mach_commands.py"),
         "tb-add-missing-ftls": MachCommandReference("comm/python/l10n/mach_commands.py"),
         "tb-fluent-migration-test": MachCommandReference("comm/python/l10n/mach_commands.py"),
@@ -62,9 +68,8 @@ def initialize(topsrcdir):
         "tb-esmify": MachCommandReference("comm/tools/esmify/mach_commands.py"),
         "tb-storybook": MachCommandReference("comm/mail/components/storybook/mach_commands.py"),
     }
+    MACH_COMMANDS.update(COMM_MACH_COMMANDS)
 
-    # missing_ok should only be set when a sparse checkout is present, comm repos
-    # do not make use of sparse profiles (though they do exist)
-    driver.load_commands_from_spec(MACH_COMMANDS, topsrcdir, missing_ok=False)
+    driver = mach_init.initialize(topsrcdir, args)
 
     return driver
