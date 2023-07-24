@@ -14,14 +14,6 @@ import sys
 
 from build import mach_initialize as mach_init
 
-# Individual files that provide mach commands
-MACH_MODULES = [
-    "comm/python/l10n/mach_commands.py",
-    "comm/tools/lint/mach_commands.py",
-    "comm/tools/esmify/mach_commands.py",
-    "comm/mail/components/storybook/mach_commands.py",
-]
-
 CATEGORIES = {
     "thunderbird": {
         "short": "Thunderbird Development",
@@ -58,7 +50,21 @@ def initialize(topsrcdir):
     for category, meta in CATEGORIES.items():
         driver.define_category(category, meta["short"], meta["long"], meta["priority"])
 
-    for path in MACH_MODULES:
-        driver.load_commands_from_file(os.path.join(topsrcdir, path))
+    from mach.util import MachCommandReference
+
+    # Additional Thunderbird mach commands
+    MACH_COMMANDS = {
+        "commlint": MachCommandReference("comm/tools/lint/mach_commands.py"),
+        "tb-add-missing-ftls": MachCommandReference("comm/python/l10n/mach_commands.py"),
+        "tb-fluent-migration-test": MachCommandReference("comm/python/l10n/mach_commands.py"),
+        "tb-l10n-quarantine-to-strings": MachCommandReference("comm/python/l10n/mach_commands.py"),
+        "tb-l10n-x-channel": MachCommandReference("comm/python/l10n/mach_commands.py"),
+        "tb-esmify": MachCommandReference("comm/tools/esmify/mach_commands.py"),
+        "tb-storybook": MachCommandReference("comm/mail/components/storybook/mach_commands.py"),
+    }
+
+    # missing_ok should only be set when a sparse checkout is present, comm repos
+    # do not make use of sparse profiles (though they do exist)
+    driver.load_commands_from_spec(MACH_COMMANDS, topsrcdir, missing_ok=False)
 
     return driver
