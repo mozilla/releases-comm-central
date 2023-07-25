@@ -10,8 +10,7 @@ from shlex import quote as shell_quote
 from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.schema import resolve_keyed_by
 
-# from rocbuild.notify import TB_BUILD_ADDR
-TB_BUILD_ADDR = "tb-builds@thunderbird.net"
+from rocbuild.notify import TB_BUILD_ADDR
 
 transforms = TransformSequence()
 
