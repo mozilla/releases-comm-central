@@ -69,3 +69,7 @@ kbd {
 table.docutils {
     width: 100%;
 }
+
+.rst-content td > ul {
+    margin-bottom: 0;
+}

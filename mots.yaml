@@ -8,17 +8,17 @@
 # documentation and how to modify this file.
 repo: comm-central
 created_at: '2022-10-20T11:26:42.853013'
-updated_at: '2023-01-31T20:57:42.972682'
+updated_at: '2023-07-25T13:22:32.577271'
 hashes:
-  config: 5182890dff9295cb4edc0b6304cfd6165d685a3d
-  export: 720e58fc42b1ac17197b565b47f8ba72c2be437b
+  config: 97bff047b38524143e1b60762b607a5f2118da65
+  export: 7d0e20b811ab7b1947a09e8b03c314ce25539e93
 export:
-  path: ./docs/mots/index.rst
-  format: rst
+  path: ./docs/mots/index.md
+  format: md
   searchfox_enabled: false
 description: |
-  Thunderbird operates under Mozilla's `module ownership governance system
-  <https://www.mozilla.org/hacking/module-ownership.html>`_. A module is a
+  Thunderbird operates under Mozilla's [module ownership governance system](
+  https://www.mozilla.org/hacking/module-ownership.html). A module is a
   discrete unit of code or activity. An owner is the person in charge of a
   module or sub-module. A peer is a person whom the owner has appointed to
   help them. A module may have multiple peers and, very occasionally, multiple
@@ -166,18 +166,23 @@ people:
     bmo_id: 550104
     name: John Bieling
     nick: TbSync
+  - &thunderbirdcouncil
+    name: Thunderbird Council
+    nick: thunderbird_council
+    bmo_id: 0
   - &tomprince
     bmo_id: 461658
     name: Tom Prince
     nick: tomprince
 modules:
-  - name: Thunderbird Council - 2023
+  - name: Thunderbird Council
     machine_name: 00-thunderbird_council
     description: The Thunderbird Council is the elected governing body for the Thunderbird
       Project, including the code modules that develop the code in Thunderbird product(s).
       It is the top-level module of the project, and Peers are members of the Council.
     owners: [*ba]
     peers: [*micah, *sdk, *TbSync, *BenB, *clokep, *Fallen]
+    includes: [README.md]
     excludes:
       - suite/**
 
@@ -190,8 +195,8 @@ modules:
       - other-licenses/**/thunderbird/**
       - third_party/**
       - tools/**
-    owners: [*mkmelin]
-    peers: [*darktrojan, *aceman, *Paenglab]
+    owners: [*thunderbirdcouncil]
+    peers: [*mkmelin, *darktrojan, *aceman, *Paenglab]
     meta:
       owners_emeritus:
         - *standard8
