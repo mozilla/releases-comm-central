@@ -28,9 +28,9 @@ def extend_sys_path(topsrcdir):
         os.path.join(topsrcdir, "comm/python/sites/tb_common.txt"),
     )
     extend_path = [
-            os.path.normcase(os.path.join(topsrcdir, pth.path))
-            for pth in requirements.pth_requirements
-        ]
+        os.path.normcase(os.path.join(topsrcdir, pth.path))
+        for pth in requirements.pth_requirements
+    ]
     sys.path.extend(extend_path)
 
 

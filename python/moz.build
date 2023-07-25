@@ -7,4 +7,3 @@
 # Default extra components to build config
 with Files("**"):
     BUG_COMPONENT = ("Thunderbird", "Build Config")
-
