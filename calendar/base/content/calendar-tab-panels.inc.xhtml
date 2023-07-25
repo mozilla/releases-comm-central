@@ -135,32 +135,32 @@
               <menulist id="event-filter-menulist" value="P7D" persist="value">
                 <menupopup id="event-filter-menupopup" oncommand="refreshEventTree()">
                   <menuitem id="event-filter-all"
-                            label="&calendar.events.filter.all.label;"
-                            value="all"/>
+                            value="all"
+                            data-l10n-id="calendar-event-listing-interval-all"/>
                   <menuitem id="event-filter-today"
-                            label="&calendar.events.filter.today.label;"
-                            value="today"/>
+                            value="today"
+                            data-l10n-id="calendar-event-listing-interval-today"/>
                   <menuitem id="event-filter-next7days"
-                            label="&calendar.events.filter.next7Days.label;"
-                            value="P7D"/>
+                            value="P7D"
+                            data-l10n-id="calendar-event-listing-interval-next-7-days"/>
                   <menuitem id="event-filter-next14Days"
-                            label="&calendar.events.filter.next14Days.label;"
-                            value="P14D"/>
+                            value="P14D"
+                            data-l10n-id="calendar-event-listing-interval-next-14-days"/>
                   <menuitem id="event-filter-next31Days"
-                            label="&calendar.events.filter.next31Days.label;"
-                            value="P31D"/>
+                            value="P31D"
+                            data-l10n-id="calendar-event-listing-interval-next-31-days"/>
                   <menuitem id="event-filter-thisCalendarMonth"
-                            label="&calendar.events.filter.thisCalendarMonth.label;"
-                            value="thisCalendarMonth"/>
+                            value="thisCalendarMonth"
+                            data-l10n-id="calendar-event-listing-interval-calendar-month"/>
                   <menuitem id="event-filter-future"
-                            label="&calendar.events.filter.future.label;"
-                            value="future"/>
+                            value="future"
+                            data-l10n-id="calendar-event-listing-interval-future"/>
                   <menuitem id="event-filter-current"
-                            label="&calendar.events.filter.current.label;"
-                            value="current"/>
+                            value="current"
+                            data-l10n-id="calendar-event-listing-interval-selected-day"/>
                   <menuitem id="event-filter-currentview"
-                            label="&calendar.events.filter.currentview.label;"
-                            value="currentview"/>
+                            value="currentview"
+                            data-l10n-id="calendar-event-listing-interval-current-view"/>
                 </menupopup>
               </menulist>
             </box>
@@ -174,7 +174,7 @@
             <toolbarbutton id="unifinder-closer"
                            class="unifinder-closebutton close-icon"
                            command="calendar_show_unifinder_command"
-                           tooltiptext="&calendar.unifinder.close.tooltip;"/>
+                           data-l10n-id="calendar-event-listing-close"/>
           </hbox>
           <tree id="unifinder-search-results-tree" flex="1"
                 onselect="unifinderSelect(event); calendarController.onSelectionChanged()"
@@ -188,32 +188,28 @@
                        style="flex: 1 auto"
                        closemenu="none"
                        itemproperty="title"
-                       label="&calendar.unifinder.tree.title.label;"
-                       tooltiptext="&calendar.unifinder.tree.title.tooltip2;"/>
+                       data-l10n-id="calendar-event-listing-column-title"/>
               <splitter class="tree-splitter"/>
               <treecol id="unifinder-search-results-tree-col-startdate"
                        persist="hidden ordinal width"
                        style="flex: 1 auto"
                        closemenu="none"
                        itemproperty="startDate"
-                       label="&calendar.unifinder.tree.startdate.label;"
-                       tooltiptext="&calendar.unifinder.tree.startdate.tooltip2;"/>
+                       data-l10n-id="calendar-event-listing-column-start-date"/>
               <splitter class="tree-splitter"/>
               <treecol id="unifinder-search-results-tree-col-enddate"
                        persist="hidden ordinal width"
                        style="flex: 1 auto"
                        closemenu="none"
                        itemproperty="endDate"
-                       label="&calendar.unifinder.tree.enddate.label;"
-                       tooltiptext="&calendar.unifinder.tree.enddate.tooltip2;"/>
+                       data-l10n-id="calendar-event-listing-column-end-date"/>
               <splitter class="tree-splitter"/>
               <treecol id="unifinder-search-results-tree-col-categories"
                        persist="hidden ordinal width"
                        style="flex: 1 auto"
                        closemenu="none"
                        itemproperty="categories"
-                       label="&calendar.unifinder.tree.categories.label;"
-                       tooltiptext="&calendar.unifinder.tree.categories.tooltip2;"/>
+                       data-l10n-id="calendar-event-listing-column-category"/>
               <splitter class="tree-splitter"/>
               <treecol id="unifinder-search-results-tree-col-location"
                        persist="hidden ordinal width"
@@ -221,8 +217,7 @@
                        closemenu="none"
                        hidden="true"
                        itemproperty="location"
-                       label="&calendar.unifinder.tree.location.label;"
-                       tooltiptext="&calendar.unifinder.tree.location.tooltip2;"/>
+                       data-l10n-id="calendar-event-listing-column-location"/>
               <splitter class="tree-splitter"/>
               <treecol id="unifinder-search-results-tree-col-status"
                        persist="hidden ordinal width"
@@ -230,16 +225,14 @@
                        closemenu="none"
                        hidden="true"
                        itemproperty="status"
-                       label="&calendar.unifinder.tree.status.label;"
-                       tooltiptext="&calendar.unifinder.tree.status.tooltip2;"/>
+                       data-l10n-id="calendar-event-listing-column-status"/>
               <treecol id="unifinder-search-results-tree-col-calendarname"
                        persist="hidden ordinal width"
                        style="flex: 1 auto"
                        closemenu="none"
                        hidden="true"
                        itemproperty="calendar"
-                       label="&calendar.unifinder.tree.calendarname.label;"
-                       tooltiptext="&calendar.unifinder.tree.calendarname.tooltip2;"/>
+                       data-l10n-id="calendar-event-listing-column-calendar-name"/>
             </treecols>
 
             <!-- on mousedown here happens before onclick above -->
@@ -399,10 +392,9 @@
                     <toolbarbutton id="task-actions-category"
                                    type="menu"
                                    wantdropmarker="true"
-                                   label="&calendar.unifinder.tree.categories.label;"
-                                   tooltiptext="&calendar.task.category.button.tooltip;"
                                    command="calendar_task_category_command"
-                                   class="toolbarbutton-1 message-header-view-button">
+                                   class="toolbarbutton-1 message-header-view-button"
+                                   data-l10n-id="calendar-event-listing-column-category">
                       <menupopup id="task-actions-category-popup"
                                  onpopupshowing="taskDetailsView.loadCategories(event);"
                                  onpopuphiding="return taskDetailsView.saveCategories(event);">

@@ -136,8 +136,7 @@
                      itemproperty="completed"
                      closemenu="none"
                      src="chrome://messenger/skin/icons/new/compact/checkbox.svg"
-                     label="&calendar.unifinder.tree.done.label;"
-                     tooltiptext="&calendar.unifinder.tree.done.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-completed"/>
             <splitter class="tree-splitter"/>
             <treecol is="treecol-image" id="calendar-task-tree-col-priority"
                      class="calendar-task-tree-col-priority"
@@ -146,85 +145,73 @@
                      itemproperty="priority"
                      closemenu="none"
                      src="chrome://messenger/skin/icons/new/compact/priority.svg"
-                     label="&calendar.unifinder.tree.priority.label;"
-                     tooltiptext="&calendar.unifinder.tree.priority.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-priority"/>
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-title"
                      itemproperty="title"
                      style="flex: 1 auto"
                      closemenu="none"
-                     label="&calendar.unifinder.tree.title.label;"
-                     tooltiptext="&calendar.unifinder.tree.title.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-title"/>
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-entrydate"
                      itemproperty="entryDate"
                      style="flex: 1 auto"
                      closemenu="none"
-                     label="&calendar.unifinder.tree.startdate.label;"
-                     tooltiptext="&calendar.unifinder.tree.startdate.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-start-date"/>
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-duedate"
                      itemproperty="dueDate"
                      style="flex: 1 auto"
                      closemenu="none"
-                     label="&calendar.unifinder.tree.duedate.label;"
-                     tooltiptext="&calendar.unifinder.tree.duedate.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-due-date"/>
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-duration"
                      itemproperty="duration"
                      sortKey="dueDate"
                      style="flex: 1 auto"
                      closemenu="none"
-                     label="&calendar.unifinder.tree.duration.label;"
-                     tooltiptext="&calendar.unifinder.tree.duration.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-time-until-due"/>
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-completeddate"
                      itemproperty="completedDate"
                      style="flex: 1 auto"
                      closemenu="none"
-                     label="&calendar.unifinder.tree.completeddate.label;"
-                     tooltiptext="&calendar.unifinder.tree.completeddate.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-completed-date"/>
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-percentcomplete"
                      itemproperty="percentComplete"
                      style="flex: 1 auto; min-width: 40px;"
                      closemenu="none"
-                     label="&calendar.unifinder.tree.percentcomplete.label;"
-                     tooltiptext="&calendar.unifinder.tree.percentcomplete.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-percent-complete"/>
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-categories"
                      itemproperty="categories"
                      style="flex: 1 auto"
                      closemenu="none"
-                     label="&calendar.unifinder.tree.categories.label;"
-                     tooltiptext="&calendar.unifinder.tree.categories.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-category"/>
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-location"
                      itemproperty="location"
                      style="flex: 1 auto"
                      closemenu="none"
-                     label="&calendar.unifinder.tree.location.label;"
-                     tooltiptext="&calendar.unifinder.tree.location.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-location"/>
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-status"
                      itemproperty="status"
                      style="flex: 1 auto"
                      closemenu="none"
-                     label="&calendar.unifinder.tree.status.label;"
-                     tooltiptext="&calendar.unifinder.tree.status.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-status"/>
             <splitter class="tree-splitter"/>
             <treecol class="calendar-task-tree-col-calendar"
                      itemproperty="calendar"
                      style="flex: 1 auto"
                      closemenu="none"
-                     label="&calendar.unifinder.tree.calendarname.label;"
-                     tooltiptext="&calendar.unifinder.tree.calendarname.tooltip2;"/>
+                     data-l10n-id="calendar-event-listing-column-calendar-name"/>
           </treecols>
           <treechildren class="calendar-task-treechildren"
                         tooltip="taskTreeTooltip"
                         ondblclick="mTreeView.onDoubleClick(event)"/>
-          `,
-          ["chrome://calendar/locale/global.dtd", "chrome://calendar/locale/calendar.dtd"]
+          `
         )
       );
 
