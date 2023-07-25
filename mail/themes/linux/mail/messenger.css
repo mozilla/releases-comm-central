@@ -227,11 +227,6 @@
   }
 }
 
-toolbar:not(.inline-toolbar,.contentTabToolbar,:-moz-lwtheme) {
-  appearance: auto;
-  -moz-default-appearance: menubar;
-}
-
 .inline-toolbar,
 .contentTabToolbar {
   appearance: none;
