@@ -4,6 +4,7 @@
 
 import logging
 import os
+import sys
 from importlib import import_module
 
 from gecko_taskgraph import GECKO
@@ -17,11 +18,29 @@ COMM = os.path.join(GECKO, "comm")
 COMM_SCRIPTS = os.path.join(COMM, "taskcluster", "scripts")
 
 
+def extend_sys_path(topsrcdir):
+    from mach.requirements import MachEnvRequirements
+
+    requirements = MachEnvRequirements.from_requirements_definition(
+        topsrcdir,
+        True,  # is_thunderbird
+        False,
+        os.path.join(topsrcdir, "comm/python/sites/tb_common.txt"),
+    )
+    extend_path = [
+            os.path.normcase(os.path.join(topsrcdir, pth.path))
+            for pth in requirements.pth_requirements
+        ]
+    sys.path.extend(extend_path)
+
+
 def register(graph_config):
     """
     Import all modules that are siblings of this one, triggering decorators in
     the process.
     """
+    extend_sys_path(GECKO)
+
     from comm_taskgraph.parameters import register_parameters
 
     logger.info("{} path registered".format(__name__))
