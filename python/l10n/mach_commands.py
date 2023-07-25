@@ -54,6 +54,7 @@ def _get_rev(command_context, strings_path):
     "tb-l10n-x-channel",
     category="thunderbird",
     description="Create cross-channel content for Thunderbird (comm-strings).",
+    virtualenv_name="tb_common",
 )
 @CommandArgument(
     "--strings-path",
@@ -133,6 +134,7 @@ def tb_cross_channel(
     "tb-add-missing-ftls",
     category="thunderbird",
     description="Add missing FTL files after l10n merge.",
+    virtualenv_name="tb_common",
 )
 @CommandArgument(
     "--merge",
@@ -169,6 +171,7 @@ def tb_add_missing_ftls(command_context, merge, locale):
     "tb-fluent-migration-test",
     category="thunderbird",
     description="Test Fluent migration recipes.",
+    virtualenv_name="tb_common",
 )
 @CommandArgument("test_paths", nargs="*", metavar="N", help="Recipe paths to test.")
 def run_migration_tests(command_context, test_paths=None, **kwargs):
