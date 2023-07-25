@@ -6,9 +6,10 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var { add_message_sets_to_folders, create_thread } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { add_message_sets_to_folders, be_in_folder, create_thread } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 
 let tabmail,
   about3Pane,
@@ -19,8 +20,7 @@ let tabmail,
   moreContext,
   fetchContext,
   folderModesContextMenu,
-  folderModesContextMenuPopup,
-  totalCountBadge;
+  folderModesContextMenuPopup;
 
 add_setup(async function () {
   tabmail = document.getElementById("tabmail");
@@ -68,10 +68,8 @@ add_task(async function testHideFolderPaneHeader() {
     () => folderPaneHeader.hidden,
     "The folder pane header is hidden"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    moreContext.querySelector("#folderPaneHeaderHideMenuItem"),
-    {},
-    about3Pane
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderHideMenuItem")
   );
   await hiddenPromise;
 
@@ -397,11 +395,7 @@ add_task(async function testFolderModesActivation() {
       () => moreContext.querySelector(mode.menuID).hasAttribute("checked"),
       `"${mode.modeID}" option has been checked`
     );
-    EventUtils.synthesizeMouseAtCenter(
-      moreContext.querySelector(mode.menuID),
-      {},
-      about3Pane
-    );
+    moreContext.activateItem(moreContext.querySelector(mode.menuID));
     await checkedPromise;
 
     Assert.equal(
@@ -443,11 +437,7 @@ add_task(async function testFolderModesDeactivation() {
       () => !moreContext.querySelector(mode.menuID).hasAttribute("checked"),
       `"${mode.modeID}" option has been unchecked`
     );
-    EventUtils.synthesizeMouseAtCenter(
-      moreContext.querySelector(mode.menuID),
-      {},
-      about3Pane
-    );
+    moreContext.activateItem(moreContext.querySelector(mode.menuID));
     await uncheckedPromise;
 
     Assert.ok(
@@ -520,47 +510,8 @@ add_task(async function testGetMessageContextMenu() {
   await menuHiddenPromise;
 });
 
-add_task(async function testActionButtonsState() {
-  // Delete all accounts to start clean.
-  for (let account of MailServices.accounts.accounts) {
-    MailServices.accounts.removeAccount(account, true);
-  }
-
-  // Confirm that we don't have any account in our test run.
-  Assert.equal(
-    MailServices.accounts.accounts.length,
-    0,
-    "No account currently configured"
-  );
-
-  Assert.ok(fetchButton.disabled, "The Get Messages button is disabled");
-  Assert.ok(newButton.disabled, "The New Message button is disabled");
-
-  // Create a POP server.
-  let popServer = MailServices.accounts
-    .createIncomingServer("nobody", "foo.invalid", "pop3")
-    .QueryInterface(Ci.nsIPop3IncomingServer);
-
-  let identity = MailServices.accounts.createIdentity();
-  identity.email = "tinderbox@foo.invalid";
-
-  let account = MailServices.accounts.createAccount();
-  account.addIdentity(identity);
-  account.incomingServer = popServer;
-
-  await BrowserTestUtils.waitForCondition(
-    () => !fetchButton.disabled,
-    "The Get Messages button is enabled"
-  );
-
-  await BrowserTestUtils.waitForCondition(
-    () => !newButton.disabled,
-    "The New Message button is enabled"
-  );
-});
-
 add_task(async function testTotalCountDefaultState() {
-  totalCountBadge = about3Pane.document.querySelector(".total-count");
+  let totalCountBadge = about3Pane.document.querySelector(".total-count");
   Assert.ok(
     !moreContext
       .querySelector("#folderPaneHeaderToggleTotalCount")
@@ -578,10 +529,11 @@ add_task(async function testTotalCountDefaultState() {
     "The customization data was saved"
   );
 
-  let acc1 = MailServices.accounts.accounts[0];
-  let rootFolder1 = acc1.incomingServer.rootFolder;
-  let inbox = rootFolder1.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  const rootFolder =
+    MailServices.accounts.accounts[0].incomingServer.rootFolder;
+  const inbox = rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   await add_message_sets_to_folders([inbox], [create_thread(10)]);
+  await be_in_folder(inbox);
 
   about3Pane.folderTree.selectedIndex = 1;
   let row = about3Pane.folderTree.getRowAtIndex(1);
@@ -593,6 +545,7 @@ add_task(async function testTotalCountDefaultState() {
 });
 
 add_task(async function testTotalCountVisible() {
+  let totalCountBadge = about3Pane.document.querySelector(".total-count");
   let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await shownPromise;
@@ -602,10 +555,8 @@ add_task(async function testTotalCountVisible() {
     () => !totalCountBadge.hidden,
     "The total count badges are visible"
   );
-  EventUtils.synthesizeMouseAtCenter(
-    moreContext.querySelector("#folderPaneHeaderToggleTotalCount"),
-    {},
-    about3Pane
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleTotalCount")
   );
   await toggleOnPromise;
   // Check that toggle was successful.
@@ -749,6 +700,7 @@ add_task(async function testFolderSizeHidden() {
 });
 
 add_task(async function testTotalCountHidden() {
+  let totalCountBadge = about3Pane.document.querySelector(".total-count");
   let shownPromise = BrowserTestUtils.waitForEvent(moreContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(moreButton, {}, about3Pane);
   await shownPromise;
@@ -840,5 +792,154 @@ add_task(async function testHideLocalFoldersXULStore() {
         "hidden"
       ) == "false",
     "The customization data to hide local folders should be saved"
+  );
+});
+
+/**
+ * Ensure that the various badges and labels are updated and maintained when
+ * folders and modes change in the folder pane.
+ */
+add_task(async function testBadgesPersistentState() {
+  let totalCountBadge = about3Pane.document.querySelector(".total-count");
+  let folderSizeBadge = about3Pane.document.querySelector(".folder-size");
+  // Show total count.
+  let toggleOnPromise = BrowserTestUtils.waitForCondition(
+    () => !totalCountBadge.hidden,
+    "The total count badges are visible"
+  );
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleTotalCount")
+  );
+  await toggleOnPromise;
+
+  // Show folder size.
+  toggleOnPromise = BrowserTestUtils.waitForCondition(
+    () => !folderSizeBadge.hidden,
+    "The folder sizes are visible"
+  );
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleFolderSize")
+  );
+  await toggleOnPromise;
+
+  // Hide local folders.
+  moreContext.activateItem(
+    moreContext.querySelector("#folderPaneHeaderToggleLocalFolders")
+  );
+  await BrowserTestUtils.waitForCondition(
+    () =>
+      Services.xulStore.getValue(
+        "chrome://messenger/content/messenger.xhtml",
+        "folderPaneLocalFolders",
+        "hidden"
+      ) == "true",
+    "The customization data to hide local folders should be saved"
+  );
+  // The test times out on macOS if we don't wait here before dismissing the
+  // context menu. Unknown why.
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 250));
+
+  let menuHiddenPromise = BrowserTestUtils.waitForEvent(
+    moreContext,
+    "popuphidden"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {}, about3Pane);
+  await menuHiddenPromise;
+
+  // Ensure the badges are still visible.
+  Assert.ok(
+    !totalCountBadge.hidden,
+    "Folder total count badge should be visible"
+  );
+  Assert.ok(!folderSizeBadge.hidden, "Folder size badge should be visible");
+
+  // Create a folder and add messages to that folder to ensure the badges are
+  // visible and they update properly.
+  const rootFolder =
+    MailServices.accounts.accounts[0].incomingServer.rootFolder;
+  rootFolder.createSubfolder("NewlyCreatedTestFolder", null);
+  const folder = rootFolder.getChildNamed("NewlyCreatedTestFolder");
+  await be_in_folder(folder);
+
+  about3Pane.folderTree.selectedIndex = 3;
+  const row = about3Pane.folderTree.getRowAtIndex(3);
+  Assert.equal(
+    row.name,
+    "NewlyCreatedTestFolder",
+    "The correct folder should have been selected"
+  );
+  // Badges shouldn't be hidden even if there's no content.
+  Assert.ok(
+    !row.querySelector(".total-count").hidden,
+    "The total count badge of the newly created folder should be visible"
+  );
+  Assert.ok(
+    !row.querySelector(".folder-size").hidden,
+    "The folder size badge of the newly created folder should be visible"
+  );
+
+  const currentTotal = row.querySelector(".total-count").textContent;
+  const currentSize = row.querySelector(".folder-size").textContent;
+
+  await add_message_sets_to_folders([folder], [create_thread(10)]);
+
+  // Weird issue with the test in which the focus is lost after creating the
+  // messages, and the folder pane doesn't receive the folder size property
+  // changes. This doesn't happen while using the app normally.
+  about3Pane.folderTree.selectedIndex = 0;
+  about3Pane.folderTree.selectedIndex = 3;
+
+  await BrowserTestUtils.waitForCondition(
+    () => currentTotal != row.querySelector(".total-count").textContent,
+    `${currentTotal} != ${
+      row.querySelector(".total-count").textContent
+    } | The total count should have changed after adding messages`
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => currentSize != row.querySelector(".folder-size").textContent,
+    `${currentSize} != ${
+      row.querySelector(".folder-size").textContent
+    } | The folder size should have changed after adding messages`
+  );
+});
+
+add_task(async function testActionButtonsState() {
+  // Delete all accounts to start clean.
+  for (let account of MailServices.accounts.accounts) {
+    MailServices.accounts.removeAccount(account, true);
+  }
+
+  // Confirm that we don't have any account in our test run.
+  Assert.equal(
+    MailServices.accounts.accounts.length,
+    0,
+    "No account currently configured"
+  );
+
+  Assert.ok(fetchButton.disabled, "The Get Messages button is disabled");
+  Assert.ok(newButton.disabled, "The New Message button is disabled");
+
+  // Create a POP server.
+  let popServer = MailServices.accounts
+    .createIncomingServer("nobody", "foo.invalid", "pop3")
+    .QueryInterface(Ci.nsIPop3IncomingServer);
+
+  let identity = MailServices.accounts.createIdentity();
+  identity.email = "tinderbox@foo.invalid";
+
+  let account = MailServices.accounts.createAccount();
+  account.addIdentity(identity);
+  account.incomingServer = popServer;
+
+  await BrowserTestUtils.waitForCondition(
+    () => !fetchButton.disabled,
+    "The Get Messages button is enabled"
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => !newButton.disabled,
+    "The New Message button is enabled"
   );
 });

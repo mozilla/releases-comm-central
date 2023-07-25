@@ -1122,7 +1122,7 @@ var folderPane = {
         }
       },
 
-      changeUnreadCount(folder, unused, newValue) {
+      changeUnreadCount(folder, newValue) {
         if (newValue > 0) {
           this._addFolder(folder);
         }
@@ -1479,9 +1479,7 @@ var folderPane = {
       .addEventListener("click", event => {
         this.subFolderContext.openPopup(event.target, { triggerEvent: event });
       });
-    this.toggleTotalCountBadge();
-    this.toggleFolderSizes(this.isItemVisible("folderPaneFolderSize"));
-    folderPane.hideLocalFolders = this.isItemHidden("folderPaneLocalFolders");
+    this.updateFolderRowUIElements();
     this.updateWidgets();
 
     this._initialized = true;
@@ -1567,6 +1565,7 @@ var folderPane = {
    * @returns {boolean}
    */
   get hideLocalFolders() {
+    this._hideLocalFolders = this.isItemHidden("folderPaneLocalFolders");
     return this._hideLocalFolders;
   },
 
@@ -1588,6 +1587,7 @@ var folderPane = {
       mode.containerList.replaceChildren();
       this._initMode(mode);
     }
+    this.updateFolderRowUIElements();
   },
 
   /**
@@ -1759,7 +1759,7 @@ var folderPane = {
       "mode",
       this.activeModes.join(",")
     );
-    this.toggleTotalCountBadge();
+    this.updateFolderRowUIElements();
   },
 
   /**
@@ -2294,14 +2294,13 @@ var folderPane = {
    * Called when a folder's unread count changes, to update the UI.
    *
    * @param {nsIMsgFolder} folder
-   * @param {integer} oldValue
    * @param {integer} newValue
    */
-  changeUnreadCount(folder, oldValue, newValue) {
+  changeUnreadCount(folder, newValue) {
     this._changeRows(folder, row => (row.unreadCount = newValue));
 
     if (this._modes.unread.active && !folder.server.hidden) {
-      this._modes.unread.changeUnreadCount(folder, oldValue, newValue);
+      this._modes.unread.changeUnreadCount(folder, newValue);
     }
   },
 
@@ -2323,11 +2322,22 @@ var folderPane = {
    * Called when a folder's unread count changes, to update the UI.
    *
    * @param {nsIMsgFolder} folder
-   * @param {integer} oldValue
    * @param {integer} newValue
    */
-  changeTotalCount(folder, oldValue, newValue) {
+  changeTotalCount(folder, newValue) {
     this._changeRows(folder, row => (row.totalCount = newValue));
+  },
+
+  /**
+   * Update the UI widget to reflect the real folder size when the "FolderSize"
+   * property changes.
+   *
+   * @param {nsIMsgFolder} folder
+   */
+  changeFolderSize(folder) {
+    if (folderPane.isItemVisible("folderPaneFolderSize")) {
+      this._changeRows(folder, row => row.updateSizeCount(false, folder));
+    }
   },
 
   _onSelect(event) {
@@ -3363,6 +3373,14 @@ var folderPane = {
   },
 
   /**
+   * Ensure the folder rows UI elements reflect the state set by the user.
+   */
+  updateFolderRowUIElements() {
+    this.toggleTotalCountBadge();
+    this.toggleFolderSizes(this.isItemVisible("folderPaneFolderSize"));
+  },
+
+  /**
    * Check XULStore to see if the total message count badges should be hidden.
    */
   isTotalMsgCountVisible() {
@@ -3381,7 +3399,7 @@ var folderPane = {
   toggleTotalCountBadge() {
     const isHidden = !this.isTotalMsgCountVisible();
     for (let row of document.querySelectorAll(`li[is="folder-tree-row"]`)) {
-      row.toggleTotalCountBadge(isHidden);
+      row.toggleTotalCountBadgeVisibility(isHidden);
     }
   },
 
@@ -3738,7 +3756,12 @@ class FolderTreeRow extends HTMLLIElement {
     return size / 1024 < 1 ? "" : top.messenger.formatFileSize(size, true);
   }
 
-  toggleTotalCountBadge(isHidden) {
+  /**
+   * Update the visibility of the total count badge.
+   *
+   * @param {boolean} isHidden
+   */
+  toggleTotalCountBadgeVisibility(isHidden) {
     this.totalCountLabel.hidden = isHidden;
     this.#updateAriaLabel();
   }
@@ -4022,17 +4045,10 @@ var threadPaneHeader = {
    * currently selected folder.
    *
    * @param {nsIMsgFolder} folder - The folder updating the count.
-   * @param {integer} oldValue
    * @param {integer} newValue
    */
-  updateFolderCount(folder, oldValue, newValue) {
-    if (
-      !gFolder ||
-      !folder ||
-      this.isHidden ||
-      folder.URI != gFolder.URI ||
-      oldValue == newValue
-    ) {
+  updateFolderCount(folder, newValue) {
+    if (!gFolder || !folder || this.isHidden || folder.URI != gFolder.URI) {
       return;
     }
 
@@ -5630,6 +5646,7 @@ var folderListener = {
   QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
   onFolderAdded(parentFolder, childFolder) {
     folderPane.addFolder(parentFolder, childFolder);
+    folderPane.updateFolderRowUIElements();
   },
   onMessageAdded(parentFolder, msg) {},
   onFolderRemoved(parentFolder, childFolder) {
@@ -5652,12 +5669,21 @@ var folderListener = {
       case "FolderFlag":
         folderPane.changeFolderFlag(folder, oldValue, newValue);
         break;
+      case "FolderSize":
+        folderPane.changeFolderSize(folder);
+        break;
       case "TotalUnreadMessages":
-        folderPane.changeUnreadCount(folder, oldValue, newValue);
+        if (oldValue == newValue) {
+          break;
+        }
+        folderPane.changeUnreadCount(folder, newValue);
         break;
       case "TotalMessages":
-        folderPane.changeTotalCount(folder, oldValue, newValue);
-        threadPaneHeader.updateFolderCount(folder, oldValue, newValue);
+        if (oldValue == newValue) {
+          break;
+        }
+        folderPane.changeTotalCount(folder, newValue);
+        threadPaneHeader.updateFolderCount(folder, newValue);
         break;
     }
   },
