@@ -128,6 +128,14 @@ let mockExternalProtocolServiceCID = MockRegistrar.register(
   mockExternalProtocolService
 );
 
+// This test deliberately loads content from http:// URLs. For some reason
+// upgrading the icon URL to https:// causes it to attempt loading from an
+// external server and this makes the test crash.
+Services.prefs.setBoolPref(
+  "security.mixed_content.upgrade_display_content",
+  false
+);
+
 registerCleanupFunction(() => {
   let tabmail = document.getElementById("tabmail");
   Assert.equal(tabmail.tabInfo.length, 1);
@@ -137,6 +145,10 @@ registerCleanupFunction(() => {
   }
 
   MockRegistrar.unregister(mockExternalProtocolServiceCID);
+
+  Services.prefs.clearUserPref(
+    "security.mixed_content.upgrade_display_content"
+  );
 });
 
 async function clickOnLink(
