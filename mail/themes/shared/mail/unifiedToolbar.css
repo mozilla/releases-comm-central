@@ -45,12 +45,13 @@ unified-toolbar {
 #unifiedToolbar {
   flex: 1 1 auto;
   display: flex;
+  align-items: center;
   padding-block: var(--unified-toolbar-padding);
   min-width: 0;
   overflow: hidden;
 }
 
-#unifiedToolbar .button.toolbar-button {
+#unifiedToolbar .button:is(.toolbar-button, .unified-toolbar-button) {
   margin-block: 0;
 }
 
