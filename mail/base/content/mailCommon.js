@@ -245,6 +245,10 @@ var commandController = {
       }
       dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
       let archiver = new MessageArchiver();
+      // The instance of nsITransactionManager to use here is tied to msgWindow. Set
+      // this property so the operation can be undone if requested.
+      archiver.msgWindow = top.msgWindow;
+      // Archive the selected message(s).
       archiver.archiveMessages(gViewWrapper.dbView.getSelectedMsgHdrs());
     },
     cmd_moveToFolderAgain() {
