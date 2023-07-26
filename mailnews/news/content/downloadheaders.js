@@ -48,6 +48,8 @@ function OnLoad() {
   markreadElement = document.getElementById("markread");
   markreadElement.checked = nntpServer.markOldRead;
 
+  setupDownloadUI(true);
+
   return true;
 }
 
@@ -86,4 +88,5 @@ function setupDownloadUI(enable) {
 
   checkbox.disabled = !enable;
   numberFld.disabled = !enable;
+  numberFld.select();
 }
