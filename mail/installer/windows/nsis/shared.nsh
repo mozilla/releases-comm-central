@@ -75,33 +75,17 @@
     ${EndIf}
   ${EndIf}
 
-  ; Adds a pinned Task Bar shortcut (see MigrateTaskBarShortcut for details).
-  ; When we enabled this feature for Windows 10 & 11 we decided _not_ to pin
-  ; during an update (even once) because we already offered to do when the
-  ; the user originally installed, and we don't want to go against their
-  ; explicit wishes.
-  ; For Windows 7 and 8, we've been doing this ~forever, and those users may
-  ; not have experienced the onboarding offer to pin to taskbar, so we're
-  ; leaving it enabled there.
-  ${If} ${AtMostWin2012R2}
-    ${MigrateTaskBarShortcut} "$AddTaskbarSC"
-  ${EndIf}
-
   ; Update the name/icon/AppModelID of our shortcuts as needed, then update the
   ; lastwritetime of the Start Menu shortcut to clear the tile icon cache.
   ; Do this for both shell contexts in case the user has shortcuts in multiple
   ; locations, then restore the previous context at the end.
   SetShellVarContext all
   ${UpdateShortcutsBranding}
-  ${If} ${AtLeastWin8}
-    ${TouchStartMenuShortcut}
-  ${EndIf}
+  ${TouchStartMenuShortcut}
   Call FixShortcutAppModelIDs
   SetShellVarContext current
   ${UpdateShortcutsBranding}
-  ${If} ${AtLeastWin8}
-    ${TouchStartMenuShortcut}
-  ${EndIf}
+  ${TouchStartMenuShortcut}
   Call FixShortcutAppModelIDs
   ${If} $TmpVal == "HKLM"
     SetShellVarContext all
@@ -212,9 +196,7 @@
 !macro HideShortcuts
   StrCpy $R1 "Software\Clients\Mail\${ClientsRegName}\InstallInfo"
   WriteRegDWORD HKLM "$R1" "IconsVisible" 0
-  ${If} ${AtLeastWin8}
-    WriteRegDWORD HKCU "$R1" "IconsVisible" 0
-  ${EndIf}
+  WriteRegDWORD HKCU "$R1" "IconsVisible" 0
 
   SetShellVarContext all  ; Set $DESKTOP to All Users
   ${Unless} ${FileExists} "$DESKTOP\${BrandShortName}.lnk"
@@ -273,17 +255,14 @@
 !macro ShowShortcuts
   StrCpy $R1 "Software\Clients\Mail\${ClientsRegName}\InstallInfo"
   WriteRegDWORD HKLM "$R1" "IconsVisible" 1
-  ${If} ${AtLeastWin8}
-    WriteRegDWORD HKCU "$R1" "IconsVisible" 1
-  ${EndIf}
+  WriteRegDWORD HKCU "$R1" "IconsVisible" 1
 
   SetShellVarContext all  ; Set $DESKTOP to All Users
   ${Unless} ${FileExists} "$DESKTOP\${BrandShortName}.lnk"
     CreateShortCut "$DESKTOP\${BrandShortName}.lnk" "$INSTDIR\${FileMainEXE}"
     ${If} ${FileExists} "$DESKTOP\${BrandShortName}.lnk"
       ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${BrandShortName}.lnk" "$INSTDIR"
-      ${If} ${AtLeastWin7}
-      ${AndIf} "$AppUserModelID" != ""
+      ${If} "$AppUserModelID" != ""
         ApplicationID::Set "$DESKTOP\${BrandShortName}.lnk" "$AppUserModelID" "true"
       ${EndIf}
     ${Else}
@@ -293,8 +272,7 @@
         ${If} ${FileExists} "$DESKTOP\${BrandShortName}.lnk"
           ShellLink::SetShortCutWorkingDirectory "$DESKTOP\${BrandShortName}.lnk" \
                                                  "$INSTDIR"
-          ${If} ${AtLeastWin7}
-          ${AndIf} "$AppUserModelID" != ""
+          ${If} "$AppUserModelID" != ""
             ApplicationID::Set "$DESKTOP\${BrandShortName}.lnk" "$AppUserModelID" "true"
           ${EndIf}
         ${EndIf}
@@ -308,8 +286,7 @@
     ${If} ${FileExists} "$SMPROGRAMS\${BrandShortName}.lnk"
       ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\${BrandShortName}.lnk" \
                                              "$INSTDIR"
-      ${If} ${AtLeastWin7}
-      ${AndIf} "$AppUserModelID" != ""
+      ${If} "$AppUserModelID" != ""
         ApplicationID::Set "$SMPROGRAMS\${BrandShortName}.lnk" "$AppUserModelID" "true"
       ${EndIf}
     ${Else}
@@ -320,23 +297,11 @@
         ${If} ${FileExists} "$SMPROGRAMS\${BrandShortName}.lnk"
           ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\${BrandShortName}.lnk" \
                                                  "$INSTDIR"
-          ${If} ${AtLeastWin7}
-          ${AndIf} "$AppUserModelID" != ""
+          ${If} "$AppUserModelID" != ""
             ApplicationID::Set "$SMPROGRAMS\${BrandShortName}.lnk" "$AppUserModelID" "true"
           ${EndIf}
         ${EndIf}
       ${EndUnless}
-    ${EndIf}
-  ${EndUnless}
-
-  ; Windows 7 doesn't use the QuickLaunch directory
-  ${Unless} ${AtLeastWin7}
-  ${AndUnless} ${FileExists} "$QUICKLAUNCH\${BrandShortName}.lnk"
-    CreateShortCut "$QUICKLAUNCH\${BrandShortName}.lnk" \
-                   "$INSTDIR\${FileMainEXE}"
-    ${If} ${FileExists} "$QUICKLAUNCH\${BrandShortName}.lnk"
-      ShellLink::SetShortCutWorkingDirectory "$QUICKLAUNCH\${BrandShortName}.lnk" \
-                                             "$INSTDIR"
     ${EndIf}
   ${EndUnless}
 !macroend
@@ -1022,10 +987,8 @@
       WriteRegDWORD HKCU \
         "Software\Mozilla\${AppName}\Installer\$AppUserModelID" \
         "WasPinnedToTaskbar" 1
-      ${If} ${AtLeastWin7}
-        ${If} "${SHOULD_PIN}" == "1"
-          ${PinToTaskBar}
-        ${EndIf}
+      ${If} "${SHOULD_PIN}" == "1"
+        ${PinToTaskBar}
       ${EndIf}
     ${EndIf}
   ${EndIf}
@@ -1040,90 +1003,84 @@
 ; model ID removes a pinned pinned Start Menu shortcut this will also add a
 ; pinned Start Menu shortcut.
 !macro PinToTaskBar
-  ${If} ${AtLeastWin7}
-    StrCpy $8 "false" ; Whether a shortcut had to be created
-    ${IsPinnedToTaskBar} "$INSTDIR\${FileMainEXE}" $R9
-    ${If} "$R9" == "false"
-      ; Find an existing Start Menu shortcut or create one to use for pinning
-      ${GetShortcutsLogPath} $0
-      ${If} ${FileExists} "$0"
-        ClearErrors
-        ReadINIStr $1 "$0" "STARTMENU" "Shortcut0"
-        ${Unless} ${Errors}
-          SetShellVarContext all ; Set SHCTX to all users
-          ${Unless} ${FileExists} "$SMPROGRAMS\$1"
-            SetShellVarContext current ; Set SHCTX to the current user
+  StrCpy $8 "false" ; Whether a shortcut had to be created
+  ${IsPinnedToTaskBar} "$INSTDIR\${FileMainEXE}" $R9
+  ${If} "$R9" == "false"
+    ; Find an existing Start Menu shortcut or create one to use for pinning
+    ${GetShortcutsLogPath} $0
+    ${If} ${FileExists} "$0"
+      ClearErrors
+      ReadINIStr $1 "$0" "STARTMENU" "Shortcut0"
+      ${Unless} ${Errors}
+        SetShellVarContext all ; Set SHCTX to all users
+        ${Unless} ${FileExists} "$SMPROGRAMS\$1"
+          SetShellVarContext current ; Set SHCTX to the current user
             ${Unless} ${FileExists} "$SMPROGRAMS\$1"
-              StrCpy $8 "true"
-              CreateShortCut "$SMPROGRAMS\$1" "$INSTDIR\${FileMainEXE}"
-              ${If} ${FileExists} "$SMPROGRAMS\$1"
-                ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$1" \
-                                                       "$INSTDIR"
-                ${If} "$AppUserModelID" != ""
-                  ApplicationID::Set "$SMPROGRAMS\$1" "$AppUserModelID" "true"
-                ${EndIf}
+            StrCpy $8 "true"
+            CreateShortCut "$SMPROGRAMS\$1" "$INSTDIR\${FileMainEXE}"
+            ${If} ${FileExists} "$SMPROGRAMS\$1"
+              ShellLink::SetShortCutWorkingDirectory "$SMPROGRAMS\$1" \
+                                                     "$INSTDIR"
+              ${If} "$AppUserModelID" != ""
+                ApplicationID::Set "$SMPROGRAMS\$1" "$AppUserModelID" "true"
               ${EndIf}
-            ${EndUnless}
+            ${EndIf}
+          ${EndUnless}
+        ${EndUnless}
+
+        ${If} ${FileExists} "$SMPROGRAMS\$1"
+          ; Count of Start Menu pinned shortcuts before unpinning.
+          ${PinnedToStartMenuLnkCount} $R9
+
+          ; Having multiple shortcuts pointing to different installations with
+          ; the same AppUserModelID (e.g. side by side installations of the
+          ; same version) will make the TaskBar shortcut's lists into an bad
+          ; state where the lists are not shown. To prevent this first
+          ; uninstall the pinned item.
+          ApplicationID::UninstallPinnedItem "$SMPROGRAMS\$1"
+
+          ; Count of Start Menu pinned shortcuts after unpinning.
+          ${PinnedToStartMenuLnkCount} $R8
+
+          ; If there is a change in the number of Start Menu pinned shortcuts
+          ; assume that unpinning unpinned a side by side installation from
+          ; the Start Menu and pin this installation to the Start Menu.
+          ${Unless} $R8 == $R9
+            ; Pin the shortcut to the Start Menu. 5381 is the shell32.dll
+            ; resource id for the "Pin to Start Menu" string.
+            InvokeShellVerb::DoIt "$SMPROGRAMS" "$1" "5381"
           ${EndUnless}
 
-          ${If} ${FileExists} "$SMPROGRAMS\$1"
-            ; Count of Start Menu pinned shortcuts before unpinning.
-            ${PinnedToStartMenuLnkCount} $R9
-
-            ; Having multiple shortcuts pointing to different installations with
-            ; the same AppUserModelID (e.g. side by side installations of the
-            ; same version) will make the TaskBar shortcut's lists into an bad
-            ; state where the lists are not shown. To prevent this first
-            ; uninstall the pinned item.
-            ApplicationID::UninstallPinnedItem "$SMPROGRAMS\$1"
-
-            ; Count of Start Menu pinned shortcuts after unpinning.
-            ${PinnedToStartMenuLnkCount} $R8
-
-            ; If there is a change in the number of Start Menu pinned shortcuts
-            ; assume that unpinning unpinned a side by side installation from
-            ; the Start Menu and pin this installation to the Start Menu.
-            ${Unless} $R8 == $R9
-              ; Pin the shortcut to the Start Menu. 5381 is the shell32.dll
-              ; resource id for the "Pin to Start Menu" string.
-              InvokeShellVerb::DoIt "$SMPROGRAMS" "$1" "5381"
-            ${EndUnless}
-
-            ${If} ${AtMostWin2012R2}
-              ; Pin the shortcut to the TaskBar. 5386 is the shell32.dll
-              ; resource id for the "Pin to Taskbar" string.
-              InvokeShellVerb::DoIt "$SMPROGRAMS" "$1" "5386"
-            ${ElseIf} ${AtMostWaaS} 1809
-              ; In Windows 10 the "Pin to Taskbar" resource was removed, so we
-              ; can't access the verb that way anymore. We have a create a
-              ; command key using the GUID that's assigned to this action and
-              ; then invoke that as a verb. This works up until build 1809.
-              ReadRegStr $R9 HKLM \
-                "Software\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell\Windows.taskbarpin" \
-                "ExplorerCommandHandler"
-              WriteRegStr HKCU "Software\Classes\*\shell\${AppRegNameMail}-$AppUserModelID" "ExplorerCommandHandler" $R9
-              InvokeShellVerb::DoIt "$SMPROGRAMS" "$1" "${AppRegNameMail}-$AppUserModelID"
-              DeleteRegKey HKCU "Software\Classes\*\shell\${AppRegNameMail}-$AppUserModelID"
-            ${Else}
-              ; In the Windows 10 1903 and up (and Windows 11) the above no
-              ; longer works. We have yet another method for these versions
-              ; which is detailed in the PinToTaskbar plugin code.
-              PinToTaskbar::Pin "$SMPROGRAMS\$1"
-            ${EndIf}
-
-            ; Delete the shortcut if it was created
-            ${If} "$8" == "true"
-              Delete "$SMPROGRAMS\$1"
-            ${EndIf}
-          ${EndIf}
-
-          ${If} $TmpVal == "HKCU"
-            SetShellVarContext current ; Set SHCTX to the current user
+          ${If} ${AtMostWaaS} 1809
+            ; In Windows 10 the "Pin to Taskbar" resource was removed, so we
+            ; can't access the verb that way anymore. We have to create a
+            ; command key using the GUID that's assigned to this action and
+            ; then invoke that as a verb. This works up until build 1809
+            ReadRegStr $R9 HKLM \
+              "Software\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell\Windows.taskbarpin" \
+              "ExplorerCommandHandler"
+            WriteRegStr HKCU "Software\Classes\*\shell\${AppRegNameMail}-$AppUserModelID" "ExplorerCommandHandler" $R9
+            InvokeShellVerb::DoIt "$SMPROGRAMS" "$1" "${AppRegNameMail}-$AppUserModelID"
+            DeleteRegKey HKCU "Software\Classes\*\shell\${AppRegNameMail}-$AppUserModelID"
           ${Else}
-            SetShellVarContext all ; Set SHCTX to all users
+            ; In the Windows 10 1903 and up (and Windows 11) the above no
+            ; longer works. We have yet another method for these versions
+            ; which is detailed in the PinToTaskbar plugin code.
+            PinToTaskbar::Pin "$SMPROGRAMS\$1"
           ${EndIf}
-        ${EndUnless}
-      ${EndIf}
+
+          ; Delete the shortcut if it was created
+          ${If} "$8" == "true"
+            Delete "$SMPROGRAMS\$1"
+          ${EndIf}
+        ${EndIf}
+
+        ${If} $TmpVal == "HKCU"
+          SetShellVarContext current ; Set SHCTX to the current user
+        ${Else}
+          SetShellVarContext all ; Set SHCTX to all users
+        ${EndIf}
+      ${EndUnless}
     ${EndIf}
   ${EndIf}
 !macroend
@@ -1253,8 +1210,7 @@
 
 ; Helper for updating the shortcut application model IDs.
 Function FixShortcutAppModelIDs
-  ${If} ${AtLeastWin7}
-  ${AndIf} "$AppUserModelID" != ""
+  ${If} "$AppUserModelID" != ""
     ${UpdateShortcutAppModelIDs} "$INSTDIR\${FileMainEXE}" "$AppUserModelID" $0
   ${EndIf}
 FunctionEnd
@@ -1427,9 +1383,7 @@ Function SetAsDefaultMailAppUserHKCU
 
   SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
 
-  ${If} ${AtLeastWin8}
-    ${SetHandlersMail}
-  ${EndIf}
+  ${SetHandlersMail}
 
   ClearErrors
   ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameMail}"
@@ -1467,9 +1421,7 @@ Function SetAsDefaultNewsAppUserHKCU
 
   SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
 
-  ${If} ${AtLeastWin8}
-    ${SetHandlersNews}
-  ${EndIf}
+  ${SetHandlersNews}
 
   ClearErrors
   ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameNews}"
@@ -1503,9 +1455,7 @@ Function SetAsDefaultCalendarAppUserHKCU
 
   SetShellVarContext current  ; Set SHCTX to the current user (e.g. HKCU)
 
-  ${If} ${AtLeastWin8}
-    ${SetHandlersCalendar}
-  ${EndIf}
+  ${SetHandlersCalendar}
 
   ClearErrors
   ReadRegStr $0 HKLM "Software\RegisteredApplications" "${AppRegNameCalendar}"

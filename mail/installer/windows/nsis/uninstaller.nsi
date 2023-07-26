@@ -277,9 +277,8 @@ Section "Uninstall"
   ${un.RegCleanUninstall}
   ${un.DeleteShortcuts}
 
-  ; Unregister resources associated with Win7 taskbar jump lists.
-  ${If} ${AtLeastWin7}
-  ${AndIf} "$AppUserModelID" != ""
+  ; Unregister resources associated with taskbar jump lists.
+  ${If} "$AppUserModelID" != ""
     ApplicationID::UninstallJumpLists "$AppUserModelID"
   ${EndIf}
 
