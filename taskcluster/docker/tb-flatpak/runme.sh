@@ -148,7 +148,6 @@ flatpak build-finish build                                      \
         --own-name="org.mozilla.thunderbird_beta.*"             \
         --talk-name="org.gtk.vfs.*"                             \
         --talk-name=org.a11y.Bus                                \
-        --talk-name=org.freedesktop.Notifications               \
         --system-talk-name=org.freedesktop.NetworkManager       \
         --command=thunderbird
 
