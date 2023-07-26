@@ -2305,7 +2305,21 @@ var folderPane = {
    * @param {integer} newValue
    */
   changeUnreadCount(folder, newValue) {
-    this._changeRows(folder, row => (row.unreadCount = newValue));
+    this._changeRows(folder, row => {
+      // Find the nearest visible ancestor and update it.
+      let collapsedAncestor = row.parentNode.closest("li.collapsed");
+      while (collapsedAncestor) {
+        let next = collapsedAncestor.parentNode.closest("li.collapsed");
+        if (!next) {
+          collapsedAncestor.updateUnreadMessageCount();
+          break;
+        }
+        collapsedAncestor = next;
+      }
+
+      // Update the row itself.
+      row.unreadCount = newValue;
+    });
 
     if (this._modes.unread.active && !folder.server.hidden) {
       this._modes.unread.changeUnreadCount(folder, newValue);
