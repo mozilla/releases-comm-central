@@ -1,0 +1,71 @@
+---
+# Version of this schema
+schema: 1
+
+bugzilla:
+  # Bugzilla product and component for this directory and subdirectories
+  product: Thunderbird
+  component: Build Config
+# Document the source of externally hosted code
+origin:
+
+  # Short name of the package/library
+  name: fluent.migratetb
+
+  description: Toolchain to migrate legacy translation to Fluent. (Thunderbird fork)
+
+  # Full URL for the package's homepage/etc
+  # Usually different from repository url
+  url: https://github.com/jfx2006/tb-fluent-migrate
+
+  # Human-readable identifier for this version/release
+  # Generally "version NNN", "tag SSS", "bookmark SSS"
+  release: tag v0.11.2
+
+  # Revision to pull in
+  # Must be a long or short commit SHA (long preferred)
+  revision: v0.11.2
+
+  # The package's license, where possible using the mnemonic from
+  # https://spdx.org/licenses/
+  # Multiple licenses can be specified (as a YAML list)
+  # A "LICENSE" file must exist containing the full license text
+  license: Apache-2.0
+
+  # If the package's license is specified in a particular file,
+  # this is the name of the file.
+  # optional
+  license-file: LICENSE
+
+# Configuration for the automated vendoring system.
+# optional
+vendoring:
+
+  # Repository URL to vendor from
+  # eg. https://github.com/kinetiknz/nestegg
+  # Any repository host can be specified here, however initially we'll only
+  # support automated vendoring from selected sources.
+  url: https://github.com/jfx2006/tb-fluent-migrate
+
+  # Type of hosting for the upstream repository
+  # Valid values are 'gitlab', 'github', googlesource
+  source-hosting: github
+  tracking: tag
+  release-artifact: "fluent.migratetb-{tag}.tar.gz"
+
+  skip-vendoring-steps:
+    - hg-add
+    - spurious-check
+    - update-moz-build
+
+  # Files/paths that will not be vendored from the upstream repository
+  # Implicitly contains ".git", and ".gitignore"
+  # optional
+  exclude:
+    - .github/
+    - .gitignore
+    - .hgignore
+    - CHANGELOG.md
+    - tests/
+    - tox.ini
+
