@@ -144,8 +144,8 @@ flatpak build-finish build                                      \
         --filesystem=xdg-run/speech-dispatcher:ro               \
         --filesystem=/run/.heim_org.h5l.kcm-socket              \
         --device=dri                                            \
-        --own-name="org.mozilla.Thunderbird.*"                  \
-        --own-name="org.mozilla.Thunderbird_beta.*"             \
+        --own-name="org.mozilla.thunderbird.*"                  \
+        --own-name="org.mozilla.thunderbird_beta.*"             \
         --talk-name="org.gtk.vfs.*"                             \
         --talk-name=org.a11y.Bus                                \
         --talk-name=org.freedesktop.Notifications               \
