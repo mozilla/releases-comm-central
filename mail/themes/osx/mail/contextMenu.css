@@ -37,6 +37,10 @@ menupopup > menuitem > .menu-right {
   list-style-image: none;
 }
 
+menupopup > menuseparator#customizeMailToolbarMenuSeparator {
+  display: none;
+}
+
 menulist > menupopup > menuitem::before {
   margin-inline: 0 -10px;
 }
