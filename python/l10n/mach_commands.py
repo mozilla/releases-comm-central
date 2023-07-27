@@ -5,6 +5,7 @@
 import argparse
 import logging
 import os.path
+import sys
 from pathlib import Path
 
 from mach.decorators import Command, CommandArgument
@@ -54,7 +55,7 @@ def _get_rev(command_context, strings_path):
     "tb-l10n-x-channel",
     category="thunderbird",
     description="Create cross-channel content for Thunderbird (comm-strings).",
-    virtualenv_name="tb_common",
+    virtualenv_name="common",
 )
 @CommandArgument(
     "--strings-path",
@@ -104,6 +105,19 @@ def tb_cross_channel(
     **kwargs,
 ):
     """Run Thunderbird's l10n cross-channel content generation."""
+
+    from mach.site import resolve_requirements
+
+    requirements = resolve_requirements(command_context.topsrcdir, "tb_common")
+    sorted_requirements = sorted(
+        [
+            os.path.normcase(os.path.join(command_context.topsrcdir, pth.path))
+            for pth in requirements.pth_requirements
+            if pth not in sys.path
+        ]
+    )
+    sys.path.extend(sorted_requirements)
+
     from tbxchannel import TB_XC_NOTIFICATION_TMPL, get_thunderbird_xc_config
     from tbxchannel.l10n_merge import COMM_STRINGS_QUARANTINE
 
