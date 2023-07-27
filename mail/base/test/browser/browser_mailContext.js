@@ -283,7 +283,7 @@ add_task(async function testSingleMessage() {
 
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
   const row = threadTree.getRowAtIndex(0);
-  await row.focus();
+  row.focus();
   EventUtils.synthesizeMouseAtCenter(
     row,
     { type: "contextmenu", button: 0 },
@@ -299,9 +299,9 @@ add_task(async function testSingleMessage() {
   // Open the menu on a message that is scrolled out of view.
 
   shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
-  await row.focus();
   threadTree.scrollToIndex(200, true);
   await new Promise(resolve => window.requestAnimationFrame(resolve));
+  Assert.ok(!row.parentNode, "Row element should no longer be attached");
   Assert.equal(threadTree.currentIndex, 0, "Row 0 is the current row");
   Assert.ok(
     !threadTree.getRowAtIndex(threadTree.currentIndex),

@@ -182,12 +182,12 @@ var mailContextMenu = {
       window.threadTree._selection.selectEventsSuppressed = true;
       window.threadPane.restoreSelection(undefined, false);
       this._selectionIsOverridden = false;
+      window.threadTree.invalidate();
     }
     window.threadTree
       .querySelector(".context-menu-target")
       ?.classList.remove("context-menu-target");
     window.threadTree._selection.selectEventsSuppressed = false;
-    window.threadTree.invalidate();
     window.threadTree.table.body.focus();
   },
 

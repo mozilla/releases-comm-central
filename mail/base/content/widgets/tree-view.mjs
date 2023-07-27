@@ -217,15 +217,7 @@ class TreeView extends HTMLElement {
   }
 
   disconnectedCallback() {
-    cancelIdleCallback(this.#bufferFillIdleCallbackHandle);
-
-    for (let row of this._rows.values()) {
-      row.remove();
-    }
-    this._rows.clear();
-
-    this.replaceChildren();
-
+    this.#resetRowBuffer();
     this.resizeObserver.disconnect();
   }
 
@@ -565,6 +557,7 @@ class TreeView extends HTMLElement {
    * Clear all rows from the buffer, empty the table body, and reset spacers.
    */
   #resetRowBuffer() {
+    this.#cancelToleranceFillCallback();
     this.table.body.replaceChildren();
     this._rows.clear();
     this.#firstBufferRowIndex = 0;
@@ -680,6 +673,11 @@ class TreeView extends HTMLElement {
     this.#bufferFillIdleCallbackHandle = requestIdleCallback(deadline =>
       this.#fillToleranceBuffer(deadline)
     );
+  }
+
+  #cancelToleranceFillCallback() {
+    cancelIdleCallback(this.#bufferFillIdleCallbackHandle);
+    this.#bufferFillIdleCallbackHandle = null;
   }
 
   /**
