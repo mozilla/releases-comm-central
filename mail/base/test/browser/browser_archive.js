@@ -20,6 +20,16 @@ add_setup(async function () {
 
   // Remove test account on cleanup.
   registerCleanupFunction(() => {
+    // This test should create mailbox://nobody@Local%20Folders/Archives/2000.
+    // Tests following this one may attempt to create a folder at the same URI
+    // and will fail because our folder lookup code is a mess. Renaming should
+    // prevent that.
+    let archiveFolder = rootFolder.getFolderWithFlags(
+      Ci.nsMsgFolderFlags.Archive
+    );
+    archiveFolder?.subFolders[0]?.rename("archive2000", null);
+    archiveFolder?.rename("archiveArchives", null);
+
     MailServices.accounts.removeAccount(account, false);
     // Clear the undo and redo stacks to avoid side-effects on
     // tests expecting them to start in a cleared state.
