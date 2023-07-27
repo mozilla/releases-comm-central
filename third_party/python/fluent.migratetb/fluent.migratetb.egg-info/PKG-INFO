@@ -1,16 +1,20 @@
 Metadata-Version: 2.1
 Name: fluent.migratetb
-Version: 0.11.2
+Version: 0.12.0
 Summary: Toolchain to migrate legacy translation to Fluent. (Thunderbird fork)
 Home-page: https://github.com/jfx2006/tb-fluent-migrate/
 Author: Mozilla
-Author-email: l10n-drivers@mozilla.org
+Author-email: tb-builds@thunderbird.net
 License: APL 2
 Keywords: fluent,localization,l10n
 Classifier: Development Status :: 3 - Alpha
 Classifier: Intended Audience :: Developers
 Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: POSIX
 Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
 Description-Content-Type: text/markdown
 Provides-Extra: hg
 License-File: LICENSE

@@ -1,7 +1,3 @@
-# coding=utf8
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 import argparse
 import json
 import os
@@ -13,7 +9,7 @@ import hglib
 from hglib.util import b, cmdbuilder
 
 
-class Blame(object):
+class Blame:
     def __init__(self, client, cwd=None):
         self.client = client
         self._cwd = cwd
@@ -26,7 +22,7 @@ class Blame(object):
             return self.client.root()
         else:
             return mozpath.join(self.client.root(), self._cwd.encode("utf-8"))
-        
+
     def file_path_relative(self, file_path):
         if self._cwd is None:
             return file_path
@@ -36,7 +32,6 @@ class Blame(object):
         return file_path
 
     def attribution(self, file_paths):
-
         args = cmdbuilder(
             b('annotate'), *[b(p) for p in file_paths], template='json',
             date=True, user=True, cwd=self.cwd)
@@ -51,7 +46,6 @@ class Blame(object):
 
     def handleFile(self, file_blame):
         path = mozpath.normsep(self.file_path_relative(file_blame['path']))
-
 
         try:
             parser = getParser(path)
@@ -71,7 +65,7 @@ class Blame(object):
                 key_vals = []
             if isinstance(e, FluentEntity):
                 key_vals += [
-                    ('{}.{}'.format(e.key, attr.key), attr.val_span)
+                    (f'{e.key}.{attr.key}', attr.val_span)
                     for attr in e.attributes
                 ]
             for key, (val_start, val_end) in key_vals:
