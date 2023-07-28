@@ -180,10 +180,6 @@ tr[data-properties~="tagged"] .tag-icon {
 .tree-view-row-thread img {
   content: var(--icon-thread-sm);
   color: var(--tree-view-color);
-  /* Don't center align this because it could be the last column, spanning for
-     2 columns to account for the picker, therefore a center alignment would be
-     wrong. */
-  margin-inline-start: 3px;
   opacity: 0.7;
   pointer-events: none;
 }
@@ -268,13 +264,6 @@ tr[data-properties~="flagged"] .button-star {
   color: var(--tree-view-color);
   margin-top: 1px;
   opacity: 0.7;
-}
-
-.attachmentcol-column img {
-  /* Don't center align this because it could be the last column, spanning for
-     2 columns to account for the picker, therefore a center alignment would be
-     wrong. */
-  margin-inline-start: 3px;
 }
 
 [is="tree-view-table-body"]:focus >

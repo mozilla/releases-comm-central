@@ -9,6 +9,10 @@
   --tree-header-cell-indent: 0;
   --list-item-min-height: 26px;
   --list-item-buttons-size: 22px;
+  --table-header-cell-icon-width: 24px;
+  --table-header-cell-icon-min-width: 24px;
+  --table-row-cell-img-margin-inline-start: 6px;
+  --table-row-cell-button-margin-inline-start: 4px;
 }
 
 :root[uidensity="compact"] {
@@ -17,6 +21,11 @@
   --tree-header-cell-indent: 3px;
   --list-item-min-height: 18px;
   --list-item-buttons-size: 18px;
+  --table-header-cell-icon-width: 18px;
+  --table-header-cell-icon-min-width: 18px;
+  --table-header-cell-icon-button-padding: 0;
+  --table-row-cell-img-margin-inline-start: 3px;
+  --table-row-cell-button-margin-inline-start: 1px;
 }
 
 :root[uidensity="touch"] {
@@ -24,6 +33,10 @@
   --tree-header-cell-padding: 9px;
   --tree-header-cell-indent: -3px;
   --list-item-min-height: 32px;
+  --table-header-cell-icon-width: 33px;
+  --table-header-cell-icon-min-width: 33px;
+  --table-row-cell-img-margin-inline-start: 11px;
+  --table-row-cell-button-margin-inline-start: 9px;
 }
 
 @media not (prefers-contrast) {
@@ -210,8 +223,12 @@ th[is="tree-view-table-header-cell"] {
 }
 
 th[is="tree-view-table-header-cell"][data-type="icon"] {
-  width: 30px;
-  min-width: 30px;
+  width: var(--table-header-cell-icon-width);
+  min-width: var(--table-header-cell-icon-min-width);
+}
+
+th[is="tree-view-table-header-cell"][data-type="icon"] button {
+  padding: var(--table-header-cell-icon-button-padding, var(--tree-header-cell-padding));
 }
 
 th[is="tree-view-table-header-cell"][data-type="icon"] img {
@@ -270,10 +287,6 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 }
 
 .tree-view-row-delete button {
-  /* Don't center align this because it could be the last column, spanning for
-     2 columns to account for the picker, therefore a center alignment would be
-     wrong. */
-  margin-inline-start: 2px;
   color: var(--tree-view-color);
   opacity: 0.8;
 }
@@ -403,6 +416,27 @@ table[is="tree-view-table"] td {
   position: relative;
   user-select: none;
   box-sizing: border-box;
+}
+
+table[is="tree-view-table"] td.button-column {
+  padding: 0;
+  text-align: center;
+}
+
+table[is="tree-view-table"] td.button-column[colspan="2"] {
+  text-align: start;
+}
+
+table[is="tree-view-table"] td.button-column[colspan="2"] img {
+  margin-inline-start: var(--table-row-cell-img-margin-inline-start);
+}
+
+#threadTree table[is="tree-view-table"] td.button-column[colspan="2"] button {
+  margin-inline-start: var(--table-row-cell-button-margin-inline-start);
+}
+
+#threadTree table[is="tree-view-table"] td.button-column[colspan="2"] button.tree-button-delete {
+  margin-inline-start: calc(var(--table-row-cell-button-margin-inline-start) + 2px);
 }
 
 table[is="tree-view-table"] td div:not(.recipient-avatar) {
