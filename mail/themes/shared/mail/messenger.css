@@ -456,6 +456,10 @@ menulist {
   transition-duration: 150ms;
 }
 
+menulist:-moz-lwtheme {
+  color: inherit;
+}
+
 /* Override the not existing rule in menu.css */
 menulist[disabled="true"]:hover,
 menulist[open="true"]:hover {
