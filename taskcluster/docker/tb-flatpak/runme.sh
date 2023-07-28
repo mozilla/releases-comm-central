@@ -70,7 +70,6 @@ done
 
 envsubst < "$SCRIPT_DIRECTORY/org.mozilla.Thunderbird.appdata.xml.in" > "${WORKSPACE}/org.mozilla.Thunderbird.appdata.xml"
 cp -v "$SCRIPT_DIRECTORY/distribution.ini" "$WORKSPACE"
-cp -v "$SCRIPT_DIRECTORY/policies.json" "$WORKSPACE"
 cp -v "$SCRIPT_DIRECTORY/launch-script.sh" "$WORKSPACE"
 cd "${WORKSPACE}"
 
@@ -127,7 +126,6 @@ for locale in $locales; do
     ln -sf "/app/share/runtime/langpack/${locale%%-*}/langpack-${locale}@thunderbird.mozilla.org.xpi" "${appdir}/lib/thunderbird/distribution/extensions/langpack-${locale}@thunderbird.mozilla.org.xpi"
 done
 install -D -m644 -t "${appdir}/lib/thunderbird/distribution" distribution.ini
-install -D -m644 -t "${appdir}/lib/thunderbird/distribution" policies.json
 install -D -m755 launch-script.sh "${appdir}/bin/thunderbird"
 
 flatpak build-finish build                                      \
