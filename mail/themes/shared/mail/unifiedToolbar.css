@@ -8,11 +8,13 @@
   --unified-toolbar-padding: 7px;
   --unified-drag-space: 30px;
   --unified-customization-padding: 30px;
+  --unified-toolbar-content-min-height: 28px;
 }
 
 :root[uidensity="compact"] {
   --unified-toolbar-padding: 4px;
   --unified-drag-space: 15px;
+  --unified-toolbar-content-min-height: 24px;
 }
 
 :root[uidensity="touch"] {
@@ -45,12 +47,13 @@ unified-toolbar {
 #unifiedToolbar {
   flex: 1 1 auto;
   display: flex;
+  align-items: center;
   padding-block: var(--unified-toolbar-padding);
   min-width: 0;
   overflow: hidden;
 }
 
-#unifiedToolbar .button.toolbar-button {
+#unifiedToolbar .button:is(.toolbar-button, .unified-toolbar-button) {
   margin-block: 0;
 }
 
@@ -72,6 +75,7 @@ unified-toolbar {
 
 #unifiedToolbarContent {
   flex: 1 1 auto;
+  min-height: var(--unified-toolbar-content-min-height);
   margin: 0;
   padding: 0;
   padding-inline-start: var(--unified-drag-space);
