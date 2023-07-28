@@ -113,7 +113,7 @@ var SUBJECT_ADJECTIVES = [
   "Angry",
   "Awesome",
   "Fun",
-  "Lame",
+  "Lovely",
   "Funky",
 ];
 
