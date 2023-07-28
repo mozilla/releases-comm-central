@@ -2,16 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-loader: gecko_taskgraph.loader.single_dep:loader
+loader: gecko_taskgraph.loader.transform:loader
 
 transforms:
-    - gecko_taskgraph.transforms.repackage_set_upstream_mac_kind:transforms
-    - gecko_taskgraph.transforms.repackage_l10n:transforms
-    - gecko_taskgraph.transforms.name_sanity:transforms
-    - gecko_taskgraph.transforms.repackage:transforms
-    - gecko_taskgraph.transforms.job:transforms
-    - gecko_taskgraph.transforms.task:transforms
-    - comm_taskgraph.transforms.signing:transforms
+    - taskgraph.transforms.from_deps
+    - gecko_taskgraph.transforms.repackage_set_upstream_mac_kind
+    - gecko_taskgraph.transforms.repackage_l10n
+    - gecko_taskgraph.transforms.name_sanity
+    - gecko_taskgraph.transforms.repackage
+    - gecko_taskgraph.transforms.job
+    - gecko_taskgraph.transforms.task
+    - comm_taskgraph.transforms.signing
 
 kind-dependencies:
     - shippable-l10n-signing
@@ -26,47 +27,49 @@ only-for-build-platforms:
     - win32-shippable/opt
     - win64-shippable/opt
 
-job-template:
-    upstream-mac-kind:
-        by-build-type:
-            debug: shippable-l10n-mac-signing
-            default:
-                by-project:
-                    comm-(central|beta|esr.*): shippable-l10n-mac-notarization
-                    default: shippable-l10n-mac-signing
-    worker-type: 'b-linux-gcp'
-    mozharness:
-        comm-checkout: true
-        config-paths:
-            - comm/testing/mozharness/configs
-        config:
+jobs:
+    repackage-l10n:
+        from-deps: {}
+        upstream-mac-kind:
+            by-build-type:
+                debug: shippable-l10n-mac-signing
+                default:
+                    by-project:
+                        comm-(central|beta|esr.*): shippable-l10n-mac-notarization
+                        default: shippable-l10n-mac-signing
+        worker-type: 'b-linux-gcp'
+        mozharness:
+            comm-checkout: true
+            config-paths:
+                - comm/testing/mozharness/configs
+            config:
+                by-build-platform:
+                    linux-.*:
+                        - repackage/base.py
+                        - repackage/linux32_signed.py
+                    linux64.*:
+                        - repackage/base.py
+                        - repackage/linux64_signed.py
+                    macosx64.*:
+                        - repackage/base.py
+                        - repackage/osx_signed.py
+                    win32.*:
+                        - repackage/base.py
+                        - repackage/tb_win32_sfx_stub.py
+                        - repackage/win32_signed.py
+                    win64.*:
+                        - repackage/base.py
+                        - repackage/tb_win32_sfx_stub.py
+                        - repackage/win64_signed.py
+        package-formats:
             by-build-platform:
-                linux-.*:
-                    - repackage/base.py
-                    - repackage/linux32_signed.py
-                linux64.*:
-                    - repackage/base.py
-                    - repackage/linux64_signed.py
-                macosx64.*:
-                    - repackage/base.py
-                    - repackage/osx_signed.py
-                win32.*:
-                    - repackage/base.py
-                    - repackage/tb_win32_sfx_stub.py
-                    - repackage/win32_signed.py
-                win64.*:
-                    - repackage/base.py
-                    - repackage/tb_win32_sfx_stub.py
-                    - repackage/win64_signed.py
-    package-formats:
-        by-build-platform:
-            linux-.*: [mar]
-            linux64.*: [mar]
-            macosx64.*: [mar, dmg, pkg]
-            win32.*: [mar, installer]
-            win64.*: [mar, installer]
-    fetches:
-        toolchain:
-            - linux64-mar-tools
-            - linux64-upx
-    treeherder-group: L10n-Rpk
+                linux-.*: [mar]
+                linux64.*: [mar]
+                macosx64.*: [mar, dmg, pkg]
+                win32.*: [mar, installer]
+                win64.*: [mar, installer]
+        fetches:
+            toolchain:
+                - linux64-mar-tools
+                - linux64-upx
+        treeherder-group: L10n-Rpk
