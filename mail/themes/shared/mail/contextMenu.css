@@ -117,11 +117,13 @@ menubar:not(:-moz-lwtheme) > menu menupopup >
   background-color: -moz-MenuHover;
 }
 
-@media (-moz-platform: windows) and (-moz-windows-default-theme){
-  menubar:not(:-moz-lwtheme) > menu menupopup >
-    :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
-    color: inherit;
-    background-color: var(--arrowpanel-dimmed-further);
+@media (-moz-platform: windows) {
+  @media not (prefers-contrast) {
+    menubar:not(:-moz-lwtheme) > menu menupopup >
+      :is(menu, menuitem):not([disabled="true"])[_moz-menuactive] {
+      color: inherit;
+      background-color: var(--arrowpanel-dimmed-further);
+    }
   }
 }
 

@@ -69,6 +69,12 @@ body {
   margin-inline-end: 0;
 }
 
+:root:not([lwt-tree]) #msgDownloadsRichListBox > .download[selected] {
+  color: var(--selected-item-text-color);
+  background-color: var(--selected-item-color);
+  --in-content-button-text-color-hover: var(--selected-item-text-color);
+}
+
 .fileTypeIcon {
   margin-inline: 8px;
   /* explicitly size the icon, so size doesn't vary on hidpi systems */

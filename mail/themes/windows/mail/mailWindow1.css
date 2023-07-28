@@ -32,7 +32,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   color-scheme: light dark;
 }
 
-@media (-moz-windows-default-theme) {
+@media not (prefers-contrast) {
   :root:not(:-moz-lwtheme) {
     background-color: var(--color-gray-10);
   }
@@ -81,7 +81,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   stroke: currentColor;
 }
 
-@media (-moz-windows-default-theme) {
+@media not (prefers-contrast) {
   @media (-moz-windows-accent-color-in-titlebar) {
     .titlebar-button:not(:-moz-window-inactive,:-moz-lwtheme) {
       stroke: AccentColorText;
@@ -178,7 +178,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-@media (-moz-windows-default-theme) {
+@media not (prefers-contrast) {
   .titlebar-button:hover {
     background-color: hsla(0, 0%, 0%, .12);
   }

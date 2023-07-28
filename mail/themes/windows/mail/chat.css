@@ -103,7 +103,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   margin-inline-end: 2px;
 }
 
-@media (-moz-windows-default-theme) {
+@media not (prefers-contrast) {
   .conv-status-container {
     border-bottom-color: var(--color-gray-30);
   }

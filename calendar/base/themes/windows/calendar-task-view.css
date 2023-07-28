@@ -43,7 +43,7 @@
 }
 
 @media not (prefers-color-scheme: dark) {
-  @media (-moz-windows-default-theme) {
+  @media not (prefers-contrast) {
     #task-addition-box {
       background-color: #f8f8f8;
     }

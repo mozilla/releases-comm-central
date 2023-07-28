@@ -45,16 +45,12 @@ menupopup:not([needsgutter]) > menuitem:not([checked="true"], [icon], .menuitem-
   display: flex;
 }
 
-@media (-moz-windows-default-theme: 0) {
-  #menubar-items > #mail-menubar > menu {
-    appearance: none;
-  }
-
+@media (prefers-contrast) {
   #menubar-items > #mail-menubar > menu:not([disabled="true"]) {
     color: inherit;
   }
 
-  #menubar-items > #mail-menubar > menu[_moz-menuactive="true"] {
+  #menubar-items > #mail-menubar > menu:not([disabled="true"])[_moz-menuactive="true"] {
     color: -moz-MenuHoverText;
   }
 }
@@ -202,9 +198,7 @@ treechildren::-moz-tree-cell-text {
     border-color: SelectedItem;
     background-color: transparent;
   }
-}
 
-@media (-moz-windows-default-theme: 0) {
   tree > treechildren::-moz-tree-row(hover) {
     border-color: SelectedItemText !important;
     border-style: solid;
@@ -279,7 +273,7 @@ button.notification-button[is="toolbarbutton-menu-button"] {
   margin-top: 0;
 }
 
-@media (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   #tabmail:not(:-moz-lwtheme) {
     background-color: ActiveCaption;
   }
@@ -332,13 +326,6 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
   border-top-style: solid;
   color: -moz-dialogText;
   text-shadow: none;
-}
-
-@media (-moz-windows-default-theme) {
-  .statuspanel-label {
-    background-color: #f9f9fa;
-    color: #444;
-  }
 }
 
 .statuspanel-label:-moz-locale-dir(ltr):not([mirror]),

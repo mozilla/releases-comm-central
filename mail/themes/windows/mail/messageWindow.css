@@ -27,10 +27,3 @@
 #mail-toolbox:-moz-lwtheme {
   text-shadow: none;
 }
-
-@media (-moz-windows-default-theme) {
-  #menubar-items > #mail-menubar > menu {
-    appearance: auto;
-    -moz-default-appearance: menuitem;
-  }
-}

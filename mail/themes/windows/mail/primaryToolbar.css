@@ -9,7 +9,7 @@
   appearance: none;
 }
 
-@media (-moz-windows-default-theme) {
+@media not (prefers-contrast) {
   #menubar-items > #mail-menubar > menu[disabled="true"] {
     background-color: transparent;
   }
@@ -41,7 +41,7 @@
 
 /* ::::: toolbar buttons on tabbar toolbar ::::: */
 
-@media (-moz-windows-default-theme) {
+@media not (prefers-contrast) {
   #navigation-toolbox > #toolbar-menubar {
     background-color: transparent;
     padding-top: 0;

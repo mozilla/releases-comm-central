@@ -38,7 +38,7 @@ treechildren::-moz-tree-image(junkStatusCol) {
   margin-inline-start: 1px;
 }
 
-@media (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   #subjectCol {
     padding-inline-start: 23px;
   }

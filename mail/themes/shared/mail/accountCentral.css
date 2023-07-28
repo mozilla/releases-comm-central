@@ -62,6 +62,26 @@ html {
   --popup-bg: #474749;
 }
 
+@media (prefers-contrast) {
+  :root:not(:-moz-lwtheme) {
+    --bg-color: Window;
+    --text-color: WindowText;
+    --title-color: -moz-DialogText;
+    --primary-color: SelectedItem;
+    --primary-color-hover: SelectedItem;
+    --btn-color: -moz-DialogText;
+    --btn-color-hover: SelectedItemText;
+    --btn-bg: Dialog;
+    --btn-bg-hover: SelectedItem;
+    --btn-shadow-hover: transparent;
+    --popup-bg: Window;
+  }
+
+  :root:not(:-moz-lwtheme) .btn-hub {
+    border: 1px solid -moz-DialogText;
+  }
+}
+
 body {
   /* Overwrite rules in messenger.css. */
   display: block;

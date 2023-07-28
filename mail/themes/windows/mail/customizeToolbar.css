@@ -8,7 +8,7 @@
   margin: 0 4px 10px;
 }
 
-@media (-moz-windows-default-theme: 0) {
+@media (prefers-contrast) {
   :root:not(:-moz-lwtheme) #palette-box {
     background-color: transparent;
     border-color: ThreeDShadow;
