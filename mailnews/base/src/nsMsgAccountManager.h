@@ -63,7 +63,6 @@ class VirtualFolderChangeListener final : public nsIDBChangeListener {
 class nsMsgAccountManager : public nsIMsgAccountManager,
                             public nsIObserver,
                             public nsSupportsWeakReference,
-                            public nsIUrlListener,
                             public nsIFolderListener {
  public:
   nsMsgAccountManager();
@@ -74,7 +73,6 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
 
   NS_DECL_NSIMSGACCOUNTMANAGER
   NS_DECL_NSIOBSERVER
-  NS_DECL_NSIURLLISTENER
   NS_DECL_NSIFOLDERLISTENER
 
   nsresult Init();

@@ -252,11 +252,9 @@ interface nsIMsgFolder : nsISupports {
   void createStorageIfMissing(in nsIUrlListener urlListener);
 
   /**
-   * Compact this folder. For IMAP folders configured for offline use,
-   * it will also compact the offline store, and the completed notification
-   * will occur when the Expunge is finished, not the offline store compaction.
+   * Compact this folder (Expunge _and_ compact, for IMAP folders).
    *
-   * @param aListener   Notified of completion, can be null.
+   * @param aListener   Notified upon completion, can be null.
    *                    OnStartRunningUrl() will not be called.
    *                    OnStopRunningUrl() will be called upon completion,
    *                    with a null URL.
@@ -266,7 +264,7 @@ interface nsIMsgFolder : nsISupports {
   /**
    * Compact all folders in the account corresponding to this folder.
    *
-   * @param aListener   Notified of completion, can be null.
+   * @param aListener   Notified upon completion, can be null.
    *                    OnStartRunningUrl() will not be called.
    *                    OnStopRunningUrl() will be called upon completion,
    *                    with a null URL.

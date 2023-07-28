@@ -72,6 +72,7 @@
 #include "nsISafeOutputStream.h"
 #include "nsXULAppAPI.h"
 #include "nsICacheStorageService.h"
+#include "UrlListener.h"
 
 #define PREF_MAIL_ACCOUNTMANAGER_ACCOUNTS "mail.accountmanager.accounts"
 #define PREF_MAIL_ACCOUNTMANAGER_DEFAULTACCOUNT \
@@ -106,7 +107,7 @@ bool nsMsgAccountManager::m_haveShutdown = false;
 bool nsMsgAccountManager::m_shutdownInProgress = false;
 
 NS_IMPL_ISUPPORTS(nsMsgAccountManager, nsIMsgAccountManager, nsIObserver,
-                  nsISupportsWeakReference, nsIUrlListener, nsIFolderListener)
+                  nsISupportsWeakReference, nsIFolderListener)
 
 nsMsgAccountManager::nsMsgAccountManager()
     : m_accountsLoaded(false),
@@ -1518,14 +1519,12 @@ nsMsgAccountManager::CleanupOnExit() {
         if (!isImap || (isImap && (!serverRequiresPasswordForAuthentication ||
                                    !passwd.IsEmpty() ||
                                    authMethod == nsMsgAuthMethod::OAuth2))) {
-          nsCOMPtr<nsIUrlListener> urlListener;
           nsCOMPtr<nsIMsgAccountManager> accountManager =
               do_GetService("@mozilla.org/messenger/account-manager;1", &rv);
           if (NS_FAILED(rv)) continue;
 
-          if (isImap) urlListener = do_QueryInterface(accountManager, &rv);
-
           if (isImap && cleanupInboxOnExit) {
+            // Find the inbox.
             nsTArray<RefPtr<nsIMsgFolder>> subFolders;
             rv = root->GetSubFolders(subFolders);
             if (NS_SUCCEEDED(rv)) {
@@ -1533,7 +1532,24 @@ nsMsgAccountManager::CleanupOnExit() {
                 uint32_t flags;
                 folder->GetFlags(&flags);
                 if (flags & nsMsgFolderFlags::Inbox) {
-                  rv = folder->Compact(urlListener, nullptr /* msgwindow */);
+                  // This is inbox, so Compact() it. There's an implied
+                  // Expunge too, because this is IMAP.
+                  RefPtr<UrlListener> cleanupListener = new UrlListener();
+                  RefPtr<nsMsgAccountManager> self = this;
+                  // This runs when the compaction (+expunge) is complete.
+                  cleanupListener->mStopFn =
+                      [self](nsIURI* url, nsresult status) -> nsresult {
+                    if (self->m_folderDoingCleanupInbox) {
+                      PR_CEnterMonitor(self->m_folderDoingCleanupInbox);
+                      PR_CNotifyAll(self->m_folderDoingCleanupInbox);
+                      self->m_cleanupInboxInProgress = false;
+                      PR_CExitMonitor(self->m_folderDoingCleanupInbox);
+                      self->m_folderDoingCleanupInbox = nullptr;
+                    }
+                    return NS_OK;
+                  };
+
+                  rv = folder->Compact(cleanupListener, nullptr);
                   if (NS_SUCCEEDED(rv))
                     accountManager->SetFolderDoingCleanupInbox(folder);
                   break;
@@ -1543,14 +1559,32 @@ nsMsgAccountManager::CleanupOnExit() {
           }
 
           if (emptyTrashOnExit) {
-            rv = root->EmptyTrash(urlListener);
+            RefPtr<UrlListener> emptyTrashListener = new UrlListener();
+            RefPtr<nsMsgAccountManager> self = this;
+            // This runs when the trash-emptying is complete.
+            // (It'll be a nsIImapUrl::nsImapDeleteAllMsgs url).
+            emptyTrashListener->mStopFn = [self](nsIURI* url,
+                                                 nsresult status) -> nsresult {
+              if (self->m_folderDoingEmptyTrash) {
+                PR_CEnterMonitor(self->m_folderDoingEmptyTrash);
+                PR_CNotifyAll(self->m_folderDoingEmptyTrash);
+                self->m_emptyTrashInProgress = false;
+                PR_CExitMonitor(self->m_folderDoingEmptyTrash);
+                self->m_folderDoingEmptyTrash = nullptr;
+              }
+              return NS_OK;
+            };
+
+            rv = root->EmptyTrash(emptyTrashListener);
             if (isImap && NS_SUCCEEDED(rv))
               accountManager->SetFolderDoingEmptyTrash(root);
           }
 
-          if (isImap && urlListener) {
+          if (isImap) {
             nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
 
+            // Pause until any possible inbox-compaction and trash-emptying
+            // are complete (or time out).
             bool inProgress = false;
             if (cleanupInboxOnExit) {
               int32_t loopCount = 0;  // used to break out after 5 seconds
@@ -2166,45 +2200,6 @@ nsMsgAccountManager::CreateLocalMailAccount() {
 
   // remember this as the local folders server
   return SetLocalFoldersServer(server);
-}
-
-// nsIUrlListener methods
-
-NS_IMETHODIMP
-nsMsgAccountManager::OnStartRunningUrl(nsIURI* aUrl) { return NS_OK; }
-
-NS_IMETHODIMP
-nsMsgAccountManager::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
-  if (aUrl) {
-    nsCOMPtr<nsIImapUrl> imapUrl = do_QueryInterface(aUrl);
-    if (imapUrl) {
-      nsImapAction imapAction = nsIImapUrl::nsImapTest;
-      imapUrl->GetImapAction(&imapAction);
-      switch (imapAction) {
-        case nsIImapUrl::nsImapExpungeFolder:
-          if (m_folderDoingCleanupInbox) {
-            PR_CEnterMonitor(m_folderDoingCleanupInbox);
-            PR_CNotifyAll(m_folderDoingCleanupInbox);
-            m_cleanupInboxInProgress = false;
-            PR_CExitMonitor(m_folderDoingCleanupInbox);
-            m_folderDoingCleanupInbox = nullptr;  // reset to nullptr
-          }
-          break;
-        case nsIImapUrl::nsImapDeleteAllMsgs:
-          if (m_folderDoingEmptyTrash) {
-            PR_CEnterMonitor(m_folderDoingEmptyTrash);
-            PR_CNotifyAll(m_folderDoingEmptyTrash);
-            m_emptyTrashInProgress = false;
-            PR_CExitMonitor(m_folderDoingEmptyTrash);
-            m_folderDoingEmptyTrash = nullptr;  // reset to nullptr;
-          }
-          break;
-        default:
-          break;
-      }
-    }
-  }
-  return NS_OK;
 }
 
 NS_IMETHODIMP
