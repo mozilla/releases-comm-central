@@ -27,7 +27,7 @@ const OPENPGP_KEY_PATH = PathUtils.join(
  * is unique and there are minor differences between the account
  * implementations, we don't compare exactly with a reference message.
  */
-add_task(async function test_plain() {
+add_task(async function test_plain_mv2() {
   let _account = createAccount();
   let _folder = await createSubfolder(
     _account.incomingServer.rootFolder,
@@ -46,6 +46,20 @@ add_task(async function test_plain() {
         browser.test.assertEq(1, messages.length);
 
         let [message] = messages;
+
+        // Expected message content:
+        // -------------------------
+        // From andy@anway.invalid
+        // Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+        // Subject: Big Meeting Today
+        // From: "Andy Anway" <andy@anway.invalid>
+        // To: "Bob Bell" <bob@bell.invalid>
+        // Message-Id: <0@made.up.invalid>
+        // Date: Wed, 06 Nov 2019 22:37:40 +1300
+        //
+        // Hello Bob Bell!
+        //
+
         browser.test.assertEq("Big Meeting Today", message.subject);
         browser.test.assertEq(
           '"Andy Anway" <andy@anway.invalid>',
@@ -60,31 +74,35 @@ add_task(async function test_plain() {
           );
         }
 
-        // From andy@anway.invalid
-        // Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-        // Subject: Big Meeting Today
-        // From: "Andy Anway" <andy@anway.invalid>
-        // To: "Bob Bell" <bob@bell.invalid>
-        // Message-Id: <0@made.up.invalid>
-        // Date: Wed, 06 Nov 2019 22:37:40 +1300
-        //
-        // Hello Bob Bell!
-        //
+        let strMessage_1 = await browser.messages.getRaw(message.id);
+        browser.test.assertEq("string", typeof strMessage_1);
+        let strMessage_2 = await browser.messages.getRaw(message.id, {
+          data_format: "BinaryString",
+        });
+        browser.test.assertEq("string", typeof strMessage_2);
+        let fileMessage_3 = await browser.messages.getRaw(message.id, {
+          data_format: "File",
+        });
+        // eslint-disable-next-line mozilla/use-isInstance
+        browser.test.assertTrue(fileMessage_3 instanceof File);
+        // Since we do not have utf-8 chars in the test message, the returned BinaryString is
+        // identical to the return value of File.text().
+        let strMessage_3 = await fileMessage_3.text();
 
-        let rawMessage = await browser.messages.getRaw(message.id);
-        // Fold Windows line-endings \r\n to \n.
-        rawMessage = rawMessage.replace(/\r/g, "");
-        browser.test.assertEq("string", typeof rawMessage);
-        browser.test.assertTrue(
-          rawMessage.includes("Subject: Big Meeting Today\n")
-        );
-        browser.test.assertTrue(
-          rawMessage.includes('From: "Andy Anway" <andy@anway.invalid>\n')
-        );
-        browser.test.assertTrue(
-          rawMessage.includes('To: "Bob Bell" <bob@bell.invalid>\n')
-        );
-        browser.test.assertTrue(rawMessage.includes("Hello Bob Bell!"));
+        for (let strMessage of [strMessage_1, strMessage_2, strMessage_3]) {
+          // Fold Windows line-endings \r\n to \n.
+          strMessage = strMessage.replace(/\r/g, "");
+          browser.test.assertTrue(
+            strMessage.includes("Subject: Big Meeting Today\n")
+          );
+          browser.test.assertTrue(
+            strMessage.includes('From: "Andy Anway" <andy@anway.invalid>\n')
+          );
+          browser.test.assertTrue(
+            strMessage.includes('To: "Bob Bell" <bob@bell.invalid>\n')
+          );
+          browser.test.assertTrue(strMessage.includes("Hello Bob Bell!"));
+        }
 
         // {
         //   "contentType": "message/rfc822",
@@ -153,6 +171,166 @@ add_task(async function test_plain() {
       browser.test.notifyPass("finished");
     },
     manifest: { permissions: ["accountsRead", "messagesRead"] },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  cleanUpAccount(_account);
+});
+
+add_task(async function test_plain_mv3() {
+  let _account = createAccount();
+  let _folder = await createSubfolder(
+    _account.incomingServer.rootFolder,
+    "test1"
+  );
+  await createMessages(_folder, 1);
+
+  let extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      let accounts = await browser.accounts.list();
+      browser.test.assertEq(1, accounts.length);
+
+      for (let account of accounts) {
+        let folder = account.folders.find(f => f.name == "test1");
+        let { messages } = await browser.messages.list(folder);
+        browser.test.assertEq(1, messages.length);
+
+        let [message] = messages;
+
+        // Expected message content:
+        // -------------------------
+        // From chris@clarke.invalid
+        // Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+        // Subject: Small Party Tomorrow
+        // From: "Chris Clarke" <chris@clarke.invalid>
+        // To: "David Davol" <david@davol.invalid>
+        // Message-Id: <1@made.up.invalid>
+        // Date: Tue, 01 Feb 2000 01:00:00 +0100
+        //
+        // Hello David Davol!
+        //
+
+        browser.test.assertEq("Small Party Tomorrow", message.subject);
+        browser.test.assertEq(
+          '"Chris Clarke" <chris@clarke.invalid>',
+          message.author
+        );
+
+        // The msgHdr of NNTP messages have no recipients.
+        if (account.type != "nntp") {
+          browser.test.assertEq(
+            "David Davol <david@davol.invalid>",
+            message.recipients[0]
+          );
+        }
+
+        let fileMessage_1 = await browser.messages.getRaw(message.id);
+        // eslint-disable-next-line mozilla/use-isInstance
+        browser.test.assertTrue(fileMessage_1 instanceof File);
+        // Since we do not have utf-8 chars in the test message, the returned
+        // BinaryString is identical to the return value of File.text().
+        let strMessage_1 = await fileMessage_1.text();
+
+        let strMessage_2 = await browser.messages.getRaw(message.id, {
+          data_format: "BinaryString",
+        });
+        browser.test.assertEq("string", typeof strMessage_2);
+
+        let fileMessage_3 = await browser.messages.getRaw(message.id, {
+          data_format: "File",
+        });
+        // eslint-disable-next-line mozilla/use-isInstance
+        browser.test.assertTrue(fileMessage_3 instanceof File);
+        let strMessage_3 = await fileMessage_3.text();
+
+        for (let strMessage of [strMessage_1, strMessage_2, strMessage_3]) {
+          // Fold Windows line-endings \r\n to \n.
+          strMessage = strMessage.replace(/\r/g, "");
+          browser.test.assertTrue(
+            strMessage.includes("Subject: Small Party Tomorrow\n")
+          );
+          browser.test.assertTrue(
+            strMessage.includes('From: "Chris Clarke" <chris@clarke.invalid>\n')
+          );
+          browser.test.assertTrue(
+            strMessage.includes('To: "David Davol" <david@davol.invalid>\n')
+          );
+          browser.test.assertTrue(strMessage.includes("Hello David Davol!"));
+        }
+
+        // {
+        //   "contentType": "message/rfc822",
+        //   "headers": {
+        //     "content-type": ["text/plain; charset=ISO-8859-1; format=flowed"],
+        //     "subject": ["Small Party Tomorrow"],
+        //     "from": ["\"Chris Clarke\" <chris@clarke.invalid>"],
+        //     "to": ["\"David Davol\" <David Davol>"],
+        //     "message-id": ["<1@made.up.invalid>"],
+        //     "date": ["Tue, 01 Feb 2000 01:00:00 +0100"]
+        //   },
+        //   "partName": "",
+        //   "size": 20,
+        //   "parts": [
+        //     {
+        //       "body": "David Davol!\n\n",
+        //       "contentType": "text/plain",
+        //       "headers": {
+        //         "content-type": ["text/plain; charset=ISO-8859-1; format=flowed"]
+        //       },
+        //       "partName": "1",
+        //       "size": 20
+        //     }
+        //   ]
+        // }
+
+        let fullMessage = await browser.messages.getFull(message.id);
+        browser.test.log(JSON.stringify(fullMessage));
+        browser.test.assertEq("object", typeof fullMessage);
+        browser.test.assertEq("message/rfc822", fullMessage.contentType);
+
+        browser.test.assertEq("object", typeof fullMessage.headers);
+        for (let header of [
+          "content-type",
+          "date",
+          "from",
+          "message-id",
+          "subject",
+          "to",
+        ]) {
+          browser.test.assertTrue(Array.isArray(fullMessage.headers[header]));
+          browser.test.assertEq(1, fullMessage.headers[header].length);
+        }
+        browser.test.assertEq(
+          "Small Party Tomorrow",
+          fullMessage.headers.subject[0]
+        );
+        browser.test.assertEq(
+          '"Chris Clarke" <chris@clarke.invalid>',
+          fullMessage.headers.from[0]
+        );
+        browser.test.assertEq(
+          '"David Davol" <david@davol.invalid>',
+          fullMessage.headers.to[0]
+        );
+
+        browser.test.assertTrue(Array.isArray(fullMessage.parts));
+        browser.test.assertEq(1, fullMessage.parts.length);
+        browser.test.assertEq("object", typeof fullMessage.parts[0]);
+        browser.test.assertEq(
+          "Hello David Davol!",
+          fullMessage.parts[0].body.trimRight()
+        );
+      }
+
+      browser.test.notifyPass("finished");
+    },
+    manifest: {
+      manifest_version: 3,
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   await extension.startup();

@@ -754,15 +754,34 @@ this.messages = class extends ExtensionAPIPersistent {
           }
           return convertMessagePart(mimeMsg);
         },
-        async getRaw(messageId) {
+        async getRaw(messageId, options) {
+          let data_format = options?.data_format;
+          if (!["File", "BinaryString"].includes(data_format)) {
+            data_format =
+              extension.manifestVersion < 3 ? "BinaryString" : "File";
+          }
+
           let msgHdr = messageTracker.getMessage(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          return getRawMessage(msgHdr).catch(ex => {
+          try {
+            let raw = await getRawMessage(msgHdr);
+            if (data_format == "File") {
+              // Convert binary string to Uint8Array and return a File.
+              let bytes = new Uint8Array(raw.length);
+              for (let i = 0; i < raw.length; i++) {
+                bytes[i] = raw.charCodeAt(i) & 0xff;
+              }
+              return new File([bytes], `message-${messageId}.eml`, {
+                type: "message/rfc822",
+              });
+            }
+            return raw;
+          } catch (ex) {
             console.error(ex);
             throw new ExtensionError(`Error reading message ${messageId}`);
-          });
+          }
         },
         async listAttachments(messageId) {
           let msgHdr = messageTracker.getMessage(messageId);

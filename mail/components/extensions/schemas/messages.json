@@ -461,7 +461,7 @@
       {
         "name": "getRaw",
         "type": "function",
-        "description": "Returns the unmodified source of a message as a `binary string <|link-binary-string|>`__, which is a simple series of 8-bit values. Throws if the message could not be read, for example due to network issues. If the message contains non-ASCII characters, the body parts in the binary string cannot be read directly and must be decoded according to their character sets. Use :ref:`messages.getFull` to get the correctly decoded parts. Manually decoding the raw message is probably too error-prone, especially if the message contains MIME parts with different character set encodings or attachments.\n\nTo get a readable version of the raw message as it appears in Thunderbird's message source view, it may be sufficient to decode the message according to the character set specified in its main `content-type <|link-content-type|>`__ header (example: <value>text/html; charset=UTF-8</value>) using the following function (see MDN for `supported input encodings <|link-input-encoding|>`__): <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude>",
+        "description": "Returns the unmodified source of a message. Throws if the message could not be read, for example due to network issues.",
         "async": "callback",
         "parameters": [
           {
@@ -469,12 +469,44 @@
             "type": "integer"
           },
           {
+            "name": "options",
+            "type": "object",
+            "properties": {
+              "data_format": {
+                "choices": [
+                  {
+                    "max_manifest_version": 2,
+                    "description": "The message can either be returned as a DOM File or as a `binary string <|link-binary-string|>`__. The historic default is to return a binary string (kept for backward compatibility). However, it is now recommended to use the ``File`` format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like `File.text() <|link-DOMFile-text|>`__ and `File.arrayBuffer() <|link-DOMFile-arrayBuffer|>`__. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for `supported input encodings <|link-input-encoding|>`__).",
+                    "type": "string",
+                    "enum": ["File", "BinaryString"]
+                  },
+                  {
+                    "min_manifest_version": 3,
+                    "description": "The message can either be returned as a DOM File (default) or as a `binary string <|link-binary-string|>`__. It is recommended to use the ``File`` format, because the DOM File object can be used as-is with the downloads API and has useful methods to access the content, like `File.text() <|link-DOMFile-text|>`__ and `File.arrayBuffer() <|link-DOMFile-arrayBuffer|>`__. Working with binary strings is error prone and needs special handling: <literalinclude>includes/messages/decodeBinaryString.js<lang>JavaScript</lang></literalinclude> (see MDN for `supported input encodings <|link-input-encoding|>`__).",
+                    "type": "string",
+                    "enum": ["File", "BinaryString"]
+                  }
+                ]
+              }
+            },
+            "optional": true
+          },
+          {
             "type": "function",
             "name": "callback",
             "optional": true,
             "parameters": [
               {
-                "type": "string"
+                "choices": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "isInstanceOf": "File",
+                    "additionalProperties": true
+                  }
+                ]
               }
             ]
           }
