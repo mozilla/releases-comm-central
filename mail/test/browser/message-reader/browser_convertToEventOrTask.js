@@ -100,11 +100,9 @@ add_task(async function test_convertToEvent() {
     ).contentDocument;
 
     let startDate = document.getElementById("event-starttime");
-    let dt = cal.createDateTime();
-    let june30 = new Date();
-    june30.setMonth(5);
-    june30.setDate(30);
-    dt.nativeTime = june30.getTime() * 1000;
+    let dt = cal.dtz.now();
+    dt.month = 5;
+    dt.day = 30;
     Assert.equal(
       startDate._datepicker._inputField.value,
       cal.dtz.formatter.formatDateShort(dt),
