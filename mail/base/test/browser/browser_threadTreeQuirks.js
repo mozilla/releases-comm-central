@@ -526,6 +526,46 @@ add_task(async function testNonSelectionContextMenu() {
   }
 });
 
+add_task(async function testThreadTreeA11yRoles() {
+  Assert.equal(
+    threadTree.table.body.getAttribute("role"),
+    "listbox",
+    "The tree view should be presented as ListBox"
+  );
+  Assert.equal(
+    threadTree.getRowAtIndex(0).getAttribute("role"),
+    "option",
+    "The message row should be presented as Option"
+  );
+
+  about3Pane.sortController.sortThreaded();
+
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.table.body.getAttribute("role") == "tree",
+    "The tree view should switch to a Tree View role"
+  );
+  Assert.equal(
+    threadTree.getRowAtIndex(0).getAttribute("role"),
+    "treeitem",
+    "The message row should be presented as Tree Item"
+  );
+
+  about3Pane.sortController.groupBySort();
+  threadTree.scrollToIndex(0, true);
+
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.table.body.getAttribute("role") == "tree",
+    "The message list table should remain presented as Tree View"
+  );
+  Assert.equal(
+    threadTree.getRowAtIndex(0).getAttribute("role"),
+    "treeitem",
+    "The first dummy message row should be presented as Tree Item"
+  );
+
+  about3Pane.sortController.sortUnthreaded();
+});
+
 async function messageLoaded(index) {
   await BrowserTestUtils.browserLoaded(messagePaneBrowser);
   Assert.equal(
@@ -625,43 +665,3 @@ async function restoreMessages() {
       sourceMessageIDs.indexOf(b.messageId)
   );
 }
-
-add_task(async function testThreadTreeA11yRoles() {
-  Assert.equal(
-    threadTree.table.body.getAttribute("role"),
-    "listbox",
-    "The tree view should be presented as ListBox"
-  );
-  Assert.equal(
-    threadTree.getRowAtIndex(0).getAttribute("role"),
-    "option",
-    "The message row should be presented as Option"
-  );
-
-  about3Pane.sortController.sortThreaded();
-
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.table.body.getAttribute("role") == "tree",
-    "The tree view should switch to a Tree View role"
-  );
-  Assert.equal(
-    threadTree.getRowAtIndex(0).getAttribute("role"),
-    "treeitem",
-    "The message row should be presented as Tree Item"
-  );
-
-  about3Pane.sortController.groupBySort();
-  threadTree.scrollToIndex(0, true);
-
-  await BrowserTestUtils.waitForCondition(
-    () => threadTree.table.body.getAttribute("role") == "tree",
-    "The message list table should remain presented as Tree View"
-  );
-  Assert.equal(
-    threadTree.getRowAtIndex(0).getAttribute("role"),
-    "treeitem",
-    "The first dummy message row should be presented as Tree Item"
-  );
-
-  about3Pane.sortController.sortUnthreaded();
-});
