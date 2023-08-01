@@ -323,7 +323,6 @@ nsresult nsMsgLocalStoreUtils::ChangeKeywordsHelper(
   rdr.Parse(data, findHeaderFn);
 
   if (kwHdr.IsEmpty()) {
-    NS_WARNING("X-Mozilla-Keys header not found.");
     notEnoughRoom = true;
     return NS_OK;
   }
@@ -361,7 +360,6 @@ nsresult nsMsgLocalStoreUtils::ChangeKeywordsHelper(
   // Write updated keywords over existing value.
   auto out = StringJoin(" "_ns, keywords);
   if (out.Length() > kwHdr.rawValLen) {
-    NS_WARNING("X-Mozilla-Keys too small for new value.");
     notEnoughRoom = true;
     return NS_OK;
   }
