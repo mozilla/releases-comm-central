@@ -905,6 +905,24 @@ function addItemsFromSingleCalendarInternal(eventArray) {
   unifinderTreeView.setSelectedItems();
 }
 
+function setFilterToMonthRange(monthsOffset) {
+  const startDate = cal.dtz.now();
+  startDate.isDate = true;
+
+  // ical.js doesn't give us an easy means of creating relative dates for
+  // durations in larger units than weeks and does not gracefully handle months
+  // outside of the 1-12 range. JavaScript, on the other hand, will
+  // appropriately calculate the new date taking year into consideration.
+  const endJsDate = new Date();
+  endJsDate.setMonth(endJsDate.getMonth() + monthsOffset);
+
+  const endDate = cal.dtz.jsDateToDateTime(endJsDate);
+  endDate.isDate = true;
+
+  unifinderTreeView.mFilter.startDate = startDate;
+  unifinderTreeView.mFilter.endDate = endDate;
+}
+
 async function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
   if (isUnifinderHidden()) {
     // If the unifinder is hidden, don't refresh the events to reduce needed
@@ -920,7 +938,18 @@ async function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
   if (!document.getElementById("unifinder-search-field")) {
     return;
   }
-  unifinderTreeView.mFilter.applyFilter(getCurrentUnifinderFilter());
+
+  const intervalValue = getCurrentUnifinderFilter();
+  switch (intervalValue) {
+    case "next6Months":
+      setFilterToMonthRange(6);
+      break;
+    case "next12Months":
+      setFilterToMonthRange(12);
+      break;
+    default:
+      unifinderTreeView.mFilter.applyFilter(intervalValue);
+  }
 
   if (unifinderTreeView.mFilter.startDate && unifinderTreeView.mFilter.endDate) {
     filter |= aCalendar.ITEM_FILTER_CLASS_OCCURRENCES;

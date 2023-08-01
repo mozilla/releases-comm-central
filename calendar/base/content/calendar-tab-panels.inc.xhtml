@@ -134,9 +134,6 @@
             <box align="center">
               <menulist id="event-filter-menulist" value="P7D" persist="value">
                 <menupopup id="event-filter-menupopup" oncommand="refreshEventTree()">
-                  <menuitem id="event-filter-all"
-                            value="all"
-                            data-l10n-id="calendar-event-listing-interval-all"/>
                   <menuitem id="event-filter-today"
                             value="today"
                             data-l10n-id="calendar-event-listing-interval-today"/>
@@ -149,12 +146,20 @@
                   <menuitem id="event-filter-next31Days"
                             value="P31D"
                             data-l10n-id="calendar-event-listing-interval-next-31-days"/>
+                  <!-- The next three intervals use iCalendar duration values
+                       (see https://icalendar.org/iCalendar-RFC-5545/3-3-6-duration.html)
+                       for their value, but these durations don't support values
+                       in month units, so we don't use standard notation for the
+                       next two. -->
+                  <menuitem id="event-filter-next6Months"
+                            value="next6Months"
+                            data-l10n-id="calendar-event-listing-interval-next-6-months"/>
+                  <menuitem id="event-filter-next12Months"
+                            value="next12Months"
+                            data-l10n-id="calendar-event-listing-interval-next-12-months"/>
                   <menuitem id="event-filter-thisCalendarMonth"
                             value="thisCalendarMonth"
                             data-l10n-id="calendar-event-listing-interval-calendar-month"/>
-                  <menuitem id="event-filter-future"
-                            value="future"
-                            data-l10n-id="calendar-event-listing-interval-future"/>
                   <menuitem id="event-filter-current"
                             value="current"
                             data-l10n-id="calendar-event-listing-interval-selected-day"/>
