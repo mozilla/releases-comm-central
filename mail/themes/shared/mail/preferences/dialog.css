@@ -154,6 +154,10 @@ textbox.tree-input {
   margin-inline-start: 4px;
 }
 
+#totalOpenTime {
+  min-width: calc(3ch + 55px);
+}
+
 #logView {
   border: 1px solid var(--in-content-box-border-color);
   margin: 0 4px 5px;
