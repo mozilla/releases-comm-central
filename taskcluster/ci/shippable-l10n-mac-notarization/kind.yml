@@ -4,8 +4,6 @@
 ---
 loader: gecko_taskgraph.loader.transform:loader
 
-group-by: chunk-locales
-
 transforms:
     - taskgraph.transforms.from_deps
     - gecko_taskgraph.transforms.mac_notarization
