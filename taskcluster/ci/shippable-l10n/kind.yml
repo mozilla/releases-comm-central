@@ -2,14 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-loader: gecko_taskgraph.loader.multi_dep:loader
-
-group-by: platform
+loader: gecko_taskgraph.loader.transform:loader
 
 transforms:
-    - comm_taskgraph.transforms.l10n:transforms
-    - gecko_taskgraph.transforms.job:transforms
-    - gecko_taskgraph.transforms.task:transforms
+    - taskgraph.transforms.from_deps
+    - comm_taskgraph.transforms.l10n
+    - gecko_taskgraph.transforms.job
+    - gecko_taskgraph.transforms.task
 
 kind-dependencies:
     - build
@@ -19,8 +18,6 @@ kind-dependencies:
     - repackage
     - toolchain
 
-primary-dependency: build
-
 only-for-build-platforms:
     - linux64-shippable/opt
     - linux-shippable/opt
@@ -28,121 +25,124 @@ only-for-build-platforms:
     - win32-shippable/opt
     - win64-shippable/opt
 
-job-template:
-    description: Localization
-    locales-file:
-        by-release-type:
-            beta|release: comm/mail/locales/shipped-locales
-            default: comm/mail/locales/all-locales
-    locales-per-chunk: 5
-    run-on-projects: ['release']
-    attributes:
-        shipping_phase: promote
-    ignore-locales:
-        by-build-platform:
-            # OSX has a special locale for japanese
-            macosx64.*: [ja, en-US]
-            default: [ja-JP-mac, en-US]
-    run-time:
-        by-build-platform:
-            default: 900
-            win.*: 1800
-    secrets: false
-    dependencies:
-        shippable-l10n-pre: shippable-l10n-pre-shippable-l10n-pre/opt
-    fetches:
-        toolchain:
+jobs:
+    shippable-l10n:
+        description: Localization
+        from-deps:
+            group-by: platform
+        locales-file:
+            by-release-type:
+                beta|release: comm/mail/locales/shipped-locales
+                default: comm/mail/locales/all-locales
+        locales-per-chunk: 5
+        run-on-projects: ['release']
+        attributes:
+            shipping_phase: promote
+        ignore-locales:
             by-build-platform:
-                default: []
+                # OSX has a special locale for japanese
+                macosx64.*: [ja, en-US]
+                default: [ja-JP-mac, en-US]
+        run-time:
+            by-build-platform:
+                default: 900
+                win.*: 1800
+        secrets: false
+        dependencies:
+            shippable-l10n-pre: shippable-l10n-pre-shippable-l10n-pre/opt
+        fetches:
+            toolchain:
+                by-build-platform:
+                    default: []
+                    macosx64.*:
+                        - linux64-libdmg
+                        - linux64-hfsplus
+                    win.*:
+                        - linux64-wine
+                        - nsis
+            fetch:
+                by-build-platform:
+                    default: []
+                    win.*:
+                        - upx-3.95-win
+            shippable-l10n-pre:
+                - strings_all.tar.zst
+        tooltool:
+            by-build-platform:
+                default: internal
+                linux.*: public
+        index:
+            type: shippable-l10n
+            product: thunderbird
+            job-name:
+                by-build-platform:
+                    linux-shippable: linux-opt
+                    linux64-shippable: linux64-opt
+                    macosx64-shippable: macosx64-opt
+                    win32-shippable: win32-opt
+                    win64-shippable: win64-opt
+        worker-type: b-linux-gcp
+        treeherder:
+            symbol: L10n(B)
+            tier: 1
+            platform:
+                by-build-platform:
+                    linux64-shippable: linux64-shippable/opt
+                    linux-shippable: linux32-shippable/opt
+                    macosx64-shippable: osx-shippable/opt
+                    win32-shippable: windows2012-32-shippable/opt
+                    win64-shippable: windows2012-64-shippable/opt
+        env:
+            by-build-platform:
+                linux.*:   # linux64 and 32 get same treatment here
+                    EN_US_PACKAGE_NAME: target.tar.bz2
+                    EN_US_BINARY_URL:
+                        artifact-reference: <build-signing/{artifact_prefix}>
                 macosx64.*:
-                    - linux64-libdmg
-                    - linux64-hfsplus
+                    EN_US_PACKAGE_NAME: target.dmg
+                    EN_US_BINARY_URL:
+                        artifact-reference: <repackage/{artifact_prefix}>
                 win.*:
-                    - linux64-wine
-                    - nsis
-        fetch:
-            by-build-platform:
-                default: []
-                win.*:
-                    - upx-3.95-win
-        shippable-l10n-pre:
-            - strings_all.tar.zst
-    tooltool:
-        by-build-platform:
-            default: internal
-            linux.*: public
-    index:
-        type: shippable-l10n
-        product: thunderbird
-        job-name:
-            by-build-platform:
-                linux-shippable: linux-opt
-                linux64-shippable: linux64-opt
-                macosx64-shippable: macosx64-opt
-                win32-shippable: win32-opt
-                win64-shippable: win64-opt
-    worker-type: b-linux-gcp
-    treeherder:
-        symbol: L10n(B)
-        tier: 1
-        platform:
-            by-build-platform:
-                linux64-shippable: linux64-shippable/opt
-                linux-shippable: linux32-shippable/opt
-                macosx64-shippable: osx-shippable/opt
-                win32-shippable: windows2012-32-shippable/opt
-                win64-shippable: windows2012-64-shippable/opt
-    env:
-        by-build-platform:
-            linux.*:   # linux64 and 32 get same treatment here
-                EN_US_PACKAGE_NAME: target.tar.bz2
-                EN_US_BINARY_URL:
-                    artifact-reference: <build-signing/{artifact_prefix}>
-            macosx64.*:
-                EN_US_PACKAGE_NAME: target.dmg
-                EN_US_BINARY_URL:
-                    artifact-reference: <repackage/{artifact_prefix}>
-            win.*:
-                EN_US_PACKAGE_NAME: target.zip
-                EN_US_BINARY_URL:
-                    artifact-reference: <build-signing/{artifact_prefix}>
-    mozharness:
-        comm-checkout: true
-        config-paths:
-            - comm/testing/mozharness/configs
-        config:
-            # no default, so we fail on new entries
-            by-build-platform:
-                linux-shippable:
-                    - single_locale/linux32.py
-                    - single_locale/tc_common.py
-                    - single_locale/tc_linux_common.py
-                    - single_locale/thunderbird.py
-                    - taskcluster_nightly.py
-                linux64-shippable:
-                    - single_locale/linux64.py
-                    - single_locale/tc_common.py
-                    - single_locale/tc_linux_common.py
-                    - single_locale/thunderbird.py
-                    - taskcluster_nightly.py
-                macosx64-shippable:
-                    - single_locale/macosx64.py
-                    - single_locale/tc_common.py
-                    - single_locale/tc_macosx64.py
-                    - single_locale/thunderbird.py
-                    - taskcluster_nightly.py
-                win32-shippable:
-                    - single_locale/win32.py
-                    - single_locale/tc_common.py
-                    - single_locale/tc_win32.py
-                    - single_locale/thunderbird.py
-                    - taskcluster_nightly.py
-                win64-shippable:
-                    - single_locale/win64.py
-                    - single_locale/tc_common.py
-                    - single_locale/tc_win64.py
-                    - single_locale/thunderbird.py
-                    - taskcluster_nightly.py
-        actions: ['list-locales', 'setup', 'repack',
-                  'summary']
-        script: mozharness/scripts/desktop_l10n.py
+                    EN_US_PACKAGE_NAME: target.zip
+                    EN_US_BINARY_URL:
+                        artifact-reference: <build-signing/{artifact_prefix}>
+        mozharness:
+            comm-checkout: true
+            config-paths:
+                - comm/testing/mozharness/configs
+            config:
+                # no default, so we fail on new entries
+                by-build-platform:
+                    linux-shippable:
+                        - single_locale/linux32.py
+                        - single_locale/tc_common.py
+                        - single_locale/tc_linux_common.py
+                        - single_locale/thunderbird.py
+                        - taskcluster_nightly.py
+                    linux64-shippable:
+                        - single_locale/linux64.py
+                        - single_locale/tc_common.py
+                        - single_locale/tc_linux_common.py
+                        - single_locale/thunderbird.py
+                        - taskcluster_nightly.py
+                    macosx64-shippable:
+                        - single_locale/macosx64.py
+                        - single_locale/tc_common.py
+                        - single_locale/tc_macosx64.py
+                        - single_locale/thunderbird.py
+                        - taskcluster_nightly.py
+                    win32-shippable:
+                        - single_locale/win32.py
+                        - single_locale/tc_common.py
+                        - single_locale/tc_win32.py
+                        - single_locale/thunderbird.py
+                        - taskcluster_nightly.py
+                    win64-shippable:
+                        - single_locale/win64.py
+                        - single_locale/tc_common.py
+                        - single_locale/tc_win64.py
+                        - single_locale/thunderbird.py
+                        - taskcluster_nightly.py
+            actions: ['list-locales', 'setup', 'repack',
+                      'summary']
+            script: mozharness/scripts/desktop_l10n.py

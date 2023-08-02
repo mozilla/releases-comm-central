@@ -12,6 +12,7 @@ from gecko_taskgraph.transforms.l10n import (
     all_locales_attribute,
     chunk_locales,
     copy_in_useful_magic,
+    gather_required_signoffs,
     handle_artifact_prefix,
     handle_keyed_by,
     l10n_description_schema,
@@ -63,6 +64,24 @@ def handle_keyed_by_local(config, jobs):
         yield job
 
 
+def l10n_pre_dependency(config, jobs):
+    l10n_pre_fields = [
+        "l10n-pre",
+        "shippable-l10n-pre",
+    ]
+    for job in jobs:
+        for field in l10n_pre_fields:
+            if field in job["fetches"] and field not in job["dependencies"]:
+                dep_jobs = [
+                    task.label
+                    for task in config.kind_dependencies_tasks.values()
+                    if task.kind == field
+                ]
+                job["dependencies"][field] = dep_jobs[0]
+
+        yield job
+
+
 transforms = TransformSequence()
 
 
@@ -70,8 +89,9 @@ for transform_func in (
     setup_name,
     copy_in_useful_magic,
     handle_keyed_by_local,
+    gather_required_signoffs,
     ValidateSchema(l10n_description_schema),
-    setup_signing_dependency,
+    l10n_pre_dependency,
     handle_keyed_by,
     handle_artifact_prefix,
     all_locales_attribute,
