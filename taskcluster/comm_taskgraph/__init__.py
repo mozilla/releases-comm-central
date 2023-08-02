@@ -41,6 +41,8 @@ def register(graph_config):
     """
     extend_sys_path(GECKO)
 
+    from gecko_taskgraph.util import dependencies  # noqa: trigger group_by registration
+
     from comm_taskgraph.parameters import register_parameters
 
     logger.info("{} path registered".format(__name__))
