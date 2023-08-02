@@ -102,15 +102,14 @@
           </hbox>
         </vbox>
     </vbox>
-    <vbox>
+    <vbox id="filterActionButtons">
       <label value=""/>
       <toolbarbutton is="toolbarbutton-menu-button" id="newButton"
                      type="menu"
                      label="&newButton.label;"
-                     tabindex="0"
                      accesskey="&newButton.accesskey;"
                      oncommand="onNewFilter();">
-        <menupopup>
+        <menupopup id="newFilterMenupopup">
           <menuitem label="&newButton.label;"
                     accesskey="&newButton.accesskey;"/>
           <menuitem id="copyToNewButton"
@@ -148,7 +147,8 @@
               tooltiptext="&reorderBottomButton.toolTip;"
               oncommand="onBottom(event);"/>
       <vbox flex="1" pack="end">
-        <button label="&viewLogButton.label;"
+        <button id="filterLogButton"
+                label="&viewLogButton.label;"
                 accesskey="&viewLogButton.accesskey;"
                 oncommand="viewLog();"/>
       </vbox>

@@ -133,7 +133,7 @@ toolbarbutton[is="toolbarbutton-menu-button"] > dropmarker {
   justify-content: center;
 }
 
-#filterListGrid toolbarbutton:focus-visible {
+#filterListGrid toolbarbutton *:focus-visible {
   outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
 }

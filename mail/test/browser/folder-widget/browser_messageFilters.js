@@ -40,7 +40,11 @@ var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
 
-var folderA;
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
+var folderA, NNTPAccount;
 
 add_setup(async function () {
   setupNNTPDaemon();
@@ -49,8 +53,97 @@ add_setup(async function () {
   // we need one message to select and open
   await make_message_sets_in_folders([folderA], [{ count: 1 }]);
 
-  setupLocalServer(NNTP_PORT);
+  const server = setupLocalServer(NNTP_PORT);
+  NNTPAccount = MailServices.accounts.FindAccountForServer(server);
+
+  registerCleanupFunction(() => {
+    folderA.deleteSelf(null);
+    MailServices.accounts.removeAccount(NNTPAccount);
+    // Some tests that open new windows don't return focus to the main window
+    // in a way that satisfies mochitest, and the test times out.
+    Services.focus.focusedWindow = window;
+  });
 });
+
+/**
+ * Tests the keyboard navigation on the message filters window, ensures that the
+ * new fitler toolbarbutton and it's dropdown work correctly.
+ */
+add_task(async function key_navigation_test() {
+  await openFiltersDialogs();
+
+  const filterc = wait_for_existing_window("mailnews:filterlist");
+  const filterWinDoc = filterc.window.document;
+  const BUTTONS_SELECTOR = `toolbarbutton:not([disabled="true"],[is="toolbarbutton-menu-button"]),dropmarker, button:not([hidden])`;
+  const filterButtonList = filterWinDoc.getElementById("filterActionButtons");
+  const navigableButtons = filterButtonList.querySelectorAll(BUTTONS_SELECTOR);
+  const menupopupNewFilter = filterWinDoc.getElementById("newFilterMenupopup");
+
+  EventUtils.synthesizeKey("KEY_Tab", {}, filterc.window);
+  Assert.equal(
+    filterWinDoc.activeElement.id,
+    navigableButtons[0].id,
+    "focused on the first filter action button"
+  );
+
+  for (let button of navigableButtons) {
+    if (!filterWinDoc.getElementById(button.id).disabled) {
+      Assert.equal(
+        filterWinDoc.activeElement.id,
+        button.id,
+        "focused on the correct filter action button"
+      );
+
+      if (button.id == "newButtontoolbarbutton") {
+        function openEmptyDialog(fec) {
+          fec.window.document.getElementById("filterName").value = " ";
+        }
+
+        plan_for_modal_dialog("mailnews:filtereditor", openEmptyDialog);
+        EventUtils.synthesizeKey("KEY_Enter", {}, filterc.window);
+        wait_for_modal_dialog("mailnews:filtereditor");
+
+        plan_for_modal_dialog("mailnews:filtereditor", openEmptyDialog);
+        // Simulate Space keypress.
+        EventUtils.synthesizeKey(" ", {}, filterc.window);
+        wait_for_modal_dialog("mailnews:filtereditor");
+
+        Assert.equal(
+          filterWinDoc.activeElement.id,
+          button.id,
+          "Correct btn is focused after opening and closing new filter editor"
+        );
+      } else if (button.id == "newButtondropmarker") {
+        const menupopupOpenPromise = BrowserTestUtils.waitForEvent(
+          menupopupNewFilter,
+          "popupshown"
+        );
+        EventUtils.synthesizeKey("KEY_Enter", {}, filterc.window);
+        await menupopupOpenPromise;
+        const menupopupClosePromise = BrowserTestUtils.waitForEvent(
+          menupopupNewFilter,
+          "popuphidden"
+        );
+        EventUtils.synthesizeKey("KEY_Escape", {}, filterc.window);
+        await menupopupClosePromise;
+
+        // Simulate Space keypress.
+        EventUtils.synthesizeKey(" ", {}, filterc.window);
+        await menupopupOpenPromise;
+        EventUtils.synthesizeKey("KEY_Escape", {}, filterc.window);
+        await menupopupClosePromise;
+        Assert.equal(
+          filterWinDoc.activeElement.id,
+          button.id,
+          "The correct btn is focused after opening and closing the menupopup"
+        );
+      }
+    }
+    EventUtils.synthesizeKey("KEY_Tab", {}, filterc.window);
+  }
+
+  close_window(filterc);
+}).__skipMe = AppConstants.platform == "macosx";
 
 /*
  * Test that the message filter list shows newsgroup servers.
@@ -240,7 +333,7 @@ add_task(async function test_can_cancel_quit_on_filter_changes() {
  *
  * This also tests whether or not allowing quit works.
  */
-add_task(function test_can_quit_on_filter_changes() {
+add_task(async function test_can_quit_on_filter_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
@@ -275,11 +368,29 @@ add_task(function test_can_quit_on_filter_changes() {
   // Unregister the Mock Prompt Service
   gMockPromptService.unregister();
 
-  close_window(filterc);
-});
+  EventUtils.synthesizeMouseAtCenter(
+    filterc.window.document.querySelector("#filterList richlistitem"),
+    {},
+    filterc.window
+  );
 
-registerCleanupFunction(() => {
-  // Some tests that open new windows don't return focus to the main window
-  // in a way that satisfies mochitest, and the test times out.
-  Services.focus.focusedWindow = window;
+  const deleteAlertPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    "",
+    "chrome://global/content/commonDialog.xhtml",
+    {
+      async callback(win) {
+        EventUtils.synthesizeKey("VK_RETURN", {}, win);
+      },
+    }
+  );
+  EventUtils.synthesizeKey("KEY_Delete", {}, filterc.window);
+  await deleteAlertPromise;
+
+  Assert.equal(
+    filterc.window.document.getElementById("filterList").itemCount,
+    0,
+    "Previously created filter should have been deleted."
+  );
+
+  close_window(filterc);
 });

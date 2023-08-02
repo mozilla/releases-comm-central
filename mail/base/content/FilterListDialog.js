@@ -129,6 +129,12 @@ function onLoad() {
 
   updateButtons();
 
+  initNewToolbarButtons(document.querySelector("#newButton toolbarbutton"));
+  initNewToolbarButtons(document.querySelector("#newButton dropmarker"));
+  document
+    .getElementById("filterActionButtons")
+    .addEventListener("keypress", event => onFilterActionButtonKeyPress(event));
+
   processWindowArguments(window.arguments[0]);
 
   // Don't change width after initial layout, so buttons stay within the dialog.
@@ -138,6 +144,20 @@ function onLoad() {
   Services.obs.addObserver(
     filterEditorQuitObserver,
     "quit-application-requested"
+  );
+}
+/**
+ * Set up the toolbarbutton to have an index and an EvenListener for proper
+ * keyboard navigation.
+ *
+ * @param {XULElement} newToolbarbutton - The toolbarbutton that needs to be
+ *   initialized.
+ */
+function initNewToolbarButtons(newToolbarbutton) {
+  newToolbarbutton.setAttribute("tabindex", "0");
+  newToolbarbutton.setAttribute(
+    "id",
+    newToolbarbutton.parentNode.id + newToolbarbutton.tagName
   );
 }
 
@@ -996,6 +1016,32 @@ function onFilterDoubleClick(event) {
   }
 
   onEditFilter();
+}
+
+/**
+ * Handles the keypress event on the filter list dialog.
+ *
+ * @param {Event} event - The keypress DOMEvent.
+ */
+function onFilterActionButtonKeyPress(event) {
+  if (
+    event.key == "Enter" ||
+    (event.key == " " && event.target.hasAttribute("type"))
+  ) {
+    event.preventDefault();
+
+    if (
+      event.target.classList.contains("toolbarbutton-menubutton-dropmarker")
+    ) {
+      document
+        .getElementById("newFilterMenupopup")
+        .openPopup(event.target.parentNode, "after_end", {
+          triggerEvent: event,
+        });
+      return;
+    }
+    event.target.click();
+  }
 }
 
 function onFilterListKeyPress(aEvent) {
