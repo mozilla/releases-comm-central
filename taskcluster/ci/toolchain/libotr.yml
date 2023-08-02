@@ -58,7 +58,7 @@ macosx64-x64-libotr:
     worker:
         env:
             MACOS_SDK_DIR: "MacOSX13.3.sdk"
-            MACOS_TARGET_SDK: "10.12"
+            MACOS_TARGET_SDK: "10.15"
     run:
         arguments: ['macosx64']
     fetches:

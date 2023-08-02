@@ -13,7 +13,7 @@ MOZ_FETCHES_DIR=${MOZ_FETCHES_DIR:-"/builds/worker/fetches"}
 UPLOAD_DIR=${UPLOAD_DIR:-"/builds/worker/artifacts"}
 WORKSPACE=${WORKSPACE:-"${HOME}/workspace"}
 MACOS_SDK_DIR=${MACOS_SDK_DIR:-"MacOSX11.3.sdk"}
-MACOS_TARGET_SDK=${MACOS_TARGET_SDK:-"10.12"}
+MACOS_TARGET_SDK=${MACOS_TARGET_SDK:-"10.15"}
 
 
 # Set $DEVEL_TESTING during script development on a local machine
