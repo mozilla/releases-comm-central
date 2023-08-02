@@ -4425,8 +4425,11 @@ NS_IMETHODIMP nsMsgDBFolder::GetSummaryFile(nsIFile** aSummaryFile) {
 NS_IMETHODIMP
 nsMsgDBFolder::MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
                                 bool markRead) {
+  nsresult rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, rv);
+
   for (auto message : messages) {
-    nsresult rv = message->MarkRead(markRead);
+    rv = message->MarkRead(markRead);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   return NS_OK;
@@ -4435,8 +4438,11 @@ nsMsgDBFolder::MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>>& messages,
 NS_IMETHODIMP
 nsMsgDBFolder::MarkMessagesFlagged(
     const nsTArray<RefPtr<nsIMsgDBHdr>>& messages, bool markFlagged) {
+  nsresult rv = GetDatabase();
+  NS_ENSURE_SUCCESS(rv, rv);
+
   for (auto message : messages) {
-    nsresult rv = message->MarkFlagged(markFlagged);
+    rv = message->MarkFlagged(markFlagged);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   return NS_OK;
