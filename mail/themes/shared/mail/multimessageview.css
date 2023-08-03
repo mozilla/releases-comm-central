@@ -25,7 +25,6 @@
   }
 
   #headingWrapper {
-    --splitter-color: #606064;
     --toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
     --toolbarbutton-hover-bordercolor: rgba(179, 179, 179, 0.4);
     --toolbarbutton-header-bordercolor: rgba(179, 179, 179, 0.4);

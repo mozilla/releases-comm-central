@@ -16,24 +16,17 @@
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: var(--selected-item-color);
   --panel-separator-color: ThreeDLightShadow;
-  --splitter-color: var(--sidebar-border-color, ThreeDShadow);
 }
 
 @media not (prefers-contrast) {
   :root {
-    --lwt-tabs-border-color: rgba(0, 0, 0, 0.3);
     --tabline-color: #0a84ff;
     --toolbar-non-lwt-bgcolor: #f9f9fa;
     --toolbar-non-lwt-textcolor: #0c0c0d;
     --toolbar-non-lwt-bgimage: none;
     --panel-separator-color: hsla(210, 4%, 10%, 0.14);
     --autocomplete-popup-url-color: hsl(210, 77%, 47%);
-    --splitter-color: var(--sidebar-border-color, var(--color-gray-30));
   }
-}
-
-:root:-moz-lwtheme {
-  --lwt-tabs-border-color: rgba(0, 0, 0, 0.3);
 }
 
 @media (prefers-color-scheme: dark) {

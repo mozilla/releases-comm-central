@@ -101,12 +101,12 @@
 :root[lwt-tree] #listPaneBox {
   appearance: none;
   background-color: var(--sidebar-background-color);
-  border-inline-end-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  border-inline-end-color: var(--sidebar-border-color);
   color: var(--sidebar-text-color);
 }
 
 :root[lwt-tree-brighttext] #listPaneBox {
-  border-inline-end-color: var(--sidebar-border-color, rgba(249,249,250,.2));
+  border-inline-end-color: var(--sidebar-border-color);
 }
 
 #contactlistbox {
@@ -798,7 +798,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 
 :root[lwt-tree] #contextPane {
   background-color: var(--sidebar-background-color);
-  border-bottom: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  border-bottom: 1px solid var(--sidebar-border-color);
   color: var(--sidebar-text-color);
 }
 
@@ -822,7 +822,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 :root[lwt-tree] .conv-logs-header-label {
   appearance: none;
   background-color: var(--sidebar-background-color);
-  border-bottom: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
+  border-bottom: 1px solid var(--sidebar-border-color);
   color: var(--sidebar-text-color);
 }
 
@@ -855,7 +855,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 :root[lwt-tree] .conv-nicklist:focus > richlistitem[selected="true"] {
   background-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
   background-image: none;
-  border-color: var(--sidebar-border-color, hsla(0,0%,80%,.3));
+  border-color: var(--sidebar-border-color);
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 

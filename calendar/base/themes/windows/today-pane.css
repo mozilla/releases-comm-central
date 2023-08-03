@@ -4,10 +4,6 @@
 
 @import url(chrome://calendar/skin/shared/today-pane.css);
 
-.today-subpane {
-  border-bottom-color: ThreeDShadow;
-}
-
 #today-pane-splitter {
   border-top-width: 0;
   min-height: 0;

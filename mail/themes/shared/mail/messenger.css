@@ -952,7 +952,6 @@ statuspanel:not([label]) {
 
 @media (prefers-color-scheme: dark) {
   .statusbar:-moz-lwtheme {
-    --lwt-tabs-border-color: hsla(0, 0%, 60%, 0.4);
     border-top-color: var(--lwt-accent-color);
   }
 }

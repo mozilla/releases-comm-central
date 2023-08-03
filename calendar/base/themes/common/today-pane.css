@@ -11,6 +11,7 @@
 }
 
 .today-subpane {
+  border-bottom-color: var(--splitter-color);
   border-bottom-style: solid;
   border-bottom-width: 1px;
   padding: 0;
@@ -107,12 +108,6 @@
 
 :root[lwt-tree] #agenda-panel > modebox {
   background-color: var(--sidebar-background-color);
-}
-
-@media (prefers-color-scheme: dark) {
-  .today-subpane {
-    border-bottom-color: var(--splitter-color);
-  }
 }
 
 #today-minimonth-box {

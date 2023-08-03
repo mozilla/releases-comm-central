@@ -66,9 +66,11 @@
   --search-field-placeholder: color-mix(in srgb, currentColor 50%, transparent);
   --selected-item-color: var(--color-blue-60);
   --selected-item-text-color: var(--color-white);
+  --splitter-color: var(--sidebar-border-color, var(--layout-border-0));
+  --sidebar-border-color: var(--layout-border-0);
 
   --tab-min-height: 33px;
-  --lwt-tabs-border-color: rgba(0, 0, 0, .3);
+  --lwt-tabs-border-color: var(--sidebar-border-color);
   --tabs-tabbar-border-size: 1px;
   --toolbar-button-hover-background-color: color-mix(in srgb, currentColor 10%, transparent);
   --toolbar-button-hover-border-color: color-mix(in srgb, currentColor 30%, transparent);
@@ -169,7 +171,6 @@
     --button-pressed-indicator-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
     --lwt-accent-color: rgb(24, 24, 26);
     --new-folder-color: var(--color-blue-40);
-    --sidebar-border-color: var(--color-gray-50);
     --autocomplete-popup-highlight-background: #0060df;
     --selected-item-color: var(--color-blue-50);
     --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
@@ -198,7 +199,6 @@
     --item-focus-selected-border-color: #bebebf;
     --default: #dcdcdc;
     --primary: var(--color-blue-40);
-    --splitter-color: #606064;
   }
 
   /* Overwrite the toolkit default theme. */
@@ -207,7 +207,7 @@
     --lwt-tab-line-color: var(--color-blue-50) !important;
     --sidebar-background-color: var(--layout-background-1) !important;
     --sidebar-highlight-background-color: var(--color-blue-50);
-    --sidebar-border-color: var(--color-gray-50) !important;
+    --sidebar-border-color: var(--layout-border-0) !important;
     --toolbar-field-border-color: var(--color-gray-50) !important;
     --button-link-text-color: var(--color-blue-40);
     --button-link-active-text-color: var(--color-blue-50);
