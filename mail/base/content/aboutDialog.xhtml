@@ -13,8 +13,7 @@
 <html id="aboutDialog" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       role="dialog"
-      windowtype="mail:about"
-      aria-describedby="version distribution distributionId currentChannelText communityDesc contributeDesc trademark">
+      windowtype="mail:about">
 
 <head>
   <title data-l10n-id="about-dialog-title"></title>
@@ -22,7 +21,7 @@
   <link rel="localization" href="messenger/aboutDialog.ftl"/>
   <script defer="true" src="chrome://messenger/content/aboutDialog.js"></script>
 </head>
-<body>
+<body aria-describedby="version distribution distributionId currentChannelText communityDesc contributeDesc trademark">
   <xul:keyset id="mainKeyset">
     <xul:key keycode="VK_ESCAPE" oncommand="window.close();"/>
 #ifdef XP_MACOSX
