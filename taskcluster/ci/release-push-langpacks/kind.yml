@@ -2,11 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 ---
-loader: gecko_taskgraph.loader.single_dep:loader
+loader: gecko_taskgraph.loader.transform:loader
 
 transforms:
-    - comm_taskgraph.transforms.push_langpacks:transforms
-    - gecko_taskgraph.transforms.task:transforms
+    - taskgraph.transforms.from_deps
+    - comm_taskgraph.transforms.push_langpacks
+    - gecko_taskgraph.transforms.task
 
 kind-dependencies:
     - build
@@ -18,38 +19,32 @@ only-for-build-platforms:
     - macosx64-shippable/opt  # Although, we need the special locale "ja-JP-Mac" from this platform
 
 
-job-template:
-    description: Sends {locales} XPIs for platform to ATN
-    worker-type: b-linux-gcp
-    worker:
-        docker-image: {in-tree: "tb-atn"}
-        implementation: docker-worker
-        os: linux
-        max-run-time: 1800
-        env:
-            TASK_ID: {"task-reference": "<self>"}
-            TASKCLUSTER_PROXY_URL: http://taskcluster
-            PATH: /builds/worker/bin:/usr/local/bin:/usr/bin:/bin
-        channel:
-            by-project:
-                comm-esr115:
-                    by-platform:
-                        # ja-JP-mac is only langpack on mac, and is unlisted always
-                        macosx64.*: unlisted
-                        default: listed
-                comm-beta:
-                    by-platform:
-                        # ja-JP-mac is only langpack on mac, and is unlisted always
-                        macosx64.*: unlisted
-                        default: listed
-                default: unlisted
-        command:
-            - /builds/worker/bin/run-task
-            - "--"
-            - /builds/worker/venv/bin/python
-            - /builds/worker/bin/atn_langpack.py
-    run-on-projects: []
-    scopes:
-        - secrets:get:project/comm/thunderbird/releng/build/level-{level}/atn_langpack
-    shipping-phase: promote
-    shipping-product: thunderbird
+jobs:
+    release-push-langpacks:
+        from-deps: {}
+        worker:
+            env:
+                TASK_ID: {"task-reference": "<self>"}
+                TASKCLUSTER_PROXY_URL: http://taskcluster
+                PATH: /builds/worker/bin:/usr/local/bin:/usr/bin:/bin
+            channel:
+                by-project:
+                    comm-esr115:
+                        by-platform:
+                            # ja-JP-mac is only langpack on mac, and is unlisted always
+                            macosx64.*: unlisted
+                            default: listed
+                    comm-beta:
+                        by-platform:
+                            # ja-JP-mac is only langpack on mac, and is unlisted always
+                            macosx64.*: unlisted
+                            default: listed
+                    default: unlisted
+            command:
+                - /builds/worker/bin/run-task
+                - "--"
+                - /builds/worker/venv/bin/python
+                - /builds/worker/bin/atn_langpack.py
+        run-on-projects: []
+        shipping-phase: push
+        shipping-product: thunderbird
