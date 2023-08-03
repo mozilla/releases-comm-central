@@ -330,7 +330,6 @@ function openComposeWindowForRSSArticle(
     // Set up the compose message and get the feed message's web page link.
     let msgHdr = aMsgHdr;
     let type = aType;
-    let msgComposeType = Ci.nsIMsgCompType;
     let subject = msgHdr.mime2DecodedSubject;
     let fwdPrefix = Services.prefs.getCharPref("mail.forward_subject_prefix");
     fwdPrefix = fwdPrefix ? fwdPrefix + ": " : "";
@@ -344,17 +343,17 @@ function openComposeWindowForRSSArticle(
     ].createInstance(Ci.nsIMsgCompFields);
 
     if (
-      type == msgComposeType.Reply ||
-      type == msgComposeType.ReplyAll ||
-      type == msgComposeType.ReplyToSender ||
-      type == msgComposeType.ReplyToGroup ||
-      type == msgComposeType.ReplyToSenderAndGroup ||
-      type == msgComposeType.ReplyToList
+      type == Ci.nsIMsgCompType.Reply ||
+      type == Ci.nsIMsgCompType.ReplyAll ||
+      type == Ci.nsIMsgCompType.ReplyToSender ||
+      type == Ci.nsIMsgCompType.ReplyToGroup ||
+      type == Ci.nsIMsgCompType.ReplyToSenderAndGroup ||
+      type == Ci.nsIMsgCompType.ReplyToList
     ) {
       subject = "Re: " + subject;
     } else if (
-      type == msgComposeType.ForwardInline ||
-      type == msgComposeType.ForwardAsAttachment
+      type == Ci.nsIMsgCompType.ForwardInline ||
+      type == Ci.nsIMsgCompType.ForwardAsAttachment
     ) {
       subject = fwdPrefix + subject;
     }
