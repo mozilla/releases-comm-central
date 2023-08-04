@@ -6969,6 +6969,10 @@ void nsImapMailFolder::SetPendingAttributes(
             msgDBHdr, "flags", storeFlags | nsMsgMessageFlags::Offline);
       mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "storeToken",
                                           storeToken.get());
+    } else {
+      // Clear the offline flag.
+      uint32_t flags;
+      msgDBHdr->AndFlags(~nsMsgMessageFlags::Offline, &flags);
     }
     nsMsgPriorityValue priority;
     msgDBHdr->GetPriority(&priority);
@@ -7484,9 +7488,9 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
       // Perhaps we have the message offline, but even if we do it is
       // not valid, since the only time we do a file copy for an
       // existing message is when we are changing the message.
-      // So set the offline size to 0 to force SetPendingAttributes to
-      // clear the offline message flag.
-      msgToReplace->SetOfflineMessageSize(0);
+      // Note: When imap delete model is used, the message is not actually
+      // "replaced" but the original is marked deleted and a new message with
+      // removed attachments is imap appended to the folder.
       messages.AppendElement(msgToReplace);
       SetPendingAttributes({msgToReplace}, false, false);
     }
