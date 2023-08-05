@@ -4,6 +4,12 @@ Task Kinds
 This section lists and documents the additional task kinds that are specific
 to Thunderbird and are implemented in it's source tree.
 
+beetmover-strings-source
+------------------------
+
+Upload strings source files to FTP.
+
+
 shippable-l10n-pre
 ------------------
 Prepares a build artifact containing the translated strings from all locales.
@@ -59,7 +65,8 @@ shippable-l10n-pre-signing
 
 Signing job for shippable-l10n-pre artifacts
 
-beetmover-strings-source
-------------------------
 
-Upload strings source files to FTP.
+source-docs
+-----------
+
+Build Thunderbird source documentation and upload to RTD.
