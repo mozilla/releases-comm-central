@@ -100,10 +100,8 @@ function SetUpTree(forceToServer, getOnlyNew) {
     // Since there is no text, switch to the Subscription view.
     toggleSubscriptionView(false);
 
-    if (!gSubscribableServer.subscribeListener) {
-      gSubscribeTree.view = gSubscribableServer.folderView;
-      gSubscribableServer.subscribeListener = MySubscribeListener;
-    }
+    gSubscribeTree.view = gSubscribableServer.folderView;
+    gSubscribableServer.subscribeListener = MySubscribeListener;
 
     var currentListTab = document.getElementById("currentListTab");
     if (currentListTab.selected) {
