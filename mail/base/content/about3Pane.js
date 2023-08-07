@@ -5666,11 +5666,14 @@ function selectMessage(msgHdr) {
     return;
   }
 
-  let index = threadTree.view.findIndexOfMsgHdr(msgHdr, true);
-  if (index == nsMsgViewIndex_None) {
-    // Change to correct folder if needed.
+  let index = threadTree.view?.findIndexOfMsgHdr(msgHdr, true);
+  // Change to correct folder if needed. We might not be in a folder, or the
+  // message might not be found in the current folder.
+  if (index === undefined || index === nsMsgViewIndex_None) {
+    threadPane.forgetSelection(msgHdr.folder.URI);
     displayFolder(msgHdr.folder.URI);
     index = threadTree.view.findIndexOfMsgHdr(msgHdr, true);
+    threadTree.scrollToIndex(index, true);
   }
   threadTree.selectedIndex = index;
 }

@@ -4591,6 +4591,15 @@ nsMsgViewIndex nsMsgDBView::FindHdr(nsIMsgDBHdr* msgHdr,
     return m_keys.IndexOf(msgKey, viewIndex + 1);
   }
 
+  // Check that the message we found matches the message we were looking for.
+  if (viewIndex != nsMsgViewIndex_None) {
+    nsCOMPtr<nsIMsgDBHdr> foundMsgHdr;
+    nsresult rv = GetMsgHdrForViewIndex(viewIndex, getter_AddRefs(foundMsgHdr));
+    if (NS_FAILED(rv) || foundMsgHdr != msgHdr) {
+      viewIndex = nsMsgViewIndex_None;
+    }
+  }
+
   return viewIndex;
 }
 
