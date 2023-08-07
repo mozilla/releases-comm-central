@@ -1,3 +1,7 @@
+#  This Source Code Form is subject to the terms of the Mozilla Public
+#  License, v. 2.0. If a copy of the MPL was not distributed with this
+#  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 # Any copyright is dedicated to the Public Domain.
 # http://creativecommons.org/publicdomain/zero/1.0/
 
@@ -196,15 +200,6 @@ def migrate(ctx):
                 ],
             ),
             FTL.Message(
-                id=FTL.Identifier("calendar-event-listing-interval-all"),
-                attributes=[
-                    FTL.Attribute(
-                        id=FTL.Identifier("label"),
-                        value=COPY(source, "calendar.events.filter.all.label"),
-                    )
-                ],
-            ),
-            FTL.Message(
                 id=FTL.Identifier("calendar-event-listing-interval-calendar-month"),
                 attributes=[
                     FTL.Attribute(
@@ -219,15 +214,6 @@ def migrate(ctx):
                     FTL.Attribute(
                         id=FTL.Identifier("label"),
                         value=COPY(source, "calendar.events.filter.currentview.label"),
-                    )
-                ],
-            ),
-            FTL.Message(
-                id=FTL.Identifier("calendar-event-listing-interval-future"),
-                attributes=[
-                    FTL.Attribute(
-                        id=FTL.Identifier("label"),
-                        value=COPY(source, "calendar.events.filter.future.label"),
                     )
                 ],
             ),
