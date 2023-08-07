@@ -800,6 +800,13 @@ var commandController = {
     }
 
     if (window.threadTree) {
+      if (
+        gDBView.selection.count == 1 &&
+        window.threadTree.selectedIndex == resultIndex.value
+      ) {
+        return;
+      }
+
       window.threadTree.expandRowAtIndex(resultIndex.value);
       // Do an instant scroll before setting the index to avoid animation.
       window.threadTree.scrollToIndex(resultIndex.value, true);
@@ -817,6 +824,10 @@ var commandController = {
         setTimeout(() => window.threadTree.table.body.focus());
       }
     } else {
+      if (window.gMessage.messageKey == resultKey.value) {
+        return;
+      }
+
       gViewWrapper.dbView.selection.select(resultIndex.value);
       window.displayMessage(
         gViewWrapper.dbView.URIForFirstSelectedMessage,
