@@ -512,6 +512,7 @@ class NntpIncomingServer extends MsgIncomingServer {
     this._subscribable.startPopulating(msgWindow, forceToServer, getOnlyNew);
     this._groups = [];
 
+    this._hostInfoLoaded = false;
     if (!forceToServer) {
       this._hostInfoLoaded = await this._loadHostInfo();
       if (this._hostInfoLoaded) {
