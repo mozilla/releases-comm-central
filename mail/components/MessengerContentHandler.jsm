@@ -320,6 +320,11 @@ MailDefaultHandler.prototype = {
       cmdLine.preventDefault = true;
     }
 
+    if (cmdLine.handleFlag("mail", false)) {
+      getOrOpen3PaneWindow().then(win => win.focusOnMail(0));
+      cmdLine.preventDefault = true;
+    }
+
     if (cmdLine.handleFlag("addressbook", false)) {
       getOrOpen3PaneWindow().then(win => win.toAddressBook());
       cmdLine.preventDefault = true;
@@ -690,9 +695,10 @@ MailDefaultHandler.prototype = {
   },
 
   helpInfo:
-    "  -options           Open the settings.\n" +
-    "  -addressbook       Open the address book.\n" +
-    "  -calendar          Open the calendar.\n" +
+    "  -mail              Go to the mail tab.\n" +
+    "  -addressbook       Go to the address book tab.\n" +
+    "  -calendar          Go to the calendar tab.\n" +
+    "  -options           Go to the settings tab.\n" +
     "  -file              Open the specified email file or ICS calendar file.\n" +
     "  -setDefaultMail    Set this app as the default mail client.\n" +
     "  -keymanager        Open the OpenPGP Key Manager.\n",

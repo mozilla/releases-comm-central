@@ -470,18 +470,14 @@ function toMessengerWindow() {
 
 function focusOnMail(tabNo, event) {
   // this is invoked by accel-<number>
-  // if the window isn't visible or focused, make it so
   var topWindow = Services.wm.getMostRecentWindow("mail:3pane");
   if (topWindow) {
-    if (topWindow != window) {
-      topWindow.focus();
-    } else {
-      const tabmail = document.getElementById("tabmail");
-      if (tabmail.globalOverlay) {
-        return;
-      }
-      tabmail.selectTabByIndex(event, tabNo);
+    topWindow.focus();
+    const tabmail = document.getElementById("tabmail");
+    if (tabmail.globalOverlay) {
+      return;
     }
+    tabmail.selectTabByIndex(event, tabNo);
   } else {
     window.open(
       "chrome://messenger/content/messenger.xhtml",

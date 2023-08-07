@@ -14,9 +14,6 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailUtils.jsm"
 );
 
-var MAPI_STARTUP_ARG = "MapiStartup";
-var MESSAGE_ID_PARAM = "?messageid=";
-
 function MailNewsCommandLineHandler() {}
 MailNewsCommandLineHandler.prototype = {
   get messenger() {
@@ -30,7 +27,7 @@ MailNewsCommandLineHandler.prototype = {
 
   /**
    * Handles the following command line arguments:
-   * - -mail: opens the mail folder view
+   * - -mail <URL>
    * - -MapiStartup: indicates that this startup is due to MAPI.
    *   Don't do anything for now.
    */
@@ -43,12 +40,12 @@ MailNewsCommandLineHandler.prototype = {
       // We're going to cover -mail without a parameter later
     }
 
-    if (mailURL && mailURL.length > 0) {
+    if (mailURL) {
       let msgHdr = null;
       if (/^(mailbox|imap|news)-message:\/\//.test(mailURL)) {
         // This might be a standard message URI, or one with a messageID
         // parameter. Handle both cases.
-        let messageIDIndex = mailURL.toLowerCase().indexOf(MESSAGE_ID_PARAM);
+        let messageIDIndex = mailURL.toLowerCase().indexOf("?messageid=");
         if (messageIDIndex != -1) {
           // messageID parameter
           // Convert the message URI into a folder URI
@@ -56,9 +53,7 @@ MailNewsCommandLineHandler.prototype = {
             .slice(0, messageIDIndex)
             .replace("-message", "");
           // Get the message ID
-          let messageID = mailURL.slice(
-            messageIDIndex + MESSAGE_ID_PARAM.length
-          );
+          let messageID = mailURL.slice(messageIDIndex + "?messageid=".length);
           // Make sure the folder tree is initialized
           lazy.MailUtils.discoverFolders();
 
@@ -121,32 +116,11 @@ MailNewsCommandLineHandler.prototype = {
       }
     }
 
-    // -mail (no parameter)
-    let mailFlag = aCommandLine.handleFlag("mail", false);
-    if (mailFlag) {
-      // Focus the 3pane window if one is present, else open one
-      let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
-      if (mail3PaneWindow) {
-        mail3PaneWindow.focus();
-      } else {
-        Services.ww.openWindow(
-          null,
-          "chrome://messenger/content/messenger.xhtml",
-          "_blank",
-          "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar,dialog=no",
-          null
-        );
-      }
-      aCommandLine.preventDefault = true;
-    }
-
     // -MapiStartup
-    aCommandLine.handleFlag(MAPI_STARTUP_ARG, false);
+    aCommandLine.handleFlag("MapiStartup", false);
   },
 
-  helpInfo:
-    "  -mail              Open the mail folder view.\n" +
-    "  -mail <URL>        Open the message specified by this URL.\n",
+  helpInfo: "  -mail <URL>        Open the message specified by this URL.\n",
 
   QueryInterface: ChromeUtils.generateQI(["nsICommandLineHandler"]),
 };
