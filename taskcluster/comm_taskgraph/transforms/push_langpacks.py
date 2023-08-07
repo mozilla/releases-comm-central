@@ -18,14 +18,15 @@ from voluptuous import Any, Optional, Required
 from gecko_taskgraph.transforms.task import task_description_schema
 from gecko_taskgraph.util.attributes import (
     copy_attributes_from_dependent_job,
-    release_level,
 )
 from mozbuild.action.langpack_manifest import get_version_maybe_buildid
 
 transforms = TransformSequence()
 
 
-PUSH_LANGPACK_SCOPE = "secrets:get:project/comm/thunderbird/releng/build/level-{level}/atn_langpack"
+PUSH_LANGPACK_SCOPE = (
+    "secrets:get:project/comm/thunderbird/releng/build/level-{level}/atn_langpack"
+)
 
 langpack_push_description_schema = Schema(
     {
@@ -77,11 +78,14 @@ def make_task_description(config, jobs):
         )
 
         job["worker-type"] = "b-linux-gcp"
-        job["worker"].update({"os": "linux",
-                              "implementation": "docker-worker",
-                              "docker-image": {"in-tree": "tb-atn"},
-                              "max-run-time": 1800,
-                              })
+        job["worker"].update(
+            {
+                "os": "linux",
+                "implementation": "docker-worker",
+                "docker-image": {"in-tree": "tb-atn"},
+                "max-run-time": 1800,
+            }
+        )
 
         treeherder = inherit_treeherder_from_dep(job, dep_job)
         treeherder.setdefault(
