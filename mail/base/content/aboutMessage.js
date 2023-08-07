@@ -5,7 +5,8 @@
 /* globals Enigmail, MailE10SUtils */
 
 // mailCommon.js
-/* globals commandController, dbViewWrapperListener, nsMsgViewIndex_None */
+/* globals commandController, DBViewWrapper, dbViewWrapperListener,
+     nsMsgViewIndex_None, TreeSelection */
 /* globals gDBView: true, gFolder: true, gViewWrapper: true */
 
 // mailContext.js
@@ -23,14 +24,9 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-ChromeUtils.defineESModuleGetters(this, {
-  TreeSelection: "chrome://messenger/content/tree-selection.mjs",
-});
-
 XPCOMUtils.defineLazyModuleGetters(this, {
   UIDensity: "resource:///modules/UIDensity.jsm",
   UIFontSize: "resource:///modules/UIFontSize.jsm",
-  DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 

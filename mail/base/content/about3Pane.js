@@ -5,7 +5,8 @@
 /* globals MozElements */
 
 // mailCommon.js
-/* globals commandController, dbViewWrapperListener, nsMsgViewIndex_None */
+/* globals commandController, DBViewWrapper, dbViewWrapperListener,
+     nsMsgViewIndex_None */
 /* globals gDBView: true, gFolder: true, gViewWrapper: true */
 
 // mailContext.js
@@ -26,9 +27,6 @@
 // utilityOverlay.js
 /* globals validateFileName */
 
-var { DBViewWrapper } = ChromeUtils.import(
-  "resource:///modules/DBViewWrapper.jsm"
-);
 var { FolderTreeProperties } = ChromeUtils.import(
   "resource:///modules/FolderTreeProperties.jsm"
 );

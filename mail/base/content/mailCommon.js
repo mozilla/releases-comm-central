@@ -15,8 +15,13 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  TreeSelection: "chrome://messenger/content/tree-selection.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   ConversationOpener: "resource:///modules/ConversationOpener.jsm",
+  DBViewWrapper: "resource:///modules/DBViewWrapper.jsm",
   EnigmailPersistentCrypto:
     "chrome://openpgp/content/modules/persistentCrypto.jsm",
   EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
@@ -749,9 +754,6 @@ var commandController = {
   },
 
   _navigate(navigationType) {
-    let resultKey = { value: nsMsgKey_None };
-    let resultIndex = { value: nsMsgViewIndex_None };
-    let threadIndex = {};
     if (
       [Ci.nsMsgNavigationType.back, Ci.nsMsgNavigationType.forward].includes(
         navigationType
@@ -759,9 +761,6 @@ var commandController = {
     ) {
       const { messageHistory } = window.messageBrowser?.contentWindow ?? window;
       const noCurrentMessage = messageHistory.canPop(0);
-      if (window.displayFolder) {
-        CrossFolderNavigation(navigationType);
-      }
       let relativePosition = -1;
       if (navigationType === Ci.nsMsgNavigationType.forward) {
         relativePosition = 1;
@@ -776,23 +775,31 @@ var commandController = {
         MailServices.messageServiceFromURI(newMessageURI).messageURIToMsgHdr(
           newMessageURI
         );
-      resultIndex.value = gDBView.findIndexOfMsgHdr(msgHdr, true);
-      resultKey.value = msgHdr.messageKey;
-    } else {
-      gViewWrapper.dbView.viewNavigate(
-        navigationType,
-        resultKey,
-        resultIndex,
-        threadIndex,
-        true
-      );
-      if (resultIndex.value == nsMsgViewIndex_None) {
-        // Not in about:message
-        if (window.displayFolder && CrossFolderNavigation(navigationType)) {
-          this._navigate(navigationType);
+      if (msgHdr) {
+        if (window.threadPane) {
+          window.selectMessage(msgHdr);
+        } else {
+          window.displayMessage(newMessageURI);
         }
-        return;
       }
+      return;
+    }
+
+    let resultKey = { value: nsMsgKey_None };
+    let resultIndex = { value: nsMsgViewIndex_None };
+    let threadIndex = {};
+    gViewWrapper.dbView.viewNavigate(
+      navigationType,
+      resultKey,
+      resultIndex,
+      threadIndex,
+      true
+    );
+    if (resultIndex.value == nsMsgViewIndex_None) {
+      if (CrossFolderNavigation(navigationType)) {
+        this._navigate(navigationType);
+      }
+      return;
     }
 
     if (resultKey.value == nsMsgKey_None) {

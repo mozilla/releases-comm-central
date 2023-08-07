@@ -5,7 +5,8 @@
 
 /*  This file contains the js functions necessary to implement view navigation within the 3 pane. */
 
-/* globals gDBView */ // mailCommon.js
+/* globals DBViewWrapper, dbViewWrapperListener, TreeSelection */
+/* globals gDBView: true, gFolder: true, gViewWrapper: true */ // mailCommon.js
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -140,76 +141,67 @@ function CrossFolderNavigation(type) {
   // do cross folder navigation for next unread message/thread and message history
   if (
     type != Ci.nsMsgNavigationType.nextUnreadMessage &&
-    type != Ci.nsMsgNavigationType.nextUnreadThread &&
-    type != Ci.nsMsgNavigationType.forward &&
-    type != Ci.nsMsgNavigationType.back
+    type != Ci.nsMsgNavigationType.nextUnreadThread
   ) {
     return false;
   }
 
-  if (
-    type == Ci.nsMsgNavigationType.nextUnreadMessage ||
-    type == Ci.nsMsgNavigationType.nextUnreadThread
-  ) {
-    var nextMode = Services.prefs.getIntPref("mailnews.nav_crosses_folders");
-    // 0: "next" goes to the next folder, without prompting
-    // 1: "next" goes to the next folder, and prompts (the default)
-    // 2: "next" does nothing when there are no unread messages
+  let nextMode = Services.prefs.getIntPref("mailnews.nav_crosses_folders");
+  // 0: "next" goes to the next folder, without prompting
+  // 1: "next" goes to the next folder, and prompts (the default)
+  // 2: "next" does nothing when there are no unread messages
 
-    // not crossing folders, don't find next
-    if (nextMode == 2) {
-      return false;
-    }
-
-    var folder = FindNextFolder();
-    if (folder && gDBView.msgFolder.URI != folder.URI) {
-      if (nextMode == 1) {
-        let messengerBundle =
-          window.messengerBundle ||
-          Services.strings.createBundle(
-            "chrome://messenger/locale/messenger.properties"
-          );
-        let promptText = messengerBundle.formatStringFromName(
-          "advanceNextPrompt",
-          [folder.name]
-        );
-        if (
-          Services.prompt.confirmEx(
-            window,
-            null,
-            promptText,
-            Services.prompt.STD_YES_NO_BUTTONS,
-            null,
-            null,
-            null,
-            null,
-            {}
-          )
-        ) {
-          return false;
-        }
-      }
-      window.threadPane.forgetSelection(folder.URI);
-      window.displayFolder(folder.URI);
-      return true;
-    }
-  } else {
-    let { messageHistory } = window.messageBrowser.contentWindow;
-    let relPos = -1;
-    if (type == Ci.nsMsgNavigationType.forward) {
-      relPos = 1;
-    } else if (messageHistory.canPop(0)) {
-      relPos = 0;
-    }
-    let folderURI = messageHistory.getMessageAt(relPos)?.folderURI;
-    if (!folderURI || window.gFolder?.URI === folderURI) {
-      return false;
-    }
-
-    window.threadPane.forgetSelection(folderURI);
-    window.displayFolder(folderURI);
-    return true;
+  // not crossing folders, don't find next
+  if (nextMode == 2) {
+    return false;
   }
 
-  return false;
+  let folder = FindNextFolder();
+  if (!folder || gDBView.msgFolder.URI == folder.URI) {
+    return false;
+  }
+
+  if (nextMode == 1) {
+    let messengerBundle =
+      window.messengerBundle ||
+      Services.strings.createBundle(
+        "chrome://messenger/locale/messenger.properties"
+      );
+    let promptText = messengerBundle.formatStringFromName("advanceNextPrompt", [
+      folder.name,
+    ]);
+    if (
+      Services.prompt.confirmEx(
+        window,
+        null,
+        promptText,
+        Services.prompt.STD_YES_NO_BUTTONS,
+        null,
+        null,
+        null,
+        null,
+        {}
+      )
+    ) {
+      return false;
+    }
+  }
+
+  if (window.threadPane) {
+    // In about:3pane.
+    window.threadPane.forgetSelection(folder.URI);
+    window.displayFolder(folder.URI);
+  } else {
+    // In standalone about:message. Do just enough to call
+    // `commandController._navigate` again.
+    gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+    gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
+    gViewWrapper.open(folder);
+    gDBView = gViewWrapper.dbView;
+    let selection = (gDBView.selection = new TreeSelection());
+    selection.view = gDBView;
+    // We're now in a bit of a weird state until `displayMessage` is called,
+    // but being here means we have everything we need for that to happen.
+  }
+  return true;
 }
