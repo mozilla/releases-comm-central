@@ -83,6 +83,12 @@ button.color-button .button-text {
   margin-inline: 0;
 }
 
+#spacingLabel,
+#alignLabel,
+#imagemapLabel {
+  margin-top: 0;
+}
+
 #ColorPickerSwatch {
   width: 12px;
   height: 12px;
@@ -218,10 +224,6 @@ tree.list {
 .radio-spacer {
   width: 2em;
   min-width: 2em;
-}
-
-#alignTypeSelect {
-  height: 34px;
 }
 
 .align-menu[value="top"] {

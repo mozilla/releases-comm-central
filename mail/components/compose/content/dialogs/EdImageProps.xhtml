@@ -24,11 +24,11 @@
   title="&windowTitle.label;"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  style="max-width: 40em; min-width: 40em; min-height: 23em"
+  style="min-height: 24em"
   lightweightthemes="true"
   onload="Startup()"
 >
-  <dialog id="imageDlg" buttons="accept,cancel">
+  <dialog id="imageDlg" buttons="accept,cancel" style="width: 60ch">
     <script src="chrome://messenger/content/globalOverlay.js" />
     <script src="chrome://global/content/editMenuOverlay.js" />
     <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
@@ -247,125 +247,126 @@
           <spacer flex="1" />
         </vbox>
 
-        <hbox id="imageAppearance">
-          <html:fieldset>
-            <html:legend id="spacingLabel">&spacingBox.label;</html:legend>
-            <html:table>
-              <html:tr>
-                <html:th>
-                  <label
-                    id="leftrightLabel"
-                    class="align-right"
-                    control="imageleftrightInput"
-                    accesskey="&leftRightEditField.accessKey;"
-                    value="&leftRightEditField.label;"
-                  />
-                </html:th>
-                <html:td>
-                  <html:input
-                    id="imageleftrightInput"
-                    type="number"
-                    min="0"
-                    class="narrow input-inline"
-                    aria-labelledby="leftrightLabel"
-                  />
-                </html:td>
-                <html:td id="leftrighttypeLabel"> &pixelsPopup.value; </html:td>
-              </html:tr>
-              <html:tr>
-                <html:th>
-                  <label
-                    id="topbottomLabel"
-                    class="align-right"
-                    control="imagetopbottomInput"
-                    accesskey="&topBottomEditField.accessKey;"
-                    value="&topBottomEditField.label;"
-                  />
-                </html:th>
-                <html:td>
-                  <html:input
-                    id="imagetopbottomInput"
-                    type="number"
-                    min="0"
-                    class="narrow input-inline"
-                    aria-labelledby="topbottomLabel"
-                  />
-                </html:td>
-                <html:td id="topbottomtypeLabel"> &pixelsPopup.value; </html:td>
-              </html:tr>
-              <html:tr>
-                <html:th>
-                  <label
-                    id="borderLabel"
-                    class="align-right"
-                    control="border"
-                    accesskey="&borderEditField.accessKey;"
-                    value="&borderEditField.label;"
-                  />
-                </html:th>
-                <html:td>
-                  <html:input
-                    id="border"
-                    type="number"
-                    min="0"
-                    class="narrow input-inline"
-                    aria-labelledby="borderLabel"
-                  />
-                </html:td>
-                <html:td id="bordertypeLabel"> &pixelsPopup.value; </html:td>
-              </html:tr>
-            </html:table>
-          </html:fieldset>
-
-          <vbox>
-            <html:fieldset>
-              <html:legend id="alignLabel">&alignment.label;</html:legend>
-              <menulist id="alignTypeSelect" class="align-menu">
-                <menupopup>
-                  <menuitem
-                    class="align-menu menuitem-iconic"
-                    value="top"
-                    label="&topPopup.value;"
-                  />
-                  <menuitem
-                    class="align-menu menuitem-iconic"
-                    value="middle"
-                    label="&centerPopup.value;"
-                  />
-                  <menuitem
-                    class="align-menu menuitem-iconic"
-                    value="bottom"
-                    label="&bottomPopup.value;"
-                  />
-                  <!-- HTML attribute value is opposite of the button label on purpose -->
-                  <menuitem
-                    class="align-menu menuitem-iconic"
-                    value="right"
-                    label="&wrapLeftPopup.value;"
-                  />
-                  <menuitem
-                    class="align-menu menuitem-iconic"
-                    value="left"
-                    label="&wrapRightPopup.value;"
-                  />
-                </menupopup>
-              </menulist>
-            </html:fieldset>
-
-            <html:fieldset>
-              <html:legend id="imagemapLabel">&imagemapBox.label;</html:legend>
-              <html:div class="grid-two-column-equalsize">
-                <button
-                  id="removeImageMap"
-                  oncommand="removeImageMap()"
-                  accesskey="&removeImageMapButton.accessKey;"
-                  label="&removeImageMapButton.label;"
+        <vbox id="imageAppearance">
+          <html:legend id="spacingLabel">&spacingBox.label;</html:legend>
+          <html:table>
+            <html:tr>
+              <html:th>
+                <label
+                  id="leftrightLabel"
+                  class="align-right"
+                  control="imageleftrightInput"
+                  accesskey="&leftRightEditField.accessKey;"
+                  value="&leftRightEditField.label;"
                 />
-                <spacer /><!-- remove when we restore Image Map Editor -->
-              </html:div>
-            </html:fieldset>
-          </vbox>
-        </hbox>
+              </html:th>
+              <html:td>
+                <html:input
+                  id="imageleftrightInput"
+                  type="number"
+                  min="0"
+                  class="narrow input-inline"
+                  aria-labelledby="leftrightLabel"
+                />
+              </html:td>
+              <html:td id="leftrighttypeLabel"> &pixelsPopup.value; </html:td>
+              <html:td style="width: 80%">
+                <spacer />
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
+                <label
+                  id="topbottomLabel"
+                  class="align-right"
+                  control="imagetopbottomInput"
+                  accesskey="&topBottomEditField.accessKey;"
+                  value="&topBottomEditField.label;"
+                />
+              </html:th>
+              <html:td>
+                <html:input
+                  id="imagetopbottomInput"
+                  type="number"
+                  min="0"
+                  class="narrow input-inline"
+                  aria-labelledby="topbottomLabel"
+                />
+              </html:td>
+              <html:td id="topbottomtypeLabel"> &pixelsPopup.value; </html:td>
+              <html:td>
+                <spacer />
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
+                <label
+                  id="borderLabel"
+                  class="align-right"
+                  control="border"
+                  accesskey="&borderEditField.accessKey;"
+                  value="&borderEditField.label;"
+                />
+              </html:th>
+              <html:td>
+                <html:input
+                  id="border"
+                  type="number"
+                  min="0"
+                  class="narrow input-inline"
+                  aria-labelledby="borderLabel"
+                />
+              </html:td>
+              <html:td id="bordertypeLabel"> &pixelsPopup.value; </html:td>
+              <html:td>
+                <spacer />
+              </html:td>
+            </html:tr>
+          </html:table>
+          <separator class="thin" />
+          <html:legend id="alignLabel">&alignment.label;</html:legend>
+          <menulist id="alignTypeSelect" class="align-menu">
+            <menupopup>
+              <menuitem
+                class="align-menu menuitem-iconic"
+                value="top"
+                label="&topPopup.value;"
+              />
+              <menuitem
+                class="align-menu menuitem-iconic"
+                value="middle"
+                label="&centerPopup.value;"
+              />
+              <menuitem
+                class="align-menu menuitem-iconic"
+                value="bottom"
+                label="&bottomPopup.value;"
+              />
+              <!-- HTML attribute value is opposite of the button label on purpose -->
+              <menuitem
+                class="align-menu menuitem-iconic"
+                value="right"
+                label="&wrapLeftPopup.value;"
+              />
+              <menuitem
+                class="align-menu menuitem-iconic"
+                value="left"
+                label="&wrapRightPopup.value;"
+              />
+            </menupopup>
+          </menulist>
+          <separator class="thin" />
+          <html:legend id="imagemapLabel">&imagemapBox.label;</html:legend>
+          <html:div class="grid-two-column-equalsize">
+            <button
+              id="removeImageMap"
+              oncommand="removeImageMap()"
+              accesskey="&removeImageMapButton.accessKey;"
+              label="&removeImageMapButton.label;"
+            />
+            <spacer /><!-- remove when we restore Image Map Editor -->
+          </html:div>
+        </vbox>
         <vbox>
           <spacer class="spacer" />
           <vbox id="LinkLocationBox">
@@ -409,6 +410,9 @@
               oncommand="ToggleShowLinkBorder();"
             />
             <spacer flex="1" />
+          </hbox>
+          <separator class="thin" />
+          <hbox pack="end">
             <button
               id="LinkAdvancedEditButton"
               label="&LinkAdvancedEditButton.label;"

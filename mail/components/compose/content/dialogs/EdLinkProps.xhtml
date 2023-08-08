@@ -24,8 +24,9 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   lightweightthemes="true"
   onload="Startup()"
+  style="min-height: 26em"
 >
-  <dialog id="linkDlg">
+  <dialog id="linkDlg" style="width: 50ch">
     <script src="chrome://messenger/content/globalOverlay.js" />
     <script src="chrome://global/content/editMenuOverlay.js" />
     <script src="chrome://messenger/content/messengercompose/editorUtilities.js" />
@@ -36,7 +37,7 @@
 
     <spacer id="location" offsetY="50" persist="offsetX offsetY" />
 
-    <vbox style="min-width: 20em">
+    <vbox>
       <html:fieldset>
         <html:legend><label id="linkTextCaption" /></html:legend>
         <vbox>
