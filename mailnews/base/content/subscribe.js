@@ -142,6 +142,8 @@ function SubscribeOnUnload() {
   } catch (ex) {
     dump("Failed to remove the subscribe tree: " + ex + "\n");
   }
+
+  msgWindow.closeWindow();
 }
 
 function EnableSearchUI() {

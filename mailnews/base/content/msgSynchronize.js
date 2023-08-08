@@ -85,17 +85,6 @@ function selectCancelButton() {
   return true;
 }
 
-function selectOnLoad() {
-  gMsgWindow = Cc["@mozilla.org/messenger/msgwindow;1"].createInstance(
-    Ci.nsIMsgWindow
-  );
-  gMsgWindow.domWindow = window;
-
-  gSynchronizeTree = document.getElementById("synchronizeTree");
-
-  SortSynchronizePane("folderNameCol", "?folderTreeNameSort");
-}
-
 function SortSynchronizePane(column, sortKey) {
   var node = FindInWindow(window, column);
   if (!node) {

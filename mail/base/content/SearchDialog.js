@@ -284,8 +284,7 @@ function searchOnUnload() {
   gFolderDisplay.close();
   top.controllers.removeController(nsSearchResultsController);
 
-  // release this early because msgWindow holds a weak reference
-  msgWindow.rootDocShell = null;
+  msgWindow.closeWindow();
 }
 
 function initializeSearchWindowWidgets() {

@@ -102,6 +102,40 @@ add_task(async function testMessageWindow() {
   await assertNoDetachedWindows();
 });
 
+add_task(async function testSearchMessagesDialog() {
+  info("Opening the search messages dialog");
+  let about3Pane = tabmail.currentAbout3Pane;
+  let context = about3Pane.document.getElementById("folderPaneContext");
+  let searchMessagesItem = about3Pane.document.getElementById(
+    "folderPaneContext-searchMessages"
+  );
+
+  let shownPromise = BrowserTestUtils.waitForEvent(context, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    about3Pane.folderPane.getRowForFolder(testFolder).querySelector(".name"),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+
+  let searchWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    w =>
+      w.document.documentURI == "chrome://messenger/content/SearchDialog.xhtml"
+  );
+  context.activateItem(searchMessagesItem);
+  let searchWindow = await searchWindowPromise;
+
+  await new Promise(resolve => searchWindow.setTimeout(resolve, 500));
+
+  info("Closing the dialog");
+  await BrowserTestUtils.closeWindow(searchWindow);
+  searchWindowPromise = null;
+  searchWindow = null;
+
+  await assertNoDetachedWindows();
+});
+
 add_task(async function testAddressBookTab() {
   info("Opening the Address Book");
   window.toAddressBook();
