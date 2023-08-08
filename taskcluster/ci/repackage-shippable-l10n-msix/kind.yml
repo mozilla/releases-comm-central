@@ -54,6 +54,7 @@ jobs:
             toolchain:
                 - linux64-msix-packaging
         msix:
+            vendor: Mozilla Thunderbird
             channel:
                 by-release-type:
                     beta.*: beta
@@ -69,7 +70,7 @@ jobs:
                     msix-store:
                         by-release-type:
                             beta.*: ThunderbirdBeta
-                            release.*: Thunderbird
+                            release.*: MZLA
                             default: ThunderbirdDaily
             publisher:
                 by-package-format:
@@ -86,8 +87,8 @@ jobs:
                                 by-build-platform:
                                     .*-shippable: "CN=Mozilla Corporation, OU=Firefox Engineering Operations, O=Mozilla Corporation, L=Mountain View, S=California, C=US"
                                     default: "CN=Mozilla Fake SPC"
-                    msix-store: "CN=082E9164-EE6C-4EC8-B62C-441FAE7BEFA1"
+                    msix-store: "CN=D72CA2AC-1021-4C81-8ED2-0CF10CF5F5B6"
             publisher-display-name:
                 by-package-format:
-                    msix: "Mozilla Corporation"
-                    msix-store: "Mozilla"
+                    msix: "MZLA Technologies"
+                    msix-store: "Mozilla Thunderbird"
