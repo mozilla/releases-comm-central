@@ -15,7 +15,6 @@ var {
 } = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 
 var ACR = Ci.nsIAutoCompleteResult;
-var nsIAbAutoCompleteResult = Ci.nsIAbAutoCompleteResult;
 
 var MAX_ASYNC_RESULTS = 100;
 
@@ -412,7 +411,7 @@ AbAutoCompleteSearch.prototype = {
     let asyncDirectories = [];
 
     if (
-      aPreviousResult instanceof nsIAbAutoCompleteResult &&
+      aPreviousResult instanceof Ci.nsIAbAutoCompleteResult &&
       aSearchString.startsWith(aPreviousResult.searchString) &&
       aPreviousResult.searchResult == ACR.RESULT_SUCCESS &&
       !result._modelQueryHasUserValue &&

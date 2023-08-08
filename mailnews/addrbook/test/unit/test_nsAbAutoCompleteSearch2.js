@@ -14,7 +14,6 @@ var { getModelQuery } = ChromeUtils.import(
 
 // taken from nsAbAutoCompleteSearch.js
 var ACR = Ci.nsIAutoCompleteResult;
-var nsIAbAutoCompleteResult = Ci.nsIAbAutoCompleteResult;
 
 function nsAbAutoCompleteResult(aSearchString) {
   // Can't create this in the prototype as we'd get the same array for

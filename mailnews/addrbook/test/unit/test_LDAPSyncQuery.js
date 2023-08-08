@@ -11,12 +11,11 @@ const { BinaryServer } = ChromeUtils.import(
   "resource://testing-common/mailnews/Binaryd.jsm"
 );
 
-const nsILDAPSyncQuery = Ci.nsILDAPSyncQuery;
-const LDAPSyncQueryContractID = "@mozilla.org/ldapsyncquery;1";
-
 function getLDAPAttributes(urlSpec) {
   let url = Services.io.newURI(urlSpec).QueryInterface(Ci.nsILDAPURL);
-  let ldapquery = Cc[LDAPSyncQueryContractID].createInstance(nsILDAPSyncQuery);
+  let ldapquery = Cc["@mozilla.org/ldapsyncquery;1"].createInstance(
+    Ci.nsILDAPSyncQuery
+  );
   let payload = ldapquery.getQueryResults(url, Ci.nsILDAPConnection.VERSION3);
   // Returns a string with one attr per line.
   return payload;
