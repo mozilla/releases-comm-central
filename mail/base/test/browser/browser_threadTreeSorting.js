@@ -108,14 +108,14 @@ add_task(async function () {
     "correct number of rows in the view"
   );
   Assert.equal(
-    threadTree.getFirstVisibleIndex(),
-    0,
-    "should be scrolled to the top"
+    threadTree.getLastVisibleIndex(),
+    319,
+    "should be scrolled to the bottom"
   );
 
-  Assert.equal(getActualSubject(0), messagesByDate[0].subject);
-  Assert.equal(getActualSubject(1), messagesByDate[1].subject);
-  Assert.equal(getActualSubject(2), messagesByDate[2].subject);
+  Assert.equal(getActualSubject(320 - 1), messagesByDate.at(-1).subject);
+  Assert.equal(getActualSubject(320 - 2), messagesByDate.at(-2).subject);
+  Assert.equal(getActualSubject(320 - 3), messagesByDate.at(-3).subject);
 
   // Select a message and check the selection remains after sorting.
 

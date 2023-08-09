@@ -939,7 +939,19 @@ var dbViewWrapperListener = {
     window.quickFilterBar?.onMessagesChanged();
   },
   onMailViewChanged() {},
-  onSortChanged() {},
+  onSortChanged() {
+    if (window.threadTree && gDBView.selection.count == 0) {
+      // If there is no selection, scroll to the most relevant end.
+      if (
+        gViewWrapper.sortImpliesTemporalOrdering &&
+        gViewWrapper.isSortedAscending
+      ) {
+        window.threadTree.scrollToIndex(gDBView.rowCount - 1, true);
+      } else {
+        window.threadTree.scrollToIndex(0, true);
+      }
+    }
+  },
   onMessagesRemoved() {
     window.quickFilterBar?.onMessagesChanged();
 

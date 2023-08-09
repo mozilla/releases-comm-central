@@ -1699,7 +1699,9 @@ var cardsPane = {
         .removeAttribute("checked");
     }
 
-    this.cardsList.scrollToIndex(this.cardsList.selectedIndex);
+    if (this.cardsList.selectedIndex > -1) {
+      this.cardsList.scrollToIndex(this.cardsList.selectedIndex);
+    }
     Services.xulStore.setValue(
       cardsPane.URL,
       "cardsPane",

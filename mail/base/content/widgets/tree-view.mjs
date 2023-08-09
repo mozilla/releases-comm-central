@@ -1021,6 +1021,20 @@ class TreeView extends HTMLElement {
    * @param {integer} index
    */
   scrollToIndex(index, instant = false) {
+    const rowCount = this._view.rowCount;
+    if (rowCount == 0) {
+      // If there are no rows, make sure we're scrolled to the top.
+      this.scrollTo({ top: 0, behavior: "instant" });
+      return;
+    }
+    if (index < 0 || index >= rowCount) {
+      // Bad index. Report, and do nothing.
+      console.error(
+        `<${this.localName} id="${this.id}"> tried to scroll to a row that doesn't exist: ${index}`
+      );
+      return;
+    }
+
     const topOfRow = this._rowElementClass.ROW_HEIGHT * index;
     let scrollTop = this.scrollTop;
     const visibleHeight = this.#calculateVisibleHeight();
@@ -1212,7 +1226,9 @@ class TreeView extends HTMLElement {
 
     this._selection.currentIndex = index;
     this._updateCurrentIndexClasses();
-    this.scrollToIndex(index);
+    if (index >= 0 && index < this._view.rowCount) {
+      this.scrollToIndex(index);
+    }
   }
 
   /**
