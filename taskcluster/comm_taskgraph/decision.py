@@ -2,6 +2,7 @@
 #  License, v. 2.0. If a copy of the MPL was not distributed with this
 #  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import argparse
 import logging
 import os
 import sys
@@ -17,6 +18,7 @@ from taskgraph.util.taskcluster import get_artifact
 from taskgraph.util.vcs import get_repository
 
 from gecko_taskgraph.util.backstop import is_backstop
+from gecko_taskgraph.util.hg import get_hg_commit_message
 from gecko_taskgraph.util.partials import populate_release_history
 from gecko_taskgraph.util.taskgraph import (
     find_decision_task,
@@ -72,8 +74,24 @@ CRON_OPTIONS = {
 }
 
 
+def restore_options():
+    """
+    Some parameters need the original commandline arguments that are not passed
+    to comm_taskgraph.get_decision_parameters. But, sys.argv is still around so
+    they can be found out again.
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--target-tasks-method")
+    parser.add_argument("--tasks-for")
+    result = parser.parse_known_args()
+    return vars(result[0])
+
+
 def get_decision_parameters(graph_config, parameters):
     logger.info("{}.get_decision_parameters called".format(__name__))
+
+    commit_message = get_hg_commit_message(COMM)
+    options = restore_options()
 
     # Apply default values for all Thunderbird CI projects
     parameters.update(get_defaults(graph_config.vcs_root))
@@ -84,21 +102,21 @@ def get_decision_parameters(graph_config, parameters):
     project = parameters["project"]
 
     if project in PER_PROJECT_PARAMETERS:
-        # Upstream will set target_tasks_method to "default" when nothing is set
-        if parameters["target_tasks_method"] == "default":
-            del parameters["target_tasks_method"]
-
-        # If running from .cron.yml, do not overwrite existing parameters
-        update_parameters = [
-            (_k, _v)
-            for _k, _v in PER_PROJECT_PARAMETERS[project].items()
-            if _k not in parameters or not parameters[_k]
-        ]
-        parameters.update(update_parameters)
+        parameters.update(PER_PROJECT_PARAMETERS[project])
         logger.info("project parameters set for project {} from {}.".format(project, __file__))
     else:
         # Projects without a target_tasks_method should not exist for Thunderbird CI
         raise Exception("No target_tasks_method is defined for project {}.".format(project))
+
+    # `target_tasks_method` has higher precedence than `project` parameters
+    if options.get("target_tasks_method"):
+        parameters["target_tasks_method"] = options["target_tasks_method"]
+
+    # ..but can be overridden by the commit message: if it contains the special
+    # string "DONTBUILD" and this is an on-push decision task, then use the
+    # special 'nothing' target task method.
+    if "DONTBUILD" in commit_message and options["tasks_for"] == "hg-push":
+        parameters["target_tasks_method"] = "nothing"
 
     del parameters["backstop"]
     parameters["backstop"] = is_backstop(
