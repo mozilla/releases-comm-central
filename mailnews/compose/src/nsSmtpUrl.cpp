@@ -561,6 +561,10 @@ nsMailtoUrl::Mutate(nsIURIMutator** aMutator) {
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMailtoUrl::GetHasQuery(bool* aHasQuery) {
+  return m_baseURL->GetHasQuery(aHasQuery);
+}
+
 nsresult nsMailtoUrl::NewMailtoURI(const nsACString& aSpec, nsIURI* aBaseURI,
                                    nsIURI** _retval) {
   nsresult rv;

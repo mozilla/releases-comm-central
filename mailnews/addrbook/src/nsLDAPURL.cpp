@@ -565,6 +565,10 @@ nsresult nsLDAPURL::SetQuery(const nsACString& aQuery) {
   return NS_MutateURI(mBaseURL).SetQuery(aQuery).Finalize(mBaseURL);
 }
 
+NS_IMETHODIMP nsLDAPURL::GetHasQuery(bool* aHasQuery) {
+  return mBaseURL->GetHasQuery(aHasQuery);
+}
+
 nsresult nsLDAPURL::SetQueryWithEncoding(const nsACString& aQuery,
                                          const mozilla::Encoding* aEncoding) {
   return NS_MutateURI(mBaseURL)

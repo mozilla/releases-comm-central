@@ -772,6 +772,10 @@ nsresult nsMsgMailNewsUrl::SetQueryWithEncoding(
       .Finalize(m_baseURL);
 }
 
+NS_IMETHODIMP nsMsgMailNewsUrl::GetHasQuery(bool* aHasQuery) {
+  return m_baseURL->GetHasQuery(aHasQuery);
+}
+
 NS_IMETHODIMP nsMsgMailNewsUrl::GetRef(nsACString& aRef) {
   return m_baseURL->GetRef(aRef);
 }
