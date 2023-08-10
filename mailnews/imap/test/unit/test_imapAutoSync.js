@@ -28,7 +28,6 @@ var { PromiseTestUtils } = ChromeUtils.import(
 );
 
 var msgFlagOffline = Ci.nsMsgMessageFlags.Offline;
-var nsIAutoSyncMgrListener = Ci.nsIAutoSyncMgrListener;
 
 var gAutoSyncManager = Cc["@mozilla.org/imap/autosyncmgr;1"].getService(
   Ci.nsIAutoSyncManager

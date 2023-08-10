@@ -2543,13 +2543,12 @@ Enigmail.msg = {
       );
     }
 
-    const nsIMsgCompType = Ci.nsIMsgCompType;
     var doubleDashSeparator = Services.prefs.getBoolPref(
       "temp.openpgp.doubleDashSeparator"
     );
     if (
-      gMsgCompose.type != nsIMsgCompType.Template &&
-      gMsgCompose.type != nsIMsgCompType.Draft &&
+      gMsgCompose.type != Ci.nsIMsgCompType.Template &&
+      gMsgCompose.type != Ci.nsIMsgCompType.Draft &&
       doubleDashSeparator
     ) {
       var signOffset = plainText.search(/[\r\n]-- +[\r\n]/);

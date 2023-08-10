@@ -9,9 +9,6 @@ var MsgComposeParamsContractID =
   "@mozilla.org/messengercompose/composeparams;1";
 var MsgComposeFieldsContractID =
   "@mozilla.org/messengercompose/composefields;1";
-var nsIMsgCompose = Ci.nsIMsgCompose;
-var nsIMsgComposeParams = Ci.nsIMsgComposeParams;
-var nsIMsgCompFields = Ci.nsIMsgCompFields;
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -24,16 +21,19 @@ var { MailServices } = ChromeUtils.import(
  * @param {string} aCheckTo - The expected To addresses (after possible list population).
  */
 function checkPopulate(aTo, aCheckTo) {
-  let msgCompose = Cc[MsgComposeContractID].createInstance(nsIMsgCompose);
+  let msgCompose = Cc[MsgComposeContractID].createInstance(Ci.nsIMsgCompose);
 
   // Set up some basic fields for compose.
-  let fields = Cc[MsgComposeFieldsContractID].createInstance(nsIMsgCompFields);
+  let fields = Cc[MsgComposeFieldsContractID].createInstance(
+    Ci.nsIMsgCompFields
+  );
 
   fields.to = aTo;
 
   // Set up some params
-  let params =
-    Cc[MsgComposeParamsContractID].createInstance(nsIMsgComposeParams);
+  let params = Cc[MsgComposeParamsContractID].createInstance(
+    Ci.nsIMsgComposeParams
+  );
 
   params.composeFields = fields;
 

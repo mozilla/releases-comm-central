@@ -3,11 +3,10 @@
  * Test suite for nsSmtpService
  */
 
-var SmtpServiceContractID = "@mozilla.org/messengercompose/smtp;1";
-var nsISmtpService = Ci.nsISmtpService;
-
 function run_test() {
-  var smtpService = Cc[SmtpServiceContractID].getService(nsISmtpService);
+  var smtpService = Cc["@mozilla.org/messengercompose/smtp;1"].getService(
+    Ci.nsISmtpService
+  );
 
   // Test - no servers
 
