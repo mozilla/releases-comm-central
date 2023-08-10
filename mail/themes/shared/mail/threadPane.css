@@ -717,6 +717,10 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   color: var(--toolbar-color, inherit);
 }
 
+#threadPaneFolderCountContainer {
+  flex-wrap: wrap;
+}
+
 .list-header-bar-container-start,
 .list-header-bar-container-end {
   display: flex;
@@ -731,7 +735,7 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
 }
 
 .thread-pane-count-info {
-  align-self: end;
+  white-space: nowrap;
   font-size: 1rem;
   font-weight: normal;
   padding-inline-start: 9px;
