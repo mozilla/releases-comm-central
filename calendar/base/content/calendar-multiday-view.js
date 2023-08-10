@@ -1481,7 +1481,8 @@
     addEvent(eventItem) {
       let existing = this.eventElements.get(eventItem.hashId);
       if (existing) {
-        existing.remove();
+        // Remove the wrapper list item. We'll insert a replacement below.
+        existing.parentNode.remove();
       }
 
       let itemBox = document.createXULElement("calendar-editable-item");
