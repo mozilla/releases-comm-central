@@ -248,6 +248,7 @@ button.ghost-button:not(.semi-transparent):enabled:hover:active {
 /* Infobars styling. */
 .notification-content {
   flex-grow: 1;
+  flex-wrap: wrap;
   display: flex;
   margin: 0;
   margin-inline-start: 8px;
