@@ -1,0 +1,201 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* ===== messageBody.css =================================================
+  == Styles for the body of a mail message.
+  ======================================================================= */
+@import url(chrome://messenger/skin/messageQuotes.css);
+
+@namespace url("http://www.w3.org/1999/xhtml");
+
+mailattachcount {
+  display: none;
+}
+
+/* :::: message header ::::: */
+
+@media screen {
+  .moz-main-header,
+  .moz-main-header + br,
+  .moz-print-only {
+    display: none;
+  }
+}
+
+.moz-header-part1 {
+  background-color: #EFEFEF;
+}
+
+.moz-header-part2,
+.moz-header-part3 {
+  background-color: #DEDEDE;
+}
+
+.moz-header-display-name {
+  display: inline;
+  font-weight: bold;
+  white-space: pre;
+}
+
+/* ::::: message text, incl. quotes ::::: */
+
+.moz-text-flowed blockquote,
+.moz-text-plain blockquote {
+  margin: 0;
+}
+
+.moz-text-plain pre {
+  margin: 0;
+  font-family: inherit;
+}
+
+.moz-text-plain[wrap="true"] {
+  white-space: pre-wrap;
+}
+
+.moz-text-plain[wrap="false"] {
+  white-space: pre;
+}
+
+.moz-text-plain[wrap="flow"] .moz-txt-sig {
+  white-space: pre-wrap;
+}
+
+.moz-text-plain[graphical-quote="false"] blockquote {
+  border-style: none;
+  padding: 0;
+}
+
+.moz-text-plain[graphical-quote="true"] .moz-txt-citetags {
+  display: none;
+}
+
+.moz-txt-underscore {
+  text-decoration: underline;
+}
+
+/* Ignore named pages when printing. */
+@media print {
+  * { page: auto !important; }
+}
+
+/* ::::: images ::::: */
+
+img[overflowing]:not([shrinktofit]) {
+  cursor: zoom-out;
+  width: auto !important;
+}
+
+img[overflowing][shrinktofit] {
+  cursor: zoom-in;
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+@media print {
+  img[shrinktofit] {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+.moz-attached-image-container {
+  text-align: center;
+}
+
+/* ::::: vcard ::::: */
+
+.moz-vcard-table {
+  margin-top: 10px;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px hsla(0, 0%, 50%, 0.6);
+}
+
+.moz-vcard-property {
+  font-size: 80%;
+  color: gray;
+}
+
+.moz-vcard-badge {
+  margin-top: 2px;
+  height: 32px;
+  width: 32px;
+  background-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.svg");
+  background-size: 100% 100%;
+  background-color: transparent;
+  display: block;
+  opacity: .7;
+  cursor: pointer;
+}
+
+.moz-vcard-badge:hover {
+  opacity: .8;
+}
+
+.moz-vcard-badge:active {
+  opacity: 1;
+}
+
+.moz-vcard-badge:focus {
+  outline: none;
+}
+
+/* Old style feeds, pre Tb3.0 */
+#_mailrssiframe {
+  position: fixed;
+  display: block;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Attachment display styling (for inline attachments and printing) */
+.moz-mime-attachment-header {
+  border-style: none;
+  border-top: 1px solid GrayText;
+  padding-block-start: 0.625em;
+  padding-block-end: 0.2em;
+}
+
+.moz-mime-attachment-header.moz-print-only {
+  margin-top: 1em;
+}
+
+.moz-mime-attachment-header-name {
+  color: GrayText;
+  font-size: 80%;
+  font-family: Arial, sans-serif;
+}
+
+.moz-mime-attachment-wrap {
+  padding: 0 1em;
+}
+
+.moz-mime-attachment-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.moz-mime-attachment-table tr + tr > td {
+  border-top: 1px solid GrayText;
+  padding-top: 0.25em;
+}
+
+.moz-mime-attachment-file {
+  word-wrap: break-word;
+}
+
+.moz-mime-attachment-size {
+  vertical-align: top;
+  width: 10ch;
+  text-align: right;
+}
+
+.moz-mime-attachment-file,
+.moz-mime-attachment-size {
+  padding: 0 0 0.25em;
+}

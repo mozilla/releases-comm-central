@@ -19,8 +19,13 @@ var {
   create_message,
   mc,
   select_click_row,
+  open_message_from_file,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
+var { close_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var folder = null;
@@ -78,4 +83,32 @@ add_task(async function test_open_printpreview() {
   await TestUtils.waitForCondition(
     () => !mc.window.document.querySelector(".printPreviewBrowser")
   );
+});
+
+/**
+ * Test that the print preview generates correctly when the email use a CSS
+ * named page.
+ */
+add_task(async function test_named_page() {
+  const file = new FileUtils.File(
+    getTestFilePath(`data/bug1843628_named_page.eml`)
+  );
+  const msgc = await open_message_from_file(file);
+
+  EventUtils.synthesizeKey("P", { accelKey: true }, msgc.window);
+
+  let preview;
+  // Ensure we're showing the preview...
+  await BrowserTestUtils.waitForCondition(() => {
+    preview = msgc.window.document.querySelector(".printPreviewBrowser");
+    return preview && BrowserTestUtils.is_visible(preview);
+  });
+
+  Assert.equal(
+    preview.getAttribute("sheet-count"),
+    "1",
+    "preview should only include one page (and ignore the CSS named page)"
+  );
+
+  close_window(msgc);
 });
