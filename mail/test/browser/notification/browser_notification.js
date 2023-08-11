@@ -15,6 +15,7 @@ var {
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
+var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -34,6 +35,7 @@ var gMsgMinutes = 9000;
 // We'll use this mock alerts service to capture notification events
 var gMockAlertsService = {
   _doFail: false,
+  _doClick: false,
 
   QueryInterface: ChromeUtils.generateQI(["nsIAlertsService"]),
 
@@ -54,7 +56,16 @@ var gMockAlertsService = {
     this._alertListener = alertListener;
     this._name = name;
 
-    this._alertListener.observe(null, "alertfinished", this._cookie);
+    if (this._doClick) {
+      // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+      setTimeout(
+        () =>
+          this._alertListener.observe(null, "alertclickcallback", this._cookie),
+        100
+      );
+    } else {
+      this._alertListener.observe(null, "alertfinished", this._cookie);
+    }
   },
 
   _didNotify: false,
@@ -72,6 +83,8 @@ var gMockAlertsService = {
       this._alertListener.observe(null, "alertfinished", this._cookie);
     }
 
+    this._doFail = false;
+    this._doClick = false;
     this._didNotify = false;
     this._imageUrl = null;
     this._title = null;
@@ -197,7 +210,7 @@ async function make_gradually_newer_sets_in_folder(aFolder, aArgs) {
       arg.age = { minutes: gMsgMinutes };
     }
   }
-  await make_message_sets_in_folders(aFolder, aArgs);
+  return make_message_sets_in_folders(aFolder, aArgs);
 }
 
 /**
@@ -555,6 +568,128 @@ add_task(async function test_no_notification_for_uninteresting_folders() {
     await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
     someFolder.flags = someFolder.flags & ~uninterestingFlags[i];
   }
+});
+
+/**
+ * Test what happens when clicking on a notification. This depends on whether
+ * the message pane is open, and the value of mail.openMessageBehavior.
+ */
+add_task(async function test_click_on_notification() {
+  setupTest();
+
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
+  about3Pane.paneLayout.messagePaneVisible = true;
+  const about3PaneAboutMessage = about3Pane.messageBrowser.contentWindow;
+
+  let lastMessage;
+  async function ensureMessageLoaded(aboutMessage) {
+    let messagePaneBrowser = aboutMessage.getMessagePaneBrowser();
+    if (
+      messagePaneBrowser.webProgess?.isLoadingDocument ||
+      messagePaneBrowser.currentURI.spec == "about:blank" ||
+      aboutMessage.gMessage != lastMessage
+    ) {
+      await BrowserTestUtils.browserLoaded(
+        messagePaneBrowser,
+        undefined,
+        url => url != "about:blank"
+      );
+    }
+  }
+
+  // Create a message and click on the notification. This should open the
+  // message in the first tab.
+
+  gMockAlertsService._doClick = true;
+
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  lastMessage = [...gFolder.messages].at(-1);
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await ensureMessageLoaded(about3PaneAboutMessage);
+
+  Assert.equal(tabmail.tabInfo.length, 1, "the existing tab should be used");
+  Assert.equal(about3Pane.gFolder, gFolder);
+  Assert.equal(about3PaneAboutMessage.gMessage, lastMessage);
+
+  gMockAlertsService._reset();
+
+  // Open a second message. This should also open in the first tab.
+
+  gMockAlertsService._doClick = true;
+
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  lastMessage = [...gFolder.messages].at(-1);
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  await ensureMessageLoaded(about3PaneAboutMessage);
+
+  Assert.equal(tabmail.tabInfo.length, 1, "the existing tab should be used");
+  Assert.equal(about3Pane.gFolder, gFolder);
+  Assert.equal(about3PaneAboutMessage.gMessage, lastMessage);
+
+  gMockAlertsService._reset();
+
+  // Close the message pane. Clicking on the notification should now open the
+  // message in a new tab.
+
+  about3Pane.paneLayout.messagePaneVisible = false;
+  Services.prefs.setIntPref(
+    "mail.openMessageBehavior",
+    MailConsts.OpenMessageBehavior.NEW_TAB
+  );
+
+  let tabPromise = BrowserTestUtils.waitForEvent(tabmail, "aboutMessageLoaded");
+  gMockAlertsService._doClick = true;
+
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  lastMessage = [...gFolder.messages].at(-1);
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  let { target: tabAboutMessage } = await tabPromise;
+  await ensureMessageLoaded(tabAboutMessage);
+
+  Assert.equal(tabmail.tabInfo.length, 2, "a new tab should be used");
+  Assert.equal(
+    tabmail.currentTabInfo,
+    tabmail.tabInfo[1],
+    "the new tab should be in the foreground"
+  );
+  Assert.equal(
+    tabmail.currentTabInfo.mode.name,
+    "mailMessageTab",
+    "the new tab should be a message tab"
+  );
+  Assert.equal(tabAboutMessage.gMessage, lastMessage);
+
+  tabmail.closeOtherTabs(0);
+  gMockAlertsService._reset();
+
+  // Change the preference to open a new window instead of a new tab.
+
+  Services.prefs.setIntPref(
+    "mail.openMessageBehavior",
+    MailConsts.OpenMessageBehavior.NEW_WINDOW
+  );
+
+  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded(
+    undefined,
+    win => win.location.href == "chrome://messenger/content/messageWindow.xhtml"
+  );
+  gMockAlertsService._doClick = true;
+
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  lastMessage = [...gFolder.messages].at(-1);
+  await TestUtils.waitForCondition(() => gMockAlertsService._didNotify);
+  let win = await winPromise;
+  let winAboutMessage = win.messageBrowser.contentWindow;
+  await ensureMessageLoaded(winAboutMessage);
+
+  Assert.equal(winAboutMessage.gMessage, lastMessage);
+  await BrowserTestUtils.closeWindow(win);
+
+  // Clean up.
+
+  Services.prefs.clearUserPref("mail.openMessageBehavior");
+  about3Pane.paneLayout.messagePaneVisible = true;
 });
 
 /**

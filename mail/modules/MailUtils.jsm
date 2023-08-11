@@ -340,13 +340,24 @@ var MailUtils = {
    * useful when the message needs to be displayed in the context of its folder
    * or thread.
    *
-   * @param {nsIMsgHdr} aMsgHdr - The message header to display.
+   * @param {nsIMsgHdr} msgHdr - The message header to display.
+   * @param {boolean} [openIfMessagePaneHidden] - If true, and the folder tab's
+   *   message pane is hidden, opens the message in a new tab or window.
+   *   Otherwise uses the folder tab.
    */
-  displayMessageInFolderTab(aMsgHdr) {
+  displayMessageInFolderTab(msgHdr, openIfMessagePaneHidden) {
     // Try opening new tabs in a 3pane window
     let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
     if (mail3PaneWindow) {
-      mail3PaneWindow.MsgDisplayMessageInFolderTab(aMsgHdr);
+      if (openIfMessagePaneHidden) {
+        let tab = mail3PaneWindow.document.getElementById("tabmail").tabInfo[0];
+        if (!tab.chromeBrowser.contentWindow.paneLayout.messagePaneVisible) {
+          this.displayMessage(msgHdr);
+          return;
+        }
+      }
+
+      mail3PaneWindow.MsgDisplayMessageInFolderTab(msgHdr);
       if (Ci.nsIMessengerWindowsIntegration) {
         Cc["@mozilla.org/messenger/osintegration;1"]
           .getService(Ci.nsIMessengerWindowsIntegration)
@@ -354,7 +365,7 @@ var MailUtils = {
       }
       mail3PaneWindow.focus();
     } else {
-      let args = { msgHdr: aMsgHdr };
+      let args = { msgHdr };
       args.wrappedJSObject = args;
       Services.ww.openWindow(
         null,

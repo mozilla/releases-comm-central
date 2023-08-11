@@ -101,7 +101,7 @@ class MailNotificationManager {
         let msgHdr = Cc["@mozilla.org/messenger;1"]
           .getService(Ci.nsIMessenger)
           .msgHdrFromURI(data);
-        lazy.MailUtils.displayMessageInFolderTab(msgHdr);
+        lazy.MailUtils.displayMessageInFolderTab(msgHdr, true);
         return;
       case "unread-im-count-changed":
         this._logger.log(

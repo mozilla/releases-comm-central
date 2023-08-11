@@ -193,7 +193,7 @@
             if (event.button !== 0) {
               return;
             }
-            this.MailUtils.displayMessageInFolderTab(msgHdr);
+            this.MailUtils.displayMessageInFolderTab(msgHdr, true);
           });
 
           if (this.showSubject) {
@@ -254,7 +254,7 @@
           if (event.button !== 0) {
             return;
           }
-          this.MailUtils.displayMessageInFolderTab(msgHdr);
+          this.MailUtils.displayMessageInFolderTab(msgHdr, true);
         });
 
         if (this.showSubject) {

@@ -1245,7 +1245,6 @@ function MsgDisplayMessageInFolderTab(aMsgHdr) {
   let tabmail = document.getElementById("tabmail");
   tabmail.switchToTab(0);
   tabmail.currentAbout3Pane.selectMessage(aMsgHdr);
-  tabmail.currentAbout3Pane.paneLayout.messagePaneVisible = true;
 }
 
 function MsgMarkAllRead(folders) {
