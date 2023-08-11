@@ -15,6 +15,8 @@ var { cancelItemDialog } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
+var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
+
 const DEFVALUE = 43;
 
 add_task(async function testDefaultAlarms() {
