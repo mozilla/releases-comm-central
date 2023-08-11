@@ -25,10 +25,7 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
  */
 
 class SmtpServer {
-  QueryInterface = ChromeUtils.generateQI([
-    "nsISmtpServer",
-    "nsIObserver",
-  ]);
+  QueryInterface = ChromeUtils.generateQI(["nsISmtpServer", "nsIObserver"]);
 
   constructor() {
     this._key = "";
