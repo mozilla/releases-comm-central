@@ -30,7 +30,7 @@ var { MailServices } = ChromeUtils.import(
 
 ChromeUtils.defineESModuleGetters(this, {
   AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
-  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+  PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {

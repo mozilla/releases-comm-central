@@ -31,7 +31,7 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   DownloadUtils: "resource://gre/modules/DownloadUtils.sys.mjs",
-  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+  PluralForm: "resource:///modules/PluralForm.sys.mjs",
   ircHandlers: "resource:///modules/ircHandlers.sys.mjs",
 });
 

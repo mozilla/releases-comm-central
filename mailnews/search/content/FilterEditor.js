@@ -9,7 +9,7 @@ var { MailServices } = ChromeUtils.import(
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { PluralForm } = ChromeUtils.importESModule(
-  "resource://gre/modules/PluralForm.sys.mjs"
+  "resource:///modules/PluralForm.sys.mjs"
 );
 
 // The actual filter that we're editing if it is a _saved_ filter or prefill;

@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["CalAlarm"];
 
-var { PluralForm } = ChromeUtils.importESModule("resource://gre/modules/PluralForm.sys.mjs");
+var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 

@@ -5331,7 +5331,7 @@ var threadPane = {
       );
 
       const { PluralForm } = ChromeUtils.importESModule(
-        "resource://gre/modules/PluralForm.sys.mjs"
+        "resource:///modules/PluralForm.sys.mjs"
       );
       let text = PluralForm.get(threadIds.size, ignoredThreadText).replace(
         "#1",

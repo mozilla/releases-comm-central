@@ -5,7 +5,7 @@
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
-import { PluralForm } from "resource://gre/modules/PluralForm.sys.mjs";
+import { PluralForm } from "resource:///modules/PluralForm.sys.mjs";
 
 import { clearTimeout, setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 import { ChatIcons } from "resource:///modules/chatIcons.sys.mjs";

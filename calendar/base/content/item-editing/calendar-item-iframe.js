@@ -30,7 +30,7 @@ var {
   countOccurrences,
   hasUnsupported,
 } = ChromeUtils.import("resource:///modules/calendar/calRecurrenceUtils.jsm");
-var { PluralForm } = ChromeUtils.importESModule("resource://gre/modules/PluralForm.sys.mjs");
+var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 XPCOMUtils.defineLazyModuleGetters(this, {

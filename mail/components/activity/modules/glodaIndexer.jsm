@@ -23,7 +23,7 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
-  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+  PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {

@@ -28,7 +28,7 @@ XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function () {
 
 ChromeUtils.defineESModuleGetters(this, {
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
-  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+  PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {

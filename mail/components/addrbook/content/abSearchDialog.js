@@ -15,7 +15,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { PluralForm } = ChromeUtils.importESModule(
-  "resource://gre/modules/PluralForm.sys.mjs"
+  "resource:///modules/PluralForm.sys.mjs"
 );
 
 var searchSessionContractID = "@mozilla.org/messenger/searchSession;1";

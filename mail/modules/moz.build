@@ -24,6 +24,7 @@ EXTRA_JS_MODULES += [
     "MessageArchiver.jsm",
     "MsgHdrSyntheticView.jsm",
     "PhishingDetector.jsm",
+    "PluralForm.sys.mjs",
     "QuickFilterManager.jsm",
     "SearchSpec.jsm",
     "SelectionWidgetController.jsm",

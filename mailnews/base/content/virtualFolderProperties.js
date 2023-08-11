@@ -23,7 +23,7 @@ var { MailServices } = ChromeUtils.import(
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { PluralForm } = ChromeUtils.importESModule(
-  "resource://gre/modules/PluralForm.sys.mjs"
+  "resource:///modules/PluralForm.sys.mjs"
 );
 var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"

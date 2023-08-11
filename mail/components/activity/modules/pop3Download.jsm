@@ -15,7 +15,7 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { PluralForm } = ChromeUtils.importESModule(
-  "resource://gre/modules/PluralForm.sys.mjs"
+  "resource:///modules/PluralForm.sys.mjs"
 );
 
 // This module provides a link between the pop3 service code and the activity

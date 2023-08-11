@@ -17,7 +17,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 ChromeUtils.defineESModuleGetters(this, {
-  PluralForm: "resource://gre/modules/PluralForm.sys.mjs",
+  PluralForm: "resource:///modules/PluralForm.sys.mjs",
 });
 
 // This is the list of notifications that the account manager window observes

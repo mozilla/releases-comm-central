@@ -9,7 +9,7 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-  var { PluralForm } = ChromeUtils.importESModule("resource://gre/modules/PluralForm.sys.mjs");
+  var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
 
   /**
    * A calendar-notifications-setting provides controls to config notifications

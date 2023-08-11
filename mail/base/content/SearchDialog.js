@@ -14,7 +14,7 @@
 
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { PluralForm } = ChromeUtils.importESModule(
-  "resource://gre/modules/PluralForm.sys.mjs"
+  "resource:///modules/PluralForm.sys.mjs"
 );
 var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 
