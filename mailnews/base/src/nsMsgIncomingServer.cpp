@@ -49,6 +49,7 @@
 #include "nsIObserverService.h"
 #include "mozilla/Unused.h"
 #include "nsIUUIDGenerator.h"
+#include "nsArrayUtils.h"
 
 #define PORT_NOT_SET -1
 
@@ -78,38 +79,82 @@ nsMsgIncomingServer::~nsMsgIncomingServer() {}
 NS_IMPL_ISUPPORTS(nsMsgIncomingServer, nsIMsgIncomingServer,
                   nsISupportsWeakReference, nsIObserver)
 
+/**
+ * Observe() receives notifications for all accounts, not just this server's
+ * account. So we ignore all notifications not intended for this server.
+ * When the state of the password manager changes we need to clear the
+ * this server's password from the cache in case the user just changed or
+ * removed the password or username.
+ * Oauth2 servers often automatically change the password manager's stored
+ * password (the token).
+ */
 NS_IMETHODIMP
 nsMsgIncomingServer::Observe(nsISupports* aSubject, const char* aTopic,
                              const char16_t* aData) {
   nsresult rv;
-
-  // When the state of the password manager changes we need to clear the
-  // password from the cache in case the user just removed it.
   if (strcmp(aTopic, "passwordmgr-storage-changed") == 0) {
+    nsAutoString otherFullName;
+    nsAutoString otherUserName;
     // Check that the notification is for this server.
     nsCOMPtr<nsILoginInfo> loginInfo = do_QueryInterface(aSubject);
     if (loginInfo) {
-      nsAutoString hostnameInfo;
-      loginInfo->GetHostname(hostnameInfo);
-      nsAutoCString hostname;
-      GetHostName(hostname);
-      nsAutoCString fullName;
-      GetType(fullName);
-      if (fullName.EqualsLiteral("pop3")) {
-        fullName = "mailbox://"_ns + hostname;
-      } else {
-        fullName += "://"_ns + hostname;
+      // The login info for this server has been removed with aData being
+      // "removeLogin" or "removeAllLogins".
+      loginInfo->GetOrigin(otherFullName);
+      loginInfo->GetUsername(otherUserName);
+    } else {
+      // Probably a 2 element array containing old and new login info due to
+      // aData being "modifyLogin". E.g., a user has modified password or
+      // username in the password manager or an OAuth2 token string has
+      // automatically changed.
+      nsCOMPtr<nsIArray> logins = do_QueryInterface(aSubject);
+      if (logins) {
+        // Only need to look at names in first array element (login info before
+        // any modification) since the user might have changed the username as
+        // found in the 2nd elements. (The hostname can't be modified in the
+        // password manager.)
+        nsCOMPtr<nsILoginInfo> login;
+        logins->QueryElementAt(0, NS_GET_IID(nsILoginInfo),
+                               getter_AddRefs(login));
+        if (login) {
+          login->GetOrigin(otherFullName);
+          login->GetUsername(otherUserName);
+        }
       }
-      if (!fullName.Equals(NS_ConvertUTF16toUTF8(hostnameInfo))) return NS_OK;
     }
-    // When this calls nsMsgImapIncomingServer::ForgetSessionPassword with
-    // parameter modifyLogin true and if the server uses oauth2, it causes the
+    if (!otherFullName.IsEmpty()) {
+      nsAutoCString thisHostname;
+      nsAutoCString thisUsername;
+      GetHostName(thisHostname);
+      GetUsername(thisUsername);
+      nsAutoCString thisFullName;
+      GetType(thisFullName);
+      if (thisFullName.EqualsLiteral("pop3")) {
+        // Note: POP3 now handled by MsgIncomingServer.jsm so does not occur.
+        MOZ_ASSERT_UNREACHABLE("pop3 should not use nsMsgIncomingServer");
+        thisFullName = "mailbox://"_ns + thisHostname;
+      } else {
+        thisFullName += "://"_ns + thisHostname;
+      }
+      if (!thisFullName.Equals(NS_ConvertUTF16toUTF8(otherFullName)) ||
+          !thisUsername.Equals(NS_ConvertUTF16toUTF8(otherUserName))) {
+        // Not for this server; keep this server's cached password.
+        return NS_OK;
+      }
+    } else if (NS_strcmp(aData, u"hostSavingDisabled") != 0) {
+      // "hostSavingDisabled" only occurs during test_smtpServer.js and
+      // expects the password to be removed from memory cache. Otherwise, we
+      // don't have enough information to decide to remove the cached
+      // password, so keep it.
+      return NS_OK;
+    }
+    // When nsMsgImapIncomingServer::ForgetSessionPassword called with
+    // parameter modifyLogin true and if the server uses OAuth2, it causes the
     // password to not be cleared from cache. This is needed by autosync. When
     // the aData paremater of Observe() is not "modifyLogin" but is
     // e.g., "removeLogin" or "removeAllLogins", ForgetSessionPassword(false)
     // will still clear the cached password regardless of authentication method.
-    rv = ForgetSessionPassword(
-        nsDependentString(aData).EqualsLiteral("modifyLogin"));
+    rv = ForgetSessionPassword(NS_strcmp(aData, u"modifyLogin") == 0);
     NS_ENSURE_SUCCESS(rv, rv);
   } else if (strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID) == 0) {
     // Now remove ourselves from the observer service as well.

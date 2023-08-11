@@ -123,11 +123,13 @@ OAuth2Module.prototype = {
     for (let login of logins) {
       if (login.username == this._username) {
         if (token) {
-          let propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
-            Ci.nsIWritablePropertyBag
-          );
-          propBag.setProperty("password", token);
-          Services.logins.modifyLogin(login, propBag);
+          if (token != login.password) {
+            let propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
+              Ci.nsIWritablePropertyBag
+            );
+            propBag.setProperty("password", token);
+            Services.logins.modifyLogin(login, propBag);
+          }
         } else {
           Services.logins.removeLogin(login);
         }

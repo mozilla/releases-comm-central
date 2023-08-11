@@ -211,12 +211,14 @@ function migrateServerUris(
  *
  * @implements {nsIMsgIncomingServer}
  * @implements {nsISupportsWeakReference}
+ * @implements {nsIObserver}
  * @abstract
  */
 class MsgIncomingServer {
   QueryInterface = ChromeUtils.generateQI([
     "nsIMsgIncomingServer",
     "nsISupportsWeakReference",
+    "nsIObserver",
   ]);
 
   constructor() {
@@ -262,6 +264,58 @@ class MsgIncomingServer {
     //   this._hdrIndex.
     this._knownHdrMap = new Map();
     this._hdrIndex = 0;
+
+    Services.obs.addObserver(this, "passwordmgr-storage-changed");
+  }
+
+  /**
+   * Observe() receives notifications for all accounts, not just this server's
+   * account. So we ignore all notifications not intended for this server.
+   * When the state of the password manager changes we need to clear the
+   * this server's password from the cache in case the user just changed or
+   * removed the password or username.
+   * OAuth2 servers often automatically change the password manager's stored
+   * password (the token).
+   */
+  observe(subject, topic, data) {
+    if (topic == "passwordmgr-storage-changed") {
+      // Check that the notification is for this server and user.
+      let otherFullName = "";
+      let otherUsername = "";
+      if (subject instanceof Ci.nsILoginInfo) {
+        // The login info for a server has been removed with data being
+        // "removeLogin" or "removeAllLogins".
+        otherFullName = subject.origin;
+        otherUsername = subject.username;
+      } else if (subject instanceof Ci.nsIArray) {
+        // Probably a 2 element array containing old and new login info due to
+        // data being "modifyLogin". E.g., a user has modified the password or
+        // username in the password manager or an OAuth2 token string has
+        // automatically changed. Only need to look at names in first array
+        // element (login info before any modification) since the user might
+        // have changed the username as found in the 2nd elements. (The
+        // hostname can't be modified in the password manager.
+        otherFullName = subject.queryElementAt(0, Ci.nsISupports).origin;
+        otherUsername = subject.queryElementAt(0, Ci.nsISupports).username;
+      }
+      if (otherFullName) {
+        if (
+          otherFullName != "mailbox://" + this.hostName ||
+          otherUsername != this.username
+        ) {
+          // Not for this server; keep this server's cached password.
+          return;
+        }
+      } else if (data != "hostSavingDisabled") {
+        // "hostSavingDisabled" only occurs during test_smtpServer.js and
+        // expects the password to be removed from memory cache. Otherwise, we
+        // don't have enough information to decide to remove the cached
+        // password, so keep it.
+        return;
+      }
+      // Remove the password for this server cached in memory.
+      this.password = "";
+    }
   }
 
   /**
