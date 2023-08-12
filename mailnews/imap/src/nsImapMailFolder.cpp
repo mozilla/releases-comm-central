@@ -7481,14 +7481,19 @@ nsImapMailFolder::CopyFileMessage(nsIFile* file, nsIMsgDBHdr* msgToReplace,
     rv = msgToReplace->GetMessageKey(&key);
     if (NS_SUCCEEDED(rv)) {
       messageId.AppendInt((int32_t)key);
-      // Perhaps we have the message offline, but even if we do it is
-      // not valid, since the only time we do a file copy for an
-      // existing message is when we are changing the message.
-      // So set the offline size to 0 to force SetPendingAttributes to
-      // clear the offline message flag.
+      // We have an existing message to replace because the user has deleted or
+      // detached one or more attachments. So tell SetPendingAttributes() to
+      // not set several pending offline items (offset, message size, etc.) for
+      // the message to be replaced by setting message size temporarily to zero.
+      // The original message is not actually "replaced" but is imap deleted
+      // and a new message with the same body but with some deleted or detached
+      // attachments is imap appended from the file to the folder.
+      uint32_t saveMsgSize;
+      msgToReplace->GetOfflineMessageSize(&saveMsgSize);
       msgToReplace->SetOfflineMessageSize(0);
-      messages.AppendElement(msgToReplace);
       SetPendingAttributes({msgToReplace}, false, false);
+      msgToReplace->SetOfflineMessageSize(saveMsgSize);
+      messages.AppendElement(msgToReplace);
     }
   }
 

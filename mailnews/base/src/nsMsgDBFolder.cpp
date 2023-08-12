@@ -750,7 +750,7 @@ nsresult nsMsgDBFolder::GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
   rv = mDatabase->GetMsgHdrForKey(msgKey, getter_AddRefs(hdr));
   NS_ENSURE_SUCCESS(rv, rv);
   hdr->GetOfflineMessageSize(size);
-
+  NS_ENSURE_TRUE(*size != 0, NS_ERROR_UNEXPECTED);
   rv = GetMsgInputStream(hdr, aFileStream);
   if (NS_FAILED(rv)) {
     NS_WARNING(nsPrintfCString(
@@ -823,10 +823,12 @@ nsresult nsMsgDBFolder::GetOfflineFileStream(nsMsgKey msgKey, uint64_t* offset,
       bool validOrFrom = false;
       // Check if line looks like a valid header (just check for a colon). Also
       // a line beginning with "From " as is sometimes returned by broken IMAP
-      // servers is also acceptable.
+      // servers is also acceptable. Also, size of message must be greater than
+      // the offset of the first header line into the message (msgOffset).
       findPos = MsgFindCharInSet(nsDependentCString(headerLine), ":\n\r", 0);
-      if ((findPos != kNotFound && headerLine[findPos] == ':') ||
-          !strncmp(headerLine, "From ", 5)) {
+      if (((findPos != kNotFound && headerLine[findPos] == ':') ||
+           !strncmp(headerLine, "From ", 5)) &&
+          *size > msgOffset) {
         validOrFrom = true;
       }
       if (!foundError) {
