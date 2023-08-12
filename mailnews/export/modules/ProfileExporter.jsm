@@ -40,9 +40,6 @@ class ProfileExporter {
 
   /**
    * Callback for progress updates.
-   *
-   * @param {number} current - Current imported items count.
-   * @param {number} total - Total items count.
    */
   onProgress = () => {};
 
