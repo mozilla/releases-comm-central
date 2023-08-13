@@ -254,7 +254,7 @@ MimeMessageEmitter.prototype = {
    *  augmented the libmime code to generate its x-jsemitter-part-path info
    *  a second time, in which case we reuse the part we already created.)
    *
-   * @param aPart Part to place.
+   * @param {MimeMessage} aPart - Part to place.
    */
   _placePart(aPart) {
     let partName = aPart.partName;
@@ -350,7 +350,7 @@ MimeMessageEmitter.prototype = {
    * In the case of attachments, we need to replace an existing part with a
    *  more representative part...
    *
-   * @param aPart Part to place.
+   * @param {MimeMessage} aPart - Part to place.
    */
   _replacePart(aPart) {
     // _partMap always maps the libmime names to parts
