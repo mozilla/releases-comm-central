@@ -110,6 +110,21 @@
   border: none;
 }
 
+#sizeCol,
+#unreadCol,
+#totalCol {
+  min-width: 4ch;
+}
+
+#sizeColButton,
+.sizecol-column,
+#unreadColButton,
+.unreadcol-column,
+#totalColButton,
+.totalcol-column {
+  text-align: end;
+}
+
 [is="tree-view-table-body"]:focus > .selected button,
 [is="tree-view-table-body"]:focus-within > .selected button,
 [is="tree-view-table-body"] > .selected:focus-within button {
