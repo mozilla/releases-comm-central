@@ -444,6 +444,17 @@ menubar {
   font-size: inherit;
 }
 
+menubar > menu:-moz-lwtheme[_moz-menuactive="true"]:not([disabled="true"]) {
+  background-color: hsla(0, 0%, 0%, 0.12);
+  color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  menubar > menu:-moz-lwtheme[_moz-menuactive="true"]:not([disabled="true"]) {
+    background-color: hsla(0, 0%, 100%, 0.22);
+  }
+}
+
 menulist {
   min-height: 24px;
   margin-block: 4px;
