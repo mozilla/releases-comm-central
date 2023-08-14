@@ -422,6 +422,40 @@ Section "Uninstall"
   ; Remove the Windows Reporter Module entry
   DeleteRegValue HKLM "SOFTWARE\Microsoft\Windows\Windows Error Reporting\RuntimeExceptionHelperModules" "$INSTDIR\mozwer.dll"
 
+  ; Remove Toast Notification registration.
+  ; Find any GUID used for this installation.
+  ClearErrors
+  ReadRegStr $0 HKLM "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "CustomActivator"
+
+  DeleteRegValue HKLM "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "CustomActivator"
+  DeleteRegValue HKLM "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "DisplayName"
+  DeleteRegValue HKLM "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "IconUri"
+  DeleteRegKey HKLM "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID"
+  ${If} "$0" != ""
+    DeleteRegValue HKLM "Software\Classes\AppID\$0" "DllSurrogate"
+    DeleteRegKey HKLM "Software\Classes\AppID\$0"
+    DeleteRegValue HKLM "Software\Classes\CLSID\$0" "AppID"
+    DeleteRegValue HKLM "Software\Classes\CLSID\$0\InProcServer32" ""
+    DeleteRegKey HKLM "Software\Classes\CLSID\$0\InProcServer32"
+    DeleteRegKey HKLM "Software\Classes\CLSID\$0"
+  ${EndIf}
+
+  ClearErrors
+  ReadRegStr $0 HKCU "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "CustomActivator"
+
+  DeleteRegValue HKCU "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "CustomActivator"
+  DeleteRegValue HKCU "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "DisplayName"
+  DeleteRegValue HKCU "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "IconUri"
+  DeleteRegKey HKCU "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID"
+  ${If} "$0" != ""
+    DeleteRegValue HKCU "Software\Classes\AppID\$0" "DllSurrogate"
+    DeleteRegKey HKCU "Software\Classes\AppID\$0"
+    DeleteRegValue HKCU "Software\Classes\CLSID\$0" "AppID"
+    DeleteRegValue HKCU "Software\Classes\CLSID\$0\InProcServer32" ""
+    DeleteRegKey HKCU "Software\Classes\CLSID\$0\InProcServer32"
+    DeleteRegKey HKCU "Software\Classes\CLSID\$0"
+  ${EndIf}
+
   ${un.RemovePrecompleteEntries} "false"
 
   ${If} ${FileExists} "$INSTDIR\defaults\pref\channel-prefs.js"

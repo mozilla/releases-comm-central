@@ -495,6 +495,8 @@ Section "-Application" APP_IDX
   ${WriteRegStr2} $TmpVal "$0" "" "$INSTDIR\${FileMainEXE}" 0
   ${WriteRegStr2} $TmpVal "$0" "Path" "$INSTDIR" 0
 
+  ${WriteToastNotificationRegistration} $TmpVal
+
   ; Create shortcuts
   ${LogHeader} "Adding Shortcuts"
 

@@ -155,6 +155,8 @@
     ${EndIf}
   ${EndIf}
 !endif
+
+  ${WriteToastNotificationRegistration} $TmpVal
 !macroend
 !define PostUpdate "!insertmacro PostUpdate"
 
@@ -1467,3 +1469,41 @@ Function SetAsDefaultCalendarAppUserHKCU
 FunctionEnd
 
 !endif
+
+!macro WriteToastNotificationRegistration RegKey
+  ; Find or create a GUID to use for this installation.  For simplicity, We
+  ; always update our registration.
+  ClearErrors
+  ReadRegStr $0 SHCTX "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "CustomActivator"
+  ${If} "$0" == ""
+    ; Create a GUID.
+    System::Call "rpcrt4::UuidCreate(g . r0)i"
+    ; StringFromGUID2 (which is what System::Call uses internally to stringify
+    ; GUIDs) includes braces in its output.  In this case, we want the braces.
+  ${EndIf}
+
+  ; Check if this is an ESR release.
+  ClearErrors
+  ${WordFind} "${UpdateChannel}" "esr" "E#" $1
+  ${If} ${Errors}
+    StrCpy $1 ""
+  ${Else}
+    StrCpy $1 " ESR"
+  ${EndIf}
+
+  ; Write the following keys and values to the registry.
+  ; HKEY_CURRENT_USER\Software\Classes\AppID\{GUID}                                     DllSurrogate    : REG_SZ        = ""
+  ;                                   \AppUserModelId\{ToastAumidPrefix}{install hash}  CustomActivator : REG_SZ        = {GUID}
+  ;                                                                                     DisplayName     : REG_EXPAND_SZ = {display name}
+  ;                                                                                     IconUri         : REG_EXPAND_SZ = {icon path}
+  ;                                   \CLSID\{GUID}                                     AppID           : REG_SZ        = {GUID}
+  ;                                                \InprocServer32                      (Default)       : REG_SZ        = {notificationserver.dll path}
+  ${WriteRegStr2} ${RegKey} "Software\Classes\AppID\$0" "DllSurrogate" "" 0
+  ${WriteRegStr2} ${RegKey} "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "CustomActivator" "$0" 0
+  ${WriteRegStr2} ${RegKey} "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "DisplayName" "${BrandFullNameInternal}$1" 0
+  ; Sadly, we can't use embedded resources like `firefox.exe,1`.
+  ${WriteRegStr2} ${RegKey} "Software\Classes\AppUserModelId\${ToastAumidPrefix}$AppUserModelID" "IconUri" "$INSTDIR\browser\VisualElements\VisualElements_70.png" 0
+  ${WriteRegStr2} ${RegKey} "Software\Classes\CLSID\$0" "AppID" "$0" 0
+  ${WriteRegStr2} ${RegKey} "Software\Classes\CLSID\$0\InProcServer32" "" "$INSTDIR\notificationserver.dll" 0
+!macroend
+!define WriteToastNotificationRegistration "!insertmacro WriteToastNotificationRegistration"

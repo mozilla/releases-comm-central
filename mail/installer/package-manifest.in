@@ -503,5 +503,11 @@
 ;
 @BINPATH@/pingsender@BIN_SUFFIX@
 
+; [ Notification COM Server ]
+;
+#if defined(MOZ_NOTIFICATION_SERVER)
+@BINPATH@/@DLL_PREFIX@notificationserver@DLL_SUFFIX@
+#endif
+
 ; Shutdown Terminator
 @RESPATH@/components/terminator.manifest
