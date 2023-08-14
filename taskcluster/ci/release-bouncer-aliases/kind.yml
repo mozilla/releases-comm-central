@@ -40,11 +40,13 @@ jobs:
                     thunderbird-beta-latest-ssl: installer-ssl
                     thunderbird-beta-latest: installer
                     thunderbird-beta-msi-latest-ssl: msi
+                    thunderbird-beta-msix-latest-ssl: msix
                 release:
                     # Disable on comm-esr115 when the next esr is released
                     thunderbird-latest-ssl: installer-ssl
                     thunderbird-latest: installer
                     thunderbird-msi-latest-ssl: msi
+                    thunderbird-msix-latest-ssl: msix
                 default: {}
         shipping-product: thunderbird
         treeherder:
