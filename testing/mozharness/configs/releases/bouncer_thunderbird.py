@@ -7,7 +7,6 @@ config = {
     "products": {
         "installer": {
             "product-name": "Thunderbird-%(version)s",
-            "check_uptake": True,
             "platforms": [
                 "linux",
                 "linux64",
@@ -18,7 +17,6 @@ config = {
         },
         "installer-ssl": {
             "product-name": "Thunderbird-%(version)s-SSL",
-            "check_uptake": True,
             "platforms": [
                 "linux",
                 "linux64",
@@ -29,7 +27,13 @@ config = {
         },
         "msi": {
             "product-name": "Thunderbird-%(version)s-msi-SSL",
-            "check_uptake": True,
+            "platforms": [
+                "win",
+                "win64",
+            ],
+        },
+        "msix": {
+            "product-name": "Thunderbird-%(version)s-msix-SSL",
             "platforms": [
                 "win",
                 "win64",
@@ -37,7 +41,6 @@ config = {
         },
         "complete-mar": {
             "product-name": "Thunderbird-%(version)s-Complete",
-            "check_uptake": True,
             "platforms": [
                 "linux",
                 "linux64",
@@ -50,7 +53,6 @@ config = {
     "partials": {
         "releases-dir": {
             "product-name": "Thunderbird-%(version)s-Partial-%(prev_version)s",
-            "check_uptake": True,
             "platforms": [
                 "linux",
                 "linux64",
