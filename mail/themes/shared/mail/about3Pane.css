@@ -592,6 +592,24 @@ menuitem.server[data-server-type="rss"] {
   color: var(--treeitem-background-active);
 }
 
+.unread.children.collapsed > .container > .unread-count {
+  color: var(--folderpane-unread-count-background);
+  background-color: transparent;
+  border: 1px solid var(--folderpane-unread-count-background);
+  padding-block: 0;
+}
+
+.new-messages.unread.children.collapsed > .container > .unread-count {
+  color: var(--folderpane-unread-new-count-background);
+  border-color: var(--folderpane-unread-new-count-background);
+}
+
+#folderTree:focus-within li.selected.unread.children.collapsed > .container > .unread-count {
+  color: var(--folderpane-unread-count-text);
+  background-color: transparent;
+  border-color: var(--folderpane-unread-count-text);
+}
+
 .folder-size {
   font-size: .8rem;
   font-weight: bold;
