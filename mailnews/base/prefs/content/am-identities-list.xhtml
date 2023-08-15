@@ -3,6 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/am-identities-list.dtd">
@@ -28,7 +29,7 @@
       buttons="accept"
       buttonlabelaccept="&identitiesListClose.label;"
       buttonaccesskeyaccept="&identitiesListClose.accesskey;"
-      style="width: 100vw; height: 100vh"
+      style="height: 100vh"
     >
       <stringbundle
         id="bundle_prefs"
@@ -55,17 +56,17 @@
 
       <separator class="thin" />
 
-      <hbox flex="1">
+      <html:div class="grid-two-column-auto-min" style="flex: 1">
         <richlistbox
           id="identitiesList"
           ondblclick="onEdit(event);"
           onselect="updateButtons();"
           seltype="single"
           flex="1"
-          style="min-height: 10em"
+          style="min-height: 10em; max-height: 20em"
         />
 
-        <vbox>
+        <html:div class="flex-content-column">
           <button
             id="addButton"
             command="cmd_add"
@@ -93,8 +94,8 @@
             label="&identitiesListDelete.label;"
             accesskey="&identitiesListDelete.accesskey;"
           />
-        </vbox>
-      </hbox>
+        </html:div>
+      </html:div>
     </dialog>
   </html:body>
 </html>
