@@ -88,7 +88,7 @@ const mailContextData = {
   "mailContext-moveMenu": notExternal,
   "mailContext-copyMenu": true,
   "mailContext-decryptToFolder": ["multipleMessagesTree"],
-  "mailContext-calendar-convert-menu": [], // Hidden in all contexts.
+  "mailContext-calendar-convert-menu": allSingleSelection,
   "mailContext-delete": notExternal,
   "mailContext-ignoreThread": allThreePane,
   "mailContext-ignoreSubthread": allThreePane,

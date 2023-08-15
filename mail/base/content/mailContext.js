@@ -303,7 +303,6 @@ var mailContextMenu = {
     for (let id of [
       "mailContext-openInBrowser",
       "mailContext-recalculateJunkScore",
-      "mailContext-calendar-convert-menu",
     ]) {
       showItem(id, false);
     }
@@ -382,7 +381,11 @@ var mailContextMenu = {
       document.getElementById("mailContext-moveToFolderAgain")
     );
 
-    // setSingleSelection("mailContext-calendar-convert-menu");
+    // Show only if a message is actively selected in the DOM.
+    showItem(
+      "mailContext-calendar-convert-menu",
+      numSelectedMessages == 1 && !this.selectionIsOverridden
+    );
 
     document.l10n.setAttributes(
       document.getElementById("mailContext-delete"),
@@ -598,12 +601,12 @@ var mailContextMenu = {
       }
 
       // Calendar Convert sub-menu
-      // case "mailContext-calendar-convert-event-menuitem":
-      //   calendarExtract.extractFromEmail(true);
-      //   break;
-      // case "mailContext-calendar-convert-task-menuitem":
-      //   calendarExtract.extractFromEmail(false);
-      //   break;
+      case "mailContext-calendar-convert-event-menuitem":
+        top.calendarExtract.extractFromEmail(true);
+        break;
+      case "mailContext-calendar-convert-task-menuitem":
+        top.calendarExtract.extractFromEmail(false);
+        break;
 
       // Save/print/download
       default: {
