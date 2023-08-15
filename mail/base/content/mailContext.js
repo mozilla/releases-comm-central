@@ -794,16 +794,12 @@ var mailContextMenu = {
       "chrome,titlebar,modal,centerscreen",
       {
         result: "",
-        okCallback(name, color) {
+        okCallback: (name, color) => {
           MailServices.tags.addTag(name, color, "");
           let key = MailServices.tags.getKeyForTag(name);
           TagUtils.addTagToAllDocumentSheets(key, color);
 
-          try {
-            this._toggleMessageTag(key, true);
-          } catch (ex) {
-            return false;
-          }
+          this._toggleMessageTag(key, true);
           return true;
         },
       }

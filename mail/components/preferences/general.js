@@ -440,6 +440,7 @@ var gGeneralPane = {
       window.addEventListener("unload", this);
 
       Services.obs.addObserver(this, AUTO_UPDATE_CHANGED_TOPIC);
+      Services.prefs.addObserver("mailnews.tags.", this);
     }
 
     Preferences.addSyncFromPrefListener(
@@ -2074,6 +2075,7 @@ var gGeneralPane = {
     window.removeEventListener("unload", this);
 
     Services.obs.removeObserver(this, AUTO_UPDATE_CHANGED_TOPIC);
+    Services.prefs.removeObserver("mailnews.tags.", this);
   },
 
   // nsISupports
@@ -2082,12 +2084,15 @@ var gGeneralPane = {
 
   // nsIObserver
 
-  async observe(aSubject, aTopic, aData) {
-    if (aTopic == AUTO_UPDATE_CHANGED_TOPIC) {
-      if (aData != "true" && aData != "false") {
-        throw new Error("Invalid preference value for app.update.auto");
+  async observe(subject, topic, data) {
+    if (topic == AUTO_UPDATE_CHANGED_TOPIC) {
+      if (data != "true" && data != "false") {
+        throw new Error(`Invalid value for app.update.auto ${data}`);
       }
-      document.getElementById("updateRadioGroup").value = aData;
+      document.getElementById("updateRadioGroup").value = data;
+    } else if (topic == "nsPref:changed" && data.startsWith("mailnews.tags.")) {
+      this.mTagListBox.replaceChildren();
+      this.buildTagList();
     }
   },
 
