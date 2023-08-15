@@ -5,7 +5,7 @@
 /* import-globals-from ../../../mail/base/content/msgHdrView.js */
 /* import-globals-from item-editing/calendar-item-editing.js */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 /**
  * Provides shortcuts to set label and collapsed attribute of imip-bar node.

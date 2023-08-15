@@ -4,7 +4,9 @@
 
 do_get_profile();
 
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calUtils.sys.mjs"
+);
 const { CalendarsEngine } = ChromeUtils.importESModule(
   "resource://services-sync/engines/calendars.sys.mjs"
 );

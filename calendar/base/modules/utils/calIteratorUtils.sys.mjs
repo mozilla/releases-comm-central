@@ -9,12 +9,12 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.iterate namespace.
 
-const EXPORTED_SYMBOLS = ["caliterate"];
-
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
 
-var caliterate = {
+export var iterate = {
   /**
    * Iterates an array of items, i.e. the passed item including all
    * overridden instances of a recurring series.
@@ -217,7 +217,7 @@ var caliterate = {
    */
   async mapStream(stream, func) {
     let buffer = [];
-    for await (let value of caliterate.streamValues(stream)) {
+    for await (let value of iterate.streamValues(stream)) {
       buffer.push.apply(buffer, await func(value));
     }
     return buffer;
@@ -230,7 +230,7 @@ var caliterate = {
    * @returns {calIItemBase[]}
    */
   async streamToArray(stream) {
-    return caliterate.mapStream(stream, chunk => chunk);
+    return iterate.mapStream(stream, chunk => chunk);
   },
 
   /**

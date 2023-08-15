@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["CalIcsImporter", "CalIcsExporter"];
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 // Shared functions
 function getIcsFileTypes() {

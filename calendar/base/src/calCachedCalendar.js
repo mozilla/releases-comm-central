@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["calCachedCalendar"];
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 var calICalendar = Ci.calICalendar;
 var cICL = Ci.calIChangeLog;

@@ -6,7 +6,7 @@
    createEventWithDialog*/
 
 var { Extractor } = ChromeUtils.import("resource:///modules/calendar/calExtract.jsm");
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 

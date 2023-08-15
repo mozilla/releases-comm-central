@@ -9,12 +9,12 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.category namespace.
 
-const EXPORTED_SYMBOLS = ["calcategory"];
-
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
 
-var calcategory = {
+export var category = {
   /**
    * Sets up the default categories from the localized string
    *
@@ -28,12 +28,12 @@ var calcategory = {
     defaultBranch.setStringPref("calendar.categories.names", categories);
 
     // Now, initialize the category default colors
-    let categoryArray = calcategory.stringToArray(categories);
-    for (let category of categoryArray) {
-      let prefName = lazy.cal.view.formatStringForCSSRule(category);
+    let categoryArray = category.stringToArray(categories);
+    for (let categoryToInit of categoryArray) {
+      let prefName = lazy.cal.view.formatStringForCSSRule(categoryToInit);
       defaultBranch.setStringPref(
         "calendar.category.color." + prefName,
-        lazy.cal.view.hashColor(category)
+        lazy.cal.view.hashColor(categoryToInit)
       );
     }
 
@@ -52,9 +52,9 @@ var calcategory = {
 
     // If no categories are configured load a default set from properties file
     if (!categories) {
-      categories = calcategory.setupDefaultCategories();
+      categories = category.setupDefaultCategories();
     }
-    return calcategory.stringToArray(categories);
+    return category.stringToArray(categories);
   },
 
   /**

@@ -9,9 +9,7 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.xml namespace.
 
-const EXPORTED_SYMBOLS = ["calxml"];
-
-var calxml = {
+export var xml = {
   /**
    * Evaluate an XPath query for the given node. Be careful with the return value
    * here, as it may be:
@@ -102,7 +100,7 @@ var calxml = {
    * @returns The result, see above for details.
    */
   evalXPathFirst(aNode, aExpr, aResolver, aType) {
-    let result = calxml.evalXPath(aNode, aExpr, aResolver, aType);
+    let result = xml.evalXPath(aNode, aExpr, aResolver, aType);
 
     if (Array.isArray(result)) {
       return result[0];

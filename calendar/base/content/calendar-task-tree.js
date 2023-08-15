@@ -7,7 +7,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+  const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
   const { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.sys.mjs");
 
   /**

@@ -6,7 +6,7 @@ var EXPORTED_SYMBOLS = ["CalICSProvider"];
 
 var { setTimeout } = ChromeUtils.importESModule("resource://gre/modules/Timer.sys.mjs");
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 var { CalDavGenericRequest, CalDavPropfindRequest } = ChromeUtils.import(
   "resource:///modules/caldav/CalDavRequest.jsm"

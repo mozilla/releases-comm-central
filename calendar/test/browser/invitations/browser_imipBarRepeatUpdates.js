@@ -9,7 +9,7 @@
 
 "use strict";
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var { CalendarTestUtils } = ChromeUtils.import(

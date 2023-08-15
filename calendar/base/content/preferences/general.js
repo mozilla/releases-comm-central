@@ -7,7 +7,7 @@
 /* import-globals-from ../calendar-ui-utils.js */
 /* globals Preferences */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 Preferences.addAll([
   { id: "calendar.date.format", type: "int" },

@@ -75,7 +75,7 @@ var EXPORTED_SYMBOLS = [
   "backupDB",
 ];
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { CAL_ITEM_FLAG, textToDate, getTimezone, newDateTime } = ChromeUtils.import(
   "resource:///modules/calendar/calStorageHelpers.jsm"
 );

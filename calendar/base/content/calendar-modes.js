@@ -8,7 +8,7 @@
  *          changeMode
  */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 /**
  * The current mode defining the current mode we're in. Allowed values are:

@@ -6,7 +6,7 @@ const { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 const { CalTodo } = ChromeUtils.import("resource:///modules/CalTodo.jsm");

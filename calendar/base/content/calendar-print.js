@@ -11,7 +11,7 @@
 
 /* import-globals-from ../../../../toolkit/components/printing/content/print.js */
 
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 // In a block to avoid polluting the global scope.
 {

@@ -17,7 +17,9 @@ var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calUtils.sys.mjs"
+);
 var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

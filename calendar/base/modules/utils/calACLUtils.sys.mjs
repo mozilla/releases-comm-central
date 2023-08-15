@@ -9,9 +9,7 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.acl namespace.
 
-const EXPORTED_SYMBOLS = ["calacl"];
-
-var calacl = {
+export var acl = {
   /**
    * Check if the specified calendar is writable. This is the case when it is
    * not marked readOnly, we are not offline, or we are offline and the
@@ -87,6 +85,6 @@ var calacl = {
   userCanRespondToInvitation(aItem) {
     let aclEntry = aItem.aclEntry;
     // TODO check if || is really wanted here
-    return calacl.userCanModifyItem(aItem) || aclEntry.userCanRespond;
+    return acl.userCanModifyItem(aItem) || aclEntry.userCanRespond;
   },
 };

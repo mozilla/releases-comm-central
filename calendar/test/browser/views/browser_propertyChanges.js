@@ -4,7 +4,7 @@
 
 /** Tests that changes in a calendar's properties are reflected in the current view. */
 
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 
 let composite = cal.view.getCompositeCalendar(window);

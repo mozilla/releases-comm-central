@@ -5,7 +5,7 @@
 /**
  * Test dragging of events in the various calendar views.
  */
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",

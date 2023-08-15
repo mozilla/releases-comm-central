@@ -22,7 +22,7 @@
 /* import-globals-from ../dialogs/calendar-dialog-utils.js */
 /* globals gTimezonesEnabled */ // Set by calendar-item-panel.js.
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var {
   recurrenceRule2String,
   splitRecurrenceRules,

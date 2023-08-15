@@ -16,7 +16,7 @@
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-views-utils.js */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 /**
  * Add registered calendars to the given menupopup. Removes all previous

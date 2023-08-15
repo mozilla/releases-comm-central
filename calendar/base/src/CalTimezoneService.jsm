@@ -6,7 +6,7 @@ var EXPORTED_SYMBOLS = ["CalTimezoneService"];
 
 var { AppConstants } = ChromeUtils.importESModule("resource://gre/modules/AppConstants.sys.mjs");
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { ICAL, unwrapSingle } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
 const { CalTimezone } = ChromeUtils.import("resource:///modules/CalTimezone.jsm");

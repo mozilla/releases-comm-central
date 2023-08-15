@@ -4,7 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["CalItipMessageSender"];
 
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 const { CalItipOutgoingMessage } = ChromeUtils.import(
   "resource:///modules/CalItipOutgoingMessage.jsm"
 );

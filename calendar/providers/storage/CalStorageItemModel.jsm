@@ -4,7 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["CalStorageItemModel"];
 
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 const { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
   "resource:///modules/calendar/calStorageHelpers.jsm"
 );

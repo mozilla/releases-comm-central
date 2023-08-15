@@ -9,13 +9,11 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.itip namespace.
 
-const EXPORTED_SYMBOLS = ["calitip"];
-
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
@@ -25,9 +23,12 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   CalItipMessageSender: "resource:///modules/CalItipMessageSender.jsm",
   CalItipOutgoingMessage: "resource:///modules/CalItipOutgoingMessage.jsm",
 });
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
 
-var calitip = {
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
+
+export var itip = {
   /**
    * Gets the sequence/revision number, either of the passed item or the last received one of an
    * attendee; see <http://tools.ietf.org/html/draft-desruisseaux-caldav-sched-04#section-7.1>.
@@ -39,7 +40,7 @@ var calitip = {
   getSequence(aItem) {
     let seq = null;
 
-    if (calitip.isAttendee(aItem)) {
+    if (itip.isAttendee(aItem)) {
       seq = aItem.getProperty("RECEIVED-SEQUENCE");
     } else if (aItem) {
       // Unless the below is standardized, we store the last original
@@ -74,7 +75,7 @@ var calitip = {
   getStamp(aItem) {
     let dtstamp = null;
 
-    if (calitip.isAttendee(aItem)) {
+    if (itip.isAttendee(aItem)) {
       let stamp = aItem.getProperty("RECEIVED-DTSTAMP");
       if (stamp) {
         dtstamp = lazy.cal.createDateTime(stamp);
@@ -104,9 +105,9 @@ var calitip = {
    *                                                    or 0 if both are equal
    */
   compare(aItem1, aItem2) {
-    let comp = calitip.compareSequence(aItem1, aItem2);
+    let comp = itip.compareSequence(aItem1, aItem2);
     if (comp == 0) {
-      comp = calitip.compareStamp(aItem1, aItem2);
+      comp = itip.compareStamp(aItem1, aItem2);
     }
     return comp;
   },
@@ -120,8 +121,8 @@ var calitip = {
    *                                                    or 0 if both are equal
    */
   compareSequence(aItem1, aItem2) {
-    let seq1 = calitip.getSequence(aItem1);
-    let seq2 = calitip.getSequence(aItem2);
+    let seq1 = itip.getSequence(aItem1);
+    let seq2 = itip.getSequence(aItem2);
     if (seq1 > seq2) {
       return 1;
     } else if (seq1 < seq2) {
@@ -139,8 +140,8 @@ var calitip = {
    *                                                    or 0 if both are equal
    */
   compareStamp(aItem1, aItem2) {
-    let st1 = calitip.getStamp(aItem1);
-    let st2 = calitip.getStamp(aItem2);
+    let st1 = itip.getStamp(aItem1);
+    let st2 = itip.getStamp(aItem2);
     if (st1 && st2) {
       return st1.compare(st2);
     } else if (!st1 && st2) {
@@ -197,10 +198,10 @@ var calitip = {
    */
   initItemFromMsgData(itipItem, imipMethod, aMsgHdr) {
     // set the sender of the itip message
-    itipItem.sender = calitip.getMessageSender(aMsgHdr);
+    itipItem.sender = itip.getMessageSender(aMsgHdr);
 
     // Get the recipient identity and save it with the itip item.
-    itipItem.identity = calitip.getMessageRecipient(aMsgHdr);
+    itipItem.identity = itip.getMessageRecipient(aMsgHdr);
 
     // We are only called upon receipt of an invite, so ensure that isSend
     // is false.
@@ -221,7 +222,7 @@ var calitip = {
     let isWritableCalendar = function (aCalendar) {
       /* TODO: missing ACL check for existing items (require callback API) */
       return (
-        calitip.isSchedulingCalendar(aCalendar) && lazy.cal.acl.userCanAddItemsToCalendar(aCalendar)
+        itip.isSchedulingCalendar(aCalendar) && lazy.cal.acl.userCanAddItemsToCalendar(aCalendar)
       );
     };
 
@@ -321,7 +322,7 @@ var calitip = {
   getOptionsText(itipItem, rc, actionFunc, foundItems) {
     let imipLabel = null;
     if (itipItem.receivedMethod) {
-      imipLabel = calitip.getMethodText(itipItem.receivedMethod);
+      imipLabel = itip.getMethodText(itipItem.receivedMethod);
     }
     let data = { label: imipLabel, showItems: [], hideItems: [] };
     let separateButtons = Services.prefs.getBoolPref(
@@ -361,7 +362,7 @@ var calitip = {
                 itipItem.sender
               );
               if (attendees.length == 1) {
-                comparison = calitip.compareSequence(item, foundItems[0]);
+                comparison = itip.compareSequence(item, foundItems[0]);
                 if (comparison == 1) {
                   data.label = lazy.cal.l10n.getLtnString("imipBarCounterErrorText");
                   break;
@@ -629,14 +630,14 @@ var calitip = {
     }
 
     if (needsCalendar) {
-      let calendars = lazy.cal.manager.getCalendars().filter(calitip.isSchedulingCalendar);
+      let calendars = lazy.cal.manager.getCalendars().filter(itip.isSchedulingCalendar);
 
       if (aItipItem.receivedMethod == "REQUEST") {
         // try to further limit down the list to those calendars that
         // are configured to a matching attendee;
         let item = aItipItem.getItemList()[0];
         let matchingCals = calendars.filter(
-          calendar => calitip.getInvitedAttendee(item, calendar) != null
+          calendar => itip.getInvitedAttendee(item, calendar) != null
         );
         // if there's none, we will show the whole list of calendars:
         if (matchingCals.length > 0) {
@@ -696,7 +697,7 @@ var calitip = {
   promptInvitedAttendee(window, itipItem, responseMode) {
     let cancelled = false;
     for (let item of itipItem.getItemList()) {
-      let att = calitip.getInvitedAttendee(item, itipItem.targetCalendar);
+      let att = itip.getInvitedAttendee(item, itipItem.targetCalendar);
       if (!att) {
         window.openDialog(
           "chrome://calendar/content/calendar-itip-identity-dialog.xhtml",
@@ -834,9 +835,9 @@ var calitip = {
    *                                            to ask the user whether to send)
    */
   checkAndSend(aOpType, aItem, aOriginalItem, aExtResponse = null) {
-    let sender = new lazy.CalItipMessageSender(aOriginalItem, calitip.getInvitedAttendee(aItem));
+    let sender = new lazy.CalItipMessageSender(aOriginalItem, itip.getInvitedAttendee(aItem));
     if (sender.detectChanges(aOpType, aItem, aExtResponse)) {
-      sender.send(calitip.getImipTransport(aItem));
+      sender.send(itip.getImipTransport(aItem));
     }
   },
 
@@ -848,7 +849,7 @@ var calitip = {
    * @returns {calIItemBase} The newly changed item
    */
   prepareSequence(newItem, oldItem) {
-    if (calitip.isInvitation(newItem)) {
+    if (itip.isInvitation(newItem)) {
       return newItem; // invitation copies don't bump the SEQUENCE
     }
 
@@ -894,7 +895,7 @@ var calitip = {
       // bump SEQUENCE, it never decreases (mind undo scenario here)
       newItem.setProperty(
         "SEQUENCE",
-        String(Math.max(calitip.getSequence(oldItem), calitip.getSequence(newItem)) + 1)
+        String(Math.max(itip.getSequence(oldItem), itip.getSequence(newItem)) + 1)
       );
     }
 
@@ -1015,8 +1016,8 @@ var calitip = {
    *                                                or TENTATIVE
    */
   isOpenInvitation(aItem) {
-    if (!calitip.isAttendee(aItem)) {
-      aItem = calitip.getInvitedAttendee(aItem);
+    if (!itip.isAttendee(aItem)) {
+      aItem = itip.getInvitedAttendee(aItem);
     }
     if (aItem) {
       switch (aItem.participationStatus) {
@@ -1154,12 +1155,12 @@ var calitip = {
  * @param {calIItipItem} itipItemItem - The received iTIP item
  */
 function setReceivedInfo(item, itipItemItem) {
-  let isAttendee = calitip.isAttendee(item);
+  let isAttendee = itip.isAttendee(item);
   item.setProperty(
     isAttendee ? "RECEIVED-SEQUENCE" : "X-MOZ-RECEIVED-SEQUENCE",
-    String(calitip.getSequence(itipItemItem))
+    String(itip.getSequence(itipItemItem))
   );
-  let dtstamp = calitip.getStamp(itipItemItem);
+  let dtstamp = itip.getStamp(itipItemItem);
   if (dtstamp) {
     item.setProperty(
       isAttendee ? "RECEIVED-DTSTAMP" : "X-MOZ-RECEIVED-DTSTAMP",
@@ -1255,9 +1256,9 @@ function sendMessage(aItem, aMethod, aRecipientsList, autoResponse) {
     aMethod,
     aRecipientsList,
     aItem,
-    calitip.getInvitedAttendee(aItem),
+    itip.getInvitedAttendee(aItem),
     autoResponse
-  ).send(calitip.getImipTransport(aItem));
+  ).send(itip.getImipTransport(aItem));
 }
 
 /** local to this module file
@@ -1285,7 +1286,7 @@ ItipOpListener.prototype = {
   onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
     lazy.cal.ASSERT(Components.isSuccessCode(aStatus), "error on iTIP processing");
     if (Components.isSuccessCode(aStatus)) {
-      calitip.checkAndSend(aOperationType, aDetail, this.mOldItem, this.mExtResponse);
+      itip.checkAndSend(aOperationType, aDetail, this.mOldItem, this.mExtResponse);
     }
     if (this.mOpListener) {
       this.mOpListener.onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail);
@@ -1491,7 +1492,7 @@ ItipItemFinder.prototype = {
                   if (attendees.length > 0) {
                     let action = function (opListener, partStat, extResponse) {
                       if (!item.organizer) {
-                        let org = calitip.createOrganizer(item.calendar);
+                        let org = itip.createOrganizer(item.calendar);
                         if (org) {
                           item = item.clone();
                           item.organizer = org;
@@ -1515,7 +1516,7 @@ ItipItemFinder.prototype = {
                   );
                   if (
                     item.calendar.getProperty("itip.disableRevisionChecks") ||
-                    calitip.compare(itipItemItem, item) > 0
+                    itip.compare(itipItemItem, item) > 0
                   ) {
                     let newItem = updateItem(item, itipItemItem);
                     let action = function (opListener, partStat, extResponse) {
@@ -1544,10 +1545,10 @@ ItipItemFinder.prototype = {
                   break;
                 case "REQUEST": {
                   let newItem = updateItem(item, itipItemItem);
-                  let att = calitip.getInvitedAttendee(newItem);
+                  let att = itip.getInvitedAttendee(newItem);
                   if (!att) {
                     // fall back to using configured organizer
-                    att = calitip.createOrganizer(newItem.calendar);
+                    att = itip.createOrganizer(newItem.calendar);
                     if (att) {
                       att.isOrganizer = false;
                     }
@@ -1577,7 +1578,7 @@ ItipItemFinder.prototype = {
                     if (
                       foundAttendee.participationStatus == "NEEDS-ACTION" &&
                       (item.calendar.getProperty("itip.disableRevisionChecks") ||
-                        calitip.compare(itipItemItem, item) == 0)
+                        itip.compare(itipItemItem, item) == 0)
                     ) {
                       actionMethod = "REQUEST:NEEDS-ACTION";
                       operations.push((opListener, partStat, extResponse) => {
@@ -1611,16 +1612,16 @@ ItipItemFinder.prototype = {
                       });
                     } else if (
                       item.calendar.getProperty("itip.disableRevisionChecks") ||
-                      calitip.compare(itipItemItem, item) > 0
+                      itip.compare(itipItemItem, item) > 0
                     ) {
                       addScheduleAgentClient(newItem, item.calendar);
 
-                      let isMinorUpdate = calitip.getSequence(newItem) == calitip.getSequence(item);
+                      let isMinorUpdate = itip.getSequence(newItem) == itip.getSequence(item);
                       actionMethod = isMinorUpdate ? method + ":UPDATE-MINOR" : method + ":UPDATE";
                       operations.push((opListener, partStat, extResponse) => {
                         if (!partStat) {
                           // keep PARTSTAT
-                          let att_ = calitip.getInvitedAttendee(item);
+                          let att_ = itip.getInvitedAttendee(item);
                           partStat = att_ ? att_.participationStatus : "NEEDS-ACTION";
                         }
                         newItem.removeAttendee(att);
@@ -1682,9 +1683,9 @@ ItipItemFinder.prototype = {
                   let noCheck = item.calendar.getProperty("itip.disableRevisionChecks");
                   let revCheck = false;
                   if (replyer && !noCheck) {
-                    revCheck = calitip.compare(itipItemItem, replyer) > 0;
+                    revCheck = itip.compare(itipItemItem, replyer) > 0;
                     if (revCheck && method == "COUNTER") {
-                      revCheck = calitip.compareSequence(itipItemItem, item) == 0;
+                      revCheck = itip.compareSequence(itipItemItem, item) == 0;
                     }
                   }
 
@@ -1852,7 +1853,7 @@ ItipItemFinder.prototype = {
                   lazy.cal.alarms.setDefaultValues(newItem);
                 }
 
-                let att = calitip.getInvitedAttendee(newItem);
+                let att = itip.getInvitedAttendee(newItem);
                 if (!att) {
                   lazy.cal.WARN(
                     `Encountered item without invited attendee! id=${newItem.id}, method=${method} Exiting...`

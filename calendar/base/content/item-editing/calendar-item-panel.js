@@ -16,7 +16,7 @@
 /* import-globals-from ../calendar-ui-utils.js */
 
 // XXX Need to determine which of these we really need here.
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 var gTabmail;

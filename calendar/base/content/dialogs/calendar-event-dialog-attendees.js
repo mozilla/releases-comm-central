@@ -5,7 +5,7 @@
 /* global MozXULElement */
 /* import-globals-from ../calendar-ui-utils.js */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");

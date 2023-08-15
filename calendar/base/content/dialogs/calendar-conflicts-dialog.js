@@ -4,7 +4,7 @@
 
 /* globals getPreviewForItem */ // From mouseoverPreviews.js
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 window.addEventListener("DOMContentLoaded", onLoad);
 

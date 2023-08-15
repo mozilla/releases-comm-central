@@ -9,8 +9,6 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.l10n namespace.
 
-const EXPORTED_SYMBOLS = ["call10n"];
-
 /**
  * Gets the value of a string in a .properties file.
  *
@@ -71,7 +69,7 @@ function _calendarInfo(aLocale = null, aResetCache = false) {
 }
 _calendarInfo._startup = {};
 
-var call10n = {
+export var l10n = {
   /**
    * Gets the value of a string in a .properties file.
    *
@@ -129,14 +127,14 @@ var call10n = {
    * @returns {string} The formatted month name
    */
   formatMonth(aMonthNum, aBundleName, aStringBase) {
-    let monthForm = call10n.getString(aBundleName, aStringBase + ".monthFormat") || "nominative";
+    let monthForm = l10n.getString(aBundleName, aStringBase + ".monthFormat") || "nominative";
 
     if (monthForm == "nominative") {
       // Fall back to the default name format
       monthForm = "name";
     }
 
-    return call10n.getDateFmtString(`month.${aMonthNum}.${monthForm}`);
+    return l10n.getDateFmtString(`month.${aMonthNum}.${monthForm}`);
   },
 
   /**

@@ -9,10 +9,10 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.data namespace.
 
-const EXPORTED_SYMBOLS = ["caldata"];
-
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
 
 class ListenerSet extends Set {
   constructor(iid, iterable) {
@@ -162,7 +162,7 @@ class OperationGroup {
   }
 }
 
-var caldata = {
+export var data = {
   ListenerSet,
   ObserverSet,
   OperationGroup,
@@ -225,10 +225,10 @@ var caldata = {
    *                               If null, this function will be used: function(n) n.item
    */
   binaryInsertNode(parentNode, insertNode, aItem, comptor, discardDuplicates, itemAccessor) {
-    let accessor = itemAccessor || caldata.binaryInsertNodeDefaultAccessor;
+    let accessor = itemAccessor || data.binaryInsertNodeDefaultAccessor;
 
     // Get the index of the node before which the inserNode will be inserted
-    let newIndex = caldata.binarySearch(Array.from(parentNode.children, accessor), aItem, comptor);
+    let newIndex = data.binarySearch(Array.from(parentNode.children, accessor), aItem, comptor);
 
     if (newIndex < 0) {
       parentNode.appendChild(insertNode);
@@ -262,7 +262,7 @@ var caldata = {
    * @returns The index of the new item.
    */
   binaryInsert(itemArray, item, comptor, discardDuplicates) {
-    let newIndex = caldata.binarySearch(itemArray, item, comptor);
+    let newIndex = data.binarySearch(itemArray, item, comptor);
 
     if (newIndex < 0) {
       itemArray.push(item);

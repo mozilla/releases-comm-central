@@ -7,7 +7,7 @@ var EXPORTED_SYMBOLS = ["CalRecurrenceRule"];
 const { ICAL, unwrapSetter, unwrapSingle, wrapGetter } = ChromeUtils.import(
   "resource:///modules/calendar/Ical.jsm"
 );
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 const lazy = {};
 ChromeUtils.defineModuleGetter(lazy, "CalDateTime", "resource:///modules/CalDateTime.jsm");

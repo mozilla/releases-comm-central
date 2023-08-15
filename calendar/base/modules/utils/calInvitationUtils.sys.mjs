@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
+
 var { recurrenceRule2String } = ChromeUtils.import(
   "resource:///modules/calendar/calRecurrenceUtils.jsm"
 );
@@ -16,9 +17,7 @@ ChromeUtils.defineModuleGetter(
 );
 ChromeUtils.defineModuleGetter(lazy, "MailStringUtils", "resource:///modules/MailStringUtils.jsm");
 
-const EXPORTED_SYMBOLS = ["calinvitation"];
-
-var calinvitation = {
+export var invitation = {
   /**
    * Returns a header title for an ITIP item depending on the response method
    *
@@ -290,7 +289,7 @@ var calinvitation = {
   createInvitationOverlay(event, itipItem) {
     // Creates HTML using the Node strings in the properties file
     const parser = new DOMParser();
-    let doc = parser.parseFromString(calinvitation.htmlTemplate, "text/html");
+    let doc = parser.parseFromString(invitation.htmlTemplate, "text/html");
     this.updateInvitationOverlay(doc, event, itipItem);
     return doc;
   },
@@ -318,7 +317,7 @@ var calinvitation = {
   updateInvitationOverlay(doc, event, itipItem, oldEvent) {
     let headerDescr = doc.getElementById("imipHtml-header");
     if (headerDescr) {
-      headerDescr.textContent = calinvitation.getItipHeader(itipItem);
+      headerDescr.textContent = invitation.getItipHeader(itipItem);
     }
 
     let formatter = cal.dtz.formatter;
@@ -613,37 +612,37 @@ var calinvitation = {
     let header =
       "MIME-version: 1.0\r\n" +
       (aIdentity.replyTo
-        ? "Return-path: " + calinvitation.encodeMimeHeader(aIdentity.replyTo, true) + "\r\n"
+        ? "Return-path: " + invitation.encodeMimeHeader(aIdentity.replyTo, true) + "\r\n"
         : "") +
       "From: " +
-      calinvitation.encodeMimeHeader(from, true) +
+      invitation.encodeMimeHeader(from, true) +
       "\r\n" +
       (aIdentity.organization
-        ? "Organization: " + calinvitation.encodeMimeHeader(aIdentity.organization) + "\r\n"
+        ? "Organization: " + invitation.encodeMimeHeader(aIdentity.organization) + "\r\n"
         : "") +
       "Message-ID: " +
       aMessageId +
       "\r\n" +
       "To: " +
-      calinvitation.encodeMimeHeader(aToList, true) +
+      invitation.encodeMimeHeader(aToList, true) +
       "\r\n" +
       "Date: " +
-      calinvitation.getRfc5322FormattedDate() +
+      invitation.getRfc5322FormattedDate() +
       "\r\n" +
       "Subject: " +
-      calinvitation.encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) +
+      invitation.encodeMimeHeader(aSubject.replace(/(\n|\r\n)/, "|")) +
       "\r\n";
     let validRecipients;
     if (aIdentity.doCc) {
       validRecipients = cal.email.validateRecipientList(aIdentity.doCcList);
       if (validRecipients != "") {
-        header += "Cc: " + calinvitation.encodeMimeHeader(validRecipients, true) + "\r\n";
+        header += "Cc: " + invitation.encodeMimeHeader(validRecipients, true) + "\r\n";
       }
     }
     if (aIdentity.doBcc) {
       validRecipients = cal.email.validateRecipientList(aIdentity.doBccList);
       if (validRecipients != "") {
-        header += "Bcc: " + calinvitation.encodeMimeHeader(validRecipients, true) + "\r\n";
+        header += "Bcc: " + invitation.encodeMimeHeader(validRecipients, true) + "\r\n";
       }
     }
     return header;
@@ -680,7 +679,7 @@ var calinvitation = {
    * @returns {string} the converted uft-8 encoded string
    */
   encodeUTF8(aText) {
-    return calinvitation.convertFromUnicode(aText).replace(/(\r\n)|\n/g, "\r\n");
+    return invitation.convertFromUnicode(aText).replace(/(\r\n)|\n/g, "\r\n");
   },
 
   /**

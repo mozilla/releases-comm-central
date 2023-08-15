@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["CalMimeConverter"];
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 function CalMimeConverter() {
   this.wrappedJSObject = this;

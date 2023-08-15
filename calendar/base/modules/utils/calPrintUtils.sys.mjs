@@ -15,12 +15,12 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.print namespace.
 
-const EXPORTED_SYMBOLS = ["calprint"];
-
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
 
-var calprint = {
+export var print = {
   ensureInitialized() {
     // Deliberate no-op. By calling this function from outside, you've ensured
     // the observer has been added.

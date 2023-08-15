@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 /**
  * Helpers and base class for calendar providers
@@ -12,16 +12,18 @@ var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUti
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.provider namespace.
 
-const EXPORTED_SYMBOLS = ["calprovider"];
-
 const lazy = {};
+
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  cal: "resource:///modules/calendar/calUtils.jsm",
   CalPeriod: "resource:///modules/CalPeriod.jsm",
   CalReadableStreamFactory: "resource:///modules/CalReadableStreamFactory.jsm",
 });
 
-var calprovider = {
+export var provider = {
   /**
    * Prepare HTTP channel with standard request headers and upload data/content-type if needed.
    *
@@ -252,7 +254,7 @@ var calprovider = {
 
     if (isCertError && request.securityInfo) {
       let secInfo = request.securityInfo.QueryInterface(Ci.nsITransportSecurityInfo);
-      let badCertHandler = new calprovider.BadCertHandler(calendar);
+      let badCertHandler = new provider.BadCertHandler(calendar);
       badCertHandler.notifyCertProblem(secInfo, request.originalURI.displayHostPort);
     }
   },
@@ -391,7 +393,7 @@ var calprovider = {
    * @returns {nsIFile} The calendar-data directory as nsIFile
    */
   getCalendarDirectory() {
-    if (calprovider.getCalendarDirectory.mDir === undefined) {
+    if (provider.getCalendarDirectory.mDir === undefined) {
       let dir = Services.dirsvc.get("ProfD", Ci.nsIFile);
       dir.append("calendar-data");
       if (!dir.exists()) {
@@ -402,9 +404,9 @@ var calprovider = {
           throw exc;
         }
       }
-      calprovider.getCalendarDirectory.mDir = dir;
+      provider.getCalendarDirectory.mDir = dir;
     }
-    return calprovider.getCalendarDirectory.mDir.clone();
+    return provider.getCalendarDirectory.mDir.clone();
   },
 
   /**
@@ -653,7 +655,7 @@ var calprovider = {
     getProperty(aName) {
       switch (aName) {
         case "itip.transport": // iTIP/iMIP default:
-          return calprovider.getImipTransport(this);
+          return provider.getImipTransport(this);
         case "itip.notify-replies": // iTIP/iMIP default:
           return Services.prefs.getBoolPref("calendar.itip.notify-replies", false);
         // temporary hack to get the uncached calendar instance:
@@ -667,11 +669,11 @@ var calprovider = {
         switch (aName) {
           case "imip.identity": // we want to cache the identity object a little, because
             // it is heavily used by the invitation checks
-            ret = calprovider.getEmailIdentityOfCalendar(this);
+            ret = provider.getEmailIdentityOfCalendar(this);
             break;
           case "imip.account": {
             let outAccount = {};
-            if (calprovider.getEmailIdentityOfCalendar(this, outAccount)) {
+            if (provider.getEmailIdentityOfCalendar(this, outAccount)) {
               ret = outAccount.value;
             }
             break;
@@ -833,10 +835,10 @@ var calprovider = {
   /**
    * Register a provider.
    *
-   * @param {calICalendarProvider} provider - The provider object.
+   * @param {calICalendarProvider} newProvider - The provider object.
    */
-  register(provider) {
-    this.providers.set(provider.type, provider);
+  register(newProvider) {
+    this.providers.set(newProvider.type, newProvider);
   },
 
   /**
@@ -881,7 +883,7 @@ var calprovider = {
 };
 
 // Initialize `cal.provider.providers` with the built-in providers.
-XPCOMUtils.defineLazyGetter(calprovider, "providers", () => {
+XPCOMUtils.defineLazyGetter(provider, "providers", () => {
   const { CalICSProvider } = ChromeUtils.import("resource:///modules/CalICSProvider.jsm");
   const { CalDavProvider } = ChromeUtils.import("resource:///modules/CalDavProvider.jsm");
   return new Map([
@@ -891,7 +893,7 @@ XPCOMUtils.defineLazyGetter(calprovider, "providers", () => {
 });
 
 // This is the transport returned by getImipTransport().
-XPCOMUtils.defineLazyGetter(calprovider, "defaultImipTransport", () => {
+XPCOMUtils.defineLazyGetter(provider, "defaultImipTransport", () => {
   const { CalItipEmailTransport } = ChromeUtils.import(
     "resource:///modules/CalItipEmailTransport.jsm"
   );
@@ -899,9 +901,11 @@ XPCOMUtils.defineLazyGetter(calprovider, "defaultImipTransport", () => {
 });
 
 // Set up the `cal.provider.detection` module.
-XPCOMUtils.defineLazyModuleGetter(
-  calprovider,
-  "detection",
-  "resource:///modules/calendar/utils/calProviderDetectionUtils.jsm",
-  "calproviderdetection"
-);
+// XXX: https://bugzilla.mozilla.org/show_bug.cgi?id=1745807 should drop the
+// pattern seen here of "namespacing" calendar utils onto the `cal` object.
+// Until that work is done, we ignore the lint requirement that lazy objects be
+// named `lazy`.
+// eslint-disable-next-line mozilla/lazy-getter-object-name
+ChromeUtils.defineESModuleGetters(provider, {
+  detection: "resource:///modules/calendar/utils/calProviderDetectionUtils.sys.mjs",
+});

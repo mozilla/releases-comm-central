@@ -21,7 +21,7 @@
  * window.
  */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 // Set this to true when the calendar event tree is clicked to allow for
 // multiple selection

@@ -6,7 +6,7 @@
 
 const EXPORTED_SYMBOLS = ["CalReadableStreamFactory"];
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 /**
  * Function used to transform each value received from a stream.

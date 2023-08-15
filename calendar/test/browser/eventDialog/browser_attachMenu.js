@@ -6,7 +6,7 @@
  * Tests for the attach menu in the event dialog window.
  */
 
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 const { cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm");
 const { MockFilePicker } = ChromeUtils.importESModule(
   "resource://testing-common/MockFilePicker.sys.mjs"

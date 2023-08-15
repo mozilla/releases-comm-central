@@ -9,7 +9,7 @@
 /* import-globals-from ../src/calApplicationUtils.js */
 /* import-globals-from calendar-ui-utils.js */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { recurrenceRule2String } = ChromeUtils.import(
   "resource:///modules/calendar/calRecurrenceUtils.jsm"
 );

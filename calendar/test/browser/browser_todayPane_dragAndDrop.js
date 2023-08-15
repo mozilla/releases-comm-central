@@ -5,7 +5,7 @@
 /**
  * Tests for drag and drop on the today pane.
  */
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 const { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {
   add_message_to_folder,

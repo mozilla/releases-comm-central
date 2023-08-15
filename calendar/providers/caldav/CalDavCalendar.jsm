@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["CalDavCalendar"];
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 var {
   CalDavGenericRequest,

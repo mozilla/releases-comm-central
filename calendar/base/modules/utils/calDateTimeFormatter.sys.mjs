@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
 
 XPCOMUtils.defineLazyGetter(lazy, "gDateStringBundle", () =>
   Services.strings.createBundle("chrome://calendar/locale/dateFormat.properties")
@@ -30,9 +32,7 @@ var formatCache = new Map();
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.dtz.formatter namespace.
 
-const EXPORTED_SYMBOLS = ["formatter"];
-
-var formatter = {
+export var formatter = {
   /**
    * Format a date in either short or long format, depending on the users preference.
    *

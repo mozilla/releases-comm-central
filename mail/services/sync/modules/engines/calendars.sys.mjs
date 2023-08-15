@@ -13,7 +13,7 @@ import { Utils } from "resource://services-sync/util.sys.mjs";
 const { SCORE_INCREMENT_XLARGE } = ChromeUtils.import(
   "resource://services-sync/constants.js"
 );
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 const SYNCED_PROPERTIES = {
   cacheEnabled: "cache.enabled",

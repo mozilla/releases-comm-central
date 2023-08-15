@@ -9,18 +9,16 @@
 // NOTE: This module should not be loaded directly, it is available when including
 // calUtils.jsm under the cal.auth namespace.
 
-const EXPORTED_SYMBOLS = ["calauth"];
-
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  cal: "resource:///modules/calendar/calUtils.jsm",
   MsgAuthPrompt: "resource:///modules/MsgAsyncPrompter.jsm",
 });
 
@@ -130,7 +128,7 @@ class ContainerMap extends Map {
   }
 }
 
-var calauth = {
+export var auth = {
   /**
    * Calendar Auth prompt implementation. This instance of the auth prompt should
    * be used by providers and other components that handle authentication using
@@ -199,7 +197,7 @@ var calauth = {
           );
 
           delete this.mReturnedLogins[keyStr];
-          calauth.passwordManagerRemove(username, aPasswordRealm.prePath, aPasswordRealm.realm);
+          auth.passwordManagerRemove(username, aPasswordRealm.prePath, aPasswordRealm.realm);
           return { found: false, username };
         }
         this.mReturnedLogins[keyStr] = now;
@@ -249,7 +247,7 @@ var calauth = {
         savePassword
       );
       if (savePassword.value) {
-        calauth.passwordManagerSave(
+        auth.passwordManagerSave(
           aAuthInfo.username,
           aAuthInfo.password,
           hostRealm.prePath,

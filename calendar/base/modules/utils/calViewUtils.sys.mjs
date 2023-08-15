@@ -9,12 +9,12 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.view namespace.
 
-const EXPORTED_SYMBOLS = ["calview"];
-
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
 XPCOMUtils.defineLazyServiceGetter(
   lazy,
   "gParserUtils",
@@ -36,7 +36,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
   val => (val ? val.split(" ") : [])
 );
 
-var calview = {
+export var view = {
   /**
    * Returns a parentnode  - or the passed node -  with the given attribute
    * value for the given attributename by traversing up the DOM hierarchy.
@@ -405,7 +405,7 @@ var calview = {
  * Adds CSS variables for each calendar to registered windows for coloring
  * UI elements. Automatically tracks calendar creation, changes, and deletion.
  */
-calview.colorTracker = {
+view.colorTracker = {
   calendars: null,
   categoryBranch: null,
   windows: new Set(),
@@ -436,15 +436,15 @@ calview.colorTracker = {
   },
 
   _addCalendarToDocument(aDocument, aCalendar) {
-    let cssSafeId = calview.formatStringForCSSRule(aCalendar.id);
+    let cssSafeId = view.formatStringForCSSRule(aCalendar.id);
     let style = aDocument.documentElement.style;
     let backColor = aCalendar.getProperty("color") || "#a8c2e1";
-    let foreColor = calview.getContrastingTextColor(backColor);
+    let foreColor = view.getContrastingTextColor(backColor);
     style.setProperty(`--calendar-${cssSafeId}-backcolor`, backColor);
     style.setProperty(`--calendar-${cssSafeId}-forecolor`, foreColor);
   },
   _removeCalendarFromDocument(aDocument, aCalendar) {
-    let cssSafeId = calview.formatStringForCSSRule(aCalendar.id);
+    let cssSafeId = view.formatStringForCSSRule(aCalendar.id);
     let style = aDocument.documentElement.style;
     style.removeProperty(`--calendar-${cssSafeId}-backcolor`);
     style.removeProperty(`--calendar-${cssSafeId}-forecolor`);

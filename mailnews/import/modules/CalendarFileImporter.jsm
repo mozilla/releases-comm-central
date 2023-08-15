@@ -4,18 +4,10 @@
 
 const EXPORTED_SYMBOLS = ["CalendarFileImporter"];
 
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-
 const lazy = {};
-
 ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  cal: "resource:///modules/calendar/calUtils.jsm",
 });
 
 /**

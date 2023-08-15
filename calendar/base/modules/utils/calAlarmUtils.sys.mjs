@@ -9,18 +9,18 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.alarm namespace.
 
-const EXPORTED_SYMBOLS = ["calalarms"];
-
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
 });
 
-var calalarms = {
+export var alarms = {
   /**
    * Read default alarm settings from user preferences and apply them to the
    * event/todo passed in. The item's calendar should be set to ensure the

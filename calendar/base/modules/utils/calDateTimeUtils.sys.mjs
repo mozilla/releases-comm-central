@@ -9,12 +9,12 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.dtz namespace.
 
-const EXPORTED_SYMBOLS = ["caldtz"];
-
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
 
-var caldtz = {
+export var dtz = {
   /**
    * Shortcut to the timezone service's defaultTimezone
    */
@@ -42,10 +42,10 @@ var caldtz = {
    * @param aTzid     The timezone id to add
    */
   saveRecentTimezone(aTzid) {
-    let recentTimezones = caldtz.getRecentTimezones();
+    let recentTimezones = dtz.getRecentTimezones();
     const MAX_RECENT_TIMEZONES = 5; // We don't need a pref for *everything*.
 
-    if (aTzid != caldtz.defaultTimezone.tzid && !recentTimezones.includes(aTzid)) {
+    if (aTzid != dtz.defaultTimezone.tzid && !recentTimezones.includes(aTzid)) {
       // Add the timezone if its not already the default timezone
       recentTimezones.unshift(aTzid);
       recentTimezones.splice(MAX_RECENT_TIMEZONES);
@@ -58,8 +58,8 @@ var caldtz = {
    * default timezone.
    */
   now() {
-    let date = caldtz.jsDateToDateTime(new Date());
-    return date.getInTimezone(caldtz.defaultTimezone);
+    let date = dtz.jsDateToDateTime(new Date());
+    return date.getInTimezone(dtz.defaultTimezone);
   },
 
   /**
@@ -70,7 +70,7 @@ var caldtz = {
    *                            keeping the date and timezone intact.
    */
   getDefaultStartDate(aReferenceDate) {
-    let startDate = caldtz.now();
+    let startDate = dtz.now();
     if (aReferenceDate) {
       let savedHour = startDate.hour;
       startDate = aReferenceDate;
@@ -98,7 +98,7 @@ var caldtz = {
    *                            keeping the date and timezone intact.
    */
   setDefaultStartEndHour(aItem, aReferenceDate) {
-    aItem[caldtz.startDateProp(aItem)] = caldtz.getDefaultStartDate(aReferenceDate);
+    aItem[dtz.startDateProp(aItem)] = dtz.getDefaultStartDate(aReferenceDate);
 
     if (aItem.isEvent()) {
       aItem.endDate = aItem.startDate.clone();
@@ -423,8 +423,11 @@ var caldtz = {
   },
 };
 
-ChromeUtils.defineModuleGetter(
-  caldtz,
-  "formatter",
-  "resource:///modules/calendar/utils/calDateTimeFormatter.jsm"
-);
+// XXX: https://bugzilla.mozilla.org/show_bug.cgi?id=1745807 should drop the
+// pattern seen here of "namespacing" calendar utils onto the `cal` object.
+// Until that work is done, we ignore the lint requirement that lazy objects be
+// named `lazy`.
+// eslint-disable-next-line mozilla/lazy-getter-object-name
+ChromeUtils.defineESModuleGetters(dtz, {
+  formatter: "resource:///modules/calendar/utils/calDateTimeFormatter.sys.mjs",
+});

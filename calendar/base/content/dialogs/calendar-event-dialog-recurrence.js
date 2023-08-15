@@ -5,7 +5,7 @@
 var { splitRecurrenceRules } = ChromeUtils.import(
   "resource:///modules/calendar/calRecurrenceUtils.jsm"
 );
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 
 XPCOMUtils.defineLazyModuleGetters(this, {

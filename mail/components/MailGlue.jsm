@@ -46,10 +46,11 @@ ChromeUtils.defineESModuleGetters(lazy, {
 
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.sys.mjs",
+
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  cal: "resource:///modules/calendar/calUtils.jsm",
   ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
   MailMigrator: "resource:///modules/MailMigrator.jsm",
   MailServices: "resource:///modules/MailServices.jsm",

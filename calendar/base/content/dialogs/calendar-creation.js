@@ -6,7 +6,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUti
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 ChromeUtils.defineModuleGetter(this, "MsgAuthPrompt", "resource:///modules/MsgAsyncPrompter.jsm");
 

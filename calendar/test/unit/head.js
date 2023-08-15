@@ -11,7 +11,7 @@ ChromeUtils.defineModuleGetter(this, "NetUtil", "resource://gre/modules/NetUtil.
 
 updateAppInfo();
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTimezone) {
   let date = Cc["@mozilla.org/calendar/datetime;1"].createInstance(Ci.calIDateTime);

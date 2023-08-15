@@ -9,9 +9,7 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.unifinder namespace.
 
-const EXPORTED_SYMBOLS = ["calunifinder"];
-
-var calunifinder = {
+export var unifinder = {
   /**
    * Retrieves the value that is used for comparison for the item with the given
    * property.
@@ -102,10 +100,10 @@ var calunifinder = {
    * @param {?number} aModifier - Either 1 or -1, to indicate sort direction
    */
   sortItems(aItems, aSortKey, aModifier = 1) {
-    let comparer = calunifinder.sortEntryComparer(aSortKey);
+    let comparer = unifinder.sortEntryComparer(aSortKey);
     aItems.sort((a, b) => {
-      let sortvalA = calunifinder.getItemSortKey(a, aSortKey);
-      let sortvalB = calunifinder.getItemSortKey(b, aSortKey);
+      let sortvalA = unifinder.getItemSortKey(a, aSortKey);
+      let sortvalB = unifinder.getItemSortKey(b, aSortKey);
       return comparer(sortvalA, sortvalB, aModifier);
     });
   },
@@ -115,7 +113,7 @@ var calunifinder = {
  * Sort compare functions that can be used with Array sort(). The modifier can flip the sort
  * direction by passing -1 or 1.
  */
-const sortCompare = (calunifinder.sortEntryComparer._sortCompare = {
+const sortCompare = (unifinder.sortEntryComparer._sortCompare = {
   /**
    * Compare two things as if they were numbers.
    *

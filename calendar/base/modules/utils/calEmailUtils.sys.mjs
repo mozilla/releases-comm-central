@@ -9,14 +9,14 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.email namespace.
 
-const EXPORTED_SYMBOLS = ["calemail"];
-
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(lazy, "cal", "resource:///modules/calendar/calUtils.jsm");
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
 
-var calemail = {
+export var email = {
   /**
    * Convenience function to open the compose window pre-filled with the information from the
    * parameters. These parameters are mostly raw header fields, see #createRecipientList function
@@ -91,11 +91,11 @@ var calemail = {
    */
   createRecipientList(aAttendees) {
     let cbEmail = function (aVal) {
-      let email = calemail.getAttendeeEmail(aVal, true);
-      if (!email.length) {
+      let attendeeEmail = email.getAttendeeEmail(aVal, true);
+      if (!attendeeEmail.length) {
         lazy.cal.LOG("Dropping invalid recipient for email transport: " + aVal.toString());
       }
-      return email;
+      return attendeeEmail;
     };
     return aAttendees
       .map(cbEmail)
@@ -114,21 +114,23 @@ var calemail = {
   getAttendeeEmail(aAttendee, aIncludeCn) {
     // If the recipient id is of type urn, we need to figure out the email address, otherwise
     // we fall back to the attendee id
-    let email = aAttendee.id.match(/^urn:/i) ? aAttendee.getProperty("EMAIL") || "" : aAttendee.id;
+    let attendeeEmail = aAttendee.id.match(/^urn:/i)
+      ? aAttendee.getProperty("EMAIL") || ""
+      : aAttendee.id;
     // Strip leading "mailto:" if it exists.
-    email = email.replace(/^mailto:/i, "");
+    attendeeEmail = attendeeEmail.replace(/^mailto:/i, "");
     // We add the CN if requested and available
     let commonName = aAttendee.commonName;
-    if (aIncludeCn && email.length > 0 && commonName && commonName.length > 0) {
+    if (aIncludeCn && attendeeEmail.length > 0 && commonName && commonName.length > 0) {
       if (commonName.match(/[,;]/)) {
         commonName = '"' + commonName + '"';
       }
-      commonName = commonName + " <" + email + ">";
-      if (calemail.validateRecipientList(commonName) == commonName) {
-        email = commonName;
+      commonName = commonName + " <" + attendeeEmail + ">";
+      if (email.validateRecipientList(commonName) == commonName) {
+        attendeeEmail = commonName;
       }
     }
-    return email;
+    return attendeeEmail;
   },
 
   /**

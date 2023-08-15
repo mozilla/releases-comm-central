@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["CalTimezone"];
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
 

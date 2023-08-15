@@ -16,7 +16,7 @@ const { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 async function clickAndWait(win, button) {
   EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, win);

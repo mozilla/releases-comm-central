@@ -4,7 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["calendarDeactivator"];
 
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 /**
  * Handles deactivation of calendar UI and background processes/services (such

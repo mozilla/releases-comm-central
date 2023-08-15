@@ -6,7 +6,7 @@ var { handleDeleteOccurrencePrompt } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarUtils.jsm"
 );
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );

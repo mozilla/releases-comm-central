@@ -6,7 +6,7 @@ var { formatDate, formatTime, saveAndCloseItemDialog, setData } = ChromeUtils.im
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 const TITLE1 = "Day View Event";
 const TITLE2 = "Day View Event Changed";

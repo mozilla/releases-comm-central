@@ -4,7 +4,7 @@
 
 /* exported makeMemberAttr, makeMemberAttrProperty */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { CalAttendee } = ChromeUtils.import("resource:///modules/CalAttendee.jsm");
 var { CalRelation } = ChromeUtils.import("resource:///modules/CalRelation.jsm");
 var { CalAttachment } = ChromeUtils.import("resource:///modules/CalAttachment.jsm");

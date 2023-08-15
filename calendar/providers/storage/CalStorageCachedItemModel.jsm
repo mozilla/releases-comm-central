@@ -4,7 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["CalStorageCachedItemModel"];
 
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 const { CalReadableStreamFactory } = ChromeUtils.import(
   "resource:///modules/CalReadableStreamFactory.jsm"
 );

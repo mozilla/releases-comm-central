@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
-var { ConsoleAPI } = ChromeUtils.importESModule("resource://gre/modules/Console.sys.mjs");
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { ConsoleAPI } from "resource://gre/modules/Console.sys.mjs";
 
 const lazy = {};
 XPCOMUtils.defineLazyModuleGetters(lazy, {
@@ -20,8 +20,7 @@ var gCalendarConsole = new ConsoleAPI({
   maxLogLevel: Services.prefs.getBoolPref("calendar.debug.log", false) ? "all" : "warn",
 });
 
-const EXPORTED_SYMBOLS = ["cal"];
-var cal = {
+export var cal = {
   // These functions exist to reduce boilerplate code for creating instances
   // as well as getting services and other (cached) objects.
   createDateTime(value) {
@@ -422,114 +421,31 @@ XPCOMUtils.defineLazyServiceGetter(
 );
 
 // Sub-modules for calUtils
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "acl",
-  "resource:///modules/calendar/utils/calACLUtils.jsm",
-  "calacl"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "alarms",
-  "resource:///modules/calendar/utils/calAlarmUtils.jsm",
-  "calalarms"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "auth",
-  "resource:///modules/calendar/utils/calAuthUtils.jsm",
-  "calauth"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "category",
-  "resource:///modules/calendar/utils/calCategoryUtils.jsm",
-  "calcategory"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "data",
-  "resource:///modules/calendar/utils/calDataUtils.jsm",
-  "caldata"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "dtz",
-  "resource:///modules/calendar/utils/calDateTimeUtils.jsm",
-  "caldtz"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "email",
-  "resource:///modules/calendar/utils/calEmailUtils.jsm",
-  "calemail"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "invitation",
-  "resource:///modules/calendar/utils/calInvitationUtils.jsm",
-  "calinvitation"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "item",
-  "resource:///modules/calendar/utils/calItemUtils.jsm",
-  "calitem"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "iterate",
-  "resource:///modules/calendar/utils/calIteratorUtils.jsm",
-  "caliterate"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "itip",
-  "resource:///modules/calendar/utils/calItipUtils.jsm",
-  "calitip"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "l10n",
-  "resource:///modules/calendar/utils/calL10NUtils.jsm",
-  "call10n"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "print",
-  "resource:///modules/calendar/utils/calPrintUtils.jsm",
-  "calprint"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "provider",
-  "resource:///modules/calendar/utils/calProviderUtils.jsm",
-  "calprovider"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "unifinder",
-  "resource:///modules/calendar/utils/calUnifinderUtils.jsm",
-  "calunifinder"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "view",
-  "resource:///modules/calendar/utils/calViewUtils.jsm",
-  "calview"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "window",
-  "resource:///modules/calendar/utils/calWindowUtils.jsm",
-  "calwindow"
-);
-XPCOMUtils.defineLazyModuleGetter(
-  cal,
-  "xml",
-  "resource:///modules/calendar/utils/calXMLUtils.jsm",
-  "calxml"
-);
+// XXX: https://bugzilla.mozilla.org/show_bug.cgi?id=1745807 should drop the
+// pattern seen here of "namespacing" calendar utils onto the `cal` object.
+// Until that work is done, we ignore the lint requirement that lazy objects be
+// named `lazy`.
+// eslint-disable-next-line mozilla/lazy-getter-object-name
+ChromeUtils.defineESModuleGetters(cal, {
+  acl: "resource:///modules/calendar/utils/calACLUtils.sys.mjs",
+  alarms: "resource:///modules/calendar/utils/calAlarmUtils.sys.mjs",
+  auth: "resource:///modules/calendar/utils/calAuthUtils.sys.mjs",
+  category: "resource:///modules/calendar/utils/calCategoryUtils.sys.mjs",
+  data: "resource:///modules/calendar/utils/calDataUtils.sys.mjs",
+  dtz: "resource:///modules/calendar/utils/calDateTimeUtils.sys.mjs",
+  email: "resource:///modules/calendar/utils/calEmailUtils.sys.mjs",
+  invitation: "resource:///modules/calendar/utils/calInvitationUtils.sys.mjs",
+  item: "resource:///modules/calendar/utils/calItemUtils.sys.mjs",
+  iterate: "resource:///modules/calendar/utils/calIteratorUtils.sys.mjs",
+  itip: "resource:///modules/calendar/utils/calItipUtils.sys.mjs",
+  l10n: "resource:///modules/calendar/utils/calL10NUtils.sys.mjs",
+  print: "resource:///modules/calendar/utils/calPrintUtils.sys.mjs",
+  provider: "resource:///modules/calendar/utils/calProviderUtils.sys.mjs",
+  unifinder: "resource:///modules/calendar/utils/calUnifinderUtils.sys.mjs",
+  view: "resource:///modules/calendar/utils/calViewUtils.sys.mjs",
+  window: "resource:///modules/calendar/utils/calWindowUtils.sys.mjs",
+  xml: "resource:///modules/calendar/utils/calXMLUtils.sys.mjs",
+});
 
 // will be used to clean up global objects on shutdown
 // some objects have cyclic references due to wrappers

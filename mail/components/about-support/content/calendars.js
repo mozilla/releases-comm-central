@@ -4,7 +4,9 @@
 
 /* globals CLASS_DATA_PRIVATE */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule(
+  "resource:///modules/calendar/calUtils.sys.mjs"
+);
 
 let boolean = val => (!val && val !== false ? "" : val);
 let string = val => (val ? String(val) : "");

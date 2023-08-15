@@ -8,7 +8,7 @@ var EXPORTED_SYMBOLS = ["CalCalendarManager"];
 
 const { AddonManager } = ChromeUtils.importESModule("resource://gre/modules/AddonManager.sys.mjs");
 const { Preferences } = ChromeUtils.importESModule("resource://gre/modules/Preferences.sys.mjs");
-const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 const { calCachedCalendar } = ChromeUtils.import("resource:///components/calCachedCalendar.js");
 const { setTimeout } = ChromeUtils.importESModule("resource://gre/modules/Timer.sys.mjs");
 

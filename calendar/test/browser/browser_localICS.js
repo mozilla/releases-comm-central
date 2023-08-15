@@ -8,7 +8,7 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
   "resource://testing-common/calendar/ItemEditingHelpers.jsm"
 );
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 const HOUR = 8;
 

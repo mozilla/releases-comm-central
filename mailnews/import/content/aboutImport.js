@@ -8,13 +8,16 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+ChromeUtils.defineESModuleGetters(this, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   MailServices: "resource:///modules/MailServices.jsm",
   MailUtils: "resource:///modules/MailUtils.jsm",
   AddrBookFileImporter: "resource:///modules/AddrBookFileImporter.jsm",
   CalendarFileImporter: "resource:///modules/CalendarFileImporter.jsm",
   ProfileExporter: "resource:///modules/ProfileExporter.jsm",
-  cal: "resource:///modules/calendar/calUtils.jsm",
 });
 
 /**

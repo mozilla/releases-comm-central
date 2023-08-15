@@ -11,9 +11,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calHashedArray.js
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.item namespace.
 
-const EXPORTED_SYMBOLS = ["calitem"];
-
-var calitem = {
+export var item = {
   ItemDiff: (function () {
     /**
      * Given two sets of items, find out which items were added, changed or
@@ -68,8 +66,8 @@ var calitem = {
       load(items) {
         this._expectState(this.STATE_INITIAL | this.STATE_LOADING, "load");
 
-        for (let item of items) {
-          this.mInitialItems[item.hashId] = item;
+        for (let calendarItem of items) {
+          this.mInitialItems[calendarItem.hashId] = calendarItem;
         }
 
         this.state = this.STATE_LOADING;
@@ -91,15 +89,15 @@ var calitem = {
         this.mModifiedItems.startBatch();
         this.mAddedItems.startBatch();
 
-        for (let item of items) {
-          if (item.hashId in this.mInitialItems) {
-            let oldItem = this.mInitialItems[item.hashId];
+        for (let calendarItem of items) {
+          if (calendarItem.hashId in this.mInitialItems) {
+            let oldItem = this.mInitialItems[calendarItem.hashId];
             this.mModifiedOldItems.addItem(oldItem);
-            this.mModifiedItems.addItem(item);
+            this.mModifiedItems.addItem(calendarItem);
           } else {
-            this.mAddedItems.addItem(item);
+            this.mAddedItems.addItem(calendarItem);
           }
-          delete this.mInitialItems[item.hashId];
+          delete this.mInitialItems[calendarItem.hashId];
         }
 
         this.mModifiedOldItems.endBatch();
@@ -122,8 +120,8 @@ var calitem = {
         this.mDeletedItems.startBatch();
 
         for (let hashId in this.mInitialItems) {
-          let item = this.mInitialItems[hashId];
-          this.mDeletedItems.addItem(item);
+          let calendarItem = this.mInitialItems[hashId];
+          this.mDeletedItems.addItem(calendarItem);
         }
 
         this.mDeletedItems.endBatch();
@@ -213,28 +211,28 @@ var calitem = {
   /**
    * Checks whether the passed item fits into the demanded range.
    *
-   * @param item               the item
+   * @param calendarItem               the item
    * @param rangeStart         (inclusive) range start or null (open range)
    * @param rangeStart         (exclusive) range end or null (open range)
    * @param returnDtstartOrDue returns item's start (or due) date in case
    *                           the item is in the specified Range; null otherwise.
    */
-  checkIfInRange(item, rangeStart, rangeEnd, returnDtstartOrDue) {
+  checkIfInRange(calendarItem, rangeStart, rangeEnd, returnDtstartOrDue) {
     let startDate;
     let endDate;
     let queryStart = cal.dtz.ensureDateTime(rangeStart);
-    if (item.isEvent()) {
-      startDate = item.startDate;
+    if (calendarItem.isEvent()) {
+      startDate = calendarItem.startDate;
       if (!startDate) {
         // DTSTART mandatory
         // xxx todo: should we assert this case?
         return null;
       }
-      endDate = item.endDate || startDate;
+      endDate = calendarItem.endDate || startDate;
     } else {
-      let dueDate = item.dueDate;
-      startDate = item.entryDate || dueDate;
-      if (!item.entryDate) {
+      let dueDate = calendarItem.dueDate;
+      startDate = calendarItem.entryDate || dueDate;
+      if (!calendarItem.entryDate) {
         if (returnDtstartOrDue) {
           // DTSTART or DUE mandatory
           return null;
@@ -243,7 +241,7 @@ var calitem = {
         // A "VTODO" calendar component without the "DTSTART" and "DUE" (or
         // "DURATION") properties specifies a to-do that will be associated
         // with each successive calendar date, until it is completed.
-        let completedDate = cal.dtz.ensureDateTime(item.completedDate);
+        let completedDate = cal.dtz.ensureDateTime(calendarItem.completedDate);
         dueDate = cal.dtz.ensureDateTime(dueDate);
         return (
           !completedDate ||
@@ -275,85 +273,85 @@ var calitem = {
     return null;
   },
 
-  setItemProperty(item, propertyName, aValue, aCapability) {
+  setItemProperty(calendarItem, propertyName, aValue, aCapability) {
     let isSupported =
-      item.calendar.getProperty("capabilities." + aCapability + ".supported") !== false;
+      calendarItem.calendar.getProperty("capabilities." + aCapability + ".supported") !== false;
     let value = aCapability && !isSupported ? null : aValue;
 
     switch (propertyName) {
       case "startDate":
         if (
-          (value.isDate && !item.startDate.isDate) ||
-          (!value.isDate && item.startDate.isDate) ||
-          !cal.data.compareObjects(value.timezone, item.startDate.timezone) ||
-          value.compare(item.startDate) != 0
+          (value.isDate && !calendarItem.startDate.isDate) ||
+          (!value.isDate && calendarItem.startDate.isDate) ||
+          !cal.data.compareObjects(value.timezone, calendarItem.startDate.timezone) ||
+          value.compare(calendarItem.startDate) != 0
         ) {
-          item.startDate = value;
+          calendarItem.startDate = value;
         }
         break;
       case "endDate":
         if (
-          (value.isDate && !item.endDate.isDate) ||
-          (!value.isDate && item.endDate.isDate) ||
-          !cal.data.compareObjects(value.timezone, item.endDate.timezone) ||
-          value.compare(item.endDate) != 0
+          (value.isDate && !calendarItem.endDate.isDate) ||
+          (!value.isDate && calendarItem.endDate.isDate) ||
+          !cal.data.compareObjects(value.timezone, calendarItem.endDate.timezone) ||
+          value.compare(calendarItem.endDate) != 0
         ) {
-          item.endDate = value;
+          calendarItem.endDate = value;
         }
         break;
       case "entryDate":
-        if (value == item.entryDate) {
+        if (value == calendarItem.entryDate) {
           break;
         }
         if (
-          (value && !item.entryDate) ||
-          (!value && item.entryDate) ||
-          value.isDate != item.entryDate.isDate ||
-          !cal.data.compareObjects(value.timezone, item.entryDate.timezone) ||
-          value.compare(item.entryDate) != 0
+          (value && !calendarItem.entryDate) ||
+          (!value && calendarItem.entryDate) ||
+          value.isDate != calendarItem.entryDate.isDate ||
+          !cal.data.compareObjects(value.timezone, calendarItem.entryDate.timezone) ||
+          value.compare(calendarItem.entryDate) != 0
         ) {
-          item.entryDate = value;
+          calendarItem.entryDate = value;
         }
         break;
       case "dueDate":
-        if (value == item.dueDate) {
+        if (value == calendarItem.dueDate) {
           break;
         }
         if (
-          (value && !item.dueDate) ||
-          (!value && item.dueDate) ||
-          value.isDate != item.dueDate.isDate ||
-          !cal.data.compareObjects(value.timezone, item.dueDate.timezone) ||
-          value.compare(item.dueDate) != 0
+          (value && !calendarItem.dueDate) ||
+          (!value && calendarItem.dueDate) ||
+          value.isDate != calendarItem.dueDate.isDate ||
+          !cal.data.compareObjects(value.timezone, calendarItem.dueDate.timezone) ||
+          value.compare(calendarItem.dueDate) != 0
         ) {
-          item.dueDate = value;
+          calendarItem.dueDate = value;
         }
         break;
       case "isCompleted":
-        if (value != item.isCompleted) {
-          item.isCompleted = value;
+        if (value != calendarItem.isCompleted) {
+          calendarItem.isCompleted = value;
         }
         break;
       case "PERCENT-COMPLETE": {
-        let perc = parseInt(item.getProperty(propertyName), 10);
+        let perc = parseInt(calendarItem.getProperty(propertyName), 10);
         if (isNaN(perc)) {
           perc = 0;
         }
         if (perc != value) {
-          item.setProperty(propertyName, value);
+          calendarItem.setProperty(propertyName, value);
         }
         break;
       }
       case "title":
-        if (value != item.title) {
-          item.title = value;
+        if (value != calendarItem.title) {
+          calendarItem.title = value;
         }
         break;
       default:
         if (!value || value == "") {
-          item.deleteProperty(propertyName);
-        } else if (item.getProperty(propertyName) != value) {
-          item.setProperty(propertyName, value);
+          calendarItem.deleteProperty(propertyName);
+        } else if (calendarItem.getProperty(propertyName) != value) {
+          calendarItem.setProperty(propertyName, value);
         }
         break;
     }
@@ -471,32 +469,32 @@ var calitem = {
   /**
    * Shifts an item by the given timely offset.
    *
-   * @param item an item
+   * @param calendarItem an item
    * @param offset an offset (calIDuration)
    */
-  shiftOffset(item, offset) {
+  shiftOffset(calendarItem, offset) {
     // When modifying dates explicitly using the setters is important
     // since those may triggers e.g. calIRecurrenceInfo::onStartDateChange
     // or invalidate other properties. Moreover don't modify the date-time objects
     // without cloning, because changes cannot be calculated if doing so.
-    if (item.isEvent()) {
-      let date = item.startDate.clone();
+    if (calendarItem.isEvent()) {
+      let date = calendarItem.startDate.clone();
       date.addDuration(offset);
-      item.startDate = date;
-      date = item.endDate.clone();
+      calendarItem.startDate = date;
+      date = calendarItem.endDate.clone();
       date.addDuration(offset);
-      item.endDate = date;
+      calendarItem.endDate = date;
     } else {
       /* isToDo */
-      if (item.entryDate) {
-        let date = item.entryDate.clone();
+      if (calendarItem.entryDate) {
+        let date = calendarItem.entryDate.clone();
         date.addDuration(offset);
-        item.entryDate = date;
+        calendarItem.entryDate = date;
       }
-      if (item.dueDate) {
-        let date = item.dueDate.clone();
+      if (calendarItem.dueDate) {
+        let date = calendarItem.dueDate.clone();
         date.addDuration(offset);
-        item.dueDate = date;
+        calendarItem.dueDate = date;
       }
     }
   },
@@ -575,8 +573,8 @@ var calitem = {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
     // Set the prodid and version
-    aIcalComponent.prodid = calitem.productId;
-    aIcalComponent.version = calitem.productVersion;
+    aIcalComponent.prodid = item.productId;
+    aIcalComponent.version = item.productVersion;
   },
 
   /**
@@ -616,18 +614,18 @@ var calitem = {
     let start = aItem[cal.dtz.startDateProp(aItem)];
     let end = aItem[cal.dtz.endDateProp(aItem)];
     if (start || end) {
-      let item = aItem.clone();
+      let calendarItem = aItem.clone();
       if (start && start.isDate != aIsDate) {
         start = start.clone();
         start.isDate = aIsDate;
-        item[cal.dtz.startDateProp(item)] = start;
+        calendarItem[cal.dtz.startDateProp(calendarItem)] = start;
       }
       if (end && end.isDate != aIsDate) {
         end = end.clone();
         end.isDate = aIsDate;
-        item[cal.dtz.endDateProp(item)] = end;
+        calendarItem[cal.dtz.endDateProp(calendarItem)] = end;
       }
-      return item;
+      return calendarItem;
     }
     return aItem;
   },

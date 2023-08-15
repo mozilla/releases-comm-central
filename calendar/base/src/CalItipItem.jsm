@@ -4,7 +4,7 @@
 
 var EXPORTED_SYMBOLS = ["CalItipItem"];
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 function CalItipItem() {
   this.wrappedJSObject = this;

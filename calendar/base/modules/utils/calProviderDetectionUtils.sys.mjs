@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["calproviderdetection"];
-
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+import { cal } from "resource:///modules/calendar/calUtils.sys.mjs";
 
 /**
  * Code to call the calendar provider detection mechanism.
@@ -36,7 +34,7 @@ function DetectionErrorClass(aName) {
 /**
  * The exported `calproviderdetection` object.
  */
-var calproviderdetection = {
+export var detection = {
   /**
    * A map of providers that implement detection. Maps the type identifier
    * (e.g. "ics", "caldav") to the provider object.
@@ -114,7 +112,7 @@ var calproviderdetection = {
     let providers = this.providers;
 
     if (!providers.size) {
-      throw new calproviderdetection.NoneFoundError(
+      throw new detection.NoneFoundError(
         "No providers available that implement calendar detection"
       );
     }
@@ -162,7 +160,7 @@ var calproviderdetection = {
 
     // If everything failed due to one of the detection errors, then pass that on.
     if (failCount == resolutions.length) {
-      throw lastError || new calproviderdetection.NoneFoundError();
+      throw lastError || new detection.NoneFoundError();
     }
 
     return results;

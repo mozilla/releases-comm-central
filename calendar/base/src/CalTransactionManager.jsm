@@ -13,7 +13,7 @@ var EXPORTED_SYMBOLS = [
   "CalDeleteTransaction",
 ];
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 const OP_ADD = Ci.calIOperationListener.ADD;
 const OP_MODIFY = Ci.calIOperationListener.MODIFY;

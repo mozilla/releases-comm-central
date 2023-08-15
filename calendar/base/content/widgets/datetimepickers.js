@@ -6,7 +6,7 @@
 
 // Wrap in a block to prevent leaking to window scope.
 {
-  const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+  const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
   // Leave these first arguments as `undefined`, to use the OS style if
   // intl.regional_prefs.use_os_locales is true or the app language matches the OS language.

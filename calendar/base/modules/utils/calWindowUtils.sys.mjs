@@ -9,9 +9,7 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.window namespace.
 
-const EXPORTED_SYMBOLS = ["calwindow"];
-
-const { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 const lazy = {};
 XPCOMUtils.defineLazyGetter(
@@ -20,7 +18,7 @@ XPCOMUtils.defineLazyGetter(
   () => new Localization(["calendar/calendar-delete-prompt.ftl"], true)
 );
 
-var calwindow = {
+export var window = {
   /**
    * Opens the Create Calendar wizard
    *
@@ -28,8 +26,8 @@ var calwindow = {
    * @param aCallback  a function to be performed after calendar creation
    */
   openCalendarWizard(aWindow, aCallback) {
-    let window = aWindow || calwindow.getCalendarWindow();
-    window.openDialog(
+    let dialogWindow = aWindow || window.getCalendarWindow();
+    dialogWindow.openDialog(
       "chrome://calendar/content/calendar-creation.xhtml",
       "caEditServer",
       "chrome,titlebar,resizable,centerscreen",
@@ -51,8 +49,8 @@ var calwindow = {
    * @param {OpenCalendarPropertiesArgs} args - Passed directly to the window.
    */
   openCalendarProperties(aWindow, args) {
-    let window = aWindow || calwindow.getCalendarWindow();
-    window.openDialog(
+    let dialogWindow = aWindow || window.getCalendarWindow();
+    dialogWindow.openDialog(
       "chrome://calendar/content/calendar-properties-dialog.xhtml",
       "CalendarPropertiesDialog",
       "chrome,titlebar,resizable,centerscreen",

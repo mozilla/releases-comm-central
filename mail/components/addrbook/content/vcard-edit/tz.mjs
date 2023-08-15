@@ -3,11 +3,9 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "cal",
-  "resource:///modules/calendar/calUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
+});
 ChromeUtils.defineModuleGetter(
   lazy,
   "VCardPropertyEntry",

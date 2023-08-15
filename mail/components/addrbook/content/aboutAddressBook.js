@@ -29,12 +29,12 @@ XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function () {
 ChromeUtils.defineESModuleGetters(this, {
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
+  cal: "resource:///modules/calendar/calUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddrBookCard: "resource:///modules/AddrBookCard.jsm",
   AddrBookUtils: "resource:///modules/AddrBookUtils.jsm",
-  cal: "resource:///modules/calendar/calUtils.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalMetronome: "resource:///modules/CalMetronome.jsm",
   CardDAVDirectory: "resource:///modules/CardDAVDirectory.jsm",

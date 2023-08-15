@@ -6,7 +6,7 @@
 
 /* import-globals-from ../calendar-ui-utils.js */
 
-var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 function loadCalendars() {
   const calendarManager = Cc["@mozilla.org/calendar/manager;1"].getService(Ci.calICalendarManager);
