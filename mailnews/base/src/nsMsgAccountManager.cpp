@@ -3025,11 +3025,18 @@ NS_IMETHODIMP nsMsgAccountManager::GetAllFolders(
 
 NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
                                                  nsIMsgFolder* folder) {
+  if (!parent) {
+    // This method gets called for folders that aren't connected to anything,
+    // such as a junk folder that appears when an IMAP account is created. We
+    // don't want these added to the virtual folder.
+    return NS_OK;
+  }
+
   uint32_t folderFlags;
   folder->GetFlags(&folderFlags);
 
   // Find any virtual folders that search `parent`, and add `folder` to them.
-  if (parent && !(folderFlags & nsMsgFolderFlags::Virtual)) {
+  if (!(folderFlags & nsMsgFolderFlags::Virtual)) {
     nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
         m_virtualFolderListeners);
     RefPtr<VirtualFolderChangeListener> listener;
@@ -3068,10 +3075,11 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
   }
 
   bool addToSmartFolders = false;
-  folder->IsSpecialFolder(
-      nsMsgFolderFlags::Inbox | nsMsgFolderFlags::Templates |
-          nsMsgFolderFlags::Trash | nsMsgFolderFlags::Drafts,
-      false, &addToSmartFolders);
+  folder->IsSpecialFolder(nsMsgFolderFlags::Inbox |
+                              nsMsgFolderFlags::Templates |
+                              nsMsgFolderFlags::Trash |
+                              nsMsgFolderFlags::Drafts | nsMsgFolderFlags::Junk,
+                          false, &addToSmartFolders);
   // For Sent/Archives/Trash, we treat sub-folders of those folders as
   // "special", and want to add them the smart folders search scope.
   // So we check if this is a sub-folder of one of those special folders
