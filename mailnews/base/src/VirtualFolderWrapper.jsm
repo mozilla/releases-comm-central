@@ -11,12 +11,6 @@ const EXPORTED_SYMBOLS = ["VirtualFolderHelper"];
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "MailUtils",
-  "resource:///modules/MailUtils.jsm"
-);
 
 var VirtualFolderHelper = {
   /**
@@ -132,7 +126,7 @@ VirtualFolderWrapper.prototype = {
       .getCharProperty("searchFolderUri")
       .split("|")
       .sort() // Put folders in URI order so a parent is always before a child.
-      .map(uri => lazy.MailUtils.getExistingFolder(uri))
+      .map(uri => MailServices.folderLookup.getOrCreateFolderForURL(uri))
       .filter(Boolean);
   },
   /**
