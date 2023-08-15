@@ -89,6 +89,9 @@ search-textbox {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--in-content-border-color);
+  /* Avoid being hidden under the sticky container. This value is the height
+     of that container minus this element's border and padding. */
+  scroll-margin-top: calc(var(--in-content-button-height) + 33px);
 }
 
 fieldset {
@@ -178,6 +181,7 @@ menulist::part(dropmarker-icon) {
 }
 
 #searchInput {
+  /* If these sizes change, update the scroll margin of .subcategory. */
   min-height: var(--in-content-button-height);
   margin: 20px 0 30px;
 }
