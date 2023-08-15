@@ -373,8 +373,11 @@ var mailTabType = {
           command
         );
       },
-      doCommand(command, tab) {
-        tab.chromeBrowser.contentWindow.commandController?.doCommand(command);
+      doCommand(command, tab, ...args) {
+        tab.chromeBrowser?.contentWindow.commandController?.doCommand(
+          command,
+          ...args
+        );
       },
       getBrowser(tab) {
         return tab.browser;
