@@ -520,7 +520,7 @@ class NntpIncomingServer extends MsgIncomingServer {
         return;
       }
     }
-    this._hostInfoChanged = true;
+    this._hostInfoChanged = !getOnlyNew;
     MailServices.nntp.getListOfGroupsOnServer(this, msgWindow, getOnlyNew);
   }
 

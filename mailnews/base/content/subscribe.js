@@ -103,13 +103,8 @@ function SetUpTree(forceToServer, getOnlyNew) {
     gSubscribeTree.view = gSubscribableServer.folderView;
     gSubscribableServer.subscribeListener = MySubscribeListener;
 
-    var currentListTab = document.getElementById("currentListTab");
-    if (currentListTab.selected) {
-      document.getElementById("newGroupsTab").disabled = true;
-    } else {
-      currentListTab.disabled = true;
-    }
-
+    document.getElementById("currentListTab").disabled = true;
+    document.getElementById("newGroupsTab").disabled = true;
     document.getElementById("refreshButton").disabled = true;
 
     gStatusFeedback._startMeteors();

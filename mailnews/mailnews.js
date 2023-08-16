@@ -313,6 +313,9 @@ pref("news.show_size_in_lines", true);
 pref("news.update_unread_on_expand", true);
 pref("news.get_messages_on_select", true);
 
+// list new groups created in the last number of days
+pref("news.newgroups_for_num_days", 180);
+
 pref("mailnews.wraplength", 72);
 
 // 0=no header, 1="<author> wrote:", 2="On <date> <author> wrote:", 3="<author> wrote On <date>:", 4=user specified

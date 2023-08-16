@@ -327,10 +327,16 @@ class NntpClient {
   }
 
   /**
-   * Send a LIST command to get all the groups in the current server.
+   * Send a LIST or NEWGROUPS command to get groups in the current server.
+   *
+   * @param {boolean} getOnlyNew - List only new groups.
    */
-  getListOfGroups() {
-    this._actionModeReader(this._actionList);
+  getListOfGroups(getOnlyNew) {
+    if (!getOnlyNew) {
+      this._actionModeReader(this._actionList);
+    } else {
+      this._actionModeReader(this._actionNewgroups);
+    }
     this.urlListener = this._server.QueryInterface(Ci.nsIUrlListener);
   }
 
@@ -543,6 +549,23 @@ class NntpClient {
   _actionList = () => {
     this._sendCommand("LIST");
     this._currentAction = this._actionList;
+    this._nextAction = this._actionReadData;
+  };
+
+  /**
+   * Send `NEWGROUPS` request to the server.
+   * @see rfc3977#section-7.3
+   */
+  _actionNewgroups = () => {
+    const days = Services.prefs.getIntPref("news.newgroups_for_num_days", 180);
+    const dateTime = new Date(Date.now() - 86400000 * days)
+      .toISOString()
+      .replace(
+        /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}).*/,
+        "$1$2$3 $4$5$6"
+      );
+    this._sendCommand("NEWGROUPS " + dateTime + " GMT");
+    this._currentAction = this._actionNewgroups;
     this._nextAction = this._actionReadData;
   };
 

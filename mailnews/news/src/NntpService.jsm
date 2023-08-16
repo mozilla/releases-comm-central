@@ -115,7 +115,7 @@ class NntpService {
     server.wrappedJSObject.withClient(client => {
       client.startRunningUrl(null, msgWindow);
       client.onOpen = () => {
-        client.getListOfGroups();
+        client.getListOfGroups(getOnlyNew);
       };
 
       client.onData = data => {
