@@ -4,6 +4,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+// This file contains Thunderbird specific settings and overrides to settings
+// from mailnews.js, all.js etc. Settings in this file will take
+// precedence for Thunderbird.
+
 #ifdef XP_UNIX
 #ifndef XP_MACOSX
 #define UNIX_BUT_NOT_MAC

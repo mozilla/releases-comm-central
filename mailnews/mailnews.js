@@ -4,6 +4,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+// This file contains settings for the shared (with SeaMonkey) mailnews backend.
+// Thunderbird specific settings and overrides are in all-thunderbird.js.
+
 // SpaceHit() function: whether spacebar advances to next unread message.
 pref("mail.advance_on_spacebar", true);
 
