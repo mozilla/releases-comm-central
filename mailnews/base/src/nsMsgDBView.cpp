@@ -316,7 +316,7 @@ static void UpdateCachedName(nsIMsgDBHdr* aHdr, const char* header_field,
   // Save name.
   newCachedName.Append(NS_ConvertUTF16toUTF8(newName));
 
-  aHdr->SetStringProperty(header_field, newCachedName.get());
+  aHdr->SetStringProperty(header_field, newCachedName);
 }
 
 nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aSenderString) {
@@ -328,7 +328,7 @@ nsresult nsMsgDBView::FetchAuthor(nsIMsgDBHdr* aHdr, nsAString& aSenderString) {
   prefs->GetIntPref("mail.displayname.version", &currentDisplayNameVersion);
   prefs->GetBoolPref("mail.showCondensedAddresses", &showCondensedAddresses);
 
-  aHdr->GetStringProperty("sender_name", getter_Copies(unparsedAuthor));
+  aHdr->GetStringProperty("sender_name", unparsedAuthor);
 
   // If the author is already computed, use it.
   if (!unparsedAuthor.IsEmpty()) {
@@ -429,7 +429,7 @@ nsresult nsMsgDBView::FetchRecipients(nsIMsgDBHdr* aHdr,
   prefs->GetIntPref("mail.displayname.version", &currentDisplayNameVersion);
   prefs->GetBoolPref("mail.showCondensedAddresses", &showCondensedAddresses);
 
-  aHdr->GetStringProperty("recipient_names", getter_Copies(recipients));
+  aHdr->GetStringProperty("recipient_names", recipients);
 
   if (!recipients.IsEmpty()) {
     nsCString cachedRecipients;
@@ -733,7 +733,7 @@ nsresult nsMsgDBView::FetchKeywords(nsIMsgDBHdr* aHdr,
     NS_ENSURE_SUCCESS(rv, rv);
   }
   nsCString keywords;
-  aHdr->GetStringProperty("keywords", getter_Copies(keywords));
+  aHdr->GetStringProperty("keywords", keywords);
   keywordString = keywords;
   return NS_OK;
 }
@@ -788,7 +788,7 @@ nsresult nsMsgDBView::FetchTags(nsIMsgDBHdr* aHdr, nsAString& aTagString) {
 
   nsString tags;
   nsCString keywords;
-  aHdr->GetStringProperty("keywords", getter_Copies(keywords));
+  aHdr->GetStringProperty("keywords", keywords);
 
   nsTArray<nsCString> keywordsArray;
   ParseString(keywords, ' ', keywordsArray);
@@ -1007,7 +1007,7 @@ nsresult nsMsgDBView::UpdateDisplayMessage(nsMsgViewIndex viewPosition) {
   FetchSubject(msgHdr, m_flags[viewPosition], subject);
 
   nsCString keywords;
-  rv = msgHdr->GetStringProperty("keywords", getter_Copies(keywords));
+  rv = msgHdr->GetStringProperty("keywords", keywords);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolder> folder = m_viewFolder ? m_viewFolder : m_folder;
@@ -1193,11 +1193,11 @@ nsMsgDBView::GetRowProperties(int32_t index, nsAString& properties) {
     properties.AppendLiteral(" imapdeleted");
 
   nsCString imageSize;
-  msgHdr->GetStringProperty("imageSize", getter_Copies(imageSize));
+  msgHdr->GetStringProperty("imageSize", imageSize);
   if (!imageSize.IsEmpty()) properties.AppendLiteral(" hasimage");
 
   nsCString junkScoreStr;
-  msgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+  msgHdr->GetStringProperty("junkscore", junkScoreStr);
   if (!junkScoreStr.IsEmpty()) {
     if (junkScoreStr.ToInteger(&rv) == nsIJunkMailPlugin::IS_SPAM_SCORE)
       properties.AppendLiteral(" junk");
@@ -1315,11 +1315,11 @@ nsMsgDBView::GetCellProperties(int32_t aRow, nsTreeColumn* col,
     properties.AppendLiteral(" imapdeleted");
 
   nsCString imageSize;
-  msgHdr->GetStringProperty("imageSize", getter_Copies(imageSize));
+  msgHdr->GetStringProperty("imageSize", imageSize);
   if (!imageSize.IsEmpty()) properties.AppendLiteral(" hasimage");
 
   nsCString junkScoreStr;
-  msgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+  msgHdr->GetStringProperty("junkscore", junkScoreStr);
   if (!junkScoreStr.IsEmpty()) {
     if (junkScoreStr.ToInteger(&rv) == nsIJunkMailPlugin::IS_SPAM_SCORE)
       properties.AppendLiteral(" junk");
@@ -1346,7 +1346,7 @@ nsMsgDBView::GetCellProperties(int32_t aRow, nsTreeColumn* col,
   // I'm not sure anyone uses the kw- property, though it could be nice
   // for people wanting to extend the thread pane.
   nsCString keywordProperty;
-  msgHdr->GetStringProperty("keywords", getter_Copies(keywordProperty));
+  msgHdr->GetStringProperty("keywords", keywordProperty);
   if (!keywordProperty.IsEmpty()) {
     NS_ConvertUTF8toUTF16 keywords(keywordProperty);
     int32_t spaceIndex = 0;
@@ -1626,7 +1626,7 @@ nsMsgDBView::GetCellValue(int32_t aRow, nsTreeColumn* aCol, nsAString& aValue) {
     case 'j':
       if (colID.EqualsLiteral("junkStatusCol") && JunkControlsEnabled(aRow)) {
         nsCString junkScoreStr;
-        msgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+        msgHdr->GetStringProperty("junkscore", junkScoreStr);
         // Only need to assign a real value for junk, it's empty already
         // as it should be for non-junk.
         if (!junkScoreStr.IsEmpty() &&
@@ -1948,7 +1948,7 @@ nsMsgDBView::CellTextForColumn(int32_t aRow, const nsAString& aColumnName,
     case 'j': {
       if (aColumnName.EqualsLiteral("junkStatusCol")) {
         nsCString junkScoreStr;
-        msgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+        msgHdr->GetStringProperty("junkscore", junkScoreStr);
         CopyASCIItoUTF16(junkScoreStr, aValue);
       }
       break;
@@ -2104,8 +2104,7 @@ nsMsgDBView::CycleCell(int32_t row, nsTreeColumn* col) {
       nsresult rv = GetMsgHdrForViewIndex(row, getter_AddRefs(msgHdr));
       if (NS_SUCCEEDED(rv) && msgHdr) {
         nsCString junkScoreStr;
-        rv =
-            msgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+        rv = msgHdr->GetStringProperty("junkscore", junkScoreStr);
         if (junkScoreStr.IsEmpty() ||
             (junkScoreStr.ToInteger(&rv) == nsIJunkMailPlugin::IS_HAM_SCORE)) {
           ApplyCommandToIndices(nsMsgViewCommandType::junk,
@@ -3220,13 +3219,11 @@ nsresult nsMsgDBView::SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
                                           nsMsgJunkStatus aNewClassification) {
   // Get the old junk score.
   nsCString junkScoreStr;
-  nsresult rv =
-      aMsgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+  nsresult rv = aMsgHdr->GetStringProperty("junkscore", junkScoreStr);
 
   // And the old origin.
   nsCString oldOriginStr;
-  rv = aMsgHdr->GetStringProperty("junkscoreorigin",
-                                  getter_Copies(oldOriginStr));
+  rv = aMsgHdr->GetStringProperty("junkscoreorigin", oldOriginStr);
 
   // If this was not classified by the user, say so.
   nsMsgJunkStatus oldUserClassification;
@@ -3268,7 +3265,7 @@ nsresult nsMsgDBView::SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
   // and told us the junk status of this message.
   // Set origin first so that listeners on the junkscore will
   // know the correct origin.
-  rv = db->SetStringProperty(msgKey, "junkscoreorigin", "user");
+  rv = db->SetStringProperty(msgKey, "junkscoreorigin", "user"_ns);
   NS_ASSERTION(NS_SUCCEEDED(rv), "SetStringPropertyByIndex failed");
 
   // Set the junk score on the message itself.
@@ -3276,7 +3273,7 @@ nsresult nsMsgDBView::SetMsgHdrJunkStatus(nsIJunkMailPlugin* aJunkPlugin,
   msgJunkScore.AppendInt(aNewClassification == nsIJunkMailPlugin::JUNK
                              ? nsIJunkMailPlugin::IS_SPAM_SCORE
                              : nsIJunkMailPlugin::IS_HAM_SCORE);
-  db->SetStringProperty(msgKey, "junkscore", msgJunkScore.get());
+  db->SetStringProperty(msgKey, "junkscore", msgJunkScore);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return rv;
@@ -3803,7 +3800,7 @@ nsresult nsMsgDBView::GetLongField(nsIMsgDBHdr* msgHdr,
       break;
     case nsMsgViewSortType::byJunkStatus: {
       nsCString junkScoreStr;
-      rv = msgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+      rv = msgHdr->GetStringProperty("junkscore", junkScoreStr);
       // Unscored messages should come before messages that are scored
       // junkScoreStr is "", and "0" - "100"; normalize to 0 - 101.
       *result = junkScoreStr.IsEmpty() ? (0) : atoi(junkScoreStr.get()) + 1;

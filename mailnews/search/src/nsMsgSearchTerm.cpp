@@ -646,7 +646,7 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader(
   bool result = !matchExpected;
 
   nsCString dbHdrValue;
-  msg->GetStringProperty(m_arbitraryHeader.get(), getter_Copies(dbHdrValue));
+  msg->GetStringProperty(m_arbitraryHeader.get(), dbHdrValue);
   if (!dbHdrValue.IsEmpty()) {
     // Match value with the other info. It doesn't check all header occurrences,
     // so we use it only if we match and do line by line headers parsing
@@ -748,7 +748,7 @@ NS_IMETHODIMP nsMsgSearchTerm::MatchHdrProperty(nsIMsgDBHdr* aHdr,
   NS_ENSURE_ARG_POINTER(aHdr);
 
   nsCString dbHdrValue;
-  aHdr->GetStringProperty(m_hdrProperty.get(), getter_Copies(dbHdrValue));
+  aHdr->GetStringProperty(m_hdrProperty.get(), dbHdrValue);
   return MatchString(dbHdrValue, nullptr, aResult);
 }
 

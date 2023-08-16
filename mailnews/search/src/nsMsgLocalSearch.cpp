@@ -503,13 +503,13 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
     }
     case nsMsgSearchAttrib::Keywords: {
       nsCString keywords;
-      msgToMatch->GetStringProperty("keywords", getter_Copies(keywords));
+      msgToMatch->GetStringProperty("keywords", keywords);
       err = aTerm->MatchKeyword(keywords, &result);
       break;
     }
     case nsMsgSearchAttrib::JunkStatus: {
       nsCString junkScoreStr;
-      msgToMatch->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+      msgToMatch->GetStringProperty("junkscore", junkScoreStr);
       err = aTerm->MatchJunkStatus(junkScoreStr.get(), &result);
       break;
     }
@@ -521,17 +521,15 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
       nsresult rv;
       nsCString junkScoreOriginStr;
       nsCString junkPercentStr;
-      msgToMatch->GetStringProperty("junkscoreorigin",
-                                    getter_Copies(junkScoreOriginStr));
-      msgToMatch->GetStringProperty("junkpercent",
-                                    getter_Copies(junkPercentStr));
+      msgToMatch->GetStringProperty("junkscoreorigin", junkScoreOriginStr);
+      msgToMatch->GetStringProperty("junkpercent", junkPercentStr);
       if (junkScoreOriginStr.EqualsLiteral("plugin") &&
           !junkPercentStr.IsEmpty()) {
         junkPercent = junkPercentStr.ToInteger(&rv);
         NS_ENSURE_SUCCESS(rv, rv);
       } else {
         nsCString junkScoreStr;
-        msgToMatch->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+        msgToMatch->GetStringProperty("junkscore", junkScoreStr);
         // When junk status is not set (uncertain) we'll set the value to ham.
         if (junkScoreStr.IsEmpty())
           junkPercent = nsIJunkMailPlugin::IS_HAM_SCORE;
@@ -545,8 +543,7 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
     }
     case nsMsgSearchAttrib::JunkScoreOrigin: {
       nsCString junkScoreOriginStr;
-      msgToMatch->GetStringProperty("junkscoreorigin",
-                                    getter_Copies(junkScoreOriginStr));
+      msgToMatch->GetStringProperty("junkscoreorigin", junkScoreOriginStr);
       err = aTerm->MatchJunkScoreOrigin(junkScoreOriginStr.get(), &result);
       break;
     }

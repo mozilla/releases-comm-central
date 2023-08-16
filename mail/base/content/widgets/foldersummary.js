@@ -226,11 +226,8 @@
           }
 
           if (this.showPreview) {
-            // Get the preview text as a UTF-8 encoded string.
             msgBox.querySelector(".folderSummary-previewText").textContent =
-              decodeURIComponent(
-                escape(msgHdr.getStringProperty("preview") || "")
-              );
+              msgHdr.getStringProperty("preview") || "";
           }
           this.appendChild(msgBox);
           haveMsgsToShow = true;
@@ -287,11 +284,8 @@
         }
 
         if (this.showPreview) {
-          // Get the preview text as a UTF-8 encoded string.
           msgBox.querySelector(".folderSummary-previewText").textContent =
-            decodeURIComponent(
-              escape(msgHdr.getStringProperty("preview") || "")
-            );
+            msgHdr.getStringProperty("preview") || "";
         }
         this.appendChild(msgBox);
       }

@@ -816,7 +816,7 @@ nsresult nsFolderCompactState::FlushBuffer() {
   nsAutoCString keywords;
   if (m_curSrcHdr) {
     m_curSrcHdr->GetFlags(&msgFlags);
-    m_curSrcHdr->GetStringProperty("keywords", getter_Copies(keywords));
+    m_curSrcHdr->GetStringProperty("keywords", keywords);
     // growKeywords is set if msgStore didn't have enough room to edit
     // X-Mozilla-* headers in situ. We'll rewrite all those headers
     // regardless but we still want to clear it.
@@ -935,7 +935,7 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
     nsresult rv =
         m_db->GetMsgHdrForKey(m_keys[m_curIndex], getter_AddRefs(hdr));
     NS_ENSURE_SUCCESS(rv, rv);
-    hdr->GetStringProperty("pendingRemoval", getter_Copies(pendingRemoval));
+    hdr->GetStringProperty("pendingRemoval", pendingRemoval);
     if (!pendingRemoval.IsEmpty()) {
       m_curIndex++;
       // Turn off offline flag for message, since after the compact is
@@ -944,7 +944,7 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
       hdr->AndFlags(~nsMsgMessageFlags::Offline, &resultFlags);
       // We need to clear this in case the user changes the offline retention
       // settings.
-      hdr->SetStringProperty("pendingRemoval", "");
+      hdr->SetStringProperty("pendingRemoval", ""_ns);
       continue;
     }
     m_messageUri.Truncate();  // clear the previous message uri
@@ -1015,8 +1015,7 @@ nsOfflineStoreCompactState::OnStopRequest(nsIRequest* request,
   if (msgHdr) {
     if (NS_SUCCEEDED(status)) {
       msgHdr->SetMessageOffset(m_startOfNewMsg);
-      char storeToken[100];
-      PR_snprintf(storeToken, sizeof(storeToken), "%lld", m_startOfNewMsg);
+      nsCString storeToken = nsPrintfCString("%" PRIu64, m_startOfNewMsg);
       msgHdr->SetStringProperty("storeToken", storeToken);
       msgHdr->SetOfflineMessageSize(m_offlineMsgSize);
     } else {
@@ -1166,8 +1165,7 @@ nsFolderCompactState::EndCopy(nsIURI* uri, nsresult status) {
   }
   m_curSrcHdr = nullptr;
   if (newMsgHdr) {
-    char storeToken[100];
-    PR_snprintf(storeToken, sizeof(storeToken), "%lld", m_startOfNewMsg);
+    nsCString storeToken = nsPrintfCString("%" PRIu64, m_startOfNewMsg);
     newMsgHdr->SetStringProperty("storeToken", storeToken);
     newMsgHdr->SetMessageOffset(m_startOfNewMsg);
     uint64_t msgSize = endOfMsg - m_startOfNewMsg;

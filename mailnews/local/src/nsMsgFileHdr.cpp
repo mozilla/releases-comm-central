@@ -90,17 +90,17 @@ nsresult nsMsgFileHdr::ReadFile() {
 }
 
 NS_IMETHODIMP nsMsgFileHdr::SetStringProperty(const char* propertyName,
-                                              const char* propertyValue) {
+                                              const nsACString& propertyValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFileHdr::GetStringProperty(const char* propertyName,
-                                              char** _retval) {
+                                              nsACString& _retval) {
   if (!strcmp(propertyName, "dummyMsgUrl")) {
-    *_retval = strdup(mUri.get());
+    _retval = mUri;
     return NS_OK;
   }
-  *_retval = strdup("");
+  _retval.Truncate();
   return NS_OK;
 }
 

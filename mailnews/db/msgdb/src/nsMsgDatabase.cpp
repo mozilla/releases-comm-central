@@ -29,6 +29,7 @@
 #include "nsMemory.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
+#include "nsPrintfCString.h"
 #include "nsMsgDatabaseEnumerators.h"
 #include "nsIMemoryReporter.h"
 #include "nsIWeakReferenceUtils.h"
@@ -2125,7 +2126,7 @@ NS_IMETHODIMP nsMsgDatabase::MarkOffline(nsMsgKey key, bool offline,
 
 NS_IMETHODIMP nsMsgDatabase::SetStringProperty(nsMsgKey aKey,
                                                const char* aProperty,
-                                               const char* aValue) {
+                                               const nsACString& aValue) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsresult rv = GetMsgHdrForKey(aKey, getter_AddRefs(msgHdr));
   if (NS_FAILED(rv) || !msgHdr)
@@ -2135,7 +2136,7 @@ NS_IMETHODIMP nsMsgDatabase::SetStringProperty(nsMsgKey aKey,
 
 NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr* msgHdr,
                                                     const char* aProperty,
-                                                    const char* aValue) {
+                                                    const nsACString& aValue) {
   // don't do notifications if message not yet added to database.
   // Ignore errors (consequences of failure are minor).
   bool notify = true;
@@ -2144,7 +2145,7 @@ NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr* msgHdr,
   ContainsKey(key, &notify);
 
   nsCString oldValue;
-  nsresult rv = msgHdr->GetStringProperty(aProperty, getter_Copies(oldValue));
+  nsresult rv = msgHdr->GetStringProperty(aProperty, oldValue);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // if no change to this string property, bail out
@@ -2176,7 +2177,7 @@ NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr* msgHdr,
     // if this is the junk score property notify, as long as we're not going
     // from no value to non junk
     if (!strcmp(aProperty, "junkscore") &&
-        !(oldValue.IsEmpty() && !strcmp(aValue, "0")))
+        !(oldValue.IsEmpty() && aValue.Equals("0")))
       NotifyJunkScoreChanged(nullptr);
 
     nsTObserverArray<nsCOMPtr<nsIDBChangeListener>>::ForwardIterator listeners(

@@ -451,8 +451,7 @@ NS_IMETHODIMP nsMsgPurgeService::OnSearchHit(nsIMsgDBHdr* aMsgHdr,
   //
   // see bug #194090
   nsCString junkScoreStr;
-  nsresult rv =
-      aMsgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+  nsresult rv = aMsgHdr->GetStringProperty("junkscore", junkScoreStr);
   NS_ENSURE_SUCCESS(rv, rv);
 
   MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,

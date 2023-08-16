@@ -404,7 +404,7 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
     getMsgHdrForCurrentURL(opts, getter_AddRefs(msgHdr));
     if (msgHdr) {
       nsCString junkScoreStr;
-      (void)msgHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+      (void)msgHdr->GetStringProperty("junkscore", junkScoreStr);
       if (html_as == 0 && junkScoreStr.get() && atoi(junkScoreStr.get()) > 50)
         html_as = 3;  // 3 == Simple HTML
     }                 // if msgHdr

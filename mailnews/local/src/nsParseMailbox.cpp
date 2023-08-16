@@ -40,6 +40,7 @@
 #include "nsIMsgCopyService.h"
 #include "nsICryptoHash.h"
 #include "nsIStringBundle.h"
+#include "nsPrintfCString.h"
 #include "nsIMsgFilterCustomAction.h"
 #include <ctype.h>
 #include "nsIMsgPluggableStore.h"
@@ -328,8 +329,7 @@ void nsMsgMailboxParser::UpdateDBFolderInfo(nsIMsgDatabase* mailDB) {
 int32_t nsMsgMailboxParser::PublishMsgHeader(nsIMsgWindow* msgWindow) {
   FinishHeader();
   if (m_newMsgHdr) {
-    char storeToken[100];
-    PR_snprintf(storeToken, sizeof(storeToken), "%lld", m_envelope_pos);
+    nsCString storeToken = nsPrintfCString("%" PRIu64, m_envelope_pos);
     m_newMsgHdr->SetStringProperty("storeToken", storeToken);
     m_newMsgHdr->SetMessageOffset(m_envelope_pos);
 
@@ -1250,7 +1250,8 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
       // set the "replyTo" attribute on the msg hdr.
       if (replyTo && (!sender || replyTo->length != sender->length ||
                       strncmp(replyTo->value, sender->value, sender->length)))
-        m_newMsgHdr->SetStringProperty("replyTo", replyTo->value);
+        m_newMsgHdr->SetStringProperty("replyTo",
+                                       nsDependentCString(replyTo->value));
       if (sender) m_newMsgHdr->SetAuthor(sender->value);
       if (recipient == &m_newsgroups) {
         /* In the case where the recipient is a newsgroup, truncate the string
@@ -1413,8 +1414,7 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
           // When there are many keywords, some may not have been written
           // to the message file, so add extra keywords from the backup
           nsAutoCString oldKeywords;
-          m_newMsgHdr->GetStringProperty("keywords",
-                                         getter_Copies(oldKeywords));
+          m_newMsgHdr->GetStringProperty("keywords", oldKeywords);
           nsTArray<nsCString> newKeywordArray, oldKeywordArray;
           ParseString(
               Substring(keywords->value, keywords->value + keywords->length),
@@ -1428,16 +1428,17 @@ nsresult nsParseMailMessageState::FinalizeHeaders() {
             if (i) newKeywords.Append(' ');
             newKeywords.Append(newKeywordArray[i]);
           }
-          m_newMsgHdr->SetStringProperty("keywords", newKeywords.get());
+          m_newMsgHdr->SetStringProperty("keywords", newKeywords);
         }
         for (uint32_t i = 0; i < m_customDBHeaders.Length(); i++) {
           if (m_customDBHeaderValues[i].length)
-            m_newMsgHdr->SetStringProperty(m_customDBHeaders[i].get(),
-                                           m_customDBHeaderValues[i].value);
+            m_newMsgHdr->SetStringProperty(
+                m_customDBHeaders[i].get(),
+                nsDependentCString(m_customDBHeaderValues[i].value));
           // The received header is accumulated separately
           if (m_customDBHeaders[i].EqualsLiteral("received") &&
               !m_receivedValue.IsEmpty())
-            m_newMsgHdr->SetStringProperty("received", m_receivedValue.get());
+            m_newMsgHdr->SetStringProperty("received", m_receivedValue);
         }
         if (content_type) {
           char* substring = PL_strstr(content_type->value, "charset");
@@ -1695,7 +1696,7 @@ void nsParseNewMailState::ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow) {
       char* headers = m_headers.GetBuffer();
       uint32_t headersSize = m_headers.GetBufferPos();
       nsAutoCString tok;
-      msgHdr->GetStringProperty("storeToken", getter_Copies(tok));
+      msgHdr->GetStringProperty("storeToken", tok);
       if (m_filterList) {
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
                 ("(Local) Running filters on 1 message (%s)", tok.get()));
@@ -1938,8 +1939,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
           filterAction->GetJunkScore(&junkScore);
           junkScoreStr.AppendInt(junkScore);
           if (junkScore == nsIJunkMailPlugin::IS_SPAM_SCORE) msgIsNew = false;
-          rv = msgHdr->SetStringProperty("junkscore", junkScoreStr.get());
-          msgHdr->SetStringProperty("junkscoreorigin", "filter");
+          rv = msgHdr->SetStringProperty("junkscore", junkScoreStr);
+          msgHdr->SetStringProperty("junkscoreorigin", "filter"_ns);
         } break;
         case nsMsgFilterAction::Forward: {
           nsCString forwardTo;
@@ -2305,7 +2306,7 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
   newHdr->GetMessageKey(&msgKey);
   if (!(newFlags & nsMsgMessageFlags::Read)) {
     nsCString junkScoreStr;
-    (void)newHdr->GetStringProperty("junkscore", getter_Copies(junkScoreStr));
+    (void)newHdr->GetStringProperty("junkscore", junkScoreStr);
     if (atoi(junkScoreStr.get()) == nsIJunkMailPlugin::IS_HAM_SCORE) {
       newHdr->OrFlags(nsMsgMessageFlags::New, &newFlags);
       destMailDB->AddToNewList(msgKey);

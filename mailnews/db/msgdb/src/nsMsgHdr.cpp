@@ -207,17 +207,19 @@ NS_IMETHODIMP nsMsgHdr::MarkFlagged(bool bFlagged) {
 }
 
 NS_IMETHODIMP nsMsgHdr::SetStringProperty(const char* propertyName,
-                                          const char* propertyValue) {
+                                          const nsACString& propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyName);
   if (!m_mdb || !m_mdbRow) return NS_ERROR_NULL_POINTER;
-  return m_mdb->SetProperty(m_mdbRow, propertyName, propertyValue);
+  return m_mdb->SetProperty(m_mdbRow, propertyName,
+                            PromiseFlatCString(propertyValue).get());
 }
 
 NS_IMETHODIMP nsMsgHdr::GetStringProperty(const char* propertyName,
-                                          char** aPropertyValue) {
+                                          nsACString& aPropertyValue) {
   NS_ENSURE_ARG_POINTER(propertyName);
   if (!m_mdb || !m_mdbRow) return NS_ERROR_NULL_POINTER;
-  return m_mdb->GetProperty(m_mdbRow, propertyName, aPropertyValue);
+  return m_mdb->GetProperty(m_mdbRow, propertyName,
+                            getter_Copies(aPropertyValue));
 }
 
 NS_IMETHODIMP nsMsgHdr::GetUint32Property(const char* propertyName,
@@ -384,13 +386,17 @@ NS_IMETHODIMP nsMsgHdr::GetPriority(nsMsgPriorityValue* result) {
 // And I'm not sure if we should short circuit it here,
 // or at a higher level where it might be more efficient.
 NS_IMETHODIMP nsMsgHdr::SetAccountKey(const char* aAccountKey) {
-  return SetStringProperty("account", aAccountKey);
+  return SetStringProperty("account", nsDependentCString(aAccountKey));
 }
 
 NS_IMETHODIMP nsMsgHdr::GetAccountKey(char** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
-  return GetStringProperty("account", aResult);
+  nsCString key;
+  nsresult rv = GetStringProperty("account", key);
+  NS_ENSURE_SUCCESS(rv, rv);
+  *aResult = ToNewCString(key);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgHdr::GetMessageOffset(uint64_t* result) {
@@ -407,7 +413,7 @@ NS_IMETHODIMP nsMsgHdr::GetMessageOffset(uint64_t* result) {
     // message even if the assert passes).
 #ifdef DEBUG
     nsCString tok;
-    GetStringProperty("storeToken", getter_Copies(tok));
+    GetStringProperty("storeToken", tok);
     nsPrintfCString err("Missing .messageOffset (key=%u, storeToken='%s')",
                         m_messageKey, tok.get());
     NS_WARNING(err.get());

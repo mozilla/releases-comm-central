@@ -231,8 +231,7 @@ nsMsgQuickSearchDBView::OnHdrPropertyChanged(nsIMsgDBHdr* aHdrChanged,
     return NS_OK;
 
   nsCString originStr;
-  (void)aHdrChanged->GetStringProperty("junkscoreorigin",
-                                       getter_Copies(originStr));
+  (void)aHdrChanged->GetStringProperty("junkscoreorigin", originStr);
   // check for "plugin" with only first character for performance
   bool plugin = (originStr.get()[0] == 'p');
 

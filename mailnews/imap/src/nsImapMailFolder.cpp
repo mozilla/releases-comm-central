@@ -1324,7 +1324,7 @@ NS_IMETHODIMP nsImapMailFolder::MarkPendingRemoval(nsIMsgDBHdr* aHdr,
   NS_ENSURE_ARG_POINTER(aHdr);
   uint32_t offlineMessageSize;
   aHdr->GetOfflineMessageSize(&offlineMessageSize);
-  aHdr->SetStringProperty("pendingRemoval", aMark ? "1" : "");
+  aHdr->SetStringProperty("pendingRemoval", aMark ? "1"_ns : ""_ns);
   if (!aMark) return NS_OK;
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -3031,9 +3031,9 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     flagState->GetCustomAttribute(m_curMsgUid, "X-GM-MSGID"_ns, msgIDValue);
     flagState->GetCustomAttribute(m_curMsgUid, "X-GM-THRID"_ns, threadIDValue);
     flagState->GetCustomAttribute(m_curMsgUid, "X-GM-LABELS"_ns, labelsValue);
-    newMsgHdr->SetStringProperty("X-GM-MSGID", msgIDValue.get());
-    newMsgHdr->SetStringProperty("X-GM-THRID", threadIDValue.get());
-    newMsgHdr->SetStringProperty("X-GM-LABELS", labelsValue.get());
+    newMsgHdr->SetStringProperty("X-GM-MSGID", msgIDValue);
+    newMsgHdr->SetStringProperty("X-GM-THRID", threadIDValue);
+    newMsgHdr->SetStringProperty("X-GM-LABELS", labelsValue);
   }
 
   m_msgParser->Clear();  // clear out parser, because it holds onto a msg hdr.
@@ -3451,9 +3451,8 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
           int32_t junkScore;
           filterAction->GetJunkScore(&junkScore);
           junkScoreStr.AppendInt(junkScore);
-          rv = mDatabase->SetStringProperty(msgKey, "junkscore",
-                                            junkScoreStr.get());
-          mDatabase->SetStringProperty(msgKey, "junkscoreorigin", "filter");
+          rv = mDatabase->SetStringProperty(msgKey, "junkscore", junkScoreStr);
+          mDatabase->SetStringProperty(msgKey, "junkscoreorigin", "filter"_ns);
 
           // If score is available, set up to store junk status on server.
           if (junkScore == nsIJunkMailPlugin::IS_SPAM_SCORE ||
@@ -4502,30 +4501,29 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
                      nsCaseInsensitiveCStringComparator)) {
     nsAutoCString msgJunkScore;
     msgJunkScore.AppendInt(nsIJunkMailPlugin::IS_HAM_SCORE);
-    mDatabase->SetStringProperty(uidOfMessage, "junkscore", msgJunkScore.get());
+    mDatabase->SetStringProperty(uidOfMessage, "junkscore", msgJunkScore);
   } else if (FindInReadable("Junk"_ns, keywords,
                             nsCaseInsensitiveCStringComparator)) {
     uint32_t newFlags;
     dbHdr->AndFlags(~nsMsgMessageFlags::New, &newFlags);
     nsAutoCString msgJunkScore;
     msgJunkScore.AppendInt(nsIJunkMailPlugin::IS_SPAM_SCORE);
-    mDatabase->SetStringProperty(uidOfMessage, "junkscore", msgJunkScore.get());
+    mDatabase->SetStringProperty(uidOfMessage, "junkscore", msgJunkScore);
   } else
     messageClassified = false;
   if (messageClassified) {
     // only set the junkscore origin if it wasn't set before.
     nsCString existingProperty;
-    dbHdr->GetStringProperty("junkscoreorigin",
-                             getter_Copies(existingProperty));
+    dbHdr->GetStringProperty("junkscoreorigin", existingProperty);
     if (existingProperty.IsEmpty())
-      dbHdr->SetStringProperty("junkscoreorigin", "imapflag");
+      dbHdr->SetStringProperty("junkscoreorigin", "imapflag"_ns);
   }
 
   if (!(userFlags & kImapMsgSupportUserFlag)) {
     nsCString localKeywords;
     nsCString prevKeywords;
-    dbHdr->GetStringProperty("keywords", getter_Copies(localKeywords));
-    dbHdr->GetStringProperty("prevkeywords", getter_Copies(prevKeywords));
+    dbHdr->GetStringProperty("keywords", localKeywords);
+    dbHdr->GetStringProperty("prevkeywords", prevKeywords);
     // localKeywords: tags currently stored in database for the message.
     // keywords: tags stored in server and obtained when flags for the message
     //           were last fetched. (Parameter of this function.)
@@ -4537,7 +4535,7 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
     // clang-format on
 
     // Store keywords to detect changes on next call of this function.
-    dbHdr->SetStringProperty("prevkeywords", keywords.get());
+    dbHdr->SetStringProperty("prevkeywords", keywords);
 
     // Parse the space separated strings into arrays.
     nsTArray<nsCString> localKeywordArray;
@@ -4574,10 +4572,10 @@ nsresult nsImapMailFolder::HandleCustomFlags(nsMsgKey uidOfMessage,
     MOZ_LOG(IMAP_KW, mozilla::LogLevel::Debug,
             ("combinedKeywords stored = |%s|", combinedKeywords.get()));
     // combinedKeywords are tags being stored in database for the message.
-    return dbHdr->SetStringProperty("keywords", combinedKeywords.get());
+    return dbHdr->SetStringProperty("keywords", combinedKeywords);
   }
   return (userFlags & kImapMsgSupportUserFlag)
-             ? dbHdr->SetStringProperty("keywords", keywords.get())
+             ? dbHdr->SetStringProperty("keywords", keywords)
              : NS_OK;
 }
 
@@ -4832,7 +4830,7 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
         // setup the custom imap keywords, which includes the message keywords
         // plus any junk status
         nsCString junkscore;
-        message->GetStringProperty("junkscore", getter_Copies(junkscore));
+        message->GetStringProperty("junkscore", junkscore);
         bool isJunk = false, isNotJunk = false;
         if (!junkscore.IsEmpty()) {
           if (junkscore.EqualsLiteral("0"))
@@ -4842,7 +4840,7 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
         }
 
         nsCString keywords;  // MsgFindKeyword can't use nsACString
-        message->GetStringProperty("keywords", getter_Copies(keywords));
+        message->GetStringProperty("keywords", keywords);
         int32_t start;
         int32_t length;
         bool hasJunk = MsgFindKeyword("junk"_ns, keywords, &start, &length);
@@ -6918,7 +6916,7 @@ void nsImapMailFolder::SetPendingAttributes(
   for (auto msgDBHdr : messages) {
     if (!(supportedUserFlags & kImapMsgSupportUserFlag)) {
       nsCString keywords;
-      msgDBHdr->GetStringProperty("keywords", getter_Copies(keywords));
+      msgDBHdr->GetStringProperty("keywords", keywords);
       if (!keywords.IsEmpty())
         mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "keywords",
                                             keywords.get());
@@ -6936,7 +6934,7 @@ void nsImapMailFolder::SetPendingAttributes(
       if (dontPreserveEx.Find(propertyEx) != kNotFound) continue;
 
       nsCString sourceString;
-      msgDBHdr->GetStringProperty(property.get(), getter_Copies(sourceString));
+      msgDBHdr->GetStringProperty(property.get(), sourceString);
       mDatabase->SetAttributeOnPendingHdr(msgDBHdr, property.get(),
                                           sourceString.get());
     }
@@ -6955,7 +6953,7 @@ void nsImapMailFolder::SetPendingAttributes(
     nsCString storeToken;
     msgDBHdr->GetMessageOffset(&messageOffset);
     msgDBHdr->GetOfflineMessageSize(&messageSize);
-    msgDBHdr->GetStringProperty("storeToken", getter_Copies(storeToken));
+    msgDBHdr->GetStringProperty("storeToken", storeToken);
     if (messageSize) {
       mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "offlineMsgSize",
                                                 messageSize);
@@ -8591,7 +8589,7 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     rv = GetMessageHeader(aKeysToFetch[i], getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
     // ignore messages that already have a preview body.
-    msgHdr->GetStringProperty("preview", getter_Copies(prevBody));
+    msgHdr->GetStringProperty("preview", prevBody);
     if (!prevBody.IsEmpty()) continue;
 
     /* check if message is in memory cache or offline store. */
@@ -8913,7 +8911,7 @@ nsresult nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
     if (isGMail) {
       nsCString labels;
       nsTArray<nsCString> labelNames;
-      hdr->GetStringProperty("X-GM-LABELS", getter_Copies(labels));
+      hdr->GetStringProperty("X-GM-LABELS", labels);
       ParseString(labels, ' ', labelNames);
       nsCOMPtr<nsIMsgFolder> rootFolder;
       nsCOMPtr<nsIMsgImapMailFolder> subFolder;
@@ -8958,7 +8956,7 @@ nsresult nsImapMailFolder::GetOfflineMsgFolder(nsMsgKey msgKey,
             if (db) {
               nsCOMPtr<nsIMsgDBHdr> retHdr;
               nsCString gmMsgID;
-              hdr->GetStringProperty("X-GM-MSGID", getter_Copies(gmMsgID));
+              hdr->GetStringProperty("X-GM-MSGID", gmMsgID);
               rv = db->GetMsgHdrForGMMsgID(gmMsgID.get(),
                                            getter_AddRefs(retHdr));
               if (NS_FAILED(rv)) return rv;
@@ -9004,7 +9002,7 @@ nsresult nsImapMailFolder::GetOfflineFileStream(nsMsgKey msgKey,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString gmMsgID;
-  hdr->GetStringProperty("X-GM-MSGID", getter_Copies(gmMsgID));
+  hdr->GetStringProperty("X-GM-MSGID", gmMsgID);
   nsCOMPtr<nsIMsgDatabase> db;
   offlineFolder->GetMsgDatabase(getter_AddRefs(db));
   rv = db->GetMsgHdrForGMMsgID(gmMsgID.get(), getter_AddRefs(hdr));

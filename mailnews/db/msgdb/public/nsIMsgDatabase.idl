@@ -379,7 +379,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
                         in nsIDBChangeListener instigator);
   void markOffline(in nsMsgKey key, in boolean offline,
                          in nsIDBChangeListener instigator);
-  void setStringProperty(in nsMsgKey aKey, in string aProperty, in string aValue);
+  void setStringProperty(in nsMsgKey aKey, in string aProperty, in AUTF8String aValue);
   /**
    * Set the value of a string property in a message header
    *
@@ -387,7 +387,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    * @param aProperty the property to change
    * @param aValue    new value for the property
    */
-  void setStringPropertyByHdr(in nsIMsgDBHdr msgHdr, in string aProperty, in string aValue);
+  void setStringPropertyByHdr(in nsIMsgDBHdr msgHdr, in string aProperty, in AUTF8String aValue);
 
   /**
    * Set the value of a uint32 property in a message header.

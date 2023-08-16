@@ -1529,13 +1529,12 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
       if (msgDBHdr) {
         nsCString queuedDisposition;
         msgDBHdr->GetStringProperty(QUEUED_DISPOSITION_PROPERTY,
-                                    getter_Copies(queuedDisposition));
+                                    queuedDisposition);
         // We need to retrieve the original URI from the database so we can
         // set the disposition flags correctly if the draft is a reply or
         // forwarded message.
         nsCString originalMsgURIfromDB;
-        msgDBHdr->GetStringProperty(ORIG_URI_PROPERTY,
-                                    getter_Copies(originalMsgURIfromDB));
+        msgDBHdr->GetStringProperty(ORIG_URI_PROPERTY, originalMsgURIfromDB);
         mOriginalMsgURI = originalMsgURIfromDB;
         if (!queuedDisposition.IsEmpty()) {
           if (queuedDisposition.EqualsLiteral("replied"))
@@ -2814,7 +2813,7 @@ NS_IMETHODIMP nsMsgCompose::RememberQueuedDisposition() {
       rv = GetMsgDBHdrFromURI(curDraftIdURL, getter_AddRefs(draftHdr));
       NS_ENSURE_SUCCESS(rv, rv);
       draftHdr->GetStringProperty(QUEUED_DISPOSITION_PROPERTY,
-                                  getter_Copies(dispositionSetting));
+                                  dispositionSetting);
     }
   }
 
@@ -2859,13 +2858,12 @@ NS_IMETHODIMP nsMsgCompose::RememberQueuedDisposition() {
                                       identityKey.get());
     } else if (msgHdr) {
       if (!mOriginalMsgURI.IsEmpty()) {
-        msgHdr->SetStringProperty(ORIG_URI_PROPERTY, mOriginalMsgURI.get());
+        msgHdr->SetStringProperty(ORIG_URI_PROPERTY, mOriginalMsgURI);
         if (!dispositionSetting.IsEmpty())
           msgHdr->SetStringProperty(QUEUED_DISPOSITION_PROPERTY,
-                                    dispositionSetting.get());
+                                    dispositionSetting);
       }
-      msgHdr->SetStringProperty(HEADER_X_MOZILLA_IDENTITY_KEY,
-                                identityKey.get());
+      msgHdr->SetStringProperty(HEADER_X_MOZILLA_IDENTITY_KEY, identityKey);
     }
   }
   return NS_OK;

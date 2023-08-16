@@ -2074,8 +2074,8 @@ void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
     if (dontPreserveEx.Find(propertyEx) != -1)  // -1 is not found
       continue;
 
-    srcHdr->GetStringProperty(property.get(), getter_Copies(sourceString));
-    destHdr->SetStringProperty(property.get(), sourceString.get());
+    srcHdr->GetStringProperty(property.get(), sourceString);
+    destHdr->SetStringProperty(property.get(), sourceString);
   }
 }
 
@@ -3411,7 +3411,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::FetchMsgPreviewText(
     nsresult rv = GetMessageHeader(aKeysToFetch[i], getter_AddRefs(msgHdr));
     NS_ENSURE_SUCCESS(rv, rv);
     // ignore messages that already have a preview body.
-    msgHdr->GetStringProperty("preview", getter_Copies(prevBody));
+    msgHdr->GetStringProperty("preview", prevBody);
     if (!prevBody.IsEmpty()) continue;
 
     rv = GetMsgInputStream(msgHdr, getter_AddRefs(inputStream));
@@ -3453,15 +3453,15 @@ NS_IMETHODIMP nsMsgLocalMailFolder::UpdateNewMsgHdr(nsIMsgDBHdr* aOldHdr,
 
   // Preserve keywords manually, since they are set as don't preserve.
   nsCString keywordString;
-  aOldHdr->GetStringProperty("keywords", getter_Copies(keywordString));
-  aNewHdr->SetStringProperty("keywords", keywordString.get());
+  aOldHdr->GetStringProperty("keywords", keywordString);
+  aNewHdr->SetStringProperty("keywords", keywordString);
 
   // If the junk score was set by the plugin, remove junkscore to force a new
   // junk analysis, this time using the body.
   nsCString junkScoreOrigin;
-  aOldHdr->GetStringProperty("junkscoreorigin", getter_Copies(junkScoreOrigin));
+  aOldHdr->GetStringProperty("junkscoreorigin", junkScoreOrigin);
   if (junkScoreOrigin.EqualsLiteral("plugin"))
-    aNewHdr->SetStringProperty("junkscore", "");
+    aNewHdr->SetStringProperty("junkscore", ""_ns);
 
   return NS_OK;
 }

@@ -31,6 +31,7 @@
 #include "nsIMsgFolderCompactor.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
+#include "nsPrintfCString.h"
 #include "nsQuarantinedOutputStream.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/SlicedInputStream.h"
@@ -631,10 +632,9 @@ nsresult nsMsgBrkMBoxStore::InternalGetNewMsgOutputStream(
   }
 
   if (*aNewMsgHdr) {
-    char storeToken[100];
-    PR_snprintf(storeToken, sizeof(storeToken), "%lld", filePos);
-    (*aNewMsgHdr)->SetMessageOffset(filePos);
+    nsCString storeToken = nsPrintfCString("%" PRId64, filePos);
     (*aNewMsgHdr)->SetStringProperty("storeToken", storeToken);
+    (*aNewMsgHdr)->SetMessageOffset(filePos);
   }
   return rv;
 }

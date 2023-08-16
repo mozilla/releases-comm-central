@@ -674,7 +674,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
       do_CreateInstance("@mozilla.org/messengercompose/composefields;1", &rv);
 
   nsCString replyTo;
-  mHdrToReplyTo->GetStringProperty("replyTo", getter_Copies(replyTo));
+  mHdrToReplyTo->GetStringProperty("replyTo", replyTo);
   if (replyTo.IsEmpty()) mHdrToReplyTo->GetAuthor(getter_Copies(replyTo));
   compFields->SetTo(NS_ConvertUTF8toUTF16(replyTo));
 
@@ -847,7 +847,7 @@ NS_IMETHODIMP nsMsgComposeService::ReplyWithTemplate(
   helper->mIdentity = identity;
 
   nsAutoCString replyTo;
-  aMsgHdr->GetStringProperty("replyTo", getter_Copies(replyTo));
+  aMsgHdr->GetStringProperty("replyTo", replyTo);
   if (replyTo.IsEmpty()) aMsgHdr->GetAuthor(getter_Copies(replyTo));
   if (replyTo.IsEmpty()) return NS_ERROR_FAILURE;  // nowhere to send the reply
 

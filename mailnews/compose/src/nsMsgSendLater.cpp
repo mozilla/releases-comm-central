@@ -564,8 +564,7 @@ nsresult nsMsgSendLater::StartNextMailFileSend(nsresult prevStatus) {
   if (NS_FAILED(rv) && !messageService) return NS_ERROR_FACTORY_NOT_LOADED;
 
   nsCString identityKey;
-  rv = mMessage->GetStringProperty(HEADER_X_MOZILLA_IDENTITY_KEY,
-                                   getter_Copies(identityKey));
+  rv = mMessage->GetStringProperty(HEADER_X_MOZILLA_IDENTITY_KEY, identityKey);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgIdentity> identity;
@@ -765,10 +764,8 @@ nsresult nsMsgSendLater::SetOrigMsgDisposition() {
   // or forward of.
   nsCString originalMsgURIs;
   nsCString queuedDisposition;
-  mMessage->GetStringProperty(ORIG_URI_PROPERTY,
-                              getter_Copies(originalMsgURIs));
-  mMessage->GetStringProperty(QUEUED_DISPOSITION_PROPERTY,
-                              getter_Copies(queuedDisposition));
+  mMessage->GetStringProperty(ORIG_URI_PROPERTY, originalMsgURIs);
+  mMessage->GetStringProperty(QUEUED_DISPOSITION_PROPERTY, queuedDisposition);
   if (!queuedDisposition.IsEmpty()) {
     nsTArray<nsCString> uriArray;
     ParseString(originalMsgURIs, ',', uriArray);

@@ -13,8 +13,8 @@ interface nsIUTF8StringEnumerator;
 [scriptable, uuid(3c11ddbe-c805-40c5-b9c9-d065fad5d0be)]
 interface nsIMsgDBHdr : nsISupports
 {
-    void setStringProperty(in string propertyName, in string propertyValue);
-    string getStringProperty(in string propertyName);
+    void setStringProperty(in string propertyName, in  AUTF8String propertyValue);
+    AUTF8String getStringProperty(in string propertyName);
     unsigned long getUint32Property(in string propertyName);
     void setUint32Property(in string propertyName,
                            in unsigned long propertyVal);

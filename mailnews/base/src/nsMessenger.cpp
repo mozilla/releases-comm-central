@@ -1985,8 +1985,7 @@ AttachmentDeleter::OnStopRequest(nsIRequest* aRequest, nsresult aStatusCode) {
   mMsgFile->Clone(getter_AddRefs(clone));
   if (copyService) {
     nsCString originalKeys;
-    mOriginalMessage->GetStringProperty("keywords",
-                                        getter_Copies(originalKeys));
+    mOriginalMessage->GetStringProperty("keywords", originalKeys);
     rv = copyService->CopyFileMessage(clone, mMessageFolder, mOriginalMessage,
                                       false, mOrigMsgFlags, originalKeys,
                                       listenerCopyService, mMsgWindow);
