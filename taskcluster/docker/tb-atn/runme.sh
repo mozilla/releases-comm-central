@@ -9,4 +9,4 @@ cd /builds/worker || exit 1
 
 source venv/bin/activate
 
-exec python bin/atn_langpack.py
+exec python3 bin/atn_langpack.py
