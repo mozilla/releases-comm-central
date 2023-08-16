@@ -3141,8 +3141,8 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
                 mozilla::services::GetObserverService();
             obs->NotifyObservers(virtualFolder, "search-folders-changed",
                                  nullptr);
-            break;
           }
+
           // Add sub-folders to smart folder.
           nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
           rv = folder->GetDescendants(allDescendants);
@@ -3298,15 +3298,12 @@ nsMsgAccountManager::OnFolderIntPropertyChanged(nsIMsgFolder* aFolder,
         return OnFolderAdded(parent, aFolder);
       }
       RemoveFolderFromSmartFolder(aFolder, smartFlagsChanged);
-      // sent|archive flag removed, remove sub-folders from smart folder.
-      if (smartFlagsChanged &
-          (nsMsgFolderFlags::Archive | nsMsgFolderFlags::SentMail)) {
-        nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
-        nsresult rv = aFolder->GetDescendants(allDescendants);
-        NS_ENSURE_SUCCESS(rv, rv);
-        for (auto subFolder : allDescendants) {
-          RemoveFolderFromSmartFolder(subFolder, smartFlagsChanged);
-        }
+
+      nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+      nsresult rv = aFolder->GetDescendants(allDescendants);
+      NS_ENSURE_SUCCESS(rv, rv);
+      for (auto subFolder : allDescendants) {
+        RemoveFolderFromSmartFolder(subFolder, smartFlagsChanged);
       }
     }
   }
