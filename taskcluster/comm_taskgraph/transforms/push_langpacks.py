@@ -34,9 +34,7 @@ langpack_push_description_schema = Schema(
         Optional("job-from"): task_description_schema["job-from"],
         Required("worker"): {
             Required("env"): {str: taskref_or_string},
-            Required("channel"): optionally_keyed_by(
-                "project", "platform", Any("listed", "unlisted")
-            ),
+            Required("channel"): optionally_keyed_by("project", Any("listed", "unlisted")),
             Required("command"): [taskref_or_string],
         },
         Required("run-on-projects"): [],
@@ -74,7 +72,7 @@ def make_task_description(config, jobs):
             job,
             "worker.channel",
             item_name=job["label"],
-            platform=dep_job.attributes["build_platform"],
+            project=config.params["project"],
         )
 
         job["worker-type"] = "b-linux-gcp"
