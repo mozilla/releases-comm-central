@@ -5046,8 +5046,7 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
     } break;
     case kDeleteSubFoldersInProgress: {
       NS_ASSERTION(m_deletableChildren, "Oops .. null m_deletableChildren");
-      m_deletableChildren->AppendElement(
-          ToNewCString(adoptedBoxSpec->mAllocatedPathName));
+      m_deletableChildren->AppendElement(adoptedBoxSpec->mAllocatedPathName);
     } break;
     case kListingForInfoOnly: {
       // UpdateProgressWindowForUpgrade(adoptedBoxSpec->allocatedPathName);
@@ -6816,72 +6815,68 @@ bool nsImapProtocol::RenameHierarchyByHand(const char* oldParentMailboxName,
                                            const char* newParentMailboxName) {
   bool renameSucceeded = true;
   char onlineDirSeparator = kOnlineHierarchySeparatorUnknown;
-  m_deletableChildren = new nsTArray<char*>();
+  m_deletableChildren = new nsTArray<nsCString>();
 
   bool nonHierarchicalRename =
       ((GetServerStateParser().GetCapabilityFlag() & kNoHierarchyRename) ||
        MailboxIsNoSelectMailbox(oldParentMailboxName));
 
-  if (m_deletableChildren) {
-    m_hierarchyNameState = kDeleteSubFoldersInProgress;
-    nsImapNamespace* ns = nullptr;
-    m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
-                                                     oldParentMailboxName,
-                                                     ns);  // for delimiter
-    if (!ns) {
-      if (!PL_strcasecmp(oldParentMailboxName, "INBOX"))
-        m_hostSessionList->GetDefaultNamespaceOfTypeForHost(
-            GetImapServerKey(), kPersonalNamespace, ns);
-    }
-    if (ns) {
-      nsCString pattern(oldParentMailboxName);
-      pattern += ns->GetDelimiter();
-      pattern += "*";
-      bool isUsingSubscription = false;
-      m_hostSessionList->GetHostIsUsingSubscription(GetImapServerKey(),
-                                                    isUsingSubscription);
-
-      if (isUsingSubscription)
-        Lsub(pattern.get(), false);
-      else
-        List(pattern.get(), false);
-    }
-    m_hierarchyNameState = kNoOperationInProgress;
-
-    if (GetServerStateParser().LastCommandSuccessful())
-      renameSucceeded =  // rename this, and move subscriptions
-          RenameMailboxRespectingSubscriptions(oldParentMailboxName,
-                                               newParentMailboxName, true);
-
-    size_t numberToDelete = m_deletableChildren->Length();
-    size_t childIndex;
-
-    for (childIndex = 0; (childIndex < numberToDelete) && renameSucceeded;
-         childIndex++) {
-      char* currentName = m_deletableChildren->ElementAt(childIndex);
-      if (!currentName) {
-        renameSucceeded = false;
-        break;
-      }
-      char* serverName = nullptr;
-      m_runningUrl->AllocateServerPath(currentName, onlineDirSeparator,
-                                       &serverName);
-      PR_FREEIF(currentName);
-      currentName = serverName;
-
-      // calculate the new name and do the rename
-      nsCString newChildName(newParentMailboxName);
-      newChildName += (currentName + PL_strlen(oldParentMailboxName));
-      // Pass in 'nonHierarchicalRename' to determine if we should really
-      // rename, or just move subscriptions.
-      renameSucceeded = RenameMailboxRespectingSubscriptions(
-          currentName, newChildName.get(), nonHierarchicalRename);
-      PR_FREEIF(currentName);
-    }
-
-    delete m_deletableChildren;
-    m_deletableChildren = nullptr;
+  m_hierarchyNameState = kDeleteSubFoldersInProgress;
+  nsImapNamespace* ns = nullptr;
+  m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
+                                                   oldParentMailboxName,
+                                                   ns);  // for delimiter
+  if (!ns) {
+    if (!PL_strcasecmp(oldParentMailboxName, "INBOX"))
+      m_hostSessionList->GetDefaultNamespaceOfTypeForHost(
+          GetImapServerKey(), kPersonalNamespace, ns);
   }
+  if (ns) {
+    nsCString pattern(oldParentMailboxName);
+    pattern += ns->GetDelimiter();
+    pattern += "*";
+    bool isUsingSubscription = false;
+    m_hostSessionList->GetHostIsUsingSubscription(GetImapServerKey(),
+                                                  isUsingSubscription);
+
+    if (isUsingSubscription)
+      Lsub(pattern.get(), false);
+    else
+      List(pattern.get(), false);
+  }
+  m_hierarchyNameState = kNoOperationInProgress;
+
+  if (GetServerStateParser().LastCommandSuccessful())
+    renameSucceeded =  // rename this, and move subscriptions
+        RenameMailboxRespectingSubscriptions(oldParentMailboxName,
+                                             newParentMailboxName, true);
+
+  size_t numberToDelete = m_deletableChildren->Length();
+
+  for (size_t childIndex = 0; (childIndex < numberToDelete) && renameSucceeded;
+       childIndex++) {
+    nsCString name = m_deletableChildren->ElementAt(childIndex);
+    char* serverName = nullptr;
+    m_runningUrl->AllocateServerPath(name.get(), onlineDirSeparator,
+                                     &serverName);
+    if (!serverName) {
+      renameSucceeded = false;
+      break;
+    }
+    char* currentName = serverName;
+
+    // calculate the new name and do the rename
+    nsCString newChildName(newParentMailboxName);
+    newChildName += (currentName + PL_strlen(oldParentMailboxName));
+    // Pass in 'nonHierarchicalRename' to determine if we should really
+    // rename, or just move subscriptions.
+    renameSucceeded = RenameMailboxRespectingSubscriptions(
+        currentName, newChildName.get(), nonHierarchicalRename);
+    PR_FREEIF(currentName);
+  }
+
+  delete m_deletableChildren;
+  m_deletableChildren = nullptr;
 
   return renameSucceeded;
 }
@@ -6889,128 +6884,128 @@ bool nsImapProtocol::RenameHierarchyByHand(const char* oldParentMailboxName,
 bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox,
                                       bool& aDeleteSelf) {
   bool deleteSucceeded = true;
-  m_deletableChildren = new nsTArray<char*>();
+  m_deletableChildren = new nsTArray<nsCString>;
 
-  if (m_deletableChildren) {
-    bool folderDeleted = false;
+  bool folderDeleted = false;
 
-    m_hierarchyNameState = kDeleteSubFoldersInProgress;
-    nsCString pattern(selectedMailbox);
-    char onlineDirSeparator = kOnlineHierarchySeparatorUnknown;
-    m_runningUrl->GetOnlineSubDirSeparator(&onlineDirSeparator);
-    pattern.Append(onlineDirSeparator);
-    pattern.Append('*');
+  m_hierarchyNameState = kDeleteSubFoldersInProgress;
+  nsCString pattern(selectedMailbox);
+  char onlineDirSeparator = kOnlineHierarchySeparatorUnknown;
+  m_runningUrl->GetOnlineSubDirSeparator(&onlineDirSeparator);
+  pattern.Append(onlineDirSeparator);
+  pattern.Append('*');
 
-    if (!pattern.IsEmpty()) {
-      List(pattern.get(), false);
-    }
-    m_hierarchyNameState = kNoOperationInProgress;
+  if (!pattern.IsEmpty()) {
+    List(pattern.get(), false);
+  }
+  m_hierarchyNameState = kNoOperationInProgress;
 
-    // this should be a short list so perform a sequential search for the
-    // longest name mailbox.  Deleting the longest first will hopefully
-    // prevent the server from having problems about deleting parents
-    // ** jt - why? I don't understand this.
-    size_t numberToDelete = m_deletableChildren->Length();
-    size_t outerIndex, innerIndex;
+  // this should be a short list so perform a sequential search for the
+  // longest name mailbox.  Deleting the longest first will hopefully
+  // prevent the server from having problems about deleting parents
+  // ** jt - why? I don't understand this.
+  size_t numberToDelete = m_deletableChildren->Length();
+  size_t outerIndex, innerIndex;
 
-    // intelligently decide if myself(either plain format or following the
-    // dir-separator) is in the sub-folder list
-    bool folderInSubfolderList = false;  // For Performance
-    char* selectedMailboxDir = nullptr;
+  // intelligently decide if myself(either plain format or following the
+  // dir-separator) is in the sub-folder list
+  bool folderInSubfolderList = false;  // For Performance
+  char* selectedMailboxDir = nullptr;
+  {
+    int32_t length = strlen(selectedMailbox);
+    selectedMailboxDir = (char*)PR_MALLOC(length + 2);
+    if (selectedMailboxDir)  // only do the intelligent test if there is
+                             // enough memory
     {
-      int32_t length = strlen(selectedMailbox);
-      selectedMailboxDir = (char*)PR_MALLOC(length + 2);
-      if (selectedMailboxDir)  // only do the intelligent test if there is
-                               // enough memory
-      {
-        strcpy(selectedMailboxDir, selectedMailbox);
-        selectedMailboxDir[length] = onlineDirSeparator;
-        selectedMailboxDir[length + 1] = '\0';
-        size_t i;
-        for (i = 0; i < numberToDelete && !folderInSubfolderList; i++) {
-          char* currentName = m_deletableChildren->ElementAt(i);
-          if (!strcmp(currentName, selectedMailbox) ||
-              !strcmp(currentName, selectedMailboxDir))
-            folderInSubfolderList = true;
-        }
+      strcpy(selectedMailboxDir, selectedMailbox);
+      selectedMailboxDir[length] = onlineDirSeparator;
+      selectedMailboxDir[length + 1] = '\0';
+      size_t i;
+      for (i = 0; i < numberToDelete && !folderInSubfolderList; i++) {
+        const char* currentName = m_deletableChildren->ElementAt(i).get();
+        if (!strcmp(currentName, selectedMailbox) ||
+            !strcmp(currentName, selectedMailboxDir))
+          folderInSubfolderList = true;
       }
     }
+  }
 
-    deleteSucceeded = GetServerStateParser().LastCommandSuccessful();
-    for (outerIndex = 0; (outerIndex < numberToDelete) && deleteSucceeded;
-         outerIndex++) {
-      char* longestName = nullptr;
-      size_t longestIndex = 0;  // fix bogus warning by initializing
-      for (innerIndex = 0; innerIndex < m_deletableChildren->Length();
-           innerIndex++) {
-        char* currentName = m_deletableChildren->ElementAt(innerIndex);
-        if (!longestName || strlen(longestName) < strlen(currentName)) {
-          longestName = currentName;
-          longestIndex = innerIndex;
-        }
+  deleteSucceeded = GetServerStateParser().LastCommandSuccessful();
+  for (outerIndex = 0; (outerIndex < numberToDelete) && deleteSucceeded;
+       outerIndex++) {
+    char* longestName = nullptr;
+    size_t longestIndex = 0;  // fix bogus warning by initializing
+    for (innerIndex = 0; innerIndex < m_deletableChildren->Length();
+         innerIndex++) {
+      const char* currentName =
+          m_deletableChildren->ElementAt(innerIndex).get();
+      if (!longestName || strlen(longestName) < strlen(currentName)) {
+        longestName = (char*)currentName;
+        longestIndex = innerIndex;
       }
-      if (longestName) {
-        char* serverName = nullptr;
+    }
+    if (longestName) {
+      char* serverName = nullptr;
 
-        m_deletableChildren->RemoveElementAt(longestIndex);
-        m_runningUrl->AllocateServerPath(longestName, onlineDirSeparator,
-                                         &serverName);
-        PR_FREEIF(longestName);
-        longestName = serverName;
-      }
+      m_deletableChildren->RemoveElementAt(longestIndex);
+      m_runningUrl->AllocateServerPath(longestName, onlineDirSeparator,
+                                       &serverName);
+      PR_FREEIF(longestName);
+      longestName = serverName;
+    }
 
-      // some imap servers include the selectedMailbox in the list of
-      // subfolders of the selectedMailbox.  Check for this so we don't
-      // delete the selectedMailbox (usually the trash and doing an
-      // empty trash)
-      // The Cyrus imap server ignores the "INBOX.Trash" constraining
-      // string passed to the list command.  Be defensive and make sure
-      // we only delete children of the trash
-      if (longestName && strcmp(selectedMailbox, longestName) &&
-          !strncmp(selectedMailbox, longestName, strlen(selectedMailbox))) {
-        if (selectedMailboxDir &&
-            !strcmp(selectedMailboxDir, longestName))  // just myself
-        {
-          if (aDeleteSelf) {
-            bool deleted = DeleteMailboxRespectingSubscriptions(longestName);
-            if (deleted) FolderDeleted(longestName);
-            folderDeleted = deleted;
-            deleteSucceeded = deleted;
-          }
-        } else {
-          if (m_imapServerSink)
-            m_imapServerSink->ResetServerConnection(
-                nsDependentCString(longestName));
-          bool deleted = false;
-          if (folderInSubfolderList)  // for performance
-          {
-            nsTArray<char*>* pDeletableChildren = m_deletableChildren;
-            m_deletableChildren = nullptr;
-            bool folderDeleted = true;
-            deleted = DeleteSubFolders(longestName, folderDeleted);
-            // longestName may have subfolder list including itself
-            if (!folderDeleted) {
-              if (deleted)
-                deleted = DeleteMailboxRespectingSubscriptions(longestName);
-              if (deleted) FolderDeleted(longestName);
-            }
-            m_deletableChildren = pDeletableChildren;
-          } else {
-            deleted = DeleteMailboxRespectingSubscriptions(longestName);
-            if (deleted) FolderDeleted(longestName);
-          }
+    // some imap servers include the selectedMailbox in the list of
+    // subfolders of the selectedMailbox.  Check for this so we don't
+    // delete the selectedMailbox (usually the trash and doing an
+    // empty trash)
+    // The Cyrus imap server ignores the "INBOX.Trash" constraining
+    // string passed to the list command.  Be defensive and make sure
+    // we only delete children of the trash
+    if (longestName && strcmp(selectedMailbox, longestName) &&
+        !strncmp(selectedMailbox, longestName, strlen(selectedMailbox))) {
+      if (selectedMailboxDir &&
+          !strcmp(selectedMailboxDir, longestName))  // just myself
+      {
+        if (aDeleteSelf) {
+          bool deleted = DeleteMailboxRespectingSubscriptions(longestName);
+          if (deleted) FolderDeleted(longestName);
+          folderDeleted = deleted;
           deleteSucceeded = deleted;
         }
+      } else {
+        if (m_imapServerSink)
+          m_imapServerSink->ResetServerConnection(
+              nsDependentCString(longestName));
+        bool deleted = false;
+        if (folderInSubfolderList)  // for performance
+        {
+          nsTArray<nsCString>* pDeletableChildren = m_deletableChildren;
+          m_deletableChildren = nullptr;
+          bool folderDeleted = true;
+          deleted = DeleteSubFolders(longestName, folderDeleted);
+          // longestName may have subfolder list including itself
+          if (!folderDeleted) {
+            if (deleted)
+              deleted = DeleteMailboxRespectingSubscriptions(longestName);
+            if (deleted) FolderDeleted(longestName);
+          }
+          m_deletableChildren = pDeletableChildren;
+        } else {
+          deleted = DeleteMailboxRespectingSubscriptions(longestName);
+          if (deleted) FolderDeleted(longestName);
+        }
+        deleteSucceeded = deleted;
       }
-      PR_FREEIF(longestName);
     }
-
-    aDeleteSelf = folderDeleted;  // feedback if myself is deleted
-    PR_Free(selectedMailboxDir);
-
-    delete m_deletableChildren;
-    m_deletableChildren = nullptr;
+    PR_FREEIF(longestName);
   }
+
+  aDeleteSelf = folderDeleted;  // feedback if myself is deleted
+  PR_Free(selectedMailboxDir);
+
+  delete m_deletableChildren;
+  m_deletableChildren = nullptr;
+
   return deleteSucceeded;
 }
 

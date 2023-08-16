@@ -751,7 +751,7 @@ class nsImapProtocol : public nsIImapProtocol,
   EMailboxHierarchyNameState m_hierarchyNameState;
   EMailboxDiscoverStatus m_discoveryStatus;
   nsTArray<nsIMAPMailboxInfo*> m_listedMailboxList;
-  nsTArray<char*>* m_deletableChildren;
+  nsTArray<nsCString>* m_deletableChildren;
   uint32_t m_flagChangeCount;
   PRTime m_lastCheckTime;
 
