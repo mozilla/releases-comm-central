@@ -5559,6 +5559,21 @@ var messagePane = {
   },
 };
 
+/**
+ * Restore the UI to the given state.
+ *
+ * @param {boolean} folderPaneVisible - Whether to show the folder pane. If undefined,
+ *    the folder pane is shown if a folder URI is provided or we're not restoring to a
+ *    synthetic view.
+ * @param {boolean} messagePaneVisible - Whether to show the message pane. If undefined,
+ *    the message pane is shown as long as its wrapper is not collapsed.
+ * @param {?nsIMsgFolder|string} folder - The folder to display, or its URI, if any.
+ * @param {?GlodaSyntheticView} syntheticView - The synthetic view to restore to, if any.
+ * @param {boolean} first - Whether this is the first call to this function (i.e. we're
+ *    setting the state at the start of the application), in which case we want to greet
+ *    the user with the start page.
+ * @param {?string} title - If any, the title to set.
+ */
 function restoreState({
   folderPaneVisible,
   messagePaneVisible,
