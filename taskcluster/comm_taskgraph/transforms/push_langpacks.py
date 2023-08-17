@@ -74,6 +74,7 @@ def make_task_description(config, jobs):
             job,
             "worker.channel",
             item_name=job["label"],
+            project=config.params["project"],
             platform=dep_job.attributes["build_platform"],
         )
 
