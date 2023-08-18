@@ -981,6 +981,19 @@ function click_tree_row(aTree, aRowIndex, aController) {
   utils.sleep(0);
 }
 
+function _get_row_at_index(aViewIndex) {
+  let win = get_about_3pane();
+  let tree = win.document.getElementById("threadTree");
+  Assert.greater(
+    tree.view.rowCount,
+    aViewIndex,
+    `index ${aViewIndex} must exist to be clicked on`
+  );
+  tree.scrollToIndex(aViewIndex, true);
+  utils.waitFor(() => tree.getRowAtIndex(aViewIndex));
+  return tree.getRowAtIndex(aViewIndex);
+}
+
 /**
  * Pretend we are clicking on a row with our mouse.
  *
@@ -995,22 +1008,13 @@ function click_tree_row(aTree, aRowIndex, aController) {
 function select_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
-  let win = get_about_3pane();
-  let tree = win.document.getElementById("threadTree");
-  Assert.greater(
-    tree.view.rowCount,
-    aViewIndex,
-    `index ${aViewIndex} must exist to be clicked on`
-  );
-  tree.scrollToIndex(aViewIndex, true);
-  utils.waitFor(() => tree.getRowAtIndex(aViewIndex));
-  let row = tree.getRowAtIndex(aViewIndex);
+  let row = _get_row_at_index(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, {}, row.ownerGlobal);
   utils.sleep(0);
 
   wait_for_message_display_completion(undefined, true);
 
-  return win.gDBView.getMsgHdrAt(aViewIndex);
+  return get_about_3pane().gDBView.getMsgHdrAt(aViewIndex);
 }
 
 /**
@@ -1259,7 +1263,7 @@ function middle_click_on_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
   let win = get_about_3pane();
-  let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
+  let row = _get_row_at_index(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, { button: 1 }, win);
 
   return [
@@ -2681,7 +2685,11 @@ function assert_folder_tree_focused() {
  * Assert that the thread tree is focused.
  */
 function assert_thread_tree_focused() {
-  Assert.equal(get_about_3pane().document.activeElement.id, "threadTree");
+  let about3Pane = get_about_3pane();
+  Assert.equal(
+    about3Pane.document.activeElement,
+    about3Pane.threadTree.table.body
+  );
 }
 
 /**

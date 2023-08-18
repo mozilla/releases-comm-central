@@ -28,6 +28,7 @@ var {
   delete_via_popup,
   expand_all_threads,
   focus_thread_tree,
+  get_about_3pane,
   make_display_threaded,
   make_message_sets_in_folders,
   mc,
@@ -46,6 +47,7 @@ var {
 );
 
 var folder, threadedFolder;
+var tabmail = document.getElementById("tabmail");
 
 /**
  * The number of messages in the thread we use to test.
@@ -65,6 +67,10 @@ add_setup(async function () {
   await make_message_sets_in_folders([threadedFolder], [{ count: 50 }]);
   let thread = create_thread(NUM_MESSAGES_IN_THREAD);
   await add_message_sets_to_folders([threadedFolder], [thread]);
+
+  registerCleanupFunction(function () {
+    reset_context_menu_background_tabs();
+  });
 });
 
 /**
@@ -217,6 +223,16 @@ async function _middle_click_with_nothing_selected_helper(aBackground) {
   assert_thread_tree_focused();
 }
 
+add_task(async function test_middle_click_with_nothing_selected_fg() {
+  set_context_menu_background_tabs(false);
+  await _middle_click_with_nothing_selected_helper(false);
+});
+
+add_task(async function test_middle_click_with_nothing_selected_bg() {
+  set_context_menu_background_tabs(true);
+  await _middle_click_with_nothing_selected_helper(true);
+});
+
 /**
  * One-thing selected, middle-click on something else.
  */
@@ -245,6 +261,16 @@ async function _middle_click_with_one_thing_selected_helper(aBackground) {
   assert_thread_tree_focused();
 }
 
+add_task(async function test_middle_click_with_one_thing_selected_fg() {
+  set_context_menu_background_tabs(false);
+  await _middle_click_with_one_thing_selected_helper(false);
+});
+
+add_task(async function test_middle_click_with_one_thing_selected_bg() {
+  set_context_menu_background_tabs(true);
+  await _middle_click_with_one_thing_selected_helper(true);
+});
+
 /**
  * Many things selected, middle-click on something that is not in that
  *  selection.
@@ -257,7 +283,7 @@ async function _middle_click_with_many_things_selected_helper(aBackground) {
   assert_selected_and_displayed([0, 5]);
 
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let [tabMessage, curMessage] = middle_click_on_row(1);
+  let [tabMessage] = middle_click_on_row(1);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(folderTab);
@@ -267,13 +293,22 @@ async function _middle_click_with_many_things_selected_helper(aBackground) {
     wait_for_message_display_completion();
   }
 
-  assert_selected_and_displayed(curMessage);
   assert_message_pane_focused();
-  close_tab(tabMessage);
+  tabmail.closeOtherTabs(0);
 
   assert_selected_and_displayed([0, 5]);
   assert_thread_tree_focused();
 }
+
+add_task(async function test_middle_click_with_many_things_selected_fg() {
+  set_context_menu_background_tabs(false);
+  await _middle_click_with_many_things_selected_helper(false);
+});
+
+add_task(async function test_middle_click_with_many_things_selected_bg() {
+  set_context_menu_background_tabs(true);
+  await _middle_click_with_many_things_selected_helper(true);
+});
 
 /**
  * One thing selected, middle-click on that.
@@ -303,6 +338,16 @@ async function _middle_click_on_existing_single_selection_helper(aBackground) {
   assert_thread_tree_focused();
 }
 
+add_task(async function test_middle_click_on_existing_single_selection_fg() {
+  set_context_menu_background_tabs(false);
+  await _middle_click_on_existing_single_selection_helper(false);
+});
+
+add_task(async function test_middle_click_on_existing_single_selection_bg() {
+  set_context_menu_background_tabs(true);
+  await _middle_click_on_existing_single_selection_helper(true);
+});
+
 /**
  * Many things selected, middle-click somewhere in the selection.
  */
@@ -314,7 +359,7 @@ async function _middle_click_on_existing_multi_selection_helper(aBackground) {
   assert_selected_and_displayed([3, 6]);
 
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let [tabMessage, curMessage] = middle_click_on_row(5);
+  let [tabMessage, curMessage] = middle_click_on_row(6);
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(folderTab);
@@ -326,11 +371,21 @@ async function _middle_click_on_existing_multi_selection_helper(aBackground) {
 
   assert_selected_and_displayed(curMessage);
   assert_message_pane_focused();
-  close_tab(tabMessage);
+  tabmail.closeOtherTabs(0);
 
   assert_selected_and_displayed([3, 6]);
   assert_thread_tree_focused();
 }
+
+add_task(async function test_middle_click_on_existing_multi_selection_fg() {
+  set_context_menu_background_tabs(false);
+  await _middle_click_on_existing_multi_selection_helper(false);
+});
+
+add_task(async function test_middle_click_on_existing_multi_selection_bg() {
+  set_context_menu_background_tabs(true);
+  await _middle_click_on_existing_multi_selection_helper(true);
+});
 
 /**
  * Middle-click on the root of a collapsed thread, making sure that we don't
@@ -343,43 +398,41 @@ async function _middle_click_on_collapsed_thread_root_helper(aBackground) {
 
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
 
-  let tree = mc.window.document.getElementById("threadTree");
-  // Scroll to the top, then to the bottom
-  tree.ensureRowIsVisible(0);
-  tree.scrollByLines(mc.window.gFolderDisplay.view.dbView.rowCount);
+  let tree = get_about_3pane().threadTree;
   // Note the first visible row
-  let preFirstRow = tree.getFirstVisibleRow();
+  let preFirstRow = tree.getFirstVisibleIndex();
 
   // Since reflowing a tree (eg when switching tabs) ensures that the current
   // index is brought into view, we need to set the current index so that we
   // don't scroll because of it. So click on the first visible row.
   select_click_row(preFirstRow);
 
-  // Middle-click on the root of the collapsed thread, which is also the last
-  // row
-  let [tabMessage] = middle_click_on_row(
-    mc.window.gFolderDisplay.view.dbView.rowCount - 1
-  );
-
   if (!aBackground) {
     wait_for_message_display_completion();
     // Switch back to the folder tab
     await switch_tab(folderTab);
   }
-
-  // Make sure the first visible row is still the same
-  if (tree.getFirstVisibleRow() != preFirstRow) {
+  if (tree.getFirstVisibleIndex() != preFirstRow) {
     throw new Error(
       "The first visible row should have been " +
         preFirstRow +
         ", but is actually " +
-        tree.getFirstVisibleRow() +
+        tree.getFirstVisibleIndex() +
         "."
     );
   }
-
-  close_tab(tabMessage);
+  tabmail.closeOtherTabs(0);
 }
+
+add_task(async function test_middle_click_on_collapsed_thread_root_fg() {
+  set_context_menu_background_tabs(false);
+  await _middle_click_on_collapsed_thread_root_helper(false);
+});
+
+add_task(async function test_middle_click_on_collapsed_thread_root_bg() {
+  set_context_menu_background_tabs(true);
+  await _middle_click_on_collapsed_thread_root_helper(true);
+});
 
 /**
  * Middle-click on the root of an expanded thread, making sure that we don't
@@ -392,16 +445,9 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
 
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
 
-  let tree = mc.window.document.getElementById("threadTree");
-  // Scroll to the top, then to near (but not exactly) the bottom
-  tree.ensureRowIsVisible(0);
-  tree.scrollToRow(
-    mc.window.gFolderDisplay.view.dbView.rowCount -
-      tree.getPageLength() -
-      NUM_MESSAGES_IN_THREAD / 2
-  );
+  let tree = get_about_3pane().threadTree;
   // Note the first visible row
-  let preFirstRow = tree.getFirstVisibleRow();
+  let preFirstRow = tree.getFirstVisibleIndex();
 
   // Since reflowing a tree (eg when switching tabs) ensures that the current
   // index is brought into view, we need to set the current index so that we
@@ -411,7 +457,7 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
   // Middle-click on the root of the expanded thread, which is the row with
   // index (number of rows - number of messages in thread).
   let [tabMessage] = middle_click_on_row(
-    mc.window.gFolderDisplay.view.dbView.rowCount - NUM_MESSAGES_IN_THREAD
+    tree.view.rowCount - NUM_MESSAGES_IN_THREAD
   );
 
   if (!aBackground) {
@@ -421,12 +467,12 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
   }
 
   // Make sure the first visible row is still the same
-  if (tree.getFirstVisibleRow() != preFirstRow) {
+  if (tree.getFirstVisibleIndex() != preFirstRow) {
     throw new Error(
       "The first visible row should have been " +
         preFirstRow +
         ", but is actually " +
-        tree.getFirstVisibleRow() +
+        tree.getFirstVisibleIndex() +
         "."
     );
   }
@@ -434,37 +480,15 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
   close_tab(tabMessage);
 }
 
-/**
- * Generate background and foreground tests for each middle click test.
- *
- * @param aTests an array of test names
- */
-var global = this;
-function _generate_background_foreground_tests(aTests) {
-  for (let test of aTests) {
-    let helperFunc = global["_" + test + "_helper"];
-    global["test_" + test + "_background"] = async function () {
-      set_context_menu_background_tabs(true);
-      await helperFunc(true);
-      reset_context_menu_background_tabs();
-    };
-    global["test_" + test + "_foreground"] = async function () {
-      set_context_menu_background_tabs(false);
-      await helperFunc(false);
-      reset_context_menu_background_tabs();
-    };
-  }
-}
+add_task(async function test_middle_click_on_expanded_thread_root_fg() {
+  set_context_menu_background_tabs(false);
+  await _middle_click_on_expanded_thread_root_helper(false);
+});
 
-_generate_background_foreground_tests([
-  "middle_click_with_nothing_selected",
-  "middle_click_with_one_thing_selected",
-  "middle_click_with_many_things_selected",
-  "middle_click_on_existing_single_selection",
-  "middle_click_on_existing_multi_selection",
-  "middle_click_on_collapsed_thread_root",
-  "middle_click_on_expanded_thread_root",
-]);
+add_task(async function test_middle_click_on_expanded_thread_root_bg() {
+  set_context_menu_background_tabs(true);
+  await _middle_click_on_expanded_thread_root_helper(true);
+});
 
 /**
  * Right-click on something and delete it, having no selection previously.

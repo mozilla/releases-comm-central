@@ -4227,6 +4227,7 @@ var threadPane = {
 
     threadTree.addEventListener("contextmenu", this);
     threadTree.addEventListener("dblclick", this);
+    threadTree.addEventListener("auxclick", this);
     threadTree.addEventListener("keypress", this);
     threadTree.addEventListener("select", this);
     threadTree.table.body.addEventListener("dragstart", this);
@@ -4248,6 +4249,12 @@ var threadPane = {
         break;
       case "dblclick":
         this._onDoubleClick(event);
+        break;
+
+      case "auxclick":
+        if (event.button == 1) {
+          this._onMiddleClick(event);
+        }
         break;
       case "keypress":
         this._onKeyPress(event);
@@ -4274,13 +4281,33 @@ var threadPane = {
         break;
     }
   },
-
   observe(subject, topic, data) {
     if (topic == "nsPref:changed") {
       this.setUpTagStyles();
     } else if (topic == "addrbook-displayname-changed") {
       threadTree.invalidate();
     }
+  },
+
+  /**
+   * Temporarily select a different index from the actual selection, without
+   * visually changing or losing the current selection.
+   *
+   * @param {integer} index - The index of the clicked row.
+   */
+  suppressSelect(index) {
+    this.saveSelection();
+    threadTree._selection.selectEventsSuppressed = true;
+    threadTree._selection.select(index);
+  },
+
+  /**
+   * Clear the selection suppression and restore the previous selection.
+   */
+  releaseSelection() {
+    threadTree._selection.selectEventsSuppressed = true;
+    this.restoreSelection(undefined, false);
+    threadTree._selection.selectEventsSuppressed = false;
   },
 
   _onDoubleClick(event) {
@@ -4301,6 +4328,23 @@ var threadPane = {
 
     if (event.key == "Enter") {
       this._onItemActivate(event);
+    }
+  },
+
+  _onMiddleClick(event) {
+    const row =
+      event.target.closest(`tr[is^="thread-"]`) ||
+      threadTree.getRowAtIndex(threadTree.currentIndex);
+
+    const isSelected = gDBView.selection.isSelected(row.index);
+    if (!isSelected) {
+      // The middle-clicked row is not selected. Tell the activate item to use
+      // this instead.
+      this.suppressSelect(row.index);
+    }
+    this._onItemActivate(event);
+    if (!isSelected) {
+      this.releaseSelection();
     }
   },
 

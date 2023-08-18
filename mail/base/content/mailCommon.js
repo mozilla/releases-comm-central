@@ -105,9 +105,8 @@ var commandController = {
       MailUtils.displayMessages(
         gDBView.getSelectedMsgHdrs(),
         gViewWrapper,
-        window.browsingContext.topChromeWindow.document.getElementById(
-          "tabmail"
-        )
+        top.document.getElementById("tabmail"),
+        event?.type == "auxclick" && !event?.shiftKey
       );
     },
     cmd_tag() {

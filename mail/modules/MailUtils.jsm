@@ -189,7 +189,12 @@ var MailUtils = {
    *    - if no 3pane windows are open, a standalone window is opened instead
    *      of a tab
    */
-  displayMessages(aMsgHdrs, aViewWrapperToClone, aTabmail) {
+  displayMessages(
+    aMsgHdrs,
+    aViewWrapperToClone,
+    aTabmail,
+    useBackgroundPref = false
+  ) {
     let openMessageBehavior = Services.prefs.getIntPref(
       "mail.openMessageBehavior"
     );
@@ -230,13 +235,16 @@ var MailUtils = {
         ) {
           return;
         }
+        const loadInBackground = useBackgroundPref
+          ? Services.prefs.getBoolPref("mail.tabs.loadInBackground")
+          : false;
 
         // Open all the tabs in the background, except for the last one
         for (let [i, msgHdr] of aMsgHdrs.entries()) {
           aTabmail.openTab("mailMessageTab", {
             messageURI: msgHdr.folder.getUriForMsg(msgHdr),
             viewWrapper: aViewWrapperToClone,
-            background: i < aMsgHdrs.length - 1,
+            background: i < aMsgHdrs.length - 1 || loadInBackground,
             disregardOpener: aMsgHdrs.length > 1,
           });
         }
