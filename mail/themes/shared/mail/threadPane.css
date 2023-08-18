@@ -130,9 +130,16 @@
 .unreadcol-column[colspan="2"],
 .totalcol-column[colspan="2"] {
   /* 25px is the width of the column picker. */
-  padding-inline-end: calc(25px + env(scrollbar-inline-size));
+  padding-inline-end: 25px;
 }
 
+@media (-moz-overlay-scrollbars) {
+  .sizecol-column[colspan="2"],
+  .unreadcol-column[colspan="2"],
+  .totalcol-column[colspan="2"] {
+    padding-inline-end: calc(25px + env(scrollbar-inline-size));
+  }
+}
 
 [is="tree-view-table-body"]:focus > .selected button,
 [is="tree-view-table-body"]:focus-within > .selected button,
