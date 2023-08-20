@@ -263,8 +263,8 @@ add_task(async function test_query_has_value_for_non_singular() {
  * We also want to test that re-indexing properly adds/removes the attribute
  *  so change the object and make sure everything happens correctly.
  *
- * @tests gloda.datastore.sqlgen.kConstraintIn.emptySet
- * @tests gloda.query.test.kConstraintIn.emptySet
+ * Tests gloda.datastore.sqlgen.kConstraintIn.emptySet
+ * Tests gloda.query.test.kConstraintIn.emptySet
  */
 add_task(async function test_empty_set_logic() {
   // - Initial query based on the setup previously.
