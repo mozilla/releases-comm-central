@@ -5,6 +5,7 @@
 #####
 config = {
     "application": "thunderbird",
+    "appdir": "dist/bin/",
     "minimum_tests_zip_dirs": [
         "bin/*",
         "certs/*",
