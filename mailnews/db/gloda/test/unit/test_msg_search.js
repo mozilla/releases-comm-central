@@ -138,11 +138,11 @@ function unique_string() {
  * Wrap the construction of a GlodaMsgSearcher with a limit of 1 and feed it to
  * queryExpect.
  *
- * @param aFulltextStr The fulltext query string which GlodaMsgSearcher will
- *     parse.
- * @param aExpectedSet The expected result set.  Make sure that the size of the
- *     set is consistent with aLimit.
- * @param [aLimit=1]
+ * @param {string} aFulltextStr - The fulltext query string which
+ *   GlodaMsgSearcher will parse.
+ * @param {object} aExpectedSet The expected result set.  Make sure that the
+ *   size of the set is consistent with aLimit.
+ * @param {integer} [aLimit=1] - Limit.
  *
  * Use like so:
  *  await asyncMsgSearchExpect("foo bar", someSynMsgSet);
