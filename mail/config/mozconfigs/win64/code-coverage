@@ -1,0 +1,31 @@
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
+. "$topsrcdir/build/mozconfig.win-common"
+. "$topsrcdir/build/mozconfig.common"
+. "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"
+
+ac_add_options --enable-optimize
+ac_add_options --enable-debug-symbols=-g1
+ac_add_options --disable-sandbox
+ac_add_options --disable-warnings-as-errors
+ac_add_options --without-wasm-sandboxed-libraries
+ac_add_options --enable-coverage
+ac_add_options --enable-rust-tests
+
+# Needed to enable breakpad in application.ini
+export MOZILLA_OFFICIAL=1
+
+# Package js shell.
+export MOZ_PACKAGE_JSSHELL=1
+
+if [ -d "$MOZ_FETCHES_DIR/clang" ]; then
+    CLANG_LIB_DIR="$(cd $MOZ_FETCHES_DIR/clang/lib/clang/* && cd lib/windows && pwd)"
+
+    export LIB=$LIB:$CLANG_LIB_DIR
+    export LDFLAGS="clang_rt.profile-x86_64.lib"
+fi
+
+export RUSTFLAGS="-Ccodegen-units=1 -Zprofile -Cpanic=abort -Zpanic_abort_tests -Clink-dead-code -Coverflow-checks=off"
+export RUSTDOCFLAGS="-Cpanic=abort"
+
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
+

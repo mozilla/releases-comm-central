@@ -43,6 +43,7 @@ xpcshell:
             default:
                 by-test-platform:
                     .*-asan.*: 2
+                    .*-ccov.*: 2
                     .*-tsan.*: 2
                     macosx1100.*: 2
                     windows11.*: 1
@@ -52,6 +53,10 @@ xpcshell:
             .*-ccov.*/.*: 10
             .*-tsan.*/opt: 10
             default: 5
+    worker-type:
+        by-test-platform:
+            windows11-64-2009-ccov-qr/opt: win11-64-2009
+            default: default
     instance-size: default
     max-run-time:
         by-variant:
@@ -131,6 +136,7 @@ mochitest-thunderbird:
                 by-test-platform:
                     linux.*64-ccov.*/.*: 9000
                     linux.*64-tsan.*/opt: 9000
+                    windows.*-ccov.*/.*: 10800
                     default: 3600
     variants:
         - msix
@@ -147,6 +153,7 @@ mochitest-thunderbird:
             default:
                 by-test-platform:
                     .*-asan.*: 2
+                    .*-ccov.*: 2
                     .*-tsan.*: 2
                     macosx1100.*: 2
                     windows11.*: 1
@@ -156,6 +163,7 @@ mochitest-thunderbird:
             linux.*64-asan.*/opt: 16
             linux.*64-tsan.*/opt: 15
             windows1.-64-asan.*/opt: 9
+            windows1.*-ccov.*/.*: 9
             default: 7
     mozharness:
         script: desktop_unittest.py
@@ -172,6 +180,10 @@ mochitest-thunderbird:
                     - unittests/linux_unittest.py
                     - remove_executables.py
                     - unittests/thunderbird_extra.py
+    worker-type:
+        by-test-platform:
+            windows11-64-2009-ccov-qr/opt: win11-64-2009
+            default: default
     instance-size:
         by-test-platform:
             linux.*64-tsan.*/opt: xlarge  # runs out of memory on default/m3.large

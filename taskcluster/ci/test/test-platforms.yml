@@ -84,6 +84,13 @@ windows11-32-2009-qr/debug:
         - xpcshell-tests
 
 # windows 11 - 64bit
+windows11-64-2009-ccov-qr/opt:
+    build-platform: win64-ccov/opt
+    build-signing-label: build-signing-win64-ccov/opt
+    test-sets:
+        - mochitest-tests
+        - xpcshell-tests
+
 windows11-64-2009-qr/opt:
     build-platform: win64/opt
     build-signing-label:
