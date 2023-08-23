@@ -128,7 +128,11 @@ done
 install -D -m644 -t "${appdir}/lib/thunderbird/distribution" distribution.ini
 install -D -m755 launch-script.sh "${appdir}/bin/thunderbird"
 
+# We use features=devel to enable ptrace, which we need for the crash
+# reporter.  The application is still confined in a pid namespace, so
+# that won't let us escape the flatpak sandbox.  See bug 1653852.
 flatpak build-finish build                                      \
+        --allow=devel                                           \
         --share=ipc                                             \
         --share=network                                         \
         --socket=pulseaudio                                     \
