@@ -110,19 +110,22 @@ async function waitForIndexingHang() {
  *  However, anything labeled as a 'sticky' setting stays that way until
  *  explicitly changed.
  *
- * @param {boolean} [aArgs.event=true] Should event-driven indexing be enabled
- *     (true) or disabled (false)?  Right now, this actually suppresses
- *     indexing... the semantics will be ironed out as-needed.
- * @param [aArgs.hangWhile] Must be either omitted (for don't force a hang) or
- *     "streaming" indicating that we should do a no-op instead of performing
- *     the message streaming.  This will manifest as a hang until
- *     |resumeFromSimulatedHang| is invoked or the test explicitly causes the
- *     indexer to abort (in which case you do not need to call the resume
- *     function.)  You must omit injectFaultIn if you use hangWhile.
- * @param [aArgs.injectFaultIn=null] Must be omitted (for don't inject a
- *     failure) or "streaming" indicating that we should inject a failure when
- *     the message indexer attempts to stream a message.  The fault will be an
- *     appropriate exception.  You must omit hangWhile if you use injectFaultIn.
+ * @param {object} aArgs - Configuration.
+ * @param {boolean} [aArgs.event=true] - Should event-driven indexing be enabled
+ *   (true) or disabled (false)? Right now, this actually suppresses
+ *   indexing... the semantics will be ironed out as-needed.
+ * @param {null|"streaming"} [aArgs.hangWhile] Must be either omitted
+ *   (for don't force a hang) or "streaming" indicating that we should do a
+ *   no-op instead of performing the message streaming.
+ *   This will manifest as a hang until
+ *   |resumeFromSimulatedHang| is invoked or the test explicitly causes the
+ *   indexer to abort (in which case you do not need to call the resume
+ *   function.)  You must omit injectFaultIn if you use hangWhile.
+ * @param {null|"streaming"}[aArgs.injectFaultIn=null]
+ *   Must be omitted (for don't inject a failure) or "streaming" indicating
+ *   that we should inject a failure when the message indexer attempts to
+ *   stream a message. The fault will be an appropriate exception.
+ *   You must omit hangWhile if you use injectFaultIn.
  */
 function configureGlodaIndexing(aArgs) {
   let shouldSuppress = "event" in aArgs ? !aArgs.event : false;
@@ -167,12 +170,12 @@ function configureGlodaIndexing(aArgs) {
  * Call this to resume from the hang induced by configuring the indexer with
  *  a "hangWhile" argument to |configureGlodaIndexing|.
  *
- * @param [aJustResumeExecution=false] Should we just poke the callback driver
- *     for the indexer rather than continuing the call.  You would likely want
- *     to do this if you committed a lot of violence while in the simulated
- *     hang and proper resumption would throw exceptions all over the place.
- *     (For example; if you hang before streaming and destroy the message
- *     header while suspended, resuming the attempt to stream will throw.)
+ * @param {boolean} [aJustResumeExecution=false] - Should we just poke the
+ *   callback driver for the indexer rather than continuing the call.
+ *   You would likely want to do this if you committed a lot of violence while
+ *   in the simulated hang and proper resumption would throw exceptions all over
+ *   the place. For example; if you hang before streaming and destroy the
+ *   message header while suspended, resuming the attempt to stream will throw.)
  */
 async function resumeFromSimulatedHang(aJustResumeExecution) {
   if (aJustResumeExecution) {
@@ -197,17 +200,19 @@ async function resumeFromSimulatedHang(aJustResumeExecution) {
  *  of the synthetic messages.  (Well, we cap it; brute-force test your logic
  *  on your own time; you should really only be feeding us minimal scenarios.)
  *
- * @param aScenarioMaker A function that, when called, will generate a series
- *   of SyntheticMessage instances.  Each call to this method should generate
+ * @param {Function} aScenarioMaker - A function that, when called,
+ *   will generate a series of SyntheticMessage instances.
+ *   Each call to this method should generate
  *   a new set of conceptually equivalent, but not identical, messages.  This
  *   allows us to process without having to reset our state back to nothing each
  *   time.  (This is more to try and make sure we run the system with a 'dirty'
  *   state than a bid for efficiency.)
- * @param {MessageInjection} messageInjection An instance to use for permuting
+ * @param {MessageInjection} messageInjection - An instance to use for permuting
  *   the messages and creating folders.
  *
- * @returns {[async () => SyntheticMessageSet]} Await it sequentially with a for...of loop.
- *                         Wait for each element for the Indexer and assert afterwards.
+ * @returns {Promise[SyntheticMessageSet]} Await it sequentially with a
+ *   for...of loop.
+ *   Wait for each element for the Indexer and assert afterwards.
  */
 async function permuteMessages(aScenarioMaker, messageInjection) {
   let folder = await messageInjection.makeEmptyFolder();
@@ -249,9 +254,9 @@ function factorial(i, rv) {
  *  characterizes the permutation through the decisions that need to be made
  *  at each step.
  *
- * @param aArray Source array that is destructively processed.
- * @param aPermutationId The permutation id.  A permutation id of 0 results in
- *     the original array's sequence being maintained.
+ * @param {object[]} aArray - Source array that is destructively processed.
+ * @param {integer} aPermutationId - The permutation id. A permutation id of 0
+ *   results in the original array's sequence being maintained.
  */
 function permute(aArray, aPermutationId) {
   let out = [];
