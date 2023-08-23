@@ -168,7 +168,7 @@ class MailGoButton extends MailTabButton {
     if (index != nsMsgViewIndex_None) {
       if (currentWindow.threadTree) {
         currentWindow.threadTree.selectedIndex = index;
-        currentWindow.threadTree.focus();
+        currentWindow.threadTree.table.body.focus();
       } else {
         currentWindow.gViewWrapper.dbView.selection.select(index);
         currentWindow.displayMessage(

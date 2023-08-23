@@ -2598,7 +2598,7 @@ function focus_folder_tree() {
  */
 function focus_thread_tree() {
   let threadTree = get_about_3pane().document.getElementById("threadTree");
-  threadTree.focus();
+  threadTree.table.body.focus();
 }
 
 /**

@@ -13,6 +13,7 @@ var {
   assert_messages_in_view,
   be_in_folder,
   create_folder,
+  focus_thread_tree,
   get_about_3pane,
   make_message_sets_in_folders,
   mc,
@@ -72,7 +73,7 @@ add_task(async function test_control_shift_k_triggers_display() {
   assert_quick_filter_bar_visible(false);
 
   // focus explicitly on the thread pane so we know where the focus is.
-  get_about_3pane().threadTree.focus();
+  focus_thread_tree();
 
   // hit control-shift-k
   EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });
