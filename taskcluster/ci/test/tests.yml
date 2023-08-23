@@ -136,6 +136,7 @@ mochitest-thunderbird:
                 by-test-platform:
                     linux.*64-ccov.*/.*: 9000
                     linux.*64-tsan.*/opt: 9000
+                    macosx.*64-ccov.*/.*: 10800
                     windows.*-ccov.*/.*: 10800
                     default: 3600
     variants:

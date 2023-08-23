@@ -149,6 +149,12 @@ macosx1015-64-shippable-qr/opt:
         - mochitest-tests
         - xpcshell-tests
 
+macosx1015-64-ccov-qr/opt:
+    build-platform: macosx64-ccov/opt
+    test-sets:
+        - mochitest-tests
+        - xpcshell-tests
+
 # macosx1100-64-shippable/opt:
 #     build-platform: macosx64-shippable/opt
 #     test-sets:
