@@ -103,7 +103,7 @@
 
 #msgIdentity[editable="true"]::part(dropmarker) {
   margin-inline-end: 0;
-  width: 16px;
+  width: 12px;
 }
 
 #msgIdentity[open="true"] {

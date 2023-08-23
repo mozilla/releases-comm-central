@@ -9599,9 +9599,13 @@ function MakeFromFieldEditable(ignoreWarning) {
     );
   }
 
-  var customizeMenuitem = document.getElementById("cmd_customizeFromAddress");
+  let customizeMenuitem = document.getElementById("cmd_customizeFromAddress");
   customizeMenuitem.setAttribute("disabled", "true");
-  var identityElement = document.getElementById("msgIdentity");
+  let identityElement = document.getElementById("msgIdentity");
+  let identityElementWidth = `${
+    identityElement.getBoundingClientRect().width
+  }px`;
+  identityElement.style.width = identityElementWidth;
   identityElement.removeAttribute("type");
   identityElement.setAttribute("editable", "true");
   identityElement.focus();

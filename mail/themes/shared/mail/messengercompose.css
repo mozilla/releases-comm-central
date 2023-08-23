@@ -841,7 +841,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 #msgIdentity::part(text-input) {
   border-style: none;
   outline-style: none;
-  margin-inline: 1px 20px;
+  margin-inline: 1px;
 }
 
 #msgIdentityPopup >  menuitem[selected="true"] {
