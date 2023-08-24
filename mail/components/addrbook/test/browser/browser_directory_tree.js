@@ -2,22 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function rightClickOnIndex(index) {
-  let abWindow = getAddressBookWindow();
-  let booksList = abWindow.booksList;
-  let menu = abWindow.document.getElementById("bookContext");
-
-  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(
-    booksList
-      .getRowAtIndex(index)
-      .querySelector(".bookRow-name, .listRow-name"),
-    { type: "contextmenu" },
-    abWindow
-  );
-  return shownPromise;
-}
-
 /**
  * Tests that additions and removals are accurately displayed.
  */
@@ -347,7 +331,7 @@ add_task(async function test_rename_and_delete() {
   let menu = abDocument.getElementById("bookContext");
   let propertiesMenuItem = abDocument.getElementById("bookContextProperties");
 
-  await rightClickOnIndex(2);
+  await showBooksContext(2);
 
   Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
   Assert.ok(!propertiesMenuItem.disabled);
@@ -407,7 +391,7 @@ add_task(async function test_rename_and_delete() {
 
   // Rename the list.
 
-  await rightClickOnIndex(3);
+  await showBooksContext(3);
 
   Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
   Assert.deepEqual(document.l10n.getAttributes(propertiesMenuItem), {
@@ -541,7 +525,7 @@ add_task(async function test_context_menu() {
 
   // Test that the menu does not show for All Address Books.
 
-  await rightClickOnIndex(0);
+  await showBooksContext(0);
   Assert.equal(booksList.selectedIndex, 0);
   Assert.equal(abDocument.activeElement, booksList);
 
@@ -558,7 +542,7 @@ add_task(async function test_context_menu() {
   // Test directories that can't be deleted.
 
   for (let index of [1, booksList.rowCount - 1]) {
-    await rightClickOnIndex(index);
+    await showBooksContext(index);
     Assert.equal(booksList.selectedIndex, index);
     Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
     Assert.ok(!propertiesMenuItem.disabled);
@@ -576,7 +560,7 @@ add_task(async function test_context_menu() {
 
   // Test and delete CardDAV directory at index 4.
 
-  await rightClickOnIndex(4);
+  await showBooksContext(4);
   Assert.equal(booksList.selectedIndex, 4);
   Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
   Assert.ok(!propertiesMenuItem.disabled);
@@ -604,7 +588,7 @@ add_task(async function test_context_menu() {
 
   for (let index of [3, 2]) {
     await new Promise(r => abWindow.setTimeout(r, 250));
-    await rightClickOnIndex(index);
+    await showBooksContext(index);
     Assert.equal(booksList.selectedIndex, index);
     Assert.ok(BrowserTestUtils.is_visible(propertiesMenuItem));
     Assert.ok(!propertiesMenuItem.disabled);
@@ -805,7 +789,7 @@ add_task(async function test_startup_directory() {
   Services.prefs.clearUserPref(DEFAULT_PREF);
 
   async function checkMenuItem(index, expectChecked, toggle = false) {
-    await rightClickOnIndex(index);
+    await showBooksContext(index);
 
     let menu = abWindow.document.getElementById("bookContext");
     let item = abWindow.document.getElementById("bookContextStartupDefault");

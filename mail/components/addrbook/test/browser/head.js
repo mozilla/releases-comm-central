@@ -293,25 +293,90 @@ function checkPlaceholders(expectedVisible = []) {
   }
 }
 
+/**
+ * Simulate a right-click on an item in the books list.
+ * @param {integer} index - The index of the row to simulate a right-click on.
+ * @param {string} [idToActivate] - If given, the ID of a menu item to activate
+ *   when the menu opens. In this case the function will not return until the
+ *   menu closes.
+ */
+async function showBooksContext(index, idToActivate) {
+  let abWindow = getAddressBookWindow();
+  let abDocument = abWindow.document;
+  let booksList = abWindow.booksList;
+  let menu = abDocument.getElementById("bookContext");
+
+  EventUtils.synthesizeMouseAtCenter(
+    booksList
+      .getRowAtIndex(index)
+      .querySelector(".bookRow-name, .listRow-name"),
+    { type: "contextmenu" },
+    abWindow
+  );
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+
+  if (idToActivate) {
+    menu.activateItem(abDocument.getElementById(idToActivate));
+    await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+    await new Promise(resolve => abWindow.setTimeout(resolve));
+  }
+}
+
+/**
+ * Simulate a right-click on an item in the cards list.
+ * @param {integer} index - The index of the row to simulate a right-click on.
+ * @param {string} [idToActivate] - If given, the ID of a menu item to activate
+ *   when the menu opens. In this case the function will not return until the
+ *   menu closes.
+ */
+async function showCardsContext(index, idToActivate) {
+  let abWindow = getAddressBookWindow();
+  let abDocument = abWindow.document;
+  let cardsList = abWindow.cardsPane.cardsList;
+  let menu = abDocument.getElementById("cardContext");
+
+  EventUtils.synthesizeMouseAtCenter(
+    cardsList.getRowAtIndex(index),
+    { type: "contextmenu" },
+    abWindow
+  );
+  await BrowserTestUtils.waitForPopupEvent(menu, "shown");
+
+  if (idToActivate) {
+    menu.activateItem(abDocument.getElementById(idToActivate));
+    await BrowserTestUtils.waitForPopupEvent(menu, "hidden");
+    await new Promise(resolve => abWindow.setTimeout(resolve));
+  }
+}
+
+/**
+ * Opens the sort pop-up and activates one of the items.
+ * @param {string} name - The name attribute of the item to activate.
+ * @param {string} value - The value attribute of the item to activate.
+ */
 async function showSortMenu(name, value) {
   let abWindow = getAddressBookWindow();
   let abDocument = abWindow.document;
 
   let displayButton = abDocument.getElementById("displayButton");
   let sortContext = abDocument.getElementById("sortContext");
-  let shownPromise = BrowserTestUtils.waitForEvent(sortContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(displayButton, {}, abWindow);
-  await shownPromise;
-  let hiddenPromise = BrowserTestUtils.waitForEvent(sortContext, "popuphidden");
+  await BrowserTestUtils.waitForPopupEvent(sortContext, "shown");
   sortContext.activateItem(
     sortContext.querySelector(`[name="${name}"][value="${value}"]`)
   );
   if (name == "toggle") {
     sortContext.hidePopup();
   }
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(sortContext, "hidden");
+  await new Promise(resolve => abWindow.setTimeout(resolve));
 }
 
+/**
+ * Opens the table header menu and activates one of the menu items.
+ * @param {string} name - The name attribute of the item to activate.
+ * @param {string} value - The value attribute of the item to activate.
+ */
 async function showPickerMenu(name, value) {
   let abWindow = getAddressBookWindow();
   let cardsHeader = abWindow.cardsPane.table.header;
@@ -321,17 +386,16 @@ async function showPickerMenu(name, value) {
   let menupopup = cardsHeader.querySelector(
     `th[is="tree-view-table-column-picker"] menupopup`
   );
-  let shownPromise = BrowserTestUtils.waitForEvent(menupopup, "popupshown");
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, abWindow);
-  await shownPromise;
-  let hiddenPromise = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
+  await BrowserTestUtils.waitForPopupEvent(menupopup, "shown");
   menupopup.activateItem(
     menupopup.querySelector(`[name="${name}"][value="${value}"]`)
   );
   if (name == "toggle") {
     menupopup.hidePopup();
   }
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(menupopup, "hidden");
+  await new Promise(resolve => abWindow.setTimeout(resolve));
 }
 
 async function toggleLayout() {
@@ -340,12 +404,11 @@ async function toggleLayout() {
 
   let displayButton = abDocument.getElementById("displayButton");
   let sortContext = abDocument.getElementById("sortContext");
-  let shownPromise = BrowserTestUtils.waitForEvent(sortContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(displayButton, {}, abWindow);
-  await shownPromise;
-  let hiddenPromise = BrowserTestUtils.waitForEvent(sortContext, "popuphidden");
+  await BrowserTestUtils.waitForPopupEvent(sortContext, "shown");
   sortContext.activateItem(abDocument.getElementById("sortContextTableLayout"));
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(sortContext, "hidden");
+  await new Promise(resolve => abWindow.setTimeout(resolve));
 }
 
 async function checkComposeWindow(composeWindow, ...expectedAddresses) {

@@ -2,20 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-function rightClickOnIndex(index) {
-  let abWindow = getAddressBookWindow();
-  let cardsList = abWindow.cardsPane.cardsList;
-  let menu = abWindow.document.getElementById("cardContext");
-
-  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
-  EventUtils.synthesizeMouseAtCenter(
-    cardsList.getRowAtIndex(index),
-    { type: "contextmenu" },
-    abWindow
-  );
-  return shownPromise;
-}
-
 /**
  * Tests that additions and removals are accurately displayed, or not
  * displayed if they happen outside the current address book.
@@ -466,7 +452,7 @@ add_task(async function test_context_menu_compose() {
 
   let composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
-  await rightClickOnIndex(0);
+  await showCardsContext(0);
   Assert.ok(!writeMenuItem.hidden, "write menu item shown");
   Assert.ok(writeMenu.hidden, "write menu hidden");
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
@@ -481,7 +467,7 @@ add_task(async function test_context_menu_compose() {
 
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
-  await rightClickOnIndex(1);
+  await showCardsContext(1);
   Assert.ok(writeMenuItem.hidden, "write menu item hidden");
   Assert.ok(!writeMenu.hidden, "write menu shown");
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
@@ -504,7 +490,7 @@ add_task(async function test_context_menu_compose() {
 
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
-  await rightClickOnIndex(1);
+  await showCardsContext(1);
   Assert.ok(writeMenuItem.hidden, "write menu item hidden");
   Assert.ok(!writeMenu.hidden, "write menu shown");
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
@@ -527,7 +513,7 @@ add_task(async function test_context_menu_compose() {
 
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
-  await rightClickOnIndex(2);
+  await showCardsContext(2);
   Assert.ok(!writeMenuItem.hidden, "write menu item shown");
   Assert.ok(writeMenu.hidden, "write menu hidden");
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
@@ -540,7 +526,7 @@ add_task(async function test_context_menu_compose() {
 
   // Contact D, no email address.
 
-  await rightClickOnIndex(3);
+  await showCardsContext(3);
   Assert.ok(writeMenuItem.hidden, "write menu item hidden");
   Assert.ok(writeMenu.hidden, "write menu hidden");
   Assert.ok(writeMenuSeparator.hidden, "write menu separator hidden");
@@ -550,7 +536,7 @@ add_task(async function test_context_menu_compose() {
 
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
-  await rightClickOnIndex(4);
+  await showCardsContext(4);
   Assert.ok(!writeMenuItem.hidden, "write menu item shown");
   Assert.ok(writeMenu.hidden, "write menu hidden");
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
@@ -563,7 +549,7 @@ add_task(async function test_context_menu_compose() {
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
   cardsList.selectedIndices = [0, 3];
-  await rightClickOnIndex(3);
+  await showCardsContext(3);
   Assert.ok(!writeMenuItem.hidden, "write menu item shown");
   Assert.ok(writeMenu.hidden, "write menu hidden");
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
@@ -579,7 +565,7 @@ add_task(async function test_context_menu_compose() {
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
   cardsList.selectedIndices = [1, 2];
-  await rightClickOnIndex(2);
+  await showCardsContext(2);
   Assert.ok(!writeMenuItem.hidden, "write menu item shown");
   Assert.ok(writeMenu.hidden, "write menu hidden");
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
@@ -596,7 +582,7 @@ add_task(async function test_context_menu_compose() {
   composeWindowPromise = BrowserTestUtils.domWindowOpened();
 
   cardsList.selectedIndices = [1, 4];
-  await rightClickOnIndex(4);
+  await showCardsContext(4);
   Assert.ok(!writeMenuItem.hidden, "write menu item shown");
   Assert.ok(writeMenu.hidden, "write menu hidden");
   Assert.ok(!writeMenuSeparator.hidden, "write menu separator shown");
@@ -641,7 +627,7 @@ add_task(async function test_context_menu_edit() {
   let exportMenuItem = abDocument.getElementById("cardContextExport");
 
   async function checkEditItems(index, hidden, isMailList = false) {
-    await rightClickOnIndex(index);
+    await showCardsContext(index);
 
     Assert.equal(
       editMenuItem.hidden,
@@ -741,7 +727,7 @@ add_task(async function test_context_menu_delete() {
   let removeMenuItem = abDocument.getElementById("cardContextRemove");
 
   async function checkDeleteItems(index, deleteHidden, removeHidden, disabled) {
-    await rightClickOnIndex(index);
+    await showCardsContext(index);
 
     Assert.equal(
       deleteMenuItem.hidden,

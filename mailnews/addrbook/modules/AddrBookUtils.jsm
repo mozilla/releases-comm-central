@@ -310,19 +310,25 @@ var AddrBookUtils = {
 
     if (charset == "utf-8") {
       await IOUtils.writeUTF8(exportFile.path, output);
-      return;
+    } else {
+      // Main thread file IO!
+      let outputFileStream = Cc[
+        "@mozilla.org/network/file-output-stream;1"
+      ].createInstance(Ci.nsIFileOutputStream);
+      outputFileStream.init(exportFile, -1, -1, 0);
+      let outputStream = Cc[
+        "@mozilla.org/intl/converter-output-stream;1"
+      ].createInstance(Ci.nsIConverterOutputStream);
+      outputStream.init(outputFileStream, charset);
+      outputStream.writeString(output);
+      outputStream.close();
     }
 
-    let outputFileStream = Cc[
-      "@mozilla.org/network/file-output-stream;1"
-    ].createInstance(Ci.nsIFileOutputStream);
-    outputFileStream.init(exportFile, -1, -1, 0);
-    let outputStream = Cc[
-      "@mozilla.org/intl/converter-output-stream;1"
-    ].createInstance(Ci.nsIConverterOutputStream);
-    outputStream.init(outputFileStream, charset);
-    outputStream.writeString(output);
-    outputStream.close();
+    Services.obs.notifyObservers(
+      exportFile,
+      "addrbook-export-completed",
+      directory.UID
+    );
   },
   exportDirectoryToDelimitedText(directory, delimiter) {
     let bundle = Services.strings.createBundle(
