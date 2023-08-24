@@ -107,18 +107,19 @@ var GlodaCollectionManager = {
   /**
    * Lookup multiple nouns by ID from the cache/existing collections.
    *
-   * @param aNounID The kind of noun identified by its ID.
-   * @param aIDMap A dictionary/map whose keys must be gloda noun ids for the
-   *     given noun type and whose values are ignored.
-   * @param aTargetMap An object to hold the noun id's (key) and noun instances
-   *     (value) for the noun instances that were found available in memory
-   *     because they were cached or in existing query collections.
-   * @param [aDoCache=true] Should we add any items to the cache that we found
-   *     in collections that were in memory but not in the cache?  You would
-   *     likely want to pass false if you are only updating in-memory
-   *     representations rather than performing a new query.
+   * @param {integer} aNounID - The kind of noun identified by its ID.
+   * @param {object} aIDMap - A dictionary/map whose keys must be gloda noun
+   *   ids for the given noun type and whose values are ignored.
+   * @param  {object} aTargetMap - An object to hold the noun id's (key)
+   *   and noun instances (value) for the noun instances that were found
+   *   available in memory because they were cached or in existing query
+   *   collections.
+   * @param {boolean} [aDoCache=true] Should we add any items to the cache that
+   *   we found in collections that were in memory but not in the cache?
+   *   You would likely want to pass false if you are only updating in-memory
+   *   representations rather than performing a new query.
    *
-   * @returns [The number that were found, the number that were not found,
+   * @returns {integer[]} [The number that were found, the number that were not found,
    *          a dictionary whose keys are the ids of noun instances that
    *          were not found.]
    */
@@ -410,7 +411,8 @@ var GlodaCollectionManager = {
    * We walk all existing collections for the given noun type.  For items
    *  currently in the collection, we generate onItemsRemoved events.
    *
-   * @param aItemIds A list of item ids that are being deleted.
+   * @param {integer} aNounID - Noun id.
+   * @param {integer[]} aItemIds - A list of item ids that are being deleted.
    */
   itemsDeleted(aNounID, aItemIds) {
     // cache
@@ -445,10 +447,10 @@ var GlodaCollectionManager = {
    *  not going to happen all that frequently.  If these assumptions are wrong,
    *  callers are advised to re-think the whole situation.
    *
-   * @param aNounID Type of noun we are talking about here.
-   * @param aFilter A filter function that returns true when the item should be
-   *     thought of as deleted, or false if the item is still good.  Screw this
-   *     up and you will get some seriously wacky bugs, yo.
+   * @param {integer} aNounID - Type of noun we are talking about here.
+   * @param {Function} aFilter - A filter function that returns true when the
+   *   item should be thought of as deleted, or false if the item is still good.
+   *   Screw this up and you will get some seriously wacky bugs, yo.
    */
   itemsDeletedByAttribute(aNounID, aFilter) {
     // cache
