@@ -64,6 +64,16 @@ var quickFilterBar = {
         "collapsed"
       ) === "false"
     ) {
+      // If sticky setting is enabled, enable sticky.
+      let xulStickyVal = Services.xulStore.getValue(
+        XULSTORE_URL,
+        "quickFilterBarSticky",
+        "enabled"
+      );
+      if (xulStickyVal) {
+        this.filterer.setFilterValue("sticky", xulStickyVal == "true");
+      }
+
       this._showFilterBar(true, true);
     } else {
       this._showFilterBar(false, true);
