@@ -108,6 +108,16 @@ var quickFilterBar = {
         this.triggerQFTRovingTab(event);
       });
     }
+
+    document.getElementById("qfb-sticky").addEventListener("click", event => {
+      let stickyValue = event.target.pressed ? "true" : "false";
+      Services.xulStore.setValue(
+        XULSTORE_URL,
+        "quickFilterBarSticky",
+        "enabled",
+        stickyValue
+      );
+    });
   },
 
   /**
