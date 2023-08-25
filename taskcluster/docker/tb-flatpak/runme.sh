@@ -4,21 +4,19 @@ set -xe
 # Future products supporting Flatpaks will set this accordingly
 : PRODUCT                       "${PRODUCT:=thunderbird}"
 
-# Required env variables
-
+# Required environment variables
 test "$VERSION"
 test "$BUILD_NUMBER"
 test "$CANDIDATES_DIR"
 test "$L10N_CHANGESETS"
 test "$FLATPAK_BRANCH"
+test "$MANIFEST_URL"
 
-# Optional env variables
+# Optional environment variables
 : WORKSPACE                     "${WORKSPACE:=/home/worker/workspace}"
 : ARTIFACTS_DIR                 "${ARTIFACTS_DIR:=/home/worker/artifacts}"
 
-pwd
-
-# XXX: this is used to populate the datetime in org.mozilla.firefox.appdata.xml
+# This is used to populate the datetime in org.mozilla.Thunderbird.appdata.xml
 DATE=$(date +%Y-%m-%d)
 export DATE
 

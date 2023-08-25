@@ -70,6 +70,10 @@
     <screenshot type="default">https://raw.githubusercontent.com/thundernest/flatpak-screenshots/main/image_1.png</screenshot>
     <screenshot>https://raw.githubusercontent.com/thundernest/flatpak-screenshots/main/image_2.png</screenshot>
   </screenshots>
+  
+  <custom>
+    <value key="flathub::manifest">$MANIFEST_URL</value>
+  </custom>
 
   <project_group>Mozilla</project_group>
   <project_license>MPL-2.0</project_license>

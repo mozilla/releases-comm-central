@@ -53,6 +53,7 @@ job-defaults:
                 by-project:
                     comm-esr.*: stable
                     default: beta
+            MANIFEST_URL: "https://hg.mozilla.org/releases/{config_params[comm_head_repository]}/file/{config_params[comm_head_rev]}/taskcluster/docker/tb-flatpak/runme.sh"
         chain-of-trust: true
 
 jobs:
