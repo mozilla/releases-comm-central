@@ -2803,6 +2803,9 @@ var folderPane = {
       Services.prefs.setBoolPref("mail.last_msg_movecopy_was_move", isMove);
       // ### ugh, so this won't work with cross-folder views. We would
       // really need to partition the messages by folder.
+      if (isMove) {
+        dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
+      }
       MailServices.copy.copyMessages(
         sourceFolder,
         array,

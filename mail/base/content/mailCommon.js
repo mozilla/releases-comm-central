@@ -168,6 +168,13 @@ var commandController = {
      * @param {nsIMsgFolder} destFolder - the destination folder
      */
     cmd_moveMessage(destFolder) {
+      if (parent.location.href == "about:3pane") {
+        // If we're in about:message inside about:3pane, it's the parent
+        // window that needs to advance to the next message.
+        parent.commandController.doCommand("cmd_moveMessage");
+        return;
+      }
+      dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
       gViewWrapper.dbView.doCommandWithFolder(
         Ci.nsMsgViewCommandType.moveMessages,
         destFolder
@@ -256,10 +263,17 @@ var commandController = {
       archiver.archiveMessages(gViewWrapper.dbView.getSelectedMsgHdrs());
     },
     cmd_moveToFolderAgain() {
+      if (parent.location.href == "about:3pane") {
+        // If we're in about:message inside about:3pane, it's the parent
+        // window that needs to advance to the next message.
+        parent.commandController.doCommand("cmd_moveToFolderAgain");
+        return;
+      }
       let folder = MailUtils.getOrCreateFolder(
         Services.prefs.getStringPref("mail.last_msg_movecopy_target_uri")
       );
       if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
+        dbViewWrapperListener.threadPaneCommandUpdater.updateNextMessageAfterDelete();
         commandController.doCommand("cmd_moveMessage", folder);
       } else {
         commandController.doCommand("cmd_copyMessage", folder);
