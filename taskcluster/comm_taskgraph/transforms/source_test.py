@@ -9,7 +9,7 @@ from taskgraph.transforms.base import TransformSequence
 from taskgraph.util.path import join as join_path
 from taskgraph.util.path import match as match_path
 
-from gecko_taskgraph.files_changed import get_changed_files
+from comm_taskgraph.files_changed import get_changed_files
 
 logger = logging.getLogger(__name__)
 
@@ -56,8 +56,13 @@ def changed_clang_format(config, jobs):
             # the commandline will end up being invalid. But, the clang-format
             # job will get dropped by optimization, so it doesn't really matter.
             if cpp_files:
-                job["run"]["command"] = job["run"]["command"].format(
-                    changed_files=shlex_join(cpp_files)
-                )
+                job["task-context"] = {
+                    "from-object": {
+                        "changed_files": shlex_join(cpp_files),
+                    },
+                    "substitution-fields": [
+                        "run.command",
+                    ],
+                }
 
         yield job
