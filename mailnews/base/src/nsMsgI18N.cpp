@@ -320,7 +320,7 @@ const char* nsMsgI18NParseMetaCharset(nsIFile* file) {
   return charset;
 }
 
-nsresult nsMsgI18NShrinkUTF8Str(const nsCString& inString, uint32_t aMaxLength,
+nsresult nsMsgI18NShrinkUTF8Str(const nsACString& inString, uint32_t aMaxLength,
                                 nsACString& outString) {
   if (inString.IsEmpty()) {
     outString.Truncate();
@@ -331,7 +331,7 @@ nsresult nsMsgI18NShrinkUTF8Str(const nsCString& inString, uint32_t aMaxLength,
     return NS_OK;
   }
   NS_ASSERTION(mozilla::IsUtf8(inString), "Invalid UTF-8 string is inputted");
-  const char* start = inString.get();
+  const char* start = inString.BeginReading();
   const char* end = start + inString.Length();
   const char* last = start + aMaxLength;
   const char* cur = start;
@@ -350,7 +350,7 @@ nsresult nsMsgI18NShrinkUTF8Str(const nsCString& inString, uint32_t aMaxLength,
   return NS_OK;
 }
 
-void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
+void nsMsgI18NConvertRawBytesToUTF16(const nsACString& inString,
                                      const nsACString& charset,
                                      nsAString& outString) {
   if (mozilla::IsUtf8(inString)) {
@@ -373,7 +373,7 @@ void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
   }
 }
 
-void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
+void nsMsgI18NConvertRawBytesToUTF8(const nsACString& inString,
                                     const nsACString& charset,
                                     nsACString& outString) {
   if (mozilla::IsUtf8(inString)) {

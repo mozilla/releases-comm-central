@@ -2755,9 +2755,8 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
 
           nsAutoString currentFolderNameStr;
           nsAutoCString currentFolderNameCStr;
-          MsgUnescapeString(
-              nsCString(Substring(buffer, lastSlash + 1, buffer.Length())), 0,
-              currentFolderNameCStr);
+          MsgUnescapeString(Substring(buffer, lastSlash + 1, buffer.Length()),
+                            0, currentFolderNameCStr);
           CopyUTF8toUTF16(currentFolderNameCStr, currentFolderNameStr);
           nsCOMPtr<nsIMsgFolder> childFolder;
           nsCOMPtr<nsIMsgDatabase> db;

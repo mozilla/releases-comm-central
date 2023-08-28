@@ -225,8 +225,8 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
     }
 
     const char* headerValue = headerInfo->value;
-    mailChannel->AddHeaderFromMIME(nsCString(headerInfo->name),
-                                   nsCString(headerValue));
+    mailChannel->AddHeaderFromMIME(nsDependentCString(headerInfo->name),
+                                   nsDependentCString(headerValue));
 
     // Add a localized version of the date header if we encounter it.
     if (!PL_strcasecmp("Date", headerInfo->name)) {

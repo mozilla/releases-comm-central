@@ -191,7 +191,7 @@ bool nsAbAddressCollector::SetNamesForCard(nsIAbCard* aSenderCard,
     modifiedCard = true;
 
   // Now split up the full name.
-  SplitFullName(nsCString(aFullName), firstName, lastName);
+  SplitFullName(aFullName, firstName, lastName);
 
   if (!firstName.IsEmpty() &&
       NS_SUCCEEDED(aSenderCard->SetFirstName(NS_ConvertUTF8toUTF16(firstName))))
@@ -207,9 +207,9 @@ bool nsAbAddressCollector::SetNamesForCard(nsIAbCard* aSenderCard,
 }
 
 // Splits the first and last name based on the space between them.
-void nsAbAddressCollector::SplitFullName(const nsCString& aFullName,
-                                         nsCString& aFirstName,
-                                         nsCString& aLastName) {
+void nsAbAddressCollector::SplitFullName(const nsACString& aFullName,
+                                         nsACString& aFirstName,
+                                         nsACString& aLastName) {
   int index = aFullName.RFindChar(' ');
   if (index != -1) {
     aLastName = Substring(aFullName, index + 1);

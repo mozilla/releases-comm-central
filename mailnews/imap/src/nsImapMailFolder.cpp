@@ -980,7 +980,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
       child->SetFlags(flags);
 
       nsString unicodeName;
-      rv = CopyFolderNameToUTF16(nsCString(folderName), unicodeName);
+      rv = CopyFolderNameToUTF16(folderName, unicodeName);
       if (NS_SUCCEEDED(rv)) child->SetPrettyName(unicodeName);
 
       // store the online name as the mailbox name in the db folder info

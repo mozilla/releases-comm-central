@@ -32,8 +32,8 @@ class nsAbAddressCollector : public nsIAbAddressCollector, public nsIObserver {
                                                 nsIAbDirectory** aDirectory);
   void AutoCollectScreenName(nsIAbCard* aCard, const nsACString& aEmail);
   bool SetNamesForCard(nsIAbCard* aSenderCard, const nsACString& aFullName);
-  void SplitFullName(const nsCString& aFullName, nsCString& aFirstName,
-                     nsCString& aLastName);
+  void SplitFullName(const nsACString& aFullName, nsACString& aFirstName,
+                     nsACString& aLastName);
   void SetUpAbFromPrefs(nsIPrefBranch* aPrefBranch);
   nsCOMPtr<nsIAbDirectory> mDirectory;
   nsCString mABURI;

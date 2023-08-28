@@ -47,8 +47,7 @@ NS_IMETHODIMP
 nsMailChannel::AddAttachmentFieldFromMIME(const nsACString& field,
                                           const nsACString& value) {
   nsIWritablePropertyBag2* attachment = mAttachments.LastElement();
-  attachment->SetPropertyAsAUTF8String(NS_ConvertUTF8toUTF16(nsCString(field)),
-                                       value);
+  attachment->SetPropertyAsAUTF8String(NS_ConvertUTF8toUTF16(field), value);
   return NS_OK;
 }
 

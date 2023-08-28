@@ -434,7 +434,7 @@ MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
         nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(msd->channel);
         if (mailChannel) {
           mailChannel->SetImipMethod(
-              nsCString(imip_method ? imip_method : "nomethod"));
+              nsDependentCString(imip_method ? imip_method : "nomethod"));
         }
 
         // PR_Free checks for null

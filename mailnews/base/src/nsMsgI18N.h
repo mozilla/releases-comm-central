@@ -102,7 +102,7 @@ NS_MSG_BASE const char* nsMsgI18NParseMetaCharset(nsIFile* file);
  * @param outString  [OUT] Shrunken UTF-8 string
  * @return           nsresult
  */
-NS_MSG_BASE nsresult nsMsgI18NShrinkUTF8Str(const nsCString& inString,
+NS_MSG_BASE nsresult nsMsgI18NShrinkUTF8Str(const nsACString& inString,
                                             uint32_t aMaxLength,
                                             nsACString& outString);
 
@@ -112,7 +112,7 @@ NS_MSG_BASE nsresult nsMsgI18NShrinkUTF8Str(const nsCString& inString,
  * @param inString   [IN] Input raw octets
  * @param outString  [OUT] Output UTF-16 string
  */
-NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
+NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF16(const nsACString& inString,
                                                  const nsACString& charset,
                                                  nsAString& outString);
 
@@ -122,7 +122,7 @@ NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF16(const nsCString& inString,
  * @param inString   [IN] Input raw octets
  * @param outString  [OUT] Output UTF-8 string
  */
-NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
+NS_MSG_BASE void nsMsgI18NConvertRawBytesToUTF8(const nsACString& inString,
                                                 const nsACString& charset,
                                                 nsACString& outString);
 

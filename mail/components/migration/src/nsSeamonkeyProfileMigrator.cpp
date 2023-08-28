@@ -966,7 +966,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformAddressbooksForImport(
           nsCString oldFileName(pref->stringValue);
           nsCString newFileName(pref->stringValue);
 
-          if (StringEndsWith(newFileName, nsCString("mab"))) {
+          if (StringEndsWith(newFileName, "mab"_ns)) {
             newFileName.Cut(newFileName.Length() - strlen("mab"),
                             strlen("mab"));
             newFileName.Append("sqlite");
@@ -989,7 +989,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformAddressbooksForImport(
                 moz_xstrdup(NS_ConvertUTF16toUTF8(leafName).get());
           }
 
-          if (StringEndsWith(oldFileName, nsCString("sqlite"))) {
+          if (StringEndsWith(oldFileName, "sqlite"_ns)) {
             nsCOMPtr<nsIFile> oldFile;
             mSourceProfile->Clone(getter_AddRefs(oldFile));
             oldFile->Append(NS_ConvertUTF8toUTF16(oldFileName));

@@ -901,7 +901,7 @@ NS_IMETHODIMP nsMsgContentPolicy::Observe(nsISupports* aSubject,
  */
 NS_IMETHODIMP
 nsMsgContentPolicy::AddExposedProtocol(const nsACString& aScheme) {
-  if (mCustomExposedProtocols.Contains(nsCString(aScheme))) return NS_OK;
+  if (mCustomExposedProtocols.Contains(aScheme)) return NS_OK;
 
   mCustomExposedProtocols.AppendElement(aScheme);
 
@@ -910,7 +910,7 @@ nsMsgContentPolicy::AddExposedProtocol(const nsACString& aScheme) {
 
 NS_IMETHODIMP
 nsMsgContentPolicy::RemoveExposedProtocol(const nsACString& aScheme) {
-  mCustomExposedProtocols.RemoveElement(nsCString(aScheme));
+  mCustomExposedProtocols.RemoveElement(aScheme);
 
   return NS_OK;
 }

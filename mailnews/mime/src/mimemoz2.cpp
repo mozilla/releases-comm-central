@@ -169,7 +169,7 @@ nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
   tmp->m_isDownloaded = !id_imap;
 
   if (!id) {
-    delete[] * data;
+    delete[] *data;
     *data = nullptr;
     PR_FREEIF(id_imap);
     return NS_ERROR_OUT_OF_MEMORY;
@@ -193,7 +193,7 @@ nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
     }
 
     if (!tmp->m_url || NS_FAILED(rv)) {
-      delete[] * data;
+      delete[] *data;
       *data = nullptr;
       PR_FREEIF(id);
       PR_FREEIF(id_imap);
@@ -598,14 +598,14 @@ extern "C" nsresult MimeGetAttachmentList(MimeObject* tobj,
     rv = GenerateAttachmentData(obj, aMessageURL, obj->options, false, size,
                                 *data);
     if (NS_FAILED(rv)) {
-      delete[] * data;  // release data in case of error return.
+      delete[] *data;  // release data in case of error return.
       *data = nullptr;
       return rv;
     }
   }
   rv = BuildAttachmentList((MimeObject*)cobj, *data, aMessageURL);
   if (NS_FAILED(rv)) {
-    delete[] * data;  // release data in case of error return.
+    delete[] *data;  // release data in case of error return.
     *data = nullptr;
   }
   return rv;
@@ -705,7 +705,7 @@ extern "C" nsresult SetMailCharacterSetToMsgWindow(MimeObject* obj,
         if (!PL_strcasecmp(aCharacterSet, "us-ascii")) {
           mailChannel->SetMailCharacterSet("ISO-8859-1"_ns);
         } else {
-          mailChannel->SetMailCharacterSet(nsCString(aCharacterSet));
+          mailChannel->SetMailCharacterSet(nsDependentCString(aCharacterSet));
         }
       }
     }

@@ -5248,7 +5248,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(
     if (NS_IsAscii(aMsgText.BeginReading()))
       aMsgText.SetLength(aMaxOutputLen);
     else
-      nsMsgI18NShrinkUTF8Str(nsCString(aMsgText), aMaxOutputLen, aMsgText);
+      nsMsgI18NShrinkUTF8Str(aMsgText, aMaxOutputLen, aMsgText);
   }
 
   // Also assign the content type being returned
