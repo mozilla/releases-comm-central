@@ -255,7 +255,7 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 }
 
 .popup-notification-icon[popupid="persistent-storage"] {
-  list-style-image: url("chrome://communicator/skin/icons/notification-icons.svg#persistent-storage");
+  list-style-image: url("chrome://communicator/skin/icons/persistent-storage.svg");
 }
 
 .popup-notification-icon[popupid="web-notifications"] {
@@ -331,6 +331,12 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
 
 #password-notification-icon {
   list-style-image: url("chrome://communicator/skin/icons/key-16.png");
+  width: 16px;
+  height: 16px;
+}
+
+#persistent-storage-notification-icon {
+  list-style-image: url("chrome://communicator/skin/icons/persistent-storage.svg");
   width: 16px;
   height: 16px;
 }

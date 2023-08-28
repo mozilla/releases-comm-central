@@ -193,7 +193,7 @@ treecols:-moz-lwtheme {
 }
 
 .messageImage[value="persistent-storage"] {
-  list-style-image: url("chrome://communicator/skin/icons/notification-icons.svg#persistent-storage");
+  list-style-image: url("chrome://communicator/skin/icons/persistent-storage.svg");
   width: 16px;
   height: 16px;
 }

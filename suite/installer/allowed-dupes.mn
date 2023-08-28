@@ -235,8 +235,8 @@ chrome/classic/skin/classic/communicator/icons/feedIcon.png
 chrome/classic/skin/classic/communicator/icons/videoFeedIcon.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/brand/throbber-single.png
 chrome/classic/skin/classic/communicator/brand/throbber-single.png
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icons/notification-icons.svg
-chrome/classic/skin/classic/communicator/icons/notification-icons.svg
+extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icons/persistent-storage.svg
+chrome/classic/skin/classic/communicator/icons/persistent-storage.svg
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extensions/category-languages.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extensions/localeGeneric.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/mozapps/extensions/heart.png

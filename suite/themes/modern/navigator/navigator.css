@@ -492,7 +492,7 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
 }
 
 .popup-notification-icon[popupid="persistent-storage"] {
-  list-style-image: url("chrome://communicator/skin/icons/notification-icons.svg#persistent-storage");
+  list-style-image: url("chrome://communicator/skin/icons/persistent-storage.svg");
 }
 
 .popup-notification-icon[popupid="web-notifications"] {
@@ -567,6 +567,12 @@ toolbar[mode="icons"] #search-button > .button-box > .button-text {
 
 #password-notification-icon {
   list-style-image: url("chrome://mozapps/skin/passwordmgr/key-16.png");
+  width: 16px;
+  height: 16px;
+}
+
+#persistent-storage-notification-icon {
+  list-style-image: url("chrome://communicator/skin/icons/persistent-storage.svg");
   width: 16px;
   height: 16px;
 }

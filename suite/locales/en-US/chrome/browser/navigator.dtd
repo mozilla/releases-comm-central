@@ -71,6 +71,15 @@
 <!ENTITY bookmarksToolbarItem.label   "Bookmarks Toolbar Items">
 <!ENTITY bookmarksToolbarChevron.tooltip "Show more bookmarks">
 
+<!ENTITY urlbar.defaultNotification.tooltip           "Open message panel">
+<!ENTITY urlbar.geolocationNotification.tooltip       "Open location request panel">
+<!ENTITY urlbar.addonsNotification.tooltip            "Open add-on installation message panel">
+<!ENTITY urlbar.indexedDBNotification.tooltip         "Open offline storage message panel">
+<!ENTITY urlbar.passwordNotification.tooltip          "Open save password message panel">
+<!ENTITY urlbar.persistentStorageNotification.tooltip "Store data in Persistent Storage">
+<!ENTITY urlbar.pluginsNotification.tooltip           "Manage plug-in use">
+<!ENTITY urlbar.webNotification.tooltip               "Change whether you can receive notifications from the site">
+
 <!-- Statusbar -->
 <!ENTITY  statusText.label            "Done">
 

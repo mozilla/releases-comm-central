@@ -1450,10 +1450,10 @@ var gPerms = {
       // Show addition box, disable button.
       this.addButton.disabled = true;
       this.addType.removeAllItems(); // Make sure list is clean.
-      let permTypes = ["allowXULXBL", "cookie", "geo", "image", "indexedDB",
+      let permTypes = ["allowXULXBL", "cookie", "geo", "image",
                        "install", "login-saving", "object", "offline-app",
-                       "popup", "script", "stylesheet",
-                       "trackingprotection"];
+                       "persistent-storage", "popup", "script", "shortcuts",
+                       "stylesheet", "trackingprotection"];
 
       // Look for a translation.
       for (let permType of permTypes) {
@@ -1532,8 +1532,6 @@ var gPerms = {
         return Services.perms.ALLOW_ACTION;
       case "geo":
         return Services.perms.DENY_ACTION;
-      case "indexedDB":
-        return Services.perms.DENY_ACTION;
       case "install":
         if (Services.prefs.getBoolPref("xpinstall.whitelist.required"))
           return Services.perms.DENY_ACTION;
@@ -1548,9 +1546,13 @@ var gPerms = {
         if (Services.prefs.getBoolPref("browser.offline-apps.notify"))
           return Services.perms.DENY_ACTION;
         return Services.perms.UNKNOWN_ACTION;
+      case "persistent-storage":
+        return Services.perms.ALLOW_ACTION;
       case "popup":
         if (Services.prefs.getBoolPref("dom.disable_open_during_load"))
           return Services.perms.DENY_ACTION;
+        return Services.perms.ALLOW_ACTION;
+      case "shortcuts":
         return Services.perms.ALLOW_ACTION;
       case "trackingprotection":
         return Services.perms.DENY_ACTION;

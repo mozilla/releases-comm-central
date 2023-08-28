@@ -784,6 +784,10 @@ var gPermissionObject = {
     exactHostMatch: true
   },
 
+  "shortcuts": {
+    states: [ SitePermissions.ALLOW, SitePermissions.BLOCK ],
+  },
+
 };
 
 // Delete this entry while being pre-off
