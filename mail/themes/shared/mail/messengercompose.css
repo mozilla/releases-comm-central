@@ -763,7 +763,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   list-style-image: var(--icon-error-circle);
 }
 
-.autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
+.autocomplete-richlistitem[type="subscribed-news-abook"] > .ac-site-icon {
   list-style-image: var(--icon-newsletter);
 }
 

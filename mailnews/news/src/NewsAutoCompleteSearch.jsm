@@ -46,7 +46,7 @@ NewsAutoCompleteResult.prototype = {
   },
 
   getStyleAt(aIndex) {
-    return "subscribed-news";
+    return "subscribed-news-abook";
   },
 
   getImageAt(aIndex) {
