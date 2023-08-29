@@ -7,7 +7,6 @@
 var EXPORTED_SYMBOLS = ["RecentWindow"];
 
 const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {PrivateBrowsingUtils} = ChromeUtils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
 
 var RecentWindow = {
