@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const appStartup = Services.startup;
 

@@ -16,7 +16,6 @@
 var {BrowserUtils} =
   ChromeUtils.import("resource://gre/modules/BrowserUtils.jsm");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm"
 var {LoginManagerContextMenu} =
   ChromeUtils.import("resource://gre/modules/LoginManagerContextMenu.jsm");
 
