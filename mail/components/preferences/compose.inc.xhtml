@@ -307,7 +307,7 @@
           <checkbox id="enableThreshold"
                     data-l10n-id="enable-cloud-share"
                     preference="mail.compose.big_attachments.notify"/>
-          <html:input id="cloudFileThreshold" type="number" class="size3"
+          <html:input id="cloudFileThreshold" type="number" min="0" class="size3"
                       preference="mail.compose.big_attachments.threshold_kb"/>
           <label control="cloudFileThreshold" data-l10n-id="cloud-share-size"/>
         </hbox>
