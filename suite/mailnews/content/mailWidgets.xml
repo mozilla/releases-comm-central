@@ -991,7 +991,7 @@
     <implementation>
       <field name="stringBundle">
         <![CDATA[
-          this.Services.strings.createBundle(
+          Services.strings.createBundle(
             "chrome://messenger/locale/search-attributes.properties");
         ]]>
       </field>
@@ -1010,7 +1010,7 @@
               scriptError.init("Missing custom search term " + this.value,
                                null, null, 0, 0, Ci.nsIScriptError.errorFlag,
                                "component javascript");
-              this.Services.console.logMessage(scriptError);
+              Services.console.logMessage(scriptError);
               return this.stringBundle.GetStringFromName("MissingCustomTerm");
             }
             return this.stringBundle.GetStringFromName(
@@ -1042,7 +1042,7 @@
             try
             {
               let hdrs =
-                this.Services.prefs.getCharPref("mailnews.customHeaders");
+                Services.prefs.getCharPref("mailnews.customHeaders");
               hdrs = hdrs.replace(/\s+/g, "");  //remove white spaces before splitting
               hdrsArray = hdrs.match(/[^:]+/g);
             }
@@ -1076,7 +1076,6 @@
         var { MailServices } = ChromeUtils.import(
           "resource:///modules/MailServices.jsm"
         );
-        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
         initializeTermFromId(this.id);
       ]]>
       </constructor>
@@ -1090,7 +1089,7 @@
       <field name="searchAttribute">Ci.nsMsgSearchAttrib.Default</field>
       <field name="stringBundle">
         <![CDATA[
-          this.Services.strings.createBundle("chrome://messenger/locale/search-operators.properties")
+          Services.strings.createBundle("chrome://messenger/locale/search-operators.properties")
         ]]>
       </field>
       <property name="valueLabel" readonly="true">
@@ -1150,7 +1149,6 @@
         var { MailServices } = ChromeUtils.import(
           "resource:///modules/MailServices.jsm"
         );
-        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
       ]]>
       </constructor>
     </implementation>
@@ -1546,7 +1544,6 @@
         var { MailServices } = ChromeUtils.import(
           "resource:///modules/MailServices.jsm"
          );
-        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
 
         // initialize strings
         let bundle = Services.strings.createBundle("chrome://messenger/locale/messenger.properties");
@@ -1663,7 +1660,7 @@
                 aFolder.getFlag(Ci.nsMsgFolderFlags.Trash) ||
                 (aFolder.server instanceof Ci.nsINntpIncomingServer))
               return false;
-            let showPreviewText = this.Services.prefs.getBoolPref("mail.biff.alert.show_preview");
+            let showPreviewText = Services.prefs.getBoolPref("mail.biff.alert.show_preview");
             let folderArray = [];
             let msgDatabase;
             try {
@@ -1856,7 +1853,6 @@
         var { MailServices } = ChromeUtils.import(
           "resource:///modules/MailServices.jsm"
          );
-        ChromeUtils.import("resource://gre/modules/Services.jsm", this);
       ]]>
       </constructor>
     </implementation>
@@ -1895,12 +1891,11 @@
           var { MailServices } = ChromeUtils.import(
            "resource:///modules/MailServices.jsm"
           );
-          ChromeUtils.import("resource://gre/modules/Services.jsm", this);
 
-          if (!this.Services.prefs.getBoolPref("mail.biff.alert.show_preview"))
+          if (!Services.prefs.getBoolPref("mail.biff.alert.show_preview"))
             document.getAnonymousElementByAttribute(this, "anonid", "preview").hidden = true;
-          var hideSubject = !this.Services.prefs.getBoolPref("mail.biff.alert.show_subject");
-          var hideSender = !this.Services.prefs.getBoolPref("mail.biff.alert.show_sender");
+          var hideSubject = !Services.prefs.getBoolPref("mail.biff.alert.show_subject");
+          var hideSender = !Services.prefs.getBoolPref("mail.biff.alert.show_sender");
           if (hideSubject)
             document.getAnonymousElementByAttribute(this, "anonid", "subject").hidden = true;
           if (hideSender)

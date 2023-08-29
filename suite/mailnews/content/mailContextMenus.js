@@ -5,7 +5,6 @@
 
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 
 //NOTE: gMessengerBundle must be defined and set or this Overlay won't work

@@ -5,8 +5,6 @@
 
 /* import-globals-from ../../../suite/base/content/utilityOverlay.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var ltnSuiteUtils = {
   addStartupObserver: function() {
     Services.obs.addObserver(this.startupObserver, "lightning-startup-done");

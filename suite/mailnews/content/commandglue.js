@@ -7,7 +7,6 @@
  * Command-specific code. This stuff should be called by the widgets
  */
  
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.js");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

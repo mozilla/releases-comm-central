@@ -22,8 +22,6 @@ var { MailUtils } =
   ChromeUtils.import("resource:///modules/MailUtils.js");
 var { AppConstants } =
   ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-var { Services } =
-  ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 if (typeof FeedMessageHandler != "object") {
   Services.scriptloader.loadSubScript("chrome://messenger-newsblog/content/newsblogOverlay.js");

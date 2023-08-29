@@ -6,7 +6,6 @@
 const {encodeABTermValue, getModelQuery} = ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
 const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const nsIAbListener = Ci.nsIAbListener;
 const kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";

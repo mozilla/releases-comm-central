@@ -10,7 +10,6 @@ const { FileUtils } =
   ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 const { PrivateBrowsingUtils } =
   ChromeUtils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 
 var gDirTree = null;
