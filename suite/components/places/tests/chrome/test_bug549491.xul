@@ -44,7 +44,6 @@
      * Ensures that changing the details of places tree's root-node doesn't
      * throw.
      */
-      const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
     SimpleTest.waitForExplicitFinish();
 

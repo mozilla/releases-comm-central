@@ -5,7 +5,6 @@
 const {Weave} = ChromeUtils.import("resource://services-sync/main.js");
 const {PlacesUIUtils} = ChromeUtils.import("resource:///modules/PlacesUIUtils.jsm");
 const {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var RemoteTabViewer = {
   _tabsList: null,

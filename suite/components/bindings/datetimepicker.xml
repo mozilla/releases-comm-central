@@ -479,8 +479,6 @@
       <method name="_init">
         <body>
           <![CDATA[
-            const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
             this.hourField = this._fieldOne;
             this.minuteField = this._fieldTwo;
             this.secondField = this._fieldThree;
@@ -766,8 +764,6 @@
       <method name="_init">
         <body>
           <![CDATA[
-            const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
             // We'll default to YYYY/MM/DD to start.
             var yfield = "input-one";
             var mfield = "input-two";
@@ -1011,8 +1007,6 @@
       <method name="_init">
         <body>
           <![CDATA[
-            const {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
             // XXX TODO: The following hack should be fixed once Intl.Locale arrives in bug 1433303.
             var locale = Services.locale.regionalPrefsLocales[0];
             if (locale.includes("-u-"))

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function Startup()
 {

@@ -31,8 +31,6 @@ ChromeUtils.defineModuleGetter(this, "NetUtil",
                                "resource://gre/modules/NetUtil.jsm");
 ChromeUtils.defineModuleGetter(this, "Promise",
                                "resource://gre/modules/Promise.jsm");
-ChromeUtils.defineModuleGetter(this, "Services",
-                               "resource://gre/modules/Services.jsm");
 ChromeUtils.defineModuleGetter(this, "BookmarkJSONUtils",
                                "resource://gre/modules/BookmarkJSONUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "BookmarkHTMLUtils",

@@ -21,7 +21,6 @@ const RECAPTCHA_DOMAIN = "https://www.google.com";
 
 const {Weave} = ChromeUtils.import("resource://services-sync/main.js");
 var {XPCOMUtils} = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const {PlacesUtils} = ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
 const {PluralForm} = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 

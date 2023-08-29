@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const {Weave} = ChromeUtils.import("resource://services-sync/main.js");
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var Change = {
   _dialog: null,

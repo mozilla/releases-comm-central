@@ -117,8 +117,6 @@
     <implementation>
       <constructor>
         <![CDATA[
-          var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
           // grab the first child tree and try to tie it to the prefpanes
           var tree = this.getElementsByTagName('tree')[0];
           this.initNavigationTree(tree);
