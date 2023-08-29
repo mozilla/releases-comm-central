@@ -34,8 +34,9 @@ interface nsIMimeConverter : nsISupports {
                                        in long        aMaxLineLen);
 
   /**
-   * Decode a MIME header to UTF-8 if conversion is required.  Marked as
+   * Decode a MIME header to UTF-8 if conversion is required. Marked as
    * noscript because the return value may contain non-ASCII characters.
+   * Unsuitable characters may be removed from the value.
    *
    * @param header A (possibly encoded) header to decode.
    * @param default_charset The charset to apply to un-labeled non-UTF-8 data.
@@ -43,8 +44,7 @@ interface nsIMimeConverter : nsISupports {
    *     charset labeling other than UTF-8.
    * @param eatContinuations If true, unfold headers.
    *
-   * @return UTF-8 encoded value if conversion was required, nullptr if no
-   *     conversion was required.
+   * @return The UTF-8 encoded value.
    */
   AUTF8String decodeMimeHeaderToUTF8(in ACString header,
                                      in string default_charset,
@@ -53,6 +53,7 @@ interface nsIMimeConverter : nsISupports {
 
   /**
    * Decode a MIME header to UTF-16.
+   * Unsuitable characters may be removed from the value.
    *
    * @param header A (possibly encoded) header to decode.
    * @param default_charset The charset to apply to un-labeled non-UTF-8 data.
