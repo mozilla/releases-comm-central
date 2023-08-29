@@ -165,7 +165,6 @@ function checkForImage(elem, htmllocalname)
         var imgURL = imgType == "object" ? img.data : img.src;
         setInfo("image-url", imgURL);
 
-        const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
         const LoadContextInfo = Services.loadContextInfo;
         var loadContextInfo = opener.gPrivate ? LoadContextInfo.private :
                                                 LoadContextInfo.default;
