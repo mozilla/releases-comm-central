@@ -5,8 +5,6 @@
 /* import-globals-from ../../composer/content/editorUtilities.js */
 /* import-globals-from EdDialogCommon.js */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
 var gMsgCompProcessLink = false;
 var gMsgCompInputElement = null;
 var gMsgCompPrevInputValue = null;
