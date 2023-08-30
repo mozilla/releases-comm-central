@@ -414,7 +414,7 @@ var EnigmailEncryption = {
       return 0;
     }
 
-    if (!lazy.EnigmailCore.getService(win)) {
+    if (!lazy.EnigmailCore.getService()) {
       throw new Error(
         "encryption.jsm: encryptMessageStart: not yet initialized"
       );

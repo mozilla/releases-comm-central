@@ -16,7 +16,7 @@ var l10nCommon = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 var gEnigmailSvc;
 function GetEnigmailSvc() {
   if (!gEnigmailSvc) {
-    gEnigmailSvc = EnigmailCore.getService(window);
+    gEnigmailSvc = EnigmailCore.getService();
   }
   return gEnigmailSvc;
 }

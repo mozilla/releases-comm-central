@@ -504,7 +504,7 @@ MimeDecryptHandler.prototype = {
 
       let win = this.msgWindow;
 
-      if (!lazy.EnigmailDecryption.isReady(win)) {
+      if (!lazy.EnigmailDecryption.isReady()) {
         return;
       }
 

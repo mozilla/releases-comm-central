@@ -62,7 +62,7 @@ XPCOMUtils.defineLazyGetter(this, "l10n", () => {
 var Enigmail = {};
 
 Enigmail.getEnigmailSvc = function () {
-  return EnigmailCore.getService(window);
+  return EnigmailCore.getService();
 };
 
 Enigmail.msg = {

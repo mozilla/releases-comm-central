@@ -787,7 +787,7 @@ Enigmail.msg = {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.extractAndAttachKey: \n"
     );
-    var enigmailSvc = EnigmailCore.getService(window);
+    var enigmailSvc = EnigmailCore.getService();
     if (!enigmailSvc) {
       return null;
     }
@@ -956,7 +956,7 @@ Enigmail.msg = {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.doPgpButton: what=" + what + "\n");
 
     if (Enigmail.msg.wasEnigmailEnabledForIdentity()) {
-      EnigmailCore.getService(window); // try to access Enigmail to launch the wizard if needed
+      EnigmailCore.getService(); // try to access Enigmail to launch the wizard if needed
     }
 
     // ignore settings for this account?
@@ -1391,7 +1391,7 @@ Enigmail.msg = {
 
     let fromAddr = this.getSenderUserId();
 
-    let enigmailSvc = EnigmailCore.getService(window);
+    let enigmailSvc = EnigmailCore.getService();
     if (!enigmailSvc) {
       return true;
     }
@@ -2013,7 +2013,7 @@ Enigmail.msg = {
     const SIGN = EnigmailConstants.SEND_SIGNED;
     const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
 
-    var enigmailSvc = EnigmailCore.getService(window);
+    var enigmailSvc = EnigmailCore.getService();
     if (!enigmailSvc) {
       return false;
     }
@@ -2356,7 +2356,7 @@ Enigmail.msg = {
       return;
     }
 
-    var enigmailSvc = EnigmailCore.getService(window);
+    var enigmailSvc = EnigmailCore.getService();
     if (!enigmailSvc) {
       return;
     }

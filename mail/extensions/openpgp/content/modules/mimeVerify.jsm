@@ -583,7 +583,7 @@ MimeVerify.prototype = {
     if (this.protocol === PGPMIME_PROTO) {
       let win = this.window;
 
-      if (!lazy.EnigmailDecryption.isReady(win)) {
+      if (!lazy.EnigmailDecryption.isReady()) {
         return;
       }
 

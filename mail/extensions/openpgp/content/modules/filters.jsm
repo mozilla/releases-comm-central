@@ -128,11 +128,7 @@ const filterActionCopyDecrypt = {
 const filterActionEncrypt = {
   async applyAction(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     // Ensure KeyRing is loaded.
-    if (aMsgWindow) {
-      lazy.EnigmailCore.getService(aMsgWindow.domWindow);
-    } else {
-      lazy.EnigmailCore.getService();
-    }
+    lazy.EnigmailCore.getService();
     lazy.EnigmailKeyRing.getAllKeys();
 
     lazy.EnigmailLog.DEBUG(

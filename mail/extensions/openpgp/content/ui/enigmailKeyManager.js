@@ -87,7 +87,7 @@ function enigmailKeyManagerLoad() {
   EnigmailLog.DEBUG("enigmailKeyManager.js: enigmailKeyManagerLoad\n");
 
   // Close the key manager if GnuPG is not available
-  if (!EnigmailCore.getService(window)) {
+  if (!EnigmailCore.getService()) {
     window.close();
     return;
   }

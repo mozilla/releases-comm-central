@@ -75,9 +75,9 @@ function newStatusObject() {
 }
 
 var EnigmailDecryption = {
-  isReady(win) {
+  isReady() {
     // this used to return false while generating a key. still necessary?
-    return lazy.EnigmailCore.getService(win);
+    return lazy.EnigmailCore.getService();
   },
 
   getFromAddr(win) {
@@ -284,7 +284,7 @@ var EnigmailDecryption = {
       }
     }
 
-    if (!lazy.EnigmailCore.getService(parent)) {
+    if (!lazy.EnigmailCore.getService()) {
       statusFlagsObj.value |= lazy.EnigmailConstants.DISPLAY_MESSAGE;
       throw new Error("decryption.jsm: decryptMessage: not yet initialized");
       //return "";

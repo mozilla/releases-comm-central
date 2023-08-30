@@ -16,7 +16,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailMimeEncrypt: "chrome://openpgp/content/modules/mimeEncrypt.jsm",
-  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
   EnigmailPgpmimeHander: "chrome://openpgp/content/modules/pgpmimeHandler.jsm",
   PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
 });
@@ -71,15 +70,11 @@ var EnigmailCore = {
   },
 
   /**
-   * get and or initialize the Enigmail service,
-   * including the handling for upgrading old preferences to new versions
+   * Get and or initialize the Enigmail service.
    *
-   * @win:                - nsIWindow: parent window (optional)
-   * @startingPreferences - Boolean: true - called while switching to new preferences
-   *                        (to avoid re-check for preferences)
    * @returns {Promise<Enigmail|null>}
    */
-  async getService(win, startingPreferences) {
+  async getService() {
     // Lazy initialization of Enigmail JS component (for efficiency)
 
     if (gEnigmailService) {
@@ -88,7 +83,7 @@ var EnigmailCore = {
 
     try {
       this.createInstance();
-      return gEnigmailService.getService(win, startingPreferences);
+      return gEnigmailService.getService();
     } catch (ex) {
       return null;
     }
@@ -120,7 +115,7 @@ Enigmail.prototype = {
   initialized: false,
   initializationAttempted: false,
 
-  initialize(domWindow) {
+  initialize() {
     this.initializationAttempted = true;
 
     lazy.EnigmailLog.DEBUG("core.jsm: Enigmail.initialize: START\n");
@@ -142,16 +137,12 @@ Enigmail.prototype = {
     this.initialized = true;
   },
 
-  async getService(win, startingPreferences) {
-    if (!win) {
-      win = lazy.EnigmailWindows.getBestParentWin();
-    }
-
+  async getService() {
     lazy.EnigmailLog.DEBUG("core.jsm: svc = " + this + "\n");
 
     if (!this.initialized) {
       // Initialize enigmail
-      this.initialize(win);
+      this.initialize();
     }
     await EnigmailCore.startup(0);
     lazy.EnigmailPgpmimeHander.startup(0);
