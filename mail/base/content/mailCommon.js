@@ -493,7 +493,14 @@ var commandController = {
 
     switch (command) {
       case "cmd_cancel":
-        return numSelectedMessages == 1 && isNewsgroup();
+        if (numSelectedMessages == 1 && isNewsgroup()) {
+          // Ensure author of message matches own identity
+          let author = gDBView.hdrForFirstSelectedMessage.author;
+          return MailServices.accounts
+            .getIdentitiesForServer(folder().server)
+            .some(id => id.fullAddress == author);
+        }
+        return false;
       case "cmd_openConversation":
         return gDBView
           .getSelectedMsgHdrs()

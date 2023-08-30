@@ -613,7 +613,8 @@ function InitMessageMenu() {
   document.getElementById("replyMainMenu").hidden = isNews;
   document.getElementById("replySenderMainMenu").hidden = !isNews;
 
-  document.getElementById("menu_cancel").hidden = !isNews;
+  document.getElementById("menu_cancel").hidden =
+    !isNews || !getEnabledControllerForCommand("cmd_cancel");
 
   // Disable the move menu if there are no messages selected or if
   // the message is a dummy - e.g. opening a message in the standalone window.

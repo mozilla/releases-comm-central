@@ -73,6 +73,7 @@ var mailContextMenu = {
     "mailContext-forwardAsAttachment": "cmd_forwardAttachment",
     "mailContext-multiForwardAsAttachment": "cmd_forwardAttachment",
     "mailContext-redirect": "cmd_redirect",
+    "mailContext-cancel": "cmd_cancel",
     "mailContext-editAsNew": "cmd_editAsNew",
     "mailContext-addNewTag": "cmd_addTag",
     "mailContext-manageTags": "cmd_manageTags",

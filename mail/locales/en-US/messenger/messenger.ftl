@@ -215,6 +215,10 @@ appmenu-addons-and-themes =
 context-menu-redirect-msg =
     .label = Redirect
 
+# This menu item is for canceling an NNTP message
+context-menu-cancel-msg =
+    .label = Cancel Message
+
 # Variables:
 # $count (Number) - Number of selected messages.
 mail-context-delete-messages =
