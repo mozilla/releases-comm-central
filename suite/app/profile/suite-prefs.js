@@ -932,7 +932,6 @@ pref("services.sync.prefs.sync.mailnews.offline_sync_mail", true);
 pref("services.sync.prefs.sync.mailnews.offline_sync_news", true);
 pref("services.sync.prefs.sync.mailnews.offline_sync_send_unsent", true);
 pref("services.sync.prefs.sync.mailnews.offline_sync_work_offline", true);
-pref("services.sync.prefs.sync.mailnews.remember_selected_message", true);
 pref("services.sync.prefs.sync.mailnews.reply_header_authorwrotesingle", true);
 pref("services.sync.prefs.sync.mailnews.reply_header_ondateauthorwrote", true);
 pref("services.sync.prefs.sync.mailnews.reply_header_authorwroteondate", true);

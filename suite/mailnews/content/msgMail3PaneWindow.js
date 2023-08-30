@@ -76,7 +76,7 @@ function ScrollToMessageAfterFolderLoad(folder)
 {
   var scrolled = Services.prefs.getBoolPref("mailnews.scroll_to_new_message") &&
       ScrollToMessage(nsMsgNavigationType.firstNew, true, false /* selectMessage */);
-  if (!scrolled && folder && Services.prefs.getBoolPref("mailnews.remember_selected_message"))
+  if (!scrolled && folder)
   {
     // If we failed to scroll to a new message,
     // reselect the last selected message

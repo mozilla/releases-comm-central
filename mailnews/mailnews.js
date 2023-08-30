@@ -459,7 +459,6 @@ pref("mailnews.open_tab_warning", 20);
 
 pref("mailnews.start_page.enabled", true);
 
-pref("mailnews.remember_selected_message", true);
 pref("mailnews.scroll_to_new_message", true);
 
 // if true, any click on a column header other than the thread column will unthread the view

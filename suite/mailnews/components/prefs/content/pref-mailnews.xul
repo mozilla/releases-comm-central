@@ -20,8 +20,6 @@
     <preferences id="mailnews_preferences">
       <preference id="mailnews.confirm.moveFoldersToTrash"
                   name="mailnews.confirm.moveFoldersToTrash" type="bool"/>
-      <preference id="mailnews.remember_selected_message"
-                  name="mailnews.remember_selected_message" type="bool"/>
       <preference id="mailnews.thread_pane_column_unthreads"
                   name="mailnews.thread_pane_column_unthreads"
                   inverted="true" type="bool"/>
@@ -55,12 +53,6 @@
         <checkbox id="mailnewsConfirmMoveFoldersToTrash" label="&confirmMove.label;"
                   preference="mailnews.confirm.moveFoldersToTrash"
                   accesskey="&confirmMove.accesskey;"/>
-      </hbox>
-
-      <hbox align="center">
-        <checkbox id="mailRememberLastMsg" label="&rememberLastMsg.label;"
-                  preference="mailnews.remember_selected_message"
-                  accesskey="&rememberLastMsg.accesskey;" />
       </hbox>
 
       <hbox align="center">

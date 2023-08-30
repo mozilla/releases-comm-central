@@ -360,7 +360,6 @@ nsThunderbirdProfileMigrator::PrefTransform gTransforms[] = {
   MAKESAMETYPEPREFTRANSFORM("mailnews.offline_sync_work_offline",      Bool),
   MAKESAMETYPEPREFTRANSFORM("mailnews.open_window_warning",            Int),
   MAKESAMETYPEPREFTRANSFORM("mailnews.plaintext_domains",              String),
-  MAKESAMETYPEPREFTRANSFORM("mailnews.remember_selected_message",      Bool),
   MAKESAMETYPEPREFTRANSFORM("mailnews.reply_in_default_charset",       Bool),
   MAKESAMETYPEPREFTRANSFORM("mailnews.reuse_message_window",           Bool),
   MAKESAMETYPEPREFTRANSFORM("mailnews.scroll_to_new_message",          Bool),

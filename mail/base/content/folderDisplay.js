@@ -1153,7 +1153,6 @@ FolderDisplayWidget.prototype = {
     //  is backed by a single underlying folder (the only way having just a
     //  message key works out), try that
     if (
-      Services.prefs.getBoolPref("mailnews.remember_selected_message") &&
       this.view.isSingleFolder &&
       this.view.displayedFolder
     ) {
