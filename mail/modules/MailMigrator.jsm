@@ -63,7 +63,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 39;
+    const UI_VERSION = 40;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -683,6 +683,31 @@ var MailMigrator = {
               buttonStyle: "default",
             })
           );
+        }
+      }
+
+      if (currentUIVersion < 40) {
+        // Keep the view to table for existing profiles if the user never
+        // customized the thread pane view.
+        if (
+          !Services.xulStore.hasValue(
+            "chrome://messenger/content/messenger.xhtml",
+            "threadPane",
+            "view"
+          )
+        ) {
+          Services.xulStore.setValue(
+            "chrome://messenger/content/messenger.xhtml",
+            "threadPane",
+            "view",
+            "table"
+          );
+        }
+
+        // Maintain the default horizontal layout for existing profiles if the
+        // user never changed it.
+        if (!Services.prefs.prefHasUserValue("mail.pane_config.dynamic")) {
+          Services.prefs.setIntPref("mail.pane_config.dynamic", 0);
         }
       }
 

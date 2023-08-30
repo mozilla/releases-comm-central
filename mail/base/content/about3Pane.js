@@ -4150,7 +4150,9 @@ var threadPane = {
     ]);
     threadTree.setAttribute(
       "rows",
-      Services.xulStore.getValue(XULSTORE_URL, "threadPane", "view") == "cards"
+      !Services.xulStore.hasValue(XULSTORE_URL, "threadPane", "view") ||
+        Services.xulStore.getValue(XULSTORE_URL, "threadPane", "view") ==
+          "cards"
         ? "thread-card"
         : "thread-row"
     );
@@ -5403,14 +5405,14 @@ var threadPane = {
    */
   updateThreadView(view) {
     switch (view) {
-      case "cards":
-        document.body.classList.remove("layout-table");
-        threadTree?.setAttribute("rows", "thread-card");
-        break;
       case "table":
-      default:
         document.body.classList.add("layout-table");
         threadTree?.setAttribute("rows", "thread-row");
+        break;
+      case "cards":
+      default:
+        document.body.classList.remove("layout-table");
+        threadTree?.setAttribute("rows", "thread-card");
         break;
     }
   },

@@ -28,8 +28,10 @@ add_setup(async function () {
   folderChild2 = folderParent.getChildNamed("Child2");
 
   await be_in_folder(folderSource);
+  await ensure_table_view();
 
-  registerCleanupFunction(function teardown() {
+  registerCleanupFunction(async () => {
+    await ensure_cards_view();
     folderParent.deleteSelf(null);
     folderSource.deleteSelf(null);
   });

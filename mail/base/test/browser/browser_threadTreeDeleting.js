@@ -47,6 +47,7 @@ add_task(async function testUnthreaded() {
     messagePaneVisible: true,
     folderURI: folderA.URI,
   });
+  await ensure_cards_view();
   goDoCommand("cmd_sort", { target: { value: "unthreaded" } });
 
   await subtest();
@@ -431,13 +432,10 @@ async function verifySelection(rowCount, selectedIndices, currentIndex) {
 function verifySubjects(expectedSubjects) {
   let actualSubjects = Array.from(
     threadTree.table.body.rows,
-    row => row.querySelector(".subject-line > span").textContent
+    row =>
+      row.querySelector(".thread-card-subject-container > .subject").textContent
   );
-  Assert.equal(
-    actualSubjects.length,
-    expectedSubjects.length,
-    "table row count"
-  );
+  Assert.equal(actualSubjects.length, expectedSubjects.length, "row count");
   for (let i = 0; i < expectedSubjects.length; i++) {
     Assert.equal(actualSubjects[i], expectedSubjects[i], `subject at ${i}`);
   }

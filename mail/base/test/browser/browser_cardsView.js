@@ -5,7 +5,7 @@
 const { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { click_through_appmenu } = ChromeUtils.import(
+const { click_through_appmenu } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -42,6 +42,54 @@ add_setup(async function () {
 });
 
 add_task(async function testSwitchToCardsView() {
+  Assert.ok(
+    threadTree.getAttribute("rows") == "thread-card",
+    "The tree view should have a card layout"
+  );
+
+  click_through_appmenu(
+    [{ id: "appmenu_View" }, { id: "appmenu_MessagePaneLayout" }],
+    { id: "appmenu_messagePaneClassic" },
+    window
+  );
+
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.getAttribute("rows") == "thread-card",
+    "The tree view should not switch to a table layout"
+  );
+
+  displayContext = about3Pane.document.getElementById(
+    "threadPaneDisplayContext"
+  );
+  displayButton = about3Pane.document.getElementById("threadPaneDisplayButton");
+  let shownPromise = BrowserTestUtils.waitForEvent(
+    displayContext,
+    "popupshown"
+  );
+  EventUtils.synthesizeMouseAtCenter(displayButton, {}, about3Pane);
+  await shownPromise;
+
+  Assert.ok(
+    displayContext
+      .querySelector("#threadPaneCardsView")
+      .getAttribute("checked"),
+    "The cards view menuitem should be checked"
+  );
+
+  let hiddenPromise = BrowserTestUtils.waitForEvent(
+    displayContext,
+    "popuphidden"
+  );
+  displayContext.activateItem(
+    displayContext.querySelector("#threadPaneTableView")
+  );
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.getAttribute("rows") == "thread-row",
+    "The tree view switched to a table layout"
+  );
+  EventUtils.synthesizeKey("KEY_Escape", {});
+  await hiddenPromise;
+
   click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_MessagePaneLayout" }],
     { id: "appmenu_messagePaneVertical" },
@@ -68,10 +116,7 @@ add_task(async function testSwitchToCardsView() {
     "threadPaneDisplayContext"
   );
   displayButton = about3Pane.document.getElementById("threadPaneDisplayButton");
-  let shownPromise = BrowserTestUtils.waitForEvent(
-    displayContext,
-    "popupshown"
-  );
+  shownPromise = BrowserTestUtils.waitForEvent(displayContext, "popupshown");
   EventUtils.synthesizeMouseAtCenter(displayButton, {}, about3Pane);
   await shownPromise;
 
@@ -82,10 +127,7 @@ add_task(async function testSwitchToCardsView() {
     "The table view menuitem should be checked"
   );
 
-  let hiddenPromise = BrowserTestUtils.waitForEvent(
-    displayContext,
-    "popuphidden"
-  );
+  hiddenPromise = BrowserTestUtils.waitForEvent(displayContext, "popuphidden");
   displayContext.activateItem(
     displayContext.querySelector("#threadPaneCardsView")
   );
@@ -201,11 +243,6 @@ add_task(async function testTagsInVerticalView() {
     "tree view in table layout"
   );
 
-  Services.prefs.clearUserPref("mail.pane_config.dynamic");
-  Services.xulStore.removeValue(
-    "chrome://messenger/content/messenger.xhtml",
-    "threadPane",
-    "view"
-  );
+  await ensure_cards_view();
   about3Pane.folderTree.focus();
 });

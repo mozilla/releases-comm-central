@@ -46,13 +46,15 @@ add_setup(async function () {
   // quick filter bar, need to be inside folder
   const folder = await create_folder("QuickFilterBarFilterFilterLogicSetup");
   await be_in_folder(folder);
+  await ensure_table_view();
   await toggle_quick_filter_bar();
-});
 
-registerCleanupFunction(async function () {
-  await cleanup_qfb_button();
-  // Quick filter bar is hidden by default, need to toggle it off.
-  await toggle_quick_filter_bar();
+  registerCleanupFunction(async function () {
+    await ensure_cards_view();
+    await cleanup_qfb_button();
+    // Quick filter bar is hidden by default, need to toggle it off.
+    await toggle_quick_filter_bar();
+  });
 });
 
 add_task(async function test_filter_unread() {

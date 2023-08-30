@@ -115,17 +115,19 @@ add_setup(async function () {
   // async openings. The panel is lazy-loaded, so it needs to be referenced
   // this way rather than finding it in the DOM.
   aboutMessage.editContactInlineUI.panel.setAttribute("animate", false);
-});
+  await ensure_table_view();
 
-registerCleanupFunction(function () {
-  // Delete created folder.
-  folder.deleteSelf(null);
-  folderMore.deleteSelf(null);
+  registerCleanupFunction(async () => {
+    await ensure_cards_view();
+    // Delete created folder.
+    folder.deleteSelf(null);
+    folderMore.deleteSelf(null);
 
-  // Restore animation to the contact panel.
-  aboutMessage.document
-    .getElementById("editContactPanel")
-    .removeAttribute("animate");
+    // Restore animation to the contact panel.
+    aboutMessage.document
+      .getElementById("editContactPanel")
+      .removeAttribute("animate");
+  });
 });
 
 /**
@@ -147,6 +149,7 @@ function get_last_visible_address(recipientsList) {
 
 add_task(async function test_add_tag_with_really_long_label() {
   await be_in_folder(folder);
+  await ensure_table_view();
 
   // Select the first message, which will display it.
   let curMessage = select_click_row(0);

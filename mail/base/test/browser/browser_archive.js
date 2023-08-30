@@ -64,7 +64,7 @@ add_task(async function testArchiveUndo() {
   // Simulate a click on the row's subject line to select the row.
   const selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   EventUtils.synthesizeMouseAtCenter(
-    row.querySelector(".thread-container .subject-line"),
+    row.querySelector(".thread-card-subject-container"),
     { clickCount: 1 },
     about3Pane
   );

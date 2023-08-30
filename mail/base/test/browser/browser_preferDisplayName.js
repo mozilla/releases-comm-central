@@ -31,7 +31,8 @@ add_setup(async function () {
   let account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
+    await ensure_cards_view();
     book.deleteCards(book.childCards);
     MailServices.accounts.removeAccount(account, false);
   });
@@ -67,6 +68,9 @@ add_task(async function () {
     value: "recipientCol",
     target: { hasAttribute: () => true },
   });
+
+  // Switch to classic view and table layout as the test requires this state.
+  await ensure_table_view();
 
   // It's important that we don't cause the thread tree to invalidate the row
   // in question, and selecting it would do that, so select it first.

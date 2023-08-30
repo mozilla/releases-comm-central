@@ -42,6 +42,10 @@ add_setup(async function () {
     [{ count: 1 }, { count: 1 }]
   );
   setStarred.setStarred(true);
+
+  registerCleanupFunction(async () => {
+    await ensure_cards_view();
+  });
 });
 
 add_task(async function test_hidden_on_account_central() {
@@ -53,6 +57,7 @@ add_task(async function test_hidden_on_account_central() {
 
 add_task(async function test_visible_by_default() {
   await be_in_folder(folder);
+  await ensure_table_view();
   await assert_quick_filter_button_enabled(true);
   assert_quick_filter_bar_visible(true);
   teardownTest();
@@ -103,6 +108,7 @@ add_task(async function test_constraints_disappear_when_collapsed() {
 });
 
 registerCleanupFunction(async () => {
+  await ensure_cards_view();
   await cleanup_qfb_button();
 });
 

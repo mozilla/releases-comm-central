@@ -98,6 +98,10 @@ add_setup(async function () {
 
   // create the source
   folderSource = await create_folder("ColumnsApplySource");
+
+  registerCleanupFunction(async () => {
+    await ensure_cards_view();
+  });
 });
 
 /**
@@ -186,6 +190,7 @@ add_task(async function test_column_defaults_inbox() {
   // just use the inbox; comes from test-folder-display-helpers
   folderInbox = inboxFolder;
   await enter_folder(folderInbox);
+  await ensure_table_view();
   assert_visible_columns(INBOX_DEFAULTS);
 });
 

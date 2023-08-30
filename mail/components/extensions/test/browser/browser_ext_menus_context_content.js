@@ -28,6 +28,7 @@ add_setup(async () => {
     folderPaneVisible: true,
     folderURI: gAccount.incomingServer.rootFolder.URI,
   });
+  await ensure_table_view();
 });
 
 add_task(async function test_content_mv2() {

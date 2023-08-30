@@ -33,6 +33,7 @@ add_setup(async function () {
 
   // Use the test folder.
   about3Pane.displayFolder(testFolder.URI);
+  await ensure_cards_view();
 
   // Remove test account on cleanup.
   registerCleanupFunction(() => {
@@ -53,7 +54,9 @@ add_task(async function testMultiMessageZoom() {
     "The thread row should be collapsed"
   );
 
-  const subjectLine = row.querySelector(".thread-container .subject-line");
+  const subjectLine = row.querySelector(
+    ".thread-card-subject-container .subject"
+  );
   // Simulate a click on the row's subject line to select the row.
   const selectPromise = BrowserTestUtils.waitForEvent(threadTree, "select");
   EventUtils.synthesizeMouseAtCenter(

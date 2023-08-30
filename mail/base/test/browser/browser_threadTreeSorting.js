@@ -39,7 +39,8 @@ add_setup(async function () {
 
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
+    await ensure_cards_view();
     MailServices.accounts.removeAccount(account, false);
   });
 });
@@ -79,9 +80,13 @@ add_task(async function () {
     "should be scrolled to the bottom"
   );
 
-  Assert.equal(getActualSubject(320 - 1), messagesByDate.at(-1).subject);
-  Assert.equal(getActualSubject(320 - 2), messagesByDate.at(-2).subject);
-  Assert.equal(getActualSubject(320 - 3), messagesByDate.at(-3).subject);
+  Assert.equal(getCardActualSubject(320 - 1), messagesByDate.at(-1).subject);
+  Assert.equal(getCardActualSubject(320 - 2), messagesByDate.at(-2).subject);
+  Assert.equal(getCardActualSubject(320 - 3), messagesByDate.at(-3).subject);
+
+  // Switch to horizontal layout and table view so we can interact with the
+  // table header and sort rows properly.
+  await ensure_table_view();
 
   // Check sorting with no message selected.
 
@@ -316,6 +321,12 @@ function verifySelection(
       Assert.equal(getActualSubject(selectedIndices[i]), subjects[i]);
     }
   }
+}
+
+function getCardActualSubject(index) {
+  let row = threadTree.getRowAtIndex(index);
+  return row.querySelector(".thread-card-subject-container > .subject")
+    .textContent;
 }
 
 function getActualSubject(index) {

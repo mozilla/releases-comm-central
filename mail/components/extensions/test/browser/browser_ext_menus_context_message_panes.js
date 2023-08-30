@@ -28,6 +28,7 @@ add_setup(async () => {
     folderPaneVisible: true,
     folderURI: gAccount.incomingServer.rootFolder.URI,
   });
+  await ensure_table_view();
 });
 
 async function subtest_message_panes(manifest) {

@@ -18,9 +18,12 @@ add_setup(async () => {
   createMessages(subFolders.test2, 50);
 
   tabmail.currentTabInfo.folder = rootFolder;
+  tabmail.currentAbout3Pane.displayFolder(subFolders.test1.URI);
+  await ensure_table_view();
 
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
+    await ensure_cards_view();
     Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
   });
   await new Promise(resolve => executeSoon(resolve));

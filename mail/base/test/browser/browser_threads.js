@@ -42,6 +42,8 @@ add_setup(async function () {
   about3Pane.paneLayout.messagePaneVisible = false;
   goDoCommand("cmd_expandAllThreads");
 
+  await ensure_table_view();
+
   // Check the initial state of a sample of messages.
 
   checkRowThreadState(0, true);
@@ -54,7 +56,8 @@ add_setup(async function () {
   checkRowThreadState(15, true);
   checkRowThreadState(20, true);
 
-  registerCleanupFunction(() => {
+  registerCleanupFunction(async () => {
+    await ensure_cards_view();
     MailServices.accounts.removeAccount(account, false);
     about3Pane.paneLayout.messagePaneVisible = true;
     Services.prefs.clearUserPref("mail.ignore_thread.learn_more_url");

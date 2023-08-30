@@ -408,7 +408,9 @@ add_task(async function testNonSelectionContextMenu() {
 
     let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
     EventUtils.synthesizeMouseAtCenter(
-      threadTree.getRowAtIndex(testIndex).querySelector(".subjectcol-column"),
+      threadTree
+        .getRowAtIndex(testIndex)
+        .querySelector(".thread-card-subject-container"),
       { type: "contextmenu" },
       about3Pane
     );
