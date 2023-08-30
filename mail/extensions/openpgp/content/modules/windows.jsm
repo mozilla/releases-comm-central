@@ -15,7 +15,6 @@ const { XPCOMUtils } = ChromeUtils.importESModule(
 const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
   EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
@@ -148,36 +147,6 @@ var EnigmailWindows = {
       "https://doesnotexist-openpgp-integration.thunderbird/faq/docu.php",
       "",
       "chrome,width=600,height=500,resizable"
-    );
-  },
-
-  /**
-   * Display the OpenPGP key manager window
-   *
-   * no return value
-   */
-  openKeyManager(win) {
-    lazy.EnigmailCore.getService(win);
-
-    EnigmailWindows.openWin(
-      "enigmail:KeyManager",
-      "chrome://openpgp/content/ui/enigmailKeyManager.xhtml",
-      "resizable"
-    );
-  },
-
-  /**
-   * Display the OpenPGP key manager window
-   *
-   * no return value
-   */
-  openImportSettings(win) {
-    lazy.EnigmailCore.getService(win);
-
-    EnigmailWindows.openWin(
-      "",
-      "chrome://openpgp/content/ui/importSettings.xhtml",
-      "chrome,dialog,centerscreen,resizable,modal"
     );
   },
 

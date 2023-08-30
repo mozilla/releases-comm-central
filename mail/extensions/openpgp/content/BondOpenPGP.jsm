@@ -20,7 +20,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
-  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
   GPGME: "chrome://openpgp/content/modules/GPGME.jsm",
 });
@@ -78,9 +77,5 @@ var BondOpenPGP = {
 
   getRNPLibStatus() {
     return lazy.RNP.getRNPLibStatus();
-  },
-
-  openKeyManager(window) {
-    lazy.EnigmailWindows.openKeyManager(window);
   },
 };
