@@ -54,6 +54,10 @@ job-defaults:
                     comm-esr.*: stable
                     default: beta
             MANIFEST_URL: "https://hg.mozilla.org/releases/{config_params[comm_head_repository]}/file/{config_params[comm_head_rev]}/taskcluster/docker/tb-flatpak/runme.sh"
+            RELEASE_NOTES_URL:
+                by-project:
+                    comm-esr.*: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}/releasenotes/"
+                    default: "https://www.thunderbird.net/en-US/thunderbird/{config_params[app_version]}beta/releasenotes/"
         chain-of-trust: true
 
 jobs:

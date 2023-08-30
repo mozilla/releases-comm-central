@@ -11,6 +11,7 @@ test "$CANDIDATES_DIR"
 test "$L10N_CHANGESETS"
 test "$FLATPAK_BRANCH"
 test "$MANIFEST_URL"
+test "$RELEASE_NOTES_URL"
 
 # Optional environment variables
 : WORKSPACE                     "${WORKSPACE:=/home/worker/workspace}"

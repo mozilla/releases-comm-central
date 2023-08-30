@@ -23,7 +23,9 @@
   </description>
 
   <releases>
-	<release version="$VERSION" date="$DATE"/>
+    <release version="$VERSION" date="$DATE">
+      <url>$RELEASE_NOTES_URL</url>
+    </release>
   </releases>
 
   <keywords>
