@@ -140,7 +140,6 @@
             <separator class="groove" flex="1"/>
           </hbox>
           <vbox class="item-attendees-list-container"
-                flex="1"
                 context="attendee-popup"
                 oncontextmenu="onAttendeeContextMenu(event)">
           </vbox>
@@ -148,20 +147,18 @@
 
         <splitter id="attendeeDescriptionSplitter"
                   class="item-summary-splitter"
-                  collapse="after"
                   orient="vertical"
                   state="open"/>
 
         <!-- Description -->
-        <box class="item-description-box" hidden="true" orient="vertical" flex="1">
+        <box class="item-description-box" hidden="true" orient="vertical">
           <hbox class="calendar-caption" align="center">
             <label value="&read.only.description.label;"
                    class="header"/>
-            <separator class="groove" flex="1"/>
+            <separator class="groove"/>
           </hbox>
           <iframe class="item-description"
                   type="content"
-                  flex="1"
                   oncontextmenu="openDescriptionContextMenu(event);">
           </iframe>
         </box>
