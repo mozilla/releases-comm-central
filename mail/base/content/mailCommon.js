@@ -597,13 +597,16 @@ var commandController = {
         }
         let sel = gViewWrapper.dbView.selection;
         for (let i = 0; i < sel.getRangeCount(); i++) {
-          let selectedIndex = {};
-          sel.getRangeAt(i, selectedIndex, {});
-          if (
-            gViewWrapper.dbView.getThreadContainingIndex(selectedIndex.value)
-              .numUnreadChildren > 0
-          ) {
-            return true;
+          let start = {};
+          let end = {};
+          sel.getRangeAt(i, start, end);
+          for (let j = start.value; j <= end.value; j++) {
+            if (
+              gViewWrapper.dbView.getThreadContainingIndex(j)
+                .numUnreadChildren > 0
+            ) {
+              return true;
+            }
           }
         }
         return false;
