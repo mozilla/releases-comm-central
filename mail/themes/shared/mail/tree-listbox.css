@@ -209,7 +209,7 @@ thead[is="tree-view-table-header"] hr[is="pane-splitter"] {
   inset-block: 3px;
 }
 
-thead[is="tree-view-table-header"] hr[is="pane-splitter"]:hover:not(:active) {
+thead[is="tree-view-table-header"] hr[is="pane-splitter"]:hover:not(:active,[disabled]) {
   background-color: var(--selected-item-color);
 }
 

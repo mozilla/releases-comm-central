@@ -2203,8 +2203,8 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
 
     let splitter = this.querySelector("hr");
 
-    // Add a splitter if this is a resizable column.
-    if (val && !splitter) {
+    // Add a splitter if we don't have one already.
+    if (!splitter) {
       splitter = document.createElement("hr", { is: "pane-splitter" });
       splitter.setAttribute("is", "pane-splitter");
       this.appendChild(splitter);
@@ -2228,9 +2228,8 @@ class TreeViewTableHeaderCell extends HTMLTableCellElement {
     }
 
     this.style.setProperty("width", val ? `var(--${splitter.id}-width)` : null);
-    if (splitter) {
-      splitter.hidden = !val;
-    }
+    // Disable the splitter if this is not a resizable column.
+    splitter.isDisabled = !val;
   }
 
   get resizable() {
