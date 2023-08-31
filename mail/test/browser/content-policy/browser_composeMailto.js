@@ -91,12 +91,12 @@ add_task(async function test_checkInsertImage() {
 
   // Should be the only image, so just check the first.
   Assert.ok(
-    !childImages[0].matches(":-moz-broken"),
-    "Loading of image in a mailto compose window should not be blocked"
+    childImages[0].naturalHeight > 0,
+    "Loading of image (naturalHeight) in a compose window should work"
   );
   Assert.ok(
     childImages[0].naturalWidth > 0,
-    "Non blocked image should have naturalWidth"
+    "Loading of image (naturalWidth) in a compose window should work"
   );
 });
 

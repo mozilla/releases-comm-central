@@ -126,11 +126,11 @@ var TESTS = [
     webPage: "remoteimage.html",
     checkForAllowed: async element => {
       await new Promise(window.requestAnimationFrame);
-      return !element.matches(":-moz-broken") && element.naturalWidth > 0;
+      return element.naturalWidth > 0 && element.naturalHeight > 0;
     },
     checkForAllowedRemote: () => {
       let element = content.document.getElementById("testelement");
-      return !element.matches(":-moz-broken") && element.naturalWidth > 0;
+      return element.naturalWidth > 0 && element.naturalHeight > 0;
     },
   },
   {
@@ -156,11 +156,11 @@ var TESTS = [
     webPage: "remoteimagedata.html",
     checkForAllowed: async element => {
       await new Promise(window.requestAnimationFrame);
-      return !element.matches(":-moz-broken") && element.naturalWidth > 0;
+      return element.naturalWidth > 0 && element.naturalHeight > 0;
     },
     checkForAllowedRemote: () => {
       let element = content.document.getElementById("testelement");
-      return !element.matches(":-moz-broken") && element.naturalWidth > 0;
+      return element.naturalWidth > 0 && element.naturalHeight > 0;
     },
   },
   {
@@ -172,7 +172,7 @@ var TESTS = [
     checkForAllowed: async element => {
       await new Promise(window.requestAnimationFrame);
       let img = element.contentDocument.querySelector("img");
-      return img && !img.matches(":-moz-broken") && img.naturalWidth > 0;
+      return img && img.naturalHeight > 0 && img.naturalWidth > 0;
     },
   },
 ];
@@ -740,7 +740,7 @@ add_task(async function test_sigPic() {
   identity.htmlSigText = `Tb remote! <img id='testelement' alt='[sigpic]' src='${url}pass.png' />`;
 
   let wasAllowed = element => {
-    return !element.matches(":-moz-broken") && element.naturalWidth > 0;
+    return element.naturalWidth > 0 && element.naturalHeight > 0;
   };
 
   be_in_folder(folder);
@@ -882,16 +882,16 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
 
   // Check both images.
   Assert.ok(
-    !childImages[0].matches(":-moz-broken"),
-    "Loading of image #0 should not be blocked"
+    childImages[0].naturalHeight > 0,
+    "Loading of image #0 should not be blocked (and have height)"
   );
   Assert.ok(
     childImages[0].naturalWidth > 0,
     "Loading of image #0 should not be blocked (and have width)"
   );
   Assert.ok(
-    !childImages[1].matches(":-moz-broken"),
-    "Loading of image #1 should not be blocked"
+    childImages[1].naturalHeight > 0,
+    "Loading of image #1 should not be blocked (and have height)"
   );
   Assert.ok(
     childImages[1].naturalWidth > 0,

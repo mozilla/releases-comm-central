@@ -47,13 +47,10 @@ add_task(async function testMMS() {
 
   for (var img of imgs) {
     Assert.ok(
-      !img.matches(":-moz-broken"),
-      `img should not show broken: ${img.src}`
+      img.naturalHeight > 0,
+      `img should have naturalHeight: ${img.src}`
     );
-    Assert.ok(
-      img.naturalWidth > 0,
-      `img should have natural width: ${img.src}`
-    );
+    Assert.ok(img.naturalWidth > 0, `img should have naturalWidth: ${img.src}`);
   }
 
   Assert.ok(
