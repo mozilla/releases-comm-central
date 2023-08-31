@@ -356,8 +356,6 @@
   <!-- Mac Window menu -->
   <command id="minimizeWindow" label="&minimizeWindow.label;" oncommand="window.minimize();"/>
   <command id="zoomWindow" label="&zoomWindow.label;" oncommand="zoomWindow();"/>
-  <command id="Tasks:Mail" oncommand="toMessengerWindow();"/>
-  <command id="Tasks:AddressBook" oncommand="toAddressBook();"/>
 #endif
 
   <command id="cmd_CustomizeComposeToolbar"
@@ -1810,8 +1808,6 @@
 
       <menu id="tasksMenu" label="&tasksMenu.label;" accesskey="&tasksMenu.accesskey;">
           <menupopup id="taskPopup">
-            <!-- Moving the first two items to the Window menu on the Mac -->
-#ifndef XP_MACOSX
             <menuitem id="tasksMenuMail" accesskey="&messengerCmd.accesskey;"
                       label="&messengerCmd.label;" key="key_mail"
                       oncommand="toMessengerWindow();"/>
@@ -1820,8 +1816,7 @@
                       accesskey="&addressBookCmd.accesskey;"
                       key="key_addressbook"
                       oncommand="toAddressBook();"/>
-#endif
-#ifndef XP_UNIX
+#ifndef XP_MACOSX
             <menuseparator id="prefSep"/>
             <menuitem id="menu_accountmgr"
                       label="&accountManagerCmd2.label;"
@@ -1830,16 +1825,6 @@
             <menuitem id="menu_preferences"
                       data-l10n-id="menu-tools-settings"
                       oncommand="openOptionsDialog('paneCompose');"/>
-#else
-#ifdef XP_MACOSX
-            <menuitem id="menu_accountmgr"
-                      label="&accountManagerCmd2.label;"
-                      accesskey="&accountManagerCmd2.accesskey;"
-                      command="cmd_account"/>
-            <menuitem id="menu_preferences"
-                      data-l10n-id="menu-tools-settings"
-                      oncommand="openOptionsDialog('paneCompose');"/>
-#endif
 #endif
          </menupopup>
       </menu>
