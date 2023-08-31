@@ -154,7 +154,7 @@ function goToggleToolbar(id, elementID) {
   var toolbar = document.getElementById(id);
   var element = document.getElementById(elementID);
   if (toolbar) {
-    var isHidden = toolbar.hidden;
+    const isHidden = toolbar.getAttribute("hidden") === "true";
     toolbar.setAttribute("hidden", !isHidden);
     Services.xulStore.persist(toolbar, "hidden");
     if (element) {

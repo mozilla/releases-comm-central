@@ -1355,7 +1355,7 @@ button:is(
   margin-inline: 0.2em -0.2em;
 }
 
-.statusbar {
+.statusbar:not([hidden="true"]) {
   display: flex;
   align-items: center;
   min-width: 0;
