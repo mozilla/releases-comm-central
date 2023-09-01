@@ -264,7 +264,7 @@ function enableGPGMELibJS() {
      * @param {string} pattern - A pattern given to GnuPG for listing keys.
      * @param {boolean} secret - If true, retrieve secret keys.
      *   If false, retrieve public keys.
-     * @param {function} keyFilterFunction - An optional test function that
+     * @param {Function} keyFilterFunction - An optional test function that
      *   will be called for each candidate key that GnuPG lists for the
      *   given pattern. Allows the caller to decide whether a candidate
      *   key is wanted or not. Function will be called with a

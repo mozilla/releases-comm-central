@@ -461,7 +461,7 @@ const accessHkpInternal = {
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
    *
-   * @return {boolean} - Returns true if the key was sent successfully
+   * @returns {boolean} - Returns true if the key was sent successfully
    */
   async upload(keyIDs, keyserver, listener = null) {
     lazy.EnigmailLog.DEBUG(
@@ -1314,7 +1314,7 @@ const accessVksServer = {
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
    *
-   * @return {boolean} - Returns true if the key was sent successfully
+   * @returns {boolean} - Returns true if the key was sent successfully
    */
   async upload(keyIDs, keyserver, listener = null) {
     lazy.EnigmailLog.DEBUG(
@@ -1482,7 +1482,7 @@ var EnigmailKeyServer = {
    * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
    * @param listener:    optional Object implementing the KeySrvListener API (above)
    *
-   * @return {boolean} - Returns true if the key was sent successfully
+   * @returns {boolean} - Returns true if the key was sent successfully
    */
 
   async upload(keyIDs, keyserver = null, listener) {

@@ -4644,7 +4644,7 @@ var RNP = {
    * @param {rnp_key_handle_t} handle - produce a passphrase prompt
    *   string based on the properties of this key.
    * @param {rnp_ffi_t} ffi - the RNP FFI that relates the handle
-   * @returns {String} - a string that asks the user to enter the
+   * @returns {string} - a string that asks the user to enter the
    *   passphrase for the given string parameter, including details
    *   that allow the user to identify the key.
    */
