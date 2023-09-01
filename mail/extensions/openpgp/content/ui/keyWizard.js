@@ -1143,10 +1143,10 @@ function openPgpImportComplete() {
  * Opens a prompt asking the user to enter the passphrase for a given key id.
  *
  * @param {object} win - The current window.
- * @param {string} keyId - The ID of the imported key.
+ * @param {string} promptString - The ID of the imported key.
  * @param {object} resultFlags - Keep track of the cancelled action.
  *
- * @returns {string} - The entered passphrase or empty.
+ * @returns {string} The entered passphrase or empty.
  */
 function passphrasePromptCallback(win, promptString, resultFlags) {
   let passphrase = { value: "" };
