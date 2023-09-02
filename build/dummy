@@ -1,0 +1,13 @@
+This is a dummy file that isn't used.
+Its only purpose is to have an irrelevant file that can
+be modified whenever we need to trigger a new build,
+but no other commits are pending.
+
+Instructions:
+
+If a new build for comm-central is desired, edit this file,
+and make change to the whitespace below the line.
+(For example, add another empty line, or remove one.)
+-----------------------------------------------------------
+
+
