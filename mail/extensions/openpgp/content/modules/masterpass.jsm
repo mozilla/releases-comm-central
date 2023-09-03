@@ -209,46 +209,8 @@ var OpenPGPMasterpass = {
           throw e2;
         }
 
-        let secRingFile = this.getSecretKeyRingFile();
-        if (secRingFile.exists() && secRingFile.fileSize > 0) {
-          // We have secret keys that can no longer be accessed.
-
-          try {
-            let backupOld = await IOUtils.createUniqueFile(
-              Services.dirsvc.get("ProfD", Ci.nsIFile).path,
-              this.secringFilename + ".old.corrupt"
-            );
-            await IOUtils.move(secRingFile.path + ".old", backupOld);
-          } catch (eOld) {}
-
-          let backup2 = await IOUtils.createUniqueFile(
-            Services.dirsvc.get("ProfD", Ci.nsIFile).path,
-            this.secringFilename + ".corrupt"
-          );
-
-          try {
-            await IOUtils.move(secRingFile.path, backup2);
-            console.warn(
-              `secring.gpg corruption fixed. Corrupted file moved to ${backup}`
-            );
-            await IOUtils.write(secRingFile.path, new Uint8Array());
-          } catch (e3) {
-            console.warn(
-              `Cannot move corrupted file ${this.filename} to backup name ${backup}`
-            );
-            // We cannot repair, so restarting doesn't help, keep running,
-            // and hope the user notices this error in console.
-            throw e3;
-          }
-
-          // RNP might have already read the old file, we cannot easily
-          // trigger rereading of the file, so let's restart.
-          lazy.MailUtils.restartApplication();
-          return;
-        }
-
         // If we arrive here, we have successfully repaired, and
-        // can proceed with the code below to create a fresh file.
+        // can proceed with the code below to create a fresh passphrase file.
       }
     }
 
