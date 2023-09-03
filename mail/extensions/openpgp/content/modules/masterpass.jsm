@@ -16,7 +16,6 @@ const lazy = {};
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  MailUtils: "resource:///modules/MailUtils.jsm",
   RNP: "chrome://openpgp/content/modules/RNP.jsm",
 });
 
