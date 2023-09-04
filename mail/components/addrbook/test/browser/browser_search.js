@@ -3,27 +3,6 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async () => {
-  async function doSearch(searchString, ...expectedCards) {
-    let viewChangePromise = BrowserTestUtils.waitForEvent(
-      cardsList,
-      "viewchange"
-    );
-    EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
-    if (searchString) {
-      EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
-      EventUtils.sendString(searchString, abWindow);
-      EventUtils.synthesizeKey("VK_RETURN", {}, abWindow);
-    } else {
-      EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
-    }
-
-    await viewChangePromise;
-    checkCardsListed(...expectedCards);
-    checkPlaceholders(
-      expectedCards.length ? [] : ["placeholderNoSearchResults"]
-    );
-  }
-
   let cards = {};
   let cardsToRemove = {
     personal: [],
@@ -60,7 +39,6 @@ add_task(async () => {
 
   let abDocument = abWindow.document;
   let searchBox = abDocument.getElementById("searchInput");
-  let cardsList = abWindow.cardsPane.cardsList;
 
   Assert.equal(
     abDocument.activeElement,

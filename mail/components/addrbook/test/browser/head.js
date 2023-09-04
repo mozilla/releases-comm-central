@@ -350,6 +350,38 @@ async function showCardsContext(index, idToActivate) {
 }
 
 /**
+ * Set or clear the value in the search box, and wait for the view to change.
+ * Then check the list of cards or the placeholder is correct.
+ * @param {string} searchString - The value to enter in the search box. If
+ *   falsy, clear the search box.
+ * @param {nsIAbCard[]} expectedCards - The cards that should be displayed
+ *   after this search. If no cards are given, checks the placeholder is shown.
+ */
+async function doSearch(searchString, ...expectedCards) {
+  let abWindow = getAddressBookWindow();
+  let abDocument = abWindow.document;
+  let searchBox = abDocument.getElementById("searchInput");
+  let cardsList = abWindow.cardsPane.cardsList;
+
+  let viewChangePromise = BrowserTestUtils.waitForEvent(
+    cardsList,
+    "viewchange"
+  );
+  EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
+  if (searchString) {
+    EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
+    EventUtils.sendString(searchString, abWindow);
+    EventUtils.synthesizeKey("VK_RETURN", {}, abWindow);
+  } else {
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
+  }
+
+  await viewChangePromise;
+  checkCardsListed(...expectedCards);
+  checkPlaceholders(expectedCards.length ? [] : ["placeholderNoSearchResults"]);
+}
+
+/**
  * Opens the sort pop-up and activates one of the items.
  * @param {string} name - The name attribute of the item to activate.
  * @param {string} value - The value attribute of the item to activate.
