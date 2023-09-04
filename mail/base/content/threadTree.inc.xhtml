@@ -15,11 +15,7 @@
                           disableKeyNavigation="true"
                           onkeydown="ThreadPaneKeyDown(event);"
                           onselect="ThreadPaneSelectionChanged();">
-#ifdef MAIN_WINDOW
-                      <treecols is="thread-pane-treecols" id="threadCols"
-#else
                       <treecols id="threadCols"
-#endif
                                 pickertooltiptext="&columnChooser2.tooltip;">
 
                          <!--
@@ -220,11 +216,5 @@
                                  label="&deleteColumn.label;"
                                  tooltiptext="&deleteColumn.tooltip;"/>
                       </treecols>
-#ifdef MAIN_WINDOW
-                    <treechildren ondragstart="ThreadPaneOnDragStart(event);"
-                                  ondragover="ThreadPaneOnDragOver(event);"
-                                  ondrop="ThreadPaneOnDrop(event);"/>
-#else
                     <treechildren ondragstart="ThreadPaneOnDragStart(event);"/>
-#endif
                   </tree>
