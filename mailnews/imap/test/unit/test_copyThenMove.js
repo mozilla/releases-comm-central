@@ -23,7 +23,6 @@ var { MailServices } = ChromeUtils.import(
 var gEmptyLocal1, gEmptyLocal2;
 var gLastKey;
 var gMessages = [];
-var gCopyService = MailServices.copy;
 
 add_setup(function () {
   // Turn off autosync_offline_stores because
@@ -55,7 +54,7 @@ add_task(async function copyFolder1() {
       gLastKey = aKey;
     },
   });
-  gCopyService.copyFolder(
+  MailServices.copy.copyFolder(
     gEmptyLocal1,
     IMAPPump.inbox,
     false,
@@ -71,7 +70,7 @@ add_task(async function copyFolder2() {
       gLastKey = aKey;
     },
   });
-  gCopyService.copyFolder(
+  MailServices.copy.copyFolder(
     gEmptyLocal2,
     IMAPPump.inbox,
     false,
@@ -88,7 +87,7 @@ add_task(async function getLocalMessage1() {
     },
   });
   let file = do_get_file("../../../data/bugmail1");
-  gCopyService.copyFileMessage(
+  MailServices.copy.copyFileMessage(
     file,
     localAccountUtils.inboxFolder,
     null,
@@ -109,7 +108,7 @@ add_task(async function getLocalMessage2() {
       gLastKey = aKey;
     },
   });
-  gCopyService.copyFileMessage(
+  MailServices.copy.copyFileMessage(
     file,
     localAccountUtils.inboxFolder,
     null,
@@ -130,7 +129,7 @@ add_task(async function copyMessages() {
       gLastKey = aKey;
     },
   });
-  gCopyService.copyMessages(
+  MailServices.copy.copyMessages(
     localAccountUtils.inboxFolder,
     gMessages,
     folder1,
@@ -149,7 +148,7 @@ add_task(async function moveMessages() {
       gLastKey = aKey;
     },
   });
-  gCopyService.copyMessages(
+  MailServices.copy.copyMessages(
     localAccountUtils.inboxFolder,
     gMessages,
     folder2,

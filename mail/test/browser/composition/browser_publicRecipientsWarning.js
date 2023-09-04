@@ -44,9 +44,8 @@ requestLongerTimeout(5);
  */
 add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
   // Now set up an account with some identities.
-  let acctMgr = MailServices.accounts;
-  let account = acctMgr.createAccount();
-  account.incomingServer = acctMgr.createIncomingServer(
+  let account = MailServices.accounts.createAccount();
+  account.incomingServer = MailServices.accounts.createIncomingServer(
     "nobody",
     "BCC Reply Testing",
     "pop3"
@@ -56,7 +55,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
     .createLocalSubfolder("Msgs4Reply");
 
-  let identity = acctMgr.createIdentity();
+  let identity = MailServices.accounts.createIdentity();
   identity.email = "bcc@example.com";
   account.addIdentity(identity);
 

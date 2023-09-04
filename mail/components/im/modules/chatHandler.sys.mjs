@@ -37,8 +37,7 @@ export var ChatCore = {
     for (let account of IMServices.accounts.getAccounts()) {
       accountsById[account.numericId] = account;
     }
-    let mgr = MailServices.accounts;
-    for (let account of mgr.accounts) {
+    for (let account of MailServices.accounts.accounts) {
       let incomingServer = account.incomingServer;
       if (!incomingServer || incomingServer.type != "im") {
         continue;
@@ -48,18 +47,18 @@ export var ChatCore = {
     // Let's recreate each of them...
     for (let id in accountsById) {
       let account = accountsById[id];
-      let inServer = mgr.createIncomingServer(
+      let inServer = MailServices.accounts.createIncomingServer(
         account.name,
         account.protocol.id, // hostname
         "im"
       );
       inServer.wrappedJSObject.imAccount = account;
-      let acc = mgr.createAccount();
+      let acc = MailServices.accounts.createAccount();
       // Avoid new folder notifications.
       inServer.valid = false;
       acc.incomingServer = inServer;
       inServer.valid = true;
-      mgr.notifyServerLoaded(inServer);
+      MailServices.accounts.notifyServerLoaded(inServer);
     }
 
     IMServices.tags.getTags().forEach(function (aTag) {

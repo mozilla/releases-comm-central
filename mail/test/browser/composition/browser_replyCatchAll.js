@@ -51,9 +51,8 @@ add_setup(function () {
   requestLongerTimeout(4);
 
   // Now set up an account with some identities.
-  let acctMgr = MailServices.accounts;
-  gAccount = acctMgr.createAccount();
-  gAccount.incomingServer = acctMgr.createIncomingServer(
+  gAccount = MailServices.accounts.createAccount();
+  gAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "nobody",
     "Reply Identity Testing",
     "pop3"
@@ -63,12 +62,12 @@ add_setup(function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
     .createLocalSubfolder("Msgs4Reply");
 
-  identity1 = acctMgr.createIdentity();
+  identity1 = MailServices.accounts.createIdentity();
   identity1.email = myIdentityEmail1;
   gAccount.addIdentity(identity1);
   info(`Added identity1; key=${identity1.key}, email=${identity1.email}`);
 
-  identity2 = acctMgr.createIdentity();
+  identity2 = MailServices.accounts.createIdentity();
   identity2.email = myIdentityEmail2;
   gAccount.addIdentity(identity2);
   info(`Added identity2; key=${identity2.key}, email=${identity2.email}`);

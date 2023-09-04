@@ -47,7 +47,6 @@ function Recipients2CompFields(msgCompFields) {
     }
   }
 
-  let headerParser = MailServices.headerParser;
   let getRecipientList = recipientType =>
     Array.from(
       document.querySelectorAll(
@@ -55,10 +54,10 @@ function Recipients2CompFields(msgCompFields) {
       ),
       pill => {
         // Expect each pill to contain exactly one address.
-        let { name, email } = headerParser.makeFromDisplayAddress(
+        let { name, email } = MailServices.headerParser.makeFromDisplayAddress(
           pill.fullAddress
         )[0];
-        return headerParser.makeMimeAddress(name, email);
+        return MailServices.headerParser.makeMimeAddress(name, email);
       }
     ).join(",");
 

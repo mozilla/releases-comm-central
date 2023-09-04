@@ -45,26 +45,25 @@ var identityKey4;
 
 add_setup(async function () {
   // Now set up an account with some identities.
-  let acctMgr = MailServices.accounts;
-  account = acctMgr.createAccount();
-  account.incomingServer = acctMgr.createIncomingServer(
+  account = MailServices.accounts.createAccount();
+  account.incomingServer = MailServices.accounts.createIncomingServer(
     "nobody",
     "New Msg Compose Identity Testing",
     "pop3"
   );
 
-  let identity1 = acctMgr.createIdentity();
+  let identity1 = MailServices.accounts.createIdentity();
   identity1.email = identity1Email;
   account.addIdentity(identity1);
   identityKey1 = identity1.key;
 
-  let identity2 = acctMgr.createIdentity();
+  let identity2 = MailServices.accounts.createIdentity();
   identity2.email = identity2Email;
   identity2.fullName = identity2Name;
   account.addIdentity(identity2);
   identityKey2 = identity2.key;
 
-  let identity3 = acctMgr.createIdentity();
+  let identity3 = MailServices.accounts.createIdentity();
   identity3.email = identity3Email;
   identity3.fullName = identity3Name;
   identity3.label = identity3Label;
@@ -72,7 +71,7 @@ add_setup(async function () {
   identityKey3 = identity3.key;
 
   // Identity with no data.
-  let identity4 = acctMgr.createIdentity();
+  let identity4 = MailServices.accounts.createIdentity();
   account.addIdentity(identity4);
   identityKey4 = identity4.key;
 

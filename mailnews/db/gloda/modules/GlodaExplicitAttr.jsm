@@ -16,9 +16,6 @@ const { GlodaConstants } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaConstants.jsm"
 );
 const { TagNoun } = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
 
 /**
  * @namespace Explicit attribute provider.  Indexes/defines attributes that are
@@ -31,7 +28,6 @@ var GlodaExplicitAttr = {
     "chrome://messenger/locale/gloda.properties"
   ),
   _log: null,
-  _msgTagService: null,
 
   init() {
     this._log = console.createInstance({
@@ -39,8 +35,6 @@ var GlodaExplicitAttr = {
       maxLogLevel: "Warn",
       maxLogLevelPref: "gloda.loglevel",
     });
-
-    this._msgTagService = MailServices.tags;
 
     try {
       this.defineAttributes();

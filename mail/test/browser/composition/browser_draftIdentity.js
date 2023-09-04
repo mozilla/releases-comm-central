@@ -49,16 +49,15 @@ var gIdentities = [
 
 add_setup(async function () {
   // Now set up an account with some identities.
-  let acctMgr = MailServices.accounts;
-  gAccount = acctMgr.createAccount();
-  gAccount.incomingServer = acctMgr.createIncomingServer(
+  gAccount = MailServices.accounts.createAccount();
+  gAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "nobody",
     "Draft Identity Testing",
     "pop3"
   );
 
   for (let id of gIdentities) {
-    let identity = acctMgr.createIdentity();
+    let identity = MailServices.accounts.createIdentity();
     if ("email" in id) {
       identity.email = id.email;
     }
@@ -73,7 +72,7 @@ add_setup(async function () {
     id.name = identity.identityName;
   }
 
-  acctMgr.defaultAccount = gAccount;
+  MailServices.accounts.defaultAccount = gAccount;
 
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });

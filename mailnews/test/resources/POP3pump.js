@@ -57,7 +57,6 @@ function POP3Pump() {
   this._server = null;
   this._daemon = null;
   this._incomingServer = null;
-  this._pop3Service = null;
   this._firstFile = true;
   this._tests = [];
   this._finalCleanup = false;
@@ -214,7 +213,7 @@ POP3Pump.prototype._testNext = function () {
     let inbox = this._incomingServer.rootMsgFolder.getFolderWithFlags(
       Ci.nsMsgFolderFlags.Inbox
     );
-    this._pop3Service.GetNewMail(null, this, inbox, this._incomingServer);
+    MailServices.pop3.GetNewMail(null, this, inbox, this._incomingServer);
 
     this._server.performTest();
   } catch (e) {
@@ -252,7 +251,6 @@ POP3Pump.prototype.run = function (aExpectedResult) {
 
   this._tests[0] = this.files;
 
-  this._pop3Service = MailServices.pop3;
   this._testNext();
 
   // This probably does not work with multiple tests, but nobody is using that.

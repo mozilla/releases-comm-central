@@ -125,7 +125,7 @@ class MessageInjection {
     }
 
     // we need to pull in the notification service so we get events?
-    this._mis.mfnService = MailServices.mfn;
+    MailServices.mfn;
 
     if (this._mis.injectionConfig.mode == "local") {
       // This does createIncomingServer() and createAccount(), sets the server as
@@ -215,8 +215,6 @@ class MessageInjection {
         this._mis.inboxFolder.clearFlag(Ci.nsMsgFolderFlags.Offline);
       }
       this._mis.notifyListeners("onRealFolderCreated", [this._mis.inboxFolder]);
-
-      this._mis.imapService = MailServices.imap;
 
       this._mis.handleUriToRealFolder = {};
       this._mis.handleUriToFakeFolder = {};
@@ -346,7 +344,7 @@ class MessageInjection {
 
       // Tell the IMAP service to create the folder, adding a listener that
       //  hooks up the 'handle' URI -> actual folder mapping.
-      this._mis.imapService.createFolder(
+      MailServices.imap.createFolder(
         this._mis.rootFolder,
         folderName,
         promiseUrlListener

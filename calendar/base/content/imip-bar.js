@@ -273,8 +273,7 @@ var calImipBar = {
       let author = aMsgHdr.mime2DecodedAuthor;
       let isSentFolder = aMsgHdr.folder && aMsgHdr.folder.flags & Ci.nsMsgFolderFlags.SentMail;
       if (author && isSentFolder) {
-        let accounts = MailServices.accounts;
-        for (let identity of accounts.allIdentities) {
+        for (let identity of MailServices.accounts.allIdentities) {
           if (author.includes(identity.email) && !identity.fccReplyFollowsParent) {
             return true;
           }

@@ -22,12 +22,10 @@ var TagNoun = {
   usesParameter: true,
   allowsArbitraryAttrs: false,
   idAttr: "key",
-  _msgTagService: null,
   _tagMap: null,
   _tagList: null,
 
   _init() {
-    this._msgTagService = MailServices.tags;
     this._updateTagMap();
   },
 
@@ -40,7 +38,7 @@ var TagNoun = {
 
   _updateTagMap() {
     this._tagMap = {};
-    let tagArray = (this._tagList = this._msgTagService.getAllTags());
+    let tagArray = (this._tagList = MailServices.tags.getAllTags());
     for (let iTag = 0; iTag < tagArray.length; iTag++) {
       let tag = tagArray[iTag];
       this._tagMap[tag.key] = tag;
@@ -77,7 +75,7 @@ var TagNoun = {
     // you will note that if a tag is removed, we are unable to aggressively
     //  deal with this.  we are okay with this, but it would be nice to be able
     //  to listen to the message tag service to know when we should rebuild.
-    if (tag === undefined && this._msgTagService.isValidKey(aTagKey)) {
+    if (tag === undefined && MailServices.tags.isValidKey(aTagKey)) {
       this._updateTagMap();
       tag = this._tagMap[aTagKey];
     }
