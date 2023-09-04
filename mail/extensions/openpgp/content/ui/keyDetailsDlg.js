@@ -716,10 +716,10 @@ function genRevocationCert() {
 }
 
 /**
- * @param {Object[]] signatures - list of signature objects
+ * @param {object[]} signatures - list of signature objects
  *   signatures.userId {string} - User ID.
  *   signatures.uidLabel {string} - UID label.
- *   signatures.created
+ *   signatures.created {string} - Creation date as printable string.
  *   signatures.fpr {string} - Fingerprint.
  *   signatures.sigList {Object[]} - Objects
  *   signatures.sigList.userId
