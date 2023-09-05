@@ -187,7 +187,6 @@
   "resource:///modules/MailExtensionShortcuts.jsm": "comm/mail/components/extensions/MailExtensionShortcuts.jsm",
   "resource:///modules/MailGlue.jsm": "comm/mail/components/MailGlue.jsm",
   "resource:///modules/MailMigrator.jsm": "comm/mail/modules/MailMigrator.jsm",
-  "resource:///modules/MailNewsCommandLineHandler.jsm": "comm/mailnews/base/src/MailNewsCommandLineHandler.jsm",
   "resource:///modules/MailNotificationManager.jsm": "comm/mailnews/base/src/MailNotificationManager.jsm",
   "resource:///modules/MailNotificationService.jsm": "comm/mailnews/base/src/MailNotificationService.jsm",
   "resource:///modules/MailServices.jsm": "comm/mailnews/base/src/MailServices.jsm",

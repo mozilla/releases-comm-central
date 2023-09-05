@@ -320,6 +320,10 @@ MailDefaultHandler.prototype = {
       cmdLine.preventDefault = true;
     }
 
+    // -MapiStartup
+    // indicates that this startup is due to MAPI. Don't do anything for now.
+    cmdLine.handleFlag("MapiStartup", false);
+
     if (cmdLine.handleFlag("mail", false)) {
       getOrOpen3PaneWindow().then(win => win.focusOnMail(0));
       cmdLine.preventDefault = true;
@@ -429,7 +433,14 @@ MailDefaultHandler.prototype = {
         });
       } else if (/^mid:/i.test(uri)) {
         lazy.MailUtils.openMessageByMessageId(uri.slice(4));
-      } else if (/^s?news:/i.test(uri)) {
+      } else if (/^(mailbox|imap|news)-message:\/\//.test(uri)) {
+        getOrOpen3PaneWindow().then(win => {
+          let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+            Ci.nsIMessenger
+          );
+          lazy.MailUtils.displayMessage(messenger.msgHdrFromURI(uri));
+        });
+      } else if (/^imap:/i.test(uri) || /^s?news:/i.test(uri)) {
         getOrOpen3PaneWindow().then(win => {
           openURI(cmdLine.resolveURI(uri));
         });
@@ -616,6 +627,7 @@ MailDefaultHandler.prototype = {
 
             MailServices.compose.OpenComposeWindowWithParams(null, msgParams);
           } catch (e) {
+            // Let protocol handlers try to take care.
             openURI(cmdLine.resolveURI(uri));
           }
         });

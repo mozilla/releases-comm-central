@@ -116,7 +116,6 @@ EXTRA_JS_MODULES += [
     "MailAuthenticator.jsm",
     "MailChannel.sys.mjs",
     "MailCryptoUtils.jsm",
-    "MailNewsCommandLineHandler.jsm",
     "MailnewsMigrator.jsm",
     "MailNotificationManager.jsm",
     "MailNotificationService.jsm",
