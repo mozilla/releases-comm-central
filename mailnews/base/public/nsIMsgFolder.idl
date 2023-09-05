@@ -261,6 +261,7 @@ interface nsIMsgFolder : nsISupports {
    * @param aMsgWindow  For progress/status, can be null.
    */
   void compact(in nsIUrlListener aListener, in nsIMsgWindow aMsgWindow);
+
   /**
    * Compact all folders in the account corresponding to this folder.
    *
@@ -287,6 +288,7 @@ interface nsIMsgFolder : nsISupports {
 
   void updateSummaryTotals(in boolean force);
   void summaryChanged();
+
   /**
    * get the total number of unread messages in this folder,
    * or in all subfolders
@@ -478,9 +480,29 @@ interface nsIMsgFolder : nsISupports {
                        in nsIMsgWindow msgWindow,
                        in nsIMsgCopyServiceListener listener);
 
+  /**
+   * Attempt to lock folder for use by semHolder (which can be basically anything).
+   * Fails with NS_MSG_FOLDER_BUSY if already locked.
+   * NOTE: Despite name, there is no threadsafe mechanism being used here.
+   */
   void acquireSemaphore(in nsISupports semHolder);
+
+  /**
+   * Releases lock held by semHolder.
+   * Has no effect if semHolder does not currently hold the lock.
+   * NOTE: Despite name, there is no threadsafe mechanism being used here.
+   */
   void releaseSemaphore(in nsISupports semHolder);
+
+  /**
+   * Returns true if folder is currently locked by semHolder.
+   * NOTE: Despite name, there is no threadsafe mechanism being used here.
+   */
   boolean testSemaphore(in nsISupports semHolder);
+
+  /**
+   * The locked attribute is true if folder is currently locked by anyone.
+   */
   readonly attribute boolean locked;
 
   void getNewMessages(in nsIMsgWindow aWindow, in nsIUrlListener aListener);
@@ -562,10 +584,12 @@ interface nsIMsgFolder : nsISupports {
    * @return   backup message database
    */
   nsIMsgDatabase getBackupMsgDatabase();
+
   /**
    * Remove the backup message database file
    */
   void removeBackupMsgDatabase();
+
   /**
    * Open the backup message database file
    */
@@ -614,6 +638,7 @@ interface nsIMsgFolder : nsISupports {
   nsIMsgFolder getChildWithURI(in AUTF8String uri, in boolean deep,
                                in boolean caseInsensitive);
   void downloadAllForOffline(in nsIUrlListener listener, in nsIMsgWindow window);
+
   /**
    *  Turn notifications on/off for various notification types. Currently only
    *  supporting allMessageCountNotifications which refers to both total and
@@ -768,6 +793,7 @@ interface nsIMsgFolder : nsISupports {
   // keywords are space delimited, in the case of multiple keywords
   void addKeywordsToMessages(in Array<nsIMsgDBHdr> aMessages, in ACString aKeywords);
   void removeKeywordsFromMessages(in Array<nsIMsgDBHdr> aMessages, in ACString aKeywords);
+
   /**
    * Extract the message text from aStream.
    *
