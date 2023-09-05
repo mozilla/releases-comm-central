@@ -6946,11 +6946,9 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox,
     }
     if (longestName) {
       char* serverName = nullptr;
-
-      m_deletableChildren->RemoveElementAt(longestIndex);
       m_runningUrl->AllocateServerPath(longestName, onlineDirSeparator,
                                        &serverName);
-      PR_FREEIF(longestName);
+      m_deletableChildren->RemoveElementAt(longestIndex);
       longestName = serverName;
     }
 
