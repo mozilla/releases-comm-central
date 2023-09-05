@@ -550,6 +550,14 @@ async function loadPostAccountWizard() {
     console.error(e);
   }
 
+  // Init the mozINewMailListener service (MailNotificationManager) before
+  // any new mails are fetched.
+  // MailNotificationManager triggers mozINewMailNotificationService
+  // init as well.
+  Cc["@mozilla.org/mail/notification-manager;1"].getService(
+    Ci.mozINewMailListener
+  );
+
   // Restore the previous folder selection before shutdown, or select the first
   // inbox folder of a newly created account.
   await selectFirstFolder();

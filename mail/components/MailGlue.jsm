@@ -592,12 +592,6 @@ MailGlue.prototype = {
 
   _onFirstWindowLoaded() {
     // Start these services.
-    Cc["@mozilla.org/newMailNotificationService;1"].getService(
-      Ci.mozINewMailNotificationService
-    );
-    Cc["@mozilla.org/mail/notification-manager;1"].getService(
-      Ci.mozINewMailListener
-    );
     Cc["@mozilla.org/chat/logger;1"].getService(Ci.imILogger);
 
     this._checkForOldBuildUpdates();

@@ -15,103 +15,92 @@ var { MailServices } = ChromeUtils.import(
 );
 
 /**
- * Constructor.
+ * NewMailNotificationService.
  *
  * @implements {mozINewMailNotificationService}
  * @implements {nsIFolderListener}
  * @implements {nsIObserver}
  */
-function NewMailNotificationService() {
-  this._mUnreadCount = 0;
-  this._mNewCount = 0;
-  this._listeners = [];
-  this.wrappedJSObject = this;
-
-  this._log = console.createInstance({
-    prefix: "mail.notification",
-    maxLogLevel: "Warn",
-    maxLogLevelPref: "mail.notification.loglevel",
-  });
-
-  Services.obs.addObserver(this, "profile-before-change");
-  MailServices.mailSession.AddFolderListener(
-    this,
-    Ci.nsIFolderListener.intPropertyChanged |
-      Ci.nsIFolderListener.added |
-      Ci.nsIFolderListener.removed |
-      Ci.nsIFolderListener.propertyFlagChanged
-  );
-  this._initUnreadCount();
-}
-
-NewMailNotificationService.prototype = {
-  QueryInterface: ChromeUtils.generateQI([
+class NewMailNotificationService {
+  QueryInterface = ChromeUtils.generateQI([
     "nsIObserver",
     "nsIFolderListener",
     "mozINewMailNotificationService",
-  ]),
+  ]);
 
-  _mUnreadCount: 0,
-  _mNewCount: 0,
-  _listeners: null,
-  _log: null,
+  #unreadCount = 0;
+  #newCount = 0;
+  #listeners = [];
+  #log = null;
 
-  get countNew() {
+  constructor() {
+    this.#log = console.createInstance({
+      prefix: "mail.notification",
+      maxLogLevel: "Warn",
+      maxLogLevelPref: "mail.notification.loglevel",
+    });
+
+    Services.obs.addObserver(this, "profile-before-change");
+    MailServices.mailSession.AddFolderListener(
+      this,
+      Ci.nsIFolderListener.intPropertyChanged |
+        Ci.nsIFolderListener.added |
+        Ci.nsIFolderListener.removed |
+        Ci.nsIFolderListener.propertyFlagChanged
+    );
+    if (!this.useNewCountInBadge) {
+      let total = 0;
+      for (let server of MailServices.accounts.allServers) {
+        // Don't bother counting RSS or NNTP servers
+        let type = server.type;
+        if (type == "rss" || type == "nntp") {
+          continue;
+        }
+
+        let rootFolder = server.rootFolder;
+        if (rootFolder) {
+          total += this.countUnread(rootFolder);
+        }
+      }
+      this.#unreadCount = total;
+    }
+  }
+
+  get useNewCountInBadge() {
     return Services.prefs.getBoolPref(
       "mail.biff.use_new_count_in_badge",
       false
     );
-  },
+  }
 
-  observe(aSubject, aTopic, aData) {
-    if (aTopic == "profile-before-change") {
+  observe(subject, topic, data) {
+    if (topic == "profile-before-change") {
       try {
         MailServices.mailSession.RemoveFolderListener(this);
         Services.obs.removeObserver(this, "profile-before-change");
       } catch (e) {
-        this._log.error("unable to deregister listeners at shutdown: " + e);
+        this.#log.error("Unable to deregister listeners at shutdown: " + e);
       }
     }
-  },
-
-  _initUnreadCount() {
-    let total = 0;
-    for (let server of MailServices.accounts.allServers) {
-      this._log.debug(
-        "NMNS_initUnread: server " + server.prettyName + " type " + server.type
-      );
-      // Don't bother counting RSS or NNTP servers
-      let type = server.type;
-      if (type == "rss" || type == "nntp") {
-        continue;
-      }
-
-      let rootFolder = server.rootFolder;
-      if (rootFolder) {
-        total += this._countUnread(rootFolder);
-      }
-    }
-
-    this._mUnreadCount = total;
-  },
+  }
 
   // Count all the unread messages below the given folder
-  _countUnread(folder) {
-    this._log.debug(`_countUnread for ${folder.URI}`);
+  countUnread(folder) {
+    this.#log.debug(`countUnread for ${folder.URI}`);
     let unreadCount = 0;
 
     let allFolders = [folder, ...folder.descendants];
     for (let folder of allFolders) {
       if (this.confirmShouldCount(folder)) {
         let count = folder.getNumUnread(false);
-        this._log.debug(`${folder.URI} has ${count} unread`);
+        this.#log.debug(`${folder.URI} has ${count} unread`);
         if (count > 0) {
           unreadCount += count;
         }
       }
     }
     return unreadCount;
-  },
+  }
 
   /**
    * Filter out special folders and then ask for observers to see if
@@ -141,50 +130,48 @@ NewMailNotificationService.prototype = {
       shouldCount.data = false;
     } else {
       // If we're only counting inboxes and it's not an inbox...
-      try {
-        // If we can't get this pref, just leave it as the default
-        let onlyCountInboxes = Services.prefs.getBoolPref(
-          "mail.notification.count.inbox_only"
-        );
-        if (onlyCountInboxes && !(aFolder.flags & Ci.nsMsgFolderFlags.Inbox)) {
-          shouldCount.data = false;
-        }
-      } catch (error) {}
+      let onlyCountInboxes = Services.prefs.getBoolPref(
+        "mail.notification.count.inbox_only",
+        true
+      );
+      if (onlyCountInboxes && !(aFolder.flags & Ci.nsMsgFolderFlags.Inbox)) {
+        shouldCount.data = false;
+      }
     }
 
-    this._log.debug(`${aFolder.URI}: shouldCount=${shouldCount.data}`);
+    this.#log.debug(`${aFolder.URI}: shouldCount=${shouldCount.data}`);
     Services.obs.notifyObservers(
       shouldCount,
       "before-count-unread-for-folder",
       aFolder.URI
     );
     return shouldCount.data;
-  },
+  }
 
   onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
     try {
       if (property == "FolderSize") {
         return;
       }
-      this._log.trace(
+      this.#log.trace(
         `Changed int ${property} of ${folder.folderURL}: ${oldValue} -> ${newValue}`
       );
       if (property == "BiffState") {
-        this._biffStateChanged(folder, oldValue, newValue);
+        this.#biffStateChanged(folder, oldValue, newValue);
       } else if (property == "TotalUnreadMessages") {
-        this._updateUnreadCount(folder, oldValue, newValue);
+        this.#totalUnreadMessagesChanged(folder, oldValue, newValue);
       } else if (property == "NewMailReceived") {
-        this._newMailReceived(folder, oldValue, newValue);
+        this.#newMailReceived(folder, oldValue, newValue);
       }
     } catch (error) {
-      this._log.error("onFolderIntPropertyChanged: exception " + error);
+      this.#log.error("onFolderIntPropertyChanged: " + error);
     }
-  },
+  }
 
-  _biffStateChanged(folder, oldValue, newValue) {
+  #biffStateChanged(folder, oldValue, newValue) {
     if (newValue == Ci.nsIMsgFolder.nsMsgBiffState_NewMail) {
       if (folder.server && !folder.server.performingBiff) {
-        this._log.debug(
+        this.#log.debug(
           `${folder.URI} notified, but server not performing biff`
         );
         return;
@@ -195,44 +182,44 @@ NewMailNotificationService.prototype = {
 
       let allFolders = [folder, ...folder.descendants];
 
-      this._log.debug(`${folder.URI} notified; will check subfolders`);
+      this.#log.debug(`${folder.URI} notified; will check subfolders`);
       let newCount = 0;
 
       for (let folder of allFolders) {
         if (this.confirmShouldCount(folder)) {
           let folderNew = folder.getNumNewMessages(false);
-          this._log.debug(`${folder.URI}: ${folderNew} new`);
+          this.#log.debug(`${folder.URI}: ${folderNew} new`);
           if (folderNew > 0) {
             newCount += folderNew;
           }
         }
       }
       if (newCount > 0) {
-        this._mNewCount += newCount;
-        this._log.debug(`${folder.URI}: new mail count ${this._mNewCount}`);
-        if (this.countNew) {
+        this.#newCount += newCount;
+        this.#log.debug(`${folder.URI}: new mail count ${this.#newCount}`);
+        if (this.useNewCountInBadge) {
           this._notifyListeners(
             Ci.mozINewMailNotificationService.count,
             "onCountChanged",
-            this._mNewCount
+            this.#newCount
           );
         }
       }
     } else if (newValue == Ci.nsIMsgFolder.nsMsgBiffState_NoMail) {
       // Dodgy - when any folder tells us it has no mail, clear all unread mail
-      this._mNewCount = 0;
-      this._log.debug(`${folder.URI}: no new mail`);
-      if (this.countNew) {
+      this.#newCount = 0;
+      this.#log.debug(`${folder.URI}: no new mail`);
+      if (this.useNewCountInBadge) {
         this._notifyListeners(
           Ci.mozINewMailNotificationService.count,
           "onCountChanged",
-          this._mNewCount
+          this.#newCount
         );
       }
     }
-  },
+  }
 
-  _newMailReceived(folder, oldValue, newValue) {
+  #newMailReceived(folder, oldValue, newValue) {
     if (!this.confirmShouldCount(folder)) {
       return;
     }
@@ -240,18 +227,18 @@ NewMailNotificationService.prototype = {
     if (!oldValue || oldValue < 0) {
       oldValue = 0;
     }
-    this._mNewCount += newValue - oldValue;
-    this._log.debug(`_newMailReceived ${folder.URI} - ${this._mNewCount} new`);
-    if (this.countNew) {
+    this.#newCount += newValue - oldValue;
+    this.#log.debug(`#newMailReceived ${folder.URI} - ${this.#newCount} new`);
+    if (this.useNewCountInBadge) {
       this._notifyListeners(
         Ci.mozINewMailNotificationService.count,
         "onCountChanged",
-        this._mNewCount
+        this.#newCount
       );
     }
-  },
+  }
 
-  _updateUnreadCount(folder, oldValue, newValue) {
+  #totalUnreadMessagesChanged(folder, oldValue, newValue) {
     if (!this.confirmShouldCount(folder)) {
       return;
     }
@@ -264,77 +251,77 @@ NewMailNotificationService.prototype = {
       newValue = 0;
     }
 
-    this._mUnreadCount += newValue - oldValue;
-    if (!this.countNew) {
+    this.#unreadCount += newValue - oldValue;
+    if (!this.useNewCountInBadge) {
       this._notifyListeners(
         Ci.mozINewMailNotificationService.count,
         "onCountChanged",
-        this._mUnreadCount
+        this.#unreadCount
       );
     }
-  },
+  }
 
   onFolderAdded(parentFolder, child) {
     if (child.rootFolder == child) {
-      this._log.trace(`Added root folder ${child.folderURL}`);
+      this.#log.trace(`Added root folder ${child.folderURL}`);
     } else {
-      this._log.trace(
+      this.#log.trace(
         `Added child folder ${child.folderURL} to ${parentFolder.folderURL}`
       );
     }
-  },
+  }
 
   onMessageAdded(parentFolder, msg) {
     if (this.confirmShouldCount(msg.folder)) {
-      this._log.trace(`Added <${msg.messageId}> to ${msg.folder.folderURL}`);
+      this.#log.trace(`Added <${msg.messageId}> to ${msg.folder.folderURL}`);
     }
-  },
+  }
 
   onFolderPropertyFlagChanged(msg, property, oldFlag, newFlag) {
     if (
       oldFlag & Ci.nsMsgMessageFlags.New &&
       !(newFlag & Ci.nsMsgMessageFlags.New)
     ) {
-      this._log.trace(
+      this.#log.trace(
         `<${msg.messageId}> marked read in ${msg.folder.folderURL}`
       );
     } else if (newFlag & Ci.nsMsgMessageFlags.New) {
-      this._log.trace(
+      this.#log.trace(
         `<${msg.messageId}> marked unread in ${msg.folder.folderURL}`
       );
     }
-  },
+  }
 
   onFolderRemoved(parentFolder, child) {
     if (child.rootFolder == child) {
-      this._log.trace(`Removed root folder ${child.folderURL}`);
+      this.#log.trace(`Removed root folder ${child.folderURL}`);
     } else {
-      this._log.trace(
+      this.#log.trace(
         `Removed child folder ${child.folderURL} from ${parentFolder?.folderURL}`
       );
     }
-  },
+  }
 
   onMessageRemoved(parentFolder, msg) {
     if (!msg.isRead) {
-      this._log.trace(
+      this.#log.trace(
         `Removed unread <${msg.messageId}> from ${msg.folder.folderURL}`
       );
     }
-  },
+  }
 
   // Implement mozINewMailNotificationService
 
   get messageCount() {
-    if (this.countNew) {
-      return this._mNewCount;
+    if (this.useNewCountInBadge) {
+      return this.#newCount;
     }
-    return this._mUnreadCount;
-  },
+    return this.#unreadCount;
+  }
 
   addListener(aListener, flags) {
-    for (let i = 0; i < this._listeners.length; i++) {
-      let l = this._listeners[i];
+    for (let i = 0; i < this.#listeners.length; i++) {
+      let l = this.#listeners[i];
       if (l.obj === aListener) {
         l.flags = flags;
         return;
@@ -343,39 +330,41 @@ NewMailNotificationService.prototype = {
 
     // Ensure that first-time listeners get an accurate mail count.
     if (flags & Ci.mozINewMailNotificationService.count) {
-      const count = this.countNew ? this._mNewCount : this._mUnreadCount;
+      const count = this.useNewCountInBadge
+        ? this.#newCount
+        : this.#unreadCount;
       aListener.onCountChanged(count);
     }
 
     // If we get here, the listener wasn't already in the list
-    this._listeners.push({ obj: aListener, flags });
-  },
+    this.#listeners.push({ obj: aListener, flags });
+  }
 
   removeListener(aListener) {
-    for (let i = 0; i < this._listeners.length; i++) {
-      let l = this._listeners[i];
+    for (let i = 0; i < this.#listeners.length; i++) {
+      let l = this.#listeners[i];
       if (l.obj === aListener) {
-        this._listeners.splice(i, 1);
+        this.#listeners.splice(i, 1);
         return;
       }
     }
-  },
+  }
 
-  _listenersForFlag(flag) {
+  listenersForFlag(flag) {
     let list = [];
-    for (let i = 0; i < this._listeners.length; i++) {
-      let l = this._listeners[i];
+    for (let i = 0; i < this.#listeners.length; i++) {
+      let l = this.#listeners[i];
       if (l.flags & flag) {
         list.push(l.obj);
       }
     }
     return list;
-  },
+  }
 
   _notifyListeners(flag, func, value) {
-    let list = this._listenersForFlag(flag);
+    let list = this.listenersForFlag(flag);
     for (let i = 0; i < list.length; i++) {
       list[i][func](value);
     }
-  },
-};
+  }
+}

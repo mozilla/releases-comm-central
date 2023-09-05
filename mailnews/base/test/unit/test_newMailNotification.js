@@ -9,7 +9,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-/*
+/**
  * Register listener for a particular event, make sure it shows up in the right lists
  * of listeners (and not the wrong ones) and doesn't show up after being removed
  */
@@ -18,17 +18,17 @@ add_test(function testListeners() {
   let listener = { onCountChanged: () => {} };
 
   notif.addListener(listener, Ci.mozINewMailNotificationService.count);
-  let list = notif._listenersForFlag(Ci.mozINewMailNotificationService.count);
+  let list = notif.listenersForFlag(Ci.mozINewMailNotificationService.count);
   Assert.equal(list.length, 1);
   Assert.equal(list[0], listener);
 
-  let newlist = notif._listenersForFlag(
+  let newlist = notif.listenersForFlag(
     Ci.mozINewMailNotificationService.messages
   );
   Assert.equal(newlist.length, 0);
 
   notif.removeListener(listener);
-  list = notif._listenersForFlag(Ci.mozINewMailNotificationService.count);
+  list = notif.listenersForFlag(Ci.mozINewMailNotificationService.count);
   Assert.equal(list.length, 0);
 
   run_next_test();
@@ -51,19 +51,19 @@ add_test(function testMultiListeners() {
   // do_check_eq(notif._listeners.length, 1);
   notif.addListener(l2, Ci.mozINewMailNotificationService.messages);
   // do_check_eq(notif._listeners.length, 2);
-  let list = notif._listenersForFlag(Ci.mozINewMailNotificationService.count);
+  let list = notif.listenersForFlag(Ci.mozINewMailNotificationService.count);
   Assert.equal(list.length, 1);
   Assert.equal(list[0], l1);
 
-  let newlist = notif._listenersForFlag(
+  let newlist = notif.listenersForFlag(
     Ci.mozINewMailNotificationService.messages
   );
   Assert.equal(newlist.length, 2);
 
   notif.removeListener(l1);
-  list = notif._listenersForFlag(Ci.mozINewMailNotificationService.count);
+  list = notif.listenersForFlag(Ci.mozINewMailNotificationService.count);
   Assert.equal(list.length, 0);
-  newlist = notif._listenersForFlag(Ci.mozINewMailNotificationService.messages);
+  newlist = notif.listenersForFlag(Ci.mozINewMailNotificationService.messages);
   Assert.equal(newlist.length, 1);
   Assert.equal(newlist[0], l2);
   notif.removeListener(l2);
