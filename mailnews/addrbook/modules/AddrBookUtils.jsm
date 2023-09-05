@@ -7,7 +7,6 @@ const EXPORTED_SYMBOLS = [
   "AddrBookUtils",
   "compareAddressBooks",
   "newUID",
-  "SimpleEnumerator",
 ];
 
 const { AppConstants } = ChromeUtils.importESModule(
@@ -31,28 +30,6 @@ XPCOMUtils.defineLazyServiceGetters(lazy, {
     "nsIAbLDAPAttributeMapService",
   ],
 });
-
-function SimpleEnumerator(elements) {
-  this._elements = elements;
-  this._position = 0;
-}
-SimpleEnumerator.prototype = {
-  hasMoreElements() {
-    return this._position < this._elements.length;
-  },
-  getNext() {
-    if (this.hasMoreElements()) {
-      return this._elements[this._position++];
-    }
-    throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
-  },
-  QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
-  *[Symbol.iterator]() {
-    while (this.hasMoreElements()) {
-      yield this.getNext();
-    }
-  },
-};
 
 function newUID() {
   return Services.uuid.generateUUID().toString().substring(1, 37);
@@ -518,5 +495,4 @@ var AddrBookUtils = {
     return output;
   },
   newUID,
-  SimpleEnumerator,
 };

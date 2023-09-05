@@ -22,9 +22,6 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 XPCOMUtils.defineLazyGetter(this, "ABQueryUtils", function () {
   return ChromeUtils.import("resource:///modules/ABQueryUtils.jsm");
 });
-XPCOMUtils.defineLazyGetter(this, "AddrBookUtils", function () {
-  return ChromeUtils.import("resource:///modules/AddrBookUtils.jsm");
-});
 
 ChromeUtils.defineESModuleGetters(this, {
   FileUtils: "resource://gre/modules/FileUtils.sys.mjs",
