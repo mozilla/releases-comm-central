@@ -60,6 +60,8 @@ const MESSENGER_UI_CONTAINER_IDS = {
   folderPaneContext: "message-display",
   threadPaneHeaderBar: "message-display",
   threadPaneDisplayContext: "message-display",
+  aboutPagesContext: "message-display",
+  browserContext: "message-display",
   mailContext: "message-display",
   singleMessage: "message-display",
   emailAddressPopup: "message-display",
