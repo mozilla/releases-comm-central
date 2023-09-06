@@ -46,6 +46,7 @@ var DefaultController = {
       case "cmd_viewNormalHeader":
       case "cmd_stop":
       case "cmd_chat":
+      case "cmd_goFolder":
         return true;
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
@@ -89,6 +90,8 @@ var DefaultController = {
         return MailOfflineMgr.isOnline();
       case "cmd_settingsOffline":
         return IsAccountOfflineEnabled();
+      case "cmd_goFolder":
+        return isFolderPaneInitialized();
       case "cmd_chat":
         return true;
       case "cmd_joinChat":
@@ -153,6 +156,11 @@ var DefaultController = {
         break;
       case "cmd_settingsOffline":
         MailOfflineMgr.openOfflineAccountSettings();
+        break;
+      case "cmd_goFolder":
+        document
+          .getElementById("tabmail")
+          .currentAbout3Pane.displayFolder(event.target._folder);
         break;
       case "cmd_chat":
         showChatTab();
@@ -435,3 +443,14 @@ addEventListener(
   },
   true
 );
+
+/**
+ * Check the status of the folder pane, if available.
+ *
+ * @returns {boolean|undefined} The initialization state of the folder pane,
+ *   or undefined if we can't access the document.
+ */
+function isFolderPaneInitialized() {
+  return document.getElementById("tabmail")?.currentAbout3Pane?.folderPane
+    .isInitialized;
+}

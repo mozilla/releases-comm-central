@@ -19,7 +19,7 @@ const goMenuData = {
   menu_goBack: { disabled: true },
   "calendar-go-to-today-menuitem": { hidden: true },
   menu_goChat: {},
-  goFolderMenu: { disabled: true },
+  goFolderMenu: {},
   goRecentlyClosedTabs: { disabled: true },
   goStartPage: {},
 };

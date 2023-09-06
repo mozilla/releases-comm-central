@@ -1566,6 +1566,15 @@ var folderPane = {
   },
 
   /**
+   * Whether the folder pane has been initialized.
+   *
+   * @type {boolean}
+   */
+  get isInitialized() {
+    return this._initialized;
+  },
+
+  /**
    * If the local folders are currently hidden.
    *
    * @returns {boolean}
