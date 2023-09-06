@@ -2269,22 +2269,6 @@ var folderPane = {
   },
 
   /**
-   * Get the folder from the URI by looping through the list of folders and
-   * finding a matching URI.
-   *
-   * @param {string} uri
-   * @returns {?FolderTreeRow}
-   */
-  getFolderFromUri(uri) {
-    for (let folder of folderTree.querySelectorAll("li")) {
-      if (folder.uri == uri) {
-        return folder;
-      }
-    }
-    return [...folderTree.querySelectorAll("li")]?.find(f => f.uri == uri);
-  },
-
-  /**
    * Called when a folder's new messages state changes.
    *
    * @param {nsIMsgFolder} folder
