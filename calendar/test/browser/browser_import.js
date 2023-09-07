@@ -3,13 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This tests importing an ICS file. Rather than using the UI to trigger the
-// import, loadEventsFromFile is called directly.
+// import, the dialog is opened directly.
 
-/* globals loadEventsFromFile */
-
-const { MockFilePicker } = ChromeUtils.importESModule(
-  "resource://testing-common/MockFilePicker.sys.mjs"
-);
 const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(Ci.nsIChromeRegistry);
 
 add_task(async () => {
@@ -20,22 +15,11 @@ add_task(async () => {
   let fileUrl = ChromeRegistry.convertChromeURL(chromeUrl);
   let file = fileUrl.QueryInterface(Ci.nsIFileURL).file;
 
-  MockFilePicker.init(window);
-  MockFilePicker.setFiles([file]);
-  MockFilePicker.returnValue = MockFilePicker.returnCancel;
-
   let calendar = CalendarTestUtils.createCalendar();
 
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
-    MockFilePicker.cleanup();
   });
-
-  let cancelReturn = await loadEventsFromFile();
-  ok(!cancelReturn, "loadEventsFromFile returns false on cancel");
-
-  // Prepare to test the import dialog.
-  MockFilePicker.returnValue = MockFilePicker.returnOK;
 
   let dialogWindowPromise = BrowserTestUtils.promiseAlertDialog(
     null,
@@ -265,7 +249,13 @@ add_task(async () => {
     }
   );
 
-  await loadEventsFromFile();
+  Services.ww.openWindow(
+    null,
+    "chrome://calendar/content/calendar-ics-file-dialog.xhtml",
+    "_blank",
+    "chrome,titlebar,modal,centerscreen",
+    file
+  );
   await dialogWindowPromise;
 
   // Check that the items were actually successfully imported.

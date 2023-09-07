@@ -103,8 +103,6 @@
   locale/@AB_CD@/messenger/mailViewList.dtd                             (%chrome/messenger/mailViewList.dtd)
   locale/@AB_CD@/messenger/offlineStartup.properties                    (%chrome/messenger/offlineStartup.properties)
   locale/@AB_CD@/messenger/importMsgs.properties                        (%chrome/messenger/importMsgs.properties)
-  locale/@AB_CD@/messenger/importDialog.dtd                             (%chrome/messenger/importDialog.dtd)
-  locale/@AB_CD@/messenger/fieldMapImport.dtd                           (%chrome/messenger/fieldMapImport.dtd)
   locale/@AB_CD@/messenger/morkImportMsgs.properties                    (%chrome/messenger/morkImportMsgs.properties)
   locale/@AB_CD@/messenger/textImportMsgs.properties                    (%chrome/messenger/textImportMsgs.properties)
   locale/@AB_CD@/messenger/vCardImportMsgs.properties                   (%chrome/messenger/vCardImportMsgs.properties)

@@ -6,85 +6,13 @@
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
-/* exported loadEventsFromFile, exportEntireCalendar */
+/* exported getItemsFromIcsFile, putItemsIntoCal, exportEntireCalendar */
 
 // File constants copied from file-utils.js
 var MODE_RDONLY = 0x01;
 var MODE_WRONLY = 0x02;
 var MODE_CREATE = 0x08;
 var MODE_TRUNCATE = 0x20;
-
-/**
- * Loads events from a file into a calendar. If called without a file argument,
- * the user is asked to pick a file.
- *
- * @param {nsIFile} [fileArg] - Optional, a file to load events from.
- * @returns {Promise<boolean>} True if the import dialog was opened, false if
- *                              not (e.g. on cancel of file picker dialog).
- */
-async function loadEventsFromFile(fileArg) {
-  let file = fileArg;
-  if (!file) {
-    file = await pickFileToImport();
-    if (!file) {
-      // Probably the user clicked "cancel" (no file and the promise was not
-      // rejected in pickFileToImport).
-      return false;
-    }
-  }
-
-  Services.ww.openWindow(
-    null,
-    "chrome://calendar/content/calendar-ics-file-dialog.xhtml",
-    "_blank",
-    "chrome,titlebar,modal,centerscreen",
-    file
-  );
-  return true;
-}
-
-/**
- * Show a file picker dialog and return the file.
- *
- * @returns {Promise<nsIFile | undefined>} The picked file or undefined if the
- *                                        user cancels the dialog.
- */
-function pickFileToImport() {
-  return new Promise(resolve => {
-    let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-    picker.init(window, cal.l10n.getCalString("filepickerTitleImport"), Ci.nsIFilePicker.modeOpen);
-    picker.defaultExtension = "ics";
-
-    let currentListLength = 0;
-    for (let { data } of Services.catMan.enumerateCategory("cal-importers")) {
-      let contractId = Services.catMan.getCategoryEntry("cal-importers", data);
-      let importer;
-      try {
-        importer = Cc[contractId].getService(Ci.calIImporter);
-      } catch (e) {
-        cal.WARN("Could not initialize importer: " + contractId + "\nError: " + e);
-        continue;
-      }
-      let types = importer.getFileTypes();
-      for (let type of types) {
-        picker.appendFilter(type.description, type.extensionFilter);
-        if (type.extensionFilter == "*." + picker.defaultExtension) {
-          picker.filterIndex = currentListLength;
-        }
-        currentListLength++;
-      }
-    }
-
-    picker.appendFilters(Ci.nsIFilePicker.filterAll);
-    picker.open(returnValue => {
-      if (returnValue == Ci.nsIFilePicker.returnCancel) {
-        resolve();
-        return;
-      }
-      resolve(picker.file);
-    });
-  });
-}
 
 /**
  * Given an ICS file, return an array of calendar items parsed from it.

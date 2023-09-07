@@ -6,7 +6,7 @@
    getSelectedCalendar, editSelectedEvents, viewSelectedEvents,
    modifyTaskFromContext, deleteSelectedEvents, setupAttendanceMenu,
    createTodoWithDialog, deleteToDoCommand, promptDeleteCalendar,
-   toImport, loadEventsFromFile, exportEntireCalendar, saveEventsToFile,
+   toImport, exportEntireCalendar, saveEventsToFile,
    publishEntireCalendar, publishCalendarData, toggleUnifinder, toggleOrientation
    toggleWorkdaysOnly, switchCalendarView, getTaskTree, selectAllEvents,
    gCurrentMode, getSelectedTasks, canPaste, goSetMenuValue, canUndo, canRedo,
@@ -350,11 +350,7 @@ var calendarController = {
         break;
 
       case "calendar_import_command":
-        if (Services.prefs.getBoolPref("mail.import.in_new_tab")) {
-          toImport("calendar");
-        } else {
-          loadEventsFromFile();
-        }
+        toImport("calendar");
         break;
       case "calendar_export_command":
         exportEntireCalendar();

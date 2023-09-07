@@ -571,46 +571,33 @@ function showChatTab() {
 }
 
 /**
- * Open about:import or importDialog.xhtml.
+ * Open about:import tab.
  *
  * @param {"start"|"app"|"addressBook"|"calendar"|"export"} [tabId] - The tab
  *  to open in about:import.
  */
 function toImport(tabId = "start") {
-  if (Services.prefs.getBoolPref("mail.import.in_new_tab")) {
-    let tab = toMessengerWindow().openTab("contentTab", {
-      url: "about:import",
-      onLoad(event, browser) {
-        if (tabId) {
-          browser.contentWindow.showTab(`tab-${tabId}`, true);
-        }
-      },
-    });
-    // Somehow DOMContentLoaded is called even when about:import is already
-    // open, which resets the active tab. Use setTimeout here as a workaround.
-    setTimeout(
-      () => tab.browser.contentWindow.showTab(`tab-${tabId}`, true),
-      100
-    );
-    return;
-  }
-  window.openDialog(
-    "chrome://messenger/content/importDialog.xhtml",
-    "importDialog",
-    "chrome,modal,titlebar,centerscreen"
+  let tab = toMessengerWindow().openTab("contentTab", {
+    url: "about:import",
+    onLoad(event, browser) {
+      if (tabId) {
+        browser.contentWindow.showTab(`tab-${tabId}`, true);
+      }
+    },
+  });
+  // Somehow DOMContentLoaded is called even when about:import is already
+  // open, which resets the active tab. Use setTimeout here as a workaround.
+  setTimeout(
+    () => tab.browser.contentWindow.showTab(`tab-${tabId}`, true),
+    100
   );
 }
 
+/**
+ * Open export tab.
+ */
 function toExport() {
-  if (Services.prefs.getBoolPref("mail.import.in_new_tab")) {
-    toImport("export");
-    return;
-  }
-  window.openDialog(
-    "chrome://messenger/content/exportDialog.xhtml",
-    "exportDialog",
-    "chrome,modal,titlebar,centerscreen"
-  );
+  toImport("export");
 }
 
 function toSanitize() {

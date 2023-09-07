@@ -378,8 +378,6 @@ pref("mail.forward_message_mode", 2);
 
 pref("mailnews.send.loglevel", "Warn");
 
-pref("mail.import.in_new_tab", true);
-
 // End core mailnews.js pref overrides
 /////////////////////////////////////////////////////////////////
 
