@@ -501,8 +501,12 @@
       }
 
       if (this.dataset.headerName == "from") {
-        this.nameLine.textContent =
-          displayName || this.displayName || this.fullAddress;
+        if (gShowCondensedEmailAddresses) {
+          this.nameLine.textContent =
+            displayName || this.displayName || this.fullAddress;
+        } else {
+          this.nameLine.textContent = this.fullAddress;
+        }
         this.addressLine.textContent = this.emailAddress;
       }
 

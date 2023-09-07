@@ -199,6 +199,17 @@ Services.prefs.addObserver("mail.displayname.version", () => {
   Services.obs.notifyObservers(null, "addrbook-displayname-changed");
 });
 
+// When this prefence has been updated, we need to update the
+// mail.displayname.version, which notifies it's preference observer (above).
+// This will then notify the addrbook-displayname-changed observer, and change
+// the displayname in the thread tree and message header.
+Services.prefs.addObserver("mail.showCondensedAddresses", () => {
+  Services.prefs.setIntPref(
+    "mail.displayname.version",
+    Services.prefs.getIntPref("mail.displayname.version") + 1
+  );
+});
+
 /**
  * @implements {nsIAbManager}
  * @implements {nsICommandLineHandler}

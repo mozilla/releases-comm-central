@@ -4283,6 +4283,8 @@ var threadPane = {
     if (topic == "nsPref:changed") {
       this.setUpTagStyles();
     } else if (topic == "addrbook-displayname-changed") {
+      // This runs the when mail.displayname.version preference observer is
+      // notified/the mail.displayname.version number has been updated.
       threadTree.invalidate();
     }
   },

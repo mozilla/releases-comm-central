@@ -492,16 +492,16 @@ var MsgHdrViewObserver = {
   observe(subject, topic, data) {
     // verify that we're changing the mail pane config pref
     if (topic == "nsPref:changed") {
+      // We don't need to call ReloadMessage() in either of these conditions
+      // because a preference observer for these preferences already does it.
       if (data == "mail.showCondensedAddresses") {
         gShowCondensedEmailAddresses = Services.prefs.getBoolPref(
           "mail.showCondensedAddresses"
         );
-        ReloadMessage();
       } else if (data == "mailnews.headers.showReferences") {
         gHeadersShowReferences = Services.prefs.getBoolPref(
           "mailnews.headers.showReferences"
         );
-        ReloadMessage();
       }
     } else if (topic == "remote-content-blocked") {
       let browser = getMessagePaneBrowser();
