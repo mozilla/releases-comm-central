@@ -121,6 +121,11 @@ interface nsIMsgFolder : nsISupports {
    */
   readonly attribute boolean canRename;
 
+  /**
+   * Can folder be compacted? Only applicable to folders using mbox storage.
+   * Doesn't mean a compaction operation will actually do anything - if there's
+   * nothing to compact, the compaction will be a no-op.
+   */
   readonly attribute boolean canCompact;
 
   /**
