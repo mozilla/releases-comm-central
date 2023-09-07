@@ -547,6 +547,10 @@ var messageProgressListener = {
       request.smimeHeaderSink = smimeHeaderSink;
       this.onStartHeaders();
     } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+      // onStopRequest may not have been called. Give events time to unwind.
+      if (request.isPending()) {
+        await new Promise(resolve => setTimeout(resolve));
+      }
       currentCharacterSet = request.mailCharacterSet;
       request.smimeHeaderSink = null;
       this.processHeaders(request.headerNames, request.headerValues);
