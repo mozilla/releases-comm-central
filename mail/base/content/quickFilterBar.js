@@ -42,6 +42,8 @@ customElements.define("toggle-button", ToggleButton, { extends: "button" });
 
 var quickFilterBar = {
   _filterer: null,
+  activeTopLevelFilters: new Set(),
+  topLevelFilters: ["unread", "starred", "addrBook", "attachment"],
 
   /**
    * The UI element that last triggered a search. This can be used to avoid
@@ -56,6 +58,37 @@ var quickFilterBar = {
     this._bindUI();
     this.updateRovingTab();
 
+    // Enable any filters set by the user.
+    // If keep filters applied/sticky setting is enabled, enable sticky.
+    let xulStickyVal = Services.xulStore.getValue(
+      XULSTORE_URL,
+      "quickFilterBarSticky",
+      "enabled"
+    );
+    if (xulStickyVal) {
+      this.filterer.setFilterValue("sticky", xulStickyVal == "true");
+
+      // If sticky is set, show saved filters.
+      // Otherwise do not display saved filters on load.
+      if (xulStickyVal == "true") {
+        // If any filter settings are enabled, retrieve the enabled filters.
+        let enabledTopFiltersVal = Services.xulStore.getValue(
+          XULSTORE_URL,
+          "quickFilter",
+          "enabledTopFilters"
+        );
+
+        // Set any enabled filters to enabled in the UI.
+        if (enabledTopFiltersVal) {
+          let enabledTopFilters = JSON.parse(enabledTopFiltersVal);
+          for (let filterName of enabledTopFilters) {
+            this.activeTopLevelFilters.add(filterName);
+            this.filterer.setFilterValue(filterName, true);
+          }
+        }
+      }
+    }
+
     // Hide the toolbar, unless it has been previously shown.
     if (
       Services.xulStore.getValue(
@@ -64,16 +97,6 @@ var quickFilterBar = {
         "collapsed"
       ) === "false"
     ) {
-      // If sticky setting is enabled, enable sticky.
-      let xulStickyVal = Services.xulStore.getValue(
-        XULSTORE_URL,
-        "quickFilterBarSticky",
-        "enabled"
-      );
-      if (xulStickyVal) {
-        this.filterer.setFilterValue("sticky", xulStickyVal == "true");
-      }
-
       this._showFilterBar(true, true);
     } else {
       this._showFilterBar(false, true);
@@ -234,6 +257,7 @@ var quickFilterBar = {
           try {
             let postValue = domNode.pressed ? true : null;
             this.filterer.setFilterValue(filterDef.name, postValue);
+            this.updateFiltersSettings(filterDef.name, postValue);
             this.deferredUpdateSearch(domNode);
           } catch (ex) {
             console.error(ex);
@@ -243,6 +267,7 @@ var quickFilterBar = {
           try {
             let postValue = menuItemNode.hasAttribute("checked") ? true : null;
             this.filterer.setFilterValue(filterDef.name, postValue);
+            this.updateFiltersSettings(filterDef.name, postValue);
             this.deferredUpdateSearch();
           } catch (ex) {
             console.error(ex);
@@ -265,6 +290,7 @@ var quickFilterBar = {
             document
           );
           this.filterer.setFilterValue(filterDef.name, postValue, !update);
+          this.updateFiltersSettings(filterDef.name, postValue);
           if (update) {
             this.deferredUpdateSearch(domNode);
           }
@@ -285,6 +311,7 @@ var quickFilterBar = {
             document
           );
           this.filterer.setFilterValue(filterDef.name, postValue, !update);
+          this.updateFiltersSettings(filterDef.name, postValue);
           if (update) {
             this.deferredUpdateSearch();
           }
@@ -304,6 +331,34 @@ var quickFilterBar = {
         filterDef.domBindExtra(document, this, domNode);
       }
     }
+  },
+
+  /**
+   * Update enabled filters in XULStore.
+   */
+  updateFiltersSettings(filterName, filterValue) {
+    if (this.topLevelFilters.includes(filterName)) {
+      this.updateTopLevelFilters(filterName, filterValue);
+    }
+  },
+
+  /**
+   * Update enabled top level filters in XULStore.
+   */
+  updateTopLevelFilters(filterName, filterValue) {
+    if (filterValue) {
+      this.activeTopLevelFilters.add(filterName);
+    } else {
+      this.activeTopLevelFilters.delete(filterName);
+    }
+
+    // Save enabled filter settings to XULStore.
+    Services.xulStore.setValue(
+      XULSTORE_URL,
+      "quickFilter",
+      "enabledTopFilters",
+      JSON.stringify(Array.from(this.activeTopLevelFilters))
+    );
   },
 
   /**
