@@ -12,7 +12,6 @@ from comm_taskgraph.parameters import register_parameters
 
 
 class TestCommParameters(unittest.TestCase):
-
     vals = {
         "app_version": "app_version",
         "backstop": False,

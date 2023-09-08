@@ -106,7 +106,6 @@ def make_task_description(config, jobs):
 @transforms.add
 def filter_out_macos_jobs_but_mac_only_locales(config, jobs):
     for job in jobs:
-
         build_platform = job["attributes"].get("build_platform")
 
         if build_platform == "linux64-shippable":

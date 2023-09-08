@@ -52,7 +52,7 @@ def hash_paths_extended(base_path, patterns):
 
     h = hashlib.sha256()
     files = []
-    for (patterns, finder, prefix) in [
+    for patterns, finder, prefix in [
         (gecko_patterns, gecko_finder, None),
         (comm_patterns, comm_finder, "comm/"),
     ]:
