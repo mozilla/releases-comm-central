@@ -150,10 +150,18 @@ class SmtpClient {
    *   unsent data.
    */
   close(immediately) {
-    this.logger.debug("Closing connection...");
     if (this.socket && this.socket.readyState === "open") {
-      immediately ? this.socket.closeImmediately() : this.socket.close();
+      if (immediately) {
+        this.logger.debug(
+          `Closing connection to ${this._server.hostname} immediately!`
+        );
+        this.socket.closeImmediately();
+      } else {
+        this.logger.debug(`Closing connection to ${this._server.hostname}...`);
+        this.socket.close();
+      }
     } else {
+      this.logger.debug(`Connection to ${this._server.hostname} closed`);
       this._free();
     }
   }
@@ -403,17 +411,17 @@ class SmtpClient {
    * @param {Event} evt - Event object. See `evt.data` for the chunk received
    */
   _onData = async evt => {
+    let stringPayload = new TextDecoder("UTF-8").decode(
+      new Uint8Array(evt.data)
+    );
+    // "S: " to denote that this is data from the Server.
+    this.logger.debug(`S: ${stringPayload}`);
+
     // Prevent blocking the main thread, otherwise onclose/onerror may not be
     // called in time. test_smtpPasswordFailure3 is such a case, the server
     // rejects AUTH PLAIN then closes the connection, the client then sends AUTH
     // LOGIN. This line guarantees onclose is called before sending AUTH LOGIN.
     await new Promise(resolve => setTimeout(resolve));
-
-    var stringPayload = new TextDecoder("UTF-8").decode(
-      new Uint8Array(evt.data)
-    );
-    // "S: " to denote that this is data from the Server.
-    this.logger.debug(`S: ${stringPayload}`);
     this._parse(stringPayload);
   };
 
@@ -511,6 +519,17 @@ class SmtpClient {
    */
   _onCommand(command) {
     if (command.statusCode < 200 || command.statusCode >= 400) {
+      // @see rfc5321#section-3.8
+      // 421: SMTP service shutting down and closing transmission channel.
+      // When that happens during idle, just close the connection.
+      if (
+        command.statusCode == 421 &&
+        this._currentAction == this._actionIdle
+      ) {
+        this.close(true);
+        return;
+      }
+
       this.logger.error(
         `Command failed: ${command.statusCode} ${command.data}; currentAction=${this._currentAction?.name}`
       );
@@ -526,6 +545,7 @@ class SmtpClient {
   _free() {
     if (!this._freed) {
       this._freed = true;
+      this.logger.debug("Client ready for reuse");
       this.onFree();
     }
   }

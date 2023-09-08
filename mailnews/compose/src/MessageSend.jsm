@@ -28,18 +28,17 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
 const nsMsgKey_None = 0xffffffff;
 
 /**
- * A module to manage sending processes.
+ * A class to manage sending processes.
  *
  * @implements {nsIMsgSend}
+ * @implements {nsIWebProgressListener}
  */
-function MessageSend() {}
-
-MessageSend.prototype = {
-  QueryInterface: ChromeUtils.generateQI([
+class MessageSend {
+  QueryInterface = ChromeUtils.generateQI([
     "nsIMsgSend",
     "nsIWebProgressListener",
-  ]),
-  classID: Components.ID("{028b9c1e-8d0a-4518-80c2-842e07846eaa}"),
+  ]);
+  classID = Components.ID("{028b9c1e-8d0a-4518-80c2-842e07846eaa}");
 
   async createAndSendMessage(
     editor,
@@ -151,7 +150,7 @@ MessageSend.prototype = {
     );
     lazy.MsgUtils.sendLogger.debug("Message file created");
     return this._deliverMessage(messageFile);
-  },
+  }
 
   sendMessageFile(
     userIdentity,
@@ -206,7 +205,7 @@ MessageSend.prototype = {
     this._messageKey = 0xffffffff;
 
     return this._deliverMessage(messageFile);
-  },
+  }
 
   // @see nsIMsgSend
   createRFC822Message(
@@ -279,10 +278,10 @@ MessageSend.prototype = {
     this._message
       .createMessageFile()
       .then(messageFile => this._deliverMessage(messageFile));
-  },
+  }
 
   // nsIWebProgressListener.
-  onLocationChange(webProgress, request, location, flags) {},
+  onLocationChange(webProgress, request, location, flags) {}
   onProgressChange(
     webProgress,
     request,
@@ -290,10 +289,10 @@ MessageSend.prototype = {
     maxSelfProgress,
     curTotalProgress,
     maxTotalProgress
-  ) {},
-  onStatusChange(webProgress, request, status, message) {},
-  onSecurityChange(webProgress, request, state) {},
-  onContentBlockingEvent(webProgress, request, event) {},
+  ) {}
+  onStatusChange(webProgress, request, status, message) {}
+  onSecurityChange(webProgress, request, state) {}
+  onContentBlockingEvent(webProgress, request, event) {}
   onStateChange(webProgress, request, stateFlags, status) {
     if (
       stateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
@@ -303,7 +302,7 @@ MessageSend.prototype = {
       this._isRetry = false;
       this.abort();
     }
-  },
+  }
 
   abort() {
     if (this._aborting) {
@@ -330,7 +329,7 @@ MessageSend.prototype = {
       this.notifyListenerOnStopSending(null, Cr.NS_ERROR_ABORT, null, null);
     }
     this._aborting = false;
-  },
+  }
 
   getDefaultPrompt() {
     if (this._parentWindow) {
@@ -353,7 +352,7 @@ MessageSend.prototype = {
       );
     }
     return prompt;
-  },
+  }
 
   fail(exitCode, errorMsg) {
     this._failed = true;
@@ -379,18 +378,18 @@ MessageSend.prototype = {
     this.abort();
 
     return exitCode;
-  },
+  }
 
   getPartForDomIndex(domIndex) {
     throw Components.Exception(
       "getPartForDomIndex not implemented",
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
-  },
+  }
 
   getProgress() {
     return this._sendProgress;
-  },
+  }
 
   /**
    * NOTE: This is a copy of the C++ code, msgId and msgSize are only
@@ -401,21 +400,21 @@ MessageSend.prototype = {
     if (this._sendListener) {
       this._sendListener.onStartSending(msgId, msgSize);
     }
-  },
+  }
 
   notifyListenerOnStartCopy() {
     lazy.MsgUtils.sendLogger.debug("notifyListenerOnStartCopy");
     if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
       this._sendListener.OnStartCopy();
     }
-  },
+  }
 
   notifyListenerOnProgressCopy(progress, progressMax) {
     lazy.MsgUtils.sendLogger.debug("notifyListenerOnProgressCopy");
     if (this._sendListener instanceof Ci.nsIMsgCopyServiceListener) {
       this._sendListener.OnProgress(progress, progressMax);
     }
-  },
+  }
 
   notifyListenerOnStopCopy(status) {
     lazy.MsgUtils.sendLogger.debug(
@@ -569,7 +568,7 @@ MessageSend.prototype = {
     }
 
     this._doFcc2();
-  },
+  }
 
   notifyListenerOnStopSending(msgId, status, msg, returnFile) {
     lazy.MsgUtils.sendLogger.debug(
@@ -578,7 +577,7 @@ MessageSend.prototype = {
     try {
       this._sendListener?.onStopSending(msgId, status, msg, returnFile);
     } catch (e) {}
-  },
+  }
 
   notifyListenerOnTransportSecurityError(msgId, status, secInfo, location) {
     lazy.MsgUtils.sendLogger.debug(
@@ -595,7 +594,7 @@ MessageSend.prototype = {
         location
       );
     } catch (e) {}
-  },
+  }
 
   /**
    * Called by nsIMsgFilterService.
@@ -617,7 +616,7 @@ MessageSend.prototype = {
     }
 
     this._doFcc2();
-  },
+  }
 
   /**
    * Handle the exit code of message delivery.
@@ -728,7 +727,7 @@ MessageSend.prototype = {
     );
 
     this._doFcc();
-  },
+  }
 
   sendDeliveryCallback(url, isNewsDelivery, exitCode) {
     if (isNewsDelivery) {
@@ -763,35 +762,35 @@ MessageSend.prototype = {
       }
     }
     return this._deliveryExitProcessing(url, isNewsDelivery, exitCode);
-  },
+  }
 
   get folderUri() {
     return this._folderUri;
-  },
+  }
 
   /**
    * @type {nsMsgKey}
    */
   set messageKey(key) {
     this._messageKey = key;
-  },
+  }
 
   /**
    * @type {nsMsgKey}
    */
   get messageKey() {
     return this._messageKey;
-  },
+  }
 
   get sendReport() {
     return this._sendReport;
-  },
+  }
 
   _setStatusMessage(msg) {
     if (this._sendProgress) {
       this._sendProgress.onStatusChange(null, null, Cr.NS_OK, msg);
     }
-  },
+  }
 
   /**
    * Deliver a message.
@@ -844,7 +843,7 @@ MessageSend.prototype = {
       return;
     }
     this._deliverAsMail();
-  },
+  }
 
   /**
    * Strip Bcc header, create the file to be actually delivered.
@@ -886,7 +885,7 @@ MessageSend.prototype = {
     combinedContent.set(body, encodedHeader.length);
     await IOUtils.write(deliveryFile.path, combinedContent);
     return deliveryFile;
-  },
+  }
 
   /**
    * Create the file to be copied to the Sent folder, add X-Mozilla-Status and
@@ -925,7 +924,7 @@ MessageSend.prototype = {
       }
     );
     return copyFile;
-  },
+  }
 
   /**
    * Start copy operation according to this._fcc value.
@@ -937,7 +936,7 @@ MessageSend.prototype = {
     }
     this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_Copy;
     this._mimeDoFcc(this._fcc, false, Ci.nsIMsgSend.nsMsgDeliverNow);
-  },
+  }
 
   /**
    * Copy a message to a folder, or fallback to a folder depending on pref and
@@ -1045,7 +1044,7 @@ MessageSend.prototype = {
       }
       this.notifyListenerOnStopCopy(e.result);
     }
-  },
+  }
 
   /**
    * Handle the fcc2 field. Then notify OnStopCopy and clean up.
@@ -1080,7 +1079,7 @@ MessageSend.prototype = {
       }
       this._cleanup();
     });
-  },
+  }
 
   /**
    * Run filters on the just sent message.
@@ -1097,7 +1096,7 @@ MessageSend.prototype = {
       msgWindow,
       this
     );
-  },
+  }
 
   _cleanup() {
     lazy.MsgUtils.sendLogger.debug("Clean up temporary files");
@@ -1113,7 +1112,7 @@ MessageSend.prototype = {
       IOUtils.remove(this._messageFile.path).catch(console.error);
       this._messageFile = null;
     }
-  },
+  }
 
   /**
    * Send this._deliveryFile to smtp service.
@@ -1140,7 +1139,9 @@ MessageSend.prototype = {
         Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
       )
     );
-    lazy.MsgUtils.sendLogger.debug("Delivering mail message");
+    lazy.MsgUtils.sendLogger.debug(
+      `Delivering mail message <${this._compFields.messageId}>`
+    );
     let deliveryListener = new MsgDeliveryListener(this, false);
     let msgStatus =
       this._sendProgress instanceof Ci.nsIMsgStatusFeedback
@@ -1161,7 +1162,7 @@ MessageSend.prototype = {
       {},
       this._smtpRequest
     );
-  },
+  }
 
   /**
    * Send this._deliveryFile to nntp service.
@@ -1184,7 +1185,7 @@ MessageSend.prototype = {
       msgWindow,
       null
     );
-  },
+  }
 
   /**
    * Collect outgoing addresses to address book.
@@ -1203,7 +1204,7 @@ MessageSend.prototype = {
     for (let recipient of recipients) {
       addressCollector.collectAddress(recipient, createCard);
     }
-  },
+  }
 
   /**
    * Check if link text is equivalent to the href.
@@ -1223,7 +1224,7 @@ MessageSend.prototype = {
       (text.endsWith("/") && text.slice(0, -1) == href) ||
       (href.endsWith("/") && href.slice(0, -1) == text)
     );
-  },
+  }
 
   /**
    * Collect embedded objects as attachments.
@@ -1331,7 +1332,7 @@ MessageSend.prototype = {
       }
     }
     return { embeddedAttachments, embeddedObjects };
-  },
+  }
 
   /**
    * Restore embedded objects in editor to their original urls.
@@ -1350,7 +1351,7 @@ MessageSend.prototype = {
         element.href = url;
       }
     }
-  },
+  }
 
   /**
    * Get the message body from an editor.
@@ -1383,7 +1384,7 @@ MessageSend.prototype = {
     }
 
     return bodyText;
-  },
+  }
 
   /**
    * Get the first account key of an identity.
@@ -1396,25 +1397,29 @@ MessageSend.prototype = {
     return servers.length
       ? MailServices.accounts.FindAccountForServer(servers[0])?.key
       : null;
-  },
-};
+  }
+}
 
 /**
  * A listener to be passed to the SMTP service.
  *
  * @implements {nsIUrlListener}
  */
-function MsgDeliveryListener(msgSend, isNewsDelivery) {
-  this._msgSend = msgSend;
-  this._isNewsDelivery = isNewsDelivery;
-}
+class MsgDeliveryListener {
+  QueryInterface = ChromeUtils.generateQI(["nsIUrlListener"]);
 
-MsgDeliveryListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIUrlListener"]),
+  /**
+   * @param {nsIMsgSend} msgSend - Send instance to use.
+   * @param {boolean} isNewsDelivery - Whether this is an nntp message delivery.
+   */
+  constructor(msgSend, isNewsDelivery) {
+    this._msgSend = msgSend;
+    this._isNewsDelivery = isNewsDelivery;
+  }
 
   OnStartRunningUrl(url) {
     this._msgSend.notifyListenerOnStartSending(null, 0);
-  },
+  }
 
   OnStopRunningUrl(url, exitCode) {
     lazy.MsgUtils.sendLogger.debug(`OnStopRunningUrl; exitCode=${exitCode}`);
@@ -1422,5 +1427,5 @@ MsgDeliveryListener.prototype = {
     mailUrl.UnRegisterListener(this);
 
     this._msgSend.sendDeliveryCallback(url, this._isNewsDelivery, exitCode);
-  },
-};
+  }
+}
