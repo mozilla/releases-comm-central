@@ -195,7 +195,7 @@ tr[data-properties~="tagged"] .tag-icon {
   color: var(--tag-contrast-color, var(--listbox-selected-color));
 }
 
-[is="tree-view-table-body"] tr[is="thread-row"].context-menu-target {
+[is="tree-view-table-body"] tr.context-menu-target {
   background-color: color-mix(in srgb, var(--treeitem-background-active) 10%, transparent);
   outline: 1px var(--listbox-border-type) var(--listbox-focused-selected-bg);
   outline-offset: -1px;
@@ -642,7 +642,15 @@ tr[is="thread-card"][data-properties~="new"] {
   height: 100%;
   padding-inline: 12px;
   box-sizing: border-box;
-  border-bottom: 1px solid var(--layout-background-3);
+}
+
+tr[is="thread-card"] + tr[is="thread-card"]:not(.context-menu-target) .thread-card-container::before {
+  display: block;
+  content: "";
+  position: absolute;
+  height: 1px;
+  background-color: var(--layout-background-3);
+  inset: 0;
 }
 
 @media (-moz-overlay-scrollbars) {
@@ -651,7 +659,7 @@ tr[is="thread-card"][data-properties~="new"] {
   }
 }
 
-tr[data-properties~="new"] .thread-card-container:after {
+tr[data-properties~="new"] .thread-card-container::after {
   position: absolute;
   content: var(--icon-new-indicator);
   inset-inline-start: 3px;
