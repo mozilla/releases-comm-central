@@ -690,7 +690,7 @@ interface nsIMsgFolder : nsISupports {
 
   /**
    * Returns an array containing nsIMsgFolder items that are
-   * subfolders of the instance this is called on.
+   * subfolders (direct children) of the instance this is called on.
    */
   readonly attribute Array<nsIMsgFolder> subFolders;
 
