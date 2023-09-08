@@ -243,6 +243,10 @@ th[is="tree-view-table-header-cell"] hr[is="pane-splitter"] {
 
 /* Select column */
 
+#selectColButton {
+  padding-inline: 0;
+}
+
 :is(.tree-view-header-select, .tree-view-row-select) img {
   color: var(--tree-view-color);
   content: var(--icon-checkbox);
@@ -418,7 +422,7 @@ table[is="tree-view-table"] td {
   box-sizing: border-box;
 }
 
-table[is="tree-view-table"] td.button-column {
+table[is="tree-view-table"] td:is(.button-column, .tree-view-row-select) {
   padding: 0;
   text-align: center;
 }
