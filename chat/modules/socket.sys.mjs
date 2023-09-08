@@ -250,8 +250,9 @@ export var Socket = {
     let converter = new ScriptableUnicodeConverter();
     converter.charset = aEncoding;
     try {
-      let stream = converter.convertToInputStream(aString);
-      this._outputStream.writeFrom(stream, stream.available());
+      let buf = converter.ConvertFromUnicode(aString);
+      buf += converter.Finish();
+      this._outputStream.write(buf, buf.length);
     } catch (e) {
       console.error(e);
     }
