@@ -595,6 +595,7 @@ add_task(async function test_click_on_notification() {
         undefined,
         url => url != "about:blank"
       );
+      await new Promise(resolve => setTimeout(resolve));
     }
   }
 
