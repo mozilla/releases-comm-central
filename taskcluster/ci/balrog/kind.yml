@@ -16,3 +16,12 @@ kind-dependencies:
 
 only-for-attributes:
     - shippable
+
+jobs:
+    balrog:
+        from-deps:
+            group-by: single-with-filters
+        update-no-wnp:
+            by-release-type:
+                nightly.*: false
+                default: true
