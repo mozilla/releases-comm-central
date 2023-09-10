@@ -71,8 +71,19 @@ function run_test() {
   Assert.equal(testPermission(uriAllowed2), Services.perms.UNKNOWN_ACTION);
   Assert.equal(testPermission(uriDisallowed), Services.perms.UNKNOWN_ACTION);
 
+  // Set the sorting order preference to descending.
+  Services.prefs.setIntPref("mailnews.default_sort_order", 2);
+  Services.prefs.setIntPref("mailnews.default_news_sort_order", 2);
+
   // Now migrate the prefs.
   migrateMailnews();
+
+  // Check that the sorting order wasn't changed.
+  Assert.equal(Services.prefs.getIntPref("mailnews.default_sort_order"), 2);
+  Assert.equal(
+    Services.prefs.getIntPref("mailnews.default_news_sort_order"),
+    2
+  );
 
   // Check that server1 and server2 have the same clientid.
   Assert.ok(Services.prefs.prefHasUserValue("mail.server.server1.clientid"));
@@ -164,8 +175,19 @@ function run_test() {
   // Now clear the mail.server.server1.clientid to test re-population.
   Services.prefs.clearUserPref("mail.server.server2.clientid");
 
+  // Clear the sorting order preference.
+  Services.prefs.clearUserPref("mailnews.default_sort_order");
+  Services.prefs.clearUserPref("mailnews.default_news_sort_order");
+
   // Now attempt migration again, e.g. a second load of TB
   migrateMailnews();
+
+  // Check that the sorting order was kept to ascending
+  Assert.equal(Services.prefs.getIntPref("mailnews.default_sort_order"), 1);
+  Assert.equal(
+    Services.prefs.getIntPref("mailnews.default_news_sort_order"),
+    1
+  );
 
   // This time around, both of these should not be set.
   Assert.ok(
