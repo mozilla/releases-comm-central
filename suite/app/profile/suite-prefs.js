@@ -808,7 +808,7 @@ pref("layout.word_select.stop_at_punctuation", false);
 #endif
 
 // The breakpad report server to link to in about:crashes
-pref("breakpad.reportURL", "https://crash-reports-test.seamonkey-project.org/report/index/");
+pref("breakpad.reportURL", "https://app.bugsplat.com/v2/crash?database=seamonkey_project&id=");
 
 // Name of alternate about: page for certificate errors (when undefined, defaults to about:neterror)
 pref("security.alternate_certificate_error_page", "certerror");
