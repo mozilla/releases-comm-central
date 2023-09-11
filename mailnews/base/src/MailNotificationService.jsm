@@ -73,6 +73,11 @@ class NewMailNotificationService {
     );
   }
 
+  /** Setter. Used for unit tests. */
+  set unreadCount(count) {
+    this.#unreadCount = count;
+  }
+
   observe(subject, topic, data) {
     if (topic == "profile-before-change") {
       try {

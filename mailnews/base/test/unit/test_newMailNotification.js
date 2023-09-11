@@ -92,7 +92,7 @@ add_test(function testNotifyInbox() {
   // verify this value is correctly passed to new listeners. Do this before any
   // listeners are added.
   const startCount = 3;
-  notificationService._mUnreadCount = startCount;
+  notificationService.unreadCount = startCount;
 
   // Add a listener for count updates.
   notificationService.addListener(
