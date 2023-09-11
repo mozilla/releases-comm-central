@@ -79,22 +79,20 @@
        have a menubar for situations where they're the only window remaining
        on a platform that wants to leave the app running, like the Mac.
   -->
-  <box id="navigation-toolbox-background">
-    <toolbox id="navigation-toolbox" flex="1" labelalign="end" defaultlabelalign="end">
+  <toolbox id="navigation-toolbox" labelalign="end" defaultlabelalign="end">
 
-      <vbox id="titlebar">
-        <!-- Menu -->
-        <toolbar id="toolbar-menubar"
-                 class="chromeclass-menubar themeable-full"
-                 type="menubar"
-                 context="toolbar-context-menu">
+    <vbox id="titlebar">
+      <!-- Menu -->
+      <toolbar id="toolbar-menubar"
+               class="chromeclass-menubar themeable-full"
+               type="menubar"
+               context="toolbar-context-menu">
 # The entire main menubar is placed into messenger-menubar.inc.xhtml, so that it
 # can be shared with other top level windows.
 #include messenger-menubar.inc.xhtml
-        </toolbar>
-      </vbox>
-    </toolbox>
-  </box>
+      </toolbar>
+    </vbox>
+  </toolbox>
 
 <browser id="hiddenBrowser" disablehistory="true"/>
 

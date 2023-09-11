@@ -457,69 +457,67 @@
   This box allows a negative margin-top to slide the toolbox off screen in
   fullscreen layout.
 -->
-<box id="navigation-toolbox-background">
-  <toolbox id="navigation-toolbox" flex="1" labelalign="end" defaultlabelalign="end">
+<toolbox id="navigation-toolbox" labelalign="end" defaultlabelalign="end">
 
-    <vbox id="titlebar">
-      <html:unified-toolbar></html:unified-toolbar>
-      <!-- Menu -->
-      <toolbar id="toolbar-menubar"
-               class="chromeclass-menubar themeable-full"
-               type="menubar"
+  <vbox id="titlebar">
+    <html:unified-toolbar></html:unified-toolbar>
+    <!-- Menu -->
+    <toolbar id="toolbar-menubar"
+             class="chromeclass-menubar themeable-full"
+             type="menubar"
 #ifdef XP_MACOSX
-               autohide="true"
+             autohide="true"
 #endif
 #ifndef XP_MACOSX
-               data-l10n-id="toolbar-context-menu-menu-bar"
-               data-l10n-attrs="toolbarname"
+             data-l10n-id="toolbar-context-menu-menu-bar"
+             data-l10n-attrs="toolbarname"
 #endif
-               context="toolbar-context-menu"
-               mode="icons"
-               insertbefore="tabs-toolbar"
-               prependmenuitem="true">
+             context="toolbar-context-menu"
+             mode="icons"
+             insertbefore="tabs-toolbar"
+             prependmenuitem="true">
 # The entire main menubar is placed into messenger-menubar.inc.xhtml, so that it
 # can be shared with other top level windows.
 #include messenger-menubar.inc.xhtml
-      </toolbar>
+    </toolbar>
 
-      <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
-        <tabs is="tabmail-tabs" id="tabmail-tabs"
-              flex="1"
-              align="end"
-              setfocus="false"
-              alltabsbutton="alltabs-button"
-              context="toolbar-context-menu"
-              collapsetoolbar="tabs-toolbar">
-          <html:img class="tab-drop-indicator"
-                    src="chrome://messenger/skin/icons/tab-drag-indicator.svg"
-                    alt=""
-                    hidden="hidden" />
-          <arrowscrollbox id="tabmail-arrowscrollbox"
-                          orient="horizontal"
-                          flex="1"
-                          clicktoscroll="true"
-                          style="min-width: 1px;">
-            <tab is="tabmail-tab" selected="true"
-                 class="tabmail-tab" crop="end"/>
-          </arrowscrollbox>
-        </tabs>
+    <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
+      <tabs is="tabmail-tabs" id="tabmail-tabs"
+            flex="1"
+            align="end"
+            setfocus="false"
+            alltabsbutton="alltabs-button"
+            context="toolbar-context-menu"
+            collapsetoolbar="tabs-toolbar">
+        <html:img class="tab-drop-indicator"
+                  src="chrome://messenger/skin/icons/tab-drag-indicator.svg"
+                  alt=""
+                  hidden="hidden" />
+        <arrowscrollbox id="tabmail-arrowscrollbox"
+                        orient="horizontal"
+                        flex="1"
+                        clicktoscroll="true"
+                        style="min-width: 1px;">
+          <tab is="tabmail-tab" selected="true"
+               class="tabmail-tab" crop="end"/>
+        </arrowscrollbox>
+      </tabs>
 
-        <toolbarbutton class="toolbarbutton-1 tabs-alltabs-button"
-                        id="alltabs-button"
-                        type="menu"
-                        hidden="true"
-                        tooltiptext="&listAllTabs.label;">
-          <menupopup is="tabmail-alltabs-menupopup" id="alltabs-popup"
-                      position="after_end"
-                      tabcontainer="tabmail-tabs"/>
-        </toolbarbutton>
+      <toolbarbutton class="toolbarbutton-1 tabs-alltabs-button"
+                      id="alltabs-button"
+                      type="menu"
+                      hidden="true"
+                      tooltiptext="&listAllTabs.label;">
+        <menupopup is="tabmail-alltabs-menupopup" id="alltabs-popup"
+                    position="after_end"
+                    tabcontainer="tabmail-tabs"/>
+      </toolbarbutton>
 
-      </toolbar>
+    </toolbar>
 
-    </vbox>
+  </vbox>
 
-  </toolbox>
-</box>
+</toolbox>
 
 <vbox id="messengerBody">
   <!-- XXX This extension point (tabmail-container) is only temporary!
