@@ -970,7 +970,7 @@ pref("mail.compose.dontWarnMail2Newsgroup", false);
 pref("mail.compose.attach_http_images", false);
 
 // Headers to check to find the right from identity to use when catchAll is active.
-pref("mail.compose.catchAllHeaders", "envelope-to, x-original-to, to, cc");
+pref("mail.compose.catchAllHeaders", "delivered-to, envelope-to, x-original-to, to, cc");
 
 // these prefs (in minutes) are here to help QA test this feature
 // "mail.purge.min_delay", never purge a junk folder more than once every 480 minutes (60 mins/hour * 8 hours)
