@@ -35,8 +35,10 @@ const folderPaneContextData = {
   "folderPaneContext-moveToFolderAgain": ["plain", "rssFeed"],
 };
 
-let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
+let tabmail = document.getElementById("tabmail");
+let about3Pane = tabmail.currentAbout3Pane;
 let context = about3Pane.document.getElementById("folderPaneContext");
+let account;
 let rootFolder,
   plainFolder,
   inboxFolder,
@@ -47,12 +49,13 @@ let rssRootFolder, rssFeedFolder;
 let tagsFolder;
 
 add_setup(async function () {
-  let account = MailServices.accounts.createAccount();
+  account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     `${account.key}user`,
     "localhost",
     "pop3"
   );
+  MailServices.accounts.localFoldersServer = account.incomingServer;
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder.QueryInterface(
     Ci.nsIMsgLocalMailFolder
@@ -90,10 +93,14 @@ add_setup(async function () {
     MailServices.accounts.removeAccount(account, false);
     MailServices.accounts.removeAccount(rssAccount, false);
     about3Pane.folderPane.activeModes = ["all"];
+    Services.prefs.clearUserPref("mail.tabs.loadInBackground");
   });
 });
 
-add_task(async function () {
+/**
+ * Tests that the correct menu items are visible.
+ */
+add_task(async function testShownItems() {
   // Check the menu has the right items for the selected folder.
   leftClickOn(rootFolder);
   await rightClickOn(rootFolder, "server");
@@ -128,6 +135,336 @@ add_task(async function () {
   await rightClickOn(tagsFolder, "tags");
 });
 
+/**
+ * Tests "Open in New Tab" and "Open in New Window".
+ */
+add_task(async function testOpen() {
+  async function promiseTabOpenAndReady() {
+    let event = await BrowserTestUtils.waitForEvent(
+      tabmail.tabContainer,
+      "TabOpen"
+    );
+    // Wait for about:3pane and the folder to load.
+    await BrowserTestUtils.waitForEvent(
+      event.detail.tabInfo.chromeBrowser,
+      "folderURIChanged"
+    );
+    return event.detail.tabInfo;
+  }
+
+  async function promiseWindowOpenAndReady() {
+    let win = await BrowserTestUtils.domWindowOpenedAndLoaded(
+      undefined,
+      win => win.location.href == "chrome://messenger/content/messenger.xhtml"
+    );
+    // Wait for about:3pane and the folder to load.
+    await TestUtils.topicObserved("mail-idle-startup-tasks-finished");
+    return win;
+  }
+
+  // Open in a new background tab.
+
+  Services.prefs.setBoolPref("mail.tabs.loadInBackground", true);
+
+  leftClickOn(plainFolder);
+  let tabPromise = promiseTabOpenAndReady();
+  await rightClickAndActivate(plainFolder, "folderPaneContext-openNewTab");
+  let tabInfo = await tabPromise;
+
+  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
+  Assert.notEqual(
+    tabmail.currentTabInfo,
+    tabInfo,
+    "tab should open in the background"
+  );
+  Assert.equal(
+    tabInfo.folder,
+    plainFolder,
+    "tab should load the correct folder"
+  );
+  tabmail.closeTab(tabInfo);
+
+  // Open in a new foreground tab by pressing shift.
+
+  leftClickOn(inboxFolder);
+  tabPromise = promiseTabOpenAndReady();
+  await rightClickAndActivate(inboxFolder, "folderPaneContext-openNewTab", {
+    shiftKey: true,
+  });
+  tabInfo = await tabPromise;
+
+  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
+  Assert.equal(
+    tabmail.currentTabInfo,
+    tabInfo,
+    "tab should open in the foreground"
+  );
+  Assert.equal(
+    tabInfo.folder,
+    inboxFolder,
+    "tab should load the correct folder"
+  );
+  tabmail.closeTab(tabInfo);
+
+  // Open in a new foreground tab by preference.
+
+  Services.prefs.setBoolPref("mail.tabs.loadInBackground", false);
+
+  leftClickOn(inboxFolder);
+  tabPromise = promiseTabOpenAndReady();
+  await rightClickAndActivate(inboxFolder, "folderPaneContext-openNewTab");
+  tabInfo = await tabPromise;
+
+  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
+  Assert.equal(
+    tabmail.currentTabInfo,
+    tabInfo,
+    "tab should open in the foreground"
+  );
+  Assert.equal(
+    tabInfo.folder,
+    inboxFolder,
+    "tab should load the correct folder"
+  );
+  tabmail.closeTab(tabInfo);
+
+  // Open in a new background tab by pressing shift.
+
+  leftClickOn(plainFolder);
+  tabPromise = promiseTabOpenAndReady();
+  await rightClickAndActivate(plainFolder, "folderPaneContext-openNewTab", {
+    shiftKey: true,
+  });
+  tabInfo = await tabPromise;
+
+  Assert.equal(tabInfo.mode.name, "mail3PaneTab", "tab should be a 3-pane tab");
+  Assert.notEqual(
+    tabmail.currentTabInfo,
+    tabInfo,
+    "tab should open in the background"
+  );
+  Assert.equal(
+    tabInfo.folder,
+    plainFolder,
+    "tab should load the correct folder"
+  );
+  tabmail.closeTab(tabInfo);
+
+  // Open in a new window.
+
+  leftClickOn(trashFolder);
+  let winPromise = promiseWindowOpenAndReady();
+  await rightClickAndActivate(trashFolder, "folderPaneContext-openNewWindow");
+  let win = await winPromise;
+  let winTabmail = win.document.getElementById("tabmail");
+
+  Assert.equal(winTabmail.tabInfo.length, 1, "new window should have 1 tab");
+  Assert.equal(
+    winTabmail.currentTabInfo.mode.name,
+    "mail3PaneTab",
+    "tab should be a 3-pane tab"
+  );
+  Assert.equal(
+    winTabmail.currentTabInfo.folder,
+    trashFolder,
+    "tab should load the correct folder"
+  );
+  await BrowserTestUtils.closeWindow(win);
+
+  await SimpleTest.promiseFocus(window);
+});
+
+/**
+ * Tests "New Folder", "Rename" and "Delete".
+ */
+add_task(async function testNewRenameDelete() {
+  let newFolderPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://messenger/content/newFolderDialog.xhtml",
+    {
+      async callback(win) {
+        await SimpleTest.promiseFocus(win);
+
+        const doc = win.document;
+        const nameInput = doc.getElementById("name");
+        const parentInput = doc.getElementById("msgNewFolderPicker");
+        const acceptButton = doc.querySelector("dialog").getButton("accept");
+
+        Assert.equal(doc.activeElement, nameInput);
+        Assert.equal(nameInput.value, "");
+        Assert.equal(parentInput.value, plainFolder.URI);
+        Assert.ok(acceptButton.disabled);
+
+        EventUtils.sendString("folderPaneContextNew", win);
+        Assert.ok(!acceptButton.disabled);
+
+        EventUtils.synthesizeMouseAtCenter(parentInput, {}, win);
+        await BrowserTestUtils.waitForPopupEvent(
+          parentInput.menupopup,
+          "shown"
+        );
+        let rootFolderMenu = [...parentInput.menupopup.children].find(
+          m => m._folder == rootFolder
+        );
+        rootFolderMenu.openMenu(true);
+        await BrowserTestUtils.waitForPopupEvent(
+          rootFolderMenu.menupopup,
+          "shown"
+        );
+        rootFolderMenu.menupopup.activateItem(
+          rootFolderMenu.menupopup.firstElementChild
+        );
+        await BrowserTestUtils.waitForPopupEvent(
+          parentInput.menupopup,
+          "hidden"
+        );
+
+        acceptButton.click();
+      },
+    }
+  );
+  leftClickOn(plainFolder);
+  await rightClickAndActivate(plainFolder, "folderPaneContext-new");
+  await newFolderPromise;
+
+  let newFolder = rootFolder.getChildNamed("folderPaneContextNew");
+  Assert.ok(newFolder);
+  await TestUtils.waitForCondition(
+    () => about3Pane.folderPane.getRowForFolder(newFolder, "all"),
+    "waiting for folder to appear in the folder tree"
+  );
+
+  let renameFolderPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://messenger/content/renameFolderDialog.xhtml",
+    {
+      async callback(win) {
+        await SimpleTest.promiseFocus(win);
+
+        const doc = win.document;
+        const nameInput = doc.getElementById("name");
+        const acceptButton = doc.querySelector("dialog").getButton("accept");
+
+        Assert.equal(doc.activeElement, nameInput);
+        Assert.equal(nameInput.value, "folderPaneContextNew");
+        Assert.ok(!acceptButton.disabled);
+
+        EventUtils.synthesizeKey("a", { accelKey: true }, win);
+        EventUtils.synthesizeKey("VK_BACK_SPACE", {}, win);
+        Assert.equal(nameInput.value, "");
+        Assert.ok(acceptButton.disabled);
+
+        EventUtils.sendString("folderPaneContextRenamed", win);
+        acceptButton.click();
+      },
+    }
+  );
+  leftClickOn(newFolder);
+  await rightClickAndActivate(newFolder, "folderPaneContext-rename");
+  await renameFolderPromise;
+
+  let renamedFolder = rootFolder.getChildNamed("folderPaneContextRenamed");
+  Assert.ok(renamedFolder);
+  await TestUtils.waitForCondition(
+    () => about3Pane.folderPane.getRowForFolder(renamedFolder, "all"),
+    "waiting for folder to be renamed in the folder tree"
+  );
+  Assert.ok(!about3Pane.folderPane.getRowForFolder(newFolder));
+
+  leftClickOn(renamedFolder);
+  BrowserTestUtils.promiseAlertDialog("accept");
+  await rightClickAndActivate(renamedFolder, "folderPaneContext-remove");
+
+  await TestUtils.waitForCondition(
+    () => !about3Pane.folderPane.getRowForFolder(renamedFolder),
+    "waiting for folder to disappear from the folder tree"
+  );
+});
+
+/**
+ * Tests "Properties" (folders) and "Settings" (servers).
+ */
+add_task(async function testPropertiesSettings() {
+  let folderPropsPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://messenger/content/folderProps.xhtml",
+    {
+      async callback(win) {
+        await SimpleTest.promiseFocus(win);
+
+        const doc = win.document;
+        const nameInput = doc.getElementById("name");
+        const locationInput = doc.getElementById("location");
+        const acceptButton = doc.querySelector("dialog").getButton("accept");
+
+        Assert.equal(nameInput.value, "folderPaneContextFolder");
+        Assert.equal(locationInput.value, plainFolder.folderURL);
+
+        acceptButton.click();
+      },
+    }
+  );
+  leftClickOn(plainFolder);
+  await rightClickAndActivate(plainFolder, "folderPaneContext-properties");
+  await folderPropsPromise;
+
+  let virtualPropsPromise = BrowserTestUtils.promiseAlertDialog(
+    undefined,
+    "chrome://messenger/content/virtualFolderProperties.xhtml",
+    {
+      async callback(win) {
+        await SimpleTest.promiseFocus(win);
+
+        const doc = win.document;
+        const nameInput = doc.getElementById("name");
+        const existingNameInput = doc.getElementById("existingName");
+        const acceptButton = doc.querySelector("dialog").getButton("accept");
+
+        Assert.ok(BrowserTestUtils.is_hidden(nameInput));
+        Assert.ok(BrowserTestUtils.is_visible(existingNameInput));
+        Assert.equal(
+          existingNameInput.value,
+          `folderPaneContextVirtual on ${account.incomingServer.prettyName}`
+        );
+
+        acceptButton.click();
+      },
+    }
+  );
+  leftClickOn(virtualFolder);
+  await rightClickAndActivate(virtualFolder, "folderPaneContext-properties");
+  await virtualPropsPromise;
+
+  let tabPromise = BrowserTestUtils.waitForEvent(
+    tabmail.tabContainer,
+    "TabOpen"
+  );
+  leftClickOn(rootFolder);
+  await rightClickAndActivate(rootFolder, "folderPaneContext-settings");
+  let {
+    detail: { tabInfo },
+  } = await tabPromise;
+  let browser = tabInfo.browser;
+
+  Assert.equal(
+    tabmail.currentTabInfo,
+    tabInfo,
+    "tab should open in the foreground"
+  );
+  Assert.equal(tabInfo.mode.name, "contentTab", "tab should be a content tab");
+  if (browser.docShell.isLoadingDocument) {
+    await BrowserTestUtils.browserLoaded(browser);
+  }
+  Assert.equal(browser.currentURI.spec, "about:accountsettings");
+  await new Promise(resolve => setTimeout(resolve));
+  Assert.equal(
+    browser.contentDocument.querySelector("#accounttree li.selected").id,
+    account.key,
+    "account should be selected"
+  );
+  tabmail.closeTab(tabInfo);
+});
+
 function leftClickOn(folder) {
   EventUtils.synthesizeMouseAtCenter(
     about3Pane.folderPane.getRowForFolder(folder).querySelector(".name"),
@@ -137,17 +474,15 @@ function leftClickOn(folder) {
 }
 
 async function rightClickOn(folder, mode) {
-  let shownPromise = BrowserTestUtils.waitForEvent(context, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     about3Pane.folderPane.getRowForFolder(folder).querySelector(".name"),
     { type: "contextmenu" },
     about3Pane
   );
-  await shownPromise;
+  await BrowserTestUtils.waitForPopupEvent(context, "shown");
   checkMenuitems(context, mode);
-  let hiddenPromise = BrowserTestUtils.waitForEvent(context, "popuphidden");
   context.hidePopup();
-  await hiddenPromise;
+  await BrowserTestUtils.waitForPopupEvent(context, "hidden");
 }
 
 function checkMenuitems(menu, mode) {
@@ -196,4 +531,18 @@ function checkMenuitems(menu, mode) {
   if (notFoundItems.length + unexpectedItems.length == 0) {
     Assert.report(false, undefined, undefined, `all ${mode} items are correct`);
   }
+}
+
+async function rightClickAndActivate(folder, idToActivate, activateOptions) {
+  EventUtils.synthesizeMouseAtCenter(
+    about3Pane.folderPane.getRowForFolder(folder).querySelector(".name"),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await BrowserTestUtils.waitForPopupEvent(context, "shown");
+  context.activateItem(
+    about3Pane.document.getElementById(idToActivate),
+    activateOptions
+  );
+  await BrowserTestUtils.waitForPopupEvent(context, "hidden");
 }

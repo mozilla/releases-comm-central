@@ -6,7 +6,7 @@ var FOLDERS = 1;
 var MESSAGES = 2;
 var dialog;
 
-window.addEventListener("DOMContentLoaded", onLoad);
+window.addEventListener("load", onLoad);
 document.addEventListener("dialogaccept", onOK);
 
 function onLoad() {
