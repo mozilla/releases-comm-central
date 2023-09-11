@@ -10,8 +10,6 @@
 @import url("chrome://messenger/skin/primaryToolbar.css");
 
 #messengerWindow {
-  appearance: auto;
-  -moz-default-appearance: window;
   background-color: -moz-Dialog;
 }
 

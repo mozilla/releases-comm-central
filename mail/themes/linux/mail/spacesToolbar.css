@@ -9,3 +9,17 @@
     border-start-start-radius: env(-moz-gtk-csd-titlebar-radius);
   }
 }
+
+:root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) {
+  @media (-moz-gtk-csd-rounded-bottom-corners) {
+    .spaces-toolbar:not([hidden]) {
+      &:-moz-locale-dir(ltr) {
+        border-bottom-left-radius: env(-moz-gtk-csd-titlebar-radius);
+      }
+
+      &:-moz-locale-dir(rtl) {
+        border-bottom-right-radius: env(-moz-gtk-csd-titlebar-radius);
+      }
+    }
+  }
+}
