@@ -32,7 +32,6 @@ function migrateMailnews() {
     migrateServerAuthPref,
     migrateServerAndUserName,
     migrateABRemoteContentSettings,
-    migrateDefaultSortingOrder,
   ];
 
   for (let fn of migrations) {
@@ -350,17 +349,4 @@ function migrateABRemoteContentSettings() {
     "mail.ab_remote_content.migrated",
     kABRemoteContentPrefVersion
   );
-}
-
-/**
- * Keep the default order to ascending for existing users only if they didn't
- * previously edit that preference.
- */
-function migrateDefaultSortingOrder() {
-  if (!Services.prefs.prefHasUserValue("mailnews.default_sort_order")) {
-    Services.prefs.setIntPref("mailnews.default_sort_order", 1);
-  }
-  if (!Services.prefs.prefHasUserValue("mailnews.default_news_sort_order")) {
-    Services.prefs.setIntPref("mailnews.default_news_sort_order", 1);
-  }
 }
