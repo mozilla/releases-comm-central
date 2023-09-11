@@ -131,6 +131,32 @@ class NntpNewsGroup {
   }
 
   /**
+   * Strip multiple localized Re: prefixes and set the subject and the hasRe
+   * flag. This emulates NS_MsgStripRE()
+   *
+   * @param {nsIMsgDBHdr} msgHdr - The nsIMsgDBHdr to update
+   * @param {string} subject - The unprocessed subject
+   */
+  setSubject(msgHdr, subject) {
+    let prefixes = Services.prefs
+      .getComplexValue("mailnews.localizedRe", Ci.nsIPrefLocalizedString)
+      .data.split(",")
+      .filter(Boolean);
+    if (!prefixes.includes("Re")) {
+      prefixes.push("Re");
+    }
+    // Construct a regular expression like this: ^(Re: |Aw: )+
+    let newSubject = subject.replace(
+      new RegExp(`^(${prefixes.join(": |")}: )+`, "i"),
+      ""
+    );
+    msgHdr.subject = newSubject;
+    if (newSubject != subject) {
+      msgHdr.orFlags(Ci.nsMsgMessageFlags.HasRe);
+    }
+  }
+
+  /**
    * Parse an XOVER line to a msg hdr.
    *
    * @param {string} line - An XOVER response line.
@@ -152,7 +178,7 @@ class NntpNewsGroup {
     ] = parts;
     let msgHdr = this._db.createNewHdr(articleNumber);
     msgHdr.orFlags(Ci.nsMsgMessageFlags.New);
-    msgHdr.subject = subject;
+    this.setSubject(msgHdr, subject);
     msgHdr.author = from;
     msgHdr.date = new Date(date).valueOf() * 1000;
     msgHdr.messageId = messageId;
@@ -235,7 +261,7 @@ class NntpNewsGroup {
         this._msgHdr.date = new Date(value).valueOf() * 1000;
         break;
       case "subject":
-        this._msgHdr.subject = value;
+        this.setSubject(this._msgHdr, value);
         this._msgHdr.orFlags(Ci.nsMsgMessageFlags.New);
         break;
       case "message-id":

@@ -740,9 +740,11 @@ Enigmail.hdrView = {
   },
 
   setSubject(subject) {
-    // Strip multiple localised Re: prefixes. This emulates NS_MsgStripRE().
-    let prefixes = Services.prefs.getStringPref("mailnews.localizedRe", "Re");
-    prefixes = prefixes.split(",");
+    // Strip multiple localized Re: prefixes. This emulates NS_MsgStripRE().
+    let prefixes = Services.prefs
+      .getComplexValue("mailnews.localizedRe", Ci.nsIPrefLocalizedString)
+      .data.split(",")
+      .filter(Boolean);
     if (!prefixes.includes("Re")) {
       prefixes.push("Re");
     }
