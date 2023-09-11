@@ -12,6 +12,9 @@ const tabmail = document.getElementById("tabmail");
 const about3Pane = tabmail.currentAbout3Pane;
 const { threadTree } = about3Pane;
 
+// The number of messages to generate in the (only) thread.
+const messagesInThread = 5;
+
 add_setup(async function () {
   // Create an account for the test.
   MailServices.accounts.createLocalMailAccount();
@@ -47,7 +50,10 @@ add_setup(async function () {
   const generator = new MessageGenerator();
   testFolder.addMessageBatch(
     generator
-      .makeMessages({ count: 2, msgsPerThread: 2 })
+      .makeMessages({
+        count: messagesInThread,
+        msgsPerThread: messagesInThread,
+      })
       .map(message => message.toMboxString())
   );
 
@@ -89,8 +95,20 @@ add_task(async function testArchiveUndo() {
   EventUtils.synthesizeKey("z", { accelKey: true });
 
   // Make sure the thread makes it back to the thread tree.
-  await TestUtils.waitForCondition(
-    () => threadTree.getRowAtIndex(0) !== null,
-    "The thread should have returned back from the archive"
-  );
+  // We want to make sure we've finished moving every message before
+  // finishing the test.
+  await TestUtils.waitForCondition(() => {
+    // The thread will be collapsed by default, in which case
+    // nothing will exist beyond index 0. So we need to expand
+    // the thread before we check.
+    goDoCommand("cmd_expandAllThreads");
+    // Make sure every message has successfully made it back from the
+    // archive folder.
+    for (let i = 0; i < messagesInThread; i++) {
+      if (threadTree.getRowAtIndex(i) === null) {
+        return false;
+      }
+    }
+    return true;
+  }, "The thread should have returned back from the archive");
 });
