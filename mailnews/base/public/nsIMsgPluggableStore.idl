@@ -246,7 +246,8 @@ interface nsIMsgPluggableStore : nsISupports {
    * Remove deleted messages from the store, reclaiming space. Some stores
    * won't need to do anything here (e.g., maildir), and those stores
    * should return false for needsCompaction. This operation is asynchronous,
-   * and the passed url listener should be called when the operation is done.
+   * and the listener OnStopRunningUrl() method is called when the operation
+   * is complete.
    *
    * @param aFolder folder whose storage is to be compacted
    * @param aListener listener notified when compaction is done.
