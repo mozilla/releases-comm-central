@@ -23,8 +23,9 @@ function collect_expected_temporary_files() {
   files.push(create_temporary_files_for("nsmail.tmp"));
   files.push(create_temporary_files_for("nsmail.tmp"));
   files.push(create_temporary_files_for("nsmail.tmp"));
-  files.push(create_temporary_files_for("nsemail.html"));
-  files.push(create_temporary_files_for("nsemail.html"));
+  files.push(create_temporary_files_for("nsemail.eml"));
+  files.push(create_temporary_files_for("nsemail.tmp"));
+  files.push(create_temporary_files_for("nsqmail.tmp"));
   files.push(create_temporary_files_for("nscopy.tmp"));
   files.push(create_temporary_files_for("nscopy.tmp"));
 

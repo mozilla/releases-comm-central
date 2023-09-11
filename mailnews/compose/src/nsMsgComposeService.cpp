@@ -127,8 +127,10 @@ nsresult nsMsgComposeService::Init() {
   // Since the compose service should only be initialized once, we can
   // be pretty sure there aren't any existing compose windows open.
   MsgCleanupTempFiles("nsmail", "tmp");
-  MsgCleanupTempFiles("nsemail", "html");
   MsgCleanupTempFiles("nscopy", "tmp");
+  MsgCleanupTempFiles("nsemail", "eml");
+  MsgCleanupTempFiles("nsemail", "tmp");
+  MsgCleanupTempFiles("nsqmail", "tmp");
   return rv;
 }
 

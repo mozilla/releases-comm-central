@@ -1268,7 +1268,7 @@ nsresult MsgCleanupTempFiles(const char* fileName, const char* extension) {
       // start with "Picture-1.jpg" after "Picture.jpg" exists
       tmpFile->SetNativeLeafName(leafName);
     }
-  } while (exists && ++index < 10000);
+  } while (exists && index++ < 10000);
   return NS_OK;
 }
 

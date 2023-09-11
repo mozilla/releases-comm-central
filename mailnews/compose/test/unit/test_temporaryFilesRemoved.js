@@ -44,9 +44,11 @@ async function getTemporaryFilesCount() {
   let tmpDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
   let entries = await IOUtils.getChildren(tmpDir);
   let tempFiles = {
-    "nsemail.html": 0, // not actually used by MessageSend.jsm
-    "nsemail.eml": 0,
+    "nsmail.tmp": 0,
     "nscopy.tmp": 0,
+    "nsemail.eml": 0,
+    "nsemail.tmp": 0,
+    "nsqmail.tmp": 0,
   };
   for (const path of entries) {
     for (let pattern of Object.keys(tempFiles)) {
@@ -93,7 +95,6 @@ add_task(async function () {
 
   fields.from = "Nobody <nobody@tinderbox.test>";
   fields.body = "body text";
-  // set multipart for nsemail.html
   fields.useMultipartAlternative = true;
 
   params.composeFields = fields;
