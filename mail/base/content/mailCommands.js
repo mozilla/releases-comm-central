@@ -8,8 +8,6 @@
 /* globals msgWindow, messenger */ // From mailWindow.js
 /* globals openComposeWindowForRSSArticle */ // From newsblogOverlay.js
 
-/* globals currentHeaderData */ // TODO: this isn't real.
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -80,11 +78,23 @@ async function ComposeMessage(
   selection = null,
   autodetectCharset = false
 ) {
+  let aboutMessage =
+    document.getElementById("tabmail")?.currentAboutMessage ||
+    document.getElementById("messageBrowser")?.contentWindow;
+  let currentHeaderData = aboutMessage?.currentHeaderData;
+
+  function isCurrentlyDisplayed(hdr) {
+    return (
+      currentHeaderData && // ignoring enclosing brackets:
+      currentHeaderData["message-id"]?.headerValue.includes(hdr.messageId)
+    );
+  }
+
   function findDeliveredToIdentityEmail(hdr) {
     // This function reads from currentHeaderData, which is only useful if we're
     // looking at the currently-displayed message. Otherwise, just return
     // immediately so we don't waste time.
-    if (hdr != window.gMessageDisplay?.displayedMessage) {
+    if (!isCurrentlyDisplayed(hdr)) {
       return "";
     }
 
@@ -262,7 +272,7 @@ async function ComposeMessage(
           let email = fromAddrs[0]?.email;
           if (
             type == Ci.nsIMsgCompType.ReplyToList &&
-            window.currentHeaderData
+            isCurrentlyDisplayed(hdr)
           ) {
             // ReplyToList is only enabled for current message (if at all), so
             // using currentHeaderData is ok.
