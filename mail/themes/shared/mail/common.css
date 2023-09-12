@@ -122,7 +122,6 @@ menupopup > :is(menu, menuitem) {
   min-height: 24px;
   padding-block: var(--menu-item-padding);
   border-radius: 3px;
-  background-color: transparent;
 }
 
 menulist > menupopup menuseparator {
