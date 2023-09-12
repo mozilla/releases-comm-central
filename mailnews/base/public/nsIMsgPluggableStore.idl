@@ -310,7 +310,11 @@ interface nsIMsgPluggableStore : nsISupports {
                     in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
 
   /**
-   * Sets/Clears the passed flags on the passed messages.
+   * Attempts to sets/clear flags by on the given messages by editing
+   * the X-Mozilla-Status/X-Mozilla-Status2 headers in-place.
+   * If a message doesn't have the headers already, this will
+   * have no effect.
+   *
    * @param aHdrArray array of nsIMsgDBHdr's
    * @param aFlags flags to set/clear
    * @param aSet true to set the flag(s), false to clear.
@@ -318,7 +322,12 @@ interface nsIMsgPluggableStore : nsISupports {
   void changeFlags(in Array<nsIMsgDBHdr> aHdrArray, in unsigned long aFlags,
                    in boolean aSet);
   /**
-   *Sets/Clears the passed keywords on the passed messages.
+   * Attempts to set/clear keywords on the given messages, by in-place
+   * editing of the X-Mozilla-Keys header.
+   * If a message doesn't have a X-Mozilla-Keys header, or there aren't
+   * enough placeholder spaces to hold the keywords, this will have no
+   * effect.
+   *
    * @param aHdrArray array of nsIMsgDBHdr's
    * @param aKeywords keywords to set/clear
    * @param aAdd true to add the keyword(s), false to remove.
