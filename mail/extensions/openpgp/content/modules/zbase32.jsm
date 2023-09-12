@@ -18,9 +18,9 @@ var EnigmailZBase32 = {
   /**
    * Encode a string in Z-Base-32 encoding
    *
-   * @param str   String - input string
+   * @param {string} str - Input string
    *
-   * @returns String - econded string
+   * @returns {string} the encoded string.
    */
   encode(str) {
     let a = this.a;
