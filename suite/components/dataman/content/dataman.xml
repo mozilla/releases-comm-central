@@ -18,10 +18,11 @@
     <implementation>
       <constructor><![CDATA[
         var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+        var {SitePermissions} = ChromeUtils.import("resource:///modules/SitePermissions.jsm");
 
         var permLabel = this.type;
         try {
-          permLabel = gDataman.bundle.getString("perm." + this.type + ".label");
+          permLabel = SitePermissions.getPermissionLabel(this.type);
         }
         catch (e) {
         }
@@ -76,7 +77,7 @@
             if (!aUIUpdateOnly)
               gPerms.removeItem(this.host, this.type);
 
-            this.capability = gPerms.getDefault(this.type);
+            this.capability = SitePermissions.getDefault(this.type);
           }
           this._updateRadio();
         ]]></body>

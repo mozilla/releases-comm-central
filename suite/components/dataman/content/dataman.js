@@ -7,6 +7,7 @@ const {Async} = ChromeUtils.import("resource://services-common/async.js");
 const {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 // Load DownloadUtils module for convertByteUnits
 const {DownloadUtils} = ChromeUtils.import("resource://gre/modules/DownloadUtils.jsm");
+const {SitePermissions} = ChromeUtils.import("resource:///modules/SitePermissions.jsm");
 
 // locally loaded services
 var gLocSvc = {};
@@ -1458,7 +1459,7 @@ var gPerms = {
       for (let permType of permTypes) {
         let typeDesc = permType;
         try {
-          typeDesc = gDataman.bundle.getString("perm." + permType + ".label");
+          typeDesc = SitePermissions.getPermissionLabel(permType);
         }
         catch (e) {
         }
@@ -1496,7 +1497,8 @@ var gPerms = {
       permElem.setAttribute("type", this.addType.value);
       permElem.setAttribute("host", nOrigin);
       permElem.setAttribute("displayHost", nOrigin);
-      permElem.setAttribute("capability", this.getDefault(this.addType.value));
+      permElem.setAttribute("capability",
+                            SitePermissions.getDefault(this.addType.value));
       permElem.setAttribute("class", "permission");
       this.list.appendChild(permElem);
       this.list.disabled = false;
@@ -1517,62 +1519,6 @@ var gPerms = {
     // Only enable button if both fields have (reasonable) values.
     this.addButton.disabled = !(this.addType.value &&
                                 gDomains.getDomainFromHost(this.addHost.value));
-  },
-
-  getDefault: function permissions_getDefault(aType) {
-    switch (aType) {
-      case "allowXULXBL":
-        return Services.perms.DENY_ACTION;
-      case "cookie":
-        if (Services.prefs.getIntPref("network.cookie.cookieBehavior") == 2)
-          return Services.perms.DENY_ACTION;
-        if (Services.prefs.getIntPref("network.cookie.lifetimePolicy") == 2)
-          return Ci.nsICookiePermission.ACCESS_SESSION;
-        return Services.perms.ALLOW_ACTION;
-      case "geo":
-        return Services.perms.DENY_ACTION;
-      case "install":
-        if (Services.prefs.getBoolPref("xpinstall.whitelist.required"))
-          return Services.perms.DENY_ACTION;
-        return Services.perms.ALLOW_ACTION;
-      case "offline-app":
-        try {
-          if (Services.prefs.getBoolPref("offline-apps.allow_by_default"))
-            return Services.perms.ALLOW_ACTION;
-        } catch(e) {
-          // this pref isn't set by default, ignore failures
-        }
-        if (Services.prefs.getBoolPref("browser.offline-apps.notify"))
-          return Services.perms.DENY_ACTION;
-        return Services.perms.UNKNOWN_ACTION;
-      case "persistent-storage":
-        return Services.perms.ALLOW_ACTION;
-      case "popup":
-        if (Services.prefs.getBoolPref("dom.disable_open_during_load"))
-          return Services.perms.DENY_ACTION;
-        return Services.perms.ALLOW_ACTION;
-      case "shortcuts":
-        return Services.perms.ALLOW_ACTION;
-      case "trackingprotection":
-        return Services.perms.DENY_ACTION;
-    }
-
-    // We are not done yet.
-    // This should only be called for new permission types which have not been
-    // added to the Data Manager yet.
-    try {
-      // Look for an nsContentBlocker permission.
-      switch (Services.prefs.getIntPref("permissions.default." + aType)) {
-        case 3:
-          return NOFOREIGN;
-        case 2:
-          return Services.perms.DENY_ACTION;
-        default:
-          return Services.perms.ALLOW_ACTION;
-      }
-    } catch (e) {
-      return Services.perms.UNKNOWN_ACTION;
-    }
   },
 
   reactToChange: function permissions_reactToChange(aSubject, aData) {

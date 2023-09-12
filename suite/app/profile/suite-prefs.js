@@ -667,6 +667,12 @@ pref("permissions.default.microphone", 0);
 pref("permissions.default.geo", 0);
 pref("permissions.default.desktop-notification", 0);
 pref("permissions.default.shortcuts", 0);
+pref("permissions.default.allowXULXBL", 2);
+pref("permissions.default.login-saving", 0);
+pref("permissions.default.object", 0);
+pref("permissions.default.script", 0);
+pref("permissions.default.stylesheet", 0);
+pref("permissions.default.trackingprotection", 2);
 
 // Customizable toolbar stuff
 pref("custtoolbar.personal_toolbar_folder", "");

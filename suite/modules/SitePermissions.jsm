@@ -787,6 +787,36 @@ var gPermissionObject = {
     states: [ SitePermissions.ALLOW, SitePermissions.BLOCK ],
   },
 
+  "allowXULXBL": {
+  },
+
+  "login-saving": {
+  },
+
+  "object": {
+  },
+
+  "offline-app": {
+    getDefault() {
+      if (Services.prefs.getBoolPref("offline-apps.allow_by_default", false))
+        return SitePermissions.ALLOW;
+
+      if (Services.prefs.getBoolPref("browser.offline-apps.notify"))
+        return SitePermissions.BLOCK;
+
+      return SitePermissions.UNKNOWN;
+    }
+  },
+
+  "script": {
+  },
+
+  "stylesheet": {
+  },
+
+  "trackingprotection": {
+  },
+
 };
 
 XPCOMUtils.defineLazyPreferenceGetter(SitePermissions, "temporaryPermissionExpireTime",
