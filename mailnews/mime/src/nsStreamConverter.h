@@ -71,7 +71,6 @@ class nsStreamConverter : public nsIStreamConverter,
 
   nsCString
       mOverrideFormat;  // this is a possible override for emitter creation
-  bool mWrapperOutput;  // Should we output the frame split message display
 
   nsCOMPtr<nsIMimeStreamConverterListener> mMimeStreamConverterListener;
   bool mForwardInline;

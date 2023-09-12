@@ -367,7 +367,6 @@ nsresult nsStreamConverter::InternalCleanup(void) {
  */
 nsStreamConverter::nsStreamConverter() {
   // Init member variables...
-  mWrapperOutput = false;
   mBridgeStream = nullptr;
   mOutputFormat = "text/html";
   mAlreadyKnowOutputType = false;
@@ -407,12 +406,6 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
   }
 
   switch (newType) {
-    case nsMimeOutput::nsMimeMessageSplitDisplay:  // the wrapper HTML output to
-                                                   // produce the split
-                                                   // header/body display
-      mWrapperOutput = true;
-      mOutputFormat = "text/html";
-      break;
     case nsMimeOutput::nsMimeMessageHeaderDisplay:  // the split header/body
                                                     // display
       mOutputFormat = "text/xml";
@@ -723,30 +716,6 @@ nsresult nsStreamConverter::OnDataAvailable(nsIRequest* request,
                                             uint32_t aLength) {
   nsresult rc = NS_OK;  // should this be an error instead?
   uint32_t written;
-
-  // If this is the first time through and we are supposed to be
-  // outputting the wrapper two pane URL, then do it now.
-  if (mWrapperOutput) {
-    char outBuf[1024];
-    const char output[] =
-        "\
-<HTML>\
-<FRAMESET ROWS=\"30%%,70%%\">\
-<FRAME NAME=messageHeader SRC=\"%s?header=only\">\
-<FRAME NAME=messageBody SRC=\"%s?header=none\">\
-</FRAMESET>\
-</HTML>";
-
-    nsAutoCString url;
-    if (NS_FAILED(mURI->GetSpec(url))) return NS_ERROR_FAILURE;
-
-    PR_snprintf(outBuf, sizeof(outBuf), output, url.get(), url.get());
-
-    if (mEmitter) mEmitter->Write(nsDependentCString(outBuf), &written);
-
-    // rhp: will this stop the stream???? Not sure.
-    return NS_ERROR_FAILURE;
-  }
 
   nsCOMPtr<nsIInputStream> stream = aIStream;
   NS_ENSURE_TRUE(stream, NS_ERROR_NULL_POINTER);
