@@ -86,7 +86,7 @@ class nsMsgFolderService final : public nsIMsgFolderService {
 
 /*
  * nsMsgDBFolder
- * class derived from nsMsgFolder for those folders that use an nsIMsgDatabase
+ * Class derived from nsIMsgFolder for those folders that use an nsIMsgDatabase.
  */
 class nsMsgDBFolder : public nsSupportsWeakReference,
                       public nsIMsgFolder,
