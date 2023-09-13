@@ -46,9 +46,7 @@ static int MimeInlineTextHTMLSanitized_parse_begin(MimeObject* obj);
 static int MimeInlineTextHTMLSanitized_parse_eof(MimeObject*, bool);
 static void MimeInlineTextHTMLSanitized_finalize(MimeObject* obj);
 
-static int MimeInlineTextHTMLSanitizedClassInitialize(
-    MimeInlineTextHTMLSanitizedClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+static int MimeInlineTextHTMLSanitizedClassInitialize(MimeObjectClass* oclass) {
   NS_ASSERTION(!oclass->class_initialized, "problem with superclass");
   oclass->parse_line = MimeInlineTextHTMLSanitized_parse_line;
   oclass->parse_begin = MimeInlineTextHTMLSanitized_parse_begin;

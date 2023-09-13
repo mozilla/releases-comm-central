@@ -40,14 +40,11 @@ static nsresult Line_convert_whitespace(const nsString& a_line,
                                         const bool a_convert_all_whitespace,
                                         nsString& a_out_line);
 
-static int MimeInlineTextPlainFlowedClassInitialize(
-    MimeInlineTextPlainFlowedClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+static int MimeInlineTextPlainFlowedClassInitialize(MimeObjectClass* oclass) {
   NS_ASSERTION(!oclass->class_initialized, "class not initialized");
   oclass->parse_begin = MimeInlineTextPlainFlowed_parse_begin;
   oclass->parse_line = MimeInlineTextPlainFlowed_parse_line;
   oclass->parse_eof = MimeInlineTextPlainFlowed_parse_eof;
-
   return 0;
 }
 

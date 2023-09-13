@@ -43,8 +43,8 @@ static int MimeInlineText_rotate_convert_and_parse_line(char*, int32_t,
 static int MimeInlineText_open_dam(char* line, int32_t length, MimeObject* obj);
 static int MimeInlineText_initializeCharset(MimeObject* obj);
 
-static int MimeInlineTextClassInitialize(MimeInlineTextClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+static int MimeInlineTextClassInitialize(MimeObjectClass* oclass) {
+  MimeInlineTextClass* clazz = (MimeInlineTextClass*)oclass;
   MimeLeafClass* lclass = (MimeLeafClass*)clazz;
   PR_ASSERT(!oclass->class_initialized);
   oclass->initialize = MimeInlineText_initialize;

@@ -27,9 +27,8 @@ static int MimeExternalObject_parse_decoded_buffer(const char*, int32_t,
 static bool MimeExternalObject_displayable_inline_p(MimeObjectClass* clazz,
                                                     MimeHeaders* hdrs);
 
-static int MimeExternalObjectClassInitialize(MimeExternalObjectClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-  MimeLeafClass* lclass = (MimeLeafClass*)clazz;
+static int MimeExternalObjectClassInitialize(MimeObjectClass* oclass) {
+  MimeLeafClass* lclass = (MimeLeafClass*)oclass;
 
   NS_ASSERTION(!oclass->class_initialized,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
@@ -208,8 +207,6 @@ static bool MimeExternalObject_displayable_inline_p(MimeObjectClass* clazz,
 MimeDefClass(MimeSuppressedCrypto, MimeSuppressedCryptoClass,
              mimeSuppressedCryptoClass, &MIME_SUPERCLASS);
 
-static int MimeSuppressedCryptoClassInitialize(
-    MimeSuppressedCryptoClass* clazz) {
-  MimeExternalObjectClass* lclass = (MimeExternalObjectClass*)clazz;
-  return MimeExternalObjectClassInitialize(lclass);
+static int MimeSuppressedCryptoClassInitialize(MimeObjectClass* oclass) {
+  return MimeExternalObjectClassInitialize(oclass);
 }

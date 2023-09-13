@@ -35,9 +35,8 @@ static int MimeMultipartSigned_emit_child(MimeObject* obj);
 
 extern "C" MimeSuppressedCryptoClass mimeSuppressedCryptoClass;
 
-static int MimeMultipartSignedClassInitialize(MimeMultipartSignedClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-  MimeMultipartClass* mclass = (MimeMultipartClass*)clazz;
+static int MimeMultipartSignedClassInitialize(MimeObjectClass* oclass) {
+  MimeMultipartClass* mclass = (MimeMultipartClass*)oclass;
 
   oclass->initialize = MimeMultipartSigned_initialize;
   oclass->parse_line = MimeMultipartSigned_parse_line;

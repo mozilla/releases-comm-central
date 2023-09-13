@@ -25,9 +25,8 @@ static int MimeInlineImage_parse_eof(MimeObject*, bool);
 static int MimeInlineImage_parse_decoded_buffer(const char*, int32_t,
                                                 MimeObject*);
 
-static int MimeInlineImageClassInitialize(MimeInlineImageClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-  MimeLeafClass* lclass = (MimeLeafClass*)clazz;
+static int MimeInlineImageClassInitialize(MimeObjectClass* oclass) {
+  MimeLeafClass* lclass = (MimeLeafClass*)oclass;
 
   NS_ASSERTION(!oclass->class_initialized,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");

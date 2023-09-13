@@ -44,14 +44,13 @@ static void MimeCMS_free(void*);
 
 extern int SEC_ERROR_CERT_ADDR_MISMATCH;
 
-static int MimeEncryptedCMSClassInitialize(MimeEncryptedCMSClass* clazz) {
+static int MimeEncryptedCMSClassInitialize(MimeObjectClass* oclass) {
 #ifdef DEBUG
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
   NS_ASSERTION(!oclass->class_initialized,
                "1.2 <mscott@netscape.com> 01 Nov 2001 17:59");
 #endif
 
-  MimeEncryptedClass* eclass = (MimeEncryptedClass*)clazz;
+  MimeEncryptedClass* eclass = (MimeEncryptedClass*)oclass;
   eclass->crypto_init = MimeCMS_init;
   eclass->crypto_write = MimeCMS_write;
   eclass->crypto_eof = MimeCMS_eof;

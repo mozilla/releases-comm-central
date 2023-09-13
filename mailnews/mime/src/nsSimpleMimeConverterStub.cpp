@@ -133,8 +133,7 @@ static void Finalize(MimeObject* obj) {
   delete ssobj->buffer;
 }
 
-static int MimeSimpleStubClassInitialize(MimeSimpleStubClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+static int MimeSimpleStubClassInitialize(MimeObjectClass* oclass) {
   oclass->parse_begin = BeginGather;
   oclass->parse_line = GatherLine;
   oclass->parse_eof = EndGather;

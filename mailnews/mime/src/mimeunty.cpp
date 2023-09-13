@@ -42,8 +42,7 @@ static bool MimeUntypedText_binhex_begin_line_p(const char* line,
                                                 MimeDisplayOptions* opt);
 static bool MimeUntypedText_binhex_end_line_p(const char* line, int32_t length);
 
-static int MimeUntypedTextClassInitialize(MimeUntypedTextClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+static int MimeUntypedTextClassInitialize(MimeObjectClass* oclass) {
   PR_ASSERT(!oclass->class_initialized);
   oclass->initialize = MimeUntypedText_initialize;
   oclass->finalize = MimeUntypedText_finalize;

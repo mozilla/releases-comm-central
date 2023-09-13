@@ -50,9 +50,8 @@ extern "C" MimeSuppressedCryptoClass mimeSuppressedCryptoClass;
 static int MimeMultipart_debug_print(MimeObject*, PRFileDesc*, int32_t);
 #endif
 
-static int MimeMultipartClassInitialize(MimeMultipartClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-  MimeMultipartClass* mclass = (MimeMultipartClass*)clazz;
+static int MimeMultipartClassInitialize(MimeObjectClass* oclass) {
+  MimeMultipartClass* mclass = (MimeMultipartClass*)oclass;
 
   PR_ASSERT(!oclass->class_initialized);
   oclass->initialize = MimeMultipart_initialize;

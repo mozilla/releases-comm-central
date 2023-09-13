@@ -25,9 +25,8 @@ static int MimeSunAttachment_parse_child_line(MimeObject*, const char*, int32_t,
 static int MimeSunAttachment_parse_begin(MimeObject*);
 static int MimeSunAttachment_parse_eof(MimeObject*, bool);
 
-static int MimeSunAttachmentClassInitialize(MimeSunAttachmentClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-  MimeMultipartClass* mclass = (MimeMultipartClass*)clazz;
+static int MimeSunAttachmentClassInitialize(MimeObjectClass* oclass) {
+  MimeMultipartClass* mclass = (MimeMultipartClass*)oclass;
 
   PR_ASSERT(!oclass->class_initialized);
   oclass->parse_begin = MimeSunAttachment_parse_begin;

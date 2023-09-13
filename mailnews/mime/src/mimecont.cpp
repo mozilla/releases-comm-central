@@ -25,9 +25,8 @@ static bool MimeContainer_displayable_inline_p(MimeObjectClass* clazz,
 static int MimeContainer_debug_print(MimeObject*, PRFileDesc*, int32_t depth);
 #endif
 
-static int MimeContainerClassInitialize(MimeContainerClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)&clazz->object;
-
+static int MimeContainerClassInitialize(MimeObjectClass* oclass) {
+  MimeContainerClass* clazz = (MimeContainerClass*)oclass;
   NS_ASSERTION(!oclass->class_initialized,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   oclass->initialize = MimeContainer_initialize;

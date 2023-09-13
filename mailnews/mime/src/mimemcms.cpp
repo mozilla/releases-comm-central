@@ -42,10 +42,8 @@ static void MimeMultCMS_suppressed_child(void* crypto_closure);
 
 extern int SEC_ERROR_CERT_ADDR_MISMATCH;
 
-static int MimeMultipartSignedCMSClassInitialize(
-    MimeMultipartSignedCMSClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-  MimeMultipartSignedClass* sclass = (MimeMultipartSignedClass*)clazz;
+static int MimeMultipartSignedCMSClassInitialize(MimeObjectClass* oclass) {
+  MimeMultipartSignedClass* sclass = (MimeMultipartSignedClass*)oclass;
 
   oclass->initialize = MimeMultipartSignedCMS_initialize;
 

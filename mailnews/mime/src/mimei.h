@@ -164,8 +164,9 @@
   object will only be initialized once.
 
       static int
-      FoobarClassInitialize(FoobarClass *class)
+      FoobarClassInitialize(MimeObjectClass *oclass)
       {
+        FoobarClass* clazz = (FoobarClass*)oclass;
         clazz->method = FoobarMethod.
         ...etc...
       }
@@ -214,8 +215,8 @@ typedef struct MimeObjectClass MimeObjectClass;
 
 /* Macro used for setting up class definitions.
  */
-#define MimeDefClass(ITYPE, CTYPE, CVAR, CSUPER)    \
-  static int ITYPE##ClassInitialize(ITYPE##Class*); \
+#define MimeDefClass(ITYPE, CTYPE, CVAR, CSUPER)       \
+  static int ITYPE##ClassInitialize(MimeObjectClass*); \
   ITYPE##Class CVAR = {ITYPE##ClassInitializer(ITYPE, CSUPER)}
 
 /* Creates a new (subclass of) MimeObject of the given class, with the

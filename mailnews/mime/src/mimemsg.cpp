@@ -47,9 +47,8 @@ static int MimeMessage_debug_print(MimeObject*, PRFileDesc*, int32_t depth);
 
 extern MimeObjectClass mimeMultipartClass;
 
-static int MimeMessageClassInitialize(MimeMessageClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-  MimeContainerClass* cclass = (MimeContainerClass*)clazz;
+static int MimeMessageClassInitialize(MimeObjectClass* oclass) {
+  MimeContainerClass* cclass = (MimeContainerClass*)oclass;
 
   PR_ASSERT(!oclass->class_initialized);
   oclass->initialize = MimeMessage_initialize;

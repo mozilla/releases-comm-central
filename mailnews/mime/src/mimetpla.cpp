@@ -24,8 +24,7 @@ static int MimeInlineTextPlain_parse_begin(MimeObject*);
 static int MimeInlineTextPlain_parse_line(const char*, int32_t, MimeObject*);
 static int MimeInlineTextPlain_parse_eof(MimeObject*, bool);
 
-static int MimeInlineTextPlainClassInitialize(MimeInlineTextPlainClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+static int MimeInlineTextPlainClassInitialize(MimeObjectClass* oclass) {
   NS_ASSERTION(!oclass->class_initialized, "class not initialized");
   oclass->parse_begin = MimeInlineTextPlain_parse_begin;
   oclass->parse_line = MimeInlineTextPlain_parse_line;

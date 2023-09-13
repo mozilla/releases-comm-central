@@ -34,14 +34,12 @@ static int MimeInlineTextHTMLAsPlaintext_parse_eof(MimeObject*, bool);
 static void MimeInlineTextHTMLAsPlaintext_finalize(MimeObject* obj);
 
 static int MimeInlineTextHTMLAsPlaintextClassInitialize(
-    MimeInlineTextHTMLAsPlaintextClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+    MimeObjectClass* oclass) {
   NS_ASSERTION(!oclass->class_initialized, "problem with superclass");
   oclass->parse_line = MimeInlineTextHTMLAsPlaintext_parse_line;
   oclass->parse_begin = MimeInlineTextHTMLAsPlaintext_parse_begin;
   oclass->parse_eof = MimeInlineTextHTMLAsPlaintext_parse_eof;
   oclass->finalize = MimeInlineTextHTMLAsPlaintext_finalize;
-
   return 0;
 }
 

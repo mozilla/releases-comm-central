@@ -18,10 +18,8 @@ MimeDefClass(MimeMultipartAppleDouble, MimeMultipartAppleDoubleClass,
 static int MimeMultipartAppleDouble_parse_begin(MimeObject*);
 static bool MimeMultipartAppleDouble_output_child_p(MimeObject*, MimeObject*);
 
-static int MimeMultipartAppleDoubleClassInitialize(
-    MimeMultipartAppleDoubleClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-  MimeMultipartClass* mclass = (MimeMultipartClass*)clazz;
+static int MimeMultipartAppleDoubleClassInitialize(MimeObjectClass* oclass) {
+  MimeMultipartClass* mclass = (MimeMultipartClass*)oclass;
 
   NS_ASSERTION(!oclass->class_initialized, "mime class not initialized");
   oclass->parse_begin = MimeMultipartAppleDouble_parse_begin;

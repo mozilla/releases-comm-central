@@ -10,9 +10,8 @@
 MimeDefClass(MimeMultipartMixed, MimeMultipartMixedClass,
              mimeMultipartMixedClass, &MIME_SUPERCLASS);
 
-static int MimeMultipartMixedClassInitialize(MimeMultipartMixedClass* clazz) {
+static int MimeMultipartMixedClassInitialize(MimeObjectClass* oclass) {
 #ifdef DEBUG
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
   PR_ASSERT(!oclass->class_initialized);
 #endif
   return 0;

@@ -25,8 +25,8 @@ static int MimeLeaf_parse_eof(MimeObject*, bool);
 static bool MimeLeaf_displayable_inline_p(MimeObjectClass* clazz,
                                           MimeHeaders* hdrs);
 
-static int MimeLeafClassInitialize(MimeLeafClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+static int MimeLeafClassInitialize(MimeObjectClass* oclass) {
+  MimeLeafClass* clazz = (MimeLeafClass*)oclass;
   NS_ASSERTION(!oclass->class_initialized,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   oclass->initialize = MimeLeaf_initialize;

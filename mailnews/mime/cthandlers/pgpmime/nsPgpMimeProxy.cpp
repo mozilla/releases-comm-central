@@ -96,11 +96,10 @@ static void PgpMimeGetNeedsAddonString(nsCString& aResult) {
   aResult = NS_ConvertUTF16toUTF8(result);
 }
 
-static int MimeEncryptedPgpClassInitialize(MimeEncryptedPgpClass* clazz) {
-  mozilla::DebugOnly<MimeObjectClass*> oclass = (MimeObjectClass*)clazz;
+static int MimeEncryptedPgpClassInitialize(MimeObjectClass* oclass) {
   NS_ASSERTION(!oclass->class_initialized, "oclass is not initialized");
 
-  MimeEncryptedClass* eclass = (MimeEncryptedClass*)clazz;
+  MimeEncryptedClass* eclass = (MimeEncryptedClass*)oclass;
 
   eclass->crypto_init = MimePgpe_init;
   eclass->crypto_write = MimePgpe_write;

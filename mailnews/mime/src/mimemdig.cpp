@@ -11,12 +11,9 @@
 MimeDefClass(MimeMultipartDigest, MimeMultipartDigestClass,
              mimeMultipartDigestClass, &MIME_SUPERCLASS);
 
-static int MimeMultipartDigestClassInitialize(MimeMultipartDigestClass* clazz) {
-#ifdef DEBUG
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+static int MimeMultipartDigestClassInitialize(MimeObjectClass* oclass) {
   PR_ASSERT(!oclass->class_initialized);
-#endif
-  MimeMultipartClass* mclass = (MimeMultipartClass*)clazz;
+  MimeMultipartClass* mclass = (MimeMultipartClass*)oclass;
   mclass->default_part_type = MESSAGE_RFC822;
   return 0;
 }

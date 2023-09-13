@@ -37,9 +37,7 @@ static int MimeExternalBody_debug_print (MimeObject *, PRFileDesc *, int32_t);
 #  endif
 #endif /* 0 */
 
-static int MimeExternalBodyClassInitialize(MimeExternalBodyClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-
+static int MimeExternalBodyClassInitialize(MimeObjectClass* oclass) {
   NS_ASSERTION(!oclass->class_initialized,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   oclass->initialize = MimeExternalBody_initialize;

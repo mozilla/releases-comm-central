@@ -20,8 +20,7 @@ static int MimeInlineTextHTML_parse_line(const char*, int32_t, MimeObject*);
 static int MimeInlineTextHTML_parse_eof(MimeObject*, bool);
 static int MimeInlineTextHTML_parse_begin(MimeObject* obj);
 
-static int MimeInlineTextHTMLClassInitialize(MimeInlineTextHTMLClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+static int MimeInlineTextHTMLClassInitialize(MimeObjectClass* oclass) {
   PR_ASSERT(!oclass->class_initialized);
   oclass->parse_begin = MimeInlineTextHTML_parse_begin;
   oclass->parse_line = MimeInlineTextHTML_parse_line;

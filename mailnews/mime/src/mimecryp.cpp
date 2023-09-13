@@ -41,9 +41,9 @@ static int MimeHandleDecryptedOutputLine(char*, int32_t, MimeObject*);
 static int MimeEncrypted_close_headers(MimeObject*);
 static int MimeEncrypted_emit_buffered_child(MimeObject*);
 
-static int MimeEncryptedClassInitialize(MimeEncryptedClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-  MimeContainerClass* cclass = (MimeContainerClass*)clazz;
+static int MimeEncryptedClassInitialize(MimeObjectClass* oclass) {
+  MimeEncryptedClass* clazz = (MimeEncryptedClass*)oclass;
+  MimeContainerClass* cclass = (MimeContainerClass*)oclass;
 
   NS_ASSERTION(!oclass->class_initialized,
                "1.2 <mscott@netscape.com> 01 Nov 2001 17:59");

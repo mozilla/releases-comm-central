@@ -18,9 +18,7 @@ static int MimeInlineTextRichtext_parse_line(const char*, int32_t, MimeObject*);
 static int MimeInlineTextRichtext_parse_begin(MimeObject*);
 static int MimeInlineTextRichtext_parse_eof(MimeObject*, bool);
 
-static int MimeInlineTextRichtextClassInitialize(
-    MimeInlineTextRichtextClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+static int MimeInlineTextRichtextClassInitialize(MimeObjectClass* oclass) {
   PR_ASSERT(!oclass->class_initialized);
   oclass->parse_begin = MimeInlineTextRichtext_parse_begin;
   oclass->parse_line = MimeInlineTextRichtext_parse_line;

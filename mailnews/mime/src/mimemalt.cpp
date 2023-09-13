@@ -122,10 +122,8 @@ static int MimeMultipartAlternative_display_cached_part(MimeObject*,
                                                         MimePartBufferData*,
                                                         bool);
 
-static int MimeMultipartAlternativeClassInitialize(
-    MimeMultipartAlternativeClass* clazz) {
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
-  MimeMultipartClass* mclass = (MimeMultipartClass*)clazz;
+static int MimeMultipartAlternativeClassInitialize(MimeObjectClass* oclass) {
+  MimeMultipartClass* mclass = (MimeMultipartClass*)oclass;
   PR_ASSERT(!oclass->class_initialized);
   oclass->initialize = MimeMultipartAlternative_initialize;
   oclass->finalize = MimeMultipartAlternative_finalize;

@@ -15,13 +15,11 @@
 MimeDefClass(MimeInlineTextEnriched, MimeInlineTextEnrichedClass,
              mimeInlineTextEnrichedClass, &MIME_SUPERCLASS);
 
-static int MimeInlineTextEnrichedClassInitialize(
-    MimeInlineTextEnrichedClass* clazz) {
+static int MimeInlineTextEnrichedClassInitialize(MimeObjectClass* oclass) {
 #ifdef DEBUG
-  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
   PR_ASSERT(!oclass->class_initialized);
 #endif
-  MimeInlineTextRichtextClass* rclass = (MimeInlineTextRichtextClass*)clazz;
+  MimeInlineTextRichtextClass* rclass = (MimeInlineTextRichtextClass*)oclass;
   rclass->enriched_p = true;
   return 0;
 }
