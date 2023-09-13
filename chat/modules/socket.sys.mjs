@@ -406,7 +406,7 @@ export var Socket = {
     this._handlingQueue = requestIdleCallback(this._handleQueue.bind(this));
   },
   // Asynchronously send each string to the handle data function.
-  _handleQueue(timing) {
+  async _handleQueue(timing) {
     while (this._pendingData.length) {
       this.onDataReceived(this._pendingData.shift());
       // One pendingData entry generally takes less than 1ms to handle.
@@ -421,7 +421,7 @@ export var Socket = {
     delete this._handlingQueue;
     // If there was a stop request, handle it.
     if ("_stopRequestStatus" in this) {
-      this._handleStopRequest(this._stopRequestStatus);
+      await this._handleStopRequest(this._stopRequestStatus);
     }
   },
 
@@ -449,7 +449,7 @@ export var Socket = {
     this._activateQueue();
   },
   // Close the connection after receiving a stop request.
-  _handleStopRequest(aStatus) {
+  async _handleStopRequest(aStatus) {
     if (this.disconnected) {
       return;
     }
@@ -464,7 +464,8 @@ export var Socket = {
       let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
         Ci.nsINSSErrorsService
       );
-      this.securityInfo = this.transport.tlsSocketControl.securityInfo;
+      this.securityInfo =
+        await this.transport.tlsSocketControl?.asyncGetSecurityInfo();
       this.onConnectionSecurityError(
         aStatus,
         nssErrorsService.getErrorMessage(aStatus)

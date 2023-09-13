@@ -1187,7 +1187,7 @@ function SocketUtil(
         _error(e);
       }
     },
-    onStopRequest(request, status) {
+    async onStopRequest(request, status) {
       try {
         instream.close();
         outstream.close();
@@ -1215,13 +1215,14 @@ function SocketUtil(
             )
           ) {
             gAccountSetupLogger.info(
-              `Bad (overridable) certificate for ${hostname}:${port}. Set mailnews.auto_config.guess.requireGoodCert to false to allow it`
+              `Bad (overridable) certificate for ${hostname}:${port}. Set mailnews.auto_config.guess.requireGoodCert to false to allow detecting this as a valid SSL/TLS configuration`
             );
           } else {
-            let socket = transport.QueryInterface(Ci.nsISocketTransport);
-            let secInfo = socket.tlsSocketControl.securityInfo.QueryInterface(
-              Ci.nsITransportSecurityInfo
+            let socketTransport = transport.QueryInterface(
+              Ci.nsISocketTransport
             );
+            let secInfo =
+              await socketTransport.tlsSocketControl?.asyncGetSecurityInfo();
             sslErrorHandler.processCertError(secInfo, hostname + ":" + port);
           }
         }
