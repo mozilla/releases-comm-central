@@ -223,17 +223,27 @@ PgpMimeHandler.prototype = {
     }
 
     if (cth) {
-      this.onDataAvailable = cth.onDataAvailable.bind(cth);
-      this.onStopRequest = cth.onStopRequest.bind(cth);
+      this._onDataAvailable = cth.onDataAvailable.bind(cth);
+      this._onStopRequest = cth.onStopRequest.bind(cth);
       return cth.onStartRequest(request, uri);
     }
 
     return null;
   },
 
-  onDataAvailable(req, stream, offset, count) {},
+  onDataAvailable(req, stream, offset, count) {
+    if (this._onDataAvailable) {
+      this._onDataAvailable(req, stream, offset, count);
+    }
+  },
 
-  onStopRequest(request, status) {},
+  onStopRequest(request, status) {
+    if (this._onStopRequest) {
+      this._onStopRequest(request, status);
+    }
+    delete this._onDataAvailable;
+    delete this._onStopRequest;
+  },
 
   handleSmime(uri) {
     this.contentHandler = throwErrors;
