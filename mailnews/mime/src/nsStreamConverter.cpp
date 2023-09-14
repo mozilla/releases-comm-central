@@ -393,6 +393,7 @@ NS_IMETHODIMP nsStreamConverter::Init(nsIURI* aURI,
 
   nsresult rv = NS_OK;
   mOutListener = aOutListener;
+  mOutgoingChannel = aChannel;
 
   // mscott --> we need to look at the url and figure out what the correct
   // output type is...
@@ -812,9 +813,6 @@ nsresult nsStreamConverter::OnStopRequest(nsIRequest* request,
                                           nsresult status) {
   // Make sure we fire any pending OnStartRequest before we do OnStop.
   FirePendingStartRequest();
-#ifdef DEBUG_rhp
-  printf("nsStreamConverter::OnStopRequest()\n");
-#endif
 
   //
   // Now complete the stream!
@@ -864,14 +862,14 @@ nsresult nsStreamConverter::OnStopRequest(nsIRequest* request,
   // First close the output stream...
   if (mOutputStream) mOutputStream->Close();
 
+  if (mOutgoingChannel) {
+    nsCOMPtr<nsILoadGroup> loadGroup;
+    mOutgoingChannel->GetLoadGroup(getter_AddRefs(loadGroup));
+    if (loadGroup) loadGroup->RemoveRequest(mOutgoingChannel, nullptr, status);
+  }
+
   // Make sure to do necessary cleanup!
   InternalCleanup();
-
-#if 0
-  // print out the mime timing information BEFORE we flush to layout
-  // otherwise we'll be including layout information.
-  printf("Time Spent in mime:    %d ms\n", PR_IntervalToMilliseconds(PR_IntervalNow() - mConvertContentTime));
-#endif
 
   // forward on top request to any listeners
   if (mOutListener) mOutListener->OnStopRequest(request, status);

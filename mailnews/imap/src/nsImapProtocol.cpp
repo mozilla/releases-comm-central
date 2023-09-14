@@ -8746,10 +8746,6 @@ nsImapCacheStreamListener::OnStartRequest(nsIRequest* request) {
     return NS_ERROR_NULL_POINTER;
   }
   if (!mCache2 || !mStarting) {
-    nsCOMPtr<nsILoadGroup> loadGroup;
-    mChannelToUse->GetLoadGroup(getter_AddRefs(loadGroup));
-    if (loadGroup)
-      loadGroup->AddRequest(mChannelToUse, nullptr /* context isupports */);
     return mListener->OnStartRequest(mChannelToUse);
   }
   return NS_OK;
@@ -8766,9 +8762,6 @@ nsImapCacheStreamListener::OnStopRequest(nsIRequest* request,
   nsresult rv = NS_OK;
   if (!mCache2 || !mStarting) {
     rv = mListener->OnStopRequest(mChannelToUse, aStatus);
-    nsCOMPtr<nsILoadGroup> loadGroup;
-    mChannelToUse->GetLoadGroup(getter_AddRefs(loadGroup));
-    if (loadGroup) loadGroup->RemoveRequest(mChannelToUse, nullptr, aStatus);
 
     mListener = nullptr;
     mChannelToUse->Close();
@@ -8818,10 +8811,6 @@ nsImapCacheStreamListener::OnDataAvailable(nsIRequest* request,
       // Do deferred setup of loadGroup and OnStartRequest and then forward
       // the verified first segment to the actual listener.
       mStarting = false;
-      nsCOMPtr<nsILoadGroup> loadGroup;
-      mChannelToUse->GetLoadGroup(getter_AddRefs(loadGroup));
-      if (loadGroup)
-        loadGroup->AddRequest(mChannelToUse, nullptr /* context isupports */);
       mListener->OnStartRequest(mChannelToUse);
     } else {
       MOZ_LOG(IMAPCache, LogLevel::Error,
