@@ -30,48 +30,6 @@
 
 #define VIEW_ALL_HEADERS 2
 
-/**
- * A helper class to implement nsIUTF8StringEnumerator
- */
-
-class nsMimeStringEnumerator final : public nsStringEnumeratorBase {
- public:
-  NS_DECL_ISUPPORTS
-  NS_DECL_NSIUTF8STRINGENUMERATOR
-
-  nsMimeStringEnumerator() : mCurrentIndex(0) {}
-
-  template <class T>
-  nsCString* Append(T value) {
-    return mValues.AppendElement(value);
-  }
-
-  using nsStringEnumeratorBase::GetNext;
-
- protected:
-  ~nsMimeStringEnumerator() {}
-  nsTArray<nsCString> mValues;
-  uint32_t mCurrentIndex;  // consumers expect first-in first-out enumeration
-};
-
-NS_IMPL_ISUPPORTS(nsMimeStringEnumerator, nsIUTF8StringEnumerator,
-                  nsIStringEnumerator)
-
-NS_IMETHODIMP
-nsMimeStringEnumerator::HasMore(bool* result) {
-  NS_ENSURE_ARG_POINTER(result);
-  *result = mCurrentIndex < mValues.Length();
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsMimeStringEnumerator::GetNext(nsACString& result) {
-  if (mCurrentIndex >= mValues.Length()) return NS_ERROR_UNEXPECTED;
-
-  result = mValues[mCurrentIndex++];
-  return NS_OK;
-}
-
 /*
  * nsMimeHtmlEmitter definitions....
  */
