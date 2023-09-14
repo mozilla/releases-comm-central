@@ -372,6 +372,13 @@ class Pop3Client {
     let secInfo =
       await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
+      this._logger.error(`SecurityError info: ${secInfo.errorCodeString}`);
+      if (secInfo.failedCertChain.length) {
+        let chain = secInfo.failedCertChain.map(c => {
+          return c.commonName + "; serial# " + c.serialNumber;
+        });
+        this._logger.error(`SecurityError cert chain: ${chain.join(" <- ")}`);
+      }
       this.runningUri.failedSecInfo = secInfo;
       // Notify about the error directly. Due to the await above, the _onClose
       // event is likely to complete before we get here, which means _actionDone

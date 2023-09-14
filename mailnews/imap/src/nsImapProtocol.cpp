@@ -4831,7 +4831,15 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
             if (mailNewsUrl) {
               nsCOMPtr<nsITransportSecurityInfo> securityInfo;
               GetTransportSecurityInfo(getter_AddRefs(securityInfo));
-              if (securityInfo) mailNewsUrl->SetFailedSecInfo(securityInfo);
+              if (securityInfo) {
+                nsAutoCString logMsg("Security error - error code=");
+                nsAutoString errorCodeString;
+                securityInfo->GetErrorCodeString(errorCodeString);
+                logMsg.Append(NS_ConvertUTF16toUTF8(errorCodeString));
+                Log("CreateNewLineFromSocket", nullptr, logMsg.get());
+
+                mailNewsUrl->SetFailedSecInfo(securityInfo);
+              }
             }
           }
         }
