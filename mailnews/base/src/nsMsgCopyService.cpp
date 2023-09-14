@@ -140,24 +140,20 @@ nsresult nsMsgCopyService::ClearRequest(nsCopyRequest* aRequest, nsresult rv) {
           NS_SUCCEEDED(rv) ? "Clearing OK request" : "Clearing failed request",
           aRequest);
 
-    // Send notifications to nsIMsgFolderListeners
     if (NS_SUCCEEDED(rv) && aRequest->m_requestType == nsCopyFoldersType) {
+      // Send folder copy/move notifications to nsIMsgFolderListeners.
+      // BAD SMELL ALERT: Seems odd that this is the only place the folder
+      // notification is invoked from the copyService.
+      // For message copy/move operations, the folder code handles the
+      // notification (to take one example).
+      // This suggests lack of clarity of responsibility.
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
           do_GetService("@mozilla.org/messenger/msgnotificationservice;1"));
       if (notifier) {
-        bool hasListeners;
-        notifier->GetHasListeners(&hasListeners);
-        if (hasListeners) {
-          // Iterate over the copy sources and append their message arrays to
-          // this mutable array or in the case of folders, the source folder.
-          int32_t cnt, i;
-          cnt = aRequest->m_copySourceArray.Length();
-          for (i = 0; i < cnt; i++) {
-            nsCopySource* copySource = aRequest->m_copySourceArray.ElementAt(i);
-            notifier->NotifyFolderMoveCopyCompleted(
-                aRequest->m_isMoveOrDraftOrTemplate, copySource->m_msgFolder,
-                aRequest->m_dstFolder);
-          }
+        for (nsCopySource* copySource : aRequest->m_copySourceArray) {
+          notifier->NotifyFolderMoveCopyCompleted(
+              aRequest->m_isMoveOrDraftOrTemplate, copySource->m_msgFolder,
+              aRequest->m_dstFolder);
         }
       }
     }
@@ -275,24 +271,28 @@ nsresult nsMsgCopyService::DoNextCopy() {
         nsCOMPtr<nsIMsgFolder> dstFolder = copyRequest->m_dstFolder;
         nsCOMPtr<nsIMsgFolder> srcFolder = copySource->m_msgFolder;
 
-        // Call the imap or local CopyFolder()
-        rv = dstFolder->CopyFolder(
-            srcFolder, copyRequest->m_isMoveOrDraftOrTemplate,
-            copyRequest->m_msgWindow, copyRequest->m_listener);
-        // If it's a copy folder operation and the destination
-        // folder already exists, CopyFolder() returns an error w/o sending
-        // a completion notification, so clear it here.
+        // If folder transfer is not within the same server and if a folder
+        // move was requested, set the request move flag false to avoid
+        // removing the list of marked deleted messages in the source folder.
+        bool isMove = copyRequest->m_isMoveOrDraftOrTemplate;
+        if (copyRequest->m_isMoveOrDraftOrTemplate) {
+          bool sameServer;
+          IsOnSameServer(dstFolder, srcFolder, &sameServer);
+          if (!sameServer) copyRequest->m_isMoveOrDraftOrTemplate = false;
+        }
+
+        // NOTE: The folder invokes NotifyCompletion() when the operation is
+        // complete. Some folders (localfolder!) invoke it before CopyFolder()
+        // even returns. This will likely delete the request object, so
+        // you have to assume that copyRequest is invalid when CopyFolder()
+        // returns.
+        rv = dstFolder->CopyFolder(srcFolder, isMove, copyRequest->m_msgWindow,
+                                   copyRequest->m_listener);
+        // If CopyFolder() fails (e.g. destination folder already exists),
+        // it won't send a completion notification (NotifyCompletion()).
+        // So copyRequest will still exist, and we need to ditch it.
         if (NS_FAILED(rv)) {
           ClearRequest(copyRequest, rv);
-        } else {
-          // If folder transfer was not within the same server and if a folder
-          // move was requested, set the move flag false to avoid removing the
-          // list of marked deleted messages in the source folder.
-          if (copyRequest->m_isMoveOrDraftOrTemplate) {
-            bool sameServer;
-            IsOnSameServer(dstFolder, srcFolder, &sameServer);
-            if (!sameServer) copyRequest->m_isMoveOrDraftOrTemplate = false;
-          }
         }
       } else if (copyRequest->m_requestType == nsCopyFileMessageType) {
         nsCOMPtr<nsIFile> aFile(
