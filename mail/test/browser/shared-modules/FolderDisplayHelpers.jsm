@@ -631,16 +631,7 @@ async function open_selected_message_in_new_tab(aBackground) {
       background: aBackground,
     });
 
-  if (
-    tab.chromeBrowser.docShell.isLoadingDocument ||
-    tab.chromeBrowser.currentURI.spec != "about:message"
-  ) {
-    await BrowserTestUtils.browserLoaded(tab.chromeBrowser);
-  }
-
-  if (!aBackground) {
-    wait_for_message_display_completion(undefined, true);
-  }
+  await BrowserTestUtils.waitForEvent(tab.chromeBrowser, "MsgLoaded");
 
   // check that the tab count increased
   if (

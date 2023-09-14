@@ -207,6 +207,7 @@ async function _middle_click_with_nothing_selected_helper(aBackground) {
   focus_thread_tree();
   let [tabMessage, curMessage] = middle_click_on_row(1);
   if (aBackground) {
+    await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(folderTab);
     // Now switch to the new tab and check
@@ -245,6 +246,7 @@ async function _middle_click_with_one_thing_selected_helper(aBackground) {
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [tabMessage, curMessage] = middle_click_on_row(1);
   if (aBackground) {
+    await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(folderTab);
     // Now switch to the new tab and check
@@ -283,8 +285,9 @@ async function _middle_click_with_many_things_selected_helper(aBackground) {
   assert_selected_and_displayed([0, 5]);
 
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let [tabMessage] = middle_click_on_row(1);
+  let [tabMessage] = middle_click_on_row(6);
   if (aBackground) {
+    await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(folderTab);
     // Now switch to the new tab and check
@@ -322,6 +325,7 @@ async function _middle_click_on_existing_single_selection_helper(aBackground) {
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [tabMessage, curMessage] = middle_click_on_row(3);
   if (aBackground) {
+    await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(folderTab);
     // Now switch to the new tab and check
@@ -360,6 +364,11 @@ async function _middle_click_on_existing_multi_selection_helper(aBackground) {
 
   let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
   let [tabMessage, curMessage] = middle_click_on_row(6);
+  await Promise.all(
+    tabmail.tabInfo
+      .slice(1)
+      .map(tab => BrowserTestUtils.waitForEvent(tab.chromeBrowser, "MsgLoaded"))
+  );
   if (aBackground) {
     // Make sure we haven't switched to the new tab.
     assert_selected_tab(folderTab);
@@ -406,6 +415,13 @@ async function _middle_click_on_collapsed_thread_root_helper(aBackground) {
   // index is brought into view, we need to set the current index so that we
   // don't scroll because of it. So click on the first visible row.
   select_click_row(preFirstRow);
+
+  middle_click_on_row(get_about_3pane().gDBView.rowCount - 1);
+  await Promise.all(
+    tabmail.tabInfo
+      .slice(1)
+      .map(tab => BrowserTestUtils.waitForEvent(tab.chromeBrowser, "MsgLoaded"))
+  );
 
   if (!aBackground) {
     wait_for_message_display_completion();
@@ -458,6 +474,11 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
   // index (number of rows - number of messages in thread).
   let [tabMessage] = middle_click_on_row(
     tree.view.rowCount - NUM_MESSAGES_IN_THREAD
+  );
+  await Promise.all(
+    tabmail.tabInfo
+      .slice(1)
+      .map(tab => BrowserTestUtils.waitForEvent(tab.chromeBrowser, "MsgLoaded"))
   );
 
   if (!aBackground) {
@@ -547,7 +568,11 @@ add_task(async function test_right_click_deletion_of_one_selected_thing() {
   await delete_via_popup();
   assert_message_not_in_view(curMessage);
 
-  // Assert.notEqual(mc.window.document.getElementById("tabmail").currentTabInfo.browser.contentWindow.gDBView.selection.count, 0, "We should have tried to select something!");
+  Assert.notEqual(
+    get_about_3pane().gDBView.selection.count,
+    0,
+    "We should have tried to select something!"
+  );
 });
 
 add_task(async function test_right_click_deletion_of_many_selected_things() {
@@ -560,5 +585,9 @@ add_task(async function test_right_click_deletion_of_many_selected_things() {
   await delete_via_popup();
   assert_messages_not_in_view(messages);
 
-  // Assert.notEqual(mc.window.document.getElementById("tabmail").currentTabInfo.browser.contentWindow.gDBView.selection.count, 0, "We should have tried to select something!");
+  Assert.notEqual(
+    get_about_3pane().gDBView.selection.count,
+    0,
+    "We should have tried to select something!"
+  );
 });
