@@ -20,7 +20,6 @@ var { OAuth2Providers } = ChromeUtils.import(
  */
 function OAuth2Module() {}
 OAuth2Module.prototype = {
-  // XPCOM registration stuff
   QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
 
   initFromSmtp(aServer) {
@@ -49,18 +48,18 @@ OAuth2Module.prototype = {
     let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", "");
     let scope = Services.prefs.getStringPref(root + "oauth2.scope", "");
 
-    // These properties are absolutely essential to OAuth2 support. If we don't
-    // have them, we don't support OAuth2.
+    let details = OAuth2Providers.getHostnameDetails(aHostname);
+    if (details) {
+      // Found in the list of hardcoded providers. Use the hardcoded values.
+      [issuer, scope] = details;
+      //  Store them for the future, can be useful once we support
+      // dynamic registration.
+      Services.prefs.setStringPref(root + "oauth2.issuer", issuer);
+      Services.prefs.setStringPref(root + "oauth2.scope", scope);
+    }
     if (!issuer || !scope) {
-      // Since we currently only support gmail, init values if server matches.
-      let details = OAuth2Providers.getHostnameDetails(aHostname);
-      if (details) {
-        [issuer, scope] = details;
-        Services.prefs.setStringPref(root + "oauth2.issuer", issuer);
-        Services.prefs.setStringPref(root + "oauth2.scope", scope);
-      } else {
-        return false;
-      }
+      // We need these properties for OAuth2 support.
+      return false;
     }
 
     // Find the app key we need for the OAuth2 string. Eventually, this should

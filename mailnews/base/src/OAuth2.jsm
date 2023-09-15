@@ -244,13 +244,28 @@ OAuth2.prototype = {
     delete this._browserRequest;
   },
 
-  // @see RFC 6749 section 4.1.2: Authorization Response
+  /**
+   * @param {string} aURL - Redirection URI with additional parameters.
+   */
   onAuthorizationReceived(aURL) {
-    this.log.info("OAuth2 authorization received: url=" + aURL);
+    this.log.info("OAuth2 authorization response received: url=" + aURL);
     const url = new URL(aURL);
     if (url.searchParams.has("code")) {
+      // @see RFC 6749 section 4.1.2: Authorization Response
       this.requestAccessToken(url.searchParams.get("code"), false);
     } else {
+      // @see RFC 6749 section 4.1.2.1: Error Response
+      if (url.searchParams.has("error")) {
+        let error = url.searchParams.get("error");
+        let errorDescription = url.searchParams.get("error_description") || "";
+        if (error == "invalid_scope") {
+          errorDescription += ` Invalid scope: ${this.scope}.`;
+        }
+        if (url.searchParams.has("error_uri")) {
+          errorDescription += ` See ${url.searchParams.get("error_uri")}.`;
+        }
+        this.log.error(`Authorization error [${error}]: ${errorDescription}`);
+      }
       this.onAuthorizationFailed(null, aURL);
     }
   },
