@@ -199,6 +199,42 @@ async function _middle_click_on_existing_multi_selection_helper(aBackground) {
   // folderA through folderC is currently the same as selecting folderA.
   assert_folder_selected_and_displayed(folderA);
 }
+
+/**
+ * Middle click on target folder when a folder is selected and displayed.
+ */
+async function middle_click_helper(selectedFolder, targetFolder, shiftPressed) {
+  select_click_folder(selectedFolder);
+  assert_folders_selected_and_displayed(selectedFolder);
+  let originalTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+
+  let [newTab] = middle_click_on_folder(targetFolder, shiftPressed);
+
+  if (shiftPressed) {
+    assert_selected_tab(newTab);
+  } else {
+    // Make sure we haven't switched to the new tab.
+    assert_selected_tab(originalTab);
+    // Now switch to the new tab and check the tab was switched.
+    await switch_tab(newTab);
+  }
+  close_tab(newTab);
+  assert_folders_selected_and_displayed(selectedFolder);
+}
+
+add_task(async function middle_click_tests() {
+  select_click_folder(folderA);
+  assert_folders_selected_and_displayed(folderA);
+
+  // middle clicks while pressing shift
+  await middle_click_helper(folderA, folderA, true);
+  await middle_click_helper(folderA, folderB, true);
+
+  // middle clicks without pressing shift
+  await middle_click_helper(folderA, folderA, false);
+  await middle_click_helper(folderA, folderB, false);
+});
+
 /**
  * Generate background and foreground tests for each middle click test.
  *

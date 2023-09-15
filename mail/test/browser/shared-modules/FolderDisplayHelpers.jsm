@@ -1466,19 +1466,21 @@ async function right_click_on_folder(aFolder) {
  *
  * @returns [The new tab, the view index that you clicked on.]
  */
-function middle_click_on_folder(aFolder) {
-  // Figure out the view index
+function middle_click_on_folder(aFolder, shiftPressed) {
   let win = get_about_3pane();
-  let viewIndex = mc.folderTreeView.getIndexOfFolder(aFolder);
   let folderTree = win.window.document.getElementById("folderTree");
-  _row_click_helper(mc, folderTree, viewIndex, 1);
-  // We append new tabs at the end, so return the last tab
+  let row = folderTree.rows.find(row => row.uri == aFolder.URI);
+  EventUtils.synthesizeMouseAtCenter(
+    row.querySelector(".container"),
+    { button: 1, shiftKey: shiftPressed },
+    win
+  );
+
   return [
     mc.window.document.getElementById("tabmail").tabInfo[
       mc.window.document.getElementById("tabmail").tabContainer.allTabs.length -
         1
     ],
-    viewIndex,
   ];
 }
 

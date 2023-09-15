@@ -1438,6 +1438,7 @@ var folderPane = {
     Services.obs.addObserver(this, "search-folders-changed");
     Services.obs.addObserver(this, "folder-properties-changed");
 
+    folderTree.addEventListener("auxclick", this);
     folderTree.addEventListener("contextmenu", this);
     folderTree.addEventListener("collapsed", this);
     folderTree.addEventListener("expanded", this);
@@ -1507,6 +1508,11 @@ var folderPane = {
     switch (event.type) {
       case "select":
         this._onSelect(event);
+        break;
+      case "auxclick":
+        if (event.button == 1) {
+          this._onMiddleClick(event);
+        }
         break;
       case "contextmenu":
         this._onContextMenu(event);
@@ -2512,6 +2518,28 @@ var folderPane = {
         quotaPanel.classList.add("alert-critical");
       }
     }
+  },
+
+  _onMiddleClick(event) {
+    if (
+      event.target.closest(".mode-container") ||
+      folderTree.selectedIndex == -1
+    ) {
+      return;
+    }
+    const row = event.target.closest("li");
+    if (!row) {
+      return;
+    }
+
+    top.MsgOpenNewTabForFolders(
+      [MailServices.folderLookup.getFolderForURL(row.uri)],
+      {
+        event,
+        folderPaneVisible: !paneLayout.folderPaneSplitter.isCollapsed,
+        messagePaneVisible: !paneLayout.messagePaneSplitter.isCollapsed,
+      }
+    );
   },
 
   _onContextMenu(event) {
