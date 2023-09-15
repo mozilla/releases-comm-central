@@ -12,7 +12,7 @@
  * upstream first.
  *
  * Current ical.js git revision:
- * https://github.com/darktrojan/ical.js/commit/8d6c9047424fde8f78062a52da57e1a6fab8d2e7
+ * https://github.com/darktrojan/ical.js/commit/0f1af2444b82708bb3a0a6b05d834884dedd8109
  */
 
 var EXPORTED_SYMBOLS = ["ICAL", "unwrap", "unwrapSetter", "unwrapSingle", "wrapGetter"];
@@ -7182,7 +7182,14 @@ ICAL.RecurIterator = (function() {
       this.initialized = options.initialized || false;
 
       if (!this.initialized) {
-        this.init();
+        try {
+          this.init();
+        } catch (e) {
+          // Init may error if there are no possible recurrence instances from
+          // the rule, but we don't want to bubble this error up. Instead, we
+          // create an empty iterator.
+          this.completed = true;
+        }
       }
     },
 
@@ -7256,12 +7263,26 @@ ICAL.RecurIterator = (function() {
       }
 
       if (this.rule.freq == "YEARLY") {
-        for (;;) {
+        // Some yearly recurrence rules may be specific enough to not actually
+        // occur on a yearly basis, e.g. the 29th day of February or the fifth
+        // Monday of a given month. The standard isn't clear on the intended
+        // behavior in these cases, but `libical` at least will iterate until it
+        // finds a matching year.
+        // CAREFUL: Some rules may specify an occurrence that can never happen,
+        // e.g. the first Monday of April so long as it falls on the 15th
+        // through the 21st. Detecting these is non-trivial, so ensure that we
+        // stop iterating at some point.
+        var untilYear = this.rule.until ? this.rule.until.year : 20000;
+        while (this.last.year <= untilYear) {
           this.expand_year_days(this.last.year);
           if (this.days.length > 0) {
             break;
           }
           this.increment_year(this.rule.interval);
+        }
+
+        if (this.days.length == 0) {
+          throw new Error("No possible occurrences");
         }
 
         this._nextByYearDay();
@@ -7354,15 +7375,12 @@ ICAL.RecurIterator = (function() {
      * @return {ICAL.Time}
      */
     next: function icalrecur_iterator_next() {
-      var before = (this.last ? this.last.clone() : null);
-
       if ((this.rule.count && this.occurrence_number >= this.rule.count) ||
           (this.rule.until && this.last.compare(this.rule.until) > 0)) {
-
-        //XXX: right now this is just a flag and has no impact
-        //     we can simplify the above case to check for completed later.
         this.completed = true;
+      }
 
+      if (this.completed) {
         return null;
       }
 
@@ -7371,7 +7389,6 @@ ICAL.RecurIterator = (function() {
         this.occurrence_number++;
         return this.last;
       }
-
 
       var valid;
       do {
