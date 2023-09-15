@@ -436,24 +436,36 @@ class SmtpClient {
   /**
    * Error handler. Emits an nsresult value.
    *
-   * @param {Error|TCPSocketErrorEvent} e - An Error or TCPSocketErrorEvent object.
+   * @param {Error|TCPSocketErrorEvent} event - An Error or TCPSocketErrorEvent object.
    */
-  _onError = async e => {
-    this.logger.error(e);
+  _onError = async event => {
+    this.logger.error(`${event.name}: a ${event.message} error occurred`);
     if (this._freed) {
       // Ignore socket errors if already freed.
       return;
     }
-    this._free();
 
+    this._free();
     this.quit();
+
     let nsError = Cr.NS_ERROR_FAILURE;
     let secInfo = null;
-    if (TCPSocketErrorEvent.isInstance(e)) {
-      nsError = e.errorCode;
+    if (TCPSocketErrorEvent.isInstance(event)) {
+      nsError = event.errorCode;
       secInfo =
-        await e.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
+        await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
+      if (secInfo) {
+        this.logger.error(`SecurityError info: ${secInfo.errorCodeString}`);
+        if (secInfo.failedCertChain.length) {
+          let chain = secInfo.failedCertChain.map(c => {
+            return c.commonName + "; serial# " + c.serialNumber;
+          });
+          this.logger.error(`SecurityError cert chain: ${chain.join(" <- ")}`);
+        }
+        this._server.closeCachedConnections();
+      }
     }
+
     // Use nsresult to integrate with other parts of sending process, e.g.
     // MessageSend.jsm will show an error message depending on the nsresult.
     this.onerror(nsError, "", secInfo);
@@ -545,7 +557,6 @@ class SmtpClient {
   _free() {
     if (!this._freed) {
       this._freed = true;
-      this.logger.debug("Client ready for reuse");
       this.onFree();
     }
   }

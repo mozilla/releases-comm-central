@@ -150,23 +150,23 @@ class ImapClient {
    *
    * @param {nsIUrlListener} urlListener - Callback for the request.
    * @param {nsIMsgWindow} msgWindow - The associated msg window.
-   * @param {nsIMsgMailNewsUrl} [runningUrl] - The url to run, if provided.
+   * @param {nsIMsgMailNewsUrl} [runningUri] - The url to run, if provided.
    * @returns {nsIMsgMailNewsUrl}
    */
-  startRunningUrl(urlListener, msgWindow, runningUrl) {
+  startRunningUrl(urlListener, msgWindow, runningUri) {
     this._urlListener = urlListener;
     this._msgWindow = msgWindow;
-    this.runningUrl = runningUrl;
-    if (!this.runningUrl) {
-      this.runningUrl = Services.io.newURI(
+    this.runningUri = runningUri;
+    if (!this.runningUri) {
+      this.runningUri = Services.io.newURI(
         `imap://${this._server.hostName}:${this._server.port}`
       );
     }
-    this._urlListener?.OnStartRunningUrl(this.runningUrl, Cr.NS_OK);
-    this.runningUrl
+    this._urlListener?.OnStartRunningUrl(this.runningUri, Cr.NS_OK);
+    this.runningUri
       .QueryInterface(Ci.nsIMsgMailNewsUrl)
       .SetUrlState(true, Cr.NS_OK);
-    return this.runningUrl;
+    return this.runningUri;
   }
 
   /**
@@ -460,7 +460,7 @@ class ImapClient {
         let resultAttributes = res.messages
           .map(m => m.customAttributes[attribute])
           .flat();
-        this.runningUrl.QueryInterface(Ci.nsIImapUrl).customAttributeResult =
+        this.runningUri.QueryInterface(Ci.nsIImapUrl).customAttributeResult =
           resultAttributes.length > 1
             ? `(${resultAttributes.join(" ")})`
             : resultAttributes[0];
@@ -682,7 +682,7 @@ class ImapClient {
           // The response is like `<tag> OK [APPENDUID <uidvalidity> <uid>]`.
           this._folderSink.setAppendMsgUid(
             res.attributes.appenduid[1],
-            this.runningUrl
+            this.runningUri
           );
         }
         this._actionDone();
@@ -702,7 +702,7 @@ class ImapClient {
     let outKeywords = {};
     let flags = dstFolder
       .QueryInterface(Ci.nsIImapMessageSink)
-      .getCurMoveCopyMessageInfo(this.runningUrl, {}, outKeywords);
+      .getCurMoveCopyMessageInfo(this.runningUri, {}, outKeywords);
     let flagString = ImapUtils.flagsToString(flags, this._supportedFlags);
     if (isDraft && !/\b\Draft\b/.test(flagString)) {
       flagString += " \\Draft";
@@ -918,18 +918,29 @@ class ImapClient {
    * @param {TCPSocketErrorEvent} event - The error event.
    */
   _onError = async event => {
-    this._logger.error(event, event.name, event.message, event.errorCode);
+    this._logger.error(`${event.name}: a ${event.message} error occurred`);
     if (event.errorCode == Cr.NS_ERROR_NET_TIMEOUT) {
       this._actionError("imapNetTimeoutError");
       this._actionDone(event.errorCode);
       return;
     }
-    this.logout();
+
     let secInfo =
       await event.target.transport?.tlsSocketControl?.asyncGetSecurityInfo();
     if (secInfo) {
-      this.runningUrl.failedSecInfo = secInfo;
+      this._logger.error(`SecurityError info: ${secInfo.errorCodeString}`);
+      if (secInfo.failedCertChain.length) {
+        let chain = secInfo.failedCertChain.map(c => {
+          return c.commonName + "; serial# " + c.serialNumber;
+        });
+        this._logger.error(`SecurityError cert chain: ${chain.join(" <- ")}`);
+      }
+      this.runningUri.failedSecInfo = secInfo;
+      this._server.closeCachedConnections();
+    } else {
+      this.logout();
     }
+
     this._actionDone(event.errorCode);
   };
 
@@ -1587,7 +1598,7 @@ class ImapClient {
    * Send UID FETCH request to the server.
    */
   _actionUidFetch() {
-    if (this.runningUrl.imapAction == Ci.nsIImapUrl.nsImapLiteSelectFolder) {
+    if (this.runningUri.imapAction == Ci.nsIImapUrl.nsImapLiteSelectFolder) {
       this._nextAction = () => this._actionDone();
     } else {
       this._nextAction = this._actionUidFetchResponse;
@@ -1720,7 +1731,7 @@ class ImapClient {
         // Handle message headers.
         this._messageUids[msg.sequence] = msg.uid;
         this._messages.set(msg.uid, msg);
-        this._folderSink.StartMessage(this.runningUrl);
+        this._folderSink.StartMessage(this.runningUri);
         let hdrXferInfo = {
           numHeaders: 1,
           getHeader() {
@@ -1745,19 +1756,19 @@ class ImapClient {
         } catch (e) {}
         if (
           (shouldStoreMsgOffline ||
-            this.runningUrl.QueryInterface(Ci.nsIImapUrl)
+            this.runningUri.QueryInterface(Ci.nsIImapUrl)
               .storeResultsOffline) &&
           msg.body
         ) {
-          this._folderSink.StartMessage(this.runningUrl);
-          this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUrl);
+          this._folderSink.StartMessage(this.runningUri);
+          this._msgSink.parseAdoptedMsgLine(msg.body, msg.uid, this.runningUri);
           this._msgSink.normalEndMsgWriteStream(
             msg.uid,
             true,
-            this.runningUrl,
+            this.runningUri,
             msg.body.length
           );
-          this._folderSink.EndMessage(this.runningUrl, msg.uid);
+          this._folderSink.EndMessage(this.runningUri, msg.uid);
         }
 
         this.onData?.(msg.body);
@@ -1844,8 +1855,8 @@ class ImapClient {
   _actionDone = (status = Cr.NS_OK) => {
     this._logger.debug(`Done with status=${status}`);
     this._nextAction = null;
-    this._urlListener?.OnStopRunningUrl(this.runningUrl, status);
-    this.runningUrl.SetUrlState(false, status);
+    this._urlListener?.OnStopRunningUrl(this.runningUri, status);
+    this.runningUri.SetUrlState(false, status);
     this.onDone?.(status);
     this._reset();
     // Tell ImapIncomingServer this client can be reused now.
