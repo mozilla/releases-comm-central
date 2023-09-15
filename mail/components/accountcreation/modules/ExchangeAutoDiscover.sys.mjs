@@ -2,29 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["fetchConfigFromExchange", "getAddonsList"];
-
-var { AccountCreationUtils } = ChromeUtils.import(
-  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
-);
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
+import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
 
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   setTimeout: "resource://gre/modules/Timer.sys.mjs",
+  AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
+  FetchHTTP: "resource:///modules/accountcreation/FetchHTTP.sys.mjs",
+  GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  AccountConfig: "resource:///modules/accountcreation/AccountConfig.jsm",
-  FetchHTTP: "resource:///modules/accountcreation/FetchHTTP.jsm",
-  GuessConfig: "resource:///modules/accountcreation/GuessConfig.jsm",
-  Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
-});
-
-var {
+const {
   Abortable,
   assert,
   ddump,
@@ -63,7 +53,7 @@ var {
  *         so do not unconditionally show this to the user.
  *         The first parameter will be an exception object or error string.
  */
-function fetchConfigFromExchange(
+export function fetchConfigFromExchange(
   domain,
   emailAddress,
   username,
@@ -465,6 +455,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
 
   return config;
 }
+
 /* eslint-enable complexity */
 
 /**
@@ -474,7 +465,7 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
  * @param {Function(config {AccountConfig})} successCallback
  * @returns {Abortable}
  */
-function getAddonsList(config, successCallback, errorCallback) {
+export function getAddonsList(config, successCallback, errorCallback) {
   let incoming = [config.incoming, ...config.incomingAlternatives].find(
     alt => alt.type == "exchange"
   );

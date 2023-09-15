@@ -19,22 +19,15 @@
  * for values stored.
  */
 
-const EXPORTED_SYMBOLS = ["AccountConfig"];
-
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "AccountCreationUtils",
-  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "Sanitizer",
-  "resource:///modules/accountcreation/Sanitizer.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  AccountCreationUtils:
+    "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+});
 
-function AccountConfig() {
+export function AccountConfig() {
   this.incoming = this.createNewIncoming();
   this.incomingAlternatives = [];
   this.outgoing = this.createNewOutgoing();
@@ -48,6 +41,7 @@ function AccountConfig() {
   this.inputFields = [];
   this.domains = [];
 }
+
 AccountConfig.prototype = {
   // @see createNewIncoming()
   incoming: null,

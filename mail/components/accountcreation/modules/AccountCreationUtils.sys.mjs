@@ -5,25 +5,19 @@
  * Some common, generic functions
  */
 
-const EXPORTED_SYMBOLS = ["AccountCreationUtils"];
-
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "Sanitizer",
-  "resource:///modules/accountcreation/Sanitizer.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+});
 
-const { AddonManager } = ChromeUtils.importESModule(
-  "resource://gre/modules/AddonManager.sys.mjs"
-);
-const { ConsoleAPI } = ChromeUtils.importESModule(
-  "resource://gre/modules/Console.sys.mjs"
-);
-const { clearInterval, clearTimeout, setTimeout } = ChromeUtils.importESModule(
-  "resource://gre/modules/Timer.sys.mjs"
-);
+import { AddonManager } from "resource://gre/modules/AddonManager.sys.mjs";
+import { ConsoleAPI } from "resource://gre/modules/Console.sys.mjs";
+import {
+  clearInterval,
+  clearTimeout,
+  setTimeout,
+} from "resource://gre/modules/Timer.sys.mjs";
 
 // --------------------------
 // Low level, basic functions
@@ -695,7 +689,7 @@ function alertPrompt(alertTitle, alertMsg) {
   );
 }
 
-var AccountCreationUtils = {
+export const AccountCreationUtils = {
   Abortable,
   AddonInstaller,
   alertPrompt,

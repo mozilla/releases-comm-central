@@ -153,14 +153,14 @@ TracingListener.prototype = {
   },
 
   async onStopRequest(/* nsIRequest */ aRequest, /* int */ aStatusCode) {
-    const { CreateInBackend } = ChromeUtils.import(
-      "resource:///modules/accountcreation/CreateInBackend.jsm"
+    const { CreateInBackend } = ChromeUtils.importESModule(
+      "resource:///modules/accountcreation/CreateInBackend.sys.mjs"
     );
-    const { readFromXML } = ChromeUtils.import(
-      "resource:///modules/accountcreation/readFromXML.jsm"
+    const { readFromXML } = ChromeUtils.importESModule(
+      "resource:///modules/accountcreation/readFromXML.sys.mjs"
     );
-    const { AccountConfig } = ChromeUtils.import(
-      "resource:///modules/accountcreation/AccountConfig.jsm"
+    const { AccountConfig } = ChromeUtils.importESModule(
+      "resource:///modules/accountcreation/AccountConfig.sys.mjs"
     );
 
     let newAccount;

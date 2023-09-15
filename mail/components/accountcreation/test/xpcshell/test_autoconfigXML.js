@@ -16,11 +16,11 @@
 
 // Globals
 
-var { AccountConfig } = ChromeUtils.import(
-  "resource:///modules/accountcreation/AccountConfig.jsm"
+var { AccountConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/AccountConfig.sys.mjs"
 );
-var { readFromXML } = ChromeUtils.import(
-  "resource:///modules/accountcreation/readFromXML.jsm"
+var { readFromXML } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/readFromXML.sys.mjs"
 );
 
 var { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");

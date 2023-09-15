@@ -6,16 +6,16 @@
 JAR_MANIFESTS += ["jar.mn"]
 
 EXTRA_JS_MODULES.accountcreation += [
-    "AccountConfig.jsm",
-    "AccountCreationUtils.jsm",
-    "ConfigVerifier.jsm",
-    "CreateInBackend.jsm",
-    "ExchangeAutoDiscover.jsm",
-    "FetchConfig.jsm",
-    "FetchHTTP.jsm",
-    "GuessConfig.jsm",
-    "readFromXML.jsm",
-    "Sanitizer.jsm",
+    "modules/AccountConfig.sys.mjs",
+    "modules/AccountCreationUtils.sys.mjs",
+    "modules/ConfigVerifier.sys.mjs",
+    "modules/CreateInBackend.sys.mjs",
+    "modules/ExchangeAutoDiscover.sys.mjs",
+    "modules/FetchConfig.sys.mjs",
+    "modules/FetchHTTP.sys.mjs",
+    "modules/GuessConfig.sys.mjs",
+    "modules/readFromXML.sys.mjs",
+    "modules/Sanitizer.sys.mjs",
 ]
 
 XPCSHELL_TESTS_MANIFESTS += [

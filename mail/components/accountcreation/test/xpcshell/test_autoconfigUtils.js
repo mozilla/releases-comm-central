@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*
- * Tests for GuessConfig.jsm
+ * Tests for GuessConfig.sys.jsm
  *
  * Currently tested:
  * - getHostEntry function.
@@ -18,8 +18,8 @@
 
 // Globals
 
-var { GuessConfig } = ChromeUtils.import(
-  "resource:///modules/accountcreation/GuessConfig.jsm"
+var { GuessConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/GuessConfig.sys.mjs"
 );
 
 var {

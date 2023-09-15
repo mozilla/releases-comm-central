@@ -2,27 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["FetchConfig"];
+import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
 
-const { AccountCreationUtils } = ChromeUtils.import(
-  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
-);
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "FetchHTTP",
-  "resource:///modules/accountcreation/FetchHTTP.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "readFromXML",
-  "resource:///modules/accountcreation/readFromXML.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "Sanitizer",
-  "resource:///modules/accountcreation/Sanitizer.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  FetchHTTP: "resource:///modules/accountcreation/FetchHTTP.sys.mjs",
+  readFromXML: "resource:///modules/accountcreation/readFromXML.sys.mjs",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+});
 
 const { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 const { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
@@ -294,7 +281,7 @@ function getMX(sanitizedDomain, successCallback, errorCallback) {
   );
 }
 
-var FetchConfig = {
+export const FetchConfig = {
   forMX: fetchConfigForMX,
   fromDB: fetchConfigFromDB,
   fromISP: fetchConfigFromISP,

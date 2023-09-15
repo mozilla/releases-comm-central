@@ -2,25 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["readFromXML"];
-
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "AccountConfig",
-  "resource:///modules/accountcreation/AccountConfig.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "AccountCreationUtils",
-  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "Sanitizer",
-  "resource:///modules/accountcreation/Sanitizer.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
+  AccountCreationUtils:
+    "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+});
 
 /* eslint-disable complexity */
 /**
@@ -38,7 +27,7 @@ ChromeUtils.defineModuleGetter(
  * @param source {String} - Used for the subSource field of AccountConfig.
  * @returns AccountConfig   object filled with the data from XML
  */
-function readFromXML(clientConfigXML, subSource) {
+export function readFromXML(clientConfigXML, subSource) {
   function array_or_undef(value) {
     return value === undefined ? [] : value;
   }

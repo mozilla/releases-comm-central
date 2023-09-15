@@ -5,30 +5,31 @@
 /* global MozElements */
 
 /* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
-var { AccountCreationUtils } = ChromeUtils.import(
-  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
+var { AccountCreationUtils } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs"
 );
-var { fetchConfigFromExchange, getAddonsList } = ChromeUtils.import(
-  "resource:///modules/accountcreation/ExchangeAutoDiscover.jsm"
+var { fetchConfigFromExchange, getAddonsList } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/ExchangeAutoDiscover.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {
+  AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
+  ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.sys.mjs",
+  CreateInBackend:
+    "resource:///modules/accountcreation/CreateInBackend.sys.mjs",
+  FetchConfig: "resource:///modules/accountcreation/FetchConfig.sys.mjs",
+  GuessConfig: "resource:///modules/accountcreation/GuessConfig.sys.mjs",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AccountConfig: "resource:///modules/accountcreation/AccountConfig.jsm",
   CardDAVUtils: "resource:///modules/CardDAVUtils.jsm",
-  ConfigVerifier: "resource:///modules/accountcreation/ConfigVerifier.jsm",
-  CreateInBackend: "resource:///modules/accountcreation/CreateInBackend.jsm",
-  FetchConfig: "resource:///modules/accountcreation/FetchConfig.jsm",
-  GuessConfig: "resource:///modules/accountcreation/GuessConfig.jsm",
   OAuth2Providers: "resource:///modules/OAuth2Providers.jsm",
-  Sanitizer: "resource:///modules/accountcreation/Sanitizer.jsm",
   UIDensity: "resource:///modules/UIDensity.jsm",
   UIFontSize: "resource:///modules/UIFontSize.jsm",
 });

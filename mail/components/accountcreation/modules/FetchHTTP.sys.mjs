@@ -14,17 +14,12 @@
  * but not for bigger file downloads.
  */
 
-const EXPORTED_SYMBOLS = ["FetchHTTP"];
+import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
 
-const { AccountCreationUtils } = ChromeUtils.import(
-  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
-);
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "Sanitizer",
-  "resource:///modules/accountcreation/Sanitizer.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+});
 
 const { JXON } = ChromeUtils.import("resource:///modules/JXON.jsm");
 
@@ -102,7 +97,7 @@ const {
  *   Ignore the username and password unless we are using https:
  *   This also applies to both https: to http: and http: to https: redirects.
  */
-function FetchHTTP(url, args, successCallback, errorCallback) {
+export function FetchHTTP(url, args, successCallback, errorCallback) {
   assert(typeof successCallback == "function", "BUG: successCallback");
   assert(typeof errorCallback == "function", "BUG: errorCallback");
   this._url = lazy.Sanitizer.string(url);
@@ -132,6 +127,7 @@ function FetchHTTP(url, args, successCallback, errorCallback) {
   this._logger = gAccountSetupLogger;
   this._logger.info("Requesting <" + url + ">");
 }
+
 FetchHTTP.prototype = {
   __proto__: Abortable.prototype,
   _url: null, // URL as passed to ctor, without arguments

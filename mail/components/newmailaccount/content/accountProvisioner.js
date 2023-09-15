@@ -15,12 +15,11 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   PluralForm: "resource:///modules/PluralForm.sys.mjs",
+  AccountCreationUtils:
+    "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  AccountCreationUtils:
-    "resource:///modules/accountcreation/AccountCreationUtils.jsm",
-
   UIDensity: "resource:///modules/UIDensity.jsm",
   UIFontSize: "resource:///modules/UIFontSize.jsm",
 });

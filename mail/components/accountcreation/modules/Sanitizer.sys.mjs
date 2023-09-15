@@ -2,11 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["Sanitizer"];
-
-const { AccountCreationUtils } = ChromeUtils.import(
-  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
-);
+import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
 
 const { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
@@ -28,7 +24,7 @@ const { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
 // To debug, set mail.setup.loglevel="All" and kDebug = true.
 var kDebug = false;
 
-var Sanitizer = {
+export const Sanitizer = {
   integer(unchecked) {
     if (typeof unchecked == "number" && !isNaN(unchecked)) {
       return unchecked;

@@ -10,11 +10,11 @@
 
 // Globals
 
-var { AccountConfig } = ChromeUtils.import(
-  "resource:///modules/accountcreation/AccountConfig.jsm"
+var { AccountConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/AccountConfig.sys.mjs"
 );
-var { FetchConfig } = ChromeUtils.import(
-  "resource:///modules/accountcreation/FetchConfig.jsm"
+var { FetchConfig } = ChromeUtils.importESModule(
+  "resource:///modules/accountcreation/FetchConfig.sys.mjs"
 );
 
 var kXMLFile = "example.com.xml";

@@ -2,26 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["GuessConfig"];
+import { AccountCreationUtils } from "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs";
 
-const { AccountCreationUtils } = ChromeUtils.import(
-  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
-);
 const lazy = {};
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "AccountConfig",
-  "resource:///modules/accountcreation/AccountConfig.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "Sanitizer",
-  "resource:///modules/accountcreation/Sanitizer.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
+  Sanitizer: "resource:///modules/accountcreation/Sanitizer.sys.mjs",
+});
 
-const { setTimeout } = ChromeUtils.importESModule(
-  "resource://gre/modules/Timer.sys.mjs"
-);
+import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 const {
   Abortable,
@@ -1314,7 +1303,7 @@ function doProxy(hostname, resultCallback) {
   proxyService.asyncResolve(uri, proxyFlags, new ProxyResolveCallback());
 }
 
-var GuessConfig = {
+export const GuessConfig = {
   UNKNOWN,
   IMAP,
   POP,

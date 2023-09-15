@@ -2,20 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["CreateInBackend"];
-
 const lazy = {};
 
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "AccountConfig",
-  "resource:///modules/accountcreation/AccountConfig.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "AccountCreationUtils",
-  "resource:///modules/accountcreation/AccountCreationUtils.jsm"
-);
+ChromeUtils.defineESModuleGetters(lazy, {
+  AccountConfig: "resource:///modules/accountcreation/AccountConfig.sys.mjs",
+  AccountCreationUtils:
+    "resource:///modules/accountcreation/AccountCreationUtils.sys.mjs",
+});
 
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -452,7 +445,7 @@ function verifyLocalFoldersAccount(am) {
   }
 }
 
-var CreateInBackend = {
+export const CreateInBackend = {
   checkIncomingServerAlreadyExists,
   checkOutgoingServerAlreadyExists,
   createAccountInBackend,
