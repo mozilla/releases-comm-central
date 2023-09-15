@@ -335,8 +335,6 @@ interface nsIMsgSend : nsISupports
 
     attribute nsMsgKey messageKey;
 
-    nsIPrompt getDefaultPrompt();
-
     /* process attachment */
     void gatherMimeAttachments();
     readonly attribute boolean processAttachmentsSynchronously;

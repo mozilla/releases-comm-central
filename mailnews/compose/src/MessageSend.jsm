@@ -331,32 +331,8 @@ class MessageSend {
     this._aborting = false;
   }
 
-  getDefaultPrompt() {
-    if (this._parentWindow) {
-      let prompter = Cc["@mozilla.org/prompter;1"].getService(
-        Ci.nsIPromptFactory
-      );
-      try {
-        return prompter.getPrompt(this._parentWindow, Ci.nsIPrompt);
-      } catch (e) {}
-    }
-    // If we cannot find a prompter, try the mail3Pane window.
-    let prompt;
-    try {
-      prompt = MailServices.mailSession.topmostMsgWindow.promptDialog;
-    } catch (e) {
-      console.warn(
-        `topmostMsgWindow.promptDialog failed with 0x${e.result.toString(
-          16
-        )}\n${e.stack}`
-      );
-    }
-    return prompt;
-  }
-
   fail(exitCode, errorMsg) {
     this._failed = true;
-    // let prompt = this.getDefaultPrompt();
     if (!Components.isSuccessCode(exitCode) && exitCode != Cr.NS_ERROR_ABORT) {
       lazy.MsgUtils.sendLogger.error(
         `Sending failed; ${errorMsg}, exitCode=${exitCode}, originalMsgURI=${this._originalMsgURI}`
@@ -609,7 +585,8 @@ class MessageSend {
       this._setStatusMessage(
         this._composeBundle.GetStringFromName("filterMessageFailed")
       );
-      this.getDefaultPrompt().alert(
+      Services.prompt.alert(
+        this._parentWindow,
         null,
         this._composeBundle.GetStringFromName("errorFilteringMsg")
       );
@@ -827,8 +804,7 @@ class MessageSend {
         "largeMessageSendWarning",
         [messenger.formatFileSize(file.fileSize)]
       );
-      let prompt = this.getDefaultPrompt();
-      if (!prompt.confirm(null, msg)) {
+      if (!Services.prompt.confirm(this._parentWindow, null, msg)) {
         this.fail(lazy.MsgUtils.NS_ERROR_BUT_DONT_SHOW_ALERT, msg);
         throw Components.Exception(
           "Cancelled sending large message",
