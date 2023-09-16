@@ -206,11 +206,14 @@ var EXCLUDE_DOMAINS = [
 
 var EnigmailWkdLookup = {
   /**
-   * get the download URL for an email address for WKD or domain-specific locations
+   * Get the download URL for an email address for WKD or domain-specific
+   * locations.
    *
-   * @param {string} email: email address
-   *
-   * @returns {Promise<string>}: URL (or null if not possible)
+   * @param {string} email - The mail address to check.
+   * @param {boolean} advancedMethod - When
+   *   - true, use https://openpgpkey.<domain>...
+   *   - false use https://<domain>/.well-known/...
+   * @returns {Promise<string>} a URL (or null if not possible)
    */
   async getDownloadUrlFromEmail(email, advancedMethod) {
     email = email.toLowerCase().trim();
@@ -260,10 +263,8 @@ var EnigmailWkdLookup = {
   /**
    * Download a key for an email address
    *
-   * @param {string} email: email address
-   * @param {string} url: url from getDownloadUrlFromEmail()
-   *
-   * @returns {Promise<string>}: Key data (or null if not possible)
+   * @param {string} url - URL from getDownloadUrlFromEmail()
+   * @returns {Promise<string>} key data (or null if not possible)
    */
   async downloadKey(url) {
     let padLen = (url.length % 512) + 1;
@@ -328,9 +329,8 @@ var EnigmailWkdLookup = {
  * Get special URLs for specific sites that don't use WKD, but still provide
  * public keys of their users in
  *
- * @param {string}: emailAddr: email address in lowercase
- *
- * @returns {Promise<string>}: URL or null of no URL relevant
+ * @param {string} emailAddr - Email address in lowercase.
+ * @returns {Promise<string>} - URL or null of no URL relevant.
  */
 async function getSiteSpecificUrl(emailAddr) {
   let domain = emailAddr.replace(/^.+@/, "");
