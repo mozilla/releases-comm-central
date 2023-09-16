@@ -4,7 +4,7 @@ const INSTALL_PAGE = `${BASE}/file_install_extensions.html`;
 
 async function installMozAM(filename) {
   let browser = document.getElementById("tabmail").selectedBrowser;
-  BrowserTestUtils.loadURIString(browser, INSTALL_PAGE);
+  BrowserTestUtils.startLoadingURIString(browser, INSTALL_PAGE);
   await BrowserTestUtils.browserLoaded(browser);
 
   await SpecialPowers.spawn(
