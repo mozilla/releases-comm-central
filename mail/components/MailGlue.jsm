@@ -1168,7 +1168,6 @@ function reportPreferences() {
 
     // Colors
     "browser.display.use_system_colors",
-    "browser.underline_anchors",
 
     // Read receipts
     "mail.mdn.report.enabled",

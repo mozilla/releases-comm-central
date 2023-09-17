@@ -29,10 +29,6 @@ visited-link-color-label =
     .value = Visited Links:
     .accesskey = V
 
-underline-link-checkbox =
-    .label = Underline links
-    .accesskey = U
-
 override-color-label =
     .value = Override the colors specified by the content with my selections above:
     .accesskey = O
