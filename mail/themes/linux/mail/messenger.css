@@ -71,11 +71,11 @@
   background-color: transparent;
 
   #navigation-toolbox:not(:-moz-lwtheme) {
-    appearance: auto;
-    -moz-default-appearance: -moz-window-titlebar-maximized;
+    background-color: ActiveCaption;
     color: CaptionText;
 
     &:-moz-window-inactive {
+      background-color: InactiveCaption;
       color: InactiveCaptionText;
     }
   }
@@ -98,11 +98,7 @@
   -moz-default-appearance: -moz-window-decorations;
   appearance: auto;
 
-  #navigation-toolbox:not(:-moz-lwtheme) {
-    -moz-default-appearance: -moz-window-titlebar;
-  }
-
-  #navigation-toolbox:-moz-lwtheme,
+  #navigation-toolbox,
   ::backdrop {
     border-top-left-radius: env(-moz-gtk-csd-titlebar-radius);
     border-top-right-radius: env(-moz-gtk-csd-titlebar-radius);
