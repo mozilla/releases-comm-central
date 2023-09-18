@@ -106,7 +106,6 @@ richlistitem[error="true"] .accountName {
 /* When the error message was too long, the buttons were too small */
 richlistitem .account-buttons button {
   min-height: 1.8em;
-  color: var(--lwt-text-color) !important;
 }
 
 richlistitem .account-buttons {

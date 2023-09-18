@@ -484,6 +484,10 @@ richlistitem menulist {
   background-image: linear-gradient(var(--button-background-color),
                                     var(--button-background-color));
   color: var(--field-text-color) !important;
+
+  &:-moz-lwtheme {
+    color: var(--lwt-text-color) !important;
+  }
 }
 
 richlistitem button:not([disabled="true"]):hover,

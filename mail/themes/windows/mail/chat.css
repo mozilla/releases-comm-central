@@ -118,6 +118,6 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   }
 
   :root:not([lwt-tree],:-moz-lwtheme) #listPaneBox {
-    background-color: #fafafa;
+    background-color: var(--layout-background-1);
   }
 }
