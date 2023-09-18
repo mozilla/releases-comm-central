@@ -1380,10 +1380,6 @@ var gGeneralPane = {
     if (index >= 0) {
       var itemToRemove = this.mTagListBox.getItemAtIndex(index);
       MailServices.tags.deleteKey(itemToRemove.getAttribute("value"));
-      itemToRemove.remove();
-      var numItemsInListBox = this.mTagListBox.getRowCount();
-      this.mTagListBox.selectedIndex =
-        index < numItemsInListBox ? index : numItemsInListBox - 1;
     }
   },
 
@@ -1397,7 +1393,6 @@ var gGeneralPane = {
       var args = {
         result: "",
         keyToEdit: tagElToEdit.getAttribute("value"),
-        okCallback: editTagCallback,
       };
       gSubDialog.open(
         "chrome://messenger/content/preferences/tagDialog.xhtml",
@@ -2091,8 +2086,19 @@ var gGeneralPane = {
       }
       document.getElementById("updateRadioGroup").value = data;
     } else if (topic == "nsPref:changed" && data.startsWith("mailnews.tags.")) {
+      let selIndex = this.mTagListBox.selectedIndex;
       this.mTagListBox.replaceChildren();
       this.buildTagList();
+      let numItemsInListBox = this.mTagListBox.getRowCount();
+      this.mTagListBox.selectedIndex =
+        selIndex < numItemsInListBox ? selIndex : numItemsInListBox - 1;
+      if (data.endsWith(".color") && Services.prefs.prefHasUserValue(data)) {
+        let key = data.replace(/^mailnews\.tags\./, "").replace(/\.color$/, "");
+        let color = Services.prefs.getCharPref(`mailnews.tags.${key}.color`);
+        // Add to style sheet. We simply add the new color, the rule is added
+        // at the end and will overrule the previous rule.
+        TagUtils.addTagToAllDocumentSheets(key, color);
+      }
     }
   },
 
@@ -2919,36 +2925,11 @@ function addTagCallback(aName, aColor) {
 
   // Add to style sheet.
   let key = MailServices.tags.getKeyForTag(aName);
-  TagUtils.addTagToAllDocumentSheets(key, aColor);
-
-  var item = gGeneralPane.appendTagItem(aName, key, aColor);
-  var tagListBox = document.getElementById("tagList");
+  let tagListBox = document.getElementById("tagList");
+  let item = tagListBox.querySelector(`richlistitem[value=${key}]`);
   tagListBox.ensureElementIsVisible(item);
   tagListBox.selectItem(item);
   tagListBox.focus();
-  return true;
-}
-
-function editTagCallback() {
-  // update the values of the selected item
-  let tagListEl = document.getElementById("tagList");
-  let index = tagListEl.selectedIndex;
-  if (index < 0) {
-    return false;
-  }
-
-  let tagElToEdit = tagListEl.getItemAtIndex(index);
-  let key = tagElToEdit.getAttribute("value");
-  let color = MailServices.tags.getColorForKey(key);
-  // update the color and label elements
-  tagElToEdit
-    .querySelector("label")
-    .setAttribute("value", MailServices.tags.getTagForKey(key));
-  tagElToEdit.style.color = color;
-
-  // Add to style sheet. We simply add the new color, the rule is added at the
-  // end and will overrule the previous rule.
-  TagUtils.addTagToAllDocumentSheets(key, color);
   return true;
 }
 

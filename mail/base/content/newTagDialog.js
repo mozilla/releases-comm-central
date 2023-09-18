@@ -72,9 +72,6 @@ function onOKEditTag(event) {
     dialog.editTagKey,
     document.getElementById("tagColorPicker").value
   );
-  if (!dialog.okCallback()) {
-    event.preventDefault();
-  }
 }
 
 /**

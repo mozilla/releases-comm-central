@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+
 add_task(async () => {
   requestLongerTimeout(2);
 
@@ -234,4 +238,143 @@ add_task(async () => {
       },
     ],
   });
+});
+
+add_task(async function testTagDialog() {
+  const { prefsDocument, prefsWindow } = await openNewPrefsTab(
+    "paneGeneral",
+    "tagsCategory"
+  );
+
+  let newTagDialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    "chrome://messenger/content/preferences/tagDialog.xhtml",
+    {
+      isSubDialog: true,
+      async callback(dialogWindow) {
+        await TestUtils.waitForCondition(
+          () => Services.focus.focusedWindow == dialogWindow,
+          "waiting for subdialog to be focused"
+        );
+
+        const dialogDocument = dialogWindow.document;
+
+        EventUtils.sendString("tbird", dialogWindow);
+        // "#000080" == rgb(0, 0, 128);
+        dialogDocument.getElementById("tagColorPicker").value = "#000080";
+
+        EventUtils.synthesizeMouseAtCenter(
+          dialogDocument.querySelector("dialog").getButton("accept"),
+          {},
+          dialogWindow
+        );
+        await new Promise(r => setTimeout(r));
+      },
+    }
+  );
+
+  let newTagButton = prefsDocument.getElementById("newTagButton");
+  EventUtils.synthesizeMouseAtCenter(newTagButton, {}, prefsWindow);
+  await newTagDialogPromise;
+
+  let tagList = prefsDocument.getElementById("tagList");
+
+  Assert.ok(
+    tagList.querySelector('richlistitem[value="tbird"]'),
+    "new tbird tag should be in the list"
+  );
+  Assert.equal(
+    tagList.querySelector('richlistitem[value="tbird"]').style.color,
+    "rgb(0, 0, 128)",
+    "tbird tag color should be correct"
+  );
+  Assert.equal(
+    tagList.querySelectorAll('richlistitem[value="tbird"]').length,
+    1,
+    "new tbird tag should be in the list exactly once"
+  );
+
+  Assert.equal(
+    tagList.querySelector('richlistitem[value="tbird"]'),
+    tagList.selectedItem,
+    "tbird tag should be selected"
+  );
+
+  // Now edit the tag. The key should stay the same, name and color will change.
+
+  let editTagDialogPromise = BrowserTestUtils.promiseAlertDialogOpen(
+    undefined,
+    "chrome://messenger/content/preferences/tagDialog.xhtml",
+    {
+      isSubDialog: true,
+      async callback(dialogWindow) {
+        await TestUtils.waitForCondition(
+          () => Services.focus.focusedWindow == dialogWindow,
+          "waiting for subdialog to be focused"
+        );
+
+        const dialogDocument = dialogWindow.document;
+
+        Assert.equal(
+          dialogDocument.getElementById("name").value,
+          "tbird",
+          "should have existing tbird tag name prefilled"
+        );
+        Assert.equal(
+          dialogDocument.getElementById("tagColorPicker").value,
+          "#000080",
+          "should have existing tbird tag color prefilled"
+        );
+
+        EventUtils.sendString("-xx", dialogWindow); // => tbird-xx
+        // "#FFD700" == rgb(255, 215, 0);
+        dialogDocument.getElementById("tagColorPicker").value = "#FFD700";
+
+        EventUtils.synthesizeMouseAtCenter(
+          dialogDocument.querySelector("dialog").getButton("accept"),
+          {},
+          dialogWindow
+        );
+        await new Promise(r => setTimeout(r));
+      },
+    }
+  );
+
+  let editTagButton = prefsDocument.getElementById("editTagButton");
+  EventUtils.synthesizeMouseAtCenter(editTagButton, {}, prefsWindow);
+  await editTagDialogPromise;
+
+  Assert.ok(
+    tagList.querySelector(
+      'richlistitem[value="tbird"] > label[value="tbird-xx"]'
+    ),
+    "tbird-xx tag should be in the list"
+  );
+  Assert.equal(
+    tagList.querySelector('richlistitem[value="tbird"]').style.color,
+    "rgb(255, 215, 0)",
+    "tbird-xx tag color should be correct"
+  );
+  Assert.equal(
+    tagList.querySelectorAll('richlistitem[value="tbird"]').length,
+    1,
+    "tbird-xx tag should be in the list exactly once"
+  );
+
+  // And remove it.
+
+  EventUtils.synthesizeMouseAtCenter(
+    prefsDocument.getElementById("removeTagButton"),
+    {},
+    prefsWindow
+  );
+  await new Promise(r => setTimeout(r));
+
+  Assert.equal(
+    tagList.querySelector('richlistitem[value="tbird"]'),
+    null,
+    "tbird-xx (with key tbird) tag should have been removed from the list"
+  );
+
+  await closePrefsTab();
 });
