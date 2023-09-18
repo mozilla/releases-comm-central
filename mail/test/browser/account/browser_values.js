@@ -252,7 +252,10 @@ add_task(async function test_invalid_junk_target() {
     "mail.server." + gPopAccount.incomingServer.key + "."
   );
   branch.setCharPref("spamActionTargetAccount", "some random non-existent URI");
-  branch.setCharPref("spamActionTargetFolder", "some random non-existent URI");
+  branch.setStringPref(
+    "spamActionTargetFolder",
+    "some random non-existent URI"
+  );
   let moveOnSpam = true;
   branch.setBoolPref("moveOnSpam", moveOnSpam);
   await open_advanced_settings(function (tab) {
@@ -265,7 +268,7 @@ add_task(async function test_invalid_junk_target() {
   // The targets should point to the same pop account now.
   let targetAccount = branch.getCharPref("spamActionTargetAccount");
   Assert.equal(targetAccount, gPopAccount.incomingServer.serverURI);
-  let targetFolder = branch.getCharPref("spamActionTargetFolder");
+  let targetFolder = branch.getStringPref("spamActionTargetFolder");
   Assert.equal(targetFolder, gPopAccount.incomingServer.serverURI + "/Junk");
 });
 

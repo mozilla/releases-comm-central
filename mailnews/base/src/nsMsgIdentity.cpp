@@ -202,7 +202,7 @@ NS_IMPL_IDPREF_INT(SignatureDate, "sig_date")
 
 NS_IMPL_IDPREF_BOOL(DoFcc, "fcc")
 
-NS_IMPL_FOLDERPREF_STR(FccFolder, "fcc_folder", "Sent",
+NS_IMPL_FOLDERPREF_STR(FccFolder, "fcc_folder", "Sent"_ns,
                        nsMsgFolderFlags::SentMail)
 NS_IMPL_IDPREF_STR(FccFolderPickerMode, "fcc_folder_picker_mode")
 NS_IMPL_IDPREF_BOOL(FccReplyFollowsParent, "fcc_reply_follows_parent")
@@ -288,11 +288,11 @@ nsMsgIdentity::SetDoBccList(const nsACString& aValue) {
   return SetCharAttribute("doBccList", aValue);
 }
 
-NS_IMPL_FOLDERPREF_STR(DraftFolder, "draft_folder", "Drafts",
+NS_IMPL_FOLDERPREF_STR(DraftFolder, "draft_folder", "Drafts"_ns,
                        nsMsgFolderFlags::Drafts)
-NS_IMPL_FOLDERPREF_STR(ArchiveFolder, "archive_folder", "Archives",
+NS_IMPL_FOLDERPREF_STR(ArchiveFolder, "archive_folder", "Archives"_ns,
                        nsMsgFolderFlags::Archive)
-NS_IMPL_FOLDERPREF_STR(StationeryFolder, "stationery_folder", "Templates",
+NS_IMPL_FOLDERPREF_STR(StationeryFolder, "stationery_folder", "Templates"_ns,
                        nsMsgFolderFlags::Templates)
 
 NS_IMPL_IDPREF_BOOL(ArchiveEnabled, "archive_enabled")
@@ -306,12 +306,12 @@ NS_IMPL_IDPREF_BOOL(AutocompleteToMyDomain, "autocompleteToMyDomain")
 
 NS_IMPL_IDPREF_BOOL(Valid, "valid")
 
-nsresult nsMsgIdentity::getFolderPref(const char* prefname, nsCString& retval,
-                                      const char* folderName,
+nsresult nsMsgIdentity::getFolderPref(const char* prefname, nsACString& retval,
+                                      const nsACString& folderName,
                                       uint32_t folderflag) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
-  nsresult rv = mPrefBranch->GetCharPref(prefname, retval);
+  nsresult rv = mPrefBranch->GetStringPref(prefname, EmptyCString(), 0, retval);
   if (NS_SUCCEEDED(rv) && !retval.IsEmpty()) {
     nsCOMPtr<nsIMsgFolder> folder;
     rv = GetOrCreateFolder(retval, getter_AddRefs(folder));
@@ -337,7 +337,7 @@ nsresult nsMsgIdentity::getFolderPref(const char* prefname, nsCString& retval,
   }
 
   // if the server doesn't exist, fall back to the default pref.
-  rv = mDefPrefBranch->GetCharPref(prefname, retval);
+  rv = mDefPrefBranch->GetStringPref(prefname, EmptyCString(), 0, retval);
   if (NS_SUCCEEDED(rv) && !retval.IsEmpty())
     return setFolderPref(prefname, retval, folderflag);
 
@@ -404,7 +404,7 @@ nsresult nsMsgIdentity::setFolderPref(const char* prefname,
   }
 
   // get the old folder, and clear the special folder flag on it
-  rv = mPrefBranch->GetCharPref(prefname, oldpref);
+  rv = mPrefBranch->GetStringPref(prefname, EmptyCString(), 0, oldpref);
   if (NS_SUCCEEDED(rv) && !oldpref.IsEmpty()) {
     rv = GetOrCreateFolder(oldpref, getter_AddRefs(folder));
     if (NS_SUCCEEDED(rv)) {
@@ -413,7 +413,7 @@ nsresult nsMsgIdentity::setFolderPref(const char* prefname,
   }
 
   // set the new folder, and set the special folder flags on it
-  rv = SetCharAttribute(prefname, value);
+  rv = SetUnicharAttribute(prefname, NS_ConvertUTF8toUTF16(value));
   if (NS_SUCCEEDED(rv) && !value.IsEmpty()) {
     rv = GetOrCreateFolder(value, getter_AddRefs(folder));
     if (NS_SUCCEEDED(rv)) rv = folder->SetFlag(folderflag);

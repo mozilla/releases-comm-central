@@ -1463,7 +1463,8 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
         spamSettings->SetMoveTargetMode(
             nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
         // Set the preferences too so that the values persist.
-        SetCharValue("spamActionTargetFolder", existingUri);
+        SetUnicharValue("spamActionTargetFolder",
+                        NS_ConvertUTF8toUTF16(existingUri));
         SetIntValue("moveTargetMode", nsISpamSettings::MOVE_TARGET_MODE_FOLDER);
       }
     }

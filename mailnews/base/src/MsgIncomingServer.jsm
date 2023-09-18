@@ -90,7 +90,7 @@ function migrateIdentities(oldServerUri, newServerUri) {
 function migrateSpamActions(oldServerUri, newServerUri) {
   for (let server of MailServices.accounts.allServers) {
     let targetAccount = server.getCharValue("spamActionTargetAccount");
-    let targetFolder = server.getCharValue("spamActionTargetFolder");
+    let targetFolder = server.getUnicharValue("spamActionTargetFolder");
     if (targetAccount.startsWith(oldServerUri)) {
       server.setCharValue(
         "spamActionTargetAccount",
@@ -98,7 +98,7 @@ function migrateSpamActions(oldServerUri, newServerUri) {
       );
     }
     if (targetFolder.startsWith(oldServerUri)) {
-      server.setCharValue(
+      server.setUnicharValue(
         "spamActionTargetFolder",
         targetFolder.replace(oldServerUri, newServerUri)
       );

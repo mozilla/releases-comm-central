@@ -24,8 +24,10 @@ class nsMsgIdentity final : public nsIMsgIdentity {
   nsCOMPtr<nsIPrefBranch> mDefPrefBranch;
 
  protected:
-  nsresult getFolderPref(const char* pref, nsCString&, const char*, uint32_t);
-  nsresult setFolderPref(const char* pref, const nsACString&, uint32_t);
+  nsresult getFolderPref(const char* pref, nsACString& retval,
+                         const nsACString& folderName, uint32_t folderFlag);
+  nsresult setFolderPref(const char* pref, const nsACString& retval,
+                         uint32_t folderFlag);
 };
 
 #define NS_IMPL_IDPREF_STR(_postfix, _prefname)           \

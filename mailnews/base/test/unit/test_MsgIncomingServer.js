@@ -132,9 +132,9 @@ add_task(function testMigrateSpamActionsOnChangeUsernameHostname() {
     "imap.localhost",
     "imap"
   );
-  incomingServer1.setCharValue(
+  incomingServer1.setUnicharValue(
     "spamActionTargetFolder",
-    incomingServer1.serverURI + "/Junk"
+    incomingServer1.serverURI + "/Спам"
   );
 
   equal(
@@ -143,7 +143,7 @@ add_task(function testMigrateSpamActionsOnChangeUsernameHostname() {
   );
   equal(
     incomingServer1.spamSettings.actionTargetFolder,
-    "imap://user-imap@imap.localhost/Junk"
+    "imap://user-imap@imap.localhost/Спам"
   );
 
   // Change the username.
@@ -155,7 +155,7 @@ add_task(function testMigrateSpamActionsOnChangeUsernameHostname() {
   );
   equal(
     incomingServer1.spamSettings.actionTargetFolder,
-    "imap://user@imap.localhost/Junk"
+    "imap://user@imap.localhost/Спам"
   );
 });
 

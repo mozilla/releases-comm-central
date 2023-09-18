@@ -316,7 +316,7 @@ function onAdvanced() {
             accountValues,
             "server",
             "spamActionTargetFolder",
-            "string",
+            "wstring",
             true
           );
           let moveOnSpam = parent.getAccountValue(

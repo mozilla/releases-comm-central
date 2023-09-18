@@ -249,10 +249,11 @@ NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
   rv = SetActionTargetAccount(spamActionTargetAccount);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCString spamActionTargetFolder;
-  rv = aServer->GetCharValue("spamActionTargetFolder", spamActionTargetFolder);
+  nsString spamActionTargetFolder;
+  rv = aServer->GetUnicharValue("spamActionTargetFolder",
+                                spamActionTargetFolder);
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = SetActionTargetFolder(spamActionTargetFolder);
+  rv = SetActionTargetFolder(NS_ConvertUTF16toUTF8(spamActionTargetFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool useWhiteList;
