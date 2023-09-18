@@ -934,11 +934,16 @@ var folderPane = {
         let wrappedFolder = VirtualFolderHelper.wrapVirtualFolder(smartFolder);
         let smartFolderRow = folderPane.getRowForFolder(smartFolder, this.name);
         let searchFolderURIs = wrappedFolder.searchFolders.map(sf => sf.URI);
+        let serversToCheck = new Set();
 
         // Remove any rows which may belong to folders that aren't searched.
         for (let row of [...smartFolderRow.querySelectorAll("li")]) {
           if (!searchFolderURIs.includes(row.uri)) {
             row.remove();
+            let folder = MailServices.folderLookup.getFolderForURL(row.uri);
+            if (folder) {
+              serversToCheck.add(folder.server);
+            }
           }
         }
 
@@ -949,26 +954,47 @@ var folderPane = {
         );
         for (let searchFolder of wrappedFolder.searchFolders) {
           if (
-            searchFolder != smartFolder &&
-            !existingRowURIs.includes(searchFolder.URI)
+            searchFolder == smartFolder ||
+            existingRowURIs.includes(searchFolder.URI)
           ) {
-            this._addSearchedFolder(
-              folderType,
-              folderPane._getNonGmailParent(searchFolder),
-              searchFolder
+            continue;
+          }
+          let existingRow = folderPane.getRowForFolder(searchFolder, this.name);
+          if (existingRow) {
+            // A row for this folder exists, but not under the smart folder.
+            // Remove it and display under the smart folder.
+            folderPane._removeFolderAndAncestors(searchFolder, this.name, f =>
+              searchFolderURIs.includes(f.URI)
             );
           }
+          this._addSearchedFolder(
+            folderType,
+            folderPane._getNonGmailParent(searchFolder),
+            searchFolder
+          );
+        }
+
+        // For any rows we removed, check they are added back to the tree.
+        for (let server of serversToCheck) {
+          this.initServer(server);
         }
       },
 
       initServer(server) {
-        for (let folder of server.rootFolder.subFolders) {
-          if (!folderPane._isGmailFolder(folder)) {
-            this.addFolder(server.rootFolder, folder);
+        // Find all folders in this server that aren't currently displayed.
+        let remainingFolders = server.rootFolder.descendants.filter(
+          folder => !folderPane.getRowForFolder(folder, "smart")
+        );
+
+        while (remainingFolders.length) {
+          let folder = remainingFolders.shift();
+          if (folderPane._isGmailFolder(folder)) {
             continue;
           }
-
-          folder.subFolders.forEach(f => this.addFolder(server.rootFolder, f));
+          this.addFolder(folderPane._getNonGmailParent(folder), folder);
+          remainingFolders = remainingFolders.filter(
+            folder => !folderPane.getRowForFolder(folder, "smart")
+          );
         }
       },
 
@@ -985,15 +1011,44 @@ var folderPane = {
           // If this folder is from a hidden server, do nothing.
           return;
         }
-        if (
-          this._folderTypes.some(ft =>
-            childFolder.isSpecialFolder(ft.flag, true)
-          )
-        ) {
-          // If this folder is a special folder, do nothing.
-          return;
+
+        let folderType = this._folderTypes.find(ft =>
+          childFolder.isSpecialFolder(ft.flag, true)
+        );
+        if (folderType) {
+          let virtualFolder = VirtualFolderHelper.wrapVirtualFolder(
+            MailServices.folderLookup.getFolderForURL(folderType.folderURI)
+          );
+          let searchFolders = virtualFolder.searchFolders;
+          if (searchFolders.includes(childFolder)) {
+            // This folder is included in the virtual folder, do nothing.
+            return;
+          }
+
+          if (searchFolders.includes(parentFolder)) {
+            // This folder's parent is included in the virtual folder, but the
+            // folder itself isn't. Add it to the list of non-special folders.
+            // Note that `_addFolderAndAncestors` can't be used here, as that
+            // would add the row in the wrong place.
+            let serverRow = folderPane.getRowForFolder(
+              childFolder.rootFolder,
+              this.name
+            );
+            if (!serverRow) {
+              serverRow = folderPane._createServerRow(
+                this.name,
+                childFolder.server
+              );
+              folderPane._insertInServerOrder(this.containerList, serverRow);
+            }
+            let folderRow = folderPane._createFolderRow(this.name, childFolder);
+            serverRow.insertChildInOrder(folderRow);
+            folderPane._addSubFolders(childFolder, folderRow, this.name);
+            return;
+          }
         }
 
+        // Nothing special about this folder. Add it to the end of the list.
         let folderRow = folderPane._addFolderAndAncestors(
           this.containerList,
           childFolder,

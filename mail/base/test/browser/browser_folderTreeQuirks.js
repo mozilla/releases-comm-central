@@ -11,6 +11,9 @@ const { MessageInjection } = ChromeUtils.import(
 const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
+const { VirtualFolderHelper } = ChromeUtils.import(
+  "resource:///modules/VirtualFolderWrapper.jsm"
+);
 
 let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 let { folderPane, folderTree, threadTree } = about3Pane;
@@ -355,7 +358,8 @@ add_task(async function testSmartFolders() {
     "smart mailboxes",
     "none"
   );
-  let smartInbox = [smartServer.rootFolder.getChildNamed("Inbox"), inboxFolder];
+  let smartInbox = smartServer.rootFolder.getChildNamed("Inbox");
+  let smartInboxFolders = [smartInbox, inboxFolder];
   let otherSmartFolders = [
     smartServer.rootFolder.getChildNamed("Drafts"),
     smartServer.rootFolder.getChildNamed("Templates"),
@@ -365,7 +369,7 @@ add_task(async function testSmartFolders() {
     smartServer.rootFolder.getChildNamed("Trash"),
   ];
   await checkModeListItems("smart", [
-    ...smartInbox,
+    ...smartInboxFolders,
     ...otherSmartFolders,
     trashFolder,
     ...localExtraFolders,
@@ -383,7 +387,7 @@ add_task(async function testSmartFolders() {
 
   // Check the folders are listed in the right order.
   await checkModeListItems("smart", [
-    ...smartInbox,
+    ...smartInboxFolders,
     folderY,
     folderYY,
     ...otherSmartFolders,
@@ -402,10 +406,91 @@ add_task(async function testSmartFolders() {
   let rowY = folderPane.getRowForFolder(folderY);
   let rowYY = folderPane.getRowForFolder(folderYY);
   let rowZ = folderPane.getRowForFolder(folderZ);
-  Assert.equal(rowX.parentNode.parentNode, rootRow);
-  Assert.equal(rowY.parentNode.parentNode, inboxRow);
-  Assert.equal(rowYY.parentNode.parentNode, rowY);
-  Assert.equal(rowZ.parentNode.parentNode, rowB);
+  Assert.equal(
+    rowX.parentNode.parentNode,
+    rootRow,
+    "folderX should be displayed as a child of rootFolder"
+  );
+  Assert.equal(
+    rowY.parentNode.parentNode,
+    inboxRow,
+    "folderY should be displayed as a child of inboxFolder"
+  );
+  Assert.equal(
+    rowYY.parentNode.parentNode,
+    rowY,
+    "folderYY should be displayed as a child of folderY"
+  );
+  Assert.equal(
+    rowZ.parentNode.parentNode,
+    rowB,
+    "folderZ should be displayed as a child of folderB"
+  );
+
+  // Stop searching folderY and folderYY in the smart inbox. They should stop
+  // being listed under the inbox and instead appear under the root folder.
+  let wrappedInbox = VirtualFolderHelper.wrapVirtualFolder(smartInbox);
+  Assert.deepEqual(wrappedInbox.searchFolders, [
+    inboxFolder,
+    folderY,
+    folderYY,
+  ]);
+  wrappedInbox.searchFolders = [inboxFolder];
+
+  // Check the folders are listed in the right order.
+  await checkModeListItems("smart", [
+    ...smartInboxFolders,
+    ...otherSmartFolders,
+    trashFolder,
+    ...localExtraFolders,
+    folderZ,
+    folderX,
+    folderY,
+    folderYY,
+  ]);
+
+  // Check the hierarchy.
+  rowY = folderPane.getRowForFolder(folderY);
+  rowYY = folderPane.getRowForFolder(folderYY);
+  Assert.equal(
+    rowY.parentNode.parentNode,
+    rootRow,
+    "folderY should be displayed as a child of the rootFolder"
+  );
+  Assert.equal(
+    rowYY.parentNode.parentNode,
+    rowY,
+    "folderYY should be displayed as a child of folderY"
+  );
+
+  // Search them again. They should move back to the smart inbox section.
+  wrappedInbox.searchFolders = [inboxFolder, folderY, folderYY];
+
+  // Check the folders are listed in the right order.
+  await checkModeListItems("smart", [
+    ...smartInboxFolders,
+    folderY,
+    folderYY,
+    ...otherSmartFolders,
+    trashFolder,
+    ...localExtraFolders,
+    folderZ,
+    folderX,
+  ]);
+
+  // Check the hierarchy.
+  rowY = folderPane.getRowForFolder(folderY);
+  rowYY = folderPane.getRowForFolder(folderYY);
+  Assert.equal(
+    rowY.parentNode.parentNode,
+    inboxRow,
+    "folderY should be displayed as a child of inboxFolder"
+  );
+  Assert.equal(
+    rowYY.parentNode.parentNode,
+    rowY,
+    "folderYY should be displayed as a child of folderY"
+  );
 
   // Delete the added folders.
   folderX.deleteSelf(null);
@@ -418,7 +503,7 @@ add_task(async function testSmartFolders() {
 
   // Check they appear in the trash.
   await checkModeListItems("smart", [
-    ...smartInbox,
+    ...smartInboxFolders,
     ...otherSmartFolders,
     trashFolder,
     folderX,
@@ -433,15 +518,31 @@ add_task(async function testSmartFolders() {
   rowY = folderPane.getRowForFolder(folderY);
   rowYY = folderPane.getRowForFolder(folderYY);
   rowZ = folderPane.getRowForFolder(folderZ);
-  Assert.equal(rowX.parentNode.parentNode, trashRow);
-  Assert.equal(rowY.parentNode.parentNode, trashRow);
-  Assert.equal(rowYY.parentNode.parentNode, rowY);
-  Assert.equal(rowZ.parentNode.parentNode, trashRow);
+  Assert.equal(
+    rowX.parentNode.parentNode,
+    trashRow,
+    "folderX should be displayed as a child of trashFolder"
+  );
+  Assert.equal(
+    rowY.parentNode.parentNode,
+    trashRow,
+    "folderY should be displayed as a child of trashFolder"
+  );
+  Assert.equal(
+    rowYY.parentNode.parentNode,
+    rowY,
+    "folderYY should be displayed as a child of folderY"
+  );
+  Assert.equal(
+    rowZ.parentNode.parentNode,
+    trashRow,
+    "folderZ should be displayed as a child of trashFolder"
+  );
 
   // Empty the trash and check everything is back to normal.
   rootFolder.emptyTrash(null, null);
   await checkModeListItems("smart", [
-    ...smartInbox,
+    ...smartInboxFolders,
     ...otherSmartFolders,
     trashFolder,
     ...localExtraFolders,
