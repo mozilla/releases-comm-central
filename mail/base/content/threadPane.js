@@ -708,6 +708,7 @@ function ThreadPaneOnLoad() {
 function ThreadPaneSelectionChanged() {
   GetThreadTree().view.selectionChanged();
   UpdateSelectCol();
+  UpdateMailSearch();
 }
 
 function UpdateSelectCol() {

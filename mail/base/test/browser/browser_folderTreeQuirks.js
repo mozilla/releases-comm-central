@@ -78,6 +78,7 @@ add_setup(async function () {
     Services.xulStore.removeDocument(
       "chrome://messenger/content/messenger.xhtml"
     );
+    about3Pane.paneLayout.messagePaneVisible = true;
   });
 });
 
