@@ -303,6 +303,26 @@ mac-notarization:
             macosx64.*: build/package/mac_osx/requirements.plist
             default: ''
 
+mac-signing:
+    hardened-sign-config:
+        by-release-level:
+            production:
+                - deep: false
+                  runtime: true
+                  force: true
+                  entitlements: comm/build/macosx/hardenedruntime/production.entitlements.xml
+                  globs:
+                      - "/Contents/MacOS/thunderbird-bin"
+                      - "/"
+            default:
+                - deep: false
+                  runtime: true
+                  force: true
+                  entitlements: comm/build/macosx/hardenedruntime/developer.entitlements.xml
+                  globs:
+                      - "/Contents/MacOS/thunderbird-bin"
+                      - "/"
+
 expiration-policy:
     by-project:
         try-comm-central:
