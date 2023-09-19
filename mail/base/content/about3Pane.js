@@ -823,7 +823,22 @@ var folderPane = {
               let searchFolders = [];
 
               function recurse(folder) {
-                for (let sf of folder.subFolders) {
+                let subFolders;
+                try {
+                  subFolders = folder.subFolders;
+                } catch (ex) {
+                  console.error(
+                    new Error(
+                      `Unable to access the subfolders of ${folder.URI}`,
+                      { cause: ex }
+                    )
+                  );
+                }
+                if (!subFolders?.length) {
+                  return;
+                }
+
+                for (let sf of subFolders) {
                   // Add all of the subfolders except the ones that belong to
                   // a different folder type.
                   if (!(sf.flags & allFlags)) {
@@ -1097,8 +1112,18 @@ var folderPane = {
       },
 
       _recurseSubFolders(parentFolder) {
-        let subFolders = parentFolder.subFolders;
-        if (!subFolders.length) {
+        let subFolders;
+        try {
+          subFolders = parentFolder.subFolders;
+        } catch (ex) {
+          console.error(
+            new Error(
+              `Unable to access the subfolders of ${parentFolder.URI}`,
+              { cause: ex }
+            )
+          );
+        }
+        if (!subFolders?.length) {
           return;
         }
 
@@ -2158,8 +2183,17 @@ var folderPane = {
    *   only some subfolders to the row.
    */
   _addSubFolders(parentFolder, parentRow, modeName, filterFunction) {
-    let subFolders = parentFolder.subFolders;
-    if (!subFolders.length) {
+    let subFolders;
+    try {
+      subFolders = parentFolder.subFolders;
+    } catch (ex) {
+      console.error(
+        new Error(`Unable to access the subfolders of ${parentFolder.URI}`, {
+          cause: ex,
+        })
+      );
+    }
+    if (!subFolders?.length) {
       return;
     }
 
