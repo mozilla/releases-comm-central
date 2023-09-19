@@ -44,13 +44,18 @@ OAuth2Module.prototype = {
     );
   },
   _initPrefs(root, aUsername, aHostname) {
-    // Load all of the parameters from preferences.
-    let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", "");
-    let scope = Services.prefs.getStringPref(root + "oauth2.scope", "");
+    let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", null);
+    let scope = Services.prefs.getStringPref(root + "oauth2.scope", null);
 
     let details = OAuth2Providers.getHostnameDetails(aHostname);
-    if (details) {
+    if (
+      details &&
+      (details[0] != issuer ||
+        !scope?.split(" ").every(s => details[1].split(" ").includes(s)))
+    ) {
       // Found in the list of hardcoded providers. Use the hardcoded values.
+      // But only if what we had wasn't a narrower scope of current
+      // defaults. Updating scope would cause re-authorization.
       [issuer, scope] = details;
       //  Store them for the future, can be useful once we support
       // dynamic registration.
