@@ -1094,7 +1094,9 @@ DBViewWrapper.prototype = {
     let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=";
 
     // we will have saved these off when closing our view
-    let viewFlags = this.__viewFlags || 0;
+    let viewFlags =
+      this.__viewFlags ??
+      Services.prefs.getIntPref("mailnews.default_view_flags", 1);
 
     // real folders are subject to the most interest set of possibilities...
     if (this._underlyingData == this.kUnderlyingRealFolder) {
