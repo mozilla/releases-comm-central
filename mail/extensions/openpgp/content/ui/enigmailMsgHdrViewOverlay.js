@@ -565,6 +565,12 @@ Enigmail.hdrView = {
         EnigmailLog.DEBUG(
           "enigmailMsgHdrViewOverlay.js: _listener_onEndHeaders\n"
         );
+      },
+
+      onEndAttachments() {
+        EnigmailLog.DEBUG(
+          "enigmailMsgHdrViewOverlay.js: _listener_onEndAttachments\n"
+        );
 
         try {
           EnigmailVerify.setWindow(null, null);
@@ -582,7 +588,7 @@ Enigmail.hdrView = {
 
     // fire the handlers since some windows open directly with a visible message
     this.messageListener.onStartHeaders();
-    this.messageListener.onEndHeaders();
+    this.messageListener.onEndAttachments();
   },
 
   messageUnload(event) {
@@ -760,7 +766,11 @@ Enigmail.hdrView = {
     let oldFlags = gMessage.flags;
     if (hadRe) {
       gMessage.flags |= Ci.nsMsgMessageFlags.HasRe;
+      newSubject = "Re: " + newSubject;
     }
+    document.title = newSubject;
+    currentHeaderData.subject.headerValue = newSubject;
+    document.getElementById("expandedsubjectBox").headerValue = newSubject;
     // This even works if the flags haven't changed. Causes repaint in all thread trees.
     gMessage.folder?.msgDatabase.notifyHdrChangeAll(
       gMessage,

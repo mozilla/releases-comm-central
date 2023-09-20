@@ -27,6 +27,7 @@
 #include "nsMemory.h"
 #include "mozilla/Components.h"
 #include "nsIMailChannel.h"
+#include "nsIProgressEventSink.h"
 
 #define VIEW_ALL_HEADERS 2
 
@@ -191,6 +192,26 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
       GenerateDateString(headerValue, convertedDateString, false);
       mailChannel->AddHeaderFromMIME("X-Mozilla-LocalizedDate"_ns,
                                      convertedDateString);
+    }
+  }
+
+  // Notify the front end that the headers are ready on `mailChannel`.
+  nsCOMPtr<nsIInterfaceRequestor> notificationCallbacks;
+  mChannel->GetNotificationCallbacks(getter_AddRefs(notificationCallbacks));
+  if (NS_SUCCEEDED(rv) && notificationCallbacks) {
+    nsCOMPtr<nsIProgressEventSink> sink;
+    rv = notificationCallbacks->GetInterface(NS_GET_IID(nsIProgressEventSink),
+                                             getter_AddRefs(sink));
+    if (NS_SUCCEEDED(rv) && sink) {
+      nsCOMPtr<nsIURI> uri;
+      mChannel->GetURI(getter_AddRefs(uri));
+      nsCString host;
+      uri->GetHost(host);
+      // The listener gets the localized string "Transferring data from {host}…"
+      // because we use NS_NET_STATUS_RECEIVING_FROM. The channel and status
+      // code itself do not get passed to the listener.
+      sink->OnStatus(mChannel, NS_NET_STATUS_RECEIVING_FROM,
+                     NS_ConvertUTF8toUTF16(host).get());
     }
   }
 
@@ -416,6 +437,27 @@ nsresult nsMimeHtmlDisplayEmitter::EndBody() {
   if (mFormat != nsMimeOutput::nsMimeMessageFilterSniffer) {
     UtilityWriteCRLF("</body>");
     UtilityWriteCRLF("</html>");
+  }
+
+  // Notify the front end that we've finished reading the body.
+  nsCOMPtr<nsIInterfaceRequestor> notificationCallbacks;
+  nsresult rv =
+      mChannel->GetNotificationCallbacks(getter_AddRefs(notificationCallbacks));
+  if (NS_SUCCEEDED(rv) && notificationCallbacks) {
+    nsCOMPtr<nsIProgressEventSink> sink;
+    rv = notificationCallbacks->GetInterface(NS_GET_IID(nsIProgressEventSink),
+                                             getter_AddRefs(sink));
+    if (NS_SUCCEEDED(rv) && sink) {
+      nsCOMPtr<nsIURI> uri;
+      mChannel->GetURI(getter_AddRefs(uri));
+      nsCString host;
+      uri->GetHost(host);
+      // The listener gets the localized string "Read {host}" because we use
+      // NS_NET_STATUS_READING. The channel and status code itself do not get
+      // passed to the listener.
+      sink->OnStatus(mChannel, NS_NET_STATUS_READING,
+                     NS_ConvertUTF8toUTF16(host).get());
+    }
   }
 
   return NS_OK;

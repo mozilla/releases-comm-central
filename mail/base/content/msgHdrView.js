@@ -454,7 +454,7 @@ async function OnLoadMsgHeaderPane() {
 
   getMessagePaneBrowser().addProgressListener(
     messageProgressListener,
-    Ci.nsIWebProgress.NOTIFY_STATE_ALL
+    Ci.nsIWebProgress.NOTIFY_STATUS | Ci.nsIWebProgress.NOTIFY_STATE_ALL
   );
 
   gHeaderCustomize.init();
@@ -535,25 +535,60 @@ var messageProgressListener = {
   /**
    * @param {nsIWebProgress} webProgress
    * @param {nsIRequest} request
+   * @param {nsresult} status
+   * @param {wstring} message
+   * @see {nsIWebProgressListener}
+   */
+  onStatusChange(webProgress, request, status, message) {
+    // We use status change events as a notification from the parser that the
+    // headers are ready to use. Though this event could be fired for any
+    // of the resources in the message, the first three arguments aren't given
+    // so there's no way to know. We'll assume that the first time we get here
+    // after STATE_START is the notification from the parser, since at that
+    // point there should be no other requests in progress.
+    const docRequest = getMessagePaneBrowser().webProgress?.documentRequest;
+    if (
+      !this._sawHeaders &&
+      docRequest &&
+      docRequest instanceof Ci.nsIMailChannel
+    ) {
+      this._sawHeaders = true;
+      this.processHeaders(docRequest.headerNames, docRequest.headerValues);
+    }
+  },
+
+  /**
+   * @param {nsIWebProgress} webProgress
+   * @param {nsIRequest} request
    * @param {integer} stateFlags
    * @param {nsresult} status
    * @see {nsIWebProgressListener}
    */
-  async onStateChange(webProgress, request, stateFlags, status) {
+  onStateChange(webProgress, request, stateFlags, status) {
     if (!(request instanceof Ci.nsIMailChannel)) {
       return;
     }
     if (stateFlags & Ci.nsIWebProgressListener.STATE_START) {
+      // Clear the previously displayed message.
+      const previousDocElement =
+        getMessagePaneBrowser().contentDocument?.documentElement;
+      if (previousDocElement) {
+        previousDocElement.style.display = "none";
+      }
+      ClearAttachmentList();
+      gMessageNotificationBar.clearMsgNotifications();
+
+      this._sawHeaders = false;
       request.smimeHeaderSink = smimeHeaderSink;
       this.onStartHeaders();
     } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-      // onStopRequest may not have been called. Give events time to unwind.
-      if (request.isPending()) {
-        await new Promise(resolve => setTimeout(resolve));
-      }
       currentCharacterSet = request.mailCharacterSet;
       request.smimeHeaderSink = null;
-      this.processHeaders(request.headerNames, request.headerValues);
+      if (!this._sawHeaders) {
+        // This shouldn't happen, but it's here as a backup plan.
+        this._sawHeaders = true;
+        this.processHeaders(request.headerNames, request.headerValues);
+      }
       if (request.imipItem) {
         calImipBar.showImipBar(request.imipItem, request.imipMethod);
       }
