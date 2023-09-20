@@ -719,9 +719,9 @@ function formatArg(argument, spec) {
  * rest of the line.
  */
 class IMAP_RFC3501_handler {
-  constructor(daemon) {
-    this.kUsername = "user";
-    this.kPassword = "password";
+  constructor(daemon, { username = "user", password = "password" } = {}) {
+    this.kUsername = username;
+    this.kPassword = password;
     this.kAuthSchemes = []; // Added by RFC2195 extension. Test may modify as needed.
     this.kCapabilities = [
       /* "LOGINDISABLED", "STARTTLS", */

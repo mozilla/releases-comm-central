@@ -342,7 +342,7 @@ registerCleanupFunction(function () {
         true,
         undefined,
         undefined,
-        `Found ${server} at the end of the test run`
+        `Found server ${server.key} at the end of the test run`
       );
       MailServices.accounts.removeIncomingServer(server, false);
     }
@@ -351,7 +351,7 @@ registerCleanupFunction(function () {
         true,
         undefined,
         undefined,
-        `Found ${account} at the end of the test run`
+        `Found account ${account.key} at the end of the test run`
       );
       MailServices.accounts.removeAccount(account, false);
     }
