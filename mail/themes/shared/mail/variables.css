@@ -139,9 +139,9 @@
     --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color,
                                                 hsla(0, 0%, 80%, 0.6));
   }
-  
+
   /* Dark themes enabled */
-  
+
   &[lwt-tree-brighttext] {
     --default: #dcdcdc;
     --primary: #45b1ff;
@@ -150,7 +150,7 @@
                                                 rgba(249, 249, 250, 0.3));
     --button-sidebar-bottom-hover-color: var(--color-blue-40);
   }
-  
+
   &[lwt-popup-brighttext] {
     --autocomplete-popup-url-color: #0a84ff;
     --panel-separator-color: rgba(249, 249, 250, 0.1);

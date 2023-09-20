@@ -38,7 +38,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
     &:-moz-lwtheme {
       background-color: var(--lwt-accent-color);
-    
+
       &:-moz-window-inactive {
         background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
       }
@@ -48,7 +48,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   @media (-moz-windows-accent-color-in-titlebar: 0) {
     :root[sizemode=normal][tabsintitlebar] {
       border-top: 1px solid rgba(0, 0, 0, 0.7);
-      
+
       &[always-use-accent-color-for-window-border]:not(:-moz-window-inactive) {
         border-top-color: AccentColor;
       }
