@@ -65,7 +65,7 @@
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
 #include "mozilla/dom/Selection.h"
-#include "mozilla/dom/PromiseNativeHandler.h"
+#include "mozilla/dom/Promise-inl.h"
 #include "mozilla/Utf8.h"
 #include "nsStreamConverter.h"
 #include "nsIObserverService.h"
@@ -1248,10 +1248,11 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
     self->DeleteTmpAttachments();
   };
   if (promise) {
-    RefPtr<DomPromiseListener> listener = new DomPromiseListener(
-        [&](JSContext*, JS::Handle<JS::Value>) { DeleteTmpAttachments(); },
-        handleFailure);
-    promise->AppendNativeHandler(listener);
+    promise->AddCallbacksWithCycleCollectedArgs(
+        [self = RefPtr(this)](JSContext*, JS::Handle<JS::Value> aValue,
+                              ErrorResult&) { self->DeleteTmpAttachments(); },
+        [handleFailure, rv](JSContext*, JS::Handle<JS::Value> aValue,
+                            ErrorResult&) { handleFailure(rv); });
     promise.forget(aPromise);
   } else if (NS_FAILED(rv)) {
     handleFailure(rv);
