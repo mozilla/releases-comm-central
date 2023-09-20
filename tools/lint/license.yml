@@ -5,8 +5,15 @@ license:
         - comm/
     exclude:
         # By design
-        - comm/build/macosx/hardenedruntime/developer.entitlements.xml
-        - comm/build/macosx/hardenedruntime/production.entitlements.xml
+        - comm/build/macosx/hardenedruntime/v1/developer/browser.xml
+        - comm/build/macosx/hardenedruntime/v1/production/browser.xml
+        - comm/build/macosx/hardenedruntime/v2/developer/browser.xml
+        - comm/build/macosx/hardenedruntime/v2/developer/media-plugin-helper.xml
+        - comm/build/macosx/hardenedruntime/v2/developer/plugin-container.xml
+        - comm/build/macosx/hardenedruntime/v2/developer/utility.xml
+        - comm/build/macosx/hardenedruntime/v2/production/browser.xml
+        - comm/build/macosx/hardenedruntime/v2/production/media-plugin-helper.xml
+        - comm/build/macosx/hardenedruntime/v2/production/plugin-container.xml
         # License not super clear, Firefox excludes its branding
         - comm/mail/branding/
         # Mostly empty file
