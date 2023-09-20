@@ -14,8 +14,6 @@ const { PromiseTestUtils } = ChromeUtils.import(
 
 const TEST_DOCUMENT_URL =
   "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/sampleContent.html";
-const TEST_IMAGE_URL =
-  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/tb-logo.png";
 
 let tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages;
@@ -90,10 +88,10 @@ add_task(async function testContentTab() {
   await BrowserTestUtils.browserLoaded(tab.browser);
 
   let icon = tab.tabNode.querySelector(".tab-icon-image");
-
   // Start of TEST_IMAGE_URL as data url.
-  await TestUtils.waitForCondition(
-    () => icon.src.startsWith("data:image/png;base64,iVBORw0KGgoAAAANSUhEU"),
-    "Waited for icon to be correct"
+  await BrowserTestUtils.waitForMutationCondition(
+    icon,
+    { attributes: true, attributeFilter: ["src"] },
+    () => icon.src.startsWith("data:image/png;base64,iVBORw0KGgoAAAANSUhEU")
   );
 });
