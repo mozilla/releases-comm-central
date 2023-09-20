@@ -162,12 +162,6 @@ toolbarbutton.formatting-button {
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
-@media not (prefers-contrast) {
-  #compose-toolbox:not(:-moz-lwtheme) {
-    --chrome-content-separator-color: #c2c2c2;
-  }
-}
-
 toolbar:not(:-moz-lwtheme) {
   appearance: none;
 }

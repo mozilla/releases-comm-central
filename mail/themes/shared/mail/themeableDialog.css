@@ -165,9 +165,7 @@ html|textarea:focus {
 }
 
 :root[lwt-tree-brighttext] html|input::selection,
-:root[lwt-tree-brighttext] html|textarea::selection,
-:root[lwt-default-theme-in-dark-mode] html|input::selection,
-:root[lwt-default-theme-in-dark-mode] html|textarea::selection {
+:root[lwt-tree-brighttext] html|textarea::selection {
   background-color: var(--highlight-background);
   color: var(--selected-item-color);
 }

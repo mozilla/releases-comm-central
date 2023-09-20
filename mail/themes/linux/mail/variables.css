@@ -6,11 +6,8 @@
 
 :root {
   --tabline-color: var(--selected-item-color);
-  --toolbar-non-lwt-bgcolor: color-mix(in srgb, -moz-dialog 85%, white);
-  --toolbar-non-lwt-textcolor: -moz-dialogtext;
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, 0.15),
                                              rgba(255, 255, 255, 0.15));
-  --chrome-content-separator-color: ThreeDShadow;
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: var(--selected-item-color);
   --panel-separator-color: ThreeDShadow;

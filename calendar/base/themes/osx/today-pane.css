@@ -20,14 +20,6 @@
   margin-bottom: 1px;
 }
 
-#today-pane-panel:not(:-moz-lwtheme):-moz-window-inactive {
-  background-color: hsl(0, 0%, 97%);
-}
-
-:root[lwt-tree] #mini-day-image:-moz-window-inactive {
-  background-color: transparent;
-}
-
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {
   opacity: .5;
 }

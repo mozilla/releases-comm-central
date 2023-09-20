@@ -34,36 +34,49 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 @media not (prefers-contrast) {
   :root:not(:-moz-lwtheme) {
-    background-color: var(--color-gray-10);
-  }
+    background-color: light-dark(var(--color-gray-10), var(--color-gray-90));
 
-  :root[tabsintitlebar]:-moz-lwtheme {
-    background-color: var(--lwt-accent-color);
-  }
-
-  :root[tabsintitlebar]:-moz-lwtheme:-moz-window-inactive {
-    background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+    &:-moz-lwtheme {
+      background-color: var(--lwt-accent-color);
+    
+      &:-moz-window-inactive {
+        background-color: var(--lwt-accent-color-inactive, var(--lwt-accent-color));
+      }
+    }
   }
 
   @media (-moz-windows-accent-color-in-titlebar: 0) {
     :root[sizemode=normal][tabsintitlebar] {
       border-top: 1px solid rgba(0, 0, 0, 0.7);
-    }
-    :root[sizemode=normal][tabsintitlebar][always-use-accent-color-for-window-border]:not(:-moz-window-inactive) {
-      border-top-color: AccentColor;
+      
+      &[always-use-accent-color-for-window-border]:not(:-moz-window-inactive) {
+        border-top-color: AccentColor;
+      }
     }
     :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
-      background-color: var(--color-gray-30);
+      background-color: light-dark(var(--color-gray-20), var(--color-gray-90));
     }
   }
 
   @media (-moz-windows-accent-color-in-titlebar) {
     :root[tabsintitlebar]:not(:-moz-window-inactive,:-moz-lwtheme) {
       background-color: AccentColor;
-    }
 
-    :root[tabsintitlebar] #navigation-toolbox:not(:-moz-window-inactive,:-moz-lwtheme) {
-      color: AccentColorText;
+      & #navigation-toolbox {
+        color: AccentColorText;
+      }
+    }
+  }
+}
+
+@media (prefers-contrast) {
+  :root[tabsintitlebar]:not(:-moz-lwtheme) {
+    background-color: ActiveCaption;
+    color: CaptionText;
+
+    &:-moz-window-inactive {
+      background-color: InactiveCaption;
+      color: InactiveCaptionText;
     }
   }
 }

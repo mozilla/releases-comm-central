@@ -6,20 +6,10 @@
 
 :root {
   --tabline-color: AccentColor;
-  --toolbar-non-lwt-bgcolor: #f9f9fa;
-  --toolbar-non-lwt-textcolor: #0c0c0d;
   --toolbar-non-lwt-bgimage: none;
-  --chrome-content-separator-color: hsl(0, 0%, 60%);
+  --chrome-content-separator-color: hsl(0, 0%, 50%);
   --row-grouped-header-bg-color: #d5d5d5;
   --row-grouped-header-bg-color-selected: #3874d1;
   --panel-separator-color: hsla(210, 4%, 10%, 0.14);
   --autocomplete-popup-url-color: hsl(210, 77%, 47%);
-}
-
-:root:not(:-moz-lwtheme) {
-  --chrome-content-separator-color: hsl(0, 0%, 68%);
-}
-
-:root:not(:-moz-lwtheme):-moz-window-inactive {
-  --chrome-content-separator-color: hsl(0, 0%, 85%);
 }

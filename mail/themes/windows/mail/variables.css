@@ -8,11 +8,8 @@
   --autocomplete-popup-url-color: -moz-nativehyperlinktext;
   --tabline-color: var(--selected-item-color);
   --glassShadowColor: hsla(240, 5%, 5%, 0.3);
-  --toolbar-non-lwt-bgcolor: color-mix(in srgb, -moz-dialog 85%, white);
-  --toolbar-non-lwt-textcolor: -moz-dialogText;
   --toolbar-non-lwt-bgimage: linear-gradient(rgba(255, 255, 255, 0.15),
                                              rgba(255, 255, 255, 0.15));
-  --chrome-content-separator-color: ThreeDShadow;
   --row-grouped-header-bg-color: -moz-dialog;
   --row-grouped-header-bg-color-selected: var(--selected-item-color);
   --panel-separator-color: ThreeDLightShadow;
@@ -21,8 +18,6 @@
 @media not (prefers-contrast) {
   :root {
     --tabline-color: #0a84ff;
-    --toolbar-non-lwt-bgcolor: #f9f9fa;
-    --toolbar-non-lwt-textcolor: #0c0c0d;
     --toolbar-non-lwt-bgimage: none;
     --panel-separator-color: hsla(210, 4%, 10%, 0.14);
     --autocomplete-popup-url-color: hsl(210, 77%, 47%);

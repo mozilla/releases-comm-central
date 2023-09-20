@@ -5,15 +5,6 @@
 @import url("chrome://messenger/skin/shared/tabmail.css");
 
 /**
- * Tabmail Tabs
- */
-
-#tabs-toolbar:not(:-moz-lwtheme) {
-  color: #333;
-  text-shadow: 0 1px rgba(255, 255, 255, 0.4);
-}
-
-/**
  * Tab
  */
 
@@ -39,16 +30,6 @@
   font: message-box;
   font-size: inherit;
   border: none;
-}
-
-/* override the selected tab toolkit color/text-shadow */
-.tabmail-tab[selected="true"]:not(:-moz-lwtheme) {
-  color: #333;
-  text-shadow: 0 1px rgba(255, 255, 255, 0.4);
-}
-
-.tabmail-tab[selected="true"]:not(:-moz-lwtheme) {
-  -moz-font-smoothing-background-color: var(--toolbar-bgcolor);
 }
 
 .tabmail-tab:focus .tab-label-container {

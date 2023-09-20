@@ -4,12 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/aboutDownloads.css");
 
-@media not (prefers-contrast) {
-  #downloadTopBox:not(:-moz-lwtheme) {
-    --chrome-content-separator-color: #c2c2c2;
-  }
-}
-
 .downloadButton > .button-box > .button-icon {
   list-style-image: url("chrome://global/skin/icons/folder.svg");
 }

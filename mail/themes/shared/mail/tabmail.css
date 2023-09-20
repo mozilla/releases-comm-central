@@ -3,20 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --tabs-toolbar-background-color: rgba(0, 0, 0, 0.075);
+  --tabs-toolbar-background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.15));
   --tabs-toolbar-box-shadow: inset 0 3px 9px -6px rgba(0, 0, 0, 0.5);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --tabs-toolbar-background-color: rgba(0, 0, 0, 0.15);
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    --tabs-toolbar-background-color: rgba(255, 255, 255, 0.15);
-  }
 }
 
 @media (prefers-contrast) {
@@ -84,6 +72,7 @@
   background-color: transparent;
   border-radius: 4px 4px 0 0;
   border-width: 0;
+  color: var(--toolbar-color);
   margin: 0;
   margin-inline-end: 1px;
   padding: 0;

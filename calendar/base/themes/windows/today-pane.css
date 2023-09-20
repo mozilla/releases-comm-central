@@ -10,12 +10,6 @@
   background-color: transparent;
 }
 
-@media not (prefers-contrast) {
-  #today-pane-panel:not(:-moz-lwtheme) {
-    --chrome-content-separator-color: #c2c2c2;
-  }
-}
-
 #today-pane-panel > .sidebar-header {
   height: 35px;
 }

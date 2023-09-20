@@ -16,8 +16,8 @@
   --lwt-additional-images: none;
   --lwt-background-alignment: right top;
   --lwt-background-tiling: no-repeat;
-  --toolbar-bgcolor: var(--toolbar-non-lwt-bgcolor);
-  --toolbar-color: var(--toolbar-non-lwt-textcolor);
+  --toolbar-bgcolor: var(--layout-background-1);
+  --toolbar-color: var(--layout-color-1);
   --panelui-subview-transition-duration: 150ms;
   --autocomplete-popup-highlight-background: var(--selected-item-color);
   --autocomplete-popup-highlight-color: var(--selected-item-text-color);
@@ -57,6 +57,7 @@
   --checkbox-checked-bgcolor: var(--selected-item-color);
   --checkbox-checked-hover-bgcolor: color-mix(in srgb, black 10%, var(--selected-item-color));
   --checkbox-checked-active-bgcolor: color-mix(in srgb, black 20%, var(--selected-item-color));
+  --chrome-content-separator-color: ThreeDShadow;
   --focus-outline-color: var(--toolbar-field-focus-border-color);
   --focus-outline-offset: 2px;
   --focus-outline: 2px solid var(--focus-outline-color);
@@ -112,47 +113,48 @@
   --button-primary-hover-bgcolor: var(--button-primary-hover-background-color);
   --button-primary-active-bgcolor: var(--button-primary-active-background-color);
   --button-primary-color: var(--button-primary-text-color);
-}
 
-/* LW-themes enabled */
+  /* LW-themes enabled */
 
-:root:-moz-lwtheme {
-  color: var(--lwt-text-color);
-  --button-background: #d2d2d3;
-  --button-background-hover: #c2c2c3;
-  --button-background-active: #b2b2b3;
-  --panel-separator-color: hsla(210, 4%, 10%, 0.14);
-  --toolbar-color: var(--lwt-text-color, inherit);
-  --toolbar-bgcolor: rgba(255, 255, 255, .4);
-  --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
-  --toolbarbutton-icon-fill-opacity: 1;
-  --autocomplete-popup-url-color: hsl(210, 77%, 47%);
-}
+  &:-moz-lwtheme {
+    color: var(--lwt-text-color);
+    --autocomplete-popup-url-color: hsl(210, 77%, 47%);
+    --button-background: #d2d2d3;
+    --button-background-hover: #c2c2c3;
+    --button-background-active: #b2b2b3;
+    --chrome-content-separator-color: rgba(0,0,0,.3);
+    --panel-separator-color: hsla(210, 4%, 10%, 0.14);
+    --toolbar-color: var(--lwt-text-color, inherit);
+    --toolbar-bgcolor: rgba(255, 255, 255, .4);
+    --toolbar-field-border-color: hsla(240, 5%, 5%, 0.25);
+    --toolbarbutton-icon-fill-opacity: 1;
+  }
 
-:root[lwt-tree] {
-  --select-focus-background-color: var(--sidebar-highlight-background-color, var(--selected-item-color));
-  --select-focus-text-color: var(--sidebar-highlight-text-color,
-                                 var(--sidebar-text-color));
-  --new-focused-folder-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
-  --row-grouped-header-bg-color: hsla(0, 0%, 50%, 0.15);
-  --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color,
-                                              hsla(0, 0%, 80%, 0.6));
-}
-
-/* Dark themes enabled */
-
-:root[lwt-tree-brighttext] {
-  --default: #dcdcdc;
-  --primary: #45b1ff;
-  --item-focus-selected-border-color: #bebebf;
-  --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color,
-                                              rgba(249, 249, 250, 0.3));
-  --button-sidebar-bottom-hover-color: var(--color-blue-40);
-}
-
-:root[lwt-popup-brighttext] {
-  --autocomplete-popup-url-color: #0a84ff;
-  --panel-separator-color: rgba(249, 249, 250, 0.1);
+  &[lwt-tree] {
+    --select-focus-background-color: var(--sidebar-highlight-background-color, var(--selected-item-color));
+    --select-focus-text-color: var(--sidebar-highlight-text-color,
+                                   var(--sidebar-text-color));
+    --new-focused-folder-color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
+    --row-grouped-header-bg-color: hsla(0, 0%, 50%, 0.15);
+    --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color,
+                                                hsla(0, 0%, 80%, 0.6));
+  }
+  
+  /* Dark themes enabled */
+  
+  &[lwt-tree-brighttext] {
+    --default: #dcdcdc;
+    --primary: #45b1ff;
+    --item-focus-selected-border-color: #bebebf;
+    --row-grouped-header-bg-color-selected: var(--sidebar-highlight-background-color,
+                                                rgba(249, 249, 250, 0.3));
+    --button-sidebar-bottom-hover-color: var(--color-blue-40);
+  }
+  
+  &[lwt-popup-brighttext] {
+    --autocomplete-popup-url-color: #0a84ff;
+    --panel-separator-color: rgba(249, 249, 250, 0.1);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -195,22 +197,9 @@
     --button-link-text-color: var(--color-blue-40);
     --button-link-active-text-color: var(--color-blue-50);
     --arrowpanel-border-color: #52525e;
-    --chrome-content-separator-color: #52525e;
     --item-focus-selected-border-color: #bebebf;
     --default: #dcdcdc;
     --primary: var(--color-blue-40);
-  }
-
-  /* Overwrite the toolkit default theme. */
-  :root[lwt-default-theme-in-dark-mode] {
-    --lwt-selected-tab-background-color: var(--color-gray-70) !important;
-    --lwt-tab-line-color: var(--color-blue-50) !important;
-    --sidebar-background-color: var(--layout-background-1) !important;
-    --sidebar-highlight-background-color: var(--color-blue-50);
-    --sidebar-border-color: var(--layout-border-0) !important;
-    --toolbar-field-border-color: var(--color-gray-50) !important;
-    --button-link-text-color: var(--color-blue-40);
-    --button-link-active-text-color: var(--color-blue-50);
   }
 }
 

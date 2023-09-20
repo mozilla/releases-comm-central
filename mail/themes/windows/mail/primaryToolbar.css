@@ -47,9 +47,4 @@
     padding-top: 0;
     padding-bottom: 0 !important;
   }
-
-  .mail-toolbox:not(:-moz-lwtheme)::after,
-  .contentTabToolbox:not(:-moz-lwtheme)::after {
-    --chrome-content-separator-color: #c2c2c2;
-  }
 }

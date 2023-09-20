@@ -9,8 +9,6 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root:-moz-lwtheme {
-  --toolbar-non-lwt-bgcolor: var(--toolbar-bgcolor);
-  --toolbar-non-lwt-textcolor: var(--lwt-text-color);
   --toolbar-non-lwt-bgimage: none;
   --new-focused-folder-color: var(--sidebar-highlight-text-color);
 }
