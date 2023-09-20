@@ -495,7 +495,7 @@ var commandController = {
       case "cmd_cancel":
         if (numSelectedMessages == 1 && isNewsgroup()) {
           // Ensure author of message matches own identity
-          let author = gDBView.hdrForFirstSelectedMessage.author;
+          let author = gDBView.hdrForFirstSelectedMessage.mime2DecodedAuthor;
           return MailServices.accounts
             .getIdentitiesForServer(folder().server)
             .some(id => id.fullAddress == author);
