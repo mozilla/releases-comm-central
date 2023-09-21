@@ -142,6 +142,7 @@
                  forcemessagemanager="true"
                  maychangeremoteness="true"
                  messagemanagergroup="single-page"
+                 autocompletepopup="PopupAutoComplete"
                  onclick="return contentAreaClick(event);"
                  onresize="messagePaneOnResize();"/>
         <splitter id="attachment-splitter" orient="vertical"
@@ -155,4 +156,10 @@
 #include msgSecurityPane.inc.xhtml
     </hbox>
 </html:body>
+<popupset xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <panel is="autocomplete-richlistbox-popup" id="PopupAutoComplete"
+         type="autocomplete"
+         role="group"
+         noautofocus="true"/>
+</popupset>
 </html>
