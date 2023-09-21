@@ -4,16 +4,19 @@
 
 /* eslint-env webextensions */
 
+var { MailE10SUtils } = ChromeUtils.import(
+  "resource:///modules/MailE10SUtils.jsm"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+var { MessageGenerator } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
 const TEST_DOCUMENT_URL =
   "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/formContent.html";
-const TEST_MESSAGE_URL =
-  "http://mochi.test:8888/browser/comm/mail/base/test/browser/files/formContent.eml";
 
-const tabmail = document.getElementById("tabmail");
 let testFolder;
 
 async function checkABrowser(browser) {
@@ -33,52 +36,49 @@ async function checkABrowser(browser) {
 
   // Date picker
 
+  let picker = win.top.document.getElementById("DateTimePickerPanel");
+  Assert.ok(picker, "date/time picker exists");
+
   // Open the popup.
-  const pickerPromise = BrowserTestUtils.waitForDateTimePickerPanelShown(
-    win.top
-  );
+  let shownPromise = BrowserTestUtils.waitForEvent(picker, "popupshown");
   await SpecialPowers.spawn(browser, [], function () {
-    const input = content.document.querySelector(`input[type="date"]`);
-    if (content.location.protocol == "mailbox:") {
-      // Clicking doesn't open the pop-up in messages. Bug 1854293.
-      content.document.notifyUserGestureActivation();
-      input.showPicker();
-    } else {
-      EventUtils.synthesizeMouseAtCenter(
-        input.openOrClosedShadowRoot.getElementById("calendar-button"),
-        {},
-        content
-      );
-    }
+    content.document.notifyUserGestureActivation();
+    content.document.querySelector(`input[type="date"]`).showPicker();
   });
-  const picker = await pickerPromise;
+  await shownPromise;
+
+  // Allow the picker time to initialise.
+  await new Promise(r => win.setTimeout(r, 500));
 
   // Click in the middle of the picker. This should always land on a date and
   // close the picker.
+  let hiddenPromise = BrowserTestUtils.waitForEvent(picker, "popuphidden");
   let frame = picker.querySelector("#dateTimePopupFrame");
   EventUtils.synthesizeMouseAtCenter(
     frame.contentDocument.querySelector(".days-view td"),
     {},
     frame.contentWindow
   );
-  await BrowserTestUtils.waitForPopupEvent(picker, "hidden");
+  await hiddenPromise;
 
   // Check the date was assigned to the input.
   await SpecialPowers.spawn(browser, [], () => {
-    Assert.ok(
-      content.document.querySelector(`input[type="date"]`).value,
-      "date input should have a date value"
-    );
+    Assert.ok(content.document.querySelector(`input[type="date"]`).value);
   });
 
   // Select drop-down
 
   let menulist = win.top.document.getElementById("ContentSelectDropdown");
+  Assert.ok(menulist, "select menulist exists");
+  let menupopup = menulist.menupopup;
 
   // Click on the select control to open the popup.
-  const selectPromise = BrowserTestUtils.waitForSelectPopupShown(win.top);
+  shownPromise = BrowserTestUtils.waitForEvent(menulist, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter("select", {}, browser);
-  const menupopup = await selectPromise;
+  await shownPromise;
+
+  // Allow the menulist time to initialise.
+  await new Promise(r => win.setTimeout(r, 500));
 
   Assert.equal(menulist.value, "0");
   Assert.equal(menupopup.childElementCount, 3);
@@ -91,8 +91,9 @@ async function checkABrowser(browser) {
   Assert.equal(menupopup.children[2].value, "2");
 
   // Click the second option. This sets the value and closes the menulist.
+  hiddenPromise = BrowserTestUtils.waitForEvent(menulist, "popuphidden");
   menupopup.activateItem(menupopup.children[1]);
-  await BrowserTestUtils.waitForPopupEvent(menulist, "hidden");
+  await hiddenPromise;
 
   // Sometimes the next change doesn't happen soon enough.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
@@ -111,7 +112,7 @@ async function checkABrowser(browser) {
   Assert.ok(popup, "auto-complete popup exists");
 
   // Click on the input box and type some letters to open the popup.
-  const shownPromise = BrowserTestUtils.waitForPopupEvent(popup, "shown");
+  shownPromise = BrowserTestUtils.waitForEvent(popup, "popupshown");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     `input[list="letters"]`,
     {},
@@ -134,33 +135,16 @@ async function checkABrowser(browser) {
   Assert.equal(list.itemChildren[3].getAttribute("title"), "theta");
 
   // Click the second option. This sets the value and closes the popup.
+  hiddenPromise = BrowserTestUtils.waitForEvent(popup, "popuphidden");
   EventUtils.synthesizeMouseAtCenter(list.itemChildren[1], {}, win);
-  await BrowserTestUtils.waitForPopupEvent(popup, "hidden");
+  await hiddenPromise;
 
+  // Check the value was assigned to the input.
   await SpecialPowers.spawn(browser, [], () => {
-    // Check the value was assigned to the input.
-    const input = content.document.querySelector(`input[list="letters"]`);
-    Assert.equal(input.value, "zeta");
-
-    // Type some more characters.
-    // Check the space character isn't consumed by cmd_space.
-    EventUtils.sendString(" function", content);
-    Assert.equal(input.value, "zeta function");
-  });
-
-  // Check that a <details> element can be opened and closed by clicking or
-  // pressing enter/space on its <summary>.
-  await SpecialPowers.spawn(browser, [], () => {
-    const details = content.document.querySelector("details");
-    const summary = details.querySelector("summary");
-
-    Assert.ok(!details.open, "details element should be closed initially");
-    EventUtils.synthesizeMouseAtCenter(summary, {}, content);
-    Assert.ok(details.open, "details element should open on click");
-    EventUtils.synthesizeKey("VK_SPACE", {}, content);
-    Assert.ok(!details.open, "details element should close on space key press");
-    EventUtils.synthesizeKey("VK_RETURN", {}, content);
-    Assert.ok(details.open, "details element should open on return key press");
+    Assert.equal(
+      content.document.querySelector(`input[list="letters"]`).value,
+      "zeta"
+    );
   });
 }
 
@@ -173,38 +157,17 @@ add_setup(async function () {
   testFolder = rootFolder
     .getChildNamed("formPickerFolder")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
-  const message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
-  testFolder.addMessageBatch([message]);
+  let messages = new MessageGenerator().makeMessages({ count: 5 });
+  let messageStrings = messages.map(message => message.toMboxString());
+  testFolder.addMessageBatch(messageStrings);
 
   registerCleanupFunction(async () => {
     MailServices.accounts.removeAccount(account, false);
   });
 });
 
-add_task(async function testMessagePaneMessageBrowser() {
-  const about3Pane = tabmail.currentAbout3Pane;
-  about3Pane.restoreState({
-    folderURI: testFolder.URI,
-    messagePaneVisible: true,
-  });
-  const { gDBView, messageBrowser, threadTree } = about3Pane;
-  const messagePaneBrowser =
-    messageBrowser.contentWindow.getMessagePaneBrowser();
-
-  const loadedPromise = BrowserTestUtils.browserLoaded(
-    messagePaneBrowser,
-    undefined,
-    url => url.endsWith(gDBView.getKeyAt(0))
-  );
-  threadTree.selectedIndex = 0;
-  threadTree.scrollToIndex(0, true);
-  await loadedPromise;
-
-  await checkABrowser(messagePaneBrowser);
-});
-
-add_task(async function testMessagePaneWebBrowser() {
-  let about3Pane = tabmail.currentAbout3Pane;
+add_task(async function testMessagePane() {
+  let about3Pane = document.getElementById("tabmail").currentAbout3Pane;
   about3Pane.restoreState({
     folderURI: testFolder.URI,
     messagePaneVisible: true,
@@ -218,34 +181,8 @@ add_task(async function testContentTab() {
   let tab = window.openContentTab(TEST_DOCUMENT_URL);
   await checkABrowser(tab.browser);
 
+  let tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tab);
-});
-
-add_task(async function testMessageTab() {
-  const tabPromise = BrowserTestUtils.waitForEvent(window, "MsgLoaded");
-  window.OpenMessageInNewTab([...testFolder.messages][0], {
-    background: false,
-  });
-  await tabPromise;
-  await new Promise(resolve => setTimeout(resolve));
-
-  const aboutMessage = tabmail.currentAboutMessage;
-  await checkABrowser(aboutMessage.getMessagePaneBrowser());
-
-  tabmail.closeOtherTabs(0);
-});
-
-add_task(async function testMessageWindow() {
-  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
-  window.MsgOpenNewWindowForMessage([...testFolder.messages][0]);
-  const win = await winPromise;
-  await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
-  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
-
-  const aboutMessage = win.messageBrowser.contentWindow;
-  await checkABrowser(aboutMessage.getMessagePaneBrowser());
-
-  await BrowserTestUtils.closeWindow(win);
 });
 
 add_task(async function testExtensionPopupWindow() {
