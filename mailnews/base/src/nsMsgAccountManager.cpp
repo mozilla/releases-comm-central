@@ -3034,45 +3034,6 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
   uint32_t folderFlags;
   folder->GetFlags(&folderFlags);
 
-  // Find any virtual folders that search `parent`, and add `folder` to them.
-  if (!(folderFlags & nsMsgFolderFlags::Virtual)) {
-    nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
-        m_virtualFolderListeners);
-    RefPtr<VirtualFolderChangeListener> listener;
-
-    while (iter.HasMore()) {
-      listener = iter.GetNext();
-      if (listener->m_folderWatching == parent) {
-        nsCOMPtr<nsIMsgDatabase> db;
-        nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
-        listener->m_virtualFolder->GetDBFolderInfoAndDB(
-            getter_AddRefs(dbFolderInfo), getter_AddRefs(db));
-
-        nsCString searchURI;
-        dbFolderInfo->GetCharProperty(kSearchFolderUriProp, searchURI);
-
-        // "normalize" searchURI so we can search for |folderURI|.
-        if (!searchURI.IsEmpty()) {
-          searchURI.Insert('|', 0);
-          searchURI.Append('|');
-        }
-        nsCString folderURI;
-        folder->GetURI(folderURI);
-
-        int32_t index = searchURI.Find(folderURI);
-        if (index == kNotFound) {
-          searchURI.Cut(0, 1);
-          searchURI.Append(folderURI);
-          dbFolderInfo->SetCharProperty(kSearchFolderUriProp, searchURI);
-          nsCOMPtr<nsIObserverService> obs =
-              mozilla::services::GetObserverService();
-          obs->NotifyObservers(listener->m_virtualFolder,
-                               "search-folders-changed", nullptr);
-        }
-      }
-    }
-  }
-
   bool addToSmartFolders = false;
   folder->IsSpecialFolder(nsMsgFolderFlags::Inbox |
                               nsMsgFolderFlags::Templates |
@@ -3152,6 +3113,53 @@ NS_IMETHODIMP nsMsgAccountManager::OnFolderAdded(nsIMsgFolder* parent,
             subFolder->GetParent(getter_AddRefs(parentFolder));
             OnFolderAdded(parentFolder, subFolder);
           }
+        }
+      }
+    }
+  }
+
+  // Find any virtual folders that search `parent`, and add `folder` to them.
+  if (!(folderFlags & nsMsgFolderFlags::Virtual)) {
+    nsTObserverArray<RefPtr<VirtualFolderChangeListener>>::ForwardIterator iter(
+        m_virtualFolderListeners);
+    RefPtr<VirtualFolderChangeListener> listener;
+
+    while (iter.HasMore()) {
+      listener = iter.GetNext();
+      if (listener->m_folderWatching == parent) {
+        nsCOMPtr<nsIMsgDatabase> db;
+        nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
+        listener->m_virtualFolder->GetDBFolderInfoAndDB(
+            getter_AddRefs(dbFolderInfo), getter_AddRefs(db));
+
+        uint32_t vfFolderFlag;
+        dbFolderInfo->GetUint32Property("searchFolderFlag", 0, &vfFolderFlag);
+        if (addToSmartFolders && vfFolderFlag &&
+            !(vfFolderFlag & nsMsgFolderFlags::Trash)) {
+          // Don't add folders of one type to the unified folder of another
+          // type, unless it's the Trash unified folder.
+          continue;
+        }
+        nsCString searchURI;
+        dbFolderInfo->GetCharProperty(kSearchFolderUriProp, searchURI);
+
+        // "normalize" searchURI so we can search for |folderURI|.
+        if (!searchURI.IsEmpty()) {
+          searchURI.Insert('|', 0);
+          searchURI.Append('|');
+        }
+        nsCString folderURI;
+        folder->GetURI(folderURI);
+
+        int32_t index = searchURI.Find(folderURI);
+        if (index == kNotFound) {
+          searchURI.Cut(0, 1);
+          searchURI.Append(folderURI);
+          dbFolderInfo->SetCharProperty(kSearchFolderUriProp, searchURI);
+          nsCOMPtr<nsIObserverService> obs =
+              mozilla::services::GetObserverService();
+          obs->NotifyObservers(listener->m_virtualFolder,
+                               "search-folders-changed", nullptr);
         }
       }
     }
@@ -3294,7 +3302,16 @@ nsMsgAccountManager::OnFolderIntPropertyChanged(nsIMsgFolder* aFolder,
         // do the right thing.
         nsCOMPtr<nsIMsgFolder> parent;
         aFolder->GetParent(getter_AddRefs(parent));
-        return OnFolderAdded(parent, aFolder);
+        nsresult rv = OnFolderAdded(parent, aFolder);
+        NS_ENSURE_SUCCESS(rv, rv);
+
+        // This folder has one of the smart folder flags.
+        // Remove it from any other smart folders it might've been included in
+        // because of the flags of its ancestors.
+        RemoveFolderFromSmartFolder(
+            aFolder, (nsMsgFolderFlags::SpecialUse & ~nsMsgFolderFlags::Queue) &
+                         ~newValue);
+        return NS_OK;
       }
       RemoveFolderFromSmartFolder(aFolder, smartFlagsChanged);
 

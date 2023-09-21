@@ -10,10 +10,12 @@ const { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
 
-add_task(function () {
+let rootFolder;
+
+add_setup(function () {
   MailServices.accounts.createLocalMailAccount();
   let account = MailServices.accounts.accounts[0];
-  let rootFolder = account.incomingServer.rootFolder;
+  rootFolder = account.incomingServer.rootFolder;
   rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   // Listen to folder events for debugging purposes.
@@ -60,19 +62,32 @@ add_task(function () {
     },
     Ci.nsIFolderListener.all
   );
-
-  // Test each of the folder types.
-
-  subtest(rootFolder, "Inbox");
-  subtest(rootFolder, "Drafts");
-  subtest(rootFolder, "Templates");
-  subtest(rootFolder, "SentMail");
-  subtest(rootFolder, "Archive");
-  subtest(rootFolder, "Junk");
-  subtest(rootFolder, "Trash");
 });
 
-function subtest(rootFolder, flag) {
+// Test each of the folder types.
+add_task(function testInbox() {
+  subtest("Inbox");
+});
+add_task(function testDrafts() {
+  subtest("Drafts");
+});
+add_task(function testTemplates() {
+  subtest("Templates");
+});
+add_task(function testSentMail() {
+  subtest("SentMail");
+});
+add_task(function testArchive() {
+  subtest("Archive");
+});
+add_task(function testJunk() {
+  subtest("Junk");
+});
+add_task(function testTrash() {
+  subtest("Trash");
+});
+
+function subtest(flag) {
   // Create a virtual folder. This is very similar to the code in about3Pane.js.
 
   let virtualFolder = rootFolder.createLocalSubfolder(`virtual${flag}`);
@@ -147,6 +162,47 @@ function subtest(rootFolder, flag) {
     [more, evenMore, yetMore, parent, child, grandchild],
     "folder with changed flag and descendants should be added to the virtual folder"
   );
+
+  // Test what happens if a folder of one type is not added to a parent in the
+  // virtual folder of another type. This should really only matter for inboxes
+  // containing other types of folders, which happens in some configurations.
+  // Other combinations shouldn't really exist, but let's test them anyway.
+
+  if (!["SentMail", "Archive"].includes(flag)) {
+    for (let otherFlag of [
+      "Inbox",
+      "Drafts",
+      "Templates",
+      "SentMail",
+      "Archive",
+      "Junk",
+      "Trash",
+    ]) {
+      if (otherFlag == flag) {
+        continue;
+      }
+      let otherFlagChild = MailServices.folderLookup.getOrCreateFolderForURL(
+        `${rootFolder.URI}/parent${flag}/other${otherFlag}Child`
+      );
+      otherFlagChild.setFlag(Ci.nsMsgFolderFlags[otherFlag]);
+      parent.addSubfolder(otherFlagChild.name);
+      parent.notifyFolderAdded(otherFlagChild);
+
+      if (flag == "Trash") {
+        checkVirtualFolder(
+          [more, evenMore, yetMore, parent, child, grandchild, otherFlagChild],
+          `folder with ${otherFlag} flag should be added to the virtual ${flag} folder`
+        );
+      } else {
+        checkVirtualFolder(
+          [more, evenMore, yetMore, parent, child, grandchild],
+          `folder with ${otherFlag} flag should not be added to the virtual ${flag} folder`
+        );
+      }
+
+      parent.propagateDelete(otherFlagChild, false);
+    }
+  }
 
   // Now reverse the additions.
 
