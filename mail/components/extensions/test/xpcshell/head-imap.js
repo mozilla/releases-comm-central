@@ -6,7 +6,7 @@
 
 var IS_IMAP = true;
 
-let wrappedCreateAccount = createAccount;
+const wrappedCreateAccount = createAccount;
 createAccount = function (type = "imap") {
   return wrappedCreateAccount(type);
 };

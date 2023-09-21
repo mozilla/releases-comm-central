@@ -14,7 +14,7 @@ updateAppInfo();
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTimezone) {
-  let date = Cc["@mozilla.org/calendar/datetime;1"].createInstance(Ci.calIDateTime);
+  const date = Cc["@mozilla.org/calendar/datetime;1"].createInstance(Ci.calIDateTime);
   date.resetTo(
     aYear,
     aMonth,
@@ -30,19 +30,19 @@ function createDate(aYear, aMonth, aDay, aHasTime, aHour, aMinute, aSecond, aTim
 
 function createEventFromIcalString(icalString) {
   if (/^BEGIN:VCALENDAR/.test(icalString)) {
-    let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+    const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(icalString);
-    let items = parser.getItems();
+    const items = parser.getItems();
     cal.ASSERT(items.length == 1);
     return items[0].QueryInterface(Ci.calIEvent);
   }
-  let event = Cc["@mozilla.org/calendar/event;1"].createInstance(Ci.calIEvent);
+  const event = Cc["@mozilla.org/calendar/event;1"].createInstance(Ci.calIEvent);
   event.icalString = icalString;
   return event;
 }
 
 function createTodoFromIcalString(icalString) {
-  let todo = Cc["@mozilla.org/calendar/todo;1"].createInstance(Ci.calITodo);
+  const todo = Cc["@mozilla.org/calendar/todo;1"].createInstance(Ci.calITodo);
   todo.icalString = icalString;
   return todo;
 }
@@ -59,15 +59,15 @@ function getStorageCal() {
   do_get_profile();
 
   // create URI
-  let db = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  const db = Services.dirsvc.get("TmpD", Ci.nsIFile);
   db.append("test_storage.sqlite");
-  let uri = Services.io.newFileURI(db);
+  const uri = Services.io.newFileURI(db);
 
   // Make sure timezone service is initialized
   Cc["@mozilla.org/calendar/timezone-service;1"].getService(Ci.calIStartupService).startup(null);
 
   // create storage calendar
-  let stor = Cc["@mozilla.org/calendar/calendar;1?type=storage"].createInstance(
+  const stor = Cc["@mozilla.org/calendar/calendar;1?type=storage"].createInstance(
     Ci.calISyncWriteCalendar
   );
   stor.uri = uri;
@@ -195,19 +195,19 @@ function ics_unfoldline(aLine) {
  * @returns The interpolated, dedented string
  */
 function dedent(strings, ...values) {
-  let parts = [];
+  const parts = [];
   // Perform variable interpolation
   let minIndent = Infinity;
-  for (let [i, string] of strings.entries()) {
-    let innerparts = string.split("\n");
+  for (const [i, string] of strings.entries()) {
+    const innerparts = string.split("\n");
     if (i == 0) {
       innerparts.shift();
     }
     if (i == strings.length - 1) {
       innerparts.pop();
     }
-    for (let [j, ip] of innerparts.entries()) {
-      let match = ip.match(/^(\s*)\S*/);
+    for (const [j, ip] of innerparts.entries()) {
+      const match = ip.match(/^(\s*)\S*/);
       if (j != 0) {
         minIndent = Math.min(minIndent, match[1].length);
       }
@@ -232,11 +232,13 @@ function dedent(strings, ...values) {
  * Read a JSON file and return the JS object
  */
 function readJSONFile(aFile) {
-  let stream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
+  const stream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+    Ci.nsIFileInputStream
+  );
   try {
     stream.init(aFile, FileUtils.MODE_RDONLY, FileUtils.PERMS_FILE, 0);
-    let bytes = NetUtil.readInputStream(stream, stream.available());
-    let data = JSON.parse(new TextDecoder().decode(bytes));
+    const bytes = NetUtil.readInputStream(stream, stream.available());
+    const data = JSON.parse(new TextDecoder().decode(bytes));
     return data;
   } catch (ex) {
     dump("readJSONFile: Error reading JSON file: " + ex);
@@ -267,7 +269,7 @@ function do_load_calmgr(callback) {
 }
 
 function do_calendar_startup(callback) {
-  let obs = {
+  const obs = {
     observe() {
       Services.obs.removeObserver(this, "calendar-startup-done");
       do_test_finished();
@@ -275,7 +277,7 @@ function do_calendar_startup(callback) {
     },
   };
 
-  let startupService = Cc["@mozilla.org/calendar/startup-service;1"].getService(
+  const startupService = Cc["@mozilla.org/calendar/startup-service;1"].getService(
     Ci.nsISupports
   ).wrappedJSObject;
 
@@ -302,10 +304,10 @@ function do_calendar_startup(callback) {
  * @param func          The function to monkey patch with.
  */
 function monkeyPatch(obj, x, func) {
-  let old = obj[x];
+  const old = obj[x];
   obj[x] = function () {
-    let parent = old.bind(obj);
-    let args = Array.from(arguments);
+    const parent = old.bind(obj);
+    const args = Array.from(arguments);
     args.unshift(parent);
     try {
       return func.apply(obj, args);
@@ -325,8 +327,8 @@ function monkeyPatch(obj, x, func) {
  * @param {string} level - The variable name to refer to report on.
  */
 function compareExtractResults(actual, expected, level = "") {
-  for (let [key, value] of Object.entries(expected)) {
-    let qualifiedKey = [level, Array.isArray(expected) ? `[${key}]` : `.${key}`].join("");
+  for (const [key, value] of Object.entries(expected)) {
+    const qualifiedKey = [level, Array.isArray(expected) ? `[${key}]` : `.${key}`].join("");
     if (value && typeof value == "object") {
       Assert.ok(actual[key], `${qualifiedKey} is not null`);
       compareExtractResults(actual[key], value, qualifiedKey);

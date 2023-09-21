@@ -3,8 +3,8 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 async function sub_test_toolbar_alignment(drawInTitlebar, hideMenu) {
-  let menubar = document.getElementById("toolbar-menubar");
-  let tabsInTitlebar =
+  const menubar = document.getElementById("toolbar-menubar");
+  const tabsInTitlebar =
     document.documentElement.getAttribute("tabsintitlebar") == "true";
   Assert.equal(tabsInTitlebar, drawInTitlebar);
 
@@ -17,7 +17,7 @@ async function sub_test_toolbar_alignment(drawInTitlebar, hideMenu) {
   }
   await new Promise(resolve => requestAnimationFrame(resolve));
 
-  let size = document
+  const size = document
     .getElementById("spacesToolbar")
     .getBoundingClientRect().width;
 

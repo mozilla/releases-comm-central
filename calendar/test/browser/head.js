@@ -11,13 +11,13 @@ const { CalendarTestUtils } = ChromeUtils.import(
 );
 
 async function openTasksTab() {
-  let tabmail = document.getElementById("tabmail");
-  let tasksMode = tabmail.tabModes.tasks;
+  const tabmail = document.getElementById("tabmail");
+  const tasksMode = tabmail.tabModes.tasks;
 
   if (tasksMode.tabs.length == 1) {
     tabmail.selectedTab = tasksMode.tabs[0];
   } else {
-    let tasksTabButton = document.getElementById("tasksButton");
+    const tasksTabButton = document.getElementById("tasksButton");
     EventUtils.synthesizeMouseAtCenter(tasksTabButton, { clickCount: 1 });
   }
 
@@ -28,8 +28,8 @@ async function openTasksTab() {
 }
 
 async function closeTasksTab() {
-  let tabmail = document.getElementById("tabmail");
-  let tasksMode = tabmail.tabModes.tasks;
+  const tabmail = document.getElementById("tabmail");
+  const tasksMode = tabmail.tabModes.tasks;
 
   if (tasksMode.tabs.length == 1) {
     tabmail.closeTab(tasksMode.tabs[0]);
@@ -56,8 +56,8 @@ async function selectFolderTab() {
 }
 
 async function openChatTab() {
-  let tabmail = document.getElementById("tabmail");
-  let chatMode = tabmail.tabModes.chat;
+  const tabmail = document.getElementById("tabmail");
+  const chatMode = tabmail.tabModes.chat;
 
   if (chatMode.tabs.length == 1) {
     tabmail.selectedTab = chatMode.tabs[0];
@@ -72,8 +72,8 @@ async function openChatTab() {
 }
 
 async function closeChatTab() {
-  let tabmail = document.getElementById("tabmail");
-  let chatMode = tabmail.tabModes.chat;
+  const tabmail = document.getElementById("tabmail");
+  const chatMode = tabmail.tabModes.chat;
 
   if (chatMode.tabs.length == 1) {
     tabmail.closeTab(chatMode.tabs[0]);
@@ -91,9 +91,9 @@ async function closeChatTab() {
  * @returns {string} - The id of the new tab's panel element.
  */
 async function _openNewCalendarItemTab(tabMode) {
-  let tabmail = document.getElementById("tabmail");
-  let itemTabs = tabmail.tabModes[tabMode].tabs;
-  let previousTabCount = itemTabs.length;
+  const tabmail = document.getElementById("tabmail");
+  const itemTabs = tabmail.tabModes[tabMode].tabs;
+  const previousTabCount = itemTabs.length;
 
   Services.prefs.setBoolPref("calendar.item.editInTab", true);
   let buttonId = "sidePanelNewEvent";
@@ -104,10 +104,10 @@ async function _openNewCalendarItemTab(tabMode) {
     await CalendarTestUtils.openCalendarTab(window);
   }
 
-  let newItemButton = document.getElementById(buttonId);
+  const newItemButton = document.getElementById(buttonId);
   EventUtils.synthesizeMouseAtCenter(newItemButton, { clickCount: 1 });
 
-  let newTab = itemTabs[itemTabs.length - 1];
+  const newTab = itemTabs[itemTabs.length - 1];
 
   is(itemTabs.length, previousTabCount + 1, `new ${tabMode} tab is open`);
   is(tabmail.selectedTab, newTab, `new ${tabMode} tab is selected`);
@@ -117,8 +117,8 @@ async function _openNewCalendarItemTab(tabMode) {
   return newTab.panel.id;
 }
 
-let openNewCalendarEventTab = _openNewCalendarItemTab.bind(null, "calendarEvent");
-let openNewCalendarTaskTab = _openNewCalendarItemTab.bind(null, "calendarTask");
+const openNewCalendarEventTab = _openNewCalendarItemTab.bind(null, "calendarEvent");
+const openNewCalendarTaskTab = _openNewCalendarItemTab.bind(null, "calendarTask");
 
 /**
  * Selects an existing (open) calendar event or task tab.
@@ -127,9 +127,9 @@ let openNewCalendarTaskTab = _openNewCalendarItemTab.bind(null, "calendarTask");
  * @param {string} panelId - The id of the tab's panel element.
  */
 async function _selectCalendarItemTab(tabMode, panelId) {
-  let tabmail = document.getElementById("tabmail");
-  let itemTabs = tabmail.tabModes[tabMode].tabs;
-  let tabToSelect = itemTabs.find(tab => tab.panel.id == panelId);
+  const tabmail = document.getElementById("tabmail");
+  const itemTabs = tabmail.tabModes[tabMode].tabs;
+  const tabToSelect = itemTabs.find(tab => tab.panel.id == panelId);
 
   ok(tabToSelect, `${tabMode} tab is open`);
 
@@ -140,8 +140,8 @@ async function _selectCalendarItemTab(tabMode, panelId) {
   await new Promise(resolve => setTimeout(resolve));
 }
 
-let selectCalendarEventTab = _selectCalendarItemTab.bind(null, "calendarEvent");
-let selectCalendarTaskTab = _selectCalendarItemTab.bind(null, "calendarTask");
+const selectCalendarEventTab = _selectCalendarItemTab.bind(null, "calendarEvent");
+const selectCalendarTaskTab = _selectCalendarItemTab.bind(null, "calendarTask");
 
 /**
  * Closes a calendar event or task tab.
@@ -150,14 +150,14 @@ let selectCalendarTaskTab = _selectCalendarItemTab.bind(null, "calendarTask");
  * @param {string} panelId - The id of the panel of the tab to close.
  */
 async function _closeCalendarItemTab(tabMode, panelId) {
-  let tabmail = document.getElementById("tabmail");
-  let itemTabs = tabmail.tabModes[tabMode].tabs;
-  let previousTabCount = itemTabs.length;
-  let itemTab = itemTabs.find(tab => tab.panel.id == panelId);
+  const tabmail = document.getElementById("tabmail");
+  const itemTabs = tabmail.tabModes[tabMode].tabs;
+  const previousTabCount = itemTabs.length;
+  const itemTab = itemTabs.find(tab => tab.panel.id == panelId);
 
   if (itemTab) {
     // Tab does not immediately close, so wait for it.
-    let tabClosedPromise = new Promise(resolve => {
+    const tabClosedPromise = new Promise(resolve => {
       itemTab.tabNode.addEventListener("TabClose", resolve, { once: true });
     });
     tabmail.closeTab(itemTab);
@@ -169,8 +169,8 @@ async function _closeCalendarItemTab(tabMode, panelId) {
   await new Promise(resolve => setTimeout(resolve));
 }
 
-let closeCalendarEventTab = _closeCalendarItemTab.bind(null, "calendarEvent");
-let closeCalendarTaskTab = _closeCalendarItemTab.bind(null, "calendarTask");
+const closeCalendarEventTab = _closeCalendarItemTab.bind(null, "calendarEvent");
+const closeCalendarTaskTab = _closeCalendarItemTab.bind(null, "calendarTask");
 
 async function openPreferencesTab() {
   const tabmail = document.getElementById("tabmail");
@@ -189,8 +189,8 @@ async function openPreferencesTab() {
 }
 
 async function closeAddressBookTab() {
-  let tabmail = document.getElementById("tabmail");
-  let abMode = tabmail.tabModes.addressBookTab;
+  const tabmail = document.getElementById("tabmail");
+  const abMode = tabmail.tabModes.addressBookTab;
 
   if (abMode.tabs.length == 1) {
     tabmail.closeTab(abMode.tabs[0]);
@@ -202,8 +202,8 @@ async function closeAddressBookTab() {
 }
 
 async function closePreferencesTab() {
-  let tabmail = document.getElementById("tabmail");
-  let prefsMode = tabmail.tabModes.preferencesTab;
+  const tabmail = document.getElementById("tabmail");
+  const prefsMode = tabmail.tabModes.preferencesTab;
 
   if (prefsMode.tabs.length == 1) {
     tabmail.closeTab(prefsMode.tabs[0]);
@@ -231,8 +231,8 @@ async function openAddonsTab() {
 }
 
 async function closeAddonsTab() {
-  let tabmail = document.getElementById("tabmail");
-  let contentMode = tabmail.tabModes.contentTab;
+  const tabmail = document.getElementById("tabmail");
+  const contentMode = tabmail.tabModes.contentTab;
 
   if (contentMode.tabs.length == 1) {
     tabmail.closeTab(contentMode.tabs[0]);
@@ -261,9 +261,9 @@ async function createCalendarUsingDialog(name, data = {}) {
    * @param {nsIDOMWindow} win - The dialog window.
    */
   async function useDialog(win) {
-    let doc = win.document;
-    let dialogElement = doc.querySelector("dialog");
-    let acceptButton = dialogElement.getButton("accept");
+    const doc = win.document;
+    const dialogElement = doc.querySelector("dialog");
+    const acceptButton = dialogElement.getButton("accept");
 
     if (data.network) {
       // Choose network calendar type.
@@ -272,9 +272,9 @@ async function createCalendarUsingDialog(name, data = {}) {
 
       // Enter a location.
       if (data.network.location == undefined) {
-        let calendarFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+        const calendarFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
         calendarFile.append(name + ".ics");
-        let fileURI = Services.io.newFileURI(calendarFile);
+        const fileURI = Services.io.newFileURI(calendarFile);
         data.network.location = fileURI.prePath + fileURI.pathQueryRef;
       }
       EventUtils.synthesizeMouseAtCenter(doc.querySelector("#network-location-input"), {}, win);
@@ -284,7 +284,7 @@ async function createCalendarUsingDialog(name, data = {}) {
       if (data.network.offline == undefined) {
         data.network.offline = true;
       }
-      let offlineCheckbox = doc.querySelector("#network-cache-checkbox");
+      const offlineCheckbox = doc.querySelector("#network-cache-checkbox");
       if (!offlineCheckbox.checked) {
         EventUtils.synthesizeMouseAtCenter(offlineCheckbox, {}, win);
       }
@@ -292,7 +292,7 @@ async function createCalendarUsingDialog(name, data = {}) {
 
       // Set up an observer to wait for calendar(s) to be found, before
       // clicking the accept button to subscribe to the calendar(s).
-      let observer = new MutationObserver(mutationList => {
+      const observer = new MutationObserver(mutationList => {
         mutationList.forEach(async mutation => {
           if (mutation.type === "childList") {
             acceptButton.click();
@@ -308,7 +308,7 @@ async function createCalendarUsingDialog(name, data = {}) {
       // Set calendar name.
       // Setting the value does not activate the accept button on all platforms,
       // so we need to type something in case the field is empty.
-      let nameInput = doc.querySelector("#local-calendar-name-input");
+      const nameInput = doc.querySelector("#local-calendar-name-input");
       if (nameInput.value == "") {
         EventUtils.synthesizeMouseAtCenter(nameInput, {}, win);
         EventUtils.sendString(name, win);
@@ -318,7 +318,7 @@ async function createCalendarUsingDialog(name, data = {}) {
       if (data.showReminders == undefined) {
         data.showReminders = true;
       }
-      let localFireAlarmsCheckbox = doc.querySelector("#local-fire-alarms-checkbox");
+      const localFireAlarmsCheckbox = doc.querySelector("#local-fire-alarms-checkbox");
       if (localFireAlarmsCheckbox.checked != data.showReminders) {
         EventUtils.synthesizeMouseAtCenter(localFireAlarmsCheckbox, {}, win);
       }
@@ -327,7 +327,7 @@ async function createCalendarUsingDialog(name, data = {}) {
       if (data.email == undefined) {
         data.email = "none";
       }
-      let emailIdentityMenulist = doc.querySelector("#email-identity-menulist");
+      const emailIdentityMenulist = doc.querySelector("#email-identity-menulist");
       EventUtils.synthesizeMouseAtCenter(emailIdentityMenulist, {}, win);
       emailIdentityMenulist.querySelector("menuitem[value='none']").click();
 
@@ -336,7 +336,7 @@ async function createCalendarUsingDialog(name, data = {}) {
     }
   }
 
-  let dialogWindowPromise = BrowserTestUtils.promiseAlertDialog(
+  const dialogWindowPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-creation.xhtml",
     { callback: useDialog }
@@ -359,13 +359,13 @@ registerCleanupFunction(async () => {
   await closeAddonsTab();
 
   // Close any event or task tabs that are open.
-  let tabmail = document.getElementById("tabmail");
-  let eventTabPanelIds = tabmail.tabModes.calendarEvent.tabs.map(tab => tab.panel.id);
-  let taskTabPanelIds = tabmail.tabModes.calendarTask.tabs.map(tab => tab.panel.id);
-  for (let id of eventTabPanelIds) {
+  const tabmail = document.getElementById("tabmail");
+  const eventTabPanelIds = tabmail.tabModes.calendarEvent.tabs.map(tab => tab.panel.id);
+  const taskTabPanelIds = tabmail.tabModes.calendarTask.tabs.map(tab => tab.panel.id);
+  for (const id of eventTabPanelIds) {
     await closeCalendarEventTab(id);
   }
-  for (let id of taskTabPanelIds) {
+  for (const id of taskTabPanelIds) {
     await closeCalendarTaskTab(id);
   }
   Services.prefs.setBoolPref("calendar.item.editInTab", false);

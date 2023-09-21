@@ -132,14 +132,14 @@ function setupLocalServer(port, host = "localhost") {
   if (_server != null) {
     return _server;
   }
-  let serverAndAccount = localAccountUtils.create_incoming_server_and_account(
+  const serverAndAccount = localAccountUtils.create_incoming_server_and_account(
     "nntp",
     port,
     null,
     null,
     host
   );
-  let server = serverAndAccount.server;
+  const server = serverAndAccount.server;
   subscribeServer(server);
 
   _server = server;

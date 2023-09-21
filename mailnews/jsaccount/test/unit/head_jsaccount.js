@@ -19,7 +19,7 @@ var { localAccountUtils } = ChromeUtils.import(
 );
 
 // Load the test components.
-let contracts = [
+const contracts = [
   {
     contractID: "@mozilla.org/jsaccount/testjafoourl;1",
     classID: "{73F98539-A59F-4F6F-9A72-D83A08646C23}",
@@ -37,9 +37,9 @@ let contracts = [
   },
 ];
 
-let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-for (let { contractID, classID, source } of contracts) {
-  let scope = {};
+const registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+for (const { contractID, classID, source } of contracts) {
+  const scope = {};
   Services.scriptloader.loadSubScript(
     Services.io.newFileURI(do_get_file(source)).spec,
     scope

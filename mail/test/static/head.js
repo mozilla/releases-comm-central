@@ -27,12 +27,12 @@ function generateURIsFromDirTree(dir, extensions) {
   if (!Array.isArray(extensions)) {
     extensions = [extensions];
   }
-  let dirQueue = [dir.path];
+  const dirQueue = [dir.path];
   return (async function () {
-    let rv = [];
+    const rv = [];
     while (dirQueue.length) {
-      let nextDir = dirQueue.shift();
-      let { subdirs, files } = await iterateOverPath(nextDir, extensions);
+      const nextDir = dirQueue.shift();
+      const { subdirs, files } = await iterateOverPath(nextDir, extensions);
       dirQueue.push(...subdirs);
       rv.push(...files);
     }
@@ -51,22 +51,22 @@ function generateURIsFromDirTree(dir, extensions) {
  * @param extensions the file extensions we're interested in.
  */
 async function iterateOverPath(path, extensions) {
-  let parentDir = new LocalFile(path);
-  let subdirs = [];
-  let files = [];
+  const parentDir = new LocalFile(path);
+  const subdirs = [];
+  const files = [];
 
   // Iterate through the directory
-  for (let childPath of await IOUtils.getChildren(path)) {
-    let stat = await IOUtils.stat(childPath);
+  for (const childPath of await IOUtils.getChildren(path)) {
+    const stat = await IOUtils.stat(childPath);
     if (stat.type === "directory") {
       subdirs.push(childPath);
     } else if (extensions.some(extension => childPath.endsWith(extension))) {
-      let file = parentDir.clone();
+      const file = parentDir.clone();
       file.append(PathUtils.filename(childPath));
       // the build system might leave dead symlinks hanging around, which are
       // returned as part of the directory iterator, but don't actually exist:
       if (file.exists()) {
-        let uriSpec = getURLForFile(file);
+        const uriSpec = getURLForFile(file);
         files.push(Services.io.newURI(uriSpec));
       }
     } else if (
@@ -75,10 +75,10 @@ async function iterateOverPath(path, extensions) {
       childPath.endsWith(".zip") ||
       childPath.endsWith(".xpi")
     ) {
-      let file = parentDir.clone();
+      const file = parentDir.clone();
       file.append(PathUtils.filename(childPath));
-      for (let extension of extensions) {
-        let jarEntryIterator = generateEntriesFromJarFile(file, extension);
+      for (const extension of extensions) {
+        const jarEntryIterator = generateEntriesFromJarFile(file, extension);
         files.push(...jarEntryIterator);
       }
     }
@@ -102,15 +102,15 @@ function getURLForFile(file) {
  * @param extension the extension we're interested in.
  */
 function* generateEntriesFromJarFile(jarFile, extension) {
-  let zr = new ZipReader(jarFile);
+  const zr = new ZipReader(jarFile);
   const kURIStart = getURLForFile(jarFile);
 
-  for (let entry of zr.findEntries("*" + extension + "$")) {
+  for (const entry of zr.findEntries("*" + extension + "$")) {
     // Ignore the JS cache which is stored in omni.ja
     if (entry.startsWith("jsloader") || entry.startsWith("jssubloader")) {
       continue;
     }
-    let entryURISpec = "jar:" + kURIStart + "!/" + entry;
+    const entryURISpec = "jar:" + kURIStart + "!/" + entry;
     yield Services.io.newURI(entryURISpec);
   }
   zr.close();
@@ -118,7 +118,7 @@ function* generateEntriesFromJarFile(jarFile, extension) {
 
 function fetchFile(uri) {
   return new Promise((resolve, reject) => {
-    let xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.responseType = "text";
     xhr.open("GET", uri, true);
     xhr.onreadystatechange = function () {
@@ -141,13 +141,13 @@ function fetchFile(uri) {
 }
 
 async function throttledMapPromises(iterable, task, limit = 64) {
-  let promises = new Set();
-  for (let data of iterable) {
+  const promises = new Set();
+  for (const data of iterable) {
     while (promises.size >= limit) {
       await Promise.race(promises);
     }
 
-    let promise = task(data);
+    const promise = task(data);
     if (promise) {
       promise.finally(() => promises.delete(promise));
       promises.add(promise);

@@ -10,7 +10,7 @@ function CreateScriptableConverter() {
 }
 
 function checkDecode(converter, charset, inText, expectedText) {
-  let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+  const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
     Ci.nsICharsetConverterManager
   );
 
@@ -30,7 +30,7 @@ function checkDecode(converter, charset, inText, expectedText) {
 }
 
 function checkEncode(converter, charset, inText, expectedText) {
-  let manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+  const manager = Cc["@mozilla.org/charset-converter-manager;1"].getService(
     Ci.nsICharsetConverterManager
   );
 

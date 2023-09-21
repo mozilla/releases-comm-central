@@ -33,29 +33,29 @@ function setupServerDaemon(handler) {
       return new SMTP_RFC2821_handler(d);
     };
   }
-  let daemon = new SmtpDaemon();
-  let server = new nsMailServer(handler, daemon);
+  const daemon = new SmtpDaemon();
+  const server = new nsMailServer(handler, daemon);
   return [daemon, server];
 }
 
 function getBasicSmtpServer() {
   // We need to have a default account for MAPI.
   localAccountUtils.loadLocalMailAccount();
-  let incoming = localAccountUtils.create_incoming_server(
+  const incoming = localAccountUtils.create_incoming_server(
     "pop3",
     POP3_PORT,
     "user",
     "password"
   );
-  let server = localAccountUtils.create_outgoing_server(
+  const server = localAccountUtils.create_outgoing_server(
     SMTP_PORT,
     "user",
     "password"
   );
   // We also need to have a working identity, including an email address.
-  let account = MailServices.accounts.FindAccountForServer(incoming);
+  const account = MailServices.accounts.FindAccountForServer(incoming);
   localAccountUtils.associate_servers(account, server, true);
-  let identity = account.defaultIdentity;
+  const identity = account.defaultIdentity;
   identity.email = "tinderbox@tinderbox.invalid";
   MailServices.accounts.defaultAccount = account;
 
@@ -80,15 +80,15 @@ function loadMAPILibrary() {
   Services.prefs.setBoolPref("mapi.blind-send.warn", false);
 
   // The macros that are used in the definitions
-  let WINAPI = ctypes.winapi_abi;
-  let ULONG = ctypes.unsigned_long;
-  let LHANDLE = ULONG.ptr;
-  let LPSTR = ctypes.char.ptr;
-  let LPVOID = ctypes.voidptr_t;
-  let FLAGS = ctypes.unsigned_long;
+  const WINAPI = ctypes.winapi_abi;
+  const ULONG = ctypes.unsigned_long;
+  const LHANDLE = ULONG.ptr;
+  const LPSTR = ctypes.char.ptr;
+  const LPVOID = ctypes.voidptr_t;
+  const FLAGS = ctypes.unsigned_long;
 
   // Define all of the MAPI structs we need to use.
-  let functionData = {};
+  const functionData = {};
   functionData.MapiRecipDesc = new ctypes.StructType("gMapi.MapiRecipDesc", [
     { ulReserved: ULONG },
     { ulRecipClass: ULONG },
@@ -97,7 +97,7 @@ function loadMAPILibrary() {
     { ulEIDSize: ULONG },
     { lpEntryID: LPVOID },
   ]);
-  let lpMapiRecipDesc = functionData.MapiRecipDesc.ptr;
+  const lpMapiRecipDesc = functionData.MapiRecipDesc.ptr;
 
   functionData.MapiFileDesc = new ctypes.StructType("gMapi.MapiFileDesc", [
     { ulReserved: ULONG },
@@ -107,7 +107,7 @@ function loadMAPILibrary() {
     { lpszFileName: LPSTR },
     { lpFileType: LPVOID },
   ]);
-  let lpMapiFileDesc = functionData.MapiFileDesc.ptr;
+  const lpMapiFileDesc = functionData.MapiFileDesc.ptr;
 
   functionData.MapiMessage = new ctypes.StructType("gMapi.MapiMessage", [
     { ulReserved: ULONG },
@@ -123,11 +123,11 @@ function loadMAPILibrary() {
     { nFileCount: ULONG },
     { lpFiles: lpMapiFileDesc },
   ]);
-  let lpMapiMessage = functionData.MapiMessage.ptr;
+  const lpMapiMessage = functionData.MapiMessage.ptr;
 
   // Load the MAPI library. We're using our definition instead of the global
   // MAPI definition.
-  let mapi = ctypes.open("mozMapi32.dll");
+  const mapi = ctypes.open("mozMapi32.dll");
 
   // Load the MAPI functions,
   // see https://developer.mozilla.org/en-US/docs/Mozilla/js-ctypes/Using_js-ctypes/Declaring_types

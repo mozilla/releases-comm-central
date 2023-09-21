@@ -33,14 +33,14 @@ updateAppInfo({
 });
 
 // This initializes the policy engine for xpcshell tests
-let policies = Cc["@mozilla.org/enterprisepolicies;1"].getService(
+const policies = Cc["@mozilla.org/enterprisepolicies;1"].getService(
   Ci.nsIObserver
 );
 policies.observe(null, "policies-startup", null);
 
 async function setupPolicyEngineWithJson(json, customSchema) {
   if (typeof json != "object") {
-    let filePath = do_get_file(json ? json : "non-existing-file.json").path;
+    const filePath = do_get_file(json ? json : "non-existing-file.json").path;
     return EnterprisePolicyTesting.setupPolicyEngineWithJson(
       filePath,
       customSchema
@@ -62,7 +62,7 @@ async function setupPolicyEngineWithJson(json, customSchema) {
 async function setupPolicyEngineWithJsonWithSearch(json, customSchema) {
   Services.search.wrappedJSObject.reset();
   if (typeof json != "object") {
-    let filePath = do_get_file(json ? json : "non-existing-file.json").path;
+    const filePath = do_get_file(json ? json : "non-existing-file.json").path;
     await EnterprisePolicyTesting.setupPolicyEngineWithJson(
       filePath,
       customSchema
@@ -70,7 +70,7 @@ async function setupPolicyEngineWithJsonWithSearch(json, customSchema) {
   } else {
     await EnterprisePolicyTesting.setupPolicyEngineWithJson(json, customSchema);
   }
-  let settingsWritten = lazy.SearchTestUtils.promiseSearchNotification(
+  const settingsWritten = lazy.SearchTestUtils.promiseSearchNotification(
     "write-settings-to-disk-complete"
   );
   await Services.search.init();
@@ -120,8 +120,8 @@ function checkClearPref(prefName, prefValue) {
 }
 
 function checkDefaultPref(prefName, prefValue) {
-  let defaultPrefBranch = Services.prefs.getDefaultBranch("");
-  let prefType = defaultPrefBranch.getPrefType(prefName);
+  const defaultPrefBranch = Services.prefs.getDefaultBranch("");
+  const prefType = defaultPrefBranch.getPrefType(prefName);
   notEqual(
     prefType,
     Services.prefs.PREF_INVALID,
@@ -130,8 +130,8 @@ function checkDefaultPref(prefName, prefValue) {
 }
 
 function checkUnsetPref(prefName) {
-  let defaultPrefBranch = Services.prefs.getDefaultBranch("");
-  let prefType = defaultPrefBranch.getPrefType(prefName);
+  const defaultPrefBranch = Services.prefs.getDefaultBranch("");
+  const prefType = defaultPrefBranch.getPrefType(prefName);
   equal(
     prefType,
     Services.prefs.PREF_INVALID,

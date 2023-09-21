@@ -28,7 +28,7 @@ var URL_BASE =
  * @returns {Promise} A promise that resolves when the menu appears.
  */
 function leftClick(menu, element) {
-  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(element, {}, element.ownerGlobal);
   return shownPromise;
 }
@@ -41,7 +41,7 @@ function leftClick(menu, element) {
  * @returns {Promise} A promise that resolves when the menu appears.
  */
 function rightClick(menu, element) {
-  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     element,
     { type: "contextmenu" },
@@ -60,7 +60,7 @@ function rightClick(menu, element) {
  * @returns {Promise} A promise that resolves when the menu appears.
  */
 async function rightClickOnContent(menu, selector, browser) {
-  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   await synthesizeMouseAtCenterAndRetry(
     selector,
     { type: "contextmenu" },
@@ -90,7 +90,7 @@ async function rightClickOnContent(menu, selector, browser) {
  * @param {boolean} expectedTab.mailTab
  */
 async function checkShownEvent(extension, expectedInfo, expectedTab) {
-  let [info, tab] = await extension.awaitMessage("onShown");
+  const [info, tab] = await extension.awaitMessage("onShown");
   Assert.deepEqual(info.menuIds, expectedInfo.menuIds);
   Assert.deepEqual(info.contexts, expectedInfo.contexts);
 
@@ -107,7 +107,7 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
     }
   }
 
-  for (let infoKey of ["displayedFolder", "selectedFolder"]) {
+  for (const infoKey of ["displayedFolder", "selectedFolder"]) {
     Assert.equal(
       !!info[infoKey],
       !!expectedInfo[infoKey],
@@ -180,7 +180,7 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
  * @param {boolean} expectedTab.mailTab
  */
 async function checkClickedEvent(extension, expectedInfo, expectedTab) {
-  let [info, tab] = await extension.awaitMessage("onClicked");
+  const [info, tab] = await extension.awaitMessage("onClicked");
 
   Assert.equal(info.selectionText, expectedInfo.selectionText, "selectionText");
   Assert.equal(info.linkText, expectedInfo.linkText, "linkText");
@@ -188,7 +188,7 @@ async function checkClickedEvent(extension, expectedInfo, expectedTab) {
     Assert.equal(info.menuItemId, expectedInfo.menuItemId, "menuItemId");
   }
 
-  for (let infoKey of ["pageUrl", "linkUrl", "srcUrl"]) {
+  for (const infoKey of ["pageUrl", "linkUrl", "srcUrl"]) {
     Assert.equal(
       !!info[infoKey],
       !!expectedInfo[infoKey],
@@ -209,10 +209,10 @@ async function checkClickedEvent(extension, expectedInfo, expectedTab) {
 }
 
 async function getMenuExtension(manifest) {
-  let details = {
+  const details = {
     files: {
       "background.js": async () => {
-        let contexts = [
+        const contexts = [
           "audio",
           "compose_action",
           "compose_action_menu",
@@ -239,7 +239,7 @@ async function getMenuExtension(manifest) {
           contexts.push("browser_action", "browser_action_menu");
         }
 
-        for (let context of contexts) {
+        for (const context of contexts) {
           browser.menus.create({
             id: context,
             title: context,
@@ -274,7 +274,7 @@ async function getMenuExtension(manifest) {
   }
   details.manifest.permissions.push("menus");
   console.log(JSON.stringify(details, 2));
-  let extension = ExtensionTestUtils.loadExtension(details);
+  const extension = ExtensionTestUtils.loadExtension(details);
   if (details.manifest.host_permissions) {
     // MV3 has to manually grant the requested permission.
     await ExtensionPermissions.add("menus@mochi.test", {
@@ -294,7 +294,7 @@ async function subtest_content(
 ) {
   await awaitBrowserLoaded(browser, url => url != "about:blank");
 
-  let menuId = browser.getAttribute("context");
+  const menuId = browser.getAttribute("context");
   let ownerDocument;
   if (browser.ownerGlobal.parent.location.href == "about:3pane") {
     ownerDocument = browser.ownerGlobal.parent.document;
@@ -303,7 +303,7 @@ async function subtest_content(
   } else {
     ownerDocument = browser.ownerDocument;
   }
-  let menu = ownerDocument.getElementById(menuId);
+  const menu = ownerDocument.getElementById(menuId);
 
   await synthesizeMouseAtCenterAndRetry("body", {}, browser);
 
@@ -333,7 +333,7 @@ async function subtest_content(
   info("Test selection.");
 
   await SpecialPowers.spawn(browser, [], () => {
-    let text = content.document.querySelector("p");
+    const text = content.document.querySelector("p");
     content.getSelection().selectAllChildren(text);
   });
   await rightClickOnContent(menu, "p", browser);
@@ -442,7 +442,9 @@ async function openExtensionSubMenu(menu) {
   // The extension submenu ends with a number, which increases over time, but it
   // does not have a underscore.
   let submenu;
-  for (let item of menu.querySelectorAll("[id^=menus_mochi_test-menuitem-]")) {
+  for (const item of menu.querySelectorAll(
+    "[id^=menus_mochi_test-menuitem-]"
+  )) {
     if (!item.id.includes("-_")) {
       submenu = item;
       break;
@@ -451,7 +453,7 @@ async function openExtensionSubMenu(menu) {
   Assert.ok(submenu, `Found submenu: ${submenu.id}`);
 
   // Open submenu.
-  let submenuPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const submenuPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   submenu.openMenu(true);
   await submenuPromise;
 
@@ -467,8 +469,8 @@ async function subtest_compose_body(
 ) {
   await awaitBrowserLoaded(browser, url => url != "about:blank");
 
-  let ownerDocument = browser.ownerDocument;
-  let menu = ownerDocument.getElementById(browser.getAttribute("context"));
+  const ownerDocument = browser.ownerDocument;
+  const menu = ownerDocument.getElementById(browser.getAttribute("context"));
 
   await synthesizeMouseAtCenterAndRetry("body", {}, browser);
 
@@ -477,7 +479,7 @@ async function subtest_compose_body(
     await rightClickOnContent(menu, "body", browser);
     Assert.ok(menu.querySelector(`#menus_mochi_test-menuitem-_compose_body`));
     Assert.ok(menu.querySelector(`#menus_mochi_test-menuitem-_editable`));
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
     menu.hidePopup();
     await hiddenPromise;
     // Sometimes, the popup will open then instantly disappear. It seems to
@@ -500,12 +502,12 @@ async function subtest_compose_body(
   info("Test selection.");
   {
     await SpecialPowers.spawn(browser, [], () => {
-      let text = content.document.querySelector("p");
+      const text = content.document.querySelector("p");
       content.getSelection().selectAllChildren(text);
     });
 
     await rightClickOnContent(menu, "p", browser);
-    let submenu = await openExtensionSubMenu(menu);
+    const submenu = await openExtensionSubMenu(menu);
 
     await checkShownEvent(
       extension,
@@ -523,8 +525,8 @@ async function subtest_compose_body(
     );
     Assert.ok(submenu.querySelector("#menus_mochi_test-menuitem-_editable"));
 
-    let hiddenPromise = BrowserTestUtils.waitForEvent(submenu, "popuphidden");
-    let clickedPromise = checkClickedEvent(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(submenu, "popuphidden");
+    const clickedPromise = checkClickedEvent(
       extension,
       {
         pageUrl,
@@ -549,7 +551,7 @@ async function subtest_compose_body(
   info("Test link.");
   {
     await rightClickOnContent(menu, "a", browser);
-    let submenu = await openExtensionSubMenu(menu);
+    const submenu = await openExtensionSubMenu(menu);
 
     await checkShownEvent(
       extension,
@@ -566,8 +568,8 @@ async function subtest_compose_body(
       submenu.querySelector("#menus_mochi_test-menuitem-_compose_body")
     );
 
-    let hiddenPromise = BrowserTestUtils.waitForEvent(submenu, "popuphidden");
-    let clickedPromise = checkClickedEvent(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(submenu, "popuphidden");
+    const clickedPromise = checkClickedEvent(
       extension,
       {
         pageUrl,
@@ -593,7 +595,7 @@ async function subtest_compose_body(
   info("Test image.");
   {
     await rightClickOnContent(menu, "img", browser);
-    let submenu = await openExtensionSubMenu(menu);
+    const submenu = await openExtensionSubMenu(menu);
 
     await checkShownEvent(
       extension,
@@ -610,8 +612,8 @@ async function subtest_compose_body(
       submenu.querySelector("#menus_mochi_test-menuitem-_compose_body")
     );
 
-    let hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
-    let clickedPromise = checkClickedEvent(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(menu, "popuphidden");
+    const clickedPromise = checkClickedEvent(
       extension,
       {
         pageUrl,
@@ -644,7 +646,7 @@ async function subtest_element(
   pageUrl,
   tab
 ) {
-  for (let selectedTest of [false, true]) {
+  for (const selectedTest of [false, true]) {
     element.focus();
     if (selectedTest) {
       element.value = "This is selected text.";
@@ -653,10 +655,10 @@ async function subtest_element(
       element.value = "";
     }
 
-    let event = await rightClick(element.ownerGlobal, element);
-    let menu = event.target;
-    let trigger = menu.triggerNode;
-    let menuitem = menu.querySelector("#menus_mochi_test-menuitem-_editable");
+    const event = await rightClick(element.ownerGlobal, element);
+    const menu = event.target;
+    const trigger = menu.triggerNode;
+    const menuitem = menu.querySelector("#menus_mochi_test-menuitem-_editable");
     Assert.equal(
       element.id,
       trigger.id,
@@ -688,7 +690,7 @@ async function subtest_element(
     // extension submenu. Open the submenu.
     let submenu = null;
     if (selectedTest) {
-      for (let foundMenu of menu.querySelectorAll(
+      for (const foundMenu of menu.querySelectorAll(
         "[id^='menus_mochi_test-menuitem-']"
       )) {
         if (!foundMenu.id.startsWith("menus_mochi_test-menuitem-_")) {
@@ -696,7 +698,7 @@ async function subtest_element(
         }
       }
       Assert.ok(submenu, "Submenu found.");
-      let submenuPromise = BrowserTestUtils.waitForEvent(
+      const submenuPromise = BrowserTestUtils.waitForEvent(
         element.ownerGlobal,
         "popupshown"
       );
@@ -704,11 +706,11 @@ async function subtest_element(
       await submenuPromise;
     }
 
-    let hiddenPromise = BrowserTestUtils.waitForEvent(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(
       element.ownerGlobal,
       "popuphidden"
     );
-    let clickedPromise = checkClickedEvent(
+    const clickedPromise = checkClickedEvent(
       extension,
       {
         pageUrl,

@@ -59,7 +59,7 @@ function setupServerDaemon(handler) {
 }
 
 function getBasicSmtpServer(port = 1, hostname = "localhost") {
-  let server = localAccountUtils.create_outgoing_server(
+  const server = localAccountUtils.create_outgoing_server(
     port,
     "user",
     "password",
@@ -75,7 +75,7 @@ function getBasicSmtpServer(port = 1, hostname = "localhost") {
 
 function getSmtpIdentity(senderName, smtpServer) {
   // Set up the identity
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.email = senderName;
   identity.smtpServerKey = smtpServer.key;
 
@@ -157,14 +157,14 @@ var progressListener = {
 };
 
 function createMessage(aAttachment) {
-  let fields = Cc[
+  const fields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   fields.from = "Nobody <nobody@tinderbox.test>";
 
   let attachments = [];
   if (aAttachment) {
-    let attachment = Cc[
+    const attachment = Cc[
       "@mozilla.org/messengercompose/attachment;1"
     ].createInstance(Ci.nsIMsgAttachment);
     if (aAttachment instanceof Ci.nsIFile) {
@@ -186,17 +186,17 @@ function richCreateMessage(
   identity = null,
   account = null
 ) {
-  let params = Cc[
+  const params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
   params.composeFields = fields;
 
-  let msgCompose = MailServices.compose.initCompose(params);
+  const msgCompose = MailServices.compose.initCompose(params);
   if (identity === null) {
     identity = getSmtpIdentity(null, getBasicSmtpServer());
   }
 
-  let rootFolder = localAccountUtils.rootFolder;
+  const rootFolder = localAccountUtils.rootFolder;
   gDraftFolder = null;
   // Make sure the drafts folder is empty
   try {
@@ -206,21 +206,21 @@ function richCreateMessage(
     gDraftFolder = rootFolder.createLocalSubfolder("Drafts");
   }
   // Clear all messages
-  let msgs = [...gDraftFolder.msgDatabase.enumerateMessages()];
+  const msgs = [...gDraftFolder.msgDatabase.enumerateMessages()];
   if (msgs.length > 0) {
     gDraftFolder.deleteMessages(msgs, null, true, false, null, false);
   }
 
   // Set attachment
   fields.removeAttachments();
-  for (let attachment of attachments) {
+  for (const attachment of attachments) {
     fields.addAttachment(attachment);
   }
 
-  let progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
+  const progress = Cc["@mozilla.org/messenger/progress;1"].createInstance(
     Ci.nsIMsgProgress
   );
-  let promise = new Promise((resolve, reject) => {
+  const promise = new Promise((resolve, reject) => {
     progressListener.resolve = resolve;
     progressListener.reject = reject;
   });
@@ -237,7 +237,7 @@ function richCreateMessage(
 
 function getAttachmentFromContent(aContent) {
   function getBoundaryStringFromContent() {
-    let found = aContent.match(
+    const found = aContent.match(
       /Content-Type: multipart\/mixed;\s+boundary="(.*?)"/
     );
     Assert.notEqual(found, null);
@@ -246,8 +246,8 @@ function getAttachmentFromContent(aContent) {
     return found[1];
   }
 
-  let boundary = getBoundaryStringFromContent(aContent);
-  let regex = new RegExp(
+  const boundary = getBoundaryStringFromContent(aContent);
+  const regex = new RegExp(
     "\\r\\n\\r\\n--" +
       boundary +
       "\\r\\n" +
@@ -257,7 +257,7 @@ function getAttachmentFromContent(aContent) {
       "--",
     "m"
   );
-  let attachments = aContent.match(regex);
+  const attachments = aContent.match(regex);
   Assert.notEqual(attachments, null);
   Assert.equal(attachments.length, 2);
   return attachments[1];
@@ -270,7 +270,7 @@ function getAttachmentFromContent(aContent) {
  * @returns {string}
  */
 function getMessageBody(content) {
-  let separatorIndex = content.indexOf("\r\n\r\n");
+  const separatorIndex = content.indexOf("\r\n\r\n");
   Assert.equal(content.slice(-2), "\r\n", "Should end with a line break.");
   return content.slice(separatorIndex + 4, -2);
 }

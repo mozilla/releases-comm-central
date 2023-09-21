@@ -142,6 +142,8 @@ module.exports = {
             vars: "local",
           },
         ],
+        // Enforce using `let` only when variables are reassigned.
+        "prefer-const": ["error", { destructuring: "all" }],
       },
     },
     {

@@ -9,8 +9,8 @@ var { IMServices } = ChromeUtils.importESModule(
 );
 
 async function openChatTab() {
-  let tabmail = document.getElementById("tabmail");
-  let chatMode = tabmail.tabModes.chat;
+  const tabmail = document.getElementById("tabmail");
+  const chatMode = tabmail.tabModes.chat;
 
   if (chatMode.tabs.length == 1) {
     tabmail.selectedTab = chatMode.tabs[0];
@@ -25,8 +25,8 @@ async function openChatTab() {
 }
 
 async function closeChatTab() {
-  let tabmail = document.getElementById("tabmail");
-  let chatMode = tabmail.tabModes.chat;
+  const tabmail = document.getElementById("tabmail");
+  const chatMode = tabmail.tabModes.chat;
 
   if (chatMode.tabs.length == 1) {
     tabmail.closeTab(chatMode.tabs[0]);
@@ -85,7 +85,7 @@ function waitForConversationLoad(browser) {
 
 function waitForNotification(target, expectedTopic) {
   let observer;
-  let promise = new Promise(resolve => {
+  const promise = new Promise(resolve => {
     observer = {
       observe(subject, topic, data) {
         if (topic === expectedTopic) {

@@ -48,14 +48,14 @@ async function initDirectory() {
 
   if (!Services.logins.findLogins(CardDAVServer.origin, null, "test").length) {
     // Save a username and password to the login manager.
-    let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-      Ci.nsILoginInfo
-    );
+    const loginInfo = Cc[
+      "@mozilla.org/login-manager/loginInfo;1"
+    ].createInstance(Ci.nsILoginInfo);
     loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
     await Services.logins.addLoginAsync(loginInfo);
   }
 
-  let directory = new CardDAVDirectory();
+  const directory = new CardDAVDirectory();
   directory.init("jscarddav://carddav.sqlite");
   return directory;
 }
@@ -63,7 +63,7 @@ async function initDirectory() {
 async function clearDirectory(directory) {
   await directory.cleanUp();
 
-  let database = do_get_profile();
+  const database = do_get_profile();
   database.append("carddav.sqlite");
   database.remove(false);
 }
@@ -74,11 +74,11 @@ async function checkCardsOnServer(expectedCards) {
   await fetch(`${CardDAVServer.origin}/ping`);
 
   info("Checking cards on server are correct.");
-  let actualCards = [...CardDAVServer.cards];
+  const actualCards = [...CardDAVServer.cards];
   Assert.equal(actualCards.length, Object.keys(expectedCards).length);
 
   for (let [href, { etag, vCard }] of actualCards) {
-    let baseName = href
+    const baseName = href
       .substring(CardDAVServer.path.length)
       .replace(/\.vcf$/, "");
     info(baseName);
@@ -92,7 +92,7 @@ async function checkCardsOnServer(expectedCards) {
   }
 }
 
-let observer = {
+const observer = {
   notifications: {
     "addrbook-contact-created": [],
     "addrbook-contact-updated": [],
@@ -105,21 +105,21 @@ let observer = {
     }
     this.isInited = true;
 
-    for (let key of Object.keys(this.notifications)) {
+    for (const key of Object.keys(this.notifications)) {
       Services.obs.addObserver(observer, key);
     }
   },
   checkAndClearNotifications(expected) {
     Assert.deepEqual(this.notifications, expected);
-    for (let array of Object.values(this.notifications)) {
+    for (const array of Object.values(this.notifications)) {
       array.length = 0;
     }
   },
   observe(subject, topic) {
-    let uid = subject.QueryInterface(Ci.nsIAbCard).UID;
+    const uid = subject.QueryInterface(Ci.nsIAbCard).UID;
     info(`${topic}: ${uid}`);
     if (this.pendingPromise && this.pendingPromise.topic == topic) {
-      let promise = this.pendingPromise;
+      const promise = this.pendingPromise;
       this.pendingPromise = null;
       promise.resolve(uid);
       return;
@@ -143,7 +143,7 @@ add_task(async () => {
 // Checks two vCard strings have the same lines, in any order.
 // Not very smart but smart enough.
 function vCardEqual(lhs, rhs, message) {
-  let lhsLines = lhs.split("\r\n").sort();
-  let rhsLines = rhs.split("\r\n").sort();
+  const lhsLines = lhs.split("\r\n").sort();
+  const rhsLines = rhs.split("\r\n").sort();
   Assert.deepEqual(lhsLines, rhsLines, message);
 }

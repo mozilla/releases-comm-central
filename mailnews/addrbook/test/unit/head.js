@@ -24,7 +24,7 @@ registerCleanupFunction(function () {
 });
 
 function promiseDirectoryRemoved(uri) {
-  let removePromise = TestUtils.topicObserved("addrbook-directory-deleted");
+  const removePromise = TestUtils.topicObserved("addrbook-directory-deleted");
   MailServices.ab.deleteAddressBook(uri);
   return removePromise;
 }
@@ -49,15 +49,15 @@ acObserver.prototype = {
 };
 
 function formatVCard(strings, ...values) {
-  let arr = [];
-  for (let str of strings) {
+  const arr = [];
+  for (const str of strings) {
     arr.push(str);
     arr.push(values.shift());
   }
-  let lines = arr.join("").split("\n");
-  let indent = lines[1].length - lines[1].trimLeft().length;
-  let outLines = [];
-  for (let line of lines) {
+  const lines = arr.join("").split("\n");
+  const indent = lines[1].length - lines[1].trimLeft().length;
+  const outLines = [];
+  for (const line of lines) {
     if (line.length > 0) {
       outLines.push(line.substring(indent) + "\r\n");
     }

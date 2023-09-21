@@ -32,15 +32,15 @@ registerCleanupFunction(function () {
 });
 
 function apply_mime_conversion(msgUri, smimeHeaderSink) {
-  let service = MailServices.messageServiceFromURI(msgUri);
+  const service = MailServices.messageServiceFromURI(msgUri);
 
   // This is what we listen on in the end.
-  let listener = new PromiseTestUtils.PromiseStreamListener();
+  const listener = new PromiseTestUtils.PromiseStreamListener();
 
   // Make the underlying channel--we need this for the converter parameter.
-  let url = service.getUrlForUri(msgUri);
+  const url = service.getUrlForUri(msgUri);
 
-  let channel = Services.io.newChannelFromURI(
+  const channel = Services.io.newChannelFromURI(
     url,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
@@ -51,7 +51,7 @@ function apply_mime_conversion(msgUri, smimeHeaderSink) {
   channel.QueryInterface(Ci.nsIMailChannel).smimeHeaderSink = smimeHeaderSink;
 
   // Make the MIME converter, using the listener we first set up.
-  let converter = Cc["@mozilla.org/streamConverters;1"]
+  const converter = Cc["@mozilla.org/streamConverters;1"]
     .getService(Ci.nsIStreamConverterService)
     .asyncConvertData("message/rfc822", "text/html", listener, channel);
 

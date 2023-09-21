@@ -17,7 +17,7 @@ async function focusWindow(win) {
 async function openExtensionPopup(win, buttonId) {
   await focusWindow(win.top);
 
-  let actionButton = await TestUtils.waitForCondition(
+  const actionButton = await TestUtils.waitForCondition(
     () =>
       win.document.querySelector(
         `#${buttonId}, [item-id="${buttonId}"] button`
@@ -30,10 +30,10 @@ async function openExtensionPopup(win, buttonId) {
   );
   EventUtils.synthesizeMouseAtCenter(actionButton, {}, win);
 
-  let panel = win.top.document.getElementById(
+  const panel = win.top.document.getElementById(
     "webextension-remote-preload-panel"
   );
-  let browser = panel.querySelector("browser");
+  const browser = panel.querySelector("browser");
   await TestUtils.waitForCondition(
     () => browser.clientWidth > 100,
     "waiting for browser to resize"
@@ -47,10 +47,10 @@ function getSmartServer() {
 }
 
 function resetSmartMailboxes() {
-  let oldServer = getSmartServer();
+  const oldServer = getSmartServer();
   // Clean up any leftover server from an earlier test.
   if (oldServer) {
-    let oldAccount = MailServices.accounts.FindAccountForServer(oldServer);
+    const oldAccount = MailServices.accounts.FindAccountForServer(oldServer);
     MailServices.accounts.removeAccount(oldAccount, false);
   }
 }
@@ -96,7 +96,7 @@ class MenuTestHelper {
    * Clicks on the menu and waits for it to open.
    */
   async openMenu() {
-    let shownPromise = BrowserTestUtils.waitForEvent(
+    const shownPromise = BrowserTestUtils.waitForEvent(
       this.menu.menupopup,
       "popupshown"
     );
@@ -137,7 +137,7 @@ class MenuTestHelper {
       );
     }
     if (expected.l10nID) {
-      let attributes = actual.ownerDocument.l10n.getAttributes(actual);
+      const attributes = actual.ownerDocument.l10n.getAttributes(actual);
       Assert.equal(attributes.id, expected.l10nID, `${actual.id} L10n string`);
       Assert.deepEqual(
         attributes.args,
@@ -161,7 +161,7 @@ class MenuTestHelper {
       await BrowserTestUtils.waitForEvent(popup, "popupshown");
     }
 
-    for (let item of popup.children) {
+    for (const item of popup.children) {
       if (!item.id || item.localName == "menuseparator") {
         continue;
       }
@@ -172,7 +172,7 @@ class MenuTestHelper {
         }
         continue;
       }
-      let itemData = data[item.id];
+      const itemData = data[item.id];
       this.checkItem(item, itemData);
       delete data[item.id];
 
@@ -181,7 +181,7 @@ class MenuTestHelper {
           item.openMenu(true);
           await this.iterate(item.menupopup, data, itemsMustBeInData);
         } else {
-          for (let hiddenItem of item.querySelectorAll("menu, menuitem")) {
+          for (const hiddenItem of item.querySelectorAll("menu, menuitem")) {
             delete data[hiddenItem.id];
           }
         }
@@ -200,8 +200,8 @@ class MenuTestHelper {
    */
   async testAllItems(mode) {
     // Get the data for just this mode.
-    let data = {};
-    for (let [id, itemData] of Object.entries(this.baseData)) {
+    const data = {};
+    for (const [id, itemData] of Object.entries(this.baseData)) {
       data[id] = {
         ...itemData,
         hidden: itemData.hidden === true || itemData.hidden?.includes(mode),
@@ -216,7 +216,7 @@ class MenuTestHelper {
     await this.iterate(this.menu.menupopup, data, true);
 
     // Report any unexpected items.
-    for (let id of Object.keys(data)) {
+    for (const id of Object.keys(data)) {
       Assert.report(true, undefined, undefined, `extra item ${id} in data`);
     }
   }
@@ -230,12 +230,12 @@ class MenuTestHelper {
     await this.openMenu();
     await this.iterate(this.menu.menupopup, data);
 
-    for (let id of Object.keys(data)) {
+    for (const id of Object.keys(data)) {
       Assert.report(true, undefined, undefined, `extra item ${id} in data`);
     }
 
     if (this.menu.menupopup.state != "closed") {
-      let hiddenPromise = BrowserTestUtils.waitForEvent(
+      const hiddenPromise = BrowserTestUtils.waitForEvent(
         this.menu.menupopup,
         "popuphidden"
       );
@@ -255,11 +255,11 @@ class MenuTestHelper {
    */
   async activateItem(menuItemID, data) {
     await this.openMenu();
-    let hiddenPromise = BrowserTestUtils.waitForEvent(
+    const hiddenPromise = BrowserTestUtils.waitForEvent(
       this.menu.menupopup,
       "popuphidden"
     );
-    let item = document.getElementById(menuItemID);
+    const item = document.getElementById(menuItemID);
     if (data) {
       this.checkItem(item, data);
     }
@@ -326,7 +326,7 @@ registerCleanupFunction(function () {
       "view"
     );
 
-    let tabmail = document.getElementById("tabmail");
+    const tabmail = document.getElementById("tabmail");
     if (tabmail.tabInfo.length > 1) {
       Assert.report(
         true,
@@ -337,7 +337,7 @@ registerCleanupFunction(function () {
       tabmail.closeOtherTabs(0);
     }
 
-    for (let server of MailServices.accounts.allServers) {
+    for (const server of MailServices.accounts.allServers) {
       Assert.report(
         true,
         undefined,
@@ -346,7 +346,7 @@ registerCleanupFunction(function () {
       );
       MailServices.accounts.removeIncomingServer(server, false);
     }
-    for (let account of MailServices.accounts.accounts) {
+    for (const account of MailServices.accounts.accounts) {
       Assert.report(
         true,
         undefined,
@@ -363,7 +363,7 @@ registerCleanupFunction(function () {
     Services.focus.focusedWindow = window;
     // Focus an element in the main window, then blur it again to avoid it
     // hijacking keypresses.
-    let mainWindowElement = document.getElementById("button-appmenu");
+    const mainWindowElement = document.getElementById("button-appmenu");
     mainWindowElement.focus();
     mainWindowElement.blur();
   });

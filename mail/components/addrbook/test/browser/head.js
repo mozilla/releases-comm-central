@@ -29,7 +29,7 @@ registerCleanupFunction(function () {
       2,
       "Only Personal ab and Collected Addresses should be left."
     );
-    for (let directory of MailServices.ab.directories) {
+    for (const directory of MailServices.ab.directories) {
       if (
         directory.dirPrefId == "ldap_2.servers.history" ||
         directory.dirPrefId == "ldap_2.servers.pab"
@@ -57,7 +57,7 @@ registerCleanupFunction(function () {
     Services.focus.focusedWindow = window;
     // Focus an element in the main window, then blur it again to avoid it
     // hijacking keypresses.
-    let mainWindowElement = document.getElementById("button-appmenu");
+    const mainWindowElement = document.getElementById("button-appmenu");
     mainWindowElement.focus();
     mainWindowElement.blur();
     // Reset the window to its default size.
@@ -76,27 +76,27 @@ async function openAddressBookWindow() {
 }
 
 function closeAddressBookWindow() {
-  let abTab = getAddressBookTab();
+  const abTab = getAddressBookTab();
   if (abTab) {
-    let tabmail = document.getElementById("tabmail");
+    const tabmail = document.getElementById("tabmail");
     tabmail.closeTab(abTab);
   }
 }
 
 function getAddressBookTab() {
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   return tabmail.tabInfo.find(
     t => t.browser?.currentURI.spec == "about:addressbook"
   );
 }
 
 function getAddressBookWindow() {
-  let tab = getAddressBookTab();
+  const tab = getAddressBookTab();
   return tab?.browser.contentWindow;
 }
 
 async function openAllAddressBooks() {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
   EventUtils.synthesizeMouseAtCenter(
     abWindow.document.querySelector("#books > li"),
     {},
@@ -106,33 +106,33 @@ async function openAllAddressBooks() {
 }
 
 function openDirectory(directory) {
-  let abWindow = getAddressBookWindow();
-  let row = abWindow.booksList.getRowForUID(directory.UID);
+  const abWindow = getAddressBookWindow();
+  const row = abWindow.booksList.getRowForUID(directory.UID);
   EventUtils.synthesizeMouseAtCenter(row.querySelector("span"), {}, abWindow);
 }
 
 function createAddressBook(dirName, type = Ci.nsIAbManager.JS_DIRECTORY_TYPE) {
-  let prefName = MailServices.ab.newAddressBook(dirName, null, type);
+  const prefName = MailServices.ab.newAddressBook(dirName, null, type);
   return MailServices.ab.getDirectoryFromId(prefName);
 }
 
 async function createAddressBookWithUI(abName) {
-  let newAddressBookPromise = promiseLoadSubDialog(
+  const newAddressBookPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml"
   );
 
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
   EventUtils.synthesizeMouseAtCenter(
     abWindow.document.getElementById("toolbarCreateBook"),
     {},
     abWindow
   );
 
-  let abNameDialog = await newAddressBookPromise;
+  const abNameDialog = await newAddressBookPromise;
   EventUtils.sendString(abName, abNameDialog);
   abNameDialog.document.querySelector("dialog").getButton("accept").click();
 
-  let addressBook = MailServices.ab.directories.find(
+  const addressBook = MailServices.ab.directories.find(
     directory => directory.dirName == abName
   );
 
@@ -145,7 +145,7 @@ async function createAddressBookWithUI(abName) {
 }
 
 function createContact(firstName, lastName, displayName, primaryEmail) {
-  let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+  const contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
   contact.displayName = displayName ?? `${firstName} ${lastName}`;
@@ -157,9 +157,9 @@ function createContact(firstName, lastName, displayName, primaryEmail) {
 }
 
 function createMailingList(name) {
-  let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(
-    Ci.nsIAbDirectory
-  );
+  const list = Cc[
+    "@mozilla.org/addressbook/directoryproperty;1"
+  ].createInstance(Ci.nsIAbDirectory);
   list.isMailList = true;
   list.dirName = name;
   return list;
@@ -168,26 +168,26 @@ function createMailingList(name) {
 async function createMailingListWithUI(mlParent, mlName) {
   openDirectory(mlParent);
 
-  let newAddressBookPromise = promiseLoadSubDialog(
+  const newAddressBookPromise = promiseLoadSubDialog(
     "chrome://messenger/content/addressbook/abMailListDialog.xhtml"
   );
 
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
   EventUtils.synthesizeMouseAtCenter(
     abWindow.document.getElementById("toolbarCreateList"),
     {},
     abWindow
   );
 
-  let abListDialog = await newAddressBookPromise;
-  let abListDocument = abListDialog.document;
+  const abListDialog = await newAddressBookPromise;
+  const abListDocument = abListDialog.document;
   await new Promise(resolve => abListDialog.setTimeout(resolve));
 
   abListDocument.getElementById("abPopup").value = mlParent.URI;
   abListDocument.getElementById("ListName").value = mlName;
   abListDocument.querySelector("dialog").getButton("accept").click();
 
-  let list = mlParent.childNodes.find(list => list.dirName == mlName);
+  const list = mlParent.childNodes.find(list => list.dirName == mlName);
 
   Assert.ok(list, "a new list was created");
 
@@ -198,9 +198,9 @@ async function createMailingListWithUI(mlParent, mlName) {
 }
 
 function checkDirectoryDisplayed(directory) {
-  let abWindow = getAddressBookWindow();
-  let booksList = abWindow.document.getElementById("books");
-  let cardsList = abWindow.cardsPane.cardsList;
+  const abWindow = getAddressBookWindow();
+  const booksList = abWindow.document.getElementById("books");
+  const cardsList = abWindow.cardsPane.cardsList;
 
   if (directory) {
     Assert.equal(
@@ -221,10 +221,10 @@ function checkCardsListed(...expectedCards) {
     )
   );
 
-  let abWindow = getAddressBookWindow();
-  let cardsList = abWindow.document.getElementById("cards");
+  const abWindow = getAddressBookWindow();
+  const cardsList = abWindow.document.getElementById("cards");
   for (let i = 0; i < expectedCards.length; i++) {
-    let row = cardsList.getRowAtIndex(i);
+    const row = cardsList.getRowAtIndex(i);
     Assert.equal(
       row.classList.contains("MailList"),
       expectedCards[i].isMailList,
@@ -246,9 +246,9 @@ function checkCardsListed(...expectedCards) {
 }
 
 function checkNamesListed(...expectedNames) {
-  let abWindow = getAddressBookWindow();
-  let cardsList = abWindow.document.getElementById("cards");
-  let expectedCount = expectedNames.length;
+  const abWindow = getAddressBookWindow();
+  const cardsList = abWindow.document.getElementById("cards");
+  const expectedCount = expectedNames.length;
 
   Assert.equal(
     cardsList.view.rowCount,
@@ -272,8 +272,8 @@ function checkNamesListed(...expectedNames) {
 }
 
 function checkPlaceholders(expectedVisible = []) {
-  let abWindow = getAddressBookWindow();
-  let placeholder = abWindow.cardsPane.cardsList.placeholder;
+  const abWindow = getAddressBookWindow();
+  const placeholder = abWindow.cardsPane.cardsList.placeholder;
 
   if (!expectedVisible.length) {
     Assert.ok(
@@ -283,8 +283,8 @@ function checkPlaceholders(expectedVisible = []) {
     return;
   }
 
-  for (let element of placeholder.children) {
-    let id = element.id;
+  for (const element of placeholder.children) {
+    const id = element.id;
     if (expectedVisible.includes(id)) {
       Assert.ok(BrowserTestUtils.is_visible(element), `${id} is visible`);
     } else {
@@ -301,10 +301,10 @@ function checkPlaceholders(expectedVisible = []) {
  *   menu closes.
  */
 async function showBooksContext(index, idToActivate) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
-  let booksList = abWindow.booksList;
-  let menu = abDocument.getElementById("bookContext");
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
+  const booksList = abWindow.booksList;
+  const menu = abDocument.getElementById("bookContext");
 
   EventUtils.synthesizeMouseAtCenter(
     booksList
@@ -330,10 +330,10 @@ async function showBooksContext(index, idToActivate) {
  *   menu closes.
  */
 async function showCardsContext(index, idToActivate) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
-  let cardsList = abWindow.cardsPane.cardsList;
-  let menu = abDocument.getElementById("cardContext");
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
+  const cardsList = abWindow.cardsPane.cardsList;
+  const menu = abDocument.getElementById("cardContext");
 
   EventUtils.synthesizeMouseAtCenter(
     cardsList.getRowAtIndex(index),
@@ -358,12 +358,12 @@ async function showCardsContext(index, idToActivate) {
  *   after this search. If no cards are given, checks the placeholder is shown.
  */
 async function doSearch(searchString, ...expectedCards) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
-  let searchBox = abDocument.getElementById("searchInput");
-  let cardsList = abWindow.cardsPane.cardsList;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
+  const searchBox = abDocument.getElementById("searchInput");
+  const cardsList = abWindow.cardsPane.cardsList;
 
-  let viewChangePromise = BrowserTestUtils.waitForEvent(
+  const viewChangePromise = BrowserTestUtils.waitForEvent(
     cardsList,
     "viewchange"
   );
@@ -387,11 +387,11 @@ async function doSearch(searchString, ...expectedCards) {
  * @param {string} value - The value attribute of the item to activate.
  */
 async function showSortMenu(name, value) {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let displayButton = abDocument.getElementById("displayButton");
-  let sortContext = abDocument.getElementById("sortContext");
+  const displayButton = abDocument.getElementById("displayButton");
+  const sortContext = abDocument.getElementById("sortContext");
   EventUtils.synthesizeMouseAtCenter(displayButton, {}, abWindow);
   await BrowserTestUtils.waitForPopupEvent(sortContext, "shown");
   sortContext.activateItem(
@@ -410,12 +410,12 @@ async function showSortMenu(name, value) {
  * @param {string} value - The value attribute of the item to activate.
  */
 async function showPickerMenu(name, value) {
-  let abWindow = getAddressBookWindow();
-  let cardsHeader = abWindow.cardsPane.table.header;
-  let pickerButton = cardsHeader.querySelector(
+  const abWindow = getAddressBookWindow();
+  const cardsHeader = abWindow.cardsPane.table.header;
+  const pickerButton = cardsHeader.querySelector(
     `th[is="tree-view-table-column-picker"] button`
   );
-  let menupopup = cardsHeader.querySelector(
+  const menupopup = cardsHeader.querySelector(
     `th[is="tree-view-table-column-picker"] menupopup`
   );
   EventUtils.synthesizeMouseAtCenter(pickerButton, {}, abWindow);
@@ -431,11 +431,11 @@ async function showPickerMenu(name, value) {
 }
 
 async function toggleLayout() {
-  let abWindow = getAddressBookWindow();
-  let abDocument = abWindow.document;
+  const abWindow = getAddressBookWindow();
+  const abDocument = abWindow.document;
 
-  let displayButton = abDocument.getElementById("displayButton");
-  let sortContext = abDocument.getElementById("sortContext");
+  const displayButton = abDocument.getElementById("displayButton");
+  const sortContext = abDocument.getElementById("sortContext");
   EventUtils.synthesizeMouseAtCenter(displayButton, {}, abWindow);
   await BrowserTestUtils.waitForPopupEvent(sortContext, "shown");
   sortContext.activateItem(abDocument.getElementById("sortContextTableLayout"));
@@ -445,10 +445,10 @@ async function toggleLayout() {
 
 async function checkComposeWindow(composeWindow, ...expectedAddresses) {
   await BrowserTestUtils.waitForEvent(composeWindow, "compose-editor-ready");
-  let composeDocument = composeWindow.document;
-  let toAddrRow = composeDocument.getElementById("addressRowTo");
+  const composeDocument = composeWindow.document;
+  const toAddrRow = composeDocument.getElementById("addressRowTo");
 
-  let pills = toAddrRow.querySelectorAll("mail-address-pill");
+  const pills = toAddrRow.querySelectorAll("mail-address-pill");
   Assert.equal(pills.length, expectedAddresses.length);
   for (let i = 0; i < expectedAddresses.length; i++) {
     Assert.equal(pills[i].label, expectedAddresses[i]);
@@ -461,13 +461,13 @@ async function checkComposeWindow(composeWindow, ...expectedAddresses) {
 }
 
 function promiseDirectoryRemoved(uri) {
-  let removePromise = TestUtils.topicObserved("addrbook-directory-deleted");
+  const removePromise = TestUtils.topicObserved("addrbook-directory-deleted");
   MailServices.ab.deleteAddressBook(uri);
   return removePromise;
 }
 
 function promiseLoadSubDialog(url) {
-  let abWindow = getAddressBookWindow();
+  const abWindow = getAddressBookWindow();
 
   return new Promise((resolve, reject) => {
     abWindow.SubDialog._dialogStack.addEventListener(
@@ -498,11 +498,11 @@ function promiseLoadSubDialog(url) {
         );
 
         // Check that stylesheets were injected
-        let expectedStyleSheetURLs =
+        const expectedStyleSheetURLs =
           aEvent.detail.dialog._injectedStyleSheets.slice(0);
-        for (let styleSheet of aEvent.detail.dialog._frame.contentDocument
+        for (const styleSheet of aEvent.detail.dialog._frame.contentDocument
           .styleSheets) {
-          let i = expectedStyleSheetURLs.indexOf(styleSheet.href);
+          const i = expectedStyleSheetURLs.indexOf(styleSheet.href);
           if (i >= 0) {
             info("found " + styleSheet.href);
             expectedStyleSheetURLs.splice(i, 1);
@@ -523,15 +523,15 @@ function promiseLoadSubDialog(url) {
 }
 
 function formatVCard(strings, ...values) {
-  let arr = [];
-  for (let str of strings) {
+  const arr = [];
+  for (const str of strings) {
     arr.push(str);
     arr.push(values.shift());
   }
-  let lines = arr.join("").split("\n");
-  let indent = lines[1].length - lines[1].trimLeft().length;
-  let outLines = [];
-  for (let line of lines) {
+  const lines = arr.join("").split("\n");
+  const indent = lines[1].length - lines[1].trimLeft().length;
+  const outLines = [];
+  for (const line of lines) {
     if (line.length > 0) {
       outLines.push(line.substring(indent) + "\r\n");
     }

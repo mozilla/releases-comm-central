@@ -117,7 +117,7 @@ function makeServer(daemon, infoString, otherProps) {
 }
 
 function createLocalIMAPServer(port, hostname = "localhost") {
-  let server = localAccountUtils.create_incoming_server(
+  const server = localAccountUtils.create_incoming_server(
     "imap",
     port,
     "user",
@@ -145,7 +145,7 @@ function do_check_transaction(fromServer, expected, withParams) {
     fromServer = fromServer[fromServer.length - 1];
   }
 
-  let realTransaction = [];
+  const realTransaction = [];
   for (let i = 0; i < fromServer.them.length; i++) {
     var line = fromServer.them[i]; // e.g. '1 login "user" "password"'
     var components = line.split(" ");
@@ -172,12 +172,12 @@ function do_check_transaction(fromServer, expected, withParams) {
  */
 function addImapMessage() {
   let messages = [];
-  let messageGenerator = new MessageGenerator(); // eslint-disable-line no-undef
+  const messageGenerator = new MessageGenerator(); // eslint-disable-line no-undef
   messages = messages.concat(messageGenerator.makeMessage());
-  let dataUri = Services.io.newURI(
+  const dataUri = Services.io.newURI(
     "data:text/plain;base64," + btoa(messages[0].toMessageString())
   );
-  let imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
+  const imapMsg = new ImapMessage(dataUri.spec, IMAPPump.mailbox.uidnext++, []);
   IMAPPump.mailbox.addMessage(imapMsg);
 }
 

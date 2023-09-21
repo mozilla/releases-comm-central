@@ -67,7 +67,7 @@ function setupServerDaemon(debugOption) {
 
 function createPop3ServerAndLocalFolders(port, hostname = "localhost") {
   localAccountUtils.loadLocalMailAccount();
-  let server = localAccountUtils.create_incoming_server(
+  const server = localAccountUtils.create_incoming_server(
     "pop3",
     port,
     "fred",
@@ -162,7 +162,7 @@ function do_check_transaction(real, expected) {
 }
 
 function create_temporary_directory() {
-  let directory = Services.dirsvc.get("TmpD", Ci.nsIFile);
+  const directory = Services.dirsvc.get("TmpD", Ci.nsIFile);
   directory.append("mailFolder");
   directory.createUnique(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0700", 8));
   return directory;
@@ -172,8 +172,8 @@ function create_sub_folders(parent, subFolders) {
   parent.leafName = parent.leafName + ".sbd";
   parent.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0700", 8));
 
-  for (let folder in subFolders) {
-    let subFolder = parent.clone();
+  for (const folder in subFolders) {
+    const subFolder = parent.clone();
     subFolder.append(subFolders[folder].name);
     subFolder.create(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
     if (subFolders[folder].subFolders) {
@@ -183,13 +183,13 @@ function create_sub_folders(parent, subFolders) {
 }
 
 function create_mail_directory(subFolders) {
-  let root = create_temporary_directory();
+  const root = create_temporary_directory();
 
-  for (let folder in subFolders) {
+  for (const folder in subFolders) {
     if (!subFolders[folder].subFolders) {
       continue;
     }
-    let directory = root.clone();
+    const directory = root.clone();
     directory.append(subFolders[folder].name);
     create_sub_folders(directory, subFolders[folder].subFolders);
   }
@@ -198,8 +198,8 @@ function create_mail_directory(subFolders) {
 }
 
 function setup_mailbox(type, mailboxPath) {
-  let user = Services.uuid.generateUUID().toString();
-  let incomingServer = MailServices.accounts.createIncomingServer(
+  const user = Services.uuid.generateUUID().toString();
+  const incomingServer = MailServices.accounts.createIncomingServer(
     user,
     "Local Folder",
     type
