@@ -9,9 +9,8 @@ import conftest  # noqa: F401
 import pytest
 import responses
 from mozunit import main
+from taskgraph.optimize.base import registry
 from taskgraph.task import Task
-
-from gecko_taskgraph.optimize import registry
 
 from comm_taskgraph.optimize import SkipSuiteOnly
 
