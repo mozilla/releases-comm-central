@@ -2550,11 +2550,10 @@ NS_IMETHODIMP nsImapProtocol::CanHandleUrl(nsIImapUrl* aImapUrl,
     if (m_runningUrl) {
       m_runningUrl->GetRequiredImapState(&curUrlImapState);
       if (curUrlImapState == nsIImapUrl::nsImapSelectedState) {
-        char* folderName = GetFolderPathString();
+        nsCString folderName = GetFolderPathString();
         if (!curSelectedUrlFolderName.Equals(folderName))
-          pendingUrlFolderName.Assign(folderName);
+          pendingUrlFolderName = folderName;
         inSelectedState = true;
-        PR_Free(folderName);
       }
     }
   }
@@ -2604,24 +2603,25 @@ NS_IMETHODIMP nsImapProtocol::CanHandleUrl(nsIImapUrl* aImapUrl,
         if (inSelectedState) {
           // *** jt - in selected state can only run url with
           // matching foldername
-          char* folderNameForProposedUrl = nullptr;
+          nsCString folderNameForProposedUrl;
           rv = aImapUrl->CreateServerSourceFolderPathString(
-              &folderNameForProposedUrl);
-          if (NS_SUCCEEDED(rv) && folderNameForProposedUrl) {
+              folderNameForProposedUrl);
+          if (NS_SUCCEEDED(rv) && !folderNameForProposedUrl.IsEmpty()) {
             bool isInbox =
-                PL_strcasecmp("Inbox", folderNameForProposedUrl) == 0;
+                PL_strcasecmp("Inbox", folderNameForProposedUrl.get()) == 0;
             if (!curSelectedUrlFolderName.IsEmpty() ||
                 !pendingUrlFolderName.IsEmpty()) {
-              bool matched = isInbox
-                                 ? PL_strcasecmp(curSelectedUrlFolderName.get(),
-                                                 folderNameForProposedUrl) == 0
-                                 : PL_strcmp(curSelectedUrlFolderName.get(),
-                                             folderNameForProposedUrl) == 0;
+              bool matched =
+                  isInbox ? PL_strcasecmp(curSelectedUrlFolderName.get(),
+                                          folderNameForProposedUrl.get()) == 0
+                          : PL_strcmp(curSelectedUrlFolderName.get(),
+                                      folderNameForProposedUrl.get()) == 0;
               if (!matched && !pendingUrlFolderName.IsEmpty()) {
-                matched = isInbox ? PL_strcasecmp(pendingUrlFolderName.get(),
-                                                  folderNameForProposedUrl) == 0
-                                  : PL_strcmp(pendingUrlFolderName.get(),
-                                              folderNameForProposedUrl) == 0;
+                matched =
+                    isInbox ? PL_strcasecmp(pendingUrlFolderName.get(),
+                                            folderNameForProposedUrl.get()) == 0
+                            : PL_strcmp(pendingUrlFolderName.get(),
+                                        folderNameForProposedUrl.get()) == 0;
               }
               if (matched) {
                 if (isBusy)
@@ -2631,13 +2631,13 @@ NS_IMETHODIMP nsImapProtocol::CanHandleUrl(nsIImapUrl* aImapUrl,
               }
             }
           }
-          MOZ_LOG(IMAP, LogLevel::Debug,
-                  ("proposed url = %s folder for connection %s has To Wait = "
-                   "%s can run = %s",
-                   folderNameForProposedUrl, curSelectedUrlFolderName.get(),
-                   (*hasToWait) ? "true" : "false",
-                   (*aCanRunUrl) ? "true" : "false"));
-          PR_FREEIF(folderNameForProposedUrl);
+          MOZ_LOG(
+              IMAP, LogLevel::Debug,
+              ("proposed url = %s folder for connection %s has To Wait = "
+               "%s can run = %s",
+               folderNameForProposedUrl.get(), curSelectedUrlFolderName.get(),
+               (*hasToWait) ? "true" : "false",
+               (*aCanRunUrl) ? "true" : "false"));
         }
       } else  // *** jt - an authenticated state url can be run in either
               // authenticated or selected state
@@ -2705,7 +2705,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
   m_runningUrl->GetMsgFlags(&msgFlags);
   m_runningUrl->GetMoreHeadersToDownload(&moreHeadersToDownload);
 
-  res = CreateServerSourceFolderPathString(getter_Copies(mailboxName));
+  res = CreateServerSourceFolderPathString(mailboxName);
   if (NS_FAILED(res))
     Log("ProcessSelectedStateURL", nullptr,
         "error getting source folder path string");
@@ -3036,8 +3036,8 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                 GetServerStateParser().GetSelectedMailboxName();
             if (selectedMailboxName) {
               m_runningUrl->AllocateCanonicalPath(
-                  selectedMailboxName, kOnlineHierarchySeparatorUnknown,
-                  getter_Copies(canonicalName));
+                  nsDependentCString(selectedMailboxName),
+                  kOnlineHierarchySeparatorUnknown, canonicalName);
             }
 
             if (m_imapMessageSink)
@@ -3064,8 +3064,8 @@ void nsImapProtocol::ProcessSelectedStateURL() {
                   GetServerStateParser().GetSelectedMailboxName();
               if (selectedMailboxName) {
                 m_runningUrl->AllocateCanonicalPath(
-                    selectedMailboxName, kOnlineHierarchySeparatorUnknown,
-                    getter_Copies(canonicalName));
+                    nsDependentCString(selectedMailboxName),
+                    kOnlineHierarchySeparatorUnknown, canonicalName);
               }
 
               if (m_imapMessageSink)
@@ -3109,83 +3109,80 @@ void nsImapProtocol::ProcessSelectedStateURL() {
         case nsIImapUrl::nsImapOnlineMove: {
           nsCString messageIdString;
           m_runningUrl->GetListOfMessageIds(messageIdString);
-          char* destinationMailbox =
+          nsCString destinationMailbox =
               OnCreateServerDestinationFolderPathString();
 
-          if (destinationMailbox) {
-            if (m_imapAction == nsIImapUrl::nsImapOnlineMove) {
-              if (HandlingMultipleMessages(messageIdString))
-                ProgressEventFunctionUsingNameWithString("imapMovingMessages",
-                                                         destinationMailbox);
-              else
-                ProgressEventFunctionUsingNameWithString("imapMovingMessage",
-                                                         destinationMailbox);
-            } else {
-              if (HandlingMultipleMessages(messageIdString))
-                ProgressEventFunctionUsingNameWithString("imapCopyingMessages",
-                                                         destinationMailbox);
-              else
-                ProgressEventFunctionUsingNameWithString("imapCopyingMessage",
-                                                         destinationMailbox);
-            }
-            Copy(messageIdString.get(), destinationMailbox, bMessageIdsAreUids);
-            PR_FREEIF(destinationMailbox);
-            ImapOnlineCopyState copyState;
-            if (DeathSignalReceived())
-              copyState = ImapOnlineCopyStateType::kInterruptedState;
+          if (m_imapAction == nsIImapUrl::nsImapOnlineMove) {
+            if (HandlingMultipleMessages(messageIdString))
+              ProgressEventFunctionUsingNameWithString(
+                  "imapMovingMessages", destinationMailbox.get());
             else
-              copyState = GetServerStateParser().LastCommandSuccessful()
-                              ? (ImapOnlineCopyState)
-                                    ImapOnlineCopyStateType::kSuccessfulCopy
-                              : (ImapOnlineCopyState)
-                                    ImapOnlineCopyStateType::kFailedCopy;
-            if (m_imapMailFolderSink)
-              m_imapMailFolderSink->OnlineCopyCompleted(this, copyState);
-            // Don't mark message 'Deleted' for AOL servers or standard imap
-            // servers that support MOVE since we already issued an 'xaol-move'
-            // or 'move' command.
-            if (GetServerStateParser().LastCommandSuccessful() &&
-                (m_imapAction == nsIImapUrl::nsImapOnlineMove) &&
-                !(GetServerStateParser().ServerIsAOLServer() ||
-                  GetServerStateParser().GetCapabilityFlag() &
-                      kHasMoveCapability)) {
-              // Simulate MOVE for servers that don't support MOVE: do
-              // COPY-DELETE-EXPUNGE.
-              Store(messageIdString, "+FLAGS (\\Deleted \\Seen)",
-                    bMessageIdsAreUids);
-              bool storeSuccessful =
-                  GetServerStateParser().LastCommandSuccessful();
-              if (storeSuccessful) {
-                if (gExpungeAfterDelete) {
-                  // This will expunge all emails marked as deleted in mailbox,
-                  // not just the ones marked as deleted above.
-                  Expunge();
-                } else {
-                  // Check if UIDPLUS capable so we can just expunge emails we
-                  // just copied and marked as deleted. This prevents expunging
-                  // emails that other clients may have marked as deleted in the
-                  // mailbox and don't want them to disappear. Only do
-                  // UidExpunge() when user selected delete method is "Move it
-                  // to this folder" or "Remove it immediately", not when the
-                  // delete method is "Just mark it as deleted".
-                  if (!GetShowDeletedMessages() &&
-                      (GetServerStateParser().GetCapabilityFlag() &
-                       kUidplusCapability)) {
-                    UidExpunge(messageIdString);
-                  }
+              ProgressEventFunctionUsingNameWithString(
+                  "imapMovingMessage", destinationMailbox.get());
+          } else {
+            if (HandlingMultipleMessages(messageIdString))
+              ProgressEventFunctionUsingNameWithString(
+                  "imapCopyingMessages", destinationMailbox.get());
+            else
+              ProgressEventFunctionUsingNameWithString(
+                  "imapCopyingMessage", destinationMailbox.get());
+          }
+          Copy(messageIdString.get(), destinationMailbox.get(),
+               bMessageIdsAreUids);
+          ImapOnlineCopyState copyState;
+          if (DeathSignalReceived())
+            copyState = ImapOnlineCopyStateType::kInterruptedState;
+          else
+            copyState =
+                GetServerStateParser().LastCommandSuccessful()
+                    ? (ImapOnlineCopyState)
+                          ImapOnlineCopyStateType::kSuccessfulCopy
+                    : (ImapOnlineCopyState)ImapOnlineCopyStateType::kFailedCopy;
+          if (m_imapMailFolderSink)
+            m_imapMailFolderSink->OnlineCopyCompleted(this, copyState);
+          // Don't mark message 'Deleted' for AOL servers or standard imap
+          // servers that support MOVE since we already issued an 'xaol-move'
+          // or 'move' command.
+          if (GetServerStateParser().LastCommandSuccessful() &&
+              (m_imapAction == nsIImapUrl::nsImapOnlineMove) &&
+              !(GetServerStateParser().ServerIsAOLServer() ||
+                GetServerStateParser().GetCapabilityFlag() &
+                    kHasMoveCapability)) {
+            // Simulate MOVE for servers that don't support MOVE: do
+            // COPY-DELETE-EXPUNGE.
+            Store(messageIdString, "+FLAGS (\\Deleted \\Seen)",
+                  bMessageIdsAreUids);
+            bool storeSuccessful =
+                GetServerStateParser().LastCommandSuccessful();
+            if (storeSuccessful) {
+              if (gExpungeAfterDelete) {
+                // This will expunge all emails marked as deleted in mailbox,
+                // not just the ones marked as deleted above.
+                Expunge();
+              } else {
+                // Check if UIDPLUS capable so we can just expunge emails we
+                // just copied and marked as deleted. This prevents expunging
+                // emails that other clients may have marked as deleted in the
+                // mailbox and don't want them to disappear. Only do
+                // UidExpunge() when user selected delete method is "Move it
+                // to this folder" or "Remove it immediately", not when the
+                // delete method is "Just mark it as deleted".
+                if (!GetShowDeletedMessages() &&
+                    (GetServerStateParser().GetCapabilityFlag() &
+                     kUidplusCapability)) {
+                  UidExpunge(messageIdString);
                 }
               }
-              if (m_imapMailFolderSink) {
-                copyState = storeSuccessful
-                                ? (ImapOnlineCopyState)
-                                      ImapOnlineCopyStateType::kSuccessfulDelete
-                                : (ImapOnlineCopyState)
-                                      ImapOnlineCopyStateType::kFailedDelete;
-                m_imapMailFolderSink->OnlineCopyCompleted(this, copyState);
-              }
             }
-          } else
-            HandleMemoryFailure();
+            if (m_imapMailFolderSink) {
+              copyState = storeSuccessful
+                              ? (ImapOnlineCopyState)
+                                    ImapOnlineCopyStateType::kSuccessfulDelete
+                              : (ImapOnlineCopyState)
+                                    ImapOnlineCopyStateType::kFailedDelete;
+              m_imapMailFolderSink->OnlineCopyCompleted(this, copyState);
+            }
+          }
         } break;
         case nsIImapUrl::nsImapOnlineToOfflineCopy:
         case nsIImapUrl::nsImapOnlineToOfflineMove: {
@@ -5952,15 +5949,14 @@ nsresult nsImapProtocol::AuthLogin(const char* userName,
 void nsImapProtocol::OnLSubFolders() {
   // **** use to find out whether Drafts, Sent, & Templates folder
   // exists or not even the user didn't subscribe to it
-  char* mailboxName = OnCreateServerSourceFolderPathString();
-  if (mailboxName) {
+  nsCString mailboxName = OnCreateServerSourceFolderPathString();
+  if (!mailboxName.IsEmpty()) {
     ProgressEventFunctionUsingName("imapStatusLookingForMailbox");
     IncrementCommandTagNumber();
     PR_snprintf(m_dataOutputBuf, OUTPUT_BUFFER_SIZE, "%s list \"\" \"%s\"" CRLF,
-                GetServerCommandTag(), mailboxName);
+                GetServerCommandTag(), mailboxName.get());
     nsresult rv = SendData(m_dataOutputBuf);
     if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail();
-    PR_Free(mailboxName);
   } else {
     HandleMemoryFailure();
   }
@@ -5971,8 +5967,8 @@ void nsImapProtocol::OnAppendMsgFromFile() {
   nsresult rv = NS_OK;
   rv = m_runningUrl->GetMsgFile(getter_AddRefs(file));
   if (NS_SUCCEEDED(rv) && file) {
-    char* mailboxName = OnCreateServerSourceFolderPathString();
-    if (mailboxName) {
+    nsCString mailboxName = OnCreateServerSourceFolderPathString();
+    if (!mailboxName.IsEmpty()) {
       imapMessageFlagsType flagsToSet = 0;
       uint32_t msgFlags = 0;
       PRTime date = 0;
@@ -6000,8 +5996,8 @@ void nsImapProtocol::OnAppendMsgFromFile() {
       if (NS_SUCCEEDED(rv) &&
           (imapAction == nsIImapUrl::nsImapAppendDraftFromFile))
         flagsToSet |= kImapMsgDraftFlag;
-      UploadMessageFromFile(file, mailboxName, date, flagsToSet, keywords);
-      PR_Free(mailboxName);
+      UploadMessageFromFile(file, mailboxName.get(), date, flagsToSet,
+                            keywords);
     } else {
       HandleMemoryFailure();
     }
@@ -6227,9 +6223,8 @@ done:
   if (fileInputStream) fileInputStream->Close();
 }
 
-// caller must free using PR_Free
-char* nsImapProtocol::OnCreateServerSourceFolderPathString() {
-  char* sourceMailbox = nullptr;
+nsCString nsImapProtocol::OnCreateServerSourceFolderPathString() {
+  nsCString sourceMailbox;
   char hierarchyDelimiter = 0;
   char onlineDelimiter = 0;
   m_runningUrl->GetOnlineSubDirSeparator(&hierarchyDelimiter);
@@ -6240,14 +6235,13 @@ char* nsImapProtocol::OnCreateServerSourceFolderPathString() {
       onlineDelimiter != hierarchyDelimiter)
     m_runningUrl->SetOnlineSubDirSeparator(onlineDelimiter);
 
-  m_runningUrl->CreateServerSourceFolderPathString(&sourceMailbox);
+  m_runningUrl->CreateServerSourceFolderPathString(sourceMailbox);
 
   return sourceMailbox;
 }
 
-// caller must free using PR_Free, safe to call from ui thread
-char* nsImapProtocol::GetFolderPathString() {
-  char* sourceMailbox = nullptr;
+nsCString nsImapProtocol::GetFolderPathString() {
+  nsCString sourceMailbox;
   char onlineSubDirDelimiter = 0;
   char hierarchyDelimiter = 0;
   nsCOMPtr<nsIMsgFolder> msgFolder;
@@ -6264,20 +6258,18 @@ char* nsImapProtocol::GetFolderPathString() {
         m_runningUrl->SetOnlineSubDirSeparator(hierarchyDelimiter);
     }
   }
-  m_runningUrl->CreateServerSourceFolderPathString(&sourceMailbox);
+  m_runningUrl->CreateServerSourceFolderPathString(sourceMailbox);
 
   return sourceMailbox;
 }
 
-nsresult nsImapProtocol::CreateServerSourceFolderPathString(char** result) {
-  NS_ENSURE_ARG(result);
-  *result = OnCreateServerSourceFolderPathString();
-  return (*result) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+nsresult nsImapProtocol::CreateServerSourceFolderPathString(nsCString& result) {
+  result = OnCreateServerSourceFolderPathString();
+  return NS_OK;
 }
 
-// caller must free using PR_Free
-char* nsImapProtocol::OnCreateServerDestinationFolderPathString() {
-  char* destinationMailbox = nullptr;
+nsCString nsImapProtocol::OnCreateServerDestinationFolderPathString() {
+  nsCString destinationMailbox;
   char hierarchyDelimiter = 0;
   char onlineDelimiter = 0;
   m_runningUrl->GetOnlineSubDirSeparator(&hierarchyDelimiter);
@@ -6287,7 +6279,7 @@ char* nsImapProtocol::OnCreateServerDestinationFolderPathString() {
       onlineDelimiter != hierarchyDelimiter)
     m_runningUrl->SetOnlineSubDirSeparator(onlineDelimiter);
 
-  m_runningUrl->CreateServerDestinationFolderPathString(&destinationMailbox);
+  m_runningUrl->CreateServerDestinationFolderPathString(destinationMailbox);
 
   return destinationMailbox;
 }
@@ -6367,12 +6359,13 @@ void nsImapProtocol::OnEnsureExistsFolder(const char* aSourceMailbox) {
 
   nsCString name;
 
+  nsAutoCString sourceMailbox(aSourceMailbox);
   if (nsForMailbox)
-    m_runningUrl->AllocateCanonicalPath(
-        aSourceMailbox, nsForMailbox->GetDelimiter(), getter_Copies(name));
+    m_runningUrl->AllocateCanonicalPath(sourceMailbox,
+                                        nsForMailbox->GetDelimiter(), name);
   else
-    m_runningUrl->AllocateCanonicalPath(
-        aSourceMailbox, kOnlineHierarchySeparatorUnknown, getter_Copies(name));
+    m_runningUrl->AllocateCanonicalPath(sourceMailbox,
+                                        kOnlineHierarchySeparatorUnknown, name);
 
   // Also check that the folder has been verified to exist in server sink.
   bool verifiedExists = false;
@@ -6469,14 +6462,13 @@ void nsImapProtocol::RefreshFolderACLView(const char* mailboxName,
                                           nsImapNamespace* nsForMailbox) {
   nsCString canonicalMailboxName;
 
+  nsCString mailbox(mailboxName);
   if (nsForMailbox)
-    m_runningUrl->AllocateCanonicalPath(mailboxName,
-                                        nsForMailbox->GetDelimiter(),
-                                        getter_Copies(canonicalMailboxName));
+    m_runningUrl->AllocateCanonicalPath(mailbox, nsForMailbox->GetDelimiter(),
+                                        canonicalMailboxName);
   else
-    m_runningUrl->AllocateCanonicalPath(mailboxName,
-                                        kOnlineHierarchySeparatorUnknown,
-                                        getter_Copies(canonicalMailboxName));
+    m_runningUrl->AllocateCanonicalPath(
+        mailbox, kOnlineHierarchySeparatorUnknown, canonicalMailboxName);
 
   if (m_imapServerSink)
     m_imapServerSink->RefreshFolderRights(canonicalMailboxName);
@@ -6509,13 +6501,11 @@ void nsImapProtocol::OnRefreshAllACLs() {
     mb = m_listedMailboxList.ElementAt(i);
     if (mb)  // paranoia
     {
-      char* onlineName = nullptr;
-      m_runningUrl->AllocateServerPath(
-          PromiseFlatCString(mb->GetMailboxName()).get(), mb->GetDelimiter(),
-          &onlineName);
-      if (onlineName) {
-        RefreshACLForFolder(onlineName);
-        free(onlineName);
+      nsCString onlineName;
+      m_runningUrl->AllocateServerPath(mb->GetMailboxName(), mb->GetDelimiter(),
+                                       onlineName);
+      if (!onlineName.IsEmpty()) {
+        RefreshACLForFolder(onlineName.get());
       }
       PercentProgressUpdateEvent(""_ns, u""_ns, count, total);
       delete mb;
@@ -6628,7 +6618,7 @@ void nsImapProtocol::GetMyRightsForFolder(const char* mailboxName) {
   nsCString escapedName;
   CreateEscapedMailboxName(mailboxName, escapedName);
 
-  if (MailboxIsNoSelectMailbox(escapedName.get()))
+  if (MailboxIsNoSelectMailbox(escapedName))
     return;  // Don't issue myrights on Noselect folder
 
   command.AppendLiteral(" myrights \"");
@@ -6721,22 +6711,22 @@ void nsImapProtocol::OnListFolder(const char* aSourceMailbox, bool aBool) {
 
 // Returns true if the mailbox is a NoSelect mailbox.
 // If we don't know about it, returns false.
-bool nsImapProtocol::MailboxIsNoSelectMailbox(const char* mailboxName) {
+bool nsImapProtocol::MailboxIsNoSelectMailbox(const nsACString& mailboxName) {
   bool rv = false;
 
   nsImapNamespace* nsForMailbox = nullptr;
-  m_hostSessionList->GetNamespaceForMailboxForHost(GetImapServerKey(),
-                                                   mailboxName, nsForMailbox);
+  m_hostSessionList->GetNamespaceForMailboxForHost(
+      GetImapServerKey(), PromiseFlatCString(mailboxName).get(), nsForMailbox);
   // NS_ASSERTION (nsForMailbox, "Oops .. null nsForMailbox");
 
   nsCString name;
 
   if (nsForMailbox)
-    m_runningUrl->AllocateCanonicalPath(
-        mailboxName, nsForMailbox->GetDelimiter(), getter_Copies(name));
+    m_runningUrl->AllocateCanonicalPath(mailboxName,
+                                        nsForMailbox->GetDelimiter(), name);
   else
-    m_runningUrl->AllocateCanonicalPath(
-        mailboxName, kOnlineHierarchySeparatorUnknown, getter_Copies(name));
+    m_runningUrl->AllocateCanonicalPath(mailboxName,
+                                        kOnlineHierarchySeparatorUnknown, name);
 
   if (name.IsEmpty()) return false;
 
@@ -6757,11 +6747,11 @@ nsresult nsImapProtocol::SetFolderAdminUrl(const char* mailboxName) {
   nsCString name;
 
   if (nsForMailbox)
-    m_runningUrl->AllocateCanonicalPath(
-        mailboxName, nsForMailbox->GetDelimiter(), getter_Copies(name));
+    m_runningUrl->AllocateCanonicalPath(nsDependentCString(mailboxName),
+                                        nsForMailbox->GetDelimiter(), name);
   else
-    m_runningUrl->AllocateCanonicalPath(
-        mailboxName, kOnlineHierarchySeparatorUnknown, getter_Copies(name));
+    m_runningUrl->AllocateCanonicalPath(nsDependentCString(mailboxName),
+                                        kOnlineHierarchySeparatorUnknown, name);
 
   if (m_imapServerSink)
     rv = m_imapServerSink->SetFolderAdminURL(
@@ -6772,7 +6762,10 @@ nsresult nsImapProtocol::SetFolderAdminUrl(const char* mailboxName) {
 bool nsImapProtocol::DeleteMailboxRespectingSubscriptions(
     const char* mailboxName) {
   bool rv = true;
-  if (!MailboxIsNoSelectMailbox(mailboxName)) {
+  if (!mailboxName) {
+    return false;
+  }
+  if (!MailboxIsNoSelectMailbox(nsDependentCString(mailboxName))) {
     // Only try to delete it if it really exists
     DeleteMailbox(mailboxName);
     rv = GetServerStateParser().LastCommandSuccessful();
@@ -6795,7 +6788,11 @@ bool nsImapProtocol::DeleteMailboxRespectingSubscriptions(
 bool nsImapProtocol::RenameMailboxRespectingSubscriptions(
     const char* existingName, const char* newName, bool reallyRename) {
   bool rv = true;
-  if (reallyRename && !MailboxIsNoSelectMailbox(existingName)) {
+  if (!existingName) {
+    return false;
+  }
+  if (reallyRename &&
+      !MailboxIsNoSelectMailbox(nsDependentCString(existingName))) {
     RenameMailbox(existingName, newName);
     rv = GetServerStateParser().LastCommandSuccessful();
   }
@@ -6821,13 +6818,16 @@ bool nsImapProtocol::RenameMailboxRespectingSubscriptions(
 
 bool nsImapProtocol::RenameHierarchyByHand(const char* oldParentMailboxName,
                                            const char* newParentMailboxName) {
+  MOZ_ASSERT(oldParentMailboxName);
+  MOZ_ASSERT(newParentMailboxName);
+
   bool renameSucceeded = true;
   char onlineDirSeparator = kOnlineHierarchySeparatorUnknown;
   m_deletableChildren = new nsTArray<nsCString>();
 
   bool nonHierarchicalRename =
       ((GetServerStateParser().GetCapabilityFlag() & kNoHierarchyRename) ||
-       MailboxIsNoSelectMailbox(oldParentMailboxName));
+       MailboxIsNoSelectMailbox(nsDependentCString(oldParentMailboxName)));
 
   m_hierarchyNameState = kDeleteSubFoldersInProgress;
   nsImapNamespace* ns = nullptr;
@@ -6864,23 +6864,21 @@ bool nsImapProtocol::RenameHierarchyByHand(const char* oldParentMailboxName,
   for (size_t childIndex = 0; (childIndex < numberToDelete) && renameSucceeded;
        childIndex++) {
     nsCString name = m_deletableChildren->ElementAt(childIndex);
-    char* serverName = nullptr;
-    m_runningUrl->AllocateServerPath(name.get(), onlineDirSeparator,
-                                     &serverName);
-    if (!serverName) {
+    nsCString serverName;
+    m_runningUrl->AllocateServerPath(name, onlineDirSeparator, serverName);
+    if (serverName.IsEmpty()) {
       renameSucceeded = false;
       break;
     }
-    char* currentName = serverName;
+    nsCString currentName = serverName;
 
     // calculate the new name and do the rename
     nsCString newChildName(newParentMailboxName);
-    newChildName += (currentName + PL_strlen(oldParentMailboxName));
+    newChildName += (currentName.get() + PL_strlen(oldParentMailboxName));
     // Pass in 'nonHierarchicalRename' to determine if we should really
     // rename, or just move subscriptions.
     renameSucceeded = RenameMailboxRespectingSubscriptions(
-        currentName, newChildName.get(), nonHierarchicalRename);
-    PR_FREEIF(currentName);
+        currentName.get(), newChildName.get(), nonHierarchicalRename);
   }
 
   delete m_deletableChildren;
@@ -6941,21 +6939,21 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox,
   deleteSucceeded = GetServerStateParser().LastCommandSuccessful();
   for (outerIndex = 0; (outerIndex < numberToDelete) && deleteSucceeded;
        outerIndex++) {
-    char* longestName = nullptr;
+    nsCString longestName;
     size_t longestIndex = 0;  // fix bogus warning by initializing
     for (innerIndex = 0; innerIndex < m_deletableChildren->Length();
          innerIndex++) {
-      const char* currentName =
-          m_deletableChildren->ElementAt(innerIndex).get();
-      if (!longestName || strlen(longestName) < strlen(currentName)) {
-        longestName = (char*)currentName;
+      nsCString currentName = m_deletableChildren->ElementAt(innerIndex);
+      if (longestName.IsEmpty() ||
+          longestName.Length() < currentName.Length()) {
+        longestName = currentName;
         longestIndex = innerIndex;
       }
     }
-    if (longestName) {
-      char* serverName = nullptr;
+    if (!longestName.IsEmpty()) {
+      nsCString serverName;
       m_runningUrl->AllocateServerPath(longestName, onlineDirSeparator,
-                                       &serverName);
+                                       serverName);
       m_deletableChildren->RemoveElementAt(longestIndex);
       longestName = serverName;
     }
@@ -6967,43 +6965,42 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox,
     // The Cyrus imap server ignores the "INBOX.Trash" constraining
     // string passed to the list command.  Be defensive and make sure
     // we only delete children of the trash
-    if (longestName && strcmp(selectedMailbox, longestName) &&
-        !strncmp(selectedMailbox, longestName, strlen(selectedMailbox))) {
+    if (!longestName.IsEmpty() && strcmp(selectedMailbox, longestName.get()) &&
+        !strncmp(selectedMailbox, longestName.get(), strlen(selectedMailbox))) {
       if (selectedMailboxDir &&
-          !strcmp(selectedMailboxDir, longestName))  // just myself
+          !strcmp(selectedMailboxDir, longestName.get()))  // just myself
       {
         if (aDeleteSelf) {
-          bool deleted = DeleteMailboxRespectingSubscriptions(longestName);
+          bool deleted =
+              DeleteMailboxRespectingSubscriptions(longestName.get());
           if (deleted) FolderDeleted(longestName);
           folderDeleted = deleted;
           deleteSucceeded = deleted;
         }
       } else {
         if (m_imapServerSink)
-          m_imapServerSink->ResetServerConnection(
-              nsDependentCString(longestName));
+          m_imapServerSink->ResetServerConnection(longestName);
         bool deleted = false;
         if (folderInSubfolderList)  // for performance
         {
           nsTArray<nsCString>* pDeletableChildren = m_deletableChildren;
           m_deletableChildren = nullptr;
           bool folderDeleted = true;
-          deleted = DeleteSubFolders(longestName, folderDeleted);
+          deleted = DeleteSubFolders(longestName.get(), folderDeleted);
           // longestName may have subfolder list including itself
           if (!folderDeleted) {
             if (deleted)
-              deleted = DeleteMailboxRespectingSubscriptions(longestName);
+              deleted = DeleteMailboxRespectingSubscriptions(longestName.get());
             if (deleted) FolderDeleted(longestName);
           }
           m_deletableChildren = pDeletableChildren;
         } else {
-          deleted = DeleteMailboxRespectingSubscriptions(longestName);
+          deleted = DeleteMailboxRespectingSubscriptions(longestName.get());
           if (deleted) FolderDeleted(longestName);
         }
         deleteSucceeded = deleted;
       }
     }
-    PR_FREEIF(longestName);
   }
 
   aDeleteSelf = folderDeleted;  // feedback if myself is deleted
@@ -7015,13 +7012,13 @@ bool nsImapProtocol::DeleteSubFolders(const char* selectedMailbox,
   return deleteSucceeded;
 }
 
-void nsImapProtocol::FolderDeleted(const char* mailboxName) {
+void nsImapProtocol::FolderDeleted(const nsACString& mailboxName) {
   char onlineDelimiter = kOnlineHierarchySeparatorUnknown;
   nsCString orphanedMailboxName;
 
-  if (mailboxName) {
+  if (!mailboxName.IsEmpty()) {
     m_runningUrl->AllocateCanonicalPath(mailboxName, onlineDelimiter,
-                                        getter_Copies(orphanedMailboxName));
+                                        orphanedMailboxName);
     if (m_imapServerSink)
       m_imapServerSink->OnlineFolderDelete(orphanedMailboxName);
   }
@@ -7040,10 +7037,10 @@ void nsImapProtocol::FolderRenamed(const char* oldName, const char* newName) {
 
   {
     nsCString canonicalOldName, canonicalNewName;
-    m_runningUrl->AllocateCanonicalPath(oldName, onlineDelimiter,
-                                        getter_Copies(canonicalOldName));
-    m_runningUrl->AllocateCanonicalPath(newName, onlineDelimiter,
-                                        getter_Copies(canonicalNewName));
+    m_runningUrl->AllocateCanonicalPath(nsDependentCString(oldName),
+                                        onlineDelimiter, canonicalOldName);
+    m_runningUrl->AllocateCanonicalPath(nsDependentCString(newName),
+                                        onlineDelimiter, canonicalNewName);
     AutoProxyReleaseMsgWindow msgWindow;
     GetMsgWindow(getter_AddRefs(msgWindow));
     m_imapServerSink->OnlineFolderRename(msgWindow, canonicalOldName,
@@ -7057,7 +7054,7 @@ void nsImapProtocol::OnDeleteFolder(const char* sourceMailbox) {
   bool deleted = DeleteSubFolders(sourceMailbox, folderDeleted);
   if (!folderDeleted) {
     if (deleted) deleted = DeleteMailboxRespectingSubscriptions(sourceMailbox);
-    if (deleted) FolderDeleted(sourceMailbox);
+    if (deleted) FolderDeleted(nsDependentCString(sourceMailbox));
   }
 }
 
@@ -7083,51 +7080,40 @@ void nsImapProtocol::DeleteFolderAndMsgs(const char* sourceMailbox) {
 }
 
 void nsImapProtocol::OnRenameFolder(const char* sourceMailbox) {
-  char* destinationMailbox = OnCreateServerDestinationFolderPathString();
+  nsCString destinationMailbox = OnCreateServerDestinationFolderPathString();
 
-  if (destinationMailbox) {
-    bool renamed = RenameHierarchyByHand(sourceMailbox, destinationMailbox);
-    if (renamed) FolderRenamed(sourceMailbox, destinationMailbox);
+  bool renamed = RenameHierarchyByHand(sourceMailbox, destinationMailbox.get());
+  if (renamed) FolderRenamed(sourceMailbox, destinationMailbox.get());
 
-    // Cause a LIST and re-discovery when slash and/or ^ are escaped. Also
-    // needed when folder renamed to non-ASCII UTF-8 when UTF8=ACCEPT in
-    // effect.
-    m_hierarchyNameState = kListingForCreate;
-    nsCString mailboxWODelim(destinationMailbox);
-    RemoveHierarchyDelimiter(mailboxWODelim);
-    List(mailboxWODelim.get(), false);
-    m_hierarchyNameState = kNoOperationInProgress;
-
-    PR_Free(destinationMailbox);
-  } else
-    HandleMemoryFailure();
+  // Cause a LIST and re-discovery when slash and/or ^ are escaped. Also
+  // needed when folder renamed to non-ASCII UTF-8 when UTF8=ACCEPT in
+  // effect.
+  m_hierarchyNameState = kListingForCreate;
+  nsCString mailboxWODelim = destinationMailbox;
+  RemoveHierarchyDelimiter(mailboxWODelim);
+  List(mailboxWODelim.get(), false);
+  m_hierarchyNameState = kNoOperationInProgress;
 }
 
 void nsImapProtocol::OnMoveFolderHierarchy(const char* sourceMailbox) {
-  char* destinationMailbox = OnCreateServerDestinationFolderPathString();
+  nsCString newBoxName = OnCreateServerDestinationFolderPathString();
 
-  if (destinationMailbox) {
-    nsCString newBoxName;
-    newBoxName.Adopt(destinationMailbox);
+  char onlineDirSeparator = kOnlineHierarchySeparatorUnknown;
+  m_runningUrl->GetOnlineSubDirSeparator(&onlineDirSeparator);
 
-    char onlineDirSeparator = kOnlineHierarchySeparatorUnknown;
-    m_runningUrl->GetOnlineSubDirSeparator(&onlineDirSeparator);
+  nsCString oldBoxName(sourceMailbox);
+  int32_t leafStart = oldBoxName.RFindChar(onlineDirSeparator);
+  nsCString leafName;
 
-    nsCString oldBoxName(sourceMailbox);
-    int32_t leafStart = oldBoxName.RFindChar(onlineDirSeparator);
-    nsCString leafName;
+  if (-1 == leafStart)
+    leafName = oldBoxName;  // this is a root level box
+  else
+    leafName = Substring(oldBoxName, leafStart + 1);
 
-    if (-1 == leafStart)
-      leafName = oldBoxName;  // this is a root level box
-    else
-      leafName = Substring(oldBoxName, leafStart + 1);
-
-    if (!newBoxName.IsEmpty()) newBoxName.Append(onlineDirSeparator);
-    newBoxName.Append(leafName);
-    bool renamed = RenameHierarchyByHand(sourceMailbox, newBoxName.get());
-    if (renamed) FolderRenamed(sourceMailbox, newBoxName.get());
-  } else
-    HandleMemoryFailure();
+  if (!newBoxName.IsEmpty()) newBoxName.Append(onlineDirSeparator);
+  newBoxName.Append(leafName);
+  bool renamed = RenameHierarchyByHand(sourceMailbox, newBoxName.get());
+  if (renamed) FolderRenamed(sourceMailbox, newBoxName.get());
 }
 
 // This is called to do mailbox discovery if discovery not already complete
@@ -7190,8 +7176,8 @@ void nsImapProtocol::DiscoverAllAndSubscribedBoxes() {
           boxSpec->mHierarchySeparator = ns->GetDelimiter();
 
           m_runningUrl->AllocateCanonicalPath(
-              ns->GetPrefix(), ns->GetDelimiter(),
-              getter_Copies(boxSpec->mAllocatedPathName));
+              nsDependentCString(ns->GetPrefix()), ns->GetDelimiter(),
+              boxSpec->mAllocatedPathName);
           boxSpec->mNamespaceForFolder = ns;
           boxSpec->mBoxFlags |= kNameSpace;
 
@@ -7298,8 +7284,8 @@ void nsImapProtocol::DiscoverMailboxList() {
           boxSpec->mHierarchySeparator = ns->GetDelimiter();
           // Until |AllocateCanonicalPath()| gets updated:
           m_runningUrl->AllocateCanonicalPath(
-              ns->GetPrefix(), ns->GetDelimiter(),
-              getter_Copies(boxSpec->mAllocatedPathName));
+              nsDependentCString(ns->GetPrefix()), ns->GetDelimiter(),
+              boxSpec->mAllocatedPathName);
           boxSpec->mNamespaceForFolder = ns;
           boxSpec->mBoxFlags |= kNameSpace;
 
@@ -7396,13 +7382,11 @@ void nsImapProtocol::DiscoverMailboxList() {
         if (mb) {
           if (FolderNeedsACLInitialized(
                   PromiseFlatCString(mb->GetMailboxName()).get())) {
-            char* onlineName = nullptr;
-            m_runningUrl->AllocateServerPath(
-                PromiseFlatCString(mb->GetMailboxName()).get(),
-                mb->GetDelimiter(), &onlineName);
-            if (onlineName) {
-              RefreshACLForFolder(onlineName);
-              PR_Free(onlineName);
+            nsCString onlineName;
+            m_runningUrl->AllocateServerPath(mb->GetMailboxName(),
+                                             mb->GetDelimiter(), onlineName);
+            if (!onlineName.IsEmpty()) {
+              RefreshACLForFolder(onlineName.get());
             }
           }
           PercentProgressUpdateEvent(""_ns, u""_ns, cnt, total);
@@ -7450,9 +7434,8 @@ void nsImapProtocol::MailboxDiscoveryFinished() {
     // Delete-is-move-to-Trash model, and there is a personal namespace
     if (!trashFolderExists && GetDeleteIsMoveToTrash() && ns) {
       nsCString onlineTrashName;
-      m_runningUrl->AllocateServerPath(m_trashFolderPath.get(),
-                                       ns->GetDelimiter(),
-                                       getter_Copies(onlineTrashName));
+      m_runningUrl->AllocateServerPath(m_trashFolderPath, ns->GetDelimiter(),
+                                       onlineTrashName);
 
       GetServerStateParser().SetReportingErrors(false);
       bool created =
@@ -7882,7 +7865,7 @@ void nsImapProtocol::NthLevelChildList(const char* onlineMailboxPrefix,
  */
 void nsImapProtocol::ProcessAuthenticatedStateURL() {
   nsImapAction imapAction;
-  char* sourceMailbox = nullptr;
+  nsCString sourceMailbox;
   m_runningUrl->GetImapAction(&imapAction);
 
   // switch off of the imap url action and take an appropriate action
@@ -7903,76 +7886,74 @@ void nsImapProtocol::ProcessAuthenticatedStateURL() {
       break;
     case nsIImapUrl::nsImapCreateFolder:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      OnCreateFolder(sourceMailbox);
+      OnCreateFolder(sourceMailbox.get());
       break;
     case nsIImapUrl::nsImapEnsureExistsFolder:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      OnEnsureExistsFolder(sourceMailbox);
+      OnEnsureExistsFolder(sourceMailbox.get());
       break;
     case nsIImapUrl::nsImapDiscoverChildrenUrl: {
-      char* canonicalParent = nullptr;
-      m_runningUrl->CreateServerSourceFolderPathString(&canonicalParent);
-      if (canonicalParent) {
-        NthLevelChildList(canonicalParent, 2);
-        PR_Free(canonicalParent);
+      nsCString canonicalParent;
+      m_runningUrl->CreateServerSourceFolderPathString(canonicalParent);
+      if (!canonicalParent.IsEmpty()) {
+        NthLevelChildList(canonicalParent.get(), 2);
       }
       break;
     }
     case nsIImapUrl::nsImapSubscribe:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      OnSubscribe(sourceMailbox);  // used to be called subscribe
+      OnSubscribe(sourceMailbox.get());  // used to be called subscribe
 
       if (GetServerStateParser().LastCommandSuccessful()) {
         bool shouldList;
         // if url is an external click url, then we should list the folder
         // after subscribing to it, so we can select it.
         m_runningUrl->GetExternalLinkUrl(&shouldList);
-        if (shouldList) OnListFolder(sourceMailbox, true);
+        if (shouldList) OnListFolder(sourceMailbox.get(), true);
       }
       break;
     case nsIImapUrl::nsImapUnsubscribe:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      OnUnsubscribe(sourceMailbox);
+      OnUnsubscribe(sourceMailbox.get());
       break;
     case nsIImapUrl::nsImapRefreshACL:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      RefreshACLForFolder(sourceMailbox);
+      RefreshACLForFolder(sourceMailbox.get());
       break;
     case nsIImapUrl::nsImapRefreshAllACLs:
       OnRefreshAllACLs();
       break;
     case nsIImapUrl::nsImapListFolder:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      OnListFolder(sourceMailbox, false);
+      OnListFolder(sourceMailbox.get(), false);
       break;
     case nsIImapUrl::nsImapFolderStatus:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      OnStatusForFolder(sourceMailbox);
+      OnStatusForFolder(sourceMailbox.get());
       break;
     case nsIImapUrl::nsImapRefreshFolderUrls:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      XMailboxInfo(sourceMailbox);
+      XMailboxInfo(sourceMailbox.get());
       if (GetServerStateParser().LastCommandSuccessful())
-        SetFolderAdminUrl(sourceMailbox);
+        SetFolderAdminUrl(sourceMailbox.get());
       break;
     case nsIImapUrl::nsImapDeleteFolder:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      OnDeleteFolder(sourceMailbox);
+      OnDeleteFolder(sourceMailbox.get());
       break;
     case nsIImapUrl::nsImapRenameFolder:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      OnRenameFolder(sourceMailbox);
+      OnRenameFolder(sourceMailbox.get());
       break;
     case nsIImapUrl::nsImapMoveFolderHierarchy:
       sourceMailbox = OnCreateServerSourceFolderPathString();
-      OnMoveFolderHierarchy(sourceMailbox);
+      OnMoveFolderHierarchy(sourceMailbox.get());
       break;
     case nsIImapUrl::nsImapVerifylogon:
       break;
     default:
       break;
   }
-  PR_Free(sourceMailbox);
 }
 
 void nsImapProtocol::ProcessAfterAuthenticated() {

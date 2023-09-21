@@ -5222,8 +5222,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
         case nsIImapUrl::nsImapSubscribe:
           if (NS_SUCCEEDED(aExitCode) && msgWindow) {
             nsCString canonicalFolderName;
-            imapUrl->CreateCanonicalSourceFolderPathString(
-                getter_Copies(canonicalFolderName));
+            imapUrl->CreateCanonicalSourceFolderPathString(canonicalFolderName);
             nsCOMPtr<nsIMsgFolder> rootFolder;
             nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
             if (NS_SUCCEEDED(rv) && rootFolder) {

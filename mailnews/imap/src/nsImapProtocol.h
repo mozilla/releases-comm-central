@@ -582,11 +582,11 @@ class nsImapProtocol : public nsIImapProtocol,
   void OnLSubFolders();
   void OnAppendMsgFromFile();
 
-  char* GetFolderPathString();  // OK to call from UI thread
+  nsCString GetFolderPathString();  // OK to call from UI thread
 
-  char* OnCreateServerSourceFolderPathString();
-  char* OnCreateServerDestinationFolderPathString();
-  nsresult CreateServerSourceFolderPathString(char** result);
+  nsCString OnCreateServerSourceFolderPathString();
+  nsCString OnCreateServerDestinationFolderPathString();
+  nsresult CreateServerSourceFolderPathString(nsCString& result);
   void OnCreateFolder(const char* aSourceMailbox);
   void OnEnsureExistsFolder(const char* aSourceMailbox);
   void OnSubscribe(const char* aSourceMailbox);
@@ -613,7 +613,7 @@ class nsImapProtocol : public nsIImapProtocol,
                                             const char* newName,
                                             bool reallyRename);
   // notify the fe that a folder was deleted
-  void FolderDeleted(const char* mailboxName);
+  void FolderDeleted(const nsACString& mailboxName);
   // notify the fe that a folder creation failed
   void FolderNotCreated(const char* mailboxName);
   // notify the fe that a folder was deleted
@@ -621,7 +621,7 @@ class nsImapProtocol : public nsIImapProtocol,
 
   bool FolderIsSelected(const char* mailboxName);
 
-  bool MailboxIsNoSelectMailbox(const char* mailboxName);
+  bool MailboxIsNoSelectMailbox(const nsACString& mailboxName);
   bool FolderNeedsACLInitialized(const char* folderName);
   void DiscoverMailboxList();
   void DiscoverAllAndSubscribedBoxes();

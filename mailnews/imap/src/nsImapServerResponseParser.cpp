@@ -780,25 +780,26 @@ void nsImapServerResponseParser::mailbox_list(bool discoveredFromLsub) {
 /* mailbox         ::= "INBOX" / astring
  */
 void nsImapServerResponseParser::mailbox(nsImapMailboxSpec* boxSpec) {
-  char* boxname = nullptr;
+  nsCString boxname;
   const char* serverKey = fServerConnection.GetImapServerKey();
   bool xlistInbox = boxSpec->mBoxFlags & kImapInbox;
 
   if (!PL_strcasecmp(fNextToken, "INBOX") || xlistInbox) {
-    boxname = PL_strdup("INBOX");
+    boxname = "INBOX"_ns;
     if (xlistInbox) PR_Free(CreateAstring());
     AdvanceToNextToken();
   } else {
-    boxname = CreateAstring();
+    boxname = nsDependentCString(CreateAstring());
     AdvanceToNextToken();
   }
 
-  if (boxname && fHostSessionList) {
+  if (!boxname.IsEmpty() && fHostSessionList) {
     fHostSessionList->SetNamespaceHierarchyDelimiterFromMailboxForHost(
-        serverKey, boxname, boxSpec->mHierarchySeparator);
+        serverKey, boxname.get(), boxSpec->mHierarchySeparator);
 
     nsImapNamespace* ns = nullptr;
-    fHostSessionList->GetNamespaceForMailboxForHost(serverKey, boxname, ns);
+    fHostSessionList->GetNamespaceForMailboxForHost(serverKey, boxname.get(),
+                                                    ns);
     if (ns) {
       switch (ns->GetType()) {
         case kPersonalNamespace:
@@ -817,12 +818,11 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec* boxSpec) {
     }
   }
 
-  if (!boxname) {
+  if (boxname.IsEmpty()) {
     if (!fServerConnection.DeathSignalReceived()) HandleMemoryFailure();
   } else if (boxSpec->mConnection && boxSpec->mConnection->GetCurrentUrl()) {
     boxSpec->mConnection->GetCurrentUrl()->AllocateCanonicalPath(
-        boxname, boxSpec->mHierarchySeparator,
-        getter_Copies(boxSpec->mAllocatedPathName));
+        boxname, boxSpec->mHierarchySeparator, boxSpec->mAllocatedPathName);
     nsIURI* aURL = nullptr;
     boxSpec->mConnection->GetCurrentUrl()->QueryInterface(NS_GET_IID(nsIURI),
                                                           (void**)&aURL);
@@ -836,8 +836,6 @@ void nsImapServerResponseParser::mailbox(nsImapMailboxSpec* boxSpec) {
     // send more mailboxes their way
     if (NS_FAILED(fServerConnection.GetConnectionStatus())) SetConnected(false);
   }
-
-  if (boxname) PL_strfree(boxname);
 }
 
 /*

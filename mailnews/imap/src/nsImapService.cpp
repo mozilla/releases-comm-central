@@ -2195,7 +2195,7 @@ nsresult nsImapService::GetServerFromUrl(nsIImapUrl* aImapUrl,
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(aImapUrl);
 
   // if we can't get a folder name out of the url then I think this is an error
-  aImapUrl->CreateCanonicalSourceFolderPathString(getter_Copies(folderName));
+  aImapUrl->CreateCanonicalSourceFolderPathString(folderName);
   if (folderName.IsEmpty()) {
     rv = mailnewsUrl->GetFileName(folderName);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2258,7 +2258,7 @@ nsresult nsImapService::NewURI(const nsACString& aSpec,
 
   nsCString folderName;
   // if we can't get a folder name out of the url then I think this is an error
-  aImapUrl->CreateCanonicalSourceFolderPathString(getter_Copies(folderName));
+  aImapUrl->CreateCanonicalSourceFolderPathString(folderName);
   if (folderName.IsEmpty()) {
     rv = mailnewsUrl->GetFileName(folderName);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2398,7 +2398,7 @@ NS_IMETHODIMP nsImapService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     rv = GetServerFromUrl(imapUrl, getter_AddRefs(server));
     NS_ENSURE_SUCCESS(rv, rv);
     nsCString folderName;
-    imapUrl->CreateCanonicalSourceFolderPathString(getter_Copies(folderName));
+    imapUrl->CreateCanonicalSourceFolderPathString(folderName);
     if (folderName.IsEmpty()) {
       nsCString escapedFolderName;
       rv = mailnewsUrl->GetFileName(escapedFolderName);

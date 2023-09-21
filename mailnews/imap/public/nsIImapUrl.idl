@@ -49,11 +49,11 @@ interface nsIImapUrl : nsISupports
   attribute ACString customCommandResult;
   readonly attribute ACString customAddFlags;
   readonly attribute ACString customSubtractFlags;
-  void allocateCanonicalPath(in string aServerPath, in char aOnlineDelimiter, out string aAllocatedPath);
-  void allocateServerPath(in string aCanonicalPath, in char aOnlineDelimiter, out string aAllocatedPath);
-  string createServerSourceFolderPathString();
-  string createCanonicalSourceFolderPathString();
-  string createServerDestinationFolderPathString();
+  AUTF8String allocateCanonicalPath(in AUTF8String aServerPath, in char aOnlineDelimiter);
+  AUTF8String allocateServerPath(in AUTF8String aCanonicalPath, in char aOnlineDelimiter);
+  AUTF8String createServerSourceFolderPathString();
+  AUTF8String createCanonicalSourceFolderPathString();
+  AUTF8String createServerDestinationFolderPathString();
 
   string addOnlineDirectoryIfNecessary(in string onlineMailboxName);
   void createSearchCriteriaString(out string aResult);
