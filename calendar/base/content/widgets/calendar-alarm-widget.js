@@ -29,7 +29,7 @@
                       src="chrome://calendar/skin/shared/icons/icon32.svg"
                       alt="" />
           </vbox>
-          <vbox flex="1">
+          <vbox class="alarm-calendar-event">
             <label class="alarm-title-label" crop="end"/>
             <vbox class="additional-information-box">
               <label class="alarm-date-label"/>

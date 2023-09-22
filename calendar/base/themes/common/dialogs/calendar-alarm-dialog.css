@@ -52,6 +52,10 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .action-b
   display: flex;
 }
 
+.alarm-calendar-event {
+  overflow: hidden;
+}
+
 .alarm-location-description {
   display: flex;
 }
