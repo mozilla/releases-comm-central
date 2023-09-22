@@ -370,7 +370,12 @@ Enigmail.msg = {
           if (self.getSavedDraftOptions(mimeMsg)) {
             obtainedDraftFlagsObj.value = true;
           }
+          if (self.draftSubjectEncrypted) {
+            self.setOriginalSubject(msgHdr.subject, msgHdr.flags, false);
+          }
           updateEncryptionDependencies();
+        } else if (EnigmailURIs.isEncryptedUri(msgUri)) {
+          self.setOriginalSubject(msgHdr.subject, msgHdr.flags, false);
         }
       }
     } catch (ex) {
@@ -499,6 +504,85 @@ Enigmail.msg = {
     }
     //Enigmail.msg.setOwnKeyStatus();
     return true;
+  },
+
+  /**
+   * Updates the subject displayed in the #msgSubject element of the compose
+   * window. Sets prefixes such as "Re" depending on the value gMsgCompose.type.
+   *
+   * @param {string} subject The subject for the message.
+   * @param {number} flags The nsIMsgHdr flags for the message, used to detect
+   *   HasRe on drafts.
+   * @param {boolean} forceSetting If true, the subject is always updated
+   *   otherwise it is only updated for the following nsIMsgCompTypes: Draft,
+   *   Template,EditTemplate,ForwardInline,ForwardAttachement or EditAsNew.
+   */
+  setOriginalSubject(subject, flags, forceSetting) {
+    const CT = Ci.nsIMsgCompType;
+    let subjElem = document.getElementById("msgSubject");
+    let prefix = "";
+    let isReply = false;
+
+    if (!subjElem) {
+      return;
+    }
+
+    switch (gMsgCompose.type) {
+      case CT.ForwardInline:
+      case CT.ForwardAsAttachment:
+        prefix =
+          Services.prefs.getStringPref("mail.forward_subject_prefix") + ": ";
+        break;
+      case CT.Draft:
+        isReply = Boolean(flags & Ci.nsMsgMessageFlags.HasRe);
+        break;
+      case CT.Reply:
+      case CT.ReplyAll:
+      case CT.ReplyToSender:
+      case CT.ReplyToGroup:
+      case CT.ReplyToSenderAndGroup:
+      case CT.ReplyToList:
+        isReply = true;
+    }
+
+    if (isReply) {
+      if (!subject.startsWith("Re: ")) {
+        prefix = "Re: ";
+      }
+    }
+
+    let doSetSubject = forceSetting;
+    switch (gMsgCompose.type) {
+      case CT.Draft:
+      case CT.Template:
+      case CT.EditTemplate:
+      case CT.ForwardInline:
+      case CT.ForwardAsAttachment:
+      case CT.EditAsNew:
+        doSetSubject = true;
+        break;
+    }
+
+    if (doSetSubject) {
+      subject = jsmime.headerparser.decodeRFC2047Words(subject, "utf-8");
+
+      if (subjElem.value == "Re: " + subject) {
+        return;
+      }
+
+      let newSubj = prefix + subject;
+
+      if (
+        newSubj !== subjElem.value ||
+        newSubj !== gMsgCompose.compFields.subject
+      ) {
+        gMsgCompose.compFields.subject = newSubj;
+        subjElem.value = newSubj;
+        if (typeof subjElem.oninput === "function") {
+          subjElem.oninput();
+        }
+      }
+    }
   },
 
   composeOpen() {

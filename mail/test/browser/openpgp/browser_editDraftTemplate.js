@@ -137,11 +137,10 @@ async function doTestSecState(isDraft, secure) {
   let cwc = open_compose_new_mail();
   let type = isDraft ? "draft" : "template";
   let theFolder = isDraft ? draftsFolder : templatesFolder;
-  let subject = `test ${type}; 🤐; secure=${secure}`;
   setup_msg_contents(
     cwc,
     "test@example.invalid",
-    subject,
+    `test ${type}; secure=${secure}`,
     `This is a ${type}; secure=${secure}`
   );
   info(`Testing ${type}; secure=${secure}`);
@@ -186,31 +185,19 @@ async function doTestSecState(isDraft, secure) {
     );
   }
 
-  let draftWindow = await draftWindowPromise;
+  // The double click on col 4 (the subject) should bring up compose window
+  // for editing this draft.
 
-  Assert.equal(
-    draftWindow.document.getElementById("msgSubject").value,
-    subject,
-    "subject should be decrypted"
-  );
+  let draftWindow = await draftWindowPromise;
 
   info(`Checking security props in the UI...`);
 
+  // @see setEncSigStatusUI()
   if (!secure) {
     // Wait some to make sure it won't (soon) be showing.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 100));
-    Assert.ok(
-      !draftWindow.document.getElementById("button-encryption").checked,
-      "should not use encryption"
-    );
-  } else {
-    await TestUtils.waitForCondition(
-      () => draftWindow.document.getElementById("button-encryption").checked,
-      "waited for encryption to get turned on"
-    );
   }
-
   draftWindow.close();
   clearFolder(theFolder);
 }
