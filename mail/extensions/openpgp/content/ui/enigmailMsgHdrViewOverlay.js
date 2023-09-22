@@ -555,7 +555,6 @@ Enigmail.hdrView = {
           }
 
           Enigmail.hdrView.forgetEncryptedMsgKey();
-          Enigmail.hdrView.setWindowCallback();
         } catch (ex) {
           console.debug(ex);
         }
@@ -784,18 +783,6 @@ Enigmail.hdrView = {
     let e = document.getElementById("expanded" + header + "Box");
     if (e) {
       e.headerValue = value;
-    }
-  },
-
-  setWindowCallback() {
-    EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: setWindowCallback\n");
-
-    EnigmailSingletons.messageReader = this.headerPane;
-  },
-
-  clearWindowCallback() {
-    if (EnigmailSingletons.messageReader == this.headerPane) {
-      EnigmailSingletons.messageReader = null;
     }
   },
 
@@ -1075,6 +1062,14 @@ Enigmail.hdrView = {
         "enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.modifyMessageHeaders:\n"
       );
 
+      let msg = gMessage;
+      if (!msg) {
+        return;
+      }
+      if (!this.isCurrentMessage(uri)) {
+        return;
+      }
+
       let uriSpec = uri ? uri.spec : null;
       let hdr;
 
@@ -1093,8 +1088,6 @@ Enigmail.hdrView = {
       if (!this.displaySubPart(mimePartNumber, uriSpec)) {
         return;
       }
-
-      let msg = gMessage;
 
       if ("subject" in hdr) {
         Enigmail.hdrView.setSubject(hdr.subject);
@@ -1210,4 +1203,3 @@ window.addEventListener(
   "load-enigmail",
   Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView)
 );
-window.addEventListener("unload", () => Enigmail.hdrView.clearWindowCallback());

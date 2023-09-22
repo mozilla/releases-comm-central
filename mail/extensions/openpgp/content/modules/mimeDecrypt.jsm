@@ -177,7 +177,7 @@ MimeDecryptHandler.prototype = {
       // an in addition, remember that future information for "1" should
       // be ignored.
 
-      EnigmailSingletons.messageReader.ignoreStatusFrom("1");
+      mimeSvc.mailChannel?.smimeHeaderSink.ignoreStatusFrom("1");
     }
 
     if ("messageURI" in mimeSvc) {
@@ -428,7 +428,7 @@ MimeDecryptHandler.prototype = {
           );
 
           if (!this.backgroundJob && currUrlSpec.indexOf(manUrlSpec) !== 0) {
-            this.handleManualDecrypt();
+            this.handleManualDecrypt(mimeSvc.mailChannel?.smimeHeaderSink);
             return;
           }
         }
@@ -596,7 +596,7 @@ MimeDecryptHandler.prototype = {
         this.decryptedData = "";
       }
 
-      this.displayStatus();
+      this.displayStatus(mimeSvc.mailChannel?.smimeHeaderSink);
 
       // HACK: remove filename from 1st HTML and plaintext parts to make TB display message without attachment
       this.decryptedData = this.decryptedData.replace(
@@ -641,12 +641,12 @@ MimeDecryptHandler.prototype = {
       this.decryptedHeaders = LAST_MSG.lastStatus.decryptedHeaders;
       this.mimePartNumber = LAST_MSG.mimePartNumber;
       this.exitCode = 0;
-      this.displayStatus();
+      this.displayStatus(mimeSvc.mailChannel?.smimeHeaderSink);
       this.returnData(mimeSvc, LAST_MSG.lastMessageData);
     }
   },
 
-  displayStatus() {
+  displayStatus(headerSink) {
     lazy.EnigmailLog.DEBUG("mimeDecrypt.jsm: displayStatus()\n");
 
     if (this.exitCode === null || this.statusDisplayed) {
@@ -662,12 +662,10 @@ MimeDecryptHandler.prototype = {
       lazy.EnigmailLog.DEBUG(
         "mimeDecrypt.jsm: displayStatus for uri " + uriSpec + "\n"
       );
-      let headerSink = EnigmailSingletons.messageReader;
 
       if (headerSink && this.uri && !this.backgroundJob) {
-        headerSink.processDecryptionResult(
+        headerSink.modifyMessageHeaders(
           this.uri,
-          "modifyMessageHeaders",
           JSON.stringify(this.decryptedHeaders),
           this.mimePartNumber
         );
@@ -818,10 +816,8 @@ MimeDecryptHandler.prototype = {
     }
   },
 
-  handleManualDecrypt() {
+  handleManualDecrypt(headerSink) {
     try {
-      let headerSink = EnigmailSingletons.messageReader;
-
       if (headerSink && this.uri && !this.backgroundJob) {
         headerSink.updateSecurityStatus(
           lazy.EnigmailConstants.POSSIBLE_PGPMIME,

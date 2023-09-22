@@ -365,8 +365,50 @@ var smimeHeaderSink = {
     );
   },
 
-  ignoreStatusFrom(aOriginMimePartNumber) {
-    setIgnoreStatusFromMimePart(aOriginMimePartNumber);
+  // Forward these calls to the header pane code.
+
+  ignoreStatusFrom(originMimePartNumber) {
+    return Enigmail.hdrView.headerPane.ignoreStatusFrom(originMimePartNumber);
+  },
+
+  modifyMessageHeaders(uri, headerData, mimePartNumber) {
+    return Enigmail.hdrView.headerPane.modifyMessageHeaders(
+      uri,
+      headerData,
+      mimePartNumber
+    );
+  },
+
+  updateSecurityStatus(
+    exitCode,
+    statusFlags,
+    extStatusFlags,
+    keyId,
+    userId,
+    sigDetails,
+    errorMsg,
+    blockSeparation,
+    uri,
+    extraDetails,
+    mimePartNumber
+  ) {
+    return Enigmail.hdrView.headerPane.updateSecurityStatus(
+      exitCode,
+      statusFlags,
+      extStatusFlags,
+      keyId,
+      userId,
+      sigDetails,
+      errorMsg,
+      blockSeparation,
+      uri,
+      extraDetails,
+      mimePartNumber
+    );
+  },
+
+  handleSMimeMessage(uri) {
+    return Enigmail.hdrView.headerPane.handleSMimeMessage(uri);
   },
 
   QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMEHeaderSink"]),

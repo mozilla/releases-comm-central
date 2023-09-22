@@ -626,7 +626,8 @@ MimeVerify.prototype = {
           this.returnStatus.statusFlags |= EnigmailConstants.PARTIALLY_PGP;
         }
 
-        this.displayStatus();
+        let mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
+        this.displayStatus(mimeSvc.mailChannel?.smimeHeaderSink);
       }
     }
   },
@@ -660,16 +661,7 @@ MimeVerify.prototype = {
     this.mimeSvc.outputDecryptedData(data, data.length);
   },
 
-  setWindow(window, msgUriSpec) {
-    lazy.EnigmailLog.DEBUG("mimeVerify.jsm: setWindow: " + msgUriSpec + "\n");
-
-    if (!this.window) {
-      this.window = window;
-      this.msgUriSpec = msgUriSpec;
-    }
-  },
-
-  displayStatus() {
+  displayStatus(headerSink) {
     lazy.EnigmailLog.DEBUG("mimeVerify.jsm: displayStatus\n");
     if (this.exitCode === null || this.statusDisplayed || this.backgroundJob) {
       return;
@@ -677,12 +669,10 @@ MimeVerify.prototype = {
 
     try {
       LOCAL_DEBUG("mimeVerify.jsm: displayStatus displaying result\n");
-      let headerSink = lazy.EnigmailSingletons.messageReader;
       if (headerSink) {
         if (this.protectedHeaders) {
-          headerSink.processDecryptionResult(
+          headerSink.modifyMessageHeaders(
             this.uri,
-            "modifyMessageHeaders",
             JSON.stringify(this.protectedHeaders.newHeaders),
             this.mimePartNumber
           );

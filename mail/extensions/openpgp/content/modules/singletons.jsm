@@ -7,9 +7,6 @@
 var EXPORTED_SYMBOLS = ["EnigmailSingletons"];
 
 var EnigmailSingletons = {
-  // handle to most recent message reader window
-  messageReader: null,
-
   // information about the last PGP/MIME decrypted message (mimeDecrypt)
   lastDecryptedMessage: {},
   lastMessageDecryptTime: 0,

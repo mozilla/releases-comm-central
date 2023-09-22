@@ -25,7 +25,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailMimeDecrypt: "chrome://openpgp/content/modules/mimeDecrypt.jsm",
-  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
   EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
   EnigmailWksMimeHandler: "chrome://openpgp/content/modules/wksMimeHandler.jsm",
 });
@@ -169,7 +168,7 @@ PgpMimeHandler.prototype = {
     if (!lazy.EnigmailCore.getService()) {
       // Ensure Enigmail is initialized
       if (ct.search(/application\/(x-)?pkcs7-signature/i) > 0) {
-        return this.handleSmime(uri);
+        return this.handleSmime(mimeSvc, uri);
       }
       return null;
     }
@@ -200,7 +199,7 @@ PgpMimeHandler.prototype = {
         // S/MIME signed message
         if (lastUriSpec !== gLastEncryptedUri) {
           // if message is displayed then handle like S/MIME message
-          return this.handleSmime(uri);
+          return this.handleSmime(mimeSvc, uri);
         }
 
         // otherwise just make sure message body is returned
@@ -242,15 +241,14 @@ PgpMimeHandler.prototype = {
     delete this._onStopRequest;
   },
 
-  handleSmime(uri) {
+  handleSmime(mimeSvc, uri) {
     this.contentHandler = throwErrors;
 
     if (uri) {
       uri = uri.QueryInterface(Ci.nsIURI);
     }
 
-    let headerSink = lazy.EnigmailSingletons.messageReader;
-    headerSink?.handleSMimeMessage(uri);
+    mimeSvc.mailChannel?.smimeHeaderSink.handleSMimeMessage(uri);
   },
 
   getMessengerWindow() {

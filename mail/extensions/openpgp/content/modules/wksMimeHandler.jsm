@@ -16,8 +16,6 @@ XPCOMUtils.defineLazyModuleGetters(lazy, {
   EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
   EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
-  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(lazy, "l10n", () => {
@@ -113,7 +111,7 @@ PgpWkdHandler.prototype = {
     }
   },
 
-  onStopRequest() {
+  onStopRequest(request) {
     lazy.EnigmailLog.DEBUG("wksMimeHandler.jsm: onStopRequest\n");
 
     if (this.data.search(/-----BEGIN PGP MESSAGE-----/i) >= 0) {
@@ -132,7 +130,8 @@ PgpWkdHandler.prototype = {
       });
     }
 
-    this.displayStatus(jsonStr);
+    let mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
+    this.displayStatus(mimeSvc.mailChannel?.smimeHeaderSink, jsonStr);
   },
 
   decryptChallengeData() {
@@ -214,7 +213,7 @@ PgpWkdHandler.prototype = {
     }
   },
 
-  displayStatus(jsonStr) {
+  displayStatus(headerSink, jsonStr) {
     lazy.EnigmailLog.DEBUG("wksMimeHandler.jsm: displayStatus\n");
     if (this.backgroundJob) {
       return;
@@ -222,15 +221,8 @@ PgpWkdHandler.prototype = {
 
     try {
       LOCAL_DEBUG("wksMimeHandler.jsm: displayStatus displaying result\n");
-      let headerSink = lazy.EnigmailSingletons.messageReader;
-
       if (headerSink) {
-        headerSink.processDecryptionResult(
-          this.uri,
-          "wksConfirmRequest",
-          jsonStr,
-          this.mimePartNumber
-        );
+        headerSink.wksConfirmRequest(this.uri, jsonStr, this.mimePartNumber);
       }
     } catch (ex) {
       lazy.EnigmailLog.writeException("wksMimeHandler.jsm", ex);
