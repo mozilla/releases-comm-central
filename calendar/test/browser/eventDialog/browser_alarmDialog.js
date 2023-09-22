@@ -9,11 +9,11 @@ var { saveAndCloseItemDialog, setData } = ChromeUtils.import(
 var { dayView } = CalendarTestUtils;
 
 add_task(async function testAlarmDialog() {
-  let now = new Date();
+  const now = new Date();
 
   const TITLE = "Event";
 
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -27,7 +27,7 @@ add_task(async function testAlarmDialog() {
   );
   await CalendarTestUtils.calendarViewForward(window, 1);
 
-  let allDayHeader = dayView.getAllDayHeader(window);
+  const allDayHeader = dayView.getAllDayHeader(window);
   Assert.ok(allDayHeader);
   EventUtils.synthesizeMouseAtCenter(allDayHeader, {}, window);
 
@@ -41,7 +41,7 @@ add_task(async function testAlarmDialog() {
       async callback(alarmWindow) {
         await new Promise(resolve => alarmWindow.setTimeout(resolve, 500));
 
-        let dismissButton = alarmWindow.document.getElementById("alarm-dismiss-all-button");
+        const dismissButton = alarmWindow.document.getElementById("alarm-dismiss-all-button");
         EventUtils.synthesizeMouseAtCenter(dismissButton, {}, alarmWindow);
       },
     }
@@ -57,7 +57,7 @@ add_task(async function testAlarmDialog() {
   await alarmPromise;
 
   // Change the reminder duration, this resets the alarm.
-  let eventBox = await dayView.waitForAllDayItemAt(window, 1);
+  const eventBox = await dayView.waitForAllDayItemAt(window, 1);
 
   // Prepare to snooze the alarm.
   alarmPromise = BrowserTestUtils.promiseAlertDialog(
@@ -67,11 +67,13 @@ add_task(async function testAlarmDialog() {
       async callback(alarmWindow) {
         await new Promise(resolve => alarmWindow.setTimeout(resolve, 500));
 
-        let snoozeAllButton = alarmWindow.document.getElementById("alarm-snooze-all-button");
-        let popup = alarmWindow.document.querySelector("#alarm-snooze-all-popup");
-        let menuitems = alarmWindow.document.querySelectorAll("#alarm-snooze-all-popup > menuitem");
+        const snoozeAllButton = alarmWindow.document.getElementById("alarm-snooze-all-button");
+        const popup = alarmWindow.document.querySelector("#alarm-snooze-all-popup");
+        const menuitems = alarmWindow.document.querySelectorAll(
+          "#alarm-snooze-all-popup > menuitem"
+        );
 
-        let shownPromise = BrowserTestUtils.waitForEvent(snoozeAllButton, "popupshown");
+        const shownPromise = BrowserTestUtils.waitForEvent(snoozeAllButton, "popupshown");
         EventUtils.synthesizeMouseAtCenter(snoozeAllButton, {}, alarmWindow);
         await shownPromise;
         popup.activateItem(menuitems[5]);

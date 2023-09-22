@@ -9,16 +9,16 @@ function run_test() {
 }
 
 function test_listener_set() {
-  let set = new cal.data.ListenerSet(Ci.calIOperationListener);
+  const set = new cal.data.ListenerSet(Ci.calIOperationListener);
   let listener1Id = null;
   let listener2Id = null;
 
-  let listener1 = cal.createAdapter("calIOperationListener", {
+  const listener1 = cal.createAdapter("calIOperationListener", {
     onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
       listener1Id = aId;
     },
   });
-  let listener2 = cal.createAdapter("calIOperationListener", {
+  const listener2 = cal.createAdapter("calIOperationListener", {
     onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
       listener2Id = aId;
     },
@@ -39,7 +39,7 @@ function test_listener_set() {
   // Re-adding the listener may lead to an endless loop if the notify
   // function uses a live list of observers.
   let called = 0;
-  let listener3 = cal.createAdapter("calIOperationListener", {
+  const listener3 = cal.createAdapter("calIOperationListener", {
     onOperationComplete(aCalendar, aStatus, aOpType, aId, aDetail) {
       set.delete(listener3);
       if (called == 0) {
@@ -55,13 +55,13 @@ function test_listener_set() {
 }
 
 function test_observer_set() {
-  let set = new cal.data.ObserverSet(Ci.calIObserver);
+  const set = new cal.data.ObserverSet(Ci.calIObserver);
   let listenerCountBegin1 = 0;
   let listenerCountBegin2 = 0;
   let listenerCountEnd1 = 0;
   let listenerCountEnd2 = 0;
 
-  let listener1 = cal.createAdapter("calIObserver", {
+  const listener1 = cal.createAdapter("calIObserver", {
     onStartBatch() {
       listenerCountBegin1++;
     },
@@ -69,7 +69,7 @@ function test_observer_set() {
       listenerCountEnd1++;
     },
   });
-  let listener2 = cal.createAdapter("calIObserver", {
+  const listener2 = cal.createAdapter("calIObserver", {
     onStartBatch() {
       listenerCountBegin2++;
     },
@@ -119,7 +119,7 @@ function test_operation_group() {
   equal(group.status, Cr.NS_OK);
   ok(group.isEmpty);
 
-  let operation = {
+  const operation = {
     id: 123,
     isPending: true,
     cancel: status => {

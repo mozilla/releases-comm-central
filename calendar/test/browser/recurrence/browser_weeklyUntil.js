@@ -18,7 +18,7 @@ const ENDDATE = cal.createDateTime("20090126T000000Z"); // Last Monday in month.
 const HOUR = 8;
 
 add_task(async function testWeeklyUntilRecurrence() {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -27,8 +27,8 @@ add_task(async function testWeeklyUntilRecurrence() {
   await CalendarTestUtils.goToDate(window, 2009, 1, 5); // Monday
 
   // Create weekly recurring event.
-  let eventBox = dayView.getHourBoxAt(window, HOUR);
-  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  const eventBox = dayView.getHourBoxAt(window, HOUR);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   await setData(dialogWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
   await saveAndCloseItemDialog(dialogWindow);
 
@@ -113,7 +113,7 @@ add_task(async function testWeeklyUntilRecurrence() {
   await monthView.waitForNoItemAt(window, 5, 4, 1);
 
   // Delete event.
-  let box = monthView.getItemAt(window, 2, 2, 1);
+  const box = monthView.getItemAt(window, 2, 2, 1);
   EventUtils.synthesizeMouseAtCenter(box, {}, window);
   await handleDeleteOccurrencePrompt(window, box, true);
   await monthView.waitForNoItemAt(window, 2, 2, 1);
@@ -122,16 +122,16 @@ add_task(async function testWeeklyUntilRecurrence() {
 });
 
 async function setRecurrence(recurrenceWindow) {
-  let recurrenceDocument = recurrenceWindow.document;
+  const recurrenceDocument = recurrenceWindow.document;
 
   // weekly
   await menulistSelect(recurrenceDocument.getElementById("period-list"), "1");
 
-  let mon = cal.l10n.getDateFmtString("day.2.Mmm");
-  let wed = cal.l10n.getDateFmtString("day.4.Mmm");
-  let fri = cal.l10n.getDateFmtString("day.6.Mmm");
+  const mon = cal.l10n.getDateFmtString("day.2.Mmm");
+  const wed = cal.l10n.getDateFmtString("day.4.Mmm");
+  const fri = cal.l10n.getDateFmtString("day.6.Mmm");
 
-  let dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
+  const dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
 
   // Starting from Monday so it should be checked.
   Assert.ok(dayPicker.querySelector(`[label="${mon}"]`).checked, "mon checked");
@@ -155,20 +155,20 @@ async function setRecurrence(recurrenceWindow) {
   );
 
   // Delete previous date.
-  let untilInput = recurrenceDocument.getElementById("repeat-until-date");
+  const untilInput = recurrenceDocument.getElementById("repeat-until-date");
   untilInput.focus();
   EventUtils.synthesizeKey("a", { accelKey: true }, recurrenceWindow);
   untilInput.focus();
   EventUtils.synthesizeKey("VK_DELETE", {}, recurrenceWindow);
 
-  let endDateString = formatDate(ENDDATE);
+  const endDateString = formatDate(ENDDATE);
   EventUtils.sendString(endDateString, recurrenceWindow);
 
   // Move focus to ensure the date is selected.
   untilInput.focus();
   EventUtils.synthesizeKey("VK_TAB", {}, recurrenceWindow);
 
-  let button = recurrenceDocument.querySelector("dialog").getButton("accept");
+  const button = recurrenceDocument.querySelector("dialog").getButton("accept");
   button.scrollIntoView();
   // Close dialog.
   EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);

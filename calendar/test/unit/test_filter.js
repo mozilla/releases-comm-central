@@ -21,10 +21,10 @@ async function promiseItems(filter, calendar) {
 add_task(() => new Promise(resolve => do_calendar_startup(resolve)));
 
 add_task(async function testDateRangeFilter() {
-  let calendar = CalendarTestUtils.createCalendar("test");
+  const calendar = CalendarTestUtils.createCalendar("test");
 
-  let testItems = {};
-  for (let [title, startDate, endDate] of [
+  const testItems = {};
+  for (const [title, startDate, endDate] of [
     ["before", "20210720", "20210721"],
     ["during", "20210820", "20210821"],
     ["after", "20210920", "20210921"],
@@ -32,7 +32,7 @@ add_task(async function testDateRangeFilter() {
     ["overlaps_end", "20210820", "20210904"],
     ["overlaps_both", "20210720", "20210904"],
   ]) {
-    let event = new CalEvent();
+    const event = new CalEvent();
     event.id = cal.getUUID();
     event.title = title;
     event.startDate = cal.createDateTime(startDate);
@@ -43,7 +43,7 @@ add_task(async function testDateRangeFilter() {
 
   // Create a new filter.
 
-  let filter = new calFilter();
+  const filter = new calFilter();
   filter.startDate = cal.createDateTime("20210801");
   filter.endDate = cal.createDateTime("20210831");
 
@@ -106,16 +106,16 @@ add_task(async function testDateRangeFilter() {
 });
 
 add_task(async function testItemTypeFilter() {
-  let calendar = CalendarTestUtils.createCalendar("test");
+  const calendar = CalendarTestUtils.createCalendar("test");
 
-  let event = new CalEvent();
+  const event = new CalEvent();
   event.id = cal.getUUID();
   event.title = "New event";
   event.startDate = cal.createDateTime("20210803T205500Z");
   event.endDate = cal.createDateTime("20210803T210200Z");
   await calendar.addItem(event);
 
-  let task = new CalTodo();
+  const task = new CalTodo();
   task.id = cal.getUUID();
   task.title = "New task";
   task.entryDate = cal.createDateTime("20210806T090000Z");
@@ -124,7 +124,7 @@ add_task(async function testItemTypeFilter() {
 
   // Create a new filter.
 
-  let filter = new calFilter();
+  const filter = new calFilter();
   filter.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
   filter.startDate = cal.createDateTime("20210801");
   filter.endDate = cal.createDateTime("20210831");
@@ -185,9 +185,9 @@ add_task(async function testItemTypeFilter() {
 });
 
 add_task(async function testItemTypeFilterTaskCompletion() {
-  let calendar = CalendarTestUtils.createCalendar("test");
+  const calendar = CalendarTestUtils.createCalendar("test");
 
-  let completeTask = new CalTodo();
+  const completeTask = new CalTodo();
   completeTask.id = cal.getUUID();
   completeTask.title = "Complete Task";
   completeTask.entryDate = cal.createDateTime("20210806T090000Z");
@@ -195,7 +195,7 @@ add_task(async function testItemTypeFilterTaskCompletion() {
   completeTask.percentComplete = 100;
   await calendar.addItem(completeTask);
 
-  let incompleteTask = new CalTodo();
+  const incompleteTask = new CalTodo();
   incompleteTask.id = cal.getUUID();
   incompleteTask.title = "Incomplete Task";
   incompleteTask.entryDate = cal.createDateTime("20210806T090000Z");
@@ -203,11 +203,11 @@ add_task(async function testItemTypeFilterTaskCompletion() {
   completeTask.completedDate = null;
   await calendar.addItem(incompleteTask);
 
-  let filter = new calFilter();
+  const filter = new calFilter();
   filter.startDate = cal.createDateTime("20210801");
   filter.endDate = cal.createDateTime("20210831");
 
-  let checks = [
+  const checks = [
     { flags: Ci.calICalendar.ITEM_FILTER_TYPE_TODO, expectComplete: true, expectIncomplete: true },
     {
       flags: Ci.calICalendar.ITEM_FILTER_TYPE_TODO | Ci.calICalendar.ITEM_FILTER_COMPLETED_YES,
@@ -226,7 +226,7 @@ add_task(async function testItemTypeFilterTaskCompletion() {
     },
   ];
 
-  for (let { flags, expectComplete, expectIncomplete } of checks) {
+  for (const { flags, expectComplete, expectIncomplete } of checks) {
     info(`testing with flags = ${flags}`);
     filter.itemType = flags;
 
@@ -252,14 +252,14 @@ add_task(async function testItemTypeFilterTaskCompletion() {
       "incomplete task matches all filters"
     );
 
-    let expectedTitles = [];
+    const expectedTitles = [];
     if (expectComplete) {
       expectedTitles.push(completeTask.title);
     }
     if (expectIncomplete) {
       expectedTitles.push(incompleteTask.title);
     }
-    let items = await promiseItems(filter, calendar);
+    const items = await promiseItems(filter, calendar);
     Assert.deepEqual(
       items.map(i => i.title),
       expectedTitles,
@@ -274,7 +274,7 @@ add_task(async function testItemTypeFilterTaskCompletion() {
  * setting the itemType filter and with a calFilterProperties object.
  */
 add_task(async function testGetItemsFilterFlags() {
-  let fakeCalendar = {
+  const fakeCalendar = {
     getItems(filter, count, rangeStart, rangeEndEx) {
       Assert.equal(filter, expected.filter, "getItems called with the right filter");
       if (expected.rangeStart) {
@@ -300,8 +300,8 @@ add_task(async function testGetItemsFilterFlags() {
   // if none are supplied then ITEM_FILTER_COMPLETED_ALL is added.
   // (These flags have no effect on EVENT items.)
 
-  let filter = new calFilter();
-  let expected = {
+  const filter = new calFilter();
+  const expected = {
     filter: Ci.calICalendar.ITEM_FILTER_TYPE_ALL | Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL,
   };
   filter.getItems(fakeCalendar);

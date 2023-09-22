@@ -14,20 +14,20 @@ async function calendarListContextMenu(target, menuItem) {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(r => setTimeout(r, 250));
 
-  let contextMenu = document.getElementById("list-calendars-context-menu");
-  let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
+  const contextMenu = document.getElementById("list-calendars-context-menu");
+  const shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(target, { type: "contextmenu" });
   await shownPromise;
 
   if (menuItem) {
-    let hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(contextMenu, "popuphidden");
     contextMenu.activateItem(document.getElementById(menuItem));
     await hiddenPromise;
   }
 }
 
 async function withMockPromptService(response, callback) {
-  let realPrompt = Services.prompt;
+  const realPrompt = Services.prompt;
   Services.prompt = {
     QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
     confirmEx: (unused1, unused2, text) => {
@@ -41,10 +41,10 @@ async function withMockPromptService(response, callback) {
 
 add_task(async () => {
   function checkProperties(index, expected) {
-    let calendarList = document.getElementById("calendar-list");
-    let item = calendarList.rows[index];
-    let colorImage = item.querySelector(".calendar-color");
-    for (let [key, expectedValue] of Object.entries(expected)) {
+    const calendarList = document.getElementById("calendar-list");
+    const item = calendarList.rows[index];
+    const colorImage = item.querySelector(".calendar-color");
+    for (const [key, expectedValue] of Object.entries(expected)) {
       switch (key) {
         case "id":
           Assert.equal(item.getAttribute("calendar-id"), expectedValue);
@@ -70,7 +70,7 @@ add_task(async () => {
   }
 
   function checkDisplayed(...expected) {
-    let calendarList = document.getElementById("calendar-list");
+    const calendarList = document.getElementById("calendar-list");
     Assert.greater(calendarList.rowCount, Math.max(...expected));
     for (let i = 0; i < calendarList.rowCount; i++) {
       Assert.equal(
@@ -81,23 +81,23 @@ add_task(async () => {
   }
 
   function checkSortOrder(...expected) {
-    let orderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "wrong");
+    const orderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "wrong");
     Assert.notEqual(orderPref, "wrong", "sort order pref has a value");
-    let order = orderPref.split(" ");
+    const order = orderPref.split(" ");
     Assert.equal(order.length, expected.length, "sort order length");
     for (let i = 0; i < expected.length; i++) {
       Assert.equal(order[i], calendars[expected[i]].id, "sort order ids");
     }
   }
 
-  let calendarList = document.getElementById("calendar-list");
-  let contextMenu = document.getElementById("list-calendars-context-menu");
-  let composite = cal.view.getCompositeCalendar(window);
+  const calendarList = document.getElementById("calendar-list");
+  const contextMenu = document.getElementById("list-calendars-context-menu");
+  const composite = cal.view.getCompositeCalendar(window);
 
   await CalendarTestUtils.openCalendarTab(window);
 
   // Check the default calendar.
-  let calendars = cal.manager.getCalendars();
+  const calendars = cal.manager.getCalendars();
   Assert.equal(calendars.length, 1);
   Assert.equal(calendarList.rowCount, 1);
   checkProperties(0, {
@@ -199,9 +199,9 @@ add_task(async () => {
     "chrome://calendar/content/calendar-properties-dialog.xhtml",
     {
       callback(win) {
-        let doc = win.document;
-        let nameElement = doc.getElementById("calendar-name");
-        let colorElement = doc.getElementById("calendar-color");
+        const doc = win.document;
+        const nameElement = doc.getElementById("calendar-name");
+        const colorElement = doc.getElementById("calendar-color");
         Assert.equal(nameElement.value, "Mochitest 1");
         Assert.equal(colorElement.value, "#a8c2e1");
         nameElement.value = "A New Calendar!";
@@ -225,9 +225,9 @@ add_task(async () => {
     "chrome://calendar/content/calendar-properties-dialog.xhtml",
     {
       callback(win) {
-        let doc = win.document;
-        let nameElement = doc.getElementById("calendar-name");
-        let colorElement = doc.getElementById("calendar-color");
+        const doc = win.document;
+        const nameElement = doc.getElementById("calendar-name");
+        const colorElement = doc.getElementById("calendar-color");
         Assert.equal(nameElement.value, "A New Calendar!");
         Assert.equal(colorElement.value, "#009900");
         nameElement.value = "Mochitest 1";
@@ -250,9 +250,9 @@ add_task(async () => {
     "chrome://calendar/content/calendar-properties-dialog.xhtml",
     {
       callback(win) {
-        let doc = win.document;
+        const doc = win.document;
         Assert.equal(doc.getElementById("calendar-name").value, "Mochitest 3");
-        let enabledElement = doc.getElementById("calendar-enabled-checkbox");
+        const enabledElement = doc.getElementById("calendar-enabled-checkbox");
         Assert.ok(enabledElement.checked);
         enabledElement.checked = false;
         doc.querySelector("dialog").getButton("accept").click();
@@ -272,12 +272,12 @@ add_task(async () => {
 
   // Test reordering calendars.
 
-  let dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
+  const dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
   dragSession.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
 
   await new Promise(resolve => window.setTimeout(resolve));
 
-  let [result, dataTransfer] = EventUtils.synthesizeDragOver(
+  const [result, dataTransfer] = EventUtils.synthesizeDragOver(
     calendarList.rows[3],
     calendarList.rows[0],
     undefined,

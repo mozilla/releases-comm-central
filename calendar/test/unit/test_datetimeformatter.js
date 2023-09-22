@@ -19,7 +19,7 @@ function run_test() {
 // If you get a failure for this test, add your pattern here.
 
 add_task(async function formatDate_test() {
-  let data = [
+  const data = [
     {
       input: {
         datetime: "20170401T180000",
@@ -38,21 +38,21 @@ add_task(async function formatDate_test() {
     },
   ];
 
-  let dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
-  let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
+  const dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
+  const tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Fakaofo");
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
     Services.prefs.setIntPref("calendar.date.format", test.input.dateformat);
-    let zone =
+    const zone =
       test.input.timezone == "floating"
         ? cal.dtz.floating
         : cal.timezoneService.getTimezone(test.input.timezone);
-    let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
+    const date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-    let formatted = formatter.formatDate(date);
+    const formatted = formatter.formatDate(date);
     ok(
       test.expected.includes(formatted),
       "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
@@ -64,7 +64,7 @@ add_task(async function formatDate_test() {
 });
 
 add_task(async function formatDateShort_test() {
-  let data = [
+  const data = [
     {
       input: {
         datetime: "20170401T180000",
@@ -123,23 +123,23 @@ add_task(async function formatDateShort_test() {
     },
   ];
 
-  let dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
-  let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
+  const dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
+  const tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   // we make sure to have set long format
   Services.prefs.setIntPref("calendar.date.format", 0);
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
 
-    let zone =
+    const zone =
       test.input.timezone == "floating"
         ? cal.dtz.floating
         : cal.timezoneService.getTimezone(test.input.timezone);
-    let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
+    const date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-    let formatted = formatter.formatDateShort(date);
+    const formatted = formatter.formatDateShort(date);
     ok(
       test.expected.includes(formatted),
       "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
@@ -151,7 +151,7 @@ add_task(async function formatDateShort_test() {
 });
 
 add_task(async function formatDateLong_test() {
-  let data = [
+  const data = [
     {
       input: {
         datetime: "20170401T180000",
@@ -210,23 +210,23 @@ add_task(async function formatDateLong_test() {
     },
   ];
 
-  let dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
-  let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
+  const dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
+  const tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   // we make sure to have set short format
   Services.prefs.setIntPref("calendar.date.format", 1);
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
 
-    let zone =
+    const zone =
       test.input.timezone == "floating"
         ? cal.dtz.floating
         : cal.timezoneService.getTimezone(test.input.timezone);
-    let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
+    const date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-    let formatted = formatter.formatDateLong(date);
+    const formatted = formatter.formatDateLong(date);
     ok(
       test.expected.includes(formatted),
       "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
@@ -238,7 +238,7 @@ add_task(async function formatDateLong_test() {
 });
 
 add_task(async function formatDateWithoutYear_test() {
-  let data = [
+  const data = [
     {
       input: {
         datetime: "20170401T180000",
@@ -297,21 +297,21 @@ add_task(async function formatDateWithoutYear_test() {
     },
   ];
 
-  let dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
-  let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
+  const dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
+  const tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   // we make sure to have set short format
   Services.prefs.setIntPref("calendar.date.format", 1);
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
 
-    let zone =
+    const zone =
       test.input.timezone == "floating"
         ? cal.dtz.floating
         : cal.timezoneService.getTimezone(test.input.timezone);
-    let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
+    const date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
     equal(formatter.formatDateWithoutYear(date), test.expected, "(test #" + i + ")");
   }
@@ -321,7 +321,7 @@ add_task(async function formatDateWithoutYear_test() {
 });
 
 add_task(async function formatDateLongWithoutYear_test() {
-  let data = [
+  const data = [
     {
       input: {
         datetime: "20170401T180000",
@@ -380,21 +380,21 @@ add_task(async function formatDateLongWithoutYear_test() {
     },
   ];
 
-  let dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
-  let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
+  const dateformat = Services.prefs.getIntPref("calendar.date.format", 0);
+  const tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   // we make sure to have set short format
   Services.prefs.setIntPref("calendar.date.format", 1);
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
 
-    let zone =
+    const zone =
       test.input.timezone == "floating"
         ? cal.dtz.floating
         : cal.timezoneService.getTimezone(test.input.timezone);
-    let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
+    const date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
     equal(formatter.formatDateLongWithoutYear(date), test.expected, "(test #" + i + ")");
   }
@@ -404,7 +404,7 @@ add_task(async function formatDateLongWithoutYear_test() {
 });
 
 add_task(async function formatTime_test() {
-  let data = [
+  const data = [
     {
       input: {
         datetime: "20170401T090000",
@@ -442,20 +442,20 @@ add_task(async function formatTime_test() {
     },
   ];
 
-  let tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
+  const tzlocal = Services.prefs.getStringPref("calendar.timezone.local", "Pacific/Fakaofo");
   Services.prefs.setStringPref("calendar.timezone.local", "Pacific/Fakaofo");
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
 
-    let zone =
+    const zone =
       test.input.timezone == "floating"
         ? cal.dtz.floating
         : cal.timezoneService.getTimezone(test.input.timezone);
-    let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
+    const date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-    let formatted = formatter.formatTime(date);
+    const formatted = formatter.formatTime(date);
     ok(
       test.expected.includes(formatted),
       "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
@@ -495,7 +495,7 @@ add_task(function formatTime_test_with_arbitrary_timezone() {
 });
 
 add_task(async function formatInterval_test() {
-  let data = [
+  const data = [
     //1: task-without-dates
     {
       input: {},
@@ -586,16 +586,16 @@ add_task(async function formatInterval_test() {
   ];
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
-    let startDate = test.input.start ? cal.createDateTime(test.input.start) : null;
-    let endDate = test.input.end ? cal.createDateTime(test.input.end) : null;
+    const startDate = test.input.start ? cal.createDateTime(test.input.start) : null;
+    const endDate = test.input.end ? cal.createDateTime(test.input.end) : null;
 
     if (test.input.allDay) {
       startDate.isDate = true;
     }
 
-    let formatted = formatter.formatInterval(startDate, endDate);
+    const formatted = formatter.formatInterval(startDate, endDate);
     ok(
       test.expected.includes(formatted),
       "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"

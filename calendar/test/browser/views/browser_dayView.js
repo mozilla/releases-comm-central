@@ -13,7 +13,7 @@ const TITLE2 = "Day View Event Changed";
 const DESC = "Day View Event Description";
 
 add_setup(async function () {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -24,7 +24,7 @@ add_setup(async function () {
 add_task(async function testDayView() {
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
-  let dayView = document.getElementById("day-view");
+  const dayView = document.getElementById("day-view");
   // Verify date in view.
   await TestUtils.waitForCondition(
     () => dayView.dayColumns[0]?.date.icalString == "20090101",
@@ -39,10 +39,10 @@ add_task(async function testDayView() {
   );
 
   // Check that the start time is correct.
-  let someDate = cal.createDateTime();
+  const someDate = cal.createDateTime();
   someDate.resetTo(2009, 0, 1, 8, 0, 0, cal.dtz.UTC);
 
-  let startPicker = iframeDocument.getElementById("event-starttime");
+  const startPicker = iframeDocument.getElementById("event-starttime");
   Assert.equal(startPicker._datepicker._inputField.value, formatDate(someDate));
   Assert.equal(startPicker._timepicker._inputField.value, formatTime(someDate));
 
@@ -67,7 +67,7 @@ add_task(async function testDayView() {
       return false;
     }
 
-    let eventName = eventBox.querySelector(".event-name-label");
+    const eventName = eventBox.querySelector(".event-name-label");
     return eventName.textContent == TITLE2;
   }, "event was modified in the view");
 
@@ -83,8 +83,8 @@ add_task(async function testDayView() {
 add_task(async function testDayViewDateLabel() {
   await CalendarTestUtils.goToDate(window, 2022, 4, 13);
 
-  let heading = CalendarTestUtils.dayView.getColumnHeading(window);
-  let labelSpan = heading.querySelector("span:not([hidden])");
+  const heading = CalendarTestUtils.dayView.getColumnHeading(window);
+  const labelSpan = heading.querySelector("span:not([hidden])");
 
   Assert.equal(
     labelSpan.textContent,
@@ -96,7 +96,7 @@ add_task(async function testDayViewDateLabel() {
 add_task(async function testDayViewCurrentDayHighlight() {
   // Sanity check that this date (which should be in the past) is not today's
   // date.
-  let today = new Date();
+  const today = new Date();
   Assert.ok(today.getUTCFullYear() != 2022 || today.getUTCMonth() != 3 || today.getUTCDate() != 13);
 
   // When displaying days which are not the current day, there should be no
@@ -142,7 +142,7 @@ add_task(async function testDayViewWorkDayHighlight() {
 add_task(async function testDayViewNavbar() {
   await CalendarTestUtils.goToDate(window, 2022, 4, 13);
 
-  let intervalDescription = CalendarTestUtils.getNavBarIntervalDescription(window);
+  const intervalDescription = CalendarTestUtils.getNavBarIntervalDescription(window);
   Assert.equal(
     intervalDescription.textContent,
     "Wednesday, April 13, 2022",
@@ -152,7 +152,7 @@ add_task(async function testDayViewNavbar() {
   // Note that the value 14 here tests calculation of the calendar week based on
   // the starting day of the week; if the calculation built in an assumption of
   // Sunday or Monday as the starting day of the week, we would get 15 here.
-  let calendarWeek = CalendarTestUtils.getNavBarCalendarWeekBox(window);
+  const calendarWeek = CalendarTestUtils.getNavBarCalendarWeekBox(window);
   Assert.equal(
     calendarWeek.textContent,
     "CW: 14",
@@ -163,14 +163,14 @@ add_task(async function testDayViewNavbar() {
 add_task(async function testDayViewTodayButton() {
   // Though this code is cribbed from the CalendarTestUtils, it should be
   // duplicated in case the utility implementation changes.
-  let todayButton = CalendarTestUtils.getNavBarTodayButton(window);
+  const todayButton = CalendarTestUtils.getNavBarTodayButton(window);
 
   EventUtils.synthesizeMouseAtCenter(todayButton, {}, window);
   await CalendarTestUtils.ensureViewLoaded(window);
 
-  let displayedDate = CalendarTestUtils.dayView.getEventColumn(window).date;
+  const displayedDate = CalendarTestUtils.dayView.getEventColumn(window).date;
 
-  let today = new Date();
+  const today = new Date();
   Assert.equal(
     displayedDate.year,
     today.getUTCFullYear(),

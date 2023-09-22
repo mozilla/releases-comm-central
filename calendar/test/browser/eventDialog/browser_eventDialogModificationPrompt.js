@@ -14,7 +14,7 @@ var { data, newlines } = setupData();
 
 var { dayView } = CalendarTestUtils;
 
-let calendar = CalendarTestUtils.createCalendar();
+const calendar = CalendarTestUtils.createCalendar();
 // This is done so that calItemBase#isInvitation returns true.
 calendar.setProperty("organizerId", "mailto:pillow@example.com");
 registerCleanupFunction(() => {
@@ -26,11 +26,11 @@ add_task(async function testEventDialogModificationPrompt() {
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
-  let createbox = dayView.getHourBoxAt(window, 8);
+  const createbox = dayView.getHourBoxAt(window, 8);
 
   // Create new event.
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createbox);
-  let categories = cal.l10n.getAnyString("calendar", "categories", "categories2").split(",");
+  const categories = cal.l10n.getAnyString("calendar", "categories", "categories2").split(",");
   data[0].categories.push(categories[0]);
   data[1].categories.push(categories[1], categories[2]);
 
@@ -76,12 +76,12 @@ add_task(async function testEventDialogModificationPrompt() {
 add_task(async function testDescriptionWhitespace() {
   for (let i = 0; i < newlines.length; i++) {
     // test set i
-    let createbox = dayView.getHourBoxAt(window, 8);
+    const createbox = dayView.getHourBoxAt(window, 8);
     let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createbox);
     await setData(dialogWindow, iframeWindow, newlines[i]);
     await saveAndCloseItemDialog(dialogWindow);
 
-    let eventbox = await dayView.waitForEventBoxAt(window, 1);
+    const eventbox = await dayView.waitForEventBoxAt(window, 1);
 
     // Open and close.
     ({ dialogWindow, iframeWindow } = await CalendarTestUtils.editItem(window, eventbox));
@@ -103,9 +103,9 @@ add_task(async function testDescriptionWhitespace() {
 });
 
 function setupData() {
-  let date1 = cal.createDateTime("20090101T080000Z");
-  let date2 = cal.createDateTime("20090102T090000Z");
-  let date3 = cal.createDateTime("20090103T100000Z");
+  const date1 = cal.createDateTime("20090101T080000Z");
+  const date2 = cal.createDateTime("20090102T090000Z");
+  const date3 = cal.createDateTime("20090103T100000Z");
   return {
     data: [
       {

@@ -21,9 +21,9 @@ function waitForVisibleHours(view, numHours) {
   // sticky), so the difference between the scroll area's scrollTopMax and the
   // timebar's clientHeight should give us the visible height.
   return TestUtils.waitForCondition(() => {
-    let timebarHeight = view.timebar.clientHeight;
-    let visiblePx = timebarHeight - view.grid.scrollTopMax;
-    let expectPx = (numHours / 24) * timebarHeight;
+    const timebarHeight = view.timebar.clientHeight;
+    const visiblePx = timebarHeight - view.grid.scrollTopMax;
+    const expectPx = (numHours / 24) * timebarHeight;
     // Allow up to 3px difference to accommodate accumulated integer rounding
     // errors (e.g. clientHeight is a rounded integer, whilst client rectangles
     // and expectPx are floating).
@@ -42,8 +42,8 @@ function waitForVisibleHours(view, numHours) {
  */
 function waitForFirstVisibleHour(view, hour) {
   return TestUtils.waitForCondition(() => {
-    let expectPx = (hour / 24) * view.timebar.clientHeight;
-    let actualPx = view.grid.scrollTop;
+    const expectPx = (hour / 24) * view.timebar.clientHeight;
+    const actualPx = view.grid.scrollTop;
     return Math.abs(actualPx - expectPx) < 3;
   }, `${view.id} first visible hour should be ${hour}`);
 }
@@ -55,8 +55,8 @@ function waitForFirstVisibleHour(view, hour) {
  * @param {boolean} scrollDown - Whether to scroll down, otherwise scrolls up.
  */
 async function doScroll(view, scrollDown) {
-  let scrollPromise = BrowserTestUtils.waitForEvent(view.grid, "scroll");
-  let viewRect = view.getBoundingClientRect();
+  const scrollPromise = BrowserTestUtils.waitForEvent(view.grid, "scroll");
+  const viewRect = view.getBoundingClientRect();
   EventUtils.synthesizeWheel(
     view.grid,
     viewRect.width / 2,
@@ -68,10 +68,10 @@ async function doScroll(view, scrollDown) {
 }
 
 add_task(async function () {
-  let expectedVisibleHours = 3;
-  let expectedStartHour = 3;
+  const expectedVisibleHours = 3;
+  const expectedStartHour = 3;
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   Assert.equal(tabmail.tabInfo.length, 1);
 
   Assert.equal(Services.prefs.getIntPref("calendar.view.daystarthour"), expectedStartHour);
@@ -82,7 +82,7 @@ add_task(async function () {
 
   await CalendarTestUtils.setCalendarView(window, "day");
 
-  let dayView = document.getElementById("day-view");
+  const dayView = document.getElementById("day-view");
 
   await waitForFirstVisibleHour(dayView, expectedStartHour);
   await waitForVisibleHours(dayView, expectedVisibleHours);
@@ -100,7 +100,7 @@ add_task(async function () {
 
   await CalendarTestUtils.setCalendarView(window, "week");
 
-  let weekView = document.getElementById("week-view");
+  const weekView = document.getElementById("week-view");
 
   await waitForFirstVisibleHour(weekView, expectedStartHour);
   await waitForVisibleHours(weekView, expectedVisibleHours);

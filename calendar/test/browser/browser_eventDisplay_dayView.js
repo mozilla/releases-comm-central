@@ -21,7 +21,7 @@ registerCleanupFunction(() => {
  * @returns {CalEvent} - The created event.
  */
 async function createEvent(name, start, end) {
-  let event = new CalEvent();
+  const event = new CalEvent();
   event.title = name;
   event.startDate = cal.createDateTime(start);
   event.endDate = cal.createDateTime(end);
@@ -45,7 +45,7 @@ async function createEvent(name, start, end) {
  */
 async function assertDayEvent(date, expect, message) {
   await CalendarTestUtils.goToDate(window, date.year, date.month, date.day);
-  let element = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
+  const element = await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
   Assert.equal(
     element.querySelector(".event-name-label").textContent,
     expect.name,
@@ -63,7 +63,7 @@ async function assertDayEvent(date, expect, message) {
  * Test an event that occurs within one day, in the day view.
  */
 add_task(async function testInsideDayView() {
-  let event = await createEvent("Test Event", "20190403T123400", "20190403T234500");
+  const event = await createEvent("Test Event", "20190403T123400", "20190403T234500");
   await CalendarTestUtils.setCalendarView(window, "day");
   Assert.equal(
     document.querySelectorAll("#day-view calendar-event-column").length,
@@ -86,7 +86,7 @@ add_task(async function testInsideDayView() {
  * Test an event that starts and ends at midnight, in the day view.
  */
 add_task(async function testMidnightDayView() {
-  let event = await createEvent("Test Event", "20190403T000000", "20190404T000000");
+  const event = await createEvent("Test Event", "20190403T000000", "20190404T000000");
   await CalendarTestUtils.setCalendarView(window, "day");
 
   // This event is fully within this view.
@@ -104,7 +104,7 @@ add_task(async function testMidnightDayView() {
  * Test an event that spans multiple days, in the day view.
  */
 add_task(async function testOutsideDayView() {
-  let event = await createEvent("Test Event", "20190402T123400", "20190404T234500");
+  const event = await createEvent("Test Event", "20190402T123400", "20190404T234500");
   await CalendarTestUtils.setCalendarView(window, "day");
 
   // Go to the start of the event. The end of the event is beyond the current view.

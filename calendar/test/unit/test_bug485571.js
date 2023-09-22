@@ -83,7 +83,7 @@ function run_test() {
 }
 
 function check_relative(aIcalString, aRelated) {
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   alarm.icalString = aIcalString;
   equal(alarm.related, aRelated);
   equal(alarm.alarmDate, null);
@@ -91,7 +91,7 @@ function check_relative(aIcalString, aRelated) {
 }
 
 function check_absolute(aIcalString) {
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   alarm.icalString = aIcalString;
   equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_ABSOLUTE);
   ok(alarm.alarmDate != null);

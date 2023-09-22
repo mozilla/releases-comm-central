@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-  let event = createEventFromIcalString(
+  const event = createEventFromIcalString(
     "BEGIN:VEVENT\n" +
       "UID:182d2719-fe2a-44c1-9210-0286b16c0538\n" +
       "X-FOO;X-BAR=BAZ:QUUX\n" +

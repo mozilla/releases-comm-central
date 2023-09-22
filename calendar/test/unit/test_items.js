@@ -38,7 +38,7 @@ function really_run_test() {
 }
 
 function test_aclmanager() {
-  let mockCalendar = {
+  const mockCalendar = {
     QueryInterface: ChromeUtils.generateQI(["calICalendar"]),
 
     get superCalendar() {
@@ -56,7 +56,7 @@ function test_aclmanager() {
     },
   };
 
-  let itemEntry = {
+  const itemEntry = {
     QueryInterface: ChromeUtils.generateQI(["calIItemACLEntry"]),
     userCanModify: true,
     userCanRespond: false,
@@ -73,7 +73,7 @@ function test_aclmanager() {
   equal(event.aclEntry.userCanViewAll, itemEntry.userCanViewAll);
   equal(event.aclEntry.userCanViewDateAndTime, itemEntry.userCanViewDateAndTime);
 
-  let parentEntry = new CalEvent();
+  const parentEntry = new CalEvent();
   parentEntry.id = "parententry";
   parentEntry.calendar = mockCalendar;
   parentEntry.parentItem = event;
@@ -90,10 +90,10 @@ function test_aclmanager() {
 }
 
 function test_calendar() {
-  let event = new CalEvent();
-  let parentEntry = new CalEvent();
+  const event = new CalEvent();
+  const parentEntry = new CalEvent();
 
-  let mockCalendar = {
+  const mockCalendar = {
     QueryInterface: ChromeUtils.generateQI(["calICalendar"]),
     id: "one",
   };
@@ -106,12 +106,12 @@ function test_calendar() {
 }
 
 function test_attachment() {
-  let e = new CalEvent();
+  const e = new CalEvent();
 
-  let a = new CalAttachment();
+  const a = new CalAttachment();
   a.rawData = "horst";
 
-  let b = new CalAttachment();
+  const b = new CalAttachment();
   b.rawData = "bruno";
 
   e.addAttachment(a);
@@ -128,14 +128,14 @@ function test_attachment() {
 }
 
 function test_attendee() {
-  let e = new CalEvent();
+  const e = new CalEvent();
   equal(e.getAttendeeById("unknown"), null);
   equal(e.getAttendees().length, 0);
 
-  let a = new CalAttendee();
+  const a = new CalAttendee();
   a.id = "mailto:horst";
 
-  let b = new CalAttendee();
+  const b = new CalAttendee();
   b.id = "mailto:bruno";
 
   e.addAttendee(a);
@@ -145,7 +145,7 @@ function test_attendee() {
   e.addAttendee(b);
   equal(e.getAttendees().length, 2);
 
-  let comp = e.icalComponent;
+  const comp = e.icalComponent;
   let aprop = comp.getFirstProperty("ATTENDEE");
   equal(aprop.value, "mailto:horst");
   aprop = comp.getNextProperty("ATTENDEE");
@@ -161,17 +161,17 @@ function test_attendee() {
 }
 
 function test_categories() {
-  let e = new CalEvent();
+  const e = new CalEvent();
 
   equal(e.getCategories().length, 0);
 
-  let cat = ["a", "b", "c"];
+  const cat = ["a", "b", "c"];
   e.setCategories(cat);
 
   cat[0] = "err";
   equal(e.getCategories().join(","), "a,b,c");
 
-  let comp = e.icalComponent;
+  const comp = e.icalComponent;
   let getter = comp.getFirstProperty.bind(comp);
 
   cat[0] = "a";
@@ -182,19 +182,19 @@ function test_categories() {
 }
 
 function test_alarm() {
-  let e = new CalEvent();
-  let alarm = new CalAlarm();
+  const e = new CalEvent();
+  const alarm = new CalAlarm();
 
   alarm.action = "DISPLAY";
   alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
   alarm.alarmDate = cal.createDateTime();
 
   e.addAlarm(alarm);
-  let ecomp = e.icalComponent;
-  let vcomp = ecomp.getFirstSubcomponent("VALARM");
+  const ecomp = e.icalComponent;
+  const vcomp = ecomp.getFirstSubcomponent("VALARM");
   equal(vcomp.serializeToICS(), alarm.icalString);
 
-  let alarm2 = alarm.clone();
+  const alarm2 = alarm.clone();
 
   e.addAlarm(alarm2);
 
@@ -208,17 +208,17 @@ function test_alarm() {
 }
 
 function test_immutable() {
-  let event = new CalEvent();
+  const event = new CalEvent();
 
-  let date = cal.createDateTime();
+  const date = cal.createDateTime();
   date.timezone = cal.timezoneService.getTimezone("Europe/Berlin");
   event.alarmLastAck = date;
 
-  let org = new CalAttendee();
+  const org = new CalAttendee();
   org.id = "one";
   event.organizer = org;
 
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   alarm.action = "DISPLAY";
   alarm.description = "foo";
   alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
@@ -254,7 +254,7 @@ function test_immutable() {
     event.setCategories(["d", "e", "f"]);
   }, /Can not modify immutable data container/);
 
-  let event2 = event.clone();
+  const event2 = event.clone();
   event2.organizer.id = "two";
 
   equal(org.id, "one");
@@ -270,15 +270,15 @@ function test_immutable() {
 }
 
 function test_lastack() {
-  let e = new CalEvent();
+  const e = new CalEvent();
 
   e.alarmLastAck = cal.createDateTime("20120101T010101");
 
   // Our items don't support this yet
   //  equal(e.getProperty("X-MOZ-LASTACK"), "20120101T010101");
 
-  let comp = e.icalComponent;
-  let prop = comp.getFirstProperty("X-MOZ-LASTACK");
+  const comp = e.icalComponent;
+  const prop = comp.getFirstProperty("X-MOZ-LASTACK");
 
   equal(prop.value, "20120101T010101Z");
 
@@ -293,8 +293,8 @@ function test_lastack() {
  * Test isEvent() returns the correct value for events and todos.
  */
 function test_isEvent() {
-  let event = new CalEvent();
-  let todo = new CalTodo();
+  const event = new CalEvent();
+  const todo = new CalTodo();
 
   Assert.ok(event.isEvent(), "isEvent() returns true for events");
   Assert.ok(!todo.isEvent(), "isEvent() returns false for todos");
@@ -304,8 +304,8 @@ function test_isEvent() {
  * Test isTodo() returns the correct value for events and todos.
  */
 function test_isTodo() {
-  let todo = new CalTodo();
-  let event = new CalEvent();
+  const todo = new CalTodo();
+  const event = new CalEvent();
 
   Assert.ok(todo.isTodo(), "isTodo() returns true for todos");
   Assert.ok(!event.isTodo(), "isTodo() returns false for events");
@@ -321,16 +321,16 @@ function test_isTodo() {
  *                                 to indicate what to expect for some properties.
  */
 function doPropertiesTest(items, parent, overrides = {}) {
-  let skippedProps = ["DTSTART", "DTEND"];
-  let toString = value =>
+  const skippedProps = ["DTSTART", "DTEND"];
+  const toString = value =>
     value && value instanceof Ci.calIDateTime ? value.icalString : value && value.toString();
 
-  for (let item of items) {
+  for (const item of items) {
     info(`Testing occurrence with recurrenceId="${item.recurrenceId.icalString}...`);
 
-    let parentProperties = new Map(parent.properties);
-    let itemProperties = new Map(item.properties);
-    for (let [name, value] of parentProperties.entries()) {
+    const parentProperties = new Map(parent.properties);
+    const itemProperties = new Map(item.properties);
+    for (const [name, value] of parentProperties.entries()) {
       if (!skippedProps.includes(name)) {
         if (overrides[name]) {
           Assert.equal(
@@ -355,7 +355,7 @@ function doPropertiesTest(items, parent, overrides = {}) {
  * properties properly.
  */
 function test_recurring_event_properties() {
-  let event = new CalEvent(CalendarTestUtils.dedent`
+  const event = new CalEvent(CalendarTestUtils.dedent`
       BEGIN:VEVENT
       DTSTAMP:20210716T000000Z
       UID:c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5
@@ -368,7 +368,7 @@ function test_recurring_event_properties() {
       DESCRIPTION:This is the main event.
       END:VEVENT
     `);
-  let occurrences = event.recurrenceInfo.getOccurrences(
+  const occurrences = event.recurrenceInfo.getOccurrences(
     cal.createDateTime("20210701"),
     cal.createDateTime("20210731"),
     Infinity
@@ -381,7 +381,7 @@ function test_recurring_event_properties() {
  * parent properties properly.
  */
 function test_recurring_event_exception_properties() {
-  let event = new CalEvent(CalendarTestUtils.dedent`
+  const event = new CalEvent(CalendarTestUtils.dedent`
       BEGIN:VEVENT
       DTSTAMP:20210716T000000Z
       UID:c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5
@@ -394,13 +394,13 @@ function test_recurring_event_exception_properties() {
       DESCRIPTION:This is the main event.
       END:VEVENT
     `);
-  let occurrences = event.recurrenceInfo.getOccurrences(
+  const occurrences = event.recurrenceInfo.getOccurrences(
     cal.createDateTime("20210701"),
     cal.createDateTime("20210731"),
     Infinity
   );
   let target = occurrences[0].clone();
-  let newDescription = "This is an exception.";
+  const newDescription = "This is an exception.";
   target.setProperty("DESCRIPTION", newDescription);
   event.parentItem.recurrenceInfo.modifyException(target);
   target = event.parentItem.recurrenceInfo.getExceptionFor(target.recurrenceId);
@@ -413,7 +413,7 @@ function test_recurring_event_exception_properties() {
  * properties properly.
  */
 function test_recurring_todo_properties() {
-  let task = new CalTodo(CalendarTestUtils.dedent`
+  const task = new CalTodo(CalendarTestUtils.dedent`
       BEGIN:VTODO
       DTSTAMP:20210716T225440Z
       UID:673e125d-fe6b-465d-8a38-9c9373ca9705
@@ -425,7 +425,7 @@ function test_recurring_todo_properties() {
       DESCRIPTION:This is the main task.
       END:VTODO
     `);
-  let occurrences = task.recurrenceInfo.getOccurrences(
+  const occurrences = task.recurrenceInfo.getOccurrences(
     cal.createDateTime("20210701"),
     cal.createDateTime("20210731"),
     Infinity
@@ -438,7 +438,7 @@ function test_recurring_todo_properties() {
  * parent properties properly.
  */
 function test_recurring_todo_exception_properties() {
-  let task = new CalTodo(CalendarTestUtils.dedent`
+  const task = new CalTodo(CalendarTestUtils.dedent`
       BEGIN:VTODO
       DTSTAMP:20210716T225440Z
       UID:673e125d-fe6b-465d-8a38-9c9373ca9705
@@ -450,13 +450,13 @@ function test_recurring_todo_exception_properties() {
       DESCRIPTION:This is the main task.
       END:VTODO
     `);
-  let occurrences = task.recurrenceInfo.getOccurrences(
+  const occurrences = task.recurrenceInfo.getOccurrences(
     cal.createDateTime("20210701"),
     cal.createDateTime("20210731"),
     Infinity
   );
   let target = occurrences[0].clone();
-  let newDescription = "This is an exception.";
+  const newDescription = "This is an exception.";
   target.setProperty("DESCRIPTION", newDescription);
   task.parentItem.recurrenceInfo.modifyException(target);
   target = task.parentItem.recurrenceInfo.getExceptionFor(target.recurrenceId);

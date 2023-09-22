@@ -24,7 +24,7 @@ let transport;
  */
 add_setup(async function () {
   requestLongerTimeout(5);
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
@@ -40,13 +40,13 @@ add_setup(async function () {
   calendar = CalendarTestUtils.createCalendar("Test");
   transport = new EmailTransport(account, identity);
 
-  let getImipTransport = cal.itip.getImipTransport;
+  const getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => transport;
 
-  let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+  const deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
     Ci.calIDeletedItems
   ).wrappedJSObject;
-  let markDeleted = deleteMgr.markDeleted;
+  const markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
   registerCleanupFunction(() => {
@@ -62,7 +62,9 @@ add_setup(async function () {
  */
 add_task(async function testMinorAcceptWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-minor.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-minor.eml"))
+  );
   await clickAction(win, "imipAcceptButton");
   await doExceptionOnlyTest({
     calendar,
@@ -78,7 +80,9 @@ add_task(async function testMinorAcceptWithResponse() {
  */
 add_task(async function testMinorTentativeWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-minor.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-minor.eml"))
+  );
   await clickAction(win, "imipTentativeButton");
   await doExceptionOnlyTest({
     calendar,
@@ -94,7 +98,9 @@ add_task(async function testMinorTentativeWithResponse() {
  */
 add_task(async function testMinorDeclineWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-minor.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-minor.eml"))
+  );
   await clickAction(win, "imipDeclineButton");
   await doExceptionOnlyTest({
     calendar,
@@ -110,7 +116,9 @@ add_task(async function testMinorDeclineWithResponse() {
  */
 add_task(async function testMinorAcceptWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-minor.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-minor.eml"))
+  );
   await clickMenuAction(win, "imipAcceptButton", "imipAcceptButton_AcceptDontSend");
   await doExceptionOnlyTest({
     calendar,
@@ -127,7 +135,9 @@ add_task(async function testMinorAcceptWithoutResponse() {
  */
 add_task(async function testMinorTentativeWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-minor.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-minor.eml"))
+  );
   await clickMenuAction(win, "imipTentativeButton", "imipTentativeButton_TentativeDontSend");
   await doExceptionOnlyTest({
     calendar,
@@ -144,7 +154,9 @@ add_task(async function testMinorTentativeWithoutResponse() {
  */
 add_task(async function testMinorDeclineWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-minor.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-minor.eml"))
+  );
   await clickMenuAction(win, "imipDeclineButton", "imipDeclineButton_DeclineDontSend");
   await doExceptionOnlyTest({
     calendar,
@@ -161,7 +173,9 @@ add_task(async function testMinorDeclineWithoutResponse() {
  */
 add_task(async function testMajorAcceptWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-major.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-major.eml"))
+  );
   await clickAction(win, "imipAcceptButton");
   await doExceptionOnlyTest({
     calendar,
@@ -178,7 +192,9 @@ add_task(async function testMajorAcceptWithResponse() {
  */
 add_task(async function testMajorTentativeWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-major.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-major.eml"))
+  );
   await clickAction(win, "imipTentativeButton");
   await doExceptionOnlyTest({
     calendar,
@@ -195,7 +211,9 @@ add_task(async function testMajorTentativeWithResponse() {
  */
 add_task(async function testMajorDeclineWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-major.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-major.eml"))
+  );
   await clickAction(win, "imipDeclineButton");
   await doExceptionOnlyTest({
     calendar,
@@ -212,7 +230,9 @@ add_task(async function testMajorDeclineWithResponse() {
  */
 add_task(async function testMajorAcceptWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-major.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-major.eml"))
+  );
   await clickMenuAction(win, "imipAcceptButton", "imipAcceptButton_AcceptDontSend");
   await doExceptionOnlyTest({
     calendar,
@@ -230,7 +250,9 @@ add_task(async function testMajorAcceptWithoutResponse() {
  */
 add_task(async function testMajorTentativeWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-major.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-major.eml"))
+  );
   await clickMenuAction(win, "imipTentativeButton", "imipTentativeButton_TentativeDontSend");
   await doExceptionOnlyTest({
     calendar,
@@ -248,7 +270,9 @@ add_task(async function testMajorTentativeWithoutResponse() {
  */
 add_task(async function testMajorDeclineWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-major.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-major.eml"))
+  );
   await clickMenuAction(win, "imipDeclineButton", "imipDeclineButton_DeclineDontSend");
   await doExceptionOnlyTest({
     calendar,

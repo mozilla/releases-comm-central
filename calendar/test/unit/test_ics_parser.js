@@ -16,8 +16,8 @@ function really_run_test() {
 }
 
 function test_props_comps() {
-  let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
-  let str = [
+  const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+  const str = [
     "BEGIN:VCALENDAR",
     "X-WR-CALNAME:CALNAME",
     "BEGIN:VJOURNAL",
@@ -30,12 +30,12 @@ function test_props_comps() {
   ].join("\r\n");
   parser.parseString(str);
 
-  let props = parser.getProperties();
+  const props = parser.getProperties();
   equal(props.length, 1);
   equal(props[0].propertyName, "X-WR-CALNAME");
   equal(props[0].value, "CALNAME");
 
-  let comps = parser.getComponents();
+  const comps = parser.getComponents();
   equal(comps.length, 1);
   equal(comps[0].componentType, "VJOURNAL");
   equal(comps[0].location, "BEFORE TIME");
@@ -55,7 +55,7 @@ function test_failures() {
 
   // No real error here, but there is a message...
   parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
-  let str = ["BEGIN:VWORLD", "BEGIN:VEVENT", "UID:123", "END:VEVENT", "END:VWORLD"].join("\r\n");
+  const str = ["BEGIN:VWORLD", "BEGIN:VEVENT", "UID:123", "END:VEVENT", "END:VWORLD"].join("\r\n");
   dump("Note: The following error message is expected:\n");
   parser.parseString(str);
   equal(parser.getComponents().length, 0);
@@ -63,9 +63,9 @@ function test_failures() {
 }
 
 function test_fake_parent() {
-  let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+  const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
 
-  let str = [
+  const str = [
     "BEGIN:VCALENDAR",
     "BEGIN:VEVENT",
     "UID:123",
@@ -78,29 +78,29 @@ function test_fake_parent() {
 
   parser.parseString(str);
 
-  let items = parser.getItems();
+  const items = parser.getItems();
   equal(items.length, 1);
-  let item = items[0].QueryInterface(Ci.calIEvent);
+  const item = items[0].QueryInterface(Ci.calIEvent);
 
   equal(item.id, "123");
   ok(!!item.recurrenceInfo);
   equal(item.startDate.icalString, "20120101T010101");
   equal(item.getProperty("X-MOZ-FAKED-MASTER"), "1");
 
-  let rinfo = item.recurrenceInfo;
+  const rinfo = item.recurrenceInfo;
 
   equal(rinfo.countRecurrenceItems(), 1);
-  let excs = rinfo.getOccurrences(cal.createDateTime("20120101T010101"), null, 0);
+  const excs = rinfo.getOccurrences(cal.createDateTime("20120101T010101"), null, 0);
   equal(excs.length, 1);
-  let exc = excs[0].QueryInterface(Ci.calIEvent);
+  const exc = excs[0].QueryInterface(Ci.calIEvent);
   equal(exc.startDate.icalString, "20120101T010102");
 
   equal(parser.getParentlessItems()[0], exc);
 }
 
 function test_async() {
-  let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
-  let str = [
+  const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+  const str = [
     "BEGIN:VCALENDAR",
     "BEGIN:VTODO",
     "UID:1",
@@ -118,7 +118,7 @@ function test_async() {
   do_test_pending();
   parser.parseString(str, {
     onParsingComplete(rc, opparser) {
-      let items = parser.getItems();
+      const items = parser.getItems();
       equal(items.length, 2);
       let item = items[0];
       ok(item.isTodo());
@@ -143,10 +143,10 @@ function test_timezone() {
 
 function test_roundtrip() {
   let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
-  let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+  const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
     Ci.calIIcsSerializer
   );
-  let str = [
+  const str = [
     "BEGIN:VCALENDAR",
     "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN",
     "VERSION:2.0",
@@ -178,7 +178,7 @@ function test_roundtrip() {
 
   // Test parseFromStream
   parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
-  let stream = serializer.serializeToInputStream();
+  const stream = serializer.serializeToInputStream();
 
   parser.parseFromStream(stream);
 
@@ -199,7 +199,7 @@ function test_roundtrip() {
 
   // Test serializeToStream/parseFromStream
   parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
-  let pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
+  const pipe = Cc["@mozilla.org/pipe;1"].createInstance(Ci.nsIPipe);
   pipe.init(true, true, 0, 0, null);
 
   serializer.serializeToStream(pipe.outputStream);

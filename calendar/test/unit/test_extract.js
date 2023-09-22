@@ -25,13 +25,13 @@ function run_test() {
 }
 
 function test_event_start_end() {
-  let date = new Date(2012, 9, 1, 9, 0);
-  let title = "Wednesday meetup";
-  let content = "We'll meet at 2 pm and discuss until 3 pm.";
+  const date = new Date(2012, 9, 1, 9, 0);
+  const title = "Wednesday meetup";
+  const content = "We'll meet at 2 pm and discuss until 3 pm.";
 
   extractor.extract(title, content, date, undefined);
-  let guessed = extractor.guessStart();
-  let endGuess = extractor.guessEnd(guessed);
+  const guessed = extractor.guessStart();
+  const endGuess = extractor.guessEnd(guessed);
 
   equal(guessed.year, 2012);
   equal(guessed.month, 10);
@@ -47,13 +47,13 @@ function test_event_start_end() {
 }
 
 function test_event_start_duration() {
-  let date = new Date(2012, 9, 1, 9, 0);
-  let title = "Wednesday meetup";
-  let content = "We'll meet at 2 pm and discuss for 30 minutes.";
+  const date = new Date(2012, 9, 1, 9, 0);
+  const title = "Wednesday meetup";
+  const content = "We'll meet at 2 pm and discuss for 30 minutes.";
 
   extractor.extract(title, content, date, undefined);
-  let guessed = extractor.guessStart();
-  let endGuess = extractor.guessEnd(guessed);
+  const guessed = extractor.guessStart();
+  const endGuess = extractor.guessEnd(guessed);
 
   equal(guessed.year, 2012);
   equal(guessed.month, 10);
@@ -69,13 +69,13 @@ function test_event_start_duration() {
 }
 
 function test_event_start_end_whitespace() {
-  let date = new Date(2012, 9, 1, 9, 0);
-  let title = "Wednesday meetup";
-  let content = "We'll meet at2pm and discuss until\r\n3pm.";
+  const date = new Date(2012, 9, 1, 9, 0);
+  const title = "Wednesday meetup";
+  const content = "We'll meet at2pm and discuss until\r\n3pm.";
 
   extractor.extract(title, content, date, undefined);
-  let guessed = extractor.guessStart();
-  let endGuess = extractor.guessEnd(guessed);
+  const guessed = extractor.guessStart();
+  const endGuess = extractor.guessEnd(guessed);
 
   equal(guessed.year, 2012);
   equal(guessed.month, 10);
@@ -91,13 +91,13 @@ function test_event_start_end_whitespace() {
 }
 
 function test_event_without_date() {
-  let date = new Date(2012, 9, 1, 9, 0);
-  let title = "Meetup";
-  let content = "We'll meet at 2 pm and discuss until 3 pm.";
+  const date = new Date(2012, 9, 1, 9, 0);
+  const title = "Meetup";
+  const content = "We'll meet at 2 pm and discuss until 3 pm.";
 
   extractor.extract(title, content, date, undefined);
-  let guessed = extractor.guessStart();
-  let endGuess = extractor.guessEnd(guessed);
+  const guessed = extractor.guessStart();
+  const endGuess = extractor.guessEnd(guessed);
 
   equal(guessed.year, 2012);
   equal(guessed.month, 10);
@@ -113,13 +113,13 @@ function test_event_without_date() {
 }
 
 function test_event_next_year() {
-  let date = new Date(2012, 9, 1, 9, 0);
-  let title = "Open day";
-  let content = "FYI: Next open day is planned for February 5th.";
+  const date = new Date(2012, 9, 1, 9, 0);
+  const title = "Open day";
+  const content = "FYI: Next open day is planned for February 5th.";
 
   extractor.extract(title, content, date, undefined);
-  let guessed = extractor.guessStart();
-  let endGuess = extractor.guessEnd(guessed);
+  const guessed = extractor.guessStart();
+  const endGuess = extractor.guessEnd(guessed);
 
   equal(guessed.year, 2013);
   equal(guessed.month, 2);
@@ -135,13 +135,13 @@ function test_event_next_year() {
 }
 
 function test_task_due() {
-  let date = new Date(2012, 9, 1, 9, 0);
-  let title = "Assignment deadline";
-  let content = "This is a reminder that all assignments must be sent in by October 5th!.";
+  const date = new Date(2012, 9, 1, 9, 0);
+  const title = "Assignment deadline";
+  const content = "This is a reminder that all assignments must be sent in by October 5th!.";
 
   extractor.extract(title, content, date, undefined);
-  let guessed = extractor.guessStart(true);
-  let endGuess = extractor.guessEnd(guessed, true);
+  const guessed = extractor.guessStart(true);
+  const endGuess = extractor.guessEnd(guessed, true);
 
   equal(guessed.year, 2012);
   equal(guessed.month, 10);
@@ -157,9 +157,9 @@ function test_task_due() {
 }
 
 function test_overrides() {
-  let date = new Date(2012, 9, 1, 9, 0);
-  let title = "Event invitation";
-  let content = "We'll meet 10:11 worromot";
+  const date = new Date(2012, 9, 1, 9, 0);
+  const title = "Event invitation";
+  const content = "We'll meet 10:11 worromot";
 
   extractor.extract(title, content, date, undefined);
   let guessed = extractor.guessStart(false);
@@ -178,7 +178,7 @@ function test_overrides() {
   equal(endGuess.minute, undefined);
 
   // recognize a custom "tomorrow" and hour.minutes pattern
-  let overrides = {
+  const overrides = {
     "from.hour.minutes": { add: "#2:#1", remove: "#1:#2" },
     "from.tomorrow": { add: "worromot" },
   };
@@ -203,13 +203,13 @@ function test_overrides() {
 }
 
 function test_event_start_dollar_sign() {
-  let date = new Date(2012, 9, 1, 9, 0);
-  let title = "Wednesday sale";
-  let content = "Sale starts at 3 pm and prices start at 2$.";
+  const date = new Date(2012, 9, 1, 9, 0);
+  const title = "Wednesday sale";
+  const content = "Sale starts at 3 pm and prices start at 2$.";
 
   extractor.extract(title, content, date, undefined);
-  let guessed = extractor.guessStart();
-  let endGuess = extractor.guessEnd(guessed);
+  const guessed = extractor.guessStart();
+  const endGuess = extractor.guessEnd(guessed);
 
   equal(guessed.year, 2012);
   equal(guessed.month, 10);

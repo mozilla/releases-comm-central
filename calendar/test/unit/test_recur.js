@@ -37,20 +37,20 @@ function test_rules() {
     event.makeImmutable();
 
     // Get recurrence dates
-    let start = createDate(1990, 0, 1);
-    let end = createDate(2020, 0, 1);
-    let recdates = event.recurrenceInfo.getOccurrenceDates(start, end, 0);
-    let occurrences = event.recurrenceInfo.getOccurrences(start, end, 0);
+    const start = createDate(1990, 0, 1);
+    const end = createDate(2020, 0, 1);
+    const recdates = event.recurrenceInfo.getOccurrenceDates(start, end, 0);
+    const occurrences = event.recurrenceInfo.getOccurrences(start, end, 0);
 
     // Check number of items
     dump("Expected " + expected.length + " occurrences\n");
     dump("Got: " + recdates.map(x => x.toString()) + "\n");
     equal(recdates.length, expected.length);
-    let fmt = cal.dtz.formatter;
+    const fmt = cal.dtz.formatter;
 
     for (let i = 0; i < expected.length; i++) {
       // Check each date
-      let expectedDate = cal.createDateTime(expected[i]);
+      const expectedDate = cal.createDateTime(expected[i]);
       dump(
         "Expecting instance at " + expectedDate + "(" + fmt.dayName(expectedDate.weekday) + ")\n"
       );
@@ -67,7 +67,7 @@ function test_rules() {
       }
 
       // Make sure getNextOccurrence works correctly
-      let nextOcc = event.recurrenceInfo.getNextOccurrence(recdates[i]);
+      const nextOcc = event.recurrenceInfo.getNextOccurrence(recdates[i]);
       if (expected.length > i + 1) {
         notEqual(nextOcc, null);
         dump("Checking next occurrence: " + expected[i + 1] + "\n");
@@ -79,7 +79,7 @@ function test_rules() {
       }
 
       // Make sure getPreviousOccurrence works correctly
-      let prevOcc = event.recurrenceInfo.getPreviousOccurrence(recdates[i]);
+      const prevOcc = event.recurrenceInfo.getPreviousOccurrence(recdates[i]);
       if (i > 0) {
         dump(
           "Checking previous occurrence: " +
@@ -435,7 +435,7 @@ function test_rules() {
 
   // Bug 958978 - Check a yearly recurrence every day of January (BYMONTH and more BYDAY).
   // Check for all the occurrences in the first year.
-  let expectedDates = [];
+  const expectedDates = [];
   for (let i = 1; i < 32; i++) {
     expectedDates.push("201401" + (i < 10 ? "0" + i : i) + "T150000Z");
   }
@@ -747,7 +747,7 @@ function test_rules() {
   occ1.QueryInterface(Ci.calIEvent);
   occ1.startDate = createDate(2002, 3, 2, true, 12, 0, 0);
   item.recurrenceInfo.modifyException(occ1, true);
-  let occ2 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 3, true, 11, 45, 0));
+  const occ2 = item.recurrenceInfo.getOccurrenceFor(createDate(2002, 3, 3, true, 11, 45, 0));
   occ2.QueryInterface(Ci.calIEvent);
   occ2.startDate = createDate(2002, 3, 3, true, 12, 0, 0);
   item.recurrenceInfo.modifyException(occ2, true);
@@ -799,7 +799,7 @@ function test_rules() {
 }
 
 function test_limit() {
-  let item = makeEvent(
+  const item = makeEvent(
     "RRULE:FREQ=DAILY;COUNT=3\n" +
       "UID:1\n" +
       "DTSTART:20020401T114500\n" +
@@ -807,8 +807,8 @@ function test_limit() {
   );
   dump("ics: " + item.icalString + "\n");
 
-  let start = createDate(1990, 0, 1);
-  let end = createDate(2020, 0, 1);
+  const start = createDate(1990, 0, 1);
+  const end = createDate(2020, 0, 1);
   let recdates = item.recurrenceInfo.getOccurrenceDates(start, end, 0);
   let occurrences = item.recurrenceInfo.getOccurrences(start, end, 0);
 
@@ -829,9 +829,9 @@ function test_limit() {
 }
 
 function test_clone(event) {
-  let oldRecurItems = event.recurrenceInfo.getRecurrenceItems();
-  let cloned = event.recurrenceInfo.clone();
-  let newRecurItems = cloned.getRecurrenceItems();
+  const oldRecurItems = event.recurrenceInfo.getRecurrenceItems();
+  const cloned = event.recurrenceInfo.clone();
+  const newRecurItems = cloned.getRecurrenceItems();
 
   // Check number of recurrence items
   equal(oldRecurItems.length, newRecurItems.length);
@@ -843,7 +843,7 @@ function test_clone(event) {
 }
 
 function test_interface() {
-  let item = makeEvent(
+  const item = makeEvent(
     "DTSTART:20020402T114500Z\n" +
       "DTEND:20020402T124500Z\n" +
       "RRULE:FREQ=WEEKLY;COUNT=6;BYDAY=TU,WE\r\n" +
@@ -851,17 +851,17 @@ function test_interface() {
       "RDATE:20020401T114500Z\r\n"
   );
 
-  let rinfo = item.recurrenceInfo;
+  const rinfo = item.recurrenceInfo;
   ok(cal.data.compareObjects(rinfo.item, item, Ci.calIEvent));
 
   // getRecurrenceItems
-  let ritems = rinfo.getRecurrenceItems();
+  const ritems = rinfo.getRecurrenceItems();
   equal(ritems.length, 3);
 
-  let checkritems = new Map(
+  const checkritems = new Map(
     ritems.map(ritem => [ritem.icalProperty.propertyName, ritem.icalProperty])
   );
-  let rparts = new Map(
+  const rparts = new Map(
     checkritems
       .get("RRULE")
       .value.split(";")
@@ -875,7 +875,7 @@ function test_interface() {
   equal(checkritems.get("RDATE").value, "20020401T114500Z");
 
   // setRecurrenceItems
-  let newRItems = [cal.createRecurrenceRule(), cal.createRecurrenceDate()];
+  const newRItems = [cal.createRecurrenceRule(), cal.createRecurrenceDate()];
 
   newRItems[0].type = "DAILY";
   newRItems[0].interval = 1;
@@ -940,35 +940,35 @@ function test_interface() {
   ok(rinfo.isFinite);
 
   // isFinite = false
-  let item2 = makeEvent(
+  const item2 = makeEvent(
     // eslint-disable-next-line no-useless-concat
     "DTSTART:20020402T114500Z\n" + "DTEND:20020402T124500Z\n" + "RRULE:FREQ=WEEKLY;BYDAY=TU,WE\n"
   );
   ok(!item2.recurrenceInfo.isFinite);
 
   // removeOccurrenceAt/restoreOccurreceAt
-  let occDate1 = cal.createDateTime("20020403T114500Z");
-  let occDate2 = cal.createDateTime("20020404T114500Z");
+  const occDate1 = cal.createDateTime("20020403T114500Z");
+  const occDate2 = cal.createDateTime("20020404T114500Z");
   rinfo.removeOccurrenceAt(occDate1);
   ok(item.icalString.includes("EXDATE"));
   rinfo.restoreOccurrenceAt(occDate1);
   ok(!item.icalString.includes("EXDATE"));
 
   // modifyException / getExceptionFor
-  let occ1 = rinfo.getOccurrenceFor(occDate1);
+  const occ1 = rinfo.getOccurrenceFor(occDate1);
   occ1.QueryInterface(Ci.calIEvent);
   occ1.startDate = cal.createDateTime("20020401T114500");
   rinfo.modifyException(occ1, true);
   ok(rinfo.getExceptionFor(occDate1) != null);
 
   // modifyException immutable
-  let occ2 = rinfo.getOccurrenceFor(occDate2);
+  const occ2 = rinfo.getOccurrenceFor(occDate2);
   occ2.makeImmutable();
   rinfo.modifyException(occ2, true);
   ok(rinfo.getExceptionFor(occDate2) != null);
 
   // getExceptionIds
-  let ids = rinfo.getExceptionIds();
+  const ids = rinfo.getExceptionIds();
   equal(ids.length, 2);
   ok(ids[0].compare(occDate1) == 0);
   ok(ids[1].compare(occDate2) == 0);
@@ -980,13 +980,13 @@ function test_interface() {
 }
 
 function test_rrule_interface() {
-  let item = makeEvent(
+  const item = makeEvent(
     "DTSTART:20020402T114500Z\r\n" +
       "DTEND:20020402T124500Z\r\n" +
       "RRULE:INTERVAL=2;FREQ=WEEKLY;COUNT=6;BYDAY=TU,WE\r\n"
   );
 
-  let rrule = item.recurrenceInfo.getRecurrenceItemAt(0);
+  const rrule = item.recurrenceInfo.getRecurrenceItemAt(0);
   rrule.QueryInterface(Ci.calIRecurrenceRule);
   equal(rrule.type, "WEEKLY");
   equal(rrule.interval, 2);
@@ -1049,7 +1049,7 @@ function test_startdate_change() {
   }
 
   function changeBy(changeItem, dur) {
-    let newDate = changeItem.startDate.clone();
+    const newDate = changeItem.startDate.clone();
     newDate.addDuration(cal.createDuration(dur));
     changeItem.startDate = newDate;
   }
@@ -1095,7 +1095,7 @@ function test_startdate_change() {
 }
 
 function test_idchange() {
-  let item = makeEvent(
+  const item = makeEvent(
     "UID:unchanged\r\n" +
       "DTSTART:20020402T114500Z\r\n" +
       "DTEND:20020402T124500Z\r\n" +
@@ -1120,7 +1120,7 @@ function test_failures() {
       "RRULE:INTERVAL=2;FREQ=WEEKLY;COUNT=6;BYDAY=TU,WE\r\n"
   );
   let rinfo = item.recurrenceInfo;
-  let ritem = cal.createRecurrenceDate();
+  const ritem = cal.createRecurrenceDate();
 
   throws(() => rinfo.getRecurrenceItemAt(-1), /Illegal value/, "Invalid Argument");
   throws(() => rinfo.getRecurrenceItemAt(1), /Illegal value/, "Invalid Argument");
@@ -1167,7 +1167,7 @@ function test_failures() {
 }
 
 function test_immutable() {
-  let item = createTodoFromIcalString(
+  const item = createTodoFromIcalString(
     "BEGIN:VCALENDAR\r\n" +
       "BEGIN:VTODO\r\n" +
       "RRULE:FREQ=DAILY\r\n" +
@@ -1175,8 +1175,8 @@ function test_immutable() {
       "END:VCALENDAR\r\n"
   );
   ok(item.recurrenceInfo.isMutable);
-  let rinfo = item.recurrenceInfo.clone();
-  let ritem = cal.createRecurrenceDate();
+  const rinfo = item.recurrenceInfo.clone();
+  const ritem = cal.createRecurrenceDate();
   rinfo.makeImmutable();
   rinfo.makeImmutable(); // Doing so twice shouldn't throw
   throws(() => rinfo.appendRecurrenceItem(ritem), /Can not modify immutable data container/);
@@ -1294,14 +1294,14 @@ function test_rrule_icalstring() {
 }
 
 function test_icalComponent() {
-  let duration = "PT3600S";
-  let eventString =
+  const duration = "PT3600S";
+  const eventString =
     "DESCRIPTION:Repeat every Thursday starting Tue 2nd April 2002\n" +
     "RRULE:FREQ=WEEKLY;INTERVAL=1;COUNT=6;BYDAY=TH\n" +
     "DTSTART:20020402T114500\n" +
     `DURATION:${duration}\n`;
 
-  let firstOccurrenceDate = createDate(2002, 4, 4, true, 11, 45, 0);
+  const firstOccurrenceDate = createDate(2002, 4, 4, true, 11, 45, 0);
 
   // Test each of these cases from the conditional in the icalComponent getter.
   // * mIsProxy = true, value === null
@@ -1313,8 +1313,8 @@ function test_icalComponent() {
   // (checking before and after), then call the icalComponent getter to see
   // whether both parent item and proxy item have the correct properties.
 
-  let parent = makeEvent(eventString);
-  let proxy = parent.recurrenceInfo.getOccurrenceFor(firstOccurrenceDate);
+  const parent = makeEvent(eventString);
+  const proxy = parent.recurrenceInfo.getOccurrenceFor(firstOccurrenceDate);
 
   equal(parent.getProperty("DURATION"), duration);
   equal(proxy.getProperty("DURATION"), duration);
@@ -1322,8 +1322,8 @@ function test_icalComponent() {
   equal(parent.getProperty("LOCATION"), null);
   equal(proxy.getProperty("LOCATION"), null);
 
-  let newDuration = "PT2200S";
-  let location = "Sherwood Forest";
+  const newDuration = "PT2200S";
+  const location = "Sherwood Forest";
 
   proxy.setProperty("DURATION", newDuration);
   proxy.setProperty("LOCATION", location);
@@ -1342,10 +1342,10 @@ function test_icalComponent() {
 
   // Test for bug 580896.
 
-  let event = makeEvent(eventString);
+  const event = makeEvent(eventString);
   equal(event.getProperty("DURATION"), duration, "event has correct DURATION");
 
-  let occurrence = event.recurrenceInfo.getOccurrenceFor(firstOccurrenceDate);
+  const occurrence = event.recurrenceInfo.getOccurrenceFor(firstOccurrenceDate);
 
   equal(occurrence.getProperty("DURATION"), duration, "occurrence has correct DURATION");
   equal(Boolean(occurrence.getProperty("DTEND")), true, "occurrence has DTEND");

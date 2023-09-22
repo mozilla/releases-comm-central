@@ -15,19 +15,19 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
-let calendar = CalendarTestUtils.createCalendar();
+const calendar = CalendarTestUtils.createCalendar();
 Services.prefs.setIntPref("calendar.agenda.days", 7);
 registerCleanupFunction(() => {
   CalendarTestUtils.removeCalendar(calendar);
   Services.prefs.clearUserPref("calendar.agenda.days");
 });
 
-let today = cal.dtz.now();
-let startHour = today.hour;
+const today = cal.dtz.now();
+const startHour = today.hour;
 today.hour = today.minute = today.second = 0;
 
-let todayPanePanel = document.getElementById("today-pane-panel");
-let todayPaneStatusButton = document.getElementById("calendar-status-todaypane-button");
+const todayPanePanel = document.getElementById("today-pane-panel");
+const todayPaneStatusButton = document.getElementById("calendar-status-todaypane-button");
 
 // Go to mail tab.
 selectFolderTab();
@@ -42,7 +42,7 @@ Assert.ok(!todayPanePanel.hasAttribute("collapsed"), "Today Pane is open");
 Assert.equal(document.getElementById("datevalue-label").value, today.day, "Today Pane shows today");
 
 async function addEvent(title, relativeStart, relativeEnd, isAllDay) {
-  let event = new CalEvent();
+  const event = new CalEvent();
   event.id = cal.getUUID();
   event.title = title;
   event.startDate = today.clone();
@@ -55,7 +55,7 @@ async function addEvent(title, relativeStart, relativeEnd, isAllDay) {
 }
 
 function checkEvent(row, { dateHeader, time, title, relative, overlap, classes = [] }) {
-  let dateHeaderElement = row.querySelector(".agenda-date-header");
+  const dateHeaderElement = row.querySelector(".agenda-date-header");
   if (dateHeader) {
     Assert.ok(BrowserTestUtils.is_visible(dateHeaderElement), "date header is visible");
     if (dateHeader instanceof CalDateTime || dateHeader instanceof Ci.calIDateTime) {
@@ -66,8 +66,8 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
     Assert.ok(BrowserTestUtils.is_hidden(dateHeaderElement), "date header is hidden");
   }
 
-  let calendarElement = row.querySelector(".agenda-listitem-calendar");
-  let timeElement = row.querySelector(".agenda-listitem-time");
+  const calendarElement = row.querySelector(".agenda-listitem-calendar");
+  const timeElement = row.querySelector(".agenda-listitem-time");
   if (time) {
     Assert.ok(BrowserTestUtils.is_visible(calendarElement), "calendar is visible");
     Assert.ok(BrowserTestUtils.is_visible(timeElement), "time is visible");
@@ -83,11 +83,11 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
     Assert.ok(BrowserTestUtils.is_hidden(timeElement), "time is hidden");
   }
 
-  let titleElement = row.querySelector(".agenda-listitem-title");
+  const titleElement = row.querySelector(".agenda-listitem-title");
   Assert.ok(BrowserTestUtils.is_visible(titleElement), "title is visible");
   Assert.equal(titleElement.textContent, title, "title has correct value");
 
-  let relativeElement = row.querySelector(".agenda-listitem-relative");
+  const relativeElement = row.querySelector(".agenda-listitem-relative");
   if (Array.isArray(relative)) {
     Assert.ok(BrowserTestUtils.is_visible(relativeElement), "relative time is visible");
     Assert.report(
@@ -101,7 +101,7 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
     Assert.ok(BrowserTestUtils.is_hidden(relativeElement), "relative time is hidden");
   }
 
-  let overlapElement = row.querySelector(".agenda-listitem-overlap");
+  const overlapElement = row.querySelector(".agenda-listitem-overlap");
   if (overlap) {
     Assert.ok(BrowserTestUtils.is_visible(overlapElement), "overlap is visible");
     Assert.equal(
@@ -118,7 +118,7 @@ function checkEvent(row, { dateHeader, time, title, relative, overlap, classes =
     Assert.ok(BrowserTestUtils.is_hidden(overlapElement), "overlap is hidden");
   }
 
-  for (let className of classes) {
+  for (const className of classes) {
     Assert.ok(row.classList.contains(className), `row has ${className} class`);
   }
 }
@@ -132,16 +132,16 @@ function checkEvents(...expectedEvents) {
 }
 
 add_task(async function testBasicAllDay() {
-  let todaysEvent = await addEvent("Today's Event", "P0D", "P1D", true);
+  const todaysEvent = await addEvent("Today's Event", "P0D", "P1D", true);
   checkEvents({ dateHeader: "Today", title: "Today's Event" });
 
-  let tomorrowsEvent = await addEvent("Tomorrow's Event", "P1D", "P2D", true);
+  const tomorrowsEvent = await addEvent("Tomorrow's Event", "P1D", "P2D", true);
   checkEvents(
     { dateHeader: "Today", title: "Today's Event" },
     { dateHeader: "Tomorrow", title: "Tomorrow's Event" }
   );
 
-  let events = [];
+  const events = [];
   for (let i = 2; i < 7; i++) {
     events.push(await addEvent(`Event ${i + 1}`, `P${i}D`, `P${i + 1}D`, true));
     checkEvents(
@@ -178,19 +178,19 @@ add_task(async function testBasicAllDay() {
 });
 
 add_task(async function testBasic() {
-  let time = today.clone();
+  const time = today.clone();
   time.hour = 23;
 
-  let todaysEvent = await addEvent("Today's Event", "P0DT23H", "P1D");
+  const todaysEvent = await addEvent("Today's Event", "P0DT23H", "P1D");
   checkEvents({ dateHeader: "Today", time, title: "Today's Event" });
 
-  let tomorrowsEvent = await addEvent("Tomorrow's Event", "P1DT23H", "P2D");
+  const tomorrowsEvent = await addEvent("Tomorrow's Event", "P1DT23H", "P2D");
   checkEvents(
     { dateHeader: "Today", time, title: "Today's Event" },
     { dateHeader: "Tomorrow", time, title: "Tomorrow's Event" }
   );
 
-  let events = [];
+  const events = [];
   for (let i = 2; i < 7; i++) {
     events.push(await addEvent(`Event ${i + 1}`, `P${i}DT23H`, `P${i + 1}D`));
     checkEvents(
@@ -232,27 +232,27 @@ add_task(async function testBasic() {
  * date header is shown/hidden appropriately.
  */
 add_task(async function testSortOrder() {
-  let afternoonEvent = await addEvent("Afternoon Event", "P1DT13H", "P1DT17H");
+  const afternoonEvent = await addEvent("Afternoon Event", "P1DT13H", "P1DT17H");
   checkEvents({
     dateHeader: "Tomorrow",
     time: afternoonEvent.startDate,
     title: "Afternoon Event",
   });
 
-  let morningEvent = await addEvent("Morning Event", "P1DT8H", "P1DT12H");
+  const morningEvent = await addEvent("Morning Event", "P1DT8H", "P1DT12H");
   checkEvents(
     { dateHeader: "Tomorrow", time: morningEvent.startDate, title: "Morning Event" },
     { time: afternoonEvent.startDate, title: "Afternoon Event" }
   );
 
-  let allDayEvent = await addEvent("All Day Event", "P1D", "P2D", true);
+  const allDayEvent = await addEvent("All Day Event", "P1D", "P2D", true);
   checkEvents(
     { dateHeader: "Tomorrow", title: "All Day Event" },
     { time: morningEvent.startDate, title: "Morning Event" },
     { time: afternoonEvent.startDate, title: "Afternoon Event" }
   );
 
-  let eveningEvent = await addEvent("Evening Event", "P1DT18H", "P1DT22H");
+  const eveningEvent = await addEvent("Evening Event", "P1DT18H", "P1DT22H");
   checkEvents(
     { dateHeader: "Tomorrow", title: "All Day Event" },
     { time: morningEvent.startDate, title: "Morning Event" },
@@ -289,13 +289,13 @@ add_task(async function testSortOrder() {
  * All-day events are still sorted ahead of non-all-day events.
  */
 add_task(async function testOverlapInside() {
-  let allDayEvent = await addEvent("All Day Event", "P0D", "P2D", true);
+  const allDayEvent = await addEvent("All Day Event", "P0D", "P2D", true);
   checkEvents(
     { dateHeader: "Today", title: "All Day Event", overlap: "start" },
     { dateHeader: "Tomorrow", title: "All Day Event", overlap: "end" }
   );
 
-  let timedEvent = await addEvent("Timed Event", "P1H", "P1D23H");
+  const timedEvent = await addEvent("Timed Event", "P1H", "P1D23H");
   checkEvents(
     { dateHeader: "Today", title: "All Day Event", overlap: "start" },
     { time: timedEvent.startDate, title: "Timed Event", overlap: "start" },
@@ -315,11 +315,11 @@ add_task(async function testOverlapInside() {
 add_task(async function testOverlapEndAtMidnight() {
   // Start with an event that begins outside the displayed dates.
 
-  let timedEvent = await addEvent("Timed Event", "-P1D", "P1D");
+  const timedEvent = await addEvent("Timed Event", "-P1D", "P1D");
   // Ends an hour before `timedEvent` to prove the ordering is correct.
-  let duringEvent = await addEvent("During Event", "P22H", "P23H");
+  const duringEvent = await addEvent("During Event", "P22H", "P23H");
   // Starts at the same time as `timedEvent` ends to prove the ordering is correct.
-  let nextEvent = await addEvent("Next Event", "P1D", "P2D", true);
+  const nextEvent = await addEvent("Next Event", "P1D", "P2D", true);
 
   checkEvents(
     { dateHeader: "Today", time: duringEvent.startDate, title: "During Event" },
@@ -334,22 +334,22 @@ add_task(async function testOverlapEndAtMidnight() {
 
   // Move the event fully into the displayed range.
 
-  let timedClone = timedEvent.clone();
+  const timedClone = timedEvent.clone();
   timedClone.startDate.day += 2;
   timedClone.endDate.day += 2;
   await calendar.modifyItem(timedClone, timedEvent);
 
-  let duringClone = duringEvent.clone();
+  const duringClone = duringEvent.clone();
   duringClone.startDate.day += 2;
   duringClone.endDate.day += 2;
   await calendar.modifyItem(duringClone, duringEvent);
 
-  let nextClone = nextEvent.clone();
+  const nextClone = nextEvent.clone();
   nextClone.startDate.day += 2;
   nextClone.endDate.day += 2;
   await calendar.modifyItem(nextClone, nextEvent);
 
-  let realEndDate = today.clone();
+  const realEndDate = today.clone();
   realEndDate.day += 2;
   checkEvents(
     {
@@ -379,16 +379,16 @@ add_task(async function testOverlapEndAtMidnight() {
  * All-day events are still sorted ahead of non-all-day events.
  */
 add_task(async function testOverlapOutside() {
-  let before = await addEvent("Starts Before", "-P1D", "P1D", true);
+  const before = await addEvent("Starts Before", "-P1D", "P1D", true);
   checkEvents({ dateHeader: "Today", title: "Starts Before", overlap: "end" });
 
-  let after = await addEvent("Ends After", "P0D", "P9D", true);
+  const after = await addEvent("Ends After", "P0D", "P9D", true);
   checkEvents(
     { dateHeader: "Today", title: "Starts Before", overlap: "end" },
     { title: "Ends After", overlap: "start" }
   );
 
-  let both = await addEvent("Beyond Start and End", "-P2D", "P9D", true);
+  const both = await addEvent("Beyond Start and End", "-P2D", "P9D", true);
   checkEvents(
     { dateHeader: "Today", title: "Beyond Start and End", overlap: "continue" },
     { title: "Starts Before", overlap: "end" },
@@ -397,7 +397,7 @@ add_task(async function testOverlapOutside() {
 
   // Change `before` to begin earlier than `both`. They should swap places.
 
-  let startClone = before.clone();
+  const startClone = before.clone();
   startClone.startDate.day -= 2;
   await calendar.modifyItem(startClone, before);
   checkEvents(
@@ -406,7 +406,7 @@ add_task(async function testOverlapOutside() {
     { title: "Ends After", overlap: "start" }
   );
 
-  let beforeWithTime = await addEvent("Starts Before with time", "-PT5H", "PT15H");
+  const beforeWithTime = await addEvent("Starts Before with time", "-PT5H", "PT15H");
   checkEvents(
     { dateHeader: "Today", title: "Starts Before", overlap: "end" },
     { title: "Beyond Start and End", overlap: "continue" },
@@ -415,7 +415,7 @@ add_task(async function testOverlapOutside() {
     { time: beforeWithTime.endDate, title: "Starts Before with time", overlap: "end" }
   );
 
-  let afterWithTime = await addEvent("Ends After with time", "PT6H", "P8DT12H");
+  const afterWithTime = await addEvent("Ends After with time", "PT6H", "P8DT12H");
   checkEvents(
     { dateHeader: "Today", title: "Starts Before", overlap: "end" },
     { title: "Beyond Start and End", overlap: "continue" },
@@ -425,7 +425,7 @@ add_task(async function testOverlapOutside() {
     { time: beforeWithTime.endDate, title: "Starts Before with time", overlap: "end" }
   );
 
-  let bothWithTime = await addEvent("Beyond Start and End with time", "-P2DT10H", "P9DT1H");
+  const bothWithTime = await addEvent("Beyond Start and End with time", "-P2DT10H", "P9DT1H");
   checkEvents(
     { dateHeader: "Today", title: "Starts Before", overlap: "end" },
     { title: "Beyond Start and End", overlap: "continue" },
@@ -455,18 +455,18 @@ add_task(async function testOverlapOutside() {
  * be very reliable, so we don't do that.
  */
 add_task(async function testActive() {
-  let now = cal.dtz.now();
+  const now = cal.dtz.now();
 
-  let pastEvent = await addEvent("Past Event", "PT0M", "PT1M");
-  let presentEvent = await addEvent("Present Event", `PT${now.hour}H`, `PT${now.hour + 1}H`);
-  let futureEvent = await addEvent("Future Event", "PT23H59M", "PT24H");
+  const pastEvent = await addEvent("Past Event", "PT0M", "PT1M");
+  const presentEvent = await addEvent("Present Event", `PT${now.hour}H`, `PT${now.hour + 1}H`);
+  const futureEvent = await addEvent("Future Event", "PT23H59M", "PT24H");
   checkEvents(
     { dateHeader: "Today", time: pastEvent.startDate, title: "Past Event" },
     { time: presentEvent.startDate, title: "Present Event" },
     { time: futureEvent.startDate, title: "Future Event" }
   );
 
-  let [pastRow, presentRow, futureRow] = TodayPane.agenda.rows;
+  const [pastRow, presentRow, futureRow] = TodayPane.agenda.rows;
   Assert.ok(pastRow.classList.contains("agenda-listitem-past"), "past event is marked past");
   Assert.ok(!pastRow.classList.contains("agenda-listitem-now"), "past event is not marked now");
   Assert.ok(
@@ -490,9 +490,9 @@ add_task(async function testActive() {
  */
 add_task(async function testOtherTimeZones() {
   // Johannesburg is UTC+2.
-  let johannesburg = cal.timezoneService.getTimezone("Africa/Johannesburg");
+  const johannesburg = cal.timezoneService.getTimezone("Africa/Johannesburg");
   // Panama is UTC-5.
-  let panama = cal.timezoneService.getTimezone("America/Panama");
+  const panama = cal.timezoneService.getTimezone("America/Panama");
 
   // All-day events are displayed on the day of the event, the time zone is ignored.
 
@@ -516,8 +516,8 @@ add_task(async function testOtherTimeZones() {
 
   // The event time must be displayed in the local time zone, and the event must be sorted correctly.
 
-  let beforeEvent = await addEvent("Before", "P1DT5H", "P1DT6H");
-  let afterEvent = await addEvent("After", "P1DT7H", "P1DT8H");
+  const beforeEvent = await addEvent("Before", "P1DT5H", "P1DT6H");
+  const afterEvent = await addEvent("After", "P1DT7H", "P1DT8H");
 
   let timedEvent = new CalEvent();
   timedEvent.id = cal.getUUID();
@@ -594,12 +594,12 @@ add_task(async function testOtherTimeZones() {
  * Checks events in different time zones are displayed correctly.
  */
 add_task(async function testRelativeTime() {
-  let formatter = new Intl.RelativeTimeFormat(undefined, { style: "short" });
-  let now = cal.dtz.now();
+  const formatter = new Intl.RelativeTimeFormat(undefined, { style: "short" });
+  const now = cal.dtz.now();
   now.second = 0;
   info(`The time is now ${now}`);
 
-  let testData = [
+  const testData = [
     {
       name: "two hours ago",
       start: "-PT1H55M",
@@ -668,9 +668,9 @@ add_task(async function testRelativeTime() {
     },
   ];
 
-  let events = [];
-  let expectedEvents = [];
-  for (let { name, start, expected, minHour, maxHour } of testData) {
+  const events = [];
+  const expectedEvents = [];
+  for (const { name, start, expected, minHour, maxHour } of testData) {
     if (minHour && now.hour < minHour) {
       info(`Skipping ${name} because it's too early.`);
       continue;
@@ -680,7 +680,7 @@ add_task(async function testRelativeTime() {
       continue;
     }
 
-    let event = new CalEvent();
+    const event = new CalEvent();
     event.id = cal.getUUID();
     event.title = name;
     event.startDate = now.clone();
@@ -695,7 +695,7 @@ add_task(async function testRelativeTime() {
   expectedEvents[0].dateHeader = "Today";
   checkEvents(...expectedEvents);
 
-  for (let event of events) {
+  for (const event of events) {
     await calendar.deleteItem(event);
   }
 });
@@ -705,7 +705,7 @@ add_task(async function testRelativeTime() {
  * non-recurring and recurring events.
  */
 add_task(async function testOpenEvent() {
-  let noRepeatEvent = new CalEvent();
+  const noRepeatEvent = new CalEvent();
   noRepeatEvent.id = "no repeat event";
   noRepeatEvent.title = "No Repeat Event";
   noRepeatEvent.startDate = today.clone();
@@ -713,7 +713,7 @@ add_task(async function testOpenEvent() {
   noRepeatEvent.endDate = noRepeatEvent.startDate.clone();
   noRepeatEvent.endDate.hour++;
 
-  let repeatEvent = new CalEvent();
+  const repeatEvent = new CalEvent();
   repeatEvent.id = "repeated event";
   repeatEvent.title = "Repeated Event";
   repeatEvent.startDate = today.clone();
@@ -725,8 +725,8 @@ add_task(async function testOpenEvent() {
     cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=5")
   );
 
-  for (let event of [noRepeatEvent, repeatEvent]) {
-    let addedEvent = await calendar.addItem(event);
+  for (const event of [noRepeatEvent, repeatEvent]) {
+    const addedEvent = await calendar.addItem(event);
 
     if (event == noRepeatEvent) {
       Assert.equal(TodayPane.agenda.rowCount, 1);
@@ -739,11 +739,11 @@ add_task(async function testOpenEvent() {
       "event title is correct"
     );
 
-    let dialogWindowPromise = CalendarTestUtils.waitForEventDialog();
+    const dialogWindowPromise = CalendarTestUtils.waitForEventDialog();
     EventUtils.synthesizeMouseAtCenter(TodayPane.agenda.rows[0], { clickCount: 2 });
 
-    let dialogWindow = await dialogWindowPromise;
-    let docUri = dialogWindow.document.documentURI;
+    const dialogWindow = await dialogWindowPromise;
+    const docUri = dialogWindow.document.documentURI;
     Assert.ok(
       docUri === "chrome://calendar/content/calendar-summary-dialog.xhtml",
       "event summary dialog shown"
@@ -760,13 +760,13 @@ add_task(async function testOpenEvent() {
  */
 add_task(async function testNewEvent() {
   async function checkEventDialogDate() {
-    let dialogWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
+    const dialogWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
     EventUtils.synthesizeMouseAtCenter(newEventButton, {}, window);
     await dialogWindowPromise.then(async function (dialogWindow) {
-      let iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
-      let iframeDocument = iframe.contentDocument;
+      const iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
+      const iframeDocument = iframe.contentDocument;
 
-      let startDate = iframeDocument.getElementById("event-starttime");
+      const startDate = iframeDocument.getElementById("event-starttime");
       Assert.equal(
         startDate._datepicker._inputField.value,
         formatDate(expectedDate),
@@ -782,14 +782,14 @@ add_task(async function testNewEvent() {
     });
   }
 
-  let newEventButton = document.getElementById("todaypane-new-event-button");
+  const newEventButton = document.getElementById("todaypane-new-event-button");
 
   // Check today with the "day" view.
 
   TodayPane.displayMiniSection("miniday");
   EventUtils.synthesizeMouseAtCenter(document.getElementById("today-button"), {}, window);
 
-  let expectedDate = cal.dtz.now();
+  const expectedDate = cal.dtz.now();
   expectedDate.hour++;
   expectedDate.minute = 0;
 
@@ -805,7 +805,7 @@ add_task(async function testNewEvent() {
   // Check today with the "month" view;
 
   TodayPane.displayMiniSection("minimonth");
-  let minimonth = document.getElementById("today-minimonth");
+  const minimonth = document.getElementById("today-minimonth");
   minimonth.value = new Date();
   expectedDate.day--;
 

@@ -37,7 +37,7 @@ class EmailTransport extends CalItipDefaultEmailTransport {
   sentMsgs = [];
 
   getMsgSend() {
-    let { sentMsgs } = this;
+    const { sentMsgs } = this;
     return {
       sendMessageFile(
         userIdentity,
@@ -81,20 +81,20 @@ class EmailTransport extends CalItipDefaultEmailTransport {
 }
 
 async function openMessageFromFile(file) {
-  let fileURL = Services.io
+  const fileURL = Services.io
     .newFileURI(file)
     .mutate()
     .setQuery("type=application/x-message-display")
     .finalize();
 
-  let winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  const winPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
   window.openDialog(
     "chrome://messenger/content/messageWindow.xhtml",
     "_blank",
     "all,chrome,dialog=no,status,toolbar",
     fileURL
   );
-  let win = await winPromise;
+  const win = await winPromise;
   await BrowserTestUtils.waitForEvent(win, "MsgLoaded");
   await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
   return win;
@@ -107,9 +107,9 @@ async function openMessageFromFile(file) {
  * @returns {Window}
  */
 async function openImipMessage(file) {
-  let win = await openMessageFromFile(file);
-  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
-  let imipBar = aboutMessage.document.getElementById("imip-bar");
+  const win = await openMessageFromFile(file);
+  const aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  const imipBar = aboutMessage.document.getElementById("imip-bar");
   await TestUtils.waitForCondition(() => !imipBar.collapsed, "imip-bar shown");
   return win;
 }
@@ -121,8 +121,8 @@ async function openImipMessage(file) {
  * @param {string} id
  */
 async function clickAction(win, id) {
-  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
-  let action = aboutMessage.document.getElementById(id);
+  const aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  const action = aboutMessage.document.getElementById(id);
   await TestUtils.waitForCondition(() => !action.hidden, `button "#${id}" shown`);
 
   EventUtils.synthesizeMouseAtCenter(action, {}, aboutMessage);
@@ -137,12 +137,12 @@ async function clickAction(win, id) {
  * @param {string} actionId The id of the menu item to click.
  */
 async function clickMenuAction(win, buttonId, actionId) {
-  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
-  let actionButton = aboutMessage.document.getElementById(buttonId);
+  const aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  const actionButton = aboutMessage.document.getElementById(buttonId);
   await TestUtils.waitForCondition(() => !actionButton.hidden, `"${buttonId}" shown`);
 
-  let actionMenu = actionButton.querySelector("menupopup");
-  let menuShown = BrowserTestUtils.waitForEvent(actionMenu, "popupshown");
+  const actionMenu = actionButton.querySelector("menupopup");
+  const menuShown = BrowserTestUtils.waitForEvent(actionMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(actionButton.querySelector("dropmarker"), {}, aboutMessage);
   await menuShown;
   actionMenu.activateItem(aboutMessage.document.getElementById(actionId));
@@ -168,17 +168,17 @@ const unpromotedProps = ["location", "description", "sequence", "x-moz-received-
  */
 function compareProperties(actual, expected, prefix = "") {
   Assert.equal(typeof actual, "object", `${prefix || "provided value"} is an object`);
-  for (let [key, value] of Object.entries(expected)) {
+  for (const [key, value] of Object.entries(expected)) {
     if (key.includes(".")) {
-      let keys = key.split(".");
-      let head = keys[0];
-      let tail = keys.slice(1).join(".");
+      const keys = key.split(".");
+      const head = keys[0];
+      const tail = keys.slice(1).join(".");
       compareProperties(actual[head], { [tail]: value }, [prefix, head].filter(k => k).join("."));
       continue;
     }
 
-    let path = [prefix, key].filter(k => k).join(".");
-    let actualValue = unpromotedProps.includes(key) ? actual.getProperty(key) : actual[key];
+    const path = [prefix, key].filter(k => k).join(".");
+    const actualValue = unpromotedProps.includes(key) ? actual.getProperty(key) : actual[key];
     Assert.equal(actualValue, value, `property "${path}" is "${value}"`);
   }
 }
@@ -209,8 +209,8 @@ function compareShownPanelValues(root, expected) {
  * @param {boolean} sendResponse
  */
 async function clickPanelAction(panel, id, sendResponse = true) {
-  let promise = BrowserTestUtils.promiseAlertDialogOpen(sendResponse ? "accept" : "cancel");
-  let button = panel.shadowRoot.getElementById(id);
+  const promise = BrowserTestUtils.promiseAlertDialogOpen(sendResponse ? "accept" : "cancel");
+  const button = panel.shadowRoot.getElementById(id);
   EventUtils.synthesizeMouseAtCenter(button, {}, panel.ownerGlobal);
   await promise;
   await BrowserTestUtils.waitForEvent(panel.ownerGlobal, "onItipItemActionFinished");
@@ -236,8 +236,8 @@ async function doReplyTest(transport, identity, partStat) {
 
   // The itipItem is used to generate the iTIP data in the message body.
   info("Verifying the reply calItipItem attendee list");
-  let replyItem = transport.sentItems[0].itipItem.getItemList()[0];
-  let replyAttendees = replyItem.getAttendees();
+  const replyItem = transport.sentItems[0].itipItem.getItemList()[0];
+  const replyAttendees = replyItem.getAttendees();
   Assert.equal(replyAttendees.length, 1, "reply has one attendee");
   compareProperties(replyAttendees[0], {
     id: "mailto:receiver@example.com",
@@ -280,7 +280,7 @@ async function doReplyTest(transport, identity, partStat) {
  * @param {calIEvent|calIEvent[]} item
  */
 async function doImipBarActionTest(conf, event) {
-  let { calendar, transport, identity, partStat, isRecurring, noReply, noSend } = conf;
+  const { calendar, transport, identity, partStat, isRecurring, noReply, noSend } = conf;
   let events = [event];
   let startDates = ["20220316T110000Z"];
   let endDates = ["20220316T113000Z"];
@@ -297,7 +297,7 @@ async function doImipBarActionTest(conf, event) {
   }
 
   info("Verifying relevant properties of each event occurrence");
-  for (let [index, occurrence] of events.entries()) {
+  for (const [index, occurrence] of events.entries()) {
     compareProperties(occurrence, {
       id: "02e79b96",
       title: isRecurring ? "Repeat Event" : "Single Event",
@@ -321,7 +321,7 @@ async function doImipBarActionTest(conf, event) {
     );
 
     info("Verifying attendee list and participation status");
-    let attendees = occurrence.getAttendees();
+    const attendees = occurrence.getAttendees();
     compareProperties(attendees, {
       "0.id": "mailto:sender@example.com",
       "0.participationStatus": "ACCEPTED",
@@ -354,16 +354,16 @@ async function doImipBarActionTest(conf, event) {
  * @param {ImipBarActionTestConf} conf
  */
 async function doMinorUpdateTest(conf) {
-  let { transport, calendar, partStat, isRecurring } = conf;
+  const { transport, calendar, partStat, isRecurring } = conf;
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
-  let prevEventIcs = event.icalString;
+  const prevEventIcs = event.icalString;
 
   transport.reset();
 
-  let updatePath = isRecurring ? "data/repeat-update-minor.eml" : "data/update-minor.eml";
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath(updatePath)));
-  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
-  let updateButton = aboutMessage.document.getElementById("imipUpdateButton");
+  const updatePath = isRecurring ? "data/repeat-update-minor.eml" : "data/update-minor.eml";
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath(updatePath)));
+  const aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  const updateButton = aboutMessage.document.getElementById("imipUpdateButton");
   Assert.ok(!updateButton.hidden, `#${updateButton.id} button shown`);
   EventUtils.synthesizeMouseAtCenter(updateButton, {}, aboutMessage);
 
@@ -389,7 +389,7 @@ async function doMinorUpdateTest(conf) {
   }
 
   info("Verifying relevant properties of each event occurrence");
-  for (let [index, occurrence] of events.entries()) {
+  for (const [index, occurrence] of events.entries()) {
     compareProperties(occurrence, {
       id: "02e79b96",
       title: "Updated Event",
@@ -406,7 +406,7 @@ async function doMinorUpdateTest(conf) {
     });
 
     // Note: It seems we do not keep the order of the attendees list for updates.
-    let attendees = occurrence.getAttendees();
+    const attendees = occurrence.getAttendees();
     compareProperties(attendees, {
       "0.id": "mailto:sender@example.com",
       "0.participationStatus": "ACCEPTED",
@@ -457,17 +457,17 @@ const actionIds = {
  * @param {ImipBarActionTestConf} conf
  */
 async function doMajorUpdateTest(conf) {
-  let { transport, identity, calendar, partStat, isRecurring, noReply } = conf;
+  const { transport, identity, calendar, partStat, isRecurring, noReply } = conf;
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
-  let prevEventIcs = event.icalString;
+  const prevEventIcs = event.icalString;
 
   transport.reset();
 
-  let updatePath = isRecurring ? "data/repeat-update-major.eml" : "data/update-major.eml";
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath(updatePath)));
-  let actions = isRecurring ? actionIds.recurring : actionIds.single;
+  const updatePath = isRecurring ? "data/repeat-update-major.eml" : "data/update-major.eml";
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath(updatePath)));
+  const actions = isRecurring ? actionIds.recurring : actionIds.single;
   if (noReply) {
-    let { button, noReply } = actions;
+    const { button, noReply } = actions;
     await clickMenuAction(win, button[partStat], noReply[partStat]);
   } else {
     await clickAction(win, actions.button[partStat]);
@@ -505,7 +505,7 @@ async function doMajorUpdateTest(conf) {
     Assert.equal(events.length, 3, "reccurring event has 3 occurrences");
   }
 
-  for (let [index, occurrence] of events.entries()) {
+  for (const [index, occurrence] of events.entries()) {
     compareProperties(occurrence, {
       id: "02e79b96",
       title: isRecurring ? "Repeat Event" : "Single Event",
@@ -521,7 +521,7 @@ async function doMajorUpdateTest(conf) {
       status: "CONFIRMED",
     });
 
-    let attendees = occurrence.getAttendees();
+    const attendees = occurrence.getAttendees();
     compareProperties(attendees, {
       "0.id": "mailto:sender@example.com",
       "0.participationStatus": "ACCEPTED",
@@ -541,10 +541,10 @@ async function doMajorUpdateTest(conf) {
  * @param {ImipBarActionTestConf} conf
  */
 async function doMinorExceptionTest(conf) {
-  let { transport, calendar, partStat } = conf;
-  let recurrenceId = cal.createDateTime("20220317T110000Z");
+  const { transport, calendar, partStat } = conf;
+  const recurrenceId = cal.createDateTime("20220317T110000Z");
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
-  let originalProps = {
+  const originalProps = {
     id: "02e79b96",
     "recurrenceId.icalString": "20220317T110000Z",
     title: event.title,
@@ -566,9 +566,11 @@ async function doMinorExceptionTest(conf) {
 
   transport.reset();
 
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-minor.eml")));
-  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
-  let updateButton = aboutMessage.document.getElementById("imipUpdateButton");
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-minor.eml"))
+  );
+  const aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  const updateButton = aboutMessage.document.getElementById("imipUpdateButton");
   Assert.ok(!updateButton.hidden, `#${updateButton.id} button shown`);
   EventUtils.synthesizeMouseAtCenter(updateButton, {}, aboutMessage);
 
@@ -609,7 +611,7 @@ async function doMinorExceptionTest(conf) {
     "2.participationStatus": partStat,
   });
 
-  let occurrences = event.recurrenceInfo.getOccurrences(
+  const occurrences = event.recurrenceInfo.getOccurrences(
     cal.createDateTime("19700101"),
     cal.createDateTime("30000101"),
     Infinity
@@ -618,9 +620,9 @@ async function doMinorExceptionTest(conf) {
 
   info("Verifying relevant properties of the other occurrences");
 
-  let startDates = ["20220316T110000Z", "20220317T110000Z", "20220318T110000Z"];
-  let endDates = ["20220316T113000Z", "20220317T113000Z", "20220318T113000Z"];
-  for (let [index, occurrence] of occurrences.entries()) {
+  const startDates = ["20220316T110000Z", "20220317T110000Z", "20220318T110000Z"];
+  const endDates = ["20220316T113000Z", "20220317T113000Z", "20220318T113000Z"];
+  for (const [index, occurrence] of occurrences.entries()) {
     if (occurrence.startDate.compare(recurrenceId) == 0) {
       continue;
     }
@@ -631,7 +633,7 @@ async function doMinorExceptionTest(conf) {
       "endDate.icalString": endDates[index],
     });
 
-    let attendees = occurrence.getAttendees();
+    const attendees = occurrence.getAttendees();
     compareProperties(attendees, {
       "0.id": "mailto:sender@example.com",
       "0.participationStatus": "ACCEPTED",
@@ -652,10 +654,10 @@ async function doMinorExceptionTest(conf) {
  * @param {ImipBarActionTestConf} conf
  */
 async function doMajorExceptionTest(conf) {
-  let { transport, identity, calendar, partStat, noReply } = conf;
-  let recurrenceId = cal.createDateTime("20220317T110000Z");
+  const { transport, identity, calendar, partStat, noReply } = conf;
+  const recurrenceId = cal.createDateTime("20220317T110000Z");
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
-  let originalProps = {
+  const originalProps = {
     id: "02e79b96",
     "recurrenceId.icalString": "20220317T110000Z",
     title: event.title,
@@ -669,7 +671,7 @@ async function doMajorExceptionTest(conf) {
     "organizer.id": "mailto:sender@example.com",
     status: "CONFIRMED",
   };
-  let originalPartStat = event
+  const originalPartStat = event
     .getAttendees()
     .find(att => att.id == "mailto:receiver@example.com").participationStatus;
 
@@ -680,9 +682,11 @@ async function doMajorExceptionTest(conf) {
 
   transport.reset();
 
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/exception-major.eml")));
+  const win = await openImipMessage(
+    new FileUtils.File(getTestFilePath("data/exception-major.eml"))
+  );
   if (noReply) {
-    let { button, noReply } = actionIds.single;
+    const { button, noReply } = actionIds.single;
     await clickMenuAction(win, button[partStat], noReply[partStat]);
   } else {
     await clickAction(win, actionIds.single.button[partStat]);
@@ -726,7 +730,7 @@ async function doMajorExceptionTest(conf) {
     "2.participationStatus": partStat,
   });
 
-  let occurrences = event.recurrenceInfo.getOccurrences(
+  const occurrences = event.recurrenceInfo.getOccurrences(
     cal.createDateTime("19700101"),
     cal.createDateTime("30000101"),
     Infinity
@@ -735,9 +739,9 @@ async function doMajorExceptionTest(conf) {
 
   info("Verifying relevant properties of the other occurrences");
 
-  let startDates = ["20220316T110000Z", "20220317T110000Z", "20220318T110000Z"];
-  let endDates = ["20220316T113000Z", "20220317T113000Z", "20220318T113000Z"];
-  for (let [index, occurrence] of occurrences.entries()) {
+  const startDates = ["20220316T110000Z", "20220317T110000Z", "20220318T110000Z"];
+  const endDates = ["20220316T113000Z", "20220317T113000Z", "20220318T113000Z"];
+  for (const [index, occurrence] of occurrences.entries()) {
     if (occurrence.startDate.icalString == "20220317T050000Z") {
       continue;
     }
@@ -748,7 +752,7 @@ async function doMajorExceptionTest(conf) {
       "endDate.icalString": endDates[index],
     });
 
-    let attendees = occurrence.getAttendees();
+    const attendees = occurrence.getAttendees();
     compareProperties(attendees, {
       "0.id": "mailto:sender@example.com",
       "0.participationStatus": "ACCEPTED",
@@ -770,12 +774,12 @@ async function doMajorExceptionTest(conf) {
  * @param {ImipBarActionTestConf} conf
  */
 async function doExceptionOnlyTest(conf) {
-  let { calendar, transport, identity, partStat, noReply, isMajor } = conf;
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1)).item;
+  const { calendar, transport, identity, partStat, noReply, isMajor } = conf;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1)).item;
 
   // Exceptions are still created as recurring events.
   Assert.ok(event != event.parentItem, "event created is a recurring event");
-  let occurrences = event.parentItem.recurrenceInfo.getOccurrences(
+  const occurrences = event.parentItem.recurrenceInfo.getOccurrences(
     cal.createDateTime("10000101"),
     cal.createDateTime("30000101"),
     Infinity
@@ -805,7 +809,7 @@ async function doExceptionOnlyTest(conf) {
   Assert.equal(event.getAlarms().length, 0, "event has no reminders");
 
   info("Verifying attendee list and participation status");
-  let attendees = event.getAttendees();
+  const attendees = event.getAttendees();
   compareProperties(attendees, {
     "0.id": "mailto:sender@example.com",
     "0.participationStatus": "ACCEPTED",
@@ -836,14 +840,14 @@ async function doExceptionOnlyTest(conf) {
 async function doCancelTest({ transport, calendar, isRecurring, event, recurrenceId }) {
   transport.reset();
 
-  let eventId = event.id;
+  const eventId = event.id;
   if (isRecurring) {
     // wait for the other occurrences to appear.
     await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1);
     await CalendarTestUtils.monthView.waitForItemAt(window, 3, 6, 1);
   }
 
-  let cancellationPath = isRecurring
+  const cancellationPath = isRecurring
     ? "data/cancel-repeat-event.eml"
     : "data/cancel-single-event.eml";
 
@@ -856,9 +860,9 @@ async function doCancelTest({ transport, calendar, isRecurring, event, recurrenc
     await IOUtils.writeUTF8(cancelMsgFile.path, srcTxt);
   }
 
-  let win = await openImipMessage(cancelMsgFile);
-  let aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
-  let deleteButton = aboutMessage.document.getElementById("imipDeleteButton");
+  const win = await openImipMessage(cancelMsgFile);
+  const aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
+  const deleteButton = aboutMessage.document.getElementById("imipDeleteButton");
   Assert.ok(!deleteButton.hidden, `#${deleteButton.id} button shown`);
   EventUtils.synthesizeMouseAtCenter(deleteButton, {}, aboutMessage);
 
@@ -867,7 +871,8 @@ async function doCancelTest({ transport, calendar, isRecurring, event, recurrenc
 
     let occurrences;
     await TestUtils.waitForCondition(async () => {
-      let { parentItem } = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+      const { parentItem } = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1))
+        .item;
       occurrences = parentItem.recurrenceInfo.getOccurrences(
         cal.createDateTime("19700101"),
         cal.createDateTime("30000101"),
@@ -890,7 +895,7 @@ async function doCancelTest({ transport, calendar, isRecurring, event, recurrenc
     }
 
     await TestUtils.waitForCondition(async () => {
-      let result = await calendar.getItem(eventId);
+      const result = await calendar.getItem(eventId);
       return !result;
     }, "event was deleted");
   }
@@ -906,16 +911,16 @@ async function doCancelTest({ transport, calendar, isRecurring, event, recurrenc
  * @param {ImipBarActionTestConf} conf
  */
 async function doCancelExceptionTest(conf) {
-  let { partStat, recurrenceId, calendar } = conf;
-  let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
-  let win = await openImipMessage(invite);
+  const { partStat, recurrenceId, calendar } = conf;
+  const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+  const win = await openImipMessage(invite);
   await clickAction(win, actionIds.recurring.button[partStat]);
 
   let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item.parentItem;
   await BrowserTestUtils.closeWindow(win);
 
-  let update = new FileUtils.File(getTestFilePath("data/exception-major.eml"));
-  let updateWin = await openImipMessage(update);
+  const update = new FileUtils.File(getTestFilePath("data/exception-major.eml"));
+  const updateWin = await openImipMessage(update);
   await clickAction(updateWin, actionIds.single.button[partStat]);
 
   let exception;

@@ -33,26 +33,30 @@ async function doBoundedReadableStreamTest({
   actualChunkSize,
   onChunk,
 }) {
-  let totalChunks = Math.ceil(actualTotalItems / actualChunkSize);
-  let stream = CalReadableStreamFactory.createBoundedReadableStream(maxTotalItems, maxQueuedItems, {
-    start(controller) {
-      let i = 0;
-      for (i; i < totalChunks; i++) {
-        controller.enqueue(
-          Array(actualChunkSize)
-            .fill(null)
-            .map(() => new CalEvent())
+  const totalChunks = Math.ceil(actualTotalItems / actualChunkSize);
+  const stream = CalReadableStreamFactory.createBoundedReadableStream(
+    maxTotalItems,
+    maxQueuedItems,
+    {
+      start(controller) {
+        let i = 0;
+        for (i; i < totalChunks; i++) {
+          controller.enqueue(
+            Array(actualChunkSize)
+              .fill(null)
+              .map(() => new CalEvent())
+          );
+        }
+        info(
+          `Enqueued ${
+            i * actualChunkSize
+          } items across ${i} chunks at a rate of ${actualChunkSize} items per chunk`
         );
-      }
-      info(
-        `Enqueued ${
-          i * actualChunkSize
-        } items across ${i} chunks at a rate of ${actualChunkSize} items per chunk`
-      );
-    },
-  });
+      },
+    }
+  );
 
-  for await (let chunk of cal.iterate.streamValues(stream)) {
+  for await (const chunk of cal.iterate.streamValues(stream)) {
     Assert.ok(Array.isArray(chunk), "chunk received is an array");
     Assert.ok(
       chunk.every(item => item instanceof CalEvent),
@@ -67,9 +71,9 @@ async function doBoundedReadableStreamTest({
  * and the chunk size match the limits set.
  */
 add_task(async function testBoundedReadableStreamWorksWithinLimits() {
-  let maxTotalItems = 35;
-  let maxQueuedItems = 5;
-  let totalChunks = 35 / 5;
+  const maxTotalItems = 35;
+  const maxQueuedItems = 5;
+  const totalChunks = 35 / 5;
 
   let chunksRead = 0;
   await doBoundedReadableStreamTest({
@@ -90,8 +94,8 @@ add_task(async function testBoundedReadableStreamWorksWithinLimits() {
  * even if there are more items to come.
  */
 add_task(async function testBoundedReadableStreamClosesIfMaxTotalItemsReached() {
-  let maxTotalItems = 35;
-  let maxQueuedItems = 5;
+  const maxTotalItems = 35;
+  const maxQueuedItems = 5;
   let items = [];
 
   await doBoundedReadableStreamTest({
@@ -111,9 +115,9 @@ add_task(async function testBoundedReadableStreamClosesIfMaxTotalItemsReached() 
  * until the threshold is reached.
  */
 add_task(async function testBoundedReadableStreamBuffersChunks() {
-  let maxTotalItems = 35;
-  let maxQueuedItems = 5;
-  let totalChunks = 35 / 5;
+  const maxTotalItems = 35;
+  const maxQueuedItems = 5;
+  const totalChunks = 35 / 5;
 
   let chunksRead = 0;
   await doBoundedReadableStreamTest({
@@ -133,7 +137,7 @@ add_task(async function testBoundedReadableStreamBuffersChunks() {
  * Test the CombinedReadbleStream streams from all of its streams.
  */
 add_task(async function testCombinedReadableStreamStreamsAll() {
-  let mkStream = () =>
+  const mkStream = () =>
     CalReadableStreamFactory.createReadableStream({
       start(controller) {
         for (let i = 0; i < 5; i++) {
@@ -143,14 +147,14 @@ add_task(async function testCombinedReadableStreamStreamsAll() {
       },
     });
 
-  let stream = CalReadableStreamFactory.createCombinedReadableStream([
+  const stream = CalReadableStreamFactory.createCombinedReadableStream([
     mkStream(),
     mkStream(),
     mkStream(),
   ]);
 
-  let items = [];
-  for await (let value of cal.iterate.streamValues(stream)) {
+  const items = [];
+  for await (const value of cal.iterate.streamValues(stream)) {
     Assert.ok(value instanceof CalEvent, "value read from stream is CalEvent instance");
     items.push(value);
   }
@@ -162,7 +166,7 @@ add_task(async function testCombinedReadableStreamStreamsAll() {
  * read from the stream.
  */
 add_task(async function testMappedReadableStream() {
-  let stream = CalReadableStreamFactory.createMappedReadableStream(
+  const stream = CalReadableStreamFactory.createMappedReadableStream(
     CalReadableStreamFactory.createReadableStream({
       start(controller) {
         for (let i = 0; i < 10; i++) {
@@ -174,8 +178,8 @@ add_task(async function testMappedReadableStream() {
     value => value * 0
   );
 
-  let values = [];
-  for await (let value of cal.iterate.streamValues(stream)) {
+  const values = [];
+  for await (const value of cal.iterate.streamValues(stream)) {
     Assert.equal(value, 0, "read value inverted to 0");
     values.push(value);
   }
@@ -186,9 +190,9 @@ add_task(async function testMappedReadableStream() {
  * Test the EmptyReadableStream is already closed.
  */
 add_task(async function testEmptyReadableStream() {
-  let stream = CalReadableStreamFactory.createEmptyReadableStream();
-  let values = [];
-  for await (let value of cal.iterate.streamValues(stream)) {
+  const stream = CalReadableStreamFactory.createEmptyReadableStream();
+  const values = [];
+  for await (const value of cal.iterate.streamValues(stream)) {
     values.push(value);
   }
   Assert.equal(values.length, 0, "no values were read from the empty stream");

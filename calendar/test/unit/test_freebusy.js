@@ -12,14 +12,14 @@ function really_run_test() {
 }
 
 function test_freebusy() {
-  let icsService = Cc["@mozilla.org/calendar/ics-service;1"].getService(Ci.calIICSService);
+  const icsService = Cc["@mozilla.org/calendar/ics-service;1"].getService(Ci.calIICSService);
 
   // Bug 415987 - FREEBUSY decoding does not support comma-separated entries
   // (https://bugzilla.mozilla.org/show_bug.cgi?id=415987)
-  let fbVal1 = "20080206T160000Z/PT1H";
-  let fbVal2 = "20080206T180000Z/PT1H";
-  let fbVal3 = "20080206T220000Z/PT1H";
-  let data =
+  const fbVal1 = "20080206T160000Z/PT1H";
+  const fbVal2 = "20080206T180000Z/PT1H";
+  const fbVal3 = "20080206T220000Z/PT1H";
+  const data =
     "BEGIN:VCALENDAR\n" +
     "BEGIN:VFREEBUSY\n" +
     "FREEBUSY;FBTYPE=BUSY:" +
@@ -31,14 +31,14 @@ function test_freebusy() {
     "\n" +
     "END:VFREEBUSY\n" +
     "END:VCALENDAR\n";
-  let fbComp = icsService.parseICS(data).getFirstSubcomponent("VFREEBUSY");
+  const fbComp = icsService.parseICS(data).getFirstSubcomponent("VFREEBUSY");
   equal(fbComp.getFirstProperty("FREEBUSY").value, fbVal1);
   equal(fbComp.getNextProperty("FREEBUSY").value, fbVal2);
   equal(fbComp.getNextProperty("FREEBUSY").value, fbVal3);
 }
 
 function test_period() {
-  let period = Cc["@mozilla.org/calendar/period;1"].createInstance(Ci.calIPeriod);
+  const period = Cc["@mozilla.org/calendar/period;1"].createInstance(Ci.calIPeriod);
 
   period.start = cal.createDateTime("20120101T010101");
   period.end = cal.createDateTime("20120101T010102");
@@ -74,7 +74,7 @@ function test_period() {
   //   "Object is Immutable"
   // );
 
-  let copy = period.clone();
+  const copy = period.clone();
   equal(copy.start.icalString, "20120101T010105");
   equal(copy.end.icalString, "20120101T010106");
   equal(copy.duration.icalString, "PT1S");

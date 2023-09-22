@@ -25,7 +25,7 @@ let transport;
  */
 add_setup(async function () {
   requestLongerTimeout(5);
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
@@ -40,13 +40,13 @@ add_setup(async function () {
 
   calendar = CalendarTestUtils.createCalendar("Test");
   transport = new EmailTransport(account, identity);
-  let getImipTransport = cal.itip.getImipTransport;
+  const getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => transport;
 
-  let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+  const deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
     Ci.calIDeletedItems
   ).wrappedJSObject;
-  let markDeleted = deleteMgr.markDeleted;
+  const markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
   registerCleanupFunction(() => {
@@ -62,8 +62,8 @@ add_setup(async function () {
  */
 add_task(async function testMinorUpdateToAccepted() {
   transport.reset();
-  let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
-  let win = await openImipMessage(invite);
+  const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+  const win = await openImipMessage(invite);
   await clickAction(win, "imipAcceptRecurrencesButton");
 
   await BrowserTestUtils.closeWindow(win);
@@ -80,8 +80,8 @@ add_task(async function testMinorUpdateToAccepted() {
  */
 add_task(async function testMinorUpdateToTentative() {
   transport.reset();
-  let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
-  let win = await openImipMessage(invite);
+  const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+  const win = await openImipMessage(invite);
   await clickAction(win, "imipTentativeRecurrencesButton");
 
   await BrowserTestUtils.closeWindow(win);
@@ -98,8 +98,8 @@ add_task(async function testMinorUpdateToTentative() {
  */
 add_task(async function testMinorUpdateToDeclined() {
   transport.reset();
-  let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
-  let win = await openImipMessage(invite);
+  const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+  const win = await openImipMessage(invite);
   await clickAction(win, "imipDeclineRecurrencesButton");
 
   await BrowserTestUtils.closeWindow(win);
@@ -110,10 +110,10 @@ add_task(async function testMinorUpdateToDeclined() {
  * Tests a major update to an already accepted event.
  */
 add_task(async function testMajorUpdateToAcceptedWithResponse() {
-  for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
+  for (const partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
-    let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
-    let win = await openImipMessage(invite);
+    const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+    const win = await openImipMessage(invite);
     await clickAction(win, "imipAcceptRecurrencesButton");
 
     await BrowserTestUtils.closeWindow(win);
@@ -131,10 +131,10 @@ add_task(async function testMajorUpdateToAcceptedWithResponse() {
  * Tests a major update to an already tentatively accepted event.
  */
 add_task(async function testMajorUpdateToTentativeWithResponse() {
-  for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
+  for (const partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
-    let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
-    let win = await openImipMessage(invite);
+    const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+    const win = await openImipMessage(invite);
     await clickAction(win, "imipTentativeRecurrencesButton");
 
     await BrowserTestUtils.closeWindow(win);
@@ -152,10 +152,10 @@ add_task(async function testMajorUpdateToTentativeWithResponse() {
  * Tests a major update to an already declined event.
  */
 add_task(async function testMajorUpdateToDeclinedWithResponse() {
-  for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
+  for (const partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
-    let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
-    let win = await openImipMessage(invite);
+    const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+    const win = await openImipMessage(invite);
     await clickAction(win, "imipDeclineRecurrencesButton");
 
     await BrowserTestUtils.closeWindow(win);
@@ -174,10 +174,10 @@ add_task(async function testMajorUpdateToDeclinedWithResponse() {
  * update.
  */
 add_task(async function testMajorUpdateToAcceptedWithoutResponse() {
-  for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
+  for (const partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
-    let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
-    let win = await openImipMessage(invite);
+    const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+    const win = await openImipMessage(invite);
     await clickMenuAction(
       win,
       "imipAcceptRecurrencesButton",
@@ -200,10 +200,10 @@ add_task(async function testMajorUpdateToAcceptedWithoutResponse() {
  * to the update.
  */
 add_task(async function testMajorUpdateToTentativeWithoutResponse() {
-  for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
+  for (const partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
-    let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
-    let win = await openImipMessage(invite);
+    const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+    const win = await openImipMessage(invite);
     await clickMenuAction(
       win,
       "imipTentativeRecurrencesButton",
@@ -225,10 +225,10 @@ add_task(async function testMajorUpdateToTentativeWithoutResponse() {
  * Tests a major update to an already declined event.
  */
 add_task(async function testMajorUpdateToDeclinedWithoutResponse() {
-  for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
+  for (const partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     transport.reset();
-    let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
-    let win = await openImipMessage(invite);
+    const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+    const win = await openImipMessage(invite);
     await clickMenuAction(
       win,
       "imipDeclineRecurrencesButton",

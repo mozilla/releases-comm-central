@@ -6,7 +6,7 @@ var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { HttpServer } = ChromeUtils.import("resource://testing-common/httpd.js");
 
 function run_test() {
-  let httpserv = new HttpServer();
+  const httpserv = new HttpServer();
   httpserv.registerPrefixHandler("/", {
     handle(request, response) {
       response.setStatusLine(request.httpVersion, 200, "OK");
@@ -15,7 +15,7 @@ function run_test() {
   });
   httpserv.start(-1);
 
-  let baseUri = "://localhost:" + httpserv.identity.primaryPort + "/test_webcal";
+  const baseUri = "://localhost:" + httpserv.identity.primaryPort + "/test_webcal";
   add_test(check_webcal_uri.bind(null, "webcal" + baseUri));
   // TODO webcals needs bug 466524 to be fixed
   // add_test(check_webcal_uri.bind(null, "webcals" + baseUri));
@@ -26,9 +26,9 @@ function run_test() {
 }
 
 function check_webcal_uri(aUri) {
-  let uri = Services.io.newURI(aUri);
+  const uri = Services.io.newURI(aUri);
 
-  let channel = Services.io.newChannelFromURI(
+  const channel = Services.io.newChannelFromURI(
     uri,
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),

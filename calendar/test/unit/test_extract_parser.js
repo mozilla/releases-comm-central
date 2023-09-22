@@ -13,9 +13,9 @@ var { CalExtractParseNode, extendParseRule, prepareArguments } = ChromeUtils.imp
  * Tests to ensure extendParseRule() expands parse rules as we desire.
  */
 add_task(function testExtendParseRule() {
-  let action = () => {};
+  const action = () => {};
 
-  let tests = [
+  const tests = [
     {
       name: "parse rules are expanded correctly",
       input: {
@@ -91,7 +91,7 @@ add_task(function testExtendParseRule() {
     },
   ];
 
-  for (let test of tests) {
+  for (const test of tests) {
     info(`Test extendParseRule(): ${test.name}`);
     compareExtractResults(extendParseRule(test.input), test.expected);
   }
@@ -101,7 +101,7 @@ add_task(function testExtendParseRule() {
  * Tests prepareArguments() gives the correct arguments.
  */
 add_task(function testReconcileArguments() {
-  let tests = [
+  const tests = [
     {
       name: "patterns without no flags bits are untouched",
       rule: {
@@ -153,7 +153,7 @@ add_task(function testReconcileArguments() {
     },
   ];
 
-  for (let test of tests) {
+  for (const test of tests) {
     info(`Test prepareArguments(): ${test.name}`);
     compareExtractResults(prepareArguments(test.rule, test.matched), test.expected);
   }

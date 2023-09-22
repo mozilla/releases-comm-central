@@ -21,14 +21,14 @@ let calendar;
  * Initialize account, identity and calendar.
  */
 add_setup(async function () {
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
     "imap"
   );
 
-  let identity = MailServices.accounts.createIdentity();
+  const identity = MailServices.accounts.createIdentity();
   identity.email = "receiver@example.com";
   account.addIdentity(identity);
 
@@ -48,15 +48,15 @@ add_setup(async function () {
  * @param {string} freq Either "SECONDLY" or "MINUTELY"
  */
 async function doFreqTest(freq) {
-  let invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
+  const invite = new FileUtils.File(getTestFilePath("data/repeat-event.eml"));
   let srcText = await IOUtils.readUTF8(invite.path);
-  let tmpFile = FileTestUtils.getTempFile(`${freq}.eml`);
+  const tmpFile = FileTestUtils.getTempFile(`${freq}.eml`);
 
   srcText = srcText.replace(/RRULE:.*/g, `RRULE:FREQ=${freq}`);
   srcText = srcText.replace(/UID:.*/g, `UID:${freq}`);
   await IOUtils.writeUTF8(tmpFile.path, srcText);
 
-  let win = await openImipMessage(tmpFile);
+  const win = await openImipMessage(tmpFile);
   await clickMenuAction(
     win,
     "imipAcceptRecurrencesButton",
@@ -68,15 +68,15 @@ async function doFreqTest(freq) {
   await new Promise(resolve => setTimeout(resolve, 5000));
   await BrowserTestUtils.closeWindow(win);
 
-  let dayBoxItems = document.querySelectorAll("calendar-month-day-box-item");
+  const dayBoxItems = document.querySelectorAll("calendar-month-day-box-item");
   Assert.equal(dayBoxItems.length, 1, "only one occurrence displayed");
 
-  let [dayBox] = dayBoxItems;
-  let { item } = dayBox;
+  const [dayBox] = dayBoxItems;
+  const { item } = dayBox;
   Assert.equal(item.title, "Repeat Event");
   Assert.equal(item.startDate.icalString, "20220316T110000Z");
 
-  let summaryDialog = await CalendarTestUtils.viewItem(window, dayBox);
+  const summaryDialog = await CalendarTestUtils.viewItem(window, dayBox);
   Assert.equal(
     summaryDialog.document.querySelector(".repeat-details").textContent,
     "Repeat details unknown",

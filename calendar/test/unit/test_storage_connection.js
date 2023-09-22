@@ -11,19 +11,19 @@ add_setup(async function () {
  * Tests that local storage calendars share a database connection.
  */
 add_task(async function testLocal() {
-  let localCalendarA = cal.manager.createCalendar(
+  const localCalendarA = cal.manager.createCalendar(
     "storage",
     Services.io.newURI(`moz-storage-calendar://`)
   );
   localCalendarA.id = cal.getUUID();
-  let dbA = localCalendarA.wrappedJSObject.mStorageDb.db;
+  const dbA = localCalendarA.wrappedJSObject.mStorageDb.db;
 
-  let localCalendarB = cal.manager.createCalendar(
+  const localCalendarB = cal.manager.createCalendar(
     "storage",
     Services.io.newURI(`moz-storage-calendar://`)
   );
   localCalendarB.id = cal.getUUID();
-  let dbB = localCalendarB.wrappedJSObject.mStorageDb.db;
+  const dbB = localCalendarB.wrappedJSObject.mStorageDb.db;
 
   Assert.equal(
     dbA.databaseFile.path,
@@ -43,20 +43,20 @@ add_task(async function testLocal() {
  * and that local storage calendars with a different specified database file do not.
  */
 add_task(async function testLocalFile() {
-  let testFileA = new FileUtils.File(PathUtils.join(PathUtils.tempDir, "file-a.sqlite"));
-  let testFileB = new FileUtils.File(PathUtils.join(PathUtils.tempDir, "file-b.sqlite"));
+  const testFileA = new FileUtils.File(PathUtils.join(PathUtils.tempDir, "file-a.sqlite"));
+  const testFileB = new FileUtils.File(PathUtils.join(PathUtils.tempDir, "file-b.sqlite"));
 
-  let fileCalendarA = cal.manager.createCalendar("storage", Services.io.newFileURI(testFileA));
+  const fileCalendarA = cal.manager.createCalendar("storage", Services.io.newFileURI(testFileA));
   fileCalendarA.id = cal.getUUID();
-  let dbA = fileCalendarA.wrappedJSObject.mStorageDb.db;
+  const dbA = fileCalendarA.wrappedJSObject.mStorageDb.db;
 
-  let fileCalendarB = cal.manager.createCalendar("storage", Services.io.newFileURI(testFileB));
+  const fileCalendarB = cal.manager.createCalendar("storage", Services.io.newFileURI(testFileB));
   fileCalendarB.id = cal.getUUID();
-  let dbB = fileCalendarB.wrappedJSObject.mStorageDb.db;
+  const dbB = fileCalendarB.wrappedJSObject.mStorageDb.db;
 
-  let fileCalendarC = cal.manager.createCalendar("storage", Services.io.newFileURI(testFileA));
+  const fileCalendarC = cal.manager.createCalendar("storage", Services.io.newFileURI(testFileA));
   fileCalendarC.id = cal.getUUID();
-  let dbC = fileCalendarC.wrappedJSObject.mStorageDb.db;
+  const dbC = fileCalendarC.wrappedJSObject.mStorageDb.db;
 
   Assert.equal(
     dbA.databaseFile.path,
@@ -101,7 +101,7 @@ add_task(async function testNetwork() {
   networkCalendarA.setProperty("cache.enabled", true);
   cal.manager.registerCalendar(networkCalendarA);
   networkCalendarA = cal.manager.getCalendarById(networkCalendarA.id);
-  let dbA = networkCalendarA.wrappedJSObject.mCachedCalendar.wrappedJSObject.mStorageDb.db;
+  const dbA = networkCalendarA.wrappedJSObject.mCachedCalendar.wrappedJSObject.mStorageDb.db;
 
   let networkCalendarB = cal.manager.createCalendar(
     "caldav",
@@ -111,7 +111,7 @@ add_task(async function testNetwork() {
   networkCalendarB.setProperty("cache.enabled", true);
   cal.manager.registerCalendar(networkCalendarB);
   networkCalendarB = cal.manager.getCalendarById(networkCalendarB.id);
-  let dbB = networkCalendarB.wrappedJSObject.mCachedCalendar.wrappedJSObject.mStorageDb.db;
+  const dbB = networkCalendarB.wrappedJSObject.mCachedCalendar.wrappedJSObject.mStorageDb.db;
 
   Assert.equal(
     dbA.databaseFile.path,

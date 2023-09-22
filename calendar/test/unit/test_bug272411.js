@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-  let jsd = new Date();
-  let cdt = cal.dtz.jsDateToDateTime(jsd);
+  const jsd = new Date();
+  const cdt = cal.dtz.jsDateToDateTime(jsd);
 
-  let cdtTime = cal.dtz.dateTimeToJsDate(cdt).getTime() / 1000;
-  let jsdTime = Math.floor(jsd.getTime() / 1000);
+  const cdtTime = cal.dtz.dateTimeToJsDate(cdt).getTime() / 1000;
+  const jsdTime = Math.floor(jsd.getTime() / 1000);
 
   // calIDateTime is only accurate to the second, milliseconds need to be
   // stripped.

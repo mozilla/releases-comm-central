@@ -7,8 +7,8 @@ add_task(async () => {
     do_calendar_startup(resolve);
   });
 
-  let storage = getStorageCal();
-  let str = [
+  const storage = getStorageCal();
+  const str = [
     "BEGIN:VEVENT",
     "UID:attachItem",
     "DTSTART:20120101T010101Z",
@@ -21,21 +21,21 @@ add_task(async () => {
     "END:VEVENT",
   ].join("\r\n");
 
-  let storageItem = createEventFromIcalString(str);
+  const storageItem = createEventFromIcalString(str);
 
-  let addedItemId = (await storage.addItem(storageItem)).id;
+  const addedItemId = (await storage.addItem(storageItem)).id;
 
   // Make sure the cache is cleared, otherwise we'll get the cached item.
   delete storage.wrappedJSObject.mItemModel.itemCache[addedItemId];
 
-  let item = await storage.getItem(addedItemId);
+  const item = await storage.getItem(addedItemId);
 
   // Check start date
   equal(item.startDate.compare(cal.createDateTime("20120101T010101Z")), 0);
 
   // Check attachment
-  let attaches = item.getAttachments();
-  let attach = attaches[0];
+  const attaches = item.getAttachments();
+  const attach = attaches[0];
   equal(attaches.length, 1);
   equal(attach.uri.spec, "http://example.com/test.ics");
   equal(attach.formatType, "text/calendar");
@@ -43,8 +43,8 @@ add_task(async () => {
   equal(attach.getParameter("FILENAME"), "test.ics");
 
   // Check attendee
-  let attendees = item.getAttendees();
-  let attendee = attendees[0];
+  const attendees = item.getAttendees();
+  const attendee = attendees[0];
   equal(attendees.length, 1);
   equal(attendee.id, "mailto:test@example.com");
   equal(attendee.commonName, "Name");
@@ -56,15 +56,15 @@ add_task(async () => {
   equal(attendee.getProperty("X-THING"), "BAR");
 
   // Check relation
-  let relations = item.getRelations();
-  let rel = relations[0];
+  const relations = item.getRelations();
+  const rel = relations[0];
   equal(relations.length, 1);
   equal(rel.relType, "SIBLING");
   equal(rel.relId, "VALUE");
   equal(rel.getParameter("FOO"), "BAR");
 
   // Check recurrence item
-  for (let ritem of item.recurrenceInfo.getRecurrenceItems()) {
+  for (const ritem of item.recurrenceInfo.getRecurrenceItems()) {
     if (ritem instanceof Ci.calIRecurrenceRule) {
       equal(ritem.type, "MONTHLY");
       equal(ritem.interval, 2);

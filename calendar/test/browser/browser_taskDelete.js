@@ -15,7 +15,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
-let calendar = CalendarTestUtils.createCalendar("Task Delete Test", "memory");
+const calendar = CalendarTestUtils.createCalendar("Task Delete Test", "memory");
 registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
 /**
@@ -23,12 +23,12 @@ registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
  * and deletes one.
  */
 add_task(async function testTaskDeletion() {
-  let task1 = new CalTodo();
+  const task1 = new CalTodo();
   task1.id = "1";
   task1.title = "Task 1";
   task1.entryDate = cal.createDateTime("20210126T000001Z");
 
-  let task2 = new CalTodo();
+  const task2 = new CalTodo();
   task2.id = "2";
   task2.title = "Task 2";
   task2.entryDate = cal.createDateTime("20210127T000001Z");
@@ -38,8 +38,8 @@ add_task(async function testTaskDeletion() {
   await openTasksTab();
 
   let tree = document.querySelector("#calendar-task-tree");
-  let radio = document.querySelector("#opt_next7days_filter");
-  let waitForRefresh = BrowserTestUtils.waitForEvent(tree, "refresh");
+  const radio = document.querySelector("#opt_next7days_filter");
+  const waitForRefresh = BrowserTestUtils.waitForEvent(tree, "refresh");
   EventUtils.synthesizeMouseAtCenter(radio, {});
   tree.refresh();
 
@@ -93,8 +93,8 @@ add_task(async function testRecurringTaskDeletion() {
   await openTasksTab();
 
   let tree = document.querySelector("#calendar-task-tree");
-  let radio = document.querySelector("#opt_next7days_filter");
-  let waitForRefresh = BrowserTestUtils.waitForEvent(tree, "refresh");
+  const radio = document.querySelector("#opt_next7days_filter");
+  const waitForRefresh = BrowserTestUtils.waitForEvent(tree, "refresh");
   EventUtils.synthesizeMouseAtCenter(radio, {});
   tree.refresh();
 
@@ -102,13 +102,13 @@ add_task(async function testRecurringTaskDeletion() {
   Assert.equal(tree.view.rowCount, 4, "4 tasks are displayed");
 
   // Delete a single occurrence.
-  let handleSingleDelete = BrowserTestUtils.promiseAlertDialog(
+  const handleSingleDelete = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-occurrence-prompt.xhtml",
     {
       async callback(win) {
-        let dialog = win.document.querySelector("dialog");
-        let button = dialog.querySelector("#accept-occurrence-button");
+        const dialog = win.document.querySelector("dialog");
+        const button = dialog.querySelector("#accept-occurrence-button");
         EventUtils.synthesizeMouseAtCenter(button, {}, win);
       },
     }
@@ -150,13 +150,13 @@ add_task(async function testRecurringTaskDeletion() {
   );
 
   // Delete all occurrences
-  let handleAllDelete = BrowserTestUtils.promiseAlertDialog(
+  const handleAllDelete = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-occurrence-prompt.xhtml",
     {
       async callback(win) {
-        let dialog = win.document.querySelector("dialog");
-        let button = dialog.querySelector("#accept-parent-button");
+        const dialog = win.document.querySelector("dialog");
+        const button = dialog.querySelector("#accept-parent-button");
         EventUtils.synthesizeMouseAtCenter(button, {}, win);
       },
     }
@@ -179,7 +179,7 @@ add_task(async function testRecurringTaskDeletion() {
   repeatTask = await calendar.getItem(repeatTask.id);
   Assert.ok(!repeatTask, "all occurrences were removed");
 
-  let result = await calendar.getItem(nonRepeatTask.id);
+  const result = await calendar.getItem(nonRepeatTask.id);
   Assert.ok(result, "non-recurring task was not deleted");
   await closeTasksTab();
 });

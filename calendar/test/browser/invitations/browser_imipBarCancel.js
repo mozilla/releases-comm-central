@@ -23,7 +23,7 @@ let transport;
  * Initialize account, identity and calendar.
  */
 add_setup(async function () {
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
@@ -39,13 +39,13 @@ add_setup(async function () {
   calendar = CalendarTestUtils.createCalendar("Test");
   transport = new EmailTransport(account, identity);
 
-  let getImipTransport = cal.itip.getImipTransport;
+  const getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => transport;
 
-  let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+  const deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
     Ci.calIDeletedItems
   ).wrappedJSObject;
-  let markDeleted = deleteMgr.markDeleted;
+  const markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
   registerCleanupFunction(() => {
@@ -61,11 +61,11 @@ add_setup(async function () {
  */
 add_task(async function testCancelAccepted() {
   transport.reset();
-  let invite = new FileUtils.File(getTestFilePath("data/single-event.eml"));
-  let win = await openImipMessage(invite);
+  const invite = new FileUtils.File(getTestFilePath("data/single-event.eml"));
+  const win = await openImipMessage(invite);
   await clickAction(win, "imipAcceptButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await BrowserTestUtils.closeWindow(win);
   await doCancelTest({
     transport,
@@ -79,11 +79,11 @@ add_task(async function testCancelAccepted() {
  */
 add_task(async function testCancelTentative() {
   transport.reset();
-  let invite = new FileUtils.File(getTestFilePath("data/single-event.eml"));
-  let win = await openImipMessage(invite);
+  const invite = new FileUtils.File(getTestFilePath("data/single-event.eml"));
+  const win = await openImipMessage(invite);
   await clickAction(win, "imipTentativeButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await BrowserTestUtils.closeWindow(win);
   await doCancelTest({
     transport,
@@ -97,11 +97,11 @@ add_task(async function testCancelTentative() {
  */
 add_task(async function testCancelDeclined() {
   transport.reset();
-  let invite = new FileUtils.File(getTestFilePath("data/single-event.eml"));
-  let win = await openImipMessage(invite);
+  const invite = new FileUtils.File(getTestFilePath("data/single-event.eml"));
+  const win = await openImipMessage(invite);
   await clickAction(win, "imipDeclineButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await BrowserTestUtils.closeWindow(win);
   await doCancelTest({
     transport,
@@ -116,13 +116,13 @@ add_task(async function testCancelDeclined() {
  */
 add_task(async function testUnprocessedCancel() {
   transport.reset();
-  let invite = new FileUtils.File(getTestFilePath("data/cancel-single-event.eml"));
-  let win = await openImipMessage(invite);
+  const invite = new FileUtils.File(getTestFilePath("data/cancel-single-event.eml"));
+  const win = await openImipMessage(invite);
 
   // There should be no buttons present because there is no action to take.
   // Note: the imip-bar message "This message contains an event that has already been processed" is
   // misleading.
-  for (let button of [...win.document.querySelectorAll("#imip-view-toolbar > toolbarbutton")]) {
+  for (const button of [...win.document.querySelectorAll("#imip-view-toolbar > toolbarbutton")]) {
     Assert.ok(button.hidden, `${button.id} is hidden`);
   }
   await BrowserTestUtils.closeWindow(win);

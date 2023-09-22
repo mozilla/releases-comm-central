@@ -20,14 +20,14 @@ registerCleanupFunction(() => {
 });
 
 function createNonRecurringEvent() {
-  let event = new CalEvent();
+  const event = new CalEvent();
   event.title = "Non-Recurring Event";
   event.startDate = cal.createDateTime("20191201T000001Z");
   return event;
 }
 
 function createRecurringEvent() {
-  let event = new CalEvent();
+  const event = new CalEvent();
   event.title = "Recurring Event";
   event.startDate = cal.createDateTime("20200101T000001Z");
   event.recurrenceInfo = new CalRecurrenceInfo(event);
@@ -39,12 +39,12 @@ function createRecurringEvent() {
  * Test the correct edit button is shown for a non-recurring event.
  */
 add_task(async function testNonRecurringEvent() {
-  let event = await calendar.addItem(createNonRecurringEvent());
+  const event = await calendar.addItem(createNonRecurringEvent());
   await CalendarTestUtils.setCalendarView(window, "month");
   window.goToDate(event.startDate);
 
-  let eventWindow = await CalendarTestUtils.monthView.viewItemAt(window, 1, 1, 1);
-  let editMenuButton = eventWindow.document.querySelector(
+  const eventWindow = await CalendarTestUtils.monthView.viewItemAt(window, 1, 1, 1);
+  const editMenuButton = eventWindow.document.querySelector(
     "#calendar-summary-dialog-edit-menu-button"
   );
 
@@ -53,7 +53,7 @@ add_task(async function testNonRecurringEvent() {
     "edit dropdown is not visible for non-recurring event"
   );
 
-  let editButton = eventWindow.document.querySelector("#calendar-summary-dialog-edit-button");
+  const editButton = eventWindow.document.querySelector("#calendar-summary-dialog-edit-button");
 
   Assert.ok(
     BrowserTestUtils.is_visible(editButton),
@@ -67,11 +67,11 @@ add_task(async function testNonRecurringEvent() {
  * Test the edit button for a non-recurring event actual edits the event.
  */
 add_task(async function testEditNonRecurringEvent() {
-  let event = await calendar.addItem(createNonRecurringEvent());
+  const event = await calendar.addItem(createNonRecurringEvent());
   await CalendarTestUtils.setCalendarView(window, "month");
   window.goToDate(event.startDate);
 
-  let modificationPromise = new Promise(resolve => {
+  const modificationPromise = new Promise(resolve => {
     calendar.wrappedJSObject.addObserver({
       QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
       onModifyItem(aNewItem, aOldItem) {
@@ -81,21 +81,21 @@ add_task(async function testEditNonRecurringEvent() {
     });
   });
 
-  let { dialogWindow, iframeDocument } = await CalendarTestUtils.monthView.editItemAt(
+  const { dialogWindow, iframeDocument } = await CalendarTestUtils.monthView.editItemAt(
     window,
     1,
     1,
     1
   );
 
-  let newTitle = "Edited Non-Recurring Event";
+  const newTitle = "Edited Non-Recurring Event";
   iframeDocument.querySelector("#item-title").value = newTitle;
 
   await CalendarTestUtils.items.saveAndCloseItemDialog(dialogWindow);
   await modificationPromise;
 
-  let viewWindow = await CalendarTestUtils.monthView.viewItemAt(window, 1, 1, 1);
-  let actualTitle = viewWindow.document.querySelector(
+  const viewWindow = await CalendarTestUtils.monthView.viewItemAt(window, 1, 1, 1);
+  const actualTitle = viewWindow.document.querySelector(
     "#calendar-item-summary .item-title"
   ).textContent;
 
@@ -108,11 +108,11 @@ add_task(async function testEditNonRecurringEvent() {
  * Tests the dropdown menu is displayed for a recurring event.
  */
 add_task(async function testRecurringEvent() {
-  let event = await calendar.addItem(createRecurringEvent());
+  const event = await calendar.addItem(createRecurringEvent());
   await CalendarTestUtils.setCalendarView(window, "month");
   window.goToDate(event.startDate);
 
-  let viewWindow = await CalendarTestUtils.monthView.viewItemAt(window, 1, 6, 1);
+  const viewWindow = await CalendarTestUtils.monthView.viewItemAt(window, 1, 6, 1);
 
   Assert.ok(
     !BrowserTestUtils.is_visible(
@@ -142,7 +142,7 @@ add_task(async function testEditThisOccurrence() {
   await CalendarTestUtils.setCalendarView(window, "month");
   window.goToDate(event.startDate);
 
-  let modificationPromise = new Promise(resolve => {
+  const modificationPromise = new Promise(resolve => {
     calendar.wrappedJSObject.addObserver({
       QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
       onModifyItem(aNewItem, aOldItem) {
@@ -152,25 +152,25 @@ add_task(async function testEditThisOccurrence() {
     });
   });
 
-  let { dialogWindow, iframeDocument } = await CalendarTestUtils.monthView.editItemOccurrenceAt(
+  const { dialogWindow, iframeDocument } = await CalendarTestUtils.monthView.editItemOccurrenceAt(
     window,
     1,
     6,
     1
   );
 
-  let originalTitle = event.title;
-  let newTitle = "Edited This Occurrence";
+  const originalTitle = event.title;
+  const newTitle = "Edited This Occurrence";
 
   iframeDocument.querySelector("#item-title").value = newTitle;
   await CalendarTestUtils.items.saveAndCloseItemDialog(dialogWindow);
 
   await modificationPromise;
 
-  let changedBox = await CalendarTestUtils.monthView.waitForItemAt(window, 1, 6, 1);
-  let eventBoxes = document.querySelectorAll("calendar-month-day-box-item");
+  const changedBox = await CalendarTestUtils.monthView.waitForItemAt(window, 1, 6, 1);
+  const eventBoxes = document.querySelectorAll("calendar-month-day-box-item");
 
-  for (let box of eventBoxes) {
+  for (const box of eventBoxes) {
     if (box !== changedBox) {
       Assert.equal(
         box.item.title,
@@ -189,34 +189,34 @@ add_task(async function testEditThisOccurrence() {
  * edited.
  */
 add_task(async function testEditAllOccurrences() {
-  let event = await calendar.addItem(createRecurringEvent());
+  const event = await calendar.addItem(createRecurringEvent());
 
   await CalendarTestUtils.setCalendarView(window, "month");
   window.goToDate(event.startDate);
 
   // Setup an observer so we can wait for the event boxes to be updated.
   let boxesRefreshed = false;
-  let observer = new MutationObserver(() => (boxesRefreshed = true));
+  const observer = new MutationObserver(() => (boxesRefreshed = true));
   observer.observe(document.querySelector("#month-view"), {
     childList: true,
     subtree: true,
   });
 
-  let { dialogWindow, iframeDocument } = await CalendarTestUtils.monthView.editItemOccurrencesAt(
+  const { dialogWindow, iframeDocument } = await CalendarTestUtils.monthView.editItemOccurrencesAt(
     window,
     1,
     6,
     1
   );
 
-  let newTitle = "Edited All Occurrences";
+  const newTitle = "Edited All Occurrences";
 
   iframeDocument.querySelector("#item-title").value = newTitle;
   await CalendarTestUtils.items.saveAndCloseItemDialog(dialogWindow);
   await TestUtils.waitForCondition(() => boxesRefreshed, "event boxes did not refresh in time");
 
-  let eventBoxes = document.querySelectorAll("calendar-month-day-box-item");
-  for (let box of eventBoxes) {
+  const eventBoxes = document.querySelectorAll("calendar-month-day-box-item");
+  for (const box of eventBoxes) {
     Assert.equal(box.item.title, newTitle, '"Edit all occurrences" edited each occurrence');
   }
   await calendar.deleteItem(event);

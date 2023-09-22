@@ -29,7 +29,7 @@ add_task(async function () {
 
   calendarObserver._onAddItemPromise = PromiseUtils.defer();
   calendarObserver._onLoadPromise = PromiseUtils.defer();
-  let calendar = createCalendar("ics", ICSServer.url, true);
+  const calendar = createCalendar("ics", ICSServer.url, true);
   await calendarObserver._onAddItemPromise.promise;
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");

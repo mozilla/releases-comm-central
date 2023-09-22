@@ -15,10 +15,10 @@ var { CalReadableStreamFactory } = ChromeUtils.import(
  * Test streamValues() iterates over all values found in a stream.
  */
 add_task(async function testStreamValues() {
-  let src = Array(10)
+  const src = Array(10)
     .fill(null)
     .map((_, i) => i + 1);
-  let stream = CalReadableStreamFactory.createReadableStream({
+  const stream = CalReadableStreamFactory.createReadableStream({
     start(controller) {
       for (let i = 0; i < src.length; i++) {
         controller.enqueue(src[i]);
@@ -27,8 +27,8 @@ add_task(async function testStreamValues() {
     },
   });
 
-  let dest = [];
-  for await (let value of cal.iterate.streamValues(stream)) {
+  const dest = [];
+  for await (const value of cal.iterate.streamValues(stream)) {
     dest.push(value);
   }
   Assert.ok(

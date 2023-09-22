@@ -10,8 +10,8 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 function run_test() {
-  let evt = new CalEvent();
-  let rel = new CalRelation();
+  const evt = new CalEvent();
+  const rel = new CalRelation();
   evt.addRelation(rel);
 
   equal(1, evt.icalString.match(/RELATED-TO/g).length);

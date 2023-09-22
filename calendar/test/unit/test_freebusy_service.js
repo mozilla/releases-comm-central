@@ -20,21 +20,21 @@ function test_found() {
 
   equal(_countProviders(), 0);
 
-  let provider1 = {
+  const provider1 = {
     id: 1,
     getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       aListener.onResult(null, []);
     },
   };
 
-  let provider2 = {
+  const provider2 = {
     id: 2,
     called: false,
     getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       ok(!this.called);
       this.called = true;
 
-      let interval = new cal.provider.FreeBusyInterval(
+      const interval = new cal.provider.FreeBusyInterval(
         aCalId,
         Ci.calIFreeBusyInterval.BUSY,
         aStart,
@@ -53,7 +53,7 @@ function test_found() {
   equal(_countProviders(), 1);
   equal(_getFirstProvider().id, 2);
 
-  let listener = {
+  const listener = {
     called: false,
     onResult(request, result) {
       equal(result.length, 1);
@@ -80,7 +80,7 @@ function test_found() {
 function test_noproviders() {
   _clearProviders();
 
-  let listener = {
+  const listener = {
     onResult(request, result) {
       ok(!this.called);
       equal(result.length, 0);
@@ -102,7 +102,7 @@ function test_noproviders() {
 function test_failure() {
   _clearProviders();
 
-  let provider = {
+  const provider = {
     called: false,
     getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       ok(!this.called);
@@ -111,7 +111,7 @@ function test_failure() {
     },
   };
 
-  let listener = {
+  const listener = {
     onResult(request, result) {
       ok(!this.called);
       equal(result.length, 0);
@@ -136,7 +136,7 @@ function test_failure() {
 function test_cancel() {
   _clearProviders();
 
-  let provider = {
+  const provider = {
     QueryInterface: ChromeUtils.generateQI(["calIFreeBusyProvider", "calIOperation"]),
     getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       Services.tm.currentThread.dispatch(
@@ -162,7 +162,7 @@ function test_cancel() {
     },
   };
 
-  let listener = {
+  const listener = {
     called: false,
     onResult(request, result) {
       equal(result, null);
@@ -176,7 +176,7 @@ function test_cancel() {
   freebusy.addProvider(provider);
 
   do_test_pending();
-  let operation = freebusy.getFreeBusyIntervals(
+  const operation = freebusy.getFreeBusyIntervals(
     "email",
     cal.createDateTime("20120101T010101"),
     cal.createDateTime("20120102T010101"),

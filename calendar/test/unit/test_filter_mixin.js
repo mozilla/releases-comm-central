@@ -42,13 +42,13 @@ class TestCalFilter extends CalendarFilteredViewMixin(class {}) {
   }
 }
 
-let testItems = {};
-let addedTestItems = {};
+const testItems = {};
+const addedTestItems = {};
 
 add_setup(async function () {
   await new Promise(resolve => do_calendar_startup(resolve));
 
-  for (let [title, startDate, endDate] of [
+  for (const [title, startDate, endDate] of [
     ["before", "20210720", "20210721"],
     ["during", "20210820", "20210821"],
     ["after", "20210920", "20210921"],
@@ -56,7 +56,7 @@ add_setup(async function () {
     ["overlaps_end", "20210820", "20210904"],
     ["overlaps_both", "20210720", "20210904"],
   ]) {
-    let item = new CalEvent();
+    const item = new CalEvent();
     item.id = cal.getUUID();
     item.title = title;
     item.startDate = cal.createDateTime(startDate);
@@ -64,7 +64,7 @@ add_setup(async function () {
     testItems[title] = item;
   }
 
-  let repeatingItem = new CalEvent();
+  const repeatingItem = new CalEvent();
   repeatingItem.id = cal.getUUID();
   repeatingItem.title = "repeating";
   repeatingItem.startDate = cal.createDateTime("20210818T120000");
@@ -79,13 +79,13 @@ add_setup(async function () {
 add_task(async function testAddItems() {
   const { calendar, testWidget } = await initializeCalendarAndTestWidget();
 
-  for (let title of ["before", "after"]) {
+  for (const title of ["before", "after"]) {
     testWidget.clearItems();
     addedTestItems[title] = await calendar.addItem(testItems[title]);
     Assert.equal(testWidget.addedItems.length, 0);
   }
 
-  for (let title of ["during", "overlaps_start", "overlaps_end", "overlaps_both"]) {
+  for (const title of ["during", "overlaps_start", "overlaps_end", "overlaps_both"]) {
     testWidget.clearItems();
     addedTestItems[title] = await calendar.addItem(testItems[title]);
 
@@ -185,13 +185,13 @@ add_task(async function testRefresh() {
 add_task(async function testRemoveItems() {
   const { calendar, testWidget } = await initializeCalendarAndTestWidget();
 
-  for (let title of ["before", "after"]) {
+  for (const title of ["before", "after"]) {
     testWidget.clearItems();
     await calendar.deleteItem(addedTestItems[title]);
     Assert.equal(testWidget.removedItems.length, 0);
   }
 
-  for (let title of ["during", "overlaps_start", "overlaps_end", "overlaps_both"]) {
+  for (const title of ["during", "overlaps_start", "overlaps_end", "overlaps_both"]) {
     testWidget.clearItems();
     await calendar.deleteItem(addedTestItems[title]);
 
@@ -232,10 +232,10 @@ add_task(async function testModifyItem() {
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.addedItems[0].title, "change me");
 
-  let changedItem = item.clone();
+  const changedItem = item.clone();
   changedItem.title = "changed";
 
-  let addedItems = testWidget.addedItems.slice();
+  const addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
   await calendar.modifyItem(changedItem, item);
 
@@ -271,11 +271,11 @@ add_task(async function testMoveItemWithinRange() {
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.addedItems[0].title, "move me");
 
-  let changedItem = item.clone();
+  const changedItem = item.clone();
   changedItem.startDate = cal.createDateTime("20210805T180000");
   changedItem.endDate = cal.createDateTime("20210805T190000");
 
-  let addedItems = testWidget.addedItems.slice();
+  const addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
   await calendar.modifyItem(changedItem, item);
 
@@ -311,11 +311,11 @@ add_task(async function testMoveItemOutOfRange() {
   Assert.equal(testWidget.addedItems.length, 1);
   Assert.equal(testWidget.addedItems[0].title, "move me");
 
-  let changedItem = item.clone();
+  const changedItem = item.clone();
   changedItem.startDate = cal.createDateTime("20210905T170000");
   changedItem.endDate = cal.createDateTime("20210905T180000");
 
-  let addedItems = testWidget.addedItems.slice();
+  const addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
   await calendar.modifyItem(changedItem, item);
 
@@ -347,7 +347,7 @@ add_task(async function testMoveItemInToRange() {
 
   Assert.equal(testWidget.addedItems.length, 0);
 
-  let changedItem = item.clone();
+  const changedItem = item.clone();
   changedItem.startDate = cal.createDateTime("20210805T170000");
   changedItem.endDate = cal.createDateTime("20210805T180000");
 
@@ -386,10 +386,10 @@ add_task(async function testModifyRecurringItem() {
   Assert.equal(testWidget.addedItems[1].title, "change me");
   Assert.equal(testWidget.addedItems[2].title, "change me");
 
-  let changedItem = item.clone();
+  const changedItem = item.clone();
   changedItem.title = "changed";
 
-  let addedItems = testWidget.addedItems.slice();
+  const addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
   await calendar.modifyItem(changedItem, item);
 
@@ -439,7 +439,7 @@ add_task(async function testMoveRecurringItemWithinRange() {
   Assert.equal(testWidget.addedItems[1].title, "move me");
   Assert.equal(testWidget.addedItems[2].title, "move me");
 
-  let changedItem = item.clone();
+  const changedItem = item.clone();
   changedItem.startDate = cal.createDateTime("20210805T180000");
   changedItem.endDate = cal.createDateTime("20210805T190000");
 
@@ -503,11 +503,11 @@ add_task(async function testMoveRecurringItemOutOfRange() {
   Assert.equal(testWidget.addedItems[1].title, "move me");
   Assert.equal(testWidget.addedItems[2].title, "move me");
 
-  let changedItem = item.clone();
+  const changedItem = item.clone();
   changedItem.startDate = cal.createDateTime("20210905T170000");
   changedItem.endDate = cal.createDateTime("20210905T180000");
 
-  let addedItems = testWidget.addedItems.slice();
+  const addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
   await calendar.modifyItem(changedItem, item);
 
@@ -545,7 +545,7 @@ add_task(async function testMoveRecurringItemInToRange() {
 
   Assert.equal(testWidget.addedItems.length, 0);
 
-  let changedItem = item.clone();
+  const changedItem = item.clone();
   changedItem.startDate = cal.createDateTime("20210805T170000");
   changedItem.endDate = cal.createDateTime("20210805T180000");
 
@@ -590,15 +590,15 @@ add_task(async function testModifyOccurrence() {
   Assert.equal(testWidget.addedItems[1].title, "change me");
   Assert.equal(testWidget.addedItems[2].title, "change me");
 
-  let occurrences = item.recurrenceInfo.getOccurrences(
+  const occurrences = item.recurrenceInfo.getOccurrences(
     testWidget.startDate,
     testWidget.endDate,
     100
   );
-  let changedOccurrence = occurrences[1].clone();
+  const changedOccurrence = occurrences[1].clone();
   changedOccurrence.title = "changed";
 
-  let addedItems = testWidget.addedItems.slice();
+  const addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
   await calendar.modifyItem(
     cal.itip.prepareSequence(changedOccurrence, occurrences[1]),
@@ -648,15 +648,15 @@ add_task(async function testDeleteOccurrence() {
   Assert.equal(testWidget.addedItems[1].title, "change me");
   Assert.equal(testWidget.addedItems[2].title, "change me");
 
-  let changedItem = item.clone();
-  let occurrences = changedItem.recurrenceInfo.getOccurrences(
+  const changedItem = item.clone();
+  const occurrences = changedItem.recurrenceInfo.getOccurrences(
     testWidget.startDate,
     testWidget.endDate,
     100
   );
   changedItem.recurrenceInfo.removeOccurrenceAt(occurrences[1].recurrenceId);
 
-  let addedItems = testWidget.addedItems.slice();
+  const addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
   await calendar.modifyItem(changedItem, item);
 
@@ -701,16 +701,16 @@ add_task(async function testMoveOccurrenceWithinRange() {
   Assert.equal(testWidget.addedItems[1].title, "move me");
   Assert.equal(testWidget.addedItems[2].title, "move me");
 
-  let occurrences = item.recurrenceInfo.getOccurrences(
+  const occurrences = item.recurrenceInfo.getOccurrences(
     testWidget.startDate,
     testWidget.endDate,
     100
   );
-  let changedOccurrence = occurrences[1].clone();
+  const changedOccurrence = occurrences[1].clone();
   changedOccurrence.startDate = cal.createDateTime("20210806T173000");
   changedOccurrence.endDate = cal.createDateTime("20210806T183000");
 
-  let addedItems = testWidget.addedItems.slice();
+  const addedItems = testWidget.addedItems.slice();
   testWidget.clearItems();
   await calendar.modifyItem(
     cal.itip.prepareSequence(changedOccurrence, occurrences[1]),
@@ -786,7 +786,7 @@ add_task(async function testChangeTaskCompletion() {
 
   // Mark the task as incomplete again. It should be added back to the widget.
 
-  let incompleteAgainItem = completeTask.clone();
+  const incompleteAgainItem = completeTask.clone();
   incompleteAgainItem.title = "incomplete again task";
   incompleteAgainItem.percentComplete = 50;
 
@@ -889,7 +889,7 @@ add_task(async function testChangeWhileHidden() {
   Assert.equal(testWidget.addedItems.length, 0);
   Assert.equal(testWidget.removedItems.length, 0);
 
-  let changedItem = item.clone();
+  const changedItem = item.clone();
   changedItem.title = "changed";
   await calendar.modifyItem(changedItem, item);
 
@@ -908,7 +908,7 @@ add_task(async function testChangeWhileHidden() {
 add_task(async function testChangeWhileRefreshing() {
   // Create a calendar we can control the output of.
 
-  let pumpCalendar = {
+  const pumpCalendar = {
     type: "pump",
     uri: Services.io.newURI("pump:test-calendar"),
     getProperty(name) {
@@ -934,11 +934,11 @@ add_task(async function testChangeWhileRefreshing() {
 
   // Create a new widget and a Promise waiting for it to be ready.
 
-  let widget = new TestCalFilter();
+  const widget = new TestCalFilter();
   widget.id = "test-filter";
   widget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
 
-  let ready1 = widget.ready;
+  const ready1 = widget.ready;
   let ready1Resolved, ready1Rejected;
   ready1.then(
     arg => {
@@ -1019,7 +1019,7 @@ add_task(async function testChangeWhileRefreshing() {
   // Force refresh again. There should be a new ready Promise, since the old one was resolved and
   // we forced a refresh.
 
-  let ready2 = widget.refreshItems(true);
+  const ready2 = widget.refreshItems(true);
   Assert.notEqual(ready2, ready1, ".refreshItems should return a new Promise");
   Assert.equal(widget.addedItems.length, 0, "items were cleared");
 
@@ -1034,7 +1034,7 @@ add_task(async function testChangeWhileRefreshing() {
   // the item type changed.
 
   widget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_EVENT;
-  let ready3 = widget.ready;
+  const ready3 = widget.ready;
   Assert.notEqual(ready3, ready2, ".ready should return a new Promise");
   Assert.equal(widget.refreshItems(), ready3, ".refreshItems should return the same Promise");
   Assert.equal(widget.addedItems.length, 0, "items were cleared");
@@ -1050,7 +1050,7 @@ add_task(async function testChangeWhileRefreshing() {
   // the start date changed.
 
   widget.startDate = cal.createDateTime("20220317");
-  let ready4 = widget.ready;
+  const ready4 = widget.ready;
   Assert.notEqual(ready4, ready3, ".ready should return a new Promise");
   Assert.equal(widget.refreshItems(), ready4, ".refreshItems should return the same Promise");
 
@@ -1061,7 +1061,7 @@ add_task(async function testChangeWhileRefreshing() {
   // the end date changed.
 
   widget.endDate = cal.createDateTime("20220318");
-  let ready5 = widget.ready;
+  const ready5 = widget.ready;
   Assert.notEqual(ready5, ready4, ".ready should return a new Promise");
   Assert.equal(widget.refreshItems(), ready5, ".refreshItems should return the same Promise");
 

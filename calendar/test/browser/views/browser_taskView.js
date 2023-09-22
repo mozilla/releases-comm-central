@@ -14,7 +14,7 @@ const DESCRIPTION = "1. Do A\n2. Do B";
 const PERCENTCOMPLETE = "50";
 
 add_task(async function () {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -25,15 +25,15 @@ add_task(async function () {
   await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
   // Make sure that testing calendar is selected.
-  let calList = document.querySelector(`#calendar-list > [calendar-id="${calendar.id}"]`);
+  const calList = document.querySelector(`#calendar-list > [calendar-id="${calendar.id}"]`);
   Assert.ok(calList);
   EventUtils.synthesizeMouseAtCenter(calList, {}, window);
 
-  let taskTreeNode = document.getElementById("calendar-task-tree");
+  const taskTreeNode = document.getElementById("calendar-task-tree");
   Assert.equal(taskTreeNode.mTaskArray.length, 0);
 
   // Add task.
-  let taskInput = document.getElementById("view-task-edit-field");
+  const taskInput = document.getElementById("view-task-edit-field");
   taskInput.focus();
   EventUtils.sendString(TITLE, window);
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
@@ -50,8 +50,8 @@ add_task(async function () {
   // Open added task
   // Double-click on completion checkbox is ignored as opening action, so don't
   // click at immediate left where the checkbox is located.
-  let eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
-  let treeChildren = document.querySelector("#calendar-task-tree .calendar-task-treechildren");
+  const eventWindowPromise = CalendarTestUtils.waitForEventDialog("edit");
+  const treeChildren = document.querySelector("#calendar-task-tree .calendar-task-treechildren");
   Assert.ok(treeChildren);
   EventUtils.synthesizeMouse(treeChildren, 50, 0, { clickCount: 2 }, window);
 
@@ -74,7 +74,7 @@ add_task(async function () {
 
   // Verify description and status in details pane.
   await TestUtils.waitForCondition(() => {
-    let desc = document.getElementById("calendar-task-details-description");
+    const desc = document.getElementById("calendar-task-details-description");
     return desc && desc.contentDocument.body.innerText == DESCRIPTION;
   }, "Calendar task description");
   Assert.equal(document.getElementById("calendar-task-details-status").textContent, "Needs Action");
@@ -87,7 +87,7 @@ add_task(async function () {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, MID_SLEEP));
 
-  let priorityMenu = document.querySelector(
+  const priorityMenu = document.querySelector(
     "#task-actions-priority-menupopup > .priority-1-menuitem"
   );
   Assert.ok(priorityMenu);
@@ -98,7 +98,7 @@ add_task(async function () {
   );
 
   // Verify that tooltip shows status, priority and percent complete.
-  let toolTipNode = document.getElementById("taskTreeTooltip");
+  const toolTipNode = document.getElementById("taskTreeTooltip");
   toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
 
   function getTooltipDescription(index) {
@@ -141,7 +141,7 @@ add_task(async function () {
     "Task did not delete"
   );
 
-  let tabmail = document.getElementById("tabmail");
+  const tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tabmail.currentTabInfo);
 
   Assert.ok(true, "Test ran to completion");

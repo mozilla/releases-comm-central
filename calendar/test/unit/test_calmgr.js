@@ -64,14 +64,14 @@ add_test(function test_builtin_registration() {
   checkCalendarCount(0, 0, 0);
 
   // Create a local memory calendar, this shouldn't register any calendars.
-  let memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
   checkCalendarCount(0, 0, 0);
 
   // Register an observer to test it.
-  let calmgrObserver = new CalendarManagerObserver();
+  const calmgrObserver = new CalendarManagerObserver();
 
   let readOnly = false;
-  let calendarObserver = cal.createAdapter(Ci.calIObserver, {
+  const calendarObserver = cal.createAdapter(Ci.calIObserver, {
     onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
       equal(aCalendar.id, memory.id);
       equal(aName, "readOnly");
@@ -144,9 +144,9 @@ add_task(async function test_dynamic_registration() {
   }
 
   function checkCalendar(expectedCount = 1) {
-    let calendars = cal.manager.getCalendars();
+    const calendars = cal.manager.getCalendars();
     equal(calendars.length, expectedCount);
-    let calendar = calendars[0];
+    const calendar = calendars[0];
 
     if (expectedCount > 0) {
       notEqual(calendar, null);
@@ -154,7 +154,7 @@ add_task(async function test_dynamic_registration() {
     return calendar;
   }
 
-  let calmgrObserver = new CalendarManagerObserver();
+  const calmgrObserver = new CalendarManagerObserver();
   cal.manager.addObserver(calmgrObserver);
   equal(cal.manager.calendarCount, 0);
 
@@ -174,7 +174,7 @@ add_task(async function test_dynamic_registration() {
   cal.manager.registerCalendar(calendar);
   calendar = checkCalendar();
 
-  let originalId = calendar.id;
+  const originalId = calendar.id;
   calmgrObserver.check({ registered: originalId });
 
   // Unregister the provider from under its feet.
@@ -231,17 +231,20 @@ add_test(function test_calobserver() {
   }
 
   // First of all we need a local calendar to work on and some variables
-  let memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
-  let memory2 = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  const memory2 = cal.manager.createCalendar(
+    "memory",
+    Services.io.newURI("moz-memory-calendar://")
+  );
   let calcounter, allcounter;
 
   // These observers will end up counting calls which we will use later on
-  let calobs = cal.createAdapter(Ci.calIObserver, {
+  const calobs = cal.createAdapter(Ci.calIObserver, {
     onAddItem: () => calcounter.addItem++,
     onModifyItem: () => calcounter.modifyItem++,
     onDeleteItem: () => calcounter.deleteItem++,
   });
-  let allobs = cal.createAdapter(Ci.calIObserver, {
+  const allobs = cal.createAdapter(Ci.calIObserver, {
     onAddItem: () => allcounter.addItem++,
     onModifyItem: () => allcounter.modifyItem++,
     onDeleteItem: () => allcounter.deleteItem++,
@@ -255,7 +258,7 @@ add_test(function test_calobserver() {
   memory.addObserver(calobs);
 
   // Add an item
-  let item = new CalEvent();
+  const item = new CalEvent();
   item.id = cal.getUUID();
   item.startDate = cal.dtz.now();
   item.endDate = cal.dtz.now();
@@ -263,7 +266,7 @@ add_test(function test_calobserver() {
   checkCounters(1, 0, 0);
 
   // Modify the item
-  let newItem = item.clone();
+  const newItem = item.clone();
   newItem.title = "title";
   memory.modifyItem(newItem, item);
   checkCounters(0, 1, 0);
@@ -309,7 +312,7 @@ add_test(function test_removeModes() {
     equal(deleteCalled, shouldDelete);
   }
   function mockCalendar(memory) {
-    let oldGetProperty = memory.wrappedJSObject.getProperty;
+    const oldGetProperty = memory.wrappedJSObject.getProperty;
     memory.wrappedJSObject.getProperty = function (name) {
       if (name == "capabilities.removeModes") {
         return removeModes;
@@ -317,7 +320,7 @@ add_test(function test_removeModes() {
       return oldGetProperty.apply(this, arguments);
     };
 
-    let oldDeleteCalendar = memory.wrappedJSObject.deleteCalendar;
+    const oldDeleteCalendar = memory.wrappedJSObject.deleteCalendar;
     memory.wrappedJSObject.deleteCalendar = function (calendar, listener) {
       deleteCalled = true;
       return oldDeleteCalendar.apply(this, arguments);
@@ -328,8 +331,8 @@ add_test(function test_removeModes() {
   const SHOULD_DELETE = true,
     SHOULD_NOT_DELETE = false;
 
-  let memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
-  let baseCalendarCount = cal.manager.calendarCount;
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  const baseCalendarCount = cal.manager.calendarCount;
   let removeModes = null;
   let deleteCalled = false;
 
@@ -353,7 +356,7 @@ add_test(function test_calprefs() {
   let prop;
   let memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
   cal.manager.registerCalendar(memory);
-  let memid = memory.id;
+  const memid = memory.id;
 
   // First set a few values, one of each relevant type
   memory.setProperty("stringpref", "abc");

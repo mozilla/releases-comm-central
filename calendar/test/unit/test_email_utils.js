@@ -18,31 +18,31 @@ function run_test() {
 }
 
 function test_prependMailTo() {
-  let data = [
+  const data = [
     { input: "mailto:first.last@example.net", expected: "mailto:first.last@example.net" },
     { input: "MAILTO:first.last@example.net", expected: "mailto:first.last@example.net" },
     { input: "first.last@example.net", expected: "mailto:first.last@example.net" },
     { input: "first.last.example.net", expected: "first.last.example.net" },
   ];
-  for (let [i, test] of Object.entries(data)) {
+  for (const [i, test] of Object.entries(data)) {
     equal(cal.email.prependMailTo(test.input), test.expected, "(test #" + i + ")");
   }
 }
 
 function test_removeMailTo() {
-  let data = [
+  const data = [
     { input: "mailto:first.last@example.net", expected: "first.last@example.net" },
     { input: "MAILTO:first.last@example.net", expected: "first.last@example.net" },
     { input: "first.last@example.net", expected: "first.last@example.net" },
     { input: "first.last.example.net", expected: "first.last.example.net" },
   ];
-  for (let [i, test] of Object.entries(data)) {
+  for (const [i, test] of Object.entries(data)) {
     equal(cal.email.removeMailTo(test.input), test.expected, "(test #" + i + ")");
   }
 }
 
 function test_getAttendeeEmail() {
-  let data = [
+  const data = [
     {
       input: {
         id: "mailto:first.last@example.net",
@@ -110,8 +110,8 @@ function test_getAttendeeEmail() {
       expected: "",
     },
   ];
-  for (let [i, test] of Object.entries(data)) {
-    let attendee = new CalAttendee();
+  for (const [i, test] of Object.entries(data)) {
+    const attendee = new CalAttendee();
     attendee.id = test.input.id;
     if (test.input.cname) {
       attendee.commonName = test.input.cname;
@@ -128,7 +128,7 @@ function test_getAttendeeEmail() {
 }
 
 function test_createRecipientList() {
-  let data = [
+  const data = [
     {
       input: [
         { id: "mailto:first@example.net", cname: null },
@@ -176,11 +176,11 @@ function test_createRecipientList() {
   ];
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
-    let attendees = [];
-    for (let att of test.input) {
-      let attendee = new CalAttendee();
+    const attendees = [];
+    for (const att of test.input) {
+      const attendee = new CalAttendee();
       attendee.id = att.id;
       if (att.cname) {
         attendee.commonName = att.cname;
@@ -192,7 +192,7 @@ function test_createRecipientList() {
 }
 
 function test_validateRecipientList() {
-  let data = [
+  const data = [
     {
       input: "first.last@example.net",
       expected: "first.last@example.net",
@@ -247,7 +247,7 @@ function test_validateRecipientList() {
     },
   ];
 
-  for (let [i, test] of Object.entries(data)) {
+  for (const [i, test] of Object.entries(data)) {
     equal(cal.email.validateRecipientList(test.input), test.expected, "(test #" + i + ")");
   }
 }

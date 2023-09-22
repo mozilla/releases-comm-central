@@ -17,7 +17,7 @@ function run_test() {
 }
 
 function test_newAttendee() {
-  let data = [
+  const data = [
     {
       input: [
         { id: "user2@example.net", partstat: "NEEDS-ACTION", cname: "NOT PREFIXED" },
@@ -62,16 +62,16 @@ function test_newAttendee() {
     },
   ];
 
-  let event = new CalEvent();
-  for (let test of data) {
-    for (let input of test.input) {
-      let attendee = new CalAttendee();
+  const event = new CalEvent();
+  for (const test of data) {
+    for (const input of test.input) {
+      const attendee = new CalAttendee();
       attendee.id = input.id;
       attendee.participationStatus = input.partstat;
       attendee.commonName = input.cname;
       event.addAttendee(attendee);
     }
-    let readAttendee = event.getAttendeeById(cal.email.prependMailTo(test.expected.id));
+    const readAttendee = event.getAttendeeById(cal.email.prependMailTo(test.expected.id));
     equal(readAttendee.id, test.expected.id);
     equal(
       readAttendee.participationStatus,
@@ -87,7 +87,7 @@ function test_newAttendee() {
 }
 
 function test_fromICS() {
-  let ics = [
+  const ics = [
     "BEGIN:VCALENDAR",
     "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN",
     "VERSION:2.0",
@@ -119,7 +119,7 @@ function test_fromICS() {
     "END:VCALENDAR",
   ].join("\n");
 
-  let expected = [
+  const expected = [
     { id: "mailto:user2@example.net", partstat: "NEEDS-ACTION", cname: "PREFIXED" },
     { id: "mailto:user3@example.net", partstat: "NEEDS-ACTION", cname: "NOT PREFIXED" },
     { id: "mailto:user4@example.net", partstat: "ACCEPTED", cname: "PREFIXED" },
@@ -127,14 +127,14 @@ function test_fromICS() {
     { id: "mailto:user6@example.net", partstat: "DECLINED", cname: "NOT PREFIXED" },
     { id: "mailto:user7@example.net", partstat: "DECLINED", cname: "PREFIXED" },
   ];
-  let event = createEventFromIcalString(ics);
-  let attendees = event.getAttendees();
+  const event = createEventFromIcalString(ics);
+  const attendees = event.getAttendees();
 
   // check whether all attendees get returned as expected
   equal(attendees.length, expected.length);
   let count = 0;
-  for (let attendee of attendees) {
-    for (let exp of expected) {
+  for (const attendee of attendees) {
+    for (const exp of expected) {
       if (attendee.id == exp.id) {
         equal(attendee.participationStatus, exp.partstat, "partstat matches for " + exp.id);
         equal(attendee.commonName, exp.cname, "commonName matches for " + exp.id);

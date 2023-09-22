@@ -37,38 +37,38 @@ add_setup(function () {
  * Tests the "Edit" menu item is available and opens up the event dialog.
  */
 add_task(async function testEditEditableItem() {
-  let calendar = CalendarTestUtils.createCalendar("Editable", "memory");
+  const calendar = CalendarTestUtils.createCalendar("Editable", "memory");
   registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
-  let title = "Editable Event";
-  let event = new CalEvent();
+  const title = "Editable Event";
+  const event = new CalEvent();
   event.title = title;
   event.startDate = cal.createDateTime("20200101T000001Z");
 
   await calendar.addItem(event);
   window.goToDate(event.startDate);
 
-  let menu = document.querySelector("#calendar-item-context-menu");
-  let editMenu = document.querySelector("#calendar-item-context-menu-modify-menuitem");
-  let popupPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const menu = document.querySelector("#calendar-item-context-menu");
+  const editMenu = document.querySelector("#calendar-item-context-menu-modify-menuitem");
+  const popupPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
 
   EventUtils.synthesizeMouseAtCenter(await getDayBoxItem('day="1"'), { type: "contextmenu" });
   await popupPromise;
   Assert.ok(!editMenu.disabled, 'context menu "Edit" item is not disabled for editable event');
 
-  let editDialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
+  const editDialogPromise = BrowserTestUtils.domWindowOpened(null, async win => {
     await BrowserTestUtils.waitForEvent(win, "load");
 
-    let doc = win.document;
+    const doc = win.document;
     Assert.ok(
       doc.documentURI == "chrome://calendar/content/calendar-event-dialog.xhtml",
       "editing event dialog opened"
     );
 
-    let iframe = doc.querySelector("#calendar-item-panel-iframe");
+    const iframe = doc.querySelector("#calendar-item-panel-iframe");
     await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
 
-    let iframeDoc = iframe.contentDocument;
+    const iframeDoc = iframe.contentDocument;
     Assert.ok(
       (iframeDoc.querySelector("#item-title").value = title),
       'context menu "Edit" item opens the editing dialog'
@@ -86,11 +86,11 @@ add_task(async function testEditEditableItem() {
  * modify.
  */
 add_task(async function testEditNonEditableItem() {
-  let calendar = CalendarTestUtils.createCalendar("Non-Editable", "memory");
+  const calendar = CalendarTestUtils.createCalendar("Non-Editable", "memory");
   registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
-  let event = new CalEvent();
-  let acl = {
+  const event = new CalEvent();
+  const acl = {
     QueryInterface: ChromeUtils.generateQI(["calIItemACLEntry"]),
     userCanModify: false,
     userCanRespond: true,
@@ -108,9 +108,9 @@ add_task(async function testEditNonEditableItem() {
   await calendar.addItem(event);
   window.goToDate(event.startDate);
 
-  let menu = document.querySelector("#calendar-item-context-menu");
-  let editMenu = document.querySelector("#calendar-item-context-menu-modify-menuitem");
-  let popupPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
+  const menu = document.querySelector("#calendar-item-context-menu");
+  const editMenu = document.querySelector("#calendar-item-context-menu-modify-menuitem");
+  const popupPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
 
   EventUtils.synthesizeMouseAtCenter(await getDayBoxItem('day="2"'), { type: "contextmenu" });
   await popupPromise;
@@ -122,11 +122,11 @@ add_task(async function testEditNonEditableItem() {
  * Tests that the "Edit" menu item is disabled when the event is an invitation.
  */
 add_task(async function testInvitation() {
-  let calendar = CalendarTestUtils.createCalendar("Invitation", "memory");
+  const calendar = CalendarTestUtils.createCalendar("Invitation", "memory");
   calendar.setProperty("organizerId", "mailto:attendee@example.com");
   registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
-  let icalString = CalendarTestUtils.dedent`
+  const icalString = CalendarTestUtils.dedent`
     BEGIN:VEVENT
     CREATED:20200103T152601Z
     DTSTAMP:20200103T192729Z
@@ -143,13 +143,13 @@ add_task(async function testInvitation() {
     END:VEVENT
   `;
 
-  let invitation = new CalEvent(icalString);
+  const invitation = new CalEvent(icalString);
   await calendar.addItem(invitation);
   window.goToDate(invitation.startDate);
 
-  let menu = document.querySelector("#calendar-item-context-menu");
-  let editMenu = document.querySelector("#calendar-item-context-menu-modify-menuitem");
-  let popupPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
+  const menu = document.querySelector("#calendar-item-context-menu");
+  const editMenu = document.querySelector("#calendar-item-context-menu-modify-menuitem");
+  const popupPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
 
   EventUtils.synthesizeMouseAtCenter(await getDayBoxItem('day="3"'), { type: "contextmenu" });
   await popupPromise;
@@ -161,10 +161,10 @@ add_task(async function testInvitation() {
  * Tests that the "Edit" menu item is disabled when the calendar is read-only.
  */
 add_task(async function testCalendarReadOnly() {
-  let calendar = CalendarTestUtils.createCalendar("ReadOnly", "memory");
+  const calendar = CalendarTestUtils.createCalendar("ReadOnly", "memory");
   registerCleanupFunction(() => CalendarTestUtils.removeCalendar(calendar));
 
-  let event = new CalEvent();
+  const event = new CalEvent();
   event.title = "ReadOnly Event";
   event.startDate = cal.createDateTime("20200104T000001Z");
 
@@ -172,9 +172,9 @@ add_task(async function testCalendarReadOnly() {
   calendar.setProperty("readOnly", true);
   window.goToDate(event.startDate);
 
-  let menu = document.querySelector("#calendar-item-context-menu");
-  let editMenu = document.querySelector("#calendar-item-context-menu-modify-menuitem");
-  let popupPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
+  const menu = document.querySelector("#calendar-item-context-menu");
+  const editMenu = document.querySelector("#calendar-item-context-menu-modify-menuitem");
+  const popupPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
 
   EventUtils.synthesizeMouseAtCenter(await getDayBoxItem('day="4"'), { type: "contextmenu" });
   await popupPromise;

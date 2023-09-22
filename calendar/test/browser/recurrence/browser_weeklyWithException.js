@@ -19,7 +19,7 @@ const STARTDATE = cal.createDateTime("20090106T000000Z");
 const TITLE = "Event";
 
 add_task(async function testWeeklyWithExceptionRecurrence() {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -196,16 +196,16 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 });
 
 async function setRecurrence(recurrenceWindow) {
-  let recurrenceDocument = recurrenceWindow.document;
+  const recurrenceDocument = recurrenceWindow.document;
 
   // weekly
   await menulistSelect(recurrenceDocument.getElementById("period-list"), "1");
 
-  let mon = cal.l10n.getDateFmtString("day.2.Mmm");
-  let wed = cal.l10n.getDateFmtString("day.4.Mmm");
-  let fri = cal.l10n.getDateFmtString("day.6.Mmm");
+  const mon = cal.l10n.getDateFmtString("day.2.Mmm");
+  const wed = cal.l10n.getDateFmtString("day.4.Mmm");
+  const fri = cal.l10n.getDateFmtString("day.6.Mmm");
 
-  let dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
+  const dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
 
   // Starting from Monday so it should be checked.
   Assert.ok(dayPicker.querySelector(`[label="${mon}"]`).checked, "mon checked");
@@ -224,24 +224,24 @@ async function setRecurrence(recurrenceWindow) {
   );
   Assert.ok(dayPicker.querySelector(`[label="${fri}"]`).checked, "fri checked");
 
-  let button = recurrenceDocument.querySelector("dialog").getButton("accept");
+  const button = recurrenceDocument.querySelector("dialog").getButton("accept");
   button.scrollIntoView();
   // Close dialog.
   EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
 }
 
 async function changeRecurrence(recurrenceWindow) {
-  let recurrenceDocument = recurrenceWindow.document;
+  const recurrenceDocument = recurrenceWindow.document;
 
   // weekly
   await menulistSelect(recurrenceDocument.getElementById("period-list"), "1");
 
-  let mon = cal.l10n.getDateFmtString("day.2.Mmm");
-  let tue = cal.l10n.getDateFmtString("day.3.Mmm");
-  let wed = cal.l10n.getDateFmtString("day.4.Mmm");
-  let fri = cal.l10n.getDateFmtString("day.6.Mmm");
+  const mon = cal.l10n.getDateFmtString("day.2.Mmm");
+  const tue = cal.l10n.getDateFmtString("day.3.Mmm");
+  const wed = cal.l10n.getDateFmtString("day.4.Mmm");
+  const fri = cal.l10n.getDateFmtString("day.6.Mmm");
 
-  let dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
+  const dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
 
   // Check old rule.
   // Starting from Monday so it should be checked.
@@ -257,7 +257,7 @@ async function changeRecurrence(recurrenceWindow) {
   );
   Assert.ok(dayPicker.querySelector(`[label="${tue}"]`).checked, "tue checked");
 
-  let button = recurrenceDocument.querySelector("dialog").getButton("accept");
+  const button = recurrenceDocument.querySelector("dialog").getButton("accept");
   button.scrollIntoView();
   // Close dialog.
   EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);

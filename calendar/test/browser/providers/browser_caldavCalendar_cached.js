@@ -10,7 +10,7 @@ let calendar;
 add_setup(async function () {
   if (!Services.logins.findLogins(CalDAVServer.origin, null, "test").length) {
     // Save a username and password to the login manager.
-    let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(Ci.nsILoginInfo);
+    const loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(Ci.nsILoginInfo);
     loginInfo.init(CalDAVServer.origin, null, "test", "bob", "bob", "", "");
     await Services.logins.addLoginAsync(loginInfo);
   }

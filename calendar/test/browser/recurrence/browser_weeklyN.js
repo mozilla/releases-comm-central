@@ -25,18 +25,18 @@ const HOUR = 8;
  */
 add_task(async function testWeeklyNRecurrence() {
   async function setRecurrence(recurrenceWindow) {
-    let recurrenceDocument = recurrenceWindow.document;
+    const recurrenceDocument = recurrenceWindow.document;
 
     // Select weekly recurrence
     await menulistSelect(recurrenceDocument.getElementById("period-list"), "1");
 
-    let monLabel = cal.l10n.getDateFmtString("day.2.Mmm");
-    let tueLabel = cal.l10n.getDateFmtString("day.3.Mmm");
-    let wedLabel = cal.l10n.getDateFmtString("day.4.Mmm");
-    let friLabel = cal.l10n.getDateFmtString("day.6.Mmm");
-    let satLabel = cal.l10n.getDateFmtString("day.7.Mmm");
+    const monLabel = cal.l10n.getDateFmtString("day.2.Mmm");
+    const tueLabel = cal.l10n.getDateFmtString("day.3.Mmm");
+    const wedLabel = cal.l10n.getDateFmtString("day.4.Mmm");
+    const friLabel = cal.l10n.getDateFmtString("day.6.Mmm");
+    const satLabel = cal.l10n.getDateFmtString("day.7.Mmm");
 
-    let dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
+    const dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
 
     // Selected date is a Monday, so it should already be selected
     Assert.ok(
@@ -75,13 +75,13 @@ add_task(async function testWeeklyNRecurrence() {
     );
     recurrenceDocument.getElementById("repeat-ntimes-count").value = "4";
 
-    let button = recurrenceDocument.querySelector("dialog").getButton("accept");
+    const button = recurrenceDocument.querySelector("dialog").getButton("accept");
     button.scrollIntoView();
     // Close dialog
     EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
   }
 
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -90,8 +90,8 @@ add_task(async function testWeeklyNRecurrence() {
   await CalendarTestUtils.goToDate(window, 2009, 1, 5);
 
   // Create event recurring on a weekly basis
-  let eventBox = dayView.getHourBoxAt(window, HOUR);
-  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  const eventBox = dayView.getHourBoxAt(window, HOUR);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   await setData(dialogWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
   await saveAndCloseItemDialog(dialogWindow);
 
@@ -150,7 +150,7 @@ add_task(async function testWeeklyNRecurrence() {
   await monthView.waitForNoItemAt(window, 2, 7, 1);
 
   // Delete event
-  let box = await monthView.waitForItemAt(window, 2, 2, 1);
+  const box = await monthView.waitForItemAt(window, 2, 2, 1);
   EventUtils.synthesizeMouseAtCenter(box, {}, window);
   await handleDeleteOccurrencePrompt(window, box, true);
 
@@ -184,7 +184,7 @@ add_task(async function testRecurrenceAcrossWeekStart() {
   });
 
   async function setRecurrence(recurrenceWindow) {
-    let recurrenceDocument = recurrenceWindow.document;
+    const recurrenceDocument = recurrenceWindow.document;
 
     // Select weekly recurrence
     await menulistSelect(recurrenceDocument.getElementById("period-list"), "1");
@@ -192,11 +192,11 @@ add_task(async function testRecurrenceAcrossWeekStart() {
     // Recur every two weeks
     recurrenceDocument.getElementById("weekly-weeks").value = "2";
 
-    let satLabel = cal.l10n.getDateFmtString("day.7.Mmm");
-    let sunLabel = cal.l10n.getDateFmtString("day.1.Mmm");
-    let monLabel = cal.l10n.getDateFmtString("day.2.Mmm");
+    const satLabel = cal.l10n.getDateFmtString("day.7.Mmm");
+    const sunLabel = cal.l10n.getDateFmtString("day.1.Mmm");
+    const monLabel = cal.l10n.getDateFmtString("day.2.Mmm");
 
-    let dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
+    const dayPicker = recurrenceDocument.getElementById("daypicker-weekday");
 
     // Selected date is a Saturday, so it should already be selected
     Assert.ok(
@@ -224,13 +224,13 @@ add_task(async function testRecurrenceAcrossWeekStart() {
     );
     recurrenceDocument.getElementById("repeat-ntimes-count").value = "6";
 
-    let button = recurrenceDocument.querySelector("dialog").getButton("accept");
+    const button = recurrenceDocument.querySelector("dialog").getButton("accept");
     button.scrollIntoView();
     // Close dialog
     EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);
   }
 
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -239,8 +239,8 @@ add_task(async function testRecurrenceAcrossWeekStart() {
   await CalendarTestUtils.goToDate(window, 2022, 10, 15);
 
   // Create event recurring every other week
-  let eventBox = dayView.getHourBoxAt(window, HOUR);
-  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  const eventBox = dayView.getHourBoxAt(window, HOUR);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   await setData(dialogWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
   await saveAndCloseItemDialog(dialogWindow);
 

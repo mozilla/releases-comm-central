@@ -13,8 +13,8 @@ var { CalExtractParser } = ChromeUtils.import(
  * Tests tokenizing an empty string gives an empty list.
  */
 add_task(function testTokenizeEmptyString() {
-  let parser = new CalExtractParser();
-  let result = parser.tokenize("");
+  const parser = new CalExtractParser();
+  const result = parser.tokenize("");
   Assert.equal(result.length, 0, "tokenize empty string produces empty list");
 });
 
@@ -22,7 +22,7 @@ add_task(function testTokenizeEmptyString() {
  * Tests tokenisation works as expected.
  */
 add_task(function testTokenizeWithRules() {
-  let parser = new CalExtractParser(
+  const parser = new CalExtractParser(
     [
       [/^(Monday|Tuesday|Wednesday)/, "DAY"],
       [/^meet/, "MEET"],
@@ -34,10 +34,10 @@ add_task(function testTokenizeWithRules() {
     []
   );
 
-  let text = `Hello there, can we meet on Monday? If not, then Tuesday. We can
+  const text = `Hello there, can we meet on Monday? If not, then Tuesday. We can
               also meet on Wednesday at 6`;
 
-  let expected = [
+  const expected = [
     [
       {
         type: "TEXT",
@@ -269,7 +269,7 @@ add_task(function testTokenizeWithRules() {
   ];
 
   info(`Tokenizing string "${text}"...`);
-  let actual = parser.tokenize(text);
+  const actual = parser.tokenize(text);
   Assert.equal(actual.length, expected.length, `result has ${expected.length} sentences`);
   info(`Comparing results of tokenizing "${text}"...`);
   for (let i = 0; i < expected.length; i++) {
@@ -281,8 +281,8 @@ add_task(function testTokenizeWithRules() {
  * Tests tokenizing unknown text produces null.
  */
 add_task(function testTokenizeUnknownText() {
-  let parser = new CalExtractParser([], []);
-  let result = parser.tokenize("text with no rules");
+  const parser = new CalExtractParser([], []);
+  const result = parser.tokenize("text with no rules");
   Assert.equal(result.length, 1, "tokenizing unknown text produced a result");
   Assert.equal(result[0], null, "tokenizing unknown text produced a null result");
 });
@@ -291,7 +291,7 @@ add_task(function testTokenizeUnknownText() {
  * Tests omitting some token names omits them from the result.
  */
 add_task(function testTokenRulesNamesOmitted() {
-  let parser = new CalExtractParser([
+  const parser = new CalExtractParser([
     [/^Monday/, "DAY"],
     [/^meet/, "MEET"],
     [/^[A-Za-z]+/, "TEXT"],
@@ -300,8 +300,8 @@ add_task(function testTokenRulesNamesOmitted() {
     [/^,/],
   ]);
 
-  let text = `Hello there, can we meet on Monday?`;
-  let expected = [
+  const text = `Hello there, can we meet on Monday?`;
+  const expected = [
     [
       {
         type: "TEXT",
@@ -349,7 +349,7 @@ add_task(function testTokenRulesNamesOmitted() {
   ];
 
   info(`Tokenizing string "${text}"...`);
-  let actual = parser.tokenize(text);
+  const actual = parser.tokenize(text);
   Assert.equal(actual.length, expected.length, `result has ${expected.length} sentences`);
   info(`Comparing results of tokenizing string "${text}"..`);
   for (let i = 0; i < expected.length; i++) {
@@ -361,7 +361,7 @@ add_task(function testTokenRulesNamesOmitted() {
  * Tests parsing an empty string produces an empty lit.
  */
 add_task(function testParseEmptyString() {
-  let parser = new CalExtractParser();
-  let result = parser.parse("");
+  const parser = new CalExtractParser();
+  const result = parser.parse("");
   Assert.equal(result.length, 0, "parsing empty string produces empty list");
 });

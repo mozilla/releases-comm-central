@@ -15,7 +15,7 @@ function run_test() {
 }
 
 function test_get_item_sort_key() {
-  let event = new CalEvent(dedent`
+  const event = new CalEvent(dedent`
         BEGIN:VEVENT
         PRIORITY:8
         SUMMARY:summary
@@ -36,7 +36,7 @@ function test_get_item_sort_key() {
   equal(cal.unifinder.getItemSortKey(event, "location"), "location");
   equal(cal.unifinder.getItemSortKey(event, "status"), 1);
 
-  let task = new CalTodo(dedent`
+  const task = new CalTodo(dedent`
         BEGIN:VTODO
         DTSTART:20180102T030405Z
         DUE:20180607T080910Z
@@ -55,7 +55,7 @@ function test_get_item_sort_key() {
   strictEqual(cal.unifinder.getItemSortKey(task, "location"), "");
   equal(cal.unifinder.getItemSortKey(task, "status"), 2);
 
-  let task2 = new CalTodo(dedent`
+  const task2 = new CalTodo(dedent`
         BEGIN:VTODO
         STATUS:GETTIN' THERE
         END:VTODO
@@ -64,13 +64,13 @@ function test_get_item_sort_key() {
   equal(cal.unifinder.getItemSortKey(task2, "status"), -1);
 
   // Default CalTodo objects have the default percentComplete.
-  let task3 = new CalTodo();
+  const task3 = new CalTodo();
   equal(cal.unifinder.getItemSortKey(task3, "percentComplete"), 0);
 }
 
 function test_sort_items() {
   // string comparison
-  let summaries = ["", "a", "b"];
+  const summaries = ["", "a", "b"];
   let items = summaries.map(summary => {
     return new CalEvent(dedent`
             BEGIN:VEVENT
@@ -92,7 +92,7 @@ function test_sort_items() {
   );
 
   // date comparison
-  let dates = ["20180101T000002Z", "20180101T000000Z", "20180101T000001Z"];
+  const dates = ["20180101T000002Z", "20180101T000000Z", "20180101T000001Z"];
   items = dates.map(date => {
     return new CalEvent(dedent`
             BEGIN:VEVENT
@@ -114,7 +114,7 @@ function test_sort_items() {
   );
 
   // number comparison
-  let percents = [3, 1, 2];
+  const percents = [3, 1, 2];
   items = percents.map(percent => {
     return new CalTodo(dedent`
             BEGIN:VTODO

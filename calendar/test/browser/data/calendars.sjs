@@ -24,7 +24,7 @@ function handleRequest(request, response) {
   //   </prop>
   // </propfind>
 
-  let res = `<multistatus xmlns="DAV:"
+  const res = `<multistatus xmlns="DAV:"
                                xmlns:A="http://apple.com/ns/ical/"
                                xmlns:C="urn:ietf:params:xml:ns:caldav"
                                xmlns:CS="http://calendarserver.org/ns/">
@@ -117,7 +117,7 @@ function handleRequest(request, response) {
     </response>
   </multistatus>`;
 
-  let bytes = new TextEncoder().encode(res);
+  const bytes = new TextEncoder().encode(res);
   let str = "";
   for (let i = 0; i < bytes.length; i += 65536) {
     str += String.fromCharCode.apply(null, bytes.subarray(i, i + 65536));

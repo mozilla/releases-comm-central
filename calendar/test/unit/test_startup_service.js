@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-  let ssvc = Cc["@mozilla.org/calendar/startup-service;1"].getService(Ci.nsIObserver);
+  const ssvc = Cc["@mozilla.org/calendar/startup-service;1"].getService(Ci.nsIObserver);
 
-  let first = {
+  const first = {
     startup(aListener) {
       second.canStart = true;
       aListener.onResult(null, Cr.NS_OK);
@@ -16,7 +16,7 @@ function run_test() {
     },
   };
 
-  let second = {
+  const second = {
     startup(aListener) {
       ok(this.canStart);
       aListener.onResult(null, Cr.NS_OK);
@@ -28,11 +28,11 @@ function run_test() {
   };
 
   // Change the startup order so we can test our services
-  let oldStartupOrder = ssvc.wrappedJSObject.getStartupOrder;
+  const oldStartupOrder = ssvc.wrappedJSObject.getStartupOrder;
   ssvc.wrappedJSObject.getStartupOrder = function () {
-    let origOrder = oldStartupOrder.call(this);
+    const origOrder = oldStartupOrder.call(this);
 
-    let notify = origOrder[origOrder.length - 1];
+    const notify = origOrder[origOrder.length - 1];
     return [first, second, notify];
   };
 

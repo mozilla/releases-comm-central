@@ -7,7 +7,7 @@ var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
 
 async function openWizard(...args) {
   await CalendarTestUtils.openCalendarTab(window);
-  let wizardPromise = BrowserTestUtils.promiseAlertDialog(
+  const wizardPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://calendar/content/calendar-creation.xhtml",
     {
@@ -23,9 +23,9 @@ async function openWizard(...args) {
 }
 
 async function handleWizard(wizardWindow, { username, url, password, expectedCalendars }) {
-  let wizardDocument = wizardWindow.document;
-  let acceptButton = wizardDocument.querySelector("dialog").getButton("accept");
-  let cancelButton = wizardDocument.querySelector("dialog").getButton("cancel");
+  const wizardDocument = wizardWindow.document;
+  const acceptButton = wizardDocument.querySelector("dialog").getButton("accept");
+  const cancelButton = wizardDocument.querySelector("dialog").getButton("cancel");
 
   // Select calendar type.
 
@@ -59,13 +59,13 @@ async function handleWizard(wizardWindow, { username, url, password, expectedCal
 
   Assert.ok(!acceptButton.disabled);
 
-  let promptPromise = handlePasswordPrompt(password);
+  const promptPromise = handlePasswordPrompt(password);
   EventUtils.synthesizeKey("VK_RETURN", {}, wizardWindow);
   await promptPromise;
 
   // Select calendars.
 
-  let list = wizardDocument.getElementById("network-calendar-list");
+  const list = wizardDocument.getElementById("network-calendar-list");
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.is_visible(list),
     "waiting for calendar list to appear",
@@ -75,7 +75,7 @@ async function handleWizard(wizardWindow, { username, url, password, expectedCal
 
   Assert.equal(list.childElementCount, expectedCalendars.length);
   for (let i = 0; i < expectedCalendars.length; i++) {
-    let item = list.children[i];
+    const item = list.children[i];
 
     Assert.equal(item.calendar.uri.spec, expectedCalendars[i].uri);
     Assert.equal(
@@ -102,7 +102,7 @@ async function handlePasswordPrompt(password) {
 
       prompt.document.getElementById("password1Textbox").value = password;
 
-      let checkbox = prompt.document.getElementById("checkbox");
+      const checkbox = prompt.document.getElementById("checkbox");
       Assert.greater(checkbox.getBoundingClientRect().width, 0);
       Assert.ok(checkbox.checked);
 

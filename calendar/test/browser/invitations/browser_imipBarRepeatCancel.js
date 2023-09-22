@@ -23,7 +23,7 @@ let transport;
  */
 add_setup(async function () {
   requestLongerTimeout(5);
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
@@ -39,13 +39,13 @@ add_setup(async function () {
   calendar = CalendarTestUtils.createCalendar("Test");
   transport = new EmailTransport(account, identity);
 
-  let getImipTransport = cal.itip.getImipTransport;
+  const getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => transport;
 
-  let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+  const deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
     Ci.calIDeletedItems
   ).wrappedJSObject;
-  let markDeleted = deleteMgr.markDeleted;
+  const markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
   registerCleanupFunction(() => {
@@ -60,10 +60,10 @@ add_setup(async function () {
  * Tests accepting a cancellation to an already accepted recurring event.
  */
 add_task(async function testCancelAcceptedRecurring() {
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickAction(win, "imipAcceptRecurrencesButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await BrowserTestUtils.closeWindow(win);
   await doCancelTest({
     calendar,
@@ -77,10 +77,10 @@ add_task(async function testCancelAcceptedRecurring() {
  * Tests accepting a cancellation to an already tentatively accepted event.
  */
 add_task(async function testCancelTentativeRecurring() {
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickAction(win, "imipTentativeRecurrencesButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await BrowserTestUtils.closeWindow(win);
   await doCancelTest({
     calendar,
@@ -95,10 +95,10 @@ add_task(async function testCancelTentativeRecurring() {
  * Tests accepting a cancellation to an already declined recurring event.
  */
 add_task(async function testCancelDeclinedRecurring() {
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickAction(win, "imipDeclineRecurrencesButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await BrowserTestUtils.closeWindow(win);
   await doCancelTest({
     calendar,
@@ -114,10 +114,10 @@ add_task(async function testCancelDeclinedRecurring() {
  * recurring event.
  */
 add_task(async function testCancelAcceptedOccurrence() {
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickAction(win, "imipAcceptRecurrencesButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await BrowserTestUtils.closeWindow(win);
   await doCancelTest({
     calendar,
@@ -134,10 +134,10 @@ add_task(async function testCancelAcceptedOccurrence() {
  * accepted event.
  */
 add_task(async function testCancelTentativeOccurrence() {
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickAction(win, "imipTentativeRecurrencesButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await BrowserTestUtils.closeWindow(win);
   await doCancelTest({
     calendar,
@@ -155,10 +155,10 @@ add_task(async function testCancelTentativeOccurrence() {
  * recurring event.
  */
 add_task(async function testCancelDeclinedOccurrence() {
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickAction(win, "imipDeclineRecurrencesButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await BrowserTestUtils.closeWindow(win);
   await doCancelTest({
     calendar,
@@ -177,9 +177,9 @@ add_task(async function testCancelDeclinedOccurrence() {
  */
 add_task(async function testUnprocessedCancel() {
   transport.reset();
-  let invite = new FileUtils.File(getTestFilePath("data/cancel-repeat-event.eml"));
-  let win = await openImipMessage(invite);
-  for (let button of [...win.document.querySelectorAll("#imip-view-toolbar > toolbarbutton")]) {
+  const invite = new FileUtils.File(getTestFilePath("data/cancel-repeat-event.eml"));
+  const win = await openImipMessage(invite);
+  for (const button of [...win.document.querySelectorAll("#imip-view-toolbar > toolbarbutton")]) {
     Assert.ok(button.hidden, `${button.id} is hidden`);
   }
   await BrowserTestUtils.closeWindow(win);

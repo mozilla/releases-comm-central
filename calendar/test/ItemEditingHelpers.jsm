@@ -113,32 +113,32 @@ async function setData(dialogWindow, iframeWindow, data) {
     sendString(text, iframeWindow);
   }
 
-  let dialogDocument = dialogWindow.document;
-  let iframeDocument = iframeWindow.document;
+  const dialogDocument = dialogWindow.document;
+  const iframeDocument = iframeWindow.document;
 
-  let isEvent = iframeWindow.calendarItem.isEvent();
-  let startPicker = iframeDocument.getElementById(isEvent ? "event-starttime" : "todo-entrydate");
-  let endPicker = iframeDocument.getElementById(isEvent ? "event-endtime" : "todo-duedate");
+  const isEvent = iframeWindow.calendarItem.isEvent();
+  const startPicker = iframeDocument.getElementById(isEvent ? "event-starttime" : "todo-entrydate");
+  const endPicker = iframeDocument.getElementById(isEvent ? "event-endtime" : "todo-duedate");
 
-  let startdateInput = startPicker._datepicker._inputField;
-  let enddateInput = endPicker._datepicker._inputField;
-  let starttimeInput = startPicker._timepicker._inputField;
-  let endtimeInput = endPicker._timepicker._inputField;
-  let completeddateInput = iframeDocument.getElementById("completed-date-picker")._inputField;
-  let untilDateInput = iframeDocument.getElementById("repeat-until-datepicker")._inputField;
+  const startdateInput = startPicker._datepicker._inputField;
+  const enddateInput = endPicker._datepicker._inputField;
+  const starttimeInput = startPicker._timepicker._inputField;
+  const endtimeInput = endPicker._timepicker._inputField;
+  const completeddateInput = iframeDocument.getElementById("completed-date-picker")._inputField;
+  const untilDateInput = iframeDocument.getElementById("repeat-until-datepicker")._inputField;
 
   // Wait for input elements' values to be populated.
   await sleep(iframeWindow, 500);
 
   // title
   if (data.title !== undefined) {
-    let titleInput = iframeDocument.getElementById("item-title");
+    const titleInput = iframeDocument.getElementById("item-title");
     replaceText(titleInput, data.title);
   }
 
   // location
   if (data.location !== undefined) {
-    let locationInput = iframeDocument.getElementById("item-location");
+    const locationInput = iframeDocument.getElementById("item-location");
     replaceText(locationInput, data.location);
   }
 
@@ -156,7 +156,7 @@ async function setData(dialogWindow, iframeWindow, data) {
 
   // all-day
   if (data.allday !== undefined && isEvent) {
-    let checkbox = iframeDocument.getElementById("event-all-day");
+    const checkbox = iframeDocument.getElementById("event-all-day");
     if (checkbox.checked != data.allday) {
       synthesizeMouseAtCenter(checkbox, {}, iframeWindow);
     }
@@ -164,7 +164,7 @@ async function setData(dialogWindow, iframeWindow, data) {
 
   // timezonedisplay
   if (data.timezonedisplay !== undefined) {
-    let menuitem = dialogDocument.getElementById("options-timezones-menuitem");
+    const menuitem = dialogDocument.getElementById("options-timezones-menuitem");
     if (menuitem.getAttribute("checked") != data.timezonedisplay) {
       synthesizeMouseAtCenter(menuitem, {}, iframeWindow);
     }
@@ -180,10 +180,10 @@ async function setData(dialogWindow, iframeWindow, data) {
     data.startdate !== undefined &&
     (data.startdate instanceof CalDateTime || data.startdate instanceof Ci.calIDateTime)
   ) {
-    let startdate = formatDate(data.startdate);
+    const startdate = formatDate(data.startdate);
 
     if (!isEvent) {
-      let checkbox = iframeDocument.getElementById("todo-has-entrydate");
+      const checkbox = iframeDocument.getElementById("todo-has-entrydate");
       if (!checkbox.checked) {
         synthesizeMouseAtCenter(checkbox, {}, iframeWindow);
       }
@@ -196,7 +196,7 @@ async function setData(dialogWindow, iframeWindow, data) {
     data.starttime !== undefined &&
     (data.starttime instanceof CalDateTime || data.starttime instanceof Ci.calIDateTime)
   ) {
-    let starttime = formatTime(data.starttime);
+    const starttime = formatTime(data.starttime);
     replaceText(starttimeInput, starttime);
     await sleep(iframeWindow);
   }
@@ -206,9 +206,9 @@ async function setData(dialogWindow, iframeWindow, data) {
     data.enddate !== undefined &&
     (data.enddate instanceof CalDateTime || data.enddate instanceof Ci.calIDateTime)
   ) {
-    let enddate = formatDate(data.enddate);
+    const enddate = formatDate(data.enddate);
     if (!isEvent) {
-      let checkbox = iframeDocument.getElementById("todo-has-duedate");
+      const checkbox = iframeDocument.getElementById("todo-has-duedate");
       if (!checkbox.checked) {
         synthesizeMouseAtCenter(checkbox, {}, iframeWindow);
       }
@@ -221,14 +221,14 @@ async function setData(dialogWindow, iframeWindow, data) {
     data.endtime !== undefined &&
     (data.endtime instanceof CalDateTime || data.endtime instanceof Ci.calIDateTime)
   ) {
-    let endtime = formatTime(data.endtime);
+    const endtime = formatTime(data.endtime);
     replaceText(endtimeInput, endtime);
   }
 
   // recurrence
   if (data.repeat !== undefined) {
     if (typeof data.repeat == "function") {
-      let repeatWindowPromise = BrowserTestUtils.promiseAlertDialog(
+      const repeatWindowPromise = BrowserTestUtils.promiseAlertDialog(
         undefined,
         "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml",
         {
@@ -259,7 +259,7 @@ async function setData(dialogWindow, iframeWindow, data) {
   ) {
     // Only fill in date, when the Datepicker is visible.
     if (!iframeDocument.getElementById("repeat-untilDate").hidden) {
-      let untildate = formatDate(data.repeatuntil);
+      const untildate = formatDate(data.repeatuntil);
       replaceText(untilDateInput, untildate);
     }
   }
@@ -276,11 +276,11 @@ async function setData(dialogWindow, iframeWindow, data) {
 
   // privacy
   if (data.privacy !== undefined) {
-    let button = dialogDocument.getElementById("button-privacy");
-    let shownPromise = BrowserTestUtils.waitForEvent(button, "popupshown");
+    const button = dialogDocument.getElementById("button-privacy");
+    const shownPromise = BrowserTestUtils.waitForEvent(button, "popupshown");
     synthesizeMouseAtCenter(button, {}, dialogWindow);
     await shownPromise;
-    let hiddenPromise = BrowserTestUtils.waitForEvent(button, "popuphidden");
+    const hiddenPromise = BrowserTestUtils.waitForEvent(button, "popuphidden");
     synthesizeMouseAtCenter(
       dialogDocument.getElementById(`event-privacy-${data.privacy}-menuitem`),
       {},
@@ -299,7 +299,7 @@ async function setData(dialogWindow, iframeWindow, data) {
     }
   }
 
-  let currentStatus = iframeDocument.getElementById("todo-status").value;
+  const currentStatus = iframeDocument.getElementById("todo-status").value;
 
   // completed on
   if (
@@ -307,7 +307,7 @@ async function setData(dialogWindow, iframeWindow, data) {
     (data.completed instanceof CalDateTime || data.completed instanceof Ci.calIDateTime) &&
     !isEvent
   ) {
-    let completeddate = formatDate(data.completed);
+    const completeddate = formatDate(data.completed);
     if (currentStatus == "COMPLETED") {
       replaceText(completeddateInput, completeddate);
     }
@@ -320,7 +320,7 @@ async function setData(dialogWindow, iframeWindow, data) {
       currentStatus == "IN-PROCESS" ||
       currentStatus == "COMPLETED")
   ) {
-    let percentCompleteInput = iframeDocument.getElementById("percent-complete-textbox");
+    const percentCompleteInput = iframeDocument.getElementById("percent-complete-textbox");
     replaceText(percentCompleteInput, data.percent);
   }
 
@@ -336,7 +336,7 @@ async function setData(dialogWindow, iframeWindow, data) {
       {},
       iframeWindow
     );
-    let descField = iframeDocument.getElementById("item-description");
+    const descField = iframeDocument.getElementById("item-description");
     replaceText(descField, data.description);
   }
 
@@ -351,9 +351,9 @@ async function setData(dialogWindow, iframeWindow, data) {
         {},
         iframeWindow
       );
-      let attachmentBox = iframeDocument.getElementById("attachment-link");
-      let attachments = attachmentBox.children;
-      for (let attachment of attachments) {
+      const attachmentBox = iframeDocument.getElementById("attachment-link");
+      const attachments = attachmentBox.children;
+      for (const attachment of attachments) {
         if (attachment.tooltipText.includes(data.attachment.remove)) {
           synthesizeMouseAtCenter(attachment, {}, iframeWindow);
           synthesizeKey("VK_DELETE", {}, dialogWindow);
@@ -372,7 +372,7 @@ async function setData(dialogWindow, iframeWindow, data) {
     );
     // Make sure no notifications are sent, since handling this dialog is
     // not working when deleting a parent of a recurring event.
-    let attendeeCheckbox = iframeDocument.getElementById("notify-attendees-checkbox");
+    const attendeeCheckbox = iframeDocument.getElementById("notify-attendees-checkbox");
     if (!attendeeCheckbox.disabled && attendeeCheckbox.checked) {
       synthesizeMouseAtCenter(attendeeCheckbox, {}, iframeWindow);
     }
@@ -396,7 +396,7 @@ async function setData(dialogWindow, iframeWindow, data) {
  * @param {Window} dialogWindow
  */
 async function saveAndCloseItemDialog(dialogWindow) {
-  let dialogClosing = BrowserTestUtils.domWindowClosed(dialogWindow);
+  const dialogClosing = BrowserTestUtils.domWindowClosed(dialogWindow);
   synthesizeMouseAtCenter(
     dialogWindow.document.getElementById("button-saveandclose"),
     {},
@@ -424,9 +424,9 @@ function cancelItemDialog(dialogWindow) {
  * @param {string} id - Identifying string of menuitem id.
  */
 async function setReminderMenulist(iframeWindow, id) {
-  let iframeDocument = iframeWindow.document;
-  let menulist = iframeDocument.querySelector(".item-alarm");
-  let menuitem = iframeDocument.getElementById(`reminder-${id}-menuitem`);
+  const iframeDocument = iframeWindow.document;
+  const menulist = iframeDocument.querySelector(".item-alarm");
+  const menuitem = iframeDocument.getElementById(`reminder-${id}-menuitem`);
 
   Assert.ok(menulist, `<menulist id=${menulist.id}> exists`);
   Assert.ok(menuitem, `<menuitem id=${id}> exists`);
@@ -447,15 +447,15 @@ async function setReminderMenulist(iframeWindow, id) {
  * @param {string[]} categories - Category names to set - leave empty to clear.
  */
 async function setCategories(iframeWindow, categories) {
-  let iframeDocument = iframeWindow.document;
-  let menulist = iframeDocument.getElementById("item-categories");
-  let menupopup = iframeDocument.getElementById("item-categories-popup");
+  const iframeDocument = iframeWindow.document;
+  const menulist = iframeDocument.getElementById("item-categories");
+  const menupopup = iframeDocument.getElementById("item-categories-popup");
 
   synthesizeMouseAtCenter(menulist, {}, iframeWindow);
   await BrowserTestUtils.waitForEvent(menupopup, "popupshown");
 
   // Iterate over categories and check if needed.
-  for (let item of menupopup.children) {
+  for (const item of menupopup.children) {
     if (categories.includes(item.label)) {
       item.setAttribute("checked", "true");
     } else {
@@ -463,7 +463,7 @@ async function setCategories(iframeWindow, categories) {
     }
   }
 
-  let hiddenPromise = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
+  const hiddenPromise = BrowserTestUtils.waitForEvent(menupopup, "popuphidden");
   menupopup.hidePopup();
   await hiddenPromise;
 }
@@ -475,14 +475,14 @@ async function setCategories(iframeWindow, categories) {
  * @param {string} url - URL to be added.
  */
 async function handleAddingAttachment(dialogWindow, url) {
-  let dialogDocument = dialogWindow.document;
-  let attachButton = dialogDocument.querySelector("#button-url");
-  let menu = dialogDocument.querySelector("#button-attach-menupopup");
-  let menuShowing = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  const dialogDocument = dialogWindow.document;
+  const attachButton = dialogDocument.querySelector("#button-url");
+  const menu = dialogDocument.querySelector("#button-attach-menupopup");
+  const menuShowing = BrowserTestUtils.waitForEvent(menu, "popupshown");
   synthesizeMouseAtCenter(attachButton, {}, dialogWindow);
   await menuShowing;
 
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(undefined, undefined, {
     async callback(attachmentWindow) {
       Assert.report(false, undefined, undefined, "Attachment dialog opened");
       await TestUtils.waitForCondition(
@@ -490,7 +490,7 @@ async function handleAddingAttachment(dialogWindow, url) {
         "attachment dialog active"
       );
 
-      let attachmentDocument = attachmentWindow.document;
+      const attachmentDocument = attachmentWindow.document;
       attachmentDocument.getElementById("loginTextbox").value = url;
       attachmentDocument.querySelector("dialog").getButton("accept").click();
     },
@@ -509,14 +509,14 @@ async function handleAddingAttachment(dialogWindow, url) {
  * @param {string} attendeesString - Comma separated list of email-addresses to add.
  */
 async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
-  let dialogDocument = dialogWindow.document;
+  const dialogDocument = dialogWindow.document;
 
-  let attendees = attendeesString.split(",");
-  for (let attendee of attendees) {
-    let calAttendee = iframeWindow.attendees.find(aAtt => aAtt.id == `mailto:${attendee}`);
+  const attendees = attendeesString.split(",");
+  for (const attendee of attendees) {
+    const calAttendee = iframeWindow.attendees.find(aAtt => aAtt.id == `mailto:${attendee}`);
     // Only add if not already present.
     if (!calAttendee) {
-      let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+      const dialogPromise = BrowserTestUtils.promiseAlertDialog(
         undefined,
         "chrome://calendar/content/calendar-event-dialog-attendees.xhtml",
         {
@@ -527,7 +527,7 @@ async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
               "attendees dialog active"
             );
 
-            let attendeesDocument = attendeesWindow.document;
+            const attendeesDocument = attendeesWindow.document;
             Assert.equal(attendeesDocument.activeElement.localName, "input");
             Assert.equal(
               attendeesDocument.activeElement.value,
@@ -561,13 +561,13 @@ async function addAttendees(dialogWindow, iframeWindow, attendeesString) {
  * @param {string} attendeesString - Comma separated list of email-addresses to delete.
  */
 async function deleteAttendees(iframeWindow, attendeesString) {
-  let iframeDocument = iframeWindow.document;
-  let menupopup = iframeDocument.getElementById("attendee-popup");
+  const iframeDocument = iframeWindow.document;
+  const menupopup = iframeDocument.getElementById("attendee-popup");
 
   // Now delete the attendees.
-  let attendees = attendeesString.split(",");
-  for (let attendee of attendees) {
-    let attendeeToDelete = iframeDocument.querySelector(
+  const attendees = attendeesString.split(",");
+  for (const attendee of attendees) {
+    const attendeeToDelete = iframeDocument.querySelector(
       `.attendee-list [attendeeid="mailto:${attendee}"]`
     );
     if (attendeeToDelete) {
@@ -591,13 +591,13 @@ async function deleteAttendees(iframeWindow, attendeesString) {
  * @param {string} timezone - String identifying the timezone.
  */
 async function setTimezone(dialogWindow, iframeWindow, timezone) {
-  let dialogDocument = dialogWindow.document;
-  let iframeDocument = iframeWindow.document;
+  const dialogDocument = dialogWindow.document;
+  const iframeDocument = iframeWindow.document;
 
-  let menuitem = dialogDocument.getElementById("options-timezones-menuitem");
-  let label = iframeDocument.getElementById("timezone-starttime");
-  let menupopup = iframeDocument.getElementById("timezone-popup");
-  let customMenuitem = iframeDocument.getElementById("timezone-custom-menuitem");
+  const menuitem = dialogDocument.getElementById("options-timezones-menuitem");
+  const label = iframeDocument.getElementById("timezone-starttime");
+  const menupopup = iframeDocument.getElementById("timezone-popup");
+  const customMenuitem = iframeDocument.getElementById("timezone-custom-menuitem");
 
   if (!BrowserTestUtils.is_visible(label)) {
     menuitem.click();
@@ -609,8 +609,8 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
 
   await TestUtils.waitForCondition(() => !label.disabled, "Tiemzone label should become enabled");
 
-  let shownPromise = BrowserTestUtils.waitForEvent(menupopup, "popupshown");
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+  const shownPromise = BrowserTestUtils.waitForEvent(menupopup, "popupshown");
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
     {
@@ -621,17 +621,17 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
           "timezone dialog active"
         );
 
-        let timezoneDocument = timezoneWindow.document;
-        let timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");
-        let timezoneMenuitem = timezoneMenulist.querySelector(`[value="${timezone}"]`);
+        const timezoneDocument = timezoneWindow.document;
+        const timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");
+        const timezoneMenuitem = timezoneMenulist.querySelector(`[value="${timezone}"]`);
 
-        let popupshown = BrowserTestUtils.waitForEvent(timezoneMenulist, "popupshown");
+        const popupshown = BrowserTestUtils.waitForEvent(timezoneMenulist, "popupshown");
         synthesizeMouseAtCenter(timezoneMenulist, {}, timezoneWindow);
         await popupshown;
 
         timezoneMenuitem.scrollIntoView();
 
-        let popuphidden = BrowserTestUtils.waitForEvent(timezoneMenulist, "popuphidden");
+        const popuphidden = BrowserTestUtils.waitForEvent(timezoneMenulist, "popuphidden");
         synthesizeMouseAtCenter(timezoneMenuitem, {}, timezoneWindow);
         await popuphidden;
 
@@ -661,18 +661,18 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
  * @param {string} value
  */
 async function menulistSelect(menulist, value) {
-  let win = menulist.ownerGlobal;
+  const win = menulist.ownerGlobal;
   Assert.ok(menulist, `<menulist id=${menulist.id}> exists`);
-  let menuitem = menulist.querySelector(`menupopup > menuitem[value='${value}']`);
+  const menuitem = menulist.querySelector(`menupopup > menuitem[value='${value}']`);
   Assert.ok(menuitem, `<menuitem value=${value}> exists`);
 
   menulist.focus();
 
-  let shownPromise = BrowserTestUtils.waitForEvent(menulist, "popupshown");
+  const shownPromise = BrowserTestUtils.waitForEvent(menulist, "popupshown");
   synthesizeMouseAtCenter(menulist, {}, win);
   await shownPromise;
 
-  let hiddenPromise = BrowserTestUtils.waitForEvent(menulist, "popuphidden");
+  const hiddenPromise = BrowserTestUtils.waitForEvent(menulist, "popuphidden");
   synthesizeMouseAtCenter(menuitem, {}, win);
   await hiddenPromise;
 

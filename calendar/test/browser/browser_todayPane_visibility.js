@@ -11,15 +11,13 @@
 // In all cases today pane should not be visible in preferences or addons tab.
 // Also test that the today pane button is visible/hidden for various tab types.
 add_task(async () => {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
 
   const todayPane = document.getElementById("today-pane-panel");
   const todayPaneButton = document.getElementById("calendar-status-todaypane-button");
-
-  let eventTabPanelId, taskTabPanelId;
 
   async function clickTodayPaneButton() {
     // The today pane button will be hidden for certain tabs (e.g. preferences), and then
@@ -38,7 +36,7 @@ add_task(async () => {
    */
   async function checkTodayPaneVisibility(tabsWhereVisible) {
     function check(tabModeName) {
-      let shouldBeVisible = tabsWhereVisible.includes(tabModeName);
+      const shouldBeVisible = tabsWhereVisible.includes(tabModeName);
       is(
         BrowserTestUtils.is_visible(todayPane),
         shouldBeVisible,
@@ -83,11 +81,11 @@ add_task(async () => {
   if (BrowserTestUtils.is_visible(todayPane)) {
     await clickTodayPaneButton();
   }
-  eventTabPanelId = await openNewCalendarEventTab();
+  const eventTabPanelId = await openNewCalendarEventTab();
   if (BrowserTestUtils.is_visible(todayPane)) {
     await clickTodayPaneButton();
   }
-  taskTabPanelId = await openNewCalendarTaskTab();
+  const taskTabPanelId = await openNewCalendarTaskTab();
   if (BrowserTestUtils.is_visible(todayPane)) {
     await clickTodayPaneButton();
   }

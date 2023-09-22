@@ -248,7 +248,7 @@ class CalendarWeekViewTestUtils {
       );
     }
 
-    let containers = win.document.documentElement.querySelectorAll(
+    const containers = win.document.documentElement.querySelectorAll(
       `${this.rootSelector} .day-column-container`
     );
     return containers[day - 1];
@@ -264,7 +264,7 @@ class CalendarWeekViewTestUtils {
    * @returns {HTMLElement} - The column heading container element.
    */
   getColumnHeading(win, day) {
-    let container = this.getColumnContainer(win, day);
+    const container = this.getColumnContainer(win, day);
     return container.querySelector(".day-column-heading");
   }
 
@@ -278,7 +278,7 @@ class CalendarWeekViewTestUtils {
    * @returns {MozCalendarEventColumn} - The column.
    */
   getEventColumn(win, day) {
-    let container = this.getColumnContainer(win, day);
+    const container = this.getColumnContainer(win, day);
     return container.querySelector("calendar-event-column");
   }
 
@@ -291,7 +291,7 @@ class CalendarWeekViewTestUtils {
    * @returns {MozCalendarEventBox[]} - The event boxes.
    */
   getEventBoxes(win, day) {
-    let container = this.getColumnContainer(win, day);
+    const container = this.getColumnContainer(win, day);
     return container.querySelectorAll(".multiday-events-list calendar-event-box");
   }
 
@@ -321,7 +321,7 @@ class CalendarWeekViewTestUtils {
    * @returns {XULElement} - The hour box.
    */
   getHourBoxAt(win, day, hour) {
-    let container = this.getColumnContainer(win, day);
+    const container = this.getColumnContainer(win, day);
     return container.querySelectorAll(".multiday-hour-box")[hour];
   }
 
@@ -336,7 +336,7 @@ class CalendarWeekViewTestUtils {
    * @returns {CalendarHeaderContainer} - The all-day header.
    */
   getAllDayHeader(win, day) {
-    let container = this.getColumnContainer(win, day);
+    const container = this.getColumnContainer(win, day);
     return container.querySelector("calendar-header-container");
   }
 
@@ -353,7 +353,7 @@ class CalendarWeekViewTestUtils {
    *   exists.
    */
   getAllDayItemAt(win, day, index) {
-    let allDayHeader = this.getAllDayHeader(win, day);
+    const allDayHeader = this.getAllDayHeader(win, day);
     return allDayHeader.querySelectorAll("calendar-editable-item")[index - 1];
   }
 
@@ -417,7 +417,7 @@ class CalendarWeekViewTestUtils {
    * @returns {Promise<Window>} - The summary event dialog window.
    */
   async viewEventAt(win, day, index) {
-    let item = await this.waitForEventBoxAt(win, day, index);
+    const item = await this.waitForEventBoxAt(win, day, index);
     return CalendarTestUtils.viewItem(win, item);
   }
 
@@ -432,7 +432,7 @@ class CalendarWeekViewTestUtils {
    * @returns {Promise<EditItemAtResult>}
    */
   async editEventAt(win, day, index) {
-    let item = await this.waitForEventBoxAt(win, day, index);
+    const item = await this.waitForEventBoxAt(win, day, index);
     return CalendarTestUtils.editItem(win, item);
   }
 
@@ -447,7 +447,7 @@ class CalendarWeekViewTestUtils {
    * @returns {Promise<EditItemAtResult>}
    */
   async editEventOccurrenceAt(win, day, index) {
-    let item = await this.waitForEventBoxAt(win, day, index);
+    const item = await this.waitForEventBoxAt(win, day, index);
     return CalendarTestUtils.editItemOccurrence(win, item);
   }
 
@@ -462,7 +462,7 @@ class CalendarWeekViewTestUtils {
    * @returns {Promise<EditItemAtResult>}
    */
   async editEventOccurrencesAt(win, day, index) {
-    let item = await this.waitForEventBoxAt(win, day, index);
+    const item = await this.waitForEventBoxAt(win, day, index);
     return CalendarTestUtils.editItemOccurrences(win, item);
   }
 }
@@ -521,7 +521,7 @@ class CalendarMonthViewTestUtils {
       throw new Error(`Invalid parameters to getItemAt(): expected index>=1, got index=${index}.`);
     }
 
-    let dayBox = this.getDayBox(win, week, day);
+    const dayBox = this.getDayBox(win, week, day);
     return dayBox.querySelector(`li:nth-of-type(${index}) calendar-month-day-box-item`);
   }
 
@@ -571,7 +571,7 @@ class CalendarMonthViewTestUtils {
    * @returns {Window} - The summary event dialog window.
    */
   async viewItemAt(win, week, day, index) {
-    let item = await this.waitForItemAt(win, week, day, index);
+    const item = await this.waitForItemAt(win, week, day, index);
     return CalendarTestUtils.viewItem(win, item);
   }
 
@@ -587,7 +587,7 @@ class CalendarMonthViewTestUtils {
    * @returns {EditItemAtResult}
    */
   async editItemAt(win, week, day, index) {
-    let item = await this.waitForItemAt(win, week, day, index);
+    const item = await this.waitForItemAt(win, week, day, index);
     return CalendarTestUtils.editItem(win, item);
   }
 
@@ -603,7 +603,7 @@ class CalendarMonthViewTestUtils {
    * @returns {EditItemAtResult}
    */
   async editItemOccurrenceAt(win, week, day, index) {
-    let item = await this.waitForItemAt(win, week, day, index);
+    const item = await this.waitForItemAt(win, week, day, index);
     return CalendarTestUtils.editItemOccurrence(win, item);
   }
 
@@ -619,7 +619,7 @@ class CalendarMonthViewTestUtils {
    * @returns {EditItemAtResult}
    */
   async editItemOccurrencesAt(win, week, day, index) {
-    let item = await this.waitForItemAt(win, week, day, index);
+    const item = await this.waitForItemAt(win, week, day, index);
     return CalendarTestUtils.editItemOccurrences(win, item);
   }
 }
@@ -671,19 +671,19 @@ const CalendarTestUtils = {
    * @returns The interpolated, dedented string
    */
   dedent(strings, ...values) {
-    let parts = [];
+    const parts = [];
     // Perform variable interpolation
     let minIndent = Infinity;
-    for (let [i, string] of strings.entries()) {
-      let innerparts = string.split("\n");
+    for (const [i, string] of strings.entries()) {
+      const innerparts = string.split("\n");
       if (i == 0) {
         innerparts.shift();
       }
       if (i == strings.length - 1) {
         innerparts.pop();
       }
-      for (let [j, ip] of innerparts.entries()) {
-        let match = ip.match(/^(\s*)\S*/);
+      for (const [j, ip] of innerparts.entries()) {
+        const match = ip.match(/^(\s*)\S*/);
         if (j != 0) {
           minIndent = Math.min(minIndent, match[1].length);
         }
@@ -714,7 +714,10 @@ const CalendarTestUtils = {
    * @returns {calICalendar}
    */
   createCalendar(name = "Test", type = "storage") {
-    let calendar = cal.manager.createCalendar(type, Services.io.newURI(`moz-${type}-calendar://`));
+    const calendar = cal.manager.createCalendar(
+      type,
+      Services.io.newURI(`moz-${type}-calendar://`)
+    );
     calendar.name = name;
     calendar.setProperty("calendar-main-default", true);
     cal.manager.registerCalendar(calendar);
@@ -736,13 +739,13 @@ const CalendarTestUtils = {
    * @param {Window} win
    */
   async openCalendarTab(win) {
-    let tabmail = win.document.getElementById("tabmail");
-    let calendarMode = tabmail.tabModes.calendar;
+    const tabmail = win.document.getElementById("tabmail");
+    const calendarMode = tabmail.tabModes.calendar;
 
     if (calendarMode.tabs.length == 1) {
       tabmail.selectedTab = calendarMode.tabs[0];
     } else {
-      let calendarTabButton = win.document.getElementById("calendarButton");
+      const calendarTabButton = win.document.getElementById("calendarButton");
       EventUtils.synthesizeMouseAtCenter(calendarTabButton, { clickCount: 1 }, win);
     }
 
@@ -771,7 +774,7 @@ const CalendarTestUtils = {
     await CalendarTestUtils.openCalendarTab(win);
     await CalendarTestUtils.ensureViewLoaded(win);
 
-    let viewTabButton = win.document.querySelector(
+    const viewTabButton = win.document.querySelector(
       `.calview-toggle-item[aria-controls="${viewName}-view"]`
     );
     EventUtils.synthesizeMouseAtCenter(viewTabButton, { clickCount: 1 }, win);
@@ -787,7 +790,7 @@ const CalendarTestUtils = {
    * @param {number} n - Number of times to move the view forward.
    */
   async calendarViewForward(win, n) {
-    let viewForwardButton = win.document.getElementById("nextViewButton");
+    const viewForwardButton = win.document.getElementById("nextViewButton");
     for (let i = 0; i < n; i++) {
       await clickAndWait(win, viewForwardButton);
       await CalendarTestUtils.ensureViewLoaded(win);
@@ -801,7 +804,7 @@ const CalendarTestUtils = {
    * @param {number} n - Number of times to move the view backward.
    */
   async calendarViewBackward(win, n) {
-    let viewBackwardButton = win.document.getElementById("previousViewButton");
+    const viewBackwardButton = win.document.getElementById("previousViewButton");
     for (let i = 0; i < n; i++) {
       await clickAndWait(win, viewBackwardButton);
       await CalendarTestUtils.ensureViewLoaded(win);
@@ -814,8 +817,8 @@ const CalendarTestUtils = {
    * @param {Window} win
    */
   async closeCalendarTab(win) {
-    let tabmail = win.document.getElementById("tabmail");
-    let calendarMode = tabmail.tabModes.calendar;
+    const tabmail = win.document.getElementById("tabmail");
+    const calendarMode = tabmail.tabModes.calendar;
 
     if (calendarMode.tabs.length == 1) {
       tabmail.closeTab(calendarMode.tabs[0]);
@@ -840,25 +843,25 @@ const CalendarTestUtils = {
       await BrowserTestUtils.waitForEvent(win, "focus");
     }
 
-    let promise = this.waitForEventDialog("view");
+    const promise = this.waitForEventDialog("view");
     EventUtils.synthesizeMouseAtCenter(item, { clickCount: 2 }, win);
     return promise;
   },
 
   async _editNewItem(win, target, type) {
-    let dialogPromise = CalendarTestUtils.waitForEventDialog("edit");
+    const dialogPromise = CalendarTestUtils.waitForEventDialog("edit");
 
     if (target) {
       this.scrollViewToTarget(target, true);
       await new Promise(resolve => win.setTimeout(resolve));
       EventUtils.synthesizeMouse(target, 1, 1, { clickCount: 2 }, win);
     } else {
-      let buttonId = `sidePanelNew${type[0].toUpperCase()}${type.slice(1).toLowerCase()}`;
+      const buttonId = `sidePanelNew${type[0].toUpperCase()}${type.slice(1).toLowerCase()}`;
       EventUtils.synthesizeMouseAtCenter(win.document.getElementById(buttonId), {}, win);
     }
 
-    let dialogWindow = await dialogPromise;
-    let iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
+    const dialogWindow = await dialogPromise;
+    const iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
     await new Promise(resolve => iframe.contentWindow.setTimeout(resolve));
     Assert.report(false, undefined, undefined, `New ${type} dialog opened`);
     return {
@@ -893,13 +896,13 @@ const CalendarTestUtils = {
   },
 
   async _editItem(win, item, selector) {
-    let summaryWin = await this.viewItem(win, item);
-    let promise = this.waitForEventDialog("edit");
-    let button = summaryWin.document.querySelector(selector);
+    const summaryWin = await this.viewItem(win, item);
+    const promise = this.waitForEventDialog("edit");
+    const button = summaryWin.document.querySelector(selector);
     button.click();
 
-    let dialogWindow = await promise;
-    let iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
+    const dialogWindow = await promise;
+    const iframe = dialogWindow.document.querySelector("#calendar-item-panel-iframe");
     return {
       dialogWindow,
       dialogDocument: dialogWindow.document,
@@ -960,7 +963,7 @@ const CalendarTestUtils = {
    * @returns {Promise<Window>}
    */
   waitForEventDialog(mode = "view") {
-    let uri =
+    const uri =
       mode === "edit"
         ? "chrome://calendar/content/calendar-event-dialog.xhtml"
         : "chrome://calendar/content/calendar-summary-dialog.xhtml";
@@ -977,7 +980,7 @@ const CalendarTestUtils = {
       );
 
       if (mode === "edit") {
-        let iframe = win.document.getElementById("calendar-item-panel-iframe");
+        const iframe = win.document.getElementById("calendar-item-panel-iframe");
         await TestUtils.waitForCondition(
           () => iframe.contentWindow?.onLoad?.hasLoaded,
           "waiting for iframe to be loaded"
@@ -1000,18 +1003,18 @@ const CalendarTestUtils = {
    * @param {number} day - 1-based index of a day
    */
   async goToDate(win, year, month, day) {
-    let miniMonth = win.document.getElementById("calMinimonth");
+    const miniMonth = win.document.getElementById("calMinimonth");
 
-    let activeYear = miniMonth.querySelector(".minimonth-year-name").getAttribute("value");
+    const activeYear = miniMonth.querySelector(".minimonth-year-name").getAttribute("value");
 
-    let activeMonth = miniMonth.querySelector(".minimonth-month-name").getAttribute("monthIndex");
+    const activeMonth = miniMonth.querySelector(".minimonth-month-name").getAttribute("monthIndex");
 
     async function doScroll(name, difference, sleepTime) {
       if (difference === 0) {
         return;
       }
-      let query = `.${name}s-${difference > 0 ? "back" : "forward"}-button`;
-      let scrollArrow = await TestUtils.waitForCondition(
+      const query = `.${name}s-${difference > 0 ? "back" : "forward"}-button`;
+      const scrollArrow = await TestUtils.waitForCondition(
         () => miniMonth.querySelector(query),
         `Query for scroll: ${query}`
       );
@@ -1032,9 +1035,9 @@ const CalendarTestUtils = {
       );
     }
 
-    let positionOfFirst = 7 - getMiniMonthDay(1, 7).textContent;
-    let weekDay = ((positionOfFirst + day - 1) % 7) + 1;
-    let week = Math.floor((positionOfFirst + day - 1) / 7) + 1;
+    const positionOfFirst = 7 - getMiniMonthDay(1, 7).textContent;
+    const weekDay = ((positionOfFirst + day - 1) % 7) + 1;
+    const week = Math.floor((positionOfFirst + day - 1) / 7) + 1;
 
     // Pick day.
     EventUtils.synthesizeMouseAtCenter(getMiniMonthDay(week, weekDay), {}, win);
@@ -1065,7 +1068,7 @@ const CalendarTestUtils = {
   async assertEventBoxDraggable(eventBox, startDraggable, endDraggable, message) {
     this.scrollViewToTarget(eventBox, true);
     // Hover to see if the drag gripbars appear.
-    let enterPromise = BrowserTestUtils.waitForEvent(eventBox, "mouseenter");
+    const enterPromise = BrowserTestUtils.waitForEvent(eventBox, "mouseenter");
     // Hover over start.
     EventUtils.synthesizeMouse(eventBox, 8, 8, { type: "mouseover" }, eventBox.ownerGlobal);
     await enterPromise;
@@ -1090,20 +1093,20 @@ const CalendarTestUtils = {
    *   edges of the target into view, else scrolls the end edges into view.
    */
   scrollViewToTarget(target, alignStart) {
-    let multidayView = target.closest("calendar-day-view, calendar-week-view");
+    const multidayView = target.closest("calendar-day-view, calendar-week-view");
     if (multidayView) {
       // Multiday view has sticky headers, so scrollIntoView doesn't actually
       // scroll far enough.
-      let scrollRect = multidayView.getScrollAreaRect();
-      let targetRect = target.getBoundingClientRect();
+      const scrollRect = multidayView.getScrollAreaRect();
+      const targetRect = target.getBoundingClientRect();
       // We want to move the view by the difference between the starting/ending
       // edge of the view and the starting/ending edge of the target.
-      let yDiff = alignStart
+      const yDiff = alignStart
         ? targetRect.top - scrollRect.top
         : targetRect.bottom - scrollRect.bottom;
       // In left-to-right, starting edge is the left edge. Otherwise, it is the
       // right edge.
-      let xDiff =
+      const xDiff =
         alignStart == (target.ownerDocument.dir == "ltr")
           ? targetRect.left - scrollRect.left
           : targetRect.right - scrollRect.right;
@@ -1130,7 +1133,7 @@ const CalendarTestUtils = {
       multidayViewsData: ["day", "week"].map(viewName => {
         // Save the scroll state since test utilities may change the scroll
         // position, and this is currently not reset on re-opening the tab.
-        let view = win.document.getElementById(`${viewName}-view`);
+        const view = win.document.getElementById(`${viewName}-view`);
         return { view, viewName, scrollMinute: view.scrollMinute };
       }),
     };
@@ -1144,7 +1147,7 @@ const CalendarTestUtils = {
    * @param {object} data - The data returned by saveCalendarViewsState.
    */
   async restoreCalendarViewsState(win, data) {
-    for (let { view, viewName, scrollMinute } of data.multidayViewsData) {
+    for (const { view, viewName, scrollMinute } of data.multidayViewsData) {
       await this.setCalendarView(win, viewName);
       // The scrollMinute is rounded to the nearest integer.
       // As is the scroll pixels.
@@ -1155,7 +1158,7 @@ const CalendarTestUtils = {
       //   scrollMinute = round(round(min * P) / P)
       // where P is the pixelsPerMinute of the view. Thus
       //   scrollMinute = min +- round(0.5 / P)
-      let roundingError = Math.round(0.5 / view.pixelsPerMinute);
+      const roundingError = Math.round(0.5 / view.pixelsPerMinute);
       view.scrollToMinute(scrollMinute);
       await TestUtils.waitForCondition(
         () => Math.abs(view.scrollMinute - scrollMinute) <= roundingError,

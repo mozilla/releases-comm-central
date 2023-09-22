@@ -23,7 +23,7 @@ var firstDay;
 
 var { dayView, monthView } = CalendarTestUtils;
 
-let calendar = CalendarTestUtils.createCalendar();
+const calendar = CalendarTestUtils.createCalendar();
 // This is done so that calItemBase#isInvitation returns true.
 calendar.setProperty("organizerId", `mailto:${EVENT_ORGANIZER_EMAIL}`);
 registerCleanupFunction(() => {
@@ -31,7 +31,7 @@ registerCleanupFunction(() => {
 });
 
 add_task(async function testEventDialog() {
-  let now = new Date();
+  const now = new Date();
 
   // Since from other tests we may be elsewhere, make sure we start today.
   await CalendarTestUtils.setCalendarView(window, "day");
@@ -50,12 +50,12 @@ add_task(async function testEventDialog() {
 
   // Setup start- & endTime.
   // Next full hour except last hour of the day.
-  let hour = now.getUTCHours();
-  let startHour = hour == 23 ? hour : (hour + 1) % 24;
+  const hour = now.getUTCHours();
+  const startHour = hour == 23 ? hour : (hour + 1) % 24;
 
-  let nextHour = cal.dtz.now();
+  const nextHour = cal.dtz.now();
   nextHour.resetTo(firstDay.year, firstDay.month, firstDay.day, startHour, 0, 0, cal.dtz.UTC);
-  let startTime = formatTime(nextHour);
+  const startTime = formatTime(nextHour);
   nextHour.resetTo(
     firstDay.year,
     firstDay.month,
@@ -65,31 +65,31 @@ add_task(async function testEventDialog() {
     0,
     cal.dtz.UTC
   );
-  let endTime = formatTime(nextHour);
+  const endTime = formatTime(nextHour);
 
   // Create new event on first day in view.
   EventUtils.synthesizeMouseAtCenter(monthView.getDayBox(window, 1, 1), {}, window);
 
-  let { dialogWindow, iframeWindow, dialogDocument, iframeDocument } =
+  const { dialogWindow, iframeWindow, dialogDocument, iframeDocument } =
     await CalendarTestUtils.editNewEvent(window);
 
   // First check all standard-values are set correctly.
-  let startPicker = iframeDocument.getElementById("event-starttime");
+  const startPicker = iframeDocument.getElementById("event-starttime");
   Assert.equal(startPicker._timepicker._inputField.value, startTime);
 
   // Check selected calendar.
   Assert.equal(iframeDocument.getElementById("item-calendar").value, "Test");
 
   // Check standard title.
-  let defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
+  const defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
   Assert.equal(iframeDocument.getElementById("item-title").placeholder, defTitle);
 
   // Prepare category.
-  let categories = cal.l10n.getAnyString("calendar", "categories", "categories2");
+  const categories = cal.l10n.getAnyString("calendar", "categories", "categories2");
   // Pick 4th value in a comma-separated list.
-  let category = categories.split(",")[4];
+  const category = categories.split(",")[4];
   // Calculate date to repeat until.
-  let untildate = firstDay.clone();
+  const untildate = firstDay.clone();
   untildate.addDuration(cal.createDuration("P20D"));
 
   // Fill in the rest of the values.
@@ -113,8 +113,8 @@ add_task(async function testEventDialog() {
     dialogWindow
   );
 
-  let attendeesTab = iframeDocument.getElementById("event-grid-tabpanel-attendees");
-  let attendeeNameElements = attendeesTab.querySelectorAll(".attendee-list .attendee-name");
+  const attendeesTab = iframeDocument.getElementById("event-grid-tabpanel-attendees");
+  const attendeeNameElements = attendeesTab.querySelectorAll(".attendee-list .attendee-name");
   Assert.equal(attendeeNameElements.length, 2, "there should be two attendees after save");
   Assert.equal(attendeeNameElements[0].textContent, EVENT_ORGANIZER_EMAIL);
   Assert.equal(attendeeNameElements[1].textContent, EVENTATTENDEE);
@@ -133,15 +133,15 @@ add_task(async function testEventDialog() {
     iframeWindow
   );
 
-  let attachmentsTab = iframeDocument.getElementById("event-grid-tabpanel-attachments");
+  const attachmentsTab = iframeDocument.getElementById("event-grid-tabpanel-attachments");
   Assert.equal(attachmentsTab.querySelectorAll("richlistitem").length, 1);
 
-  let alarmPromise = BrowserTestUtils.promiseAlertDialog(
+  const alarmPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://calendar/content/calendar-alarm-dialog.xhtml",
     {
       callback(alarmWindow) {
-        let dismissAllButton = alarmWindow.document.getElementById("alarm-dismiss-all-button");
+        const dismissAllButton = alarmWindow.document.getElementById("alarm-dismiss-all-button");
         EventUtils.synthesizeMouseAtCenter(dismissAllButton, {}, alarmWindow);
       },
     }
@@ -200,7 +200,7 @@ add_task(async function testEventDialog() {
 });
 
 add_task(async function testOpenExistingEventDialog() {
-  let now = new Date();
+  const now = new Date();
 
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(
@@ -210,10 +210,10 @@ add_task(async function testOpenExistingEventDialog() {
     now.getUTCDate()
   );
 
-  let createBox = dayView.getHourBoxAt(window, 8);
+  const createBox = dayView.getHourBoxAt(window, 8);
 
   // Create a new event.
-  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
   await setData(dialogWindow, iframeWindow, {
     title: EVENTTITLE,
     location: EVENTLOCATION,
@@ -221,10 +221,10 @@ add_task(async function testOpenExistingEventDialog() {
   });
   await saveAndCloseItemDialog(dialogWindow);
 
-  let eventBox = await dayView.waitForEventBoxAt(window, 1);
+  const eventBox = await dayView.waitForEventBoxAt(window, 1);
 
   // Open the event in the summary dialog, it will fail if otherwise.
-  let eventWin = await CalendarTestUtils.viewItem(window, eventBox);
+  const eventWin = await CalendarTestUtils.viewItem(window, eventBox);
   Assert.equal(
     eventWin.document.querySelector("calendar-item-summary .item-title").textContent,
     EVENTTITLE
@@ -293,7 +293,7 @@ add_task(async function testEventReminderDisplay() {
   EventUtils.synthesizeKey("VK_ESCAPE", {}, eventWindow);
 
   // Create an invitation.
-  let icalString =
+  const icalString =
     "BEGIN:VCALENDAR\r\n" +
     "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN\r\n" +
     "VERSION:2.0\r\n" +
@@ -319,7 +319,7 @@ add_task(async function testEventReminderDisplay() {
     "END:VEVENT\r\n" +
     "END:VCALENDAR\r\n";
 
-  let calendarEvent = await calendar.addItem(new CalEvent(icalString));
+  const calendarEvent = await calendar.addItem(new CalEvent(icalString));
   await CalendarTestUtils.goToDate(window, 2020, 3, 1);
   eventBox = await dayView.waitForEventBoxAt(window, 1);
 
@@ -344,8 +344,8 @@ add_task(async function testCtrlEnterShortcut() {
   await CalendarTestUtils.setCalendarView(window, "day");
   await CalendarTestUtils.goToDate(window, 2020, 9, 1);
 
-  let createBox = dayView.getHourBoxAt(window, 8);
-  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
+  const createBox = dayView.getHourBoxAt(window, 8);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, createBox);
   await setData(dialogWindow, iframeWindow, {
     title: EVENTTITLE,
     location: EVENTLOCATION,
@@ -359,7 +359,7 @@ add_task(async function testCtrlEnterShortcut() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 2000));
 
-  let events = document.querySelectorAll("calendar-month-day-box-item");
+  const events = document.querySelectorAll("calendar-month-day-box-item");
   Assert.equal(events.length, 1, "event was created once");
 
   if (Services.focus.activeWindow != window) {
@@ -371,9 +371,9 @@ add_task(async function testCtrlEnterShortcut() {
 });
 
 function checkTooltip(row, col, startTime, endTime) {
-  let item = monthView.getItemAt(window, row, col, 1);
+  const item = monthView.getItemAt(window, row, col, 1);
 
-  let toolTipNode = document.getElementById("itemTooltip");
+  const toolTipNode = document.getElementById("itemTooltip");
   toolTipNode.ownerGlobal.onMouseOverItem({ currentTarget: item });
 
   function getDescription(index) {
@@ -386,11 +386,11 @@ function checkTooltip(row, col, startTime, endTime) {
   Assert.equal(getDescription(1), EVENTTITLE);
 
   // Check date and time.
-  let dateTime = getDescription(3);
+  const dateTime = getDescription(3);
 
-  let currDate = firstDay.clone();
+  const currDate = firstDay.clone();
   currDate.addDuration(cal.createDuration(`P${7 * (row - 1) + (col - 1)}D`));
-  let startDate = cal.dtz.formatter.formatDate(currDate);
+  const startDate = cal.dtz.formatter.formatDate(currDate);
 
   Assert.ok(dateTime.includes(`${startDate} ${startTime} – `));
 

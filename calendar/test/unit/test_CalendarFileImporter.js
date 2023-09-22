@@ -11,21 +11,21 @@ var { CalendarFileImporter } = ChromeUtils.import("resource:///modules/CalendarF
  * Test CalendarFileImporter can import ics file correctly.
  */
 async function test_importIcsFile() {
-  let importer = new CalendarFileImporter();
+  const importer = new CalendarFileImporter();
 
   // Parse items from ics file should work.
-  let items = await importer.parseIcsFile(do_get_file("data/import.ics"));
+  const items = await importer.parseIcsFile(do_get_file("data/import.ics"));
   equal(items.length, 4);
 
   // Create a temporary calendar.
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
 
   // Put items to the temporary calendar should work.
   await importer.startImport(items, calendar);
-  let result = await calendar.getItemsAsArray(
+  const result = await calendar.getItemsAsArray(
     Ci.calICalendar.ITEM_FILTER_ALL_ITEMS,
     0,
     cal.createDateTime("20190101T000000"),

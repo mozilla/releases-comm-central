@@ -3,7 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 add_task(async function () {
-  let calendar = createCalendar("storage", "moz-storage-calendar://");
+  const calendar = createCalendar("storage", "moz-storage-calendar://");
 
   info("creating the item");
   calendarObserver._batchRequired = false;

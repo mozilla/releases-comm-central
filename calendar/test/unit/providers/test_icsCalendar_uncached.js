@@ -22,7 +22,7 @@ registerCleanupFunction(() => ICSServer.close());
 add_task(async function () {
   calendarObserver._onAddItemPromise = PromiseUtils.defer();
   calendarObserver._onLoadPromise = PromiseUtils.defer();
-  let calendar = createCalendar("ics", ICSServer.url, false);
+  const calendar = createCalendar("ics", ICSServer.url, false);
   await calendarObserver._onAddItemPromise.promise;
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");

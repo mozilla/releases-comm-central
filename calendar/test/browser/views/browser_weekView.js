@@ -13,7 +13,7 @@ var TITLE2 = "Week View Event Changed";
 var DESC = "Week View Event Description";
 
 add_task(async function testWeekView() {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -23,7 +23,9 @@ add_task(async function testWeekView() {
 
   // Verify date.
   await TestUtils.waitForCondition(() => {
-    let dateLabel = document.querySelector("#week-view .day-column-selected calendar-event-column");
+    const dateLabel = document.querySelector(
+      "#week-view .day-column-selected calendar-event-column"
+    );
     return dateLabel?.date.icalString == "20090101";
   }, "Date is selected");
 
@@ -36,10 +38,10 @@ add_task(async function testWeekView() {
   );
 
   // Check that the start time is correct.
-  let someDate = cal.createDateTime();
+  const someDate = cal.createDateTime();
   someDate.resetTo(2009, 0, 5, 8, 0, 0, cal.dtz.UTC);
 
-  let startPicker = iframeDocument.getElementById("event-starttime");
+  const startPicker = iframeDocument.getElementById("event-starttime");
   Assert.equal(startPicker._datepicker._inputField.value, formatDate(someDate));
   Assert.equal(startPicker._timepicker._inputField.value, formatTime(someDate));
 

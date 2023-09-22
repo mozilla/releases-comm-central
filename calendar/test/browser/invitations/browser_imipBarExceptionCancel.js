@@ -28,7 +28,7 @@ let transport;
  */
 add_setup(async function () {
   requestLongerTimeout(3);
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
@@ -43,14 +43,14 @@ add_setup(async function () {
 
   calendar = CalendarTestUtils.createCalendar("Test");
   transport = new EmailTransport(account, identity);
-  let getImipTransport = cal.itip.getImipTransport;
+  const getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => transport;
 
-  let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+  const deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
     Ci.calIDeletedItems
   ).wrappedJSObject;
 
-  let markDeleted = deleteMgr.markDeleted;
+  const markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
   registerCleanupFunction(() => {
@@ -65,7 +65,7 @@ add_setup(async function () {
  * Tests cancelling an exception works.
  */
 add_task(async function testCancelException() {
-  for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
+  for (const partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
     await doCancelExceptionTest({
       calendar,
       transport,
@@ -81,13 +81,13 @@ add_task(async function testCancelException() {
  * Tests cancelling an event with only an exception processed works.
  */
 add_task(async function testCancelExceptionOnly() {
-  for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
-    let win = await openImipMessage(
+  for (const partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
+    const win = await openImipMessage(
       new FileUtils.File(getTestFilePath("data/exception-major.eml"))
     );
     await clickAction(win, actionIds.single.button[partStat]);
 
-    let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1)).item;
+    const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1)).item;
     await BrowserTestUtils.closeWindow(win);
     await doCancelTest({
       calendar,
@@ -103,8 +103,8 @@ add_task(async function testCancelExceptionOnly() {
  * exception was processed previously.
  */
 add_task(async function testCancelSeriesWithExceptionOnly() {
-  for (let partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
-    let win = await openImipMessage(
+  for (const partStat of ["ACCEPTED", "TENTATIVE", "DECLINED"]) {
+    const win = await openImipMessage(
       new FileUtils.File(getTestFilePath("data/exception-major.eml"))
     );
     await clickMenuAction(
@@ -113,14 +113,14 @@ add_task(async function testCancelSeriesWithExceptionOnly() {
       actionIds.single.noReply[partStat]
     );
 
-    let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1)).item;
+    const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 5, 1)).item;
     await BrowserTestUtils.closeWindow(win);
 
-    let cancel = new FileUtils.File(getTestFilePath("data/cancel-repeat-event.eml"));
-    let cancelWin = await openImipMessage(cancel);
-    let aboutMessage = cancelWin.document.getElementById("messageBrowser").contentWindow;
+    const cancel = new FileUtils.File(getTestFilePath("data/cancel-repeat-event.eml"));
+    const cancelWin = await openImipMessage(cancel);
+    const aboutMessage = cancelWin.document.getElementById("messageBrowser").contentWindow;
 
-    let deleteButton = aboutMessage.document.getElementById("imipDeleteButton");
+    const deleteButton = aboutMessage.document.getElementById("imipDeleteButton");
     Assert.ok(!deleteButton.hidden, `#${deleteButton.id} button shown`);
     EventUtils.synthesizeMouseAtCenter(deleteButton, {}, aboutMessage);
     await BrowserTestUtils.closeWindow(cancelWin);

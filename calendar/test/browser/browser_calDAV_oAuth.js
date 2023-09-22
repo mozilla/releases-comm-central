@@ -38,7 +38,7 @@ function setPref(calendarId, key, value) {
  */
 async function setLogins(...logins) {
   Services.logins.removeAllLogins();
-  for (let [origin, realm, username, password] of logins) {
+  for (const [origin, realm, username, password] of logins) {
     await Services.logins.addLoginAsync(
       new LoginInfo(origin, null, realm, username, password, "", "")
     );
@@ -55,10 +55,10 @@ async function setLogins(...logins) {
  *   stored with this user name.
  */
 async function subtest(calendarId, newTokenUsername) {
-  let calendar = new CalDavCalendar();
+  const calendar = new CalDavCalendar();
   calendar.id = calendarId;
 
-  let request = new CalDavGenericRequest(
+  const request = new CalDavGenericRequest(
     calendar.wrappedJSObject.session,
     calendar,
     "GET",
@@ -66,13 +66,13 @@ async function subtest(calendarId, newTokenUsername) {
       "http://mochi.test:8888/browser/comm/mail/components/addrbook/test/browser/data/auth_headers.sjs"
     )
   );
-  let response = await request.commit();
-  let headers = JSON.parse(response.text);
+  const response = await request.commit();
+  const headers = JSON.parse(response.text);
 
   if (newTokenUsername) {
     Assert.equal(headers.authorization, "Bearer new_access_token");
 
-    let logins = Services.logins
+    const logins = Services.logins
       .findLogins(ORIGIN, null, SCOPE)
       .filter(l => l.username == newTokenUsername);
     Assert.equal(logins.length, 1);
@@ -89,20 +89,20 @@ async function subtest(calendarId, newTokenUsername) {
 
 /** No token stored, no username or session ID set. */
 add_task(function testCalendarOAuth_id_none() {
-  let calendarId = "testCalendarOAuth_id_none";
+  const calendarId = "testCalendarOAuth_id_none";
   return subtest(calendarId, calendarId);
 });
 
 /** No token stored, session ID set. */
 add_task(function testCalendarOAuth_sessionId_none() {
-  let calendarId = "testCalendarOAuth_sessionId_none";
+  const calendarId = "testCalendarOAuth_sessionId_none";
   setPref(calendarId, "sessionId", "test_session");
   return subtest(calendarId, "test_session");
 });
 
 /** No token stored, username set. */
 add_task(function testCalendarOAuth_username_none() {
-  let calendarId = "testCalendarOAuth_username_none";
+  const calendarId = "testCalendarOAuth_username_none";
   setPref(calendarId, "username", USERNAME);
   return subtest(calendarId, USERNAME);
 });
@@ -112,14 +112,14 @@ add_task(function testCalendarOAuth_username_none() {
 
 /** Expired token stored with calendar ID. */
 add_task(async function testCalendarOAuth_id_expired() {
-  let calendarId = "testCalendarOAuth_id_expired";
+  const calendarId = "testCalendarOAuth_id_expired";
   await setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, "expired_token"]);
   await subtest(calendarId, calendarId);
 }).skip(); // Broken.
 
 /** Expired token stored with session ID. */
 add_task(async function testCalendarOAuth_sessionId_expired() {
-  let calendarId = "testCalendarOAuth_sessionId_expired";
+  const calendarId = "testCalendarOAuth_sessionId_expired";
   setPref(calendarId, "sessionId", "test_session");
   await setLogins(["oauth:test_session", "Google CalDAV v2", "test_session", "expired_token"]);
   await subtest(calendarId, "test_session");
@@ -127,7 +127,7 @@ add_task(async function testCalendarOAuth_sessionId_expired() {
 
 /** Expired token stored with calendar ID, username set. */
 add_task(async function testCalendarOAuth_username_expired() {
-  let calendarId = "testCalendarOAuth_username_expired";
+  const calendarId = "testCalendarOAuth_username_expired";
   setPref(calendarId, "username", USERNAME);
   await setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, "expired_token"]);
   await subtest(calendarId, USERNAME);
@@ -137,14 +137,14 @@ add_task(async function testCalendarOAuth_username_expired() {
 
 /** Valid token stored with calendar ID. */
 add_task(async function testCalendarOAuth_id_valid() {
-  let calendarId = "testCalendarOAuth_id_valid";
+  const calendarId = "testCalendarOAuth_id_valid";
   await setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, VALID_TOKEN]);
   await subtest(calendarId);
 });
 
 /** Valid token stored with session ID. */
 add_task(async function testCalendarOAuth_sessionId_valid() {
-  let calendarId = "testCalendarOAuth_sessionId_valid";
+  const calendarId = "testCalendarOAuth_sessionId_valid";
   setPref(calendarId, "sessionId", "test_session");
   await setLogins(["oauth:test_session", "Google CalDAV v2", "test_session", VALID_TOKEN]);
   await subtest(calendarId);
@@ -152,7 +152,7 @@ add_task(async function testCalendarOAuth_sessionId_valid() {
 
 /** Valid token stored with calendar ID, username set. */
 add_task(async function testCalendarOAuth_username_valid() {
-  let calendarId = "testCalendarOAuth_username_valid";
+  const calendarId = "testCalendarOAuth_username_valid";
   setPref(calendarId, "username", USERNAME);
   await setLogins([`oauth:${calendarId}`, "Google CalDAV v2", calendarId, VALID_TOKEN]);
   await subtest(calendarId, USERNAME);
@@ -162,14 +162,14 @@ add_task(async function testCalendarOAuth_username_valid() {
 
 /** Valid token stored with calendar ID. */
 add_task(async function testCalendarOAuthTB_id_valid() {
-  let calendarId = "testCalendarOAuthTB_id_valid";
+  const calendarId = "testCalendarOAuthTB_id_valid";
   await setLogins([ORIGIN, SCOPE, calendarId, VALID_TOKEN]);
   await subtest(calendarId);
 });
 
 /** Valid token stored with session ID. */
 add_task(async function testCalendarOAuthTB_sessionId_valid() {
-  let calendarId = "testCalendarOAuthTB_sessionId_valid";
+  const calendarId = "testCalendarOAuthTB_sessionId_valid";
   setPref(calendarId, "sessionId", "test_session");
   await setLogins([ORIGIN, SCOPE, "test_session", VALID_TOKEN]);
   await subtest(calendarId);
@@ -177,7 +177,7 @@ add_task(async function testCalendarOAuthTB_sessionId_valid() {
 
 /** Valid token stored with calendar ID, username set. */
 add_task(async function testCalendarOAuthTB_username_valid() {
-  let calendarId = "testCalendarOAuthTB_username_valid";
+  const calendarId = "testCalendarOAuthTB_username_valid";
   setPref(calendarId, "username", USERNAME);
   await setLogins([ORIGIN, SCOPE, calendarId, VALID_TOKEN]);
   await subtest(calendarId, USERNAME);
@@ -185,7 +185,7 @@ add_task(async function testCalendarOAuthTB_username_valid() {
 
 /** Valid token stored with username, exact scope. */
 add_task(async function testCalendarOAuthTB_username_validSingle() {
-  let calendarId = "testCalendarOAuthTB_username_validSingle";
+  const calendarId = "testCalendarOAuthTB_username_validSingle";
   setPref(calendarId, "username", USERNAME);
   await setLogins(
     [ORIGIN, SCOPE, USERNAME, VALID_TOKEN],
@@ -196,7 +196,7 @@ add_task(async function testCalendarOAuthTB_username_validSingle() {
 
 /** Valid token stored with username, many scopes. */
 add_task(async function testCalendarOAuthTB_username_validMultiple() {
-  let calendarId = "testCalendarOAuthTB_username_validMultiple";
+  const calendarId = "testCalendarOAuthTB_username_validMultiple";
   setPref(calendarId, "username", USERNAME);
   await setLogins([ORIGIN, "scope test_scope other_scope", USERNAME, VALID_TOKEN]);
   await subtest(calendarId);

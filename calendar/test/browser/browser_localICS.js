@@ -24,8 +24,8 @@ add_task(async function testLocalICS() {
   await createCalendarUsingDialog(calendarName, { network: {} });
 
   // Create new event.
-  let box = CalendarTestUtils.dayView.getHourBoxAt(window, HOUR);
-  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, box);
+  const box = CalendarTestUtils.dayView.getHourBoxAt(window, HOUR);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, box);
   await setData(dialogWindow, iframeWindow, { title: calendarName, calendar: calendarName });
   await saveAndCloseItemDialog(dialogWindow);
 
@@ -33,10 +33,10 @@ add_task(async function testLocalICS() {
   await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
 
   // Verify in file.
-  let fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
+  const fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
     Ci.nsIFileInputStream
   );
-  let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(
+  const cstream = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(
     Ci.nsIConverterInputStream
   );
 
@@ -47,7 +47,7 @@ add_task(async function testLocalICS() {
   fstream.init(calendarFile, -1, 0, 0);
   cstream.init(fstream, "UTF-8", 0, 0);
 
-  let str = {};
+  const str = {};
   cstream.readString(-1, str);
   cstream.close();
 
@@ -55,7 +55,7 @@ add_task(async function testLocalICS() {
 });
 
 registerCleanupFunction(() => {
-  for (let calendar of cal.manager.getCalendars()) {
+  for (const calendar of cal.manager.getCalendars()) {
     if (calendar.name == calendarName) {
       cal.manager.removeCalendar(calendar);
     }

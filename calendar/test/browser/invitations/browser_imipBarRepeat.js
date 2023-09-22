@@ -22,7 +22,7 @@ let transport;
  * Initialize account, identity and calendar.
  */
 add_setup(async function () {
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
@@ -38,13 +38,13 @@ add_setup(async function () {
   calendar = CalendarTestUtils.createCalendar("Test");
   transport = new EmailTransport(account, identity);
 
-  let getImipTransport = cal.itip.getImipTransport;
+  const getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => transport;
 
-  let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+  const deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
     Ci.calIDeletedItems
   ).wrappedJSObject;
-  let markDeleted = deleteMgr.markDeleted;
+  const markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
   registerCleanupFunction(() => {
@@ -60,10 +60,10 @@ add_setup(async function () {
  */
 add_task(async function testAcceptRecurringWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickAction(win, "imipAcceptRecurrencesButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,
@@ -85,10 +85,10 @@ add_task(async function testAcceptRecurringWithResponse() {
  */
 add_task(async function testTentativeRecurringWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickAction(win, "imipTentativeRecurrencesButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,
@@ -109,10 +109,10 @@ add_task(async function testTentativeRecurringWithResponse() {
  */
 add_task(async function testDeclineRecurringWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickAction(win, "imipDeclineRecurrencesButton");
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
 
   await doImipBarActionTest(
     {
@@ -134,14 +134,14 @@ add_task(async function testDeclineRecurringWithResponse() {
  */
 add_task(async function testAcceptRecurringWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickMenuAction(
     win,
     "imipAcceptRecurrencesButton",
     "imipAcceptRecurrencesButton_AcceptDontSend"
   );
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,
@@ -164,14 +164,14 @@ add_task(async function testAcceptRecurringWithoutResponse() {
  */
 add_task(async function testTentativeRecurringWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickMenuAction(
     win,
     "imipTentativeRecurrencesButton",
     "imipTentativeRecurrencesButton_TentativeDontSend"
   );
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,
@@ -193,14 +193,14 @@ add_task(async function testTentativeRecurringWithoutResponse() {
  */
 add_task(async function testDeclineRecurrencesWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/repeat-event.eml")));
   await clickMenuAction(
     win,
     "imipDeclineRecurrencesButton",
     "imipDeclineRecurrencesButton_DeclineDontSend"
   );
 
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,

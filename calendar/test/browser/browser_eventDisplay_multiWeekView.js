@@ -21,7 +21,7 @@ registerCleanupFunction(() => {
  * @returns {Promise<CalEvent>} - The created event.
  */
 function createEvent(name, start, end) {
-  let event = new CalEvent();
+  const event = new CalEvent();
   event.title = name;
   event.startDate = cal.createDateTime(start);
   event.endDate = cal.createDateTime(end);
@@ -51,25 +51,25 @@ function createEvent(name, start, end) {
  */
 async function assertMultiweekEvents(viewName, numWeeks, date, expect, message) {
   await CalendarTestUtils.goToDate(window, date.year, date.month, date.day);
-  let view =
+  const view =
     viewName == "multiweek" ? CalendarTestUtils.multiweekView : CalendarTestUtils.monthView;
 
   // start = (startWeek - 1) * 7 + startDay
-  let startWeek = Math.floor((expect.start - 1) / 7) + 1;
-  let startDay = ((expect.start - 1) % 7) + 1;
-  let endWeek = Math.floor((expect.end - 1) / 7) + 1;
-  let endDay = ((expect.end - 1) % 7) + 1;
+  const startWeek = Math.floor((expect.start - 1) / 7) + 1;
+  const startDay = ((expect.start - 1) % 7) + 1;
+  const endWeek = Math.floor((expect.end - 1) / 7) + 1;
+  const endDay = ((expect.end - 1) % 7) + 1;
   for (let week = startWeek; week <= endWeek; week++) {
-    let start = week == startWeek ? startDay : 1;
-    let end = week == endWeek ? endDay : 7;
+    const start = week == startWeek ? startDay : 1;
+    const end = week == endWeek ? endDay : 7;
     for (let day = start; day <= end; day++) {
-      let element = await view.waitForItemAt(window, week, day, 1);
+      const element = await view.waitForItemAt(window, week, day, 1);
       Assert.equal(
         element.querySelector(".event-name-label").textContent,
         expect.name,
         `Week ${week}, day ${day} event name should match: ${message}`
       );
-      let multidayIcon = element.querySelector(".item-type-icon");
+      const multidayIcon = element.querySelector(".item-type-icon");
       if (startDay == endDay && week == startWeek && day == startDay) {
         Assert.equal(multidayIcon.src, "", `Week ${week}, day ${day} icon has no source`);
       } else if (expect.startInView && week == startWeek && day == startDay) {
@@ -120,7 +120,7 @@ async function assertMultiweekEvents(viewName, numWeeks, date, expect, message) 
  * Test an event that occurs fully within the multi-week view.
  */
 add_task(async function testInsideMultiweekView() {
-  let event = await createEvent("Test Event", "20190402T123400", "20190419T234500");
+  const event = await createEvent("Test Event", "20190402T123400", "20190419T234500");
   await CalendarTestUtils.setCalendarView(window, "multiweek");
   Assert.equal(
     document.querySelectorAll("#multiweek-view tr:not([hidden]) calendar-month-day-box").length,
@@ -145,7 +145,7 @@ add_task(async function testInsideMultiweekView() {
  */
 add_task(async function testMidnightMultiweekView() {
   // Event spans one day.
-  let event = await createEvent("Test Event", "20190402T000000", "20190403T000000");
+  const event = await createEvent("Test Event", "20190402T000000", "20190403T000000");
   await CalendarTestUtils.setCalendarView(window, "multiweek");
 
   await assertMultiweekEvents(
@@ -164,7 +164,7 @@ add_task(async function testMidnightMultiweekView() {
  * Test an event that starts or ends outside the multi-week view.
  */
 add_task(async function testOutsideMultiweekView() {
-  let event = await createEvent("Test Event", "20190402T123400", "20190507T234500");
+  const event = await createEvent("Test Event", "20190402T123400", "20190507T234500");
   await CalendarTestUtils.setCalendarView(window, "multiweek");
 
   await assertMultiweekEvents(
@@ -199,7 +199,7 @@ add_task(async function testOutsideMultiweekView() {
  * Test an event that occurs within one month, in the month view.
  */
 add_task(async function testInsideMonthView() {
-  let event = await createEvent("Test Event", "20190702T123400", "20190719T234500");
+  const event = await createEvent("Test Event", "20190702T123400", "20190719T234500");
   await CalendarTestUtils.setCalendarView(window, "month");
   Assert.equal(
     document.querySelectorAll("#month-view tr:not([hidden]) calendar-month-day-box").length,
@@ -224,7 +224,7 @@ add_task(async function testInsideMonthView() {
  */
 add_task(async function testMidnightMonthView() {
   // Event spans three days.
-  let event = await createEvent("Test Event", "20190702T000000", "20190705T000000");
+  const event = await createEvent("Test Event", "20190702T000000", "20190705T000000");
   await CalendarTestUtils.setCalendarView(window, "month");
 
   await assertMultiweekEvents(
@@ -243,7 +243,7 @@ add_task(async function testMidnightMonthView() {
  * Test an event that spans multiple months, in the month view.
  */
 add_task(async function testOutsideMonthView() {
-  let event = await createEvent("Test Event", "20190320T123400", "20190507T234500");
+  const event = await createEvent("Test Event", "20190320T123400", "20190507T234500");
   await CalendarTestUtils.setCalendarView(window, "month");
 
   await assertMultiweekEvents(

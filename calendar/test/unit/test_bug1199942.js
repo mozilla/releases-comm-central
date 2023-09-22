@@ -17,24 +17,24 @@ function run_test() {
 }
 
 function createAttendee_test() {
-  let data = [
+  const data = [
     { input: "mailto:user1@example.net", expected: "mailto:user1@example.net" },
     { input: "MAILTO:user2@example.net", expected: "mailto:user2@example.net" },
     { input: "user3@example.net", expected: "mailto:user3@example.net" },
     { input: "urn:uuid:user4", expected: "urn:uuid:user4" },
   ];
-  let event = new CalEvent();
-  for (let test of data) {
-    let attendee = new CalAttendee();
+  const event = new CalEvent();
+  for (const test of data) {
+    const attendee = new CalAttendee();
     attendee.id = test.input;
     event.addAttendee(attendee);
-    let readAttendee = event.getAttendeeById(cal.email.prependMailTo(test.input));
+    const readAttendee = event.getAttendeeById(cal.email.prependMailTo(test.input));
     equal(readAttendee.id, test.expected);
   }
 }
 
 function serializeEvent_test() {
-  let ics =
+  const ics =
     "BEGIN:VCALENDAR\n" +
     "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN\n" +
     "VERSION:2.0\n" +
@@ -55,27 +55,27 @@ function serializeEvent_test() {
     "END:VEVENT\n" +
     "END:VCALENDAR\n";
 
-  let expectedIds = [
+  const expectedIds = [
     "mailto:user2@example.net",
     "mailto:user3@example.net",
     "mailto:user4@example.net",
     "urn:uuid:user5",
   ];
-  let event = createEventFromIcalString(ics);
-  let attendees = event.getAttendees();
+  const event = createEventFromIcalString(ics);
+  const attendees = event.getAttendees();
 
   // check whether all attendees get returned with expected id
-  for (let attendee of attendees) {
+  for (const attendee of attendees) {
     ok(expectedIds.includes(attendee.id));
   }
 
   // serialize the event again and check whether the attendees still are in shape
-  let serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
+  const serializer = Cc["@mozilla.org/calendar/ics-serializer;1"].createInstance(
     Ci.calIIcsSerializer
   );
   serializer.addItems([event]);
-  let serialized = ics_unfoldline(serializer.serializeToString());
-  for (let id of expectedIds) {
+  const serialized = ics_unfoldline(serializer.serializeToString());
+  for (const id of expectedIds) {
     ok(serialized.search(id) != -1);
   }
 }

@@ -20,22 +20,25 @@ var { PluralForm } = ChromeUtils.importESModule("resource:///modules/PluralForm.
 const DEFVALUE = 43;
 
 add_task(async function testDefaultAlarms() {
-  let calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
+  const calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
   calendar.setProperty("calendar-main-default", true);
   registerCleanupFunction(async () => {
     CalendarTestUtils.removeCalendar(calendar);
   });
 
-  let localeUnitString = cal.l10n.getCalString("unitDays");
-  let unitString = PluralForm.get(DEFVALUE, localeUnitString).replace("#1", DEFVALUE);
-  let alarmString = (...args) => cal.l10n.getString("calendar-alarms", ...args);
-  let originStringEvent = alarmString("reminderCustomOriginBeginBeforeEvent");
-  let originStringTask = alarmString("reminderCustomOriginBeginBeforeTask");
-  let expectedEventReminder = alarmString("reminderCustomTitle", [unitString, originStringEvent]);
-  let expectedTaskReminder = alarmString("reminderCustomTitle", [unitString, originStringTask]);
+  const localeUnitString = cal.l10n.getCalString("unitDays");
+  const unitString = PluralForm.get(DEFVALUE, localeUnitString).replace("#1", DEFVALUE);
+  const alarmString = (...args) => cal.l10n.getString("calendar-alarms", ...args);
+  const originStringEvent = alarmString("reminderCustomOriginBeginBeforeEvent");
+  const originStringTask = alarmString("reminderCustomOriginBeginBeforeTask");
+  const expectedEventReminder = alarmString("reminderCustomTitle", [unitString, originStringEvent]);
+  const expectedTaskReminder = alarmString("reminderCustomTitle", [unitString, originStringTask]);
 
   // Configure the preferences.
-  let { prefsWindow, prefsDocument } = await openNewPrefsTab("paneCalendar", "defaultsnoozelength");
+  const { prefsWindow, prefsDocument } = await openNewPrefsTab(
+    "paneCalendar",
+    "defaultsnoozelength"
+  );
   await handlePrefTab(prefsWindow, prefsDocument);
 
   // Create New Event.
@@ -82,7 +85,7 @@ add_task(async function testDefaultAlarms() {
 
 async function handlePrefTab(prefsWindow, prefsDocument) {
   function menuList(id, value) {
-    let list = prefsDocument.getElementById(id);
+    const list = prefsDocument.getElementById(id);
     list.scrollIntoView();
     list.click();
     list.querySelector(`menuitem[value="${value}"]`).click();
@@ -96,7 +99,7 @@ async function handlePrefTab(prefsWindow, prefsDocument) {
   menuList("eventdefalarmunit", "days");
 
   function text(id, value) {
-    let input = prefsDocument.getElementById(id);
+    const input = prefsDocument.getElementById(id);
     input.scrollIntoView();
     EventUtils.synthesizeMouse(input, 5, 5, {}, prefsWindow);
     Assert.equal(prefsDocument.activeElement, input);
@@ -117,9 +120,9 @@ async function handlePrefTab(prefsWindow, prefsDocument) {
 
 async function handleReminderDialog(remindersWindow) {
   await new Promise(remindersWindow.setTimeout);
-  let remindersDocument = remindersWindow.document;
+  const remindersDocument = remindersWindow.document;
 
-  let listbox = remindersDocument.getElementById("reminder-listbox");
+  const listbox = remindersDocument.getElementById("reminder-listbox");
   Assert.equal(listbox.selectedCount, 1);
   Assert.equal(listbox.selectedItem.reminder.offset.days, DEFVALUE);
 
@@ -133,7 +136,7 @@ async function handleReminderDialog(remindersWindow) {
   Assert.equal(listbox.selectedItem.reminder.offset.days, DEFVALUE);
 
   function text(id, value) {
-    let input = remindersDocument.getElementById(id);
+    const input = remindersDocument.getElementById(id);
     EventUtils.synthesizeMouse(input, 5, 5, {}, remindersWindow);
     Assert.equal(remindersDocument.activeElement, input);
     EventUtils.synthesizeKey("a", { accelKey: true }, remindersWindow);
@@ -152,13 +155,13 @@ async function handleReminderDialog(remindersWindow) {
 }
 
 async function openTasksTab() {
-  let tabmail = document.getElementById("tabmail");
-  let tasksMode = tabmail.tabModes.tasks;
+  const tabmail = document.getElementById("tabmail");
+  const tasksMode = tabmail.tabModes.tasks;
 
   if (tasksMode.tabs.length == 1) {
     tabmail.selectedTab = tasksMode.tabs[0];
   } else {
-    let tasksTabButton = document.getElementById("tasksButton");
+    const tasksTabButton = document.getElementById("tasksButton");
     EventUtils.synthesizeMouseAtCenter(tasksTabButton, { clickCount: 1 });
   }
 

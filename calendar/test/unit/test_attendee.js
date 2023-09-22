@@ -19,7 +19,7 @@ function run_test() {
 function test_values() {
   function findAttendeesInResults(event, expectedAttendees) {
     // Getting all attendees
-    let allAttendees = event.getAttendees();
+    const allAttendees = event.getAttendees();
 
     equal(allAttendees.length, expectedAttendees.length);
 
@@ -34,14 +34,14 @@ function test_values() {
     }
   }
   function findById(event, id, a) {
-    let foundAttendee = event.getAttendeeById(id);
+    const foundAttendee = event.getAttendeeById(id);
     equal(foundAttendee, a);
   }
   function testImmutability(a, properties) {
     ok(!a.isMutable);
     // Check if setting a property throws. It should.
     for (let i = 0; i < properties.length; i++) {
-      let old = a[properties[i]];
+      const old = a[properties[i]];
       throws(() => {
         a[properties[i]] = old + 1;
       }, /Can not modify immutable data container/);
@@ -51,10 +51,10 @@ function test_values() {
   }
 
   // Create Attendee
-  let attendee1 = new CalAttendee();
+  const attendee1 = new CalAttendee();
   // Testing attendee set/get.
-  let properties = ["id", "commonName", "rsvp", "role", "participationStatus", "userType"];
-  let values = ["myid", "mycn", "TRUE", "CHAIR", "DECLINED", "RESOURCE"];
+  const properties = ["id", "commonName", "rsvp", "role", "participationStatus", "userType"];
+  const values = ["myid", "mycn", "TRUE", "CHAIR", "DECLINED", "RESOURCE"];
   // Make sure test is valid
   equal(properties.length, values.length);
 
@@ -64,13 +64,13 @@ function test_values() {
   }
 
   // Create event
-  let event = new CalEvent();
+  const event = new CalEvent();
 
   // Add attendee to event
   event.addAttendee(attendee1);
 
   // Add 2nd attendee to event.
-  let attendee2 = new CalAttendee();
+  const attendee2 = new CalAttendee();
   attendee2.id = "myid2";
   event.addAttendee(attendee2);
 
@@ -88,9 +88,9 @@ function test_values() {
   testImmutability(attendee2, properties);
 
   // Testing cloning
-  let eventClone = event.clone();
-  let clonedatts = eventClone.getAttendees();
-  let atts = event.getAttendees();
+  const eventClone = event.clone();
+  const clonedatts = eventClone.getAttendees();
+  const atts = event.getAttendees();
   equal(atts.length, clonedatts.length);
 
   for (let i = 0; i < clonedatts.length; i++) {
@@ -101,10 +101,10 @@ function test_values() {
   }
 
   // Make sure organizers are also cloned correctly
-  let attendee3 = new CalAttendee();
+  const attendee3 = new CalAttendee();
   attendee3.id = "horst";
   attendee3.isOrganizer = true;
-  let attendee4 = attendee3.clone();
+  const attendee4 = attendee3.clone();
 
   ok(attendee4.isOrganizer);
   attendee3.isOrganizer = false;
@@ -112,7 +112,7 @@ function test_values() {
 }
 
 function test_serialize() {
-  let a = new CalAttendee();
+  const a = new CalAttendee();
 
   throws(() => {
     // eslint-disable-next-line no-unused-expressions
@@ -155,7 +155,7 @@ function test_serialize() {
 }
 
 function test_properties() {
-  let a = new CalAttendee();
+  const a = new CalAttendee();
 
   throws(() => {
     // eslint-disable-next-line no-unused-expressions
@@ -174,30 +174,30 @@ function test_properties() {
 
   // Only X-Props should show up in the enumerator
   a.setProperty("X-NAME", "X-VALUE");
-  for (let [name, value] of a.properties) {
+  for (const [name, value] of a.properties) {
     equal(name, "X-NAME");
     equal(value, "X-VALUE");
   }
 
   a.deleteProperty("X-NAME");
-  for (let [name, value] of a.properties) {
+  for (const [name, value] of a.properties) {
     do_throw("Unexpected property " + name + " = " + value);
   }
 
   a.setProperty("X-NAME", "X-VALUE");
   a.setProperty("X-NAME", null);
 
-  for (let [name, value] of a.properties) {
+  for (const [name, value] of a.properties) {
     do_throw("Unexpected property after setting null " + name + " = " + value);
   }
 }
 
 function test_doubleParameters() {
   function testParameters(aAttendees, aExpected) {
-    for (let attendee of aAttendees) {
-      let prop = attendee.icalProperty;
-      let parNames = [];
-      let parValues = [];
+    for (const attendee of aAttendees) {
+      const prop = attendee.icalProperty;
+      const parNames = [];
+      const parValues = [];
 
       // Extract the parameters
       for (
@@ -210,8 +210,8 @@ function test_doubleParameters() {
       }
 
       // Check the results
-      let att_n = attendee.id.substr(7, 9);
-      for (let parIndex in parNames) {
+      const att_n = attendee.id.substr(7, 9);
+      for (const parIndex in parNames) {
         ok(
           aExpected[att_n].param.includes(parNames[parIndex]),
           "Parameter " + parNames[parIndex] + " included in " + att_n
@@ -229,7 +229,7 @@ function test_doubleParameters() {
   }
 
   // Event with attendees and organizer with one of the parameter duplicated.
-  let ics = [
+  const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//Marketcircle Inc.//Daylite 4.0//EN",
@@ -259,13 +259,13 @@ function test_doubleParameters() {
     "END:VCALENDAR",
   ].join("\n");
 
-  let expectedOrganizer = {
+  const expectedOrganizer = {
     organizer: {
       param: ["CN", "X-ORACLE-GUID", "X-UW-AVAILABLE-APPOINTMENT-ROLE"],
       values: ["CN_organizer", "A5120D71D6193E11E04400144F", "OWNER"],
     },
   };
-  let expectedAttendee = {
+  const expectedAttendee = {
     attendee1: {
       param: ["CN", "RSVP", "ROLE", "PARTSTAT", "CUTYPE", "X-RECEIVED-DTSTAMP"],
       values: [
@@ -291,9 +291,9 @@ function test_doubleParameters() {
     },
   };
 
-  let event = createEventFromIcalString(ics);
-  let organizer = [event.organizer];
-  let attendees = event.getAttendees();
+  const event = createEventFromIcalString(ics);
+  const organizer = [event.organizer];
+  const attendees = event.getAttendees();
 
   testParameters(organizer, expectedOrganizer);
   testParameters(attendees, expectedAttendee);

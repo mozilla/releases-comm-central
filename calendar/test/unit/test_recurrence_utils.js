@@ -47,7 +47,7 @@ function getIcs(aProperties) {
 }
 
 add_task(async function countOccurrences_test() {
-  let data = [
+  const data = [
     {
       input: [
         "BEGIN:VEVENT",
@@ -351,16 +351,16 @@ add_task(async function countOccurrences_test() {
   ];
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
 
-    let ics = getIcs(test.input);
-    let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+    const ics = getIcs(test.input);
+    const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
     parser.parseString(ics);
-    let items = parser.getItems();
+    const items = parser.getItems();
 
     ok(items.length > 0, "parsing input succeeded (test #" + i + ")");
-    for (let item of items) {
+    for (const item of items) {
       equal(
         countOccurrences(item),
         test.expected,

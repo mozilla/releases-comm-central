@@ -25,7 +25,7 @@ registerCleanupFunction(() => CalDAVServer.close());
 add_task(async function () {
   calendarObserver._onAddItemPromise = PromiseUtils.defer();
   calendarObserver._onLoadPromise = PromiseUtils.defer();
-  let calendar = createCalendar("caldav", CalDAVServer.url, false);
+  const calendar = createCalendar("caldav", CalDAVServer.url, false);
   await calendarObserver._onAddItemPromise.promise;
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");
@@ -57,7 +57,7 @@ add_task(async function testCalendarWithNoPrivSupport() {
   CalDAVServer.privileges = null;
   calendarObserver._onLoadPromise = PromiseUtils.defer();
 
-  let calendar = createCalendar("caldav", CalDAVServer.url, false);
+  const calendar = createCalendar("caldav", CalDAVServer.url, false);
   await calendarObserver._onLoadPromise.promise;
   info("calendar set-up complete");
 
@@ -71,21 +71,21 @@ add_task(async function testCalendarWithNoPrivSupport() {
  * modifications were made.
  */
 add_task(async function testModifyItemWithNoChanges() {
-  let event = new CalEvent();
-  let calendar = createCalendar("caldav", CalDAVServer.url, false);
+  const event = new CalEvent();
+  const calendar = createCalendar("caldav", CalDAVServer.url, false);
   event.id = "6f6dd7b6-0fbd-39e4-359a-a74c4c3745bb";
   event.title = "A New Event";
   event.startDate = cal.createDateTime("20200303T205500Z");
   event.endDate = cal.createDateTime("20200303T210200Z");
   await calendar.addItem(event);
 
-  let clone = event.clone();
+  const clone = event.clone();
   clone.title = "A Modified Event";
 
-  let putItemInternal = CalDAVServer.putItemInternal;
+  const putItemInternal = CalDAVServer.putItemInternal;
   CalDAVServer.putItemInternal = () => {};
 
-  let modifiedEvent = await calendar.modifyItem(clone, event);
+  const modifiedEvent = await calendar.modifyItem(clone, event);
   CalDAVServer.putItemInternal = putItemInternal;
 
   Assert.ok(modifiedEvent, "an event was returned");

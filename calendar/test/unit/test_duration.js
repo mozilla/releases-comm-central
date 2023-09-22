@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 function run_test() {
-  let a = cal.createDuration("PT1S");
-  let b = cal.createDuration("PT3S");
+  const a = cal.createDuration("PT1S");
+  const b = cal.createDuration("PT3S");
   a.addDuration(b);
   equal(a.icalString, "PT4S");
 }

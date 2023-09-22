@@ -15,7 +15,7 @@ var { dayView, weekView, multiweekView, monthView } = CalendarTestUtils;
 const HOUR = 8;
 
 add_task(async function testBiweeklyRecurrence() {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -24,8 +24,8 @@ add_task(async function testBiweeklyRecurrence() {
   await CalendarTestUtils.goToDate(window, 2009, 1, 31);
 
   // Create biweekly event.
-  let eventBox = dayView.getHourBoxAt(window, HOUR);
-  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  const eventBox = dayView.getHourBoxAt(window, HOUR);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   await setData(dialogWindow, iframeWindow, { title: "Event", repeat: "bi.weekly" });
   await saveAndCloseItemDialog(dialogWindow);
 
@@ -72,7 +72,7 @@ add_task(async function testBiweeklyRecurrence() {
   // March
   await monthView.waitForItemAt(window, 2, 7, 1);
 
-  let box = monthView.getItemAt(window, 4, 7, 1);
+  const box = monthView.getItemAt(window, 4, 7, 1);
   Assert.ok(box);
 
   // Delete event.

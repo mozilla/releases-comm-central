@@ -16,7 +16,7 @@ const STARTYEAR = 1950;
 const EPOCH = 1970;
 
 add_task(async function testAnnualRecurrence() {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -25,8 +25,8 @@ add_task(async function testAnnualRecurrence() {
   await CalendarTestUtils.goToDate(window, STARTYEAR, 1, 1);
 
   // Create yearly recurring all-day event.
-  let eventBox = dayView.getAllDayHeader(window);
-  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  const eventBox = dayView.getAllDayHeader(window);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   await setData(dialogWindow, iframeWindow, { title: "Event", repeat: "yearly" });
   await saveAndCloseItemDialog(dialogWindow);
   await TestUtils.waitForCondition(
@@ -34,11 +34,11 @@ add_task(async function testAnnualRecurrence() {
     "recurring all-day event created"
   );
 
-  let checkYears = [STARTYEAR, STARTYEAR + 1, EPOCH - 1, EPOCH, EPOCH + 1];
-  for (let year of checkYears) {
+  const checkYears = [STARTYEAR, STARTYEAR + 1, EPOCH - 1, EPOCH, EPOCH + 1];
+  for (const year of checkYears) {
     await CalendarTestUtils.goToDate(window, year, 1, 1);
-    let date = new Date(Date.UTC(year, 0, 1));
-    let column = date.getUTCDay() + 1;
+    const date = new Date(Date.UTC(year, 0, 1));
+    const column = date.getUTCDay() + 1;
 
     // day view
     await CalendarTestUtils.setCalendarView(window, "day");

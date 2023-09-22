@@ -11,11 +11,11 @@ var { CalendarTestUtils } = ChromeUtils.import(
   "resource://testing-common/calendar/CalendarTestUtils.jsm"
 );
 
-let identityEmail = "user@example.com";
-let calendarOrganizerId = "mailto:user@example.com";
-let eventOrganizerEmail = "eventorganizer@example.com";
-let eventOrganizerId = `mailto:${eventOrganizerEmail}`;
-let icalString = CalendarTestUtils.dedent`
+const identityEmail = "user@example.com";
+const calendarOrganizerId = "mailto:user@example.com";
+const eventOrganizerEmail = "eventorganizer@example.com";
+const eventOrganizerId = `mailto:${eventOrganizerEmail}`;
+const icalString = CalendarTestUtils.dedent`
       BEGIN:VEVENT
       CREATED:20210105T000000Z
       DTSTAMP:20210501T000000Z
@@ -56,25 +56,25 @@ add_setup(async function () {
  * Test receiving a new invitation queues a "REPLY" message.
  */
 add_task(async function testInvitationReceived() {
-  let item = new CalEvent(icalString);
-  let savedItem = await calendar.addItem(item);
-  let invitedAttendee = savedItem.getAttendeeById(calendarOrganizerId);
-  let sender = new CalItipMessageSender(null, invitedAttendee);
-  let result = sender.detectChanges(Ci.calIOperationListener.ADD, savedItem);
+  const item = new CalEvent(icalString);
+  const savedItem = await calendar.addItem(item);
+  const invitedAttendee = savedItem.getAttendeeById(calendarOrganizerId);
+  const sender = new CalItipMessageSender(null, invitedAttendee);
+  const result = sender.detectChanges(Ci.calIOperationListener.ADD, savedItem);
   Assert.equal(result, 1, "result indicates 1 pending message queued");
   Assert.equal(sender.pendingMessageCount, 1, "pendingMessageCount is 1");
 
-  let [msg] = sender.pendingMessages;
+  const [msg] = sender.pendingMessages;
   Assert.equal(msg.method, "REPLY", "message method is 'REPLY'");
   Assert.equal(msg.recipients.length, 1, "message has 1 recipient");
 
-  let [recipient] = msg.recipients;
+  const [recipient] = msg.recipients;
   Assert.equal(recipient.id, eventOrganizerId, "recipient is the event organizer");
 
-  let attendeeList = msg.item.getAttendees();
+  const attendeeList = msg.item.getAttendees();
   Assert.equal(attendeeList.length, 1, "reply attendees list has 1 attendee");
 
-  let [attendee] = attendeeList;
+  const [attendee] = attendeeList;
   Assert.equal(attendee.id, calendarOrganizerId, "invited attendee is on the reply attendees list");
   Assert.equal(
     attendee.participationStatus,
@@ -90,30 +90,30 @@ add_task(async function testInvitationReceived() {
  * message.
  */
 add_task(async function testParticipationStatusUpdated() {
-  let item = new CalEvent(icalString);
-  let savedItem = await calendar.addItem(item);
+  const item = new CalEvent(icalString);
+  const savedItem = await calendar.addItem(item);
 
-  let targetItem = savedItem.clone();
-  let invitedAttendee = targetItem.getAttendeeById(calendarOrganizerId);
+  const targetItem = savedItem.clone();
+  const invitedAttendee = targetItem.getAttendeeById(calendarOrganizerId);
   invitedAttendee.participationStatus = "TENTATIVE";
 
-  let modifiedItem = await calendar.modifyItem(targetItem, savedItem);
-  let sender = new CalItipMessageSender(savedItem, invitedAttendee);
-  let result = sender.detectChanges(Ci.calIOperationListener.MODIFY, modifiedItem);
+  const modifiedItem = await calendar.modifyItem(targetItem, savedItem);
+  const sender = new CalItipMessageSender(savedItem, invitedAttendee);
+  const result = sender.detectChanges(Ci.calIOperationListener.MODIFY, modifiedItem);
   Assert.equal(result, 1, "result indicates 1 pending message queued");
   Assert.equal(sender.pendingMessageCount, 1, "pendingMessageCount is 1");
 
-  let [msg] = sender.pendingMessages;
+  const [msg] = sender.pendingMessages;
   Assert.equal(msg.method, "REPLY", "message method is 'REPLY'");
   Assert.equal(msg.recipients.length, 1, "message has 1 recipient");
 
-  let [recipient] = msg.recipients;
+  const [recipient] = msg.recipients;
   Assert.equal(recipient.id, eventOrganizerId, "recipient is the event organizer");
 
-  let attendeeList = msg.item.getAttendees();
+  const attendeeList = msg.item.getAttendees();
   Assert.equal(attendeeList.length, 1, "reply attendees list has 1 attendee");
 
-  let [attendee] = attendeeList;
+  const [attendee] = attendeeList;
   Assert.equal(attendee.id, calendarOrganizerId, "invited attendee is on the reply attendees list");
   Assert.equal(
     attendee.participationStatus,
@@ -128,27 +128,27 @@ add_task(async function testParticipationStatusUpdated() {
  * Test deleting an event queues a "CANCEL" message.
  */
 add_task(async function testEventDeleted() {
-  let item = new CalEvent(icalString);
-  let savedItem = await calendar.addItem(item);
+  const item = new CalEvent(icalString);
+  const savedItem = await calendar.addItem(item);
 
   await calendar.deleteItem(savedItem);
-  let invitedAttendee = savedItem.getAttendeeById(calendarOrganizerId);
-  let sender = new CalItipMessageSender(null, invitedAttendee);
-  let result = sender.detectChanges(Ci.calIOperationListener.DELETE, savedItem);
+  const invitedAttendee = savedItem.getAttendeeById(calendarOrganizerId);
+  const sender = new CalItipMessageSender(null, invitedAttendee);
+  const result = sender.detectChanges(Ci.calIOperationListener.DELETE, savedItem);
   Assert.equal(result, 1, "result indicates 1 pending message queued");
   Assert.equal(sender.pendingMessageCount, 1, "pendingMessageCount is 1");
 
-  let [msg] = sender.pendingMessages;
+  const [msg] = sender.pendingMessages;
   Assert.equal(msg.method, "REPLY", "message method is 'REPLY'");
   Assert.equal(msg.recipients.length, 1, "message has 1 recipient");
 
-  let [recipient] = msg.recipients;
+  const [recipient] = msg.recipients;
   Assert.equal(recipient.id, eventOrganizerId, "recipient is the event organizer");
 
-  let attendeeList = msg.item.getAttendees();
+  const attendeeList = msg.item.getAttendees();
   Assert.equal(attendeeList.length, 1, "reply attendees list has 1 attendee");
 
-  let [attendee] = attendeeList;
+  const [attendee] = attendeeList;
   Assert.equal(attendee.id, calendarOrganizerId, "invited attendee is on the reply attendees list");
   Assert.equal(
     attendee.participationStatus,

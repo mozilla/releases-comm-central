@@ -35,7 +35,7 @@ function run_test() {
 
 function test_initial_creation() {
   dump("Testing initial creation...");
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
 
   let passed;
   try {
@@ -53,7 +53,7 @@ function test_initial_creation() {
 
 function test_display_alarm() {
   dump("Testing DISPLAY alarms...");
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   // Set ACTION to DISPLAY, make sure this was not rejected
   alarm.action = "DISPLAY";
   equal(alarm.action, "DISPLAY");
@@ -67,7 +67,7 @@ function test_display_alarm() {
   equal(alarm.summary, null);
 
   // No attendees allowed
-  let attendee = new CalAttendee();
+  const attendee = new CalAttendee();
   attendee.id = "mailto:horst";
 
   throws(() => {
@@ -85,7 +85,7 @@ function test_display_alarm() {
 
 function test_email_alarm() {
   dump("Testing EMAIL alarms...");
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   // Set ACTION to DISPLAY, make sure this was not rejected
   alarm.action = "EMAIL";
   equal(alarm.action, "EMAIL");
@@ -103,9 +103,9 @@ function test_email_alarm() {
   alarm.offset = cal.createDuration();
 
   // Check for at least one attendee
-  let attendee1 = new CalAttendee();
+  const attendee1 = new CalAttendee();
   attendee1.id = "mailto:horst";
-  let attendee2 = new CalAttendee();
+  const attendee2 = new CalAttendee();
   attendee2.id = "mailto:gustav";
 
   equal(alarm.getAttendees().length, 0);
@@ -114,7 +114,7 @@ function test_email_alarm() {
   alarm.addAttendee(attendee2);
   equal(alarm.getAttendees().length, 2);
   alarm.addAttendee(attendee1);
-  let addedAttendees = alarm.getAttendees();
+  const addedAttendees = alarm.getAttendees();
   equal(addedAttendees.length, 2);
   equal(addedAttendees[0].wrappedJSObject, attendee2);
   equal(addedAttendees[1].wrappedJSObject, attendee1);
@@ -147,7 +147,7 @@ function test_email_alarm() {
 
 function test_audio_alarm() {
   dump("Testing AUDIO alarms...");
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
   alarm.alarmDate = cal.createDateTime();
   // Set ACTION to AUDIO, make sure this was not rejected
@@ -163,7 +163,7 @@ function test_audio_alarm() {
   equal(alarm.summary, null);
 
   // No attendees allowed
-  let attendee = new CalAttendee();
+  const attendee = new CalAttendee();
   attendee.id = "mailto:horst";
 
   try {
@@ -174,9 +174,9 @@ function test_audio_alarm() {
   }
 
   // Test attachments
-  let sound = new CalAttachment();
+  const sound = new CalAttachment();
   sound.uri = Services.io.newURI("file:///sound.wav");
-  let sound2 = new CalAttachment();
+  const sound2 = new CalAttachment();
   sound2.uri = Services.io.newURI("file:///sound2.wav");
 
   // Adding an attachment should work
@@ -228,7 +228,7 @@ function test_audio_alarm() {
 
 function test_custom_alarm() {
   dump("Testing X-SMS (custom) alarms...");
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   // Set ACTION to a custom value, make sure this was not rejected
   alarm.action = "X-SMS";
   equal(alarm.action, "X-SMS");
@@ -242,9 +242,9 @@ function test_custom_alarm() {
   equal(alarm.summary, "summary");
 
   // Test for attendees
-  let attendee1 = new CalAttendee();
+  const attendee1 = new CalAttendee();
   attendee1.id = "mailto:horst";
-  let attendee2 = new CalAttendee();
+  const attendee2 = new CalAttendee();
   attendee2.id = "mailto:gustav";
 
   equal(alarm.getAttendees().length, 0);
@@ -262,9 +262,9 @@ function test_custom_alarm() {
   equal(alarm.getAttendees().length, 0);
 
   // Test for attachments
-  let attach1 = new CalAttachment();
+  const attach1 = new CalAttachment();
   attach1.uri = Services.io.newURI("file:///example.txt");
-  let attach2 = new CalAttachment();
+  const attach2 = new CalAttachment();
   attach2.uri = Services.io.newURI("file:///example2.txt");
 
   alarm.addAttachment(attach1);
@@ -326,7 +326,7 @@ function test_repeat() {
   alarm.repeatOffset = cal.createDuration();
   alarm.repeatOffset.inSeconds = 3600;
 
-  let date = alarm.alarmDate.clone();
+  const date = alarm.alarmDate.clone();
   date.second += 3600;
   equal(alarm.repeatDate.icalString, date.icalString);
 
@@ -335,7 +335,7 @@ function test_repeat() {
 
 function test_xprop() {
   dump("Testing X-Props...");
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   alarm.setProperty("X-PROP", "X-VALUE");
   ok(alarm.hasProperty("X-PROP"));
   equal(alarm.getProperty("X-PROP"), "X-VALUE");
@@ -344,7 +344,7 @@ function test_xprop() {
   equal(alarm.getProperty("X-PROP"), null);
 
   // also check X-MOZ-LASTACK prop
-  let date = cal.createDateTime();
+  const date = cal.createDateTime();
   alarm.setProperty("X-MOZ-LASTACK", date.icalString);
   alarm.action = "DISPLAY";
   alarm.description = "test";
@@ -361,13 +361,13 @@ function test_dates() {
   dump("Testing alarm dates...");
   let passed;
   // Initial value
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   equal(alarm.alarmDate, null);
   equal(alarm.offset, null);
 
   // Set an offset and check it
   alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
-  let offset = cal.createDuration("-PT5M");
+  const offset = cal.createDuration("-PT5M");
   alarm.offset = offset;
   equal(alarm.alarmDate, null);
   equal(alarm.offset, offset);
@@ -383,7 +383,7 @@ function test_dates() {
 
   // Set an absolute time and check it
   alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
-  let alarmDate = createDate(2007, 0, 1, true, 2, 0, 0);
+  const alarmDate = createDate(2007, 0, 1, true, 2, 0, 0);
   alarm.alarmDate = alarmDate;
   equal(alarm.alarmDate.icalString, alarmDate.icalString);
   equal(alarm.offset, null);
@@ -421,9 +421,9 @@ var clonePropMap = {
 
 function test_immutable() {
   dump("Testing immutable alarms...");
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   // Set up each attribute
-  for (let prop in propMap) {
+  for (const prop in propMap) {
     alarm[prop] = propMap[prop];
   }
 
@@ -440,7 +440,7 @@ function test_immutable() {
   ok(!alarm.isMutable);
 
   // Check each attribute
-  for (let prop in propMap) {
+  for (const prop in propMap) {
     try {
       alarm[prop] = propMap[prop];
     } catch (e) {
@@ -466,9 +466,9 @@ function test_immutable() {
 
 function test_clone() {
   dump("Testing cloning alarms...");
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   // Set up each attribute
-  for (let prop in propMap) {
+  for (const prop in propMap) {
     alarm[prop] = propMap[prop];
   }
 
@@ -486,7 +486,7 @@ function test_clone() {
   // Check if item is still the same
   // TODO This is not quite optimal, maybe someone can find a better way to do
   // the comparisons.
-  for (let prop in propMap) {
+  for (const prop in propMap) {
     if (prop == "item") {
       equal(alarm.item.icalString, newAlarm.item.icalString);
     } else {
@@ -500,7 +500,7 @@ function test_clone() {
   }
 
   // Check if changes on the cloned object do not affect the original object.
-  for (let prop in clonePropMap) {
+  for (const prop in clonePropMap) {
     newAlarm[prop] = clonePropMap[prop];
     dump("Checking " + prop + "...");
     notEqual(alarm[prop], newAlarm[prop]);
@@ -511,7 +511,7 @@ function test_clone() {
   // Check x props
   alarm.setProperty("X-FOO", "BAR");
   equal(alarm.getProperty("X-FOO"), "BAR");
-  let date = alarm.getProperty("X-DATEPROP");
+  const date = alarm.getProperty("X-DATEPROP");
   equal(date.isMutable, true);
 
   // Test xprop params
@@ -531,7 +531,7 @@ function test_clone() {
 
 function test_serialize() {
   // most checks done by other tests, these don't fit into categories
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
 
   throws(
     () => {
@@ -542,7 +542,7 @@ function test_serialize() {
   );
 
   function addProp(name, value) {
-    let prop = cal.icsService.createIcalProperty(name);
+    const prop = cal.icsService.createIcalProperty(name);
     prop.value = value;
     comp.addProperty(prop);
   }
@@ -647,7 +647,7 @@ function test_serialize() {
 function test_strings() {
   // Serializing the string shouldn't throw, but we don't really care about
   // the string itself.
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
   alarm.action = "DISPLAY";
   alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
   alarm.alarmDate = cal.createDateTime();

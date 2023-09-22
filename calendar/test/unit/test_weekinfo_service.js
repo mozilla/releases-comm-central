@@ -6,7 +6,7 @@ function run_test() {
   // Bug 1239622. The 1st of January after a leap year which ends with
   // a Thursday belongs to week number 53 unless the start of week is
   // set on Friday.
-  let wkst_wknum_date = [
+  const wkst_wknum_date = [
     [1, 53, "20210101T000000Z"], // Year 2021 affected by Bug 1239622
     [5, 1, "20210101T000000Z"], //
     [3, 53, "20490101T000000Z"], // Year 2049 affected by Bug 1239622
@@ -20,12 +20,12 @@ function run_test() {
     [0, 52, "20280101T000000Z"],
   ]; // ... Saturday
 
-  let savedWeekStart = Services.prefs.getIntPref("calendar.week.start", 0);
-  for (let [weekStart, weekNumber, dateString] of wkst_wknum_date) {
+  const savedWeekStart = Services.prefs.getIntPref("calendar.week.start", 0);
+  for (const [weekStart, weekNumber, dateString] of wkst_wknum_date) {
     Services.prefs.setIntPref("calendar.week.start", weekStart);
-    let date = cal.createDateTime(dateString);
+    const date = cal.createDateTime(dateString);
     date.isDate = true;
-    let week = cal.weekInfoService.getWeekTitle(date);
+    const week = cal.weekInfoService.getWeekTitle(date);
 
     equal(week, weekNumber, "Week number matches for " + dateString);
   }

@@ -18,23 +18,23 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  * non-recurring and recurring events.
  */
 add_task(async function testOpenEvent() {
-  let uri = Services.io.newURI("moz-memory-calendar://");
-  let calendar = cal.manager.createCalendar("memory", uri);
+  const uri = Services.io.newURI("moz-memory-calendar://");
+  const calendar = cal.manager.createCalendar("memory", uri);
 
   calendar.name = "Unifinder Test";
   cal.manager.registerCalendar(calendar);
   registerCleanupFunction(() => cal.manager.removeCalendar(calendar));
 
-  let now = cal.dtz.now();
+  const now = cal.dtz.now();
 
-  let noRepeatEvent = new CalEvent();
+  const noRepeatEvent = new CalEvent();
   noRepeatEvent.id = "no repeat event";
   noRepeatEvent.title = "No Repeat Event";
   noRepeatEvent.startDate = now;
   noRepeatEvent.endDate = noRepeatEvent.startDate.clone();
   noRepeatEvent.endDate.hour++;
 
-  let repeatEvent = new CalEvent();
+  const repeatEvent = new CalEvent();
   repeatEvent.id = "repeated event";
   repeatEvent.title = "Repeat Event";
   repeatEvent.startDate = now;
@@ -56,15 +56,15 @@ add_task(async function testOpenEvent() {
     );
   }
 
-  for (let event of [noRepeatEvent, repeatEvent]) {
+  for (const event of [noRepeatEvent, repeatEvent]) {
     await calendar.addItem(event);
 
-    let dialogWindowPromise = CalendarTestUtils.waitForEventDialog();
-    let tree = document.querySelector("#unifinder-search-results-tree");
+    const dialogWindowPromise = CalendarTestUtils.waitForEventDialog();
+    const tree = document.querySelector("#unifinder-search-results-tree");
     mailTestUtils.treeClick(EventUtils, window, tree, 0, 1, { clickCount: 2 });
 
-    let dialogWindow = await dialogWindowPromise;
-    let docUri = dialogWindow.document.documentURI;
+    const dialogWindow = await dialogWindowPromise;
+    const docUri = dialogWindow.document.documentURI;
     Assert.ok(
       docUri === "chrome://calendar/content/calendar-summary-dialog.xhtml",
       "event summary dialog did show"

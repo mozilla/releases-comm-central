@@ -13,7 +13,7 @@ const TITLE2 = "Multiweek View Event Changed";
 const DESC = "Multiweek View Event Description";
 
 add_task(async function () {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -23,7 +23,7 @@ add_task(async function () {
 
   // Verify date.
   await TestUtils.waitForCondition(() => {
-    let dateLabel = document.querySelector(
+    const dateLabel = document.querySelector(
       '#multiweek-view td[selected="true"] > calendar-month-day-box'
     );
     return dateLabel && dateLabel.mDate.icalString == "20090101";
@@ -31,7 +31,7 @@ add_task(async function () {
 
   // Create event.
   // Thursday of 2009-01-05 should be the selected box in the first row with default settings.
-  let hour = new Date().getUTCHours(); // Remember time at click.
+  const hour = new Date().getUTCHours(); // Remember time at click.
   let eventBox = CalendarTestUtils.multiweekView.getDayBox(window, 1, 5);
   let { dialogWindow, iframeWindow, iframeDocument } = await CalendarTestUtils.editNewEvent(
     window,
@@ -40,11 +40,11 @@ add_task(async function () {
 
   // Check that the start time is correct.
   // Next full hour except last hour hour of the day.
-  let nextHour = hour == 23 ? hour : (hour + 1) % 24;
-  let someDate = cal.dtz.now();
+  const nextHour = hour == 23 ? hour : (hour + 1) % 24;
+  const someDate = cal.dtz.now();
   someDate.resetTo(2009, 0, 5, nextHour, 0, 0, cal.dtz.UTC);
 
-  let startPicker = iframeDocument.getElementById("event-starttime");
+  const startPicker = iframeDocument.getElementById("event-starttime");
   Assert.equal(startPicker._datepicker._inputField.value, formatDate(someDate));
   Assert.equal(startPicker._timepicker._inputField.value, formatTime(someDate));
 
@@ -74,7 +74,7 @@ add_task(async function () {
     if (eventBox === null) {
       return false;
     }
-    let eventName = eventBox.querySelector(".event-name-label");
+    const eventName = eventBox.querySelector(".event-name-label");
     return eventName && eventName.textContent == TITLE2;
   }, "Wait for the new title");
 

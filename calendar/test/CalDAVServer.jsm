@@ -24,10 +24,10 @@ const logger = console.createInstance({
 });
 
 // The response bodies Google sends if you exceed its rate limit.
-let MULTIGET_RATELIMIT_ERROR = `<?xml version="1.0" encoding="UTF-8"?>
+const MULTIGET_RATELIMIT_ERROR = `<?xml version="1.0" encoding="UTF-8"?>
 <D:error xmlns:D="DAV:"/>
 `;
-let PROPFIND_RATELIMIT_ERROR = `<?xml version="1.0" encoding="UTF-8"?>
+const PROPFIND_RATELIMIT_ERROR = `<?xml version="1.0" encoding="UTF-8"?>
 <errors xmlns="http://schemas.google.com/g/2005">
  <error>
   <domain>GData</domain>
@@ -123,14 +123,14 @@ var CalDAVServer = {
       return false;
     }
 
-    let value = request.getHeader("Authorization");
+    const value = request.getHeader("Authorization");
     if (!value.startsWith("Basic ")) {
       response.setStatusLine("1.1", 401, "Unauthorized");
       response.setHeader("WWW-Authenticate", `Basic realm="test"`);
       return false;
     }
 
-    let [username, password] = atob(value.substring(6)).split(":");
+    const [username, password] = atob(value.substring(6)).split(":");
     if (username != this.username || password != this.password) {
       response.setStatusLine("1.1", 401, "Unauthorized");
       response.setHeader("WWW-Authenticate", `Basic realm="test"`);
@@ -156,13 +156,13 @@ var CalDAVServer = {
       return;
     }
 
-    let input = new DOMParser().parseFromString(
+    const input = new DOMParser().parseFromString(
       CommonUtils.readBytesFromInputStream(request.bodyInputStream),
       "text/xml"
     );
 
-    let propNames = this._inputProps(input);
-    let propValues = {
+    const propNames = this._inputProps(input);
+    const propValues = {
       "d:current-user-principal": "<href>/principals/me/</href>",
     };
 
@@ -183,13 +183,13 @@ var CalDAVServer = {
       return;
     }
 
-    let input = new DOMParser().parseFromString(
+    const input = new DOMParser().parseFromString(
       CommonUtils.readBytesFromInputStream(request.bodyInputStream),
       "text/xml"
     );
 
-    let propNames = this._inputProps(input);
-    let propValues = {
+    const propNames = this._inputProps(input);
+    const propValues = {
       "d:resourcetype": "<principal/>",
       "c:calendar-home-set": "<d:href>/calendars/me/</d:href>",
       "c:calendar-user-address-set": `<d:href preferred="1">mailto:me@invalid</d:href>`,
@@ -220,13 +220,13 @@ var CalDAVServer = {
       return;
     }
 
-    let input = new DOMParser().parseFromString(
+    const input = new DOMParser().parseFromString(
       CommonUtils.readBytesFromInputStream(request.bodyInputStream),
       "text/xml"
     );
 
-    let propNames = this._inputProps(input);
-    let propValues = {
+    const propNames = this._inputProps(input);
+    const propValues = {
       "d:resourcetype": "<collection/><c:calendar/>",
       "d:displayname": "CalDAV Test",
       "i:calendar-color": "#ff8000",
@@ -298,9 +298,9 @@ var CalDAVServer = {
   },
 
   calendarQuery(input, response) {
-    let propNames = this._inputProps(input);
+    const propNames = this._inputProps(input);
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
-    for (let [href, item] of this.items) {
+    for (const [href, item] of this.items) {
       output += this._itemResponse(href, item, propNames);
     }
     output += `</multistatus>`;
@@ -312,11 +312,11 @@ var CalDAVServer = {
   },
 
   async calendarMultiGet(input, response) {
-    let propNames = this._inputProps(input);
+    const propNames = this._inputProps(input);
     let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
     for (let href of input.querySelectorAll("href")) {
       href = href.textContent;
-      let item = this.items.get(href);
+      const item = this.items.get(href);
       if (item) {
         output += this._itemResponse(href, item, propNames);
       }
@@ -338,8 +338,8 @@ var CalDAVServer = {
       return;
     }
 
-    let propNames = this._inputProps(input);
-    let propValues = {
+    const propNames = this._inputProps(input);
+    const propValues = {
       "d:resourcetype": "<d:collection/><c:calendar/>",
       "d:owner": "/principals/me/",
       "d:current-user-principal": "<href>/principals/me/</href>",
@@ -363,7 +363,7 @@ var CalDAVServer = {
         ${this._outputProps(propNames, propValues)}
       </response>`;
     if (depth == 1) {
-      for (let [href, item] of this.items) {
+      for (const [href, item] of this.items) {
         output += this._itemResponse(href, item, propNames);
       }
     }
@@ -385,13 +385,13 @@ var CalDAVServer = {
     }
 
     // The maximum number of responses to make at any one request.
-    let pageSize = 3;
+    const pageSize = 3;
     // The last-seen token. Changes before this won't be returned.
     let token = 0;
     // Which page of responses to return.
     let page = 0;
 
-    let tokenStr = input.querySelector("sync-token")?.textContent.replace(/.*\//g, "");
+    const tokenStr = input.querySelector("sync-token")?.textContent.replace(/.*\//g, "");
     if (tokenStr?.includes("#")) {
       [token, page] = tokenStr.split("#");
       token = parseInt(token, 10);
@@ -400,18 +400,18 @@ var CalDAVServer = {
       token = parseInt(tokenStr, 10);
     }
 
-    let nextPage = page + 1;
+    const nextPage = page + 1;
 
     // Collect all responses, even if we know some won't be returned.
     // This is a test, who cares about performance?
-    let propNames = this._inputProps(input);
-    let responses = [];
-    for (let [href, item] of this.items) {
+    const propNames = this._inputProps(input);
+    const responses = [];
+    for (const [href, item] of this.items) {
       if (item.changed > token) {
         responses.push(this._itemResponse(href, item, propNames));
       }
     }
-    for (let [href, deleted] of this.deletedItems) {
+    for (const [href, deleted] of this.deletedItems) {
       if (deleted > token) {
         responses.push(`<response>
           <status>HTTP/1.1 404 Not Found</status>
@@ -445,13 +445,13 @@ var CalDAVServer = {
   },
 
   _itemResponse(href, item, propNames) {
-    let propValues = {
+    const propValues = {
       "c:calendar-data": item.ics,
       "d:getetag": item.etag,
       "d:getcontenttype": "text/calendar; charset=utf-8; component=VEVENT",
     };
 
-    let outString = `<response>
+    const outString = `<response>
       <href>${href}</href>
       ${this._outputProps(propNames, propValues)}
     </response>`;
@@ -459,10 +459,10 @@ var CalDAVServer = {
   },
 
   _inputProps(input) {
-    let props = input.querySelectorAll("prop > *");
-    let propNames = [];
+    const props = input.querySelectorAll("prop > *");
+    const propNames = [];
 
-    for (let p of props) {
+    for (const p of props) {
       Assert.equal(p.childElementCount, 0);
       switch (p.localName) {
         case "calendar-home-set":
@@ -506,9 +506,9 @@ var CalDAVServer = {
   _outputProps(propNames, propValues) {
     let output = "";
 
-    let found = [];
-    let notFound = [];
-    for (let p of propNames) {
+    const found = [];
+    const notFound = [];
+    for (const p of propNames) {
       if (p in propValues && propValues[p] != null) {
         found.push(`<${p}>${propValues[p]}</${p}>`);
       } else {
@@ -569,7 +569,7 @@ var CalDAVServer = {
   },
 
   async getItem(request, response) {
-    let item = this.items.get(request.path);
+    const item = this.items.get(request.path);
     if (!item) {
       response.setStatusLine("1.1", 404, "Not Found");
       response.setHeader("Content-Type", "text/plain");
@@ -585,7 +585,7 @@ var CalDAVServer = {
 
   async putItem(request, response) {
     if (request.hasHeader("If-Match")) {
-      let item = this.items.get(request.path);
+      const item = this.items.get(request.path);
       if (!item || item.etag != request.getHeader("If-Match")) {
         response.setStatusLine("1.1", 412, "Precondition Failed");
         return;
@@ -594,7 +594,7 @@ var CalDAVServer = {
 
     response.processAsync();
 
-    let ics = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
+    const ics = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
     await this.putItemInternal(request.path, ics);
     response.setStatusLine("1.1", 204, "No Content");
 
@@ -606,8 +606,8 @@ var CalDAVServer = {
       name = this.path + name;
     }
 
-    let hash = await crypto.subtle.digest("sha-1", new TextEncoder().encode(ics));
-    let etag = Array.from(new Uint8Array(hash), c => c.toString(16).padStart(2, "0")).join("");
+    const hash = await crypto.subtle.digest("sha-1", new TextEncoder().encode(ics));
+    const etag = Array.from(new Uint8Array(hash), c => c.toString(16).padStart(2, "0")).join("");
     this.items.set(name, { etag, ics, changed: ++this.changeCount });
     this.deletedItems.delete(name);
   },

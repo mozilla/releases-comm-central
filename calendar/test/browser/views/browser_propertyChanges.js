@@ -7,18 +7,18 @@
 const { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 const { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 
-let composite = cal.view.getCompositeCalendar(window);
+const composite = cal.view.getCompositeCalendar(window);
 
 // This is the calendar we're going to change the properties of.
-let thisCalendar = CalendarTestUtils.createCalendar("This Calendar", "memory");
+const thisCalendar = CalendarTestUtils.createCalendar("This Calendar", "memory");
 thisCalendar.setProperty("color", "#ffee22");
 
 // This calendar isn't going to change, and we'll check it doesn't.
-let notThisCalendar = CalendarTestUtils.createCalendar("Not This Calendar", "memory");
+const notThisCalendar = CalendarTestUtils.createCalendar("Not This Calendar", "memory");
 notThisCalendar.setProperty("color", "#dd3333");
 
 add_setup(async function () {
-  let { dedent } = CalendarTestUtils;
+  const { dedent } = CalendarTestUtils;
   await thisCalendar.addItem(
     new CalEvent(dedent`
     BEGIN:VEVENT
@@ -77,7 +77,7 @@ add_setup(async function () {
  */
 async function assertCanDrag(eventBox, draggable, message) {
   // Hover to see if the drag gripbars appear.
-  let enterPromise = BrowserTestUtils.waitForEvent(eventBox, "mouseenter");
+  const enterPromise = BrowserTestUtils.waitForEvent(eventBox, "mouseenter");
   EventUtils.synthesizeMouseAtCenter(eventBox, { type: "mouseover" }, window);
   await enterPromise;
   Assert.equal(
@@ -118,22 +118,22 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
       () => view.querySelectorAll(boxSelector).length == expectedCount,
       "waiting for the correct number of boxes to be displayed"
     );
-    let boxItems = view.querySelectorAll(boxSelector);
+    const boxItems = view.querySelectorAll(boxSelector);
 
     if (!checkFunction) {
       return;
     }
 
-    for (let boxItem of boxItems) {
+    for (const boxItem of boxItems) {
       // TODO: why is it named `item` in some places and `occurrence` elsewhere?
-      let isThisCalendar =
+      const isThisCalendar =
         (boxItem.item && boxItem.item.calendar == thisCalendar) ||
         boxItem.occurrence.calendar == thisCalendar;
       await checkFunction(boxItem, isThisCalendar);
     }
   }
 
-  let view = document.getElementById(`${viewName}-view`);
+  const view = document.getElementById(`${viewName}-view`);
 
   await CalendarTestUtils.setCalendarView(window, viewName);
   await CalendarTestUtils.goToDate(window, 2016, 2, 5);
@@ -141,7 +141,7 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
   info("Check initial state.");
 
   await checkBoxItems(thisBoxCount + notThisBoxCount, async (boxItem, isThisCalendar) => {
-    let style = getComputedStyle(boxItem);
+    const style = getComputedStyle(boxItem);
 
     if (isThisCalendar) {
       Assert.equal(style.backgroundColor, "rgb(255, 238, 34)", "item background correct");
@@ -165,7 +165,7 @@ async function subTest(viewName, boxSelector, thisBoxCount, notThisBoxCount) {
 
   thisCalendar.setProperty("color", "#16a765");
   await checkBoxItems(thisBoxCount + notThisBoxCount, async (boxItem, isThisCalendar) => {
-    let style = getComputedStyle(boxItem);
+    const style = getComputedStyle(boxItem);
 
     if (isThisCalendar) {
       Assert.equal(style.backgroundColor, "rgb(22, 167, 101)", "item background correct");

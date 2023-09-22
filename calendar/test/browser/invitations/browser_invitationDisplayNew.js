@@ -25,7 +25,7 @@ let transport;
  * Initialize account, identity and calendar.
  */
 add_setup(async function () {
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = MailServices.accounts.createIncomingServer(
     "receiver",
     "example.com",
@@ -41,13 +41,13 @@ add_setup(async function () {
   calendar = CalendarTestUtils.createCalendar("Test");
   transport = new EmailTransport(account, identity);
 
-  let getImipTransport = cal.itip.getImipTransport;
+  const getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => transport;
 
-  let deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+  const deleteMgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
     Ci.calIDeletedItems
   ).wrappedJSObject;
-  let markDeleted = deleteMgr.markDeleted;
+  const markDeleted = deleteMgr.markDeleted;
   deleteMgr.markDeleted = () => {};
 
   Services.prefs.setBoolPref("calendar.itip.newInvitationDisplay", true);
@@ -66,8 +66,8 @@ add_setup(async function () {
  */
 add_task(async function testShowPanelData() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
-  let panel = win.document
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
+  const panel = win.document
     .getElementById("messageBrowser")
     .contentDocument.querySelector("calendar-invitation-panel");
 
@@ -75,7 +75,7 @@ add_task(async function testShowPanelData() {
     await BrowserTestUtils.waitForEvent(panel.ownerDocument, "L10nMutationsFinished");
   }
 
-  let notification = panel.shadowRoot.querySelector("notification-message");
+  const notification = panel.shadowRoot.querySelector("notification-message");
   compareShownPanelValues(notification.shadowRoot, {
     ".notification-message": "You have been invited to this event.",
     ".notification-button-container > button": "More",
@@ -94,7 +94,7 @@ add_task(async function testShowPanelData() {
   });
 
   Assert.ok(!panel.shadowRoot.querySelector("#actionButtons").hidden, "action buttons shown");
-  for (let indicator of [
+  for (const indicator of [
     ...panel.shadowRoot.querySelectorAll("calendar-invitation-change-indicator"),
   ]) {
     Assert.ok(indicator.hidden, `${indicator.id} is hidden`);
@@ -107,13 +107,13 @@ add_task(async function testShowPanelData() {
  */
 add_task(async function testAcceptWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
-  let panel = win.document
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
+  const panel = win.document
     .getElementById("messageBrowser")
     .contentDocument.querySelector("calendar-invitation-panel");
 
   await clickPanelAction(panel, "acceptButton");
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,
@@ -132,13 +132,13 @@ add_task(async function testAcceptWithResponse() {
  */
 add_task(async function testTentativeWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
-  let panel = win.document
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
+  const panel = win.document
     .getElementById("messageBrowser")
     .contentDocument.querySelector("calendar-invitation-panel");
 
   await clickPanelAction(panel, "tentativeButton");
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,
@@ -158,13 +158,13 @@ add_task(async function testTentativeWithResponse() {
  */
 add_task(async function testDeclineWithResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
-  let panel = win.document
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
+  const panel = win.document
     .getElementById("messageBrowser")
     .contentDocument.querySelector("calendar-invitation-panel");
 
   await clickPanelAction(panel, "declineButton");
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,
@@ -183,13 +183,13 @@ add_task(async function testDeclineWithResponse() {
  */
 add_task(async function testAcceptWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
-  let panel = win.document
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
+  const panel = win.document
     .getElementById("messageBrowser")
     .contentDocument.querySelector("calendar-invitation-panel");
 
   await clickPanelAction(panel, "acceptButton", false);
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,
@@ -209,13 +209,13 @@ add_task(async function testAcceptWithoutResponse() {
  */
 add_task(async function testTentativeWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
-  let panel = win.document
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
+  const panel = win.document
     .getElementById("messageBrowser")
     .contentDocument.querySelector("calendar-invitation-panel");
 
   await clickPanelAction(panel, "tentativeButton", false);
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,
@@ -235,13 +235,13 @@ add_task(async function testTentativeWithoutResponse() {
  */
 add_task(async function testDeclineWithoutResponse() {
   transport.reset();
-  let win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
-  let panel = win.document
+  const win = await openImipMessage(new FileUtils.File(getTestFilePath("data/single-event.eml")));
+  const panel = win.document
     .getElementById("messageBrowser")
     .contentDocument.querySelector("calendar-invitation-panel");
 
   await clickPanelAction(panel, "declineButton", false);
-  let event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
+  const event = (await CalendarTestUtils.monthView.waitForItemAt(window, 3, 4, 1)).item;
   await doImipBarActionTest(
     {
       calendar,

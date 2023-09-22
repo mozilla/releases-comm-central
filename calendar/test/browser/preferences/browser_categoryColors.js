@@ -9,18 +9,18 @@ var { CalendarTestUtils } = ChromeUtils.import(
 );
 
 add_task(async function testCategoryColors() {
-  let calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
+  const calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
 
   registerCleanupFunction(async () => {
     CalendarTestUtils.removeCalendar(calendar);
   });
 
-  let { prefsWindow, prefsDocument } = await openNewPrefsTab("paneCalendar", "categorieslist");
+  const { prefsWindow, prefsDocument } = await openNewPrefsTab("paneCalendar", "categorieslist");
 
-  let listBox = prefsDocument.getElementById("categorieslist");
+  const listBox = prefsDocument.getElementById("categorieslist");
   Assert.equal(listBox.itemChildren.length, 22);
 
-  for (let item of listBox.itemChildren) {
+  for (const item of listBox.itemChildren) {
     info(`${item.firstElementChild.value}: ${item.lastElementChild.style.backgroundColor}`);
     Assert.ok(item.lastElementChild.style.backgroundColor);
   }
@@ -60,7 +60,7 @@ add_task(async function testCategoryColors() {
   EventUtils.synthesizeMouse(listBox, 5, 5, {}, prefsWindow);
   EventUtils.synthesizeKey("VK_HOME", {}, prefsWindow);
   Assert.equal(listBox.selectedIndex, 0);
-  let itemName = listBox.itemChildren[0].firstElementChild.value;
+  const itemName = listBox.itemChildren[0].firstElementChild.value;
   EventUtils.synthesizeMouseAtCenter(prefsDocument.getElementById("editCButton"), {}, prefsWindow);
 
   await subDialogPromise;

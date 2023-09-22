@@ -17,7 +17,7 @@ function run_test() {
 }
 
 function test_newAttendee() {
-  let data = [
+  const data = [
     {
       input: { cname: null, id: "mailto:user1@example.net" },
       expected: { cname: null },
@@ -57,15 +57,15 @@ function test_newAttendee() {
   ];
 
   let i = 0;
-  let event = new CalEvent();
-  for (let test of data) {
+  const event = new CalEvent();
+  for (const test of data) {
     i++;
-    let attendee = new CalAttendee();
+    const attendee = new CalAttendee();
     attendee.id = test.input.id;
     attendee.commonName = test.input.cname;
 
     event.addAttendee(attendee);
-    let readAttendee = event.getAttendeeById(test.input.id);
+    const readAttendee = event.getAttendeeById(test.input.id);
     equal(
       readAttendee.commonName,
       test.expected.cname,
@@ -75,7 +75,7 @@ function test_newAttendee() {
 }
 
 function test_fromICS() {
-  let ics = [
+  const ics = [
     "BEGIN:VCALENDAR",
     "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN",
     "VERSION:2.0",
@@ -98,7 +98,7 @@ function test_fromICS() {
     "END:VCALENDAR",
   ].join("\n");
 
-  let expected = [
+  const expected = [
     { id: "mailto:user2@example.net", cname: "Test2" },
     { id: "mailto:user3@example.net", cname: "Test3" },
     { id: "mailto:user4@example.net", cname: "" },
@@ -107,11 +107,11 @@ function test_fromICS() {
     { id: "mailto:user7@example.net", cname: "" },
     { id: "mailto:user8@example.net", cname: "" },
   ];
-  let event = createEventFromIcalString(ics);
+  const event = createEventFromIcalString(ics);
 
   equal(event.getAttendees().length, expected.length, "Check test consistency");
-  for (let exp of expected) {
-    let attendee = event.getAttendeeById(exp.id);
+  for (const exp of expected) {
+    const attendee = event.getAttendeeById(exp.id);
     equal(attendee.commonName, exp.cname, "Test for commonName matching of " + exp.id);
   }
 }

@@ -46,7 +46,7 @@ add_setup(async () => {
     Services.prefs.setStringPref("calendar.timezone.local", "UTC");
   });
 
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -55,7 +55,7 @@ add_setup(async () => {
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   // Create weekly recurring events in all TIMEZONES.
-  let times = [
+  const times = [
     [4, 30],
     [5, 0],
     [3, 0],
@@ -65,10 +65,10 @@ add_setup(async () => {
     [19, 45],
     [1, 30],
   ];
-  let time = cal.createDateTime();
+  const time = cal.createDateTime();
   for (let i = 0; i < TIMEZONES.length; i++) {
-    let eventBox = CalendarTestUtils.dayView.getHourBoxAt(window, i + 11);
-    let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+    const eventBox = CalendarTestUtils.dayView.getHourBoxAt(window, i + 11);
+    const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
     time.hour = times[i][0];
     time.minute = times[i][1];
 
@@ -87,7 +87,7 @@ add_setup(async () => {
 
 add_task(async function testTimezones3_checkStJohns() {
   Services.prefs.setStringPref("calendar.timezone.local", "America/St_Johns");
-  let times = [
+  const times = [
     [
       [4, 30],
       [6, 0],
@@ -178,7 +178,7 @@ add_task(async function testTimezones3_checkStJohns() {
 
 add_task(async function testTimezones4_checkCaracas() {
   Services.prefs.setStringPref("calendar.timezone.local", "America/Caracas");
-  let times = [
+  const times = [
     [
       [3, 30],
       [5, 0],
@@ -269,7 +269,7 @@ add_task(async function testTimezones4_checkCaracas() {
 
 add_task(async function testTimezones5_checkPhoenix() {
   Services.prefs.setStringPref("calendar.timezone.local", "America/Phoenix");
-  let times = [
+  const times = [
     [
       [1, 0],
       [2, 30],
@@ -360,7 +360,7 @@ add_task(async function testTimezones5_checkPhoenix() {
 
 add_task(async function testTimezones6_checkLosAngeles() {
   Services.prefs.setStringPref("calendar.timezone.local", "America/Los_Angeles");
-  let times = [
+  const times = [
     [
       [0, 0],
       [1, 30],
@@ -451,7 +451,7 @@ add_task(async function testTimezones6_checkLosAngeles() {
 
 add_task(async function testTimezones7_checkBuenosAires() {
   Services.prefs.setStringPref("calendar.timezone.local", "America/Argentina/Buenos_Aires");
-  let times = [
+  const times = [
     [
       [6, 0],
       [7, 30],
@@ -542,7 +542,7 @@ add_task(async function testTimezones7_checkBuenosAires() {
 
 add_task(async function testTimezones8_checkParis() {
   Services.prefs.setStringPref("calendar.timezone.local", "Europe/Paris");
-  let times = [
+  const times = [
     [
       [9, 0],
       [10, 30],
@@ -633,7 +633,7 @@ add_task(async function testTimezones8_checkParis() {
 
 add_task(async function testTimezones9_checkKathmandu() {
   Services.prefs.setStringPref("calendar.timezone.local", "Asia/Kathmandu");
-  let times = [
+  const times = [
     [
       [13, 45],
       [15, 15],
@@ -724,7 +724,7 @@ add_task(async function testTimezones9_checkKathmandu() {
 
 add_task(async function testTimezones10_checkAdelaide() {
   Services.prefs.setStringPref("calendar.timezone.local", "Australia/Adelaide");
-  let times = [
+  const times = [
     [
       [18, 30],
       [20, 0],
@@ -819,15 +819,15 @@ async function verify(dates, timezones, times) {
       yield [dates[idx][0], dates[idx][1], dates[idx][2], times[idx]];
     }
   }
-  let allowedDifference = 3;
+  const allowedDifference = 3;
 
-  for (let [selectedYear, selectedMonth, selectedDay, selectedTime] of datetimes()) {
+  for (const [selectedYear, selectedMonth, selectedDay, selectedTime] of datetimes()) {
     info(`Verifying on day ${selectedDay}, month ${selectedMonth}, year ${selectedYear}`);
     await CalendarTestUtils.goToDate(window, selectedYear, selectedMonth, selectedDay);
 
     // Find event with timezone tz.
     for (let tzIdx = 0; tzIdx < timezones.length; tzIdx++) {
-      let [hour, minutes, day] = selectedTime[tzIdx];
+      const [hour, minutes, day] = selectedTime[tzIdx];
       info(
         `Verifying at ${hour} hours, ${minutes} minutes (offset: ${day || "none"}) ` +
           `in timezone "${timezones[tzIdx]}"`
@@ -840,13 +840,13 @@ async function verify(dates, timezones, times) {
         await CalendarTestUtils.calendarViewBackward(window, 1);
       }
 
-      let hourRect = CalendarTestUtils.dayView.getHourBoxAt(window, hour).getBoundingClientRect();
-      let timeY = hourRect.y + hourRect.height * (minutes / 60);
+      const hourRect = CalendarTestUtils.dayView.getHourBoxAt(window, hour).getBoundingClientRect();
+      const timeY = hourRect.y + hourRect.height * (minutes / 60);
 
       // Wait for at least one event box to exist.
       await CalendarTestUtils.dayView.waitForEventBoxAt(window, 1);
 
-      let eventPositions = Array.from(CalendarTestUtils.dayView.getEventBoxes(window))
+      const eventPositions = Array.from(CalendarTestUtils.dayView.getEventBoxes(window))
         .filter(node => node.mOccurrence.title == timezones[tzIdx])
         .map(node => node.getBoundingClientRect().y);
 

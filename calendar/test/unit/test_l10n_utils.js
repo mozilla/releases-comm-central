@@ -17,7 +17,7 @@ function run_test() {
  */
 
 add_task(async function calendarInfo_test() {
-  let data = [
+  const data = [
     {
       input: { locale: "en-US" },
       expected: {
@@ -43,21 +43,21 @@ add_task(async function calendarInfo_test() {
       },
     },
   ];
-  let useOSLocaleFormat = Services.prefs.getBoolPref("intl.regional_prefs.use_os_locales", false);
-  let osprefs = Cc["@mozilla.org/intl/ospreferences;1"].getService(Ci.mozIOSPreferences);
-  let appLocale = Services.locale.appLocalesAsBCP47[0];
-  let rsLocale = osprefs.regionalPrefsLocales[0];
+  const useOSLocaleFormat = Services.prefs.getBoolPref("intl.regional_prefs.use_os_locales", false);
+  const osprefs = Cc["@mozilla.org/intl/ospreferences;1"].getService(Ci.mozIOSPreferences);
+  const appLocale = Services.locale.appLocalesAsBCP47[0];
+  const rsLocale = osprefs.regionalPrefsLocales[0];
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
-    let info = cal.l10n.calendarInfo(test.input.locale);
+    const info = cal.l10n.calendarInfo(test.input.locale);
     equal(
       Object.keys(info).length,
       test.expected.properties.length,
       "expected number of attributes (test #" + i + ")"
     );
-    for (let prop of test.expected.properties) {
+    for (const prop of test.expected.properties) {
       ok(prop in info, prop + " exists (test #" + i + ")");
     }
 
@@ -66,13 +66,13 @@ add_task(async function calendarInfo_test() {
       // let's test the caching mechanism - this test section is pointless if app and
       // OS locale are the same like probably on automation
       Services.prefs.setBoolPref("intl.regional_prefs.use_os_locales", !useOSLocaleFormat);
-      let info2 = cal.l10n.calendarInfo();
+      const info2 = cal.l10n.calendarInfo();
       equal(
         Object.keys(info).length,
         test.expected.properties.length,
         "caching test - equal number of properties (test #" + i + ")"
       );
-      for (let prop of Object.keys(info)) {
+      for (const prop of Object.keys(info)) {
         ok(prop in info2, "caching test - " + prop + " exists in both objects (test #" + i + ")");
         equal(
           info2[prop],

@@ -37,7 +37,7 @@ add_setup(async function () {
     MailServices.accounts.createLocalMailAccount();
   }
 
-  let rootFolder = MailServices.accounts.localFoldersServer.rootFolder;
+  const rootFolder = MailServices.accounts.localFoldersServer.rootFolder;
   if (!rootFolder.containsChildNamed("Inbox")) {
     rootFolder.createSubfolder("Inbox", null);
   }
@@ -55,7 +55,7 @@ add_setup(async function () {
 
   calendar = CalendarTestUtils.createCalendar("Test");
 
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
     new FileUtils.File(getTestFilePath("data/meet-meeting-invite.eml")),
     gInbox,
@@ -74,20 +74,20 @@ add_setup(async function () {
  * event with an identity no calendar is configured to use.
  */
 add_task(async function testInvitationIdentityPrompt() {
-  let tabmail = document.getElementById("tabmail");
-  let about3Pane = tabmail.currentAbout3Pane;
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
   about3Pane.displayFolder(gInbox.URI);
   about3Pane.threadTree.selectedIndex = 0;
 
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
     null,
     "chrome://calendar/content/calendar-itip-identity-dialog.xhtml",
     {
       async callback(win) {
         // Select the identity we want to use.
-        let menulist = win.document.getElementById("identity-menu");
+        const menulist = win.document.getElementById("identity-menu");
         for (let i = 0; i < menulist.itemCount; i++) {
-          let target = menulist.getItemAtIndex(i);
+          const target = menulist.getItemAtIndex(i);
           if (target.value == receiverIdentity.fullAddress) {
             menulist.selectedIndex = i;
           }
@@ -100,7 +100,7 @@ add_task(async function testInvitationIdentityPrompt() {
 
   // Override this function to intercept the attempt to send the email out.
   let sendItemsArgs = [];
-  let getImipTransport = cal.itip.getImipTransport;
+  const getImipTransport = cal.itip.getImipTransport;
   cal.itip.getImipTransport = () => ({
     scheme: "mailto",
     type: "email",
@@ -110,8 +110,8 @@ add_task(async function testInvitationIdentityPrompt() {
     },
   });
 
-  let aboutMessage = tabmail.currentAboutMessage;
-  let acceptButton = aboutMessage.document.getElementById("imipAcceptButton");
+  const aboutMessage = tabmail.currentAboutMessage;
+  const acceptButton = aboutMessage.document.getElementById("imipAcceptButton");
   await TestUtils.waitForCondition(
     () => BrowserTestUtils.is_visible(acceptButton),
     "waiting for accept button to become visible"
@@ -128,7 +128,7 @@ add_task(async function testInvitationIdentityPrompt() {
   // Restore this function.
   cal.itip.getImipTransport = getImipTransport;
 
-  let id = `mailto:${receiverIdentity.email}`;
+  const id = `mailto:${receiverIdentity.email}`;
   Assert.ok(event, "event was added to the calendar successfully");
   Assert.ok(event.getAttendeeById(id), "selected identity was added to the attendee list");
   Assert.equal(
@@ -137,7 +137,7 @@ add_task(async function testInvitationIdentityPrompt() {
     "X-MOZ-INVITED-ATTENDEE is set to the selected identity"
   );
 
-  let [recipientArray, , sender] = sendItemsArgs;
+  const [recipientArray, , sender] = sendItemsArgs;
   Assert.equal(recipientArray.length, 1, "one recipient for the reply");
   Assert.equal(recipientArray[0].id, "mailto:example@gmail.com", "recipient is event organizer");
   Assert.equal(sender.id, id, "sender is the identity selected");

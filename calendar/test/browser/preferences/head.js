@@ -5,8 +5,8 @@
 /* globals openPreferencesTab */
 
 async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
-  let tabmail = document.getElementById("tabmail");
-  let prefsTabMode = tabmail.tabModes.preferencesTab;
+  const tabmail = document.getElementById("tabmail");
+  const prefsTabMode = tabmail.tabModes.preferencesTab;
 
   Assert.equal(prefsTabMode.tabs.length, 0, "Prefs tab is not open");
 
@@ -22,7 +22,7 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
   Assert.ok(prefsDocument.URL.startsWith("about:preferences"), "Prefs tab is open");
 
   prefsDocument = prefsTabMode.tabs[0].browser.contentDocument;
-  let prefsWindow = prefsDocument.ownerGlobal;
+  const prefsWindow = prefsDocument.ownerGlobal;
   prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
   if (paneID) {
     await new Promise(resolve => prefsWindow.setTimeout(resolve));
@@ -56,8 +56,8 @@ function registerCleanupOnce() {
 
 async function closePrefsTab() {
   info("Closing prefs tab");
-  let tabmail = document.getElementById("tabmail");
-  let prefsTab = tabmail.tabModes.preferencesTab.tabs[0];
+  const tabmail = document.getElementById("tabmail");
+  const prefsTab = tabmail.tabModes.preferencesTab.tabs[0];
   if (prefsTab) {
     tabmail.closeTab(prefsTab);
   }

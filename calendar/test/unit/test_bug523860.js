@@ -7,8 +7,8 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 function run_test() {
   // In bug 523860, we found out that in the spec doublequotes should not be
   // escaped.
-  let prop = cal.icsService.createIcalProperty("DESCRIPTION");
-  let expected = "A String with \"quotes\" and 'other quotes'";
+  const prop = cal.icsService.createIcalProperty("DESCRIPTION");
+  const expected = "A String with \"quotes\" and 'other quotes'";
 
   prop.value = expected;
   equal(prop.icalString, "DESCRIPTION:" + expected + "\r\n");

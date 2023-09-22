@@ -62,11 +62,11 @@ function test_formatcss() {
 function test_getDefaultStartDate() {
   function transform(nowString, refDateString) {
     now = cal.createDateTime(nowString);
-    let refDate = refDateString ? cal.createDateTime(refDateString) : null;
+    const refDate = refDateString ? cal.createDateTime(refDateString) : null;
     return cal.dtz.getDefaultStartDate(refDate);
   }
 
-  let oldNow = cal.dtz.now;
+  const oldNow = cal.dtz.now;
   let now = cal.createDateTime("20120101T000000");
   cal.dtz.now = function () {
     return now;
@@ -85,13 +85,13 @@ function test_getDefaultStartDate() {
   equal(transform("20120101T230000", "20120202").icalString, "20120202T230000");
   equal(transform("20120101T235959", "20120202").icalString, "20120202T230000");
 
-  let event = new CalEvent();
+  const event = new CalEvent();
   now = cal.createDateTime("20120101T015959");
   cal.dtz.setDefaultStartEndHour(event, cal.createDateTime("20120202"));
   equal(event.startDate.icalString, "20120202T020000");
   equal(event.endDate.icalString, "20120202T030000");
 
-  let todo = new CalTodo();
+  const todo = new CalTodo();
   now = cal.createDateTime("20120101T000000");
   cal.dtz.setDefaultStartEndHour(todo, cal.createDateTime("20120202"));
   equal(todo.entryDate.icalString, "20120202T010000");
@@ -116,20 +116,20 @@ function test_OperationGroup() {
     return true;
   }
 
-  let group = new cal.data.OperationGroup(cancelFunc);
+  const group = new cal.data.OperationGroup(cancelFunc);
 
   ok(group.isEmpty);
   ok(group.id.endsWith("-0"));
   equal(group.status, Cr.NS_OK);
   equal(group.isPending, true);
 
-  let completedOp = { isPending: false };
+  const completedOp = { isPending: false };
 
   group.add(completedOp);
   ok(group.isEmpty);
   equal(group.isPending, true);
 
-  let pendingOp1 = {
+  const pendingOp1 = {
     id: 1,
     isPending: true,
     cancel() {
@@ -142,7 +142,7 @@ function test_OperationGroup() {
   ok(!group.isEmpty);
   equal(group.isPending, true);
 
-  let pendingOp2 = {
+  const pendingOp2 = {
     id: 2,
     isPending: true,
     cancel() {
@@ -165,7 +165,7 @@ function test_OperationGroup() {
 }
 
 function test_sameDay() {
-  let createDate = cal.createDateTime.bind(cal);
+  const createDate = cal.createDateTime.bind(cal);
 
   ok(cal.dtz.sameDay(createDate("20120101"), createDate("20120101T120000")));
   ok(cal.dtz.sameDay(createDate("20120101"), createDate("20120101")));
@@ -174,7 +174,7 @@ function test_sameDay() {
 }
 
 function test_binarySearch() {
-  let arr = [2, 5, 7, 9, 20, 27, 34, 39, 41, 53, 62];
+  const arr = [2, 5, 7, 9, 20, 27, 34, 39, 41, 53, 62];
   equal(cal.data.binarySearch(arr, 27), 5); // Center
   equal(cal.data.binarySearch(arr, 2), 0); // Left most
   equal(cal.data.binarySearch(arr, 62), 11); // Right most

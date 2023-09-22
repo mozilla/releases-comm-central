@@ -14,7 +14,7 @@ add_task(async function version_test() {
 // check whether all tz definitions have all properties
 add_task(async function zone_test() {
   function resolveZone(aZoneId) {
-    let timezone = cal.timezoneService.getTimezone(aZoneId);
+    const timezone = cal.timezoneService.getTimezone(aZoneId);
     equal(aZoneId, timezone.tzid, "Zone test " + aZoneId);
     ok(
       timezone.icalComponent.serializeToICS().startsWith("BEGIN:VTIMEZONE"),
@@ -23,7 +23,7 @@ add_task(async function zone_test() {
   }
 
   let foundZone = false;
-  for (let zone of cal.timezoneService.timezoneIds) {
+  for (const zone of cal.timezoneService.timezoneIds) {
     foundZone = true;
     resolveZone(zone);
   }

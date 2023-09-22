@@ -21,7 +21,7 @@ registerCleanupFunction(() => {
  * @returns {CalEvent} - The created event.
  */
 async function createEvent(name, start, end) {
-  let event = new CalEvent();
+  const event = new CalEvent();
   event.title = name;
   event.startDate = cal.createDateTime(start);
   event.endDate = cal.createDateTime(end);
@@ -52,13 +52,13 @@ async function assertWeekEvents(date, expect, message) {
   // First test for expected events since these can take a short while to load,
   // and we don't want to test for the absence of an event before they show.
   for (let day = expect.start; day <= expect.end; day++) {
-    let element = await CalendarTestUtils.weekView.waitForEventBoxAt(window, day, 1);
+    const element = await CalendarTestUtils.weekView.waitForEventBoxAt(window, day, 1);
     Assert.equal(
       element.querySelector(".event-name-label").textContent,
       expect.name,
       `Day ${day} event name should match: ${message}`
     );
-    let icon = element.querySelector(".item-recurrence-icon");
+    const icon = element.querySelector(".item-recurrence-icon");
     Assert.equal(icon.src, "");
     Assert.ok(icon.hidden);
     await CalendarTestUtils.assertEventBoxDraggable(
@@ -85,7 +85,7 @@ async function assertWeekEvents(date, expect, message) {
  * Test an event that occurs within one week, in the week view.
  */
 add_task(async function testInsideWeekView() {
-  let event = await createEvent("Test Event", "20190101T123400", "20190103T234500");
+  const event = await createEvent("Test Event", "20190101T123400", "20190103T234500");
   await CalendarTestUtils.setCalendarView(window, "week");
   Assert.equal(
     document.querySelectorAll("#week-view calendar-event-column").length,
@@ -108,7 +108,7 @@ add_task(async function testInsideWeekView() {
  */
 add_task(async function testMidnightWeekView() {
   // Spans three days.
-  let event = await createEvent("Test Event", "20190101T000000", "20190104T000000");
+  const event = await createEvent("Test Event", "20190101T000000", "20190104T000000");
   await CalendarTestUtils.setCalendarView(window, "week");
 
   // Midnight-to-midnight event only spans one day even though the end time
@@ -127,7 +127,7 @@ add_task(async function testMidnightWeekView() {
  * Test an event that spans multiple weeks, in the week view.
  */
 add_task(async function testOutsideWeekView() {
-  let event = await createEvent("Test Event", "20190402T123400", "20190418T234500");
+  const event = await createEvent("Test Event", "20190402T123400", "20190418T234500");
   await CalendarTestUtils.setCalendarView(window, "week");
 
   await assertWeekEvents(

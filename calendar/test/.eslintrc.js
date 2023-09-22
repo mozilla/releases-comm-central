@@ -70,5 +70,7 @@ module.exports = {
           "These tests run in UTC. Use 'new Date(Date.UTC(...))' to construct a Date with arguments.",
       },
     ],
+    // Enforce using `let` only when variables are reassigned.
+    "prefer-const": ["error", { destructuring: "all" }],
   },
 };

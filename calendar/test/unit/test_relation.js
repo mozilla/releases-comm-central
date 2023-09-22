@@ -11,19 +11,19 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 
 function run_test() {
   // Create Relation
-  let relation1 = new CalRelation();
+  const relation1 = new CalRelation();
 
   // Create Items
-  let event1 = new CalEvent();
-  let event2 = new CalEvent();
+  const event1 = new CalEvent();
+  const event2 = new CalEvent();
 
   // Testing relation set/get.
-  let properties = {
+  const properties = {
     relType: "PARENT",
     relId: event2.id,
   };
 
-  for (let [property, value] of Object.entries(properties)) {
+  for (const [property, value] of Object.entries(properties)) {
     relation1[property] = value;
     equal(relation1[property], value);
   }
@@ -32,7 +32,7 @@ function run_test() {
   event1.addRelation(relation1);
 
   // Add 2nd relation to event.
-  let relation2 = new CalRelation();
+  const relation2 = new CalRelation();
   relation2.relId = "myid2";
   event1.addRelation(relation2);
 
@@ -50,7 +50,7 @@ function run_test() {
 }
 
 function checkRelations(event, expRel) {
-  let allRel = event.getRelations();
+  const allRel = event.getRelations();
   equal(allRel.length, expRel.length);
 
   // check if all expacted relations are found
@@ -65,8 +65,8 @@ function checkRelations(event, expRel) {
 }
 
 function modifyRelations(event, oldRel) {
-  let allRel = event.getRelations();
-  let rel = allRel[0];
+  const allRel = event.getRelations();
+  const rel = allRel[0];
 
   // modify the properties
   rel.relType = "SIBLING";
@@ -84,14 +84,14 @@ function modifyRelations(event, oldRel) {
 }
 
 function test_icalprop() {
-  let rel = new CalRelation();
+  const rel = new CalRelation();
 
   rel.relType = "SIBLING";
   rel.setParameter("X-PROP", "VAL");
   rel.relId = "value";
 
-  let prop = rel.icalProperty;
-  let propOrig = rel.icalProperty;
+  const prop = rel.icalProperty;
+  const propOrig = rel.icalProperty;
 
   equal(rel.icalString, prop.icalString);
 
@@ -119,7 +119,7 @@ function test_icalprop() {
   equal(rel.getParameter("X-PROP"), "VAL");
   equal(rel.relType, "SIBLING");
 
-  let rel2 = rel.clone();
+  const rel2 = rel.clone();
   rel.icalProperty = prop;
 
   notEqual(rel.icalString, rel2.icalString);

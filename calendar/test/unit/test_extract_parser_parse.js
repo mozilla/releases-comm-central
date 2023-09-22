@@ -13,8 +13,8 @@ var { CalExtractParser } = ChromeUtils.import(
  * Tests parsing an empty string produces an empty lit.
  */
 add_task(function testParseEmptyString() {
-  let parser = new CalExtractParser();
-  let result = parser.parse("");
+  const parser = new CalExtractParser();
+  const result = parser.parse("");
   Assert.equal(result.length, 0, "parsing empty string produces empty list");
 });
 
@@ -22,7 +22,7 @@ add_task(function testParseEmptyString() {
  * Tests parsing with various non-flag rules works as expected.
  */
 add_task(function testParseText() {
-  let parser = CalExtractParser.createInstance(
+  const parser = CalExtractParser.createInstance(
     [
       [/^your/i, "YOUR"],
       [/^(appointment|meeting|booking)/i, "EVENT"],
@@ -121,7 +121,7 @@ add_task(function testParseText() {
     ]
   );
 
-  let tests = [
+  const tests = [
     {
       input: "Hello, your banking appointment at RealBank is booked!",
       expected: [
@@ -193,9 +193,9 @@ add_task(function testParseText() {
     },
   ];
 
-  for (let test of tests) {
+  for (const test of tests) {
     info(`Parsing string "${test.input}"...`);
-    let result = parser.parse(test.input);
+    const result = parser.parse(test.input);
     Assert.equal(
       result.length,
       test.expected.length,
@@ -210,7 +210,7 @@ add_task(function testParseText() {
  * Tests parsing unknown text produces a null result for the sentence.
  */
 add_task(function testParseUnknownText() {
-  let parser = CalExtractParser.createInstance(
+  const parser = CalExtractParser.createInstance(
     [
       [/^No/, "NO"],
       [/^rules/, "RULES"],
@@ -234,7 +234,7 @@ add_task(function testParseUnknownText() {
     ]
   );
 
-  let result = parser.parse("No rules for this. Or this. Or even this!");
+  const result = parser.parse("No rules for this. Or this. Or even this!");
   Assert.equal(result.length, 3, "result has 3 sentences");
   Assert.equal(result[0], "statement", "first sentence parsed properly");
   Assert.equal(result[1], "statement", "second sentence parsed properly");
@@ -246,14 +246,14 @@ add_task(function testParseUnknownText() {
  * sentence.
  */
 add_task(function testParseWithoutParseRules() {
-  let parser = CalExtractParser.createInstance(
+  const parser = CalExtractParser.createInstance(
     [
       [/^[A-Za-z]+/, "TEXT"],
       [/^\s+/, "SPACE"],
     ],
     []
   );
-  let result = parser.parse("No rules for this. Or this. Or event this!");
+  const result = parser.parse("No rules for this. Or this. Or event this!");
   Assert.equal(result.length, 3, "result has 3 parsed sentences");
   Assert.ok(
     result.every(val => val == null),
@@ -265,7 +265,7 @@ add_task(function testParseWithoutParseRules() {
  * Tests parsing using the "+" flag in various scenarios.
  */
 add_task(function testParseWithPlusFlags() {
-  let parser = CalExtractParser.createInstance(
+  const parser = CalExtractParser.createInstance(
     [
       [/^we\b/i, "WE"],
       [/^meet\b/i, "MEET"],
@@ -336,7 +336,7 @@ add_task(function testParseWithPlusFlags() {
     ]
   );
 
-  let tests = [
+  const tests = [
     {
       name: "using '+' flag can capture one pattern",
       input: "We will meet at 7",
@@ -497,9 +497,9 @@ add_task(function testParseWithPlusFlags() {
     },
   ];
 
-  for (let test of tests) {
+  for (const test of tests) {
     info(`Running test: ${test.name}`);
-    let result = parser.parse(test.input);
+    const result = parser.parse(test.input);
     Assert.equal(
       result.length,
       test.expected.length,
@@ -514,7 +514,7 @@ add_task(function testParseWithPlusFlags() {
  * Tests parsing using the "*" flag in various scenarios.
  */
 add_task(function testParseWithStarFlags() {
-  let parser = CalExtractParser.createInstance(
+  const parser = CalExtractParser.createInstance(
     [
       [/^we\b/i, "WE"],
       [/^meet\b/i, "MEET"],
@@ -586,7 +586,7 @@ add_task(function testParseWithStarFlags() {
     ]
   );
 
-  let tests = [
+  const tests = [
     {
       name: "using '*' flag can capture one pattern",
       input: "We will meet at 7",
@@ -774,9 +774,9 @@ add_task(function testParseWithStarFlags() {
     },
   ];
 
-  for (let test of tests) {
+  for (const test of tests) {
     info(`Running test: ${test.name}`);
-    let result = parser.parse(test.input);
+    const result = parser.parse(test.input);
     Assert.equal(
       result.length,
       test.expected.length,
@@ -791,7 +791,7 @@ add_task(function testParseWithStarFlags() {
  * Tests parsing using the "?" flag in various scenarios.
  */
 add_task(function testParseWithOptionalFlags() {
-  let parser = CalExtractParser.createInstance(
+  const parser = CalExtractParser.createInstance(
     [
       [/^we\b/i, "WE"],
       [/^meet\b/i, "MEET"],
@@ -863,7 +863,7 @@ add_task(function testParseWithOptionalFlags() {
     ]
   );
 
-  let tests = [
+  const tests = [
     {
       name: "using '?' flag can capture one pattern",
       input: "We will meet at 7",
@@ -986,9 +986,9 @@ add_task(function testParseWithOptionalFlags() {
     },
   ];
 
-  for (let test of tests) {
+  for (const test of tests) {
     info(`Running test: ${test.name}`);
-    let result = parser.parse(test.input);
+    const result = parser.parse(test.input);
     Assert.equal(
       result.length,
       test.expected.length,
@@ -1003,7 +1003,7 @@ add_task(function testParseWithOptionalFlags() {
  * Test the flags can be used together in the same rules.
  */
 add_task(function testParseWithFlags() {
-  let tokens = [
+  const tokens = [
     [/^we\b/i, "WE"],
     [/^meet\b/i, "MEET"],
     [/^at\b/i, "AT"],
@@ -1012,7 +1012,7 @@ add_task(function testParseWithFlags() {
     [/^\s+/],
   ];
 
-  let patterns = [
+  const patterns = [
     {
       name: "subject",
       patterns: ["WE"],
@@ -1045,7 +1045,7 @@ add_task(function testParseWithFlags() {
     },
   ];
 
-  let tests = [
+  const tests = [
     {
       patterns: ["subject?", "text*", "time+"],
       variants: [
@@ -1299,17 +1299,17 @@ add_task(function testParseWithFlags() {
 
   for (let test of tests) {
     test = tests[2];
-    let rule = {
+    const rule = {
       name: "result",
       patterns: test.patterns,
       action: args => args,
     };
-    let parser = CalExtractParser.createInstance(tokens, [rule, ...patterns]);
+    const parser = CalExtractParser.createInstance(tokens, [rule, ...patterns]);
 
     for (let input of test.variants) {
       input = test.variants[3];
       info(`Testing pattern: ${test.patterns} with input "${input.input}".`);
-      let result = parser.parse(input.input);
+      const result = parser.parse(input.input);
       info(`Comparing parse results for string "${input.input}"...`);
       compareExtractResults(result, input.expected, "result");
     }

@@ -9,7 +9,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 });
 
 function run_test() {
-  let attendee = new CalAttendee();
+  const attendee = new CalAttendee();
   attendee.id = "mailto:somebody";
 
   // Set the property and make sure its there

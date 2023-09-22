@@ -40,7 +40,7 @@ var EVENT_DIALOG_NAME = "Calendar:EventDialog";
  * @param {boolean} selectParent - true if all occurrences should be deleted.
  */
 async function handleDeleteOccurrencePrompt(window, element, selectParent) {
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog(
     undefined,
     "chrome://calendar/content/calendar-occurrence-prompt.xhtml",
     {
@@ -51,7 +51,7 @@ async function handleDeleteOccurrencePrompt(window, element, selectParent) {
         } else {
           buttonId = "accept-occurrence-button";
         }
-        let acceptButton = dialogWindow.document.getElementById(buttonId);
+        const acceptButton = dialogWindow.document.getElementById(buttonId);
         EventUtils.synthesizeMouseAtCenter(acceptButton, {}, dialogWindow);
       },
     }
@@ -68,7 +68,7 @@ async function execEventDialogCallback(callback) {
     eventWindow = await lazy.CalendarTestUtils.waitForEventDialog("edit");
   }
 
-  let iframe = eventWindow.document.getElementById("calendar-item-panel-iframe");
+  const iframe = eventWindow.document.getElementById("calendar-item-panel-iframe");
   await TestUtils.waitForCondition(() => iframe.contentWindow.onLoad?.hasLoaded);
 
   await callback(eventWindow, iframe.contentWindow);
@@ -82,6 +82,6 @@ async function execEventDialogCallback(callback) {
  * @param {number} day - Day to check between 1-7.
  */
 function checkMonthAlarmIcon(window, week, day) {
-  let dayBox = lazy.CalendarTestUtils.monthView.getItemAt(window, week, day, 1);
+  const dayBox = lazy.CalendarTestUtils.monthView.getItemAt(window, week, day, 1);
   Assert.ok(dayBox.querySelector(".alarm-icons-box > .reminder-icon"));
 }

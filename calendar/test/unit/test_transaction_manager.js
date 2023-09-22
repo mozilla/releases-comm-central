@@ -66,9 +66,9 @@ class MockCalTransaction extends CalTransaction {
  *  to be tested.
  */
 function doBatchTest(batches, expected) {
-  for (let [batch, transactions] of batches.entries()) {
-    for (let [index, trn] of transactions.entries()) {
-      let [doneCount, undoneCount] = expected[batch][index];
+  for (const [batch, transactions] of batches.entries()) {
+    for (const [index, trn] of transactions.entries()) {
+      const [doneCount, undoneCount] = expected[batch][index];
       Assert.equal(
         trn.done,
         doneCount,
@@ -99,7 +99,7 @@ add_task(async function testCalTransactionManager() {
   Assert.ok(!manager.peekRedoStack(), "peekRedoStack() returns nothing with an empty redo stack");
 
   info("calling CalTransactionManager.commit()");
-  let trn = new MockCalTransaction();
+  const trn = new MockCalTransaction();
   await manager.commit(trn);
   Assert.equal(trn.done, 1, "doTransaction() called once");
   Assert.equal(trn.undone, 0, "undoTransaction() was not called");
@@ -129,7 +129,7 @@ add_task(async function testCalTransactionManager() {
   info("testing CalTransactionManager.beginBatch()");
   manager = new CalTransactionManager();
 
-  let batch = manager.beginBatch();
+  const batch = manager.beginBatch();
   Assert.ok(batch instanceof CalBatchTransaction, "beginBatch() returned a CalBatchTransaction");
   Assert.equal(manager.undoStack[0], batch, "the CalBatchTransaction is on the undo stack");
 });
@@ -146,9 +146,13 @@ add_task(async function testBatchTransaction() {
   await batch.commit(new MockCalTransaction());
   Assert.ok(!batch.canWrite(), "canWrite() returns false if any transaction is not writable");
 
-  let transactions = [new MockCalTransaction(), new MockCalTransaction(), new MockCalTransaction()];
+  const transactions = [
+    new MockCalTransaction(),
+    new MockCalTransaction(),
+    new MockCalTransaction(),
+  ];
   batch = new CalBatchTransaction();
-  for (let trn of transactions) {
+  for (const trn of transactions) {
     await batch.commit(trn);
   }
 
@@ -196,26 +200,26 @@ add_task(async function testBatchTransaction() {
  * Tests that executing multiple batch transactions in sequence works.
  */
 add_task(async function testSequentialBatchTransactions() {
-  let manager = new CalTransactionManager();
+  const manager = new CalTransactionManager();
 
-  let batchTransactions = [
+  const batchTransactions = [
     [new MockCalTransaction(), new MockCalTransaction(), new MockCalTransaction()],
     [new MockCalTransaction(), new MockCalTransaction(), new MockCalTransaction()],
     [new MockCalTransaction(), new MockCalTransaction(), new MockCalTransaction()],
   ];
 
-  let batch0 = manager.beginBatch();
-  for (let trn of batchTransactions[0]) {
+  const batch0 = manager.beginBatch();
+  for (const trn of batchTransactions[0]) {
     await batch0.commit(trn);
   }
 
-  let batch1 = manager.beginBatch();
-  for (let trn of batchTransactions[1]) {
+  const batch1 = manager.beginBatch();
+  for (const trn of batchTransactions[1]) {
     await batch1.commit(trn);
   }
 
-  let batch2 = manager.beginBatch();
-  for (let trn of batchTransactions[2]) {
+  const batch2 = manager.beginBatch();
+  for (const trn of batchTransactions[2]) {
     await batch2.commit(trn);
   }
 
@@ -362,11 +366,11 @@ add_task(async function testSequentialBatchTransactions() {
  * Tests CalAddTransaction executes and reverses as expected.
  */
 add_task(async function testCalAddTransaction() {
-  let calendar = CalendarTestUtils.createCalendar("Test", "memory");
-  let event = new CalEvent();
+  const calendar = CalendarTestUtils.createCalendar("Test", "memory");
+  const event = new CalEvent();
   event.id = "test";
 
-  let trn = new CalAddTransaction(event, calendar, null, null);
+  const trn = new CalAddTransaction(event, calendar, null, null);
   await trn.doTransaction();
 
   let addedEvent = await calendar.getItem("test");
@@ -382,25 +386,25 @@ add_task(async function testCalAddTransaction() {
  * Tests CalModifyTransaction executes and reverses as expected.
  */
 add_task(async function testCalModifyTransaction() {
-  let calendar = CalendarTestUtils.createCalendar("Test", "memory");
-  let event = new CalEvent();
+  const calendar = CalendarTestUtils.createCalendar("Test", "memory");
+  const event = new CalEvent();
   event.id = "test";
   event.title = "Event";
 
-  let addedEvent = await calendar.addItem(event);
+  const addedEvent = await calendar.addItem(event);
   Assert.ok(!!addedEvent, "event was added to the calendar");
 
   let modifiedEvent = addedEvent.clone();
   modifiedEvent.title = "Modified Event";
 
-  let trn = new CalModifyTransaction(modifiedEvent, calendar, addedEvent, null);
+  const trn = new CalModifyTransaction(modifiedEvent, calendar, addedEvent, null);
   await trn.doTransaction();
   modifiedEvent = await calendar.getItem("test");
   Assert.ok(!!modifiedEvent);
   Assert.equal(modifiedEvent.title, "Modified Event", "transaction modified event");
 
   await trn.undoTransaction();
-  let revertedEvent = await calendar.getItem("test");
+  const revertedEvent = await calendar.getItem("test");
   Assert.ok(!!revertedEvent);
   Assert.equal(revertedEvent.title, "Event", "transaction reverted event to original state");
   CalendarTestUtils.removeCalendar(calendar);
@@ -410,22 +414,22 @@ add_task(async function testCalModifyTransaction() {
  * Tests CalDeleteTransaction executes and reverses as expected.
  */
 add_task(async function testCalDeleteTransaction() {
-  let calendar = CalendarTestUtils.createCalendar("Test", "memory");
-  let event = new CalEvent();
+  const calendar = CalendarTestUtils.createCalendar("Test", "memory");
+  const event = new CalEvent();
   event.id = "test";
   event.title = "Event";
 
-  let addedEvent = await calendar.addItem(event);
+  const addedEvent = await calendar.addItem(event);
   Assert.ok(!!addedEvent, "event was added to the calendar");
 
-  let trn = new CalDeleteTransaction(addedEvent, calendar, null, null);
+  const trn = new CalDeleteTransaction(addedEvent, calendar, null, null);
   await trn.doTransaction();
 
-  let result = await calendar.getItem("test");
+  const result = await calendar.getItem("test");
   Assert.ok(!result, "event was deleted from the calendar");
 
   await trn.undoTransaction();
-  let revertedEvent = await calendar.getItem("test");
+  const revertedEvent = await calendar.getItem("test");
   Assert.ok(!!revertedEvent, "event was restored to the calendar");
   CalendarTestUtils.removeCalendar(calendar);
 });

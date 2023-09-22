@@ -23,7 +23,7 @@ function run_test() {
  * @returns The created item.
  */
 function hashedCreateItem(ident) {
-  let item = new CalEvent();
+  const item = new CalEvent();
   item.calendar = { id: "test" };
   item.id = cal.getUUID();
   item.title = ident;
@@ -61,8 +61,8 @@ function checkConsistancy(har, testItems, itemAccessor) {
     function (item) {
       return item;
     };
-  for (let idx in testItems) {
-    let testItem = itemAccessor(testItems[idx]);
+  for (const idx in testItems) {
+    const testItem = itemAccessor(testItems[idx]);
     equal(itemAccessor(har.itemByIndex(idx)).title, testItem.title);
     equal(itemAccessor(har.itemById(testItem.hashId)).title, testItem.title);
     equal(har.indexOf(testItems[idx]), idx);
@@ -110,7 +110,7 @@ function testRemoveModify(har, testItems, postprocessFunc, itemAccessor, itemCre
   checkConsistancy(har, testItems, itemAccessor);
 
   // Try modifying an item
-  let newInstance = itemCreator("z-changed");
+  const newInstance = itemCreator("z-changed");
   itemAccessor(newInstance).id = itemAccessor(testItems[0]).id;
   testItems[0] = newInstance;
   har.modifyItem(newInstance);
@@ -177,10 +177,9 @@ function test_array_sorted() {
  * Tests cal.SortedHashedArray with a custom hashAccessor.
  */
 function test_hashAccessor() {
-  let har, testItems, testItemsSorted;
-  let comptor = (a, b) => titleComptor(a.item, b.item);
+  const comptor = (a, b) => titleComptor(a.item, b.item);
 
-  har = new cal.SortedHashedArray(comptor);
+  const har = new cal.SortedHashedArray(comptor);
   har.hashAccessor = function (obj) {
     return obj.item.hashId;
   };
@@ -201,9 +200,9 @@ function test_hashAccessor() {
     return [harParam, tiParam];
   }
 
-  testItems = ["d", "c", "a", "b"].map(itemCreator);
+  const testItems = ["d", "c", "a", "b"].map(itemCreator);
 
-  testItemsSorted = testItems.sort(comptor);
+  const testItemsSorted = testItems.sort(comptor);
   testItems.forEach(har.addItem, har);
   checkConsistancy(har, testItemsSorted, itemAccessor);
   testRemoveModify(har, testItemsSorted, sortedPostProcess, itemAccessor, itemCreator);

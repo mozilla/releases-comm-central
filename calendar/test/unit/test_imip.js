@@ -5,7 +5,7 @@
 var { CalItipEmailTransport } = ChromeUtils.import("resource:///modules/CalItipEmailTransport.jsm");
 
 function itipItemForTest(title, seq) {
-  let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
+  const itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
   itipItem.init(
     [
       "BEGIN:VCALENDAR",
@@ -20,28 +20,28 @@ function itipItemForTest(title, seq) {
   return itipItem;
 }
 
-let transport = new CalItipEmailTransport();
+const transport = new CalItipEmailTransport();
 
 add_task(function test_title_in_subject() {
   Services.prefs.setBoolPref("calendar.itip.useInvitationSubjectPrefixes", false);
-  let items = transport._prepareItems(itipItemForTest("foo"));
+  const items = transport._prepareItems(itipItemForTest("foo"));
   equal(items.subject, "foo");
 });
 
 add_task(function test_title_in_summary() {
   Services.prefs.setBoolPref("calendar.itip.useInvitationSubjectPrefixes", true);
-  let items = transport._prepareItems(itipItemForTest("bar"));
+  const items = transport._prepareItems(itipItemForTest("bar"));
   equal(items.subject, "Invitation: bar");
 });
 
 add_task(function test_updated_title_in_subject() {
   Services.prefs.setBoolPref("calendar.itip.useInvitationSubjectPrefixes", false);
-  let items = transport._prepareItems(itipItemForTest("foo", 2));
+  const items = transport._prepareItems(itipItemForTest("foo", 2));
   equal(items.subject, "foo");
 });
 
 add_task(function test_updated_title_in_summary() {
   Services.prefs.setBoolPref("calendar.itip.useInvitationSubjectPrefixes", true);
-  let items = transport._prepareItems(itipItemForTest("bar", 2));
+  const items = transport._prepareItems(itipItemForTest("bar", 2));
   equal(items.subject, "Updated: bar");
 });

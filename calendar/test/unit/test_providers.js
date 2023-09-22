@@ -124,7 +124,7 @@ var icalStringArray = [
 
 add_task(async function testIcalData() {
   // First entry is test number, second item is expected result for testGetItems().
-  let wantedArray = [
+  const wantedArray = [
     [1, 1],
     [2, 1],
     [3, 1],
@@ -163,9 +163,9 @@ add_task(async function testIcalData() {
   ];
 
   for (let i = 0; i < wantedArray.length; i++) {
-    let itemArray = wantedArray[i];
+    const itemArray = wantedArray[i];
     // Correct for 1 to stay in synch with test numbers.
-    let calItem = icalStringArray[itemArray[0] - 1];
+    const calItem = icalStringArray[itemArray[0] - 1];
 
     let item;
     if (calItem.search(/VEVENT/) != -1) {
@@ -187,7 +187,7 @@ add_task(async function testIcalData() {
    * Additionally, the properties of the returned item are compared with aItem.
    */
   async function testGetItems(aItem, aResult) {
-    for (let calendar of [getStorageCal(), getMemoryCal()]) {
+    for (const calendar of [getStorageCal(), getMemoryCal()]) {
       await checkCalendar(calendar, aItem, aResult);
     }
   }
@@ -197,19 +197,19 @@ add_task(async function testIcalData() {
     await calendar.addItem(aItem);
 
     // construct range
-    let rangeStart = createDate(2002, 3, 2); // 3 = April
-    let rangeEnd = rangeStart.clone();
+    const rangeStart = createDate(2002, 3, 2); // 3 = April
+    const rangeEnd = rangeStart.clone();
     rangeEnd.day += 1;
 
     // filter options
-    let filter =
+    const filter =
       Ci.calICalendar.ITEM_FILTER_TYPE_ALL |
       Ci.calICalendar.ITEM_FILTER_CLASS_OCCURRENCES |
       Ci.calICalendar.ITEM_FILTER_COMPLETED_ALL;
 
     // implement listener
     let count = 0;
-    for await (let items of cal.iterate.streamValues(
+    for await (const items of cal.iterate.streamValues(
       calendar.getItems(filter, 0, rangeStart, rangeEnd)
     )) {
       if (items.length) {
@@ -241,14 +241,14 @@ add_task(async function testIcalData() {
    */
   async function testGetItem(aItem) {
     // get calendars
-    let calArray = [];
+    const calArray = [];
     calArray.push(getStorageCal());
     calArray.push(getMemoryCal());
-    for (let calendar of calArray) {
+    for (const calendar of calArray) {
       let count = 0;
       let returnedItem = null;
 
-      let aDetail = await calendar.addItem(aItem);
+      const aDetail = await calendar.addItem(aItem);
       compareItemsSpecific(aDetail, aItem);
       // perform getItem() on calendar
       returnedItem = await calendar.getItem(aDetail.id);
@@ -274,7 +274,7 @@ add_task(async function testIcalData() {
 add_task(async function testMetaData() {
   async function testMetaData_(aCalendar) {
     dump("testMetaData_() calendar type: " + aCalendar.type + "\n");
-    let event1 = createEventFromIcalString(
+    const event1 = createEventFromIcalString(
       "BEGIN:VEVENT\n" + "DTSTART;VALUE=DATE:20020402\n" + "END:VEVENT\n"
     );
 
@@ -285,7 +285,7 @@ add_task(async function testMetaData() {
     equal(aCalendar.getMetaData("item1"), "meta1");
     equal(aCalendar.getMetaData("unknown"), null);
 
-    let event2 = event1.clone();
+    const event2 = event1.clone();
     event2.id = "item2";
     await aCalendar.addItem(event2);
 

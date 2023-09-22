@@ -18,10 +18,10 @@ function run_test() {
 }
 
 function test_hashes() {
-  let attach = new CalAttachment();
+  const attach = new CalAttachment();
 
   attach.rawData = "hello";
-  let hash1 = attach.hashId;
+  const hash1 = attach.hashId;
 
   attach.rawData = "world";
   notEqual(hash1, attach.hashId);
@@ -39,13 +39,13 @@ function test_hashes() {
 }
 
 function test_uriattach() {
-  let attach = new CalAttachment();
+  const attach = new CalAttachment();
 
   // Attempt to set a property and check its values
-  let e = new CalEvent();
+  const e = new CalEvent();
   // eslint-disable-next-line no-useless-concat
   e.icalString = "BEGIN:VEVENT\r\n" + "ATTACH;FMTTYPE=x-moz/test:http://hello\r\n" + "END:VEVENT";
-  let prop = e.icalComponent.getFirstProperty("ATTACH");
+  const prop = e.icalComponent.getFirstProperty("ATTACH");
   attach.icalProperty = prop;
 
   notEqual(attach.getParameter("VALUE"), "BINARY");
@@ -56,14 +56,14 @@ function test_uriattach() {
 }
 
 function test_binaryattach() {
-  let attach = new CalAttachment();
-  let e = new CalEvent();
+  const attach = new CalAttachment();
+  const e = new CalEvent();
 
-  let attachString =
+  const attachString =
     "ATTACH;ENCODING=BASE64;FMTTYPE=x-moz/test2;VALUE=BINARY:aHR0cDovL2hlbGxvMg==\r\n";
-  let icalString = "BEGIN:VEVENT\r\n" + attachString + "END:VEVENT";
+  const icalString = "BEGIN:VEVENT\r\n" + attachString + "END:VEVENT";
   e.icalString = icalString;
-  let prop = e.icalComponent.getFirstProperty("ATTACH");
+  const prop = e.icalComponent.getFirstProperty("ATTACH");
   attach.icalProperty = prop;
 
   equal(attach.formatType, "x-moz/test2");

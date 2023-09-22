@@ -9,7 +9,7 @@ var { cancelItemDialog, saveAndCloseItemDialog, setData } = ChromeUtils.import(
 var UTF8STRING = " 💣 💥  ☣  ";
 
 add_task(async function testUTF8() {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   Services.prefs.setStringPref("calendar.categories.names", UTF8STRING);
 
   registerCleanupFunction(() => {
@@ -20,8 +20,8 @@ add_task(async function testUTF8() {
   await CalendarTestUtils.setCalendarView(window, "day");
 
   // Create new event.
-  let eventBox = CalendarTestUtils.dayView.getHourBoxAt(window, 8);
-  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  const eventBox = CalendarTestUtils.dayView.getHourBoxAt(window, 8);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   // Fill in name, location, description.
   await setData(dialogWindow, iframeWindow, {
     title: UTF8STRING,
@@ -32,7 +32,7 @@ add_task(async function testUTF8() {
   await saveAndCloseItemDialog(dialogWindow);
 
   // open
-  let { dialogWindow: dlgWindow, iframeDocument } = await CalendarTestUtils.dayView.editEventAt(
+  const { dialogWindow: dlgWindow, iframeDocument } = await CalendarTestUtils.dayView.editEventAt(
     window,
     1
   );
@@ -40,9 +40,9 @@ add_task(async function testUTF8() {
   Assert.equal(iframeDocument.getElementById("item-title").value, UTF8STRING);
   Assert.equal(iframeDocument.getElementById("item-location").value, UTF8STRING);
   // The trailing spaces confuse innerText, so we'll do this longhand
-  let editorEl = iframeDocument.getElementById("item-description");
-  let editor = editorEl.getEditor(editorEl.contentWindow);
-  let description = editor.outputToString("text/plain", 0);
+  const editorEl = iframeDocument.getElementById("item-description");
+  const editor = editorEl.getEditor(editorEl.contentWindow);
+  const description = editor.outputToString("text/plain", 0);
   // The HTML editor makes the first character a NBSP instead of a space.
   Assert.equal(description.replaceAll("\xA0", " "), UTF8STRING);
   Assert.ok(

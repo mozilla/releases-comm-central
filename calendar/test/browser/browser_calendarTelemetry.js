@@ -7,8 +7,8 @@
  * Test telemetry related to calendar.
  */
 
-let { MailTelemetryForTests } = ChromeUtils.import("resource:///modules/MailGlue.jsm");
-let { TelemetryTestUtils } = ChromeUtils.importESModule(
+const { MailTelemetryForTests } = ChromeUtils.import("resource:///modules/MailGlue.jsm");
+const { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
 
@@ -18,9 +18,9 @@ let { TelemetryTestUtils } = ChromeUtils.importESModule(
 add_task(async function testCalendarCount() {
   Services.telemetry.clearScalars();
 
-  let calendars = cal.manager.getCalendars();
-  let homeCal = calendars.find(cal => cal.name == "Home");
-  let readOnly = homeCal.readOnly;
+  const calendars = cal.manager.getCalendars();
+  const homeCal = calendars.find(cal => cal.name == "Home");
+  const readOnly = homeCal.readOnly;
   homeCal.readOnly = true;
 
   for (let i = 1; i <= 3; i++) {
@@ -32,7 +32,7 @@ add_task(async function testCalendarCount() {
 
   await MailTelemetryForTests.reportCalendars();
 
-  let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+  const scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
     scalars["tb.calendar.calendar_count"].memory,
     3,
@@ -64,9 +64,9 @@ add_task(async function testCalendarCount() {
  * Ensure the "Home" calendar is not ignored if it has been used.
  */
 add_task(async function testHomeCalendar() {
-  let calendar = cal.manager.getCalendars().find(cal => cal.name == "Home");
-  let readOnly = calendar.readOnly;
-  let disabled = calendar.getProperty("disabled");
+  const calendar = cal.manager.getCalendars().find(cal => cal.name == "Home");
+  const readOnly = calendar.readOnly;
+  const disabled = calendar.getProperty("disabled");
 
   // Test when enabled with no events.
   calendar.setProperty("disabled", false);
@@ -93,7 +93,7 @@ add_task(async function testHomeCalendar() {
   calendar.readOnly = true;
 
   await TestUtils.waitForCondition(async () => {
-    let result = await calendar.getItem("bacd");
+    const result = await calendar.getItem("bacd");
     return result;
   }, "item added to calendar");
 

@@ -24,11 +24,11 @@ registerCleanupFunction(async function () {
 });
 
 async function subtest() {
-  let zone = cal.dtz.defaultTimezone;
+  const zone = cal.dtz.defaultTimezone;
   info(`Running test in ${zone.tzid}`);
 
   // Set the minimonth to display August 2016.
-  let minimonth = document.getElementById("calMinimonth");
+  const minimonth = document.getElementById("calMinimonth");
   minimonth.showMonth(new Date(2016, 7, 15));
 
   Assert.deepEqual(
@@ -93,7 +93,7 @@ async function subtest() {
     }
   }
 
-  let dateWithZone = cal.createDateTime();
+  const dateWithZone = cal.createDateTime();
 
   // Dates without timezones or the local timezone.
 
@@ -159,8 +159,8 @@ async function subtest() {
 
   // Dates in different zones.
 
-  let auckland = cal.timezoneService.getTimezone("Pacific/Auckland");
-  let vancouver = cal.timezoneService.getTimezone("America/Vancouver");
+  const auckland = cal.timezoneService.getTimezone("Pacific/Auckland");
+  const vancouver = cal.timezoneService.getTimezone("America/Vancouver");
 
   // Early in Auckland is the previous day everywhere else.
   dateWithZone.resetTo(2016, 7, 15, 3, 0, 0, auckland);

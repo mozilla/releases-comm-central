@@ -25,7 +25,7 @@ const HOUR = 8;
 const TITLE = "Event";
 
 add_task(async function testDailyRecurrence() {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -34,7 +34,7 @@ add_task(async function testDailyRecurrence() {
   await CalendarTestUtils.goToDate(window, 2009, 1, 1);
 
   // Create daily event.
-  let eventBox = dayView.getHourBoxAt(window, HOUR);
+  const eventBox = dayView.getHourBoxAt(window, HOUR);
   let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   await setData(dialogWindow, iframeWindow, {
     title: TITLE,
@@ -91,7 +91,7 @@ add_task(async function testDailyRecurrence() {
   }
 
   // Delete 3rd January occurrence.
-  let saturday = await monthView.waitForItemAt(window, 1, 7, 1);
+  const saturday = await monthView.waitForItemAt(window, 1, 7, 1);
   EventUtils.synthesizeMouseAtCenter(saturday, {}, window);
   await handleDeleteOccurrencePrompt(window, saturday, false);
 
@@ -115,11 +115,11 @@ add_task(async function testDailyRecurrence() {
   await saveAndCloseItemDialog(dialogWindow);
 
   // Check day view for 7 days.
-  let dates = [
+  const dates = [
     [2009, 1, 3],
     [2009, 1, 4],
   ];
-  for (let [y, m, d] of dates) {
+  for (const [y, m, d] of dates) {
     await CalendarTestUtils.goToDate(window, y, m, d);
     Assert.ok(!dayView.getEventBoxAt(window, 1));
   }
@@ -153,7 +153,7 @@ add_task(async function testDailyRecurrence() {
   }
 
   // Delete event.
-  let day = monthView.getItemAt(window, 1, 5, 1);
+  const day = monthView.getItemAt(window, 1, 5, 1);
   EventUtils.synthesizeMouseAtCenter(day, {}, window);
   await handleDeleteOccurrencePrompt(window, day, true);
   await monthView.waitForNoItemAt(window, 1, 5, 1);

@@ -8,18 +8,18 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
 add_task(async () => {
-  let calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
+  const calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
   calendar.name = "Mochitest";
   calendar.setProperty("organizerId", "mailto:mochitest@example.com");
 
   cal.freeBusyService.addProvider(freeBusyProvider);
 
-  let book = MailServices.ab.getDirectoryFromId(
+  const book = MailServices.ab.getDirectoryFromId(
     MailServices.ab.newAddressBook("Mochitest", null, 101)
   );
-  let contacts = {};
-  for (let name of ["Charlie", "Juliet", "Mike", "Oscar", "Romeo", "Victor"]) {
-    let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
+  const contacts = {};
+  for (const name of ["Charlie", "Juliet", "Mike", "Oscar", "Romeo", "Victor"]) {
+    const card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(Ci.nsIAbCard);
     card.firstName = name;
     card.lastName = "Mochitest";
     card.displayName = `${name} Mochitest`;
@@ -35,8 +35,8 @@ add_task(async () => {
   list.addCard(contacts.ROMEO);
   list.addCard(contacts.VICTOR);
 
-  let today = new Date();
-  let times = {
+  const today = new Date();
+  const times = {
     ONE: new Date(
       Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1, 13, 0, 0)
     ),
@@ -57,17 +57,17 @@ add_task(async () => {
     MailServices.ab.deleteAddressBook(book.URI);
   });
 
-  let eventWindow = await openEventWindow(calendar);
-  let eventDocument = eventWindow.document;
-  let iframeDocument = eventDocument.getElementById("calendar-item-panel-iframe").contentDocument;
+  const eventWindow = await openEventWindow(calendar);
+  const eventDocument = eventWindow.document;
+  const iframeDocument = eventDocument.getElementById("calendar-item-panel-iframe").contentDocument;
 
-  let eventStartTime = iframeDocument.getElementById("event-starttime");
+  const eventStartTime = iframeDocument.getElementById("event-starttime");
   eventStartTime.value = times.ONE;
-  let eventEndTime = iframeDocument.getElementById("event-endtime");
+  const eventEndTime = iframeDocument.getElementById("event-endtime");
   eventEndTime.value = times.THREE_THIRTY;
 
   async function checkAttendeesInAttendeesDialog(attendeesDocument, expectedAttendees) {
-    let attendeesList = attendeesDocument.getElementById("attendee-list");
+    const attendeesList = attendeesDocument.getElementById("attendee-list");
     await TestUtils.waitForCondition(
       () => attendeesList.childElementCount == expectedAttendees.length + 1,
       "empty attendee input should have been added"
@@ -93,7 +93,7 @@ add_task(async () => {
   async function checkFreeBusy(row, count) {
     Assert.equal(row._freeBusyDiv.querySelectorAll(".pending").length, 1);
     Assert.equal(row._freeBusyDiv.querySelectorAll(".busy").length, 0);
-    let responsePromise = BrowserTestUtils.waitForEvent(row, "freebusy-update-finished");
+    const responsePromise = BrowserTestUtils.waitForEvent(row, "freebusy-update-finished");
     freeBusyProvider.sendNextResponse();
     await responsePromise;
     Assert.equal(row._freeBusyDiv.querySelectorAll(".pending").length, 0);
@@ -102,9 +102,9 @@ add_task(async () => {
 
   {
     info("Opening for the first time");
-    let attendeesWindow = await openAttendeesWindow(eventWindow);
-    let attendeesDocument = attendeesWindow.document;
-    let attendeesList = attendeesDocument.getElementById("attendee-list");
+    const attendeesWindow = await openAttendeesWindow(eventWindow);
+    const attendeesDocument = attendeesWindow.document;
+    const attendeesList = attendeesDocument.getElementById("attendee-list");
 
     Assert.equal(attendeesWindow.arguments[0].calendar, calendar);
     Assert.equal(attendeesWindow.arguments[0].organizer, null);
@@ -113,8 +113,8 @@ add_task(async () => {
 
     await new Promise(resolve => attendeesWindow.setTimeout(resolve));
 
-    let attendeesStartTime = attendeesDocument.getElementById("event-starttime");
-    let attendeesEndTime = attendeesDocument.getElementById("event-endtime");
+    const attendeesStartTime = attendeesDocument.getElementById("event-starttime");
+    const attendeesEndTime = attendeesDocument.getElementById("event-endtime");
     Assert.equal(attendeesStartTime.value.toISOString(), times.ONE.toISOString());
     Assert.equal(attendeesEndTime.value.toISOString(), times.THREE_THIRTY.toISOString());
 
@@ -125,7 +125,7 @@ add_task(async () => {
 
     await checkAttendeesInAttendeesDialog(attendeesDocument, ["mochitest@example.com"]);
 
-    let organizer = attendeesList.firstElementChild;
+    const organizer = attendeesList.firstElementChild;
     await checkFreeBusy(organizer, 5);
 
     // Add attendee.
@@ -196,7 +196,7 @@ add_task(async () => {
   function checkAttendeesInEventDialog(organizer, expectedAttendees) {
     Assert.equal(iframeDocument.getElementById("item-organizer-row").textContent, organizer);
 
-    let attendeeItems = iframeDocument.querySelectorAll(".attendee-list .attendee-label");
+    const attendeeItems = iframeDocument.querySelectorAll(".attendee-list .attendee-label");
     Assert.equal(attendeeItems.length, expectedAttendees.length);
     for (let i = 0; i < expectedAttendees.length; i++) {
       Assert.equal(attendeeItems[i].getAttribute("attendeeid"), expectedAttendees[i]);
@@ -215,12 +215,12 @@ add_task(async () => {
 
   {
     info("Opening for a second time");
-    let attendeesWindow = await openAttendeesWindow(eventWindow);
-    let attendeesDocument = attendeesWindow.document;
-    let attendeesList = attendeesDocument.getElementById("attendee-list");
+    const attendeesWindow = await openAttendeesWindow(eventWindow);
+    const attendeesDocument = attendeesWindow.document;
+    const attendeesList = attendeesDocument.getElementById("attendee-list");
 
-    let attendeesStartTime = attendeesDocument.getElementById("event-starttime");
-    let attendeesEndTime = attendeesDocument.getElementById("event-endtime");
+    const attendeesStartTime = attendeesDocument.getElementById("event-starttime");
+    const attendeesEndTime = attendeesDocument.getElementById("event-endtime");
     Assert.equal(attendeesStartTime.value.toISOString(), times.TWO_THIRTY.toISOString());
     Assert.equal(attendeesEndTime.value.toISOString(), times.FOUR.toISOString());
 
@@ -264,14 +264,14 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  let calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
+  const calendar = CalendarTestUtils.createCalendar("Mochitest", "memory");
   calendar.setProperty("organizerId", "mailto:mochitest@example.com");
 
   registerCleanupFunction(async () => {
     CalendarTestUtils.removeCalendar(calendar);
   });
 
-  let defaults = {
+  const defaults = {
     displayTimezone: true,
     attendees: [],
     organizer: null,
@@ -280,10 +280,10 @@ add_task(async () => {
   };
 
   async function testDays(startTime, endTime, expectedFirst, expectedLast) {
-    let attendeesWindow = await openAttendeesWindow({ ...defaults, startTime, endTime });
-    let attendeesDocument = attendeesWindow.document;
+    const attendeesWindow = await openAttendeesWindow({ ...defaults, startTime, endTime });
+    const attendeesDocument = attendeesWindow.document;
 
-    let days = attendeesDocument.querySelectorAll("calendar-day");
+    const days = attendeesDocument.querySelectorAll("calendar-day");
     Assert.equal(days.length, 16);
     Assert.equal(days[0].date.icalString, expectedFirst);
     Assert.equal(days[15].date.icalString, expectedLast);
@@ -378,12 +378,12 @@ add_task(async () => {
 });
 
 function openEventWindow(calendar) {
-  let eventWindowPromise = BrowserTestUtils.domWindowOpened(null, async win => {
+  const eventWindowPromise = BrowserTestUtils.domWindowOpened(null, async win => {
     await BrowserTestUtils.waitForEvent(win, "load");
 
-    let doc = win.document;
+    const doc = win.document;
     if (doc.documentURI == "chrome://calendar/content/calendar-event-dialog.xhtml") {
-      let iframe = doc.getElementById("calendar-item-panel-iframe");
+      const iframe = doc.getElementById("calendar-item-panel-iframe");
       await BrowserTestUtils.waitForEvent(iframe.contentWindow, "load");
       return true;
     }
@@ -394,7 +394,7 @@ function openEventWindow(calendar) {
 }
 
 async function closeEventWindow(eventWindow) {
-  let eventWindowPromise = BrowserTestUtils.domWindowClosed(eventWindow);
+  const eventWindowPromise = BrowserTestUtils.domWindowClosed(eventWindow);
   eventWindow.document.getElementById("button-saveandclose").click();
   await eventWindowPromise;
   await new Promise(resolve => setTimeout(resolve));
@@ -406,11 +406,11 @@ function fromToday({ days = 0, hours = 0 }) {
     fromToday.today.hour = fromToday.today.minute = fromToday.today.second = 0;
   }
 
-  let duration = cal.createDuration();
+  const duration = cal.createDuration();
   duration.days = days;
   duration.hours = hours;
 
-  let value = fromToday.today.clone();
+  const value = fromToday.today.clone();
   value.addDuration(duration);
   return value;
 }
@@ -418,7 +418,7 @@ function fromToday({ days = 0, hours = 0 }) {
 var freeBusyProvider = {
   pendingRequests: [],
   sendNextResponse() {
-    let next = this.pendingRequests.shift();
+    const next = this.pendingRequests.shift();
     if (next) {
       next();
     }
@@ -430,9 +430,9 @@ var freeBusyProvider = {
         aListener.onResult(
           null,
           this.data[aCalId].map(([startDuration, duration]) => {
-            let start = fromToday(startDuration);
+            const start = fromToday(startDuration);
 
-            let end = start.clone();
+            const end = start.clone();
             end.addDuration(cal.createDuration(duration));
 
             return new cal.provider.FreeBusyInterval(

@@ -10,7 +10,7 @@ function really_run_test() {
   // Check that Bug 343792 doesn't regress:
   // Freeze (hang) on RRULE which has INTERVAL=0
 
-  let icalString =
+  const icalString =
     "BEGIN:VCALENDAR\n" +
     "CALSCALE:GREGORIAN\n" +
     "PRODID:-//Ximian//NONSGML Evolution Calendar//EN\n" +
@@ -52,15 +52,15 @@ function really_run_test() {
     "END:VEVENT\n" +
     "END:VCALENDAR";
 
-  let event = createEventFromIcalString(icalString);
-  let start = createDate(2009, 4, 1);
-  let end = createDate(2009, 4, 30);
+  const event = createEventFromIcalString(icalString);
+  const start = createDate(2009, 4, 1);
+  const end = createDate(2009, 4, 30);
 
   // the following call caused a never ending loop:
-  let occurrenceDates = event.recurrenceInfo.getOccurrenceDates(start, end, 0);
+  const occurrenceDates = event.recurrenceInfo.getOccurrenceDates(start, end, 0);
   equal(occurrenceDates.length, 4);
 
   // the following call caused a never ending loop:
-  let occurrences = event.recurrenceInfo.getOccurrences(start, end, 0);
+  const occurrences = event.recurrenceInfo.getOccurrences(start, end, 0);
   equal(occurrences.length, 4);
 }

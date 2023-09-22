@@ -76,14 +76,14 @@ var ICSServer = {
       return false;
     }
 
-    let value = request.getHeader("Authorization");
+    const value = request.getHeader("Authorization");
     if (!value.startsWith("Basic ")) {
       response.setStatusLine("1.1", 401, "Unauthorized");
       response.setHeader("WWW-Authenticate", `Basic realm="test"`);
       return false;
     }
 
-    let [username, password] = atob(value.substring(6)).split(":");
+    const [username, password] = atob(value.substring(6)).split(":");
     if (username != this.username || password != this.password) {
       response.setStatusLine("1.1", 401, "Unauthorized");
       response.setHeader("WWW-Authenticate", `Basic realm="test"`);
@@ -147,7 +147,7 @@ var ICSServer = {
   async putICSInternal(ics) {
     this.ics = ics;
 
-    let hash = await crypto.subtle.digest("sha-1", new TextEncoder().encode(this.ics));
+    const hash = await crypto.subtle.digest("sha-1", new TextEncoder().encode(this.ics));
     this.etag = Array.from(new Uint8Array(hash), c => c.toString(16).padStart(2, "0")).join("");
   },
 };

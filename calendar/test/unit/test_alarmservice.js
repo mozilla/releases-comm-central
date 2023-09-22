@@ -73,7 +73,7 @@ var alarmObserver = {
   },
 
   expectResult(aCalendar, aItem, aAlarm, aExpected) {
-    let expectedAndTitle = {
+    const expectedAndTitle = {
       expected: aExpected,
       title: aItem.title,
     };
@@ -88,8 +88,8 @@ var alarmObserver = {
     let date = aItem.startDate.clone();
     date.second -= 1;
 
-    for (let expected of aExpectedArray) {
-      let occ = aItem.recurrenceInfo.getNextOccurrence(date);
+    for (const expected of aExpectedArray) {
+      const occ = aItem.recurrenceInfo.getNextOccurrence(date);
       occ.QueryInterface(Ci.calIEvent);
       date = occ.startDate;
       this.expectResult(aCalendar, occ, aAlarm, expected);
@@ -97,12 +97,12 @@ var alarmObserver = {
   },
 
   checkExpected(aMessage) {
-    for (let calId in this.expectedMap) {
-      for (let id in this.expectedMap[calId]) {
-        for (let icalString in this.expectedMap[calId][id]) {
-          let expectedAndTitle = this.expectedMap[calId][id][icalString];
+    for (const calId in this.expectedMap) {
+      for (const id in this.expectedMap[calId]) {
+        for (const icalString in this.expectedMap[calId][id]) {
+          const expectedAndTitle = this.expectedMap[calId][id][icalString];
           // if no explicit message has been passed, take the item title
-          let message = typeof aMessage == "string" ? aMessage : expectedAndTitle.title;
+          const message = typeof aMessage == "string" ? aMessage : expectedAndTitle.title;
           // only alarms expected as fired should exist in our fired alarm map
           do_check_xor(
             expectedAndTitle.expected != EXPECT_FIRED,
@@ -121,7 +121,7 @@ var alarmObserver = {
   },
 
   checkLoadStatus() {
-    for (let calId in this.service.mLoadedCalendars) {
+    for (const calId in this.service.mLoadedCalendars) {
       if (!this.service.mLoadedCalendars[calId]) {
         // at least one calendar hasn't finished loading alarms
         ok(this.service.isLoading);
@@ -150,7 +150,7 @@ add_setup(async function () {
       ok(alarmObserver.service.mStarted);
 
       // we need to replace the existing observers with our observer
-      for (let obs of alarmObserver.service.mObservers.values()) {
+      for (const obs of alarmObserver.service.mObservers.values()) {
         alarmObserver.service.removeObserver(obs);
       }
       alarmObserver.service.addObserver(alarmObserver);
@@ -160,7 +160,7 @@ add_setup(async function () {
 });
 
 function createAlarmFromDuration(aOffset) {
-  let alarm = new CalAlarm();
+  const alarm = new CalAlarm();
 
   alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
   alarm.offset = cal.createDuration(aOffset);
@@ -170,7 +170,7 @@ function createAlarmFromDuration(aOffset) {
 
 function createEventWithAlarm(aCalendar, aStart, aEnd, aOffset, aRRule) {
   let alarm = null;
-  let item = new CalEvent();
+  const item = new CalEvent();
 
   item.id = cal.getUUID();
   item.calendar = aCalendar;
@@ -242,13 +242,13 @@ async function addTestItems(aCalendar) {
   item.title = "addTestItems Test 6";
 
   // Parent item is acknowledged before alarm, so it should fire.
-  let lastAck = item.startDate.clone();
+  const lastAck = item.startDate.clone();
   lastAck.hour -= 1;
   item.alarmLastAck = lastAck;
 
   // Occurrence is acknowledged after alarm (start date), so if the alarm
   // service wrongly uses the exception occurrence then we catch it.
-  let occ = item.recurrenceInfo.getOccurrenceFor(item.startDate);
+  const occ = item.recurrenceInfo.getOccurrenceFor(item.startDate);
   occ.alarmLastAck = item.startDate.clone();
   item.recurrenceInfo.modifyException(occ, true);
 
@@ -275,7 +275,7 @@ async function addTestItems(aCalendar) {
   // Missing recurrences of the event in particular days of the year generate exceptions to the
   // regular sequence of alarms.
   date = cal.dtz.now();
-  let statusAlarmSequences = {
+  const statusAlarmSequences = {
     reg: [EXPECT_NONE, EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE, EXPECT_NONE],
     excep1: [EXPECT_NONE, EXPECT_FIRED, EXPECT_NONE, EXPECT_NONE, EXPECT_NONE],
     excep2: [EXPECT_NONE, EXPECT_NONE, EXPECT_NONE, EXPECT_NONE, EXPECT_NONE],
@@ -283,7 +283,7 @@ async function addTestItems(aCalendar) {
   let expected = [];
   if (date.day == 1) {
     // Exceptions for missing occurrences on months with 30 days when the event starts on 31st.
-    let sequence = [
+    const sequence = [
       "excep1",
       "reg",
       "excep2",
@@ -300,7 +300,7 @@ async function addTestItems(aCalendar) {
     expected = statusAlarmSequences[sequence];
   } else if (date.day == 30 && (date.month == 2 || date.month == 3)) {
     // Exceptions for missing occurrences or different start date caused by February.
-    let leapYear = date.endOfYear.yearday == 366;
+    const leapYear = date.endOfYear.yearday == 366;
     expected = leapYear ? statusAlarmSequences.reg : statusAlarmSequences.excep1;
   } else if (date.day == 31 && date.month == 2) {
     // Exceptions for missing occurrences caused by February.
@@ -318,12 +318,10 @@ async function addTestItems(aCalendar) {
 }
 
 async function doModifyItemTest(aCalendar) {
-  let item, alarm;
-
   // begin with item starting before the alarm date range
-  let date = cal.dtz.now();
+  const date = cal.dtz.now();
   date.day -= 32;
-  [item, alarm] = createEventWithAlarm(aCalendar, date, date, "PT0S");
+  const [item, alarm] = createEventWithAlarm(aCalendar, date, date, "PT0S");
   await aCalendar.addItem(item);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_NONE);
   alarmObserver.checkExpected("doModifyItemTest Test 1");
@@ -364,7 +362,7 @@ async function doModifyItemTest(aCalendar) {
   await aCalendar.modifyItem(item, oldItem);
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_TIMER);
   alarmObserver.checkExpected("doModifyItemTest Test 5");
-  let oldTimer = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
+  const oldTimer = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
   oldItem = item.clone();
   // change the timezone to floating
   item.startDate.timezone = cal.dtz.floating;
@@ -373,7 +371,7 @@ async function doModifyItemTest(aCalendar) {
   // the alarm must still be timer and with the same value (apart from milliseconds)
   alarmObserver.expectResult(aCalendar, item, alarm, EXPECT_TIMER);
   alarmObserver.checkExpected("doModifyItemTest Test 5, floating timezone");
-  let newTimer = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
+  const newTimer = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
   ok(
     newTimer.delay - oldTimer.delay <= 1000,
     "doModifyItemTest Test 5, floating timezone; check timer value"
@@ -382,13 +380,11 @@ async function doModifyItemTest(aCalendar) {
 
 async function doDeleteItemTest(aCalendar) {
   alarmObserver.clear();
-  let item, alarm;
-  let item2, alarm2;
 
   // create a fired alarm and a timer
-  let date = cal.dtz.now();
-  [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
-  [item2, alarm2] = createEventWithAlarm(aCalendar, date, date, "PT1H");
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
+  const [item2, alarm2] = createEventWithAlarm(aCalendar, date, date, "PT1H");
   item.title = "doDeleteItemTest item Test 1";
   item2.title = "doDeleteItemTest item2 Test 1";
   await aCalendar.addItem(item);
@@ -407,13 +403,11 @@ async function doDeleteItemTest(aCalendar) {
 
 async function doAcknowledgeTest(aCalendar) {
   alarmObserver.clear();
-  let item, alarm;
-  let item2, alarm2;
 
   // create the fired alarms
-  let date = cal.dtz.now();
-  [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
-  [item2, alarm2] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
+  const date = cal.dtz.now();
+  const [item, alarm] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
+  const [item2, alarm2] = createEventWithAlarm(aCalendar, date, date, "-PT5M");
   item.title = "doAcknowledgeTest item Test 1";
   item2.title = "doAcknowledgeTest item2 Test 1";
   await aCalendar.addItem(item);
@@ -428,7 +422,7 @@ async function doAcknowledgeTest(aCalendar) {
   alarmObserver.checkExpected("doAcknowledgeTest, test snooze alarm");
 
   // the snoozed alarm timer delay should be close to an hour
-  let tmr = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
+  const tmr = alarmObserver.getTimer(aCalendar.id, item.hashId, alarm.icalString);
   ok(
     Math.abs(tmr.delay - 3600000) <= 1000,
     "doAcknowledgeTest, snoozed alarm timer delay close to an hour"
@@ -443,7 +437,7 @@ async function doAcknowledgeTest(aCalendar) {
 async function doRunTest(aOnCalendarCreated) {
   alarmObserver.clear();
 
-  let memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  const memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
   memory.id = cal.getUUID();
 
   if (aOnCalendarCreated) {
@@ -467,7 +461,7 @@ add_task(async function test_loadCalendar() {
  * Test adding alarm data to a calendar already registered.
  */
 add_task(async function test_addItems() {
-  let memory = await doRunTest();
+  const memory = await doRunTest();
   await addTestItems(memory);
   alarmObserver.checkExpected();
 });
@@ -476,7 +470,7 @@ add_task(async function test_addItems() {
  * Test response to modification of alarm data.
  */
 add_task(async function test_modifyItems() {
-  let memory = await doRunTest();
+  const memory = await doRunTest();
   await doModifyItemTest(memory);
   await doDeleteItemTest(memory);
   await doAcknowledgeTest(memory);
@@ -489,7 +483,7 @@ add_task(async function test_modifyItems() {
  * @param {number[]} expected - Expected delays in seconds.
  */
 function matchTimers(timers, expected) {
-  let delays = timers.map(timer => timer.delay / 1000);
+  const delays = timers.map(timer => timer.delay / 1000);
   let matched = true;
   for (let i = 0; i < delays.length; i++) {
     if (Math.abs(delays[i] - expected[i]) > 2) {
@@ -506,12 +500,11 @@ function matchTimers(timers, expected) {
  * calendar item.
  */
 add_task(async function test_notificationTimers() {
-  let memory = await doRunTest();
+  const memory = await doRunTest();
   // Add an item.
-  let date = cal.dtz.now();
+  const date = cal.dtz.now();
   date.hour += 1;
-  let item, oldItem;
-  [item] = createEventWithAlarm(memory, date, date, null);
+  const [item] = createEventWithAlarm(memory, date, date, null);
   await memory.addItem(item);
   equal(
     alarmObserver.service.mNotificationTimerMap[item.calendar.id],
@@ -521,7 +514,7 @@ add_task(async function test_notificationTimers() {
 
   // Set the pref to have one notifiaction.
   Services.prefs.setCharPref("calendar.notifications.times", "-PT1H");
-  oldItem = item.clone();
+  let oldItem = item.clone();
   date.hour += 1;
   item.startDate = date.clone();
   item.generation++;
@@ -570,7 +563,7 @@ add_task(async function test_notificationTimers() {
 add_task(async function test_calendarLevelNotificationTimers() {
   let loaded = false;
   let item;
-  let memory = await doRunTest();
+  const memory = await doRunTest();
 
   if (!loaded) {
     loaded = true;
@@ -578,7 +571,7 @@ add_task(async function test_calendarLevelNotificationTimers() {
     Services.prefs.setCharPref("calendar.notifications.times", "-PT1H");
 
     // Add an item.
-    let date = cal.dtz.now();
+    const date = cal.dtz.now();
     date.hour += 2;
     [item] = createEventWithAlarm(memory, date, date, null);
     await memory.addItem(item);

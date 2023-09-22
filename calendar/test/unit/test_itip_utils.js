@@ -86,13 +86,13 @@ function getSeqStampTestIcs(aProperties) {
 }
 
 function getSeqStampTestItems(aTest) {
-  let items = [];
-  for (let input of aTest.input) {
+  const items = [];
+  for (const input of aTest.input) {
     if (input.item) {
       // in this case, we need to return an event
-      let attendee = "";
+      const attendee = "";
       if ("attendee" in input.item && input.item.attendee != {}) {
-        let att = new CalAttendee();
+        const att = new CalAttendee();
         att.id = input.item.attendee.id || "mailto:otherattendee@example.net";
         if ("receivedSeq" in input.item.attendee && input.item.attendee.receivedSeq.length) {
           att.setProperty("RECEIVED-SEQUENCE", input.item.attendee.receivedSeq);
@@ -121,7 +121,7 @@ function getSeqStampTestItems(aTest) {
       if ("xMsAptSeq" in input.item && input.item.xMsAptSeq.length) {
         xMsAptSeq = "X-MICROSOFT-CDO-APPT-SEQUENCE:" + input.item.xMsAptSeq;
       }
-      let testItem = new CalEvent();
+      const testItem = new CalEvent();
       testItem.icalString = getSeqStampTestIcs([
         attendee,
         sequence,
@@ -133,7 +133,7 @@ function getSeqStampTestItems(aTest) {
       items.push(testItem);
     } else {
       // in this case, we need to return an attendee
-      let att = new CalAttendee();
+      const att = new CalAttendee();
       att.id = input.attendee.id || "mailto:otherattendee@example.net";
       if (input.attendee.receivedSeq && input.attendee.receivedSeq.length) {
         att.setProperty("RECEIVED-SEQUENCE", input.attendee.receivedSeq);
@@ -148,7 +148,7 @@ function getSeqStampTestItems(aTest) {
 }
 
 add_task(function test_getMessageSender() {
-  let data = [
+  const data = [
     {
       input: null,
       expected: null,
@@ -163,14 +163,14 @@ add_task(function test_getMessageSender() {
     },
   ];
   for (let i = 1; i <= data.length; i++) {
-    let test = data[i - 1];
+    const test = data[i - 1];
     equal(cal.itip.getMessageSender(test.input), test.expected, "(test #" + i + ")");
   }
 });
 
 add_task(function test_getSequence() {
   // assigning an empty string results in not having the property in the ics here
-  let data = [
+  const data = [
     {
       input: [{ item: { sequence: "", xMozReceivedSeq: "" } }],
       expected: 0,
@@ -205,8 +205,8 @@ add_task(function test_getSequence() {
     },
   ];
   for (let i = 1; i <= data.length; i++) {
-    let test = data[i - 1];
-    let testItems = getSeqStampTestItems(test);
+    const test = data[i - 1];
+    const testItems = getSeqStampTestItems(test);
     equal(cal.itip.getSequence(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
 });
@@ -215,7 +215,7 @@ add_task(function test_getStamp() {
   // assigning an empty string results in not having the property in the ics here. However, there
   // must be always an dtStamp for item - if it's missing it will be set by the test code to make
   // sure we get a valid ics
-  let data = [
+  const data = [
     {
       // !dtStamp && !xMozReceivedStamp => test default value
       input: [{ item: { dtStamp: "", xMozReceivedStamp: "" } }],
@@ -241,7 +241,7 @@ add_task(function test_getStamp() {
     },
   ];
   for (let i = 1; i <= data.length; i++) {
-    let test = data[i - 1];
+    const test = data[i - 1];
     let result = cal.itip.getStamp(getSeqStampTestItems(test)[0]);
     if (result) {
       result = result.icalString;
@@ -253,7 +253,7 @@ add_task(function test_getStamp() {
 add_task(function test_compareSequence() {
   // it is sufficient to test here with sequence for items - full test coverage for
   // x-moz-received-sequence is already provided by test_compareSequence
-  let data = [
+  const data = [
     {
       // item1.seq == item2.seq
       input: [{ item: { sequence: "2" } }, { item: { sequence: "2" } }],
@@ -301,8 +301,8 @@ add_task(function test_compareSequence() {
     },
   ];
   for (let i = 1; i <= data.length; i++) {
-    let test = data[i - 1];
-    let testItems = getSeqStampTestItems(test);
+    const test = data[i - 1];
+    const testItems = getSeqStampTestItems(test);
     equal(cal.itip.compareSequence(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
 });
@@ -310,7 +310,7 @@ add_task(function test_compareSequence() {
 add_task(function test_compareStamp() {
   // it is sufficient to test here with dtstamp for items - full test coverage for
   // x-moz-received-stamp is already provided by test_compareStamp
-  let data = [
+  const data = [
     {
       // item1.stamp == item2.stamp
       input: [{ item: { dtStamp: "20150910T181048Z" } }, { item: { dtStamp: "20150910T181048Z" } }],
@@ -376,8 +376,8 @@ add_task(function test_compareStamp() {
     },
   ];
   for (let i = 1; i <= data.length; i++) {
-    let test = data[i - 1];
-    let testItems = getSeqStampTestItems(test);
+    const test = data[i - 1];
+    const testItems = getSeqStampTestItems(test);
     equal(cal.itip.compareStamp(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
 });
@@ -385,7 +385,7 @@ add_task(function test_compareStamp() {
 add_task(function test_compare() {
   // it is sufficient to test here with items only - full test coverage for attendees or
   // item/attendee is already provided by test_compareSequence and test_compareStamp
-  let data = [
+  const data = [
     {
       // item1.seq == item2.seq && item1.stamp == item2.stamp
       input: [
@@ -460,14 +460,14 @@ add_task(function test_compare() {
     },
   ];
   for (let i = 1; i <= data.length; i++) {
-    let test = data[i - 1];
-    let testItems = getSeqStampTestItems(test);
+    const test = data[i - 1];
+    const testItems = getSeqStampTestItems(test);
     equal(cal.itip.compare(testItems[0], testItems[1]), test.expected, "(test #" + i + ")");
   }
 });
 
 add_task(function test_getAttendeesBySender() {
-  let data = [
+  const data = [
     {
       input: {
         attendees: [
@@ -535,17 +535,17 @@ add_task(function test_getAttendeesBySender() {
   ];
 
   for (let i = 1; i <= data.length; i++) {
-    let test = data[i - 1];
-    let attendees = [];
-    for (let att of test.input.attendees) {
-      let attendee = new CalAttendee();
+    const test = data[i - 1];
+    const attendees = [];
+    for (const att of test.input.attendees) {
+      const attendee = new CalAttendee();
       attendee.id = att.id;
       if (att.sentBy) {
         attendee.setProperty("SENT-BY", att.sentBy);
       }
       attendees.push(attendee);
     }
-    let detected = [];
+    const detected = [];
     cal.itip.getAttendeesBySender(attendees, test.input.sender).forEach(att => {
       detected.push(att.id);
     });
@@ -561,7 +561,7 @@ add_task(function test_getAttendeesBySender() {
 });
 
 add_task(function test_resolveDelegation() {
-  let data = [
+  const data = [
     {
       input: {
         attendee:
@@ -656,17 +656,17 @@ add_task(function test_resolveDelegation() {
     },
   ];
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
-    let attendees = [];
-    for (let att of test.input.attendees) {
-      let attendee = new CalAttendee();
+    const attendees = [];
+    for (const att of test.input.attendees) {
+      const attendee = new CalAttendee();
       attendee.icalString = att;
       attendees.push(attendee);
     }
-    let attendee = new CalAttendee();
+    const attendee = new CalAttendee();
     attendee.icalString = test.input.attendee;
-    let result = cal.itip.resolveDelegation(attendee, attendees);
+    const result = cal.itip.resolveDelegation(attendee, attendees);
     equal(result.delegatees, test.expected.delegatees, "(test #" + i + " - delegatees)");
     equal(result.delegators, test.expected.delegators, "(test #" + i + " - delegators)");
   }
@@ -692,11 +692,11 @@ add_task(async function test_getInvitedAttendee() {
     }
   }
 
-  let invitedAttendee = new CalAttendee();
+  const invitedAttendee = new CalAttendee();
   invitedAttendee.id = "mailto:invited@example.com";
 
-  let calendar = new MockCalendar(invitedAttendee);
-  let event = new CalEvent(CalendarTestUtils.dedent`
+  const calendar = new MockCalendar(invitedAttendee);
+  const event = new CalEvent(CalendarTestUtils.dedent`
         BEGIN:VEVENT
         CREATED:20210105T000000Z
         DTSTAMP:20210501T000000Z
@@ -747,7 +747,7 @@ add_task(async function test_getInvitedAttendee() {
   // X-MOZ-INVITED-ATTENDEE set on event.
   event.setProperty("X-MOZ-INVITED-ATTENDEE", "mailto:invited@example.com");
 
-  let attendee = cal.itip.getInvitedAttendee(event);
+  const attendee = cal.itip.getInvitedAttendee(event);
   Assert.ok(
     attendee && attendee.id == "mailto:invited@example.com",
     "returns the attendee matching X-MOZ-INVITED-ATTENDEE if set"
@@ -765,7 +765,7 @@ add_task(async function test_getInvitedAttendee() {
  * Tests the getImipTransport function returns the correct calIItipTransport.
  */
 add_task(function test_getImipTransport() {
-  let event = new CalEvent(CalendarTestUtils.dedent`
+  const event = new CalEvent(CalendarTestUtils.dedent`
         BEGIN:VEVENT
         CREATED:20210105T000000Z
         DTSTAMP:20210501T000000Z
@@ -779,12 +779,12 @@ add_task(function test_getImipTransport() {
       `);
 
   // Without X-MOZ-INVITED-ATTENDEE property.
-  let account1 = MailServices.accounts.createAccount();
-  let identity1 = MailServices.accounts.createIdentity();
+  const account1 = MailServices.accounts.createAccount();
+  const identity1 = MailServices.accounts.createIdentity();
   identity1.email = "id1@example.com";
   account1.addIdentity(identity1);
 
-  let calendarTransport = new CalItipEmailTransport(account1, identity1);
+  const calendarTransport = new CalItipEmailTransport(account1, identity1);
   event.calendar = {
     getProperty(key) {
       switch (key) {
@@ -804,8 +804,8 @@ add_task(function test_getImipTransport() {
   );
 
   // With X-MOZ-INVITED-ATTENDEE property.
-  let account2 = MailServices.accounts.createAccount();
-  let identity2 = MailServices.accounts.createIdentity();
+  const account2 = MailServices.accounts.createAccount();
+  const identity2 = MailServices.accounts.createIdentity();
   identity2.email = "id2@example.com";
   account2.addIdentity(identity2);
   account2.incomingServer = MailServices.accounts.createIncomingServer(
@@ -816,7 +816,7 @@ add_task(function test_getImipTransport() {
 
   event.setProperty("X-MOZ-INVITED-ATTENDEE", "mailto:id2@example.com");
 
-  let customTransport = cal.itip.getImipTransport(event);
+  const customTransport = cal.itip.getImipTransport(event);
   Assert.ok(customTransport);
 
   Assert.ok(

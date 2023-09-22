@@ -18,7 +18,7 @@ var { setCalendarView, dayView, weekView, multiweekView, monthView } = CalendarT
 const HOUR = 8;
 
 add_task(async function testLastDayOfMonthRecurrence() {
-  let calendar = CalendarTestUtils.createCalendar();
+  const calendar = CalendarTestUtils.createCalendar();
   registerCleanupFunction(() => {
     CalendarTestUtils.removeCalendar(calendar);
   });
@@ -27,14 +27,14 @@ add_task(async function testLastDayOfMonthRecurrence() {
   await CalendarTestUtils.goToDate(window, 2008, 1, 31); // Start with a leap year.
 
   // Create monthly recurring event.
-  let eventBox = dayView.getHourBoxAt(window, HOUR);
-  let { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
+  const eventBox = dayView.getHourBoxAt(window, HOUR);
+  const { dialogWindow, iframeWindow } = await CalendarTestUtils.editNewEvent(window, eventBox);
   await setData(dialogWindow, iframeWindow, { title: "Event", repeat: setRecurrence });
   await saveAndCloseItemDialog(dialogWindow);
 
   // data tuple: [year, month, day, row in month view]
   // note: Month starts here with 1 for January.
-  let checkingData = [
+  const checkingData = [
     [2008, 1, 31, 5],
     [2008, 2, 29, 5],
     [2008, 3, 31, 6],
@@ -52,9 +52,9 @@ add_task(async function testLastDayOfMonthRecurrence() {
     [2009, 3, 31, 5],
   ];
   // Check all dates.
-  for (let [y, m, d, correctRow] of checkingData) {
-    let date = new Date(Date.UTC(y, m - 1, d));
-    let column = date.getUTCDay() + 1;
+  for (const [y, m, d, correctRow] of checkingData) {
+    const date = new Date(Date.UTC(y, m - 1, d));
+    const column = date.getUTCDay() + 1;
 
     await CalendarTestUtils.goToDate(window, y, m, d);
 
@@ -83,7 +83,7 @@ add_task(async function testLastDayOfMonthRecurrence() {
     checkingData[0][2]
   );
   await setCalendarView(window, "day");
-  let box = await dayView.waitForEventBoxAt(window, 1);
+  const box = await dayView.waitForEventBoxAt(window, 1);
   EventUtils.synthesizeMouseAtCenter(box, {}, window);
   await handleDeleteOccurrencePrompt(window, box, true);
   await dayView.waitForNoEventBoxAt(window, 1);
@@ -92,7 +92,7 @@ add_task(async function testLastDayOfMonthRecurrence() {
 });
 
 async function setRecurrence(recurrenceWindow) {
-  let recurrenceDocument = recurrenceWindow.document;
+  const recurrenceDocument = recurrenceWindow.document;
   // monthly
   await menulistSelect(recurrenceDocument.getElementById("period-list"), "2");
 
@@ -105,7 +105,7 @@ async function setRecurrence(recurrenceWindow) {
   await menulistSelect(recurrenceDocument.getElementById("monthly-ordinal"), "-1");
   await menulistSelect(recurrenceDocument.getElementById("monthly-weekday"), "-1");
 
-  let button = recurrenceDocument.querySelector("dialog").getButton("accept");
+  const button = recurrenceDocument.querySelector("dialog").getButton("accept");
   button.scrollIntoView();
   // Close dialog.
   EventUtils.synthesizeMouseAtCenter(button, {}, recurrenceWindow);

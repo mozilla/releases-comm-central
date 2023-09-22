@@ -59,16 +59,16 @@ function getIcs(eventProperties) {
   // we use an unfolded ics blueprint here to make replacing of properties easier
   let item = ["BEGIN:VCALENDAR", "PRODID:-//Google Inc//Google Calendar V1.0//EN", "VERSION:2.0"];
 
-  let eventPropertyNames = eventProperties ? Object.keys(eventProperties) : [];
+  const eventPropertyNames = eventProperties ? Object.keys(eventProperties) : [];
 
   // Convert camel case object property name to upper case with dashes.
-  let convertPropertyName = n => n.replace(/[A-Z]/, match => `-${match}`).toUpperCase();
+  const convertPropertyName = n => n.replace(/[A-Z]/, match => `-${match}`).toUpperCase();
 
-  let propertyToString = (name, value) => {
+  const propertyToString = (name, value) => {
     let propertyString = convertPropertyName(name);
     let setTzid = false;
     if (typeof value == "object") {
-      for (let paramName in value.params) {
+      for (const paramName in value.params) {
         if (paramName == "tzid") {
           setTzid = true;
         }
@@ -85,7 +85,7 @@ function getIcs(eventProperties) {
     return `${propertyString}:${value}`;
   };
 
-  let appendProperty = (name, value) => {
+  const appendProperty = (name, value) => {
     if (!value) {
       // leave out.
       return;
@@ -97,9 +97,9 @@ function getIcs(eventProperties) {
     }
   };
 
-  let appendPropertyWithDefault = (name, defaultValue) => {
+  const appendPropertyWithDefault = (name, defaultValue) => {
     let value = defaultValue;
-    let index = eventPropertyNames.findIndex(n => n == name);
+    const index = eventPropertyNames.findIndex(n => n == name);
     if (index >= 0) {
       value = eventProperties[name];
       // Remove the name to show that we have already handled it.
@@ -131,7 +131,7 @@ function getIcs(eventProperties) {
     "BEGIN:VEVENT",
   ]);
 
-  for (let [name, defaultValue] of [
+  for (const [name, defaultValue] of [
     ["created", "20150909T180909Z"],
     ["lastModified", "20150909T181048Z"],
     ["dtstamp", "20150909T181048Z"],
@@ -164,7 +164,7 @@ function getIcs(eventProperties) {
   }
 
   // Add other properties with no default.
-  for (let name of eventPropertyNames) {
+  for (const name of eventPropertyNames) {
     appendProperty(name, eventProperties[name]);
   }
 
@@ -175,16 +175,16 @@ function getIcs(eventProperties) {
 }
 
 function getEvent(eventProperties) {
-  let item = getIcs(eventProperties);
-  let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
+  const item = getIcs(eventProperties);
+  const itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
   itipItem.init(item);
-  let parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
+  const parser = Cc["@mozilla.org/calendar/ics-parser;1"].createInstance(Ci.calIIcsParser);
   parser.parseString(item);
   return { event: parser.getItems()[0], itipItem };
 }
 
 add_task(async function getItipHeader_test() {
-  let data = [
+  const data = [
     {
       name: "Organizer sends invite",
       input: {
@@ -300,12 +300,12 @@ add_task(async function getItipHeader_test() {
       expected: "Event Invitation",
     },
   ];
-  for (let test of data) {
-    let itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
-    let item = getIcs(test.input);
+  for (const test of data) {
+    const itipItem = Cc["@mozilla.org/calendar/itip-item;1"].createInstance(Ci.calIItipItem);
+    const item = getIcs(test.input);
     itipItem.init(item);
     if (test.input.attendee) {
-      let sender = new CalAttendee();
+      const sender = new CalAttendee();
       sender.icalString = item.match(/^ATTENDEE.*$/m)[0];
       itipItem.sender = sender.id;
     }
@@ -314,7 +314,7 @@ add_task(async function getItipHeader_test() {
 });
 
 function assertHiddenRow(node, hidden, testName) {
-  let row = node.closest("tr");
+  const row = node.closest("tr");
   ok(row, `Row above ${node.id} should exist (test ${testName})`);
   if (hidden) {
     equal(
@@ -329,7 +329,7 @@ function assertHiddenRow(node, hidden, testName) {
 }
 
 add_task(async function createInvitationOverlay_test() {
-  let data = [
+  const data = [
     {
       name: "No description",
       input: { description: "" },
@@ -653,9 +653,9 @@ add_task(async function createInvitationOverlay_test() {
   function assertAttendee(attendee, name, title, icon, testName) {
     equal(attendee.textContent, name, `Attendee names (test ${testName})`);
     equal(attendee.getAttribute("title"), title, `Title for ${name} (test ${testName})`);
-    let attendeeIcon = attendee.querySelector(".itip-icon");
+    const attendeeIcon = attendee.querySelector(".itip-icon");
     ok(attendeeIcon, `icon for ${name} should exist (test ${testName})`);
-    for (let attr in icon) {
+    for (const attr in icon) {
       equal(
         attendeeIcon.getAttribute(attr),
         icon[attr],
@@ -664,11 +664,11 @@ add_task(async function createInvitationOverlay_test() {
     }
   }
 
-  for (let test of data) {
+  for (const test of data) {
     info(`testing ${test.name}`);
-    let { event, itipItem } = getEvent(test.input);
-    let dom = cal.invitation.createInvitationOverlay(event, itipItem);
-    let node = dom.getElementById(test.expected.node);
+    const { event, itipItem } = getEvent(test.input);
+    const dom = cal.invitation.createInvitationOverlay(event, itipItem);
+    const node = dom.getElementById(test.expected.node);
     ok(node, `Element with id ${test.expected.node} should exist (test ${test.name})`);
     if (test.expected.hidden) {
       assertHiddenRow(node, true, test.name);
@@ -677,11 +677,11 @@ add_task(async function createInvitationOverlay_test() {
     assertHiddenRow(node, false, test.name);
 
     if ("attendeesList" in test.expected) {
-      let attendeeNodes = node.querySelectorAll(".attendee-label");
+      const attendeeNodes = node.querySelectorAll(".attendee-label");
       // Assert same order.
       let i;
       for (i = 0; i < test.expected.attendeesList.length; i++) {
-        let { name, title, icon } = test.expected.attendeesList[i];
+        const { name, title, icon } = test.expected.attendeesList[i];
         ok(
           attendeeNodes.length > i,
           `Enough attendees for expected attendee #${i} ${name} (test ${test.name})`
@@ -690,8 +690,8 @@ add_task(async function createInvitationOverlay_test() {
       }
       equal(attendeeNodes.length, i, `Same number of attendees (test ${test.name})`);
     } else if ("organizer" in test.expected) {
-      let { name, title, icon } = test.expected.organizer;
-      let organizerNode = node.querySelector(".attendee-label");
+      const { name, title, icon } = test.expected.organizer;
+      const organizerNode = node.querySelector(".attendee-label");
       ok(organizerNode, `Organizer node should exist (test ${test.name})`);
       assertAttendee(organizerNode, name, title, icon, test.name);
     } else {
@@ -701,7 +701,7 @@ add_task(async function createInvitationOverlay_test() {
 });
 
 add_task(async function updateInvitationOverlay_test() {
-  let data = [
+  const data = [
     {
       name: "No description before or after",
       input: { previous: { description: "" }, current: { description: "" } },
@@ -972,7 +972,7 @@ add_task(async function updateInvitationOverlay_test() {
   ];
 
   function assertElement(node, text, type, testName) {
-    let found = node.textContent;
+    const found = node.textContent;
     if (text instanceof RegExp) {
       ok(text.test(found), `Text content "${found}" matches regex (test ${testName})`);
     } else {
@@ -1014,14 +1014,14 @@ add_task(async function updateInvitationOverlay_test() {
     }
   }
 
-  for (let test of data) {
+  for (const test of data) {
     info(`testing ${test.name}`);
-    let { event, itipItem } = getEvent(test.input.current);
-    let dom = cal.invitation.createInvitationOverlay(event, itipItem);
-    let { event: oldEvent } = getEvent(test.input.previous);
+    const { event, itipItem } = getEvent(test.input.current);
+    const dom = cal.invitation.createInvitationOverlay(event, itipItem);
+    const { event: oldEvent } = getEvent(test.input.previous);
     cal.invitation.updateInvitationOverlay(dom, event, itipItem, oldEvent);
 
-    let node = dom.getElementById(test.expected.node);
+    const node = dom.getElementById(test.expected.node);
     ok(node, `Element with id ${test.expected.node} should exist (test ${test.name})`);
     if (test.expected.hidden) {
       assertHiddenRow(node, true, test.name);
@@ -1050,7 +1050,7 @@ add_task(async function updateInvitationOverlay_test() {
     // Assert in same order.
     let first = true;
     let nodeIndex = 0;
-    for (let { text, type } of expectList) {
+    for (const { text, type } of expectList) {
       if (first) {
         first = false;
       } else if (insertBreaks) {
@@ -1078,7 +1078,7 @@ add_task(async function updateInvitationOverlay_test() {
 });
 
 add_task(async function getHeaderSection_test() {
-  let data = [
+  const data = [
     {
       // test #1
       input: {
@@ -1167,10 +1167,10 @@ add_task(async function getHeaderSection_test() {
     },
   ];
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
     info(`Running test #${i}`);
-    let identity = MailServices.accounts.createIdentity();
+    const identity = MailServices.accounts.createIdentity();
     identity.email = test.input.identity.email || null;
     identity.fullName = test.input.identity.fullName || null;
     identity.replyTo = test.input.identity.replyTo || null;
@@ -1180,12 +1180,12 @@ add_task(async function getHeaderSection_test() {
     identity.doBcc = test.input.identity.doBcc || test.input.identity.bcc;
     identity.doBccList = test.input.identity.bcc || null;
 
-    let composeUtils = Cc["@mozilla.org/messengercompose/computils;1"].createInstance(
+    const composeUtils = Cc["@mozilla.org/messengercompose/computils;1"].createInstance(
       Ci.nsIMsgCompUtils
     );
-    let messageId = composeUtils.msgGenerateMessageIdFromIdentity(identity);
+    const messageId = composeUtils.msgGenerateMessageIdFromIdentity(identity);
 
-    let header = cal.invitation.getHeaderSection(
+    const header = cal.invitation.getHeaderSection(
       messageId,
       identity,
       test.input.toList,
@@ -1203,7 +1203,7 @@ add_task(async function getHeaderSection_test() {
 });
 
 add_task(async function convertFromUnicode_test() {
-  let data = [
+  const data = [
     {
       // test #1
       input: "müller",
@@ -1226,14 +1226,14 @@ add_task(async function convertFromUnicode_test() {
     },
   ];
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
     equal(cal.invitation.convertFromUnicode(test.input), test.expected, "(test #" + i + ")");
   }
 });
 
 add_task(async function encodeUTF8_test() {
-  let data = [
+  const data = [
     {
       // test #1
       input: "müller",
@@ -1261,14 +1261,14 @@ add_task(async function encodeUTF8_test() {
     },
   ];
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
     equal(cal.invitation.encodeUTF8(test.input), test.expected, "(test #" + i + ")");
   }
 });
 
 add_task(async function encodeMimeHeader_test() {
-  let data = [
+  const data = [
     {
       // test #1
       input: {
@@ -1296,7 +1296,7 @@ add_task(async function encodeMimeHeader_test() {
   ];
 
   let i = 0;
-  for (let test of data) {
+  for (const test of data) {
     i++;
     equal(
       cal.invitation.encodeMimeHeader(test.input.header, test.input.isEmail),
@@ -1307,7 +1307,7 @@ add_task(async function encodeMimeHeader_test() {
 });
 
 add_task(async function getRfc5322FormattedDate_test() {
-  let data = {
+  const data = {
     input: [
       {
         // test #1
@@ -1354,16 +1354,16 @@ add_task(async function getRfc5322FormattedDate_test() {
   };
 
   let i = 0;
-  let timezone = Services.prefs.getStringPref("calendar.timezone.local", null);
-  for (let test of data.input) {
+  const timezone = Services.prefs.getStringPref("calendar.timezone.local", null);
+  for (const test of data.input) {
     i++;
     if (test.timezone) {
       Services.prefs.setStringPref("calendar.timezone.local", test.timezone);
     } else {
       Services.prefs.clearUserPref("calendar.timezone.local");
     }
-    let date = test.date ? new Date(test.date) : null;
-    let re = new RegExp(data.expected);
+    const date = test.date ? new Date(test.date) : null;
+    const re = new RegExp(data.expected);
     ok(re.test(cal.invitation.getRfc5322FormattedDate(date)), "(test #" + i + ")");
   }
   Services.prefs.setStringPref("calendar.timezone.local", timezone);
@@ -1372,7 +1372,7 @@ add_task(async function getRfc5322FormattedDate_test() {
 add_task(async function parseCounter_test() {
   // We are disabling this rule for a more consistent display of this data
   /* eslint-disable object-curly-newline */
-  let data = [
+  const data = [
     {
       name: "Basic test to check all currently supported properties",
       input: {
@@ -1569,34 +1569,34 @@ add_task(async function parseCounter_test() {
   ];
   /* eslint-enable object-curly-newline */
 
-  let getItem = function (aProperties) {
-    let item = getIcs(aProperties);
+  const getItem = function (aProperties) {
+    const item = getIcs(aProperties);
     return createEventFromIcalString(item);
   };
 
-  let formatDt = function (aDateTime) {
+  const formatDt = function (aDateTime) {
     if (!aDateTime) {
       return null;
     }
-    let datetime = cal.dtz.formatter.formatDateTime(aDateTime);
+    const datetime = cal.dtz.formatter.formatDateTime(aDateTime);
     return datetime + " " + aDateTime.timezone.displayName;
   };
 
-  for (let test of data) {
+  for (const test of data) {
     info(`testing ${test.name}`);
-    let existingItem = getItem();
-    let proposedItem = getItem(test.input.proposed);
-    let parsed = cal.invitation.parseCounter(proposedItem, existingItem);
+    const existingItem = getItem();
+    const proposedItem = getItem(test.input.proposed);
+    const parsed = cal.invitation.parseCounter(proposedItem, existingItem);
 
     equal(parsed.result.type, test.expected.result.type, `(test ${test.name}: result.type)`);
     equal(parsed.result.descr, test.expected.result.descr, `(test ${test.name}: result.descr)`);
-    let parsedProps = [];
-    let additionalProps = [];
-    let missingProps = [];
+    const parsedProps = [];
+    const additionalProps = [];
+    const missingProps = [];
     parsed.differences.forEach(aDiff => {
-      let prop = aDiff.property.toLowerCase();
+      const prop = aDiff.property.toLowerCase();
       if (prop in test.expected.differences) {
-        let { proposed, original } = test.expected.differences[prop];
+        const { proposed, original } = test.expected.differences[prop];
         let foundProposed = aDiff.proposed;
         let foundOriginal = aDiff.original;
         if (["dtstart", "dtend"].includes(prop)) {
@@ -1637,7 +1637,7 @@ add_task(async function parseCounter_test() {
         additionalProps.push(prop);
       }
     });
-    for (let prop in test.expected.differences) {
+    for (const prop in test.expected.differences) {
       if (!parsedProps.includes(prop)) {
         missingProps.push(prop);
       }

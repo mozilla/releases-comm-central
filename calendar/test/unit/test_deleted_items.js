@@ -12,14 +12,18 @@ add_setup(function () {
   // The deleted items service is started automatically by the start-up
   // procedure, but that doesn't happen in XPCShell tests. Add an observer
   // ourselves to simulate the behaviour.
-  let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems);
+  const delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+    Ci.calIDeletedItems
+  );
   Services.obs.addObserver(delmgr, "profile-after-change");
 
   do_calendar_startup(run_next_test);
 });
 
 function check_delmgr_call(aFunc) {
-  let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems);
+  const delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+    Ci.calIDeletedItems
+  );
 
   return new Promise((resolve, reject) => {
     delmgr.wrappedJSObject.completedNotifier.handleCompletion = aReason => {
@@ -34,7 +38,9 @@ function check_delmgr_call(aFunc) {
 }
 
 add_task(async function test_deleted_items() {
-  let delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(Ci.calIDeletedItems);
+  const delmgr = Cc["@mozilla.org/calendar/deleted-items-manager;1"].getService(
+    Ci.calIDeletedItems
+  );
 
   // No items have been deleted, retrieving one should return null.
   equal(delmgr.getDeletedDate("random"), null);
@@ -44,10 +50,13 @@ add_task(async function test_deleted_items() {
   // error.
   await check_delmgr_call(() => delmgr.flush());
 
-  let memory = cal.manager.createCalendar("memory", Services.io.newURI("moz-storage-calendar://"));
+  const memory = cal.manager.createCalendar(
+    "memory",
+    Services.io.newURI("moz-storage-calendar://")
+  );
   cal.manager.registerCalendar(memory);
 
-  let item = new CalEvent();
+  const item = new CalEvent();
   item.id = "test-item-1";
   item.startDate = cal.dtz.now();
   item.endDate = cal.dtz.now();
@@ -58,12 +67,12 @@ add_task(async function test_deleted_items() {
   equal(delmgr.getDeletedDate(item.id, memory.id), null);
 
   // We need to stop time so we have something to compare with.
-  let referenceDate = cal.createDateTime("20120726T112045");
+  const referenceDate = cal.createDateTime("20120726T112045");
   referenceDate.timezone = cal.dtz.defaultTimezone;
-  let futureDate = cal.createDateTime("20380101T000000");
+  const futureDate = cal.createDateTime("20380101T000000");
   futureDate.timezone = cal.dtz.defaultTimezone;
   let useFutureDate = false;
-  let oldNowFunction = cal.dtz.now;
+  const oldNowFunction = cal.dtz.now;
   cal.dtz.now = function () {
     return (useFutureDate ? futureDate : referenceDate).clone();
   };
