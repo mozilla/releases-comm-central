@@ -14,25 +14,25 @@ const { MessageGenerator } = ChromeUtils.import(
 add_task(async function () {
   // Create a folder and some messages.
 
-  let generator = new MessageGenerator();
+  const generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
+  const account = MailServices.accounts.accounts[0];
   account.addIdentity(MailServices.accounts.createIdentity());
 
-  let rootFolder = account.incomingServer.rootFolder;
+  const rootFolder = account.incomingServer.rootFolder;
   rootFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  let testFolder = rootFolder.createLocalSubfolder("testFolder");
+  const testFolder = rootFolder.createLocalSubfolder("testFolder");
   testFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder.addMessageBatch(
     generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
   );
-  let testMessages = [...testFolder.messages];
+  const testMessages = [...testFolder.messages];
 
   // Listen for notifications.
 
-  let folderListener = {
+  const folderListener = {
     QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
     notifications: [],
     onFolderIntPropertyChanged(folder, property, oldValue, newValue) {
@@ -43,7 +43,7 @@ add_task(async function () {
       this.notifications.push({ folder, property, oldValue, newValue });
     },
     consumeNotification(expectedFolder, expectedOldValue, expectedNewValue) {
-      let { folder, oldValue, newValue } = this.notifications.shift();
+      const { folder, oldValue, newValue } = this.notifications.shift();
       Assert.equal(folder, expectedFolder, "notification folder");
       Assert.equal(oldValue, expectedOldValue, "notification oldValue");
       Assert.equal(newValue, expectedNewValue, "notification newValue");

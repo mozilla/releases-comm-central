@@ -57,8 +57,8 @@ function run_test() {
   Assert.ok(ts.getEnabled(proId));
   ts.setAntiId(proId, antiId);
   Assert.equal(antiId, ts.getAntiId(proId));
-  let proArray = ts.getEnabledProIndices();
-  let antiArray = ts.getEnabledAntiIndices();
+  const proArray = ts.getEnabledProIndices();
+  const antiArray = ts.getEnabledAntiIndices();
   Assert.equal(proArray.length, 2);
   Assert.equal(antiArray.length, 2);
   Assert.equal(proArray[1], proIndex);

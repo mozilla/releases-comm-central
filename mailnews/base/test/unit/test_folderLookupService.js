@@ -11,7 +11,7 @@ var { AppConstants } = ChromeUtils.importESModule(
 var kRootURI = "mailbox://nobody@Local%20Folders";
 
 add_task(async function test_fls_basics() {
-  let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
+  const fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
     Ci.nsIFolderLookupService
   );
 
@@ -25,7 +25,7 @@ add_task(async function test_fls_basics() {
   );
 
   // Can we get the root folder?
-  let root = localAccountUtils.rootFolder;
+  const root = localAccountUtils.rootFolder;
   Assert.equal(fls.getFolderForURL(kRootURI), root);
 
   // The child folder Child doesn't exist yet... make sure that fls doesn't
@@ -59,15 +59,15 @@ add_task(async function test_fls_basics() {
 });
 
 add_task(async function test_unicode_uris() {
-  let fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
+  const fls = Cc["@mozilla.org/mail/folder-lookup;1"].getService(
     Ci.nsIFolderLookupService
   );
   localAccountUtils.loadLocalMailAccount();
-  let root = localAccountUtils.rootFolder;
+  const root = localAccountUtils.rootFolder;
 
   // Create a folder with non-ASCII characters.
   // Unicode abuse - dotless letter i and a metal umlaut over the n.
-  let tapName = "Sp\u0131n\u0308al Tap";
+  const tapName = "Sp\u0131n\u0308al Tap";
   root.createSubfolder(tapName, null);
 
   // Make sure we can find it.
@@ -77,7 +77,7 @@ add_task(async function test_unicode_uris() {
     // For !ConvertibleToNative(), folder name is hashed on Windows.
     tapNameEscaped = "a2d874f7";
   }
-  let tapURI = kRootURI + "/" + tapNameEscaped;
-  let tap = fls.getFolderForURL(tapURI);
+  const tapURI = kRootURI + "/" + tapNameEscaped;
+  const tap = fls.getFolderForURL(tapURI);
   Assert.equal(tap.URI, tapURI);
 });

@@ -14,12 +14,12 @@ registerCleanupFunction(() => {
  */
 add_task(async function testMigratePasswordOnChangeUsernameHostname() {
   // Add two logins.
-  let loginItems = [
+  const loginItems = [
     ["news://news.localhost", "user-nntp", "password-nntp"],
     ["mailbox://pop3.localhost", "user-pop", "password-pop"],
   ];
-  for (let [uri, username, password] of loginItems) {
-    let login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+  for (const [uri, username, password] of loginItems) {
+    const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
       Ci.nsILoginInfo
     );
     login.init(uri, null, uri, username, password, "", "");
@@ -27,7 +27,7 @@ add_task(async function testMigratePasswordOnChangeUsernameHostname() {
   }
 
   // Create a nntp server, check the password can be found correctly.
-  let nntpIncomingServer = MailServices.accounts.createIncomingServer(
+  const nntpIncomingServer = MailServices.accounts.createIncomingServer(
     "user-nntp",
     "news.localhost",
     "nntp"
@@ -39,7 +39,7 @@ add_task(async function testMigratePasswordOnChangeUsernameHostname() {
   nntpIncomingServer.username = "nntp";
   let password;
   let serverUri = "news://news.localhost";
-  for (let login of Services.logins.findLogins(serverUri, "", serverUri)) {
+  for (const login of Services.logins.findLogins(serverUri, "", serverUri)) {
     if (login.username == "nntp") {
       password = login.password;
     }
@@ -47,7 +47,7 @@ add_task(async function testMigratePasswordOnChangeUsernameHostname() {
   equal(password, "password-nntp");
 
   // Create a pop3 server, check the password can be found correctly.
-  let pop3IncomingServer = MailServices.accounts.createIncomingServer(
+  const pop3IncomingServer = MailServices.accounts.createIncomingServer(
     "user-pop",
     "pop3.localhost",
     "pop3"
@@ -58,7 +58,7 @@ add_task(async function testMigratePasswordOnChangeUsernameHostname() {
   // Change the hostname, check password can be found using the new hostname.
   pop3IncomingServer.hostName = "localhost";
   serverUri = "mailbox://localhost";
-  for (let login of Services.logins.findLogins(serverUri, "", serverUri)) {
+  for (const login of Services.logins.findLogins(serverUri, "", serverUri)) {
     if (login.username == "user-pop") {
       password = login.password;
     }
@@ -71,13 +71,13 @@ add_task(async function testMigratePasswordOnChangeUsernameHostname() {
  */
 add_task(function testMigrateIdentitiesOnChangeUsernameHostname() {
   // Create an imap server.
-  let incomingServer1 = MailServices.accounts.createIncomingServer(
+  const incomingServer1 = MailServices.accounts.createIncomingServer(
     "user-imap",
     "imap.localhost",
     "imap"
   );
   // Create a pop server.
-  let incomingServer2 = MailServices.accounts.createIncomingServer(
+  const incomingServer2 = MailServices.accounts.createIncomingServer(
     "user-pop",
     "pop3.localhost",
     "pop3"
@@ -89,13 +89,13 @@ add_task(function testMigrateIdentitiesOnChangeUsernameHostname() {
   identity1.draftFolder = incomingServer1.serverURI + "/Drafts";
   identity1.archiveFolder = incomingServer1.serverURI + "/Archives";
   identity1.stationeryFolder = incomingServer1.serverURI + "/Templates";
-  let account1 = MailServices.accounts.createAccount();
+  const account1 = MailServices.accounts.createAccount();
   account1.addIdentity(identity1);
   // Create another identity and point folders to both servers.
-  let identity2 = MailServices.accounts.createIdentity();
+  const identity2 = MailServices.accounts.createIdentity();
   identity2.fccFolder = incomingServer1.serverURI + "/Sent";
   identity2.draftFolder = incomingServer2.serverURI + "/Drafts";
-  let account2 = MailServices.accounts.createAccount();
+  const account2 = MailServices.accounts.createAccount();
   account2.addIdentity(identity2);
 
   // Check folders were correctly set.
@@ -127,7 +127,7 @@ add_task(function testMigrateIdentitiesOnChangeUsernameHostname() {
  */
 add_task(function testMigrateSpamActionsOnChangeUsernameHostname() {
   // Create an imap server.
-  let incomingServer1 = MailServices.accounts.createIncomingServer(
+  const incomingServer1 = MailServices.accounts.createIncomingServer(
     "user-imap",
     "imap.localhost",
     "imap"
@@ -164,7 +164,7 @@ add_task(function testMigrateSpamActionsOnChangeUsernameHostname() {
  */
 add_task(function testMigrateFiltersOnChangeUsernameHostname() {
   // Create a nntp server.
-  let nntpIncomingServer = MailServices.accounts.createIncomingServer(
+  const nntpIncomingServer = MailServices.accounts.createIncomingServer(
     "user-nntp",
     "news.localhost",
     "nntp"

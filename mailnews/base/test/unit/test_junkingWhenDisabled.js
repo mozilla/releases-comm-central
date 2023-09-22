@@ -116,15 +116,16 @@ add_setup(async function () {
   gLocalInboxFolder.server.spamSettings.level = 0;
 
   // Add folder listeners that will capture async events.
-  let flags = nsIMFNService.msgsMoveCopyCompleted | nsIMFNService.folderAdded;
+  const flags = nsIMFNService.msgsMoveCopyCompleted | nsIMFNService.folderAdded;
   gListener = new gMFListener();
   MailServices.mfn.addListener(gListener, flags);
 
   // Build up a message.
   await messageInjection.makeNewSetsInFolders([gLocalInboxFolder], [{}]);
-  let view_type = "threaded";
+  const view_type = "threaded";
   let view_flag = Ci.nsMsgViewFlagsType.kThreadedDisplay;
-  let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + view_type;
+  const dbviewContractId =
+    "@mozilla.org/messenger/msgdbview;1?type=" + view_type;
 
   // Always start out fully expanded.
   view_flag |= Ci.nsMsgViewFlagsType.kExpandAll;

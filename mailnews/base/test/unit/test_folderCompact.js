@@ -51,7 +51,7 @@ var gMsgKeys = [];
 // nsIMsgCopyServiceListener implementation
 var copyListenerWrap = {
   SetMessageKey(aKey) {
-    let hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
+    const hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     gMsgHdrs.push({ hdr, ID: hdr.messageId });
   },
   OnStopCopy(aStatus) {
@@ -67,9 +67,9 @@ var urlListenerWrap = {
 
     if (gMsgKeys.length > 0) {
       // Bug 854798: Check if the new message keys are the same as before compaction.
-      let folderMsgs = [...gMsgKeys.folder.messages];
+      const folderMsgs = [...gMsgKeys.folder.messages];
       // First message was deleted so skip it in the old array.
-      let expectedKeys = [...gMsgKeys].slice(1);
+      const expectedKeys = [...gMsgKeys].slice(1);
       Assert.equal(folderMsgs.length, expectedKeys.length);
       for (let i = 1; i < expectedKeys.length; i++) {
         Assert.equal(folderMsgs[i], expectedKeys[i]);
@@ -80,7 +80,7 @@ var urlListenerWrap = {
 };
 
 function copyFileMessage(file, destFolder, isDraftOrTemplate) {
-  let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
+  const listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
   MailServices.copy.copyFileMessage(
     file,
     destFolder,
@@ -95,7 +95,7 @@ function copyFileMessage(file, destFolder, isDraftOrTemplate) {
 }
 
 function copyMessages(items, isMove, srcFolder, destFolder) {
-  let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
+  const listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
   MailServices.copy.copyMessages(
     srcFolder,
     items,
@@ -109,27 +109,27 @@ function copyMessages(items, isMove, srcFolder, destFolder) {
 }
 
 function deleteMessages(srcFolder, items) {
-  let listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
+  const listener = new PromiseTestUtils.PromiseCopyListener(copyListenerWrap);
   srcFolder.deleteMessages(items, null, false, true, listener, true);
   return listener.promise;
 }
 
 function calculateFolderSize(folder) {
-  let msgDB = folder.msgDatabase;
+  const msgDB = folder.msgDatabase;
   let totalSize = 0;
-  for (let header of msgDB.enumerateMessages()) {
+  for (const header of msgDB.enumerateMessages()) {
     totalSize += header.messageSize + gSeparatorLine.length;
   }
   return totalSize;
 }
 
 function verifyMsgOffsets(folder) {
-  let msgDB = folder.msgDatabase;
-  let enumerator = msgDB.enumerateMessages();
+  const msgDB = folder.msgDatabase;
+  const enumerator = msgDB.enumerateMessages();
   if (enumerator) {
-    for (let header of enumerator) {
+    for (const header of enumerator) {
       if (header instanceof Ci.nsIMsgDBHdr) {
-        let storeToken = header.getStringProperty("storeToken");
+        const storeToken = header.getStringProperty("storeToken");
         Assert.equal(storeToken, header.messageOffset);
       }
     }
@@ -196,7 +196,7 @@ var gTestArray = [
 
     // Store message keys before deletion and compaction.
     gMsgKeys.folder = gLocalFolder3;
-    for (let header of gLocalFolder3.messages) {
+    for (const header of gLocalFolder3.messages) {
       gMsgKeys.push(header.messageKey);
     }
 
@@ -208,7 +208,7 @@ var gTestArray = [
   async function compactFolder() {
     gExpectedFolderSize = calculateFolderSize(gLocalFolder3);
     Assert.notEqual(gLocalFolder3.expungedBytes, 0);
-    let listener = new PromiseTestUtils.PromiseUrlListener(urlListenerWrap);
+    const listener = new PromiseTestUtils.PromiseUrlListener(urlListenerWrap);
     gLocalFolder3.compact(listener, null);
     await listener.promise;
 
@@ -222,7 +222,7 @@ var gTestArray = [
 
     // Store message keys before deletion and compaction.
     gMsgKeys.folder = gLocalFolder2;
-    for (let header of gLocalFolder2.messages) {
+    for (const header of gLocalFolder2.messages) {
       gMsgKeys.push(header.messageKey);
     }
 
@@ -238,7 +238,7 @@ var gTestArray = [
 
     // Save the first message key, which will change after compact with
     // rebuild.
-    let f2m2Key =
+    const f2m2Key =
       gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID).messageKey;
 
     // force expunged bytes count to get cached.
@@ -248,14 +248,14 @@ var gTestArray = [
     gLocalFolder2.msgDatabase.summaryValid = false;
     gLocalFolder2.msgDatabase = null;
     gLocalFolder2.ForceDBClosed();
-    let dbPath = gLocalFolder2.filePath;
+    const dbPath = gLocalFolder2.filePath;
     dbPath.leafName = dbPath.leafName + ".msf";
     dbPath.remove(false);
 
     showMessages(localAccountUtils.inboxFolder, "before compactAll");
     // Save the key for the inbox message, we'll check after compact that it
     // did not change.
-    let preInboxMsg3Key =
+    const preInboxMsg3Key =
       localAccountUtils.inboxFolder.msgDatabase.getMsgHdrForMessageID(
         gMsg3ID
       ).messageKey;
@@ -265,13 +265,13 @@ var gTestArray = [
     // checked folder had never been compacted, so the key equaled the offset.
     // We do not in guarantee that, indeed after rebuild we expect the keys
     // to change.
-    let checkResult = {
+    const checkResult = {
       OnStopRunningUrl(aUrl, aExitCode) {
         // Check: message successfully compacted.
         Assert.equal(aExitCode, 0);
       },
     };
-    let listener = new PromiseTestUtils.PromiseUrlListener(checkResult);
+    const listener = new PromiseTestUtils.PromiseUrlListener(checkResult);
     localAccountUtils.inboxFolder.compactAll(listener, null);
     await listener.promise;
 
@@ -279,14 +279,14 @@ var gTestArray = [
     showMessages(gLocalFolder2, "after compactAll");
 
     // For the inbox, which was compacted but not rebuild, key is unchanged.
-    let postInboxMsg3Key =
+    const postInboxMsg3Key =
       localAccountUtils.inboxFolder.msgDatabase.getMsgHdrForMessageID(
         gMsg3ID
       ).messageKey;
     Assert.equal(preInboxMsg3Key, postInboxMsg3Key);
 
     // For folder2, which was rebuilt, keys change but all messages should exist.
-    let message2 = gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID);
+    const message2 = gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg2ID);
     Assert.ok(message2);
     Assert.ok(gLocalFolder2.msgDatabase.getMsgHdrForMessageID(gMsg3ID));
 
@@ -327,7 +327,7 @@ function run_test() {
 // debug utility to show the key/offset/ID relationship of messages in a folder
 function showMessages(folder, text) {
   dump(`***** Show messages for folder <${folder.name}> "${text} *****\n`);
-  for (let hdr of folder.messages) {
+  for (const hdr of folder.messages) {
     dump(
       `  key: ${hdr.messageKey} offset: ${hdr.messageOffset} size: ${hdr.messageSize} ID: ${hdr.messageId}\n`
     );

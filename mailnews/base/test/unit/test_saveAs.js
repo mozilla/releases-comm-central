@@ -49,14 +49,14 @@ registerCleanupFunction(function () {
  *   [1] is an {SyntheticMessage}
  */
 async function createMessage() {
-  let gMessageGenerator = new MessageGenerator();
-  let synthMessage = gMessageGenerator.makeMessage();
+  const gMessageGenerator = new MessageGenerator();
+  const synthMessage = gMessageGenerator.makeMessage();
 
-  let msgURI = Services.io.newURI(
+  const msgURI = Services.io.newURI(
     "data:text/plain;base64," + btoa(synthMessage.toMessageString())
   );
-  let imapInbox = IMAPPump.daemon.getMailbox("INBOX");
-  let ImapMessageFromSynthMsg = new ImapMessage(
+  const imapInbox = IMAPPump.daemon.getMailbox("INBOX");
+  const ImapMessageFromSynthMsg = new ImapMessage(
     msgURI.spec,
     imapInbox.uidnext++,
     []
@@ -71,7 +71,7 @@ async function createMessage() {
  */
 async function addImapMessage(fooMessage) {
   IMAPPump.mailbox.addMessage(fooMessage);
-  let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
   await promiseUrlListener.promise;
 }
@@ -85,15 +85,15 @@ async function addImapMessage(fooMessage) {
  */
 async function saveAndLoad(fileEnding) {
   // getTempFile guarantees that the file doesn't exist.
-  let tmpFile = FileTestUtils.getTempFile(`someprefix${fileEnding}`);
+  const tmpFile = FileTestUtils.getTempFile(`someprefix${fileEnding}`);
   Assert.ok(
     tmpFile.path.endsWith(fileEnding),
     "Sanity check if the file ending is intact"
   );
 
   // Get the ImapMessage.
-  let hdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
-  let uri = IMAPPump.inbox.getUriForMsg(hdr);
+  const hdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+  const uri = IMAPPump.inbox.getUriForMsg(hdr);
 
   // nsMessenger::saveAs
   messenger.saveAs(uri, true, null, tmpFile.path, true);
@@ -103,7 +103,7 @@ async function saveAndLoad(fileEnding) {
     () => IOUtils.exists(tmpFile.path),
     "wait for nsMessenger::saveAs file exists"
   );
-  let fileContent = await IOUtils.readUTF8(tmpFile.path);
+  const fileContent = await IOUtils.readUTF8(tmpFile.path);
   return fileContent;
 }
 
@@ -128,8 +128,8 @@ function checkedContent(synthMessage) {
 }
 
 async function emlTest(synthMessage) {
-  let loadedFileContent = await saveAndLoad(".eml");
-  let messageParts = checkedContent(synthMessage);
+  const loadedFileContent = await saveAndLoad(".eml");
+  const messageParts = checkedContent(synthMessage);
   for (const msgPart in messageParts) {
     Assert.stringContains(
       loadedFileContent,
@@ -140,8 +140,8 @@ async function emlTest(synthMessage) {
 }
 
 async function htmlTest(synthMessage) {
-  let loadedFileContent = await saveAndLoad(".html");
-  let messageParts = checkedContent(synthMessage);
+  const loadedFileContent = await saveAndLoad(".html");
+  const messageParts = checkedContent(synthMessage);
   for (const msgPart in messageParts) {
     Assert.stringContains(
       loadedFileContent,
@@ -152,8 +152,8 @@ async function htmlTest(synthMessage) {
 }
 
 async function txtTest(synthMessage) {
-  let loadedFileContent = await saveAndLoad(".txt");
-  let messageParts = checkedContent(synthMessage);
+  const loadedFileContent = await saveAndLoad(".txt");
+  const messageParts = checkedContent(synthMessage);
   for (const msgPart in messageParts) {
     Assert.stringContains(
       loadedFileContent,
@@ -164,7 +164,7 @@ async function txtTest(synthMessage) {
 }
 
 add_task(async function test_saveAs() {
-  let [fakedImapMessage, synthMessage] = await createMessage();
+  const [fakedImapMessage, synthMessage] = await createMessage();
   await addImapMessage(fakedImapMessage);
   await emlTest(synthMessage);
   await txtTest(synthMessage);

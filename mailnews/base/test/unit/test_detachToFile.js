@@ -44,8 +44,8 @@ add_setup(async function () {
 
 add_task(async function startCopy() {
   // Get a message into the local filestore.
-  let mailFile = do_get_file("../../../data/external-attach-test");
-  let listener = new PromiseTestUtils.PromiseCopyListener();
+  const mailFile = do_get_file("../../../data/external-attach-test");
+  const listener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyFileMessage(
     mailFile,
     localAccountUtils.inboxFolder,
@@ -61,7 +61,7 @@ add_task(async function startCopy() {
 
 // process the message through mime
 add_task(async function startMime() {
-  let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
+  const msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
   MsgHdrToMimeMessage(
     msgHdr,
@@ -75,14 +75,14 @@ add_task(async function startMime() {
 
 // detach any found attachments
 add_task(async function startDetach() {
-  let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
-  let msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
+  const msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
+  const msgURI = msgHdr.folder.generateMessageURI(msgHdr.messageKey);
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+  const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
-  let attachment = gCallbackObject.attachments[0];
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const attachment = gCallbackObject.attachments[0];
+  const listener = new PromiseTestUtils.PromiseUrlListener();
 
   messenger.detachAttachmentsWOPrompts(
     do_get_profile(),
@@ -101,7 +101,7 @@ add_task(async function startDetach() {
 add_task(async function testDetach() {
   // The message contained a file "check.pdf" which should
   //  now exist in the profile directory.
-  let checkFile = do_get_profile().clone();
+  const checkFile = do_get_profile().clone();
   checkFile.append("check.pdf");
   Assert.ok(checkFile.exists());
 
@@ -109,9 +109,9 @@ add_task(async function testDetach() {
   //  and search for "AttachmentDetached" which is added on detachment.
 
   // Get the message header
-  let msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
+  const msgHdr = mailTestUtils.firstMsgHdr(localAccountUtils.inboxFolder);
 
-  let messageContent = await getContentFromMessage(msgHdr);
+  const messageContent = await getContentFromMessage(msgHdr);
   Assert.ok(messageContent.includes("AttachmentDetached"));
 });
 
@@ -122,11 +122,11 @@ add_task(async function testDetach() {
  * @returns {Promise<string>} full message contents.
  */
 function getContentFromMessage(aMsgHdr) {
-  let msgFolder = aMsgHdr.folder;
-  let msgUri = msgFolder.getUriForMsg(aMsgHdr);
+  const msgFolder = aMsgHdr.folder;
+  const msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
   return new Promise((resolve, reject) => {
-    let streamListener = {
+    const streamListener = {
       QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
       sis: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
         Ci.nsIScriptableInputStream

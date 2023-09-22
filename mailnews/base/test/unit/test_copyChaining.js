@@ -36,7 +36,7 @@ var gTestArray = [
 
 function CopyNextMessage() {
   if (gMessages.length > 0) {
-    let msgHdr = gMessages.shift();
+    const msgHdr = gMessages.shift();
     MailServices.copy.copyMessages(
       gCopySource,
       [msgHdr],
@@ -53,8 +53,8 @@ function CopyNextMessage() {
 
 function run_test() {
   localAccountUtils.loadLocalMailAccount();
-  let messageGenerator = new MessageGenerator();
-  let scenarioFactory = new MessageScenarioFactory(messageGenerator);
+  const messageGenerator = new MessageGenerator();
+  const scenarioFactory = new MessageScenarioFactory(messageGenerator);
 
   // "Master" do_test_pending(), paired with a do_test_finished() at the end of
   // all the operations.

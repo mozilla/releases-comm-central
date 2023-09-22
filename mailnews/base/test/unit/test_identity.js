@@ -11,7 +11,7 @@ add_task(async function testUID() {
 
   // Create an identity and check it the UID is set when accessed.
 
-  let identityA = MailServices.accounts.createIdentity();
+  const identityA = MailServices.accounts.createIdentity();
   Assert.stringMatches(
     identityA.UID,
     UUID_REGEXP,
@@ -30,7 +30,7 @@ add_task(async function testUID() {
 
   // Create a second identity and check the two UIDs don't match.
 
-  let identityB = MailServices.accounts.createIdentity();
+  const identityB = MailServices.accounts.createIdentity();
   Assert.stringMatches(
     identityB.UID,
     UUID_REGEXP,
@@ -49,7 +49,7 @@ add_task(async function testUID() {
 
   // Create a third identity and set the UID before it is accessed.
 
-  let identityC = MailServices.accounts.createIdentity();
+  const identityC = MailServices.accounts.createIdentity();
   identityC.UID = "11112222-3333-4444-5555-666677778888";
   Assert.equal(
     identityC.UID,

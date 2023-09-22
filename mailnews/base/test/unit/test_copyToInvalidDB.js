@@ -12,8 +12,8 @@ const { MessageGenerator } = ChromeUtils.import(
 );
 
 async function setup() {
-  let createSubfolder = async function (parentFolder, name) {
-    let promiseAdded = PromiseTestUtils.promiseFolderAdded(name);
+  const createSubfolder = async function (parentFolder, name) {
+    const promiseAdded = PromiseTestUtils.promiseFolderAdded(name);
     parentFolder.createSubfolder(name, null);
     await promiseAdded;
     return parentFolder.getChildNamed(name);
@@ -21,39 +21,39 @@ async function setup() {
 
   // Create account.
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.FindAccountForServer(
+  const account = MailServices.accounts.FindAccountForServer(
     MailServices.accounts.localFoldersServer
   );
-  let root = account.incomingServer.rootFolder;
+  const root = account.incomingServer.rootFolder;
 
   // Add a couple of folders containing some test messages.
-  let folder1 = await createSubfolder(root, "test1");
+  const folder1 = await createSubfolder(root, "test1");
   folder1.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  let folder2 = await createSubfolder(root, "test2");
+  const folder2 = await createSubfolder(root, "test2");
   folder2.QueryInterface(Ci.nsIMsgLocalMailFolder);
 
-  let gen = new MessageGenerator();
-  let msg1 = gen.makeMessage();
-  let msg2 = gen.makeMessage({ inReplyTo: msg1 });
+  const gen = new MessageGenerator();
+  const msg1 = gen.makeMessage();
+  const msg2 = gen.makeMessage({ inReplyTo: msg1 });
   folder1.addMessageBatch([msg1, msg2].map(m => m.toMboxString()));
 
-  let msg3 = gen.makeMessage();
+  const msg3 = gen.makeMessage();
   folder2.addMessage(msg3.toMboxString());
 
   return [folder1, folder2];
 }
 
 add_task(async function test_copyToInvalidDB() {
-  let [folder1, folder2] = await setup();
+  const [folder1, folder2] = await setup();
 
   // folder1 contains [msg1, msg2].
   // folder2 contains [msg3].
 
   // Take note of the message we're going to move (first msg in folder1).
-  let msgHdr = Array.from(folder1.msgDatabase.enumerateMessages())[0];
-  let expectedID = msgHdr.messageId;
-  let expectedMsg = mailTestUtils.loadMessageToString(folder1, msgHdr);
+  const msgHdr = Array.from(folder1.msgDatabase.enumerateMessages())[0];
+  const expectedID = msgHdr.messageId;
+  const expectedMsg = mailTestUtils.loadMessageToString(folder1, msgHdr);
 
   // Sabotage the destination folder2 database.
   folder2.msgDatabase.summaryValid = false;
@@ -67,7 +67,7 @@ add_task(async function test_copyToInvalidDB() {
   Assert.equal(folder2.summaryFile.exists(), false);
 
   // Move the message from folder1 to folder2.
-  let copyListener = new PromiseTestUtils.PromiseCopyListener();
+  const copyListener = new PromiseTestUtils.PromiseCopyListener();
   MailServices.copy.copyMessages(
     folder1,
     [msgHdr],
@@ -86,7 +86,7 @@ add_task(async function test_copyToInvalidDB() {
   Assert.equal(folder2.summaryFile.exists(), false);
 
   // Rebuild the the database.
-  let urlListener = new PromiseTestUtils.PromiseUrlListener();
+  const urlListener = new PromiseTestUtils.PromiseUrlListener();
   try {
     folder2.getDatabaseWithReparse(urlListener, null);
   } catch (ex) {
@@ -97,8 +97,8 @@ add_task(async function test_copyToInvalidDB() {
   }
 
   // Check that the message moved over intact.
-  let gotHdr = folder2.msgDatabase.getMsgHdrForMessageID(expectedID);
-  let gotMsg = mailTestUtils.loadMessageToString(folder2, gotHdr);
+  const gotHdr = folder2.msgDatabase.getMsgHdrForMessageID(expectedID);
+  const gotMsg = mailTestUtils.loadMessageToString(folder2, gotHdr);
   // NOTE: With maildir store, the message seems to gain an extra trailing
   // "\n" during the copy. See Bug 1716651.
   // For now, use .trim() as a workaround.

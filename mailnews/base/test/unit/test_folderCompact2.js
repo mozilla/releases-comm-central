@@ -40,7 +40,7 @@ function loadMsgs(folder, inputMsgs) {
   // Make sure all the loaded messages are the expected size.
   // If this fails, it probably means addMessageBatch() no longer assumes input
   // data is mbox format, which is good! See Bug 1763263.
-  let hdrs = Array.from(folder.messages);
+  const hdrs = Array.from(folder.messages);
   for (let i = 0; i < hdrs.length; ++i) {
     Assert.equal(
       inputMsgs[i].length,
@@ -52,23 +52,23 @@ function loadMsgs(folder, inputMsgs) {
 
 // Delete the specified messages.
 async function deleteMsgs(folder, indexesToDelete) {
-  let hdrs = Array.from(folder.messages);
-  let doomed = indexesToDelete.map(i => hdrs[i]);
-  let listener = new PromiseTestUtils.PromiseCopyListener();
+  const hdrs = Array.from(folder.messages);
+  const doomed = indexesToDelete.map(i => hdrs[i]);
+  const listener = new PromiseTestUtils.PromiseCopyListener();
   folder.deleteMessages(doomed, null, false, true, listener, true);
   await listener.promise;
 }
 
 // Check the raw mbox file against what we expect to see.
 async function checkMbox(folder, outputMsgs) {
-  let bytes = await IOUtils.read(folder.filePath.path);
+  const bytes = await IOUtils.read(folder.filePath.path);
   let mbox = "";
-  for (let b of bytes) {
+  for (const b of bytes) {
     mbox += String.fromCharCode(b);
   }
 
   let expected = "";
-  for (let raw of outputMsgs) {
+  for (const raw of outputMsgs) {
     // mbox has blank line between messages
     expected += raw + "\n";
   }
@@ -93,51 +93,51 @@ async function checkMbox(folder, outputMsgs) {
 
 // These are the default X-Mozilla- headers for local folders (they are
 // re-written in place when flags and keywords are modified).
-let xhdrs =
+const xhdrs =
   `X-Mozilla-Status: 0000\r\n` +
   `X-Mozilla-Status2: 00010000\r\n` + // 'New' flag is set
   `X-Mozilla-Keys:                                                                                 \r\n`;
 
-let hdrs1 =
+const hdrs1 =
   "Date: Fri, 21 Nov 1997 09:26:06 -0600\r\n" +
   "From: bob@invalid\r\n" +
   "Subject: Test message 1\r\n" +
   "Message-ID: <blah1@invalid>\r\n";
 
-let bod1 = "Body of message 1.\r\n";
+const bod1 = "Body of message 1.\r\n";
 
-let hdrs2 =
+const hdrs2 =
   "Date: Fri, 21 Nov 1997 10:55:32 -0600\r\n" +
   "From: bob@invalid\r\n" +
   "Subject: Test message 2\r\n" +
   "Message-ID: <blah2@invalid>\r\n";
 
-let bod2 = "Body of message2.\r\n";
+const bod2 = "Body of message2.\r\n";
 
-let hdrs3 =
+const hdrs3 =
   `Date: Fri, 21 Nov 1997 11:09:14 -0600\r\n` +
   `From: bob@invalid\r\n` +
   `Message-ID: <blah3@invalid>\r\n` +
   `Subject: Test message 3\r\n`;
 
-let bod3 = `message\r\nthree\r\nis multiple\r\nlines.\r\n`;
+const bod3 = `message\r\nthree\r\nis multiple\r\nlines.\r\n`;
 
-let from = "From \r\n";
+const from = "From \r\n";
 
 // Check compact works after a simple delete.
 add_task(async function testSimple() {
   localAccountUtils.clearAll();
   localAccountUtils.loadLocalMailAccount();
-  let inbox = localAccountUtils.inboxFolder;
+  const inbox = localAccountUtils.inboxFolder;
 
-  let inMsgs = [
+  const inMsgs = [
     `${from}${xhdrs}${hdrs1}\r\n${bod1}\r\n`,
     `${from}${xhdrs}${hdrs2}\r\n${bod2}\r\n`,
     `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
   ];
-  let doomed = [1]; // Delete message msg2.
+  const doomed = [1]; // Delete message msg2.
   // Out expected output:
-  let outMsgs = [
+  const outMsgs = [
     `${from}${xhdrs}${hdrs1}\r\n${bod1}\r\n`,
     `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
   ];
@@ -145,7 +145,7 @@ add_task(async function testSimple() {
   loadMsgs(inbox, inMsgs);
   await deleteMsgs(inbox, doomed);
 
-  let l = new PromiseTestUtils.PromiseUrlListener();
+  const l = new PromiseTestUtils.PromiseUrlListener();
   inbox.compact(l, null);
   await l.promise;
 
@@ -156,18 +156,18 @@ add_task(async function testSimple() {
 add_task(async function testMissingXMozillaHdrs() {
   localAccountUtils.clearAll();
   localAccountUtils.loadLocalMailAccount();
-  let inbox = localAccountUtils.inboxFolder;
+  const inbox = localAccountUtils.inboxFolder;
 
   // No X-Mozilla-* headers on input.
-  let inMsgs = [
+  const inMsgs = [
     `${from}${hdrs1}\r\n${bod1}\r\n`,
     `${from}${hdrs2}\r\n${bod2}\r\n`,
     `${from}${hdrs3}\r\n${bod3}\r\n`,
   ];
-  let doomed = [1]; // Delete msg2.
+  const doomed = [1]; // Delete msg2.
   // Out expected output.
   // Compact should have added X-Mozilla-* headers.
-  let outMsgs = [
+  const outMsgs = [
     `${from}${xhdrs}${hdrs1}\r\n${bod1}\r\n`,
     `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
   ];
@@ -175,7 +175,7 @@ add_task(async function testMissingXMozillaHdrs() {
   loadMsgs(inbox, inMsgs);
   await deleteMsgs(inbox, doomed);
 
-  let l = new PromiseTestUtils.PromiseUrlListener();
+  const l = new PromiseTestUtils.PromiseUrlListener();
   inbox.compact(l, null);
   await l.promise;
 
@@ -186,14 +186,14 @@ add_task(async function testMissingXMozillaHdrs() {
 add_task(async function testBigMessages() {
   localAccountUtils.clearAll();
   localAccountUtils.loadLocalMailAccount();
-  let inbox = localAccountUtils.inboxFolder;
+  const inbox = localAccountUtils.inboxFolder;
 
   // Compaction uses buffer of around 16KB, so we'll go way bigger.
-  let targSize = 256 * 1024;
+  const targSize = 256 * 1024;
 
-  let inMsgs = [];
-  let outMsgs = [];
-  let doomed = [0, 1]; //  We'll delete the first 2 messages.
+  const inMsgs = [];
+  const outMsgs = [];
+  const doomed = [0, 1]; //  We'll delete the first 2 messages.
   for (let i = 0; i < 5; ++i) {
     let raw =
       `From \r\n` +
@@ -218,7 +218,7 @@ add_task(async function testBigMessages() {
 
   await deleteMsgs(inbox, doomed);
 
-  let l = new PromiseTestUtils.PromiseUrlListener();
+  const l = new PromiseTestUtils.PromiseUrlListener();
   inbox.compact(l, null);
   await l.promise;
 
@@ -231,18 +231,18 @@ add_task(async function testBigMessages() {
 add_task(async function testMoveXMozillaHdrs() {
   localAccountUtils.clearAll();
   localAccountUtils.loadLocalMailAccount();
-  let inbox = localAccountUtils.inboxFolder;
+  const inbox = localAccountUtils.inboxFolder;
 
   // These have X-Mozilla-* headers after all the other headers.
-  let inMsgs = [
+  const inMsgs = [
     `${from}${hdrs1}${xhdrs}\r\n${bod1}\r\n`,
     `${from}${hdrs2}${xhdrs}\r\n${bod2}\r\n`,
     `${from}${hdrs3}${xhdrs}\r\n${bod3}\r\n`,
   ];
-  let doomed = [1]; // Delete msg2.
+  const doomed = [1]; // Delete msg2.
   // The messages we expect to see in the final mbox.
   // Compact should have moved the X-Mozilla-* headers to the front.
-  let outMsgs = [
+  const outMsgs = [
     `${from}${xhdrs}${hdrs1}\r\n${bod1}\r\n`,
     `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
   ];
@@ -250,7 +250,7 @@ add_task(async function testMoveXMozillaHdrs() {
   loadMsgs(inbox, inMsgs);
   await deleteMsgs(inbox, doomed);
 
-  let l = new PromiseTestUtils.PromiseUrlListener();
+  const l = new PromiseTestUtils.PromiseUrlListener();
   inbox.compact(l, null);
   await l.promise;
 
@@ -261,38 +261,38 @@ add_task(async function testMoveXMozillaHdrs() {
 add_task(async function testBigXMozillaKeys() {
   localAccountUtils.clearAll();
   localAccountUtils.loadLocalMailAccount();
-  let inbox = localAccountUtils.inboxFolder;
+  const inbox = localAccountUtils.inboxFolder;
 
-  let bigKeyword =
+  const bigKeyword =
     "HugeGreatBigStupidlyLongKeywordNameWhichWillDefinitelyOverflowThe80" +
     "CharactersUsuallyReservedInTheKeywordsHeaderForInPlaceEditing";
 
-  let inMsgs = [
+  const inMsgs = [
     `${from}${xhdrs}${hdrs1}\r\n${bod1}\r\n`,
     `${from}${xhdrs}${hdrs2}\r\n${bod2}\r\n`,
     `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
   ];
-  let doomed = [1]; // Delete msg2.
+  const doomed = [1]; // Delete msg2.
 
-  let bigxhdrs =
+  const bigxhdrs =
     `X-Mozilla-Status: 0000\r\n` +
     `X-Mozilla-Status2: 00010000\r\n` + // 'New' flag is set
     `X-Mozilla-Keys: ${bigKeyword}\r\n`;
 
   // The messages we expect to see in the final mbox:
-  let outMsgs = [
+  const outMsgs = [
     `${from}${bigxhdrs}${hdrs1}\r\n${bod1}\r\n`,
     `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
   ];
 
   loadMsgs(inbox, inMsgs);
 
-  let msgs = Array.from(inbox.messages);
+  const msgs = Array.from(inbox.messages);
   inbox.addKeywordsToMessages([msgs[0]], bigKeyword);
 
   await deleteMsgs(inbox, doomed);
 
-  let l = new PromiseTestUtils.PromiseUrlListener();
+  const l = new PromiseTestUtils.PromiseUrlListener();
   inbox.compact(l, null);
   await l.promise;
 

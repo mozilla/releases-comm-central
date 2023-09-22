@@ -11,13 +11,13 @@ function run_test() {
     "@mozilla.org/mail/search/validityManager;1"
   ].getService(Ci.nsIMsgSearchValidityManager);
 
-  let validityTable = kValidityManager.getTable(
+  const validityTable = kValidityManager.getTable(
     Ci.nsMsgSearchScope.offlineMail
   );
 
   // When we try to access a bad value of getAvailable, it should give an error,
   //  not crash.
-  let BAD_VALUE = 1000000; // some large value that is beyond the array bounds
+  const BAD_VALUE = 1000000; // some large value that is beyond the array bounds
   let haveExpectedError = false;
   try {
     validityTable.getAvailable(Ci.nsMsgSearchAttrib.Subject, BAD_VALUE);
@@ -35,6 +35,6 @@ function run_test() {
   const kSearchSession = Cc[
     "@mozilla.org/messenger/searchSession;1"
   ].createInstance(Ci.nsIMsgSearchSession);
-  let searchTerm = kSearchSession.createTerm();
+  const searchTerm = kSearchSession.createTerm();
   Assert.equal(searchTerm.op, Ci.nsMsgSearchOp.Contains);
 }

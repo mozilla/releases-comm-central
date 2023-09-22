@@ -48,11 +48,11 @@ function run_test() {
 
   // This will force the load of the accounts setup above.
   Assert.equal(MailServices.accounts.accounts.length, 3); // hidden account not included
-  let server4 = MailServices.accounts
+  const server4 = MailServices.accounts
     .getAccount("account4")
     .incomingServer.QueryInterface(Ci.nsIPop3IncomingServer);
   Assert.equal(server4.deferredToAccount, "account1");
-  let server5 = MailServices.accounts
+  const server5 = MailServices.accounts
     .getAccount("account5")
     .incomingServer.QueryInterface(Ci.nsIPop3IncomingServer);
   Assert.equal(server5.deferredToAccount, "account1");

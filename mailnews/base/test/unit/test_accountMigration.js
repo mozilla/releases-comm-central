@@ -15,7 +15,7 @@ var { migrateMailnews } = ChromeUtils.import(
 load("../../../resources/abSetup.js");
 
 function testPermission(aURI) {
-  let principal = Services.scriptSecurityManager.createContentPrincipal(
+  const principal = Services.scriptSecurityManager.createContentPrincipal(
     aURI,
     {}
   );
@@ -55,13 +55,13 @@ function run_test() {
 
   loadABFile("data/remoteContent", kPABData.fileName);
 
-  let uriAllowed = Services.io.newURI(
+  const uriAllowed = Services.io.newURI(
     "chrome://messenger/content/email=yes@test.invalid"
   );
-  let uriAllowed2 = Services.io.newURI(
+  const uriAllowed2 = Services.io.newURI(
     "chrome://messenger/content/email=yes2@test.invalid"
   );
-  let uriDisallowed = Services.io.newURI(
+  const uriDisallowed = Services.io.newURI(
     "chrome://messenger/content/email=no@test.invalid"
   );
 

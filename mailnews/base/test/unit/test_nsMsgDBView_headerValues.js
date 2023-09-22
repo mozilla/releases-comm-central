@@ -74,19 +74,19 @@ var tests = [
 
 add_task(async function test_nsMsgDBView_headValues() {
   // Add the messages to the folder
-  let msgGenerator = new MessageGenerator();
-  let genMessages = tests.map(data => msgGenerator.makeMessage(data[0]));
-  let folder = await messageInjection.makeEmptyFolder();
+  const msgGenerator = new MessageGenerator();
+  const genMessages = tests.map(data => msgGenerator.makeMessage(data[0]));
+  const folder = await messageInjection.makeEmptyFolder();
   await messageInjection.addSetsToFolders(
     [folder],
     [new SyntheticMessageSet(genMessages)]
   );
 
   // Make the DB view
-  let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=threaded";
-  let dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
+  const dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=threaded";
+  const dbView = Cc[dbviewContractId].createInstance(Ci.nsIMsgDBView);
   dbView.init(null, null, null);
-  let outCount = {};
+  const outCount = {};
   dbView.open(
     folder,
     Ci.nsMsgViewSortType.byDate,
@@ -96,14 +96,14 @@ add_task(async function test_nsMsgDBView_headValues() {
   );
 
   // Did we add all the messages properly?
-  let treeView = dbView.QueryInterface(Ci.nsITreeView);
+  const treeView = dbView.QueryInterface(Ci.nsITreeView);
   Assert.equal(treeView.rowCount, tests.length);
 
   // For each test, make sure that the display is correct.
   tests.forEach(function (data, i) {
     info("Checking data for " + uneval(data));
-    let expected = data[1];
-    for (let column in expected) {
+    const expected = data[1];
+    for (const column in expected) {
       Assert.equal(dbView.cellTextForColumn(i, column), expected[column]);
     }
   });

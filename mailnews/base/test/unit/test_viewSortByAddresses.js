@@ -42,7 +42,7 @@ add_setup(async function () {
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
 
-  let ab = MailServices.ab.getDirectory(kPABData.URI);
+  const ab = MailServices.ab.getDirectory(kPABData.URI);
 
   function createAndAddCard(element) {
     var card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
@@ -74,7 +74,7 @@ add_setup(async function () {
     })
   );
 
-  let msgSet = new SyntheticMessageSet(messages);
+  const msgSet = new SyntheticMessageSet(messages);
   gTestFolder = await messageInjection.makeEmptyFolder();
   await messageInjection.addSetsToFolders([gTestFolder], [msgSet]);
 });
@@ -84,8 +84,8 @@ add_task(function test_view_sort_by_addresses() {
   setup_view("threaded", Ci.nsMsgViewFlagsType.kNone);
   // Check that sorting by sender uses the display name
   gDBView.sort(Ci.nsMsgViewSortType.byAuthor, Ci.nsMsgViewSortOrder.ascending);
-  let sender1 = gDBView.cellTextForColumn(0, "senderCol");
-  let sender2 = gDBView.cellTextForColumn(1, "senderCol");
+  const sender1 = gDBView.cellTextForColumn(0, "senderCol");
+  const sender2 = gDBView.cellTextForColumn(1, "senderCol");
 
   if (sender1 != 2) {
     view_throw("expected sender 1 to be 2");
@@ -98,8 +98,8 @@ add_task(function test_view_sort_by_addresses() {
     Ci.nsMsgViewSortType.byRecipient,
     Ci.nsMsgViewSortOrder.ascending
   );
-  let recip1 = gDBView.cellTextForColumn(0, "recipientCol");
-  let recip2 = gDBView.cellTextForColumn(1, "recipientCol");
+  const recip1 = gDBView.cellTextForColumn(0, "recipientCol");
+  const recip2 = gDBView.cellTextForColumn(1, "recipientCol");
 
   if (recip1 != 1) {
     view_throw("expected recip 1 to be 1");
@@ -117,7 +117,8 @@ var gDBView;
 var gTreeView;
 
 function setup_view(aViewType, aViewFlags, aTestFolder) {
-  let dbviewContractId = "@mozilla.org/messenger/msgdbview;1?type=" + aViewType;
+  const dbviewContractId =
+    "@mozilla.org/messenger/msgdbview;1?type=" + aViewType;
 
   if (aTestFolder == null) {
     aTestFolder = gTestFolder;

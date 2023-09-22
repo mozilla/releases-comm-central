@@ -28,14 +28,14 @@ function run_test() {
   var content_uri = makeURI("custom-scheme://custom_content_url/1.jsp");
   Assert.ok(content_uri);
 
-  let tmpChannel = NetUtil.newChannel({
+  const tmpChannel = NetUtil.newChannel({
     uri: content_uri,
     // Needs one of 'loadingNode', 'loadingPrincipal' or 'loadUsingSystemPrincipal' which we don't have.
     // Even with `loadUsingSystemPrincipal: true` this fails with "unknown protocol". See bug 1446587.
     securityFlags: Ci.nsILoadInfo.SEC_ONLY_FOR_EXPLICIT_CONTENTSEC_CHECK,
     contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE,
   });
-  let tmpLoadInfo = tmpChannel.loadInfo;
+  const tmpLoadInfo = tmpChannel.loadInfo;
 
   var decision = content_policy.shouldLoad(
     content_uri,

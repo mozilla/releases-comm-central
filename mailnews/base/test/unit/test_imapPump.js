@@ -48,12 +48,12 @@ var gTestArray = [
     IMAPPump.mailbox.addMessage(
       new ImapMessage(specForFileName(gMessage), IMAPPump.mailbox.uidnext++, [])
     );
-    let promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+    const promiseUrlListener = new PromiseTestUtils.PromiseUrlListener();
     IMAPPump.inbox.updateFolderWithListener(null, promiseUrlListener);
     await promiseUrlListener.promise;
 
     Assert.equal(1, IMAPPump.inbox.getTotalMessages(false));
-    let msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
+    const msgHdr = mailTestUtils.firstMsgHdr(IMAPPump.inbox);
     Assert.ok(msgHdr instanceof Ci.nsIMsgDBHdr);
   },
 
@@ -75,7 +75,7 @@ add_setup(() => {
 
 // given a test file, return the file uri spec
 function specForFileName(aFileName) {
-  let file = do_get_file(gDEPTH + "mailnews/data/" + aFileName);
-  let msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
+  const file = do_get_file(gDEPTH + "mailnews/data/" + aFileName);
+  const msgfileuri = Services.io.newFileURI(file).QueryInterface(Ci.nsIFileURL);
   return msgfileuri.spec;
 }

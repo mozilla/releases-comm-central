@@ -26,14 +26,14 @@ add_setup(async function () {
   let messages = [];
   messages = messages.concat(gScenarioFactory.directReply(10));
 
-  let msgSet = new SyntheticMessageSet(messages);
+  const msgSet = new SyntheticMessageSet(messages);
 
   gTestFolder = await messageInjection.makeEmptyFolder();
   await messageInjection.addSetsToFolders([gTestFolder], [msgSet]);
 });
 
 add_task(function test_retention() {
-  let numMessages = 10;
+  const numMessages = 10;
   gTestFolder.msgDatabase = null;
   gTestFolder.applyRetentionSettings();
   const gDbService = Cc["@mozilla.org/msgDatabase/msgDBService;1"].getService(
@@ -46,7 +46,7 @@ add_task(function test_retention() {
   Assert.equal(gDbService.cachedDBForFolder(gTestFolder), null);
   // no retention settings, so we should have the same number of messages.
   Assert.equal(numMessages, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
-  let serverSettings = gTestFolder.server.retentionSettings;
+  const serverSettings = gTestFolder.server.retentionSettings;
   serverSettings.retainByPreference =
     Ci.nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
   serverSettings.numHeadersToKeep = 9;
@@ -54,7 +54,7 @@ add_task(function test_retention() {
   gTestFolder.applyRetentionSettings();
   // no retention settings, so we should have the same number of messages.
   Assert.equal(9, gTestFolder.msgDatabase.dBFolderInfo.numMessages);
-  let folderSettings = gTestFolder.retentionSettings;
+  const folderSettings = gTestFolder.retentionSettings;
   folderSettings.retainByPreference =
     Ci.nsIMsgRetentionSettings.nsMsgRetainByNumHeaders;
   folderSettings.numHeadersToKeep = 8;

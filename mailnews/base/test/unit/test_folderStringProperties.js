@@ -8,7 +8,7 @@
 
 add_task(function test_string_properties() {
   localAccountUtils.loadLocalMailAccount();
-  let root = localAccountUtils.incomingServer.rootMsgFolder;
+  const root = localAccountUtils.incomingServer.rootMsgFolder;
 
   // Ensure unset properties return an error.
   Assert.throws(function () {

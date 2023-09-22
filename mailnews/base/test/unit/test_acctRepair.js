@@ -49,7 +49,7 @@ function run_test() {
     Services.prefs.getCharPref("mail.account.account7.server"),
     "server1"
   );
-  let server5 = MailServices.accounts
+  const server5 = MailServices.accounts
     .getIncomingServer("server5")
     .QueryInterface(Ci.nsIPop3IncomingServer);
   Assert.equal(server5.deferredToAccount, "account7");

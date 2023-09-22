@@ -45,17 +45,17 @@ add_setup(async function () {
   IMAPPump.daemon.createMailbox("test", {});
 
   handler = IMAPPump.server._handlerCreator(IMAPPump.daemon);
-  let response = handler.onError("1", "LOGIN user password");
+  const response = handler.onError("1", "LOGIN user password");
   Assert.ok(response.includes("OK"));
   // wait for imap pump to do its thing or else we get memory leaks
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   IMAPPump.inbox.updateFolderWithListener(null, listener);
   await listener.promise;
 });
 
 // test that 'XLIST "" "*"' returns the proper responses
 add_task(function testXlist() {
-  let response = handler.onError("2", 'XLIST "" "*"');
+  const response = handler.onError("2", 'XLIST "" "*"');
 
   Assert.ok(response.includes('* LIST (\\HasNoChildren \\Inbox) "/" "INBOX"'));
   Assert.ok(

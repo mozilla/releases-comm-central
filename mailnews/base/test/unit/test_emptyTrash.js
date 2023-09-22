@@ -33,7 +33,7 @@ var copyListener = {
   OnStartCopy() {},
   OnProgress(aProgress, aProgressMax) {},
   SetMessageKey(aKey) {
-    let hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
+    const hdr = localAccountUtils.inboxFolder.GetMessageHeader(aKey);
     gMsgHdrs.push({ hdr, ID: hdr.messageId });
   },
   SetMessageId(aMessageId) {},
@@ -97,7 +97,7 @@ var gTestArray = [
   function testDeleteMessage() {
     // delete to trash
     // Let's take a moment to re-initialize stuff that got moved
-    let inboxDB = localAccountUtils.inboxFolder.msgDatabase;
+    const inboxDB = localAccountUtils.inboxFolder.msgDatabase;
     gMsgHdrs[0].hdr = inboxDB.getMsgHdrForMessageID(gMsgHdrs[0].ID);
 
     // Now delete the message
@@ -108,7 +108,7 @@ var gTestArray = [
     gLocalTrashFolder = gRootFolder.getChildNamed("Trash");
     // hold onto a db to make sure that empty trash deals with the case
     // of someone holding onto the db, but the trash folder has a null db.
-    let gLocalTrashDB = gLocalTrashFolder.msgDatabase; // eslint-disable-line no-unused-vars
+    const gLocalTrashDB = gLocalTrashFolder.msgDatabase; // eslint-disable-line no-unused-vars
     gLocalTrashFolder.msgDatabase = null;
     // this is synchronous
     gLocalTrashFolder.emptyTrash(null);
@@ -116,7 +116,7 @@ var gTestArray = [
     // and has no messages.
     Assert.equal(0, gLocalTrashFolder.filePath.fileSize);
     Assert.equal(0, gLocalTrashFolder.msgDatabase.dBFolderInfo.numMessages);
-    let msgs = [...gLocalTrashFolder.msgDatabase.enumerateMessages()];
+    const msgs = [...gLocalTrashFolder.msgDatabase.enumerateMessages()];
     Assert.equal(0, msgs.length);
     urlListener.OnStopRunningUrl(null, 0);
   },

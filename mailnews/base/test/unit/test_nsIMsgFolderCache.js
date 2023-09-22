@@ -6,15 +6,15 @@
  * Sanity checks for nsIMsgFolderCache/nsIMsgFolderCacheElement.
  */
 add_task(function test_basics() {
-  let profileDir = do_get_profile();
-  let jsonFile = profileDir.clone();
+  const profileDir = do_get_profile();
+  const jsonFile = profileDir.clone();
   jsonFile.append("folderCache.json");
-  let legacyFile = profileDir.clone();
+  const legacyFile = profileDir.clone();
   legacyFile.append("panacea.dat");
 
   // Create an empty cache object and start poking it.
   {
-    let cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
+    const cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
       Ci.nsIMsgFolderCache
     );
     // Neither of these files exist, and that's fine.
@@ -26,7 +26,7 @@ add_task(function test_basics() {
     Assert.throws(function () {
       cache.getCacheElement("a/non/existent/key", false);
     }, /NS_ERROR_NOT_AVAILABLE/);
-    let e1 = cache.getCacheElement("/made/up/path/Inbox", true);
+    const e1 = cache.getCacheElement("/made/up/path/Inbox", true);
 
     // Can set, get and modify Int32 values?
     e1.setCachedInt32("wibble", -1);
@@ -106,7 +106,7 @@ add_task(function test_basics() {
   // Create a new cache object, reload jsonFile and make sure all the expected
   // values are there.
   {
-    let cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
+    const cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
       Ci.nsIMsgFolderCache
     );
     // jsonFile is there now.
@@ -114,7 +114,7 @@ add_task(function test_basics() {
     Assert.ok(!legacyFile.exists());
     cache.init(jsonFile, legacyFile);
     // Make sure all the values we previously set are intact.
-    let e1 = cache.getCacheElement("/made/up/path/Inbox", true);
+    const e1 = cache.getCacheElement("/made/up/path/Inbox", true);
     Assert.equal(e1.getCachedInt32("wibble"), 42);
     Assert.equal(e1.getCachedUInt32("pibble"), 42);
     Assert.equal(e1.getCachedInt64("foo"), 42);
@@ -127,24 +127,24 @@ add_task(function test_basics() {
 
 add_task(async function test_null_entries() {
   // Write out a trivial foldercache file with a null value.
-  let data = { "a-folder-key": { foo: null } };
-  let jsonFilename = PathUtils.join(PathUtils.tempDir, "foo.json");
+  const data = { "a-folder-key": { foo: null } };
+  const jsonFilename = PathUtils.join(PathUtils.tempDir, "foo.json");
   await IOUtils.writeJSON(jsonFilename, data);
 
   // Load it into an msIMsgFolderCache
-  let cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
+  const cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
     Ci.nsIMsgFolderCache
   );
-  let jsonFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  const jsonFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   jsonFile.initWithPath(jsonFilename);
-  let morkFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  const morkFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   morkFile.initWithPath(
     PathUtils.join(PathUtils.tempDir, "non-existent-file.dat")
   );
   cache.init(jsonFile, morkFile);
 
   //
-  let e1 = cache.getCacheElement("a-folder-key", false);
+  const e1 = cache.getCacheElement("a-folder-key", false);
 
   // Make sure all accessors convert the null appropriately.
   Assert.equal(e1.getCachedInt32("foo"), 0);
@@ -157,10 +157,10 @@ add_task(async function test_null_entries() {
  * Test foldercache migration from mork DB (panacea.dat) to JSON.
  */
 add_task(async function test_migration() {
-  let profileDir = do_get_profile();
-  let jsonFile = profileDir.clone();
+  const profileDir = do_get_profile();
+  const jsonFile = profileDir.clone();
   jsonFile.append("folderCache.json");
-  let legacyFile = profileDir.clone();
+  const legacyFile = profileDir.clone();
   legacyFile.append("panacea.dat");
 
   Assert.ok(!jsonFile.exists());
@@ -171,7 +171,7 @@ add_task(async function test_migration() {
 
   // Set up the cache.
   {
-    let cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
+    const cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
       Ci.nsIMsgFolderCache
     );
     cache.init(jsonFile, legacyFile);
@@ -185,10 +185,10 @@ add_task(async function test_migration() {
 
   // Compare the migrated json to the json we expect.
   let raw = await IOUtils.readUTF8(jsonFile.path);
-  let got = JSON.parse(raw);
+  const got = JSON.parse(raw);
 
   raw = await IOUtils.readUTF8(do_get_file("data/folderCache.json").path);
-  let expect = JSON.parse(raw);
+  const expect = JSON.parse(raw);
 
   Assert.deepEqual(got, expect);
 
@@ -200,10 +200,10 @@ add_task(async function test_migration() {
  * Test foldercache migration doesn't crash with a dud panacea.dat.
  */
 add_task(async function test_bad_pancea_dat() {
-  let profileDir = do_get_profile();
-  let jsonFile = profileDir.clone();
+  const profileDir = do_get_profile();
+  const jsonFile = profileDir.clone();
   jsonFile.append("folderCache.json");
-  let legacyFile = profileDir.clone();
+  const legacyFile = profileDir.clone();
   legacyFile.append("panacea.dat");
 
   Assert.ok(!jsonFile.exists());
@@ -215,7 +215,7 @@ add_task(async function test_bad_pancea_dat() {
   do_get_file("data/panacea_empty.dat").copyTo(profileDir, legacyFile.leafName);
 
   // Set up the cache.
-  let cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
+  const cache = Cc["@mozilla.org/messenger/msgFolderCache;1"].createInstance(
     Ci.nsIMsgFolderCache
   );
   // init() returns OK even if migration fails - the show must go on!

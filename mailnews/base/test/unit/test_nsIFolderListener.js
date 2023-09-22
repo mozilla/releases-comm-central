@@ -30,7 +30,7 @@ var targetFolder;
 var messageInjection;
 
 add_setup(async function () {
-  let msgGen = new MessageGenerator();
+  const msgGen = new MessageGenerator();
   messageInjection = new MessageInjection({ mode: "local" }, msgGen);
 
   targetFolder = await messageInjection.makeEmptyFolder();

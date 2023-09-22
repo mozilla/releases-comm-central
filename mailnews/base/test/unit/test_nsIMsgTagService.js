@@ -25,7 +25,7 @@ function run_test() {
   MailServices.tags.addTagForKey(tag1, tag1, null, null);
 
   // delete any existing tags
-  let tagArray = MailServices.tags.getAllTags();
+  const tagArray = MailServices.tags.getAllTags();
   for (var i = 0; i < tagArray.length; i++) {
     MailServices.tags.deleteKey(tagArray[i].key);
   }
@@ -70,7 +70,7 @@ function run_test() {
   }
 
   // Test sort ordering for getAllTags() without ordinal.
-  for (let tag of MailServices.tags.getAllTags()) {
+  for (const tag of MailServices.tags.getAllTags()) {
     MailServices.tags.deleteKey(tag.key);
   }
   MailServices.tags.addTag("grapefruit", null, null);
@@ -87,7 +87,7 @@ function run_test() {
   );
 
   // Test sort ordering for getAllTags() with (some) ordinals.
-  for (let tag of MailServices.tags.getAllTags()) {
+  for (const tag of MailServices.tags.getAllTags()) {
     MailServices.tags.deleteKey(tag.key);
   }
   MailServices.tags.addTag("grapefruit", null, "3");

@@ -12,7 +12,7 @@ Services.prefs.setCharPref(
 );
 
 // Test data for round-trip test.
-let testEmails = [
+const testEmails = [
   // Base64 encoded bodies.
   "../../../data/01-plaintext.eml",
   "../../../data/02-plaintext+attachment.eml",
@@ -80,22 +80,22 @@ function run_test() {
  */
 function setupServer(srvName, mboxFilename) {
   // {nsIMsgIncomingServer} pop server for the test.
-  let server = MailServices.accounts.createIncomingServer(
+  const server = MailServices.accounts.createIncomingServer(
     srvName,
     "localhost",
     "pop3"
   );
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
   account.incomingServer = server;
   server.QueryInterface(Ci.nsIPop3IncomingServer);
   server.valid = true;
 
-  let inbox = account.incomingServer.rootFolder.getFolderWithFlags(
+  const inbox = account.incomingServer.rootFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Inbox
   );
 
   // install the mbox file
-  let mboxFile = do_get_file(mboxFilename);
+  const mboxFile = do_get_file(mboxFilename);
   mboxFile.copyTo(inbox.filePath.parent, inbox.filePath.leafName);
 
   // TODO: is there some way to make folder rescan the mbox?
@@ -113,9 +113,9 @@ function setupServer(srvName, mboxFilename) {
  */
 async function doMboxTest(srvName, mboxFilename, expectCnt) {
   // set up an account+server+inbox and copy in the test mbox file
-  let server = setupServer(srvName, mboxFilename);
+  const server = setupServer(srvName, mboxFilename);
 
-  let mailstoreContractId = Services.prefs.getCharPref(
+  const mailstoreContractId = Services.prefs.getCharPref(
     "mail.server." + server.key + ".storeContractID"
   );
 
@@ -124,13 +124,13 @@ async function doMboxTest(srvName, mboxFilename, expectCnt) {
   // Converted. Now find resulting Inbox/cur directory so
   // we can count the messages there.
 
-  let inbox = server.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
+  const inbox = server.rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox);
   // NOTE: the conversion updates the path of the root folder,
   // but _not_ the path of the inbox...
   // Ideally, we'd just use inbox.filePath here, but
   // instead we'll have compose the path manually.
 
-  let curDir = server.rootFolder.filePath;
+  const curDir = server.rootFolder.filePath;
   curDir.append(inbox.filePath.leafName);
   curDir.append("cur");
 
@@ -138,7 +138,7 @@ async function doMboxTest(srvName, mboxFilename, expectCnt) {
   Assert.ok(curDir.isDirectory(), "'cur' directory created");
 
   // Check number of messages in Inbox/cur is what we expect.
-  let cnt = [...curDir.directoryEntries].length;
+  const cnt = [...curDir.directoryEntries].length;
 
   Assert.equal(
     cnt,
@@ -158,10 +158,10 @@ async function tempDir(prefix) {
   if (!prefix) {
     prefix = "";
   }
-  let tmpDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
+  const tmpDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
   while (true) {
-    let name = prefix + Math.floor(Math.random() * 0xffffffff).toString(16);
-    let fullPath = PathUtils.join(tmpDir, name);
+    const name = prefix + Math.floor(Math.random() * 0xffffffff).toString(16);
+    const fullPath = PathUtils.join(tmpDir, name);
     try {
       await IOUtils.makeDirectory(fullPath, { ignoreExisting: false });
       return fullPath;
@@ -189,16 +189,16 @@ async function tempDir(prefix) {
  */
 async function roundTripTest() {
   // Set up initial maildir structure
-  let initialRoot = await tempDir("initial");
+  const initialRoot = await tempDir("initial");
 
-  let inbox = PathUtils.join(initialRoot, "INBOX");
+  const inbox = PathUtils.join(initialRoot, "INBOX");
   await IOUtils.makeDirectory(inbox);
   // Create a couple of subdirs under INBOX
-  let subdir = PathUtils.join(initialRoot, "INBOX.sbd");
+  const subdir = PathUtils.join(initialRoot, "INBOX.sbd");
   await IOUtils.makeDirectory(subdir);
-  let foodir = PathUtils.join(subdir, "foo");
+  const foodir = PathUtils.join(subdir, "foo");
   await IOUtils.makeDirectory(foodir);
-  let bardir = PathUtils.join(subdir, "bar");
+  const bardir = PathUtils.join(subdir, "bar");
   await IOUtils.makeDirectory(bardir);
 
   // Populate all the folders with some test emails.
@@ -208,14 +208,14 @@ async function roundTripTest() {
   await populateMaildir(bardir, absolutePaths);
 
   // Add a pick of "special" files, which should survive the trip verbatim.
-  for (let special of ["filterlog.html", "feeds.json", "rules.dat"]) {
-    let f = PathUtils.join(initialRoot, special);
+  for (const special of ["filterlog.html", "feeds.json", "rules.dat"]) {
+    const f = PathUtils.join(initialRoot, special);
     await IOUtils.writeUTF8(f, f); // Use the filename for content.
   }
 
   // Create root dirs for intermediate and final result.
-  let mboxRoot = await tempDir("mbox");
-  let finalRoot = await tempDir("final");
+  const mboxRoot = await tempDir("mbox");
+  const finalRoot = await tempDir("final");
 
   // Convert: maildir -> mbox -> maildir
   await doConvert("maildir", initialRoot, "mbox", mboxRoot);
@@ -236,7 +236,7 @@ async function roundTripTest() {
  */
 function doConvert(srcType, srcRoot, destType, destRoot) {
   return new Promise(function (resolve, reject) {
-    let worker = new ChromeWorker("resource:///modules/converterWorker.js");
+    const worker = new ChromeWorker("resource:///modules/converterWorker.js");
     worker.addEventListener("message", function (ev) {
       if (ev.data.msg == "success") {
         resolve();
@@ -263,15 +263,15 @@ function doConvert(srcType, srcRoot, destType, destRoot) {
  * @param {Array<string>} emailFiles - paths of source .eml files to copy.
  */
 async function populateMaildir(maildir, emailFiles) {
-  let cur = PathUtils.join(maildir, "cur");
+  const cur = PathUtils.join(maildir, "cur");
   await IOUtils.makeDirectory(cur);
   await IOUtils.makeDirectory(PathUtils.join(maildir, "tmp"));
 
   // Normally maildir files would have a name derived from their msg-id field,
   // but here we'll just use a timestamp-based one to save parsing them.
   let ident = Date.now();
-  for (let src of emailFiles) {
-    let dest = PathUtils.join(cur, ident.toString() + ".eml");
+  for (const src of emailFiles) {
+    const dest = PathUtils.join(cur, ident.toString() + ".eml");
     ident += 1;
     await IOUtils.copy(src, dest);
   }
@@ -284,10 +284,10 @@ async function populateMaildir(maildir, emailFiles) {
  * @returns {Array<String} full paths of the files.
  */
 async function listFiles(dirPath) {
-  let files = [];
+  const files = [];
   // Note: IOUtils has no dir iterator at time of writing.
   for (const path of await IOUtils.getChildren(dirPath)) {
-    let fileInfo = await IOUtils.stat(path);
+    const fileInfo = await IOUtils.stat(path);
     if (fileInfo.type !== "directory") {
       files.push(path);
     }
@@ -302,9 +302,11 @@ async function listFiles(dirPath) {
  * @returns {String} checksum of the file contents.
  */
 async function md5Sum(fileName) {
-  let md5 = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
+  const md5 = Cc["@mozilla.org/security/hash;1"].createInstance(
+    Ci.nsICryptoHash
+  );
   md5.init(Ci.nsICryptoHash.MD5);
-  let raw = await IOUtils.read(fileName);
+  const raw = await IOUtils.read(fileName);
   md5.update(raw, raw.byteLength);
   return md5.finish(true);
 }
@@ -318,12 +320,12 @@ async function md5Sum(fileName) {
  * @param {string} rootB - path to root of maildir store B.
  */
 async function recursiveMaildirCompare(rootA, rootB) {
-  let subdirs = [];
-  let maildirs = [];
-  let otherFiles = [];
-  for (let path of await IOUtils.getChildren(rootA)) {
-    let stat = await IOUtils.stat(path);
-    let name = PathUtils.filename(path);
+  const subdirs = [];
+  const maildirs = [];
+  const otherFiles = [];
+  for (const path of await IOUtils.getChildren(rootA)) {
+    const stat = await IOUtils.stat(path);
+    const name = PathUtils.filename(path);
     if (stat.type === "directory") {
       if (name.endsWith(".sbd")) {
         subdirs.push(name);
@@ -337,17 +339,17 @@ async function recursiveMaildirCompare(rootA, rootB) {
   }
 
   // Compare the maildirs we found here.
-  let md5DirContents = async function (dirPath) {
-    let checksums = [];
-    for (let f of await listFiles(dirPath)) {
+  const md5DirContents = async function (dirPath) {
+    const checksums = [];
+    for (const f of await listFiles(dirPath)) {
       checksums.push(await md5Sum(f));
     }
     return checksums;
   };
 
-  for (let name of maildirs) {
-    let checksumsA = await md5DirContents(PathUtils.join(rootA, name, "cur"));
-    let checksumsB = await md5DirContents(PathUtils.join(rootB, name, "cur"));
+  for (const name of maildirs) {
+    const checksumsA = await md5DirContents(PathUtils.join(rootA, name, "cur"));
+    const checksumsB = await md5DirContents(PathUtils.join(rootB, name, "cur"));
 
     checksumsA.sort();
     checksumsB.sort();
@@ -359,15 +361,17 @@ async function recursiveMaildirCompare(rootA, rootB) {
   }
 
   // Make sure any "special" files survived the trip intact.
-  for (let name of otherFiles) {
-    let checksumA = await md5Sum(PathUtils.join(rootA, name));
-    let pathB = PathUtils.join(rootB, name);
-    let checksumB = (await IOUtils.exists(pathB)) ? await md5Sum(pathB) : null;
+  for (const name of otherFiles) {
+    const checksumA = await md5Sum(PathUtils.join(rootA, name));
+    const pathB = PathUtils.join(rootB, name);
+    const checksumB = (await IOUtils.exists(pathB))
+      ? await md5Sum(pathB)
+      : null;
     Assert.equal(checksumA, checksumB, "roundtrip preserves " + name);
   }
 
   // Recurse down into .sbd dirs.
-  for (let name of subdirs) {
+  for (const name of subdirs) {
     await recursiveMaildirCompare(
       PathUtils.join(rootA, name),
       PathUtils.join(rootB, name)

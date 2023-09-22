@@ -45,7 +45,7 @@ add_task(function testAddRange() {
  */
 add_task(function testAdd() {
   // Init an empty set.
-  let keySet = new MsgKeySet();
+  const keySet = new MsgKeySet();
   ok(!keySet.has(1));
 
   // Add three values.
@@ -66,7 +66,7 @@ add_task(function testAdd() {
  */
 add_task(function testGetLastMissingRange() {
   // Init a set.
-  let keySet = new MsgKeySet("2-9,12-29");
+  const keySet = new MsgKeySet("2-9,12-29");
 
   // Test `start` should be a value not already in keySet.
   let [start, end] = keySet.getLastMissingRange(2, 33);

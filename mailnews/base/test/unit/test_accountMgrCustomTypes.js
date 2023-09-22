@@ -50,8 +50,8 @@ function run_test() {
 
   // Add a new account (so that we can check if this clobbers the existing
   // inactive account or its server).
-  let newAccount = MailServices.accounts.createAccount();
-  let newIdentity = MailServices.accounts.createIdentity();
+  const newAccount = MailServices.accounts.createAccount();
+  const newIdentity = MailServices.accounts.createIdentity();
   newAccount.addIdentity(newIdentity);
   newAccount.defaultIdentity = newIdentity;
   newAccount.incomingServer = MailServices.accounts.createIncomingServer(

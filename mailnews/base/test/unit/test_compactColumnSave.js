@@ -46,16 +46,16 @@ var columnJSON =
   '{"threadCol":{"visible":true,"ordinal":"1"},"flaggedCol":{"visible":true,"ordinal":"4"},"attachmentCol":{"visible":true,"ordinal":"5"},"subjectCol":{"visible":true,"ordinal":"7"},"unreadButtonColHeader":{"visible":true,"ordinal":"9"},"senderCol":{"visible":true,"ordinal":"11"},"recipientCol":{"visible":false,"ordinal":"13"},"junkStatusCol":{"visible":true,"ordinal":"15"},"receivedCol":{"visible":true,"ordinal":"17"},"dateCol":{"visible":true,"ordinal":"19"},"statusCol":{"visible":false,"ordinal":"21"},"sizeCol":{"visible":true,"ordinal":"23"},"tagsCol":{"visible":false,"ordinal":"25"},"accountCol":{"visible":false,"ordinal":"27"},"priorityCol":{"visible":false,"ordinal":"29"},"unreadCol":{"visible":false,"ordinal":"31"},"totalCol":{"visible":false,"ordinal":"33"},"locationCol":{"visible":false,"ordinal":"35"},"idCol":{"visible":false,"ordinal":"37"}}';
 
 function setColumnStates(folder) {
-  let msgDatabase = folder.msgDatabase;
-  let dbFolderInfo = msgDatabase.dBFolderInfo;
+  const msgDatabase = folder.msgDatabase;
+  const dbFolderInfo = msgDatabase.dBFolderInfo;
   dbFolderInfo.setCharProperty(PERSISTED_COLUMN_PROPERTY_NAME, columnJSON);
   msgDatabase.commit(Ci.nsMsgDBCommitType.kLargeCommit);
 }
 
 function checkPersistentState(folder) {
-  let msgDatabase = folder.msgDatabase;
-  let dbFolderInfo = msgDatabase.dBFolderInfo;
-  let state = dbFolderInfo.getCharProperty(PERSISTED_COLUMN_PROPERTY_NAME);
+  const msgDatabase = folder.msgDatabase;
+  const dbFolderInfo = msgDatabase.dBFolderInfo;
+  const state = dbFolderInfo.getCharProperty(PERSISTED_COLUMN_PROPERTY_NAME);
   Assert.equal(state, columnJSON);
   do_timeout(0, function () {
     doTest(++gCurTestNum);
@@ -68,7 +68,7 @@ var copyListener = {
   OnProgress(aProgress, aProgressMax) {},
   SetMessageKey(aKey) {
     try {
-      let hdr = gLocalFolder2.GetMessageHeader(aKey);
+      const hdr = gLocalFolder2.GetMessageHeader(aKey);
       gMsgHdrs.push({ hdr, ID: hdr.messageId });
     } catch (e) {
       dump("SetMessageKey failed: " + e + "\n");

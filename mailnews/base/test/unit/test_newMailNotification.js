@@ -14,15 +14,15 @@ var { MailServices } = ChromeUtils.import(
  * of listeners (and not the wrong ones) and doesn't show up after being removed
  */
 add_test(function testListeners() {
-  let notif = MailServices.newMailNotification.wrappedJSObject;
-  let listener = { onCountChanged: () => {} };
+  const notif = MailServices.newMailNotification.wrappedJSObject;
+  const listener = { onCountChanged: () => {} };
 
   notif.addListener(listener, Ci.mozINewMailNotificationService.count);
   let list = notif.listenersForFlag(Ci.mozINewMailNotificationService.count);
   Assert.equal(list.length, 1);
   Assert.equal(list[0], listener);
 
-  let newlist = notif.listenersForFlag(
+  const newlist = notif.listenersForFlag(
     Ci.mozINewMailNotificationService.messages
   );
   Assert.equal(newlist.length, 0);
@@ -39,9 +39,9 @@ add_test(function testListeners() {
  * remove one and make sure the other stays put
  */
 add_test(function testMultiListeners() {
-  let notif = MailServices.newMailNotification.wrappedJSObject;
-  let l1 = { onCountChanged: () => {} };
-  let l2 = { b: 2 };
+  const notif = MailServices.newMailNotification.wrappedJSObject;
+  const l1 = { onCountChanged: () => {} };
+  const l2 = { b: 2 };
 
   notif.addListener(
     l1,
@@ -75,13 +75,13 @@ add_test(function testMultiListeners() {
 add_test(function testNotifyInbox() {
   let notified = false;
   let count = 0;
-  let mockListener = {
+  const mockListener = {
     onCountChanged: function TNU_onCountChanged(updatedCount) {
       notified = true;
       count = updatedCount;
     },
   };
-  let folder = {
+  const folder = {
     URI: "Test Inbox",
     flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Inbox,
   };
@@ -134,7 +134,7 @@ add_test(function testNotifyInbox() {
   );
 
   // Verify that listeners are not notified of changes outside of the inbox.
-  let nonInbox = {
+  const nonInbox = {
     URI: "Test Non-Inbox",
     flags: Ci.nsMsgFolderFlags.Mail,
   };
@@ -178,7 +178,7 @@ add_test(function testNotifyInbox() {
   );
 
   // Verify that listeners are never informed of updates in special folders.
-  let special = {
+  const special = {
     URI: "Test Special",
     flags: Ci.nsMsgFolderFlags.Mail | Ci.nsMsgFolderFlags.Junk,
   };

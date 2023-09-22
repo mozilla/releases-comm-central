@@ -12,19 +12,19 @@ const { VirtualFolderHelper } = ChromeUtils.import(
 
 add_task(function () {
   MailServices.accounts.createLocalMailAccount();
-  let account = MailServices.accounts.accounts[0];
-  let rootFolder = account.incomingServer.rootFolder;
+  const account = MailServices.accounts.accounts[0];
+  const rootFolder = account.incomingServer.rootFolder;
 
   // Create some real folders to test.
   rootFolder.createSubfolder("test A", null);
-  let testFolderA = rootFolder.getChildNamed("test A");
+  const testFolderA = rootFolder.getChildNamed("test A");
   rootFolder.createSubfolder("test B", null);
-  let testFolderB = rootFolder.getChildNamed("test B");
+  const testFolderB = rootFolder.getChildNamed("test B");
   rootFolder.createSubfolder("test C", null);
-  let testFolderC = rootFolder.getChildNamed("test C");
+  const testFolderC = rootFolder.getChildNamed("test C");
 
   // Create a virtual folder with no search folders.
-  let wrappedFolderZ = VirtualFolderHelper.createNewVirtualFolder(
+  const wrappedFolderZ = VirtualFolderHelper.createNewVirtualFolder(
     "virtual Z",
     rootFolder,
     [],
@@ -39,7 +39,7 @@ add_task(function () {
   Assert.deepEqual(wrappedFolderZ.searchFolders, []);
 
   // Create a virtual folder with one search folder.
-  let wrappedFolderY = VirtualFolderHelper.createNewVirtualFolder(
+  const wrappedFolderY = VirtualFolderHelper.createNewVirtualFolder(
     "virtual Y",
     rootFolder,
     [testFolderA],
@@ -54,7 +54,7 @@ add_task(function () {
   Assert.deepEqual(wrappedFolderY.searchFolders, [testFolderA]);
 
   // Create a virtual folder with two search folders.
-  let wrappedFolderX = VirtualFolderHelper.createNewVirtualFolder(
+  const wrappedFolderX = VirtualFolderHelper.createNewVirtualFolder(
     "virtual X",
     rootFolder,
     [testFolderB, testFolderC],
@@ -73,7 +73,7 @@ add_task(function () {
 
   // Add a subfolder to real folder B. Check it is added to virtual folder X.
   testFolderB.createSubfolder("test BB", null);
-  let testFolderBB = testFolderB.getChildNamed("test BB");
+  const testFolderBB = testFolderB.getChildNamed("test BB");
   Assert.equal(
     wrappedFolderZ.searchFolderURIs,
     "",
@@ -106,7 +106,7 @@ add_task(function () {
 
   // Add a subfolder to real folder BB. Check it is added to virtual folder X.
   testFolderBB.createSubfolder("test BBB", null);
-  let testFolderBBB = testFolderBB.getChildNamed("test BBB");
+  const testFolderBBB = testFolderBB.getChildNamed("test BBB");
   Assert.equal(
     wrappedFolderZ.searchFolderURIs,
     "",

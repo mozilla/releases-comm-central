@@ -8,7 +8,7 @@ function subtestUID(type) {
 
   // Create a server and check it the UID is set when accessed.
 
-  let serverA = MailServices.accounts.createIncomingServer(
+  const serverA = MailServices.accounts.createIncomingServer(
     "userA",
     "hostA",
     type
@@ -31,7 +31,7 @@ function subtestUID(type) {
 
   // Create a second server and check the two UIDs don't match.
 
-  let serverB = MailServices.accounts.createIncomingServer(
+  const serverB = MailServices.accounts.createIncomingServer(
     "userB",
     "hostB",
     type
@@ -54,7 +54,7 @@ function subtestUID(type) {
 
   // Create a third server and set the UID before it is accessed.
 
-  let serverC = MailServices.accounts.createIncomingServer(
+  const serverC = MailServices.accounts.createIncomingServer(
     "userC",
     "hostC",
     type

@@ -171,7 +171,7 @@ function test_IPaddresses() {
     [false, "0324.06247710677", false, false, true],
   ];
 
-  for (let item of kIPsToTest) {
+  for (const item of kIPsToTest) {
     let result = null;
     let [isValid, address, isIPv6, isLocal, isExtended, wantedResult] = item;
     if (!wantedResult) {
@@ -254,7 +254,7 @@ function test_hostnames() {
     ],
   ];
 
-  for (let item of kHostsToTest) {
+  for (const item of kHostsToTest) {
     let result = null;
     let [wantedResult, hostname] = item;
     wantedResult = wantedResult ? hostname : null;
@@ -270,7 +270,7 @@ function test_hostnames() {
 var gTests = [test_IPaddresses, test_hostnames];
 
 function run_test() {
-  for (let test of gTests) {
+  for (const test of gTests) {
     test();
   }
 }

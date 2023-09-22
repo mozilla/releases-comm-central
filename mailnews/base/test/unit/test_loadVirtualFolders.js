@@ -18,11 +18,11 @@ Services.prefs.setCharPref(
 // main test
 
 function run_test() {
-  let vfdat = do_get_file("../../../data/test_virtualFolders.dat");
+  const vfdat = do_get_file("../../../data/test_virtualFolders.dat");
 
   vfdat.copyTo(do_get_profile(), "virtualFolders.dat");
   localAccountUtils.loadLocalMailAccount();
-  let localMailDir = do_get_profile().clone();
+  const localMailDir = do_get_profile().clone();
   localMailDir.append("Mail");
   localMailDir.append("Local Folders");
   localMailDir.append("unread-local");
@@ -33,7 +33,7 @@ function run_test() {
   localMailDir.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
 
   MailServices.accounts.loadVirtualFolders();
-  let unreadLocal =
+  const unreadLocal =
     localAccountUtils.incomingServer.rootMsgFolder.getChildNamed(
       "unread-local"
     );
@@ -43,7 +43,7 @@ function run_test() {
     searchScope,
     "mailbox://nobody@Local%20Folders/Inbox|mailbox://nobody@Local%20Folders/Trash"
   );
-  let invalidServer =
+  const invalidServer =
     localAccountUtils.incomingServer.rootMsgFolder.getChildNamed(
       "invalidserver-local"
     );
@@ -51,7 +51,7 @@ function run_test() {
     invalidServer.msgDatabase.dBFolderInfo.getCharProperty("searchFolderUri");
   Assert.equal(searchScope, "mailbox://nobody@Local%20Folders/Inbox");
 
-  let tagsFolder =
+  const tagsFolder =
     localAccountUtils.incomingServer.rootMsgFolder.getChildNamed("$label1");
   Assert.equal(
     tagsFolder.msgDatabase.dBFolderInfo.getCharProperty("searchFolderUri"),

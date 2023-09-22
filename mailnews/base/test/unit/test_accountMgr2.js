@@ -11,28 +11,28 @@ var { MailServices } = ChromeUtils.import(
 
 add_task(async function () {
   // Create a couple of test accounts.
-  let acc1 = MailServices.accounts.createAccount();
+  const acc1 = MailServices.accounts.createAccount();
   acc1.incomingServer = MailServices.accounts.createIncomingServer(
     "bob_imap",
     "imap.example.com",
     "imap"
   );
-  let id1 = MailServices.accounts.createIdentity();
+  const id1 = MailServices.accounts.createIdentity();
   id1.email = "bob_imap@example.com";
   acc1.addIdentity(id1);
 
-  let acc2 = MailServices.accounts.createAccount();
+  const acc2 = MailServices.accounts.createAccount();
   acc2.incomingServer = MailServices.accounts.createIncomingServer(
     "bob_pop3",
     "pop3.EXAMPLE.com.",
     "pop3"
   );
-  let id2 = MailServices.accounts.createIdentity();
+  const id2 = MailServices.accounts.createIdentity();
   id2.email = "bob_pop3@example.com";
   acc2.addIdentity(id2);
 
   // Add an identity shared by both accounts.
-  let id3 = MailServices.accounts.createIdentity();
+  const id3 = MailServices.accounts.createIdentity();
   id3.email = "bob_common@example.com";
   acc1.addIdentity(id3);
   acc2.addIdentity(id3);
@@ -86,13 +86,13 @@ add_task(async function () {
   Assert.equal(MailServices.accounts.allIdentities.length, 2);
 
   // Test a special hostname.
-  let acc3 = MailServices.accounts.createAccount();
+  const acc3 = MailServices.accounts.createAccount();
   acc3.incomingServer = MailServices.accounts.createIncomingServer(
     "bob_unavail",
     "0.0.0.0.", // Note ending dot which would not do anything for an IP.
     "pop3"
   );
-  let id4 = MailServices.accounts.createIdentity();
+  const id4 = MailServices.accounts.createIdentity();
   id4.email = "bob_unavail@example.com";
   acc3.addIdentity(id4);
 

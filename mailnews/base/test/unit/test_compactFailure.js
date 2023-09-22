@@ -64,18 +64,18 @@ var MsgDBServiceFailure = {
 };
 
 function generate_messages() {
-  let messageGenerator = new MessageGenerator();
-  let scenarioFactory = new MessageScenarioFactory(messageGenerator);
+  const messageGenerator = new MessageGenerator();
+  const scenarioFactory = new MessageScenarioFactory(messageGenerator);
   let messages = [];
   messages = messages.concat(scenarioFactory.directReply(10));
   return messages;
 }
 
 async function compact_with_exception(expectedException) {
-  let compactor = Cc["@mozilla.org/messenger/foldercompactor;1"].createInstance(
-    Ci.nsIMsgFolderCompactor
-  );
-  let listener = new PromiseTestUtils.PromiseUrlListener();
+  const compactor = Cc[
+    "@mozilla.org/messenger/foldercompactor;1"
+  ].createInstance(Ci.nsIMsgFolderCompactor);
+  const listener = new PromiseTestUtils.PromiseUrlListener();
   compactor.compactFolders([gTargetFolder], listener, null);
   try {
     await listener.promise;
@@ -88,13 +88,13 @@ async function compact_with_exception(expectedException) {
 }
 
 function create_local_folders() {
-  let rootFolder = localAccountUtils.rootFolder;
-  let localTrashFolder = rootFolder.getChildNamed("Trash");
+  const rootFolder = localAccountUtils.rootFolder;
+  const localTrashFolder = rootFolder.getChildNamed("Trash");
   localTrashFolder.setFlag(Ci.nsMsgFolderFlags.Trash);
 }
 
 async function delete_all_messages() {
-  let promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
+  const promiseCopyListener = new PromiseTestUtils.PromiseCopyListener();
   gTargetFolder.deleteMessages(
     [...gTargetFolder.messages],
     null,

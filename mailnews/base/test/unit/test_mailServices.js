@@ -41,7 +41,7 @@ add_task(function test_services() {
 
 add_task(function test_message_services() {
   function check_message_service(uri) {
-    let service = MailServices.messageServiceFromURI(uri);
+    const service = MailServices.messageServiceFromURI(uri);
     Assert.ok(
       service instanceof Ci.nsIMsgMessageService,
       `message service for ${uri.substring(
