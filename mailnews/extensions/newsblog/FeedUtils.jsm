@@ -939,6 +939,13 @@ var FeedUtils = {
             reject(new Error(`Invalid blob encountered.`));
             return;
           }
+          if (
+            blob.type == "image/svg+xml" &&
+            reader.result.length > Ci.nsIFaviconService.MAX_FAVICON_BUFFER_SIZE
+          ) {
+            reject(new Error(`Too large svg icon: ${reader.result.length} B`));
+            return;
+          }
           resolve(reader.result);
         };
         reader.readAsDataURL(blob);
