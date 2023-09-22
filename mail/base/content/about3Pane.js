@@ -996,21 +996,33 @@ var folderPane = {
       },
 
       initServer(server) {
-        // Find all folders in this server that aren't currently displayed.
-        let remainingFolders = server.rootFolder.descendants.filter(
-          folder => !folderPane.getRowForFolder(folder, "smart")
+        // Find all folders in this server, and display the ones that aren't
+        // currently displayed.
+        let descendants = new Map(
+          server.rootFolder.descendants.map(d => [d.URI, d])
         );
+        if (!descendants.size) {
+          return;
+        }
+        let remainingFolderURIs = Array.from(descendants.keys());
 
-        while (remainingFolders.length) {
-          let folder = remainingFolders.shift();
+        // Get a list of folders that already exist in the folder tree.
+        let existingRows = this.containerList.getElementsByTagName("li");
+        let existingURIs = Array.from(existingRows, li => li.uri);
+        do {
+          let folderURI = remainingFolderURIs.shift();
+          if (existingURIs.includes(folderURI)) {
+            continue;
+          }
+          let folder = descendants.get(folderURI);
           if (folderPane._isGmailFolder(folder)) {
             continue;
           }
           this.addFolder(folderPane._getNonGmailParent(folder), folder);
-          remainingFolders = remainingFolders.filter(
-            folder => !folderPane.getRowForFolder(folder, "smart")
-          );
-        }
+          // Update the list of existing folders. `existingRows` is a live
+          // list, so we don't need to call `getElementsByTagName` again.
+          existingURIs = Array.from(existingRows, li => li.uri);
+        } while (remainingFolderURIs.length);
       },
 
       addFolder(parentFolder, childFolder) {
@@ -2228,10 +2240,21 @@ var folderPane = {
     if (folderOrURI instanceof Ci.nsIMsgFolder) {
       folderOrURI = folderOrURI.URI;
     }
-    let container = modeName ? this._modes[modeName].container : folderTree;
-    return [...container.querySelectorAll("li")].find(
-      row => row.uri == folderOrURI
-    );
+
+    let modeNames = modeName ? [modeName] : this.activeModes;
+    for (let name of modeNames) {
+      let id = FolderTreeRow.makeRowID(name, folderOrURI);
+      // Look in the mode's container. The container may or may not be
+      // attached to the document at this point.
+      let row = this._modes[name].containerList.querySelector(
+        `#${CSS.escape(id)}`
+      );
+      if (row) {
+        return row;
+      }
+    }
+
+    return null;
   },
 
   /**
@@ -3616,6 +3639,17 @@ class FolderTreeRow extends HTMLLIElement {
   static nameCollator = new Intl.Collator(undefined, { sensitivity: "base" });
 
   /**
+   * Creates an identifier unique for the given mode name and folder URI.
+   *
+   * @param {string} modeName
+   * @param {string} uri
+   * @returns {string}
+   */
+  static makeRowID(modeName, uri) {
+    return `${modeName}-${btoa(MailStringUtils.stringToByteString(uri))}`;
+  }
+
+  /**
    * The name of the folder tree mode this row belongs to.
    * @type {string}
    */
@@ -3797,9 +3831,7 @@ class FolderTreeRow extends HTMLLIElement {
    * @param {string} uri
    */
   _setURI(uri) {
-    this.id = `${this.modeName}-${btoa(
-      MailStringUtils.stringToByteString(uri)
-    )}`;
+    this.id = FolderTreeRow.makeRowID(this.modeName, uri);
     this.uri = uri;
     if (!FolderTreeProperties.getIsExpanded(uri, this.modeName)) {
       this.classList.add("collapsed");
