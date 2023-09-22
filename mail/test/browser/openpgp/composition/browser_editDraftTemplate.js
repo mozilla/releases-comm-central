@@ -81,7 +81,7 @@ add_setup(async function () {
     window,
     new FileUtils.File(
       getTestFilePath(
-        "data/keys/alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
+        "../data/keys/alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
       )
     )
   );
@@ -137,10 +137,11 @@ async function doTestSecState(isDraft, secure) {
   let cwc = open_compose_new_mail();
   let type = isDraft ? "draft" : "template";
   let theFolder = isDraft ? draftsFolder : templatesFolder;
+  let subject = `test ${type}; 🤐; secure=${secure}`;
   setup_msg_contents(
     cwc,
     "test@example.invalid",
-    `test ${type}; secure=${secure}`,
+    subject,
     `This is a ${type}; secure=${secure}`
   );
   info(`Testing ${type}; secure=${secure}`);
@@ -185,19 +186,31 @@ async function doTestSecState(isDraft, secure) {
     );
   }
 
-  // The double click on col 4 (the subject) should bring up compose window
-  // for editing this draft.
-
   let draftWindow = await draftWindowPromise;
+
+  Assert.equal(
+    draftWindow.document.getElementById("msgSubject").value,
+    subject,
+    "subject should be decrypted"
+  );
 
   info(`Checking security props in the UI...`);
 
-  // @see setEncSigStatusUI()
   if (!secure) {
     // Wait some to make sure it won't (soon) be showing.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
     await new Promise(resolve => setTimeout(resolve, 100));
+    Assert.ok(
+      !draftWindow.document.getElementById("button-encryption").checked,
+      "should not use encryption"
+    );
+  } else {
+    await TestUtils.waitForCondition(
+      () => draftWindow.document.getElementById("button-encryption").checked,
+      "waited for encryption to get turned on"
+    );
   }
+
   draftWindow.close();
   clearFolder(theFolder);
 }

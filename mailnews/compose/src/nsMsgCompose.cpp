@@ -1596,9 +1596,22 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
       reference.Append(messageId);
       reference.Append('>');
       m_compFields->SetReferences(reference.get());
+
+      if (type == nsIMsgCompType::ForwardInline) {
+        nsString subject;
+        msgHdr->GetMime2DecodedSubject(subject);
+        nsCString fwdPrefix;
+        prefs->GetCharPrefWithDefault("mail.forward_subject_prefix", "Fwd"_ns,
+                                      1, fwdPrefix);
+        nsString unicodeFwdPrefix;
+        CopyUTF8toUTF16(fwdPrefix, unicodeFwdPrefix);
+        unicodeFwdPrefix.AppendLiteral(": ");
+        subject.Insert(unicodeFwdPrefix, 0);
+        m_compFields->SetSubject(subject);
+      }
     }
 
-    // Early return for "Forward inline" and "Reply with template" processing.
+    // Early return for "ForwardInline" and "ReplyWithTemplate" processing.
     return NS_OK;
   }
 
@@ -1637,7 +1650,6 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
       NS_ENSURE_SUCCESS(rv, rv);
     }
     if (msgHdr) {
-      nsCString decodedCString;
       nsString subject;
       rv = msgHdr->GetMime2DecodedSubject(subject);
       if (NS_FAILED(rv)) return rv;
@@ -1690,6 +1702,20 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
       switch (type) {
         default:
           break;
+        case nsIMsgCompType::Draft:
+        case nsIMsgCompType::Template:
+        case nsIMsgCompType::EditTemplate:
+        case nsIMsgCompType::EditAsNew: {
+          uint32_t flags;
+          msgHdr->GetFlags(&flags);
+          if (flags & nsMsgMessageFlags::HasRe) {
+            subject.InsertLiteral(u"Re: ", 0);
+          }
+          // Set subject from db, where it's already decrypted. The raw
+          // header may be encrypted.
+          m_compFields->SetSubject(subject);
+          break;
+        }
         case nsIMsgCompType::Reply:
         case nsIMsgCompType::ReplyAll:
         case nsIMsgCompType::ReplyToList:
@@ -1730,7 +1756,6 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
           }
 
           uint32_t flags;
-
           msgHdr->GetFlags(&flags);
           if (flags & nsMsgMessageFlags::HasRe)
             subject.InsertLiteral(u"Re: ", 0);
@@ -1777,15 +1802,12 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
 
           if (isFirstPass) {
             nsCString fwdPrefix;
-            prefs->GetCharPref("mail.forward_subject_prefix", fwdPrefix);
-            if (!fwdPrefix.IsEmpty()) {
-              nsString unicodeFwdPrefix;
-              CopyUTF8toUTF16(fwdPrefix, unicodeFwdPrefix);
-              unicodeFwdPrefix.AppendLiteral(": ");
-              subject.Insert(unicodeFwdPrefix, 0);
-            } else {
-              subject.InsertLiteral(u"Fwd: ", 0);
-            }
+            prefs->GetCharPrefWithDefault("mail.forward_subject_prefix",
+                                          "Fwd"_ns, 1, fwdPrefix);
+            nsString unicodeFwdPrefix;
+            CopyUTF8toUTF16(fwdPrefix, unicodeFwdPrefix);
+            unicodeFwdPrefix.AppendLiteral(": ");
+            subject.Insert(unicodeFwdPrefix, 0);
             m_compFields->SetSubject(subject);
           }
           break;
@@ -1795,6 +1817,7 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
           // original From: header...
           nsAutoCString author;
           msgHdr->GetAuthor(getter_Copies(author));
+          m_compFields->SetSubject(subject);
           m_compFields->SetReplyTo(author.get());
 
           // ... and empty out the various recipient headers
