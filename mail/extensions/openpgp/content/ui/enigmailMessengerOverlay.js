@@ -798,7 +798,6 @@ Enigmail.msg = {
   async buggyMailHeader() {
     let uri = this.getCurrentMsgUrl();
     Enigmail.hdrView.headerPane.updateSecurityStatus(
-      "",
       0,
       0,
       0,

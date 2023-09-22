@@ -179,9 +179,12 @@ static void* MimePgpe_init(MimeObject* obj,
   mime_stream_data* msd =
       (mime_stream_data*)(data->self->options->stream_closure);
   nsIChannel* channel = msd->channel;
-
   nsCOMPtr<nsIURI> uri;
-  if (channel) channel->GetURI(getter_AddRefs(uri));
+  nsCOMPtr<nsIMailChannel> mailChannel;
+  if (channel) {
+    channel->GetURI(getter_AddRefs(uri));
+    mailChannel = do_QueryInterface(channel);
+  }
 
   if (!uri && obj && obj->options && obj->options->url) {
     // Allow the PGP mime decrypt code to know what message we're
@@ -191,8 +194,8 @@ static void* MimePgpe_init(MimeObject* obj,
   }
 
   // Initialise proxy object with MIME's output function, object and URI.
-  if (NS_FAILED(
-          data->mimeDecrypt->SetMimeCallback(output_fn, output_closure, uri)))
+  if (NS_FAILED(data->mimeDecrypt->SetMimeCallback(output_fn, output_closure,
+                                                   uri, mailChannel)))
     return nullptr;
 
   return data;
@@ -289,13 +292,15 @@ nsresult nsPgpMimeProxy::Finalize() { return NS_OK; }
 
 NS_IMETHODIMP
 nsPgpMimeProxy::SetMimeCallback(MimeDecodeCallbackFun outputFun,
-                                void* outputClosure, nsIURI* myUri) {
+                                void* outputClosure, nsIURI* myUri,
+                                nsIMailChannel* mailChannel) {
   if (!outputFun || !outputClosure) return NS_ERROR_NULL_POINTER;
 
   mOutputFun = outputFun;
   mOutputClosure = outputClosure;
   mInitialized = true;
   mMessageURI = myUri;
+  mMailChannel = mailChannel;
 
   mStreamOffset = 0;
   mByteBuf.Truncate();
@@ -461,6 +466,12 @@ nsPgpMimeProxy::OutputDecryptedData(const char* buf, uint32_t buf_size) {
     return NS_ERROR_FAILURE;
   }
 
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsPgpMimeProxy::GetMailChannel(nsIMailChannel** aMailChannel) {
+  NS_IF_ADDREF(*aMailChannel = mMailChannel);
   return NS_OK;
 }
 

@@ -52,7 +52,6 @@ function MimeVerify(protocol) {
 
 var EnigmailVerify = {
   _initialized: false,
-  lastWindow: null,
   lastMsgUri: null,
   manualMsgUri: null,
 
@@ -73,10 +72,8 @@ var EnigmailVerify = {
     }
   },
 
-  setWindow(window, msgUriSpec) {
-    LOCAL_DEBUG("mimeVerify.jsm: setWindow: " + msgUriSpec + "\n");
-
-    this.lastWindow = window;
+  setLastMsgUri(msgUriSpec) {
+    LOCAL_DEBUG("mimeVerify.jsm: setLastMsgUri: " + msgUriSpec + "\n");
     this.lastMsgUri = msgUriSpec;
   },
 
@@ -463,10 +460,10 @@ MimeVerify.prototype = {
     return false;
   },
 
-  onStopRequest() {
+  onStopRequest(request) {
     lazy.EnigmailLog.DEBUG("mimeVerify.jsm: onStopRequest\n");
 
-    this.window = EnigmailVerify.lastWindow;
+    let mimeSvc = request.QueryInterface(Ci.nsIPgpMimeProxy);
     this.msgUriSpec = EnigmailVerify.lastMsgUri;
 
     this.backgroundJob = false;
@@ -581,17 +578,32 @@ MimeVerify.prototype = {
     }
 
     if (this.protocol === PGPMIME_PROTO) {
-      let win = this.window;
-
       if (!lazy.EnigmailDecryption.isReady()) {
         return;
       }
 
-      let options = {
-        fromAddr: lazy.EnigmailDecryption.getFromAddr(win),
-        mimeSignatureData: this.sigData,
-        msgDate: lazy.EnigmailDecryption.getMsgDate(win),
-      };
+      let options = { mimeSignatureData: this.sigData };
+      if (mimeSvc.mailChannel) {
+        const { headerNames, headerValues } = mimeSvc.mailChannel;
+        let gotFromAddr, gotMsgDate;
+        for (let i = 0; i < headerNames.length; i++) {
+          if (!gotFromAddr && headerNames[i] == "From") {
+            let fromAddr = lazy.EnigmailFuncs.stripEmail(headerValues[i]);
+            // Ignore address if domain contains a comment (in brackets).
+            if (!fromAddr.match(/[a-zA-Z0-9]@.*[\(\)]/)) {
+              options.fromAddr = fromAddr;
+            }
+            gotFromAddr = true;
+          } else if (!gotMsgDate && headerNames[i] == "Date") {
+            options.msgDate = new Date(headerValues[i]);
+            gotMsgDate = true;
+          }
+          if (gotFromAddr && gotMsgDate) {
+            break;
+          }
+        }
+      }
+
       const cApi = lazy.EnigmailCryptoAPI();
 
       // ensure all lines end with CRLF as specified in RFC 3156, section 5
@@ -659,31 +671,24 @@ MimeVerify.prototype = {
 
   displayStatus() {
     lazy.EnigmailLog.DEBUG("mimeVerify.jsm: displayStatus\n");
-    if (
-      this.exitCode === null ||
-      this.window === null ||
-      this.statusDisplayed ||
-      this.backgroundJob
-    ) {
+    if (this.exitCode === null || this.statusDisplayed || this.backgroundJob) {
       return;
     }
 
     try {
       LOCAL_DEBUG("mimeVerify.jsm: displayStatus displaying result\n");
       let headerSink = lazy.EnigmailSingletons.messageReader;
-
-      if (this.protectedHeaders) {
-        headerSink.processDecryptionResult(
-          this.uri,
-          "modifyMessageHeaders",
-          JSON.stringify(this.protectedHeaders.newHeaders),
-          this.mimePartNumber
-        );
-      }
-
       if (headerSink) {
+        if (this.protectedHeaders) {
+          headerSink.processDecryptionResult(
+            this.uri,
+            "modifyMessageHeaders",
+            JSON.stringify(this.protectedHeaders.newHeaders),
+            this.mimePartNumber
+          );
+        }
+
         headerSink.updateSecurityStatus(
-          this.lastMsgUri,
           this.exitCode,
           this.returnStatus.statusFlags,
           this.returnStatus.extStatusFlags,

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsIMailChannel.idl"
 #include "nsIStreamListener.idl"
 #include "nsIURI.idl"
 
@@ -31,7 +32,8 @@ interface nsIPgpMimeProxy : nsIStreamListener
    */
   [noscript] void setMimeCallback(in MimeDecodeCallbackFun outputFun,
                                   in voidPtr outputClosure,
-                                  in nsIURI myUri);
+                                  in nsIURI myUri,
+                                  in nsIMailChannel mailChannel);
 
   [noscript] void removeMimeCallback();
 
@@ -84,6 +86,8 @@ interface nsIPgpMimeProxy : nsIStreamListener
    * Pass the decrypted data back from the decryptor and onto to libMime.
    */
   void outputDecryptedData(in string buf, in unsigned long count);
+
+  readonly attribute nsIMailChannel mailChannel;
 };
 
 

@@ -90,7 +90,6 @@ PgpWkdHandler.prototype = {
       this.mimePartNumber = "";
     }
     this.data = "";
-    this.msgWindow = lazy.EnigmailVerify.lastWindow;
     this.backgroundJob = false;
 
     if (this.uri) {
@@ -217,7 +216,7 @@ PgpWkdHandler.prototype = {
 
   displayStatus(jsonStr) {
     lazy.EnigmailLog.DEBUG("wksMimeHandler.jsm: displayStatus\n");
-    if (this.msgWindow === null || this.backgroundJob) {
+    if (this.backgroundJob) {
       return;
     }
 

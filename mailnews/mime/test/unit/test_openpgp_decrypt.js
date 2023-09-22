@@ -65,7 +65,6 @@ const headerSink = {
   },
   processDecryptionResult() {},
   updateSecurityStatus(
-    unusedUriSpec,
     exitCode,
     statusFlags,
     extStatusFlags,
@@ -321,10 +320,6 @@ add_task(async function testMimeDecryptOpenPGPMessages() {
     let hdr = mailTestUtils.getMsgHdrN(gInbox, hdrIndex);
     let uri = hdr.folder.getUriForMsg(hdr);
     let sinkPromise = headerSink.expectResults(expectedResultCount);
-
-    // Set the message window so displayStatus() invokes the hooks we are
-    // interested in.
-    EnigmailVerify.lastWindow = {};
 
     // Stub this function so verifyDetached() can get the correct email.
     EnigmailDecryption.getFromAddr = () => test.from;

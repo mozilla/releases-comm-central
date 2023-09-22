@@ -198,10 +198,7 @@ PgpMimeHandler.prototype = {
           lastUriSpec = u.spec;
         }
         // S/MIME signed message
-        if (
-          lastUriSpec !== gLastEncryptedUri &&
-          lazy.EnigmailVerify.lastWindow
-        ) {
+        if (lastUriSpec !== gLastEncryptedUri) {
           // if message is displayed then handle like S/MIME message
           return this.handleSmime(uri);
         }

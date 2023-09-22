@@ -537,7 +537,7 @@ Enigmail.hdrView = {
 
         try {
           Enigmail.hdrView.statusBarHide();
-          EnigmailVerify.setWindow(window, Enigmail.msg.getCurrentMsgUriSpec());
+          EnigmailVerify.setLastMsgUri(Enigmail.msg.getCurrentMsgUriSpec());
 
           let msgFrame = document.getElementById("messagepane").contentDocument;
 
@@ -573,7 +573,7 @@ Enigmail.hdrView = {
         );
 
         try {
-          EnigmailVerify.setWindow(null, null);
+          EnigmailVerify.setLastMsgUri(null);
         } catch (ex) {}
 
         Enigmail.hdrView.messageLoad();
@@ -958,7 +958,6 @@ Enigmail.hdrView = {
     },
 
     async updateSecurityStatus(
-      unusedUriSpec,
       exitCode,
       statusFlags,
       extStatusFlags,
