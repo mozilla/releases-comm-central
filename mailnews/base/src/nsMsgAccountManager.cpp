@@ -1877,6 +1877,16 @@ nsresult nsMsgAccountManager::findServerInternal(
     rv = server->GetHostName(thisHostname);
     if (NS_FAILED(rv)) continue;
 
+    // If the hostname was a IP with trailing dot, that dot gets removed
+    // during URI mutation. We may well be here in findServerInternal to
+    // find a server from a folder URI. Remove the trailing dot so we can
+    // find the server.
+    nsCString thisHostnameNoDot(thisHostname);
+    if (!thisHostname.IsEmpty() &&
+        thisHostname.CharAt(thisHostname.Length() - 1) == '.') {
+      thisHostnameNoDot.Cut(thisHostname.Length() - 1, 1);
+    }
+
     nsCString thisUsername;
     rv = server->GetUsername(thisUsername);
     if (NS_FAILED(rv)) continue;
@@ -1898,7 +1908,9 @@ nsresult nsMsgAccountManager::findServerInternal(
     // attribute treat it as a match
     if ((type.IsEmpty() || thisType.Equals(type)) &&
         (hostname.IsEmpty() ||
-         thisHostname.Equals(hostname, nsCaseInsensitiveCStringComparator)) &&
+         thisHostname.Equals(hostname, nsCaseInsensitiveCStringComparator) ||
+         thisHostnameNoDot.Equals(hostname,
+                                  nsCaseInsensitiveCStringComparator)) &&
         (!(port != 0) || (port == thisPort)) &&
         (username.IsEmpty() || thisUsername.Equals(username))) {
       // stop on first find; cache for next time
