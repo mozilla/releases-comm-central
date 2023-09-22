@@ -297,6 +297,10 @@ class ImapChannel extends MailChannel {
         try {
           this.loadGroup?.removeRequest(this, null, status);
         } catch (e) {}
+        if (status != Cr.NS_OK) {
+          // Remove the invalid cache.
+          this._cacheEntry?.asyncDoom(null);
+        }
         this._listener.onStopRequest(this, status);
       };
       this._pending = false;
