@@ -979,14 +979,18 @@ var FeedUtils = {
         "text/html"
       );
       let iconLink = doc.querySelector(
-        `link[rel~='icon']:is([sizes~='any'],[sizes~='16x16' i],[sizes~='32x32' i],:not([sizes])`
+        `link[href][rel~='icon']:is([sizes~='any'],[sizes~='16x16' i],[sizes~='32x32' i],:not([sizes])`
       );
       if (!iconLink) {
         throw new Error(`No iconLink discovered for page=${page}`);
       }
-      return /^https?:/.test(iconLink.href)
-        ? iconLink.href
-        : new URL(page).origin + iconLink.href;
+      if (/^https?:/.test(iconLink.href)) {
+        return iconLink.href;
+      }
+      if (iconLink.href.at(0) != "/") {
+        iconLink.href = "/" + iconLink.href;
+      }
+      return new URL(page).origin + iconLink.href;
     };
 
     let uri = Services.io.newURI(url);
