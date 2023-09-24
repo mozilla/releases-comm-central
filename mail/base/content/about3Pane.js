@@ -5589,7 +5589,10 @@ var threadPane = {
    * @param {boolean} isListbox - If the list should have a listbox role.
    */
   updateListRole(isListbox) {
-    threadTree.table.body.setAttribute("role", isListbox ? "listbox" : "tree");
+    threadTree.table.body.setAttribute(
+      "role",
+      isListbox ? "listbox" : "treegrid"
+    );
     if (isListbox) {
       threadTree.table.header.classList.remove("threaded");
     } else {

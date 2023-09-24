@@ -103,13 +103,13 @@ add_task(async function testSwitchToCardsView() {
 
   Assert.equal(
     threadTree.table.body.getAttribute("role"),
-    "tree",
-    "The message list table should be presented as Tree View"
+    "treegrid",
+    "The message list table should be presented as Tree Grid View"
   );
   Assert.equal(
     threadTree.getRowAtIndex(0).getAttribute("role"),
-    "treeitem",
-    "The message row should be presented as Tree Item"
+    "row",
+    "The message row should be presented as Row Item"
   );
 
   displayContext = about3Pane.document.getElementById(
@@ -145,13 +145,13 @@ add_task(async function testSwitchToCardsView() {
   );
   Assert.equal(
     threadTree.table.body.getAttribute("role"),
-    "tree",
-    "The message list table should remain as Tree View"
+    "treegrid",
+    "The message list table should remain as Tree Grid View"
   );
   Assert.equal(
     threadTree.getRowAtIndex(0).getAttribute("role"),
-    "treeitem",
-    "The message row should remain as Tree Item"
+    "row",
+    "The message row should remain as Row Item"
   );
 
   let row = threadTree.getRowAtIndex(0);

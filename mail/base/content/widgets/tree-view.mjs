@@ -375,7 +375,15 @@ class TreeView extends HTMLElement {
         break;
       }
       case "keydown": {
-        if (event.altKey || event[otherKeyName]) {
+        // Row and cell navigation on Windows. Supports JAWS and NVDA.
+        // Row and cell navigation on Linux. Supports Orca.
+        // TODO: Add navigation for macOS.
+        // macOS VoiceOver uses the Caps Lock key or both Control + Option.
+        const isA11yCellNavigation =
+          (AppConstants.platform == "win" && event.altKey && event.ctrlKey) ||
+          (AppConstants.platform == "linux" && event.altKey && event.shiftKey);
+
+        if (event[otherKeyName]) {
           return;
         }
 
@@ -383,14 +391,20 @@ class TreeView extends HTMLElement {
         let newIndex;
         switch (event.key) {
           case "ArrowUp":
+            this.removeCurrentCellClass();
             newIndex = currentIndex - 1;
             break;
           case "ArrowDown":
+            this.removeCurrentCellClass();
             newIndex = currentIndex + 1;
             break;
           case "ArrowLeft":
           case "ArrowRight": {
             event.preventDefault();
+            if (isA11yCellNavigation) {
+              this.navigateRowCells(event);
+              return;
+            }
             if (this.currentIndex == -1) {
               return;
             }
@@ -536,6 +550,85 @@ class TreeView extends HTMLElement {
     this.invalidate();
 
     this.dispatchEvent(new CustomEvent("viewchange"));
+  }
+
+  /**
+   * Using a keyboard, navigate cells in a row left or right.
+   * @param {KeyboardEvent} event
+   */
+  navigateRowCells(event) {
+    const row = this.querySelector("tr.current");
+
+    // If direction is rtl, nextKey is "ArrowLeft" and prevKey is "ArrowRight".
+    // If direction if ltr, nextKey is "ArrowRight" and prevKey is "ArrowLeft".
+    const nextKey = document.dir === "rtl" ? "ArrowLeft" : "ArrowRight";
+
+    // Find the next visible cell if there is already a current cell.
+    const currentCell = row.querySelector("td.current-cell");
+    if (currentCell) {
+      const cell = this.adjacentVisibleSiblingCell(event, currentCell, nextKey);
+      if (!cell) {
+        return;
+      }
+      currentCell.classList.remove("current-cell");
+      cell.classList.add("current-cell");
+      cell.focus();
+      this.table.body.setAttribute("aria-activedescendant", cell.id);
+      return;
+    }
+
+    // Add IDs to columns.
+    for (const rowCell of row.querySelectorAll("td")) {
+      rowCell.setAttribute(
+        `id`,
+        `${row.id}-${rowCell.getAttribute("data-column-name")}`
+      );
+    }
+
+    // Select the first visible cell.
+    const cell = row.querySelector("td:not([hidden])");
+    if (!cell) {
+      return;
+    }
+    cell.classList.add("current-cell");
+    cell.focus();
+    this.table.body.setAttribute("aria-activedescendant", cell.id);
+  }
+
+  /**
+   * Select sibling cell.
+   * @param {KeyboardEvent} event
+   * @param {HTMLTableCellElement} currentCell - Cell HTML element.
+   * @param {string} nextKey - Key used for moving to next cell.
+   * @returns {?HTMLTableCellElement} Sibling cell or null.
+   */
+  adjacentSiblingCell(event, currentCell, nextKey) {
+    return event.key == nextKey
+      ? currentCell.nextElementSibling
+      : currentCell.previousElementSibling;
+  }
+
+  /**
+   * Select next or previous visible adjacent cell.
+   * @param {KeyboardEvent} event
+   * @param {HTMLTableCellElement} currentCell - Cell HTML element.
+   * @param {string} nextKey - Key used for moving to next cell.
+   * @returns {?HTMLTableCellElement} Visible sibling cell or null.
+   */
+  adjacentVisibleSiblingCell(event, currentCell, nextKey) {
+    const cell = this.adjacentSiblingCell(event, currentCell, nextKey);
+    return cell?.hidden
+      ? this.adjacentVisibleSiblingCell(event, cell, nextKey)
+      : cell;
+  }
+
+  /**
+   * Remove .current-cell class from any cells.
+   */
+  removeCurrentCellClass() {
+    for (const cell of this.querySelectorAll("td.current-cell")) {
+      cell.classList.remove("current-cell");
+    }
   }
 
   /**
@@ -2414,7 +2507,7 @@ class TreeViewTableBody extends HTMLTableSectionElement {
 
     this.tabIndex = 0;
     this.setAttribute("is", "tree-view-table-body");
-    this.setAttribute("role", "tree");
+    this.setAttribute("role", "treegrid");
     this.setAttribute("aria-multiselectable", "true");
 
     let treeView = this.closest("tree-view");
@@ -2474,8 +2567,8 @@ class TreeViewTableRow extends HTMLTableRowElement {
   set index(index) {
     this.setAttribute(
       "role",
-      this.list.table.body.getAttribute("role") === "tree"
-        ? "treeitem"
+      this.list.table.body.getAttribute("role") === "treegrid"
+        ? "row"
         : "option"
     );
     this.setAttribute("aria-posinset", index + 1);
@@ -2504,6 +2597,11 @@ class TreeViewTableRow extends HTMLTableRowElement {
 
       // Always clear the colspan when updating the columns.
       cell.removeAttribute("colspan");
+
+      // Set role as gridcell for keyboard navigation
+      if (this.getAttribute("role") == "row") {
+        cell.setAttribute("role", "gridcell");
+      }
 
       // No need to do anything if this column is hidden.
       if (cell.hidden) {
@@ -2560,6 +2658,9 @@ class TreeViewTableRow extends HTMLTableRowElement {
   set selected(selected) {
     this.setAttribute("aria-selected", !!selected);
     this.classList.toggle("selected", !!selected);
+    for (const cell of this.querySelectorAll("td")) {
+      cell.setAttribute("aria-selected", !!selected);
+    }
   }
 }
 customElements.define("tree-view-table-row", TreeViewTableRow, {

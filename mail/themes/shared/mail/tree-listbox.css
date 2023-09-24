@@ -511,8 +511,7 @@ slot[name="placeholders"] div::before {
   }
 }
 
-:is(ul, ol):is([role="tree"],
-[role="group"]) li > div {
+:is(ul, ol):is([role="tree"],[role="treegrid"],[role="group"]) li > div {
   min-height: var(--list-item-min-height);
 }
 
@@ -525,4 +524,15 @@ slot[name="placeholders"] div::before {
 th.column-dragging {
   opacity: 0.7;
   z-index: 2;
+}
+
+/* Keyboard navigation of grid cells */
+
+table[is="tree-view-table"] td.current-cell {
+  outline: 1px dashed var(--focus-outline-color);
+  outline-offset: -2px;
+}
+
+table[is="tree-view-table"] tr.selected td.current-cell {
+  outline: 1px dashed var(--selected-item-text-color);
 }

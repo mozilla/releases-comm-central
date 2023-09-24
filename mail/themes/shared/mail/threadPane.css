@@ -390,7 +390,7 @@ tr[is="thread-row"] .subject-line {
   line-height: 22px;
 }
 
-[is="tree-view-table-body"][role="tree"] tr[is="thread-row"]:not(.children) .subject-line {
+[is="tree-view-table-body"][role="treegrid"] tr[is="thread-row"]:not(.children) .subject-line {
   padding-inline-start: 22px;
 }
 

@@ -543,26 +543,26 @@ add_task(async function testThreadTreeA11yRoles() {
   about3Pane.sortController.sortThreaded();
 
   await BrowserTestUtils.waitForCondition(
-    () => threadTree.table.body.getAttribute("role") == "tree",
-    "The tree view should switch to a Tree View role"
+    () => threadTree.table.body.getAttribute("role") == "treegrid",
+    "The tree view should switch to a Tree Grid View role"
   );
   Assert.equal(
     threadTree.getRowAtIndex(0).getAttribute("role"),
-    "treeitem",
-    "The message row should be presented as Tree Item"
+    "row",
+    "The message row should be presented as Row"
   );
 
   about3Pane.sortController.groupBySort();
   threadTree.scrollToIndex(0, true);
 
   await BrowserTestUtils.waitForCondition(
-    () => threadTree.table.body.getAttribute("role") == "tree",
-    "The message list table should remain presented as Tree View"
+    () => threadTree.table.body.getAttribute("role") == "treegrid",
+    "The message list table should remain presented as Tree Grid View"
   );
   Assert.equal(
     threadTree.getRowAtIndex(0).getAttribute("role"),
-    "treeitem",
-    "The first dummy message row should be presented as Tree Item"
+    "row",
+    "The first dummy message row should be presented as Row"
   );
 
   about3Pane.sortController.sortUnthreaded();
