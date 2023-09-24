@@ -186,12 +186,11 @@ var EnigmailFixExchangeMsg = {
   },
 
   /**
-   *  repair header data, such that they are working for PGP/MIME
+   *  Repair header data, such that they are working for PGP/MIME.
    *
-   *  @return: object: {
-   *        headers:  String - all headers ready for appending to message
-   *        boundary: String - MIME part boundary (incl. surrounding "" or '')
-   *      }
+   *  @returns {object} data
+   *  @returns {string} data.headers all headers ready for appending to message
+   *  @returns {string} data.boundary MIME part boundary (incl. surrounding "" or '')
    */
   getFixedHeaderData(hdrLines) {
     lazy.EnigmailLog.DEBUG(
