@@ -2,31 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* TODO: Now used exclusively in SearchDialog.xhtml. Needs dead code removal. */
-
 /* import-globals-from folderDisplay.js */
 /* import-globals-from SearchDialog.js */
 
 /* globals validateFileName */ // From utilityOverlay.js
 /* globals messageFlavorDataProvider */ // From messenger.js
 
+/* exported ThreadPaneKeyDown ThreadPaneOnDragStart UpdateSortIndicators */
+
 ChromeUtils.defineESModuleGetters(this, {
   TreeSelection: "chrome://messenger/content/tree-selection.mjs",
 });
-
-var gLastMessageUriToLoad = null;
-var gThreadPaneCommandUpdater = null;
-/**
- * Tracks whether the right mouse button changed the selection or not.  If the
- * user right clicks on the selection, it stays the same.  If they click outside
- * of it, we alter the selection (but not the current index) to be the row they
- * clicked on.
- *
- * The value of this variable is an object with "view" and "selection" keys
- * and values.  The view value is the view whose selection we saved off, and
- * the selection value is the selection object we saved off.
- */
-var gRightMouseButtonSavedSelection = null;
 
 /**
  * When right-clicks happen, we do not want to corrupt the underlying
@@ -62,13 +48,6 @@ function ChangeSelectionWithoutContentLoad(event, tree, aSingleSelect) {
 
     let transientSelection = new TreeSelection(tree);
     transientSelection.logAdjustSelectionForReplay();
-
-    gRightMouseButtonSavedSelection = {
-      // Need to clear out this reference later.
-      view: tree.view,
-      realSelection: treeSelection,
-      transientSelection,
-    };
 
     var saveCurrentIndex = treeSelection.currentIndex;
 
@@ -173,74 +152,6 @@ function ThreadPaneOnDragStart(aEvent) {
   aEvent.dataTransfer.addElement(aEvent.target);
 }
 
-function ThreadPaneOnDragOver(aEvent) {
-  let ds = Cc["@mozilla.org/widget/dragservice;1"]
-    .getService(Ci.nsIDragService)
-    .getCurrentSession();
-  ds.canDrop = false;
-  if (!gFolderDisplay.displayedFolder.canFileMessages) {
-    return;
-  }
-
-  let dt = aEvent.dataTransfer;
-  if (Array.from(dt.mozTypesAt(0)).includes("application/x-moz-file")) {
-    let extFile = dt.mozGetDataAt("application/x-moz-file", 0);
-    if (!extFile) {
-      return;
-    }
-
-    extFile = extFile.QueryInterface(Ci.nsIFile);
-    if (extFile.isFile()) {
-      let len = extFile.leafName.length;
-      if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml")) {
-        ds.canDrop = true;
-      }
-    }
-  }
-}
-
-function ThreadPaneOnDrop(aEvent) {
-  let dt = aEvent.dataTransfer;
-  for (let i = 0; i < dt.mozItemCount; i++) {
-    let extFile = dt.mozGetDataAt("application/x-moz-file", i);
-    if (!extFile) {
-      continue;
-    }
-
-    extFile = extFile.QueryInterface(Ci.nsIFile);
-    if (extFile.isFile()) {
-      let len = extFile.leafName.length;
-      if (len > 4 && extFile.leafName.toLowerCase().endsWith(".eml")) {
-        MailServices.copy.copyFileMessage(
-          extFile,
-          gFolderDisplay.displayedFolder,
-          null,
-          false,
-          1,
-          "",
-          null,
-          msgWindow
-        );
-      }
-    }
-  }
-}
-
-function TreeOnMouseDown(event) {
-  // Detect right mouse click and change the highlight to the row
-  // where the click happened without loading the message headers in
-  // the Folder or Thread Pane.
-  // Same for middle click, which will open the folder/message in a tab.
-  if (event.button == 2 || event.button == 1) {
-    // We want a single selection if this is a middle-click (button 1)
-    ChangeSelectionWithoutContentLoad(
-      event,
-      event.target.parentNode,
-      event.button == 1
-    );
-  }
-}
-
 function ThreadPaneOnClick(event) {
   // We only care about button 0 (left click) events.
   if (event.button != 0) {
@@ -280,24 +191,6 @@ function ThreadPaneOnClick(event) {
     return;
   }
 
-  // Grouped By Sort dummy header row non cycler column doubleclick toggles the
-  // thread's open/closed state; tree.js handles it. Cyclers are not currently
-  // implemented in group header rows, a click/doubleclick there should
-  // select/toggle thread state.
-  if (gFolderDisplay.view.isGroupedByHeaderAtIndex(treeCellInfo.row)) {
-    if (!treeCellInfo.col.cycler) {
-      return;
-    }
-    if (event.detail == 1) {
-      gFolderDisplay.selectViewIndex(treeCellInfo.row);
-    }
-    if (event.detail == 2) {
-      gFolderDisplay.view.dbView.toggleOpenState(treeCellInfo.row);
-    }
-    event.stopPropagation();
-    return;
-  }
-
   // Cyclers and twisties respond to single clicks, not double clicks.
   if (
     event.detail == 2 &&
@@ -305,13 +198,6 @@ function ThreadPaneOnClick(event) {
     treeCellInfo.childElt != "twisty"
   ) {
     ThreadPaneDoubleClick();
-  } else if (
-    treeCellInfo.col.id == "threadCol" &&
-    !event.shiftKey &&
-    (event.ctrlKey || event.metaKey)
-  ) {
-    gDBView.ExpandAndSelectThreadByIndex(treeCellInfo.row, true);
-    event.stopPropagation();
   }
 }
 
@@ -359,31 +245,6 @@ function HandleColumnClick(columnID) {
   }
 
   let viewWrapper = gFolderDisplay.view;
-  let simpleColumns = false;
-  try {
-    simpleColumns = !Services.prefs.getBoolPref(
-      "mailnews.thread_pane_column_unthreads"
-    );
-  } catch (ex) {}
-
-  if (sortType == "byThread") {
-    if (simpleColumns) {
-      MsgToggleThreaded();
-    } else if (viewWrapper.showThreaded) {
-      MsgReverseSortThreadPane();
-    } else {
-      MsgSortByThread();
-    }
-
-    return;
-  }
-
-  if (!simpleColumns && viewWrapper.showThreaded) {
-    viewWrapper.showUnthreaded = true;
-    MsgSortThreadPane(sortType);
-    return;
-  }
-
   if (
     viewWrapper.primarySortType == Ci.nsMsgViewSortType[sortType] &&
     (viewWrapper.primarySortType != Ci.nsMsgViewSortType.byCustom ||
@@ -404,28 +265,6 @@ function HandleSelectColClick(event, row) {
   let selection = tree.view.selection;
   if (event.detail == 1) {
     selection.toggleSelect(row);
-  }
-
-  // In the selectCol, we want a double click on a thread parent to select
-  // and deselect all children, in threaded and grouped views.
-  if (
-    event.detail == 2 &&
-    tree.view.isContainerOpen(row) &&
-    !tree.view.isContainerEmpty(row)
-  ) {
-    // On doubleclick of an open thread, select/deselect all the children.
-    let startRow = row + 1;
-    let endRow = startRow;
-    while (endRow < tree.view.rowCount && tree.view.getLevel(endRow) > 0) {
-      endRow++;
-    }
-    endRow--;
-    if (selection.isSelected(row)) {
-      selection.rangedSelect(startRow, endRow, true);
-    } else {
-      selection.clearRange(startRow, endRow);
-      ThreadPaneSelectionChanged();
-    }
   }
 
   // There is no longer any selection, clean up for correct state of things.
@@ -469,19 +308,6 @@ function ThreadPaneKeyDown(event) {
     return;
   }
 
-  // Grouped By Sort dummy header row <enter> toggles the thread's open/closed
-  // state. Let tree.js handle it.
-  if (
-    gFolderDisplay.view.showGroupedBySort &&
-    gFolderDisplay.treeSelection &&
-    gFolderDisplay.treeSelection.count == 1 &&
-    gFolderDisplay.view.isGroupedByHeaderAtIndex(
-      gFolderDisplay.treeSelection.currentIndex
-    )
-  ) {
-    return;
-  }
-
   // Prevent any thread that happens to be last selected (currentIndex) in a
   // single or multi selection from toggling in tree.js.
   event.stopImmediatePropagation();
@@ -489,71 +315,21 @@ function ThreadPaneKeyDown(event) {
   ThreadPaneDoubleClick();
 }
 
-function MsgSortByThread() {
-  gFolderDisplay.view.showThreaded = true;
-  MsgSortThreadPane("byDate");
-}
-
 function MsgSortThreadPane(sortName) {
   let sortType = Ci.nsMsgViewSortType[sortName];
-  let grouped = gFolderDisplay.view.showGroupedBySort;
   gFolderDisplay.view._threadExpandAll = Boolean(
     gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
   );
 
-  if (!grouped) {
-    gFolderDisplay.view.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
-    // Respect user's last expandAll/collapseAll choice, post sort direction change.
-    gFolderDisplay.restoreThreadState();
-    return;
-  }
-
-  // legacy behavior dictates we un-group-by-sort if we were.  this probably
-  //  deserves a UX call...
-
-  // For non virtual folders, do not ungroup (which sorts by the going away
-  // sort) and then sort, as it's a double sort.
-  // For virtual folders, which are rebuilt in the backend in a grouped
-  // change, create a new view upfront rather than applying viewFlags. There
-  // are oddities just applying viewFlags, for example changing out of a
-  // custom column grouped xfvf view with the threads collapsed works (doesn't)
-  // differently than other variations.
-  // So, first set the desired sortType and sortOrder, then set viewFlags in
-  // batch mode, then apply it all (open a new view) with endViewUpdate().
-  gFolderDisplay.view.beginViewUpdate();
-  gFolderDisplay.view._sort = [[sortType, Ci.nsMsgViewSortOrder.ascending]];
-  gFolderDisplay.view.showGroupedBySort = false;
-  gFolderDisplay.view.endViewUpdate();
-
-  // Virtual folders don't persist viewFlags well in the back end,
-  // due to a virtual folder being either 'real' or synthetic, so make
-  // sure it's done here.
-  if (gFolderDisplay.view.isVirtual) {
-    gFolderDisplay.view.dbView.viewFlags = gFolderDisplay.view.viewFlags;
-  }
+  gFolderDisplay.view.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
+  // Respect user's last expandAll/collapseAll choice, post sort direction change.
+  gFolderDisplay.restoreThreadState();
 }
 
 function MsgReverseSortThreadPane() {
-  let grouped = gFolderDisplay.view.showGroupedBySort;
   gFolderDisplay.view._threadExpandAll = Boolean(
     gFolderDisplay.view._viewFlags & Ci.nsMsgViewFlagsType.kExpandAll
   );
-
-  // Grouped By view is special for column click sort direction changes.
-  if (grouped) {
-    if (gDBView.selection.count) {
-      gFolderDisplay._saveSelection();
-    }
-
-    if (gFolderDisplay.view.isSingleFolder) {
-      if (gFolderDisplay.view.isVirtual) {
-        gFolderDisplay.view.showGroupedBySort = false;
-      } else {
-        // Must ensure rows are collapsed and kExpandAll is unset.
-        gFolderDisplay.doCommand(Ci.nsMsgViewCommandType.collapseAll);
-      }
-    }
-  }
 
   if (gFolderDisplay.view.isSortedAscending) {
     gFolderDisplay.view.sortDescending();
@@ -561,69 +337,9 @@ function MsgReverseSortThreadPane() {
     gFolderDisplay.view.sortAscending();
   }
 
-  // Restore Grouped By state post sort direction change.
-  if (grouped) {
-    if (gFolderDisplay.view.isVirtual && gFolderDisplay.view.isSingleFolder) {
-      MsgGroupBySort();
-    }
-
-    // Restore Grouped By selection post sort direction change.
-    gFolderDisplay._restoreSelection();
-  }
-
   // Respect user's last expandAll/collapseAll choice, for both threaded and grouped
   // views, post sort direction change.
   gFolderDisplay.restoreThreadState();
-}
-
-function MsgToggleThreaded() {
-  if (gFolderDisplay.view.showThreaded) {
-    gFolderDisplay.view.showUnthreaded = true;
-  } else {
-    gFolderDisplay.view.showThreaded = true;
-  }
-}
-
-function MsgSortThreaded() {
-  gFolderDisplay.view.showThreaded = true;
-}
-
-function MsgGroupBySort() {
-  gFolderDisplay.view.showGroupedBySort = true;
-}
-
-function MsgSortUnthreaded() {
-  gFolderDisplay.view.showUnthreaded = true;
-}
-
-function MsgSortAscending() {
-  if (
-    gFolderDisplay.view.showGroupedBySort &&
-    gFolderDisplay.view.isSingleFolder
-  ) {
-    if (gFolderDisplay.view.isSortedDescending) {
-      MsgReverseSortThreadPane();
-    }
-
-    return;
-  }
-
-  gFolderDisplay.view.sortAscending();
-}
-
-function MsgSortDescending() {
-  if (
-    gFolderDisplay.view.showGroupedBySort &&
-    gFolderDisplay.view.isSingleFolder
-  ) {
-    if (gFolderDisplay.view.isSortedAscending) {
-      MsgReverseSortThreadPane();
-    }
-
-    return;
-  }
-
-  gFolderDisplay.view.sortDescending();
 }
 
 // XXX this should probably migrate into FolderDisplayWidget, or whatever
@@ -635,9 +351,6 @@ function UpdateSortIndicators(sortType, sortOrder) {
     treeColumns[i].removeAttribute("sortDirection");
   }
 
-  // show the twisties if the view is threaded
-  let threadCol = document.getElementById("threadCol");
-  let subjectCol = document.getElementById("subjectCol");
   let sortedColumn;
   // set the sort indicator on the column we are sorted by
   let colID = ConvertSortTypeToColumnID(sortType);
@@ -645,28 +358,11 @@ function UpdateSortIndicators(sortType, sortOrder) {
     sortedColumn = document.getElementById(colID);
   }
 
-  let viewWrapper = gFolderDisplay.view;
-
-  // the thread column is not visible when we are grouped by sort
-  threadCol.collapsed = viewWrapper.showGroupedBySort;
-
-  // show twisties only when grouping or threading
-  if (viewWrapper.showGroupedBySort || viewWrapper.showThreaded) {
-    subjectCol.setAttribute("primary", "true");
-  } else {
-    subjectCol.removeAttribute("primary");
-  }
-
   if (sortedColumn) {
     sortedColumn.setAttribute(
       "sortDirection",
       sortOrder == Ci.nsMsgViewSortOrder.ascending ? "ascending" : "descending"
     );
-  }
-
-  // Prevent threadCol from showing the sort direction chevron.
-  if (viewWrapper.showThreaded) {
-    threadCol.removeAttribute("sortDirection");
   }
 }
 
@@ -693,16 +389,6 @@ function ThreadPaneOnLoad() {
     },
     true
   );
-
-  // The mousedown event listener below should only be added in the thread
-  // pane of the mailnews 3pane window, not in the advanced search window.
-  if (tree.parentNode.id == "searchResultListBox") {
-    return;
-  }
-
-  tree.addEventListener("mousedown", TreeOnMouseDown, true);
-  let delay = Services.prefs.getIntPref("mailnews.threadpane_select_delay");
-  document.getElementById("threadTree")._selectDelay = delay;
 }
 
 function ThreadPaneSelectionChanged() {
@@ -782,9 +468,6 @@ function ConvertSortTypeToColumnID(sortKey) {
       break;
     case Ci.nsMsgViewSortType.byFlagged:
       columnID = "flaggedCol";
-      break;
-    case Ci.nsMsgViewSortType.byThread:
-      columnID = "threadCol";
       break;
     case Ci.nsMsgViewSortType.byId:
       columnID = "idCol";
