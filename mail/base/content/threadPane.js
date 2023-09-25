@@ -322,8 +322,6 @@ function MsgSortThreadPane(sortName) {
   );
 
   gFolderDisplay.view.sort(sortType, Ci.nsMsgViewSortOrder.ascending);
-  // Respect user's last expandAll/collapseAll choice, post sort direction change.
-  gFolderDisplay.restoreThreadState();
 }
 
 function MsgReverseSortThreadPane() {
@@ -336,10 +334,6 @@ function MsgReverseSortThreadPane() {
   } else {
     gFolderDisplay.view.sortAscending();
   }
-
-  // Respect user's last expandAll/collapseAll choice, for both threaded and grouped
-  // views, post sort direction change.
-  gFolderDisplay.restoreThreadState();
 }
 
 // XXX this should probably migrate into FolderDisplayWidget, or whatever

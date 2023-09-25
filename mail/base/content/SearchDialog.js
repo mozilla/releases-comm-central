@@ -264,7 +264,6 @@ function searchOnLoad() {
   }
 
   gFolderDisplay.view.openSearchView();
-  gFolderDisplay.makeActive();
 
   if (sortType) {
     gFolderDisplay.view.sort(sortType, sortOrder);
