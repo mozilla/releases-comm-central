@@ -1251,8 +1251,10 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
     promise->AddCallbacksWithCycleCollectedArgs(
         [self = RefPtr(this)](JSContext*, JS::Handle<JS::Value> aValue,
                               ErrorResult&) { self->DeleteTmpAttachments(); },
-        [handleFailure, rv](JSContext*, JS::Handle<JS::Value> aValue,
-                            ErrorResult&) { handleFailure(rv); });
+        [handleFailure](JSContext*, JS::Handle<JS::Value> aValue,
+                        ErrorResult&) {
+          handleFailure(Promise::TryExtractNSResultFromRejectionValue(aValue));
+        });
     promise.forget(aPromise);
   } else if (NS_FAILED(rv)) {
     handleFailure(rv);
