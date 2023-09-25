@@ -53,7 +53,7 @@ class ImapChannel extends MailChannel {
       this.contentLength = uri.messageHeader.messageSize;
     } catch (e) {
       // Got passed an IMAP folder URL.
-      this._isFolderURL = this._server && !/#(\d+)$/.test(uri.spec);
+      this._isFolderURL = this._server && !/%3E(\d+)$/.test(uri.spec);
     }
   }
 
