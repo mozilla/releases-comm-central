@@ -758,7 +758,7 @@ button.email-action-flagged.flagged {
 .message-header-hide-label-column .multi-recipient-row
   .row-heading:not(#fromHeading),
 .message-header-hide-label-column
-  .row-heading:is(#newsgroupsHeading, #message-idHeading, #referencesHeading, #in-reply-toHeading) {
+  .row-heading:is(#newsgroupsHeading, #followup-toHeading, #message-idHeading, #referencesHeading, #in-reply-toHeading) {
   padding-block: var(--message-header-field-offset);
 }
 

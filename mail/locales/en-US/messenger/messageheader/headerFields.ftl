@@ -18,6 +18,8 @@ message-header-bcc-list-name = Bcc
 
 message-header-newsgroups-list-name = Newsgroups
 
+message-header-followup-to-list-name = Followup to
+
 message-header-tags-list-name = Tags
 
 ## Other message headers.
@@ -28,9 +30,6 @@ message-header-author-field = Author<span data-l10n-name="field-separator">:</sp
 message-header-organization-field = Organization<span data-l10n-name="field-separator">:</span>
 
 message-header-subject-field = Subject<span data-l10n-name="field-separator">:</span>
-
-message-header-followup-to-field = Followup to<span data-l10n-name="field-separator">:</span>
-
 
 message-header-date-field = Date<span data-l10n-name="field-separator">:</span>
 

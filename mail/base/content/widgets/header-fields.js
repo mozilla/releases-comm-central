@@ -716,9 +716,11 @@
       this.heading = document.createElement("span");
       this.heading.id = `${this.dataset.headerName}Heading`;
       this.heading.classList.add("row-heading");
+      // message-header-newsgroups-list-name
+      // message-header-followup-to-list-name
       document.l10n.setAttributes(
         this.heading,
-        "message-header-newsgroups-list-name"
+        `message-header-${this.dataset.headerName}-list-name`
       );
       this.appendChild(this.heading);
 
