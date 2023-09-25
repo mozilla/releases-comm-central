@@ -157,19 +157,19 @@ function displayMessage(uri, viewWrapper) {
 
   messageHistory.push(uri);
 
-  if (gFolder) {
-    if (viewWrapper) {
-      if (viewWrapper != gViewWrapper) {
+  if (!gViewWrapper) {
+    if (gFolder) {
+      if (viewWrapper) {
         gViewWrapper = viewWrapper.clone(dbViewWrapperListener);
+      } else {
+        gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
+        gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
+        gViewWrapper.open(gFolder);
       }
     } else {
       gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
-      gViewWrapper._viewFlags = Ci.nsMsgViewFlagsType.kThreadedDisplay;
-      gViewWrapper.open(gFolder);
+      gViewWrapper.openSearchView();
     }
-  } else {
-    gViewWrapper = new DBViewWrapper(dbViewWrapperListener);
-    gViewWrapper.openSearchView();
   }
   gDBView = gViewWrapper.dbView;
   let selection = (gDBView.selection = new TreeSelection());

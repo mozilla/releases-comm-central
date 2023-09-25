@@ -77,13 +77,18 @@ add_task(async function testMessageTab() {
     "aboutMessageLoaded",
     true
   );
-  await new Promise(resolve =>
-    tab.chromeBrowser.contentWindow.setTimeout(resolve, 500)
-  );
+  let aboutMessage = tab.chromeBrowser.contentWindow;
+  await BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  await new Promise(resolve => aboutMessage.setTimeout(resolve, 500));
+
+  aboutMessage.ReloadMessage();
+  await BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  await new Promise(resolve => aboutMessage.setTimeout(resolve, 500));
 
   info("Closing the tab");
   tabmail.closeOtherTabs(0);
   tab = null;
+  aboutMessage = null;
 
   await assertNoDetachedWindows();
 });
@@ -93,11 +98,17 @@ add_task(async function testMessageWindow() {
   let win = await openMessageFromFile(
     new FileUtils.File(getTestFilePath("files/sampleContent.eml"))
   );
-  await new Promise(resolve => win.setTimeout(resolve, 500));
+  let aboutMessage = win.messageBrowser.contentWindow;
+  await new Promise(resolve => aboutMessage.setTimeout(resolve, 500));
+
+  aboutMessage.ReloadMessage();
+  await BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
+  await new Promise(resolve => aboutMessage.setTimeout(resolve, 500));
 
   info("Closing the window");
   await BrowserTestUtils.closeWindow(win);
   win = null;
+  aboutMessage = null;
 
   await assertNoDetachedWindows();
 });
