@@ -97,7 +97,8 @@ nsresult nsMsgAccount::createIncomingServer() {
   NS_ENSURE_SUCCESS(rv, rv);
   if (hostname.IsEmpty()) {
     NS_WARNING(
-        nsPrintfCString("Server had no hostname; key=%s", serverKey.get()));
+        nsPrintfCString("Server had no hostname; key=%s", serverKey.get())
+            .get());
     return NS_ERROR_UNEXPECTED;
   }
 
