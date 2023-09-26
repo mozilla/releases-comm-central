@@ -30,6 +30,7 @@
 #include "nsNetCID.h"
 #include "nsMsgMessageFlags.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "mozilla/ErrorNames.h"
 #include "mozilla/Logging.h"
 
 using namespace mozilla::mailnews;
@@ -250,10 +251,13 @@ STDMETHODIMP CMapiImp::SendDocuments(unsigned long aSession, LPSTR aDelimChar,
 
   if (NS_SUCCEEDED(rv))
     rv = nsMapiHook::ShowComposerWindow(aSession, pCompFields);
-  else
+  else {
+    nsAutoCString name;
+    mozilla::GetErrorName(rv, name);
     MOZ_LOG(MAPI, mozilla::LogLevel::Debug,
-            ("CMapiImp::SendDocument error rv = %x, paths = %s names = %s", rv,
-             aFilePaths, aFileNames));
+            ("CMapiImp::SendDocument error rv = %s, paths = %s names = %s",
+             name.get(), aFilePaths, aFileNames));
+  }
 
   return nsMAPIConfiguration::GetMAPIErrorFromNSError(rv);
 }

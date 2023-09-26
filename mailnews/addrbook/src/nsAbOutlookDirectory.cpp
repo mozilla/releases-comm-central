@@ -13,6 +13,7 @@
 #include "nsEnumeratorUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsComponentManagerUtils.h"
+#include "mozilla/ErrorNames.h"
 #include "mozilla/Logging.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
@@ -1051,8 +1052,10 @@ static void UnicodeToWord(const char16_t* aUnicode, WORD& aWord) {
 
   aWord = static_cast<WORD>(unichar.ToInteger(&errorCode));
   if (NS_FAILED(errorCode)) {
-    PRINTF(("Error conversion string %S: %08x.\n", (wchar_t*)(unichar.get()),
-            errorCode));
+    nsAutoCString name;
+    mozilla::GetErrorName(errorCode, name);
+    PRINTF(("Error conversion string %S: %s.\n", (wchar_t*)(unichar.get()),
+            name.get()));
   }
 }
 

@@ -38,6 +38,7 @@
 #include "mozilla/ReentrantMonitor.h"
 #include "mozilla/Components.h"
 #include "nsEmbedCID.h"
+#include "mozilla/ErrorNames.h"
 #include "mozilla/Logging.h"
 #include "mozilla/SpinEventLoopUntil.h"
 
@@ -460,10 +461,13 @@ nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields* aCompFields,
 
       // add the attachment
       rv = aCompFields->AddAttachment(attachment);
-      if (NS_FAILED(rv))
-        MOZ_LOG(
-            MAPI, mozilla::LogLevel::Debug,
-            ("nsMapiHook::HandleAttachments: AddAttachment rv =  %x\n", rv));
+      if (NS_FAILED(rv)) {
+        nsAutoCString name;
+        mozilla::GetErrorName(rv, name);
+        MOZ_LOG(MAPI, mozilla::LogLevel::Debug,
+                ("nsMapiHook::HandleAttachments: AddAttachment rv =  %s\n",
+                 name.get()));
+      }
     }
   }
   return rv;
@@ -568,10 +572,13 @@ nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields,
 
       // Add the attachment.
       rv = aCompFields->AddAttachment(attachment);
-      if (NS_FAILED(rv))
-        MOZ_LOG(
-            MAPI, mozilla::LogLevel::Debug,
-            ("nsMapiHook::HandleAttachmentsW: AddAttachment rv =  %x\n", rv));
+      if (NS_FAILED(rv)) {
+        nsAutoCString name;
+        mozilla::GetErrorName(rv, name);
+        MOZ_LOG(MAPI, mozilla::LogLevel::Debug,
+                ("nsMapiHook::HandleAttachmentsW: AddAttachment rv =  %s\n",
+                 name.get()));
+      }
     }
   }
   return rv;

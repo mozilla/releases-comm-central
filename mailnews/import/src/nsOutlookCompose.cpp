@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "mozilla/ErrorNames.h"
 #include "nscore.h"
 #include "prthread.h"
 #include "nsString.h"
@@ -325,7 +326,9 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
   OutlookSendListener* pListen =
       static_cast<OutlookSendListener*>(m_pListener.get());
   if (NS_FAILED(rv)) {
-    IMPORT_LOG1("*** Error, CreateAndSendMessage FAILED: 0x%x\n", rv);
+    nsAutoCString name;
+    mozilla::GetErrorName(rv, name);
+    IMPORT_LOG1("*** Error, CreateAndSendMessage FAILED: %s\n", name.get());
   } else {
     // Wait for the listener to get done.
     nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
