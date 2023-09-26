@@ -16,9 +16,6 @@ var gSpacesToolbar = {
     "--webextension-toolbar-image",
     "--webextension-toolbar-image-dark",
     "--webextension-toolbar-image-light",
-    "--webextension-toolbar-image-2x",
-    "--webextension-toolbar-image-2x-dark",
-    "--webextension-toolbar-image-2x-light",
   ],
   docURL: "chrome://messenger/content/messenger.xhtml",
   /**

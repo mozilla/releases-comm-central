@@ -107,6 +107,18 @@ registerCleanupFunction(() => {
 });
 
 /**
+ * Generate a CSS image-set declaration for the given extension icons.
+ *
+ * @param {string} url - Normal density icon URL, already wrapped in a CSS url().
+ * @param {string} [url2x] - Optional double DPI icon URL, already wrapped in a
+ *   CSS url(). If not provided the normal density value is used.
+ * @returns {string} The CSS image-set declaration as would be found in computed
+ *   styles.
+ */
+const makeIconSet = (url, url2x) =>
+  `image-set(${url} 1dppx, ${url2x || url} 2dppx)`;
+
+/**
  * Enforce a certain state in the unified toolbar.
  * @param {Object} state - A dictionary with arrays of buttons assigned to a space
  */
@@ -968,7 +980,7 @@ async function run_popup_test(configData) {
           const icon = button.querySelector(".button-icon");
           is(
             getComputedStyle(icon).content,
-            `url("chrome://messenger/content/extension.svg")`,
+            makeIconSet(`url("chrome://messenger/content/extension.svg")`),
             "Default icon"
           );
           label = button.querySelector(".button-label");
@@ -995,7 +1007,7 @@ async function run_popup_test(configData) {
           const icon = button.querySelector(".toolbarbutton-icon");
           is(
             getComputedStyle(icon).listStyleImage,
-            `url("chrome://messenger/content/extension.svg")`,
+            makeIconSet(`url("chrome://messenger/content/extension.svg")`),
             "Default icon"
           );
           label = button.querySelector(".toolbarbutton-text");

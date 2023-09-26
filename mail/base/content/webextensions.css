@@ -12,95 +12,50 @@
   width: 18px;
 }
 
-@media not all and (min-resolution: 1.1dppx) {
-  /* for browserAction, composeAction and messageAction */
-  :root .spaces-addon-menuitem,
-  .webextension-action {
-    list-style-image: var(--webextension-toolbar-image, inherit);
-  }
+/* for browserAction, composeAction and messageAction */
+:root .spaces-addon-menuitem,
+.webextension-action {
+  list-style-image: var(--webextension-toolbar-image, inherit);
 
-  /* for buttons in sidebar or sidebar menu */
-  :root .spaces-addon-button img {
-    content: var(--webextension-toolbar-image, inherit);
-  }
-
-  :root .spaces-addon-menuitem:-moz-lwtheme,
-  .webextension-action:-moz-lwtheme {
+  &:-moz-lwtheme {
     list-style-image: var(--webextension-toolbar-image-dark, inherit);
-  }
-
-  :root .spaces-addon-button:-moz-lwtheme img {
-    content: var(--webextension-toolbar-image-dark, inherit);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root .spaces-addon-menuitem,
-    .webextension-action {
-      list-style-image: var(--webextension-toolbar-image-light, inherit) !important;
-    }
-
-    :root .spaces-addon-button img {
-      content: var(--webextension-toolbar-image-light, inherit) !important;
-    }
-  }
-
-  .webextension-action[cui-areatype="menu-panel"] {
-    list-style-image: var(--webextension-menupanel-image, inherit);
-  }
-  :root[lwt-popup-brighttext] .webextension-action[cui-areatype="menu-panel"] {
-    list-style-image: var(--webextension-menupanel-image-light, inherit);
-  }
-  :root:not([lwt-popup-brighttext]) .webextension-action[cui-areatype="menu-panel"]:-moz-lwtheme {
-    list-style-image: var(--webextension-menupanel-image-dark, inherit);
-  }
-
-  .webextension-menuitem {
-    list-style-image: var(--webextension-menuitem-image, inherit) !important;
   }
 }
 
-/* for displays, like Retina > 1.1dppx */
-@media (min-resolution: 1.1dppx) {
+/* for buttons in sidebar or sidebar menu */
+:root .spaces-addon-button {
+  img {
+    content: var(--webextension-toolbar-image, inherit);
+  }
+
+  &:-moz-lwtheme img {
+    content: var(--webextension-toolbar-image-dark, inherit);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
   :root .spaces-addon-menuitem,
   .webextension-action {
-    list-style-image: var(--webextension-toolbar-image-2x, inherit);
+    list-style-image: var(--webextension-toolbar-image-light, inherit) !important;
   }
 
   :root .spaces-addon-button img {
-    content: var(--webextension-toolbar-image-2x, inherit);
+    content: var(--webextension-toolbar-image-light, inherit) !important;
+  }
+}
+
+.webextension-action[cui-areatype="menu-panel"] {
+  list-style-image: var(--webextension-menupanel-image, inherit);
+
+  :root[lwt-popup-brighttext] & {
+    list-style-image: var(--webextension-menupanel-image-light, inherit);
   }
 
-  :root .spaces-addon-menuitem:-moz-lwtheme,
-  .webextension-action:-moz-lwtheme {
-    list-style-image: var(--webextension-toolbar-image-2x-dark, inherit);
+  :root:not([lwt-popup-brighttext]) &:-moz-lwtheme {
+    list-style-image: var(--webextension-menupanel-image-dark, inherit);
   }
+}
 
-  :root .spaces-addon-button:-moz-lwtheme img {
-    content: var(--webextension-toolbar-image-2x-dark, inherit);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root .spaces-addon-menuitem,
-    .webextension-action {
-      list-style-image: var(--webextension-toolbar-image-2x-light, inherit) !important;
-    }
-
-    :root .spaces-addon-button img {
-      content: var(--webextension-toolbar-image-2x-light, inherit) !important;
-    }
-  }
-
-  .webextension-action[cui-areatype="menu-panel"] {
-    list-style-image: var(--webextension-menupanel-image-2x, inherit);
-  }
-  :root[lwt-popup-brighttext] .webextension-action[cui-areatype="menu-panel"] {
-    list-style-image: var(--webextension-menupanel-image-2x-light, inherit);
-  }
-  :root:not([lwt-popup-brighttext]) .webextension-action[cui-areatype="menu-panel"]:-moz-lwtheme {
-    list-style-image: var(--webextension-menupanel-image-2x-dark, inherit);
-  }
-
-  .webextension-menuitem {
-    list-style-image: var(--webextension-menuitem-image-2x, inherit) !important;
-  }
+.webextension-menuitem {
+  list-style-image: var(--webextension-menuitem-image, inherit) !important;
 }

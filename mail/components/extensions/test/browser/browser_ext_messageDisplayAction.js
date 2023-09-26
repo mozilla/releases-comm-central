@@ -130,7 +130,10 @@ add_task(async function test_theme_icons() {
   let dark_theme = await AddonManager.getAddonByID(
     "thunderbird-compact-dark@mozilla.org"
   );
-  await dark_theme.enable();
+  await Promise.all([
+    BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
+    dark_theme.enable(),
+  ]);
   await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     aboutMessage.getComputedStyle(button).listStyleImage,
@@ -141,7 +144,10 @@ add_task(async function test_theme_icons() {
   let light_theme = await AddonManager.getAddonByID(
     "thunderbird-compact-light@mozilla.org"
   );
-  await light_theme.enable();
+  await Promise.all([
+    BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
+    light_theme.enable(),
+  ]);
   await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     aboutMessage.getComputedStyle(button).listStyleImage,
@@ -150,7 +156,10 @@ add_task(async function test_theme_icons() {
   );
 
   // Disabling a theme will enable the default theme.
-  await light_theme.disable();
+  await Promise.all([
+    BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
+    light_theme.disable(),
+  ]);
   Assert.equal(
     aboutMessage.getComputedStyle(button).listStyleImage,
     `url("moz-extension://${uuid}/default.png")`,
@@ -325,7 +334,7 @@ add_task(async function test_iconPath() {
 
     Assert.equal(
       aboutMessage.getComputedStyle(button).listStyleImage,
-      `url("moz-extension://${uuid}/${expected}")`,
+      makeIconSet(`url("moz-extension://${uuid}/${expected}")`),
       `Icon path should be correct.`
     );
     extension.sendMessage();

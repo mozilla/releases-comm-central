@@ -9,45 +9,20 @@
   width: 16px;
   margin-inline: 1px;
   content: var(--webextension-toolbar-image, inherit);
+
+  &:-moz-lwtheme {
+    content: var(--webextension-toolbar-image-dark, inherit);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    content: var(--webextension-toolbar-image-light, inherit) !important;
+  }
 }
 
 :is(.icons-only, .icons-above-text, .icons-beside-text) .extension-action .prefer-icon-only .button-label {
   display: none;
 }
 
-.unified-toolbar .extension-action .button-icon:-moz-lwtheme {
-  content: var(--webextension-toolbar-image-dark, inherit);
-}
-
 .extension-action .preview-icon {
   content: var(--webextension-icon, inherit);
-}
-
-@media (prefers-color-scheme: dark) {
-  .unified-toolbar .extension-action .button-icon,
-  :root[lwt-tree-brighttext] .unified-toolbar .extension-action .button-icon {
-    content: var(--webextension-toolbar-image-light, inherit) !important;
-  }
-}
-
-
-@media (min-resolution: 1.1dppx) {
-  .unified-toolbar .extension-action .button-icon {
-    content: var(--webextension-toolbar-image-2x, inherit);
-  }
-
-  .unified-toolbar .extension-action .button-icon:-moz-lwtheme {
-    content: var(--webextension-toolbar-image-2x-dark, inherit);
-  }
-
-  .extension-action .preview-icon {
-    content: var(--webextension-icon-2x, inherit);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .unified-toolbar .extension-action .button-icon,
-    :root[lwt-tree-brighttext] .unified-toolbar .extension-action .button-icon {
-      content: var(--webextension-toolbar-image-2x-light, inherit) !important;
-    }
-  }
 }

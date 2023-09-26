@@ -84,6 +84,16 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       badgeText,
       badgeBackgroundColor,
     } of expected) {
+      // Fill in the fallback value for the default icon if it's been declared
+      // unset in the fixture only if we're also checking the default theme. We
+      // can't always fall back to it, because the default icon - if it's set -
+      // will be used as 2x icon for all variants because its size gets set as
+      // 19px by the extension icon handling, so it always has the best
+      // resolution for 2x. So we need to be able to differentiate between a
+      // default icon being set and unset to expect the correct 2x icon.
+      if (selectedTheme === "default" && !icons.default) {
+        icons.default = icons.dark;
+      }
       // Check button.
       let button = window.document.getElementById(
         `spaces_toolbar_mochi_test-spacesButton-${id}`
@@ -98,8 +108,11 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       // Check button icon.
       let imgStyles = window.getComputedStyle(button.querySelector("img"));
       Assert.equal(
-        icons[selectedTheme],
         imgStyles.content,
+        makeIconSet(
+          icons[selectedTheme],
+          icons.default || icons[selectedTheme]
+        ),
         `Icon of button ${id} with theme ${selectedTheme} should be correct.`
       );
 
@@ -164,8 +177,11 @@ async function test_spaceToolbar(background, selectedTheme, manifestIcons) {
       // Check menuitem icon.
       let menuitemStyles = window.getComputedStyle(menuitem);
       Assert.equal(
-        icons[selectedTheme],
         menuitemStyles.listStyleImage,
+        makeIconSet(
+          icons[selectedTheme],
+          icons.default || icons[selectedTheme]
+        ),
         `Icon of menuitem ${id} with theme ${selectedTheme} should be correct.`
       );
 
@@ -466,7 +482,7 @@ add_task(async function test_icons() {
       defaultIcons: "",
     });
     expected_button_1.icons = {
-      default: `url("${browser.runtime.getURL("dark.png")}")`,
+      default: null,
       dark: `url("${browser.runtime.getURL("dark.png")}")`,
       light: `url("${browser.runtime.getURL("light.png")}")`,
     };
@@ -531,7 +547,7 @@ add_task(async function test_icons() {
       title: "Wikipedia",
       url: "https://test.other.invalid",
       icons: {
-        default: `url("${browser.runtime.getURL("dark2.png")}")`,
+        default: null,
         dark: `url("${browser.runtime.getURL("dark2.png")}")`,
         light: `url("${browser.runtime.getURL("light2.png")}")`,
       },
@@ -584,7 +600,7 @@ add_task(async function test_icons() {
       ],
     });
     expected_button_3.icons = {
-      default: `url("${browser.runtime.getURL("dark3.png")}")`,
+      default: null,
       dark: `url("${browser.runtime.getURL("dark3.png")}")`,
       light: `url("${browser.runtime.getURL("light3.png")}")`,
     };

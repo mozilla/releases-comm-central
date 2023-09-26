@@ -108,25 +108,18 @@ function getIconData(icons, extension) {
   };
 
   let style = [];
+  let getImageSet = (size, theme) => `image-set(
+    url("${getIcon(size, theme)}"),
+    url("${getIcon(size * 2, theme)}") 2x
+  )`;
   let getStyle = (name, size) => {
-    style.push([
-      `--webextension-${name}`,
-      `url("${getIcon(size, "default")}")`,
-    ]);
-    style.push([
-      `--webextension-${name}-light`,
-      `url("${getIcon(size, "light")}")`,
-    ]);
-    style.push([
-      `--webextension-${name}-dark`,
-      `url("${getIcon(size, "dark")}")`,
-    ]);
+    style.push([`--webextension-${name}`, getImageSet(size, "default")]);
+    style.push([`--webextension-${name}-light`, getImageSet(size, "light")]);
+    style.push([`--webextension-${name}-dark`, getImageSet(size, "dark")]);
   };
 
   getStyle("menupanel-image", 32);
-  getStyle("menupanel-image-2x", 64);
   getStyle("toolbar-image", baseSize);
-  getStyle("toolbar-image-2x", baseSize * 2);
 
   let realIcon = getIcon(size, "default");
 

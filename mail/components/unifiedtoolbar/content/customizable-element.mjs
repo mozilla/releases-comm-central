@@ -195,11 +195,10 @@ export default class CustomizableElement extends HTMLLIElement {
       );
       this.style.setProperty(
         "--webextension-icon",
-        `url("${lazy.ExtensionParent.IconDetails.escapeUrl(icon)}")`
-      );
-      this.style.setProperty(
-        "--webextension-icon-2x",
-        `url("${lazy.ExtensionParent.IconDetails.escapeUrl(icon2x)}")`
+        `image-set(
+          url("${lazy.ExtensionParent.IconDetails.escapeUrl(icon)}"),
+          url("${lazy.ExtensionParent.IconDetails.escapeUrl(icon2x)}") 2x
+        )`
       );
     }
   }
