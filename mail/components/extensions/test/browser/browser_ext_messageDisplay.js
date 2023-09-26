@@ -7,6 +7,9 @@ var gMessages;
 var gFolder;
 
 add_setup(() => {
+  // Use an ascending order because this test relies on message arrays matching.
+  Services.prefs.setIntPref("mailnews.default_sort_order", 1);
+
   gAccount = createAccount();
   let rootFolder = gAccount.incomingServer.rootFolder;
   rootFolder.createSubfolder("test0", null);
@@ -23,6 +26,10 @@ add_setup(() => {
 
   gFolder = subFolders.test0;
   gMessages = [...subFolders.test0.messages];
+
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mailnews.default_sort_order");
+  });
 });
 
 add_task(async function testGetDisplayedMessage() {

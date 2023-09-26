@@ -33,6 +33,9 @@ var folder;
 var thread1, thread2, thread3;
 
 add_setup(async function () {
+  // Use an ascending order to simplify the test.
+  Services.prefs.setIntPref("mailnews.default_sort_order", 1);
+
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
   folder = await create_folder("WatchIgnoreThreadTest");
   thread1 = create_thread(3);
@@ -45,6 +48,7 @@ add_setup(async function () {
   expand_all_threads();
 
   registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mailnews.default_sort_order");
     document.getElementById("toolbar-menubar").autohide = true;
   });
 });

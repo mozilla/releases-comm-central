@@ -49,7 +49,7 @@ add_task(async function test_update() {
     await browser.mailTabs.update({ displayedFolder: folders[0] });
     let expected = {
       sortType: "date",
-      sortOrder: "ascending",
+      sortOrder: "descending",
       viewType: "groupedByThread",
       layout: "standard",
       folderPaneVisible: true,
@@ -63,21 +63,21 @@ add_task(async function test_update() {
     await window.sendMessage("checkRealSort", expected);
     await window.sendMessage("checkRealView", expected);
 
-    expected.sortOrder = "descending";
+    expected.sortOrder = "ascending";
     for (let value of ["date", "subject", "author"]) {
       await browser.mailTabs.update({
         sortType: value,
-        sortOrder: "descending",
+        sortOrder: "ascending",
       });
       expected.sortType = value;
       await window.sendMessage("checkRealSort", expected);
       await window.sendMessage("checkRealView", expected);
     }
-    expected.sortOrder = "ascending";
+    expected.sortOrder = "descending";
     for (let value of ["author", "subject", "date"]) {
       await browser.mailTabs.update({
         sortType: value,
-        sortOrder: "ascending",
+        sortOrder: "descending",
       });
       expected.sortType = value;
       await window.sendMessage("checkRealSort", expected);
@@ -730,8 +730,8 @@ add_task(async function test_setSelectedMessages() {
 
     // Change the selection in the foreground tab.
     await browser.mailTabs.setSelectedMessages(foregroundTab, [
-      messages1[6].id,
-      messages1[7].id,
+      messages1.at(-7).id,
+      messages1.at(-8).id,
     ]);
     // Check the current real state.
     await window.sendMessage("checkRealLayout", {
@@ -743,14 +743,14 @@ add_task(async function test_setSelectedMessages() {
     let { messages: readMessagesA } =
       await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
-      [messages1[6].id, messages1[7].id],
+      [messages1.at(-7).id, messages1.at(-8).id],
       readMessagesA.map(m => m.id)
     );
 
     // Change the selection in the background tab.
     await browser.mailTabs.setSelectedMessages(backgroundTab, [
-      messages2[0].id,
-      messages2[3].id,
+      messages2.at(-1).id,
+      messages2.at(-4).id,
     ]);
     // Real state should be the same, since we're updating a background tab.
     await window.sendMessage("checkRealLayout", {
@@ -762,14 +762,14 @@ add_task(async function test_setSelectedMessages() {
     let { messages: readMessagesB } =
       await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
-      [messages1[6].id, messages1[7].id],
+      [messages1.at(-7).id, messages1.at(-8).id],
       readMessagesB.map(m => m.id)
     );
     // Check API return value of the inactive background tab.
     let { messages: readMessagesC } =
       await browser.mailTabs.getSelectedMessages(backgroundTab);
     window.assertDeepEqual(
-      [messages2[0].id, messages2[3].id],
+      [messages2.at(-1).id, messages2.at(-4).id],
       readMessagesC.map(m => m.id)
     );
     // Switch to the background tab.
@@ -778,7 +778,7 @@ add_task(async function test_setSelectedMessages() {
     let { messages: readMessagesD } =
       await browser.mailTabs.getSelectedMessages(backgroundTab);
     window.assertDeepEqual(
-      [messages2[0].id, messages2[3].id],
+      [messages2.at(-1).id, messages2.at(-4).id],
       readMessagesD.map(m => m.id)
     );
     // Check real state, should now match the active background tab.
@@ -791,7 +791,7 @@ add_task(async function test_setSelectedMessages() {
     let { messages: readMessagesE } =
       await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
-      [messages1[6].id, messages1[7].id],
+      [messages1.at(-7).id, messages1.at(-8).id],
       readMessagesE.map(m => m.id)
     );
     // Switch back to the foreground tab.
@@ -799,14 +799,14 @@ add_task(async function test_setSelectedMessages() {
 
     // Change the selection in the foreground tab.
     await browser.mailTabs.setSelectedMessages(foregroundTab, [
-      messages2[2].id,
-      messages2[4].id,
+      messages2.at(-3).id,
+      messages2.at(-5).id,
     ]);
     // Check API return value of the foreground tab.
     let { messages: readMessagesF } =
       await browser.mailTabs.getSelectedMessages(foregroundTab);
     window.assertDeepEqual(
-      [messages2[2].id, messages2[4].id],
+      [messages2.at(-3).id, messages2.at(-5).id],
       readMessagesF.map(m => m.id)
     );
     // Check real state.
@@ -819,7 +819,7 @@ add_task(async function test_setSelectedMessages() {
     let { messages: readMessagesG } =
       await browser.mailTabs.getSelectedMessages(backgroundTab);
     window.assertDeepEqual(
-      [messages2[0].id, messages2[3].id],
+      [messages2.at(-1).id, messages2.at(-4).id],
       readMessagesG.map(m => m.id)
     );
 
@@ -840,10 +840,12 @@ add_task(async function test_setSelectedMessages() {
     // Should throw if messages belong to different folders.
     await browser.test.assertRejects(
       browser.mailTabs.setSelectedMessages(foregroundTab, [
-        messages2[2].id,
-        messages1[4].id,
+        messages2.at(-3).id,
+        messages1.at(-5).id,
       ]),
-      `Message ${messages2[2].id} and message ${messages1[4].id} are not in the same folder, cannot select them both.`,
+      `Message ${messages2.at(-3).id} and message ${
+        messages1.at(-5).id
+      } are not in the same folder, cannot select them both.`,
       "browser.mailTabs.setSelectedMessages() should reject, if the requested message do not belong to the same folder."
     );
 

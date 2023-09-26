@@ -50,8 +50,8 @@ function testSetViewSingle() {
   );
   Assert.equal(
     info.sortOrder,
-    Ci.nsMsgViewSortOrder.ascending,
-    "sortOrder should start ascending"
+    Ci.nsMsgViewSortOrder.descending,
+    "sortOrder should start descending"
   );
 
   let threadCol = window.getElementById("threadCol");
@@ -70,8 +70,8 @@ function testSetViewSingle() {
 
   EventUtils.synthesizeMouseAtCenter(subjectCol, { clickCount: 1 }, window);
   TestUtils.waitForCondition(
-    () => info.sortOrder == Ci.nsMsgViewSortOrder.descending,
-    "should change sortOrder to sort descending"
+    () => info.sortOrder == Ci.nsMsgViewSortOrder.ascending,
+    "should change sortOrder to sort ascending"
   );
 }
 
@@ -141,8 +141,8 @@ add_task(async function test_apply_to_folder_no_children() {
   );
   Assert.equal(
     child1Info.sortOrder,
-    Ci.nsMsgViewSortOrder.ascending,
-    "sortOrder for child1 should start ascending"
+    Ci.nsMsgViewSortOrder.descending,
+    "sortOrder for child1 should start descending"
   );
 
   // Apply to the one dude
@@ -198,8 +198,8 @@ add_task(async function test_apply_to_folder_and_children() {
   );
   Assert.equal(
     child1Info.sortOrder,
-    Ci.nsMsgViewSortOrder.ascending,
-    "sortOrder for child1 should start ascending"
+    Ci.nsMsgViewSortOrder.descending,
+    "sortOrder for child1 should start descending"
   );
 
   // Apply to folder and children.

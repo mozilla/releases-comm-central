@@ -112,7 +112,7 @@ add_task(async function test_wrong_reply_charset() {
   // Make the folder unthreaded for easier message selection.
   make_display_unthreaded();
 
-  let msg = select_click_row(0);
+  let msg = select_click_row(-1);
   assert_selected_and_displayed(mc, msg);
   Assert.equal(getMsgHeaders(msg).get("").charset, "invalid-charset");
 
@@ -124,12 +124,12 @@ add_task(async function test_wrong_reply_charset() {
   );
   close_compose_window(rwc);
 
-  let draftMsg = select_click_row(1);
+  let draftMsg = select_click_row(-2);
   Assert.equal(getMsgHeaders(draftMsg).get("").charset, "UTF-8");
   press_delete(mc); // Delete message
 
   // Edit the original message. Charset should be UTF-8 now.
-  msg = select_click_row(0);
+  msg = select_click_row(-1);
 
   // Wait for the notification with the Edit button.
   wait_for_notification_to_show(
@@ -154,7 +154,7 @@ add_task(async function test_wrong_reply_charset() {
   rwc = wait_for_compose_window();
   await save_compose_message(rwc.window);
   close_compose_window(rwc);
-  msg = select_click_row(0);
+  msg = select_click_row(-1);
   await TestUtils.waitForCondition(
     () => getMsgHeaders(msg).get("").charset == "UTF-8",
     "The charset matches"
@@ -174,7 +174,7 @@ add_task(async function test_no_mojibake() {
   });
   await add_message_to_folder([folder], msg0);
   await be_in_folder(folder);
-  let msg = select_click_row(0);
+  let msg = select_click_row(-1);
   assert_selected_and_displayed(mc, msg);
   await TestUtils.waitForCondition(
     () => getMsgHeaders(msg).get("").charset == "utf-7",
@@ -190,7 +190,7 @@ add_task(async function test_no_mojibake() {
   );
   close_compose_window(rwc);
 
-  let draftMsg = select_click_row(1);
+  let draftMsg = select_click_row(-2);
   Assert.equal(getMsgHeaders(draftMsg).get("").charset.toUpperCase(), "UTF-8");
   let text = getMsgHeaders(draftMsg, true).get("");
   // Delete message first before throwing so subsequent tests are not affected.
@@ -200,7 +200,7 @@ add_task(async function test_no_mojibake() {
   }
 
   // Edit the original message. Charset should be UTF-8 now.
-  msg = select_click_row(0);
+  msg = select_click_row(-1);
 
   // Wait for the notification with the Edit button.
   wait_for_notification_to_show(
@@ -224,7 +224,7 @@ add_task(async function test_no_mojibake() {
   rwc = wait_for_compose_window();
   await save_compose_message(rwc.window);
   close_compose_window(rwc);
-  msg = select_click_row(0);
+  msg = select_click_row(-1);
   Assert.equal(getMsgHeaders(msg).get("").charset.toUpperCase(), "UTF-8");
   Assert.equal(getMsgHeaders(msg, true).get("").trim(), nonASCII);
   press_delete(mc); // Delete message

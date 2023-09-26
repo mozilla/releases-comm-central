@@ -373,7 +373,7 @@ async function subtest_message_panes(
 // Tests using a message with two attachment.
 add_task(async function test_message_panes() {
   gMessage = [...gFolders[0].messages][1];
-  about3Pane.threadTree.selectedIndex = 1;
+  about3Pane.threadTree.selectedIndex = 0;
   await promiseMessageLoaded(messagePane, gMessage);
 
   await subtest_message_panes(

@@ -123,7 +123,7 @@ add_task(async function test_MV3_event_pages() {
   // Select multiple messages.
 
   {
-    let messages = [...subFolders.test1.messages].slice(0, 5);
+    const messages = [...subFolders.test1.messages].slice(0, 5);
     tabmail.currentAbout3Pane.threadTree.selectedIndices = messages.map(m =>
       tabmail.currentAbout3Pane.gDBView.findIndexOfMsgHdr(m, false)
     );
@@ -138,7 +138,7 @@ add_task(async function test_MV3_event_pages() {
         "Tiny Wedding In a Fortnight",
         "Red Document Needs Attention",
       ],
-      displayInfo[1].messages.map(e => e.subject),
+      displayInfo[1].messages.reverse().map(e => e.subject),
       "The primed onSelectedMessagesChanged event should return the correct values"
     );
     Assert.deepEqual(

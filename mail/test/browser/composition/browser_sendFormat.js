@@ -258,7 +258,9 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   // Open the "sent" message.
   await be_in_folder(outboxFolder);
   // Should be the last message in the tree.
-  select_click_row(-1);
+  select_click_row(0);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   // Test that the sent content type is either text/plain, text/html or
   // multipart/alternative.

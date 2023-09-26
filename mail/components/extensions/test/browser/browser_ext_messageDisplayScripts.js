@@ -78,23 +78,38 @@ add_task(async function testInsertRemoveCSS() {
   await extension.startup();
 
   await extension.awaitMessage();
-  await checkMessageBody({ backgroundColor: "rgba(0, 0, 0, 0)" }, messages[0]);
+  await checkMessageBody(
+    { backgroundColor: "rgba(0, 0, 0, 0)" },
+    messages.at(-1)
+  );
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkMessageBody({ backgroundColor: "rgb(0, 255, 0)" }, messages[0]);
+  await checkMessageBody(
+    { backgroundColor: "rgb(0, 255, 0)" },
+    messages.at(-1)
+  );
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkMessageBody({ backgroundColor: "rgba(0, 0, 0, 0)" }, messages[0]);
+  await checkMessageBody(
+    { backgroundColor: "rgba(0, 0, 0, 0)" },
+    messages.at(-1)
+  );
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkMessageBody({ backgroundColor: "rgb(0, 128, 0)" }, messages[0]);
+  await checkMessageBody(
+    { backgroundColor: "rgb(0, 128, 0)" },
+    messages.at(-1)
+  );
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
-  await checkMessageBody({ backgroundColor: "rgba(0, 0, 0, 0)" }, messages[0]);
+  await checkMessageBody(
+    { backgroundColor: "rgba(0, 0, 0, 0)" },
+    messages.at(-1)
+  );
 
   await extension.unload();
 });
@@ -151,7 +166,7 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
       backgroundColor: "rgba(0, 0, 0, 0)",
       textContent: "",
     },
-    messages[1]
+    messages.at(-2)
   );
 
   await extension.unload();
@@ -192,11 +207,11 @@ add_task(async function testExecuteScript() {
   await extension.startup();
 
   await extension.awaitMessage();
-  await checkMessageBody({ textContent: "" }, messages[2]);
+  await checkMessageBody({ textContent: "" }, messages.at(-3));
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkMessageBody({ foo: "bar" }, messages[2]);
+  await checkMessageBody({ foo: "bar" }, messages.at(-3));
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
@@ -205,7 +220,7 @@ add_task(async function testExecuteScript() {
       foo: "bar",
       textContent: "Hey look, the script ran!",
     },
-    messages[2]
+    messages.at(-3)
   );
 
   await extension.unload();
@@ -261,7 +276,7 @@ add_task(async function testExecuteScriptNoPermissions() {
   await extension.startup();
 
   await extension.awaitFinish("finished");
-  await checkMessageBody({ foo: null, textContent: "" }, messages[3]);
+  await checkMessageBody({ foo: null, textContent: "" }, messages.at(-4));
 
   await extension.unload();
 });
@@ -296,13 +311,13 @@ add_task(async function testExecuteScriptAlias() {
   await extension.startup();
 
   await extension.awaitMessage();
-  await checkMessageBody({ textContent: "" }, messages[4]);
+  await checkMessageBody({ textContent: "" }, messages.at(-5));
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
   await checkMessageBody(
     { textContent: "message_display_scripts@mochitest" },
-    messages[4]
+    messages.at(-5)
   );
 
   await extension.unload();
@@ -387,7 +402,7 @@ add_task(async function testRegister() {
       backgroundColor: "rgba(0, 0, 0, 0)",
       textContent: "",
     },
-    messages[5]
+    messages.at(-6)
   );
 
   // Load a new message and check it is modified.
@@ -402,7 +417,7 @@ add_task(async function testRegister() {
       foo: "bar",
       textContent: "Hey look, the script ran!",
     },
-    messages[6]
+    messages.at(-7)
   );
   // Check runtime messaging.
   let testDonePromise = extension.awaitMessage("RuntimeMessageTestDone");
@@ -411,7 +426,7 @@ add_task(async function testRegister() {
 
   // Open the message in a new tab.
   loadPromise = extension.awaitMessage("ScriptLoaded");
-  let messageTab = await openMessageInTab(messages[6]);
+  let messageTab = await openMessageInTab(messages.at(-7));
   let messageTabId = await loadPromise;
   Assert.equal(tabmail.tabInfo.length, 2);
 
@@ -422,7 +437,7 @@ add_task(async function testRegister() {
       foo: "bar",
       textContent: "Hey look, the script ran!",
     },
-    messages[6],
+    messages.at(-7),
     messageTab.browser
   );
   // Check runtime messaging.
@@ -455,7 +470,7 @@ add_task(async function testRegister() {
       foo: "bar",
       textContent: "Hey look, the script ran!",
     },
-    messages[6],
+    messages.at(-7),
     messageTab.browser
   );
   // Check runtime messaging.
@@ -465,7 +480,7 @@ add_task(async function testRegister() {
 
   // Open the message in a new window.
   loadPromise = extension.awaitMessage("ScriptLoaded");
-  let newWindow = await openMessageInWindow(messages[7]);
+  let newWindow = await openMessageInWindow(messages.at(-8));
   let newWindowMessagePane = newWindow.getBrowser();
   let windowTabId = await loadPromise;
 
@@ -476,7 +491,7 @@ add_task(async function testRegister() {
       foo: "bar",
       textContent: "Hey look, the script ran!",
     },
-    messages[7],
+    messages.at(-8),
     newWindowMessagePane
   );
   // Check runtime messaging.
@@ -497,7 +512,7 @@ add_task(async function testRegister() {
       foo: "bar",
       textContent: "Hey look, the script ran!",
     },
-    messages[6],
+    messages.at(-7),
     messageTab.browser
   );
 
@@ -511,7 +526,7 @@ add_task(async function testRegister() {
       foo: "bar",
       textContent: "Hey look, the script ran!",
     },
-    messages[6]
+    messages.at(-7)
   );
 
   // Check the CSS is unloaded from the message in a window.
@@ -522,7 +537,7 @@ add_task(async function testRegister() {
       foo: "bar",
       textContent: "Hey look, the script ran!",
     },
-    messages[7],
+    messages.at(-8),
     newWindowMessagePane
   );
 
@@ -571,12 +586,12 @@ async function subtestContentScriptManifest(message, ...permissions) {
 add_task(async function testContentScriptManifestNoPermission() {
   about3Pane.threadTree.selectedIndex = 7;
   await awaitBrowserLoaded(messagePane);
-  await subtestContentScriptManifest(messages[7]);
+  await subtestContentScriptManifest(messages.at(-8));
 });
 add_task(async function testContentScriptManifest() {
   about3Pane.threadTree.selectedIndex = 8;
   await awaitBrowserLoaded(messagePane);
-  await subtestContentScriptManifest(messages[8], "messagesModify");
+  await subtestContentScriptManifest(messages.at(-9), "messagesModify");
 });
 
 /** Tests registered content scripts do not affect message display. */
@@ -623,13 +638,13 @@ async function subtestContentScriptRegister(message, ...permissions) {
 add_task(async function testContentScriptRegisterNoPermission() {
   about3Pane.threadTree.selectedIndex = 9;
   await awaitBrowserLoaded(messagePane);
-  await subtestContentScriptRegister(messages[9], "<all_urls>");
+  await subtestContentScriptRegister(messages.at(-10), "<all_urls>");
 });
 add_task(async function testContentScriptRegister() {
   about3Pane.threadTree.selectedIndex = 10;
   await awaitBrowserLoaded(messagePane);
   await subtestContentScriptRegister(
-    messages[10],
+    messages.at(-11),
     "<all_urls>",
     "messagesModify"
   );

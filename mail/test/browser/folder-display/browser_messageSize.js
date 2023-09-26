@@ -61,7 +61,7 @@ async function _help_test_message_size(index, unit) {
 }
 
 add_task(async function test_byte_message_size() {
-  await _help_test_message_size(0, 1);
+  await _help_test_message_size(2, 1);
 });
 
 add_task(async function test_kb_message_size() {
@@ -69,7 +69,7 @@ add_task(async function test_kb_message_size() {
 });
 
 add_task(async function test_mb_message_size() {
-  await _help_test_message_size(2, 2);
+  await _help_test_message_size(0, 2);
 
   Assert.report(
     false,

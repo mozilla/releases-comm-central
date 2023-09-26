@@ -309,7 +309,7 @@ add_task(function test_open_attachment() {
 
 add_task(async function test_forward_raw_attachment() {
   await be_in_folder(folder);
-  select_click_row(1);
+  select_click_row(-2);
 
   let cwc = open_compose_with_forward();
   check_attachment_size(cwc, 0, rawAttachment.length);
@@ -320,7 +320,7 @@ add_task(async function test_forward_raw_attachment() {
 
 add_task(async function test_forward_b64_attachment() {
   await be_in_folder(folder);
-  select_click_row(2);
+  select_click_row(-3);
 
   let cwc = open_compose_with_forward();
   check_attachment_size(cwc, 0, b64Size);
@@ -331,7 +331,7 @@ add_task(async function test_forward_b64_attachment() {
 
 add_task(async function test_forward_message_as_attachment() {
   await be_in_folder(folder);
-  let curMessage = select_click_row(0);
+  let curMessage = select_click_row(-1);
 
   let cwc = open_compose_with_forward_as_attachments();
   check_attachment_size(cwc, 0, curMessage.messageSize);
@@ -342,7 +342,7 @@ add_task(async function test_forward_message_as_attachment() {
 
 add_task(async function test_forward_message_with_attachments_as_attachment() {
   await be_in_folder(folder);
-  let curMessage = select_click_row(1);
+  let curMessage = select_click_row(-2);
 
   let cwc = open_compose_with_forward_as_attachments();
   check_attachment_size(cwc, 0, curMessage.messageSize);

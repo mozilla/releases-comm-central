@@ -32,8 +32,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var i = 0;
-
 var id1Domain = "example.com";
 var id2Domain = "example.net";
 var myIdentityEmail1 = "me@example.com";
@@ -88,7 +86,7 @@ async function create_replyMsg(aTo, aEnvelopeTo) {
   await add_message_to_folder([gFolder], msg0);
 
   await be_in_folder(gFolder);
-  let msg = select_click_row(i++);
+  let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 }
 

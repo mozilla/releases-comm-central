@@ -50,6 +50,9 @@ var folder,
 requestLongerTimeout(AppConstants.MOZ_CODE_COVERAGE ? 4 : 2);
 
 add_setup(async function () {
+  // Use an ascending order because this test relies on message arrays matching.
+  Services.prefs.setIntPref("mailnews.default_sort_order", 1);
+
   folder = await create_folder("DeletionA");
   lastMessageFolder = await create_folder("DeletionB");
   oneBeforeFolder = await create_folder("DeletionC");
@@ -87,6 +90,10 @@ add_setup(async function () {
     [multipleDeletionFolder4],
     [{ count: 10 }]
   );
+
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mailnews.default_sort_order");
+  });
 });
 
 var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;

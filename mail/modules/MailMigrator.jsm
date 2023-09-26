@@ -63,7 +63,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 40;
+    const UI_VERSION = 41;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -708,6 +708,19 @@ var MailMigrator = {
         // user never changed it.
         if (!Services.prefs.prefHasUserValue("mail.pane_config.dynamic")) {
           Services.prefs.setIntPref("mail.pane_config.dynamic", 0);
+        }
+      }
+
+      if (currentUIVersion < 41) {
+        // Maintain the default ascending order for existing profiles if the
+        // user never changed it.
+        if (!Services.prefs.prefHasUserValue("mailnews.default_sort_order")) {
+          Services.prefs.setIntPref("mailnews.default_sort_order", 1);
+        }
+        if (
+          !Services.prefs.prefHasUserValue("mailnews.default_news_sort_order")
+        ) {
+          Services.prefs.setIntPref("mailnews.default_news_sort_order", 1);
         }
       }
 

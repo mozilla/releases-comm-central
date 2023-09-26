@@ -93,10 +93,10 @@ pref("mailnews.headers.extraAddonHeaders", "");
 //   as defined in nsIMsgDBView.idl (byDate = 18, byId = 21 etc.)
 
 // for Mail/RSS/... (nsMsgDatabase)
-pref("mailnews.default_sort_order", 1);
+pref("mailnews.default_sort_order", 2);
 pref("mailnews.default_sort_type", 18);
 // for News (nsNewsDatabase)
-pref("mailnews.default_news_sort_order", 1);
+pref("mailnews.default_news_sort_order", 2);
 pref("mailnews.default_news_sort_type", 21);
 
 // hidden pref for whether "sort by date" and "sort by received date" in

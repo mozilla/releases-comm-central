@@ -133,8 +133,8 @@ function assert_mdn_text_contains(text, shouldContain) {
  * and Return-Receipt-To isn't set.
  */
 add_task(function test_no_mdn_for_normal_msgs() {
-  gotoMsg(0); // TODO this shouldn't be needed but the selection goes to 0 on focus.
-  gotoMsg(1); // This message doesn't request a return receipt.
+  gotoMsg(-1); // TODO this shouldn't be needed but the selection goes to 0 on focus.
+  gotoMsg(-2); // This message doesn't request a return receipt.
   assert_mdn_shown(false);
 });
 
@@ -142,7 +142,7 @@ add_task(function test_no_mdn_for_normal_msgs() {
  * Test that return receipts are shown when Disposition-Notification-To is set.
  */
 add_task(function test_basic_mdn_shown() {
-  gotoMsg(0); // This message requests a return receipt.
+  gotoMsg(-1); // This message requests a return receipt.
   assert_mdn_shown(true);
   assert_mdn_text_contains("ake@example.com", false); // only name should show
 });
@@ -151,7 +151,7 @@ add_task(function test_basic_mdn_shown() {
  * Test that return receipts are shown when Return-Receipt-To is set.
  */
 add_task(function test_basic_mdn_shown_nonrfc() {
-  gotoMsg(4); // This message requests a return receipt.
+  gotoMsg(-5); // This message requests a return receipt.
   assert_mdn_shown(true);
   assert_mdn_text_contains("ake@example.com", false); // only name should show
 });
@@ -161,7 +161,7 @@ add_task(function test_basic_mdn_shown_nonrfc() {
  * The RFC compliant version.
  */
 add_task(function test_mdn_when_from_and_disposition_to_differs() {
-  gotoMsg(2); // Should display a notification with warning.
+  gotoMsg(-3); // Should display a notification with warning.
   assert_mdn_shown(true);
   assert_mdn_text_contains("other@example.com", true); // address should show
 });
@@ -171,7 +171,7 @@ add_task(function test_mdn_when_from_and_disposition_to_differs() {
  * The RFC non-compliant version.
  */
 add_task(function test_mdn_when_from_and_disposition_to_differs_nonrfc() {
-  gotoMsg(5); // Should display a notification with warning.
+  gotoMsg(-6); // Should display a notification with warning.
   assert_mdn_shown(true);
   assert_mdn_text_contains("other@example.com", true); // address should show
 });
@@ -181,7 +181,7 @@ add_task(function test_mdn_when_from_and_disposition_to_differs_nonrfc() {
  * addresses.
  */
 add_task(function test_mdn_when_disposition_to_multi() {
-  gotoMsg(3);
+  gotoMsg(-4);
   // Should display a notification with warning listing all the addresses.
   assert_mdn_shown(true);
   assert_mdn_text_contains("ex1@example.com", true);
@@ -193,7 +193,7 @@ add_task(function test_mdn_when_disposition_to_multi() {
  * addresses. Non-RFC compliant version.
  */
 add_task(function test_mdn_when_disposition_to_multi_nonrfc() {
-  gotoMsg(6);
+  gotoMsg(0);
   // Should display a notification with warning listing all the addresses.
   assert_mdn_shown(true);
   assert_mdn_text_contains("ex1@example.com", true);

@@ -18,8 +18,6 @@ var {
   create_folder,
   create_message,
   get_about_3pane,
-  mc,
-  select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -196,6 +194,9 @@ var contacts = [
 ];
 
 add_setup(async function () {
+  // Use an ascending order because this test relies on message arrays matching.
+  Services.prefs.setIntPref("mailnews.default_sort_order", 1);
+
   folder = await create_folder("DisplayNameA");
 
   for (let message of messages) {
@@ -212,6 +213,10 @@ add_setup(async function () {
   }
 
   await be_in_folder(folder);
+
+  registerCleanupFunction(() => {
+    Services.prefs.clearUserPref("mailnews.default_sort_order");
+  });
 });
 
 async function check_display_name(index, columnName, expectedName) {

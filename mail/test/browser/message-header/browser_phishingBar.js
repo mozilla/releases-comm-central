@@ -151,10 +151,10 @@ add_task(async function test_ignore_phishing_warning_from_message() {
   let aboutMessage = get_about_message();
 
   await be_in_folder(folder);
-  select_click_row(0);
+  select_click_row(-1);
   await assert_ignore_works(mc);
 
-  select_click_row(1);
+  select_click_row(-2);
   // msg 1 is normal -> no phishing warning
   assert_notification_displayed(
     aboutMessage,
@@ -162,7 +162,7 @@ add_task(async function test_ignore_phishing_warning_from_message() {
     kNotificationValue,
     false
   );
-  select_click_row(0);
+  select_click_row(-1);
   // msg 0 is a potential phishing attempt, but we ignored it so that should
   // be remembered
   assert_notification_displayed(
@@ -224,7 +224,7 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
  */
 add_task(async function test_no_phishing_warning_for_ip_sameish_text() {
   await be_in_folder(folder);
-  select_click_row(2); // Mail with Public IP address.
+  select_click_row(-3); // Mail with Public IP address.
   click_link_if_available();
   assert_notification_displayed(
     get_about_message(),
@@ -242,7 +242,7 @@ add_task(async function test_no_phishing_warning_for_ip_sameish_text() {
 add_task(async function test_no_phishing_warning_for_subdomain() {
   let aboutMessage = get_about_message();
   await be_in_folder(folder);
-  select_click_row(3);
+  select_click_row(-4);
   click_link_if_available();
   assert_notification_displayed(
     aboutMessage,
@@ -251,7 +251,7 @@ add_task(async function test_no_phishing_warning_for_subdomain() {
     false
   ); // not shown
 
-  select_click_row(4);
+  select_click_row(-5);
   click_link_if_available();
   assert_notification_displayed(
     aboutMessage,
@@ -267,7 +267,7 @@ add_task(async function test_no_phishing_warning_for_subdomain() {
  */
 add_task(async function test_phishing_warning_for_local_domain() {
   await be_in_folder(folder);
-  select_click_row(5);
+  select_click_row(-6);
 
   let dialogAppeared = false;
 
@@ -285,7 +285,7 @@ add_task(async function test_phishing_warning_for_local_domain() {
  */
 add_task(async function test_phishing_warning_for_action_form() {
   await be_in_folder(folder);
-  select_click_row(6);
+  select_click_row(0);
   assert_notification_displayed(
     get_about_message(),
     kBoxId,

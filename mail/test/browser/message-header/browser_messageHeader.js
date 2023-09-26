@@ -152,7 +152,7 @@ add_task(async function test_add_tag_with_really_long_label() {
   await ensure_table_view();
 
   // Select the first message, which will display it.
-  let curMessage = select_click_row(0);
+  let curMessage = select_click_row(-1);
 
   assert_selected_and_displayed(mc, curMessage);
 
@@ -444,7 +444,7 @@ add_task(async function enter_msg_hdr_toolbar() {
 
 add_task(function test_more_button_with_many_recipients() {
   // Start on the interesting message.
-  let curMessage = select_click_row(0);
+  let curMessage = select_click_row(-1);
 
   // Make sure it loads.
   wait_for_message_display_completion(mc);
@@ -465,7 +465,7 @@ add_task(function test_more_button_with_many_recipients() {
   );
 
   // Switch to the boring message, to force the more button to collapse.
-  curMessage = select_click_row(1);
+  curMessage = select_click_row(-2);
 
   // Make sure it loads.
   wait_for_message_display_completion(mc);
@@ -510,7 +510,7 @@ add_task(async function test_clicking_ab_button_opens_inline_contact_editor() {
   let msg = create_message();
   await add_message_to_folder([folder], msg);
   // Open the latest message.
-  select_click_row(-1);
+  select_click_row(0);
   wait_for_message_display_completion(mc);
 
   // Ensure that the inline contact editing panel is not open
@@ -560,7 +560,7 @@ add_task(async function test_msg_id_context_menu() {
   await be_in_folder(folder);
 
   // Open the latest message.
-  select_click_row(-1);
+  select_click_row(0);
 
   // Right click to show the context menu.
   EventUtils.synthesizeMouseAtCenter(
@@ -616,7 +616,7 @@ add_task(
     await be_in_folder(folder);
 
     // Open the latest message.
-    select_click_row(-1);
+    select_click_row(0);
 
     // Ensure that the inline contact editing panel is not open
     let contactPanel = aboutMessage.document.getElementById("editContactPanel");
@@ -772,7 +772,7 @@ add_task(async function test_that_msg_without_date_clears_previous_headers() {
 
   // Not the first anymore. The timestamp is that of "NOW".
   // Select and open the LAST message.
-  let curMessage = select_click_row(-1);
+  let curMessage = select_click_row(0);
 
   // Make sure it loads.
   wait_for_message_display_completion(mc);
@@ -888,16 +888,16 @@ add_task(async function test_view_more_button() {
 
   // Select and open the injected message.
   // It is at the second last message in the display list.
-  let curMessage = select_click_row(-2);
+  let curMessage = select_click_row(1);
   // FIXME: Switch between a couple of messages to allow the UI to properly
   // refresh and fetch the proper recipients row width in order to avoid an
   // unexpected recipients wrapping. This happens because the width calculation
   // happens before the message header layout is fully generated.
-  let prevMessage = select_click_row(-3);
+  let prevMessage = select_click_row(2);
   wait_for_message_display_completion(mc);
   assert_selected_and_displayed(mc, prevMessage);
 
-  curMessage = select_click_row(-2);
+  curMessage = select_click_row(1);
 
   // Make sure it loads.
   wait_for_message_display_completion(mc);
@@ -930,11 +930,11 @@ add_task(async function test_view_more_button_focus() {
     { focusMore: false, useKeyboard: false },
   ]) {
     // Reload the message.
-    let prevMessage = select_click_row(-1);
+    let prevMessage = select_click_row(0);
     wait_for_message_display_completion(mc);
     assert_selected_and_displayed(mc, prevMessage);
 
-    let curMessage = select_click_row(-2);
+    let curMessage = select_click_row(1);
     wait_for_message_display_completion(mc);
     assert_selected_and_displayed(mc, curMessage);
 
@@ -1057,7 +1057,7 @@ add_task(async function test_show_all_header_mode() {
 
   // Select and open the added message.
   // It is at the second last position in the display list.
-  let curMessage = select_click_row(-2);
+  let curMessage = select_click_row(1);
 
   // Make sure it loads.
   wait_for_message_display_completion(mc);
@@ -1082,7 +1082,7 @@ async function help_test_starred_messages() {
   await be_in_folder(folder);
 
   // Select the last message, which will display it.
-  let curMessage = select_click_row(-1);
+  let curMessage = select_click_row(0);
   wait_for_message_display_completion(mc);
   assert_selected_and_displayed(mc, curMessage);
 
@@ -1112,7 +1112,7 @@ async function help_test_starred_messages() {
   Assert.ok(starButton.classList.contains("flagged"), "The message is starred");
 
   // Select the first message.
-  curMessage = select_click_row(0);
+  curMessage = select_click_row(-1);
   wait_for_message_display_completion(mc);
   assert_selected_and_displayed(mc, curMessage);
 
@@ -1123,7 +1123,7 @@ async function help_test_starred_messages() {
   );
 
   // Select again the last message.
-  curMessage = select_click_row(-1);
+  curMessage = select_click_row(0);
   wait_for_message_display_completion(mc);
   assert_selected_and_displayed(mc, curMessage);
 
@@ -1179,7 +1179,7 @@ add_task(async function test_starred_message_unified_mode() {
 add_task(async function test_folder_db_listener() {
   await be_in_folder(folderMore);
   // Select the last message, which will display it.
-  let curMessage = select_click_row(-1);
+  let curMessage = select_click_row(0);
   wait_for_message_display_completion(mc);
   assert_selected_and_displayed(mc, curMessage);
 
@@ -1210,7 +1210,7 @@ add_task(async function test_folder_db_listener() {
   await be_in_folder(folder);
 
   // Select the last message, which will display it.
-  curMessage = select_click_row(-1);
+  curMessage = select_click_row(0);
   wait_for_message_display_completion(mc);
   assert_selected_and_displayed(mc, curMessage);
 

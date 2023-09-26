@@ -14,26 +14,26 @@ add_setup(async () => {
   // Modify the messages so the filters can be checked against them.
 
   messages = [...subFolders[0].messages];
-  messages[0].markRead(true);
-  messages[2].markRead(true);
-  messages[4].markRead(true);
-  messages[6].markRead(true);
-  messages[8].markRead(true);
-  messages[1].markFlagged(true);
-  messages[6].markFlagged(true);
-  messages[0].setStringProperty("keywords", "$label1");
-  messages[1].setStringProperty("keywords", "$label2");
-  messages[3].setStringProperty("keywords", "$label1 $label2");
-  messages[5].setStringProperty("keywords", "$label2");
-  messages[6].setStringProperty("keywords", "$label1");
-  messages[7].setStringProperty("keywords", "$label2 $label3");
-  messages[8].setStringProperty("keywords", "$label3");
-  messages[9].setStringProperty("keywords", "$label1 $label2 $label3");
-  messages[9].markHasAttachments(true);
+  messages.at(-1).markRead(true);
+  messages.at(-3).markRead(true);
+  messages.at(-5).markRead(true);
+  messages.at(-7).markRead(true);
+  messages.at(-9).markRead(true);
+  messages.at(-2).markFlagged(true);
+  messages.at(-7).markFlagged(true);
+  messages.at(-1).setStringProperty("keywords", "$label1");
+  messages.at(-2).setStringProperty("keywords", "$label2");
+  messages.at(-4).setStringProperty("keywords", "$label1 $label2");
+  messages.at(-6).setStringProperty("keywords", "$label2");
+  messages.at(-7).setStringProperty("keywords", "$label1");
+  messages.at(-8).setStringProperty("keywords", "$label2 $label3");
+  messages.at(-9).setStringProperty("keywords", "$label3");
+  messages.at(0).setStringProperty("keywords", "$label1 $label2 $label3");
+  messages.at(0).markHasAttachments(true);
 
   // Add an author to the address book.
 
-  let author = messages[7].author.replace(/["<>]/g, "").split(" ");
+  let author = messages.at(-8).author.replace(/["<>]/g, "").split(" ");
   let card = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
@@ -54,53 +54,53 @@ add_setup(async () => {
 add_task(async () => {
   async function background() {
     browser.mailTabs.setQuickFilter({ unread: true });
-    await window.sendMessage("checkVisible", 1, 3, 5, 7, 9);
+    await window.sendMessage("checkVisible", 8, 6, 4, 2, 0);
 
     browser.mailTabs.setQuickFilter({ flagged: true });
-    await window.sendMessage("checkVisible", 1, 6);
+    await window.sendMessage("checkVisible", 8, 3);
 
     browser.mailTabs.setQuickFilter({ flagged: true, unread: true });
-    await window.sendMessage("checkVisible", 1);
+    await window.sendMessage("checkVisible", 8);
 
     browser.mailTabs.setQuickFilter({ tags: true });
-    await window.sendMessage("checkVisible", 0, 1, 3, 5, 6, 7, 8, 9);
+    await window.sendMessage("checkVisible", 9, 8, 6, 4, 3, 2, 1, 0);
 
     browser.mailTabs.setQuickFilter({
       tags: { mode: "any", tags: { $label1: true } },
     });
-    await window.sendMessage("checkVisible", 0, 3, 6, 9);
+    await window.sendMessage("checkVisible", 9, 6, 3, 0);
 
     browser.mailTabs.setQuickFilter({
       tags: { mode: "any", tags: { $label2: true } },
     });
-    await window.sendMessage("checkVisible", 1, 3, 5, 7, 9);
+    await window.sendMessage("checkVisible", 8, 6, 4, 2, 0);
 
     browser.mailTabs.setQuickFilter({
       tags: { mode: "any", tags: { $label1: true, $label2: true } },
     });
-    await window.sendMessage("checkVisible", 0, 1, 3, 5, 6, 7, 9);
+    await window.sendMessage("checkVisible", 9, 8, 6, 4, 3, 2, 0);
 
     browser.mailTabs.setQuickFilter({
       tags: { mode: "all", tags: { $label1: true, $label2: true } },
     });
-    await window.sendMessage("checkVisible", 3, 9);
+    await window.sendMessage("checkVisible", 6, 0);
 
     browser.mailTabs.setQuickFilter({
       tags: { mode: "all", tags: { $label1: true, $label2: false } },
     });
-    await window.sendMessage("checkVisible", 0, 6);
+    await window.sendMessage("checkVisible", 9, 3);
 
     browser.mailTabs.setQuickFilter({ attachment: true });
-    await window.sendMessage("checkVisible", 9);
+    await window.sendMessage("checkVisible", 0);
 
     browser.mailTabs.setQuickFilter({ attachment: false });
-    await window.sendMessage("checkVisible", 0, 1, 2, 3, 4, 5, 6, 7, 8);
+    await window.sendMessage("checkVisible", 9, 8, 7, 6, 5, 4, 3, 2, 1);
 
     browser.mailTabs.setQuickFilter({ contact: true });
-    await window.sendMessage("checkVisible", 7);
+    await window.sendMessage("checkVisible", 2);
 
     browser.mailTabs.setQuickFilter({ contact: false });
-    await window.sendMessage("checkVisible", 0, 1, 2, 3, 4, 5, 6, 8, 9);
+    await window.sendMessage("checkVisible", 9, 8, 7, 6, 5, 4, 3, 1, 0);
 
     browser.test.notifyPass("quickFilter");
   }
