@@ -11,6 +11,7 @@ const about3Pane = tabmail.currentAbout3Pane;
 const { threadTree } = about3Pane;
 
 add_setup(async function () {
+  Services.prefs.setBoolPref("mailnews.scroll_to_new_message", false);
   // Create an account for the test.
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
@@ -38,6 +39,7 @@ add_setup(async function () {
   // Remove test account on cleanup.
   registerCleanupFunction(() => {
     MailServices.accounts.removeAccount(account, false);
+    Services.prefs.setBoolPref("mailnews.scroll_to_new_message", true);
   });
 });
 

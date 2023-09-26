@@ -963,6 +963,17 @@ var dbViewWrapperListener = {
     window.threadPane?.restoreSelection(all);
 
     if (all) {
+      if (window.threadPane?.scrollToNewMessage) {
+        try {
+          let index = gDBView.findIndexOfMsgHdr(gFolder.firstNewMessage, true);
+          if (index != nsMsgViewIndex_None) {
+            window.threadTree.scrollToIndex(index, true);
+          }
+        } catch (ex) {
+          console.error(ex);
+        }
+        window.threadPane.scrollToNewMessage = false;
+      }
       window.threadTree?.invalidate();
     }
     window.quickFilterBar?.onMessagesChanged();

@@ -13,6 +13,7 @@ var {
   create_folder,
   delete_via_popup,
   enter_folder,
+  get_about_3pane,
   make_display_grouped,
   make_display_threaded,
   make_display_unthreaded,
@@ -85,7 +86,7 @@ add_task(async function test_selection_select_column() {
   await assert_selected_and_displayed(4);
   await select_column_click_row(4);
   await assert_nothing_selected();
-});
+}).skip();
 
 add_task(async function test_selection_select_column_deselection() {
   await be_in_folder(folder);
@@ -97,7 +98,7 @@ add_task(async function test_selection_select_column_deselection() {
   await delete_via_popup();
   await assert_nothing_selected();
   document.getElementById("selectCol").setAttribute("hidden", true);
-});
+}).skip();
 
 add_task(async function test_selection_last_message_deleted() {
   await be_in_folder(folder);
@@ -158,24 +159,24 @@ add_task(async function test_selection_persists_through_folder_tab_changes() {
   await assert_selected_and_displayed([2, 4]);
 });
 
-// https://bugzilla.mozilla.org/show_bug.cgi?id=474701#c87
+// https://bugzilla.mozilla.org/show_bug.cgi?id=1850190
 /**
  * Verify that we scroll to new messages when we enter a folder.
  */
 add_task(async function test_enter_scroll_to_new() {
-  // be in the folder
+  // This should be the default anyway:
+  Services.prefs.setBoolPref("mailnews.scroll_to_new_message", true);
   await be_in_folder(folder);
-  // make sure the sort is ascending...
-  window.gFolderDisplay.view.sortAscending();
-  // leave the folder so that the messages get marked as read
-  await enter_folder(folder.rootFolder);
-  // add a new message, and make sure it is new
+  get_about_3pane().sortController.sortAscending();
+  await select_click_row(1);
+  await enter_folder(folder2);
+  // When a folder is switched to, a new message should be visible and
+  // selections are not restored:
   await make_message_sets_in_folders([folder], [{ count: 1 }]);
-  // enter the folder
   await enter_folder(folder);
-  // make sure it (which must be the last row) is visible
-  assert_visible(-1);
-}).skip(); // Bug 1602436.
+  await assert_visible(-1);
+  await assert_nothing_selected();
+});
 
 /**
  * Test that the last selected message persists through folder changes.

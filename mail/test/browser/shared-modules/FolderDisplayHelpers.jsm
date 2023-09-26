@@ -2261,20 +2261,18 @@ function assert_visible(aViewIndexOrMessage) {
   } else {
     viewIndex = win.gDBView.findIndexOfMsgHdr(aViewIndexOrMessage, false);
   }
-  let tree = win.document.getElementById("threadTree");
+  let tree = win.threadTree;
   let firstVisibleIndex = tree.getFirstVisibleIndex();
-  let lastVisibleIndex = Math.floor(
-    (tree.scrollTop + tree.clientHeight) / tree._rowElementClass.ROW_HEIGHT
-  );
+  let lastVisibleIndex = tree.getLastVisibleIndex();
 
   if (viewIndex < firstVisibleIndex || viewIndex > lastVisibleIndex) {
     throw new Error(
       "View index " +
         viewIndex +
         " is not visible! (" +
-        firstVisibleIndex() +
+        firstVisibleIndex +
         "-" +
-        lastVisibleIndex() +
+        lastVisibleIndex +
         " are visible)"
     );
   }

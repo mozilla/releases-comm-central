@@ -13,6 +13,7 @@ let rootFolder, testFolder, sourceMessageIDs;
 let menuHelper = new MenuTestHelper("menu_View");
 
 add_setup(async function () {
+  Services.prefs.setBoolPref("mailnews.scroll_to_new_message", false);
   let generator = new MessageGenerator();
 
   MailServices.accounts.createLocalMailAccount();
@@ -42,6 +43,7 @@ add_setup(async function () {
   registerCleanupFunction(async () => {
     await ensure_cards_view();
     MailServices.accounts.removeAccount(account, false);
+    Services.prefs.setBoolPref("mailnews.scroll_to_new_message", true);
   });
 });
 

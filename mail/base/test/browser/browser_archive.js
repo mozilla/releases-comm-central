@@ -16,6 +16,7 @@ const { threadTree } = about3Pane;
 const messagesInThread = 5;
 
 add_setup(async function () {
+  Services.prefs.setBoolPref("mailnews.scroll_to_new_message", false);
   // Create an account for the test.
   MailServices.accounts.createLocalMailAccount();
   const account = MailServices.accounts.accounts[0];
@@ -37,6 +38,7 @@ add_setup(async function () {
     // Clear the undo and redo stacks to avoid side-effects on
     // tests expecting them to start in a cleared state.
     messenger.transactionManager.clear();
+    Services.prefs.setBoolPref("mailnews.scroll_to_new_message", true);
   });
 
   // Create a folder for the account to store test messages.
