@@ -1335,7 +1335,7 @@ DBViewWrapper.prototype = {
    */
   _compactedFolder(aFolder) {
     // IMAP compaction does not affect us unless we are holding headers
-    if (aFolder.server.type == "imap") {
+    if (aFolder != this.displayedFolder || aFolder.server.type == "imap") {
       return;
     }
 

@@ -1271,8 +1271,8 @@ NS_IMETHODIMP nsMsgDatabase::ForceClosed() {
   }
 
   // There'd better not be any listeners, because we're going away.
-  NS_ASSERTION(m_ChangeListeners.IsEmpty(),
-               "shouldn't have any listeners left");
+  NS_WARNING_ASSERTION(m_ChangeListeners.IsEmpty(),
+                       "shouldn't have any listeners left");
   m_ChangeListeners.Clear();
 
   NS_RELEASE_THIS();

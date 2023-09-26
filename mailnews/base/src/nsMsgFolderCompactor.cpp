@@ -246,6 +246,7 @@ nsresult nsFolderCompactState::Compact(
         folder->NotifyCompactCompleted();
         if (m_completionFn) {
           m_completionFn(NS_OK, m_totalExpungedBytes);
+          m_completionFn = nullptr;
         }
         return NS_OK;
       }
@@ -341,6 +342,7 @@ nsresult nsFolderCompactState::Compact(
   folder->NotifyCompactCompleted();
   if (m_completionFn) {
     m_completionFn(NS_OK, m_totalExpungedBytes);
+    m_completionFn = nullptr;
   }
   return NS_OK;
 }
@@ -447,6 +449,7 @@ NS_IMETHODIMP nsFolderCompactState::OnStopRunningUrl(nsIURI* url,
 
   if (m_completionFn) {
     m_completionFn(status, m_totalExpungedBytes);
+    m_completionFn = nullptr;
   }
   return NS_OK;
 }
@@ -639,6 +642,7 @@ nsresult nsFolderCompactState::FinishCompact() {
   m_folder->NotifyCompactCompleted();
   if (m_completionFn) {
     m_completionFn(rv, m_totalExpungedBytes);
+    m_completionFn = nullptr;
   }
 
   return NS_OK;
@@ -1322,8 +1326,6 @@ void nsMsgFolderCompactor::NextFolder() {
       NS_WARNING("skipping compact of non-offline folder");
       continue;
     }
-    nsCString uri;
-    folder->GetURI(uri);
 
     // Callback for when a folder compaction completes.
     auto completionFn = [self = RefPtr<nsMsgFolderCompactor>(this),
@@ -1366,6 +1368,7 @@ void nsMsgFolderCompactor::NextFolder() {
 
   // We're not needed any more.
   mKungFuDeathGrip = nullptr;
+  mListener = nullptr;
   return;
 }
 
