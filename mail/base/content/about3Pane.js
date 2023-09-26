@@ -4204,7 +4204,9 @@ var threadPaneHeader = {
       return;
     }
 
-    this.folderName.textContent = gFolder?.abbreviatedName ?? document.title;
+    const folderName = gFolder?.abbreviatedName ?? document.title;
+    this.folderName.textContent = folderName;
+    this.folderName.title = folderName;
     document.l10n.setAttributes(
       this.folderCount,
       "thread-pane-folder-message-count",

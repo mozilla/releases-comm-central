@@ -765,12 +765,21 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   display: flex;
   align-items: center;
   gap: 6px;
+  overflow: hidden;
+}
+
+.list-header-bar-container-start {
+  flex-shrink: 1;
 }
 
 .list-header-title {
   font-size: 1.2rem;
   font-weight: 600;
   margin-block: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  flex-shrink: 1;
+  text-overflow: ellipsis;
 }
 
 .thread-pane-count-info {
