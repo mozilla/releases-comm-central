@@ -21,12 +21,12 @@ job-defaults:
 # mozilla-central for Firefox builds, except that the Android compiler-rt
 # pieces have been left out.
 
-linux64-clang-16:
-    description: "Clang 16 toolchain build"
+linux64-clang-17:
+    description: "Clang 17 toolchain build"
     attributes:
         local-toolchain: true
     treeherder:
-        symbol: TL(clang-16)
+        symbol: TL(clang-17)
     worker-type: b-linux-gcp
     worker:
         max-run-time: 600
@@ -40,22 +40,22 @@ linux64-clang-16:
     fetches:
         toolchain:
             - linux64-cctools-port
-            - linux64-clang-16-raw
-            - linux64-aarch64-compiler-rt-16
-            - linux64-x64-compiler-rt-16
-            - linux64-x86-compiler-rt-16
-            - macosx64-aarch64-compiler-rt-16
-            - macosx64-x64-compiler-rt-16
-            - wasm32-wasi-compiler-rt-16
-            - win32-compiler-rt-16
-            - win64-compiler-rt-16
+            - linux64-clang-17-raw
+            - linux64-aarch64-compiler-rt-17
+            - linux64-x64-compiler-rt-17
+            - linux64-x86-compiler-rt-17
+            - macosx64-aarch64-compiler-rt-17
+            - macosx64-x64-compiler-rt-17
+            - wasm32-wasi-compiler-rt-17
+            - win32-compiler-rt-17
+            - win64-compiler-rt-17
 
-win64-clang-16:
-    description: "Clang-cl 16 toolchain build"
+win64-clang-17:
+    description: "Clang-cl 17 toolchain build"
     attributes:
         local-toolchain: true
     treeherder:
-        symbol: TW64(clang-16)
+        symbol: TW64(clang-17)
     worker-type: b-linux-gcp
     worker:
         max-run-time: 600
@@ -69,12 +69,12 @@ win64-clang-16:
     fetches:
         toolchain:
             - linux64-cctools-port
-            - win64-clang-16-raw
-            - linux64-aarch64-compiler-rt-16
-            - linux64-x64-compiler-rt-16
-            - linux64-x86-compiler-rt-16
-            - macosx64-aarch64-compiler-rt-16
-            - macosx64-x64-compiler-rt-16
-            - wasm32-wasi-compiler-rt-16
-            - win32-compiler-rt-16
-            - win64-compiler-rt-16
+            - win64-clang-17-raw
+            - linux64-aarch64-compiler-rt-17
+            - linux64-x64-compiler-rt-17
+            - linux64-x86-compiler-rt-17
+            - macosx64-aarch64-compiler-rt-17
+            - macosx64-x64-compiler-rt-17
+            - wasm32-wasi-compiler-rt-17
+            - win32-compiler-rt-17
+            - win64-compiler-rt-17
