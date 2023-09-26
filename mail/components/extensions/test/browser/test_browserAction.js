@@ -155,6 +155,7 @@ add_task(async function test_theme_icons() {
     BrowserTestUtils.waitForEvent(window, "windowlwthemeupdate"),
     dark_theme.enable(),
   ]);
+  await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     window.getComputedStyle(icon).content,
     makeIconSet(`url("moz-extension://${uuid}/light.png")`, defaultIcon),
@@ -227,6 +228,7 @@ add_task(async function test_theme_icons_messagewindow() {
     BrowserTestUtils.waitForEvent(messageWindow, "windowlwthemeupdate"),
     dark_theme.enable(),
   ]);
+  await new Promise(resolve => requestAnimationFrame(resolve));
   Assert.equal(
     messageWindow.getComputedStyle(button).listStyleImage,
     makeIconSet(`url("moz-extension://${uuid}/light.png")`, defaultIcon),
