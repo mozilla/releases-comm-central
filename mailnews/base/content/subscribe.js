@@ -78,6 +78,7 @@ var MySubscribeListener = {
     document.getElementById("refreshButton").disabled = false;
     document.getElementById("currentListTab").disabled = false;
     document.getElementById("newGroupsTab").disabled = false;
+    gSubscribableServer.subscribeListener = null;
   },
 };
 
