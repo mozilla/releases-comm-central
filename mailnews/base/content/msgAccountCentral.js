@@ -77,15 +77,21 @@ function updateAccountCentralUI() {
   }
 
   // Is this a RSS account?
-  let isRssAccount = gSelectedServer && gSelectedServer.type == "rss";
+  let isRssAccount = gSelectedServer?.type == "rss";
 
-  // It can read messages.
+  // Is this an NNTP account?
+  let isNNTPAccount = gSelectedServer?.type == "nntp";
+
+  // It can read messages (does it have an Inbox)?.
   let canGetMessages = false;
   try {
     canGetMessages = protocolInfo && protocolInfo.canGetMessages;
     document
       .getElementById("readButton")
-      .toggleAttribute("hidden", !canGetMessages || isRssAccount);
+      .toggleAttribute(
+        "hidden",
+        !canGetMessages || isRssAccount || isNNTPAccount
+      );
   } catch (e) {
     exceptions.push(e);
   }
@@ -102,19 +108,9 @@ function updateAccountCentralUI() {
   }
 
   // It can subscribe to a newsgroup.
-  let canSubscribe = false;
-  try {
-    canSubscribe =
-      gSelectedFolder &&
-      gSelectedFolder.canSubscribe &&
-      protocolInfo &&
-      !protocolInfo.canGetMessages;
-    document
-      .getElementById("nntpSubscriptionButton")
-      .toggleAttribute("hidden", !canSubscribe);
-  } catch (e) {
-    exceptions.push(e);
-  }
+  document
+    .getElementById("nntpSubscriptionButton")
+    .toggleAttribute("hidden", !isNNTPAccount);
 
   // It can subscribe to an RSS feed.
   document
