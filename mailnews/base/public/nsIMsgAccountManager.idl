@@ -167,11 +167,14 @@ interface nsIMsgAccountManager : nsISupports {
   // Create the account for that special server.
   void createLocalMailAccount();
 
-  /* load accounts kicks off the creation of all accounts. You do not need
-   * to call this and all accounts should be loaded lazily if you use any
-   * of the above.
+  /**
+   * Kicks off the creation of all accounts. You do not need to call this and
+   * all accounts should be loaded lazily if you use any of the above.
    */
-  void LoadAccounts();
+  void loadAccounts();
+
+  /** Frees all the account manager data structures. */
+  void unloadAccounts();
 
   /**
    * When the server for an account could not be loaded, typically because the
@@ -180,14 +183,11 @@ interface nsIMsgAccountManager : nsISupports {
    * rechecked at startup but this function can be used to recheck all servers
    * at any time to avoid having to restart to reactivate an account.
    */
-  void ReactivateAccounts();
+  void reactivateAccounts();
 
   void setSpecialFolders();
 
   void loadVirtualFolders();
-
-  /* unload accounts frees all the account manager data structures */
-  void UnloadAccounts();
 
   void WriteToFolderCache(in nsIMsgFolderCache folderCache);
   void saveVirtualFolders();

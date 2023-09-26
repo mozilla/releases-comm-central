@@ -198,8 +198,8 @@ SeamonkeyImportSettings.prototype = {
     );
 
     // Reload accounts so that `CheckIfLocalFolderExists` in importDialog works
-    MailServices.accounts.UnloadAccounts();
-    MailServices.accounts.LoadAccounts();
+    MailServices.accounts.unloadAccounts();
+    MailServices.accounts.loadAccounts();
     return true;
   },
 };

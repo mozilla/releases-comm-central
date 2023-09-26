@@ -129,7 +129,7 @@ function nextTest() {
     incomingServer = null;
     MailServices.accounts.closeCachedConnections();
     MailServices.accounts.shutdownServers();
-    MailServices.accounts.UnloadAccounts();
+    MailServices.accounts.unloadAccounts();
     server.stop();
   } catch (e) {
     // server.stop();

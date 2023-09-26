@@ -66,17 +66,17 @@ function run_test() {
   Assert.notEqual(newAccount.key, "account2");
   Assert.equal(MailServices.accounts.accounts.length, 2);
 
-  MailServices.accounts.UnloadAccounts();
+  MailServices.accounts.unloadAccounts();
 
   // Set the unavailable account to a valid type, and watch it appear.
   Services.prefs.setCharPref("mail.server.server2.type", "pop3");
   Assert.equal(MailServices.accounts.accounts.length, 3);
 
   // Make it bad again, and reload it to restart the timeout before delete.
-  MailServices.accounts.UnloadAccounts();
+  MailServices.accounts.unloadAccounts();
   Services.prefs.setCharPref("mail.server.server2.type", "invalid");
   Assert.equal(MailServices.accounts.accounts.length, 2);
-  MailServices.accounts.UnloadAccounts();
+  MailServices.accounts.unloadAccounts();
 
   // Now let the bad type timeout, and watch it magically disappear!
   do_test_pending();

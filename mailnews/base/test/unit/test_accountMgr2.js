@@ -86,19 +86,34 @@ add_task(async function () {
   Assert.equal(MailServices.accounts.allIdentities.length, 2);
 
   // Test a special hostname.
-  const acc3 = MailServices.accounts.createAccount();
-  acc3.incomingServer = MailServices.accounts.createIncomingServer(
+  const acc4 = MailServices.accounts.createAccount();
+  acc4.incomingServer = MailServices.accounts.createIncomingServer(
     "bob_unavail",
     "0.0.0.0.", // Note ending dot which would not do anything for an IP.
     "pop3"
   );
   const id4 = MailServices.accounts.createIdentity();
   id4.email = "bob_unavail@example.com";
-  acc3.addIdentity(id4);
+  acc4.addIdentity(id4);
 
   Assert.equal(
     MailServices.accounts.accounts.length,
     3,
-    "acc3 should be in accounts"
+    "acc4 should be in accounts"
+  );
+
+  // Test that an account with empty server hostname doesn't even get listed.
+  const serverKey = acc4.incomingServer.key;
+  Services.prefs.setStringPref(`mail.server.${serverKey}.hostname`, "");
+  MailServices.accounts.unloadAccounts();
+  MailServices.accounts.loadAccounts();
+  Assert.equal(
+    MailServices.accounts.accounts.length,
+    2,
+    "invalid acc4 should have been removed"
+  );
+  Assert.equal(
+    Services.prefs.getCharPref("mail.accountmanager.accounts"),
+    "account2,account3"
   );
 });

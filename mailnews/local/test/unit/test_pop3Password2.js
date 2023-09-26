@@ -185,7 +185,7 @@ add_task(async function () {
   handler.kUsername = "testpop3";
   handler.kPassword = "pop3test";
 
-  MailServices.accounts.LoadAccounts();
+  MailServices.accounts.loadAccounts();
 
   localAccountUtils.incomingServer = MailServices.accounts.localFoldersServer;
 

@@ -11,7 +11,7 @@
 #include "nsCRTGlue.h"
 #include "nsCOMPtr.h"
 #include "nsIMsgFolderNotificationService.h"
-
+#include "nsPrintfCString.h"
 #include "nsIPrefService.h"
 #include "nsIPrefBranch.h"
 #include "nsMsgAccount.h"
@@ -91,6 +91,15 @@ nsresult nsMsgAccount::createIncomingServer() {
   nsCOMPtr<nsIMsgIncomingServer> server;
   rv = accountManager->GetIncomingServer(serverKey, getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCString hostname;
+  rv = server->GetHostName(hostname);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (hostname.IsEmpty()) {
+    NS_WARNING(
+        nsPrintfCString("Server had no hostname; key=%s", serverKey.get()));
+    return NS_ERROR_UNEXPECTED;
+  }
 
   // store the server in this structure
   m_incomingServer = server;

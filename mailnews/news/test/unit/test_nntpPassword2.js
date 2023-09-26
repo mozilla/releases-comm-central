@@ -68,7 +68,7 @@ add_task(async function () {
     test = "news:*";
 
     // Get the existing incoming server
-    MailServices.accounts.LoadAccounts();
+    MailServices.accounts.loadAccounts();
 
     // Create the incoming server with "original" details.
     var incomingServer = MailServices.accounts.getIncomingServer("server2");
