@@ -176,6 +176,7 @@ richlistitem[is="chat-contact-richlistitem"] {
 
 .box-line {
   width: 2px;
+  height: 100%;
 }
 
 richlistitem[is="chat-contact-richlistitem"] > .box-line {
