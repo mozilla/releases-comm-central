@@ -266,7 +266,7 @@ const DEFAULT_COLUMNS = [
  * @param {nsIMsgFolder} folder - The message folder.
  * @returns {boolean} True if the folder is Outgoing.
  */
-const isOutgoing = folder => {
+export const isOutgoing = folder => {
   return folder.isSpecialFolder(
     lazy.DBViewWrapper.prototype.OUTGOING_FOLDER_FLAGS,
     true
@@ -277,7 +277,7 @@ const isOutgoing = folder => {
  * Generate the correct default array of columns, accounting for different views
  * and folder states.
  *
- * @param {nsIMsgFolder} folder - The currently viewed folder.
+ * @param {?nsIMsgFolder} folder - The currently viewed folder if available.
  * @param {boolean} [isSynthetic=false] - If the current view is synthetic,
  *   meaning we are not visualizing a real folder, but rather
  *   the gloda results list.
@@ -350,4 +350,36 @@ export function getDefaultColumns(folder, isSynthetic = false) {
     }
   }
   return updatedColumns;
+}
+
+/**
+ * Find the proper column to use as sender field for the cards view.
+ *
+ * @param {?nsIMsgFolder} folder - The currently viewed folder if available.
+ * @returns {string} - The name of the column to use as sender field.
+ */
+function getProperSenderForCardsView(folder) {
+  // Default to correspondent as it's the safest choice most of the times.
+  if (!folder) {
+    return "correspondentCol";
+  }
+
+  // Show the recipient for outgoing folders.
+  if (isOutgoing(folder)) {
+    return "recipientCol";
+  }
+
+  // Show the sender for any other scenario, including news and feeds folders.
+  return "senderCol";
+}
+
+/**
+ * Get the default array of columns to fetch data for the cards view.
+ *
+ * @param {?nsIMsgFolder} folder - The currently viewed folder if available.
+ * @returns {string[]}
+ */
+export function getDefaultColumnsForCardsView(folder) {
+  const sender = getProperSenderForCardsView(folder);
+  return ["subjectCol", sender, "dateCol", "tagsCol"];
 }

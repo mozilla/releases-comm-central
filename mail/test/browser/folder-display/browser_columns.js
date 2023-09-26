@@ -48,7 +48,9 @@ var gColumnStateUpdated = false;
 
 var useCorrespondent;
 var INBOX_DEFAULTS;
+var CARDS_INBOX_DEFAULT;
 var SENT_DEFAULTS;
+var CARDS_SENT_DEFAULTS;
 var VIRTUAL_DEFAULTS;
 var GLODA_DEFAULTS;
 
@@ -66,6 +68,7 @@ add_setup(async function () {
     "junkStatusCol",
     "dateCol",
   ];
+  CARDS_INBOX_DEFAULT = ["subjectCol", "senderCol", "dateCol", "tagsCol"];
   SENT_DEFAULTS = [
     "threadCol",
     "flaggedCol",
@@ -76,6 +79,7 @@ add_setup(async function () {
     "junkStatusCol",
     "dateCol",
   ];
+  CARDS_SENT_DEFAULTS = ["subjectCol", "recipientCol", "dateCol", "tagsCol"];
   VIRTUAL_DEFAULTS = [
     "threadCol",
     "flaggedCol",
@@ -119,7 +123,7 @@ function get_visible_threadtree_columns() {
 
 /**
  * Verify that the provided list of columns is visible in the given order,
- *  throwing an exception if it is not the case.
+ * throwing an exception if it is not the case.
  *
  * @param {string[]} desiredColumns - A list of column ID strings for columns
  *   that should be visible in the order that they should be visible.
@@ -136,6 +140,26 @@ function assert_visible_columns(desiredColumns) {
   if (failCol.length) {
     throw new Error(
       `Found unexpected visible columns: '${failCol}'!\ndesired list: ${desiredColumns}\nactual list: ${visibleColumns}`
+    );
+  }
+}
+
+/**
+ * Verify that the provided list of columns is the expected list for the cards
+ * view.
+ *
+ * @param {string[]} desiredColumns - A list of column ID strings for columns
+ *   that should be visible.
+ */
+function assert_visible_cards_columns(desiredColumns) {
+  const tabmail = document.getElementById("tabmail");
+  const about3Pane = tabmail.currentAbout3Pane;
+
+  const columns = about3Pane.threadPane.cardColumns;
+  const failCol = columns.filter(x => !desiredColumns.includes(x));
+  if (failCol.length) {
+    throw new Error(
+      `Found unexpected cards columns: '${failCol}'!\ndesired list: ${desiredColumns}\nactual list: ${columns}`
     );
   }
 }
@@ -192,6 +216,7 @@ add_task(async function test_column_defaults_inbox() {
   await enter_folder(folderInbox);
   await ensure_table_view();
   assert_visible_columns(INBOX_DEFAULTS);
+  assert_visible_cards_columns(CARDS_INBOX_DEFAULT);
 });
 
 add_task(async function test_keypress_on_columns() {
@@ -285,6 +310,7 @@ add_task(async function test_column_defaults_sent() {
 
   await be_in_folder(folderSent);
   assert_visible_columns(SENT_DEFAULTS);
+  assert_visible_cards_columns(CARDS_SENT_DEFAULTS);
 });
 
 /**

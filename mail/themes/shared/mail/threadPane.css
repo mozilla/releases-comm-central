@@ -696,6 +696,21 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   white-space: nowrap;
 }
 
+.is-outgoing [data-properties~="outgoing"] .thread-card-row > .sender {
+  background-position-x: 0;
+  background-position-y: center;
+  background-repeat: no-repeat;
+  background-image: var(--icon-nav-forward);
+  -moz-context-properties: stroke, fill-opacity;
+  stroke: currentColor;
+  fill-opacity: 0.3;
+  padding-inline-start: 18px;
+}
+
+.is-outgoing [data-properties~="outgoing"] .thread-card-row > .sender:dir(rtl)::before {
+  background-image: var(--icon-nav-back);
+}
+
 [data-properties~="dummy"] > td > .thread-card-container > .thread-card-row:first-child {
   display: none;
 }
