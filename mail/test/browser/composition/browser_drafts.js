@@ -247,6 +247,82 @@ add_task(async function test_edit_as_new_in_draft() {
 });
 
 /**
+ * Tests that editing a draft works as it should also when the identity
+ * name has properties that require mime encoding when sent out.
+ */
+add_task(async function test_edit_draft_mime_from() {
+  const identity = MailServices.accounts.createIdentity();
+  identity.email = "skinner@example.com";
+  identity.fullName = "SKINNER, Seymore";
+  const accounts = MailServices.accounts.accounts.at(-1); // Local Folders
+  accounts.addIdentity(identity);
+  registerCleanupFunction(() => {
+    accounts.removeIdentity(identity);
+  });
+
+  draftsFolder
+    .QueryInterface(Ci.nsIMsgLocalMailFolder)
+    .addMessage(
+      "From - Sun Oct 01 01:02:03 2023\n" +
+        "X-Mozilla-Status: 0000\n" +
+        "X-Mozilla-Status2: 00000000\n" +
+        "X-Mozilla-Keys:\n" +
+        `X-Account-Key: ${accounts.key}\n` +
+        `From: "SKINNER, Seymore <skinner@example.com>\n` +
+        "To: nobody@example.invalid\n" +
+        "Subject: test_edit_draft_mime_from!\n" +
+        `Message-ID: <${Date.now()}@example.invalid>\n` +
+        "Date: Sun, 1 Oct 2017 01:02:03 +0100\n" +
+        "X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; DSN=0; uuencode=0;\n" +
+        " attachmentreminder=0; deliveryformat=4\n" +
+        "MIME-Version: 1.0\n" +
+        "Content-Type: text/plain; charset=utf-8\n" +
+        "Content-Transfer-Encoding: 8bit\n" +
+        "\n" +
+        "Identitiy names should not show quotes!.\n"
+    );
+  await be_in_folder(draftsFolder);
+
+  Assert.equal(
+    draftsFolder.getTotalMessages(false),
+    1,
+    "should have one draft"
+  );
+
+  select_click_row(0);
+
+  // Wait for the notification with the Edit button.
+  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+
+  plan_for_new_window("msgcompose");
+  EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
+  let cwc = wait_for_compose_window();
+
+  const msgIdentity = cwc.window.document.getElementById("msgIdentity");
+  // Should show no quotes in the address.
+  Assert.equal(
+    msgIdentity.value,
+    "SKINNER, Seymore <skinner@example.com>",
+    "should show human readable version of identity"
+  );
+  // Should not be editable - which it would be if no identity matched.
+  Assert.equal(
+    msgIdentity.getAttribute("editable"),
+    "",
+    "msgIdentity should not be editable since a draft identity email matches"
+  );
+
+  close_compose_window(cwc);
+  // Clean up the created draft and count again.
+  press_delete(mc);
+  Assert.equal(
+    draftsFolder.getTotalMessages(false),
+    0,
+    "should have no drafts after deleting"
+  );
+});
+
+/**
  * Tests Content-Language header.
  */
 add_task(async function test_content_language_header() {

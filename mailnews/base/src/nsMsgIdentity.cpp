@@ -12,6 +12,7 @@
 #include "nsIMsgIncomingServer.h"
 #include "nsIMsgAccountManager.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
+#include "nsIMsgHeaderParser.h"
 #include "prprf.h"
 #include "nsISupportsPrimitives.h"
 #include "nsMsgUtils.h"
@@ -120,11 +121,17 @@ nsresult nsMsgIdentity::GetFullAddress(nsAString& fullAddress) {
   rv = GetEmail(email);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (fullName.IsEmpty() && email.IsEmpty())
+  if (fullName.IsEmpty() && email.IsEmpty()) {
     fullAddress.Truncate();
-  else
-    mozilla::mailnews::MakeMimeAddress(fullName, NS_ConvertASCIItoUTF16(email),
-                                       fullAddress);
+  } else {
+    nsCOMPtr<msgIAddressObject> mailbox;
+    nsCOMPtr<nsIMsgHeaderParser> headerParser(
+        mozilla::components::HeaderParser::Service());
+    NS_ENSURE_TRUE(headerParser, NS_ERROR_UNEXPECTED);
+    headerParser->MakeMailboxObject(fullName, NS_ConvertUTF8toUTF16(email),
+                                    getter_AddRefs(mailbox));
+    mailbox->ToString(fullAddress);
+  }
 
   return NS_OK;
 }
