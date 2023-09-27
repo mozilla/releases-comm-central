@@ -40,15 +40,21 @@
     "resource:///modules/TagUtils.jsm"
   );
 
-  // NOTE: Icon column headers should have their "label" attribute set to
-  // describe the icon for the accessibility tree.
-  //
-  // NOTE: Ideally we could listen for the "alt" attribute and pass it on to the
-  // contained <img>, but the accessibility tree only seems to read the "label"
-  // for a <treecol>, and ignores the alt text.
+  /**
+   * A tree column header with an icon instead of a label.
+   *
+   * @augments MozTreecol
+   *
+   * @note Icon column headers should have their "label" attribute set to
+   * describe the icon for the accessibility tree.
+   *
+   * @note Ideally we could listen for the "alt" attribute and pass it on to the
+   * contained <img>, but the accessibility tree only seems to read the "label"
+   * for a <treecol>, and ignores the alt text.
+   */
   class MozTreecolImage extends customElements.get("treecol") {
     static get observedAttributes() {
-      return ["src"];
+      return ["src", ...super.observedAttributes];
     }
 
     connectedCallback() {
@@ -60,9 +66,15 @@
 
       this.appendChild(this.image);
       this._updateAttributes();
+
+      this.initializeAttributeInheritance();
+      if (this.hasAttribute("ordinal")) {
+        this.style.order = this.getAttribute("ordinal");
+      }
     }
 
-    attributeChangedCallback() {
+    attributeChangedCallback(name, oldValue, newValue) {
+      super.attributeChangedCallback(name, oldValue, newValue);
       this._updateAttributes();
     }
 
