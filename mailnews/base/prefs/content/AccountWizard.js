@@ -56,19 +56,19 @@ function onAccountWizardLoad() {
   document
     .querySelector("wizard")
     .addEventListener("wizardfinish", FinishAccount);
-  let identityPage = document.getElementById("identitypage");
+  const identityPage = document.getElementById("identitypage");
   identityPage.addEventListener("pageshow", identityPageInit);
   identityPage.addEventListener("pageadvanced", identityPageUnload);
   identityPage.next = "newsserver";
-  let newsserverPage = document.getElementById("newsserver");
+  const newsserverPage = document.getElementById("newsserver");
   newsserverPage.addEventListener("pageshow", incomingPageInit);
   newsserverPage.addEventListener("pageadvanced", incomingPageUnload);
   newsserverPage.next = "accnamepage";
-  let accnamePage = document.getElementById("accnamepage");
+  const accnamePage = document.getElementById("accnamepage");
   accnamePage.addEventListener("pageshow", acctNamePageInit);
   accnamePage.addEventListener("pageadvanced", acctNamePageUnload);
   accnamePage.next = "done";
-  let donePage = document.getElementById("done");
+  const donePage = document.getElementById("done");
   donePage.addEventListener("pageshow", donePageInit);
 
   gPrefsBundle = document.getElementById("bundle_prefs");
@@ -115,9 +115,9 @@ function onCancel() {
     // since this is not an invalid account
     // really cancel if the user hits the "cancel" button
     // if the length of the account list is less than 1, there are no accounts
-    let confirmMsg = gPrefsBundle.getString("cancelWizard");
-    let confirmTitle = gPrefsBundle.getString("accountWizard");
-    let result = Services.prompt.confirmEx(
+    const confirmMsg = gPrefsBundle.getString("cancelWizard");
+    const confirmTitle = gPrefsBundle.getString("accountWizard");
+    const result = Services.prompt.confirmEx(
       window,
       confirmTitle,
       confirmMsg,
@@ -174,7 +174,7 @@ function FinishAccount() {
     } catch (ex) {
       dump("Error saving account info: " + ex + "\n");
     }
-    let openerWindow = window.opener.top;
+    const openerWindow = window.opener.top;
     // The following block is the same as in feedAccountWizard.js.
     if ("selectServer" in openerWindow) {
       // Opened from Account Settings.
@@ -240,7 +240,7 @@ function PageDataToAccountData(pageData, accountData) {
 // given an accountData structure, create an account
 // (but don't fill in any fields, that's for finishAccount()
 function createAccount(accountData) {
-  let hostName = accountData.incomingServer.hostName;
+  const hostName = accountData.incomingServer.hostName;
   // If we're here, the server must not be associated with any account, so reuse
   // it.
   let server = NntpUtils.findServer(hostName);
@@ -253,14 +253,14 @@ function createAccount(accountData) {
 
   dump("MailServices.accounts.createAccount()\n");
   // Create an account.
-  let account = MailServices.accounts.createAccount();
+  const account = MailServices.accounts.createAccount();
 
   // only create an identity for this account if we really have one
   // (use the email address as a check)
   if (accountData.identity && accountData.identity.email) {
     dump("MailServices.accounts.createIdentity()\n");
     // Create an identity.
-    let identity = MailServices.accounts.createIdentity();
+    const identity = MailServices.accounts.createIdentity();
 
     // New nntp identities should use plain text by default;
     // we want that GNKSA (The Good Net-Keeping Seal of Approval).
@@ -291,7 +291,7 @@ function finishAccount(account, accountData) {
     // If so, we use the type to get the IID, QueryInterface
     // as appropriate, then copy the data over.
     const typeProperty = "ServerType-" + srcServer.type;
-    let serverAttrs =
+    const serverAttrs =
       typeProperty in srcServer ? srcServer[typeProperty] : null;
     dump(`srcServer.${typeProperty} = ${serverAttrs}\n`);
     if (serverAttrs) {
@@ -304,8 +304,8 @@ function finishAccount(account, accountData) {
       }
 
       if (IID) {
-        let destProtocolServer = destServer.QueryInterface(IID);
-        let srcProtocolServer = srcServer["ServerType-" + srcServer.type];
+        const destProtocolServer = destServer.QueryInterface(IID);
+        const srcProtocolServer = srcServer["ServerType-" + srcServer.type];
 
         dump("Copying over " + srcServer.type + "-specific data\n");
         copyObjectToInterface(destProtocolServer, srcProtocolServer, false);
@@ -324,7 +324,7 @@ function finishAccount(account, accountData) {
     // does this account have an identity?
     if (accountData.identity && accountData.identity.email) {
       // fixup the email address if we have a default domain
-      let emailArray = accountData.identity.email.split("@");
+      const emailArray = accountData.identity.email.split("@");
       if (emailArray.length < 2 && accountData.domain) {
         accountData.identity.email += "@" + accountData.domain;
       }
@@ -342,7 +342,7 @@ function finishAccount(account, accountData) {
      */
     if (destIdentity.attachSignature) {
       var sigFileName = accountData.signatureFileName;
-      let sigFile = MailServices.mailSession.getDataFilesDir("messenger");
+      const sigFile = MailServices.mailSession.getDataFilesDir("messenger");
       sigFile.append(sigFileName);
       destIdentity.signature = sigFile;
     }
@@ -445,7 +445,7 @@ function setupCopiesAndFoldersServer(account, accountData) {
       return false;
     }
 
-    let identity = account.identities[0];
+    const identity = account.identities[0];
     // For this server, do we default the folder prefs to this server, or to the "Local Folders" server
     // If it's deferred, we use the local folders account.
     var defaultCopiesAndFoldersPrefsToServer =

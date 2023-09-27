@@ -216,7 +216,7 @@ var OAuth2Providers = {
     // look not just at the hostname, but also any sub-domains of this
     // hostname.
     while (hostname.includes(".")) {
-      let foundHost = kHostnames.get(hostname);
+      const foundHost = kHostnames.get(hostname);
       if (foundHost) {
         return foundHost;
       }

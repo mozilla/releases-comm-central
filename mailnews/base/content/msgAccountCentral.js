@@ -18,14 +18,14 @@ var gSelectedFolder = null;
  * The folder is passed in via the document URL.
  */
 function OnInit() {
-  let el = document.getElementById("setupTitle");
+  const el = document.getElementById("setupTitle");
 
   document.l10n.setAttributes(el, "setup-title", {
     accounts: MailServices.accounts.accounts.length,
   });
 
   // Selected folder URI is passed as folderURI argument in the query string.
-  let folderURI = decodeURIComponent(
+  const folderURI = decodeURIComponent(
     document.location.search.replace("?folderURI=", "")
   );
   gSelectedFolder = folderURI ? MailUtils.getExistingFolder(folderURI) : null;
@@ -41,8 +41,8 @@ function OnInit() {
     document.getElementById("version").textContent = Services.appinfo.version;
 
     // Update the style of the account setup buttons and area.
-    let accountSection = document.getElementById("accountSetupSection");
-    for (let btn of accountSection.querySelectorAll(".btn-hub")) {
+    const accountSection = document.getElementById("accountSetupSection");
+    for (const btn of accountSection.querySelectorAll(".btn-hub")) {
       btn.classList.remove("btn-inline");
     }
     accountSection.classList.remove("zebra");
@@ -68,7 +68,7 @@ function updateAccountCentralUI() {
     .getElementById("accountLogo")
     .setAttribute("type", gSelectedServer.type);
 
-  let exceptions = [];
+  const exceptions = [];
   let protocolInfo = null;
   try {
     protocolInfo = gSelectedServer.protocolInfo;
@@ -77,10 +77,10 @@ function updateAccountCentralUI() {
   }
 
   // Is this a RSS account?
-  let isRssAccount = gSelectedServer?.type == "rss";
+  const isRssAccount = gSelectedServer?.type == "rss";
 
   // Is this an NNTP account?
-  let isNNTPAccount = gSelectedServer?.type == "nntp";
+  const isNNTPAccount = gSelectedServer?.type == "nntp";
 
   // It can read messages (does it have an Inbox)?.
   let canGetMessages = false;

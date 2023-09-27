@@ -22,19 +22,19 @@ function onLoad(event) {
   gServer = window.arguments[0].account.incomingServer;
   gDialog = document.querySelector("dialog");
 
-  let bundle = document.getElementById("bundle_removeAccount");
-  let removeQuestion = bundle.getFormattedString("removeQuestion", [
+  const bundle = document.getElementById("bundle_removeAccount");
+  const removeQuestion = bundle.getFormattedString("removeQuestion", [
     gServer.prettyName,
   ]);
   document.getElementById("accountName").textContent = removeQuestion;
 
   // Allow to remove account data if it has a local storage.
-  let localDirectory = gServer.localPath;
+  const localDirectory = gServer.localPath;
   if (localDirectory && localDirectory.exists()) {
     localDirectory.normalize();
 
     // Do not allow removal if localPath is outside of profile folder.
-    let profilePath = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    const profilePath = Services.dirsvc.get("ProfD", Ci.nsIFile);
     profilePath.normalize();
 
     // TODO: bug 77652, decide what to do for deferred accounts.
@@ -52,7 +52,7 @@ function onLoad(event) {
   }
 
   if (gServer.type == "im") {
-    let dataCheckbox = document.getElementById("removeData");
+    const dataCheckbox = document.getElementById("removeData");
     dataCheckbox.label = dataCheckbox.getAttribute("labelChat");
     dataCheckbox.accessKey = dataCheckbox.getAttribute("accesskeyChat");
   }
@@ -70,12 +70,12 @@ function enableRemove() {
  * Show the local directory.
  */
 function openLocalDirectory() {
-  let nsLocalFile = Components.Constructor(
+  const nsLocalFile = Components.Constructor(
     "@mozilla.org/file/local;1",
     "nsIFile",
     "initWithPath"
   );
-  let localDir = gServer.localPath.path;
+  const localDir = gServer.localPath.path;
   try {
     new nsLocalFile(localDir).reveal();
   } catch (e) {
@@ -86,8 +86,8 @@ function openLocalDirectory() {
 }
 
 function showInfo() {
-  let descs = document.querySelectorAll("vbox.indent");
-  for (let desc of descs) {
+  const descs = document.querySelectorAll("vbox.indent");
+  for (const desc of descs) {
     desc.collapsed = false;
   }
 
@@ -106,8 +106,8 @@ function showInfo() {
 }
 
 function removeAccount() {
-  let removeAccount = document.getElementById("removeAccount").checked;
-  let removeData = document.getElementById("removeData").checked;
+  const removeAccount = document.getElementById("removeAccount").checked;
+  const removeData = document.getElementById("removeData").checked;
   let account = window.arguments[0].account;
   try {
     // Remove the requested account data.

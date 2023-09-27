@@ -67,12 +67,12 @@ FolderLookupService.prototype = {
 
     // Check that uri has an active scheme, in case this folder is from
     // an extension that is currently disabled or hasn't started up yet.
-    let schemeMatch = uri.match(/^([-+.\w]+):/);
+    const schemeMatch = uri.match(/^([-+.\w]+):/);
     if (!schemeMatch) {
       return null;
     }
-    let scheme = schemeMatch[1];
-    let contractID = "@mozilla.org/mail/folder-factory;1?name=" + scheme;
+    const scheme = schemeMatch[1];
+    const contractID = "@mozilla.org/mail/folder-factory;1?name=" + scheme;
     if (!(contractID in Cc)) {
       console.error(
         "getOrCreateFolderForURL: factory not registered for " + uri
@@ -80,7 +80,7 @@ FolderLookupService.prototype = {
       return null;
     }
 
-    let factory = Components.manager.getClassObject(
+    const factory = Components.manager.getClassObject(
       Cc[contractID],
       Ci.nsIFactory
     );
@@ -96,7 +96,7 @@ FolderLookupService.prototype = {
       folder.Init(uri);
       // Add the new folder to our map. Store a weak reference instead, so that
       // the folder can be closed when necessary.
-      let weakRef = folder
+      const weakRef = folder
         .QueryInterface(Ci.nsISupportsWeakReference)
         .GetWeakReference();
       this._map.set(uri, weakRef);
@@ -112,7 +112,7 @@ FolderLookupService.prototype = {
   setPrettyNameFromOriginalAllFolders() {
     for (const val of this._map.values()) {
       try {
-        let folder = val.QueryReferent(Ci.nsIMsgFolder);
+        const folder = val.QueryReferent(Ci.nsIMsgFolder);
         folder.setPrettyNameFromOriginal();
       } catch (e) {}
     }

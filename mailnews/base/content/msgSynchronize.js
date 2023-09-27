@@ -75,7 +75,7 @@ function selectOkButton() {
 
 function selectCancelButton() {
   for (var resourceValue in gInitialFolderStates) {
-    let folder = MailUtils.getExistingFolder(resourceValue);
+    const folder = MailUtils.getExistingFolder(resourceValue);
     if (gInitialFolderStates[resourceValue]) {
       folder.setFlag(Ci.nsMsgFolderFlags.Offline);
     } else {
@@ -120,7 +120,7 @@ function onSynchronizeClick(event) {
     return;
   }
 
-  let treeCellInfo = gSynchronizeTree.getCellAt(event.clientX, event.clientY);
+  const treeCellInfo = gSynchronizeTree.getCellAt(event.clientX, event.clientY);
   if (treeCellInfo.row == -1) {
     return;
   }

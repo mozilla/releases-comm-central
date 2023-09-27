@@ -27,14 +27,14 @@ var kSmtpPrefVersion = 1;
 var kABRemoteContentPrefVersion = 1;
 
 function migrateMailnews() {
-  let migrations = [
+  const migrations = [
     migrateProfileClientid,
     migrateServerAuthPref,
     migrateServerAndUserName,
     migrateABRemoteContentSettings,
   ];
 
-  for (let fn of migrations) {
+  for (const fn of migrations) {
     try {
       fn();
     } catch (e) {
@@ -49,16 +49,19 @@ function migrateMailnews() {
  */
 function migrateProfileClientid() {
   // Comma-separated list of all account ids.
-  let accounts = Services.prefs.getCharPref("mail.accountmanager.accounts", "");
+  const accounts = Services.prefs.getCharPref(
+    "mail.accountmanager.accounts",
+    ""
+  );
   // Comma-separated list of all smtp servers.
-  let smtpServers = Services.prefs.getCharPref("mail.smtpservers", "");
+  const smtpServers = Services.prefs.getCharPref("mail.smtpservers", "");
   // If both accounts and smtpservers are empty then there is nothing to do.
   if (accounts.length == 0 && smtpServers.length == 0) {
     return;
   }
   // A cache to allow CLIENTIDs to be stored and shared across services that
   // share a username and hostname.
-  let clientidCache = new Map();
+  const clientidCache = new Map();
   // There may be accounts but no smtpservers so check the length before
   // trying to split the smtp servers and iterate in the loop below.
   if (smtpServers.length > 0) {
@@ -68,20 +71,20 @@ function migrateProfileClientid() {
 
     // Since the length of the smtpServers string is non-zero then we can split
     // the string by comma and iterate each entry in the comma-separated list.
-    for (let key of smtpServers.split(",")) {
-      let server = "mail.smtpserver." + key + ".";
+    for (const key of smtpServers.split(",")) {
+      const server = "mail.smtpserver." + key + ".";
       if (
         !Services.prefs.prefHasUserValue(server + "clientid") ||
         !Services.prefs.getCharPref(server + "clientid", "")
       ) {
         // Always give outgoing servers a new unique CLIENTID.
-        let newClientid = Services.uuid
+        const newClientid = Services.uuid
           .generateUUID()
           .toString()
           .replace(/[{}]/g, "");
         Services.prefs.setCharPref(server + "clientid", newClientid);
       }
-      let username = Services.prefs.getCharPref(server + "username", "");
+      const username = Services.prefs.getCharPref(server + "username", "");
       if (!username) {
         // Not all SMTP servers require a username.
         continue;
@@ -89,7 +92,7 @@ function migrateProfileClientid() {
 
       // Cache all CLIENTIDs from all outgoing servers to reuse them for any
       // incoming servers which have a matching username and hostname.
-      let hostname = Services.prefs.getCharPref(server + "hostname");
+      const hostname = Services.prefs.getCharPref(server + "hostname");
       let combinedKey;
       try {
         combinedKey =
@@ -106,11 +109,11 @@ function migrateProfileClientid() {
 
   // Now walk all imap accounts and generate any missing CLIENTIDS, reusing
   // cached CLIENTIDS if possible.
-  for (let key of accounts.split(",")) {
-    let serverKey = Services.prefs.getCharPref(
+  for (const key of accounts.split(",")) {
+    const serverKey = Services.prefs.getCharPref(
       "mail.account." + key + ".server"
     );
-    let server = "mail.server." + serverKey + ".";
+    const server = "mail.server." + serverKey + ".";
     // Check if this imap server needs the CLIENTID preference to be populated.
     if (
       !Services.prefs.prefHasUserValue(server + "clientid") ||
@@ -121,11 +124,11 @@ function migrateProfileClientid() {
         continue;
       }
       // Grab username + hostname to check if a CLIENTID is cached.
-      let username = Services.prefs.getCharPref(server + "userName", "");
+      const username = Services.prefs.getCharPref(server + "userName", "");
       if (!username) {
         continue;
       }
-      let hostname = Services.prefs.getCharPref(server + "hostname");
+      const hostname = Services.prefs.getCharPref(server + "hostname");
       let combinedKey;
       try {
         combinedKey =
@@ -135,7 +138,7 @@ function migrateProfileClientid() {
       }
       if (!clientidCache.has(combinedKey)) {
         // Generate a new CLIENTID if no matches were found from smtp servers.
-        let newClientid = Services.uuid
+        const newClientid = Services.uuid
           .generateUUID()
           .toString()
           .replace(/[{}]/g, "");
@@ -161,14 +164,14 @@ function migrateServerAuthPref() {
     .getCharPref("mail.accountmanager.accounts")
     .split(",");
   for (let i = 0; i < accounts.length; i++) {
-    let accountKey = accounts[i]; // e.g. "account1"
+    const accountKey = accounts[i]; // e.g. "account1"
     if (!accountKey) {
       continue;
     }
-    let serverKey = Services.prefs.getCharPref(
+    const serverKey = Services.prefs.getCharPref(
       "mail.account." + accountKey + ".server"
     );
-    let server = "mail.server." + serverKey + ".";
+    const server = "mail.server." + serverKey + ".";
     if (Services.prefs.prefHasUserValue(server + "authMethod")) {
       continue;
     }
@@ -184,9 +187,9 @@ function migrateServerAuthPref() {
     // auth_login = false => old-style auth
     // else: useSecAuth = true => "secure auth"
     // else: cleartext pw
-    let auth_login = Services.prefs.getBoolPref(server + "auth_login", true);
+    const auth_login = Services.prefs.getBoolPref(server + "auth_login", true);
     // old default, default pref now removed
-    let useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth", false);
+    const useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth", false);
 
     if (auth_login) {
       if (useSecAuth) {
@@ -212,7 +215,7 @@ function migrateServerAuthPref() {
     if (!smtpservers[i]) {
       continue;
     }
-    let server = "mail.smtpserver." + smtpservers[i] + ".";
+    const server = "mail.smtpserver." + smtpservers[i] + ".";
     if (Services.prefs.prefHasUserValue(server + "authMethod")) {
       continue;
     }
@@ -228,8 +231,8 @@ function migrateServerAuthPref() {
     // auth_method = 0 => no auth
     // else: useSecAuth = true => "secure auth"
     // else: cleartext pw
-    let auth_method = Services.prefs.getIntPref(server + "auth_method", 1);
-    let useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth", false);
+    const auth_method = Services.prefs.getIntPref(server + "auth_method", 1);
+    const useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth", false);
 
     if (auth_method) {
       if (useSecAuth) {
@@ -256,25 +259,25 @@ function migrateServerAuthPref() {
  *   - migrate realuserName to userName
  */
 function migrateServerAndUserName() {
-  let branch = Services.prefs.getBranch("mail.server.");
+  const branch = Services.prefs.getBranch("mail.server.");
 
   // Collect all the server keys.
-  let keySet = new Set();
-  for (let name of branch.getChildList("")) {
+  const keySet = new Set();
+  for (const name of branch.getChildList("")) {
     keySet.add(name.split(".")[0]);
   }
   keySet.delete("default");
 
-  for (let key of keySet) {
-    let type = branch.getCharPref(`${key}.type`, "");
-    let hostname = branch.getCharPref(`${key}.hostname`, "");
-    let username = branch.getCharPref(`${key}.userName`, "");
-    let realHostname = branch.getCharPref(`${key}.realhostname`, "");
+  for (const key of keySet) {
+    const type = branch.getCharPref(`${key}.type`, "");
+    const hostname = branch.getCharPref(`${key}.hostname`, "");
+    const username = branch.getCharPref(`${key}.userName`, "");
+    const realHostname = branch.getCharPref(`${key}.realhostname`, "");
     if (realHostname) {
       branch.setCharPref(`${key}.hostname`, realHostname);
       branch.clearUserPref(`${key}.realhostname`);
     }
-    let realUsername = branch.getCharPref(`${key}.realuserName`, "");
+    const realUsername = branch.getCharPref(`${key}.realuserName`, "");
     if (realUsername) {
       branch.setCharPref(`${key}.userName`, realUsername);
       branch.clearUserPref(`${key}.realuserName`);
@@ -286,7 +289,7 @@ function migrateServerAndUserName() {
       ["imap", "pop3", "nntp"].includes(type) &&
       (realHostname || realUsername)
     ) {
-      let localStoreType = { imap: "imap", pop3: "mailbox", nntp: "news" }[
+      const localStoreType = { imap: "imap", pop3: "mailbox", nntp: "news" }[
         type
       ];
       lazy.migrateServerUris(
@@ -311,9 +314,9 @@ function migrateABRemoteContentSettings() {
   }
 
   // Search through all of our local address books looking for a match.
-  for (let addrbook of MailServices.ab.directories) {
-    let migrateAddress = function (aEmail) {
-      let uri = Services.io.newURI(
+  for (const addrbook of MailServices.ab.directories) {
+    const migrateAddress = function (aEmail) {
+      const uri = Services.io.newURI(
         "chrome://messenger/content/email=" + aEmail
       );
       Services.perms.addFromPrincipal(
@@ -330,13 +333,13 @@ function migrateABRemoteContentSettings() {
         continue;
       }
 
-      for (let card of addrbook.childCards) {
+      for (const card of addrbook.childCards) {
         if (card.getProperty("AllowRemoteContent", "0") == "0") {
           // Not allowed for this contact.
           continue;
         }
 
-        for (let emailAddress of card.emailAddresses) {
+        for (const emailAddress of card.emailAddresses) {
           migrateAddress(emailAddress);
         }
       }

@@ -16,7 +16,7 @@ function identityPageValidate() {
 function identityPageUnload() {
   var pageData = parent.GetPageData();
   var name = document.getElementById("fullName").value;
-  let email = document.getElementById("email").value.trim();
+  const email = document.getElementById("email").value.trim();
   pageData.fullName = name;
   pageData.email = email;
 
@@ -45,7 +45,7 @@ function setEmailDescriptionText() {
   var username = gPrefsBundle.getString("exampleEmailUserName");
   var domain = gPrefsBundle.getString("exampleEmailDomain");
 
-  let displayText = gPrefsBundle.getFormattedString("defaultEmailText", [
+  const displayText = gPrefsBundle.getFormattedString("defaultEmailText", [
     username,
     domain,
   ]);

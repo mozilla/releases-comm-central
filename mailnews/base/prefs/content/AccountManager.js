@@ -69,8 +69,8 @@ XPCOMUtils.defineLazyGetter(this, "gSubDialog", function () {
 
         // Resize the dialog to fit the content with edited font size.
         requestAnimationFrame(() => {
-          let dialogs = frame.ownerGlobal.gSubDialog._dialogs;
-          let dialog = dialogs.find(
+          const dialogs = frame.ownerGlobal.gSubDialog._dialogs;
+          const dialog = dialogs.find(
             d => d._frame.contentDocument == frame.contentDocument
           );
           if (dialog) {
@@ -162,8 +162,8 @@ function updateElementWithKeys(account, element, type) {
 // called when the whole document loads
 // perform initialization here
 function onLoad() {
-  let selectedServer = document.documentElement.server;
-  let selectPage = document.documentElement.selectPage || null;
+  const selectedServer = document.documentElement.server;
+  const selectPage = document.documentElement.selectPage || null;
 
   // Arguments can have two properties: (1) "server," the nsIMsgIncomingServer
   // to select initially and (2) "selectPage," the page for that server to that
@@ -176,15 +176,15 @@ function onLoad() {
 
   setTimeout(selectServer, 0, selectedServer, selectPage);
 
-  let contentFrame = document.getElementById("contentFrame");
+  const contentFrame = document.getElementById("contentFrame");
   contentFrame.addEventListener("load", event => {
-    let inputElements = contentFrame.contentDocument.querySelectorAll(
+    const inputElements = contentFrame.contentDocument.querySelectorAll(
       "checkbox, input, menulist, textarea, radiogroup, richlistbox"
     );
     contentFrame.contentDocument.addEventListener("prefchange", event => {
       onAccept(true);
     });
-    for (let input of inputElements) {
+    for (const input of inputElements) {
       if (input.localName == "input" || input.localName == "textarea") {
         input.addEventListener("change", event => {
           onAccept(true);
@@ -207,15 +207,15 @@ function onUnload() {
 }
 
 function selectServer(server, selectPageId) {
-  let accountTree = document.getElementById("accounttree");
+  const accountTree = document.getElementById("accounttree");
 
   // Default to showing the first account.
   let accountRow = accountTree.rows[0];
 
   // Find the tree-node for the account we want to select.
   if (server) {
-    for (let row of accountTree.children) {
-      let account = row._account;
+    for (const row of accountTree.children) {
+      const account = row._account;
       if (account && server == account.incomingServer) {
         accountRow = row;
         // Make sure all the panes of the account to be selected are shown.
@@ -230,7 +230,7 @@ function selectServer(server, selectPageId) {
   if (selectPageId) {
     // Find the page that also corresponds to this server.
     // It either is the accountRow itself...
-    let pageId = accountRow.getAttribute("PageTag");
+    const pageId = accountRow.getAttribute("PageTag");
     if (pageId != selectPageId) {
       // ... or one of its children.
       pageToSelect = accountRow.querySelector(
@@ -244,7 +244,7 @@ function selectServer(server, selectPageId) {
 
 function replaceWithDefaultSmtpServer(deletedSmtpServerKey) {
   // First we replace the smtpserverkey in every identity.
-  for (let identity of MailServices.accounts.allIdentities) {
+  for (const identity of MailServices.accounts.allIdentities) {
     if (identity.smtpServerKey == deletedSmtpServerKey) {
       identity.smtpServerKey = "";
     }
@@ -340,7 +340,7 @@ function checkDirectoryIsValid(aLocalPath) {
   if (Services.appinfo.OS == "WINNT") {
     // Do not allow some special filenames on Windows.
     // Taken from mozilla/widget/windows/nsDataObj.cpp::MangleTextToValidFilename()
-    let dirLeafName = aLocalPath.leafName;
+    const dirLeafName = aLocalPath.leafName;
     const kForbiddenNames = [
       "COM1",
       "COM2",
@@ -453,8 +453,8 @@ function checkDirectoryIsAllowed(aLocalPath) {
       // While the tested directory may not be safe,
       // a subdirectory of some safe subdirectories may be fine.
       let isInSubdir = false;
-      for (let subDir of aDirToCheck.safeSubdirs) {
-        let checkDir = testDir.clone();
+      for (const subDir of aDirToCheck.safeSubdirs) {
+        const checkDir = testDir.clone();
         checkDir.append(subDir);
         if (checkDir.contains(aLocalPath)) {
           isInSubdir = true;
@@ -471,7 +471,7 @@ function checkDirectoryIsAllowed(aLocalPath) {
   // allow that directory.
   if (currentAccount.incomingServer) {
     try {
-      let defaultPath =
+      const defaultPath =
         currentAccount.incomingServer.protocolInfo.defaultLocalPath;
       if (defaultPath) {
         defaultPath.normalize();
@@ -484,7 +484,7 @@ function checkDirectoryIsAllowed(aLocalPath) {
     }
   }
 
-  for (let tryDir of gDangerousLocalStorageDirs) {
+  for (const tryDir of gDangerousLocalStorageDirs) {
     if (!checkLocalDirectoryIsSafe(tryDir, aLocalPath)) {
       return false;
     }
@@ -513,7 +513,7 @@ function checkDirectoryIsUsable(aLocalPath) {
   }
 
   if (invalidPath || !checkDirectoryIsValid(aLocalPath)) {
-    let alertString = document
+    const alertString = document
       .getElementById("bundle_prefs")
       .getFormattedString("localDirectoryInvalid", [originalPath.path]);
     Services.prompt.alert(window, kAlertTitle, alertString);
@@ -521,7 +521,7 @@ function checkDirectoryIsUsable(aLocalPath) {
   }
 
   if (!checkDirectoryIsAllowed(aLocalPath)) {
-    let alertNotAllowed = document
+    const alertNotAllowed = document
       .getElementById("bundle_prefs")
       .getFormattedString("localDirectoryNotAllowed", [originalPath.path]);
     Services.prompt.alert(window, kAlertTitle, alertNotAllowed);
@@ -529,12 +529,12 @@ function checkDirectoryIsUsable(aLocalPath) {
   }
 
   // Check that no other account has this same or dependent local directory.
-  for (let server of MailServices.accounts.allServers) {
+  for (const server of MailServices.accounts.allServers) {
     if (server.key == currentAccount.incomingServer.key) {
       continue;
     }
 
-    let serverPath = server.localPath;
+    const serverPath = server.localPath;
     try {
       serverPath.normalize();
       let alertStringID = null;
@@ -547,7 +547,7 @@ function checkDirectoryIsUsable(aLocalPath) {
       }
 
       if (alertStringID) {
-        let alertString = document
+        const alertString = document
           .getElementById("bundle_prefs")
           .getFormattedString(alertStringID, [server.prettyName]);
 
@@ -585,7 +585,7 @@ function checkUserServerChanges(showAlert) {
     return true;
   }
 
-  let currentServer = currentAccount ? currentAccount.incomingServer : null;
+  const currentServer = currentAccount ? currentAccount.incomingServer : null;
 
   // If this type doesn't exist (just removed) then return.
   if (!("server" in accountValues) || !accountValues.server) {
@@ -633,7 +633,7 @@ function checkUserServerChanges(showAlert) {
       } else if (!isLegalHostNameOrIP(newHost)) {
         alertText = prefBundle.getString("enterValidServerName");
       } else {
-        let sameServer = MailServices.accounts.findServer(
+        const sameServer = MailServices.accounts.findServer(
           newUser,
           newHost,
           newType
@@ -689,8 +689,8 @@ function checkUserServerChanges(showAlert) {
         }
       }
 
-      let l10n = new Localization(["messenger/accountManager.ftl"], true);
-      let cancel = Services.prompt.confirmEx(
+      const l10n = new Localization(["messenger/accountManager.ftl"], true);
+      const cancel = Services.prompt.confirmEx(
         window,
         alertTitle,
         l10n.formatValueSync("server-change-restart-required"),
@@ -716,7 +716,7 @@ function checkUserServerChanges(showAlert) {
   if (!pathElem) {
     return true;
   }
-  let dir = getFormElementValue(pathElem);
+  const dir = getFormElementValue(pathElem);
   if (!checkDirectoryIsUsable(dir)) {
     //          return false; // Temporarily disable this. Just show warning but do not block. See bug 921371.
     console.error(
@@ -726,7 +726,7 @@ function checkUserServerChanges(showAlert) {
 
   // Warn if the Local directory path was changed.
   // This can be removed once bug 2654 is fixed.
-  let oldLocalDir = getAccountValue(
+  const oldLocalDir = getAccountValue(
     currentAccount,
     accountValues,
     "server",
@@ -734,16 +734,16 @@ function checkUserServerChanges(showAlert) {
     null,
     false
   ); // both return nsIFile
-  let newLocalDir = getFormElementValue(pathElem);
+  const newLocalDir = getFormElementValue(pathElem);
   if (oldLocalDir && newLocalDir && oldLocalDir.path != newLocalDir.path) {
-    let brandName = document
+    const brandName = document
       .getElementById("bundle_brand")
       .getString("brandShortName");
     alertText = prefBundle.getFormattedString("localDirectoryChanged", [
       brandName,
     ]);
 
-    let cancel = Services.prompt.confirmEx(
+    const cancel = Services.prompt.confirmEx(
       window,
       alertTitle,
       alertText,
@@ -776,9 +776,9 @@ function checkAccountNameIsValid() {
   const prefBundle = document.getElementById("bundle_prefs");
   let alertText = null;
 
-  let serverNameElem = getPageFormElement("server.prettyName");
+  const serverNameElem = getPageFormElement("server.prettyName");
   if (serverNameElem) {
-    let accountName = getFormElementValue(serverNameElem);
+    const accountName = getFormElementValue(serverNameElem);
 
     if (!accountName) {
       alertText = prefBundle.getString("accountNameEmpty");
@@ -838,8 +838,8 @@ function markDefaultServer(newDefault, oldDefault) {
     return;
   }
 
-  let accountTree = document.getElementById("accounttree");
-  for (let accountRow of accountTree.children) {
+  const accountTree = document.getElementById("accounttree");
+  for (const accountRow of accountTree.children) {
     if (newDefault && newDefault == accountRow._account) {
       accountRow.classList.add("isDefaultServer");
     }
@@ -865,7 +865,7 @@ function onSetDefault(event) {
     return;
   }
 
-  let previousDefault = MailServices.accounts.defaultAccount;
+  const previousDefault = MailServices.accounts.defaultAccount;
   MailServices.accounts.defaultAccount = currentAccount;
   markDefaultServer(currentAccount, previousDefault);
 
@@ -880,19 +880,19 @@ function onRemoveAccount(event) {
     return;
   }
 
-  let server = currentAccount.incomingServer;
+  const server = currentAccount.incomingServer;
 
-  let canDelete = server.protocolInfo.canDelete || server.canDelete;
+  const canDelete = server.protocolInfo.canDelete || server.canDelete;
   if (!canDelete) {
     return;
   }
 
-  let serverList = [];
-  let accountTree = document.getElementById("accounttree");
+  const serverList = [];
+  const accountTree = document.getElementById("accounttree");
   // build the list of servers in the account tree (order is important)
-  for (let row of accountTree.children) {
+  for (const row of accountTree.children) {
     if ("_account" in row) {
-      let curServer = row._account.incomingServer;
+      const curServer = row._account.incomingServer;
       if (!serverList.includes(curServer)) {
         serverList.push(curServer);
       }
@@ -911,16 +911,16 @@ function onRemoveAccount(event) {
   }
 
   // Need to save these before the account and its server is removed.
-  let serverId = server.serverURI;
+  const serverId = server.serverURI;
 
   // Confirm account deletion.
-  let removeArgs = {
+  const removeArgs = {
     server,
     account: currentAccount,
     result: false,
   };
 
-  let onCloseDialog = function () {
+  const onCloseDialog = function () {
     // If result is true, the account was removed.
     if (!removeArgs.result) {
       return;
@@ -1049,7 +1049,7 @@ function saveAccount(accountValues, account) {
     try {
       server.spamSettings.initialize(server);
     } catch (e) {
-      let accountName = getAccountValue(
+      const accountName = getAccountValue(
         account,
         getValueArrayFor(account),
         "server",
@@ -1057,10 +1057,10 @@ function saveAccount(accountValues, account) {
         null,
         false
       );
-      let alertText = document
+      const alertText = document
         .getElementById("bundle_prefs")
         .getFormattedString("junkSettingsBroken", [accountName]);
-      let review = Services.prompt.confirmEx(
+      const review = Services.prompt.confirmEx(
         window,
         null,
         alertText,
@@ -1122,7 +1122,7 @@ function updateItems(
     // and it belongs to an account.
     // Otherwise we have either selected a SMTP server, or there is some
     // problem. Either way, we don't want the user to act on it.
-    let server = account.incomingServer;
+    const server = account.incomingServer;
 
     if (
       account != MailServices.accounts.defaultAccount &&
@@ -1148,8 +1148,8 @@ function updateItems(
  *   to true to trigger the disabling.
  */
 function updateBlockedItems(aItems, aMustBeTrue) {
-  for (let item of aItems) {
-    let prefstring = item.getAttribute("prefstring");
+  for (const item of aItems) {
+    const prefstring = item.getAttribute("prefstring");
     if (!prefstring) {
       continue;
     }
@@ -1182,7 +1182,7 @@ function setEnabled(control, enabled) {
 // clicked on. This is also called when an account is removed. In this case,
 // nothing is selected.
 function onAccountTreeSelect(pageId, account) {
-  let tree = document.getElementById("accounttree");
+  const tree = document.getElementById("accounttree");
 
   let changeView = pageId && account;
   if (!changeView) {
@@ -1190,7 +1190,7 @@ function onAccountTreeSelect(pageId, account) {
       return false;
     }
 
-    let node = tree.rows[tree.selectedIndex];
+    const node = tree.rows[tree.selectedIndex];
     account = "_account" in node ? node._account : null;
 
     pageId = node.getAttribute("PageTag");
@@ -1245,7 +1245,7 @@ function onAccountTreeSelect(pageId, account) {
   // save the previous page
   savePage(currentAccount);
 
-  let changeAccount = account != currentAccount;
+  const changeAccount = account != currentAccount;
 
   if (changeView) {
     selectServer(account.incomingServer, pageId);
@@ -1303,7 +1303,7 @@ function pageURL(pageId) {
     // we could compare against "main","server","copies","offline","addressing",
     // "smtp" and "advanced" first to save the work, but don't,
     // as some of these might be turned into extensions (for thunderbird)
-    let packageName = pageId.split("am-")[1].split(".xhtml")[0];
+    const packageName = pageId.split("am-")[1].split(".xhtml")[0];
     chromePackageName = MailServices.accounts.getChromePackageName(packageName);
   } catch (ex) {
     chromePackageName = "messenger";
@@ -1342,7 +1342,7 @@ function savePage(account) {
   // accountArray.
   accountArray = {};
   accountValues = {};
-  let serverId = account.incomingServer.serverURI;
+  const serverId = account.incomingServer.serverURI;
   accountArray[serverId] = accountValues;
   accountArray[serverId]._account = account;
 
@@ -1354,10 +1354,10 @@ function savePage(account) {
   // store the value in the account
   for (let i = 0; i < pageElements.length; i++) {
     if (pageElements[i].id) {
-      let vals = pageElements[i].id.split(".");
+      const vals = pageElements[i].id.split(".");
       if (vals.length >= 2) {
-        let type = vals[0];
-        let slot = pageElements[i].id.slice(type.length + 1);
+        const type = vals[0];
+        const slot = pageElements[i].id.slice(type.length + 1);
 
         setAccountValue(
           accountValues,
@@ -1481,10 +1481,10 @@ function restorePage(pageId, account) {
   // restore the value from the account
   for (let i = 0; i < pageElements.length; i++) {
     if (pageElements[i].id) {
-      let vals = pageElements[i].id.split(".");
+      const vals = pageElements[i].id.split(".");
       if (vals.length >= 2) {
-        let type = vals[0];
-        let slot = pageElements[i].id.slice(type.length + 1);
+        const type = vals[0];
+        const slot = pageElements[i].id.slice(type.length + 1);
 
         // buttons are lockable, but don't have any data so we skip that part.
         // elements that do have data, we get the values at poke them in.
@@ -1549,7 +1549,7 @@ function getFormElementValue(formElement) {
     }
     if (type == "input" && formElement.getAttribute("datatype") == "nsIFile") {
       if (formElement.value) {
-        let localfile = Cc["@mozilla.org/file/local;1"].createInstance(
+        const localfile = Cc["@mozilla.org/file/local;1"].createInstance(
           Ci.nsIFile
         );
 
@@ -1597,7 +1597,7 @@ function setFormElementValue(formElement, value) {
   ) {
     // handle nsIFile
     if (value) {
-      let localfile = value.QueryInterface(Ci.nsIFile);
+      const localfile = value.QueryInterface(Ci.nsIFile);
       try {
         formElement.value = localfile.path;
       } catch (ex) {
@@ -1654,7 +1654,7 @@ function getPageFormElements() {
  * @param {srtring} aId - ID of the element requested.
  */
 function getPageFormElement(aId) {
-  let elem = top.frames.contentFrame.document.getElementById(aId);
+  const elem = top.frames.contentFrame.document.getElementById(aId);
   if (elem && elem.getAttribute("wsm_persist") == "true") {
     return elem;
   }
@@ -1681,7 +1681,7 @@ function getValueArrayFor(account) {
  * @param {string} aLabel - The value of the label to set.
  */
 function setAccountLabel(aAccountKey, aLabel) {
-  let row = document.getElementById(aAccountKey);
+  const row = document.getElementById(aAccountKey);
   if (row) {
     row.setAttribute("aria-label", aLabel);
     row.title = aLabel;
@@ -1694,9 +1694,9 @@ var gAccountTree = {
   load() {
     this._build();
 
-    let mainTree = document.getElementById("accounttree");
+    const mainTree = document.getElementById("accounttree");
     mainTree.__defineGetter__("_orderableChildren", function () {
-      let rows = [...this.children];
+      const rows = [...this.children];
       rows.pop();
       return rows;
     });
@@ -1706,7 +1706,7 @@ var gAccountTree = {
       }
     });
     mainTree.addEventListener("ordered", event => {
-      let accountKeyList = Array.from(mainTree.children, row => row.id);
+      const accountKeyList = Array.from(mainTree.children, row => row.id);
       accountKeyList.pop(); // Remove SMTP.
       MailServices.accounts.reorderAccounts(accountKeyList);
       rebuildAccountTree();
@@ -1778,19 +1778,19 @@ var gAccountTree = {
       { string: getString("prefPanel-junk"), src: "am-junk.xhtml" },
     ];
 
-    let accounts = FolderUtils.allAccountsSorted(false);
+    const accounts = FolderUtils.allAccountsSorted(false);
 
-    let mainTree = document.getElementById("accounttree");
+    const mainTree = document.getElementById("accounttree");
     // Clear off all children...
     while (mainTree.hasChildNodes()) {
       mainTree.lastChild.remove();
     }
 
-    for (let account of accounts) {
+    for (const account of accounts) {
       let accountName = null;
-      let accountKey = account.key;
+      const accountKey = account.key;
       let amChrome = "about:blank";
-      let panelsToKeep = [];
+      const panelsToKeep = [];
       let server = null;
 
       // This "try {} catch {}" block is intentionally very long to catch
@@ -1810,7 +1810,7 @@ var gAccountTree = {
         accountName = server.prettyName;
 
         // Now add our panels.
-        let idents = MailServices.accounts.getIdentitiesForServer(server);
+        const idents = MailServices.accounts.getIdentitiesForServer(server);
         if (idents.length) {
           panelsToKeep.push(panels[0]); // The server panel is valid
           panelsToKeep.push(panels[1]); // also the copies panel
@@ -1829,7 +1829,7 @@ var gAccountTree = {
         }
 
         // Check offline/diskspace support level.
-        let diskspace = server.supportsDiskSpace;
+        const diskspace = server.supportsDiskSpace;
         if (server.offlineSupportLevel >= 10 && diskspace) {
           panelsToKeep.push(panels[2]);
         } else if (diskspace) {
@@ -1838,20 +1838,20 @@ var gAccountTree = {
 
         // extensions
         const CATEGORY = "mailnews-accountmanager-extensions";
-        for (let { data } of Services.catMan.enumerateCategory(CATEGORY)) {
+        for (const { data } of Services.catMan.enumerateCategory(CATEGORY)) {
           try {
-            let svc = Cc[
+            const svc = Cc[
               Services.catMan.getCategoryEntry(CATEGORY, data)
             ].getService(Ci.nsIMsgAccountManagerExtension);
             if (svc.showPanel(server)) {
-              let bundleName =
+              const bundleName =
                 "chrome://" +
                 svc.chromePackageName +
                 "/locale/am-" +
                 svc.name +
                 ".properties";
-              let bundle = Services.strings.createBundle(bundleName);
-              let title = bundle.GetStringFromName("prefPanel-" + svc.name);
+              const bundle = Services.strings.createBundle(bundleName);
+              const title = bundle.GetStringFromName("prefPanel-" + svc.name);
               panelsToKeep.push({
                 string: title,
                 src: "am-" + svc.name + ".xhtml",
@@ -1860,7 +1860,7 @@ var gAccountTree = {
           } catch (e) {
             // Fetching of this extension panel failed so do not show it,
             // just log error.
-            let extName = data || "(unknown)";
+            const extName = data || "(unknown)";
             console.error(
               "Error accessing panel from extension '" + extName + "': " + e
             );
@@ -1870,14 +1870,14 @@ var gAccountTree = {
       } catch (e) {
         // Show only a placeholder in the account list saying this account
         // is broken, with no child panels.
-        let accountID = accountName || accountKey;
+        const accountID = accountName || accountKey;
         console.error("Error accessing account " + accountID + ": " + e);
         accountName = "Invalid account " + accountID;
         panelsToKeep.length = 0;
       }
 
       // Create the top level tree-item.
-      let treeitem = document
+      const treeitem = document
         .getElementById("accountTreeItem")
         .content.firstElementChild.cloneNode(true);
       mainTree.appendChild(treeitem);
@@ -1904,14 +1904,14 @@ var gAccountTree = {
       }
 
       if (panelsToKeep.length > 0) {
-        let treekids = treeitem.querySelector("ul");
-        for (let panel of panelsToKeep) {
-          let kidtreeitem = document.createElement("li");
+        const treekids = treeitem.querySelector("ul");
+        for (const panel of panelsToKeep) {
+          const kidtreeitem = document.createElement("li");
           kidtreeitem.title = panel.string;
           treekids.appendChild(kidtreeitem);
-          let kidtreerow = document.createElement("div");
+          const kidtreerow = document.createElement("div");
           kidtreeitem.appendChild(kidtreerow);
-          let kidtreecell = document.createElement("span");
+          const kidtreecell = document.createElement("span");
           kidtreecell.classList.add("name");
           kidtreecell.tabIndex = -1;
           kidtreerow.appendChild(kidtreecell);
@@ -1932,7 +1932,7 @@ var gAccountTree = {
     markDefaultServer(MailServices.accounts.defaultAccount, null);
 
     // Now add the outgoing server node.
-    let treeitem = document
+    const treeitem = document
       .getElementById("accountTreeItem")
       .content.firstElementChild.cloneNode(true);
     mainTree.appendChild(treeitem);

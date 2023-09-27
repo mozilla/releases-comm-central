@@ -76,25 +76,25 @@ var gFolderPropsSink = {
   },
 
   setQuotaData(folderQuota) {
-    let quotaDetails = document.getElementById("quotaDetails");
-    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+    const quotaDetails = document.getElementById("quotaDetails");
+    const messenger = Cc["@mozilla.org/messenger;1"].createInstance(
       Ci.nsIMessenger
     );
 
-    for (let quota of folderQuota) {
-      let li = document.createElement("li");
-      let name = document.createElement("span");
+    for (const quota of folderQuota) {
+      const li = document.createElement("li");
+      const name = document.createElement("span");
       name.textContent = quota.name;
       li.appendChild(name);
 
-      let progress = document.createElement("progress");
+      const progress = document.createElement("progress");
       progress.classList.add("quota-percentage");
       progress.setAttribute("value", quota.usage);
       progress.setAttribute("max", quota.limit);
 
       li.appendChild(progress);
 
-      let percentage = document.createElement("span");
+      const percentage = document.createElement("span");
       document.l10n.setAttributes(percentage, "quota-percent-used", {
         percent: Number((100n * BigInt(quota.usage)) / BigInt(quota.limit)),
       });
@@ -102,10 +102,10 @@ var gFolderPropsSink = {
 
       li.appendChild(document.createTextNode(" — "));
 
-      let details = document.createElement("span");
+      const details = document.createElement("span");
       if (/STORAGE/i.test(quota.name)) {
-        let usage = messenger.formatFileSize(quota.usage * 1024);
-        let limit = messenger.formatFileSize(quota.limit * 1024);
+        const usage = messenger.formatFileSize(quota.usage * 1024);
+        const limit = messenger.formatFileSize(quota.limit * 1024);
         details.textContent = `${usage} / ${limit}`;
       } else {
         details.textContent = `${quota.usage} / ${quota.limit}`;
@@ -140,7 +140,9 @@ function folderPropsOKButton(event) {
       gMsgFolder.clearFlag(Ci.nsMsgFolderFlags.CheckNew);
     }
 
-    let glodaCheckbox = document.getElementById("folderIncludeInGlobalSearch");
+    const glodaCheckbox = document.getElementById(
+      "folderIncludeInGlobalSearch"
+    );
     if (!glodaCheckbox.hidden) {
       if (glodaCheckbox.checked) {
         // We pass true here so that folders such as trash and junk can still
@@ -188,8 +190,8 @@ function folderCancelButton(event) {
 }
 
 function folderPropsOnLoad() {
-  let styles = getComputedStyle(document.body);
-  let folderColors = {
+  const styles = getComputedStyle(document.body);
+  const folderColors = {
     Inbox: styles.getPropertyValue("--folder-color-inbox"),
     Sent: styles.getPropertyValue("--folder-color-sent"),
     Outbox: styles.getPropertyValue("--folder-color-outbox"),
@@ -262,7 +264,7 @@ function folderPropsOnLoad() {
       gDefaultColor = folderColors[selectedFolderName];
     }
 
-    let colorInput = document.getElementById("color");
+    const colorInput = document.getElementById("color");
     colorInput.value =
       FolderTreeProperties.getColor(gMsgFolder.URI) || gDefaultColor;
     colorInput.addEventListener("input", event => {
@@ -273,7 +275,7 @@ function folderPropsOnLoad() {
         colorInput.value
       );
     });
-    let resetColorButton = document.getElementById("resetColor");
+    const resetColorButton = document.getElementById("resetColor");
     resetColorButton.addEventListener("click", function () {
       colorInput.value = gDefaultColor;
       // Preview the default color.
@@ -340,17 +342,17 @@ function folderPropsOnLoad() {
       glodaCheckbox.hidden = true;
     } else {
       // otherwise, the user can choose whether this file gets indexed
-      let glodaFolder = Gloda.getFolderForFolder(gMsgFolder);
+      const glodaFolder = Gloda.getFolderForFolder(gMsgFolder);
       glodaCheckbox.checked =
         glodaFolder.indexingPriority != glodaFolder.kIndexingNeverPriority;
     }
   }
 
   if (serverType == "imap") {
-    let imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
+    const imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
     imapFolder.fillInFolderProps(gFolderPropsSink);
 
-    let users = [...imapFolder.getOtherUsersWithAccess()];
+    const users = [...imapFolder.getOtherUsersWithAccess()];
     if (users.length) {
       document.getElementById("folderOtherUsers").hidden = false;
       document.getElementById("folderOtherUsersText").textContent =
@@ -369,13 +371,13 @@ function folderPropsOnLoad() {
     retentionSettings.useServerDefaults;
 
   // set folder sizes
-  let numberOfMsgs = gMsgFolder.getTotalMessages(false);
+  const numberOfMsgs = gMsgFolder.getTotalMessages(false);
   if (numberOfMsgs >= 0) {
     document.getElementById("numberOfMessages").value = numberOfMsgs;
   }
 
   try {
-    let sizeOnDisk = Cc["@mozilla.org/messenger;1"]
+    const sizeOnDisk = Cc["@mozilla.org/messenger;1"]
       .createInstance(Ci.nsIMessenger)
       .formatFileSize(gMsgFolder.sizeOnDisk, true);
     document.getElementById("sizeOnDisk").value = sizeOnDisk;
@@ -392,7 +394,7 @@ function folderPropsOnLoad() {
 }
 
 function hideShowControls(serverType) {
-  let controls = document.querySelectorAll("[hidefor]");
+  const controls = document.querySelectorAll("[hidefor]");
   var len = controls.length;
   for (var i = 0; i < len; i++) {
     var control = controls[i];

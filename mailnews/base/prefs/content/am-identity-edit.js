@@ -19,10 +19,10 @@ function onLoadIdentityProperties() {
   // extract the account
   gIdentity = window.arguments[0].identity;
   gAccount = window.arguments[0].account;
-  let prefBundle = document.getElementById("bundle_prefs");
+  const prefBundle = document.getElementById("bundle_prefs");
 
   if (gIdentity) {
-    let listName = gIdentity.identityName;
+    const listName = gIdentity.identityName;
     document.title = prefBundle.getFormattedString("identityDialogTitleEdit", [
       listName,
     ]);
@@ -81,14 +81,14 @@ function initIdentityValues(identity) {
     initSmtpServer(identity.smtpServerKey);
 
     // In am-main.xhtml this field has no ID, because it's hidden by other means.
-    let catchAllBox = document.getElementById("identityCatchAllBox");
+    const catchAllBox = document.getElementById("identityCatchAllBox");
     if (catchAllBox) {
-      let servers = MailServices.accounts.getServersForIdentity(identity);
+      const servers = MailServices.accounts.getServersForIdentity(identity);
       catchAllBox.hidden = servers.length > 0 && servers[0].type == "nntp";
     }
 
     // This field does not exist for the default identity shown in the am-main.xhtml pane.
-    let idLabel = document.getElementById("identity.label");
+    const idLabel = document.getElementById("identity.label");
     if (idLabel) {
       idLabel.value = identity.label;
     }
@@ -161,7 +161,7 @@ function initCompositionAndAddressing(identity) {
     addressingIdentity.directoryServer;
   document.getElementById("identity.overrideGlobal_Pref").value =
     addressingIdentity.overrideGlobalPref;
-  let autoCompleteElement = document.getElementById(
+  const autoCompleteElement = document.getElementById(
     "identity.autocompleteToMyDomain"
   );
   if (autoCompleteElement) {
@@ -243,7 +243,7 @@ function validEmailAddress() {
 
 function saveIdentitySettings(identity) {
   if (identity) {
-    let idLabel = document.getElementById("identity.label");
+    const idLabel = document.getElementById("identity.label");
     if (idLabel) {
       identity.label = idLabel.value;
     }
@@ -277,7 +277,7 @@ function saveIdentitySettings(identity) {
       "identity.smtpServerKey"
     ).value;
 
-    let attachSignaturePath =
+    const attachSignaturePath =
       document.getElementById("identity.signature").value;
     identity.signature = null; // this is important so we don't accidentally inherit the default
 
@@ -337,7 +337,7 @@ function saveAddressingAndCompositionSettings(identity) {
   ).value;
   identity.overrideGlobalPref =
     document.getElementById("identity.overrideGlobal_Pref").value == "true";
-  let autoCompleteElement = document.getElementById(
+  const autoCompleteElement = document.getElementById(
     "identity.autocompleteToMyDomain"
   );
   if (autoCompleteElement) {
@@ -394,7 +394,7 @@ function selectFile() {
  * @param {Event} event - the oninput event of the catchAllHint input field.
  */
 function handleInputCatchAllHint(event) {
-  let value = event.target.value;
+  const value = event.target.value;
   event.target.value = value
     .replace(/(\*[^@]+)/g, "*")
     .replace(/(^|\s)@/g, "$1*@")
@@ -460,10 +460,10 @@ function setupSignatureItems() {
 
 function editVCard() {
   // Read vCard hidden value from UI.
-  let escapedVCard = document.getElementById("identity.escapedVCard");
-  let dialog = top.document.getElementById("editVCardDialog");
-  let form = dialog.querySelector("form");
-  let vCardEdit = dialog.querySelector("vcard-edit");
+  const escapedVCard = document.getElementById("identity.escapedVCard");
+  const dialog = top.document.getElementById("editVCardDialog");
+  const form = dialog.querySelector("form");
+  const vCardEdit = dialog.querySelector("vcard-edit");
 
   vCardEdit.vCardString = decodeURIComponent(escapedVCard.value);
 
@@ -476,7 +476,7 @@ function editVCard() {
 }
 
 function editVCardKeyDown(event) {
-  let dialog = top.document.getElementById("editVCardDialog");
+  const dialog = top.document.getElementById("editVCardDialog");
   if (event.keyCode == KeyboardEvent.DOM_VK_ESCAPE && dialog.open) {
     // This is a bit of a hack to prevent other dialogs (particularly
     // SubDialogs) from closing when the vCard dialog is open.
@@ -486,10 +486,10 @@ function editVCardKeyDown(event) {
 }
 
 function editVCardSubmit(event) {
-  let escapedVCard = document.getElementById("identity.escapedVCard");
-  let dialog = top.document.getElementById("editVCardDialog");
-  let form = dialog.querySelector("form");
-  let vCardEdit = dialog.querySelector("vcard-edit");
+  const escapedVCard = document.getElementById("identity.escapedVCard");
+  const dialog = top.document.getElementById("editVCardDialog");
+  const form = dialog.querySelector("form");
+  const vCardEdit = dialog.querySelector("vcard-edit");
 
   vCardEdit.saveVCard();
   escapedVCard.value = encodeURIComponent(vCardEdit.vCardString);
@@ -506,8 +506,8 @@ function editVCardSubmit(event) {
 }
 
 function editVCardReset() {
-  let dialog = top.document.getElementById("editVCardDialog");
-  let form = dialog.querySelector("form");
+  const dialog = top.document.getElementById("editVCardDialog");
+  const form = dialog.querySelector("form");
 
   top.gSubDialog._topDialog?._overlay.setAttribute("topmost", "true");
   dialog.close();
@@ -525,15 +525,15 @@ function getAccountForFolderPickerState() {
  */
 function loadSMTPServerList() {
   var smtpServerList = document.getElementById("identity.smtpServerKey");
-  let defaultServer = MailServices.smtp.defaultServer;
-  let currentValue = smtpServerList.value;
+  const defaultServer = MailServices.smtp.defaultServer;
+  const currentValue = smtpServerList.value;
 
   var smtpPopup = smtpServerList.menupopup;
   while (smtpPopup.lastChild.nodeName != "menuseparator") {
     smtpPopup.lastChild.remove();
   }
 
-  for (let server of MailServices.smtp.servers) {
+  for (const server of MailServices.smtp.servers) {
     let serverName = "";
     if (server.description) {
       serverName = server.description + " - ";
@@ -560,12 +560,12 @@ function loadSMTPServerList() {
  * Open dialog for editing properties of currently selected SMTP server.
  */
 function editCurrentSMTP() {
-  let smtpKey = document.getElementById("identity.smtpServerKey").value;
-  let server =
+  const smtpKey = document.getElementById("identity.smtpServerKey").value;
+  const server =
     smtpKey === ""
       ? MailServices.smtp.defaultServer
       : MailServices.smtp.getServerByKey(smtpKey);
-  let args = { server, result: false, addSmtpServer: "" };
+  const args = { server, result: false, addSmtpServer: "" };
 
   parent.gSubDialog.open(
     "chrome://messenger/content/SmtpServerEdit.xhtml",

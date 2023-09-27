@@ -50,14 +50,14 @@ class NewMailNotificationService {
     );
     if (!this.useNewCountInBadge) {
       let total = 0;
-      for (let server of MailServices.accounts.allServers) {
+      for (const server of MailServices.accounts.allServers) {
         // Don't bother counting RSS or NNTP servers
-        let type = server.type;
+        const type = server.type;
         if (type == "rss" || type == "nntp") {
           continue;
         }
 
-        let rootFolder = server.rootFolder;
+        const rootFolder = server.rootFolder;
         if (rootFolder) {
           total += this.countUnread(rootFolder);
         }
@@ -94,10 +94,10 @@ class NewMailNotificationService {
     this.#log.debug(`countUnread for ${folder.URI}`);
     let unreadCount = 0;
 
-    let allFolders = [folder, ...folder.descendants];
-    for (let folder of allFolders) {
+    const allFolders = [folder, ...folder.descendants];
+    for (const folder of allFolders) {
       if (this.confirmShouldCount(folder)) {
-        let count = folder.getNumUnread(false);
+        const count = folder.getNumUnread(false);
         this.#log.debug(`${folder.URI} has ${count} unread`);
         if (count > 0) {
           unreadCount += count;
@@ -114,7 +114,7 @@ class NewMailNotificationService {
    * @param {nsIMsgFolder} aFolder - The folder we're asking about.
    */
   confirmShouldCount(aFolder) {
-    let shouldCount = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    const shouldCount = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
       Ci.nsISupportsPRBool
     );
     shouldCount.data = true;
@@ -135,7 +135,7 @@ class NewMailNotificationService {
       shouldCount.data = false;
     } else {
       // If we're only counting inboxes and it's not an inbox...
-      let onlyCountInboxes = Services.prefs.getBoolPref(
+      const onlyCountInboxes = Services.prefs.getBoolPref(
         "mail.notification.count.inbox_only",
         true
       );
@@ -185,14 +185,14 @@ class NewMailNotificationService {
       // Biff notifications come in for the top level of the server, we need to
       // look for the folder that actually contains the new mail.
 
-      let allFolders = [folder, ...folder.descendants];
+      const allFolders = [folder, ...folder.descendants];
 
       this.#log.debug(`${folder.URI} notified; will check subfolders`);
       let newCount = 0;
 
-      for (let folder of allFolders) {
+      for (const folder of allFolders) {
         if (this.confirmShouldCount(folder)) {
-          let folderNew = folder.getNumNewMessages(false);
+          const folderNew = folder.getNumNewMessages(false);
           this.#log.debug(`${folder.URI}: ${folderNew} new`);
           if (folderNew > 0) {
             newCount += folderNew;
@@ -326,7 +326,7 @@ class NewMailNotificationService {
 
   addListener(aListener, flags) {
     for (let i = 0; i < this.#listeners.length; i++) {
-      let l = this.#listeners[i];
+      const l = this.#listeners[i];
       if (l.obj === aListener) {
         l.flags = flags;
         return;
@@ -347,7 +347,7 @@ class NewMailNotificationService {
 
   removeListener(aListener) {
     for (let i = 0; i < this.#listeners.length; i++) {
-      let l = this.#listeners[i];
+      const l = this.#listeners[i];
       if (l.obj === aListener) {
         this.#listeners.splice(i, 1);
         return;
@@ -356,9 +356,9 @@ class NewMailNotificationService {
   }
 
   listenersForFlag(flag) {
-    let list = [];
+    const list = [];
     for (let i = 0; i < this.#listeners.length; i++) {
-      let l = this.#listeners[i];
+      const l = this.#listeners[i];
       if (l.flags & flag) {
         list.push(l.obj);
       }
@@ -367,7 +367,7 @@ class NewMailNotificationService {
   }
 
   _notifyListeners(flag, func, value) {
-    let list = this.listenersForFlag(flag);
+    const list = this.listenersForFlag(flag);
     for (let i = 0; i < list.length; i++) {
       list[i][func](value);
     }

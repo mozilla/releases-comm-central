@@ -15,11 +15,11 @@ function onLoadArchiveOptions() {
   // extract the account
   gIdentity = window.arguments[0].identity;
 
-  let granularity = document.getElementById("archiveGranularity");
+  const granularity = document.getElementById("archiveGranularity");
   granularity.selectedIndex = gIdentity.archiveGranularity;
   granularity.addEventListener("command", updateArchiveExample);
 
-  let kfs = document.getElementById("archiveKeepFolderStructure");
+  const kfs = document.getElementById("archiveKeepFolderStructure");
   kfs.checked = gIdentity.archiveKeepFolderStructure;
   kfs.addEventListener("command", updateArchiveExample);
 
@@ -41,9 +41,10 @@ function onAcceptArchiveOptions() {
  * Update the example tree to show what the current options would look like.
  */
 function updateArchiveExample() {
-  let granularity = document.getElementById("archiveGranularity").selectedIndex;
-  let kfs = document.getElementById("archiveKeepFolderStructure").checked;
-  let hierarchy = [
+  const granularity =
+    document.getElementById("archiveGranularity").selectedIndex;
+  const kfs = document.getElementById("archiveKeepFolderStructure").checked;
+  const hierarchy = [
     document.getElementsByClassName("root"),
     document.getElementsByClassName("year"),
     document.getElementsByClassName("month"),
@@ -61,14 +62,14 @@ function updateArchiveExample() {
 
   // Next, handle the "keep folder structures" case by moving a tree item around
   // and making sure its parent is a container.
-  let folders = document.getElementById("folders");
+  const folders = document.getElementById("folders");
   folders.hidden = !kfs;
   if (kfs) {
-    let parent = hierarchy[granularity][0];
+    const parent = hierarchy[granularity][0];
     parent.setAttribute("container", true);
     parent.setAttribute("open", true);
 
-    let treechildren = parent.children[1];
+    const treechildren = parent.children[1];
     treechildren.appendChild(folders);
   }
 }

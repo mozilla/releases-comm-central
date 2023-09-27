@@ -33,12 +33,12 @@ XPCOMUtils.defineLazyServiceGetters(lazy, {
  * @returns {imgIContainer}
  */
 function getCanvasAsImgContainer(canvas, width, height) {
-  let imageData = canvas.getContext("2d").getImageData(0, 0, width, height);
+  const imageData = canvas.getContext("2d").getImageData(0, 0, width, height);
 
   // Create an imgIEncoder so we can turn the image data into a PNG stream.
-  let imgEncoder = Cc["@mozilla.org/image/encoder;2?type=image/png"].getService(
-    Ci.imgIEncoder
-  );
+  const imgEncoder = Cc[
+    "@mozilla.org/image/encoder;2?type=image/png"
+  ].getService(Ci.imgIEncoder);
   imgEncoder.initFromData(
     imageData.data,
     imageData.data.length,
@@ -50,11 +50,11 @@ function getCanvasAsImgContainer(canvas, width, height) {
   );
 
   // Now turn the PNG stream into an imgIContainer.
-  let imgBuffer = lazy.NetUtil.readInputStreamToString(
+  const imgBuffer = lazy.NetUtil.readInputStreamToString(
     imgEncoder,
     imgEncoder.available()
   );
-  let iconImage = lazy.imgTools.decodeImageFromBuffer(
+  const iconImage = lazy.imgTools.decodeImageFromBuffer(
     imgBuffer,
     imgBuffer.length,
     "image/png"
@@ -74,10 +74,10 @@ function getCanvasAsImgContainer(canvas, width, height) {
 function drawUnreadCountText(cxt, text) {
   cxt.save();
 
-  let imageSize = cxt.canvas.width;
+  const imageSize = cxt.canvas.width;
 
   // Use smaller fonts for longer text to try and squeeze it in.
-  let fontSize = imageSize * (0.95 - 0.15 * text.length);
+  const fontSize = imageSize * (0.95 - 0.15 * text.length);
 
   cxt.font = "500 " + fontSize + "px Calibri";
   cxt.fillStyle = "#ffffff";
@@ -88,7 +88,7 @@ function drawUnreadCountText(cxt, text) {
   // does not currently support computation of ascenders and descenters in measureText().
   // So, we just assume that the font is 70% of the 'px' height we requested, then
   // compute where the baseline ought to be located.
-  let approximateHeight = fontSize * 0.7;
+  const approximateHeight = fontSize * 0.7;
 
   cxt.textBaseline = "alphabetic";
   cxt.fillText(
@@ -107,8 +107,8 @@ function drawUnreadCountText(cxt, text) {
  * @param {string} text - The text to draw in the badge.
  */
 function createModernBadgeStyle(canvas, text) {
-  let cxt = canvas.getContext("2d");
-  let iconSize = canvas.width;
+  const cxt = canvas.getContext("2d");
+  const iconSize = canvas.width;
 
   // Draw the background.
   cxt.save();
@@ -141,15 +141,15 @@ function createModernBadgeStyle(canvas, text) {
  * @returns {HTMLCanvasElement} The resized canvas element.
  */
 function downsampleBy4X(window, canvas) {
-  let resizedCanvas = window.document.createElement("canvas");
+  const resizedCanvas = window.document.createElement("canvas");
   resizedCanvas.width = resizedCanvas.height = canvas.width / 4;
   resizedCanvas.style.width = resizedCanvas.style.height =
     resizedCanvas.width + "px";
 
-  let source = canvas
+  const source = canvas
     .getContext("2d")
     .getImageData(0, 0, canvas.width, canvas.height);
-  let downsampled = resizedCanvas
+  const downsampled = resizedCanvas
     .getContext("2d")
     .createImageData(resizedCanvas.width, resizedCanvas.height);
 
@@ -201,7 +201,7 @@ var WinUnreadBadge = {
    * @param {number} unreadTooltip - Unread message count tooltip.
    */
   async updateUnreadCount(unreadCount, unreadTooltip) {
-    let window = Services.wm.getMostRecentBrowserWindow();
+    const window = Services.wm.getMostRecentBrowserWindow();
     if (!window) {
       return;
     }
@@ -215,13 +215,13 @@ var WinUnreadBadge = {
     }
 
     // Draw the badge in a canvas.
-    let smallIconSize = Cc["@mozilla.org/windows-ui-utils;1"].getService(
+    const smallIconSize = Cc["@mozilla.org/windows-ui-utils;1"].getService(
       Ci.nsIWindowsUIUtils
     ).systemSmallIconSize;
-    let iconSize = Math.floor(
+    const iconSize = Math.floor(
       (window.windowUtils.displayDPI / 96) * smallIconSize
     );
-    let iconSize4X = iconSize * 4;
+    const iconSize4X = iconSize * 4;
     let badge = window.document.createElement("canvas");
     badge.width = badge.height = iconSize4X;
     badge.style.width = badge.style.height = badge.width + "px";
@@ -232,7 +232,7 @@ var WinUnreadBadge = {
     );
 
     badge = downsampleBy4X(window, badge);
-    let icon = getCanvasAsImgContainer(badge, iconSize, iconSize);
+    const icon = getCanvasAsImgContainer(badge, iconSize, iconSize);
     // Purge image from cache to force encodeImage() to not be lazy
     icon.requestDiscard();
     // Side effect of encodeImage() is that it decodes original image

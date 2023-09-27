@@ -20,7 +20,7 @@ function clickStoreTypeMenu(aStoreTypeElement) {
   // Response from migration dialog modal. If the conversion is complete
   // 'response.newRootFolder' will hold the path to the new account root folder,
   // otherwise 'response.newRootFolder' will be null.
-  let response = { newRootFolder: null };
+  const response = { newRootFolder: null };
   // Send 'response' as an argument to converterDialog.xhtml.
   window.browsingContext.topChromeWindow.openDialog(
     "converterDialog.xhtml",
@@ -60,12 +60,12 @@ function changeStoreType(aResponse) {
 
 function onInit(aPageId, aServerId) {
   // UI for account store type
-  let storeTypeElement = document.getElementById("server.storeTypeMenulist");
+  const storeTypeElement = document.getElementById("server.storeTypeMenulist");
   // set the menuitem to match the account
-  let currentStoreID = document
+  const currentStoreID = document
     .getElementById("server.storeContractID")
     .getAttribute("value");
-  let targetItem = storeTypeElement.getElementsByAttribute(
+  const targetItem = storeTypeElement.getElementsByAttribute(
     "value",
     currentStoreID
   );
@@ -86,7 +86,7 @@ function onPreInit(account, accountValues) {
 }
 
 function onSave() {
-  let storeContractID = document.getElementById("server.storeTypeMenulist")
+  const storeContractID = document.getElementById("server.storeTypeMenulist")
     .selectedItem.value;
   document
     .getElementById("server.storeContractID")

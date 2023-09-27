@@ -64,7 +64,7 @@
    * @param {Class} Base - A class to be extended with shared functionality.
    * @returns {Class} A class that extends the first class.
    */
-  let FolderMenu = Base =>
+  const FolderMenu = Base =>
     class extends Base {
       constructor() {
         super();
@@ -144,7 +144,7 @@
 
           // Folders that are not in a deferred account.
           notDeferred(folder) {
-            let server = folder.server;
+            const server = folder.server;
             return !(
               server instanceof Ci.nsIPop3IncomingServer &&
               server.deferredToAccount
@@ -314,7 +314,7 @@
             ) {
               return null;
             }
-            for (let child of menu.childWrapper.children) {
+            for (const child of menu.childWrapper.children) {
               if (child._folder && child._folder.URI == item.URI) {
                 return child;
               }
@@ -425,7 +425,7 @@
           // If we don't have a parent, then we assume we should build the
           // top-level accounts. (Actually we build the fake root folders for
           // those accounts.)
-          let accounts = LazyModules.FolderUtils.allAccountsSorted(true);
+          const accounts = LazyModules.FolderUtils.allAccountsSorted(true);
 
           // Now generate our folder list. Note that we'll special case this
           // situation elsewhere, to avoid destroying the sort order we just made.
@@ -461,7 +461,7 @@
           if (mode == "deferred") {
             globalInboxFolder =
               MailServices.accounts.localFoldersServer.rootFolder;
-            let localFoldersIndex = folders.indexOf(globalInboxFolder);
+            const localFoldersIndex = folders.indexOf(globalInboxFolder);
             if (localFoldersIndex != -1) {
               folders.splice(localFoldersIndex, 1);
               folders.unshift(globalInboxFolder);
@@ -522,7 +522,7 @@
        * @param {Element} submenu - The submenu element, typically a menupopup.
        */
       _populateSpecialSubmenu(menu, submenu) {
-        let specialType = menu.getAttribute("special");
+        const specialType = menu.getAttribute("special");
         if (this._initializedSpecials.has(specialType)) {
           return;
         }
@@ -553,7 +553,7 @@
 
         // Cache the pretty names so that they do not need to be fetched
         // with quadratic complexity when sorting by name.
-        let specialFoldersMap = specialFolders.map(folder => {
+        const specialFoldersMap = specialFolders.map(folder => {
           return {
             folder,
             name: folder.prettyName,
@@ -562,7 +562,7 @@
 
         // Because we're scanning across multiple accounts, we can end up with
         // several folders with the same name. Find those dupes.
-        let dupeNames = new Set();
+        const dupeNames = new Set();
         for (let i = 0; i < specialFoldersMap.length; i++) {
           for (let j = i + 1; j < specialFoldersMap.length; j++) {
             if (specialFoldersMap[i].name == specialFoldersMap[j].name) {
@@ -571,7 +571,7 @@
           }
         }
 
-        for (let folderItem of specialFoldersMap) {
+        for (const folderItem of specialFoldersMap) {
           // If this folder name appears multiple times in the recent list,
           // append the server name to disambiguate.
           // TODO:
@@ -593,8 +593,8 @@
         );
 
         // Create entries for each of the recent folders.
-        for (let folderItem of specialFoldersMap) {
-          let attributes = {
+        for (const folderItem of specialFoldersMap) {
+          const attributes = {
             label: folderItem.label,
             ...this._getCssSelectorAttributes(folderItem.folder),
           };
@@ -628,12 +628,14 @@
        * @param {string} mode - The mode attribute.
        */
       _maybeAddParentFolderMenuItem(mode) {
-        let folder = this._parentFolder;
+        const folder = this._parentFolder;
         if (
           folder &&
           (this.getAttribute("showFileHereLabel") == "true" || !mode)
         ) {
-          let showAccountsFileHere = this.getAttribute("showAccountsFileHere");
+          const showAccountsFileHere = this.getAttribute(
+            "showAccountsFileHere"
+          );
           if (
             (!folder.isServer || showAccountsFileHere != "false") &&
             (!mode ||
@@ -642,7 +644,7 @@
               folder.canFileMessages ||
               showAccountsFileHere == "true")
           ) {
-            let attributes = {};
+            const attributes = {};
 
             if (this.hasAttribute("fileHereLabel")) {
               attributes.label = this.getAttribute("fileHereLabel");
@@ -682,14 +684,14 @@
         LazyModules.MailUtils.discoverFolders();
         this._serversOnly = true;
 
-        let [shouldExpand, labels] = this._getShouldExpandAndLabels();
+        const [shouldExpand, labels] = this._getShouldExpandAndLabels();
 
-        for (let folder of folders) {
+        for (const folder of folders) {
           if (!folder.isServer) {
             this._serversOnly = false;
           }
 
-          let attributes = {
+          const attributes = {
             label: this._getFolderLabel(mode, globalInboxFolder, folder),
             ...this._getCssSelectorAttributes(folder),
           };
@@ -710,7 +712,7 @@
 
             this._serversOnly = false;
 
-            let submenuAttributes = {};
+            const submenuAttributes = {};
 
             [
               "class",
@@ -796,15 +798,15 @@
           // to create headers to select the servers. If so, then headlabels
           // is a comma-delimited list of labels corresponding to the server
           // types specified in expandFolders.
-          let types = this.getAttribute("expandFolders").split(/ *, */);
+          const types = this.getAttribute("expandFolders").split(/ *, */);
           // Set the labels. labels[type] = label
           if (this.hasAttribute("headlabels")) {
-            let labelNames = this.getAttribute("headlabels").split(/ *, */);
+            const labelNames = this.getAttribute("headlabels").split(/ *, */);
             labels = {};
             // If the length isn't equal, don't give them any of the labels,
             // since any combination will probably be wrong.
             if (labelNames.length == types.length) {
-              for (let index in types) {
+              for (const index in types) {
                 labels[types[index]] = labelNames[index];
               }
             }
@@ -837,15 +839,15 @@
        * @returns {object} Contains the CSS selector attributes.
        */
       _getCssSelectorAttributes(folder) {
-        let attributes = {};
+        const attributes = {};
 
         // First the SpecialFolder attribute.
         attributes.SpecialFolder =
           LazyModules.FolderUtils.getSpecialFolderString(folder);
 
         // Now the biffState.
-        let biffStates = ["NewMail", "NoMail", "UnknownMail"];
-        for (let state of biffStates) {
+        const biffStates = ["NewMail", "NoMail", "UnknownMail"];
+        for (const state of biffStates) {
           if (folder.biffState == Ci.nsIMsgFolder["nsMsgBiffState_" + state]) {
             attributes.BiffState = state;
             break;
@@ -907,7 +909,7 @@
       selectFolder(inputFolder) {
         // Set the label of the menulist element as if folder had been selected.
         function setupParent(folder, menulist, noFolders) {
-          let menupopup = menulist.menupopup;
+          const menupopup = menulist.menupopup;
           if (folder) {
             menulist.setAttribute("label", menupopup.getDisplayName(folder));
           } else if (noFolders) {
@@ -950,7 +952,7 @@
 
         let folder;
         if (inputFolder) {
-          for (let child of this.children) {
+          for (const child of this.children) {
             if (
               child &&
               child._folder &&
@@ -1030,7 +1032,7 @@
    *
    * @augments {MozElements.MozMenuPopup}
    */
-  let MozFolderMenuPopup = FolderMenu(
+  const MozFolderMenuPopup = FolderMenu(
     class extends MozElements.MozMenuPopup {
       constructor() {
         super();

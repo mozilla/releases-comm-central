@@ -81,12 +81,12 @@ async function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
     if (aFolder instanceof Ci.nsIMsgImapMailFolder) {
       // need to update IMAP custom flags
       if (aJunkMsgHdrs.length) {
-        let junkMsgKeys = aJunkMsgHdrs.map(hdr => hdr.messageKey);
+        const junkMsgKeys = aJunkMsgHdrs.map(hdr => hdr.messageKey);
         aFolder.storeCustomKeywords(null, "Junk", "NonJunk", junkMsgKeys);
       }
 
       if (aGoodMsgHdrs.length) {
-        let goodMsgKeys = aGoodMsgHdrs.map(hdr => hdr.messageKey);
+        const goodMsgKeys = aGoodMsgHdrs.map(hdr => hdr.messageKey);
         aFolder.storeCustomKeywords(null, "NonJunk", "Junk", goodMsgKeys);
       }
     }
@@ -95,7 +95,7 @@ async function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
       return;
     }
 
-    let actionParams = determineActionsForJunkMsgs(aFolder);
+    const actionParams = determineActionsForJunkMsgs(aFolder);
     if (actionParams.markRead) {
       aFolder.markMessagesRead(aJunkMsgHdrs, true);
     }
@@ -106,7 +106,7 @@ async function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
     }
 
     // @implements {nsIMsgCopyServiceListener}
-    let listener = {
+    const listener = {
       QueryInterface: ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]),
       OnStartCopy() {},
       OnProgress(progress, progressMax) {},
@@ -117,7 +117,7 @@ async function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
           resolve();
           return;
         }
-        let uri = actionParams.junkTargetFolder.URI;
+        const uri = actionParams.junkTargetFolder.URI;
         reject(new Error(`Moving junk to ${uri} failed.`));
       },
     };
@@ -187,7 +187,7 @@ MessageClassifier.prototype = {
       return;
     }
 
-    let messageURI = aMsgHdr.folder.generateMessageURI(aMsgHdr.messageKey);
+    const messageURI = aMsgHdr.folder.generateMessageURI(aMsgHdr.messageKey);
     this.mMessages[messageURI] = aMsgHdr;
     if (this.firstMessage) {
       this.firstMessage = false;
@@ -233,7 +233,7 @@ MessageClassifier.prototype = {
     }
 
     var nextMsgURI = this.mMessageQueue.shift();
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
     );
 
@@ -308,12 +308,12 @@ async function processFolderForJunk(aAll) {
       return;
     }
   }
-  let totalMessages = aAll ? count : indices.length;
+  const totalMessages = aAll ? count : indices.length;
 
   // retrieve server and its spam settings via the header of an arbitrary message
   let tmpMsgURI;
   for (let i = 0; i < totalMessages; i++) {
-    let index = aAll ? i : indices[i];
+    const index = aAll ? i : indices[i];
     try {
       tmpMsgURI = gDBView.getURIForViewIndex(index);
       break;
@@ -326,18 +326,18 @@ async function processFolderForJunk(aAll) {
     return;
   }
 
-  let tmpMsgHdr =
+  const tmpMsgHdr =
     MailServices.messageServiceFromURI(tmpMsgURI).messageURIToMsgHdr(tmpMsgURI);
-  let spamSettings = tmpMsgHdr.folder.server.spamSettings;
+  const spamSettings = tmpMsgHdr.folder.server.spamSettings;
 
   // create a classifier instance to classify messages in the folder.
-  let msgClassifier = new MessageClassifier(tmpMsgHdr.folder, totalMessages);
+  const msgClassifier = new MessageClassifier(tmpMsgHdr.folder, totalMessages);
 
   for (let i = 0; i < totalMessages; i++) {
-    let index = aAll ? i : indices[i];
+    const index = aAll ? i : indices[i];
     try {
-      let msgURI = gDBView.getURIForViewIndex(index);
-      let msgHdr =
+      const msgURI = gDBView.getURIForViewIndex(index);
+      const msgHdr =
         MailServices.messageServiceFromURI(msgURI).messageURIToMsgHdr(msgURI);
       msgClassifier.analyzeMessage(msgHdr, spamSettings);
     } catch (ex) {
@@ -362,11 +362,11 @@ async function processFolderForJunk(aAll) {
  */
 function deleteJunkInFolder() {
   // use direct folder commands if possible so we don't mess with the selection
-  let selectedFolder = gViewWrapper.displayedFolder;
+  const selectedFolder = gViewWrapper.displayedFolder;
   if (!selectedFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
-    let junkMsgHdrs = [];
-    for (let msgHdr of gDBView.msgFolder.messages) {
-      let junkScore = msgHdr.getStringProperty("junkscore");
+    const junkMsgHdrs = [];
+    for (const msgHdr of gDBView.msgFolder.messages) {
+      const junkScore = msgHdr.getStringProperty("junkscore");
       if (junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE) {
         junkMsgHdrs.push(msgHdr);
       }
@@ -409,11 +409,11 @@ function deleteJunkInFolder() {
     } catch (ex) {
       continue; // blow off errors for dummy rows
     }
-    let msgHdr =
+    const msgHdr =
       MailServices.messageServiceFromURI(messageUri).messageURIToMsgHdr(
         messageUri
       );
-    let junkScore = msgHdr.getStringProperty("junkscore");
+    const junkScore = msgHdr.getStringProperty("junkscore");
     var isJunk = junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
     // if the message is junk, select it.
     if (isJunk) {

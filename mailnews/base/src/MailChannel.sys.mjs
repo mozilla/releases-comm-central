@@ -25,7 +25,7 @@ export class MailChannel {
   }
 
   handleAttachmentFromMIME(contentType, url, displayName, uri, notDownloaded) {
-    let attachment = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
+    const attachment = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
       Ci.nsIWritablePropertyBag2
     );
     attachment.setPropertyAsAUTF8String("contentType", contentType);
@@ -37,7 +37,7 @@ export class MailChannel {
   }
 
   addAttachmentFieldFromMIME(field, value) {
-    let attachment = this._attachments[this._attachments.length - 1];
+    const attachment = this._attachments[this._attachments.length - 1];
     attachment.setPropertyAsAUTF8String(field, value);
   }
 
@@ -50,7 +50,7 @@ export class MailChannel {
   }
 
   set mailCharacterSet(value) {
-    let ccm = Cc["@mozilla.org/charset-converter-manager;1"].getService(
+    const ccm = Cc["@mozilla.org/charset-converter-manager;1"].getService(
       Ci.nsICharsetConverterManager
     );
     this._mailCharacterSet = ccm.getCharsetAlias(value);

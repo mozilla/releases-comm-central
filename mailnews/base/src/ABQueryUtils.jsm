@@ -33,7 +33,7 @@ function getSearchTokens(aSearchString) {
     return [];
   }
 
-  let quotedTerms = [];
+  const quotedTerms = [];
 
   // Split up multiple search words to create a *foo* and *bar* search against
   // search fields, using the OR-search template from modelQuery for each word.

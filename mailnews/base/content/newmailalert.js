@@ -25,7 +25,7 @@ function prefillAlertInfo() {
   // Generate an account label string based on the root folder.
   var label = document.getElementById("alertTitle");
   var totalNumNewMessages = newMsgKeys.length;
-  let message = document
+  const message = document
     .getElementById("bundle_messenger")
     .getString("newMailAlert_message");
   label.value = PluralForm.get(totalNumNewMessages, message)
@@ -39,7 +39,7 @@ function prefillAlertInfo() {
 }
 
 function onAlertLoad() {
-  let dragSession = Cc["@mozilla.org/widget/dragservice;1"]
+  const dragSession = Cc["@mozilla.org/widget/dragservice;1"]
     .getService(Ci.nsIDragService)
     .getCurrentSession();
   if (dragSession && dragSession.sourceNode) {
@@ -61,19 +61,19 @@ function doOnAlertLoad() {
   }
 
   // resize the alert based on our current content
-  let alertTextBox = document.getElementById("alertTextBox");
-  let alertImageBox = document.getElementById("alertImageBox");
+  const alertTextBox = document.getElementById("alertTextBox");
+  const alertImageBox = document.getElementById("alertImageBox");
   alertImageBox.style.minHeight = alertTextBox.scrollHeight + "px";
 
   // Show in bottom right, offset by 10px.
   // We wait one cycle until the window has resized.
   setTimeout(() => {
-    let x = screen.availLeft + screen.availWidth - window.outerWidth - 10;
-    let y = screen.availTop + screen.availHeight - window.outerHeight - 10;
+    const x = screen.availLeft + screen.availWidth - window.outerWidth - 10;
+    const y = screen.availTop + screen.availHeight - window.outerHeight - 10;
     window.moveTo(x, y);
   });
 
-  let openTime = Services.prefs.getIntPref("alerts.totalOpenTime");
+  const openTime = Services.prefs.getIntPref("alerts.totalOpenTime");
   var alertContainer = document.getElementById("alertContainer");
   // Don't fade in if the prefers-reduced-motion is true.
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {

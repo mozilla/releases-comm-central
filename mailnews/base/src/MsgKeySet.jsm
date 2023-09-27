@@ -27,7 +27,7 @@ class MsgKeySet {
     // @type {Array<[number, number]>}
     this._ranges = str
       ? str.split(",").map(part => {
-          let [start, end] = part.split("-");
+          const [start, end] = part.split("-");
           return [+start, +end || +start];
         })
       : [];
@@ -50,7 +50,7 @@ class MsgKeySet {
    */
   addRange(low, high) {
     let index = 0;
-    for (let [start] of this._ranges) {
+    for (const [start] of this._ranges) {
       if (start > low) {
         break;
       }
@@ -80,9 +80,9 @@ class MsgKeySet {
    * @returns {number[]} - Array of lenght two with [low, high].
    */
   getLastMissingRange(low, high) {
-    let length = this._ranges.length;
+    const length = this._ranges.length;
     for (let i = length - 1; i >= 0; i--) {
-      let [start, end] = this._ranges[i];
+      const [start, end] = this._ranges[i];
       if (end < high) {
         return [Math.max(low, end + 1), high];
       } else if (low < start && high > start) {
@@ -113,9 +113,9 @@ class MsgKeySet {
     if (this._ranges.length < 2) {
       return;
     }
-    let newRanges = [];
+    const newRanges = [];
     let [cursorStart, cursorEnd] = this._ranges[0];
-    for (let [start, end] of this._ranges.slice(1)) {
+    for (const [start, end] of this._ranges.slice(1)) {
       if (cursorEnd < start - 1) {
         // No overlap between the two ranges.
         newRanges.push([cursorStart, cursorEnd]);

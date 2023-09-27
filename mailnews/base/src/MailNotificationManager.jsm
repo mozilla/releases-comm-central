@@ -98,7 +98,7 @@ class MailNotificationManager {
     switch (topic) {
       case "alertclickcallback":
         // Display the associated message when an alert is clicked.
-        let msgHdr = Cc["@mozilla.org/messenger;1"]
+        const msgHdr = Cc["@mozilla.org/messenger;1"]
           .getService(Ci.nsIMessenger)
           .msgHdrFromURI(data);
         lazy.MailUtils.displayMessageInFolderTab(msgHdr, true);
@@ -190,13 +190,13 @@ class MailNotificationManager {
    *   event, can be a root folder or a real folder.
    */
   async _fillAlertInfo(changedFolder) {
-    let folder = this._getFirstRealFolderWithNewMail(changedFolder);
+    const folder = this._getFirstRealFolderWithNewMail(changedFolder);
     if (!folder) {
       return;
     }
 
-    let newMsgKeys = this._getNewMsgKeysNotNotified(folder);
-    let numNewMessages = newMsgKeys.length;
+    const newMsgKeys = this._getNewMsgKeysNotNotified(folder);
+    const numNewMessages = newMsgKeys.length;
     if (!numNewMessages) {
       return;
     }
@@ -204,9 +204,9 @@ class MailNotificationManager {
     this._logger.debug(
       `Filling alert info; folder.URI=${folder.URI}, numNewMessages=${numNewMessages}`
     );
-    let firstNewMsgHdr = folder.msgDatabase.getMsgHdrForKey(newMsgKeys[0]);
+    const firstNewMsgHdr = folder.msgDatabase.getMsgHdrForKey(newMsgKeys[0]);
 
-    let title = this._getAlertTitle(folder, numNewMessages);
+    const title = this._getAlertTitle(folder, numNewMessages);
     let body;
     try {
       body = await this._getAlertBody(folder, firstNewMsgHdr);
@@ -228,11 +228,11 @@ class MailNotificationManager {
    * @returns {nsIMsgFolder} The first real folder.
    */
   _getFirstRealFolderWithNewMail(changedFolder) {
-    let folders = changedFolder.descendants;
+    const folders = changedFolder.descendants;
     folders.unshift(changedFolder);
 
-    for (let folder of folders) {
-      let flags = folder.flags;
+    for (const folder of folders) {
+      const flags = folder.flags;
       if (
         !(flags & Ci.nsMsgFolderFlags.Inbox) &&
         flags & (Ci.nsMsgFolderFlags.SpecialUse | Ci.nsMsgFolderFlags.Virtual)
@@ -274,7 +274,7 @@ class MailNotificationManager {
    */
   async _getAlertBody(folder, msgHdr) {
     await new Promise((resolve, reject) => {
-      let isAsync = folder.fetchMsgPreviewText([msgHdr.messageKey], {
+      const isAsync = folder.fetchMsgPreviewText([msgHdr.messageKey], {
         OnStartRunningUrl() {},
         // @see nsIUrlListener
         OnStopRunningUrl(url, exitCode) {
@@ -288,15 +288,15 @@ class MailNotificationManager {
 
     let alertBody = "";
 
-    let subject = Services.prefs.getBoolPref("mail.biff.alert.show_subject")
+    const subject = Services.prefs.getBoolPref("mail.biff.alert.show_subject")
       ? msgHdr.mime2DecodedSubject
       : "";
     let author = "";
     if (Services.prefs.getBoolPref("mail.biff.alert.show_sender")) {
-      let addressObjects = MailServices.headerParser.makeFromDisplayAddress(
+      const addressObjects = MailServices.headerParser.makeFromDisplayAddress(
         msgHdr.mime2DecodedAuthor
       );
-      let { name, email } = addressObjects[0] || {};
+      const { name, email } = addressObjects[0] || {};
       author = name || email;
     }
     if (subject && author) {
@@ -309,15 +309,17 @@ class MailNotificationManager {
     } else if (author) {
       alertBody += author;
     }
-    let showPreview = Services.prefs.getBoolPref(
+    const showPreview = Services.prefs.getBoolPref(
       "mail.biff.alert.show_preview"
     );
     if (showPreview) {
-      let previewLength = Services.prefs.getIntPref(
+      const previewLength = Services.prefs.getIntPref(
         "mail.biff.alert.preview_length",
         40
       );
-      let preview = msgHdr.getStringProperty("preview").slice(0, previewLength);
+      const preview = msgHdr
+        .getStringProperty("preview")
+        .slice(0, previewLength);
       if (preview) {
         alertBody += (alertBody ? "\n" : "") + preview;
       }
@@ -333,19 +335,19 @@ class MailNotificationManager {
    * @param {string} body - The alert body.
    */
   _showAlert(msgHdr, title, body) {
-    let folder = msgHdr.folder;
+    const folder = msgHdr.folder;
 
     // Try to use system alert first.
     if (
       Services.prefs.getBoolPref("mail.biff.use_system_alert", true) &&
       this._systemAlertAvailable
     ) {
-      let alertsService = Cc["@mozilla.org/system-alerts-service;1"].getService(
-        Ci.nsIAlertsService
-      );
-      let cookie = folder.generateMessageURI(msgHdr.messageKey);
+      const alertsService = Cc[
+        "@mozilla.org/system-alerts-service;1"
+      ].getService(Ci.nsIAlertsService);
+      const cookie = folder.generateMessageURI(msgHdr.messageKey);
       try {
-        let alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
+        const alert = Cc["@mozilla.org/alert-notification;1"].createInstance(
           Ci.nsIAlertNotification
         );
         alert.init(
@@ -391,14 +393,14 @@ class MailNotificationManager {
       this._pendingFolders.delete(folder);
     }
 
-    let newMsgKeys = this._getNewMsgKeysNotNotified(folder);
+    const newMsgKeys = this._getNewMsgKeysNotNotified(folder);
     if (!newMsgKeys.length) {
       // No NEW message in the current folder, try the next queued folder.
       this._showCustomizedAlert();
       return;
     }
 
-    let args = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    const args = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
     args.appendElement(folder);
     args.appendElement({
       wrappedJSObject: newMsgKeys,
@@ -422,13 +424,13 @@ class MailNotificationManager {
    * @returns {number[]} An array of message keys.
    */
   _getNewMsgKeysNotNotified(folder) {
-    let msgDb = folder.msgDatabase;
-    let lastBiffTime = this._folderBiffTime.get(folder) || 0;
+    const msgDb = folder.msgDatabase;
+    const lastBiffTime = this._folderBiffTime.get(folder) || 0;
     return msgDb
       .getNewList()
       .slice(-folder.getNumNewMessages(false))
       .filter(key => {
-        let msgHdr = msgDb.getMsgHdrForKey(key);
+        const msgHdr = msgDb.getMsgHdrForKey(key);
         return msgHdr.dateInSeconds * 1000 > lastBiffTime;
       });
   }

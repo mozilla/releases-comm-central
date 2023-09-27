@@ -59,7 +59,7 @@ runnablePrompter.prototype = {
             "onPromptStart has been replaced by onPromptStartAsync",
             "https://bugzilla.mozilla.org/show_bug.cgi?id=1176399"
           );
-          let ok = listener.onPromptStart();
+          const ok = listener.onPromptStart();
           resolve(ok);
         } else {
           reject(e);
@@ -71,7 +71,7 @@ runnablePrompter.prototype = {
   async run() {
     await Services.logins.initializationPromise;
     this._asyncPrompter._log.debug("Running prompt for " + this._hashKey);
-    let prompter = this._asyncPrompter._pendingPrompts[this._hashKey];
+    const prompter = this._asyncPrompter._pendingPrompts[this._hashKey];
     let ok = false;
     try {
       ok = await this._promiseAuthPrompt(prompter.first);
@@ -138,7 +138,7 @@ MsgAsyncPrompter.prototype = {
     }
 
     this._log.debug("Adding new prompt to the queue, key: " + aKey);
-    let asyncPrompt = {
+    const asyncPrompt = {
       first: aCaller,
       consumers: [],
     };
@@ -149,7 +149,7 @@ MsgAsyncPrompter.prototype = {
 
       this._log.debug("Forcing runnablePrompter for " + aKey);
 
-      let runnable = new runnablePrompter(this, aKey);
+      const runnable = new runnablePrompter(this, aKey);
       Services.tm.mainThread.dispatch(runnable, Ci.nsIThread.DISPATCH_NORMAL);
     } else {
       this._doAsyncAuthPrompt();
@@ -178,7 +178,7 @@ MsgAsyncPrompter.prototype = {
 
     this._log.debug("Dispatching runnablePrompter for " + hashKey);
 
-    let runnable = new runnablePrompter(this, hashKey);
+    const runnable = new runnablePrompter(this, hashKey);
     Services.tm.mainThread.dispatch(runnable, Ci.nsIThread.DISPATCH_NORMAL);
   },
 };
@@ -208,19 +208,19 @@ class MsgAuthPrompt {
   }
 
   _getRealmInfo(aRealmString) {
-    let httpRealm = /^.+ \(.+\)$/;
+    const httpRealm = /^.+ \(.+\)$/;
     if (httpRealm.test(aRealmString)) {
       return [null, null, null];
     }
 
-    let uri = Services.io.newURI(aRealmString);
+    const uri = Services.io.newURI(aRealmString);
     let pathname = "";
 
     if (uri.pathQueryRef != "/") {
       pathname = uri.pathQueryRef;
     }
 
-    let formattedOrigin = this._getFormattedOrigin(uri);
+    const formattedOrigin = this._getFormattedOrigin(uri);
 
     return [formattedOrigin, formattedOrigin + pathname, uri.username];
   }
@@ -284,13 +284,13 @@ class MsgAuthPrompt {
       );
     }
 
-    let checkBox = { value: false };
+    const checkBox = { value: false };
     let checkBoxLabel = null;
-    let [origin, realm] = this._getRealmInfo(aPasswordRealm);
+    const [origin, realm] = this._getRealmInfo(aPasswordRealm);
 
     // If origin is null, we can't save this login.
     if (origin) {
-      let canRememberLogin =
+      const canRememberLogin =
         aSavePassword == Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY &&
         Services.logins.getLoginSavingEnabled(origin);
 
@@ -299,7 +299,7 @@ class MsgAuthPrompt {
         checkBoxLabel = this._getLocalizedString("rememberPassword");
       }
 
-      for (let login of Services.logins.findLogins(origin, null, realm)) {
+      for (const login of Services.logins.findLogins(origin, null, realm)) {
         if (login.username == aUsername.value) {
           checkBox.value = true;
           aUsername.value = login.username;
@@ -311,7 +311,7 @@ class MsgAuthPrompt {
       }
     }
 
-    let ok = nsIPrompt_promptUsernameAndPassword(
+    const ok = nsIPrompt_promptUsernameAndPassword(
       aDialogTitle,
       aText,
       aUsername,
@@ -324,7 +324,7 @@ class MsgAuthPrompt {
       return ok;
     }
 
-    let newLogin = new LoginInfo(
+    const newLogin = new LoginInfo(
       origin,
       null,
       realm,
@@ -359,7 +359,7 @@ class MsgAuthPrompt {
       );
     }
 
-    let checkBox = { value: false };
+    const checkBox = { value: false };
     let checkBoxLabel = null;
     let [origin, realm, username] = this._getRealmInfo(aPasswordRealm);
 
@@ -367,7 +367,7 @@ class MsgAuthPrompt {
 
     // If origin is null, we can't save this login.
     if (origin) {
-      let canRememberLogin =
+      const canRememberLogin =
         aSavePassword == Ci.nsIAuthPrompt.SAVE_PASSWORD_PERMANENTLY &&
         Services.logins.getLoginSavingEnabled(origin);
 
@@ -378,7 +378,7 @@ class MsgAuthPrompt {
 
       if (!aPassword.value) {
         // Look for existing logins.
-        for (let login of Services.logins.findLogins(origin, null, realm)) {
+        for (const login of Services.logins.findLogins(origin, null, realm)) {
           if (login.username == username) {
             aPassword.value = login.password;
             return true;
@@ -387,7 +387,7 @@ class MsgAuthPrompt {
       }
     }
 
-    let ok = nsIPrompt_promptPassword(
+    const ok = nsIPrompt_promptPassword(
       aDialogTitle,
       aText,
       aPassword,
@@ -396,7 +396,7 @@ class MsgAuthPrompt {
     );
 
     if (ok && checkBox.value && origin && aPassword.value) {
-      let newLogin = new LoginInfo(
+      const newLogin = new LoginInfo(
         origin,
         null,
         realm,
@@ -461,19 +461,19 @@ class MsgAuthPrompt {
    * @returns {boolean} true for OK, false for Cancel.
    */
   promptAuth(channel, level, authInfo, checkboxLabel, checkValue) {
-    let title = lazy.dialogsBundle.formatStringFromName(
+    const title = lazy.dialogsBundle.formatStringFromName(
       "PromptUsernameAndPassword3",
       [lazy.brandFullName]
     );
-    let text = lazy.dialogsBundle.formatStringFromName(
+    const text = lazy.dialogsBundle.formatStringFromName(
       "EnterUserPasswordFor2",
       [`${channel.URI.scheme}://${channel.URI.host}`]
     );
 
-    let username = { value: authInfo.username || "" };
-    let password = { value: authInfo.password || "" };
+    const username = { value: authInfo.username || "" };
+    const password = { value: authInfo.password || "" };
 
-    let ok = nsIPrompt_promptUsernameAndPassword(
+    const ok = nsIPrompt_promptUsernameAndPassword(
       title,
       text,
       username,
@@ -525,7 +525,7 @@ function nsIPrompt_promptUsernameAndPassword(
     );
   }
 
-  let args = {
+  const args = {
     promptType: "promptUserAndPass",
     title: dialogTitle,
     text,
@@ -536,7 +536,7 @@ function nsIPrompt_promptUsernameAndPassword(
     ok: false,
   };
 
-  let propBag = lazy.PromptUtils.objectToPropBag(args);
+  const propBag = lazy.PromptUtils.objectToPropBag(args);
   Services.ww.openWindow(
     Services.ww.activeWindow,
     "chrome://global/content/commonDialog.xhtml",
@@ -547,7 +547,7 @@ function nsIPrompt_promptUsernameAndPassword(
   lazy.PromptUtils.propBagToObject(propBag, args);
 
   // Did user click Ok or Cancel?
-  let ok = args.ok;
+  const ok = args.ok;
   if (ok) {
     checkValue.value = args.checked;
     username.value = args.user;
@@ -592,7 +592,7 @@ function nsIPrompt_promptPassword(
     );
   }
 
-  let args = {
+  const args = {
     promptType: "promptPassword",
     title: dialogTitle,
     text,
@@ -602,7 +602,7 @@ function nsIPrompt_promptPassword(
     ok: false,
   };
 
-  let propBag = lazy.PromptUtils.objectToPropBag(args);
+  const propBag = lazy.PromptUtils.objectToPropBag(args);
   Services.ww.openWindow(
     Services.ww.activeWindow,
     "chrome://global/content/commonDialog.xhtml",
@@ -613,7 +613,7 @@ function nsIPrompt_promptPassword(
   lazy.PromptUtils.propBagToObject(propBag, args);
 
   // Did user click Ok or Cancel?
-  let ok = args.ok;
+  const ok = args.ok;
   if (ok) {
     checkValue.value = args.checked;
     password.value = args.pass;

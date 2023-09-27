@@ -75,12 +75,14 @@ class MailAuthenticator {
    */
   getCramMd5Token(password, challenge) {
     // Hash the challenge.
-    let signature = MailCryptoUtils.hmacMd5(
+    const signature = MailCryptoUtils.hmacMd5(
       new TextEncoder().encode(password),
       new TextEncoder().encode(atob(challenge))
     );
     // Get the hex form of the signature.
-    let hex = [...signature].map(x => x.toString(16).padStart(2, "0")).join("");
+    const hex = [...signature]
+      .map(x => x.toString(16).padStart(2, "0"))
+      .join("");
     return btoa(`${this.username} ${hex}`);
   }
 
@@ -172,30 +174,30 @@ class MailAuthenticator {
    * @returns {number} 0: Retry; 1: Cancel; 2: New password.
    */
   _promptAuthFailed(msgWindow, accountname) {
-    let bundle = Services.strings.createBundle(
+    const bundle = Services.strings.createBundle(
       "chrome://messenger/locale/messenger.properties"
     );
-    let message = bundle.formatStringFromName("mailServerLoginFailed2", [
+    const message = bundle.formatStringFromName("mailServerLoginFailed2", [
       this.hostname,
       this.username,
     ]);
 
-    let title = bundle.formatStringFromName(
+    const title = bundle.formatStringFromName(
       "mailServerLoginFailedTitleWithAccount",
       [accountname]
     );
 
-    let retryButtonLabel = bundle.GetStringFromName(
+    const retryButtonLabel = bundle.GetStringFromName(
       "mailServerLoginFailedRetryButton"
     );
-    let newPasswordButtonLabel = bundle.GetStringFromName(
+    const newPasswordButtonLabel = bundle.GetStringFromName(
       "mailServerLoginFailedEnterNewPasswordButton"
     );
-    let buttonFlags =
+    const buttonFlags =
       Ci.nsIPrompt.BUTTON_POS_0 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING +
       Ci.nsIPrompt.BUTTON_POS_1 * Ci.nsIPrompt.BUTTON_TITLE_CANCEL +
       Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING;
-    let dummyValue = { value: false };
+    const dummyValue = { value: false };
 
     return Services.prompt.confirmEx(
       msgWindow?.domWindow,
@@ -241,10 +243,10 @@ class SmtpAuthenticator extends MailAuthenticator {
     if (this._server.password) {
       return this._server.password;
     }
-    let composeBundle = Services.strings.createBundle(
+    const composeBundle = Services.strings.createBundle(
       "chrome://messenger/locale/messengercompose/composeMsgs.properties"
     );
-    let username = this._server.username;
+    const username = this._server.username;
     let promptString;
     if (username) {
       promptString = composeBundle.formatStringFromName(
@@ -257,7 +259,7 @@ class SmtpAuthenticator extends MailAuthenticator {
         [this._server.hostname]
       );
     }
-    let promptTitle = composeBundle.formatStringFromName(
+    const promptTitle = composeBundle.formatStringFromName(
       "smtpEnterPasswordPromptTitleWithHostname",
       [this._server.hostname]
     );
@@ -285,7 +287,7 @@ class SmtpAuthenticator extends MailAuthenticator {
   }
 
   async getOAuthToken() {
-    let oauth2Module = Cc["@mozilla.org/mail/oauth2-module;1"].createInstance(
+    const oauth2Module = Cc["@mozilla.org/mail/oauth2-module;1"].createInstance(
       Ci.msgIOAuth2Module
     );
     if (!oauth2Module.initFromSmtp(this._server)) {
@@ -360,7 +362,7 @@ class IncomingServerAuthenticator extends MailAuthenticator {
   }
 
   async getOAuthToken() {
-    let oauth2Module = Cc["@mozilla.org/mail/oauth2-module;1"].createInstance(
+    const oauth2Module = Cc["@mozilla.org/mail/oauth2-module;1"].createInstance(
       Ci.msgIOAuth2Module
     );
     if (!oauth2Module.initFromMail(this._server)) {
@@ -411,15 +413,15 @@ class Pop3Authenticator extends IncomingServerAuthenticator {
     if (this._server.password) {
       return this._server.password;
     }
-    let composeBundle = Services.strings.createBundle(
+    const composeBundle = Services.strings.createBundle(
       "chrome://messenger/locale/localMsgs.properties"
     );
-    let params = [this._server.username, this._server.hostName];
-    let promptString = composeBundle.formatStringFromName(
+    const params = [this._server.username, this._server.hostName];
+    const promptString = composeBundle.formatStringFromName(
       "pop3EnterPasswordPrompt",
       params
     );
-    let promptTitle = composeBundle.formatStringFromName(
+    const promptTitle = composeBundle.formatStringFromName(
       "pop3EnterPasswordPromptTitleWithUsername",
       [this._server.hostName]
     );
@@ -444,15 +446,15 @@ class ImapAuthenticator extends IncomingServerAuthenticator {
     if (this._server.password) {
       return this._server.password;
     }
-    let composeBundle = Services.strings.createBundle(
+    const composeBundle = Services.strings.createBundle(
       "chrome://messenger/locale/imapMsgs.properties"
     );
-    let params = [this._server.username, this._server.hostName];
-    let promptString = composeBundle.formatStringFromName(
+    const params = [this._server.username, this._server.hostName];
+    const promptString = composeBundle.formatStringFromName(
       "imapEnterServerPasswordPrompt",
       params
     );
-    let promptTitle = composeBundle.formatStringFromName(
+    const promptTitle = composeBundle.formatStringFromName(
       "imapEnterPasswordPromptTitleWithUsername",
       [this._server.hostName]
     );

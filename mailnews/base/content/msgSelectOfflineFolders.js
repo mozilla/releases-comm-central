@@ -23,8 +23,8 @@ var gSelectOffline = {
   _rollbackMap: new Map(),
 
   load() {
-    for (let account of FolderUtils.allAccountsSorted(true)) {
-      let server = account.incomingServer;
+    for (const account of FolderUtils.allAccountsSorted(true)) {
+      const server = account.incomingServer;
       if (
         server instanceof Ci.nsIPop3IncomingServer &&
         server.deferredToAccount
@@ -49,10 +49,10 @@ var gSelectOffline = {
       return;
     }
 
-    let selection = this._treeElement.view.selection;
-    let start = {};
-    let end = {};
-    let numRanges = selection.getRangeCount();
+    const selection = this._treeElement.view.selection;
+    const start = {};
+    const end = {};
+    const numRanges = selection.getRangeCount();
 
     for (let range = 0; range < numRanges; range++) {
       selection.getRangeAt(range, start, end);
@@ -74,7 +74,7 @@ var gSelectOffline = {
       return;
     }
 
-    let treeCellInfo = this._treeElement.getCellAt(
+    const treeCellInfo = this._treeElement.getCellAt(
       aEvent.clientX,
       aEvent.clientY
     );
@@ -87,7 +87,7 @@ var gSelectOffline = {
   },
 
   _toggle(aRow) {
-    let folder = gFolderTreeView._rowMap[aRow]._folder;
+    const folder = gFolderTreeView._rowMap[aRow]._folder;
 
     if (folder.isServer) {
       return;
@@ -106,7 +106,7 @@ var gSelectOffline = {
   },
 
   onCancel() {
-    for (let [folder, value] of this._rollbackMap) {
+    for (const [folder, value] of this._rollbackMap) {
       if (value != folder.getFlag(Ci.nsMsgFolderFlags.Offline)) {
         folder.toggleFlag(Ci.nsMsgFolderFlags.Offline);
       }
@@ -177,7 +177,7 @@ class FolderRow {
   get children() {
     if (this._children === null) {
       this._children = [];
-      for (let subFolder of this._folder.subFolders) {
+      for (const subFolder of this._folder.subFolders) {
         if (subFolder.supportsOffline) {
           this._children.push(new FolderRow(subFolder, this));
         }

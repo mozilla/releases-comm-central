@@ -12,7 +12,7 @@ var MailCryptoUtils = {
    * @returns {Uint8Array}.
    */
   binaryStringToTypedArray(str) {
-    let arr = new Uint8Array(str.length);
+    const arr = new Uint8Array(str.length);
     for (let i = 0; i < str.length; i++) {
       arr[i] = str.charCodeAt(i);
     }
@@ -35,7 +35,7 @@ var MailCryptoUtils = {
    * @returns {Uint8Array}
    */
   hmacMd5(key, data) {
-    let hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
+    const hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
       Ci.nsICryptoHash
     );
     let digest;
@@ -49,10 +49,10 @@ var MailCryptoUtils = {
     }
 
     // Generate innerPad and outerPad.
-    let innerPad = new Uint8Array(64);
-    let outerPad = new Uint8Array(64);
+    const innerPad = new Uint8Array(64);
+    const outerPad = new Uint8Array(64);
     for (let i = 0; i < 64; i++) {
-      let base = key[i] || 0;
+      const base = key[i] || 0;
       innerPad[i] = base ^ 0x36;
       outerPad[i] = base ^ 0x5c;
     }
@@ -63,7 +63,7 @@ var MailCryptoUtils = {
     hasher.update(data, data.length);
     digest = hasher.finish(false);
 
-    let result = this.binaryStringToTypedArray(digest);
+    const result = this.binaryStringToTypedArray(digest);
 
     // Perform outer MD5.
     hasher.init(Ci.nsICryptoHash.MD5);

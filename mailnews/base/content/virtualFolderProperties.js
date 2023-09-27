@@ -75,7 +75,7 @@ function onLoad() {
 
     if (windowArgs.searchTerms) {
       // then add them to our search session
-      for (let searchTerm of windowArgs.searchTerms) {
+      for (const searchTerm of windowArgs.searchTerms) {
         gSearchTermSession.appendTerm(searchTerm);
       }
     }
@@ -98,7 +98,7 @@ function onLoad() {
       }
     }
 
-    let folderNameField = document.getElementById("name");
+    const folderNameField = document.getElementById("name");
     folderNameField.removeAttribute("hidden");
     folderNameField.focus();
     if (windowArgs.newFolderName) {
@@ -147,13 +147,13 @@ function updateOnlineSearchState() {
 }
 
 function InitDialogWithVirtualFolder(aVirtualFolder) {
-  let virtualFolderWrapper = VirtualFolderHelper.wrapVirtualFolder(
+  const virtualFolderWrapper = VirtualFolderHelper.wrapVirtualFolder(
     window.arguments[0].folder
   );
   gMsgFolder = window.arguments[0].folder;
 
-  let styles = getComputedStyle(document.body);
-  let folderColors = {
+  const styles = getComputedStyle(document.body);
+  const folderColors = {
     Inbox: styles.getPropertyValue("--folder-color-inbox"),
     Sent: styles.getPropertyValue("--folder-color-sent"),
     Outbox: styles.getPropertyValue("--folder-color-outbox"),
@@ -170,22 +170,22 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
 
   // when editing an existing folder, hide the folder picker that stores the parent location of the folder
   document.getElementById("msgNewFolderPicker").collapsed = true;
-  let items = document.getElementsByClassName("chooseFolderLocation");
-  for (let item of items) {
+  const items = document.getElementsByClassName("chooseFolderLocation");
+  for (const item of items) {
     item.setAttribute("hidden", true);
   }
-  let folderNameField = document.getElementById("existingName");
+  const folderNameField = document.getElementById("existingName");
   folderNameField.removeAttribute("hidden");
 
   // Show the icon color options.
   document.getElementById("iconColorContainer").collapsed = false;
 
-  let folderType = FolderUtils.getSpecialFolderString(gMsgFolder);
+  const folderType = FolderUtils.getSpecialFolderString(gMsgFolder);
   if (folderType in folderColors) {
     gDefaultColor = folderColors[folderType];
   }
 
-  let colorInput = document.getElementById("color");
+  const colorInput = document.getElementById("color");
   colorInput.value =
     FolderTreeProperties.getColor(aVirtualFolder.URI) || gDefaultColor;
   colorInput.addEventListener("input", event => {
@@ -196,7 +196,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
       colorInput.value
     );
   });
-  let resetColorButton = document.getElementById("resetColor");
+  const resetColorButton = document.getElementById("resetColor");
   resetColorButton.addEventListener("click", function () {
     colorInput.value = gDefaultColor;
     // Preview the default color.
@@ -216,7 +216,7 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   setupSearchRows(gSearchTermSession.searchTerms);
 
   // set the name of the folder
-  let name = gFolderBundle.formatStringFromName("verboseFolderFormat", [
+  const name = gFolderBundle.formatStringFromName("verboseFolderFormat", [
     aVirtualFolder.prettyName,
     aVirtualFolder.server.prettyName,
   ]);
@@ -254,7 +254,7 @@ function onOK(event) {
       gSearchTermSession
     );
     // save the settings
-    let virtualFolderWrapper = VirtualFolderHelper.wrapVirtualFolder(
+    const virtualFolderWrapper = VirtualFolderHelper.wrapVirtualFolder(
       window.arguments[0].folder
     );
     virtualFolderWrapper.searchTerms = gSearchTermSession.searchTerms;
@@ -354,18 +354,18 @@ function onFolderListDialogCallback(searchFolderURIs) {
 }
 
 function updateFoldersCount() {
-  let srchFolderUriArray = gSearchFolderURIs.split("|");
-  let folderCount = gSearchFolderURIs ? srchFolderUriArray.length : 0;
-  let foldersList = document.getElementById("chosenFoldersCount");
+  const srchFolderUriArray = gSearchFolderURIs.split("|");
+  const folderCount = gSearchFolderURIs ? srchFolderUriArray.length : 0;
+  const foldersList = document.getElementById("chosenFoldersCount");
   foldersList.textContent = PluralForm.get(
     folderCount,
     gMessengerBundle.GetStringFromName("virtualFolderSourcesChosen")
   ).replace("#1", folderCount);
   if (folderCount > 0) {
-    let folderNames = [];
-    for (let folderURI of srchFolderUriArray) {
-      let folder = MailUtils.getOrCreateFolder(folderURI);
-      let name = this.gMessengerBundle.formatStringFromName(
+    const folderNames = [];
+    for (const folderURI of srchFolderUriArray) {
+      const folder = MailUtils.getOrCreateFolder(folderURI);
+      const name = this.gMessengerBundle.formatStringFromName(
         "verboseFolderFormat",
         [folder.prettyName, folder.server.prettyName]
       );

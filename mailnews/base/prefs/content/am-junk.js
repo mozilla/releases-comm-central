@@ -24,17 +24,17 @@ function onInit(aPageId, aServerId) {
         .serverURI;
   }
 
-  let spamActionTargetAccountElement = document.getElementById(
+  const spamActionTargetAccountElement = document.getElementById(
     "server.spamActionTargetAccount"
   );
-  let spamActionTargetFolderElement = document.getElementById(
+  const spamActionTargetFolderElement = document.getElementById(
     "server.spamActionTargetFolder"
   );
 
   let spamActionTargetAccount = spamActionTargetAccountElement.value;
   let spamActionTargetFolder = spamActionTargetFolderElement.value;
 
-  let moveOnSpamCheckbox = document.getElementById("server.moveOnSpam");
+  const moveOnSpamCheckbox = document.getElementById("server.moveOnSpam");
   let moveOnSpamValue = moveOnSpamCheckbox.checked;
 
   // Check if there are any invalid junk targets and fix them.
@@ -52,10 +52,10 @@ function onInit(aPageId, aServerId) {
   spamActionTargetFolderElement.value = spamActionTargetFolder;
   moveOnSpamCheckbox.checked = moveOnSpamValue;
 
-  let server = MailUtils.getOrCreateFolder(spamActionTargetAccount);
+  const server = MailUtils.getOrCreateFolder(spamActionTargetAccount);
   document.getElementById("actionAccountPopup").selectFolder(server);
 
-  let folder = MailUtils.getExistingFolder(spamActionTargetFolder);
+  const folder = MailUtils.getExistingFolder(spamActionTargetFolder);
   document.getElementById("actionFolderPopup").selectFolder(folder);
 
   var currentArray = [];
@@ -73,8 +73,8 @@ function onInit(aPageId, aServerId) {
   }
 
   // Populate the listbox with address books
-  let abItems = [];
-  for (let ab of MailServices.ab.directories) {
+  const abItems = [];
+  for (const ab of MailServices.ab.directories) {
     // We skip mailing lists and remote address books.
     if (ab.isMailList || ab.isRemote) {
       continue;
@@ -90,12 +90,12 @@ function onInit(aPageId, aServerId) {
   abItems.sort(sortFunc);
 
   // And then append each item to the listbox
-  for (let abItem of abItems) {
-    let checkbox = document.createXULElement("checkbox");
+  for (const abItem of abItems) {
+    const checkbox = document.createXULElement("checkbox");
     checkbox.setAttribute("label", abItem.label);
     checkbox.checked = currentArray.includes(abItem.URI);
 
-    let item = document.createXULElement("richlistitem");
+    const item = document.createXULElement("richlistitem");
     item.appendChild(checkbox);
     item.setAttribute("value", abItem.URI);
     wList.appendChild(item);
@@ -103,7 +103,7 @@ function onInit(aPageId, aServerId) {
 
   wList.addEventListener("keypress", event => {
     if ([" ", "Enter"].includes(event.key)) {
-      let checkbox = wList.currentItem.firstElementChild;
+      const checkbox = wList.currentItem.firstElementChild;
       checkbox.checked = !checkbox.checked;
       wList.dispatchEvent(new CustomEvent("command"));
     }
@@ -181,11 +181,11 @@ function onAdaptiveJunkToggle() {
 
   // Enable/disable individual listbox rows.
   // Setting enable/disable on the parent listbox does not seem to work.
-  let wList = document.getElementById("whiteListAbURI");
-  let wListDisabled = wList.disabled;
+  const wList = document.getElementById("whiteListAbURI");
+  const wListDisabled = wList.disabled;
 
   for (let i = 0; i < wList.getRowCount(); i++) {
-    let item = wList.getItemAtIndex(i);
+    const item = wList.getItemAtIndex(i);
     item.setAttribute("disabled", wListDisabled);
     item.firstElementChild.setAttribute("disabled", wListDisabled);
   }
@@ -241,7 +241,7 @@ function onSaveWhiteList() {
     // Always get the attributes only.
     var wlNode = wList.getItemAtIndex(i);
     if (wlNode.firstElementChild.getAttribute("checked") == "true") {
-      let abURI = wlNode.getAttribute("value");
+      const abURI = wlNode.getAttribute("value");
       wlArray.push(abURI);
     }
   }
@@ -257,7 +257,7 @@ function onSaveWhiteList() {
  * Sets the menu label according to the folder name.
  */
 function onActionTargetChange(aEvent, aWSMElementId) {
-  let folder = aEvent.target._folder;
+  const folder = aEvent.target._folder;
   document.getElementById(aWSMElementId).value = folder.URI;
   document.getElementById("actionFolderPopup").selectFolder(folder);
 }
@@ -268,20 +268,20 @@ function onActionTargetChange(aEvent, aWSMElementId) {
  */
 function buildServerFilterMenuList() {
   const KEY_ISP_DIRECTORY_LIST = "ISPDL";
-  let ispHeaderList = document.getElementById("useServerFilterList");
+  const ispHeaderList = document.getElementById("useServerFilterList");
 
   // Ensure the menulist is empty.
   ispHeaderList.removeAllItems();
 
   // Now walk through the isp directories looking for sfd files.
-  let ispDirectories = Services.dirsvc.get(
+  const ispDirectories = Services.dirsvc.get(
     KEY_ISP_DIRECTORY_LIST,
     Ci.nsISimpleEnumerator
   );
 
-  let menuEntries = [];
+  const menuEntries = [];
   while (ispDirectories.hasMoreElements()) {
-    let ispDirectory = ispDirectories.getNext().QueryInterface(Ci.nsIFile);
+    const ispDirectory = ispDirectories.getNext().QueryInterface(Ci.nsIFile);
     if (ispDirectory) {
       menuEntries.push.apply(
         menuEntries,
@@ -291,7 +291,7 @@ function buildServerFilterMenuList() {
   }
 
   menuEntries.sort((a, b) => a.localeCompare(b));
-  for (let entry of menuEntries) {
+  for (const entry of menuEntries) {
     ispHeaderList.appendItem(entry, entry);
   }
 }
@@ -305,14 +305,14 @@ function buildServerFilterMenuList() {
  * @param {string[]} aExistingEntries - Filter names already found.
  */
 function buildServerFilterListFromDir(aDir, aExistingEntries) {
-  let newEntries = [];
+  const newEntries = [];
   // Now iterate over each file in the directory looking for .sfd files.
   const kSuffix = ".sfd";
 
-  for (let entry of aDir.directoryEntries) {
+  for (const entry of aDir.directoryEntries) {
     // we only care about files that end in .sfd
     if (entry.isFile() && entry.leafName.endsWith(kSuffix)) {
-      let fileName = entry.leafName.slice(0, -kSuffix.length);
+      const fileName = entry.leafName.slice(0, -kSuffix.length);
       // If we've already added an item with this name, then don't add it again.
       if (!aExistingEntries.includes(fileName)) {
         newEntries.push(fileName);

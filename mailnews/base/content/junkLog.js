@@ -37,7 +37,7 @@ function clearLog() {
 }
 
 function addStyling() {
-  let style = gLogView.contentDocument.createElement("style");
+  const style = gLogView.contentDocument.createElement("style");
   gLogView.contentDocument.head.appendChild(style);
   style.sheet.insertRule(
     `@media (prefers-color-scheme: dark) {

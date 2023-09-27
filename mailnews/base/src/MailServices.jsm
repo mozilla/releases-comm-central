@@ -17,7 +17,7 @@ var MailServices = {
    * @returns {nsIMsgMessageService}
    */
   messageServiceFromURI(uri) {
-    let index = uri.indexOf(":");
+    const index = uri.indexOf(":");
     if (index == -1) {
       throw new Components.Exception(
         `Bad message URI: ${uri}`,
@@ -159,7 +159,7 @@ XPCOMUtils.defineLazyServiceGetter(
 Services.obs.addObserver(
   {
     observe() {
-      for (let key of Object.keys(MailServices)) {
+      for (const key of Object.keys(MailServices)) {
         delete MailServices[key];
       }
       Services.obs.removeObserver(this, "xpcom-shutdown");

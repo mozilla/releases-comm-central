@@ -52,7 +52,7 @@ var gSmtpServerListWindow = {
     }
 
     // confirm deletion
-    let cancel = Services.prompt.confirmEx(
+    const cancel = Services.prompt.confirmEx(
       window,
       this.mBundle.getString("smtpServers-confirmServerDeletionTitle"),
       this.mBundle.getFormattedString(
@@ -87,7 +87,7 @@ var gSmtpServerListWindow = {
   },
 
   onEditServer(aEvent) {
-    let server = this.getSelectedServer();
+    const server = this.getSelectedServer();
     if (!server) {
       return;
     }
@@ -96,7 +96,7 @@ var gSmtpServerListWindow = {
   },
 
   onSetDefaultServer(aEvent) {
-    let server = this.getSelectedServer();
+    const server = this.getSelectedServer();
     if (!server) {
       return;
     }
@@ -106,7 +106,7 @@ var gSmtpServerListWindow = {
   },
 
   updateButtons() {
-    let server = this.getSelectedServer();
+    const server = this.getSelectedServer();
 
     // can't delete default server
     if (server && MailServices.smtp.defaultServer == server) {
@@ -184,8 +184,8 @@ var gSmtpServerListWindow = {
     while (this.mServerList.hasChildNodes()) {
       this.mServerList.lastChild.remove();
     }
-    for (let server of MailServices.smtp.servers) {
-      let listitem = this.createSmtpListItem(
+    for (const server of MailServices.smtp.servers) {
+      const listitem = this.createSmtpListItem(
         server,
         MailServices.smtp.defaultServer.key == server.key
       );
@@ -225,7 +225,7 @@ var gSmtpServerListWindow = {
       listitem.setAttribute("default", "true");
     }
 
-    let label = document.createXULElement("label");
+    const label = document.createXULElement("label");
     label.setAttribute("value", serverName);
     listitem.appendChild(label);
     listitem.setAttribute("key", aServer.key);
@@ -237,7 +237,7 @@ var gSmtpServerListWindow = {
   },
 
   openServerEditor(aServer) {
-    let args = editSMTPServer(aServer);
+    const args = editSMTPServer(aServer);
 
     // now re-select the server which was just added
     if (args.result) {
@@ -266,12 +266,12 @@ var gSmtpServerListWindow = {
     // The list of servers is a single selection listbox
     // therefore 1 item is always selected.
     // But if there are no SMTP servers defined yet, nothing will be selected.
-    let selection = this.mServerList.selectedItem;
+    const selection = this.mServerList.selectedItem;
     if (!selection) {
       return null;
     }
 
-    let serverKey = selection.getAttribute("key");
+    const serverKey = selection.getAttribute("key");
     return MailServices.smtp.getServerByKey(serverKey);
   },
 };

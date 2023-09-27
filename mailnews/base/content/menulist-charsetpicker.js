@@ -55,12 +55,12 @@ if (!customElements.get("menulist")) {
         return;
       }
 
-      let charsetBundle = Services.strings.createBundle(
+      const charsetBundle = Services.strings.createBundle(
         "chrome://messenger/locale/charsetTitles.properties"
       );
       this.charsetValues
         .map(item => {
-          let strCharset = charsetBundle.GetStringFromName(
+          const strCharset = charsetBundle.GetStringFromName(
             item.toLowerCase() + ".title"
           );
           return { label: strCharset, value: item };

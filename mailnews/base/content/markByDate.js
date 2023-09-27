@@ -81,10 +81,10 @@ function markInDatabase(lower, upper) {
     return;
   }
 
-  let searchSession = Cc[
+  const searchSession = Cc[
     "@mozilla.org/messenger/searchSession;1"
   ].createInstance(Ci.nsIMsgSearchSession);
-  let searchTerms = [];
+  const searchTerms = [];
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, messageFolder);
 
   const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
@@ -111,8 +111,8 @@ function markInDatabase(lower, upper) {
     searchTerms.push(searchTerm);
   }
 
-  let msgEnumerator = messageDatabase.getFilterEnumerator(searchTerms);
-  let headers = [...msgEnumerator];
+  const msgEnumerator = messageDatabase.getFilterEnumerator(searchTerms);
+  const headers = [...msgEnumerator];
 
   if (headers.length) {
     messageFolder.markMessagesRead(headers, true);

@@ -11,10 +11,10 @@ var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
 var { NntpUtils } = ChromeUtils.import("resource:///modules/NntpUtils.jsm");
 
 function incomingPageValidate() {
-  let hostName = cleanUpHostName(document.getElementById("newsServer").value);
+  const hostName = cleanUpHostName(document.getElementById("newsServer").value);
 
   let hasAccount = false;
-  let server = NntpUtils.findServer(hostName);
+  const server = NntpUtils.findServer(hostName);
   if (server) {
     // It's OK if a server exists, as long as it's not used by any account.
     hasAccount = MailServices.accounts.FindAccountForServer(server);

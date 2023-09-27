@@ -18,11 +18,11 @@
  *   substituted, and left in the string as-is.
  */
 function substPrefTokens(aStr, aElement) {
-  let tokenpat = /%(\w+)%/;
+  const tokenpat = /%(\w+)%/;
   let token;
   let newprefstr = "";
 
-  let prefPartsArray = aStr.split(".");
+  const prefPartsArray = aStr.split(".");
   /* here's a little loop that goes through
      each part of the string separated by a dot, and
      if any parts are of the form %string%, it will replace
@@ -63,9 +63,9 @@ function substPrefTokens(aStr, aElement) {
  *   returned.
  */
 function getAccountValueIsLocked(aElement) {
-  let prefstring = aElement.getAttribute("prefstring");
+  const prefstring = aElement.getAttribute("prefstring");
   if (prefstring) {
-    let prefstr = substPrefTokens(prefstring, aElement);
+    const prefstr = substPrefTokens(prefstring, aElement);
     // see if the prefstring is locked
     if (prefstr) {
       return Services.prefs.prefIsLocked(prefstr);
@@ -85,11 +85,11 @@ function getAccountValueIsLocked(aElement) {
  * @see bug 728681 for the pattern on how this is used.
  */
 function onCheckItem(aChangeElementId, aCheckElementIds) {
-  let elementToControl = document.getElementById(aChangeElementId);
+  const elementToControl = document.getElementById(aChangeElementId);
   let disabled = false;
 
-  for (let notifyId of aCheckElementIds) {
-    let notifyElement = document.getElementById(notifyId);
+  for (const notifyId of aCheckElementIds) {
+    const notifyElement = document.getElementById(notifyId);
     let notifyElementState = null;
     if ("checked" in notifyElement) {
       notifyElementState = notifyElement.checked;
@@ -118,14 +118,14 @@ function onCheckItem(aChangeElementId, aCheckElementIds) {
  * @param {string} serverType - Name of the server type for which to show/hide elements.
  */
 function hideShowControls(serverType) {
-  let controls = document.querySelectorAll("[hidefor]");
+  const controls = document.querySelectorAll("[hidefor]");
   for (let controlNo = 0; controlNo < controls.length; controlNo++) {
-    let control = controls[controlNo];
-    let hideFor = control.getAttribute("hidefor");
+    const control = controls[controlNo];
+    const hideFor = control.getAttribute("hidefor");
 
     // Hide unsupported server types using hideFor="servertype1,servertype2".
     let hide = false;
-    let hideForTokens = hideFor.split(",");
+    const hideForTokens = hideFor.split(",");
     for (let tokenNo = 0; tokenNo < hideForTokens.length; tokenNo++) {
       if (hideForTokens[tokenNo] == serverType) {
         hide = true;

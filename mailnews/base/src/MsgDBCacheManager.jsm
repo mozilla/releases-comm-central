@@ -112,13 +112,13 @@ var msgDBCacheManager = {
    * Checks if any DBs need to be closed due to inactivity or too many of them open.
    */
   checkCachedDBs() {
-    let idleLimit = Services.prefs.getIntPref("mail.db.idle_limit");
-    let maxOpenDBs = Services.prefs.getIntPref("mail.db.max_open");
+    const idleLimit = Services.prefs.getIntPref("mail.db.idle_limit");
+    const maxOpenDBs = Services.prefs.getIntPref("mail.db.max_open");
 
     // db.lastUseTime below is in microseconds while Date.now and idleLimit pref
     // is in milliseconds.
-    let closeThreshold = (Date.now() - idleLimit) * 1000;
-    let cachedDBs = this._dbService.openDBs;
+    const closeThreshold = (Date.now() - idleLimit) * 1000;
+    const cachedDBs = this._dbService.openDBs;
     log.info(
       "Periodic check of cached folder databases (DBs), count=" +
         cachedDBs.length
@@ -127,8 +127,8 @@ var msgDBCacheManager = {
     let numClosing = 0;
     // Count databases whose folder is open in a window.
     let numOpenInWindow = 0;
-    let dbs = [];
-    for (let db of cachedDBs) {
+    const dbs = [];
+    for (const db of cachedDBs) {
       if (!db.folder?.databaseOpen) {
         // The DB isn't really open anymore.
         log.debug("Skipping, DB not open for folder: " + db.folder?.name);
@@ -175,7 +175,7 @@ var msgDBCacheManager = {
       // Order databases by lowest lastUseTime (oldest) at the end.
       dbs.sort((a, b) => b.lastUseTime - a.lastUseTime);
       while (dbsToClose > 0) {
-        let db = dbs.pop();
+        const db = dbs.pop();
         log.debug("Closing DB for folder: " + db.folder.name);
         db.folder.msgDatabase = null;
         dbsToClose--;

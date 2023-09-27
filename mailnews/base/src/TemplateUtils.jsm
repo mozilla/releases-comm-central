@@ -59,17 +59,17 @@ const _weekdayFormatter = new Services.intl.DateTimeFormat(undefined, {
 function makeFriendlyDateAgo(time) {
   // TODO: use Intl.RelativeTimeFormat instead.
   // Figure out when today begins
-  let now = new Date();
-  let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   // Get the end time to display
-  let end = time;
+  const end = time;
 
   // Figure out if the end time is from today, yesterday,
   // this week, etc.
   let dateTime;
-  let kDayInMsecs = 24 * 60 * 60 * 1000;
-  let k6DaysInMsecs = 6 * kDayInMsecs;
+  const kDayInMsecs = 24 * 60 * 60 * 1000;
+  const k6DaysInMsecs = 6 * kDayInMsecs;
   if (end >= today) {
     // activity finished after today started, show the time
     dateTime = _timeFormatter.format(end);

@@ -8,7 +8,7 @@ const { FileUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/FileUtils.sys.mjs"
 );
 
-let log = console.createInstance({
+const log = console.createInstance({
   prefix: "mail.mailstoreconverter",
   maxLogLevel: "Warn",
   maxLogLevelPref: "mail.mailstoreconverter.loglevel",
@@ -29,7 +29,7 @@ let gConverterWorker = null;
  *   Rejects with an error message.
  */
 function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
-  let accountRootFolder = aServer.rootFolder.filePath;
+  const accountRootFolder = aServer.rootFolder.filePath;
 
   let srcType = null;
   let destType = null;
@@ -44,18 +44,18 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
   // Go offline before conversion, so there aren't messages coming in during
   // the process.
   Services.io.offline = true;
-  let destDir = createTmpConverterFolder(
+  const destDir = createTmpConverterFolder(
     accountRootFolder,
     aMailstoreContractId
   );
 
   // Return a promise that will complete once the worker is done.
   return new Promise(function (resolve, reject) {
-    let worker = new ChromeWorker("resource:///modules/converterWorker.js");
+    const worker = new ChromeWorker("resource:///modules/converterWorker.js");
     gConverterWorker = worker;
 
     // Helper to log error, clean up and reject with error message.
-    let bailout = function (errmsg) {
+    const bailout = function (errmsg) {
       log.error("bailing out (" + errmsg + ")");
       // Cleanup.
       log.info("Trying to remove converter folder: " + destDir.path);
@@ -77,16 +77,16 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
 
     // Handle updates from the worker thread.
     worker.addEventListener("message", function (e) {
-      let response = e.data;
+      const response = e.data;
       // log.debug("WORKER SAYS: " + JSON.stringify(response) + "\n");
       if (response.msg == "progress") {
-        let val = response.val;
-        let total = response.total;
+        const val = response.val;
+        const total = response.total;
 
         // Send the percentage completion to the GUI.
         // XXX TODO: should probably check elapsed time, and throttle
         // the events to avoid spending all our time drawing!
-        let ev = new Event("progress");
+        const ev = new Event("progress");
         ev.detail = parseInt((val / total) * 100);
         if (aEventTarget) {
           aEventTarget.dispatchEvent(ev);
@@ -94,14 +94,14 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
       }
       if (response.msg == "success") {
         // If we receive this, the worker has completed, without errors.
-        let storeTypeIDs = {
+        const storeTypeIDs = {
           mbox: "@mozilla.org/msgstore/berkeleystore;1",
           maildir: "@mozilla.org/msgstore/maildirstore;1",
         };
-        let newStoreTypeID = storeTypeIDs[destType];
+        const newStoreTypeID = storeTypeIDs[destType];
 
         try {
-          let finalRoot = installNewRoot(aServer, destDir, newStoreTypeID);
+          const finalRoot = installNewRoot(aServer, destDir, newStoreTypeID);
           log.info(
             "Conversion complete. Converted dir installed as: " + finalRoot
           );
@@ -132,7 +132,7 @@ function convertMailStoreTo(aMailstoreContractId, aServer, aEventTarget) {
  * @returns {nsIFile} - the new tmp directory to use as converter dest.
  */
 function createTmpConverterFolder(aFolder, aMailstoreContractId) {
-  let tmpDir = FileUtils.getDir("TmpD", [], false);
+  const tmpDir = FileUtils.getDir("TmpD", [], false);
   let tmpFolder;
   switch (aMailstoreContractId) {
     case "@mozilla.org/msgstore/maildirstore;1": {
@@ -204,19 +204,19 @@ function createTmpConverterFolder(aFolder, aMailstoreContractId) {
  * @returns {string} new location of dir.
  */
 function installNewRoot(server, dir, newStoreTypeID) {
-  let accountRootFolder = server.rootFolder.filePath;
+  const accountRootFolder = server.rootFolder.filePath;
 
   // Migration is complete, get path of parent of account root
   // folder into "parentPath" check if Converter folder already
   // exists in "parentPath". If yes, remove it.
   let lastSlash = accountRootFolder.path.lastIndexOf("/");
-  let parentPath = accountRootFolder.parent.path;
+  const parentPath = accountRootFolder.parent.path;
   log.info("Path to parent folder of account root folder: " + parentPath);
 
-  let parent = new FileUtils.File(parentPath);
+  const parent = new FileUtils.File(parentPath);
   log.info("Path to parent folder of account root folder: " + parent.path);
 
-  let converterFolder = new FileUtils.File(
+  const converterFolder = new FileUtils.File(
     PathUtils.join(parent.path, dir.leafName)
   );
   if (converterFolder.exists()) {
@@ -245,14 +245,14 @@ function installNewRoot(server, dir, newStoreTypeID) {
   // root folder and rename the copy with the name of the new root
   // folder.
   if (server.type != "pop3" && server.type != "none") {
-    let converterFolderMsf = new FileUtils.File(
+    const converterFolderMsf = new FileUtils.File(
       PathUtils.join(parent.path, dir.leafName + ".msf")
     );
     if (converterFolderMsf.exists()) {
       converterFolderMsf.remove(true);
     }
 
-    let oldRootFolderMsf = new FileUtils.File(
+    const oldRootFolderMsf = new FileUtils.File(
       PathUtils.join(parent.path, accountRootFolder.leafName + ".msf")
     );
     if (oldRootFolderMsf.exists()) {
@@ -261,13 +261,13 @@ function installNewRoot(server, dir, newStoreTypeID) {
   }
 
   if (server.type == "nntp") {
-    let converterFolderNewsrc = new FileUtils.File(
+    const converterFolderNewsrc = new FileUtils.File(
       PathUtils.join(parent.path, "newsrc-" + dir.leafName)
     );
     if (converterFolderNewsrc.exists()) {
       converterFolderNewsrc.remove(true);
     }
-    let oldNewsrc = new FileUtils.File(
+    const oldNewsrc = new FileUtils.File(
       PathUtils.join(parent.path, "newsrc-" + accountRootFolder.leafName)
     );
     if (oldNewsrc.exists()) {
@@ -280,11 +280,11 @@ function installNewRoot(server, dir, newStoreTypeID) {
   log.info("Path to account root folder: " + server.rootFolder.filePath.path);
 
   // Set various preferences.
-  let p1 = "mail.server." + server.key + ".directory";
-  let p2 = "mail.server." + server.key + ".directory-rel";
-  let p3 = "mail.server." + server.key + ".newsrc.file";
-  let p4 = "mail.server." + server.key + ".newsrc.file-rel";
-  let p5 = "mail.server." + server.key + ".storeContractID";
+  const p1 = "mail.server." + server.key + ".directory";
+  const p2 = "mail.server." + server.key + ".directory-rel";
+  const p3 = "mail.server." + server.key + ".newsrc.file";
+  const p4 = "mail.server." + server.key + ".newsrc.file-rel";
+  const p5 = "mail.server." + server.key + ".storeContractID";
 
   Services.prefs.setCharPref(p1, converterFolder.path);
   log.info(p1 + ": " + converterFolder.path);
@@ -303,7 +303,7 @@ function installNewRoot(server, dir, newStoreTypeID) {
   log.info(p2 + ": " + directoryRel);
 
   if (server.type == "nntp") {
-    let newNewsrc = FileUtils.File(
+    const newNewsrc = FileUtils.File(
       PathUtils.join(parent.path, "newsrc-" + converterFolder.leafName)
     );
     Services.prefs.setCharPref(p3, newNewsrc.path);

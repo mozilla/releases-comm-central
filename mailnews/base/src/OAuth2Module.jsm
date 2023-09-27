@@ -47,7 +47,7 @@ OAuth2Module.prototype = {
     let issuer = Services.prefs.getStringPref(root + "oauth2.issuer", null);
     let scope = Services.prefs.getStringPref(root + "oauth2.scope", null);
 
-    let details = OAuth2Providers.getHostnameDetails(aHostname);
+    const details = OAuth2Providers.getHostnameDetails(aHostname);
     if (
       details &&
       (details[0] != issuer ||
@@ -105,7 +105,11 @@ OAuth2Module.prototype = {
   },
 
   get refreshToken() {
-    for (let login of Services.logins.findLogins(this._loginOrigin, null, "")) {
+    for (const login of Services.logins.findLogins(
+      this._loginOrigin,
+      null,
+      ""
+    )) {
       if (
         login.username == this._username &&
         (login.httpRealm == this._scope ||
@@ -119,18 +123,18 @@ OAuth2Module.prototype = {
   set refreshToken(token) {
     // Check if we already have a login with this username, and modify the
     // password on that, if we do.
-    let logins = Services.logins.findLogins(
+    const logins = Services.logins.findLogins(
       this._loginOrigin,
       null,
       this._scope
     );
-    for (let login of logins) {
+    for (const login of logins) {
       if (login.username == this._username) {
         if (token) {
           if (token != login.password) {
-            let propBag = Cc["@mozilla.org/hash-property-bag;1"].createInstance(
-              Ci.nsIWritablePropertyBag
-            );
+            const propBag = Cc[
+              "@mozilla.org/hash-property-bag;1"
+            ].createInstance(Ci.nsIWritablePropertyBag);
             propBag.setProperty("password", token);
             Services.logins.modifyLogin(login, propBag);
           }
@@ -143,7 +147,7 @@ OAuth2Module.prototype = {
 
     // Unless the token is null, we need to create and fill in a new login
     if (token) {
-      let login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+      const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
         Ci.nsILoginInfo
       );
       login.init(
@@ -162,8 +166,8 @@ OAuth2Module.prototype = {
   },
 
   connect(aWithUI, aListener) {
-    let oauth = this._oauth;
-    let promptlistener = {
+    const oauth = this._oauth;
+    const promptlistener = {
       onPromptStartAsync(callback) {
         this.onPromptAuthAvailable(callback);
       },
@@ -196,10 +200,10 @@ OAuth2Module.prototype = {
       onPromptStart() {},
     };
 
-    let asyncprompter = Cc[
+    const asyncprompter = Cc[
       "@mozilla.org/messenger/msgAsyncPrompter;1"
     ].getService(Ci.nsIMsgAsyncPrompter);
-    let promptkey = this._loginOrigin + "/" + this._username;
+    const promptkey = this._loginOrigin + "/" + this._username;
     asyncprompter.queueAsyncAuthPrompt(promptkey, false, promptlistener);
   },
 };

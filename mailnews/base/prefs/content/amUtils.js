@@ -39,7 +39,7 @@ function BrowseForLocalFolders() {
       return;
     }
     // Retrieve the selected folder.
-    let selectedFolder = fp.file;
+    const selectedFolder = fp.file;
 
     // Check if the folder can be used for mail storage.
     if (!top.checkDirectoryIsUsable(selectedFolder)) {
@@ -209,7 +209,7 @@ function openPrefsFromAccountManager(
   aTBOtherArgs,
   aSMPaneId
 ) {
-  let win =
+  const win =
     Services.wm.getMostRecentWindow("mail:3pane") ||
     Services.wm.getMostRecentWindow("mail:messageWindow") ||
     Services.wm.getMostRecentWindow("msgcompose");
@@ -235,7 +235,7 @@ function openPrefsFromAccountManager(
  *   searching the name. If unset, do not skip any account.
  */
 function accountNameExists(aAccountName, aAccountKey) {
-  for (let account of MailServices.accounts.accounts) {
+  for (const account of MailServices.accounts.accounts) {
     if (
       account.key != aAccountKey &&
       account.incomingServer &&
@@ -256,9 +256,9 @@ function accountNameExists(aAccountName, aAccountKey) {
  *   was clicked and addSmtpServer with key of newly created server.
  */
 function editSMTPServer(aServer) {
-  let args = { server: aServer, result: false, addSmtpServer: "" };
+  const args = { server: aServer, result: false, addSmtpServer: "" };
 
-  let onCloseSMTPDialog = function () {
+  const onCloseSMTPDialog = function () {
     if (args.result) {
       gSmtpServerListWindow.refreshServerList(aServer, true);
     }

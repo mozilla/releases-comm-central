@@ -29,7 +29,7 @@ export class MsgProtocolInfo {
         .file;
     } catch (e) {
       try {
-        let file = Services.prefs.getComplexValue(absPrefName, Ci.nsIFile);
+        const file = Services.prefs.getComplexValue(absPrefName, Ci.nsIFile);
         Services.prefs.setComplexValue(relPrefName, Ci.nsIRelativeFilePref, {
           QueryInterface: ChromeUtils.generateQI(["nsIRelativeFilePref"]),
           file,

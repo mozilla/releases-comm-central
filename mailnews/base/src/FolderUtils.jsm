@@ -31,7 +31,7 @@ const { MailServices } = ChromeUtils.import(
  * @returns {string} the special type of the folder.
  */
 function getSpecialFolderString(aFolder) {
-  let flags = aFolder.flags;
+  const flags = aFolder.flags;
   if (flags & Ci.nsMsgFolderFlags.Inbox) {
     return "Inbox";
   }
@@ -73,7 +73,7 @@ function getSpecialFolderString(aFolder) {
  * @returns {string} A string of the property names, delimited by space.
  */
 function getFolderProperties(aFolder, aOpen) {
-  let properties = [];
+  const properties = [];
 
   properties.push("folderNameCol");
 
@@ -115,7 +115,7 @@ function getFolderProperties(aFolder, aOpen) {
       // Make sure that shallowUnread isn't negative
       shallowUnread = 0;
     }
-    let deepUnread = aFolder.getNumUnread(true);
+    const deepUnread = aFolder.getNumUnread(true);
     if (deepUnread - shallowUnread > 0) {
       properties.push("subfoldersHaveUnreadMessages-true");
     }
@@ -188,7 +188,7 @@ function allAccountsSorted(aExcludeIMAccounts) {
  *   Use "MRUTime" for most recently used time.
  */
 function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
-  let recentFolders = [];
+  const recentFolders = [];
   const monthOld = Math.floor((Date.now() - 31 * 24 * 60 * 60 * 1000) / 1000);
 
   /**
@@ -217,7 +217,7 @@ function getMostRecentFolders(aFolderList, aMaxHits, aTimeProperty) {
     recentFolders.push({ folder: aFolder, time });
   }
 
-  for (let folder of aFolderList) {
+  for (const folder of aFolderList) {
     addIfRecent(folder);
   }
 
@@ -332,8 +332,8 @@ function isSmartTagsFolder(folder) {
  */
 function canRenameDeleteJunkMail(aFolderUri) {
   // Go through junk mail settings for all servers and see if the folder is set/used by anyone.
-  for (let server of MailServices.accounts.allServers) {
-    let settings = server.spamSettings;
+  for (const server of MailServices.accounts.allServers) {
+    const settings = server.spamSettings;
     // If junk mail control or move junk mail to folder option is disabled then
     // allow the folder to be removed/renamed since the folder is not used in this case.
     if (!settings.level || !settings.moveOnSpam) {

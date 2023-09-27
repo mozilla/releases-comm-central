@@ -51,8 +51,8 @@ function serverPrettyNameOnBlur(event) {
  * Update an account's main settings title with the account name if applicable.
  */
 function setAccountTitle() {
-  let accountName = document.getElementById("server.prettyName");
-  let title = document.querySelector("#am-main-title .dialogheader-title");
+  const accountName = document.getElementById("server.prettyName");
+  const title = document.querySelector("#am-main-title .dialogheader-title");
   let titleValue = title.getAttribute("defaultTitle");
   if (accountName.value) {
     titleValue += " - " + accountName.value;
@@ -65,7 +65,7 @@ function setAccountTitle() {
 function onPreInit(account, accountValues) {
   gAccount = account;
   loadSMTPServerList();
-  let type = parent.getAccountValue(
+  const type = parent.getAccountValue(
     account,
     accountValues,
     "server",

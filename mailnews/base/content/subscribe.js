@@ -36,17 +36,17 @@ function SetServerTypeSpecificTextValues() {
     return;
   }
 
-  let serverType = MailUtils.getExistingFolder(gServerURI).server.type;
+  const serverType = MailUtils.getExistingFolder(gServerURI).server.type;
 
   // Set the server specific ui elements.
-  let subscribeLabelString = gSubscribeBundle.getString(
+  const subscribeLabelString = gSubscribeBundle.getString(
     "subscribeLabel-" + serverType
   );
-  let currentListTab = "currentListTab-" + serverType;
-  let currentListTabLabel = gSubscribeBundle.getString(
+  const currentListTab = "currentListTab-" + serverType;
+  const currentListTabLabel = gSubscribeBundle.getString(
     currentListTab + ".label"
   );
-  let currentListTabAccesskey = gSubscribeBundle.getString(
+  const currentListTabAccesskey = gSubscribeBundle.getString(
     currentListTab + ".accesskey"
   );
 
@@ -64,7 +64,7 @@ function SetServerTypeSpecificTextValues() {
 
 function onServerClick(aFolder) {
   gServerURI = aFolder.server.serverURI;
-  let serverMenu = document.getElementById("serverMenu");
+  const serverMenu = document.getElementById("serverMenu");
   serverMenu.menupopup.selectFolder(aFolder);
 
   SetServerTypeSpecificTextValues();
@@ -181,7 +181,7 @@ function SubscribeOnLoad() {
   var serverMenu = document.getElementById("serverMenu");
 
   gServerURI = null;
-  let folder =
+  const folder =
     "folder" in window.arguments[0] ? window.arguments[0].folder : null;
   if (folder && folder.server instanceof Ci.nsISubscribableServer) {
     serverMenu.menupopup.selectFolder(folder.server.rootMsgFolder);
@@ -273,7 +273,7 @@ function SearchOnClick(event) {
     return;
   }
 
-  let treeCellInfo = gSearchTree.getCellAt(event.clientX, event.clientY);
+  const treeCellInfo = gSearchTree.getCellAt(event.clientX, event.clientY);
   if (treeCellInfo.row == -1 || treeCellInfo.row > gSearchView.rowCount - 1) {
     return;
   }
@@ -300,9 +300,9 @@ function ReverseStateFromRow(aRow) {
   // and look for the "subscribed" property.
   // If the "subscribed" string is in the list of properties
   // we are subscribed.
-  let col = gSearchTree.columns.nameColumn2;
-  let name = gSearchView.getCellValue(aRow, col);
-  let isSubscribed = gSubscribableServer.isSubscribed(name);
+  const col = gSearchTree.columns.nameColumn2;
+  const name = gSearchView.getCellValue(aRow, col);
+  const isSubscribed = gSubscribableServer.isSubscribed(name);
   SetStateFromRow(aRow, !isSubscribed);
 }
 
@@ -329,7 +329,7 @@ function SetSubscribeState(state) {
         if (inSearchMode) {
           SetStateFromRow(k, state);
         } else {
-          let name = view.getCellValue(k, gSubscribeTree.columns[colId]);
+          const name = view.getCellValue(k, gSubscribeTree.columns[colId]);
           SetState(name, state, k);
         }
       }
@@ -347,7 +347,7 @@ function SetSubscribeState(state) {
 }
 
 function ReverseStateFromNode(row) {
-  let name = gSubscribeTree.view.getCellValue(
+  const name = gSubscribeTree.view.getCellValue(
     row,
     gSubscribeTree.columns.nameColumn
   );
@@ -360,7 +360,7 @@ function SubscribeOnClick(event) {
     return;
   }
 
-  let treeCellInfo = gSubscribeTree.getCellAt(event.clientX, event.clientY);
+  const treeCellInfo = gSubscribeTree.getCellAt(event.clientX, event.clientY);
   if (
     treeCellInfo.row == -1 ||
     treeCellInfo.row > gSubscribeTree.view.rowCount - 1
@@ -432,7 +432,7 @@ function toggleSubscriptionView(toggle) {
 }
 
 function Search() {
-  let searchValue = gNameField.value;
+  const searchValue = gNameField.value;
   if (
     searchValue.length &&
     gSubscribableServer &&

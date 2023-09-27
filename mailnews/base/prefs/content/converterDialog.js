@@ -24,7 +24,7 @@ var { AppConstants } = ChromeUtils.importESModule(
 );
 
 window.addEventListener("DOMContentLoaded", () => {
-  for (let img of document.querySelectorAll(".infoIcon")) {
+  for (const img of document.querySelectorAll(".infoIcon")) {
     img.setAttribute(
       "src",
       "chrome://messenger/skin/icons/new/activity/warning.svg"
@@ -58,25 +58,25 @@ var gOriginalOffline;
 function placeAccountName(aServer) {
   gOriginalOffline = Services.io.offline;
 
-  let bundle = Services.strings.createBundle(
+  const bundle = Services.strings.createBundle(
     "chrome://messenger/locale/converterDialog.properties"
   );
 
-  let brandShortName = Services.strings
+  const brandShortName = Services.strings
     .createBundle("chrome://branding/locale/brand.properties")
     .GetStringFromName("brandShortName");
 
   // 'deferredToRootFolder' holds path of rootMsgFolder of account to which
   // other accounts have been deferred.
-  let deferredToRootFolder = aServer.rootMsgFolder.filePath.path;
+  const deferredToRootFolder = aServer.rootMsgFolder.filePath.path;
   // String to hold names of deferred accounts separated by commas.
   let deferredAccountsString = "";
   // Account to which other accounts have been deferred.
   let deferredToAccount;
   // Array of all accounts.
-  let accounts = FolderUtils.allAccountsSorted(true);
+  const accounts = FolderUtils.allAccountsSorted(true);
 
-  for (let account of accounts) {
+  for (const account of accounts) {
     if (
       account.incomingServer.rootFolder.filePath.path == deferredToRootFolder
     ) {
@@ -214,7 +214,7 @@ function startContinue(aSelectedStoreType, aResponse) {
   gResponse = aResponse;
   gFolder = gServer.rootFolder.filePath;
 
-  let bundle = Services.strings.createBundle(
+  const bundle = Services.strings.createBundle(
     "chrome://messenger/locale/converterDialog.properties"
   );
 
@@ -231,22 +231,22 @@ function startContinue(aSelectedStoreType, aResponse) {
 
   // Storing original prefs and root folder path
   // to revert changes in case of error.
-  let p1 = "mail.server." + gServer.key + ".directory";
-  let p2 = "mail.server." + gServer.key + ".directory-rel";
-  let p3 = "mail.server." + gServer.key + ".newsrc.file";
-  let p4 = "mail.server." + gServer.key + ".newsrc.file-rel";
-  let p5 = "mail.server." + gServer.key + ".storeContractID";
+  const p1 = "mail.server." + gServer.key + ".directory";
+  const p2 = "mail.server." + gServer.key + ".directory-rel";
+  const p3 = "mail.server." + gServer.key + ".newsrc.file";
+  const p4 = "mail.server." + gServer.key + ".newsrc.file-rel";
+  const p5 = "mail.server." + gServer.key + ".storeContractID";
 
-  let originalDirectoryPref = Services.prefs.getCharPref(p1);
-  let originalDirectoryRelPref = Services.prefs.getCharPref(p2);
+  const originalDirectoryPref = Services.prefs.getCharPref(p1);
+  const originalDirectoryRelPref = Services.prefs.getCharPref(p2);
   let originalNewsrcFilePref;
   let originalNewsrcFileRelPref;
   if (gServer.type == "nntp") {
     originalNewsrcFilePref = Services.prefs.getCharPref(p3);
     originalNewsrcFileRelPref = Services.prefs.getCharPref(p4);
   }
-  let originalStoreContractID = Services.prefs.getCharPref(p5);
-  let originalRootFolderPath = gServer.rootFolder.filePath.path;
+  const originalStoreContractID = Services.prefs.getCharPref(p5);
+  const originalRootFolderPath = gServer.rootFolder.filePath.path;
 
   /**
    * Called when promise returned by convertMailStoreTo() is rejected.
@@ -285,8 +285,8 @@ function startContinue(aSelectedStoreType, aResponse) {
     log.info("Converted to '" + aSelectedStoreType + "' - " + aVal);
 
     gResponse.newRootFolder = aVal;
-    for (let deferredAccount of gDeferredAccounts) {
-      let defServer = deferredAccount.incomingServer;
+    for (const deferredAccount of gDeferredAccounts) {
+      const defServer = deferredAccount.incomingServer;
       defServer.rootMsgFolder.filePath = new FileUtils.File(aVal);
       Services.prefs.setCharPref(
         "mail.server." + defServer.key + ".storeContractID",
@@ -311,7 +311,7 @@ function startContinue(aSelectedStoreType, aResponse) {
       return true;
     }
     if (aFolder.hasSubFolders) {
-      for (let subFolder of aFolder.subFolders) {
+      for (const subFolder of aFolder.subFolders) {
         if (canCompact(subFolder)) {
           return true;
         }
@@ -330,10 +330,10 @@ function startContinue(aSelectedStoreType, aResponse) {
     originalStoreContractID == "@mozilla.org/msgstore/berkeleystore;1" &&
     canCompact(gServer.rootFolder)
   ) {
-    let urlListener = {
+    const urlListener = {
       OnStartRunningUrl(aUrl) {},
       OnStopRunningUrl(aUrl, aExitCode) {
-        let pConvert = MailstoreConverter.convertMailStoreTo(
+        const pConvert = MailstoreConverter.convertMailStoreTo(
           originalStoreContractID,
           gServer,
           document.getElementById("progress")
@@ -349,7 +349,7 @@ function startContinue(aSelectedStoreType, aResponse) {
     };
     gServer.rootFolder.compactAll(urlListener, null);
   } else {
-    let pConvert = MailstoreConverter.convertMailStoreTo(
+    const pConvert = MailstoreConverter.convertMailStoreTo(
       originalStoreContractID,
       gServer,
       document.getElementById("progress")

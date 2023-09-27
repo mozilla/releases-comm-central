@@ -9,11 +9,11 @@
 var folderUri;
 
 function initPage() {
-  let uri = document.documentURI;
-  let query = uri.slice(uri.indexOf("?") + 1);
-  let params = {};
-  for (let piece of query.split("&")) {
-    let [key, value] = piece.split("=");
+  const uri = document.documentURI;
+  const query = uri.slice(uri.indexOf("?") + 1);
+  const params = {};
+  for (const piece of query.split("&")) {
+    const [key, value] = piece.split("=");
     params[key] = decodeURIComponent(value);
   }
 
@@ -37,7 +37,7 @@ function removeExpired() {
   document.location.href = folderUri + "?list-ids";
 }
 
-let errorTryAgain = document.getElementById("errorTryAgain");
+const errorTryAgain = document.getElementById("errorTryAgain");
 errorTryAgain.addEventListener("click", function () {
   removeExpired();
 });

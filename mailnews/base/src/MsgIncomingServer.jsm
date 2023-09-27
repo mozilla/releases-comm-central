@@ -27,16 +27,16 @@ function migratePassword(
 ) {
   // When constructing nsIURI, need to wrap IPv6 address in [].
   oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
-  let oldServerUri = `${localStoreType}://${encodeURIComponent(oldHostname)}`;
+  const oldServerUri = `${localStoreType}://${encodeURIComponent(oldHostname)}`;
   newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
-  let newServerUri = `${localStoreType}://${encodeURIComponent(newHostname)}`;
+  const newServerUri = `${localStoreType}://${encodeURIComponent(newHostname)}`;
 
-  let logins = Services.logins.findLogins(oldServerUri, "", oldServerUri);
-  for (let login of logins) {
+  const logins = Services.logins.findLogins(oldServerUri, "", oldServerUri);
+  for (const login of logins) {
     if (login.username == oldUsername) {
       // If a nsILoginInfo exists for the old hostname/username, update it to
       // use the new hostname/username.
-      let newLogin = Cc[
+      const newLogin = Cc[
         "@mozilla.org/login-manager/loginInfo;1"
       ].createInstance(Ci.nsILoginInfo);
       newLogin.init(
@@ -61,15 +61,15 @@ function migratePassword(
  * @param {string} newServerUri - The server uri after the change.
  */
 function migrateIdentities(oldServerUri, newServerUri) {
-  for (let identity of MailServices.accounts.allIdentities) {
-    let attributes = [
+  for (const identity of MailServices.accounts.allIdentities) {
+    const attributes = [
       "fcc_folder",
       "draft_folder",
       "archive_folder",
       "stationery_folder",
     ];
-    for (let attr of attributes) {
-      let folderUri = identity.getUnicharAttribute(attr);
+    for (const attr of attributes) {
+      const folderUri = identity.getUnicharAttribute(attr);
       if (folderUri.startsWith(oldServerUri)) {
         identity.setUnicharAttribute(
           attr,
@@ -88,9 +88,9 @@ function migrateIdentities(oldServerUri, newServerUri) {
  * @param {string} newServerUri - The server uri after the change.
  */
 function migrateSpamActions(oldServerUri, newServerUri) {
-  for (let server of MailServices.accounts.allServers) {
-    let targetAccount = server.getCharValue("spamActionTargetAccount");
-    let targetFolder = server.getUnicharValue("spamActionTargetFolder");
+  for (const server of MailServices.accounts.allServers) {
+    const targetAccount = server.getCharValue("spamActionTargetAccount");
+    const targetFolder = server.getUnicharValue("spamActionTargetFolder");
     if (targetAccount.startsWith(oldServerUri)) {
       server.setCharValue(
         "spamActionTargetAccount",
@@ -114,7 +114,7 @@ function migrateSpamActions(oldServerUri, newServerUri) {
  * @param {string} newServerUri - The server uri after the change.
  */
 function migrateFilters(oldServerUri, newServerUri) {
-  for (let server of MailServices.accounts.allServers) {
+  for (const server of MailServices.accounts.allServers) {
     let filterList;
     try {
       filterList = server.getFilterList(null);
@@ -126,8 +126,8 @@ function migrateFilters(oldServerUri, newServerUri) {
     }
     let changed = false;
     for (let i = 0; i < filterList.filterCount; i++) {
-      let filter = filterList.getFilterAt(i);
-      for (let action of filter.sortedActionList) {
+      const filter = filterList.getFilterAt(i);
+      for (const action of filter.sortedActionList) {
         let targetFolderUri;
         try {
           targetFolderUri = action.targetFolderUri;
@@ -177,15 +177,15 @@ function migrateServerUris(
     console.error(e);
   }
 
-  let oldAuth = oldUsername ? `${encodeURIComponent(oldUsername)}@` : "";
-  let newAuth = newUsername ? `${encodeURIComponent(newUsername)}@` : "";
+  const oldAuth = oldUsername ? `${encodeURIComponent(oldUsername)}@` : "";
+  const newAuth = newUsername ? `${encodeURIComponent(newUsername)}@` : "";
   // When constructing nsIURI, need to wrap IPv6 address in [].
   oldHostname = oldHostname.includes(":") ? `[${oldHostname}]` : oldHostname;
-  let oldServerUri = `${localStoreType}://${oldAuth}${encodeURIComponent(
+  const oldServerUri = `${localStoreType}://${oldAuth}${encodeURIComponent(
     oldHostname
   )}`;
   newHostname = newHostname.includes(":") ? `[${newHostname}]` : newHostname;
-  let newServerUri = `${localStoreType}://${newAuth}${encodeURIComponent(
+  const newServerUri = `${localStoreType}://${newAuth}${encodeURIComponent(
     newHostname
   )}`;
 
@@ -348,7 +348,7 @@ class MsgIncomingServer {
   }
 
   get UID() {
-    let uid = this._prefs.getStringPref("uid", "");
+    const uid = this._prefs.getStringPref("uid", "");
     if (uid) {
       return uid;
     }
@@ -366,7 +366,7 @@ class MsgIncomingServer {
   }
 
   get hostName() {
-    let hostname = this.getUnicharValue("hostname");
+    const hostname = this.getUnicharValue("hostname");
     if (hostname.includes(":")) {
       // Reformat the hostname if it contains a port number.
       this.hostName = hostname;
@@ -376,7 +376,7 @@ class MsgIncomingServer {
   }
 
   set hostName(value) {
-    let oldName = this.hostName;
+    const oldName = this.hostName;
     this._setHostName("hostname", value);
 
     if (oldName && oldName != value) {
@@ -385,7 +385,7 @@ class MsgIncomingServer {
   }
 
   _setHostName(prefName, value) {
-    let [host, port] = value.split(":");
+    const [host, port] = value.split(":");
     if (port) {
       this.port = Number(port);
     }
@@ -397,7 +397,7 @@ class MsgIncomingServer {
   }
 
   set username(value) {
-    let oldName = this.username;
+    const oldName = this.username;
     if (oldName && oldName != value) {
       this.setUnicharValue("userName", value);
       this.onUserOrHostNameChanged(oldName, value, false);
@@ -407,7 +407,7 @@ class MsgIncomingServer {
   }
 
   get port() {
-    let port = this.getIntValue("port");
+    const port = this.getIntValue("port");
     if (port > 1) {
       return port;
     }
@@ -444,9 +444,9 @@ class MsgIncomingServer {
   }
 
   set socketType(value) {
-    let wasSecure = this.isSecure;
+    const wasSecure = this.isSecure;
     this._prefs.setIntPref("socketType", value);
-    let isSecure = this.isSecure;
+    const isSecure = this.isSecure;
     if (wasSecure != isSecure) {
       this.rootFolder.NotifyBoolPropertyChanged(
         "isSecure",
@@ -473,12 +473,12 @@ class MsgIncomingServer {
    * @returns {string}
    */
   _getServerURI(includeUsername) {
-    let auth =
+    const auth =
       includeUsername && this.username
         ? `${encodeURIComponent(this.username)}@`
         : "";
     // When constructing nsIURI, need to wrap IPv6 address in [].
-    let hostname = this.hostName.includes(":")
+    const hostname = this.hostName.includes(":")
       ? `[${this.hostName}]`
       : this.hostName;
     return `${this.localStoreType}://${auth}${encodeURIComponent(hostname)}`;
@@ -501,7 +501,7 @@ class MsgIncomingServer {
    * @returns {string}
    */
   _constructPrettyName(username, hostname) {
-    let prefix = username ? `${username} on ` : "";
+    const prefix = username ? `${username} on ` : "";
     return `${prefix}${hostname}`;
   }
 
@@ -572,7 +572,7 @@ class MsgIncomingServer {
   }
 
   set doBiff(value) {
-    let biffManager = Cc["@mozilla.org/messenger/biffManager;1"].getService(
+    const biffManager = Cc["@mozilla.org/messenger/biffManager;1"].getService(
       Ci.nsIMsgBiffManager
     );
     if (value) {
@@ -596,7 +596,7 @@ class MsgIncomingServer {
   ];
 
   get retentionSettings() {
-    let settings = Cc[
+    const settings = Cc[
       "@mozilla.org/msgDatabase/retentionSettings;1"
     ].createInstance(Ci.nsIMsgRetentionSettings);
     for (let [type, attrName, prefName] of this._retentionSettingsPrefs) {
@@ -640,7 +640,7 @@ class MsgIncomingServer {
   }
 
   get isDeferredTo() {
-    let account = MailServices.accounts.FindAccountForServer(this);
+    const account = MailServices.accounts.FindAccountForServer(this);
     if (!account) {
       return false;
     }
@@ -686,7 +686,7 @@ class MsgIncomingServer {
   get offlineSupportLevel() {
     const OFFLINE_SUPPORT_LEVEL_NONE = 0;
     const OFFLINE_SUPPORT_LEVEL_UNDEFINED = -1;
-    let level = this.getIntValue("offline_support_level");
+    const level = this.getIntValue("offline_support_level");
     return level == OFFLINE_SUPPORT_LEVEL_UNDEFINED
       ? OFFLINE_SUPPORT_LEVEL_NONE
       : level;
@@ -729,7 +729,7 @@ class MsgIncomingServer {
   }
 
   setCharValue(prefName, value) {
-    let defaultValue = this._defaultPrefs.getCharPref(prefName, "");
+    const defaultValue = this._defaultPrefs.getCharPref(prefName, "");
     if (!value || value == defaultValue) {
       this._prefs.clearUserPref(prefName);
     } else {
@@ -746,7 +746,7 @@ class MsgIncomingServer {
   }
 
   setUnicharValue(prefName, value) {
-    let defaultValue = this._defaultPrefs.getStringPref(prefName, "");
+    const defaultValue = this._defaultPrefs.getStringPref(prefName, "");
     if (!value || value == defaultValue) {
       this._prefs.clearUserPref(prefName);
     } else {
@@ -763,7 +763,7 @@ class MsgIncomingServer {
   }
 
   setIntValue(prefName, value) {
-    let defaultValue = this._defaultPrefs.getIntPref(prefName, value - 1);
+    const defaultValue = this._defaultPrefs.getIntPref(prefName, value - 1);
     if (defaultValue == value) {
       this._prefs.clearUserPref(prefName);
     } else {
@@ -780,7 +780,7 @@ class MsgIncomingServer {
   }
 
   setBoolValue(prefName, value) {
-    let defaultValue = this._defaultPrefs.getBoolPref(prefName, !value);
+    const defaultValue = this._defaultPrefs.getBoolPref(prefName, !value);
     if (defaultValue == value) {
       this._prefs.clearUserPref(prefName);
     } else {
@@ -790,7 +790,7 @@ class MsgIncomingServer {
 
   getFileValue(relPrefName, absPrefName) {
     try {
-      let file = this._prefs.getComplexValue(
+      const file = this._prefs.getComplexValue(
         relPrefName,
         Ci.nsIRelativeFilePref
       ).file;
@@ -798,7 +798,7 @@ class MsgIncomingServer {
       return file;
     } catch (e) {
       try {
-        let file = this._prefs.getComplexValue(absPrefName, Ci.nsIFile);
+        const file = this._prefs.getComplexValue(absPrefName, Ci.nsIFile);
         this._prefs.setComplexValue(relPrefName, Ci.nsIRelativeFilePref, {
           QueryInterface: ChromeUtils.generateQI(["nsIRelativeFilePref"]),
           file,
@@ -868,9 +868,9 @@ class MsgIncomingServer {
    * @returns {string}
    */
   _getPasswordWithoutUI() {
-    let serverURI = this._getServerURI();
-    let logins = Services.logins.findLogins(serverURI, "", serverURI);
-    for (let login of logins) {
+    const serverURI = this._getServerURI();
+    const logins = Services.logins.findLogins(serverURI, "", serverURI);
+    for (const login of logins) {
       if (login.username == this.username) {
         return login.password;
       }
@@ -879,13 +879,13 @@ class MsgIncomingServer {
   }
 
   getPasswordWithUI(promptMessage, promptTitle) {
-    let password = this._getPasswordWithoutUI();
+    const password = this._getPasswordWithoutUI();
     if (password) {
       this.password = password;
       return this.password;
     }
-    let outUsername = {};
-    let outPassword = {};
+    const outUsername = {};
+    const outPassword = {};
     let ok;
     let authPrompt;
     try {
@@ -927,9 +927,9 @@ class MsgIncomingServer {
   }
 
   forgetPassword() {
-    let serverURI = this._getServerURI();
-    let logins = Services.logins.findLogins(serverURI, "", serverURI);
-    for (let login of logins) {
+    const serverURI = this._getServerURI();
+    const logins = Services.logins.findLogins(serverURI, "", serverURI);
+    for (const login of logins) {
       if (login.username == this.username) {
         Services.logins.removeLogin(login);
       }
@@ -962,7 +962,7 @@ class MsgIncomingServer {
         // Happens in tests.
         return null;
       }
-      let filterFile = this.rootFolder.filePath.clone();
+      const filterFile = this.rootFolder.filePath.clone();
       filterFile.append("msgFilterRules.dat");
       try {
         this._filterList = MailServices.filters.OpenFilterList(
@@ -1010,7 +1010,7 @@ class MsgIncomingServer {
   }
 
   clearAllValues() {
-    for (let prefName of this._prefs.getChildList("")) {
+    for (const prefName of this._prefs.getChildList("")) {
       this._prefs.clearUserPref(prefName);
     }
   }
@@ -1044,7 +1044,7 @@ class MsgIncomingServer {
       return false;
     }
 
-    let key = `${newHdr.messageId}${newHdr.subject}`;
+    const key = `${newHdr.messageId}${newHdr.subject}`;
     if (this._knownHdrMap.get(key)) {
       return true;
     }
@@ -1054,7 +1054,7 @@ class MsgIncomingServer {
     const MAX_SIZE = 500;
     if (this._knownHdrMap.size > MAX_SIZE) {
       // Release the oldest half of downloaded hdrs.
-      for (let [k, v] of this._knownHdrMap) {
+      for (const [k, v] of this._knownHdrMap) {
         if (v < this._hdrIndex - MAX_SIZE / 2) {
           this._knownHdrMap.delete(k);
         } else if (this._knownHdrMap.size <= MAX_SIZE / 2) {
@@ -1070,7 +1070,7 @@ class MsgIncomingServer {
   }
 
   _configureTemporaryReturnReceiptsFilter(filterList) {
-    let identity = MailServices.accounts.getFirstIdentityForServer(this);
+    const identity = MailServices.accounts.getFirstIdentityForServer(this);
     if (!identity) {
       return;
     }
@@ -1081,7 +1081,7 @@ class MsgIncomingServer {
       incorp = Services.prefs.getIntPref("mail.incorporate.return_receipt");
     }
 
-    let enable = incorp == Ci.nsIMsgMdnGenerator.eIncorporateSent;
+    const enable = incorp == Ci.nsIMsgMdnGenerator.eIncorporateSent;
 
     const FILTER_NAME = "mozilla-temporary-internal-MDN-receipt-filter";
     let filter = filterList.getFilterNamed(FILTER_NAME);
@@ -1123,7 +1123,7 @@ class MsgIncomingServer {
     term.value = value;
     filter.appendTerm(term);
 
-    let action = filter.createAction();
+    const action = filter.createAction();
     action.type = Ci.nsMsgFilterAction.MoveToFolder;
     action.targetFolderUri = identity.fccFolder;
     filter.appendAction(action);
@@ -1131,19 +1131,19 @@ class MsgIncomingServer {
   }
 
   _configureTemporaryServerSpamFilters(filterList) {
-    let spamSettings = this.spamSettings;
+    const spamSettings = this.spamSettings;
     if (!spamSettings.useServerFilter) {
       return;
     }
-    let serverFilterName = spamSettings.serverFilterName;
-    let serverFilterTrustFlags = spamSettings.serverFilterTrustFlags;
+    const serverFilterName = spamSettings.serverFilterName;
+    const serverFilterTrustFlags = spamSettings.serverFilterTrustFlags;
     if (!serverFilterName || !serverFilterName) {
       return;
     }
 
     // Check if filters have been setup already.
-    let yesFilterName = `${serverFilterName}Yes`;
-    let noFilterName = `${serverFilterName}No`;
+    const yesFilterName = `${serverFilterName}Yes`;
+    const noFilterName = `${serverFilterName}No`;
     let filter = filterList.getFilterNamed(yesFilterName);
     if (!filter) {
       filter = filterList.getFilterNamed(noFilterName);
@@ -1152,7 +1152,7 @@ class MsgIncomingServer {
       return;
     }
 
-    let serverFilterList = MailServices.filters.OpenFilterList(
+    const serverFilterList = MailServices.filters.OpenFilterList(
       spamSettings.serverFilterFile,
       null,
       null
@@ -1162,7 +1162,7 @@ class MsgIncomingServer {
       filter.temporary = true;
       // Check if we're supposed to move junk mail to junk folder; if so, add
       // filter action to do so.
-      let searchTerms = filter.searchTerms;
+      const searchTerms = filter.searchTerms;
       if (searchTerms.length) {
         searchTerms[0].beginsGrouping = true;
         searchTerms.at(-1).endsGrouping = true;
@@ -1170,20 +1170,20 @@ class MsgIncomingServer {
 
       // Create a new term, checking if the user set junk status. The term will
       // search for junkscoreorigin != "user".
-      let term = filter.createTerm();
+      const term = filter.createTerm();
       term.attrib = Ci.nsMsgSearchAttrib.JunkScoreOrigin;
       term.op = Ci.nsMsgSearchOp.Isnt;
       term.booleanAnd = true;
-      let value = term.value;
+      const value = term.value;
       value.attrib = Ci.nsMsgSearchAttrib.JunkScoreOrigin;
       value.str = "user";
       term.value = value;
       filter.appendTerm(term);
 
       if (spamSettings.moveOnSpam) {
-        let spamFolderURI = spamSettings.spamFolderURI;
+        const spamFolderURI = spamSettings.spamFolderURI;
         if (spamFolderURI) {
-          let action = filter.createAction();
+          const action = filter.createAction();
           action.type = Ci.nsMsgFilterAction.MoveToFolder;
           action.targetFolderUri = spamFolderURI;
           filter.appendAction(action);
@@ -1191,7 +1191,7 @@ class MsgIncomingServer {
       }
 
       if (spamSettings.markAsReadOnSpam) {
-        let action = filter.createAction();
+        const action = filter.createAction();
         action.type = Ci.nsMsgFilterAction.MarkRead;
         filter.appendAction(action);
       }
@@ -1214,7 +1214,7 @@ class MsgIncomingServer {
     if (!this._filterList) {
       return;
     }
-    let filter = this._filterList.getFilterNamed(
+    const filter = this._filterList.getFilterNamed(
       "mozilla-temporary-internal-MDN-receipt-filter"
     );
     if (filter) {
@@ -1249,7 +1249,7 @@ class MsgIncomingServer {
       await this._passwordPromise;
       return this.password;
     }
-    let deferred = {};
+    const deferred = {};
     this._passwordPromise = new Promise((resolve, reject) => {
       deferred.resolve = resolve;
       deferred.reject = reject;

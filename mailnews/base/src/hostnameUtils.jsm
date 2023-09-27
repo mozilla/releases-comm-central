@@ -117,8 +117,8 @@ function isLegalIPv4Address(aHostName, aAllowExtendedIPFormats) {
   }
 
   // Break the IP address down into individual components.
-  let ipComponents = aHostName.split(".");
-  let componentCount = ipComponents.length;
+  const ipComponents = aHostName.split(".");
+  const componentCount = ipComponents.length;
   if (componentCount > 4 || (componentCount < 4 && !aAllowExtendedIPFormats)) {
     return null;
   }
@@ -162,8 +162,11 @@ function isLegalIPv4Address(aHostName, aAllowExtendedIPFormats) {
   for (let i = 0; i < componentCount; i++) {
     // If we are on the last supplied component but we do not have 4,
     // the last one covers the remaining ones.
-    let componentWidth = i == componentCount - 1 ? 4 - i : 1;
-    let componentValue = isLegalIPv4Component(ipComponents[i], componentWidth);
+    const componentWidth = i == componentCount - 1 ? 4 - i : 1;
+    const componentValue = isLegalIPv4Component(
+      ipComponents[i],
+      componentWidth
+    );
     if (componentValue == null) {
       return null;
     }
@@ -196,19 +199,19 @@ function isLegalIPv6Address(aHostName) {
   }
 
   // Break the IP address down into individual components.
-  let ipComponents = aHostName.toLowerCase().split(":");
+  const ipComponents = aHostName.toLowerCase().split(":");
 
   // Make sure there are at least 3 components.
   if (ipComponents.length < 3) {
     return null;
   }
 
-  let ipLength = ipComponents.length - 1;
+  const ipLength = ipComponents.length - 1;
 
   // Take care if the last part is written in decimal using dots as separators.
-  let lastPart = isLegalIPv4Address(ipComponents[ipLength], false);
+  const lastPart = isLegalIPv4Address(ipComponents[ipLength], false);
   if (lastPart) {
-    let lastPartComponents = lastPart.split(".");
+    const lastPartComponents = lastPart.split(".");
     // Convert it into standard IPv6 components.
     ipComponents[ipLength] = (
       (lastPartComponents[0] << 8) |
@@ -271,7 +274,7 @@ function isLegalIPv6Address(aHostName) {
   // TODO: support Zone indices in Link-local addresses? Currently they are rejected.
   // http://en.wikipedia.org/wiki/IPv6_address#Link-local_addresses_and_zone_indices
 
-  let hostName = ipComponents.join(":");
+  const hostName = ipComponents.join(":");
   // Treat 0000:0000:0000:0000:0000:0000:0000:0000 as an invalid IPv6 address.
   return hostName != "0000:0000:0000:0000:0000:0000:0000:0000"
     ? hostName

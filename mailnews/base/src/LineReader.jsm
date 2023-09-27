@@ -43,7 +43,7 @@ class LineReader {
     let i = 0;
     this._running = true;
     while (this._data) {
-      let index = this._data.indexOf("\r\n");
+      const index = this._data.indexOf("\r\n");
       if (index == -1) {
         // Not enough data, save it for the next round.
         break;

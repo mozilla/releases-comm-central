@@ -21,8 +21,8 @@ function donePageInit() {
 
 function setDivTextFromForm(divid, value) {
   // collapse the row if the div has no value
-  let label = document.getElementById(`${divid}.label`);
-  let text = document.getElementById(`${divid}.text`);
+  const label = document.getElementById(`${divid}.label`);
+  const text = document.getElementById(`${divid}.text`);
 
   if (!value) {
     text.style.display = "none";

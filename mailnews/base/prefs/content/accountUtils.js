@@ -17,8 +17,8 @@ var gAnyValidIdentity = false; // If there are no valid identities for any accou
 var gNewAccountToLoad = null; // used to load new messages if we come from the mail3pane
 
 function getInvalidAccounts(accounts) {
-  let invalidAccounts = [];
-  for (let account of accounts) {
+  const invalidAccounts = [];
+  for (const account of accounts) {
     try {
       if (!account.incomingServer.valid) {
         invalidAccounts.push(account);
@@ -30,7 +30,7 @@ function getInvalidAccounts(accounts) {
       continue;
     }
 
-    for (let identity of account.identities) {
+    for (const identity of account.identities) {
       if (identity.valid) {
         gAnyValidIdentity = true;
       } else {
@@ -139,7 +139,7 @@ function showCalendarWizard() {
  * @param {nsIMsgIncomingServer} [server] - The server of the account to select.
  */
 async function MsgAccountManager(selectPage, server) {
-  let win = Services.wm.getMostRecentWindow("mail:3pane");
+  const win = Services.wm.getMostRecentWindow("mail:3pane");
   if (!win) {
     // No window available, so force open a new one.
     openTab(
@@ -157,7 +157,7 @@ async function MsgAccountManager(selectPage, server) {
     return;
   }
 
-  let tabmail = win.document.getElementById("tabmail");
+  const tabmail = win.document.getElementById("tabmail");
   // If the server wasn't specified, and we have the window open, try
   // and use the currently selected folder to work out the server to select.
   if (!server) {
@@ -168,8 +168,8 @@ async function MsgAccountManager(selectPage, server) {
 
   // If Account settings tab is already open, change the server
   // and the selected page, reload the tab and switch to the tab.
-  for (let tabInfo of tabmail.tabInfo) {
-    let tab = tabmail.getTabForBrowser(tabInfo.browser);
+  for (const tabInfo of tabmail.tabInfo) {
+    const tab = tabmail.getTabForBrowser(tabInfo.browser);
     if (tab?.urlbar?.value == "about:accountsettings") {
       tab.browser.contentDocument.documentElement.server = server;
       tab.browser.contentDocument.documentElement.selectPage = selectPage;
@@ -227,7 +227,7 @@ function migrateGlobalQuotingPrefs(allIdentities) {
     } catch (ex) {}
 
     if (!auto_quote || reply_on_top) {
-      for (let identity of allIdentities) {
+      for (const identity of allIdentities) {
         if (identity.valid) {
           identity.autoQuote = auto_quote;
           identity.replyOnTop = reply_on_top;
@@ -243,14 +243,14 @@ function migrateGlobalQuotingPrefs(allIdentities) {
  * Open the Account Setup Tab or focus it if it's already open.
  */
 function openAccountSetupTab() {
-  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
-  let tabmail = mail3Pane.document.getElementById("tabmail");
+  const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+  const tabmail = mail3Pane.document.getElementById("tabmail");
 
   // Switch to the account setup tab if it's already open.
-  for (let tabInfo of tabmail.tabInfo) {
-    let tab = tabmail.getTabForBrowser(tabInfo.browser);
+  for (const tabInfo of tabmail.tabInfo) {
+    const tab = tabmail.getTabForBrowser(tabInfo.browser);
     if (tab?.urlbar?.value == "about:accountsetup") {
-      let accountSetup = tabInfo.browser.contentWindow.gAccountSetup;
+      const accountSetup = tabInfo.browser.contentWindow.gAccountSetup;
       // Reset the entire UI only if the previously opened setup was completed.
       if (accountSetup._currentModename == "success") {
         accountSetup.resetSetup();
@@ -274,8 +274,8 @@ function openAccountSetupTab() {
 function openAccountSetupTabWithAccount(account, name, email) {
   // Define which actions we need to take after the account setup tab has been
   // loaded and we have access to its objects.
-  let onTabLoaded = function (event, browser, account) {
-    let accountSetup = browser.contentWindow.gAccountSetup;
+  const onTabLoaded = function (event, browser, account) {
+    const accountSetup = browser.contentWindow.gAccountSetup;
 
     if (account) {
       // Update the account setup variables before kicking off the success view
@@ -290,14 +290,14 @@ function openAccountSetupTabWithAccount(account, name, email) {
     accountSetup.showErrorNotification("account-setup-provisioner-error");
   };
 
-  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
-  let tabmail = mail3Pane.document.getElementById("tabmail");
+  const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+  const tabmail = mail3Pane.document.getElementById("tabmail");
 
   // Switch to the account setup tab if it's already open.
-  for (let tabInfo of tabmail.tabInfo) {
-    let tab = tabmail.getTabForBrowser(tabInfo.browser);
+  for (const tabInfo of tabmail.tabInfo) {
+    const tab = tabmail.getTabForBrowser(tabInfo.browser);
     if (tab?.urlbar?.value == "about:accountsetup") {
-      let accountSetup = tabInfo.browser.contentWindow.gAccountSetup;
+      const accountSetup = tabInfo.browser.contentWindow.gAccountSetup;
       // Reset the entire UI only if the previously opened setup was completed.
       if (accountSetup._currentModename == "success") {
         accountSetup.resetSetup();
@@ -321,12 +321,12 @@ function openAccountSetupTabWithAccount(account, name, email) {
  * Open the Account Provisioner Tab or focus it if it's already open.
  */
 function openAccountProvisionerTab() {
-  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
-  let tabmail = mail3Pane.document.getElementById("tabmail");
+  const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+  const tabmail = mail3Pane.document.getElementById("tabmail");
 
   // Switch to the account setup tab if it's already open.
-  for (let tabInfo of tabmail.tabInfo) {
-    let tab = tabmail.getTabForBrowser(tabInfo.browser);
+  for (const tabInfo of tabmail.tabInfo) {
+    const tab = tabmail.getTabForBrowser(tabInfo.browser);
     if (tab?.urlbar?.value == "about:accountprovisioner") {
       tabmail.switchToTab(tabInfo);
       return;
@@ -345,10 +345,10 @@ function updateMailPaneUI() {
     return;
   }
 
-  let mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
+  const mail3Pane = Services.wm.getMostRecentWindow("mail:3pane");
   // Set the folderPaneVisible to true in the tabmail to prevent collapsing
   // on tab switch.
-  let tabmail = mail3Pane.document.getElementById("tabmail");
+  const tabmail = mail3Pane.document.getElementById("tabmail");
   tabmail.tabInfo[0].folderPaneVisible = true;
 }
 

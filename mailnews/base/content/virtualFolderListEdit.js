@@ -28,15 +28,16 @@ var gSelectVirtual = {
 
   load() {
     if (window.arguments[0].searchFolderURIs) {
-      let srchFolderUriArray = window.arguments[0].searchFolderURIs.split("|");
-      for (let uri of srchFolderUriArray) {
+      const srchFolderUriArray =
+        window.arguments[0].searchFolderURIs.split("|");
+      for (const uri of srchFolderUriArray) {
         this._selectedList.add(MailUtils.getOrCreateFolder(uri));
       }
     }
 
     // Add the top level of the folder tree.
-    for (let account of FolderUtils.allAccountsSorted(true)) {
-      let server = account.incomingServer;
+    for (const account of FolderUtils.allAccountsSorted(true)) {
+      const server = account.incomingServer;
       if (
         server instanceof Ci.nsIPop3IncomingServer &&
         server.deferredToAccount
@@ -50,7 +51,7 @@ var gSelectVirtual = {
     // Recursively expand the tree to show all selected folders.
     function expandToSelected(row, i) {
       hiddenFolders.delete(row._folder);
-      for (let folder of hiddenFolders) {
+      for (const folder of hiddenFolders) {
         if (row._folder.isAncestorOf(folder)) {
           gFolderTreeView.toggleOpenState(i);
           for (let j = row.children.length - 1; j >= 0; j--) {
@@ -61,7 +62,7 @@ var gSelectVirtual = {
       }
     }
 
-    let hiddenFolders = new Set(gSelectVirtual._selectedList);
+    const hiddenFolders = new Set(gSelectVirtual._selectedList);
     for (let i = gFolderTreeView.rowCount - 1; i >= 0; i--) {
       expandToSelected(gFolderTreeView._rowMap[i], i);
     }
@@ -76,10 +77,10 @@ var gSelectVirtual = {
       return;
     }
 
-    let selection = this._treeElement.view.selection;
-    let start = {};
-    let end = {};
-    let numRanges = selection.getRangeCount();
+    const selection = this._treeElement.view.selection;
+    const start = {};
+    const end = {};
+    const numRanges = selection.getRangeCount();
 
     for (let range = 0; range < numRanges; range++) {
       selection.getRangeAt(range, start, end);
@@ -101,7 +102,7 @@ var gSelectVirtual = {
       return;
     }
 
-    let treeCellInfo = this._treeElement.getCellAt(
+    const treeCellInfo = this._treeElement.getCellAt(
       aEvent.clientX,
       aEvent.clientY
     );
@@ -113,7 +114,7 @@ var gSelectVirtual = {
   },
 
   _toggle(aRow) {
-    let folder = gFolderTreeView._rowMap[aRow]._folder;
+    const folder = gFolderTreeView._rowMap[aRow]._folder;
     if (this._selectedList.has(folder)) {
       this._selectedList.delete(folder);
     } else {
@@ -125,7 +126,7 @@ var gSelectVirtual = {
 
   onAccept() {
     // XXX We should just pass the folder objects around...
-    let uris = [...this._selectedList.values()]
+    const uris = [...this._selectedList.values()]
       .map(folder => folder.URI)
       .join("|");
 
@@ -194,7 +195,7 @@ class FolderRow {
   get children() {
     if (this._children === null) {
       this._children = [];
-      for (let subFolder of this._folder.subFolders) {
+      for (const subFolder of this._folder.subFolders) {
         if (!subFolder.getFlag(Ci.nsMsgFolderFlags.Virtual)) {
           this._children.push(new FolderRow(subFolder, this));
         }

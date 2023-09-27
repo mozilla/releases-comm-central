@@ -12,7 +12,7 @@ var MailStringUtils = {
    * @returns {Uint8Array} The output Uint8Array.
    */
   byteStringToUint8Array(str) {
-    let arr = new Uint8Array(str.length);
+    const arr = new Uint8Array(str.length);
     for (let i = 0; i < str.length; i++) {
       arr[i] = str.charCodeAt(i);
     }
@@ -63,9 +63,9 @@ var MailStringUtils = {
     // Check the BOM.
     let charset = "";
     if (str.length >= 2) {
-      let byte0 = str.charCodeAt(0);
-      let byte1 = str.charCodeAt(1);
-      let byte2 = str.charCodeAt(2);
+      const byte0 = str.charCodeAt(0);
+      const byte1 = str.charCodeAt(1);
+      const byte2 = str.charCodeAt(2);
       if (byte0 == 0xfe && byte1 == 0xff) {
         charset = "UTF-16BE";
       } else if (byte0 == 0xff && byte1 == 0xfe) {
@@ -79,7 +79,7 @@ var MailStringUtils = {
     }
 
     // Use mozilla::EncodingDetector.
-    let compUtils = Cc[
+    const compUtils = Cc[
       "@mozilla.org/messengercompose/computils;1"
     ].createInstance(Ci.nsIMsgCompUtils);
     return compUtils.detectCharset(str);
@@ -94,9 +94,9 @@ var MailStringUtils = {
    * @returns {DOMString} The file content.
    */
   async readEncoded(path) {
-    let arr = await IOUtils.read(path);
-    let str = this.uint8ArrayToByteString(arr);
-    let charset = this.detectCharset(str);
+    const arr = await IOUtils.read(path);
+    const str = this.uint8ArrayToByteString(arr);
+    const charset = this.detectCharset(str);
     return new TextDecoder(charset).decode(arr);
   },
 };

@@ -77,7 +77,7 @@ PROTO_TREE_VIEW.prototype = {
    * If an item in our list has the same level and parent as us, it's a sibling
    */
   hasNextSibling(aIndex, aNextIndex) {
-    let targetLevel = this._rowMap[aIndex].level;
+    const targetLevel = this._rowMap[aIndex].level;
     for (let i = aNextIndex + 1; i < this._rowMap.length; i++) {
       if (this._rowMap[i].level == targetLevel) {
         return true;
@@ -130,10 +130,10 @@ PROTO_TREE_VIEW.prototype = {
   recursivelyAddToMap(aChild, aNewIndex) {
     // When we add sub-children, we're going to need to increase our index
     // for the next add item at our own level.
-    let currentCount = this._rowMap.length;
+    const currentCount = this._rowMap.length;
     if (aChild.children.length && aChild.open) {
-      for (let [i, child] of this._rowMap[aNewIndex].children.entries()) {
-        let index = aNewIndex + i + 1;
+      for (const [i, child] of this._rowMap[aNewIndex].children.entries()) {
+        const index = aNewIndex + i + 1;
         this._rowMap.splice(index, 0, child);
         aNewIndex += this.recursivelyAddToMap(child, index);
       }
@@ -155,16 +155,16 @@ PROTO_TREE_VIEW.prototype = {
       // Note that we can't simply splice out children.length, because some of
       // them might have children too.  Find out how many items we're actually
       // going to splice
-      let level = this._rowMap[aIndex].level;
+      const level = this._rowMap[aIndex].level;
       let row = aIndex + 1;
       while (row < this._rowMap.length && this._rowMap[row].level > level) {
         row++;
       }
-      let count = row - aIndex - 1;
+      const count = row - aIndex - 1;
       this._rowMap.splice(aIndex + 1, count);
 
       // Remove us from the persist map
-      let index = this._persistOpenMap.indexOf(this._rowMap[aIndex].id);
+      const index = this._persistOpenMap.indexOf(this._rowMap[aIndex].id);
       if (index != -1) {
         this._persistOpenMap.splice(index, 1);
       }
@@ -178,11 +178,11 @@ PROTO_TREE_VIEW.prototype = {
 
       // Note that these children may have been open when we were last closed,
       // and if they are, we also have to add those grandchildren to the map
-      let oldCount = this._rowMap.length;
+      const oldCount = this._rowMap.length;
       this.recursivelyAddToMap(this._rowMap[aIndex], aIndex);
 
       // Add this container to the persist map
-      let id = this._rowMap[aIndex].id;
+      const id = this._rowMap[aIndex].id;
       if (!this._persistOpenMap.includes(id)) {
         this._persistOpenMap.push(id);
       }

@@ -43,16 +43,16 @@ var VirtualFolderHelper = {
     aSearchTerms,
     aOnlineSearch
   ) {
-    let msgFolder = aParentFolder.addSubfolder(aFolderName);
+    const msgFolder = aParentFolder.addSubfolder(aFolderName);
     msgFolder.prettyName = aFolderName;
     msgFolder.setFlag(Ci.nsMsgFolderFlags.Virtual);
 
-    let wrappedVirt = new VirtualFolderWrapper(msgFolder);
+    const wrappedVirt = new VirtualFolderWrapper(msgFolder);
     wrappedVirt.searchTerms = aSearchTerms;
     wrappedVirt.searchFolders = aSearchFolders;
     wrappedVirt.onlineSearch = aOnlineSearch;
 
-    let msgDatabase = msgFolder.msgDatabase;
+    const msgDatabase = msgFolder.msgDatabase;
     msgDatabase.summaryValid = true;
     msgDatabase.close(true);
 
@@ -139,7 +139,7 @@ VirtualFolderWrapper.prototype = {
     if (typeof aFolders == "string") {
       this.dbFolderInfo.setCharProperty("searchFolderUri", aFolders);
     } else {
-      let uris = aFolders.map(folder => folder.URI);
+      const uris = aFolders.map(folder => folder.URI);
       this.dbFolderInfo.setCharProperty("searchFolderUri", uris.join("|"));
     }
     Services.obs.notifyObservers(this.virtualFolder, "search-folders-changed");
@@ -169,8 +169,10 @@ VirtualFolderWrapper.prototype = {
     // Temporary means it doesn't get exposed to the UI and doesn't get saved to
     //  disk.  Which is good, because this is just a trick to parse the string
     //  into search terms.
-    let filterList = MailServices.filters.getTempFilterList(this.virtualFolder);
-    let tempFilter = filterList.createFilter("temp");
+    const filterList = MailServices.filters.getTempFilterList(
+      this.virtualFolder
+    );
+    const tempFilter = filterList.createFilter("temp");
     filterList.parseCondition(tempFilter, this.searchString);
     return tempFilter;
   },
@@ -185,7 +187,7 @@ VirtualFolderWrapper.prototype = {
    */
   set searchTerms(aTerms) {
     let condition = "";
-    for (let term of aTerms) {
+    for (const term of aTerms) {
       if (condition) {
         condition += " ";
       }
@@ -240,7 +242,7 @@ VirtualFolderWrapper.prototype = {
    *   call |cleanUpMessageDatabase|.
    */
   get dbFolderInfo() {
-    let msgDatabase = this.virtualFolder.msgDatabase;
+    const msgDatabase = this.virtualFolder.msgDatabase;
     return msgDatabase && msgDatabase.dBFolderInfo;
   },
 

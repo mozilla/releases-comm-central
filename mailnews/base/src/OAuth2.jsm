@@ -100,7 +100,7 @@ OAuth2.prototype = {
   },
 
   requestAuthorization() {
-    let params = new URLSearchParams({
+    const params = new URLSearchParams({
       response_type: "code",
       client_id: this.clientId,
       redirect_uri: this.redirectionEndpoint,
@@ -133,11 +133,12 @@ OAuth2.prototype = {
       params.append("code_challenge", code_challenge);
     }
 
-    for (let [name, value] of this.extraAuthParams) {
+    for (const [name, value] of this.extraAuthParams) {
       params.append(name, value);
     }
 
-    let authEndpointURI = this.authorizationEndpoint + "?" + params.toString();
+    const authEndpointURI =
+      this.authorizationEndpoint + "?" + params.toString();
     this.log.info(
       "Interacting with the resource owner to obtain an authorization grant " +
         "from the authorization endpoint: " +
@@ -194,7 +195,7 @@ OAuth2.prototype = {
           onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
             const wpl = Ci.nsIWebProgressListener;
             if (aStateFlags & (wpl.STATE_START | wpl.STATE_IS_NETWORK)) {
-              let channel = aRequest.QueryInterface(Ci.nsIChannel);
+              const channel = aRequest.QueryInterface(Ci.nsIChannel);
               this._checkForRedirect(channel.URI.spec);
             }
           },
@@ -256,7 +257,7 @@ OAuth2.prototype = {
     } else {
       // @see RFC 6749 section 4.1.2.1: Error Response
       if (url.searchParams.has("error")) {
-        let error = url.searchParams.get("error");
+        const error = url.searchParams.get("error");
         let errorDescription = url.searchParams.get("error_description") || "";
         if (error == "invalid_scope") {
           errorDescription += ` Invalid scope: ${this.scope}.`;
@@ -284,7 +285,7 @@ OAuth2.prototype = {
     // @see RFC 6749 section 4.1.3. Access Token Request
     // @see RFC 6749 section 6. Refreshing an Access Token
 
-    let data = new URLSearchParams();
+    const data = new URLSearchParams();
     data.append("client_id", this.clientId);
     if (this.consumerSecret !== null) {
       // Section 2.3.1. of RFC 6749 states that empty secrets MAY be omitted
@@ -318,7 +319,7 @@ OAuth2.prototype = {
     })
       .then(response => response.json())
       .then(result => {
-        let resultStr = JSON.stringify(result, null, 2);
+        const resultStr = JSON.stringify(result, null, 2);
         if ("error" in result) {
           // RFC 6749 section 5.2. Error Response
           let err = result.error;

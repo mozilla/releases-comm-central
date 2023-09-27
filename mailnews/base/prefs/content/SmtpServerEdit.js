@@ -33,10 +33,10 @@ function onLoad() {
 
 function onAccept(event) {
   if (!isLegalHostNameOrIP(cleanUpHostName(gSmtpHostname.value))) {
-    let prefsBundle = document.getElementById("bundle_prefs");
-    let brandBundle = document.getElementById("bundle_brand");
-    let alertTitle = brandBundle.getString("brandShortName");
-    let alertMsg = prefsBundle.getString("enterValidServerName");
+    const prefsBundle = document.getElementById("bundle_prefs");
+    const brandBundle = document.getElementById("bundle_brand");
+    const alertTitle = brandBundle.getString("brandShortName");
+    const alertMsg = prefsBundle.getString("enterValidServerName");
     Services.prompt.alert(window, alertTitle, alertMsg);
 
     window.arguments[0].result = false;
@@ -115,7 +115,7 @@ function initSmtpSettings(server) {
   }
 
   // Hide OAuth2 option if we can't use it.
-  let details = server
+  const details = server
     ? OAuth2Providers.getHostnameDetails(server.hostname)
     : null;
   document.getElementById("authMethod-oauth2").hidden = !details;
@@ -143,7 +143,7 @@ function setLabelFromStringBundle(elementID, stringName) {
 // Disables xul elements that have associated preferences locked.
 function onLockPreference() {
   try {
-    let allPrefElements = {
+    const allPrefElements = {
       hostname: gSmtpHostname,
       description: gSmtpDescription,
       port: gSmtpPort,
@@ -166,11 +166,11 @@ function onLockPreference() {
  * TODO: try to merge this with disableIfLocked function in am-offline.js (bug 755885)
  */
 function disableIfLocked(prefstrArray) {
-  let smtpPrefBranch = Services.prefs.getBranch(
+  const smtpPrefBranch = Services.prefs.getBranch(
     "mail.smtpserver." + MailServices.smtp.defaultServer.key + "."
   );
 
-  for (let prefstring in prefstrArray) {
+  for (const prefstring in prefstrArray) {
     if (smtpPrefBranch.prefIsLocked(prefstring)) {
       prefstrArray[prefstring].disabled = true;
     }

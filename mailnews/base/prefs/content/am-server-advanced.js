@@ -42,10 +42,10 @@ function onLoad() {
     document.getElementById("pop3Panel").hidden = true;
   } else if (gServerSettings.serverType == "pop3") {
     document.getElementById("imapPanel").hidden = true;
-    let radioGroup = document.getElementById("folderStorage");
+    const radioGroup = document.getElementById("folderStorage");
 
     gFirstDeferredAccount = gServerSettings.deferredToAccount;
-    let folderPopup = document.getElementById("deferredServerPopup");
+    const folderPopup = document.getElementById("deferredServerPopup");
 
     // The current account should not be shown in the folder picker
     // of the "other account" option.
@@ -58,7 +58,7 @@ function onLoad() {
 
     if (gFirstDeferredAccount.length) {
       // The current account is deferred.
-      let account = MailServices.accounts.getAccount(gFirstDeferredAccount);
+      const account = MailServices.accounts.getAccount(gFirstDeferredAccount);
       radioGroup.value = "otherAccount";
       folderPopup.selectFolder(account.incomingServer.rootFolder);
     } else {
@@ -74,7 +74,7 @@ function onLoad() {
       }
     }
 
-    let picker = document.getElementById("deferredServerFolderPicker");
+    const picker = document.getElementById("deferredServerFolderPicker");
     picker.disabled = radioGroup.selectedIndex != 1;
   }
 
@@ -97,7 +97,7 @@ function onOk(event) {
   if (gServerSettings.serverType == "pop3") {
     var radioGroup = document.getElementById("folderStorage");
     var gPrefsBundle = document.getElementById("bundle_prefs");
-    let picker = document.getElementById("deferredServerFolderPicker");
+    const picker = document.getElementById("deferredServerFolderPicker");
 
     // This account wasn't previously deferred, but is now deferred.
     if (radioGroup.value != "currentAccount" && !gFirstDeferredAccount.length) {
@@ -122,8 +122,8 @@ function onOk(event) {
         gServerSettings.deferredToAccount = "";
         break;
       case "otherAccount":
-        let server = picker.selectedItem._folder.server;
-        let account = MailServices.accounts.FindAccountForServer(server);
+        const server = picker.selectedItem._folder.server;
+        const account = MailServices.accounts.FindAccountForServer(server);
         gServerSettings.deferredToAccount = account.key;
         break;
     }
