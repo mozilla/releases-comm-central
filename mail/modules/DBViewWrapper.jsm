@@ -687,16 +687,16 @@ DBViewWrapper.prototype = {
    *  for UI reasons like the user de-selecting the node in the tree; we should
    *  always be displaying something when used in a UI context!
    *
-   * @param aFolderIsDead If true, tells us not to try and tidy up on our way
-   *     out by virtue of the fact that the folder is dead and should not be
-   *     messed with.
+   * @param {boolean} folderIsDead - If true, tells us not to try and tidy up
+   *   on our way out by virtue of the fact that the folder is dead and should
+   *   not be messed with.
    */
-  close(aFolderIsDead) {
+  close(folderIsDead) {
     if (this.displayedFolder != null) {
       // onLeavingFolder does all the application-level stuff related to leaving
       //  the folder (marking as read, etc.)  We only do this when the folder
       //  is not dead (for obvious reasons).
-      if (!aFolderIsDead) {
+      if (!folderIsDead) {
         // onLeavingFolder must be called before we potentially null out its
         //  msgDatabase, which we will do in the upcoming underlyingFolders loop
         this.onLeavingFolder(); // application logic
@@ -1254,12 +1254,14 @@ DBViewWrapper.prototype = {
       this.displayedFolder = aNewFolder;
     }
 
-    // indexOf doesn't work for this (reliably)
-    for (let [i, underlyingFolder] of this._underlyingFolders.entries()) {
-      if (aOldFolder == underlyingFolder) {
-        this._underlyingFolders[i] = aNewFolder;
-        break;
-      }
+    if (!this._underlyingFolders) {
+      // View is closed already.
+      return;
+    }
+
+    let i = this._underlyingFolders.findIndex(f => f == aOldFolder);
+    if (i >= 0) {
+      this._underlyingFolders[i] = aNewFolder;
     }
 
     // re-populate the view.
