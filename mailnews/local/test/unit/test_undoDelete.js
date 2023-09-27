@@ -67,7 +67,7 @@ add_task(async function undoDelete() {
 add_task(function verifyFolders() {
   const msgRestored = gTestFolder.msgDatabase.getMsgHdrForMessageID(gMsgId1);
   const msg = mailTestUtils.loadMessageToString(gTestFolder, msgRestored);
-  Assert.equal(msg, gMsg1.toMboxString());
+  Assert.equal(msg, gMsg1.toMessageString());
 });
 
 add_task(function endTest() {

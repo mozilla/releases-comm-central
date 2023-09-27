@@ -23,9 +23,7 @@ function run_test() {
   dump(receivedHeader + "\n");
 
   localAccountUtils.inboxFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  localAccountUtils.inboxFolder.addMessage(
-    "From \r\n" + headers + "\r\nhello\r\n"
-  );
+  localAccountUtils.inboxFolder.addMessage(headers + "\r\nhello\r\n");
   // Need to setup some prefs
   Services.prefs.setBoolPref("mail.mdn.report.enabled", true);
   Services.prefs.setIntPref("mail.mdn.report.not_in_to_cc", 2);

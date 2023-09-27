@@ -40,10 +40,6 @@ var gMsgHdrs = [];
 var gExpectedInboxSize;
 var gExpectedFolder2Size;
 var gExpectedFolder3Size;
-// Use this to account for the size of the separating line after the message
-// body. The compactor tries to preserve the convention already in the mbox,
-// and we know that our test messages have CRLFs, so that's what we'll use.
-var gSeparatorLine = "\r\n";
 
 // Transfer message keys between function calls.
 var gMsgKeys = [];
@@ -114,15 +110,6 @@ function deleteMessages(srcFolder, items) {
   return listener.promise;
 }
 
-function calculateFolderSize(folder) {
-  const msgDB = folder.msgDatabase;
-  let totalSize = 0;
-  for (const header of msgDB.enumerateMessages()) {
-    totalSize += header.messageSize + gSeparatorLine.length;
-  }
-  return totalSize;
-}
-
 function verifyMsgOffsets(folder) {
   const msgDB = folder.msgDatabase;
   const enumerator = msgDB.enumerateMessages();
@@ -134,6 +121,56 @@ function verifyMsgOffsets(folder) {
       }
     }
   }
+}
+
+/**
+ * Calculate the expected size of a (compacted) mbox, based on
+ * msgDB entries. For use later in verifyMboxSize().
+ * We're assuming bare "From " lines, which _won't_ be right, but
+ * verifyMboxSize() will do the same, so it works out.
+ */
+function calculateExpectedMboxSize(folder) {
+  const msgDB = folder.msgDatabase;
+  let totalSize = 0;
+  for (const header of msgDB.enumerateMessages()) {
+    totalSize += "From \r\n".length; // Pared-down mbox separator.
+    totalSize += header.messageSize; // The actual message data.
+    totalSize += "\r\n".length; // Blank line between messages.
+  }
+  return totalSize;
+}
+
+/**
+ * Make sure the mbox size of folder matches expectedSize.
+ * We can't just use the mbox file size, since we need to normalise the
+ * "From " separator lines, which can be variable length.
+ * So we load in the whole file, strip anything on lines after the "From ",
+ * and check the length after that.
+ */
+async function verifyMboxSize(folder, expectedSize) {
+  showMessages(folder, "verifyMboxSize");
+  let mbox = await IOUtils.readUTF8(folder.filePath.path);
+  // Pared-down mbox separator.
+  mbox = mbox.replace(/^From .*$/gm, "From ");
+
+  Assert.equal(mbox.length, expectedSize);
+}
+
+/**
+ * Debug utility to show the key/offset/ID relationship of messages in a folder.
+ * Disabled but not removed, as it's just so useful for troubleshooting
+ * if anything goes wrong!
+ */
+function showMessages(folder, text) {
+  /*
+  dump(`***** Show messages for folder <${folder.name}> "${text} *****\n`);
+  for (const hdr of folder.messages) {
+    const storeToken = hdr.getStringProperty("storeToken");
+    dump(
+      `  key: ${hdr.messageKey} storeToken: ${storeToken} offset: ${hdr.messageOffset} size: ${hdr.messageSize} ID: ${hdr.messageId}\n`
+    );
+  }
+  */
 }
 
 /*
@@ -156,7 +193,6 @@ var gTestArray = [
       "after initial 3 messages copy to inbox"
     );
   },
-
   // Moving/copying messages
   async function testCopyMessages1() {
     await copyMessages(
@@ -206,7 +242,7 @@ var gTestArray = [
     showMessages(gLocalFolder3, "after deleting 1 message to trash");
   },
   async function compactFolder() {
-    gExpectedFolderSize = calculateFolderSize(gLocalFolder3);
+    gExpectedFolderSize = calculateExpectedMboxSize(gLocalFolder3);
     Assert.notEqual(gLocalFolder3.expungedBytes, 0);
     const listener = new PromiseTestUtils.PromiseUrlListener(urlListenerWrap);
     gLocalFolder3.compact(listener, null);
@@ -215,7 +251,7 @@ var gTestArray = [
     showMessages(gLocalFolder3, "after compact");
   },
   async function testDeleteMessages2() {
-    Assert.equal(gExpectedFolderSize, gLocalFolder3.filePath.fileSize);
+    await verifyMboxSize(gLocalFolder3, gExpectedFolderSize);
     verifyMsgOffsets(gLocalFolder3);
     var folder2DB = gLocalFolder2.msgDatabase;
     gMsgHdrs[0].hdr = folder2DB.getMsgHdrForMessageID(gMsgHdrs[0].ID);
@@ -232,9 +268,11 @@ var gTestArray = [
     showMessages(gLocalFolder2, "after deleting 1 message");
   },
   async function compactAllFolders() {
-    gExpectedInboxSize = calculateFolderSize(localAccountUtils.inboxFolder);
-    gExpectedFolder2Size = calculateFolderSize(gLocalFolder2);
-    gExpectedFolder3Size = calculateFolderSize(gLocalFolder3);
+    gExpectedInboxSize = calculateExpectedMboxSize(
+      localAccountUtils.inboxFolder
+    );
+    gExpectedFolder2Size = calculateExpectedMboxSize(gLocalFolder2);
+    gExpectedFolder3Size = calculateExpectedMboxSize(gLocalFolder3);
 
     // Save the first message key, which will change after compact with
     // rebuild.
@@ -294,13 +332,10 @@ var gTestArray = [
     // rebuild, that key has now changed.
     Assert.notEqual(message2.messageKey, f2m2Key);
   },
-  function lastTestCheck() {
-    Assert.equal(
-      gExpectedInboxSize,
-      localAccountUtils.inboxFolder.filePath.fileSize
-    );
-    Assert.equal(gExpectedFolder2Size, gLocalFolder2.filePath.fileSize);
-    Assert.equal(gExpectedFolder3Size, gLocalFolder3.filePath.fileSize);
+  async function lastTestCheck() {
+    await verifyMboxSize(localAccountUtils.inboxFolder, gExpectedInboxSize);
+    await verifyMboxSize(gLocalFolder2, gExpectedFolder2Size);
+    await verifyMboxSize(gLocalFolder3, gExpectedFolder3Size);
     verifyMsgOffsets(gLocalFolder2);
     verifyMsgOffsets(gLocalFolder3);
     verifyMsgOffsets(localAccountUtils.inboxFolder);
@@ -322,14 +357,4 @@ function run_test() {
 
   gTestArray.forEach(x => add_task(x));
   run_next_test();
-}
-
-// debug utility to show the key/offset/ID relationship of messages in a folder
-function showMessages(folder, text) {
-  dump(`***** Show messages for folder <${folder.name}> "${text} *****\n`);
-  for (const hdr of folder.messages) {
-    dump(
-      `  key: ${hdr.messageKey} offset: ${hdr.messageOffset} size: ${hdr.messageSize} ID: ${hdr.messageId}\n`
-    );
-  }
 }

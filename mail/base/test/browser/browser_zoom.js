@@ -29,7 +29,7 @@ add_setup(async function () {
   testFolder.addMessageBatch(
     generator
       .makeMessages({ count: 5, msgsPerThread: 5 })
-      .map(message => message.toMboxString())
+      .map(message => message.toMessageString())
   );
 
   // Use the test folder.

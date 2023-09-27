@@ -61,8 +61,8 @@ var gStreamListener = {
     this._data = "";
   },
   onStopRequest(aRequest, aStatusCode) {
-    // check that the streamed message starts with "From "
-    Assert.ok(this._data.startsWith("From "));
+    // Check the streamed message doesn't start with mbox separator "From ".
+    Assert.ok(!this._data.startsWith("From "));
     if (++gHdrIndex == gFiles.length) {
       do_test_finished();
     } else {

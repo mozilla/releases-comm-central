@@ -46,7 +46,7 @@ add_task(async function testDeleteViaDBViewCommand() {
 
   // Add a message to the folder.
   const generator = new MessageGenerator();
-  inboxFolder.addMessage(generator.makeMessage().toMboxString());
+  inboxFolder.addMessage(generator.makeMessage().toMessageString());
 
   // Create a smart folder from the inbox.
   const smartInboxFolder = getSmartServer().rootFolder.getFolderWithFlags(

@@ -790,10 +790,6 @@ SyntheticMessage.prototype = {
     return lines.join("\r\n") + "\r\n\r\n" + this.bodyPart.toMessageString();
   },
 
-  toMboxString() {
-    return "From " + this._from[1] + "\r\n" + this.toMessageString() + "\r\n";
-  },
-
   /**
    * @returns {nsIStringInputStream} This message in rfc822 format in a string stream.
    */
@@ -805,28 +801,17 @@ SyntheticMessage.prototype = {
     stream.setData(str, str.length);
     return stream;
   },
-
-  /**
-   * Writes this message to an mbox stream.  his means adding a "From " line
-   *  and making sure we've got a trailing newline.
-   */
-  writeToMboxStream(aStream) {
-    const str = this.toMboxString();
-    aStream.write(str, str.length);
-  },
 };
 
 /**
- * Write a list of messages to a folder
+ * Add a list of messages to a local folder.
  *
- * @param {SyntheticMessage[]} aMessages - The list of SyntheticMessages instances to write.
- * @param {nsIMsgFolder} aFolder - The folder to write to.
+ * @param {SyntheticMessage[]} messages - The list of SyntheticMessages instances to write.
+ * @param {nsIMsgFolder} folder - The folder to write to.
  */
-function addMessagesToFolder(aMessages, aFolder) {
-  const localFolder = aFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  for (const message of aMessages) {
-    localFolder.addMessage(message.toMboxString());
-  }
+function addMessagesToFolder(messages, folder) {
+  const localFolder = folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
+  localFolder.addMessageBatch(messages.map(m => m.toMessageString()));
 }
 
 /**

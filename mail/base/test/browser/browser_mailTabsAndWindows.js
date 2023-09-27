@@ -33,7 +33,9 @@ add_setup(async function () {
     .getChildNamed("mailTabsA")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderA.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   messagesA = [...folderA.messages];
 
@@ -42,7 +44,9 @@ add_setup(async function () {
     .getChildNamed("mailTabsB")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderB.addMessageBatch(
-    generator.makeMessages({ count: 2 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 2 })
+      .map(message => message.toMessageString())
   );
   messagesB = [...folderB.messages];
 

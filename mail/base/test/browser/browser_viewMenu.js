@@ -146,7 +146,9 @@ add_setup(async function () {
     .getChildNamed("view menu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   inboxFolder.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   testMessages = [...inboxFolder.messages];
 

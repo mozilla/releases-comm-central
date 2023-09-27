@@ -71,7 +71,9 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   inboxFolder.setFlag(Ci.nsMsgFolderFlags.Inbox);
   inboxFolder.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   testMessages = [...inboxFolder.messages];
 

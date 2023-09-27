@@ -59,28 +59,31 @@ async function deleteMsgs(folder, indexesToDelete) {
   await listener.promise;
 }
 
-// Check the raw mbox file against what we expect to see.
-async function checkMbox(folder, outputMsgs) {
-  const bytes = await IOUtils.read(folder.filePath.path);
-  let mbox = "";
-  for (const b of bytes) {
-    mbox += String.fromCharCode(b);
-  }
-
-  let expected = "";
-  for (const raw of outputMsgs) {
-    // mbox has blank line between messages
-    expected += raw + "\n";
-  }
-
-  // Force all EOLs to linefeeds for comparisons.
+// Check the raw mbox file of the folder against our list of expected
+// messages.
+async function checkMbox(folder, expectedMsgs) {
+  // Massage both mbox and expectedMsgs into a standardised form.
+  // 1) Bare "From " separator lines.
+  // 2) Use LF as end-of-line (EOL) indicator.
   // EOLs are handled inconsistently - most code will just leave EOLs as they
   // come in, but new EOLs (e.g. added between messages in mbox) will use
   // platform native EOLs. So our cheap and cheerful hack here is to just
   // ditch all CRs and use pure LFs.
-  mbox = mbox.replace(/\r/g, "");
-  expected = expected.replace(/\r/g, "");
 
+  // Read in the mbox file.
+  let mbox = await IOUtils.readUTF8(folder.filePath.path);
+  mbox = mbox.replace(/\r/g, "");
+  mbox = mbox.replace(/^From .*$/gm, "From ");
+
+  // Now manually mash our expected messages into an mbox string.
+  let expected = "";
+  for (const raw of expectedMsgs) {
+    expected += "From \n";
+    expected += raw.replace(/\r/g, "");
+    expected += "\n"; // mbox has blank line between messages
+  }
+
+  // Now we can compare them.
   if (mbox != expected) {
     // Pretty-print before we assert. Makes life so much easier.
     dump(`=======mbox=========\n${esc(mbox)}\n============\n`);
@@ -131,15 +134,15 @@ add_task(async function testSimple() {
   const inbox = localAccountUtils.inboxFolder;
 
   const inMsgs = [
-    `${from}${xhdrs}${hdrs1}\r\n${bod1}\r\n`,
-    `${from}${xhdrs}${hdrs2}\r\n${bod2}\r\n`,
-    `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
+    `${xhdrs}${hdrs1}\r\n${bod1}`,
+    `${xhdrs}${hdrs2}\r\n${bod2}`,
+    `${xhdrs}${hdrs3}\r\n${bod3}`,
   ];
   const doomed = [1]; // Delete message msg2.
   // Out expected output:
   const outMsgs = [
-    `${from}${xhdrs}${hdrs1}\r\n${bod1}\r\n`,
-    `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
+    `${xhdrs}${hdrs1}\r\n${bod1}`,
+    `${xhdrs}${hdrs3}\r\n${bod3}`,
   ];
 
   loadMsgs(inbox, inMsgs);
@@ -160,16 +163,16 @@ add_task(async function testMissingXMozillaHdrs() {
 
   // No X-Mozilla-* headers on input.
   const inMsgs = [
-    `${from}${hdrs1}\r\n${bod1}\r\n`,
-    `${from}${hdrs2}\r\n${bod2}\r\n`,
-    `${from}${hdrs3}\r\n${bod3}\r\n`,
+    `${hdrs1}\r\n${bod1}`,
+    `${hdrs2}\r\n${bod2}`,
+    `${hdrs3}\r\n${bod3}`,
   ];
   const doomed = [1]; // Delete msg2.
   // Out expected output.
   // Compact should have added X-Mozilla-* headers.
   const outMsgs = [
-    `${from}${xhdrs}${hdrs1}\r\n${bod1}\r\n`,
-    `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
+    `${xhdrs}${hdrs1}\r\n${bod1}`,
+    `${xhdrs}${hdrs3}\r\n${bod3}`,
   ];
 
   loadMsgs(inbox, inMsgs);
@@ -196,7 +199,6 @@ add_task(async function testBigMessages() {
   const doomed = [0, 1]; //  We'll delete the first 2 messages.
   for (let i = 0; i < 5; ++i) {
     let raw =
-      `From \r\n` +
       xhdrs +
       `Date: Fri, 21 Nov 1997 09:55:06 -0600\r\n` +
       `From: bob${i}@invalid\r\n` +
@@ -207,7 +209,6 @@ add_task(async function testBigMessages() {
         "BlahBlahBlahBlahBlahBlahBlahBlahBlah" +
         "BlahBlahBlahBlahBlahBlahBlahBlahBlah\r\n";
     }
-    raw += `\r\n`;
     inMsgs.push(raw);
     if (!doomed.includes(i)) {
       outMsgs.push(raw);
@@ -235,16 +236,16 @@ add_task(async function testMoveXMozillaHdrs() {
 
   // These have X-Mozilla-* headers after all the other headers.
   const inMsgs = [
-    `${from}${hdrs1}${xhdrs}\r\n${bod1}\r\n`,
-    `${from}${hdrs2}${xhdrs}\r\n${bod2}\r\n`,
-    `${from}${hdrs3}${xhdrs}\r\n${bod3}\r\n`,
+    `${hdrs1}${xhdrs}\r\n${bod1}`,
+    `${hdrs2}${xhdrs}\r\n${bod2}`,
+    `${hdrs3}${xhdrs}\r\n${bod3}`,
   ];
   const doomed = [1]; // Delete msg2.
   // The messages we expect to see in the final mbox.
   // Compact should have moved the X-Mozilla-* headers to the front.
   const outMsgs = [
-    `${from}${xhdrs}${hdrs1}\r\n${bod1}\r\n`,
-    `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
+    `${xhdrs}${hdrs1}\r\n${bod1}`,
+    `${xhdrs}${hdrs3}\r\n${bod3}`,
   ];
 
   loadMsgs(inbox, inMsgs);
@@ -268,9 +269,9 @@ add_task(async function testBigXMozillaKeys() {
     "CharactersUsuallyReservedInTheKeywordsHeaderForInPlaceEditing";
 
   const inMsgs = [
-    `${from}${xhdrs}${hdrs1}\r\n${bod1}\r\n`,
-    `${from}${xhdrs}${hdrs2}\r\n${bod2}\r\n`,
-    `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
+    `${xhdrs}${hdrs1}\r\n${bod1}`,
+    `${xhdrs}${hdrs2}\r\n${bod2}`,
+    `${xhdrs}${hdrs3}\r\n${bod3}`,
   ];
   const doomed = [1]; // Delete msg2.
 
@@ -281,8 +282,8 @@ add_task(async function testBigXMozillaKeys() {
 
   // The messages we expect to see in the final mbox:
   const outMsgs = [
-    `${from}${bigxhdrs}${hdrs1}\r\n${bod1}\r\n`,
-    `${from}${xhdrs}${hdrs3}\r\n${bod3}\r\n`,
+    `${bigxhdrs}${hdrs1}\r\n${bod1}`,
+    `${xhdrs}${hdrs3}\r\n${bod3}`,
   ];
 
   loadMsgs(inbox, inMsgs);
@@ -297,4 +298,78 @@ add_task(async function testBigXMozillaKeys() {
   await l.promise;
 
   await checkMbox(inbox, outMsgs);
+});
+
+// Check that local folder compact copes with a malformed (but
+// unambiguous-to-a-human) mbox.
+add_task(async function testMalformed() {
+  localAccountUtils.clearAll();
+  localAccountUtils.loadLocalMailAccount();
+  const inbox = localAccountUtils.inboxFolder;
+
+  const msgA =
+    xhdrs +
+    "To: alice@invalid\r\n" +
+    "From: bob@invalid\r\n" +
+    "Subject: Boring message 1\r\n" +
+    "\r\n" +
+    "Just a boring but well-formed message.\r\n" +
+    "All good here.\r\n";
+
+  const msgB_unescaped =
+    xhdrs +
+    "To: alice@invalid\r\n" +
+    "From: bob@invalid\r\n" +
+    "Subject: Non-escaped message\r\n" +
+    "\r\n" +
+    "The next line looks like a new message, but it's not!\r\n" +
+    "From this line, it could be a new message!\r\n" + // Not escaped!
+    "But: this line makes it worse!\r\n" + // We've got a from-followed-by-header heuristic.
+    "When we get to this line, we know it's not really a new message.\r\n" +
+    "Phew.\r\n";
+
+  const msgC =
+    xhdrs +
+    "To: alice@invalid\r\n" +
+    "From: bob@invalid\r\n" +
+    "Subject: Boring message 2\r\n" +
+    "\r\n" +
+    "Just another nice boring message.\r\n";
+
+  const inMsgs = [msgA, msgB_unescaped, msgC];
+
+  // Build and install mbox without "From "-escaping messages.
+  const mbox = inMsgs.map(m => `From \r\n${m}\r\n`).join("");
+  await IOUtils.writeUTF8(inbox.filePath.path, mbox);
+
+  // Kill the DB file and force a reparse.
+  inbox.msgDatabase.forceClosed();
+  inbox.msgDatabase = null;
+  await IOUtils.remove(inbox.summaryFile.path);
+  const parseUrlListener = new PromiseTestUtils.PromiseUrlListener();
+  try {
+    inbox.getDatabaseWithReparse(parseUrlListener, null /* window */);
+  } catch (ex) {
+    Assert.equal(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
+  }
+  await parseUrlListener.promise;
+
+  // Make sure the folder parsing didn't split messages!
+  Assert.equal(inbox.getTotalMessages(false), inMsgs.length);
+
+  // Delete the first message and compact the folder.
+  await deleteMsgs(inbox, [0]);
+
+  const l = new PromiseTestUtils.PromiseUrlListener();
+  inbox.compact(l, null);
+  await l.promise;
+
+  // Compaction will write out a correct mbox, so msgB will be escaped.
+  const msgB_corrected = msgB_unescaped.replace(
+    /From this line/,
+    ">From this line"
+  );
+  const expectedMsgs = [msgB_corrected, msgC];
+
+  await checkMbox(inbox, expectedMsgs);
 });

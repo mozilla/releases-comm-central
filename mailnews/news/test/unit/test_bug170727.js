@@ -4,6 +4,21 @@ const { PromiseTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/PromiseTestUtils.jsm"
 );
 
+// Strip the extra X-Mozilla- headers which are slipped in to messages
+// as they are written to local folders. Not exactly robust RFC5322 parsing,
+// but enough to handle this test.
+function strip_x_moz_headers(s) {
+  // List to make sure headers show up when grepping codebase.
+  for (const hdr of [
+    "X-Mozilla-Status",
+    "X-Mozilla-Status2",
+    "X-Mozilla-Keys",
+  ]) {
+    s = s.replace(new RegExp("^" + hdr + ":.*?\r?\n", "gm"), "");
+  }
+  return s;
+}
+
 add_task(async function testloadMessage() {
   const daemon = setupNNTPDaemon();
   daemon.addGroup("dot.test");
@@ -47,14 +62,16 @@ add_task(async function testloadMessage() {
   {
     const listener = new PromiseTestUtils.PromiseStreamListener();
     msgService.loadMessage(uri, listener, null, null, false);
-    const msgText = await listener.promise;
+    let msgText = await listener.promise;
     localserver.closeCachedConnections();
 
-    // Correct text? (original file uses LF only, so strip CR)
-    Assert.equal(
-      msgText.replaceAll("\r", ""),
-      daemon.getArticle("<2@dot.invalid>").fullText
-    );
+    // To compare, need to massage what we got back from DisplayMessage():
+    // - Remove any X-Mozilla-* headers (added to messages in offline store).
+    // - Source test file uses LF only, so strip CRs.
+    msgText = strip_x_moz_headers(msgText);
+    msgText = msgText.replaceAll("\r", "");
+
+    Assert.equal(msgText, daemon.getArticle("<2@dot.invalid>").fullText);
   }
 
   server.stop();

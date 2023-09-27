@@ -161,7 +161,7 @@ function subtest_folder_operations(root) {
   // put a single message in folder1.
   const messageGenerator = new MessageGenerator();
   const message = messageGenerator.makeMessage();
-  const hdr = folder1Local.addMessage(message.toMboxString());
+  const hdr = folder1Local.addMessage(message.toMessageString());
   Assert.equal(message.messageId, hdr.messageId);
 
   folder3Local.copyFolderLocal(folder, true, null, null);

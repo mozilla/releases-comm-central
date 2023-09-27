@@ -314,3 +314,53 @@ PromiseTestUtils.PromiseSearchNotify.prototype = {
     return this._promise;
   },
 };
+
+/**
+ * PromiseStoreScanListener is a helper for testing scanning over all the
+ * messages in a msgStore (using asyncScan()).
+ * Implements a nsIStoreScanListener which collects all the messages and
+ * their storeTokens, and has a promise to pause until completion (or failure).
+ */
+PromiseTestUtils.PromiseStoreScanListener = function () {
+  this.messages = []; // Full messages collect here.
+  this.tokens = []; // storeTokens collect here.
+  this._promise = new Promise((resolve, reject) => {
+    this._resolve = resolve;
+    this._reject = reject;
+  });
+};
+
+PromiseTestUtils.PromiseStoreScanListener.prototype = {
+  QueryInterface: ChromeUtils.generateQI(["nsIStoreScanListener"]),
+
+  // nsIRequestObserver callbacks
+  onStartRequest(req) {},
+  onStopRequest(req, status) {},
+
+  // nsIStreamListener callbacks
+  onDataAvailable(req, stream, offset, count) {
+    const ss = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+      Ci.nsIScriptableInputStream
+    );
+    ss.init(stream);
+    const chunk = ss.read(count);
+    this.messages[this.messages.length - 1] += chunk;
+  },
+
+  // nsIStoreScanListener callbacks
+  onStartScan() {},
+  onStartMessage(tok) {
+    this.tokens.push(tok);
+    this.messages.push("");
+  },
+  onStopScan(status) {
+    if (status == Cr.NS_OK) {
+      this._resolve();
+    } else {
+      this._reject(status);
+    }
+  },
+  get promise() {
+    return this._promise;
+  },
+};

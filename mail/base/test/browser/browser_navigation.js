@@ -37,7 +37,9 @@ add_setup(async function () {
     .getChildNamed("Navigation A")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderA.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   folderAMessages = [...folderA.messages];
   folderA.markAllMessagesRead(null);
@@ -47,7 +49,9 @@ add_setup(async function () {
     .getChildNamed("Navigation B")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderB.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   folderBMessages = [...folderB.messages];
   folderB.markAllMessagesRead(null);
@@ -60,10 +64,12 @@ add_setup(async function () {
   folderC.addMessageBatch(
     generator
       .makeMessages({ count: 500 })
-      .map(message => message.toMboxString())
+      .map(message => message.toMessageString())
   );
   folderC.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   folderCMessages = [...folderC.messages];
   folderC.markAllMessagesRead(null);
@@ -78,7 +84,7 @@ add_setup(async function () {
         count: 12,
         msgsPerThread: 3,
       })
-      .map(message => message.toMboxString())
+      .map(message => message.toMessageString())
   );
   folderDMessages = [...folderD.messages];
   folderD.markAllMessagesRead(null);

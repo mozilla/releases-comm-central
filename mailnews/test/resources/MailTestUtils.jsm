@@ -74,9 +74,8 @@ var mailTestUtils = {
   // If aCharset is specified, treats the file as being of that charset
   loadMessageToString(aFolder, aMsgHdr, aCharset) {
     var data = "";
-    const reusable = {};
     let bytesLeft = aMsgHdr.messageSize;
-    const stream = aFolder.getMsgInputStream(aMsgHdr, reusable);
+    const stream = aFolder.getLocalMsgStream(aMsgHdr);
     if (aCharset) {
       const cstream = Cc[
         "@mozilla.org/intl/converter-input-stream;1"

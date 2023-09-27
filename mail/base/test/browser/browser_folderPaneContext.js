@@ -532,7 +532,9 @@ add_task(async function testMarkAllRead() {
 
   function addMessages(folder, count) {
     folder.addMessageBatch(
-      generator.makeMessages({ count }).map(message => message.toMboxString())
+      generator
+        .makeMessages({ count })
+        .map(message => message.toMessageString())
     );
   }
 
@@ -675,10 +677,14 @@ add_task(async function testEmpty() {
   // are used to aid debugging.
 
   trashFolder.addMessageBatch(
-    generator.makeMessages({ count: 8 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 8 })
+      .map(message => message.toMessageString())
   );
   junkFolder.addMessageBatch(
-    generator.makeMessages({ count: 3 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 3 })
+      .map(message => message.toMessageString())
   );
 
   // Test emptying a real trash folder.
@@ -716,13 +722,19 @@ add_task(async function testEmpty() {
   // Add some new messages to the test folders.
 
   trashFolder.addMessageBatch(
-    generator.makeMessages({ count: 4 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 4 })
+      .map(message => message.toMessageString())
   );
   rssTrashFolder.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   junkFolder.addMessageBatch(
-    generator.makeMessages({ count: 6 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 6 })
+      .map(message => message.toMessageString())
   );
 
   // Test emptying the smart trash folder. All trash folders should be emptied.

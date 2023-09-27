@@ -661,7 +661,7 @@ class MessageInjection {
         const folder = folderBatch.folder;
         folder.gettingNewMessages = true;
         const messageStrings = folderBatch.messages.map(message =>
-          message.synMsg.toMboxString()
+          message.synMsg.toMessageString()
         );
         folder.addMessageBatch(messageStrings);
 

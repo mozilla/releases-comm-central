@@ -66,7 +66,7 @@ add_setup(async function () {
     .getChildNamed("edit menu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder.addMessageBatch(
-    generator.makeMessages({}).map(message => message.toMboxString())
+    generator.makeMessages({}).map(message => message.toMessageString())
   );
   testMessages = [...testFolder.messages];
 

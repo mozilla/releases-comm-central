@@ -46,7 +46,7 @@ add_setup(async function () {
   syntheticMessages[4].date = generator.makeDate();
 
   folderA.addMessageBatch(
-    syntheticMessages.map(message => message.toMboxString())
+    syntheticMessages.map(message => message.toMessageString())
   );
   sourceMessages = [...folderA.messages];
   sourceMessageIDs = sourceMessages.map(m => m.messageId);

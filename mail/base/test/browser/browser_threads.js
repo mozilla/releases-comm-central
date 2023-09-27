@@ -34,7 +34,7 @@ add_setup(async function () {
   testFolder.addMessageBatch(
     generator
       .makeMessages({ count: 25, msgsPerThread: 5 })
-      .map(message => message.toMboxString())
+      .map(message => message.toMessageString())
   );
   testMessages = [...testFolder.messages];
 

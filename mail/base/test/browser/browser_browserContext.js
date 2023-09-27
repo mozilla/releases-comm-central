@@ -192,7 +192,7 @@ add_setup(async function () {
   const message = await fetch(TEST_MESSAGE_URL).then(r => r.text());
   testFolder.addMessageBatch([message]);
   const messages = new MessageGenerator().makeMessages({ count: 5 });
-  const messageStrings = messages.map(message => message.toMboxString());
+  const messageStrings = messages.map(message => message.toMessageString());
   testFolder.addMessageBatch(messageStrings);
 
   about3Pane = document.getElementById("tabmail").currentAbout3Pane;

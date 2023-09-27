@@ -291,7 +291,7 @@ add_task(async function testCompactUnreadFolders() {
   const generator = new MessageGenerator();
   fooTrashFolder
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
-    .addMessage(generator.makeMessages({}).map(m => m.toMboxString()));
+    .addMessage(generator.makeMessages({}).map(m => m.toMessageString()));
   const fooMessages = [...fooTrashFolder.messages];
 
   fooMessages[0].markRead(false);
@@ -676,7 +676,7 @@ add_task(async function testFolderRename() {
     extraFolders[name] = rootFolder
       .getChildNamed(name)
       .QueryInterface(Ci.nsIMsgLocalMailFolder);
-    extraFolders[name].addMessage(generator.makeMessage({}).toMboxString());
+    extraFolders[name].addMessage(generator.makeMessage({}).toMessageString());
     extraFolders[name].setFlag(Ci.nsMsgFolderFlags.Favorite);
   }
   [...folderC.messages][4].markRead(false);
@@ -1179,11 +1179,11 @@ add_task(async function testAccountOrder() {
   const generator = new MessageGenerator();
   fooTrashFolder
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
-    .addMessage(generator.makeMessage({}).toMboxString());
+    .addMessage(generator.makeMessage({}).toMessageString());
   fooTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
   barTrashFolder
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
-    .addMessage(generator.makeMessage({}).toMboxString());
+    .addMessage(generator.makeMessage({}).toMessageString());
   barTrashFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
   // Check the addition of accounts has put them in the right order.

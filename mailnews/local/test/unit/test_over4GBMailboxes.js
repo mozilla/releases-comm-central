@@ -415,9 +415,11 @@ add_task(async function compactOver4GiB() {
   Assert.equal(gInbox.expungedBytes, sizeToExpunge);
 
   /* Unfortunately, the compaction now would kill the sparse markings in the file
-   * so it will really take 4GiB of space in the filesystem and may be slow. */
-  // Note: compact() will also add 'X-Mozilla-Status' and 'X-Mozilla-Status2'
-  // lines to message(s).
+   * so it will really take 4GiB of space in the filesystem and may be slow.
+   * NOTE: compact() will also add 'X-Mozilla-Status' and 'X-Mozilla-Status2'
+   * lines to message(s). So in some cases compaction could actually increase
+   * the size of the mbox!
+   */
   const urlListener = new PromiseTestUtils.PromiseUrlListener();
   gInbox.compact(urlListener, null);
   await urlListener.promise;
@@ -560,81 +562,68 @@ function allow4GBFolders(aOn) {
 }
 
 /**
- * Grow local inbox folder to the wanted size using direct appending
- * to the underlying file. The folder is filled with copies of a dummy
- * message with kSparseBlockSize bytes in size.
+ * Grow local inbox folder to at least targetSize bytes, by appending
+ * dummy messages with large sparse chunks. Potentially, this function
+ * may overshoot by a couple hundred bytes or so, depending on where
+ * message boundaries fall.
  * The file must be reparsed (getDatabaseWithReparse) after it is artificially
  * enlarged here.
  * The file is marked as sparse in the filesystem so that it does not
  * really take 4GiB and working with it is faster.
  *
+ * @param targetSize - Minimum desired size of the Inbox mbox file.
  * @returns The number of messages created in the folder file.
  */
-function growInbox(aWantedSize) {
+function growInbox(targetSize) {
   let msgsAdded = 0;
-  // Put a single message in the Inbox.
+
+  // Generate a dummy message to extend and repeat.
   const messageGenerator = new MessageGenerator();
-  const message = messageGenerator.makeMessage();
+  const msgString = messageGenerator.makeMessage().toMessageString();
+
+  const out = Cc["@mozilla.org/network/file-output-stream;1"]
+    .createInstance(Ci.nsIFileOutputStream)
+    .QueryInterface(Ci.nsISeekableStream);
+  // write-only.
+  out.init(gInboxFile, 0x02, 0o600, 0);
+
+  const eol = "\r\n";
+  const fromLine = "From " + eol;
+
+  let localSize = gInboxFile.fileSize;
+  out.seek(2, localSize);
+  while (localSize < targetSize) {
+    // The "From " line.
+    out.write(fromLine, fromLine.length);
+    localSize += fromLine.length;
+
+    // The message itself.
+    out.write(msgString, msgString.length);
+    localSize += msgString.length;
+    if (localSize < targetSize - eol.length) {
+      let chunkSize = targetSize - eol.length - localSize;
+      chunkSize = Math.min(chunkSize, kSparseBlockSize);
+      // Could use mark_file_region_sparse() to go sparse on NTFS, but
+      // unclear if that'll work on an open file...
+      localSize += chunkSize;
+      out.seek(0, localSize);
+    }
+    // Terminate the line and add a blank line.
+    out.write(eol, eol.length);
+    localSize += eol.length;
+    out.write(eol, eol.length);
+    localSize += eol.length;
+    msgsAdded++;
+  }
+  out.close();
 
   // Refresh 'gInboxFile'.
   gInboxFile = gInbox.filePath;
-  let localSize = 0;
-
-  const mboxString = message.toMboxString();
-  const plugStore = gInbox.msgStore;
-  // Grow local inbox to our wished size that is below the max limit.
-  do {
-    const sparseStart = gInboxFile.clone().fileSize + mboxString.length;
-    let nextOffset = Math.min(sparseStart + kSparseBlockSize, aWantedSize - 2);
-    if (aWantedSize - (nextOffset + 2) < mboxString.length + 2) {
-      nextOffset = aWantedSize - 2;
-    }
-
-    // Get stream to write a new message.
-    const reusable = {};
-    const newMsgHdr = {};
-    let outputStream = plugStore
-      .getNewMsgOutputStream(gInbox, newMsgHdr, reusable)
-      .QueryInterface(Ci.nsISeekableStream);
-    // Write message header.
-    outputStream.write(mboxString, mboxString.length);
-    outputStream.close();
-
-    // "Add" a new (empty) sparse block at the end of the file.
-    if (nextOffset - sparseStart == kSparseBlockSize) {
-      mailTestUtils.mark_file_region_sparse(
-        gInboxFile,
-        sparseStart,
-        kSparseBlockSize
-      );
-    }
-
-    // Append message terminator.
-    outputStream = Cc["@mozilla.org/network/file-output-stream;1"]
-      .createInstance(Ci.nsIFileOutputStream)
-      .QueryInterface(Ci.nsISeekableStream);
-    // Open in write-only mode, no truncate.
-    outputStream.init(gInboxFile, 0x02, 0o600, 0);
-
-    // Skip to the wished end of the message.
-    outputStream.seek(0, nextOffset);
-    // Add a CR+LF to terminate the message.
-    outputStream.write("\r\n", 2);
-    outputStream.close();
-    msgsAdded++;
-
-    // Refresh 'gInboxFile'.
-    gInboxFile = gInbox.filePath;
-    localSize = gInboxFile.clone().fileSize;
-  } while (localSize < aWantedSize);
-
-  Assert.equal(gInboxFile.clone().fileSize, aWantedSize);
+  Assert.greaterOrEqual(gInboxFile.clone().fileSize, targetSize);
   info(
-    "Local inbox size = " +
-      localSize +
-      "bytes = " +
-      mailTestUtils.toMiBString(localSize)
+    `Grew inbox to ${
+      gInboxFile.clone().fileSize
+    } bytes (by adding ${msgsAdded} dummy messages)`
   );
-  Assert.equal(localSize, aWantedSize);
   return msgsAdded;
 }

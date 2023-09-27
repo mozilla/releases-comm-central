@@ -122,9 +122,9 @@ var parser_tests = [
   make_body_test("Basic multipart", "multipart2", {}, [["1", 8, 11]]),
   make_body_test("Complex multipart", "multipart-complex1", {}, mpart_complex1),
   make_body_test("Truncated multipart", "multipart-complex2", {}, [
-    ["1.1.1.1", 21, 25],
-    ["2", 27, 57],
-    ["3", 60, 62],
+    ["1.1.1.1", 20, 24],
+    ["2", 26, 56],
+    ["3", 59, 61],
   ]),
   make_body_test("No LF multipart", "multipartmalt-detach", {}, [
     ["1", 20, 21],

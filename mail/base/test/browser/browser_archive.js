@@ -56,7 +56,7 @@ add_setup(async function () {
         count: messagesInThread,
         msgsPerThread: messagesInThread,
       })
-      .map(message => message.toMboxString())
+      .map(message => message.toMessageString())
   );
 
   // Use the test folder.

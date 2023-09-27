@@ -222,7 +222,7 @@ add_setup(async function () {
     ...generator.makeMessages({ count: 5, msgsPerThread: 5 }),
     ...generator.makeMessages({ count: 200 }),
   ];
-  const messageStrings = messages.map(message => message.toMboxString());
+  const messageStrings = messages.map(message => message.toMessageString());
   testFolder.addMessageBatch(messageStrings);
   testMessages = [...testFolder.messages];
   rootFolder.createSubfolder("mailContextDrafts", null);
@@ -231,7 +231,9 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   draftsFolder.setFlag(Ci.nsMsgFolderFlags.Drafts);
   draftsFolder.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   draftsMessages = [...draftsFolder.messages];
   rootFolder.createSubfolder("mailContextTemplates", null);
@@ -240,7 +242,9 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   templatesFolder.setFlag(Ci.nsMsgFolderFlags.Templates);
   templatesFolder.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   templatesMessages = [...templatesFolder.messages];
   rootFolder.createSubfolder("mailContextMailingList", null);

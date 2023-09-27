@@ -776,7 +776,18 @@ add_task(async function test_encoding() {
             );
           }
           // Check for unexpected headers.
+          // (But don't worry about new x-mozilla-* ones that get slipped in
+          // during writes to the offline store).
+          const x_moz_headers = [
+            "x-mozilla-status",
+            "x-mozilla-status2",
+            "x-mozilla-status-keys",
+          ];
           for (const header of Object.keys(actual.headers)) {
+            if (x_moz_headers.includes(header)) {
+              continue;
+            }
+
             browser.test.assertEq(
               expected.headers.hasOwnProperty(header),
               actual.headers.hasOwnProperty(header),

@@ -6,8 +6,12 @@
 FINAL_LIBRARY = "xul-gtest"
 
 UNIFIED_SOURCES += [
+    "Helpers.cpp",
+    "MboxTestData.cpp",
     "TestHeaderReader.cpp",
     "TestLineReader.cpp",
+    "TestMsgMboxRead.cpp",
+    "TestMsgMboxWrite.cpp",
 ]
 
 # LOCAL_INCLUDES += [

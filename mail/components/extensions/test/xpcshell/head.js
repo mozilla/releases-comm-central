@@ -144,16 +144,6 @@ class FakeGeneratedMessage {
   toMessageString() {
     return this.msg;
   }
-  toMboxString() {
-    // A cheap hack. It works for existing uses but may not work for future uses.
-    const fromAddress = this.msg.match(/From: .* <(.*@.*)>/)[0];
-    let mBoxString = `From ${fromAddress}\r\n${this.msg}`;
-    // Ensure a trailing empty line.
-    if (!mBoxString.endsWith("\r\n")) {
-      mBoxString = mBoxString + "\r\n";
-    }
-    return mBoxString;
-  }
 }
 
 async function createMessageFromFile(folder, path) {
@@ -173,7 +163,7 @@ async function addGeneratedMessages(folder, messages) {
     return NNTPServer.addMessages(folder, messages);
   }
 
-  const messageStrings = messages.map(message => message.toMboxString());
+  const messageStrings = messages.map(message => message.toMessageString());
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch(messageStrings);
   folder.callFilterPlugins(null);

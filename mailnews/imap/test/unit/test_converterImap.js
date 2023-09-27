@@ -42,7 +42,7 @@ function checkConversion(aSource, aTarget) {
       Assert.ok(tmp.exists());
       if (targetFile.leafName == "INBOX") {
         const curContentsCount = [...cur.directoryEntries].length;
-        Assert.equal(curContentsCount, 8);
+        Assert.equal(curContentsCount, gTestMsgs.length);
       }
     }
   }

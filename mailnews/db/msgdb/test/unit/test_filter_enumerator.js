@@ -17,7 +17,7 @@ function setupGlobals() {
   for (let i = 0; i < kSetCount; i++) {
     const message = messageGenerator.makeMessage();
     gMessages.push(message);
-    localInbox.addMessage(message.toMboxString());
+    localInbox.addMessage(message.toMessageString());
   }
 }
 

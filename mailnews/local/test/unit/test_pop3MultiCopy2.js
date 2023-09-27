@@ -25,6 +25,18 @@ var gTestSubjects = [
   "Hello, did you receive my bugmail?",
 ];
 
+function dumpFolder(f) {
+  dump(`====FOLDER '${f.name} (${f.filePath.path}) on '${f.server.key}':\n`);
+  for (const hdr of f.msgDatabase.enumerateMessages()) {
+    dump(
+      `MSG: '${hdr.subject}' size=${
+        hdr.messageSize
+      } tok='${hdr.getStringProperty("storeToken")}'\n`
+    );
+  }
+  dump(`====\n`);
+}
+
 add_setup(async function () {
   const storeID = "@mozilla.org/msgstore/maildirstore;1";
   resetPluggableStoreLocal(storeID);
@@ -36,19 +48,19 @@ add_setup(async function () {
   gTestFolder = localAccountUtils.rootFolder
     .QueryInterface(Ci.nsIMsgLocalMailFolder)
     .createLocalSubfolder("test");
-  dump("testFolder is at " + gTestFolder.filePath.path + "\n");
+  //dump("testFolder is at " + gTestFolder.filePath.path + "\n");
   await gPOP3Pump.run();
-});
-
-add_task(async function maildirToMbox() {
-  // Test for multiple message copy for maildir->mbox.
 
   // get message headers for the inbox folder
   gInboxFolder = gPOP3Pump.fakeServer.rootMsgFolder.getFolderWithFlags(
     Ci.nsMsgFolderFlags.Inbox
   );
-  dump("inbox is at " + gInboxFolder.filePath.path + "\n");
+});
 
+// Test for multiple message copy for maildir->mbox.
+// Moves a couple of messages from the pop3 inbox (maildir)
+// to a test folder (mbox).
+add_task(async function maildirToMbox() {
   // Accumulate messages to copy.
   let messages = [];
   for (const hdr of gInboxFolder.msgDatabase.enumerateMessages()) {
@@ -74,7 +86,6 @@ add_task(async function maildirToMbox() {
   const subjects = [];
   for (const hdr of gTestFolder.msgDatabase.enumerateMessages()) {
     messages.push(hdr);
-    dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
   }
   Assert.equal(messages.length, 2);
@@ -111,7 +122,7 @@ add_task(async function mboxToMaildir() {
     gTestFolder,
     messages,
     gInboxFolder,
-    true,
+    true, // isMove
     promiseCopyListener,
     null,
     false
@@ -123,7 +134,6 @@ add_task(async function mboxToMaildir() {
   const subjects = [];
   for (const hdr of gInboxFolder.msgDatabase.enumerateMessages()) {
     messages.push(hdr);
-    dump("Subject: " + hdr.subject + "\n");
     subjects.push(hdr.subject);
   }
   Assert.equal(messages.length, 2);
@@ -139,7 +149,10 @@ add_task(async function mboxToMaildir() {
 
   // Make sure the body matches the message.
   for (const hdr of gInboxFolder.msgDatabase.enumerateMessages()) {
+    //dump(`body:\n`);
     const body = mailTestUtils.loadMessageToString(gInboxFolder, hdr);
+    //dump(`===============\n${body}\n======================\n`);
+    //dump(`looking for '${hdr.subject}'\n`);
     Assert.ok(body.includes(hdr.subject));
   }
 });

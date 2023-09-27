@@ -36,10 +36,10 @@ async function setup() {
   const gen = new MessageGenerator();
   const msg1 = gen.makeMessage();
   const msg2 = gen.makeMessage({ inReplyTo: msg1 });
-  folder1.addMessageBatch([msg1, msg2].map(m => m.toMboxString()));
+  folder1.addMessageBatch([msg1, msg2].map(m => m.toMessageString()));
 
   const msg3 = gen.makeMessage();
-  folder2.addMessage(msg3.toMboxString());
+  folder2.addMessage(msg3.toMessageString());
 
   return [folder1, folder2];
 }
@@ -95,6 +95,7 @@ add_task(async function test_copyToInvalidDB() {
     Assert.equal(ex.result, Cr.NS_ERROR_NOT_INITIALIZED);
     await urlListener.promise;
   }
+  Assert.equal(folder2.summaryFile.exists(), true);
 
   // Check that the message moved over intact.
   const gotHdr = folder2.msgDatabase.getMsgHdrForMessageID(expectedID);

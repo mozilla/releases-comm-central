@@ -27,7 +27,7 @@ add_setup(async function () {
   testFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   const messageStrings = generator
     .makeMessages({ count: 20 })
-    .map(message => message.toMboxString());
+    .map(message => message.toMessageString());
   testFolder.addMessageBatch(messageStrings);
   otherFolder = rootFolder.createLocalSubfolder("searchMessagesOtherFolder");
 

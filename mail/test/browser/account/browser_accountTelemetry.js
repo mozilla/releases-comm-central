@@ -159,19 +159,21 @@ add_task(async function test_account_sizes() {
     Assert.ok(Math.abs(actual - expected) < 10, message);
   }
   // Check if we count size on disk correctly.
+  // These sizes all assume mbox implementation uses a bare-bones "From "
+  // separator without sender/timestamp.
   checkSize(
     scalars["tb.account.size_on_disk"].Inbox,
-    873,
+    818,
     "Size of Inbox must be correct"
   );
   checkSize(
     scalars["tb.account.size_on_disk"].Other,
-    618,
+    575,
     "Size of other folders must be correct"
   );
   checkSize(
     scalars["tb.account.size_on_disk"].Total,
-    873 + 618,
+    818 + 575,
     "Size of all folders must be correct"
   );
 });

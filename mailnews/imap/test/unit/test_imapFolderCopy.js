@@ -31,7 +31,7 @@ add_setup(function () {
   const messageGenerator = new MessageGenerator();
   const message = messageGenerator.makeMessage();
   gNotEmptyLocal4.QueryInterface(Ci.nsIMsgLocalMailFolder);
-  gNotEmptyLocal4.addMessage(message.toMboxString());
+  gNotEmptyLocal4.addMessage(message.toMessageString());
 
   // these hacks are required because we've created the inbox before
   // running initial folder discovery, and adding the folder bails

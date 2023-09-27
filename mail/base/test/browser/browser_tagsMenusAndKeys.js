@@ -72,7 +72,7 @@ add_setup(async function () {
     .getChildNamed("tagsMenu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder.addMessageBatch(
-    generator.makeMessages({}).map(message => message.toMboxString())
+    generator.makeMessages({}).map(message => message.toMessageString())
   );
 
   registerCleanupFunction(() => {

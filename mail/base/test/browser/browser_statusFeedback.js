@@ -26,7 +26,7 @@ add_setup(async function () {
 
   // Generate a test message.
   const generator = new MessageGenerator();
-  testFolder.addMessage(generator.makeMessage().toMboxString());
+  testFolder.addMessage(generator.makeMessage().toMessageString());
 
   // Use the test folder.
   about3Pane.displayFolder(testFolder.URI);

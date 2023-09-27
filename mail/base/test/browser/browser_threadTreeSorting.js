@@ -29,7 +29,7 @@ add_setup(async function () {
   testFolder.addMessageBatch(
     generator
       .makeMessages({ count: 320 })
-      .map(message => message.toMboxString())
+      .map(message => message.toMessageString())
   );
 
   about3Pane.restoreState({

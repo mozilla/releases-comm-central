@@ -33,7 +33,7 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   localTestFolder.addMessageBatch(
-    generator.makeMessages({}).map(message => message.toMboxString())
+    generator.makeMessages({}).map(message => message.toMessageString())
   );
 
   const imapServer = new IMAPServer(this);

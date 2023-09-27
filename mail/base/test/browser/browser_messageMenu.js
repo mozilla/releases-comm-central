@@ -95,7 +95,9 @@ add_setup(async function () {
     ...generator.makeMessages({ count: 5 }),
     ...generator.makeMessages({ count: 5, msgsPerThread: 5 }),
   ];
-  testFolder.addMessageBatch(messages.map(message => message.toMboxString()));
+  testFolder.addMessageBatch(
+    messages.map(message => message.toMessageString())
+  );
   testFolder.addMessage(
     generator
       .makeMessage({
@@ -107,7 +109,7 @@ add_setup(async function () {
           },
         ],
       })
-      .toMboxString()
+      .toMessageString()
   );
   testFolder.addMessage(
     "From - Mon Jan 01 00:00:00 2001\n" +
@@ -137,7 +139,9 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   draftsFolder.setFlag(Ci.nsMsgFolderFlags.Drafts);
   draftsFolder.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   draftsMessages = [...draftsFolder.messages];
   rootFolder.createSubfolder("messageMenuTemplates", null);
@@ -146,7 +150,9 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   templatesFolder.setFlag(Ci.nsMsgFolderFlags.Templates);
   templatesFolder.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   templatesMessages = [...templatesFolder.messages];
 

@@ -86,6 +86,10 @@ var Files = [
   "../../../data/iso-2022-jp-not-qp.eml", // plaintext, has 現況 which contains =67.
 ];
 var Tests = [
+  // Message basic1 has body: "Hello, world!"
+  { value: "Hello, world!", op: Is, count: 1 },
+  { value: "Hello, world!", op: Isnt, count: Files.length - 1 },
+
   /* Translate Base64 messages */
   // "World!" is contained in three messages, but in bug132340 it's not in a text
   // part and should not be found.

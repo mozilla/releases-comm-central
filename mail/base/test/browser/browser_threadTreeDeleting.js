@@ -38,7 +38,9 @@ add_task(async function testUnthreaded() {
     .createLocalSubfolder("threadTreeDeletingA")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderA.addMessageBatch(
-    generator.makeMessages({ count: 15 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 15 })
+      .map(message => message.toMessageString())
   );
 
   sourceMessageIDs = Array.from(folderA.messages, m => m.messageId);
@@ -66,7 +68,7 @@ add_task(async function testThreaded() {
       ...generator.makeMessages({ count: 1 }),
       ...generator.makeMessages({ count: 2, msgsPerThread: 2 }),
       ...generator.makeMessages({ count: 2 }),
-    ].map(message => message.toMboxString())
+    ].map(message => message.toMessageString())
   );
 
   sourceMessageIDs = Array.from(folderB.messages, m => m.messageId);
@@ -87,7 +89,9 @@ add_task(async function testSingleVirtual() {
     .createLocalSubfolder("threadTreeDeletingC")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderC.addMessageBatch(
-    generator.makeMessages({ count: 15 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 15 })
+      .map(message => message.toMessageString())
   );
 
   const virtualFolderC = rootFolder.createLocalSubfolder(
@@ -117,7 +121,9 @@ add_task(async function testXFVirtual() {
     .createLocalSubfolder("threadTreeDeletingD")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderD.addMessageBatch(
-    generator.makeMessages({ count: 4 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 4 })
+      .map(message => message.toMessageString())
   );
 
   const folderE = rootFolder
@@ -126,7 +132,7 @@ add_task(async function testXFVirtual() {
   folderE.addMessageBatch(
     generator
       .makeMessages({ count: 11, msgsPerThread: 3 })
-      .map(message => message.toMboxString())
+      .map(message => message.toMessageString())
   );
 
   const virtualFolderDE = rootFolder.createLocalSubfolder(
@@ -161,7 +167,9 @@ add_task(async function testQuickFiltered() {
     .createLocalSubfolder("threadTreeDeletingF")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderF.addMessageBatch(
-    generator.makeMessages({ count: 30 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 30 })
+      .map(message => message.toMessageString())
   );
   const flaggedMessages = [];
   let i = 0;
@@ -192,7 +200,9 @@ add_task(async function testSortDescending() {
     .createLocalSubfolder("threadTreeDeletingG")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderG.addMessageBatch(
-    generator.makeMessages({ count: 15 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 15 })
+      .map(message => message.toMessageString())
   );
 
   sourceMessageIDs = Array.from(folderG.messages, m => m.messageId).reverse();
@@ -212,7 +222,9 @@ add_task(async function testSortBySubject() {
     .createLocalSubfolder("threadTreeDeletingH")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   folderH.addMessageBatch(
-    generator.makeMessages({ count: 15 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 15 })
+      .map(message => message.toMessageString())
   );
 
   sourceMessageIDs = Array.from(folderH.messages)
@@ -239,7 +251,7 @@ add_task(async function testDeletionWhileScrolling() {
   folderI.addMessageBatch(
     generator
       .makeMessages({ count: 500 })
-      .map(message => message.toMboxString())
+      .map(message => message.toMessageString())
   );
 
   await ensure_table_view();

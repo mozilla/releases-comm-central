@@ -35,7 +35,9 @@ add_setup(async function () {
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
 
   sourceFolder.addMessageBatch(
-    generator.makeMessages({ count: 15 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 15 })
+      .map(message => message.toMessageString())
   );
 
   registerCleanupFunction(() => {

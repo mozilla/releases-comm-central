@@ -26,7 +26,9 @@ add_task(async function () {
   const testFolder = rootFolder.createLocalSubfolder("testFolder");
   testFolder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder.addMessageBatch(
-    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+    generator
+      .makeMessages({ count: 5 })
+      .map(message => message.toMessageString())
   );
   const testMessages = [...testFolder.messages];
 
