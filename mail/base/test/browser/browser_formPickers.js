@@ -112,7 +112,6 @@ async function checkABrowser(browser) {
   const shownPromise = BrowserTestUtils.waitForPopupEvent(popup, "shown");
   browser.focus();
   await SimpleTest.promiseFocus(browser);
-  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await SpecialPowers.spawn(browser, [], () => {
     let input = content.document.querySelector(`input[list="letters"]`);
     input.focus();
