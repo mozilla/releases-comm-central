@@ -78,15 +78,18 @@ var calendarExtract = {
   extractWithLocale(event, isEvent) {
     event.stopPropagation();
     let locale = event.target.value;
-    this.extractFromEmail(isEvent, true, locale);
+    this.extractFromEmail(null, isEvent, true, locale);
   },
 
-  async extractFromEmail(isEvent, fixedLang, fixedLocale) {
-    // Get the message from the 3pane, or from the standalone message window.
-    let aboutMessage =
-      document.getElementById("tabmail")?.currentAboutMessage ||
-      document.getElementById("messageBrowser").contentWindow;
-    let message = aboutMessage.gMessage;
+  async extractFromEmail(message, isEvent, fixedLang, fixedLocale) {
+    let tabmail = document.getElementById("tabmail");
+    if (!message) {
+      // Get the message from the 3pane, or from the standalone message window.
+      let aboutMessage =
+        tabmail?.currentAboutMessage || document.getElementById("messageBrowser").contentWindow;
+      message = aboutMessage.gMessage;
+    }
+
     let folder = message.folder;
     let title = message.mime2DecodedSubject;
 
@@ -131,17 +134,20 @@ var calendarExtract = {
     item.setProperty("URL", `mid:${message.messageId}`);
     cal.dtz.setDefaultStartEndHour(item);
     cal.alarms.setDefaultValues(item);
-    let sel = aboutMessage.getMessagePaneBrowser().contentWindow.getSelection();
-    // Thunderbird Conversations might be installed
-    if (sel === null) {
+    let messagePaneBrowser =
+      tabmail?.currentTabInfo.chromeBrowser.contentWindow.visibleMessagePaneBrowser?.() ||
+      tabmail?.currentAboutMessage?.getMessagePaneBrowser() ||
+      document.getElementById("messageBrowser").contentWindow?.getMessagePaneBrowser();
+    let sel = messagePaneBrowser.contentWindow.getSelection();
+    // Check if there's an iframe with a selection (e.g. Thunderbird Conversations)
+    if (sel.type !== "Range") {
       try {
-        sel = document
-          .getElementById("multimessage")
-          .contentDocument.querySelector(".iframe-container iframe")
+        sel = messagePaneBrowser?.contentDocument
+          .querySelector("iframe")
           .contentDocument.getSelection();
       } catch (ex) {
         // If Thunderbird Conversations is not installed that is fine,
-        // we will just have a null selection.
+        // we will just have an empty or null selection.
       }
     }
 

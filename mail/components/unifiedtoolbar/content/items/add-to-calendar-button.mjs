@@ -24,7 +24,11 @@ class AddToCalendarButton extends MailTabButton {
 
   handleClick = event => {
     const type = this.getAttribute("type");
-    calendarExtract.extractFromEmail(type !== "task");
+    const tabmail = document.getElementById("tabmail");
+    calendarExtract.extractFromEmail(
+      tabmail.currentAboutMessage.gMessage,
+      type !== "task"
+    );
     event.preventDefault();
     event.stopPropagation();
   };

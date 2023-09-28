@@ -603,10 +603,16 @@ var mailContextMenu = {
 
       // Calendar Convert sub-menu
       case "mailContext-calendar-convert-event-menuitem":
-        top.calendarExtract.extractFromEmail(true);
+        top.calendarExtract.extractFromEmail(
+          gDBView.hdrForFirstSelectedMessage,
+          true
+        );
         break;
       case "mailContext-calendar-convert-task-menuitem":
-        top.calendarExtract.extractFromEmail(false);
+        top.calendarExtract.extractFromEmail(
+          gDBView.hdrForFirstSelectedMessage,
+          false
+        );
         break;
 
       // Save/print/download

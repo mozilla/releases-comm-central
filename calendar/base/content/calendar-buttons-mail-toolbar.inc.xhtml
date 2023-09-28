@@ -18,7 +18,7 @@
                class="toolbarbutton-1"
                label="&calendar.extract.event.button;"
                tooltiptext="&calendar.extract.event.button.tooltip;"
-               oncommand="calendarExtract.extractFromEmail(true);">
+               oncommand="calendarExtract.extractFromEmail(null, true);">
   <menupopup id="extractEventLocaleList"
              oncommand="calendarExtract.extractWithLocale(event, true);"
              onpopupshowing="calendarExtract.onShowLocaleMenu(event.target);"/>
@@ -28,7 +28,7 @@
                class="toolbarbutton-1"
                label="&calendar.extract.task.button;"
                tooltiptext="&calendar.extract.task.button.tooltip;"
-               oncommand="calendarExtract.extractFromEmail(false);">
+               oncommand="calendarExtract.extractFromEmail(null, false);">
   <menupopup id="extractTaskLocaleList"
              oncommand="calendarExtract.extractWithLocale(event, false);"
              onpopupshowing="calendarExtract.onShowLocaleMenu(event.target);"/>
