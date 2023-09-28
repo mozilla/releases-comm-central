@@ -79,6 +79,9 @@ menu-quit =
 menu-quit-mac =
     .label = Quit { -brand-shorter-name }
 
+# Localization note: Do not translate unless your locale's keyboard layout
+# does not include this key, as it determines the keyboard shortcut for
+# shutting down the application.
 quit-app-shortcut =
     .key = Q
 
