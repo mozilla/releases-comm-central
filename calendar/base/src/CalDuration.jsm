@@ -15,13 +15,6 @@ CalDuration.prototype = {
   QueryInterface: ChromeUtils.generateQI(["calIDuration"]),
   classID: Components.ID("{7436f480-c6fc-4085-9655-330b1ee22288}"),
 
-  get icalDuration() {
-    return this.innerObject;
-  },
-  set icalDuration(val) {
-    this.innerObject = val;
-  },
-
   isMutable: true,
   makeImmutable() {
     this.isMutable = false;

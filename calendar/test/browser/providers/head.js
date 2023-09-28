@@ -139,7 +139,7 @@ async function runTestAlarms() {
 
   await CalendarTestUtils.setCalendarView(window, "multiweek");
   await CalendarTestUtils.goToToday(window);
-  Assert.equal(window.unifinderTreeView.rowCount, 0, "unifinder event count");
+  Assert.equal(window.getUnifinderView().rowCount, 0, "there should be no events in the unifinder");
 
   alarmObserver._alarmCount = 0;
 
@@ -181,7 +181,7 @@ async function runTestAlarms() {
   info("Alarm dialog closed");
 
   await new Promise(r => setTimeout(r, 2000));
-  Assert.equal(window.unifinderTreeView.rowCount, 1, "there should be one event in the unifinder");
+  Assert.equal(window.getUnifinderView().rowCount, 1, "there should be one event in the unifinder");
 
   Assert.equal(
     [...Services.wm.getEnumerator("Calendar:AlarmWindow")].length,
@@ -208,7 +208,7 @@ async function runTestAlarms() {
 
   await saveAndCloseItemDialog(dialogWindow);
 
-  Assert.equal(window.unifinderTreeView.rowCount, 1, "there should be one event in the unifinder");
+  Assert.equal(window.getUnifinderView().rowCount, 1, "there should be one event in the unifinder");
 
   Services.focus.focusedWindow = window;
 
@@ -240,7 +240,7 @@ async function runTestAlarms() {
     start.weekday + 1,
     1
   );
-  Assert.equal(window.unifinderTreeView.rowCount, 0, "there should be no events in the unifinder");
+  Assert.equal(window.getUnifinderView().rowCount, 0, "there should be no events in the unifinder");
 }
 
 const syncItem1Name = "holy cow, a new item!";

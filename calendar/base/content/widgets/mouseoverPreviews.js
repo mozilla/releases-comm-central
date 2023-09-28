@@ -12,7 +12,7 @@
  */
 
 /* exported onMouseOverItem, showToolTip, getPreviewForItem,
-             getEventStatusString, getToDoStatusString */
+            getEventStatusString, getToDoStatusString */
 
 /* import-globals-from ../calendar-ui-utils.js */
 
@@ -44,7 +44,7 @@ function onMouseOverItem(occurrenceBoxMouseEvent) {
  * PUBLIC: Displays a tooltip for a given item
  *
  * @param  {Node}               aTooltip  the node to hold the tooltip
- * @param  {CalIEvent|calIToDo} aItem     the item to create the tooltip for
+ * @param  {calIEvent|calIToDo} aItem     the item to create the tooltip for
  * @returns {boolean} true, if the tooltip is displayed
  */
 function showToolTip(aToolTip, aItem) {

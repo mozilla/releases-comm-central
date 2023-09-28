@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals TodayPane, switchToView, gLastShownCalendarView, ensureUnifinderLoaded */
+/* globals TodayPane, switchToView, gLastShownCalendarView */
 
 /* exported calSwitchToCalendarMode, calSwitchToMode, calSwitchToTaskMode,
  *          changeMode
@@ -92,9 +92,6 @@ function calSwitchToCalendarMode() {
 
     // make sure the view is sized correctly
     window.dispatchEvent(new CustomEvent("viewresize"));
-
-    // Load the unifinder if it isn't already loaded.
-    ensureUnifinderLoaded();
   }
 }
 

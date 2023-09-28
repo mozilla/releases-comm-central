@@ -133,7 +133,7 @@
           <hbox id="unifinder-searchBox" class="themeable-brighttext" persist="collapsed">
             <box align="center">
               <menulist id="event-filter-menulist" value="P7D" persist="value">
-                <menupopup id="event-filter-menupopup" oncommand="refreshEventTree()">
+                <menupopup id="event-filter-menupopup" oncommand="refreshUnifinderFilterInterval()">
                   <menuitem id="event-filter-today"
                             value="today"
                             data-l10n-id="calendar-event-listing-interval-today"/>
@@ -173,7 +173,6 @@
               <label control="unifinder-search-field" value="&calendar.search.options.searchfor;"/>
               <search-textbox id="unifinder-search-field"
                               class="themeableSearchBox"
-                              oncommand="refreshEventTree();"
                               flex="1"/>
             </box>
             <toolbarbutton id="unifinder-closer"
@@ -182,7 +181,6 @@
                            data-l10n-id="calendar-event-listing-close"/>
           </hbox>
           <tree id="unifinder-search-results-tree" flex="1"
-                onselect="unifinderSelect(event); calendarController.onSelectionChanged()"
                 onkeypress="unifinderKeyPress(event)"
                 _selectDelay="500"
                 persist="sort-active sort-direction"
@@ -242,11 +240,7 @@
 
             <!-- on mousedown here happens before onclick above -->
             <treechildren tooltip="eventTreeTooltip"
-                          context="calendar-item-context-menu"
-                          onkeypress="if (event.key == 'Enter') { unifinderEditCommand(); }"
-                          ondragenter="return false;"
-                          ondblclick="unifinderDoubleClick(event)"
-                          onfocus="focusFirstItemIfNoSelection();"/>
+                          ondblclick="unifinderDoubleClick(event)"/>
           </tree>
         </vbox>
         <splitter id="calendar-view-splitter"
@@ -254,8 +248,7 @@
                   resizeafter="farthest"
                   persist="state"
                   class="chromeclass-extrachrome sidebar-splitter calendar-splitter"
-                  orient="vertical"
-                  onmouseup="setTimeout(refreshEventTree, 10);"/>
+                  orient="vertical"/>
 
         <!-- Calendar Navigation Control Bar -->
         <html:div id="calendarViewHeader"
