@@ -17,26 +17,20 @@
   /* Complement the .subviewbutton margin. */
   --arrowpanel-padding: 8px 0;
   --arrowpanel-menuitem-border-radius: 3px;
-  --appmenu-button-border-color: hsla(210, 4%, 10%, 0.14);
+  --appmenu-button-border-color: light-dark(hsla(210, 4%, 10%, 0.14), rgba(249, 249, 250, 0.2));
   --appmenu-button-margin: 0 8px;
   --appmenu-button-padding: 6px;
   --appmenu-combined-radio-button-padding: 4px 8px;
   --appmenu-fontsize-icon-size: 20px;
   --appmenu-fontsize-reset-button-width: 47px;
-  --appmenu-warning-background-color: #ffefbf;
-  --appmenu-warning-background-color-hover: #ffe8a2;
-  --appmenu-warning-background-color-active: #ffe38f;
-  --appmenu-warning-color: black;
-  --appmenu-warning-border-color: hsl(45, 100%, 77%);
-  --appmenu-icons-fill: color-mix(in srgb, var(--color-ink-70) 20%, transparent);
-  --appmenu-icons-stroke: var(--color-ink-70);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root .cui-widget-panel {
-    --appmenu-icons-fill: color-mix(in srgb, var(--color-ink-10) 20%, transparent);
-    --appmenu-icons-stroke: var(--color-ink-10);
-  }
+  --appmenu-warning-background-color: light-dark(#ffefbf, hsla(55, 100%, 50%, 0.1));
+  --appmenu-warning-background-color-hover: light-dark(#ffe8a2, hsla(55, 100%, 50%, 0.2));
+  --appmenu-warning-background-color-active: light-dark(#ffe38f, hsla(55, 100%, 50%, 0.3));
+  --appmenu-warning-color: light-dark(black, #f9f9fa);
+  --appmenu-warning-border-color: light-dark(hsl(45, 100%, 77%), hsla(55, 100%, 50%, 0.3));
+  --appmenu-icons-fill: light-dark(color-mix(in srgb, var(--color-ink-70) 20%, transparent),
+                                   color-mix(in srgb, var(--color-ink-10) 20%, transparent));
+  --appmenu-icons-stroke: light-dark(var(--color-ink-70), var(--color-ink-10));
 }
 
 @media (prefers-contrast) {
@@ -64,13 +58,8 @@
   --appmenu-fontsize-reset-button-width: 51px;
 }
 
-:root[lwt-popup-brighttext] .cui-widget-panel {
-  --appmenu-button-border-color: rgba(249, 249, 250, 0.2);
-  --appmenu-warning-background-color: hsla(55, 100%, 50%, .1);
-  --appmenu-warning-background-color-hover: hsla(55, 100%, 50%, .2);
-  --appmenu-warning-background-color-active: hsla(55, 100%, 50%, .3);
-  --appmenu-warning-color: #f9f9fa;
-  --appmenu-warning-border-color: hsla(55, 100%, 50%, .3);
+#appMenu-popup {
+  color-scheme: env(-moz-content-preferred-color-scheme);
 }
 
 panelview:not([visible]) {

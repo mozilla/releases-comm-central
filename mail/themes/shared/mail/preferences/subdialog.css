@@ -10,7 +10,6 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
   /* This allows the focus ring to display fully when scrolling is enabled. */
   padding: 0 4px 4px;
   font-size: 1.1rem;
-  background-color: var(--in-content-page-background) !important;
 }
 
 .dialogOverlay {
@@ -39,7 +38,7 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
   :root[dialogroot],
   body > xul|dialog,
   .dialogBox {
-    --in-content-page-background: #2a2a2e !important;
+    --in-content-page-background: #2a2a2e;
   }
 }
 
