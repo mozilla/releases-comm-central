@@ -484,8 +484,6 @@ var MessageWindowController = {
         return MailServices.accounts.allIdentities.length > 0;
       case "cmd_reload":
       case "cmd_find":
-      case "cmd_viewAllHeader":
-      case "cmd_viewNormalHeader":
       case "cmd_stop":
         return false;
       case "cmd_getNewMessages":
@@ -503,6 +501,8 @@ var MessageWindowController = {
       case "cmd_fullZoomEnlarge":
       case "cmd_fullZoomReset":
       case "cmd_fullZoomToggle":
+      case "cmd_viewAllHeader":
+      case "cmd_viewNormalHeader":
         return true;
       case "cmd_undo":
       case "cmd_redo":
