@@ -24,16 +24,19 @@ const TEST_MESSAGE_URL =
 let tabmail = document.getElementById("tabmail");
 let testFolder, testMessages;
 let draftsFolder, draftsMessages;
+let listFolder, listMessages;
 
 let singleSelectionMessagePane = [
   "singleMessage",
   "draftsFolder",
+  "listFolder",
   "syntheticFolderDraft",
   "syntheticFolder",
 ];
 let singleSelectionThreadPane = [
   "singleMessageTree",
   "draftsFolderTree",
+  "listFolderTree",
   "syntheticFolderDraftTree",
   "syntheticFolderTree",
 ];
@@ -76,7 +79,7 @@ const mailContextData = {
   ],
   "mailContext-replySender": allSingleSelection,
   "mailContext-replyAll": allSingleSelection,
-  "mailContext-replyList": allSingleSelection,
+  "mailContext-replyList": ["listFolder", "listFolderTree"],
   "mailContext-forward": allSingleSelection,
   "mailContext-forwardAsMenu": allSingleSelection,
   "mailContext-multiForwardAsAttachment": ["multipleMessagesTree"],
@@ -176,6 +179,31 @@ add_setup(async function () {
     generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
   );
   draftsMessages = [...draftsFolder.messages];
+  rootFolder.createSubfolder("mailContextMailingList", null);
+  listFolder = rootFolder
+    .getChildNamed("mailContextMailingList")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  listFolder.addMessage(
+    "From - Mon Jan 01 00:00:00 2001\n" +
+      "To: Mailing List <list@example.com>\n" +
+      "Date: Mon, 01 Jan 2001 00:00:00 +0100\n" +
+      "List-Help: <https://list.example.com>\n" +
+      "List-Post: <mailto:list@example.com>\n" +
+      "List-Software: Mailing List Software\n" +
+      "List-Subscribe: <https://subscribe.example.com>\n" +
+      "Precedence: list\n" +
+      "Subject: Mailing List Test Mail\n" +
+      `Message-ID: <${Date.now()}@example.com>\n` +
+      "From: Mailing List <list@example.com>\n" +
+      "List-Unsubscribe: <https://unsubscribe.example.com>,\n" +
+      " <mailto:unsubscribe@example.com?subject=Unsubscribe Test>\n" +
+      "MIME-Version: 1.0\n" +
+      "Content-Type: text/plain; charset=UTF-8\n" +
+      "Content-Transfer-Encoding: quoted-printable\n" +
+      "\n" +
+      "Mailing List Message Body\n"
+  );
+  listMessages = [...listFolder.messages];
 
   tabmail.currentAbout3Pane.restoreState({
     folderURI: testFolder.URI,
@@ -440,6 +468,59 @@ add_task(async function testDraftsFolder() {
   );
   await shownPromise;
   checkMenuitems(mailContext, "draftsFolderTree");
+});
+
+/**
+ * Tests the mailContext menu on the thread tree and message pane of a
+ * mailing list message.
+ */
+
+add_task(async function testListMessage() {
+  let about3Pane = tabmail.currentAbout3Pane;
+  about3Pane.restoreState({ folderURI: listFolder.URI });
+
+  await TestUtils.waitForCondition(
+    () => ConversationOpener.isMessageIndexed(listMessages[0]),
+    "waiting for Gloda to finish indexing",
+    500
+  );
+
+  let mailContext = about3Pane.document.getElementById("mailContext");
+  let { gDBView, messageBrowser, threadTree } = about3Pane;
+  let messagePaneBrowser = messageBrowser.contentWindow.getMessagePaneBrowser();
+
+  let loadedPromise = BrowserTestUtils.browserLoaded(
+    messagePaneBrowser,
+    undefined,
+    url => url.endsWith(gDBView.getKeyAt(0))
+  );
+  threadTree.selectedIndex = 0;
+  await loadedPromise;
+  // Open the menu from the message pane.
+
+  Assert.ok(
+    BrowserTestUtils.is_visible(messageBrowser),
+    "message browser should be visible"
+  );
+  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    ":root",
+    { type: "contextmenu" },
+    messagePaneBrowser
+  );
+  await shownPromise;
+  checkMenuitems(mailContext, "listFolder");
+
+  // Open the menu from the thread pane.
+
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree.getRowAtIndex(0),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+  checkMenuitems(mailContext, "listFolderTree");
 });
 
 /**

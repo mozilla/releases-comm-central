@@ -505,10 +505,16 @@ var commandController = {
         return gDBView
           .getSelectedMsgHdrs()
           .some(m => ConversationOpener.isMessageIndexed(m));
+      case "cmd_replylist":
+        if (hasIdentities && numSelectedMessages == 1) {
+          const aboutMessage =
+            document.getElementById("messageBrowser")?.contentWindow || window;
+          return aboutMessage?.currentHeaderData?.["list-post"];
+        }
+        return false;
       case "cmd_reply":
       case "cmd_replySender":
       case "cmd_replyall":
-      case "cmd_replylist":
       case "cmd_forward":
       case "cmd_redirect":
       case "cmd_editAsNew":

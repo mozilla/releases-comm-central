@@ -19,7 +19,7 @@ const messageMenuData = {
   replyNewsgroupMainMenu: { hidden: true },
   replySenderMainMenu: { hidden: true },
   menu_replyToAll: { disabled: nothingOrMultiSelected },
-  menu_replyToList: { disabled: nothingOrMultiSelected },
+  menu_replyToList: { disabled: true },
   menu_forwardMsg: { disabled: nothingOrMultiSelected },
   forwardAsMenu: { disabled: nothingSelected },
   menu_forwardAsInline: { disabled: nothingSelected },
@@ -105,6 +105,26 @@ add_setup(async function () {
         ],
       })
       .toMboxString()
+  );
+  testFolder.addMessage(
+    "From - Mon Jan 01 00:00:00 2001\n" +
+      "To: Mailing List <list@example.com>\n" +
+      "Date: Mon, 01 Jan 2001 00:00:00 +0100\n" +
+      "List-Help: <https://list.example.com>\n" +
+      "List-Post: <mailto:list@example.com>\n" +
+      "List-Software: Mailing List Software\n" +
+      "List-Subscribe: <https://subscribe.example.com>\n" +
+      "Precedence: list\n" +
+      "Subject: Mailing List Test Mail\n" +
+      `Message-ID: <${Date.now()}@example.com>\n` +
+      "From: Mailing List <list@example.com>\n" +
+      "List-Unsubscribe: <https://unsubscribe.example.com>,\n" +
+      " <mailto:unsubscribe@example.com?subject=Unsubscribe Test>\n" +
+      "MIME-Version: 1.0\n" +
+      "Content-Type: text/plain; charset=UTF-8\n" +
+      "Content-Transfer-Encoding: quoted-printable\n" +
+      "\n" +
+      "Mailing List Message Body\n"
   );
   testMessages = [...testFolder.messages];
 
@@ -206,6 +226,15 @@ add_task(async function testSingleSelection() {
     "menu-saveAllAttachments": {},
     "menu-detachAllAttachments": {},
     "menu-deleteAllAttachments": {},
+  });
+
+  // This message is from a mailing list.
+  tabmail.currentAbout3Pane.threadTree.selectedIndex = 6;
+  await BrowserTestUtils.browserLoaded(
+    tabmail.currentAboutMessage.getMessagePaneBrowser()
+  );
+  await helper.testItems({
+    menu_replyToList: { disabled: false },
   });
 
   // FIXME: Select another message and wait for it load in order to properly
