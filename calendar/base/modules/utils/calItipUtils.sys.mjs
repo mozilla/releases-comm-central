@@ -835,8 +835,21 @@ export var itip = {
    *                                            to ask the user whether to send)
    */
   checkAndSend(aOpType, aItem, aOriginalItem, aExtResponse = null) {
-    let sender = new lazy.CalItipMessageSender(aOriginalItem, itip.getInvitedAttendee(aItem));
-    if (sender.detectChanges(aOpType, aItem, aExtResponse)) {
+    // `CalItipMessageSender` uses the presence of an "invited attendee"
+    // (representation of the current user) as an indication that this is an
+    // incoming invitation, so we need to avoid passing it if the current user
+    // is the event organizer.
+    let currentUserAsAttendee = null;
+    const itemCalendar = aItem.calendar;
+    if (
+      itemCalendar?.supportsScheduling &&
+      itemCalendar.getSchedulingSupport().isInvitation(aItem)
+    ) {
+      currentUserAsAttendee = this.getInvitedAttendee(aItem, itemCalendar);
+    }
+
+    const sender = new lazy.CalItipMessageSender(aOriginalItem, currentUserAsAttendee);
+    if (sender.buildOutgoingMessages(aOpType, aItem, aExtResponse)) {
       sender.send(itip.getImipTransport(aItem));
     }
   },

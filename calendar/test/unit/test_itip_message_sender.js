@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
+const { CalAttendee } = ChromeUtils.import("resource:///modules/CalAttendee.jsm");
 var { CalEvent } = ChromeUtils.import("resource:///modules/CalEvent.jsm");
 var { CalItipMessageSender } = ChromeUtils.import("resource:///modules/CalItipMessageSender.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -12,10 +13,22 @@ var { CalendarTestUtils } = ChromeUtils.import(
 );
 
 const identityEmail = "user@example.com";
-const calendarOrganizerId = "mailto:user@example.com";
 const eventOrganizerEmail = "eventorganizer@example.com";
-const eventOrganizerId = `mailto:${eventOrganizerEmail}`;
-const icalString = CalendarTestUtils.dedent`
+
+/**
+ * Creates a calendar event mimicking an event to which we have received an
+ * invitation.
+ *
+ * @param {string} organizerEmail - The email address of the event organizer.
+ * @param {string} attendeeEmail - The email address of an attendee who has
+ *   accepted the invitation.
+ * @returns {calIItemBase} - The new calendar event.
+ */
+function createIncomingEvent(organizerEmail, attendeeEmail) {
+  const organizerId = cal.email.prependMailTo(organizerEmail);
+  const attendeeId = cal.email.prependMailTo(attendeeEmail);
+
+  const icalString = CalendarTestUtils.dedent`
       BEGIN:VEVENT
       CREATED:20210105T000000Z
       DTSTAMP:20210501T000000Z
@@ -25,19 +38,21 @@ const icalString = CalendarTestUtils.dedent`
       DTEND:20210105T100000Z
       STATUS:CONFIRMED
       SUMMARY:Test Event
-      ORGANIZER;CN=${eventOrganizerEmail}:${eventOrganizerId}
+      ORGANIZER;CN=${organizerEmail}:${organizerId}
       ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;
         RSVP=TRUE;CN=other@example.com;:mailto:other@example.com
       ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;
-        RSVP=TRUE;CN=${identityEmail};:${calendarOrganizerId}
+        RSVP=TRUE;CN=${attendeeEmail};:${attendeeId}
       X-MOZ-RECEIVED-SEQUENCE:0
       X-MOZ-RECEIVED-DTSTAMP:20210501T000000Z
       X-MOZ-GENERATION:0
       END:VEVENT
     `;
 
+  return new CalEvent(icalString);
+}
+
 let calendar;
-let identity;
 
 /**
  * Ensure the calendar manager is available, initialize the calendar and
@@ -46,113 +61,273 @@ let identity;
 add_setup(async function () {
   await new Promise(resolve => do_load_calmgr(resolve));
   calendar = CalendarTestUtils.createCalendar("Test", "memory");
-  identity = MailServices.accounts.createIdentity();
+
+  const identity = MailServices.accounts.createIdentity();
   identity.email = identityEmail;
-  calendar.setProperty("imip.identity.key", identity.key);
-  calendar.setProperty("organizerId", calendarOrganizerId);
-});
 
-/**
- * Test receiving a new invitation queues a "REPLY" message.
- */
-add_task(async function testInvitationReceived() {
-  const item = new CalEvent(icalString);
-  const savedItem = await calendar.addItem(item);
-  const invitedAttendee = savedItem.getAttendeeById(calendarOrganizerId);
-  const sender = new CalItipMessageSender(null, invitedAttendee);
-  const result = sender.detectChanges(Ci.calIOperationListener.ADD, savedItem);
-  Assert.equal(result, 1, "result indicates 1 pending message queued");
-  Assert.equal(sender.pendingMessageCount, 1, "pendingMessageCount is 1");
-
-  const [msg] = sender.pendingMessages;
-  Assert.equal(msg.method, "REPLY", "message method is 'REPLY'");
-  Assert.equal(msg.recipients.length, 1, "message has 1 recipient");
-
-  const [recipient] = msg.recipients;
-  Assert.equal(recipient.id, eventOrganizerId, "recipient is the event organizer");
-
-  const attendeeList = msg.item.getAttendees();
-  Assert.equal(attendeeList.length, 1, "reply attendees list has 1 attendee");
-
-  const [attendee] = attendeeList;
-  Assert.equal(attendee.id, calendarOrganizerId, "invited attendee is on the reply attendees list");
-  Assert.equal(
-    attendee.participationStatus,
-    "ACCEPTED",
-    "invited attendee participation status is 'ACCEPTED'"
+  const account = MailServices.accounts.createAccount();
+  account.incomingServer = MailServices.accounts.createIncomingServer(
+    `${account.key}user`,
+    "localhost",
+    "none"
   );
+  account.addIdentity(identity);
 
-  await calendar.deleteItem(savedItem);
+  registerCleanupFunction(() => {
+    MailServices.accounts.removeIncomingServer(account.incomingServer, false);
+    MailServices.accounts.removeAccount(account);
+  });
+
+  calendar.setProperty("imip.identity.key", identity.key);
+  calendar.setProperty("organizerId", cal.email.prependMailTo(identityEmail));
 });
 
-/**
- * Test updating the invited attendee's participation status queues a "REPLY"
- * message.
- */
-add_task(async function testParticipationStatusUpdated() {
+add_task(async function testAddAttendeesToOwnEvent() {
+  const icalString = CalendarTestUtils.dedent`
+      BEGIN:VEVENT
+      CREATED:20210105T000000Z
+      DTSTAMP:20210501T000000Z
+      UID:c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5
+      SUMMARY:Test Invitation
+      DTSTART:20210105T000000Z
+      DTEND:20210105T100000Z
+      STATUS:CONFIRMED
+      SUMMARY:Test Event
+      X-MOZ-SEND-INVITATIONS:TRUE
+      END:VEVENT
+    `;
+
   const item = new CalEvent(icalString);
   const savedItem = await calendar.addItem(item);
+
+  // Modify the event to include an attendee not in the original, as well as the
+  // organizer. As of the writing of this test, this is the expected behavior
+  // for adding an attendee to an event which previously had none.
+  const newAttendeeEmail = "foo@example.com";
+  const newAttendee = new CalAttendee();
+  newAttendee.id = newAttendeeEmail;
+
+  const organizer = new CalAttendee();
+  organizer.isOrganizer = true;
+  organizer.id = identityEmail;
+
+  const organizerAsAttendee = new CalAttendee();
+  organizerAsAttendee.id = identityEmail;
 
   const targetItem = savedItem.clone();
-  const invitedAttendee = targetItem.getAttendeeById(calendarOrganizerId);
-  invitedAttendee.participationStatus = "TENTATIVE";
-
+  targetItem.addAttendee(newAttendee);
+  targetItem.addAttendee(organizer);
+  targetItem.addAttendee(organizerAsAttendee);
   const modifiedItem = await calendar.modifyItem(targetItem, savedItem);
-  const sender = new CalItipMessageSender(savedItem, invitedAttendee);
-  const result = sender.detectChanges(Ci.calIOperationListener.MODIFY, modifiedItem);
-  Assert.equal(result, 1, "result indicates 1 pending message queued");
-  Assert.equal(sender.pendingMessageCount, 1, "pendingMessageCount is 1");
+
+  // Test that a sender with an original item and for which the current user is
+  // both an attendee and the organizer will generate a REQUEST, but not send a
+  // message to the organizer.
+  const sender = new CalItipMessageSender(savedItem, null);
+
+  const result = sender.buildOutgoingMessages(Ci.calIOperationListener.MODIFY, modifiedItem);
+  Assert.equal(result, 1, "return value should indicate there are pending messages");
+  Assert.equal(sender.pendingMessageCount, 1, "there should be one pending message");
 
   const [msg] = sender.pendingMessages;
-  Assert.equal(msg.method, "REPLY", "message method is 'REPLY'");
-  Assert.equal(msg.recipients.length, 1, "message has 1 recipient");
+  Assert.equal(msg.method, "REQUEST", "message method should be 'REQUEST'");
+  Assert.equal(msg.recipients.length, 1, "message should have one recipient");
 
   const [recipient] = msg.recipients;
-  Assert.equal(recipient.id, eventOrganizerId, "recipient is the event organizer");
-
-  const attendeeList = msg.item.getAttendees();
-  Assert.equal(attendeeList.length, 1, "reply attendees list has 1 attendee");
-
-  const [attendee] = attendeeList;
-  Assert.equal(attendee.id, calendarOrganizerId, "invited attendee is on the reply attendees list");
   Assert.equal(
-    attendee.participationStatus,
-    "TENTATIVE",
-    "invited attendee participation status is 'TENTATIVE'"
+    recipient.id,
+    cal.email.prependMailTo(newAttendeeEmail),
+    "recipient should be the non-organizer attendee"
   );
 
   await calendar.deleteItem(modifiedItem);
 });
 
-/**
- * Test deleting an event queues a "CANCEL" message.
- */
-add_task(async function testEventDeleted() {
+add_task(async function testAddAdditionalAttendee() {
+  const icalString = CalendarTestUtils.dedent`
+      BEGIN:VEVENT
+      CREATED:20210105T000000Z
+      DTSTAMP:20210501T000000Z
+      UID:c1a6cfe7-7fbb-4bfb-a00d-861e07c649a5
+      SUMMARY:Test Invitation
+      DTSTART:20210105T000000Z
+      DTEND:20210105T100000Z
+      STATUS:CONFIRMED
+      SUMMARY:Test Event
+      ORGANIZER;CN=${identityEmail}:${cal.email.prependMailTo(identityEmail)}
+      ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;
+        RSVP=TRUE;CN=other@example.com;:mailto:other@example.com
+      ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;
+        RSVP=TRUE;CN=${identityEmail};:${cal.email.prependMailTo(identityEmail)}
+      X-MOZ-SEND-INVITATIONS:TRUE
+      END:VEVENT
+    `;
+
   const item = new CalEvent(icalString);
   const savedItem = await calendar.addItem(item);
 
-  await calendar.deleteItem(savedItem);
-  const invitedAttendee = savedItem.getAttendeeById(calendarOrganizerId);
-  const sender = new CalItipMessageSender(null, invitedAttendee);
-  const result = sender.detectChanges(Ci.calIOperationListener.DELETE, savedItem);
-  Assert.equal(result, 1, "result indicates 1 pending message queued");
-  Assert.equal(sender.pendingMessageCount, 1, "pendingMessageCount is 1");
+  // Modify the event to include an attendee not in the original.
+  const newAttendeeEmail = "bar@example.com";
+  const newAttendee = new CalAttendee();
+  newAttendee.id = newAttendeeEmail;
+
+  const organizer = new CalAttendee();
+  organizer.isOrganizer = true;
+  organizer.id = identityEmail;
+
+  const organizerAsAttendee = new CalAttendee();
+  organizerAsAttendee.id = identityEmail;
+
+  const targetItem = savedItem.clone();
+  targetItem.addAttendee(newAttendee);
+  const modifiedItem = await calendar.modifyItem(targetItem, savedItem);
+
+  // Test that adding an attendee won't cause messages to be sent to the
+  // existing attendees.
+  const sender = new CalItipMessageSender(savedItem, null);
+
+  const result = sender.buildOutgoingMessages(Ci.calIOperationListener.MODIFY, modifiedItem);
+  Assert.equal(result, 1, "return value should indicate there are pending messages");
+  Assert.equal(sender.pendingMessageCount, 1, "there should be one pending message");
 
   const [msg] = sender.pendingMessages;
-  Assert.equal(msg.method, "REPLY", "message method is 'REPLY'");
-  Assert.equal(msg.recipients.length, 1, "message has 1 recipient");
+  Assert.equal(msg.method, "REQUEST", "message method should be 'REQUEST'");
+  Assert.equal(msg.recipients.length, 1, "message should have one recipient");
 
   const [recipient] = msg.recipients;
-  Assert.equal(recipient.id, eventOrganizerId, "recipient is the event organizer");
+  Assert.equal(
+    recipient.id,
+    cal.email.prependMailTo(newAttendeeEmail),
+    "recipient should be the new attendee"
+  );
+
+  await calendar.deleteItem(modifiedItem);
+});
+
+add_task(async function testInvitationReceived() {
+  const item = createIncomingEvent(eventOrganizerEmail, identityEmail);
+  const savedItem = await calendar.addItem(item);
+
+  const attendeeId = cal.email.prependMailTo(identityEmail);
+
+  // Test that a sender with no original item and for which the current user is
+  // an attendee but not the organizer (representing a new incoming invitation)
+  // generates a single pending REPLY message on ADD.
+  const currentUserAsAttendee = savedItem.getAttendeeById(attendeeId);
+  const sender = new CalItipMessageSender(null, currentUserAsAttendee);
+
+  const result = sender.buildOutgoingMessages(Ci.calIOperationListener.ADD, savedItem);
+  Assert.equal(result, 1, "return value should indicate there are pending messages");
+  Assert.equal(sender.pendingMessageCount, 1, "there should be one pending message");
+
+  const [msg] = sender.pendingMessages;
+  Assert.equal(msg.method, "REPLY", "message method should be 'REPLY'");
+  Assert.equal(msg.recipients.length, 1, "message should have one recipient");
+
+  const [recipient] = msg.recipients;
+  Assert.equal(
+    recipient.id,
+    cal.email.prependMailTo(eventOrganizerEmail),
+    "recipient should be the event organizer"
+  );
 
   const attendeeList = msg.item.getAttendees();
-  Assert.equal(attendeeList.length, 1, "reply attendees list has 1 attendee");
+  Assert.equal(attendeeList.length, 1, "there should be one attendee listed in the message");
 
   const [attendee] = attendeeList;
-  Assert.equal(attendee.id, calendarOrganizerId, "invited attendee is on the reply attendees list");
+  Assert.equal(attendee.id, attendeeId, "listed attendee should be the current user");
+  Assert.equal(
+    attendee.participationStatus,
+    "ACCEPTED",
+    "current user's participation status should be 'ACCEPTED'"
+  );
+
+  await calendar.deleteItem(savedItem);
+});
+
+add_task(async function testParticipationStatusUpdated() {
+  const item = createIncomingEvent(eventOrganizerEmail, identityEmail);
+  const savedItem = await calendar.addItem(item);
+
+  const attendeeId = cal.email.prependMailTo(identityEmail);
+
+  // Modify the event to update the user's participation status.
+  const targetItem = savedItem.clone();
+  const currentUserAsAttendee = targetItem.getAttendeeById(attendeeId);
+  currentUserAsAttendee.participationStatus = "TENTATIVE";
+  const modifiedItem = await calendar.modifyItem(targetItem, savedItem);
+
+  // Test that a sender for which the current user is an attendee but not the
+  // organizer will generate a pending REPLY message on MODIFY.
+  const sender = new CalItipMessageSender(savedItem, currentUserAsAttendee);
+  const result = sender.buildOutgoingMessages(Ci.calIOperationListener.MODIFY, modifiedItem);
+
+  Assert.equal(result, 1, "return value should indicate there are pending messages");
+  Assert.equal(sender.pendingMessageCount, 1, "there should be one pending message");
+
+  const [msg] = sender.pendingMessages;
+  Assert.equal(msg.method, "REPLY", "message method should be 'REPLY'");
+  Assert.equal(msg.recipients.length, 1, "message should have one recipient");
+
+  const [recipient] = msg.recipients;
+  Assert.equal(
+    recipient.id,
+    cal.email.prependMailTo(eventOrganizerEmail),
+    "recipient should be the event organizer"
+  );
+
+  const attendeeList = msg.item.getAttendees();
+  Assert.equal(attendeeList.length, 1, "there should be one attendee listed in the message");
+
+  const [attendee] = attendeeList;
+  Assert.equal(attendee.id, attendeeId, "listed attendee should be the current user");
+  Assert.equal(
+    attendee.participationStatus,
+    "TENTATIVE",
+    "current user's participation status should be 'TENTATIVE'"
+  );
+
+  await calendar.deleteItem(modifiedItem);
+});
+
+add_task(async function testEventDeleted() {
+  const item = createIncomingEvent(eventOrganizerEmail, identityEmail);
+  const savedItem = await calendar.addItem(item);
+
+  const attendeeId = cal.email.prependMailTo(identityEmail);
+
+  await calendar.deleteItem(savedItem);
+  const currentUserAsAttendee = savedItem.getAttendeeById(attendeeId);
+
+  // Test that a sender with no original item and for which the current user is
+  // an attendee but not the organizer (representing the user deleting an event
+  // from their calendar) generates a single REPLY message to the organizer on
+  // DELETE.
+  const sender = new CalItipMessageSender(null, currentUserAsAttendee);
+  const result = sender.buildOutgoingMessages(Ci.calIOperationListener.DELETE, savedItem);
+
+  Assert.equal(result, 1, "return value should indicate there are pending messages");
+  Assert.equal(sender.pendingMessageCount, 1, "there should be one pending message");
+
+  const [msg] = sender.pendingMessages;
+  Assert.equal(msg.method, "REPLY", "message method should be 'REPLY'");
+  Assert.equal(msg.recipients.length, 1, "message should have one recipient");
+
+  const [recipient] = msg.recipients;
+  Assert.equal(
+    recipient.id,
+    cal.email.prependMailTo(eventOrganizerEmail),
+    "recipient should be the event organizer"
+  );
+
+  const attendeeList = msg.item.getAttendees();
+  Assert.equal(attendeeList.length, 1, "there should be one attendee listed in the message");
+
+  const [attendee] = attendeeList;
+  Assert.equal(attendee.id, attendeeId, "listed attendee should be the current user");
   Assert.equal(
     attendee.participationStatus,
     "DECLINED",
-    "invited attendee status changed to 'DECLINED'"
+    "current user's participation status should be 'DECLINED'"
   );
 });
