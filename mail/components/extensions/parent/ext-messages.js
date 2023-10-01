@@ -153,9 +153,11 @@ async function getAttachments(msgHdr, includeNestedAttachments = false) {
  *
  * @param {nsIMsgHdr} msgHdr
  * @param {string} partName
+ * @param {object} [options={}] - If the includeRaw property is truthy the raw
+ *   attachment contents are included.
  * @returns {Promise<MimeMessagePart>}
  */
-async function getAttachment(msgHdr, partName) {
+async function getAttachment(msgHdr, partName, options = {}) {
   // It's not ideal to have to call MsgHdrToMimeMessage here again, but we need
   // the name of the attached file, plus this also gives us the URI without having
   // to jump through a lot of hoops.
@@ -164,34 +166,36 @@ async function getAttachment(msgHdr, partName) {
     return null;
   }
 
-  let channel = Services.io.newChannelFromURI(
-    Services.io.newURI(attachment.url),
-    null,
-    Services.scriptSecurityManager.getSystemPrincipal(),
-    null,
-    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-    Ci.nsIContentPolicy.TYPE_OTHER
-  );
-
-  attachment.raw = await new Promise((resolve, reject) => {
-    let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
-      Ci.nsIStreamLoader
+  if (options.includeRaw) {
+    let channel = Services.io.newChannelFromURI(
+      Services.io.newURI(attachment.url),
+      null,
+      Services.scriptSecurityManager.getSystemPrincipal(),
+      null,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      Ci.nsIContentPolicy.TYPE_OTHER
     );
-    listener.init({
-      onStreamComplete(loader, context, status, resultLength, result) {
-        if (Components.isSuccessCode(status)) {
-          resolve(Uint8Array.from(result));
-        } else {
-          reject(
-            new ExtensionError(
-              `Failed to read attachment ${attachment.url} content: ${status}`
-            )
-          );
-        }
-      },
+
+    attachment.raw = await new Promise((resolve, reject) => {
+      let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
+        Ci.nsIStreamLoader
+      );
+      listener.init({
+        onStreamComplete(loader, context, status, resultLength, result) {
+          if (Components.isSuccessCode(status)) {
+            resolve(Uint8Array.from(result));
+          } else {
+            reject(
+              new ExtensionError(
+                `Failed to read attachment ${attachment.url} content: ${status}`
+              )
+            );
+          }
+        },
+      });
+      channel.asyncOpen(listener, null);
     });
-    channel.asyncOpen(listener, null);
-  });
+  }
 
   return attachment;
 }
@@ -265,7 +269,9 @@ async function getRawMessage(msgHdr) {
   let subMsgPartName = getSubMessagePartName(msgHdr);
   if (subMsgPartName) {
     let parentMsgHdr = getParentMsgHdr(msgHdr);
-    let attachment = await getAttachment(parentMsgHdr, subMsgPartName);
+    let attachment = await getAttachment(parentMsgHdr, subMsgPartName, {
+      includeRaw: true,
+    });
     return attachment.raw.reduce(
       (prev, curr) => prev + String.fromCharCode(curr),
       ""
@@ -799,7 +805,9 @@ this.messages = class extends ExtensionAPIPersistent {
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          let attachment = await getAttachment(msgHdr, partName);
+          let attachment = await getAttachment(msgHdr, partName, {
+            includeRaw: true,
+          });
           if (!attachment) {
             throw new ExtensionError(
               `Part ${partName} not found in message ${messageId}.`
