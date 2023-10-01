@@ -59,6 +59,8 @@ let calendar;
  * identity we use for testing.
  */
 add_setup(async function () {
+  do_get_profile();
+
   await new Promise(resolve => do_load_calmgr(resolve));
   calendar = CalendarTestUtils.createCalendar("Test", "memory");
 
