@@ -1708,6 +1708,12 @@ nsresult nsMsgCompose::CreateMessage(const nsACString& originalMsgURI,
         case nsIMsgCompType::Template:
         case nsIMsgCompType::EditTemplate:
         case nsIMsgCompType::EditAsNew: {
+          // If opening from file, preseve the subject already present, since
+          // we can't get a subject from db there.
+          if (mOriginalMsgURI.Find("&realtype=message/rfc822") != -1) {
+            break;
+          }
+          // Otherwise, set up the subject from db, with possible modifications.
           uint32_t flags;
           msgHdr->GetFlags(&flags);
           if (flags & nsMsgMessageFlags::HasRe) {
