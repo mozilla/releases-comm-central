@@ -47,7 +47,7 @@ const { MailServices } = ChromeUtils.import(
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 
 function getMsgBodyTxt(mc) {
-  let msgPane = get_about_message(mc.window).getMessagePaneBrowser();
+  let msgPane = get_about_message(window).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 

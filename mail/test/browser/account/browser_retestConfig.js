@@ -56,7 +56,7 @@ add_task(async function test_re_test_config() {
     delete_all_existing(mc, tabDocument.getElementById("realname"));
   }
   input_value(mc, user.name);
-  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  EventUtils.synthesizeKey("VK_TAB", {}, window);
   input_value(mc, user.email);
 
   // Click "continue" button.
@@ -84,10 +84,10 @@ add_task(async function test_re_test_config() {
   // There used to be a "start over" button (line commented out below). Now just
   // changing the value of the email field does the trick.
   tabDocument.getElementById("realname").focus();
-  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  EventUtils.synthesizeKey("VK_TAB", {}, window);
   tabDocument.getElementById("email").focus();
   input_value(mc, user.altEmail);
-  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  EventUtils.synthesizeKey("VK_TAB", {}, window);
 
   // Wait for the "continue" button to be back, which means we're back to the
   // original state.
@@ -106,5 +106,5 @@ add_task(async function test_re_test_config() {
     "We're not back to the original state!"
   );
 
-  mc.window.document.getElementById("tabmail").closeTab(tab);
+  document.getElementById("tabmail").closeTab(tab);
 });

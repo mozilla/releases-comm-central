@@ -72,9 +72,9 @@ add_setup(async function () {
   );
 
   // Add the view picker to the toolbar
-  let toolbar = mc.window.document.getElementById("mail-bar3");
+  let toolbar = document.getElementById("mail-bar3");
   toolbar.insertItem("mailviews-container", null);
-  Assert.ok(mc.window.document.getElementById("mailviews-container"));
+  Assert.ok(document.getElementById("mailviews-container"));
 });
 
 // Check whether this message is displayed in the folder tab
@@ -126,10 +126,8 @@ add_task(async function test_create_virtual_folders() {
   await be_in_folder(baseFolder);
 
   // Apply the mail view
-  mc.window.RefreshAllViewPopups(
-    mc.window.document.getElementById("viewPickerPopup")
-  );
-  mc.window.ViewChange(":$label1");
+  window.RefreshAllViewPopups(document.getElementById("viewPickerPopup"));
+  window.ViewChange(":$label1");
   wait_for_all_messages_to_load();
 
   // - save it
@@ -139,7 +137,7 @@ add_task(async function test_create_virtual_folders() {
   );
   // we have to use value here because the option mechanism is not sophisticated
   //  enough.
-  mc.window.ViewChange(MailViewConstants.kViewItemVirtual);
+  window.ViewChange(MailViewConstants.kViewItemVirtual);
   wait_for_modal_dialog("mailnews:virtualFolderProperties");
 });
 
@@ -185,9 +183,9 @@ add_task(async function test_open_first_message_in_virtual_folder() {
  */
 add_task(async function test_delete_from_virtual_folder_in_folder_tab() {
   // - plan to end up on the guy who is currently at index 1
-  curMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
+  curMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
-  nextMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(2);
+  nextMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(2);
   // - delete the message
   press_delete();
 
@@ -209,7 +207,7 @@ add_task(async function test_delete_from_virtual_folder_in_message_tab() {
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 
   // figure out the next guy...
-  nextMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
+  nextMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
   if (!nextMessage) {
     throw new Error("We ran out of messages early?");
   }
@@ -250,13 +248,11 @@ add_task(
     msgc = null;
 
     // - and we should now be on the folder tab and there should be no other tabs
-    if (mc.window.document.getElementById("tabmail").tabInfo.length != 1) {
+    if (document.getElementById("tabmail").tabInfo.length != 1) {
       throw new Error("There should only be one tab left!");
     }
     // the below check is implied by the previous check if things are sane-ish
-    if (
-      mc.window.document.getElementById("tabmail").currentTabInfo != tabFolder
-    ) {
+    if (document.getElementById("tabmail").currentTabInfo != tabFolder) {
       throw new Error("We should be on the folder tab!");
     }
   }
@@ -282,9 +278,9 @@ add_task(async function test_open_first_message_in_smart_inbox() {
  */
 add_task(async function test_delete_from_smart_inbox_in_folder_tab() {
   // - plan to end up on the guy who is currently at index 1
-  curMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
+  curMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
-  nextMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(2);
+  nextMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(2);
   // - delete the message
   press_delete();
 
@@ -306,7 +302,7 @@ add_task(async function test_delete_from_smart_inbox_in_message_tab() {
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 
   // figure out the next guy...
-  nextMessage = mc.window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
+  nextMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
   if (!nextMessage) {
     throw new Error("We ran out of messages early?");
   }
@@ -347,13 +343,11 @@ add_task(
     msgc = null;
 
     // - and we should now be on the folder tab and there should be no other tabs
-    if (mc.window.document.getElementById("tabmail").tabInfo.length != 1) {
+    if (document.getElementById("tabmail").tabInfo.length != 1) {
       throw new Error("There should only be one tab left!");
     }
     // the below check is implied by the previous check if things are sane-ish
-    if (
-      mc.window.document.getElementById("tabmail").currentTabInfo != tabFolder
-    ) {
+    if (document.getElementById("tabmail").currentTabInfo != tabFolder) {
       throw new Error("We should be on the folder tab!");
     }
   }

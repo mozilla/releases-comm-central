@@ -16,7 +16,6 @@ var {
   close_tab,
   create_folder,
   make_message_sets_in_folders,
-  mc,
   open_folder_in_new_tab,
   open_selected_message_in_new_tab,
   select_click_row,
@@ -167,7 +166,7 @@ add_task(async function test_message_pane_is_sticky() {
 add_task(async function test_message_pane_persistence_generally_works() {
   await be_in_folder(folder);
 
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
 
   // helper to open tabs with the folder pane in the desired states (1 for
   //  visible, 0 for hidden)

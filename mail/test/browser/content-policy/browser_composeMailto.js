@@ -11,9 +11,6 @@ var { close_compose_window, wait_for_compose_window } = ChromeUtils.import(
 var { open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
@@ -35,7 +32,7 @@ var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-policy/html/";
 
 add_task(async function test_openComposeFromMailToLink() {
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
   // Open a content tab with the mailto link in it.
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
@@ -102,7 +99,7 @@ add_task(async function test_checkInsertImage() {
 
 add_task(function test_closeComposeWindowAndTab() {
   close_compose_window(gCwc);
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
 
   tabmail.closeTab(gNewTab);
 

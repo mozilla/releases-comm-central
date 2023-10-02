@@ -22,7 +22,6 @@ var {
   get_about_3pane,
   get_about_message,
   make_message_sets_in_folders,
-  mc,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
   press_delete,
@@ -283,13 +282,11 @@ add_task(async function test_delete_last_message_closes_message_displays() {
   msgc = null;
 
   // - and we should now be on the folder tab and there should be no other tabs
-  if (mc.window.document.getElementById("tabmail").tabInfo.length != 1) {
+  if (document.getElementById("tabmail").tabInfo.length != 1) {
     throw new Error("There should only be one tab left!");
   }
   // the below check is implied by the previous check if things are sane-ish
-  if (
-    mc.window.document.getElementById("tabmail").currentTabInfo != tabFolder
-  ) {
+  if (document.getElementById("tabmail").currentTabInfo != tabFolder) {
     throw new Error("We should be on the folder tab!");
   }
 });

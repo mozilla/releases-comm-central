@@ -17,7 +17,6 @@ var {
   be_in_folder,
   get_about_3pane,
   get_special_folder,
-  mc,
   right_click_on_row,
   select_click_row,
 } = ChromeUtils.import(

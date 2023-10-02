@@ -10,9 +10,6 @@ var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
   );
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var {
   plan_for_modal_dialog,
   plan_for_window_close,
@@ -100,7 +97,7 @@ async function subtest_initial_state(identity) {
       identity.archiveKeepFolderStructure
     );
   });
-  mc.window.openDialog(
+  window.openDialog(
     "chrome://messenger/content/am-archiveoptions.xhtml",
     "",
     "centerscreen,chrome,modal,titlebar,resizable=yes",
@@ -128,7 +125,7 @@ function subtest_save_state(identity, granularity, kfs) {
     EventUtils.synthesizeKey("VK_RETURN", {}, ac.window);
     ac.window.document.querySelector("dialog").acceptDialog();
   });
-  mc.window.openDialog(
+  window.openDialog(
     "chrome://messenger/content/am-archiveoptions.xhtml",
     "",
     "centerscreen,chrome,modal,titlebar,resizable=yes",

@@ -17,7 +17,6 @@ var {
   expand_all_threads,
   get_about_3pane,
   make_display_threaded,
-  mc,
   select_click_row,
   select_none,
   select_shift_click_row,

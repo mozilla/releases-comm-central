@@ -131,7 +131,7 @@ add_task(async function test_replyEditAsNewForward_noPreview() {
   // Check that it works even if the message wasn't viewed before, so
   // switch off the preview pane (bug 1323377).
   await be_in_folder(folder);
-  mc.window.goDoCommand("cmd_toggleMessagePane");
+  window.goDoCommand("cmd_toggleMessagePane");
 
   await subtest_replyEditAsNewForward_charset(1, "./format-flowed.eml", false);
   await subtest_replyEditAsNewForward_charset(2, "./body-greek.eml", false);
@@ -141,7 +141,7 @@ add_task(async function test_replyEditAsNewForward_noPreview() {
     false
   );
 
-  mc.window.goDoCommand("cmd_toggleMessagePane");
+  window.goDoCommand("cmd_toggleMessagePane");
 });
 
 registerCleanupFunction(() => {

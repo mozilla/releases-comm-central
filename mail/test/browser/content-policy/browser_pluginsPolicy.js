@@ -20,7 +20,6 @@ var {
   close_message_window,
   create_folder,
   get_about_message,
-  mc,
   open_selected_message,
   select_click_row,
   select_none,
@@ -218,8 +217,7 @@ add_task(async function test_checkStandaloneMessageWindowDenied() {
 add_task(async function test_checkContentTab() {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount =
-    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
+  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
 
   let newTab = open_content_tab_with_url(url + "plugin.html");
 
@@ -227,11 +225,10 @@ add_task(async function test_checkContentTab() {
     throw new Error("Plugin has been unexpectedly not blocked in content tab");
   }
 
-  mc.window.document.getElementById("tabmail").closeTab(newTab);
+  document.getElementById("tabmail").closeTab(newTab);
 
   if (
-    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length !=
-    preCount
+    document.getElementById("tabmail").tabContainer.allTabs.length != preCount
   ) {
     throw new Error("The content tab didn't close");
   }

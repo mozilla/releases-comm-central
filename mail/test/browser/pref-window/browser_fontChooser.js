@@ -16,9 +16,6 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { content_tab_e } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
   "resource://testing-common/mozmill/PrefTabHelpers.jsm"
 );
@@ -93,7 +90,7 @@ add_setup(function () {
 
   // Hide Lightning's Today pane as it obscures buttons in preferences in the
   // small TB window our tests run in.
-  gTodayPane = mc.window.document.getElementById("today-pane-panel");
+  gTodayPane = document.getElementById("today-pane-panel");
   if (gTodayPane) {
     if (!gTodayPane.collapsed) {
       EventUtils.synthesizeKey("VK_F11", {});

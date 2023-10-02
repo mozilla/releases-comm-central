@@ -17,8 +17,8 @@ var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-function getMsgBodyTxt(mc) {
-  let msgPane = get_about_message(mc.window).getMessagePaneBrowser();
+function getMsgBodyTxt(msgc) {
+  let msgPane = get_about_message(msgc.window).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 

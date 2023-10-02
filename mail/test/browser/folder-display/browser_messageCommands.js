@@ -349,7 +349,7 @@ add_task(async function test_mark_thread_as_read() {
   await wait_for_popup_to_open(getMailContext());
   await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
-  let markThreadAsReadDisabled = mc.window.document.getElementById(
+  let markThreadAsReadDisabled = document.getElementById(
     "mailContext-markThreadAsRead"
   ).disabled;
   Assert.ok(
@@ -374,7 +374,7 @@ add_task(async function test_mark_thread_as_read() {
   await wait_for_popup_to_open(getMailContext());
   await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
-  markThreadAsReadDisabled = mc.window.document.getElementById(
+  markThreadAsReadDisabled = document.getElementById(
     "mailContext-markThreadAsRead"
   ).disabled;
   Assert.ok(
@@ -388,7 +388,7 @@ add_task(async function test_mark_thread_as_read() {
   await wait_for_popup_to_open(getMailContext());
   await click_menus_in_sequence(getMailContext(), [{ id: "mailContext-mark" }]);
 
-  markThreadAsReadDisabled = mc.window.document.getElementById(
+  markThreadAsReadDisabled = document.getElementById(
     "mailContext-markThreadAsRead"
   ).disabled;
   Assert.ok(
@@ -733,14 +733,14 @@ add_task(async function test_disabled_archive() {
   );
 
   // test message summaries with "large" selection
-  mc.window.gFolderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 1;
+  window.gFolderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 1;
   select_click_row(0);
   current = select_shift_click_row(2);
   EventUtils.synthesizeKey("a", {});
   assert_selected_and_displayed(current);
-  mc.window.gFolderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 100;
+  window.gFolderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 100;
 
-  htmlframe = mc.window.document.getElementById("multimessage");
+  htmlframe = document.getElementById("multimessage");
   archiveBtn = htmlframe.contentDocument.getElementById("hdrArchiveButton");
   Assert.ok(
     archiveBtn.collapsed,
@@ -781,10 +781,10 @@ add_task(async function test_tag_keys_disabled_in_content_tab() {
   await be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
-  mc.window.openAddonsMgr("addons://list/theme");
+  window.openAddonsMgr("addons://list/theme");
   await new Promise(resolve => setTimeout(resolve));
 
-  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let tab = document.getElementById("tabmail").currentTabInfo;
   wait_for_content_tab_load(tab, "about:addons", 15000);
 
   // Make sure pressing the "1" key in a content tab doesn't tag a message
@@ -792,7 +792,7 @@ add_task(async function test_tag_keys_disabled_in_content_tab() {
   EventUtils.synthesizeKey("1", {});
   check_tag_in_message(curMessage, tagArray[0], false);
 
-  mc.window.document.getElementById("tabmail").closeTab(tab);
+  document.getElementById("tabmail").closeTab(tab);
 }).skip(); // TODO: not working
 
 registerCleanupFunction(function () {

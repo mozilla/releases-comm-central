@@ -9,7 +9,7 @@
 
 "use strict";
 
-var { be_in_folder, create_folder, mc } = ChromeUtils.import(
+var { be_in_folder, create_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
@@ -37,7 +37,7 @@ add_task(
     // Check whether the window's displaying the right folder
     assert_search_window_folder_displayed(swcA, folderA);
 
-    mc.window.focus();
+    window.focus();
     await be_in_folder(folderB);
     // This should time out if a second search window isn't opened
     let swcB = open_search_window();
@@ -62,7 +62,7 @@ add_task(
     // Check whether the window's displaying the right folder
     assert_search_window_folder_displayed(swc1, folderA);
 
-    mc.window.focus();
+    window.focus();
     // This should time out if a second search window isn't opened
     let swc2 = open_search_window();
 

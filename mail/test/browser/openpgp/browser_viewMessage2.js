@@ -28,8 +28,8 @@ const { MailServices } = ChromeUtils.import(
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 
-function getMsgBodyTxt(mc) {
-  let msgPane = get_about_message(mc.window).getMessagePaneBrowser();
+function getMsgBodyTxt(msgc) {
+  let msgPane = get_about_message(msgc.window).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 
@@ -101,11 +101,11 @@ add_task(async function testOpenVerifiedUnsignedEncrypted2() {
   ppWin2.document.getElementById("password1Textbox").value = "alice-passphrase";
   ppWin2.document.querySelector("dialog").getButton("accept").click();
 
-  let mc = await openMessagePromise;
+  let msgc = await openMessagePromise;
 
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
@@ -114,7 +114,7 @@ add_task(async function testOpenVerifiedUnsignedEncrypted2() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 registerCleanupFunction(async function tearDown() {

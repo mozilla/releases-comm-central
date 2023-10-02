@@ -21,7 +21,6 @@ var {
   create_folder,
   create_message,
   get_about_message,
-  mc,
   msgGen,
   plan_to_wait_for_folder_events,
   select_click_row,

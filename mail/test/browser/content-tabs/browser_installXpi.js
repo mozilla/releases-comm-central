@@ -9,9 +9,6 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 
 var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/content-tabs/html/";
@@ -20,12 +17,12 @@ var gDocument;
 var gNewTab;
 
 add_setup(function () {
-  gDocument = mc.window.document;
+  gDocument = document;
   gNewTab = open_content_tab_with_url(url + "installxpi.html");
 });
 
 registerCleanupFunction(function () {
-  mc.window.document.getElementById("tabmail").closeTab(gNewTab);
+  document.getElementById("tabmail").closeTab(gNewTab);
 });
 
 async function waitForNotification(id, buttonToClickSelector, callback) {
@@ -42,7 +39,7 @@ async function waitForNotification(id, buttonToClickSelector, callback) {
   }
   if (buttonToClickSelector) {
     let button = notification.querySelector(buttonToClickSelector);
-    EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, mc.window);
+    EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, window);
   }
   utils.waitFor(() => !gDocument.querySelector(notificationSelector));
 }

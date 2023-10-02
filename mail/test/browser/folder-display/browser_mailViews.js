@@ -37,9 +37,9 @@ add_setup(async function () {
 });
 
 add_task(function test_put_view_picker_on_toolbar() {
-  let toolbar = mc.window.document.getElementById("mail-bar3");
+  let toolbar = document.getElementById("mail-bar3");
   toolbar.insertItem("mailviews-container", null);
-  Assert.ok(mc.window.document.getElementById("mailviews-container"));
+  Assert.ok(document.getElementById("mailviews-container"));
 });
 
 /**
@@ -53,10 +53,8 @@ add_task(async function test_save_view_as_folder() {
   // okay, mozmill is just not ready to click on the view picker...
   // just call the ViewChange global.  it's sad, but it has the same effects.
   // at least, it does once we've caused the popups to get refreshed.
-  mc.window.RefreshAllViewPopups(
-    mc.window.document.getElementById("viewPickerPopup")
-  );
-  mc.window.ViewChange(":$label1");
+  window.RefreshAllViewPopups(document.getElementById("viewPickerPopup"));
+  window.ViewChange(":$label1");
   wait_for_all_messages_to_load();
 
   // - save it
@@ -66,7 +64,7 @@ add_task(async function test_save_view_as_folder() {
   );
   // we have to use value here because the option mechanism is not sophisticated
   //  enough.
-  mc.window.ViewChange(MailViewConstants.kViewItemVirtual);
+  window.ViewChange(MailViewConstants.kViewItemVirtual);
   wait_for_modal_dialog("mailnews:virtualFolderProperties");
 });
 

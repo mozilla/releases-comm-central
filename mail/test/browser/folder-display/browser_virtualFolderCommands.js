@@ -16,7 +16,6 @@ var {
   get_about_3pane,
   make_display_threaded,
   make_message_sets_in_folders,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"

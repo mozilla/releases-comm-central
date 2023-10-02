@@ -31,8 +31,8 @@ const { MailServices } = ChromeUtils.import(
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 
-function getMsgBodyTxt(mc) {
-  let msgPane = get_about_message(mc.window).getMessagePaneBrowser();
+function getMsgBodyTxt(msgc) {
+  let msgPane = get_about_message(msgc.window).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 
@@ -139,10 +139,10 @@ add_task(async function testPartialInlinePGPDecrypt() {
     info(`Testing partial inline; filename=${test.filename}`);
 
     // Setup the message.
-    let mc = await open_message_from_file(
+    let msgc = await open_message_from_file(
       new FileUtils.File(getTestFilePath("data/eml/" + test.filename))
     );
-    let aboutMessage = get_about_message(mc.window);
+    let aboutMessage = get_about_message(msgc.window);
 
     let notificationBox = "mail-notification-top";
     let notificationValue = "decryptInlinePG";
@@ -154,7 +154,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
       notificationValue
     );
 
-    let body = getMsgBodyTxt(mc);
+    let body = getMsgBodyTxt(msgc);
 
     Assert.ok(
       body.includes("BEGIN PGP"),
@@ -184,7 +184,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
     );
 
     // Get updated body text after processing the PGP subset.
-    body = getMsgBodyTxt(mc);
+    body = getMsgBodyTxt(msgc);
 
     Assert.ok(!body.includes("prefix"), "prefix should not be shown");
     Assert.ok(!body.includes("suffix"), "suffix should not be shown");
@@ -229,7 +229,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
       }
     }
 
-    close_window(mc);
+    close_window(msgc);
   }
 });
 

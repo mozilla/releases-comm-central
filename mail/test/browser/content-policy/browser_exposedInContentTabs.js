@@ -20,7 +20,6 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -118,8 +117,7 @@ function addMsgToFolder(folder) {
 async function checkContentTab(msgURL) {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount =
-    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
+  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
 
   let dataurl =
     "data:text/html,<html><head><title>test exposed</title>" +
@@ -145,11 +143,10 @@ async function checkContentTab(msgURL) {
     );
   });
 
-  mc.window.document.getElementById("tabmail").closeTab(newTab);
+  document.getElementById("tabmail").closeTab(newTab);
 
   if (
-    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length !=
-    preCount
+    document.getElementById("tabmail").tabContainer.allTabs.length != preCount
   ) {
     throw new Error("The content tab didn't close");
   }

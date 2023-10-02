@@ -10,9 +10,6 @@
 
 "use strict";
 
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var { NNTP_PORT, setupLocalServer } = ChromeUtils.import(
   "resource://testing-common/mozmill/NNTPHelpers.jsm"
 );
@@ -45,14 +42,14 @@ add_task(async function test_virtual_folder_selection_tree() {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   EventUtils.synthesizeMouseAtCenter(
-    mc.window.document.getElementById("menu_File"),
+    document.getElementById("menu_File"),
     {},
-    mc.window.document.getElementById("menu_File").ownerGlobal
+    document.getElementById("menu_File").ownerGlobal
   );
-  await click_menus_in_sequence(
-    mc.window.document.getElementById("menu_FilePopup"),
-    [{ id: "menu_New" }, { id: "menu_newVirtualFolder" }]
-  );
+  await click_menus_in_sequence(document.getElementById("menu_FilePopup"), [
+    { id: "menu_New" },
+    { id: "menu_newVirtualFolder" },
+  ]);
 
   wait_for_modal_dialog("mailnews:virtualFolderProperties");
 });
@@ -93,14 +90,14 @@ add_task(async function test_offline_sync_folder_selection_tree() {
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
   EventUtils.synthesizeMouseAtCenter(
-    mc.window.document.getElementById("menu_File"),
+    document.getElementById("menu_File"),
     {},
-    mc.window.document.getElementById("menu_File").ownerGlobal
+    document.getElementById("menu_File").ownerGlobal
   );
-  await click_menus_in_sequence(
-    mc.window.document.getElementById("menu_FilePopup"),
-    [{ id: "offlineMenuItem" }, { id: "menu_synchronizeOffline" }]
-  );
+  await click_menus_in_sequence(document.getElementById("menu_FilePopup"), [
+    { id: "offlineMenuItem" },
+    { id: "menu_synchronizeOffline" },
+  ]);
 
   wait_for_modal_dialog("mailnews:synchronizeOffline");
 });

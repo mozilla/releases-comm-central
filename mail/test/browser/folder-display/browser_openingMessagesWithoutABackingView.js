@@ -63,9 +63,8 @@ add_setup(async function () {
  */
 async function test_open_single_message_without_backing_view_in_tab() {
   set_open_message_behavior("NEW_TAB");
-  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let preCount =
-    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
+  let folderTab = document.getElementById("tabmail").currentTabInfo;
+  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
 
   let win = get_about_3pane();
@@ -95,7 +94,7 @@ async function test_open_single_message_without_backing_view_in_tab() {
   // Check that the message pane is focused
   assert_message_pane_focused();
   // Clean up, close the tab
-  close_tab(mc.window.document.getElementById("tabmail").currentTabInfo);
+  close_tab(document.getElementById("tabmail").currentTabInfo);
   await switch_tab(folderTab);
   reset_open_message_behavior();
 }
@@ -106,9 +105,8 @@ add_task(test_open_single_message_without_backing_view_in_tab);
  */
 async function test_open_multiple_messages_without_backing_views_in_tabs() {
   set_open_message_behavior("NEW_TAB");
-  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
-  let preCount =
-    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
+  let folderTab = document.getElementById("tabmail").currentTabInfo;
+  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
   await be_in_folder(folder);
 
   // Get a reference to a bunch of headers
@@ -130,7 +128,7 @@ async function test_open_multiple_messages_without_backing_views_in_tabs() {
   // title
   for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
     assert_tab_titled_from(
-      mc.window.document.getElementById("tabmail").tabInfo[preCount + i],
+      document.getElementById("tabmail").tabInfo[preCount + i],
       msgHdrs[i]
     );
   }
@@ -140,7 +138,7 @@ async function test_open_multiple_messages_without_backing_views_in_tabs() {
   for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
     assert_selected_and_displayed(msgHdrs.pop());
     assert_message_pane_focused();
-    close_tab(mc.window.document.getElementById("tabmail").currentTabInfo);
+    close_tab(document.getElementById("tabmail").currentTabInfo);
   }
   await switch_tab(folderTab);
   reset_open_message_behavior();

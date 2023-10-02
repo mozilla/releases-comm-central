@@ -20,7 +20,6 @@ var {
   create_folder,
   get_about_message,
   make_message_sets_in_folders,
-  mc,
   select_click_row,
   switch_tab,
   wait_for_popup_to_open,
@@ -137,21 +136,18 @@ function setupTest(test) {
 }
 
 function open_about_downloads() {
-  let preCount =
-    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
-  let newTab = mc.window.openSavedFilesWnd();
+  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
+  let newTab = window.openSavedFilesWnd();
   utils.waitFor(
     () =>
-      mc.window.document.getElementById("tabmail").tabContainer.allTabs
-        .length ==
+      document.getElementById("tabmail").tabContainer.allTabs.length ==
       preCount + 1,
     "Timeout waiting for about:downloads tab"
   );
 
   wait_for_browser_load(newTab.browser, "about:downloads");
   // We append new tabs at the end, so check the last one.
-  let expectedNewTab =
-    mc.window.document.getElementById("tabmail").tabInfo[preCount];
+  let expectedNewTab = document.getElementById("tabmail").tabInfo[preCount];
   return expectedNewTab;
 }
 
@@ -193,7 +189,7 @@ async function save_attachment_files() {
 async function subtest_save_attachment_files_in_list() {
   await save_attachment_files();
 
-  mc.window.document.getElementById("tabmail").switchToTab(downloadsTab);
+  document.getElementById("tabmail").switchToTab(downloadsTab);
   let list = content_tab_e(downloadsTab, "msgDownloadsRichListBox");
 
   let length = attachmentFileNames.length;

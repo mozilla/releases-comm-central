@@ -16,7 +16,6 @@ var {
   create_folder,
   get_about_3pane,
   make_message_sets_in_folders,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -135,7 +134,7 @@ add_task(async function test_escape_rules() {
 add_task(function test_control_shift_k_shows_quick_filter_bar() {
   let about3Pane = get_about_3pane();
 
-  let dispatcha = mc.window.document.commandDispatcher;
+  let dispatcha = document.commandDispatcher;
   let qfbTextbox = about3Pane.document.getElementById("qfb-qs-textbox");
 
   // focus explicitly on the thread pane so we know where the focus is.

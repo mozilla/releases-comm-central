@@ -20,7 +20,6 @@ var {
   enter_folder,
   expand_folder,
   get_about_3pane,
-  mc,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

@@ -130,7 +130,7 @@ add_task(
     let msgc2 = await open_selected_message_in_new_window();
 
     let preCount = folder.getTotalMessages(false);
-    mc.window.focus();
+    window.focus();
     plan_for_window_close(msgc);
     plan_for_window_close(msgcA);
     select_click_row(0);
@@ -178,7 +178,7 @@ add_task(async function test_close_message_tab_on_delete_from_message_tab() {
 
   assert_number_of_tabs_open(2);
 
-  if (msgc2 != mc.window.document.getElementById("tabmail").tabInfo[1]) {
+  if (msgc2 != document.getElementById("tabmail").tabInfo[1]) {
     throw new Error("should only have closed the active tab");
   }
 
@@ -215,7 +215,7 @@ add_task(
 
     assert_number_of_tabs_open(2);
 
-    if (msgc2 != mc.window.document.getElementById("tabmail").tabInfo[1]) {
+    if (msgc2 != document.getElementById("tabmail").tabInfo[1]) {
       throw new Error("should only have closed the active tab");
     }
 
@@ -244,7 +244,7 @@ add_task(
     let msgc2 = await open_selected_message_in_new_tab(true);
 
     let preCount = folder.getTotalMessages(false);
-    mc.window.focus();
+    window.focus();
     select_click_row(0);
     press_delete(mc);
 
@@ -254,7 +254,7 @@ add_task(
 
     assert_number_of_tabs_open(2);
 
-    if (msgc2 != mc.window.document.getElementById("tabmail").tabInfo[1]) {
+    if (msgc2 != document.getElementById("tabmail").tabInfo[1]) {
       throw new Error("should only have closed the active tab");
     }
 
@@ -284,7 +284,7 @@ add_task(
     let msgc2A = await open_selected_message_in_new_window();
 
     let preCount = folder.getTotalMessages(false);
-    mc.window.focus();
+    window.focus();
     plan_for_window_close(msgcA);
     select_click_row(0);
     press_delete(mc);
@@ -296,7 +296,7 @@ add_task(
 
     assert_number_of_tabs_open(2);
 
-    if (msgc2 != mc.window.document.getElementById("tabmail").tabInfo[1]) {
+    if (msgc2 != document.getElementById("tabmail").tabInfo[1]) {
       throw new Error("should only have closed the active tab");
     }
 

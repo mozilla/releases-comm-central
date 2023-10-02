@@ -17,7 +17,6 @@ var {
   get_about_3pane,
   inboxFolder,
   make_message_sets_in_folders,
-  mc,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

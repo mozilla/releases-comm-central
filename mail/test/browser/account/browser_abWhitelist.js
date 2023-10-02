@@ -4,10 +4,6 @@
 
 "use strict";
 
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
 var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/AccountManagerHelpers.jsm"

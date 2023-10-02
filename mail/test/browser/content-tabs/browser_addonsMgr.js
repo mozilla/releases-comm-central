@@ -7,9 +7,6 @@
 var { content_tab_e, wait_for_content_tab_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var {
   click_through_appmenu,
   plan_for_modal_dialog,
@@ -19,10 +16,10 @@ var {
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 add_task(async function test_open_addons_with_url() {
-  mc.window.openAddonsMgr("addons://list/theme");
+  window.openAddonsMgr("addons://list/theme");
   await new Promise(resolve => setTimeout(resolve));
 
-  let tab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let tab = document.getElementById("tabmail").currentTabInfo;
   wait_for_content_tab_load(tab, "about:addons", 10000);
   let categoriesBox = tab.browser.contentDocument.getElementById("categories");
   Assert.equal(
@@ -31,8 +28,8 @@ add_task(async function test_open_addons_with_url() {
     "Themes category should be selected!"
   );
 
-  mc.window.document.getElementById("tabmail").switchToTab(0); // switch to 3pane
-  mc.window.document.getElementById("tabmail").closeTab(tab);
+  document.getElementById("tabmail").switchToTab(0); // switch to 3pane
+  document.getElementById("tabmail").closeTab(tab);
 });
 
 /**
@@ -46,7 +43,7 @@ add_task(function test_addon_prefs() {
   const subview = click_through_appmenu(
     [{ id: "appmenu_addons" }],
     null,
-    mc.window
+    window
   );
 
   plan_for_modal_dialog("mozmill-prefs", function (controller) {
@@ -64,7 +61,7 @@ add_task(function test_addon_prefs() {
       item.label == "MozMill"
     ) {
       foundAddon = true;
-      EventUtils.synthesizeMouseAtCenter(item, { clickCount: 1 }, mc.window);
+      EventUtils.synthesizeMouseAtCenter(item, { clickCount: 1 }, window);
       break;
     }
   }

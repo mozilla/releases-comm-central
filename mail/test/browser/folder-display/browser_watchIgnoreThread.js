@@ -19,7 +19,6 @@ var {
   expand_all_threads,
   inboxFolder,
   make_display_threaded,
-  mc,
   select_click_row,
   wait_for_popup_to_open,
 } = ChromeUtils.import(
@@ -60,14 +59,14 @@ add_setup(async function () {
  */
 async function clickViewMessagesItem(id) {
   EventUtils.synthesizeMouseAtCenter(
-    mc.window.document.getElementById("menu_View"),
+    document.getElementById("menu_View"),
     {},
-    mc.window.document.getElementById("menu_View").ownerGlobal
+    document.getElementById("menu_View").ownerGlobal
   );
-  await click_menus_in_sequence(
-    mc.window.document.getElementById("menu_View_Popup"),
-    [{ id: "viewMessagesMenu" }, { id }]
-  );
+  await click_menus_in_sequence(document.getElementById("menu_View_Popup"), [
+    { id: "viewMessagesMenu" },
+    { id },
+  ]);
 }
 
 /**

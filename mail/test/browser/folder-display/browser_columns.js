@@ -18,7 +18,6 @@ var {
   enter_folder,
   inboxFolder,
   make_message_sets_in_folders,
-  mc,
   open_folder_in_new_tab,
   switch_tab,
   wait_for_all_messages_to_load,

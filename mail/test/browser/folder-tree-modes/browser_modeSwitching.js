@@ -12,7 +12,6 @@ var {
   assert_folder_visible,
   inboxFolder,
   make_message_sets_in_folders,
-  mc,
   toggle_main_menu,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -52,14 +51,14 @@ add_setup(async function () {
   await make_message_sets_in_folders([unreadFolder], [{ count: 1 }]);
   favoriteFolder.setFlag(Ci.nsMsgFolderFlags.Favorite);
 
-  modeList_menu = mc.window.document.getElementById("menu_FolderViewsPopup");
-  modeList_appmenu = mc.window.document.getElementById("appMenu-foldersView");
+  modeList_menu = document.getElementById("menu_FolderViewsPopup");
+  modeList_appmenu = document.getElementById("appMenu-foldersView");
 
-  view_menu = mc.window.document.getElementById("menu_View");
-  view_menupopup = mc.window.document.getElementById("menu_View_Popup");
-  appmenu_button = mc.window.document.getElementById("button-appmenu");
-  appmenu_mainView = mc.window.document.getElementById("appMenu-mainView");
-  appmenu_popup = mc.window.document.getElementById("appMenu-popup");
+  view_menu = document.getElementById("menu_View");
+  view_menupopup = document.getElementById("menu_View_Popup");
+  appmenu_button = document.getElementById("button-appmenu");
+  appmenu_mainView = document.getElementById("appMenu-mainView");
+  appmenu_popup = document.getElementById("appMenu-popup");
 
   // Main menu is needed for this whole test file.
   menu_state = toggle_main_menu(true);
@@ -87,7 +86,7 @@ async function assert_mode_selected(aMode) {
   // We need to open the menu because only then the right mode is set in them.
   if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from tests.
-    EventUtils.synthesizeMouseAtCenter(view_menu, { clickCount: 1 }, mc.window);
+    EventUtils.synthesizeMouseAtCenter(view_menu, { clickCount: 1 }, window);
     let popuplist = await click_menus_in_sequence(
       view_menupopup,
       [{ id: modeList_menu.parentNode.id }],
@@ -101,11 +100,11 @@ async function assert_mode_selected(aMode) {
     close_popup_sequence(popuplist);
   }
 
-  EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
+  EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, window);
   click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
     null,
-    mc.window
+    window
   );
   for (let mode of about3Pane.folderPane.activeModes) {
     Assert.ok(
@@ -128,7 +127,7 @@ async function assert_mode_not_selected(mode) {
   // We need to open the menu because only then the right mode is set in them.
   if (["linux", "win"].includes(AppConstants.platform)) {
     // On OS X the main menu seems not accessible for clicking from tests.
-    EventUtils.synthesizeMouseAtCenter(view_menu, { clickCount: 1 }, mc.window);
+    EventUtils.synthesizeMouseAtCenter(view_menu, { clickCount: 1 }, window);
     let popuplist = await click_menus_in_sequence(
       view_menupopup,
       [{ id: modeList_menu.parentNode.id }],
@@ -140,11 +139,11 @@ async function assert_mode_not_selected(mode) {
     close_popup_sequence(popuplist);
   }
 
-  EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
+  EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, window);
   click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
     null,
-    mc.window
+    window
   );
   Assert.ok(
     !modeList_appmenu.querySelector(`[value="${mode}"]`).hasAttribute("checked")
@@ -158,11 +157,11 @@ async function assert_mode_not_selected(mode) {
  * @param mode  The base name of the mode to select.
  */
 function select_mode_in_menu(mode) {
-  EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, mc.window);
+  EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, window);
   click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
     { value: mode },
-    mc.window
+    window
   );
   appmenu_popup.hidePopup();
 }

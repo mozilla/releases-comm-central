@@ -24,10 +24,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
 var gPopAccount, gImapAccount, gOriginalAccountCount;
 
 add_setup(function () {
@@ -464,7 +460,7 @@ function subtest_check_onchange_handler(tab) {
   EventUtils.synthesizeMouseAtCenter(byAge, {}, byAge.ownerGlobal);
   autoSync.select();
   autoSync.focus();
-  EventUtils.sendString("35", mc.window);
+  EventUtils.sendString("35", window);
 
   // Immediately switch to another pane and back.
   accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xhtml", tab);

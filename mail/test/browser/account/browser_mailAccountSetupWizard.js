@@ -217,9 +217,9 @@ add_task(async function test_mail_account_setup() {
     delete_all_existing(mc, tabDocument.getElementById("realname"));
   }
   input_value(mc, user.name);
-  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  EventUtils.synthesizeKey("VK_TAB", {}, window);
   input_value(mc, user.email);
-  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  EventUtils.synthesizeKey("VK_TAB", {}, window);
   input_value(mc, user.password);
 
   let notificationBox = tab.browser.contentWindow.gAccountSetup.notificationBox;
@@ -272,7 +272,7 @@ add_task(async function test_mail_account_setup() {
     "Timeout waiting for the manual edit area to become visible"
   );
 
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
   let tabChanged = BrowserTestUtils.waitForCondition(
     () => tabmail.selectedTab != tab,
     "Timeout waiting for the currently active tab to change"
@@ -393,9 +393,9 @@ add_task(async function test_bad_password_uses_old_settings() {
     delete_all_existing(mc, tabDocument.getElementById("realname"));
   }
   input_value(mc, user.name);
-  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  EventUtils.synthesizeKey("VK_TAB", {}, window);
   input_value(mc, user.email);
-  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  EventUtils.synthesizeKey("VK_TAB", {}, window);
   input_value(mc, user.password);
 
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
@@ -652,9 +652,9 @@ add_task(async function test_full_account_setup() {
 
   // The focus should be on the "realname" input by default, so let's fill it.
   input_value(mc, imapUser.name);
-  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  EventUtils.synthesizeKey("VK_TAB", {}, window);
   input_value(mc, imapUser.email);
-  EventUtils.synthesizeKey("VK_TAB", {}, mc.window);
+  EventUtils.synthesizeKey("VK_TAB", {}, window);
   input_value(mc, imapUser.password);
 
   let notificationBox = tab.browser.contentWindow.gAccountSetup.notificationBox;
@@ -672,7 +672,7 @@ add_task(async function test_full_account_setup() {
   );
 
   // Since we're focused inside a form, pressing "Enter" should submit it.
-  EventUtils.synthesizeKey("VK_RETURN", {}, mc.window);
+  EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
   // Wait for the successful notification to show up.
   await notificationShowed;
@@ -692,7 +692,7 @@ add_task(async function test_full_account_setup() {
 
   // Press "Enter" again to proceed with the account creation.
   tabDocument.getElementById("createButton").focus();
-  EventUtils.synthesizeKey("VK_RETURN", {}, mc.window);
+  EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
   // Since we're using plain authentication in the mock IMAP server, the
   // insecure warning dialog should appear. Let's wait for it.
@@ -734,7 +734,7 @@ add_task(async function test_full_account_setup() {
   // The final page should be visible.
   await finalViewShowed;
 
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
 
   // The tab shouldn't change even if we created a new account.
   Assert.equal(tab, tabmail.selectedTab, "Tab should should still be the same");

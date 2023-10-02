@@ -106,13 +106,13 @@ add_task(async function test_right_click_column_header_shows_col_picker() {
   //  treadCols
   //   |- hbox                item 0
   //   |- treecolpicker   <-- item 1 this is the one we want
-  let threadCols = mc.window.document.getElementById("threadCols");
+  let threadCols = document.getElementById("threadCols");
   let treeColPicker = threadCols.querySelector("treecolpicker");
   let popup = treeColPicker.querySelector("[anonid=popup]");
 
   // Right click the subject column header
   // This should show the column picker popup.
-  let subjectCol = mc.window.document.getElementById("subjectCol");
+  let subjectCol = document.getElementById("subjectCol");
   EventUtils.synthesizeMouseAtCenter(
     subjectCol,
     { type: "contextmenu", button: 2 },
@@ -201,7 +201,7 @@ async function _middle_click_with_nothing_selected_helper(aBackground) {
 
   select_none();
   assert_nothing_selected();
-  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let folderTab = document.getElementById("tabmail").currentTabInfo;
   // Focus the thread tree -- we're going to make sure it's focused when we
   // come back
   focus_thread_tree();
@@ -243,7 +243,7 @@ async function _middle_click_with_one_thing_selected_helper(aBackground) {
   select_click_row(0);
   assert_selected_and_displayed(0);
 
-  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let folderTab = document.getElementById("tabmail").currentTabInfo;
   let [tabMessage, curMessage] = middle_click_on_row(1);
   if (aBackground) {
     await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
@@ -284,7 +284,7 @@ async function _middle_click_with_many_things_selected_helper(aBackground) {
   select_shift_click_row(5);
   assert_selected_and_displayed([0, 5]);
 
-  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let folderTab = document.getElementById("tabmail").currentTabInfo;
   let [tabMessage] = middle_click_on_row(6);
   if (aBackground) {
     await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
@@ -322,7 +322,7 @@ async function _middle_click_on_existing_single_selection_helper(aBackground) {
   select_click_row(3);
   assert_selected_and_displayed(3);
 
-  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let folderTab = document.getElementById("tabmail").currentTabInfo;
   let [tabMessage, curMessage] = middle_click_on_row(3);
   if (aBackground) {
     await BrowserTestUtils.waitForEvent(tabMessage.chromeBrowser, "MsgLoaded");
@@ -362,7 +362,7 @@ async function _middle_click_on_existing_multi_selection_helper(aBackground) {
   select_shift_click_row(6);
   assert_selected_and_displayed([3, 6]);
 
-  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let folderTab = document.getElementById("tabmail").currentTabInfo;
   let [tabMessage, curMessage] = middle_click_on_row(6);
   await Promise.all(
     tabmail.tabInfo
@@ -405,7 +405,7 @@ async function _middle_click_on_collapsed_thread_root_helper(aBackground) {
   make_display_threaded();
   collapse_all_threads();
 
-  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let folderTab = document.getElementById("tabmail").currentTabInfo;
 
   let tree = get_about_3pane().threadTree;
   // Note the first visible row
@@ -459,7 +459,7 @@ async function _middle_click_on_expanded_thread_root_helper(aBackground) {
   make_display_threaded();
   expand_all_threads();
 
-  let folderTab = mc.window.document.getElementById("tabmail").currentTabInfo;
+  let folderTab = document.getElementById("tabmail").currentTabInfo;
 
   let tree = get_about_3pane().threadTree;
   // Note the first visible row

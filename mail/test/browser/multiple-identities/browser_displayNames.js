@@ -18,7 +18,6 @@ var {
   create_folder,
   create_message,
   get_about_message,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"

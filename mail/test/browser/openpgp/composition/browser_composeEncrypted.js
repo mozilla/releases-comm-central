@@ -924,7 +924,7 @@ async function testEncryptedMessageReplyIsEncrypted(
   setAutoPrefs(autoEnable, autoDisable, notifyOnDisable);
 
   await be_in_folder(gDrafts);
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "../data/eml/signed-by-0xfbfcc82a015e7330-encrypted-to-0xf231550c4f47e38e.eml"
@@ -932,8 +932,8 @@ async function testEncryptedMessageReplyIsEncrypted(
     )
   );
 
-  let cwc = open_compose_with_reply(mc);
-  close_window(mc);
+  let cwc = open_compose_with_reply(msgc);
+  close_window(msgc);
 
   let replyWindow = cwc.window;
 

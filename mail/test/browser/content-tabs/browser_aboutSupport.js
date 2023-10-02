@@ -22,7 +22,7 @@ var {
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 
-var { close_tab, mc } = ChromeUtils.import(
+var { close_tab } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { click_menus_in_sequence, plan_for_new_window } = ChromeUtils.import(
@@ -51,7 +51,7 @@ add_setup(function () {
 // After every test we want to close the about:support tab so that failures
 // don't cascade.
 function teardownTest(module) {
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
   tabmail.closeOtherTabs(tabmail.tabInfo[0]);
 }
 
@@ -90,16 +90,15 @@ const ABOUT_SUPPORT_ERROR_STRINGS = new Map([
 async function open_about_support() {
   let openAboutSupport = async function () {
     if (AppConstants.platform == "macosx") {
-      mc.window.document.getElementById("aboutsupport_open").click();
+      document.getElementById("aboutsupport_open").click();
     } else {
       // Show menubar so we can click it.
       document.getElementById("toolbar-menubar").removeAttribute("autohide");
-      let helpMenu = mc.window.document.getElementById("helpMenu");
+      let helpMenu = document.getElementById("helpMenu");
       EventUtils.synthesizeMouseAtCenter(helpMenu, {}, helpMenu.ownerGlobal);
-      await click_menus_in_sequence(
-        mc.window.document.getElementById("menu_HelpPopup"),
-        [{ id: "aboutsupport_open" }]
-      );
+      await click_menus_in_sequence(document.getElementById("menu_HelpPopup"), [
+        { id: "aboutsupport_open" },
+      ]);
     }
   };
   let tab = open_content_tab_with_click(openAboutSupport, "about:support");

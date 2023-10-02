@@ -187,11 +187,7 @@ async function internal_check_delivery_format(editDraft) {
     );
   } else {
     // Trigger "edit as new" resulting in template processing.
-    EventUtils.synthesizeKey(
-      "e",
-      { shiftKey: false, accelKey: true },
-      mc.window
-    );
+    EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true }, window);
   }
   cwc = wait_for_compose_window();
 

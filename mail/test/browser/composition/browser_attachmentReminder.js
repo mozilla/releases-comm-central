@@ -20,7 +20,6 @@ var {
   be_in_folder,
   get_special_folder,
   get_about_message,
-  mc,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(

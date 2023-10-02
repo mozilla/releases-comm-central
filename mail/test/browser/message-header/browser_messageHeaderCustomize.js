@@ -17,7 +17,6 @@ var {
   get_about_3pane,
   get_about_message,
   inboxFolder,
-  mc,
   msgGen,
   restore_default_window_size,
   select_click_row,

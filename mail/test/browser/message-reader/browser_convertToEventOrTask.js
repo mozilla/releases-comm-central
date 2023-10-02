@@ -45,7 +45,7 @@ add_setup(async function () {
   registerCleanupFunction(() => {
     folder.deleteSelf(null);
     cal.manager.getCalendars()[0].setProperty("disabled", true);
-    mc.window.document.documentElement.focus();
+    document.documentElement.focus();
   });
 });
 

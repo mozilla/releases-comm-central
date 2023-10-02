@@ -21,7 +21,6 @@ var {
   get_about_3pane,
   inboxFolder,
   make_message_sets_in_folders,
-  mc,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(

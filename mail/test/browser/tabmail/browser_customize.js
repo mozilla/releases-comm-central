@@ -38,7 +38,7 @@ registerCleanupFunction(function () {
  */
 add_task(async function test_open_unified_by_context() {
   // First, ensure that the context menu is closed.
-  let contextPopup = mc.window.document.getElementById("toolbar-context-menu");
+  let contextPopup = document.getElementById("toolbar-context-menu");
   Assert.notEqual(
     contextPopup.state,
     "open",
@@ -47,7 +47,7 @@ add_task(async function test_open_unified_by_context() {
 
   // Right click on the tab bar.
   EventUtils.synthesizeMouseAtCenter(
-    mc.window.document.getElementById("tabmail-tabs"),
+    document.getElementById("tabmail-tabs"),
     { type: "contextmenu" },
     window
   );
@@ -98,7 +98,7 @@ add_task(async function test_open_unified_by_context() {
  */
 add_task(async function test_open_unified_by_menu() {
   // First, ensure that the menu is closed.
-  let appMenu = mc.window.document.getElementById("appMenu-popup");
+  let appMenu = document.getElementById("appMenu-popup");
   Assert.notEqual(
     appMenu.getAttribute("panelopen"),
     "true",

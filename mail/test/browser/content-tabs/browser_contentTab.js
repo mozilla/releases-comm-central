@@ -53,7 +53,7 @@ add_task(async function test_content_tab_open() {
  * spell checking options.
  */
 add_task(async function test_spellcheck_in_content_tabs() {
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
 
   // Test a few random items
   BrowserTestUtils.synthesizeMouseAtCenter(
@@ -72,7 +72,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     { type: "contextmenu" },
     tabmail.selectedTab.browser
   );
-  let browserContext = mc.window.document.getElementById("browserContext");
+  let browserContext = document.getElementById("browserContext");
   await wait_for_popup_to_open(browserContext);
   assert_element_visible("browserContext-spell-dictionaries");
   assert_element_visible("browserContext-spell-check-enabled");
@@ -98,10 +98,9 @@ add_task(async function test_spellcheck_in_content_tabs() {
     tabmail.selectedTab.browser
   );
   await wait_for_popup_to_open(browserContext);
-  let suggestions =
-    mc.window.document.getElementsByClassName("spell-suggestion");
+  let suggestions = document.getElementsByClassName("spell-suggestion");
   Assert.ok(suggestions.length > 0, "What, is zombocom a registered word now?");
-  let addToDict = mc.window.document.getElementById(
+  let addToDict = document.getElementById(
     "browserContext-spell-add-to-dictionary"
   );
   if (AppConstants.platform == "macosx") {
@@ -122,7 +121,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
     tabmail.selectedTab.browser
   );
   await wait_for_popup_to_open(browserContext);
-  suggestions = mc.window.document.getElementsByClassName("spell-suggestion");
+  suggestions = document.getElementsByClassName("spell-suggestion");
   Assert.ok(suggestions.length == 0, "But I just taught you this word!");
   await close_popup(mc, browserContext);
 });
@@ -138,7 +137,7 @@ add_task(function test_content_tab_default_favicon() {
 });
 
 add_task(async function test_content_tab_onbeforeunload() {
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
   let count = tabmail.tabContainer.allTabs.length;
   let tab = tabmail.tabInfo[count - 1];
   await SpecialPowers.spawn(tab.browser, [], () => {
@@ -163,7 +162,7 @@ add_task(async function test_content_tab_onbeforeunload() {
 // - zoom?
 
 registerCleanupFunction(function () {
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
   while (tabmail.tabInfo.length > 1) {
     tabmail.closeTab(1);
   }

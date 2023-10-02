@@ -25,7 +25,6 @@ var {
   create_folder,
   get_about_3pane,
   get_about_message,
-  mc,
   open_selected_message_in_new_window,
   select_click_row,
   select_shift_click_row,
@@ -204,7 +203,7 @@ add_task(function test_dnsPrefetch_compose() {
 add_task(async function test_dnsPrefetch_contentTab() {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
   let preCount = tabmail.tabContainer.allTabs.length;
 
   let dataurl =

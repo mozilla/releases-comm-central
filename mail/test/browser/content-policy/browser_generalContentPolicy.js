@@ -474,8 +474,7 @@ async function checkContentTab(test) {
   }
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
-  let preCount =
-    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
+  let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
 
   let newTab = open_content_tab_with_url(url + test.webPage);
 
@@ -487,11 +486,10 @@ async function checkContentTab(test) {
     );
   }
 
-  mc.window.document.getElementById("tabmail").closeTab(newTab);
+  document.getElementById("tabmail").closeTab(newTab);
 
   if (
-    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length !=
-    preCount
+    document.getElementById("tabmail").tabContainer.allTabs.length != preCount
   ) {
     throw new Error("The content tab didn't close");
   }

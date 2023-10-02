@@ -89,7 +89,7 @@ add_task(async function test_move_message() {
     folder2,
     true,
     copyListener,
-    mc.window.msgWindow,
+    window.msgWindow,
     true
   );
   utils.waitFor(

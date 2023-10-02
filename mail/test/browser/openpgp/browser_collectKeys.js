@@ -87,7 +87,7 @@ add_setup(async function () {
 add_task(async function testCollectKeyAttachment() {
   let keycollected = BrowserTestUtils.waitForEvent(window, "keycollected");
   let opengpgprocessed = openpgpProcessed();
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/unsigned-unencrypted-key-0x1f10171bfb881b1c-attached.eml"
@@ -95,7 +95,7 @@ add_task(async function testCollectKeyAttachment() {
     )
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -119,7 +119,7 @@ add_task(async function testCollectKeyAttachment() {
   Assert.equal(source.uri, "mid:4a735c72-dc19-48ff-4fa5-2c1f65513b27@invalid");
   Assert.equal(source.description, "OpenPGP_0x1F10171BFB881B1C.asc");
 
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -128,7 +128,7 @@ add_task(async function testCollectKeyAttachment() {
 add_task(async function testCollectAutocrypt() {
   let keycollected = BrowserTestUtils.waitForEvent(window, "keycollected");
   let opengpgprocessed = openpgpProcessed();
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/unsigned-unencrypted-0x3099ff1238852b9f-autocrypt.eml"
@@ -136,7 +136,7 @@ add_task(async function testCollectAutocrypt() {
     )
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -163,7 +163,7 @@ add_task(async function testCollectAutocrypt() {
   );
   Assert.equal(source.description, undefined);
 
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -173,13 +173,13 @@ add_task(async function testCollectAutocrypt() {
  */
 add_task(async function testSkipFakeOrUnrelatedKeys() {
   let opengpgprocessed = openpgpProcessed();
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/unrelated-and-fake-keys-attached.eml")
     )
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -209,7 +209,7 @@ add_task(async function testSkipFakeOrUnrelatedKeys() {
   keys = await db.findKeysForEmail("bob@openpgp.example");
   Assert.equal(keys.length, 1, "bob's key should have been collected");
 
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -218,11 +218,11 @@ add_task(async function testSkipFakeOrUnrelatedKeys() {
  */
 add_task(async function testSkipDuplicateKeys() {
   let opengpgprocessed = openpgpProcessed();
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/eve-duplicate.eml"))
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -242,7 +242,7 @@ add_task(async function testSkipDuplicateKeys() {
     "the attached keys for eve should have been ignored"
   );
 
-  close_window(mc);
+  close_window(msgc);
 });
 
 registerCleanupFunction(async function tearDown() {

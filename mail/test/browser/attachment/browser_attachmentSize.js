@@ -21,7 +21,6 @@ var {
   create_folder,
   create_message,
   get_about_message,
-  mc,
   msgGen,
   select_click_row,
 } = ChromeUtils.import(
@@ -351,7 +350,7 @@ function check_total_attachment_size(count, expectedSize, exact) {
   // Next, make sure that the formatted size in the label is correct
   let formattedSize = sizeNode.getAttribute("value");
   let expectedFormattedSize = messenger.formatFileSize(size);
-  let messengerBundle = mc.window.document.getElementById("bundle_messenger");
+  let messengerBundle = document.getElementById("bundle_messenger");
 
   if (!exact) {
     if (size == 0) {

@@ -9,7 +9,7 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var { be_in_folder, create_folder, get_about_message, mc, select_click_row } =
+var { be_in_folder, create_folder, get_about_message, select_click_row } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );

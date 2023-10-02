@@ -120,15 +120,15 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
   let wantedRow = 0;
 
   for (let msg of msgFiles) {
-    let mc = await open_message_from_file(
+    let msgc = await open_message_from_file(
       new FileUtils.File(getTestFilePath(msg))
     );
 
     let replyWindowPromise = waitForComposeWindow();
-    get_about_message(mc.window)
+    get_about_message(msgc.window)
       .document.querySelector("#hdrReplyButton")
       .click();
-    close_window(mc);
+    close_window(msgc);
 
     let replyWindow = await replyWindowPromise;
     await save_compose_message(replyWindow);

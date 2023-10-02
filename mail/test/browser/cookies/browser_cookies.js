@@ -13,9 +13,6 @@
 var { open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 
 // RELATIVE_ROOT messes with the collector, so we have to bring the path back
 // so we get the right path for the resources.

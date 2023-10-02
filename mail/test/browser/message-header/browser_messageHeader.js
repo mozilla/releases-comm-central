@@ -107,9 +107,7 @@ add_setup(async function () {
 
   // Some of these tests critically depends on the window width, collapse
   // everything that might be in the way.
-  mc.window.document.getElementById(
-    "tabmail"
-  ).currentTabInfo.folderPaneVisible = false;
+  document.getElementById("tabmail").currentTabInfo.folderPaneVisible = false;
 
   // Disable animations on the panel, so that we don't have to deal with
   // async openings. The panel is lazy-loaded, so it needs to be referenced
@@ -540,7 +538,7 @@ add_task(async function test_clicking_ab_button_opens_inline_contact_editor() {
   );
   wait_for_content_tab_load(undefined, "about:addressbook");
   // TODO check the card.
-  mc.window.document.getElementById("tabmail").closeTab();
+  document.getElementById("tabmail").closeTab();
 });
 
 /**
@@ -1002,7 +1000,7 @@ add_task(async function test_show_all_header_mode() {
     EventUtils.synthesizeMouseAtCenter(
       document.getElementById("otherActionsButton"),
       {},
-      mc.window
+      window
     );
     await popupShown;
 
@@ -1011,7 +1009,7 @@ add_task(async function test_show_all_header_mode() {
       "messageHeaderMoreMenuCustomize"
     );
     let panelShown = BrowserTestUtils.waitForEvent(panel, "popupshown");
-    EventUtils.synthesizeMouseAtCenter(customizeBtn, {}, mc.window);
+    EventUtils.synthesizeMouseAtCenter(customizeBtn, {}, window);
     await panelShown;
 
     let viewAllHeaders = document.getElementById("headerViewAllHeaders");
@@ -1025,7 +1023,7 @@ add_task(async function test_show_all_header_mode() {
           : "normal",
       "Message header updated correctly"
     );
-    EventUtils.synthesizeMouseAtCenter(viewAllHeaders, {}, mc.window);
+    EventUtils.synthesizeMouseAtCenter(viewAllHeaders, {}, window);
     await modeChanged;
 
     Assert.ok(
@@ -1150,9 +1148,7 @@ add_task(async function test_starred_message() {
 });
 
 add_task(async function test_starred_message_unified_mode() {
-  mc.window.document.getElementById(
-    "tabmail"
-  ).currentTabInfo.folderPaneVisible = true;
+  document.getElementById("tabmail").currentTabInfo.folderPaneVisible = true;
   select_none();
   // Show the "Unified" folders view.
   mc.folderTreeView.activeModes = "smart";
@@ -1162,9 +1158,7 @@ add_task(async function test_starred_message_unified_mode() {
 
   await help_test_starred_messages();
 
-  mc.window.document.getElementById(
-    "tabmail"
-  ).currentTabInfo.folderPaneVisible = false;
+  document.getElementById("tabmail").currentTabInfo.folderPaneVisible = false;
   select_none();
   // Show the "All" folders view.
   mc.folderTreeView.activeModes = "all";

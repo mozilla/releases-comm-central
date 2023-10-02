@@ -15,7 +15,6 @@ var {
   create_folder,
   get_about_3pane,
   make_message_sets_in_folders,
-  mc,
   open_folder_in_new_tab,
   open_selected_message_in_new_tab,
   select_click_row,
@@ -55,8 +54,8 @@ function assert_folder_pane_visible() {
     "The folder tree splitter should not be collapsed!"
   );
 
-  mc.window.view_init(); // Force the view menu to update.
-  let paneMenuItem = mc.window.document.getElementById("menu_showFolderPane");
+  window.view_init(); // Force the view menu to update.
+  let paneMenuItem = document.getElementById("menu_showFolderPane");
   Assert.equal(
     paneMenuItem.getAttribute("checked"),
     "true",
@@ -88,8 +87,8 @@ function assert_folder_pane_hidden() {
     "The folder tree splitter should be collapsed!"
   );
 
-  mc.window.view_init(); // Force the view menu to update.
-  let paneMenuItem = mc.window.document.getElementById("menu_showFolderPane");
+  window.view_init(); // Force the view menu to update.
+  let paneMenuItem = document.getElementById("menu_showFolderPane");
   Assert.notEqual(
     paneMenuItem.getAttribute("checked"),
     "true",
@@ -194,7 +193,7 @@ add_task(async function test_folder_pane_is_sticky() {
 add_task(async function test_folder_pane_persistence_generally_works() {
   await be_in_folder(folder);
 
-  let tabmail = mc.window.document.getElementById("tabmail");
+  let tabmail = document.getElementById("tabmail");
 
   // helper to open tabs with the folder pane in the desired states (1 for
   //  visible, 0 for hidden)

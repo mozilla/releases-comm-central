@@ -14,7 +14,6 @@ var {
   assert_folder_tree_view_row_count,
   be_in_folder,
   make_message_sets_in_folders,
-  mc,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -57,10 +56,10 @@ add_task(async function test_folder_names_in_recent_view_mode() {
 
   // Close the inbox folder if open. This might happen when running multiple
   // tests from the folder-pane.
-  let index = mc.window.gFolderTreeView.getIndexOfFolder(inbox2);
+  let index = window.gFolderTreeView.getIndexOfFolder(inbox2);
   if (index != null) {
-    if (mc.window.gFolderTreeView._rowMap[index].open) {
-      mc.window.gFolderTreeView._toggleRow(index, false);
+    if (window.gFolderTreeView._rowMap[index].open) {
+      window.gFolderTreeView._toggleRow(index, false);
     }
   }
   assert_folder_tree_view_row_count(10);
@@ -76,10 +75,10 @@ add_task(async function test_folder_names_in_recent_view_mode() {
   await be_in_folder(fDup3);
 
   // Enable the recent folder view.
-  mc.window.gFolderTreeView.activeModes = "recent";
+  window.gFolderTreeView.activeModes = "recent";
   // Hide the all folder view by passing the value to the setter, which will
   // take care of toggling off the view if currently visible.
-  mc.window.gFolderTreeView.activeModes = "all";
+  window.gFolderTreeView.activeModes = "all";
 
   // Check displayed folder names.
   // In Recent mode the folders are sorted alphabetically and the first index is
@@ -102,7 +101,7 @@ registerCleanupFunction(function () {
   // Hide the recent folders view enabled in the previous test. The activeModes
   // setter should take care of restoring the "all" view and prevent and empty
   // Folder pane.
-  mc.window.gFolderTreeView.activeModes = "recent";
+  window.gFolderTreeView.activeModes = "recent";
   assert_folder_mode("all");
   assert_folder_tree_view_row_count(7);
 

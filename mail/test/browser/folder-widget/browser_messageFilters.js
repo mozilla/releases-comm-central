@@ -11,15 +11,10 @@
 var { create_ldap_address_book } = ChromeUtils.import(
   "resource://testing-common/mozmill/AddressBookHelpers.jsm"
 );
-var {
-  be_in_folder,
-  close_popup,
-  create_folder,
-  make_message_sets_in_folders,
-  mc,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
+var { be_in_folder, close_popup, create_folder, make_message_sets_in_folders } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 var { NNTP_PORT, setupLocalServer, setupNNTPDaemon } = ChromeUtils.import(
   "resource://testing-common/mozmill/NNTPHelpers.jsm"
 );
@@ -226,21 +221,20 @@ async function create_simple_filter() {
 async function openFiltersDialogs() {
   if (AppConstants.platform == "macosx") {
     // Can't click the menus on mac.
-    mc.window.MsgFilters();
+    window.MsgFilters();
     return;
   }
   // Show menubar so we can click it.
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
   // Open the "Tools | Message Filters…", a.k.a. "tasksMenu » filtersCmd".
   EventUtils.synthesizeMouseAtCenter(
-    mc.window.document.getElementById("tasksMenu"),
+    document.getElementById("tasksMenu"),
     {},
-    mc.window
+    window
   );
-  await click_menus_in_sequence(
-    mc.window.document.getElementById("taskPopup"),
-    [{ id: "filtersCmd" }]
-  );
+  await click_menus_in_sequence(document.getElementById("taskPopup"), [
+    { id: "filtersCmd" },
+  ]);
 }
 
 /**

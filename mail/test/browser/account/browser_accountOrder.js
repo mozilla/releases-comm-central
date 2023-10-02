@@ -17,10 +17,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
 var gPopAccount, gOriginalAccountCount;
 
 add_setup(function () {

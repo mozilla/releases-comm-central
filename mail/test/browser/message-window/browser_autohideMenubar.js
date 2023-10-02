@@ -100,7 +100,7 @@ async function help_test_autohide(controller, menubar) {
 }
 
 add_task(async function test_autohidden_menubar_3pane() {
-  let menubar = mc.window.document.getElementById("toolbar-menubar");
+  let menubar = document.getElementById("toolbar-menubar");
   await help_test_autohide(mc, menubar);
 });
 

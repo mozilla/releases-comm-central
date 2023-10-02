@@ -26,7 +26,6 @@ var {
   FAKE_SERVER_HOSTNAME,
   get_about_message,
   inboxFolder,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"

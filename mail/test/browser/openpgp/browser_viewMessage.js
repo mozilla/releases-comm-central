@@ -47,8 +47,8 @@ const MSG_TEXT = "Sundays are nothing without callaloo.";
 // TODO: Enable for S/MIME test
 //const MSG_TEXT_SMIME = "This is a test message from Alice to Bob.";
 
-function getMsgBodyTxt(mc) {
-  let msgPane = get_about_message(mc.window).getMessagePaneBrowser();
+function getMsgBodyTxt(msgc) {
+  let msgPane = get_about_message(msgc.window).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 
@@ -115,14 +115,14 @@ add_setup(async function () {
  * Test that an unsigned unencrypted message do not show as signed nor encrypted.
  */
 add_task(async function testOpenNoPGPSecurity() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/unsigned-unencrypted-from-bob-to-alice.eml")
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
@@ -131,23 +131,23 @@ add_task(async function testOpenNoPGPSecurity() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
  * Test that a signed (only) message, signed by a verified key, shows as such.
  */
 add_task(async function testOpenSignedByVerifiedUnencrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0xfbfcc82a015e7330-to-0xf231550c4f47e38e-unencrypted.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "verified"),
     "signed verified icon is displayed"
@@ -156,7 +156,7 @@ add_task(async function testOpenSignedByVerifiedUnencrypted() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -164,14 +164,14 @@ add_task(async function testOpenSignedByVerifiedUnencrypted() {
  * but with an mismatching email date, is shown with invalid signature.
  */
 add_task(async function testOpenSignedDateMismatch() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/signed-mismatch-email-date.eml")
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
     "signed unknown icon is displayed"
@@ -180,23 +180,23 @@ add_task(async function testOpenSignedDateMismatch() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
  * Test that opening an unsigned encrypted message shows as such.
  */
 add_task(async function testOpenVerifiedUnsignedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/unsigned-encrypted-to-0xf231550c4f47e38e-from-0xfbfcc82a015e7330.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
@@ -205,7 +205,7 @@ add_task(async function testOpenVerifiedUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -213,17 +213,17 @@ add_task(async function testOpenVerifiedUnsignedEncrypted() {
  * on security status icons of the parent message window.
  */
 add_task(async function testOpenForwardedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/fwd-unsigned-encrypted.eml"))
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   Assert.ok(
-    getMsgBodyTxt(mc).includes("wrapper message with plain text"),
+    getMsgBodyTxt(msgc).includes("wrapper message with plain text"),
     "wrapper message text should be shown"
   );
   Assert.ok(
-    !getMsgBodyTxt(mc).includes(MSG_TEXT),
+    !getMsgBodyTxt(msgc).includes(MSG_TEXT),
     "message text should not be shown"
   );
   Assert.ok(
@@ -261,7 +261,7 @@ add_task(async function testOpenForwardedEncrypted() {
   );
   close_window(mc2);
 
-  wait_for_window_focused(mc.window);
+  wait_for_window_focused(msgc.window);
 
   // Ensure there were no side effects for the primary window.
   Assert.ok(
@@ -273,23 +273,23 @@ add_task(async function testOpenForwardedEncrypted() {
     "encrypted icon is still not displayed"
   );
 
-  close_window(mc);
+  close_window(msgc);
 }).skip(); // TODO: broken functionality - bug 1837247
 
 /**
  * Test that opening a message that is signed by a verified key shows as such.
  */
 add_task(async function testOpenSignedByVerifiedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0xfbfcc82a015e7330-encrypted-to-0xf231550c4f47e38e.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "verified"),
     "signed verified icon is displayed"
@@ -298,7 +298,7 @@ add_task(async function testOpenSignedByVerifiedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -309,16 +309,16 @@ add_task(async function testOpenSignedByVerifiedEncrypted() {
  * be used for verification.
  */
 add_task(async function testOpenSignedEncryptedMultiFrom() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0xfbfcc82a015e7330-encrypted-to-0xf231550c4f47e38e-multi-from.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "mismatch"),
     "mismatch icon should be displayed"
@@ -327,23 +327,23 @@ add_task(async function testOpenSignedEncryptedMultiFrom() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon should be displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
  * Test that opening a message signed (only) by an unverified key shows as such.
  */
 add_task(async function testOpenSignedByUnverifiedUnencrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0x3099ff1238852b9f-to-0xf231550c4f47e38e-unencrypted.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
@@ -352,7 +352,7 @@ add_task(async function testOpenSignedByUnverifiedUnencrypted() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -360,35 +360,35 @@ add_task(async function testOpenSignedByUnverifiedUnencrypted() {
  * doesn't show signature state.
  */
 add_task(async function testOpenSignedWithOuterLayer() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/signed-with-mailman-footer.eml")
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
  * Test that opening a message encrypted (only) shows as such.
  */
 add_task(async function testOpenUnverifiedUnsignedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/unsigned-encrypted-to-0xf231550c4f47e38e-from-0x3099ff1238852b9f.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
@@ -397,7 +397,7 @@ add_task(async function testOpenUnverifiedUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -407,16 +407,16 @@ add_task(async function testOpenUnverifiedUnsignedEncrypted() {
  */
 /*
 add_task(async function testOuterSmimeSigInnerSmimeUnsignedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/outer-smime-bad-sig-inner-smime-enc.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT_SMIME), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
@@ -425,7 +425,7 @@ add_task(async function testOuterSmimeSigInnerSmimeUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 */
 
@@ -434,14 +434,14 @@ add_task(async function testOuterSmimeSigInnerSmimeUnsignedEncrypted() {
  * (with outer S/MIME signature that is ignored).
  */
 add_task(async function testOuterSmimeSigInnerPgpUnverifiedUnsignedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-smime-bad-sig-inner-pgp-enc.eml")
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
@@ -450,7 +450,7 @@ add_task(async function testOuterSmimeSigInnerPgpUnverifiedUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -460,16 +460,16 @@ add_task(async function testOuterSmimeSigInnerPgpUnverifiedUnsignedEncrypted() {
  */
 /*
 add_task(async function testOuterPgpSigInnerSmimeUnsignedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/outer-pgp-sig-inner-smime-enc.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT_SMIME), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
@@ -478,7 +478,7 @@ add_task(async function testOuterPgpSigInnerSmimeUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 */
 
@@ -487,14 +487,14 @@ add_task(async function testOuterPgpSigInnerSmimeUnsignedEncrypted() {
  * (with outer OpenPGP signature that is ignored).
  */
 add_task(async function testOuterPgpSigInnerPgpUnverifiedUnsignedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc.eml")
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
@@ -503,7 +503,7 @@ add_task(async function testOuterPgpSigInnerPgpUnverifiedUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -513,14 +513,14 @@ add_task(async function testOuterPgpSigInnerPgpUnverifiedUnsignedEncrypted() {
  * We should not ignore the outer signature in this scenario.
  */
 add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc-with-mixed.eml")
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(!getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(!getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
@@ -529,7 +529,7 @@ add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -537,16 +537,16 @@ add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
  * as it should.
  */
 add_task(async function testOpenSignedByUnverifiedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0x3099ff1238852b9f-encrypted-to-0xf231550c4f47e38e.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
@@ -555,7 +555,7 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -565,16 +565,16 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
  */
 /*
 add_task(async function testOuterSmimeSigInnerSmimeSignedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/outer-smime-bad-sig-inner-smime-enc-sig.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT_SMIME), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
@@ -583,7 +583,7 @@ add_task(async function testOuterSmimeSigInnerSmimeSignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 */
 
@@ -592,14 +592,14 @@ add_task(async function testOuterSmimeSigInnerSmimeSignedEncrypted() {
  * (with outer S/MIME signature that is ignored).
  */
 add_task(async function testOuterSmimeSigInnerPgpSignedByUnverifiedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-smime-bad-sig-inner-pgp-enc-sig.eml")
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
@@ -608,7 +608,7 @@ add_task(async function testOuterSmimeSigInnerPgpSignedByUnverifiedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -618,16 +618,16 @@ add_task(async function testOuterSmimeSigInnerPgpSignedByUnverifiedEncrypted() {
  * We should not ignore the outer signature in this scenario.
  */
 add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/outer-smime-bad-sig-inner-pgp-enc-sig-with-mixed.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(!getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(!getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
@@ -636,7 +636,7 @@ add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -646,16 +646,16 @@ add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
  */
 /*
 add_task(async function testOuterPgpSigInnerSmimeSignedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/outer-pgp-sig-inner-smime-enc-sig.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT_SMIME), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT_SMIME), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
@@ -664,7 +664,7 @@ add_task(async function testOuterPgpSigInnerSmimeSignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 */
 
@@ -673,14 +673,14 @@ add_task(async function testOuterPgpSigInnerSmimeSignedEncrypted() {
  * (with outer OpenPGP signature that is ignored).
  */
 add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/outer-pgp-sig-inner-pgp-enc-sig.eml")
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unknown"),
     "signed unknown icon is displayed"
@@ -689,7 +689,7 @@ add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -698,14 +698,14 @@ add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
  */
 add_task(async function testUpdateMessageSignature() {
   // Setup the message.
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
         "data/eml/signed-by-0xfbfcc82a015e7330-to-0xf231550c4f47e38e-unencrypted.eml"
       )
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   // Verify current signature acceptance.
   Assert.ok(
@@ -772,7 +772,7 @@ add_task(async function testUpdateMessageSignature() {
       OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unverified"),
     "signed unverified icon should be displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 // After test testUpdateMessageSignature acceptance of Bob's key
@@ -783,13 +783,13 @@ add_task(async function testUpdateMessageSignature() {
  * can be correctly verified.
  */
 add_task(async function testOpenSignedInlineWithUTF8() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/alice-utf.eml"))
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   Assert.ok(
-    getMsgBodyTxt(mc).includes("£35.00"),
+    getMsgBodyTxt(msgc).includes("£35.00"),
     "UTF-8 character found in message"
   );
   await TestUtils.waitForCondition(
@@ -801,7 +801,7 @@ add_task(async function testOpenSignedInlineWithUTF8() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -809,13 +809,13 @@ add_task(async function testOpenSignedInlineWithUTF8() {
  * can be correctly verified.
  */
 add_task(async function testOpenSignedInlineWithLeadingWS() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/signed-inline-indented.eml"))
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   Assert.ok(
-    getMsgBodyTxt(mc).includes("indent test with £"),
+    getMsgBodyTxt(msgc).includes("indent test with £"),
     "expected text should be found in message"
   );
   await TestUtils.waitForCondition(
@@ -827,7 +827,7 @@ add_task(async function testOpenSignedInlineWithLeadingWS() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -835,20 +835,20 @@ add_task(async function testOpenSignedInlineWithLeadingWS() {
  * in the PGP separator line, is trimmed and decrypted.
  */
 add_task(async function testDecryptInlineWithNBSPasQP() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/bob-enc-inline-nbsp-qp.eml"))
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   Assert.ok(
-    getMsgBodyTxt(mc).includes("My real name is not Bob."),
+    getMsgBodyTxt(msgc).includes("My real name is not Bob."),
     "Secret text should be contained in message"
   );
   await TestUtils.waitForCondition(
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "Encrypted icon should be displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -856,20 +856,20 @@ add_task(async function testDecryptInlineWithNBSPasQP() {
  * encoded as qp in the PGP separator line, is trimmed and decrypted.
  */
 add_task(async function testDecryptHtmlWithNBSP() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/eml/bob-enc-html-nbsp.eml"))
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   Assert.ok(
-    getMsgBodyTxt(mc).includes("My real name is not Bob."),
+    getMsgBodyTxt(msgc).includes("My real name is not Bob."),
     "Secret text should be contained in message"
   );
   await TestUtils.waitForCondition(
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "Encrypted icon should be displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -877,12 +877,12 @@ add_task(async function testDecryptHtmlWithNBSP() {
  * and body works.
  */
 add_task(async function testOpenSignedByUnverifiedEncrypted() {
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/encrypted-and-signed-alice-to-bob-nonascii.eml")
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   // Check the subject was properly updated (from ...) in the message header.
   Assert.equal(
@@ -890,7 +890,7 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
     "Subject:Re: kod blå",
     "Non-ascii subject should correct"
   );
-  Assert.ok(getMsgBodyTxt(mc).includes("Detta är krypterat!"));
+  Assert.ok(getMsgBodyTxt(msgc).includes("Detta är krypterat!"));
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
     "signed verified icon is displayed"
@@ -899,7 +899,7 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
 });
 
 /**
@@ -916,22 +916,22 @@ add_task(async function testOpenEncryptedForRevokedKey() {
     )
   );
 
-  let mc = await open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath("data/eml/enc-to-carol@pgp.icu-revoked.eml")
     )
   );
-  let aboutMessage = get_about_message(mc.window);
+  let aboutMessage = get_about_message(msgc.window);
 
   Assert.ok(
-    getMsgBodyTxt(mc).includes("billie-jean"),
+    getMsgBodyTxt(msgc).includes("billie-jean"),
     "message text is in body"
   );
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc);
+  close_window(msgc);
   await OpenPGPTestUtils.removeKeyById("0xEF2FD01608AFD744", true);
 });
 

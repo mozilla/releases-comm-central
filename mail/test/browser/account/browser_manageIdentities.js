@@ -30,10 +30,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );
@@ -143,7 +139,7 @@ add_setup(async function () {
   // Go to the account settings.
   let tab = await openAccountSettings();
   registerCleanupFunction(function closeTab() {
-    mc.window.document.getElementById("tabmail").closeTab(tab);
+    document.getElementById("tabmail").closeTab(tab);
   });
 
   // To the account main page.

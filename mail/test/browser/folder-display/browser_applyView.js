@@ -8,7 +8,7 @@
 
 "use strict";
 
-var { be_in_folder, create_folder, mc } = ChromeUtils.import(
+var { be_in_folder, create_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { click_menus_in_sequence } = ChromeUtils.import(

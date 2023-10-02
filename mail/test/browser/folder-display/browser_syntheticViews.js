@@ -11,7 +11,6 @@ const {
   create_thread,
   delete_messages,
   inboxFolder,
-  mc,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

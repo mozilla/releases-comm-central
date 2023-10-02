@@ -54,7 +54,7 @@ add_task(async function test_open_printpreview() {
   assert_selected_and_displayed(mc, msg);
 
   // Trigger print using Ctrl+P.
-  EventUtils.synthesizeKey("P", { accelKey: true }, mc.window);
+  EventUtils.synthesizeKey("P", { accelKey: true }, window);
 
   let preview;
   // Ensure we're showing the preview...
@@ -77,11 +77,11 @@ add_task(async function test_open_printpreview() {
     .textContent.trim();
   Assert.equal(body, BODY0, "preview body should be correct");
 
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, mc.window);
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, window);
 
   // Wait for the preview to go away.
   await TestUtils.waitForCondition(
-    () => !mc.window.document.querySelector(".printPreviewBrowser")
+    () => !document.querySelector(".printPreviewBrowser")
   );
 });
 

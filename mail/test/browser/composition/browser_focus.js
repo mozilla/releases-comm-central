@@ -10,9 +10,6 @@
 
 var { add_attachments, close_compose_window, open_compose_new_mail } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 
 requestLongerTimeout(3);
 

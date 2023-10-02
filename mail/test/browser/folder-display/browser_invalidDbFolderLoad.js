@@ -17,7 +17,6 @@ var {
   create_folder,
   get_about_3pane,
   make_message_sets_in_folders,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"

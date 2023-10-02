@@ -20,7 +20,6 @@ var {
   create_folder,
   create_message,
   get_about_message,
-  mc,
   msgGen,
   select_click_row,
 } = ChromeUtils.import(

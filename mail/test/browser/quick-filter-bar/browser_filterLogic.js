@@ -17,7 +17,6 @@ var {
   delete_messages,
   get_about_3pane,
   make_message_sets_in_folders,
-  mc,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

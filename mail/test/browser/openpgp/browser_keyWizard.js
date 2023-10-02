@@ -8,9 +8,6 @@
 
 "use strict";
 
-const { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 const {
   click_account_tree_row,
   get_account_tree_row,
@@ -350,7 +347,7 @@ add_task(async function add_external_key() {
 });
 
 registerCleanupFunction(async function () {
-  mc.window.document.getElementById("tabmail").closeTab(gTab);
+  document.getElementById("tabmail").closeTab(gTab);
   gTab = null;
   tabDocument = null;
   tabWindow = null;
