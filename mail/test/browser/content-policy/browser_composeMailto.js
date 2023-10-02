@@ -48,27 +48,27 @@ add_task(async function test_openComposeFromMailToLink() {
 
 add_task(async function test_checkInsertImage() {
   // First focus on the editor element
-  gCwc.window.document.getElementById("messageEditor").focus();
+  gCwc.document.getElementById("messageEditor").focus();
 
   // Now open the image window
   plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
     // Insert the url of the image.
-    let srcloc = mwc.window.document.getElementById("srcInput");
+    let srcloc = mwc.document.getElementById("srcInput");
     srcloc.focus();
 
     input_value(mwc, url + "pass.png");
     await new Promise(resolve => setTimeout(resolve));
 
-    let noAlt = mwc.window.document.getElementById("noAltTextRadio");
+    let noAlt = mwc.document.getElementById("noAltTextRadio");
     // Don't add alternate text
     EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
 
     // Accept the dialog
-    mwc.window.document.querySelector("dialog").acceptDialog();
+    mwc.document.querySelector("dialog").acceptDialog();
   });
 
-  let insertMenu = gCwc.window.document.getElementById("InsertPopupButton");
-  let insertMenuPopup = gCwc.window.document.getElementById("InsertPopup");
+  let insertMenu = gCwc.document.getElementById("InsertPopupButton");
+  let insertMenuPopup = gCwc.document.getElementById("InsertPopup");
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
 
@@ -76,7 +76,7 @@ add_task(async function test_checkInsertImage() {
   wait_for_window_close();
 
   // Test that the image load has not been denied
-  let childImages = gCwc.window.document
+  let childImages = gCwc.document
     .getElementById("messageEditor")
     .contentDocument.getElementsByTagName("img");
 

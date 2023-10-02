@@ -126,9 +126,7 @@ function check_nntp_address_types(win) {
  */
 function check_collapsed_pop_recipient(cwc) {
   Assert.ok(
-    cwc.window.document
-      .getElementById("addressRowTo")
-      .classList.contains("hidden")
+    cwc.document.getElementById("addressRowTo").classList.contains("hidden")
   );
 }
 
@@ -176,7 +174,7 @@ add_task(async function test_address_types() {
   // Open compose window on the existing POP3 account.
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
-  check_mail_address_types(cwc.window);
+  check_mail_address_types(cwc);
   close_compose_window(cwc);
 
   add_NNTP_account();
@@ -185,7 +183,7 @@ add_task(async function test_address_types() {
   // regardless of which account is used of composing (bug 922614).
   await be_in_folder(accountNNTP.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
-  check_nntp_address_types(cwc.window);
+  check_nntp_address_types(cwc);
   check_collapsed_pop_recipient(cwc);
   close_compose_window(cwc);
 
@@ -193,32 +191,32 @@ add_task(async function test_address_types() {
   // inside compose window.
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
-  check_nntp_address_types(cwc.window);
+  check_nntp_address_types(cwc);
 
   let NNTPidentity = accountNNTP.defaultIdentity.key;
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("msgIdentity"),
+    cwc.document.getElementById("msgIdentity"),
     {},
-    cwc.window.document.getElementById("msgIdentity").ownerGlobal
+    cwc.document.getElementById("msgIdentity").ownerGlobal
   );
   await click_menus_in_sequence(
-    cwc.window.document.getElementById("msgIdentityPopup"),
+    cwc.document.getElementById("msgIdentityPopup"),
     [{ identitykey: NNTPidentity }]
   );
-  check_nntp_address_types(cwc.window);
+  check_nntp_address_types(cwc);
 
   // Switch back to the POP3 account.
   let POP3identity = accountPOP3.defaultIdentity.key;
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("msgIdentity"),
+    cwc.document.getElementById("msgIdentity"),
     {},
-    cwc.window.document.getElementById("msgIdentity").ownerGlobal
+    cwc.document.getElementById("msgIdentity").ownerGlobal
   );
   await click_menus_in_sequence(
-    cwc.window.document.getElementById("msgIdentityPopup"),
+    cwc.document.getElementById("msgIdentityPopup"),
     [{ identitykey: POP3identity }]
   );
-  check_nntp_address_types(cwc.window);
+  check_nntp_address_types(cwc);
 
   close_compose_window(cwc);
 
@@ -227,7 +225,7 @@ add_task(async function test_address_types() {
   // Now the NNTP account is lost, so we should be back to mail only addresses.
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = open_compose_new_mail();
-  check_mail_address_types(cwc.window);
+  check_mail_address_types(cwc);
   close_compose_window(cwc);
 });
 
@@ -235,7 +233,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
   let controller = open_compose_new_mail();
 
-  let addrInput = controller.window.document.getElementById("toAddrInput");
+  let addrInput = controller.document.getElementById("toAddrInput");
   Assert.ok(addrInput);
   Assert.equal(addrInput.value, "");
 
@@ -243,13 +241,10 @@ add_task(async function test_address_suppress_leading_comma_space() {
   addrInput.value = "person@org";
   // Comma triggers the pill creation.
   // Note: the address input should already have focus.
-  EventUtils.synthesizeKey(",", {}, controller.window);
+  EventUtils.synthesizeKey(",", {}, controller);
 
   let addrPill = await TestUtils.waitForCondition(
-    () =>
-      controller.window.document.querySelector(
-        "#toAddrContainer > .address-pill"
-      ),
+    () => controller.document.querySelector("#toAddrContainer > .address-pill"),
     "Pill creation"
   );
   Assert.equal(addrInput.value, "");
@@ -270,7 +265,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
 
       // Type the key in an empty input.
       let eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
-      EventUtils.synthesizeKey(key, {}, controller.window);
+      EventUtils.synthesizeKey(key, {}, controller);
       await eventPromise;
 
       if (key === " " || key === ",") {
@@ -287,11 +282,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
       input.SelectionEnd = 1;
       await TestUtils.waitForTick();
 
-      await BrowserTestUtils.synthesizeKey(
-        key,
-        {},
-        controller.window.browsingContext
-      );
+      await BrowserTestUtils.synthesizeKey(key, {}, controller.browsingContext);
       await new Promise(resolve => requestAnimationFrame(resolve));
 
       Assert.equal(input.value, "z" + key);
@@ -315,7 +306,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
         await BrowserTestUtils.synthesizeKey(
           key,
           {},
-          controller.window.browsingContext
+          controller.browsingContext
         );
         await new Promise(resolve => requestAnimationFrame(resolve));
 
@@ -341,11 +332,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
       input.selectionEnd = 5;
       await TestUtils.waitForTick();
 
-      await BrowserTestUtils.synthesizeKey(
-        key,
-        {},
-        controller.window.browsingContext
-      );
+      await BrowserTestUtils.synthesizeKey(key, {}, controller.browsingContext);
       await new Promise(resolve => requestAnimationFrame(resolve));
       Assert.equal(input.value, " " + key + "t ");
     }
@@ -357,18 +344,10 @@ add_task(async function test_address_suppress_leading_comma_space() {
 
   // Now test the behaviour when editing a pill.
   // First, we need to get into editing mode by clicking the pill twice.
-  EventUtils.synthesizeMouseAtCenter(
-    addrPill,
-    { clickCount: 1 },
-    controller.window
-  );
+  EventUtils.synthesizeMouseAtCenter(addrPill, { clickCount: 1 }, controller);
   let clickPromise = BrowserTestUtils.waitForEvent(addrPill, "click");
   // We do not want a double click, but two separate clicks.
-  EventUtils.synthesizeMouseAtCenter(
-    addrPill,
-    { clickCount: 1 },
-    controller.window
-  );
+  EventUtils.synthesizeMouseAtCenter(addrPill, { clickCount: 1 }, controller);
   await clickPromise;
 
   Assert.ok(!pillInput.hidden);
@@ -384,7 +363,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   let cwc = open_compose_new_mail();
 
   let addresses = ["person@org", "foo@address.valid", "invalid", "foo@address"];
-  let subjectField = cwc.window.document.getElementById("msgSubject");
+  let subjectField = cwc.document.getElementById("msgSubject");
 
   // Helper method to create multiple pills in a field.
   async function assertPillsCreationInField(input) {
@@ -394,7 +373,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     // Write an address in the field.
     input.value = addresses[0];
     // Enter triggers the pill creation.
-    EventUtils.synthesizeKey("VK_RETURN", {}, cwc.window);
+    EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
     // Assert the pill was created.
     await TestUtils.waitForCondition(
       () =>
@@ -414,7 +393,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     // Write another address in the field.
     input.value = addresses[1];
     // Tab triggers the pill creation.
-    EventUtils.synthesizeKey("VK_TAB", {}, cwc.window);
+    EventUtils.synthesizeKey("VK_TAB", {}, cwc);
     // Assert the pill was created.
     await TestUtils.waitForCondition(
       () =>
@@ -434,7 +413,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     // Write an invalid email address in the To field.
     input.value = addresses[2];
     // Enter triggers the pill creation.
-    EventUtils.synthesizeKey("VK_RETURN", {}, cwc.window);
+    EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
     // Assert that an invalid address pill was created.
     await TestUtils.waitForCondition(
       () =>
@@ -475,15 +454,15 @@ add_task(async function test_pill_creation_in_all_fields() {
   // The To field is visible and focused by default when the compose window is
   // first opened.
   // Test pill creation for the To input field.
-  let toInput = cwc.window.document.getElementById("toAddrInput");
+  let toInput = cwc.document.getElementById("toAddrInput");
   await assertPillsCreationInField(toInput);
 
   // Click on the Cc recipient label.
-  let ccInput = cwc.window.document.getElementById("ccAddrInput");
+  let ccInput = cwc.document.getElementById("ccAddrInput");
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
+    cwc.document.getElementById("addr_ccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
   // The Cc field should now be visible.
   Assert.ok(
@@ -494,11 +473,11 @@ add_task(async function test_pill_creation_in_all_fields() {
   await assertPillsCreationInField(ccInput);
 
   // Click on the Bcc recipient label.
-  let bccInput = cwc.window.document.getElementById("bccAddrInput");
+  let bccInput = cwc.document.getElementById("bccAddrInput");
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
+    cwc.document.getElementById("addr_bccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
   // The Bcc field should now be visible.
   Assert.ok(
@@ -510,7 +489,7 @@ add_task(async function test_pill_creation_in_all_fields() {
 
   // Focus on the Bcc field and hold press the Backspace key.
   bccInput.focus();
-  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc.window);
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc);
 
   // All pills should be deleted, but the focus should remain on the Bcc field.
   Assert.equal(
@@ -525,17 +504,17 @@ add_task(async function test_pill_creation_in_all_fields() {
   );
 
   // Press and hold Backspace again.
-  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 2 }, cwc.window);
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 2 }, cwc);
 
   // Confirm the Bcc field is closed and the focus moved to the Cc field.
   Assert.ok(
     bccInput.closest(".address-row").classList.contains("hidden"),
     "The Bcc field was closed"
   );
-  Assert.equal(cwc.window.document.activeElement, ccInput);
+  Assert.equal(cwc.document.activeElement, ccInput);
 
   // Now we're on the Cc field. Press and hold Backspace to delete all pills.
-  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc.window);
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc);
 
   // All pills should be deleted, but the focus should remain on the Cc field.
   Assert.equal(
@@ -550,17 +529,17 @@ add_task(async function test_pill_creation_in_all_fields() {
   );
 
   // Press and hold Backspace again.
-  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 2 }, cwc.window);
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 2 }, cwc);
 
   // Confirm the Cc field is closed and the focus moved to the To field.
   Assert.ok(
     ccInput.closest(".address-row").classList.contains("hidden"),
     "The Cc field was closed"
   );
-  Assert.equal(cwc.window.document.activeElement, toInput);
+  Assert.equal(cwc.document.activeElement, toInput);
 
   // Now we're on the To field. Press and hold Backspace to delete all pills.
-  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc.window);
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 5 }, cwc);
 
   // All pills should be deleted, but the focus should remain on the To field.
   Assert.equal(
@@ -575,7 +554,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   );
 
   // Press and hold Backspace again.
-  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 2 }, cwc.window);
+  EventUtils.synthesizeKey("KEY_Backspace", { repeat: 2 }, cwc);
 
   // Long backspace keypress on the To field shouldn't do anything if the field
   // is empty. Confirm the To field is still visible and the focus stays on the
@@ -584,7 +563,7 @@ add_task(async function test_pill_creation_in_all_fields() {
     !toInput.closest(".address-row").classList.contains("hidden"),
     "The To field is still visible"
   );
-  Assert.equal(cwc.window.document.activeElement, toInput);
+  Assert.equal(cwc.document.activeElement, toInput);
 
   close_compose_window(cwc);
 });
@@ -593,54 +572,54 @@ add_task(async function test_addressing_fields_shortcuts() {
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
   let cwc = open_compose_new_mail();
 
-  let addrToInput = cwc.window.document.getElementById("toAddrInput");
+  let addrToInput = cwc.document.getElementById("toAddrInput");
   // The To input field should be empty.
   Assert.equal(addrToInput.value, "");
   // The To input field should be the currently focused element.
-  Assert.equal(cwc.window.document.activeElement, addrToInput);
+  Assert.equal(cwc.document.activeElement, addrToInput);
 
   const modifiers =
     AppConstants.platform == "macosx"
       ? { accelKey: true, shiftKey: true }
       : { ctrlKey: true, shiftKey: true };
 
-  let addrCcInput = cwc.window.document.getElementById("ccAddrInput");
+  let addrCcInput = cwc.document.getElementById("ccAddrInput");
   let ccRowShownPromise = BrowserTestUtils.waitForCondition(
     () => !addrCcInput.closest(".address-row").classList.contains("hidden"),
     "The Cc addressing row is not visible."
   );
   // Press the Ctrl/Cmd+Shift+C.
-  EventUtils.synthesizeKey("C", modifiers, cwc.window);
+  EventUtils.synthesizeKey("C", modifiers, cwc);
   // The Cc addressing row should be visible.
   await ccRowShownPromise;
   // The Cc input field should be currently focused.
-  Assert.equal(cwc.window.document.activeElement, addrCcInput);
+  Assert.equal(cwc.document.activeElement, addrCcInput);
 
-  let addrBccInput = cwc.window.document.getElementById("bccAddrInput");
+  let addrBccInput = cwc.document.getElementById("bccAddrInput");
   let bccRowShownPromise = BrowserTestUtils.waitForCondition(
     () => !addrBccInput.closest(".address-row").classList.contains("hidden"),
     "The Bcc addressing row is not visible."
   );
   // Press the Ctrl/Cmd+Shift+B.
-  EventUtils.synthesizeKey("B", modifiers, cwc.window);
+  EventUtils.synthesizeKey("B", modifiers, cwc);
   await bccRowShownPromise;
   // The Bcc input field should be currently focused.
-  Assert.equal(cwc.window.document.activeElement, addrBccInput);
+  Assert.equal(cwc.document.activeElement, addrBccInput);
 
   // Press the Ctrl/Cmd+Shift+T.
-  EventUtils.synthesizeKey("T", modifiers, cwc.window);
+  EventUtils.synthesizeKey("T", modifiers, cwc);
   // The To input field should be the currently focused element.
-  Assert.equal(cwc.window.document.activeElement, addrToInput);
+  Assert.equal(cwc.document.activeElement, addrToInput);
 
   // Press the Ctrl/Cmd+Shift+C.
-  EventUtils.synthesizeKey("C", modifiers, cwc.window);
+  EventUtils.synthesizeKey("C", modifiers, cwc);
   // The Cc input field should be currently focused.
-  Assert.equal(cwc.window.document.activeElement, addrCcInput);
+  Assert.equal(cwc.document.activeElement, addrCcInput);
 
   // Press the Ctrl/Cmd+Shift+B.
-  EventUtils.synthesizeKey("B", modifiers, cwc.window);
+  EventUtils.synthesizeKey("B", modifiers, cwc);
   // The Bcc input field should be currently focused.
-  Assert.equal(cwc.window.document.activeElement, addrBccInput);
+  Assert.equal(cwc.document.activeElement, addrBccInput);
 
   close_compose_window(cwc);
 });
@@ -650,8 +629,8 @@ add_task(async function test_pill_deletion_and_focus() {
   let cwc = open_compose_new_mail();
 
   // When the compose window is opened, the focus should be on the To field.
-  let toInput = cwc.window.document.getElementById("toAddrInput");
-  Assert.equal(cwc.window.document.activeElement, toInput);
+  let toInput = cwc.document.getElementById("toAddrInput");
+  Assert.equal(cwc.document.activeElement, toInput);
 
   const modifiers =
     AppConstants.platform == "macosx" ? { accelKey: true } : { ctrlKey: true };
@@ -662,26 +641,26 @@ add_task(async function test_pill_deletion_and_focus() {
 
   // Reveal and test the Cc field.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
+    cwc.document.getElementById("addr_ccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
   test_deletion_and_focus_on_input(
     cwc,
-    cwc.window.document.getElementById("ccAddrInput"),
+    cwc.document.getElementById("ccAddrInput"),
     addresses,
     modifiers
   );
 
   // Reveal and test the Bcc field.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
+    cwc.document.getElementById("addr_bccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
   test_deletion_and_focus_on_input(
     cwc,
-    cwc.window.document.getElementById("bccAddrInput"),
+    cwc.document.getElementById("bccAddrInput"),
     addresses,
     modifiers
   );
@@ -698,7 +677,7 @@ function test_deletion_and_focus_on_input(cwc, input, addresses, modifiers) {
   input.value = addresses;
 
   // Enter triggers the pill creation.
-  EventUtils.synthesizeKey("VK_RETURN", {}, cwc.window);
+  EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
 
   let container = input.closest(".address-container");
   // We should now have 4 pills.
@@ -716,10 +695,10 @@ function test_deletion_and_focus_on_input(cwc, input, addresses, modifiers) {
   );
 
   // After pills creation, the same field should be still focused.
-  Assert.equal(cwc.window.document.activeElement, input);
+  Assert.equal(cwc.document.activeElement, input);
 
   // Keypress left arrow should focus and select the last created pill.
-  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, cwc.window);
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, cwc);
   Assert.equal(
     container.querySelectorAll("mail-address-pill[selected]").length,
     1,
@@ -728,16 +707,16 @@ function test_deletion_and_focus_on_input(cwc, input, addresses, modifiers) {
 
   // Pressing delete should delete the selected pill and move the focus back to
   // the input.
-  EventUtils.synthesizeKey("KEY_Delete", {}, cwc.window);
+  EventUtils.synthesizeKey("KEY_Delete", {}, cwc);
   Assert.equal(
     container.querySelectorAll("mail-address-pill").length,
     3,
     "One pill correctly deleted."
   );
-  Assert.equal(cwc.window.document.activeElement, input);
+  Assert.equal(cwc.document.activeElement, input);
 
   // Keypress left arrow to select the last available pill.
-  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, cwc.window);
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, cwc);
   Assert.equal(
     container.querySelectorAll("mail-address-pill[selected]").length,
     1,
@@ -745,17 +724,17 @@ function test_deletion_and_focus_on_input(cwc, input, addresses, modifiers) {
   );
 
   // BackSpace should delete the pill and focus on the previous adjacent pill.
-  EventUtils.synthesizeKey("KEY_Backspace", {}, cwc.window);
+  EventUtils.synthesizeKey("KEY_Backspace", {}, cwc);
   Assert.equal(
     container.querySelectorAll("mail-address-pill").length,
     2,
     "One pill correctly deleted."
   );
   let selectedPill = container.querySelector("mail-address-pill[selected]");
-  Assert.equal(cwc.window.document.activeElement, selectedPill);
+  Assert.equal(cwc.document.activeElement, selectedPill);
 
   // Pressing CTRL+A should select all pills.
-  EventUtils.synthesizeKey("a", modifiers, cwc.window);
+  EventUtils.synthesizeKey("a", modifiers, cwc);
   Assert.equal(
     container.querySelectorAll("mail-address-pill[selected]").length,
     2,
@@ -763,11 +742,11 @@ function test_deletion_and_focus_on_input(cwc, input, addresses, modifiers) {
   );
 
   // BackSpace should delete all pills and focus on empty inptu field.
-  EventUtils.synthesizeKey("KEY_Backspace", {}, cwc.window);
+  EventUtils.synthesizeKey("KEY_Backspace", {}, cwc);
   Assert.equal(
     container.querySelectorAll("mail-address-pill").length,
     0,
     "All pills have been deleted."
   );
-  Assert.equal(cwc.window.document.activeElement, input);
+  Assert.equal(cwc.document.activeElement, input);
 }

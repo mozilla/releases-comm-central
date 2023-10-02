@@ -26,7 +26,7 @@ function input_value(aController, aStr, aElement) {
     aElement.focus();
   }
   for (let i = 0; i < aStr.length; i++) {
-    EventUtils.synthesizeKey(aStr.charAt(i), {}, aController.window);
+    EventUtils.synthesizeKey(aStr.charAt(i), {}, aController);
   }
 }
 
@@ -40,7 +40,7 @@ function input_value(aController, aStr, aElement) {
 function delete_existing(aController, aElement, aNumber) {
   for (let i = 0; i < aNumber; ++i) {
     aElement.focus();
-    EventUtils.synthesizeKey("VK_BACK_SPACE", {}, aController.window);
+    EventUtils.synthesizeKey("VK_BACK_SPACE", {}, aController);
   }
 }
 
@@ -52,7 +52,7 @@ function delete_existing(aController, aElement, aNumber) {
  */
 function delete_all_existing(aController, aElement) {
   aElement.focus();
-  EventUtils.synthesizeKey("a", { accelKey: true }, aController.window);
+  EventUtils.synthesizeKey("a", { accelKey: true }, aController);
   aElement.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, aController.window);
+  EventUtils.synthesizeKey("VK_DELETE", {}, aController);
 }

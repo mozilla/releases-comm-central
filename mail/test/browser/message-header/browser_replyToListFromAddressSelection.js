@@ -96,8 +96,7 @@ add_task(async function test_Reply_To_List_From_Address() {
 
   replyToListWindow = open_compose_with_reply_to_list();
 
-  var identityList =
-    replyToListWindow.window.document.getElementById("msgIdentity");
+  var identityList = replyToListWindow.document.getElementById("msgIdentity");
 
   // see if it's the correct identity selected
   if (!identityList.selectedItem.label.includes(identityString1)) {

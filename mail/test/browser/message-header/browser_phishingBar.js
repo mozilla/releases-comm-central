@@ -153,7 +153,7 @@ registerCleanupFunction(() => {
  * is clicked.
  */
 async function assert_ignore_works(aController) {
-  let aboutMessage = get_about_message(aController.window);
+  let aboutMessage = get_about_message(aController);
   wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
   let prefButton = get_notification_button(
     aboutMessage,
@@ -229,7 +229,7 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
   let file = new FileUtils.File(getTestFilePath("data/evil-attached.eml"));
 
   let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
 
   // Make sure the root message shows the phishing bar.
   wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
@@ -245,7 +245,7 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
 
   // Now make sure the attached message shows the phishing bar.
   wait_for_notification_to_show(
-    get_about_message(msgc2.window),
+    get_about_message(msgc2),
     kBoxId,
     kNotificationValue
   );

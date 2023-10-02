@@ -13,7 +13,7 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
 
 add_task(async function test_style_buttons() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   let buttonSet = [
     { name: "bold", tag: "B", node: formatHelper.boldButton },
@@ -156,7 +156,7 @@ add_task(async function test_style_buttons() {
 
 add_task(async function test_multi_style_with_buttons() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   let boldButton = formatHelper.boldButton;
   let italicButton = formatHelper.italicButton;
@@ -230,7 +230,7 @@ add_task(async function test_multi_style_with_buttons() {
 
 add_task(async function test_text_styling_whilst_typing() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   formatHelper.focusMessage();
 
@@ -282,7 +282,7 @@ add_task(async function test_text_styling_whilst_typing() {
 
 add_task(async function test_text_styling_update_on_selection_change() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   formatHelper.focusMessage();
 
@@ -344,7 +344,7 @@ add_task(async function test_text_styling_update_on_selection_change() {
 
 add_task(async function test_text_styling_on_selections() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   formatHelper.focusMessage();
 
@@ -417,7 +417,7 @@ add_task(async function test_text_styling_on_selections() {
 
 add_task(async function test_induced_text_styling() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   formatHelper.focusMessage();
 
@@ -485,7 +485,7 @@ add_task(async function test_induced_text_styling() {
 
 add_task(async function test_fixed_width_text_styling_font_change() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   formatHelper.focusMessage();
 

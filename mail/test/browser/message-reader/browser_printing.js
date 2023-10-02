@@ -92,12 +92,12 @@ add_task(async function test_named_page() {
   );
   const msgc = await open_message_from_file(file);
 
-  EventUtils.synthesizeKey("P", { accelKey: true }, msgc.window);
+  EventUtils.synthesizeKey("P", { accelKey: true }, msgc);
 
   let preview;
   // Ensure we're showing the preview...
   await BrowserTestUtils.waitForCondition(() => {
-    preview = msgc.window.document.querySelector(".printPreviewBrowser");
+    preview = msgc.document.querySelector(".printPreviewBrowser");
     return preview && BrowserTestUtils.is_visible(preview);
   });
 

@@ -86,11 +86,11 @@ add_task(async function test_archive_options_enabled() {
 async function subtest_initial_state(identity) {
   plan_for_modal_dialog("archiveOptions", async function (ac) {
     Assert.equal(
-      ac.window.document.getElementById("archiveGranularity").selectedIndex,
+      ac.document.getElementById("archiveGranularity").selectedIndex,
       identity.archiveGranularity
     );
     Assert.equal(
-      ac.window.document.getElementById("archiveKeepFolderStructure").checked,
+      ac.document.getElementById("archiveKeepFolderStructure").checked,
       identity.archiveKeepFolderStructure
     );
   });
@@ -115,12 +115,11 @@ add_task(async function test_open_archive_options() {
 
 function subtest_save_state(identity, granularity, kfs) {
   plan_for_modal_dialog("archiveOptions", function (ac) {
-    ac.window.document.getElementById("archiveGranularity").selectedIndex =
+    ac.document.getElementById("archiveGranularity").selectedIndex =
       granularity;
-    ac.window.document.getElementById("archiveKeepFolderStructure").checked =
-      kfs;
-    EventUtils.synthesizeKey("VK_RETURN", {}, ac.window);
-    ac.window.document.querySelector("dialog").acceptDialog();
+    ac.document.getElementById("archiveKeepFolderStructure").checked = kfs;
+    EventUtils.synthesizeKey("VK_RETURN", {}, ac);
+    ac.document.querySelector("dialog").acceptDialog();
   });
   window.openDialog(
     "chrome://messenger/content/am-archiveoptions.xhtml",

@@ -50,7 +50,7 @@ add_task(async function test_reply_to_eml_save_as_draft() {
   let replyWin = open_compose_with_reply(msgc);
 
   // Ctrl+S saves as draft.
-  await save_compose_message(replyWin.window);
+  await save_compose_message(replyWin);
   close_compose_window(replyWin);
 
   await TestUtils.waitForCondition(
@@ -80,7 +80,7 @@ add_task(async function test_forward_eml_save_as_draft() {
 
   let replyWin = open_compose_with_forward(msgc);
 
-  await save_compose_message(replyWin.window);
+  await save_compose_message(replyWin);
   close_compose_window(replyWin);
 
   await TestUtils.waitForCondition(
@@ -112,7 +112,7 @@ add_task(async function test_reply_eml_subject() {
   let replyWin = open_compose_with_reply(msgc);
 
   Assert.equal(
-    replyWin.window.document.getElementById("msgSubject").value,
+    replyWin.document.getElementById("msgSubject").value,
     "Re: \u2200a\u220aA"
   );
   close_compose_window(replyWin); // close compose window

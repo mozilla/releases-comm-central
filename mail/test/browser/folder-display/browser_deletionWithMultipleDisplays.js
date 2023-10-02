@@ -188,7 +188,7 @@ async function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   }
   if (aFlags & VERIFY_MESSAGE_WINDOW) {
     Assert.equal(
-      get_about_message(msgc.window).gMessage,
+      get_about_message(msgc).gMessage,
       aMessage,
       "message window shows the correct message"
     );

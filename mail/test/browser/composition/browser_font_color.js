@@ -11,7 +11,7 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
 
 add_task(async function test_font_color() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   let colorSet = [
     { value: "#0000ff", rgb: [0, 0, 255] },

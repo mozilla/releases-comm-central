@@ -125,9 +125,7 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
     );
 
     let replyWindowPromise = waitForComposeWindow();
-    get_about_message(msgc.window)
-      .document.querySelector("#hdrReplyButton")
-      .click();
+    get_about_message(msgc).document.querySelector("#hdrReplyButton").click();
     close_window(msgc);
 
     let replyWindow = await replyWindowPromise;

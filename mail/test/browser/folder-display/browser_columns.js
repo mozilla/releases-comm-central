@@ -477,16 +477,8 @@ add_task(async function test_column_reordering_persists() {
   tagsColButton.focus();
   // Press Alt + Arrow Left twice to move the tags column before the junk
   // status column.
-  EventUtils.synthesizeKey(
-    "KEY_ArrowLeft",
-    { altKey: true },
-    about3Pane.window
-  );
-  EventUtils.synthesizeKey(
-    "KEY_ArrowLeft",
-    { altKey: true },
-    about3Pane.window
-  );
+  EventUtils.synthesizeKey("KEY_ArrowLeft", { altKey: true }, about3Pane);
+  EventUtils.synthesizeKey("KEY_ArrowLeft", { altKey: true }, about3Pane);
 
   // The columns in folderB should reflect the new order.
   let reorderdB = columnsB.concat();
@@ -497,11 +489,7 @@ add_task(async function test_column_reordering_persists() {
 
   // Move the tags column after the junk, the focus should still be on the
   // tags button.
-  EventUtils.synthesizeKey(
-    "KEY_ArrowRight",
-    { altKey: true },
-    about3Pane.window
-  );
+  EventUtils.synthesizeKey("KEY_ArrowRight", { altKey: true }, about3Pane);
 
   reorderdB.splice(6, 0, reorderdB.splice(5, 1)[0]);
   assert_visible_columns(reorderdB);

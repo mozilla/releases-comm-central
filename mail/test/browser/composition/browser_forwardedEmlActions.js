@@ -131,7 +131,7 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
     );
   }
 
-  let subjectText = compWin.window.document.getElementById("msgSubject").value;
+  let subjectText = compWin.document.getElementById("msgSubject").value;
   if (!subjectText.includes(msgsubject)) {
     throw new Error(
       "subject text didn't contain the original subject; " +

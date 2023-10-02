@@ -11,7 +11,7 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
 
 add_task(async function test_font_size() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   const NO_SIZE = formatHelper.NO_SIZE;
   const MIN_SIZE = formatHelper.MIN_SIZE;
@@ -103,7 +103,7 @@ add_task(async function test_font_size() {
 
 add_task(async function test_font_size_increment() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   const NO_SIZE = formatHelper.NO_SIZE;
   const MIN_SIZE = formatHelper.MIN_SIZE;

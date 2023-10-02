@@ -27,7 +27,7 @@ const { MailServices } = ChromeUtils.import(
 );
 
 function getMsgBodyTxt(msgc) {
-  let msgPane = get_about_message(msgc.window).getMessagePaneBrowser();
+  let msgPane = get_about_message(msgc).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 
@@ -137,7 +137,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
     let msgc = await open_message_from_file(
       new FileUtils.File(getTestFilePath("data/eml/" + test.filename))
     );
-    let aboutMessage = get_about_message(msgc.window);
+    let aboutMessage = get_about_message(msgc);
 
     let notificationBox = "mail-notification-top";
     let notificationValue = "decryptInlinePG";

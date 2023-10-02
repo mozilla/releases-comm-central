@@ -99,8 +99,8 @@ add_task(function test_can_cancel_quit_on_changes() {
   cwc = open_compose_new_mail(mc);
 
   // Make some changes
-  cwc.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("Hey check out this megalol link", cwc.window);
+  cwc.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Hey check out this megalol link", cwc);
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -143,8 +143,8 @@ add_task(function test_can_quit_on_changes() {
   cwc = open_compose_new_mail(mc);
 
   // Make some changes
-  cwc.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("Hey check out this megalol link", cwc.window);
+  cwc.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Hey check out this megalol link", cwc);
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -187,11 +187,11 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
   let cwc2 = open_compose_new_mail(mc);
 
   // Type something in each window.
-  cwc1.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("Marco!", cwc1.window);
+  cwc1.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Marco!", cwc1);
 
-  cwc2.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("Polo!", cwc2.window);
+  cwc2.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Polo!", cwc2);
 
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
     Ci.nsISupportsPRBool
@@ -228,7 +228,7 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  cwc2.window.goDoCommand("cmd_close");
+  cwc2.goDoCommand("cmd_close");
 
   TestUtils.waitForCondition(
     () => !!gMockPromptService.promptState,
@@ -269,18 +269,18 @@ add_task(async function test_prompt_on_close_for_modified() {
   assert_selected_and_displayed(mc, msg);
 
   let nwc = open_compose_new_mail();
-  nwc.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("Hey hey hey!", nwc.window);
+  nwc.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Hey hey hey!", nwc);
   close_compose_window(nwc, true);
 
   let rwc = open_compose_with_reply();
-  rwc.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("Howdy!", rwc.window);
+  rwc.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Howdy!", rwc);
   close_compose_window(rwc, true);
 
   let fwc = open_compose_with_forward();
-  fwc.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("Greetings!", fwc.window);
+  fwc.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Greetings!", fwc);
   close_compose_window(fwc, true);
 });
 
@@ -299,7 +299,7 @@ add_task(
 
     let fwc = open_compose_with_forward();
     Assert.equal(
-      fwc.window.document.getElementById("attachmentBucket").getRowCount(),
+      fwc.document.getElementById("attachmentBucket").getRowCount(),
       0,
       "forwarding msg created attachment"
     );
@@ -322,7 +322,7 @@ add_task(
 
     let fwc = open_compose_with_forward();
     Assert.equal(
-      fwc.window.document.getElementById("attachmentBucket").getRowCount(),
+      fwc.document.getElementById("attachmentBucket").getRowCount(),
       0,
       "forwarding msg created attachment"
     );
@@ -334,29 +334,29 @@ add_task(async function test_prompt_save_on_pill_editing() {
   cwc = open_compose_new_mail(mc);
 
   // Focus should be on the To field, so just type an address.
-  EventUtils.sendString("test@foo.invalid", cwc.window);
+  EventUtils.sendString("test@foo.invalid", cwc);
   let pillCreated = TestUtils.waitForCondition(
-    () => cwc.window.document.querySelectorAll("mail-address-pill").length == 1,
+    () => cwc.document.querySelectorAll("mail-address-pill").length == 1,
     "One pill was created"
   );
   // Trigger the saving of the draft.
-  EventUtils.synthesizeKey("s", { accelKey: true }, cwc.window);
+  EventUtils.synthesizeKey("s", { accelKey: true }, cwc);
   await pillCreated;
-  Assert.ok(cwc.window.gSaveOperationInProgress, "Should start save operation");
+  Assert.ok(cwc.gSaveOperationInProgress, "Should start save operation");
   await TestUtils.waitForCondition(
-    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
+    () => !cwc.gSaveOperationInProgress && !cwc.gWindowLock,
     "Waiting for the save operation to complete"
   );
 
   // All leftover text should have been cleared and pill should have been
   // created before the draft is actually saved.
   Assert.equal(
-    cwc.window.document.activeElement.id,
+    cwc.document.activeElement.id,
     "toAddrInput",
     "The input field is focused."
   );
   Assert.equal(
-    cwc.window.document.activeElement.value,
+    cwc.document.activeElement.value,
     "",
     "The input field is empty."
   );
@@ -385,7 +385,7 @@ add_task(async function test_prompt_save_on_pill_editing() {
   cwc = wait_for_compose_window();
 
   // Make sure the address was saved correctly.
-  let pill = cwc.window.document.querySelector("mail-address-pill");
+  let pill = cwc.document.querySelector("mail-address-pill");
   Assert.equal(
     pill.fullAddress,
     "test@foo.invalid",
@@ -397,22 +397,22 @@ add_task(async function test_prompt_save_on_pill_editing() {
   );
 
   let focusPromise = TestUtils.waitForCondition(
-    () => cwc.window.document.activeElement == pill,
+    () => cwc.document.activeElement == pill,
     "Pill is focused"
   );
   // The focus should be on the subject since we didn't write anything,
   // so shift+tab to move the focus on the To field, and pressing Arrow Left
   // should correctly focus the previously generated pill.
-  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, cwc.window);
-  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, cwc.window);
+  EventUtils.synthesizeKey("VK_TAB", { shiftKey: true }, cwc);
+  EventUtils.synthesizeKey("KEY_ArrowLeft", {}, cwc);
   await focusPromise;
-  EventUtils.synthesizeKey("VK_RETURN", {}, cwc.window);
+  EventUtils.synthesizeKey("VK_RETURN", {}, cwc);
   await isEditing;
 
   let promptPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   // Try to quit after entering the pill edit mode, a "unsaved changes" dialog
   // should be triggered.
-  cwc.window.goDoCommand("cmd_close");
+  cwc.goDoCommand("cmd_close");
   await promptPromise;
 
   close_compose_window(cwc);

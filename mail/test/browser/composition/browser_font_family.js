@@ -11,7 +11,7 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
 
 add_task(async function test_font_family() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   // Before focus, disabled.
   Assert.ok(
@@ -95,7 +95,7 @@ add_task(async function test_font_family() {
 
 add_task(async function test_fixed_width() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   let ttStyleItem = formatHelper.getStyleMenuItem("tt");
 

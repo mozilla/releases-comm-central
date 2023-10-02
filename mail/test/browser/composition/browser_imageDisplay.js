@@ -95,7 +95,7 @@ add_task(async function test_cid_image_load() {
 
   // Our image should be in the loaded eml document.
   let msgc = await open_message_from_file(file);
-  let messageDoc = msgc.window.content.document;
+  let messageDoc = msgc.content.document;
   let image = messageDoc.getElementById("cidImage");
   await check_image_size(msgc, image, "mailbox://");
   image = messageDoc.getElementById("cidImageOrigin");
@@ -108,7 +108,7 @@ add_task(async function test_cid_image_load() {
     { type: "contextmenu", button: 2 },
     documentChild.ownerGlobal
   );
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
     [
@@ -146,11 +146,11 @@ add_task(async function test_cid_image_view() {
  */
 async function check_cid_image_compose(cwc) {
   // Our image should also be in composition when the message is forwarded/replied.
-  let image = cwc.window.document
+  let image = cwc.document
     .getElementById("messageEditor")
     .contentDocument.getElementById("cidImage");
   await check_image_size(cwc, image, "data:");
-  image = cwc.window.document
+  image = cwc.document
     .getElementById("messageEditor")
     .contentDocument.getElementById("cidImageOrigin");
   await check_image_size(cwc, image, "data:");

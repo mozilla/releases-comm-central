@@ -124,17 +124,17 @@ function create_draft(aFrom, aIdKey) {
  */
 function checkCompIdentity(cwc, aIdentityKey, aFrom) {
   Assert.equal(
-    cwc.window.getCurrentAccountKey(),
+    cwc.getCurrentAccountKey(),
     gAccount.key,
     "The From account is not correctly selected"
   );
   Assert.equal(
-    cwc.window.getCurrentIdentityKey(),
+    cwc.getCurrentIdentityKey(),
     aIdentityKey,
     "The From identity is not correctly selected"
   );
   Assert.equal(
-    cwc.window.document.getElementById("msgIdentity").value,
+    cwc.document.getElementById("msgIdentity").value,
     aFrom,
     "The From value was initialized to an unexpected value"
   );
@@ -248,13 +248,13 @@ add_task(async function test_draft_identity_selection() {
     );
     if (test.warning) {
       wait_for_notification_to_show(
-        cwc.window,
+        cwc,
         "compose-notification-bottom",
         "identityWarning"
       );
     } else {
       assert_notification_displayed(
-        cwc.window,
+        cwc,
         "compose-notification-bottom",
         "identityWarning",
         false
@@ -272,8 +272,8 @@ add_task(async function test_draft_identity_selection() {
   wait_for_notification_to_show(cwc, "compose-notification-bottom",
                                 "identityWarning");
   // Notification should go away when another identity is chosen.
-  EventUtils.synthesizeMouseAtCenter(cwc.e("msgIdentity"), { }, cwc.window.document.getElementById("msgIdentity").ownerGlobal)
-  await click_menus_in_sequence(cwc.window.document.getElementById("msgIdentityPopup"),
+  EventUtils.synthesizeMouseAtCenter(cwc.e("msgIdentity"), { }, cwc.document.getElementById("msgIdentity").ownerGlobal)
+  await click_menus_in_sequence(cwc.document.getElementById("msgIdentityPopup"),
                               [ { identitykey: gIdentities[0].key } ]);
 
   wait_for_notification_to_stop(cwc, "compose-notification-bottom",

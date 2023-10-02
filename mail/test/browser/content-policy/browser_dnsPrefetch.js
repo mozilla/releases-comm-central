@@ -130,7 +130,7 @@ function checkComposeWindow(replyType) {
 
   // Check the prefetch in the compose window.
   Assert.ok(
-    !replyWindow.window.document.getElementById("messageEditor").docShell
+    !replyWindow.document.getElementById("messageEditor").docShell
       .allowDNSPrefetch,
     `Should have disabled DNS prefetch in the compose window (${errMsg})`
   );
@@ -184,7 +184,7 @@ add_task(async function test_dnsPrefetch_standaloneMessage() {
   assert_selected_and_displayed(msgc, gMsgHdr);
 
   // Check the docshell.
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
   Assert.ok(
     !aboutMessage.document.getElementById("messagepane").docShell
       .allowDNSPrefetch,

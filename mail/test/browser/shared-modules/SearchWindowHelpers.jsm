@@ -36,7 +36,7 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
  */
 function open_search_window() {
   windowHelper.plan_for_new_window("mailnews:search");
-  EventUtils.synthesizeKey("f", { shiftKey: true, accelKey: true }, mc.window);
+  EventUtils.synthesizeKey("f", { shiftKey: true, accelKey: true }, mc);
   return windowHelper.wait_for_new_window("mailnews:search");
 }
 
@@ -70,7 +70,7 @@ function close_search_window(aController) {
  * to the given controller.
  */
 function assert_search_window_folder_displayed(aController, aFolder) {
-  let currentFolder = aController.window.gCurrentFolder;
+  let currentFolder = aController.gCurrentFolder;
   Assert.equal(
     currentFolder,
     aFolder,
@@ -94,7 +94,7 @@ function select_click_search_row(aViewIndex, aController) {
     aController = mc;
   }
 
-  let tree = aController.window.document.getElementById("threadTree");
+  let tree = aController.document.getElementById("threadTree");
   tree.scrollToRow(aViewIndex);
   let coords = tree.getCoordsForCellItem(
     aViewIndex,
@@ -107,10 +107,10 @@ function select_click_search_row(aViewIndex, aController) {
     coords.x + coords.width / 2,
     coords.y + coords.height / 2,
     {},
-    aController.window
+    aController
   );
 
-  return aController.window.gFolderDisplay.view.dbView.getMsgHdrAt(aViewIndex);
+  return aController.gFolderDisplay.view.dbView.getMsgHdrAt(aViewIndex);
 }
 
 /**
@@ -128,7 +128,7 @@ function select_shift_click_search_row(aViewIndex, aController) {
     aController = mc;
   }
 
-  let tree = aController.window.document.getElementById("threadTree");
+  let tree = aController.document.getElementById("threadTree");
   tree.scrollToRow(aViewIndex);
   let coords = tree.getCoordsForCellItem(
     aViewIndex,
@@ -141,11 +141,11 @@ function select_shift_click_search_row(aViewIndex, aController) {
     coords.x + coords.width / 2,
     coords.y + coords.height / 2,
     { shiftKey: true },
-    aController.window
+    aController
   );
 
   utils.sleep(0);
-  return aController.window.gFolderDisplay.selectedMessages;
+  return aController.gFolderDisplay.selectedMessages;
 }
 
 /**
@@ -179,8 +179,8 @@ function assert_messages_in_search_view(aSynSets, aController) {
 
   // Iterate over the contents of the view, nulling out values in
   // synMessageURIs for found messages, and exploding for missing ones.
-  let dbView = aController.window.gFolderDisplay.view.dbView;
-  let treeView = aController.window.gFolderDisplay.view.dbView.QueryInterface(
+  let dbView = aController.gFolderDisplay.view.dbView;
+  let treeView = aController.gFolderDisplay.view.dbView.QueryInterface(
     Ci.nsITreeView
   );
   let rowCount = treeView.rowCount;

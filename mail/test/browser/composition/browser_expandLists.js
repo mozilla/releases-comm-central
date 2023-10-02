@@ -95,7 +95,7 @@ add_task(async function testExpandListsOnTo() {
   let addresses = "start@example,Test List,end@example";
 
   setup_msg_contents(cwc, addresses, "Expand To Test", "");
-  await testListExpansion(cwc.window, "toAddrContainer", addresses);
+  await testListExpansion(cwc, "toAddrContainer", addresses);
   close_compose_window(cwc);
 });
 
@@ -111,7 +111,7 @@ add_task(async function testExpandListsInvalidPill() {
     "start@example,invalidpill,Test List,end@example,invalidpill2";
 
   setup_msg_contents(cwc, addresses, "Expand To Test Invalid Pill", "");
-  await testListExpansion(cwc.window, "toAddrContainer", addresses);
+  await testListExpansion(cwc, "toAddrContainer", addresses);
   close_compose_window(cwc);
 });
 
@@ -120,14 +120,12 @@ add_task(async function testExpandListsInvalidPill() {
  */
 add_task(async function testExpandListsOnCc() {
   let cwc = open_compose_new_mail();
-  let button = cwc.window.document.getElementById(
-    "addr_ccShowAddressRowButton"
-  );
+  let button = cwc.document.getElementById("addr_ccShowAddressRowButton");
   let addresses = "start@example,Test List,end@example";
 
   button.click();
   setup_msg_contents(cwc, addresses, "Expand Cc Test", "", "ccAddrInput");
-  await testListExpansion(cwc.window, "ccAddrContainer", addresses);
+  await testListExpansion(cwc, "ccAddrContainer", addresses);
   close_compose_window(cwc);
 });
 
@@ -136,13 +134,11 @@ add_task(async function testExpandListsOnCc() {
  */
 add_task(async function testExpandListsOnBcc() {
   let cwc = open_compose_new_mail();
-  let button = cwc.window.document.getElementById(
-    "addr_bccShowAddressRowButton"
-  );
+  let button = cwc.document.getElementById("addr_bccShowAddressRowButton");
   let addresses = "start@example,Test List,end@example";
 
   button.click();
   setup_msg_contents(cwc, addresses, "Expand Bcc Test", "", "bccAddrInput");
-  await testListExpansion(cwc.window, "bccAddrContainer", addresses);
+  await testListExpansion(cwc, "bccAddrContainer", addresses);
   close_compose_window(cwc);
 });

@@ -64,25 +64,19 @@ add_setup(async function () {
  */
 function check_send_commands_state(aCwc, aEnabled) {
   Assert.equal(
-    aCwc.window.document
-      .getElementById("cmd_sendButton")
-      .hasAttribute("disabled"),
+    aCwc.document.getElementById("cmd_sendButton").hasAttribute("disabled"),
     !aEnabled
   );
   Assert.equal(
-    aCwc.window.document.getElementById("cmd_sendNow").hasAttribute("disabled"),
+    aCwc.document.getElementById("cmd_sendNow").hasAttribute("disabled"),
     !aEnabled
   );
   Assert.equal(
-    aCwc.window.document
-      .getElementById("cmd_sendWithCheck")
-      .hasAttribute("disabled"),
+    aCwc.document.getElementById("cmd_sendWithCheck").hasAttribute("disabled"),
     !aEnabled
   );
   Assert.equal(
-    aCwc.window.document
-      .getElementById("cmd_sendLater")
-      .hasAttribute("disabled"),
+    aCwc.document.getElementById("cmd_sendLater").hasAttribute("disabled"),
     !aEnabled
   );
 
@@ -90,13 +84,11 @@ function check_send_commands_state(aCwc, aEnabled) {
   // thus inheriting the enabled state. Check that on the Send button
   // and Send Now menuitem.
   Assert.equal(
-    aCwc.window.document.getElementById("button-send").getAttribute("command"),
+    aCwc.document.getElementById("button-send").getAttribute("command"),
     "cmd_sendButton"
   );
   Assert.equal(
-    aCwc.window.document
-      .getElementById("menu-item-send-now")
-      .getAttribute("command"),
+    aCwc.document.getElementById("menu-item-send-now").getAttribute("command"),
     "cmd_sendNow"
   );
 }
@@ -108,10 +100,8 @@ function check_send_commands_state(aCwc, aEnabled) {
  */
 add_task(async function test_send_enabled_manual_address() {
   let cwc = open_compose_new_mail(); // compose controller
-  let menu = cwc.window.document.getElementById("extraAddressRowsMenu"); // extra recipients menu
-  let menuButton = cwc.window.document.getElementById(
-    "extraAddressRowsMenuButton"
-  );
+  let menu = cwc.document.getElementById("extraAddressRowsMenu"); // extra recipients menu
+  let menuButton = cwc.document.getElementById("extraAddressRowsMenuButton");
 
   // On an empty window, Send must be disabled.
   check_send_commands_state(cwc, false);
@@ -126,7 +116,7 @@ add_task(async function test_send_enabled_manual_address() {
   await new Promise(resolve => setTimeout(resolve));
   await wait_for_popup_to_open(menu);
   menu.activateItem(
-    cwc.window.document.getElementById("addr_replyShowAddressRowMenuItem")
+    cwc.document.getElementById("addr_replyShowAddressRowMenuItem")
   );
   setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
   check_send_commands_state(cwc, false);
@@ -140,9 +130,7 @@ add_task(async function test_send_enabled_manual_address() {
   setup_msg_contents(cwc, " recipient@", "", "");
   check_send_commands_state(cwc, false);
 
-  let ccShow = cwc.window.document.getElementById(
-    "addr_ccShowAddressRowButton"
-  );
+  let ccShow = cwc.document.getElementById("addr_ccShowAddressRowButton");
   EventUtils.synthesizeMouseAtCenter(ccShow, {}, ccShow.ownerGlobal);
   await new Promise(resolve => setTimeout(resolve));
   check_send_commands_state(cwc, false);
@@ -155,7 +143,7 @@ add_task(async function test_send_enabled_manual_address() {
   );
   await new Promise(resolve => setTimeout(resolve));
   // Delete the selected pill.
-  EventUtils.synthesizeKey("VK_DELETE", {}, cwc.window);
+  EventUtils.synthesizeKey("VK_DELETE", {}, cwc);
   // Confirm the address row is now empty.
   Assert.ok(!get_first_pill(cwc));
   // Confirm the send button is disabled.
@@ -191,7 +179,7 @@ add_task(async function test_send_enabled_manual_address() {
   check_send_commands_state(cwc, false);
 
   // Hack to reveal the newsgroup button.
-  let newsgroupsButton = cwc.window.document.getElementById(
+  let newsgroupsButton = cwc.document.getElementById(
     "addr_newsgroupsShowAddressRowButton"
   );
   newsgroupsButton.hidden = false;
@@ -249,18 +237,18 @@ add_task(async function test_send_enabled_prefilled_address_from_identity() {
   let cwc = open_compose_new_mail();
   check_send_commands_state(cwc, true);
 
-  let identityPicker = cwc.window.document.getElementById("msgIdentity");
+  let identityPicker = cwc.document.getElementById("msgIdentity");
   Assert.equal(identityPicker.selectedIndex, 0);
 
   // Switch to the second identity that has no CC. Send should be disabled.
   Assert.ok(account.identities.length >= 2);
   let identityWithoutCC = account.identities[1];
   Assert.ok(!identityWithoutCC.doCc);
-  await chooseIdentity(cwc.window, identityWithoutCC.key);
+  await chooseIdentity(cwc, identityWithoutCC.key);
   check_send_commands_state(cwc, false);
 
   // Check the first identity again.
-  await chooseIdentity(cwc.window, identityWithCC.key);
+  await chooseIdentity(cwc, identityWithCC.key);
   check_send_commands_state(cwc, true);
 
   close_compose_window(cwc);
@@ -285,9 +273,9 @@ add_task(function test_send_enabled_address_contacts_sidebar() {
 
   // Open Contacts sidebar and use our contact.
   // FIXME: Use UI to open contacts sidebar.
-  cwc.window.toggleContactsSidebar();
+  cwc.toggleContactsSidebar();
 
-  let contactsBrowser = cwc.window.document.getElementById("contactsBrowser");
+  let contactsBrowser = cwc.document.getElementById("contactsBrowser");
   wait_for_frame_load(
     contactsBrowser,
     "chrome://messenger/content/addressbook/abContactsPanel.xhtml?focus"
@@ -307,7 +295,7 @@ add_task(function test_send_enabled_address_contacts_sidebar() {
   check_send_commands_state(cwc, true);
 
   // FIXME: Use UI to close contacts sidebar.
-  cwc.window.toggleContactsSidebar();
+  cwc.toggleContactsSidebar();
   close_compose_window(cwc);
 });
 
@@ -324,18 +312,18 @@ add_task(async function test_update_pill_before_send() {
 
   // Edit the first pill.
   // First, we need to get into the edit mode by clicking the pill twice.
-  EventUtils.synthesizeMouseAtCenter(pill, { clickCount: 1 }, cwc.window);
+  EventUtils.synthesizeMouseAtCenter(pill, { clickCount: 1 }, cwc);
   let clickPromise = BrowserTestUtils.waitForEvent(pill, "click");
   // We do not want a double click, but two separate clicks.
-  EventUtils.synthesizeMouseAtCenter(pill, { clickCount: 1 }, cwc.window);
+  EventUtils.synthesizeMouseAtCenter(pill, { clickCount: 1 }, cwc);
   await clickPromise;
 
   Assert.ok(!pill.querySelector("input").hidden);
 
   // Set the pill which is in edit mode to an invalid email.
-  EventUtils.synthesizeKey("KEY_Home", { shiftKey: true }, cwc.window);
-  EventUtils.synthesizeKey("VK_BACK_SPACE", {}, cwc.window);
-  EventUtils.sendString("invalidEmail", cwc.window);
+  EventUtils.synthesizeKey("KEY_Home", { shiftKey: true }, cwc);
+  EventUtils.synthesizeKey("VK_BACK_SPACE", {}, cwc);
+  EventUtils.sendString("invalidEmail", cwc);
 
   // Click send while the pill is in the edit mode and check the dialog title
   // if the pill is updated we get an invalid recipient error. Otherwise the
@@ -343,14 +331,14 @@ add_task(async function test_update_pill_before_send() {
   // `recipient@fake.invalid`.
   let dialogTitle;
   plan_for_modal_dialog("commonDialogWindow", cwc => {
-    dialogTitle = cwc.window.document.getElementById("infoTitle").textContent;
-    cwc.window.document.querySelector("dialog").getButton("accept").click();
+    dialogTitle = cwc.document.getElementById("infoTitle").textContent;
+    cwc.document.querySelector("dialog").getButton("accept").click();
   });
   // Click the send button.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("button-send"),
+    cwc.document.getElementById("button-send"),
     {},
-    cwc.window
+    cwc
   );
   wait_for_modal_dialog("commonDialogWindow");
 

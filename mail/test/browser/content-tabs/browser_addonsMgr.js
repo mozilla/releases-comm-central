@@ -48,7 +48,7 @@ add_task(function test_addon_prefs() {
   plan_for_modal_dialog("mozmill-prefs", function (controller) {
     // Add | await new Promise(resolve => setTimeout(resolve, 1000));|
     // here to see the popup dialog.
-    controller.window.close();
+    controller.close();
   });
 
   // MozMill add-on should be somewhere in the list. When found, click it.

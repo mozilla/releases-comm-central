@@ -30,7 +30,7 @@ var cth = ChromeUtils.import(
 function open_pref_tab(aPaneID, aScrollTo) {
   let tab = cth.open_content_tab_with_click(
     function () {
-      fdh.mc.window.openOptionsDialog(aPaneID, aScrollTo);
+      fdh.mc.openOptionsDialog(aPaneID, aScrollTo);
     },
     "about:preferences",
     "preferencesTab"
@@ -48,5 +48,5 @@ function open_pref_tab(aPaneID, aScrollTo) {
  * @param aTab  The content tab to close.
  */
 function close_pref_tab(aTab) {
-  fdh.mc.window.document.getElementById("tabmail").closeTab(aTab);
+  fdh.mc.document.getElementById("tabmail").closeTab(aTab);
 }

@@ -157,7 +157,7 @@ async function checkStandaloneMessageWindow(loadAllowed) {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 1000));
 
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
   if (
     (await isPluginLoaded(
       aboutMessage.document.getElementById("messagepane")

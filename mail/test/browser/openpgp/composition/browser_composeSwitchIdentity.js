@@ -112,7 +112,7 @@ async function testComposeFlags(
   bobIdentity.protectSubject = prefProtectSubject;
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -160,12 +160,12 @@ async function testComposeFlags(
     checkDonePromise = waitCheckEncryptionStateDone(composeWin);
 
     EventUtils.synthesizeMouseAtCenter(
-      cwc.window.document.getElementById("msgIdentity"),
+      cwc.document.getElementById("msgIdentity"),
       {},
-      cwc.window.document.getElementById("msgIdentity").ownerGlobal
+      cwc.document.getElementById("msgIdentity").ownerGlobal
     );
     await click_menus_in_sequence(
-      cwc.window.document.getElementById("msgIdentityPopup"),
+      cwc.document.getElementById("msgIdentityPopup"),
       [{ identitykey: plainIdentity.key }]
     );
 
@@ -188,12 +188,12 @@ async function testComposeFlags(
     checkDonePromise = waitCheckEncryptionStateDone(composeWin);
 
     EventUtils.synthesizeMouseAtCenter(
-      cwc.window.document.getElementById("msgIdentity"),
+      cwc.document.getElementById("msgIdentity"),
       {},
-      cwc.window.document.getElementById("msgIdentity").ownerGlobal
+      cwc.document.getElementById("msgIdentity").ownerGlobal
     );
     await click_menus_in_sequence(
-      cwc.window.document.getElementById("msgIdentityPopup"),
+      cwc.document.getElementById("msgIdentityPopup"),
       [{ identitykey: bobIdentity.key }]
     );
 

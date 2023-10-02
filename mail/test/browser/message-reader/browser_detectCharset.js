@@ -35,7 +35,7 @@ add_setup(async function () {
 async function check_display_charset(eml, expectedCharset) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
   is(aboutMessage.currentCharacterSet, expectedCharset);
   close_window(msgc);
 }
@@ -43,7 +43,7 @@ async function check_display_charset(eml, expectedCharset) {
 async function extract_eml_body_textcontent(eml, autodetect = true) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
 
   if (autodetect) {
     // Open other actions menu.

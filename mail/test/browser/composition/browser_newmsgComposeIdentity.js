@@ -92,10 +92,10 @@ add_setup(async function () {
  *                        (the sender address to be sent out).
  */
 function checkCompIdentity(cwc, aIdentityKey, aIdentityAlias, aIdentityValue) {
-  let identityList = cwc.window.document.getElementById("msgIdentity");
+  let identityList = cwc.document.getElementById("msgIdentity");
 
   Assert.equal(
-    cwc.window.getCurrentIdentityKey(),
+    cwc.getCurrentIdentityKey(),
     aIdentityKey,
     "The From identity is not correctly selected"
   );
@@ -129,27 +129,19 @@ add_task(async function test_compose_from_composer() {
 
   // Compose a new message from the compose window.
   plan_for_new_window("msgcompose");
-  EventUtils.synthesizeKey(
-    "n",
-    { shiftKey: false, accelKey: true },
-    cwc.window
-  );
+  EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, cwc);
   let newCompWin = wait_for_compose_window();
   checkCompIdentity(newCompWin, account.defaultIdentity.key);
   close_compose_window(newCompWin);
 
   // Switch to identity2 in the main compose window, new compose windows
   // starting from here should use the same identity as its "parent".
-  await chooseIdentity(cwc.window, identityKey2);
+  await chooseIdentity(cwc, identityKey2);
   checkCompIdentity(cwc, identityKey2);
 
   // Compose a second new message from the compose window.
   plan_for_new_window("msgcompose");
-  EventUtils.synthesizeKey(
-    "n",
-    { shiftKey: false, accelKey: true },
-    cwc.window
-  );
+  EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, cwc);
   let newCompWin2 = wait_for_compose_window();
   checkCompIdentity(newCompWin2, identityKey2);
 
@@ -175,20 +167,18 @@ add_task(async function test_editing_identity() {
   let identityCustom = customName + " <" + customEmail + ">";
 
   EventUtils.synthesizeMouseAtCenter(
-    compWin.window.document.getElementById("msgIdentity"),
+    compWin.document.getElementById("msgIdentity"),
     {},
-    compWin.window.document.getElementById("msgIdentity").ownerGlobal
+    compWin.document.getElementById("msgIdentity").ownerGlobal
   );
   await click_menus_in_sequence(
-    compWin.window.document.getElementById("msgIdentityPopup"),
+    compWin.document.getElementById("msgIdentityPopup"),
     [{ command: "cmd_customizeFromAddress" }]
   );
-  utils.waitFor(
-    () => compWin.window.document.getElementById("msgIdentity").editable
-  );
+  utils.waitFor(() => compWin.document.getElementById("msgIdentity").editable);
 
-  compWin.window.document.getElementById("msgIdentityPopup").focus();
-  EventUtils.sendString(identityCustom, compWin.window);
+  compWin.document.getElementById("msgIdentityPopup").focus();
+  EventUtils.sendString(identityCustom, compWin);
   checkCompIdentity(
     compWin,
     account.defaultIdentity.key,
@@ -200,11 +190,11 @@ add_task(async function test_editing_identity() {
   /* Temporarily disabled due to intermittent failure, bug 1237565.
      TODO: To be reeabled in bug 1238264.
   // Save message with this changed identity.
-  compWin.window.SaveAsDraft();
+  compWin.SaveAsDraft();
 
   // Switch to another identity to see if editable field still obeys predefined
   // identity values.
-  await click_menus_in_sequence(compWin.window.document.getElementById("msgIdentityPopup"),
+  await click_menus_in_sequence(compWin.document.getElementById("msgIdentityPopup"),
                                   [ { identitykey: identityKey2 } ]);
   checkCompIdentity(compWin, identityKey2, identity2From, identity2From);
 
@@ -230,17 +220,17 @@ add_task(async function test_display_of_identities() {
   let cwc = open_compose_new_mail();
   checkCompIdentity(cwc, account.defaultIdentity.key, identity1Email);
 
-  await chooseIdentity(cwc.window, identityKey2);
+  await chooseIdentity(cwc, identityKey2);
   checkCompIdentity(cwc, identityKey2, identity2From, identity2From);
 
-  await chooseIdentity(cwc.window, identityKey4);
+  await chooseIdentity(cwc, identityKey4);
   checkCompIdentity(
     cwc,
     identityKey4,
     "[nsIMsgIdentity: " + identityKey4 + "]"
   );
 
-  await chooseIdentity(cwc.window, identityKey3);
+  await chooseIdentity(cwc, identityKey3);
   let identity3From = identity3Name + " <" + identity3Email + ">";
   checkCompIdentity(
     cwc,
@@ -251,7 +241,7 @@ add_task(async function test_display_of_identities() {
 
   // Bug 1152045, check that the email address from the selected identity
   // is properly used for the From field in the created message.
-  await save_compose_message(cwc.window);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
 
   await be_in_folder(gDrafts);

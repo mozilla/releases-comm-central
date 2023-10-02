@@ -31,13 +31,13 @@ add_task(async function test_customHeaders() {
 
   // Set values to custom headers.
   let cwc = open_compose_new_mail();
-  let inputs = cwc.window.document.querySelectorAll(".address-row-raw input");
+  let inputs = cwc.document.querySelectorAll(".address-row-raw input");
   inputs[0].value = "Test äöü";
   inputs[1].value = "Test 😃";
   inputs[2].value = "moderator@tinderbox.com";
   inputs[3].value = "<message-id-1234@tinderbox.com>";
 
-  await save_compose_message(cwc.window);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 1,
@@ -75,7 +75,7 @@ add_task(async function test_customHeaders() {
   );
 
   cwc = open_compose_from_draft();
-  let inputs2 = cwc.window.document.querySelectorAll(".address-row-raw input");
+  let inputs2 = cwc.document.querySelectorAll(".address-row-raw input");
 
   Assert.equal(inputs2[0].value, "Test äöü");
   Assert.equal(inputs2[1].value, "Test 😃");

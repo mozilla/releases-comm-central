@@ -68,18 +68,18 @@ add_task(async function test_save_view_as_folder() {
 function subtest_save_mail_view(savc) {
   // - make sure the name is right
   Assert.equal(
-    savc.window.document.getElementById("name").value,
+    savc.document.getElementById("name").value,
     baseFolder.prettyName + "-Important"
   );
 
-  let selector = savc.window.document.querySelector("#searchVal0 menulist");
+  let selector = savc.document.querySelector("#searchVal0 menulist");
   Assert.ok(selector, "Should have a tag selector");
 
   // Check the value of the search-value.
   Assert.equal(selector.value, "$label1");
 
   // - save it
-  savc.window.onOK();
+  savc.onOK();
 }
 
 add_task(async function test_verify_saved_mail_view() {

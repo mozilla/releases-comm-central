@@ -61,7 +61,7 @@ async function open_advanced_settings(callback) {
   let tab = open_content_tab_with_url("about:accountsettings");
   wait_for_account_tree_load(tab);
   await callback(tab);
-  mc.window.document.getElementById("tabmail").closeTab(tab);
+  mc.document.getElementById("tabmail").closeTab(tab);
 }
 
 async function openAccountSetup() {
@@ -179,26 +179,25 @@ function remove_account(
   // Account removal confirmation dialog. Select what to remove.
   if (removeAccount) {
     EventUtils.synthesizeMouseAtCenter(
-      cdc.window.document.getElementById("removeAccount"),
+      cdc.document.getElementById("removeAccount"),
       {},
-      cdc.window.document.getElementById("removeAccount").ownerGlobal
+      cdc.document.getElementById("removeAccount").ownerGlobal
     );
   }
   if (removeData) {
     EventUtils.synthesizeMouseAtCenter(
-      cdc.window.document.getElementById("removeData"),
+      cdc.document.getElementById("removeData"),
       {},
-      cdc.window.document.getElementById("removeData").ownerGlobal
+      cdc.document.getElementById("removeData").ownerGlobal
     );
   }
 
-  cdc.window.document.documentElement.querySelector("dialog").acceptDialog();
+  cdc.document.documentElement.querySelector("dialog").acceptDialog();
   utils.waitFor(
-    () =>
-      !cdc.window.document.querySelector("dialog").getButton("accept").disabled,
+    () => !cdc.document.querySelector("dialog").getButton("accept").disabled,
     "Timeout waiting for finish of account removal",
     5000,
     100
   );
-  cdc.window.document.documentElement.querySelector("dialog").acceptDialog();
+  cdc.document.documentElement.querySelector("dialog").acceptDialog();
 }

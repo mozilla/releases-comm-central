@@ -30,7 +30,7 @@ add_task(async function test_pill_selection() {
     "Testing testing testing! "
   );
 
-  let cDoc = cwc.window.document;
+  let cDoc = cwc.document;
   let recipientsContainer = cDoc.getElementById("recipientsContainer");
   let allPills = recipientsContainer.getAllPills();
 
@@ -40,10 +40,10 @@ add_task(async function test_pill_selection() {
   EventUtils.synthesizeMouseAtCenter(
     cDoc.getElementById("toAddrInput"),
     {},
-    cwc.window
+    cwc
   );
   // Ctrl/Cmd+a should select all pills.
-  EventUtils.synthesizeKey("a", modifiers, cwc.window);
+  EventUtils.synthesizeKey("a", modifiers, cwc);
   Assert.equal(
     recipientsContainer.getAllSelectedPills().length,
     allPills.length,
@@ -72,7 +72,7 @@ add_task(async function test_pill_selection() {
   EventUtils.synthesizeMouseAtCenter(
     cDoc.getElementById("toAddrInput"),
     {},
-    cwc.window
+    cwc
   );
   Assert.equal(
     recipientsContainer.getAllSelectedPills().length,
@@ -105,20 +105,20 @@ add_task(async function test_pill_selection() {
   close_popup(cwc, contextMenu);
 
   // Click on the first pill, which should be selected, to trigger edit mode.
-  EventUtils.synthesizeMouseAtCenter(allPills[0], {}, cwc.window);
+  EventUtils.synthesizeMouseAtCenter(allPills[0], {}, cwc);
   Assert.ok(allPills[0].isEditing, "The pill is in edit mode");
 
   // Click on the input field, the pills should all be deselected.
   EventUtils.synthesizeMouseAtCenter(
     cDoc.getElementById("toAddrInput"),
     {},
-    cwc.window
+    cwc
   );
 
   // Click on the first pill to select it.
-  EventUtils.synthesizeMouseAtCenter(allPills[0], {}, cwc.window);
+  EventUtils.synthesizeMouseAtCenter(allPills[0], {}, cwc);
   // Ctrl/Cmd+Click ont he second pill to add it to the selection.
-  EventUtils.synthesizeMouseAtCenter(allPills[1], modifiers, cwc.window);
+  EventUtils.synthesizeMouseAtCenter(allPills[1], modifiers, cwc);
   Assert.equal(
     recipientsContainer.getAllSelectedPills().length,
     2,
@@ -166,7 +166,7 @@ add_task(async function test_pill_context_menu() {
     "Testing testing testing! "
   );
 
-  let cDoc = cwc.window.document;
+  let cDoc = cwc.document;
   let recipientsContainer = cDoc.getElementById("recipientsContainer");
   let allPills = recipientsContainer.getAllPills();
 

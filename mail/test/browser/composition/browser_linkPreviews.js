@@ -18,15 +18,14 @@ add_task(async function previewEnabled() {
   let controller = open_compose_new_mail();
   await navigator.clipboard.writeText(url);
 
-  let messageEditor =
-    controller.window.document.getElementById("messageEditor");
+  let messageEditor = controller.document.getElementById("messageEditor");
   messageEditor.focus();
 
   // Ctrl+V = Paste
   EventUtils.synthesizeKey(
     "v",
     { shiftKey: false, accelKey: true },
-    controller.window
+    controller
   );
 
   await TestUtils.waitForCondition(

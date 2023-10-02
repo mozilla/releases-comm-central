@@ -26,7 +26,7 @@ const { MailServices } = ChromeUtils.import(
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 
 function getMsgBodyTxt(msgc) {
-  let msgPane = get_about_message(msgc.window).getMessagePaneBrowser();
+  let msgPane = get_about_message(msgc).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 
@@ -100,7 +100,7 @@ add_task(async function testOpenVerifiedUnsignedEncrypted2() {
 
   let msgc = await openMessagePromise;
 
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
 
   Assert.ok(getMsgBodyTxt(msgc).includes(MSG_TEXT), "message text is in body");
   Assert.ok(

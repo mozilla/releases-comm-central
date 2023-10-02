@@ -27,7 +27,7 @@ requestLongerTimeout(3);
  * @param {string} otherHeader - The name of the custom header to show.
  */
 async function checkFocusCycling(controller, options) {
-  let win = controller.window;
+  let win = controller;
   let doc = win.document;
   let contactDoc;
   let contactsInput;

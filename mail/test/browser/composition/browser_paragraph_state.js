@@ -13,7 +13,7 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
 
 add_task(async function test_newline_p() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   let firstText = "first line";
   let secondText = "second line";
@@ -71,7 +71,7 @@ add_task(async function test_newline_p() {
 
 add_task(async function test_newline_headers() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   let firstText = "first line";
   let secondText = "second line";
@@ -130,7 +130,7 @@ add_task(async function test_newline_headers() {
 
 add_task(async function test_newline_pre_and_address() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   let firstText = "first line";
   let secondText = "second line";
@@ -182,7 +182,7 @@ add_task(async function test_newline_pre_and_address() {
 
 add_task(async function test_newline_body() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   let firstText = "first line";
   let secondText = "second line";
@@ -256,7 +256,7 @@ async function initialiseParagraphs(formatHelper) {
 
 add_task(async function test_non_body_paragraph_state() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   // NOTE: we don't start with the default paragraph state because we want to
   // detect a *change* in the paragraph state from the previous state.
@@ -360,7 +360,7 @@ add_task(async function test_non_body_paragraph_state() {
 
 add_task(async function test_body_paragraph_state() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   formatHelper.focusMessage();
 
@@ -395,7 +395,7 @@ add_task(async function test_body_paragraph_state() {
 
 add_task(async function test_convert_from_body_paragraph_state() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   let stateSet = ["p", "address", "pre"];
   for (let i = 1; i <= 6; i++) {
@@ -440,7 +440,7 @@ add_task(async function test_convert_from_body_paragraph_state() {
 
 add_task(async function test_heading_implies_bold() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   formatHelper.focusMessage();
 
@@ -577,7 +577,7 @@ add_task(async function test_heading_implies_bold() {
 
 add_task(async function test_address_implies_italic() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   formatHelper.focusMessage();
 
@@ -702,7 +702,7 @@ add_task(async function test_address_implies_italic() {
 
 add_task(async function test_preformat_implies_fixed_width() {
   let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller.window);
+  let formatHelper = new FormatHelper(controller);
 
   formatHelper.focusMessage();
 

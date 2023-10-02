@@ -53,7 +53,7 @@ add_task(async function test_convertToEvent() {
 
   // Copy the message to a folder.
   let aboutMessage =
-    msgc.window.document.getElementById("messageBrowser").contentWindow;
+    msgc.document.getElementById("messageBrowser").contentWindow;
   let documentChild = aboutMessage.document
     .getElementById("messagepane")
     .contentDocument.querySelector("div.moz-text-flowed");

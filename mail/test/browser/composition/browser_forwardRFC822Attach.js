@@ -41,7 +41,7 @@ async function forwardDirect(aFilePath, aExpectedText) {
 
   let cwc = open_compose_with_forward_as_attachments(msgc);
 
-  await save_compose_message(cwc.window);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
   close_window(msgc);
 

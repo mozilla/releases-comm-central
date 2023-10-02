@@ -202,7 +202,7 @@ add_task(async function test_image_file_drag() {
   let cwc = open_compose_new_mail();
 
   await simulateDragAndDrop(
-    cwc.window,
+    cwc,
     [[{ type: "application/x-moz-file", data: file }]],
     "image"
   );
@@ -219,7 +219,7 @@ add_task(async function test_image_file_drag() {
   let cwc = open_compose_new_mail();
 
   await simulateDragAndDrop(
-    cwc.window,
+    cwc,
     [[{ type: "application/x-moz-file", data: file }]],
     "inline"
   );
@@ -236,7 +236,7 @@ add_task(async function test_text_file_drag() {
   let cwc = open_compose_new_mail();
 
   await simulateDragAndDrop(
-    cwc.window,
+    cwc,
     [[{ type: "application/x-moz-file", data: file }]],
     "text"
   );
@@ -259,10 +259,10 @@ add_task(async function test_message_drag() {
   let msgUrl = MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
 
   let cwc = open_compose_new_mail();
-  let attachmentBucket = cwc.window.document.getElementById("attachmentBucket");
+  let attachmentBucket = cwc.document.getElementById("attachmentBucket");
 
   await simulateDragAndDrop(
-    cwc.window,
+    cwc,
     [
       [
         { type: "text/x-moz-message", data: msgStr },
@@ -294,13 +294,13 @@ add_task(async function test_message_drag() {
   Assert.notEqual(attachment, 0, "attachment should not be 0 bytes");
 
   // Clear the added attachment.
-  await cwc.window.RemoveAttachments([attachmentBucket.childNodes[0]]);
+  await cwc.RemoveAttachments([attachmentBucket.childNodes[0]]);
 
   // Try the same with mail.forward_add_extension false.
   Services.prefs.setBoolPref("mail.forward_add_extension", false);
 
   await simulateDragAndDrop(
-    cwc.window,
+    cwc,
     [
       [
         { type: "text/x-moz-message", data: msgStr },
@@ -341,7 +341,7 @@ add_task(async function test_message_drag() {
 add_task(async function test_link_drag() {
   let cwc = open_compose_new_mail();
   await simulateDragAndDrop(
-    cwc.window,
+    cwc,
     [
       [
         {
@@ -359,8 +359,7 @@ add_task(async function test_link_drag() {
   );
 
   let attachment =
-    cwc.window.document.getElementById("attachmentBucket").childNodes[0]
-      .attachment;
+    cwc.document.getElementById("attachmentBucket").childNodes[0].attachment;
   Assert.equal(
     attachment.name,
     "Example website",
@@ -542,10 +541,9 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
   let ctrlDest = open_compose_new_mail();
 
   // Add attachments (via mocked file picker).
-  await ctrlSrc.window.AttachFile();
+  await ctrlSrc.AttachFile();
 
-  let srcAttachmentArea =
-    ctrlSrc.window.document.getElementById("attachmentArea");
+  let srcAttachmentArea = ctrlSrc.document.getElementById("attachmentArea");
 
   // Wait for attachment area to be visible and open in response.
   await TestUtils.waitForCondition(
@@ -554,13 +552,13 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
     "Attachment area is visible and open"
   );
 
-  let srcBucket = ctrlSrc.window.document.getElementById("attachmentBucket");
-  let dstBucket = ctrlDest.window.document.getElementById("attachmentBucket");
+  let srcBucket = ctrlSrc.document.getElementById("attachmentBucket");
+  let dstBucket = ctrlDest.document.getElementById("attachmentBucket");
   await drag_between_buckets(srcBucket, dstBucket);
 
   // Make sure a dragged attachment can be converted to a cloudFile attachment.
   try {
-    await ctrlSrc.window.UpdateAttachment(dstBucket.childNodes[0], {
+    await ctrlSrc.UpdateAttachment(dstBucket.childNodes[0], {
       cloudFileAccount: gCloudFileAccount,
     });
     Assert.ok(
@@ -586,10 +584,9 @@ add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
   let ctrlDest = open_compose_new_mail();
 
   // Add cloudFile attachments (via mocked file picker).
-  await ctrlSrc.window.attachToCloudNew(gCloudFileAccount);
+  await ctrlSrc.attachToCloudNew(gCloudFileAccount);
 
-  let srcAttachmentArea =
-    ctrlSrc.window.document.getElementById("attachmentArea");
+  let srcAttachmentArea = ctrlSrc.document.getElementById("attachmentArea");
 
   // Wait for attachment area to be visible and open in response.
   await TestUtils.waitForCondition(
@@ -598,14 +595,14 @@ add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
     "Attachment area is visible and open"
   );
 
-  let srcBucket = ctrlSrc.window.document.getElementById("attachmentBucket");
-  let dstBucket = ctrlDest.window.document.getElementById("attachmentBucket");
+  let srcBucket = ctrlSrc.document.getElementById("attachmentBucket");
+  let dstBucket = ctrlDest.document.getElementById("attachmentBucket");
   await drag_between_buckets(srcBucket, dstBucket);
 
   // Make sure a dragged cloudFile attachment can be converted to a regular
   // attachment.
   try {
-    await ctrlSrc.window.UpdateAttachment(dstBucket.childNodes[0], {
+    await ctrlSrc.UpdateAttachment(dstBucket.childNodes[0], {
       cloudFileAccount: null,
     });
     Assert.ok(
@@ -659,7 +656,7 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
 
   await drag_between_buckets(
     srcBucket,
-    ctrlDest.window.document.getElementById("attachmentBucket")
+    ctrlDest.document.getElementById("attachmentBucket")
   );
 
   close_compose_window(ctrlDest);

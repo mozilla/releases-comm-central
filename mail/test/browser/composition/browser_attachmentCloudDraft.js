@@ -71,7 +71,7 @@ add_task(async function test_draft_with_cloudFile_attachment() {
 
   let cwc = openDraft();
 
-  let bucket = cwc.window.document.getElementById("attachmentBucket");
+  let bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -115,12 +115,12 @@ add_task(async function test_draft_with_cloudFile_attachment() {
   );
   Assert.equal(
     draft.totalSize,
-    cwc.window.document.getElementById("attachmentBucketSize").textContent,
+    cwc.document.getElementById("attachmentBucketSize").textContent,
     "Total size of draft should match total size of original email."
   );
 
   // Rename attachment.
-  await cwc.window.UpdateAttachment(itemFromDraft, { name: "renamed.txt" });
+  await cwc.UpdateAttachment(itemFromDraft, { name: "renamed.txt" });
   Assert.equal(
     "renamed.txt",
     itemFromDraft.attachment.name,
@@ -128,7 +128,7 @@ add_task(async function test_draft_with_cloudFile_attachment() {
   );
 
   // Convert to regular attachment.
-  await cwc.window.UpdateAttachment(itemFromDraft, { cloudFileAccount: null });
+  await cwc.UpdateAttachment(itemFromDraft, { cloudFileAccount: null });
   Assert.ok(
     !itemFromDraft.attachment.sendViaCloud,
     "Converting a restored cloudFile attachment to a regular attachment should succeed."
@@ -168,7 +168,7 @@ add_task(async function test_draft_with_unknown_cloudFile_attachment() {
 
   let cwc = openDraft();
 
-  let bucket = cwc.window.document.getElementById("attachmentBucket");
+  let bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -213,12 +213,12 @@ add_task(async function test_draft_with_unknown_cloudFile_attachment() {
   );
   Assert.equal(
     draft.totalSize,
-    cwc.window.document.getElementById("attachmentBucketSize").textContent,
+    cwc.document.getElementById("attachmentBucketSize").textContent,
     "Total size of draft should match total size of original email."
   );
 
   // Rename attachment.
-  await cwc.window.UpdateAttachment(itemFromDraft, { name: "renamed.txt" });
+  await cwc.UpdateAttachment(itemFromDraft, { name: "renamed.txt" });
   Assert.equal(
     "renamed.txt",
     itemFromDraft.attachment.name,
@@ -226,7 +226,7 @@ add_task(async function test_draft_with_unknown_cloudFile_attachment() {
   );
 
   // Convert to regular attachment.
-  await cwc.window.UpdateAttachment(itemFromDraft, { cloudFileAccount: null });
+  await cwc.UpdateAttachment(itemFromDraft, { cloudFileAccount: null });
   Assert.ok(
     !itemFromDraft.attachment.sendViaCloud,
     "Converting an unknown cloudFile attachment to a regular attachment should succeed."
@@ -265,7 +265,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_account() {
   let cwc = openDraft();
 
   // Check that the draft has a cloudFile attachment.
-  let bucket = cwc.window.document.getElementById("attachmentBucket");
+  let bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -310,19 +310,19 @@ add_task(async function test_draft_with_cloudFile_attachment_no_account() {
   );
   Assert.equal(
     draft.totalSize,
-    cwc.window.document.getElementById("attachmentBucketSize").textContent,
+    cwc.document.getElementById("attachmentBucketSize").textContent,
     "Total size of draft should match total size of original email."
   );
 
   // Rename attachment.
   await Assert.rejects(
-    cwc.window.UpdateAttachment(itemFromDraft, { name: "renamed.txt" }),
+    cwc.UpdateAttachment(itemFromDraft, { name: "renamed.txt" }),
     /CloudFile Error: Account not found: undefined/,
     "Renaming a restored cloudFile attachment (without account) should not succeed."
   );
 
   // Convert to regular attachment.
-  await cwc.window.UpdateAttachment(itemFromDraft, { cloudFileAccount: null });
+  await cwc.UpdateAttachment(itemFromDraft, { cloudFileAccount: null });
   Assert.ok(
     !itemFromDraft.attachment.sendViaCloud,
     "Converting a restored cloudFile attachment (without account) to a regular attachment should succeed."
@@ -361,7 +361,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
   let cwc = openDraft();
 
   // Check that the draft has a cloudFile attachment.
-  let bucket = cwc.window.document.getElementById("attachmentBucket");
+  let bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -410,13 +410,13 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
   );
   Assert.equal(
     draft.totalSize,
-    cwc.window.document.getElementById("attachmentBucketSize").textContent,
+    cwc.document.getElementById("attachmentBucketSize").textContent,
     "Total size of draft should match total size of original email."
   );
 
   // Rename attachment.
   await Assert.rejects(
-    cwc.window.UpdateAttachment(itemFromDraft, { name: "renamed.txt" }),
+    cwc.UpdateAttachment(itemFromDraft, { name: "renamed.txt" }),
     e => {
       return (
         e.message.startsWith("CloudFile Error: Attachment file not found: ") &&
@@ -428,7 +428,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
 
   // Rename attachment.
   await Assert.rejects(
-    cwc.window.UpdateAttachment(itemFromDraft, { name: "renamed.txt" }),
+    cwc.UpdateAttachment(itemFromDraft, { name: "renamed.txt" }),
     e => {
       return (
         e.message.startsWith("CloudFile Error: Attachment file not found: ") &&
@@ -440,7 +440,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
 
   // Convert to regular attachment.
   await Assert.rejects(
-    cwc.window.UpdateAttachment(itemFromDraft, { cloudFileAccount: null }),
+    cwc.UpdateAttachment(itemFromDraft, { cloudFileAccount: null }),
     e => {
       return (
         e.message.startsWith("CloudFile Error: Attachment file not found: ") &&
@@ -469,9 +469,9 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
     "Some body..."
   );
 
-  await cwc.window.attachToCloudNew(cloudFileAccount);
+  await cwc.attachToCloudNew(cloudFileAccount);
 
-  let bucket = cwc.window.document.getElementById("attachmentBucket");
+  let bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
     bucket.itemCount,
     kFiles.length,
@@ -497,7 +497,7 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   let upload = item.cloudFileUpload;
   let itemIcon = item.querySelector("img.attachmentcell-icon").src;
   let itemSize = item.querySelector(".attachmentcell-size").textContent;
-  let totalSize = cwc.window.document.getElementById(
+  let totalSize = cwc.document.getElementById(
     "attachmentBucketSize"
   ).textContent;
 
@@ -508,7 +508,7 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   );
 
   // Now close the message with saving it as draft.
-  await save_compose_message(cwc.window);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.

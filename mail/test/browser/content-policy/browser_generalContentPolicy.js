@@ -326,7 +326,7 @@ async function checkComposeWindow(test, replyType, loadAllowed) {
   await TestUtils.waitForCondition(async () => {
     return (
       (await test.checkForAllowed(
-        replyWindow.window.document
+        replyWindow.document
           .getElementById("messageEditor")
           .contentDocument.getElementById("testelement")
       )) == loadAllowed
@@ -379,7 +379,7 @@ async function checkStandaloneMessageWindow(test, loadAllowed) {
  */
 async function checkEMLMessageWindow(test, emlFile) {
   let msgc = await open_message_from_file(emlFile);
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
   if (!aboutMessage.document.getElementById("mail-notification-top")) {
     throw new Error(test.type + " has no content notification bar.");
   }
@@ -745,7 +745,7 @@ add_task(async function test_sigPic() {
   let nwc = open_compose_new_mail();
   await TestUtils.waitForCondition(async () => {
     return wasAllowed(
-      nwc.window.document
+      nwc.document
         .getElementById("messageEditor")
         .contentDocument.getElementById("testelement")
     );
@@ -755,7 +755,7 @@ add_task(async function test_sigPic() {
   let rwc = open_compose_with_reply();
   await TestUtils.waitForCondition(async () => {
     return wasAllowed(
-      rwc.window.document
+      rwc.document
         .getElementById("messageEditor")
         .contentDocument.getElementById("testelement")
     );
@@ -815,29 +815,27 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   // (copied from test-compose-mailto.js:test_checkInsertImage()).
 
   // First focus on the editor element
-  replyWindow.window.document.getElementById("messageEditor").focus();
+  replyWindow.document.getElementById("messageEditor").focus();
 
   // Now open the image window
   plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
     // Insert the url of the image.
-    let srcloc = mwc.window.document.getElementById("srcInput");
+    let srcloc = mwc.document.getElementById("srcInput");
     srcloc.focus();
 
     input_value(mwc, url + "pass.png");
 
     // Don't add alternate text
-    let noAlt = mwc.window.document.getElementById("noAltTextRadio");
+    let noAlt = mwc.document.getElementById("noAltTextRadio");
     EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
     await new Promise(resolve => setTimeout(resolve));
 
     // Accept the dialog
-    mwc.window.document.querySelector("dialog").acceptDialog();
+    mwc.document.querySelector("dialog").acceptDialog();
   });
 
-  let insertMenu =
-    replyWindow.window.document.getElementById("InsertPopupButton");
-  let insertMenuPopup =
-    replyWindow.window.document.getElementById("InsertPopup");
+  let insertMenu = replyWindow.document.getElementById("InsertPopupButton");
+  let insertMenuPopup = replyWindow.document.getElementById("InsertPopup");
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
@@ -858,19 +856,19 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   EventUtils.synthesizeKey(
     "v",
     { shiftKey: false, accelKey: true },
-    replyWindow.window
+    replyWindow
   );
 
   // Now wait for the paste.
   utils.waitFor(function () {
-    let img = replyWindow.window.document
+    let img = replyWindow.document
       .getElementById("messageEditor")
       .contentDocument.getElementById("tmp-img");
     return img != null && img.complete;
   }, "Timeout waiting for pasted tmp image to be loaded ok");
 
   // Test that the image load has not been denied
-  let childImages = replyWindow.window.document
+  let childImages = replyWindow.document
     .getElementById("messageEditor")
     .contentDocument.getElementsByTagName("img");
 

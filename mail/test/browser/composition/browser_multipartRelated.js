@@ -79,12 +79,12 @@ function getMsgHeaders(aMsgHdr) {
  */
 add_task(async function test_basic_multipart_related() {
   let compWin = open_compose_new_mail();
-  compWin.window.focus();
-  EventUtils.sendString("someone@example.com", compWin.window);
-  compWin.window.document.getElementById("msgSubject").focus();
-  EventUtils.sendString("multipart/related", compWin.window);
-  compWin.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("Here is a prologue.\n", compWin.window);
+  compWin.focus();
+  EventUtils.sendString("someone@example.com", compWin);
+  compWin.document.getElementById("msgSubject").focus();
+  EventUtils.sendString("multipart/related", compWin);
+  compWin.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Here is a prologue.\n", compWin);
 
   const fname = "data/tb-logo.png";
   let file = new FileUtils.File(getTestFilePath(fname));
@@ -96,18 +96,18 @@ add_task(async function test_basic_multipart_related() {
   // Add a simple image to our dialog
   plan_for_modal_dialog("Mail:image", async function (dialog) {
     // Insert the url of the image.
-    dialog.window.focus();
-    EventUtils.sendString(fileURL, dialog.window);
-    dialog.window.document.getElementById("altTextInput").focus();
-    EventUtils.sendString("Alt text", dialog.window);
+    dialog.focus();
+    EventUtils.sendString(fileURL, dialog);
+    dialog.document.getElementById("altTextInput").focus();
+    EventUtils.sendString("Alt text", dialog);
     await new Promise(resolve => setTimeout(resolve));
 
     // Accept the dialog
-    dialog.window.document.querySelector("dialog").acceptDialog();
+    dialog.document.querySelector("dialog").acceptDialog();
   });
 
-  let insertMenu = compWin.window.document.getElementById("InsertPopupButton");
-  let insertMenuPopup = compWin.window.document.getElementById("InsertPopup");
+  let insertMenu = compWin.document.getElementById("InsertPopupButton");
+  let insertMenuPopup = compWin.document.getElementById("InsertPopup");
 
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
@@ -116,7 +116,7 @@ add_task(async function test_basic_multipart_related() {
   wait_for_window_close();
   await new Promise(resolve => setTimeout(resolve));
 
-  await save_compose_message(compWin.window);
+  await save_compose_message(compWin);
   close_compose_window(compWin);
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(false) == 1,

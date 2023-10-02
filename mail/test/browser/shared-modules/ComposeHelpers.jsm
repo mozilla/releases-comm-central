@@ -85,7 +85,7 @@ function open_compose_new_mail(aController) {
   EventUtils.synthesizeKey(
     "n",
     { shiftKey: false, accelKey: true },
-    aController.window
+    aController
   );
 
   return wait_for_compose_window();
@@ -107,7 +107,7 @@ function open_compose_with_reply(aController) {
   EventUtils.synthesizeKey(
     "r",
     { shiftKey: false, accelKey: true },
-    aController.window
+    aController
   );
 
   return wait_for_compose_window();
@@ -129,7 +129,7 @@ function open_compose_with_reply_to_all(aController) {
   EventUtils.synthesizeKey(
     "R",
     { shiftKey: true, accelKey: true },
-    aController.window
+    aController
   );
 
   return wait_for_compose_window();
@@ -151,7 +151,7 @@ function open_compose_with_reply_to_list(aController) {
   EventUtils.synthesizeKey(
     "l",
     { shiftKey: true, accelKey: true },
-    aController.window
+    aController
   );
 
   return wait_for_compose_window();
@@ -170,7 +170,7 @@ function open_compose_with_forward_as_attachments(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.window.goDoCommand("cmd_forwardAttachment");
+  aController.goDoCommand("cmd_forwardAttachment");
 
   return wait_for_compose_window();
 }
@@ -188,7 +188,7 @@ function open_compose_with_edit_as_new(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.window.goDoCommand("cmd_editAsNew");
+  aController.goDoCommand("cmd_editAsNew");
 
   return wait_for_compose_window();
 }
@@ -209,7 +209,7 @@ function open_compose_with_forward(aController) {
   EventUtils.synthesizeKey(
     "l",
     { shiftKey: false, accelKey: true },
-    aController.window
+    aController
   );
 
   return wait_for_compose_window();
@@ -263,17 +263,17 @@ function close_compose_window(aController, aShouldPrompt) {
     windowHelper.plan_for_modal_dialog(
       "commonDialogWindow",
       function (controller) {
-        controller.window.document
+        controller.document
           .querySelector("dialog")
           .getButton("extra1")
           .doCommand();
       }
     );
     // Try to close, we should get a prompt to save.
-    aController.window.goDoCommand("cmd_close");
+    aController.goDoCommand("cmd_close");
     windowHelper.wait_for_modal_dialog();
   } else {
-    aController.window.goDoCommand("cmd_close");
+    aController.goDoCommand("cmd_close");
   }
   windowHelper.wait_for_window_close();
 }
@@ -302,11 +302,11 @@ function _wait_for_compose_window(aController, replyWindow) {
   }
 
   utils.waitFor(
-    () => Services.focus.activeWindow == replyWindow.window,
+    () => Services.focus.activeWindow == replyWindow,
     "waiting for the compose window to have focus"
   );
   utils.waitFor(
-    () => replyWindow.window.composeEditorReady,
+    () => replyWindow.composeEditorReady,
     "waiting for the compose editor to be ready"
   );
   utils.sleep(0);
@@ -331,24 +331,24 @@ function setup_msg_contents(
   inputID = "toAddrInput"
 ) {
   let pillcount = function () {
-    return aCwc.window.document.querySelectorAll("mail-address-pill").length;
+    return aCwc.document.querySelectorAll("mail-address-pill").length;
   };
   let targetCount = pillcount();
   if (aAddr.trim()) {
     targetCount += aAddr.split(",").filter(s => s.trim()).length;
   }
 
-  let input = aCwc.window.document.getElementById(inputID);
+  let input = aCwc.document.getElementById(inputID);
   utils.sleep(1000);
   input.focus();
-  EventUtils.sendString(aAddr, aCwc.window);
+  EventUtils.sendString(aAddr, aCwc);
   input.focus();
 
-  EventUtils.synthesizeKey("VK_RETURN", {}, aCwc.window);
-  aCwc.window.document.getElementById("msgSubject").focus();
-  EventUtils.sendString(aSubj, aCwc.window);
-  aCwc.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString(aBody, aCwc.window);
+  EventUtils.synthesizeKey("VK_RETURN", {}, aCwc);
+  aCwc.document.getElementById("msgSubject").focus();
+  EventUtils.sendString(aSubj, aCwc);
+  aCwc.document.getElementById("messageEditor").focus();
+  EventUtils.sendString(aBody, aCwc);
 
   // Wait for the pill(s) to be created.
   utils.waitFor(
@@ -363,12 +363,10 @@ function setup_msg_contents(
  * @param aController    Compose window controller.
  */
 function clear_recipients(aController) {
-  for (let pill of aController.window.document.querySelectorAll(
-    "mail-address-pill"
-  )) {
+  for (let pill of aController.document.querySelectorAll("mail-address-pill")) {
     pill.toggleAttribute("selected", true);
   }
-  aController.window.document
+  aController.document
     .getElementById("recipientsContainer")
     .removeSelectedPills();
 }
@@ -379,7 +377,7 @@ function clear_recipients(aController) {
  * @param aController - Compose window controller.
  */
 function get_first_pill(aController) {
-  return aController.window.document.querySelector("mail-address-pill");
+  return aController.document.querySelector("mail-address-pill");
 }
 
 /**
@@ -430,13 +428,13 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
     attachmentsDone = true;
   }
 
-  let bucket = aController.window.document.getElementById("attachmentBucket");
+  let bucket = aController.document.getElementById("attachmentBucket");
   if (aWaitAdded) {
     bucket.addEventListener("attachments-added", collectAddedAttachments, {
       once: true,
     });
   }
-  aController.window.AddAttachments(attachments);
+  aController.AddAttachments(attachments);
   if (aWaitAdded) {
     utils.waitFor(() => attachmentsDone, "Attachments adding didn't finish");
   }
@@ -451,7 +449,7 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
  *
  */
 function rename_selected_cloud_attachment(aController, aName) {
-  let bucket = aController.window.document.getElementById("attachmentBucket");
+  let bucket = aController.document.getElementById("attachmentBucket");
   let attachmentRenamed = false;
   let upload = null;
   let seenAlert = null;
@@ -481,7 +479,7 @@ function rename_selected_cloud_attachment(aController, aName) {
   let originalPromptService = Services.prompt;
   Services.prompt = mockPromptService;
   Services.prompt.value = aName;
-  aController.window.RenameSelectedAttachment();
+  aController.RenameSelectedAttachment();
 
   utils.waitFor(
     () => attachmentRenamed || seenAlert,
@@ -509,10 +507,9 @@ function convert_selected_to_cloud_attachment(
   aProvider,
   aWaitUploaded = true
 ) {
-  let bucket = aController.window.document.getElementById("attachmentBucket");
+  let bucket = aController.document.getElementById("attachmentBucket");
   let uploads = [];
-  let attachmentsSelected =
-    aController.window.gAttachmentBucket.selectedItems.length;
+  let attachmentsSelected = aController.gAttachmentBucket.selectedItems.length;
   let attachmentsSubmitted = 0;
   let attachmentsConverted = 0;
 
@@ -565,7 +562,7 @@ function convert_selected_to_cloud_attachment(
 
   bucket.addEventListener("attachment-uploading", collectConvertingAttachments);
   bucket.addEventListener("attachment-moving", collectConvertingAttachments);
-  aController.window.convertSelectedToCloudAttachment(aProvider);
+  aController.convertSelectedToCloudAttachment(aProvider);
   utils.waitFor(
     () => attachmentsSubmitted == attachmentsSelected,
     "Couldn't start converting all attachments"
@@ -601,7 +598,7 @@ function add_cloud_attachments(
   aWaitUploaded = true,
   aExpectedAlerts = 0
 ) {
-  let bucket = aController.window.document.getElementById("attachmentBucket");
+  let bucket = aController.document.getElementById("attachmentBucket");
   let uploads = [];
   let seenAlerts = [];
 
@@ -669,7 +666,7 @@ function add_cloud_attachments(
 
   let originalPromptService = Services.prompt;
   Services.prompt = mockPromptService;
-  aController.window.attachToCloudNew(aProvider);
+  aController.attachToCloudNew(aProvider);
   utils.waitFor(
     () =>
       (!aExpectedAlerts &&
@@ -703,12 +700,11 @@ function add_cloud_attachments(
  * @param aIndex the index of the attachment in the attachment pane
  */
 function delete_attachment(aComposeWindow, aIndex) {
-  let bucket =
-    aComposeWindow.window.document.getElementById("attachmentBucket");
+  let bucket = aComposeWindow.document.getElementById("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[aIndex];
 
   EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
-  aComposeWindow.window.RemoveSelectedAttachment();
+  aComposeWindow.RemoveSelectedAttachment();
 }
 
 /**
@@ -717,7 +713,7 @@ function delete_attachment(aComposeWindow, aIndex) {
  * @param aController the controller for a compose window.
  */
 function get_compose_body(aController) {
-  let mailBody = aController.window.document
+  let mailBody = aController.document
     .getElementById("messageEditor")
     .contentDocument.querySelector("body");
   if (!mailBody) {
@@ -735,13 +731,13 @@ function get_compose_body(aController) {
  */
 function type_in_composer(aController, aText) {
   // If we have any typing to do, let's do it.
-  let frame = aController.window.document.getElementById("messageEditor");
+  let frame = aController.document.getElementById("messageEditor");
   for (let [i, aLine] of aText.entries()) {
     frame.focus();
-    EventUtils.sendString(aLine, aController.window);
+    EventUtils.sendString(aLine, aController);
     if (i < aText.length - 1) {
       frame.focus();
-      EventUtils.synthesizeKey("VK_RETURN", {}, aController.window);
+      EventUtils.synthesizeKey("VK_RETURN", {}, aController);
     }
   }
 }

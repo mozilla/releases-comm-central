@@ -43,7 +43,7 @@ add_task(async function test_forward_direct() {
   let cwc = open_compose_with_forward(msgc);
 
   let mailText =
-    cwc.window.document.getElementById("messageEditor").contentDocument.body
+    cwc.document.getElementById("messageEditor").contentDocument.body
       .textContent;
 
   Assert.ok(
@@ -60,7 +60,7 @@ add_task(async function test_forward_from_folder() {
 
   let file = new FileUtils.File(getTestFilePath("data/defective-charset.eml"));
   let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
 
   // Copy the message to a folder.
   let documentChild =
@@ -93,7 +93,7 @@ add_task(async function test_forward_from_folder() {
   let cwc = open_compose_with_forward();
 
   let mailText =
-    cwc.window.document.getElementById("messageEditor").contentDocument.body
+    cwc.document.getElementById("messageEditor").contentDocument.body
       .textContent;
 
   Assert.ok(

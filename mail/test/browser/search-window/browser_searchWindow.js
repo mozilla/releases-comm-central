@@ -87,7 +87,7 @@ add_task(async function test_show_search_window() {
 add_task(function test_enter_some_stuff() {
   // - turn off search subfolders
   // (we're not testing the UI, direct access is fine)
-  swc.window.document
+  swc.document
     .getElementById("checkSearchSubFolders")
     .removeAttribute("checked");
 
@@ -99,7 +99,7 @@ add_task(function test_enter_some_stuff() {
   //  get the text in there reliably.  I am just going to poke things directly
   //  into the text widget. (We used to use .aid instead of .a with swc.click
   //  and swc.type.)
-  let searchVal0 = swc.window.document.getElementById("searchVal0");
+  let searchVal0 = swc.document.getElementById("searchVal0");
   let index = 0;
 
   if (searchVal0.hasAttribute("selectedIndex")) {
@@ -110,13 +110,11 @@ add_task(function test_enter_some_stuff() {
   searchVal0.value = "foo";
 
   // - add another subject box
-  let plusButton = swc.window.document.querySelector(
-    "#searchRow0 button[label='+']"
-  );
+  let plusButton = swc.document.querySelector("#searchRow0 button[label='+']");
   EventUtils.synthesizeMouseAtCenter(plusButton, {}, plusButton.ownerGlobal);
 
   // - put "bar" in it
-  let searchVal1 = swc.window.document.getElementById("searchVal1");
+  let searchVal1 = swc.document.getElementById("searchVal1");
   index = 0;
 
   if (searchVal1.hasAttribute("selectedIndex")) {
@@ -134,9 +132,9 @@ add_task(function test_go_search() {
   // - Trigger the search
   // The "Search" button has id "search-button"
   EventUtils.synthesizeMouseAtCenter(
-    swc.window.document.getElementById("search-button"),
+    swc.document.getElementById("search-button"),
     {},
-    swc.window.document.getElementById("search-button").ownerGlobal
+    swc.document.getElementById("search-button").ownerGlobal
   );
   wait_for_all_messages_to_load(swc);
 
@@ -152,9 +150,9 @@ add_task(function test_go_search() {
     subtest_save_search
   );
   EventUtils.synthesizeMouseAtCenter(
-    swc.window.document.getElementById("saveAsVFButton"),
+    swc.document.getElementById("saveAsVFButton"),
     {},
-    swc.window.document.getElementById("saveAsVFButton").ownerGlobal
+    swc.document.getElementById("saveAsVFButton").ownerGlobal
   );
   wait_for_modal_dialog("mailnews:virtualFolderProperties");
 });
@@ -163,13 +161,13 @@ add_task(function test_go_search() {
  * Test opening a single search result in a new tab.
  */
 add_task(async function test_open_single_search_result_in_tab() {
-  swc.window.focus();
+  swc.focus();
   set_open_message_behavior("NEW_TAB");
   let folderTab = document.getElementById("tabmail").currentTabInfo;
   let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
 
   // Select one message
-  swc.window.document.getElementById("threadTree").focus();
+  swc.document.getElementById("threadTree").focus();
   let msgHdr = select_click_search_row(1, swc);
   // Open the selected message
   open_selected_message(swc);
@@ -192,13 +190,13 @@ add_task(async function test_open_single_search_result_in_tab() {
  * Test opening multiple search results in new tabs.
  */
 add_task(async function test_open_multiple_search_results_in_new_tabs() {
-  swc.window.focus();
+  swc.focus();
   set_open_message_behavior("NEW_TAB");
   let folderTab = document.getElementById("tabmail").currentTabInfo;
   let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
 
   // Select a bunch of messages
-  swc.window.document.getElementById("threadTree").focus();
+  swc.document.getElementById("threadTree").focus();
   select_click_search_row(1, swc);
   let selectedMessages = select_shift_click_search_row(
     NUM_MESSAGES_TO_OPEN,
@@ -237,11 +235,11 @@ add_task(async function test_open_multiple_search_results_in_new_tabs() {
  * Test opening a search result in a new window.
  */
 add_task(async function test_open_search_result_in_new_window() {
-  swc.window.focus();
+  swc.focus();
   set_open_message_behavior("NEW_WINDOW");
 
   // Select a message
-  swc.window.document.getElementById("threadTree").focus();
+  swc.document.getElementById("threadTree").focus();
   let msgHdr = select_click_search_row(1, swc);
 
   let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
@@ -260,11 +258,11 @@ add_task(async function test_open_search_result_in_new_window() {
  * Test reusing an existing window to open another search result.
  */
 add_task(async function test_open_search_result_in_existing_window() {
-  swc.window.focus();
+  swc.focus();
   set_open_message_behavior("EXISTING_WINDOW");
 
   // Open up a window
-  swc.window.document.getElementById("threadTree").focus();
+  swc.document.getElementById("threadTree").focus();
   select_click_search_row(1, swc);
   let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   open_selected_message(swc);
@@ -291,7 +289,7 @@ function subtest_save_search(savc) {
   // - make sure our constraint propagated
   // The query constraints are displayed using the same widgets (and code) that
   //  we used to enter them, so it's very similar to check.
-  let searchVal0 = swc.window.document.getElementById("searchVal0");
+  let searchVal0 = swc.document.getElementById("searchVal0");
   let index = 0;
 
   if (searchVal0.hasAttribute("selectedIndex")) {
@@ -303,7 +301,7 @@ function subtest_save_search(savc) {
   Assert.ok(searchVal0);
   Assert.equal(searchVal0.value, "foo");
 
-  let searchVal1 = swc.window.document.getElementById("searchVal1");
+  let searchVal1 = swc.document.getElementById("searchVal1");
   index = 0;
 
   if (searchVal1.hasAttribute("selectedIndex")) {
@@ -316,20 +314,20 @@ function subtest_save_search(savc) {
   Assert.equal(searchVal1.value, "bar");
 
   // - name the search
-  savc.window.document.getElementById("name").focus();
-  EventUtils.sendString("SearchSaved", savc.window);
+  savc.document.getElementById("name").focus();
+  EventUtils.sendString("SearchSaved", savc);
 
   // - save it!
   // this will close the dialog, which wait_for_modal_dialog is making sure
   //  happens.
-  savc.window.document.querySelector("dialog").acceptDialog();
+  savc.document.querySelector("dialog").acceptDialog();
 }
 
 add_task(function test_close_search_window() {
-  swc.window.focus();
+  swc.focus();
   // now close the search window
   plan_for_window_close(swc);
-  EventUtils.synthesizeKey("VK_ESCAPE", {}, swc.window);
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, swc);
   wait_for_window_close(swc);
   swc = null;
 });

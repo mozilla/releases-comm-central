@@ -72,24 +72,24 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
 
   let cwc = open_compose_new_mail();
 
-  Assert.ok(!cwc.window.gSendEncrypted);
+  Assert.ok(!cwc.gSendEncrypted);
 
   // This toggle will trigger checkEncryptionState(), request that
   // an event will be sent after the next call to checkEncryptionState
   // has completed.
-  let checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
-  await OpenPGPTestUtils.toggleMessageEncryption(cwc.window);
+  let checkDonePromise = waitCheckEncryptionStateDone(cwc);
+  await OpenPGPTestUtils.toggleMessageEncryption(cwc);
   await checkDonePromise;
 
-  Assert.ok(cwc.window.gSendEncrypted);
+  Assert.ok(cwc.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
+    cwc.document.getElementById("addr_bccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
 
   // setup_msg_contents will trigger checkEncryptionState.
-  checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
+  checkDonePromise = waitCheckEncryptionStateDone(cwc);
   setup_msg_contents(
     cwc,
     "test@example.org",
@@ -102,7 +102,7 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
   // Warning should show when encryption enabled
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnEncryptedBccRecipients"
       ),
     "Timeout waiting for warnEncryptedBccRecipients notification"
@@ -119,24 +119,24 @@ add_task(async function testNotificationDismissal() {
 
   let cwc = open_compose_new_mail();
 
-  Assert.ok(!cwc.window.gSendEncrypted);
+  Assert.ok(!cwc.gSendEncrypted);
 
   // This toggle will trigger checkEncryptionState(), request that
   // an event will be sent after the next call to checkEncryptionState
   // has completed.
-  let checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
-  await OpenPGPTestUtils.toggleMessageEncryption(cwc.window);
+  let checkDonePromise = waitCheckEncryptionStateDone(cwc);
+  await OpenPGPTestUtils.toggleMessageEncryption(cwc);
   await checkDonePromise;
 
-  Assert.ok(cwc.window.gSendEncrypted);
+  Assert.ok(cwc.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
+    cwc.document.getElementById("addr_bccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
 
   // setup_msg_contents will trigger checkEncryptionState.
-  checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
+  checkDonePromise = waitCheckEncryptionStateDone(cwc);
   setup_msg_contents(
     cwc,
     "test@example.org",
@@ -149,7 +149,7 @@ add_task(async function testNotificationDismissal() {
   // Warning should show when encryption enabled
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnEncryptedBccRecipients"
       ),
     "Timeout waiting for warnEncryptedBccRecipients notification"
@@ -157,31 +157,31 @@ add_task(async function testNotificationDismissal() {
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
-      !cwc.window.gComposeNotification.getNotificationWithValue(
+      !cwc.gComposeNotification.getNotificationWithValue(
         "warnEncryptedBccRecipients"
       ),
     "notification was not removed in time"
   );
 
-  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
+  let notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnEncryptedBccRecipients"
   );
   EventUtils.synthesizeMouseAtCenter(
     notification.buttonContainer.lastElementChild,
     {},
-    cwc.window
+    cwc
   );
   await notificationHidden;
 
   Assert.ok(
-    !cwc.window.gComposeNotification.getNotificationWithValue(
+    !cwc.gComposeNotification.getNotificationWithValue(
       "warnEncryptedBccRecipients"
     ),
     "notification should be removed"
   );
 
   // setup_msg_contents will trigger checkEncryptionState.
-  checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
+  checkDonePromise = waitCheckEncryptionStateDone(cwc);
   setup_msg_contents(cwc, "test2@example.org", "", "", "bccAddrInput");
   await checkDonePromise;
 
@@ -190,7 +190,7 @@ add_task(async function testNotificationDismissal() {
   await new Promise(resolve => setTimeout(resolve, 500));
 
   Assert.ok(
-    !cwc.window.gComposeNotification.getNotificationWithValue(
+    !cwc.gComposeNotification.getNotificationWithValue(
       "warnEncryptedBccRecipients"
     ),
     "notification should not reappear after dismissal"
@@ -209,13 +209,13 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
 
   Assert.ok(!window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
+    cwc.document.getElementById("addr_bccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
 
   // setup_msg_contents will trigger checkEncryptionState.
-  let checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
+  let checkDonePromise = waitCheckEncryptionStateDone(cwc);
   setup_msg_contents(
     cwc,
     "test@example.org",
@@ -230,7 +230,7 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
   await new Promise(resolve => setTimeout(resolve, 500));
 
   Assert.ok(
-    !cwc.window.gComposeNotification.getNotificationWithValue(
+    !cwc.gComposeNotification.getNotificationWithValue(
       "warnEncryptedBccRecipients"
     ),
     "warning should not show when encryption disabled"
@@ -249,13 +249,13 @@ add_task(async function testNoWarningWhenBccRecipientIsSender() {
 
   Assert.ok(!window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_bccShowAddressRowButton"),
+    cwc.document.getElementById("addr_bccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
 
   // setup_msg_contents will trigger checkEncryptionState.
-  let checkDonePromise = waitCheckEncryptionStateDone(cwc.window);
+  let checkDonePromise = waitCheckEncryptionStateDone(cwc);
   setup_msg_contents(
     cwc,
     "bob@openpgp.example",
@@ -270,7 +270,7 @@ add_task(async function testNoWarningWhenBccRecipientIsSender() {
   await new Promise(resolve => setTimeout(resolve, 500));
 
   Assert.ok(
-    !cwc.window.gComposeNotification.getNotificationWithValue(
+    !cwc.gComposeNotification.getNotificationWithValue(
       "warnEncryptedBccRecipients"
     ),
     "warning should not show when Bcc recipient is the sender"

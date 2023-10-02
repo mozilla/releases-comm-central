@@ -62,7 +62,7 @@ var nameToBarDomId = {
 };
 
 async function ensure_qfb_unified_toolbar_button() {
-  const document = mc.window.document;
+  const document = mc.document;
 
   const state = getState();
   if (state.mail?.includes("quick-filter-bar")) {
@@ -88,7 +88,7 @@ async function ensure_qfb_unified_toolbar_button() {
 }
 
 async function cleanup_qfb_button() {
-  const document = mc.window.document;
+  const document = mc.document;
   const state = getState();
   if (!state.mail?.includes("quick-filter-bar")) {
     return;
@@ -108,9 +108,8 @@ async function cleanup_qfb_button() {
 async function assert_quick_filter_button_enabled(aEnabled) {
   await ensure_qfb_unified_toolbar_button();
   if (
-    mc.window.document.querySelector(
-      "#unifiedToolbarContent .quick-filter-bar button"
-    ).disabled == aEnabled
+    mc.document.querySelector("#unifiedToolbarContent .quick-filter-bar button")
+      .disabled == aEnabled
   ) {
     throw new Error(
       "Quick filter bar button should be " + (aEnabled ? "enabled" : "disabled")
@@ -139,11 +138,9 @@ function assert_quick_filter_bar_visible(aVisible) {
 async function toggle_quick_filter_bar() {
   await ensure_qfb_unified_toolbar_button();
   EventUtils.synthesizeMouseAtCenter(
-    mc.window.document.querySelector(
-      "#unifiedToolbarContent .quick-filter-bar"
-    ),
+    mc.document.querySelector("#unifiedToolbarContent .quick-filter-bar"),
     { clickCount: 1 },
-    mc.window
+    mc
   );
   wait_for_all_messages_to_load();
 }
@@ -265,9 +262,7 @@ function assert_tag_constraints_checked(...aArgs) {
     expected[nodeId] = true;
   }
 
-  let kids = mc.window.document.getElementById(
-    "quickFilterBarTagsContainer"
-  ).children;
+  let kids = mc.document.getElementById("quickFilterBarTagsContainer").children;
   for (let iNode = 0; iNode < kids.length; iNode++) {
     let node = kids[iNode];
     if (node.pressed != node.id in expected) {

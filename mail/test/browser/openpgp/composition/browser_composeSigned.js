@@ -93,7 +93,7 @@ add_task(async function testSignedMessageComposition() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   setup_msg_contents(
     cwc,
@@ -149,7 +149,7 @@ add_task(async function testSignedMessageWithKeyComposition() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   setup_msg_contents(
     cwc,
@@ -202,7 +202,7 @@ add_task(async function testSignedEncryptedMessageComposition() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -256,7 +256,7 @@ add_task(async function testSignedEncryptedMessageWithKeyComposition() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);

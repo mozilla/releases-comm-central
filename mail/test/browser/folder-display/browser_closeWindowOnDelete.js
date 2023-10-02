@@ -53,7 +53,7 @@ add_task(
     let msgc2 = await open_selected_message_in_new_window();
 
     let preCount = folder.getTotalMessages(false);
-    msgc.window.focus();
+    msgc.focus();
     plan_for_window_close(msgc);
     press_delete(msgc);
     if (folder.getTotalMessages(false) != preCount - 1) {
@@ -61,7 +61,7 @@ add_task(
     }
     wait_for_window_close(msgc);
 
-    if (msgc2.window.closed) {
+    if (msgc2.closed) {
       throw new Error("should only have closed the active window");
     }
 
@@ -90,7 +90,7 @@ add_task(
     let msgc2 = await open_selected_message_in_new_window();
 
     let preCount = folder.getTotalMessages(false);
-    msgc.window.focus();
+    msgc.focus();
     plan_for_window_close(msgc);
     plan_for_window_close(msgcA);
     press_delete(msgc);
@@ -101,7 +101,7 @@ add_task(
     wait_for_window_close(msgc);
     wait_for_window_close(msgcA);
 
-    if (msgc2.window.closed) {
+    if (msgc2.closed) {
       throw new Error("should only have closed the active window");
     }
 
@@ -142,7 +142,7 @@ add_task(
     wait_for_window_close(msgc);
     wait_for_window_close(msgcA);
 
-    if (msgc2.window.closed) {
+    if (msgc2.closed) {
       throw new Error("should only have closed the first window");
     }
 
@@ -300,7 +300,7 @@ add_task(
       throw new Error("should only have closed the active tab");
     }
 
-    if (msgc2A.window.closed) {
+    if (msgc2A.closed) {
       throw new Error("should only have closed the first window");
     }
 

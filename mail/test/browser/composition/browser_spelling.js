@@ -40,20 +40,17 @@ add_task(async function () {
   // Open a compose window and write a message.
 
   let cwc = open_compose_new_mail();
-  let composeWindow = cwc.window;
+  let composeWindow = cwc;
   let composeDocument = composeWindow.document;
 
-  cwc.window.document.getElementById("msgSubject").focus();
-  EventUtils.sendString(
-    "I went to the harbor in an aluminium boat",
-    cwc.window
-  );
-  cwc.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("I maneuvered to the center.\n", cwc.window);
-  cwc.window.document.getElementById("messageEditor").focus();
+  cwc.document.getElementById("msgSubject").focus();
+  EventUtils.sendString("I went to the harbor in an aluminium boat", cwc);
+  cwc.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("I maneuvered to the center.\n", cwc);
+  cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString(
     "The sky was the colour of ochre and the stars shone like jewelry.\n",
-    cwc.window
+    cwc
   );
 
   // Check initial spelling.

@@ -39,11 +39,9 @@ add_task(async function test_invalid_data_uri() {
     ""
   );
 
-  cwc.window
-    .GetCurrentEditor()
-    .insertHTML("<a href=data:1>invalid data uri</a>");
+  cwc.GetCurrentEditor().insertHTML("<a href=data:1>invalid data uri</a>");
   plan_for_window_close(cwc);
-  cwc.window.goDoCommand("cmd_sendLater");
+  cwc.goDoCommand("cmd_sendLater");
   wait_for_window_close();
 
   await be_in_folder(gOutboxFolder);
@@ -79,13 +77,13 @@ add_task(async function test_freeTextLink() {
   let link1 = "https://example.com";
   let link2 = "name@example.com";
   let link3 = "https://example.net";
-  cwc.window
+  cwc
     .GetCurrentEditor()
     .insertHTML(
       `<a href="${link1}/">${link1}</a> <a href="mailto:${link2}">${link2}</a> <a href="${link3}">link3</a>`
     );
   plan_for_window_close(cwc);
-  cwc.window.goDoCommand("cmd_sendLater");
+  cwc.goDoCommand("cmd_sendLater");
   wait_for_window_close();
 
   await be_in_folder(gOutboxFolder);

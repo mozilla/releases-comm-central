@@ -111,7 +111,7 @@ add_task(async function generate_new_key() {
     gTab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://openpgp/content/ui/keyWizard.xhtml"
   );
-  let doc = wizard.window.document;
+  let doc = wizard.document;
   let dialog = doc.documentElement.querySelector("dialog");
 
   let keyGenView = doc.getElementById("wizardCreateKey");
@@ -119,7 +119,7 @@ add_task(async function generate_new_key() {
   // Accept the dialog since the first option should be automatically selected.
   dialog.acceptDialog();
   await BrowserTestUtils.waitForCondition(
-    () => wizard.window.getComputedStyle(keyGenView).opacity == 1,
+    () => wizard.getComputedStyle(keyGenView).opacity == 1,
     "Timeout waiting for the #wizardCreateKey to appear"
   );
 
@@ -135,7 +135,7 @@ add_task(async function generate_new_key() {
   // Move to the next screen.
   dialog.acceptDialog();
   await BrowserTestUtils.waitForCondition(
-    () => wizard.window.getComputedStyle(wizardOverlay).opacity == 1,
+    () => wizard.getComputedStyle(wizardOverlay).opacity == 1,
     "Timeout waiting for the #wizardOverlay to appear"
   );
 
@@ -190,7 +190,7 @@ add_task(async function import_secret_key() {
     gTab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://openpgp/content/ui/keyWizard.xhtml"
   );
-  let doc = wizard.window.document;
+  let doc = wizard.document;
   let dialog = doc.documentElement.querySelector("dialog");
 
   // Change the selection to import a key.
@@ -205,7 +205,7 @@ add_task(async function import_secret_key() {
   // Accept the dialog to move to the next screen.
   dialog.acceptDialog();
   await BrowserTestUtils.waitForCondition(
-    () => wizard.window.getComputedStyle(importView).opacity == 1,
+    () => wizard.getComputedStyle(importView).opacity == 1,
     "Timeout waiting for the #wizardImportKey to appear"
   );
 
@@ -298,7 +298,7 @@ add_task(async function add_external_key() {
     gTab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://openpgp/content/ui/keyWizard.xhtml"
   );
-  let doc = wizard.window.document;
+  let doc = wizard.document;
   let dialog = doc.documentElement.querySelector("dialog");
 
   // Change the selection to import a key.
@@ -313,12 +313,12 @@ add_task(async function add_external_key() {
   // Accept the dialog to move to the next screen.
   dialog.acceptDialog();
   await BrowserTestUtils.waitForCondition(
-    () => wizard.window.getComputedStyle(externalView).opacity == 1,
+    () => wizard.getComputedStyle(externalView).opacity == 1,
     "Timeout waiting for the #wizardExternalKey to appear"
   );
 
   doc.getElementById("externalKey").focus();
-  EventUtils.sendString(EXTERNAL_GNUP_KEY, wizard.window);
+  EventUtils.sendString(EXTERNAL_GNUP_KEY, wizard);
 
   let keyListRadio = tabDocument.getElementById("openPgpKeyListRadio");
 

@@ -78,7 +78,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warning shown when "To" recipients >= ${publicRecipientLimit}`
@@ -86,7 +86,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
 
   Assert.equal(
     1,
-    cwc.window.document.querySelectorAll(
+    cwc.document.querySelectorAll(
       `notification-message[value="warnPublicRecipientsNotification"]`
     ).length,
     "should have exactly one notification about it"
@@ -113,7 +113,7 @@ add_task(async function testWarningShowsWhenToFieldHitsLimit() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warning shown when "To" recipients >= ${publicRecipientLimit}`
@@ -130,13 +130,13 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
+    cwc.document.getElementById("addr_ccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
   // The Cc field should now be visible.
   Assert.ok(
-    !cwc.window.document
+    !cwc.document
       .getElementById("ccAddrInput")
       .closest(".address-row")
       .classList.contains("hidden"),
@@ -156,7 +156,7 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warning shown when "Cc" recipients >= ${publicRecipientLimit}`
@@ -184,13 +184,13 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
+    cwc.document.getElementById("addr_ccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
   // The Cc field should now be visible.
   Assert.ok(
-    !cwc.window.document
+    !cwc.document
       .getElementById("ccAddrInput")
       .closest(".address-row")
       .classList.contains("hidden"),
@@ -201,7 +201,7 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warning shown "To" and "Cc" recipients >= ${publicRecipientLimit}`
@@ -228,7 +228,7 @@ add_task(async function testToRecipientsMovedToBcc() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warnPublicRecipientsNotification`
@@ -236,30 +236,29 @@ add_task(async function testToRecipientsMovedToBcc() {
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
-      !cwc.window.gComposeNotification.getNotificationWithValue(
+      !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     "public recipients warning was not removed in time"
   );
-  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
+  let notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
   EventUtils.synthesizeMouseAtCenter(
     notification.buttonContainer.firstElementChild,
     {},
-    cwc.window
+    cwc
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll(
-      "#bccAddrContainer > mail-address-pill"
-    ).length,
+    cwc.document.querySelectorAll("#bccAddrContainer > mail-address-pill")
+      .length,
     publicRecipientLimit,
     "Bcc field populated with addresses"
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll("#toAddrContainer > mail-address-pill")
+    cwc.document.querySelectorAll("#toAddrContainer > mail-address-pill")
       .length,
     0,
     "addresses removed from the To field"
@@ -287,7 +286,7 @@ add_task(async function testAllToRecipientsMovedToBccWhenOverLimit() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warnPublicRecipientsNotification`
@@ -295,31 +294,30 @@ add_task(async function testAllToRecipientsMovedToBccWhenOverLimit() {
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
-      !cwc.window.gComposeNotification.getNotificationWithValue(
+      !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     "public recipients warning was not removed in time"
   );
 
-  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
+  let notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
   EventUtils.synthesizeMouseAtCenter(
     notification.buttonContainer.firstElementChild,
     {},
-    cwc.window
+    cwc
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll(
-      "#bccAddrContainer > mail-address-pill"
-    ).length,
+    cwc.document.querySelectorAll("#bccAddrContainer > mail-address-pill")
+      .length,
     limit,
     "Bcc field populated with addresses"
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll("#toAddrContainer > mail-address-pill")
+    cwc.document.querySelectorAll("#toAddrContainer > mail-address-pill")
       .length,
     0,
     "addresses removed from the To field"
@@ -339,13 +337,13 @@ add_task(async function testCcRecipientsMovedToBcc() {
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
+    cwc.document.getElementById("addr_ccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
   // The Cc field should now be visible.
   Assert.ok(
-    !cwc.window.document
+    !cwc.document
       .getElementById("ccAddrInput")
       .closest(".address-row")
       .classList.contains("hidden"),
@@ -364,7 +362,7 @@ add_task(async function testCcRecipientsMovedToBcc() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warnPublicRecipientsNotification`
@@ -372,31 +370,30 @@ add_task(async function testCcRecipientsMovedToBcc() {
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
-      !cwc.window.gComposeNotification.getNotificationWithValue(
+      !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     "public recipients warning was not removed in time"
   );
 
-  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
+  let notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
   EventUtils.synthesizeMouseAtCenter(
     notification.buttonContainer.firstElementChild,
     {},
-    cwc.window
+    cwc
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll(
-      "#bccAddrContainer > mail-address-pill"
-    ).length,
+    cwc.document.querySelectorAll("#bccAddrContainer > mail-address-pill")
+      .length,
     publicRecipientLimit,
     "Bcc field populated with addresses"
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll("#ccAddrContainer > mail-address-pill")
+    cwc.document.querySelectorAll("#ccAddrContainer > mail-address-pill")
       .length,
     0,
     "addresses removed from the Cc field"
@@ -417,13 +414,13 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
+    cwc.document.getElementById("addr_ccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
   // The Cc field should now be visible.
   Assert.ok(
-    !cwc.window.document
+    !cwc.document
       .getElementById("ccAddrInput")
       .closest(".address-row")
       .classList.contains("hidden"),
@@ -440,7 +437,7 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warnPublicRecipientsNotification`
@@ -448,30 +445,29 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
-      !cwc.window.gComposeNotification.getNotificationWithValue(
+      !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     "public recipients warning was not removed in time"
   );
-  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
+  let notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
   EventUtils.synthesizeMouseAtCenter(
     notification.buttonContainer.firstElementChild,
     {},
-    cwc.window
+    cwc
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll(
-      "#bccAddrContainer > mail-address-pill"
-    ).length,
+    cwc.document.querySelectorAll("#bccAddrContainer > mail-address-pill")
+      .length,
     limit,
     "Bcc field populated with addresses"
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll("#ccAddrContainer > mail-address-pill")
+    cwc.document.querySelectorAll("#ccAddrContainer > mail-address-pill")
       .length,
     0,
     "addresses removed from the Cc field"
@@ -500,13 +496,13 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("addr_ccShowAddressRowButton"),
+    cwc.document.getElementById("addr_ccShowAddressRowButton"),
     {},
-    cwc.window
+    cwc
   );
   // The Cc field should now be visible.
   Assert.ok(
-    !cwc.window.document
+    !cwc.document
       .getElementById("ccAddrInput")
       .closest(".address-row")
       .classList.contains("hidden"),
@@ -516,7 +512,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warnPublicRecipientsNotification`
@@ -524,38 +520,37 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
-      !cwc.window.gComposeNotification.getNotificationWithValue(
+      !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     "public recipients warning was not removed in time"
   );
 
-  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
+  let notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
   EventUtils.synthesizeMouseAtCenter(
     notification.buttonContainer.firstElementChild,
     {},
-    cwc.window
+    cwc
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll(
-      "#bccAddrContainer > mail-address-pill"
-    ).length,
+    cwc.document.querySelectorAll("#bccAddrContainer > mail-address-pill")
+      .length,
     publicRecipientLimit,
     "Bcc field populated with addresses"
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll("#toAddrContainer > mail-address-pill")
+    cwc.document.querySelectorAll("#toAddrContainer > mail-address-pill")
       .length,
     0,
     "addresses removed from the To field"
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll("#ccAddrContainer > mail-address-pill")
+    cwc.document.querySelectorAll("#ccAddrContainer > mail-address-pill")
       .length,
     0,
     "addresses removed from the Cc field"
@@ -583,7 +578,7 @@ add_task(async function testWarningRemovedWhenKeepPublic() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warnPublicRecipientsNotification`
@@ -591,33 +586,32 @@ add_task(async function testWarningRemovedWhenKeepPublic() {
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
-      !cwc.window.gComposeNotification.getNotificationWithValue(
+      !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     "public recipients warning was not removed in time"
   );
-  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
+  let notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
   EventUtils.synthesizeMouseAtCenter(
     notification.buttonContainer.lastElementChild,
     {},
-    cwc.window
+    cwc
   );
 
   await notificationHidden;
 
   Assert.equal(
-    cwc.window.document.querySelectorAll("#toAddrContainer > mail-address-pill")
+    cwc.document.querySelectorAll("#toAddrContainer > mail-address-pill")
       .length,
     publicRecipientLimit,
     "addresses were not removed from the field"
   );
 
   Assert.equal(
-    cwc.window.document.querySelectorAll(
-      "#bccAddrContainer > mail-address-pill"
-    ).length,
+    cwc.document.querySelectorAll("#bccAddrContainer > mail-address-pill")
+      .length,
     0,
     "no addresses added to the Bcc field"
   );
@@ -642,7 +636,7 @@ add_task(async function testWarningNotShownAfterDismissal() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warnPublicRecipientsNotification`
@@ -650,32 +644,32 @@ add_task(async function testWarningNotShownAfterDismissal() {
 
   let notificationHidden = BrowserTestUtils.waitForCondition(
     () =>
-      !cwc.window.gComposeNotification.getNotificationWithValue(
+      !cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     "public recipients warning was not removed in time"
   );
-  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
+  let notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
-  EventUtils.synthesizeMouseAtCenter(notification.closeButton, {}, cwc.window);
+  EventUtils.synthesizeMouseAtCenter(notification.closeButton, {}, cwc);
 
   await notificationHidden;
 
-  let input = cwc.window.document.getElementById("toAddrInput");
+  let input = cwc.document.getElementById("toAddrInput");
   input.focus();
 
   let recipString = "test@example.org,"
     .repeat(publicRecipientLimit)
     .replace(/test@/g, () => `test${i++}@`);
-  EventUtils.sendString(recipString, cwc.window);
+  EventUtils.sendString(recipString, cwc);
 
   // Wait a little in case the notification bar mistakenly appears.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
 
   Assert.ok(
-    !cwc.window.gComposeNotification.getNotificationWithValue(
+    !cwc.gComposeNotification.getNotificationWithValue(
       "warnPublicRecipientsNotification"
     ),
     "public recipients warning did not appear after dismissal"
@@ -711,13 +705,13 @@ add_task(async function testMailingListMembersCounted() {
 
   await BrowserTestUtils.waitForCondition(
     () =>
-      cwc.window.gComposeNotification.getNotificationWithValue(
+      cwc.gComposeNotification.getNotificationWithValue(
         "warnPublicRecipientsNotification"
       ),
     `Timeout waiting for warnPublicRecipientsNotification`
   );
 
-  let notification = cwc.window.gComposeNotification.getNotificationWithValue(
+  let notification = cwc.gComposeNotification.getNotificationWithValue(
     "warnPublicRecipientsNotification"
   );
   Assert.equal(

@@ -36,7 +36,7 @@ function mark_selected_messages_as_junk(aController) {
   if (aController === undefined) {
     aController = mc;
   }
-  let win = get_about_3pane(aController.window);
+  let win = get_about_3pane(aController);
   if (aController == mc) {
     win.document.getElementById("threadTree").focus();
   }
@@ -55,7 +55,7 @@ async function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
   if (aController === undefined) {
     aController = mc;
   }
-  let win = get_about_3pane(aController.window);
+  let win = get_about_3pane(aController);
 
   // Monkey patch and wrap around the deleteJunkInFolder function, mainly for
   // the case where deletes aren't expected.

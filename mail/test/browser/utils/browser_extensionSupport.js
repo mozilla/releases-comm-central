@@ -145,7 +145,7 @@ add_task(function test_windowListeners() {
   Assert.equal(addonCount("test-addon4", "load"), 1);
 
   plan_for_window_close(amController);
-  amController.window.close();
+  amController.close();
   wait_for_window_close(amController);
 
   Assert.equal(addonCount("test-addon1", "unload"), 3);

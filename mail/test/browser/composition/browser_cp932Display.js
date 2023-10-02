@@ -18,7 +18,7 @@ var { close_window } = ChromeUtils.import(
 add_task(async function test_cp932_display() {
   let file = new FileUtils.File(getTestFilePath("data/charset-cp932.eml"));
   let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
   let subjectText =
     aboutMessage.document.getElementById("expandedsubjectBox").textContent;
   let bodyText = aboutMessage.document

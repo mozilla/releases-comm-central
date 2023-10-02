@@ -22,7 +22,7 @@ add_task(async function test_attachment_not_empty() {
   let file = new FileUtils.File(getTestFilePath("data/bug1358565.eml"));
 
   let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
 
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentToggle"),

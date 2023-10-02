@@ -343,9 +343,7 @@ function subtest_check_invalid_hostname(tab, exitSettings, originalHostname) {
     // If the hostname is bad, we should get a warning dialog.
     plan_for_modal_dialog("commonDialogWindow", function (cdc) {
       // Just dismiss it.
-      cdc.window.document.documentElement
-        .querySelector("dialog")
-        .acceptDialog();
+      cdc.document.documentElement.querySelector("dialog").acceptDialog();
     });
     tab.browser.contentWindow.onAccept(true);
     wait_for_modal_dialog("commonDialogWindow");

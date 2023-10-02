@@ -43,7 +43,7 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 function element_visible(aElt) {
   let e;
   if (typeof aElt == "string") {
-    e = lazy.mc.window.document.getElementById(aElt);
+    e = lazy.mc.document.getElementById(aElt);
   } else {
     e = aElt;
   }
@@ -188,7 +188,7 @@ function wait_for_element_enabled(aController, aElement, aEnabled) {
 }
 
 function check_element_visible(aController, aId) {
-  let element = aController.window.document.getElementById(aId);
+  let element = aController.document.getElementById(aId);
   if (!element) {
     return false;
   }
@@ -199,7 +199,7 @@ function check_element_visible(aController, aId) {
       element.collapsed ||
       element.clientWidth == 0 ||
       element.clientHeight == 0 ||
-      aController.window.getComputedStyle(element).display == "none"
+      aController.getComputedStyle(element).display == "none"
     ) {
       return false;
     }

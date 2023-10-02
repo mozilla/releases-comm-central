@@ -135,7 +135,7 @@ function addIdentitiesAndFolder() {
 }
 
 function checkReply(replyWin, expectedFromEmail) {
-  let identityList = replyWin.window.document.getElementById("msgIdentity");
+  let identityList = replyWin.document.getElementById("msgIdentity");
   if (!identityList.selectedItem.label.includes(expectedFromEmail)) {
     throw new Error(
       "The From address is not correctly selected! Expected: " +

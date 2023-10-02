@@ -43,26 +43,20 @@ add_setup(async function () {
  * @param hide true to hide, false otherwise
  */
 async function set_autohide_menubar(controller, elem, hide) {
-  let contextMenu = controller.window.document.getElementById(
-    "toolbar-context-menu"
-  );
+  let contextMenu = controller.document.getElementById("toolbar-context-menu");
   let popupshown = BrowserTestUtils.waitForEvent(
     contextMenu,
     "popupshown",
-    controller.window
+    controller
   );
-  EventUtils.synthesizeMouseAtCenter(
-    elem,
-    { type: "contextmenu" },
-    controller.window
-  );
+  EventUtils.synthesizeMouseAtCenter(elem, { type: "contextmenu" }, controller);
   await popupshown;
-  let menuitem = controller.window.document.querySelector(
+  let menuitem = controller.document.querySelector(
     `menuitem[toolbarid="${elem.id}"]`
   );
   if (menuitem.getAttribute("checked") == hide + "") {
-    EventUtils.synthesizeMouseAtCenter(menuitem, {}, controller.window);
-    await new Promise(resolve => controller.window.setTimeout(resolve, 50));
+    EventUtils.synthesizeMouseAtCenter(menuitem, {}, controller);
+    await new Promise(resolve => controller.setTimeout(resolve, 50));
   }
 }
 
@@ -81,13 +75,13 @@ async function help_test_autohide(controller, menubar) {
     };
   }
   await TestUtils.waitForCondition(
-    () => Services.focus.activeWindow == controller.window
+    () => Services.focus.activeWindow == controller
   );
   await set_autohide_menubar(controller, menubar, true);
   utils.waitFor(hiddenChecker(true), "Menubar should be hidden");
 
   menubar.focus();
-  EventUtils.synthesizeKey("VK_ALT", {}, controller.window);
+  EventUtils.synthesizeKey("VK_ALT", {}, controller);
   utils.waitFor(
     hiddenChecker(false),
     "Menubar should be shown after pressing ALT!"
@@ -108,7 +102,7 @@ add_task(async function test_autohidden_menubar_message_window() {
   await be_in_folder(menuFolder);
   select_click_row(0);
   let msgc = await open_selected_message_in_new_window();
-  let menubar = msgc.window.document.getElementById("toolbar-menubar");
+  let menubar = msgc.document.getElementById("toolbar-menubar");
 
   await help_test_autohide(msgc, menubar);
   close_message_window(msgc);

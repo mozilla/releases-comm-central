@@ -84,7 +84,7 @@ add_task(async function testCollectKeyAttachment() {
     )
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -125,7 +125,7 @@ add_task(async function testCollectAutocrypt() {
     )
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -168,7 +168,7 @@ add_task(async function testSkipFakeOrUnrelatedKeys() {
     )
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
@@ -211,7 +211,7 @@ add_task(async function testSkipDuplicateKeys() {
     new FileUtils.File(getTestFilePath("data/eml/eve-duplicate.eml"))
   );
   await opengpgprocessed;
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
 
   Assert.ok(
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),

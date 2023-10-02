@@ -75,7 +75,7 @@ async function forwardViaFolder(aFilePath) {
 
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
   let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
 
   // Copy the message to a folder.
   let documentChild =

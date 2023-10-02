@@ -26,23 +26,21 @@ add_task(async function testMMS() {
   );
   let msgc = await open_message_from_file(file);
 
-  let imgs = msgc.window.content.document.querySelectorAll("img");
+  let imgs = msgc.content.document.querySelectorAll("img");
   // There are dottedline600.gif, tbmobilespace.gif x 3, footer.gif.
   Assert.equal(imgs.length, 5, "body should show all images");
 
-  let lines = msgc.window.content.document.querySelectorAll(
+  let lines = msgc.content.document.querySelectorAll(
     `img[src$="dottedline600.gif"]`
   );
   Assert.equal(lines.length, 1, "should have one dottedline600.gif");
 
-  let spacers = msgc.window.content.document.querySelectorAll(
+  let spacers = msgc.content.document.querySelectorAll(
     `img[src$="tmobilespace.gif"]`
   );
   Assert.equal(spacers.length, 3, "should have three tmobilespace.gif");
 
-  let footer = msgc.window.content.document.querySelectorAll(
-    `img[src$="footer.gif"]`
-  );
+  let footer = msgc.content.document.querySelectorAll(`img[src$="footer.gif"]`);
   Assert.equal(footer.length, 1, "should have one footer.gif");
 
   for (var img of imgs) {
@@ -54,13 +52,13 @@ add_task(async function testMMS() {
   }
 
   Assert.ok(
-    msgc.window.content.document.body.textContent.includes(
+    msgc.content.document.body.textContent.includes(
       "This is a sample SMS text to email"
     ),
     "Body should have the right text"
   );
 
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
   let attachmentList = aboutMessage.document.getElementById("attachmentList");
   Assert.equal(
     attachmentList.childNodes.length,

@@ -18,7 +18,7 @@ var { close_window } = ChromeUtils.import(
 );
 
 function getMsgBodyTxt(msgc) {
-  let msgPane = get_about_message(msgc.window).getMessagePaneBrowser();
+  let msgPane = get_about_message(msgc).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
 

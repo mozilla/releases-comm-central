@@ -142,7 +142,7 @@ add_task(async function test_create_virtual_folders() {
 });
 
 function subtest_save_mail_view(savc) {
-  savc.window.onOK();
+  savc.onOK();
 }
 
 async function _open_first_message() {

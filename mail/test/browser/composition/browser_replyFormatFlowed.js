@@ -47,7 +47,7 @@ async function subtest_reply_format_flowed(aFlowed) {
   close_window(msgc);
 
   // Now save the message as a draft.
-  await save_compose_message(cwc.window);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
 
   await TestUtils.waitForCondition(

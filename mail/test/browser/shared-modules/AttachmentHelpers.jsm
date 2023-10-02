@@ -224,7 +224,7 @@ function create_enclosure_attachment(filename, type, url, size) {
  * @param aIndexEnd (optional) the index of the last item to select
  */
 function select_attachments(aController, aIndexStart, aIndexEnd) {
-  let bucket = aController.window.document.getElementById("attachmentBucket");
+  let bucket = aController.document.getElementById("attachmentBucket");
   bucket.clearSelection();
 
   if (aIndexEnd !== undefined) {

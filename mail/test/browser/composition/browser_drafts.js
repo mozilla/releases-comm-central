@@ -86,7 +86,7 @@ add_task(async function test_open_draft_again() {
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   Assert.ok(
-    Services.ww.activeWindow == cwc.window,
+    Services.ww.activeWindow == cwc,
     "the original draft composition window should have got focus (again)"
   );
 
@@ -96,9 +96,9 @@ add_task(async function test_open_draft_again() {
   Assert.equal(cwins, cwins2, "The number of compose windows changed!");
 
   // Type something and save, then check that we only have one draft.
-  cwc.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("Hello!", cwc.window);
-  await save_compose_message(cwc.window);
+  cwc.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Hello!", cwc);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
@@ -122,12 +122,12 @@ async function internal_check_delivery_format(editDraft) {
 
   // Select our wanted format.
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("optionsMenu"),
+    cwc.document.getElementById("optionsMenu"),
     {},
-    cwc.window.document.getElementById("optionsMenu").ownerGlobal
+    cwc.document.getElementById("optionsMenu").ownerGlobal
   );
   await click_menus_in_sequence(
-    cwc.window.document.getElementById("optionsMenuPopup"),
+    cwc.document.getElementById("optionsMenuPopup"),
     [{ id: "outputFormatMenu" }, { id: "format_both" }]
   );
 
@@ -139,23 +139,23 @@ async function internal_check_delivery_format(editDraft) {
    */
   async function assert_format_value(aMenuItemId, aValue) {
     EventUtils.synthesizeMouseAtCenter(
-      cwc.window.document.getElementById("optionsMenu"),
+      cwc.document.getElementById("optionsMenu"),
       {},
-      cwc.window.document.getElementById("optionsMenu").ownerGlobal
+      cwc.document.getElementById("optionsMenu").ownerGlobal
     );
     let formatMenu = await click_menus_in_sequence(
-      cwc.window.document.getElementById("optionsMenuPopup"),
+      cwc.document.getElementById("optionsMenuPopup"),
       [{ id: "outputFormatMenu" }],
       true
     );
-    let formatItem = cwc.window.document
+    let formatItem = cwc.document
       .getElementById("outputFormatMenuPopup")
       .querySelector("[name=output_format][checked=true]");
     Assert.equal(formatItem.id, aMenuItemId);
     close_popup_sequence(formatMenu);
   }
 
-  await save_compose_message(cwc.window);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
 
   // Open a new composition see if the menu is again at default value, not the one
@@ -221,9 +221,9 @@ add_task(async function test_edit_as_new_in_draft() {
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
   let cwc = wait_for_compose_window();
 
-  cwc.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString("Hello!", cwc.window);
-  await save_compose_message(cwc.window);
+  cwc.document.getElementById("messageEditor").focus();
+  EventUtils.sendString("Hello!", cwc);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
@@ -290,7 +290,7 @@ add_task(async function test_edit_draft_mime_from() {
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
   let cwc = wait_for_compose_window();
 
-  const msgIdentity = cwc.window.document.getElementById("msgIdentity");
+  const msgIdentity = cwc.document.getElementById("msgIdentity");
   // Should show no quotes in the address.
   Assert.equal(
     msgIdentity.value,
@@ -327,7 +327,7 @@ add_task(async function test_content_language_header() {
     "Hello, we speak en-US"
   );
 
-  await save_compose_message(cwc.window);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
@@ -368,7 +368,7 @@ add_task(async function test_content_language_header_suppression() {
     "Hello, we speak blank"
   );
 
-  await save_compose_message(cwc.window);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
@@ -411,7 +411,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
     "NoSpace\n OneSpace\n  TwoSpaces"
   );
 
-  await save_compose_message(cwc.window);
+  await save_compose_message(cwc);
   close_compose_window(cwc);
 
   await TestUtils.waitForCondition(

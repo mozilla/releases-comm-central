@@ -286,7 +286,7 @@ var WindowWatcher = {
 
       let self = this;
       async function startTest() {
-        self.planForWindowClose(troller.window);
+        self.planForWindowClose(troller);
         try {
           await self.subTestFunc(troller);
         } finally {
@@ -296,7 +296,7 @@ var WindowWatcher = {
         // if the test failed, make sure we force the window closed...
         // except I'm not sure how to easily figure that out...
         // so just close it no matter what.
-        troller.window.close();
+        troller.close();
         self.waitForWindowClose();
 
         self.waitingList.delete(self.waitingForOpen);
@@ -592,7 +592,7 @@ function wait_for_modal_dialog(aWindowType, aTimeout) {
  */
 function plan_for_window_close(aController) {
   WindowWatcher.ensureInited();
-  WindowWatcher.planForWindowClose(aController.window);
+  WindowWatcher.planForWindowClose(aController);
 }
 
 /**
@@ -610,7 +610,7 @@ function wait_for_window_close() {
  */
 function close_window(aController) {
   plan_for_window_close(aController);
-  aController.window.close();
+  aController.close();
   wait_for_window_close();
 }
 
@@ -744,27 +744,26 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
  * @param aHeight      the requested window height
  */
 function resize_to(aController, aWidth, aHeight) {
-  aController.window.resizeTo(aWidth, aHeight);
+  aController.resizeTo(aWidth, aHeight);
   // Give the event loop a spin in order to let the reality of an asynchronously
   // interacting window manager have its impact. This still may not be
   // sufficient.
   utils.sleep(0);
   utils.waitFor(
     () =>
-      aController.window.outerWidth == aWidth &&
-      aController.window.outerHeight == aHeight,
+      aController.outerWidth == aWidth && aController.outerHeight == aHeight,
     "Timeout waiting for resize (current screen size: " +
-      aController.window.screen.availWidth +
+      aController.screen.availWidth +
       "X" +
-      aController.window.screen.availHeight +
+      aController.screen.availHeight +
       "), Requested width " +
       aWidth +
       " but got " +
-      aController.window.outerWidth +
+      aController.outerWidth +
       ", Request height " +
       aHeight +
       " but got " +
-      aController.window.outerHeight,
+      aController.outerHeight,
     10000,
     50
   );

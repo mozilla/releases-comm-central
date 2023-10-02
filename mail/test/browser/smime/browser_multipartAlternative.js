@@ -55,13 +55,9 @@ add_task(async function test_multipart_alternative() {
   close_window(msgc);
 
   // Now save the message as a draft.
-  EventUtils.synthesizeKey(
-    "s",
-    { shiftKey: false, accelKey: true },
-    cwc.window
-  );
+  EventUtils.synthesizeKey("s", { shiftKey: false, accelKey: true }, cwc);
   await TestUtils.waitForCondition(
-    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
+    () => !cwc.gSaveOperationInProgress && !cwc.gWindowLock,
     "Saving of draft did not finish"
   );
   close_compose_window(cwc);

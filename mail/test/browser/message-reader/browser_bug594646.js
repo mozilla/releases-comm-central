@@ -23,8 +23,8 @@ async function extract_eml_body_textcontent(eml) {
   let msgc = await open_message_from_file(file);
 
   // Be sure to view message body as Original HTML
-  msgc.window.MsgBodyAllowHTML();
-  let textContent = msgc.window.content.document.documentElement.textContent;
+  msgc.MsgBodyAllowHTML();
+  let textContent = msgc.content.document.documentElement.textContent;
 
   close_window(msgc);
   return textContent;

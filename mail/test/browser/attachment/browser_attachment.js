@@ -302,10 +302,7 @@ add_task(async function test_attached_message_attachments() {
 
   // Make sure we have the expected number of attachments in the attached
   // message: just an inner text attachment.
-  Assert.equal(
-    msgc.window.document.getElementById("attachmentList").itemCount,
-    1
-  );
+  Assert.equal(msgc.document.getElementById("attachmentList").itemCount, 1);
 
   close_window(msgc);
 }).skip();
@@ -635,23 +632,23 @@ add_task(async function test_attachments_compose_menu() {
   select_click_row(3);
 
   let cwc = open_compose_with_forward();
-  let attachment = cwc.window.document.getElementById("attachmentBucket");
+  let attachment = cwc.document.getElementById("attachmentBucket");
 
   // On Linux and OSX, focus events don't seem to be sent to child elements properly if
   // the parent window is not focused.  This causes some random oranges for us.
   // We use the force_focus function to "cheat" a bit, and trigger the function
   // that focusing normally would fire.  We do normal focusing for Windows.
   function force_focus(aId) {
-    let element = cwc.window.document.getElementById(aId);
+    let element = cwc.document.getElementById(aId);
     element.focus();
 
     if (["linux", "macosx"].includes(AppConstants.platform)) {
       // First, call the window's default controller's function.
-      cwc.window.defaultController.isCommandEnabled("cmd_delete");
+      cwc.defaultController.isCommandEnabled("cmd_delete");
 
       // Walk up the DOM tree and call isCommandEnabled on the first controller
       // that supports "cmd_delete".
-      while (element != cwc.window.document) {
+      while (element != cwc.document) {
         // NOTE: html elements (like body) don't have controllers.
         let numControllers = element.controllers?.getControllerCount() || 0;
         for (let i = 0; numControllers; i++) {
@@ -673,7 +670,7 @@ add_task(async function test_attachments_compose_menu() {
 
   Assert.equal(
     "Remove Attachment",
-    cwc.window.document.getElementById("cmd_delete").getAttribute("label"),
+    cwc.document.getElementById("cmd_delete").getAttribute("label"),
     "attachmentBucket with last attachment is focused!"
   );
 
@@ -686,7 +683,7 @@ add_task(async function test_attachments_compose_menu() {
   force_focus("msgSubject");
   Assert.equal(
     "Delete",
-    cwc.window.document.getElementById("cmd_delete").getAttribute("label"),
+    cwc.document.getElementById("cmd_delete").getAttribute("label"),
     "attachmentBucket is not focused!"
   );
 
@@ -694,7 +691,7 @@ add_task(async function test_attachments_compose_menu() {
   force_focus("attachmentBucket");
   Assert.equal(
     "Remove Attachment",
-    cwc.window.document.getElementById("cmd_delete").getAttribute("label"),
+    cwc.document.getElementById("cmd_delete").getAttribute("label"),
     "Only 1 attachment is selected!"
   );
 
@@ -703,7 +700,7 @@ add_task(async function test_attachments_compose_menu() {
   force_focus("msgIdentity");
   Assert.equal(
     "Delete",
-    cwc.window.document.getElementById("cmd_delete").getAttribute("label"),
+    cwc.document.getElementById("cmd_delete").getAttribute("label"),
     "attachmentBucket is not focused!"
   );
 
@@ -711,7 +708,7 @@ add_task(async function test_attachments_compose_menu() {
   force_focus("attachmentBucket");
   Assert.equal(
     "Remove Attachments",
-    cwc.window.document.getElementById("cmd_delete").getAttribute("label"),
+    cwc.document.getElementById("cmd_delete").getAttribute("label"),
     "Multiple attachments are selected!"
   );
 

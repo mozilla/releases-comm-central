@@ -148,22 +148,22 @@ async function doTestSecState(isDraft, secure) {
   if (secure) {
     // Tick "Require encryption".
     // Encryption and signing should get turned on.
-    await OpenPGPTestUtils.toggleMessageEncryption(cwc.window);
+    await OpenPGPTestUtils.toggleMessageEncryption(cwc);
   }
 
   if (isDraft) {
-    cwc.window.SaveAsDraft();
+    cwc.SaveAsDraft();
   } else {
-    cwc.window.SaveAsTemplate();
+    cwc.SaveAsTemplate();
   }
 
   await TestUtils.waitForCondition(
-    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
+    () => !cwc.gSaveOperationInProgress && !cwc.gWindowLock,
     "timeout waiting for saving to finish."
   );
 
   info(`Saved as ${type} with secure=${secure}`);
-  cwc.window.close();
+  cwc.close();
 
   await be_in_folder(theFolder);
   select_click_row(0);

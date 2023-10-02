@@ -71,16 +71,12 @@ add_task(async function test_send_inline_image() {
   let dataURI = `data:image/png;base64,${fileContent}`;
 
   putHTMLOnClipboard(`<img id="inline-img" src="${dataURI}">`);
-  cwc.window.document.getElementById("messageEditor").focus();
+  cwc.document.getElementById("messageEditor").focus();
   // Ctrl+V = Paste
-  EventUtils.synthesizeKey(
-    "v",
-    { shiftKey: false, accelKey: true },
-    cwc.window
-  );
+  EventUtils.synthesizeKey("v", { shiftKey: false, accelKey: true }, cwc);
 
   plan_for_window_close(cwc);
-  cwc.window.goDoCommand("cmd_sendLater");
+  cwc.goDoCommand("cmd_sendLater");
   wait_for_window_close();
 
   await be_in_folder(gOutboxFolder);

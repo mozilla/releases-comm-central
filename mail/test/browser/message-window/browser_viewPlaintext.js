@@ -65,14 +65,14 @@ async function checkSingleMessage(
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
   Services.prefs.setIntPref("mailnews.display.html_as", 1);
   let msgc = await open_message_from_file(file);
-  check_content(msgc.window, aExpectedPlainText, aExpectedHTML);
+  check_content(msgc, aExpectedPlainText, aExpectedHTML);
   close_window(msgc);
 
   // Load and display as HTML.
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
   Services.prefs.setIntPref("mailnews.display.html_as", 0);
   msgc = await open_message_from_file(file);
-  check_content(msgc.window, aExpectedHTML, aExpectedPlainText);
+  check_content(msgc, aExpectedHTML, aExpectedPlainText);
   close_window(msgc);
 }
 

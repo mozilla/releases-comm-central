@@ -61,13 +61,13 @@ function subtest_create_virtual_folder(vfc) {
     subtest_check_virtual_folder_list
   );
   EventUtils.synthesizeMouseAtCenter(
-    vfc.window.document.getElementById("folderListPicker"),
+    vfc.document.getElementById("folderListPicker"),
     {},
-    vfc.window.document.getElementById("folderListPicker").ownerGlobal
+    vfc.document.getElementById("folderListPicker").ownerGlobal
   );
   wait_for_modal_dialog("mailnews:virtualFolderList");
 
-  vfc.window.document.documentElement.querySelector("dialog").cancelDialog();
+  vfc.document.documentElement.querySelector("dialog").cancelDialog();
 }
 
 /**
@@ -75,13 +75,13 @@ function subtest_create_virtual_folder(vfc) {
  * Check the folder list picker is not empty.
  */
 function subtest_check_virtual_folder_list(listc) {
-  let tree = listc.window.document.getElementById("folderPickerTree");
+  let tree = listc.document.getElementById("folderPickerTree");
   // We should see the folders from the 2 base local accounts here.
   Assert.ok(
     tree.view.rowCount > 0,
     "Folder tree was empty in virtual folder selection!"
   );
-  listc.window.document.documentElement.querySelector("dialog").cancelDialog();
+  listc.document.documentElement.querySelector("dialog").cancelDialog();
 }
 
 add_task(async function test_offline_sync_folder_selection_tree() {
@@ -109,13 +109,13 @@ function subtest_offline_sync(osc) {
     subtest_check_offline_folder_list
   );
   EventUtils.synthesizeMouseAtCenter(
-    osc.window.document.getElementById("select"),
+    osc.document.getElementById("select"),
     {},
-    osc.window.document.getElementById("select").ownerGlobal
+    osc.document.getElementById("select").ownerGlobal
   );
   wait_for_modal_dialog("mailnews:selectOffline");
 
-  osc.window.document.documentElement.querySelector("dialog").cancelDialog();
+  osc.document.documentElement.querySelector("dialog").cancelDialog();
 }
 
 /**
@@ -123,13 +123,13 @@ function subtest_offline_sync(osc) {
  * Check the folder list picker is not empty.
  */
 function subtest_check_offline_folder_list(listc) {
-  let tree = listc.window.document.getElementById("synchronizeTree");
+  let tree = listc.document.getElementById("synchronizeTree");
   // We should see the newsgroups from the NNTP server here.
   Assert.ok(
     tree.view.rowCount > 0,
     "Folder tree was empty in offline sync selection!"
   );
-  listc.window.document.documentElement.querySelector("dialog").cancelDialog();
+  listc.document.documentElement.querySelector("dialog").cancelDialog();
 }
 
 registerCleanupFunction(function () {

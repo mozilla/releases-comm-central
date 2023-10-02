@@ -214,13 +214,13 @@ add_task(async function test_reply_identity_selection() {
 
     if (test.warning) {
       wait_for_notification_to_show(
-        cwc.window,
+        cwc,
         "compose-notification-bottom",
         "identityWarning"
       );
     } else {
       assert_notification_displayed(
-        cwc.window,
+        cwc,
         "compose-notification-bottom",
         "identityWarning",
         false
@@ -241,12 +241,12 @@ add_task(async function test_reply_identity_selection() {
  */
 function checkCompIdentity(cwc, identityKey, from) {
   Assert.equal(
-    cwc.window.document.getElementById("msgIdentity").value,
+    cwc.document.getElementById("msgIdentity").value,
     from,
     "msgIdentity value should be as expected."
   );
   Assert.equal(
-    cwc.window.getCurrentIdentityKey(),
+    cwc.getCurrentIdentityKey(),
     identityKey,
     "The From identity should be correctly selected."
   );

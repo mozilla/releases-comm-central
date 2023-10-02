@@ -82,12 +82,12 @@ add_task(async function testExpiredKeyShowsNotificationBar() {
   let cwc = open_compose_new_mail();
 
   wait_for_notification_to_show(
-    cwc.window,
+    cwc,
     "compose-notification-bottom",
     "openpgpSenderKeyExpired"
   );
   let notification = get_notification(
-    cwc.window,
+    cwc,
     "compose-notification-bottom",
     "openpgpSenderKeyExpired"
   );
@@ -105,7 +105,7 @@ add_task(async function testExpiredKeyShowsNotificationBar() {
     "settings-context-open-account-settings-item2",
     "button0 should be the button to open account settings"
   );
-  cwc.window.close();
+  cwc.close();
 });
 
 add_task(async function testKeyWithoutExpiryDoesNotShowNotification() {
@@ -124,7 +124,7 @@ add_task(async function testKeyWithoutExpiryDoesNotShowNotification() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 200));
   let notification = get_notification(
-    cwc.window,
+    cwc,
     "compose-notification-bottom",
     "openpgpSenderKeyExpired"
   );
@@ -133,5 +133,5 @@ add_task(async function testKeyWithoutExpiryDoesNotShowNotification() {
     notification === null,
     "the expiry warning should not be visible if the key is not expired"
   );
-  cwc.window.close();
+  cwc.close();
 });

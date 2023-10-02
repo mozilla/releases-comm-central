@@ -75,7 +75,7 @@ add_task(async function test_checkEncryptionState() {
   let cwc = wait_for_compose_window();
 
   // Test gMsgCompose.compFields is intact.
-  let compFields = cwc.window.gMsgCompose.compFields;
+  let compFields = cwc.gMsgCompose.compFields;
   Assert.equal(compFields.to, "to@local");
   Assert.equal(compFields.cc, "cc1@local, cc2@local");
   Assert.equal(compFields.bcc, "bcc1@local, bcc2@local");

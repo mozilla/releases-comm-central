@@ -57,12 +57,12 @@ async function checkMsgFile(aFilePath, aConvertibility) {
   let messageController = await open_message_from_file(file);
 
   // Creating a reply should not affect convertibility.
-  let composeWindow = open_compose_with_reply(messageController).window;
+  let composeWindow = open_compose_with_reply(messageController);
 
   Assert.equal(composeWindow.gMsgCompose.bodyConvertible(), aConvertibility);
 
   await BrowserTestUtils.closeWindow(composeWindow);
-  await BrowserTestUtils.closeWindow(messageController.window);
+  await BrowserTestUtils.closeWindow(messageController);
 }
 
 /**
@@ -158,7 +158,7 @@ const BOLD_MESSAGE_BODY_AS_PLAIN = `*${BOLD_MESSAGE_BODY}*`;
 async function newMessage(preference, useBold) {
   Services.prefs.setIntPref("mail.default_send_format", preference);
 
-  let composeWindow = open_compose_new_mail().window;
+  let composeWindow = open_compose_new_mail();
   assertSendFormatInMenu(
     composeWindow,
     preference,
@@ -355,7 +355,7 @@ async function assertDraftFormat(expectSavedFormat) {
   await be_in_folder(draftsFolder);
   select_click_row(0);
 
-  let newComposeWindow = open_compose_from_draft().window;
+  let newComposeWindow = open_compose_from_draft();
   assertSendFormatInMenu(
     newComposeWindow,
     expectSavedFormat,

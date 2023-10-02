@@ -75,7 +75,7 @@ add_task(async function test_filelink_uploaded_size() {
 
   add_cloud_attachments(cwc, account, false);
   gMockCloudfileManager.resolveUploads();
-  wait_for_notification_to_stop(cwc.window, kBoxId, "bigAttachmentUploading");
+  wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
@@ -104,11 +104,11 @@ add_task(async function test_filelink_ignored() {
   add_attachments(cwc, "https://www.example.com/1", maxSize);
   add_attachments(cwc, "https://www.example.com/2", maxSize + 10);
   add_attachments(cwc, "https://www.example.com/3", maxSize - 1);
-  let aftersend = BrowserTestUtils.waitForEvent(cwc.window, "aftersend");
+  let aftersend = BrowserTestUtils.waitForEvent(cwc, "aftersend");
   EventUtils.synthesizeMouseAtCenter(
-    cwc.window.document.getElementById("button-send"),
+    cwc.document.getElementById("button-send"),
     {},
-    cwc.window.document.getElementById("button-send").ownerGlobal
+    cwc.document.getElementById("button-send").ownerGlobal
   );
   await aftersend;
   let scalars = TelemetryTestUtils.getProcessScalars("parent");

@@ -94,13 +94,9 @@ add_task(async function test_paste_file_urls() {
           "' alt='tmp' />"
       );
 
-      cwc.window.document.getElementById("messageEditor").focus();
+      cwc.document.getElementById("messageEditor").focus();
       // Ctrl+V = Paste
-      EventUtils.synthesizeKey(
-        "v",
-        { shiftKey: false, accelKey: true },
-        cwc.window
-      );
+      EventUtils.synthesizeKey("v", { shiftKey: false, accelKey: true }, cwc);
     })
     .catch(function (err) {
       throw new Error("Setting up img file FAILED: " + err);
@@ -109,17 +105,17 @@ add_task(async function test_paste_file_urls() {
   // Now wait for the paste, and for the file: based image to get converted
   // to data:.
   utils.waitFor(function () {
-    let img = cwc.window.document
+    let img = cwc.document
       .getElementById("messageEditor")
       .contentDocument.getElementById("tmp-img");
     return img && img.naturalHeight == 84 && img.src.startsWith("data:");
   }, "Timeout waiting for pasted tmp image to be loaded ok");
 
   // For the non-existent (non-accessible!) image we should get a notification.
-  wait_for_notification_to_show(cwc.window, kBoxId, kNotificationId);
+  wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
 
   plan_for_window_close(cwc);
-  cwc.window.goDoCommand("cmd_sendLater");
+  cwc.goDoCommand("cmd_sendLater");
   wait_for_window_close();
 
   await be_in_folder(gOutboxFolder);

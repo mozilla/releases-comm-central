@@ -61,8 +61,8 @@ async function forward_selected_messages_and_go_to_drafts_folder(f) {
   const kText = "Hey check out this megalol link";
   // opening a new compose window
   cwc = f(mc);
-  cwc.window.document.getElementById("messageEditor").focus();
-  EventUtils.sendString(kText, cwc.window);
+  cwc.document.getElementById("messageEditor").focus();
+  EventUtils.sendString(kText, cwc);
 
   let mailBody = get_compose_body(cwc);
   assert_previous_text(mailBody.firstChild, [kText]);
@@ -71,7 +71,7 @@ async function forward_selected_messages_and_go_to_drafts_folder(f) {
   // mwc is modal window controller
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   // quit -> do you want to save ?
-  cwc.window.goDoCommand("cmd_close");
+  cwc.goDoCommand("cmd_close");
   await dialogPromise;
   // Actually quit the window.
   wait_for_window_close();

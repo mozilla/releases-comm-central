@@ -52,7 +52,7 @@ add_task(async function test_was_reply_subj() {
 
   let cwc = open_compose_with_reply();
 
-  let msgSubject = cwc.window.document.getElementById("msgSubject").value;
+  let msgSubject = cwc.document.getElementById("msgSubject").value;
 
   // Subject should be Re: <the original subject stripped of the was: part>
   Assert.equal(

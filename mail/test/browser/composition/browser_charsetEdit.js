@@ -117,7 +117,7 @@ add_task(async function test_wrong_reply_charset() {
   Assert.equal(getMsgHeaders(msg).get("").charset, "invalid-charset");
 
   let rwc = open_compose_with_reply();
-  await save_compose_message(rwc.window);
+  await save_compose_message(rwc);
   await TestUtils.waitForCondition(
     () => folder.getTotalMessages(false) == 2,
     "message saved to drafts folder"
@@ -152,7 +152,7 @@ add_task(async function test_wrong_reply_charset() {
     aboutMessage
   );
   rwc = wait_for_compose_window();
-  await save_compose_message(rwc.window);
+  await save_compose_message(rwc);
   close_compose_window(rwc);
   msg = select_click_row(-1);
   await TestUtils.waitForCondition(
@@ -183,7 +183,7 @@ add_task(async function test_no_mojibake() {
   Assert.equal(getMsgHeaders(msg, true).get("").trim(), nonASCII);
 
   let rwc = open_compose_with_reply();
-  await save_compose_message(rwc.window);
+  await save_compose_message(rwc);
   await TestUtils.waitForCondition(
     () => folder.getTotalMessages(false) == 2,
     "message saved to drafts folder"
@@ -222,7 +222,7 @@ add_task(async function test_no_mojibake() {
     aboutMessage
   );
   rwc = wait_for_compose_window();
-  await save_compose_message(rwc.window);
+  await save_compose_message(rwc);
   close_compose_window(rwc);
   msg = select_click_row(-1);
   Assert.equal(getMsgHeaders(msg).get("").charset.toUpperCase(), "UTF-8");

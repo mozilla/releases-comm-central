@@ -127,7 +127,7 @@ async function testEncryptedMessageComposition(
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -213,7 +213,7 @@ async function testEncryptedMessageWithKeyComposition(
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -304,7 +304,7 @@ async function testEncryptedRecipientKeyNotAvailabeMessageComposition(
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -375,7 +375,7 @@ add_task(async function testEncryptedRecipientKeyNotAvailabeAutoDisable() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -447,7 +447,7 @@ async function testEncryptedRecipientKeyNotAcceptedMessageComposition(
     await be_in_folder(bobAcct.incomingServer.rootFolder);
 
     let cwc = open_compose_new_mail();
-    let composeWin = cwc.window;
+    let composeWin = cwc;
 
     // setup_msg_contents will trigger checkEncryptionState.
     let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -538,7 +538,7 @@ async function testEncryptedRecipientKeyUnverifiedMessageComposition(
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -623,7 +623,7 @@ async function testEncryptedOneRecipientKeyNotAvailableMessageComposition(
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -722,7 +722,7 @@ async function testEncryptedOneRecipientKeyNotAcceptedMessageComposition(
     await be_in_folder(bobAcct.incomingServer.rootFolder);
 
     let cwc = open_compose_new_mail();
-    let composeWin = cwc.window;
+    let composeWin = cwc;
 
     // setup_msg_contents will trigger checkEncryptionState.
     let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -814,7 +814,7 @@ async function testEncryptedOneRecipientKeyUnverifiedMessageComposition(
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
   let cwc = open_compose_new_mail();
-  let composeWin = cwc.window;
+  let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
@@ -910,7 +910,7 @@ async function testEncryptedMessageReplyIsEncrypted(
   let cwc = open_compose_with_reply(msgc);
   close_window(msgc);
 
-  let replyWindow = cwc.window;
+  let replyWindow = cwc;
 
   await save_compose_message(replyWindow);
   close_compose_window(cwc);

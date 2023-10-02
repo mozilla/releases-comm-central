@@ -234,7 +234,7 @@ async function test_restore_single_3pane_persistence() {
 
   // We don't need the address book window any more.
   plan_for_window_close(amController);
-  amController.window.close();
+  amController.close();
   wait_for_window_close();
 }
 add_task(test_restore_single_3pane_persistence).skip(); // Bug 1753963.
@@ -345,7 +345,7 @@ add_task(async function test_message_pane_height_persistence() {
 
   // We don't need the address book window any more.
   plan_for_window_close(amController);
-  amController.window.close();
+  amController.close();
   wait_for_window_close();
 }).skip(); // Bug 1753963.
 
@@ -476,7 +476,7 @@ add_task(async function test_message_pane_width_persistence() {
 
   // We don't need the address book window any more.
   plan_for_window_close(amController);
-  amController.window.close();
+  amController.close();
   wait_for_window_close();
 }).skip(); // Bug 1753963.
 
@@ -591,7 +591,7 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
 
   // We don't need the address book window any more.
   plan_for_window_close(amController);
-  amController.window.close();
+  amController.close();
   wait_for_window_close();
 }).skip(); // Bug 1753963.
 

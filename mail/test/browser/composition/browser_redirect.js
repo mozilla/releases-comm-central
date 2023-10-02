@@ -196,12 +196,12 @@ add_task(async function testRedirectToMe() {
   );
   let cwc = await async_wait_for_compose_window(mc, compWinPromise);
   Assert.equal(
-    cwc.window.getCurrentIdentityKey(),
+    cwc.getCurrentIdentityKey(),
     identity2.key,
     "should be from second identity"
   );
   checkAddresses(
-    cwc.window,
+    cwc,
     // What would go into a reply should now be in Reply-To
     {
       addr_to: [], // empty

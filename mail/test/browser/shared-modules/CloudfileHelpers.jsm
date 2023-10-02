@@ -152,7 +152,7 @@ MockCloudfileAccount.prototype = {
   },
 
   deleteFile(window, aUploadId) {
-    return new Promise(resolve => fdh.mc.window.setTimeout(resolve));
+    return new Promise(resolve => fdh.mc.setTimeout(resolve));
   },
 };
 

@@ -34,7 +34,7 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   let callback = function (controller) {
     // When the "stop button" is disabled, the panel is populated.
     utils.waitFor(
-      () => controller.window.document.getElementById("stopButton").disabled
+      () => controller.document.getElementById("stopButton").disabled
     );
     aFunction(controller);
   };
@@ -53,7 +53,7 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
  * @param text The text to enter
  */
 function enter_text_in_search_box(swc, text) {
-  let textbox = swc.window.document.getElementById("namefield");
+  let textbox = swc.document.getElementById("namefield");
   delete_all_existing(swc, textbox);
   input_value(swc, text, textbox);
 }
@@ -66,7 +66,7 @@ function enter_text_in_search_box(swc, text) {
  * @returns {boolean} Result of the check
  */
 function check_newsgroup_displayed(swc, name) {
-  let tree = swc.window.document.getElementById("searchTree");
+  let tree = swc.document.getElementById("searchTree");
   if (!tree.columns) {
     // Maybe not yet available.
     return false;

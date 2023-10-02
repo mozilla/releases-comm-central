@@ -100,7 +100,7 @@ add_setup(async function () {
  * @param expectedSize the expected size of the attachment, in bytes
  */
 function check_attachment_size(controller, index, expectedSize) {
-  let bucket = controller.window.document.getElementById("attachmentBucket");
+  let bucket = controller.document.getElementById("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   // First, let's check that the attachment size is correct
@@ -138,7 +138,7 @@ function check_attachment_size(controller, index, expectedSize) {
  * @param index the attachment to examine, as an index into the listbox
  */
 function check_no_attachment_size(controller, index) {
-  let bucket = controller.window.document.getElementById("attachmentBucket");
+  let bucket = controller.document.getElementById("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   if (node.attachment.size != -1) {
@@ -158,11 +158,9 @@ function check_no_attachment_size(controller, index) {
  * @param count the expected number of attachments
  */
 function check_total_attachment_size(controller, count) {
-  let bucket = controller.window.document.getElementById("attachmentBucket");
+  let bucket = controller.document.getElementById("attachmentBucket");
   let nodes = bucket.querySelectorAll("richlistitem.attachmentItem");
-  let sizeNode = controller.window.document.getElementById(
-    "attachmentBucketSize"
-  );
+  let sizeNode = controller.document.getElementById("attachmentBucketSize");
 
   if (nodes.length != count) {
     throw new Error(
@@ -252,8 +250,8 @@ add_task(function test_delete_attachments() {
 });
 
 function subtest_rename_attachment(cwc) {
-  cwc.window.document.getElementById("loginTextbox").value = "renamed.txt";
-  cwc.window.document.querySelector("dialog").getButton("accept").doCommand();
+  cwc.document.getElementById("loginTextbox").value = "renamed.txt";
+  cwc.document.querySelector("dialog").getButton("accept").doCommand();
 }
 
 add_task(function test_rename_attachment() {
@@ -265,11 +263,11 @@ add_task(function test_rename_attachment() {
   add_attachments(cwc, url, size);
 
   // Now, rename the attachment.
-  let bucket = cwc.window.document.getElementById("attachmentBucket");
+  let bucket = cwc.document.getElementById("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
   EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
   plan_for_modal_dialog("commonDialogWindow", subtest_rename_attachment);
-  cwc.window.RenameSelectedAttachment();
+  cwc.RenameSelectedAttachment();
   wait_for_modal_dialog("commonDialogWindow");
 
   Assert.equal(node.getAttribute("name"), "renamed.txt");
@@ -281,7 +279,7 @@ add_task(function test_rename_attachment() {
 });
 
 function subtest_open_attachment(cwc) {
-  cwc.window.document.querySelector("dialog").getButton("cancel").doCommand();
+  cwc.document.querySelector("dialog").getButton("cancel").doCommand();
 }
 
 add_task(function test_open_attachment() {
@@ -298,7 +296,7 @@ add_task(function test_open_attachment() {
   add_attachments(cwc, url, size);
 
   // Now, open the attachment.
-  let bucket = cwc.window.document.getElementById("attachmentBucket");
+  let bucket = cwc.document.getElementById("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
   plan_for_modal_dialog("unknownContentTypeWindow", subtest_open_attachment);
   EventUtils.synthesizeMouseAtCenter(node, { clickCount: 2 }, node.ownerGlobal);
@@ -358,7 +356,7 @@ add_task(async function test_forward_message_with_attachments_as_attachment() {
  * @param aNames       An array of attachment names that are expected
  */
 function check_attachment_names(aController, aNames) {
-  let bucket = aController.window.document.getElementById("attachmentBucket");
+  let bucket = aController.document.getElementById("attachmentBucket");
   Assert.equal(aNames.length, bucket.itemCount);
   for (let i = 0; i < aNames.length; i++) {
     Assert.equal(bucket.getItemAtIndex(i).getAttribute("name"), aNames[i]);
@@ -388,7 +386,7 @@ async function subtest_reordering(
   aReorder_actions,
   aOpenPanel = true
 ) {
-  let bucket = aCwc.window.document.getElementById("attachmentBucket");
+  let bucket = aCwc.document.getElementById("attachmentBucket");
   let panel;
 
   // Create a set of attachments for the test.
@@ -402,9 +400,9 @@ async function subtest_reordering(
 
   if (aOpenPanel) {
     // Bring up the reordering panel.
-    aCwc.window.showReorderAttachmentsPanel();
+    aCwc.showReorderAttachmentsPanel();
     await new Promise(resolve => setTimeout(resolve));
-    panel = aCwc.window.document.getElementById("reorderAttachmentsPanel");
+    panel = aCwc.document.getElementById("reorderAttachmentsPanel");
     await wait_for_popup_to_open(panel);
   }
 
@@ -417,12 +415,12 @@ async function subtest_reordering(
     // Take action.
     if ("button" in action) {
       EventUtils.synthesizeMouseAtCenter(
-        aCwc.window.document.getElementById(action.button),
+        aCwc.document.getElementById(action.button),
         {},
-        aCwc.window.document.getElementById(action.button).ownerGlobal
+        aCwc.document.getElementById(action.button).ownerGlobal
       );
     } else if ("key" in action) {
-      EventUtils.synthesizeKey(action.key, action.key_modifiers, aCwc.window);
+      EventUtils.synthesizeKey(action.key, action.key_modifiers, aCwc);
     }
     await new Promise(resolve => setTimeout(resolve));
     // Check result.
@@ -439,7 +437,7 @@ async function subtest_reordering(
   }
 
   // Clean up for a new set of attachments.
-  aCwc.window.RemoveAllAttachments();
+  aCwc.RemoveAllAttachments();
 }
 
 /**
@@ -449,9 +447,9 @@ async function subtest_reordering(
  */
 add_task(async function test_attachment_reordering() {
   let cwc = open_compose_new_mail();
-  let editorEl = cwc.window.GetCurrentEditorElement();
-  let bucket = cwc.window.document.getElementById("attachmentBucket");
-  let panel = cwc.window.document.getElementById("reorderAttachmentsPanel");
+  let editorEl = cwc.GetCurrentEditorElement();
+  let bucket = cwc.document.getElementById("attachmentBucket");
+  let panel = cwc.document.getElementById("reorderAttachmentsPanel");
   // const openReorderPanelModifiers =
   //   (AppConstants.platform == "macosx") ? { controlKey: true }
   //                                       : { altKey: true };
@@ -470,18 +468,18 @@ add_task(async function test_attachment_reordering() {
   check_attachment_names(cwc, initialAttachmentNames_0);
 
   // Show 'Reorder Attachments' panel via mouse clicks.
-  let contextMenu = cwc.window.document.getElementById(
+  let contextMenu = cwc.document.getElementById(
     "msgComposeAttachmentItemContext"
   );
   let shownPromise = BrowserTestUtils.waitForEvent(contextMenu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     bucket.getItemAtIndex(1),
     { type: "contextmenu" },
-    cwc.window
+    cwc
   );
   await shownPromise;
   contextMenu.activateItem(
-    cwc.window.document.getElementById("composeAttachmentContext_reorderItem")
+    cwc.document.getElementById("composeAttachmentContext_reorderItem")
   );
   await wait_for_popup_to_open(panel);
 
@@ -493,7 +491,7 @@ add_task(async function test_attachment_reordering() {
   );
 
   // Clean up for a new set of attachments.
-  cwc.window.RemoveAllAttachments();
+  cwc.RemoveAllAttachments();
 
   // Define checks for various moving operations.
   // Check 1: basic, mouse-only.
@@ -939,8 +937,8 @@ add_task(async function test_attachment_reordering() {
 add_task(async function test_restore_attachment_bucket_height() {
   let cwc = open_compose_new_mail();
 
-  let attachmentArea = cwc.window.document.getElementById("attachmentArea");
-  let attachmentBucket = cwc.window.document.getElementById("attachmentBucket");
+  let attachmentArea = cwc.document.getElementById("attachmentArea");
+  let attachmentBucket = cwc.document.getElementById("attachmentBucket");
 
   Assert.ok(
     BrowserTestUtils.is_hidden(attachmentArea),
@@ -977,7 +975,7 @@ add_task(async function test_restore_attachment_bucket_height() {
   );
 
   // Press Ctrl/Cmd+Shift+M to collapse the attachment pane.
-  EventUtils.synthesizeKey("M", modifiers, cwc.window);
+  EventUtils.synthesizeKey("M", modifiers, cwc);
   await collapsedPromise;
 
   let visiblePromise = BrowserTestUtils.waitForCondition(
@@ -985,7 +983,7 @@ add_task(async function test_restore_attachment_bucket_height() {
     "The attachment area should be visible and open."
   );
   // Press Ctrl/Cmd+Shift+M again.
-  EventUtils.synthesizeKey("M", modifiers, cwc.window);
+  EventUtils.synthesizeKey("M", modifiers, cwc);
   await visiblePromise;
 
   // The height of these elements should have been properly restored.

@@ -185,19 +185,11 @@ add_task(async function test_tab_reorder_window() {
   Assert.ok(tabA, "No movable Tab");
 
   // We drop onto the Folder Tab, it is guaranteed to exist.
-  let tabmail2 = mc2.window.document.getElementById("tabmail");
+  let tabmail2 = mc2.document.getElementById("tabmail");
   let tabB = tabmail2.tabContainer.allTabs[0];
   Assert.ok(tabB, "No movable Tab");
 
-  drag_n_drop_element(
-    tabA,
-    window,
-    tabB,
-    mc2.window,
-    0.75,
-    0.0,
-    tabmail.tabContainer
-  );
+  drag_n_drop_element(tabA, window, tabB, mc2, 0.75, 0.0, tabmail.tabContainer);
 
   wait_for_message_display_completion(mc2);
 
@@ -256,7 +248,7 @@ add_task(async function test_tab_reorder_detach() {
 
   // ... and wait for the new window
   mc2 = await newWindowPromise;
-  let tabmail2 = mc2.window.document.getElementById("tabmail");
+  let tabmail2 = mc2.document.getElementById("tabmail");
   await TestUtils.waitForCondition(
     () => tabmail2.tabInfo[1]?.chromeBrowser,
     "waiting for a second tab to open in the new window"

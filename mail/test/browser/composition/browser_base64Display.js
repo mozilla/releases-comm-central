@@ -20,7 +20,7 @@ add_task(async function test_base64_display() {
     getTestFilePath("data/base64-with-whitespace.eml")
   );
   let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
   let bodyText = aboutMessage.document
     .getElementById("messagepane")
     .contentDocument.querySelector("body").textContent;
@@ -35,7 +35,7 @@ add_task(async function test_base64_display() {
 add_task(async function test_base64_display2() {
   let file = new FileUtils.File(getTestFilePath("data/base64-bug1586890.eml"));
   let msgc = await open_message_from_file(file);
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
   let bodyText = aboutMessage.document
     .getElementById("messagepane")
     .contentDocument.querySelector("body").textContent;

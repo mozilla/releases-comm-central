@@ -216,11 +216,11 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
     );
   }
 
-  let bucket = aController.window.document.getElementById("attachmentBucket");
+  let bucket = aController.document.getElementById("attachmentBucket");
 
   // Check the actual content of the generated cloudAttachmentItems.
   for (let i = 0; i < urls.length; i++) {
-    if (aController.window.gMsgCompose.composeHTML) {
+    if (aController.gMsgCompose.composeHTML) {
       // Test HTML message.
 
       let paperClipIcon = urls[i].querySelector(".paperClipIcon");
@@ -422,7 +422,7 @@ async function prepare_some_attachments_and_forward(aText, aFiles) {
   let cw = open_compose_with_forward();
 
   // Put the selection at the beginning of the document...
-  let editor = cw.window.GetCurrentEditor();
+  let editor = cw.GetCurrentEditor();
   editor.beginningOfDocument();
 
   // Do any necessary typing...
@@ -730,7 +730,7 @@ async function subtest_removing_filelinks_removes_root_node() {
 
   // Now select the attachments in the attachment bucket, and remove them.
   select_attachments(cw, 0, 1);
-  cw.window.goDoCommand("cmd_delete");
+  cw.goDoCommand("cmd_delete");
 
   // Wait for the root to be removed.
   let mailBody = get_compose_body(cw);
@@ -1378,7 +1378,7 @@ async function subtest_converting_filelink_to_normal_removes_url() {
 
   for (let i = 0; i < kFiles.length; ++i) {
     let [selectedItem] = select_attachments(cw, i);
-    cw.window.convertSelectedToRegularAttachment();
+    cw.convertSelectedToRegularAttachment();
 
     // Wait until the cloud file entry has been removed.
     utils.waitFor(function () {
@@ -1506,7 +1506,7 @@ function subtest_insertion_restores_caret_point() {
   let cw = open_compose_new_mail();
 
   // Put the selection at the beginning of the document...
-  let editor = cw.window.GetCurrentEditor();
+  let editor = cw.GetCurrentEditor();
   editor.beginningOfDocument();
 
   // Do any necessary typing, ending with two linebreaks.

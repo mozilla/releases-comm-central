@@ -64,13 +64,13 @@ async function subtest_replyEditAsNewForward_charset(
   // since replying/editing as new/forwarding directly to the message
   // opened from a file gives different results on different platforms.
   // All platforms behave the same when using a folder-stored message.
-  let documentChild = msgc.window.content.document.documentElement;
+  let documentChild = msgc.content.document.documentElement;
   EventUtils.synthesizeMouseAtCenter(
     documentChild,
     { type: "contextmenu", button: 2 },
     documentChild.ownerGlobal
   );
-  let aboutMessage = get_about_message(msgc.window);
+  let aboutMessage = get_about_message(msgc);
   await click_menus_in_sequence(
     aboutMessage.document.getElementById("mailContext"),
     [
@@ -105,8 +105,7 @@ async function subtest_replyEditAsNewForward_charset(
 
   // Check the charset in the compose window.
   let charset =
-    fwdWin.window.document.getElementById("messageEditor").contentDocument
-      .charset;
+    fwdWin.document.getElementById("messageEditor").contentDocument.charset;
   Assert.equal(charset, "UTF-8", "Compose window has the wrong charset");
   close_compose_window(fwdWin);
 

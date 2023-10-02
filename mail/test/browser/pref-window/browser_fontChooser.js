@@ -186,7 +186,7 @@ async function _verify_fonts_displayed(
   // The font pickers are populated async so we need to wait for it.
   for (let fontElemId of ["serif", "sans-serif", "monospace"]) {
     utils.waitFor(
-      () => fontc.window.document.getElementById(fontElemId).label != "",
+      () => fontc.document.getElementById(fontElemId).label != "",
       "Timeout waiting for font picker '" + fontElemId + "' to populate."
     );
   }
@@ -195,17 +195,17 @@ async function _verify_fonts_displayed(
     assert_fonts_equal(
       "serif",
       aSerif,
-      fontc.window.document.getElementById("serif").value
+      fontc.document.getElementById("serif").value
     );
     assert_fonts_equal(
       "sans-serif",
       aSansSerif,
-      fontc.window.document.getElementById("sans-serif").value
+      fontc.document.getElementById("sans-serif").value
     );
     assert_fonts_equal(
       "monospace",
       aMonospace,
-      fontc.window.document.getElementById("monospace").value
+      fontc.document.getElementById("monospace").value
     );
   } else if (AppConstants.platform == "linux") {
     // When default fonts are displayed in the menulist, there is no value set,
@@ -218,36 +218,36 @@ async function _verify_fonts_displayed(
     assert_fonts_equal(
       "serif",
       `Default (`,
-      fontc.window.document.getElementById("serif").label,
+      fontc.document.getElementById("serif").label,
       true
     );
     assert_fonts_equal(
       "sans-serif",
       `Default (`,
-      fontc.window.document.getElementById("sans-serif").label,
+      fontc.document.getElementById("sans-serif").label,
       true
     );
     assert_fonts_equal(
       "monospace",
       `Default (`,
-      fontc.window.document.getElementById("monospace").label,
+      fontc.document.getElementById("monospace").label,
       true
     );
   } else {
     assert_fonts_equal(
       "serif",
       `Default (${aSerif})`,
-      fontc.window.document.getElementById("serif").label
+      fontc.document.getElementById("serif").label
     );
     assert_fonts_equal(
       "sans-serif",
       `Default (${aSansSerif})`,
-      fontc.window.document.getElementById("sans-serif").label
+      fontc.document.getElementById("sans-serif").label
     );
     assert_fonts_equal(
       "monospace",
       `Default (${aMonospace})`,
-      fontc.window.document.getElementById("monospace").label
+      fontc.document.getElementById("monospace").label
     );
   }
 
