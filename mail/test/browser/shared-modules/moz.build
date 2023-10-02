@@ -10,7 +10,6 @@ TESTING_JS_MODULES.mozmill += [
     "CloudfileHelpers.jsm",
     "ComposeHelpers.jsm",
     "ContentTabHelpers.jsm",
-    "controller.jsm",
     "DOMHelpers.jsm",
     "EventUtils.jsm",
     "FolderDisplayHelpers.jsm",

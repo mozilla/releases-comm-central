@@ -2038,7 +2038,7 @@ function _process_row_message_arguments(...aArgs) {
       for (let viewIndex = lowIndex; viewIndex <= highIndex; viewIndex++) {
         desiredIndices.push(viewIndex);
       }
-    } else if (arg.length !== undefined) {
+    } else if (Array.isArray(arg)) {
       // a List of message headers
       for (let iMsg = 0; iMsg < arg.length; iMsg++) {
         let msgHdr = arg[iMsg].QueryInterface(Ci.nsIMsgDBHdr);

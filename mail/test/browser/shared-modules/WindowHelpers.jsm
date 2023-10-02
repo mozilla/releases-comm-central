@@ -23,9 +23,6 @@ const EXPORTED_SYMBOLS = [
   "resize_to",
 ];
 
-var controller = ChromeUtils.import(
-  "resource://testing-common/mozmill/controller.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var { Assert } = ChromeUtils.importESModule(
@@ -241,7 +238,7 @@ var WindowWatcher = {
     //  time in the sun.
     utils.sleep(0);
     this._firstWindowOpened = true;
-    return new controller.MozMillController(domWindow);
+    return domWindow;
   },
 
   /**
@@ -283,7 +280,7 @@ var WindowWatcher = {
       // okay, the window is opened, and we should be in its event loop now.
       let appWindow = this.waitingList.get(this.waitingForOpen);
       let domWindow = appWindow.docShell.domWindow;
-      let troller = new controller.MozMillController(domWindow);
+      let troller = domWindow;
 
       this._timer.cancel();
 
@@ -554,8 +551,7 @@ async function async_plan_for_new_window(aWindowType) {
   await new Promise(r => domWindow.setTimeout(r));
   await new Promise(r => domWindow.setTimeout(r));
 
-  let domWindowController = new controller.MozMillController(domWindow);
-  return domWindowController;
+  return domWindow;
 }
 
 /**
@@ -735,7 +731,7 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   // get a mozmillDocumentLoaded attribute (bug 666438).
   let contentWindow = aDetails.contentWindow;
   if (contentWindow) {
-    return new controller.MozMillController(contentWindow);
+    return contentWindow;
   }
   return null;
 }
