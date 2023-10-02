@@ -3524,7 +3524,7 @@ function updateHeaderToolbarButtons() {
     return;
   }
 
-  archiveButton.disabled = false;
+  archiveButton.disabled = !MessageArchiver.canArchive([gMessage]);
   let junkScore = gMessage.getStringProperty("junkscore");
   let hideJunk = junkScore == Ci.nsIJunkMailPlugin.IS_SPAM_SCORE;
   if (!commandController._getViewCommandStatus(Ci.nsMsgViewCommandType.junk)) {
