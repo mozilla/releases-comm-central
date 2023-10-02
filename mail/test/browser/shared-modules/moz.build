@@ -11,7 +11,6 @@ TESTING_JS_MODULES.mozmill += [
     "ComposeHelpers.jsm",
     "ContentTabHelpers.jsm",
     "controller.jsm",
-    "CustomizationHelpers.jsm",
     "DOMHelpers.jsm",
     "EventUtils.jsm",
     "FolderDisplayHelpers.jsm",

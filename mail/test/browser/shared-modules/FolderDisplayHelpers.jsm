@@ -97,7 +97,6 @@ const EXPORTED_SYMBOLS = [
   "middle_click_on_folder",
   "middle_click_on_row",
   "msgGen",
-  "normalize_for_json",
   "open_folder_in_new_tab",
   "open_folder_in_new_window",
   "open_message_from_file",
@@ -194,7 +193,7 @@ var { dump_view_state } = ChromeUtils.import(
 var FAKE_SERVER_HOSTNAME = "tinderbox123";
 
 /** The controller for the main 3-pane window. */
-var mc;
+var mc = windowHelper.wait_for_existing_window("mail:3pane");
 function set_mc(value) {
   mc = value;
 }
@@ -202,62 +201,14 @@ function set_mc(value) {
 /** the index of the current 'other' tab */
 var otherTab;
 
-var testHelperModule;
-
-var msgGen;
-
-var messageInjection;
-
-msgGen = new MessageGenerator();
+var msgGen = new MessageGenerator();
 var msgGenFactory = new MessageScenarioFactory(msgGen);
-
-var inboxFolder = null;
-
-// logHelper exports
-var normalize_for_json;
+var messageInjection = new MessageInjection({ mode: "local" }, msgGen);
+var inboxFolder = messageInjection.getInboxFolder();
 
 // Default size of the main Thunderbird window in which the tests will run.
 var gDefaultWindowWidth = 1024;
 var gDefaultWindowHeight = 768;
-
-var initialized = false;
-function setupModule() {
-  if (initialized) {
-    return;
-  }
-  initialized = true;
-
-  testHelperModule = {
-    Cc,
-    Ci,
-    Cu,
-    // fake some xpcshell stuff
-    _TEST_FILE: ["mozmill"],
-    _do_not_wrap_xpcshell: true,
-    do_throw(aMsg) {
-      throw new Error(aMsg);
-    },
-    do_check_eq() {},
-    do_check_neq() {},
-    gDEPTH: "../../",
-  };
-
-  // -- logging
-
-  // The xpcshell test resources assume they are loaded into a single global
-  //  namespace, so we need to help them out to maintain their delusion.
-  load_via_src_path(
-    "../../../testing/mochitest/resources/logHelper.js",
-    testHelperModule
-  );
-  // - Hook-up logHelper to the mozmill event system...
-  normalize_for_json = testHelperModule._normalize_for_json;
-
-  mc = windowHelper.wait_for_existing_window("mail:3pane");
-
-  setupAccountStuff();
-}
-setupModule();
 
 function get_about_3pane(win = mc.window) {
   let tabmail = win.document.getElementById("tabmail");
@@ -327,16 +278,6 @@ function smimeUtils_loadPEMCertificate(file, certType, loadKey = false) {
 
 function smimeUtils_loadCertificateAndKey(file, pw) {
   SmimeUtils.loadCertificateAndKey(file, pw);
-}
-
-function setupAccountStuff() {
-  messageInjection = new MessageInjection(
-    {
-      mode: "local",
-    },
-    msgGen
-  );
-  inboxFolder = messageInjection.getInboxFolder();
 }
 
 /*
@@ -3194,43 +3135,4 @@ function toggle_main_menu(aEnabled = true) {
   menubar.setAttribute("autohide", !aEnabled);
   utils.sleep(0);
   return state;
-}
-
-/**
- * Load a file in its own 'module' (scope really), based on the effective
- * location of the staged FolderDisplayHelpers.jsm module.
- *
- * @param {string} aPath - A path relative to the module (can be just a file name)
- * @param {object} aScope - Scope to load the file into.
- *
- * @returns An object that serves as the global scope for the loaded file.
- */
-function load_via_src_path(aPath, aScope) {
-  let thisFileURL = Cc["@mozilla.org/network/protocol;1?name=resource"]
-    .getService(Ci.nsIResProtocolHandler)
-    .resolveURI(
-      Services.io.newURI(
-        "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-      )
-    );
-  let thisFile = Services.io
-    .newURI(thisFileURL)
-    .QueryInterface(Ci.nsIFileURL).file;
-
-  thisFile.setRelativePath;
-  let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-  file.setRelativePath(thisFile, aPath);
-  // The files are at different paths when tests are run locally vs. CI.
-  // Plain js files shouldn't really be loaded from a module, but while we
-  // work on resolving that, try both locations...
-  if (!file.exists()) {
-    file.setRelativePath(thisFile, aPath.replace("/testing", ""));
-  }
-  if (!file.exists()) {
-    throw new Error(
-      `Could not resolve file ${file.path} for path ${aPath} relative to ${thisFile.path}`
-    );
-  }
-  let uri = Services.io.newFileURI(file).spec;
-  Services.scriptloader.loadSubScript(uri, aScope);
 }

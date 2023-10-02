@@ -18,22 +18,13 @@ const EXPORTED_SYMBOLS = [
   "get_element_by_text",
   "assert_content_tab_text_present",
   "assert_content_tab_text_absent",
-  "NotificationWatcher",
   "get_notification_bar_for_tab",
-  "updateBlocklist",
-  "setAndUpdateBlocklist",
-  "resetBlocklist",
-  "gMockExtProtSvcReg",
-  "gMockExtProtSvc",
 ];
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var folderDisplayHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-var { MockObjectReplacer } = ChromeUtils.import(
-  "resource://testing-common/mozmill/MockObjectHelpers.jsm"
 );
 var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
@@ -45,96 +36,8 @@ var { Assert } = ChromeUtils.importESModule(
 
 var FAST_TIMEOUT = 1000;
 var FAST_INTERVAL = 100;
-var EXT_PROTOCOL_SVC_CID = "@mozilla.org/uriloader/external-protocol-service;1";
 
 var mc = folderDisplayHelper.mc;
-
-var _originalBlocklistURL = null;
-
-var gMockExtProtSvcReg = new MockObjectReplacer(
-  EXT_PROTOCOL_SVC_CID,
-  MockExtProtConstructor
-);
-
-/**
- * gMockExtProtocolSvc allows us to capture (most if not all) attempts to
- * open links in the default browser.
- */
-var gMockExtProtSvc = {
-  _loadedURLs: [],
-  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
-
-  externalProtocolHandlerExists(aProtocolScheme) {},
-
-  getApplicationDescription(aScheme) {},
-
-  getProtocolHandlerInfo(aProtocolScheme) {},
-
-  getProtocolHandlerInfoFromOS(aProtocolScheme, aFound) {},
-
-  isExposedProtocol(aProtocolScheme) {},
-
-  loadURI(aURI, aWindowContext) {
-    this._loadedURLs.push(aURI.spec);
-  },
-
-  setProtocolHandlerDefaults(aHandlerInfo, aOSHandlerExists) {},
-
-  urlLoaded(aURL) {
-    return this._loadedURLs.includes(aURL);
-  },
-};
-
-function MockExtProtConstructor() {
-  return gMockExtProtSvc;
-}
-
-/* Allows for planning / capture of notification events within
- * content tabs, for example: plugin crash notifications, theme
- * install notifications.
- */
-var ALERT_TIMEOUT = 10000;
-
-var NotificationWatcher = {
-  planForNotification(aController) {
-    this.alerted = false;
-    aController.window.document.addEventListener(
-      "AlertActive",
-      this.alertActive
-    );
-  },
-  waitForNotification(aController) {
-    if (!this.alerted) {
-      utils.waitFor(
-        () => this.alerted,
-        "Timeout waiting for alert",
-        ALERT_TIMEOUT,
-        100
-      );
-    }
-    // Double check the notification box has finished animating.
-    let notificationBox = mc.window.document
-      .getElementById("tabmail")
-      .selectedTab.panel.querySelector("notificationbox");
-    if (notificationBox && notificationBox._animating) {
-      utils.waitFor(
-        () => !notificationBox._animating,
-        "Timeout waiting for notification box animation to finish",
-        ALERT_TIMEOUT,
-        100
-      );
-    }
-
-    aController.window.document.removeEventListener(
-      "AlertActive",
-      this.alertActive
-    );
-  },
-  alerted: false,
-  alertActive() {
-    NotificationWatcher.alerted = true;
-  },
-};
 
 /**
  * Opens a content tab with the given URL.
@@ -178,24 +81,16 @@ function open_content_tab_with_url(
  *
  * @param aElem         The element to click or a function that causes the tab to open.
  * @param aExpectedURL  The URL that is expected to be opened (string).
- * @param [aController] The controller the element is associated with. Defaults
- *                      to |mc|.
  * @param [aTabType]    Optional tab type to expect (string).
  * @returns The newly-opened tab.
  */
 function open_content_tab_with_click(
   aElem,
   aExpectedURL,
-  aController,
   aTabType = "contentTab"
 ) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
   let preCount =
-    aController.window.document.getElementById("tabmail").tabContainer.allTabs
-      .length;
+    mc.window.document.getElementById("tabmail").tabContainer.allTabs.length;
   if (typeof aElem != "function") {
     EventUtils.synthesizeMouseAtCenter(aElem, {}, aElem.ownerGlobal);
   } else {
@@ -204,7 +99,7 @@ function open_content_tab_with_click(
 
   utils.waitFor(
     () =>
-      aController.window.document.getElementById("tabmail").tabContainer.allTabs
+      mc.window.document.getElementById("tabmail").tabContainer.allTabs
         .length ==
       preCount + 1,
     "Timeout waiting for the content tab to open",
@@ -214,7 +109,7 @@ function open_content_tab_with_click(
 
   // We append new tabs at the end, so check the last one.
   let expectedNewTab =
-    aController.window.document.getElementById("tabmail").tabInfo[preCount];
+    mc.window.document.getElementById("tabmail").tabInfo[preCount];
   folderDisplayHelper.assert_selected_tab(expectedNewTab);
   folderDisplayHelper.assert_tab_mode_name(expectedNewTab, aTabType);
   wait_for_content_tab_load(expectedNewTab, aExpectedURL);
@@ -396,28 +291,4 @@ function get_notification_bar_for_tab(aTab) {
   }
 
   return notificationBoxEls;
-}
-
-function updateBlocklist(aController, aCallback) {
-  let observer = function () {
-    Services.obs.removeObserver(observer, "blocklist-updated");
-    aController.window.setTimeout(aCallback, 0);
-  };
-  Services.obs.addObserver(observer, "blocklist-updated");
-  Services.blocklist.QueryInterface(Ci.nsITimerCallback).notify(null);
-}
-
-function setAndUpdateBlocklist(aController, aURL, aCallback) {
-  if (!_originalBlocklistURL) {
-    _originalBlocklistURL = Services.prefs.getCharPref(
-      "extensions.blocklist.url"
-    );
-  }
-  Services.prefs.setCharPref("extensions.blocklist.url", aURL);
-  updateBlocklist(aController, aCallback);
-}
-
-function resetBlocklist(aController, aCallback) {
-  Services.prefs.setCharPref("extensions.blocklist.url", _originalBlocklistURL);
-  updateBlocklist(aController, aCallback);
 }

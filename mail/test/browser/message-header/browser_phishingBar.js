@@ -8,9 +8,6 @@
 
 "use strict";
 
-var { gMockExtProtSvcReg } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ContentTabHelpers.jsm"
-);
 var {
   add_message_to_folder,
   be_in_folder,
@@ -45,6 +42,48 @@ var folder;
 
 var kBoxId = "mail-notification-top";
 var kNotificationValue = "maybeScam";
+
+var { MockObjectReplacer } = ChromeUtils.import(
+  "resource://testing-common/mozmill/MockObjectHelpers.jsm"
+);
+
+var gMockExtProtSvcReg = new MockObjectReplacer(
+  "@mozilla.org/uriloader/external-protocol-service;1",
+  MockExtProtConstructor
+);
+
+/**
+ * gMockExtProtocolSvc allows us to capture (most if not all) attempts to
+ * open links in the default browser.
+ */
+var gMockExtProtSvc = {
+  _loadedURLs: [],
+  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
+
+  externalProtocolHandlerExists(aProtocolScheme) {},
+
+  getApplicationDescription(aScheme) {},
+
+  getProtocolHandlerInfo(aProtocolScheme) {},
+
+  getProtocolHandlerInfoFromOS(aProtocolScheme, aFound) {},
+
+  isExposedProtocol(aProtocolScheme) {},
+
+  loadURI(aURI, aWindowContext) {
+    this._loadedURLs.push(aURI.spec);
+  },
+
+  setProtocolHandlerDefaults(aHandlerInfo, aOSHandlerExists) {},
+
+  urlLoaded(aURL) {
+    return this._loadedURLs.includes(aURL);
+  },
+};
+
+function MockExtProtConstructor() {
+  return gMockExtProtSvc;
+}
 
 add_setup(async function () {
   gMockExtProtSvcReg.register();

@@ -33,7 +33,6 @@ function open_pref_tab(aPaneID, aScrollTo) {
       fdh.mc.window.openOptionsDialog(aPaneID, aScrollTo);
     },
     "about:preferences",
-    fdh.mc,
     "preferencesTab"
   );
   utils.waitFor(
