@@ -76,13 +76,12 @@ function open_content_tab_with_url(
 
 /**
  * Opens a content tab with a click on the given element. The tab is expected to
- * be opened in the foreground. The element is expected to be associated with
- * the given controller.
+ * be opened in the foreground.
  *
- * @param aElem         The element to click or a function that causes the tab to open.
- * @param aExpectedURL  The URL that is expected to be opened (string).
- * @param [aTabType]    Optional tab type to expect (string).
- * @returns The newly-opened tab.
+ * @param {Element} aElem - The element to click or a function that causes the tab to open.
+ * @param {string} aExpectedURL - The URL that is expected to be opened.
+ * @param {string} [aTabType] - Optional tab type to expect.
+ * @returns {TabInfo} The newly-opened tab.
  */
 function open_content_tab_with_click(
   aElem,

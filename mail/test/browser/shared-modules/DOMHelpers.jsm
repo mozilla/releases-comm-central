@@ -11,7 +11,6 @@ const EXPORTED_SYMBOLS = [
   "wait_for_element",
   "assert_next_nodes",
   "assert_previous_nodes",
-  "wait_for_element_enabled",
   "check_element_visible",
   "wait_for_element_visible",
   "wait_for_element_invisible",
@@ -164,31 +163,14 @@ function assert_previous_nodes(aNodeType, aStart, aNum) {
 }
 
 /**
- * Given some element, wait for that element to be enabled or disabled,
- * depending on the value of aEnabled.
+ * Checks if an element and all its ancestors are visible.
  *
- * @param aController the controller parent of the element
- * @param aNode the element to check.
- * @param aEnabled whether or not the node should be enabled, or disabled.
+ * @param {Window} aWin - The window containing the element.
+ * @param {string} aId - The ID of the element.
+ * @returns {boolean} If the element is visible.
  */
-function wait_for_element_enabled(aController, aElement, aEnabled) {
-  if (!("disabled" in aElement)) {
-    throw new Error(
-      "Element does not appear to have disabled property; id=" + aElement.id
-    );
-  }
-
-  utils.waitFor(
-    () => aElement.disabled != aEnabled,
-    "Element should have eventually been " +
-      (aEnabled ? "enabled" : "disabled") +
-      "; id=" +
-      aElement.id
-  );
-}
-
-function check_element_visible(aController, aId) {
-  let element = aController.document.getElementById(aId);
+function check_element_visible(aWin, aId) {
+  let element = aWin.document.getElementById(aId);
   if (!element) {
     return false;
   }
@@ -199,7 +181,7 @@ function check_element_visible(aController, aId) {
       element.collapsed ||
       element.clientWidth == 0 ||
       element.clientHeight == 0 ||
-      aController.getComputedStyle(element).display == "none"
+      aWin.getComputedStyle(element).display == "none"
     ) {
       return false;
     }
@@ -211,24 +193,24 @@ function check_element_visible(aController, aId) {
 /**
  * Wait for a particular element to become fully visible.
  *
- * @param aController  the controller parent of the element
- * @param aId          id of the element to wait for
+ * @param {Window} aWin - The window of the element.
+ * @param {string} aId - ID of the element to wait for.
  */
-function wait_for_element_visible(aController, aId) {
+function wait_for_element_visible(aWin, aId) {
   utils.waitFor(function () {
-    return check_element_visible(aController, aId);
+    return check_element_visible(aWin, aId);
   }, "Timed out waiting for element with ID=" + aId + " to become visible");
 }
 
 /**
  * Wait for a particular element to become fully invisible.
  *
- * @param aController  the controller parent of the element
- * @param aId          id of the element to wait for
+ * @param {Window} aWin - The window of the element.
+ * @param {string} aId - ID of the element to wait for.
  */
-function wait_for_element_invisible(aController, aId) {
+function wait_for_element_invisible(aWin, aId) {
   utils.waitFor(function () {
-    return !check_element_visible(aController, aId);
+    return !check_element_visible(aWin, aId);
   }, "Timed out waiting for element with ID=" + aId + " to become invisible");
 }
 

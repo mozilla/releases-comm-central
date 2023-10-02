@@ -136,7 +136,7 @@ add_task(function test_windowListeners() {
 
   plan_for_new_window("Activity:Manager");
   window.openActivityMgr();
-  let amController = wait_for_new_window("Activity:Manager");
+  let amWin = wait_for_new_window("Activity:Manager");
 
   // Only Addon1 listens to any window.
   Assert.equal(addonCount("test-addon1", "load"), 5);
@@ -144,9 +144,9 @@ add_task(function test_windowListeners() {
   Assert.equal(addonCount("test-addon3", "load"), 1);
   Assert.equal(addonCount("test-addon4", "load"), 1);
 
-  plan_for_window_close(amController);
-  amController.close();
-  wait_for_window_close(amController);
+  plan_for_window_close(amWin);
+  amWin.close();
+  wait_for_window_close(amWin);
 
   Assert.equal(addonCount("test-addon1", "unload"), 3);
   Assert.equal(addonCount("test-addon2", "unload"), 2);

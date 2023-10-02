@@ -39,7 +39,7 @@ add_setup(async function () {
 /**
  * Check dimensions of the embedded image and whether it could be loaded.
  */
-async function check_image_size(aController, aImage, aSrcStart) {
+async function check_image_size(aImage, aSrcStart) {
   Assert.notEqual(null, aImage, "should have a image");
   await TestUtils.waitForCondition(
     () => aImage.complete,
@@ -96,9 +96,9 @@ add_task(async function test_cid_image_load() {
   let msgc = await open_message_from_file(file);
   let messageDoc = msgc.content.document;
   let image = messageDoc.getElementById("cidImage");
-  await check_image_size(msgc, image, "mailbox://");
+  await check_image_size(image, "mailbox://");
   image = messageDoc.getElementById("cidImageOrigin");
-  check_image_size(msgc, image, "mailbox://");
+  check_image_size(image, "mailbox://");
 
   // Copy the message to a folder.
   let documentChild = messageDoc.firstElementChild;
@@ -133,17 +133,9 @@ add_task(async function test_cid_image_view() {
   let messageDoc =
     get_about_message().document.getElementById("messagepane").contentDocument;
   let image = messageDoc.getElementById("cidImage");
-  await check_image_size(
-    window,
-    image,
-    gImageFolder.server.localStoreType + "://"
-  );
+  await check_image_size(image, gImageFolder.server.localStoreType + "://");
   image = messageDoc.getElementById("cidImageOrigin");
-  await check_image_size(
-    window,
-    image,
-    gImageFolder.server.localStoreType + "://"
-  );
+  await check_image_size(image, gImageFolder.server.localStoreType + "://");
 });
 
 /**
@@ -156,11 +148,11 @@ async function check_cid_image_compose(cwc) {
   let image = cwc.document
     .getElementById("messageEditor")
     .contentDocument.getElementById("cidImage");
-  await check_image_size(cwc, image, "data:");
+  await check_image_size(image, "data:");
   image = cwc.document
     .getElementById("messageEditor")
     .contentDocument.getElementById("cidImageOrigin");
-  await check_image_size(cwc, image, "data:");
+  await check_image_size(image, "data:");
 }
 
 add_task(async function test_cid_image_compose_fwd() {

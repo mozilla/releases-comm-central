@@ -69,25 +69,13 @@ var kTextNodeType = 3;
 /**
  * Opens the compose window by starting a new message
  *
- * @param aController the controller for the mail:3pane from which to spawn
- *                    the compose window.  If left blank, defaults to mc.
- *
- * @returns {MozmillController} The loaded window of type "msgcompose"
- *   wrapped in a MozmillController.
- *
+ * @param {Window} [win] - The window from which to spawn the compose window.
+ *   If left blank, defaults to the first window.
+ * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_new_mail(aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
+function open_compose_new_mail(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
-  EventUtils.synthesizeKey(
-    "n",
-    { shiftKey: false, accelKey: true },
-    aController
-  );
-
+  EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, win);
   return wait_for_compose_window();
 }
 
@@ -95,21 +83,13 @@ function open_compose_new_mail(aController) {
  * Opens the compose window by replying to a selected message and waits for it
  * to load.
  *
- * @returns {MozmillController} The loaded window of type "msgcompose"
- *   wrapped in a MozmillController.
+ * @param {Window} [win] - The window from which to spawn the compose window.
+ *   If left blank, defaults to the first window.
+ * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_reply(aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
+function open_compose_with_reply(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
-  EventUtils.synthesizeKey(
-    "r",
-    { shiftKey: false, accelKey: true },
-    aController
-  );
-
+  EventUtils.synthesizeKey("r", { shiftKey: false, accelKey: true }, win);
   return wait_for_compose_window();
 }
 
@@ -117,21 +97,13 @@ function open_compose_with_reply(aController) {
  * Opens the compose window by replying to all for a selected message and waits
  * for it to load.
  *
- * @returns {MozmillController} The loaded window of type "msgcompose"
- *   wrapped in a MozmillController.
+ * @param {Window} [win] - The window from which to spawn the compose window.
+ *   If left blank, defaults to the first window.
+ * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_reply_to_all(aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
+function open_compose_with_reply_to_all(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
-  EventUtils.synthesizeKey(
-    "R",
-    { shiftKey: true, accelKey: true },
-    aController
-  );
-
+  EventUtils.synthesizeKey("R", { shiftKey: true, accelKey: true }, win);
   return wait_for_compose_window();
 }
 
@@ -139,21 +111,13 @@ function open_compose_with_reply_to_all(aController) {
  * Opens the compose window by replying to list for a selected message and waits for it
  * to load.
  *
- * @returns {MozmillController} The loaded window of type "msgcompose"
- *   wrapped in a MozmillController.
+ * @param {Window} [win] - The window from which to spawn the compose window.
+ *   If left blank, defaults to the first window.
+ * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_reply_to_list(aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
+function open_compose_with_reply_to_list(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
-  EventUtils.synthesizeKey(
-    "l",
-    { shiftKey: true, accelKey: true },
-    aController
-  );
-
+  EventUtils.synthesizeKey("l", { shiftKey: true, accelKey: true }, win);
   return wait_for_compose_window();
 }
 
@@ -161,17 +125,13 @@ function open_compose_with_reply_to_list(aController) {
  * Opens the compose window by forwarding the selected messages as attachments
  * and waits for it to load.
  *
- * @returns {MozmillController} The loaded window of type "msgcompose"
- *   wrapped in a MozmillController.
+ * @param {Window} [win] - The window from which to spawn the compose window.
+ *   If left blank, defaults to the first window.
+ * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_forward_as_attachments(aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
+function open_compose_with_forward_as_attachments(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
-  aController.goDoCommand("cmd_forwardAttachment");
-
+  win.goDoCommand("cmd_forwardAttachment");
   return wait_for_compose_window();
 }
 
@@ -179,17 +139,13 @@ function open_compose_with_forward_as_attachments(aController) {
  * Opens the compose window by editing the selected message as new
  * and waits for it to load.
  *
- * @returns {MozmillController} The loaded window of type "msgcompose"
- *   wrapped in a MozmillController.
+ * @param {Window} [win] - The window from which to spawn the compose window.
+ *   If left blank, defaults to the first window.
+ * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_edit_as_new(aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
+function open_compose_with_edit_as_new(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
-  aController.goDoCommand("cmd_editAsNew");
-
+  win.goDoCommand("cmd_editAsNew");
   return wait_for_compose_window();
 }
 
@@ -197,21 +153,13 @@ function open_compose_with_edit_as_new(aController) {
  * Opens the compose window by forwarding the selected message and waits for it
  * to load.
  *
- * @returns {MozmillController} The loaded window of type "msgcompose"
- *   wrapped in a MozmillController.
+ * @param {Window} [win] - The window from which to spawn the compose window.
+ *   If left blank, defaults to the first window.
+ * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_forward(aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
+function open_compose_with_forward(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
-  EventUtils.synthesizeKey(
-    "l",
-    { shiftKey: false, accelKey: true },
-    aController
-  );
-
+  EventUtils.synthesizeKey("l", { shiftKey: false, accelKey: true }, win);
   return wait_for_compose_window();
 }
 
@@ -219,8 +167,9 @@ function open_compose_with_forward(aController) {
  * Open draft editing by clicking the "Edit" on the draft notification bar
  * of the selected message.
  *
- * @returns {MozmillController} The loaded window of type "msgcompose"
- *   wrapped in a MozmillController.
+ * @param {Window} [win] - The window from which to spawn the compose window.
+ *   If left blank, defaults to the first window.
+ * @returns {Window} The loaded window of type "msgcompose".
  */
 function open_compose_from_draft(win = get_about_message()) {
   windowHelper.plan_for_new_window("msgcompose");
@@ -247,60 +196,55 @@ async function save_compose_message(win) {
 /**
  * Closes the requested compose window.
  *
- * @param aController the controller whose window is to be closed.
- * @param aShouldPrompt (optional) true: check that the prompt to save appears
- *                                 false: check there's no prompt to save
+ * @param {Window} aWin - The window to be closed.
+ * @param {boolean} [aShouldPrompt] - If true, check that the prompt to save
+ *   appears. If false, check there's no prompt to save.
  */
-function close_compose_window(aController, aShouldPrompt) {
+function close_compose_window(aWin, aShouldPrompt) {
   if (aShouldPrompt === undefined) {
     // caller doesn't care if we get a prompt
-    windowHelper.close_window(aController);
+    windowHelper.close_window(aWin);
     return;
   }
 
-  windowHelper.plan_for_window_close(aController);
+  windowHelper.plan_for_window_close(aWin);
   if (aShouldPrompt) {
-    windowHelper.plan_for_modal_dialog(
-      "commonDialogWindow",
-      function (controller) {
-        controller.document
-          .querySelector("dialog")
-          .getButton("extra1")
-          .doCommand();
-      }
-    );
+    windowHelper.plan_for_modal_dialog("commonDialogWindow", function (win) {
+      win.document.querySelector("dialog").getButton("extra1").doCommand();
+    });
     // Try to close, we should get a prompt to save.
-    aController.goDoCommand("cmd_close");
+    aWin.goDoCommand("cmd_close");
     windowHelper.wait_for_modal_dialog();
   } else {
-    aController.goDoCommand("cmd_close");
+    aWin.goDoCommand("cmd_close");
   }
   windowHelper.wait_for_window_close();
 }
 
 /**
  * Waits for a new compose window to open. This assumes you have already called
- * "windowHelper.plan_for_new_window("msgcompose");" and the command to open
+ * `windowHelper.plan_for_new_window("msgcompose");` and the command to open
  * the compose window itself.
  *
- * @returns {MozmillController} The loaded window of type "msgcompose"
- *   wrapped in a MozmillController.
+ * @param {Promise} promise - The returned promise from `plan_for_new_window`.
+ * @returns {Window} The loaded window of type "msgcompose".
  */
-async function async_wait_for_compose_window(aController, aPromise) {
-  let replyWindow = await aPromise;
-  return _wait_for_compose_window(aController, replyWindow);
+async function async_wait_for_compose_window(promise) {
+  let replyWindow = await promise;
+  return _wait_for_compose_window(replyWindow);
 }
 
-function wait_for_compose_window(aController) {
+/**
+ * Waits for a new compose window to open.
+ *
+ * @returns {Window} The loaded window of type "msgcompose".
+ */
+function wait_for_compose_window() {
   let replyWindow = windowHelper.wait_for_new_window("msgcompose");
-  return _wait_for_compose_window(aController, replyWindow);
+  return _wait_for_compose_window(replyWindow);
 }
 
-function _wait_for_compose_window(aController, replyWindow) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-
+function _wait_for_compose_window(replyWindow) {
   utils.waitFor(
     () => Services.focus.activeWindow == replyWindow,
     "waiting for the compose window to have focus"
@@ -317,11 +261,11 @@ function _wait_for_compose_window(aController, replyWindow) {
 /**
  * Fills in the given message recipient/subject/body into the right widgets.
  *
- * @param aCwc   Compose window controller.
- * @param aAddr  Recipient to fill in.
- * @param aSubj  Subject to fill in.
- * @param aBody  Message body to fill in.
- * @param inputID  The input field to fill in.
+ * @param {Window} aCwc - Compose window.
+ * @param {string} aAddr - Recipient to fill in.
+ * @param {string} aSubj - Subject to fill in.
+ * @param {string} aBody - Message body to fill in.
+ * @param {string} inputID - The ID of an input field to fill in.
  */
 function setup_msg_contents(
   aCwc,
@@ -360,24 +304,22 @@ function setup_msg_contents(
 /**
  * Remove all recipients.
  *
- * @param aController    Compose window controller.
+ * @param {Window} win - Compose window.
  */
-function clear_recipients(aController) {
-  for (let pill of aController.document.querySelectorAll("mail-address-pill")) {
+function clear_recipients(win) {
+  for (let pill of win.document.querySelectorAll("mail-address-pill")) {
     pill.toggleAttribute("selected", true);
   }
-  aController.document
-    .getElementById("recipientsContainer")
-    .removeSelectedPills();
+  win.document.getElementById("recipientsContainer").removeSelectedPills();
 }
 
 /**
  * Return the first available recipient pill.
  *
- * @param aController - Compose window controller.
+ * @param {Window} win - Compose window.
  */
-function get_first_pill(aController) {
-  return aController.document.querySelector("mail-address-pill");
+function get_first_pill(win) {
+  return win.document.querySelector("mail-address-pill");
 }
 
 /**
@@ -402,12 +344,15 @@ function create_msg_attachment(aUrl, aSize) {
 /**
  * Add an attachment to the compose window.
  *
- * @param aController  the controller of the composition window in question
- * @param aUrl         the URL for this attachment (either a file URL or a web URL)
- * @param aSize (optional) - the file size of this attachment, in bytes
- * @param aWaitAdded (optional) - True to wait for the attachments to be fully added, false otherwise.
+ * @param {Window} aWin - The composition window in question.
+ * @param {string|string[]} aUrl - The URL for an attachment (either a file URL
+ *   or a web URL), or an array of URLs for attachments.
+ * @param {integer|integer[]} [aSize] - The file size of this attachment, in
+ *   bytes, or an array of sizes.
+ * @param {boolean} [aWaitAdded=true] - True to wait for the attachments to be
+ *   fully added, false otherwise.
  */
-function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
+function add_attachments(aWin, aUrls, aSizes = [], aWaitAdded = true) {
   if (!Array.isArray(aUrls)) {
     aUrls = [aUrls];
   }
@@ -428,13 +373,13 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
     attachmentsDone = true;
   }
 
-  let bucket = aController.document.getElementById("attachmentBucket");
+  let bucket = aWin.document.getElementById("attachmentBucket");
   if (aWaitAdded) {
     bucket.addEventListener("attachments-added", collectAddedAttachments, {
       once: true,
     });
   }
-  aController.AddAttachments(attachments);
+  aWin.AddAttachments(attachments);
   if (aWaitAdded) {
     utils.waitFor(() => attachmentsDone, "Attachments adding didn't finish");
   }
@@ -444,12 +389,11 @@ function add_attachments(aController, aUrls, aSizes, aWaitAdded = true) {
 /**
  * Rename the selected cloud (filelink) attachment
  *
- * @param aController    The controller of the composition window in question.
- * @param aName          The requested new name for the attachment.
- *
+ * @param {Window} aWin - The composition window in question.
+ * @param {string} aName - The requested new name for the attachment.
  */
-function rename_selected_cloud_attachment(aController, aName) {
-  let bucket = aController.document.getElementById("attachmentBucket");
+function rename_selected_cloud_attachment(aWin, aName) {
+  let bucket = aWin.document.getElementById("attachmentBucket");
   let attachmentRenamed = false;
   let upload = null;
   let seenAlert = null;
@@ -479,7 +423,7 @@ function rename_selected_cloud_attachment(aController, aName) {
   let originalPromptService = Services.prompt;
   Services.prompt = mockPromptService;
   Services.prompt.value = aName;
-  aController.RenameSelectedAttachment();
+  aWin.RenameSelectedAttachment();
 
   utils.waitFor(
     () => attachmentRenamed || seenAlert,
@@ -498,18 +442,20 @@ function rename_selected_cloud_attachment(aController, aName) {
 /**
  * Convert the selected attachment to a cloud (filelink) attachment
  *
- * @param aController    The controller of the composition window in question.
- * @param aProvider      The provider account to upload the selected attachment to.
- * @param aWaitUploaded (optional) - True to wait for the attachments to be uploaded, false otherwise.
+ * @param {Window} aWin - The composition window in question.
+ * @param {object} aProvider - The provider account to upload the selected
+ *   attachment to.
+ * @param {boolean} [aWaitUploaded=true] - True to wait for the attachments to
+ *   be uploaded, false otherwise.
  */
 function convert_selected_to_cloud_attachment(
-  aController,
+  aWin,
   aProvider,
   aWaitUploaded = true
 ) {
-  let bucket = aController.document.getElementById("attachmentBucket");
+  let bucket = aWin.document.getElementById("attachmentBucket");
   let uploads = [];
-  let attachmentsSelected = aController.gAttachmentBucket.selectedItems.length;
+  let attachmentsSelected = aWin.gAttachmentBucket.selectedItems.length;
   let attachmentsSubmitted = 0;
   let attachmentsConverted = 0;
 
@@ -562,7 +508,7 @@ function convert_selected_to_cloud_attachment(
 
   bucket.addEventListener("attachment-uploading", collectConvertingAttachments);
   bucket.addEventListener("attachment-moving", collectConvertingAttachments);
-  aController.convertSelectedToCloudAttachment(aProvider);
+  aWin.convertSelectedToCloudAttachment(aProvider);
   utils.waitFor(
     () => attachmentsSubmitted == attachmentsSelected,
     "Couldn't start converting all attachments"
@@ -586,19 +532,20 @@ function convert_selected_to_cloud_attachment(
 /**
  * Add a cloud (filelink) attachment to the compose window.
  *
- * @param aController - The controller of the composition window in question.
- * @param aProvider - The provider account to upload to, with files to be uploaded.
- * @param [aWaitUploaded] - True to wait for the attachments to be uploaded,
- *   false otherwise.
- * @param [aExpectedAlerts] - The number of expected alert prompts.
+ * @param {Window} aWin - The composition window in question.
+ * @param {object} aProvider - The provider account to upload to, with files to
+ *   be uploaded.
+ * @param {boolean} [aWaitUploaded=true] - True to wait for the attachments to
+ *   be uploaded, false otherwise.
+ * @param {integer} [aExpectedAlerts=0] - The number of expected alert prompts.
  */
 function add_cloud_attachments(
-  aController,
+  aWin,
   aProvider,
   aWaitUploaded = true,
   aExpectedAlerts = 0
 ) {
-  let bucket = aController.document.getElementById("attachmentBucket");
+  let bucket = aWin.document.getElementById("attachmentBucket");
   let uploads = [];
   let seenAlerts = [];
 
@@ -666,7 +613,7 @@ function add_cloud_attachments(
 
   let originalPromptService = Services.prompt;
   Services.prompt = mockPromptService;
-  aController.attachToCloudNew(aProvider);
+  aWin.attachToCloudNew(aProvider);
   utils.waitFor(
     () =>
       (!aExpectedAlerts &&
@@ -696,8 +643,8 @@ function add_cloud_attachments(
 /**
  * Delete an attachment from the compose window
  *
- * @param aComposeWindow the composition window in question
- * @param aIndex the index of the attachment in the attachment pane
+ * @param {Window} aComposeWindow - The composition window in question
+ * @param {integer} aIndex - The index of the attachment in the attachment pane
  */
 function delete_attachment(aComposeWindow, aIndex) {
   let bucket = aComposeWindow.document.getElementById("attachmentBucket");
@@ -710,10 +657,10 @@ function delete_attachment(aComposeWindow, aIndex) {
 /**
  * Helper function returns the message body element of a composer window.
  *
- * @param aController the controller for a compose window.
+ * @param {Window} win - A compose window.
  */
-function get_compose_body(aController) {
-  let mailBody = aController.document
+function get_compose_body(win) {
+  let mailBody = win.document
     .getElementById("messageEditor")
     .contentDocument.querySelector("body");
   if (!mailBody) {
@@ -723,21 +670,21 @@ function get_compose_body(aController) {
 }
 
 /**
- * Given some compose window controller, type some text into that composer,
+ * Given some compose window, type some text into that composer,
  * pressing enter after each line except for the last.
  *
- * @param aController a compose window controller.
- * @param aText an array of strings to type.
+ * @param {Window} aWin - A compose window.
+ * @param {string[]} aText - An array of strings to type.
  */
-function type_in_composer(aController, aText) {
+function type_in_composer(aWin, aText) {
   // If we have any typing to do, let's do it.
-  let frame = aController.document.getElementById("messageEditor");
+  let frame = aWin.document.getElementById("messageEditor");
   for (let [i, aLine] of aText.entries()) {
     frame.focus();
-    EventUtils.sendString(aLine, aController);
+    EventUtils.sendString(aLine, aWin);
     if (i < aText.length - 1) {
       frame.focus();
-      EventUtils.synthesizeKey("VK_RETURN", {}, aController);
+      EventUtils.synthesizeKey("VK_RETURN", {}, aWin);
     }
   }
 }
@@ -2010,7 +1957,7 @@ class FormatHelper {
    * Note, this method does not currently work on mac/osx.
    *
    * @param {MozMenuPopup} menu - A closed menu below the Format menu to open.
-   * @param {Function} test - A test to run, without arguments, when the menu is
+   * @param {function} test - A test to run, without arguments, when the menu is
    *   open. Should return a truthy value on success.
    * @param {string} message - The message to use when asserting the success of
    *   the test.

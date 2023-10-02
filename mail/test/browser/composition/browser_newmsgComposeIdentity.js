@@ -85,11 +85,11 @@ add_setup(async function () {
  * Helper to check that a suitable From identity was set up in the given
  * composer window.
  *
- * @param cwc             Compose window controller.
- * @param aIdentityKey    The key of the expected identity.
- * @param aIdentityAlias  The displayed label of the expected identity.
- * @param aIdentityValue  The value of the expected identity
- *                        (the sender address to be sent out).
+ * @param {Window} cwc - Compose window.
+ * @param {string} aIdentityKey - The key of the expected identity.
+ * @param {string} aIdentityAlias - The displayed label of the expected identity.
+ * @param {string} aIdentityValue - The value of the expected identity (the
+ *   sender address to be sent out).
  */
 function checkCompIdentity(cwc, aIdentityKey, aIdentityAlias, aIdentityValue) {
   let identityList = cwc.document.getElementById("msgIdentity");

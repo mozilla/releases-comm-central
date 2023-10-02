@@ -23,7 +23,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var cwc = null; // compose window controller
 var accountPOP3 = null;
 var accountNNTP = null;
 var originalAccountCount;
@@ -173,7 +172,7 @@ add_task(async function test_address_types() {
 
   // Open compose window on the existing POP3 account.
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
-  cwc = open_compose_new_mail();
+  let cwc = open_compose_new_mail();
   check_mail_address_types(cwc);
   close_compose_window(cwc);
 
@@ -231,9 +230,9 @@ add_task(async function test_address_types() {
 
 add_task(async function test_address_suppress_leading_comma_space() {
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
-  let controller = open_compose_new_mail();
+  let win = open_compose_new_mail();
 
-  let addrInput = controller.document.getElementById("toAddrInput");
+  let addrInput = win.document.getElementById("toAddrInput");
   Assert.ok(addrInput);
   Assert.equal(addrInput.value, "");
 
@@ -241,10 +240,10 @@ add_task(async function test_address_suppress_leading_comma_space() {
   addrInput.value = "person@org";
   // Comma triggers the pill creation.
   // Note: the address input should already have focus.
-  EventUtils.synthesizeKey(",", {}, controller);
+  EventUtils.synthesizeKey(",", {}, win);
 
   let addrPill = await TestUtils.waitForCondition(
-    () => controller.document.querySelector("#toAddrContainer > .address-pill"),
+    () => win.document.querySelector("#toAddrContainer > .address-pill"),
     "Pill creation"
   );
   Assert.equal(addrInput.value, "");
@@ -265,7 +264,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
 
       // Type the key in an empty input.
       let eventPromise = BrowserTestUtils.waitForEvent(input, "keydown");
-      EventUtils.synthesizeKey(key, {}, controller);
+      EventUtils.synthesizeKey(key, {}, win);
       await eventPromise;
 
       if (key === " " || key === ",") {
@@ -282,7 +281,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
       input.SelectionEnd = 1;
       await TestUtils.waitForTick();
 
-      await BrowserTestUtils.synthesizeKey(key, {}, controller.browsingContext);
+      await BrowserTestUtils.synthesizeKey(key, {}, win.browsingContext);
       await new Promise(resolve => requestAnimationFrame(resolve));
 
       Assert.equal(input.value, "z" + key);
@@ -303,11 +302,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
         await TestUtils.waitForTick();
 
         // Type the key to replace the text.
-        await BrowserTestUtils.synthesizeKey(
-          key,
-          {},
-          controller.browsingContext
-        );
+        await BrowserTestUtils.synthesizeKey(key, {}, win.browsingContext);
         await new Promise(resolve => requestAnimationFrame(resolve));
 
         if (key === " " || key === ",") {
@@ -332,7 +327,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
       input.selectionEnd = 5;
       await TestUtils.waitForTick();
 
-      await BrowserTestUtils.synthesizeKey(key, {}, controller.browsingContext);
+      await BrowserTestUtils.synthesizeKey(key, {}, win.browsingContext);
       await new Promise(resolve => requestAnimationFrame(resolve));
       Assert.equal(input.value, " " + key + "t ");
     }
@@ -344,10 +339,10 @@ add_task(async function test_address_suppress_leading_comma_space() {
 
   // Now test the behaviour when editing a pill.
   // First, we need to get into editing mode by clicking the pill twice.
-  EventUtils.synthesizeMouseAtCenter(addrPill, { clickCount: 1 }, controller);
+  EventUtils.synthesizeMouseAtCenter(addrPill, { clickCount: 1 }, win);
   let clickPromise = BrowserTestUtils.waitForEvent(addrPill, "click");
   // We do not want a double click, but two separate clicks.
-  EventUtils.synthesizeMouseAtCenter(addrPill, { clickCount: 1 }, controller);
+  EventUtils.synthesizeMouseAtCenter(addrPill, { clickCount: 1 }, win);
   await clickPromise;
 
   Assert.ok(!pillInput.hidden);
@@ -355,7 +350,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
   // Assert that editing a pill has the same behaviour as the address input.
   await assertKeyInput(pillInput);
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_pill_creation_in_all_fields() {

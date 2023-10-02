@@ -67,30 +67,25 @@ registerCleanupFunction(function () {
  * A helper function to assert that the Filelink offer notification is
  * either displayed or not displayed.
  *
- * @param aController the controller of the compose window to check.
- * @param aDisplayed true if the notification should be displayed, false
- *                   otherwise.
+ * @param {Window} aWin - The compose window to check.
+ * @param {boolean} aDisplayed - True if the notification should be displayed,
+ *   false otherwise.
  */
-function assert_cloudfile_notification_displayed(aController, aDisplayed) {
-  assert_notification_displayed(
-    aController,
-    kBoxId,
-    "bigAttachment",
-    aDisplayed
-  );
+function assert_cloudfile_notification_displayed(aWin, aDisplayed) {
+  assert_notification_displayed(aWin, kBoxId, "bigAttachment", aDisplayed);
 }
 
 /**
  * A helper function to assert that the Filelink upload notification is
  * either displayed or not displayed.
  *
- * @param aController the controller of the compose window to check.
- * @param aDisplayed true if the notification should be displayed, false
- *                   otherwise.
+ * @param {Window} aWin - The compose window to check.
+ * @param {boolean} aDisplayed - True if the notification should be displayed,
+ *   false otherwise.
  */
-function assert_upload_notification_displayed(aController, aDisplayed) {
+function assert_upload_notification_displayed(aWin, aDisplayed) {
   assert_notification_displayed(
-    aController,
+    aWin,
     kBoxId,
     "bigAttachmentUploading",
     aDisplayed
@@ -101,16 +96,13 @@ function assert_upload_notification_displayed(aController, aDisplayed) {
  * A helper function to assert that the Filelink privacy warning notification
  * is either displayed or not displayed.
  *
- * @param aController the controller of the compose window to check.
- * @param aDisplayed true if the notification should be displayed, false
- *                   otherwise.
+ * @param {Window} aWin - The compose window to check.
+ * @param {boolean} aDisplayed - True if the notification should be displayed,
+ *   false otherwise.
  */
-function assert_privacy_warning_notification_displayed(
-  aController,
-  aDisplayed
-) {
+function assert_privacy_warning_notification_displayed(aWin, aDisplayed) {
   assert_notification_displayed(
-    aController,
+    aWin,
     kBoxId,
     "bigAttachmentPrivacyWarning",
     aDisplayed
@@ -119,16 +111,20 @@ function assert_privacy_warning_notification_displayed(
 
 /**
  * A helper function to close the Filelink upload notification.
+ *
+ * @param {Window} aWin - The compose window containing the notification.
  */
-function close_upload_notification(aController) {
-  close_notification(aController, kBoxId, "bigAttachmentUploading");
+function close_upload_notification(aWin) {
+  close_notification(aWin, kBoxId, "bigAttachmentUploading");
 }
 
 /**
  * A helper function to close the Filelink privacy warning notification.
+ *
+ * @param {Window} aWin - The compose window containing the notification.
  */
-function close_privacy_warning_notification(aController) {
-  close_notification(aController, kBoxId, "bigAttachmentPrivacyWarning");
+function close_privacy_warning_notification(aWin) {
+  close_notification(aWin, kBoxId, "bigAttachmentPrivacyWarning");
 }
 
 add_task(function test_no_notification_for_small_file() {

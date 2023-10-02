@@ -37,35 +37,33 @@ add_setup(async function () {
  * Set the autohide attribute of the menubar. That is, make the menubar not
  * shown by default - but pressing Alt will toggle it open/closed.
  *
- * @param controller the mozmill controller for the window
- * @param elem the element to click on (usually the menubar)
- * @param hide true to hide, false otherwise
+ * @param {Window} win - The window.
+ * @param {Element} elem - The element to click on (usually the menubar).
+ * @param {boolean} hide - True to hide, false otherwise.
  */
-async function set_autohide_menubar(controller, elem, hide) {
-  let contextMenu = controller.document.getElementById("toolbar-context-menu");
+async function set_autohide_menubar(win, elem, hide) {
+  let contextMenu = win.document.getElementById("toolbar-context-menu");
   let popupshown = BrowserTestUtils.waitForEvent(
     contextMenu,
     "popupshown",
-    controller
+    win
   );
-  EventUtils.synthesizeMouseAtCenter(elem, { type: "contextmenu" }, controller);
+  EventUtils.synthesizeMouseAtCenter(elem, { type: "contextmenu" }, win);
   await popupshown;
-  let menuitem = controller.document.querySelector(
-    `menuitem[toolbarid="${elem.id}"]`
-  );
+  let menuitem = win.document.querySelector(`menuitem[toolbarid="${elem.id}"]`);
   if (menuitem.getAttribute("checked") == hide + "") {
-    EventUtils.synthesizeMouseAtCenter(menuitem, {}, controller);
-    await new Promise(resolve => controller.setTimeout(resolve, 50));
+    EventUtils.synthesizeMouseAtCenter(menuitem, {}, win);
+    await new Promise(resolve => win.setTimeout(resolve, 50));
   }
 }
 
 /**
  * Ensure that the autohide attribute of the menubar can be set properly.
  *
- * @param controller the mozmill controller for the window
- * @param menubar the menubar to test
+ * @param {Window} win - The window.
+ * @param {Element} menubar - The menubar to test.
  */
-async function help_test_autohide(controller, menubar) {
+async function help_test_autohide(win, menubar) {
   function hiddenChecker(aHidden) {
     // The hidden attribute isn't what is set, so it's useless here -- use
     // information from the box model instead.
@@ -73,21 +71,19 @@ async function help_test_autohide(controller, menubar) {
       return (menubar.getBoundingClientRect().height != 0) != aHidden;
     };
   }
-  await TestUtils.waitForCondition(
-    () => Services.focus.activeWindow == controller
-  );
-  await set_autohide_menubar(controller, menubar, true);
+  await TestUtils.waitForCondition(() => Services.focus.activeWindow == win);
+  await set_autohide_menubar(win, menubar, true);
   utils.waitFor(hiddenChecker(true), "Menubar should be hidden");
 
   menubar.focus();
-  EventUtils.synthesizeKey("VK_ALT", {}, controller);
+  EventUtils.synthesizeKey("VK_ALT", {}, win);
   utils.waitFor(
     hiddenChecker(false),
     "Menubar should be shown after pressing ALT!"
   );
 
   info("Menubar showing or not should toggle for ALT.");
-  await set_autohide_menubar(controller, menubar, false);
+  await set_autohide_menubar(win, menubar, false);
   utils.waitFor(hiddenChecker(false), "Menubar should be shown");
   Assert.ok("help_test_autohide success");
 }

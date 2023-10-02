@@ -168,15 +168,15 @@ add_task(async function test_upload_multiple_and_cancel() {
  * ensuring that the nsIMsgCloudFileProvider.uploadCanceled status message
  * is returned to the passed in listener.
  *
- * @param aController the compose window controller to use.
- * @param aProvider a MockCloudfileAccount for which the uploads have already
- *                  started.
- * @param aListener the nsIRequestObserver passed to aProvider's uploadFile
- *                  function.
- * @param aTargetFile the nsIFile to cancel the upload for.
+ * @param {Window} aWin - The compose window to use.
+ * @param {object} aProvider - A MockCloudfileAccount for which the uploads
+ *   have already started.
+ * @param {nsIRequestObserver} aListener - The observer passed to aProvider's
+ *   uploadFile function.
+ * @param {nsIFile} aTargetFile - The file to cancel the upload for.
  */
 async function assert_can_cancel_upload(
-  aController,
+  aWin,
   aProvider,
   aPromise,
   aTargetFile
@@ -198,21 +198,21 @@ async function assert_can_cancel_upload(
   };
 
   // Retrieve the attachment bucket index for the target file...
-  let index = get_attachmentitem_index_for_file(aController, aTargetFile);
+  let index = get_attachmentitem_index_for_file(aWin, aTargetFile);
 
   // Select that attachmentitem in the bucket
-  select_attachments(aController, index)[0];
+  select_attachments(aWin, index)[0];
 
   // Bring up the context menu, and click cancel.
-  let cmd = aController.document.getElementById("cmd_cancelUpload");
-  aController.updateAttachmentItems();
+  let cmd = aWin.document.getElementById("cmd_cancelUpload");
+  aWin.updateAttachmentItems();
 
   Assert.ok(!cmd.hidden, "cmd_cancelUpload should be shown");
   Assert.ok(!cmd.disabled, "cmd_cancelUpload should be enabled");
 
   let attachmentItem =
-    aController.document.getElementById("attachmentBucket").selectedItem;
-  let contextMenu = aController.document.getElementById(
+    aWin.document.getElementById("attachmentBucket").selectedItem;
+  let contextMenu = aWin.document.getElementById(
     "msgComposeAttachmentItemContext"
   );
 
@@ -224,7 +224,7 @@ async function assert_can_cancel_upload(
   );
   await popupPromise;
 
-  let cancelItem = aController.document.getElementById(
+  let cancelItem = aWin.document.getElementById(
     "composeAttachmentContext_cancelUploadItem"
   );
   if (AppConstants.platform == "macosx") {
@@ -238,8 +238,8 @@ async function assert_can_cancel_upload(
 
   // Close the popup, and wait for the cancellation to be complete.
   await close_popup(
-    aController,
-    aController.document.getElementById(kAttachmentItemContextID)
+    aWin,
+    aWin.document.getElementById(kAttachmentItemContextID)
   );
   utils.waitFor(() => cancelled);
 }
@@ -248,16 +248,16 @@ async function assert_can_cancel_upload(
  * A helper function to find the attachment bucket index for a particular
  * nsIFile. Returns null if no attachmentitem is found.
  *
- * @param aController the compose window controller to use.
+ * @param aWin the compose window to use.
  * @param aFile the nsIFile to search for.
  */
-function get_attachmentitem_index_for_file(aController, aFile) {
+function get_attachmentitem_index_for_file(aWin, aFile) {
   // Get the fileUrl from the file.
-  let fileUrl = aController.FileToAttachment(aFile).url;
+  let fileUrl = aWin.FileToAttachment(aFile).url;
 
   // Get the bucket, and go through each item looking for the matching
   // attachmentitem.
-  let bucket = aController.document.getElementById("attachmentBucket");
+  let bucket = aWin.document.getElementById("attachmentBucket");
   for (let i = 0; i < bucket.getRowCount(); ++i) {
     let attachmentitem = bucket.getItemAtIndex(i);
     if (attachmentitem.attachment.url == fileUrl) {

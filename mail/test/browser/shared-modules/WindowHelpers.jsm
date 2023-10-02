@@ -212,10 +212,12 @@ var WindowWatcher = {
    *  put the argument in the eval string.
    */
   waitingForOpen: null,
+
   /**
    * Wait for the given windowType to open and finish loading.
    *
-   * @returns The window wrapped in a MozMillController.
+   * @param {string} aWindowType - The expected window type.
+   * @returns {Window} The window.
    */
   waitForWindowOpen(aWindowType) {
     this.waitingForOpen = aWindowType;
@@ -494,11 +496,10 @@ var WindowWatcher = {
  *  provide above just directly grabbing the window yourself is:
  * - We wait for it to finish loading.
  *
- * @param aWindowType the window type that will be created.  This is literally
- *     the value of the "windowtype" attribute on the window.  The values tend
- *     to look like "app:windowname", for example "mailnews:search".
- *
- * @returns {MozmillController}
+ * @param {string} aWindowType - The window type that will be created. This is
+ *   the value of the "windowtype" attribute on the window. The values tend to
+ *   look like "app:windowname", for example "mailnews:search".
+ * @returns {Window}
  */
 function wait_for_existing_window(aWindowType) {
   WindowWatcher.ensureInited();
@@ -515,9 +516,9 @@ function wait_for_existing_window(aWindowType) {
  *  resilient in the face of multiple windows of the same type as long as you
  *  don't try and open them all at the same time.
  *
- * @param aWindowType the window type that will be created.  This is literally
- *     the value of the "windowtype" attribute on the window.  The values tend
- *     to look like "app:windowname", for example "mailnews:search".
+ * @param {string} aWindowType - The window type that will be created. This is
+ *   the value of the "windowtype" attribute on the window. The values tend to
+ *   look like "app:windowname", for example "mailnews:search".
  */
 function plan_for_new_window(aWindowType) {
   WindowWatcher.ensureInited();
@@ -526,18 +527,12 @@ function plan_for_new_window(aWindowType) {
 
 /**
  * Wait for the loading of the given window type to complete (that you
- *  previously told us about via |plan_for_new_window|), returning it wrapped
- *  in a MozmillController.
+ *  previously told us about via |plan_for_new_window|), returning it.
  *
- * @returns {MozmillController}
+ * @returns {Window}
  */
 function wait_for_new_window(aWindowType) {
-  let c = WindowWatcher.waitForWindowOpen(aWindowType);
-  // A nested event loop can get spun inside the Controller's constructor
-  //  (which is arguably not a great idea), so it's important that we denote
-  //  when we're actually leaving this function in case something crazy
-  //  happens.
-  return c;
+  return WindowWatcher.waitForWindowOpen(aWindowType);
 }
 
 async function async_plan_for_new_window(aWindowType) {
@@ -561,12 +556,11 @@ async function async_plan_for_new_window(aWindowType) {
  *  you need to provide a sub-test function to be run inside the modal dialog
  *  (and it should not start with "test" or mozmill will also try and run it.)
  *
- * @param aWindowType The window type that you expect the modal dialog to have
- *                    or the id of the window if there is no window type
- *                    available.
- * @param aSubTestFunction The sub-test function that will be run once the modal
- *     dialog appears and is loaded.  This function should take one argument,
- *     a MozmillController against the modal dialog.
+ * @param {string} aWindowType - The window type that you expect the modal
+ *   dialog to have or the ID of the window if there is no window type available.
+ * @param {function} aSubTestFunction - The sub-test function that will be run
+ *   once the modal dialog appears and is loaded. This function should take one
+ *   argument, the modal dialog.
  */
 function plan_for_modal_dialog(aWindowType, aSubTestFunction) {
   WindowWatcher.ensureInited();
@@ -584,15 +578,14 @@ function wait_for_modal_dialog(aWindowType, aTimeout) {
 
 /**
  * Call this just before you trigger the event that will cause the provided
- *  controller's window to disappear.  You then follow this with a call to
+ *  window to disappear.  You then follow this with a call to
  *  |wait_for_window_close| when you want to block on verifying the close.
  *
- * @param aController The MozmillController, potentially returned from a call to
- *     wait_for_new_window, whose window should be disappearing.
+ * @param {Window} win - The window which should be disappearing.
  */
-function plan_for_window_close(aController) {
+function plan_for_window_close(win) {
   WindowWatcher.ensureInited();
-  WindowWatcher.planForWindowClose(aController);
+  WindowWatcher.planForWindowClose(win);
 }
 
 /**
@@ -604,13 +597,13 @@ function wait_for_window_close() {
 }
 
 /**
- * Close a window by calling window.close() on the controller.
+ * Close a window by calling window.close().
  *
- * @param aController the controller whose window is to be closed.
+ * @param {Window} win - The window to be closed.
  */
-function close_window(aController) {
-  plan_for_window_close(aController);
-  aController.close();
+function close_window(win) {
+  plan_for_window_close(win);
+  win.close();
   wait_for_window_close();
 }
 
@@ -658,10 +651,10 @@ function wait_for_window_focused(aWindow) {
 /**
  * Given a <browser>, waits for it to completely load.
  *
- * @param aBrowser The <browser> element to wait for.
- * @param aURLOrPredicate The URL that should be loaded (string) or a predicate
- *                        for the URL (function).
- * @returns The browser's content window wrapped in a MozMillController.
+ * @param {XULBrowserElement} aBrowser - The <browser> element to wait for.
+ * @param {string|function} aURLOrPredicate - The URL that should be loaded
+ *   (string) or a predicate for the URL (function).
+ * @returns {Window} The browser's content window.
  */
 function wait_for_browser_load(aBrowser, aURLOrPredicate) {
   // aBrowser has all the fields we need already.
@@ -674,7 +667,7 @@ function wait_for_browser_load(aBrowser, aURLOrPredicate) {
  * @param aFrame The element to wait for.
  * @param aURLOrPredicate The URL that should be loaded (string) or a predicate
  *                        for the URL (function).
- * @returns The frame wrapped in a MozMillController.
+ * @returns The frame.
  */
 function wait_for_frame_load(aFrame, aURLOrPredicate) {
   return _wait_for_generic_load(aFrame, aURLOrPredicate);
@@ -739,31 +732,30 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
 /**
  * Resize given window to new dimensions.
  *
- * @param aController  window controller
- * @param aWidth       the requested window width
- * @param aHeight      the requested window height
+ * @param {Window} aWin
+ * @param {integer} aWidth - The requested window width.
+ * @param {integer} aHeight - The requested window height.
  */
-function resize_to(aController, aWidth, aHeight) {
-  aController.resizeTo(aWidth, aHeight);
+function resize_to(aWin, aWidth, aHeight) {
+  aWin.resizeTo(aWidth, aHeight);
   // Give the event loop a spin in order to let the reality of an asynchronously
   // interacting window manager have its impact. This still may not be
   // sufficient.
   utils.sleep(0);
   utils.waitFor(
-    () =>
-      aController.outerWidth == aWidth && aController.outerHeight == aHeight,
+    () => aWin.outerWidth == aWidth && aWin.outerHeight == aHeight,
     "Timeout waiting for resize (current screen size: " +
-      aController.screen.availWidth +
+      aWin.screen.availWidth +
       "X" +
-      aController.screen.availHeight +
+      aWin.screen.availHeight +
       "), Requested width " +
       aWidth +
       " but got " +
-      aController.outerWidth +
+      aWin.outerWidth +
       ", Request height " +
       aHeight +
       " but got " +
-      aController.outerHeight,
+      aWin.outerHeight,
     10000,
     50
   );

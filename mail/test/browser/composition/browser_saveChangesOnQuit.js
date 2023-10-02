@@ -42,7 +42,6 @@ var { plan_for_new_window } = ChromeUtils.import(
 var CANCEL = 1;
 var DONT_SAVE = 2;
 
-var cwc = null; // compose window controller
 var folder = null;
 var gDraftFolder = null;
 
@@ -95,7 +94,7 @@ add_task(function test_can_cancel_quit_on_changes() {
   gMockPromptService.register();
 
   // opening a new compose window
-  cwc = open_compose_new_mail(window);
+  const cwc = open_compose_new_mail(window);
 
   // Make some changes
   cwc.document.getElementById("messageEditor").focus();
@@ -139,7 +138,7 @@ add_task(function test_can_quit_on_changes() {
   gMockPromptService.register();
 
   // opening a new compose window
-  cwc = open_compose_new_mail(window);
+  const cwc = open_compose_new_mail(window);
 
   // Make some changes
   cwc.document.getElementById("messageEditor").focus();
@@ -330,7 +329,7 @@ add_task(
 );
 
 add_task(async function test_prompt_save_on_pill_editing() {
-  cwc = open_compose_new_mail(window);
+  let cwc = open_compose_new_mail(window);
 
   // Focus should be on the To field, so just type an address.
   EventUtils.sendString("test@foo.invalid", cwc);

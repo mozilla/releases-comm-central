@@ -219,12 +219,12 @@ function create_enclosure_attachment(filename, type, url, size) {
  * A helper function that selects either one, or a continuous range
  * of items in the attachment list.
  *
- * @param aController a composer window controller
- * @param aIndexStart the index of the first item to select
- * @param aIndexEnd (optional) the index of the last item to select
+ * @param {Window} aWin - A composer window.
+ * @param {integer} aIndexStart - The index of the first item to select.
+ * @param {integer} [aIndexEnd] - The index of the last item to select.
  */
-function select_attachments(aController, aIndexStart, aIndexEnd) {
-  let bucket = aController.document.getElementById("attachmentBucket");
+function select_attachments(aWin, aIndexStart, aIndexEnd) {
+  let bucket = aWin.document.getElementById("attachmentBucket");
   bucket.clearSelection();
 
   if (aIndexEnd !== undefined) {

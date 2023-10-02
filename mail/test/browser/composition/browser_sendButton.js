@@ -59,8 +59,8 @@ add_setup(async function () {
 /**
  * Check if the send commands are in the wished state.
  *
- * @param aCwc      The compose window controller.
- * @param aEnabled  The expected state of the commands.
+ * @param {Window} aCwc - The compose window.
+ * @param {boolean} aEnabled - The expected state of the commands.
  */
 function check_send_commands_state(aCwc, aEnabled) {
   Assert.equal(
@@ -99,7 +99,7 @@ function check_send_commands_state(aCwc, aEnabled) {
  * by the user.
  */
 add_task(async function test_send_enabled_manual_address() {
-  let cwc = open_compose_new_mail(); // compose controller
+  let cwc = open_compose_new_mail();
   let menu = cwc.document.getElementById("extraAddressRowsMenu"); // extra recipients menu
   let menuButton = cwc.document.getElementById("extraAddressRowsMenuButton");
 
@@ -209,7 +209,7 @@ add_task(function test_send_enabled_prefilled_address() {
   identity.doCcList = "Auto@recipient.invalid";
 
   // In that case the recipient is input, enabled Send.
-  let cwc = open_compose_new_mail(); // compose controller
+  let cwc = open_compose_new_mail();
   check_send_commands_state(cwc, true);
 
   // Clear the CC list.
@@ -267,7 +267,7 @@ add_task(function test_send_enabled_address_contacts_sidebar() {
   let contact = create_contact("test@example.com", "Sammy Jenkis", true);
   load_contacts_into_address_book(defaultAB, [contact]);
 
-  let cwc = open_compose_new_mail(); // compose controller
+  let cwc = open_compose_new_mail();
   // On an empty window, Send must be disabled.
   check_send_commands_state(cwc, false);
 
@@ -287,7 +287,7 @@ add_task(function test_send_enabled_address_contacts_sidebar() {
     () => abTree.view.rowCount > 0,
     "Addressbook cards didn't load"
   );
-  click_tree_row(abTree, 0, cwc);
+  click_tree_row(abTree, 0);
 
   contactsBrowser.contentDocument.getElementById("ccButton").click();
 

@@ -715,7 +715,7 @@ add_task(async function test_revert_to_newmailalert() {
   // We expect the newmailalert.xhtml window...
   plan_for_new_window("alert:alert");
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 2 }]);
-  let controller = wait_for_new_window("alert:alert");
-  plan_for_window_close(controller);
+  let win = wait_for_new_window("alert:alert");
+  plan_for_window_close(win);
   wait_for_window_close();
 });

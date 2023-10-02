@@ -151,8 +151,8 @@ registerCleanupFunction(() => {
  * Make sure the notification shows, and goes away once the Ignore menuitem
  * is clicked.
  */
-async function assert_ignore_works(aController) {
-  let aboutMessage = get_about_message(aController);
+async function assert_ignore_works(aWin) {
+  let aboutMessage = get_about_message(aWin);
   wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
   let prefButton = get_notification_button(
     aboutMessage,

@@ -118,9 +118,9 @@ function create_draft(aFrom, aIdKey) {
  * Helper to check that a suitable From identity was set up in the given
  * composer window.
  *
- * @param cwc             Compose window controller.
- * @param aIdentityKey    The key of the expected identity.
- * @param aFrom           The expected displayed From address.
+ * @param {Window} cwc - Compose window.
+ * @param {string} aIdentityKey - The key of the expected identity.
+ * @param {string} aFrom - The expected displayed From address.
  */
 function checkCompIdentity(cwc, aIdentityKey, aFrom) {
   Assert.equal(

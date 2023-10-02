@@ -216,7 +216,7 @@ async function test_restore_single_3pane_persistence() {
 
   // make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed
-  let amController = openActivityManager();
+  let amWin = openActivityManager();
 
   // close the 3pane window
   mail3PaneWindow.close();
@@ -232,8 +232,8 @@ async function test_restore_single_3pane_persistence() {
   toggle_message_pane();
 
   // We don't need the address book window any more.
-  plan_for_window_close(amController);
-  amController.close();
+  plan_for_window_close(amWin);
+  amWin.close();
   wait_for_window_close();
 }
 add_task(test_restore_single_3pane_persistence).skip(); // Bug 1753963.
@@ -288,7 +288,7 @@ add_task(async function test_message_pane_height_persistence() {
 
   // Make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed.
-  let amController = openActivityManager();
+  let amWin = openActivityManager();
 
   // The 3pane window is closed.
   mail3PaneWindow.close();
@@ -343,8 +343,8 @@ add_task(async function test_message_pane_height_persistence() {
   );
 
   // We don't need the address book window any more.
-  plan_for_window_close(amController);
-  amController.close();
+  plan_for_window_close(amWin);
+  amWin.close();
   wait_for_window_close();
 }).skip(); // Bug 1753963.
 
@@ -404,7 +404,7 @@ add_task(async function test_message_pane_width_persistence() {
 
   // Make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed
-  let amController = openActivityManager();
+  let amWin = openActivityManager();
 
   // The 3pane window is closed.
   mail3PaneWindow.close();
@@ -474,8 +474,8 @@ add_task(async function test_message_pane_width_persistence() {
   assert_pane_layout(kClassicMailLayout);
 
   // We don't need the address book window any more.
-  plan_for_window_close(amController);
-  amController.close();
+  plan_for_window_close(amWin);
+  amWin.close();
   wait_for_window_close();
 }).skip(); // Bug 1753963.
 
@@ -553,7 +553,7 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
 
   // make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed
-  let amController = openActivityManager();
+  let amWin = openActivityManager();
 
   // close all the 3pane windows
   let lastWindowState = null;
@@ -589,8 +589,8 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
   open3PaneWindow();
 
   // We don't need the address book window any more.
-  plan_for_window_close(amController);
-  amController.close();
+  plan_for_window_close(amWin);
+  amWin.close();
   wait_for_window_close();
 }).skip(); // Bug 1753963.
 

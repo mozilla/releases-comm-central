@@ -98,8 +98,8 @@ add_setup(async function () {
 var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;
 
 /**
- * The message window controller.  Short names because controllers get used a
- *  lot.
+ * The message window.
+ * @type {Window}
  */
 var msgc;
 

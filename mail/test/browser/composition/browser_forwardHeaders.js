@@ -35,7 +35,6 @@ var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var cwc = null; // compose window controller
 var folder;
 var gDrafts;
 
@@ -59,7 +58,7 @@ registerCleanupFunction(function () {
 async function forward_selected_messages_and_go_to_drafts_folder(f) {
   const kText = "Hey check out this megalol link";
   // opening a new compose window
-  cwc = f(window);
+  const cwc = f(window);
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString(kText, cwc);
 
@@ -67,7 +66,6 @@ async function forward_selected_messages_and_go_to_drafts_folder(f) {
   assert_previous_text(mailBody.firstChild, [kText]);
 
   plan_for_window_close(cwc);
-  // mwc is modal window controller
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   // quit -> do you want to save ?
   cwc.goDoCommand("cmd_close");

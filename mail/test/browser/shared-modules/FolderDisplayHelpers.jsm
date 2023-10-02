@@ -192,7 +192,10 @@ var { dump_view_state } = ChromeUtils.import(
  */
 var FAKE_SERVER_HOSTNAME = "tinderbox123";
 
-/** The controller for the main 3-pane window. */
+/**
+ * The main 3-pane window.
+ * @type {Window}
+ */
 var mc = windowHelper.wait_for_existing_window("mail:3pane");
 function set_mc(value) {
   mc = value;
@@ -507,8 +510,8 @@ async function open_folder_in_new_tab(aFolder) {
 /**
  * Open a new mail:3pane window displaying a folder.
  *
- * @param aFolder the folder to be displayed in the new window
- * @returns the augmented controller for the new window
+ * @param {nsIMsgFolder} aFolder - The folder to be displayed in the new window.
+ * @returns {Window} The new window.
  */
 function open_folder_in_new_window(aFolder) {
   windowHelper.plan_for_new_window("mail:3pane");
@@ -524,17 +527,13 @@ function open_folder_in_new_window(aFolder) {
  * Since we don't know where this is going to trigger a message load, you're
  * going to have to wait for message display completion yourself.
  *
- * @param aController The controller in whose context to do this, defaults to
- *     |mc| if omitted.
+ * @param {Window} [win] - The window to do this in, the first window if omitted.
  */
-function open_selected_messages(aController) {
-  if (aController == null) {
-    aController = mc;
-  }
+function open_selected_messages(win = mc) {
   // Focus the thread tree
   focus_thread_tree();
   // Open whatever's selected
-  press_enter(aController);
+  press_enter(win);
 }
 
 var open_selected_message = open_selected_messages;
@@ -583,7 +582,7 @@ async function open_selected_message_in_new_tab(aBackground) {
  * Create a new window displaying the currently selected message.  We do not
  *  return until the message has finished loading.
  *
- * @returns The MozmillController-wrapped new window.
+ * @returns {Window} The new window.
  */
 async function open_selected_message_in_new_window() {
   let win = get_about_3pane();
@@ -631,8 +630,8 @@ function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
  * Create a new window displaying a message loaded from a file.  We do not
  * return until the message has finished loading.
  *
- * @param file  An nsIFile to load the message from.
- * @returns The MozmillController-wrapped new window.
+ * @param {nsIFile} file - An nsIFile to load the message from.
+ * @returns {Window} The new window.
  */
 async function open_message_from_file(file) {
   if (!file.isFile() || !file.isReadable()) {
@@ -798,23 +797,24 @@ function close_tab(aTabToClose) {
 }
 
 /**
- * Close a message window by calling window.close() on the controller.
+ * Close a message window by calling window.close().
+ *
+ * @param {Window} win - The window to close.
  */
-function close_message_window(aController) {
-  windowHelper.close_window(aController);
+function close_message_window(win) {
+  windowHelper.close_window(win);
 }
 
 /**
  * Clear the selection.  I'm not sure how we're pretending we did that, but
  *  we explicitly focus the thread tree as a side-effect.
+ *
+ * @param {Window} [win] - The window to use.
  */
-function select_none(aController) {
-  if (aController == null) {
-    aController = mc;
-  }
+function select_none(win = mc) {
   wait_for_message_display_completion();
   focus_thread_tree();
-  get_db_view(aController).selection.clearSelection();
+  get_db_view(win).selection.clearSelection();
   get_about_3pane().threadTree.dispatchEvent(new CustomEvent("select"));
   // Because the selection event may not be generated immediately, we need to
   //  spin until the message display thinks it is not displaying a message,
@@ -837,7 +837,7 @@ function select_none(aController) {
       throw e;
     }
   }
-  wait_for_blank_content_pane(aController);
+  wait_for_blank_content_pane(win);
 }
 
 /**
@@ -871,10 +871,9 @@ function _normalize_view_index(aViewIndex) {
  *
  * @param {XULTreeElement} aTree - The tree element.
  * @param {number} aRowIndex - Index of a row in the tree to click on.
- * @param {MozMillController} aController - Controller object.
  * @see mailTestUtils.treeClick for another way.
  */
-function click_tree_row(aTree, aRowIndex, aController) {
+function click_tree_row(aTree, aRowIndex) {
   if (aRowIndex < 0 || aRowIndex >= aTree.view.rowCount) {
     throw new Error(
       "Row " + aRowIndex + " does not exist in the tree " + aTree.id + "!"
@@ -916,12 +915,9 @@ function _get_row_at_index(aViewIndex) {
 /**
  * Pretend we are clicking on a row with our mouse.
  *
- * @param aViewIndex If >= 0, the view index provided, if < 0, a reference to
- *     a view index counting from the last row in the tree.  -1 indicates the
- *     last message in the tree, -2 the second to last, etc.
- * @param aController The controller in whose context to do this, defaults to
- *     |mc| if omitted.
- *
+ * @param {integer} aViewIndex - If >= 0, the view index provided, if < 0, a
+ *   reference to a view index counting from the last row in the tree.
+ *   -1 indicates the last message in the tree, -2 the second to last, etc.
  * @returns The message header selected.
  */
 function select_click_row(aViewIndex) {
@@ -939,48 +935,43 @@ function select_click_row(aViewIndex) {
 /**
  * Pretend we are clicking on a row in the select column with our mouse.
  *
- * @param aViewIndex   - If >= 0, the view index provided, if < 0, a reference to
- *     a view index counting from the last row in the tree.  -1 indicates the
- *     last message in the tree, -2 the second to last, etc.
- * @param aController  - The controller in whose context to do this, defaults to
- *     |mc| if omitted.
- *
+ * @param {integer} aViewIndex - If >= 0, the view index provided, if < 0, a
+ *   reference to a view index counting from the last row in the tree.
+ *   -1 indicates the last message in the tree, -2 the second to last, etc.
+ * @param {Window} [aWin] - The window in whose context to do this, defaults to
+ *   the first window.
  * @returns The message header selected.
  */
-function select_column_click_row(aViewIndex, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
+function select_column_click_row(aViewIndex, aWin = mc) {
+  let dbView = get_db_view(aWin);
 
-  let dbView = get_db_view(aController);
-
-  let hasMessageDisplay = "messageDisplay" in aController;
+  let hasMessageDisplay = "messageDisplay" in aWin;
   if (hasMessageDisplay) {
-    wait_for_message_display_completion(aController);
+    wait_for_message_display_completion(aWin);
   }
-  aViewIndex = _normalize_view_index(aViewIndex, aController);
+  aViewIndex = _normalize_view_index(aViewIndex, aWin);
 
   // A click in the select column will always change the message display. If
   // clicking on a single selection (deselect), don't wait for a message load.
   var willDisplayMessage =
     hasMessageDisplay &&
-    aController.messageDisplay.visible &&
+    aWin.messageDisplay.visible &&
     !(dbView.selection.count == 1 && dbView.selection.isSelected(aViewIndex)) &&
     dbView.selection.currentIndex !== aViewIndex;
 
   if (willDisplayMessage) {
-    plan_for_message_display(aController);
+    plan_for_message_display(aWin);
   }
   _row_click_helper(
-    aController,
-    aController.document.getElementById("threadTree"),
+    aWin,
+    aWin.document.getElementById("threadTree"),
     aViewIndex,
     0,
     null,
     "selectCol"
   );
   if (hasMessageDisplay) {
-    wait_for_message_display_completion(aController, willDisplayMessage);
+    wait_for_message_display_completion(aWin, willDisplayMessage);
   }
   return dbView.getMsgHdrAt(aViewIndex);
 }
@@ -1029,16 +1020,15 @@ function select_control_click_row(aViewIndex) {
  * Pretend we are clicking on a row with our mouse with the shift key pressed,
  *  adding all the messages between the shift pivot and the shift selected row.
  *
- * @param aViewIndex If >= 0, the view index provided, if < 0, a reference to
- *     a view index counting from the last row in the tree.  -1 indicates the
- *     last message in the tree, -2 the second to last, etc.
- * @param aController The controller in whose context to do this, defaults to
- *     |mc| if omitted.
- *
+ * @param {integer} aViewIndex - If >= 0, the view index provided, if < 0, a
+ *   reference to a view index counting from the last row in the tree.
+ *   -1 indicates the last message in the tree, -2 the second to last, etc.
+ * @param {Window} aWin - The window in whose context to do this, defaults to
+ *   the first window.
  * @returns The message headers for all messages that are now selected.
  */
-function select_shift_click_row(aViewIndex, aController, aDoNotRequireLoad) {
-  aViewIndex = _normalize_view_index(aViewIndex, aController);
+function select_shift_click_row(aViewIndex, aWin, aDoNotRequireLoad) {
+  aViewIndex = _normalize_view_index(aViewIndex, aWin);
 
   let win = get_about_3pane();
   let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
@@ -1053,7 +1043,7 @@ function select_shift_click_row(aViewIndex, aController, aDoNotRequireLoad) {
  * Helper function to click on a row with a given button.
  */
 function _row_click_helper(
-  aController,
+  aWin,
   aTree,
   aViewIndex,
   aButton,
@@ -1067,7 +1057,7 @@ function _row_click_helper(
   let tx = treeRect.x,
     ty = treeRect.y;
   // coordinates of the row display region of the tree (below the headers)
-  let children = aController.document.getElementById(aTree.id, {
+  let children = aWin.document.getElementById(aTree.id, {
     tagName: "treechildren",
   });
   let childrenRect = children.getBoundingClientRect();
@@ -1080,7 +1070,7 @@ function _row_click_helper(
   // expand toggler unless that is explicitly requested.
   if (aTree.id == "threadTree") {
     let columnId = aColumnId || "subjectCol";
-    let col = aController.document.getElementById(columnId);
+    let col = aWin.document.getElementById(columnId);
     rowX = col.getBoundingClientRect().x - tx + 8;
     // click on the toggle if so requested (for subjectCol)
     if (columnId == "subjectCol" && aExtra !== "toggle") {
@@ -1118,7 +1108,7 @@ function _row_click_helper(
       shiftKey: aExtra === "shift",
       accelKey: aExtra === "accel",
     },
-    aController
+    aWin
   );
 
   // For right-clicks, the platform code generates a "contextmenu" event
@@ -1131,7 +1121,7 @@ function _row_click_helper(
       x + rowX - tx,
       y + rowY - ty,
       { type: "contextmenu", button: aButton },
-      aController
+      aWin
     );
   }
 
@@ -1145,7 +1135,7 @@ function _row_click_helper(
       shiftKey: aExtra == "shift",
       accelKey: aExtra === "accel",
     },
-    aController
+    aWin
   );
 }
 
@@ -1196,12 +1186,12 @@ function middle_click_on_row(aViewIndex) {
 /**
  * Assert that the given folder mode is the current one.
  *
- * @param aMode The expected folder mode.
- * @param [aController] The controller in whose context to do this, defaults to
- *     |mc| if omitted.
+ * @param {string} aMode - The expected folder mode.
+ * @param {Window} [aWin] - The window in whose context to do this, defaults to
+ *   the first window.
  */
-function assert_folder_mode(aMode, aController) {
-  let about3Pane = get_about_3pane(aController?.window);
+function assert_folder_mode(aMode, aWin) {
+  let about3Pane = get_about_3pane(aWin);
   if (!about3Pane.folderPane.activeModes.includes(aMode)) {
     throw new Error(`The folder mode "${aMode}" is not visible`);
   }
@@ -1232,13 +1222,13 @@ function assert_folder_child_in_view(aChild, aParent) {
 /**
  * Assert that the given folder is in the current folder mode and is visible.
  *
- * @param aFolder The folder to assert as visible
- * @param [aController] The controller in whose context to do this, defaults to
- *     |mc| if omitted.
- * @returns The index of the folder, if it is visible.
+ * @param {nsIMsgFolder} aFolder - The folder to assert as visible.
+ * @param {Window} [aWin] - The window in whose context to do this, defaults to
+ *   the first window.
+ * @returns {integer} The index of the folder, if it is visible.
  */
-function assert_folder_visible(aFolder, aController) {
-  let about3Pane = get_about_3pane(aController?.window);
+function assert_folder_visible(aFolder, aWin) {
+  let about3Pane = get_about_3pane(aWin);
   let folderIndex = about3Pane.folderTree.rows.findIndex(
     row => row.uri == aFolder.URI
   );
@@ -1458,7 +1448,7 @@ async function wait_for_popup_to_open(popupElem) {
 /**
  * Close the open pop-up.
  */
-async function close_popup(aController, elem) {
+async function close_popup(aWin, elem) {
   // if it was already closing, just leave
   if (elem.state == "closed") {
     return;
@@ -1469,7 +1459,7 @@ async function close_popup(aController, elem) {
     let hiddenPromise = BrowserTestUtils.waitForEvent(elem, "popuphidden");
     elem.hidePopup();
     await hiddenPromise;
-    await new Promise(resolve => aController.requestAnimationFrame(resolve));
+    await new Promise(resolve => aWin.requestAnimationFrame(resolve));
   }
 }
 
@@ -1477,20 +1467,17 @@ async function close_popup(aController, elem) {
  * Pretend we are pressing the delete key, triggering message deletion of the
  *  selected messages.
  *
- * @param aController The controller in whose context to do this, defaults to
- *     |mc| if omitted.
- * @param aModifiers (optional) Modifiers to pass to the keypress method.
+ * @param {Window} [aWin] - The window in whose context to do this, defaults to
+ *   the first window.
+ * @param {object} [aModifiers] - Modifiers to pass to the keypress method.
  */
-function press_delete(aController, aModifiers) {
-  if (aController == null) {
-    aController = mc;
-  }
+function press_delete(aWin = mc, aModifiers) {
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
   );
 
-  EventUtils.synthesizeKey("VK_DELETE", aModifiers || {}, aController);
+  EventUtils.synthesizeKey("VK_DELETE", aModifiers || {}, aWin);
   wait_for_folder_events();
 }
 
@@ -1498,11 +1485,11 @@ function press_delete(aController, aModifiers) {
  * Delete all messages in the given folder.
  * (called empty_folder similarly to emptyTrash method on root folder)
  *
- * @param aFolder     Folder to empty.
- * @param aController The controller in whose context to do this, defaults to
- *                    |mc| if omitted.
+ * @param {nsIMsgFolder} aFolder - Folder to empty.
+ * @param {Window} [aWin] - The window in whose context to do this, defaults to
+ *   the first window.
  */
-async function empty_folder(aFolder, aController = mc) {
+async function empty_folder(aFolder, aWin = mc) {
   if (!aFolder) {
     throw new Error("No folder for emptying given");
   }
@@ -1510,8 +1497,8 @@ async function empty_folder(aFolder, aController = mc) {
   await be_in_folder(aFolder);
   let msgCount;
   while ((msgCount = aFolder.getTotalMessages(false)) > 0) {
-    select_click_row(0, aController);
-    press_delete(aController);
+    select_click_row(0, aWin);
+    press_delete(aWin);
     utils.waitFor(() => aFolder.getTotalMessages(false) < msgCount);
   }
 }
@@ -1523,23 +1510,19 @@ async function empty_folder(aFolder, aController = mc) {
  *  set of messages (unless you are looking at a virtual folder that includes
  *  the archive folder.)
  *
- * @param aController The controller in whose context to do this, defaults to
- *     |mc| if omitted.
+ * @param {Window} [win] - The window in whose context to do this, defaults to
+ *   the first window.
  */
-function archive_selected_messages(aController) {
-  if (aController == null) {
-    aController = mc;
-  }
-
-  let dbView = get_db_view(aController);
+function archive_selected_messages(win = mc) {
+  let dbView = get_db_view(win);
 
   // How many messages do we expect to remain after the archival?
   let expectedCount = dbView.rowCount - dbView.numSelected;
 
-  // if (expectedCount && aController.messageDisplay.visible) {
-  //   plan_for_message_display(aController);
+  // if (expectedCount && win.messageDisplay.visible) {
+  //   plan_for_message_display(win);
   // }
-  EventUtils.synthesizeKey("a", {}, aController);
+  EventUtils.synthesizeKey("a", {}, win);
 
   // Wait for the view rowCount to decrease by the number of selected messages.
   let messagesDeletedFromView = function () {
@@ -1550,8 +1533,8 @@ function archive_selected_messages(aController) {
     "Timeout waiting for messages to be archived"
   );
   // wait_for_message_display_completion(
-  //   aController,
-  //   expectedCount && aController.messageDisplay.visible
+  //   win,
+  //   expectedCount && win.messageDisplay.visible
   // );
   // The above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
@@ -1563,32 +1546,32 @@ function archive_selected_messages(aController) {
  * Note that since we don't know where this is going to trigger a message load,
  * you're going to have to wait for message display completion yourself.
  *
- * @param aController The controller in whose context to do this, defaults to
- *     |mc| if omitted.
+ * @param {Window} [win] - The window in whose context to do this, defaults to
+ *   the first window.
  */
-function press_enter(aController) {
-  if (aController == null) {
-    aController = mc;
-  }
+function press_enter(win = mc) {
   // if something is loading, make sure it finishes loading...
-  if ("messageDisplay" in aController) {
-    wait_for_message_display_completion(aController);
+  if ("messageDisplay" in win) {
+    wait_for_message_display_completion(win);
   }
-  EventUtils.synthesizeKey("VK_RETURN", {}, aController);
+  EventUtils.synthesizeKey("VK_RETURN", {}, win);
   // The caller's going to have to wait for message display completion
 }
 
 /**
- * Wait for the |folderDisplay| on aController (defaults to mc if omitted) to
+ * Wait for the |folderDisplay| on win (defaults to mc if omitted) to
  *  finish loading.  This generally only matters for folders that have an active
  *  search.
  * This method is generally called automatically most of the time, and you
  *  should not need to call it yourself unless you are operating outside the
  *  helper methods in this file.
+ *
+ * @param {Window} [win] - The window in whose context to do this, defaults to
+ *   the first window.
  */
-function wait_for_all_messages_to_load(aController = mc) {
+function wait_for_all_messages_to_load(win = mc) {
   // utils.waitFor(
-  //   () => aController.gFolderDisplay.allMessagesLoaded,
+  //   () => win.gFolderDisplay.allMessagesLoaded,
   //   "Messages never finished loading.  Timed Out."
   // );
   // the above may return immediately, meaning the event queue might not get a
@@ -1600,14 +1583,14 @@ function wait_for_all_messages_to_load(aController = mc) {
  * Call this before triggering a message display that you are going to wait for
  *  using |wait_for_message_display_completion| where you are passing true for
  *  the aLoadDemanded argument.  This ensures that if a message is already
- *  displayed for the given controller that state is sufficiently cleaned up
+ *  displayed for the given window that state is sufficiently cleaned up
  *  so it doesn't trick us into thinking that there is no need to wait.
  *
- * @param [aControllerOrTab] optional controller or tab, defaulting to |mc|. If
- *     the message display is going to be caused by a tab switch, a reference to
- *     the tab to switch to should be passed in.
+ * @param {Window|TabInfo} [winOrTab] optional window or tab, defaulting to
+ *   the first window. If the message display is going to be caused by a tab
+ *   switch, a reference to the tab to switch to should be passed in.
  */
-function plan_for_message_display(aControllerOrTab) {}
+function plan_for_message_display(winOrTab) {}
 
 /**
  * If a message or summary is in the process of loading, let it finish;
@@ -1638,19 +1621,18 @@ function plan_for_message_display(aControllerOrTab) {}
  * ###!!! ASSERTION: Overwriting an existing document channel!
  *
  *
- * @param [aController] optional controller, defaulting to |mc|.
- * @param [aLoadDemanded=false] Should we require that we wait for a message to
- *     be loaded?  You should use this in conjunction with
- *     |plan_for_message_display| as per the documentation above.  If you do
- *     not pass true and there is no message load in process, this method will
- *     return immediately.
+ * @param {Window} [aWin] - The window in whose context to do this, defaults to
+ *   the first window.
+ * @param {boolean} [aLoadDemanded=false] - Should we require that we wait for
+ *   a message to be loaded? If you do not pass true and there is no message
+ *   load in process, this method will return immediately.
  */
-function wait_for_message_display_completion(aController, aLoadDemanded) {
+function wait_for_message_display_completion(aWin, aLoadDemanded) {
   let win;
-  if (aController == null || aController.document.getElementById("tabmail")) {
-    win = get_about_message(aController?.window);
+  if (aWin == null || aWin.document.getElementById("tabmail")) {
+    win = get_about_message();
   } else {
-    win = aController.document.getElementById("messageBrowser").contentWindow;
+    win = aWin.document.getElementById("messageBrowser").contentWindow;
   }
 
   let tabmail = mc.document.getElementById("tabmail");
@@ -1695,19 +1677,15 @@ function wait_for_message_display_completion(aController, aLoadDemanded) {
 /**
  * Wait for the content pane to be blank because no message is to be displayed.
  *
- * @param aController optional controller, defaulting to |mc|.
+ * @param {Window} [win] - The window in whose context to do this, defaults to
+ *   the first window.
  */
-function wait_for_blank_content_pane(aController) {
-  let win;
-  if (aController == null || aController == mc) {
-    win = get_about_message();
-  } else {
-    win = aController;
-  }
+function wait_for_blank_content_pane(win = mc) {
+  const aboutMessage = get_about_message(win);
 
-  utils.waitFor(() => win.document.readyState == "complete");
+  utils.waitFor(() => aboutMessage.document.readyState == "complete");
 
-  let browser = win.getMessagePaneBrowser();
+  let browser = aboutMessage.getMessagePaneBrowser();
   if (BrowserTestUtils.is_hidden(browser)) {
     return;
   }
@@ -1826,14 +1804,11 @@ function wait_for_folder_events() {
  *  sets or contains messages not in the provided sets, throw_and_dump_view_state
  *  will be invoked with a human readable explanation of the problem.
  *
- * @param aSynSets Either a single SyntheticMessageSet or a list of them.
- * @param aController Optional controller, which we get the folderDisplay
- *     property from.  If omitted, we use mc.
+ * @param {SyntheticMessageSet|SyntheticMessageSet[]} aSynSets
+ * @param {Window} [aWin] - Window which we get the folderDisplay property from.
+ *   Defaults to the first window.
  */
-function assert_messages_in_view(aSynSets, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
+function assert_messages_in_view(aSynSets, aWin = mc) {
   if (!("length" in aSynSets)) {
     aSynSets = [aSynSets];
   }
@@ -1849,7 +1824,7 @@ function assert_messages_in_view(aSynSets, aController) {
 
   // - Iterate over the contents of the view, nulling out values in
   //  synMessageURIs for found messages, and exploding for missing ones.
-  let dbView = get_db_view(aController);
+  let dbView = get_db_view(aWin);
   let treeView = dbView.QueryInterface(Ci.nsITreeView);
   let rowCount = treeView.rowCount;
 
@@ -1983,7 +1958,7 @@ function show_folder_pane() {
  * Helper function for use by assert_selected / assert_selected_and_displayed /
  *  assert_displayed.
  *
- * @returns A list of two elements: [MozmillController, [list of view indices]].
+ * @returns {Array} A list of two elements: [Window, [list of view indices]].
  */
 function _process_row_message_arguments(...aArgs) {
   let troller = mc;
@@ -2053,7 +2028,7 @@ function _process_row_message_arguments(...aArgs) {
         desiredIndices.push(viewIndex);
       }
     } else if (arg) {
-      // it's a MozmillController
+      // It's a Window.
       troller = arg;
     } else {
       throw new Error("Illegal argument: " + arg);
@@ -2074,7 +2049,7 @@ function _process_row_message_arguments(...aArgs) {
  *  correct too.
  *
  * The arguments consist of one or more of the following:
- * - A MozmillController, indicating we should use that controller instead of
+ * - A Window, indicating we should use that window instead of
  *   the default, "mc" (corresponding to the 3pane.)  Pass this first!
  * - An integer identifying a view index.
  * - A list containing two integers, indicating a range of view indices.
@@ -2105,7 +2080,7 @@ function assert_selected(...aArgs) {
  *  MessageDisplay, you really should be using assert_selected_and_displayed.
  *
  * The arguments consist of one or more of the following:
- * - A MozmillController, indicating we should use that controller instead of
+ * - A Window, indicating we should use that window instead of
  *   the default, "mc" (corresponding to the 3pane.)  Pass this first!
  * - An integer identifying a view index.
  * - A list containing two integers, indicating a range of view indices.
@@ -2253,7 +2228,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
  *  performing in a sane fashion.  Refactoring could be in order, of course.)
  *
  * The arguments consist of one or more of the following:
- * - A MozmillController, indicating we should use that controller instead of
+ * - A Window, indicating we should use that window instead of
  *   the default, "mc" (corresponding to the 3pane.)  Pass this first!
  * - An integer identifying a view index.
  * - A list containing two integers, indicating a range of view indices.
@@ -2309,17 +2284,17 @@ function _verify_summarized_message_set(aSummarizedKeys, aSelectedMessages) {
 }
 
 /**
- * Asserts that the messages the controller's folder display widget thinks are
+ * Asserts that the messages the window's folder display widget thinks are
  *  summarized are in fact summarized.  This is automatically called by
  *  assert_selected_and_displayed, so you do not need to call this directly
  *  unless you are testing the summarization logic.
  *
- * @param aController The controller who has the summarized display going on.
- * @param [aMessages] Optional set of messages to verify.  If not provided, this
- *     is extracted via the folderDisplay.  If a SyntheticMessageSet is provided
- *     we will automatically retrieve what we need from it.
+ * @param {Window} aWin - The window who has the summarized display going on.
+ * @param {Array} - [aMessages] Optional set of messages to verify. If not
+ *   provided, this is extracted via the folderDisplay. If a SyntheticMessageSet
+ *   is provided we will automatically retrieve what we need from it.
  */
-function assert_messages_summarized(aController, aSelectedMessages) {
+function assert_messages_summarized(aWin, aSelectedMessages) {
   // - Compensate for selection stabilization code.
   // Although WindowHelpers sets the stabilization interval to 0, we
   //  still need to make sure we have drained the event queue so that it has
@@ -2328,14 +2303,14 @@ function assert_messages_summarized(aController, aSelectedMessages) {
 
   // - Verify summary object knows about right messages
   if (aSelectedMessages == null) {
-    aSelectedMessages = aController.gFolderDisplay.selectedMessages;
+    aSelectedMessages = aWin.gFolderDisplay.selectedMessages;
   }
   // if it's a synthetic message set, we want the headers...
   if (aSelectedMessages.synMessages) {
     aSelectedMessages = Array.from(aSelectedMessages.msgHdrs());
   }
 
-  let summaryFrame = aController.gSummaryFrameManager.iframe;
+  let summaryFrame = aWin.gSummaryFrameManager.iframe;
   let summary = summaryFrame.contentWindow.gMessageSummary;
   let summarizedKeys = Object.keys(summary._msgNodes);
   if (aSelectedMessages.length != summarizedKeys.length) {
@@ -2624,14 +2599,10 @@ function assert_attachment_list_focused() {
   _assert_thing_focused("attachmentList");
 }
 
-function _normalize_folder_view_index(aViewIndex, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
+function _normalize_folder_view_index(aViewIndex, aWin = mc) {
   if (aViewIndex < 0) {
     return (
-      aController.folderTreeView.QueryInterface(Ci.nsITreeView).rowCount +
-      aViewIndex
+      aWin.folderTreeView.QueryInterface(Ci.nsITreeView).rowCount + aViewIndex
     );
   }
   return aViewIndex;
@@ -2677,7 +2648,7 @@ function _process_row_folder_arguments(...aArgs) {
         desiredFolders.push(folder);
       }
     } else if (arg) {
-      // it's a MozmillController
+      // It's a Window.
       troller = arg;
     } else {
       throw new Error("Illegal argument: " + arg);
@@ -2694,7 +2665,7 @@ function _process_row_folder_arguments(...aArgs) {
  *  display is correct too.
  *
  * The arguments consist of one or more of the following:
- * - A MozmillController, indicating we should use that controller instead of
+ * - A Window, indicating we should use that window instead of
  *   the default, "mc" (corresponding to the 3pane.)  Pass this first!
  * - An integer identifying a view index.
  * - A list containing two integers, indicating a range of view indices.
@@ -2741,7 +2712,7 @@ var assert_folder_selected = assert_folders_selected;
  * be using assert_folders_selected_and_displayed.
  *
  * The arguments consist of one or more of the following:
- * - A MozmillController, indicating we should use that controller instead of
+ * - A Window, indicating we should use that window instead of
  *   the default, "mc" (corresponding to the 3pane.)  Pass this first!
  * - An integer identifying a view index.
  * - A list containing two integers, indicating a range of view indices.
@@ -2764,7 +2735,7 @@ function assert_folder_displayed(...aArgs) {
  * anything, so we don't test that case.)
  *
  * The arguments consist of one or more of the following:
- * - A MozmillController, indicating we should use that controller instead of
+ * - A Window, indicating we should use that window instead of
  *   the default, "mc" (corresponding to the 3pane.)  Pass this first!
  * - An integer identifying a view index.
  * - A list containing two integers, indicating a range of view indices.
@@ -3028,9 +2999,9 @@ function assert_summary_contains_N_elts(aSelector, aNumElts) {
   }
 }
 
-function throw_and_dump_view_state(aMessage, aController) {
+function throw_and_dump_view_state(aMessage, aWin) {
   dump("******** " + aMessage + "\n");
-  dump_view_state(get_db_view(aController?.window));
+  dump_view_state(get_db_view(aWin));
   throw new Error(aMessage);
 }
 

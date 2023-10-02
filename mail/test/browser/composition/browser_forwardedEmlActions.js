@@ -114,7 +114,7 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
 
   let newWindowPromise = async_plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey(hotkeyToHit, hotkeyModifiers, window);
-  let compWin = await async_wait_for_compose_window(window, newWindowPromise);
+  let compWin = await async_wait_for_compose_window(newWindowPromise);
 
   let bodyText = get_compose_body(compWin).textContent;
   if (bodyText.includes("html")) {

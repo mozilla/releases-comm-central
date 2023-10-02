@@ -85,8 +85,8 @@ function checkReply(aReplyFunction, aExpectedFields) {
 /**
  * Helper to check that the reply window has the expected address fields.
  */
-function checkToAddresses(replyWinController, expectedFields) {
-  let rows = replyWinController.document.querySelectorAll(
+function checkToAddresses(replyWin, expectedFields) {
+  let rows = replyWin.document.querySelectorAll(
     "#recipientsContainer .address-row:not(.hidden)"
   );
 

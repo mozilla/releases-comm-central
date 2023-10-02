@@ -83,7 +83,7 @@ async function openAccountProvisioner() {
 /**
  * Click a row in the account settings tree.
  *
- * @param {object} tab - The account manager tab controller that opened.
+ * @param {TabInfo} tab - The account manager tab that opened.
  * @param {number} rowIndex - The row to click.
  */
 function click_account_tree_row(tab, rowIndex) {

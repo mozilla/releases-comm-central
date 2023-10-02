@@ -28,19 +28,10 @@ var {
 
 /**
  * Mark the selected messages as junk. This is done by pressing the J key.
- *
- * @param aController The controller in whose context to do this, defaults to
- *     |mc| if omitted.
  */
-function mark_selected_messages_as_junk(aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-  let win = get_about_3pane(aController);
-  if (aController == mc) {
-    win.document.getElementById("threadTree").focus();
-  }
-  EventUtils.synthesizeKey("j", {}, win);
+function mark_selected_messages_as_junk() {
+  get_about_3pane().document.getElementById("threadTree").focus();
+  EventUtils.synthesizeKey("j", {}, mc);
 }
 
 /**
@@ -48,28 +39,23 @@ function mark_selected_messages_as_junk(aController) {
  * activating the menu option from the Tools menu.
  *
  * @param aNumDeletesExpected The number of deletes expected.
- * @param aController The controller in whose context to do this, defaults to
- *     |mc| if omitted.
  */
-async function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
-  if (aController === undefined) {
-    aController = mc;
-  }
-  let win = get_about_3pane(aController);
+async function delete_mail_marked_as_junk(aNumDeletesExpected) {
+  let about3Pane = get_about_3pane();
 
   // Monkey patch and wrap around the deleteJunkInFolder function, mainly for
   // the case where deletes aren't expected.
-  let realDeleteJunkInFolder = win.deleteJunkInFolder;
+  let realDeleteJunkInFolder = about3Pane.deleteJunkInFolder;
   let numMessagesDeleted = null;
   let fakeDeleteJunkInFolder = function () {
     numMessagesDeleted = realDeleteJunkInFolder();
     return numMessagesDeleted;
   };
   try {
-    win.deleteJunkInFolder = fakeDeleteJunkInFolder;
+    about3Pane.deleteJunkInFolder = fakeDeleteJunkInFolder;
 
     // If something is loading, make sure it finishes loading...
-    wait_for_message_display_completion(aController);
+    wait_for_message_display_completion();
     if (aNumDeletesExpected != 0) {
       plan_to_wait_for_folder_events(
         "DeleteOrMoveMsgCompleted",
@@ -77,7 +63,7 @@ async function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
       );
     }
 
-    win.goDoCommand("cmd_deleteJunk");
+    about3Pane.goDoCommand("cmd_deleteJunk");
 
     if (aNumDeletesExpected != 0) {
       wait_for_folder_events();
@@ -92,6 +78,6 @@ async function delete_mail_marked_as_junk(aNumDeletesExpected, aController) {
       `Should have got ${aNumDeletesExpected} deletes, not ${numMessagesDeleted}`
     );
   } finally {
-    win.deleteJunkInFolder = realDeleteJunkInFolder;
+    about3Pane.deleteJunkInFolder = realDeleteJunkInFolder;
   }
 }

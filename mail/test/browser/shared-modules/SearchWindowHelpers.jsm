@@ -32,7 +32,7 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 /**
  * Open a search window using the accel-shift-f shortcut.
  *
- * @returns the controller for the search window
+ * @returns {Window} The search window.
  */
 function open_search_window() {
   windowHelper.plan_for_new_window("mailnews:search");
@@ -44,8 +44,8 @@ function open_search_window() {
  * Open a search window as if from the context menu. This needs the context menu
  * to be already open.
  *
- * @param aFolder the folder to open the search window for
- * @returns the controller for the search window
+ * @param {nsIMsgFolder} aFolder - The folder to open the search window for.
+ * @returns {Window} The search window.
  */
 async function open_search_window_from_context_menu(aFolder) {
   let win = get_about_3pane();
@@ -59,18 +59,22 @@ async function open_search_window_from_context_menu(aFolder) {
 }
 
 /**
- * Close a search window by calling window.close() on the controller.
+ * Close a search window by calling window.close().
+ *
+ * @param {Window} win - The search window to close.
  */
-function close_search_window(aController) {
-  windowHelper.close_window(aController);
+function close_search_window(win) {
+  windowHelper.close_window(win);
 }
 
 /**
- * Assert that the given folder is selected in the search window corresponding
- * to the given controller.
+ * Assert that the given folder is selected in the search window.
+ *
+ * @param {Window} aWin - A search window.
+ * @param {nsIMsgFolder} aFolder - The expected folder.
  */
-function assert_search_window_folder_displayed(aController, aFolder) {
-  let currentFolder = aController.gCurrentFolder;
+function assert_search_window_folder_displayed(aWin, aFolder) {
+  let currentFolder = aWin.gCurrentFolder;
   Assert.equal(
     currentFolder,
     aFolder,
@@ -85,16 +89,11 @@ function assert_search_window_folder_displayed(aController, aFolder) {
  * Pretend we are clicking on a row with our mouse.
  *
  * @param {number} aViewIndex - The view index to click.
- * @param {MozMillController} aController - The controller in whose context to
- *   do this.
+ * @param {Window} aWin - The window in whose context to do this.
  * @returns {nsIMsgDBHdr} The message header selected.
  */
-function select_click_search_row(aViewIndex, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
-
-  let tree = aController.document.getElementById("threadTree");
+function select_click_search_row(aViewIndex, aWin) {
+  let tree = aWin.document.getElementById("threadTree");
   tree.scrollToRow(aViewIndex);
   let coords = tree.getCoordsForCellItem(
     aViewIndex,
@@ -107,10 +106,10 @@ function select_click_search_row(aViewIndex, aController) {
     coords.x + coords.width / 2,
     coords.y + coords.height / 2,
     {},
-    aController
+    aWin
   );
 
-  return aController.gFolderDisplay.view.dbView.getMsgHdrAt(aViewIndex);
+  return aWin.gFolderDisplay.view.dbView.getMsgHdrAt(aViewIndex);
 }
 
 /**
@@ -118,17 +117,12 @@ function select_click_search_row(aViewIndex, aController) {
  * adding all the messages between the shift pivot and the shift selected row.
  *
  * @param {number} aViewIndex - The view index to click.
- * @param {MozMillController} aController The controller in whose context to
- *   do this.
+ * @param {Window} aWin - The window in whose context to do this.
  * @returns {nsIMsgDBHdr[]} The message headers for all messages that are now
  *   selected.
  */
-function select_shift_click_search_row(aViewIndex, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
-
-  let tree = aController.document.getElementById("threadTree");
+function select_shift_click_search_row(aViewIndex, aWin) {
+  let tree = aWin.document.getElementById("threadTree");
   tree.scrollToRow(aViewIndex);
   let coords = tree.getCoordsForCellItem(
     aViewIndex,
@@ -141,11 +135,11 @@ function select_shift_click_search_row(aViewIndex, aController) {
     coords.x + coords.width / 2,
     coords.y + coords.height / 2,
     { shiftKey: true },
-    aController
+    aWin
   );
 
   utils.sleep(0);
-  return aController.gFolderDisplay.selectedMessages;
+  return aWin.gFolderDisplay.selectedMessages;
 }
 
 /**
@@ -157,13 +151,9 @@ function select_shift_click_search_row(aViewIndex, aController) {
  *
  * @param {SyntheticMessageSet} aSynSets - Either a single SyntheticMessageSet
  *   or a list of them.
- * @param {MozMillController} aController - The controller which we get the
- *   folderDisplay property from.
+ * @param {Window} aWin - The window which we get the folderDisplay property from.
  */
-function assert_messages_in_search_view(aSynSets, aController) {
-  if (aController == null) {
-    aController = mc;
-  }
+function assert_messages_in_search_view(aSynSets, aWin) {
   if (!Array.isArray(aSynSets)) {
     aSynSets = [aSynSets];
   }
@@ -179,10 +169,8 @@ function assert_messages_in_search_view(aSynSets, aController) {
 
   // Iterate over the contents of the view, nulling out values in
   // synMessageURIs for found messages, and exploding for missing ones.
-  let dbView = aController.gFolderDisplay.view.dbView;
-  let treeView = aController.gFolderDisplay.view.dbView.QueryInterface(
-    Ci.nsITreeView
-  );
+  let dbView = aWin.gFolderDisplay.view.dbView;
+  let treeView = aWin.gFolderDisplay.view.dbView.QueryInterface(Ci.nsITreeView);
   let rowCount = treeView.rowCount;
 
   for (let iViewIndex = 0; iViewIndex < rowCount; iViewIndex++) {

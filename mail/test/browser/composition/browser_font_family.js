@@ -10,8 +10,8 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_font_family() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   // Before focus, disabled.
   Assert.ok(
@@ -90,12 +90,12 @@ add_task(async function test_font_family() {
     await formatHelper.emptyParagraph();
   }
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_fixed_width() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   let ttStyleItem = formatHelper.getStyleMenuItem("tt");
 
@@ -142,5 +142,5 @@ add_task(async function test_fixed_width() {
     "still produce monospace text"
   );
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });

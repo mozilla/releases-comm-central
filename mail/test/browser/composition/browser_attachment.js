@@ -93,14 +93,14 @@ add_setup(async function () {
 });
 
 /**
- * Make sure that the attachment's size is what we expect
+ * Make sure that the attachment's size is what we expect.
  *
- * @param controller the controller for the compose window
- * @param index the attachment to examine, as an index into the listbox
- * @param expectedSize the expected size of the attachment, in bytes
+ * @param {Window} win - The compose window.
+ * @param {integer} index - The attachment to examine, as an index into the listbox.
+ * @param {integer} expectedSize - The expected size of the attachment, in bytes.
  */
-function check_attachment_size(controller, index, expectedSize) {
-  let bucket = controller.document.getElementById("attachmentBucket");
+function check_attachment_size(win, index, expectedSize) {
+  let bucket = win.document.getElementById("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   // First, let's check that the attachment size is correct
@@ -132,13 +132,13 @@ function check_attachment_size(controller, index, expectedSize) {
 }
 
 /**
- * Make sure that the attachment's size is not displayed
+ * Make sure that the attachment's size is not displayed.
  *
- * @param controller the controller for the compose window
- * @param index the attachment to examine, as an index into the listbox
+ * @param {Window} win - The compose window.
+ * @param {integer} index - The attachment to examine, as an index into the listbox.
  */
-function check_no_attachment_size(controller, index) {
-  let bucket = controller.document.getElementById("attachmentBucket");
+function check_no_attachment_size(win, index) {
+  let bucket = win.document.getElementById("attachmentBucket");
   let node = bucket.querySelectorAll("richlistitem.attachmentItem")[index];
 
   if (node.attachment.size != -1) {
@@ -154,13 +154,13 @@ function check_no_attachment_size(controller, index) {
 /**
  * Make sure that the total size of all attachments is what we expect.
  *
- * @param controller the controller for the compose window
- * @param count the expected number of attachments
+ * @param {Window} win - The compose window.
+ * @param {integer} count - The expected number of attachments.
  */
-function check_total_attachment_size(controller, count) {
-  let bucket = controller.document.getElementById("attachmentBucket");
+function check_total_attachment_size(win, count) {
+  let bucket = win.document.getElementById("attachmentBucket");
   let nodes = bucket.querySelectorAll("richlistitem.attachmentItem");
-  let sizeNode = controller.document.getElementById("attachmentBucketSize");
+  let sizeNode = win.document.getElementById("attachmentBucketSize");
 
   if (nodes.length != count) {
     throw new Error(
@@ -352,11 +352,11 @@ add_task(async function test_forward_message_with_attachments_as_attachment() {
 /**
  * Check that the compose window has the attachments we expect.
  *
- * @param aController  The controller for the compose window
- * @param aNames       An array of attachment names that are expected
+ * @param {Window} aWin - The compose window.
+ * @param {string[]} aNames - An array of attachment names that are expected.
  */
-function check_attachment_names(aController, aNames) {
-  let bucket = aController.document.getElementById("attachmentBucket");
+function check_attachment_names(aWin, aNames) {
+  let bucket = aWin.document.getElementById("attachmentBucket");
   Assert.equal(aNames.length, bucket.itemCount);
   for (let i = 0; i < aNames.length; i++) {
     Assert.equal(bucket.getItemAtIndex(i).getAttribute("name"), aNames[i]);
@@ -366,19 +366,17 @@ function check_attachment_names(aController, aNames) {
 /**
  * Execute a test of attachment reordering actions and check the resulting order.
  *
- * @param aCwc              The controller for the compose window
- * @param aInitialAttachmentNames  An array of attachment names specifying the
- *                                 initial set of attachments to be created
- * @param aReorder_actions  An array of objects specifying a reordering action:
- *                          { select: array of attachment item indexes to select,
- *                            button: ID of button to click in the reordering menu,
- *                            key:    keycode of key to press instead of a click,
- *                            key_modifiers: { accelKey: bool, ctrlKey: bool
- *                                             shiftKey: bool, altKey: bool, etc.},
- *                            result: an array of attachment names in the new
- *                                    order that should result
- *                          }
- * @param openPanel {boolean} - Whether to open reorderAttachmentsPanel for the test
+ * @param {Window} aCwc - The compose window.
+ * @param {string} aInitialAttachmentNames - An array of attachment names
+ *   specifying the initial set of attachments to be created.
+ * @param {object[]} aReorder_actions - An array of objects specifying a
+ *   reordering action:
+ *   - select: array of attachment item indexes to select,
+ *   - button: ID of button to click in the reordering menu,
+ *   - key: keycode of key to press instead of a click,
+ *   - key_modifiers: { accelKey, ctrlKey, shiftKey, altKey, etc.},
+ *   - result: an array of attachment names in the new order that should result.
+ * @param {boolean} openPanel - Whether to open reorderAttachmentsPanel for the test.
  */
 async function subtest_reordering(
   aCwc,

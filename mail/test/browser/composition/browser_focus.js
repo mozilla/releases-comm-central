@@ -16,7 +16,7 @@ requestLongerTimeout(3);
 /**
  * Test the cycling of focus in the composition window through (Shift+)F6.
  *
- * @param {MozMillController} controller - Controller for the compose window.
+ * @param {Window} win - The compose window.
  * @param {object} options - Options to set for the test.
  * @param {boolean} options.useTab - Whether to use Ctrl+Tab instead of F6.
  * @param {boolean} options.attachment - Whether to add an attachment.
@@ -26,8 +26,7 @@ requestLongerTimeout(3);
  * @param {boolean} options.contacts - Whether to show the contacts side pane.
  * @param {string} otherHeader - The name of the custom header to show.
  */
-async function checkFocusCycling(controller, options) {
-  let win = controller;
+async function checkFocusCycling(win, options) {
   let doc = win.document;
   let contactDoc;
   let contactsInput;
@@ -59,7 +58,7 @@ async function checkFocusCycling(controller, options) {
     );
 
   if (options.attachment) {
-    add_attachments(controller, "https://www.mozilla.org/");
+    add_attachments(win, "https://www.mozilla.org/");
   }
 
   if (options.contacts) {
@@ -501,9 +500,9 @@ add_task(async function test_jump_focus() {
               otherHeader: "X-Header1",
             };
             info(`Test run: ${JSON.stringify(options)}`);
-            let controller = open_compose_new_mail();
-            await checkFocusCycling(controller, options);
-            close_compose_window(controller);
+            let win = open_compose_new_mail();
+            await checkFocusCycling(win, options);
+            close_compose_window(win);
           }
         }
       }

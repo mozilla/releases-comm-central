@@ -72,9 +72,8 @@ add_setup(async function () {
 /**
  * Check if the attachment reminder bar is in the wished state.
  *
- * @param aCwc    A compose window controller.
- * @param aShown  True for expecting the bar to be shown, false otherwise.
- *
+ * @param {Window} aCwc - A compose window.
+ * @param {boolean} aShown - True for expecting the bar to be shown, false otherwise.
  * @returns If the bar is shown, return the notification object.
  */
 function assert_automatic_reminder_state(aCwc, aShown) {
@@ -84,12 +83,12 @@ function assert_automatic_reminder_state(aCwc, aShown) {
 /**
  * Waits for the attachment reminder bar to change into the wished state.
  *
- * @param aCwc    A compose window controller.
- * @param aShown  True for waiting for the bar to be shown,
- *                false for waiting for it to be hidden.
- * @param aDelay  Set to true to sleep a while to give the notification time
- *                to change. This is used if the state is already what we want
- *                but we expect it could change in a short while.
+ * @param {Window} aCwc - A compose window.
+ * @param {boolean} aShown - True for waiting for the bar to be shown, false
+ *   for waiting for it to be hidden.
+ * @param {boolean} [aDelay=false] - Set to true to sleep a while to give the
+ *   notification time to change. This is used if the state is already what we
+ *   want but we expect it could change in a short while.
  */
 async function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
   const notificationSlackTime = 5000;
@@ -115,8 +114,8 @@ async function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
 /**
  * Check whether the manual reminder is in the proper state.
  *
- * @param aCwc      A compose window controller.
- * @param aChecked  Whether the reminder should be enabled.
+ * @param {Window} aCwc - A compose window.
+ * @param {boolean} aChecked - Whether the reminder should be enabled.
  */
 function assert_manual_reminder_state(aCwc, aChecked) {
   const remindCommand = "cmd_remindLater";
@@ -137,7 +136,7 @@ function assert_manual_reminder_state(aCwc, aChecked) {
 /**
  * Returns the keywords string currently shown in the notification message.
  *
- * @param {MozMillController} cwc - The compose window controller.
+ * @param {Window} cwc - The compose window.
  */
 function get_reminder_keywords(cwc) {
   assert_automatic_reminder_state(cwc, true);
@@ -354,9 +353,9 @@ add_task(async function test_no_send_now_sends() {
 /**
  * Click the manual reminder in the menu.
  *
- * @param aCwc            A compose window controller.
- * @param aExpectedState  A boolean specifying what is the expected state
- *                        of the reminder menuitem after the click.
+ * @param {Window} aCwc - A compose window.
+ * @param {boolean} aExpectedState - The expected state of the reminder
+ *   menuitem after the click.
  */
 async function click_manual_reminder(aCwc, aExpectedState) {
   wait_for_window_focused(aCwc);
@@ -526,9 +525,8 @@ add_task(
 /**
  * Assert if there is any notification in the compose window.
  *
- * @param aCwc         Compose Window Controller
- * @param aValue       True if notification should exist.
- *                     False otherwise.
+ * @param {Window} aCwc - Compose window.
+ * @param {boolean} aValue - True if notification should exist. False otherwise.
  */
 function assert_any_notification(aCwc, aValue) {
   let notification = aCwc.document.getElementById(kBoxId).currentNotification;
@@ -834,14 +832,14 @@ add_task(async function test_disabling_attachment_reminder() {
  * Click the send button and handle the send error dialog popping up.
  * It will return us back to the compose window.
  *
- * @param aController
- * @param aAlreadySending  Set this to true if sending was already triggered
- *                         by other means.
+ * @param {Window} aWin
+ * @param {boolean} aAlreadySending - Set this to true if sending was already
+ *   triggered by other means.
  */
-function click_send_and_handle_send_error(aController, aAlreadySending) {
+function click_send_and_handle_send_error(aWin, aAlreadySending) {
   plan_for_modal_dialog("commonDialogWindow", click_ok_on_send_error);
   if (!aAlreadySending) {
-    let buttonSend = aController.document.getElementById("button-send");
+    let buttonSend = aWin.document.getElementById("button-send");
     EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   }
   wait_for_modal_dialog("commonDialogWindow");
@@ -850,23 +848,19 @@ function click_send_and_handle_send_error(aController, aAlreadySending) {
 /**
  * Click Ok in the Send Message Error dialog.
  */
-function click_ok_on_send_error(controller) {
-  if (controller.document.title != "Send Message Error") {
-    throw new Error(
-      "Not a send error dialog; title=" + controller.document.title
-    );
+function click_ok_on_send_error(win) {
+  if (win.document.title != "Send Message Error") {
+    throw new Error("Not a send error dialog; title=" + win.document.title);
   }
-  controller.document.querySelector("dialog").getButton("accept").doCommand();
+  win.document.querySelector("dialog").getButton("accept").doCommand();
 }
 
 /**
  * Click Save in the Save message dialog.
  */
-function click_save_message(controller) {
-  if (controller.document.title != "Save Message") {
-    throw new Error(
-      "Not a Save message dialog; title=" + controller.document.title
-    );
+function click_save_message(win) {
+  if (win.document.title != "Save Message") {
+    throw new Error("Not a Save message dialog; title=" + win.document.title);
   }
-  controller.document.querySelector("dialog").getButton("accept").doCommand();
+  win.document.querySelector("dialog").getButton("accept").doCommand();
 }

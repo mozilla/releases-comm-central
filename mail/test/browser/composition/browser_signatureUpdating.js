@@ -25,8 +25,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var cwc = null; // compose window controller
-
 add_setup(async function () {
   requestLongerTimeout(2);
 
@@ -82,7 +80,7 @@ async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
     "mail.identity.id2.suppress_signature_separator",
     suppressSigSep
   );
-  cwc = open_compose_new_mail();
+  const cwc = open_compose_new_mail();
 
   let contentFrame = cwc.document.getElementById("messageEditor");
   let mailBody = contentFrame.contentDocument.body;
@@ -194,7 +192,7 @@ async function HTMLComposeWindowSwitchSignatures(
     "mail.identity.id2.suppress_signature_separator",
     suppressSigSep
   );
-  cwc = open_compose_new_mail();
+  const cwc = open_compose_new_mail();
 
   setup_msg_contents(cwc, "", "HTML compose window", "Body, first line.");
 

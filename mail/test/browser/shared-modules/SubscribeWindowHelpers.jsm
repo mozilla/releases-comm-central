@@ -23,20 +23,18 @@ var { click_menus_in_sequence, plan_for_modal_dialog, wait_for_modal_dialog } =
 /**
  * Open a subscribe dialog from the context menu.
  *
- * @param aFolder the folder to open the subscribe dialog for
- * @param aFunction Callback that will be invoked with a controller
- *        for the subscribe dialogue as parameter
+ * @param {nsIMsgFolder} aFolder - The folder to open the subscribe dialog for.
+ * @param {function} aFunction - Callback that will be invoked with a window
+ *   for the subscribe dialogue as parameter.
  */
 async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   let win = get_about_3pane();
 
   await right_click_on_folder(aFolder);
-  let callback = function (controller) {
+  let callback = function (win) {
     // When the "stop button" is disabled, the panel is populated.
-    utils.waitFor(
-      () => controller.document.getElementById("stopButton").disabled
-    );
-    aFunction(controller);
+    utils.waitFor(() => win.document.getElementById("stopButton").disabled);
+    aFunction(win);
   };
   plan_for_modal_dialog("mailnews:subscribe", callback);
   await click_menus_in_sequence(
@@ -49,8 +47,8 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
 /**
  * Enter a string in the text box for the search value.
  *
- * @param swc A controller for a subscribe dialog
- * @param text The text to enter
+ * @param {Window} swc - A subscribe window.
+ * @param {string} text - The text to enter.
  */
 function enter_text_in_search_box(swc, text) {
   let textbox = swc.document.getElementById("namefield");
@@ -61,9 +59,9 @@ function enter_text_in_search_box(swc, text) {
 /**
  * Check whether the given newsgroup is in the searchview.
  *
- * @param swc A controller for the subscribe window
- * @param name Name of the newsgroup
- * @returns {boolean} Result of the check
+ * @param {Window} swc - A subscribe window.
+ * @param {string} name - Name of the newsgroup.
+ * @returns {boolean} Result of the check.
  */
 function check_newsgroup_displayed(swc, name) {
   let tree = swc.document.getElementById("searchTree");

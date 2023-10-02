@@ -15,24 +15,20 @@ var url =
 
 add_task(async function previewEnabled() {
   Services.prefs.setBoolPref("mail.compose.add_link_preview", true);
-  let controller = open_compose_new_mail();
+  let win = open_compose_new_mail();
   await navigator.clipboard.writeText(url);
 
-  let messageEditor = controller.document.getElementById("messageEditor");
+  let messageEditor = win.document.getElementById("messageEditor");
   messageEditor.focus();
 
   // Ctrl+V = Paste
-  EventUtils.synthesizeKey(
-    "v",
-    { shiftKey: false, accelKey: true },
-    controller
-  );
+  EventUtils.synthesizeKey("v", { shiftKey: false, accelKey: true }, win);
 
   await TestUtils.waitForCondition(
     () => messageEditor.contentDocument.body.querySelector(".moz-card"),
     "link preview should have appeared"
   );
 
-  close_compose_window(controller);
+  close_compose_window(win);
   Services.prefs.clearUserPref("mail.compose.add_link_preview");
 });

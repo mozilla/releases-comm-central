@@ -10,8 +10,8 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_remove_text_styling() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   const NO_SIZE = formatHelper.NO_SIZE;
 
@@ -132,5 +132,5 @@ add_task(async function test_remove_text_styling() {
     "Style is fully stripped"
   );
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });

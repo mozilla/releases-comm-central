@@ -193,7 +193,7 @@ add_task(async function testRedirectToMe() {
     {},
     aboutMessage
   );
-  let cwc = await async_wait_for_compose_window(window, compWinPromise);
+  let cwc = await async_wait_for_compose_window(compWinPromise);
   Assert.equal(
     cwc.getCurrentIdentityKey(),
     identity2.key,

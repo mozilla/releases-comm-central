@@ -15,44 +15,44 @@ var EventUtils = ChromeUtils.import(
 );
 
 /**
- * Emulates manual input
+ * Emulates manual input.
  *
- * @param aController The window controller to input keypresses into
- * @param aStr        The string to input into the control element
- * @param aElement    (optional) Element on which to perform the input
+ * @param {Window} aWin - The window to input keypresses into.
+ * @param {string} aStr - The string to input into the control element.
+ * @param {Element} [aElement] - Element on which to perform the input.
  */
-function input_value(aController, aStr, aElement) {
+function input_value(aWin, aStr, aElement) {
   if (aElement) {
     aElement.focus();
   }
   for (let i = 0; i < aStr.length; i++) {
-    EventUtils.synthesizeKey(aStr.charAt(i), {}, aController);
+    EventUtils.synthesizeKey(aStr.charAt(i), {}, aWin);
   }
 }
 
 /**
- * Emulates deleting strings via the keyboard
+ * Emulates deleting strings via the keyboard.
  *
- * @param aController The window controller to input keypresses into
- * @param aElement    The element in which to delete characters
- * @param aNumber     The number of times to press the delete key.
+ * @param {Window} aWin - The window to input keypresses into.
+ * @param {Element} aElement - The element in which to delete characters.
+ * @param {integer} aNumber - The number of times to press the delete key.
  */
-function delete_existing(aController, aElement, aNumber) {
+function delete_existing(aWin, aElement, aNumber) {
   for (let i = 0; i < aNumber; ++i) {
     aElement.focus();
-    EventUtils.synthesizeKey("VK_BACK_SPACE", {}, aController);
+    EventUtils.synthesizeKey("VK_BACK_SPACE", {}, aWin);
   }
 }
 
 /**
- * Emulates deleting the entire string by pressing Ctrl-A and DEL
+ * Emulates deleting the entire string by pressing Ctrl+A and DEL.
  *
- * @param aController The window controller to input keypresses into
- * @param aElement    The element in which to delete characters
+ * @param {Window} aWin - The window to input keypresses into.
+ * @param {Element} aElement - The element in which to delete characters.
  */
-function delete_all_existing(aController, aElement) {
+function delete_all_existing(aWin, aElement) {
   aElement.focus();
-  EventUtils.synthesizeKey("a", { accelKey: true }, aController);
+  EventUtils.synthesizeKey("a", { accelKey: true }, aWin);
   aElement.focus();
-  EventUtils.synthesizeKey("VK_DELETE", {}, aController);
+  EventUtils.synthesizeKey("VK_DELETE", {}, aWin);
 }

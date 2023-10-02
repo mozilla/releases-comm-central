@@ -126,8 +126,7 @@ registerCleanupFunction(function () {
 });
 
 /**
- * Given some compose window controller, wait for some Filelink URLs to be
- * inserted.
+ * Given some compose window, wait for some Filelink URLs to be inserted.
  *
  * Note: This function also validates, if the correct items have been added to
  *       the template (serviceUrl, downloadLimit, downloadExpiryDate,
@@ -135,15 +134,15 @@ registerCleanupFunction(function () {
  *       conditions, but the tests in this file are using different setups.
  *       See the values in the used provider.init() calls.
  *
- * @param aController the controller for a compose window.
- * @param aNumUrls the number of Filelink URLs that are expected.
- * @param aUploads an array containing the objects returned by
- *                 cloudFileAccounts.uploadFile() for all uploads
- * @returns an array containing the root containment node, the list node, and
- *          an array of the link URL nodes.
+ * @param {Window} aWin - The compose window.
+ * @param {integer} aNumUrls - The number of Filelink URLs that are expected.
+ * @param {object[]} aUploads - An array containing the objects returned by
+ *   cloudFileAccounts.uploadFile() for all uploads.
+ * @returns {object[]} An array containing the root containment node, the list
+ *   node, and an array of the link URL nodes.
  */
-function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
-  let mailBody = get_compose_body(aController);
+function wait_for_attachment_urls(aWin, aNumUrls, aUploads = []) {
+  let mailBody = get_compose_body(aWin);
 
   // Wait until we can find the root attachment URL node...
   let root = wait_for_element(
@@ -216,11 +215,11 @@ function wait_for_attachment_urls(aController, aNumUrls, aUploads = []) {
     );
   }
 
-  let bucket = aController.document.getElementById("attachmentBucket");
+  let bucket = aWin.document.getElementById("attachmentBucket");
 
   // Check the actual content of the generated cloudAttachmentItems.
   for (let i = 0; i < urls.length; i++) {
-    if (aController.gMsgCompose.composeHTML) {
+    if (aWin.gMsgCompose.composeHTML) {
       // Test HTML message.
 
       let paperClipIcon = urls[i].querySelector(".paperClipIcon");

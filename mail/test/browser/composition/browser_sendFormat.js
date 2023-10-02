@@ -54,15 +54,15 @@ registerCleanupFunction(async function () {
 
 async function checkMsgFile(aFilePath, aConvertibility) {
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
-  let messageController = await open_message_from_file(file);
+  let messageWin = await open_message_from_file(file);
 
   // Creating a reply should not affect convertibility.
-  let composeWindow = open_compose_with_reply(messageController);
+  let composeWindow = open_compose_with_reply(messageWin);
 
   Assert.equal(composeWindow.gMsgCompose.bodyConvertible(), aConvertibility);
 
   await BrowserTestUtils.closeWindow(composeWindow);
-  await BrowserTestUtils.closeWindow(messageController);
+  await BrowserTestUtils.closeWindow(messageWin);
 }
 
 /**

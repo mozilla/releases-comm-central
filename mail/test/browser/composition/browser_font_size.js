@@ -10,8 +10,8 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_font_size() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   const NO_SIZE = formatHelper.NO_SIZE;
   const MIN_SIZE = formatHelper.MIN_SIZE;
@@ -98,12 +98,12 @@ add_task(async function test_font_size() {
     await formatHelper.emptyParagraph();
   }
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_font_size_increment() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   const NO_SIZE = formatHelper.NO_SIZE;
   const MIN_SIZE = formatHelper.MIN_SIZE;
@@ -329,5 +329,5 @@ add_task(async function test_font_size_increment() {
     }
   }
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });

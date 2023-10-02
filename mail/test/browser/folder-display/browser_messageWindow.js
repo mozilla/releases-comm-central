@@ -47,7 +47,10 @@ add_setup(async function () {
     Ci.nsMsgViewFlagsType.kThreadedDisplay;
 });
 
-/** The message window controller. */
+/**
+ * The message window.
+ * @type {Window}
+ */
 var msgc;
 
 add_task(async function test_open_message_window() {

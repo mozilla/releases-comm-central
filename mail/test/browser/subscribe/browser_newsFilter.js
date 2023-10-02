@@ -48,7 +48,7 @@ add_task(async function test_subscribe_newsgroup_filter() {
 /**
  * Helper function (callback), needed because the subscribe window is modal.
  *
- * @param swc Controller for the subscribe window
+ * @param {Window} swc - The subscribe window.
  */
 function filter_test_helper(swc) {
   enter_text_in_search_box(swc, "subscribe empty");

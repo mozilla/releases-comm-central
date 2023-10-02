@@ -12,8 +12,8 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_newline_p() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   let firstText = "first line";
   let secondText = "second line";
@@ -66,12 +66,12 @@ add_task(async function test_newline_p() {
     "After Shift+Enter and typing"
   );
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_newline_headers() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   let firstText = "first line";
   let secondText = "second line";
@@ -125,12 +125,12 @@ add_task(async function test_newline_headers() {
     await formatHelper.deleteAll();
   }
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_newline_pre_and_address() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   let firstText = "first line";
   let secondText = "second line";
@@ -177,12 +177,12 @@ add_task(async function test_newline_pre_and_address() {
     await formatHelper.deleteAll();
   }
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_newline_body() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   let firstText = "first line";
   let secondText = "second line";
@@ -231,7 +231,7 @@ add_task(async function test_newline_body() {
     "After Enter (no Shift) in ${state} and typing"
   );
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 async function initialiseParagraphs(formatHelper) {
@@ -255,8 +255,8 @@ async function initialiseParagraphs(formatHelper) {
 }
 
 add_task(async function test_non_body_paragraph_state() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   // NOTE: we don't start with the default paragraph state because we want to
   // detect a *change* in the paragraph state from the previous state.
@@ -355,12 +355,12 @@ add_task(async function test_non_body_paragraph_state() {
     prevState = state;
   }
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_body_paragraph_state() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
 
@@ -390,12 +390,12 @@ add_task(async function test_body_paragraph_state() {
     "body on all blocks"
   );
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_convert_from_body_paragraph_state() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   let stateSet = ["p", "address", "pre"];
   for (let i = 1; i <= 6; i++) {
@@ -435,12 +435,12 @@ add_task(async function test_convert_from_body_paragraph_state() {
     await formatHelper.deleteAll();
   }
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_heading_implies_bold() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
 
@@ -572,12 +572,12 @@ add_task(async function test_heading_implies_bold() {
     await formatHelper.emptyParagraph();
   }
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_address_implies_italic() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
 
@@ -697,12 +697,12 @@ add_task(async function test_address_implies_italic() {
   // NOTE: Switching from "p" state to a heading state will *not* remove the
   // italic tags.
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });
 
 add_task(async function test_preformat_implies_fixed_width() {
-  let controller = open_compose_new_mail();
-  let formatHelper = new FormatHelper(controller);
+  let win = open_compose_new_mail();
+  let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
 
@@ -884,5 +884,5 @@ add_task(async function test_preformat_implies_fixed_width() {
   // NOTE: Switching from "p" state to a heading state will *not* remove the
   // monospace font.
 
-  close_compose_window(controller);
+  close_compose_window(win);
 });

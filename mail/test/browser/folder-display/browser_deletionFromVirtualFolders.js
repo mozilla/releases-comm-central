@@ -44,7 +44,8 @@ var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;
 var setNormal;
 
 /**
- * The message window controller.
+ * The message window.
+ * @type {Window}
  */
 var msgc;
 
