@@ -16,14 +16,14 @@ var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
 
-var { open_compose_new_mail, close_compose_window, add_attachments } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { open_compose_new_mail, close_compose_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
 var {
   add_message_to_folder,
   be_in_folder,
   create_folder,
   create_message,
-  FAKE_SERVER_HOSTNAME,
   get_about_message,
   inboxFolder,
   select_click_row,
@@ -374,24 +374,6 @@ add_task(async function test_link_drag() {
 
   close_compose_window(cwc);
 });
-
-/**
- * Get the attachment item for the given url.
- *
- * @param {Element} bucket - The element to search in for the attachment item.
- * @param {string} url - The url of the attachment to find.
- *
- * @returns {Element?} - The item with the given attachment url, or null if none
- *   was found.
- */
-function getAttachmentItem(bucket, url) {
-  for (let child of bucket.childNodes) {
-    if (child.attachment.url == url) {
-      return child;
-    }
-  }
-  return null;
-}
 
 /**
  * Assert that the given bucket has the given selected items.

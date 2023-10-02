@@ -18,8 +18,9 @@ const {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { open_compose_new_mail, get_msg_source, setup_msg_contents } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+const { open_compose_new_mail, setup_msg_contents } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );

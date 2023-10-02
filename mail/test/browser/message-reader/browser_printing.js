@@ -8,9 +8,6 @@
 
 "use strict";
 
-var { close_compose_window, open_compose_with_reply } = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
 var {
   add_message_to_folder,
   assert_selected_and_displayed,

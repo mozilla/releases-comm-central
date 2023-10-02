@@ -18,9 +18,6 @@ var {
   open_compose_with_reply_to_all,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 var {
   add_message_to_folder,
   assert_selected_and_displayed,

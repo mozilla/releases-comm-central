@@ -11,7 +11,6 @@
 "use strict";
 
 var {
-  add_to_toolbar,
   assert_message_pane_focused,
   assert_messages_not_in_view,
   assert_number_of_tabs_open,
@@ -26,7 +25,6 @@ var {
   make_message_sets_in_folders,
   mc,
   plan_for_message_display,
-  remove_from_toolbar,
   reset_open_message_behavior,
   set_mail_view,
   set_open_message_behavior,
@@ -35,7 +33,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { async_plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
+var { async_plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 

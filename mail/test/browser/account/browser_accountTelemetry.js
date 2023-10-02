@@ -17,18 +17,10 @@ let { MailTelemetryForTests } = ChromeUtils.import(
   "resource:///modules/MailGlue.jsm"
 );
 
-let {
-  add_message_to_folder,
-  create_message,
-  msgGen,
-  get_special_folder,
-  create_folder,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-let { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
-);
+let { add_message_to_folder, msgGen, get_special_folder, create_folder } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+  );
 let { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );

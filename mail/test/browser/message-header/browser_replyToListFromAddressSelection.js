@@ -20,7 +20,6 @@ var { MailServices } = ChromeUtils.import(
 );
 
 var testFolder = null;
-var msgHdr = null;
 var replyToListWindow = null;
 
 var identityString1 = "tinderbox_correct_identity@foo.invalid";

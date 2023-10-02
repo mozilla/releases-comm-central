@@ -22,7 +22,6 @@ var {
 );
 
 var about3Pane;
-var rootFolder;
 var inboxSubfolder;
 var trashFolder;
 var trashSubfolder;
@@ -30,7 +29,6 @@ var inboxSet;
 
 add_setup(async function () {
   about3Pane = get_about_3pane();
-  rootFolder = inboxFolder.server.rootFolder;
 
   // Create a folder as a subfolder of the inbox
   inboxFolder.createSubfolder("UnreadFoldersA", null);

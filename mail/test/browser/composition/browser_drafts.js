@@ -33,12 +33,8 @@ var { wait_for_notification_to_show, get_notification } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 
-var {
-  click_menus_in_sequence,
-  close_popup_sequence,
-  plan_for_new_window,
-  wait_for_window_focused,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { click_menus_in_sequence, close_popup_sequence, plan_for_new_window } =
+  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

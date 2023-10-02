@@ -21,14 +21,7 @@ var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-
 var gOutboxFolder;
-
-var kBoxId = "compose-notification-bottom";
-var kNotificationId = "blockedContent";
 
 function typedArrayToString(buffer) {
   var string = "";

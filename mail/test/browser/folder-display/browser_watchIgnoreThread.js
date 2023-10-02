@@ -20,7 +20,6 @@ var {
   inboxFolder,
   make_display_threaded,
   select_click_row,
-  wait_for_popup_to_open,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

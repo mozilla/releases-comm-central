@@ -38,7 +38,7 @@ var { MailViewConstants } = ChromeUtils.import(
   "resource:///modules/MailViewManager.jsm"
 );
 
-var baseFolder, folder, lastMessageFolder;
+var baseFolder, folder;
 
 var tabFolder, tabMessage, tabMessageBackground, curMessage, nextMessage;
 

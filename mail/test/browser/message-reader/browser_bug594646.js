@@ -18,14 +18,6 @@ var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var gReferenceTextContent;
-
-add_setup(async function () {
-  gReferenceTextContent = await extract_eml_body_textcontent(
-    "./bug594646_reference.eml"
-  );
-});
-
 async function extract_eml_body_textcontent(eml) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = await open_message_from_file(file);

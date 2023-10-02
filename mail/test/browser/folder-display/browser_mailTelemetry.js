@@ -13,7 +13,6 @@ let {
   create_encrypted_openpgp_message,
   add_message_to_folder,
   select_click_row,
-  assert_selected_and_displayed,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

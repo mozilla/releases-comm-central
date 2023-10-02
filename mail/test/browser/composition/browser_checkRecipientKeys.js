@@ -5,12 +5,9 @@
 var { plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-var {
-  close_compose_window,
-  open_compose_new_mail,
-  setup_msg_contents,
-  wait_for_compose_window,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { close_compose_window, wait_for_compose_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
 var { be_in_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

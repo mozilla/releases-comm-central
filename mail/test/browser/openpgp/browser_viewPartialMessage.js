@@ -14,9 +14,6 @@ const { get_about_message, open_message_from_file } = ChromeUtils.import(
 const { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-const { waitForCondition } = ChromeUtils.import(
-  "resource://testing-common/mozmill/utils.jsm"
-);
 const { get_notification_button, wait_for_notification_to_show } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
@@ -28,8 +25,6 @@ const { OpenPGPTestUtils } = ChromeUtils.import(
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-
-const MSG_TEXT = "Sundays are nothing without callaloo.";
 
 function getMsgBodyTxt(msgc) {
   let msgPane = get_about_message(msgc.window).getMessagePaneBrowser();

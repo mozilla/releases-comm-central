@@ -13,9 +13,6 @@ var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
-var EventUtils = ChromeUtils.import(
-  "resource://testing-common/mozmill/EventUtils.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var {
@@ -523,7 +520,7 @@ add_task(async function test_multiple_3pane_periodic_session_persistence() {
   }
 }).skip(); // Bug 1753963.
 
-async function test_bad_session_file_simple() {
+add_task(async function test_bad_session_file_simple() {
   // forcefully write a bad session file
   let data = "BAD SESSION FILE";
   let fos = FileUtils.openSafeFileOutputStream(SessionStoreManager.sessionFile);
@@ -547,7 +544,7 @@ async function test_bad_session_file_simple() {
     () => !SessionStoreManager.sessionFile.exists(),
     "session file should now not exist"
   );
-}
+}).skip(); // Bug 1753963.
 
 add_task(async function test_clean_shutdown_session_persistence_simple() {
   // open a few more 3pane windows

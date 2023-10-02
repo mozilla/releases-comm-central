@@ -10,8 +10,6 @@
 "use strict";
 
 const {
-  create_encrypted_smime_message,
-  add_message_to_folder,
   be_in_folder,
   get_about_message,
   get_special_folder,
@@ -53,7 +51,6 @@ function getMsgBodyTxt(mc) {
 
 var aliceAcct;
 var aliceIdentity;
-var initialKeyIdPref = "";
 var gInbox;
 
 /**
@@ -86,7 +83,6 @@ add_setup(async function () {
     )
   );
 
-  initialKeyIdPref = aliceIdentity.getUnicharAttribute("openpgp_key_id");
   aliceIdentity.setUnicharAttribute("openpgp_key_id", id);
 
   // Import and accept the public key for Bob, our verified sender.

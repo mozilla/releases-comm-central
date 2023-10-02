@@ -22,8 +22,6 @@ var {
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
-var folder = null;
-var gMsgNo = 0;
 var gCwc;
 var gNewTab;
 var gPreCount;

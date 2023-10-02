@@ -39,7 +39,6 @@ var {
   mc,
   open_message_from_file,
   open_selected_message,
-  plan_for_message_display,
   select_click_row,
   set_open_message_behavior,
   wait_for_message_display_completion,
@@ -57,11 +56,10 @@ var {
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 var {
-  async_plan_for_new_window,
   click_menus_in_sequence,
   plan_for_modal_dialog,
   wait_for_modal_dialog,
-  wait_for_new_window,
+
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 

@@ -17,20 +17,15 @@ var {
 var {
   be_in_folder,
   get_special_folder,
-  get_about_message,
+
   open_message_from_file,
   press_delete,
   select_click_row,
-  select_none,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
-
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
 );
 
 var gDrafts;

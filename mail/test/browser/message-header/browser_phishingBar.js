@@ -34,8 +34,6 @@ var {
   async_plan_for_new_window,
   close_window,
   plan_for_modal_dialog,
-  plan_for_new_window,
-  wait_for_new_window,
   click_menus_in_sequence,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 var folder;

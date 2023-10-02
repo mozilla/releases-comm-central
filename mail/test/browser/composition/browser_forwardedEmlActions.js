@@ -23,11 +23,8 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { async_plan_for_new_window, close_window, wait_for_new_window } =
-  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
-
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { async_plan_for_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var folder;

@@ -17,9 +17,7 @@ var {
   be_in_folder,
   create_folder,
   inboxFolder,
-  press_delete,
   select_click_row,
-  wait_for_message_display_completion,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

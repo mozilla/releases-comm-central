@@ -8,18 +8,13 @@
 
 "use strict";
 
-const {
-  open_message_from_file,
-  be_in_folder,
-  get_special_folder,
-  select_click_row,
-} = ChromeUtils.import(
+const { be_in_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 const { open_compose_new_mail, setup_msg_contents } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
-const { click_menus_in_sequence, close_window } = ChromeUtils.import(
+const { click_menus_in_sequence } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 const { OpenPGPTestUtils } = ChromeUtils.import(
@@ -33,21 +28,6 @@ const { MailServices } = ChromeUtils.import(
 let bobAcct;
 let bobIdentity;
 let plainIdentity;
-let gOutbox;
-
-// Used in some of the tests to verify key status display.
-let l10n = new Localization(["messenger/openpgp/composeKeyStatus.ftl"]);
-
-/**
- * Closes a window with a <dialog> element by calling the acceptDialog().
- *
- * @param {Window} win
- */
-async function closeDialog(win) {
-  let closed = BrowserTestUtils.domWindowClosed(win);
-  win.document.documentElement.querySelector("dialog").acceptDialog();
-  await closed;
-}
 
 async function waitCheckEncryptionStateDone(win) {
   return BrowserTestUtils.waitForEvent(
@@ -98,8 +78,6 @@ add_setup(async function () {
       )
     )
   );
-
-  gOutbox = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
 });
 
 async function testComposeFlags(

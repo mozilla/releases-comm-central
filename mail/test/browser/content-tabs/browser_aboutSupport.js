@@ -48,13 +48,6 @@ add_setup(function () {
   warningText.set("text/plain", bundle.GetStringFromName("warningText"));
 });
 
-// After every test we want to close the about:support tab so that failures
-// don't cascade.
-function teardownTest(module) {
-  let tabmail = document.getElementById("tabmail");
-  tabmail.closeOtherTabs(tabmail.tabInfo[0]);
-}
-
 /**
  * Strings found in the about:support HTML or text that should clearly mark the
  * data as being from about:support.

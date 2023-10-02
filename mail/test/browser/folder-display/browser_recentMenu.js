@@ -24,12 +24,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var {
-  click_menus_in_sequence,
-  close_popup_sequence,
-  click_appmenu_in_sequence,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { click_menus_in_sequence, close_popup_sequence } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

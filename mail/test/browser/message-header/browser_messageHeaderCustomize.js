@@ -5,29 +5,10 @@
 /**
  * Test the message header customization features.
  */
-var {
-  add_message_to_folder,
-  assert_selected_and_displayed,
-  be_in_folder,
-  close_popup,
-  create_folder,
-  create_message,
-  gDefaultWindowHeight,
-  get_smart_folder_named,
-  get_about_3pane,
-  get_about_message,
-  inboxFolder,
-  msgGen,
-  restore_default_window_size,
-  select_click_row,
-  select_none,
-  wait_for_message_display_completion,
-  wait_for_popup_to_open,
-} = ChromeUtils.import(
+var { be_in_folder, get_about_message, select_click_row } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-let about3Pane = get_about_3pane();
 let aboutMessage = get_about_message();
 
 var { MailTelemetryForTests } = ChromeUtils.import(

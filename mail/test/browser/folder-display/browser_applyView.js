@@ -8,7 +8,7 @@
 
 "use strict";
 
-var { be_in_folder, create_folder } = ChromeUtils.import(
+var { be_in_folder, create_folder, get_about_3pane } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { click_menus_in_sequence } = ChromeUtils.import(
@@ -16,7 +16,7 @@ var { click_menus_in_sequence } = ChromeUtils.import(
 );
 
 // These are for the reset/apply to other/apply to other+child tests.
-var folderSource, folderParent, folderChild1, folderChild2;
+var folderSource, folderParent, folderChild1;
 
 add_setup(async function () {
   folderSource = await create_folder("ColumnsApplySource");
@@ -25,7 +25,6 @@ add_setup(async function () {
   folderParent.createSubfolder("Child1", null);
   folderChild1 = folderParent.getChildNamed("Child1");
   folderParent.createSubfolder("Child2", null);
-  folderChild2 = folderParent.getChildNamed("Child2");
 
   await be_in_folder(folderSource);
   await ensure_table_view();
@@ -40,7 +39,7 @@ add_setup(async function () {
 /**
  * Get the currently visible threadTree columns.
  */
-function testSetViewSingle() {
+add_task(async function testSetViewSingle() {
   let info = folderSource.msgDatabase.dBFolderInfo;
 
   Assert.equal(
@@ -54,26 +53,28 @@ function testSetViewSingle() {
     "sortOrder should start descending"
   );
 
-  let threadCol = window.getElementById("threadCol");
-  EventUtils.synthesizeMouseAtCenter(threadCol, { clickCount: 1 }, window);
-  TestUtils.waitForCondition(
+  let about3Pane = get_about_3pane();
+
+  let threadCol = about3Pane.document.getElementById("threadCol");
+  EventUtils.synthesizeMouseAtCenter(threadCol, { clickCount: 1 }, about3Pane);
+  await TestUtils.waitForCondition(
     () => info.viewFlags == Ci.nsMsgViewFlagsType.kNone,
     "should change viewFlags to none"
   );
 
-  let subjectCol = window.getElementById("subjectCol");
-  EventUtils.synthesizeMouseAtCenter(subjectCol, { clickCount: 1 }, window);
-  TestUtils.waitForCondition(
+  let subjectCol = about3Pane.document.getElementById("subjectCol");
+  EventUtils.synthesizeMouseAtCenter(subjectCol, { clickCount: 1 }, about3Pane);
+  await TestUtils.waitForCondition(
     () => info.sortType == Ci.nsMsgViewSortType.bySubject,
     "should change sortType to subject"
   );
 
-  EventUtils.synthesizeMouseAtCenter(subjectCol, { clickCount: 1 }, window);
-  TestUtils.waitForCondition(
-    () => info.sortOrder == Ci.nsMsgViewSortOrder.ascending,
-    "should change sortOrder to sort ascending"
+  EventUtils.synthesizeMouseAtCenter(subjectCol, { clickCount: 1 }, about3Pane);
+  await TestUtils.waitForCondition(
+    () => info.sortOrder == Ci.nsMsgViewSortOrder.descending,
+    "should change sortOrder to sort descending"
   );
-}
+});
 
 async function invoke_column_picker_option(aActions) {
   let tabmail = document.getElementById("tabmail");

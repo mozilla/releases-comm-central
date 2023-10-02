@@ -4,13 +4,12 @@
 
 "use strict";
 
-var { content_tab_e, wait_for_content_tab_load } = ChromeUtils.import(
+var { wait_for_content_tab_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 var {
   click_through_appmenu,
   plan_for_modal_dialog,
-  wait_for_browser_load,
   wait_for_modal_dialog,
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");

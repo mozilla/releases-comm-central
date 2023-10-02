@@ -13,7 +13,6 @@
 "use strict";
 
 var {
-  assert_nothing_selected,
   assert_selected_and_displayed,
   be_in_folder,
   create_folder,

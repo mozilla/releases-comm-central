@@ -12,11 +12,8 @@
 var {
   assert_messages_in_view,
   be_in_folder,
-  close_tab,
   create_folder,
-  get_about_3pane,
   make_message_sets_in_folders,
-  open_folder_in_new_tab,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

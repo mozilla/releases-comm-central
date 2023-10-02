@@ -43,7 +43,6 @@ var { MailServices } = ChromeUtils.import(
 
 var kHtmlPrefKey = "mail.identity.default.compose_html";
 var kDefaultSigKey = "mail.identity.id1.htmlSigText";
-var kDefaultSig = "This is my signature.\n\nCheck out my website sometime!";
 var kFiles = ["./data/testFile1", "./data/testFile2"];
 
 var gInbox;

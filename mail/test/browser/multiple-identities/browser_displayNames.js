@@ -35,7 +35,6 @@ var myEmail = "sender@nul.invalid"; // Dictated by messagerInjector.js
 var friendEmail = "carl@sagan.invalid";
 var friendName = "Carl Sagan";
 var headertoFieldMe;
-var collectedAddresses;
 
 add_setup(async function () {
   localAccount = MailServices.accounts.FindAccountForServer(
@@ -88,9 +87,6 @@ add_setup(async function () {
 
   // Ensure all the directories are initialised.
   MailServices.ab.directories;
-  collectedAddresses = MailServices.ab.getDirectory(
-    "jsaddrbook://history.sqlite"
-  );
 
   let bundle = Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"

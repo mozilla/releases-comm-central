@@ -27,30 +27,16 @@ var {
   close_popup,
   create_folder,
   create_message,
-  gDefaultWindowHeight,
-  get_smart_folder_named,
   get_about_3pane,
   get_about_message,
-  inboxFolder,
   mc,
   msgGen,
-  restore_default_window_size,
   select_click_row,
   select_none,
   wait_for_message_display_completion,
   wait_for_popup_to_open,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-var { element_visible_recursive } = ChromeUtils.import(
-  "resource://testing-common/mozmill/DOMHelpers.jsm"
-);
-var { resize_to } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
-
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
 );
 
 let about3Pane = get_about_3pane();

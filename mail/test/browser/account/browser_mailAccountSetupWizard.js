@@ -4,7 +4,7 @@
 
 "use strict";
 
-var { openAccountSetup, wait_for_account_tree_load } = ChromeUtils.import(
+var { openAccountSetup } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
 var { mc } = ChromeUtils.import(
@@ -29,9 +29,6 @@ let { TelemetryTestUtils } = ChromeUtils.importESModule(
 );
 var { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
-);
-var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
 );
 
 var originalAlertsServiceCID;

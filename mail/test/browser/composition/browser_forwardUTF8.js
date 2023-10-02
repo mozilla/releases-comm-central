@@ -26,10 +26,6 @@ var { click_menus_in_sequence, close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-
 var folderToSendFrom;
 
 add_setup(async function () {

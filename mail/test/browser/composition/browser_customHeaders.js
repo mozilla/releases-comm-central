@@ -15,9 +15,6 @@ var {
 var { be_in_folder, select_click_row, get_special_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { wait_for_window_focused } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 /**
  * Test custom headers are set and encoded correctly.

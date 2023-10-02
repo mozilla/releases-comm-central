@@ -43,31 +43,6 @@ let gDrafts;
 
 let aboutMessage = get_about_message();
 
-// Used in some of the tests to verify key status display.
-let l10n = new Localization(["messenger/openpgp/composeKeyStatus.ftl"]);
-
-function waitForComposeWindow() {
-  return BrowserTestUtils.domWindowOpened(null, async win => {
-    await BrowserTestUtils.waitForEvent(win, "load");
-    await BrowserTestUtils.waitForEvent(win, "focus", true);
-    return (
-      win.document.documentURI ===
-      "chrome://messenger/content/messengercompose/messengercompose.xhtml"
-    );
-  });
-}
-
-/**
- * Closes a window with a <dialog> element by calling the acceptDialog().
- *
- * @param {Window} win
- */
-async function closeDialog(win) {
-  let closed = BrowserTestUtils.domWindowClosed(win);
-  win.document.documentElement.querySelector("dialog").acceptDialog();
-  await closed;
-}
-
 function setAutoPrefs(autoEnable, autoDisable, notifyOnDisable) {
   Services.prefs.setBoolPref("mail.e2ee.auto_enable", autoEnable);
   Services.prefs.setBoolPref("mail.e2ee.auto_disable", autoDisable);

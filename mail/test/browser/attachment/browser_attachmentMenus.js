@@ -5,8 +5,6 @@
 "use strict";
 
 var folder;
-var messenger;
-var epsilon;
 
 var {
   create_body_part,
@@ -179,17 +177,6 @@ var messages = [
 ];
 
 add_setup(async function () {
-  messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-
-  /* Today's gory details (thanks to Jonathan Protzenko): libmime somehow
-   * counts the trailing newline for an attachment MIME part. Most of the time,
-   * assuming attachment has N bytes (no matter what's inside, newlines or
-   * not), libmime will return N + 1 bytes. On Linux and Mac, this always
-   * holds. However, on Windows, if the attachment is not encoded (that is, is
-   * inline text), libmime will return N + 2 bytes.
-   */
-  epsilon = "@mozilla.org/windows-registry-key;1" in Cc ? 2 : 1;
-
   // set up our detached/deleted attachments
   var detachedFile = new FileUtils.File(
     getTestFilePath(`data/${detachedName}`)

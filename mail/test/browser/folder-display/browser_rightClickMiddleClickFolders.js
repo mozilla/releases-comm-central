@@ -15,7 +15,6 @@ var {
   assert_folder_selected_and_displayed,
   assert_folders_selected_and_displayed,
   assert_selected_tab,
-  be_in_folder,
   close_popup,
   close_tab,
   create_folder,

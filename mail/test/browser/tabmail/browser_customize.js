@@ -12,10 +12,6 @@ const { close_popup, mc, wait_for_popup_to_open } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-const { drag_n_drop_element } = ChromeUtils.import(
-  "resource://testing-common/mozmill/MouseEventHelpers.jsm"
-);
-
 const { click_through_appmenu } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );

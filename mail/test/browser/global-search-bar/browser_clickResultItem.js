@@ -18,7 +18,6 @@ const { GlodaMsgIndexer } = ChromeUtils.import(
 );
 
 let folder;
-let threads;
 
 /**
  * Tests the 3 global search bars found in the UI:
@@ -62,7 +61,7 @@ add_task(async function testClickingGlobalSearchResultItemOpensOneTab() {
   window.focus();
   folder = await create_folder("SearchedFolder");
   await be_in_folder(folder);
-  threads = await make_message_sets_in_folders(
+  await make_message_sets_in_folders(
     [folder],
     [
       { from: ["User", "user@example.com"] },

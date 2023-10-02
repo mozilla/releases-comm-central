@@ -8,23 +8,10 @@
 
 "use strict";
 
-var {
-  click_account_tree_row,
-  get_account_tree_row,
-  open_advanced_settings,
-  openAccountSettings,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
-);
-const { wait_for_frame_load } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
-var { gMockPromptService } = ChromeUtils.import(
-  "resource://testing-common/mozmill/PromptHelpers.jsm"
-);
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+var { click_account_tree_row, get_account_tree_row, openAccountSettings } =
+  ChromeUtils.import(
+    "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
+  );
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

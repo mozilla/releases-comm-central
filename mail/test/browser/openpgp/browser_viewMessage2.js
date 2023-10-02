@@ -15,9 +15,6 @@ const { get_about_message, open_message_from_file } = ChromeUtils.import(
 const { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-const { waitForCondition } = ChromeUtils.import(
-  "resource://testing-common/mozmill/utils.jsm"
-);
 
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"

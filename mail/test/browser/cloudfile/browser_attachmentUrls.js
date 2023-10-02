@@ -54,7 +54,6 @@ var kSigPrefKey = "mail.identity.id1.htmlSigText";
 var kSigOnReplyKey = "mail.identity.default.sig_on_reply";
 var kSigOnForwardKey = "mail.identity.default.sig_on_fwd";
 var kDefaultSigKey = "mail.identity.id1.htmlSigText";
-var kDefaultSig = "This is my signature.\n\nCheck out my website sometime!";
 var kFiles = ["./data/testFile1", "./data/testFile2"];
 var kLines = ["This is a line of text", "and here's another!"];
 
@@ -125,11 +124,6 @@ registerCleanupFunction(function () {
   Services.prefs.clearUserPref(kHtmlPrefKey);
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
 });
-
-function setupTest() {
-  // If our signature got accidentally wiped out, let's just put it back.
-  Services.prefs.setCharPref(kDefaultSigKey, kDefaultSig);
-}
 
 /**
  * Given some compose window controller, wait for some Filelink URLs to be

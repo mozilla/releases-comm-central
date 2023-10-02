@@ -5,7 +5,6 @@
 "use strict";
 
 var folder;
-var messenger;
 
 var {
   create_body_part,
@@ -20,14 +19,9 @@ var {
   create_folder,
   create_message,
   get_about_message,
-  msgGen,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
-var { SyntheticPartLeaf, SyntheticPartMultiMixed } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
 var textAttachment =
@@ -43,12 +37,10 @@ var imageAttachment =
   "FlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA" +
   "A5SURBVCiRY/z//z8DKYCJJNXkaGBgYGD4D8NQ5zUgiTVAxeBqSLaBkVRPM0KtIhrQ3km0jwe" +
   "SNQAAlmAY+71EgFoAAAAASUVORK5CYII=";
-var imageSize = 188;
 
 var vcardAttachment =
   "YmVnaW46dmNhcmQNCmZuOkppbSBCb2INCm46Qm9iO0ppbQ0KZW1haWw7aW50ZXJuZXQ6Zm9v" +
   "QGJhci5jb20NCnZlcnNpb246Mi4xDQplbmQ6dmNhcmQNCg0K";
-var vcardSize = 90;
 
 var detachedName = "./attachment.txt";
 var missingName = "./nonexistent.txt";
@@ -160,8 +152,6 @@ var messages = [
 ];
 
 add_setup(async function () {
-  messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-
   // Set up our detached/deleted attachments.
   var detachedFile = new FileUtils.File(
     getTestFilePath(`data/${detachedName}`)

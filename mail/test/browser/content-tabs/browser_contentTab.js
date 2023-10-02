@@ -4,10 +4,6 @@
 
 "use strict";
 
-var EventUtils = ChromeUtils.import(
-  "resource://testing-common/mozmill/EventUtils.jsm"
-);
-
 var { assert_content_tab_has_favicon, open_content_tab_with_url } =
   ChromeUtils.import("resource://testing-common/mozmill/ContentTabHelpers.jsm");
 var { assert_element_visible, assert_element_not_visible } = ChromeUtils.import(

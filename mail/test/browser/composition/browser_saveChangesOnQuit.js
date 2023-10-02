@@ -36,11 +36,10 @@ var { gMockPromptService } = ChromeUtils.import(
 var { wait_for_notification_to_show, get_notification } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
-var { plan_for_new_window, wait_for_window_focused } = ChromeUtils.import(
+var { plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var SAVE = 0;
 var CANCEL = 1;
 var DONT_SAVE = 2;
 

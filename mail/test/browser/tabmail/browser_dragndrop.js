@@ -13,19 +13,12 @@ if (AppConstants.MOZ_CODE_COVERAGE) {
  * Test rearanging tabs via drag'n'drop.
  */
 
-var EventUtils = ChromeUtils.import(
-  "resource://testing-common/mozmill/EventUtils.jsm"
-);
-
 var {
-  assert_folder_selected_and_displayed,
   assert_number_of_tabs_open,
   assert_selected_and_displayed,
   be_in_folder,
   close_popup,
   create_folder,
-  display_message_in_folder_tab,
-  get_about_3pane,
   make_message_sets_in_folders,
   mc,
   open_folder_in_new_window,
@@ -45,8 +38,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/MouseEventHelpers.jsm"
 );
-var { async_plan_for_new_window, close_window, wait_for_new_window } =
-  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { async_plan_for_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var folder;
 var msgHdrsInFolder = [];

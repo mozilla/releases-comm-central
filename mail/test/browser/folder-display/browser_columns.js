@@ -20,7 +20,6 @@ var {
   make_message_sets_in_folders,
   open_folder_in_new_tab,
   switch_tab,
-  wait_for_all_messages_to_load,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -42,8 +41,6 @@ var columnsB;
 
 // these are for the reset/apply to other/apply to other+child tests.
 var folderSource, folderParent, folderChild1, folderChild2;
-
-var gColumnStateUpdated = false;
 
 var useCorrespondent;
 var INBOX_DEFAULTS;

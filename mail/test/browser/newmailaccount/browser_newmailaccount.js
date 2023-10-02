@@ -40,14 +40,9 @@ var { click_through_appmenu, click_menus_in_sequence } = ChromeUtils.import(
 // so we get the right path for the resources.
 var url =
   "http://mochi.test:8888/browser/comm/mail/test/browser/newmailaccount/html/";
-var kProvisionerUrl =
-  "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml";
 var kProvisionerEnabledPref = "mail.provider.enabled";
 var kSuggestFromNamePref = "mail.provider.suggestFromName";
 var kProviderListPref = "mail.provider.providerList";
-var kDefaultServerPort = 4444;
-var kDefaultServerRoot = "http://localhost:" + kDefaultServerPort;
-var gDefaultEngine;
 
 Services.prefs.setCharPref(kProviderListPref, url + "providerList");
 Services.prefs.setCharPref(kSuggestFromNamePref, url + "suggestFromName");

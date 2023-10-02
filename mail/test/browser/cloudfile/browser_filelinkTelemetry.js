@@ -54,7 +54,6 @@ registerCleanupFunction(function () {
 });
 
 let kBoxId = "compose-notification-bottom";
-let kNotificationValue = "bigAttachment";
 
 /**
  * Check that we're counting file size uploaded.

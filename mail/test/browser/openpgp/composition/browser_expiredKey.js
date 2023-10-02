@@ -8,7 +8,7 @@
  * Tests for composition when a key is expired.
  */
 
-const { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
+const { open_compose_new_mail } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
 

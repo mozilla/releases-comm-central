@@ -14,17 +14,6 @@ const { get_about_message, open_message_from_file } = ChromeUtils.import(
 const { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-const { waitForCondition } = ChromeUtils.import(
-  "resource://testing-common/mozmill/utils.jsm"
-);
-const {
-  assert_notification_displayed,
-  get_notification_button,
-  wait_for_notification_to_show,
-  wait_for_notification_to_stop,
-} = ChromeUtils.import(
-  "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
-);
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );

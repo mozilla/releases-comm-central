@@ -4,9 +4,6 @@
 
 "use strict";
 
-var { openAccountSetup } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

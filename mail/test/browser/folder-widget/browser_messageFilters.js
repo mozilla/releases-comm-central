@@ -11,7 +11,7 @@
 var { create_ldap_address_book } = ChromeUtils.import(
   "resource://testing-common/mozmill/AddressBookHelpers.jsm"
 );
-var { be_in_folder, close_popup, create_folder, make_message_sets_in_folders } =
+var { be_in_folder, create_folder, make_message_sets_in_folders } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
@@ -22,12 +22,10 @@ var {
   close_window,
   plan_for_modal_dialog,
   plan_for_new_window,
-  plan_for_window_close,
   wait_for_existing_window,
   wait_for_modal_dialog,
   wait_for_new_window,
   wait_for_window_focused,
-  wait_for_window_close,
   click_menus_in_sequence,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 

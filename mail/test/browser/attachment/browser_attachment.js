@@ -17,7 +17,6 @@ var {
   assert_message_pane_focused,
   assert_selected_and_displayed,
   be_in_folder,
-  close_popup,
   create_folder,
   create_message,
   get_about_message,
@@ -27,7 +26,6 @@ var {
   select_none,
   wait_for_folder_events,
   wait_for_message_display_completion,
-  wait_for_popup_to_open,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

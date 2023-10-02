@@ -25,7 +25,6 @@ var { TelemetryTestUtils } = ChromeUtils.importESModule(
 var { click_menus_in_sequence, click_through_appmenu, close_popup_sequence } =
   ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
-var rootFolder;
 var unreadFolder;
 var favoriteFolder;
 var modeList_menu;
@@ -33,14 +32,11 @@ var modeList_appmenu;
 var view_menu;
 var view_menupopup;
 var appmenu_button;
-var appmenu_mainView;
 var appmenu_popup;
 var menu_state;
 var about3Pane;
 
 add_setup(async function () {
-  rootFolder = inboxFolder.server.rootFolder;
-
   // Create one folder with unread messages and one favorite folder.
   inboxFolder.createSubfolder("UnreadFolder", null);
   unreadFolder = inboxFolder.getChildNamed("UnreadFolder");
@@ -57,7 +53,6 @@ add_setup(async function () {
   view_menu = document.getElementById("menu_View");
   view_menupopup = document.getElementById("menu_View_Popup");
   appmenu_button = document.getElementById("button-appmenu");
-  appmenu_mainView = document.getElementById("appMenu-mainView");
   appmenu_popup = document.getElementById("appMenu-popup");
 
   // Main menu is needed for this whole test file.

@@ -36,10 +36,6 @@ const {
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-
 let gInbox;
 let gOutbox;
 let gAutoRead;

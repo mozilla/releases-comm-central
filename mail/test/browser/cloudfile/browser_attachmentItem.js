@@ -11,8 +11,9 @@
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { gMockFilePicker, gMockFilePickReg, select_attachments } =
   ChromeUtils.import("resource://testing-common/mozmill/AttachmentHelpers.jsm");
-var { getFile, gMockCloudfileManager, MockCloudfileAccount } =
-  ChromeUtils.import("resource://testing-common/mozmill/CloudfileHelpers.jsm");
+var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CloudfileHelpers.jsm"
+);
 var {
   add_cloud_attachments,
   convert_selected_to_cloud_attachment,

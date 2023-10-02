@@ -13,9 +13,6 @@ var { mc } = ChromeUtils.import(
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var user = {
   name: "test",

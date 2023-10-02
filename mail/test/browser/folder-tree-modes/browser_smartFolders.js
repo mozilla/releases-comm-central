@@ -33,8 +33,6 @@ var trashSubfolder;
 
 var smartInboxFolder;
 
-var inboxSet;
-
 add_setup(async function () {
   about3Pane = get_about_3pane();
   rootFolder = inboxFolder.server.rootFolder;
@@ -50,10 +48,7 @@ add_setup(async function () {
 
   // The message itself doesn't really matter, as long as there's at least one
   // in the folder.
-  [inboxSet] = await make_message_sets_in_folders(
-    [inboxFolder],
-    [{ count: 1 }]
-  );
+  await make_message_sets_in_folders([inboxFolder], [{ count: 1 }]);
   await make_message_sets_in_folders([inboxSubfolder], [{ count: 1 }]);
 
   // Switch to the smart folder mode.

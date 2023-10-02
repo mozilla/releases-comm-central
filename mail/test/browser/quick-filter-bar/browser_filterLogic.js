@@ -21,7 +21,6 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
-  assert_quick_filter_bar_visible,
   assert_results_label_count,
   assert_text_constraints_checked,
   clear_constraints,

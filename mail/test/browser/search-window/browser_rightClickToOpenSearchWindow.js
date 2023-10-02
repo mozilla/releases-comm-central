@@ -7,7 +7,6 @@
 var {
   assert_folders_selected_and_displayed,
   create_folder,
-  enter_folder,
   select_click_folder,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -15,7 +14,6 @@ var {
 var {
   assert_search_window_folder_displayed,
   close_search_window,
-  open_search_window,
   open_search_window_from_context_menu,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/SearchWindowHelpers.jsm"

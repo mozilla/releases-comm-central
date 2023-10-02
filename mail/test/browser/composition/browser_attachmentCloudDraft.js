@@ -33,21 +33,16 @@ var {
 var { get_notification, wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
-var { plan_for_modal_dialog, plan_for_new_window, wait_for_modal_dialog } =
-  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
-
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
+var { plan_for_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var gDrafts;
-var gOutbox;
 var gCloudFileProvider;
 const kFiles = ["./data/attachment.txt"];
 
 add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
-  gOutbox = await get_special_folder(Ci.nsMsgFolderFlags.Queue);
   gMockFilePickReg.register();
   // Register an extension based cloudFile provider.
   gCloudFileProvider = new CloudFileTestProvider("testProvider");
@@ -545,21 +540,6 @@ function openDraft() {
     aboutMessage
   );
   return wait_for_compose_window();
-}
-
-/**
- * Click Save in the Save message dialog.
- */
-function click_save_message(controller) {
-  if (controller.window.document.title != "Save Message") {
-    throw new Error(
-      "Not a Save message dialog; title=" + controller.window.document.title
-    );
-  }
-  controller.window.document
-    .querySelector("dialog")
-    .getButton("accept")
-    .doCommand();
 }
 
 function collectFiles(files) {

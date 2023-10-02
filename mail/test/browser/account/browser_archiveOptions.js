@@ -10,12 +10,9 @@ var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
   );
-var {
-  plan_for_modal_dialog,
-  plan_for_window_close,
-  wait_for_modal_dialog,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
