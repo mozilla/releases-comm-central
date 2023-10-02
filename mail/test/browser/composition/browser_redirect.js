@@ -20,7 +20,6 @@ var {
   be_in_folder,
   create_message,
   get_about_message,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -171,7 +170,7 @@ add_task(async function testRedirectToMe() {
 
   await be_in_folder(folder);
   let msg = select_click_row(i++);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   // Open Other Actions.
   let aboutMessage = get_about_message();
@@ -194,7 +193,7 @@ add_task(async function testRedirectToMe() {
     {},
     aboutMessage
   );
-  let cwc = await async_wait_for_compose_window(mc, compWinPromise);
+  let cwc = await async_wait_for_compose_window(window, compWinPromise);
   Assert.equal(
     cwc.getCurrentIdentityKey(),
     identity2.key,

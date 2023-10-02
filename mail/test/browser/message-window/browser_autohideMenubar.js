@@ -15,7 +15,6 @@ var {
   create_folder,
   inboxFolder,
   make_message_sets_in_folders,
-  mc,
   open_selected_message_in_new_window,
   select_click_row,
   toggle_main_menu,
@@ -95,7 +94,7 @@ async function help_test_autohide(controller, menubar) {
 
 add_task(async function test_autohidden_menubar_3pane() {
   let menubar = document.getElementById("toolbar-menubar");
-  await help_test_autohide(mc, menubar);
+  await help_test_autohide(window, menubar);
 });
 
 add_task(async function test_autohidden_menubar_message_window() {

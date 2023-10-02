@@ -36,7 +36,6 @@ var {
   close_message_window,
   create_folder,
   get_about_message,
-  mc,
   open_message_from_file,
   open_selected_message,
   select_click_row,
@@ -451,7 +450,7 @@ async function allowRemoteContentAndCheck(test) {
     );
   wait_for_notification_to_stop(aboutMessage, kBoxId, kNotificationValue);
 
-  wait_for_message_display_completion(mc, true);
+  wait_for_message_display_completion(window, true);
 
   if (
     !(await test.checkForAllowed(

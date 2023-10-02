@@ -20,7 +20,6 @@ var {
   close_popup,
   create_folder,
   make_message_sets_in_folders,
-  mc,
   open_folder_in_new_window,
   open_selected_message_in_new_tab,
   select_click_row,
@@ -120,7 +119,7 @@ add_task(async function test_tab_reorder_tabbar() {
     tabmail.tabContainer
   );
 
-  wait_for_message_display_completion(mc);
+  wait_for_message_display_completion(window);
 
   // if every thing went well...
   assert_number_of_tabs_open(5);
@@ -298,19 +297,19 @@ add_task(async function test_tab_undo() {
   tabmail.closeTab(2);
 
   assert_number_of_tabs_open(3);
-  assert_selected_and_displayed(mc, msgHdrsInFolder[4]);
+  assert_selected_and_displayed(window, msgHdrsInFolder[4]);
 
   tabmail.undoCloseTab();
   wait_for_message_display_completion();
   assert_number_of_tabs_open(4);
-  assert_selected_and_displayed(mc, msgHdrsInFolder[3]);
+  assert_selected_and_displayed(window, msgHdrsInFolder[3]);
 
   // msgHdrsInFolder[2] won't be restored, it was closed with disabled undo.
 
   tabmail.undoCloseTab();
   wait_for_message_display_completion();
   assert_number_of_tabs_open(5);
-  assert_selected_and_displayed(mc, msgHdrsInFolder[1]);
+  assert_selected_and_displayed(window, msgHdrsInFolder[1]);
   teardownTest();
 });
 
@@ -337,7 +336,7 @@ async function _synthesizeRecentlyClosedMenu() {
 
 async function _teardownRecentlyClosedMenu() {
   let menu = document.getElementById("tabContextMenu");
-  await close_popup(mc, menu);
+  await close_popup(window, menu);
 }
 
 /**
@@ -396,7 +395,7 @@ add_task(async function test_tab_recentlyClosed() {
   await _teardownRecentlyClosedMenu();
   await new Promise(resolve => setTimeout(resolve));
 
-  wait_for_message_display_completion(mc);
+  wait_for_message_display_completion(window);
   assert_number_of_tabs_open(3);
   assert_selected_and_displayed(msgHdrsInFolder[14]);
 
@@ -416,7 +415,7 @@ add_task(async function test_tab_recentlyClosed() {
   await _teardownRecentlyClosedMenu();
   await new Promise(resolve => setTimeout(resolve));
 
-  wait_for_message_display_completion(mc);
+  wait_for_message_display_completion(window);
   assert_number_of_tabs_open(4);
   assert_selected_and_displayed(msgHdrsInFolder[8]);
 
@@ -437,7 +436,7 @@ add_task(async function test_tab_recentlyClosed() {
   await _teardownRecentlyClosedMenu();
   await new Promise(resolve => setTimeout(resolve));
 
-  wait_for_message_display_completion(mc);
+  wait_for_message_display_completion(window);
 
   // out of the 16 tab, we closed all except two. As the history can store
   // only 10 items we have to endup with exactly 10 + 2 tabs.

@@ -6,7 +6,7 @@
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-var { assert_tab_mode_name, mc } = ChromeUtils.import(
+var { assert_tab_mode_name } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
@@ -19,7 +19,7 @@ async function open_chat_tab() {
   let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
 
   document.getElementById("tabmail").openTab("chat", {});
-  await wait_for_chat_tab_to_open(mc);
+  await wait_for_chat_tab_to_open(window);
 
   if (
     document.getElementById("tabmail").tabContainer.allTabs.length !=
@@ -32,11 +32,7 @@ async function open_chat_tab() {
   return newTab;
 }
 
-async function wait_for_chat_tab_to_open(aController) {
-  if (aController == null) {
-    aController = mc;
-  }
-
+async function wait_for_chat_tab_to_open() {
   utils.waitFor(
     function () {
       let chatTabFound = false;

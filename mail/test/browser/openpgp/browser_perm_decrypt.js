@@ -13,7 +13,6 @@ const {
   get_about_3pane,
   get_about_message,
   get_special_folder,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -34,7 +33,7 @@ const { EnigmailPersistentCrypto } = ChromeUtils.import(
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 
-function getMsgBodyTxt(mc) {
+function getMsgBodyTxt() {
   let msgPane = get_about_message(window).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
@@ -124,7 +123,7 @@ add_task(async function testPermanentDecrypt() {
     "OpenPGP"
   );
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt().includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
@@ -140,7 +139,7 @@ add_task(async function testPermanentDecrypt() {
   await be_in_folder(gDecFolder);
 
   select_click_row(0);
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt().includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon NOT displayed"

@@ -17,9 +17,6 @@ var { gMockPromptService } = ChromeUtils.import(
 var { wait_for_content_tab_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var { remove_email_account } = ChromeUtils.import(
   "resource://testing-common/mozmill/NewMailAccountHelpers.jsm"
 );
@@ -136,7 +133,7 @@ add_task(async function test_account_creation_from_provisioner() {
   // expected strings during testing.
   mailInput.select();
   // Fill the email input.
-  input_value(mc, NAME);
+  input_value(window, NAME);
   // Since we're focused inside a form, pressing "Enter" should submit it.
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
@@ -173,7 +170,7 @@ add_task(async function test_account_creation_from_provisioner() {
   domainName.focus();
   domainName.select();
   // Fill the domain input.
-  input_value(mc, NAME);
+  input_value(window, NAME);
   // Since we're focused inside a form, pressing "Enter" should submit it.
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
@@ -444,7 +441,7 @@ add_task(async function test_html_characters_and_ampersands() {
     "<i>Hey, I'm ''clever &\"\" smart!<!-- Ain't I a stinkah? --></i>";
 
   // Fill the email input.
-  input_value(mc, CLEVER_STRING);
+  input_value(window, CLEVER_STRING);
   // Since we're focused inside a form, pressing "Enter" should submit it.
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
@@ -506,7 +503,7 @@ add_task(async function test_shows_error_on_bad_suggest_from_name() {
   );
 
   // Fill the email input.
-  input_value(mc, "Boston Low");
+  input_value(window, "Boston Low");
   // Since we're focused inside a form, pressing "Enter" should submit it.
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
@@ -537,7 +534,7 @@ add_task(async function test_error_on_corrupt_XML() {
   await waitForLoadedProviders(tab);
 
   // Fill the email input.
-  input_value(mc, "corrupt@corrupt.invalid");
+  input_value(window, "corrupt@corrupt.invalid");
   // Since we're focused inside a form, pressing "Enter" should submit it.
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 

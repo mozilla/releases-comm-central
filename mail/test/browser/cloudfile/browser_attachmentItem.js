@@ -20,7 +20,7 @@ var {
   close_compose_window,
   open_compose_new_mail,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { close_popup, mc } = ChromeUtils.import(
+var { close_popup } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
@@ -66,7 +66,7 @@ add_task(async function test_upload_cancel_repeat() {
 
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
-  let cw = open_compose_new_mail(mc);
+  let cw = open_compose_new_mail(window);
 
   // We've got a compose window open, and our mock Filelink provider
   // ready.  Let's attach a file...

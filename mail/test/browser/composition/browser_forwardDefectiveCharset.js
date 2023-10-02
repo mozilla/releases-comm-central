@@ -16,7 +16,6 @@ var {
   be_in_folder,
   create_folder,
   get_about_message,
-  mc,
   open_message_from_file,
   select_click_row,
 } = ChromeUtils.import(
@@ -82,7 +81,7 @@ add_task(async function test_forward_from_folder() {
   close_window(msgc);
 
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   Assert.ok(
     get_about_message()

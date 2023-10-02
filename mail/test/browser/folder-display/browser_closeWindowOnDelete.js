@@ -14,7 +14,6 @@ var {
   close_tab,
   create_folder,
   make_message_sets_in_folders,
-  mc,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
   press_delete,
@@ -134,7 +133,7 @@ add_task(
     plan_for_window_close(msgc);
     plan_for_window_close(msgcA);
     select_click_row(0);
-    press_delete(mc);
+    press_delete(window);
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");
@@ -246,7 +245,7 @@ add_task(
     let preCount = folder.getTotalMessages(false);
     window.focus();
     select_click_row(0);
-    press_delete(mc);
+    press_delete(window);
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");
@@ -287,7 +286,7 @@ add_task(
     window.focus();
     plan_for_window_close(msgcA);
     select_click_row(0);
-    press_delete(mc);
+    press_delete(window);
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");

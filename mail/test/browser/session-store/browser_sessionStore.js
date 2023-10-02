@@ -24,7 +24,6 @@ var {
   kClassicMailLayout,
   kVerticalMailLayout,
   make_message_sets_in_folders,
-  mc,
   set_mc,
   set_pane_layout,
   toggle_message_pane,
@@ -225,8 +224,8 @@ async function test_restore_single_3pane_persistence() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
-  mc = open3PaneWindow();
-  set_mc(mc);
+  const mc2 = open3PaneWindow();
+  set_mc(mc2);
   await be_in_folder(folderA);
   assert_message_pane_hidden();
   // restore message pane.
@@ -297,8 +296,8 @@ add_task(async function test_message_pane_height_persistence() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
-  mc = open3PaneWindow();
-  set_mc(mc);
+  const mc2 = open3PaneWindow();
+  set_mc(mc2);
   await be_in_folder(folderA);
   assert_message_pane_visible();
 
@@ -323,13 +322,13 @@ add_task(async function test_message_pane_height_persistence() {
   );
 
   // The 3pane window is closed.
-  close_window(mc);
+  close_window(window);
   // Wait for window close async session write to finish.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
-  mc = open3PaneWindow();
-  set_mc(mc);
+  const mc3 = open3PaneWindow();
+  set_mc(mc3);
   await be_in_folder(folderA);
   assert_message_pane_visible();
 
@@ -413,8 +412,8 @@ add_task(async function test_message_pane_width_persistence() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
-  mc = open3PaneWindow();
-  set_mc(mc);
+  const mc2 = open3PaneWindow();
+  set_mc(mc2);
   await be_in_folder(folderA);
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);
@@ -449,13 +448,13 @@ add_task(async function test_message_pane_width_persistence() {
   oldWidth = actualWidth;
 
   // The 3pane window is closed.
-  close_window(mc);
+  close_window(mc2);
   // Wait for window close async session write to finish.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
-  mc = open3PaneWindow();
-  set_mc(mc);
+  const mc3 = open3PaneWindow();
+  set_mc(mc3);
   await be_in_folder(folderA);
   assert_message_pane_visible();
   assert_pane_layout(kVerticalMailLayout);

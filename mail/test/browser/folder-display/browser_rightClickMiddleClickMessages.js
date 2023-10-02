@@ -31,7 +31,6 @@ var {
   get_about_3pane,
   make_display_threaded,
   make_message_sets_in_folders,
-  mc,
   middle_click_on_row,
   reset_context_menu_background_tabs,
   right_click_on_row,
@@ -91,7 +90,7 @@ add_task(async function test_right_click_with_nothing_selected() {
   assert_selected(1);
   assert_displayed();
 
-  await close_popup(mc, getMailContext());
+  await close_popup(window, getMailContext());
   assert_nothing_selected();
 }).skip();
 
@@ -122,7 +121,7 @@ add_task(async function test_right_click_column_header_shows_col_picker() {
   // Check that the popup opens.
   await wait_for_popup_to_open(popup);
   // Hide it again, we just wanted to know it was going to be shown.
-  await close_popup(mc, popup);
+  await close_popup(window, popup);
 }).skip();
 
 /**
@@ -138,7 +137,7 @@ add_task(async function test_right_click_with_one_thing_selected() {
   assert_selected(1);
   assert_displayed(0);
 
-  await close_popup(mc, getMailContext());
+  await close_popup(window, getMailContext());
   assert_selected_and_displayed(0);
 }).skip();
 
@@ -156,7 +155,7 @@ add_task(async function test_right_click_with_many_things_selected() {
   assert_selected(6);
   assert_displayed([0, 5]);
 
-  await close_popup(mc, getMailContext());
+  await close_popup(window, getMailContext());
   assert_selected_and_displayed([0, 5]);
 }).skip();
 
@@ -172,7 +171,7 @@ add_task(async function test_right_click_on_existing_single_selection() {
   await right_click_on_row(3);
   assert_selected_and_displayed(3);
 
-  await close_popup(mc, getMailContext());
+  await close_popup(window, getMailContext());
   assert_selected_and_displayed(3);
 });
 
@@ -189,7 +188,7 @@ add_task(async function test_right_click_on_existing_multi_selection() {
   await right_click_on_row(5);
   assert_selected_and_displayed([3, 6]);
 
-  await close_popup(mc, getMailContext());
+  await close_popup(window, getMailContext());
   assert_selected_and_displayed([3, 6]);
 });
 

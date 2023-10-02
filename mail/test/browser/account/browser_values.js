@@ -27,10 +27,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
 var gPopAccount, gOriginalAccountCount;
 
 add_setup(function () {
@@ -382,8 +378,8 @@ function subtest_check_trailing_spaces(tab) {
   let defaultAddress = iframe.contentDocument.getElementById("identity.email");
   accountName.value = "";
   defaultAddress.value = "";
-  input_value(mc, badName, accountName);
-  input_value(mc, badEmail, defaultAddress);
+  input_value(window, badName, accountName);
+  input_value(window, badEmail, defaultAddress);
 
   Assert.equal(
     accountName.value,

@@ -31,7 +31,6 @@ var {
   get_smart_folder_named,
   inboxFolder,
   make_message_sets_in_folders,
-  mc,
   select_none,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -84,10 +83,10 @@ add_task(
 
     // Enable the favorite folders view. This folder isn't currently a favorite
     // folder.
-    mc.folderTreeView.activeModes = "favorite";
+    window.folderTreeView.activeModes = "favorite";
     // Hide the all folders view. The activeModes setter takes care of removing
     // the mode is is already visible.
-    mc.folderTreeView.activeModes = "all";
+    window.folderTreeView.activeModes = "all";
 
     assert_folder_not_visible(folder);
     assert_folder_not_visible(inboxFolder);
@@ -120,7 +119,7 @@ add_task(
 
     // Hide the all folders view. The activeModes setter takes care of removing
     // the mode if is already visible.
-    mc.folderTreeView.activeModes = "all";
+    window.folderTreeView.activeModes = "all";
 
     // Select the folder to open the parent row.
     await be_in_folder(folder);
@@ -154,10 +153,10 @@ add_task(async function test_display_message_in_smart_folder_mode_works() {
   // display_message_in_folder_tab(msgHdr) will be a no-op.
   select_none();
   // Show the smart folder view before removing the favorite view.
-  mc.folderTreeView.activeModes = "smart";
+  window.folderTreeView.activeModes = "smart";
   // Hide the favorite view. The activeModes setter takes care of removing a
   // view if is currently active.
-  mc.folderTreeView.activeModes = "favorite";
+  window.folderTreeView.activeModes = "favorite";
 
   // Switch to the dummy folder, otherwise msgHdr will be in the view and the
   // display message in folder tab logic will simply select the message without
@@ -227,7 +226,7 @@ add_task(function test_switch_to_all_folders() {
   // Hide the smart folders view enabled in the previous test. The activeModes
   // setter should take care of restoring the "all" view and prevent and empty
   // Folder pane.
-  mc.folderTreeView.activeModes = "smart";
+  window.folderTreeView.activeModes = "smart";
   assert_folder_mode("all");
   assert_folder_tree_view_row_count(10);
 });

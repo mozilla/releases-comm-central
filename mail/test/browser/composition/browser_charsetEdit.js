@@ -25,7 +25,6 @@ var {
   get_special_folder,
   get_about_message,
   make_display_unthreaded,
-  mc,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(
@@ -113,7 +112,7 @@ add_task(async function test_wrong_reply_charset() {
   make_display_unthreaded();
 
   let msg = select_click_row(-1);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
   Assert.equal(getMsgHeaders(msg).get("").charset, "invalid-charset");
 
   let rwc = open_compose_with_reply();
@@ -126,7 +125,7 @@ add_task(async function test_wrong_reply_charset() {
 
   let draftMsg = select_click_row(-2);
   Assert.equal(getMsgHeaders(draftMsg).get("").charset, "UTF-8");
-  press_delete(mc); // Delete message
+  press_delete(window); // Delete message
 
   // Edit the original message. Charset should be UTF-8 now.
   msg = select_click_row(-1);
@@ -159,7 +158,7 @@ add_task(async function test_wrong_reply_charset() {
     () => getMsgHeaders(msg).get("").charset == "UTF-8",
     "The charset matches"
   );
-  press_delete(mc); // Delete message
+  press_delete(window); // Delete message
 });
 
 /**
@@ -175,7 +174,7 @@ add_task(async function test_no_mojibake() {
   await add_message_to_folder([folder], msg0);
   await be_in_folder(folder);
   let msg = select_click_row(-1);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
   await TestUtils.waitForCondition(
     () => getMsgHeaders(msg).get("").charset == "utf-7",
     "message charset correctly set"
@@ -194,7 +193,7 @@ add_task(async function test_no_mojibake() {
   Assert.equal(getMsgHeaders(draftMsg).get("").charset.toUpperCase(), "UTF-8");
   let text = getMsgHeaders(draftMsg, true).get("");
   // Delete message first before throwing so subsequent tests are not affected.
-  press_delete(mc);
+  press_delete(window);
   if (!text.includes(nonASCII)) {
     throw new Error("Expected to find " + nonASCII + " in " + text);
   }
@@ -227,5 +226,5 @@ add_task(async function test_no_mojibake() {
   msg = select_click_row(-1);
   Assert.equal(getMsgHeaders(msg).get("").charset.toUpperCase(), "UTF-8");
   Assert.equal(getMsgHeaders(msg, true).get("").trim(), nonASCII);
-  press_delete(mc); // Delete message
+  press_delete(window); // Delete message
 });

@@ -15,7 +15,6 @@ var {
   create_message,
   get_about_message,
   inboxFolder,
-  mc,
   open_message_from_file,
   select_click_row,
   wait_for_message_display_completion,
@@ -189,7 +188,7 @@ add_task(async function test_ignore_phishing_warning_from_message() {
 
   await be_in_folder(folder);
   select_click_row(-1);
-  await assert_ignore_works(mc);
+  await assert_ignore_works(window);
 
   select_click_row(-2);
   // msg 1 is normal -> no phishing warning

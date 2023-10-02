@@ -27,7 +27,6 @@ var {
   make_display_threaded,
   make_display_unthreaded,
   make_message_sets_in_folders,
-  mc,
   press_delete,
   right_click_on_row,
   select_click_row,
@@ -159,7 +158,7 @@ async function mark_read_via_menu(index, read) {
     { id: "mailContext-mark" },
     { id: menuItem },
   ]);
-  await close_popup(mc, getMailContext());
+  await close_popup(window, getMailContext());
 }
 
 add_task(async function test_mark_one_read() {
@@ -309,7 +308,7 @@ add_task(async function test_mark_all_read() {
     { id: "mailContext-mark" },
     { id: "mailContext-markAllRead" },
   ]);
-  await close_popup(mc, getMailContext());
+  await close_popup(window, getMailContext());
 
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
 
@@ -364,7 +363,7 @@ add_task(async function test_mark_thread_as_read() {
     { id: "mailContext-mark" },
     { id: "mailContext-markThreadAsRead" },
   ]);
-  await close_popup(mc, getMailContext());
+  await close_popup(window, getMailContext());
 
   let curMessage = select_click_row(0);
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
@@ -482,7 +481,7 @@ add_task(async function test_shift_delete_prompt() {
 
   // Second, try shift-deleting and then accepting the deletion.
   dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  press_delete(mc, { shiftKey: true });
+  press_delete(window, { shiftKey: true });
   await dialogPromise;
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, select_click_row(0));
@@ -490,7 +489,7 @@ add_task(async function test_shift_delete_prompt() {
   // Finally, try shift-deleting when we turned off the prompt.
   Services.prefs.setBoolPref("mail.warn_on_shift_delete", false);
   curMessage = select_click_row(0);
-  press_delete(mc, { shiftKey: true });
+  press_delete(window, { shiftKey: true });
 
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, select_click_row(0));
@@ -519,7 +518,7 @@ add_task(async function test_thread_delete_prompt() {
 
   // Second, try deleting and then accepting the deletion.
   dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  press_delete(mc);
+  press_delete(window);
   await dialogPromise;
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, select_click_row(0));
@@ -527,7 +526,7 @@ add_task(async function test_thread_delete_prompt() {
   // Finally, try shift-deleting when we turned off the prompt.
   Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", false);
   curMessage = select_click_row(0);
-  press_delete(mc);
+  press_delete(window);
 
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, select_click_row(0));

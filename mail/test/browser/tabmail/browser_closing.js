@@ -15,7 +15,6 @@ var {
   create_folder,
   make_display_threaded,
   make_message_sets_in_folders,
-  mc,
   open_selected_message_in_new_tab,
   open_selected_messages,
   select_click_row,
@@ -111,7 +110,7 @@ add_task(async function test_opening_thread_in_tabs_closing_behaviour() {
 
   // Open a thread as a series of message tabs.
   select_click_row(0);
-  open_selected_messages(mc);
+  open_selected_messages(window);
 
   // At this point, the last message tab should be selected already.  We
   // close that tab, and the second last message tab should be selected.

@@ -17,7 +17,6 @@ var {
   get_smart_folder_named,
   inboxFolder,
   make_message_sets_in_folders,
-  mc,
   open_selected_message_in_new_tab,
   open_selected_message_in_new_window,
   press_delete,
@@ -263,7 +262,7 @@ add_task(
  */
 add_task(async function test_open_first_message_in_smart_inbox() {
   // Show the smart folders view.
-  mc.folderTreeView.activeModes = "smart";
+  window.folderTreeView.activeModes = "smart";
   // Select the smart inbox
   folder = get_smart_folder_named("Inbox");
   await be_in_folder(folder);
@@ -359,7 +358,7 @@ add_task(
 add_task(function test_switch_back_to_all_folders_mode() {
   // The activeModes setter automatically toggles off the mode if is currently
   // visible.
-  mc.folderTreeView.activeModes = "smart";
+  window.folderTreeView.activeModes = "smart";
 
   Assert.report(
     false,

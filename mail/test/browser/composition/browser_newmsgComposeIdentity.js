@@ -16,7 +16,7 @@ var {
   save_compose_message,
   wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { be_in_folder, get_special_folder, mc, press_delete, select_click_row } =
+var { be_in_folder, get_special_folder, press_delete, select_click_row } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
@@ -205,7 +205,7 @@ add_task(async function test_editing_identity() {
   let curMessage = select_click_row(0);
   Assert.equal(curMessage.author, identityCustom);
   // Remove the saved draft.
-  press_delete(mc);
+  press_delete(window);
   */
   Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", false);
 });
@@ -248,7 +248,7 @@ add_task(async function test_display_of_identities() {
   let curMessage = select_click_row(0);
   Assert.equal(curMessage.author, identity3From);
   // Remove the saved draft.
-  press_delete(mc);
+  press_delete(window);
 });
 
 registerCleanupFunction(function () {

@@ -14,7 +14,7 @@ var { be_in_folder, inboxFolder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-var { assert_tab_has_title, close_popup, mc, wait_for_popup_to_open } =
+var { assert_tab_has_title, close_popup, wait_for_popup_to_open } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
@@ -72,7 +72,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
   await wait_for_popup_to_open(browserContext);
   assert_element_visible("browserContext-spell-dictionaries");
   assert_element_visible("browserContext-spell-check-enabled");
-  await close_popup(mc, browserContext);
+  await close_popup(window, browserContext);
 
   // Different test
   BrowserTestUtils.synthesizeMouseAtCenter(
@@ -83,7 +83,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
   await wait_for_popup_to_open(browserContext);
   assert_element_not_visible("browserContext-spell-dictionaries");
   assert_element_not_visible("browserContext-spell-check-enabled");
-  await close_popup(mc, browserContext);
+  await close_popup(window, browserContext);
 
   // Right-click on "zombocom" and add to dictionary
   BrowserTestUtils.synthesizeMouse(
@@ -106,7 +106,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
   } else {
     EventUtils.synthesizeMouseAtCenter(addToDict, {}, addToDict.ownerGlobal);
   }
-  await close_popup(mc, browserContext);
+  await close_popup(window, browserContext);
 
   // Now check we don't have any suggestionss
   BrowserTestUtils.synthesizeMouse(
@@ -119,7 +119,7 @@ add_task(async function test_spellcheck_in_content_tabs() {
   await wait_for_popup_to_open(browserContext);
   suggestions = document.getElementsByClassName("spell-suggestion");
   Assert.ok(suggestions.length == 0, "But I just taught you this word!");
-  await close_popup(mc, browserContext);
+  await close_popup(window, browserContext);
 });
 
 add_task(function test_content_tab_default_favicon() {

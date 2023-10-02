@@ -14,7 +14,6 @@ var {
   be_in_folder,
   create_folder,
   create_message,
-  mc,
   select_click_row,
   open_message_from_file,
 } = ChromeUtils.import(
@@ -48,7 +47,7 @@ add_setup(async function () {
 add_task(async function test_open_printpreview() {
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   // Trigger print using Ctrl+P.
   EventUtils.synthesizeKey("P", { accelKey: true }, window);

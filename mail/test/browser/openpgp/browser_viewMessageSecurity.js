@@ -13,7 +13,6 @@ const {
   be_in_folder,
   get_about_message,
   get_special_folder,
-  mc,
   select_click_row,
   press_delete,
   plan_for_message_display,
@@ -44,7 +43,7 @@ const { MailServices } = ChromeUtils.import(
 
 const MSG_TEXT = "Sundays are nothing without callaloo.";
 
-function getMsgBodyTxt(mc) {
+function getMsgBodyTxt() {
   let msgPane = get_about_message(window).getMessagePaneBrowser();
   return msgPane.contentDocument.documentElement.textContent;
 }
@@ -173,7 +172,7 @@ add_task(async function testSmimeOpenPgpSelection() {
     "OpenPGP"
   );
 
-  Assert.ok(getMsgBodyTxt(mc).includes(MSG_TEXT), "message text is in body");
+  Assert.ok(getMsgBodyTxt().includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "verified"),
     "signed verified icon is displayed"
@@ -234,7 +233,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
       popup: null,
     }
   );
-  plan_for_message_display(mc);
+  plan_for_message_display(window);
   EventUtils.synthesizeMouseAtCenter(repairButton, {}, aboutMessage);
 
   // Wait for the "fixing in progress" notification to go away.
@@ -247,7 +246,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
   // The broken exchange repair process generates a new fixed message body and
   // then copies the new message in the same folder. Therefore, we need to wait
   // for the message to be automatically reloaded and reselected.
-  wait_for_message_display_completion(mc, true);
+  wait_for_message_display_completion(window, true);
 
   // Assert that the message was repaired and decrypted.
   await TestUtils.waitForCondition(

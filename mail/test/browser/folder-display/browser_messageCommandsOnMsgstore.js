@@ -23,7 +23,6 @@ const {
   empty_folder,
   get_special_folder,
   make_message_sets_in_folders,
-  mc,
   press_delete,
   right_click_on_row,
   select_click_row,
@@ -51,7 +50,7 @@ add_setup(async function () {
   // We delete the first message so that we have to compact anything.
   await be_in_folder(gInbox);
   let curMessage = select_click_row(0);
-  press_delete(mc);
+  press_delete(window);
   Assert.notEqual(curMessage, select_click_row(0));
 
   let urlListener = {
@@ -126,7 +125,7 @@ add_task(async function test_mark_messages_read() {
   // after the message is deleted.
   let offset = curMessage.messageOffset;
   await check_status(gInbox, offset, 0); // status = unread
-  press_delete(mc);
+  press_delete(window);
   Assert.notEqual(curMessage, select_click_row(0));
   await check_status(
     gInbox,

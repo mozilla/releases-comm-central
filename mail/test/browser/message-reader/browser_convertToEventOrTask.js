@@ -13,7 +13,6 @@ var {
   be_in_folder,
   create_folder,
   get_about_message,
-  mc,
   open_message_from_file,
   select_click_row,
 } = ChromeUtils.import(
@@ -73,7 +72,7 @@ add_task(async function test_convertToEvent() {
   close_window(msgc);
 
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   // Open Other Actions, and check the event dialog popping up seems alright.
   let dialogWindowPromise = CalendarTestUtils.waitForEventDialog("edit");

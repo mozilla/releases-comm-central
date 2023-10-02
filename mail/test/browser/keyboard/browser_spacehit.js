@@ -14,7 +14,6 @@ var {
   create_folder,
   get_about_message,
   make_message_sets_in_folders,
-  mc,
   select_click_row,
   wait_for_message_display_completion,
 } = ChromeUtils.import(
@@ -49,7 +48,7 @@ function subtest_advance_on_spacebar(shouldAdvance, isShiftPressed) {
   Services.prefs.setBoolPref(prefName, shouldAdvance);
   // Select the second message.
   let oldMessage = select_click_row(1);
-  wait_for_message_display_completion(mc);
+  wait_for_message_display_completion(window);
   // Press [Shift-]Space.
   EventUtils.synthesizeKey(
     " ",

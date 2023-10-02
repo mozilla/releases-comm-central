@@ -18,7 +18,6 @@ var {
   be_in_folder,
   create_folder,
   get_about_message,
-  mc,
   open_message_from_file,
   select_click_row,
 } = ChromeUtils.import(
@@ -128,15 +127,23 @@ add_task(async function test_cid_image_view() {
   // Preview the message in the folder.
   await be_in_folder(gImageFolder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   // Check image in the preview.
   let messageDoc =
     get_about_message().document.getElementById("messagepane").contentDocument;
   let image = messageDoc.getElementById("cidImage");
-  await check_image_size(mc, image, gImageFolder.server.localStoreType + "://");
+  await check_image_size(
+    window,
+    image,
+    gImageFolder.server.localStoreType + "://"
+  );
   image = messageDoc.getElementById("cidImageOrigin");
-  await check_image_size(mc, image, gImageFolder.server.localStoreType + "://");
+  await check_image_size(
+    window,
+    image,
+    gImageFolder.server.localStoreType + "://"
+  );
 });
 
 /**

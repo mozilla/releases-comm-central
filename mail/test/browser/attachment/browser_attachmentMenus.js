@@ -21,7 +21,6 @@ var {
   create_folder,
   create_message,
   get_about_message,
-  mc,
   select_click_row,
   wait_for_popup_to_open,
 } = ChromeUtils.import(
@@ -417,7 +416,7 @@ async function check_toolbar_menu_states_multiple(expected) {
       assert_enabled("button-deleteAllAttachments", expected.delete_);
     } finally {
       await close_popup(
-        mc,
+        window,
         aboutMessage.document.getElementById("attachmentSaveAllMultipleMenu")
       );
     }

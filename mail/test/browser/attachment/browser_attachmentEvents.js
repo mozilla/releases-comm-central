@@ -13,9 +13,6 @@
 var { select_attachments } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { add_attachments, close_compose_window, open_compose_new_mail } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
@@ -41,7 +38,7 @@ add_task(function test_attachments_added_on_single() {
   };
 
   // Open up the compose window
-  let cw = open_compose_new_mail(mc);
+  let cw = open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsAdded, listener);
@@ -93,7 +90,7 @@ add_task(function test_attachments_added_on_multiple() {
   let attachmentUrls = ["http://www.example.com/1", "http://www.example.com/2"];
 
   // Open the compose window and add the attachments
-  let cw = open_compose_new_mail(mc);
+  let cw = open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsAdded, listener);
@@ -126,7 +123,7 @@ add_task(function test_attachments_added_on_multiple() {
 
   // Open the compose window and attach the files, and ensure that we saw
   // the attachments-added event
-  cw = open_compose_new_mail(mc);
+  cw = open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsAdded, listener);
@@ -167,7 +164,7 @@ add_task(function test_attachments_removed_on_single() {
   };
 
   // Open up the compose window, attach a file...
-  let cw = open_compose_new_mail(mc);
+  let cw = open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
@@ -218,7 +215,7 @@ add_task(function test_attachments_removed_on_multiple() {
   };
 
   // Open up the compose window and attach some files...
-  let cw = open_compose_new_mail(mc);
+  let cw = open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
@@ -275,7 +272,7 @@ add_task(function test_no_attachments_removed_on_none() {
   };
 
   // Open the compose window and add some attachments.
-  let cw = open_compose_new_mail(mc);
+  let cw = open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
@@ -326,7 +323,7 @@ add_task(function test_attachment_renamed() {
 
   // Open up the compose window, attach some files, choose the first
   // attachment, and choose to rename it.
-  let cw = open_compose_new_mail(mc);
+  let cw = open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentRenamed, listener);
@@ -427,7 +424,7 @@ add_task(function test_no_attachment_renamed_on_blank() {
 
   // Open the compose window, attach some files, select one, and chooes to
   // rename it.
-  let cw = open_compose_new_mail(mc);
+  let cw = open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentRenamed, listener);
@@ -455,7 +452,7 @@ add_task(function test_no_attachment_renamed_on_blank() {
  */
 add_task(function test_attachments_pane_toggle() {
   // Open the compose window.
-  let cw = open_compose_new_mail(mc);
+  let cw = open_compose_new_mail(window);
 
   // Use the hotkey to try to toggle attachmentsArea open.
   let opts =

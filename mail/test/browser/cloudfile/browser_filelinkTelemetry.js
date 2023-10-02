@@ -21,9 +21,6 @@ let {
   open_compose_new_mail,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-let { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 let { wait_for_notification_to_stop } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
@@ -70,7 +67,7 @@ add_task(async function test_filelink_uploaded_size() {
   ]);
 
   let provider = cloudFileAccounts.getProviderForType(cloudType);
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   let account = cloudFileAccounts.createAccount(cloudType);
 
   add_cloud_attachments(cwc, account, false);
@@ -92,7 +89,7 @@ add_task(async function test_filelink_uploaded_size() {
 add_task(async function test_filelink_ignored() {
   Services.telemetry.clearScalars();
 
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   setup_msg_contents(
     cwc,
     "test@example.org",

@@ -9,7 +9,6 @@ var {
   be_in_folder,
   create_folder,
   make_message_sets_in_folders,
-  mc,
   wait_for_all_messages_to_load,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -91,7 +90,7 @@ add_task(async function test_verify_saved_mail_view() {
 
   // - go in the folder and make sure the right messages are displayed
   await be_in_folder(savedFolder);
-  assert_messages_in_view(setTagged, mc);
+  assert_messages_in_view(setTagged, window);
 
   Assert.report(
     false,

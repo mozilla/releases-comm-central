@@ -23,7 +23,6 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_message,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -73,7 +72,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
   let cwc = open_compose_with_reply_to_all();
 
   await BrowserTestUtils.waitForCondition(

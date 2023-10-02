@@ -41,7 +41,6 @@ var {
   make_display_threaded,
   make_display_unthreaded,
   make_message_sets_in_folders,
-  mc,
   open_folder_in_new_tab,
   open_selected_message_in_new_tab,
   plan_to_wait_for_folder_events,
@@ -176,15 +175,15 @@ add_task(async function test_selection_stabilization_logic() {
   // make sure the
 
   // this will not summarize!
-  select_shift_click_row(2, mc, true);
+  select_shift_click_row(2, window, true);
   // verify that our summary is still just 0 and 1.
-  assert_messages_summarized(mc, messages);
+  assert_messages_summarized(window, messages);
 
   // - pretend the timer fired.
   // we need to de-schedule the timer, but do not need to clear the variable
   //  because it will just get overwritten anyways
-  window.clearTimeout(mc.messageDisplay._summaryStabilityTimeout);
-  mc.messageDisplay._showSummary(true);
+  window.clearTimeout(window.messageDisplay._summaryStabilityTimeout);
+  window.messageDisplay._showSummary(true);
 
   // - the summary should now be up-to-date
   assert_selected_and_displayed([0, 2]);
@@ -198,7 +197,7 @@ add_task(function test_summarization_thread_detection() {
   select_shift_click_row(9);
   let messages = window.gFolderDisplay.selectedMessages;
   toggle_thread_row(0);
-  assert_messages_summarized(mc, messages);
+  assert_messages_summarized(window, messages);
   // count the number of messages represented
   assert_summary_contains_N_elts("#message_list > li", 10);
   select_shift_click_row(1);
@@ -274,7 +273,7 @@ add_task(
     // just the thread root should be selected
     assert_selected(thread1Root);
     // but the whole thread should be summarized
-    assert_messages_summarized(mc, thread1);
+    assert_messages_summarized(window, thread1);
 
     // - add a new message, make sure it's in the summary now.
     let [thread1Extra] = await make_message_sets_in_folders(
@@ -283,7 +282,7 @@ add_task(
     );
     let thread1All = thread1.union(thread1Extra);
     assert_selected(thread1Root);
-    assert_messages_summarized(mc, thread1All);
+    assert_messages_summarized(window, thread1All);
   }
 );
 
@@ -334,7 +333,7 @@ add_task(async function test_summary_when_multiple_identities() {
 
   // Assertions
   select_click_row(0);
-  assert_messages_summarized(mc, window.gFolderDisplay.selectedMessages);
+  assert_messages_summarized(window, window.gFolderDisplay.selectedMessages);
   // Thread summary shows a date, while multimessage summary shows a subject.
   assert_summary_contains_N_elts(".item_header > .subject", 0);
   assert_summary_contains_N_elts(".item_header > .date", 2);

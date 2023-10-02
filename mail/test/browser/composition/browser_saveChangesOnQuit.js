@@ -25,7 +25,6 @@ var {
   create_message,
   get_about_message,
   get_special_folder,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -96,7 +95,7 @@ add_task(function test_can_cancel_quit_on_changes() {
   gMockPromptService.register();
 
   // opening a new compose window
-  cwc = open_compose_new_mail(mc);
+  cwc = open_compose_new_mail(window);
 
   // Make some changes
   cwc.document.getElementById("messageEditor").focus();
@@ -140,7 +139,7 @@ add_task(function test_can_quit_on_changes() {
   gMockPromptService.register();
 
   // opening a new compose window
-  cwc = open_compose_new_mail(mc);
+  cwc = open_compose_new_mail(window);
 
   // Make some changes
   cwc.document.getElementById("messageEditor").focus();
@@ -183,8 +182,8 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
   gMockPromptService.register();
 
   // open two new compose windows
-  let cwc1 = open_compose_new_mail(mc);
-  let cwc2 = open_compose_new_mail(mc);
+  let cwc1 = open_compose_new_mail(window);
+  let cwc2 = open_compose_new_mail(window);
 
   // Type something in each window.
   cwc1.document.getElementById("messageEditor").focus();
@@ -247,7 +246,7 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
 add_task(async function test_no_prompt_on_close_for_unmodified() {
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   let nwc = open_compose_new_mail();
   close_compose_window(nwc, false);
@@ -266,7 +265,7 @@ add_task(async function test_no_prompt_on_close_for_unmodified() {
 add_task(async function test_prompt_on_close_for_modified() {
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   let nwc = open_compose_new_mail();
   nwc.document.getElementById("messageEditor").focus();
@@ -292,7 +291,7 @@ add_task(
   async function test_no_prompt_on_close_for_unmodified_content_type_text() {
     await be_in_folder(folder);
     let msg = select_click_row(1); // row 1 is the one with content type text
-    assert_selected_and_displayed(mc, msg);
+    assert_selected_and_displayed(window, msg);
 
     let rwc = open_compose_with_reply();
     close_compose_window(rwc, false);
@@ -315,7 +314,7 @@ add_task(
   async function test_no_prompt_on_close_for_unmodified_no_content_type() {
     await be_in_folder(folder);
     let msg = select_click_row(2); // row 2 is the one with no content type
-    assert_selected_and_displayed(mc, msg);
+    assert_selected_and_displayed(window, msg);
 
     let rwc = open_compose_with_reply();
     close_compose_window(rwc, false);
@@ -331,7 +330,7 @@ add_task(
 );
 
 add_task(async function test_prompt_save_on_pill_editing() {
-  cwc = open_compose_new_mail(mc);
+  cwc = open_compose_new_mail(window);
 
   // Focus should be on the To field, so just type an address.
   EventUtils.sendString("test@foo.invalid", cwc);
@@ -367,7 +366,7 @@ add_task(async function test_prompt_save_on_pill_editing() {
   // Move to the drafts folder and select the recently saved message.
   await be_in_folder(gDraftFolder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   // Click on the "edit draft" notification.
   let aboutMessage = get_about_message();

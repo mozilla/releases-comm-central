@@ -22,7 +22,6 @@ var {
   create_thread,
   get_special_folder,
   make_display_unthreaded,
-  mc,
   press_delete,
   select_click_row,
   select_shift_click_row,
@@ -60,7 +59,7 @@ registerCleanupFunction(function () {
 async function forward_selected_messages_and_go_to_drafts_folder(f) {
   const kText = "Hey check out this megalol link";
   // opening a new compose window
-  cwc = f(mc);
+  cwc = f(window);
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString(kText, cwc);
 
@@ -114,7 +113,7 @@ add_task(async function test_forward_inline() {
       );
       Assert.equal(aMimeMsg.headers.references, "<" + oMsgHdr.messageId + ">");
 
-      press_delete(mc);
+      press_delete(window);
       resolve();
     });
   });
@@ -168,7 +167,7 @@ add_task(async function test_forward_as_attachments() {
         "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">"
       );
 
-      press_delete(mc);
+      press_delete(window);
       resolve();
     });
   });

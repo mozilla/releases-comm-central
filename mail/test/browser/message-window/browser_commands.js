@@ -13,7 +13,6 @@ var {
   create_folder,
   get_about_message,
   make_message_sets_in_folders,
-  mc,
   open_message_from_file,
   press_delete,
   select_click_row,
@@ -49,7 +48,7 @@ add_task(async function test_copy_eml_message() {
   );
   await be_in_folder(folder2);
   select_click_row(0);
-  press_delete(mc);
+  press_delete(window);
 
   // Now, open a .eml file and copy it to our folder.
   let file = new FileUtils.File(getTestFilePath("data/evil.eml"));

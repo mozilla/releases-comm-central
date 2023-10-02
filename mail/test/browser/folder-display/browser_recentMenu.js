@@ -17,7 +17,6 @@ var {
   create_folder,
   get_special_folder,
   make_message_sets_in_folders,
-  mc,
   press_delete,
   right_click_on_row,
   select_click_row,
@@ -126,7 +125,7 @@ add_task(async function test_move_message() {
 });
 
 add_task(async function test_delete_message() {
-  press_delete(mc);
+  press_delete(window);
   // We've deleted a message - we should still just have folder2 in the menu.
   select_click_row(0); // TODO shouldn't need to do this
   await right_click_on_row(0);

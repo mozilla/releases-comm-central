@@ -8,7 +8,7 @@ var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
   );
-var { FAKE_SERVER_HOSTNAME, mc } = ChromeUtils.import(
+var { FAKE_SERVER_HOSTNAME } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var { input_value, delete_all_existing } = ChromeUtils.import(
@@ -56,8 +56,8 @@ async function subtest_check_set_port_number(tab, dontSet) {
   }
 
   if (!dontSet) {
-    delete_all_existing(mc, portElem);
-    input_value(mc, PORT_NUMBERS_TO_TEST[gTestNumber]);
+    delete_all_existing(window, portElem);
+    input_value(window, PORT_NUMBERS_TO_TEST[gTestNumber]);
 
     await new Promise(resolve => setTimeout(resolve));
   }

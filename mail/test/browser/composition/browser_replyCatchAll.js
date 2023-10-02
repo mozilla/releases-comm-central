@@ -17,7 +17,6 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_message,
-  mc,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(
@@ -87,7 +86,7 @@ async function create_replyMsg(aTo, aEnvelopeTo) {
 
   await be_in_folder(gFolder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 }
 
 /**

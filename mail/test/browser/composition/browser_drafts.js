@@ -23,7 +23,6 @@ var {
   get_special_folder,
   get_about_message,
   make_message_sets_in_folders,
-  mc,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(
@@ -103,7 +102,7 @@ add_task(async function test_open_draft_again() {
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
   select_click_row(0);
-  press_delete(mc); // clean up after ourselves
+  press_delete(window); // clean up after ourselves
 });
 
 /**
@@ -192,7 +191,7 @@ async function internal_check_delivery_format(editDraft) {
 
   close_compose_window(cwc);
 
-  press_delete(mc); // clean up the created draft
+  press_delete(window); // clean up the created draft
 }
 
 add_task(async function test_save_delivery_format_with_edit_draft() {
@@ -232,9 +231,9 @@ add_task(async function test_edit_as_new_in_draft() {
   );
 
   // Clean up the created drafts and count again.
-  press_delete(mc);
+  press_delete(window);
   select_click_row(0);
-  press_delete(mc);
+  press_delete(window);
   Assert.equal(draftsFolder.getTotalMessages(false), 0);
 });
 
@@ -306,7 +305,7 @@ add_task(async function test_edit_draft_mime_from() {
 
   close_compose_window(cwc);
   // Clean up the created draft and count again.
-  press_delete(mc);
+  press_delete(window);
   Assert.equal(
     draftsFolder.getTotalMessages(false),
     0,
@@ -349,7 +348,7 @@ add_task(async function test_content_language_header() {
   }
 
   // Clean up the created draft.
-  press_delete(mc);
+  press_delete(window);
 });
 
 /**
@@ -387,7 +386,7 @@ add_task(async function test_content_language_header_suppression() {
   );
 
   // Clean up the created draft.
-  press_delete(mc);
+  press_delete(window);
 
   Services.prefs.setBoolPref("mail.suppress_content_language", statusQuo);
 });
@@ -443,7 +442,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
   close_compose_window(cwc);
 
   // Clean up the created draft.
-  press_delete(mc);
+  press_delete(window);
 
   Services.prefs.setBoolPref("mail.identity.default.compose_html", oldHtmlPref);
 });

@@ -20,7 +20,6 @@ var {
   close_tab,
   create_folder,
   make_message_sets_in_folders,
-  mc,
   open_selected_message,
   open_selected_messages,
   plan_for_message_display,
@@ -172,7 +171,7 @@ add_task(async function test_open_single_search_result_in_tab() {
   // Open the selected message
   open_selected_message(swc);
   // This is going to trigger a message display in the main 3pane window
-  wait_for_message_display_completion(mc);
+  wait_for_message_display_completion(window);
   // Check that the tab count has increased by 1
   assert_number_of_tabs_open(preCount + 1);
   // Check that the currently displayed tab is a message tab (i.e. our newly
@@ -205,7 +204,7 @@ add_task(async function test_open_multiple_search_results_in_new_tabs() {
   // Open them
   open_selected_messages(swc);
   // This is going to trigger a message display in the main 3pane window
-  wait_for_message_display_completion(mc, true);
+  wait_for_message_display_completion(window, true);
   // Check that the tab count has increased by the correct number
   assert_number_of_tabs_open(preCount + NUM_MESSAGES_TO_OPEN);
   // Check that the currently displayed tab is a message tab (i.e. one of our

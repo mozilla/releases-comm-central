@@ -16,7 +16,6 @@ var {
   be_in_folder,
   create_folder,
   create_message,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -96,7 +95,7 @@ add_task(async function test_sig_strip_false_nonff() {
 async function check_sig_strip_works(aRow, aShouldStrip) {
   await be_in_folder(folder);
   let msg = select_click_row(aRow);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   let rwc = open_compose_with_reply();
   let body = get_compose_body(rwc);

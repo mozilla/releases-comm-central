@@ -15,7 +15,6 @@ var {
   create_folder,
   create_message,
   get_about_message,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -88,7 +87,7 @@ add_setup(async function () {
 /** Utility to select a message. */
 function gotoMsg(row) {
   let curMessage = select_click_row(row);
-  assert_selected_and_displayed(mc, curMessage);
+  assert_selected_and_displayed(window, curMessage);
 }
 
 /**

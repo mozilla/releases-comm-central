@@ -10,7 +10,7 @@
 
 var { close_compose_window, open_compose_with_reply_to_list } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { assert_selected_and_displayed, be_in_folder, mc, select_click_row } =
+var { assert_selected_and_displayed, be_in_folder, select_click_row } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
@@ -92,7 +92,7 @@ add_task(async function test_Reply_To_List_From_Address() {
   await be_in_folder(testFolder);
 
   let curMessage = select_click_row(0);
-  assert_selected_and_displayed(mc, curMessage);
+  assert_selected_and_displayed(window, curMessage);
 
   replyToListWindow = open_compose_with_reply_to_list();
 

@@ -12,7 +12,7 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var { close_compose_window, open_compose_new_mail, save_compose_message } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { be_in_folder, get_special_folder, mc, press_delete, select_click_row } =
+var { be_in_folder, get_special_folder, press_delete, select_click_row } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
@@ -139,5 +139,5 @@ add_task(async function test_basic_multipart_related() {
   if (!text.get("1").includes('src="cid:' + cid + '"')) {
     throw new Error("Expected HTML to refer to cid " + cid);
   }
-  press_delete(mc); // Delete message
+  press_delete(window); // Delete message
 });

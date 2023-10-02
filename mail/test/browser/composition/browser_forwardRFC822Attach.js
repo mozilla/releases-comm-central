@@ -18,7 +18,6 @@ var {
 var {
   be_in_folder,
   get_special_folder,
-  mc,
   open_message_from_file,
   press_delete,
   select_click_row,
@@ -55,7 +54,7 @@ async function forwardDirect(aFilePath, aExpectedText) {
     "Failed to find expected text"
   );
 
-  press_delete(mc); // clean up the created draft
+  press_delete(window); // clean up the created draft
 }
 
 add_task(async function test_forwarding_long_html_line_as_attachment() {

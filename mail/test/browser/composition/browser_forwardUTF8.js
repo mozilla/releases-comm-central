@@ -15,7 +15,6 @@ var {
   be_in_folder,
   create_folder,
   get_about_message,
-  mc,
   open_message_from_file,
   press_delete,
   select_click_row,
@@ -97,7 +96,7 @@ async function forwardViaFolder(aFilePath) {
   close_window(msgc);
 
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   Assert.ok(
     get_about_message()
@@ -111,7 +110,7 @@ async function forwardViaFolder(aFilePath) {
 
   close_compose_window(fwdWin);
 
-  press_delete(mc);
+  press_delete(window);
 }
 
 add_task(async function test_utf8_forwarding_from_opened_file() {

@@ -20,9 +20,6 @@ var {
   open_compose_new_mail,
   delete_attachment,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var {
   assert_notification_displayed,
   close_notification,
@@ -135,7 +132,7 @@ function close_privacy_warning_notification(aController) {
 }
 
 add_task(function test_no_notification_for_small_file() {
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   add_attachments(cwc, "https://www.example.com/1", 0);
   assert_cloudfile_notification_displayed(cwc, false);
 
@@ -152,7 +149,7 @@ add_task(function test_no_notification_for_small_file() {
 });
 
 add_task(function test_notification_for_big_files() {
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   add_attachments(cwc, "https://www.example.com/1", maxSize);
   assert_cloudfile_notification_displayed(cwc, true);
 
@@ -169,7 +166,7 @@ add_task(function test_notification_for_big_files() {
 });
 
 add_task(function test_graduate_to_notification() {
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   add_attachments(cwc, "https://www.example.com/1", maxSize - 100);
   assert_cloudfile_notification_displayed(cwc, false);
 
@@ -184,7 +181,7 @@ add_task(function test_graduate_to_notification() {
 
 add_task(function test_no_notification_if_disabled() {
   Services.prefs.setBoolPref("mail.cloud_files.enabled", false);
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
 
   add_attachments(cwc, "https://www.example.com/1", maxSize);
   assert_cloudfile_notification_displayed(cwc, false);
@@ -211,7 +208,7 @@ add_task(function test_link_insertion_notification_single() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   assert_upload_notification_displayed(cwc, true);
@@ -241,7 +238,7 @@ add_task(function test_link_insertion_notification_multiple() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   assert_upload_notification_displayed(cwc, true);
@@ -276,7 +273,7 @@ add_task(function test_link_insertion_goes_away_on_error() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -409,7 +406,7 @@ add_task(function test_privacy_warning_notification() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -449,7 +446,7 @@ add_task(function test_privacy_warning_notification() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -485,7 +482,7 @@ add_task(function test_privacy_warning_notification_no_persist() {
   let provider = new MockCloudfileAccount();
   provider.init("mocktestKey");
 
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -499,7 +496,7 @@ add_task(function test_privacy_warning_notification_no_persist() {
   close_compose_window(cwc);
 
   // Open a new compose window
-  cwc = open_compose_new_mail(mc);
+  cwc = open_compose_new_mail(window);
 
   // We shouldn't be displaying the privacy warning.
   assert_privacy_warning_notification_displayed(cwc, false);
@@ -522,7 +519,7 @@ add_task(function test_privacy_warning_notification_open_after_close() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(mc);
+  let cwc = open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -538,7 +535,7 @@ add_task(function test_privacy_warning_notification_open_after_close() {
   close_compose_window(cwc);
 
   // Open a new compose window
-  cwc = open_compose_new_mail(mc);
+  cwc = open_compose_new_mail(window);
 
   gMockFilePicker.returnFiles = collectFiles([
     "./data/testFile3",

@@ -32,7 +32,6 @@ var {
   be_in_folder,
   create_folder,
   get_about_message,
-  mc,
   open_message_from_file,
   press_delete,
   select_click_row,
@@ -84,7 +83,7 @@ async function subtest_replyEditAsNewForward_charset(
   let msg = select_click_row(0);
   if (aViewed) {
     // Only if the preview pane is on, we can check the following.
-    assert_selected_and_displayed(mc, msg);
+    assert_selected_and_displayed(window, msg);
   }
 
   let fwdWin;
@@ -109,7 +108,7 @@ async function subtest_replyEditAsNewForward_charset(
   Assert.equal(charset, "UTF-8", "Compose window has the wrong charset");
   close_compose_window(fwdWin);
 
-  press_delete(mc);
+  press_delete(window);
 }
 
 add_task(async function test_replyEditAsNewForward_charsetFromBody() {

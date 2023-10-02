@@ -7,9 +7,6 @@
 var { openAccountSetup } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
@@ -211,13 +208,13 @@ add_task(async function test_mail_account_setup() {
 
   if (tabDocument.getElementById("realname").value) {
     // If any realname is already filled, clear it out, we have our own.
-    delete_all_existing(mc, tabDocument.getElementById("realname"));
+    delete_all_existing(window, tabDocument.getElementById("realname"));
   }
-  input_value(mc, user.name);
+  input_value(window, user.name);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(mc, user.email);
+  input_value(window, user.email);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(mc, user.password);
+  input_value(window, user.password);
 
   let notificationBox = tab.browser.contentWindow.gAccountSetup.notificationBox;
 
@@ -387,13 +384,13 @@ add_task(async function test_bad_password_uses_old_settings() {
 
   if (tabDocument.getElementById("realname").value) {
     // If any realname is already filled, clear it out, we have our own.
-    delete_all_existing(mc, tabDocument.getElementById("realname"));
+    delete_all_existing(window, tabDocument.getElementById("realname"));
   }
-  input_value(mc, user.name);
+  input_value(window, user.name);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(mc, user.email);
+  input_value(window, user.email);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(mc, user.password);
+  input_value(window, user.password);
 
   // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
   EventUtils.synthesizeMouseAtCenter(
@@ -578,7 +575,7 @@ async function remember_password_test(aPrefValue) {
 
   // Type something in the password field.
   password.focus();
-  input_value(mc, "testing");
+  input_value(window, "testing");
 
   // The password toggle button should be visible now.
   Assert.ok(!passwordToggle.hidden);
@@ -608,7 +605,7 @@ async function remember_password_test(aPrefValue) {
   Assert.equal(rememberPassword.checked, aPrefValue);
 
   // Empty the password field.
-  delete_all_existing(mc, password);
+  delete_all_existing(window, password);
 
   // Restore the saved signon.rememberSignons value.
   Services.prefs.setBoolPref(
@@ -648,11 +645,11 @@ add_task(async function test_full_account_setup() {
   tabDocument.getElementById("realname").value = "";
 
   // The focus should be on the "realname" input by default, so let's fill it.
-  input_value(mc, imapUser.name);
+  input_value(window, imapUser.name);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(mc, imapUser.email);
+  input_value(window, imapUser.email);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(mc, imapUser.password);
+  input_value(window, imapUser.password);
 
   let notificationBox = tab.browser.contentWindow.gAccountSetup.notificationBox;
 

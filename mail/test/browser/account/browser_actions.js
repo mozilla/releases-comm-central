@@ -16,10 +16,6 @@ var { content_tab_e } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -128,7 +124,7 @@ async function subtest_check_account_actions(
   Assert.notEqual(actionRemove, undefined);
   Assert.equal(!actionRemove.getAttribute("disabled"), isRemoveEnabled);
 
-  await close_popup(mc, content_tab_e(tab, "accountActionsDropdown"));
+  await close_popup(window, content_tab_e(tab, "accountActionsDropdown"));
 }
 
 add_task(async function test_account_actions() {

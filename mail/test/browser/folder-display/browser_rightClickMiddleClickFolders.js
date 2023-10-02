@@ -19,7 +19,6 @@ var {
   close_tab,
   create_folder,
   make_message_sets_in_folders,
-  mc,
   middle_click_on_folder,
   reset_context_menu_background_tabs,
   right_click_on_folder,
@@ -57,7 +56,7 @@ add_task(async function test_right_click_folder_with_one_thing_selected() {
   assert_folder_selected(folderA);
   assert_folder_displayed(folderB);
 
-  await close_popup(mc, getFoldersContext());
+  await close_popup(window, getFoldersContext());
   assert_folder_selected_and_displayed(folderB);
 }).skip();
 
@@ -73,7 +72,7 @@ add_task(async function test_right_click_folder_with_many_things_selected() {
   assert_folder_selected(folderC);
   assert_folder_displayed(folderA);
 
-  await close_popup(mc, getFoldersContext());
+  await close_popup(window, getFoldersContext());
   assert_folders_selected_and_displayed(folderA, folderB);
 }).skip();
 
@@ -87,7 +86,7 @@ add_task(async function test_right_click_folder_on_existing_single_selection() {
   await right_click_on_folder(folderA);
   assert_folders_selected_and_displayed(folderA);
 
-  await close_popup(mc, getFoldersContext());
+  await close_popup(window, getFoldersContext());
   assert_folders_selected_and_displayed(folderA);
 });
 
@@ -102,7 +101,7 @@ add_task(async function test_right_click_folder_on_existing_multi_selection() {
   await right_click_on_folder(folderC);
   assert_folders_selected_and_displayed(folderB, folderC);
 
-  await close_popup(mc, getFoldersContext());
+  await close_popup(window, getFoldersContext());
   assert_folders_selected_and_displayed(folderB, folderC);
 }).skip();
 

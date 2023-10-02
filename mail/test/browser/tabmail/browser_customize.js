@@ -8,7 +8,7 @@
 
 "use strict";
 
-const { close_popup, mc, wait_for_popup_to_open } = ChromeUtils.import(
+const { close_popup, wait_for_popup_to_open } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
@@ -85,7 +85,7 @@ add_task(async function test_open_unified_by_context() {
     "unifiedToolbarCustomizationContainer"
   );
 
-  await close_popup(mc, contextPopup);
+  await close_popup(window, contextPopup);
 });
 
 /**
@@ -137,5 +137,5 @@ add_task(async function test_open_unified_by_menu() {
     "unifiedToolbarCustomizationContainer"
   );
 
-  await close_popup(mc, appMenu);
+  await close_popup(window, appMenu);
 });

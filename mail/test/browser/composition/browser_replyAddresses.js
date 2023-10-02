@@ -21,7 +21,6 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_message,
-  mc,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -237,7 +236,7 @@ add_task(async function testReplyToMungedReplyToList() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
 
@@ -272,7 +271,7 @@ add_task(async function testToCcReply() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -308,7 +307,7 @@ add_task(async function testToCcReplyAll() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -370,7 +369,7 @@ add_task(async function testToCcReplyAllInternational() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -425,7 +424,7 @@ add_task(async function testToCcReplyWhenReplyToSet() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -466,7 +465,7 @@ add_task(async function testToCcReplyAllWhenReplyToSet() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -509,7 +508,7 @@ add_task(async function testReplyToList() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -549,7 +548,7 @@ add_task(async function testReplySenderForListPost() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -588,7 +587,7 @@ add_task(async function testReplyToAllForListPost() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -634,7 +633,7 @@ add_task(async function testReplyToListWhenReplyToSet() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -681,7 +680,7 @@ add_task(async function testMailReplyTo() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -725,7 +724,7 @@ add_task(async function testMailFollowupTo() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -766,7 +765,7 @@ add_task(async function testReplyToSelfReply() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -813,7 +812,7 @@ add_task(async function testReplyToSelfReplyAll() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -868,7 +867,7 @@ add_task(async function testReplyToSelfNotOriginalSourceMsgReplyAll() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity2);
   useAutoBcc(identity2, myEmail + ", smithers@example.com");
@@ -940,7 +939,7 @@ add_task(async function testReplyToOtherIdentity() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity2);
   ensureNoAutoBcc(identity2);
@@ -975,7 +974,7 @@ add_task(async function testReplyToSelfWithBccs() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -1011,7 +1010,7 @@ add_task(async function testReplyToOtherIdentityWithBccs() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -1043,7 +1042,7 @@ add_task(async function testNewsgroupsReplyAll() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -1088,7 +1087,7 @@ add_task(async function testNewsgroupsReplyAllFollowupTo() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(
@@ -1131,7 +1130,7 @@ add_task(async function testToFromWithReplyTo() {
 
   await be_in_folder(folder);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
   checkReply(

@@ -35,7 +35,7 @@ var {
   create_message,
   FAKE_SERVER_HOSTNAME,
   get_special_folder,
-  mc,
+
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -356,7 +356,7 @@ async function prepare_some_attachments_and_reply(aText, aFiles) {
 
   await be_in_folder(gInbox);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   let cw = open_compose_with_reply();
 
@@ -417,7 +417,7 @@ async function prepare_some_attachments_and_forward(aText, aFiles) {
 
   await be_in_folder(gInbox);
   let msg = select_click_row(0);
-  assert_selected_and_displayed(mc, msg);
+  assert_selected_and_displayed(window, msg);
 
   let cw = open_compose_with_forward();
 

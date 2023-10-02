@@ -7,9 +7,6 @@
 var { openAccountSetup } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
-var { mc } = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
 var { input_value, delete_all_existing } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
@@ -50,11 +47,11 @@ add_task(async function test_re_test_config() {
 
   if (tabDocument.getElementById("realname").value) {
     // If any realname is already filled, clear it out, we have our own.
-    delete_all_existing(mc, tabDocument.getElementById("realname"));
+    delete_all_existing(window, tabDocument.getElementById("realname"));
   }
-  input_value(mc, user.name);
+  input_value(window, user.name);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
-  input_value(mc, user.email);
+  input_value(window, user.email);
 
   // Click "continue" button.
   let nextButton = tabDocument.getElementById("continueButton");
@@ -83,7 +80,7 @@ add_task(async function test_re_test_config() {
   tabDocument.getElementById("realname").focus();
   EventUtils.synthesizeKey("VK_TAB", {}, window);
   tabDocument.getElementById("email").focus();
-  input_value(mc, user.altEmail);
+  input_value(window, user.altEmail);
   EventUtils.synthesizeKey("VK_TAB", {}, window);
 
   // Wait for the "continue" button to be back, which means we're back to the
