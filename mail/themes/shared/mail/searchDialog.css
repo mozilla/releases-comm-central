@@ -10,7 +10,8 @@
 }
 
 #searchTerms {
-  flex: 1 1 auto;
+  flex: 1 auto;
+  min-height: 12em;
   margin-top: 8px;
 }
 
@@ -28,7 +29,8 @@
 }
 
 #searchResults {
-  flex: 1 1 0;
+  flex: 1 auto;
+  min-height: 8em;
   padding: 0 6px 6px;
   text-shadow: none;
 }
