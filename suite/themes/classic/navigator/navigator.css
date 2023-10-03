@@ -260,7 +260,9 @@ toolbar[mode="text"] > #window-controls > toolbarbutton > .toolbarbutton-icon {
   color: #000000;
 }
 
-@media (-moz-windows-theme: aero) {
+@media (-moz-os-version: windows-win7) and (-moz-windows-theme: aero),
+       (-moz-os-version: windows-win8),
+       (-moz-os-version: windows-win10) {
   #urlbar {
     padding: 1px;
   }
