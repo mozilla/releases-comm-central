@@ -8,9 +8,6 @@
 
 "use strict";
 
-var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
-);
 var {
   close_compose_window,
   open_compose_new_mail,
@@ -36,6 +33,7 @@ var { get_notification, wait_for_notification_to_show } = ChromeUtils.import(
 var { plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
+var { MockFilePicker } = SpecialPowers;
 
 var gDrafts;
 var gCloudFileProvider;
@@ -43,14 +41,14 @@ const kFiles = ["./data/attachment.txt"];
 
 add_setup(async function () {
   gDrafts = await get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
-  gMockFilePickReg.register();
+  MockFilePicker.init(window);
   // Register an extension based cloudFile provider.
   gCloudFileProvider = new CloudFileTestProvider("testProvider");
   await gCloudFileProvider.register(this);
 });
 
 registerCleanupFunction(async function () {
-  gMockFilePickReg.unregister();
+  MockFilePicker.cleanup();
   await gCloudFileProvider.unregister();
 });
 
@@ -63,7 +61,7 @@ registerCleanupFunction(async function () {
 add_task(async function test_draft_with_cloudFile_attachment() {
   // Prepare the mock file picker.
   let files = collectFiles(kFiles);
-  gMockFilePicker.returnFiles = files;
+  MockFilePicker.setFiles(files);
 
   let cloudFileAccount = await gCloudFileProvider.createAccount("validAccount");
   let draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
@@ -153,7 +151,7 @@ add_task(async function test_draft_with_cloudFile_attachment() {
 add_task(async function test_draft_with_unknown_cloudFile_attachment() {
   // Prepare the mock file picker.
   let files = collectFiles(kFiles);
-  gMockFilePicker.returnFiles = files;
+  MockFilePicker.setFiles(files);
 
   let cloudFileAccount = await gCloudFileProvider.createAccount(
     "validAccountUnknownUpload"
@@ -251,7 +249,7 @@ add_task(async function test_draft_with_unknown_cloudFile_attachment() {
 add_task(async function test_draft_with_cloudFile_attachment_no_account() {
   // Prepare the mock file picker.
   let files = collectFiles(kFiles);
-  gMockFilePicker.returnFiles = files;
+  MockFilePicker.setFiles(files);
 
   let cloudFileAccount = await gCloudFileProvider.createAccount(
     "invalidAccount"
@@ -347,7 +345,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
     "attachment.txt",
     "This is a sample text."
   );
-  gMockFilePicker.returnFiles = [tempFile.file];
+  MockFilePicker.setFiles([tempFile.file]);
 
   let cloudFileAccount = await gCloudFileProvider.createAccount(
     "validAccountNoFile"

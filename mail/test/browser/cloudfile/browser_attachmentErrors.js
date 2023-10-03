@@ -14,8 +14,9 @@ XPCOMUtils.defineLazyGetter(this, "brandShortName", () =>
     .GetStringFromName("brandShortName")
 );
 
-var { gMockFilePicker, gMockFilePickReg, select_attachments } =
-  ChromeUtils.import("resource://testing-common/mozmill/AttachmentHelpers.jsm");
+var { select_attachments } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
 var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
   "resource://testing-common/mozmill/CloudfileHelpers.jsm"
 );
@@ -33,6 +34,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { MockFilePicker } = SpecialPowers;
 
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
@@ -87,7 +89,7 @@ add_setup(async function () {
   gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
   await add_message_to_folder([gInbox], create_message());
 
-  gMockFilePickReg.register();
+  MockFilePicker.init(window);
   gMockCloudfileManager.register();
 
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
@@ -99,7 +101,7 @@ add_setup(async function () {
 
 registerCleanupFunction(function () {
   gMockCloudfileManager.unregister();
-  gMockFilePickReg.unregister();
+  MockFilePicker.cleanup();
   Services.prefs.clearUserPref(kDefaultSigKey);
   Services.prefs.clearUserPref(kHtmlPrefKey);
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
@@ -227,7 +229,7 @@ add_task(function test_offline_error_during_upload() {
  *   alerts for each uploaded file
  */
 function subtest_errors_during_upload(error) {
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   let config = {
     serviceName: "MochiTest A",
@@ -370,7 +372,7 @@ add_task(function test_offline_error_during_rename() {
  * @param error.expectedAlerts - array with { title, message } objects for each renamed file
  */
 function subtest_errors_during_rename(error) {
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   let config = {
     serviceName: "MochiTest A",

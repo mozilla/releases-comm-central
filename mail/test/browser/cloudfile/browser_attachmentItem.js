@@ -9,8 +9,9 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var { gMockFilePicker, gMockFilePickReg, select_attachments } =
-  ChromeUtils.import("resource://testing-common/mozmill/AttachmentHelpers.jsm");
+var { select_attachments } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
 var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
   "resource://testing-common/mozmill/CloudfileHelpers.jsm"
 );
@@ -23,6 +24,7 @@ var {
 var { close_popup } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { MockFilePicker } = SpecialPowers;
 
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
@@ -42,13 +44,13 @@ var mockPromptService = {
 
 add_setup(function () {
   Services.prompt = mockPromptService;
-  gMockFilePickReg.register();
+  MockFilePicker.init(window);
   gMockCloudfileManager.register();
 });
 
 registerCleanupFunction(function () {
   gMockCloudfileManager.unregister();
-  gMockFilePickReg.unregister();
+  MockFilePicker.cleanup();
   Services.prompt = originalPromptService;
 });
 
@@ -60,17 +62,19 @@ registerCleanupFunction(function () {
 add_task(async function test_upload_cancel_repeat() {
   const kFile = "./data/testFile1";
 
-  // Prepare the mock file picker to return our test file.
-  let file = new FileUtils.File(getTestFilePath(kFile));
-  gMockFilePicker.returnFiles = [file];
-
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
   let cw = open_compose_new_mail(window);
 
-  // We've got a compose window open, and our mock Filelink provider
-  // ready.  Let's attach a file...
-  cw.AttachFile();
+  // Prepare the mock file picker to return our test file.
+  let file = new FileUtils.File(getTestFilePath(kFile));
+  MockFilePicker.setFiles([file]);
+  await new Promise(resolve => {
+    MockFilePicker.afterOpenCallback = resolve;
+    // We've got a compose window open, and our mock Filelink provider
+    // ready.  Let's attach a file...
+    cw.AttachFile();
+  });
 
   // Now we override the uploadFile function of the MockCloudfileAccount
   // so that we're perpetually uploading...
@@ -122,7 +126,7 @@ add_task(async function test_upload_multiple_and_cancel() {
 
   // Prepare the mock file picker to return our test file.
   let files = collectFiles(kFiles);
-  gMockFilePicker.returnFiles = files;
+  MockFilePicker.setFiles(files);
 
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
@@ -280,7 +284,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
 
   // Prepare the mock file picker to return our test file.
   let files = collectFiles(kFiles);
-  gMockFilePicker.returnFiles = files;
+  MockFilePicker.setFiles(files);
 
   let provider = new MockCloudfileAccount();
   provider.init("someKey");

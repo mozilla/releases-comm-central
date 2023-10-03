@@ -4,58 +4,16 @@
 
 "use strict";
 
-const EXPORTED_SYMBOLS = [
-  "gMockPromptService",
-  "gMockAuthPromptReg",
-  "gMockAuthPrompt",
-];
+const EXPORTED_SYMBOLS = ["gMockPromptService"];
 
-var { MockObjectReplacer } = ChromeUtils.import(
-  "resource://testing-common/mozmill/MockObjectHelpers.jsm"
+const { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
 );
-
-var { XPCOMUtils } = ChromeUtils.importESModule(
+const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-var kMockPromptServiceName = "Mock Prompt Service";
 var kPromptServiceContractID = "@mozilla.org/prompter;1";
-var kPromptServiceName = "Prompt Service";
-
-var gMockAuthPromptReg = new MockObjectReplacer(
-  "@mozilla.org/prompter;1",
-  MockAuthPromptFactoryConstructor
-);
-
-function MockAuthPromptFactoryConstructor() {
-  return gMockAuthPromptFactory;
-}
-
-var gMockAuthPromptFactory = {
-  QueryInterface: ChromeUtils.generateQI(["nsIPromptFactory"]),
-  getPrompt(aParent, aIID, aResult) {
-    return gMockAuthPrompt.QueryInterface(aIID);
-  },
-};
-
-var gMockAuthPrompt = {
-  password: "",
-
-  QueryInterface: ChromeUtils.generateQI(["nsIAuthPrompt"]),
-
-  prompt(aTitle, aText, aRealm, aSave, aDefaultText) {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
-
-  promptUsernameAndPassword(aTitle, aText, aRealm, aSave, aUser, aPwd) {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
-
-  promptPassword(aTitle, aText, aRealm, aSave, aPwd) {
-    aPwd.value = this.password;
-    return true;
-  },
-};
 
 var gMockPromptService = {
   _registered: false,
@@ -198,55 +156,19 @@ var gMockPromptService = {
     return this._promptState;
   },
 
-  CID: Components.ID("{404ebfa2-d8f4-4c94-8416-e65a55f9df5b}"),
-
-  get registrar() {
-    delete this.registrar;
-    return (this.registrar = Components.manager.QueryInterface(
-      Ci.nsIComponentRegistrar
-    ));
-  },
-
   /* Registers the Mock Prompt Service, and stores the original Prompt Service.
    */
   register() {
-    if (!this.originalCID) {
-      void Components.manager.getClassObject(
-        Cc[kPromptServiceContractID],
-        Ci.nsIFactory
-      );
-
-      this.originalCID = this.registrar.contractIDToCID(
-        kPromptServiceContractID
-      );
-      this.registrar.registerFactory(
-        this.CID,
-        kMockPromptServiceName,
-        kPromptServiceContractID,
-        gMockPromptServiceFactory
-      );
-      this._resetServicesPrompt();
-    }
+    this._classID = MockRegistrar.register(kPromptServiceContractID, this);
+    this._resetServicesPrompt();
   },
 
   /* Unregisters the Mock Prompt Service, and re-registers the original
    * Prompt Service.
    */
   unregister() {
-    if (this.originalCID) {
-      // Unregister the mock.
-      this.registrar.unregisterFactory(this.CID, gMockPromptServiceFactory);
-
-      this.registrar.registerFactory(
-        this.originalCID,
-        kPromptServiceName,
-        kPromptServiceContractID,
-        null
-      );
-
-      delete this.originalCID;
-      this._resetServicesPrompt();
-    }
+    MockRegistrar.unregister(this._classID);
+    this._resetServicesPrompt();
   },
 
   _resetServicesPrompt() {
@@ -257,15 +179,5 @@ var gMockPromptService = {
       kPromptServiceContractID,
       "nsIPromptService"
     );
-  },
-};
-
-var gMockPromptServiceFactory = {
-  createInstance(aIID) {
-    if (!aIID.equals(Ci.nsIPromptService)) {
-      throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
-    }
-
-    return gMockPromptService;
   },
 };

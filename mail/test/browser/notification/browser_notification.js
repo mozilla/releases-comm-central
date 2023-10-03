@@ -14,6 +14,9 @@ var {
   wait_for_new_window,
   wait_for_window_close,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
+);
 
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -96,24 +99,11 @@ var gMockAlertsService = {
   },
 };
 
-var gMockAlertsServiceFactory = {
-  createInstance(aIID) {
-    if (!aIID.equals(Ci.nsIAlertsService)) {
-      throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
-    }
-
-    return gMockAlertsService;
-  },
-};
-
 add_setup(async function () {
   // Register the mock alerts service
-  let registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-  registrar.registerFactory(
-    Components.ID("{1bda6c33-b089-43df-a8fd-111907d6385a}"),
-    "Mock Alerts Service",
+  gMockAlertsService._classID = MockRegistrar.register(
     "@mozilla.org/system-alerts-service;1",
-    gMockAlertsServiceFactory
+    gMockAlertsService
   );
 
   // Ensure we have enabled new mail notifications
@@ -162,6 +152,8 @@ registerCleanupFunction(function () {
   // Request focus on something in the main window so the test doesn't time
   // out waiting for focus.
   document.getElementById("button-appmenu").focus();
+
+  MockRegistrar.unregister(gMockAlertsService._classID);
 });
 
 function setupTest(test) {

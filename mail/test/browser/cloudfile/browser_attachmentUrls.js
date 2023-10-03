@@ -9,8 +9,9 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var { gMockFilePicker, gMockFilePickReg, select_attachments } =
-  ChromeUtils.import("resource://testing-common/mozmill/AttachmentHelpers.jsm");
+var { select_attachments } = ChromeUtils.import(
+  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
+);
 var { gMockCloudfileManager, MockCloudfileAccount } = ChromeUtils.import(
   "resource://testing-common/mozmill/CloudfileHelpers.jsm"
 );
@@ -40,6 +41,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { MockFilePicker } = SpecialPowers;
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -107,7 +109,7 @@ add_setup(async function () {
   gInbox = await get_special_folder(Ci.nsMsgFolderFlags.Inbox, false, server);
   await add_message_to_folder([gInbox], create_message());
 
-  gMockFilePickReg.register();
+  MockFilePicker.init(window);
   gMockCloudfileManager.register();
 
   Services.prefs.setBoolPref(kHtmlPrefKey, true);
@@ -119,7 +121,7 @@ add_setup(async function () {
 
 registerCleanupFunction(function () {
   gMockCloudfileManager.unregister();
-  gMockFilePickReg.unregister();
+  MockFilePicker.cleanup();
   Services.prefs.clearUserPref(kDefaultSigKey);
   Services.prefs.clearUserPref(kHtmlPrefKey);
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
@@ -343,7 +345,7 @@ function wait_for_attachment_urls(aWin, aNumUrls, aUploads = []) {
  *               the test directory.
  */
 async function prepare_some_attachments_and_reply(aText, aFiles) {
-  gMockFilePicker.returnFiles = collectFiles(aFiles);
+  MockFilePicker.setFiles(collectFiles(aFiles));
 
   let provider = new MockCloudfileAccount();
   provider.init("providerF", {
@@ -404,7 +406,7 @@ async function prepare_some_attachments_and_reply(aText, aFiles) {
  *               the test directory.
  */
 async function prepare_some_attachments_and_forward(aText, aFiles) {
-  gMockFilePicker.returnFiles = collectFiles(aFiles);
+  MockFilePicker.setFiles(collectFiles(aFiles));
 
   let provider = new MockCloudfileAccount();
   provider.init("providerG", {
@@ -535,7 +537,7 @@ add_task(async function test_inserts_linebreak_on_empty_compose() {
  * on both plaintext and HTML compose windows.
  */
 function subtest_inserts_linebreak_on_empty_compose() {
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   provider.init("someKey", {
     downloadPasswordProtected: false,
@@ -592,7 +594,7 @@ function subtest_inserts_linebreak_on_empty_compose() {
  * node.
  */
 add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   provider.init("someKey", {
     downloadPasswordProtected: true,
@@ -756,7 +758,7 @@ add_task(async function test_adding_filelinks_to_written_message() {
  * HTML and plaintext mail.
  */
 function subtest_adding_filelinks_to_written_message() {
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
   let cw = open_compose_new_mail();
@@ -1144,7 +1146,7 @@ add_task(async function test_converting_filelink_updates_urls() {
  * get updated.
  */
 function subtest_converting_filelink_updates_urls() {
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.setFiles(collectFiles(kFiles));
   let providerA = new MockCloudfileAccount();
   let providerB = new MockCloudfileAccount();
   providerA.init("providerA", {
@@ -1229,7 +1231,7 @@ add_task(async function test_renaming_filelink_updates_urls() {
  * links in the message body get get updated.
  */
 function subtest_renaming_filelink_updates_urls() {
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   provider.init("providerA", {
     serviceName: "MochiTest A",
@@ -1343,7 +1345,7 @@ add_task(async function test_converting_filelink_to_normal_removes_url() {
  * the body of the email.
  */
 async function subtest_converting_filelink_to_normal_removes_url() {
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   provider.init("providerC", {
     serviceName: "MochiTest C",
@@ -1422,7 +1424,7 @@ add_task(async function test_filelinks_work_after_manual_removal() {
  */
 function subtest_filelinks_work_after_manual_removal() {
   // Insert some Filelinks...
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   provider.init("providerD", {
     serviceName: "MochiTest D",
@@ -1457,7 +1459,7 @@ function subtest_filelinks_work_after_manual_removal() {
   // Now remove the root node from the document body
   root.remove();
 
-  gMockFilePicker.returnFiles = collectFiles(["./data/testFile3"]);
+  MockFilePicker.setFiles(collectFiles(["./data/testFile3"]));
   uploads = add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
@@ -1495,7 +1497,7 @@ add_task(async function test_insertion_restores_caret_point() {
  */
 function subtest_insertion_restores_caret_point() {
   // Insert some Filelinks...
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   provider.init("providerE", {
     serviceName: "MochiTest E",

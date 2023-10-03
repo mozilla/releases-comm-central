@@ -12,10 +12,6 @@
 var { CloudFileTestProvider } = ChromeUtils.import(
   "resource://testing-common/mozmill/CloudfileHelpers.jsm"
 );
-var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
-);
-
 var { open_compose_new_mail, close_compose_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
@@ -30,6 +26,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { MockFilePicker } = SpecialPowers;
 
 const dragService = Cc["@mozilla.org/widget/dragservice;1"].getService(
   Ci.nsIDragService
@@ -48,8 +45,8 @@ const kFiles = [
 
 add_setup(async function () {
   // Prepare the mock file picker.
-  gMockFilePickReg.register();
-  gMockFilePicker.returnFiles = collectFiles(kFiles);
+  MockFilePicker.init(window);
+  MockFilePicker.setFiles(collectFiles(kFiles));
 
   // Register an extension based cloudFile provider.
   gCloudFileProvider = new CloudFileTestProvider("testProvider");
@@ -58,7 +55,7 @@ add_setup(async function () {
 });
 
 registerCleanupFunction(async function () {
-  gMockFilePickReg.unregister();
+  MockFilePicker.cleanup();
   // Remove the cloudFile account and unregister the provider.
   await gCloudFileProvider.removeAccount(gCloudFileAccount);
   await gCloudFileProvider.unregister();

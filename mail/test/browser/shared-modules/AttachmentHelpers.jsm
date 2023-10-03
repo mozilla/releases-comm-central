@@ -9,76 +9,8 @@ const EXPORTED_SYMBOLS = [
   "create_deleted_attachment",
   "create_detached_attachment",
   "create_enclosure_attachment",
-  "gMockFilePicker",
-  "gMockFilePickReg",
   "select_attachments",
 ];
-
-var { MockObjectReplacer } = ChromeUtils.import(
-  "resource://testing-common/mozmill/MockObjectHelpers.jsm"
-);
-
-var gMockFilePickReg = new MockObjectReplacer(
-  "@mozilla.org/filepicker;1",
-  MockFilePickerConstructor
-);
-
-function MockFilePickerConstructor() {
-  return gMockFilePicker;
-}
-
-var gMockFilePicker = {
-  QueryInterface: ChromeUtils.generateQI(["nsIFilePicker"]),
-  defaultExtension: "",
-  filterIndex: null,
-  displayDirectory: null,
-  returnFiles: [],
-  addToRecentDocs: false,
-
-  get defaultString() {
-    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
-  },
-
-  get fileURL() {
-    return null;
-  },
-
-  get file() {
-    if (this.returnFiles.length >= 1) {
-      return this.returnFiles[0];
-    }
-    return null;
-  },
-
-  get files() {
-    let self = this;
-    return {
-      index: 0,
-      QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
-      hasMoreElements() {
-        return this.index < self.returnFiles.length;
-      },
-      getNext() {
-        return self.returnFiles[this.index++];
-      },
-      [Symbol.iterator]() {
-        return self.returnFiles.values();
-      },
-    };
-  },
-
-  init(aParent, aTitle, aMode) {},
-
-  appendFilters(aFilterMask) {},
-
-  appendFilter(aTitle, aFilter) {},
-
-  open(aFilePickerShownCallback) {
-    aFilePickerShownCallback.done(Ci.nsIFilePicker.returnOK);
-  },
-
-  set defaultString(aVal) {},
-};
 
 /**
  * Create a body part with attachments for the message generator

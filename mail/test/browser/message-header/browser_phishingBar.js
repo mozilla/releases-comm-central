@@ -35,27 +35,22 @@ var {
   plan_for_modal_dialog,
   click_menus_in_sequence,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
-var folder;
+var { MockRegistrar } = ChromeUtils.importESModule(
+  "resource://testing-common/MockRegistrar.sys.mjs"
+);
 
+var folder;
 var kBoxId = "mail-notification-top";
 var kNotificationValue = "maybeScam";
-
-var { MockObjectReplacer } = ChromeUtils.import(
-  "resource://testing-common/mozmill/MockObjectHelpers.jsm"
-);
-
-var gMockExtProtSvcReg = new MockObjectReplacer(
-  "@mozilla.org/uriloader/external-protocol-service;1",
-  MockExtProtConstructor
-);
 
 /**
  * gMockExtProtocolSvc allows us to capture (most if not all) attempts to
  * open links in the default browser.
  */
-var gMockExtProtSvc = {
-  _loadedURLs: [],
+var gMockExtProtocolSvc = {
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
+
+  _loadedURLs: [],
 
   externalProtocolHandlerExists(aProtocolScheme) {},
 
@@ -78,12 +73,11 @@ var gMockExtProtSvc = {
   },
 };
 
-function MockExtProtConstructor() {
-  return gMockExtProtSvc;
-}
-
 add_setup(async function () {
-  gMockExtProtSvcReg.register();
+  gMockExtProtocolSvc._classID = MockRegistrar.register(
+    "@mozilla.org/uriloader/external-protocol-service;1",
+    gMockExtProtocolSvc
+  );
 
   folder = await create_folder("PhishingBarA");
   await add_message_to_folder(
@@ -144,7 +138,7 @@ add_setup(async function () {
 });
 
 registerCleanupFunction(() => {
-  gMockExtProtSvcReg.unregister();
+  MockRegistrar.unregister(gMockExtProtocolSvc._classID);
 });
 
 /**

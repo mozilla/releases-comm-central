@@ -8,9 +8,6 @@
 let { TelemetryTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TelemetryTestUtils.sys.mjs"
 );
-let { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
-);
 let { gMockCloudfileManager } = ChromeUtils.import(
   "resource://testing-common/mozmill/CloudfileHelpers.jsm"
 );
@@ -27,6 +24,7 @@ let { wait_for_notification_to_stop } = ChromeUtils.import(
 let { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
+var { MockFilePicker } = SpecialPowers;
 
 let cloudType = "default";
 let kInsertNotificationPref =
@@ -39,14 +37,14 @@ add_setup(function () {
   requestLongerTimeout(2);
 
   gMockCloudfileManager.register(cloudType);
-  gMockFilePickReg.register();
+  MockFilePicker.init(window);
 
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
 });
 
 registerCleanupFunction(function () {
   gMockCloudfileManager.unregister(cloudType);
-  gMockFilePickReg.unregister();
+  MockFilePicker.cleanup();
   Services.prefs.clearUserPref(kInsertNotificationPref);
 });
 
@@ -61,10 +59,9 @@ add_task(async function test_filelink_uploaded_size() {
   let testFile2Size = 637;
   let totalSize = testFile1Size + testFile2Size;
 
-  gMockFilePicker.returnFiles = collectFiles([
-    "./data/testFile1",
-    "./data/testFile2",
-  ]);
+  MockFilePicker.setFiles(
+    collectFiles(["./data/testFile1", "./data/testFile2"])
+  );
 
   let provider = cloudFileAccounts.getProviderForType(cloudType);
   let cwc = open_compose_new_mail(window);

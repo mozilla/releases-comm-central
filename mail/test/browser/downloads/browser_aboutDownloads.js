@@ -8,9 +8,6 @@
 
 "use strict";
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var { gMockFilePicker, gMockFilePickReg } = ChromeUtils.import(
-  "resource://testing-common/mozmill/AttachmentHelpers.jsm"
-);
 var { content_tab_e } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
@@ -29,6 +26,7 @@ var {
 var { click_menus_in_sequence, wait_for_browser_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
+var { MockFilePicker } = SpecialPowers;
 
 var downloads = ChromeUtils.importESModule(
   "resource://gre/modules/Downloads.sys.mjs"
@@ -123,7 +121,7 @@ function prepare_downloads_view() {
 }
 
 add_setup(async function () {
-  gMockFilePickReg.register();
+  MockFilePicker.init(window);
 
   await prepare_messages();
   prepare_downloads_view();
@@ -174,12 +172,15 @@ async function save_attachment_files() {
     let file = profileDir.clone();
     file.append(attachmentFileNames[i]);
     select_click_row(i);
-    gMockFilePicker.returnFiles = [file];
-    EventUtils.synthesizeMouseAtCenter(
-      aboutMessage.document.getElementById("attachmentSaveAllSingle"),
-      { clickCount: 1 },
-      aboutMessage
-    );
+    MockFilePicker.setFiles([file]);
+    await new Promise(function (resolve) {
+      MockFilePicker.afterOpenCallback = resolve;
+      EventUtils.synthesizeMouseAtCenter(
+        aboutMessage.document.getElementById("attachmentSaveAllSingle"),
+        { clickCount: 1 },
+        aboutMessage
+      );
+    });
   }
 }
 
@@ -376,5 +377,5 @@ function teardownTest() {
 
 registerCleanupFunction(function () {
   close_tab(downloadsTab);
-  gMockFilePickReg.unregister();
+  MockFilePicker.cleanup();
 });
