@@ -6948,24 +6948,25 @@ void nsImapMailFolder::SetPendingAttributes(
     }
 
     uint32_t messageSize;
-    uint64_t messageOffset;
-    nsCString storeToken;
-    msgDBHdr->GetMessageOffset(&messageOffset);
     msgDBHdr->GetOfflineMessageSize(&messageSize);
-    msgDBHdr->GetStringProperty("storeToken", storeToken);
     if (messageSize) {
       mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "offlineMsgSize",
                                                 messageSize);
+      uint64_t messageOffset;
+      msgDBHdr->GetMessageOffset(&messageOffset);
       mDatabase->SetUint64AttributeOnPendingHdr(msgDBHdr, "msgOffset",
                                                 messageOffset);
+      nsCString storeToken;
+      msgDBHdr->GetStringProperty("storeToken", storeToken);
+      mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "storeToken",
+                                          storeToken.get());
       // Not always setting "flags" attribute to nsMsgMessageFlags::Offline
       // here because it can cause missing parts (inline or attachments)
       // when messages are moved or copied manually or by filter action.
-      if (aSetOffline)
+      if (aSetOffline) {
         mDatabase->SetUint32AttributeOnPendingHdr(
             msgDBHdr, "flags", storeFlags | nsMsgMessageFlags::Offline);
-      mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "storeToken",
-                                          storeToken.get());
+      }
     }
     nsMsgPriorityValue priority;
     msgDBHdr->GetPriority(&priority);
