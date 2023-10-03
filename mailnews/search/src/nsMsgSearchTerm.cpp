@@ -797,7 +797,6 @@ NS_IMETHODIMP nsMsgSearchTerm::MatchUint32HdrProperty(nsIMsgDBHdr* aHdr,
 }
 
 nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
-                                    uint64_t offset,
                                     uint32_t length /*in lines*/,
                                     const char* folderCharset, nsIMsgDBHdr* msg,
                                     nsIMsgDatabase* db, bool* pResult) {

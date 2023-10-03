@@ -456,12 +456,10 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
       break;
     }
     case nsMsgSearchAttrib::Body: {
-      uint64_t messageOffset;
       uint32_t lineCount;
-      msgToMatch->GetMessageOffset(&messageOffset);
       msgToMatch->GetLineCount(&lineCount);
-      err = aTerm->MatchBody(scope, messageOffset, lineCount, charset,
-                             msgToMatch, db, &result);
+      err =
+          aTerm->MatchBody(scope, lineCount, charset, msgToMatch, db, &result);
       break;
     }
     case nsMsgSearchAttrib::Date: {
@@ -578,8 +576,6 @@ nsresult nsMsgSearchOfflineMail::ProcessSearchTerm(
           attrib < nsMsgSearchAttrib::kNumMsgSearchAttributes) {
         uint32_t lineCount;
         msgToMatch->GetLineCount(&lineCount);
-        uint64_t messageOffset;
-        msgToMatch->GetMessageOffset(&messageOffset);
         err = aTerm->MatchArbitraryHeader(scope, lineCount, charset,
                                           charsetOverride, msgToMatch, db,
                                           headers, Filtering, &result);

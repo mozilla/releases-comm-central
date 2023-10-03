@@ -77,7 +77,6 @@ interface nsIMsgSearchTerm : nsISupports {
      * @param aDB db containing msg header.
      */
     boolean matchBody(in nsIMsgSearchScopeTerm aScopeTerm,
-                      in unsigned long long aOffset,
                       in unsigned long aLength,
                       in string aCharset,
                       in nsIMsgDBHdr aMsg,
