@@ -977,6 +977,31 @@ class MessageSend {
         this._userIdentity,
         this._deliverMode
       );
+      if (
+        (this._deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft &&
+          this._compFields.draftId) ||
+        (this._deliverMode == Ci.nsIMsgSend.nsMsgSaveAsTemplate &&
+          this._compFields.templateId)
+      ) {
+        // Turn the draft/template ID into a folder URI string.
+        let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+          Ci.nsIMessenger
+        );
+        try {
+          // This can fail if the user renames/removed/moved the folder.
+          folderUri = messenger.msgHdrFromURI(
+            this._deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft
+              ? this._compFields.draftId
+              : this._compFields.templateId
+          ).folder.URI;
+        } catch (ex) {
+          console.warn(ex);
+        }
+        // Only accept it if it's a subfolder of the identity's draft/template folder.
+        if (folderUri?.startsWith(this._folderUri)) {
+          this._folderUri = folderUri;
+        }
+      }
     }
     lazy.MsgUtils.sendLogger.debug(
       `Processing fcc; folderUri=${this._folderUri}`
