@@ -23,7 +23,7 @@ var {
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 add_task(async function test_image_insertion_dialog_persist() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   // First focus on the editor element
   cwc.document.getElementById("messageEditor").focus();

@@ -157,14 +157,14 @@ async function check_cid_image_compose(cwc) {
 
 add_task(async function test_cid_image_compose_fwd() {
   // Our image should also be in composition when the message is forwarded.
-  let cwc = open_compose_with_forward();
+  let cwc = await open_compose_with_forward();
   await check_cid_image_compose(cwc);
   close_compose_window(cwc);
 });
 
 add_task(async function test_cid_image_compose_re() {
   // Our image should also be in composition when the message is replied.
-  let cwc = open_compose_with_reply();
+  let cwc = await open_compose_with_reply();
   await check_cid_image_compose(cwc);
   close_compose_window(cwc);
 });

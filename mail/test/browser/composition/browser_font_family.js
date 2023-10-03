@@ -10,7 +10,7 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_font_family() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   // Before focus, disabled.
@@ -94,7 +94,7 @@ add_task(async function test_font_family() {
 });
 
 add_task(async function test_fixed_width() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   let ttStyleItem = formatHelper.getStyleMenuItem("tt");

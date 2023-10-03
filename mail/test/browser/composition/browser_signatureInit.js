@@ -23,7 +23,7 @@ var kSigBottomPref = "mail.identity.default.sig_bottom";
  * that there is a <br> node above the signature. This allows the user to
  * insert text before the signature.
  */
-add_task(function test_on_reply_above_signature_below_reply() {
+add_task(async function test_on_reply_above_signature_below_reply() {
   let origHtml = Services.prefs.getBoolPref(kHtmlPref);
   let origReplyOnTop = Services.prefs.getIntPref(kReplyOnTopPref);
   let origSigBottom = Services.prefs.getBoolPref(kSigBottomPref);
@@ -32,7 +32,7 @@ add_task(function test_on_reply_above_signature_below_reply() {
   Services.prefs.setIntPref(kReplyOnTopPref, kReplyOnTop);
   Services.prefs.setBoolPref(kSigBottomPref, false);
 
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   let mailBody = get_compose_body(cw);
 
   let node = mailBody.firstChild;

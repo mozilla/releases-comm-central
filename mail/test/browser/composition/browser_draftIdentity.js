@@ -240,7 +240,7 @@ add_task(async function test_draft_identity_selection() {
       "mail-notification-top",
       "draftMsgContent"
     );
-    let cwc = open_compose_from_draft();
+    let cwc = await open_compose_from_draft();
     checkCompIdentity(
       cwc,
       gIdentities[test.idIndex].key,
@@ -268,7 +268,7 @@ add_task(async function test_draft_identity_selection() {
   // Open a draft again that shows the notification.
   await be_in_folder(gDrafts);
   select_click_row(tests[tests.length-1].draftIndex);
-  let cwc = open_compose_from_draft();
+  let cwc = await open_compose_from_draft();
   wait_for_notification_to_show(cwc, "compose-notification-bottom",
                                 "identityWarning");
   // Notification should go away when another identity is chosen.

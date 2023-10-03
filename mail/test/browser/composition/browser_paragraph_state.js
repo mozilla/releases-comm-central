@@ -12,7 +12,7 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_newline_p() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   let firstText = "first line";
@@ -70,7 +70,7 @@ add_task(async function test_newline_p() {
 });
 
 add_task(async function test_newline_headers() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   let firstText = "first line";
@@ -129,7 +129,7 @@ add_task(async function test_newline_headers() {
 });
 
 add_task(async function test_newline_pre_and_address() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   let firstText = "first line";
@@ -181,7 +181,7 @@ add_task(async function test_newline_pre_and_address() {
 });
 
 add_task(async function test_newline_body() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   let firstText = "first line";
@@ -255,7 +255,7 @@ async function initialiseParagraphs(formatHelper) {
 }
 
 add_task(async function test_non_body_paragraph_state() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   // NOTE: we don't start with the default paragraph state because we want to
@@ -359,7 +359,7 @@ add_task(async function test_non_body_paragraph_state() {
 });
 
 add_task(async function test_body_paragraph_state() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
@@ -394,7 +394,7 @@ add_task(async function test_body_paragraph_state() {
 });
 
 add_task(async function test_convert_from_body_paragraph_state() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   let stateSet = ["p", "address", "pre"];
@@ -439,7 +439,7 @@ add_task(async function test_convert_from_body_paragraph_state() {
 });
 
 add_task(async function test_heading_implies_bold() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
@@ -576,7 +576,7 @@ add_task(async function test_heading_implies_bold() {
 });
 
 add_task(async function test_address_implies_italic() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
@@ -701,7 +701,7 @@ add_task(async function test_address_implies_italic() {
 });
 
 add_task(async function test_preformat_implies_fixed_width() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();

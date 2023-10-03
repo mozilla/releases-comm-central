@@ -92,7 +92,7 @@ add_task(async function testSignedMessageComposition() {
 
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let composeWin = cwc;
 
   setup_msg_contents(
@@ -148,7 +148,7 @@ add_task(async function testSignedMessageComposition() {
 add_task(async function testSignedMessageWithKeyComposition() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let composeWin = cwc;
 
   setup_msg_contents(
@@ -201,7 +201,7 @@ add_task(async function testSignedMessageWithKeyComposition() {
 add_task(async function testSignedEncryptedMessageComposition() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.
@@ -255,7 +255,7 @@ add_task(async function testSignedEncryptedMessageComposition() {
 add_task(async function testSignedEncryptedMessageWithKeyComposition() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.

@@ -30,7 +30,7 @@ add_task(async function test_customHeaders() {
   );
 
   // Set values to custom headers.
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let inputs = cwc.document.querySelectorAll(".address-row-raw input");
   inputs[0].value = "Test äöü";
   inputs[1].value = "Test 😃";
@@ -74,7 +74,7 @@ add_task(async function test_customHeaders() {
     "Correct Supersedes found"
   );
 
-  cwc = open_compose_from_draft();
+  cwc = await open_compose_from_draft();
   let inputs2 = cwc.document.querySelectorAll(".address-row-raw input");
 
   Assert.equal(inputs2[0].value, "Test äöü");

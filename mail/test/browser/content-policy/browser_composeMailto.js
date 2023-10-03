@@ -5,7 +5,7 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var { close_compose_window, wait_for_compose_window } = ChromeUtils.import(
+var { close_compose_window, promise_compose_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
 var { open_content_tab_with_url } = ChromeUtils.import(
@@ -43,7 +43,7 @@ add_task(async function test_openComposeFromMailToLink() {
     {},
     gNewTab.browser
   );
-  gCwc = wait_for_compose_window();
+  gCwc = await promise_compose_window();
 });
 
 add_task(async function test_checkInsertImage() {

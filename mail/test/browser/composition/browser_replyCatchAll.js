@@ -206,7 +206,7 @@ add_task(async function test_reply_identity_selection() {
       `... identity2.catchAll=${identity2.catchAll}, identity2.catchAllHint=${identity2.catchAllHint}`
     );
 
-    let cwc = open_compose_with_reply();
+    let cwc = await open_compose_with_reply();
 
     info("Checking reply identity: " + JSON.stringify(test, null, 2));
     checkCompIdentity(cwc, test.replyIdKey, test.replyIdFrom);

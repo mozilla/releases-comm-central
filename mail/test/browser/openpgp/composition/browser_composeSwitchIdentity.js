@@ -111,7 +111,7 @@ async function testComposeFlags(
   bobIdentity.attachPgpKey = prefAttachPgpKey;
   bobIdentity.protectSubject = prefProtectSubject;
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let composeWin = cwc;
 
   // setup_msg_contents will trigger checkEncryptionState.

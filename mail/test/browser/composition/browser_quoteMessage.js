@@ -53,7 +53,7 @@ add_task(async function test_quoteMessage() {
 
   // Select message and click reply.
   select_click_row(0);
-  let cwc = open_compose_with_reply();
+  let cwc = await open_compose_with_reply();
   let composeBody = get_compose_body(cwc).textContent;
   Assert.equal(
     composeBody.match(/世界/g).length,

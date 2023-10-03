@@ -55,10 +55,10 @@ registerCleanupFunction(function () {
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
 });
 
-async function forward_selected_messages_and_go_to_drafts_folder(f) {
+async function forward_selected_messages_and_go_to_drafts_folder(callback) {
   const kText = "Hey check out this megalol link";
   // opening a new compose window
-  const cwc = f(window);
+  const cwc = await callback(window);
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString(kText, cwc);
 

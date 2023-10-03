@@ -129,8 +129,8 @@ function close_privacy_warning_notification(aWin) {
   close_notification(aWin, kBoxId, "bigAttachmentPrivacyWarning");
 }
 
-add_task(function test_no_notification_for_small_file() {
-  let cwc = open_compose_new_mail(window);
+add_task(async function test_no_notification_for_small_file() {
+  let cwc = await open_compose_new_mail(window);
   add_attachments(cwc, "https://www.example.com/1", 0);
   assert_cloudfile_notification_displayed(cwc, false);
 
@@ -146,8 +146,8 @@ add_task(function test_no_notification_for_small_file() {
   close_compose_window(cwc);
 });
 
-add_task(function test_notification_for_big_files() {
-  let cwc = open_compose_new_mail(window);
+add_task(async function test_notification_for_big_files() {
+  let cwc = await open_compose_new_mail(window);
   add_attachments(cwc, "https://www.example.com/1", maxSize);
   assert_cloudfile_notification_displayed(cwc, true);
 
@@ -163,8 +163,8 @@ add_task(function test_notification_for_big_files() {
   close_compose_window(cwc);
 });
 
-add_task(function test_graduate_to_notification() {
-  let cwc = open_compose_new_mail(window);
+add_task(async function test_graduate_to_notification() {
+  let cwc = await open_compose_new_mail(window);
   add_attachments(cwc, "https://www.example.com/1", maxSize - 100);
   assert_cloudfile_notification_displayed(cwc, false);
 
@@ -177,9 +177,9 @@ add_task(function test_graduate_to_notification() {
   close_compose_window(cwc);
 });
 
-add_task(function test_no_notification_if_disabled() {
+add_task(async function test_no_notification_if_disabled() {
   Services.prefs.setBoolPref("mail.cloud_files.enabled", false);
-  let cwc = open_compose_new_mail(window);
+  let cwc = await open_compose_new_mail(window);
 
   add_attachments(cwc, "https://www.example.com/1", maxSize);
   assert_cloudfile_notification_displayed(cwc, false);
@@ -201,12 +201,12 @@ add_task(function test_no_notification_if_disabled() {
  * Tests that if we upload a single file, we get the link insertion
  * notification bar displayed (unless preffed off).
  */
-add_task(function test_link_insertion_notification_single() {
+add_task(async function test_link_insertion_notification_single() {
   MockFilePicker.setFiles(collectFiles(["./data/testFile1"]));
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(window);
+  let cwc = await open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   assert_upload_notification_displayed(cwc, true);
@@ -228,14 +228,14 @@ add_task(function test_link_insertion_notification_single() {
  * Tests that if we upload multiple files, we get the link insertion
  * notification bar displayed (unless preffed off).
  */
-add_task(function test_link_insertion_notification_multiple() {
+add_task(async function test_link_insertion_notification_multiple() {
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile1", "./data/testFile2"])
   );
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(window);
+  let cwc = await open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   assert_upload_notification_displayed(cwc, true);
@@ -259,7 +259,7 @@ add_task(function test_link_insertion_notification_multiple() {
  * Tests that the link insertion notification bar goes away even
  * if we hit an uploading error.
  */
-add_task(function test_link_insertion_goes_away_on_error() {
+add_task(async function test_link_insertion_goes_away_on_error() {
   gMockPromptService.register();
   gMockPromptService.returnValue = false;
   MockFilePicker.setFiles(
@@ -268,7 +268,7 @@ add_task(function test_link_insertion_goes_away_on_error() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(window);
+  let cwc = await open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -306,7 +306,7 @@ add_task(async function test_no_offer_on_conversion() {
     });
   };
 
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   add_cloud_attachments(cw, provider, false);
 
   assert_cloudfile_notification_displayed(cw, false);
@@ -363,7 +363,7 @@ add_task(async function test_offer_then_upload_notifications() {
     });
   };
 
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
 
   // Attach the files, saying that each is 500 bytes large - which should
   // certainly trigger the offer.
@@ -391,7 +391,7 @@ add_task(async function test_offer_then_upload_notifications() {
  * Test that when we first upload some files, we get the privacy warning
  * message. We should only get this the first time.
  */
-add_task(function test_privacy_warning_notification() {
+add_task(async function test_privacy_warning_notification() {
   gMockPromptService.register();
   gMockPromptService.returnValue = false;
   MockFilePicker.setFiles(
@@ -400,7 +400,7 @@ add_task(function test_privacy_warning_notification() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(window);
+  let cwc = await open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -429,7 +429,7 @@ add_task(function test_privacy_warning_notification() {
  * Test that when all cloud attachments are removed, the privacy warning will
  * be removed as well.
  */
-add_task(function test_privacy_warning_notification() {
+add_task(async function test_privacy_warning_notification() {
   gMockPromptService.register();
   gMockPromptService.returnValue = false;
   MockFilePicker.setFiles(
@@ -438,7 +438,7 @@ add_task(function test_privacy_warning_notification() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(window);
+  let cwc = await open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -464,7 +464,7 @@ add_task(function test_privacy_warning_notification() {
  * Test that the privacy warning notification does not persist when closing
  * and re-opening a compose window.
  */
-add_task(function test_privacy_warning_notification_no_persist() {
+add_task(async function test_privacy_warning_notification_no_persist() {
   gMockPromptService.register();
   gMockPromptService.returnValue = false;
   MockFilePicker.setFiles(
@@ -473,7 +473,7 @@ add_task(function test_privacy_warning_notification_no_persist() {
   let provider = new MockCloudfileAccount();
   provider.init("mocktestKey");
 
-  let cwc = open_compose_new_mail(window);
+  let cwc = await open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -487,7 +487,7 @@ add_task(function test_privacy_warning_notification_no_persist() {
   close_compose_window(cwc);
 
   // Open a new compose window
-  cwc = open_compose_new_mail(window);
+  cwc = await open_compose_new_mail(window);
 
   // We shouldn't be displaying the privacy warning.
   assert_privacy_warning_notification_displayed(cwc, false);
@@ -500,7 +500,7 @@ add_task(function test_privacy_warning_notification_no_persist() {
  * Test that if we close the privacy warning in a composer, it will still
  * spawn in a new one.
  */
-add_task(function test_privacy_warning_notification_open_after_close() {
+add_task(async function test_privacy_warning_notification_open_after_close() {
   gMockPromptService.register();
   gMockPromptService.returnValue = false;
   MockFilePicker.setFiles(
@@ -509,7 +509,7 @@ add_task(function test_privacy_warning_notification_open_after_close() {
   let provider = new MockCloudfileAccount();
   provider.init("aKey");
 
-  let cwc = open_compose_new_mail(window);
+  let cwc = await open_compose_new_mail(window);
   add_cloud_attachments(cwc, provider, false);
 
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachmentUploading");
@@ -525,7 +525,7 @@ add_task(function test_privacy_warning_notification_open_after_close() {
   close_compose_window(cwc);
 
   // Open a new compose window
-  cwc = open_compose_new_mail(window);
+  cwc = await open_compose_new_mail(window);
 
   MockFilePicker.setFiles(
     collectFiles(["./data/testFile3", "./data/testFile4"])

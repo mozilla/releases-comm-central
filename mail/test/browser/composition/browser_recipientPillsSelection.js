@@ -22,7 +22,7 @@ var modifiers =
  * and accidental deselection when interacting with other elements.
  */
 add_task(async function test_pill_selection() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "test@example.org, test@invalid.foo, test@tinderborx.invalid, alice@foo.test",
@@ -158,7 +158,7 @@ add_task(async function test_pill_selection() {
  * move the currently selected pills.
  */
 add_task(async function test_pill_context_menu() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "test@example.org, test@invalid.foo, test@tinderborx.invalid, alice@foo.test",

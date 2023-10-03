@@ -5,7 +5,7 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var { close_compose_window, wait_for_compose_window } = ChromeUtils.import(
+var { close_compose_window, promise_compose_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
 var {
@@ -135,7 +135,7 @@ async function open_about_support() {
  *
  * @param aTab The about:support tab.
  */
-function open_send_via_email(aTab) {
+async function open_send_via_email(aTab) {
   let button = content_tab_e(aTab, "send-via-email");
   plan_for_new_window("msgcompose");
   EventUtils.synthesizeMouseAtCenter(
@@ -143,7 +143,7 @@ function open_send_via_email(aTab) {
     { clickCount: 1 },
     button.ownerGlobal
   );
-  let cwc = wait_for_compose_window();
+  let cwc = await promise_compose_window();
   return cwc;
 }
 
@@ -474,7 +474,7 @@ add_task(async function test_send_via_email_public() {
   let tab = await open_about_support();
   let privateElem = find_private_element(tab);
 
-  let cwc = open_send_via_email(tab);
+  let cwc = await open_send_via_email(tab);
 
   let contentBody =
     cwc.document.getElementById("messageEditor").contentDocument.body;
@@ -527,7 +527,7 @@ add_task(async function test_send_via_email_private() {
   EventUtils.synthesizeMouseAtCenter(show, { clickCount: 1 }, show.ownerGlobal);
   wait_for_content_tab_element_display(tab, privateElem);
 
-  let cwc = open_send_via_email(tab);
+  let cwc = await open_send_via_email(tab);
 
   let contentBody =
     cwc.document.getElementById("messageEditor").contentDocument.body;

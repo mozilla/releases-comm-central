@@ -79,7 +79,7 @@ add_task(async function testExpiredKeyShowsNotificationBar() {
     "openpgp_key_id",
     gExpiredKeyId.replace(/^0x/, "")
   );
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   wait_for_notification_to_show(
     cwc,
@@ -118,7 +118,7 @@ add_task(async function testKeyWithoutExpiryDoesNotShowNotification() {
     "openpgp_key_id",
     gNotExpiredKeyId.replace(/^0x/, "")
   );
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   // Give it some time to potentially start showing.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout

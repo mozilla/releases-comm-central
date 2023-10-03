@@ -42,7 +42,7 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   Services.prefs.setBoolPref("mailnews.send_plaintext_flowed", aFlowed);
 
-  let cwc = open_compose_with_reply(msgc);
+  let cwc = await open_compose_with_reply(msgc);
 
   close_window(msgc);
 

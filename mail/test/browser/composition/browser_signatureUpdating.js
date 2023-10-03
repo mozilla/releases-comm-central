@@ -80,7 +80,7 @@ async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
     "mail.identity.id2.suppress_signature_separator",
     suppressSigSep
   );
-  const cwc = open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   let contentFrame = cwc.document.getElementById("messageEditor");
   let mailBody = contentFrame.contentDocument.body;
@@ -192,7 +192,7 @@ async function HTMLComposeWindowSwitchSignatures(
     "mail.identity.id2.suppress_signature_separator",
     suppressSigSep
   );
-  const cwc = open_compose_new_mail();
+  const cwc = await open_compose_new_mail();
 
   setup_msg_contents(cwc, "", "HTML compose window", "Body, first line.");
 

@@ -89,16 +89,16 @@ async function subtest_replyEditAsNewForward_charset(
   let fwdWin;
   switch (aAction) {
     case 1: // Reply.
-      fwdWin = open_compose_with_reply();
+      fwdWin = await open_compose_with_reply();
       break;
     case 2: // Edit as new.
-      fwdWin = open_compose_with_edit_as_new();
+      fwdWin = await open_compose_with_edit_as_new();
       break;
     case 3: // Forward inline.
-      fwdWin = open_compose_with_forward();
+      fwdWin = await open_compose_with_forward();
       break;
     case 4: // Forward as attachment.
-      fwdWin = open_compose_with_forward_as_attachments();
+      fwdWin = await open_compose_with_forward_as_attachments();
       break;
   }
 

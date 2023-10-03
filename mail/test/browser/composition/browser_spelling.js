@@ -39,7 +39,7 @@ add_task(async function () {
 
   // Open a compose window and write a message.
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let composeWindow = cwc;
   let composeDocument = composeWindow.document;
 

@@ -28,7 +28,7 @@ var kAttachmentRenamed = "attachment-renamed";
  * Test that the attachments-added event is fired when we add a single
  * attachment.
  */
-add_task(function test_attachments_added_on_single() {
+add_task(async function test_attachments_added_on_single() {
   // Prepare to listen for attachments-added
   let eventCount = 0;
   let lastEvent;
@@ -38,7 +38,7 @@ add_task(function test_attachments_added_on_single() {
   };
 
   // Open up the compose window
-  let cw = open_compose_new_mail(window);
+  let cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsAdded, listener);
@@ -76,7 +76,7 @@ add_task(function test_attachments_added_on_single() {
  * Test that the attachments-added event is fired when we add a series
  * of files all at once.
  */
-add_task(function test_attachments_added_on_multiple() {
+add_task(async function test_attachments_added_on_multiple() {
   // Prepare to listen for attachments-added
   let eventCount = 0;
   let lastEvent;
@@ -90,7 +90,7 @@ add_task(function test_attachments_added_on_multiple() {
   let attachmentUrls = ["http://www.example.com/1", "http://www.example.com/2"];
 
   // Open the compose window and add the attachments
-  let cw = open_compose_new_mail(window);
+  let cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsAdded, listener);
@@ -123,7 +123,7 @@ add_task(function test_attachments_added_on_multiple() {
 
   // Open the compose window and attach the files, and ensure that we saw
   // the attachments-added event
-  cw = open_compose_new_mail(window);
+  cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsAdded, listener);
@@ -154,7 +154,7 @@ add_task(function test_attachments_added_on_multiple() {
  * Test that the attachments-removed event is fired when removing a
  * single file.
  */
-add_task(function test_attachments_removed_on_single() {
+add_task(async function test_attachments_removed_on_single() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
   let lastEvent;
@@ -164,7 +164,7 @@ add_task(function test_attachments_removed_on_single() {
   };
 
   // Open up the compose window, attach a file...
-  let cw = open_compose_new_mail(window);
+  let cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
@@ -205,7 +205,7 @@ add_task(function test_attachments_removed_on_single() {
  * Test that the attachments-removed event is fired when removing multiple
  * files all at once.
  */
-add_task(function test_attachments_removed_on_multiple() {
+add_task(async function test_attachments_removed_on_multiple() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
   let lastEvent;
@@ -215,7 +215,7 @@ add_task(function test_attachments_removed_on_multiple() {
   };
 
   // Open up the compose window and attach some files...
-  let cw = open_compose_new_mail(window);
+  let cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
@@ -264,7 +264,7 @@ add_task(function test_attachments_removed_on_multiple() {
  * Test that we don't see the attachments-removed event if no attachments
  * are selected when hitting "Delete"
  */
-add_task(function test_no_attachments_removed_on_none() {
+add_task(async function test_no_attachments_removed_on_none() {
   // Prepare to listen for attachments-removed
   let eventCount = 0;
   let listener = function (event) {
@@ -272,7 +272,7 @@ add_task(function test_no_attachments_removed_on_none() {
   };
 
   // Open the compose window and add some attachments.
-  let cw = open_compose_new_mail(window);
+  let cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
@@ -300,7 +300,7 @@ add_task(function test_no_attachments_removed_on_none() {
  * Test that we see the attachment-renamed event when an attachments
  * name is changed.
  */
-add_task(function test_attachment_renamed() {
+add_task(async function test_attachment_renamed() {
   // Here's what we'll rename some files to.
   const kRenameTo1 = "Renamed-1";
   const kRenameTo2 = "Renamed-2";
@@ -323,7 +323,7 @@ add_task(function test_attachment_renamed() {
 
   // Open up the compose window, attach some files, choose the first
   // attachment, and choose to rename it.
-  let cw = open_compose_new_mail(window);
+  let cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentRenamed, listener);
@@ -408,7 +408,7 @@ add_task(function test_attachment_renamed() {
  * Test that the attachment-renamed event is not fired if we set the
  * filename to be blank.
  */
-add_task(function test_no_attachment_renamed_on_blank() {
+add_task(async function test_no_attachment_renamed_on_blank() {
   // Prepare to listen for attachment-renamed
   let eventCount = 0;
   let listener = function (event) {
@@ -424,7 +424,7 @@ add_task(function test_no_attachment_renamed_on_blank() {
 
   // Open the compose window, attach some files, select one, and chooes to
   // rename it.
-  let cw = open_compose_new_mail(window);
+  let cw = await open_compose_new_mail(window);
   cw.document
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentRenamed, listener);
@@ -450,9 +450,9 @@ add_task(function test_no_attachment_renamed_on_blank() {
 /**
  * Test that toggling attachments pane works.
  */
-add_task(function test_attachments_pane_toggle() {
+add_task(async function test_attachments_pane_toggle() {
   // Open the compose window.
-  let cw = open_compose_new_mail(window);
+  let cw = await open_compose_new_mail(window);
 
   // Use the hotkey to try to toggle attachmentsArea open.
   let opts =

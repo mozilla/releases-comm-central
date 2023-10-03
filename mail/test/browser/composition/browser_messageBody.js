@@ -31,7 +31,7 @@ add_setup(async function () {
  * Tests that sending link with invalid data uri works.
  */
 add_task(async function test_invalid_data_uri() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "someone@example.com",
@@ -71,7 +71,7 @@ add_task(async function test_freeTextLink() {
     "mail.default_send_format",
     Ci.nsIMsgCompSendFormat.PlainText
   );
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(cwc, "someone@example.com", "Test free text link", "");
 
   let link1 = "https://example.com";

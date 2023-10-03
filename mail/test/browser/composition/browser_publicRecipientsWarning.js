@@ -73,7 +73,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
   await be_in_folder(folder);
   let msg = select_click_row(0);
   assert_selected_and_displayed(window, msg);
-  let cwc = open_compose_with_reply_to_all();
+  let cwc = await open_compose_with_reply_to_all();
 
   await BrowserTestUtils.waitForCondition(
     () =>
@@ -98,7 +98,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
  * Test the warning displays when the "To" recipients list hits the limit.
  */
 add_task(async function testWarningShowsWhenToFieldHitsLimit() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let i = 1;
 
   setup_msg_contents(
@@ -125,7 +125,7 @@ add_task(async function testWarningShowsWhenToFieldHitsLimit() {
  * Test the warning displays when the "Cc" recipients list hits the limit.
  */
 add_task(async function testWarningShowsWhenCcFieldHitLimit() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
@@ -169,7 +169,7 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
  * combined hit the limit.
  */
 add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   let i = 1;
   setup_msg_contents(
@@ -214,7 +214,7 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
  * that option.
  */
 add_task(async function testToRecipientsMovedToBcc() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let i = 1;
   setup_msg_contents(
     cwc,
@@ -273,7 +273,7 @@ add_task(async function testToRecipientsMovedToBcc() {
  * address count is over the limit.
  */
 add_task(async function testAllToRecipientsMovedToBccWhenOverLimit() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let limit = publicRecipientLimit + 1;
   let i = 1;
   setup_msg_contents(
@@ -332,7 +332,7 @@ add_task(async function testAllToRecipientsMovedToBccWhenOverLimit() {
  * that option.
  */
 add_task(async function testCcRecipientsMovedToBcc() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   // Click on the Cc recipient label.
   EventUtils.synthesizeMouseAtCenter(
@@ -408,7 +408,7 @@ add_task(async function testCcRecipientsMovedToBcc() {
  * address count is over the limit.
  */
 add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let limit = publicRecipientLimit + 1;
 
   // Click on the Cc recipient label.
@@ -482,7 +482,7 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
  * the user selects that option.
  */
 add_task(async function testToAndCcRecipientsMovedToBcc() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let i = 1;
   setup_msg_contents(
     cwc,
@@ -564,7 +564,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
  * Test the warning is removed when the user chooses to "Keep Recipients Public".
  */
 add_task(async function testWarningRemovedWhenKeepPublic() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let i = 1;
   setup_msg_contents(
     cwc,
@@ -622,7 +622,7 @@ add_task(async function testWarningRemovedWhenKeepPublic() {
  * Test that the warning is not shown again if the user dismisses it.
  */
 add_task(async function testWarningNotShownAfterDismissal() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let i = 1;
   setup_msg_contents(
     cwc,
@@ -699,7 +699,7 @@ add_task(async function testMailingListMembersCounted() {
   }
   list.editMailListToDatabase(null);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(cwc, "Test List", "Testing mailing lists", "");
 
   await BrowserTestUtils.waitForCondition(

@@ -38,7 +38,7 @@ async function forwardDirect(aFilePath, aExpectedText) {
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
   let msgc = await open_message_from_file(file);
 
-  let cwc = open_compose_with_forward_as_attachments(msgc);
+  let cwc = await open_compose_with_forward_as_attachments(msgc);
 
   await save_compose_message(cwc);
   close_compose_window(cwc);

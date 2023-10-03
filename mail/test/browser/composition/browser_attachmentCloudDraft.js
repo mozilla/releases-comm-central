@@ -11,9 +11,9 @@
 var {
   close_compose_window,
   open_compose_new_mail,
+  promise_compose_window,
   save_compose_message,
   setup_msg_contents,
-  wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { CloudFileTestProvider } = ChromeUtils.import(
   "resource://testing-common/mozmill/CloudfileHelpers.jsm"
@@ -459,7 +459,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
 
 async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   // Open a sample message.
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "test@example.invalid",
@@ -537,7 +537,7 @@ function openDraft() {
     {},
     aboutMessage
   );
-  return wait_for_compose_window();
+  return promise_compose_window();
 }
 
 function collectFiles(files) {

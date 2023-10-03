@@ -500,7 +500,7 @@ add_task(async function test_jump_focus() {
               otherHeader: "X-Header1",
             };
             info(`Test run: ${JSON.stringify(options)}`);
-            let win = open_compose_new_mail();
+            let win = await open_compose_new_mail();
             await checkFocusCycling(win, options);
             close_compose_window(win);
           }

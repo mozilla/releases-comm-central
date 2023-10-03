@@ -50,7 +50,7 @@ add_task(async function test_multipart_alternative() {
     new FileUtils.File(getTestFilePath("data/multipart-alternative.eml"))
   );
 
-  let cwc = open_compose_with_reply(msgc);
+  let cwc = await open_compose_with_reply(msgc);
 
   close_window(msgc);
 

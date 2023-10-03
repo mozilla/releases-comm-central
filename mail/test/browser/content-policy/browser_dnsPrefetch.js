@@ -11,9 +11,12 @@
 
 "use strict";
 
-var composeHelper = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
+var {
+  close_compose_window,
+  open_compose_new_mail,
+  open_compose_with_forward,
+  open_compose_with_reply,
+} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
@@ -110,20 +113,20 @@ function addMsgToFolder(folder) {
  *                    1 = reply, 2 = forward.
  * @param loadAllowed Whether or not the load is expected to be allowed.
  */
-function checkComposeWindow(replyType) {
+async function checkComposeWindow(replyType) {
   let errMsg = "";
   let replyWindow = null;
   switch (replyType) {
     case 0:
-      replyWindow = composeHelper.open_compose_new_mail();
+      replyWindow = await open_compose_new_mail();
       errMsg = "new mail";
       break;
     case 1:
-      replyWindow = composeHelper.open_compose_with_reply();
+      replyWindow = await open_compose_with_reply();
       errMsg = "reply";
       break;
     case 2:
-      replyWindow = composeHelper.open_compose_with_forward();
+      replyWindow = await open_compose_with_forward();
       errMsg = "forward";
       break;
   }
@@ -135,7 +138,7 @@ function checkComposeWindow(replyType) {
     `Should have disabled DNS prefetch in the compose window (${errMsg})`
   );
 
-  composeHelper.close_compose_window(replyWindow);
+  close_compose_window(replyWindow);
 }
 
 add_task(async function test_dnsPrefetch_message() {
@@ -194,10 +197,10 @@ add_task(async function test_dnsPrefetch_standaloneMessage() {
   close_message_window(msgc);
 });
 
-add_task(function test_dnsPrefetch_compose() {
-  checkComposeWindow(0);
-  checkComposeWindow(1);
-  checkComposeWindow(2);
+add_task(async function test_dnsPrefetch_compose() {
+  await checkComposeWindow(0);
+  await checkComposeWindow(1);
+  await checkComposeWindow(2);
 });
 
 add_task(async function test_dnsPrefetch_contentTab() {

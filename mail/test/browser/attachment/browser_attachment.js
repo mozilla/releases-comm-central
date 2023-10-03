@@ -631,7 +631,7 @@ add_task(async function test_attachments_compose_menu() {
   select_none();
   select_click_row(3);
 
-  let cwc = open_compose_with_forward();
+  let cwc = await open_compose_with_forward();
   let attachment = cwc.document.getElementById("attachmentBucket");
 
   // On Linux and OSX, focus events don't seem to be sent to child elements properly if

@@ -359,7 +359,7 @@ async function prepare_some_attachments_and_reply(aText, aFiles) {
   let msg = select_click_row(0);
   assert_selected_and_displayed(window, msg);
 
-  let cw = open_compose_with_reply();
+  let cw = await open_compose_with_reply();
 
   // If we have any typing to do, let's do it.
   type_in_composer(cw, aText);
@@ -420,7 +420,7 @@ async function prepare_some_attachments_and_forward(aText, aFiles) {
   let msg = select_click_row(0);
   assert_selected_and_displayed(window, msg);
 
-  let cw = open_compose_with_forward();
+  let cw = await open_compose_with_forward();
 
   // Put the selection at the beginning of the document...
   let editor = cw.GetCurrentEditor();
@@ -536,13 +536,13 @@ add_task(async function test_inserts_linebreak_on_empty_compose() {
  * Subtest for test_inserts_linebreak_on_empty_compose - can be executed
  * on both plaintext and HTML compose windows.
  */
-function subtest_inserts_linebreak_on_empty_compose() {
+async function subtest_inserts_linebreak_on_empty_compose() {
   MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   provider.init("someKey", {
     downloadPasswordProtected: false,
   });
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   let uploads = add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
@@ -593,125 +593,127 @@ function subtest_inserts_linebreak_on_empty_compose() {
  * accidentally insert the attachment URL containment within the signature
  * node.
  */
-add_task(function test_inserts_linebreak_on_empty_compose_with_signature() {
-  MockFilePicker.setFiles(collectFiles(kFiles));
-  let provider = new MockCloudfileAccount();
-  provider.init("someKey", {
-    downloadPasswordProtected: true,
-  });
+add_task(
+  async function test_inserts_linebreak_on_empty_compose_with_signature() {
+    MockFilePicker.setFiles(collectFiles(kFiles));
+    let provider = new MockCloudfileAccount();
+    provider.init("someKey", {
+      downloadPasswordProtected: true,
+    });
 
-  let cw = open_compose_new_mail();
-  let uploads = add_cloud_attachments(cw, provider);
-  test_expected_included(
-    uploads,
-    [
-      {
-        url: "https://www.example.com/someKey/testFile1",
-        name: "testFile1",
-        serviceName: "default",
-        serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceUrl: "",
-        downloadPasswordProtected: true,
-      },
-      {
-        url: "https://www.example.com/someKey/testFile2",
-        name: "testFile2",
-        serviceName: "default",
-        serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceUrl: "",
-        downloadPasswordProtected: true,
-      },
-    ],
-    `Expected values in uploads array #2`
-  );
-  // wait_for_attachment_urls ensures that the attachment URL containment
-  // node is an immediate child of the body of the message, so if this
-  // succeeds, then we were not in the signature node.
-  let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+    let cw = await open_compose_new_mail();
+    let uploads = add_cloud_attachments(cw, provider);
+    test_expected_included(
+      uploads,
+      [
+        {
+          url: "https://www.example.com/someKey/testFile1",
+          name: "testFile1",
+          serviceName: "default",
+          serviceIcon: "chrome://messenger/content/extension.svg",
+          serviceUrl: "",
+          downloadPasswordProtected: true,
+        },
+        {
+          url: "https://www.example.com/someKey/testFile2",
+          name: "testFile2",
+          serviceName: "default",
+          serviceIcon: "chrome://messenger/content/extension.svg",
+          serviceUrl: "",
+          downloadPasswordProtected: true,
+        },
+      ],
+      `Expected values in uploads array #2`
+    );
+    // wait_for_attachment_urls ensures that the attachment URL containment
+    // node is an immediate child of the body of the message, so if this
+    // succeeds, then we were not in the signature node.
+    let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
-  let br = assert_previous_nodes("br", root, 1);
+    let br = assert_previous_nodes("br", root, 1);
 
-  let mailBody = get_compose_body(cw);
-  Assert.equal(
-    mailBody.firstChild,
-    br,
-    "The linebreak should be the first child of the compose body"
-  );
+    let mailBody = get_compose_body(cw);
+    Assert.equal(
+      mailBody.firstChild,
+      br,
+      "The linebreak should be the first child of the compose body"
+    );
 
-  // Now ensure that the node after the attachments is a br, and following
-  // that is the signature.
-  br = assert_next_nodes("br", root, 1);
+    // Now ensure that the node after the attachments is a br, and following
+    // that is the signature.
+    br = assert_next_nodes("br", root, 1);
 
-  let pre = br.nextSibling;
-  Assert.equal(
-    pre.localName,
-    "pre",
-    "The linebreak should be followed by the signature pre"
-  );
-  Assert.ok(
-    pre.classList.contains("moz-signature"),
-    "The pre should have the moz-signature class"
-  );
+    let pre = br.nextSibling;
+    Assert.equal(
+      pre.localName,
+      "pre",
+      "The linebreak should be followed by the signature pre"
+    );
+    Assert.ok(
+      pre.classList.contains("moz-signature"),
+      "The pre should have the moz-signature class"
+    );
 
-  close_compose_window(cw);
+    close_compose_window(cw);
 
-  Services.prefs.setBoolPref(kHtmlPrefKey, false);
+    Services.prefs.setBoolPref(kHtmlPrefKey, false);
 
-  // Now let's try with plaintext mail.
-  cw = open_compose_new_mail();
-  uploads = add_cloud_attachments(cw, provider);
-  test_expected_included(
-    uploads,
-    [
-      {
-        url: "https://www.example.com/someKey/testFile1",
-        name: "testFile1",
-        serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceName: "default",
-        serviceUrl: "",
-        downloadPasswordProtected: true,
-      },
-      {
-        url: "https://www.example.com/someKey/testFile2",
-        name: "testFile2",
-        serviceIcon: "chrome://messenger/content/extension.svg",
-        serviceName: "default",
-        serviceUrl: "",
-        downloadPasswordProtected: true,
-      },
-    ],
-    `Expected values in uploads array #3`
-  );
-  [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+    // Now let's try with plaintext mail.
+    cw = await open_compose_new_mail();
+    uploads = add_cloud_attachments(cw, provider);
+    test_expected_included(
+      uploads,
+      [
+        {
+          url: "https://www.example.com/someKey/testFile1",
+          name: "testFile1",
+          serviceIcon: "chrome://messenger/content/extension.svg",
+          serviceName: "default",
+          serviceUrl: "",
+          downloadPasswordProtected: true,
+        },
+        {
+          url: "https://www.example.com/someKey/testFile2",
+          name: "testFile2",
+          serviceIcon: "chrome://messenger/content/extension.svg",
+          serviceName: "default",
+          serviceUrl: "",
+          downloadPasswordProtected: true,
+        },
+      ],
+      `Expected values in uploads array #3`
+    );
+    [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
 
-  br = assert_previous_nodes("br", root, 1);
+    br = assert_previous_nodes("br", root, 1);
 
-  mailBody = get_compose_body(cw);
-  Assert.equal(
-    mailBody.firstChild,
-    br,
-    "The linebreak should be the first child of the compose body"
-  );
+    mailBody = get_compose_body(cw);
+    Assert.equal(
+      mailBody.firstChild,
+      br,
+      "The linebreak should be the first child of the compose body"
+    );
 
-  // Now ensure that the node after the attachments is a br, and following
-  // that is the signature.
-  br = assert_next_nodes("br", root, 1);
+    // Now ensure that the node after the attachments is a br, and following
+    // that is the signature.
+    br = assert_next_nodes("br", root, 1);
 
-  let div = br.nextSibling;
-  Assert.equal(
-    div.localName,
-    "div",
-    "The linebreak should be followed by the signature div"
-  );
-  Assert.ok(
-    div.classList.contains("moz-signature"),
-    "The div should have the moz-signature class"
-  );
+    let div = br.nextSibling;
+    Assert.equal(
+      div.localName,
+      "div",
+      "The linebreak should be followed by the signature div"
+    );
+    Assert.ok(
+      div.classList.contains("moz-signature"),
+      "The div should have the moz-signature class"
+    );
 
-  close_compose_window(cw);
+    close_compose_window(cw);
 
-  Services.prefs.setBoolPref(kHtmlPrefKey, true);
-});
+    Services.prefs.setBoolPref(kHtmlPrefKey, true);
+  }
+);
 
 /**
  * Tests that removing all Filelinks causes the root node to be removed.
@@ -757,11 +759,11 @@ add_task(async function test_adding_filelinks_to_written_message() {
  * Subtest for test_adding_filelinks_to_written_message - generalized for both
  * HTML and plaintext mail.
  */
-function subtest_adding_filelinks_to_written_message() {
+async function subtest_adding_filelinks_to_written_message() {
   MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
 
   type_in_composer(cw, kLines);
   let uploads = add_cloud_attachments(cw, provider);
@@ -1145,7 +1147,7 @@ add_task(async function test_converting_filelink_updates_urls() {
  * other, and ensures that the attachment links in the message body get
  * get updated.
  */
-function subtest_converting_filelink_updates_urls() {
+async function subtest_converting_filelink_updates_urls() {
   MockFilePicker.setFiles(collectFiles(kFiles));
   let providerA = new MockCloudfileAccount();
   let providerB = new MockCloudfileAccount();
@@ -1159,7 +1161,7 @@ function subtest_converting_filelink_updates_urls() {
     serviceUrl: "https://www.provider-B.org",
   });
 
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   let uploads = add_cloud_attachments(cw, providerA);
   test_expected_included(
     uploads,
@@ -1230,7 +1232,7 @@ add_task(async function test_renaming_filelink_updates_urls() {
  * storage provider account, renames the upload, and ensures that the attachment
  * links in the message body get get updated.
  */
-function subtest_renaming_filelink_updates_urls() {
+async function subtest_renaming_filelink_updates_urls() {
   MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   provider.init("providerA", {
@@ -1243,7 +1245,7 @@ function subtest_renaming_filelink_updates_urls() {
     },
   });
 
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   let uploads = add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
@@ -1353,7 +1355,7 @@ async function subtest_converting_filelink_to_normal_removes_url() {
     serviceUrl: "https://www.provider-C.org",
   });
 
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   let uploads = add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
@@ -1422,7 +1424,7 @@ add_task(async function test_filelinks_work_after_manual_removal() {
  * and then adds another Filelink ensuring that the new URL is successfully
  * inserted.
  */
-function subtest_filelinks_work_after_manual_removal() {
+async function subtest_filelinks_work_after_manual_removal() {
   // Insert some Filelinks...
   MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
@@ -1432,7 +1434,7 @@ function subtest_filelinks_work_after_manual_removal() {
     serviceUrl: "https://www.provider-D.org",
   });
 
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   let uploads = add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
@@ -1495,7 +1497,7 @@ add_task(async function test_insertion_restores_caret_point() {
  * linebreaks, inserts some Filelink URLs, and then types some more,
  * ensuring that the selection is where we expect it to be.
  */
-function subtest_insertion_restores_caret_point() {
+async function subtest_insertion_restores_caret_point() {
   // Insert some Filelinks...
   MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
@@ -1504,7 +1506,7 @@ function subtest_insertion_restores_caret_point() {
     serviceUrl: "https://www.provider-E.org",
   });
 
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
 
   // Put the selection at the beginning of the document...
   let editor = cw.GetCurrentEditor();

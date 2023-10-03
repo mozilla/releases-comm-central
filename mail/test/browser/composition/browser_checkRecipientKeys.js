@@ -5,7 +5,7 @@
 var { plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-var { close_compose_window, wait_for_compose_window } = ChromeUtils.import(
+var { close_compose_window, promise_compose_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
 var { be_in_folder } = ChromeUtils.import(
@@ -72,7 +72,7 @@ add_task(async function test_checkEncryptionState() {
   // Open a compose window.
   plan_for_new_window("msgcompose");
   MailServices.compose.OpenComposeWindowWithParams(null, params);
-  let cwc = wait_for_compose_window();
+  let cwc = await promise_compose_window();
 
   // Test gMsgCompose.compFields is intact.
   let compFields = cwc.gMsgCompose.compFields;

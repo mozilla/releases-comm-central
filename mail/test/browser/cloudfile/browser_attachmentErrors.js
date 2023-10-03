@@ -111,8 +111,8 @@ registerCleanupFunction(function () {
  * Test that we get the correct alert message when the provider reports a custom
  * error during upload operation.
  */
-add_task(function test_custom_error_during_upload() {
-  subtest_errors_during_upload({
+add_task(async function test_custom_error_during_upload() {
+  await subtest_errors_during_upload({
     exception: {
       message: "This is a custom error.",
       result: cloudFileAccounts.constants.uploadErrWithCustomMessage,
@@ -134,8 +134,8 @@ add_task(function test_custom_error_during_upload() {
  * Test that we get the correct alert message when the provider reports a standard
  * error during upload operation.
  */
-add_task(function test_standard_error_during_upload() {
-  subtest_errors_during_upload({
+add_task(async function test_standard_error_during_upload() {
+  await subtest_errors_during_upload({
     exception: {
       message: "This is a standard error.",
       result: cloudFileAccounts.constants.uploadErr,
@@ -157,8 +157,8 @@ add_task(function test_standard_error_during_upload() {
  * Test that we get the correct alert message when the provider reports a quota
  * error.
  */
-add_task(function test_quota_error_during_upload() {
-  subtest_errors_during_upload({
+add_task(async function test_quota_error_during_upload() {
+  await subtest_errors_during_upload({
     exception: {
       message: "Quota Error.",
       result: cloudFileAccounts.constants.uploadWouldExceedQuota,
@@ -182,8 +182,8 @@ add_task(function test_quota_error_during_upload() {
  * Test that we get the correct alert message when the provider reports a file
  * size exceeded error.
  */
-add_task(function test_file_size_error_during_upload() {
-  subtest_errors_during_upload({
+add_task(async function test_file_size_error_during_upload() {
+  await subtest_errors_during_upload({
     exception: {
       message: "File Size Error.",
       result: cloudFileAccounts.constants.uploadExceedsFileLimit,
@@ -204,8 +204,8 @@ add_task(function test_file_size_error_during_upload() {
 /**
  * Test that we get the connection error in offline mode.
  */
-add_task(function test_offline_error_during_upload() {
-  subtest_errors_during_upload({
+add_task(async function test_offline_error_during_upload() {
+  await subtest_errors_during_upload({
     toggleOffline: true,
     expectedAlerts: [
       {
@@ -228,7 +228,7 @@ add_task(function test_offline_error_during_upload() {
  * @param error.expectedAlerts - array with { title, message } objects for expected
  *   alerts for each uploaded file
  */
-function subtest_errors_during_upload(error) {
+async function subtest_errors_during_upload(error) {
   MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   let config = {
@@ -241,7 +241,7 @@ function subtest_errors_during_upload(error) {
   }
   provider.init("providerA", config);
 
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
 
   if (error.toggleOffline) {
     Services.io.offline = true;
@@ -280,8 +280,8 @@ function subtest_errors_during_upload(error) {
  * Test that we get the correct alert message when the provider does not support
  * renaming.
  */
-add_task(function test_nosupport_error_during_rename() {
-  subtest_errors_during_rename({
+add_task(async function test_nosupport_error_during_rename() {
+  await subtest_errors_during_rename({
     exception: {
       message: "Rename not supported.",
       result: cloudFileAccounts.constants.renameNotSupported,
@@ -303,8 +303,8 @@ add_task(function test_nosupport_error_during_rename() {
  * Test that we get the correct alert message when the provider reports a standard
  * error during rename operation.
  */
-add_task(function test_standard_error_during_rename() {
-  subtest_errors_during_rename({
+add_task(async function test_standard_error_during_rename() {
+  await subtest_errors_during_rename({
     exception: {
       message: "Rename error.",
       result: cloudFileAccounts.constants.renameErr,
@@ -326,8 +326,8 @@ add_task(function test_standard_error_during_rename() {
  * Test that we get the correct alert message when the provider reports a custom
  * error during rename operation.
  */
-add_task(function test_custom_error_during_rename() {
-  subtest_errors_during_rename({
+add_task(async function test_custom_error_during_rename() {
+  await subtest_errors_during_rename({
     exception: {
       message: "This is a custom error.",
       result: cloudFileAccounts.constants.renameErrWithCustomMessage,
@@ -348,8 +348,8 @@ add_task(function test_custom_error_during_rename() {
 /**
  * Test that we get the connection error in offline mode.
  */
-add_task(function test_offline_error_during_rename() {
-  subtest_errors_during_rename({
+add_task(async function test_offline_error_during_rename() {
+  await subtest_errors_during_rename({
     toggleOffline: true,
     expectedAlerts: [
       {
@@ -371,7 +371,7 @@ add_task(function test_offline_error_during_rename() {
  * @param error.exception - the exception to be thrown by renameFile()
  * @param error.expectedAlerts - array with { title, message } objects for each renamed file
  */
-function subtest_errors_during_rename(error) {
+async function subtest_errors_during_rename(error) {
   MockFilePicker.setFiles(collectFiles(kFiles));
   let provider = new MockCloudfileAccount();
   let config = {
@@ -384,7 +384,7 @@ function subtest_errors_during_rename(error) {
   }
   provider.init("providerA", config);
 
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   let uploads = add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,

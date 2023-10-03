@@ -97,7 +97,7 @@ async function check_sig_strip_works(aRow, aShouldStrip) {
   let msg = select_click_row(aRow);
   assert_selected_and_displayed(window, msg);
 
-  let rwc = open_compose_with_reply();
+  let rwc = await open_compose_with_reply();
   let body = get_compose_body(rwc);
 
   if (aShouldStrip && body.textContent.includes(sig)) {

@@ -45,7 +45,7 @@ add_task(async function test_forwarded_subj() {
   let msg = select_click_row(0);
   assert_selected_and_displayed(window, msg);
 
-  let fwdWin = open_compose_with_forward();
+  let fwdWin = await open_compose_with_forward();
 
   let headerTableText = fwdWin.document
     .getElementById("messageEditor")

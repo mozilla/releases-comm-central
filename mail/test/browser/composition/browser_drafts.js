@@ -14,9 +14,9 @@ var {
   get_compose_body,
   get_msg_source,
   open_compose_new_mail,
+  promise_compose_window,
   save_compose_message,
   setup_msg_contents,
-  wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   be_in_folder,
@@ -69,7 +69,7 @@ add_task(async function test_open_draft_again() {
     {},
     aboutMessage
   );
-  let cwc = wait_for_compose_window();
+  let cwc = await promise_compose_window();
 
   let cwins = [...Services.wm.getEnumerator("msgcompose")].length;
 
@@ -110,7 +110,7 @@ add_task(async function test_open_draft_again() {
  * Test that the user set delivery format is preserved in a draft message.
  */
 async function internal_check_delivery_format(editDraft) {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   setup_msg_contents(
     cwc,
@@ -159,7 +159,7 @@ async function internal_check_delivery_format(editDraft) {
 
   // Open a new composition see if the menu is again at default value, not the one
   // chosen above.
-  cwc = open_compose_new_mail();
+  cwc = await open_compose_new_mail();
 
   await assert_format_value("format_auto", Ci.nsIMsgCompSendFormat.Auto);
 
@@ -184,7 +184,7 @@ async function internal_check_delivery_format(editDraft) {
     // Trigger "edit as new" resulting in template processing.
     EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true }, window);
   }
-  cwc = wait_for_compose_window();
+  cwc = await promise_compose_window();
 
   // Check if format value was restored.
   await assert_format_value("format_both", Ci.nsIMsgCompSendFormat.Both);
@@ -218,7 +218,7 @@ add_task(async function test_edit_as_new_in_draft() {
 
   plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
-  let cwc = wait_for_compose_window();
+  let cwc = await promise_compose_window();
 
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hello!", cwc);
@@ -287,7 +287,7 @@ add_task(async function test_edit_draft_mime_from() {
 
   plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
-  let cwc = wait_for_compose_window();
+  let cwc = await promise_compose_window();
 
   const msgIdentity = cwc.document.getElementById("msgIdentity");
   // Should show no quotes in the address.
@@ -317,7 +317,7 @@ add_task(async function test_edit_draft_mime_from() {
  * Tests Content-Language header.
  */
 add_task(async function test_content_language_header() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   setup_msg_contents(
     cwc,
@@ -358,7 +358,7 @@ add_task(async function test_content_language_header_suppression() {
   let statusQuo = Services.prefs.getBoolPref("mail.suppress_content_language");
   Services.prefs.setBoolPref("mail.suppress_content_language", true);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   setup_msg_contents(
     cwc,
@@ -401,7 +401,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
   );
   Services.prefs.setBoolPref("mail.identity.default.compose_html", false);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   setup_msg_contents(
     cwc,
@@ -433,7 +433,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
     {},
     aboutMessage
   );
-  cwc = wait_for_compose_window();
+  cwc = await promise_compose_window();
 
   let bodyText = get_compose_body(cwc).innerHTML;
   if (!bodyText.includes("NoSpace<br> OneSpace<br>  TwoSpaces")) {

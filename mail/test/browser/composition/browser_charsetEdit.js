@@ -14,8 +14,8 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   close_compose_window,
   open_compose_with_reply,
+  promise_compose_window,
   save_compose_message,
-  wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   add_message_to_folder,
@@ -115,7 +115,7 @@ add_task(async function test_wrong_reply_charset() {
   assert_selected_and_displayed(window, msg);
   Assert.equal(getMsgHeaders(msg).get("").charset, "invalid-charset");
 
-  let rwc = open_compose_with_reply();
+  let rwc = await open_compose_with_reply();
   await save_compose_message(rwc);
   await TestUtils.waitForCondition(
     () => folder.getTotalMessages(false) == 2,
@@ -150,7 +150,7 @@ add_task(async function test_wrong_reply_charset() {
     {},
     aboutMessage
   );
-  rwc = wait_for_compose_window();
+  rwc = await promise_compose_window();
   await save_compose_message(rwc);
   close_compose_window(rwc);
   msg = select_click_row(-1);
@@ -181,7 +181,7 @@ add_task(async function test_no_mojibake() {
   );
   Assert.equal(getMsgHeaders(msg, true).get("").trim(), nonASCII);
 
-  let rwc = open_compose_with_reply();
+  let rwc = await open_compose_with_reply();
   await save_compose_message(rwc);
   await TestUtils.waitForCondition(
     () => folder.getTotalMessages(false) == 2,
@@ -220,7 +220,7 @@ add_task(async function test_no_mojibake() {
     {},
     aboutMessage
   );
-  rwc = wait_for_compose_window();
+  rwc = await promise_compose_window();
   await save_compose_message(rwc);
   close_compose_window(rwc);
   msg = select_click_row(-1);

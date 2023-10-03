@@ -10,7 +10,7 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_font_color() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   let colorSet = [

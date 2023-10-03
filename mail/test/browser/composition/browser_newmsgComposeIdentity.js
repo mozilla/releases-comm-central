@@ -13,8 +13,8 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   close_compose_window,
   open_compose_new_mail,
+  promise_compose_window,
   save_compose_message,
-  wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { be_in_folder, get_special_folder, press_delete, select_click_row } =
   ChromeUtils.import(
@@ -124,13 +124,13 @@ function checkCompIdentity(cwc, aIdentityKey, aIdentityAlias, aIdentityValue) {
 add_task(async function test_compose_from_composer() {
   await be_in_folder(gInbox);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   checkCompIdentity(cwc, account.defaultIdentity.key);
 
   // Compose a new message from the compose window.
   plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, cwc);
-  let newCompWin = wait_for_compose_window();
+  let newCompWin = await promise_compose_window();
   checkCompIdentity(newCompWin, account.defaultIdentity.key);
   close_compose_window(newCompWin);
 
@@ -142,7 +142,7 @@ add_task(async function test_compose_from_composer() {
   // Compose a second new message from the compose window.
   plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, cwc);
-  let newCompWin2 = wait_for_compose_window();
+  let newCompWin2 = await promise_compose_window();
   checkCompIdentity(newCompWin2, identityKey2);
 
   close_compose_window(newCompWin2);
@@ -158,7 +158,7 @@ add_task(async function test_editing_identity() {
   Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", true);
   await be_in_folder(gInbox);
 
-  let compWin = open_compose_new_mail();
+  let compWin = await open_compose_new_mail();
   checkCompIdentity(compWin, account.defaultIdentity.key, identity1Email);
 
   // Input custom identity data into the From field.
@@ -217,7 +217,7 @@ add_task(async function test_editing_identity() {
 add_task(async function test_display_of_identities() {
   await be_in_folder(gInbox);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   checkCompIdentity(cwc, account.defaultIdentity.key, identity1Email);
 
   await chooseIdentity(cwc, identityKey2);

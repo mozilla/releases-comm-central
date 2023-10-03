@@ -133,7 +133,7 @@ async function doTestSecState(isDraft, secure) {
   );
   await be_in_folder(inbox);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let type = isDraft ? "draft" : "template";
   let theFolder = isDraft ? draftsFolder : templatesFolder;
   let subject = `test ${type}; 🤐; secure=${secure}`;

@@ -58,7 +58,7 @@ add_setup(async function () {
  * for data uri if needed.
  */
 add_task(async function test_send_inline_image() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "someone@example.com",

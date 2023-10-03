@@ -196,7 +196,7 @@ async function simulateDragAndDrop(win, dragData, type) {
  */
 add_task(async function test_image_file_drag() {
   let file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   await simulateDragAndDrop(
     cwc,
@@ -213,7 +213,7 @@ add_task(async function test_image_file_drag() {
  */
 add_task(async function test_image_file_drag() {
   let file = new FileUtils.File(getTestFilePath("data/tb-logo.png"));
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   await simulateDragAndDrop(
     cwc,
@@ -230,7 +230,7 @@ add_task(async function test_image_file_drag() {
  */
 add_task(async function test_text_file_drag() {
   let file = new FileUtils.File(getTestFilePath("data/attachment.txt"));
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   await simulateDragAndDrop(
     cwc,
@@ -255,7 +255,7 @@ add_task(async function test_message_drag() {
   let msgStr = get_about_message().gMessageURI;
   let msgUrl = MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let attachmentBucket = cwc.document.getElementById("attachmentBucket");
 
   await simulateDragAndDrop(
@@ -336,7 +336,7 @@ add_task(async function test_message_drag() {
 });
 
 add_task(async function test_link_drag() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   await simulateDragAndDrop(
     cwc,
     [
@@ -534,8 +534,8 @@ async function drag_between_buckets(srcBucket, destBucket) {
  * Test dragging regular attachments from one composition window to another.
  */
 add_task(async function test_drag_and_drop_between_composition_windows() {
-  let ctrlSrc = open_compose_new_mail();
-  let ctrlDest = open_compose_new_mail();
+  let ctrlSrc = await open_compose_new_mail();
+  let ctrlDest = await open_compose_new_mail();
 
   // Add attachments (via mocked file picker).
   await ctrlSrc.AttachFile();
@@ -577,8 +577,8 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
  * Test dragging cloudFile attachments from one composition window to another.
  */
 add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
-  let ctrlSrc = open_compose_new_mail();
-  let ctrlDest = open_compose_new_mail();
+  let ctrlSrc = await open_compose_new_mail();
+  let ctrlDest = await open_compose_new_mail();
 
   // Add cloudFile attachments (via mocked file picker).
   await ctrlSrc.attachToCloudNew(gCloudFileAccount);
@@ -621,7 +621,7 @@ add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
  * Test dragging attachments from a message into a composition window.
  */
 add_task(async function test_drag_and_drop_between_composition_windows() {
-  let ctrlDest = open_compose_new_mail();
+  let ctrlDest = await open_compose_new_mail();
 
   let folder = await create_folder("AttachmentsForComposition");
   await add_message_to_folder(

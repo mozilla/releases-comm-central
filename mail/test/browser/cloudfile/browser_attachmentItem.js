@@ -64,7 +64,7 @@ add_task(async function test_upload_cancel_repeat() {
 
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
-  let cw = open_compose_new_mail(window);
+  let cw = await open_compose_new_mail(window);
 
   // Prepare the mock file picker to return our test file.
   let file = new FileUtils.File(getTestFilePath(kFile));
@@ -130,7 +130,7 @@ add_task(async function test_upload_multiple_and_cancel() {
 
   let provider = new MockCloudfileAccount();
   provider.init("someKey");
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
 
   let promises = {};
   provider.uploadFile = function (window, aFile) {
@@ -360,7 +360,7 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
  * Check if attachment is removed if upload failed.
  */
 add_task(async function test_error_upload() {
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   await test_upload(
     cw,
     Components.Exception(
@@ -377,7 +377,7 @@ add_task(async function test_error_upload() {
  * Check if attachment is not removed if upload is successful.
  */
 add_task(async function test_successful_upload() {
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   await test_upload(cw, null, 3, 0);
   close_compose_window(cw);
 });
@@ -387,7 +387,7 @@ add_task(async function test_successful_upload() {
  * provider failed.
  */
 add_task(async function test_error_conversion() {
-  let cw = open_compose_new_mail();
+  let cw = await open_compose_new_mail();
   let bucket = cw.document.getElementById("attachmentBucket");
 
   // Upload 3 files to the standard provider.

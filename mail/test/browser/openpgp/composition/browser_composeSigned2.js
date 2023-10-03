@@ -85,7 +85,7 @@ add_setup(async function () {
 add_task(async function testSignedMessageComposition2() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let composeWin = cwc;
 
   setup_msg_contents(

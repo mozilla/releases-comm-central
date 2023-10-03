@@ -7,14 +7,14 @@
 const EXPORTED_SYMBOLS = [
   "add_attachments",
   "add_cloud_attachments",
-  "rename_selected_cloud_attachment",
-  "convert_selected_to_cloud_attachment",
   "assert_previous_text",
   "async_wait_for_compose_window",
   "clear_recipients",
   "close_compose_window",
+  "convert_selected_to_cloud_attachment",
   "create_msg_attachment",
   "delete_attachment",
+  "FormatHelper",
   "get_compose_body",
   "get_first_pill",
   "get_msg_source",
@@ -26,11 +26,11 @@ const EXPORTED_SYMBOLS = [
   "open_compose_with_reply",
   "open_compose_with_reply_to_all",
   "open_compose_with_reply_to_list",
+  "promise_compose_window",
+  "rename_selected_cloud_attachment",
   "save_compose_message",
   "setup_msg_contents",
   "type_in_composer",
-  "wait_for_compose_window",
-  "FormatHelper",
 ];
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
@@ -73,10 +73,10 @@ var kTextNodeType = 3;
  *   If left blank, defaults to the first window.
  * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_new_mail(win = mc) {
+async function open_compose_new_mail(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, win);
-  return wait_for_compose_window();
+  return promise_compose_window();
 }
 
 /**
@@ -87,10 +87,10 @@ function open_compose_new_mail(win = mc) {
  *   If left blank, defaults to the first window.
  * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_reply(win = mc) {
+async function open_compose_with_reply(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey("r", { shiftKey: false, accelKey: true }, win);
-  return wait_for_compose_window();
+  return promise_compose_window();
 }
 
 /**
@@ -101,10 +101,10 @@ function open_compose_with_reply(win = mc) {
  *   If left blank, defaults to the first window.
  * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_reply_to_all(win = mc) {
+async function open_compose_with_reply_to_all(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey("R", { shiftKey: true, accelKey: true }, win);
-  return wait_for_compose_window();
+  return promise_compose_window();
 }
 
 /**
@@ -115,10 +115,10 @@ function open_compose_with_reply_to_all(win = mc) {
  *   If left blank, defaults to the first window.
  * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_reply_to_list(win = mc) {
+async function open_compose_with_reply_to_list(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey("l", { shiftKey: true, accelKey: true }, win);
-  return wait_for_compose_window();
+  return promise_compose_window();
 }
 
 /**
@@ -129,10 +129,10 @@ function open_compose_with_reply_to_list(win = mc) {
  *   If left blank, defaults to the first window.
  * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_forward_as_attachments(win = mc) {
+async function open_compose_with_forward_as_attachments(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
   win.goDoCommand("cmd_forwardAttachment");
-  return wait_for_compose_window();
+  return promise_compose_window();
 }
 
 /**
@@ -143,10 +143,10 @@ function open_compose_with_forward_as_attachments(win = mc) {
  *   If left blank, defaults to the first window.
  * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_edit_as_new(win = mc) {
+async function open_compose_with_edit_as_new(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
   win.goDoCommand("cmd_editAsNew");
-  return wait_for_compose_window();
+  return promise_compose_window();
 }
 
 /**
@@ -157,10 +157,10 @@ function open_compose_with_edit_as_new(win = mc) {
  *   If left blank, defaults to the first window.
  * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_with_forward(win = mc) {
+async function open_compose_with_forward(win = mc) {
   windowHelper.plan_for_new_window("msgcompose");
   EventUtils.synthesizeKey("l", { shiftKey: false, accelKey: true }, win);
-  return wait_for_compose_window();
+  return promise_compose_window();
 }
 
 /**
@@ -171,7 +171,7 @@ function open_compose_with_forward(win = mc) {
  *   If left blank, defaults to the first window.
  * @returns {Window} The loaded window of type "msgcompose".
  */
-function open_compose_from_draft(win = get_about_message()) {
+async function open_compose_from_draft(win = get_about_message()) {
   windowHelper.plan_for_new_window("msgcompose");
   let box = get_notification(win, "mail-notification-top", "draftMsgContent");
   EventUtils.synthesizeMouseAtCenter(
@@ -179,7 +179,7 @@ function open_compose_from_draft(win = get_about_message()) {
     {},
     win
   );
-  return wait_for_compose_window();
+  return promise_compose_window();
 }
 
 /**
@@ -239,21 +239,21 @@ async function async_wait_for_compose_window(promise) {
  *
  * @returns {Window} The loaded window of type "msgcompose".
  */
-function wait_for_compose_window() {
+async function promise_compose_window() {
   let replyWindow = windowHelper.wait_for_new_window("msgcompose");
   return _wait_for_compose_window(replyWindow);
 }
 
-function _wait_for_compose_window(replyWindow) {
-  utils.waitFor(
+async function _wait_for_compose_window(replyWindow) {
+  await TestUtils.waitForCondition(
     () => Services.focus.activeWindow == replyWindow,
     "waiting for the compose window to have focus"
   );
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => replyWindow.composeEditorReady,
     "waiting for the compose editor to be ready"
   );
-  utils.sleep(0);
+  await new Promise(resolve => replyWindow.setTimeout(resolve));
 
   return replyWindow;
 }

@@ -99,7 +99,7 @@ function check_send_commands_state(aCwc, aEnabled) {
  * by the user.
  */
 add_task(async function test_send_enabled_manual_address() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let menu = cwc.document.getElementById("extraAddressRowsMenu"); // extra recipients menu
   let menuButton = cwc.document.getElementById("extraAddressRowsMenuButton");
 
@@ -202,14 +202,14 @@ add_task(async function test_send_enabled_manual_address() {
  * Test that the Send buttons are properly enabled if an addressee is prefilled
  * automatically via account prefs.
  */
-add_task(function test_send_enabled_prefilled_address() {
+add_task(async function test_send_enabled_prefilled_address() {
   // Set the prefs to prefill a default CC address when Compose is opened.
   let identity = account.defaultIdentity;
   identity.doCc = true;
   identity.doCcList = "Auto@recipient.invalid";
 
   // In that case the recipient is input, enabled Send.
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   check_send_commands_state(cwc, true);
 
   // Clear the CC list.
@@ -234,7 +234,7 @@ add_task(async function test_send_enabled_prefilled_address_from_identity() {
   identityWithCC.doCcList = "Auto@recipient.invalid";
 
   // CC is prefilled, Send enabled.
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   check_send_commands_state(cwc, true);
 
   let identityPicker = cwc.document.getElementById("msgIdentity");
@@ -261,13 +261,13 @@ add_task(async function test_send_enabled_prefilled_address_from_identity() {
  * Test that the Send buttons are properly enabled if an addressee is populated
  * via the Contacts sidebar.
  */
-add_task(function test_send_enabled_address_contacts_sidebar() {
+add_task(async function test_send_enabled_address_contacts_sidebar() {
   // Create some contact address book card in the Personal addressbook.
   let defaultAB = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
   let contact = create_contact("test@example.com", "Sammy Jenkis", true);
   load_contacts_into_address_book(defaultAB, [contact]);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   // On an empty window, Send must be disabled.
   check_send_commands_state(cwc, false);
 
@@ -304,7 +304,7 @@ add_task(function test_send_enabled_address_contacts_sidebar() {
  * the pill gets updated before the send of the email.
  */
 add_task(async function test_update_pill_before_send() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   setup_msg_contents(cwc, "recipient@fake.invalid", "Subject", "");
 

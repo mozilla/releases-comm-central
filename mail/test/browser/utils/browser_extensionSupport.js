@@ -24,7 +24,7 @@ var { ExtensionSupport } = ChromeUtils.import(
  * Bug 1450288
  * Test ExtensionSupport.registerWindowListener and ExtensionSupport.unregisterWindowListener.
  */
-add_task(function test_windowListeners() {
+add_task(async function test_windowListeners() {
   // There may be some pre-existing listeners already set up, e.g. mozmill ones.
   let originalListenerCount = ExtensionSupport.registeredWindowListenerCount;
 
@@ -76,7 +76,7 @@ add_task(function test_windowListeners() {
     })
   );
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   Assert.equal(addonCount("test-addon1", "load"), 3);
   Assert.equal(addonCount("test-addon2", "load"), 1);
@@ -121,7 +121,7 @@ add_task(function test_windowListeners() {
   Assert.equal(addonCount("test-addon3", "unload"), 0);
   Assert.equal(addonCount("test-addon4", "unload"), 1);
 
-  cwc = open_compose_new_mail();
+  cwc = await open_compose_new_mail();
 
   Assert.equal(addonCount("test-addon1", "load"), 4);
   // Addon3 didn't listen to the new compose window, addon2 did.

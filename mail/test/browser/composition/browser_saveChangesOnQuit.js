@@ -15,7 +15,7 @@ var {
   open_compose_new_mail,
   open_compose_with_forward,
   open_compose_with_reply,
-  wait_for_compose_window,
+  promise_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   add_message_to_folder,
@@ -89,12 +89,12 @@ function msgSource(aSubject, aContentType) {
  * the changes. This also tests that the user can cancel the
  * quit request.
  */
-add_task(function test_can_cancel_quit_on_changes() {
+add_task(async function test_can_cancel_quit_on_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
   // opening a new compose window
-  const cwc = open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
 
   // Make some changes
   cwc.document.getElementById("messageEditor").focus();
@@ -133,12 +133,12 @@ add_task(function test_can_cancel_quit_on_changes() {
  * the changes. This also tests that the user can let the quit
  * occur.
  */
-add_task(function test_can_quit_on_changes() {
+add_task(async function test_can_quit_on_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
   // opening a new compose window
-  const cwc = open_compose_new_mail(window);
+  const cwc = await open_compose_new_mail(window);
 
   // Make some changes
   cwc.document.getElementById("messageEditor").focus();
@@ -181,8 +181,8 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
   gMockPromptService.register();
 
   // open two new compose windows
-  let cwc1 = open_compose_new_mail(window);
-  let cwc2 = open_compose_new_mail(window);
+  let cwc1 = await open_compose_new_mail(window);
+  let cwc2 = await open_compose_new_mail(window);
 
   // Type something in each window.
   cwc1.document.getElementById("messageEditor").focus();
@@ -247,13 +247,13 @@ add_task(async function test_no_prompt_on_close_for_unmodified() {
   let msg = select_click_row(0);
   assert_selected_and_displayed(window, msg);
 
-  let nwc = open_compose_new_mail();
+  let nwc = await open_compose_new_mail();
   close_compose_window(nwc, false);
 
-  let rwc = open_compose_with_reply();
+  let rwc = await open_compose_with_reply();
   close_compose_window(rwc, false);
 
-  let fwc = open_compose_with_forward();
+  let fwc = await open_compose_with_forward();
   close_compose_window(fwc, false);
 });
 
@@ -266,17 +266,17 @@ add_task(async function test_prompt_on_close_for_modified() {
   let msg = select_click_row(0);
   assert_selected_and_displayed(window, msg);
 
-  let nwc = open_compose_new_mail();
+  let nwc = await open_compose_new_mail();
   nwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hey hey hey!", nwc);
   close_compose_window(nwc, true);
 
-  let rwc = open_compose_with_reply();
+  let rwc = await open_compose_with_reply();
   rwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Howdy!", rwc);
   close_compose_window(rwc, true);
 
-  let fwc = open_compose_with_forward();
+  let fwc = await open_compose_with_forward();
   fwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Greetings!", fwc);
   close_compose_window(fwc, true);
@@ -292,10 +292,10 @@ add_task(
     let msg = select_click_row(1); // row 1 is the one with content type text
     assert_selected_and_displayed(window, msg);
 
-    let rwc = open_compose_with_reply();
+    let rwc = await open_compose_with_reply();
     close_compose_window(rwc, false);
 
-    let fwc = open_compose_with_forward();
+    let fwc = await open_compose_with_forward();
     Assert.equal(
       fwc.document.getElementById("attachmentBucket").getRowCount(),
       0,
@@ -315,10 +315,10 @@ add_task(
     let msg = select_click_row(2); // row 2 is the one with no content type
     assert_selected_and_displayed(window, msg);
 
-    let rwc = open_compose_with_reply();
+    let rwc = await open_compose_with_reply();
     close_compose_window(rwc, false);
 
-    let fwc = open_compose_with_forward();
+    let fwc = await open_compose_with_forward();
     Assert.equal(
       fwc.document.getElementById("attachmentBucket").getRowCount(),
       0,
@@ -329,7 +329,7 @@ add_task(
 );
 
 add_task(async function test_prompt_save_on_pill_editing() {
-  let cwc = open_compose_new_mail(window);
+  let cwc = await open_compose_new_mail(window);
 
   // Focus should be on the To field, so just type an address.
   EventUtils.sendString("test@foo.invalid", cwc);
@@ -380,7 +380,7 @@ add_task(async function test_prompt_save_on_pill_editing() {
     {},
     aboutMessage
   );
-  cwc = wait_for_compose_window();
+  cwc = await promise_compose_window();
 
   // Make sure the address was saved correctly.
   let pill = cwc.document.querySelector("mail-address-pill");

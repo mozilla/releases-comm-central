@@ -12,9 +12,9 @@ var {
   add_attachments,
   close_compose_window,
   open_compose_new_mail,
+  promise_compose_window,
   save_compose_message,
   setup_msg_contents,
-  wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   be_in_folder,
@@ -148,7 +148,7 @@ function get_reminder_keywords(cwc) {
  * Test that the attachment reminder works, in general.
  */
 add_task(async function test_attachment_reminder_appears_properly() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
@@ -203,7 +203,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
  * notification.
  */
 add_task(async function test_attachment_reminder_dismissal() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
@@ -246,7 +246,7 @@ add_task(async function test_attachment_reminder_dismissal() {
  * Check that adding an attachment actually hides the notification.
  */
 add_task(async function test_attachment_reminder_with_attachment() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
@@ -297,7 +297,7 @@ add_task(async function test_attachment_reminder_aggressive_pref() {
   const kPref = "mail.compose.attachment_reminder_aggressive";
   Services.prefs.setBoolPref(kPref, false);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
@@ -325,7 +325,7 @@ add_task(async function test_attachment_reminder_aggressive_pref() {
  * works.
  */
 add_task(async function test_no_send_now_sends() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   setup_msg_contents(
     cwc,
@@ -384,7 +384,7 @@ async function click_manual_reminder(aCwc, aExpectedState) {
  */
 add_task(async function test_manual_attachment_reminder() {
   // Open a sample message with no attachment keywords.
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "test@example.invalid",
@@ -403,7 +403,7 @@ add_task(async function test_manual_attachment_reminder() {
   wait_for_modal_dialog("commonDialogWindow");
 
   // Open another blank compose window.
-  cwc = open_compose_new_mail();
+  cwc = await open_compose_new_mail();
   // This one should have the reminder disabled.
   assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.
@@ -434,7 +434,7 @@ add_task(async function test_manual_attachment_reminder() {
     {},
     aboutMessage
   );
-  cwc = wait_for_compose_window();
+  cwc = await promise_compose_window();
 
   // Check the reminder enablement was preserved in the message.
   assert_manual_reminder_state(cwc, true);
@@ -474,7 +474,7 @@ add_task(async function test_manual_attachment_reminder() {
 add_task(
   async function test_manual_automatic_attachment_reminder_interaction() {
     // Open a blank message compose
-    let cwc = open_compose_new_mail();
+    let cwc = await open_compose_new_mail();
     // This one should have the reminder disabled.
     assert_manual_reminder_state(cwc, false);
     // There should be no attachment notification.
@@ -539,9 +539,9 @@ function assert_any_notification(aCwc, aValue) {
  * Bug 989653
  * Send filelink attachment should not trigger the attachment reminder.
  */
-add_task(function test_attachment_vs_filelink_reminder() {
+add_task(async function test_attachment_vs_filelink_reminder() {
   // Open a blank message compose
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "test@example.invalid",
@@ -574,7 +574,7 @@ add_task(function test_attachment_vs_filelink_reminder() {
  */
 add_task(async function test_attachment_reminder_in_subject() {
   // Open a blank message compose
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   // This one should have the reminder disabled.
   assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.
@@ -608,7 +608,7 @@ add_task(async function test_attachment_reminder_in_subject() {
  */
 add_task(async function test_attachment_reminder_in_subject_and_body() {
   // Open a blank message compose
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   // This one should have the reminder disabled.
   assert_manual_reminder_state(cwc, false);
   // There should be no attachment notification.
@@ -646,7 +646,7 @@ add_task(async function test_disabled_attachment_reminder() {
   Services.prefs.setBoolPref(kReminderPref, false);
 
   // Open a sample message with no attachment keywords.
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "test@example.invalid",
@@ -688,7 +688,7 @@ add_task(async function test_disabled_attachment_reminder() {
  */
 add_task(async function test_reminder_in_draft() {
   // Open a sample message with no attachment keywords.
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "test@example.invalid",
@@ -735,7 +735,7 @@ add_task(async function test_reminder_in_draft() {
     {},
     aboutMessage
   );
-  cwc = wait_for_compose_window();
+  cwc = await promise_compose_window();
 
   // Give the notification time to appear.
   await wait_for_reminder_state(cwc, true);
@@ -752,7 +752,7 @@ add_task(async function test_reminder_in_draft() {
  */
 add_task(async function test_disabling_attachment_reminder() {
   // Open a sample message with attachment keywords.
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "test@example.invalid",

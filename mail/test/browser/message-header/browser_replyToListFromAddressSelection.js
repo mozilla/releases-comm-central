@@ -94,7 +94,7 @@ add_task(async function test_Reply_To_List_From_Address() {
   let curMessage = select_click_row(0);
   assert_selected_and_displayed(window, curMessage);
 
-  replyToListWindow = open_compose_with_reply_to_list();
+  replyToListWindow = await open_compose_with_reply_to_list();
 
   var identityList = replyToListWindow.document.getElementById("msgIdentity");
 

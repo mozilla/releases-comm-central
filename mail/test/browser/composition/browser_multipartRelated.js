@@ -78,7 +78,7 @@ function getMsgHeaders(aMsgHdr) {
 /**
  */
 add_task(async function test_basic_multipart_related() {
-  let compWin = open_compose_new_mail();
+  let compWin = await open_compose_new_mail();
   compWin.focus();
   EventUtils.sendString("someone@example.com", compWin);
   compWin.document.getElementById("msgSubject").focus();

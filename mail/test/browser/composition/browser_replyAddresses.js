@@ -76,8 +76,8 @@ add_setup(function () {
  * @param aReplyFunction which reply function to call
  * @param aExpectedFields the fields expected
  */
-function checkReply(aReplyFunction, aExpectedFields) {
-  let rwc = aReplyFunction();
+async function checkReply(aReplyFunction, aExpectedFields) {
+  let rwc = await aReplyFunction();
   checkToAddresses(rwc, aExpectedFields);
   close_compose_window(rwc);
 }
@@ -240,11 +240,11 @@ add_task(async function testReplyToMungedReplyToList() {
 
   ensureNoAutoCc(identity);
 
-  checkReply(open_compose_with_reply, {
+  await checkReply(open_compose_with_reply, {
     addr_to: ["Tester <test@example.com>"],
   });
 
-  checkReply(open_compose_with_reply_to_all, {
+  await checkReply(open_compose_with_reply_to_all, {
     addr_to: [
       "Munged List <munged.list@example.com>",
       "someone.else@example.com",
@@ -252,7 +252,7 @@ add_task(async function testReplyToMungedReplyToList() {
     ],
   });
 
-  checkReply(open_compose_with_reply_to_list, {
+  await checkReply(open_compose_with_reply_to_list, {
     addr_to: ["munged.list@example.com"],
   });
 });
@@ -274,14 +274,14 @@ add_task(async function testToCcReply() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: From
     { addr_to: ["Homer <homer@example.com>"] }
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: From
     // Cc: identity Cc list, including self.
@@ -310,7 +310,7 @@ add_task(async function testToCcReplyAll() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: From + Tos without me.
     // Cc: original Ccs
@@ -325,7 +325,7 @@ add_task(async function testToCcReplyAll() {
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: From + Tos without me.
     // Cc: original Ccs + auto-Ccs
@@ -372,7 +372,7 @@ add_task(async function testToCcReplyAllInternational() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: From + Tos without me.
     // Cc: original Ccs
@@ -388,7 +388,7 @@ add_task(async function testToCcReplyAllInternational() {
   );
 
   useAutoCc(identity, "Åsa <asa@example.com>");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: From + Tos without me.
     // Cc: original Ccs + auto-Ccs
@@ -427,14 +427,14 @@ add_task(async function testToCcReplyWhenReplyToSet() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: reply-to
     { addr_to: ["marge@example.com"] }
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: reply-to
     // Cc: auto-Ccs
@@ -468,7 +468,7 @@ add_task(async function testToCcReplyAllWhenReplyToSet() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: Reply-To + Tos
     // Cc: original Ccs without me.
@@ -479,7 +479,7 @@ add_task(async function testToCcReplyAllWhenReplyToSet() {
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: Reply-To + Tos
     // Cc: original Ccs + auto-Ccs (which includes me!)
@@ -511,14 +511,14 @@ add_task(async function testReplyToList() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_list,
     // To: the list
     { addr_to: ["workers-list@example.com"] }
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_list,
     // To: the list
     // Cc: auto-Ccs
@@ -551,14 +551,14 @@ add_task(async function testReplySenderForListPost() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: From
     { addr_to: ["Homer <homer@example.com>"] }
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: From
     // Cc: auto-Ccs
@@ -590,7 +590,7 @@ add_task(async function testReplyToAllForListPost() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: From + original To
     // Cc: original CC without me
@@ -601,7 +601,7 @@ add_task(async function testReplyToAllForListPost() {
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: From + original To
     // Cc: original CC + auto-Ccs (including me!)
@@ -636,7 +636,7 @@ add_task(async function testReplyToListWhenReplyToSet() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: Reply-To, original Tos
     // Cc: original Cc
@@ -647,7 +647,7 @@ add_task(async function testReplyToListWhenReplyToSet() {
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: Reply-To, original Tos
     // Cc: original Cc + auto-Ccs
@@ -683,14 +683,14 @@ add_task(async function testMailReplyTo() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: Mail-Reply-To
     { addr_to: ["Homer S. <homer@example.com>"] }
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: Mail-Reply-To
     // Cc: auto-Ccs
@@ -727,14 +727,14 @@ add_task(async function testMailFollowupTo() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: Mail-Followup-To
     { addr_to: ["workers-list@example.com"] }
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: Mail-Followup-To
     // Cc: auto-Ccs
@@ -768,7 +768,7 @@ add_task(async function testReplyToSelfReply() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: original To
     // Reply-To: original Reply-To
@@ -779,7 +779,7 @@ add_task(async function testReplyToSelfReply() {
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: original To
     // Cc: auto-Ccs
@@ -815,7 +815,7 @@ add_task(async function testReplyToSelfReplyAll() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: original To
     // Cc: original Cc
@@ -831,7 +831,7 @@ add_task(async function testReplyToSelfReplyAll() {
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
   useAutoBcc(identity, "Lisa <lisa@example.com>");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: original To
     // Cc: original Cc (auto-Ccs would have been included here already)
@@ -871,7 +871,7 @@ add_task(async function testReplyToSelfNotOriginalSourceMsgReplyAll() {
 
   ensureNoAutoCc(identity2);
   useAutoBcc(identity2, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: original To
     // Cc: original Cc
@@ -888,7 +888,7 @@ add_task(async function testReplyToSelfNotOriginalSourceMsgReplyAll() {
 
   useAutoCc(identity2, myEmail + ", smithers@example.com");
   useAutoBcc(identity2, "moe@example.com,bart@example.com,lisa@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: original To
     // Cc: original Cc (auto-Ccs would have been included here already)
@@ -905,7 +905,7 @@ add_task(async function testReplyToSelfNotOriginalSourceMsgReplyAll() {
   stopUsingAutoBcc(identity2);
 
   useAutoBcc(identity2, myEmail2 + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: original To
     // Cc: original Cc (auto-Ccs would have been included here already)
@@ -943,7 +943,7 @@ add_task(async function testReplyToOtherIdentity() {
 
   ensureNoAutoCc(identity2);
   ensureNoAutoBcc(identity2);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: from + to (except me2)
     // Cc: original Cc
@@ -977,7 +977,7 @@ add_task(async function testReplyToSelfWithBccs() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: original To
     // Cc: original Cc
@@ -1013,7 +1013,7 @@ add_task(async function testReplyToOtherIdentityWithBccs() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: original To
     // Cc: original Cc
@@ -1045,7 +1045,7 @@ add_task(async function testNewsgroupsReplyAll() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: From, original To
     // Newsgroups: original Ccs
@@ -1056,7 +1056,7 @@ add_task(async function testNewsgroupsReplyAll() {
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: From, original To
     // Newsgroups: original Ccs
@@ -1090,7 +1090,7 @@ add_task(async function testNewsgroupsReplyAllFollowupTo() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: From + original To (except me)
     // Newsgroups: <Followup-To>
@@ -1101,7 +1101,7 @@ add_task(async function testNewsgroupsReplyAllFollowupTo() {
   );
 
   useAutoCc(identity, myEmail + ", smithers@example.com");
-  checkReply(
+  await checkReply(
     open_compose_with_reply_to_all,
     // To: From + original To (except me)
     // Cc: auto-Ccs
@@ -1133,7 +1133,7 @@ add_task(async function testToFromWithReplyTo() {
   assert_selected_and_displayed(window, msg);
 
   ensureNoAutoCc(identity);
-  checkReply(
+  await checkReply(
     open_compose_with_reply,
     // To: Reply-To
     { addr_to: ["Flanders <flanders@example.com>"] }

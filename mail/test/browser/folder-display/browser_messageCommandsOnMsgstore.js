@@ -242,10 +242,10 @@ async function reply_forward_message(aMsgRow, aReply) {
   let cwc;
   if (aReply) {
     // Reply to the message.
-    cwc = open_compose_with_reply();
+    cwc = await open_compose_with_reply();
   } else {
     // Forward the message.
-    cwc = open_compose_with_forward();
+    cwc = await open_compose_with_forward();
     // Type in some recipient.
     setup_msg_contents(cwc, "somewhere@host.invalid", "", "");
   }

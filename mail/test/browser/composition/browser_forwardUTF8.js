@@ -61,7 +61,7 @@ async function forwardDirect(aFilePath) {
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
   let msgc = await open_message_from_file(file);
 
-  let cwc = open_compose_with_forward(msgc);
+  let cwc = await open_compose_with_forward(msgc);
 
   check_content(cwc);
 
@@ -104,7 +104,7 @@ async function forwardViaFolder(aFilePath) {
       .contentDocument.body.textContent.includes("áóúäöüß")
   );
 
-  let fwdWin = open_compose_with_forward();
+  let fwdWin = await open_compose_with_forward();
 
   check_content(fwdWin);
 

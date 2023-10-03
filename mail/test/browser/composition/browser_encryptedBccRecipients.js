@@ -70,7 +70,7 @@ add_setup(async function () {
 add_task(async function testWarningShowsWhenEncryptionEnabled() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   Assert.ok(!cwc.gSendEncrypted);
 
@@ -117,7 +117,7 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
 add_task(async function testNotificationDismissal() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   Assert.ok(!cwc.gSendEncrypted);
 
@@ -205,7 +205,7 @@ add_task(async function testNotificationDismissal() {
 add_task(async function testNoWarningWhenEncryptionDisabled() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   Assert.ok(!window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(
@@ -245,7 +245,7 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
 add_task(async function testNoWarningWhenBccRecipientIsSender() {
   await be_in_folder(bobAcct.incomingServer.rootFolder);
 
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   Assert.ok(!window.gSendEncrypted);
   EventUtils.synthesizeMouseAtCenter(

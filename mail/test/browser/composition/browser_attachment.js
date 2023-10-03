@@ -190,8 +190,8 @@ function check_total_attachment_size(win, count) {
   }
 }
 
-add_task(function test_file_attachment() {
-  let cwc = open_compose_new_mail();
+add_task(async function test_file_attachment() {
+  let cwc = await open_compose_new_mail();
 
   let url = filePrefix + "some/file/here.txt";
   let size = 1234;
@@ -203,8 +203,8 @@ add_task(function test_file_attachment() {
   close_compose_window(cwc);
 });
 
-add_task(function test_webpage_attachment() {
-  let cwc = open_compose_new_mail();
+add_task(async function test_webpage_attachment() {
+  let cwc = await open_compose_new_mail();
 
   add_attachments(cwc, "https://www.mozilla.org/");
   check_no_attachment_size(cwc, 0);
@@ -213,8 +213,8 @@ add_task(function test_webpage_attachment() {
   close_compose_window(cwc);
 });
 
-add_task(function test_multiple_attachments() {
-  let cwc = open_compose_new_mail();
+add_task(async function test_multiple_attachments() {
+  let cwc = await open_compose_new_mail();
 
   let files = [
     { name: "foo.txt", size: 1234 },
@@ -230,8 +230,8 @@ add_task(function test_multiple_attachments() {
   close_compose_window(cwc);
 });
 
-add_task(function test_delete_attachments() {
-  let cwc = open_compose_new_mail();
+add_task(async function test_delete_attachments() {
+  let cwc = await open_compose_new_mail();
 
   let files = [
     { name: "foo.txt", size: 1234 },
@@ -254,8 +254,8 @@ function subtest_rename_attachment(cwc) {
   cwc.document.querySelector("dialog").getButton("accept").doCommand();
 }
 
-add_task(function test_rename_attachment() {
-  let cwc = open_compose_new_mail();
+add_task(async function test_rename_attachment() {
+  let cwc = await open_compose_new_mail();
 
   let url = filePrefix + "some/file/here.txt";
   let size = 1234;
@@ -282,8 +282,8 @@ function subtest_open_attachment(cwc) {
   cwc.document.querySelector("dialog").getButton("cancel").doCommand();
 }
 
-add_task(function test_open_attachment() {
-  let cwc = open_compose_new_mail();
+add_task(async function test_open_attachment() {
+  let cwc = await open_compose_new_mail();
 
   // set up our external file for attaching
   let file = new FileUtils.File(getTestFilePath("data/attachment.txt"));
@@ -309,7 +309,7 @@ add_task(async function test_forward_raw_attachment() {
   await be_in_folder(folder);
   select_click_row(-2);
 
-  let cwc = open_compose_with_forward();
+  let cwc = await open_compose_with_forward();
   check_attachment_size(cwc, 0, rawAttachment.length);
   check_total_attachment_size(cwc, 1);
 
@@ -320,7 +320,7 @@ add_task(async function test_forward_b64_attachment() {
   await be_in_folder(folder);
   select_click_row(-3);
 
-  let cwc = open_compose_with_forward();
+  let cwc = await open_compose_with_forward();
   check_attachment_size(cwc, 0, b64Size);
   check_total_attachment_size(cwc, 1);
 
@@ -331,7 +331,7 @@ add_task(async function test_forward_message_as_attachment() {
   await be_in_folder(folder);
   let curMessage = select_click_row(-1);
 
-  let cwc = open_compose_with_forward_as_attachments();
+  let cwc = await open_compose_with_forward_as_attachments();
   check_attachment_size(cwc, 0, curMessage.messageSize);
   check_total_attachment_size(cwc, 1);
 
@@ -342,7 +342,7 @@ add_task(async function test_forward_message_with_attachments_as_attachment() {
   await be_in_folder(folder);
   let curMessage = select_click_row(-2);
 
-  let cwc = open_compose_with_forward_as_attachments();
+  let cwc = await open_compose_with_forward_as_attachments();
   check_attachment_size(cwc, 0, curMessage.messageSize);
   check_total_attachment_size(cwc, 1);
 
@@ -444,7 +444,7 @@ async function subtest_reordering(
  * This is the main function of this test.
  */
 add_task(async function test_attachment_reordering() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let editorEl = cwc.GetCurrentEditorElement();
   let bucket = cwc.document.getElementById("attachmentBucket");
   let panel = cwc.document.getElementById("reorderAttachmentsPanel");
@@ -933,7 +933,7 @@ add_task(async function test_attachment_reordering() {
 });
 
 add_task(async function test_restore_attachment_bucket_height() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
 
   let attachmentArea = cwc.document.getElementById("attachmentArea");
   let attachmentBucket = cwc.document.getElementById("attachmentBucket");

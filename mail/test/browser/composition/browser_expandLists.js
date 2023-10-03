@@ -91,7 +91,7 @@ add_setup(async function () {
  * Tests the "Expand List" menu option works with the "To" list.
  */
 add_task(async function testExpandListsOnTo() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let addresses = "start@example,Test List,end@example";
 
   setup_msg_contents(cwc, addresses, "Expand To Test", "");
@@ -104,7 +104,7 @@ add_task(async function testExpandListsOnTo() {
  * with invalid pills involved.
  */
 add_task(async function testExpandListsInvalidPill() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   // We add one invalid pill in the middle so see that parsing out the
   // addresses still works correctly for that case.
   let addresses =
@@ -119,7 +119,7 @@ add_task(async function testExpandListsInvalidPill() {
  * Tests the "Expand List" menu option works with the "Cc" list.
  */
 add_task(async function testExpandListsOnCc() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let button = cwc.document.getElementById("addr_ccShowAddressRowButton");
   let addresses = "start@example,Test List,end@example";
 
@@ -133,7 +133,7 @@ add_task(async function testExpandListsOnCc() {
  * Tests the "Expand List" menu option works with the "Bcc" list.
  */
 add_task(async function testExpandListsOnBcc() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   let button = cwc.document.getElementById("addr_bccShowAddressRowButton");
   let addresses = "start@example,Test List,end@example";
 

@@ -54,7 +54,7 @@ function putHTMLOnClipboard(html) {
  * the content when appropriate.
  */
 add_task(async function test_paste_file_urls() {
-  let cwc = open_compose_new_mail();
+  let cwc = await open_compose_new_mail();
   setup_msg_contents(
     cwc,
     "someone@example.com",

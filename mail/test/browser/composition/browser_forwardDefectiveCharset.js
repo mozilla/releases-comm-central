@@ -39,7 +39,7 @@ add_task(async function test_forward_direct() {
   let file = new FileUtils.File(getTestFilePath("data/defective-charset.eml"));
   let msgc = await open_message_from_file(file);
 
-  let cwc = open_compose_with_forward(msgc);
+  let cwc = await open_compose_with_forward(msgc);
 
   let mailText =
     cwc.document.getElementById("messageEditor").contentDocument.body
@@ -89,7 +89,7 @@ add_task(async function test_forward_from_folder() {
       .contentDocument.body.textContent.includes(SOME_SPANISH)
   );
 
-  let cwc = open_compose_with_forward();
+  let cwc = await open_compose_with_forward();
 
   let mailText =
     cwc.document.getElementById("messageEditor").contentDocument.body

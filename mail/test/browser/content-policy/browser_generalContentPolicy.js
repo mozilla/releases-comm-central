@@ -312,8 +312,8 @@ async function checkComposeWindow(test, replyType, loadAllowed) {
     `Checking compose win; replyType=${replyType}, test=${test.type}; shouldLoad=${loadAllowed}`
   );
   let replyWindow = replyType
-    ? open_compose_with_reply()
-    : open_compose_with_forward();
+    ? await open_compose_with_reply()
+    : await open_compose_with_forward();
 
   let what =
     test.description +
@@ -719,10 +719,10 @@ add_task(async function test_imgAuth() {
   select_click_row(gMsgNo);
 
   // Open reply/fwd. If we get a prompt the test will timeout.
-  let rwc = open_compose_with_reply();
+  let rwc = await open_compose_with_reply();
   close_compose_window(rwc);
 
-  let fwc = open_compose_with_forward();
+  let fwc = await open_compose_with_forward();
   close_compose_window(fwc);
 
   Services.prefs.clearUserPref("mailnews.message_display.disable_remote_image");
@@ -741,7 +741,7 @@ add_task(async function test_sigPic() {
   be_in_folder(folder);
   select_click_row(gMsgNo);
 
-  let nwc = open_compose_new_mail();
+  let nwc = await open_compose_new_mail();
   await TestUtils.waitForCondition(async () => {
     return wasAllowed(
       nwc.document
@@ -751,7 +751,7 @@ add_task(async function test_sigPic() {
   }, "Should allow remote sig in new mail");
   close_compose_window(nwc);
 
-  let rwc = open_compose_with_reply();
+  let rwc = await open_compose_with_reply();
   await TestUtils.waitForCondition(async () => {
     return wasAllowed(
       rwc.document
@@ -807,8 +807,8 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   assert_selected_and_displayed(gMsgNo);
 
   let replyWindow = aReplyType
-    ? open_compose_with_reply()
-    : open_compose_with_forward();
+    ? await open_compose_with_reply()
+    : await open_compose_with_forward();
 
   // Now insert the image
   // (copied from test-compose-mailto.js:test_checkInsertImage()).

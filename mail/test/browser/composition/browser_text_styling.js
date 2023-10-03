@@ -12,7 +12,7 @@ var { close_compose_window, open_compose_new_mail, FormatHelper } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 
 add_task(async function test_style_buttons() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   let buttonSet = [
@@ -155,7 +155,7 @@ add_task(async function test_style_buttons() {
 });
 
 add_task(async function test_multi_style_with_buttons() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   let boldButton = formatHelper.boldButton;
@@ -229,7 +229,7 @@ add_task(async function test_multi_style_with_buttons() {
 });
 
 add_task(async function test_text_styling_whilst_typing() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
@@ -281,7 +281,7 @@ add_task(async function test_text_styling_whilst_typing() {
 });
 
 add_task(async function test_text_styling_update_on_selection_change() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
@@ -343,7 +343,7 @@ add_task(async function test_text_styling_update_on_selection_change() {
 });
 
 add_task(async function test_text_styling_on_selections() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
@@ -416,7 +416,7 @@ add_task(async function test_text_styling_on_selections() {
 });
 
 add_task(async function test_induced_text_styling() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();
@@ -484,7 +484,7 @@ add_task(async function test_induced_text_styling() {
 });
 
 add_task(async function test_fixed_width_text_styling_font_change() {
-  let win = open_compose_new_mail();
+  let win = await open_compose_new_mail();
   let formatHelper = new FormatHelper(win);
 
   formatHelper.focusMessage();

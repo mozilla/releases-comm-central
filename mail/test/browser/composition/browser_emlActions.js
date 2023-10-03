@@ -47,7 +47,7 @@ add_task(async function test_reply_to_eml_save_as_draft() {
   let file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
   let msgc = await open_message_from_file(file);
 
-  let replyWin = open_compose_with_reply(msgc);
+  let replyWin = await open_compose_with_reply(msgc);
 
   // Ctrl+S saves as draft.
   await save_compose_message(replyWin);
@@ -78,7 +78,7 @@ add_task(async function test_forward_eml_save_as_draft() {
   let file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
   let msgc = await open_message_from_file(file);
 
-  let replyWin = open_compose_with_forward(msgc);
+  let replyWin = await open_compose_with_forward(msgc);
 
   await save_compose_message(replyWin);
   close_compose_window(replyWin);
@@ -109,7 +109,7 @@ add_task(async function test_reply_eml_subject() {
   );
   let msgc = await open_message_from_file(file);
 
-  let replyWin = open_compose_with_reply(msgc);
+  let replyWin = await open_compose_with_reply(msgc);
 
   Assert.equal(
     replyWin.document.getElementById("msgSubject").value,
@@ -126,7 +126,7 @@ add_task(async function test_reply_to_base64_eml() {
   // Open an .eml file.
   let file = new FileUtils.File(getTestFilePath("data/base64-encoded-msg.eml"));
   let msgc = await open_message_from_file(file);
-  let compWin = open_compose_with_reply(msgc);
+  let compWin = await open_compose_with_reply(msgc);
   let bodyText = get_compose_body(compWin).textContent;
   const TXT = "You have decoded this text from base64.";
   Assert.ok(bodyText.includes(TXT), "body should contain the decoded text");
@@ -141,7 +141,7 @@ add_task(async function test_forward_base64_eml() {
   // Open an .eml file.
   let file = new FileUtils.File(getTestFilePath("data/base64-encoded-msg.eml"));
   let msgc = await open_message_from_file(file);
-  let compWin = open_compose_with_forward(msgc);
+  let compWin = await open_compose_with_forward(msgc);
   let bodyText = get_compose_body(compWin).textContent;
   const TXT = "You have decoded this text from base64.";
   Assert.ok(bodyText.includes(TXT), "body should contain the decoded text");
@@ -159,12 +159,12 @@ add_task(async function test_reply_fwd_to_evil_meta() {
 
   const TXT = "KABOOM!";
 
-  let reWin = open_compose_with_reply(msgc);
+  let reWin = await open_compose_with_reply(msgc);
   let reText = get_compose_body(reWin).textContent;
   Assert.ok(reText.includes(TXT), "re body should contain the text");
   close_compose_window(reWin);
 
-  let fwdWin = open_compose_with_forward(msgc);
+  let fwdWin = await open_compose_with_forward(msgc);
   let fwdText = get_compose_body(fwdWin).textContent;
   Assert.ok(fwdText.includes(TXT), "fwd body should contain the text");
   close_compose_window(fwdWin);
@@ -182,7 +182,7 @@ add_task(async function test_forward_eml_catchall() {
 
   MailServices.accounts.defaultAccount.defaultIdentity.catchAll = true;
 
-  let replyWin = open_compose_with_forward(msgc);
+  let replyWin = await open_compose_with_forward(msgc);
   let bodyText = get_compose_body(replyWin).textContent;
   const message = "Because they're stupid, that's why";
   Assert.ok(bodyText.includes(message), "Correct message body");
