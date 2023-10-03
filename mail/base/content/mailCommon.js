@@ -574,13 +574,13 @@ var commandController = {
       }
       case "cmd_editDraftMsg":
         return (
-          numSelectedMessages == 1 &&
+          numSelectedMessages >= 1 &&
           folder()?.isSpecialFolder(Ci.nsMsgFolderFlags.Drafts, true)
         );
       case "cmd_newMsgFromTemplate":
       case "cmd_editTemplateMsg":
         return (
-          numSelectedMessages == 1 &&
+          numSelectedMessages >= 1 &&
           folder()?.isSpecialFolder(Ci.nsMsgFolderFlags.Templates, true)
         );
       case "cmd_replyGroup":

@@ -24,11 +24,13 @@ const TEST_MESSAGE_URL =
 let tabmail = document.getElementById("tabmail");
 let testFolder, testMessages;
 let draftsFolder, draftsMessages;
+let templatesFolder, templatesMessages;
 let listFolder, listMessages;
 
 let singleSelectionMessagePane = [
   "singleMessage",
   "draftsFolder",
+  "templatesFolder",
   "listFolder",
   "syntheticFolderDraft",
   "syntheticFolder",
@@ -36,6 +38,7 @@ let singleSelectionMessagePane = [
 let singleSelectionThreadPane = [
   "singleMessageTree",
   "draftsFolderTree",
+  "templatesFolderTree",
   "listFolderTree",
   "syntheticFolderDraftTree",
   "syntheticFolderTree",
@@ -52,6 +55,8 @@ let allThreePane = [
   ...singleSelectionMessagePane,
   ...singleSelectionThreadPane,
   "multipleMessagesTree",
+  "multipleDraftsFolderTree",
+  "multipleTemplatesFolderTree",
 ];
 let notExternal = [...allThreePane, ...onePane];
 
@@ -64,8 +69,19 @@ const mailContextData = {
   "mailContext-editDraftMsg": [
     "draftsFolder",
     "draftsFolderTree",
+    "multipleDraftsFolderTree",
     "syntheticFolderDraft",
     "syntheticFolderDraftTree",
+  ],
+  "mailContext-newMsgFromTemplate": [
+    "templatesFolder",
+    "templatesFolderTree",
+    "multipleTemplatesFolderTree",
+  ],
+  "mailContext-editTemplateMsg": [
+    "templatesFolder",
+    "templatesFolderTree",
+    "multipleTemplatesFolderTree",
   ],
   "mailContext-openNewTab": singleSelectionThreadPane,
   "mailContext-openNewWindow": singleSelectionThreadPane,
@@ -82,7 +98,11 @@ const mailContextData = {
   "mailContext-replyList": ["listFolder", "listFolderTree"],
   "mailContext-forward": allSingleSelection,
   "mailContext-forwardAsMenu": allSingleSelection,
-  "mailContext-multiForwardAsAttachment": ["multipleMessagesTree"],
+  "mailContext-multiForwardAsAttachment": [
+    "multipleMessagesTree",
+    "multipleDraftsFolderTree",
+    "multipleTemplatesFolderTree",
+  ],
   "mailContext-redirect": allSingleSelection,
   "mailContext-editAsNew": allSingleSelection,
   "mailContext-tags": true, // Should be notExternal really.
@@ -90,7 +110,11 @@ const mailContextData = {
   "mailContext-archive": notExternal,
   "mailContext-moveMenu": notExternal,
   "mailContext-copyMenu": true,
-  "mailContext-decryptToFolder": ["multipleMessagesTree"],
+  "mailContext-decryptToFolder": [
+    "multipleMessagesTree",
+    "multipleDraftsFolderTree",
+    "multipleTemplatesFolderTree",
+  ],
   "mailContext-calendar-convert-menu": allSingleSelection,
   "mailContext-delete": notExternal,
   "mailContext-ignoreThread": allThreePane,
@@ -98,7 +122,11 @@ const mailContextData = {
   "mailContext-watchThread": notExternal,
   "mailContext-saveAs": true,
   "mailContext-print": true,
-  "mailContext-downloadSelected": ["multipleMessagesTree"],
+  "mailContext-downloadSelected": [
+    "multipleMessagesTree",
+    "multipleDraftsFolderTree",
+    "multipleTemplatesFolderTree",
+  ],
 };
 
 function checkMenuitems(menu, mode) {
@@ -179,6 +207,15 @@ add_setup(async function () {
     generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
   );
   draftsMessages = [...draftsFolder.messages];
+  rootFolder.createSubfolder("mailContextTemplates", null);
+  templatesFolder = rootFolder
+    .getChildNamed("mailContextTemplates")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  templatesFolder.setFlag(Ci.nsMsgFolderFlags.Templates);
+  templatesFolder.addMessageBatch(
+    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+  );
+  templatesMessages = [...templatesFolder.messages];
   rootFolder.createSubfolder("mailContextMailingList", null);
   listFolder = rootFolder
     .getChildNamed("mailContextMailingList")
@@ -426,7 +463,7 @@ add_task(async function testDraftsFolder() {
   about3Pane.restoreState({ folderURI: draftsFolder.URI });
 
   await TestUtils.waitForCondition(
-    () => ConversationOpener.isMessageIndexed(draftsMessages[0]),
+    () => ConversationOpener.isMessageIndexed(draftsMessages[1]),
     "waiting for Gloda to finish indexing",
     500
   );
@@ -468,6 +505,83 @@ add_task(async function testDraftsFolder() {
   );
   await shownPromise;
   checkMenuitems(mailContext, "draftsFolderTree");
+
+  threadTree.scrollToIndex(1, true);
+  threadTree.selectedIndices = [1, 2, 3];
+
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree.getRowAtIndex(2),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+  checkMenuitems(mailContext, "multipleDraftsFolderTree");
+});
+
+/**
+ * Tests the mailContext menu on the thread tree and message pane of a Templates
+ * folder.
+ */
+add_task(async function testTemplatesFolder() {
+  let about3Pane = tabmail.currentAbout3Pane;
+  about3Pane.restoreState({ folderURI: templatesFolder.URI });
+
+  await TestUtils.waitForCondition(
+    () => ConversationOpener.isMessageIndexed(templatesMessages[1]),
+    "waiting for Gloda to finish indexing",
+    500
+  );
+
+  let mailContext = about3Pane.document.getElementById("mailContext");
+  let { gDBView, messageBrowser, threadTree } = about3Pane;
+  let messagePaneBrowser = messageBrowser.contentWindow.getMessagePaneBrowser();
+
+  let loadedPromise = BrowserTestUtils.browserLoaded(
+    messagePaneBrowser,
+    undefined,
+    url => url.endsWith(gDBView.getKeyAt(0))
+  );
+  threadTree.selectedIndex = 0;
+  await loadedPromise;
+
+  // Open the menu from the message pane.
+
+  Assert.ok(
+    BrowserTestUtils.is_visible(messageBrowser),
+    "message browser should be visible"
+  );
+  let shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  await BrowserTestUtils.synthesizeMouseAtCenter(
+    ":root",
+    { type: "contextmenu" },
+    messagePaneBrowser
+  );
+  await shownPromise;
+  checkMenuitems(mailContext, "templatesFolder");
+
+  // Open the menu from the thread pane.
+
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree.getRowAtIndex(0),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+  checkMenuitems(mailContext, "templatesFolderTree");
+
+  threadTree.scrollToIndex(1, true);
+  threadTree.selectedIndices = [1, 2, 3];
+
+  shownPromise = BrowserTestUtils.waitForEvent(mailContext, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    threadTree.getRowAtIndex(2),
+    { type: "contextmenu" },
+    about3Pane
+  );
+  await shownPromise;
+  checkMenuitems(mailContext, "multipleTemplatesFolderTree");
 });
 
 /**

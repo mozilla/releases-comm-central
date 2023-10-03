@@ -74,6 +74,7 @@ let helper = new MenuTestHelper("messageMenu", messageMenuData);
 
 let tabmail = document.getElementById("tabmail");
 let rootFolder, testFolder, testMessages;
+let draftsFolder, draftsMessages, templatesFolder, templatesMessages;
 
 add_setup(async function () {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
@@ -86,9 +87,9 @@ add_setup(async function () {
   account.addIdentity(MailServices.accounts.createIdentity());
   rootFolder = account.incomingServer.rootFolder;
 
-  rootFolder.createSubfolder("message menu", null);
+  rootFolder.createSubfolder("messageMenu", null);
   testFolder = rootFolder
-    .getChildNamed("message menu")
+    .getChildNamed("messageMenu")
     .QueryInterface(Ci.nsIMsgLocalMailFolder);
   testFolder.addMessageBatch(
     generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
@@ -127,6 +128,25 @@ add_setup(async function () {
       "Mailing List Message Body\n"
   );
   testMessages = [...testFolder.messages];
+
+  rootFolder.createSubfolder("messageMenuDrafts", null);
+  draftsFolder = rootFolder
+    .getChildNamed("messageMenuDrafts")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  draftsFolder.setFlag(Ci.nsMsgFolderFlags.Drafts);
+  draftsFolder.addMessageBatch(
+    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+  );
+  draftsMessages = [...draftsFolder.messages];
+  rootFolder.createSubfolder("messageMenuTemplates", null);
+  templatesFolder = rootFolder
+    .getChildNamed("messageMenuTemplates")
+    .QueryInterface(Ci.nsIMsgLocalMailFolder);
+  templatesFolder.setFlag(Ci.nsMsgFolderFlags.Templates);
+  templatesFolder.addMessageBatch(
+    generator.makeMessages({ count: 5 }).map(message => message.toMboxString())
+  );
+  templatesMessages = [...templatesFolder.messages];
 
   window.OpenMessageInNewTab(testMessages[0], { background: true });
   await BrowserTestUtils.waitForEvent(
@@ -267,6 +287,44 @@ add_task(async function testMultiSelection() {
     markFlaggedMenuItem: { checked: true },
     tagMenu: {},
     "tagMenu-tagRemoveAll": {},
+  });
+});
+
+add_task(async function testDraftsFolder() {
+  tabmail.currentAbout3Pane.restoreState({
+    folderPaneVisible: true,
+    messagePaneVisible: true,
+    folderURI: draftsFolder,
+  });
+  await new Promise(resolve => setTimeout(resolve));
+
+  tabmail.currentAbout3Pane.threadTree.selectedIndices = [1, 2, 4];
+  await helper.testItems({
+    menu_editDraftMsg: { hidden: false },
+  });
+  tabmail.currentAbout3Pane.threadTree.selectedIndices = [3];
+  await helper.testItems({
+    menu_editDraftMsg: { hidden: false },
+  });
+});
+
+add_task(async function testTemplatesFolder() {
+  tabmail.currentAbout3Pane.restoreState({
+    folderPaneVisible: true,
+    messagePaneVisible: true,
+    folderURI: templatesFolder,
+  });
+  await new Promise(resolve => setTimeout(resolve));
+
+  tabmail.currentAbout3Pane.threadTree.selectedIndices = [1, 2, 4];
+  await helper.testItems({
+    menu_newMsgFromTemplate: { hidden: false },
+    menu_editTemplate: { hidden: false },
+  });
+  tabmail.currentAbout3Pane.threadTree.selectedIndices = [3];
+  await helper.testItems({
+    menu_newMsgFromTemplate: { hidden: false },
+    menu_editTemplate: { hidden: false },
   });
 });
 
