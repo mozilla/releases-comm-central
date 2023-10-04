@@ -522,7 +522,7 @@ class nsImapProtocol : public nsIImapProtocol,
   // (which was encoded anyway), but still we shouldn't add that information to
   // the log.
   nsresult SendData(const char* dataBuffer,
-                    bool aSuppressLogging = false) override;
+                    bool aSuppressLogging = false);
 
   // state ported over from 4.5
   bool m_pseudoInterrupted;

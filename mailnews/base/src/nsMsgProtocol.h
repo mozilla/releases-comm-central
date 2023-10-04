@@ -30,7 +30,6 @@
 class nsIMsgWindow;
 class nsIPrompt;
 class nsIMsgMailNewsUrl;
-class nsMsgFilePostHelper;
 class nsIProxyInfo;
 class nsICancelable;
 
@@ -80,20 +79,11 @@ class nsMsgProtocol : public nsIStreamListener,
   // a socket based protocool class instead of cheating and putting both methods
   // here...
 
-  // open a connection with a specific host and port
-  // aHostName must be UTF-8 encoded.
-  virtual nsresult OpenNetworkSocketWithInfo(const char* aHostName,
-                                             int32_t aGetPort,
-                                             const char* connectionType,
-                                             nsIProxyInfo* aProxyInfo,
-                                             nsIInterfaceRequestor* callbacks);
   // helper routine
   nsresult GetFileFromURL(nsIURI* aURL, nsIFile** aResult);
   virtual nsresult OpenFileSocket(
       nsIURI* aURL, uint64_t aStartPosition,
       int64_t aReadCount);  // used to open a file socket connection
-
-  nsresult GetTopmostMsgWindow(nsIMsgWindow** aWindow);
 
   virtual const char* GetType() { return nullptr; }
   nsresult GetQoSBits(uint8_t* aQoSBits);
@@ -103,10 +93,6 @@ class nsMsgProtocol : public nsIStreamListener,
   // generic connection objects
   virtual nsresult CloseSocket();
 
-  virtual nsresult
-  SetupTransportState();  // private method used by OpenNetworkSocket and
-                          // OpenFileSocket
-
   // ProcessProtocolState - This is the function that gets churned by calls to
   // OnDataAvailable. As data arrives on the socket, OnDataAvailable calls
   // ProcessProtocolState.
@@ -115,16 +101,6 @@ class nsMsgProtocol : public nsIStreamListener,
                                         nsIInputStream* inputStream,
                                         uint64_t sourceOffset,
                                         uint32_t length) = 0;
-
-  // SendData -- Writes the data contained in dataBuffer into the current output
-  // stream. It also informs the transport layer that this data is now available
-  // for transmission. Returns a positive number for success, 0 for failure (not
-  // all the bytes were written to the stream, etc). aSuppressLogging is a hint
-  // that sensitive data is being sent and should not be logged
-  virtual nsresult SendData(const char* dataBuffer,
-                            bool aSuppressLogging = false);
-
-  virtual nsresult PostMessage(nsIURI* url, nsIFile* aPostFile);
 
   virtual nsresult InitFromURI(nsIURI* aUrl);
 
@@ -182,82 +158,6 @@ class nsMsgProtocol : public nsIStreamListener,
   bool mSuppressListenerNotifications;
 
   uint32_t mContentDisposition;
-};
-
-// This is is a subclass of nsMsgProtocol extends the parent class with
-// AsyncWrite support. Protocols like smtp and news want to leverage async
-// write. We don't want everyone who inherits from nsMsgProtocol to have to pick
-// up the extra overhead.
-class nsMsgAsyncWriteProtocol : public nsMsgProtocol,
-                                public nsSupportsWeakReference {
- public:
-  NS_DECL_ISUPPORTS_INHERITED
-
-  NS_IMETHOD Cancel(nsresult status) override;
-
-  nsMsgAsyncWriteProtocol(nsIURI* aURL);
-
-  // temporary over ride...
-  virtual nsresult PostMessage(nsIURI* url, nsIFile* postFile) override;
-
-  // over ride the following methods from the base class
-  virtual nsresult SetupTransportState() override;
-  virtual nsresult SendData(const char* dataBuffer,
-                            bool aSuppressLogging = false) override;
-  nsCString mAsyncBuffer;
-
-  // if we suspended the asynch write while waiting for more data to write then
-  // this will be TRUE
-  bool mSuspendedWrite;
-  nsCOMPtr<nsIRequest> m_WriteRequest;
-  nsCOMPtr<nsIAsyncOutputStream> mAsyncOutStream;
-  nsCOMPtr<nsIOutputStreamCallback> mProvider;
-  nsCOMPtr<nsIThread> mProviderThread;
-
-  // because we are reading the post data in asynchronously, it's possible that
-  // we aren't sending it out fast enough and the reading gets blocked. The
-  // following set of state variables are used to track this.
-  bool mSuspendedRead;
-  bool mInsertPeriodRequired;  // do we need to insert a '.' as part of the
-                               // unblocking process
-
-  nsresult ProcessIncomingPostData(nsIInputStream* inStr, uint32_t count);
-  nsresult UnblockPostReader();
-  nsresult UpdateSuspendedReadBytes(uint32_t aNewBytes,
-                                    bool aAddToPostPeriodByteCount);
-  nsresult PostDataFinished();  // this is so we'll send out a closing '.' and
-                                // release any state related to the post
-
-  // these two routines are used to pause and resume our loading of the file
-  // containing the contents we are trying to post. We call these routines when
-  // we aren't sending the bits out fast enough to keep up with the file read.
-  nsresult SuspendPostFileRead();
-  nsresult ResumePostFileRead();
-  nsresult UpdateSuspendedReadBytes(uint32_t aNewBytes);
-  void UpdateProgress(uint32_t aNewBytes);
-  nsMsgFilePostHelper* mFilePostHelper;  // needs to be a weak reference
- protected:
-  virtual ~nsMsgAsyncWriteProtocol();
-
-  // the streams for the pipe used to queue up data for the async write calls to
-  // the server. we actually re-use the same mOutStream variable in our parent
-  // class for the output stream to the socket channel. So no need for a new
-  // variable here.
-  nsCOMPtr<nsIInputStream> mInStream;
-  nsCOMPtr<nsIInputStream> mPostDataStream;
-  uint32_t mSuspendedReadBytes;  // remaining # of bytes we need to read before
-                                 // the input stream becomes unblocked
-  uint32_t mSuspendedReadBytesPostPeriod;  // # of bytes which need processed
-                                           // after we insert a '.' before the
-                                           // input stream becomes unblocked.
-  int64_t
-      mFilePostSize;  // used for file size, we post a single message in a file
-  uint32_t mNumBytesPosted;  // used for determining progress on posting files
-  bool
-      mGenerateProgressNotifications;  // set during a post operation after
-                                       // we've started sending the post data...
-
-  virtual nsresult CloseSocket() override;
 };
 
 #endif /* nsMsgProtocol_h__ */
