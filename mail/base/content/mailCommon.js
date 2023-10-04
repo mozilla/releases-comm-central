@@ -179,7 +179,7 @@ var commandController = {
         Ci.nsMsgViewCommandType.moveMessages,
         destFolder
       );
-      Services.prefs.setCharPref(
+      Services.prefs.setStringPref(
         "mail.last_msg_movecopy_target_uri",
         destFolder.URI
       );
@@ -241,7 +241,7 @@ var commandController = {
           destFolder
         );
       }
-      Services.prefs.setCharPref(
+      Services.prefs.setStringPref(
         "mail.last_msg_movecopy_target_uri",
         destFolder.URI
       );
