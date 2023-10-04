@@ -29,11 +29,9 @@ const {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const {
-  click_menus_in_sequence,
-  plan_for_window_close,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+const { click_menus_in_sequence } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 let gInbox;
 let gOutbox;
@@ -251,7 +249,7 @@ async function reply_forward_message(aMsgRow, aReply) {
   }
 
   // Send it later.
-  plan_for_window_close(cwc);
+  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
   // Ctrl+Shift+Return = Send Later
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.synthesizeKey(
@@ -262,7 +260,7 @@ async function reply_forward_message(aMsgRow, aReply) {
     },
     cwc
   );
-  wait_for_window_close(cwc);
+  await closePromise;
 
   await subtest_check_queued_message();
 

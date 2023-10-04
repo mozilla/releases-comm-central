@@ -47,7 +47,7 @@ add_task(async function testSwitchToCardsView() {
     "The tree view should have a card layout"
   );
 
-  click_through_appmenu(
+  await click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_MessagePaneLayout" }],
     { id: "appmenu_messagePaneClassic" },
     window
@@ -90,7 +90,7 @@ add_task(async function testSwitchToCardsView() {
   EventUtils.synthesizeKey("KEY_Escape", {});
   await hiddenPromise;
 
-  click_through_appmenu(
+  await click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_MessagePaneLayout" }],
     { id: "appmenu_messagePaneVertical" },
     window
@@ -166,7 +166,7 @@ add_task(async function testSwitchToCardsView() {
   );
 
   // Switching to horizontal view shouldn't affect the list layout.
-  click_through_appmenu(
+  await click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_MessagePaneLayout" }],
     { id: "appmenu_messagePaneClassic" },
     window

@@ -261,7 +261,7 @@ add_task(async function test_draft_identity_selection() {
       );
     }
 
-    close_compose_window(cwc, false);
+    await close_compose_window(cwc, false);
   }
   /*
   // TODO: fix this in bug 1238264, the identity selector does not properly close.
@@ -278,7 +278,7 @@ add_task(async function test_draft_identity_selection() {
 
   wait_for_notification_to_stop(cwc, "compose-notification-bottom",
                                 "identityWarning");
-  close_compose_window(cwc, false);
+  await close_compose_window(cwc, false);
 */
 });
 

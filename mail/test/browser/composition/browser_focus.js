@@ -502,7 +502,7 @@ add_task(async function test_jump_focus() {
             info(`Test run: ${JSON.stringify(options)}`);
             let win = await open_compose_new_mail();
             await checkFocusCycling(win, options);
-            close_compose_window(win);
+            await close_compose_window(win);
           }
         }
       }

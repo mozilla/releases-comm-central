@@ -12,10 +12,10 @@
 
 var {
   close_compose_window,
+  compose_window_ready,
   open_compose_new_mail,
   open_compose_with_forward,
   open_compose_with_reply,
-  promise_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   add_message_to_folder,
@@ -32,10 +32,10 @@ var {
 var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
-var { wait_for_notification_to_show, get_notification } = ChromeUtils.import(
+var { get_notification, wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
-var { plan_for_new_window } = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -120,7 +120,7 @@ add_task(async function test_can_cancel_quit_on_changes() {
   // should now be true
   Assert.ok(cancelQuit.data, "Didn't cancel the quit");
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Unregister the Mock Prompt Service
   gMockPromptService.unregister();
@@ -164,7 +164,7 @@ add_task(async function test_can_quit_on_changes() {
   // false
   Assert.ok(!cancelQuit.data, "The quit request was cancelled");
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Unregister the Mock Prompt Service
   gMockPromptService.unregister();
@@ -233,7 +233,7 @@ add_task(async function test_window_quit_state_reset_on_aborted_quit() {
     "Expected a confirmEx prompt to come up"
   );
 
-  close_compose_window(cwc1);
+  await close_compose_window(cwc1);
 
   gMockPromptService.unregister();
 });
@@ -248,13 +248,13 @@ add_task(async function test_no_prompt_on_close_for_unmodified() {
   assert_selected_and_displayed(window, msg);
 
   let nwc = await open_compose_new_mail();
-  close_compose_window(nwc, false);
+  await close_compose_window(nwc, false);
 
   let rwc = await open_compose_with_reply();
-  close_compose_window(rwc, false);
+  await close_compose_window(rwc, false);
 
   let fwc = await open_compose_with_forward();
-  close_compose_window(fwc, false);
+  await close_compose_window(fwc, false);
 });
 
 /**
@@ -269,17 +269,17 @@ add_task(async function test_prompt_on_close_for_modified() {
   let nwc = await open_compose_new_mail();
   nwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hey hey hey!", nwc);
-  close_compose_window(nwc, true);
+  await close_compose_window(nwc, true);
 
   let rwc = await open_compose_with_reply();
   rwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Howdy!", rwc);
-  close_compose_window(rwc, true);
+  await close_compose_window(rwc, true);
 
   let fwc = await open_compose_with_forward();
   fwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Greetings!", fwc);
-  close_compose_window(fwc, true);
+  await close_compose_window(fwc, true);
 });
 
 /**
@@ -293,7 +293,7 @@ add_task(
     assert_selected_and_displayed(window, msg);
 
     let rwc = await open_compose_with_reply();
-    close_compose_window(rwc, false);
+    await close_compose_window(rwc, false);
 
     let fwc = await open_compose_with_forward();
     Assert.equal(
@@ -301,7 +301,7 @@ add_task(
       0,
       "forwarding msg created attachment"
     );
-    close_compose_window(fwc, false);
+    await close_compose_window(fwc, false);
   }
 );
 
@@ -316,7 +316,7 @@ add_task(
     assert_selected_and_displayed(window, msg);
 
     let rwc = await open_compose_with_reply();
-    close_compose_window(rwc, false);
+    await close_compose_window(rwc, false);
 
     let fwc = await open_compose_with_forward();
     Assert.equal(
@@ -324,7 +324,7 @@ add_task(
       0,
       "forwarding msg created attachment"
     );
-    close_compose_window(fwc, false);
+    await close_compose_window(fwc, false);
   }
 );
 
@@ -360,7 +360,7 @@ add_task(async function test_prompt_save_on_pill_editing() {
   );
 
   // Close the compose window after the saving operation is completed.
-  close_compose_window(cwc, false);
+  await close_compose_window(cwc, false);
 
   // Move to the drafts folder and select the recently saved message.
   await be_in_folder(gDraftFolder);
@@ -373,14 +373,14 @@ add_task(async function test_prompt_save_on_pill_editing() {
   wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
   let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   // Click on the "Edit" button in the draft notification.
   EventUtils.synthesizeMouseAtCenter(
     box.buttonContainer.firstElementChild,
     {},
     aboutMessage
   );
-  cwc = await promise_compose_window();
+  cwc = await compose_window_ready(composePromise);
 
   // Make sure the address was saved correctly.
   let pill = cwc.document.querySelector("mail-address-pill");
@@ -413,5 +413,5 @@ add_task(async function test_prompt_save_on_pill_editing() {
   cwc.goDoCommand("cmd_close");
   await promptPromise;
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

@@ -36,7 +36,7 @@ add_task(
     let swc = await open_search_window_from_context_menu(folderA);
     assert_search_window_folder_displayed(swc, folderA);
 
-    close_search_window(swc);
+    await close_search_window(swc);
   }
 );
 
@@ -50,7 +50,7 @@ add_task(async function test_open_search_window_with_one_thing_selected() {
   let swc = await open_search_window_from_context_menu(folderB);
   assert_search_window_folder_displayed(swc, folderB);
 
-  close_search_window(swc);
+  await close_search_window(swc);
 
   Assert.report(
     false,

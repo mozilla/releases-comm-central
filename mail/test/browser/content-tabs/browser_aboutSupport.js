@@ -5,7 +5,7 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var { close_compose_window, promise_compose_window } = ChromeUtils.import(
+var { close_compose_window, compose_window_ready } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
 var {
@@ -25,7 +25,7 @@ var {
 var { close_tab } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { click_menus_in_sequence, plan_for_new_window } = ChromeUtils.import(
+var { click_menus_in_sequence, promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -137,13 +137,13 @@ async function open_about_support() {
  */
 async function open_send_via_email(aTab) {
   let button = content_tab_e(aTab, "send-via-email");
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeMouseAtCenter(
     button,
     { clickCount: 1 },
     button.ownerGlobal
   );
-  let cwc = await promise_compose_window();
+  let cwc = await compose_window_ready(composePromise);
   return cwc;
 }
 
@@ -511,7 +511,7 @@ add_task(async function test_send_via_email_public() {
     );
   }
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   close_tab(tab);
 });
 
@@ -574,6 +574,6 @@ add_task(async function test_send_via_email_private() {
     );
   }
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   close_tab(tab);
 });

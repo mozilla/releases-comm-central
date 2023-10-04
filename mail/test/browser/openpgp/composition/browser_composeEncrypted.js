@@ -25,9 +25,6 @@ const {
   save_compose_message,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-const { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );
@@ -908,12 +905,12 @@ async function testEncryptedMessageReplyIsEncrypted(
   );
 
   let cwc = await open_compose_with_reply(msgc);
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   let replyWindow = cwc;
 
   await save_compose_message(replyWindow);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(true) > 0,

@@ -13,9 +13,6 @@ var { open_message_from_file, get_about_message, smimeUtils_ensureNSS } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 function getMsgBodyTxt(msgc) {
   let msgPane = get_about_message(msgc).getMessagePaneBrowser();
@@ -34,7 +31,7 @@ add_task(async function test_nested_sigs() {
     "level 2 text is shown in body"
   );
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 registerCleanupFunction(() => {

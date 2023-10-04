@@ -8,10 +8,11 @@
 
 "use strict";
 
-var { async_wait_for_compose_window, close_compose_window } =
-  ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { close_compose_window, compose_window_ready } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
 
-var { async_plan_for_new_window } = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 var {
@@ -186,14 +187,14 @@ add_task(async function testRedirectToMe() {
   await popupshown;
   info("otherActionsButton popup shown");
 
-  let compWinPromise = async_plan_for_new_window("msgcompose");
+  let compWinPromise = promise_new_window("msgcompose");
   // Click the Redirect menu item
   EventUtils.synthesizeMouseAtCenter(
     otherActionsPopup.firstElementChild,
     {},
     aboutMessage
   );
-  let cwc = await async_wait_for_compose_window(compWinPromise);
+  let cwc = await compose_window_ready(compWinPromise);
   Assert.equal(
     cwc.getCurrentIdentityKey(),
     identity2.key,
@@ -207,5 +208,5 @@ add_task(async function testRedirectToMe() {
       addr_reply: ["Homer <homer@example.com>"],
     }
   );
-  close_compose_window(cwc, false);
+  await close_compose_window(cwc, false);
 });

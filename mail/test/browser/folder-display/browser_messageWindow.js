@@ -23,9 +23,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var folderA, folderB;
 var curMessage;
@@ -149,8 +146,8 @@ add_task(async function test_next_unread() {
 /**
  * Close the window by hitting escape.
  */
-add_task(function test_close_message_window() {
-  plan_for_window_close(msgc);
+add_task(async function close_message_window() {
+  const closePromise = BrowserTestUtils.domWindowClosed(msgc);
   EventUtils.synthesizeKey("VK_ESCAPE", {}, msgc);
-  wait_for_window_close(msgc);
+  await closePromise;
 });

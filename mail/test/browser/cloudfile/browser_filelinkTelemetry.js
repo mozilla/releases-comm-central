@@ -77,7 +77,7 @@ add_task(async function test_filelink_uploaded_size() {
     totalSize,
     "Count of uploaded size must be correct."
   );
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -99,11 +99,8 @@ add_task(async function test_filelink_ignored() {
   add_attachments(cwc, "https://www.example.com/2", maxSize + 10);
   add_attachments(cwc, "https://www.example.com/3", maxSize - 1);
   let aftersend = BrowserTestUtils.waitForEvent(cwc, "aftersend");
-  EventUtils.synthesizeMouseAtCenter(
-    cwc.document.getElementById("button-send"),
-    {},
-    cwc.document.getElementById("button-send").ownerGlobal
-  );
+  // Send Later to avoid uncatchable errors from the SMTP code.
+  cwc.goDoCommand("cmd_sendLater");
   await aftersend;
   let scalars = TelemetryTestUtils.getProcessScalars("parent");
   Assert.equal(
@@ -111,6 +108,4 @@ add_task(async function test_filelink_ignored() {
     1,
     "Count of ignored times must be correct."
   );
-  close_compose_window(cwc, true);
-  close_compose_window(cwc);
 });

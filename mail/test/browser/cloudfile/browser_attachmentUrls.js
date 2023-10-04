@@ -583,7 +583,7 @@ async function subtest_inserts_linebreak_on_empty_compose() {
     "The linebreak should be the first child of the compose body"
   );
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -654,7 +654,7 @@ add_task(
       "The pre should have the moz-signature class"
     );
 
-    close_compose_window(cw);
+    await close_compose_window(cw);
 
     Services.prefs.setBoolPref(kHtmlPrefKey, false);
 
@@ -709,7 +709,7 @@ add_task(
       "The div should have the moz-signature class"
     );
 
-    close_compose_window(cw);
+    await close_compose_window(cw);
 
     Services.prefs.setBoolPref(kHtmlPrefKey, true);
   }
@@ -742,7 +742,7 @@ async function subtest_removing_filelinks_removes_root_node() {
     return result == null;
   }, "Timed out waiting for attachment container to be removed");
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -802,7 +802,7 @@ async function subtest_adding_filelinks_to_written_message() {
     "The attachment URL containment node should be preceded by " +
       "two linebreaks"
   );
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -895,7 +895,7 @@ async function subtest_adding_filelinks_to_reply_above_plaintext(
     Assert.equal(textNode.nodeValue, targetText);
   }
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -921,7 +921,7 @@ async function subtest_adding_filelinks_to_reply_above(aText) {
 
   Assert.ok(div.classList.contains("moz-cite-prefix"));
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -1014,7 +1014,7 @@ async function subtest_adding_filelinks_to_reply_below(aText, aWithSig) {
     "The prefix should have the moz-cite-prefix class"
   );
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -1063,7 +1063,7 @@ async function subtest_adding_filelinks_to_plaintext_reply_below(
     "The prefix should have the moz-cite-prefix class"
   );
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -1127,7 +1127,7 @@ async function subtest_adding_filelinks_to_forward(aText, aWithSig) {
     Assert.equal(br, mailBody.firstChild);
   }
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -1214,7 +1214,7 @@ async function subtest_converting_filelink_updates_urls() {
   let [, , UrlsB] = wait_for_attachment_urls(cw, kFiles.length, uploads);
   Assert.notEqual(UrlsA, UrlsB, "The original URL should have been replaced");
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -1327,7 +1327,7 @@ async function subtest_renaming_filelink_updates_urls() {
   let [, , Urls2] = wait_for_attachment_urls(cw, kFiles.length, uploads);
   Assert.notEqual(Urls1, Urls2, "The original URL should have been replaced");
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -1405,7 +1405,7 @@ async function subtest_converting_filelink_to_normal_removes_url() {
     throw new Error("Should not have found the cloudAttachmentListRoot");
   }
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -1478,7 +1478,7 @@ async function subtest_filelinks_work_after_manual_removal() {
   );
   [root] = wait_for_attachment_urls(cw, 1, uploads);
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -1547,5 +1547,5 @@ async function subtest_insertion_restores_caret_point() {
   let br = assert_previous_nodes("br", root, 1);
   assert_previous_text(br.previousSibling, [kTypedIn]);
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }

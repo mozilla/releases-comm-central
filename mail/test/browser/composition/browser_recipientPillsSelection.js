@@ -150,7 +150,7 @@ add_task(async function test_pill_selection() {
   );
   close_popup(cwc, contextMenu);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -260,5 +260,5 @@ add_task(async function test_pill_context_menu() {
   );
   Assert.ok(bccPill.hasAttribute("selected"), "The pill is selected");
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

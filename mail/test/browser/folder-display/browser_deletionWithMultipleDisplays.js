@@ -16,7 +16,6 @@ var {
   assert_selected_and_displayed,
   assert_tab_titled_from,
   be_in_folder,
-  close_message_window,
   close_tab,
   create_folder,
   get_about_3pane,
@@ -31,9 +30,6 @@ var {
   switch_tab,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var folder,
@@ -269,7 +265,7 @@ add_task(async function test_delete_last_message_closes_message_displays() {
   // to open yet another tab to test
 
   // - prep for the message window disappearing
-  plan_for_window_close(msgc);
+  const closePromise = BrowserTestUtils.domWindowClosed(msgc);
 
   // - let's arbitrarily perform the deletion on this message tab
   await switch_tab(tabMessage);
@@ -278,7 +274,7 @@ add_task(async function test_delete_last_message_closes_message_displays() {
   // - the message window should have gone away...
   // (this also helps ensure that the 3pane gets enough event loop time to do
   //  all that it needs to accomplish)
-  wait_for_window_close(msgc);
+  await closePromise;
   msgc = null;
 
   // - and we should now be on the folder tab and there should be no other tabs
@@ -366,7 +362,7 @@ add_task(async function test_delete_last_message_in_message_window() {
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 
   // - clean up, close the message window and displays
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   close_tab(tabMessage);
   close_tab(tabMessageBackground);
   await switch_tab(tabFolder);
@@ -395,7 +391,7 @@ add_task(async function test_delete_one_before_message_in_folder_tab() {
   );
 
   // Clean up, close everything
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   close_tab(tabMessage);
   close_tab(tabMessageBackground);
   await switch_tab(tabFolder);
@@ -424,7 +420,7 @@ add_task(async function test_delete_one_before_message_in_message_tab() {
   );
 
   // Clean up, close everything
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   close_tab(tabMessage);
   close_tab(tabMessageBackground);
   await switch_tab(tabFolder);
@@ -454,7 +450,7 @@ add_task(async function test_delete_one_before_message_in_message_window() {
   );
 
   // Clean up, close everything
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   close_tab(tabMessage);
   close_tab(tabMessageBackground);
   await switch_tab(tabFolder);
@@ -482,7 +478,7 @@ add_task(async function test_delete_one_after_message_in_folder_tab() {
   );
 
   // Clean up, close everything
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   close_tab(tabMessage);
   close_tab(tabMessageBackground);
   await switch_tab(tabFolder);
@@ -511,7 +507,7 @@ add_task(async function test_delete_one_after_message_in_message_tab() {
   );
 
   // Clean up, close everything
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   close_tab(tabMessage);
   close_tab(tabMessageBackground);
   await switch_tab(tabFolder);
@@ -541,7 +537,7 @@ add_task(async function test_delete_one_after_message_in_message_window() {
   );
 
   // Clean up, close everything
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   close_tab(tabMessage);
   close_tab(tabMessageBackground);
   await switch_tab(tabFolder);
@@ -580,7 +576,7 @@ add_task(
     await _verify_message_is_displayed_in(VERIFY_ALL, expectedMessage);
 
     // Clean up, close everything
-    close_message_window(msgc);
+    await BrowserTestUtils.closeWindow(msgc);
     close_tab(tabMessage);
     close_tab(tabMessageBackground);
     await switch_tab(tabFolder);
@@ -623,7 +619,7 @@ add_task(
     );
 
     // Clean up, close everything
-    close_message_window(msgc);
+    await BrowserTestUtils.closeWindow(msgc);
     close_tab(tabMessage);
     close_tab(tabMessageBackground);
     await switch_tab(tabFolder);
@@ -665,7 +661,7 @@ add_task(
       expectedMessage
     );
     // Clean up, close everything
-    close_message_window(msgc);
+    await BrowserTestUtils.closeWindow(msgc);
     close_tab(tabMessage);
     close_tab(tabMessageBackground);
     await switch_tab(tabFolder);
@@ -699,7 +695,7 @@ add_task(
     await _verify_message_is_displayed_in(VERIFY_ALL, expectedMessage);
 
     // Clean up, close everything
-    close_message_window(msgc);
+    await BrowserTestUtils.closeWindow(msgc);
     close_tab(tabMessage);
     close_tab(tabMessageBackground);
     await switch_tab(tabFolder);
@@ -741,7 +737,7 @@ add_task(
     );
 
     // Clean up, close everything
-    close_message_window(msgc);
+    await BrowserTestUtils.closeWindow(msgc);
     close_tab(tabMessage);
     close_tab(tabMessageBackground);
     await switch_tab(tabFolder);
@@ -783,7 +779,7 @@ add_task(
     );
 
     // Clean up, close everything
-    close_message_window(msgc);
+    await BrowserTestUtils.closeWindow(msgc);
     close_tab(tabMessage);
     close_tab(tabMessageBackground);
     await switch_tab(tabFolder);

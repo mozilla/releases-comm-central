@@ -110,5 +110,5 @@ add_task(async function test_font_color() {
     await formatHelper.emptyParagraph();
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });

@@ -108,7 +108,7 @@ add_task(async function test_Reply_To_List_From_Address() {
     );
   }
 
-  close_compose_window(replyToListWindow);
+  await close_compose_window(replyToListWindow);
 
   Assert.report(
     false,

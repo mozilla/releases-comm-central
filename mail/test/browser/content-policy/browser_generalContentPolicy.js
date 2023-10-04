@@ -33,7 +33,6 @@ var {
   assert_nothing_selected,
   assert_selected_and_displayed,
   be_in_folder,
-  close_message_window,
   create_folder,
   get_about_message,
   open_message_from_file,
@@ -54,13 +53,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
-var {
-  click_menus_in_sequence,
-  plan_for_modal_dialog,
-  wait_for_modal_dialog,
-
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { click_menus_in_sequence, promise_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -332,7 +327,7 @@ async function checkComposeWindow(test, replyType, loadAllowed) {
     );
   }, what);
 
-  close_compose_window(replyWindow);
+  await close_compose_window(replyWindow);
 }
 
 /**
@@ -387,7 +382,7 @@ async function checkEMLMessageWindow(test, emlFile) {
   }
 
   // Clean up, close the window
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 }
 
 /**
@@ -720,10 +715,10 @@ add_task(async function test_imgAuth() {
 
   // Open reply/fwd. If we get a prompt the test will timeout.
   let rwc = await open_compose_with_reply();
-  close_compose_window(rwc);
+  await close_compose_window(rwc);
 
   let fwc = await open_compose_with_forward();
-  close_compose_window(fwc);
+  await close_compose_window(fwc);
 
   Services.prefs.clearUserPref("mailnews.message_display.disable_remote_image");
 });
@@ -749,7 +744,7 @@ add_task(async function test_sigPic() {
         .contentDocument.getElementById("testelement")
     );
   }, "Should allow remote sig in new mail");
-  close_compose_window(nwc);
+  await close_compose_window(nwc);
 
   let rwc = await open_compose_with_reply();
   await TestUtils.waitForCondition(async () => {
@@ -760,7 +755,7 @@ add_task(async function test_sigPic() {
     );
   }, "Should allow remote sig in reply");
 
-  close_compose_window(rwc);
+  await close_compose_window(rwc);
 
   identity.htmlSigFormat = false;
   identity.htmlSigText = "";
@@ -817,21 +812,24 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   replyWindow.document.getElementById("messageEditor").focus();
 
   // Now open the image window
-  plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
-    // Insert the url of the image.
-    let srcloc = mwc.document.getElementById("srcInput");
-    srcloc.focus();
+  const dialogPromise = promise_modal_dialog(
+    "Mail:image",
+    async function (mwc) {
+      // Insert the url of the image.
+      let srcloc = mwc.document.getElementById("srcInput");
+      srcloc.focus();
 
-    input_value(mwc, url + "pass.png");
+      input_value(mwc, url + "pass.png");
 
-    // Don't add alternate text
-    let noAlt = mwc.document.getElementById("noAltTextRadio");
-    EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
-    await new Promise(resolve => setTimeout(resolve));
+      // Don't add alternate text
+      let noAlt = mwc.document.getElementById("noAltTextRadio");
+      EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
+      await new Promise(resolve => setTimeout(resolve));
 
-    // Accept the dialog
-    mwc.document.querySelector("dialog").acceptDialog();
-  });
+      // Accept the dialog
+      mwc.document.querySelector("dialog").acceptDialog();
+    }
+  );
 
   let insertMenu = replyWindow.document.getElementById("InsertPopupButton");
   let insertMenuPopup = replyWindow.document.getElementById("InsertPopup");
@@ -839,8 +837,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
 
-  wait_for_modal_dialog();
-  wait_for_window_close();
+  await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
 
   // Paste an image.
@@ -891,7 +888,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
     "Loading of image #1 should not be blocked (and have width)"
   );
 
-  close_compose_window(replyWindow);
+  await close_compose_window(replyWindow);
 }
 
 add_task(async function test_insertImageIntoReply() {

@@ -24,9 +24,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -51,7 +48,7 @@ add_task(async function test_reply_to_eml_save_as_draft() {
 
   // Ctrl+S saves as draft.
   await save_compose_message(replyWin);
-  close_compose_window(replyWin);
+  await close_compose_window(replyWin);
 
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(false) == 1,
@@ -66,7 +63,7 @@ add_task(async function test_reply_to_eml_save_as_draft() {
   }
   press_delete(); // Delete the draft.
 
-  close_window(msgc); // close base .eml message
+  await BrowserTestUtils.closeWindow(msgc); // close base .eml message
 });
 
 /**
@@ -81,7 +78,7 @@ add_task(async function test_forward_eml_save_as_draft() {
   let replyWin = await open_compose_with_forward(msgc);
 
   await save_compose_message(replyWin);
-  close_compose_window(replyWin);
+  await close_compose_window(replyWin);
 
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(false) == 1,
@@ -96,7 +93,7 @@ add_task(async function test_forward_eml_save_as_draft() {
   }
   press_delete(); // Delete the draft.
 
-  close_window(msgc); // close base .eml message
+  await BrowserTestUtils.closeWindow(msgc); // close base .eml message
 });
 
 /**
@@ -115,8 +112,8 @@ add_task(async function test_reply_eml_subject() {
     replyWin.document.getElementById("msgSubject").value,
     "Re: \u2200a\u220aA"
   );
-  close_compose_window(replyWin); // close compose window
-  close_window(msgc); // close base .eml message
+  await close_compose_window(replyWin); // close compose window
+  await BrowserTestUtils.closeWindow(msgc); // close base .eml message
 });
 
 /**
@@ -130,8 +127,8 @@ add_task(async function test_reply_to_base64_eml() {
   let bodyText = get_compose_body(compWin).textContent;
   const TXT = "You have decoded this text from base64.";
   Assert.ok(bodyText.includes(TXT), "body should contain the decoded text");
-  close_compose_window(compWin);
-  close_window(msgc);
+  await close_compose_window(compWin);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -145,8 +142,8 @@ add_task(async function test_forward_base64_eml() {
   let bodyText = get_compose_body(compWin).textContent;
   const TXT = "You have decoded this text from base64.";
   Assert.ok(bodyText.includes(TXT), "body should contain the decoded text");
-  close_compose_window(compWin);
-  close_window(msgc);
+  await close_compose_window(compWin);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -162,14 +159,14 @@ add_task(async function test_reply_fwd_to_evil_meta() {
   let reWin = await open_compose_with_reply(msgc);
   let reText = get_compose_body(reWin).textContent;
   Assert.ok(reText.includes(TXT), "re body should contain the text");
-  close_compose_window(reWin);
+  await close_compose_window(reWin);
 
   let fwdWin = await open_compose_with_forward(msgc);
   let fwdText = get_compose_body(fwdWin).textContent;
   Assert.ok(fwdText.includes(TXT), "fwd body should contain the text");
-  close_compose_window(fwdWin);
+  await close_compose_window(fwdWin);
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -189,6 +186,6 @@ add_task(async function test_forward_eml_catchall() {
 
   MailServices.accounts.defaultAccount.defaultIdentity.catchAll = false;
 
-  close_compose_window(replyWin); // close compose window
-  close_window(msgc); // close base .eml message
+  await close_compose_window(replyWin); // close compose window
+  await BrowserTestUtils.closeWindow(msgc); // close base .eml message
 });

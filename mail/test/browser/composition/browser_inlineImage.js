@@ -17,9 +17,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var gOutboxFolder;
 
@@ -75,9 +72,10 @@ add_task(async function test_send_inline_image() {
   // Ctrl+V = Paste
   EventUtils.synthesizeKey("v", { shiftKey: false, accelKey: true }, cwc);
 
-  plan_for_window_close(cwc);
+  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
   cwc.goDoCommand("cmd_sendLater");
-  wait_for_window_close();
+  await closePromise;
+  await SimpleTest.promiseFocus(window);
 
   await be_in_folder(gOutboxFolder);
   let msgLoaded = BrowserTestUtils.waitForEvent(

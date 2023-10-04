@@ -8,12 +8,9 @@ var { be_in_folder, create_folder, make_message_sets_in_folders } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
-var {
-  plan_for_new_window,
-  plan_for_window_close,
-  wait_for_new_window,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { promise_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 var { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
@@ -219,16 +216,21 @@ add_task(async function test_new_mail_received_causes_notification() {
  */
 add_task(async function test_dont_show_newmailalert() {
   setupTest();
-  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
 
-  // Wait for newmailalert.xhtml to show
-  plan_for_new_window("alert:alert");
-  try {
-    wait_for_new_window("alert:alert");
-    throw Error("Opened newmailalert.xhtml when we shouldn't have.");
-  } catch (e) {
-    // Correct behaviour - the window didn't show.
+  let windowOpened = false;
+  function observer(subject, topic, data) {
+    if (topic == "domwindowopened") {
+      windowOpened = true;
+    }
   }
+  Services.ww.registerNotification(observer);
+
+  await make_gradually_newer_sets_in_folder([gFolder], [{ count: 1 }]);
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  Services.ww.unregisterNotification(observer);
+  Assert.ok(!windowOpened, "newmailalert.xhtml should not open.");
 });
 
 /**
@@ -705,9 +707,9 @@ add_task(async function test_revert_to_newmailalert() {
   }
 
   // We expect the newmailalert.xhtml window...
-  plan_for_new_window("alert:alert");
+  const alertPromise = promise_new_window("alert:alert");
   await make_gradually_newer_sets_in_folder([gFolder], [{ count: 2 }]);
-  let win = wait_for_new_window("alert:alert");
-  plan_for_window_close(win);
-  wait_for_window_close();
+  let win = await alertPromise;
+  // The alert closes itself.
+  await BrowserTestUtils.domWindowClosed(win);
 });

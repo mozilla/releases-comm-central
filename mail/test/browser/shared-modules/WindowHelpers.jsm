@@ -6,21 +6,15 @@
 
 const EXPORTED_SYMBOLS = [
   "click_menus_in_sequence",
-  "close_popup_sequence",
   "click_through_appmenu",
-  "plan_for_new_window",
-  "wait_for_new_window",
-  "async_plan_for_new_window",
-  "plan_for_modal_dialog",
-  "wait_for_modal_dialog",
-  "plan_for_window_close",
-  "wait_for_window_close",
-  "close_window",
-  "wait_for_existing_window",
-  "wait_for_window_focused",
-  "wait_for_browser_load",
-  "wait_for_frame_load",
+  "close_popup_sequence",
+  "promise_modal_dialog",
+  "promise_new_window",
   "resize_to",
+  "wait_for_browser_load",
+  "wait_for_existing_window",
+  "wait_for_frame_load",
+  "wait_for_window_focused",
 ];
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
@@ -38,458 +32,14 @@ var EventUtils = ChromeUtils.import(
 );
 
 /**
- * Timeout to use when waiting for the first window ever to load.  This is
- *  long because we are basically waiting for the entire app startup process.
- */
-var FIRST_WINDOW_EVER_TIMEOUT_MS = 30000;
-/**
- * Interval to check if the window has shown up for the first window ever to
- *  load.  The check interval is longer because it's less likely the window
- *  is going to show up quickly and there is a cost to the check.
- */
-var FIRST_WINDOW_CHECK_INTERVAL_MS = 300;
-
-/**
- * Timeout for opening a window.
- */
-var WINDOW_OPEN_TIMEOUT_MS = 10000;
-/**
- * Check interval for opening a window.
- */
-var WINDOW_OPEN_CHECK_INTERVAL_MS = 100;
-
-/**
- * Timeout for closing a window.
- */
-var WINDOW_CLOSE_TIMEOUT_MS = 10000;
-/**
- * Check interval for closing a window.
- */
-var WINDOW_CLOSE_CHECK_INTERVAL_MS = 100;
-
-/**
  * Timeout for focusing a window.  Only really an issue on linux.
  */
 var WINDOW_FOCUS_TIMEOUT_MS = 10000;
 
-function getWindowTypeOrId(aWindowElem) {
-  let windowType = aWindowElem.getAttribute("windowtype");
-  // Ignore types that start with "prompt:". This prefix gets added in
-  // toolkit/components/prompts/src/CommonDialog.jsm since bug 1388238.
-  if (windowType && !windowType.startsWith("prompt:")) {
-    return windowType;
-  }
-
-  return aWindowElem.getAttribute("id");
+function getWindowTypeOrID(win) {
+  let docElement = win.document.documentElement;
+  return docElement.getAttribute("windowtype") || docElement.id;
 }
-
-/**
- * Return the "windowtype" or "id" for the given app window if it is available.
- * If not, return null.
- */
-function getWindowTypeForAppWindow(aAppWindow, aBusyOk) {
-  // Sometimes we are given HTML windows, for which the logic below will
-  //  bail.  So we use a fast-path here that should work for HTML and should
-  //  maybe also work with XUL.  I'm not going to go into it...
-  if (
-    aAppWindow.document &&
-    aAppWindow.document.documentElement &&
-    aAppWindow.document.documentElement.hasAttribute("windowtype")
-  ) {
-    return getWindowTypeOrId(aAppWindow.document.documentElement);
-  }
-
-  let docshell = aAppWindow.docShell;
-  // we need the docshell to exist...
-  if (!docshell) {
-    return null;
-  }
-
-  // we can't know if it's the right document until it's not busy
-  if (!aBusyOk && docshell.busyFlags) {
-    return null;
-  }
-
-  // it also needs to have content loaded (it starts out not busy with no
-  //  content viewer.)
-  if (docshell.contentViewer == null) {
-    return null;
-  }
-
-  // now we're cooking! let's get the document...
-  let outerDoc = docshell.contentViewer.DOMDocument;
-  // and make sure it's not blank.  that's also an intermediate state.
-  if (outerDoc.location.href == "about:blank") {
-    return null;
-  }
-
-  // finally, we can now have a windowtype!
-  let windowType = getWindowTypeOrId(outerDoc.documentElement);
-
-  if (windowType) {
-    return windowType;
-  }
-
-  // As a last resort, use the name given to the DOM window.
-  let domWindow = aAppWindow.docShell.domWindow;
-
-  return domWindow.name;
-}
-
-var WindowWatcher = {
-  _inited: false,
-  _firstWindowOpened: false,
-  ensureInited() {
-    if (this._inited) {
-      return;
-    }
-
-    // Add ourselves as an nsIWindowMediatorListener so we can here about when
-    //  windows get registered with the window mediator.  Because this
-    //  generally happens
-    // Another possible means of getting this info would be to observe
-    //  "xul-window-visible", but it provides no context and may still require
-    //  polling anyways.
-    Services.wm.addListener(this);
-
-    // Clean up any references to windows at the end of each test, and clean
-    // up the listeners/observers as the end of the session.
-    let observer = {
-      observe(subject, topic) {
-        WindowWatcher.monitoringList.length = 0;
-        WindowWatcher.waitingList.clear();
-        if (topic == "quit-application-granted") {
-          Services.wm.removeListener(this);
-          Services.obs.removeObserver(this, "test-complete");
-          Services.obs.removeObserver(this, "quit-application-granted");
-        }
-      },
-    };
-    Services.obs.addObserver(observer, "test-complete");
-    Services.obs.addObserver(observer, "quit-application-granted");
-
-    this._inited = true;
-  },
-
-  /**
-   * Track the windowtypes we are waiting on.  Keys are windowtypes.  When
-   *  watching for new windows, values are initially null, and are set to an
-   *  nsIAppWindow when we actually find the window.  When watching for closing
-   *  windows, values are nsIAppWindows.  This symmetry lets us have windows
-   *  that appear and dis-appear do so without dangerously confusing us (as
-   *  long as another one comes along...)
-   */
-  waitingList: new Map(),
-  /**
-   * Note that we will be looking for a window with the given window type
-   *  (ex: "mailnews:search").  This allows us to be ready if an event shows
-   *  up before waitForWindow is called.
-   */
-  planForWindowOpen(aWindowType) {
-    this.waitingList.set(aWindowType, null);
-  },
-
-  /**
-   * Like planForWindowOpen but we check for already-existing windows.
-   */
-  planForAlreadyOpenWindow(aWindowType) {
-    this.waitingList.set(aWindowType, null);
-    // We need to iterate over all the app windows and consider them all.
-    //  We can't pass the window type because the window might not have a
-    //  window type yet.
-    // because this iterates from old to new, this does the right thing in that
-    //  side-effects of consider will pick the most recent window.
-    for (let appWindow of Services.wm.getAppWindowEnumerator(null)) {
-      if (!this.consider(appWindow)) {
-        this.monitoringList.push(appWindow);
-      }
-    }
-  },
-
-  /**
-   * The current windowType we are waiting to open.  This is mainly a means of
-   *  communicating the desired window type to monitorize without having to
-   *  put the argument in the eval string.
-   */
-  waitingForOpen: null,
-
-  /**
-   * Wait for the given windowType to open and finish loading.
-   *
-   * @param {string} aWindowType - The expected window type.
-   * @returns {Window} The window.
-   */
-  waitForWindowOpen(aWindowType) {
-    this.waitingForOpen = aWindowType;
-    utils.waitFor(
-      () => this.monitorizeOpen(),
-      "Timed out waiting for window open!",
-      this._firstWindowOpened
-        ? WINDOW_OPEN_TIMEOUT_MS
-        : FIRST_WINDOW_EVER_TIMEOUT_MS,
-      this._firstWindowOpened
-        ? WINDOW_OPEN_CHECK_INTERVAL_MS
-        : FIRST_WINDOW_CHECK_INTERVAL_MS
-    );
-
-    this.waitingForOpen = null;
-    let appWindow = this.waitingList.get(aWindowType);
-    let domWindow = appWindow.docShell.domWindow;
-    this.waitingList.delete(aWindowType);
-    // spin the event loop to make sure any setTimeout 0 calls have gotten their
-    //  time in the sun.
-    utils.sleep(0);
-    this._firstWindowOpened = true;
-    return domWindow;
-  },
-
-  /**
-   * Because the modal dialog spins its own event loop, the mozmill idiom of
-   *  spinning your own event-loop as performed by waitFor is no good.  We use
-   *  this timer to generate our events so that we can have a waitFor
-   *  equivalent.
-   *
-   * We only have one timer right now because modal dialogs that spawn modal
-   *  dialogs are not tremendously likely.
-   */
-  _timer: null,
-  _timerRuntimeSoFar: 0,
-  /**
-   * The test function to run when the modal dialog opens.
-   */
-  subTestFunc: null,
-  planForModalDialog(aWindowType, aSubTestFunc) {
-    if (this._timer == null) {
-      this._timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-    }
-    this.waitingForOpen = aWindowType;
-    this.subTestFunc = aSubTestFunc;
-    this.waitingList.set(aWindowType, null);
-
-    this._timerRuntimeSoFar = 0;
-    this._timer.initWithCallback(
-      this,
-      WINDOW_OPEN_CHECK_INTERVAL_MS,
-      Ci.nsITimer.TYPE_REPEATING_SLACK
-    );
-  },
-
-  /**
-   * This is the nsITimer notification we receive...
-   */
-  notify() {
-    if (this.monitorizeOpen()) {
-      // okay, the window is opened, and we should be in its event loop now.
-      let appWindow = this.waitingList.get(this.waitingForOpen);
-      let domWindow = appWindow.docShell.domWindow;
-      let troller = domWindow;
-
-      this._timer.cancel();
-
-      let self = this;
-      async function startTest() {
-        self.planForWindowClose(troller);
-        try {
-          await self.subTestFunc(troller);
-        } finally {
-          self.subTestFunc = null;
-        }
-
-        // if the test failed, make sure we force the window closed...
-        // except I'm not sure how to easily figure that out...
-        // so just close it no matter what.
-        troller.close();
-        self.waitForWindowClose();
-
-        self.waitingList.delete(self.waitingForOpen);
-        // now we are waiting for it to close...
-        self.waitingForClose = self.waitingForOpen;
-        self.waitingForOpen = null;
-      }
-
-      let targetFocusedWindow = {};
-      Services.focus.getFocusedElementForWindow(
-        domWindow,
-        true,
-        targetFocusedWindow
-      );
-      targetFocusedWindow = targetFocusedWindow.value;
-
-      let focusedWindow = {};
-      if (Services.focus.activeWindow) {
-        Services.focus.getFocusedElementForWindow(
-          Services.focus.activeWindow,
-          true,
-          focusedWindow
-        );
-
-        focusedWindow = focusedWindow.value;
-      }
-
-      if (focusedWindow == targetFocusedWindow) {
-        startTest();
-      } else {
-        function onFocus(event) {
-          targetFocusedWindow.setTimeout(startTest, 0);
-        }
-        targetFocusedWindow.addEventListener("focus", onFocus, {
-          capture: true,
-          once: true,
-        });
-        targetFocusedWindow.focus();
-      }
-    }
-    // notify is only used for modal dialogs, which are never the first window,
-    //  so we can always just use this set of timeouts/intervals.
-    this._timerRuntimeSoFar += WINDOW_OPEN_CHECK_INTERVAL_MS;
-    if (this._timerRuntimeSoFar >= WINDOW_OPEN_TIMEOUT_MS) {
-      this._timer.cancel();
-      throw new Error("Timeout while waiting for modal dialog.\n");
-    }
-  },
-
-  /**
-   * Symmetry for planForModalDialog; conceptually provides the waiting.  In
-   *  reality, all we do is potentially soak up the event loop a little to
-   */
-  waitForModalDialog(aWindowType, aTimeout) {
-    // did the window already come and go?
-    if (this.subTestFunc == null) {
-      return;
-    }
-    // spin the event loop until we the window has come and gone.
-    utils.waitFor(
-      () => {
-        return this.waitingForOpen == null && this.monitorizeClose();
-      },
-      "Timeout waiting for modal dialog to open.",
-      aTimeout || WINDOW_OPEN_TIMEOUT_MS,
-      WINDOW_OPEN_CHECK_INTERVAL_MS
-    );
-    this.waitingForClose = null;
-  },
-
-  planForWindowClose(aAppWindow) {
-    let windowType = getWindowTypeOrId(aAppWindow.document.documentElement);
-    this.waitingList.set(windowType, aAppWindow);
-    this.waitingForClose = windowType;
-  },
-
-  /**
-   * The current windowType we are waiting to close.  Same deal as
-   *  waitingForOpen, this makes the eval less crazy.
-   */
-  waitingForClose: null,
-  waitForWindowClose() {
-    utils.waitFor(
-      () => this.monitorizeClose(),
-      "Timeout waiting for window to close!",
-      WINDOW_CLOSE_TIMEOUT_MS,
-      WINDOW_CLOSE_CHECK_INTERVAL_MS
-    );
-    let didDisappear = this.waitingList.get(this.waitingForClose) == null;
-    let windowType = this.waitingForClose;
-    this.waitingList.delete(windowType);
-    this.waitingForClose = null;
-    if (!didDisappear) {
-      throw new Error(windowType + " window did not disappear!");
-    }
-  },
-
-  /**
-   * Used by waitForWindowOpen to check all of the windows we are monitoring and
-   *  then check if we have any results.
-   *
-   * @returns true if we found what we were |waitingForOpen|, false otherwise.
-   */
-  monitorizeOpen() {
-    for (let iWin = this.monitoringList.length - 1; iWin >= 0; iWin--) {
-      let appWindow = this.monitoringList[iWin];
-      if (this.consider(appWindow)) {
-        this.monitoringList.splice(iWin, 1);
-      }
-    }
-
-    return (
-      this.waitingList.has(this.waitingForOpen) &&
-      this.waitingList.get(this.waitingForOpen) != null
-    );
-  },
-
-  /**
-   * Used by waitForWindowClose to check if the window we are waiting to close
-   *  actually closed yet.
-   *
-   * @returns true if it closed.
-   */
-  monitorizeClose() {
-    return this.waitingList.get(this.waitingForClose) == null;
-  },
-
-  /**
-   * A list of app windows to monitor because they are loading and it's not yet
-   *  possible to tell whether they are something we are looking for.
-   */
-  monitoringList: [],
-  /**
-   * Monitor the given window's loading process until we can determine whether
-   *  it is what we are looking for.
-   */
-  monitorWindowLoad(aAppWindow) {
-    this.monitoringList.push(aAppWindow);
-  },
-
-  /**
-   * nsIWindowMediatorListener notification that a app window was opened.  We
-   *  check out the window, and if we were not able to fully consider it, we
-   *  add it to our monitoring list.
-   */
-  onOpenWindow(aAppWindow) {
-    // note: we would love to add our window activation/deactivation listeners
-    //  and poke our unique id, but there is no contentViewer at this point
-    //  and so there's no place to poke our unique id.  (aAppWindow does not
-    //  let us put expandos on; it's an XPCWrappedNative and explodes.)
-    // There may be nuances about outer window/inner window that make it
-    //  feasible, but I have forgotten any such nuances I once knew.
-    if (!this.consider(aAppWindow)) {
-      this.monitorWindowLoad(aAppWindow);
-    }
-  },
-
-  /**
-   * Consider if the given window is something in our |waitingList|.
-   *
-   * @returns true if we were able to fully consider the object, false if we were
-   *     not and need to be called again on the window later.  This has no
-   *     relation to whether the window was one in our waitingList or not.
-   *     Check the waitingList structure for that.
-   */
-  consider(aAppWindow) {
-    let windowType = getWindowTypeForAppWindow(aAppWindow);
-    if (windowType == null) {
-      return false;
-    }
-
-    // stash the window if we were watching for it
-    if (this.waitingList.has(windowType)) {
-      this.waitingList.set(windowType, aAppWindow);
-    }
-
-    return true;
-  },
-
-  /**
-   * Closing windows have the advantage of having to already have been loaded,
-   *  so things like their windowtype are immediately available.
-   */
-  onCloseWindow(aAppWindow) {
-    let domWindow = aAppWindow.docShell.domWindow;
-    let windowType = getWindowTypeOrId(domWindow.document.documentElement);
-    if (this.waitingList.has(windowType)) {
-      this.waitingList.set(windowType, null);
-    }
-  },
-};
 
 /**
  * Call this if the window you want to get may already be open.  What we
@@ -502,49 +52,25 @@ var WindowWatcher = {
  * @returns {Window}
  */
 function wait_for_existing_window(aWindowType) {
-  WindowWatcher.ensureInited();
-  WindowWatcher.planForAlreadyOpenWindow(aWindowType);
-  return WindowWatcher.waitForWindowOpen(aWindowType);
+  return Services.wm.getMostRecentWindow(aWindowType);
 }
 
 /**
  * Call this just before you trigger the event that will cause a window to be
  *  displayed.
- * In theory, we don't need this and could just do a sweep of existing windows
- *  when you call wait_for_new_window, or we could always just keep track of
- *  the most recently seen window of each type, but this is arguably more
- *  resilient in the face of multiple windows of the same type as long as you
- *  don't try and open them all at the same time.
  *
  * @param {string} aWindowType - The window type that will be created. This is
  *   the value of the "windowtype" attribute on the window. The values tend to
  *   look like "app:windowname", for example "mailnews:search".
+ * @returns {Promise} A promise resolved when a window of the right type opens.
  */
-function plan_for_new_window(aWindowType) {
-  WindowWatcher.ensureInited();
-  WindowWatcher.planForWindowOpen(aWindowType);
-}
-
-/**
- * Wait for the loading of the given window type to complete (that you
- *  previously told us about via |plan_for_new_window|), returning it.
- *
- * @returns {Window}
- */
-function wait_for_new_window(aWindowType) {
-  return WindowWatcher.waitForWindowOpen(aWindowType);
-}
-
-async function async_plan_for_new_window(aWindowType) {
-  let domWindow = await BrowserTestUtils.domWindowOpened(null, async win => {
-    await BrowserTestUtils.waitForEvent(win, "load");
-    return (
-      win.document.documentElement.getAttribute("windowtype") == aWindowType
-    );
-  });
-
-  await new Promise(r => domWindow.setTimeout(r));
-  await new Promise(r => domWindow.setTimeout(r));
+async function promise_new_window(aWindowType) {
+  let domWindow = await BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    win => getWindowTypeOrID(win) == aWindowType
+  );
+  await new Promise(resolve => domWindow.setTimeout(resolve));
+  await new Promise(resolve => domWindow.setTimeout(resolve));
 
   return domWindow;
 }
@@ -562,49 +88,13 @@ async function async_plan_for_new_window(aWindowType) {
  *   once the modal dialog appears and is loaded. This function should take one
  *   argument, the modal dialog.
  */
-function plan_for_modal_dialog(aWindowType, aSubTestFunction) {
-  WindowWatcher.ensureInited();
-  WindowWatcher.planForModalDialog(aWindowType, aSubTestFunction);
-}
-/**
- * In case the dialog might be stuck for a long time, you can pass an optional
- *  timeout.
- *
- * @param aTimeout Your custom timeout (default is WINDOW_OPEN_TIMEOUT_MS)
- */
-function wait_for_modal_dialog(aWindowType, aTimeout) {
-  WindowWatcher.waitForModalDialog(aWindowType, aTimeout);
-}
-
-/**
- * Call this just before you trigger the event that will cause the provided
- *  window to disappear.  You then follow this with a call to
- *  |wait_for_window_close| when you want to block on verifying the close.
- *
- * @param {Window} win - The window which should be disappearing.
- */
-function plan_for_window_close(win) {
-  WindowWatcher.ensureInited();
-  WindowWatcher.planForWindowClose(win);
-}
-
-/**
- * Wait for the closure of the window you noted you would listen for its close
- *  in plan_for_window_close.
- */
-function wait_for_window_close() {
-  WindowWatcher.waitForWindowClose();
-}
-
-/**
- * Close a window by calling window.close().
- *
- * @param {Window} win - The window to be closed.
- */
-function close_window(win) {
-  plan_for_window_close(win);
-  win.close();
-  wait_for_window_close();
+async function promise_modal_dialog(aWindowType, aSubTestFunction) {
+  let domWindow = await BrowserTestUtils.domWindowOpenedAndLoaded(
+    null,
+    win => getWindowTypeOrID(win) == aWindowType
+  );
+  await aSubTestFunction(domWindow);
+  await BrowserTestUtils.windowClosed(domWindow);
 }
 
 /**

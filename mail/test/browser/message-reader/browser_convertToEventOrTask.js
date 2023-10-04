@@ -18,7 +18,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { click_menus_in_sequence, close_window } = ChromeUtils.import(
+var { click_menus_in_sequence } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -69,7 +69,7 @@ add_task(async function test_convertToEvent() {
       { label: "ConvertToEvent" },
     ]
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   let msg = select_click_row(0);
   assert_selected_and_displayed(window, msg);

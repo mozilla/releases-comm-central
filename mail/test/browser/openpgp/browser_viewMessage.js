@@ -24,8 +24,9 @@ const {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { async_plan_for_new_window, close_window, wait_for_window_focused } =
-  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+const { promise_new_window, wait_for_window_focused } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );
@@ -123,7 +124,7 @@ add_task(async function testOpenNoPGPSecurity() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -148,7 +149,7 @@ add_task(async function testOpenSignedByVerifiedUnencrypted() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -172,7 +173,7 @@ add_task(async function testOpenSignedDateMismatch() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -197,7 +198,7 @@ add_task(async function testOpenVerifiedUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -227,7 +228,7 @@ add_task(async function testOpenForwardedEncrypted() {
     "encrypted icon is not displayed"
   );
 
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentName"),
     { clickCount: 1 },
@@ -251,7 +252,7 @@ add_task(async function testOpenForwardedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage2.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(mc2);
+  await BrowserTestUtils.closeWindow(mc2);
 
   wait_for_window_focused(msgc);
 
@@ -265,7 +266,7 @@ add_task(async function testOpenForwardedEncrypted() {
     "encrypted icon is still not displayed"
   );
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 }).skip(); // TODO: broken functionality - bug 1837247
 
 /**
@@ -290,7 +291,7 @@ add_task(async function testOpenSignedByVerifiedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -319,7 +320,7 @@ add_task(async function testOpenSignedEncryptedMultiFrom() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon should be displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -344,7 +345,7 @@ add_task(async function testOpenSignedByUnverifiedUnencrypted() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -364,7 +365,7 @@ add_task(async function testOpenSignedWithOuterLayer() {
     OpenPGPTestUtils.hasNoSignedIconState(aboutMessage.document),
     "signed icon is not displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -389,7 +390,7 @@ add_task(async function testOpenUnverifiedUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -417,7 +418,7 @@ add_task(async function testOuterSmimeSigInnerSmimeUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 */
 
@@ -442,7 +443,7 @@ add_task(async function testOuterSmimeSigInnerPgpUnverifiedUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -470,7 +471,7 @@ add_task(async function testOuterPgpSigInnerSmimeUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 */
 
@@ -495,7 +496,7 @@ add_task(async function testOuterPgpSigInnerPgpUnverifiedUnsignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -521,7 +522,7 @@ add_task(async function testOuterPgpSigInnerPgpEncryptedInsideMixed() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -547,7 +548,7 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -575,7 +576,7 @@ add_task(async function testOuterSmimeSigInnerSmimeSignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 */
 
@@ -600,7 +601,7 @@ add_task(async function testOuterSmimeSigInnerPgpSignedByUnverifiedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -628,7 +629,7 @@ add_task(async function testOuterSmimeSigInnerPgpEncryptedInsideMixed() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -656,7 +657,7 @@ add_task(async function testOuterPgpSigInnerSmimeSignedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 */
 
@@ -681,7 +682,7 @@ add_task(async function testOuterPgpSigOpenSignedByUnverifiedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -764,7 +765,7 @@ add_task(async function testUpdateMessageSignature() {
       OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "unverified"),
     "signed unverified icon should be displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 // After test testUpdateMessageSignature acceptance of Bob's key
@@ -793,7 +794,7 @@ add_task(async function testOpenSignedInlineWithUTF8() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -819,7 +820,7 @@ add_task(async function testOpenSignedInlineWithLeadingWS() {
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is not displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -840,7 +841,7 @@ add_task(async function testDecryptInlineWithNBSPasQP() {
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "Encrypted icon should be displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -861,7 +862,7 @@ add_task(async function testDecryptHtmlWithNBSP() {
     () => OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "Encrypted icon should be displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -891,7 +892,7 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -923,7 +924,7 @@ add_task(async function testOpenEncryptedForRevokedKey() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   await OpenPGPTestUtils.removeKeyById("0xEF2FD01608AFD744", true);
 });
 

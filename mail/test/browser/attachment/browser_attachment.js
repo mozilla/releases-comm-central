@@ -33,12 +33,9 @@ var { SyntheticPartLeaf, SyntheticPartMultiMixed } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
-var {
-  async_plan_for_new_window,
-  close_window,
-  plan_for_modal_dialog,
-  wait_for_modal_dialog,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { promise_modal_dialog, promise_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var folder;
 var messages;
@@ -292,7 +289,7 @@ add_task(async function test_attached_message_attachments() {
   );
 
   // Open the attached email.
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   aboutMessage.document
     .getElementById("attachmentList")
     .getItemAtIndex(1)
@@ -304,7 +301,7 @@ add_task(async function test_attached_message_attachments() {
   // message: just an inner text attachment.
   Assert.equal(msgc.document.getElementById("attachmentList").itemCount, 1);
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 }).skip();
 
 add_task(async function test_attachment_name_click() {
@@ -323,13 +320,19 @@ add_task(async function test_attachment_name_click() {
 
   // Ensure the open dialog appears when clicking on the attachment name and
   // that the attachment list doesn't expand.
-  plan_for_modal_dialog("unknownContentTypeWindow", function () {});
+  const dialogPromise = promise_modal_dialog(
+    "unknownContentTypeWindow",
+    function (win) {
+      win.close();
+    }
+  );
   EventUtils.synthesizeMouseAtCenter(
     aboutMessage.document.getElementById("attachmentName"),
     { clickCount: 1 },
     aboutMessage
   );
-  wait_for_modal_dialog("unknownContentTypeWindow");
+  await dialogPromise;
+  await TestUtils.waitForTick();
   Assert.ok(
     attachmentList.collapsed,
     "Attachment list should not expand when clicking on attachmentName!"
@@ -712,7 +715,7 @@ add_task(async function test_attachments_compose_menu() {
     "Multiple attachments are selected!"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_delete_from_toolbar() {

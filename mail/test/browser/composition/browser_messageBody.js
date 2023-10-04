@@ -17,9 +17,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var gOutboxFolder;
 
@@ -40,9 +37,9 @@ add_task(async function test_invalid_data_uri() {
   );
 
   cwc.GetCurrentEditor().insertHTML("<a href=data:1>invalid data uri</a>");
-  plan_for_window_close(cwc);
+  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
   cwc.goDoCommand("cmd_sendLater");
-  wait_for_window_close();
+  await closePromise;
 
   await be_in_folder(gOutboxFolder);
   let msgLoaded = BrowserTestUtils.waitForEvent(
@@ -82,9 +79,9 @@ add_task(async function test_freeTextLink() {
     .insertHTML(
       `<a href="${link1}/">${link1}</a> <a href="mailto:${link2}">${link2}</a> <a href="${link3}">link3</a>`
     );
-  plan_for_window_close(cwc);
+  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
   cwc.goDoCommand("cmd_sendLater");
-  wait_for_window_close();
+  await closePromise;
 
   await be_in_folder(gOutboxFolder);
   let msgLoaded = BrowserTestUtils.waitForEvent(

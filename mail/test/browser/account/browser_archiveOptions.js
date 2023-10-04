@@ -10,7 +10,7 @@ var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
   );
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+var { promise_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -84,23 +84,27 @@ add_task(async function test_archive_options_enabled() {
 });
 
 async function subtest_initial_state(identity) {
-  plan_for_modal_dialog("archiveOptions", async function (ac) {
-    Assert.equal(
-      ac.document.getElementById("archiveGranularity").selectedIndex,
-      identity.archiveGranularity
-    );
-    Assert.equal(
-      ac.document.getElementById("archiveKeepFolderStructure").checked,
-      identity.archiveKeepFolderStructure
-    );
-  });
+  const dialogPromise = promise_modal_dialog(
+    "archiveOptions",
+    async function (ac) {
+      Assert.equal(
+        ac.document.getElementById("archiveGranularity").selectedIndex,
+        identity.archiveGranularity
+      );
+      Assert.equal(
+        ac.document.getElementById("archiveKeepFolderStructure").checked,
+        identity.archiveKeepFolderStructure
+      );
+      ac.close();
+    }
+  );
   window.openDialog(
     "chrome://messenger/content/am-archiveoptions.xhtml",
     "",
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     { identity }
   );
-  wait_for_modal_dialog("archiveOptions");
+  await dialogPromise;
 }
 
 add_task(async function test_open_archive_options() {
@@ -113,8 +117,8 @@ add_task(async function test_open_archive_options() {
   }
 });
 
-function subtest_save_state(identity, granularity, kfs) {
-  plan_for_modal_dialog("archiveOptions", function (ac) {
+async function subtest_save_state(identity, granularity, kfs) {
+  const dialogPromise = promise_modal_dialog("archiveOptions", function (ac) {
     ac.document.getElementById("archiveGranularity").selectedIndex =
       granularity;
     ac.document.getElementById("archiveKeepFolderStructure").checked = kfs;
@@ -127,13 +131,13 @@ function subtest_save_state(identity, granularity, kfs) {
     "centerscreen,chrome,modal,titlebar,resizable=yes",
     { identity }
   );
-  wait_for_modal_dialog("archiveOptions");
+  await dialogPromise;
 }
 
-add_task(function test_save_archive_options() {
+add_task(async function test_save_archive_options() {
   defaultIdentity.archiveGranularity = 0;
   defaultIdentity.archiveKeepFolderStructure = false;
-  subtest_save_state(defaultIdentity, 1, true);
+  await subtest_save_state(defaultIdentity, 1, true);
 
   Assert.equal(defaultIdentity.archiveGranularity, 1);
   Assert.equal(defaultIdentity.archiveKeepFolderStructure, true);

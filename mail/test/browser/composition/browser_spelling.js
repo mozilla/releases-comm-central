@@ -303,6 +303,6 @@ add_task(async function () {
 
   // Clean up.
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   hunspell.removeDirectory(dictionary);
 });

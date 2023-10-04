@@ -108,7 +108,7 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
     "Timeout waiting for warnEncryptedBccRecipients notification"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -196,7 +196,7 @@ add_task(async function testNotificationDismissal() {
     "notification should not reappear after dismissal"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -236,7 +236,7 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
     "warning should not show when encryption disabled"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -276,5 +276,5 @@ add_task(async function testNoWarningWhenBccRecipientIsSender() {
     "warning should not show when Bcc recipient is the sender"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

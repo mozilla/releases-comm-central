@@ -174,7 +174,7 @@ add_task(async function test_address_types() {
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
   let cwc = await open_compose_new_mail();
   check_mail_address_types(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   add_NNTP_account();
 
@@ -184,7 +184,7 @@ add_task(async function test_address_types() {
   cwc = await open_compose_new_mail();
   check_nntp_address_types(cwc);
   check_collapsed_pop_recipient(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Now try the same accounts but choosing them in the From dropdown
   // inside compose window.
@@ -217,7 +217,7 @@ add_task(async function test_address_types() {
   );
   check_nntp_address_types(cwc);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   remove_NNTP_account();
 
@@ -225,7 +225,7 @@ add_task(async function test_address_types() {
   await be_in_folder(accountPOP3.incomingServer.rootFolder);
   cwc = await open_compose_new_mail();
   check_mail_address_types(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_address_suppress_leading_comma_space() {
@@ -350,7 +350,7 @@ add_task(async function test_address_suppress_leading_comma_space() {
   // Assert that editing a pill has the same behaviour as the address input.
   await assertKeyInput(pillInput);
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_pill_creation_in_all_fields() {
@@ -560,7 +560,7 @@ add_task(async function test_pill_creation_in_all_fields() {
   );
   Assert.equal(cwc.document.activeElement, toInput);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_addressing_fields_shortcuts() {
@@ -616,7 +616,7 @@ add_task(async function test_addressing_fields_shortcuts() {
   // The Bcc input field should be currently focused.
   Assert.equal(cwc.document.activeElement, addrBccInput);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_pill_deletion_and_focus() {
@@ -660,7 +660,7 @@ add_task(async function test_pill_deletion_and_focus() {
     modifiers
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 function test_deletion_and_focus_on_input(cwc, input, addresses, modifiers) {

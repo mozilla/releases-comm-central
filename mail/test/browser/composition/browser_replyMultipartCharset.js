@@ -38,7 +38,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { click_menus_in_sequence, close_window } = ChromeUtils.import(
+var { click_menus_in_sequence } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -78,7 +78,7 @@ async function subtest_replyEditAsNewForward_charset(
       { label: "FolderWithMessages" },
     ]
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   let msg = select_click_row(0);
   if (aViewed) {
@@ -106,7 +106,7 @@ async function subtest_replyEditAsNewForward_charset(
   let charset =
     fwdWin.document.getElementById("messageEditor").contentDocument.charset;
   Assert.equal(charset, "UTF-8", "Compose window has the wrong charset");
-  close_compose_window(fwdWin);
+  await close_compose_window(fwdWin);
 
   press_delete(window);
 }

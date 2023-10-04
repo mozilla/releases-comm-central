@@ -90,7 +90,7 @@ add_task(async function test_font_family() {
     await formatHelper.emptyParagraph();
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_fixed_width() {
@@ -142,5 +142,5 @@ add_task(async function test_fixed_width() {
     "still produce monospace text"
   );
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });

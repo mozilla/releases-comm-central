@@ -96,7 +96,7 @@ add_task(async function testExpandListsOnTo() {
 
   setup_msg_contents(cwc, addresses, "Expand To Test", "");
   await testListExpansion(cwc, "toAddrContainer", addresses);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -112,7 +112,7 @@ add_task(async function testExpandListsInvalidPill() {
 
   setup_msg_contents(cwc, addresses, "Expand To Test Invalid Pill", "");
   await testListExpansion(cwc, "toAddrContainer", addresses);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -126,7 +126,7 @@ add_task(async function testExpandListsOnCc() {
   button.click();
   setup_msg_contents(cwc, addresses, "Expand Cc Test", "", "ccAddrInput");
   await testListExpansion(cwc, "ccAddrContainer", addresses);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -140,5 +140,5 @@ add_task(async function testExpandListsOnBcc() {
   button.click();
   setup_msg_contents(cwc, addresses, "Expand Bcc Test", "", "bccAddrInput");
   await testListExpansion(cwc, "bccAddrContainer", addresses);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

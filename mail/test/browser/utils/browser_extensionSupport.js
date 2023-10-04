@@ -9,12 +9,9 @@
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
-var {
-  plan_for_new_window,
-  plan_for_window_close,
-  wait_for_new_window,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { promise_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { ExtensionSupport } = ChromeUtils.import(
   "resource:///modules/ExtensionSupport.jsm"
@@ -114,7 +111,7 @@ add_task(async function test_windowListeners() {
 
   Assert.equal(addonCount("test-addon4", "load"), 1);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   Assert.equal(addonCount("test-addon1", "unload"), 1);
   Assert.equal(addonCount("test-addon2", "unload"), 1);
@@ -128,15 +125,15 @@ add_task(async function test_windowListeners() {
   Assert.equal(addonCount("test-addon2", "load"), 2);
   Assert.equal(addonCount("test-addon3", "load"), 1);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   Assert.equal(addonCount("test-addon1", "unload"), 2);
   Assert.equal(addonCount("test-addon2", "unload"), 2);
   Assert.equal(addonCount("test-addon3", "unload"), 0);
 
-  plan_for_new_window("Activity:Manager");
+  const activityManagerPromise = promise_new_window("Activity:Manager");
   window.openActivityMgr();
-  let amWin = wait_for_new_window("Activity:Manager");
+  let amWin = await activityManagerPromise;
 
   // Only Addon1 listens to any window.
   Assert.equal(addonCount("test-addon1", "load"), 5);
@@ -144,9 +141,8 @@ add_task(async function test_windowListeners() {
   Assert.equal(addonCount("test-addon3", "load"), 1);
   Assert.equal(addonCount("test-addon4", "load"), 1);
 
-  plan_for_window_close(amWin);
-  amWin.close();
-  wait_for_window_close(amWin);
+  await BrowserTestUtils.closeWindow(amWin);
+  await TestUtils.waitForTick();
 
   Assert.equal(addonCount("test-addon1", "unload"), 3);
   Assert.equal(addonCount("test-addon2", "unload"), 2);

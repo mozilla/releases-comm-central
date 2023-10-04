@@ -18,9 +18,6 @@ var { be_in_folder, get_special_folder, press_delete, select_click_row } =
 var { wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
-var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var gOutboxFolder;
 
@@ -114,9 +111,9 @@ add_task(async function test_paste_file_urls() {
   // For the non-existent (non-accessible!) image we should get a notification.
   wait_for_notification_to_show(cwc, kBoxId, kNotificationId);
 
-  plan_for_window_close(cwc);
+  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
   cwc.goDoCommand("cmd_sendLater");
-  wait_for_window_close();
+  await closePromise;
 
   await be_in_folder(gOutboxFolder);
   let outMsg = select_click_row(0);

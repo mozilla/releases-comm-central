@@ -17,9 +17,6 @@ const {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );
@@ -126,7 +123,7 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
 
     let replyWindowPromise = waitForComposeWindow();
     get_about_message(msgc).document.querySelector("#hdrReplyButton").click();
-    close_window(msgc);
+    await BrowserTestUtils.closeWindow(msgc);
 
     let replyWindow = await replyWindowPromise;
     await save_compose_message(replyWindow);

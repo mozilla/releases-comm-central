@@ -20,10 +20,6 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
-
 var folder = null;
 
 const SUBJECT0 = "How is the printing?";
@@ -106,5 +102,5 @@ add_task(async function test_named_page() {
     "preview should only include one page (and ignore the CSS named page)"
   );
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });

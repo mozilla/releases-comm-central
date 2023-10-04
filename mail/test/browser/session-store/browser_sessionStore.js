@@ -30,13 +30,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var {
-  close_window,
-  plan_for_new_window,
-  plan_for_window_close,
-  wait_for_new_window,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { promise_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { SessionStoreManager } = ChromeUtils.import(
   "resource:///modules/SessionStoreManager.jsm"
@@ -92,8 +88,8 @@ async function waitForFileRefresh() {
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 }
 
-function open3PaneWindow() {
-  plan_for_new_window("mail:3pane");
+async function open3PaneWindow() {
+  const newWindowPromise = promise_new_window("mail:3pane");
   Services.ww.openWindow(
     null,
     "chrome://messenger/content/messenger.xhtml",
@@ -101,13 +97,13 @@ function open3PaneWindow() {
     "all,chrome,dialog=no,status,toolbar",
     null
   );
-  return wait_for_new_window("mail:3pane");
+  return newWindowPromise;
 }
 
-function openActivityManager() {
-  plan_for_new_window("Activity:Manager");
+async function openActivityManager() {
+  const activityManagerPromise = promise_new_window("Activity:Manager");
   window.openActivityMgr();
-  return wait_for_new_window("Activity:Manager");
+  return activityManagerPromise;
 }
 
 /* :::::::: The Tests ::::::::::::::: */
@@ -216,7 +212,7 @@ async function test_restore_single_3pane_persistence() {
 
   // make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed
-  let amWin = openActivityManager();
+  let amWin = await openActivityManager();
 
   // close the 3pane window
   mail3PaneWindow.close();
@@ -224,7 +220,7 @@ async function test_restore_single_3pane_persistence() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
-  const mc2 = open3PaneWindow();
+  const mc2 = await open3PaneWindow();
   set_mc(mc2);
   await be_in_folder(folderA);
   assert_message_pane_hidden();
@@ -232,9 +228,9 @@ async function test_restore_single_3pane_persistence() {
   toggle_message_pane();
 
   // We don't need the address book window any more.
-  plan_for_window_close(amWin);
+  const closePromise = BrowserTestUtils.domWindowClosed(amWin);
   amWin.close();
-  wait_for_window_close();
+  await closePromise;
 }
 add_task(test_restore_single_3pane_persistence).skip(); // Bug 1753963.
 
@@ -288,7 +284,7 @@ add_task(async function test_message_pane_height_persistence() {
 
   // Make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed.
-  let amWin = openActivityManager();
+  let amWin = await openActivityManager();
 
   // The 3pane window is closed.
   mail3PaneWindow.close();
@@ -296,7 +292,7 @@ add_task(async function test_message_pane_height_persistence() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
-  const mc2 = open3PaneWindow();
+  const mc2 = await open3PaneWindow();
   set_mc(mc2);
   await be_in_folder(folderA);
   assert_message_pane_visible();
@@ -322,12 +318,12 @@ add_task(async function test_message_pane_height_persistence() {
   );
 
   // The 3pane window is closed.
-  close_window(window);
+  await BrowserTestUtils.closeWindow(window);
   // Wait for window close async session write to finish.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
-  const mc3 = open3PaneWindow();
+  const mc3 = await open3PaneWindow();
   set_mc(mc3);
   await be_in_folder(folderA);
   assert_message_pane_visible();
@@ -343,9 +339,9 @@ add_task(async function test_message_pane_height_persistence() {
   );
 
   // We don't need the address book window any more.
-  plan_for_window_close(amWin);
+  const closePromise = BrowserTestUtils.domWindowClosed(amWin);
   amWin.close();
-  wait_for_window_close();
+  await closePromise;
 }).skip(); // Bug 1753963.
 
 add_task(async function test_message_pane_width_persistence() {
@@ -404,7 +400,7 @@ add_task(async function test_message_pane_width_persistence() {
 
   // Make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed
-  let amWin = openActivityManager();
+  let amWin = await openActivityManager();
 
   // The 3pane window is closed.
   mail3PaneWindow.close();
@@ -412,7 +408,7 @@ add_task(async function test_message_pane_width_persistence() {
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
-  const mc2 = open3PaneWindow();
+  const mc2 = await open3PaneWindow();
   set_mc(mc2);
   await be_in_folder(folderA);
   assert_message_pane_visible();
@@ -448,12 +444,12 @@ add_task(async function test_message_pane_width_persistence() {
   oldWidth = actualWidth;
 
   // The 3pane window is closed.
-  close_window(mc2);
+  await BrowserTestUtils.closeWindow(mc2);
   // Wait for window close async session write to finish.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, asyncFileWriteDelayMS));
 
-  const mc3 = open3PaneWindow();
+  const mc3 = await open3PaneWindow();
   set_mc(mc3);
   await be_in_folder(folderA);
   assert_message_pane_visible();
@@ -474,15 +470,15 @@ add_task(async function test_message_pane_width_persistence() {
   assert_pane_layout(kClassicMailLayout);
 
   // We don't need the address book window any more.
-  plan_for_window_close(amWin);
+  const closePromise = BrowserTestUtils.domWindowClosed(amWin);
   amWin.close();
-  wait_for_window_close();
+  await closePromise;
 }).skip(); // Bug 1753963.
 
 add_task(async function test_multiple_3pane_periodic_session_persistence() {
   // open a few more 3pane windows
   for (var i = 0; i < 3; ++i) {
-    open3PaneWindow();
+    await open3PaneWindow();
   }
 
   // then get the state objects for each window
@@ -548,12 +544,12 @@ add_task(async function test_bad_session_file_simple() {
 add_task(async function test_clean_shutdown_session_persistence_simple() {
   // open a few more 3pane windows
   for (var i = 0; i < 3; ++i) {
-    open3PaneWindow();
+    await open3PaneWindow();
   }
 
   // make sure we have a different window open, so that we don't start shutting
   // down just because the last window was closed
-  let amWin = openActivityManager();
+  let amWin = await openActivityManager();
 
   // close all the 3pane windows
   let lastWindowState = null;
@@ -586,12 +582,12 @@ add_task(async function test_clean_shutdown_session_persistence_simple() {
     "saved state and loaded state should be equal"
   );
 
-  open3PaneWindow();
+  await open3PaneWindow();
 
   // We don't need the address book window any more.
-  plan_for_window_close(amWin);
+  const closePromise = BrowserTestUtils.domWindowClosed(amWin);
   amWin.close();
-  wait_for_window_close();
+  await closePromise;
 }).skip(); // Bug 1753963.
 
 /*

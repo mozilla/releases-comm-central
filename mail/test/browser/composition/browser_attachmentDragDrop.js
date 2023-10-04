@@ -204,7 +204,7 @@ add_task(async function test_image_file_drag() {
     "image"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -221,7 +221,7 @@ add_task(async function test_image_file_drag() {
     "inline"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -238,7 +238,7 @@ add_task(async function test_text_file_drag() {
     "text"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_message_drag() {
@@ -330,7 +330,7 @@ add_task(async function test_message_drag() {
 
   Services.prefs.clearUserPref("mail.forward_add_extension");
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   await be_in_folder(inboxFolder);
   folder.deleteSelf(null);
 });
@@ -368,7 +368,7 @@ add_task(async function test_link_drag() {
     "Attached link has correct URL"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -569,8 +569,8 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
     );
   }
 
-  close_compose_window(ctrlSrc);
-  close_compose_window(ctrlDest);
+  await close_compose_window(ctrlSrc);
+  await close_compose_window(ctrlDest);
 });
 
 /**
@@ -613,8 +613,8 @@ add_task(async function test_cloud_drag_and_drop_between_composition_windows() {
     );
   }
 
-  close_compose_window(ctrlSrc);
-  close_compose_window(ctrlDest);
+  await close_compose_window(ctrlSrc);
+  await close_compose_window(ctrlDest);
 });
 
 /**
@@ -656,7 +656,7 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
     ctrlDest.document.getElementById("attachmentBucket")
   );
 
-  close_compose_window(ctrlDest);
+  await close_compose_window(ctrlDest);
 });
 
 function collectFiles(files) {

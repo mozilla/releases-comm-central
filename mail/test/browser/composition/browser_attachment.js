@@ -27,7 +27,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+var { promise_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -200,7 +200,7 @@ add_task(async function test_file_attachment() {
   check_attachment_size(cwc, 0, size);
   check_total_attachment_size(cwc, 1);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_webpage_attachment() {
@@ -210,7 +210,7 @@ add_task(async function test_webpage_attachment() {
   check_no_attachment_size(cwc, 0);
   check_total_attachment_size(cwc, 1);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_multiple_attachments() {
@@ -227,7 +227,7 @@ add_task(async function test_multiple_attachments() {
   }
 
   check_total_attachment_size(cwc, files.length);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_delete_attachments() {
@@ -246,7 +246,7 @@ add_task(async function test_delete_attachments() {
   delete_attachment(cwc, 0);
   check_total_attachment_size(cwc, files.length - 1);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 function subtest_rename_attachment(cwc) {
@@ -266,16 +266,19 @@ add_task(async function test_rename_attachment() {
   let bucket = cwc.document.getElementById("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
   EventUtils.synthesizeMouseAtCenter(node, {}, node.ownerGlobal);
-  plan_for_modal_dialog("commonDialogWindow", subtest_rename_attachment);
+  const dialogPromise = promise_modal_dialog(
+    "commonDialogWindow",
+    subtest_rename_attachment
+  );
   cwc.RenameSelectedAttachment();
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
 
   Assert.equal(node.getAttribute("name"), "renamed.txt");
 
   check_attachment_size(cwc, 0, size);
   check_total_attachment_size(cwc, 1);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 function subtest_open_attachment(cwc) {
@@ -298,11 +301,14 @@ add_task(async function test_open_attachment() {
   // Now, open the attachment.
   let bucket = cwc.document.getElementById("attachmentBucket");
   let node = bucket.querySelector("richlistitem.attachmentItem");
-  plan_for_modal_dialog("unknownContentTypeWindow", subtest_open_attachment);
+  const dialogPromise = promise_modal_dialog(
+    "unknownContentTypeWindow",
+    subtest_open_attachment
+  );
   EventUtils.synthesizeMouseAtCenter(node, { clickCount: 2 }, node.ownerGlobal);
-  wait_for_modal_dialog("unknownContentTypeWindow");
+  await dialogPromise;
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_forward_raw_attachment() {
@@ -313,7 +319,7 @@ add_task(async function test_forward_raw_attachment() {
   check_attachment_size(cwc, 0, rawAttachment.length);
   check_total_attachment_size(cwc, 1);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_forward_b64_attachment() {
@@ -324,7 +330,7 @@ add_task(async function test_forward_b64_attachment() {
   check_attachment_size(cwc, 0, b64Size);
   check_total_attachment_size(cwc, 1);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_forward_message_as_attachment() {
@@ -335,7 +341,7 @@ add_task(async function test_forward_message_as_attachment() {
   check_attachment_size(cwc, 0, curMessage.messageSize);
   check_total_attachment_size(cwc, 1);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_forward_message_with_attachments_as_attachment() {
@@ -346,7 +352,7 @@ add_task(async function test_forward_message_with_attachments_as_attachment() {
   check_attachment_size(cwc, 0, curMessage.messageSize);
   check_total_attachment_size(cwc, 1);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -929,7 +935,7 @@ add_task(async function test_attachment_reordering() {
   // XXX When the root problem of bug 1425891 has been found and fixed, we should
   // test here if the panel stays open as it should, esp. on Windows.
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_restore_attachment_bucket_height() {
@@ -987,5 +993,5 @@ add_task(async function test_restore_attachment_bucket_height() {
   // The height of these elements should have been properly restored.
   Assert.equal(attachmentBucket.getBoundingClientRect().height, heightBefore);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

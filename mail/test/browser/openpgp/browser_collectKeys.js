@@ -11,9 +11,6 @@
 const { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );
@@ -108,7 +105,7 @@ add_task(async function testCollectKeyAttachment() {
   Assert.equal(source.uri, "mid:4a735c72-dc19-48ff-4fa5-2c1f65513b27@invalid");
   Assert.equal(source.description, "OpenPGP_0x1F10171BFB881B1C.asc");
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -152,7 +149,7 @@ add_task(async function testCollectAutocrypt() {
   );
   Assert.equal(source.description, undefined);
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -198,7 +195,7 @@ add_task(async function testSkipFakeOrUnrelatedKeys() {
   keys = await db.findKeysForEmail("bob@openpgp.example");
   Assert.equal(keys.length, 1, "bob's key should have been collected");
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -231,7 +228,7 @@ add_task(async function testSkipDuplicateKeys() {
     "the attached keys for eve should have been ignored"
   );
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 registerCleanupFunction(async function tearDown() {

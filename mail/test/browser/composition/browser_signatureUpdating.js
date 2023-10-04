@@ -158,7 +158,7 @@ async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
 
   Assert.equal(node.nodeValue, "Body, first line.");
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 }
 
 add_task(async function testPlaintextComposeWindowSwitchSignatures() {
@@ -250,7 +250,7 @@ async function HTMLComposeWindowSwitchSignatures(
   // check that that the signature is the last node.
   Assert.equal(node, contentFrame.contentDocument.body.lastChild);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 }
 
 add_task(async function testHTMLComposeWindowSwitchSignatures() {

@@ -18,7 +18,6 @@ var {
   assert_tab_mode_name,
   assert_tab_titled_from,
   be_in_folder,
-  close_message_window,
   close_tab,
   create_folder,
   get_about_3pane,
@@ -32,7 +31,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { async_plan_for_new_window } = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -152,7 +151,7 @@ async function test_open_message_without_backing_view_in_new_window() {
   // Select a message
   let msgHdr = msgHdrsInFolder[6];
 
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   // Open it
   MailUtils.displayMessage(msgHdr);
   let msgc = await newWindowPromise;
@@ -160,7 +159,7 @@ async function test_open_message_without_backing_view_in_new_window() {
 
   assert_selected_and_displayed(msgc, msgHdr);
   // Clean up, close the window
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   reset_open_message_behavior();
 }
 add_task(test_open_message_without_backing_view_in_new_window).skip(); // TODO
@@ -174,7 +173,7 @@ async function test_open_message_without_backing_view_in_existing_window() {
 
   // Open up a window
   let firstMsgHdr = msgHdrsInFolder[3];
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   MailUtils.displayMessage(firstMsgHdr);
   let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
@@ -188,7 +187,7 @@ async function test_open_message_without_backing_view_in_existing_window() {
   // Check if our old window displays the message
   assert_selected_and_displayed(msgc, msgHdr);
   // Clean up, close the window
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   reset_open_message_behavior();
 }
 add_task(test_open_message_without_backing_view_in_existing_window).skip(); // TODO

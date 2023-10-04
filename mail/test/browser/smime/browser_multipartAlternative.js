@@ -24,9 +24,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var gDrafts;
 
@@ -52,7 +49,7 @@ add_task(async function test_multipart_alternative() {
 
   let cwc = await open_compose_with_reply(msgc);
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   // Now save the message as a draft.
   EventUtils.synthesizeKey("s", { shiftKey: false, accelKey: true }, cwc);
@@ -60,7 +57,7 @@ add_task(async function test_multipart_alternative() {
     () => !cwc.gSaveOperationInProgress && !cwc.gWindowLock,
     "Saving of draft did not finish"
   );
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Now check the message content in the drafts folder.
   await be_in_folder(gDrafts);

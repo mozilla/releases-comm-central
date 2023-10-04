@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { plan_for_new_window } = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-var { close_compose_window, promise_compose_window } = ChromeUtils.import(
+var { close_compose_window, compose_window_ready } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
 var { be_in_folder } = ChromeUtils.import(
@@ -70,9 +70,9 @@ add_task(async function test_checkEncryptionState() {
   params.composeFields = fields;
 
   // Open a compose window.
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   MailServices.compose.OpenComposeWindowWithParams(null, params);
-  let cwc = await promise_compose_window();
+  let cwc = await compose_window_ready(composePromise);
 
   // Test gMsgCompose.compFields is intact.
   let compFields = cwc.gMsgCompose.compFields;
@@ -80,5 +80,5 @@ add_task(async function test_checkEncryptionState() {
   Assert.equal(compFields.cc, "cc1@local, cc2@local");
   Assert.equal(compFields.bcc, "bcc1@local, bcc2@local");
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

@@ -66,7 +66,7 @@ add_task(async function test_newline_p() {
     "After Shift+Enter and typing"
   );
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_newline_headers() {
@@ -125,7 +125,7 @@ add_task(async function test_newline_headers() {
     await formatHelper.deleteAll();
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_newline_pre_and_address() {
@@ -177,7 +177,7 @@ add_task(async function test_newline_pre_and_address() {
     await formatHelper.deleteAll();
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_newline_body() {
@@ -231,7 +231,7 @@ add_task(async function test_newline_body() {
     "After Enter (no Shift) in ${state} and typing"
   );
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 async function initialiseParagraphs(formatHelper) {
@@ -355,7 +355,7 @@ add_task(async function test_non_body_paragraph_state() {
     prevState = state;
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_body_paragraph_state() {
@@ -390,7 +390,7 @@ add_task(async function test_body_paragraph_state() {
     "body on all blocks"
   );
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_convert_from_body_paragraph_state() {
@@ -435,7 +435,7 @@ add_task(async function test_convert_from_body_paragraph_state() {
     await formatHelper.deleteAll();
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_heading_implies_bold() {
@@ -572,7 +572,7 @@ add_task(async function test_heading_implies_bold() {
     await formatHelper.emptyParagraph();
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_address_implies_italic() {
@@ -697,7 +697,7 @@ add_task(async function test_address_implies_italic() {
   // NOTE: Switching from "p" state to a heading state will *not* remove the
   // italic tags.
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_preformat_implies_fixed_width() {
@@ -884,5 +884,5 @@ add_task(async function test_preformat_implies_fixed_width() {
   // NOTE: Switching from "p" state to a heading state will *not* remove the
   // monospace font.
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });

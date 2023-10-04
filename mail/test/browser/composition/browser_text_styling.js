@@ -151,7 +151,7 @@ add_task(async function test_style_buttons() {
     await formatHelper.emptyParagraph();
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_multi_style_with_buttons() {
@@ -225,7 +225,7 @@ add_task(async function test_multi_style_with_buttons() {
     "Removed bold in middle"
   );
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_text_styling_whilst_typing() {
@@ -277,7 +277,7 @@ add_task(async function test_text_styling_whilst_typing() {
     await formatHelper.selectStyle(style);
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_text_styling_update_on_selection_change() {
@@ -339,7 +339,7 @@ add_task(async function test_text_styling_update_on_selection_change() {
     await formatHelper.selectStyle(style);
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_text_styling_on_selections() {
@@ -412,7 +412,7 @@ add_task(async function test_text_styling_on_selections() {
 
   formatHelper.assertMessageParagraph([fullText], "No style at end");
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_induced_text_styling() {
@@ -480,7 +480,7 @@ add_task(async function test_induced_text_styling() {
     await formatHelper.emptyParagraph();
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_fixed_width_text_styling_font_change() {
@@ -605,5 +605,5 @@ add_task(async function test_fixed_width_text_styling_font_change() {
     await formatHelper.emptyParagraph();
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });

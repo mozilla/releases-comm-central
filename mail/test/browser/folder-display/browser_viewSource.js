@@ -13,12 +13,9 @@ var { be_in_folder, create_folder, get_about_message, select_click_row } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
-var {
-  click_menus_in_sequence,
-  close_window,
-  plan_for_new_window,
-  wait_for_new_window,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { click_menus_in_sequence, promise_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var folder;
 
@@ -114,9 +111,9 @@ async function subtest(row, expectedDisplayed, expectedSource) {
     "UTF-8"
   );
 
-  plan_for_new_window("navigator:view-source");
+  const viewSourcePromise = promise_new_window("navigator:view-source");
   EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
-  let viewSourceWin = wait_for_new_window("navigator:view-source");
+  let viewSourceWin = await viewSourcePromise;
 
   utils.waitFor(
     () =>
@@ -214,5 +211,5 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   ]);
   contextMenu.hidePopup();
 
-  close_window(viewSourceWin);
+  await BrowserTestUtils.closeWindow(viewSourceWin);
 }

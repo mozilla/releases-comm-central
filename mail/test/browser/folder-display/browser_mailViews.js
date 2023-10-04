@@ -13,7 +13,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+var { promise_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -54,14 +54,14 @@ add_task(async function test_save_view_as_folder() {
   wait_for_all_messages_to_load();
 
   // - save it
-  plan_for_modal_dialog(
+  const dialogPromise = promise_modal_dialog(
     "mailnews:virtualFolderProperties",
     subtest_save_mail_view
   );
   // we have to use value here because the option mechanism is not sophisticated
   //  enough.
   window.ViewChange(MailViewConstants.kViewItemVirtual);
-  wait_for_modal_dialog("mailnews:virtualFolderProperties");
+  await dialogPromise;
 });
 
 function subtest_save_mail_view(savc) {

@@ -58,7 +58,7 @@ add_task(async function test_forwarded_subj() {
         headerTableText
     );
   }
-  close_compose_window(fwdWin);
+  await close_compose_window(fwdWin);
 
   Assert.report(
     false,

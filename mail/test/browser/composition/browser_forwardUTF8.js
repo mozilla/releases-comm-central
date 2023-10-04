@@ -21,7 +21,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { click_menus_in_sequence, close_window } = ChromeUtils.import(
+var { click_menus_in_sequence } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -65,8 +65,8 @@ async function forwardDirect(aFilePath) {
 
   check_content(cwc);
 
-  close_compose_window(cwc);
-  close_window(msgc);
+  await close_compose_window(cwc);
+  await BrowserTestUtils.closeWindow(msgc);
 }
 
 async function forwardViaFolder(aFilePath) {
@@ -93,7 +93,7 @@ async function forwardViaFolder(aFilePath) {
       { label: "FolderWithUTF8" },
     ]
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   let msg = select_click_row(0);
   assert_selected_and_displayed(window, msg);
@@ -108,7 +108,7 @@ async function forwardViaFolder(aFilePath) {
 
   check_content(fwdWin);
 
-  close_compose_window(fwdWin);
+  await close_compose_window(fwdWin);
 
   press_delete(window);
 }

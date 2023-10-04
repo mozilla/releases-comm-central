@@ -11,9 +11,6 @@
 var { open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 async function check_eml_window_title(subject, eml) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
@@ -34,7 +31,7 @@ async function check_eml_window_title(subject, eml) {
 
   await TestUtils.waitForCondition(() => msgc.document.title == expectedTitle);
   Assert.equal(msgc.document.title, expectedTitle);
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 }
 
 add_task(async function test_eml_empty_subject() {

@@ -289,12 +289,12 @@ add_task(async function testJsInMailReply() {
   // so execution doesn't go further from here.
   let editor = replyWin.document.getElementById("messageEditor");
   await SpecialPowers.spawn(editor, [], assertJSDisabledInEditor);
-  close_compose_window(replyWin);
+  await close_compose_window(replyWin);
 
   let fwdWin = await open_compose_with_forward();
   editor = fwdWin.document.getElementById("messageEditor");
   await SpecialPowers.spawn(editor, [], assertJSDisabledInEditor);
-  close_compose_window(fwdWin);
+  await close_compose_window(fwdWin);
 
   ++gMsgNo;
   select_none();

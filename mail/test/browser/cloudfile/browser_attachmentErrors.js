@@ -273,7 +273,7 @@ async function subtest_errors_during_upload(error) {
       "Alert should have the correct message."
     );
   }
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }
 
 /**
@@ -437,5 +437,5 @@ async function subtest_errors_during_rename(error) {
       "Alert should have the correct message."
     );
   }
-  close_compose_window(cw);
+  await close_compose_window(cw);
 }

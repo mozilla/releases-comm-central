@@ -11,9 +11,6 @@
 var { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 add_task(async function test_cp932_display() {
   let file = new FileUtils.File(getTestFilePath("data/charset-cp932.eml"));
@@ -33,5 +30,5 @@ add_task(async function test_cp932_display() {
     bodyText.includes("ここに本文がきます。"),
     "Decoded cp932 text not found in message body."
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });

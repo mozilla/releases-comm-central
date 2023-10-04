@@ -24,9 +24,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var gDrafts;
 
@@ -41,8 +38,8 @@ async function forwardDirect(aFilePath, aExpectedText) {
   let cwc = await open_compose_with_forward_as_attachments(msgc);
 
   await save_compose_message(cwc);
-  close_compose_window(cwc);
-  close_window(msgc);
+  await close_compose_window(cwc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   await be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);

@@ -98,7 +98,7 @@ add_task(async function test_font_size() {
     await formatHelper.emptyParagraph();
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });
 
 add_task(async function test_font_size_increment() {
@@ -329,5 +329,5 @@ add_task(async function test_font_size_increment() {
     }
   }
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });

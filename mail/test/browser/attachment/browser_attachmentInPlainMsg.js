@@ -7,9 +7,6 @@
 var { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 /**
  * Bug 1358565
@@ -45,7 +42,7 @@ add_task(async function test_attachment_not_empty() {
     "Attachment incorrectly determined empty"
   );
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   Services.prefs.clearUserPref("mailnews.display.prefer_plaintext");
 });

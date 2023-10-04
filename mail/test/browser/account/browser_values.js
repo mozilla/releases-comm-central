@@ -19,9 +19,6 @@ var { input_value } = ChromeUtils.import(
 var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -289,11 +286,11 @@ add_task(async function test_invalid_hostname() {
   );
   let origHostname = branch.getCharPref("hostname");
 
-  await open_advanced_settings(function (tab) {
-    subtest_check_invalid_hostname(tab, false, origHostname);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_invalid_hostname(tab, false, origHostname);
   });
-  await open_advanced_settings(function (tab) {
-    subtest_check_invalid_hostname(tab, true, origHostname);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_invalid_hostname(tab, true, origHostname);
   });
 
   // The new bad hostname should not have been saved.
@@ -308,7 +305,11 @@ add_task(async function test_invalid_hostname() {
  * @param {boolean} exitSettings - Attempt to close the Account settings dialog.
  * @param {string} originalHostname - Original hostname of this server.
  */
-function subtest_check_invalid_hostname(tab, exitSettings, originalHostname) {
+async function subtest_check_invalid_hostname(
+  tab,
+  exitSettings,
+  originalHostname
+) {
   let accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-server.xhtml",
@@ -337,12 +338,9 @@ function subtest_check_invalid_hostname(tab, exitSettings, originalHostname) {
     Assert.equal(hostname.value, originalHostname);
   } else {
     // If the hostname is bad, we should get a warning dialog.
-    plan_for_modal_dialog("commonDialogWindow", function (cdc) {
-      // Just dismiss it.
-      cdc.document.documentElement.querySelector("dialog").acceptDialog();
-    });
+    const dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
     tab.browser.contentWindow.onAccept(true);
-    wait_for_modal_dialog("commonDialogWindow");
+    await dialogPromise;
   }
 }
 

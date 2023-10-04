@@ -11,28 +11,28 @@
 
 var {
   close_compose_window,
+  compose_window_ready,
   get_compose_body,
   get_msg_source,
   open_compose_new_mail,
-  promise_compose_window,
   save_compose_message,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   be_in_folder,
-  get_special_folder,
   get_about_message,
+  get_special_folder,
   make_message_sets_in_folders,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { wait_for_notification_to_show, get_notification } = ChromeUtils.import(
+var { get_notification, wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 
-var { click_menus_in_sequence, close_popup_sequence, plan_for_new_window } =
+var { click_menus_in_sequence, close_popup_sequence, promise_new_window } =
   ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { MailServices } = ChromeUtils.import(
@@ -62,14 +62,14 @@ add_task(async function test_open_draft_again() {
   wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
   let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   // Click on the "Edit" button in the draft notification.
   EventUtils.synthesizeMouseAtCenter(
     box.buttonContainer.firstElementChild,
     {},
     aboutMessage
   );
-  let cwc = await promise_compose_window();
+  let cwc = await compose_window_ready(composePromise);
 
   let cwins = [...Services.wm.getEnumerator("msgcompose")].length;
 
@@ -98,7 +98,7 @@ add_task(async function test_open_draft_again() {
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hello!", cwc);
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
   select_click_row(0);
@@ -155,7 +155,7 @@ async function internal_check_delivery_format(editDraft) {
   }
 
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Open a new composition see if the menu is again at default value, not the one
   // chosen above.
@@ -163,7 +163,7 @@ async function internal_check_delivery_format(editDraft) {
 
   await assert_format_value("format_auto", Ci.nsIMsgCompSendFormat.Auto);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   await be_in_folder(draftsFolder);
   select_click_row(0);
@@ -172,7 +172,7 @@ async function internal_check_delivery_format(editDraft) {
   wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
   let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   if (editDraft) {
     // Trigger "edit draft".
     EventUtils.synthesizeMouseAtCenter(
@@ -184,12 +184,12 @@ async function internal_check_delivery_format(editDraft) {
     // Trigger "edit as new" resulting in template processing.
     EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true }, window);
   }
-  cwc = await promise_compose_window();
+  cwc = await compose_window_ready(composePromise);
 
   // Check if format value was restored.
   await assert_format_value("format_both", Ci.nsIMsgCompSendFormat.Both);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   press_delete(window); // clean up the created draft
 }
@@ -216,14 +216,14 @@ add_task(async function test_edit_as_new_in_draft() {
   // Wait for the notification with the Edit button.
   wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
 
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
-  let cwc = await promise_compose_window();
+  let cwc = await compose_window_ready(composePromise);
 
   cwc.document.getElementById("messageEditor").focus();
   EventUtils.sendString("Hello!", cwc);
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 2,
@@ -285,9 +285,9 @@ add_task(async function test_edit_draft_mime_from() {
   // Wait for the notification with the Edit button.
   wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
 
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
-  let cwc = await promise_compose_window();
+  let cwc = await compose_window_ready(composePromise);
 
   const msgIdentity = cwc.document.getElementById("msgIdentity");
   // Should show no quotes in the address.
@@ -303,7 +303,7 @@ add_task(async function test_edit_draft_mime_from() {
     "msgIdentity should not be editable since a draft identity email matches"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   // Clean up the created draft and count again.
   press_delete(window);
   Assert.equal(
@@ -327,7 +327,7 @@ add_task(async function test_content_language_header() {
   );
 
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 1,
@@ -368,7 +368,7 @@ add_task(async function test_content_language_header_suppression() {
   );
 
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 1,
@@ -411,7 +411,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
   );
 
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 1,
@@ -426,20 +426,20 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
   wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
   let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   // Click on the "Edit" button in the draft notification.
   EventUtils.synthesizeMouseAtCenter(
     box.buttonContainer.firstElementChild,
     {},
     aboutMessage
   );
-  cwc = await promise_compose_window();
+  cwc = await compose_window_ready(composePromise);
 
   let bodyText = get_compose_body(cwc).innerHTML;
   if (!bodyText.includes("NoSpace<br> OneSpace<br>  TwoSpaces")) {
     Assert.ok(false, "Something went wrong with space stuffing");
   }
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Clean up the created draft.
   press_delete(window);

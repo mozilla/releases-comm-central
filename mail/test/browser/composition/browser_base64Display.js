@@ -11,9 +11,6 @@
 var { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 add_task(async function test_base64_display() {
   let file = new FileUtils.File(
@@ -24,7 +21,7 @@ add_task(async function test_base64_display() {
   let bodyText = aboutMessage.document
     .getElementById("messagepane")
     .contentDocument.querySelector("body").textContent;
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   Assert.ok(
     bodyText.includes("abcdefghijklmnopqrstuvwxyz"),
@@ -39,7 +36,7 @@ add_task(async function test_base64_display2() {
   let bodyText = aboutMessage.document
     .getElementById("messagepane")
     .contentDocument.querySelector("body").textContent;
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   Assert.ok(
     bodyText.includes("abcdefghijklm"),

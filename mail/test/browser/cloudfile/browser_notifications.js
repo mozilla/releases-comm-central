@@ -143,7 +143,7 @@ add_task(async function test_no_notification_for_small_file() {
   add_attachments(cwc, "https://www.example.com/4", 500);
   assert_cloudfile_notification_displayed(cwc, false);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_notification_for_big_files() {
@@ -160,7 +160,7 @@ add_task(async function test_notification_for_big_files() {
   add_attachments(cwc, "https://www.example.com/4", maxSize + 100000);
   assert_cloudfile_notification_displayed(cwc, true);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_graduate_to_notification() {
@@ -174,7 +174,7 @@ add_task(async function test_graduate_to_notification() {
   add_attachments(cwc, "https://www.example.com/3", maxSize);
   assert_cloudfile_notification_displayed(cwc, true);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_no_notification_if_disabled() {
@@ -193,7 +193,7 @@ add_task(async function test_no_notification_if_disabled() {
   add_attachments(cwc, "https://www.example.com/4", maxSize + 100000);
   assert_cloudfile_notification_displayed(cwc, false);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   Services.prefs.setBoolPref("mail.cloud_files.enabled", true);
 });
 
@@ -220,7 +220,7 @@ add_task(async function test_link_insertion_notification_single() {
   assert_upload_notification_displayed(cwc, false);
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   gMockCloudfileManager.resolveUploads();
 });
 
@@ -251,7 +251,7 @@ add_task(async function test_link_insertion_notification_multiple() {
   assert_upload_notification_displayed(cwc, false);
   Services.prefs.setBoolPref(kInsertNotificationPref, true);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   gMockCloudfileManager.resolveUploads();
 });
 
@@ -275,7 +275,7 @@ add_task(async function test_link_insertion_goes_away_on_error() {
   gMockCloudfileManager.rejectUploads();
   wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   gMockPromptService.unregister();
 });
 
@@ -325,7 +325,7 @@ add_task(async function test_no_offer_on_conversion() {
   assert_cloudfile_notification_displayed(cw, false);
   assert_privacy_warning_notification_displayed(cw, false);
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 
   // Now put the old threshold back.
   Services.prefs.setIntPref(kOfferThreshold, maxSize);
@@ -381,7 +381,7 @@ add_task(async function test_offer_then_upload_notifications() {
   // And the upload notification should be displayed.
   assert_upload_notification_displayed(cw, true);
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 
   // Now put the old threshold back.
   Services.prefs.setIntPref(kOfferThreshold, maxSize);
@@ -421,7 +421,7 @@ add_task(async function test_privacy_warning_notification() {
   gMockCloudfileManager.resolveUploads();
   assert_privacy_warning_notification_displayed(cwc, false);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   gMockPromptService.unregister();
 });
 
@@ -456,7 +456,7 @@ add_task(async function test_privacy_warning_notification() {
   delete_attachment(cwc, 0);
   assert_privacy_warning_notification_displayed(cwc, false);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   gMockPromptService.unregister();
 });
 
@@ -484,7 +484,7 @@ add_task(async function test_privacy_warning_notification_no_persist() {
   assert_privacy_warning_notification_displayed(cwc, true);
 
   // Close the compose window
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Open a new compose window
   cwc = await open_compose_new_mail(window);
@@ -492,7 +492,7 @@ add_task(async function test_privacy_warning_notification_no_persist() {
   // We shouldn't be displaying the privacy warning.
   assert_privacy_warning_notification_displayed(cwc, false);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   gMockPromptService.unregister();
 });
 
@@ -522,7 +522,7 @@ add_task(async function test_privacy_warning_notification_open_after_close() {
   // Close the privacy warning notification...
   close_privacy_warning_notification(cwc);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Open a new compose window
   cwc = await open_compose_new_mail(window);
@@ -539,7 +539,7 @@ add_task(async function test_privacy_warning_notification_open_after_close() {
   // Assert that the privacy warning notification is displayed again.
   assert_privacy_warning_notification_displayed(cwc, true);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   gMockPromptService.unregister();
 
   Assert.report(

@@ -11,7 +11,6 @@
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   be_in_folder,
-  close_message_window,
   create_folder,
   inboxFolder,
   make_message_sets_in_folders,
@@ -100,7 +99,7 @@ add_task(async function test_autohidden_menubar_message_window() {
   let menubar = msgc.document.getElementById("toolbar-menubar");
 
   await help_test_autohide(msgc, menubar);
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 registerCleanupFunction(async function () {

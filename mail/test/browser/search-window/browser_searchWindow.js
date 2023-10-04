@@ -16,7 +16,6 @@ var {
   assert_tab_mode_name,
   assert_tab_titled_from,
   be_in_folder,
-  close_message_window,
   close_tab,
   create_folder,
   make_message_sets_in_folders,
@@ -40,13 +39,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/SearchWindowHelpers.jsm"
 );
-var {
-  plan_for_modal_dialog,
-  async_plan_for_new_window,
-  plan_for_window_close,
-  wait_for_modal_dialog,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { promise_modal_dialog, promise_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var folder, setFooBar;
 
@@ -77,7 +72,7 @@ add_task(async function test_show_search_window() {
   // put us in the folder we care about so it defaults to that
   await be_in_folder(folder);
 
-  swc = open_search_window();
+  swc = await open_search_window();
   assert_search_window_folder_displayed(swc, folder);
 });
 
@@ -128,7 +123,7 @@ add_task(function test_enter_some_stuff() {
 /**
  * Trigger the search, make sure the right results show up.
  */
-add_task(function test_go_search() {
+add_task(async function test_go_search() {
   // - Trigger the search
   // The "Search" button has id "search-button"
   EventUtils.synthesizeMouseAtCenter(
@@ -145,7 +140,7 @@ add_task(function test_go_search() {
   // This will create a virtual folder properties dialog...
   // (label: "New Saved Search Folder", source: virtualFolderProperties.xhtml
   //  no windowtype, id: "virtualFolderPropertiesDialog")
-  plan_for_modal_dialog(
+  const dialogPromise = promise_modal_dialog(
     "mailnews:virtualFolderProperties",
     subtest_save_search
   );
@@ -154,7 +149,7 @@ add_task(function test_go_search() {
     {},
     swc.document.getElementById("saveAsVFButton").ownerGlobal
   );
-  wait_for_modal_dialog("mailnews:virtualFolderProperties");
+  await dialogPromise;
 });
 
 /**
@@ -242,7 +237,7 @@ add_task(async function test_open_search_result_in_new_window() {
   swc.document.getElementById("threadTree").focus();
   let msgHdr = select_click_search_row(1, swc);
 
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   // Open it
   open_selected_message(swc);
   let msgc = await newWindowPromise;
@@ -250,7 +245,7 @@ add_task(async function test_open_search_result_in_new_window() {
 
   assert_selected_and_displayed(msgc, msgHdr);
   // Clean up, close the window
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   reset_open_message_behavior();
 });
 
@@ -264,7 +259,7 @@ add_task(async function test_open_search_result_in_existing_window() {
   // Open up a window
   swc.document.getElementById("threadTree").focus();
   select_click_search_row(1, swc);
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   open_selected_message(swc);
   let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
@@ -278,7 +273,7 @@ add_task(async function test_open_search_result_in_existing_window() {
   // Check if our old window displays the message
   assert_selected_and_displayed(msgc, msgHdr);
   // Clean up, close the window
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   reset_open_message_behavior();
 });
 
@@ -318,17 +313,16 @@ function subtest_save_search(savc) {
   EventUtils.sendString("SearchSaved", savc);
 
   // - save it!
-  // this will close the dialog, which wait_for_modal_dialog is making sure
-  //  happens.
+  // This will close the dialog, which we're waiting for.
   savc.document.querySelector("dialog").acceptDialog();
 }
 
-add_task(function test_close_search_window() {
+add_task(async function test_close_search_window() {
   swc.focus();
   // now close the search window
-  plan_for_window_close(swc);
+  const closePromise = BrowserTestUtils.domWindowClosed(swc);
   EventUtils.synthesizeKey("VK_ESCAPE", {}, swc);
-  wait_for_window_close(swc);
+  await closePromise;
   swc = null;
 });
 

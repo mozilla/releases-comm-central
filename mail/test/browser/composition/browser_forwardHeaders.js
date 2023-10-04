@@ -31,9 +31,6 @@ var {
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
-var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var folder;
 var gDrafts;
@@ -65,13 +62,13 @@ async function forward_selected_messages_and_go_to_drafts_folder(callback) {
   let mailBody = get_compose_body(cwc);
   assert_previous_text(mailBody.firstChild, [kText]);
 
-  plan_for_window_close(cwc);
+  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   // quit -> do you want to save ?
   cwc.goDoCommand("cmd_close");
   await dialogPromise;
   // Actually quit the window.
-  wait_for_window_close();
+  await closePromise;
 
   // Visit the existing Drafts folder.
   await be_in_folder(gDrafts);

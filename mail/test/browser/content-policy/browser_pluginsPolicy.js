@@ -17,7 +17,6 @@ var {
   assert_nothing_selected,
   assert_selected_and_displayed,
   be_in_folder,
-  close_message_window,
   create_folder,
   get_about_message,
   open_selected_message,
@@ -28,7 +27,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { async_plan_for_new_window } = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -143,7 +142,7 @@ async function addMsgToFolderAndCheckContent(loadAllowed) {
 }
 
 async function checkStandaloneMessageWindow(loadAllowed) {
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   // Open it
   set_open_message_behavior("NEW_WINDOW");
 
@@ -171,7 +170,7 @@ async function checkStandaloneMessageWindow(loadAllowed) {
   }
 
   // Clean up, close the window
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 }
 
 add_task(async function test_3paneWindowDenied() {

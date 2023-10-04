@@ -10,8 +10,8 @@
 
 var {
   close_compose_window,
+  compose_window_ready,
   open_compose_new_mail,
-  promise_compose_window,
   save_compose_message,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
@@ -30,7 +30,7 @@ var {
 var { get_notification, wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
-var { plan_for_new_window } = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 var { MockFilePicker } = SpecialPowers;
@@ -67,7 +67,7 @@ add_task(async function test_draft_with_cloudFile_attachment() {
   let draft = await createAndCloseDraftWithCloudAttachment(cloudFileAccount);
   let expectedUpload = { ...draft.upload };
 
-  let cwc = openDraft();
+  let cwc = await openDraft();
 
   let bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
@@ -132,7 +132,7 @@ add_task(async function test_draft_with_cloudFile_attachment() {
     "Converting a restored cloudFile attachment to a regular attachment should succeed."
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Delete the leftover draft message.
   press_delete();
@@ -164,7 +164,7 @@ add_task(async function test_draft_with_unknown_cloudFile_attachment() {
   id1.serviceName = "wrongService";
   cloudFileAccount._uploads.set(1, id1);
 
-  let cwc = openDraft();
+  let cwc = await openDraft();
 
   let bucket = cwc.document.getElementById("attachmentBucket");
   Assert.equal(
@@ -230,7 +230,7 @@ add_task(async function test_draft_with_unknown_cloudFile_attachment() {
     "Converting an unknown cloudFile attachment to a regular attachment should succeed."
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Delete the leftover draft message.
   press_delete();
@@ -260,7 +260,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_account() {
   // Remove account.
   await gCloudFileProvider.removeAccount(cloudFileAccount);
 
-  let cwc = openDraft();
+  let cwc = await openDraft();
 
   // Check that the draft has a cloudFile attachment.
   let bucket = cwc.document.getElementById("attachmentBucket");
@@ -326,7 +326,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_account() {
     "Converting a restored cloudFile attachment (without account) to a regular attachment should succeed."
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Delete the leftover draft message.
   press_delete();
@@ -356,7 +356,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
   // Remove local file of cloudFile attachment.
   await IOUtils.remove(tempFile.path);
 
-  let cwc = openDraft();
+  let cwc = await openDraft();
 
   // Check that the draft has a cloudFile attachment.
   let bucket = cwc.document.getElementById("attachmentBucket");
@@ -448,7 +448,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
     "Converting a restored cloudFile attachment (without local file) to a regular attachment should not succeed."
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Delete the leftover draft message.
   press_delete();
@@ -507,7 +507,7 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
 
   // Now close the message with saving it as draft.
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
   await be_in_folder(gDrafts);
@@ -515,7 +515,7 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   return { upload, url, itemIcon, itemSize, totalSize };
 }
 
-function openDraft() {
+async function openDraft() {
   select_click_row(0);
   let aboutMessage = get_about_message();
   // Wait for the notification with the Edit button.
@@ -525,7 +525,7 @@ function openDraft() {
     "draftMsgContent"
   );
   // Edit the draft again...
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   let box = get_notification(
     aboutMessage,
     "mail-notification-top",
@@ -537,7 +537,7 @@ function openDraft() {
     {},
     aboutMessage
   );
-  return promise_compose_window();
+  return compose_window_ready(composePromise);
 }
 
 function collectFiles(files) {

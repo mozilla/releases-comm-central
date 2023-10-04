@@ -12,9 +12,6 @@
 const { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
@@ -111,7 +108,7 @@ add_task(async function testOpenVerifiedUnsignedEncrypted2() {
     OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),
     "encrypted icon is displayed"
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 registerCleanupFunction(async function tearDown() {

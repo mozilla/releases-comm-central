@@ -11,15 +11,15 @@
 var {
   add_attachments,
   close_compose_window,
+  compose_window_ready,
   open_compose_new_mail,
-  promise_compose_window,
   save_compose_message,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   be_in_folder,
-  get_special_folder,
   get_about_message,
+  get_special_folder,
   press_delete,
   select_click_row,
 } = ChromeUtils.import(
@@ -31,8 +31,8 @@ var { delete_all_existing } = ChromeUtils.import(
 var {
   assert_notification_displayed,
   check_notification_displayed,
-  get_notification_button,
   get_notification,
+  get_notification_button,
   wait_for_notification_to_show,
   wait_for_notification_to_stop,
 } = ChromeUtils.import(
@@ -40,11 +40,8 @@ var {
 );
 var {
   click_menus_in_sequence,
-  plan_for_modal_dialog,
-  plan_for_new_window,
-  plan_for_window_close,
-  wait_for_modal_dialog,
-  wait_for_window_close,
+  promise_modal_dialog,
+  promise_new_window,
   wait_for_window_focused,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
@@ -195,7 +192,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   // After confirming the reminder the menuitem should get disabled.
   assert_manual_reminder_state(cwc, false);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -236,9 +233,9 @@ add_task(async function test_attachment_reminder_dismissal() {
   notification.close();
   assert_automatic_reminder_state(cwc, false);
 
-  click_send_and_handle_send_error(cwc);
+  await click_send_and_handle_send_error(cwc);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -287,7 +284,7 @@ add_task(async function test_attachment_reminder_with_attachment() {
   await wait_for_reminder_state(cwc, true);
   Assert.equal(get_reminder_keywords(cwc), "attachment, attached");
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -310,9 +307,9 @@ add_task(async function test_attachment_reminder_aggressive_pref() {
   );
 
   await wait_for_reminder_state(cwc, true);
-  click_send_and_handle_send_error(cwc);
+  await click_send_and_handle_send_error(cwc);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Now reset the pref back to original value.
   if (Services.prefs.prefHasUserValue(kPref)) {
@@ -344,10 +341,10 @@ add_task(async function test_no_send_now_sends() {
   await new Promise(resolve => setTimeout(resolve));
 
   // After clicking "Send Now" sending is proceeding, just handle the error.
-  click_send_and_handle_send_error(cwc, true);
+  await click_send_and_handle_send_error(cwc, true);
 
   // We're now back in the compose window, let's close it then.
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -398,9 +395,12 @@ add_task(async function test_manual_attachment_reminder() {
   assert_automatic_reminder_state(cwc, false);
 
   // Now close the message with saving it as draft.
-  plan_for_modal_dialog("commonDialogWindow", click_save_message);
+  let dialogPromise = promise_modal_dialog(
+    "commonDialogWindow",
+    click_save_message
+  );
   cwc.goDoCommand("cmd_close");
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
 
   // Open another blank compose window.
   cwc = await open_compose_new_mail();
@@ -409,7 +409,7 @@ add_task(async function test_manual_attachment_reminder() {
   // There should be no attachment notification.
   assert_automatic_reminder_state(cwc, false);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
   await be_in_folder(gDrafts);
@@ -422,7 +422,7 @@ add_task(async function test_manual_attachment_reminder() {
     "draftMsgContent"
   );
   // Edit the draft again...
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   let box = get_notification(
     aboutMessage,
     "mail-notification-top",
@@ -434,7 +434,7 @@ add_task(async function test_manual_attachment_reminder() {
     {},
     aboutMessage
   );
-  cwc = await promise_compose_window();
+  cwc = await compose_window_ready(composePromise);
 
   // Check the reminder enablement was preserved in the message.
   assert_manual_reminder_state(cwc, true);
@@ -443,7 +443,7 @@ add_task(async function test_manual_attachment_reminder() {
 
   // Now try to send, make sure we get the alert.
   // Click the "Oh, I Did!" button in the attachment reminder dialog.
-  let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
+  dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   let buttonSend = cwc.document.getElementById("button-send");
   EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   await dialogPromise;
@@ -459,9 +459,9 @@ add_task(async function test_manual_attachment_reminder() {
   await click_manual_reminder(cwc, false);
 
   // Now try to send again, there should be no more alert.
-  click_send_and_handle_send_error(cwc);
+  await click_send_and_handle_send_error(cwc);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Delete the leftover draft message.
   press_delete();
@@ -518,7 +518,7 @@ add_task(
     await wait_for_reminder_state(cwc, true);
     Assert.equal(get_reminder_keywords(cwc), "attachment, attached");
 
-    close_compose_window(cwc);
+    await close_compose_window(cwc);
   }
 );
 
@@ -564,8 +564,8 @@ add_task(async function test_attachment_vs_filelink_reminder() {
   wait_for_notification_to_show(cwc, kBoxId, "bigAttachment");
   assert_automatic_reminder_state(cwc, false);
 
-  click_send_and_handle_send_error(cwc);
-  close_compose_window(cwc);
+  await click_send_and_handle_send_error(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -598,7 +598,7 @@ add_task(async function test_attachment_reminder_in_subject() {
   // Give the notification time to disappear.
   await wait_for_reminder_state(cwc, false);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -634,7 +634,7 @@ add_task(async function test_attachment_reminder_in_subject_and_body() {
   await wait_for_reminder_state(cwc, true, true);
   Assert.equal(get_reminder_keywords(cwc), "attached");
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -675,9 +675,9 @@ add_task(async function test_disabled_attachment_reminder() {
   assert_automatic_reminder_state(cwc, false);
 
   // There should be no attachment message upon send.
-  click_send_and_handle_send_error(cwc);
+  await click_send_and_handle_send_error(cwc);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   Services.prefs.setBoolPref(kReminderPref, true);
 });
@@ -710,7 +710,7 @@ add_task(async function test_reminder_in_draft() {
 
   // Now close the message with saving it as draft.
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
   await be_in_folder(gDrafts);
@@ -723,7 +723,7 @@ add_task(async function test_reminder_in_draft() {
     "draftMsgContent"
   );
   // Edit the draft again...
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   let box = get_notification(
     aboutMessage,
     "mail-notification-top",
@@ -735,12 +735,12 @@ add_task(async function test_reminder_in_draft() {
     {},
     aboutMessage
   );
-  cwc = await promise_compose_window();
+  cwc = await compose_window_ready(composePromise);
 
   // Give the notification time to appear.
   await wait_for_reminder_state(cwc, true);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Delete the leftover draft message.
   press_delete();
@@ -812,9 +812,9 @@ add_task(async function test_disabling_attachment_reminder() {
   await wait_for_reminder_state(cwc, false);
 
   // Now send the message.
-  plan_for_window_close(cwc);
+  const closePromise = BrowserTestUtils.domWindowClosed(cwc);
   cwc.goDoCommand("cmd_sendLater");
-  wait_for_window_close();
+  await closePromise;
 
   // There should be no alert so it is saved in Outbox.
   await be_in_folder(gOutbox);
@@ -836,13 +836,17 @@ add_task(async function test_disabling_attachment_reminder() {
  * @param {boolean} aAlreadySending - Set this to true if sending was already
  *   triggered by other means.
  */
-function click_send_and_handle_send_error(aWin, aAlreadySending) {
-  plan_for_modal_dialog("commonDialogWindow", click_ok_on_send_error);
+async function click_send_and_handle_send_error(aWin, aAlreadySending) {
+  const dialogPromise = promise_modal_dialog(
+    "commonDialogWindow",
+    click_ok_on_send_error
+  );
   if (!aAlreadySending) {
     let buttonSend = aWin.document.getElementById("button-send");
     EventUtils.synthesizeMouseAtCenter(buttonSend, {}, buttonSend.ownerGlobal);
   }
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
+  await TestUtils.waitForTick();
 }
 
 /**

@@ -115,7 +115,7 @@ add_task(async function test_upload_cancel_repeat() {
     );
   }
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });
 
 /**
@@ -164,7 +164,7 @@ add_task(async function test_upload_multiple_and_cancel() {
     "Should find correct number of attachments after uploading."
   );
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });
 
 /**
@@ -370,7 +370,7 @@ add_task(async function test_error_upload() {
     0,
     3
   );
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });
 
 /**
@@ -379,7 +379,7 @@ add_task(async function test_error_upload() {
 add_task(async function test_successful_upload() {
   let cw = await open_compose_new_mail();
   await test_upload(cw, null, 3, 0);
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });
 
 /**
@@ -452,5 +452,5 @@ add_task(async function test_error_conversion() {
     );
   }
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });

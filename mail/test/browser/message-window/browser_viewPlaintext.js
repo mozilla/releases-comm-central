@@ -11,9 +11,6 @@
 var { open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 /**
  * Retrieve the textual content of the message and compare it.
@@ -66,14 +63,14 @@ async function checkSingleMessage(
   Services.prefs.setIntPref("mailnews.display.html_as", 1);
   let msgc = await open_message_from_file(file);
   check_content(msgc, aExpectedPlainText, aExpectedHTML);
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   // Load and display as HTML.
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
   Services.prefs.setIntPref("mailnews.display.html_as", 0);
   msgc = await open_message_from_file(file);
   check_content(msgc, aExpectedHTML, aExpectedPlainText);
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 }
 
 /**

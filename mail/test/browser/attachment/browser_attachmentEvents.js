@@ -69,7 +69,7 @@ add_task(async function test_attachments_added_on_single() {
   cw.document
     .getElementById("attachmentBucket")
     .removeEventListener(kAttachmentsAdded, listener);
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });
 
 /**
@@ -113,7 +113,7 @@ add_task(async function test_attachments_added_on_multiple() {
   cw.document
     .getElementById("attachmentBucket")
     .removeEventListener(kAttachmentsAdded, listener);
-  close_compose_window(cw);
+  await close_compose_window(cw);
 
   attachmentUrls = [
     "http://www.example.com/1",
@@ -147,7 +147,7 @@ add_task(async function test_attachments_added_on_multiple() {
   cw.document
     .getElementById("attachmentBucket")
     .removeEventListener(kAttachmentsAdded, listener);
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });
 
 /**
@@ -198,7 +198,7 @@ add_task(async function test_attachments_removed_on_single() {
   cw.document
     .getElementById("attachmentBucket")
     .removeEventListener(kAttachmentsRemoved, listener);
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });
 
 /**
@@ -257,7 +257,7 @@ add_task(async function test_attachments_removed_on_multiple() {
   cw.document
     .getElementById("attachmentBucket")
     .removeEventListener(kAttachmentsRemoved, listener);
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });
 
 /**
@@ -293,7 +293,7 @@ add_task(async function test_no_attachments_removed_on_none() {
     .getElementById("attachmentBucket")
     .removeEventListener(kAttachmentsRemoved, listener);
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });
 
 /**
@@ -400,7 +400,7 @@ add_task(async function test_attachment_renamed() {
     .getElementById("attachmentBucket")
     .removeEventListener(kAttachmentRenamed, listener);
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
   gMockPromptService.unregister();
 });
 
@@ -443,7 +443,7 @@ add_task(async function test_no_attachment_renamed_on_blank() {
   cw.document
     .getElementById("attachmentBucket")
     .removeEventListener(kAttachmentRenamed, listener);
-  close_compose_window(cw);
+  await close_compose_window(cw);
   gMockPromptService.unregister();
 });
 
@@ -481,7 +481,7 @@ add_task(async function test_attachments_pane_toggle() {
   utils.waitFor(() => attachmentArea.open);
   Assert.ok(attachmentArea.open);
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });
 
 registerCleanupFunction(() => {

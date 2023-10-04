@@ -105,7 +105,7 @@ async function check_sig_strip_works(aRow, aShouldStrip) {
   } else if (!aShouldStrip && !body.textContent.includes(sig)) {
     throw new Error("signature stripped; body=" + body.textContent);
   }
-  close_compose_window(rwc);
+  await close_compose_window(rwc);
 
   Assert.report(
     false,

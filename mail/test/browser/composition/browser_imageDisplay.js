@@ -23,7 +23,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { click_menus_in_sequence, close_window } = ChromeUtils.import(
+var { click_menus_in_sequence } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -116,7 +116,7 @@ add_task(async function test_cid_image_load() {
       { label: gImageFolder.prettyName },
     ]
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 /**
@@ -159,12 +159,12 @@ add_task(async function test_cid_image_compose_fwd() {
   // Our image should also be in composition when the message is forwarded.
   let cwc = await open_compose_with_forward();
   await check_cid_image_compose(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 add_task(async function test_cid_image_compose_re() {
   // Our image should also be in composition when the message is replied.
   let cwc = await open_compose_with_reply();
   await check_cid_image_compose(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

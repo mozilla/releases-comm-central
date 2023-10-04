@@ -91,7 +91,7 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
     "should have exactly one notification about it"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -118,7 +118,7 @@ add_task(async function testWarningShowsWhenToFieldHitsLimit() {
     `Timeout waiting for warning shown when "To" recipients >= ${publicRecipientLimit}`
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -161,7 +161,7 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
     `Timeout waiting for warning shown when "Cc" recipients >= ${publicRecipientLimit}`
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -206,7 +206,7 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
     `Timeout waiting for warning shown "To" and "Cc" recipients >= ${publicRecipientLimit}`
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -265,7 +265,7 @@ add_task(async function testToRecipientsMovedToBcc() {
 
   await notificationHidden;
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -324,7 +324,7 @@ add_task(async function testAllToRecipientsMovedToBccWhenOverLimit() {
 
   await notificationHidden;
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -400,7 +400,7 @@ add_task(async function testCcRecipientsMovedToBcc() {
 
   await notificationHidden;
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -474,7 +474,7 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
 
   await notificationHidden;
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -557,7 +557,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
 
   await notificationHidden;
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -615,7 +615,7 @@ add_task(async function testWarningRemovedWhenKeepPublic() {
     "no addresses added to the Bcc field"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -673,7 +673,7 @@ add_task(async function testWarningNotShownAfterDismissal() {
     ),
     "public recipients warning did not appear after dismissal"
   );
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -720,5 +720,5 @@ add_task(async function testMailingListMembersCounted() {
   );
 
   MailServices.ab.deleteAddressBook(book.URI);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

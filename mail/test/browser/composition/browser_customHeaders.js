@@ -38,7 +38,7 @@ add_task(async function test_customHeaders() {
   inputs[3].value = "<message-id-1234@tinderbox.com>";
 
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   await TestUtils.waitForCondition(
     () => draftsFolder.getTotalMessages(false) == 1,
     "message saved to drafts folder"
@@ -82,7 +82,7 @@ add_task(async function test_customHeaders() {
   Assert.equal(inputs2[2].value, "moderator@tinderbox.com");
   Assert.equal(inputs2[3].value, "<message-id-1234@tinderbox.com>");
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   // Reset other.header.
   Services.prefs.setCharPref("mail.compose.other.header", otherHeaders);

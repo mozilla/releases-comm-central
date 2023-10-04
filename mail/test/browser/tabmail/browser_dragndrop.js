@@ -37,7 +37,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/MouseEventHelpers.jsm"
 );
-var { async_plan_for_new_window } = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -177,7 +177,7 @@ add_task(async function test_tab_reorder_window() {
   assert_selected_and_displayed(msgHdrsInFolder[1]);
 
   // ...and then a new 3 pane as our drop target.
-  mc2 = open_folder_in_new_window(folder);
+  mc2 = await open_folder_in_new_window(folder);
 
   // Start dragging the first tab ...
   let tabA = tabmail.tabContainer.allTabs[1];
@@ -226,7 +226,7 @@ add_task(async function test_tab_reorder_detach() {
   assert_number_of_tabs_open(2);
 
   // ... if every thing works we should expect a new window...
-  let newWindowPromise = async_plan_for_new_window("mail:3pane");
+  let newWindowPromise = promise_new_window("mail:3pane");
 
   // ... now start dragging
   tabmail.switchToTab(1);

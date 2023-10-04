@@ -226,7 +226,7 @@ add_task(async function test_reply_identity_selection() {
       );
     }
 
-    close_compose_window(cwc, false);
+    await close_compose_window(cwc, false);
   }
 });
 

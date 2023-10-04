@@ -56,7 +56,6 @@ const EXPORTED_SYMBOLS = [
   "assert_visible",
   "be_in_folder",
   "click_tree_row",
-  "close_message_window",
   "close_popup",
   "close_tab",
   "collapse_all_threads",
@@ -154,10 +153,12 @@ var EventUtils = ChromeUtils.import(
 );
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-// the windowHelper module
-var windowHelper = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+var {
+  promise_new_window,
+  resize_to,
+  wait_for_existing_window,
+  wait_for_window_focused,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { Assert } = ChromeUtils.importESModule(
   "resource://testing-common/Assert.sys.mjs"
@@ -196,7 +197,7 @@ var FAKE_SERVER_HOSTNAME = "tinderbox123";
  * The main 3-pane window.
  * @type {Window}
  */
-var mc = windowHelper.wait_for_existing_window("mail:3pane");
+var mc = wait_for_existing_window("mail:3pane");
 function set_mc(value) {
   mc = value;
 }
@@ -513,11 +514,10 @@ async function open_folder_in_new_tab(aFolder) {
  * @param {nsIMsgFolder} aFolder - The folder to be displayed in the new window.
  * @returns {Window} The new window.
  */
-function open_folder_in_new_window(aFolder) {
-  windowHelper.plan_for_new_window("mail:3pane");
+async function open_folder_in_new_window(aFolder) {
+  const newWindowPromise = promise_new_window("mail:3pane");
   mc.MsgOpenNewWindowForFolder(aFolder.URI);
-  let mail3pane = windowHelper.wait_for_new_window("mail:3pane");
-  return mail3pane;
+  return newWindowPromise;
 }
 
 /**
@@ -586,8 +586,7 @@ async function open_selected_message_in_new_tab(aBackground) {
  */
 async function open_selected_message_in_new_window() {
   let win = get_about_3pane();
-  let newWindowPromise =
-    windowHelper.async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   mc.MsgOpenNewWindowForMessage(
     win.gDBView.hdrForFirstSelectedMessage,
     win.gViewWrapper
@@ -610,13 +609,14 @@ async function open_selected_message_in_new_window() {
  *
  * @returns The currently selected tab, guaranteed to be a folder tab.
  */
-function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
+async function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
+  let newWindowPromise;
   if (aExpectNew3Pane) {
-    windowHelper.plan_for_new_window("mail:3pane");
+    newWindowPromise = promise_new_window("mail:3pane");
   }
   MailUtils.displayMessageInFolderTab(aMsgHdr);
   if (aExpectNew3Pane) {
-    mc = windowHelper.wait_for_new_window("mail:3pane");
+    mc = await newWindowPromise;
   }
 
   // Make sure that the tab we're returning is a folder tab
@@ -648,8 +648,7 @@ async function open_message_from_file(file) {
     .setQuery("type=application/x-message-display")
     .finalize();
 
-  let newWindowPromise =
-    windowHelper.async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   let win = mc.openDialog(
     "chrome://messenger/content/messageWindow.xhtml",
     "_blank",
@@ -662,7 +661,7 @@ async function open_message_from_file(file) {
 
   let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
-  windowHelper.wait_for_window_focused(msgc);
+  wait_for_window_focused(msgc);
   utils.sleep(0);
 
   return msgc;
@@ -794,15 +793,6 @@ function close_tab(aTabToClose) {
   ) {
     throw new Error("The tab never actually got closed!");
   }
-}
-
-/**
- * Close a message window by calling window.close().
- *
- * @param {Window} win - The window to close.
- */
-function close_message_window(win) {
-  windowHelper.close_window(win);
 }
 
 /**
@@ -3060,7 +3050,7 @@ function assert_default_window_size() {
  * Restore window to nominal dimensions; saving the size was not working out.
  */
 function restore_default_window_size() {
-  windowHelper.resize_to(mc, gDefaultWindowWidth, gDefaultWindowHeight);
+  resize_to(mc, gDefaultWindowWidth, gDefaultWindowHeight);
 }
 
 /**

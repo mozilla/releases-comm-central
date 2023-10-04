@@ -16,12 +16,9 @@ var { be_in_folder, get_special_folder, press_delete, select_click_row } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
-var {
-  click_menus_in_sequence,
-  plan_for_modal_dialog,
-  wait_for_modal_dialog,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { click_menus_in_sequence, promise_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -94,17 +91,20 @@ add_task(async function test_basic_multipart_related() {
   let fileURL = fileHandler.getURLSpecFromActualFile(file);
 
   // Add a simple image to our dialog
-  plan_for_modal_dialog("Mail:image", async function (dialog) {
-    // Insert the url of the image.
-    dialog.focus();
-    EventUtils.sendString(fileURL, dialog);
-    dialog.document.getElementById("altTextInput").focus();
-    EventUtils.sendString("Alt text", dialog);
-    await new Promise(resolve => setTimeout(resolve));
+  const dialogPromise = promise_modal_dialog(
+    "Mail:image",
+    async function (dialog) {
+      // Insert the url of the image.
+      dialog.focus();
+      EventUtils.sendString(fileURL, dialog);
+      dialog.document.getElementById("altTextInput").focus();
+      EventUtils.sendString("Alt text", dialog);
+      await new Promise(resolve => setTimeout(resolve));
 
-    // Accept the dialog
-    dialog.document.querySelector("dialog").acceptDialog();
-  });
+      // Accept the dialog
+      dialog.document.querySelector("dialog").acceptDialog();
+    }
+  );
 
   let insertMenu = compWin.document.getElementById("InsertPopupButton");
   let insertMenuPopup = compWin.document.getElementById("InsertPopup");
@@ -112,12 +112,11 @@ add_task(async function test_basic_multipart_related() {
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
 
-  wait_for_modal_dialog();
-  wait_for_window_close();
+  await dialogPromise;
   await new Promise(resolve => setTimeout(resolve));
 
   await save_compose_message(compWin);
-  close_compose_window(compWin);
+  await close_compose_window(compWin);
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(false) == 1,
     "message saved to drafts folder"

@@ -30,8 +30,9 @@ var {
   open_compose_new_mail,
   setup_msg_contents,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { plan_for_modal_dialog, wait_for_frame_load, wait_for_modal_dialog } =
-  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { promise_modal_dialog, wait_for_frame_load } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -194,7 +195,7 @@ add_task(async function test_send_enabled_manual_address() {
   setup_msg_contents(cwc, "newsgroup ", "", "", "newsgroupsAddrInput");
   check_send_commands_state(cwc, true);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -217,7 +218,7 @@ add_task(async function test_send_enabled_prefilled_address() {
   // No other pill is there. Send should become disabled.
   check_send_commands_state(cwc, false);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   identity.doCcList = "";
   identity.doCc = false;
 });
@@ -251,7 +252,7 @@ add_task(async function test_send_enabled_prefilled_address_from_identity() {
   await chooseIdentity(cwc, identityWithCC.key);
   check_send_commands_state(cwc, true);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
   identityWithCC.doCcList = "";
   identityWithCC.doCc = false;
 });
@@ -296,7 +297,7 @@ add_task(async function test_send_enabled_address_contacts_sidebar() {
 
   // FIXME: Use UI to close contacts sidebar.
   cwc.toggleContactsSidebar();
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -329,9 +330,12 @@ add_task(async function test_update_pill_before_send() {
   // if the pill is updated we get an invalid recipient error. Otherwise the
   // error would be an imap error because the email would still be sent to
   // `recipient@fake.invalid`.
-  let dialogTitle;
-  plan_for_modal_dialog("commonDialogWindow", cwc => {
-    dialogTitle = cwc.document.getElementById("infoTitle").textContent;
+  const dialogPromise = promise_modal_dialog("commonDialogWindow", cwc => {
+    const dialogTitle = cwc.document.getElementById("infoTitle").textContent;
+    Assert.ok(
+      dialogTitle.includes("Invalid Recipient Address"),
+      "The pill edit has been updated before sending the email"
+    );
     cwc.document.querySelector("dialog").getButton("accept").click();
   });
   // Click the send button.
@@ -340,12 +344,8 @@ add_task(async function test_update_pill_before_send() {
     {},
     cwc
   );
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
+  await TestUtils.waitForTick();
 
-  Assert.ok(
-    dialogTitle.includes("Invalid Recipient Address"),
-    "The pill edit has been updated before sending the email"
-  );
-
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

@@ -60,5 +60,5 @@ add_task(async function test_was_reply_subj() {
     "was: part of subject should have been removed"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

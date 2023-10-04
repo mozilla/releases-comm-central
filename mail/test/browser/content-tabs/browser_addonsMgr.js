@@ -7,12 +7,9 @@
 var { wait_for_content_tab_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
-var {
-  click_through_appmenu,
-  plan_for_modal_dialog,
-  wait_for_modal_dialog,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { click_through_appmenu, promise_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 add_task(async function test_open_addons_with_url() {
   window.openAddonsMgr("addons://list/theme");
@@ -37,7 +34,7 @@ add_task(async function test_open_addons_with_url() {
  * This relies on the MozMill extension having optionsURL defined in install.rdf,
  * however simplistic the preferences XUL document may be.
  */
-add_task(function test_addon_prefs() {
+add_task(async function test_addon_prefs() {
   // Open Add-on Options.
   const subview = click_through_appmenu(
     [{ id: "appmenu_addons" }],
@@ -45,7 +42,7 @@ add_task(function test_addon_prefs() {
     window
   );
 
-  plan_for_modal_dialog("mozmill-prefs", function (win) {
+  const dialogPromise = promise_modal_dialog("mozmill-prefs", function (win) {
     // Add | await new Promise(resolve => setTimeout(resolve, 1000));|
     // here to see the popup dialog.
     win.close();
@@ -67,6 +64,5 @@ add_task(function test_addon_prefs() {
   Assert.ok(foundAddon);
 
   // Wait for the options dialog to open and close.
-  wait_for_modal_dialog();
-  wait_for_window_close();
+  await dialogPromise;
 }).skip();

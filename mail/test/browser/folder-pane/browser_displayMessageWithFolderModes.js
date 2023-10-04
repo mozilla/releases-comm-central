@@ -93,7 +93,7 @@ add_task(
     assert_folder_not_visible(inbox2Folder);
 
     // Try displaying a message
-    display_message_in_folder_tab(msgHdr);
+    await display_message_in_folder_tab(msgHdr);
 
     assert_folder_mode("favorite");
     assert_folder_selected_and_displayed(folder);
@@ -132,7 +132,7 @@ add_task(
     assert_folder_not_visible(inbox2Folder);
 
     // Try displaying a message
-    display_message_in_folder_tab(msgHdr);
+    await display_message_in_folder_tab(msgHdr);
 
     assert_folder_mode("favorite");
     assert_folder_selected_and_displayed(folder);
@@ -176,7 +176,7 @@ add_task(async function test_display_message_in_smart_folder_mode_works() {
   assert_folder_not_visible(folder);
 
   // Try displaying the message
-  display_message_in_folder_tab(msgHdr);
+  await display_message_in_folder_tab(msgHdr);
 
   // Check that the right folders have expanded
   assert_folder_mode("smart");
@@ -208,7 +208,7 @@ add_task(
     assert_message_not_in_view(inboxMsgHdr);
 
     // Try displaying the message
-    display_message_in_folder_tab(inboxMsgHdr);
+    await display_message_in_folder_tab(inboxMsgHdr);
 
     // Check that nothing has expanded, and that the right folder is selected
     assert_folder_mode("smart");

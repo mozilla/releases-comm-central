@@ -24,7 +24,6 @@ var {
   assert_nothing_selected,
   assert_selected_and_displayed,
   be_in_folder,
-  close_message_window,
   create_folder,
   get_about_3pane,
   get_about_message,
@@ -138,7 +137,7 @@ async function checkComposeWindow(replyType) {
     `Should have disabled DNS prefetch in the compose window (${errMsg})`
   );
 
-  close_compose_window(replyWindow);
+  await close_compose_window(replyWindow);
 }
 
 add_task(async function test_dnsPrefetch_message() {
@@ -194,7 +193,7 @@ add_task(async function test_dnsPrefetch_standaloneMessage() {
     "Should disable DNS Prefetch on messagepane in standalone message window."
   );
 
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 add_task(async function test_dnsPrefetch_compose() {

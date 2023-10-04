@@ -29,12 +29,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
-var {
-  async_plan_for_new_window,
-  close_window,
-  plan_for_modal_dialog,
-  click_menus_in_sequence,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { click_menus_in_sequence, promise_new_window } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 var { MockRegistrar } = ChromeUtils.importESModule(
   "resource://testing-common/MockRegistrar.sys.mjs"
 );
@@ -212,7 +209,7 @@ add_task(async function test_ignore_phishing_warning_from_eml() {
 
   let msgc = await open_message_from_file(file);
   await assert_ignore_works(msgc);
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 }).skip();
 
 /**
@@ -228,7 +225,7 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
   wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
 
   // Open the attached message.
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   aboutMessage.document
     .getElementById("attachmentList")
     .getItemAtIndex(0)
@@ -243,8 +240,8 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
     kNotificationValue
   );
 
-  close_window(msgc2);
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc2);
+  await BrowserTestUtils.closeWindow(msgc);
 }).skip();
 
 /**
@@ -299,15 +296,9 @@ add_task(async function test_phishing_warning_for_local_domain() {
   await be_in_folder(folder);
   select_click_row(-6);
 
-  let dialogAppeared = false;
-
-  plan_for_modal_dialog("commonDialogWindow", function (ctrler) {
-    dialogAppeared = true;
-  });
-
+  const dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
   click_link_if_available();
-
-  Assert.ok(dialogAppeared);
+  await dialogPromise;
 });
 
 /**

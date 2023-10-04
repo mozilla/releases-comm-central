@@ -154,7 +154,7 @@ add_task(async function test_reply_no_matching_identity() {
   let replyWin = await open_compose_with_reply();
   // Should have selected the default identity.
   checkReply(replyWin, identity1Email);
-  close_compose_window(replyWin);
+  await close_compose_window(replyWin);
 });
 
 add_task(async function test_reply_matching_only_deliveredto() {
@@ -166,7 +166,7 @@ add_task(async function test_reply_matching_only_deliveredto() {
   let replyWin = await open_compose_with_reply();
   // Should have selected the second id, which is listed in Delivered-To:.
   checkReply(replyWin, identity2Email);
-  close_compose_window(replyWin);
+  await close_compose_window(replyWin);
 }).skip();
 
 add_task(async function test_reply_matching_subaddress() {
@@ -179,7 +179,7 @@ add_task(async function test_reply_matching_subaddress() {
   // Should have selected the first id, the email doesn't fully match.
   // other.lenny != "our" lenny
   checkReply(replyWin, identity1Email);
-  close_compose_window(replyWin);
+  await close_compose_window(replyWin);
 });
 
 add_task(async function test_reply_to_matching_second_id() {
@@ -191,7 +191,7 @@ add_task(async function test_reply_to_matching_second_id() {
   let replyWin = await open_compose_with_reply();
   // Should have selected the second id, which was in To;.
   checkReply(replyWin, identity2Email);
-  close_compose_window(replyWin);
+  await close_compose_window(replyWin);
 });
 
 add_task(async function test_deliveredto_to_matching_only_parlty() {
@@ -203,7 +203,7 @@ add_task(async function test_deliveredto_to_matching_only_parlty() {
   let replyWin = await open_compose_with_reply();
   // Should have selected the (default) first id.
   checkReply(replyWin, identity1Email);
-  close_compose_window(replyWin);
+  await close_compose_window(replyWin);
 });
 
 /**
@@ -219,7 +219,7 @@ add_task(async function test_reply_to_self_second_id() {
   let replyWin = await open_compose_with_reply();
   // Should have selected the second id, which was in From.
   checkReply(replyWin, identity2Email);
-  close_compose_window(replyWin, false /* no prompt*/);
+  await close_compose_window(replyWin, false /* no prompt*/);
 
   Assert.report(
     false,

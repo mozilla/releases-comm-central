@@ -29,6 +29,6 @@ add_task(async function previewEnabled() {
     "link preview should have appeared"
   );
 
-  close_compose_window(win);
+  await close_compose_window(win);
   Services.prefs.clearUserPref("mail.compose.add_link_preview");
 });

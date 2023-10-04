@@ -19,7 +19,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { click_menus_in_sequence, close_window } = ChromeUtils.import(
+var { click_menus_in_sequence } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -82,7 +82,7 @@ add_task(async function test_copy_eml_message() {
       { label: "CopyToFolder" },
     ]
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   // Make sure the copy worked. Make sure the first header is the one used,
   // in case the message (incorrectly) has multiple when max-number is 1

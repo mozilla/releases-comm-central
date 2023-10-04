@@ -79,7 +79,7 @@ add_setup(function () {
 async function checkReply(aReplyFunction, aExpectedFields) {
   let rwc = await aReplyFunction();
   checkToAddresses(rwc, aExpectedFields);
-  close_compose_window(rwc);
+  await close_compose_window(rwc);
 }
 
 /**

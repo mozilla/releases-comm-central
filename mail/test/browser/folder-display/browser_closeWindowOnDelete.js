@@ -24,8 +24,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window, plan_for_window_close, wait_for_window_close } =
-  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var folder;
 
@@ -53,18 +51,18 @@ add_task(
 
     let preCount = folder.getTotalMessages(false);
     msgc.focus();
-    plan_for_window_close(msgc);
+    const closePromise = BrowserTestUtils.domWindowClosed(msgc);
     press_delete(msgc);
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");
     }
-    wait_for_window_close(msgc);
+    await closePromise;
 
     if (msgc2.closed) {
       throw new Error("should only have closed the active window");
     }
 
-    close_window(msgc2);
+    await BrowserTestUtils.closeWindow(msgc2);
 
     reset_close_message_on_delete();
   }
@@ -90,21 +88,21 @@ add_task(
 
     let preCount = folder.getTotalMessages(false);
     msgc.focus();
-    plan_for_window_close(msgc);
-    plan_for_window_close(msgcA);
+    const closePromise = BrowserTestUtils.domWindowClosed(msgc);
+    const closePromiseA = BrowserTestUtils.domWindowClosed(msgcA);
     press_delete(msgc);
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");
     }
-    wait_for_window_close(msgc);
-    wait_for_window_close(msgcA);
+    await closePromise;
+    await closePromiseA;
 
     if (msgc2.closed) {
       throw new Error("should only have closed the active window");
     }
 
-    close_window(msgc2);
+    await BrowserTestUtils.closeWindow(msgc2);
 
     reset_close_message_on_delete();
   }
@@ -130,22 +128,22 @@ add_task(
 
     let preCount = folder.getTotalMessages(false);
     window.focus();
-    plan_for_window_close(msgc);
-    plan_for_window_close(msgcA);
+    const closePromise = BrowserTestUtils.domWindowClosed(msgc);
+    const closePromiseA = BrowserTestUtils.domWindowClosed(msgcA);
     select_click_row(0);
     press_delete(window);
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");
     }
-    wait_for_window_close(msgc);
-    wait_for_window_close(msgcA);
+    await closePromise;
+    await closePromiseA;
 
     if (msgc2.closed) {
       throw new Error("should only have closed the first window");
     }
 
-    close_window(msgc2);
+    await BrowserTestUtils.closeWindow(msgc2);
 
     reset_close_message_on_delete();
   }
@@ -284,14 +282,14 @@ add_task(
 
     let preCount = folder.getTotalMessages(false);
     window.focus();
-    plan_for_window_close(msgcA);
+    const closePromise = BrowserTestUtils.domWindowClosed(msgcA);
     select_click_row(0);
     press_delete(window);
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");
     }
-    wait_for_window_close(msgcA);
+    await closePromise;
 
     assert_number_of_tabs_open(2);
 
@@ -304,7 +302,7 @@ add_task(
     }
 
     close_tab(msgc2);
-    close_window(msgc2A);
+    await BrowserTestUtils.closeWindow(msgc2A);
 
     reset_close_message_on_delete();
 

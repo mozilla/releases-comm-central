@@ -8,9 +8,9 @@ const EXPORTED_SYMBOLS = [
   "add_attachments",
   "add_cloud_attachments",
   "assert_previous_text",
-  "async_wait_for_compose_window",
   "clear_recipients",
   "close_compose_window",
+  "compose_window_ready",
   "convert_selected_to_cloud_attachment",
   "create_msg_attachment",
   "delete_attachment",
@@ -41,7 +41,7 @@ var { get_about_message, mc } = ChromeUtils.import(
 var { gMockCloudfileManager } = ChromeUtils.import(
   "resource://testing-common/mozmill/CloudfileHelpers.jsm"
 );
-var windowHelper = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 var { get_notification } = ChromeUtils.import(
@@ -74,9 +74,9 @@ var kTextNodeType = 3;
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_new_mail(win = mc) {
-  windowHelper.plan_for_new_window("msgcompose");
+  let composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, win);
-  return promise_compose_window();
+  return compose_window_ready(composePromise);
 }
 
 /**
@@ -88,9 +88,9 @@ async function open_compose_new_mail(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_reply(win = mc) {
-  windowHelper.plan_for_new_window("msgcompose");
+  let composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("r", { shiftKey: false, accelKey: true }, win);
-  return promise_compose_window();
+  return compose_window_ready(composePromise);
 }
 
 /**
@@ -102,9 +102,9 @@ async function open_compose_with_reply(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_reply_to_all(win = mc) {
-  windowHelper.plan_for_new_window("msgcompose");
+  let composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("R", { shiftKey: true, accelKey: true }, win);
-  return promise_compose_window();
+  return compose_window_ready(composePromise);
 }
 
 /**
@@ -116,9 +116,9 @@ async function open_compose_with_reply_to_all(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_reply_to_list(win = mc) {
-  windowHelper.plan_for_new_window("msgcompose");
+  let composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("l", { shiftKey: true, accelKey: true }, win);
-  return promise_compose_window();
+  return compose_window_ready(composePromise);
 }
 
 /**
@@ -130,9 +130,9 @@ async function open_compose_with_reply_to_list(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_forward_as_attachments(win = mc) {
-  windowHelper.plan_for_new_window("msgcompose");
+  let composePromise = promise_new_window("msgcompose");
   win.goDoCommand("cmd_forwardAttachment");
-  return promise_compose_window();
+  return compose_window_ready(composePromise);
 }
 
 /**
@@ -144,9 +144,9 @@ async function open_compose_with_forward_as_attachments(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_edit_as_new(win = mc) {
-  windowHelper.plan_for_new_window("msgcompose");
+  let composePromise = promise_new_window("msgcompose");
   win.goDoCommand("cmd_editAsNew");
-  return promise_compose_window();
+  return compose_window_ready(composePromise);
 }
 
 /**
@@ -158,9 +158,9 @@ async function open_compose_with_edit_as_new(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_with_forward(win = mc) {
-  windowHelper.plan_for_new_window("msgcompose");
+  let composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("l", { shiftKey: false, accelKey: true }, win);
-  return promise_compose_window();
+  return compose_window_ready(composePromise);
 }
 
 /**
@@ -172,14 +172,14 @@ async function open_compose_with_forward(win = mc) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function open_compose_from_draft(win = get_about_message()) {
-  windowHelper.plan_for_new_window("msgcompose");
+  let composePromise = promise_new_window("msgcompose");
   let box = get_notification(win, "mail-notification-top", "draftMsgContent");
   EventUtils.synthesizeMouseAtCenter(
     box.buttonContainer.firstElementChild,
     {},
     win
   );
-  return promise_compose_window();
+  return compose_window_ready(composePromise);
 }
 
 /**
@@ -200,37 +200,36 @@ async function save_compose_message(win) {
  * @param {boolean} [aShouldPrompt] - If true, check that the prompt to save
  *   appears. If false, check there's no prompt to save.
  */
-function close_compose_window(aWin, aShouldPrompt) {
+async function close_compose_window(aWin, aShouldPrompt) {
   if (aShouldPrompt === undefined) {
     // caller doesn't care if we get a prompt
-    windowHelper.close_window(aWin);
+    await BrowserTestUtils.closeWindow(aWin);
+    await TestUtils.waitForTick();
     return;
   }
 
-  windowHelper.plan_for_window_close(aWin);
+  const closePromise = BrowserTestUtils.domWindowClosed(aWin);
   if (aShouldPrompt) {
-    windowHelper.plan_for_modal_dialog("commonDialogWindow", function (win) {
-      win.document.querySelector("dialog").getButton("extra1").doCommand();
-    });
+    const dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
     // Try to close, we should get a prompt to save.
     aWin.goDoCommand("cmd_close");
-    windowHelper.wait_for_modal_dialog();
+    await dialogPromise;
   } else {
     aWin.goDoCommand("cmd_close");
   }
-  windowHelper.wait_for_window_close();
+  await closePromise;
 }
 
 /**
  * Waits for a new compose window to open. This assumes you have already called
- * `windowHelper.plan_for_new_window("msgcompose");` and the command to open
+ * `promise_new_window("msgcompose");` and the command to open
  * the compose window itself.
  *
- * @param {Promise} promise - The returned promise from `plan_for_new_window`.
+ * @param {Promise} promise - The returned promise from `promise_new_window`.
  * @returns {Window} The loaded window of type "msgcompose".
  */
-async function async_wait_for_compose_window(promise) {
-  let replyWindow = await promise;
+async function compose_window_ready(composePromise) {
+  let replyWindow = await composePromise;
   return _wait_for_compose_window(replyWindow);
 }
 
@@ -240,7 +239,7 @@ async function async_wait_for_compose_window(promise) {
  * @returns {Window} The loaded window of type "msgcompose".
  */
 async function promise_compose_window() {
-  let replyWindow = windowHelper.wait_for_new_window("msgcompose");
+  let replyWindow = promise_new_window("msgcompose");
   return _wait_for_compose_window(replyWindow);
 }
 

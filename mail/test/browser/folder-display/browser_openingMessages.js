@@ -25,7 +25,6 @@ var {
   assert_tab_mode_name,
   assert_tab_titled_from,
   be_in_folder,
-  close_message_window,
   close_tab,
   create_folder,
   make_message_sets_in_folders,
@@ -41,7 +40,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { async_plan_for_new_window } = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -142,7 +141,7 @@ add_task(async function test_open_message_in_new_window() {
   // Select a message
   let msgHdr = select_click_row(1);
 
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   // Open it
   open_selected_message();
   let msgc = await newWindowPromise;
@@ -151,7 +150,7 @@ add_task(async function test_open_message_in_new_window() {
   assert_selected_and_displayed(msgc, msgHdr);
 
   // Clean up, close the window
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   reset_open_message_behavior();
 });
 
@@ -164,7 +163,7 @@ add_task(async function test_open_message_in_existing_window() {
 
   // Open up a window
   select_click_row(1);
-  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = promise_new_window("mail:messageWindow");
   open_selected_message();
   let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
@@ -178,6 +177,6 @@ add_task(async function test_open_message_in_existing_window() {
   // Check if our old window displays the message
   assert_selected_and_displayed(msgc, msgHdr);
   // Clean up, close the window
-  close_message_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   reset_open_message_behavior();
 });

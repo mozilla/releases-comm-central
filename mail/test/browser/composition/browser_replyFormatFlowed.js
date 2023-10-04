@@ -24,9 +24,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var gDrafts;
 
@@ -44,11 +41,11 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   let cwc = await open_compose_with_reply(msgc);
 
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   // Now save the message as a draft.
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   await TestUtils.waitForCondition(
     () => gDrafts.getTotalMessages(false) == 1,

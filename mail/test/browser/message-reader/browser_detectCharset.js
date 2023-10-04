@@ -14,9 +14,6 @@
 var { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var gReferenceTextContent;
 
@@ -37,7 +34,7 @@ async function check_display_charset(eml, expectedCharset) {
   let msgc = await open_message_from_file(file);
   let aboutMessage = get_about_message(msgc);
   is(aboutMessage.currentCharacterSet, expectedCharset);
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 }
 
 async function extract_eml_body_textcontent(eml, autodetect = true) {
@@ -74,7 +71,7 @@ async function extract_eml_body_textcontent(eml, autodetect = true) {
     aboutMessage.getMessagePaneBrowser().contentDocument.documentElement
       .textContent;
   let charset = aboutMessage.currentCharacterSet;
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
   return { textContent, charset };
 }
 

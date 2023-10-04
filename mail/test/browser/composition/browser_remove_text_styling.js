@@ -132,5 +132,5 @@ add_task(async function test_remove_text_styling() {
     "Style is fully stripped"
   );
 
-  close_compose_window(win);
+  await close_compose_window(win);
 });

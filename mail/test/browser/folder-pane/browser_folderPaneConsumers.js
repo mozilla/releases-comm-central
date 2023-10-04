@@ -13,7 +13,7 @@
 var { NNTP_PORT, setupLocalServer } = ChromeUtils.import(
   "resource://testing-common/mozmill/NNTPHelpers.jsm"
 );
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
+var { promise_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 var { click_menus_in_sequence } = ChromeUtils.import(
@@ -34,7 +34,7 @@ add_setup(function () {
 });
 
 add_task(async function test_virtual_folder_selection_tree() {
-  plan_for_modal_dialog(
+  const dialogPromise = promise_modal_dialog(
     "mailnews:virtualFolderProperties",
     subtest_create_virtual_folder
   );
@@ -51,12 +51,12 @@ add_task(async function test_virtual_folder_selection_tree() {
     { id: "menu_newVirtualFolder" },
   ]);
 
-  wait_for_modal_dialog("mailnews:virtualFolderProperties");
+  await dialogPromise;
 });
 
-function subtest_create_virtual_folder(vfc) {
+async function subtest_create_virtual_folder(vfc) {
   // Open the folder chooser.
-  plan_for_modal_dialog(
+  const dialogPromise = promise_modal_dialog(
     "mailnews:virtualFolderList",
     subtest_check_virtual_folder_list
   );
@@ -65,7 +65,7 @@ function subtest_create_virtual_folder(vfc) {
     {},
     vfc.document.getElementById("folderListPicker").ownerGlobal
   );
-  wait_for_modal_dialog("mailnews:virtualFolderList");
+  await dialogPromise;
 
   vfc.document.documentElement.querySelector("dialog").cancelDialog();
 }
@@ -85,7 +85,10 @@ function subtest_check_virtual_folder_list(listc) {
 }
 
 add_task(async function test_offline_sync_folder_selection_tree() {
-  plan_for_modal_dialog("mailnews:synchronizeOffline", subtest_offline_sync);
+  const dialogPromise = promise_modal_dialog(
+    "mailnews:synchronizeOffline",
+    subtest_offline_sync
+  );
 
   document.getElementById("toolbar-menubar").removeAttribute("autohide");
 
@@ -99,12 +102,12 @@ add_task(async function test_offline_sync_folder_selection_tree() {
     { id: "menu_synchronizeOffline" },
   ]);
 
-  wait_for_modal_dialog("mailnews:synchronizeOffline");
+  await dialogPromise;
 });
 
-function subtest_offline_sync(osc) {
+async function subtest_offline_sync(osc) {
   // Open the folder chooser.
-  plan_for_modal_dialog(
+  const dialogPromise = promise_modal_dialog(
     "mailnews:selectOffline",
     subtest_check_offline_folder_list
   );
@@ -113,7 +116,7 @@ function subtest_offline_sync(osc) {
     {},
     osc.document.getElementById("select").ownerGlobal
   );
-  wait_for_modal_dialog("mailnews:selectOffline");
+  await dialogPromise;
 
   osc.document.documentElement.querySelector("dialog").cancelDialog();
 }

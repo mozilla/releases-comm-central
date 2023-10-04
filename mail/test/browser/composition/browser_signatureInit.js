@@ -46,5 +46,5 @@ add_task(async function test_on_reply_above_signature_below_reply() {
   Services.prefs.setIntPref(kReplyOnTopPref, origReplyOnTop);
   Services.prefs.setBoolPref(kSigBottomPref, origSigBottom);
 
-  close_compose_window(cw);
+  await close_compose_window(cw);
 });

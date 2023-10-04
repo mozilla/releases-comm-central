@@ -26,12 +26,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var {
-  plan_for_modal_dialog,
-  plan_for_window_close,
-  wait_for_modal_dialog,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { promise_modal_dialog } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { MailViewConstants } = ChromeUtils.import(
   "resource:///modules/MailViewManager.jsm"
@@ -131,14 +128,14 @@ add_task(async function test_create_virtual_folders() {
   wait_for_all_messages_to_load();
 
   // - save it
-  plan_for_modal_dialog(
+  const dialogPromise = promise_modal_dialog(
     "mailnews:virtualFolderProperties",
     subtest_save_mail_view
   );
   // we have to use value here because the option mechanism is not sophisticated
   //  enough.
   window.ViewChange(MailViewConstants.kViewItemVirtual);
-  wait_for_modal_dialog("mailnews:virtualFolderProperties");
+  await dialogPromise;
 });
 
 function subtest_save_mail_view(savc) {
@@ -235,7 +232,7 @@ add_task(
     // to open yet another tab to test
 
     // - prep for the message window disappearing
-    plan_for_window_close(msgc);
+    const closePromise = BrowserTestUtils.domWindowClosed(msgc);
 
     // - let's arbitrarily perform the deletion on this message tab
     await switch_tab(tabMessage);
@@ -244,7 +241,7 @@ add_task(
     // - the message window should have gone away...
     // (this also helps ensure that the 3pane gets enough event loop time to do
     //  all that it needs to accomplish)
-    wait_for_window_close(msgc);
+    await closePromise;
     msgc = null;
 
     // - and we should now be on the folder tab and there should be no other tabs
@@ -330,7 +327,7 @@ add_task(
     // to open yet another tab to test
 
     // - prep for the message window disappearing
-    plan_for_window_close(msgc);
+    const closePromise = BrowserTestUtils.domWindowClosed(msgc);
 
     // - let's arbitrarily perform the deletion on this message tab
     await switch_tab(tabMessage);
@@ -339,7 +336,7 @@ add_task(
     // - the message window should have gone away...
     // (this also helps ensure that the 3pane gets enough event loop time to do
     //  all that it needs to accomplish)
-    wait_for_window_close(msgc);
+    await closePromise;
     msgc = null;
 
     // - and we should now be on the folder tab and there should be no other tabs

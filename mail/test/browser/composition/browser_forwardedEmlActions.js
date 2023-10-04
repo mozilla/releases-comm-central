@@ -9,7 +9,7 @@
 
 "use strict";
 
-var { async_wait_for_compose_window, close_compose_window, get_compose_body } =
+var { close_compose_window, compose_window_ready, get_compose_body } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   assert_selected_and_displayed,
@@ -22,7 +22,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { async_plan_for_new_window } = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -112,9 +112,9 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   await tabSelectPromise;
   wait_for_message_display_completion(window, false);
 
-  let newWindowPromise = async_plan_for_new_window("msgcompose");
+  let newWindowPromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey(hotkeyToHit, hotkeyModifiers, window);
-  let compWin = await async_wait_for_compose_window(newWindowPromise);
+  let compWin = await compose_window_ready(newWindowPromise);
 
   let bodyText = get_compose_body(compWin).textContent;
   if (bodyText.includes("html")) {
@@ -141,7 +141,7 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
     );
   }
 
-  close_compose_window(compWin, false);
+  await close_compose_window(compWin, false);
   close_tab(document.getElementById("tabmail").currentTabInfo);
 }
 

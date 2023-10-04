@@ -13,8 +13,8 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var {
   close_compose_window,
+  compose_window_ready,
   open_compose_with_reply,
-  promise_compose_window,
   save_compose_message,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
@@ -22,8 +22,8 @@ var {
   assert_selected_and_displayed,
   be_in_folder,
   create_message,
-  get_special_folder,
   get_about_message,
+  get_special_folder,
   make_display_unthreaded,
   press_delete,
   select_click_row,
@@ -33,10 +33,10 @@ var {
 var { SyntheticPartLeaf } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { wait_for_notification_to_show, get_notification } = ChromeUtils.import(
+var { get_notification, wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
-var { plan_for_new_window } = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -121,7 +121,7 @@ add_task(async function test_wrong_reply_charset() {
     () => folder.getTotalMessages(false) == 2,
     "message saved to drafts folder"
   );
-  close_compose_window(rwc);
+  await close_compose_window(rwc);
 
   let draftMsg = select_click_row(-2);
   Assert.equal(getMsgHeaders(draftMsg).get("").charset, "UTF-8");
@@ -137,7 +137,7 @@ add_task(async function test_wrong_reply_charset() {
     "draftMsgContent"
   );
 
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
 
   let box = get_notification(
     aboutMessage,
@@ -150,9 +150,9 @@ add_task(async function test_wrong_reply_charset() {
     {},
     aboutMessage
   );
-  rwc = await promise_compose_window();
+  rwc = await compose_window_ready(composePromise);
   await save_compose_message(rwc);
-  close_compose_window(rwc);
+  await close_compose_window(rwc);
   msg = select_click_row(-1);
   await TestUtils.waitForCondition(
     () => getMsgHeaders(msg).get("").charset == "UTF-8",
@@ -187,7 +187,7 @@ add_task(async function test_no_mojibake() {
     () => folder.getTotalMessages(false) == 2,
     "message saved to drafts folder"
   );
-  close_compose_window(rwc);
+  await close_compose_window(rwc);
 
   let draftMsg = select_click_row(-2);
   Assert.equal(getMsgHeaders(draftMsg).get("").charset.toUpperCase(), "UTF-8");
@@ -208,7 +208,7 @@ add_task(async function test_no_mojibake() {
     "draftMsgContent"
   );
 
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   let box = get_notification(
     aboutMessage,
     "mail-notification-top",
@@ -220,9 +220,9 @@ add_task(async function test_no_mojibake() {
     {},
     aboutMessage
   );
-  rwc = await promise_compose_window();
+  rwc = await compose_window_ready(composePromise);
   await save_compose_message(rwc);
-  close_compose_window(rwc);
+  await close_compose_window(rwc);
   msg = select_click_row(-1);
   Assert.equal(getMsgHeaders(msg).get("").charset.toUpperCase(), "UTF-8");
   Assert.equal(getMsgHeaders(msg, true).get("").trim(), nonASCII);

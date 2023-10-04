@@ -5,7 +5,7 @@
 "use strict";
 
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var { close_compose_window, promise_compose_window } = ChromeUtils.import(
+var { close_compose_window, compose_window_ready } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
 var { open_content_tab_with_url } = ChromeUtils.import(
@@ -14,13 +14,8 @@ var { open_content_tab_with_url } = ChromeUtils.import(
 var { input_value } = ChromeUtils.import(
   "resource://testing-common/mozmill/KeyboardHelpers.jsm"
 );
-var {
-  click_menus_in_sequence,
-  plan_for_modal_dialog,
-  plan_for_new_window,
-  wait_for_modal_dialog,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { click_menus_in_sequence, promise_modal_dialog, promise_new_window } =
+  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var gCwc;
 var gNewTab;
@@ -37,13 +32,13 @@ add_task(async function test_openComposeFromMailToLink() {
   gPreCount = tabmail.tabContainer.allTabs.length;
   gNewTab = open_content_tab_with_url(url + "mailtolink.html");
 
-  plan_for_new_window("msgcompose");
+  const composePromise = promise_new_window("msgcompose");
   await BrowserTestUtils.synthesizeMouseAtCenter(
     "#mailtolink",
     {},
     gNewTab.browser
   );
-  gCwc = await promise_compose_window();
+  gCwc = await compose_window_ready(composePromise);
 });
 
 add_task(async function test_checkInsertImage() {
@@ -51,29 +46,30 @@ add_task(async function test_checkInsertImage() {
   gCwc.document.getElementById("messageEditor").focus();
 
   // Now open the image window
-  plan_for_modal_dialog("Mail:image", async function insert_image(mwc) {
-    // Insert the url of the image.
-    let srcloc = mwc.document.getElementById("srcInput");
-    srcloc.focus();
+  const dialogPromise = promise_modal_dialog(
+    "Mail:image",
+    async function (mwc) {
+      // Insert the url of the image.
+      let srcloc = mwc.document.getElementById("srcInput");
+      srcloc.focus();
 
-    input_value(mwc, url + "pass.png");
-    await new Promise(resolve => setTimeout(resolve));
+      input_value(mwc, url + "pass.png");
+      await new Promise(resolve => setTimeout(resolve));
 
-    let noAlt = mwc.document.getElementById("noAltTextRadio");
-    // Don't add alternate text
-    EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
+      let noAlt = mwc.document.getElementById("noAltTextRadio");
+      // Don't add alternate text
+      EventUtils.synthesizeMouseAtCenter(noAlt, {}, noAlt.ownerGlobal);
 
-    // Accept the dialog
-    mwc.document.querySelector("dialog").acceptDialog();
-  });
+      // Accept the dialog
+      mwc.document.querySelector("dialog").acceptDialog();
+    }
+  );
 
   let insertMenu = gCwc.document.getElementById("InsertPopupButton");
   let insertMenuPopup = gCwc.document.getElementById("InsertPopup");
   EventUtils.synthesizeMouseAtCenter(insertMenu, {}, insertMenu.ownerGlobal);
   await click_menus_in_sequence(insertMenuPopup, [{ id: "InsertImageItem" }]);
-
-  wait_for_modal_dialog();
-  wait_for_window_close();
+  await dialogPromise;
 
   // Test that the image load has not been denied
   let childImages = gCwc.document
@@ -95,8 +91,8 @@ add_task(async function test_checkInsertImage() {
   );
 });
 
-add_task(function test_closeComposeWindowAndTab() {
-  close_compose_window(gCwc);
+add_task(async function test_closeComposeWindowAndTab() {
+  await close_compose_window(gCwc);
   let tabmail = document.getElementById("tabmail");
 
   tabmail.closeTab(gNewTab);

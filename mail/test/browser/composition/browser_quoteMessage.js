@@ -18,7 +18,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { click_menus_in_sequence, close_window } = ChromeUtils.import(
+var { click_menus_in_sequence } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -49,7 +49,7 @@ add_task(async function test_quoteMessage() {
       { label: "QuoteTestFolder" },
     ]
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   // Select message and click reply.
   select_click_row(0);
@@ -87,5 +87,5 @@ add_task(async function test_quoteMessage() {
     "Message should be quoted again by Options > Quote Message."
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

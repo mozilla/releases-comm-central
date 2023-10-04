@@ -11,9 +11,6 @@
 const { get_about_message, open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 const { get_notification_button, wait_for_notification_to_show } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
@@ -224,7 +221,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
       }
     }
 
-    close_window(msgc);
+    await BrowserTestUtils.closeWindow(msgc);
   }
 });
 

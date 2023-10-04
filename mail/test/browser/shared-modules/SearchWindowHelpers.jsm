@@ -17,15 +17,21 @@ const EXPORTED_SYMBOLS = [
 var { get_about_3pane, mc, right_click_on_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var windowHelper = ChromeUtils.import(
+var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { Assert } = ChromeUtils.importESModule(
   "resource://testing-common/Assert.sys.mjs"
 );
+var { BrowserTestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/BrowserTestUtils.sys.mjs"
+);
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
+);
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
@@ -34,10 +40,10 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
  *
  * @returns {Window} The search window.
  */
-function open_search_window() {
-  windowHelper.plan_for_new_window("mailnews:search");
+async function open_search_window() {
+  let searchPromise = promise_new_window("mailnews:search");
   EventUtils.synthesizeKey("f", { shiftKey: true, accelKey: true }, mc);
-  return windowHelper.wait_for_new_window("mailnews:search");
+  return searchPromise;
 }
 
 /**
@@ -53,9 +59,9 @@ async function open_search_window_from_context_menu(aFolder) {
   let item = win.document.getElementById("folderPaneContext-searchMessages");
   await right_click_on_folder(aFolder);
 
-  windowHelper.plan_for_new_window("mailnews:search");
+  let searchPromise = promise_new_window("mailnews:search");
   context.activateItem(item);
-  return windowHelper.wait_for_new_window("mailnews:search");
+  return searchPromise;
 }
 
 /**
@@ -63,8 +69,9 @@ async function open_search_window_from_context_menu(aFolder) {
  *
  * @param {Window} win - The search window to close.
  */
-function close_search_window(win) {
-  windowHelper.close_window(win);
+async function close_search_window(win) {
+  await BrowserTestUtils.closeWindow(win);
+  await TestUtils.waitForTick();
 }
 
 /**

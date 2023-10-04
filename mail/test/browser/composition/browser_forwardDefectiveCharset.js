@@ -21,7 +21,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { click_menus_in_sequence, close_window } = ChromeUtils.import(
+var { click_menus_in_sequence } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -50,8 +50,8 @@ add_task(async function test_forward_direct() {
     "forwarded content should be correctly encoded"
   );
 
-  close_compose_window(cwc);
-  close_window(msgc);
+  await close_compose_window(cwc);
+  await BrowserTestUtils.closeWindow(msgc);
 });
 
 add_task(async function test_forward_from_folder() {
@@ -78,7 +78,7 @@ add_task(async function test_forward_from_folder() {
       { label: folder.name },
     ]
   );
-  close_window(msgc);
+  await BrowserTestUtils.closeWindow(msgc);
 
   let msg = select_click_row(0);
   assert_selected_and_displayed(window, msg);
@@ -100,5 +100,5 @@ add_task(async function test_forward_from_folder() {
     "forwarded content should be correctly encoded"
   );
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });

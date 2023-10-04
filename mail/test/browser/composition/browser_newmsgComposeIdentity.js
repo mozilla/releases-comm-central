@@ -12,15 +12,15 @@
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   close_compose_window,
+  compose_window_ready,
   open_compose_new_mail,
-  promise_compose_window,
   save_compose_message,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { be_in_folder, get_special_folder, press_delete, select_click_row } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
   );
-var { click_menus_in_sequence, plan_for_new_window } = ChromeUtils.import(
+var { click_menus_in_sequence, promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 var { MailServices } = ChromeUtils.import(
@@ -128,11 +128,11 @@ add_task(async function test_compose_from_composer() {
   checkCompIdentity(cwc, account.defaultIdentity.key);
 
   // Compose a new message from the compose window.
-  plan_for_new_window("msgcompose");
+  let composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, cwc);
-  let newCompWin = await promise_compose_window();
+  let newCompWin = await compose_window_ready(composePromise);
   checkCompIdentity(newCompWin, account.defaultIdentity.key);
-  close_compose_window(newCompWin);
+  await close_compose_window(newCompWin);
 
   // Switch to identity2 in the main compose window, new compose windows
   // starting from here should use the same identity as its "parent".
@@ -140,14 +140,14 @@ add_task(async function test_compose_from_composer() {
   checkCompIdentity(cwc, identityKey2);
 
   // Compose a second new message from the compose window.
-  plan_for_new_window("msgcompose");
+  composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("n", { shiftKey: false, accelKey: true }, cwc);
-  let newCompWin2 = await promise_compose_window();
+  let newCompWin2 = await compose_window_ready(composePromise);
   checkCompIdentity(newCompWin2, identityKey2);
 
-  close_compose_window(newCompWin2);
+  await close_compose_window(newCompWin2);
 
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 });
 
 /**
@@ -185,7 +185,7 @@ add_task(async function test_editing_identity() {
     identityCustom,
     identityCustom
   );
-  close_compose_window(compWin);
+  await close_compose_window(compWin);
 
   /* Temporarily disabled due to intermittent failure, bug 1237565.
      TODO: To be reeabled in bug 1238264.
@@ -199,7 +199,7 @@ add_task(async function test_editing_identity() {
   checkCompIdentity(compWin, identityKey2, identity2From, identity2From);
 
   // This should not save the identity2 to the draft message.
-  close_compose_window(compWin);
+  await close_compose_window(compWin);
 
   await be_in_folder(gDrafts);
   let curMessage = select_click_row(0);
@@ -242,7 +242,7 @@ add_task(async function test_display_of_identities() {
   // Bug 1152045, check that the email address from the selected identity
   // is properly used for the From field in the created message.
   await save_compose_message(cwc);
-  close_compose_window(cwc);
+  await close_compose_window(cwc);
 
   await be_in_folder(gDrafts);
   let curMessage = select_click_row(0);
