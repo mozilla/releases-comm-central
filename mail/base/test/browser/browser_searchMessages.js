@@ -80,13 +80,6 @@ add_task(async function () {
   // Test search criteria. The search results are deterministic unless
   // MessageGenerator is changed.
 
-  // There seems to be some layout issue affecting Linux here. Resize the
-  // window and wait for layout to complete.
-  win.resizeBy(0, 1);
-  await TestUtils.waitForCondition(
-    () => searchTermList.clientHeight > 100,
-    "waiting for a search term to exist"
-  );
   await TestUtils.waitForCondition(
     () => searchTermList.itemCount == 1,
     "waiting for a search term to exist"
