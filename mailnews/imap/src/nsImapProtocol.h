@@ -521,8 +521,7 @@ class nsImapProtocol : public nsIImapProtocol,
   // sure we don't log authentication information like the user's password
   // (which was encoded anyway), but still we shouldn't add that information to
   // the log.
-  nsresult SendData(const char* dataBuffer,
-                    bool aSuppressLogging = false);
+  nsresult SendData(const char* dataBuffer, bool aSuppressLogging = false);
 
   // state ported over from 4.5
   bool m_pseudoInterrupted;
