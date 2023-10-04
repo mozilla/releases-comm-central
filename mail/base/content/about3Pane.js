@@ -115,7 +115,13 @@ window.addEventListener("DOMContentLoaded", async event => {
 
   // Set up the initial state using information which may have been provided
   // by mailTabs.js, or the saved state from the XUL store, or the defaults.
-  restoreState(window.openingState);
+  try {
+    // Do this in a try so that errors (e.g. bad data) don't prevent doing the
+    // rest of the important 3pane initialization below.
+    restoreState(window.openingState);
+  } catch (e) {
+    console.warn(`Couldn't restore state: ${e.message}`, e);
+  }
   delete window.openingState;
 
   // Finally, add the folderTree listener and trigger it. Earlier events
@@ -5764,9 +5770,13 @@ var messagePane = {
    */
   showStartPage() {
     this._keepStartPageOpen = true;
-    messagePane.displayWebPage(
-      Services.urlFormatter.formatURLPref("mailnews.start_page.url")
-    );
+    let url = Services.urlFormatter.formatURLPref("mailnews.start_page.url");
+    if (/^mailbox:|^imap:|^pop:|^s?news:|^nntp:/i.test(url)) {
+      console.warn(`Can't use ${url} as mailnews.start_page.url`);
+      Services.prefs.clearUserPref("mailnews.start_page.url");
+      url = Services.urlFormatter.formatURLPref("mailnews.start_page.url");
+    }
+    messagePane.displayWebPage(url);
   },
 };
 
