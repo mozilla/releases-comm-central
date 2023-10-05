@@ -544,7 +544,7 @@ var mailContextMenu = {
           false, // skipPrompt
           null, // referrerInfo
           null, // cookieJarSettings
-          this.browsingContext.window.document, // sourceDocument
+          this.browsingContext.window?.document, // sourceDocument
           null, // isContentWindowPrivate,
           Services.scriptSecurityManager.getSystemPrincipal() // principal
         );
