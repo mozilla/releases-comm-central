@@ -715,6 +715,10 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   display: none;
 }
 
+.thread-card-container .sender {
+  font-weight: 700;
+}
+
 .thread-card-subject-container .sender {
   font-weight: 400;
 }
