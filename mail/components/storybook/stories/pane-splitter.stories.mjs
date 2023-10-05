@@ -7,6 +7,7 @@ import "mail/base/content/widgets/pane-splitter.js"; //eslint-disable-line impor
 
 export default {
   title: "Widgets/Pane Splitter",
+  component: "pane-splitter",
   argTypes: {
     resizeDirection: {
       options: ["", "vertical", "horizontal"],

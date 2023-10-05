@@ -16,15 +16,7 @@ hard refresh (Cmd+Shift+R/Ctrl+Shift+R) to notice the changes.
 
 === Running storybook
 
-First time around, you will have to install the npm dependencies for storybook.
-There is a mach command to do so using the mach-provided `npm`:
-
-```
-# Working directory is your comm-central checkout root directory.
-../mach tb-storybook install
-```
-
-Once the npm dependencies are installed, you can run storybook by executing
+You can run storybook by executing
 
 ```
 # Working directory is your comm-central checkout root directory.

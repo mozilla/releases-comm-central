@@ -8,6 +8,7 @@ import "mail/components/unifiedtoolbar/content/search-bar.mjs"; //eslint-disable
 
 export default {
   title: "Widgets/Search Bar",
+  component: "search-bar",
 };
 
 export const SearchBar = () => html`
