@@ -2,6 +2,8 @@
 /* vim: set sts=2 sw=2 et tw=80: */
 "use strict";
 
+// @see browser/components/extensions/test/browser/browser_ext_windows_create_cookieStoreId.js
+
 add_task(async function no_cookies_permission() {
   await SpecialPowers.pushPrefEnv({
     set: [["privacy.userContext.enabled", true]],
@@ -209,6 +211,7 @@ add_task(async function valid_cookieStoreId() {
   }
   let extension = ExtensionTestUtils.loadExtension({
     manifest: {
+      host_permissions: ["*://*/*"], // allows script in top-level about:blank.
       permissions: ["cookies", "webNavigation"],
     },
     background: `(${background})(${JSON.stringify(testCases)})`,
