@@ -177,42 +177,6 @@ var EnigmailDialog = {
   },
 
   /**
-   * Display an alert dialog together with the message "this dialog will be
-   * displayed |counter| more times".
-   * If |counter| is 0, the dialog is not displayed.
-   *
-   * @win:           nsIWindow - the parent window to hold the modal dialog
-   * @countPrefName: String    - the name of the Enigmail preference to read/store the
-   *                             the |counter| value
-   * @mesg:          String    - the localized message to display
-   *
-   */
-  alertCount(win, countPrefName, mesg) {
-    let alertCount = Services.prefs.getIntPref("temp.openpgp." + countPrefName);
-    if (alertCount <= 0) {
-      return;
-    }
-
-    alertCount--;
-    Services.prefs.setIntPref(countPrefName, alertCount);
-
-    if (alertCount > 0) {
-      mesg +=
-        "\n" +
-        lazy.l10n.formatValueSync("repeat-prefix", { count: alertCount }) +
-        " ";
-      mesg +=
-        alertCount == 1
-          ? lazy.l10n.formatValueSync("repeat-suffix-singular")
-          : lazy.l10n.formatValueSync("repeat-suffix-plural");
-    } else {
-      mesg += "\n" + lazy.l10n.formatValueSync("no-repeat");
-    }
-
-    EnigmailDialog.alert(win, mesg);
-  },
-
-  /**
    * Display a confirmation dialog with OK / Cancel buttons (both customizable) and
    * a checkbox to remember the selected choice.
    *

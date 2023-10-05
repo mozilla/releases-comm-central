@@ -830,14 +830,6 @@ debug-log-title = OpenPGP Debug Log
 
 ## Strings used in dialog.jsm
 
-# This string is followed by either repeat-suffix-singular if $count is 1 or else
-# by repeat-suffix-plural.
-# Variables:
-# $count (Number) - Number of times the alert will repeat.
-repeat-prefix = This alert will repeat { $count }
-repeat-suffix-singular = more time.
-repeat-suffix-plural = more times.
-no-repeat = This alert will not be shown again.
 dlg-keep-setting = Remember my answer and do not ask me again
 dlg-button-ok = &OK
 dlg-button-close = &Close
