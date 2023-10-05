@@ -32,7 +32,6 @@ const folderPaneContextData = {
   "folderPaneContext-manageTags": ["tags"],
   "folderPaneContext-moveMenu": ["plain", "virtual", "rssFeed"],
   "folderPaneContext-copyMenu": ["plain", "rssFeed"],
-  "folderPaneContext-moveToFolderAgain": ["plain", "rssFeed"],
 };
 
 let tabmail = document.getElementById("tabmail");

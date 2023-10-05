@@ -501,7 +501,6 @@ var folderPaneContextMenu = {
     let movePopup = document.getElementById("folderContext-movePopup");
     if (isVirtual) {
       showItem("folderPaneContext-copyMenu", false);
-      showItem("folderPaneContext-moveToFolderAgain", false);
       let folder = this.activeFolder;
       let showMove = true;
       if (
@@ -527,12 +526,6 @@ var folderPaneContextMenu = {
       }
       showItem("folderPaneContext-moveMenu", okToMoveCopy);
       showItem("folderPaneContext-copyMenu", okToMoveCopy);
-      if (okToMoveCopy) {
-        top.initMoveToFolderAgainMenu(
-          document.getElementById("folderPaneContext-moveToFolderAgain")
-        );
-      }
-      showItem("folderPaneContext-moveToFolderAgain", okToMoveCopy);
     }
 
     let lastItem;
@@ -679,20 +672,6 @@ var folderPaneContextMenu = {
         ) {
           // A copy is requested via foldermenu-popup.
           isCopy = true;
-        } else if (
-          document
-            .getElementById("folderPaneContext-moveToFolderAgain")
-            .contains(event.target)
-        ) {
-          // A move|copy again requested via foldermenu-popup
-          targetFolder = MailUtils.getOrCreateFolder(
-            Services.prefs.getStringPref("mail.last_msg_movecopy_target_uri")
-          );
-          if (Services.prefs.getBoolPref("mail.last_msg_movecopy_was_move")) {
-            isMove = true;
-          } else {
-            isCopy = true;
-          }
         }
         if (isMove || isCopy) {
           if (!targetFolder) {

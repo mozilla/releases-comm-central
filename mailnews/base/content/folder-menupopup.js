@@ -481,6 +481,9 @@
         }
 
         this._addFoldersMenuItems(folders, mode, globalInboxFolder);
+        if (!this._parentFolder) {
+          this._addTopLevelBottomMenuItems();
+        }
       }
 
       /**
@@ -511,6 +514,30 @@
         if (showRecent || showFavorites) {
           this.childWrapper.appendChild(this._buildSeparator());
         }
+      }
+
+      /**
+       * Add menu items that only appear at top level (but last), like "<last>".
+       */
+      _addTopLevelBottomMenuItems() {
+        if (this.getAttribute("showLast") != "true") {
+          return;
+        }
+        const folderURI = Services.prefs.getStringPref(
+          "mail.last_msg_movecopy_target_uri"
+        );
+        const folder =
+          folderURI && LazyModules.MailUtils.getExistingFolder(folderURI);
+        if (!folder) {
+          return;
+        }
+
+        this.childWrapper.appendChild(this._buildSeparator());
+        const attributes = {
+          label: `${folder.prettyName} - ${folder.server.prettyName}`,
+          ...this._getCssSelectorAttributes(folder),
+        };
+        this.childWrapper.appendChild(this._buildMenuItem(attributes, folder));
       }
 
       /**
