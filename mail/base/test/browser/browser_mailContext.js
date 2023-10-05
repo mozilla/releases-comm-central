@@ -93,8 +93,8 @@ const mailContextData = {
     "syntheticFolderTree",
     ...onePane,
   ],
-  "mailContext-replySender": allSingleSelection,
-  "mailContext-replyAll": allSingleSelection,
+  "mailContext-replySender": true,
+  "mailContext-replyAll": true,
   "mailContext-replyList": ["listFolder", "listFolderTree"],
   "mailContext-forward": allSingleSelection,
   "mailContext-forwardAsMenu": allSingleSelection,
@@ -103,8 +103,8 @@ const mailContextData = {
     "multipleDraftsFolderTree",
     "multipleTemplatesFolderTree",
   ],
-  "mailContext-redirect": allSingleSelection,
-  "mailContext-editAsNew": allSingleSelection,
+  "mailContext-redirect": true,
+  "mailContext-editAsNew": true,
   "mailContext-tags": true, // Should be notExternal really.
   "mailContext-mark": true, // Should be notExternal really.
   "mailContext-archive": notExternal,
