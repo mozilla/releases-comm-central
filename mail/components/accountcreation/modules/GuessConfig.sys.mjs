@@ -107,6 +107,7 @@ function guessConfig(
   // If we're offline, we're going to pick the most common settings.
   // (Not the "best" settings, but common).
   if (Services.io.offline) {
+    // TODO: don't do this. Bug 599173.
     resultConfig.source = lazy.AccountConfig.kSourceUser;
     resultConfig.incoming.hostname = "mail." + domain;
     resultConfig.incoming.username = resultConfig.identity.emailAddress;
@@ -141,22 +142,13 @@ function guessConfig(
     );
   };
 
-  var updateConfig = function (config) {
-    resultConfig = config;
-  };
-
-  var errorInCallback = function (e) {
-    // The caller's errorCallback threw. Hopefully shouldn't happen for users.
-    console.error(e);
-    alertPrompt("Error in errorCallback for guessConfig()", e);
-  };
-
   var checkDone = function () {
     if (incomingEx) {
       try {
         errorCallback(incomingEx, resultConfig);
       } catch (e) {
-        errorInCallback(e);
+        console.error(e);
+        alertPrompt("Error in errorCallback for guessConfig()", e);
       }
       return;
     }
@@ -164,7 +156,8 @@ function guessConfig(
       try {
         errorCallback(outgoingEx, resultConfig);
       } catch (e) {
-        errorInCallback(e);
+        console.error(e);
+        alertPrompt("Error in errorCallback for guessConfig()", e);
       }
       return;
     }
@@ -175,7 +168,8 @@ function guessConfig(
         try {
           errorCallback(e);
         } catch (e) {
-          errorInCallback(e);
+          console.error(e);
+          alertPrompt("Error in errorCallback for guessConfig()", e);
         }
       }
     }
@@ -187,7 +181,8 @@ function guessConfig(
     server.hostname = thisTry.hostname;
     server.port = thisTry.port;
     server.socketType = thisTry.socketType;
-    server.auth = chooseBestAuthMethod(thisTry.authMethods);
+    server.auth =
+      thisTry.authMethod || chooseBestAuthMethod(thisTry.authMethods);
     server.authAlternatives = thisTry.authMethods;
     // TODO
     // cert is also bad when targetSite is set. (Same below for incoming.)
@@ -295,7 +290,8 @@ function guessConfig(
       !!resultConfig.incoming.hostname,
       resultConfig.incoming.type,
       resultConfig.incoming.port,
-      resultConfig.incoming.socketType
+      resultConfig.incoming.socketType,
+      resultConfig.incoming.auth
     );
   }
   if (which == "outgoing" || which == "both") {
@@ -304,26 +300,18 @@ function guessConfig(
       !!resultConfig.outgoing.hostname,
       "smtp",
       resultConfig.outgoing.port,
-      resultConfig.outgoing.socketType
+      resultConfig.outgoing.socketType,
+      resultConfig.outgoing.auth
     );
   }
 
-  return new GuessAbortable(
-    incomingHostDetector,
-    outgoingHostDetector,
-    updateConfig
-  );
+  return new GuessAbortable(incomingHostDetector, outgoingHostDetector);
 }
 
-function GuessAbortable(
-  incomingHostDetector,
-  outgoingHostDetector,
-  updateConfig
-) {
+function GuessAbortable(incomingHostDetector, outgoingHostDetector) {
   Abortable.call(this);
   this._incomingHostDetector = incomingHostDetector;
   this._outgoingHostDetector = outgoingHostDetector;
-  this._updateConfig = updateConfig;
 }
 GuessAbortable.prototype = Object.create(Abortable.prototype);
 GuessAbortable.prototype.constructor = GuessAbortable;
@@ -434,20 +422,19 @@ HostDetector.prototype = {
   },
 
   /**
-   * Start the detection
+   * Start the detection.
    *
-   * @param domain {String} to be used as base for guessing.
-   *     Should be a domain (e.g. yahoo.co.uk).
-   *     If hostIsPrecise == true, it should be a full hostname
-   * @param hostIsPrecise {Boolean} (default false)  use only this hostname,
-   *     do not guess hostnames.
-   * @param type {String-enum}@see AccountConfig type
-   *     (Optional. default, 0, undefined, null = guess it)
-   * @param port {Integer} (Optional. default, 0, undefined, null = guess it)
-   * @param socketType {Integer-enum}@see AccountConfig socketType
-   *     (Optional. default, 0, undefined, null = guess it)
+   * @param {string} domain - Domain to be used as base for guessing.
+   *   Should be a domain (e.g. yahoo.co.uk).
+   *   If hostIsPrecise == true, it should be a full hostname.
+   * @param {boolean} hostIsPrecise - If true, use only this hostname,
+   *   do not guess hostnames.
+   * @param {"pop3"|"imap"|"exchange"|"smtp"|""} - Account type.
+   * @param {integer} port - The port to use. 0 to autodetect
+   * @param {nsMsgSocketType|-1} socketType - Socket type. -1 to autodetect.
+   * @param {nsMsgAuthMethod|0} authMethod - Authentication method. 0 to autodetect.
    */
-  start(domain, hostIsPrecise, type, port, socketType) {
+  start(domain, hostIsPrecise, type, port, socketType, authMethod) {
     domain = domain.replace(/\s*/g, ""); // Remove whitespace
     if (!hostIsPrecise) {
       hostIsPrecise = false;
@@ -465,16 +452,9 @@ HostDetector.prototype = {
     );
     this._cancel = false;
     this._log.info(
-      "doing auto detect for protocol " +
-        protocol +
-        ", domain " +
-        domain +
-        ", (exactly: " +
-        hostIsPrecise +
-        "), port " +
-        port +
-        ", socketType " +
-        socketType
+      `Starting ${protocol} detection on ${
+        !hostIsPrecise ? "~ " : ""
+      }${domain}:${port} with socketType=${socketType} and authMethod=${authMethod}`
     );
 
     // fill this._hostsToTry
@@ -506,6 +486,7 @@ HostDetector.prototype = {
           hostTry.socketType +
           " " +
           protocolToString(hostTry.protocol);
+        hostTry.authMethod = authMethod;
         this._hostsToTry.push(hostTry);
       }
     }
@@ -578,9 +559,8 @@ HostDetector.prototype = {
   },
 
   /**
-   * @param thisTry {HostTry}
-   * @param wiredata {Array of {String}} what the server returned
-   *     in response to our protocol chat
+   * @param {HostTry} thisTry
+   * @param {string[]} wiredata - What the server returned in response to our protocol chat.
    */
   _processResult(thisTry, wiredata) {
     if (thisTry._gotCertError) {
@@ -687,25 +667,25 @@ HostDetector.prototype = {
 
   /**
    * Which auth mechanism the server claims to support.
-   * (That doesn't necessarily reflect reality, it is more an upper bound.)
+   * That doesn't necessarily reflect reality, it is more an upper bound.
    *
-   * @param protocol {Integer-enum} IMAP, POP or SMTP
-   * @param capaResponse {Array of {String}} on the wire data
-   *     that the server returned. May be the full exchange or just capa.
-   * @returns {Array of {Integer-enum} values for AccountConfig.incoming.auth
-   *     (or outgoing), in decreasing order of preference.
-   *     E.g. [ 5, 4 ] for a server that supports only Kerberos and
-   *     encrypted passwords.
+   * @param {integer} protocol - IMAP, POP or SMTP
+   * @param {string[]} capaResponse - On the wire data that the server returned.
+   *   May be the full exchange or just capa.
+   * @returns {nsMsgAuthMethod[]} Advertised authentication methods,
+   *   in decreasing order of preference.
+   *   E.g. [ nsMsgAuthMethod.GSSAPI, nsMsgAuthMethod.passwordEncrypted ]
+   *   for a server that supports only Kerberos and encrypted passwords.
    */
   _advertisesAuthMethods(protocol, capaResponse) {
-    // for imap, capabilities include e.g.:
-    // "AUTH=CRAM-MD5", "AUTH=NTLM", "AUTH=GSSAPI", "AUTH=MSN"
-    // for pop3, the auth mechanisms are returned in capa as the following:
+    // For IMAP, capabilities include e.g.:
+    // "AUTH=CRAM-MD5", "AUTH=NTLM", "AUTH=GSSAPI", "AUTH=MSN", "AUTH=PLAIN"
+    // for POP3, the auth mechanisms are returned in capa as the following:
     // "CRAM-MD5", "NTLM", "MSN", "GSSAPI"
-    // For smtp, EHLO will return AUTH and then a list of the
+    // For SMTP, EHLO will return AUTH and then a list of the
     // mechanism(s) supported, e.g.,
     // AUTH LOGIN NTLM MSN CRAM-MD5 GSSAPI
-    var result = [];
+    var supported = new Set();
     var line = capaResponse.join("\n").toUpperCase();
     var prefix = "";
     if (protocol == POP) {
@@ -719,18 +699,25 @@ HostDetector.prototype = {
     }
     // add in decreasing order of preference
     if (new RegExp(prefix + "GSSAPI").test(line)) {
-      result.push(Ci.nsMsgAuthMethod.GSSAPI);
+      supported.add(Ci.nsMsgAuthMethod.GSSAPI);
     }
     if (new RegExp(prefix + "CRAM-MD5").test(line)) {
-      result.push(Ci.nsMsgAuthMethod.passwordEncrypted);
+      supported.add(Ci.nsMsgAuthMethod.passwordEncrypted);
     }
     if (new RegExp(prefix + "(NTLM|MSN)").test(line)) {
-      result.push(Ci.nsMsgAuthMethod.NTLM);
+      supported.add(Ci.nsMsgAuthMethod.NTLM);
+    }
+    if (new RegExp(prefix + "LOGIN").test(line)) {
+      supported.add(Ci.nsMsgAuthMethod.passwordCleartext);
+    }
+    if (new RegExp(prefix + "PLAIN").test(line)) {
+      supported.add(Ci.nsMsgAuthMethod.passwordCleartext);
     }
     if (protocol != IMAP || !line.includes("LOGINDISABLED")) {
-      result.push(Ci.nsMsgAuthMethod.passwordCleartext);
+      supported.add(Ci.nsMsgAuthMethod.passwordCleartext);
     }
-    return result;
+    // The array elements will be in the Set's order of addition.
+    return Array.from(supported);
   },
 
   _hasSTARTTLS(thisTry, wiredata) {
@@ -743,9 +730,10 @@ HostDetector.prototype = {
 };
 
 /**
- * @param authMethods @see return value of _advertisesAuthMethods()
- *    Note: the returned auth method will be removed from the array.
- * @returns one of them, the preferred one
+ * @param {nsMsgAuthMethod[]} authMethods - Authentication methods to choose from.
+ *   See return value of _advertisesAuthMethods()
+ *   Note: the returned auth method will be removed from the array.
+ * @returns {nsMsgAuthMethod} one of them, the preferred one
  * Note: this might be Kerberos, which might not actually work,
  * so you might need to try the others, too.
  */
@@ -870,7 +858,7 @@ function sortTriesByPreference(tries) {
 }
 
 /**
- * @returns {Array of {HostTry}}
+ * @returns {HostTry[]} Hosts to try.
  */
 function getIncomingTryOrder(host, protocol, socketType, port) {
   var lowerCaseHost = host.toLowerCase();
