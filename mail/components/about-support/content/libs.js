@@ -6,6 +6,10 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
+var { OTRLibLoader } = ChromeUtils.importESModule(
+  "resource:///modules/OTRLib.sys.mjs"
+);
+
 XPCOMUtils.defineLazyModuleGetters(this, {
   BondOpenPGP: "chrome://openpgp/content/BondOpenPGP.jsm",
 });
@@ -21,4 +25,10 @@ function populateLibrarySection() {
   document.getElementById("rnp-loaded-version").textContent = loaded_version;
   document.getElementById("rnp-path").textContent = path;
   document.l10n.setAttributes(document.getElementById("rnp-status"), status);
+
+  document.getElementById("otr-path").textContent = OTRLibLoader.libotrPath;
+  document.l10n.setAttributes(
+    document.getElementById("otr-status"),
+    OTRLibLoader.status
+  );
 }

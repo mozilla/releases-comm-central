@@ -110,6 +110,15 @@ function loadExternalOTRLib() {
 }
 
 export var OTRLibLoader = {
+  get libotrPath() {
+    return libotrPath || "-";
+  },
+  get status() {
+    if (libotr) {
+      return "libs-otr-status-ok";
+    }
+    return "libs-otr-status-error";
+  },
   init() {
     loadExternalOTRLib();
     if (libotr) {
