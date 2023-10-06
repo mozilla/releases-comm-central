@@ -38,12 +38,12 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
 
 // Display the message and remove them from the rooms they're in.
 function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
-  let msgId = "message." + (aKicked ? "kicked" : "parted");
+  const msgId = "message." + (aKicked ? "kicked" : "parted");
   // If a part message was included, include it.
-  let reason = aReason ? lazy._(msgId + ".reason", aReason) : "";
+  const reason = aReason ? lazy._(msgId + ".reason", aReason) : "";
   function __(aNick, aYou) {
     // If the user is kicked, we need to say who kicked them.
-    let msgId2 = msgId + (aYou ? ".you" : "");
+    const msgId2 = msgId + (aYou ? ".you" : "");
     if (aKicked) {
       if (aYou) {
         return lazy._(msgId2, aSource, reason);
@@ -56,13 +56,13 @@ function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
     return lazy._(msgId2, aNick, reason);
   }
 
-  for (let channelName of aChannels) {
+  for (const channelName of aChannels) {
     if (!aAccount.conversations.has(channelName)) {
       // Handle when we closed the window.
       continue;
     }
-    let conversation = aAccount.getConversation(channelName);
-    for (let nick of aNicks) {
+    const conversation = aAccount.getConversation(channelName);
+    for (const nick of aNicks) {
       let msg;
       if (aAccount.normalize(nick) == aAccount.normalize(aAccount._nickname)) {
         msg = __(nick, true);
@@ -80,7 +80,7 @@ function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
 }
 
 function writeMessage(aAccount, aMessage, aString, aType) {
-  let type = {};
+  const type = {};
   type[aType] = true;
   type.tags = aMessage.tags;
   aAccount
@@ -178,7 +178,7 @@ export var ircBase = {
     },
     INVITE(aMessage) {
       // INVITE <nickname> <channel>
-      let channel = aMessage.params[1];
+      const channel = aMessage.params[1];
       this.addChatRequest(
         channel,
         () => {
@@ -201,8 +201,8 @@ export var ircBase = {
     JOIN(aMessage) {
       // JOIN ( <channel> *( "," <channel> ) [ <key> *( "," <key> ) ] ) / "0"
       // Iterate over each channel.
-      for (let channelName of aMessage.params[0].split(",")) {
-        let conversation = this.getConversation(channelName);
+      for (const channelName of aMessage.params[0].split(",")) {
+        const conversation = this.getConversation(channelName);
 
         // Check whether we joined the channel or if someone else did.
         if (
@@ -246,7 +246,7 @@ export var ircBase = {
           // Don't worry about adding ourself, RPL_NAMREPLY takes care of that
           // case.
           conversation.getParticipant(aMessage.origin, true);
-          let msg = lazy._("message.join", aMessage.origin, aMessage.source);
+          const msg = lazy._("message.join", aMessage.origin, aMessage.source);
           conversation.writeMessage(aMessage.origin, msg, {
             system: true,
             noLinkification: true,
@@ -254,7 +254,7 @@ export var ircBase = {
         }
       }
       // If the joiner is a buddy, mark as online.
-      let buddy = this.buddies.get(aMessage.origin);
+      const buddy = this.buddies.get(aMessage.origin);
       if (buddy) {
         buddy.setStatus(Ci.imIStatusInfo.STATUS_AVAILABLE, "");
       }
@@ -331,7 +331,7 @@ export var ircBase = {
     },
     PONG(aMessage) {
       // PONG <server> [ <server2> ]
-      let pongTime = aMessage.params[1];
+      const pongTime = aMessage.params[1];
 
       // Ping to keep the connection alive.
       if (pongTime.startsWith("_")) {
@@ -355,8 +355,8 @@ export var ircBase = {
         quitMsg = quitMsg.slice(6); // "Quit: ".length
       }
       // If a quit message was included, show it.
-      let nick = aMessage.origin;
-      let msg = lazy._(
+      const nick = aMessage.origin;
+      const msg = lazy._(
         "message.quit",
         nick,
         quitMsg.length ? lazy._("message.quit2", quitMsg) : ""
@@ -373,7 +373,7 @@ export var ircBase = {
       this.removeBuddyInfo(nick);
 
       // If the leaver is a buddy, mark as offline.
-      let buddy = this.buddies.get(nick);
+      const buddy = this.buddies.get(nick);
       if (buddy) {
         buddy.setStatus(Ci.imIStatusInfo.STATUS_OFFLINE, "");
       }
@@ -393,8 +393,8 @@ export var ircBase = {
     TOPIC(aMessage) {
       // TOPIC <channel> [ <topic> ]
       // Show topic as a message.
-      let conversation = this.getConversation(aMessage.params[0]);
-      let topic = aMessage.params[1];
+      const conversation = this.getConversation(aMessage.params[0]);
+      const topic = aMessage.params[1];
       // Set the topic in the conversation and update the UI.
       conversation.setTopic(
         topic ? ctcpFormatToText(topic) : "",
@@ -821,16 +821,16 @@ export var ircBase = {
       }
 
       // This was received in response to the last ISON message sent.
-      for (let buddyName of this.pendingIsOnQueue) {
+      for (const buddyName of this.pendingIsOnQueue) {
         // If the buddy name is in the list returned from the server, they're
         // online.
-        let status = !receivedBuddyNames.includes(buddyName)
+        const status = !receivedBuddyNames.includes(buddyName)
           ? Ci.imIStatusInfo.STATUS_OFFLINE
           : Ci.imIStatusInfo.STATUS_AVAILABLE;
 
         // Set the status with no status message, only if the buddy actually
         // exists in the buddy list.
-        let buddy = this.buddies.get(buddyName);
+        const buddy = this.buddies.get(buddyName);
         if (buddy) {
           buddy.setStatus(status, "");
         }
@@ -857,8 +857,8 @@ export var ircBase = {
       // RPL_WHOISUSER
       // <nick> <user> <host> * :<real name>
       // <username>@<hostname>
-      let nick = aMessage.params[1];
-      let source = aMessage.params[2] + "@" + aMessage.params[3];
+      const nick = aMessage.params[1];
+      const source = aMessage.params[2] + "@" + aMessage.params[3];
       // Some servers obfuscate the host when sending messages. Therefore,
       // we set the account prefix by using the host from this response.
       // We store it separately to avoid glitches due to the whois entry
@@ -887,7 +887,7 @@ export var ircBase = {
     314(aMessage) {
       // RPL_WHOWASUSER
       // <nick> <user> <host> * :<real name>
-      let source = aMessage.params[2] + "@" + aMessage.params[3];
+      const source = aMessage.params[2] + "@" + aMessage.params[3];
       return this.setWhois(aMessage.params[1], {
         offline: true,
         realname: aMessage.params[5],
@@ -916,7 +916,7 @@ export var ircBase = {
       // <nick> :End of WHOIS list
       // We've received everything about WHOIS, tell the tooltip that is waiting
       // for this information.
-      let nick = aMessage.params[1];
+      const nick = aMessage.params[1];
 
       if (this.whoisInformation.has(nick)) {
         this.notifyWhois(nick);
@@ -947,8 +947,8 @@ export var ircBase = {
     322(aMessage) {
       // RPL_LIST
       // <channel> <# visible> :<topic>
-      let name = aMessage.params[1];
-      let participantCount = aMessage.params[2];
+      const name = aMessage.params[1];
+      const participantCount = aMessage.params[2];
       let topic = aMessage.params[3];
       // Some servers (e.g. Unreal) include the channel's modes before the topic.
       // Omit this.
@@ -962,7 +962,7 @@ export var ircBase = {
       this._currentBatch.push(name);
       // Give callbacks a batch of channels of length _channelsPerBatch.
       if (this._currentBatch.length == this._channelsPerBatch) {
-        for (let callback of this._roomInfoCallbacks) {
+        for (const callback of this._roomInfoCallbacks) {
           callback.onRoomInfoAvailable(this._currentBatch, false);
         }
         this._currentBatch = [];
@@ -999,7 +999,7 @@ export var ircBase = {
     331(aMessage) {
       // RPL_NOTOPIC
       // <channel> :No topic is set
-      let conversation = this.getConversation(aMessage.params[1]);
+      const conversation = this.getConversation(aMessage.params[1]);
       // Clear the topic.
       conversation.setTopic("");
       return true;
@@ -1008,8 +1008,8 @@ export var ircBase = {
       // RPL_TOPIC
       // <channel> :<topic>
       // Update the topic UI
-      let conversation = this.getConversation(aMessage.params[1]);
-      let topic = aMessage.params[2];
+      const conversation = this.getConversation(aMessage.params[1]);
+      const topic = aMessage.params[2];
       conversation.setTopic(topic ? ctcpFormatToText(topic) : "");
       return true;
     },
@@ -1093,11 +1093,11 @@ export var ircBase = {
     353(aMessage) {
       // RPL_NAMREPLY
       // <target> ( "=" / "*" / "@" ) <channel> :[ "@" / "+" ] <nick> *( " " [ "@" / "+" ] <nick> )
-      let conversation = this.getConversation(aMessage.params[2]);
+      const conversation = this.getConversation(aMessage.params[2]);
       // Keep if this is secret (@), private (*) or public (=).
       conversation.setModesFromRestriction(aMessage.params[1]);
       // Add the participants.
-      let newParticipants = [];
+      const newParticipants = [];
       aMessage.params[3]
         .trim()
         .split(" ")
@@ -1154,7 +1154,7 @@ export var ircBase = {
 
       // This assumes that this is the last message received when joining a
       // channel, so a few "clean up" tasks are done here.
-      let conversation = this.getConversation(aMessage.params[1]);
+      const conversation = this.getConversation(aMessage.params[1]);
 
       // Update the topic as we may have added the participant for
       // the user after the mode message was handled, and so
@@ -1174,7 +1174,7 @@ export var ircBase = {
     367(aMessage) {
       // RPL_BANLIST
       // <channel> <banmask>
-      let conv = this.getConversation(aMessage.params[1]);
+      const conv = this.getConversation(aMessage.params[1]);
       if (!conv.banMasks.includes(aMessage.params[2])) {
         conv.banMasks.push(aMessage.params[2]);
       }
@@ -1183,7 +1183,7 @@ export var ircBase = {
     368(aMessage) {
       // RPL_ENDOFBANLIST
       // <channel> :End of channel ban list
-      let conv = this.getConversation(aMessage.params[1]);
+      const conv = this.getConversation(aMessage.params[1]);
       let msg;
       if (conv.banMasks.length) {
         msg = [lazy._("message.banMasks", aMessage.params[1])]
@@ -1285,7 +1285,7 @@ export var ircBase = {
       // RPL_TIME
       // <server> :<string showing server's local time>
 
-      let msg = lazy._("ctcp.time", aMessage.params[1], aMessage.params[2]);
+      const msg = lazy._("ctcp.time", aMessage.params[1], aMessage.params[2]);
       // Show the date returned from the server, note that this doesn't use
       // the serverMessage function: since this is in response to a command, it
       // should always be shown.
@@ -1322,7 +1322,7 @@ export var ircBase = {
       // <nickname> :No such nick/channel
       // Can arise in response to /mode, /invite, /kill, /msg, /whois.
       // TODO Handled in the conversation for /whois and /mgs so far.
-      let msgId =
+      const msgId =
         "error.noSuch" +
         (this.isMUCName(aMessage.params[1]) ? "Channel" : "Nick");
       if (this.conversations.has(aMessage.params[1])) {
@@ -1478,7 +1478,7 @@ export var ircBase = {
     432(aMessage) {
       // ERR_ERRONEUSNICKNAME
       // <nick> :Erroneous nickname
-      let msg = lazy._("error.erroneousNickname", this._requestedNickname);
+      const msg = lazy._("error.erroneousNickname", this._requestedNickname);
       serverErrorMessage(this, aMessage, msg);
       if (this._requestedNickname == this._accountNickname) {
         // The account has been set up with an illegal nickname.

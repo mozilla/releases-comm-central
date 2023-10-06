@@ -34,8 +34,8 @@ function kickCommand(aMsg, aConv) {
     return false;
   }
 
-  let params = [aConv.name];
-  let offset = aMsg.indexOf(" ");
+  const params = [aConv.name];
+  const offset = aMsg.indexOf(" ");
   if (offset != -1) {
     params.push(aMsg.slice(0, offset));
     params.push(aMsg.slice(offset + 1));
@@ -57,7 +57,7 @@ function messageCommand(aMsg, aConv, aReturnedConv, aIsNotice = false) {
   let nickname = aMsg;
   let message = "";
 
-  let sep = aMsg.indexOf(" ");
+  const sep = aMsg.indexOf(" ");
   if (sep > -1) {
     nickname = aMsg.slice(0, sep);
     message = aMsg.slice(sep + 1);
@@ -66,7 +66,7 @@ function messageCommand(aMsg, aConv, aReturnedConv, aIsNotice = false) {
     return false;
   }
 
-  let conv = getAccount(aConv).getConversation(nickname);
+  const conv = getAccount(aConv).getConversation(nickname);
   if (aReturnedConv) {
     aReturnedConv.value = conv;
   }
@@ -100,7 +100,7 @@ function actionCommand(aMsg, aConv) {
     return false;
   }
 
-  let conv = getConv(aConv);
+  const conv = getConv(aConv);
 
   conv.sendMsg(aMsg, true);
 
@@ -115,7 +115,7 @@ function privateMessage(aConv, aMsg, aNickname, aReturnedConv, aIsNotice) {
     return false;
   }
 
-  let conv = getAccount(aConv).getConversation(aNickname);
+  const conv = getAccount(aConv).getConversation(aNickname);
   conv.sendMsg(aMsg, false, aIsNotice);
   if (aReturnedConv) {
     aReturnedConv.value = conv;
@@ -165,7 +165,7 @@ export var commands = [
       return lazy._("command.ctcp", "ctcp");
     },
     run(aMsg, aConv) {
-      let separator = aMsg.indexOf(" ");
+      const separator = aMsg.indexOf(" ");
       // Ensure we have two non-empty parameters.
       if (separator < 1 || separator + 1 == aMsg.length) {
         return false;
@@ -206,11 +206,11 @@ export var commands = [
       return lazy._("command.invite2", "invite");
     },
     run(aMsg, aConv) {
-      let params = splitInput(aMsg);
+      const params = splitInput(aMsg);
 
       // Try to find one, and only one, channel in the list of parameters.
       let channel;
-      let account = getAccount(aConv);
+      const account = getAccount(aConv);
       // Find the first param that could be a channel name.
       for (let i = 0; i < params.length; ++i) {
         if (account.isMUCName(params[i])) {
@@ -245,7 +245,7 @@ export var commands = [
     },
     run(aMsg, aConv, aReturnedConv) {
       let params = aMsg.trim().split(/,\s*/);
-      let account = getAccount(aConv);
+      const account = getAccount(aConv);
       let conv;
       if (!params[0]) {
         conv = getConv(aConv);
@@ -263,7 +263,8 @@ export var commands = [
       }
       params.forEach(function (joinParam) {
         if (joinParam) {
-          let chatroomfields = account.getChatRoomDefaultFieldValues(joinParam);
+          const chatroomfields =
+            account.getChatRoomDefaultFieldValues(joinParam);
           conv = account.joinChat(chatroomfields);
         }
       });
@@ -287,9 +288,9 @@ export var commands = [
       return lazy._("command.list", "list");
     },
     run(aMsg, aConv, aReturnedConv) {
-      let account = getAccount(aConv);
-      let serverName = account._currentServerName;
-      let serverConv = account.getConversation(serverName);
+      const account = getAccount(aConv);
+      const serverName = account._currentServerName;
+      const serverConv = account.getConversation(serverName);
       let pendingChats = [];
       account.requestRoomInfo(
         {
@@ -306,8 +307,8 @@ export var commands = [
                     );
                     t = Date.now() + kMaxBlockTime;
                   }
-                  let name = pendingChats.pop();
-                  let roomInfo = account.getRoomInfo(name);
+                  const name = pendingChats.pop();
+                  const roomInfo = account.getRoomInfo(name);
                   serverConv.writeMessage(
                     serverName,
                     name +
@@ -362,7 +363,7 @@ export var commands = [
         return "+-".includes(aString[0]);
       }
       let params = splitInput(aMsg);
-      let channel = aConv.name;
+      const channel = aConv.name;
       // Add the channel as parameter when the target is not specified. i.e
       // 1. message is empty.
       // 2. the first parameter is a mode.
@@ -393,13 +394,13 @@ export var commands = [
       return lazy._("command.nick", "nick");
     },
     run(aMsg, aConv) {
-      let newNick = aMsg.trim();
+      const newNick = aMsg.trim();
       // eslint-disable-next-line mozilla/use-includes-instead-of-indexOf
       if (newNick.indexOf(/\s+/) != -1) {
         return false;
       }
 
-      let account = getAccount(aConv);
+      const account = getAccount(aConv);
       // The user wants to change their nick, so overwrite the account
       // nickname for this session.
       account._requestedNickname = newNick;
@@ -480,7 +481,7 @@ export var commands = [
       return lazy._("command.quit", "quit");
     },
     run(aMsg, aConv) {
-      let account = getAccount(aConv);
+      const account = getAccount(aConv);
       account.disconnect(aMsg);
       // While prpls shouldn't usually touch imAccount, this disconnection
       // is an action the user requested via the UI. Without this call,
@@ -546,7 +547,7 @@ export var commands = [
       return lazy._("command.umode", "umode");
     },
     run(aMsg, aConv) {
-      let params = aMsg ? splitInput(aMsg) : [];
+      const params = aMsg ? splitInput(aMsg) : [];
       params.unshift(getAccount(aConv)._nickname);
       return simpleCommand(aConv, "MODE", params);
     },

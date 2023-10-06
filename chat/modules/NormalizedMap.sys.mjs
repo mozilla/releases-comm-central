@@ -20,7 +20,7 @@ export class NormalizedMap extends Map {
     }
     // Create the wrapped Map; use the provided iterable after normalizing the
     // keys.
-    let entries = [...aIterable].map(([key, val]) => [aNormalize(key), val]);
+    const entries = [...aIterable].map(([key, val]) => [aNormalize(key), val]);
     super(entries);
     // Note: In derived classes, super() must be called before using 'this'.
     this._normalize = aNormalize;

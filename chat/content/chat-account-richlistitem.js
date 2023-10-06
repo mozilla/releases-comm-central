@@ -42,7 +42,7 @@
         if (event.button == 0) {
           // If we double clicked on a widget that has already done
           // something with the first click, we should ignore the event
-          let localName = event.target.localName;
+          const localName = event.target.localName;
           if (localName != "button" && localName != "checkbox") {
             this.proceedDefaultAction();
           }
@@ -129,7 +129,7 @@
       this._account = aAccount;
       this.setAttribute("name", aAccount.name);
       this.setAttribute("id", aAccount.id);
-      let proto = aAccount.protocol;
+      const proto = aAccount.protocol;
       this.setAttribute("protocol", proto.name);
       this.querySelector(".accountIcon").setAttribute(
         "src",
@@ -147,7 +147,7 @@
      *   through the account status.
      */
     refreshState(forceState) {
-      let account = this._account;
+      const account = this._account;
       let state = "unknown";
       if (forceState) {
         state = forceState;
@@ -186,7 +186,7 @@
     }
 
     updateConnectingProgress() {
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/imAccounts.properties"
       );
       const key = "account.connection.progress";
@@ -195,7 +195,7 @@
         ? bundle.formatStringFromName(key, [text])
         : bundle.GetStringFromName("account.connecting");
 
-      let progress = this.querySelector(".connecting");
+      const progress = this.querySelector(".connecting");
       progress.setAttribute("value", text);
       if (this.reconnectUpdateInterval) {
         this._cancelReconnectTimer();
@@ -203,13 +203,13 @@
     }
 
     updateConnectionError() {
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/imAccounts.properties"
       );
       const key = "account.connection.error";
-      let account = this._account;
+      const account = this._account;
       let text;
-      let errorReason = account.connectionErrorReason;
+      const errorReason = account.connectionErrorReason;
       if (errorReason == Ci.imIAccount.ERROR_UNKNOWN_PRPL) {
         text = bundle.formatStringFromName(key + "UnknownPrpl", [
           account.protocol.id,
@@ -233,16 +233,17 @@
         "src",
         "chrome://global/skin/icons/warning.svg"
       );
-      let error = this.querySelector(".error-description");
+      const error = this.querySelector(".error-description");
       error.textContent = text;
 
-      let updateReconnect = () => {
-        let date = Math.round(
+      const updateReconnect = () => {
+        const date = Math.round(
           (account.timeOfNextReconnect - Date.now()) / 1000
         );
         let reconnect = "";
         if (date > 0) {
-          let [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
+          const [val1, unit1, val2, unit2] =
+            DownloadUtils.convertTimeUnits(date);
           if (!val2) {
             reconnect = bundle.formatStringFromName(
               "account.reconnectInSingle",
@@ -266,14 +267,14 @@
     }
 
     refreshConnectedLabel() {
-      let bundle = Services.strings.createBundle(
+      const bundle = Services.strings.createBundle(
         "chrome://messenger/locale/imAccounts.properties"
       );
-      let date =
+      const date =
         60 * Math.floor((Date.now() - this._account.timeOfLastConnect) / 60000);
       let value;
       if (date > 0) {
-        let [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
+        const [val1, unit1, val2, unit2] = DownloadUtils.convertTimeUnits(date);
         if (!val2) {
           value = bundle.formatStringFromName("account.connectedForSingle", [
             val1,
@@ -318,7 +319,7 @@
     }
 
     get activeButton() {
-      let action = this.account.disconnected
+      const action = this.account.disconnected
         ? ".connectButton"
         : ".disconnectButton";
       return this.querySelector(action);
@@ -326,7 +327,7 @@
 
     setFocus() {
       let focusTarget = this.activeButton;
-      let accountName = this.getAttribute("name");
+      const accountName = this.getAttribute("name");
       focusTarget.setAttribute(
         "aria-label",
         focusTarget.label + " " + accountName

@@ -25,15 +25,15 @@ import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.s
  */
 function isupportMessage(aMessage) {
   // Separate the ISUPPORT parameters.
-  let tokens = aMessage.params.slice(1, -1);
+  const tokens = aMessage.params.slice(1, -1);
 
-  let message = aMessage;
+  const message = aMessage;
   message.isupport = {};
 
   return tokens.map(function (aToken) {
-    let newMessage = JSON.parse(JSON.stringify(message));
+    const newMessage = JSON.parse(JSON.stringify(message));
     newMessage.isupport.useDefault = aToken[0] == "-";
-    let token = (
+    const token = (
       newMessage.isupport.useDefault ? aToken.slice(1) : aToken
     ).split("=");
     newMessage.isupport.parameter = token[0];
@@ -59,7 +59,7 @@ export var ircISUPPORT = {
       );
       if (messages.length) {
         // Display the list of unhandled ISUPPORT messages.
-        let unhandledMessages = messages
+        const unhandledMessages = messages
           .map(aMsg => aMsg.isupport.parameter)
           .join(" ");
         this.LOG(
@@ -76,7 +76,9 @@ export var ircISUPPORT = {
 };
 
 function setSimpleNumber(aAccount, aField, aMessage, aDefaultValue) {
-  let value = aMessage.isupport.value ? Number(aMessage.isupport.value) : null;
+  const value = aMessage.isupport.value
+    ? Number(aMessage.isupport.value)
+    : null;
   aAccount[aField] = value && !isNaN(value) ? value : aDefaultValue;
   return true;
 }
@@ -101,7 +103,7 @@ export var isupportBase = {
       // of case-insensitive strings.
 
       // By default, use rfc1459 type case mapping.
-      let value = aMessage.isupport.useDefault
+      const value = aMessage.isupport.useDefault
         ? "rfc1493"
         : aMessage.isupport.value;
 
@@ -128,9 +130,9 @@ export var isupportBase = {
       // means the sum of those prefixes is given.
       this.maxChannels = {};
 
-      let pairs = aMessage.isupport.value.split(",");
-      for (let pair of pairs) {
-        let [prefix, num] = pair.split(":");
+      const pairs = aMessage.isupport.value.split(",");
+      for (const pair of pairs) {
+        const [prefix, num] = pair.split(":");
         this.maxChannels[prefix] = num;
       }
       return true;
@@ -143,7 +145,9 @@ export var isupportBase = {
     },
     CHANTYPES(aMessage) {
       // CHANTYPES=[<channel prefix>]*
-      let value = aMessage.isupport.useDefault ? "#&" : aMessage.isupport.value;
+      const value = aMessage.isupport.useDefault
+        ? "#&"
+        : aMessage.isupport.value;
       this.channelPrefixes = value.split("");
       return true;
     },
@@ -165,7 +169,7 @@ export var isupportBase = {
     },
     PREFIX(aMessage) {
       // PREFIX=[(<mode character>*)<prefix>*]
-      let value = aMessage.isupport.useDefault
+      const value = aMessage.isupport.useDefault
         ? "(ov)@+"
         : aMessage.isupport.value;
 
@@ -175,7 +179,7 @@ export var isupportBase = {
         return true;
       }
 
-      let matches = /\(([a-z]*)\)(.*)/i.exec(value);
+      const matches = /\(([a-z]*)\)(.*)/i.exec(value);
       if (!matches) {
         // The pattern doesn't match.
         this.WARN("Invalid PREFIX value: " + value);
@@ -217,10 +221,10 @@ export var isupportBase = {
       }
 
       this.maxTargets = {};
-      let commands = aMessage.isupport.value.split(",");
+      const commands = aMessage.isupport.value.split(",");
       for (let i = 0; i < commands.length; i++) {
-        let [command, limitStr] = commands[i].split("=");
-        let limit = limitStr ? Number(limit) : Infinity;
+        const [command, limitStr] = commands[i].split("=");
+        const limit = limitStr ? Number(limit) : Infinity;
         if (isNaN(limit)) {
           this.WARN("Invalid maximum number of targets: " + limitStr);
           continue;

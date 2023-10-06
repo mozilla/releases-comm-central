@@ -15,12 +15,12 @@ add_task(async function testPlain() {
   const username = "juliet";
   const password = "r0m30myr0m30";
 
-  let mech = XMPPAuthMechanisms.PLAIN(username, password, undefined);
+  const mech = XMPPAuthMechanisms.PLAIN(username, password, undefined);
 
   // Send the initiation message.
   let result = mech.next();
   ok(!result.done);
-  let value = await Promise.resolve(result.value);
+  const value = await Promise.resolve(result.value);
 
   // Check the algorithm.
   equal(value.send.attributes.mechanism, "PLAIN");
@@ -28,7 +28,7 @@ add_task(async function testPlain() {
   equal(value.send.children[0].text, "AGp1bGlldAByMG0zMG15cjBtMzA=");
 
   // Receive the success.
-  let response = Stanza.node("success", Stanza.NS.sasl);
+  const response = Stanza.node("success", Stanza.NS.sasl);
   result = mech.next(response);
   ok(result.done);
   // There is no final value.
@@ -48,7 +48,7 @@ add_task(async function testScramSha1() {
   // Use a constant value for the nonce.
   const nonce = "fyko+d2lbbFgONRv9qkxdawL";
 
-  let mech = XMPPAuthMechanisms["SCRAM-SHA-1"](
+  const mech = XMPPAuthMechanisms["SCRAM-SHA-1"](
     username,
     password,
     undefined,
@@ -110,7 +110,7 @@ add_task(async function testScramSha256() {
   // Use a constant value for the nonce.
   const nonce = "rOprNGfwEbeRWgbNEkqO";
 
-  let mech = XMPPAuthMechanisms["SCRAM-SHA-256"](
+  const mech = XMPPAuthMechanisms["SCRAM-SHA-256"](
     username,
     password,
     undefined,

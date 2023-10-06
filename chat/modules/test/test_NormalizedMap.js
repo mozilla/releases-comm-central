@@ -6,18 +6,18 @@ const { NormalizedMap } = ChromeUtils.importESModule(
 );
 
 function test_setter_getter() {
-  let m = new NormalizedMap(aStr => aStr.toLowerCase());
+  const m = new NormalizedMap(aStr => aStr.toLowerCase());
   m.set("foo", "bar");
   m.set("BaZ", "blah");
   Assert.equal(m.has("FOO"), true);
   Assert.equal(m.has("BaZ"), true);
   Assert.equal(m.get("FOO"), "bar");
 
-  let keys = Array.from(m.keys());
+  const keys = Array.from(m.keys());
   Assert.equal(keys[0], "foo");
   Assert.equal(keys[1], "baz");
 
-  let values = Array.from(m.values());
+  const values = Array.from(m.values());
   Assert.equal(values[0], "bar");
   Assert.equal(values[1], "blah");
 
@@ -27,7 +27,7 @@ function test_setter_getter() {
 }
 
 function test_constructor() {
-  let k = new NormalizedMap(
+  const k = new NormalizedMap(
     aStr => aStr.toLowerCase(),
     [
       ["A", 2],
@@ -43,10 +43,10 @@ function test_constructor() {
 }
 
 function test_iterator() {
-  let k = new NormalizedMap(aStr => aStr.toLowerCase());
+  const k = new NormalizedMap(aStr => aStr.toLowerCase());
   k.set("FoO", "bar");
 
-  for (let [key, value] of k) {
+  for (const [key, value] of k) {
     Assert.equal(key, "foo");
     Assert.equal(value, "bar");
   }
@@ -55,7 +55,7 @@ function test_iterator() {
 }
 
 function test_delete() {
-  let m = new NormalizedMap(aStr => aStr.toLowerCase());
+  const m = new NormalizedMap(aStr => aStr.toLowerCase());
   m.set("foo", "bar");
   m.set("BaZ", "blah");
 

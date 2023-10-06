@@ -168,7 +168,7 @@ const MATRIX_EVENT_HANDLERS = {
       const prevDefault =
         prevContent.users_default || lazy.MatrixPowerLevels.user;
       // Construct set of userIds.
-      let users = new Set(
+      const users = new Set(
         Object.keys(content.users).concat(Object.keys(prevContent.users))
       );
       const changes = Array.from(users)
@@ -199,7 +199,7 @@ const MATRIX_EVENT_HANDLERS = {
   },
   [MatrixSDK.EventType.RoomName]: {
     handler(matrixEvent, { sender, content }) {
-      let roomName = content.name;
+      const roomName = content.name;
       if (!roomName) {
         return lazy._("message.roomName.remove", sender);
       }

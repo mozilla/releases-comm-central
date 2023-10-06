@@ -65,8 +65,8 @@ function hourMinSecTwoDigits(aDate) {
   });
 }
 function dayPeriod(aDate) {
-  let dtf = Intl.DateTimeFormat(undefined, { hour: "2-digit" });
-  let dayPeriodPart =
+  const dtf = Intl.DateTimeFormat(undefined, { hour: "2-digit" });
+  const dayPeriodPart =
     dtf.resolvedOptions().hour12 &&
     dtf.formatToParts(aDate).find(part => part.type === "dayPeriod");
   return dayPeriodPart ? dayPeriodPart.value : "";
@@ -79,8 +79,8 @@ function weekNumber(aDate, weekStart) {
   return Math.max(Math.floor((DayWithinYear(aDate) + 7 - day) / 7), 0);
 }
 function weekNumberISO(t) {
-  let thisWeek = weekNumber(1, t);
-  let firstDayOfYear = (new Date(t.getFullYear(), 0, 1).getDay() || 7) - 1;
+  const thisWeek = weekNumber(1, t);
+  const firstDayOfYear = (new Date(t.getFullYear(), 0, 1).getDay() || 7) - 1;
   if (thisWeek === 0 && firstDayOfYear >= 4) {
     return weekNumberISO(new Date(t.getFullYear() - 1, 11, 31));
   }
@@ -90,8 +90,9 @@ function weekNumberISO(t) {
   return thisWeek + (firstDayOfYear > 0 && firstDayOfYear < 4);
 }
 function weekYearISO(aDate) {
-  let thisWeek = weekNumber(1, aDate);
-  let firstDayOfYear = (new Date(aDate.getFullYear(), 0, 1).getDay() || 7) - 1;
+  const thisWeek = weekNumber(1, aDate);
+  const firstDayOfYear =
+    (new Date(aDate.getFullYear(), 0, 1).getDay() || 7) - 1;
   if (thisWeek === 0 && firstDayOfYear >= 4) {
     return aDate.getFullYear() - 1;
   }
@@ -104,13 +105,14 @@ function weekYearISO(aDate) {
   return aDate.getFullYear();
 }
 function timeZoneOffset(aDate) {
-  let offset = aDate.getTimezoneOffset();
-  let tzoff = Math.floor(Math.abs(offset) / 60) * 100 + (Math.abs(offset) % 60);
+  const offset = aDate.getTimezoneOffset();
+  const tzoff =
+    Math.floor(Math.abs(offset) / 60) * 100 + (Math.abs(offset) % 60);
   return (offset < 0 ? "+" : "-") + String(tzoff).padStart(4, "0");
 }
 function timeZone(aDate) {
-  let dtf = Intl.DateTimeFormat(undefined, { timeZoneName: "short" });
-  let timeZoneNamePart = dtf
+  const dtf = Intl.DateTimeFormat(undefined, { timeZoneName: "short" });
+  const timeZoneNamePart = dtf
     .formatToParts(aDate)
     .find(part => part.type === "timeZoneName");
   return timeZoneNamePart ? timeZoneNamePart.value : "";
@@ -180,8 +182,11 @@ const padding = {
 
 export function ToLocaleFormat(aFormat, aDate) {
   // Modified conversion specifiers E and O are ignored.
-  let specifiers = Object.keys(formatFunctions).join("");
-  let pattern = RegExp(`%#?(\\^)?([0_-]\\d*)?(?:[EO])?([${specifiers}])`, "g");
+  const specifiers = Object.keys(formatFunctions).join("");
+  const pattern = RegExp(
+    `%#?(\\^)?([0_-]\\d*)?(?:[EO])?([${specifiers}])`,
+    "g"
+  );
 
   return aFormat.replace(
     pattern,
@@ -193,8 +198,8 @@ export function ToLocaleFormat(aFormat, aDate) {
       let fill = specifier in padding ? padding[specifier].fill : "";
       let width = specifier in padding ? padding[specifier].width : 0;
       if (fillWidthFlags) {
-        let newFill = fillWidthFlags[0];
-        let newWidth = fillWidthFlags.match(/\d+/);
+        const newFill = fillWidthFlags[0];
+        const newWidth = fillWidthFlags.match(/\d+/);
         if (newFill === "-" && newWidth === null) {
           fill = "";
         } else {

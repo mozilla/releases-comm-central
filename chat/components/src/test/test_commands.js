@@ -48,7 +48,7 @@ fakeCommand.prototype = {
 };
 
 function run_test() {
-  let cmdserv = new CommandsService();
+  const cmdserv = new CommandsService();
   cmdserv.initCommands();
 
   // Some commands providing multiple possible completions.
@@ -71,7 +71,7 @@ function run_test() {
   cmdserv.registerCommand(new fakeCommand("r9kbeta"), kPrplId);
 
   // Array of (possibly partial) command names as entered by the user.
-  let testCmds = [
+  const testCmds = [
     "x",
     "b",
     "ba",
@@ -91,7 +91,7 @@ function run_test() {
   // entry in the returned array of commands is a prpl command. (If the latter
   // boolean is not given, false is assumed, if the name is not given, that
   // corresponds to no commands being returned.)
-  let testData = [
+  const testData = [
     {
       desc: "No conversation argument.",
       cmdlist: "away, back, busy, dnd, help, offline, raw, say",
@@ -206,21 +206,21 @@ function run_test() {
     },
   ];
 
-  for (let test of testData) {
+  for (const test of testData) {
     info("The following tests are with: " + test.desc);
 
     // Check which commands are available in which context.
-    let cmdlist = cmdserv
+    const cmdlist = cmdserv
       .listCommandsForConversation(test.conv)
       .map(aCmd => aCmd.name)
       .sort()
       .join(", ");
     Assert.equal(cmdlist, test.cmdlist);
 
-    for (let testCmd of testCmds) {
+    for (const testCmd of testCmds) {
       info("Testing command found for '" + testCmd + "'");
-      let expectedResult = test.results.shift();
-      let cmdArray = cmdserv._findCommands(test.conv, testCmd);
+      const expectedResult = test.results.shift();
+      const cmdArray = cmdserv._findCommands(test.conv, testCmd);
       // Check whether commands are only returned when appropriate.
       Assert.equal(cmdArray.length > 0, expectedResult.length > 0);
       if (cmdArray.length) {
@@ -235,7 +235,7 @@ function run_test() {
   }
 
   // Array of messages to test command execution of.
-  let testMessages = [
+  const testMessages = [
     {
       message: "/r9kbeta",
       result: true,
@@ -259,7 +259,7 @@ function run_test() {
   ];
 
   // Test command execution.
-  for (let executionTest of testMessages) {
+  for (const executionTest of testMessages) {
     info("Testing command execution for '" + executionTest.message + "'");
     Assert.equal(
       cmdserv.executeCommand(executionTest.message, fakeConversation),

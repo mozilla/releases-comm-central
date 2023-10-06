@@ -24,7 +24,7 @@ var kStrictMode = 0,
   kPermissiveMode = 2;
 
 function run_test() {
-  let defaultMode = Services.prefs.getIntPref(kModePref);
+  const defaultMode = Services.prefs.getIntPref(kModePref);
 
   add_test(test_strictMode);
   add_test(test_standardMode);
@@ -46,14 +46,14 @@ function test_plainText() {
     "  foo", // preserve leading indent
     "&lt;html&gt;&amp;", // keep escaped characters
   ];
-  for (let string of strings) {
+  for (const string of strings) {
     Assert.equal(string, cleanupImMarkup(string));
   }
 }
 
 function test_paragraphs() {
   const strings = ["<p>foo</p><p>bar</p>", "<p>foo<br>bar</p>", "foo<br>bar"];
-  for (let string of strings) {
+  for (const string of strings) {
     Assert.equal(string, cleanupImMarkup(string));
   }
 }
@@ -65,7 +65,7 @@ function test_stripScripts() {
     ["<p onclick=\"alert('hey')\">foo</p>", "<p>foo</p>"],
     ["<p onmouseover=\"alert('hey')\">foo</p>", "<p>foo</p>"],
   ];
-  for (let [input, expectedOutput] of strings) {
+  for (const [input, expectedOutput] of strings) {
     Assert.equal(expectedOutput, cleanupImMarkup(input));
   }
 }
@@ -91,7 +91,7 @@ function test_links() {
     "foo://bar/",
     "",
   ];
-  for (let string of bad) {
+  for (const string of bad) {
     Assert.equal(
       "<a>foo</a>",
       cleanupImMarkup('<a href="' + string + '">foo</a>')
@@ -99,7 +99,7 @@ function test_links() {
   }
 
   // keep link titles
-  let string = '<a title="foo bar">foo</a>';
+  const string = '<a title="foo bar">foo</a>';
   Assert.equal(string, cleanupImMarkup(string));
 }
 
@@ -139,7 +139,7 @@ function test_strictMode() {
   test_allModes();
 
   // check that basic formatting is stripped in strict mode.
-  for (let tag of [
+  for (const tag of [
     "div",
     "em",
     "strong",
@@ -189,7 +189,7 @@ function test_standardMode() {
   test_table();
 
   // check that basic formatting is kept in standard mode.
-  for (let tag of [
+  for (const tag of [
     "div",
     "em",
     "strong",
@@ -212,26 +212,26 @@ function test_standardMode() {
     "ins",
     "details",
   ]) {
-    let string = "<" + tag + ">foo</" + tag + ">";
+    const string = "<" + tag + ">foo</" + tag + ">";
     Assert.equal(string, cleanupImMarkup(string));
   }
 
   // Keep special allowed classes.
-  for (let className of ["moz-txt-underscore", "moz-txt-tag"]) {
-    let string = '<span class="' + className + '">foo</span>';
+  for (const className of ["moz-txt-underscore", "moz-txt-tag"]) {
+    const string = '<span class="' + className + '">foo</span>';
     Assert.equal(string, cleanupImMarkup(string));
   }
 
   // Remove font settings
-  let font_string = '<font face="Times" color="pink" size="3">foo</font>';
+  const font_string = '<font face="Times" color="pink" size="3">foo</font>';
   Assert.equal("foo", cleanupImMarkup(font_string));
 
   // Discard hr
   Assert.equal("foobar", cleanupImMarkup("foo<hr>bar"));
 
   const okCSS = ["font-style: italic", "font-weight: bold"];
-  for (let css of okCSS) {
-    let string = '<span style="' + css + '">foo</span>';
+  for (const css of okCSS) {
+    const string = '<span style="' + css + '">foo</span>';
     Assert.equal(string, cleanupImMarkup(string));
   }
   // text-decoration is a shorthand for several text-decoration properties, but
@@ -249,7 +249,7 @@ function test_standardMode() {
     "visibility: hidden",
     "unsupported-by-gecko: blah",
   ];
-  for (let css of badCSS) {
+  for (const css of badCSS) {
     Assert.equal(
       "<span>foo</span>",
       cleanupImMarkup('<span style="' + css + '">foo</span>')
@@ -279,7 +279,7 @@ function test_permissiveMode() {
   test_table();
 
   // Check that all formatting is kept in permissive mode.
-  for (let tag of [
+  for (const tag of [
     "div",
     "em",
     "strong",
@@ -307,25 +307,25 @@ function test_permissiveMode() {
     "h5",
     "h6",
   ]) {
-    let string = "<" + tag + ">foo</" + tag + ">";
+    const string = "<" + tag + ">foo</" + tag + ">";
     Assert.equal(string, cleanupImMarkup(string));
   }
 
   // Keep special allowed classes.
-  for (let className of ["moz-txt-underscore", "moz-txt-tag"]) {
-    let string = '<span class="' + className + '">foo</span>';
+  for (const className of ["moz-txt-underscore", "moz-txt-tag"]) {
+    const string = '<span class="' + className + '">foo</span>';
     Assert.equal(string, cleanupImMarkup(string));
   }
 
   // Keep font settings
   const fontAttributes = ['face="Times"', 'color="pink"', 'size="3"'];
-  for (let fontAttribute of fontAttributes) {
-    let string = "<font " + fontAttribute + ">foo</font>";
+  for (const fontAttribute of fontAttributes) {
+    const string = "<font " + fontAttribute + ">foo</font>";
     Assert.equal(string, cleanupImMarkup(string));
   }
 
   // Allow hr
-  let hr_string = "foo<hr>bar";
+  const hr_string = "foo<hr>bar";
   Assert.equal(hr_string, cleanupImMarkup(hr_string));
 
   // Allow most CSS rules changing the text appearance.
@@ -336,8 +336,8 @@ function test_permissiveMode() {
     "font-family: Times",
     "font-size: larger",
   ];
-  for (let css of okCSS) {
-    let string = '<span style="' + css + '">foo</span>';
+  for (const css of okCSS) {
+    const string = '<span style="' + css + '">foo</span>';
     Assert.equal(string, cleanupImMarkup(string));
   }
   // text-decoration is a shorthand for several text-decoration properties, but
@@ -362,7 +362,7 @@ function test_permissiveMode() {
     "visibility: hidden",
     "unsupported-by-gecko: blah",
   ];
-  for (let css of badCSS) {
+  for (const css of badCSS) {
     Assert.equal(
       "<span>foo</span>",
       cleanupImMarkup('<span style="' + css + '">foo</span>')
@@ -455,7 +455,7 @@ function test_addGlobalAllowedStyleRule() {
 function test_createDerivedRuleset() {
   Services.prefs.setIntPref(kModePref, kStandardMode);
 
-  let rules = createDerivedRuleset();
+  const rules = createDerivedRuleset();
 
   let string = "<hr>";
   Assert.equal("", cleanupImMarkup(string));

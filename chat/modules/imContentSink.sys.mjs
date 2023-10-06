@@ -212,13 +212,13 @@ function getModePref() {
 }
 
 function setBaseRuleset(aBase, aResult) {
-  for (let property in aBase) {
+  for (const property in aBase) {
     aResult[property] = Object.create(aBase[property], aResult[property]);
   }
 }
 
 function newRuleset(aBase) {
-  let result = {
+  const result = {
     tags: {},
     attrs: {},
     styles: {},
@@ -349,13 +349,13 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
   // Iterate each node and apply rules for what content is allowed. This has two
   // modes: one for element nodes and one for text nodes.
   for (let i = 0; i < aNode.childNodes.length; ++i) {
-    let node = aNode.childNodes[i];
+    const node = aNode.childNodes[i];
     if (
       node.nodeType == node.ELEMENT_NODE &&
       node.namespaceURI == "http://www.w3.org/1999/xhtml"
     ) {
       // If the node is an element, check if the node is an allowed tag.
-      let nodeName = node.localName;
+      const nodeName = node.localName;
       if (!(nodeName in aRules.tags)) {
         // If the node is not allowed, either remove it completely (if
         // it is forbidden) or replace it with its children.
@@ -379,19 +379,19 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
       cleanupNode(node, aRules, aTextModifiers);
 
       // Cleanup the attributes of this node.
-      let attrs = node.attributes;
-      let acceptFunction = function (aAttrRules, aAttr) {
+      const attrs = node.attributes;
+      const acceptFunction = function (aAttrRules, aAttr) {
         // An attribute is always accepted if its rule is true, or conditionally
         // accepted if its rule is a function that evaluates to true.
         // If its rule does not exist, it is removed.
-        let localName = aAttr.localName;
-        let rule = localName in aAttrRules && aAttrRules[localName];
+        const localName = aAttr.localName;
+        const rule = localName in aAttrRules && aAttrRules[localName];
         return (
           rule === true || (typeof rule == "function" && rule(aAttr.value))
         );
       };
       for (let j = 0; j < attrs.length; ++j) {
-        let attr = attrs[j];
+        const attr = attrs[j];
         // If either the attribute is accepted for all tags or for this specific
         // tag then it is allowed.
         if (
@@ -407,7 +407,7 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
       }
 
       // Cleanup the style attribute.
-      let style = node.style;
+      const style = node.style;
       for (let j = 0; j < style.length; ++j) {
         if (!(style[j] in aRules.styles)) {
           style.removeProperty(style[j]);
@@ -452,9 +452,9 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
       // are created, the next text modifier functions have more nodes
       // to process.
       let textNodeCount = 1;
-      for (let modifier of aTextModifiers) {
+      for (const modifier of aTextModifiers) {
         for (let n = 0; n < textNodeCount; ++n) {
-          let textNode = aNode.childNodes[i + n];
+          const textNode = aNode.childNodes[i + n];
 
           // If we are processing nodes created by one of the previous
           // text modifier function, some of the nodes are likely not
@@ -466,7 +466,7 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
             continue;
           }
 
-          let result = modifier(textNode);
+          const result = modifier(textNode);
           textNodeCount += result;
           n += result;
         }
@@ -483,13 +483,13 @@ export function cleanupImMarkup(aText, aRuleset, aTextModifiers = []) {
     initGlobalRuleset();
   }
 
-  let parser = new DOMParser();
+  const parser = new DOMParser();
   // Wrap the text to be parsed in a <span> to avoid losing leading whitespace.
-  let doc = parser.parseFromString(
+  const doc = parser.parseFromString(
     "<!DOCTYPE html><html><body><span>" + aText + "</span></body></html>",
     "text/html"
   );
-  let span = doc.querySelector("span");
+  const span = doc.querySelector("span");
   cleanupNode(span, aRuleset || gGlobalRuleset, aTextModifiers);
   return span.innerHTML;
 }

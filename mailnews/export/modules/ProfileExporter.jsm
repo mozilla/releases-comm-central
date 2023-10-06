@@ -49,20 +49,20 @@ class ProfileExporter {
    * @param {nsIFile} targetFile - A target zip file to write to.
    */
   async startExport(targetFile) {
-    let zipW = Components.Constructor(
+    const zipW = Components.Constructor(
       "@mozilla.org/zipwriter;1",
       "nsIZipWriter"
     )();
     // MODE_WRONLY (0x02) and MODE_CREATE (0x08)
     zipW.open(targetFile, 0x02 | 0x08);
-    let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    let rootPathCount = PathUtils.split(profileDir.parent.path).length;
-    let zipEntryMap = new Map();
+    const profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
+    const rootPathCount = PathUtils.split(profileDir.parent.path).length;
+    const zipEntryMap = new Map();
     await this._collectFilesToZip(zipEntryMap, rootPathCount, profileDir);
 
-    let totalEntries = zipEntryMap.size;
+    const totalEntries = zipEntryMap.size;
     let i = 0;
-    for (let [path, file] of zipEntryMap) {
+    for (const [path, file] of zipEntryMap) {
       try {
         zipW.addEntryFile(
           path,
@@ -90,7 +90,7 @@ class ProfileExporter {
    * @param {nsIFile} folder - The folder to search for files to zip.
    */
   async _collectFilesToZip(zipEntryMap, rootPathCount, folder) {
-    for (let file of folder.directoryEntries) {
+    for (const file of folder.directoryEntries) {
       if (!file.exists()) {
         continue;
       }
@@ -98,7 +98,7 @@ class ProfileExporter {
         await this._collectFilesToZip(zipEntryMap, rootPathCount, file);
       } else {
         // We don't want to include the rootPath part in the zip file.
-        let parts = PathUtils.split(file.path).slice(rootPathCount);
+        const parts = PathUtils.split(file.path).slice(rootPathCount);
         // Parts look like this: ["profile-default", "lock"].
         if (IGNORE_PATHS.includes(parts[1])) {
           continue;

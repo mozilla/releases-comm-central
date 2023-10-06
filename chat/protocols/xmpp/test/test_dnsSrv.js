@@ -94,8 +94,8 @@ var TEST_DATA = [
 ];
 
 function run_test() {
-  for (let currentQuery of TEST_DATA) {
-    let session = new FakeXMPPSession();
+  for (const currentQuery of TEST_DATA) {
+    const session = new FakeXMPPSession();
     try {
       session._handleSrvQuery(currentQuery.input);
       equal(session._srvRecords.length, currentQuery.output.length);

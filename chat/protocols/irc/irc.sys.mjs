@@ -50,7 +50,7 @@ ircProtocol.prototype = {
   ],
 
   splitUsername(aName) {
-    let splitter = aName.lastIndexOf("@");
+    const splitter = aName.lastIndexOf("@");
     if (splitter === -1) {
       return [];
     }

@@ -25,9 +25,9 @@ export function scriptError(aModule, aLevel, aMessage, aOriginalError) {
   // the last section removed is attempted (until no sections are left, using
   // the global default log level).
   let logLevel = -1;
-  let logKeys = ["level"].concat(aModule.split("."));
+  const logKeys = ["level"].concat(aModule.split("."));
   for (; logKeys.length > 0; logKeys.pop()) {
-    let logKey = logKeys.join(".");
+    const logKey = logKeys.join(".");
     if (logKey in lazy.gLogLevels) {
       logLevel = lazy.gLogLevels[logKey];
       break;
@@ -44,10 +44,10 @@ export function scriptError(aModule, aLevel, aMessage, aOriginalError) {
     flag = Ci.nsIScriptError.errorFlag;
   }
 
-  let scriptError = Cc["@mozilla.org/scripterror;1"].createInstance(
+  const scriptError = Cc["@mozilla.org/scripterror;1"].createInstance(
     Ci.nsIScriptError
   );
-  let caller = Components.stack.caller;
+  const caller = Components.stack.caller;
   let sourceLine = aModule || caller.sourceLine;
   if (caller.name) {
     if (sourceLine) {
@@ -104,9 +104,9 @@ XPCOMUtils.defineLazyGetter(lazy, "gLogLevels", function () {
   // for the global level, "level.irc" for the IRC module).  The dual-purpose
   // is necessary to make sure the observe is left alive while being a weak ref
   // to avoid cycles with the pref service.
-  let logLevels = {
+  const logLevels = {
     observe(aSubject, aTopic, aData) {
-      let module = "level" + aData.substr(kLogLevelPref.length);
+      const module = "level" + aData.substr(kLogLevelPref.length);
       if (Services.prefs.getPrefType(aData) == Services.prefs.PREF_INT) {
         lazy.gLogLevels[module] = Services.prefs.getIntPref(aData);
       } else {
@@ -123,7 +123,7 @@ XPCOMUtils.defineLazyGetter(lazy, "gLogLevels", function () {
   Services.prefs.addObserver(kLogLevelPref, logLevels, true /* weak */);
 
   // Initialize with existing log level prefs.
-  for (let pref of Services.prefs.getChildList(kLogLevelPref)) {
+  for (const pref of Services.prefs.getChildList(kLogLevelPref)) {
     if (Services.prefs.getPrefType(pref) == Services.prefs.PREF_INT) {
       logLevels["level" + pref.substr(kLogLevelPref.length)] =
         Services.prefs.getIntPref(pref);
@@ -136,7 +136,7 @@ XPCOMUtils.defineLazyGetter(lazy, "gLogLevels", function () {
     .split(/[;,]/)
     .filter(n => n != "")
     .forEach(function (env) {
-      let [, module, level] = env.match(/(?:(.*?)[:=])?(\d+)/);
+      const [, module, level] = env.match(/(?:(.*?)[:=])?(\d+)/);
       logLevels["level" + (module ? "." + module : "")] = parseInt(level, 10);
     });
 
@@ -158,7 +158,7 @@ export function ClassInfo(aInterfaces, aDescription = "JS Proto Object") {
     aInterfaces = [aInterfaces];
   }
 
-  for (let i of aInterfaces) {
+  for (const i of aInterfaces) {
     if (typeof i == "string" && !(i in Ci)) {
       Services.console.logStringMessage("ClassInfo: unknown interface " + i);
     }
@@ -192,7 +192,7 @@ ClassInfo.prototype = {
 };
 
 export function l10nHelper(aChromeURL) {
-  let bundle = Services.strings.createBundle(aChromeURL);
+  const bundle = Services.strings.createBundle(aChromeURL);
   return function (aStringId) {
     try {
       if (arguments.length == 1) {

@@ -28,7 +28,7 @@ function setStatus(aAccount, aNick, aStatus) {
     aAccount.removeBuddyInfo(aNick);
   }
 
-  let buddy = aAccount.buddies.get(aNick);
+  const buddy = aAccount.buddies.get(aNick);
   if (!buddy) {
     return false;
   }
@@ -46,12 +46,12 @@ function trackBuddyWatch(aNicks) {
     aNicks = [aNicks];
   }
 
-  let nicks = aNicks.map(aNick => "+" + aNick);
+  const nicks = aNicks.map(aNick => "+" + aNick);
   if (!nicks.length) {
     return;
   }
 
-  let newWatchLength = this.watchLength + nicks.length;
+  const newWatchLength = this.watchLength + nicks.length;
   if (newWatchLength > this.maxWatchLength) {
     this.WARN(
       "Attempting to WATCH " +
@@ -71,11 +71,11 @@ function trackBuddyWatch(aNicks) {
   if (this.watchAwayEnabled) {
     params.push("A");
   }
-  let maxLength =
+  const maxLength =
     this.maxMessageLength -
     2 -
     this.countBytes(this.buildMessage("WATCH", params));
-  for (let nick of nicks) {
+  for (const nick of nicks) {
     if (this.countBytes(params + " " + nick) >= maxLength) {
       // If the message would be too long, first send this message.
       this.sendMessage("WATCH", params);
@@ -106,7 +106,7 @@ export var isupportWATCH = {
       if (!aMessage.isupport.useDefault) {
         this.maxWatchLength = 128;
       } else {
-        let size = parseInt(aMessage.isupport.value, 10);
+        const size = parseInt(aMessage.isupport.value, 10);
         if (isNaN(size)) {
           return false;
         }
@@ -177,7 +177,7 @@ export var ircWATCH = {
       // RPL_AWAY
       // <nick> :<away message>
       // Set the received away message.
-      let buddy = this.buddies.get(aMessage.params[1]);
+      const buddy = this.buddies.get(aMessage.params[1]);
       if (buddy) {
         buddy.setStatus(Ci.imIStatusInfo.STATUS_AWAY, aMessage.params[2]);
       }
@@ -311,7 +311,7 @@ export var isupportMONITOR = {
       if (!aMessage.isupport.useDefault) {
         this.maxMonitorLength = Infinity;
       } else {
-        let size = parseInt(aMessage.isupport.value, 10);
+        const size = parseInt(aMessage.isupport.value, 10);
         if (isNaN(size)) {
           return false;
         }
@@ -342,12 +342,12 @@ function trackBuddyMonitor(aNicks) {
     aNicks = [aNicks];
   }
 
-  let nicks = aNicks;
+  const nicks = aNicks;
   if (!nicks.length) {
     return;
   }
 
-  let newMonitorLength = this.monitorLength + nicks.length;
+  const newMonitorLength = this.monitorLength + nicks.length;
   if (newMonitorLength > this.maxMonitorLength) {
     this.WARN(
       "Attempting to MONITOR " +
@@ -363,11 +363,11 @@ function trackBuddyMonitor(aNicks) {
   this.monitorLength = newMonitorLength;
 
   let params = [];
-  let maxLength =
+  const maxLength =
     this.maxMessageLength -
     2 -
     this.countBytes(this.buildMessage("MONITOR", "+"));
-  for (let nick of nicks) {
+  for (const nick of nicks) {
     if (this.countBytes(params + " " + nick) >= maxLength) {
       // If the message would be too long, first send this message.
       this.sendMessage("MONITOR", ["+", params.join(",")]);

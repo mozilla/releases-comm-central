@@ -34,7 +34,7 @@ XPCOMUtils.defineLazyServiceGetter(
 );
 
 var kPrefAutologinPending = "messenger.accounts.autoLoginPending";
-let kPrefAccountOrder = "mail.accountmanager.accounts";
+const kPrefAccountOrder = "mail.accountmanager.accounts";
 var kPrefAccountPrefix = "messenger.account.";
 var kAccountKeyPrefix = "account";
 var kAccountOptionPrefPrefix = "options.";
@@ -282,9 +282,9 @@ imAccount.prototype = {
         this.canJoinChat &&
         this.prefBranch.prefHasUserValue(kPrefAccountAutoJoin)
       ) {
-        let autojoin = this.prefBranch.getStringPref(kPrefAccountAutoJoin);
+        const autojoin = this.prefBranch.getStringPref(kPrefAccountAutoJoin);
         if (autojoin) {
-          for (let room of autojoin.trim().split(/,\s*/)) {
+          for (const room of autojoin.trim().split(/,\s*/)) {
             if (room) {
               this.joinChat(this.getChatRoomDefaultFieldValues(room));
             }
@@ -297,7 +297,7 @@ imAccount.prototype = {
       delete this.connectionStateMsg;
       this._finishedAutoLogin();
 
-      let firstConnectionState = this.firstConnectionState;
+      const firstConnectionState = this.firstConnectionState;
       if (
         firstConnectionState != Ci.imIAccount.FIRST_CONNECTION_OK &&
         firstConnectionState != Ci.imIAccount.FIRST_CONNECTION_CRASHED
@@ -305,7 +305,7 @@ imAccount.prototype = {
         this.firstConnectionState = Ci.imIAccount.FIRST_CONNECTION_UNKNOWN;
       }
 
-      let connectionErrorReason = this.prplAccount.connectionErrorReason;
+      const connectionErrorReason = this.prplAccount.connectionErrorReason;
       if (connectionErrorReason != Ci.prplIAccount.NO_ERROR) {
         if (
           connectionErrorReason == Ci.prplIAccount.ERROR_NETWORK_ERROR ||
@@ -317,7 +317,7 @@ imAccount.prototype = {
       }
     } else if (aTopic == "account-disconnected") {
       this.connectionState = Ci.imIAccount.STATE_DISCONNECTED;
-      let connectionErrorReason = this.prplAccount.connectionErrorReason;
+      const connectionErrorReason = this.prplAccount.connectionErrorReason;
       if (connectionErrorReason != Ci.prplIAccount.NO_ERROR) {
         // If the account was disconnected with an error, save the debug messages.
         this._omittedDebugMessagesBeforeError += this._omittedDebugMessages;
@@ -371,7 +371,7 @@ imAccount.prototype = {
     this._debugMessages.push({ logLevel: aLevel, message: aMessage });
   },
   _createDebugMessage(aMessage) {
-    let scriptError = Cc["@mozilla.org/scripterror;1"].createInstance(
+    const scriptError = Cc["@mozilla.org/scripterror;1"].createInstance(
       Ci.nsIScriptError
     );
     scriptError.init(
@@ -388,22 +388,22 @@ imAccount.prototype = {
   getDebugMessages() {
     let messages = [];
     if (this._omittedDebugMessagesBeforeError) {
-      let text = this._omittedDebugMessagesBeforeError + " messages omitted";
+      const text = this._omittedDebugMessagesBeforeError + " messages omitted";
       messages.push(this._createDebugMessage(text));
     }
     if (this._debugMessagesBeforeError) {
       messages = messages.concat(this._debugMessagesBeforeError);
     }
     if (this._omittedDebugMessages) {
-      let text = this._omittedDebugMessages + " messages omitted";
+      const text = this._omittedDebugMessages + " messages omitted";
       messages.push(this._createDebugMessage(text));
     }
     if (this._debugMessages) {
       messages = messages.concat(this._debugMessages);
     }
     if (messages.length) {
-      let appInfo = Services.appinfo;
-      let header =
+      const appInfo = Services.appinfo;
+      const header =
         `${appInfo.name} ${appInfo.version} (${appInfo.appBuildID}), ` +
         `Gecko ${appInfo.platformVersion} (${appInfo.platformBuildID}) ` +
         `on ${lazy.HttpProtocolHandler.oscpu}`;
@@ -462,11 +462,11 @@ imAccount.prototype = {
       delete this.timeOfLastConnect;
     }
 
-    let timers = Services.prefs
+    const timers = Services.prefs
       .getCharPref("messenger.accounts.reconnectTimer")
       .split(",");
-    let delay = timers[Math.min(this.reconnectAttempt, timers.length - 1)];
-    let msDelay = parseInt(delay) * 1000;
+    const delay = timers[Math.min(this.reconnectAttempt, timers.length - 1)];
+    const msDelay = parseInt(delay) * 1000;
     ++this.reconnectAttempt;
     this.timeOfNextReconnect = Date.now() + msDelay;
     this._reconnectTimer = setTimeout(this.connect.bind(this), msDelay);
@@ -533,7 +533,7 @@ imAccount.prototype = {
         }
         // If the account was disconnected because of a non-fatal
         // connection error, retry now that we have new parameters.
-        let errorReason = this.connectionErrorReason;
+        const errorReason = this.connectionErrorReason;
         if (
           this.disconnected &&
           errorReason != Ci.prplIAccount.NO_ERROR &&
@@ -587,7 +587,7 @@ imAccount.prototype = {
       return "";
     }
 
-    let passwordURI = "im://" + this.protocol.id;
+    const passwordURI = "im://" + this.protocol.id;
     let logins;
     try {
       logins = Services.logins.findLogins(passwordURI, null, passwordURI);
@@ -595,8 +595,8 @@ imAccount.prototype = {
       this._handlePrimaryPasswordException(e);
       return "";
     }
-    let normalizedName = this.normalizedName;
-    for (let login of logins) {
+    const normalizedName = this.normalizedName;
+    for (const login of logins) {
       if (login.username == normalizedName) {
         this._password = login.password;
         if (
@@ -635,10 +635,10 @@ imAccount.prototype = {
     if (gUserCanceledPrimaryPasswordPrompt) {
       return;
     }
-    let newLogin = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-      Ci.nsILoginInfo
-    );
-    let passwordURI = "im://" + this.protocol.id;
+    const newLogin = Cc[
+      "@mozilla.org/login-manager/loginInfo;1"
+    ].createInstance(Ci.nsILoginInfo);
+    const passwordURI = "im://" + this.protocol.id;
     newLogin.init(
       passwordURI,
       null,
@@ -649,9 +649,9 @@ imAccount.prototype = {
       ""
     );
     try {
-      let logins = Services.logins.findLogins(passwordURI, null, passwordURI);
+      const logins = Services.logins.findLogins(passwordURI, null, passwordURI);
       let saved = false;
-      for (let login of logins) {
+      for (const login of logins) {
         if (newLogin.matches(login, true)) {
           if (password) {
             Services.logins.modifyLogin(login, newLogin);
@@ -732,15 +732,15 @@ imAccount.prototype = {
 
   // Delete the account (from the preferences, mozStorage, and call unInit).
   remove() {
-    let login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    const login = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
       Ci.nsILoginInfo
     );
-    let passwordURI = "im://" + this.protocol.id;
+    const passwordURI = "im://" + this.protocol.id;
     // Note: the normalizedName may not be exactly right if the
     // protocol plugin is missing.
     login.init(passwordURI, null, passwordURI, this.normalizedName, "", "", "");
-    let logins = Services.logins.findLogins(passwordURI, null, passwordURI);
-    for (let l of logins) {
+    const logins = Services.logins.findLogins(passwordURI, null, passwordURI);
+    for (const l of logins) {
       if (login.matches(l, true)) {
         Services.logins.removeLogin(l);
         break;
@@ -754,7 +754,7 @@ imAccount.prototype = {
     }
     this.unInit();
     IMServices.contacts.forgetAccount(this.numericId);
-    for (let prefName of this.prefBranch.getChildList("")) {
+    for (const prefName of this.prefBranch.getChildList("")) {
       this.prefBranch.clearUserPref(prefName);
     }
   },
@@ -808,8 +808,8 @@ imAccount.prototype = {
 
       let password = this.password;
       if (!password) {
-        let prompts = Services.prompt;
-        let shouldSave = { value: false };
+        const prompts = Services.prompt;
+        const shouldSave = { value: false };
         password = { value: "" };
         if (
           !prompts.promptPassword(
@@ -837,8 +837,8 @@ imAccount.prototype = {
         observe: function (aSubject, aTopic, aData) {
           // Disconnect or reconnect the account automatically, otherwise notify
           // the prplAccount instance.
-          let statusType = aSubject.statusType;
-          let connectionErrorReason = this.connectionErrorReason;
+          const statusType = aSubject.statusType;
+          const connectionErrorReason = this.connectionErrorReason;
           if (statusType == Ci.imIStatusInfo.STATUS_OFFLINE) {
             if (this.connected || this.connecting) {
               this.prplAccount.disconnect();
@@ -983,10 +983,10 @@ AccountsService.prototype = {
     this._accounts = [];
     this._accountsById = {};
     gAccountsService = this;
-    let accountIdArray = MailServices.accounts.accounts
+    const accountIdArray = MailServices.accounts.accounts
       .map(account => account.incomingServer.getCharValue("imAccount"))
       .filter(accountKey => accountKey?.startsWith(kAccountKeyPrefix));
-    for (let account of accountIdArray) {
+    for (const account of accountIdArray) {
       new imAccount(account);
     }
 
@@ -1016,7 +1016,7 @@ AccountsService.prototype = {
   },
 
   unInitAccounts() {
-    for (let account of this._accounts) {
+    for (const account of this._accounts) {
       account.unInit();
     }
     gAccountsService = null;
@@ -1033,8 +1033,7 @@ AccountsService.prototype = {
       return;
     }
 
-    let prefs = Services.prefs;
-    if (!prefs.getIntPref("messenger.startup.action")) {
+    if (!Services.prefs.getIntPref("messenger.startup.action")) {
       // the value 0 means that we start without connecting the accounts
       this.autoLoginStatus = Ci.imIAccountsService.AUTOLOGIN_USER_DISABLED;
       return;
@@ -1049,8 +1048,9 @@ AccountsService.prototype = {
     /* Check if we crashed at the last startup during autologin */
     let autoLoginPending;
     if (
-      prefs.getPrefType(kPrefAutologinPending) == prefs.PREF_INVALID ||
-      !(autoLoginPending = prefs.getIntPref(kPrefAutologinPending))
+      Services.prefs.getPrefType(kPrefAutologinPending) ==
+        Services.prefs.PREF_INVALID ||
+      !(autoLoginPending = Services.prefs.getIntPref(kPrefAutologinPending))
     ) {
       // if the pref isn't set, then we haven't crashed: keep autologin enabled
       return;
@@ -1059,7 +1059,7 @@ AccountsService.prototype = {
     // Last autologin hasn't finished properly.
     // For now, assume it's because of a crash.
     this.autoLoginStatus = Ci.imIAccountsService.AUTOLOGIN_CRASH;
-    prefs.deleteBranch(kPrefAutologinPending);
+    Services.prefs.deleteBranch(kPrefAutologinPending);
 
     // If the crash reporter isn't built, we can't know anything more.
     if (!("nsICrashReporter" in Ci)) {
@@ -1071,15 +1071,15 @@ AccountsService.prototype = {
       let lastCrashTime = 0;
 
       /* Locate the LastCrash file */
-      let lastCrash = Services.dirsvc.get("UAppData", Ci.nsIFile);
+      const lastCrash = Services.dirsvc.get("UAppData", Ci.nsIFile);
       lastCrash.append("Crash Reports");
       lastCrash.append("LastCrash");
       if (lastCrash.exists()) {
         /* Ok, the file exists, now let's try to read it */
-        let is = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(
-          Ci.nsIFileInputStream
-        );
-        let sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+        const is = Cc[
+          "@mozilla.org/network/file-input-stream;1"
+        ].createInstance(Ci.nsIFileInputStream);
+        const sis = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
           Ci.nsIScriptableInputStream
         );
         is.init(lastCrash, -1, 0, 0);
@@ -1127,7 +1127,7 @@ AccountsService.prototype = {
       return;
     }
 
-    for (let account of this._accounts) {
+    for (const account of this._accounts) {
       account.checkAutoLogin();
     }
 
@@ -1149,7 +1149,7 @@ AccountsService.prototype = {
     }
 
     this._checkingIfPasswordStillMissing = true;
-    for (let account of this._accounts) {
+    for (const account of this._accounts) {
       account._checkIfPasswordStillMissing();
     }
     delete this._checkingIfPasswordStillMissing;
@@ -1163,7 +1163,7 @@ AccountsService.prototype = {
       );
     }
 
-    let id = parseInt(aAccountId.substr(kAccountKeyPrefix.length));
+    const id = parseInt(aAccountId.substr(kAccountKeyPrefix.length));
     return this.getAccountByNumericId(id);
   },
 
@@ -1180,7 +1180,7 @@ AccountsService.prototype = {
 
   createAccount(aName, aPrpl) {
     // Ensure an account with the same name and protocol doesn't already exist.
-    let prpl = IMServices.core.getProtocolById(aPrpl);
+    const prpl = IMServices.core.getProtocolById(aPrpl);
     if (!prpl) {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
@@ -1210,25 +1210,25 @@ AccountsService.prototype = {
     }
 
     /* Actually create the new account. */
-    let key = kAccountKeyPrefix + id;
-    let account = new imAccount(key, aName, aPrpl);
+    const key = kAccountKeyPrefix + id;
+    const account = new imAccount(key, aName, aPrpl);
 
     Services.obs.notifyObservers(account, "account-added");
     return account;
   },
 
   deleteAccount(aAccountId) {
-    let account = this.getAccountById(aAccountId);
+    const account = this.getAccountById(aAccountId);
     if (!account) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
-    let index = this._accounts.indexOf(account);
+    const index = this._accounts.indexOf(account);
     if (index == -1) {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
 
-    let id = account.numericId;
+    const id = account.numericId;
     account.remove();
     this._accounts.splice(index, 1);
     delete this._accountsById[id];

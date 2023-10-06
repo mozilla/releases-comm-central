@@ -133,7 +133,7 @@ export var Stanza = {
 
   /* Create a iq stanza */
   iq(aType, aId, aTo, aData) {
-    let attrs = { type: aType };
+    const attrs = { type: aType };
     if (aId) {
       attrs.id = aId;
     }
@@ -145,12 +145,12 @@ export var Stanza = {
 
   /* Create a XML node */
   node(aName, aNs, aAttr, aData) {
-    let node = new XMLNode(null, aNs, aName, aName, aAttr);
+    const node = new XMLNode(null, aNs, aName, aName, aAttr);
     if (aData) {
       if (!Array.isArray(aData)) {
         aData = [aData];
       }
-      for (let child of aData) {
+      for (const child of aData) {
         node[typeof child == "string" ? "addText" : "addChild"](child);
       }
     }
@@ -216,7 +216,7 @@ function XMLNode(
   this.attributes = {};
   this.children = [];
 
-  for (let attributeName in aAttr) {
+  for (const attributeName in aAttr) {
     // Each attribute specification has a name and a value.
     if (aAttr[attributeName]) {
       this.attributes[attributeName] = aAttr[attributeName];
@@ -235,7 +235,7 @@ XMLNode.prototype = {
 
   /* Add text node */
   addText(aText) {
-    let lastIndex = this.children.length - 1;
+    const lastIndex = this.children.length - 1;
     if (lastIndex >= 0 && this.children[lastIndex] instanceof TextNode) {
       this.children[lastIndex].append(aText);
     } else {
@@ -256,12 +256,12 @@ XMLNode.prototype = {
       return this;
     }
 
-    let nq = aQuery.slice(1);
-    for (let child of this.children) {
+    const nq = aQuery.slice(1);
+    for (const child of this.children) {
       if (child.type == "text" || child.localName != aQuery[0]) {
         continue;
       }
-      let n = child.getElement(nq);
+      const n = child.getElement(nq);
       if (n) {
         return n;
       }
@@ -277,11 +277,11 @@ XMLNode.prototype = {
       return [this];
     }
 
-    let c = this.getChildren(aQuery[0]);
-    let nq = aQuery.slice(1);
+    const c = this.getChildren(aQuery[0]);
+    const nq = aQuery.slice(1);
     let res = [];
-    for (let child of c) {
-      let n = child.getElements(nq);
+    for (const child of c) {
+      const n = child.getElements(nq);
       res = res.concat(n);
     }
 
@@ -298,16 +298,16 @@ XMLNode.prototype = {
     if (!TOP_LEVEL_ELEMENTS.hasOwnProperty(this.qName)) {
       return false;
     }
-    let ns = TOP_LEVEL_ELEMENTS[this.qName];
+    const ns = TOP_LEVEL_ELEMENTS[this.qName];
     return ns == this.uri || (Array.isArray(ns) && ns.includes(this.uri));
   },
 
   /* Returns indented XML */
   convertToString(aIndent = "") {
-    let s =
+    const s =
       aIndent + "<" + this.qName + this._getXmlns() + this._getAttributeText();
     let content = "";
-    for (let child of this.children) {
+    for (const child of this.children) {
       content += child.convertToString(aIndent + " ");
     }
     return (
@@ -319,8 +319,8 @@ XMLNode.prototype = {
 
   /* Returns the XML */
   getXML() {
-    let s = "<" + this.qName + this._getXmlns() + this._getAttributeText();
-    let innerXML = this.innerXML;
+    const s = "<" + this.qName + this._getXmlns() + this._getAttributeText();
+    const innerXML = this.innerXML;
     return s + (innerXML ? ">" + innerXML + "</" + this.qName : "/") + ">";
   },
 
@@ -337,7 +337,7 @@ XMLNode.prototype = {
   },
   _getAttributeText() {
     let s = "";
-    for (let name in this.attributes) {
+    for (const name in this.attributes) {
       s += " " + name + '="' + this.attributes[name] + '"';
     }
     return s;
@@ -349,15 +349,15 @@ export function XMPPParser(aListener) {
 
   // We only get tagName from onclosetag callback, but we need more, so save the
   // opening tags.
-  let tagStack = [];
+  const tagStack = [];
   this._parser = SAX.parser(true, { xmlns: true, lowercase: true });
   this._parser.onopentag = node => {
     if (this._parser.error) {
       // sax-js doesn't stop on error, but we want to.
       return;
     }
-    let attrs = {};
-    for (let [name, attr] of Object.entries(node.attributes)) {
+    const attrs = {};
+    for (const [name, attr] of Object.entries(node.attributes)) {
       if (name == "xmlns") {
         continue;
       }
@@ -370,7 +370,7 @@ export function XMPPParser(aListener) {
     if (this._parser.error) {
       return;
     }
-    let node = tagStack.pop();
+    const node = tagStack.pop();
     if (tagName == node.name) {
       this.endElement(node.uri, node.local, node.name);
     } else {
@@ -408,17 +408,17 @@ XMPPParser.prototype = {
    * @param {string} data - Raw XML byte string.
    */
   onDataAvailable(data) {
-    let bytes = new Uint8Array(data.length);
+    const bytes = new Uint8Array(data.length);
     for (let i = 0; i < data.length; i++) {
       bytes[i] = data.charCodeAt(i);
     }
-    let utf8Data = this._decoder.decode(bytes);
+    const utf8Data = this._decoder.decode(bytes);
     this._parser.write(utf8Data);
   },
 
   startElement(aUri, aLocalName, aQName, aAttributes) {
     if (aQName == "stream:stream") {
-      let node = new XMLNode(null, aUri, aLocalName, aQName, aAttributes);
+      const node = new XMLNode(null, aUri, aLocalName, aQName, aAttributes);
       // The node we created doesn't have children, but
       // <stream:stream> isn't closed, so avoid displaying /> at the end.
       this._logReceivedData(node.convertToString().slice(0, -3) + ">\n");
@@ -440,7 +440,7 @@ XMPPParser.prototype = {
       return;
     }
 
-    let node = new XMLNode(this._node, aUri, aLocalName, aQName, aAttributes);
+    const node = new XMLNode(this._node, aUri, aLocalName, aQName, aAttributes);
     if (this._node) {
       this._node.addChild(node);
     }

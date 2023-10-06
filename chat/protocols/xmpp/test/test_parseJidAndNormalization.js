@@ -62,8 +62,8 @@ var TEST_DATA = {
 };
 
 function testParseJID() {
-  for (let currentJID in TEST_DATA) {
-    let jid = XMPPAccountPrototype._parseJID(currentJID);
+  for (const currentJID in TEST_DATA) {
+    const jid = XMPPAccountPrototype._parseJID(currentJID);
     equal(jid.node, TEST_DATA[currentJID].node);
     equal(jid.domain, TEST_DATA[currentJID].domain);
     equal(jid.resource, TEST_DATA[currentJID].resource);
@@ -74,7 +74,7 @@ function testParseJID() {
 }
 
 function testNormalize() {
-  for (let currentJID in TEST_DATA) {
+  for (const currentJID in TEST_DATA) {
     equal(
       XMPPAccountPrototype.normalize(currentJID),
       TEST_DATA[currentJID].normalized
@@ -85,7 +85,7 @@ function testNormalize() {
 }
 
 function testNormalizeFullJid() {
-  for (let currentJID in TEST_DATA) {
+  for (const currentJID in TEST_DATA) {
     equal(
       XMPPAccountPrototype.normalizeFullJid(currentJID),
       TEST_DATA[currentJID].jid

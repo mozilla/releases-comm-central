@@ -57,16 +57,17 @@ function testSecureList() {
   const kSecureListMsg =
     ":fripp.mozilla.org NOTICE aleth-build :*** You cannot list within the first 60 seconds of connecting. Please try again later.";
 
-  let message = ircMessage(kSecureListMsg, "");
-  let account = new FakeAccount();
+  const message = ircMessage(kSecureListMsg, "");
+  const account = new FakeAccount();
   account.connected = true;
-  let result = NOTICE.call(account, message);
+  const result = NOTICE.call(account, message);
 
   // Yes, it was handled.
   ok(result);
 
   // Undo the expected calculation, this should be near 0.
-  let value = account._lastListTime - Date.now() - 60000 + 12 * 60 * 60 * 1000;
+  const value =
+    account._lastListTime - Date.now() - 60000 + 12 * 60 * 60 * 1000;
   // Give some wiggle room.
   less(Math.abs(value), 5 * 1000);
 
@@ -83,8 +84,8 @@ function testZncAuth() {
     ":irc.znc.in NOTICE AUTH :*** You need to send your password. Configure your client to send a server password.",
   ];
 
-  for (let msg of kZncMsgs) {
-    let message = ircMessage(msg, "");
+  for (const msg of kZncMsgs) {
+    const message = ircMessage(msg, "");
     // No provided password.
     let account = new FakeAccount();
     let result = NOTICE.call(account, message);
@@ -104,7 +105,7 @@ function testZncAuth() {
     ok(result);
 
     // Check if the proper message was sent.
-    let sent = account.buffer[0];
+    const sent = account.buffer[0];
     equal(sent[0], "PASS");
     equal(sent[1], "password");
     equal(account.buffer.length, 1);
@@ -141,10 +142,10 @@ function testUMich() {
   const kFinalMsg =
     ':irc.umich.edu NOTICE clokep :To complete your connection to this server, type "/QUOTE PONG :cookie", where cookie is the following ascii.';
 
-  let account = new FakeAccount();
-  for (let msg of kMsgs) {
-    let message = ircMessage(msg, "");
-    let result = NOTICE.call(account, message);
+  const account = new FakeAccount();
+  for (const msg of kMsgs) {
+    const message = ircMessage(msg, "");
+    const result = NOTICE.call(account, message);
 
     // These initial notices are not handled (i.e. they'll be subject to
     // _showServerTab).
@@ -153,8 +154,8 @@ function testUMich() {
 
   // And finally the last one should be printed out, always. It contains the
   // directions of what to do next.
-  let message = ircMessage(kFinalMsg, "");
-  let result = NOTICE.call(account, message);
+  const message = ircMessage(kFinalMsg, "");
+  const result = NOTICE.call(account, message);
   ok(result);
   equal(account.convs.length, 1);
   equal(account.convs[0], "irc.umich.edu");
@@ -169,11 +170,11 @@ function testAuthNick() {
   const kMsg =
     ':irc.umich.edu NOTICE AUTH :To complete your connection to this server, type "/QUOTE PONG :cookie", where cookie is the following ascii.';
 
-  let account = new FakeAccount();
+  const account = new FakeAccount();
   account._nickname = "AUTH";
 
-  let message = ircMessage(kMsg, "");
-  let result = NOTICE.call(account, message);
+  const message = ircMessage(kMsg, "");
+  const result = NOTICE.call(account, message);
 
   // Since it is ambiguous if it was an authentication message or a message
   // directed at the user, print it out.
@@ -195,11 +196,11 @@ function testIgnoredNotices() {
     ":beauty.oftc.net NOTICE myusername :*** Connected securely via UNKNOWN AES128-SHA-128",
   ];
 
-  for (let msg of kMsgs) {
-    let account = new FakeAccount();
+  for (const msg of kMsgs) {
+    const account = new FakeAccount();
 
-    let message = ircMessage(msg, "");
-    let result = NOTICE.call(account, message);
+    const message = ircMessage(msg, "");
+    const result = NOTICE.call(account, message);
 
     // This message should *NOT* be shown.
     equal(result, false);

@@ -7,7 +7,7 @@ var { ircChannel } = ChromeUtils.importESModule(
 
 function waitForTopic(target, targetTopic) {
   return new Promise(resolve => {
-    let observer = {
+    const observer = {
       observe(subject, topic, data) {
         if (topic === targetTopic) {
           resolve({ subject, data });

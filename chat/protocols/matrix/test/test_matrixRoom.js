@@ -640,7 +640,7 @@ add_task(async function test_addEventWaitingForDecryption() {
 
 add_task(async function test_addEventReplaceDecryptedEvent() {
   //TODO need to emit event on event?
-  let spec = {
+  const spec = {
     sender: "@user:example.com",
     type: MatrixSDK.EventType.RoomMessage,
     isEncrypted: true,
@@ -850,7 +850,7 @@ add_task(async function test_addEventReaction() {
 });
 
 add_task(async function test_removeParticipant() {
-  let roomMembers = [
+  const roomMembers = [
     {
       userId: "@foo:example.com",
     },
@@ -913,8 +913,8 @@ add_task(function test_highlightForNotifications() {
 });
 
 function waitForNotification(target, expectedTopic) {
-  let promise = new Promise(resolve => {
-    let observer = {
+  const promise = new Promise(resolve => {
+    const observer = {
       observe(subject, topic, data) {
         if (topic === expectedTopic) {
           resolve({ subject, data });

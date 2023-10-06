@@ -20,9 +20,9 @@ var messages = {
 };
 
 function run_test() {
-  for (let message in messages) {
-    let msg = { message };
-    let generatedMsgs = GenericIRCConversation.prepareForSending.call(
+  for (const message in messages) {
+    const msg = { message };
+    const generatedMsgs = GenericIRCConversation.prepareForSending.call(
       {
         __proto__: GenericIRCConversation,
         name: "target",
@@ -37,7 +37,7 @@ function run_test() {
     );
 
     // The expected messages as defined above.
-    let expectedMsgs = messages[message];
+    const expectedMsgs = messages[message];
     // Ensure the arrays are equal.
     deepEqual(generatedMsgs, expectedMsgs);
   }

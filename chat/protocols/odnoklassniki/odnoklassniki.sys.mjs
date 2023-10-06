@@ -29,7 +29,7 @@ XPCOMUtils.defineLazyGetter(lazy, "OdnoklassnikiAccount", () => {
       if (!this.name.includes("@")) {
         // TODO: Do not use the default resource value if the user has not
         // specified it and let the service generate it.
-        let jid =
+        const jid =
           this.name +
           "@odnoklassniki.ru/" +
           Services.strings

@@ -25,10 +25,10 @@ function executeAsyncThenFinalize(statement) {
 
 function getDBConnection() {
   const NS_APP_USER_PROFILE_50_DIR = "ProfD";
-  let dbFile = Services.dirsvc.get(NS_APP_USER_PROFILE_50_DIR, Ci.nsIFile);
+  const dbFile = Services.dirsvc.get(NS_APP_USER_PROFILE_50_DIR, Ci.nsIFile);
   dbFile.append("blist.sqlite");
 
-  let conn = Services.storage.openDatabase(dbFile);
+  const conn = Services.storage.openDatabase(dbFile);
   if (!conn.connectionReady) {
     throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
   }
@@ -147,7 +147,7 @@ TagsService.prototype = {
       return tag;
     }
 
-    let statement = lazy.DBConn.createStatement(
+    const statement = lazy.DBConn.createStatement(
       "INSERT INTO tags (name, position) VALUES(:name, 0)"
     );
     try {
@@ -166,7 +166,7 @@ TagsService.prototype = {
   // Get an existing tag by name (will do an SQL query). Returns null
   // if not found.
   getTagByName(aName) {
-    let statement = lazy.DBConn.createStatement(
+    const statement = lazy.DBConn.createStatement(
       "SELECT id FROM tags where name = :name"
     );
     statement.params.name = aName;
@@ -229,7 +229,7 @@ Tag.prototype = {
     return this._name;
   },
   set name(aNewName) {
-    let statement = lazy.DBConn.createStatement(
+    const statement = lazy.DBConn.createStatement(
       "UPDATE tags SET name = :name WHERE id = :id"
     );
     try {
@@ -249,7 +249,7 @@ Tag.prototype = {
     this._contacts.push(aContact);
   },
   _removeContact(aContact) {
-    let index = this._contacts.indexOf(aContact);
+    const index = this._contacts.indexOf(aContact);
     if (index != -1) {
       this._contacts.splice(index, 1);
     }
@@ -264,7 +264,7 @@ Tag.prototype = {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers(aSubject, aTopic, aData) {
-    for (let observer of this._observers) {
+    for (const observer of this._observers) {
       observer.observe(aSubject, aTopic, aData);
     }
   },
@@ -282,10 +282,10 @@ var otherContactsTag = {
     );
   },
   showTag(aTag) {
-    let id = aTag.id;
+    const id = aTag.id;
     delete this._hiddenTags[id];
-    let contacts = Object.keys(this._contacts).map(id => this._contacts[id]);
-    for (let contact of contacts) {
+    const contacts = Object.keys(this._contacts).map(id => this._contacts[id]);
+    for (const contact of contacts) {
       if (contact.getTags().some(t => t.id == id)) {
         this._removeContact(contact);
       }
@@ -310,7 +310,7 @@ var otherContactsTag = {
     this._saveHiddenTagsPref();
   },
   _hideTag(aTag) {
-    for (let contact of aTag.getContacts()) {
+    for (const contact of aTag.getContacts()) {
       if (
         !(contact.id in this._contacts) &&
         contact.getTags().every(t => t.id in this._hiddenTags)
@@ -340,11 +340,11 @@ var otherContactsTag = {
   },
 
   _initHiddenTags() {
-    let pref = Services.prefs.getCharPref(this.hiddenTagsPref);
+    const pref = Services.prefs.getCharPref(this.hiddenTagsPref);
     if (!pref) {
       return;
     }
-    for (let tagId of pref.split(",")) {
+    for (const tagId of pref.split(",")) {
       this._hiddenTags[tagId] = TagsById[tagId];
     }
   },
@@ -365,8 +365,8 @@ var otherContactsTag = {
     };
     this._contacts = {};
     this._contactsInitialized = true;
-    for (let id in this._hiddenTags) {
-      let tag = this._hiddenTags[id];
+    for (const id in this._hiddenTags) {
+      const tag = this._hiddenTags[id];
       this._hideTag(tag);
     }
     Services.obs.addObserver(this, "contact-tag-added");
@@ -391,7 +391,7 @@ var otherContactsTag = {
   _addContact(aContact) {
     this._contacts[aContact.id] = aContact;
     this.notifyObservers(aContact, "contact-moved-in");
-    for (let observer of ContactsById[aContact.id]._observers) {
+    for (const observer of ContactsById[aContact.id]._observers) {
       observer.observe(this, "contact-moved-in", null);
     }
     aContact.addObserver(this._observer);
@@ -400,7 +400,7 @@ var otherContactsTag = {
     delete this._contacts[aContact.id];
     aContact.removeObserver(this._observer);
     this.notifyObservers(aContact, "contact-moved-out");
-    for (let observer of ContactsById[aContact.id]._observers) {
+    for (const observer of ContactsById[aContact.id]._observers) {
       observer.observe(this, "contact-moved-out", null);
     }
   },
@@ -414,7 +414,7 @@ var otherContactsTag = {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers(aSubject, aTopic, aData) {
-    for (let observer of this._observers) {
+    for (const observer of this._observers) {
       observer.observe(aSubject, aTopic, aData);
     }
   },
@@ -444,18 +444,18 @@ Contact.prototype = {
   set alias(aNewAlias) {
     this._ensureNotDummy();
 
-    let statement = lazy.DBConn.createStatement(
+    const statement = lazy.DBConn.createStatement(
       "UPDATE contacts SET alias = :alias WHERE id = :id"
     );
     statement.params.alias = aNewAlias;
     statement.params.id = this._id;
     executeAsyncThenFinalize(statement);
 
-    let oldDisplayName = this.displayName;
+    const oldDisplayName = this.displayName;
     this._alias = aNewAlias;
     this._notifyObservers("display-name-changed", oldDisplayName);
-    for (let buddy of this._buddies) {
-      for (let accountBuddy of buddy._accounts) {
+    for (const buddy of this._buddies) {
+      for (const accountBuddy of buddy._accounts) {
         accountBuddy.serverAlias = aNewAlias;
       }
     }
@@ -475,7 +475,7 @@ Contact.prototype = {
       statement.finalize();
     }
     delete ContactsById[this._id];
-    let oldId = this._id;
+    const oldId = this._id;
     this._id = lazy.DBConn.lastInsertRowID;
     ContactsById[this._id] = this;
     this._notifyObservers("no-longer-dummy", oldId.toString());
@@ -498,7 +498,7 @@ Contact.prototype = {
 
     if (!aInherited) {
       this._ensureNotDummy();
-      let statement = lazy.DBConn.createStatement(
+      const statement = lazy.DBConn.createStatement(
         "INSERT INTO contact_tag (contact_id, tag_id) " +
           "VALUES(:contactId, :tagId)"
       );
@@ -512,7 +512,7 @@ Contact.prototype = {
     aTag._addContact(this);
 
     aTag.notifyObservers(this, "contact-moved-in");
-    for (let observer of this._observers) {
+    for (const observer of this._observers) {
       observer.observe(aTag, "contact-moved-in", null);
     }
     Services.obs.notifyObservers(this, "contact-tag-added", aTag.id);
@@ -530,13 +530,13 @@ Contact.prototype = {
     aTag._removeContact(this);
 
     aTag.notifyObservers(this, "contact-moved-out");
-    for (let observer of this._observers) {
+    for (const observer of this._observers) {
       observer.observe(aTag, "contact-moved-out", null);
     }
     Services.obs.notifyObservers(this, "contact-tag-removed", aTag.id);
   },
   _removeContactTagRow(aTag) {
-    let statement = lazy.DBConn.createStatement(
+    const statement = lazy.DBConn.createStatement(
       "DELETE FROM contact_tag " +
         "WHERE contact_id = :contactId " +
         "AND tag_id = :tagId"
@@ -560,8 +560,8 @@ Contact.prototype = {
     }
 
     this._massMove = true;
-    let hasTag = this.hasTag.bind(this);
-    let newTag = this._tags[this._tags[0].id != aTag.id ? 0 : 1];
+    const hasTag = this.hasTag.bind(this);
+    const newTag = this._tags[this._tags[0].id != aTag.id ? 0 : 1];
     let moved = false;
     this._buddies.forEach(function (aBuddy) {
       aBuddy._accounts.forEach(function (aAccountBuddy) {
@@ -601,8 +601,8 @@ Contact.prototype = {
     }
   },
   _isTagInherited(aTag) {
-    for (let buddy of this._buddies) {
-      for (let accountBuddy of buddy._accounts) {
+    for (const buddy of this._buddies) {
+      for (const accountBuddy of buddy._accounts) {
         if (accountBuddy.tag.id == aTag.id) {
           return true;
         }
@@ -620,9 +620,9 @@ Contact.prototype = {
     aOldTag = aOldTag && TagsById[aOldTag.id];
 
     // Decide what we need to do. Return early if nothing to do.
-    let shouldRemove =
+    const shouldRemove =
       aOldTag && this.hasTag(aOldTag) && !this._isTagInherited(aOldTag);
-    let shouldAdd =
+    const shouldAdd =
       aNewTag && !this.hasTag(aNewTag) && this._isTagInherited(aNewTag);
     if (!shouldRemove && !shouldAdd) {
       return;
@@ -643,14 +643,14 @@ Contact.prototype = {
     // Finally, notify of the changes.
     if (shouldRemove) {
       aOldTag.notifyObservers(this, "contact-moved-out");
-      for (let observer of this._observers) {
+      for (const observer of this._observers) {
         observer.observe(aOldTag, "contact-moved-out", null);
       }
       Services.obs.notifyObservers(this, "contact-tag-removed", aOldTag.id);
     }
     if (shouldAdd) {
       aNewTag.notifyObservers(this, "contact-moved-in");
-      for (let observer of this._observers) {
+      for (const observer of this._observers) {
         observer.observe(aNewTag, "contact-moved-in", null);
       }
       Services.obs.notifyObservers(this, "contact-tag-added", aNewTag.id);
@@ -673,24 +673,24 @@ Contact.prototype = {
     }
 
     this._ensureNotDummy();
-    let contact = ContactsById[aContact.id]; // remove XPConnect wrapper
+    const contact = ContactsById[aContact.id]; // remove XPConnect wrapper
 
     // Copy all the contact-only tags first, otherwise they would be lost.
-    for (let tag of contact.getTags()) {
+    for (const tag of contact.getTags()) {
       if (!contact._isTagInherited(tag)) {
         this.addTag(tag);
       }
     }
 
     // Adopt each buddy. Removing the last one will delete the contact.
-    for (let buddy of contact.getBuddies()) {
+    for (const buddy of contact.getBuddies()) {
       buddy.contact = this;
     }
     this._updatePreferredBuddy();
   },
   moveBuddyBefore(aBuddy, aBeforeBuddy) {
-    let buddy = BuddiesById[aBuddy.id]; // remove XPConnect wrapper
-    let oldPosition = this._buddies.indexOf(buddy);
+    const buddy = BuddiesById[aBuddy.id]; // remove XPConnect wrapper
+    const oldPosition = this._buddies.indexOf(buddy);
     if (oldPosition == -1) {
       throw new Error("aBuddy isn't attached to this contact");
     }
@@ -721,7 +721,7 @@ Contact.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
-    let buddy = BuddiesById[aBuddy.id]; // remove XPConnect wrapper
+    const buddy = BuddiesById[aBuddy.id]; // remove XPConnect wrapper
     buddy.contact = this;
     this._updatePreferredBuddy(buddy);
   },
@@ -729,7 +729,7 @@ Contact.prototype = {
   _removeBuddy(aBuddy) {
     if (this._buddies.length == 1) {
       if (this._id > 0) {
-        let statement = lazy.DBConn.createStatement(
+        const statement = lazy.DBConn.createStatement(
           "DELETE FROM contacts WHERE id = :id"
         );
         statement.params.id = this._id;
@@ -738,10 +738,10 @@ Contact.prototype = {
       this._notifyObservers("removed");
       delete ContactsById[this._id];
 
-      for (let tag of this._tags) {
+      for (const tag of this._tags) {
         tag._removeContact(this);
       }
-      let statement = lazy.DBConn.createStatement(
+      const statement = lazy.DBConn.createStatement(
         "DELETE FROM contact_tag WHERE contact_id = :id"
       );
       statement.params.id = this._id;
@@ -751,7 +751,7 @@ Contact.prototype = {
       delete this._buddies;
       delete this._observers;
     } else {
-      let index = this._buddies.indexOf(aBuddy);
+      const index = this._buddies.indexOf(aBuddy);
       if (index == -1) {
         throw new Error("Removing an unknown buddy from contact " + this._id);
       }
@@ -782,7 +782,7 @@ Contact.prototype = {
       throw new Error("_updatePositions: Invalid indexes");
     }
 
-    let statement = lazy.DBConn.createStatement(
+    const statement = lazy.DBConn.createStatement(
       "UPDATE buddies SET position = :position WHERE id = :buddyId"
     );
     for (let i = aIndexBegin; i <= aIndexEnd; ++i) {
@@ -795,7 +795,7 @@ Contact.prototype = {
 
   detachBuddy(aBuddy) {
     // Should return a new contact with the same list of tags.
-    let buddy = BuddiesById[aBuddy.id];
+    const buddy = BuddiesById[aBuddy.id];
     if (buddy.contact.id != this.id) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
@@ -804,7 +804,7 @@ Contact.prototype = {
     }
 
     // Save the list of tags, it may be destroyed if the buddy was the last one.
-    let tags = buddy.contact.getTags();
+    const tags = buddy.contact.getTags();
 
     // Create a new dummy contact and use it for the detached buddy.
     buddy.contact = new Contact();
@@ -812,7 +812,7 @@ Contact.prototype = {
 
     // The first tag was inherited during the contact setter.
     // This will copy the remaining tags.
-    for (let tag of tags) {
+    for (const tag of tags) {
       buddy.contact.addTag(tag);
     }
 
@@ -820,7 +820,7 @@ Contact.prototype = {
   },
   remove() {
     this._massRemove = true;
-    for (let buddy of this._buddies) {
+    for (const buddy of this._buddies) {
       buddy.remove();
     }
   },
@@ -834,8 +834,8 @@ Contact.prototype = {
     return this._preferredBuddy;
   },
   set preferredBuddy(aBuddy) {
-    let shouldNotify = this._preferredBuddy != null;
-    let oldDisplayName =
+    const shouldNotify = this._preferredBuddy != null;
+    const oldDisplayName =
       this._preferredBuddy && this._preferredBuddy.displayName;
     this._preferredBuddy = aBuddy;
     if (shouldNotify) {
@@ -890,7 +890,7 @@ Contact.prototype = {
     let preferred;
     // |this._buddies| is ordered by user preference, so in case of
     // equal availability, keep the current value of |preferred|.
-    for (let buddy of this._buddies) {
+    for (const buddy of this._buddies) {
       if (
         !preferred ||
         preferred.statusType < buddy.statusType ||
@@ -908,10 +908,10 @@ Contact.prototype = {
     }
   },
   _updateStatus() {
-    let buddy = this._preferredBuddy; // for convenience
+    const buddy = this._preferredBuddy; // for convenience
 
     // Decide which notifications should be fired.
-    let notifications = [];
+    const notifications = [];
     if (
       this._statusType != buddy.statusType ||
       this._availabilityDetails != buddy.availabilityDetails
@@ -981,7 +981,9 @@ Contact.prototype = {
     return this.preferredBuddy.getTooltipInfo();
   },
   createConversation() {
-    let uiConv = IMServices.conversations.getUIConversationByContactId(this.id);
+    const uiConv = IMServices.conversations.getUIConversationByContactId(
+      this.id
+    );
     if (uiConv) {
       return uiConv.target;
     }
@@ -1002,13 +1004,13 @@ Contact.prototype = {
   },
   // internal calls + calls from add-ons
   notifyObservers(aSubject, aTopic, aData) {
-    for (let observer of this._observers) {
+    for (const observer of this._observers) {
       if ("observe" in observer) {
         // avoid failing on destructed XBL bindings...
         observer.observe(aSubject, aTopic, aData);
       }
     }
-    for (let tag of this._tags) {
+    for (const tag of this._tags) {
       tag.notifyObservers(aSubject, aTopic, aData);
     }
     Services.obs.notifyObservers(aSubject, aTopic, aData);
@@ -1022,7 +1024,7 @@ Contact.prototype = {
     // Forward the notification.
     this.notifyObservers(aSubject, aTopic, aData);
 
-    let isPreferredBuddy =
+    const isPreferredBuddy =
       aSubject instanceof Buddy && aSubject.id == this.preferredBuddy.id;
     switch (aTopic) {
       case "buddy-availability-changed":
@@ -1083,7 +1085,7 @@ Buddy.prototype = {
     return this._id;
   },
   destroy() {
-    for (let ab of this._accounts) {
+    for (const ab of this._accounts) {
       ab.unInit();
     }
     delete this._accounts;
@@ -1116,11 +1118,11 @@ Buddy.prototype = {
     this._contact._buddies.push(this);
 
     // Ensure all the inherited tags are in the new contact.
-    for (let accountBuddy of this._accounts) {
+    for (const accountBuddy of this._accounts) {
       this._contact.addTag(TagsById[accountBuddy.tag.id], true);
     }
 
-    let statement = lazy.DBConn.createStatement(
+    const statement = lazy.DBConn.createStatement(
       "UPDATE buddies SET contact_id = :contactId, " +
         "position = :position " +
         "WHERE id = :buddyId"
@@ -1133,7 +1135,7 @@ Buddy.prototype = {
     this._notifyObservers("moved-into-contact");
   },
   _hasAccountBuddy(aAccountId, aTagId) {
-    for (let ab of this._accounts) {
+    for (const ab of this._accounts) {
       if (ab.account.numericId == aAccountId && ab.tag.id == aTagId) {
         return true;
       }
@@ -1146,7 +1148,7 @@ Buddy.prototype = {
 
   _addAccount(aAccountBuddy, aTag) {
     this._accounts.push(aAccountBuddy);
-    let contact = this._contact;
+    const contact = this._contact;
     if (!this._contact._tags.includes(aTag)) {
       this._contact._tags.push(aTag);
       aTag._addContact(contact);
@@ -1161,7 +1163,7 @@ Buddy.prototype = {
   },
 
   remove() {
-    for (let account of this._accounts) {
+    for (const account of this._accounts) {
       account.remove();
     }
   },
@@ -1189,7 +1191,7 @@ Buddy.prototype = {
     return true;
   },
   set preferredAccount(aAccount) {
-    let oldDisplayName =
+    const oldDisplayName =
       this._preferredAccount && this._preferredAccount.displayName;
     this._preferredAccount = aAccount;
     this._notifyObservers("preferred-account-changed");
@@ -1236,7 +1238,7 @@ Buddy.prototype = {
 
     let preferred;
     // TODO take into account the order of the account-manager list.
-    for (let account of this._accounts) {
+    for (const account of this._accounts) {
       if (
         !preferred ||
         preferred.statusType < account.statusType ||
@@ -1261,10 +1263,10 @@ Buddy.prototype = {
     }
   },
   _updateStatus() {
-    let account = this._preferredAccount; // for convenience
+    const account = this._preferredAccount; // for convenience
 
     // Decide which notifications should be fired.
-    let notifications = [];
+    const notifications = [];
     if (
       this._statusType != account.statusType ||
       this._availabilityDetails != account.availabilityDetails
@@ -1361,7 +1363,7 @@ Buddy.prototype = {
   // internal calls + calls from add-ons
   notifyObservers(aSubject, aTopic, aData) {
     try {
-      for (let observer of this._observers) {
+      for (const observer of this._observers) {
         observer.observe(aSubject, aTopic, aData);
       }
       this._contact._observe(aSubject, aTopic, aData);
@@ -1391,7 +1393,7 @@ Buddy.prototype = {
         if (this._isPreferredAccount(aSubject)) {
           this._srvAlias =
             this.displayName != this.userName ? this.displayName : "";
-          let statement = lazy.DBConn.createStatement(
+          const statement = lazy.DBConn.createStatement(
             "UPDATE buddies SET srv_alias = :srvAlias WHERE id = :buddyId"
           );
           statement.params.buddyId = this.id;
@@ -1420,7 +1422,7 @@ Buddy.prototype = {
         break;
       case "account-buddy-removed":
         if (this._accounts.length == 1) {
-          let statement = lazy.DBConn.createStatement(
+          const statement = lazy.DBConn.createStatement(
             "DELETE FROM buddies WHERE id = :id"
           );
           try {
@@ -1481,8 +1483,8 @@ ContactsService.prototype = {
     );
     try {
       while (statement.executeStep()) {
-        let contact = ContactsById[statement.getInt32(0)];
-        let tag = TagsById[statement.getInt32(1)];
+        const contact = ContactsById[statement.getInt32(0)];
+        const tag = TagsById[statement.getInt32(1)];
         contact._tags.push(tag);
         tag._addContact(contact);
       }
@@ -1513,11 +1515,11 @@ ContactsService.prototype = {
     );
     try {
       while (statement.executeStep()) {
-        let accountId = statement.getInt32(0);
-        let buddyId = statement.getInt32(1);
-        let tagId = statement.getInt32(2);
+        const accountId = statement.getInt32(0);
+        const buddyId = statement.getInt32(1);
+        const tagId = statement.getInt32(2);
 
-        let account = IMServices.accounts.getAccountByNumericId(accountId);
+        const account = IMServices.accounts.getAccountByNumericId(accountId);
         // If the account was deleted without properly cleaning up the
         // account_buddy, skip loading this account buddy.
         if (!account) {
@@ -1536,7 +1538,7 @@ ContactsService.prototype = {
           continue;
         }
 
-        let buddy = BuddiesById[buddyId];
+        const buddy = BuddiesById[buddyId];
         if (buddy._hasAccountBuddy(accountId, tagId)) {
           console.error(
             "Corrupted database: duplicated account_buddy entry: " +
@@ -1550,7 +1552,7 @@ ContactsService.prototype = {
           continue;
         }
 
-        let tag = TagsById[tagId];
+        const tag = TagsById[tagId];
         try {
           buddy._addAccount(account.loadBuddy(buddy, tag), tag);
         } catch (e) {
@@ -1568,8 +1570,8 @@ ContactsService.prototype = {
     TagsById = {};
     // Avoid shutdown leaks caused by references to native components
     // implementing prplIAccountBuddy.
-    for (let buddyId in BuddiesById) {
-      let buddy = BuddiesById[buddyId];
+    for (const buddyId in BuddiesById) {
+      const buddy = BuddiesById[buddyId];
       buddy.destroy();
     }
     BuddiesById = {};
@@ -1585,7 +1587,7 @@ ContactsService.prototype = {
   },
   getBuddyById: aId => BuddiesById[aId],
   getBuddyByNameAndProtocol(aNormalizedName, aPrpl) {
-    let statement = lazy.DBConn.createStatement(
+    const statement = lazy.DBConn.createStatement(
       "SELECT b.id FROM buddies b " +
         "JOIN account_buddy ab ON buddy_id = b.id " +
         "JOIN accounts a ON account_id = a.id " +
@@ -1603,13 +1605,13 @@ ContactsService.prototype = {
     }
   },
   getAccountBuddyByNameAndAccount(aNormalizedName, aAccount) {
-    let buddy = this.getBuddyByNameAndProtocol(
+    const buddy = this.getBuddyByNameAndProtocol(
       aNormalizedName,
       aAccount.protocol
     );
     if (buddy) {
-      let id = aAccount.id;
-      for (let accountBuddy of buddy.getAccountBuddies()) {
+      const id = aAccount.id;
+      for (const accountBuddy of buddy.getAccountBuddies()) {
         if (accountBuddy.account.id == id) {
           return accountBuddy;
         }
@@ -1619,21 +1621,21 @@ ContactsService.prototype = {
   },
 
   accountBuddyAdded(aAccountBuddy) {
-    let account = aAccountBuddy.account;
-    let normalizedName = aAccountBuddy.normalizedName;
+    const account = aAccountBuddy.account;
+    const normalizedName = aAccountBuddy.normalizedName;
     let buddy = this.getBuddyByNameAndProtocol(
       normalizedName,
       account.protocol
     );
     if (!buddy) {
-      let statement = lazy.DBConn.createStatement(
+      const statement = lazy.DBConn.createStatement(
         "INSERT INTO buddies " +
           "(key, name, srv_alias, position) " +
           "VALUES(:key, :name, :srvAlias, 0)"
       );
       try {
-        let name = aAccountBuddy.userName;
-        let srvAlias = aAccountBuddy.serverAlias;
+        const name = aAccountBuddy.userName;
+        const srvAlias = aAccountBuddy.serverAlias;
         statement.params.key = normalizedName;
         statement.params.name = name;
         statement.params.srvAlias = srvAlias;
@@ -1654,8 +1656,8 @@ ContactsService.prototype = {
     aAccountBuddy.buddy = buddy;
 
     // Ensure we aren't storing a duplicate entry.
-    let accountId = account.numericId;
-    let tagId = aAccountBuddy.tag.id;
+    const accountId = account.numericId;
+    const tagId = aAccountBuddy.tag.id;
     if (buddy._hasAccountBuddy(accountId, tagId)) {
       console.error(
         "Attempting to store a duplicate account buddy " +
@@ -1669,7 +1671,7 @@ ContactsService.prototype = {
     }
 
     // Store the new account buddy.
-    let statement = lazy.DBConn.createStatement(
+    const statement = lazy.DBConn.createStatement(
       "INSERT INTO account_buddy " +
         "(account_id, buddy_id, tag_id) " +
         "VALUES(:accountId, :buddyId, :tagId)"
@@ -1687,8 +1689,8 @@ ContactsService.prototype = {
     buddy.observe(aAccountBuddy, "account-buddy-added");
   },
   accountBuddyRemoved(aAccountBuddy) {
-    let buddy = aAccountBuddy.buddy;
-    let statement = lazy.DBConn.createStatement(
+    const buddy = aAccountBuddy.buddy;
+    const statement = lazy.DBConn.createStatement(
       "DELETE FROM account_buddy " +
         "WHERE account_id = :accountId AND " +
         "buddy_id = :buddyId AND " +
@@ -1707,8 +1709,8 @@ ContactsService.prototype = {
   },
 
   accountBuddyMoved(aAccountBuddy, aOldTag, aNewTag) {
-    let buddy = aAccountBuddy.buddy;
-    let statement = lazy.DBConn.createStatement(
+    const buddy = aAccountBuddy.buddy;
+    const statement = lazy.DBConn.createStatement(
       "UPDATE account_buddy " +
         "SET tag_id = :newTagId " +
         "WHERE account_id = :accountId AND " +
@@ -1725,7 +1727,7 @@ ContactsService.prototype = {
       statement.finalize();
     }
 
-    let contact = ContactsById[buddy.contact.id];
+    const contact = ContactsById[buddy.contact.id];
 
     // aNewTag is now inherited by the contact from an account buddy, so avoid
     // keeping direct tag <-> contact links in the contact_tag table.
@@ -1770,7 +1772,7 @@ ContactsService.prototype = {
     }
   },
   accountIdExists(aId) {
-    let statement = lazy.DBConn.createStatement(
+    const statement = lazy.DBConn.createStatement(
       "SELECT id FROM accounts WHERE id = :id"
     );
     try {

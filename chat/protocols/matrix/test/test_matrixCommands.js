@@ -165,7 +165,7 @@ add_task(function testJoinNotRoomId() {
 
 // Fetch the run() of a named command.
 function _getRunCommand(aCommandName) {
-  for (let command of commands) {
+  for (const command of commands) {
     if (command.name == aCommandName) {
       return command.run;
     }

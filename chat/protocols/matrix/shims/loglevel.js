@@ -6,7 +6,7 @@
 
 /* globals scriptError, imIDebugMessage, module */
 
-let _loggers = {};
+const _loggers = {};
 
 /*
  * Implement a custom logger to to hook the Matrix logging up to the chat
@@ -15,7 +15,7 @@ let _loggers = {};
  * This unfortunately does not enable account specific logging.
  */
 function getLogger(loggerName) {
-  let moduleName = "prpl-matrix." + loggerName;
+  const moduleName = "prpl-matrix." + loggerName;
 
   let logger = _loggers[moduleName];
 

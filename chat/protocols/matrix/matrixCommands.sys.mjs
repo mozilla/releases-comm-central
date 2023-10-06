@@ -80,27 +80,27 @@ function getEventString(eventType, userPower) {
  * @param {prplIConversation} conv - Conversation to list details for.
  */
 function publishRoomDetails(account, conv) {
-  let roomState = conv.roomState;
-  let powerLevelEvent = roomState.getStateEvents(
+  const roomState = conv.roomState;
+  const powerLevelEvent = roomState.getStateEvents(
     lazy.MatrixSDK.EventType.RoomPowerLevels,
     ""
   );
-  let room = conv.room;
+  const room = conv.room;
 
-  let name = room.name;
-  let nameString = lazy._("detail.name", name);
+  const name = room.name;
+  const nameString = lazy._("detail.name", name);
   conv.writeMessage(account.userId, nameString, {
     system: true,
   });
 
-  let roomId = room.roomId;
-  let roomIdString = lazy._("detail.roomId", roomId);
+  const roomId = room.roomId;
+  const roomIdString = lazy._("detail.roomId", roomId);
   conv.writeMessage(account.userId, roomIdString, {
     system: true,
   });
 
-  let roomVersion = room.getVersion();
-  let versionString = lazy._("detail.version", roomVersion);
+  const roomVersion = room.getVersion();
+  const versionString = lazy._("detail.version", roomVersion);
   conv.writeMessage(account.userId, versionString, {
     system: true,
   });
@@ -111,24 +111,24 @@ function publishRoomDetails(account, conv) {
       .getStateEvents(lazy.MatrixSDK.EventType.RoomTopic)[0]
       .getContent().topic;
   }
-  let topicString = lazy._("detail.topic", topic);
+  const topicString = lazy._("detail.topic", topic);
   conv.writeMessage(account.userId, topicString, {
     system: true,
   });
 
-  let guestAccess = roomState
+  const guestAccess = roomState
     .getStateEvents(lazy.MatrixSDK.EventType.RoomGuestAccess, "")
     ?.getContent()?.guest_access;
-  let guestAccessString = lazy._("detail.guest", guestAccess);
+  const guestAccessString = lazy._("detail.guest", guestAccess);
   conv.writeMessage(account.userId, guestAccessString, {
     system: true,
   });
 
-  let admins = [];
-  let moderators = [];
+  const admins = [];
+  const moderators = [];
 
-  let powerLevel = powerLevelEvent.getContent();
-  for (let [key, value] of Object.entries(powerLevel.users)) {
+  const powerLevel = powerLevelEvent.getContent();
+  for (const [key, value] of Object.entries(powerLevel.users)) {
     if (value >= lazy.MatrixPowerLevels.admin) {
       admins.push(key);
     } else if (value >= lazy.MatrixPowerLevels.moderator) {
@@ -137,14 +137,14 @@ function publishRoomDetails(account, conv) {
   }
 
   if (admins.length) {
-    let adminString = lazy._("detail.admin", admins.join(", "));
+    const adminString = lazy._("detail.admin", admins.join(", "));
     conv.writeMessage(account.userId, adminString, {
       system: true,
     });
   }
 
   if (moderators.length) {
-    let moderatorString = lazy._("detail.moderator", moderators.join(", "));
+    const moderatorString = lazy._("detail.moderator", moderators.join(", "));
     conv.writeMessage(account.userId, moderatorString, {
       system: true,
     });
@@ -154,13 +154,13 @@ function publishRoomDetails(account, conv) {
     roomState.getStateEvents(lazy.MatrixSDK.EventType.RoomCanonicalAlias)
       ?.length
   ) {
-    let canonicalAlias = room.getCanonicalAlias();
-    let aliases = room.getAltAliases();
+    const canonicalAlias = room.getCanonicalAlias();
+    const aliases = room.getAltAliases();
     if (canonicalAlias && !aliases.includes(canonicalAlias)) {
       aliases.unshift(canonicalAlias);
     }
     if (aliases.length) {
-      let aliasString = lazy._("detail.alias", aliases.join(","));
+      const aliasString = lazy._("detail.alias", aliases.join(","));
       conv.writeMessage(account.userId, aliasString, {
         system: true,
       });
@@ -172,14 +172,17 @@ function publishRoomDetails(account, conv) {
   });
 
   const defaultLevel = lazy.MatrixPowerLevels.getUserDefaultLevel(powerLevel);
-  for (let [key, value] of Object.entries(powerLevel)) {
+  for (const [key, value] of Object.entries(powerLevel)) {
     if (key == "users") {
       continue;
     }
     if (key == "events") {
-      for (let [userKey, userValue] of Object.entries(powerLevel.events)) {
-        let userPower = lazy.MatrixPowerLevels.toText(userValue, defaultLevel);
-        let powerString = getEventString(userKey, userPower);
+      for (const [userKey, userValue] of Object.entries(powerLevel.events)) {
+        const userPower = lazy.MatrixPowerLevels.toText(
+          userValue,
+          defaultLevel
+        );
+        const powerString = getEventString(userKey, userPower);
         if (!powerString) {
           continue;
         }
@@ -189,8 +192,8 @@ function publishRoomDetails(account, conv) {
       }
       continue;
     }
-    let userPower = lazy.MatrixPowerLevels.toText(value, defaultLevel);
-    let powerString = getEventString(key, userPower);
+    const userPower = lazy.MatrixPowerLevels.toText(value, defaultLevel);
+    const powerString = getEventString(key, userPower);
     if (!powerString) {
       continue;
     }
@@ -339,7 +342,7 @@ export var commands = [
       },
       formatParams(conv, [userId, powerLevelString]) {
         const powerLevel = Number.parseInt(powerLevelString);
-        let powerLevelEvent = conv.roomState.getStateEvents(
+        const powerLevelEvent = conv.roomState.getStateEvents(
           lazy.MatrixSDK.EventType.RoomPowerLevels,
           ""
         );
@@ -413,8 +416,8 @@ export var commands = [
       return lazy._("command.detail", "detail");
     },
     run(msg, convObj, returnedConv) {
-      let account = getAccount(convObj);
-      let conv = getConv(convObj);
+      const account = getAccount(convObj);
+      const conv = getConv(convObj);
       publishRoomDetails(account, conv);
       return true;
     },

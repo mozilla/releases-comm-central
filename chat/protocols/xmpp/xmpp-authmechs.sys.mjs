@@ -35,12 +35,12 @@ import { Stanza } from "resource:///modules/xmpp-xml.sys.mjs";
 
 // Handle PLAIN authorization mechanism.
 function* PlainAuth(aUsername, aPassword, aDomain) {
-  let data = "\0" + aUsername + "\0" + aPassword;
+  const data = "\0" + aUsername + "\0" + aPassword;
 
   // btoa for Unicode, see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
-  let base64Data = btoa(unescape(encodeURIComponent(data)));
+  const base64Data = btoa(unescape(encodeURIComponent(data)));
 
-  let stanza = yield {
+  const stanza = yield {
     send: Stanza.node(
       "auth",
       Stanza.NS.sasl,
@@ -264,9 +264,9 @@ function createNonce(aLength) {
 
 // Parses the string of server's response (aChallenge) into an object.
 function parseChallenge(aChallenge) {
-  let attributes = {};
+  const attributes = {};
   aChallenge.split(",").forEach(value => {
-    let match = /^(\w)=([\s\S]*)$/.exec(value);
+    const match = /^(\w)=([\s\S]*)$/.exec(value);
     if (match) {
       attributes[match[1]] = match[2];
     }
@@ -287,7 +287,7 @@ export function saslPrep(aString) {
   retVal = retVal.normalize("NFKC");
 
   // RFC 4013 2.3: Prohibited Output and 2.5: Unassigned Code Points.
-  let matchStr =
+  const matchStr =
     RFC3454.C12 +
     "|" +
     RFC3454.C21 +
@@ -309,21 +309,21 @@ export function saslPrep(aString) {
     RFC3454.C9 +
     "|" +
     RFC3454.A1;
-  let match = new RegExp(matchStr, "u").test(retVal);
+  const match = new RegExp(matchStr, "u").test(retVal);
   if (match) {
     throw new Error("String contains prohibited characters");
   }
 
   // RFC 4013 2.4: Bidirectional Characters.
-  let r = new RegExp(RFC3454.D1, "u").test(retVal);
-  let l = new RegExp(RFC3454.D2, "u").test(retVal);
+  const r = new RegExp(RFC3454.D1, "u").test(retVal);
+  const l = new RegExp(RFC3454.D2, "u").test(retVal);
   if (l && r) {
     throw new Error(
       "String must not contain LCat and RandALCat characters together"
     );
   } else if (r) {
-    let matchFirst = new RegExp("^(" + RFC3454.D1 + ")", "u").test(retVal);
-    let matchLast = new RegExp("(" + RFC3454.D1 + ")$", "u").test(retVal);
+    const matchFirst = new RegExp("^(" + RFC3454.D1 + ")", "u").test(retVal);
+    const matchLast = new RegExp("(" + RFC3454.D1 + ")$", "u").test(retVal);
     if (!matchFirst || !matchLast) {
       throw new Error(
         "A RandALCat character must be the first and the last character"
@@ -339,7 +339,7 @@ function saslName(aName) {
   // RFC 5802 (5.1): the client SHOULD prepare the username using the "SASLprep".
   // The characters ’,’ or ’=’ in usernames are sent as ’=2C’ and
   // ’=3D’ respectively.
-  let saslName = saslPrep(aName).replace(/=/g, "=3D").replace(/,/g, "=2C");
+  const saslName = saslPrep(aName).replace(/=/g, "=3D").replace(/,/g, "=2C");
   if (!saslName) {
     throw new Error("Name is not valid");
   }
@@ -349,7 +349,7 @@ function saslName(aName) {
 
 // Converts aMessage to array of bytes then apply hashing.
 function bytesAndHash(aMessage, aHash) {
-  let hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
+  const hasher = Cc["@mozilla.org/security/hash;1"].createInstance(
     Ci.nsICryptoHash
   );
   hasher.init(hasher[aHash]);
@@ -407,10 +407,10 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
     // RFC 5802 (5): SCRAM Authentication Exchange.
     const gs2Header = "n,,";
     // If a hard-coded nonce was given (e.g. for testing), use it.
-    let cNonce = aNonce ? aNonce : createNonce(32);
+    const cNonce = aNonce ? aNonce : createNonce(32);
 
-    let clientFirstMessageBare = "n=" + saslName(aUsername) + ",r=" + cNonce;
-    let clientFirstMessage = gs2Header + clientFirstMessageBare;
+    const clientFirstMessageBare = "n=" + saslName(aUsername) + ",r=" + cNonce;
+    const clientFirstMessage = gs2Header + clientFirstMessageBare;
 
     let receivedStanza = yield {
       send: Stanza.node(
@@ -426,7 +426,7 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
     }
 
     // RFC 5802 (3): SCRAM Algorithm Overview.
-    let decodedChallenge = atob(receivedStanza.innerText);
+    const decodedChallenge = atob(receivedStanza.innerText);
 
     // Expected to contain the user’s iteration count (i) and the user’s
     // salt (s), and the server appends its own nonce to the client-specified
@@ -445,7 +445,7 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
       throw new Error("Nonce is not correct");
     }
 
-    let clientFinalMessageWithoutProof =
+    const clientFinalMessageWithoutProof =
       "c=" + btoa(gs2Header) + ",r=" + attributes.r;
 
     // The server signature is calculated below, but needs to escape back to the main scope.
@@ -456,7 +456,7 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
       // SaltedPassword := Hi(Normalize(password), salt, i)
       // Normalize using saslPrep.
       // dkLen MUST be equal to the SHA digest size.
-      let saltedPassword = await pbkdf2Generate(
+      const saltedPassword = await pbkdf2Generate(
         saslPrep(aPassword),
         atob(attributes.s),
         parseInt(attributes.i),
@@ -467,17 +467,17 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
       // Calculate ClientProof.
 
       // ClientKey := HMAC(SaltedPassword, "Client Key")
-      let clientKeyBuffer = await CryptoUtils.hmac(
+      const clientKeyBuffer = await CryptoUtils.hmac(
         aHashFunctionName,
         saltedPassword,
         CommonUtils.byteStringToArrayBuffer("Client Key")
       );
-      let clientKey = CommonUtils.arrayBufferToByteString(clientKeyBuffer);
+      const clientKey = CommonUtils.arrayBufferToByteString(clientKeyBuffer);
 
       // StoredKey := H(ClientKey)
-      let storedKey = bytesAndHash(clientKey, hashFunctionProp);
+      const storedKey = bytesAndHash(clientKey, hashFunctionProp);
 
-      let authMessage = CommonUtils.byteStringToArrayBuffer(
+      const authMessage = CommonUtils.byteStringToArrayBuffer(
         clientFirstMessageBare +
           "," +
           decodedChallenge +
@@ -486,28 +486,28 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
       );
 
       // ClientSignature := HMAC(StoredKey, AuthMessage)
-      let clientSignatureBuffer = await CryptoUtils.hmac(
+      const clientSignatureBuffer = await CryptoUtils.hmac(
         aHashFunctionName,
         CommonUtils.byteStringToArrayBuffer(storedKey),
         authMessage
       );
-      let clientSignature = CommonUtils.arrayBufferToByteString(
+      const clientSignature = CommonUtils.arrayBufferToByteString(
         clientSignatureBuffer
       );
       // ClientProof := ClientKey XOR ClientSignature
-      let clientProof = CryptoUtils.xor(clientKey, clientSignature);
+      const clientProof = CryptoUtils.xor(clientKey, clientSignature);
 
       // Calculate ServerSignature.
 
       // ServerKey := HMAC(SaltedPassword, "Server Key")
-      let serverKeyBuffer = await CryptoUtils.hmac(
+      const serverKeyBuffer = await CryptoUtils.hmac(
         aHashFunctionName,
         saltedPassword,
         CommonUtils.byteStringToArrayBuffer("Server Key")
       );
 
       // ServerSignature := HMAC(ServerKey, AuthMessage)
-      let serverSignatureBuffer = await CryptoUtils.hmac(
+      const serverSignatureBuffer = await CryptoUtils.hmac(
         aHashFunctionName,
         serverKeyBuffer,
         authMessage
@@ -516,7 +516,7 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
         serverSignatureBuffer
       );
 
-      let clientFinalMessage =
+      const clientFinalMessage =
         clientFinalMessageWithoutProof + ",p=" + btoa(clientProof);
 
       return {
@@ -535,7 +535,7 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
       throw new Error("Didn't receive the expected auth success stanza.");
     }
 
-    let decodedResponse = atob(receivedStanza.innerText);
+    const decodedResponse = atob(receivedStanza.innerText);
 
     // Expected to contain a base64-encoded ServerSignature (v).
     attributes = parseChallenge(decodedResponse);
@@ -545,7 +545,7 @@ function generateScramAuth(aHashFunctionName, aDigestLength) {
 
     // Compare ServerSignature with our ServerSignature which we calculated in
     // _generateResponse.
-    let serverSignatureResponse = atob(attributes.v);
+    const serverSignatureResponse = atob(attributes.v);
     if (serverSignature != serverSignatureResponse) {
       throw new Error("Server signature does not match");
     }

@@ -48,13 +48,13 @@ export function queueFileOperation(aPath, aOperation) {
   // This is safe since the promise is returned and consumers are expected to
   // handle any errors. If there's no promise existing for the given path already,
   // queue the operation on a dummy pre-resolved promise.
-  let promise = (gFilePromises.get(aPath) || Promise.resolve()).then(
+  const promise = (gFilePromises.get(aPath) || Promise.resolve()).then(
     aOperation,
     aOperation
   );
   gFilePromises.set(aPath, promise);
 
-  let cleanup = () => {
+  const cleanup = () => {
     // If no further operations have been queued, remove the reference from the map.
     if (gFilePromises.get(aPath) === promise) {
       gFilePromises.delete(aPath);
@@ -101,7 +101,7 @@ export function appendToFile(aPath, aString, aCreate) {
 // accordingly so that they can be used as file/folder names.
 export function encodeName(aName) {
   // Reserved device names by Windows (prefixing "%").
-  let reservedNames = /^(CON|PRN|AUX|NUL|COM\d|LPT\d)$/i;
+  const reservedNames = /^(CON|PRN|AUX|NUL|COM\d|LPT\d)$/i;
   if (reservedNames.test(aName)) {
     return "%" + aName;
   }
@@ -132,7 +132,7 @@ export function getLogFilePathForConversation(aConv, aStartTime) {
   if (!aStartTime) {
     aStartTime = aConv.startDate / 1000;
   }
-  let path = getLogFolderPathForAccount(aConv.account);
+  const path = getLogFolderPathForAccount(aConv.account);
   let name = aConv.normalizedName;
   if (aConv.isChat) {
     name += ".chat";
@@ -141,7 +141,7 @@ export function getLogFilePathForConversation(aConv, aStartTime) {
 }
 
 export function getNewLogFileName(aStartTime) {
-  let date = aStartTime ? new Date(aStartTime) : new Date();
+  const date = aStartTime ? new Date(aStartTime) : new Date();
   let dateTime = lazy.ToLocaleFormat("%Y-%m-%d.%H%M%S", date);
   let offset = date.getTimezoneOffset();
   if (offset < 0) {
@@ -150,7 +150,7 @@ export function getNewLogFileName(aStartTime) {
   } else {
     dateTime += "-";
   }
-  let minutes = offset % 60;
+  const minutes = offset % 60;
   offset = (offset - minutes) / 60;
   function twoDigits(number) {
     if (number == 0) {
@@ -171,7 +171,7 @@ function queueLogFileCleanup(path) {
   if (gPendingCleanup.has(path) || !lazy.SHOULD_CLEANUP_LOGS) {
     return;
   }
-  let idleCallback = () => {
+  const idleCallback = () => {
     if (gFilePromises.has(path)) {
       gFilePromises.get(path).finally(() => {
         ChromeUtils.idleDispatch(idleCallback);
@@ -184,8 +184,8 @@ function queueLogFileCleanup(path) {
     // very hard to guarantee either way.
     queueFileOperation(path, async () => {
       try {
-        let logContents = await IOUtils.readUTF8(path);
-        let logLines = logContents.split("\n").map(line => {
+        const logContents = await IOUtils.readUTF8(path);
+        const logLines = logContents.split("\n").map(line => {
           try {
             return JSON.parse(line);
           } catch {
@@ -193,7 +193,7 @@ function queueLogFileCleanup(path) {
           }
         });
         let lastDeletionIndex = 0;
-        let deletedMessages = new Set(
+        const deletedMessages = new Set(
           logLines
             .filter((message, index) => {
               if (message.flags?.includes("deleted") && message.remoteId) {
@@ -204,7 +204,7 @@ function queueLogFileCleanup(path) {
             })
             .map(message => message.remoteId)
         );
-        for (let [index, message] of logLines.entries()) {
+        for (const [index, message] of logLines.entries()) {
           // If we are past the last deletion in the logs, there is no more
           // work to be done.
           if (index >= lastDeletionIndex) {
@@ -219,7 +219,7 @@ function queueLogFileCleanup(path) {
             message.text = "";
           }
         }
-        let cleanedLog = logLines
+        const cleanedLog = logLines
           .map(line => {
             if (typeof line === "string") {
               return line;
@@ -259,14 +259,14 @@ function initLogCleanup() {
   }
   // Capture the value of the pending cleanups before it gets overridden by
   // newly scheduled cleanups.
-  let pendingCleanupPathValue = Services.prefs.getStringPref(
+  const pendingCleanupPathValue = Services.prefs.getStringPref(
     kPendingLogCleanupPref,
     "[]"
   );
   // We are in no hurry to queue these cleanups, worst case we try to schedule
   // a cleanup for a file that is already scheduled.
   ChromeUtils.idleDispatch(() => {
-    let pendingCleanupPaths = JSON.parse(pendingCleanupPathValue) ?? [];
+    const pendingCleanupPaths = JSON.parse(pendingCleanupPathValue) ?? [];
     if (!Array.isArray(pendingCleanupPaths)) {
       console.error(
         "Pending chat log cleanup pref is not a valid array. " +
@@ -313,7 +313,7 @@ LogWriter.prototype = {
     this._startTime = this._lastMessageTime = aStartTime;
     this._messageCount = 0;
     this.paths.push(getLogFilePathForConversation(this._conv, aStartTime));
-    let account = this._conv.account;
+    const account = this._conv.account;
     let header = {
       date: new Date(this._startTime),
       name: this._conv.name,
@@ -344,13 +344,13 @@ LogWriter.prototype = {
   kMessageCountLimit: 1000,
   async logMessage(aMessage) {
     // aMessage.time is in seconds, we need it in milliseconds.
-    let messageTime = aMessage.time * 1000;
-    let messageMidnight = new Date(messageTime).setHours(0, 0, 0, 0);
+    const messageTime = aMessage.time * 1000;
+    const messageMidnight = new Date(messageTime).setHours(0, 0, 0, 0);
 
-    let inactivityLimitExceeded =
+    const inactivityLimitExceeded =
       !aMessage.delayed &&
       messageTime - this._lastMessageTime > this.kInactivityLimit;
-    let dayOverlapLimitExceeded =
+    const dayOverlapLimitExceeded =
       !aMessage.delayed &&
       messageMidnight - this._startTime > this.kDayOverlapLimit;
 
@@ -368,7 +368,7 @@ LogWriter.prototype = {
       this._lastMessageTime = messageTime;
     }
 
-    let msg = {
+    const msg = {
       date: new Date(messageTime),
       who: aMessage.who,
       text: aMessage.displayMessage,
@@ -390,11 +390,11 @@ LogWriter.prototype = {
       ].filter(f => aMessage[f]),
       remoteId: aMessage.remoteId,
     };
-    let alias = aMessage.alias;
+    const alias = aMessage.alias;
     if (alias && alias != msg.who) {
       msg.alias = alias;
     }
-    let lineToWrite = JSON.stringify(msg) + "\n";
+    const lineToWrite = JSON.stringify(msg) + "\n";
 
     await this._initialized;
     try {
@@ -416,9 +416,9 @@ var dummyLogWriter = {
 
 var gLogWritersById = new Map();
 export function getLogWriter(aConversation) {
-  let id = aConversation.id;
+  const id = aConversation.id;
   if (!gLogWritersById.has(id)) {
-    let prefName =
+    const prefName =
       "purple.logging.log_" + (aConversation.isChat ? "chats" : "ims");
     if (Services.prefs.getBoolPref(prefName)) {
       gLogWritersById.set(id, new LogWriter(aConversation));
@@ -449,7 +449,7 @@ function getDateFromFilename(aFilename) {
   const kRegExp =
     /([\d]{4})-([\d]{2})-([\d]{2}).([\d]{2})([\d]{2})([\d]{2})([+-])([\d]{2})([\d]{2}).*\.([A-Za-z]+)$/;
 
-  let r = aFilename.match(kRegExp);
+  const r = aFilename.match(kRegExp);
   if (!r) {
     console.error(
       "Found log file with name not matching YYYY-MM-DD.HHmmSS+ZZzz.format: " +
@@ -472,7 +472,7 @@ function LogMessage(aData, aConversation) {
   }
   this.remoteId = aData.remoteId;
   if (aData.flags) {
-    for (let flag of aData.flags) {
+    for (const flag of aData.flags) {
       this[flag] = true;
     }
   }
@@ -488,7 +488,7 @@ LogMessage.prototype = {
 
 function LogConversation(aMessages, aProperties) {
   this._messages = aMessages;
-  for (let property in aProperties) {
+  for (const property in aProperties) {
     this[property] = aProperties[property];
   }
 }
@@ -530,9 +530,9 @@ LogConversation.prototype = {
 function Log(aEntries) {
   if (typeof aEntries == "string") {
     // Assume that aEntries is a single path.
-    let path = aEntries;
+    const path = aEntries;
     this.path = path;
-    let [date, format] = getDateFromFilename(PathUtils.filename(path));
+    const [date, format] = getDateFromFilename(PathUtils.filename(path));
     if (!date || !format) {
       this.time = 0;
       return;
@@ -556,7 +556,7 @@ function Log(aEntries) {
 
   this._entryPaths = aEntries.map(entry => entry.path);
   // Calculate the timestamp for the first entry down to the day.
-  let timestamp = new Date(aEntries[0].time);
+  const timestamp = new Date(aEntries[0].time);
   timestamp.setHours(0);
   timestamp.setMinutes(0);
   timestamp.setSeconds(0);
@@ -578,21 +578,23 @@ Log.prototype = {
      * promise will resolve to null.
      */
     let messages = [];
-    let properties = {};
+    const properties = {};
     let firstFile = true;
-    let decoder = new TextDecoder();
-    let lastRemoteIdIndex = {};
-    for (let path of this._entryPaths) {
+    const decoder = new TextDecoder();
+    const lastRemoteIdIndex = {};
+    for (const path of this._entryPaths) {
       let lines;
       try {
-        let contents = await queueFileOperation(path, () => IOUtils.read(path));
+        const contents = await queueFileOperation(path, () =>
+          IOUtils.read(path)
+        );
         lines = decoder.decode(contents).split("\n");
       } catch (aError) {
         console.error('Error reading log file "' + path + '":\n' + aError);
         continue;
       }
       let nextLine = lines.shift();
-      let filename = PathUtils.filename(path);
+      const filename = PathUtils.filename(path);
 
       let data;
       try {
@@ -634,7 +636,7 @@ Log.prototype = {
           break;
         }
         try {
-          let message = JSON.parse(nextLine);
+          const message = JSON.parse(nextLine);
 
           // Backwards compatibility for old action messages.
           if (
@@ -688,16 +690,15 @@ function logsGroupedByDay(aEntries) {
     return [];
   }
 
-  let entries = {};
-  for (let path of aEntries) {
-    let [logDate, logFormat] = getDateFromFilename(PathUtils.filename(path));
+  const entries = {};
+  for (const path of aEntries) {
+    const [logDate, logFormat] = getDateFromFilename(PathUtils.filename(path));
     if (!logDate) {
       // We'll skip this one, since it's got a busted filename.
       continue;
     }
 
-    let dateForID = new Date(logDate);
-    let dayID;
+    const dateForID = new Date(logDate);
     // If the file isn't a JSON file, ignore it.
     if (logFormat != "json") {
       continue;
@@ -709,7 +710,7 @@ function logsGroupedByDay(aEntries) {
     dateForID.setHours(0);
     dateForID.setMinutes(0);
     dateForID.setSeconds(0);
-    dayID = dateForID.toISOString();
+    const dayID = dateForID.toISOString();
 
     if (!(dayID in entries)) {
       entries[dayID] = [];
@@ -721,7 +722,7 @@ function logsGroupedByDay(aEntries) {
     });
   }
 
-  let days = Object.keys(entries);
+  const days = Object.keys(entries);
   days.sort();
   return days.map(dayID => new Log(entries[dayID]));
 }
@@ -730,7 +731,7 @@ export function Logger() {
   IOUtils.profileBeforeChange.addBlocker(
     "Chat logger: writing all pending messages",
     async function () {
-      for (let promise of gFilePromises.values()) {
+      for (const promise of gFilePromises.values()) {
         try {
           await promise;
         } catch (aError) {
@@ -779,13 +780,13 @@ Logger.prototype = {
 
     // We'll assume that the files relevant to our interests are
     // in the same folder as the one provided.
-    let relevantEntries = [];
+    const relevantEntries = [];
     for (const path of await IOUtils.getChildren(PathUtils.parent(aFilePath))) {
       const stat = await IOUtils.stat(path);
       if (stat.type === "directory") {
         continue;
       }
-      let [logTime] = getDateFromFilename(PathUtils.filename(path));
+      const [logTime] = getDateFromFilename(PathUtils.filename(path));
       // If someone placed a 'foreign' file into the logs directory,
       // pattern matching fails and getDateFromFilename() returns [].
       if (logTime && targetDate == logTime.toDateString()) {
@@ -799,24 +800,24 @@ Logger.prototype = {
   },
 
   async getLogPathsForConversation(aConversation) {
-    let writer = gLogWritersById.get(aConversation.id);
+    const writer = gLogWritersById.get(aConversation.id);
     // Resolve to null if we haven't created a LogWriter yet for this conv, or
     // if logging is disabled (paths will be null).
     if (!writer || !writer.paths) {
       return null;
     }
-    let paths = writer.paths;
+    const paths = writer.paths;
     // Wait for any pending file operations to finish, then resolve to the paths
     // regardless of whether these operations succeeded.
-    for (let path of paths) {
+    for (const path of paths) {
       await gFilePromises.get(path);
     }
     return paths;
   },
   async getLogsForContact(aContact) {
     let entries = [];
-    for (let buddy of aContact.getBuddies()) {
-      for (let accountBuddy of buddy.getAccountBuddies()) {
+    for (const buddy of aContact.getBuddies()) {
+      for (const accountBuddy of buddy.getAccountBuddies()) {
         entries = entries.concat(
           await this._getLogEntries(
             accountBuddy.account,
@@ -867,9 +868,9 @@ Logger.prototype = {
       );
     }
 
-    let logPath = this.getLogFolderPathForAccount(aAccount);
+    const logPath = this.getLogFolderPathForAccount(aAccount);
     // Find all operations on files inside the log folder.
-    let pendingPromises = [];
+    const pendingPromises = [];
     function checkLogFiles(promiseOperation, filePath) {
       if (filePath.startsWith(logPath)) {
         pendingPromises.push(promiseOperation);
@@ -887,9 +888,9 @@ Logger.prototype = {
   },
 
   async forEach(aCallback) {
-    let getAllSubdirs = async function (aPaths, aErrorMsg) {
+    const getAllSubdirs = async function (aPaths, aErrorMsg) {
       let entries = [];
-      for (let path of aPaths) {
+      for (const path of aPaths) {
         try {
           entries = entries.concat(await IOUtils.getChildren(path));
         } catch (aError) {
@@ -898,8 +899,8 @@ Logger.prototype = {
           }
         }
       }
-      let filteredPaths = [];
-      for (let path of entries) {
+      const filteredPaths = [];
+      for (const path of entries) {
         const stat = await IOUtils.stat(path);
         if (stat.type === "directory") {
           filteredPaths.push(path);
@@ -908,20 +909,20 @@ Logger.prototype = {
       return filteredPaths;
     };
 
-    let logsPath = PathUtils.join(
+    const logsPath = PathUtils.join(
       Services.dirsvc.get("ProfD", Ci.nsIFile).path,
       "logs"
     );
-    let prpls = await getAllSubdirs([logsPath]);
-    let accounts = await getAllSubdirs(
+    const prpls = await getAllSubdirs([logsPath]);
+    const accounts = await getAllSubdirs(
       prpls,
       "Error while sweeping prpl folder:"
     );
-    let logFolders = await getAllSubdirs(
+    const logFolders = await getAllSubdirs(
       accounts,
       "Error while sweeping account folder:"
     );
-    for (let folder of logFolders) {
+    for (const folder of logFolders) {
       try {
         for (const path of await IOUtils.getChildren(folder)) {
           const stat = await IOUtils.stat(path);
@@ -953,7 +954,7 @@ Logger.prototype = {
           );
         }
         if (!aSubject.noLog && !excludeBecauseEncrypted) {
-          let log = getLogWriter(aSubject.conversation);
+          const log = getLogWriter(aSubject.conversation);
           log.logMessage(aSubject);
         }
         break;

@@ -47,7 +47,7 @@ export var Status = {
   },
 
   toFlag(aAttribute) {
-    for (let flag in statusAttributes) {
+    for (const flag in statusAttributes) {
       if (statusAttributes[flag] == aAttribute) {
         return flag;
       }

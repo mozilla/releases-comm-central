@@ -181,7 +181,7 @@ function run_test() {
  * Test round tripping parsing and then rebuilding the messages from RFC 2812.
  */
 function testCapMessages() {
-  for (let data of testData) {
+  for (const data of testData) {
     // Generate an ircMessage to send into capMessage.
     let i = 0;
     let message;
@@ -216,12 +216,12 @@ function testCapMessages() {
     }
 
     // Add defaults to the expected output.
-    for (let expectedCap of expectedCaps) {
+    for (const expectedCap of expectedCaps) {
       // By default there's no modifier.
       if (!("modifier" in expectedCap)) {
         expectedCap.modifier = undefined;
       }
-      for (let param of ["disable", "sticky", "ack"]) {
+      for (const param of ["disable", "sticky", "ack"]) {
         if (!(param in expectedCap)) {
           expectedCap[param] = false;
         }

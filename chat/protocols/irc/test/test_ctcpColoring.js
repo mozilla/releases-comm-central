@@ -32,7 +32,7 @@ function run_test() {
 }
 
 function test_mIRCColoring() {
-  let expectedOutput = [
+  const expectedOutput = [
     '<font color="maroon" background="blue">colored text and background</font>',
     '<font color="maroon">colored text</font>',
     '<font color="green">colored text <font color="maroon" background="navy">more colored text and background</font></font>',
@@ -52,7 +52,7 @@ function test_mIRCColoring() {
 }
 
 function test_ctcpFormatToText() {
-  let expectedOutput = [
+  const expectedOutput = [
     "colored text and background",
     "colored text",
     "colored text more colored text and background",

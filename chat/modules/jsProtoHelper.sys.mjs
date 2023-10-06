@@ -18,7 +18,9 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
 );
 
 XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
-  let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
+  const cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
+    Ci.mozITXTToHTMLConv
+  );
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
@@ -97,7 +99,7 @@ export var GenericAccountPrototype = {
   handleConnectionSecurityError(aSocket) {
     // Stash away the connectionTarget and securityInfo.
     this._connectionTarget = aSocket.host + ":" + aSocket.port;
-    let securityInfo = (this._securityInfo = aSocket.securityInfo);
+    const securityInfo = (this._securityInfo = aSocket.securityInfo);
 
     if (!securityInfo) {
       return Ci.prplIAccount.ERROR_CERT_NOT_PROVIDED;
@@ -192,7 +194,7 @@ export var GenericAccountPrototype = {
     if (!this._pendingBuddyRequests) {
       this._pendingBuddyRequests = [];
     }
-    let buddyRequest = {
+    const buddyRequest = {
       get account() {
         return this._account.imAccount;
       },
@@ -244,7 +246,7 @@ export var GenericAccountPrototype = {
       return;
     }
 
-    for (let request of this._pendingBuddyRequests) {
+    for (const request of this._pendingBuddyRequests) {
       if (request.userName == aUserName) {
         request.cancel();
         break;
@@ -256,7 +258,7 @@ export var GenericAccountPrototype = {
       return;
     }
 
-    for (let request of this._pendingBuddyRequests) {
+    for (const request of this._pendingBuddyRequests) {
       request.cancel();
     }
     delete this._pendingBuddyRequests;
@@ -280,7 +282,7 @@ export var GenericAccountPrototype = {
     if (!this._pendingChatRequests) {
       this._pendingChatRequests = new Set();
     }
-    let inviteHandling = Services.prefs.getIntPref(
+    const inviteHandling = Services.prefs.getIntPref(
       "messenger.conversations.autoAcceptChatInvitations"
     );
     // Only auto-reject invites that can be denied.
@@ -291,12 +293,12 @@ export var GenericAccountPrototype = {
     }
     let resolvePromise;
     let rejectPromise;
-    let completePromise = new Promise((resolve, reject) => {
+    const completePromise = new Promise((resolve, reject) => {
       resolvePromise = resolve;
       rejectPromise = reject;
     });
     /** @implements {prplIChatRequest} */
-    let chatRequest = {
+    const chatRequest = {
       get account() {
         return this._account.imAccount;
       },
@@ -352,7 +354,7 @@ export var GenericAccountPrototype = {
       return;
     }
 
-    for (let request of this._pendingChatRequests) {
+    for (const request of this._pendingChatRequests) {
       if (request.conversationName == conversationName) {
         request.cancel();
         break;
@@ -364,7 +366,7 @@ export var GenericAccountPrototype = {
       return;
     }
 
-    for (let request of this._pendingChatRequests) {
+    for (const request of this._pendingChatRequests) {
       request.cancel();
     }
     this._pendingChatRequests = null;
@@ -379,7 +381,7 @@ export var GenericAccountPrototype = {
     if (!this.chatRoomFields) {
       return [];
     }
-    let fieldNames = Object.keys(this.chatRoomFields);
+    const fieldNames = Object.keys(this.chatRoomFields);
     return fieldNames.map(
       fieldName => new ChatRoomField(fieldName, this.chatRoomFields[fieldName])
     );
@@ -389,14 +391,14 @@ export var GenericAccountPrototype = {
       return new ChatRoomFieldValues({});
     }
 
-    let defaultFieldValues = {};
-    for (let fieldName in this.chatRoomFields) {
+    const defaultFieldValues = {};
+    for (const fieldName in this.chatRoomFields) {
       defaultFieldValues[fieldName] = this.chatRoomFields[fieldName].default;
     }
 
     if (aDefaultChatName && "parseDefaultChatName" in this) {
-      let parsedDefaultChatName = this.parseDefaultChatName(aDefaultChatName);
-      for (let field in parsedDefaultChatName) {
+      const parsedDefaultChatName = this.parseDefaultChatName(aDefaultChatName);
+      for (const field in parsedDefaultChatName) {
         defaultFieldValues[field] = parsedDefaultChatName[field];
       }
     }
@@ -468,7 +470,7 @@ export var GenericAccountPrototype = {
     if (!this._pendingVerificationRequests) {
       this._pendingVerificationRequests = [];
     }
-    let verificationRequest = {
+    const verificationRequest = {
       _account: this,
       get account() {
         return this._account.imAccount;
@@ -556,7 +558,7 @@ export var GenericAccountPrototype = {
     if (!this._pendingVerificationRequests) {
       return;
     }
-    for (let request of this._pendingVerificationRequests) {
+    for (const request of this._pendingVerificationRequests) {
       request.cancel();
     }
     this._pendingVerificationRequests = null;
@@ -600,7 +602,7 @@ export var GenericAccountBuddyPrototype = {
     this._account = aAccount;
     this._buddy = aBuddy;
     if (aBuddy) {
-      let displayName = aBuddy.displayName;
+      const displayName = aBuddy.displayName;
       if (displayName != aUserName) {
         this._serverAlias = displayName;
       }
@@ -629,7 +631,7 @@ export var GenericAccountBuddyPrototype = {
     return this._tag;
   },
   set tag(aNewTag) {
-    let oldTag = this._tag;
+    const oldTag = this._tag;
     this._tag = aNewTag;
     IMServices.contacts.accountBuddyMoved(this, oldTag, aNewTag);
   },
@@ -654,7 +656,7 @@ export var GenericAccountBuddyPrototype = {
     return this._serverAlias;
   },
   set serverAlias(aNewAlias) {
-    let old = this.displayName;
+    const old = this.displayName;
     this._serverAlias = aNewAlias;
     if (old != this.displayName) {
       this._notifyObservers("display-name-changed", old);
@@ -760,7 +762,7 @@ export var GenericAccountBuddyPrototype = {
     }
 
     // Decide which notifications should be fired.
-    let notifications = [];
+    const notifications = [];
     if (
       this._statusType != aStatusType ||
       this._availabilityDetails != aAvailabilityDetails
@@ -824,7 +826,7 @@ export var GenericMessagePrototype = {
     this.conversation = aConversation;
 
     if (aObject) {
-      for (let i in aObject) {
+      for (const i in aObject) {
         this[i] = aObject[i];
       }
     }
@@ -842,7 +844,7 @@ export var GenericMessagePrototype = {
 
     // Otherwise, attempt to find a buddy for incoming messages, and forward the call.
     if (this.incoming && this.conversation && !this.conversation.isChat) {
-      let buddy = this.conversation.buddy;
+      const buddy = this.conversation.buddy;
       if (buddy) {
         return buddy.buddyIconFilename;
       }
@@ -930,7 +932,7 @@ export var GenericConversationPrototype = {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   notifyObservers(aSubject, aTopic, aData) {
-    for (let observer of this._observers) {
+    for (const observer of this._observers) {
       try {
         observer.observe(aSubject, aTopic, aData);
       } catch (e) {
@@ -966,11 +968,11 @@ export var GenericConversationPrototype = {
     // Protocols have an opportunity here to preprocess messages before they are
     // sent (eg. split long messages). If a message is split here, the split
     // will be visible in the UI.
-    let messages = this.prepareForSending(om);
-    let isAction = om.action;
-    let isNotification = om.notification;
+    const messages = this.prepareForSending(om);
+    const isAction = om.action;
+    const isNotification = om.notification;
 
-    for (let msg of messages) {
+    for (const msg of messages) {
       // Add-ons (eg. OTR) have an opportunity to tweak or cancel the message
       // at this point.
       om = new OutgoingMessage(msg, this);
@@ -1186,7 +1188,7 @@ export var GenericConvChatPrototype = {
   },
   set nick(aNick) {
     this._nick = aNick;
-    let escapedNick = this._nick.replace(/[[\]{}()*+?.\\^$|]/g, "\\$&");
+    const escapedNick = this._nick.replace(/[[\]{}()*+?.\\^$|]/g, "\\$&");
     this._pingRegexp = new RegExp("(?:^|\\W)" + escapedNick + "(?:\\W|$)", "i");
   },
 
@@ -1226,7 +1228,7 @@ export var GenericConvChatPrototype = {
   // Updates the nick of a participant in conversation to a new one.
   updateNick(aOldNick, aNewNick, isOwnNick) {
     let message;
-    let isParticipant = this._participants.has(aOldNick);
+    const isParticipant = this._participants.has(aOldNick);
     if (isOwnNick) {
       // If this is the user's nick, change it.
       this.nick = aNewNick;
@@ -1249,7 +1251,7 @@ export var GenericConvChatPrototype = {
     }
 
     // Get the original participant and then remove it.
-    let participant = this._participants.get(aOldNick);
+    const participant = this._participants.get(aOldNick);
     this._participants.delete(aOldNick);
 
     // Update the nickname and add it under the new nick.
@@ -1266,7 +1268,7 @@ export var GenericConvChatPrototype = {
       return;
     }
 
-    let stringNickname = Cc["@mozilla.org/supports-string;1"].createInstance(
+    const stringNickname = Cc["@mozilla.org/supports-string;1"].createInstance(
       Ci.nsISupportsString
     );
     stringNickname.data = aNick;
@@ -1279,11 +1281,11 @@ export var GenericConvChatPrototype = {
 
   // Removes all participant in conversation.
   removeAllParticipants() {
-    let stringNicknames = [];
+    const stringNicknames = [];
     this._participants.forEach(function (aParticipant) {
-      let stringNickname = Cc["@mozilla.org/supports-string;1"].createInstance(
-        Ci.nsISupportsString
-      );
+      const stringNickname = Cc[
+        "@mozilla.org/supports-string;1"
+      ].createInstance(Ci.nsISupportsString);
       stringNickname.data = aParticipant.name;
       stringNicknames.push(stringNickname);
     });
@@ -1449,7 +1451,7 @@ purplePref.prototype = {
   },
   getList() {
     // Convert a JavaScript object map {"value 1": "label 1", ...}
-    let keys = Object.keys(this._listValues);
+    const keys = Object.keys(this._listValues);
     return keys.map(key => new purpleKeyValuePair(this._listValues[key], key));
   },
   getListDefault() {
@@ -1556,8 +1558,8 @@ export var GenericProtocolPrototype = {
       return [];
     }
 
-    let purplePrefs = [];
-    for (let [name, option] of Object.entries(this.options)) {
+    const purplePrefs = [];
+    for (const [name, option] of Object.entries(this.options)) {
       purplePrefs.push(new purplePref(name, option));
     }
     return purplePrefs;

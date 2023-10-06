@@ -56,8 +56,8 @@ function getDistributionFilename() {
 }
 
 function getDistributionFullPath() {
-  let binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
-  let binDir = PathUtils.parent(binPath);
+  const binPath = Services.dirsvc.get("XpcomLib", Ci.nsIFile).path;
+  const binDir = PathUtils.parent(binPath);
   return PathUtils.join(binDir, getDistributionFilename());
 }
 
@@ -124,15 +124,15 @@ export var OTRLibLoader = {
 // Helper function to open files with the path properly encoded.
 var callWithFILEp = function () {
   // Windows filenames are in UTF-16.
-  let charType = systemOS === "winnt" ? "jschar" : "char";
+  const charType = systemOS === "winnt" ? "jschar" : "char";
 
-  let args = Array.from(arguments);
-  let func = args.shift() + "_FILEp";
-  let mode = ctypes[charType].array()(args.shift());
-  let ind = args.shift();
-  let filename = ctypes[charType].array()(args[ind]);
+  const args = Array.from(arguments);
+  const func = args.shift() + "_FILEp";
+  const mode = ctypes[charType].array()(args.shift());
+  const ind = args.shift();
+  const filename = ctypes[charType].array()(args[ind]);
 
-  let file = CLib.fopen(filename, mode);
+  const file = CLib.fopen(filename, mode);
   if (file.isNull()) {
     return 1;
   }
@@ -140,7 +140,7 @@ var callWithFILEp = function () {
   // Swap filename with file.
   args[ind] = file;
 
-  let ret = OTRLib[func].apply(OTRLib, args);
+  const ret = OTRLib[func].apply(OTRLib, args);
   CLib.fclose(file);
   return ret;
 };

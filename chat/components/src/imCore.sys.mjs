@@ -80,14 +80,14 @@ UserStatus.prototype = {
   observe(aSubject, aTopic, aData) {
     if (aTopic == "nsPref:changed") {
       if (aData == kPrefReportIdle) {
-        let reportIdle = Services.prefs.getBoolPref(kPrefReportIdle);
+        const reportIdle = Services.prefs.getBoolPref(kPrefReportIdle);
         if (reportIdle && !this._observingIdleness) {
           this._addIdleObserver();
         } else if (!reportIdle && this._observingIdleness) {
           this._removeIdleObserver();
         }
       } else if (aData == kPrefTimeBeforeIdle) {
-        let timeBeforeIdle = Services.prefs.getIntPref(kPrefTimeBeforeIdle);
+        const timeBeforeIdle = Services.prefs.getIntPref(kPrefTimeBeforeIdle);
         if (timeBeforeIdle != this._timeBeforeIdle) {
           if (this._timeBeforeIdle) {
             this._idleService.removeIdleObserver(this, this._timeBeforeIdle);
@@ -114,8 +114,8 @@ UserStatus.prototype = {
 
   _offlineStatusType: Ci.imIStatusInfo.STATUS_AVAILABLE,
   set offline(aOffline) {
-    let statusType = this.statusType;
-    let statusText = this.statusText;
+    const statusType = this.statusType;
+    const statusText = this.statusText;
     if (aOffline) {
       this._offlineStatusType = Ci.imIStatusInfo.STATUS_OFFLINE;
     } else {
@@ -138,14 +138,14 @@ UserStatus.prototype = {
   _idleStatusText: "",
   _idleStatusType: Ci.imIStatusInfo.STATUS_AVAILABLE,
   _checkIdle() {
-    let idleTime = Math.floor(this._idleService.idleTime / 1000);
-    let idle = this._timeBeforeIdle && idleTime >= this._timeBeforeIdle;
+    const idleTime = Math.floor(this._idleService.idleTime / 1000);
+    const idle = this._timeBeforeIdle && idleTime >= this._timeBeforeIdle;
     if (idle == this._idle) {
       return;
     }
 
-    let statusType = this.statusType;
-    let statusText = this.statusText;
+    const statusType = this.statusType;
+    const statusText = this.statusText;
     this._idle = idle;
     if (idle) {
       this.idleTime = idleTime;
@@ -190,12 +190,12 @@ UserStatus.prototype = {
 
   _getProfileDir: () => Services.dirsvc.get("ProfD", Ci.nsIFile),
   setUserIcon(aIconFile) {
-    let folder = this._getProfileDir();
+    const folder = this._getProfileDir();
 
     let newName = "";
     if (aIconFile) {
       // Get the extension (remove trailing dots - invalid Windows extension).
-      let ext = aIconFile.leafName.replace(/.*(\.[a-z0-9]+)\.*/i, "$1");
+      const ext = aIconFile.leafName.replace(/.*(\.[a-z0-9]+)\.*/i, "$1");
       // newName = userIcon-<timestamp(now)>.<aIconFile.extension>
       newName = "userIcon-" + Math.floor(Date.now() / 1000) + ext;
 
@@ -204,7 +204,7 @@ UserStatus.prototype = {
     }
 
     // Get the previous file name before saving the new file name.
-    let oldFileName = Services.prefs.getCharPref(kPrefUserIconFilename);
+    const oldFileName = Services.prefs.getCharPref(kPrefUserIconFilename);
     Services.prefs.setCharPref(kPrefUserIconFilename, newName);
 
     // Now that the new icon has been copied to the profile directory
@@ -224,13 +224,13 @@ UserStatus.prototype = {
     this._notifyObservers("user-icon-changed", newName);
   },
   getUserIcon() {
-    let filename = Services.prefs.getCharPref(kPrefUserIconFilename);
+    const filename = Services.prefs.getCharPref(kPrefUserIconFilename);
     if (!filename) {
       // No icon has been set.
       return null;
     }
 
-    let file = this._getProfileDir();
+    const file = this._getProfileDir();
     file.append(filename);
 
     if (!file.exists()) {
@@ -258,7 +258,7 @@ UserStatus.prototype = {
     this._observers = this._observers.filter(o => o !== aObserver);
   },
   _notifyObservers(aTopic, aData) {
-    for (let observer of this._observers) {
+    for (const observer of this._observers) {
       observer.observe(this, aTopic, aData);
     }
   },
@@ -337,15 +337,15 @@ CoreService.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
 
-    let protocols = [];
-    for (let entry of Services.catMan.enumerateCategory(
+    const protocols = [];
+    for (const entry of Services.catMan.enumerateCategory(
       kProtocolPluginCategory
     )) {
-      let id = entry.data;
+      const id = entry.data;
 
       // If the preference is set to disable this prpl, don't show it in the
       // full list of protocols.
-      let pref = "chat.prpls." + id + ".disable";
+      const pref = "chat.prpls." + id + ".disable";
       if (
         Services.prefs.getPrefType(pref) == Services.prefs.PREF_BOOL &&
         Services.prefs.getBoolPref(pref)
@@ -354,7 +354,7 @@ CoreService.prototype = {
         continue;
       }
 
-      let proto = this.getProtocolById(id);
+      const proto = this.getProtocolById(id);
       if (proto) {
         protocols.push(proto);
       }
@@ -383,7 +383,7 @@ CoreService.prototype = {
       proto = Cc[cid].createInstance(Ci.prplIProtocol);
     } catch (e) {
       // This is a real error, the protocol is registered and failed to init.
-      let error = "failed to create an instance of " + cid + ": " + e;
+      const error = "failed to create an instance of " + cid + ": " + e;
       dump(error + "\n");
       console.error(error);
     }

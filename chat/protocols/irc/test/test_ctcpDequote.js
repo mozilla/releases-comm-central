@@ -44,7 +44,7 @@ var expectedOutputParam = [
 ];
 
 function run_test() {
-  let output = input.map(aStr => CTCPMessage({}, aStr));
+  const output = input.map(aStr => CTCPMessage({}, aStr));
   // Ensure both arrays have the same length.
   equal(expectedOutputParam.length, output.length);
   // Ensure the values in the arrays are equal.

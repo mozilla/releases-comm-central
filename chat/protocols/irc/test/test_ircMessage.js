@@ -131,9 +131,9 @@ function run_test() {
 function testRFC2812Messages() {
   for (let expectedStringMessage of testData) {
     // Pass in an empty default origin in order to check this below.
-    let message = ircMessage(expectedStringMessage, "");
+    const message = ircMessage(expectedStringMessage, "");
 
-    let stringMessage = ircAccount.prototype.buildMessage(
+    const stringMessage = ircAccount.prototype.buildMessage(
       message.command,
       message.params
     );
@@ -156,7 +156,7 @@ function testRFC2812Messages() {
 // Unreal sends a couple of broken messages, see ircMessage in irc.jsm for a
 // description of what's wrong.
 function testBrokenUnrealMessages() {
-  let messages = {
+  const messages = {
     // Two spaces after command.
     ":gravel.mozilla.org 432  #momo :Erroneous Nickname: Illegal characters": {
       rawMessage:
@@ -193,7 +193,7 @@ function testBrokenUnrealMessages() {
     },
   };
 
-  for (let messageStr in messages) {
+  for (const messageStr in messages) {
     deepEqual(messages[messageStr], ircMessage(messageStr, ""));
   }
 
@@ -203,7 +203,7 @@ function testBrokenUnrealMessages() {
 // After unescaping we can end up with line breaks inside of IRC messages. Test
 // this edge case specifically.
 function testNewLinesInMessages() {
-  let messages = {
+  const messages = {
     ":test!Instantbir@host PRIVMSG #instantbird :First line\nSecond line": {
       rawMessage:
         ":test!Instantbir@host PRIVMSG #instantbird :First line\nSecond line",
@@ -228,7 +228,7 @@ function testNewLinesInMessages() {
     },
   };
 
-  for (let messageStr in messages) {
+  for (const messageStr in messages) {
     deepEqual(messages[messageStr], ircMessage(messageStr));
   }
 
@@ -239,7 +239,7 @@ function testNewLinesInMessages() {
 // servername. Generally this happens when connecting to localhost or a local
 // hostname and is likely seen with bouncers.
 function testLocalhost() {
-  let messages = {
+  const messages = {
     ":localhost 001 clokep :Welcome to the BitlBee gateway, clokep": {
       rawMessage:
         ":localhost 001 clokep :Welcome to the BitlBee gateway, clokep",
@@ -253,7 +253,7 @@ function testLocalhost() {
     },
   };
 
-  for (let messageStr in messages) {
+  for (const messageStr in messages) {
     deepEqual(messages[messageStr], ircMessage(messageStr));
   }
 
@@ -261,7 +261,7 @@ function testLocalhost() {
 }
 
 function testTags() {
-  let messages = {
+  const messages = {
     "@aaa=bBb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello": {
       rawMessage:
         "@aaa=bBb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello",
@@ -328,7 +328,7 @@ function testTags() {
     },
   };
 
-  for (let messageStr in messages) {
+  for (const messageStr in messages) {
     deepEqual(messages[messageStr], ircMessage(messageStr, ""));
   }
 

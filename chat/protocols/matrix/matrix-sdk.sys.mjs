@@ -39,9 +39,9 @@ const KNOWN_INDEX_JS = new Set([
 
 // Set-up loading so require works properly in CommonJS modules.
 
-let matrixPath = "resource:///modules/matrix/";
+const matrixPath = "resource:///modules/matrix/";
 
-let globals = {
+const globals = {
   atob,
   btoa,
   crypto,
@@ -64,7 +64,7 @@ let globals = {
   scriptError,
   imIDebugMessage: Ci.imIDebugMessage,
 };
-let loaderGlobal = {
+const loaderGlobal = {
   get window() {
     return globals;
   },
@@ -73,7 +73,7 @@ let loaderGlobal = {
   },
   ...globals,
 };
-let loader = Loader({
+const loader = Loader({
   paths: {
     // Matrix SDK files.
     "matrix-sdk": matrixPath + "matrix_sdk",
@@ -178,7 +178,7 @@ let loader = Loader({
 // wasm module, do crypto operations and log errors.
 // Create the global in the commonJS loader context, so they share the same
 // Uint8Array constructor.
-let olmScope = Cu.createObjectIn(loader.sharedGlobal);
+const olmScope = Cu.createObjectIn(loader.sharedGlobal);
 Object.assign(olmScope, {
   crypto,
   fetch,
@@ -203,7 +203,7 @@ olmScope.Olm.init().catch(console.error);
 loader.globals.Olm = olmScope.Olm;
 globals.Olm = olmScope.Olm;
 
-let require = Require(loader, { id: "matrix-module" });
+const require = Require(loader, { id: "matrix-module" });
 
 // Load the buffer shim into the global commonJS scope
 loader.globals.Buffer = require("safe-buffer").Buffer;
@@ -211,10 +211,10 @@ loader.globals.Buffer = require("safe-buffer").Buffer;
 globals.Buffer = loader.globals.Buffer;
 
 // The main entry point into the Matrix client.
-export let MatrixSDK = require("matrix-sdk/browser-index.js");
+export const MatrixSDK = require("matrix-sdk/browser-index.js");
 
 // Helper enums not exposed on MatrixSDK.
-export let MatrixCrypto = require("matrix-sdk/crypto");
-export let { SyncState } = require("matrix-sdk/sync");
-export let OlmLib = require("matrix-sdk/crypto/olmlib");
-export let { ReceiptType } = require("matrix-sdk/@types/read_receipts");
+export const MatrixCrypto = require("matrix-sdk/crypto");
+export const { SyncState } = require("matrix-sdk/sync");
+export const OlmLib = require("matrix-sdk/crypto/olmlib");
+export const { ReceiptType } = require("matrix-sdk/@types/read_receipts");

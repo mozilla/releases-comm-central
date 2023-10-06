@@ -22,14 +22,14 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
 //   <command> " " <parameter>
 // The high level dequote is to unescape \001 in the message content.
 export function CTCPMessage(aMessage, aRawCTCPMessage) {
-  let message = Object.assign({}, aMessage);
+  const message = Object.assign({}, aMessage);
   message.ctcp = {};
   message.ctcp.rawMessage = aRawCTCPMessage;
 
   // High/CTCP level dequote: replace the quote char \134 followed by a or \134
   // with \001 or \134, respectively. Any other character after \134 is replaced
   // with itself.
-  let dequotedCTCPMessage = message.ctcp.rawMessage.replace(
+  const dequotedCTCPMessage = message.ctcp.rawMessage.replace(
     /\\(.|$)/g,
     aStr => {
       if (aStr[1]) {
@@ -39,7 +39,7 @@ export function CTCPMessage(aMessage, aRawCTCPMessage) {
     }
   );
 
-  let separator = dequotedCTCPMessage.indexOf(" ");
+  const separator = dequotedCTCPMessage.indexOf(" ");
   // If there's no space, then only a command is given.
   // Do not capitalize the command, case sensitive
   if (separator == -1) {
@@ -74,12 +74,12 @@ function ctcpHandleMessage(message, ircHandlers) {
   }
 
   // The raw CTCP message is in the last parameter of the IRC message.
-  let rawCTCPParam = message.params.slice(-1)[0];
+  const rawCTCPParam = message.params.slice(-1)[0];
 
   // Split the raw message into the multiple CTCP messages and pull out the
   // command and parameters.
-  let ctcpMessages = [];
-  let otherMessage = rawCTCPParam.replace(
+  const ctcpMessages = [];
+  const otherMessage = rawCTCPParam.replace(
     // eslint-disable-next-line no-control-regex
     /\x01([^\x01]*)\x01/g,
     function (aMatch, aMsg) {
@@ -105,7 +105,7 @@ function ctcpHandleMessage(message, ircHandlers) {
   }
 
   // Loop over each raw CTCP message.
-  for (let message of ctcpMessages) {
+  for (const message of ctcpMessages) {
     if (!ircHandlers.handleCTCPMessage(this, message)) {
       this.WARN(
         "Unhandled CTCP message: " +
@@ -167,14 +167,14 @@ export var ctcpBase = {
       if (message.command == "PRIVMSG") {
         // Received a CLIENTINFO request, respond with the support CTCP
         // messages.
-        let info = new Set();
-        for (let handler of ircHandlers._ctcpHandlers) {
-          for (let command in handler.commands) {
+        const info = new Set();
+        for (const handler of ircHandlers._ctcpHandlers) {
+          for (const command in handler.commands) {
             info.add(command);
           }
         }
 
-        let supportedCtcp = [...info].join(" ");
+        const supportedCtcp = [...info].join(" ");
         this.LOG(
           "Reporting support for the following CTCP messages: " + supportedCtcp
         );
@@ -182,7 +182,7 @@ export var ctcpBase = {
       } else {
         // Received a CLIENTINFO response, store the information for future
         // use.
-        let info = message.ctcp.param.split(" ");
+        const info = message.ctcp.param.split(" ");
         this.setWhois(message.origin, { clientInfo: info });
       }
       return true;
@@ -225,7 +225,7 @@ export var ctcpBase = {
       if (aMessage.command == "PRIVMSG") {
         // TIME
         // Received a TIME request, send a human readable response.
-        let now = new Date().toString();
+        const now = new Date().toString();
         this.LOG(
           "Received TIME request from " +
             aMessage.origin +
@@ -238,7 +238,7 @@ export var ctcpBase = {
         // TIME :<human-readable-time-string>
         // Received a TIME reply, display it.
         // Remove the : prefix, if it exists and display the result.
-        let time = aMessage.ctcp.param.slice(aMessage.ctcp.param[0] == ":");
+        const time = aMessage.ctcp.param.slice(aMessage.ctcp.param[0] == ":");
         this.getConversation(aMessage.origin).writeMessage(
           aMessage.origin,
           lazy._("ctcp.time", aMessage.origin, time),
@@ -259,7 +259,7 @@ export var ctcpBase = {
       if (aMessage.command == "PRIVMSG") {
         // VERSION
         // Received VERSION request, send VERSION response.
-        let version = Services.appinfo.name + " " + Services.appinfo.version;
+        const version = Services.appinfo.name + " " + Services.appinfo.version;
         this.LOG(
           "Received VERSION request from " +
             aMessage.origin +
@@ -271,7 +271,7 @@ export var ctcpBase = {
       } else if (aMessage.command == "NOTICE" && aMessage.ctcp.param.length) {
         // VERSION #:#:#
         // Received VERSION response, display to the user.
-        let response = lazy._(
+        const response = lazy._(
           "ctcp.version",
           aMessage.origin,
           aMessage.ctcp.param

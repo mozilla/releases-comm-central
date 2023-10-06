@@ -24,10 +24,10 @@ var fingerTreeView = {
   getCellValue(row, column) {},
 
   getCellText(row, column) {
-    let finger = gFingers[row];
+    const finger = gFingers[row];
     switch (column.id) {
       case "verified": {
-        let id = finger.trust ? "finger-yes" : "finger-no";
+        const id = finger.trust ? "finger-yes" : "finger-no";
         return l10n.formatValueSync(id);
       }
       default:
@@ -73,12 +73,12 @@ var otrFinger = {
   },
 
   getSelections(tree) {
-    let selections = [];
-    let selection = tree.view.selection;
+    const selections = [];
+    const selection = tree.view.selection;
     if (selection) {
-      let count = selection.getRangeCount();
-      let min = {};
-      let max = {};
+      const count = selection.getRangeCount();
+      const min = {};
+      const max = {};
       for (let i = 0; i < count; i++) {
         selection.getRangeAt(i, min, max);
         for (let k = min.value; k <= max.value; k++) {
@@ -92,24 +92,24 @@ var otrFinger = {
   },
 
   select() {
-    let selections = this.getSelections(fingerTree);
+    const selections = this.getSelections(fingerTree);
     document.getElementById("remove").disabled = !selections.length;
   },
 
   remove() {
     fingerTreeView.selection.selectEventsSuppressed = true;
     // mark fingers for removal
-    for (let sel of this.getSelections(fingerTree)) {
+    for (const sel of this.getSelections(fingerTree)) {
       gFingers[sel].purge = true;
     }
     this.commonRemove();
   },
 
   removeAll() {
-    let confirmAllTitle = l10n.formatValueSync("finger-remove-all-title");
-    let confirmAllText = l10n.formatValueSync("finger-remove-all-message");
+    const confirmAllTitle = l10n.formatValueSync("finger-remove-all-title");
+    const confirmAllText = l10n.formatValueSync("finger-remove-all-message");
 
-    let buttonPressed = Services.prompt.confirmEx(
+    const buttonPressed = Services.prompt.confirmEx(
       window,
       confirmAllTitle,
       confirmAllText,
@@ -134,7 +134,7 @@ var otrFinger = {
 
   commonRemove() {
     // OTR.forgetFingerprints will null out removed fingers.
-    let removalComplete = OTR.forgetFingerprints(gFingers);
+    const removalComplete = OTR.forgetFingerprints(gFingers);
     for (let j = 0; j < gFingers.length; j++) {
       if (gFingers[j] === null) {
         let k = j;
@@ -149,8 +149,8 @@ var otrFinger = {
     fingerTreeView.selection.selectEventsSuppressed = false;
 
     if (!removalComplete) {
-      let infoTitle = l10n.formatValueSync("finger-subset-title");
-      let infoText = l10n.formatValueSync("finger-subset-message");
+      const infoTitle = l10n.formatValueSync("finger-subset-title");
+      const infoText = l10n.formatValueSync("finger-subset-message");
       Services.prompt.alert(window, infoTitle, infoText);
     }
 

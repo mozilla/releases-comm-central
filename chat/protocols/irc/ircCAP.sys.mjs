@@ -27,7 +27,7 @@ import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.s
  */
 export function capMessage(aMessage, aAccount) {
   // The CAP parameters are space separated as the last parameter.
-  let parameters = aMessage.params.slice(-1)[0].trim().split(" ");
+  const parameters = aMessage.params.slice(-1)[0].trim().split(" ");
   // The subcommand is the second parameter...although sometimes it's the first
   // parameter.
   aMessage.cap = {
@@ -36,7 +36,7 @@ export function capMessage(aMessage, aAccount) {
 
   const messages = parameters.map(function (aParameter) {
     // Clone the original object.
-    let message = Object.assign({}, aMessage);
+    const message = Object.assign({}, aMessage);
     message.cap = Object.assign({}, aMessage.cap);
 
     // If there's a modifier...pull it off. (This is pretty much unused, but we
@@ -50,7 +50,7 @@ export function capMessage(aMessage, aAccount) {
 
     // CAP v3.2 capability value
     if (aParameter.includes("=")) {
-      let paramParts = aParameter.split("=");
+      const paramParts = aParameter.split("=");
       aParameter = paramParts[0];
       // The value itself may contain an = sign, join the rest of the parts back together.
       message.cap.value = paramParts.slice(1).join("=");
@@ -109,7 +109,7 @@ export var ircCAP = {
       );
       if (messages.length) {
         // Display the list of unhandled CAP messages.
-        let unhandledMessages = messages
+        const unhandledMessages = messages
           .map(aMsg => aMsg.cap.parameter)
           .join(" ");
         this.LOG(

@@ -128,7 +128,7 @@ function testModeCommand() {
     },
   ];
 
-  let account = new ircAccount(fakeProto, {
+  const account = new ircAccount(fakeProto, {
     name: "defaultnick@instantbird.org",
   });
 
@@ -140,16 +140,16 @@ function testModeCommand() {
   const command = _getRunCommand("mode");
 
   // First test Channel Commands.
-  for (let test of testChannelCommands) {
-    let conv = new ircConversation(account, test.channel);
+  for (const test of testChannelCommands) {
+    const conv = new ircConversation(account, test.channel);
     account._expectedMessage = test.expectedMessage;
     command(test.msg, conv);
   }
 
   // Now test the User Commands.
-  let conv = new ircConversation(account, "dummyConversation");
+  const conv = new ircConversation(account, "dummyConversation");
   account._nickname = "test_nick";
-  for (let test of testUserCommands) {
+  for (const test of testUserCommands) {
     account._expectedMessage = test.expectedMessage;
     command(test.msg, conv);
   }
@@ -182,11 +182,11 @@ function testUserModeCommand() {
     },
   ];
 
-  let account = new ircAccount(fakeProto, {
+  const account = new ircAccount(fakeProto, {
     name: "test_nick@instantbird.org",
   });
   account._nickname = "test_nick";
-  let conv = new ircConversation(account, "newconv");
+  const conv = new ircConversation(account, "newconv");
 
   // check if the message being sent is same as expected message.
   account.sendRawMessage = aMessage => {
@@ -196,7 +196,7 @@ function testUserModeCommand() {
   const command = _getRunCommand("umode");
 
   // change the nick and runUserModeCommand for each test
-  for (let test of testData) {
+  for (const test of testData) {
     account._expectedMessage = test.expectedMessage;
     command(test.msg, conv);
   }
@@ -206,7 +206,7 @@ function testUserModeCommand() {
 
 // Fetch the run() of a named command.
 function _getRunCommand(aCommandName) {
-  for (let command of commands) {
+  for (const command of commands) {
     if (command.name == aCommandName) {
       return command.run;
     }

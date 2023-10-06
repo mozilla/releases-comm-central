@@ -52,9 +52,9 @@ var TEST_DATA = [
 ];
 
 function run_test() {
-  for (let current of TEST_DATA) {
+  for (const current of TEST_DATA) {
     try {
-      let result = saslPrep(current.input);
+      const result = saslPrep(current.input);
       equal(current.isError, false);
       equal(result, current.output);
     } catch (e) {

@@ -83,7 +83,7 @@ add_task(async function test_getGroupConversation() {
     }
   });
 
-  let allowedGetRoomIds = new Set(["baz"]);
+  const allowedGetRoomIds = new Set(["baz"]);
   const mockAccount = getAccount({
     getRoom(roomId) {
       if (this._rooms.has(roomId)) {
@@ -350,7 +350,7 @@ add_task(async function test_invitedToChat_cannotDenyServerNotice() {
 add_task(async function test_deleteAccount() {
   let clientLoggedIn = true;
   let storesCleared;
-  let storesPromise = new Promise(resolve => {
+  const storesPromise = new Promise(resolve => {
     storesCleared = resolve;
   });
   let stopped = false;

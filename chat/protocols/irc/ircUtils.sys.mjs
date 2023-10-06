@@ -11,7 +11,9 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
 );
 
 XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
-  let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
+  const cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
+    Ci.mozITXTToHTMLConv
+  );
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
@@ -57,7 +59,7 @@ export function ctcpFormatToText(aString) {
     }
     // We assume one character will be stripped.
     length = 1;
-    let tag = CTCP_TAGS[input[next.index]];
+    const tag = CTCP_TAGS[input[next.index]];
     // If the tag is a function, calculate how many characters are handled.
     if (typeof tag == "function") {
       [, , length] = tag([], input.substr(next.index));
@@ -103,7 +105,7 @@ export function ctcpFormatToHTML(aString) {
       output += input.substr(0, next.index);
     }
     length = 1;
-    let tag = CTCP_TAGS[input[next.index]];
+    const tag = CTCP_TAGS[input[next.index]];
     if (tag === null) {
       // Clear all formatting.
       output += closeStack(stack);
@@ -112,7 +114,7 @@ export function ctcpFormatToHTML(aString) {
       [stack, newOutput, length] = tag(stack, input.substr(next.index));
       output += newOutput;
     } else {
-      let offset = stack.indexOf(tag);
+      const offset = stack.indexOf(tag);
       if (offset == -1) {
         // Tag not found; open new tag.
         output += "<" + tag + ">";
@@ -175,20 +177,22 @@ function mIRCColoring(aStack, aInput) {
     return null;
   }
 
+  const input = aInput;
   let matches,
     stack = aStack,
-    input = aInput,
     output = "",
     length = 1;
 
   if ((matches = M_IRC_COLORS_EXP.exec(input))) {
-    let format = ["font"];
+    const format = ["font"];
 
     // Only \003 was found with no formatting digits after it, close the
     // first open font tag.
     if (!matches[1]) {
       // Find the first font tag.
-      let offset = stack.map(aTag => aTag.indexOf("font") === 0).indexOf(true);
+      const offset = stack
+        .map(aTag => aTag.indexOf("font") === 0)
+        .indexOf(true);
 
       // Close all tags from the first font tag on.
       output = closeStack(stack.slice(offset));
@@ -199,21 +203,21 @@ function mIRCColoring(aStack, aInput) {
     } else {
       // Otherwise we have a match and are setting new colors.
       // The foreground color.
-      let color = getColor(matches[1]);
+      const color = getColor(matches[1]);
       if (color) {
         format.push('color="' + color + '"');
       }
 
       // The background color.
       if (matches[2]) {
-        let color = getColor(matches[2]);
+        const color = getColor(matches[2]);
         if (color) {
           format.push('background="' + color + '"');
         }
       }
 
       if (format.length > 1) {
-        let tag = format.join(" ");
+        const tag = format.join(" ");
         output = "<" + tag + ">";
         stack.push(tag);
         length = matches[0].length;
@@ -233,7 +237,7 @@ export function conversationErrorMessage(
   aJoinFailed = false,
   aRejoinable = true
 ) {
-  let conv = aAccount.getConversation(aMessage.params[1]);
+  const conv = aAccount.getConversation(aMessage.params[1]);
   conv.writeMessage(
     aMessage.origin,
     lazy._(aError, aMessage.params[1], aMessage.params[2] || undefined),
@@ -272,7 +276,7 @@ export function conversationErrorMessage(
  * @returns {boolean} True if the message was sent successfully.
  */
 export function displayMessage(aAccount, aMessage, aExtraParams, aText) {
-  let params = { tags: aMessage.tags, ...aExtraParams };
+  const params = { tags: aMessage.tags, ...aExtraParams };
   // If the the message is from our nick, it is outgoing to the conversation it
   // is targeting. Otherwise, the message is incoming, but could be for a
   // private message or a channel.

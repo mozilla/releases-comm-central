@@ -184,7 +184,7 @@ export var ircHandlers = {
   // Handle a message based on a set of handlers.
   _handleMessage(aHandlers, aAccount, aMessage, aCommand) {
     // Loop over each handler and run the command until one handles the message.
-    for (let handler of aHandlers) {
+    for (const handler of aHandlers) {
       try {
         // Attempt to execute the command, by checking if the handler has the
         // command.

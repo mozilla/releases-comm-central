@@ -12,7 +12,9 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 XPCOMUtils.defineLazyGetter(lazy, "domParser", () => new DOMParser());
 XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
-  let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
+  const cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
+    Ci.mozITXTToHTMLConv
+  );
   return aTxt => cs.scanTXT(aTxt, cs.kEntities);
 });
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
@@ -229,7 +231,7 @@ function formatHTMLBody(event, homeserverUrl, getEvent, includeReply = true) {
       const eventId = event.replyEventId;
       const replyEvent = getEvent(eventId);
       if (replyEvent) {
-        let replyContent = getReplyContent(
+        const replyContent = getReplyContent(
           replyEvent,
           homeserverUrl,
           getEvent,
@@ -309,7 +311,7 @@ export var MatrixMessageContent = {
         return attachmentUrl;
       }
     } else if (type == MatrixSDK.EventType.Reaction) {
-      let annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
+      const annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
       if (annotatedEvent && content["m.relates_to"]?.key) {
         return lazy._(
           "message.reaction",
@@ -358,7 +360,7 @@ export var MatrixMessageContent = {
     } else if (type == MatrixSDK.EventType.Sticker) {
       return formatMediaAttachment(content, homeserverUrl);
     } else if (type == MatrixSDK.EventType.Reaction) {
-      let annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
+      const annotatedEvent = getEvent(content["m.relates_to"]?.event_id);
       if (annotatedEvent && content["m.relates_to"]?.key) {
         return lazy._(
           "message.reaction",

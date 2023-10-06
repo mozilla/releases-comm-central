@@ -14,13 +14,13 @@ var accountOptionsHelper = {
    *   append the new elements to.
    */
   createTextbox(aType, aValue, aLabel, aName, grid) {
-    let label = document.createXULElement("label");
+    const label = document.createXULElement("label");
     label.textContent = aLabel;
     label.setAttribute("control", aName);
     label.classList.add("label-inline");
     grid.appendChild(label);
 
-    let input = document.createElementNS(
+    const input = document.createElementNS(
       "http://www.w3.org/1999/xhtml",
       "input"
     );
@@ -50,19 +50,19 @@ var accountOptionsHelper = {
    *   append the new elements to.
    */
   createMenulist(aList, aLabel, aName, grid) {
-    let label = document.createXULElement("label");
+    const label = document.createXULElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
     label.classList.add("label-inline");
     grid.appendChild(label);
 
-    let menulist = document.createXULElement("menulist");
+    const menulist = document.createXULElement("menulist");
     menulist.setAttribute("id", aName);
     menulist.setAttribute("flex", "1");
     menulist.classList.add("input-inline");
-    let popup = menulist.appendChild(document.createXULElement("menupopup"));
-    for (let elt of aList) {
-      let item = document.createXULElement("menuitem");
+    const popup = menulist.appendChild(document.createXULElement("menupopup"));
+    for (const elt of aList) {
+      const item = document.createXULElement("menuitem");
       item.setAttribute("label", elt.name);
       item.setAttribute("value", elt.value);
       popup.appendChild(item);
@@ -74,18 +74,18 @@ var accountOptionsHelper = {
   // with optional attributes for each type and returns true if at least one
   // option has been added to UI, otherwise returns false.
   addOptions(aIdPrefix, aOptions, aAttributes) {
-    let grid = document.getElementById("protoSpecific");
+    const grid = document.getElementById("protoSpecific");
     while (grid.hasChildNodes()) {
       grid.lastChild.remove();
     }
 
     let haveOptions = false;
-    for (let opt of aOptions) {
-      let text = opt.label;
-      let name = aIdPrefix + opt.name;
+    for (const opt of aOptions) {
+      const text = opt.label;
+      const name = aIdPrefix + opt.name;
       switch (opt.type) {
         case Ci.prplIPref.typeBool:
-          let chk = document.createXULElement("checkbox");
+          const chk = document.createXULElement("checkbox");
           chk.setAttribute("label", text);
           chk.setAttribute("id", name);
           if (opt.getBool()) {
@@ -109,8 +109,8 @@ var accountOptionsHelper = {
           throw new Error("unknown preference type " + opt.type);
       }
       if (aAttributes && aAttributes[opt.type]) {
-        let element = document.getElementById(name);
-        for (let attr of aAttributes[opt.type]) {
+        const element = document.getElementById(name);
+        for (const attr of aAttributes[opt.type]) {
           element.setAttribute(attr.name, attr.value);
         }
       }

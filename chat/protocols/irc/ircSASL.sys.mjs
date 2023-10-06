@@ -32,13 +32,13 @@ export var ircSASL = {
 
       // An authentication identity, authorization identity and password are
       // used, separated by null.
-      let data = [
+      const data = [
         this._requestedNickname,
         this._requestedNickname,
         this.imAccount.password,
       ].join("\0");
       // btoa for Unicode, see https://developer.mozilla.org/en-US/docs/DOM/window.btoa
-      let base64Data = btoa(unescape(encodeURIComponent(data)));
+      const base64Data = btoa(unescape(encodeURIComponent(data)));
       this.sendMessage(
         "AUTHENTICATE",
         base64Data,

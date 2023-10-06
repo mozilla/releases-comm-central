@@ -13,7 +13,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 var otrAddFinger = {
   onload() {
-    let args = window.arguments[0].wrappedJSObject;
+    const args = window.arguments[0].wrappedJSObject;
 
     this.fingerWarning = document.getElementById("fingerWarning");
     this.fingerError = document.getElementById("fingerError");
@@ -28,13 +28,13 @@ var otrAddFinger = {
     );
 
     document.addEventListener("dialogaccept", event => {
-      let hex = document.getElementById("fingerprint").value;
+      const hex = document.getElementById("fingerprint").value;
       let context = OTR.getContextFromRecipient(
         args.account,
         args.protocol,
         args.screenname
       );
-      let finger = OTR.addFingerprint(context, hex);
+      const finger = OTR.addFingerprint(context, hex);
       if (finger.isNull()) {
         event.preventDefault();
         return;
@@ -59,7 +59,7 @@ var otrAddFinger = {
   },
 
   oninput(input) {
-    let hex = input.value.replace(/\s/g, "");
+    const hex = input.value.replace(/\s/g, "");
 
     if (/[^0-9A-F]/gi.test(hex)) {
       this.keyCount.hidden = true;

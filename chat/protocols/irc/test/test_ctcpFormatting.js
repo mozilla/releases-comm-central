@@ -28,7 +28,7 @@ function run_test() {
 }
 
 function test_ctcpFormatToHTML() {
-  let expectedOutput = [
+  const expectedOutput = [
     "The quick brown fox <b>jumps</b> over the lazy dog.",
     "The quick brown fox <b>jumps</b> over the lazy dog.",
     "The quick brown <i>fox jumps</i> over the lazy dog.",
@@ -49,7 +49,7 @@ function test_ctcpFormatToHTML() {
 }
 
 function test_ctcpFormatToText() {
-  let expectedOutput = "The quick brown fox jumps over the lazy dog.";
+  const expectedOutput = "The quick brown fox jumps over the lazy dog.";
 
   for (let i = 0; i < input.length; ++i) {
     equal(expectedOutput, ctcpFormatToText(input[i]));

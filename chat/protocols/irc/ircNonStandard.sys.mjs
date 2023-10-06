@@ -43,7 +43,7 @@ export var ircNonStandard = {
         // We fake the last LIST time so that we will retry LIST the next time
         // the user requires it after the interval specified.
         const kMinute = 60000;
-        let waitTime = aMessage.params[1].split(" ")[7] * 1000 || kMinute;
+        const waitTime = aMessage.params[1].split(" ")[7] * 1000 || kMinute;
         this._lastListTime = Date.now() + waitTime - kListRefreshInterval;
         return true;
       }
@@ -55,7 +55,7 @@ export var ircNonStandard = {
         return false;
       }
 
-      let target = aMessage.params[0].toLowerCase();
+      const target = aMessage.params[0].toLowerCase();
 
       // If we receive a ZNC error message requesting a password, the
       // serverPassword preference was not set by the user. Attempt to log into
@@ -91,7 +91,7 @@ export var ircNonStandard = {
       // Note that if the user's nick is auth this COULD be a notice directed at
       // them. For reference: moznet sends Auth (previously sent AUTH), freenode
       // sends *.
-      let isAuth = target == "auth" && this._nickname.toLowerCase() != "auth";
+      const isAuth = target == "auth" && this._nickname.toLowerCase() != "auth";
       if (!aMessage.params[1].startsWith("***") && !isAuth) {
         this.getConversation(aMessage.origin).writeMessage(
           aMessage.origin,
@@ -157,7 +157,7 @@ export var ircNonStandard = {
       // RPL_WHOISACCOUNT (Charybdis, ircu & Quakenet)
       // <nick> <authname> :is logged in as
       if (aMessage.params.length == 4) {
-        let [, nick, authname] = aMessage.params;
+        const [, nick, authname] = aMessage.params;
         // If the authname differs from the nickname, add it to the WHOIS
         // information; otherwise, ignore it.
         if (this.normalize(nick) != this.normalize(authname)) {
@@ -183,7 +183,7 @@ export var ircNonStandard = {
     378(aMessage) {
       // RPL_WHOISHOST (Unreal & Charybdis)
       // <nick> :is connecting from <host> <ip>
-      let [host, ip] = aMessage.params[2].split(" ").slice(-2);
+      const [host, ip] = aMessage.params[2].split(" ").slice(-2);
       return this.setWhois(aMessage.params[1], { host, ip });
     },
 

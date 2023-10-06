@@ -38,7 +38,7 @@ function rot13(aString) {
 
 // A test that cancels a message before it can be sent.
 add_task(function test_cancel_send_message() {
-  let conv = new Conversation();
+  const conv = new Conversation();
   conv.dispatchMessage = function (aMsg) {
     ok(
       false,
@@ -74,7 +74,7 @@ add_task(function test_cancel_send_message() {
 // A test that ensures protocols get a chance to prepare a message before
 // sending and displaying.
 add_task(function test_prpl_message_prep() {
-  let conv = new Conversation();
+  const conv = new Conversation();
   conv.dispatchMessage = function (aMsg) {
     this.writeMessage("user", aMsg, { outgoing: true });
   };
@@ -91,8 +91,8 @@ add_task(function test_prpl_message_prep() {
     aMsg.displayMessage = aMsg.displayMessage.slice(prefix.length);
   };
 
-  let msg = "Hi!";
-  let prefix = "test> ";
+  const msg = "Hi!";
+  const prefix = "test> ";
 
   let prepared = false;
   let receivedMsg = false;
@@ -123,10 +123,10 @@ add_task(function test_split_message_before_sending() {
   let msgCount = 0;
   let prepared = false;
 
-  let msg = "This is a looo\nooong message.\nThis one is short.";
-  let msgs = msg.split("\n");
+  const msg = "This is a looo\nooong message.\nThis one is short.";
+  const msgs = msg.split("\n");
 
-  let conv = new Conversation();
+  const conv = new Conversation();
   conv.dispatchMessage = function (aMsg) {
     equal(aMsg, msgs[msgCount++], "Sending an unexpected message.");
   };
@@ -144,7 +144,7 @@ add_task(function test_split_message_before_sending() {
 
 add_task(function test_removeMessage() {
   let didRemove = false;
-  let conv = new Conversation();
+  const conv = new Conversation();
   conv.addObserver({
     observe(subject, topic, data) {
       if (topic === "remove-text") {

@@ -26,7 +26,9 @@ XPCOMUtils.defineLazyGetter(lazy, "gPrefBranch", () =>
 );
 
 XPCOMUtils.defineLazyGetter(lazy, "TXTToHTML", function () {
-  let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
+  const cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
+    Ci.mozITXTToHTMLConv
+  );
   return aTXT => cs.scanTXT(aTXT, cs.kEntities);
 });
 
@@ -47,7 +49,7 @@ var gCurrentTheme = null;
 
 function getChromeFile(aURI) {
   try {
-    let channel = Services.io.newChannel(
+    const channel = Services.io.newChannel(
       aURI,
       null,
       null,
@@ -57,12 +59,12 @@ function getChromeFile(aURI) {
       Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       Ci.nsIContentPolicy.TYPE_OTHER
     );
-    let stream = channel.open();
-    let sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
+    const stream = channel.open();
+    const sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
       Ci.nsIScriptableInputStream
     );
     sstream.init(stream);
-    let text = sstream.read(sstream.available());
+    const text = sstream.read(sstream.available());
     sstream.close();
     return text;
   } catch (e) {
@@ -74,7 +76,7 @@ function getChromeFile(aURI) {
 }
 
 function HTMLTheme(aBaseURI) {
-  let files = {
+  const files = {
     footer: "Footer.html",
     header: "Header.html",
     status: "Status.html",
@@ -89,8 +91,8 @@ function HTMLTheme(aBaseURI) {
     outgoingNextContext: "Outgoing/NextContext.html",
   };
 
-  for (let id in files) {
-    let html = getChromeFile(aBaseURI + files[id]);
+  for (const id in files) {
+    const html = getChromeFile(aBaseURI + files[id]);
     if (html) {
       Object.defineProperty(this, id, { value: html });
     }
@@ -159,11 +161,11 @@ function plistToJSON(aElt) {
       return parseInt(aElt.textContent, 10);
 
     case "dict":
-      let res = {};
+      const res = {};
       let nodes = aElt.children;
       for (let i = 0; i < nodes.length; ++i) {
         if (nodes[i].nodeName == "key") {
-          let key = nodes[i].textContent;
+          const key = nodes[i].textContent;
           ++i;
           while (!Element.isInstance(nodes[i])) {
             ++i;
@@ -174,7 +176,7 @@ function plistToJSON(aElt) {
       return res;
 
     case "array":
-      let array = [];
+      const array = [];
       nodes = aElt.children;
       for (let i = 0; i < nodes.length; ++i) {
         if (Element.isInstance(nodes[i])) {
@@ -190,7 +192,7 @@ function plistToJSON(aElt) {
 
 function getInfoPlistContent(aBaseURI) {
   try {
-    let channel = Services.io.newChannel(
+    const channel = Services.io.newChannel(
       aBaseURI + "Info.plist",
       null,
       null,
@@ -200,9 +202,9 @@ function getInfoPlistContent(aBaseURI) {
       Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       Ci.nsIContentPolicy.TYPE_OTHER
     );
-    let stream = channel.open();
-    let parser = new DOMParser();
-    let doc = parser.parseFromStream(
+    const stream = channel.open();
+    const parser = new DOMParser();
+    const doc = parser.parseFromStream(
       stream,
       null,
       stream.available(),
@@ -233,8 +235,8 @@ function getChromeBaseURI(aThemeName) {
 }
 
 export function getThemeByName(aName) {
-  let baseURI = getChromeBaseURI(aName);
-  let metadata = getInfoPlistContent(baseURI);
+  const baseURI = getChromeBaseURI(aName);
+  const metadata = getInfoPlistContent(baseURI);
   if (!metadata) {
     throw new Error("Cannot load theme " + aName);
   }
@@ -253,8 +255,8 @@ export function getThemeByName(aName) {
 }
 
 export function getCurrentTheme() {
-  let name = lazy.gPrefBranch.getCharPref(kThemePref);
-  let variant = lazy.gPrefBranch.getCharPref(kVariantPref);
+  const name = lazy.gPrefBranch.getCharPref(kThemePref);
+  const variant = lazy.gPrefBranch.getCharPref(kVariantPref);
   if (
     gCurrentTheme &&
     gCurrentTheme.name == name &&
@@ -276,9 +278,8 @@ export function getCurrentTheme() {
 }
 
 function getDirectoryEntries(aDir) {
-  let ios = Services.io;
-  let uri = ios.newURI(aDir);
-  let cr = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(
+  let uri = Services.io.newURI(aDir);
+  const cr = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(
     Ci.nsIXULChromeRegistry
   );
   while (uri.scheme == "chrome") {
@@ -286,23 +287,23 @@ function getDirectoryEntries(aDir) {
   }
 
   // remove any trailing file name added by convertChromeURL
-  let spec = uri.spec.replace(/[^\/]+$/, "");
-  uri = ios.newURI(spec);
+  const spec = uri.spec.replace(/[^\/]+$/, "");
+  uri = Services.io.newURI(spec);
 
-  let results = [];
+  const results = [];
   if (uri.scheme == "jar") {
     uri.QueryInterface(Ci.nsIJARURI);
-    let strEntry = uri.JAREntry;
+    const strEntry = uri.JAREntry;
     if (!strEntry) {
       return [];
     }
 
-    let zr = Cc["@mozilla.org/libjar/zip-reader;1"].createInstance(
+    const zr = Cc["@mozilla.org/libjar/zip-reader;1"].createInstance(
       Ci.nsIZipReader
     );
-    let jarFile = uri.JARFile;
+    const jarFile = uri.JARFile;
     if (jarFile instanceof Ci.nsIJARURI) {
-      let innerZr = Cc["@mozilla.org/libjar/zip-reader;1"].createInstance(
+      const innerZr = Cc["@mozilla.org/libjar/zip-reader;1"].createInstance(
         Ci.nsIZipReader
       );
       innerZr.open(jarFile.JARFile.QueryInterface(Ci.nsIFileURL).file);
@@ -316,24 +317,24 @@ function getDirectoryEntries(aDir) {
       return [];
     }
 
-    let escapedEntry = strEntry.replace(/([*?$[\]^~()\\])/g, "\\$1");
-    let filter = escapedEntry + "?*~" + escapedEntry + "?*/?*";
-    let entries = zr.findEntries(filter);
+    const escapedEntry = strEntry.replace(/([*?$[\]^~()\\])/g, "\\$1");
+    const filter = escapedEntry + "?*~" + escapedEntry + "?*/?*";
+    const entries = zr.findEntries(filter);
 
-    let parentLength = strEntry.length;
-    for (let entry of entries) {
+    const parentLength = strEntry.length;
+    for (const entry of entries) {
       results.push(entry.substring(parentLength));
     }
     zr.close();
   } else if (uri.scheme == "file") {
     uri.QueryInterface(Ci.nsIFileURL);
-    let dir = uri.file;
+    const dir = uri.file;
 
     if (!dir.exists() || !dir.isDirectory()) {
       return [];
     }
 
-    for (let file of dir.directoryEntries) {
+    for (const file of dir.directoryEntries) {
       results.push(file.leafName);
     }
   }
@@ -342,7 +343,7 @@ function getDirectoryEntries(aDir) {
 }
 
 export function getThemeVariants(aTheme) {
-  let variants = getDirectoryEntries(aTheme.baseURI + "Variants/");
+  const variants = getDirectoryEntries(aTheme.baseURI + "Variants/");
   return variants
     .filter(v => v.endsWith(".css"))
     .map(v => v.substring(0, v.length - 4));
@@ -351,7 +352,7 @@ export function getThemeVariants(aTheme) {
 /* helper function for replacements in messages */
 function getBuddyFromMessage(aMsg) {
   if (aMsg.incoming) {
-    let conv = aMsg.conversation;
+    const conv = aMsg.conversation;
     if (!conv.isChat) {
       return conv.buddy;
     }
@@ -392,7 +393,7 @@ var footerReplacements = {
   },
   outgoingIconPath: aConv => "outgoing_icon.png",
   timeOpened(aConv, aFormat) {
-    let date = new Date(aConv.startDate / 1000);
+    const date = new Date(aConv.startDate / 1000);
     if (aFormat) {
       return lazy.ToLocaleFormat(aFormat, date);
     }
@@ -412,7 +413,7 @@ var statusMessageReplacements = {
     (aMsg.autoResponse ? formatAutoResponce(aMsg.message) : aMsg.message) +
     "</span>",
   time(aMsg, aFormat) {
-    let date = new Date(aMsg.time * 1000);
+    const date = new Date(aMsg.time * 1000);
     if (aFormat) {
       return lazy.ToLocaleFormat(aFormat, date);
     }
@@ -423,7 +424,7 @@ var statusMessageReplacements = {
     return lazy.gTimeFormatter.format(new Date(aMsg.time * 1000));
   },
   messageClasses(aMsg) {
-    let msgClass = [];
+    const msgClass = [];
 
     if (aMsg.system) {
       msgClass.push("event");
@@ -469,7 +470,7 @@ var statusMessageReplacements = {
 };
 
 function formatSender(aName, isEncrypted = false) {
-  let otr = isEncrypted ? " message-encrypted" : "";
+  const otr = isEncrypted ? " message-encrypted" : "";
   return `<span class="ib-sender${otr}">${lazy.TXTToHTML(aName)}</span>`;
 }
 var messageReplacements = {
@@ -508,7 +509,7 @@ var messageReplacements = {
 var statusReplacements = {
   status: aMsg => "", // FIXME
   statusIcon(aMsg) {
-    let conv = aMsg.conversation;
+    const conv = aMsg.conversation;
     let buddy = null;
     if (!conv.isChat) {
       buddy = conv.buddy;
@@ -575,7 +576,7 @@ export function isNextMessage(aTheme, aMsg, aPreviousMsg) {
     return false;
   }
 
-  let timeDifference = aMsg.time - aPreviousMsg.time;
+  const timeDifference = aMsg.time - aPreviousMsg.time;
   return (
     timeDifference >= 0 && timeDifference <= aTheme.combineConsecutiveInterval
   );
@@ -648,13 +649,13 @@ export function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
     insert = null;
   }
 
-  let parent = insert ? insert.parentNode : aDoc.getElementById("Chat");
-  let documentFragment = getDocumentFragmentFromHTML(aDoc, aHTML);
+  const parent = insert ? insert.parentNode : aDoc.getElementById("Chat");
+  const documentFragment = getDocumentFragmentFromHTML(aDoc, aHTML);
 
   // If the parent already has a remote ID, we remove it, since it now contains
   // multiple different messages.
   if (parent.dataset.remoteId) {
-    for (let child of parent.children) {
+    for (const child of parent.children) {
       child.dataset.remoteId = parent.dataset.remoteId;
       child.dataset.isNext = true;
     }
@@ -713,14 +714,14 @@ export function replaceHTMLForMessage(msg, html, doc, isNext) {
   if (!msg.remoteId) {
     return;
   }
-  let message = getExistingMessage(msg.remoteId, doc);
+  const message = getExistingMessage(msg.remoteId, doc);
 
   // If we couldn't find a matching message, do nothing.
   if (!message.length) {
     return;
   }
 
-  let documentFragment = getDocumentFragmentFromHTML(doc, html);
+  const documentFragment = getDocumentFragmentFromHTML(doc, html);
   // We don't want to add an insert point when replacing a message.
   documentFragment.querySelector("#insert")?.remove();
   // store the prplIMessage object in each of the "root" nodes that
@@ -741,7 +742,7 @@ export function replaceHTMLForMessage(msg, html, doc, isNext) {
 
   // Remove all but the first element of the original message
   if (message.length > 1) {
-    let range = doc.createRange();
+    const range = doc.createRange();
     range.setStartBefore(message[1]);
     range.setEndAfter(message[message.length - 1]);
     range.deleteContents();
@@ -758,7 +759,7 @@ export function replaceHTMLForMessage(msg, html, doc, isNext) {
  * @param {Document} doc
  */
 export function removeMessage(remoteId, doc) {
-  let message = getExistingMessage(remoteId, doc);
+  const message = getExistingMessage(remoteId, doc);
 
   // If we couldn't find a matching message, do nothing.
   if (!message.length) {
@@ -766,7 +767,7 @@ export function removeMessage(remoteId, doc) {
   }
 
   // Remove all elements of the original message
-  let range = doc.createRange();
+  const range = doc.createRange();
   range.setStartBefore(message[0]);
   range.setEndAfter(message[message.length - 1]);
   range.deleteContents();
@@ -801,7 +802,7 @@ function getMetadata(aTheme, aKey) {
 }
 
 export function initHTMLDocument(aConv, aTheme, aDoc) {
-  let base = aDoc.createElement("base");
+  const base = aDoc.createElement("base");
   base.href = aTheme.baseURI;
   aDoc.head.appendChild(base);
 
@@ -810,7 +811,7 @@ export function initHTMLDocument(aConv, aTheme, aDoc) {
   aDoc.title = aConv.title;
 
   function addCSS(aHref) {
-    let link = aDoc.createElement("link");
+    const link = aDoc.createElement("link");
     link.setAttribute("rel", "stylesheet");
     link.setAttribute("href", aHref);
     link.setAttribute("type", "text/css");
@@ -848,7 +849,7 @@ export function initHTMLDocument(aConv, aTheme, aDoc) {
   let html = '<div id="Chat" aria-live="polite"></div>';
   html += replaceKeywordsInHTML(aTheme.html.footer, footerReplacements, aConv);
 
-  let frag = getDocumentFragmentFromHTML(aDoc, html);
+  const frag = getDocumentFragmentFromHTML(aDoc, html);
   aDoc.body.appendChild(frag);
   if (!aTheme.metadata.NoScript) {
     const scriptTag = aDoc.createElement("script");
@@ -876,10 +877,10 @@ function _serializeDOMObject(aDocument, aInitFunction) {
   // text/html too in the future.
   const type = "text/plain";
 
-  let encoder = Cu.createDocumentEncoder(type);
+  const encoder = Cu.createDocumentEncoder(type);
   encoder.init(aDocument, type, Ci.nsIDocumentEncoder.OutputPreformatted);
   aInitFunction(encoder);
-  let result = encoder.encodeToString();
+  const result = encoder.encodeToString();
   return result;
 }
 
@@ -911,7 +912,7 @@ export function serializeSelection(aSelection) {
   //      * when several messages are selected at once
   //    This version uses an array, with each message formatted
   //    through the theme system.
-  let longSelection = [];
+  const longSelection = [];
 
   // We first assume that we are going to use the short version, but
   // while working on creating the short version, we prepare
@@ -925,13 +926,13 @@ export function serializeSelection(aSelection) {
   let lastMessage = null;
 
   for (let i = 0; i < aSelection.rangeCount; ++i) {
-    let range = aSelection.getRangeAt(i);
+    const range = aSelection.getRangeAt(i);
     let messages = getMessagesForRange(range);
 
     // If at least one selected message has some of its text selected,
     // remove from the selection all the messages that have no text
     // selected
-    let testFunction = msg => msg.isTextSelected();
+    const testFunction = msg => msg.isTextSelected();
     if (messages.some(testFunction)) {
       messages = messages.filter(testFunction);
     }
@@ -968,7 +969,7 @@ export function serializeSelection(aSelection) {
     } else {
       shortVersionPossible = false;
       for (let m = 0; m < messages.length; ++m) {
-        let message = messages[m];
+        const message = messages[m];
         if (m == 0 && lastMessage && lastMessage.msg == message.msg) {
           let text = message.getSelectedText();
           if (message.cutEnd) {
@@ -1020,20 +1021,20 @@ SelectedMessage.prototype = {
       FILTER_SKIP: 3,
     };
     // helper filter function for the tree walker
-    let filter = function (node) {
+    const filter = function (node) {
       return node.className == "ib-msg-txt"
         ? NodeFilter.FILTER_ACCEPT
         : NodeFilter.FILTER_SKIP;
     };
     // walk the DOM subtrees of each root, keep the first correct span node
     for (let i = 0; !spanNode && i < this._rootNodes.length; ++i) {
-      let rootNode = this._rootNodes[i];
+      const rootNode = this._rootNodes[i];
       // the TreeWalker doesn't test the root node, special case it first
       if (filter(rootNode) == NodeFilter.FILTER_ACCEPT) {
         spanNode = rootNode;
         break;
       }
-      let treeWalker = rootNode.ownerDocument.createTreeWalker(
+      const treeWalker = rootNode.ownerDocument.createTreeWalker(
         rootNode,
         NodeFilter.SHOW_ELEMENT,
         { acceptNode: filter },
@@ -1053,7 +1054,7 @@ SelectedMessage.prototype = {
       return;
     }
 
-    let spanNode = this._getSpanNode();
+    const spanNode = this._getSpanNode();
     if (!spanNode) {
       // can happen if the message text is under a separate root node
       // that isn't selected at all
@@ -1061,15 +1062,15 @@ SelectedMessage.prototype = {
       this._otherSelected = true;
       return;
     }
-    let startPoint = this._range.comparePoint(spanNode, 0);
+    const startPoint = this._range.comparePoint(spanNode, 0);
     // Note that we are working on the HTML DOM, including text nodes,
     // so we need to use childNodes here and below.
-    let endPoint = this._range.comparePoint(
+    const endPoint = this._range.comparePoint(
       spanNode,
       spanNode.childNodes.length
     );
     if (startPoint <= 0 && endPoint >= 0) {
-      let range = this._range.cloneRange();
+      const range = this._range.cloneRange();
       if (startPoint >= 0) {
         range.setStart(spanNode, 0);
       }
@@ -1090,7 +1091,7 @@ SelectedMessage.prototype = {
       // start or end in a text node instead of the span node
 
       if (startPoint == -1) {
-        let range = spanNode.ownerDocument.createRange();
+        const range = spanNode.ownerDocument.createRange();
         range.setStart(spanNode, 0);
         range.setEnd(this._range.startContainer, this._range.startOffset);
         this._cutBegin = serializeRange(range) != "";
@@ -1099,7 +1100,7 @@ SelectedMessage.prototype = {
       }
 
       if (endPoint == 1) {
-        let range = spanNode.ownerDocument.createRange();
+        const range = spanNode.ownerDocument.createRange();
         range.setStart(this._range.endContainer, this._range.endOffset);
         range.setEnd(spanNode, spanNode.childNodes.length);
         this._cutEnd = !/^(\r?\n)?$/.test(serializeRange(range));
@@ -1135,7 +1136,7 @@ SelectedMessage.prototype = {
   getFormattedMessage() {
     // First, get the selected text
     this._initSelectedText();
-    let msg = this.msg;
+    const msg = this.msg;
     let text;
     if (this._textSelected) {
       // Add ellipsis is needed
@@ -1144,8 +1145,8 @@ SelectedMessage.prototype = {
         this._selectedText +
         (this._cutEnd ? " " + getEllipsis() : "");
     } else {
-      let div = this._rootNodes[0].ownerDocument.createElement("div");
-      let divChildren = getDocumentFragmentFromHTML(
+      const div = this._rootNodes[0].ownerDocument.createElement("div");
+      const divChildren = getDocumentFragmentFromHTML(
         div.ownerDocument,
         msg.autoResponse ? formatAutoResponce(msg.message) : msg.message
       );
@@ -1154,9 +1155,9 @@ SelectedMessage.prototype = {
     }
 
     // then get the suitable replacements and templates for this message
-    let getLocalizedPrefWithDefault = function (aName, aDefault) {
+    const getLocalizedPrefWithDefault = function (aName, aDefault) {
       try {
-        let prefBranch = Services.prefs.getBranch(
+        const prefBranch = Services.prefs.getBranch(
           "messenger.conversations.selections."
         );
         return prefBranch.getComplexValue(aName, Ci.nsIPrefLocalizedString)
@@ -1203,22 +1204,22 @@ SelectedMessage.prototype = {
 };
 
 export function getMessagesForRange(aRange) {
-  let result = []; // will hold the final result
-  let messages = {}; // used to prevent duplicate messages in the result array
+  const result = []; // will hold the final result
+  const messages = {}; // used to prevent duplicate messages in the result array
 
   // cache the range boundaries, they will be used a lot
-  let endNode = aRange.endContainer;
+  const endNode = aRange.endContainer;
   let startNode = aRange.startContainer;
 
   // Helper function to recursively look for _originalMsg JS
   // properties on DOM nodes, and stop when endNode is reached.
   // Found nodes are pushed into the rootNodes array.
-  let processSubtree = function (aNode) {
+  const processSubtree = function (aNode) {
     if (aNode._originalMsg) {
       // store the result
       if (!(aNode._originalMsg.id in messages)) {
         // we've found a new message!
-        let newMessage = new SelectedMessage(aNode, aRange);
+        const newMessage = new SelectedMessage(aNode, aRange);
         messages[aNode._originalMsg.id] = newMessage;
         result.push(newMessage);
       } else {
@@ -1247,7 +1248,7 @@ export function getMessagesForRange(aRange) {
     return false;
   };
 
-  let currentNode = aRange.commonAncestorContainer;
+  const currentNode = aRange.commonAncestorContainer;
   if (
     currentNode.nodeType == currentNode.ELEMENT_NODE &&
     currentNode.namespaceURI == "http://www.w3.org/1999/xhtml"
@@ -1274,7 +1275,7 @@ export function getMessagesForRange(aRange) {
     }
 
     for (let i = start; i < end; ++i) {
-      let node = currentNode.children[i];
+      const node = currentNode.children[i];
 
       // don't do anything until we find the startNode
       found = found || node == startNode;
@@ -1313,9 +1314,9 @@ export function getMessagesForRange(aRange) {
  * @returns {DocumentFragment}
  */
 export function getDocumentFragmentFromHTML(doc, html) {
-  let uri = Services.io.newURI(doc.baseURI);
-  let flags = Ci.nsIParserUtils.SanitizerAllowStyle;
-  let context = doc.createElement("div");
+  const uri = Services.io.newURI(doc.baseURI);
+  const flags = Ci.nsIParserUtils.SanitizerAllowStyle;
+  const context = doc.createElement("div");
   return ParserUtils.parseFragment(html, flags, false, uri, context);
 }
 
@@ -1328,6 +1329,6 @@ export function getDocumentFragmentFromHTML(doc, html) {
  *  list if the message is not found.
  */
 function getExistingMessage(remoteId, doc) {
-  let parent = doc.getElementById("Chat");
+  const parent = doc.getElementById("Chat");
   return parent.querySelectorAll(`[data-remote-id="${CSS.escape(remoteId)}"]`);
 }

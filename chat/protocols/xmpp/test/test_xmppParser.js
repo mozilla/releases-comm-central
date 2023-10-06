@@ -5,7 +5,7 @@ var { XMPPParser } = ChromeUtils.importESModule(
   "resource:///modules/xmpp-xml.sys.mjs"
 );
 
-let expectedResult =
+const expectedResult =
   '<presence xmlns="jabber:client" from="chat@example.com/Étienne" to="user@example.com/Thunderbird" \
 xml:lang="en" id="5ed0ae8b7051fa6169037da4e2a1ded6"><c xmlns="http://jabber.org/protocol/caps" \
 ver="ZyB1liM9c9GvKOnvl61+5ScWcqw=" node="https://example.com" hash="sha-1"/><x \
@@ -14,10 +14,10 @@ since="2021-04-13T11:52:16.538713+00:00"/><occupant-id xmlns="urn:xmpp:occupant-
 id="wNZPCZIVQ51D/heZQpOHi0ZgHXAEQonNPaLdyzLxHWs="/><x xmlns="http://jabber.org/protocol/muc#user"><item \
 xmlns="http://jabber.org/protocol/muc#user" jid="example@example.com/client" affiliation="member" \
 role="participant"/></x></presence>';
-let byteVersion = new TextEncoder().encode(expectedResult);
-let utf8Input = Array.from(byteVersion, byte => String.fromCharCode(byte)).join(
-  ""
-);
+const byteVersion = new TextEncoder().encode(expectedResult);
+const utf8Input = Array.from(byteVersion, byte =>
+  String.fromCharCode(byte)
+).join("");
 
 var TEST_DATA = [
   {
@@ -108,8 +108,8 @@ counsel?</value>\
 ];
 
 function testXMPPParser() {
-  for (let current of TEST_DATA) {
-    let listener = {
+  for (const current of TEST_DATA) {
+    const listener = {
       onXMLError(aString) {
         ok(current.isError, aString + " - " + current.description);
       },
@@ -120,7 +120,7 @@ function testXMPPParser() {
         ok(!current.isError, current.description);
       },
     };
-    let parser = new XMPPParser(listener);
+    const parser = new XMPPParser(listener);
     parser.onDataAvailable(current.input);
     parser.destroy();
   }

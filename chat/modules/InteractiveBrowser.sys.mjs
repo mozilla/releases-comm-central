@@ -45,7 +45,7 @@ export var InteractiveBrowser = {
    */
   _browserRequest(url) {
     return new Promise((resolve, reject) => {
-      let browserRequest = {
+      const browserRequest = {
         promptText: "",
         iconURI: "",
         url,
@@ -80,7 +80,7 @@ export var InteractiveBrowser = {
    */
   _listenForRedirect({ window, webProgress, signal }) {
     return new Promise((resolve, reject) => {
-      let listener = {
+      const listener = {
         QueryInterface: ChromeUtils.generateQI([
           Ci.nsIWebProgressListener,
           Ci.nsISupportsWeakReference,

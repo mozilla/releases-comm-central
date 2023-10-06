@@ -73,9 +73,9 @@ var TEST_DATA = [
 ];
 
 function testXMLNode() {
-  for (let current of TEST_DATA) {
+  for (const current of TEST_DATA) {
     try {
-      let result = Stanza.node(
+      const result = Stanza.node(
         current.input.name,
         current.input.namespace,
         current.input.attributes,

@@ -44,8 +44,8 @@ Conversation.prototype = {
 // string), it returns that message. If not, it should return the original
 // message. This prevents regressions due to JS coercions.
 var test_null_message = function () {
-  let originalMessage = "Hi!";
-  let pMsg = new Message(
+  const originalMessage = "Hi!";
+  const pMsg = new Message(
     "buddy",
     originalMessage,
     {
@@ -55,7 +55,7 @@ var test_null_message = function () {
     },
     null
   );
-  let iMsg = new imMessage(pMsg);
+  const iMsg = new imMessage(pMsg);
   equal(iMsg.message, originalMessage, "Expected the original message.");
   // Setting the message should prevent a fallback to the original.
   iMsg.message = "";
@@ -103,16 +103,16 @@ function rot13(aString) {
 //
 // The test walks the sending path, which covers both.
 add_task(function test_message_transformation() {
-  let conv = new Conversation();
+  const conv = new Conversation();
   conv.dispatchMessage = function (aMsg) {
     this.writeMessage("user", aMsg, { outgoing: true });
   };
 
-  let message = "Hello!";
+  const message = "Hello!";
   let receivedMsg = false,
     newTxt = false;
 
-  let uiConv = new UIConversation(conv);
+  const uiConv = new UIConversation(conv);
   uiConv.addObserver({
     observe(aObject, aTopic, aMsg) {
       switch (aTopic) {
@@ -166,13 +166,13 @@ add_task(function test_message_transformation() {
 
 // A test that cancels a message before it gets displayed.
 add_task(function test_cancel_display_message() {
-  let conv = new Conversation();
+  const conv = new Conversation();
   conv.dispatchMessage = function (aMsg) {
     this.writeMessage("user", aMsg, { outgoing: true });
   };
 
   let received = false;
-  let uiConv = new UIConversation(conv);
+  const uiConv = new UIConversation(conv);
   uiConv.addObserver({
     observe(aObject, aTopic, aMsg) {
       switch (aTopic) {
@@ -193,10 +193,10 @@ add_task(function test_cancel_display_message() {
 });
 
 var test_update_message = function () {
-  let conv = new Conversation();
+  const conv = new Conversation();
 
-  let uiConv = new UIConversation(conv);
-  let message = "Hello!";
+  const uiConv = new UIConversation(conv);
+  const message = "Hello!";
   let receivedMsg = false;
   let updateText = false;
 

@@ -89,7 +89,7 @@ function specMessages() {
     undefined,
   ];
 
-  for (let m in kMessages) {
+  for (const m in kMessages) {
     const msg = kMessages[m];
     const isZNC = kMessages[m].tags.has("znc.in/server-time-iso");
     const tag = isZNC ? "znc.in/server-time-iso" : "time";
@@ -102,7 +102,7 @@ function specMessages() {
 
     // Ensuring that the expected properties and their values as given in
     // kMessages are still the same after the handler.
-    for (let i in msg) {
+    for (const i in msg) {
       equal(
         tagMessage.message[i],
         msg[i],

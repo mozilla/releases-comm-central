@@ -15,8 +15,8 @@ import { ircHandlerPriorities } from "resource:///modules/ircHandlerPriorities.s
 // the form:
 //   DCC <type> <argument> <address> <port> [<size>]
 function DCCMessage(aMessage, aAccount) {
-  let message = aMessage;
-  let params = message.ctcp.param.split(" ");
+  const message = aMessage;
+  const params = message.ctcp.param.split(" ");
   if (params.length < 4) {
     aAccount.ERROR("Not enough DCC parameters:\n" + JSON.stringify(aMessage));
     return null;

@@ -729,7 +729,7 @@ MatrixRoom.prototype = {
       }
     }
     // Get the timeline for the event, or just the current live timeline of the room
-    let timelineWindow = new lazy.MatrixSDK.TimelineWindow(
+    const timelineWindow = new lazy.MatrixSDK.TimelineWindow(
       this._account._client,
       this.room.getUnfilteredTimelineSet(),
       {
@@ -740,7 +740,7 @@ MatrixRoom.prototype = {
     // Start the window at the newest event.
     await timelineWindow.load(newestEvent.getId(), CATCHUP_PAGE_SIZE);
     // Check if the oldest event we want to see is already in the window
-    let checkEvent = event =>
+    const checkEvent = event =>
       event.getId() === latestOldEvent ||
       (event.getSender() === this._account.userId && isContentEvent(event));
     let endIndex = -1;
@@ -810,7 +810,7 @@ MatrixRoom.prototype = {
     );
     // Options for the message. Many options derived from event are set in
     // createMessage.
-    let opts = {
+    const opts = {
       event,
       delayed,
     };
@@ -863,7 +863,7 @@ MatrixRoom.prototype = {
       // Don't write the body using the normal message handling because that
       // will be too late.
       message = "";
-      let newConversation = this._account.getGroupConversation(
+      const newConversation = this._account.getGroupConversation(
         event.getContent().replacement_room,
         this.name
       );
@@ -1167,7 +1167,7 @@ MatrixRoom.prototype = {
       return;
     }
 
-    let participant = new MatrixParticipant(roomMember, this._account);
+    const participant = new MatrixParticipant(roomMember, this._account);
     this._participants.set(roomMember.userId, participant);
     this.notifyObservers(
       new nsSimpleEnumerator([participant]),
@@ -1190,9 +1190,9 @@ MatrixRoom.prototype = {
    * @param {object} room - associated room with the conversation.
    */
   async initRoomMuc(room) {
-    let roomState = this.roomState;
+    const roomState = this.roomState;
     if (roomState.getStateEvents(lazy.MatrixSDK.EventType.RoomTopic).length) {
-      let event = roomState.getStateEvents(
+      const event = roomState.getStateEvents(
         lazy.MatrixSDK.EventType.RoomTopic
       )[0];
       this.setTopic(event.getContent().topic, event.getSender(), true);
@@ -1200,10 +1200,10 @@ MatrixRoom.prototype = {
 
     await room.loadMembersIfNeeded();
     // If there are any participants, create them.
-    let participants = [];
+    const participants = [];
     room.getJoinedMembers().forEach(roomMember => {
       if (!this._participants.has(roomMember.userId)) {
-        let participant = new MatrixParticipant(roomMember, this._account);
+        const participant = new MatrixParticipant(roomMember, this._account);
         participants.push(participant);
         this._participants.set(roomMember.userId, participant);
       }
@@ -1293,7 +1293,7 @@ MatrixRoom.prototype = {
    */
   async searchForVerificationRequests() {
     // Wait for us to join the room.
-    let myMembership = this.room.getMyMembership();
+    const myMembership = this.room.getMyMembership();
     if (myMembership === "invite") {
       let listener;
       try {
@@ -1317,7 +1317,7 @@ MatrixRoom.prototype = {
     } else if (myMembership === "leave") {
       return;
     }
-    let timelineWindow = new lazy.MatrixSDK.TimelineWindow(
+    const timelineWindow = new lazy.MatrixSDK.TimelineWindow(
       this._account._client,
       this.room.getUnfilteredTimelineSet()
     );
@@ -1342,7 +1342,7 @@ MatrixRoom.prototype = {
         break;
       }
     }
-    let events = timelineWindow.getEvents();
+    const events = timelineWindow.getEvents();
     for (const event of events) {
       // Find verification requests that are still in the requested state that
       // were sent by the other user.
@@ -1406,7 +1406,7 @@ MatrixRoom.prototype = {
    * the room is not encrypted.
    */
   async updateUnverifiedDevices() {
-    let account = this._account;
+    const account = this._account;
     if (
       !account._client.isCryptoEnabled() ||
       !account._client.isRoomEncrypted(this._roomId)
@@ -1417,7 +1417,7 @@ MatrixRoom.prototype = {
     // Check for participants that we haven't verified via cross signing, or
     // of which we don't trust a device, and if everyone seems fine, check our
     // own device verification state.
-    let newValue =
+    const newValue =
       members.some(({ userId }) => {
         return !userIdentityVerified(userId, account._client);
       }) || checkUserHasUnverifiedDevices(account.userId, account._client);
@@ -1654,7 +1654,7 @@ MatrixAccount.prototype = {
     }
   },
   remove() {
-    for (let conv of this.roomList.values()) {
+    for (const conv of this.roomList.values()) {
       // We want to remove all the conversations. We are not using conv.close
       // function call because we don't want user to leave all the matrix rooms.
       // User just want to remove the account so we need to remove the listed
@@ -1663,7 +1663,7 @@ MatrixAccount.prototype = {
       conv._cleanUpTimers();
     }
     delete this.roomList;
-    for (let timeout of this._verificationRequestTimeouts) {
+    for (const timeout of this._verificationRequestTimeouts) {
       clearTimeout(timeout);
     }
     this._verificationRequestTimeouts.clear();
@@ -1701,15 +1701,15 @@ MatrixAccount.prototype = {
   },
   unInit() {
     if (this.roomList) {
-      for (let conv of this.roomList.values()) {
+      for (const conv of this.roomList.values()) {
         conv._cleanUpTimers();
       }
     }
-    for (let timeout of this._verificationRequestTimeouts) {
+    for (const timeout of this._verificationRequestTimeouts) {
       clearTimeout(timeout);
     }
     // Cancel all pending outgoing verification requests, as we can no longer handle them.
-    let pendingClientOperations = Promise.all(
+    const pendingClientOperations = Promise.all(
       Array.from(
         this._pendingOutgoingVerificationRequests.values(),
         request => {
@@ -1774,7 +1774,7 @@ MatrixAccount.prototype = {
     }
     const { flows } = await this._client.loginFlows();
     const usePasswordFlow = Boolean(this.imAccount.password);
-    let wantedFlows = [];
+    const wantedFlows = [];
     if (usePasswordFlow) {
       wantedFlows.push("m.login.password");
     } else {
@@ -1880,7 +1880,7 @@ MatrixAccount.prototype = {
    * @returns {Promise<object>}
    */
   async getClientOptions() {
-    let dbName = "chat:matrix:" + this.imAccount.id;
+    const dbName = "chat:matrix:" + this.imAccount.id;
 
     const opts = {
       useAuthorizationHeader: true,
@@ -1987,7 +1987,7 @@ MatrixAccount.prototype = {
    */
   requestAuthorization() {
     this.reportConnecting(lazy._("connection.requestAuth"));
-    let url = this._client.getSsoLoginUrl(
+    const url = this._client.getSsoLoginUrl(
       lazy.InteractiveBrowser.COMPLETION_URL,
       "sso"
     );
@@ -1996,9 +1996,9 @@ MatrixAccount.prototype = {
       `${this.name} - ${this._baseURL}`
     )
       .then(resultUrl => {
-        let parsedUrl = new URL(resultUrl);
-        let rawUrlData = parsedUrl.searchParams;
-        let urlData = new URLSearchParams(rawUrlData);
+        const parsedUrl = new URL(resultUrl);
+        const rawUrlData = parsedUrl.searchParams;
+        const urlData = new URLSearchParams(rawUrlData);
         if (!urlData.has("loginToken")) {
           throw new Error("No token in redirect");
         }
@@ -2097,7 +2097,7 @@ MatrixAccount.prototype = {
           return;
         }
         if (this.roomList.has(member.roomId)) {
-          let conv = this.roomList.get(member.roomId);
+          const conv = this.roomList.get(member.roomId);
           if (conv.isChat) {
             if (member.membership === "join") {
               conv.addParticipant(member);
@@ -2164,7 +2164,7 @@ MatrixAccount.prototype = {
             event.getPrevContent()?.membership == "invite"
           ) {
             if (event.getPrevContent()?.is_direct) {
-              let userId = room.getDMInviter();
+              const userId = room.getDMInviter();
               if (this._pendingRoomInvites.has(room.roomId)) {
                 this.cancelBuddyRequest(userId);
                 this._pendingRoomInvites.delete(room.roomId);
@@ -2172,7 +2172,7 @@ MatrixAccount.prototype = {
               conv = this.getDirectConversation(userId, room.roomId, room.name);
             } else {
               if (this._pendingRoomInvites.has(room.roomId)) {
-                let alias = room.getCanonicalAlias() ?? room.roomId;
+                const alias = room.getCanonicalAlias() ?? room.roomId;
                 this.cancelChatRequest(alias);
                 this._pendingRoomInvites.delete(room.roomId);
               }
@@ -2229,7 +2229,7 @@ MatrixAccount.prototype = {
     );
     // An event that was already in the room timeline was redacted
     this._client.on(lazy.MatrixSDK.RoomEvent.Redaction, (event, room) => {
-      let conv = this.roomList.get(room.roomId);
+      const conv = this.roomList.get(room.roomId);
       if (conv) {
         const redactedEvent = conv.room?.findEventById(event.getAssociatedId());
         if (redactedEvent) {
@@ -2252,7 +2252,7 @@ MatrixAccount.prototype = {
         return;
       }
       // Update the title to the human readable version.
-      let conv = this.roomList.get(room.roomId);
+      const conv = this.roomList.get(room.roomId);
       if (!this._catchingUp && conv && room?.name && conv._name != room.name) {
         conv._name = room.name;
         conv.notifyObservers(null, "update-conv-title");
@@ -2269,7 +2269,7 @@ MatrixAccount.prototype = {
       if (this._catchingUp || room.isSpaceRoom()) {
         return;
       }
-      let me = room.getMember(this.userId);
+      const me = room.getMember(this.userId);
       if (me?.membership == "invite") {
         if (me.events.member.getContent().is_direct) {
           this.invitedToDM(room);
@@ -2289,7 +2289,7 @@ MatrixAccount.prototype = {
         // Joined a new room that we don't know about yet.
         if (this.isDirectRoom(room.roomId)) {
           let interlocutorId;
-          for (let roomMember of room.getJoinedMembers()) {
+          for (const roomMember of room.getJoinedMembers()) {
             if (roomMember.userId != this.userId) {
               interlocutorId = roomMember.userId;
               break;
@@ -2304,7 +2304,7 @@ MatrixAccount.prototype = {
 
     this._client.on(lazy.MatrixSDK.RoomMemberEvent.Typing, (event, member) => {
       if (member.userId != this.userId) {
-        let conv = this.roomList.get(member.roomId);
+        const conv = this.roomList.get(member.roomId);
         if (!conv) {
           return;
         }
@@ -2465,7 +2465,7 @@ MatrixAccount.prototype = {
         if (this.isDirectRoom(roomId)) {
           const room = this._client.getRoom(roomId);
           if (this._pendingRoomInvites.has(roomId)) {
-            let userId = room.getDMInviter();
+            const userId = room.getDMInviter();
             this.cancelBuddyRequest(userId);
             this._pendingRoomInvites.delete(roomId);
           }
@@ -2484,7 +2484,7 @@ MatrixAccount.prototype = {
         } else {
           if (this._pendingRoomInvites.has(roomId)) {
             const room = this._client.getRoom(roomId);
-            let alias = room.getCanonicalAlias() ?? roomId;
+            const alias = room.getCanonicalAlias() ?? roomId;
             this.cancelChatRequest(alias);
             this._pendingRoomInvites.delete(roomId);
           }
@@ -2791,7 +2791,7 @@ MatrixAccount.prototype = {
     if (this._pendingRoomInvites.has(room.roomId)) {
       return;
     }
-    let userId = room.getDMInviter();
+    const userId = room.getDMInviter();
     this.addBuddyRequest(
       userId,
       () => {
@@ -2826,7 +2826,7 @@ MatrixAccount.prototype = {
     if (this._pendingRoomInvites.has(room.roomId)) {
       return;
     }
-    let alias = room.getCanonicalAlias() ?? room.roomId;
+    const alias = room.getCanonicalAlias() ?? room.roomId;
     this.addChatRequest(
       alias,
       () => {
@@ -2907,10 +2907,10 @@ MatrixAccount.prototype = {
    * @returns {boolean} - If room is direct direct messaging room or not.
    */
   isDirectRoom(checkRoomId) {
-    for (let user of Object.keys(this._userToRoom)) {
-      for (let roomId of this._userToRoom[user]) {
+    for (const user of Object.keys(this._userToRoom)) {
+      for (const roomId of this._userToRoom[user]) {
         if (roomId == checkRoomId) {
-          let room = this._client.getRoom(roomId);
+          const room = this._client.getRoom(roomId);
           if (room && room.getJoinedMembers().length == 2) {
             return true;
           }
@@ -3098,7 +3098,7 @@ MatrixAccount.prototype = {
       const accountMembership = room.getMyMembership() ?? "leave";
       // Default to invite, since the invite for the other member may not be in
       // the room events yet.
-      let userMembership = room.getMember(userId)?.membership ?? "invite";
+      const userMembership = room.getMember(userId)?.membership ?? "invite";
       // If either party left the room we shouldn't try to rejoin.
       return userMembership !== "leave" && accountMembership !== "leave";
     });
@@ -3113,8 +3113,8 @@ MatrixAccount.prototype = {
    * @param {string} - ID of the room.
    */
   setDirectRoom(userId, roomId) {
-    let dmRoomMap = this._userToRoom;
-    let roomList = dmRoomMap[userId] || [];
+    const dmRoomMap = this._userToRoom;
+    const roomList = dmRoomMap[userId] || [];
     if (!roomList.includes(roomId)) {
       roomList.push(roomId);
       dmRoomMap[userId] = roomList;
@@ -3124,9 +3124,9 @@ MatrixAccount.prototype = {
 
   updateRoomMember(event, member) {
     if (this.roomList && this.roomList.has(member.roomId)) {
-      let conv = this.roomList.get(member.roomId);
+      const conv = this.roomList.get(member.roomId);
       if (conv.isChat) {
-        let participant = conv._participants.get(member.userId);
+        const participant = conv._participants.get(member.userId);
         // A participant might not exist (for example, this happens if the user
         // has only been invited, but has not yet joined).
         if (participant) {
@@ -3158,7 +3158,7 @@ MatrixAccount.prototype = {
     },
   },
   parseDefaultChatName(aDefaultName) {
-    let chatFields = {
+    const chatFields = {
       roomIdOrAlias: aDefaultName,
     };
 
@@ -3183,7 +3183,7 @@ MatrixAccount.prototype = {
       // We create the group conversation initially. Then we check if the room
       // is the direct messaging room or not.
       //TODO init with correct type from isDirectMessage(roomIdOrAlias)
-      let conv = this.getGroupConversation(roomIdOrAlias);
+      const conv = this.getGroupConversation(roomIdOrAlias);
       if (!conv) {
         return null;
       }
@@ -3254,7 +3254,7 @@ MatrixAccount.prototype = {
     // cases, we will pass roomID so that user will be joined to the room
     // and we will create corresponding conversation.
     if (DMRoomId) {
-      let conv = new MatrixRoom(this, false, roomName || DMRoomId);
+      const conv = new MatrixRoom(this, false, roomName || DMRoomId);
       this.roomList.set(DMRoomId, conv);
       this._client
         .joinRoom(DMRoomId)
@@ -3286,7 +3286,7 @@ MatrixAccount.prototype = {
     }
 
     // Create new DM room with userId
-    let conv = new MatrixRoom(this, false, userId);
+    const conv = new MatrixRoom(this, false, userId);
     this.createRoom(
       this._pendingDirectChats,
       userId,
@@ -3411,14 +3411,14 @@ MatrixAccount.prototype = {
     if (!this.connected) {
       return [];
     }
-    let user = this._client.getUser(aUserId);
+    const user = this._client.getUser(aUserId);
     if (!user) {
       return [];
     }
 
     // Convert timespan in milli-seconds into a human-readable form.
-    let getNormalizedTime = function (aTime) {
-      let valuesAndUnits = lazy.DownloadUtils.convertTimeUnits(aTime / 1000);
+    const getNormalizedTime = function (aTime) {
+      const valuesAndUnits = lazy.DownloadUtils.convertTimeUnits(aTime / 1000);
       // If the time is exact to the first set of units, trim off
       // the subsequent zeroes.
       if (!valuesAndUnits[2]) {
@@ -3427,7 +3427,7 @@ MatrixAccount.prototype = {
       return lazy._("tooltip.timespan", valuesAndUnits.join(" "));
     };
 
-    let tooltipInfo = [];
+    const tooltipInfo = [];
 
     if (user.displayName) {
       tooltipInfo.push(
@@ -3436,7 +3436,7 @@ MatrixAccount.prototype = {
     }
 
     // Add the user's current status.
-    let status = getStatusFromPresence(user);
+    const status = getStatusFromPresence(user);
     if (status === Ci.imIStatusInfo.STATUS_IDLE) {
       tooltipInfo.push(
         new TooltipInfo(
@@ -3455,7 +3455,7 @@ MatrixAccount.prototype = {
 
     if (user.avatarUrl) {
       // Convert the MXC URL to an HTTP URL.
-      let realUrl = this._client.mxcUrlToHttp(
+      const realUrl = this._client.mxcUrlToHttp(
         user.avatarUrl,
         USER_ICON_SIZE,
         USER_ICON_SIZE,

@@ -47,9 +47,9 @@ var gPrefObserver = {
 };
 
 function getTheme(aName) {
-  let name = aName || Services.prefs.getCharPref(kEmoticonsThemePref);
+  const name = aName || Services.prefs.getCharPref(kEmoticonsThemePref);
 
-  let theme = {
+  const theme = {
     name,
     iconsHash: null,
     json: null,
@@ -66,7 +66,7 @@ function getTheme(aName) {
     theme.baseUri = "chrome://" + theme.name + "/skin/";
   }
   try {
-    let channel = Services.io.newChannel(
+    const channel = Services.io.newChannel(
       theme.baseUri + kThemeFile,
       null,
       null,
@@ -76,13 +76,13 @@ function getTheme(aName) {
       Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       Ci.nsIContentPolicy.TYPE_IMAGE
     );
-    let stream = channel.open();
-    let bytes = lazy.NetUtil.readInputStream(stream, stream.available());
+    const stream = channel.open();
+    const bytes = lazy.NetUtil.readInputStream(stream, stream.available());
     theme.json = JSON.parse(lazy.gTextDecoder.decode(bytes));
     stream.close();
     theme.iconsHash = {};
-    for (let smiley of theme.json.smileys) {
-      for (let textCode of smiley.textCodes) {
+    for (const smiley of theme.json.smileys) {
+      for (const textCode of smiley.textCodes) {
         theme.iconsHash[textCode] = smiley;
       }
     }
@@ -113,11 +113,11 @@ function getRegexp() {
   }
 
   let emoticonList = [];
-  for (let emoticon in lazy.gTheme.iconsHash) {
+  for (const emoticon in lazy.gTheme.iconsHash) {
     emoticonList.push(emoticon);
   }
 
-  let exp = /[[\]{}()*+?.\\^$|]/g;
+  const exp = /[[\]{}()*+?.\\^$|]/g;
   emoticonList = emoticonList
     .sort()
     .reverse()
@@ -156,20 +156,20 @@ export function smileTextNode(aNode) {
   }
 
   let result = 0;
-  let exp = getRegexp();
+  const exp = getRegexp();
   if (!exp) {
     return result;
   }
 
   let match;
   while ((match = exp.exec(aNode.data))) {
-    let smileNode = aNode.splitText(match.index);
+    const smileNode = aNode.splitText(match.index);
     aNode = smileNode.splitText(exp.lastIndex - match.index);
     // at this point, smileNode is a text node with only the text
     // of the smiley and aNode is a text node with the text after
     // the smiley. The text in aNode hasn't been processed yet.
-    let smile = smileNode.data;
-    let elt = aNode.ownerDocument.createElement("span");
+    const smile = smileNode.data;
+    const elt = aNode.ownerDocument.createElement("span");
     elt.appendChild(
       aNode.ownerDocument.createTextNode(lazy.gTheme.iconsHash[smile].glyph)
     );

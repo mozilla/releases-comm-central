@@ -28,7 +28,7 @@ function run_test() {
 
 // Test joining a channel, then being set as op.
 function test_topicSettable() {
-  let channel = new ircChannel(new FakeAccount(), "#test", "nick");
+  const channel = new ircChannel(new FakeAccount(), "#test", "nick");
   // We're not in the room yet, so the topic is NOT editable.
   equal(channel.topicSettable, false);
 
@@ -52,7 +52,7 @@ function test_topicSettable() {
 
 // Test when you join as an op (as opposed to being set to op after joining).
 function test_topicSettableJoinAsOp() {
-  let channel = new ircChannel(new FakeAccount(), "#test", "nick");
+  const channel = new ircChannel(new FakeAccount(), "#test", "nick");
   // We're not in the room yet, so the topic is NOT editable.
   equal(channel.topicSettable, false);
 
