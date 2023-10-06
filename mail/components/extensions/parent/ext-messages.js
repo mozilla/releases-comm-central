@@ -838,9 +838,10 @@ this.messages = class extends ExtensionAPIPersistent {
           });
           let tab = tabManager.get(tabId);
           try {
-            await attachmentInfo.open(
-              tab.nativeTab.chromeBrowser.browsingContext
-            );
+            // Content tabs or content windows use browser, while mail and message
+            // tabs use chromeBrowser.
+            let browser = tab.nativeTab.chromeBrowser || tab.nativeTab.browser;
+            await attachmentInfo.open(browser.browsingContext);
           } catch (ex) {
             throw new ExtensionError(
               `Part ${partName} could not be opened: ${ex}.`

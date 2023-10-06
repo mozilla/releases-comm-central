@@ -464,7 +464,8 @@ var MailUtils = {
       );
     } else if (
       Services.prefs.getIntPref("mail.openMessageBehavior") ==
-      lazy.MailConsts.OpenMessageBehavior.NEW_TAB
+        lazy.MailConsts.OpenMessageBehavior.NEW_TAB &&
+      win.document.getElementById("tabmail")
     ) {
       win.document
         .getElementById("tabmail")
