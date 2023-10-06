@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/shared/threadPane.css");
+@import url("chrome://messenger/skin/shared/serverMenuItems.css");
 
 :root {
   --foldertree-background: -moz-Dialog;
@@ -407,17 +408,9 @@ li.context-menu-target:not(.selected) > .container:hover {
   background-image: var(--icon-mail);
 }
 
-menuitem.server:is([data-server-type="imap"], [data-server-type="pop3"]) {
-  list-style-image: var(--icon-mail);
-}
-
 #folderTree li:is([data-server-type="imap"], [data-server-type="pop3"])[data-server-secure="true"]
   > .container > .icon {
   background-image: var(--icon-mail-secure);
-}
-
-menuitem.server:is([data-server-type="imap"], [data-server-type="pop3"])[data-server-secure="true"] {
-  list-style-image: var(--icon-mail-secure);
 }
 
 #folderTree li[data-server-type="none"] > .container > .icon {
@@ -428,24 +421,12 @@ menuitem.server:is([data-server-type="imap"], [data-server-type="pop3"])[data-se
   background-image: var(--icon-globe);
 }
 
-menuitem.server[data-server-type="nntp"] {
-  list-style-image: var(--icon-globe);
-}
-
 #folderTree li[data-server-type="nntp"][data-server-secure="true"] > .container > .icon {
   background-image: var(--icon-globe-secure);
 }
 
-menuitem.server[data-server-type="nntp"][data-server-secure="true"] {
-  list-style-image: var(--icon-globe-secure);
-}
-
 #folderTree li[data-server-type="rss"] > .container > .icon {
   background-image: var(--icon-rss);
-}
-
-menuitem.server[data-server-type="rss"] {
-  list-style-image: var(--icon-rss);
 }
 
 #folderTree li[data-folder-type="archive"] > .container > .icon {

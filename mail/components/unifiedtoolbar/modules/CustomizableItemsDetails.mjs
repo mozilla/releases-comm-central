@@ -66,8 +66,9 @@ export default [
     labelId: "toolbar-get-messages",
     templateId: "getMessagesTemplate",
     requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
+      "chrome://messenger/content/unifiedtoolbar/get-messages-button.mjs",
     ],
+    hasContextMenu: true,
   },
   {
     id: "address-book",
