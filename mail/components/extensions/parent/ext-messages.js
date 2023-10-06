@@ -94,17 +94,20 @@ async function convertAttachment(attachment) {
     // The attached message may not have been seen/opened yet, create a dummy
     // msgHdr.
     let attachedMsgHdr = new nsDummyMsgHeader();
+
     attachedMsgHdr.setStringProperty("dummyMsgUrl", attachment.url);
     attachedMsgHdr.recipients = attachment.headers.to;
     attachedMsgHdr.ccList = attachment.headers.cc;
     attachedMsgHdr.bccList = attachment.headers.bcc;
-    attachedMsgHdr.author = attachment.headers.from[0];
-    attachedMsgHdr.date = Date.parse(attachment.headers.date[0]) * 1000;
-    attachedMsgHdr.subject = attachment.headers.subject[0];
-    attachedMsgHdr.messageId = attachment.headers["message-id"][0].replace(
-      /^<|>$/g,
-      ""
-    );
+    attachedMsgHdr.author = attachment.headers.from?.[0] || "";
+    attachedMsgHdr.subject = attachment.headers.subject?.[0] || "";
+
+    let hdrDate = attachment.headers.date?.[0];
+    attachedMsgHdr.date = hdrDate ? Date.parse(hdrDate) * 1000 : 0;
+
+    let hdrId = attachment.headers["message-id"]?.[0];
+    attachedMsgHdr.messageId = hdrId ? hdrId.replace(/^<|>$/g, "") : "";
+
     rv.message = convertMessage(attachedMsgHdr);
   }
 

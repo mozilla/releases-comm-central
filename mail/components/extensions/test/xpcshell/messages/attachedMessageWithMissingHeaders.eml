@@ -1,0 +1,35 @@
+Message-ID: <sample.eml@mime.sample>
+Date: Fri, 20 May 2000 00:29:55 -0400
+To: Heinz <mueller@example.com>
+From: Batman <bruce@example.com>
+Subject: Attached message without subject
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+  boundary="------------49CVLb1N6p6Spdka4qq7Naeg"
+
+This is a multi-part message in MIME format.
+--------------49CVLb1N6p6Spdka4qq7Naeg
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+    <p>This message has one email attachment with missing headers.<br>
+    </p>
+  </body>
+</html>
+--------------49CVLb1N6p6Spdka4qq7Naeg
+Content-Type: message/rfc822; charset=UTF-8; name="message1.eml"
+Content-Disposition: attachment; filename="message1.eml"
+Content-Transfer-Encoding: 7bit
+
+Message-ID: <sample-attached.eml@mime.sample>
+MIME-Version: 1.0
+
+This is my body
+
+--------------49CVLb1N6p6Spdka4qq7Naeg--

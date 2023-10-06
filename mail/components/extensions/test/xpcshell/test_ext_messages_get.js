@@ -991,3 +991,83 @@ add_task(
     cleanUpAccount(_account);
   }
 );
+
+add_task(async function test_attached_message_with_missing_headers() {
+  let _account = createAccount();
+  let _folder = await createSubfolder(
+    _account.incomingServer.rootFolder,
+    "test1"
+  );
+
+  await createMessageFromFile(
+    _folder,
+    do_get_file("messages/attachedMessageWithMissingHeaders.eml").path
+  );
+
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        let accounts = await browser.accounts.list();
+        browser.test.assertEq(1, accounts.length);
+
+        for (let account of accounts) {
+          let folder = account.folders.find(f => f.name == "test1");
+          let { messages } = await browser.messages.list(folder);
+          browser.test.assertEq(1, messages.length);
+
+          let msg = messages[0];
+          let attachments = await browser.messages.listAttachments(msg.id);
+          browser.test.assertEq(
+            attachments.length,
+            1,
+            "Should have found the correct number of attachments"
+          );
+
+          let attachedMessage = attachments[0].message;
+          browser.test.assertTrue(
+            !!attachedMessage,
+            "Should have found an attached message"
+          );
+          browser.test.assertEq(
+            attachedMessage.date.getTime(),
+            0,
+            "The date should be correct"
+          );
+          browser.test.assertEq(
+            attachedMessage.subject,
+            "",
+            "The subject should be empty"
+          );
+          browser.test.assertEq(
+            attachedMessage.author,
+            "",
+            "The author should be empty"
+          );
+          browser.test.assertEq(
+            attachedMessage.headerMessageId,
+            "sample-attached.eml@mime.sample",
+            "The headerMessageId should be correct"
+          );
+          window.assertDeepEqual(
+            attachedMessage.recipients,
+            [],
+            "The recipients should be correct"
+          );
+        }
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  cleanUpAccount(_account);
+});
