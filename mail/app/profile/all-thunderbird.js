@@ -230,10 +230,6 @@ pref("security.content.signature.root_hash", "[CONTENT SIGNING DISABLED - see bu
 // Show new install UI with permission lists
 pref("extensions.webextOptionalPermissionPrompts", true);
 
-// 1 = allow "Man In The Middle" (local proxy, web filter, etc.) for certificate
-//     pinning checks.
-pref("security.cert_pinning.enforcement_level", 1);
-
 // Whether to use client certificates stored in OS certificate storage.
 // This does not work for S/MIME. See bug 1726442.
 pref("security.osclientcerts.autoload", false);
