@@ -7,7 +7,7 @@
 
 // This file is loaded in messenger.xhtml.
 /* globals MailToolboxCustomizeDone, openIMAccountMgr,
-   PROTO_TREE_VIEW, Status, statusSelector, ZoomManager, gSpacesToolbar */
+   PROTO_TREE_VIEW, statusSelector, ZoomManager, gSpacesToolbar */
 
 var { Notifications } = ChromeUtils.importESModule(
   "resource:///modules/chatNotifications.sys.mjs"
@@ -18,8 +18,8 @@ var { IMServices } = ChromeUtils.importESModule(
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { InlineSpellChecker } = ChromeUtils.importESModule(
-  "resource://gre/modules/InlineSpellChecker.sys.mjs"
+var { Status } = ChromeUtils.importESModule(
+  "resource:///modules/imStatusUtils.sys.mjs"
 );
 
 ChromeUtils.defineESModuleGetters(this, {
@@ -1883,23 +1883,36 @@ var chatHandler = {
     }
 
     if (ChatEncryption.otrEnabled) {
-      new Promise(resolve => {
-        if (IMServices.core.initialized) {
-          resolve();
-          return;
-        }
+      this._initOTR();
+    }
+
+    this._restoreWidth(document.getElementById("listPaneBox"));
+    this._restoreWidth(document.getElementById("contextPane"));
+  },
+
+  async _initOTR() {
+    if (!IMServices.core.initialized) {
+      await new Promise(resolve => {
         function initObserver() {
           Services.obs.removeObserver(initObserver, "prpl-init");
           resolve();
         }
         Services.obs.addObserver(initObserver, "prpl-init");
-      }).then(() => {
-        OTRUI.init();
       });
     }
-
-    this._restoreWidth(document.getElementById("listPaneBox"));
-    this._restoreWidth(document.getElementById("contextPane"));
+    // Avoid loading OTR until we have an im account set up.
+    if (IMServices.accounts.getAccounts().length === 0) {
+      await new Promise(resolve => {
+        function accountsObserver() {
+          if (IMServices.accounts.getAccounts().length > 0) {
+            Services.obs.removeObserver(accountsObserver, "account-added");
+            resolve();
+          }
+        }
+        Services.obs.addObserver(accountsObserver, "account-added");
+      });
+    }
+    await OTRUI.init();
   },
 };
 
@@ -2146,4 +2159,4 @@ function verifyChatParticipant() {
   ChatEncryption.verifyIdentity(window, buddy);
 }
 
-window.addEventListener("load", chatHandler.init.bind(chatHandler));
+window.addEventListener("load", () => chatHandler.init());

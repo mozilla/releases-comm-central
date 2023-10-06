@@ -62,52 +62,50 @@ function getDistributionFullPath() {
 }
 
 function tryLoadOTR(filename, info) {
-  console.debug(`Trying to load ${filename}${info}`);
   libotrPath = filename;
-
   try {
     libotr = ctypes.open(filename);
-  } catch (e) {}
-
-  if (libotr) {
-    console.debug("Successfully loaded OTR library " + filename + info);
+  } catch (e) {
+    return `Tried to load ${filename}${info}`;
   }
+  return "";
 }
 
 function loadExternalOTRLib() {
-  const systemInfo = " from system's standard library locations";
+  const systemInfo = " from system's standard library locations.";
 
+  let info = "";
   // Try to load using an absolute path from our install directory
   if (!libotr) {
-    tryLoadOTR(getDistributionFullPath(), "");
+    info += tryLoadOTR(getDistributionFullPath(), "");
   }
 
   // Try to load using our expected filename from system directories
   if (!libotr) {
-    tryLoadOTR(getDistributionFilename(), systemInfo);
+    info += ", " + tryLoadOTR(getDistributionFilename(), systemInfo);
   }
 
   // Try to load using a versioned library name
   if (!libotr) {
-    tryLoadOTR(getSystemVersionedFilename(), systemInfo);
+    info += ", " + tryLoadOTR(getSystemVersionedFilename(), systemInfo);
   }
 
   // Try other filenames
 
   if (!libotr && systemOS == "winnt") {
-    tryLoadOTR(getLibraryFilename("otr.5", ""), systemInfo);
+    info += ", " + tryLoadOTR(getLibraryFilename("otr.5", ""), systemInfo);
   }
 
   if (!libotr && systemOS == "winnt") {
-    tryLoadOTR(getLibraryFilename("otr-5", ""), systemInfo);
+    info += ", " + tryLoadOTR(getLibraryFilename("otr-5", ""), systemInfo);
   }
 
   if (!libotr) {
-    tryLoadOTR(getLibraryFilename("otr", ""), systemInfo);
+    info += ", " + tryLoadOTR(getLibraryFilename("otr", ""), systemInfo);
   }
 
   if (!libotr) {
-    throw new Error("Cannot load required OTR library");
+    throw new Error("Cannot load required OTR library; " + info);
   }
 }
 
