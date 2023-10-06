@@ -52,7 +52,7 @@ class FolderLocationButton extends MailTabButton {
 
   #handlePopupCommand = event => {
     const about3Pane = document.getElementById("tabmail").currentAbout3Pane;
-    about3Pane.displayFolder(event.target._folder.folderURL);
+    about3Pane.displayFolder(event.target._folder.URI);
   };
 
   /**
