@@ -209,7 +209,7 @@ nsresult nsMsgFilterList::GetLogFile(nsIFile** aFile) {
     rv = (*aFile)->AppendNative("filterlog.html"_ns);
     NS_ENSURE_SUCCESS(rv, rv);
   }
-  return NS_OK;
+  return EnsureLogFile(*aFile);
 }
 
 NS_IMETHODIMP
