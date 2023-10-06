@@ -1134,6 +1134,7 @@ async function reloadOpenPgpUI() {
 
   gAttachKey.disabled = !gKeyId;
   gEncryptSubject.disabled = !gKeyId;
+  gSendAutocryptHeaders.disabled = !gKeyId;
 }
 
 /**
