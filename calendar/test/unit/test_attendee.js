@@ -14,6 +14,7 @@ function run_test() {
   test_serialize();
   test_properties();
   test_doubleParameters(); // Bug 875739
+  test_emptyAttendee();
 }
 
 function test_values() {
@@ -297,4 +298,21 @@ function test_doubleParameters() {
 
   testParameters(organizer, expectedOrganizer);
   testParameters(attendees, expectedAttendee);
+}
+function test_emptyAttendee() {
+  // Event with empty attendee.
+  const event = createEventFromIcalString(
+    [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "BEGIN:VEVENT",
+      "DTSTAMP:19700101T000000Z",
+      "DTSTART:19700101T000001Z",
+      "ATTENDEE:",
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\n")
+  );
+  const attendees = event.getAttendees();
+  equal(attendees.length, 0);
 }

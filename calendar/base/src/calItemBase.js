@@ -568,8 +568,7 @@ calItemBase.prototype = {
     return Object.keys(this.mPropertyParams[propName]);
   },
 
-  // void getAttendees(out PRUint32 count,
-  //                   [array,size_is(count),retval] out calIAttendee attendees);
+  // Array<calIAttendee> getAttendees();
   getAttendees() {
     if (!this.mAttendees && this.mIsProxy) {
       this.mAttendees = this.mParentItem.getAttendees();
@@ -622,6 +621,10 @@ calItemBase.prototype = {
 
   // void addAttendee(in calIAttendee attendee);
   addAttendee(attendee) {
+    if (!attendee.id) {
+      cal.LOG("Tried to add invalid attended");
+      return;
+    }
     // the duplicate check is migration code for bug 1204255
     let exists = this.getAttendeeById(attendee.id);
     if (exists) {
