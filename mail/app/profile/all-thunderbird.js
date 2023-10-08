@@ -1420,3 +1420,6 @@ pref("mailnews.imap.jsmodule", false);
 // 2: icons only
 // 3: text only
 pref("toolbar.unifiedtoolbar.buttonstyle", 0);
+
+// Temporary fix for Mozmill on Linux. See bug 1857831.
+pref("toolkit.lazyHiddenWindow", false);
