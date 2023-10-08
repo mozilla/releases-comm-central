@@ -936,7 +936,9 @@ add_task(async function testChangeWhileRefreshing() {
 
   const widget = new TestCalFilter();
   widget.id = "test-filter";
-  widget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+
+  // Before setting an item type, start date and end date, `activate` should resolve immediately.
+  // There shouldn't be a new `ready` Promise, because we're still not ready.
 
   const ready1 = widget.ready;
   let ready1Resolved, ready1Rejected;
@@ -948,6 +950,42 @@ add_task(async function testChangeWhileRefreshing() {
       ready1Rejected = true;
     }
   );
+
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+  const activate0A = widget.activate();
+  Assert.notEqual(activate0A, ready1, ".activate should return a different Promise");
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+  await activate0A;
+  widget.deactivate();
+
+  // Try again with the item type set.
+
+  widget.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_ALL;
+
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+  const activate0B = widget.activate();
+  Assert.notEqual(activate0B, ready1, ".activate should return a different Promise");
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+  await activate0B;
+  widget.deactivate();
+
+  // Try again with only one date set.
+
+  widget.startDate = cal.createDateTime("20200801");
+
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+  const activate0C = widget.activate();
+  Assert.notEqual(activate0C, ready1, ".activate should return a different Promise");
+  Assert.equal(widget.ready, ready1, ".ready should return the same Promise");
+  await activate0C;
+  widget.deactivate();
+
+  Assert.equal(ready1Resolved, undefined, "Promise did not yet resolve");
+  Assert.equal(ready1Rejected, undefined, "Promise did not yet reject");
+
+  // Set the other date.
+
+  widget.endDate = cal.createDateTime("20230831");
 
   // Ask the calendars for items. Get a waiting Promise before and after doing so.
   // These should be the same as the earlier Promise.

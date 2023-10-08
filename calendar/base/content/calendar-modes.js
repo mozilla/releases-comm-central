@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals TodayPane, switchToView, gLastShownCalendarView */
+/* import-globals-from calendar-unifinder.js */
 
 /* exported calSwitchToCalendarMode, calSwitchToMode, calSwitchToTaskMode,
  *          changeMode
@@ -92,6 +93,10 @@ function calSwitchToCalendarMode() {
 
     // make sure the view is sized correctly
     window.dispatchEvent(new CustomEvent("viewresize"));
+
+    // Activate the unifinder, if it's visible. If it's not visible,
+    // `getUnifinderView` will return a falsy value.
+    getUnifinderView()?.activate();
   }
 }
 

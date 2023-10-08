@@ -22,10 +22,22 @@ var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.
  * Toggles the hidden state of the unifinder.
  */
 function toggleUnifinder() {
+  const wasHidden = document.getElementById("bottom-events-box").hidden;
+  if (!wasHidden) {
+    // It will be hidden, deactivate the view.
+    getUnifinderView().deactivate();
+  }
+
   // Toggle the elements
   goToggleToolbar("bottom-events-box", "calendar_show_unifinder_command");
   goToggleToolbar("calendar-view-splitter");
   window.dispatchEvent(new CustomEvent("viewresize"));
+
+  if (wasHidden) {
+    // It's now visible, activate the view.
+    getUnifinderView().activate();
+    refreshUnifinderFilterInterval();
+  }
 }
 
 /**
@@ -45,7 +57,6 @@ function getUnifinderTree() {
 async function prepareCalendarUnifinder() {
   const filteredView = new CalendarFilteredTreeView();
   filteredView.itemType = Ci.calICalendar.ITEM_FILTER_TYPE_EVENT;
-  await filteredView.activate();
 
   const unifinderTree = getUnifinderTree();
   unifinderTree.view = filteredView;
@@ -171,6 +182,10 @@ function unifinderSelect(event) {
  */
 function unifinderItemSelect(event) {
   const treeView = getUnifinderView();
+  if (!treeView) {
+    // Unifinder is hidden.
+    return;
+  }
 
   // `nsITreeSelection` automatically fires a select event when re-enabling
   // select events after suppression. The result is this "brutal hack" to avoid

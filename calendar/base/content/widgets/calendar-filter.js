@@ -1167,6 +1167,16 @@ let CalendarFilteredViewMixin = Base =>
     }
 
     /**
+     * We refuse to update the widget if it's inactive, or is missing an item type,
+     * start date or end date.
+     *
+     * @type {boolean}
+     */
+    get #canRefreshItems() {
+      return Boolean(this.#isActive && this.itemType && this.startDate && this.endDate);
+    }
+
+    /**
      * Clears the display and adds items that match the filter from all enabled
      * and visible calendars.
      *
@@ -1175,7 +1185,7 @@ let CalendarFilteredViewMixin = Base =>
      *   Promise as returned from the `ready` getter.
      */
     refreshItems(force = false) {
-      if (!this.#isActive) {
+      if (!this.#canRefreshItems) {
         // If we're inactive, calling #refreshCalendar() will do nothing, but we
         // will have created a refresh job with no effect and subsequent refresh
         // attempts will fail.
@@ -1252,7 +1262,7 @@ let CalendarFilteredViewMixin = Base =>
      * @returns {Promise} A promise resolved when this calendar has refreshed.
      */
     async #refreshCalendar(calendar) {
-      if (!this.#isActive || !this.itemType || !this.#isCalendarVisible(calendar)) {
+      if (!this.#canRefreshItems || !this.#isCalendarVisible(calendar)) {
         return;
       }
       let iterator = cal.iterate.streamValues(this.#filter.getItems(calendar));
