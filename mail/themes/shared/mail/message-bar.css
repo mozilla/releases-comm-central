@@ -18,6 +18,20 @@
   --panel-border-radius: 3px;
 }
 
+@media (prefers-color-scheme: dark) {
+  :host(:is(.anonymous-content-host, notification-message)) {
+    --in-content-button-color: #f9f9fa;
+    --in-content-button-border: #828283;
+    --in-content-button-background: #636364;
+    --in-content-button-text-color-hover: #f9f9fa;
+    --in-content-button-background-hover: #777778;
+    --in-content-button-text-color-active: #f9f9fa;
+    --in-content-button-border-active: #878788;
+    --in-content-button-background-active: #878788;
+    --in-content-focus-outline-color: #45a1ff;
+  }
+}
+
 @media (prefers-contrast) {
   :host {
     --in-content-box-info-background: -moz-Dialog;
@@ -53,11 +67,11 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :host {
+  :host(:is(.anonymous-content-host, notification-message)) {
     --in-content-box-info-background: var(--color-gray-60);
   }
 
-  :host([type=warning]) {
+  :host(:is(.anonymous-content-host, notification-message))([type=warning]) {
     --message-bar-background-color: #ffe900;
   }
 }
@@ -222,7 +236,7 @@ button.ghost-button:not(.semi-transparent):enabled:hover:active {
 }
 
 @media (prefers-color-scheme: dark) {
-  :host([type="info"]) .container.infobar {
+  :host(:is(.anonymous-content-host, notification-message))([type="info"]) .container.infobar {
     --message-bar-background-color: var(--in-content-box-info-background);
   }
 }
@@ -401,19 +415,7 @@ strong {
 }
 
 @media (prefers-color-scheme: dark) {
-  :host {
-    --in-content-button-color: #f9f9fa;
-    --in-content-button-border: #828283;
-    --in-content-button-background: #636364;
-    --in-content-button-text-color-hover: #f9f9fa;
-    --in-content-button-background-hover: #777778;
-    --in-content-button-text-color-active: #f9f9fa;
-    --in-content-button-border-active: #878788;
-    --in-content-button-background-active: #878788;
-    --in-content-focus-outline-color: #45a1ff;
-  }
-
-  :host([type=info]) .icon {
+  :host(:is(.anonymous-content-host, notification-message))([type=info]) .icon {
     color: #45a1ff;
   }
 }
