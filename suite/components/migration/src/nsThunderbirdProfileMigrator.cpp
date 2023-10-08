@@ -22,13 +22,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 // nsThunderbirdProfileMigrator
 
-#define FILE_NAME_SITEPERM_OLD    "cookperm.txt"
 #define FILE_NAME_SITEPERM_NEW    "hostperm.1"
-#define FILE_NAME_CERT8DB         "cert8.db"
-#define FILE_NAME_KEY3DB          "key3.db"
-#define FILE_NAME_SECMODDB        "secmod.db"
+#define FILE_NAME_CERT9DB         "cert9.db"
+#define FILE_NAME_KEY4DB          "key4.db"
 #define FILE_NAME_HISTORY         "history.dat"
-#define FILE_NAME_SIGNONS         "signons.sqlite"
+#define FILE_NAME_SIGNONS         "logins.json"
 #define FILE_NAME_MIMETYPES       "mimeTypes.rdf"
 #define FILE_NAME_USER_PREFS      "user.js"
 #define FILE_NAME_PERSONALDICTIONARY "persdict.dat"
@@ -95,8 +93,6 @@ nsThunderbirdProfileMigrator::Migrate(uint16_t aItems,
     // Permissions (Images)
     if (NS_SUCCEEDED(rv))
       rv = CopyFile(FILE_NAME_SITEPERM_NEW, FILE_NAME_SITEPERM_NEW);
-    if (NS_SUCCEEDED(rv))
-      rv = CopyFile(FILE_NAME_SITEPERM_OLD, FILE_NAME_SITEPERM_OLD);
   }
 
   // the last thing to do is to actually copy over any mail folders
@@ -540,11 +536,9 @@ nsThunderbirdProfileMigrator::CopyPreferences(bool aReplace)
 
   // Security Stuff
   if (NS_SUCCEEDED(rv))
-    rv = CopyFile(FILE_NAME_CERT8DB, FILE_NAME_CERT8DB);
+    rv = CopyFile(FILE_NAME_CERT9DB, FILE_NAME_CERT9DB);
   if (NS_SUCCEEDED(rv))
-    rv = CopyFile(FILE_NAME_KEY3DB, FILE_NAME_KEY3DB);
-  if (NS_SUCCEEDED(rv))
-    rv = CopyFile(FILE_NAME_SECMODDB, FILE_NAME_SECMODDB);
+    rv = CopyFile(FILE_NAME_KEY4DB, FILE_NAME_KEY4DB);
 
   // User MIME Type overrides
   if (NS_SUCCEEDED(rv))
