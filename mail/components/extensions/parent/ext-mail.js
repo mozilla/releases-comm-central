@@ -306,54 +306,62 @@ XPCOMUtils.defineLazyGetter(global, "searchInitialized", () => {
 });
 
 /**
- * Class for dummy message Headers.
+ * Class for cached message headers to reduce XPCOM requests and to cache msgHdr
+ * of file and attachment messages.
  */
-class nsDummyMsgHeader {
+class CachedMsgHeader {
   constructor(msgHdr) {
-    this.mProperties = [];
-    this.messageSize = 0;
+    this.mProperties = {};
+
+    // Properties needed by convertMessage().
     this.author = null;
     this.subject = "";
     this.recipients = null;
     this.ccList = null;
-    this.listPost = null;
+    this.bccList = null;
     this.messageId = null;
     this.date = 0;
-    this.accountKey = "";
     this.flags = 0;
-    // If you change us to return a fake folder, please update
-    // folderDisplay.js's FolderDisplayWidget's selectedMessageIsExternal getter.
+    this.isRead = false;
+    this.isFlagged = false;
+    this.messageSize = 0;
     this.folder = null;
 
+    // Additional properties.
+    this.accountKey = "";
+
     if (msgHdr) {
-      for (let member of [
-        "accountKey",
-        "ccList",
-        "date",
-        "flags",
-        "listPost",
-        "messageId",
-        "messageSize",
-      ]) {
-        // Members are either (associative) arrays or primitives.
-        if (typeof msgHdr[member] == "object") {
-          this[member] = [];
-          for (let property in msgHdr[member]) {
-            this[member][property] = msgHdr[member][property];
-          }
-        } else {
-          this[member] = msgHdr[member];
-        }
-      }
+      // Cache all elements which are needed by convertMessage().
       this.author = msgHdr.mime2DecodedAuthor;
-      this.recipients = msgHdr.mime2DecodedRecipients;
       this.subject = msgHdr.mime2DecodedSubject;
-      this.mProperties.dummyMsgUrl = msgHdr.getStringProperty("dummyMsgUrl");
-      this.mProperties.dummyMsgLastModifiedTime = msgHdr.getUint32Property(
-        "dummyMsgLastModifiedTime"
-      );
+      this.recipients = msgHdr.mime2DecodedRecipients;
+      this.ccList = msgHdr.ccList;
+      this.bccList = msgHdr.bccList;
+      this.messageId = msgHdr.messageId;
+      this.date = msgHdr.date;
+      this.flags = msgHdr.flags;
+      this.isRead = msgHdr.isRead;
+      this.isFlagged = msgHdr.isFlagged;
+      this.messageSize = msgHdr.messageSize;
+      this.folder = msgHdr.folder;
+
+      this.mProperties.junkscore = msgHdr.getStringProperty("junkscore");
+      this.mProperties.keywords = msgHdr.getStringProperty("keywords");
+
+      if (this.folder) {
+        this.messageKey = msgHdr.messageKey;
+      } else {
+        this.mProperties.dummyMsgUrl = msgHdr.getStringProperty("dummyMsgUrl");
+        this.mProperties.dummyMsgLastModifiedTime = msgHdr.getUint32Property(
+          "dummyMsgLastModifiedTime"
+        );
+      }
+
+      // Also cache the additional elements.
+      this.accountKey = msgHdr.accountKey;
     }
   }
+
   getProperty(aProperty) {
     return this.getStringProperty(aProperty);
   }
@@ -361,7 +369,7 @@ class nsDummyMsgHeader {
     return this.setStringProperty(aProperty, aVal);
   }
   getStringProperty(aProperty) {
-    if (aProperty in this.mProperties) {
+    if (this.mProperties.hasOwnProperty(aProperty)) {
       return this.mProperties[aProperty];
     }
     return "";
@@ -370,7 +378,7 @@ class nsDummyMsgHeader {
     this.mProperties[aProperty] = aVal;
   }
   getUint32Property(aProperty) {
-    if (aProperty in this.mProperties) {
+    if (this.mProperties.hasOwnProperty(aProperty)) {
       return parseInt(this.mProperties[aProperty]);
     }
     return 0;
@@ -2196,14 +2204,11 @@ class FolderManager {
 }
 
 /**
- * Checks if the provided nsIMsgHdr is a dummy message header of an attached message.
+ * Checks if the provided dummyMsgUrl belongs to an attached message.
  */
-function isAttachedMessage(msgHdr) {
+function isAttachedMessageUrl(dummyMsgUrl) {
   try {
-    return (
-      !msgHdr.folder &&
-      new URL(msgHdr.getStringProperty("dummyMsgUrl")).searchParams.has("part")
-    );
+    return dummyMsgUrl && new URL(dummyMsgUrl).searchParams.has("part");
   } catch (ex) {
     return false;
   }
@@ -2224,54 +2229,60 @@ function convertMessage(msgHdr, extension) {
     return null;
   }
 
-  let composeFields = Cc[
+  const composeFields = Cc[
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  let junkScore = parseInt(msgHdr.getStringProperty("junkscore"), 10) || 0;
-  let tags = (msgHdr.getStringProperty("keywords") || "")
+  // Cache msgHdr to reduce XPCOM requests.
+  let cachedHdr = new CachedMsgHeader(msgHdr);
+
+  let junkScore = parseInt(cachedHdr.getStringProperty("junkscore"), 10) || 0;
+  let tags = (cachedHdr.getStringProperty("keywords") || "")
     .split(" ")
     .filter(MailServices.tags.isValidKey);
-
-  let external = !msgHdr.folder;
 
   // Getting the size of attached messages does not work consistently. For imap://
   // and mailbox:// messages the returned size in msgHdr.messageSize is 0, and for
   // file:// messages the returned size is always the total file size
   // Be consistent here and always return 0. The user can obtain the message size
   // from the size of the associated attachment file.
-  let size = isAttachedMessage(msgHdr) ? 0 : msgHdr.messageSize;
+  let size = isAttachedMessageUrl(cachedHdr.getStringProperty("dummyMsgUrl"))
+    ? 0
+    : cachedHdr.messageSize;
 
   let messageObject = {
-    id: messageTracker.getId(msgHdr),
-    date: new Date(Math.round(msgHdr.date / 1000)),
-    author: msgHdr.mime2DecodedAuthor,
-    recipients: composeFields.splitRecipients(
-      msgHdr.mime2DecodedRecipients,
-      false
-    ),
-    ccList: composeFields.splitRecipients(msgHdr.ccList, false),
-    bccList: composeFields.splitRecipients(msgHdr.bccList, false),
-    subject: msgHdr.mime2DecodedSubject,
-    read: msgHdr.isRead,
-    new: !!(msgHdr.flags & Ci.nsMsgMessageFlags.New),
-    headersOnly: !!(msgHdr.flags & Ci.nsMsgMessageFlags.Partial),
-    flagged: !!msgHdr.isFlagged,
+    id: messageTracker.getId(cachedHdr),
+    date: new Date(Math.round(cachedHdr.date / 1000)),
+    author: cachedHdr.mime2DecodedAuthor,
+    recipients: cachedHdr.mime2DecodedRecipients
+      ? composeFields.splitRecipients(cachedHdr.mime2DecodedRecipients, false)
+      : [],
+    ccList: cachedHdr.ccList
+      ? composeFields.splitRecipients(cachedHdr.ccList, false)
+      : [],
+    bccList: cachedHdr.bccList
+      ? composeFields.splitRecipients(cachedHdr.bccList, false)
+      : [],
+    subject: cachedHdr.mime2DecodedSubject,
+    read: cachedHdr.isRead,
+    new: !!(cachedHdr.flags & Ci.nsMsgMessageFlags.New),
+    headersOnly: !!(cachedHdr.flags & Ci.nsMsgMessageFlags.Partial),
+    flagged: !!cachedHdr.isFlagged,
     junk: junkScore >= gJunkThreshold,
     junkScore,
-    headerMessageId: msgHdr.messageId,
+    headerMessageId: cachedHdr.messageId,
     size,
     tags,
-    external,
+    external: !cachedHdr.folder,
   };
   // convertMessage can be called without providing an extension, if the info is
   // needed for multiple extensions. The caller has to ensure that the folder info
   // is not forwarded to extensions, which do not have the required permission.
   if (
-    msgHdr.folder &&
+    cachedHdr.folder &&
     (!extension || extension.hasPermission("accountsRead"))
   ) {
-    messageObject.folder = convertFolder(msgHdr.folder);
+    messageObject.folder = convertFolder(cachedHdr.folder);
   }
   return messageObject;
 }
@@ -2356,10 +2367,13 @@ var messageTracker = new (class extends EventEmitter {
     let hash = JSON.stringify(msgIdentifier);
     this._messageIds.set(hash, id);
     this._messages.set(id, msgIdentifier);
-    // Keep track of dummy message headers, which do not have a folderURI property
+    // Keep track of dummy message headers, which do not have a folder property
     // and cannot be retrieved later.
-    if (msgHdr && !msgHdr.folder) {
-      this._dummyMessageHeaders.set(msgIdentifier.dummyMsgUrl, msgHdr);
+    if (msgHdr && !msgHdr.folder && msgIdentifier.dummyMsgUrl) {
+      this._dummyMessageHeaders.set(
+        msgIdentifier.dummyMsgUrl,
+        msgHdr instanceof Ci.nsIMsgDBHdr ? new CachedMsgHeader(msgHdr) : msgHdr
+      );
     }
   }
 
@@ -2424,7 +2438,7 @@ var messageTracker = new (class extends EventEmitter {
     }
     id = this._nextId++;
 
-    this._set(id, msgIdentifier, new nsDummyMsgHeader(msgHdr));
+    this._set(id, msgIdentifier, msgHdr);
     return id;
   }
 

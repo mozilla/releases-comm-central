@@ -93,8 +93,7 @@ async function convertAttachment(attachment) {
   if (attachment.contentType.startsWith("message/")) {
     // The attached message may not have been seen/opened yet, create a dummy
     // msgHdr.
-    let attachedMsgHdr = new nsDummyMsgHeader();
-
+    let attachedMsgHdr = new CachedMsgHeader();
     attachedMsgHdr.setStringProperty("dummyMsgUrl", attachment.url);
     attachedMsgHdr.recipients = attachment.headers.to;
     attachedMsgHdr.ccList = attachment.headers.cc;
