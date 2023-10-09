@@ -578,35 +578,16 @@ CalICSService.prototype = {
   },
 
   parseICSAsync(serialized, listener) {
-    // There are way too many error checking messages here, but I had so
-    // much pain with this method that I don't want it to break again.
-    try {
-      let worker = new ChromeWorker("resource:///components/calICSService-worker.js");
-      worker.onmessage = function (event) {
-        let rc = Cr.NS_ERROR_FAILURE;
-        let icalComp = null;
-        try {
-          rc = event.data.rc;
-          icalComp = new calIcalComponent(new ICAL.Component(event.data.data));
-          if (!Components.isSuccessCode(rc)) {
-            cal.ERROR("[CalICSService] Error in parser worker: " + event.data);
-          }
-        } catch (e) {
-          cal.ERROR("[CalICSService] Exception parsing item: " + e);
-        }
-
-        listener.onParsingComplete(rc, icalComp);
-      };
-      worker.onerror = function (event) {
-        cal.ERROR("[CalICSService] Error in parser worker: " + event.message);
-        listener.onParsingComplete(Cr.NS_ERROR_FAILURE, null);
-      };
-      worker.postMessage(serialized);
-    } catch (e) {
-      // If an error occurs above, the calling code will hang. Catch the exception just in case
-      cal.ERROR("[CalICSService] Error starting parsing worker: " + e);
+    let worker = new ChromeWorker("resource:///components/calICSService-worker.js");
+    worker.onmessage = function (event) {
+      let icalComp = new calIcalComponent(new ICAL.Component(event.data));
+      listener.onParsingComplete(Cr.OK, icalComp);
+    };
+    worker.onerror = function (event) {
+      cal.ERROR(`Parsing failed; ${event.message}. ICS data:\n${serialized}`);
       listener.onParsingComplete(Cr.NS_ERROR_FAILURE, null);
-    }
+    };
+    worker.postMessage(serialized);
   },
 
   createIcalComponent(kind) {

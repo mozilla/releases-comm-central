@@ -3,26 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * ChromeWorker for parseICSAsync method in calICSService.js
+ * ChromeWorker for parseICSAsync method in CalICSService.jsm
  */
 
 /* eslint-env worker */
 /* import-globals-from ../modules/Ical.jsm */
-
-var NS_OK = 0;
-var NS_ERROR_FAILURE = 2147500037;
 
 // eslint-disable-next-line no-unused-vars
 importScripts("resource:///modules/calendar/Ical.jsm");
 
 ICAL.design.strict = false;
 
-onmessage = function (event) {
-  try {
-    let comp = ICAL.parse(event.data);
-    postMessage({ rc: NS_OK, data: comp });
-  } catch (e) {
-    postMessage({ rc: NS_ERROR_FAILURE, data: "Exception occurred: " + e });
-  }
-  close();
+self.onmessage = function (event) {
+  let comp = ICAL.parse(event.data);
+  postMessage(comp);
+  self.close();
 };
