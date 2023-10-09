@@ -212,7 +212,7 @@ add_task(async function test_dnsPrefetch_contentTab() {
     "data:text/html,<html><head><title>test dns prefetch</title>" +
     "</head><body>test dns prefetch</body></html>";
 
-  let newTab = open_content_tab_with_url(dataurl);
+  let newTab = await open_content_tab_with_url(dataurl);
 
   await SpecialPowers.spawn(tabmail.getBrowserForSelectedTab(), [], () => {
     Assert.ok(docShell, "docShell should be available");

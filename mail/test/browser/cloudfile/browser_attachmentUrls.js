@@ -8,7 +8,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { select_attachments } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
@@ -27,7 +26,7 @@ var {
   open_compose_with_reply,
   type_in_composer,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
-var { assert_next_nodes, assert_previous_nodes, wait_for_element } =
+var { assert_next_nodes, assert_previous_nodes, promise_element } =
   ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
 var {
   add_message_to_folder,
@@ -143,32 +142,32 @@ registerCleanupFunction(function () {
  * @returns {object[]} An array containing the root containment node, the list
  *   node, and an array of the link URL nodes.
  */
-function wait_for_attachment_urls(aWin, aNumUrls, aUploads = []) {
+async function promise_attachment_urls(aWin, aNumUrls, aUploads = []) {
   let mailBody = get_compose_body(aWin);
 
   // Wait until we can find the root attachment URL node...
-  let root = wait_for_element(
+  let root = await promise_element(
     mailBody.parentNode,
     "body > #cloudAttachmentListRoot"
   );
 
-  let list = wait_for_element(
+  let list = await promise_element(
     mailBody,
     "#cloudAttachmentListRoot > #cloudAttachmentList"
   );
 
-  let header = wait_for_element(
+  let header = await promise_element(
     mailBody,
     "#cloudAttachmentListRoot > #cloudAttachmentListHeader"
   );
 
-  let footer = wait_for_element(
+  let footer = await promise_element(
     mailBody,
     "#cloudAttachmentListRoot > #cloudAttachmentListFooter"
   );
 
   let urls = null;
-  utils.waitFor(function () {
+  await TestUtils.waitForCondition(function () {
     urls = mailBody.querySelectorAll(
       "#cloudAttachmentList > .cloudAttachmentItem"
     );
@@ -363,7 +362,7 @@ async function prepare_some_attachments_and_reply(aText, aFiles) {
 
   // If we have any typing to do, let's do it.
   type_in_composer(cw, aText);
-  let uploads = add_cloud_attachments(cw, provider);
+  let uploads = await add_cloud_attachments(cw, provider);
 
   test_expected_included(
     uploads,
@@ -387,7 +386,7 @@ async function prepare_some_attachments_and_reply(aText, aFiles) {
     ],
     `Expected values in uploads array #11`
   );
-  let [root] = wait_for_attachment_urls(cw, aFiles.length, uploads);
+  let [root] = await promise_attachment_urls(cw, aFiles.length, uploads);
 
   return [cw, root];
 }
@@ -428,7 +427,7 @@ async function prepare_some_attachments_and_forward(aText, aFiles) {
 
   // Do any necessary typing...
   type_in_composer(cw, aText);
-  let uploads = add_cloud_attachments(cw, provider);
+  let uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -463,7 +462,7 @@ async function prepare_some_attachments_and_forward(aText, aFiles) {
   });
   uploads[0].downloadExpiryDateString = timeString;
   uploads[1].downloadExpiryDateString = timeString;
-  let [root] = wait_for_attachment_urls(cw, aFiles.length, uploads);
+  let [root] = await promise_attachment_urls(cw, aFiles.length, uploads);
 
   return [cw, root];
 }
@@ -543,7 +542,7 @@ async function subtest_inserts_linebreak_on_empty_compose() {
     downloadPasswordProtected: false,
   });
   let cw = await open_compose_new_mail();
-  let uploads = add_cloud_attachments(cw, provider);
+  let uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -566,7 +565,7 @@ async function subtest_inserts_linebreak_on_empty_compose() {
     ],
     `Expected values in uploads array #1`
   );
-  let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  let [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   let br = root.previousSibling;
   Assert.equal(
@@ -602,7 +601,7 @@ add_task(
     });
 
     let cw = await open_compose_new_mail();
-    let uploads = add_cloud_attachments(cw, provider);
+    let uploads = await add_cloud_attachments(cw, provider);
     test_expected_included(
       uploads,
       [
@@ -625,10 +624,10 @@ add_task(
       ],
       `Expected values in uploads array #2`
     );
-    // wait_for_attachment_urls ensures that the attachment URL containment
+    // promise_attachment_urls ensures that the attachment URL containment
     // node is an immediate child of the body of the message, so if this
     // succeeds, then we were not in the signature node.
-    let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+    let [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
     let br = assert_previous_nodes("br", root, 1);
 
@@ -660,7 +659,7 @@ add_task(
 
     // Now let's try with plaintext mail.
     cw = await open_compose_new_mail();
-    uploads = add_cloud_attachments(cw, provider);
+    uploads = await add_cloud_attachments(cw, provider);
     test_expected_included(
       uploads,
       [
@@ -683,7 +682,7 @@ add_task(
       ],
       `Expected values in uploads array #3`
     );
-    [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+    [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
     br = assert_previous_nodes("br", root, 1);
 
@@ -737,7 +736,7 @@ async function subtest_removing_filelinks_removes_root_node() {
 
   // Wait for the root to be removed.
   let mailBody = get_compose_body(cw);
-  utils.waitFor(function () {
+  await TestUtils.waitForCondition(function () {
     let result = mailBody.querySelector(root.id);
     return result == null;
   }, "Timed out waiting for attachment container to be removed");
@@ -766,7 +765,7 @@ async function subtest_adding_filelinks_to_written_message() {
   let cw = await open_compose_new_mail();
 
   type_in_composer(cw, kLines);
-  let uploads = add_cloud_attachments(cw, provider);
+  let uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -787,7 +786,7 @@ async function subtest_adding_filelinks_to_written_message() {
     ],
     `Expected values in uploads array #4`
   );
-  let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  let [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   let br = root.previousSibling;
   Assert.equal(
@@ -1162,7 +1161,7 @@ async function subtest_converting_filelink_updates_urls() {
   });
 
   let cw = await open_compose_new_mail();
-  let uploads = add_cloud_attachments(cw, providerA);
+  let uploads = await add_cloud_attachments(cw, providerA);
   test_expected_included(
     uploads,
     [
@@ -1183,13 +1182,15 @@ async function subtest_converting_filelink_updates_urls() {
     ],
     `Expected values in uploads array #5`
   );
-  let [, , UrlsA] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  let [, , UrlsA] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   // Convert each Filelink to providerB, ensuring that the URLs are replaced.
   uploads = [];
   for (let i = 0; i < kFiles.length; ++i) {
     select_attachments(cw, i);
-    uploads.push(...convert_selected_to_cloud_attachment(cw, providerB));
+    uploads.push(
+      ...(await convert_selected_to_cloud_attachment(cw, providerB))
+    );
   }
   test_expected_included(
     uploads,
@@ -1211,7 +1212,7 @@ async function subtest_converting_filelink_updates_urls() {
     ],
     `Expected values in uploads array #6`
   );
-  let [, , UrlsB] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  let [, , UrlsB] = await promise_attachment_urls(cw, kFiles.length, uploads);
   Assert.notEqual(UrlsA, UrlsB, "The original URL should have been replaced");
 
   await close_compose_window(cw);
@@ -1246,7 +1247,7 @@ async function subtest_renaming_filelink_updates_urls() {
   });
 
   let cw = await open_compose_new_mail();
-  let uploads = add_cloud_attachments(cw, provider);
+  let uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -1282,14 +1283,14 @@ async function subtest_renaming_filelink_updates_urls() {
   });
   uploads[0].downloadExpiryDateString = timeString;
   uploads[1].downloadExpiryDateString = timeString;
-  let [, , Urls1] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  let [, , Urls1] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   // Rename each Filelink, ensuring that the URLs are replaced.
   let newNames = ["testFile1Renamed", "testFile2Renamed"];
   uploads = [];
   for (let i = 0; i < kFiles.length; ++i) {
     select_attachments(cw, i);
-    uploads.push(rename_selected_cloud_attachment(cw, newNames[i]));
+    uploads.push(await rename_selected_cloud_attachment(cw, newNames[i]));
   }
 
   test_expected_included(
@@ -1324,7 +1325,7 @@ async function subtest_renaming_filelink_updates_urls() {
   // Add the expected time string.
   uploads[0].downloadExpiryDateString = timeString;
   uploads[1].downloadExpiryDateString = timeString;
-  let [, , Urls2] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  let [, , Urls2] = await promise_attachment_urls(cw, kFiles.length, uploads);
   Assert.notEqual(Urls1, Urls2, "The original URL should have been replaced");
 
   await close_compose_window(cw);
@@ -1356,7 +1357,7 @@ async function subtest_converting_filelink_to_normal_removes_url() {
   });
 
   let cw = await open_compose_new_mail();
-  let uploads = add_cloud_attachments(cw, provider);
+  let uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -1377,14 +1378,14 @@ async function subtest_converting_filelink_to_normal_removes_url() {
     ],
     `Expected values in uploads array #7`
   );
-  let [root, list] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  let [root, list] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   for (let i = 0; i < kFiles.length; ++i) {
     let [selectedItem] = select_attachments(cw, i);
     cw.convertSelectedToRegularAttachment();
 
     // Wait until the cloud file entry has been removed.
-    utils.waitFor(function () {
+    await TestUtils.waitForCondition(function () {
       let urls = list.querySelectorAll(".cloudAttachmentItem");
       return urls.length == kFiles.length - (i + 1);
     });
@@ -1435,7 +1436,7 @@ async function subtest_filelinks_work_after_manual_removal() {
   });
 
   let cw = await open_compose_new_mail();
-  let uploads = add_cloud_attachments(cw, provider);
+  let uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -1456,13 +1457,13 @@ async function subtest_filelinks_work_after_manual_removal() {
     ],
     `Expected values in uploads array #8`
   );
-  let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  let [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   // Now remove the root node from the document body
   root.remove();
 
   MockFilePicker.setFiles(collectFiles(["./data/testFile3"]));
-  uploads = add_cloud_attachments(cw, provider);
+  uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -1476,7 +1477,7 @@ async function subtest_filelinks_work_after_manual_removal() {
     ],
     `Expected values in uploads array #9`
   );
-  [root] = wait_for_attachment_urls(cw, 1, uploads);
+  [root] = await promise_attachment_urls(cw, 1, uploads);
 
   await close_compose_window(cw);
 }
@@ -1516,7 +1517,7 @@ async function subtest_insertion_restores_caret_point() {
   type_in_composer(cw, ["Line 1", "Line 2", "", ""]);
 
   // Attach some Filelinks.
-  let uploads = add_cloud_attachments(cw, provider);
+  let uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -1537,7 +1538,7 @@ async function subtest_insertion_restores_caret_point() {
     ],
     `Expected values in uploads array #10`
   );
-  let [root] = wait_for_attachment_urls(cw, kFiles.length, uploads);
+  let [root] = await promise_attachment_urls(cw, kFiles.length, uploads);
 
   // Type some text.
   const kTypedIn = "Test";

@@ -6,8 +6,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
 var {
   NNTP_PORT,
   setupLocalServer,
@@ -50,17 +48,17 @@ add_task(async function test_subscribe_newsgroup_filter() {
  *
  * @param {Window} swc - The subscribe window.
  */
-function filter_test_helper(swc) {
+async function filter_test_helper(swc) {
   enter_text_in_search_box(swc, "subscribe empty");
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => check_newsgroup_displayed(swc, "test.subscribe.empty"),
     "test.subscribe.empty not in the list"
   );
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => !check_newsgroup_displayed(swc, "test.empty"),
     "test.empty is in the list, but should not be"
   );
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => !check_newsgroup_displayed(swc, "test.subscribe.simple"),
     "test.subscribe.simple is in the list, but should not be"
   );

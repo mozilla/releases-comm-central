@@ -323,7 +323,7 @@ add_task(async function test_can_quit_on_filter_changes() {
   // Register the Mock Prompt Service
   gMockPromptService.register();
 
-  let filterc = wait_for_existing_window("mailnews:filterlist");
+  let filterc = await wait_for_existing_window("mailnews:filterlist");
 
   // There should already be 1 filter defined from previous test.
   let filterCount = filterc.document.getElementById("filterList").itemCount;

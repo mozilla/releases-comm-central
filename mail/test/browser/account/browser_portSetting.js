@@ -39,7 +39,7 @@ async function subtest_check_set_port_number(tab, dontSet) {
   let account = MailServices.accounts.FindAccountForServer(server);
 
   let accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");

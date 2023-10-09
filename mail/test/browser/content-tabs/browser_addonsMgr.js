@@ -4,7 +4,7 @@
 
 "use strict";
 
-var { wait_for_content_tab_load } = ChromeUtils.import(
+var { promise_content_tab_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 var { click_through_appmenu, promise_modal_dialog } = ChromeUtils.import(
@@ -16,7 +16,7 @@ add_task(async function test_open_addons_with_url() {
   await new Promise(resolve => setTimeout(resolve));
 
   let tab = document.getElementById("tabmail").currentTabInfo;
-  wait_for_content_tab_load(tab, "about:addons", 10000);
+  await promise_content_tab_load(tab, "about:addons", 10000);
   let categoriesBox = tab.browser.contentDocument.getElementById("categories");
   Assert.equal(
     categoriesBox.selectedChild.getAttribute("viewid"),
@@ -36,7 +36,7 @@ add_task(async function test_open_addons_with_url() {
  */
 add_task(async function test_addon_prefs() {
   // Open Add-on Options.
-  const subview = click_through_appmenu(
+  const subview = await click_through_appmenu(
     [{ id: "appmenu_addons" }],
     null,
     window

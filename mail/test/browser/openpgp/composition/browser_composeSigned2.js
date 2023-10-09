@@ -88,7 +88,7 @@ add_task(async function testSignedMessageComposition2() {
   let cwc = await open_compose_new_mail();
   let composeWin = cwc;
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Signed Message",

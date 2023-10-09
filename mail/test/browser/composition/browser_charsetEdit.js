@@ -9,8 +9,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
 var {
   close_compose_window,
   compose_window_ready,
@@ -60,7 +58,7 @@ add_setup(async function () {
  * @param aGetText: if true, return header objects. if false, return body data.
  * @returns Map(partnum -> message headers)
  */
-function getMsgHeaders(aMsgHdr, aGetText = false) {
+async function getMsgHeaders(aMsgHdr, aGetText = false) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
@@ -91,7 +89,7 @@ function getMsgHeaders(aMsgHdr, aGetText = false) {
     "",
     false
   );
-  utils.waitFor(() => handler._done);
+  await TestUtils.waitForCondition(() => handler._done);
   return aGetText ? handler._text : handler._data;
 }
 
@@ -113,7 +111,7 @@ add_task(async function test_wrong_reply_charset() {
 
   let msg = select_click_row(-1);
   assert_selected_and_displayed(window, msg);
-  Assert.equal(getMsgHeaders(msg).get("").charset, "invalid-charset");
+  Assert.equal((await getMsgHeaders(msg)).get("").charset, "invalid-charset");
 
   let rwc = await open_compose_with_reply();
   await save_compose_message(rwc);
@@ -124,14 +122,14 @@ add_task(async function test_wrong_reply_charset() {
   await close_compose_window(rwc);
 
   let draftMsg = select_click_row(-2);
-  Assert.equal(getMsgHeaders(draftMsg).get("").charset, "UTF-8");
+  Assert.equal((await getMsgHeaders(draftMsg)).get("").charset, "UTF-8");
   press_delete(window); // Delete message
 
   // Edit the original message. Charset should be UTF-8 now.
   msg = select_click_row(-1);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(
+  await wait_for_notification_to_show(
     aboutMessage,
     "mail-notification-top",
     "draftMsgContent"
@@ -155,7 +153,7 @@ add_task(async function test_wrong_reply_charset() {
   await close_compose_window(rwc);
   msg = select_click_row(-1);
   await TestUtils.waitForCondition(
-    () => getMsgHeaders(msg).get("").charset == "UTF-8",
+    async () => (await getMsgHeaders(msg)).get("").charset == "UTF-8",
     "The charset matches"
   );
   press_delete(window); // Delete message
@@ -176,10 +174,10 @@ add_task(async function test_no_mojibake() {
   let msg = select_click_row(-1);
   assert_selected_and_displayed(window, msg);
   await TestUtils.waitForCondition(
-    () => getMsgHeaders(msg).get("").charset == "utf-7",
+    async () => (await getMsgHeaders(msg)).get("").charset == "utf-7",
     "message charset correctly set"
   );
-  Assert.equal(getMsgHeaders(msg, true).get("").trim(), nonASCII);
+  Assert.equal((await getMsgHeaders(msg, true)).get("").trim(), nonASCII);
 
   let rwc = await open_compose_with_reply();
   await save_compose_message(rwc);
@@ -190,8 +188,11 @@ add_task(async function test_no_mojibake() {
   await close_compose_window(rwc);
 
   let draftMsg = select_click_row(-2);
-  Assert.equal(getMsgHeaders(draftMsg).get("").charset.toUpperCase(), "UTF-8");
-  let text = getMsgHeaders(draftMsg, true).get("");
+  Assert.equal(
+    (await getMsgHeaders(draftMsg)).get("").charset.toUpperCase(),
+    "UTF-8"
+  );
+  let text = (await getMsgHeaders(draftMsg, true)).get("");
   // Delete message first before throwing so subsequent tests are not affected.
   press_delete(window);
   if (!text.includes(nonASCII)) {
@@ -202,7 +203,7 @@ add_task(async function test_no_mojibake() {
   msg = select_click_row(-1);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(
+  await wait_for_notification_to_show(
     aboutMessage,
     "mail-notification-top",
     "draftMsgContent"
@@ -224,7 +225,10 @@ add_task(async function test_no_mojibake() {
   await save_compose_message(rwc);
   await close_compose_window(rwc);
   msg = select_click_row(-1);
-  Assert.equal(getMsgHeaders(msg).get("").charset.toUpperCase(), "UTF-8");
-  Assert.equal(getMsgHeaders(msg, true).get("").trim(), nonASCII);
+  Assert.equal(
+    (await getMsgHeaders(msg)).get("").charset.toUpperCase(),
+    "UTF-8"
+  );
+  Assert.equal((await getMsgHeaders(msg, true)).get("").trim(), nonASCII);
   press_delete(window); // Delete message
 });

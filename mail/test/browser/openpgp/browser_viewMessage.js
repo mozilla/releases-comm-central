@@ -236,7 +236,7 @@ add_task(async function testOpenForwardedEncrypted() {
   );
   let mc2 = await newWindowPromise;
   wait_for_message_display_completion(mc2, true);
-  wait_for_window_focused(mc2);
+  await wait_for_window_focused(mc2);
   let aboutMessage2 = get_about_message(mc2);
 
   // Check properties of the opened attachment window.
@@ -254,7 +254,7 @@ add_task(async function testOpenForwardedEncrypted() {
   );
   await BrowserTestUtils.closeWindow(mc2);
 
-  wait_for_window_focused(msgc);
+  await wait_for_window_focused(msgc);
 
   // Ensure there were no side effects for the primary window.
   Assert.ok(

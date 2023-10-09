@@ -96,10 +96,10 @@ async function wait_for_reminder_state(aCwc, aShown, aDelay = false) {
       await new Promise(resolve => setTimeout(resolve, notificationSlackTime));
     }
     // This waits up to 30 seconds for the notification to appear.
-    wait_for_notification_to_show(aCwc, kBoxId, kNotificationId);
+    await wait_for_notification_to_show(aCwc, kBoxId, kNotificationId);
   } else if (check_notification_displayed(aCwc, kBoxId, kNotificationId)) {
     // This waits up to 30 seconds for the notification to disappear.
-    wait_for_notification_to_stop(aCwc, kBoxId, kNotificationId);
+    await wait_for_notification_to_stop(aCwc, kBoxId, kNotificationId);
   } else {
     // This waits 5 seconds during which the notification must not appear.
     // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
@@ -150,7 +150,7 @@ add_task(async function test_attachment_reminder_appears_properly() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org",
     "Testing automatic reminder!",
@@ -205,7 +205,7 @@ add_task(async function test_attachment_reminder_dismissal() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org",
     "popping up, eh?",
@@ -248,7 +248,7 @@ add_task(async function test_attachment_reminder_with_attachment() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org",
     "Testing automatic reminder!",
@@ -273,7 +273,7 @@ add_task(async function test_attachment_reminder_with_attachment() {
 
   // Add some more text with keyword so the automatic notification
   // could potentially show up.
-  setup_msg_contents(cwc, "", "", " Yes, there is a file attached!");
+  await setup_msg_contents(cwc, "", "", " Yes, there is a file attached!");
   // Give the notification time to appear. It shouldn't.
   await wait_for_reminder_state(cwc, false);
 
@@ -299,7 +299,7 @@ add_task(async function test_attachment_reminder_aggressive_pref() {
   // There should be no notification yet.
   assert_automatic_reminder_state(cwc, false);
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org",
     "aggressive?",
@@ -324,7 +324,7 @@ add_task(async function test_attachment_reminder_aggressive_pref() {
 add_task(async function test_no_send_now_sends() {
   let cwc = await open_compose_new_mail();
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org",
     "will the 'No, Send Now' button work?",
@@ -355,7 +355,7 @@ add_task(async function test_no_send_now_sends() {
  *   menuitem after the click.
  */
 async function click_manual_reminder(aCwc, aExpectedState) {
-  wait_for_window_focused(aCwc);
+  await wait_for_window_focused(aCwc);
   let button = aCwc.document.getElementById("button-attach");
 
   let popup = aCwc.document.getElementById("button-attachPopup");
@@ -371,7 +371,7 @@ async function click_manual_reminder(aCwc, aExpectedState) {
     aCwc.document.getElementById("button-attachPopup_remindLaterItem")
   );
   await hiddenPromise;
-  wait_for_window_focused(aCwc);
+  await wait_for_window_focused(aCwc);
   assert_manual_reminder_state(aCwc, aExpectedState);
 }
 
@@ -382,7 +382,7 @@ async function click_manual_reminder(aCwc, aExpectedState) {
 add_task(async function test_manual_attachment_reminder() {
   // Open a sample message with no attachment keywords.
   let cwc = await open_compose_new_mail();
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing manual reminder!",
@@ -416,7 +416,7 @@ add_task(async function test_manual_attachment_reminder() {
 
   select_click_row(0);
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(
+  await wait_for_notification_to_show(
     aboutMessage,
     "mail-notification-top",
     "draftMsgContent"
@@ -481,7 +481,7 @@ add_task(
     assert_automatic_reminder_state(cwc, false);
 
     // Add some attachment keywords.
-    setup_msg_contents(
+    await setup_msg_contents(
       cwc,
       "test@example.invalid",
       "Testing manual reminder!",
@@ -498,7 +498,7 @@ add_task(
 
     // Add some more text so the automatic notification
     // could potentially show up.
-    setup_msg_contents(cwc, "", "", " and look for your attachment!");
+    await setup_msg_contents(cwc, "", "", " and look for your attachment!");
     // Give the notification time to appear. It shouldn't.
     await wait_for_reminder_state(cwc, false);
 
@@ -508,12 +508,12 @@ add_task(
     await wait_for_reminder_state(cwc, false);
 
     // Add some more text without keywords.
-    setup_msg_contents(cwc, "", "", " No keywords here.");
+    await setup_msg_contents(cwc, "", "", " No keywords here.");
     // Give the notification time to appear. It shouldn't.
     await wait_for_reminder_state(cwc, false);
 
     // Add some more text with a new keyword.
-    setup_msg_contents(cwc, "", "", " Do you find it attached?");
+    await setup_msg_contents(cwc, "", "", " Do you find it attached?");
     // Give the notification time to appear. It should now.
     await wait_for_reminder_state(cwc, true);
     Assert.equal(get_reminder_keywords(cwc), "attachment, attached");
@@ -542,7 +542,7 @@ function assert_any_notification(aCwc, aValue) {
 add_task(async function test_attachment_vs_filelink_reminder() {
   // Open a blank message compose
   let cwc = await open_compose_new_mail();
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing Filelink notification",
@@ -557,11 +557,11 @@ add_task(async function test_attachment_vs_filelink_reminder() {
   let maxSize = Services.prefs.getIntPref(kOfferThreshold, 0) * 1024;
   let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
   file.append("prefs.js");
-  add_attachments(cwc, Services.io.newFileURI(file).spec, maxSize);
+  await add_attachments(cwc, Services.io.newFileURI(file).spec, maxSize);
 
   // The filelink attachment proposal should be up but not the attachment
   // reminder and it should also not interfere with the sending of the message.
-  wait_for_notification_to_show(cwc, kBoxId, "bigAttachment");
+  await wait_for_notification_to_show(cwc, kBoxId, "bigAttachment");
   assert_automatic_reminder_state(cwc, false);
 
   await click_send_and_handle_send_error(cwc);
@@ -581,7 +581,7 @@ add_task(async function test_attachment_reminder_in_subject() {
   assert_automatic_reminder_state(cwc, false);
 
   // Add some attachment keyword in subject.
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing attachment reminder!",
@@ -615,7 +615,7 @@ add_task(async function test_attachment_reminder_in_subject_and_body() {
   assert_automatic_reminder_state(cwc, false);
 
   // Add some attachment keyword in subject.
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing attachment reminder!",
@@ -647,7 +647,7 @@ add_task(async function test_disabled_attachment_reminder() {
 
   // Open a sample message with no attachment keywords.
   let cwc = await open_compose_new_mail();
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing disabled keyword reminder!",
@@ -661,7 +661,7 @@ add_task(async function test_disabled_attachment_reminder() {
 
   // Add some keyword so the automatic notification
   // could potentially show up.
-  setup_msg_contents(cwc, "", "", " and look for your attachment!");
+  await setup_msg_contents(cwc, "", "", " and look for your attachment!");
   // Give the notification time to appear. It shouldn't.
   await wait_for_reminder_state(cwc, false);
 
@@ -689,7 +689,7 @@ add_task(async function test_disabled_attachment_reminder() {
 add_task(async function test_reminder_in_draft() {
   // Open a sample message with no attachment keywords.
   let cwc = await open_compose_new_mail();
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing draft reminder!",
@@ -703,7 +703,7 @@ add_task(async function test_reminder_in_draft() {
 
   // Add some keyword so the automatic notification
   // could potentially show up.
-  setup_msg_contents(cwc, "", "", " and look for your attachment!");
+  await setup_msg_contents(cwc, "", "", " and look for your attachment!");
 
   // Give the notification time to appear.
   await wait_for_reminder_state(cwc, true);
@@ -717,7 +717,7 @@ add_task(async function test_reminder_in_draft() {
 
   select_click_row(0);
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(
+  await wait_for_notification_to_show(
     aboutMessage,
     "mail-notification-top",
     "draftMsgContent"
@@ -753,7 +753,7 @@ add_task(async function test_reminder_in_draft() {
 add_task(async function test_disabling_attachment_reminder() {
   // Open a sample message with attachment keywords.
   let cwc = await open_compose_new_mail();
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing turning off the reminder",
@@ -780,7 +780,7 @@ add_task(async function test_disabling_attachment_reminder() {
   await wait_for_reminder_state(cwc, false);
 
   // Add more keywords.
-  setup_msg_contents(cwc, "", "", "... and another file attached.");
+  await setup_msg_contents(cwc, "", "", "... and another file attached.");
   // Give the notification time to appear. It shouldn't.
   await wait_for_reminder_state(cwc, false);
 
@@ -795,7 +795,7 @@ add_task(async function test_disabling_attachment_reminder() {
   assert_automatic_reminder_state(cwc, false);
 
   // Add more keywords to trigger automatic reminder.
-  setup_msg_contents(cwc, "", "", "I enclosed another file.");
+  await setup_msg_contents(cwc, "", "", "I enclosed another file.");
   // Give the notification time to appear. It should now.
   await wait_for_reminder_state(cwc, true);
 

@@ -85,7 +85,7 @@ async function subtest_check_account_actions(
   isAddAccountEnabled
 ) {
   let accountRow = get_account_tree_row(accountKey, null, tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   // click the Actions Button to bring up the popup with menuitems to test
   let button = content_tab_e(tab, "accountActionsButton");

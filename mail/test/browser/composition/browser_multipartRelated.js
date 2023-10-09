@@ -8,8 +8,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
 var { close_compose_window, open_compose_new_mail, save_compose_message } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { be_in_folder, get_special_folder, press_delete, select_click_row } =
@@ -37,7 +35,7 @@ add_setup(async function () {
  * @param aMsgHdr: nsIMsgDBHdr object whose text body will be read
  * @returns {Map(partnum -> message headers), Map(partnum -> message text)}
  */
-function getMsgHeaders(aMsgHdr) {
+async function getMsgHeaders(aMsgHdr) {
   let msgFolder = aMsgHdr.folder;
   let msgUri = msgFolder.getUriForMsg(aMsgHdr);
 
@@ -68,7 +66,7 @@ function getMsgHeaders(aMsgHdr) {
     "",
     false
   );
-  utils.waitFor(() => handler._done);
+  await TestUtils.waitForCondition(() => handler._done);
   return { headers: handler._data, text: handler._text };
 }
 
@@ -125,7 +123,7 @@ add_task(async function test_basic_multipart_related() {
   // Make sure that the headers are right on this one.
   await be_in_folder(gDrafts);
   let draftMsg = select_click_row(0);
-  let { headers, text } = getMsgHeaders(draftMsg, true);
+  let { headers, text } = await getMsgHeaders(draftMsg, true);
   Assert.equal(headers.get("").contentType.type, "multipart/related");
   Assert.equal(headers.get("1").contentType.type, "text/html");
   Assert.equal(headers.get("2").contentType.type, "image/png");

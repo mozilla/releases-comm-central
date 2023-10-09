@@ -8,7 +8,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { select_attachments } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
@@ -102,7 +101,7 @@ add_task(async function test_upload_cancel_repeat() {
     // Select the attachment, and choose to convert it to a Filelink
     select_attachments(cw, 0)[0];
     cw.convertSelectedToCloudAttachment(provider);
-    utils.waitFor(() => started);
+    await TestUtils.waitForCondition(() => started);
 
     await assert_can_cancel_upload(cw, provider, promise, file);
     await new Promise(resolve => setTimeout(resolve));
@@ -139,7 +138,7 @@ add_task(async function test_upload_multiple_and_cancel() {
     });
   };
 
-  add_cloud_attachments(cw, provider, false);
+  await add_cloud_attachments(cw, provider, false);
 
   let bucket = cw.document.getElementById("attachmentBucket");
   Assert.equal(
@@ -245,7 +244,7 @@ async function assert_can_cancel_upload(
     aWin,
     aWin.document.getElementById(kAttachmentItemContextID)
   );
-  utils.waitFor(() => cancelled);
+  await TestUtils.waitForCondition(() => cancelled);
 }
 
 /**
@@ -305,8 +304,8 @@ async function test_upload(cw, error, expectedAttachments, expectedAlerts = 0) {
     });
   };
 
-  add_cloud_attachments(cw, provider, false);
-  utils.waitFor(() => promises.length == kFiles.length);
+  await add_cloud_attachments(cw, provider, false);
+  await TestUtils.waitForCondition(() => promises.length == kFiles.length);
 
   let bucket = cw.document.getElementById("attachmentBucket");
   Assert.equal(
@@ -405,7 +404,7 @@ add_task(async function test_error_conversion() {
   };
 
   select_attachments(cw, 0);
-  convert_selected_to_cloud_attachment(cw, providerB, false);
+  await convert_selected_to_cloud_attachment(cw, providerB, false);
 
   let uploadError = new Promise(resolve => {
     bucket.addEventListener("attachment-move-failed", resolve, {

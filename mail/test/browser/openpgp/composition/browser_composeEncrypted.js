@@ -128,7 +128,7 @@ async function testEncryptedMessageComposition(
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Encrypted Message",
@@ -214,7 +214,7 @@ async function testEncryptedMessageWithKeyComposition(
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Encrypted Message With Key",
@@ -305,7 +305,7 @@ async function testEncryptedRecipientKeyNotAvailabeMessageComposition(
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "carol@example.com",
     "Compose Encrypted Recipient Key Not Available Message",
@@ -376,7 +376,7 @@ add_task(async function testEncryptedRecipientKeyNotAvailabeAutoDisable() {
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Encrypted Recipient Key Not Available Message",
@@ -387,7 +387,7 @@ add_task(async function testEncryptedRecipientKeyNotAvailabeAutoDisable() {
   Assert.ok(composeWin.gSendEncrypted, "message encryption should be on");
 
   checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(cwc, " missing@openpgp.example ", "", "");
+  await setup_msg_contents(cwc, " missing@openpgp.example ", "", "");
   await checkDonePromise;
 
   Assert.ok(!composeWin.gSendEncrypted, "message encryption should be off");
@@ -448,7 +448,7 @@ async function testEncryptedRecipientKeyNotAcceptedMessageComposition(
 
     // setup_msg_contents will trigger checkEncryptionState.
     let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-    setup_msg_contents(
+    await setup_msg_contents(
       cwc,
       "carol@example.com",
       "Compose Encrypted Recipient Key Not Accepted",
@@ -539,7 +539,7 @@ async function testEncryptedRecipientKeyUnverifiedMessageComposition(
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "carol@example.com",
     "Compose Encrypted Recipient Key Unverified Message",
@@ -624,7 +624,7 @@ async function testEncryptedOneRecipientKeyNotAvailableMessageComposition(
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example, carol@example.com",
     "Compose Encrypted One Recipient Key Not Available Message Composition",
@@ -723,7 +723,7 @@ async function testEncryptedOneRecipientKeyNotAcceptedMessageComposition(
 
     // setup_msg_contents will trigger checkEncryptionState.
     let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-    setup_msg_contents(
+    await setup_msg_contents(
       cwc,
       "alice@openpgp.example, carol@example.com",
       "Compose Encrypted One Recipient Key Not Accepted Message Composition",
@@ -815,7 +815,7 @@ async function testEncryptedOneRecipientKeyUnverifiedMessageComposition(
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example, carol@example.com",
     "Compose Encrypted One Recipient Key Unverified Message",

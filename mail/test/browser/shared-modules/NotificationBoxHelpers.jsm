@@ -14,7 +14,9 @@ const EXPORTED_SYMBOLS = [
   "get_notification",
 ];
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 /**
  * A helper function for determining whether or not a notification with
@@ -109,14 +111,14 @@ function close_notification(aWindow, aBoxId, aValue) {
  * @param aBoxId   the id of the notification box
  * @param aValue   the value of the notification to wait to stop
  */
-function wait_for_notification_to_stop(aWindow, aBoxId, aValue) {
+async function wait_for_notification_to_stop(aWindow, aBoxId, aValue) {
   let nb = aWindow.document.getElementById(aBoxId);
   if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
   }
 
   let box = nb.querySelector(".notificationbox-stack")._notificationBox;
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => !box.getNotificationWithValue(aValue),
     "Timed out waiting for notification with value " + aValue + " to stop."
   );
@@ -130,23 +132,19 @@ function wait_for_notification_to_stop(aWindow, aBoxId, aValue) {
  * @param aBoxId   the id of the notification box
  * @param aValue   the value of the notification to wait for
  */
-function wait_for_notification_to_show(aWindow, aBoxId, aValue) {
+async function wait_for_notification_to_show(aWindow, aBoxId, aValue) {
   let nb = aWindow.document.getElementById(aBoxId);
   if (!nb) {
     throw new Error("Couldn't find a notification box for id=" + aBoxId);
   }
 
-  function nbReady() {
+  await TestUtils.waitForCondition(function () {
     if (nb.querySelector(".notificationbox-stack")) {
       let box = nb.querySelector(".notificationbox-stack")._notificationBox;
       return box.getNotificationWithValue(aValue) != null && !box._animating;
     }
     return false;
-  }
-  utils.waitFor(
-    nbReady,
-    "Timed out waiting for notification with value " + aValue + " to show."
-  );
+  }, "Timed out waiting for notification with value " + aValue + " to show.");
 }
 
 /**

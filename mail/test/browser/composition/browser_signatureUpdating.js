@@ -89,7 +89,12 @@ async function plaintextComposeWindowSwitchSignatures(suppressSigSep) {
   // to insert text before / outside of the signature.
   Assert.equal(mailBody.firstChild.localName, "br");
 
-  setup_msg_contents(cwc, "", "Plaintext compose window", "Body, first line.");
+  await setup_msg_contents(
+    cwc,
+    "",
+    "Plaintext compose window",
+    "Body, first line."
+  );
 
   let node = mailBody.lastChild;
 
@@ -194,7 +199,7 @@ async function HTMLComposeWindowSwitchSignatures(
   );
   const cwc = await open_compose_new_mail();
 
-  setup_msg_contents(cwc, "", "HTML compose window", "Body, first line.");
+  await setup_msg_contents(cwc, "", "HTML compose window", "Body, first line.");
 
   let contentFrame = cwc.document.getElementById("messageEditor");
   let node = contentFrame.contentDocument.body.lastChild;

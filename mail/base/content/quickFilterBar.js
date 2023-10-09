@@ -542,7 +542,7 @@ var quickFilterBar = {
    * Called by the view wrapper so we can update the results count.
    */
   onMessagesChanged() {
-    let filtering = gViewWrapper.search?.userTerms != null;
+    let filtering = gViewWrapper?.search?.userTerms != null;
     let newCount = filtering ? gDBView.numMsgsInView : null;
     this.filterer.setFilterValue("results", newCount, true);
 

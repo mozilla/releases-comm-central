@@ -22,8 +22,8 @@ var url = "http://mochi.test:8888/browser/comm/mail/test/browser/cookies/html/";
  * Test deleting junk messages with no messages marked as junk.
  */
 add_task(async function test_load_cookie_page() {
-  open_content_tab_with_url(url + "cookietest1.html");
-  let tab2 = open_content_tab_with_url(url + "cookietest2.html");
+  await open_content_tab_with_url(url + "cookietest1.html");
+  let tab2 = await open_content_tab_with_url(url + "cookietest2.html");
 
   await SpecialPowers.spawn(tab2.browser, [], () => {
     Assert.equal(content.document.title, "Cookie Test 2");

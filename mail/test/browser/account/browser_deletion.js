@@ -58,13 +58,8 @@ registerCleanupFunction(function () {
 });
 
 add_task(async function test_account_data_deletion() {
-  await open_advanced_settings(function (tab) {
-    subtest_account_data_deletion1(tab);
-  });
-
-  await open_advanced_settings(function (tab) {
-    subtest_account_data_deletion2(tab);
-  });
+  await open_advanced_settings(subtest_account_data_deletion1);
+  await open_advanced_settings(subtest_account_data_deletion2);
 });
 
 /**
@@ -73,7 +68,7 @@ add_task(async function test_account_data_deletion() {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_account_data_deletion1(tab) {
+async function subtest_account_data_deletion1(tab) {
   let accountDir = gPopAccount.incomingServer.localPath;
   Assert.ok(accountDir.isDirectory());
 
@@ -82,7 +77,7 @@ function subtest_account_data_deletion1(tab) {
   inboxFile.append("Inbox.msf");
   Assert.ok(inboxFile.isFile());
 
-  remove_account(gPopAccount, tab, true, false);
+  await remove_account(gPopAccount, tab, true, false);
   gPopAccount = null;
   Assert.ok(accountDir.exists());
 }
@@ -93,7 +88,7 @@ function subtest_account_data_deletion1(tab) {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_account_data_deletion2(tab) {
+async function subtest_account_data_deletion2(tab) {
   let accountDir = gImapAccount.incomingServer.localPath;
   Assert.ok(accountDir.isDirectory());
 
@@ -102,7 +97,7 @@ function subtest_account_data_deletion2(tab) {
   inboxFile.append("INBOX.msf");
   Assert.ok(inboxFile.isFile());
 
-  remove_account(gImapAccount, tab, true, true);
+  await remove_account(gImapAccount, tab, true, true);
   gImapAccount = null;
   Assert.ok(!accountDir.exists());
 }

@@ -101,7 +101,7 @@ add_task(async function testWarningShowsWhenToFieldHitsLimit() {
   let cwc = await open_compose_new_mail();
   let i = 1;
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org,"
       .repeat(publicRecipientLimit)
@@ -143,7 +143,7 @@ add_task(async function testWarningShowsWhenCcFieldHitLimit() {
   );
 
   let i = 1;
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org,"
       .repeat(publicRecipientLimit)
@@ -172,7 +172,7 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
   let cwc = await open_compose_new_mail();
 
   let i = 1;
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org,"
       .repeat(publicRecipientLimit - 1)
@@ -196,7 +196,7 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
     "The Cc field is visible"
   );
 
-  setup_msg_contents(cwc, "test@example.org", "", "", "ccAddrInput");
+  await setup_msg_contents(cwc, "test@example.org", "", "", "ccAddrInput");
 
   await BrowserTestUtils.waitForCondition(
     () =>
@@ -216,7 +216,7 @@ add_task(async function testWarningShowsWhenToAndCcFieldHitLimit() {
 add_task(async function testToRecipientsMovedToBcc() {
   let cwc = await open_compose_new_mail();
   let i = 1;
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org,"
       .repeat(publicRecipientLimit)
@@ -276,7 +276,7 @@ add_task(async function testAllToRecipientsMovedToBccWhenOverLimit() {
   let cwc = await open_compose_new_mail();
   let limit = publicRecipientLimit + 1;
   let i = 1;
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org,".repeat(limit).replace(/test@/g, () => `test${i++}@`),
     "Testing move to Bcc",
@@ -350,7 +350,7 @@ add_task(async function testCcRecipientsMovedToBcc() {
   );
 
   let i = 1;
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org,"
       .repeat(publicRecipientLimit)
@@ -427,7 +427,7 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
   );
 
   let i = 1;
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org,".repeat(limit).replace(/test@/g, () => `test${i++}@`),
     "Testing move to Bcc",
@@ -484,7 +484,7 @@ add_task(async function testAllCcRecipientsMovedToBccWhenOverLimit() {
 add_task(async function testToAndCcRecipientsMovedToBcc() {
   let cwc = await open_compose_new_mail();
   let i = 1;
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org,"
       .repeat(publicRecipientLimit - 1)
@@ -507,7 +507,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
       .classList.contains("hidden"),
     "The Cc field is visible"
   );
-  setup_msg_contents(cwc, "test@example.org", "", "");
+  await setup_msg_contents(cwc, "test@example.org", "", "");
 
   await BrowserTestUtils.waitForCondition(
     () =>
@@ -566,7 +566,7 @@ add_task(async function testToAndCcRecipientsMovedToBcc() {
 add_task(async function testWarningRemovedWhenKeepPublic() {
   let cwc = await open_compose_new_mail();
   let i = 1;
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org,"
       .repeat(publicRecipientLimit)
@@ -624,7 +624,7 @@ add_task(async function testWarningRemovedWhenKeepPublic() {
 add_task(async function testWarningNotShownAfterDismissal() {
   let cwc = await open_compose_new_mail();
   let i = 1;
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org,"
       .repeat(publicRecipientLimit)
@@ -700,7 +700,7 @@ add_task(async function testMailingListMembersCounted() {
   list.editMailListToDatabase(null);
 
   let cwc = await open_compose_new_mail();
-  setup_msg_contents(cwc, "Test List", "Testing mailing lists", "");
+  await setup_msg_contents(cwc, "Test List", "Testing mailing lists", "");
 
   await BrowserTestUtils.waitForCondition(
     () =>

@@ -140,7 +140,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
     let notificationValue = "decryptInlinePG";
 
     // Ensure the "partially encrypted notification" is visible.
-    wait_for_notification_to_show(
+    await wait_for_notification_to_show(
       aboutMessage,
       notificationBox,
       notificationValue
@@ -169,7 +169,7 @@ add_task(async function testPartialInlinePGPDecrypt() {
 
     // Assert that the message was processed and the partial content reminder
     // notification is visible.
-    wait_for_notification_to_show(
+    await wait_for_notification_to_show(
       aboutMessage,
       notificationBox,
       "decryptInlinePGReminder"

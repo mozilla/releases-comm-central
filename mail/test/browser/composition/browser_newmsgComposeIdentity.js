@@ -9,7 +9,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   close_compose_window,
   compose_window_ready,
@@ -175,7 +174,9 @@ add_task(async function test_editing_identity() {
     compWin.document.getElementById("msgIdentityPopup"),
     [{ command: "cmd_customizeFromAddress" }]
   );
-  utils.waitFor(() => compWin.document.getElementById("msgIdentity").editable);
+  await TestUtils.waitForCondition(
+    () => compWin.document.getElementById("msgIdentity").editable
+  );
 
   compWin.document.getElementById("msgIdentityPopup").focus();
   EventUtils.sendString(identityCustom, compWin);

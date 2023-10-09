@@ -144,7 +144,7 @@ registerCleanupFunction(() => {
  */
 async function assert_ignore_works(aWin) {
   let aboutMessage = get_about_message(aWin);
-  wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
+  await wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
   let prefButton = get_notification_button(
     aboutMessage,
     kBoxId,
@@ -156,7 +156,7 @@ async function assert_ignore_works(aWin) {
     aboutMessage.document.getElementById("phishingOptions"),
     [{ id: "phishingOptionIgnore" }]
   );
-  wait_for_notification_to_stop(aboutMessage, kBoxId, kNotificationValue);
+  await wait_for_notification_to_stop(aboutMessage, kBoxId, kNotificationValue);
 }
 
 /**
@@ -222,7 +222,7 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
   let aboutMessage = get_about_message(msgc);
 
   // Make sure the root message shows the phishing bar.
-  wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
+  await wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
 
   // Open the attached message.
   let newWindowPromise = promise_new_window("mail:messageWindow");
@@ -234,7 +234,7 @@ add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
   wait_for_message_display_completion(msgc2, true);
 
   // Now make sure the attached message shows the phishing bar.
-  wait_for_notification_to_show(
+  await wait_for_notification_to_show(
     get_about_message(msgc2),
     kBoxId,
     kNotificationValue

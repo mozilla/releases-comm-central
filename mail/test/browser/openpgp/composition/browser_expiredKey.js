@@ -81,7 +81,7 @@ add_task(async function testExpiredKeyShowsNotificationBar() {
   );
   let cwc = await open_compose_new_mail();
 
-  wait_for_notification_to_show(
+  await wait_for_notification_to_show(
     cwc,
     "compose-notification-bottom",
     "openpgpSenderKeyExpired"

@@ -4,8 +4,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
 var { assert_tab_mode_name } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -33,7 +31,7 @@ async function open_chat_tab() {
 }
 
 async function wait_for_chat_tab_to_open() {
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     function () {
       let chatTabFound = false;
       for (let tab of document.getElementById("tabmail").tabInfo) {

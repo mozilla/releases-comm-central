@@ -8,20 +8,18 @@ const EXPORTED_SYMBOLS = [
   "open_content_tab_with_url",
   "open_content_tab_with_click",
   "plan_for_content_tab_load",
-  "wait_for_content_tab_load",
+  "promise_content_tab_load",
   "assert_content_tab_has_favicon",
   "content_tab_e",
   "get_content_tab_element_display",
   "assert_content_tab_element_hidden",
   "assert_content_tab_element_visible",
-  "wait_for_content_tab_element_display",
+  "promise_content_tab_element_display",
   "get_element_by_text",
   "assert_content_tab_text_present",
   "assert_content_tab_text_absent",
   "get_notification_bar_for_tab",
 ];
-
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var folderDisplayHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -32,6 +30,9 @@ var wh = ChromeUtils.import(
 
 var { Assert } = ChromeUtils.importESModule(
   "resource://testing-common/Assert.sys.mjs"
+);
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 
 var FAST_TIMEOUT = 1000;
@@ -48,7 +49,7 @@ var mc = folderDisplayHelper.mc;
  *
  * @returns {object} The newly-opened tab.
  */
-function open_content_tab_with_url(
+async function open_content_tab_with_url(
   aURL,
   aLinkHandler = null,
   aBackground = false
@@ -60,7 +61,7 @@ function open_content_tab_with_url(
     background: aBackground,
     linkHandler: aLinkHandler,
   });
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => tabmail.tabContainer.allTabs.length == preCount + 1,
     "Timeout waiting for the content tab to open with URL: " + aURL,
     FAST_TIMEOUT,
@@ -70,7 +71,7 @@ function open_content_tab_with_url(
   // We append new tabs at the end, so check the last one.
   let expectedNewTab = tabmail.tabInfo[preCount];
   folderDisplayHelper.assert_selected_tab(expectedNewTab);
-  wait_for_content_tab_load(expectedNewTab, aURL);
+  await promise_content_tab_load(expectedNewTab, aURL);
   return expectedNewTab;
 }
 
@@ -83,7 +84,7 @@ function open_content_tab_with_url(
  * @param {string} [aTabType] - Optional tab type to expect.
  * @returns {TabInfo} The newly-opened tab.
  */
-function open_content_tab_with_click(
+async function open_content_tab_with_click(
   aElem,
   aExpectedURL,
   aTabType = "contentTab"
@@ -96,7 +97,7 @@ function open_content_tab_with_click(
     aElem();
   }
 
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () =>
       mc.document.getElementById("tabmail").tabContainer.allTabs.length ==
       preCount + 1,
@@ -109,13 +110,13 @@ function open_content_tab_with_click(
   let expectedNewTab = mc.document.getElementById("tabmail").tabInfo[preCount];
   folderDisplayHelper.assert_selected_tab(expectedNewTab);
   folderDisplayHelper.assert_tab_mode_name(expectedNewTab, aTabType);
-  wait_for_content_tab_load(expectedNewTab, aExpectedURL);
+  await promise_content_tab_load(expectedNewTab, aExpectedURL);
   return expectedNewTab;
 }
 
 /**
  * Call this before triggering a page load that you are going to wait for using
- * |wait_for_content_tab_load|. This ensures that if a page is already displayed
+ * |promise_content_tab_load|. This ensures that if a page is already displayed
  * in the given tab that state is sufficiently cleaned up so it doesn't trick us
  * into thinking that there is no need to wait.
  *
@@ -140,7 +141,7 @@ function plan_for_content_tab_load(aTab) {
  * @param aURL        The URL being loaded in the tab.
  * @param [aTimeout]  Optional time to wait for the load.
  */
-function wait_for_content_tab_load(aTab, aURL, aTimeout) {
+async function promise_content_tab_load(aTab, aURL, aTimeout) {
   if (aTab === undefined) {
     aTab = mc.document.getElementById("tabmail").currentTabInfo;
   }
@@ -154,16 +155,16 @@ function wait_for_content_tab_load(aTab, aURL, aTimeout) {
     return !aTab.busy;
   }
 
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     isLoadedChecker,
     "Timeout waiting for the content tab page to load.",
     aTimeout
   );
   // The above may return immediately, meaning the event queue might not get a
   // chance. Give it a chance now.
-  utils.sleep(0);
+  await TestUtils.waitForTick();
   // Finally, require that the tab's browser thinks that no page is being loaded.
-  wh.wait_for_browser_load(aTab.browser, aURL);
+  await wh.wait_for_browser_load(aTab.browser, aURL);
 }
 
 /**
@@ -207,24 +208,11 @@ function assert_content_tab_element_visible(aTab, aElem) {
 /**
  * Waits for the element's display property indicate it is visible.
  */
-function wait_for_content_tab_element_display(aTab, aElem) {
-  function isValue() {
-    return get_content_tab_element_display(aTab, aElem) != "none";
-  }
-  try {
-    utils.waitFor(isValue);
-  } catch (e) {
-    if (e instanceof utils.TimeoutError) {
-      Assert.report(
-        true,
-        undefined,
-        undefined,
-        "Timeout waiting for element to become visible"
-      );
-    } else {
-      throw e;
-    }
-  }
+async function promise_content_tab_element_display(aTab, aElem) {
+  await TestUtils.waitForCondition(
+    () => get_content_tab_element_display(aTab, aElem) != "none",
+    "waiting for element to become visible"
+  );
 }
 
 /**

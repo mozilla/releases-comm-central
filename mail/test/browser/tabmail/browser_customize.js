@@ -16,7 +16,7 @@ const { click_through_appmenu } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-const { wait_for_element_visible, wait_for_element_invisible } =
+const { promise_element_visible, promise_element_invisible } =
   ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
 
 add_setup(function () {
@@ -58,10 +58,7 @@ add_task(async function test_open_unified_by_context() {
 
   // Wait for hidden css attribute on unified toolbar
   // customization to be removed.
-  await wait_for_element_visible(
-    window,
-    "unifiedToolbarCustomizationContainer"
-  );
+  await promise_element_visible(window, "unifiedToolbarCustomizationContainer");
 
   // Ensure messengerWindow (HTML element) has customizingUnifiedToolbar class,
   // which means unified toolbar customization should be open.
@@ -80,7 +77,7 @@ add_task(async function test_open_unified_by_context() {
 
   // Wait for hidden css attribute on Unified Toolbar
   // customization to be added.
-  await wait_for_element_invisible(
+  await promise_element_invisible(
     window,
     "unifiedToolbarCustomizationContainer"
   );
@@ -102,7 +99,7 @@ add_task(async function test_open_unified_by_menu() {
   );
 
   // Click through app menu to view unified toolbar.
-  click_through_appmenu(
+  await click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_Toolbars" }],
     { id: "appmenu_toolbarLayout" },
     window
@@ -110,10 +107,7 @@ add_task(async function test_open_unified_by_menu() {
 
   // Wait for hidden css attribute on unified toolbar
   // customization to be removed.
-  await wait_for_element_visible(
-    window,
-    "unifiedToolbarCustomizationContainer"
-  );
+  await promise_element_visible(window, "unifiedToolbarCustomizationContainer");
 
   // Ensure messengerWindow (HTML element) has customizingUnifiedToolbar class,
   // which means unified toolbar customization should be open.
@@ -132,7 +126,7 @@ add_task(async function test_open_unified_by_menu() {
 
   // Wait for hidden css attribute on unified toolbar
   // customization to be added.
-  await wait_for_element_invisible(
+  await promise_element_invisible(
     window,
     "unifiedToolbarCustomizationContainer"
   );

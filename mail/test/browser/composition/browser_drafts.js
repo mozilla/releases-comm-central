@@ -59,7 +59,7 @@ add_task(async function test_open_draft_again() {
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+  await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
   let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   const composePromise = promise_new_window("msgcompose");
@@ -112,7 +112,7 @@ add_task(async function test_open_draft_again() {
 async function internal_check_delivery_format(editDraft) {
   let cwc = await open_compose_new_mail();
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing storing of the composition properties in the draft!",
@@ -169,7 +169,7 @@ async function internal_check_delivery_format(editDraft) {
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+  await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
   let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   const composePromise = promise_new_window("msgcompose");
@@ -214,7 +214,7 @@ add_task(async function test_edit_as_new_in_draft() {
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+  await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
 
   const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
@@ -283,7 +283,7 @@ add_task(async function test_edit_draft_mime_from() {
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+  await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
 
   const composePromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
@@ -319,7 +319,7 @@ add_task(async function test_edit_draft_mime_from() {
 add_task(async function test_content_language_header() {
   let cwc = await open_compose_new_mail();
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing Content-Language header",
@@ -360,7 +360,7 @@ add_task(async function test_content_language_header_suppression() {
 
   let cwc = await open_compose_new_mail();
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing Content-Language header suppression",
@@ -403,7 +403,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
 
   let cwc = await open_compose_new_mail();
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     "Testing space stuffing in plain text email",
@@ -423,7 +423,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
   select_click_row(0);
 
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
+  await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
   let box = get_notification(aboutMessage, kBoxId, "draftMsgContent");
 
   const composePromise = promise_new_window("msgcompose");

@@ -58,7 +58,7 @@ async function checkFocusCycling(win, options) {
     );
 
   if (options.attachment) {
-    add_attachments(win, "https://www.mozilla.org/");
+    await add_attachments(win, "https://www.mozilla.org/");
   }
 
   if (options.contacts) {

@@ -65,11 +65,11 @@ registerCleanupFunction(function () {
  * Check if the account manager dialog remembers the open state of accounts.
  */
 add_task(async function test_account_open_state() {
-  await open_advanced_settings(function (tab) {
-    subtest_check_account_open_state(tab, true);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_account_open_state(tab, true);
   });
-  await open_advanced_settings(function (tab) {
-    subtest_check_account_open_state(tab, false);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_account_open_state(tab, false);
   });
   // After this test all the accounts must be "open".
 });
@@ -80,9 +80,9 @@ add_task(async function test_account_open_state() {
  * @param {object} tab - The account manager tab.
  * @param {boolean} wishedState - The open state in which the account row should be found.
  */
-function subtest_check_account_open_state(tab, wishedState) {
+async function subtest_check_account_open_state(tab, wishedState) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   // See if the account row is in the wished open state.
   let accountTree = content_tab_e(tab, "accounttree");
@@ -123,9 +123,7 @@ function subtest_check_account_open_state(tab, wishedState) {
  * Check if the default account is styled in bold.
  */
 add_task(async function test_default_account_highlight() {
-  await open_advanced_settings(function (tab) {
-    subtest_check_default_account_highlight(tab);
-  });
+  await open_advanced_settings(subtest_check_default_account_highlight);
 });
 
 /**
@@ -133,14 +131,14 @@ add_task(async function test_default_account_highlight() {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_default_account_highlight(tab) {
+async function subtest_check_default_account_highlight(tab) {
   // Select the default account.
   let accountRow = get_account_tree_row(
     MailServices.accounts.defaultAccount.key,
     null,
     tab
   );
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let accountTree = content_tab_e(tab, "accounttree");
   Assert.equal(accountRow, accountTree.selectedIndex);
@@ -152,7 +150,7 @@ function subtest_check_default_account_highlight(tab) {
 
   // Now select another account that is not default.
   accountRow = get_account_tree_row(gPopAccount.key, null, tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   // There should isDefaultServer-true on its tree cell.
   Assert.ok(
@@ -167,9 +165,7 @@ function subtest_check_default_account_highlight(tab) {
  * created gPopAccount.
  */
 add_task(async function test_selection_after_account_deletion() {
-  await open_advanced_settings(function (tab) {
-    subtest_check_selection_after_account_deletion(tab);
-  });
+  await open_advanced_settings(subtest_check_selection_after_account_deletion);
 });
 
 /**
@@ -177,7 +173,7 @@ add_task(async function test_selection_after_account_deletion() {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_selection_after_account_deletion(tab) {
+async function subtest_check_selection_after_account_deletion(tab) {
   let accountList = [];
   let accountTree = content_tab_e(tab, "accounttree");
   // Build the list of accounts in the account tree (order is important).
@@ -194,7 +190,7 @@ function subtest_check_selection_after_account_deletion(tab) {
   let accountIndex = accountList.indexOf(gPopAccount);
 
   // Remove our account.
-  remove_account(gPopAccount, tab);
+  await remove_account(gPopAccount, tab);
   gPopAccount = null;
   // Now there should be only the original accounts left.
   Assert.equal(MailServices.accounts.allServers.length, gOriginalAccountCount);

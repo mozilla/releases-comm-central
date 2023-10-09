@@ -10,7 +10,6 @@ const EXPORTED_SYMBOLS = [
   "check_newsgroup_displayed",
 ];
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { get_about_3pane, right_click_on_folder } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -19,6 +18,10 @@ var { input_value, delete_all_existing } = ChromeUtils.import(
 );
 var { click_menus_in_sequence, promise_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
+
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 
 /**
@@ -32,10 +35,12 @@ async function open_subscribe_window_from_context_menu(aFolder, aFunction) {
   let win = get_about_3pane();
 
   await right_click_on_folder(aFolder);
-  let callback = function (win) {
+  let callback = async function (win) {
     // When the "stop button" is disabled, the panel is populated.
-    utils.waitFor(() => win.document.getElementById("stopButton").disabled);
-    aFunction(win);
+    await TestUtils.waitForCondition(
+      () => win.document.getElementById("stopButton").disabled
+    );
+    await aFunction(win);
     win.close();
   };
   const dialogPromise = promise_modal_dialog("mailnews:subscribe", callback);

@@ -17,11 +17,6 @@ const EXPORTED_SYMBOLS = [
   "wait_for_window_focused",
 ];
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
-var { Assert } = ChromeUtils.importESModule(
-  "resource://testing-common/Assert.sys.mjs"
-);
 var { BrowserTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/BrowserTestUtils.sys.mjs"
 );
@@ -29,6 +24,9 @@ var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
+);
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 
 /**
@@ -102,7 +100,7 @@ async function promise_modal_dialog(aWindowType, aSubTestFunction) {
  *
  * @param aWindow the window to be focused.
  */
-function wait_for_window_focused(aWindow) {
+async function wait_for_window_focused(aWindow) {
   let targetWindow = {};
 
   Services.focus.getFocusedElementForWindow(aWindow, true, targetWindow);
@@ -129,7 +127,7 @@ function wait_for_window_focused(aWindow) {
     targetWindow.focus();
   }
 
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => focused,
     "Timeout waiting for window to be focused.",
     WINDOW_FOCUS_TIMEOUT_MS,
@@ -146,7 +144,7 @@ function wait_for_window_focused(aWindow) {
  *   (string) or a predicate for the URL (function).
  * @returns {Window} The browser's content window.
  */
-function wait_for_browser_load(aBrowser, aURLOrPredicate) {
+async function wait_for_browser_load(aBrowser, aURLOrPredicate) {
   // aBrowser has all the fields we need already.
   return _wait_for_generic_load(aBrowser, aURLOrPredicate);
 }
@@ -159,7 +157,7 @@ function wait_for_browser_load(aBrowser, aURLOrPredicate) {
  *                        for the URL (function).
  * @returns The frame.
  */
-function wait_for_frame_load(aFrame, aURLOrPredicate) {
+async function wait_for_frame_load(aFrame, aURLOrPredicate) {
   return _wait_for_generic_load(aFrame, aURLOrPredicate);
 }
 
@@ -169,7 +167,7 @@ function wait_for_frame_load(aFrame, aURLOrPredicate) {
  * - webProgress: an nsIWebProgress associated with the contentWindow.
  * - currentURI: the currently loaded page (nsIURI).
  */
-function _wait_for_generic_load(aDetails, aURLOrPredicate) {
+async function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   let predicate;
   if (typeof aURLOrPredicate == "string") {
     let expectedURL = NetUtil.newURI(aURLOrPredicate);
@@ -178,7 +176,7 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
     predicate = aURLOrPredicate;
   }
 
-  function isLoadedChecker() {
+  await TestUtils.waitForCondition(function () {
     if (aDetails.webProgress?.isLoadingDocument) {
       return false;
     }
@@ -193,22 +191,7 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
       aDetails.currentURI ||
         NetUtil.newURI(aDetails.contentWindow.location.href)
     );
-  }
-
-  try {
-    utils.waitFor(isLoadedChecker);
-  } catch (e) {
-    if (e instanceof utils.TimeoutError) {
-      Assert.report(
-        true,
-        undefined,
-        undefined,
-        `Timeout waiting for content page to load. Current URL is: ${aDetails.currentURI.spec}`
-      );
-    } else {
-      throw e;
-    }
-  }
+  }, `waiting for content page to load. Current URL is: ${aDetails.currentURI?.spec}`);
 
   // Lie to mozmill to convince it to not explode because these frames never
   // get a mozmillDocumentLoaded attribute (bug 666438).
@@ -217,38 +200,6 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
     return contentWindow;
   }
   return null;
-}
-
-/**
- * Resize given window to new dimensions.
- *
- * @param {Window} aWin
- * @param {integer} aWidth - The requested window width.
- * @param {integer} aHeight - The requested window height.
- */
-function resize_to(aWin, aWidth, aHeight) {
-  aWin.resizeTo(aWidth, aHeight);
-  // Give the event loop a spin in order to let the reality of an asynchronously
-  // interacting window manager have its impact. This still may not be
-  // sufficient.
-  utils.sleep(0);
-  utils.waitFor(
-    () => aWin.outerWidth == aWidth && aWin.outerHeight == aHeight,
-    "Timeout waiting for resize (current screen size: " +
-      aWin.screen.availWidth +
-      "X" +
-      aWin.screen.availHeight +
-      "), Requested width " +
-      aWidth +
-      " but got " +
-      aWin.outerWidth +
-      ", Request height " +
-      aHeight +
-      " but got " +
-      aWin.outerHeight,
-    10000,
-    50
-  );
 }
 
 /**
@@ -395,10 +346,10 @@ function close_popup_sequence(aCloseStack) {
  * @returns {Element} The <vbox class="panel-subview-body"> element inside
  *   the last shown <panelview>.
  */
-function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
+async function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
   const rootPopup = win.document.getElementById("appMenu-popup");
 
-  function viewShownListener(navTargets, nonNavTarget, allDone, event) {
+  async function viewShownListener(navTargets, nonNavTarget, allDone, event) {
     // Set up the next listener if there are more navigation targets.
     if (navTargets.length > 0) {
       rootPopup.addEventListener(
@@ -431,7 +382,7 @@ function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
       };
 
       // Some views are dynamically populated after ViewShown, so we wait.
-      utils.waitFor(
+      await TestUtils.waitForCondition(
         () => kids.find(findFunction),
         () =>
           "Waited but did not find matching menu item for target: " +
@@ -456,7 +407,7 @@ function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
     done = true;
   };
 
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => rootPopup.getAttribute("panelopen") == "true",
     "Waited for the appmenu to open, but it never opened."
   );
@@ -470,7 +421,10 @@ function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
   };
   viewShownListener(navTargets, nonNavTarget, allDone, fakeEvent);
 
-  utils.waitFor(() => done, "Timed out in _click_appmenu_in_sequence.");
+  await TestUtils.waitForCondition(
+    () => done,
+    "Timed out in _click_appmenu_in_sequence."
+  );
   return subviewToReturn;
 }
 
@@ -488,7 +442,7 @@ function _click_appmenu_in_sequence(navTargets, nonNavTarget, win) {
  * @returns {Element} The <vbox class="panel-subview-body"> element inside
  *                    the last shown <panelview>.
  */
-function click_through_appmenu(navTargets, nonNavTarget, win) {
+async function click_through_appmenu(navTargets, nonNavTarget, win) {
   let appmenu = win.document.getElementById("button-appmenu");
   EventUtils.synthesizeMouseAtCenter(appmenu, {}, appmenu.ownerGlobal);
   return _click_appmenu_in_sequence(navTargets, nonNavTarget, win);

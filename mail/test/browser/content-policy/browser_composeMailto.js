@@ -4,7 +4,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { close_compose_window, compose_window_ready } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
@@ -30,7 +29,7 @@ add_task(async function test_openComposeFromMailToLink() {
   // To open a tab we're going to have to cheat and use tabmail so we can load
   // in the data of what we want.
   gPreCount = tabmail.tabContainer.allTabs.length;
-  gNewTab = open_content_tab_with_url(url + "mailtolink.html");
+  gNewTab = await open_content_tab_with_url(url + "mailtolink.html");
 
   const composePromise = promise_new_window("msgcompose");
   await BrowserTestUtils.synthesizeMouseAtCenter(
@@ -78,7 +77,7 @@ add_task(async function test_checkInsertImage() {
 
   Assert.equal(childImages.length, 1, "Should be one image in the document");
 
-  utils.waitFor(() => childImages[0].complete);
+  await TestUtils.waitForCondition(() => childImages[0].complete);
 
   // Should be the only image, so just check the first.
   Assert.ok(

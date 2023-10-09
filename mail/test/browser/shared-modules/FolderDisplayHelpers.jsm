@@ -155,7 +155,6 @@ var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var {
   promise_new_window,
-  resize_to,
   wait_for_existing_window,
   wait_for_window_focused,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
@@ -464,7 +463,7 @@ async function enter_folder(aFolder) {
   await displayPromise;
 
   // Drain the event queue.
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 }
 
 /**
@@ -1489,7 +1488,9 @@ async function empty_folder(aFolder, aWin = mc) {
   while ((msgCount = aFolder.getTotalMessages(false)) > 0) {
     select_click_row(0, aWin);
     press_delete(aWin);
-    utils.waitFor(() => aFolder.getTotalMessages(false) < msgCount);
+    await TestUtils.waitForCondition(
+      () => aFolder.getTotalMessages(false) < msgCount
+    );
   }
 }
 
@@ -3044,13 +3045,6 @@ function assert_default_window_size() {
     gDefaultWindowHeight,
     "Main window didn't meet the expected height"
   );
-}
-
-/**
- * Restore window to nominal dimensions; saving the size was not working out.
- */
-function restore_default_window_size() {
-  resize_to(mc, gDefaultWindowWidth, gDefaultWindowHeight);
 }
 
 /**

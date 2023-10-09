@@ -11,7 +11,7 @@
 const {
   click_account_tree_row,
   get_account_tree_row,
-  wait_for_account_tree_load,
+  promise_account_tree_load,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
 );
@@ -45,7 +45,7 @@ var gImportedKeyId;
 /**
  * Set up the base account and identity.
  */
-add_setup(function () {
+add_setup(async function () {
   gAccount = MailServices.accounts.createAccount();
   gAccount.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",
@@ -58,12 +58,12 @@ add_setup(function () {
 
   Services.prefs.setBoolPref("mail.openpgp.allow_external_gnupg", true);
 
-  gTab = open_content_tab_with_url("about:accountsettings");
-  wait_for_account_tree_load(gTab);
+  gTab = await open_content_tab_with_url("about:accountsettings");
+  await promise_account_tree_load(gTab);
 
   // Open the End-to-End Encryption page.
   let accountRow = get_account_tree_row(gAccount.key, "am-e2e.xhtml", gTab);
-  click_account_tree_row(gTab, accountRow);
+  await click_account_tree_row(gTab, accountRow);
 
   let iframe =
     gTab.browser.contentWindow.document.getElementById("contentFrame");
@@ -107,7 +107,7 @@ add_task(async function generate_new_key() {
   let button = tabDocument.getElementById("addOpenPgpButton");
   EventUtils.synthesizeMouseAtCenter(button, {}, tabWindow);
 
-  let wizard = wait_for_frame_load(
+  let wizard = await wait_for_frame_load(
     gTab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://openpgp/content/ui/keyWizard.xhtml"
   );
@@ -186,7 +186,7 @@ add_task(async function import_secret_key() {
   let button = tabDocument.getElementById("addOpenPgpButton");
   EventUtils.synthesizeMouseAtCenter(button, {}, tabWindow);
 
-  let wizard = wait_for_frame_load(
+  let wizard = await wait_for_frame_load(
     gTab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://openpgp/content/ui/keyWizard.xhtml"
   );
@@ -294,7 +294,7 @@ add_task(async function add_external_key() {
   let button = tabDocument.getElementById("addOpenPgpButton");
   EventUtils.synthesizeMouseAtCenter(button, {}, tabWindow);
 
-  let wizard = wait_for_frame_load(
+  let wizard = await wait_for_frame_load(
     gTab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://openpgp/content/ui/keyWizard.xhtml"
   );

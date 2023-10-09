@@ -116,7 +116,7 @@ async function testComposeFlags(
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Message",

@@ -23,7 +23,7 @@ var modifiers =
  */
 add_task(async function test_pill_selection() {
   let cwc = await open_compose_new_mail();
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org, test@invalid.foo, test@tinderborx.invalid, alice@foo.test",
     "Testing recipient pills selection!",
@@ -159,7 +159,7 @@ add_task(async function test_pill_selection() {
  */
 add_task(async function test_pill_context_menu() {
   let cwc = await open_compose_new_mail();
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org, test@invalid.foo, test@tinderborx.invalid, alice@foo.test",
     "Testing recipient pills context menu!",

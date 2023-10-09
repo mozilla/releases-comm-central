@@ -96,7 +96,7 @@ async function assert_mode_selected(aMode) {
   }
 
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, window);
-  click_through_appmenu(
+  await click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
     null,
     window
@@ -135,7 +135,7 @@ async function assert_mode_not_selected(mode) {
   }
 
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, window);
-  click_through_appmenu(
+  await click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
     null,
     window
@@ -151,9 +151,9 @@ async function assert_mode_not_selected(mode) {
  *
  * @param mode  The base name of the mode to select.
  */
-function select_mode_in_menu(mode) {
+async function select_mode_in_menu(mode) {
   EventUtils.synthesizeMouseAtCenter(appmenu_button, {}, window);
-  click_through_appmenu(
+  await click_through_appmenu(
     [{ id: "appmenu_View" }, { id: "appmenu_FolderViews" }],
     { value: mode },
     window
@@ -166,7 +166,7 @@ function select_mode_in_menu(mode) {
  */
 async function subtest_toggle_all_folders(show) {
   let mode = "all";
-  select_mode_in_menu(mode);
+  await select_mode_in_menu(mode);
 
   if (show) {
     await assert_mode_selected(mode);
@@ -180,7 +180,7 @@ async function subtest_toggle_all_folders(show) {
  */
 async function subtest_toggle_unread_folders(show) {
   let mode = "unread";
-  select_mode_in_menu(mode);
+  await select_mode_in_menu(mode);
 
   if (show) {
     await assert_mode_selected(mode);
@@ -199,7 +199,7 @@ async function subtest_toggle_unread_folders(show) {
  */
 async function subtest_toggle_favorite_folders(show) {
   let mode = "favorite";
-  select_mode_in_menu(mode);
+  await select_mode_in_menu(mode);
 
   if (show) {
     await assert_mode_selected(mode);
@@ -218,7 +218,7 @@ async function subtest_toggle_favorite_folders(show) {
  */
 async function subtest_toggle_recent_folders(show) {
   let mode = "recent";
-  select_mode_in_menu(mode);
+  await select_mode_in_menu(mode);
 
   if (show) {
     await assert_mode_selected(mode);
@@ -232,7 +232,7 @@ async function subtest_toggle_recent_folders(show) {
  */
 async function subtest_toggle_smart_folders(show) {
   let mode = "smart";
-  select_mode_in_menu(mode);
+  await select_mode_in_menu(mode);
 
   if (show) {
     await assert_mode_selected(mode);
@@ -246,7 +246,7 @@ async function subtest_toggle_smart_folders(show) {
  */
 async function subtest_toggle_compact(compact) {
   let mode = "compact";
-  select_mode_in_menu(mode);
+  await select_mode_in_menu(mode);
 
   if (compact) {
     await assert_mode_selected(mode);
@@ -260,7 +260,7 @@ async function subtest_toggle_compact(compact) {
  */
 async function subtest_toggle_tags(show) {
   let mode = "tags";
-  select_mode_in_menu(mode);
+  await select_mode_in_menu(mode);
 
   if (show) {
     await assert_mode_selected(mode);

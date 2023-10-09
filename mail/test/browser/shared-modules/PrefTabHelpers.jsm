@@ -11,13 +11,15 @@
 
 const EXPORTED_SYMBOLS = ["close_pref_tab", "open_pref_tab"];
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
-var fdh = ChromeUtils.import(
+var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var cth = ChromeUtils.import(
+var { open_content_tab_with_click } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
+);
+
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 
 /**
@@ -27,15 +29,15 @@ var cth = ChromeUtils.import(
  * @param aPaneID The ID of the pref pane to display (see
  *     mail/components/preferences/preferences.xhtml for valid IDs.)
  */
-function open_pref_tab(aPaneID, aScrollTo) {
-  let tab = cth.open_content_tab_with_click(
+async function open_pref_tab(aPaneID, aScrollTo) {
+  let tab = await open_content_tab_with_click(
     function () {
-      fdh.mc.openOptionsDialog(aPaneID, aScrollTo);
+      mc.openOptionsDialog(aPaneID, aScrollTo);
     },
     "about:preferences",
     "preferencesTab"
   );
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => tab.browser.contentWindow.gLastCategory.category == aPaneID,
     "Timed out waiting for prefpane " + aPaneID + " to load."
   );
@@ -48,5 +50,5 @@ function open_pref_tab(aPaneID, aScrollTo) {
  * @param aTab  The content tab to close.
  */
 function close_pref_tab(aTab) {
-  fdh.mc.document.getElementById("tabmail").closeTab(aTab);
+  mc.document.getElementById("tabmail").closeTab(aTab);
 }

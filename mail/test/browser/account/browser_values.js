@@ -62,9 +62,7 @@ registerCleanupFunction(function () {
  * prefill the currently default email address.
  */
 add_task(async function test_default_CC_address() {
-  await open_advanced_settings(function (tab) {
-    subtest_check_default_CC_address(tab);
-  });
+  await open_advanced_settings(subtest_check_default_CC_address);
 });
 
 /**
@@ -73,13 +71,13 @@ add_task(async function test_default_CC_address() {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_default_CC_address(tab) {
+async function subtest_check_default_CC_address(tab) {
   let accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-copies.xhtml",
     tab
   );
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
@@ -140,8 +138,8 @@ add_task(async function test_account_name() {
   let newUser = "somebody";
 
   // On NNTP there is no user name so just set new hostname.
-  await open_advanced_settings(function (tab) {
-    subtest_check_account_name(nntpAccount, newHost, null, tab);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_account_name(nntpAccount, newHost, null, tab);
   });
 
   // And see if the account name is updated to it.
@@ -149,16 +147,16 @@ add_task(async function test_account_name() {
 
   // On POP3 there is both user name and host name.
   // Set new host name first.
-  await open_advanced_settings(function (tab) {
-    subtest_check_account_name(gPopAccount, newHost, null, tab);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_account_name(gPopAccount, newHost, null, tab);
   });
 
   // And see if in the account name the host part is updated to it.
   Assert.equal(gPopAccount.incomingServer.prettyName, "nobody@" + newHost);
 
   // Set new host name first.
-  await open_advanced_settings(function (tab) {
-    subtest_check_account_name(gPopAccount, null, newUser, tab);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_account_name(gPopAccount, null, newUser, tab);
   });
 
   // And see if in the account name the user part is updated.
@@ -168,8 +166,8 @@ add_task(async function test_account_name() {
   newUser = "anotherbody";
 
   // Set user name and host name at once.
-  await open_advanced_settings(function (tab) {
-    subtest_check_account_name(gPopAccount, newHost, newUser, tab);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_account_name(gPopAccount, newHost, newUser, tab);
   });
 
   // And see if in the account name the host part is updated to it.
@@ -180,8 +178,8 @@ add_task(async function test_account_name() {
 
   newHost = "third.host.invalid";
   // Set the host name again.
-  await open_advanced_settings(function (tab) {
-    subtest_check_account_name(gPopAccount, newHost, null, tab);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_account_name(gPopAccount, newHost, null, tab);
   });
 
   // And the account name should not be touched.
@@ -201,9 +199,14 @@ add_task(async function test_account_name() {
  * @param {string} newUsername - The username value to set
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_account_name(account, newHostname, newUsername, tab) {
+async function subtest_check_account_name(
+  account,
+  newHostname,
+  newUsername,
+  tab
+) {
   let accountRow = get_account_tree_row(account.key, "am-server.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
@@ -251,9 +254,7 @@ add_task(async function test_invalid_junk_target() {
   );
   let moveOnSpam = true;
   branch.setBoolPref("moveOnSpam", moveOnSpam);
-  await open_advanced_settings(function (tab) {
-    subtest_check_invalid_junk_target(tab);
-  });
+  await open_advanced_settings(subtest_check_invalid_junk_target);
 
   // The pref has no default so its non-existence means it was cleared.
   moveOnSpam = branch.getBoolPref("moveOnSpam", false);
@@ -270,9 +271,9 @@ add_task(async function test_invalid_junk_target() {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_invalid_junk_target(tab) {
+async function subtest_check_invalid_junk_target(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
   tab.browser.contentWindow.onAccept(true);
 }
 
@@ -315,7 +316,7 @@ async function subtest_check_invalid_hostname(
     "am-server.xhtml",
     tab
   );
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
@@ -326,11 +327,11 @@ async function subtest_check_invalid_hostname(
 
   if (!exitSettings) {
     accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
-    click_account_tree_row(tab, accountRow);
+    await click_account_tree_row(tab, accountRow);
 
     // The invalid hostname should be set back to previous value at this point...
     accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", tab);
-    click_account_tree_row(tab, accountRow);
+    await click_account_tree_row(tab, accountRow);
 
     // ...let's check that:
     iframe = tab.browser.contentWindow.document.getElementById("contentFrame");
@@ -352,9 +353,7 @@ const badName = "trailing  space ";
 const badEmail = " leading_space@example.com";
 
 add_task(async function test_trailing_spaces() {
-  await open_advanced_settings(function (tab) {
-    subtest_check_trailing_spaces(tab);
-  });
+  await open_advanced_settings(subtest_check_trailing_spaces);
   Assert.equal(gPopAccount.incomingServer.prettyName, badName.trim());
   Assert.equal(gPopAccount.defaultIdentity.email, badEmail.trim());
 });
@@ -365,9 +364,9 @@ add_task(async function test_trailing_spaces() {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_trailing_spaces(tab) {
+async function subtest_check_trailing_spaces(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");

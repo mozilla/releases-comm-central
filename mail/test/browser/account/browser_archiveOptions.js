@@ -4,8 +4,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
 var { click_account_tree_row, get_account_tree_row, open_advanced_settings } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/AccountManagerHelpers.jsm"
@@ -31,9 +29,13 @@ add_setup(function () {
  * @param {number} accountKey - Key of the account the check.
  * @param {boolean} isEnabled - True if the button should be enabled, false otherwise.
  */
-function subtest_check_archive_options_enabled(tab, accountKey, isEnabled) {
+async function subtest_check_archive_options_enabled(
+  tab,
+  accountKey,
+  isEnabled
+) {
   let accountRow = get_account_tree_row(accountKey, "am-copies.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
@@ -65,19 +67,19 @@ add_task(async function test_archive_options_enabled() {
   defaultIdentity.archiveFolder = imapServer.rootFolder.URI;
 
   imapServer.isGMailServer = false;
-  await open_advanced_settings(function (tab) {
-    subtest_check_archive_options_enabled(tab, account.key, true);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_archive_options_enabled(tab, account.key, true);
   });
-  await open_advanced_settings(function (tab) {
-    subtest_check_archive_options_enabled(tab, defaultAccount.key, true);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_archive_options_enabled(tab, defaultAccount.key, true);
   });
 
   imapServer.isGMailServer = true;
-  await open_advanced_settings(function (tab) {
-    subtest_check_archive_options_enabled(tab, account.key, false);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_archive_options_enabled(tab, account.key, false);
   });
-  await open_advanced_settings(function (tab) {
-    subtest_check_archive_options_enabled(tab, defaultAccount.key, false);
+  await open_advanced_settings(async function (tab) {
+    await subtest_check_archive_options_enabled(tab, defaultAccount.key, false);
   });
 
   MailServices.accounts.removeAccount(account);
@@ -143,10 +145,10 @@ add_task(async function test_save_archive_options() {
   Assert.equal(defaultIdentity.archiveKeepFolderStructure, true);
 });
 
-function subtest_check_archive_enabled(tab, archiveEnabled) {
+async function subtest_check_archive_enabled(tab, archiveEnabled) {
   defaultIdentity.archiveEnabled = archiveEnabled;
 
-  click_account_tree_row(tab, 2);
+  await click_account_tree_row(tab, 2);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
@@ -158,18 +160,18 @@ function subtest_check_archive_enabled(tab, archiveEnabled) {
 }
 
 add_task(async function test_archive_enabled() {
-  await open_advanced_settings(function (amc) {
-    subtest_check_archive_enabled(amc, true);
+  await open_advanced_settings(async function (amc) {
+    await subtest_check_archive_enabled(amc, true);
   });
 
-  await open_advanced_settings(function (amc) {
-    subtest_check_archive_enabled(amc, false);
+  await open_advanced_settings(async function (amc) {
+    await subtest_check_archive_enabled(amc, false);
   });
 });
 
-function subtest_disable_archive(tab) {
+async function subtest_disable_archive(tab) {
   defaultIdentity.archiveEnabled = true;
-  click_account_tree_row(tab, 2);
+  await click_account_tree_row(tab, 2);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById("contentFrame");
@@ -184,9 +186,9 @@ function subtest_disable_archive(tab) {
     { clickCount: 1 },
     checkbox.ownerGlobal
   );
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => !checkbox.checked,
-    "Archive checkbox didn't toggle to unchecked"
+    "waiting for archive checkbox to be unchecked"
   );
 
   Assert.ok(!defaultIdentity.archiveEnabled);

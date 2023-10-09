@@ -10,7 +10,7 @@
 
 "use strict";
 
-var { wait_for_content_tab_load } = ChromeUtils.import(
+var { promise_content_tab_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 var {
@@ -784,7 +784,7 @@ add_task(async function test_tag_keys_disabled_in_content_tab() {
   await new Promise(resolve => setTimeout(resolve));
 
   let tab = document.getElementById("tabmail").currentTabInfo;
-  wait_for_content_tab_load(tab, "about:addons", 15000);
+  await promise_content_tab_load(tab, "about:addons", 15000);
 
   // Make sure pressing the "1" key in a content tab doesn't tag a message
   check_tag_in_message(curMessage, tagArray[0], false);

@@ -8,7 +8,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   add_attachments,
   close_compose_window,
@@ -196,7 +195,7 @@ add_task(async function test_file_attachment() {
   let url = filePrefix + "some/file/here.txt";
   let size = 1234;
 
-  add_attachments(cwc, url, size);
+  await add_attachments(cwc, url, size);
   check_attachment_size(cwc, 0, size);
   check_total_attachment_size(cwc, 1);
 
@@ -206,7 +205,7 @@ add_task(async function test_file_attachment() {
 add_task(async function test_webpage_attachment() {
   let cwc = await open_compose_new_mail();
 
-  add_attachments(cwc, "https://www.mozilla.org/");
+  await add_attachments(cwc, "https://www.mozilla.org/");
   check_no_attachment_size(cwc, 0);
   check_total_attachment_size(cwc, 1);
 
@@ -222,7 +221,7 @@ add_task(async function test_multiple_attachments() {
     { name: "baz.txt", size: 9012 },
   ];
   for (let i = 0; i < files.length; i++) {
-    add_attachments(cwc, filePrefix + files[i].name, files[i].size);
+    await add_attachments(cwc, filePrefix + files[i].name, files[i].size);
     check_attachment_size(cwc, i, files[i].size);
   }
 
@@ -239,7 +238,7 @@ add_task(async function test_delete_attachments() {
     { name: "baz.txt", size: 9012 },
   ];
   for (let i = 0; i < files.length; i++) {
-    add_attachments(cwc, filePrefix + files[i].name, files[i].size);
+    await add_attachments(cwc, filePrefix + files[i].name, files[i].size);
     check_attachment_size(cwc, i, files[i].size);
   }
 
@@ -260,7 +259,7 @@ add_task(async function test_rename_attachment() {
   let url = filePrefix + "some/file/here.txt";
   let size = 1234;
 
-  add_attachments(cwc, url, size);
+  await add_attachments(cwc, url, size);
 
   // Now, rename the attachment.
   let bucket = cwc.document.getElementById("attachmentBucket");
@@ -296,7 +295,7 @@ add_task(async function test_open_attachment() {
   let url = fileHandler.getURLSpecFromActualFile(file);
   let size = file.fileSize;
 
-  add_attachments(cwc, url, size);
+  await add_attachments(cwc, url, size);
 
   // Now, open the attachment.
   let bucket = cwc.document.getElementById("attachmentBucket");
@@ -396,7 +395,7 @@ async function subtest_reordering(
   // Create a set of attachments for the test.
   const size = 1234;
   for (let name of aInitialAttachmentNames) {
-    add_attachments(aCwc, filePrefix + name, size);
+    await add_attachments(aCwc, filePrefix + name, size);
   }
   await new Promise(resolve => setTimeout(resolve));
   Assert.equal(bucket.itemCount, aInitialAttachmentNames.length);
@@ -434,7 +433,7 @@ async function subtest_reordering(
   if (aOpenPanel) {
     // Close the panel.
     panel.hidePopup();
-    utils.waitFor(
+    await TestUtils.waitForCondition(
       () => panel.state == "closed",
       "Reordering panel didn't close"
     );
@@ -465,7 +464,7 @@ add_task(async function test_attachment_reordering() {
   const size = 1234;
   const initialAttachmentNames_0 = ["A1", "A2"];
   for (let name of initialAttachmentNames_0) {
-    add_attachments(cwc, filePrefix + name, size);
+    await add_attachments(cwc, filePrefix + name, size);
     await new Promise(resolve => setTimeout(resolve));
   }
   Assert.equal(bucket.itemCount, initialAttachmentNames_0.length);
@@ -489,7 +488,7 @@ add_task(async function test_attachment_reordering() {
 
   // Click on the editor which should close the panel.
   EventUtils.synthesizeMouseAtCenter(editorEl, {}, editorEl.ownerGlobal);
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => panel.state == "closed",
     "Reordering panel didn't close when editor was clicked."
   );
@@ -962,7 +961,7 @@ add_task(async function test_restore_attachment_bucket_height() {
     { name: "baz3.txt", size: 9012 },
   ];
   for (let i = 0; i < files.length; i++) {
-    add_attachments(cwc, filePrefix + files[i].name, files[i].size);
+    await add_attachments(cwc, filePrefix + files[i].name, files[i].size);
   }
 
   // Store the height of the attachment bucket.

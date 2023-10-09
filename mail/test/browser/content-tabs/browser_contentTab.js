@@ -26,7 +26,7 @@ var whatsUrl = url + "whatsnew.html";
 add_task(async function test_content_tab_open() {
   // Need to open the thread pane to load the appropriate context menus.
   await be_in_folder(inboxFolder);
-  let tab = open_content_tab_with_url(whatsUrl);
+  let tab = await open_content_tab_with_url(whatsUrl);
 
   assert_tab_has_title(tab, "What's New Content Test");
   // Check the location of the what's new image, this is via the link element
@@ -122,9 +122,9 @@ add_task(async function test_spellcheck_in_content_tabs() {
   await close_popup(window, browserContext);
 });
 
-add_task(function test_content_tab_default_favicon() {
+add_task(async function test_content_tab_default_favicon() {
   const whatsUrl2 = url + "whatsnew1.html";
-  let tab = open_content_tab_with_url(whatsUrl2);
+  let tab = await open_content_tab_with_url(whatsUrl2);
 
   assert_tab_has_title(tab, "What's New Content Test 1");
   // Check the location of the favicon, this should be the site favicon in this

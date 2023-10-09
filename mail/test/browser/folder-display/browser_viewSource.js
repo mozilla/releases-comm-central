@@ -8,7 +8,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { be_in_folder, create_folder, get_about_message, select_click_row } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -115,7 +114,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
   EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
   let viewSourceWin = await viewSourcePromise;
 
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () =>
       viewSourceWin.document
         .getElementById("content")
@@ -163,7 +162,7 @@ async function subtest(row, expectedDisplayed, expectedSource) {
     );
 
     if (expectedSource != contentReadable) {
-      utils.waitFor(
+      await TestUtils.waitForCondition(
         () =>
           viewSourceWin.document.getElementById("content").contentDocument !=
             doc &&

@@ -137,7 +137,7 @@ async function doTestSecState(isDraft, secure) {
   let type = isDraft ? "draft" : "template";
   let theFolder = isDraft ? draftsFolder : templatesFolder;
   let subject = `test ${type}; 🤐; secure=${secure}`;
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     subject,

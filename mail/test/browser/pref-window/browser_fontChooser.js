@@ -12,7 +12,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { content_tab_e } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
@@ -39,7 +38,7 @@ var gRealFontLists = {};
 // A list of font types to consider
 const kFontTypes = ["serif", "sans-serif", "monospace"];
 
-add_setup(function () {
+add_setup(async function () {
   if (AppConstants.platform == "win") {
     Services.prefs.setStringPref(
       "font.name-list.serif.x-western",
@@ -83,7 +82,7 @@ add_setup(function () {
 
   let finished = false;
   buildFontList().then(() => (finished = true), console.error);
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => finished,
     "Timeout waiting for font enumeration to complete."
   );
@@ -153,7 +152,7 @@ async function _verify_fonts_displayed(
   aMonospace
 ) {
   // Bring up the preferences window.
-  let prefTab = open_pref_tab("paneGeneral");
+  let prefTab = await open_pref_tab("paneGeneral");
   let contentDoc = prefTab.browser.contentDocument;
   let prefsWindow = contentDoc.ownerGlobal;
   prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
@@ -162,7 +161,7 @@ async function _verify_fonts_displayed(
     Services.prefs.getCharPref("font.default." + kLanguage) == "sans-serif";
   let displayPaneExpected = isSansDefault ? aSansSerif : aSerif;
   let displayPaneActual = content_tab_e(prefTab, "defaultFont");
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => displayPaneActual.itemCount > 0,
     "No font names were populated in the font picker."
   );
@@ -178,14 +177,14 @@ async function _verify_fonts_displayed(
   await new Promise(resolve => setTimeout(resolve, 500));
   // Now open the advanced dialog.
   EventUtils.synthesizeMouseAtCenter(advancedFonts, {}, prefsWindow);
-  let fontc = wait_for_frame_load(
+  let fontc = await wait_for_frame_load(
     prefsWindow.gSubDialog._topDialog._frame,
     "chrome://messenger/content/preferences/fonts.xhtml"
   );
 
   // The font pickers are populated async so we need to wait for it.
   for (let fontElemId of ["serif", "sans-serif", "monospace"]) {
-    utils.waitFor(
+    await TestUtils.waitForCondition(
       () => fontc.document.getElementById(fontElemId).label != "",
       "Timeout waiting for font picker '" + fontElemId + "' to populate."
     );

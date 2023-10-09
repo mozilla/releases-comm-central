@@ -13,8 +13,6 @@ var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
 var {
   assert_message_pane_hidden,
   assert_message_pane_visible,
@@ -143,7 +141,10 @@ add_task(async function test_periodic_session_persistence_simple() {
     sessionFile.remove(false);
   }
 
-  utils.waitFor(() => !sessionFile.exists(), "session file should not exist");
+  await TestUtils.waitForCondition(
+    () => !sessionFile.exists(),
+    "session file should not exist"
+  );
 
   // change some state to guarantee the file will be recreated
   // if periodic session persistence works
@@ -175,7 +176,10 @@ add_task(async function test_periodic_nondirty_session_persistence() {
     setTimeout(resolve, kSaveDelayMs + asyncFileWriteDelayMS)
   );
 
-  utils.waitFor(() => !sessionFile.exists(), "session file should not exist");
+  await TestUtils.waitForCondition(
+    () => !sessionFile.exists(),
+    "session file should not exist"
+  );
 });
 
 add_task(async function test_single_3pane_periodic_session_persistence() {
@@ -535,7 +539,7 @@ add_task(async function test_bad_session_file_simple() {
   );
 
   // The bad session file should now not exist.
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => !SessionStoreManager.sessionFile.exists(),
     "session file should now not exist"
   );

@@ -246,7 +246,7 @@ async function subtest_errors_during_upload(error) {
   if (error.toggleOffline) {
     Services.io.offline = true;
   }
-  let seenAlerts = add_cloud_attachments(
+  let seenAlerts = await add_cloud_attachments(
     cw,
     provider,
     false,
@@ -385,7 +385,7 @@ async function subtest_errors_during_rename(error) {
   provider.init("providerA", config);
 
   let cw = await open_compose_new_mail();
-  let uploads = add_cloud_attachments(cw, provider);
+  let uploads = await add_cloud_attachments(cw, provider);
   test_expected_included(
     uploads,
     [
@@ -414,7 +414,9 @@ async function subtest_errors_during_rename(error) {
   let seenAlerts = [];
   for (let i = 0; i < kFiles.length; ++i) {
     select_attachments(cw, i);
-    seenAlerts.push(rename_selected_cloud_attachment(cw, "IgnoredNewName"));
+    seenAlerts.push(
+      await rename_selected_cloud_attachment(cw, "IgnoredNewName")
+    );
   }
   if (error.toggleOffline) {
     Services.io.offline = false;

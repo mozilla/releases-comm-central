@@ -460,7 +460,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
 async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
   // Open a sample message.
   let cwc = await open_compose_new_mail();
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.invalid",
     `Testing drafts with cloudFiles for provider ${cloudFileAccount.displayName}!`,
@@ -519,7 +519,7 @@ async function openDraft() {
   select_click_row(0);
   let aboutMessage = get_about_message();
   // Wait for the notification with the Edit button.
-  wait_for_notification_to_show(
+  await wait_for_notification_to_show(
     aboutMessage,
     "mail-notification-top",
     "draftMsgContent"

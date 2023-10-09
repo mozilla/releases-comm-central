@@ -235,7 +235,7 @@ add_task(async function test_draft_identity_selection() {
     await be_in_folder(gDrafts);
     select_click_row(test.draftIndex);
     assert_selected_and_displayed(test.draftIndex);
-    wait_for_notification_to_show(
+    await wait_for_notification_to_show(
       aboutMessage,
       "mail-notification-top",
       "draftMsgContent"
@@ -247,7 +247,7 @@ add_task(async function test_draft_identity_selection() {
       test.from ? test.from : test.draftFrom
     );
     if (test.warning) {
-      wait_for_notification_to_show(
+      await wait_for_notification_to_show(
         cwc,
         "compose-notification-bottom",
         "identityWarning"
@@ -269,14 +269,14 @@ add_task(async function test_draft_identity_selection() {
   await be_in_folder(gDrafts);
   select_click_row(tests[tests.length-1].draftIndex);
   let cwc = await open_compose_from_draft();
-  wait_for_notification_to_show(cwc, "compose-notification-bottom",
+  await wait_for_notification_to_show(cwc, "compose-notification-bottom",
                                 "identityWarning");
   // Notification should go away when another identity is chosen.
   EventUtils.synthesizeMouseAtCenter(cwc.e("msgIdentity"), { }, cwc.document.getElementById("msgIdentity").ownerGlobal)
   await click_menus_in_sequence(cwc.document.getElementById("msgIdentityPopup"),
                               [ { identitykey: gIdentities[0].key } ]);
 
-  wait_for_notification_to_stop(cwc, "compose-notification-bottom",
+  await wait_for_notification_to_stop(cwc, "compose-notification-bottom",
                                 "identityWarning");
   await close_compose_window(cwc, false);
 */

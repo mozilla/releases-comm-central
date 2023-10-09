@@ -95,7 +95,7 @@ add_task(async function testSignedMessageComposition() {
   let cwc = await open_compose_new_mail();
   let composeWin = cwc;
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Signed Message",
@@ -151,7 +151,7 @@ add_task(async function testSignedMessageWithKeyComposition() {
   let cwc = await open_compose_new_mail();
   let composeWin = cwc;
 
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Signed Message With Key",
@@ -206,7 +206,7 @@ add_task(async function testSignedEncryptedMessageComposition() {
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Signed Encrypted Message",
@@ -260,7 +260,7 @@ add_task(async function testSignedEncryptedMessageWithKeyComposition() {
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(composeWin);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "alice@openpgp.example",
     "Compose Signed Encrypted Message With Key",

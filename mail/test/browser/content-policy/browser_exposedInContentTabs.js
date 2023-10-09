@@ -122,7 +122,7 @@ async function checkContentTab(msgURL) {
     encodeURI(msgURL) +
     '"/></body></html>';
 
-  let newTab = open_content_tab_with_url(dataurl);
+  let newTab = await open_content_tab_with_url(dataurl);
 
   Assert.notEqual(newTab.browser.currentURI.spec, "about:blank");
   Assert.equal(newTab.browser.webProgress.isLoadingDocument, false);

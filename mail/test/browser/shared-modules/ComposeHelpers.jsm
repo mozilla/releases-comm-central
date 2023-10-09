@@ -33,8 +33,6 @@ const EXPORTED_SYMBOLS = [
   "type_in_composer",
 ];
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
 var { get_about_message, mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -266,7 +264,7 @@ async function _wait_for_compose_window(replyWindow) {
  * @param {string} aBody - Message body to fill in.
  * @param {string} inputID - The ID of an input field to fill in.
  */
-function setup_msg_contents(
+async function setup_msg_contents(
   aCwc,
   aAddr,
   aSubj,
@@ -282,7 +280,7 @@ function setup_msg_contents(
   }
 
   let input = aCwc.document.getElementById(inputID);
-  utils.sleep(1000);
+  await new Promise(resolve => aCwc.setTimeout(resolve, 1000));
   input.focus();
   EventUtils.sendString(aAddr, aCwc);
   input.focus();
@@ -294,7 +292,7 @@ function setup_msg_contents(
   EventUtils.sendString(aBody, aCwc);
 
   // Wait for the pill(s) to be created.
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => pillcount() == targetCount,
     `Creating pill for: ${aAddr}`
   );
@@ -351,7 +349,7 @@ function create_msg_attachment(aUrl, aSize) {
  * @param {boolean} [aWaitAdded=true] - True to wait for the attachments to be
  *   fully added, false otherwise.
  */
-function add_attachments(aWin, aUrls, aSizes = [], aWaitAdded = true) {
+async function add_attachments(aWin, aUrls, aSizes = [], aWaitAdded = true) {
   if (!Array.isArray(aUrls)) {
     aUrls = [aUrls];
   }
@@ -380,9 +378,12 @@ function add_attachments(aWin, aUrls, aSizes = [], aWaitAdded = true) {
   }
   aWin.AddAttachments(attachments);
   if (aWaitAdded) {
-    utils.waitFor(() => attachmentsDone, "Attachments adding didn't finish");
+    await TestUtils.waitForCondition(
+      () => attachmentsDone,
+      "Attachments adding didn't finish"
+    );
   }
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 }
 
 /**
@@ -391,7 +392,7 @@ function add_attachments(aWin, aUrls, aSizes = [], aWaitAdded = true) {
  * @param {Window} aWin - The composition window in question.
  * @param {string} aName - The requested new name for the attachment.
  */
-function rename_selected_cloud_attachment(aWin, aName) {
+async function rename_selected_cloud_attachment(aWin, aName) {
   let bucket = aWin.document.getElementById("attachmentBucket");
   let attachmentRenamed = false;
   let upload = null;
@@ -424,13 +425,13 @@ function rename_selected_cloud_attachment(aWin, aName) {
   Services.prompt.value = aName;
   aWin.RenameSelectedAttachment();
 
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => attachmentRenamed || seenAlert,
     "Couldn't rename attachment"
   );
   Services.prompt = originalPromptService;
 
-  utils.sleep(0);
+  await TestUtils.waitForTick();
   if (seenAlert) {
     return seenAlert;
   }
@@ -447,7 +448,7 @@ function rename_selected_cloud_attachment(aWin, aName) {
  * @param {boolean} [aWaitUploaded=true] - True to wait for the attachments to
  *   be uploaded, false otherwise.
  */
-function convert_selected_to_cloud_attachment(
+async function convert_selected_to_cloud_attachment(
   aWin,
   aProvider,
   aWaitUploaded = true
@@ -508,7 +509,7 @@ function convert_selected_to_cloud_attachment(
   bucket.addEventListener("attachment-uploading", collectConvertingAttachments);
   bucket.addEventListener("attachment-moving", collectConvertingAttachments);
   aWin.convertSelectedToCloudAttachment(aProvider);
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => attachmentsSubmitted == attachmentsSelected,
     "Couldn't start converting all attachments"
   );
@@ -518,13 +519,13 @@ function convert_selected_to_cloud_attachment(
     bucket.addEventListener("attachment-moved", collectConvertedAttachment);
 
     uploads = gMockCloudfileManager.resolveUploads();
-    utils.waitFor(
+    await TestUtils.waitForCondition(
       () => attachmentsConverted == attachmentsSelected,
       "Attachments uploading didn't finish"
     );
   }
 
-  utils.sleep(0);
+  await TestUtils.waitForTick();
   return uploads;
 }
 
@@ -538,7 +539,7 @@ function convert_selected_to_cloud_attachment(
  *   be uploaded, false otherwise.
  * @param {integer} [aExpectedAlerts=0] - The number of expected alert prompts.
  */
-function add_cloud_attachments(
+async function add_cloud_attachments(
   aWin,
   aProvider,
   aWaitUploaded = true,
@@ -613,7 +614,7 @@ function add_cloud_attachments(
   let originalPromptService = Services.prompt;
   Services.prompt = mockPromptService;
   aWin.attachToCloudNew(aProvider);
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () =>
       (!aExpectedAlerts &&
         attachmentsAdded > 0 &&
@@ -630,12 +631,12 @@ function add_cloud_attachments(
   if (aWaitUploaded) {
     bucket.addEventListener("attachment-uploaded", collectUploadedAttachments);
     uploads = gMockCloudfileManager.resolveUploads();
-    utils.waitFor(
+    await TestUtils.waitForCondition(
       () => attachmentsAdded == attachmentsUploaded,
       "Attachments uploading didn't finish"
     );
   }
-  utils.sleep(0);
+  await TestUtils.waitForTick();
   return uploads;
 }
 

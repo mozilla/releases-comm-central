@@ -11,7 +11,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 const {
   open_compose_with_forward,
   open_compose_with_reply,
@@ -67,7 +66,7 @@ add_setup(async function () {
   Assert.ok(gInbox.msgStore.supportsCompaction);
   gInbox.compact(urlListener, null);
 
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     function () {
       return urlListener.compactDone;
     },
@@ -245,7 +244,7 @@ async function reply_forward_message(aMsgRow, aReply) {
     // Forward the message.
     cwc = await open_compose_with_forward();
     // Type in some recipient.
-    setup_msg_contents(cwc, "somewhere@host.invalid", "", "");
+    await setup_msg_contents(cwc, "somewhere@host.invalid", "", "");
   }
 
   // Send it later.

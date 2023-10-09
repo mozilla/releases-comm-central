@@ -218,7 +218,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
 
   // Assert the "corrupted by MS-Exchange" notification is visible.
   let aboutMessage = get_about_message();
-  wait_for_notification_to_show(
+  await wait_for_notification_to_show(
     aboutMessage,
     notificationBox,
     notificationValue
@@ -237,7 +237,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
   EventUtils.synthesizeMouseAtCenter(repairButton, {}, aboutMessage);
 
   // Wait for the "fixing in progress" notification to go away.
-  wait_for_notification_to_stop(
+  await wait_for_notification_to_stop(
     aboutMessage,
     notificationBox,
     "brokenExchangeProgress"

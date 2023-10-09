@@ -14,7 +14,7 @@ var { MailServices } = ChromeUtils.import(
 var { gMockPromptService } = ChromeUtils.import(
   "resource://testing-common/mozmill/PromptHelpers.jsm"
 );
-var { wait_for_content_tab_load } = ChromeUtils.import(
+var { promise_content_tab_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 var { remove_email_account } = ChromeUtils.import(
@@ -233,7 +233,7 @@ add_task(async function test_account_creation_from_provisioner() {
   EventUtils.synthesizeKey("VK_RETURN", {}, window);
 
   // A special tab with the provisioner's API url should be loaded.
-  wait_for_content_tab_load(undefined, function (aURL) {
+  await promise_content_tab_load(undefined, function (aURL) {
     return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
 
@@ -250,7 +250,7 @@ add_task(async function test_account_creation_from_provisioner() {
     .closeTab(document.getElementById("tabmail").currentTabInfo);
   document.getElementById("tabmail").undoCloseTab();
   // Wait for the page to be loaded again...
-  wait_for_content_tab_load(undefined, function (aURL) {
+  await promise_content_tab_load(undefined, function (aURL) {
     return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
   tab = document.getElementById("tabmail").currentTabInfo;
@@ -400,7 +400,7 @@ add_task(async function open_provisioner_from_app_menu() {
     {},
     window
   );
-  click_through_appmenu(
+  await click_through_appmenu(
     [{ id: "appmenu_new" }],
     {
       id: "appmenu_newCreateEmailAccountMenuItem",
@@ -563,7 +563,7 @@ add_task(async function test_error_on_corrupt_XML() {
   );
 
   // A special tab with the provisioner's API url should be loaded.
-  wait_for_content_tab_load(undefined, function (aURL) {
+  await promise_content_tab_load(undefined, function (aURL) {
     return aURL.schemeIs("http") && aURL.host == "mochi.test";
   });
   tab = document.getElementById("tabmail").currentTabInfo;

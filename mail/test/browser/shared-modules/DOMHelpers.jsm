@@ -5,16 +5,15 @@
 "use strict";
 
 const EXPORTED_SYMBOLS = [
-  "assert_element_visible",
-  "element_visible_recursive",
   "assert_element_not_visible",
-  "wait_for_element",
+  "assert_element_visible",
   "assert_next_nodes",
   "assert_previous_nodes",
   "check_element_visible",
-  "wait_for_element_visible",
-  "wait_for_element_invisible",
-  "collapse_panes",
+  "element_visible_recursive",
+  "promise_element",
+  "promise_element_invisible",
+  "promise_element_visible",
 ];
 
 const lazy = {};
@@ -28,8 +27,9 @@ ChromeUtils.defineModuleGetter(
 var { Assert } = ChromeUtils.importESModule(
   "resource://testing-common/Assert.sys.mjs"
 );
-
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 /**
  * This function takes either a string or an elementlibs.Elem, and returns
@@ -102,9 +102,9 @@ function assert_element_not_visible(aElt, aWhy) {
  * @param aParent the node to begin searching from
  * @param aSelector the CSS selector to search with
  */
-function wait_for_element(aParent, aSelector) {
+async function promise_element(aParent, aSelector) {
   let target = null;
-  utils.waitFor(function () {
+  await TestUtils.waitForCondition(function () {
     target = aParent.querySelector(aSelector);
     return target != null;
   }, "Timed out waiting for a target for selector: " + aSelector);
@@ -196,8 +196,8 @@ function check_element_visible(aWin, aId) {
  * @param {Window} aWin - The window of the element.
  * @param {string} aId - ID of the element to wait for.
  */
-function wait_for_element_visible(aWin, aId) {
-  utils.waitFor(function () {
+async function promise_element_visible(aWin, aId) {
+  await TestUtils.waitForCondition(function () {
     return check_element_visible(aWin, aId);
   }, "Timed out waiting for element with ID=" + aId + " to become visible");
 }
@@ -208,31 +208,8 @@ function wait_for_element_visible(aWin, aId) {
  * @param {Window} aWin - The window of the element.
  * @param {string} aId - ID of the element to wait for.
  */
-function wait_for_element_invisible(aWin, aId) {
-  utils.waitFor(function () {
+async function promise_element_invisible(aWin, aId) {
+  await TestUtils.waitForCondition(function () {
     return !check_element_visible(aWin, aId);
   }, "Timed out waiting for element with ID=" + aId + " to become invisible");
-}
-
-/**
- * Helper to collapse panes separated by splitters. If aElement is a splitter
- * itself, then this splitter is collapsed, otherwise all splitters that are
- * direct children of aElement are collapsed.
- *
- * @param aElement              The splitter or container
- * @param aShouldBeCollapsed    If true, collapse the pane
- */
-function collapse_panes(aElement, aShouldBeCollapsed) {
-  let state = aShouldBeCollapsed ? "collapsed" : "open";
-  if (aElement.localName == "splitter") {
-    aElement.setAttribute("state", state);
-  } else {
-    for (let n of aElement.childNodes) {
-      if (n.localName == "splitter") {
-        n.setAttribute("state", state);
-      }
-    }
-  }
-  // Spin the event loop once to let other window elements redraw.
-  utils.sleep(50);
 }

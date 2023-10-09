@@ -46,11 +46,11 @@ registerCleanupFunction(function () {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_whitelist_init_and_save(tab) {
+async function subtest_check_whitelist_init_and_save(tab) {
   // Ok, the advanced settings window is open.  Let's choose
   // the junkmail settings.
   let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let doc =
     tab.browser.contentWindow.document.getElementById(
@@ -84,9 +84,9 @@ function subtest_check_whitelist_init_and_save(tab) {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_whitelist_load_and_clear(tab) {
+async function subtest_check_whitelist_load_and_clear(tab) {
   let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let doc =
     tab.browser.contentWindow.document.getElementById(
@@ -120,9 +120,9 @@ function subtest_check_whitelist_load_and_clear(tab) {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_whitelist_load_cleared(tab) {
+async function subtest_check_whitelist_load_cleared(tab) {
   let accountRow = get_account_tree_row(gAccount.key, "am-junk.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let doc =
     tab.browser.contentWindow.document.getElementById(

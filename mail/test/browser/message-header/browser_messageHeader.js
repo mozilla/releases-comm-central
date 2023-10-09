@@ -17,7 +17,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/AddressBookHelpers.jsm"
 );
-var { wait_for_content_tab_load } = ChromeUtils.import(
+var { promise_content_tab_load } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
 var {
@@ -521,7 +521,7 @@ add_task(async function test_clicking_ab_button_opens_inline_contact_editor() {
     {},
     aboutMessage
   );
-  wait_for_content_tab_load(undefined, "about:addressbook");
+  await promise_content_tab_load(undefined, "about:addressbook");
   // TODO check the card.
   document.getElementById("tabmail").closeTab();
 });

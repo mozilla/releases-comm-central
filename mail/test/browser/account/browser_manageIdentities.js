@@ -135,7 +135,7 @@ add_setup(async function () {
     null, // "am-main.xhtml",
     tab
   );
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   // Click "Manage Identities" to show the list of identities.
   let iframe =

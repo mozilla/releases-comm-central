@@ -13,7 +13,6 @@
 var { select_attachments } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { add_attachments, close_compose_window, open_compose_new_mail } =
   ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var { gMockPromptService } = ChromeUtils.import(
@@ -44,7 +43,7 @@ add_task(async function test_attachments_added_on_single() {
     .addEventListener(kAttachmentsAdded, listener);
 
   // Attach a single file
-  add_attachments(cw, "http://www.example.com/1", 0, false);
+  await add_attachments(cw, "http://www.example.com/1", 0, false);
 
   // Make sure we only saw the event once
   Assert.equal(1, eventCount);
@@ -56,14 +55,14 @@ add_task(async function test_attachments_added_on_single() {
 
   // Make sure that we can get that event again if we
   // attach more files.
-  add_attachments(cw, "http://www.example.com/2", 0, false);
+  await add_attachments(cw, "http://www.example.com/2", 0, false);
   Assert.equal(2, eventCount);
   subjects = lastEvent.detail;
   Assert.equal("http://www.example.com/2", subjects[0].url);
 
   // And check that we don't receive the event if we try to attach a file
   // that's already attached.
-  add_attachments(cw, "http://www.example.com/2", null, false);
+  await add_attachments(cw, "http://www.example.com/2", null, false);
   Assert.equal(2, eventCount);
 
   cw.document
@@ -95,7 +94,7 @@ add_task(async function test_attachments_added_on_multiple() {
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsAdded, listener);
 
-  add_attachments(cw, attachmentUrls, null, false);
+  await add_attachments(cw, attachmentUrls, null, false);
 
   // Make sure we only saw a single attachments-added for this group
   // of files.
@@ -128,7 +127,7 @@ add_task(async function test_attachments_added_on_multiple() {
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsAdded, listener);
 
-  add_attachments(cw, attachmentUrls, null, false);
+  await add_attachments(cw, attachmentUrls, null, false);
   Assert.equal(2, eventCount);
 
   // Make sure that we got the right subjects back
@@ -141,7 +140,7 @@ add_task(async function test_attachments_added_on_multiple() {
 
   // Make sure we don't fire the event again if we try to attach the same
   // files.
-  add_attachments(cw, attachmentUrls, null, false);
+  await add_attachments(cw, attachmentUrls, null, false);
   Assert.equal(2, eventCount);
 
   cw.document
@@ -169,7 +168,7 @@ add_task(async function test_attachments_removed_on_single() {
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
 
-  add_attachments(cw, "http://www.example.com/1");
+  await add_attachments(cw, "http://www.example.com/1");
 
   // Now select that attachment and delete it
   select_attachments(cw, 0);
@@ -186,7 +185,7 @@ add_task(async function test_attachments_removed_on_single() {
 
   // Ok, let's attach it again, and remove it again to ensure that
   // we still see the event.
-  add_attachments(cw, "http://www.example.com/2");
+  await add_attachments(cw, "http://www.example.com/2");
   select_attachments(cw, 0);
   cw.goDoCommand("cmd_delete");
 
@@ -220,7 +219,7 @@ add_task(async function test_attachments_removed_on_multiple() {
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
 
-  add_attachments(cw, [
+  await add_attachments(cw, [
     "http://www.example.com/1",
     "http://www.example.com/2",
     "http://www.example.com/3",
@@ -248,7 +247,10 @@ add_task(async function test_attachments_removed_on_multiple() {
   }
 
   // Ok, let's attach and remove some again to ensure that we still see the event.
-  add_attachments(cw, ["http://www.example.com/1", "http://www.example.com/2"]);
+  await add_attachments(cw, [
+    "http://www.example.com/1",
+    "http://www.example.com/2",
+  ]);
 
   select_attachments(cw, 0, 1);
   cw.goDoCommand("cmd_delete");
@@ -277,7 +279,7 @@ add_task(async function test_no_attachments_removed_on_none() {
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentsRemoved, listener);
 
-  add_attachments(cw, [
+  await add_attachments(cw, [
     "http://www.example.com/1",
     "http://www.example.com/2",
     "http://www.example.com/3",
@@ -328,7 +330,7 @@ add_task(async function test_attachment_renamed() {
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentRenamed, listener);
 
-  add_attachments(cw, [
+  await add_attachments(cw, [
     "http://www.example.com/1",
     "http://www.example.com/2",
     "http://www.example.com/3",
@@ -339,9 +341,7 @@ add_task(async function test_attachment_renamed() {
   cw.goDoCommand("cmd_renameAttachment");
 
   // Wait until we saw the attachment-renamed event.
-  utils.waitFor(function () {
-    return eventCount == 1;
-  });
+  await TestUtils.waitForCondition(() => eventCount == 1);
 
   // Ensure that the event mentions the right attachment
   let renamedAttachment1 = lastEvent.target.attachment;
@@ -361,9 +361,7 @@ add_task(async function test_attachment_renamed() {
   cw.goDoCommand("cmd_renameAttachment");
 
   // Wait until we saw the attachment-renamed event.
-  utils.waitFor(function () {
-    return eventCount == 2;
-  });
+  await TestUtils.waitForCondition(() => eventCount == 2);
 
   let renamedAttachment2 = lastEvent.target.attachment;
   let originalAttachment2 = lastEvent.detail;
@@ -383,9 +381,7 @@ add_task(async function test_attachment_renamed() {
   cw.goDoCommand("cmd_renameAttachment");
 
   // Wait until we saw the attachment-renamed event.
-  utils.waitFor(function () {
-    return eventCount == 3;
-  });
+  await TestUtils.waitForCondition(() => eventCount == 3);
 
   // Ensure that the event mentions the right attachment
   let renamedAttachment3 = lastEvent.target.attachment;
@@ -429,7 +425,7 @@ add_task(async function test_no_attachment_renamed_on_blank() {
     .getElementById("attachmentBucket")
     .addEventListener(kAttachmentRenamed, listener);
 
-  add_attachments(cw, [
+  await add_attachments(cw, [
     "http://www.example.com/1",
     "http://www.example.com/2",
     "http://www.example.com/3",
@@ -464,21 +460,21 @@ add_task(async function test_attachments_pane_toggle() {
 
   // Since we don't have any uploaded attachment, assert that the box remains
   // closed.
-  utils.waitFor(() => !attachmentArea.open);
+  await TestUtils.waitForCondition(() => !attachmentArea.open);
   Assert.ok(!attachmentArea.open);
 
   // Add an attachment. This should automatically open the box.
-  add_attachments(cw, ["http://www.example.com/1"]);
+  await add_attachments(cw, ["http://www.example.com/1"]);
   Assert.ok(attachmentArea.open);
 
   // Press again, should toggle to closed.
   EventUtils.synthesizeKey("m", opts, cw);
-  utils.waitFor(() => !attachmentArea.open);
+  await TestUtils.waitForCondition(() => !attachmentArea.open);
   Assert.ok(!attachmentArea.open);
 
   // Press again, should toggle to open.
   EventUtils.synthesizeKey("m", opts, cw);
-  utils.waitFor(() => attachmentArea.open);
+  await TestUtils.waitForCondition(() => attachmentArea.open);
   Assert.ok(attachmentArea.open);
 
   await close_compose_window(cw);

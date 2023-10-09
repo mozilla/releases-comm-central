@@ -19,7 +19,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var {
   close_compose_window,
   open_compose_new_mail,
@@ -443,7 +442,7 @@ async function allowRemoteContentAndCheck(test) {
     .activateItem(
       aboutMessage.document.getElementById("remoteContentOptionAllowForMsg")
     );
-  wait_for_notification_to_stop(aboutMessage, kBoxId, kNotificationValue);
+  await wait_for_notification_to_stop(aboutMessage, kBoxId, kNotificationValue);
 
   wait_for_message_display_completion(window, true);
 
@@ -468,7 +467,7 @@ async function checkContentTab(test) {
   // in the data of what we want.
   let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
 
-  let newTab = open_content_tab_with_url(url + test.webPage);
+  let newTab = await open_content_tab_with_url(url + test.webPage);
 
   if (
     !(await SpecialPowers.spawn(newTab.browser, [], test.checkForAllowedRemote))
@@ -856,7 +855,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
   );
 
   // Now wait for the paste.
-  utils.waitFor(function () {
+  await TestUtils.waitForCondition(function () {
     let img = replyWindow.document
       .getElementById("messageEditor")
       .contentDocument.getElementById("tmp-img");

@@ -9,7 +9,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { gThreadManager } = ChromeUtils.import(
   "resource://testing-common/mailnews/Maild.jsm"
 );
@@ -69,7 +68,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
   if (otherFolder.msgStore.supportsCompaction) {
     otherFolder.compactAll(urlListener, null);
 
-    utils.waitFor(
+    await TestUtils.waitForCondition(
       () => urlListener.compactDone,
       "Timeout waiting for compact to complete",
       10000,

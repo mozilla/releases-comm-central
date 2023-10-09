@@ -90,7 +90,7 @@ add_task(async function testWarningShowsWhenEncryptionEnabled() {
 
   // setup_msg_contents will trigger checkEncryptionState.
   checkDonePromise = waitCheckEncryptionStateDone(cwc);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org",
     "Encryption Enabled ",
@@ -137,7 +137,7 @@ add_task(async function testNotificationDismissal() {
 
   // setup_msg_contents will trigger checkEncryptionState.
   checkDonePromise = waitCheckEncryptionStateDone(cwc);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org",
     "Warning Dismissal",
@@ -182,7 +182,7 @@ add_task(async function testNotificationDismissal() {
 
   // setup_msg_contents will trigger checkEncryptionState.
   checkDonePromise = waitCheckEncryptionStateDone(cwc);
-  setup_msg_contents(cwc, "test2@example.org", "", "", "bccAddrInput");
+  await setup_msg_contents(cwc, "test2@example.org", "", "", "bccAddrInput");
   await checkDonePromise;
 
   // Give the notification some time to incorrectly appear.
@@ -216,7 +216,7 @@ add_task(async function testNoWarningWhenEncryptionDisabled() {
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(cwc);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org",
     "No Warning ",
@@ -256,7 +256,7 @@ add_task(async function testNoWarningWhenBccRecipientIsSender() {
 
   // setup_msg_contents will trigger checkEncryptionState.
   let checkDonePromise = waitCheckEncryptionStateDone(cwc);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "bob@openpgp.example",
     "Bcc Self",

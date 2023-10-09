@@ -76,9 +76,7 @@ registerCleanupFunction(function () {
  * pane switches.
  */
 add_task(async function test_account_dot_IDs() {
-  await open_advanced_settings(function (tab) {
-    subtest_check_account_dot_IDs(tab);
-  });
+  await open_advanced_settings(subtest_check_account_dot_IDs);
 });
 
 /**
@@ -88,13 +86,13 @@ add_task(async function test_account_dot_IDs() {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_account_dot_IDs(tab) {
+async function subtest_check_account_dot_IDs(tab) {
   let accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-server.xhtml",
     tab
   );
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById(
@@ -107,10 +105,10 @@ function subtest_check_account_dot_IDs(tab) {
   EventUtils.synthesizeMouseAtCenter(loginCheck, {}, loginCheck.ownerGlobal);
 
   accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
@@ -170,13 +168,9 @@ function subtest_check_account_dot_IDs(tab) {
  * Check if form controls are properly disabled when their attached prefs are locked.
  */
 add_task(async function test_account_locked_prefs() {
-  await open_advanced_settings(function (tab) {
-    subtest_check_locked_prefs_addressing(tab);
-  });
+  await open_advanced_settings(subtest_check_locked_prefs_addressing);
 
-  await open_advanced_settings(function (tab) {
-    subtest_check_locked_prefs_server(tab);
-  });
+  await open_advanced_settings(subtest_check_locked_prefs_server);
 });
 
 /**
@@ -185,13 +179,13 @@ add_task(async function test_account_locked_prefs() {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_locked_prefs_addressing(tab) {
+async function subtest_check_locked_prefs_addressing(tab) {
   let accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-addressing.xhtml",
     tab
   );
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById(
@@ -232,14 +226,14 @@ function subtest_check_locked_prefs_addressing(tab) {
 
   // Refresh the pane by switching to another one.
   accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-addressing.xhtml",
     tab
   );
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
@@ -273,13 +267,13 @@ function subtest_check_locked_prefs_addressing(tab) {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_locked_prefs_server(tab) {
+async function subtest_check_locked_prefs_server(tab) {
   let accountRow = get_account_tree_row(
     gPopAccount.key,
     "am-server.xhtml",
     tab
   );
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById(
@@ -326,10 +320,10 @@ function subtest_check_locked_prefs_server(tab) {
 
   // Refresh the pane by switching to another one.
   accountRow = get_account_tree_row(gPopAccount.key, "am-junk.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   accountRow = get_account_tree_row(gPopAccount.key, "am-server.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   // Re-assign iframe.contentDocument because it was lost when changing panes
   // (uses loadURI to load a new document).
@@ -378,17 +372,15 @@ function subtest_check_locked_prefs_server(tab) {
  * even when empty. This is tested on the Reply-To field.
  */
 add_task(async function test_replyTo_leak() {
-  await open_advanced_settings(function (tab) {
-    subtest_check_replyTo_leak(tab);
-  });
+  await open_advanced_settings(subtest_check_replyTo_leak);
 });
 
 /**
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_replyTo_leak(tab) {
+async function subtest_check_replyTo_leak(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById(
@@ -412,7 +404,7 @@ function subtest_check_replyTo_leak(tab) {
   let firstAccount = MailServices.accounts.FindAccountForServer(firstServer);
 
   accountRow = get_account_tree_row(firstAccount.key, null, tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   // the Reply-To field should be empty as this account does not have it set.
   replyAddress = iframe.getElementById("identity.replyTo");
@@ -424,9 +416,7 @@ function subtest_check_replyTo_leak(tab) {
  * Check if onchange handlers are properly executed when panes are switched.
  */
 add_task(async function test_account_onchange_handler() {
-  await open_advanced_settings(function (tab) {
-    subtest_check_onchange_handler(tab);
-  });
+  await open_advanced_settings(subtest_check_onchange_handler);
 });
 
 /**
@@ -434,13 +424,13 @@ add_task(async function test_account_onchange_handler() {
  *
  * @param {object} tab - The account manager tab.
  */
-function subtest_check_onchange_handler(tab) {
+async function subtest_check_onchange_handler(tab) {
   let accountRow = get_account_tree_row(
     gImapAccount.key,
     "am-offline.xhtml",
     tab
   );
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let iframe =
     tab.browser.contentWindow.document.getElementById(
@@ -464,10 +454,10 @@ function subtest_check_onchange_handler(tab) {
 
   // Immediately switch to another pane and back.
   accountRow = get_account_tree_row(gImapAccount.key, "am-junk.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   accountRow = get_account_tree_row(gImapAccount.key, "am-offline.xhtml", tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   iframe =
     tab.browser.contentWindow.document.getElementById(

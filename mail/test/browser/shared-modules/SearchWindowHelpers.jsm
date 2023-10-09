@@ -33,7 +33,6 @@ var EventUtils = ChromeUtils.import(
 var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 /**
  * Open a search window using the accel-shift-f shortcut.
@@ -128,7 +127,7 @@ function select_click_search_row(aViewIndex, aWin) {
  * @returns {nsIMsgDBHdr[]} The message headers for all messages that are now
  *   selected.
  */
-function select_shift_click_search_row(aViewIndex, aWin) {
+async function select_shift_click_search_row(aViewIndex, aWin) {
   let tree = aWin.document.getElementById("threadTree");
   tree.scrollToRow(aViewIndex);
   let coords = tree.getCoordsForCellItem(
@@ -145,7 +144,7 @@ function select_shift_click_search_row(aViewIndex, aWin) {
     aWin
   );
 
-  utils.sleep(0);
+  await TestUtils.waitForTick();
   return aWin.gFolderDisplay.selectedMessages;
 }
 

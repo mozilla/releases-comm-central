@@ -212,7 +212,7 @@ add_task(async function test_reply_identity_selection() {
     checkCompIdentity(cwc, test.replyIdKey, test.replyIdFrom);
 
     if (test.warning) {
-      wait_for_notification_to_show(
+      await wait_for_notification_to_show(
         cwc,
         "compose-notification-bottom",
         "identityWarning"

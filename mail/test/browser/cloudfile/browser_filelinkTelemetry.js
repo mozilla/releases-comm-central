@@ -67,9 +67,9 @@ add_task(async function test_filelink_uploaded_size() {
   let cwc = await open_compose_new_mail(window);
   let account = cloudFileAccounts.createAccount(cloudType);
 
-  add_cloud_attachments(cwc, account, false);
+  await add_cloud_attachments(cwc, account, false);
   gMockCloudfileManager.resolveUploads();
-  wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
+  await wait_for_notification_to_stop(cwc, kBoxId, "bigAttachmentUploading");
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
@@ -87,7 +87,7 @@ add_task(async function test_filelink_ignored() {
   Services.telemetry.clearScalars();
 
   let cwc = await open_compose_new_mail(window);
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "test@example.org",
     "Testing ignoring filelink suggestion",
@@ -95,9 +95,9 @@ add_task(async function test_filelink_ignored() {
   );
 
   // Multiple big attachments should be counted as one ignoring.
-  add_attachments(cwc, "https://www.example.com/1", maxSize);
-  add_attachments(cwc, "https://www.example.com/2", maxSize + 10);
-  add_attachments(cwc, "https://www.example.com/3", maxSize - 1);
+  await add_attachments(cwc, "https://www.example.com/1", maxSize);
+  await add_attachments(cwc, "https://www.example.com/2", maxSize + 10);
+  await add_attachments(cwc, "https://www.example.com/3", maxSize - 1);
   let aftersend = BrowserTestUtils.waitForEvent(cwc, "aftersend");
   // Send Later to avoid uncatchable errors from the SMTP code.
   cwc.goDoCommand("cmd_sendLater");

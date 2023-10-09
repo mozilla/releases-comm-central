@@ -12,42 +12,41 @@ const EXPORTED_SYMBOLS = [
   "click_account_tree_row",
   "get_account_tree_row",
   "remove_account",
-  "wait_for_account_tree_load",
+  "promise_account_tree_load",
 ];
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
+var { content_tab_e, open_content_tab_with_url, promise_content_tab_load } =
+  ChromeUtils.import("resource://testing-common/mozmill/ContentTabHelpers.jsm");
 var fdh = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var wh = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
+
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
-
-var { content_tab_e, open_content_tab_with_url, wait_for_content_tab_load } =
-  ChromeUtils.import("resource://testing-common/mozmill/ContentTabHelpers.jsm");
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
+);
 
 var mc = fdh.mc;
 
 /**
  * Waits until the Account Manager tree fully loads after first open.
  */
-function wait_for_account_tree_load(tab) {
-  utils.waitFor(
+async function promise_account_tree_load(tab) {
+  await TestUtils.waitForCondition(
     () => tab.browser.contentWindow.currentAccount != null,
     "Timeout waiting for currentAccount to become non-null"
   );
 }
 
 async function openAccountSettings() {
-  return new Promise(resolve => {
-    let tab = open_content_tab_with_url("about:accountsettings");
-    wait_for_account_tree_load(tab);
-    resolve(tab);
-  });
+  let tab = await open_content_tab_with_url("about:accountsettings");
+  await promise_account_tree_load(tab);
+  return tab;
 }
 
 /**
@@ -58,26 +57,22 @@ async function openAccountSettings() {
  * @param {tabCallback} callback - The callback for the account manager tab that is opened.
  */
 async function open_advanced_settings(callback) {
-  let tab = open_content_tab_with_url("about:accountsettings");
-  wait_for_account_tree_load(tab);
+  let tab = await open_content_tab_with_url("about:accountsettings");
+  await promise_account_tree_load(tab);
   await callback(tab);
   mc.document.getElementById("tabmail").closeTab(tab);
 }
 
 async function openAccountSetup() {
-  return new Promise(resolve => {
-    let tab = open_content_tab_with_url("about:accountsetup");
-    wait_for_content_tab_load(tab, "about:accountsetup", 10000);
-    resolve(tab);
-  });
+  let tab = await open_content_tab_with_url("about:accountsetup");
+  await promise_content_tab_load(tab, "about:accountsetup", 10000);
+  return tab;
 }
 
 async function openAccountProvisioner() {
-  return new Promise(resolve => {
-    let tab = open_content_tab_with_url("about:accountprovisioner");
-    wait_for_content_tab_load(tab, "about:accountprovisioner", 10000);
-    resolve(tab);
-  });
+  let tab = await open_content_tab_with_url("about:accountprovisioner");
+  await promise_content_tab_load(tab, "about:accountprovisioner", 10000);
+  return tab;
 }
 
 /**
@@ -86,8 +81,8 @@ async function openAccountProvisioner() {
  * @param {TabInfo} tab - The account manager tab that opened.
  * @param {number} rowIndex - The row to click.
  */
-function click_account_tree_row(tab, rowIndex) {
-  utils.waitFor(
+async function click_account_tree_row(tab, rowIndex) {
+  await TestUtils.waitForCondition(
     () => tab.browser.contentWindow.currentAccount != null,
     "Timeout waiting for currentAccount to become non-null"
   );
@@ -95,13 +90,13 @@ function click_account_tree_row(tab, rowIndex) {
   let tree = content_tab_e(tab, "accounttree");
   tree.selectedIndex = rowIndex;
 
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => tab.browser.contentWindow.pendingAccount == null,
     "Timeout waiting for pendingAccount to become null"
   );
 
   // Ensure the page is fully loaded (e.g. onInit functions).
-  wh.wait_for_frame_load(
+  await wh.wait_for_frame_load(
     content_tab_e(tab, "contentFrame"),
     tab.browser.contentWindow.pageURL(
       tree.rows[rowIndex].getAttribute("PageTag")
@@ -142,14 +137,14 @@ function get_account_tree_row(accountKey, paneId, tab) {
  * @param {boolean} removeAccount - Remove the account itself.
  * @param {boolean} removeData - Remove the message data of the account.
  */
-function remove_account(
+async function remove_account(
   account,
   tab,
   removeAccount = true,
   removeData = false
 ) {
   let accountRow = get_account_tree_row(account.key, null, tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   account = null;
   // Use the Remove item in the Account actions menu.
@@ -160,7 +155,7 @@ function remove_account(
     actionsButton.ownerGlobal
   );
   let actionsDd = content_tab_e(tab, "accountActionsDropdown");
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => actionsDd.state == "open" || actionsDd.state == "showing"
   );
   let remove = content_tab_e(tab, "accountActionsDropdownRemove");
@@ -169,9 +164,9 @@ function remove_account(
     { clickCount: 1 },
     remove.ownerGlobal
   );
-  utils.waitFor(() => actionsDd.state == "closed");
+  await TestUtils.waitForCondition(() => actionsDd.state == "closed");
 
-  let cdc = wh.wait_for_frame_load(
+  let cdc = await wh.wait_for_frame_load(
     tab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://messenger/content/removeAccount.xhtml"
   );
@@ -193,7 +188,7 @@ function remove_account(
   }
 
   cdc.document.documentElement.querySelector("dialog").acceptDialog();
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => !cdc.document.querySelector("dialog").getButton("accept").disabled,
     "Timeout waiting for finish of account removal",
     5000,

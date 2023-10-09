@@ -65,7 +65,7 @@ add_task(async function test_account_open_state() {
  */
 async function subtest_check_account_order(tab) {
   let accountRow = get_account_tree_row(gPopAccount.key, null, tab);
-  click_account_tree_row(tab, accountRow);
+  await click_account_tree_row(tab, accountRow);
 
   let prevAccountList = MailServices.accounts.accounts.map(
     account => account.key

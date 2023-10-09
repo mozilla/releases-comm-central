@@ -5,7 +5,6 @@
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 registerCleanupFunction(() => {
   for (let book of MailServices.ab.directories) {

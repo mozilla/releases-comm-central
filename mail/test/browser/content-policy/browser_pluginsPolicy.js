@@ -218,7 +218,7 @@ add_task(async function test_checkContentTab() {
   // in the data of what we want.
   let preCount = document.getElementById("tabmail").tabContainer.allTabs.length;
 
-  let newTab = open_content_tab_with_url(url + "plugin.html");
+  let newTab = await open_content_tab_with_url(url + "plugin.html");
 
   if (await isPluginLoaded(newTab.browser)) {
     throw new Error("Plugin has been unexpectedly not blocked in content tab");

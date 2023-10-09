@@ -4,8 +4,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
 var { open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
@@ -16,9 +14,9 @@ var url =
 var gDocument;
 var gNewTab;
 
-add_setup(function () {
+add_setup(async function () {
   gDocument = document;
-  gNewTab = open_content_tab_with_url(url + "installxpi.html");
+  gNewTab = await open_content_tab_with_url(url + "installxpi.html");
 });
 
 registerCleanupFunction(function () {
@@ -28,7 +26,7 @@ registerCleanupFunction(function () {
 async function waitForNotification(id, buttonToClickSelector, callback) {
   let notificationSelector = `#notification-popup > #${id}-notification`;
   let notification;
-  utils.waitFor(() => {
+  await TestUtils.waitForCondition(() => {
     notification = gDocument.querySelector(notificationSelector);
     return notification && !notification.hidden;
   });
@@ -41,7 +39,9 @@ async function waitForNotification(id, buttonToClickSelector, callback) {
     let button = notification.querySelector(buttonToClickSelector);
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, window);
   }
-  utils.waitFor(() => !gDocument.querySelector(notificationSelector));
+  await TestUtils.waitForCondition(
+    () => !gDocument.querySelector(notificationSelector)
+  );
 }
 
 add_task(async function test_install_corrupt_xpi() {

@@ -178,31 +178,46 @@ add_task(async function test_tab_reorder_window() {
 
   // ...and then a new 3 pane as our drop target.
   mc2 = await open_folder_in_new_window(folder);
+  let tabmail2 = mc2.document.getElementById("tabmail");
+  await TestUtils.waitForCondition(
+    () => tabmail2.currentAbout3Pane.gDBView,
+    "waiting for the new window to be ready"
+  );
 
   // Start dragging the first tab ...
   let tabA = tabmail.tabContainer.allTabs[1];
   Assert.ok(tabA, "No movable Tab");
 
   // We drop onto the Folder Tab, it is guaranteed to exist.
-  let tabmail2 = mc2.document.getElementById("tabmail");
   let tabB = tabmail2.tabContainer.allTabs[0];
   Assert.ok(tabB, "No movable Tab");
 
   drag_n_drop_element(tabA, window, tabB, mc2, 0.75, 0.0, tabmail.tabContainer);
 
-  wait_for_message_display_completion(mc2);
-
   Assert.ok(
     tabmail.tabContainer.allTabs.length == 1,
-    "Moving tab to new window failed, tab still in old window"
+    "tab should be removed from the old window"
   );
-
   Assert.ok(
     tabmail2.tabContainer.allTabs.length == 2,
-    "Moving tab to new window failed, no new tab in new window"
+    "a new tab should have opened in then new window"
   );
-
+  Assert.equal(
+    tabmail2.tabInfo[1].mode.name,
+    "mailMessageTab",
+    "new tab should be a message tab"
+  );
+  Assert.equal(
+    tabmail2.currentTabInfo,
+    tabmail2.tabInfo[1],
+    "new tab should be selected"
+  );
+  await TestUtils.waitForCondition(
+    () => tabmail2.currentAboutMessage.gDBView,
+    "waiting for the new tab to be ready"
+  );
   assert_selected_and_displayed(mc2, msgHdrsInFolder[1]);
+
   teardownTest();
 });
 
@@ -256,15 +271,23 @@ add_task(async function test_tab_reorder_detach() {
 
   Assert.ok(
     tabmail.tabContainer.allTabs.length == 1,
-    "Moving tab to new window failed, tab still in old window"
+    "tab should be removed from the old window"
   );
-
   Assert.ok(
     tabmail2.tabContainer.allTabs.length == 2,
-    "Moving tab to new window failed, no new tab in new window"
+    "a new tab should have opened in then new window"
   );
-
+  Assert.equal(
+    tabmail2.currentTabInfo,
+    tabmail2.tabInfo[1],
+    "new tab should be selected"
+  );
+  await TestUtils.waitForCondition(
+    () => tabmail2.currentAboutMessage?.gDBView,
+    "waiting for the new tab to be ready"
+  );
   assert_selected_and_displayed(mc2, msgHdrsInFolder[2]);
+
   teardownTest();
 });
 

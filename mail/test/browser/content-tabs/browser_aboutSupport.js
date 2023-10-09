@@ -4,7 +4,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { close_compose_window, compose_window_ready } = ChromeUtils.import(
   "resource://testing-common/mozmill/ComposeHelpers.jsm"
 );
@@ -17,7 +16,7 @@ var {
   get_content_tab_element_display,
   get_element_by_text,
   open_content_tab_with_click,
-  wait_for_content_tab_element_display,
+  promise_content_tab_element_display,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
@@ -94,7 +93,10 @@ async function open_about_support() {
       ]);
     }
   };
-  let tab = open_content_tab_with_click(openAboutSupport, "about:support");
+  let tab = await open_content_tab_with_click(
+    openAboutSupport,
+    "about:support"
+  );
 
   // Make sure L10n is done.
   let l10nDone = false;
@@ -102,22 +104,25 @@ async function open_about_support() {
     () => (l10nDone = true),
     console.error
   );
-  utils.waitFor(() => l10nDone, "Timeout waiting for L10n to complete.");
+  await TestUtils.waitForCondition(
+    () => l10nDone,
+    "Timeout waiting for L10n to complete."
+  );
 
   // We have one variable that's asynchronously populated -- wait for it to be
   // populated.
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => tab.browser.contentWindow.gAccountDetails !== undefined,
     "Timeout waiting for about:support's gAccountDetails to populate."
   );
 
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => content_tab_e(tab, "accounts-tbody").children.length > 1,
     "Accounts sections didn't load."
   );
   // The population of the info fields is async, so we must wait until
   // the last one is done.
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () =>
       content_tab_e(tab, "intl-osprefs-regionalprefs").textContent.trim() != "",
     "Regional prefs section didn't load."
@@ -319,8 +324,8 @@ add_task(async function test_private_data() {
     { clickCount: 1 },
     checkbox.ownerGlobal
   );
-  wait_for_content_tab_element_display(tab, privateElem1);
-  wait_for_content_tab_element_display(tab, privateElem2);
+  await promise_content_tab_element_display(tab, privateElem1);
+  await promise_content_tab_element_display(tab, privateElem2);
   close_tab(tab);
 });
 
@@ -405,7 +410,7 @@ add_task(async function test_copy_to_clipboard_private() {
   let privateElem = find_private_element(tab);
   let show = content_tab_e(tab, "check-show-private-data");
   EventUtils.synthesizeMouseAtCenter(show, { clickCount: 1 }, show.ownerGlobal);
-  wait_for_content_tab_element_display(tab, privateElem);
+  await promise_content_tab_element_display(tab, privateElem);
 
   // To avoid destroying the current contents of the clipboard, instead of
   // actually copying to it, we just retrieve what would have been copied to it
@@ -525,7 +530,7 @@ add_task(async function test_send_via_email_private() {
   let privateElem = find_private_element(tab);
   let show = content_tab_e(tab, "check-show-private-data");
   EventUtils.synthesizeMouseAtCenter(show, { clickCount: 1 }, show.ownerGlobal);
-  wait_for_content_tab_element_display(tab, privateElem);
+  await promise_content_tab_element_display(tab, privateElem);
 
   let cwc = await open_send_via_email(tab);
 

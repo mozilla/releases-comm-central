@@ -193,7 +193,7 @@ add_task(async function test_open_multiple_search_results_in_new_tabs() {
   // Select a bunch of messages
   swc.document.getElementById("threadTree").focus();
   select_click_search_row(1, swc);
-  let selectedMessages = select_shift_click_search_row(
+  let selectedMessages = await select_shift_click_search_row(
     NUM_MESSAGES_TO_OPEN,
     swc
   );

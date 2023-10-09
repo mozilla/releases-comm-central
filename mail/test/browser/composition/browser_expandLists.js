@@ -94,7 +94,7 @@ add_task(async function testExpandListsOnTo() {
   let cwc = await open_compose_new_mail();
   let addresses = "start@example,Test List,end@example";
 
-  setup_msg_contents(cwc, addresses, "Expand To Test", "");
+  await setup_msg_contents(cwc, addresses, "Expand To Test", "");
   await testListExpansion(cwc, "toAddrContainer", addresses);
   await close_compose_window(cwc);
 });
@@ -110,7 +110,7 @@ add_task(async function testExpandListsInvalidPill() {
   let addresses =
     "start@example,invalidpill,Test List,end@example,invalidpill2";
 
-  setup_msg_contents(cwc, addresses, "Expand To Test Invalid Pill", "");
+  await setup_msg_contents(cwc, addresses, "Expand To Test Invalid Pill", "");
   await testListExpansion(cwc, "toAddrContainer", addresses);
   await close_compose_window(cwc);
 });
@@ -124,7 +124,7 @@ add_task(async function testExpandListsOnCc() {
   let addresses = "start@example,Test List,end@example";
 
   button.click();
-  setup_msg_contents(cwc, addresses, "Expand Cc Test", "", "ccAddrInput");
+  await setup_msg_contents(cwc, addresses, "Expand Cc Test", "", "ccAddrInput");
   await testListExpansion(cwc, "ccAddrContainer", addresses);
   await close_compose_window(cwc);
 });
@@ -138,7 +138,13 @@ add_task(async function testExpandListsOnBcc() {
   let addresses = "start@example,Test List,end@example";
 
   button.click();
-  setup_msg_contents(cwc, addresses, "Expand Bcc Test", "", "bccAddrInput");
+  await setup_msg_contents(
+    cwc,
+    addresses,
+    "Expand Bcc Test",
+    "",
+    "bccAddrInput"
+  );
   await testListExpansion(cwc, "bccAddrContainer", addresses);
   await close_compose_window(cwc);
 });

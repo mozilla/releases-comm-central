@@ -8,8 +8,6 @@
 
 "use strict";
 
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-
 var { create_contact, create_mailing_list, load_contacts_into_address_book } =
   ChromeUtils.import(
     "resource://testing-common/mozmill/AddressBookHelpers.jsm"
@@ -108,7 +106,7 @@ add_task(async function test_send_enabled_manual_address() {
   check_send_commands_state(cwc, false);
 
   // On valid "To:" addressee input, Send must be enabled.
-  setup_msg_contents(cwc, " recipient@fake.invalid ", "", "");
+  await setup_msg_contents(cwc, " recipient@fake.invalid ", "", "");
   check_send_commands_state(cwc, true);
 
   // When the addressee is not in To, Cc, Bcc or Newsgroup, disable Send again.
@@ -119,7 +117,13 @@ add_task(async function test_send_enabled_manual_address() {
   menu.activateItem(
     cwc.document.getElementById("addr_replyShowAddressRowMenuItem")
   );
-  setup_msg_contents(cwc, " recipient@fake.invalid ", "", "", "replyAddrInput");
+  await setup_msg_contents(
+    cwc,
+    " recipient@fake.invalid ",
+    "",
+    "",
+    "replyAddrInput"
+  );
   check_send_commands_state(cwc, false);
 
   clear_recipients(cwc);
@@ -128,7 +132,7 @@ add_task(async function test_send_enabled_manual_address() {
   // Bug 1296535
   // Try some other invalid and valid recipient strings:
   // - random string that is no email.
-  setup_msg_contents(cwc, " recipient@", "", "");
+  await setup_msg_contents(cwc, " recipient@", "", "");
   check_send_commands_state(cwc, false);
 
   let ccShow = cwc.document.getElementById("addr_ccShowAddressRowButton");
@@ -150,7 +154,7 @@ add_task(async function test_send_enabled_manual_address() {
   // Confirm the send button is disabled.
   check_send_commands_state(cwc, false);
   // Add multiple recipients.
-  setup_msg_contents(
+  await setup_msg_contents(
     cwc,
     "recipient@domain.invalid, info@somedomain.extension, name@incomplete",
     "",
@@ -167,13 +171,13 @@ add_task(async function test_send_enabled_manual_address() {
   let ml = create_mailing_list("emptyList");
   defaultAB.addMailList(ml);
 
-  setup_msg_contents(cwc, " emptyList", "", "");
+  await setup_msg_contents(cwc, " emptyList", "", "");
   check_send_commands_state(cwc, true);
 
   clear_recipients(cwc);
   check_send_commands_state(cwc, false);
 
-  setup_msg_contents(cwc, "emptyList <list> ", "", "");
+  await setup_msg_contents(cwc, "emptyList <list> ", "", "");
   check_send_commands_state(cwc, true);
 
   clear_recipients(cwc);
@@ -192,7 +196,7 @@ add_task(async function test_send_enabled_manual_address() {
   await new Promise(resolve => setTimeout(resolve));
 
   // - some string as a newsgroup
-  setup_msg_contents(cwc, "newsgroup ", "", "", "newsgroupsAddrInput");
+  await setup_msg_contents(cwc, "newsgroup ", "", "", "newsgroupsAddrInput");
   check_send_commands_state(cwc, true);
 
   await close_compose_window(cwc);
@@ -277,14 +281,14 @@ add_task(async function test_send_enabled_address_contacts_sidebar() {
   cwc.toggleContactsSidebar();
 
   let contactsBrowser = cwc.document.getElementById("contactsBrowser");
-  wait_for_frame_load(
+  await wait_for_frame_load(
     contactsBrowser,
     "chrome://messenger/content/addressbook/abContactsPanel.xhtml?focus"
   );
 
   let abTree = contactsBrowser.contentDocument.getElementById("abResultsTree");
   // The results are loaded async so wait for the population of the tree.
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => abTree.view.rowCount > 0,
     "Addressbook cards didn't load"
   );
@@ -307,7 +311,7 @@ add_task(async function test_send_enabled_address_contacts_sidebar() {
 add_task(async function test_update_pill_before_send() {
   let cwc = await open_compose_new_mail();
 
-  setup_msg_contents(cwc, "recipient@fake.invalid", "Subject", "");
+  await setup_msg_contents(cwc, "recipient@fake.invalid", "Subject", "");
 
   let pill = get_first_pill(cwc);
 
