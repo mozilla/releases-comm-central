@@ -1,0 +1,19 @@
+{
+  "permissions": {},
+  "data": [
+    {
+      "signature": {
+        "ref": "sfmufsnm4lqv6m3wu8m142mq",
+        "x5u": "https://content-signature-2.cdn.mozilla.net/chains/remote-settings.content-signature.mozilla.org-2023-11-18-16-07-37.chain",
+        "mode": "p384ecdsa",
+        "type": "contentsignaturepki",
+        "signature": "6gEc00XyoReNzUhUde5lng9wZKeb-kvXzm6K47hC8sOBHkmRff-xW2Ebct7ZwcIiJrGEEkDC2fyEjZMt52Haivx-tVvghLoEDUpUYBhmx89MjOxJbhpVqHOaOmVWJN-p",
+        "signer_id": "remote-settings",
+        "public_key": "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEkG4DghibPzRweZTBELUeRB1KhGtpXuoGwAo7BlXXln6wjfHQCst5PBShB0XQQIFSi/r6wwxzuM2RxwQ4m5nmcKeb/8Hs7wWIiY3Wi1HTTE1PQKu+wLiUwwY6Q4928LXd"
+      },
+      "id": "fingerprinting-protection-overrides",
+      "last_modified": 1696291208524
+    }
+  ],
+  "timestamp": 1696291208524
+}
