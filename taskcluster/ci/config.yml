@@ -392,6 +392,12 @@ mac-signing:
 
 expiration-policy:
     by-project:
+        try:
+            default: 28 days
+            shortest: 7 days
+            short: 14 days
+            medium: 28 days
+            long: 28 days
         try-comm-central:
             default: 1 month
             shortest: 7 days
