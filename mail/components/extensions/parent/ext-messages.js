@@ -385,22 +385,32 @@ async function getMimeMessage(msgHdr, partName = "") {
     return subMimeMsg;
   }
 
-  let mimeMsg = await new Promise(resolve => {
-    MsgHdrToMimeMessage(
-      msgHdr,
-      null,
-      (_msgHdr, mimeMsg) => {
-        mimeMsg.attachments = mimeMsg.allInlineAttachments;
-        resolve(mimeMsg);
-      },
-      true,
-      { examineEncryptedParts: true }
-    );
-  });
-
-  return partName
-    ? mimeMsg.attachments.find(a => a.partName == partName)
-    : mimeMsg;
+  try {
+    let mimeMsg = await new Promise((resolve, reject) => {
+      MsgHdrToMimeMessage(
+        msgHdr,
+        null,
+        (_msgHdr, mimeMsg) => {
+          if (!mimeMsg) {
+            reject();
+          } else {
+            mimeMsg.attachments = mimeMsg.allInlineAttachments;
+            resolve(mimeMsg);
+          }
+        },
+        true,
+        { examineEncryptedParts: true }
+      );
+    });
+    return partName
+      ? mimeMsg.attachments.find(a => a.partName == partName)
+      : mimeMsg;
+  } catch (ex) {
+    // Something went wrong. Return null, which will inform the user that the
+    // message could not be read.
+    console.warn(ex);
+    return null;
+  }
 }
 
 this.messages = class extends ExtensionAPIPersistent {

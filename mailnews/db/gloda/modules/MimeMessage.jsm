@@ -16,15 +16,6 @@ const { MailServices } = ChromeUtils.import(
 );
 
 /**
- * The URL listener is surplus because the CallbackStreamListener ends up
- *  getting the same set of events, effectively.
- */
-var dumbUrlListener = {
-  OnStartRunningUrl(aUrl) {},
-  OnStopRunningUrl(aUrl, aExitCode) {},
-};
-
-/**
  * Maintain a list of all active stream listeners so that we can cancel them all
  *  during shutdown.  If we don't cancel them, we risk calls into javascript
  *  from C++ after the various XPConnect contexts have already begun their
@@ -62,7 +53,7 @@ function CallbackStreamListener(aMsgHdr, aCallbackThis, aCallback) {
   this._msgHdr = aMsgHdr;
   // Messages opened from file or attachments do not have a folder property, but
   // have their url stored as a string property.
-  let hdrURI = aMsgHdr.folder
+  this._hdrURI = aMsgHdr.folder
     ? aMsgHdr.folder.getUriForMsg(aMsgHdr)
     : aMsgHdr.getStringProperty("dummyMsgUrl");
 
@@ -75,35 +66,53 @@ function CallbackStreamListener(aMsgHdr, aCallbackThis, aCallback) {
     this._callbacksThis = [aCallbackThis];
     this._callbacks = [aCallback];
   }
-  activeStreamListeners[hdrURI] = this;
+  activeStreamListeners[this._hdrURI] = this;
 }
 
 /**
  * @implements {nsIRequestObserver}
  * @implements {nsIStreamListener}
+ * @implements {nsIUrlListener}
  */
 CallbackStreamListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIRequestObserver",
+    "nsIStreamListener",
+    "nsIUrlListener",
+  ]),
+
+  // nsIUrlListener part
+
+  OnStartRunningUrl(aUrl) {},
+  OnStopRunningUrl(aUrl, aExitCode) {
+    if (!Components.isSuccessCode(aExitCode)) {
+      // Connection errors are not seen by onStopRequest, so we finalize on
+      // fails here.
+      this._finalize(null);
+    }
+  },
 
   // nsIRequestObserver part
+
   onStartRequest(aRequest) {
     this._request = aRequest;
   },
   onStopRequest(aRequest, aStatusCode) {
-    // Messages opened from file or attachments do not have a folder property,
-    // but have their url stored as a string property.
-    let msgURI = this._msgHdr.folder
-      ? this._msgHdr.folder.getUriForMsg(this._msgHdr)
-      : this._msgHdr.getStringProperty("dummyMsgUrl");
-    delete activeStreamListeners[msgURI];
-
     aRequest.QueryInterface(Ci.nsIChannel);
     let message = MsgHdrToMimeMessage.RESULT_RENDEVOUZ[aRequest.URI.spec];
     if (message === undefined) {
       message = null;
     }
-
     delete MsgHdrToMimeMessage.RESULT_RENDEVOUZ[aRequest.URI.spec];
+
+    if (Components.isSuccessCode(aStatusCode)) {
+      // Only finalize on success here. Fails are finalized in OnStopRunningUrl.
+      this._finalize(message);
+    }
+  },
+
+  _finalize(message) {
+    delete activeStreamListeners[this._hdrURI];
 
     for (let i = 0; i < this._callbacksThis.length; i++) {
       try {
@@ -242,7 +251,7 @@ function MsgHdrToMimeMessage(
       msgURI,
       streamListener, // consumer
       null, // nsIMsgWindow
-      dumbUrlListener, // nsIUrlListener
+      streamListener, // nsIUrlListener
       true, // have them create the converter
       // additional uri payload, note that "header=" is prepended automatically
       "filter&emitter=js" + encryptedStr,
