@@ -45,7 +45,7 @@ add_task(async function test_customHeaders() {
   );
 
   await be_in_folder(draftsFolder);
-  let draftMsg = select_click_row(0);
+  let draftMsg = await select_click_row(0);
   let draftMsgLines = (await get_msg_source(draftMsg)).split("\n");
 
   // Check header values are set and encoded correctly.

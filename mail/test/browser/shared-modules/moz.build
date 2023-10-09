@@ -25,7 +25,6 @@ TESTING_JS_MODULES.mozmill += [
     "QuickFilterBarHelpers.jsm",
     "SearchWindowHelpers.jsm",
     "SubscribeWindowHelpers.jsm",
-    "utils.jsm",
     "ViewHelpers.jsm",
     "WindowHelpers.jsm",
 ]

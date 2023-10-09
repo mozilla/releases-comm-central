@@ -133,7 +133,7 @@ add_task(async function test_folder_pane_is_sticky() {
   assert_folder_pane_visible();
 
   // [folder+ => (new) message]
-  select_click_row(0);
+  await select_click_row(0);
   let tabMessage = await open_selected_message_in_new_tab();
 
   // [message => folder+]

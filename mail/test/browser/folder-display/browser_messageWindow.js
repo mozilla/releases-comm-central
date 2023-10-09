@@ -54,11 +54,11 @@ add_task(async function test_open_message_window() {
   await be_in_folder(folderA);
 
   // select the first message
-  curMessage = select_click_row(0);
+  curMessage = await select_click_row(0);
 
   // display it
   msgc = await open_selected_message_in_new_window();
-  assert_selected_and_displayed(msgc, curMessage);
+  await assert_selected_and_displayed(msgc, curMessage);
 });
 
 /**
@@ -77,11 +77,11 @@ add_task(function test_toggle_read() {
  * Use the "f" keyboard accelerator to navigate to the next message,
  * and verify that it is indeed loaded.
  */
-add_task(function test_navigate_to_next_message() {
+add_task(async function test_navigate_to_next_message() {
   plan_for_message_display(msgc);
   EventUtils.synthesizeKey("f", {}, msgc);
-  wait_for_message_display_completion(msgc, true);
-  assert_selected_and_displayed(msgc, 1);
+  await wait_for_message_display_completion(msgc, true);
+  await assert_selected_and_displayed(msgc, 1);
 }).skip();
 
 /**
@@ -89,25 +89,25 @@ add_task(function test_navigate_to_next_message() {
  * us up for the next test, which is delete on a collapsed thread after
  * the previous message was deleted.
  */
-add_task(function test_delete_single_message() {
+add_task(async function test_delete_single_message() {
   plan_for_message_display(msgc);
-  press_delete(msgc);
-  wait_for_message_display_completion(msgc, true);
-  assert_selected_and_displayed(msgc, 1);
+  await press_delete(msgc);
+  await wait_for_message_display_completion(msgc, true);
+  await assert_selected_and_displayed(msgc, 1);
 }).skip();
 
 /**
  * Delete the current message, and verify that it only deletes
  * a single message, not the messages in the collapsed thread
  */
-add_task(function test_del_collapsed_thread() {
+add_task(async function test_del_collapsed_thread() {
   plan_for_message_display(msgc);
-  press_delete(msgc);
+  await press_delete(msgc);
   if (folderA.getTotalMessages(false) != 4) {
     throw new Error("should have only deleted one message");
   }
-  wait_for_message_display_completion(msgc, true);
-  assert_selected_and_displayed(msgc, 1);
+  await wait_for_message_display_completion(msgc, true);
+  await assert_selected_and_displayed(msgc, 1);
 }).skip();
 
 /**
@@ -120,7 +120,7 @@ add_task(async function test_next_unread() {
   for (let i = 0; i < 3; ++i) {
     plan_for_message_display(msgc);
     EventUtils.synthesizeKey("n", {}, msgc);
-    wait_for_message_display_completion(msgc, true);
+    await wait_for_message_display_completion(msgc, true);
   }
 
   for (let m of folderA.messages) {
@@ -131,16 +131,16 @@ add_task(async function test_next_unread() {
   EventUtils.synthesizeKey("n", {}, msgc);
   plan_for_message_display(msgc);
   await dialogPromise;
-  wait_for_message_display_completion(msgc, true);
+  await wait_for_message_display_completion(msgc, true);
 
   // move to folder B
   await be_in_folder(folderB);
 
   // select the first message, and make sure it's not read
-  let msg = select_click_row(0);
+  let msg = await select_click_row(0);
 
   // make sure we've been displaying the right message
-  assert_selected_and_displayed(msgc, msg);
+  await assert_selected_and_displayed(msgc, msg);
 }).skip();
 
 /**

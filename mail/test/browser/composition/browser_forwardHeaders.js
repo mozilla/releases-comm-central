@@ -72,21 +72,21 @@ async function forward_selected_messages_and_go_to_drafts_folder(callback) {
 
   // Visit the existing Drafts folder.
   await be_in_folder(gDrafts);
-  make_display_unthreaded();
+  await make_display_unthreaded();
 }
 
 add_task(async function test_forward_inline() {
   await be_in_folder(folder);
-  make_display_unthreaded();
+  await make_display_unthreaded();
   // original message header
-  let oMsgHdr = select_click_row(0);
+  let oMsgHdr = await select_click_row(0);
 
   await forward_selected_messages_and_go_to_drafts_folder(
     open_compose_with_forward
   );
 
   // forwarded message header
-  let fMsgHdr = select_click_row(0);
+  let fMsgHdr = await select_click_row(0);
 
   Assert.ok(
     fMsgHdr.numReferences > 0,
@@ -101,14 +101,14 @@ add_task(async function test_forward_inline() {
   // test for x-forwarded-message id and exercise the js mime representation as
   // well
   return new Promise(resolve => {
-    MsgHdrToMimeMessage(fMsgHdr, null, function (aMsgHdr, aMimeMsg) {
+    MsgHdrToMimeMessage(fMsgHdr, null, async function (aMsgHdr, aMimeMsg) {
       Assert.equal(
         aMimeMsg.headers["x-forwarded-message-id"],
         "<" + oMsgHdr.messageId + ">"
       );
       Assert.equal(aMimeMsg.headers.references, "<" + oMsgHdr.messageId + ">");
 
-      press_delete(window);
+      await press_delete(window);
       resolve();
     });
   });
@@ -116,19 +116,19 @@ add_task(async function test_forward_inline() {
 
 add_task(async function test_forward_as_attachments() {
   await be_in_folder(folder);
-  make_display_unthreaded();
+  await make_display_unthreaded();
 
   // original message header
-  let oMsgHdr0 = select_click_row(0);
-  let oMsgHdr1 = select_click_row(1);
-  select_shift_click_row(0);
+  let oMsgHdr0 = await select_click_row(0);
+  let oMsgHdr1 = await select_click_row(1);
+  await select_shift_click_row(0);
 
   await forward_selected_messages_and_go_to_drafts_folder(
     open_compose_with_forward_as_attachments
   );
 
   // forwarded message header
-  let fMsgHdr = select_click_row(0);
+  let fMsgHdr = await select_click_row(0);
 
   Assert.ok(
     fMsgHdr.numReferences > 0,
@@ -152,7 +152,7 @@ add_task(async function test_forward_as_attachments() {
   // test for x-forwarded-message id and exercise the js mime representation as
   // well
   return new Promise(resolve => {
-    MsgHdrToMimeMessage(fMsgHdr, null, function (aMsgHdr, aMimeMsg) {
+    MsgHdrToMimeMessage(fMsgHdr, null, async function (aMsgHdr, aMimeMsg) {
       Assert.equal(
         aMimeMsg.headers["x-forwarded-message-id"],
         "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">"
@@ -162,7 +162,7 @@ add_task(async function test_forward_as_attachments() {
         "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">"
       );
 
-      press_delete(window);
+      await press_delete(window);
       resolve();
     });
   });

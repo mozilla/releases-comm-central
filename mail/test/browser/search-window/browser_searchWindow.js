@@ -131,7 +131,7 @@ add_task(async function test_go_search() {
     {},
     swc.document.getElementById("search-button").ownerGlobal
   );
-  wait_for_all_messages_to_load(swc);
+  await wait_for_all_messages_to_load(swc);
 
   // - Verify we got the right messages
   assert_messages_in_search_view(setFooBar, swc);
@@ -167,14 +167,14 @@ add_task(async function test_open_single_search_result_in_tab() {
   // Open the selected message
   open_selected_message(swc);
   // This is going to trigger a message display in the main 3pane window
-  wait_for_message_display_completion(window);
+  await wait_for_message_display_completion(window);
   // Check that the tab count has increased by 1
   assert_number_of_tabs_open(preCount + 1);
   // Check that the currently displayed tab is a message tab (i.e. our newly
   // opened tab is in the foreground)
   assert_tab_mode_name(null, "mailMessageTab");
   // Check that the message header displayed is the right one
-  assert_selected_and_displayed(msgHdr);
+  await assert_selected_and_displayed(msgHdr);
   // Clean up, close the tab
   close_tab(document.getElementById("tabmail").currentTabInfo);
   await switch_tab(folderTab);
@@ -200,7 +200,7 @@ add_task(async function test_open_multiple_search_results_in_new_tabs() {
   // Open them
   open_selected_messages(swc);
   // This is going to trigger a message display in the main 3pane window
-  wait_for_message_display_completion(window, true);
+  await wait_for_message_display_completion(window, true);
   // Check that the tab count has increased by the correct number
   assert_number_of_tabs_open(preCount + NUM_MESSAGES_TO_OPEN);
   // Check that the currently displayed tab is a message tab (i.e. one of our
@@ -210,7 +210,7 @@ add_task(async function test_open_multiple_search_results_in_new_tabs() {
   // Now check whether each of the NUM_MESSAGES_TO_OPEN tabs has the correct
   // title
   for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
-    assert_tab_titled_from(
+    await assert_tab_titled_from(
       document.getElementById("tabmail").tabInfo[preCount + i],
       selectedMessages[i]
     );
@@ -219,7 +219,7 @@ add_task(async function test_open_multiple_search_results_in_new_tabs() {
   // Check whether each tab has the correct message, then close it to load the
   // previous tab.
   for (let i = 0; i < NUM_MESSAGES_TO_OPEN; i++) {
-    assert_selected_and_displayed(selectedMessages.pop());
+    await assert_selected_and_displayed(selectedMessages.pop());
     close_tab(document.getElementById("tabmail").currentTabInfo);
   }
   await switch_tab(folderTab);
@@ -241,9 +241,9 @@ add_task(async function test_open_search_result_in_new_window() {
   // Open it
   open_selected_message(swc);
   let msgc = await newWindowPromise;
-  wait_for_message_display_completion(msgc, true);
+  await wait_for_message_display_completion(msgc, true);
 
-  assert_selected_and_displayed(msgc, msgHdr);
+  await assert_selected_and_displayed(msgc, msgHdr);
   // Clean up, close the window
   await BrowserTestUtils.closeWindow(msgc);
   reset_open_message_behavior();
@@ -262,16 +262,16 @@ add_task(async function test_open_search_result_in_existing_window() {
   let newWindowPromise = promise_new_window("mail:messageWindow");
   open_selected_message(swc);
   let msgc = await newWindowPromise;
-  wait_for_message_display_completion(msgc, true);
+  await wait_for_message_display_completion(msgc, true);
 
   // Select another message and open it
   let msgHdr = select_click_search_row(2, swc);
   plan_for_message_display(msgc);
   open_selected_message(swc);
-  wait_for_message_display_completion(msgc, true);
+  await wait_for_message_display_completion(msgc, true);
 
   // Check if our old window displays the message
-  assert_selected_and_displayed(msgc, msgHdr);
+  await assert_selected_and_displayed(msgc, msgHdr);
   // Clean up, close the window
   await BrowserTestUtils.closeWindow(msgc);
   reset_open_message_behavior();

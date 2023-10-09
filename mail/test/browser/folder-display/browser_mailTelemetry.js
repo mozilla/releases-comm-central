@@ -79,7 +79,7 @@ add_task(async function test_secure_mails_read() {
     i < NUM_PLAIN_MAILS + NUM_SMIME_MAILS + NUM_OPENPGP_MAILS;
     i++
   ) {
-    select_click_row(i);
+    await select_click_row(i);
   }
 
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
@@ -100,7 +100,7 @@ add_task(async function test_secure_mails_read() {
     i < NUM_PLAIN_MAILS + NUM_SMIME_MAILS + NUM_OPENPGP_MAILS;
     i++
   ) {
-    select_click_row(i);
+    await select_click_row(i);
   }
 
   scalars = TelemetryTestUtils.getProcessScalars("parent", true);

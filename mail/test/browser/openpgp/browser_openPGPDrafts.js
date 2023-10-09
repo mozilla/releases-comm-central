@@ -135,7 +135,7 @@ add_task(async function testDraftReplyToEncryptedMessageKeepsRePrefix() {
     );
 
     let draftWindowPromise = waitForComposeWindow();
-    select_click_row(wantedRow);
+    await select_click_row(wantedRow);
     ++wantedRow;
     open_selected_message();
 

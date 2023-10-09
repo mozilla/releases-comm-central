@@ -39,7 +39,6 @@ const EXPORTED_SYMBOLS = [
   "assert_messages_summarized",
   "assert_multimessage_pane_focused",
   "assert_not_selected_tab",
-  "assert_not_showing_unread_only",
   "assert_not_shown",
   "assert_nothing_selected",
   "assert_number_of_tabs_open",
@@ -47,7 +46,6 @@ const EXPORTED_SYMBOLS = [
   "assert_selected",
   "assert_selected_and_displayed",
   "assert_selected_tab",
-  "assert_showing_unread_only",
   "assert_summary_contains_N_elts",
   "assert_tab_has_title",
   "assert_tab_mode_name",
@@ -106,7 +104,6 @@ const EXPORTED_SYMBOLS = [
   "plan_for_message_display",
   "plan_to_wait_for_folder_events",
   "press_delete",
-  "press_enter",
   "remove_from_toolbar",
   "reset_close_message_on_delete",
   "reset_context_menu_background_tabs",
@@ -127,7 +124,6 @@ const EXPORTED_SYMBOLS = [
   "set_mc",
   "set_open_message_behavior",
   "set_pane_layout",
-  "set_show_unread_only",
   "show_folder_pane",
   "smimeUtils_ensureNSS",
   "smimeUtils_loadCertificateAndKey",
@@ -151,13 +147,9 @@ var { AppConstants } = ChromeUtils.importESModule(
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
-var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
-var {
-  promise_new_window,
-  wait_for_existing_window,
-  wait_for_window_focused,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { promise_new_window, wait_for_existing_window, wait_for_window_focused } =
+  ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { Assert } = ChromeUtils.importESModule(
   "resource://testing-common/Assert.sys.mjs"
@@ -165,8 +157,8 @@ var { Assert } = ChromeUtils.importESModule(
 var { BrowserTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/BrowserTestUtils.sys.mjs"
 );
-var { TestUtils } = ChromeUtils.import(
-  "resource://testing-common/TestUtils.jsm"
+var { TestUtils } = ChromeUtils.importESModule(
+  "resource://testing-common/TestUtils.sys.mjs"
 );
 
 var nsMsgViewIndex_None = 0xffffffff;
@@ -237,16 +229,6 @@ function get_about_message(win = mc) {
   throw new Error("The current tab is not a mail3PaneTab or mailMessageTab.");
 }
 
-function ready_about_win(win) {
-  if (win.document.readyState == "complete") {
-    return;
-  }
-  utils.waitFor(
-    () => win.document.readyState == "complete",
-    `About win should complete loading`
-  );
-}
-
 function get_about_3pane_or_about_message(win = mc) {
   let doc = win.document;
   let tabmail = doc.getElementById("tabmail");
@@ -266,9 +248,7 @@ function get_about_3pane_or_about_message(win = mc) {
 }
 
 function get_db_view(win = mc) {
-  let aboutMessageWin = get_about_3pane_or_about_message(win);
-  ready_about_win(aboutMessageWin);
-  return aboutMessageWin.gDBView;
+  return get_about_3pane_or_about_message(win).gDBView;
 }
 
 function smimeUtils_ensureNSS() {
@@ -299,7 +279,7 @@ function smimeUtils_loadCertificateAndKey(file, pw) {
  * @returns {nsIMsgFolder}
  */
 async function create_folder(aFolderName, aSpecialFlags) {
-  wait_for_message_display_completion();
+  await wait_for_message_display_completion();
 
   let folder = await messageInjection.makeEmptyFolder(
     aFolderName,
@@ -532,7 +512,7 @@ function open_selected_messages(win = mc) {
   // Focus the thread tree
   focus_thread_tree();
   // Open whatever's selected
-  press_enter(win);
+  EventUtils.synthesizeKey("VK_RETURN", {}, win);
 }
 
 var open_selected_message = open_selected_messages;
@@ -591,7 +571,7 @@ async function open_selected_message_in_new_window() {
     win.gViewWrapper
   );
   let msgc = await newWindowPromise;
-  wait_for_message_display_completion(msgc, true);
+  await wait_for_message_display_completion(msgc, true);
   return msgc;
 }
 
@@ -659,9 +639,9 @@ async function open_message_from_file(file) {
   await BrowserTestUtils.waitForEvent(aboutMessage, "MsgLoaded");
 
   let msgc = await newWindowPromise;
-  wait_for_message_display_completion(msgc, true);
+  await wait_for_message_display_completion(msgc, true);
   wait_for_window_focused(msgc);
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 
   return msgc;
 }
@@ -746,7 +726,7 @@ function assert_number_of_tabs_open(aNumber) {
  * @param aTab A Tab.
  * @param aWhat Either an nsIMsgFolder or an nsIMsgDBHdr
  */
-function assert_tab_titled_from(aTab, aWhat) {
+async function assert_tab_titled_from(aTab, aWhat) {
   let text;
   if (aWhat instanceof Ci.nsIMsgFolder) {
     text = aWhat.prettyName;
@@ -754,7 +734,7 @@ function assert_tab_titled_from(aTab, aWhat) {
     text = aWhat.mime2DecodedSubject;
   }
 
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     () => aTab.title.includes(text),
     `Tab title should include '${text}' but does not. (Current title: '${aTab.title}')`
   );
@@ -800,8 +780,8 @@ function close_tab(aTabToClose) {
  *
  * @param {Window} [win] - The window to use.
  */
-function select_none(win = mc) {
-  wait_for_message_display_completion();
+async function select_none(win = mc) {
+  await wait_for_message_display_completion();
   focus_thread_tree();
   get_db_view(win).selection.clearSelection();
   get_about_3pane().threadTree.dispatchEvent(new CustomEvent("select"));
@@ -812,21 +792,11 @@ function select_none(win = mc) {
   function noMessageChecker() {
     return win2.gMessage == null;
   }
-  try {
-    utils.waitFor(noMessageChecker);
-  } catch (e) {
-    if (e instanceof utils.TimeoutError) {
-      Assert.report(
-        true,
-        undefined,
-        undefined,
-        "Timeout waiting for displayedMessage to become null."
-      );
-    } else {
-      throw e;
-    }
-  }
-  wait_for_blank_content_pane(win);
+  await TestUtils.waitForCondition(
+    noMessageChecker,
+    "waiting for displayedMessage to become null."
+  );
+  await wait_for_blank_content_pane(win);
 }
 
 /**
@@ -862,7 +832,7 @@ function _normalize_view_index(aViewIndex) {
  * @param {number} aRowIndex - Index of a row in the tree to click on.
  * @see mailTestUtils.treeClick for another way.
  */
-function click_tree_row(aTree, aRowIndex) {
+async function click_tree_row(aTree, aRowIndex) {
   if (aRowIndex < 0 || aRowIndex >= aTree.view.rowCount) {
     throw new Error(
       "Row " + aRowIndex + " does not exist in the tree " + aTree.id + "!"
@@ -877,7 +847,7 @@ function click_tree_row(aTree, aRowIndex) {
   let column = aTree.columns[0];
   let coords = aTree.getCoordsForCellItem(aRowIndex, column, "text");
 
-  utils.sleep(0);
+  await TestUtils.waitForTick();
   EventUtils.synthesizeMouse(
     aTree.body,
     coords.x + 4,
@@ -885,10 +855,10 @@ function click_tree_row(aTree, aRowIndex) {
     {},
     aTree.ownerGlobal
   );
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 }
 
-function _get_row_at_index(aViewIndex) {
+async function _get_row_at_index(aViewIndex) {
   let win = get_about_3pane();
   let tree = win.document.getElementById("threadTree");
   Assert.greater(
@@ -897,7 +867,7 @@ function _get_row_at_index(aViewIndex) {
     `index ${aViewIndex} must exist to be clicked on`
   );
   tree.scrollToIndex(aViewIndex, true);
-  utils.waitFor(() => tree.getRowAtIndex(aViewIndex));
+  await TestUtils.waitForCondition(() => tree.getRowAtIndex(aViewIndex));
   return tree.getRowAtIndex(aViewIndex);
 }
 
@@ -909,14 +879,14 @@ function _get_row_at_index(aViewIndex) {
  *   -1 indicates the last message in the tree, -2 the second to last, etc.
  * @returns The message header selected.
  */
-function select_click_row(aViewIndex) {
+async function select_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
-  let row = _get_row_at_index(aViewIndex);
+  let row = await _get_row_at_index(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, {}, row.ownerGlobal);
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 
-  wait_for_message_display_completion(undefined, true);
+  await wait_for_message_display_completion(undefined, true);
 
   return get_about_3pane().gDBView.getMsgHdrAt(aViewIndex);
 }
@@ -931,12 +901,12 @@ function select_click_row(aViewIndex) {
  *   the first window.
  * @returns The message header selected.
  */
-function select_column_click_row(aViewIndex, aWin = mc) {
+async function select_column_click_row(aViewIndex, aWin = mc) {
   let dbView = get_db_view(aWin);
 
   let hasMessageDisplay = "messageDisplay" in aWin;
   if (hasMessageDisplay) {
-    wait_for_message_display_completion(aWin);
+    await wait_for_message_display_completion(aWin);
   }
   aViewIndex = _normalize_view_index(aViewIndex, aWin);
 
@@ -960,7 +930,7 @@ function select_column_click_row(aViewIndex, aWin = mc) {
     "selectCol"
   );
   if (hasMessageDisplay) {
-    wait_for_message_display_completion(aWin, willDisplayMessage);
+    await wait_for_message_display_completion(aWin, willDisplayMessage);
   }
   return dbView.getMsgHdrAt(aViewIndex);
 }
@@ -973,14 +943,14 @@ function select_column_click_row(aViewIndex, aWin = mc) {
  *     last message in the tree, -2 the second to last, etc.
  *
  */
-function toggle_thread_row(aViewIndex) {
+async function toggle_thread_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
   let win = get_about_3pane();
   let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row.querySelector(".twisty"), {}, win);
 
-  wait_for_message_display_completion();
+  await wait_for_message_display_completion();
 }
 
 /**
@@ -993,14 +963,14 @@ function toggle_thread_row(aViewIndex) {
  *
  * @returns The message header of the affected message.
  */
-function select_control_click_row(aViewIndex) {
+async function select_control_click_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
   let win = get_about_3pane();
   let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, { accelKey: true }, win);
 
-  wait_for_message_display_completion();
+  await wait_for_message_display_completion();
 
   return win.gDBView.getMsgHdrAt(aViewIndex);
 }
@@ -1016,14 +986,14 @@ function select_control_click_row(aViewIndex) {
  *   the first window.
  * @returns The message headers for all messages that are now selected.
  */
-function select_shift_click_row(aViewIndex, aWin, aDoNotRequireLoad) {
+async function select_shift_click_row(aViewIndex, aWin, aDoNotRequireLoad) {
   aViewIndex = _normalize_view_index(aViewIndex, aWin);
 
   let win = get_about_3pane();
   let row = win.document.getElementById("threadTree").getRowAtIndex(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, { shiftKey: true }, win);
 
-  wait_for_message_display_completion();
+  await wait_for_message_display_completion();
 
   return win.gDBView.getSelectedMsgHdrs();
 }
@@ -1157,11 +1127,11 @@ async function right_click_on_row(aViewIndex) {
  *
  * @returns [The new tab, the message that you clicked on.]
  */
-function middle_click_on_row(aViewIndex) {
+async function middle_click_on_row(aViewIndex) {
   aViewIndex = _normalize_view_index(aViewIndex);
 
   let win = get_about_3pane();
-  let row = _get_row_at_index(aViewIndex);
+  let row = await _get_row_at_index(aViewIndex);
   EventUtils.synthesizeMouseAtCenter(row, { button: 1 }, win);
 
   return [
@@ -1322,8 +1292,8 @@ function select_click_folder(aFolder) {
  *
  * @returns An array containing all the folders that are now selected.
  */
-function select_shift_click_folder(aFolder) {
-  wait_for_all_messages_to_load();
+async function select_shift_click_folder(aFolder) {
+  await wait_for_all_messages_to_load();
 
   let viewIndex = mc.folderTreeView.getIndexOfFolder(aFolder);
   // Passing -1 as the start range checks the shift-pivot, which should be -1,
@@ -1332,9 +1302,9 @@ function select_shift_click_folder(aFolder) {
   //  the current index to be what we shift-clicked on.  All matches user
   //  interaction.
   mc.folderTreeView.selection.rangedSelect(-1, viewIndex, false);
-  wait_for_all_messages_to_load();
+  await wait_for_all_messages_to_load();
   // give the event queue a chance to drain...
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 
   return mc.folderTreeView.getSelectedFolders();
 }
@@ -1425,7 +1395,7 @@ async function delete_via_popup() {
 
   // for reasons unknown, the pop-up does not close itself?
   await close_popup(mc, win.document.getElementById("mailContext"));
-  wait_for_folder_events();
+  await wait_for_folder_events();
 }
 
 async function wait_for_popup_to_open(popupElem) {
@@ -1460,14 +1430,14 @@ async function close_popup(aWin, elem) {
  *   the first window.
  * @param {object} [aModifiers] - Modifiers to pass to the keypress method.
  */
-function press_delete(aWin = mc, aModifiers) {
+async function press_delete(aWin = mc, aModifiers) {
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
   );
 
   EventUtils.synthesizeKey("VK_DELETE", aModifiers || {}, aWin);
-  wait_for_folder_events();
+  await wait_for_folder_events();
 }
 
 /**
@@ -1486,8 +1456,8 @@ async function empty_folder(aFolder, aWin = mc) {
   await be_in_folder(aFolder);
   let msgCount;
   while ((msgCount = aFolder.getTotalMessages(false)) > 0) {
-    select_click_row(0, aWin);
-    press_delete(aWin);
+    await select_click_row(0, aWin);
+    await press_delete(aWin);
     await TestUtils.waitForCondition(
       () => aFolder.getTotalMessages(false) < msgCount
     );
@@ -1504,7 +1474,7 @@ async function empty_folder(aFolder, aWin = mc) {
  * @param {Window} [win] - The window in whose context to do this, defaults to
  *   the first window.
  */
-function archive_selected_messages(win = mc) {
+async function archive_selected_messages(win = mc) {
   let dbView = get_db_view(win);
 
   // How many messages do we expect to remain after the archival?
@@ -1519,34 +1489,17 @@ function archive_selected_messages(win = mc) {
   let messagesDeletedFromView = function () {
     return dbView.rowCount == expectedCount;
   };
-  utils.waitFor(
+  await TestUtils.waitForCondition(
     messagesDeletedFromView,
     "Timeout waiting for messages to be archived"
   );
-  // wait_for_message_display_completion(
+  // await wait_for_message_display_completion(
   //   win,
   //   expectedCount && win.messageDisplay.visible
   // );
   // The above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
-  utils.sleep(0);
-}
-
-/**
- * Pretend we are pressing the Enter key, triggering opening selected messages.
- * Note that since we don't know where this is going to trigger a message load,
- * you're going to have to wait for message display completion yourself.
- *
- * @param {Window} [win] - The window in whose context to do this, defaults to
- *   the first window.
- */
-function press_enter(win = mc) {
-  // if something is loading, make sure it finishes loading...
-  if ("messageDisplay" in win) {
-    wait_for_message_display_completion(win);
-  }
-  EventUtils.synthesizeKey("VK_RETURN", {}, win);
-  // The caller's going to have to wait for message display completion
+  await TestUtils.waitForTick();
 }
 
 /**
@@ -1560,14 +1513,14 @@ function press_enter(win = mc) {
  * @param {Window} [win] - The window in whose context to do this, defaults to
  *   the first window.
  */
-function wait_for_all_messages_to_load(win = mc) {
-  // utils.waitFor(
+async function wait_for_all_messages_to_load(win = mc) {
+  // await TestUtils.waitForCondition(
   //   () => win.gFolderDisplay.allMessagesLoaded,
   //   "Messages never finished loading.  Timed Out."
   // );
   // the above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 }
 
 /**
@@ -1618,7 +1571,7 @@ function plan_for_message_display(winOrTab) {}
  *   a message to be loaded? If you do not pass true and there is no message
  *   load in process, this method will return immediately.
  */
-function wait_for_message_display_completion(aWin, aLoadDemanded) {
+async function wait_for_message_display_completion(aWin, aLoadDemanded) {
   let win;
   if (aWin == null || aWin.document.getElementById("tabmail")) {
     win = get_about_message();
@@ -1639,30 +1592,17 @@ function wait_for_message_display_completion(aWin, aLoadDemanded) {
     }
   }
 
-  utils.waitFor(() => win.document.readyState == "complete");
+  await TestUtils.waitForCondition(() => win.document.readyState == "complete");
 
   let browser = win.getMessagePaneBrowser();
 
-  try {
-    utils.waitFor(
-      () =>
-        !browser.docShell?.isLoadingDocument &&
-        (!aLoadDemanded || browser.currentURI?.spec != "about:blank")
-    );
-  } catch (e) {
-    if (e instanceof utils.TimeoutError) {
-      Assert.report(
-        true,
-        undefined,
-        undefined,
-        `Timeout waiting for a message. Current location: ${browser.currentURI?.spec}`
-      );
-    } else {
-      throw e;
-    }
-  }
-
-  utils.sleep();
+  await TestUtils.waitForCondition(
+    () =>
+      !browser.docShell?.isLoadingDocument &&
+      (!aLoadDemanded || browser.currentURI?.spec != "about:blank"),
+    `Timeout waiting for a message. Current location: ${browser.currentURI?.spec}`
+  );
+  await TestUtils.waitForTick();
 }
 
 /**
@@ -1671,38 +1611,28 @@ function wait_for_message_display_completion(aWin, aLoadDemanded) {
  * @param {Window} [win] - The window in whose context to do this, defaults to
  *   the first window.
  */
-function wait_for_blank_content_pane(win = mc) {
+async function wait_for_blank_content_pane(win = mc) {
   const aboutMessage = get_about_message(win);
 
-  utils.waitFor(() => aboutMessage.document.readyState == "complete");
+  await TestUtils.waitForCondition(
+    () => aboutMessage.document.readyState == "complete"
+  );
 
   let browser = aboutMessage.getMessagePaneBrowser();
   if (BrowserTestUtils.is_hidden(browser)) {
     return;
   }
 
-  try {
-    utils.waitFor(
-      () =>
-        !browser.docShell?.isLoadingDocument &&
-        browser.currentURI?.spec == "about:blank"
-    );
-  } catch (e) {
-    if (e instanceof utils.TimeoutError) {
-      Assert.report(
-        true,
-        undefined,
-        undefined,
-        `Timeout waiting for blank content pane. Current location: ${browser.currentURI?.spec}`
-      );
-    } else {
-      throw e;
-    }
-  }
+  await TestUtils.waitForCondition(
+    () =>
+      !browser.docShell?.isLoadingDocument &&
+      browser.currentURI?.spec == "about:blank",
+    `Timeout waiting for blank content pane. Current location: ${browser.currentURI?.spec}`
+  );
 
   // the above may return immediately, meaning the event queue might not get a
   //  chance.  give it a chance now.
-  utils.sleep();
+  await TestUtils.waitForTick();
 }
 
 var FolderListener = {
@@ -1727,25 +1657,11 @@ var FolderListener = {
     this.watchingFor = aArgs;
   },
 
-  waitForEvents() {
-    if (this.sawEvents) {
-      return;
-    }
-    let self = this;
-    try {
-      utils.waitFor(() => self.sawEvents);
-    } catch (e) {
-      if (e instanceof utils.TimeoutError) {
-        Assert.report(
-          true,
-          undefined,
-          undefined,
-          `Timeout waiting for events: ${this.watchingFor}`
-        );
-      } else {
-        throw e;
-      }
-    }
+  async waitForEvents() {
+    await TestUtils.waitForCondition(
+      () => this.sawEvents,
+      `Timeout waiting for events: ${this.watchingFor}`
+    );
   },
 
   onFolderEvent(aFolder, aEvent) {
@@ -1776,8 +1692,8 @@ function plan_to_wait_for_folder_events(...aArgs) {
   FolderListener.ensureInited();
   FolderListener.planToWaitFor(...aArgs);
 }
-function wait_for_folder_events() {
-  FolderListener.waitForEvents();
+async function wait_for_folder_events() {
+  await FolderListener.waitForEvents();
 }
 
 /**
@@ -2078,9 +1994,9 @@ function assert_selected(...aArgs) {
  * - A message header.
  * - A list of message headers.
  */
-function assert_displayed(...aArgs) {
+async function assert_displayed(...aArgs) {
   let [troller, desiredIndices] = _process_row_message_arguments(...aArgs);
-  _internal_assert_displayed(false, troller, desiredIndices);
+  await _internal_assert_displayed(false, troller, desiredIndices);
 }
 
 /**
@@ -2089,11 +2005,15 @@ function assert_displayed(...aArgs) {
  *  agrees with messageDisplay, and also so that we don't have to re-compute
  *  troller and desiredIndices.
  */
-function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
+async function _internal_assert_displayed(
+  trustSelection,
+  troller,
+  desiredIndices
+) {
   // - verify that the right thing is being displayed.
   // no selection means folder summary.
   if (desiredIndices.length == 0) {
-    wait_for_blank_content_pane(troller);
+    await wait_for_blank_content_pane(troller);
 
     let messageWindow = get_about_message();
 
@@ -2147,7 +2067,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     let msgUri = msgHdr.folder.getUriForMsg(msgHdr);
     // wait for the document to load so that we don't try and replace it later
     //  and get that stupid assertion
-    wait_for_message_display_completion();
+    await wait_for_message_display_completion();
     utils.sleep(500)
     // make sure the content pane is pointed at the right thing
 
@@ -2204,7 +2124,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     // and _now_ make sure that we actually summarized what we wanted to
     //  summarize.
     let desiredMessages = desiredIndices.map(vi => mc.gFolderDisplay.view.dbView.getMsgHdrAt(vi));
-    assert_messages_summarized(troller, desiredMessages);
+    await assert_messages_summarized(troller, desiredMessages);
     */
   }
 }
@@ -2226,11 +2146,11 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
  * - A message header.
  * - A list of message headers.
  */
-function assert_selected_and_displayed(...aArgs) {
+async function assert_selected_and_displayed(...aArgs) {
   // make sure the selection is right first.
   let [troller, desiredIndices] = assert_selected(...aArgs);
   // now make sure the display is right
-  _internal_assert_displayed(true, troller, desiredIndices);
+  await _internal_assert_displayed(true, troller, desiredIndices);
 }
 
 /**
@@ -2238,7 +2158,7 @@ function assert_selected_and_displayed(...aArgs) {
  *
  * @param aMsgHdrs a list of message headers
  */
-function archive_messages(aMsgHdrs) {
+async function archive_messages(aMsgHdrs) {
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
@@ -2249,7 +2169,7 @@ function archive_messages(aMsgHdrs) {
   );
   let batchMover = new MessageArchiver();
   batchMover.archiveMessages(aMsgHdrs);
-  wait_for_folder_events();
+  await wait_for_folder_events();
 }
 
 /**
@@ -2285,12 +2205,12 @@ function _verify_summarized_message_set(aSummarizedKeys, aSelectedMessages) {
  *   provided, this is extracted via the folderDisplay. If a SyntheticMessageSet
  *   is provided we will automatically retrieve what we need from it.
  */
-function assert_messages_summarized(aWin, aSelectedMessages) {
+async function assert_messages_summarized(aWin, aSelectedMessages) {
   // - Compensate for selection stabilization code.
   // Although WindowHelpers sets the stabilization interval to 0, we
   //  still need to make sure we have drained the event queue so that it has
   //  actually gotten a chance to run.
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 
   // - Verify summary object knows about right messages
   if (aSelectedMessages == null) {
@@ -2787,91 +2707,55 @@ function _prettify_folder_array(aArray) {
 /**
  * Put the view in unthreaded mode.
  */
-function make_display_unthreaded() {
-  wait_for_message_display_completion();
+async function make_display_unthreaded() {
+  await wait_for_message_display_completion();
   get_about_3pane().gViewWrapper.showUnthreaded = true;
   // drain event queue
-  utils.sleep(0);
-  wait_for_message_display_completion();
+  await TestUtils.waitForTick();
+  await wait_for_message_display_completion();
 }
 
 /**
  * Put the view in threaded mode.
  */
-function make_display_threaded() {
-  wait_for_message_display_completion();
+async function make_display_threaded() {
+  await wait_for_message_display_completion();
   get_about_3pane().gViewWrapper.showThreaded = true;
   // drain event queue
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 }
 
 /**
  * Put the view in group-by-sort mode.
  */
-function make_display_grouped() {
-  wait_for_message_display_completion();
+async function make_display_grouped() {
+  await wait_for_message_display_completion();
   get_about_3pane().gViewWrapper.showGroupedBySort = true;
   // drain event queue
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 }
 
 /**
  * Collapse all threads in the current view.
  */
-function collapse_all_threads() {
-  wait_for_message_display_completion();
+async function collapse_all_threads() {
+  await wait_for_message_display_completion();
   get_about_3pane().commandController.doCommand("cmd_collapseAllThreads");
   // drain event queue
-  utils.sleep(0);
-}
-
-/**
- * Set whether to show unread messages only in the current view.
- */
-function set_show_unread_only(aShowUnreadOnly) {
-  wait_for_message_display_completion();
-  mc.gFolderDisplay.view.showUnreadOnly = aShowUnreadOnly;
-  wait_for_all_messages_to_load();
-  wait_for_message_display_completion();
-  // drain event queue
-  utils.sleep(0);
-}
-
-/**
- * Assert that we are showing unread messages only in this view.
- */
-function assert_showing_unread_only() {
-  wait_for_message_display_completion();
-  if (!mc.gFolderDisplay.view.showUnreadOnly) {
-    throw new Error(
-      "The view should be showing unread messages only, but it isn't."
-    );
-  }
-}
-
-/**
- * Assert that we are _not_ showing unread messages only in this view.
- */
-function assert_not_showing_unread_only() {
-  wait_for_message_display_completion();
-  if (mc.gFolderDisplay.view.showUnreadOnly) {
-    throw new Error(
-      "The view should not be showing unread messages only, but it is."
-    );
-  }
+  await TestUtils.waitForTick();
 }
 
 /**
  * Set the mail view filter for the current view. The aData parameter is for
  * tags (e.g. you can specify "$label1" for the first tag).
  */
-function set_mail_view(aMailViewIndex, aData) {
-  wait_for_message_display_completion();
+async function set_mail_view(aMailViewIndex, aData) {
+  await wait_for_message_display_completion();
   get_about_3pane().gViewWrapper.setMailView(aMailViewIndex, aData);
-  wait_for_all_messages_to_load();
-  wait_for_message_display_completion();
+  await wait_for_all_messages_to_load();
+  await wait_for_message_display_completion();
   // drain event queue
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 }
 
 /**
@@ -2903,11 +2787,11 @@ function assert_mail_view(aMailViewIndex, aData) {
 /**
  * Expand all threads in the current view.
  */
-function expand_all_threads() {
-  wait_for_message_display_completion();
+async function expand_all_threads() {
+  await wait_for_message_display_completion();
   get_about_3pane().commandController.doCommand("cmd_expandAllThreads");
   // drain event queue
-  utils.sleep(0);
+  await TestUtils.waitForTick();
 }
 
 /**
@@ -3052,10 +2936,10 @@ function assert_default_window_size() {
  *
  * @param {boolean} aEnabled - Whether the menu should be shown or not.
  */
-function toggle_main_menu(aEnabled = true) {
+async function toggle_main_menu(aEnabled = true) {
   let menubar = mc.document.getElementById("toolbar-menubar");
   let state = menubar.getAttribute("autohide") != "true";
   menubar.setAttribute("autohide", !aEnabled);
-  utils.sleep(0);
+  await TestUtils.waitForTick();
   return state;
 }

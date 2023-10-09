@@ -379,7 +379,7 @@ function check_total_attachment_size(count, expectedSize, exact) {
  */
 async function help_test_attachment_size(index) {
   await be_in_folder(folder);
-  select_click_row(index);
+  await select_click_row(index);
   info(`Testing message ${index}: ${messages[index].name}`);
   let expectedSizes = messages[index].attachmentSizes;
 

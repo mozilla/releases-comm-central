@@ -233,8 +233,8 @@ add_task(async function test_draft_identity_selection() {
   for (let test of tests) {
     dump("Running draft identity test" + tests.indexOf(test) + "\n");
     await be_in_folder(gDrafts);
-    select_click_row(test.draftIndex);
-    assert_selected_and_displayed(test.draftIndex);
+    await select_click_row(test.draftIndex);
+    await assert_selected_and_displayed(test.draftIndex);
     await wait_for_notification_to_show(
       aboutMessage,
       "mail-notification-top",
@@ -267,7 +267,7 @@ add_task(async function test_draft_identity_selection() {
   // TODO: fix this in bug 1238264, the identity selector does not properly close.
   // Open a draft again that shows the notification.
   await be_in_folder(gDrafts);
-  select_click_row(tests[tests.length-1].draftIndex);
+  await select_click_row(tests[tests.length-1].draftIndex);
   let cwc = await open_compose_from_draft();
   await wait_for_notification_to_show(cwc, "compose-notification-bottom",
                                 "identityWarning");
@@ -298,7 +298,7 @@ registerCleanupFunction(async function () {
   // Clear our drafts.
   await be_in_folder(gDrafts);
   while (gDrafts.getTotalMessages(false) > 0) {
-    press_delete();
+    await press_delete();
   }
 
   // Some tests that open new windows don't return focus to the main window

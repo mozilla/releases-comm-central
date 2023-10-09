@@ -505,7 +505,7 @@ async function check_menu_states_all(expected) {
 
 async function help_test_attachment_menus(index) {
   await be_in_folder(folder);
-  select_click_row(index);
+  await select_click_row(index);
   let expectedStates = messages[index].menuStates;
 
   let aboutMessage = get_about_message();

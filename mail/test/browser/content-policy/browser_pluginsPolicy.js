@@ -109,7 +109,7 @@ async function addMsgToFolderAndCheckContent(loadAllowed) {
   let msgDbHdr = addToFolder("Plugin test message " + gMsgNo, msgBody, folder);
 
   // select the newly created message
-  let msgHdr = select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(
@@ -117,7 +117,7 @@ async function addMsgToFolderAndCheckContent(loadAllowed) {
     );
   }
 
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   ++gMsgNo;
 
@@ -148,7 +148,7 @@ async function checkStandaloneMessageWindow(loadAllowed) {
 
   open_selected_message();
   let msgc = await newWindowPromise;
-  wait_for_message_display_completion(msgc, true);
+  await wait_for_message_display_completion(msgc, true);
 
   // XXX It appears the wait_for_message_display_completion doesn't actually
   // wait long enough for plugin load. However, I also can't find a way to wait
@@ -176,14 +176,14 @@ async function checkStandaloneMessageWindow(loadAllowed) {
 add_task(async function test_3paneWindowDenied() {
   await be_in_folder(folder);
 
-  assert_nothing_selected();
+  await assert_nothing_selected();
 
   await addMsgToFolderAndCheckContent(false);
 });
 
 add_task(async function test_checkPluginsInNonMessageContent() {
   // Deselect everything so we can load our content
-  select_none();
+  await select_none();
 
   // load something non-message-like in the message pane
   let browser = get_about_message().document.getElementById("messagepane");
@@ -198,9 +198,9 @@ add_task(async function test_checkPluginsInNonMessageContent() {
 });
 
 add_task(async function test_3paneWindowDeniedAgain() {
-  select_click_row(0);
+  await select_click_row(0);
 
-  assert_selected_and_displayed(0);
+  await assert_selected_and_displayed(0);
 
   let browser = get_about_message().document.getElementById("messagepane");
   // Now check that the content hasn't been loaded

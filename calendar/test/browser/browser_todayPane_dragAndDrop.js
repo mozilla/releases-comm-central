@@ -44,7 +44,7 @@ add_task(async function testDropMozMessage() {
   const body = "Parking is available.";
   await be_in_folder(folder);
   await add_message_to_folder([folder], create_message({ subject, body: { body } }));
-  select_click_row(0);
+  await select_click_row(0);
 
   const about3PaneTab = document.getElementById("tabmail").currentTabInfo;
   const msg = about3PaneTab.message;

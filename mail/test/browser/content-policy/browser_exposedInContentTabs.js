@@ -83,11 +83,11 @@ function addToFolder(aSubject, aBody, aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
-function addMsgToFolder(folder) {
+async function addMsgToFolder(folder) {
   let msgDbHdr = addToFolder("exposed test message " + gMsgNo, msgBody, folder);
 
   // select the newly created message
-  let msgHdr = select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(
@@ -95,7 +95,7 @@ function addMsgToFolder(folder) {
     );
   }
 
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   ++gMsgNo;
 
@@ -152,10 +152,10 @@ async function checkContentTab(msgURL) {
 add_task(async function test_exposedInContentTabs() {
   await be_in_folder(folder);
 
-  assert_nothing_selected();
+  await assert_nothing_selected();
 
   // Check for denied in mail
-  let msgURL = addMsgToFolder(folder);
+  let msgURL = await addMsgToFolder(folder);
 
   // Check allowed in content tab
   await checkContentTab(msgURL);

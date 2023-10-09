@@ -126,8 +126,8 @@ add_task(async function test_cid_image_load() {
 add_task(async function test_cid_image_view() {
   // Preview the message in the folder.
   await be_in_folder(gImageFolder);
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
 
   // Check image in the preview.
   let messageDoc =

@@ -42,7 +42,7 @@ async function forwardDirect(aFilePath, aExpectedText) {
   await BrowserTestUtils.closeWindow(msgc);
 
   await be_in_folder(gDrafts);
-  let draftMsg = select_click_row(0);
+  let draftMsg = await select_click_row(0);
 
   let draftMsgContent = await get_msg_source(draftMsg);
 
@@ -51,7 +51,7 @@ async function forwardDirect(aFilePath, aExpectedText) {
     "Failed to find expected text"
   );
 
-  press_delete(window); // clean up the created draft
+  await press_delete(window); // clean up the created draft
 }
 
 add_task(async function test_forwarding_long_html_line_as_attachment() {

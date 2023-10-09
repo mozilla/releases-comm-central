@@ -250,7 +250,7 @@ add_task(async function test_message_drag() {
     [folder],
     create_message({ subject, body: { body } })
   );
-  select_click_row(0);
+  await select_click_row(0);
 
   let msgStr = get_about_message().gMessageURI;
   let msgUrl = MailServices.messageServiceFromURI(msgStr).getUrlForUri(msgStr);
@@ -637,7 +637,7 @@ add_task(async function test_drag_and_drop_between_composition_windows() {
     })
   );
   await be_in_folder(folder);
-  select_click_row(0);
+  await select_click_row(0);
   let aboutMessage = get_about_message();
   let srcAttachmentArea =
     aboutMessage.document.getElementById("attachmentView");

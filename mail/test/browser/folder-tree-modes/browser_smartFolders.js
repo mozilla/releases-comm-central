@@ -68,8 +68,8 @@ add_task(async function test_folder_flag_changes() {
   about3Pane.displayFolder(inboxSubfolder);
   // Need to archive two messages in two different accounts in order to
   // create a smart Archives folder.
-  select_click_row(0);
-  archive_selected_messages();
+  await select_click_row(0);
+  await archive_selected_messages();
   let pop3Server = MailServices.accounts.findServer(
     "tinderbox",
     FAKE_SERVER_HOSTNAME,
@@ -82,8 +82,8 @@ add_task(async function test_folder_flag_changes() {
   );
   await make_message_sets_in_folders([pop3Inbox], [{ count: 1 }]);
   about3Pane.displayFolder(pop3Inbox);
-  select_click_row(0);
-  archive_selected_messages();
+  await select_click_row(0);
+  await archive_selected_messages();
 
   let smartArchiveFolder = get_smart_folder_named("Archives");
   let archiveScope =

@@ -71,8 +71,8 @@ add_task(async function testWarningShowsOnceWhenToFieldOverLimit() {
   await add_message_to_folder([folder], msg0);
 
   await be_in_folder(folder);
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
   let cwc = await open_compose_with_reply_to_all();
 
   await BrowserTestUtils.waitForCondition(

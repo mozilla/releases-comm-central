@@ -71,7 +71,7 @@ add_task(async function test_escape_rules() {
   // the common logic for each bit...
   async function legwork() {
     // apply two...
-    toggle_boolean_constraints("unread", "starred", "addrbook");
+    await toggle_boolean_constraints("unread", "starred", "addrbook");
     assert_constraints_expressed({
       unread: true,
       starred: true,
@@ -109,7 +109,7 @@ add_task(async function test_escape_rules() {
 
   // 3) focus in the text box and pretend to type stuff...
   about3Pane.document.getElementById("qfb-qs-textbox").focus();
-  set_filter_text("qxqxqxqx");
+  await set_filter_text("qxqxqxqx");
 
   // Escape should clear the text constraint but the bar should still be
   //  visible.  The trick here is that escape is clearing the text widget
@@ -131,7 +131,7 @@ add_task(async function test_escape_rules() {
  * Control-shift-k expands the quick filter bar when it's collapsed. When
  * already expanded, it focuses the text box and selects its text.
  */
-add_task(function test_control_shift_k_shows_quick_filter_bar() {
+add_task(async function test_control_shift_k_shows_quick_filter_bar() {
   let about3Pane = get_about_3pane();
 
   let dispatcha = document.commandDispatcher;
@@ -140,7 +140,7 @@ add_task(function test_control_shift_k_shows_quick_filter_bar() {
   // focus explicitly on the thread pane so we know where the focus is.
   about3Pane.document.getElementById("threadTree").focus();
   // select a message so we can find in message
-  select_click_row(0);
+  await select_click_row(0);
 
   // hit control-shift-k to get in the quick filter box
   EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });
@@ -148,7 +148,7 @@ add_task(function test_control_shift_k_shows_quick_filter_bar() {
     throw new Error("control-shift-k did not focus quick filter textbox");
   }
 
-  set_filter_text("search string");
+  await set_filter_text("search string");
 
   // hit control-shift-k to select the text in the quick filter box
   EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });

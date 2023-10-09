@@ -142,7 +142,7 @@ async function toggle_quick_filter_bar() {
     { clickCount: 1 },
     mc
   );
-  wait_for_all_messages_to_load();
+  await wait_for_all_messages_to_load();
 }
 
 /**
@@ -167,7 +167,7 @@ function assert_constraints_expressed(aConstraints) {
  * Toggle the given filter buttons by name (from nameToBarDomId); variable
  * argument magic enabled.
  */
-function toggle_boolean_constraints(...aArgs) {
+async function toggle_boolean_constraints(...aArgs) {
   aArgs.forEach(arg =>
     EventUtils.synthesizeMouseAtCenter(
       about3Pane.document.getElementById(nameToBarDomId[arg]),
@@ -175,26 +175,26 @@ function toggle_boolean_constraints(...aArgs) {
       about3Pane
     )
   );
-  wait_for_all_messages_to_load(mc);
+  await wait_for_all_messages_to_load(mc);
 }
 
 /**
  * Toggle the tag faceting buttons by tag key.  Wait for messages after.
  */
-function toggle_tag_constraints(...aArgs) {
+async function toggle_tag_constraints(...aArgs) {
   aArgs.forEach(function (arg) {
     let tagId = "qfb-tag-" + arg;
     let button = about3Pane.document.getElementById(tagId);
     button.scrollIntoView();
     EventUtils.synthesizeMouseAtCenter(button, { clickCount: 1 }, about3Pane);
   });
-  wait_for_all_messages_to_load(mc);
+  await wait_for_all_messages_to_load(mc);
 }
 
 /**
  * Set the tag filtering mode. Wait for messages after.
  */
-function toggle_tag_mode() {
+async function toggle_tag_mode() {
   let qbm = about3Pane.document.getElementById("qfb-boolean-mode");
   if (qbm.value === "AND") {
     qbm.selectedIndex--; // = move to "OR";
@@ -205,7 +205,7 @@ function toggle_tag_mode() {
   } else {
     throw new Error("qfb-boolean-mode value=" + qbm.value);
   }
-  wait_for_all_messages_to_load(mc);
+  await wait_for_all_messages_to_load(mc);
 }
 
 /**
@@ -284,7 +284,7 @@ var nameToTextDomId = {
   body: "qfb-qs-body",
 };
 
-function toggle_text_constraints(...aArgs) {
+async function toggle_text_constraints(...aArgs) {
   aArgs.forEach(arg =>
     EventUtils.synthesizeMouseAtCenter(
       about3Pane.document.getElementById(nameToTextDomId[arg]),
@@ -292,7 +292,7 @@ function toggle_text_constraints(...aArgs) {
       about3Pane
     )
   );
-  wait_for_all_messages_to_load(mc);
+  await wait_for_all_messages_to_load(mc);
 }
 
 /**
@@ -330,13 +330,13 @@ function assert_text_constraints_checked(...aArgs) {
  * Set the text in the text filter box, trigger it like enter was pressed, then
  *  wait for all messages to load.
  */
-function set_filter_text(aText) {
+async function set_filter_text(aText) {
   // We're not testing the reliability of the textbox widget; just poke our text
   // in and trigger the command logic.
   let textbox = about3Pane.document.getElementById("qfb-qs-textbox");
   textbox.value = aText;
   textbox.doCommand();
-  wait_for_all_messages_to_load(mc);
+  await wait_for_all_messages_to_load(mc);
 }
 
 function assert_filter_text(aText) {

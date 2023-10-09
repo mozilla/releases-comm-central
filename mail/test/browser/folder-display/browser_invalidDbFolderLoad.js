@@ -41,8 +41,8 @@ add_task(async function test_load_folder_with_invalidDB() {
   await be_in_folder(folder);
 
   assert_messages_in_view(setA);
-  var curMessage = select_click_row(0);
-  assert_selected_and_displayed(curMessage);
+  var curMessage = await select_click_row(0);
+  await assert_selected_and_displayed(curMessage);
 });
 
 add_task(function test_view_sort_maintained() {

@@ -51,7 +51,7 @@ add_task(async function test_save_view_as_folder() {
   // at least, it does once we've caused the popups to get refreshed.
   window.RefreshAllViewPopups(document.getElementById("viewPickerPopup"));
   window.ViewChange(":$label1");
-  wait_for_all_messages_to_load();
+  await wait_for_all_messages_to_load();
 
   // - save it
   const dialogPromise = promise_modal_dialog(

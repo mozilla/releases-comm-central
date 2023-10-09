@@ -88,7 +88,7 @@ add_task(async function test_control_shift_k_triggers_display() {
 
 add_task(async function test_constraints_disappear_when_collapsed() {
   // set some constraints
-  toggle_boolean_constraints("starred");
+  await toggle_boolean_constraints("starred");
   assert_constraints_expressed({ starred: true });
   assert_messages_in_view(setStarred);
 

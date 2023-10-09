@@ -38,11 +38,11 @@ add_setup(async function () {
 add_task(async function test_single_folder_select_thread() {
   await be_in_folder(singleVirtFolder);
   let win = get_about_3pane();
-  make_display_threaded();
-  expand_all_threads();
+  await make_display_threaded();
+  await expand_all_threads();
 
   // Try selecting the thread from the root message.
-  select_click_row(0);
+  await select_click_row(0);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.ok(
     win.gDBView.selection.count == msgsPerThread,
@@ -50,7 +50,7 @@ add_task(async function test_single_folder_select_thread() {
   );
 
   // Now try selecting the thread from a non-root message.
-  select_click_row(1);
+  await select_click_row(1);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.ok(
     win.gDBView.selection.count == msgsPerThread,
@@ -61,11 +61,11 @@ add_task(async function test_single_folder_select_thread() {
 add_task(async function test_cross_folder_select_thread() {
   await be_in_folder(multiVirtFolder);
   let win = get_about_3pane();
-  make_display_threaded();
-  expand_all_threads();
+  await make_display_threaded();
+  await expand_all_threads();
 
   // Try selecting the thread from the root message.
-  select_click_row(0);
+  await select_click_row(0);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.ok(
     win.gDBView.selection.count == msgsPerThread,
@@ -73,7 +73,7 @@ add_task(async function test_cross_folder_select_thread() {
   );
 
   // Now try selecting the thread from a non-root message.
-  select_click_row(1);
+  await select_click_row(1);
   EventUtils.synthesizeKey("a", { accelKey: true, shiftKey: true });
   Assert.ok(
     win.gDBView.selection.count == msgsPerThread,

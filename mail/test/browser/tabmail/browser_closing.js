@@ -41,16 +41,16 @@ add_setup(async function () {
  */
 add_task(async function test_closed_single_message_tab_returns_to_inbox() {
   await be_in_folder(gFolder);
-  make_display_threaded();
+  await make_display_threaded();
   let inboxTab = document.getElementById("tabmail").currentTabInfo;
 
-  select_click_row(0);
+  await select_click_row(0);
   // Open a message in a new tab...
   await open_selected_message_in_new_tab(false);
 
   // Open a second message in a new tab...
   await switch_tab(0);
-  select_click_row(1);
+  await select_click_row(1);
   await open_selected_message_in_new_tab(false);
 
   // Close the second tab
@@ -70,15 +70,15 @@ add_task(async function test_closed_single_message_tab_returns_to_inbox() {
  */
 add_task(async function test_does_not_go_to_opener_if_switched() {
   await be_in_folder(gFolder);
-  make_display_threaded();
+  await make_display_threaded();
 
-  select_click_row(0);
+  await select_click_row(0);
   // Open a message in a new tab...
   await open_selected_message_in_new_tab(false);
 
   // Open a second message in a new tab...
   await switch_tab(0);
-  select_click_row(1);
+  await select_click_row(1);
   await open_selected_message_in_new_tab(false);
 
   // Switch to the first tab
@@ -105,11 +105,11 @@ add_task(async function test_does_not_go_to_opener_if_switched() {
  */
 add_task(async function test_opening_thread_in_tabs_closing_behaviour() {
   await be_in_folder(gFolder);
-  make_display_threaded();
-  collapse_all_threads();
+  await make_display_threaded();
+  await collapse_all_threads();
 
   // Open a thread as a series of message tabs.
-  select_click_row(0);
+  await select_click_row(0);
   open_selected_messages(window);
 
   // At this point, the last message tab should be selected already.  We
@@ -146,7 +146,7 @@ add_task(async function test_opening_thread_in_tabs_closing_behaviour() {
  */
 async function openTabs(numAdd) {
   await be_in_folder(gFolder);
-  select_click_row(0);
+  await select_click_row(0);
   for (let i = 0; i < numAdd; i++) {
     await open_selected_message_in_new_tab(true);
   }

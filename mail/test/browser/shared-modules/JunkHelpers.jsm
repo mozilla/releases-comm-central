@@ -55,7 +55,7 @@ async function delete_mail_marked_as_junk(aNumDeletesExpected) {
     about3Pane.deleteJunkInFolder = fakeDeleteJunkInFolder;
 
     // If something is loading, make sure it finishes loading...
-    wait_for_message_display_completion();
+    await wait_for_message_display_completion();
     if (aNumDeletesExpected != 0) {
       plan_to_wait_for_folder_events(
         "DeleteOrMoveMsgCompleted",
@@ -66,7 +66,7 @@ async function delete_mail_marked_as_junk(aNumDeletesExpected) {
     about3Pane.goDoCommand("cmd_deleteJunk");
 
     if (aNumDeletesExpected != 0) {
-      wait_for_folder_events();
+      await wait_for_folder_events();
     }
 
     // If timeout waiting for numMessagesDeleted to turn non-null,

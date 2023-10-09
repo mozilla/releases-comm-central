@@ -97,7 +97,7 @@ add_task(
 
     assert_folder_mode("favorite");
     assert_folder_selected_and_displayed(folder);
-    assert_selected_and_displayed(msgHdr);
+    await assert_selected_and_displayed(msgHdr);
   }
 );
 
@@ -136,7 +136,7 @@ add_task(
 
     assert_folder_mode("favorite");
     assert_folder_selected_and_displayed(folder);
-    assert_selected_and_displayed(msgHdr);
+    await assert_selected_and_displayed(msgHdr);
 
     // Now unset the flags so that we don't affect later tests.
     folder.clearFlag(Ci.nsMsgFolderFlags.Favorite);
@@ -151,7 +151,7 @@ add_task(
 add_task(async function test_display_message_in_smart_folder_mode_works() {
   // Clear the message selection, otherwise msgHdr will still be displayed and
   // display_message_in_folder_tab(msgHdr) will be a no-op.
-  select_none();
+  await select_none();
   // Show the smart folder view before removing the favorite view.
   window.folderTreeView.activeModes = "smart";
   // Hide the favorite view. The activeModes setter takes care of removing a
@@ -183,7 +183,7 @@ add_task(async function test_display_message_in_smart_folder_mode_works() {
   assert_folder_collapsed(smartInboxFolder);
   assert_folder_expanded(rootFolder);
   assert_folder_selected_and_displayed(folder);
-  assert_selected_and_displayed(msgHdr);
+  await assert_selected_and_displayed(msgHdr);
 });
 
 /**
@@ -215,7 +215,7 @@ add_task(
     assert_folder_collapsed(smartInboxFolder);
     assert_folder_collapsed(rootFolder);
     assert_folder_selected_and_displayed(smartInboxFolder);
-    assert_selected_and_displayed(inboxMsgHdr);
+    await assert_selected_and_displayed(inboxMsgHdr);
   }
 );
 

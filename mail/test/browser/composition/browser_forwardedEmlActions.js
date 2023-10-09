@@ -96,8 +96,8 @@ add_setup(async function () {
 async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   await be_in_folder(folder);
 
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
 
   let tabSelectPromise = BrowserTestUtils.waitForEvent(
     document.getElementById("tabmail").tabContainer,
@@ -110,7 +110,7 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
     aboutMessage
   );
   await tabSelectPromise;
-  wait_for_message_display_completion(window, false);
+  await wait_for_message_display_completion(window, false);
 
   let newWindowPromise = promise_new_window("msgcompose");
   EventUtils.synthesizeKey(hotkeyToHit, hotkeyModifiers, window);

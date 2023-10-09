@@ -65,7 +65,7 @@ add_task(async function test_right_click_folder_with_one_thing_selected() {
  */
 add_task(async function test_right_click_folder_with_many_things_selected() {
   select_click_folder(folderA);
-  select_shift_click_folder(folderB);
+  await select_shift_click_folder(folderB);
   assert_folders_selected_and_displayed(folderA, folderB);
 
   await right_click_on_folder(folderC);
@@ -95,7 +95,7 @@ add_task(async function test_right_click_folder_on_existing_single_selection() {
  */
 add_task(async function test_right_click_folder_on_existing_multi_selection() {
   select_click_folder(folderB);
-  select_shift_click_folder(folderC);
+  await select_shift_click_folder(folderC);
   assert_folders_selected_and_displayed(folderB, folderC);
 
   await right_click_on_folder(folderC);
@@ -132,7 +132,7 @@ async function _middle_click_folder_with_many_things_selected_helper(
   aBackground
 ) {
   select_click_folder(folderB);
-  select_shift_click_folder(folderC);
+  await select_shift_click_folder(folderC);
   assert_folders_selected_and_displayed(folderB, folderC);
 
   let originalTab = document.getElementById("tabmail").currentTabInfo;
@@ -179,7 +179,7 @@ async function _middle_click_folder_on_existing_single_selection_helper(
  */
 async function _middle_click_on_existing_multi_selection_helper(aBackground) {
   select_click_folder(folderA);
-  select_shift_click_folder(folderC);
+  await select_shift_click_folder(folderC);
   assert_folders_selected_and_displayed(folderA, folderB, folderC);
 
   let originalTab = document.getElementById("tabmail").currentTabInfo;

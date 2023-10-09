@@ -235,7 +235,7 @@ add_task(async function testOpenForwardedEncrypted() {
     aboutMessage
   );
   let mc2 = await newWindowPromise;
-  wait_for_message_display_completion(mc2, true);
+  await wait_for_message_display_completion(mc2, true);
   await wait_for_window_focused(mc2);
   let aboutMessage2 = get_about_message(mc2);
 

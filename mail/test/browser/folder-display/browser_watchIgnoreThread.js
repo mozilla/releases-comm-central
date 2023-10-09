@@ -42,8 +42,8 @@ add_setup(async function () {
   await add_message_sets_to_folders([folder], [thread1, thread2, thread3]);
 
   await be_in_folder(folder);
-  make_display_threaded();
-  expand_all_threads();
+  await make_display_threaded();
+  await expand_all_threads();
 
   registerCleanupFunction(() => {
     Services.prefs.clearUserPref("mailnews.default_sort_order");
@@ -74,15 +74,15 @@ async function clickViewMessagesItem(id) {
 add_task(async function test_ignore_thread() {
   let t1root = thread1.getMsgHdr(0);
 
-  let t1second = select_click_row(1);
-  assert_selected_and_displayed(t1second);
+  let t1second = await select_click_row(1);
+  await assert_selected_and_displayed(t1second);
 
   // Ignore this thread.
   EventUtils.synthesizeKey("K", { shiftKey: false, accelKey: false });
 
   // The first msg in the next thread should now be selected.
   let t2root = thread2.getMsgHdr(0);
-  assert_selected_and_displayed(t2root);
+  await assert_selected_and_displayed(t2root);
 
   // The ignored thread should still be visible (with an ignored icon).
   assert_visible(t1root);
@@ -90,8 +90,8 @@ add_task(async function test_ignore_thread() {
   // Go to another folder then back. Ignored messages should now be hidden.
   await be_in_folder(inboxFolder);
   await be_in_folder(folder);
-  select_click_row(0);
-  assert_selected_and_displayed(t2root);
+  await select_click_row(0);
+  await assert_selected_and_displayed(t2root);
 });
 
 /**
@@ -106,14 +106,14 @@ add_task(async function test_view_threads_ignored_threads() {
   // the first row is the first message of the first thread.
   // await clickViewMessagesItem("viewIgnoredThreadsMenuItem");
   goDoCommand("cmd_viewIgnoredThreads");
-  select_click_row(0);
-  assert_selected_and_displayed(t1root);
+  await select_click_row(0);
+  await assert_selected_and_displayed(t1root);
 
   // Uncheck "Ignored Threads" - the ignored messages should get hidden.
   // await clickViewMessagesItem("viewIgnoredThreadsMenuItem");
   goDoCommand("cmd_viewIgnoredThreads");
-  select_click_row(0);
-  assert_selected_and_displayed(t2root);
+  await select_click_row(0);
+  await assert_selected_and_displayed(t2root);
   assert_not_shown(thread1.msgHdrList);
 }).__skipMe = AppConstants.platform == "macosx";
 
@@ -121,9 +121,9 @@ add_task(async function test_view_threads_ignored_threads() {
  * Test that Watch Thread makes the thread watched.
  */
 add_task(async function test_watch_thread() {
-  let t2second = select_click_row(1);
+  let t2second = await select_click_row(1);
   let t3root = thread3.getMsgHdr(0);
-  assert_selected_and_displayed(t2second);
+  await assert_selected_and_displayed(t2second);
 
   // Watch this thread.
   EventUtils.synthesizeKey("W", { shiftKey: false, accelKey: false });
@@ -131,8 +131,8 @@ add_task(async function test_watch_thread() {
   // Choose "Watched Threads with Unread".
   // await clickViewMessagesItem("viewWatchedThreadsWithUnreadMenuItem");
   goDoCommand("cmd_viewWatchedThreadsWithUnread");
-  select_click_row(1);
-  assert_selected_and_displayed(t2second);
+  await select_click_row(1);
+  await assert_selected_and_displayed(t2second);
   assert_not_shown(thread1.msgHdrList);
   assert_not_shown(thread3.msgHdrList);
 
@@ -140,8 +140,8 @@ add_task(async function test_watch_thread() {
   // await clickViewMessagesItem("viewAllMessagesMenuItem");
   goDoCommand("cmd_viewAllMsgs");
   assert_not_shown(thread1.msgHdrList); // still ignored (and now shown)
-  select_click_row(thread2.msgHdrList.length);
-  assert_selected_and_displayed(t3root);
+  await select_click_row(thread2.msgHdrList.length);
+  await assert_selected_and_displayed(t3root);
 
   Assert.report(
     false,

@@ -95,8 +95,8 @@ async function forwardViaFolder(aFilePath) {
   );
   await BrowserTestUtils.closeWindow(msgc);
 
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
 
   Assert.ok(
     get_about_message()
@@ -110,7 +110,7 @@ async function forwardViaFolder(aFilePath) {
 
   await close_compose_window(fwdWin);
 
-  press_delete(window);
+  await press_delete(window);
 }
 
 add_task(async function test_utf8_forwarding_from_opened_file() {

@@ -43,12 +43,12 @@ registerCleanupFunction(function () {
  * @param {boolean} shouldAdvance - Whether the selection should advance.
  * @param {boolean} isShiftPressed - Whether to press Shift key.
  */
-function subtest_advance_on_spacebar(shouldAdvance, isShiftPressed) {
+async function subtest_advance_on_spacebar(shouldAdvance, isShiftPressed) {
   // Set preference.
   Services.prefs.setBoolPref(prefName, shouldAdvance);
   // Select the second message.
-  let oldMessage = select_click_row(1);
-  wait_for_message_display_completion(window);
+  let oldMessage = await select_click_row(1);
+  await wait_for_message_display_completion(window);
   // Press [Shift-]Space.
   EventUtils.synthesizeKey(
     " ",
@@ -66,30 +66,30 @@ function subtest_advance_on_spacebar(shouldAdvance, isShiftPressed) {
  * Test that focus remains on current message when preference is false
  * and spacebar is pressed.
  */
-add_task(function test_noadvance_on_space() {
-  subtest_advance_on_spacebar(false, false);
+add_task(async function test_noadvance_on_space() {
+  await subtest_advance_on_spacebar(false, false);
 });
 
 /**
  * Test that focus remains on current message when preference is false
  * and shift-spacebar is pressed.
  */
-add_task(function test_noadvance_on_shiftspace() {
-  subtest_advance_on_spacebar(false, true);
+add_task(async function test_noadvance_on_shiftspace() {
+  await subtest_advance_on_spacebar(false, true);
 });
 
 /**
  * Test that focus advances to next message when preference is true
  * and spacebar is pressed.
  */
-add_task(function test_advance_on_space() {
-  subtest_advance_on_spacebar(true, false);
+add_task(async function test_advance_on_space() {
+  await subtest_advance_on_spacebar(true, false);
 });
 
 /**
  * Test that focus advances to previous message when preference is true
  * and shift-spacebar is pressed.
  */
-add_task(function test_advance_on_shiftspace() {
-  subtest_advance_on_spacebar(true, true);
+add_task(async function test_advance_on_shiftspace() {
+  await subtest_advance_on_spacebar(true, true);
 });

@@ -82,7 +82,7 @@ add_task(async function test_send_inline_image() {
     get_about_message(),
     "MsgLoaded"
   );
-  let outMsg = select_click_row(0);
+  let outMsg = await select_click_row(0);
   await msgLoaded;
   let outMsgContent = await get_msg_source(outMsg);
 
@@ -95,5 +95,5 @@ add_task(async function test_send_inline_image() {
     `file name should have 16 characters: ${outMsgContent}`
   );
 
-  press_delete(); // Delete the msg from Outbox.
+  await press_delete(); // Delete the msg from Outbox.
 });

@@ -115,7 +115,7 @@ add_task(async function test_paste_file_urls() {
   await closePromise;
 
   await be_in_folder(gOutboxFolder);
-  let outMsg = select_click_row(0);
+  let outMsg = await select_click_row(0);
   let outMsgContent = await get_msg_source(outMsg);
 
   Assert.ok(
@@ -133,5 +133,5 @@ add_task(async function test_paste_file_urls() {
     "tmp-img should be cid after send; content=" + outMsgContent
   );
 
-  press_delete(); // Delete the msg from Outbox.
+  await press_delete(); // Delete the msg from Outbox.
 });

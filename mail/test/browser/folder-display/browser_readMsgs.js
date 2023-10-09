@@ -45,8 +45,8 @@ add_task(async function testMarkedAsRead() {
   );
   await promiseCopyListener.promise;
   await be_in_folder(folder);
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(0);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(0);
   // Make sure it's the msg we want.
   Assert.equal(msg.subject, "this contains an invalid vcard");
   // The message should get marked as read.

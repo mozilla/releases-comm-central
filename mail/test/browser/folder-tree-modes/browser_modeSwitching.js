@@ -56,7 +56,7 @@ add_setup(async function () {
   appmenu_popup = document.getElementById("appMenu-popup");
 
   // Main menu is needed for this whole test file.
-  menu_state = toggle_main_menu(true);
+  menu_state = await toggle_main_menu(true);
 
   about3Pane = document.getElementById("tabmail").currentAbout3Pane;
 
@@ -325,8 +325,8 @@ add_task(async function test_toggling_modes() {
   check_scalars("all");
 });
 
-registerCleanupFunction(function () {
+registerCleanupFunction(async function () {
   inboxFolder.propagateDelete(unreadFolder, true);
   inboxFolder.propagateDelete(favoriteFolder, true);
-  toggle_main_menu(menu_state);
+  await toggle_main_menu(menu_state);
 });

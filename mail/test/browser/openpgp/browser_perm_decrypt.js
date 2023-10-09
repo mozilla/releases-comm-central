@@ -113,7 +113,7 @@ add_task(async function testPermanentDecrypt() {
   await copyListener.promise;
 
   // Select the first row.
-  select_click_row(0);
+  await select_click_row(0);
 
   let aboutMessage = get_about_message();
   Assert.equal(
@@ -138,7 +138,7 @@ add_task(async function testPermanentDecrypt() {
 
   await be_in_folder(gDecFolder);
 
-  select_click_row(0);
+  await select_click_row(0);
   Assert.ok(getMsgBodyTxt().includes(MSG_TEXT), "message text is in body");
   Assert.ok(
     !OpenPGPTestUtils.hasEncryptedIconState(aboutMessage.document, "ok"),

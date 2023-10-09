@@ -117,8 +117,8 @@ add_task(async function testSignedMessageComposition2() {
   await sendMessageCompletePromise;
 
   await be_in_folder(gOutbox);
-  select_click_row(0);
-  assert_selected_and_displayed(0);
+  await select_click_row(0);
+  await assert_selected_and_displayed(0);
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),

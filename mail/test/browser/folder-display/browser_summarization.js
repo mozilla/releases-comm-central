@@ -82,15 +82,15 @@ add_task(async function test_basic_summarization() {
   await be_in_folder(folder);
 
   // - make sure we get a summary
-  select_click_row(0);
-  select_shift_click_row(5);
+  await select_click_row(0);
+  await select_shift_click_row(5);
   // this will verify a multi-message display is happening
-  assert_selected_and_displayed([0, 5]);
+  await assert_selected_and_displayed([0, 5]);
 });
 
-add_task(function test_summarization_goes_away() {
-  select_none();
-  assert_nothing_selected();
+add_task(async function test_summarization_goes_away() {
+  await select_none();
+  await assert_nothing_selected();
 });
 
 /**
@@ -99,59 +99,59 @@ add_task(function test_summarization_goes_away() {
 add_task(async function test_folder_tabs_update_correctly() {
   // tab with summary
   let tabA = await be_in_folder(folder);
-  select_click_row(0);
-  select_control_click_row(2);
-  assert_selected_and_displayed(0, 2);
+  await select_click_row(0);
+  await select_control_click_row(2);
+  await assert_selected_and_displayed(0, 2);
 
   // tab with nothing
   let tabB = await open_folder_in_new_tab(folder);
-  wait_for_blank_content_pane();
-  assert_nothing_selected();
+  await wait_for_blank_content_pane();
+  await assert_nothing_selected();
 
   // correct changes, none <=> summary
   await switch_tab(tabA);
-  assert_selected_and_displayed(0, 2);
+  await assert_selected_and_displayed(0, 2);
   await switch_tab(tabB);
-  assert_nothing_selected();
+  await assert_nothing_selected();
 
   // correct changes, one <=> summary
-  select_click_row(0);
-  assert_selected_and_displayed(0);
+  await select_click_row(0);
+  await assert_selected_and_displayed(0);
   await switch_tab(tabA);
-  assert_selected_and_displayed(0, 2);
+  await assert_selected_and_displayed(0, 2);
   await switch_tab(tabB);
-  assert_selected_and_displayed(0);
+  await assert_selected_and_displayed(0);
 
   // correct changes, summary <=> summary
-  select_shift_click_row(3);
-  assert_selected_and_displayed([0, 3]);
+  await select_shift_click_row(3);
+  await assert_selected_and_displayed([0, 3]);
   await switch_tab(tabA);
-  assert_selected_and_displayed(0, 2);
+  await assert_selected_and_displayed(0, 2);
   await switch_tab(tabB);
-  assert_selected_and_displayed([0, 3]);
+  await assert_selected_and_displayed([0, 3]);
 
   // closing tab returns state correctly...
   close_tab(tabB);
-  assert_selected_and_displayed(0, 2);
+  await assert_selected_and_displayed(0, 2);
 });
 
 add_task(async function test_message_tabs_update_correctly() {
   let tabFolder = await be_in_folder(folder);
-  let message = select_click_row(0);
-  assert_selected_and_displayed(0);
+  let message = await select_click_row(0);
+  await assert_selected_and_displayed(0);
 
   let tabMessage = await open_selected_message_in_new_tab();
-  assert_selected_and_displayed(message);
+  await assert_selected_and_displayed(message);
 
   await switch_tab(tabFolder);
-  select_shift_click_row(2);
-  assert_selected_and_displayed([0, 2]);
+  await select_shift_click_row(2);
+  await assert_selected_and_displayed([0, 2]);
 
   await switch_tab(tabMessage);
-  assert_selected_and_displayed(message);
+  await assert_selected_and_displayed(message);
 
   await switch_tab(tabFolder);
-  assert_selected_and_displayed([0, 2]);
+  await assert_selected_and_displayed([0, 2]);
 
   close_tab(tabMessage);
 });
@@ -164,20 +164,20 @@ add_task(async function test_selection_stabilization_logic() {
   // make sure all summarization has run to completion.
   await new Promise(resolve => setTimeout(resolve));
   // does not summarize anything, does not affect timer
-  select_click_row(0);
+  await select_click_row(0);
   // does summarize things.  timer will be tick tick ticking!
-  select_shift_click_row(1);
+  await select_shift_click_row(1);
   // verify that things were summarized...
-  assert_selected_and_displayed([0, 1]);
+  await assert_selected_and_displayed([0, 1]);
   // save the set of messages so we can verify the summary sticks to this.
   let messages = window.gFolderDisplay.selectedMessages;
 
   // make sure the
 
   // this will not summarize!
-  select_shift_click_row(2, window, true);
+  await select_shift_click_row(2, window, true);
   // verify that our summary is still just 0 and 1.
-  assert_messages_summarized(window, messages);
+  await assert_messages_summarized(window, messages);
 
   // - pretend the timer fired.
   // we need to de-schedule the timer, but do not need to clear the variable
@@ -186,28 +186,28 @@ add_task(async function test_selection_stabilization_logic() {
   window.messageDisplay._showSummary(true);
 
   // - the summary should now be up-to-date
-  assert_selected_and_displayed([0, 2]);
+  await assert_selected_and_displayed([0, 2]);
 });
 
-add_task(function test_summarization_thread_detection() {
-  select_none();
-  assert_nothing_selected();
-  make_display_threaded();
-  select_click_row(0);
-  select_shift_click_row(9);
+add_task(async function test_summarization_thread_detection() {
+  await select_none();
+  await assert_nothing_selected();
+  await make_display_threaded();
+  await select_click_row(0);
+  await select_shift_click_row(9);
   let messages = window.gFolderDisplay.selectedMessages;
-  toggle_thread_row(0);
-  assert_messages_summarized(window, messages);
+  await toggle_thread_row(0);
+  await assert_messages_summarized(window, messages);
   // count the number of messages represented
   assert_summary_contains_N_elts("#message_list > li", 10);
-  select_shift_click_row(1);
+  await select_shift_click_row(1);
   // this should have shifted to the multi-message view
   assert_summary_contains_N_elts(".item_header > .date", 0);
   assert_summary_contains_N_elts(".item_header > .subject", 2);
-  select_none();
-  assert_nothing_selected();
-  select_click_row(1); // select a single message
-  select_shift_click_row(2); // add a thread
+  await select_none();
+  await assert_nothing_selected();
+  await select_click_row(1); // select a single message
+  await select_shift_click_row(2); // add a thread
   assert_summary_contains_N_elts(".item_header > .date", 0);
   assert_summary_contains_N_elts(".item_header > .subject", 2);
 });
@@ -223,7 +223,7 @@ add_task(function test_summarization_thread_detection() {
  */
 add_task(async function test_new_thread_that_was_not_summarized_expands() {
   await be_in_folder(folder);
-  make_display_threaded();
+  await make_display_threaded();
   // - create the base messages
   let [willMoveMsg, willNotMoveMsg] = await make_message_sets_in_folders(
     [folder],
@@ -233,8 +233,8 @@ add_task(async function test_new_thread_that_was_not_summarized_expands() {
   // - do the non-move case
   // XXX actually, this still gets treated as a move. I don't know why...
   // select it
-  select_click_row(willNotMoveMsg);
-  assert_selected_and_displayed(willNotMoveMsg);
+  await select_click_row(willNotMoveMsg);
+  await assert_selected_and_displayed(willNotMoveMsg);
 
   // give it a friend...
   await make_message_sets_in_folders(
@@ -242,11 +242,11 @@ add_task(async function test_new_thread_that_was_not_summarized_expands() {
     [{ count: 1, inReplyTo: willNotMoveMsg }]
   );
   assert_expanded(willNotMoveMsg);
-  assert_selected_and_displayed(willNotMoveMsg);
+  await assert_selected_and_displayed(willNotMoveMsg);
 
   // - do the move case
-  select_click_row(willMoveMsg);
-  assert_selected_and_displayed(willMoveMsg);
+  await select_click_row(willMoveMsg);
+  await assert_selected_and_displayed(willMoveMsg);
 
   // give it a friend...
   await make_message_sets_in_folders(
@@ -254,7 +254,7 @@ add_task(async function test_new_thread_that_was_not_summarized_expands() {
     [{ count: 1, inReplyTo: willMoveMsg }]
   );
   assert_expanded(willMoveMsg);
-  assert_selected_and_displayed(willMoveMsg);
+  await assert_selected_and_displayed(willMoveMsg);
 });
 
 /**
@@ -264,16 +264,16 @@ add_task(async function test_new_thread_that_was_not_summarized_expands() {
 add_task(
   async function test_summary_updates_when_new_message_added_to_collapsed_thread() {
     await be_in_folder(folder);
-    make_display_threaded();
-    collapse_all_threads();
+    await make_display_threaded();
+    await collapse_all_threads();
 
     // - select the thread root, thereby summarizing it
-    let thread1Root = select_click_row(thread1); // this just uses the root msg
+    let thread1Root = await select_click_row(thread1); // this just uses the root msg
     assert_collapsed(thread1Root);
     // just the thread root should be selected
     assert_selected(thread1Root);
     // but the whole thread should be summarized
-    assert_messages_summarized(window, thread1);
+    await assert_messages_summarized(window, thread1);
 
     // - add a new message, make sure it's in the summary now.
     let [thread1Extra] = await make_message_sets_in_folders(
@@ -282,7 +282,7 @@ add_task(
     );
     let thread1All = thread1.union(thread1Extra);
     assert_selected(thread1Root);
-    assert_messages_summarized(window, thread1All);
+    await assert_messages_summarized(window, thread1All);
   }
 );
 
@@ -310,30 +310,33 @@ add_task(async function test_summary_when_multiple_identities() {
 
   // Do the needed tricks
   await be_in_folder(folder1);
-  select_click_row(0);
+  await select_click_row(0);
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
   );
   window.MsgMoveMessage(folder2);
-  wait_for_folder_events();
+  await wait_for_folder_events();
 
   await be_in_folder(folder2);
-  select_click_row(1);
+  await select_click_row(1);
   plan_to_wait_for_folder_events(
     "DeleteOrMoveMsgCompleted",
     "DeleteOrMoveMsgFailed"
   );
   window.MsgMoveMessage(folder1);
-  wait_for_folder_events();
+  await wait_for_folder_events();
 
   await be_in_folder(folderVirtual);
-  make_display_threaded();
-  collapse_all_threads();
+  await make_display_threaded();
+  await collapse_all_threads();
 
   // Assertions
-  select_click_row(0);
-  assert_messages_summarized(window, window.gFolderDisplay.selectedMessages);
+  await select_click_row(0);
+  await assert_messages_summarized(
+    window,
+    window.gFolderDisplay.selectedMessages
+  );
   // Thread summary shows a date, while multimessage summary shows a subject.
   assert_summary_contains_N_elts(".item_header > .subject", 0);
   assert_summary_contains_N_elts(".item_header > .date", 2);
@@ -343,7 +346,7 @@ add_task(async function test_summary_when_multiple_identities() {
   thread1 = create_thread(1);
   await add_message_sets_to_folders([folder1], [thread1]);
   await be_in_folder(folderVirtual);
-  select_shift_click_row(1);
+  await select_shift_click_row(1);
 
   assert_summary_contains_N_elts(".item_header > .subject", 2);
 });
@@ -375,8 +378,8 @@ add_task(async function test_display_name_no_abook() {
   let address = extract_first_address(thread1);
   ensure_no_card_exists(address.email);
 
-  collapse_all_threads();
-  select_click_row(thread1);
+  await collapse_all_threads();
+  await select_click_row(thread1);
 
   // No address book entry, we display name and e-mail address.
   check_address_name(address.name + " <" + address.email + ">");
@@ -388,8 +391,8 @@ add_task(async function test_display_name_abook() {
   let address = extract_first_address(thread1);
   ensure_card_exists(address.email, "My Friend", true);
 
-  collapse_all_threads();
-  select_click_row(thread1);
+  await collapse_all_threads();
+  await select_click_row(thread1);
 
   check_address_name("My Friend");
 });
@@ -400,8 +403,8 @@ add_task(async function test_display_name_abook_no_pdn() {
   let address = extract_first_address(thread1);
   ensure_card_exists(address.email, "My Friend", false);
 
-  collapse_all_threads();
-  select_click_row(thread1);
+  await collapse_all_threads();
+  await select_click_row(thread1);
 
   // With address book entry but display name not preferred, we display name and
   // e-mail address.
@@ -417,11 +420,11 @@ add_task(async function test_display_name_abook_no_pdn() {
 
 add_task(async function test_archive_and_delete_messages() {
   await be_in_folder(folder);
-  select_none();
-  assert_nothing_selected();
-  make_display_unthreaded();
-  select_click_row(0);
-  select_shift_click_row(2);
+  await select_none();
+  await assert_nothing_selected();
+  await make_display_unthreaded();
+  await select_click_row(0);
+  await select_shift_click_row(2);
   let messages = window.gFolderDisplay.selectedMessages;
 
   let contentWindow = document.getElementById("multimessage").contentWindow;
@@ -436,13 +439,13 @@ add_task(async function test_archive_and_delete_messages() {
     contentWindow
   );
 
-  wait_for_folder_events();
+  await wait_for_folder_events();
   assert_message_not_in_view(messages);
 
-  select_none();
-  assert_nothing_selected();
-  select_click_row(0);
-  select_shift_click_row(2);
+  await select_none();
+  await assert_nothing_selected();
+  await select_click_row(0);
+  await select_shift_click_row(2);
   messages = window.gFolderDisplay.selectedMessages;
 
   // Delete selected messages.
@@ -455,6 +458,6 @@ add_task(async function test_archive_and_delete_messages() {
     {},
     contentWindow
   );
-  wait_for_folder_events();
+  await wait_for_folder_events();
   assert_message_not_in_view(messages);
 });

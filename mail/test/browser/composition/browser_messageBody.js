@@ -46,7 +46,7 @@ add_task(async function test_invalid_data_uri() {
     get_about_message(),
     "MsgLoaded"
   );
-  let outMsg = select_click_row(0);
+  let outMsg = await select_click_row(0);
   await msgLoaded;
   let outMsgContent = await get_msg_source(outMsg);
 
@@ -55,7 +55,7 @@ add_task(async function test_invalid_data_uri() {
     "message containing invalid data uri should be sent"
   );
 
-  press_delete(); // Delete the msg from Outbox.
+  await press_delete(); // Delete the msg from Outbox.
 });
 
 /**
@@ -93,7 +93,7 @@ add_task(async function test_freeTextLink() {
     get_about_message(),
     "MsgLoaded"
   );
-  let outMsg = select_click_row(0);
+  let outMsg = await select_click_row(0);
   await msgLoaded;
   let outMsgContent = await get_msg_source(outMsg);
 
@@ -103,7 +103,7 @@ add_task(async function test_freeTextLink() {
     "Links should be correctly converted to plain text"
   );
 
-  press_delete(); // Delete the msg from Outbox.
+  await press_delete(); // Delete the msg from Outbox.
 
   Services.prefs.setIntPref("mail.default_send_format", prevSendFormat);
 });

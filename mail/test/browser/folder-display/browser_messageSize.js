@@ -43,7 +43,7 @@ async function _help_test_message_size(index, unit) {
   await be_in_folder(folder);
 
   // Select the nth message
-  let curMessage = select_click_row(index);
+  let curMessage = await select_click_row(index);
   // Look at the size column's data
   let sizeStr = get_about_3pane().gDBView.cellTextForColumn(index, "sizeCol");
 

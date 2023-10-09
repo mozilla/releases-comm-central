@@ -122,7 +122,7 @@ add_task(async function test_basic_multipart_related() {
 
   // Make sure that the headers are right on this one.
   await be_in_folder(gDrafts);
-  let draftMsg = select_click_row(0);
+  let draftMsg = await select_click_row(0);
   let { headers, text } = await getMsgHeaders(draftMsg, true);
   Assert.equal(headers.get("").contentType.type, "multipart/related");
   Assert.equal(headers.get("1").contentType.type, "text/html");
@@ -136,5 +136,5 @@ add_task(async function test_basic_multipart_related() {
   if (!text.get("1").includes('src="cid:' + cid + '"')) {
     throw new Error("Expected HTML to refer to cid " + cid);
   }
-  press_delete(window); // Delete message
+  await press_delete(window); // Delete message
 });

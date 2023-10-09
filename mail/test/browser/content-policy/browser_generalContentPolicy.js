@@ -262,7 +262,7 @@ async function addMsgToFolderAndCheckContent(folder, test) {
   );
 
   // select the newly created message
-  let msgHdr = select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(
@@ -270,7 +270,7 @@ async function addMsgToFolderAndCheckContent(folder, test) {
     );
   }
 
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been loaded
   let messageDocument =
@@ -390,7 +390,7 @@ async function checkEMLMessageWindow(test, emlFile) {
  * @returns the file the message was safed to
  */
 async function saveAsEMLFile(msgNo) {
-  let msgHdr = select_click_row(msgNo);
+  let msgHdr = await select_click_row(msgNo);
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
     Ci.nsIMessenger
   );
@@ -423,7 +423,7 @@ async function allowRemoteContentAndCheck(test) {
   // Click on the allow remote content button
   const kBoxId = "mail-notification-top";
   const kNotificationValue = "remoteContent";
-  wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
+  await wait_for_notification_to_show(aboutMessage, kBoxId, kNotificationValue);
   let prefButton = get_notification_button(
     aboutMessage,
     kBoxId,
@@ -444,7 +444,7 @@ async function allowRemoteContentAndCheck(test) {
     );
   await wait_for_notification_to_stop(aboutMessage, kBoxId, kNotificationValue);
 
-  wait_for_message_display_completion(window, true);
+  await wait_for_message_display_completion(window, true);
 
   if (
     !(await test.checkForAllowed(
@@ -502,10 +502,10 @@ async function checkAllowFeedMsg(test) {
   msgDbHdr.orFlags(Ci.nsMsgMessageFlags.FeedMsg);
 
   // select the newly created message
-  let msgHdr = select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(msgDbHdr, msgHdr);
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
   let messageDocument =
@@ -542,10 +542,10 @@ async function checkAllowForSenderWithPerms(test) {
   Assert.equal(checkPermission(uri), Services.perms.ALLOW_ACTION);
 
   // select the newly created message
-  let msgHdr = select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(msgDbHdr, msgHdr);
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked
   let messageDocument =
@@ -577,9 +577,9 @@ async function checkAllowForHostsWithPerms(test) {
   );
 
   // Select the newly created message.
-  let msgHdr = select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo);
   Assert.equal(msgDbHdr, msgHdr);
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   let aboutMessage = get_about_message();
   let messageDocument = aboutMessage.getMessagePaneBrowser().contentDocument;
@@ -595,11 +595,11 @@ async function checkAllowForHostsWithPerms(test) {
   Assert.equal(checkPermission(uri), Services.perms.ALLOW_ACTION);
 
   // Click back one msg, then the original again, which should now allow loading.
-  select_click_row(gMsgNo - 1);
+  await select_click_row(gMsgNo - 1);
   // Select the newly created message.
-  msgHdr = select_click_row(gMsgNo);
+  msgHdr = await select_click_row(gMsgNo);
   Assert.equal(msgDbHdr, msgHdr);
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   // Now check that the content hasn't been blocked.
   messageDocument = aboutMessage.getMessagePaneBrowser().contentDocument;
@@ -619,7 +619,7 @@ async function checkAllowForHostsWithPerms(test) {
 add_task(async function test_generalContentPolicy() {
   await be_in_folder(folder);
 
-  assert_nothing_selected();
+  await assert_nothing_selected();
 
   for (let i = 0; i < TESTS.length; ++i) {
     // Check for denied in mail
@@ -710,7 +710,7 @@ add_task(async function test_imgAuth() {
 
   // Select the newly created message.
   await be_in_folder(folder);
-  select_click_row(gMsgNo);
+  await select_click_row(gMsgNo);
 
   // Open reply/fwd. If we get a prompt the test will timeout.
   let rwc = await open_compose_with_reply();
@@ -733,7 +733,7 @@ add_task(async function test_sigPic() {
   };
 
   be_in_folder(folder);
-  select_click_row(gMsgNo);
+  await select_click_row(gMsgNo);
 
   let nwc = await open_compose_new_mail();
   await TestUtils.waitForCondition(async () => {
@@ -790,7 +790,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
 
   // Select the newly created message.
   await be_in_folder(folder);
-  let msgHdr = select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo);
 
   if (msgDbHdr != msgHdr) {
     throw new Error(
@@ -798,7 +798,7 @@ async function subtest_insertImageIntoReplyForward(aReplyType) {
     );
   }
 
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   let replyWindow = aReplyType
     ? await open_compose_with_reply()

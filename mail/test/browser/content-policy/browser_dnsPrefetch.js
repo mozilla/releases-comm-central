@@ -87,11 +87,11 @@ function addToFolder(aSubject, aBody, aFolder) {
   return aFolder.msgDatabase.getMsgHdrForMessageID(msgId);
 }
 
-function addMsgToFolder(folder) {
+async function addMsgToFolder(folder) {
   let msgDbHdr = addToFolder("exposed test message " + gMsgNo, msgBody, folder);
 
   // select the newly created message
-  gMsgHdr = select_click_row(gMsgNo);
+  gMsgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(
     msgDbHdr,
@@ -99,7 +99,7 @@ function addMsgToFolder(folder) {
     "Should have selected the same message header as the generated header"
   );
 
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   return gMsgNo++;
 }
@@ -157,9 +157,9 @@ add_task(async function test_dnsPrefetch_message() {
 
   await be_in_folder(folder);
 
-  assert_nothing_selected();
+  await assert_nothing_selected();
 
-  let firstMsg = addMsgToFolder(folder);
+  let firstMsg = await addMsgToFolder(folder);
 
   // Now we've got a message selected, check again.
   Assert.ok(
@@ -168,9 +168,9 @@ add_task(async function test_dnsPrefetch_message() {
     "Should keep DNS Prefetch disabled on messagepane after selecting message"
   );
 
-  let secondMsg = addMsgToFolder(folder);
-  select_shift_click_row(firstMsg);
-  assert_selected_and_displayed(firstMsg, secondMsg);
+  let secondMsg = await addMsgToFolder(folder);
+  await select_shift_click_row(firstMsg);
+  await assert_selected_and_displayed(firstMsg, secondMsg);
 
   Assert.ok(
     !about3Pane.document.getElementById("multiMessageBrowser").docShell
@@ -178,12 +178,12 @@ add_task(async function test_dnsPrefetch_message() {
     "Should keep DNS Prefetch disabled on multimessage after selecting message"
   );
 
-  select_shift_click_row(secondMsg);
+  await select_shift_click_row(secondMsg);
 });
 
 add_task(async function test_dnsPrefetch_standaloneMessage() {
   let msgc = await open_selected_message_in_new_window();
-  assert_selected_and_displayed(msgc, gMsgHdr);
+  await assert_selected_and_displayed(msgc, gMsgHdr);
 
   // Check the docshell.
   let aboutMessage = get_about_message(msgc);

@@ -80,8 +80,8 @@ add_task(async function test_forward_from_folder() {
   );
   await BrowserTestUtils.closeWindow(msgc);
 
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
 
   Assert.ok(
     get_about_message()

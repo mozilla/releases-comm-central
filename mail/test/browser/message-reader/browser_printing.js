@@ -42,8 +42,8 @@ add_setup(async function () {
  */
 add_task(async function test_open_printpreview() {
   await be_in_folder(folder);
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
 
   // Trigger print using Ctrl+P.
   EventUtils.synthesizeKey("P", { accelKey: true }, window);

@@ -57,7 +57,7 @@ function _assert_folder_total_messages(aFolder, aNumMessages) {
 add_task(async function test_delete_no_junk_messages() {
   let initialNumMessages = folder.getTotalMessages(false);
   await be_in_folder(folder);
-  select_none();
+  await select_none();
   await delete_mail_marked_as_junk(0);
   // Check if we still have the same number of messages
   _assert_folder_total_messages(folder, initialNumMessages);
@@ -69,8 +69,8 @@ add_task(async function test_delete_no_junk_messages() {
 add_task(async function test_delete_junk_messages() {
   let initialNumMessages = folder.getTotalMessages(false);
   await be_in_folder(folder);
-  select_click_row(1);
-  let selectedMessages = select_shift_click_row(NUM_MESSAGES_TO_JUNK);
+  await select_click_row(1);
+  let selectedMessages = await select_shift_click_row(NUM_MESSAGES_TO_JUNK);
   Assert.equal(
     selectedMessages.length,
     NUM_MESSAGES_TO_JUNK,

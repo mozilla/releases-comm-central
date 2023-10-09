@@ -166,11 +166,11 @@ async function doTestSecState(isDraft, secure) {
   cwc.close();
 
   await be_in_folder(theFolder);
-  select_click_row(0);
+  await select_click_row(0);
 
   info(`Will open the ${type}`);
   let draftWindowPromise = waitForComposeWindow();
-  select_click_row(0);
+  await select_click_row(0);
   await right_click_on_row(0);
 
   let about3Pane = get_about_3pane();

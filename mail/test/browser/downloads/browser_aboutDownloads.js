@@ -173,7 +173,7 @@ async function save_attachment_files() {
   for (let i = 0; i < length; i++) {
     let file = profileDir.clone();
     file.append(attachmentFileNames[i]);
-    select_click_row(i);
+    await select_click_row(i);
     MockFilePicker.setFiles([file]);
     await new Promise(function (resolve) {
       MockFilePicker.afterOpenCallback = resolve;

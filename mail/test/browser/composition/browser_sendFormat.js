@@ -258,7 +258,7 @@ async function assertSentMessage(composeWindow, expectMessage, msg) {
   // Open the "sent" message.
   await be_in_folder(outboxFolder);
   // Should be the last message in the tree.
-  select_click_row(0);
+  await select_click_row(0);
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -353,7 +353,7 @@ async function saveDraft(composeWindow) {
 
 async function assertDraftFormat(expectSavedFormat) {
   await be_in_folder(draftsFolder);
-  select_click_row(0);
+  await select_click_row(0);
 
   let newComposeWindow = await open_compose_from_draft();
   assertSendFormatInMenu(

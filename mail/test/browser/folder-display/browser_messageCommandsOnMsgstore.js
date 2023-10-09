@@ -46,9 +46,9 @@ add_setup(async function () {
 
   // We delete the first message so that we have to compact anything.
   await be_in_folder(gInbox);
-  let curMessage = select_click_row(0);
-  press_delete(window);
-  Assert.notEqual(curMessage, select_click_row(0));
+  let curMessage = await select_click_row(0);
+  await press_delete(window);
+  Assert.notEqual(curMessage, await select_click_row(0));
 
   let urlListener = {
     compactDone: false,
@@ -117,13 +117,13 @@ add_task(async function test_mark_messages_read() {
   be_in_folder(gOutbox); // TODO shouldn't have to swap folders
   // 5 messages in the folder
   await be_in_folder(gInbox);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
   // Store the offset because it will be unavailable via the hdr
   // after the message is deleted.
   let offset = curMessage.messageOffset;
   await check_status(gInbox, offset, 0); // status = unread
-  press_delete(window);
-  Assert.notEqual(curMessage, select_click_row(0));
+  await press_delete(window);
+  Assert.notEqual(curMessage, await select_click_row(0));
   await check_status(
     gInbox,
     offset,
@@ -131,7 +131,7 @@ add_task(async function test_mark_messages_read() {
   );
 
   // 4 messages in the folder.
-  curMessage = select_click_row(0);
+  curMessage = await select_click_row(0);
   await check_status(gInbox, curMessage.messageOffset, 0); // status = unread
 
   // Make sure we can mark all read with >0 messages unread.
@@ -154,21 +154,21 @@ add_task(async function test_mark_messages_read() {
     curMessage.messageOffset,
     Ci.nsMsgMessageFlags.Read
   );
-  curMessage = select_click_row(1);
+  curMessage = await select_click_row(1);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
   await check_status(
     gInbox,
     curMessage.messageOffset,
     Ci.nsMsgMessageFlags.Read
   );
-  curMessage = select_click_row(2);
+  curMessage = await select_click_row(2);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
   await check_status(
     gInbox,
     curMessage.messageOffset,
     Ci.nsMsgMessageFlags.Read
   );
-  curMessage = select_click_row(3);
+  curMessage = await select_click_row(3);
   Assert.ok(curMessage.isRead, "Message should have been marked Read!");
   await check_status(
     gInbox,
@@ -195,7 +195,7 @@ add_task(async function test_mark_messages_read() {
 
 add_task(async function test_mark_messages_flagged() {
   // Mark a message with the star.
-  let curMessage = select_click_row(1);
+  let curMessage = await select_click_row(1);
   await right_click_on_row(1);
   let hiddenPromise = BrowserTestUtils.waitForEvent(
     getMailContext(),
@@ -235,7 +235,7 @@ async function subtest_check_queued_message() {
  */
 async function reply_forward_message(aMsgRow, aReply) {
   await be_in_folder(gInbox);
-  select_click_row(aMsgRow);
+  await select_click_row(aMsgRow);
   let cwc;
   if (aReply) {
     // Reply to the message.
@@ -270,7 +270,7 @@ async function reply_forward_message(aMsgRow, aReply) {
   // flags were set. This is risky as the real code could change and call
   // a different function and the purpose of this test would be lost.
   await be_in_folder(gInbox);
-  let curMessage = select_click_row(aMsgRow);
+  let curMessage = await select_click_row(aMsgRow);
   let disposition = aReply
     ? gInbox.nsMsgDispositionState_Replied
     : gInbox.nsMsgDispositionState_Forwarded;
@@ -279,7 +279,7 @@ async function reply_forward_message(aMsgRow, aReply) {
 
 add_task(async function test_mark_messages_replied() {
   await reply_forward_message(2, true);
-  let curMessage = select_click_row(2);
+  let curMessage = await select_click_row(2);
   await check_status(
     gInbox,
     curMessage.messageOffset,
@@ -291,7 +291,7 @@ add_task(async function test_mark_messages_forwarded() {
   await be_in_folder(gInbox);
   // Forward a clean message.
   await reply_forward_message(3, false);
-  let curMessage = select_click_row(3);
+  let curMessage = await select_click_row(3);
   await check_status(
     gInbox,
     curMessage.messageOffset,
@@ -299,7 +299,7 @@ add_task(async function test_mark_messages_forwarded() {
   );
 
   // Forward a message that is read and already replied to.
-  curMessage = select_click_row(2);
+  curMessage = await select_click_row(2);
   await check_status(
     gInbox,
     curMessage.messageOffset,

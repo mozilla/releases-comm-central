@@ -170,8 +170,8 @@ add_task(async function testRedirectToMe() {
   await add_message_to_folder([folder], msg0);
 
   await be_in_folder(folder);
-  let msg = select_click_row(i++);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(i++);
+  await assert_selected_and_displayed(window, msg);
 
   // Open Other Actions.
   let aboutMessage = get_about_message();

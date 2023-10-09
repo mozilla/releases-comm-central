@@ -64,7 +64,7 @@ add_task(async function test_filter_unread() {
   read.setRead(true);
 
   await be_in_folder(folder);
-  toggle_boolean_constraints("unread");
+  await toggle_boolean_constraints("unread");
   assert_messages_in_view(unread);
   teardownTest();
 });
@@ -78,7 +78,7 @@ add_task(async function test_filter_starred() {
   starred.setStarred(true);
 
   await be_in_folder(folder);
-  toggle_boolean_constraints("starred");
+  await toggle_boolean_constraints("starred");
   assert_messages_in_view(starred);
   teardownTest();
 });
@@ -96,7 +96,7 @@ add_task(async function test_filter_simple_intersection_unread_and_starred() {
   readStarred.setStarred(true);
 
   await be_in_folder(folder);
-  toggle_boolean_constraints("unread", "starred");
+  await toggle_boolean_constraints("unread", "starred");
 
   assert_messages_in_view(unreadStarred);
   teardownTest();
@@ -127,7 +127,7 @@ add_task(async function test_filter_attachments() {
   );
 
   await be_in_folder(folder);
-  toggle_boolean_constraints("attachments");
+  await toggle_boolean_constraints("attachments");
 
   assert_messages_in_view(setAttach);
   teardownTest();
@@ -163,7 +163,7 @@ add_task(async function test_filter_in_address_book() {
     [bookSetDef, { count: 1 }]
   );
   await be_in_folder(folder);
-  toggle_boolean_constraints("addrbook");
+  await toggle_boolean_constraints("addrbook");
   assert_messages_in_view(setBook);
   teardownTest();
 });
@@ -185,38 +185,38 @@ add_task(async function test_filter_tags() {
   setTagC.addTag(tagC);
 
   await be_in_folder(folder);
-  toggle_boolean_constraints("tags"); // must have a tag
+  await toggle_boolean_constraints("tags"); // must have a tag
   assert_messages_in_view([setTagA, setTagB, setTagAB, setTagC]);
 
-  toggle_tag_constraints(tagA); // must have tag A
+  await toggle_tag_constraints(tagA); // must have tag A
   assert_messages_in_view([setTagA, setTagAB]);
 
-  toggle_tag_constraints(tagB);
+  await toggle_tag_constraints(tagB);
   // mode is OR by default -> must have tag A or tag B
   assert_messages_in_view([setTagA, setTagB, setTagAB]);
 
-  toggle_tag_mode();
+  await toggle_tag_mode();
   // mode is now AND -> must have tag A and tag B
   assert_messages_in_view([setTagAB]);
 
-  toggle_tag_constraints(tagA); // must have tag B
+  await toggle_tag_constraints(tagA); // must have tag B
   assert_messages_in_view([setTagB, setTagAB]);
 
-  toggle_tag_constraints(tagB); // have have a tag
+  await toggle_tag_constraints(tagB); // have have a tag
   assert_messages_in_view([setTagA, setTagB, setTagAB, setTagC]);
 
-  toggle_boolean_constraints("tags"); // no constraints
+  await toggle_boolean_constraints("tags"); // no constraints
   assert_messages_in_view([setNoTag, setTagA, setTagB, setTagAB, setTagC]);
 
   // If we have filtered to a specific tag and we disable the tag filter
   // entirely, make sure that when we turn it back on we are just back to "any
   // tag".
-  toggle_boolean_constraints("tags");
-  toggle_tag_constraints(tagC);
+  await toggle_boolean_constraints("tags");
+  await toggle_tag_constraints(tagC);
   assert_messages_in_view(setTagC);
 
-  toggle_boolean_constraints("tags"); // no constraints
-  toggle_boolean_constraints("tags"); // should be any tag (not tagC!)
+  await toggle_boolean_constraints("tags"); // no constraints
+  await toggle_boolean_constraints("tags"); // should be any tag (not tagC!)
   assert_messages_in_view([setTagA, setTagB, setTagAB, setTagC]);
   teardownTest();
 });
@@ -241,25 +241,25 @@ add_task(async function test_filter_text_single_word_and_predicates() {
   assert_text_constraints_checked("sender", "recipients", "subject");
 
   // con defaults, por favor
-  set_filter_text("foo");
+  await set_filter_text("foo");
   assert_messages_in_view([setSenderFoo, setRecipientsFoo, setSubjectFoo]);
   // note: we sequence the changes in the list so there is always at least one
   //  dude selected.  selecting down to nothing has potential UI implications
   //  we don't want this test to get affected by.
   // sender only
-  toggle_text_constraints("recipients", "subject");
+  await toggle_text_constraints("recipients", "subject");
   assert_messages_in_view(setSenderFoo);
   // recipients only
-  toggle_text_constraints("recipients", "sender");
+  await toggle_text_constraints("recipients", "sender");
   assert_messages_in_view(setRecipientsFoo);
   // subject only
-  toggle_text_constraints("subject", "recipients");
+  await toggle_text_constraints("subject", "recipients");
   assert_messages_in_view(setSubjectFoo);
   // body only
-  toggle_text_constraints("body", "subject");
+  await toggle_text_constraints("body", "subject");
   assert_messages_in_view(setBodyFoo);
   // everybody
-  toggle_text_constraints("sender", "recipients", "subject");
+  await toggle_text_constraints("sender", "recipients", "subject");
   assert_messages_in_view([
     setSenderFoo,
     setRecipientsFoo,
@@ -268,10 +268,10 @@ add_task(async function test_filter_text_single_word_and_predicates() {
   ]);
 
   // sanity check non-matching
-  set_filter_text("notgonnamatchevercauseisayso");
+  await set_filter_text("notgonnamatchevercauseisayso");
   assert_messages_in_view([]);
   // disable body, still should get nothing
-  toggle_text_constraints("body");
+  await toggle_text_constraints("body");
   assert_messages_in_view([]);
 
   // (we are leaving with the defaults once again active)
@@ -306,7 +306,7 @@ add_task(async function test_filter_text_multi_word() {
   // (precondition)
   assert_text_constraints_checked("sender", "recipients", "subject");
 
-  set_filter_text("foo bar");
+  await set_filter_text("foo bar");
   assert_messages_in_view([setPeepMatch, setSubjReverse]);
   teardownTest();
 });
@@ -338,17 +338,17 @@ add_task(async function test_filter_or_operator() {
   await be_in_folder(folder);
 
   assert_text_constraints_checked("sender", "recipients", "subject");
-  set_filter_text("foo | bar");
+  await set_filter_text("foo | bar");
   assert_messages_not_in_view([setInert, setSubject3, setMail1]);
 
-  set_filter_text("test | bar");
+  await set_filter_text("test | bar");
   assert_messages_not_in_view([setInert, setSenderFoo]);
 
-  set_filter_text("foo | test");
+  await set_filter_text("foo | test");
   assert_messages_not_in_view([setInert, setToBar]);
 
   // consists of leading and trailing spaces and tab character.
-  set_filter_text("test     |   foo bar");
+  await set_filter_text("test     |   foo bar");
   assert_messages_not_in_view([
     setInert,
     setSenderFoo,
@@ -357,7 +357,7 @@ add_task(async function test_filter_or_operator() {
     setMail1,
   ]);
 
-  set_filter_text("test | foo  bar |logic");
+  await set_filter_text("test | foo  bar |logic");
   assert_messages_not_in_view([setInert, setSenderFoo, setToBar, setSubject3]);
   teardownTest();
 });
@@ -389,25 +389,25 @@ add_task(async function test_filter_text_constraints_propagate() {
   );
 
   await be_in_folder(folderOne);
-  set_filter_text("foo");
+  await set_filter_text("foo");
   // (precondition)
   assert_text_constraints_checked("sender", "recipients", "subject");
   assert_messages_in_view([setSubjFoo, setWhoFoo]);
 
   // -- drop subject, close bar to reset, make sure it sticks
-  toggle_text_constraints("subject");
+  await toggle_text_constraints("subject");
   assert_messages_in_view([setWhoFoo]);
 
   await toggle_quick_filter_bar();
   await toggle_quick_filter_bar();
 
-  set_filter_text("foo");
+  await set_filter_text("foo");
   assert_messages_in_view([setWhoFoo]);
   assert_text_constraints_checked("sender", "recipients");
 
   // -- now change folders and make sure the settings stick
   await be_in_folder(folderTwo);
-  set_filter_text("bar");
+  await set_filter_text("bar");
   assert_messages_in_view([setWhoBar]);
   assert_text_constraints_checked("sender", "recipients");
   teardownTest();
@@ -440,7 +440,7 @@ add_task(async function test_results_label() {
     "results label should not be visible"
   );
 
-  toggle_boolean_constraints("unread");
+  await toggle_boolean_constraints("unread");
   assert_messages_in_view([setImmortal, setMortal, setGoldfish]);
   assert_results_label_count(3);
 

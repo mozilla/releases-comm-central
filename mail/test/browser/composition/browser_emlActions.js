@@ -57,11 +57,11 @@ add_task(async function test_reply_to_eml_save_as_draft() {
 
   // Drafts folder should exist now.
   await be_in_folder(gDrafts);
-  let draftMsg = select_click_row(0);
+  let draftMsg = await select_click_row(0);
   if (!draftMsg) {
     throw new Error("No draft saved!");
   }
-  press_delete(); // Delete the draft.
+  await press_delete(); // Delete the draft.
 
   await BrowserTestUtils.closeWindow(msgc); // close base .eml message
 });
@@ -87,11 +87,11 @@ add_task(async function test_forward_eml_save_as_draft() {
 
   // Drafts folder should exist now.
   await be_in_folder(gDrafts);
-  let draftMsg = select_click_row(0);
+  let draftMsg = await select_click_row(0);
   if (!draftMsg) {
     throw new Error("No draft saved!");
   }
-  press_delete(); // Delete the draft.
+  await press_delete(); // Delete the draft.
 
   await BrowserTestUtils.closeWindow(msgc); // close base .eml message
 });

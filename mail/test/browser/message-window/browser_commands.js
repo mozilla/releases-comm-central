@@ -36,7 +36,7 @@ add_task(async function test_copy_eml_message() {
   // up in the recent folders list. This simplifies navigation of the copy
   // context menu.
   await be_in_folder(folder1);
-  let message = select_click_row(0);
+  let message = await select_click_row(0);
   MailServices.copy.copyMessages(
     folder1,
     [message],
@@ -47,8 +47,8 @@ add_task(async function test_copy_eml_message() {
     true
   );
   await be_in_folder(folder2);
-  select_click_row(0);
-  press_delete(window);
+  await select_click_row(0);
+  await press_delete(window);
 
   // Now, open a .eml file and copy it to our folder.
   let file = new FileUtils.File(getTestFilePath("data/evil.eml"));
@@ -87,7 +87,7 @@ add_task(async function test_copy_eml_message() {
   // Make sure the copy worked. Make sure the first header is the one used,
   // in case the message (incorrectly) has multiple when max-number is 1
   // according to RFC 5322.
-  let copiedMessage = select_click_row(0);
+  let copiedMessage = await select_click_row(0);
   Assert.equal(copiedMessage.mime2DecodedSubject, "An email");
   Assert.equal(copiedMessage.mime2DecodedAuthor, "from@example.com");
   Assert.equal(

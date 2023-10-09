@@ -414,7 +414,7 @@ add_task(async function test_manual_attachment_reminder() {
   // The draft message was saved into Local Folders/Drafts.
   await be_in_folder(gDrafts);
 
-  select_click_row(0);
+  await select_click_row(0);
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(
     aboutMessage,
@@ -464,7 +464,7 @@ add_task(async function test_manual_attachment_reminder() {
   await close_compose_window(cwc);
 
   // Delete the leftover draft message.
-  press_delete();
+  await press_delete();
 }).__skipMe = AppConstants.platform == "linux"; // See bug 1535292.
 
 /**
@@ -715,7 +715,7 @@ add_task(async function test_reminder_in_draft() {
   // The draft message was saved into Local Folders/Drafts.
   await be_in_folder(gDrafts);
 
-  select_click_row(0);
+  await select_click_row(0);
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(
     aboutMessage,
@@ -743,7 +743,7 @@ add_task(async function test_reminder_in_draft() {
   await close_compose_window(cwc);
 
   // Delete the leftover draft message.
-  press_delete();
+  await press_delete();
 });
 
 /**
@@ -819,9 +819,9 @@ add_task(async function test_disabling_attachment_reminder() {
   // There should be no alert so it is saved in Outbox.
   await be_in_folder(gOutbox);
 
-  select_click_row(0);
+  await select_click_row(0);
   // Delete the leftover outgoing message.
-  press_delete();
+  await press_delete();
 
   // Get back to the mail account for other tests.
   let mail = MailServices.accounts.defaultAccount.incomingServer.rootFolder;

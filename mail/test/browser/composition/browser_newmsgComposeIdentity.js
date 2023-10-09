@@ -203,10 +203,10 @@ add_task(async function test_editing_identity() {
   await close_compose_window(compWin);
 
   await be_in_folder(gDrafts);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
   Assert.equal(curMessage.author, identityCustom);
   // Remove the saved draft.
-  press_delete(window);
+  await press_delete(window);
   */
   Services.prefs.setBoolPref("mail.compose.warned_about_customize_from", false);
 });
@@ -246,10 +246,10 @@ add_task(async function test_display_of_identities() {
   await close_compose_window(cwc);
 
   await be_in_folder(gDrafts);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
   Assert.equal(curMessage.author, identity3From);
   // Remove the saved draft.
-  press_delete(window);
+  await press_delete(window);
 });
 
 registerCleanupFunction(function () {

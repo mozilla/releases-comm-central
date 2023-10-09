@@ -163,7 +163,7 @@ async function mark_read_via_menu(index, read) {
 
 add_task(async function test_mark_one_read() {
   await be_in_folder(unreadFolder);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
 
   curMessage.markRead(false);
   await mark_read_via_menu(0, true);
@@ -172,7 +172,7 @@ add_task(async function test_mark_one_read() {
 
 add_task(async function test_mark_one_unread() {
   await be_in_folder(unreadFolder);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
 
   curMessage.markRead(true);
   await mark_read_via_menu(0, false);
@@ -181,8 +181,8 @@ add_task(async function test_mark_one_unread() {
 
 add_task(async function test_mark_n_read() {
   await be_in_folder(unreadFolder);
-  select_click_row(0);
-  let curMessages = select_shift_click_row(1);
+  await select_click_row(0);
+  let curMessages = await select_shift_click_row(1);
 
   for (let i = 0; i < curMessages.length; i++) {
     curMessages[i].markRead(false);
@@ -193,8 +193,8 @@ add_task(async function test_mark_n_read() {
 
 add_task(async function test_mark_n_unread() {
   await be_in_folder(unreadFolder);
-  select_click_row(0);
-  let curMessages = select_shift_click_row(1);
+  await select_click_row(0);
+  let curMessages = await select_shift_click_row(1);
 
   for (let i = 0; i < curMessages.length; i++) {
     curMessages[i].markRead(true);
@@ -205,8 +205,8 @@ add_task(async function test_mark_n_unread() {
 
 add_task(async function test_mark_n_read_mixed() {
   await be_in_folder(unreadFolder);
-  select_click_row(0);
-  let curMessages = select_shift_click_row(1);
+  await select_click_row(0);
+  let curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(true);
   curMessages[1].markRead(false);
@@ -221,8 +221,8 @@ add_task(async function test_mark_n_read_mixed() {
 
 add_task(async function test_mark_n_unread_mixed() {
   await be_in_folder(unreadFolder);
-  select_click_row(0);
-  let curMessages = select_shift_click_row(1);
+  await select_click_row(0);
+  let curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
@@ -237,7 +237,7 @@ add_task(async function test_mark_n_unread_mixed() {
 
 add_task(async function test_toggle_read() {
   await be_in_folder(unreadFolder);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
 
   curMessage.markRead(false);
   EventUtils.synthesizeKey("m", {});
@@ -246,7 +246,7 @@ add_task(async function test_toggle_read() {
 
 add_task(async function test_toggle_unread() {
   await be_in_folder(unreadFolder);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
 
   curMessage.markRead(true);
   EventUtils.synthesizeKey("m", {});
@@ -255,8 +255,8 @@ add_task(async function test_toggle_unread() {
 
 add_task(async function test_toggle_mixed() {
   await be_in_folder(unreadFolder);
-  select_click_row(0);
-  let curMessages = select_shift_click_row(1);
+  await select_click_row(0);
+  let curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
@@ -271,7 +271,7 @@ add_task(async function test_toggle_mixed() {
 
 add_task(async function test_mark_menu_read() {
   await be_in_folder(unreadFolder);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
 
   curMessage.markRead(false);
   await check_read_menuitems(0, true, false);
@@ -279,7 +279,7 @@ add_task(async function test_mark_menu_read() {
 
 add_task(async function test_mark_menu_unread() {
   await be_in_folder(unreadFolder);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
 
   curMessage.markRead(true);
   await check_read_menuitems(0, false, true);
@@ -287,8 +287,8 @@ add_task(async function test_mark_menu_unread() {
 
 add_task(async function test_mark_menu_mixed() {
   await be_in_folder(unreadFolder);
-  select_click_row(0);
-  let curMessages = select_shift_click_row(1);
+  await select_click_row(0);
+  let curMessages = await select_shift_click_row(1);
 
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
@@ -298,7 +298,7 @@ add_task(async function test_mark_menu_mixed() {
 
 add_task(async function test_mark_all_read() {
   await be_in_folder(unreadFolder);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
   curMessage.markRead(false);
 
   // Make sure we can mark all read with >0 messages unread.
@@ -333,7 +333,7 @@ add_task(async function test_mark_thread_as_read() {
   let unreadThreadFolder = await create_folder("UnreadThreadFolder");
   await add_message_sets_to_folders([unreadThreadFolder], [create_thread(3)]);
   await be_in_folder(unreadThreadFolder);
-  make_display_threaded();
+  await make_display_threaded();
 
   let serviceState = Services.prefs.getBoolPref(
     "mailnews.mark_message_read.auto"
@@ -365,7 +365,7 @@ add_task(async function test_mark_thread_as_read() {
   ]);
   await close_popup(window, getMailContext());
 
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
 
   // Make sure Mark Thread as Read is now disabled with all messages read.
@@ -400,9 +400,9 @@ add_task(async function test_mark_thread_as_read() {
 
 add_task(async function roving_multi_message_buttons() {
   await be_in_folder(unreadFolder);
-  select_click_row(0);
-  let curMessages = select_shift_click_row(1);
-  assert_selected_and_displayed(curMessages);
+  await select_click_row(0);
+  let curMessages = await select_shift_click_row(1);
+  await assert_selected_and_displayed(curMessages);
 
   let multiMsgView = get_about_3pane().multiMessageBrowser;
   const BUTTONS_SELECTOR = `toolbarbutton:not([hidden="true"]`;
@@ -459,12 +459,12 @@ add_task(async function roving_multi_message_buttons() {
   // the selected messages.
   EventUtils.synthesizeKey("KEY_Escape", {});
   EventUtils.synthesizeKey("KEY_Escape", {});
-  assert_selected_and_displayed(curMessages);
+  await assert_selected_and_displayed(curMessages);
 }).__skipMe = AppConstants.platform == "macosx";
 
 add_task(async function test_shift_delete_prompt() {
   await be_in_folder(shiftDeleteFolder);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
   goUpdateCommand("cmd_shiftDelete");
 
   // First, try shift-deleting and then cancelling at the prompt.
@@ -477,32 +477,32 @@ add_task(async function test_shift_delete_prompt() {
   SimpleTest.ignoreAllUncaughtExceptions(false);
   await dialogPromise;
   // Make sure we didn't actually delete the message.
-  Assert.equal(curMessage, select_click_row(0));
+  Assert.equal(curMessage, await select_click_row(0));
 
   // Second, try shift-deleting and then accepting the deletion.
   dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  press_delete(window, { shiftKey: true });
+  await press_delete(window, { shiftKey: true });
   await dialogPromise;
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0));
 
   // Finally, try shift-deleting when we turned off the prompt.
   Services.prefs.setBoolPref("mail.warn_on_shift_delete", false);
-  curMessage = select_click_row(0);
-  press_delete(window, { shiftKey: true });
+  curMessage = await select_click_row(0);
+  await press_delete(window, { shiftKey: true });
 
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0));
 
   Services.prefs.clearUserPref("mail.warn_on_shift_delete");
 });
 
 add_task(async function test_thread_delete_prompt() {
   await be_in_folder(threadDeleteFolder);
-  make_display_threaded();
-  collapse_all_threads();
+  await make_display_threaded();
+  await collapse_all_threads();
 
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
   goUpdateCommand("cmd_delete");
   // First, try deleting and then cancelling at the prompt.
   Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", true);
@@ -514,22 +514,22 @@ add_task(async function test_thread_delete_prompt() {
   SimpleTest.ignoreAllUncaughtExceptions(false);
   await dialogPromise;
   // Make sure we didn't actually delete the message.
-  Assert.equal(curMessage, select_click_row(0));
+  Assert.equal(curMessage, await select_click_row(0));
 
   // Second, try deleting and then accepting the deletion.
   dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  press_delete(window);
+  await press_delete(window);
   await dialogPromise;
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0));
 
   // Finally, try shift-deleting when we turned off the prompt.
   Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", false);
-  curMessage = select_click_row(0);
-  press_delete(window);
+  curMessage = await select_click_row(0);
+  await press_delete(window);
 
   // Make sure we really did delete the message.
-  Assert.notEqual(curMessage, select_click_row(0));
+  Assert.notEqual(curMessage, await select_click_row(0));
 
   Services.prefs.clearUserPref("mail.warn_on_collapsed_thread_operation");
 }).skip(); // TODO: not working
@@ -540,7 +540,7 @@ add_task(async function test_yearly_archive() {
 
 async function yearly_archive(keep_structure) {
   await be_in_folder(archiveSrcFolder);
-  make_display_unthreaded();
+  await make_display_unthreaded();
 
   let win = get_about_3pane();
   win.sortController.sortThreadPane("byDate");
@@ -566,16 +566,16 @@ async function yearly_archive(keep_structure) {
     () => win.threadTree.getRowAtIndex(0),
     "Row 0 scrolled into view"
   );
-  select_click_row(0);
+  await select_click_row(0);
   win.threadTree.scrollToIndex(12, true);
   await TestUtils.waitForCondition(
     () => win.threadTree.getRowAtIndex(12),
     "Row 12 scrolled into view"
   );
-  select_control_click_row(12);
+  await select_control_click_row(12);
 
   // Press the archive key. The results should go into two separate years.
-  archive_selected_messages();
+  await archive_selected_messages();
 
   // Figure out where the messages should have gone.
   let archiveRoot = "mailbox://nobody@Local%20Folders/Archives";
@@ -617,8 +617,8 @@ async function monthly_archive(keep_structure) {
     win.gDBView.getMsgHdrAt(0).folder.server
   );
   identity.archiveGranularity = Ci.nsIMsgIdentity.perMonthArchiveFolders;
-  select_click_row(0);
-  select_control_click_row(1);
+  await select_click_row(0);
+  await select_control_click_row(1);
 
   let firstMsgHdr = win.gDBView.getMsgHdrAt(0);
   let lastMsgHdr = win.gDBView.getMsgHdrAt(1);
@@ -638,7 +638,7 @@ async function monthly_archive(keep_structure) {
     (lastMsgDate.getMonth() + 1).toString().padStart(2, "0");
 
   // Press the archive key. The results should go into two separate months.
-  archive_selected_messages();
+  await archive_selected_messages();
 
   // Figure out where the messages should have gone.
   let archiveRoot = "mailbox://nobody@Local%20Folders/Archives";
@@ -694,11 +694,11 @@ add_task(async function test_selection_after_archive() {
   // archive, so test that we'll actually select the next remaining message
   // by archiving rows 1 & 2 and verifying that the 3rd message gets selected.
   // let hdrToSelect =
-  select_click_row(3);
-  select_click_row(1);
-  select_control_click_row(2);
-  archive_selected_messages();
-  // assert_selected_and_displayed(hdrToSelect); TODO
+  await select_click_row(3);
+  await select_click_row(1);
+  await select_control_click_row(2);
+  await archive_selected_messages();
+  // await assert_selected_and_displayed(hdrToSelect); TODO
 });
 
 add_task(async function test_disabled_archive() {
@@ -708,9 +708,9 @@ add_task(async function test_disabled_archive() {
   await be_in_folder(archiveSrcFolder);
 
   // test single message
-  let current = select_click_row(0);
+  let current = await select_click_row(0);
   EventUtils.synthesizeKey("a", {});
-  assert_selected_and_displayed(current);
+  await assert_selected_and_displayed(current);
 
   Assert.ok(
     win.document.getElementById("hdrArchiveButton").disabled,
@@ -718,10 +718,10 @@ add_task(async function test_disabled_archive() {
   );
 
   // test message summaries
-  select_click_row(0);
-  current = select_shift_click_row(2);
+  await select_click_row(0);
+  current = await select_shift_click_row(2);
   EventUtils.synthesizeKey("a", {});
-  assert_selected_and_displayed(current);
+  await assert_selected_and_displayed(current);
 
   let htmlframe = win3.multiMessageBrowser;
   let archiveBtn = htmlframe.contentDocument.getElementById("hdrArchiveButton");
@@ -733,10 +733,10 @@ add_task(async function test_disabled_archive() {
 
   // test message summaries with "large" selection
   window.gFolderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 1;
-  select_click_row(0);
-  current = select_shift_click_row(2);
+  await select_click_row(0);
+  current = await select_shift_click_row(2);
   EventUtils.synthesizeKey("a", {});
-  assert_selected_and_displayed(current);
+  await assert_selected_and_displayed(current);
   window.gFolderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 100;
 
   htmlframe = document.getElementById("multimessage");
@@ -762,7 +762,7 @@ function check_tag_in_message(message, tag, isSet) {
 
 add_task(async function test_tag_keys() {
   await be_in_folder(unreadFolder);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
 
   EventUtils.synthesizeKey("1", {});
   check_tag_in_message(curMessage, tagArray[0], true);
@@ -778,7 +778,7 @@ add_task(async function test_tag_keys() {
 
 add_task(async function test_tag_keys_disabled_in_content_tab() {
   await be_in_folder(unreadFolder);
-  let curMessage = select_click_row(0);
+  let curMessage = await select_click_row(0);
 
   window.openAddonsMgr("addons://list/theme");
   await new Promise(resolve => setTimeout(resolve));

@@ -107,8 +107,8 @@ add_task(async function testSignedMessageComposition() {
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(0);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(0);
   let src = await get_msg_source(msg);
   let lines = src.split("\n");
 
@@ -162,8 +162,8 @@ add_task(async function testSignedMessageWithKeyComposition() {
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  select_click_row(0);
-  assert_selected_and_displayed(0);
+  await select_click_row(0);
+  await assert_selected_and_displayed(0);
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
@@ -225,8 +225,8 @@ add_task(async function testSignedEncryptedMessageComposition() {
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  select_click_row(0);
-  assert_selected_and_displayed(0);
+  await select_click_row(0);
+  await assert_selected_and_displayed(0);
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),
@@ -278,8 +278,8 @@ add_task(async function testSignedEncryptedMessageWithKeyComposition() {
   await sendMessage(composeWin);
 
   await be_in_folder(gOutbox);
-  select_click_row(0);
-  assert_selected_and_displayed(0);
+  await select_click_row(0);
+  await assert_selected_and_displayed(0);
 
   Assert.ok(
     OpenPGPTestUtils.hasSignedIconState(aboutMessage.document, "ok"),

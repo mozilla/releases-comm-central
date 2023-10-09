@@ -107,10 +107,10 @@ add_task(async function test_wrong_reply_charset() {
   await add_message_to_folder([folder], msg0);
   await be_in_folder(folder);
   // Make the folder unthreaded for easier message selection.
-  make_display_unthreaded();
+  await make_display_unthreaded();
 
-  let msg = select_click_row(-1);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(-1);
+  await assert_selected_and_displayed(window, msg);
   Assert.equal((await getMsgHeaders(msg)).get("").charset, "invalid-charset");
 
   let rwc = await open_compose_with_reply();
@@ -121,12 +121,12 @@ add_task(async function test_wrong_reply_charset() {
   );
   await close_compose_window(rwc);
 
-  let draftMsg = select_click_row(-2);
+  let draftMsg = await select_click_row(-2);
   Assert.equal((await getMsgHeaders(draftMsg)).get("").charset, "UTF-8");
-  press_delete(window); // Delete message
+  await press_delete(window); // Delete message
 
   // Edit the original message. Charset should be UTF-8 now.
-  msg = select_click_row(-1);
+  msg = await select_click_row(-1);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(
@@ -151,12 +151,12 @@ add_task(async function test_wrong_reply_charset() {
   rwc = await compose_window_ready(composePromise);
   await save_compose_message(rwc);
   await close_compose_window(rwc);
-  msg = select_click_row(-1);
+  msg = await select_click_row(-1);
   await TestUtils.waitForCondition(
     async () => (await getMsgHeaders(msg)).get("").charset == "UTF-8",
     "The charset matches"
   );
-  press_delete(window); // Delete message
+  await press_delete(window); // Delete message
 });
 
 /**
@@ -171,8 +171,8 @@ add_task(async function test_no_mojibake() {
   });
   await add_message_to_folder([folder], msg0);
   await be_in_folder(folder);
-  let msg = select_click_row(-1);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(-1);
+  await assert_selected_and_displayed(window, msg);
   await TestUtils.waitForCondition(
     async () => (await getMsgHeaders(msg)).get("").charset == "utf-7",
     "message charset correctly set"
@@ -187,20 +187,20 @@ add_task(async function test_no_mojibake() {
   );
   await close_compose_window(rwc);
 
-  let draftMsg = select_click_row(-2);
+  let draftMsg = await select_click_row(-2);
   Assert.equal(
     (await getMsgHeaders(draftMsg)).get("").charset.toUpperCase(),
     "UTF-8"
   );
   let text = (await getMsgHeaders(draftMsg, true)).get("");
   // Delete message first before throwing so subsequent tests are not affected.
-  press_delete(window);
+  await press_delete(window);
   if (!text.includes(nonASCII)) {
     throw new Error("Expected to find " + nonASCII + " in " + text);
   }
 
   // Edit the original message. Charset should be UTF-8 now.
-  msg = select_click_row(-1);
+  msg = await select_click_row(-1);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(
@@ -224,11 +224,11 @@ add_task(async function test_no_mojibake() {
   rwc = await compose_window_ready(composePromise);
   await save_compose_message(rwc);
   await close_compose_window(rwc);
-  msg = select_click_row(-1);
+  msg = await select_click_row(-1);
   Assert.equal(
     (await getMsgHeaders(msg)).get("").charset.toUpperCase(),
     "UTF-8"
   );
   Assert.equal((await getMsgHeaders(msg, true)).get("").trim(), nonASCII);
-  press_delete(window); // Delete message
+  await press_delete(window); // Delete message
 });

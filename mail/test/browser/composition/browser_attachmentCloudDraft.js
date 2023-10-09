@@ -135,7 +135,7 @@ add_task(async function test_draft_with_cloudFile_attachment() {
   await close_compose_window(cwc);
 
   // Delete the leftover draft message.
-  press_delete();
+  await press_delete();
 
   // Cleanup cloudFile account.
   await gCloudFileProvider.removeAccount(cloudFileAccount);
@@ -233,7 +233,7 @@ add_task(async function test_draft_with_unknown_cloudFile_attachment() {
   await close_compose_window(cwc);
 
   // Delete the leftover draft message.
-  press_delete();
+  await press_delete();
 
   // Cleanup cloudFile account.
   await gCloudFileProvider.removeAccount(cloudFileAccount);
@@ -329,7 +329,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_account() {
   await close_compose_window(cwc);
 
   // Delete the leftover draft message.
-  press_delete();
+  await press_delete();
 });
 
 /**
@@ -451,7 +451,7 @@ add_task(async function test_draft_with_cloudFile_attachment_no_file() {
   await close_compose_window(cwc);
 
   // Delete the leftover draft message.
-  press_delete();
+  await press_delete();
 
   // Cleanup cloudFile account.
   await gCloudFileProvider.removeAccount(cloudFileAccount);
@@ -516,7 +516,7 @@ async function createAndCloseDraftWithCloudAttachment(cloudFileAccount) {
 }
 
 async function openDraft() {
-  select_click_row(0);
+  await select_click_row(0);
   let aboutMessage = get_about_message();
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(

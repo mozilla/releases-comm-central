@@ -213,7 +213,7 @@ function check_attachment_icon(index, expectedIcon) {
  */
 async function help_test_attachment_icon(index) {
   await be_in_folder(folder);
-  select_click_row(index);
+  await select_click_row(index);
   info(`Testing message ${index}: ${messages[index].name}`);
   let attachments = messages[index].attachments;
 

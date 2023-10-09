@@ -148,8 +148,8 @@ function checkReply(replyWin, expectedFromEmail) {
 add_task(async function test_reply_no_matching_identity() {
   await be_in_folder(testFolder);
 
-  let msg = select_click_row(-1);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(-1);
+  await assert_selected_and_displayed(window, msg);
 
   let replyWin = await open_compose_with_reply();
   // Should have selected the default identity.
@@ -160,8 +160,8 @@ add_task(async function test_reply_no_matching_identity() {
 add_task(async function test_reply_matching_only_deliveredto() {
   await be_in_folder(testFolder);
 
-  let msg = select_click_row(-2);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(-2);
+  await assert_selected_and_displayed(window, msg);
 
   let replyWin = await open_compose_with_reply();
   // Should have selected the second id, which is listed in Delivered-To:.
@@ -172,8 +172,8 @@ add_task(async function test_reply_matching_only_deliveredto() {
 add_task(async function test_reply_matching_subaddress() {
   await be_in_folder(testFolder);
 
-  let msg = select_click_row(-3);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(-3);
+  await assert_selected_and_displayed(window, msg);
 
   let replyWin = await open_compose_with_reply();
   // Should have selected the first id, the email doesn't fully match.
@@ -185,8 +185,8 @@ add_task(async function test_reply_matching_subaddress() {
 add_task(async function test_reply_to_matching_second_id() {
   await be_in_folder(testFolder);
 
-  let msg = select_click_row(-4);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(-4);
+  await assert_selected_and_displayed(window, msg);
 
   let replyWin = await open_compose_with_reply();
   // Should have selected the second id, which was in To;.
@@ -197,8 +197,8 @@ add_task(async function test_reply_to_matching_second_id() {
 add_task(async function test_deliveredto_to_matching_only_parlty() {
   await be_in_folder(testFolder);
 
-  let msg = select_click_row(-5);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(-5);
+  await assert_selected_and_displayed(window, msg);
 
   let replyWin = await open_compose_with_reply();
   // Should have selected the (default) first id.
@@ -213,8 +213,8 @@ add_task(async function test_deliveredto_to_matching_only_parlty() {
 add_task(async function test_reply_to_self_second_id() {
   await be_in_folder(testFolder);
 
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
 
   let replyWin = await open_compose_with_reply();
   // Should have selected the second id, which was in From.

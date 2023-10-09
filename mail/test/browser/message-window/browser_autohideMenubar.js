@@ -28,7 +28,7 @@ add_setup(async function () {
   await make_message_sets_in_folders([menuFolder], [{ count: 1 }]);
 
   // Make the menubar not autohide by default.
-  menuState = toggle_main_menu(true);
+  menuState = await toggle_main_menu(true);
 });
 
 /**
@@ -99,7 +99,7 @@ add_task(async function test_autohidden_menubar_3pane() {
 
 add_task(async function test_autohidden_menubar_message_window() {
   await be_in_folder(menuFolder);
-  select_click_row(0);
+  await select_click_row(0);
   let msgc = await open_selected_message_in_new_window();
   let menubar = msgc.document.getElementById("toolbar-menubar");
 
@@ -108,7 +108,7 @@ add_task(async function test_autohidden_menubar_message_window() {
 });
 
 registerCleanupFunction(async function () {
-  toggle_main_menu(menuState);
+  await toggle_main_menu(menuState);
   await be_in_folder(inboxFolder);
   menuFolder.deleteSelf(null);
 });

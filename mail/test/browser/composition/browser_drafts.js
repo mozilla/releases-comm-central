@@ -56,7 +56,7 @@ add_setup(async function () {
 add_task(async function test_open_draft_again() {
   await make_message_sets_in_folders([draftsFolder], [{ count: 1 }]);
   await be_in_folder(draftsFolder);
-  select_click_row(0);
+  await select_click_row(0);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
@@ -101,8 +101,8 @@ add_task(async function test_open_draft_again() {
   await close_compose_window(cwc);
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
-  select_click_row(0);
-  press_delete(window); // clean up after ourselves
+  await select_click_row(0);
+  await press_delete(window); // clean up after ourselves
 });
 
 /**
@@ -166,7 +166,7 @@ async function internal_check_delivery_format(editDraft) {
   await close_compose_window(cwc);
 
   await be_in_folder(draftsFolder);
-  select_click_row(0);
+  await select_click_row(0);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
@@ -191,7 +191,7 @@ async function internal_check_delivery_format(editDraft) {
 
   await close_compose_window(cwc);
 
-  press_delete(window); // clean up the created draft
+  await press_delete(window); // clean up the created draft
 }
 
 add_task(async function test_save_delivery_format_with_edit_draft() {
@@ -211,7 +211,7 @@ add_task(async function test_edit_as_new_in_draft() {
 
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
-  select_click_row(0);
+  await select_click_row(0);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
@@ -231,9 +231,9 @@ add_task(async function test_edit_as_new_in_draft() {
   );
 
   // Clean up the created drafts and count again.
-  press_delete(window);
-  select_click_row(0);
-  press_delete(window);
+  await press_delete(window);
+  await select_click_row(0);
+  await press_delete(window);
   Assert.equal(draftsFolder.getTotalMessages(false), 0);
 });
 
@@ -280,7 +280,7 @@ add_task(async function test_edit_draft_mime_from() {
     "should have one draft"
   );
 
-  select_click_row(0);
+  await select_click_row(0);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
@@ -305,7 +305,7 @@ add_task(async function test_edit_draft_mime_from() {
 
   await close_compose_window(cwc);
   // Clean up the created draft and count again.
-  press_delete(window);
+  await press_delete(window);
   Assert.equal(
     draftsFolder.getTotalMessages(false),
     0,
@@ -335,7 +335,7 @@ add_task(async function test_content_language_header() {
   );
 
   await be_in_folder(draftsFolder);
-  let draftMsg = select_click_row(0);
+  let draftMsg = await select_click_row(0);
   let draftMsgContent = await get_msg_source(draftMsg);
 
   // Check for a single line that contains our header.
@@ -348,7 +348,7 @@ add_task(async function test_content_language_header() {
   }
 
   // Clean up the created draft.
-  press_delete(window);
+  await press_delete(window);
 });
 
 /**
@@ -376,7 +376,7 @@ add_task(async function test_content_language_header_suppression() {
   );
 
   await be_in_folder(draftsFolder);
-  let draftMsg = select_click_row(0);
+  let draftMsg = await select_click_row(0);
   let draftMsgContent = await get_msg_source(draftMsg);
 
   // Check no line contains our Content-Language.
@@ -386,7 +386,7 @@ add_task(async function test_content_language_header_suppression() {
   );
 
   // Clean up the created draft.
-  press_delete(window);
+  await press_delete(window);
 
   Services.prefs.setBoolPref("mail.suppress_content_language", statusQuo);
 });
@@ -420,7 +420,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
 
   await be_in_folder(draftsFolder);
 
-  select_click_row(0);
+  await select_click_row(0);
 
   // Wait for the notification with the Edit button.
   await wait_for_notification_to_show(aboutMessage, kBoxId, "draftMsgContent");
@@ -442,7 +442,7 @@ add_task(async function test_remove_space_stuffing_format_flowed() {
   await close_compose_window(cwc);
 
   // Clean up the created draft.
-  press_delete(window);
+  await press_delete(window);
 
   Services.prefs.setBoolPref("mail.identity.default.compose_html", oldHtmlPref);
 });

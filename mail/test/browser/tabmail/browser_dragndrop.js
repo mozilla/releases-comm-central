@@ -79,7 +79,7 @@ add_task(async function test_tab_reorder_tabbar() {
 
   // Open four tabs
   for (let idx = 0; idx < 4; idx++) {
-    select_click_row(idx);
+    await select_click_row(idx);
     await open_selected_message_in_new_tab(true);
   }
 
@@ -104,7 +104,7 @@ add_task(async function test_tab_reorder_tabbar() {
 
   // Start dragging the first tab
   await switch_tab(1);
-  assert_selected_and_displayed(msgHdrsInFolder[0]);
+  await assert_selected_and_displayed(msgHdrsInFolder[0]);
 
   let tab1 = tabmail.tabContainer.allTabs[1];
   let tab3 = tabmail.tabContainer.allTabs[3];
@@ -119,7 +119,7 @@ add_task(async function test_tab_reorder_tabbar() {
     tabmail.tabContainer
   );
 
-  wait_for_message_display_completion(window);
+  await wait_for_message_display_completion(window);
 
   // if every thing went well...
   assert_number_of_tabs_open(5);
@@ -127,12 +127,12 @@ add_task(async function test_tab_reorder_tabbar() {
   // ... we should find tab1 at the third position...
   Assert.equal(tab1, tabmail.tabContainer.allTabs[3], "Moving tab1 failed");
   await switch_tab(3);
-  assert_selected_and_displayed(msgHdrsInFolder[0]);
+  await assert_selected_and_displayed(msgHdrsInFolder[0]);
 
   // ... while tab3 moves one up and gets second.
   Assert.ok(tab3 == tabmail.tabContainer.allTabs[2], "Moving tab3 failed");
   await switch_tab(2);
-  assert_selected_and_displayed(msgHdrsInFolder[2]);
+  await assert_selected_and_displayed(msgHdrsInFolder[2]);
 
   // we have one "message" tab and three "folder" tabs, thus tabInfo[1-3] and
   // tabMode["message"].tabs[0-2] have to be same, otherwise something went
@@ -168,13 +168,13 @@ add_task(async function test_tab_reorder_window() {
   await be_in_folder(folder);
 
   // Open a new tab...
-  select_click_row(1);
+  await select_click_row(1);
   await open_selected_message_in_new_tab(false);
 
   assert_number_of_tabs_open(2);
 
   await switch_tab(1);
-  assert_selected_and_displayed(msgHdrsInFolder[1]);
+  await assert_selected_and_displayed(msgHdrsInFolder[1]);
 
   // ...and then a new 3 pane as our drop target.
   mc2 = await open_folder_in_new_window(folder);
@@ -216,7 +216,7 @@ add_task(async function test_tab_reorder_window() {
     () => tabmail2.currentAboutMessage.gDBView,
     "waiting for the new tab to be ready"
   );
-  assert_selected_and_displayed(mc2, msgHdrsInFolder[1]);
+  await assert_selected_and_displayed(mc2, msgHdrsInFolder[1]);
 
   teardownTest();
 });
@@ -235,7 +235,7 @@ add_task(async function test_tab_reorder_detach() {
   await be_in_folder(folder);
 
   // Open a new tab...
-  select_click_row(2);
+  await select_click_row(2);
   await open_selected_message_in_new_tab(false);
 
   assert_number_of_tabs_open(2);
@@ -267,7 +267,7 @@ add_task(async function test_tab_reorder_detach() {
     () => tabmail2.tabInfo[1]?.chromeBrowser,
     "waiting for a second tab to open in the new window"
   );
-  wait_for_message_display_completion(mc2, true);
+  await wait_for_message_display_completion(mc2, true);
 
   Assert.ok(
     tabmail.tabContainer.allTabs.length == 1,
@@ -286,7 +286,7 @@ add_task(async function test_tab_reorder_detach() {
     () => tabmail2.currentAboutMessage?.gDBView,
     "waiting for the new tab to be ready"
   );
-  assert_selected_and_displayed(mc2, msgHdrsInFolder[2]);
+  await assert_selected_and_displayed(mc2, msgHdrsInFolder[2]);
 
   teardownTest();
 });
@@ -304,14 +304,14 @@ add_task(async function test_tab_undo() {
 
   // Open five tabs...
   for (let idx = 0; idx < 5; idx++) {
-    select_click_row(idx);
+    await select_click_row(idx);
     await open_selected_message_in_new_tab(true);
   }
 
   assert_number_of_tabs_open(6);
 
   await switch_tab(2);
-  assert_selected_and_displayed(msgHdrsInFolder[1]);
+  await assert_selected_and_displayed(msgHdrsInFolder[1]);
 
   tabmail.closeTab(2);
   // This tab should not be added to recently closed tabs...
@@ -320,19 +320,19 @@ add_task(async function test_tab_undo() {
   tabmail.closeTab(2);
 
   assert_number_of_tabs_open(3);
-  assert_selected_and_displayed(window, msgHdrsInFolder[4]);
+  await assert_selected_and_displayed(window, msgHdrsInFolder[4]);
 
   tabmail.undoCloseTab();
-  wait_for_message_display_completion();
+  await wait_for_message_display_completion();
   assert_number_of_tabs_open(4);
-  assert_selected_and_displayed(window, msgHdrsInFolder[3]);
+  await assert_selected_and_displayed(window, msgHdrsInFolder[3]);
 
   // msgHdrsInFolder[2] won't be restored, it was closed with disabled undo.
 
   tabmail.undoCloseTab();
-  wait_for_message_display_completion();
+  await wait_for_message_display_completion();
   assert_number_of_tabs_open(5);
-  assert_selected_and_displayed(window, msgHdrsInFolder[1]);
+  await assert_selected_and_displayed(window, msgHdrsInFolder[1]);
   teardownTest();
 });
 
@@ -379,14 +379,14 @@ add_task(async function test_tab_recentlyClosed() {
   await be_in_folder(folder);
 
   for (let idx = 0; idx < 15; idx++) {
-    select_click_row(idx);
+    await select_click_row(idx);
     await open_selected_message_in_new_tab(true);
   }
 
   assert_number_of_tabs_open(16);
 
   await switch_tab(2);
-  assert_selected_and_displayed(msgHdrsInFolder[1]);
+  await assert_selected_and_displayed(msgHdrsInFolder[1]);
 
   // ... and store the tab titles, to ensure they match with the menu items.
   let tabTitles = [];
@@ -418,9 +418,9 @@ add_task(async function test_tab_recentlyClosed() {
   await _teardownRecentlyClosedMenu();
   await new Promise(resolve => setTimeout(resolve));
 
-  wait_for_message_display_completion(window);
+  await wait_for_message_display_completion(window);
   assert_number_of_tabs_open(3);
-  assert_selected_and_displayed(msgHdrsInFolder[14]);
+  await assert_selected_and_displayed(msgHdrsInFolder[14]);
 
   // The context menu should now contain one item less.
   await _synthesizeRecentlyClosedMenu();
@@ -438,9 +438,9 @@ add_task(async function test_tab_recentlyClosed() {
   await _teardownRecentlyClosedMenu();
   await new Promise(resolve => setTimeout(resolve));
 
-  wait_for_message_display_completion(window);
+  await wait_for_message_display_completion(window);
   assert_number_of_tabs_open(4);
-  assert_selected_and_displayed(msgHdrsInFolder[8]);
+  await assert_selected_and_displayed(msgHdrsInFolder[8]);
 
   // finally restore all tabs
   await _synthesizeRecentlyClosedMenu();
@@ -459,7 +459,7 @@ add_task(async function test_tab_recentlyClosed() {
   await _teardownRecentlyClosedMenu();
   await new Promise(resolve => setTimeout(resolve));
 
-  wait_for_message_display_completion(window);
+  await wait_for_message_display_completion(window);
 
   // out of the 16 tab, we closed all except two. As the history can store
   // only 10 items we have to endup with exactly 10 + 2 tabs.

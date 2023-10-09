@@ -91,30 +91,30 @@ var VERIFY_ALL = 0xf;
 async function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
   if (aFlags & VERIFY_FOLDER_TAB) {
     await switch_tab(tabFolder);
-    assert_selected_and_displayed(aMessage);
+    await assert_selected_and_displayed(aMessage);
     if (aIndex !== undefined) {
-      assert_selected_and_displayed(aIndex);
+      await assert_selected_and_displayed(aIndex);
     }
   }
   if (aFlags & VERIFY_MESSAGE_TAB) {
     // Verify the title first
-    assert_tab_titled_from(tabMessage, aMessage);
+    await assert_tab_titled_from(tabMessage, aMessage);
     await switch_tab(tabMessage);
     // Verify the title again, just in case
-    assert_tab_titled_from(tabMessage, aMessage);
-    assert_selected_and_displayed(aMessage);
+    await assert_tab_titled_from(tabMessage, aMessage);
+    await assert_selected_and_displayed(aMessage);
     if (aIndex !== undefined) {
-      assert_selected_and_displayed(aIndex);
+      await assert_selected_and_displayed(aIndex);
     }
   }
   if (aFlags & VERIFY_BACKGROUND_MESSAGE_TAB) {
     // Only verify the title
-    assert_tab_titled_from(tabMessageBackground, aMessage);
+    await assert_tab_titled_from(tabMessageBackground, aMessage);
   }
   if (aFlags & VERIFY_MESSAGE_WINDOW) {
-    assert_selected_and_displayed(msgc, aMessage);
+    await assert_selected_and_displayed(msgc, aMessage);
     if (aIndex !== undefined) {
-      assert_selected_and_displayed(msgc, aIndex);
+      await assert_selected_and_displayed(msgc, aIndex);
     }
   }
 }
@@ -125,7 +125,7 @@ add_task(async function test_create_virtual_folders() {
   // Apply the mail view
   window.RefreshAllViewPopups(document.getElementById("viewPickerPopup"));
   window.ViewChange(":$label1");
-  wait_for_all_messages_to_load();
+  await wait_for_all_messages_to_load();
 
   // - save it
   const dialogPromise = promise_modal_dialog(
@@ -145,24 +145,24 @@ function subtest_save_mail_view(savc) {
 async function _open_first_message() {
   // Enter the folder and open a message
   tabFolder = await be_in_folder(folder);
-  curMessage = select_click_row(0);
-  assert_selected_and_displayed(curMessage);
+  curMessage = await select_click_row(0);
+  await assert_selected_and_displayed(curMessage);
 
   // Open the tab with the message
   tabMessage = await open_selected_message_in_new_tab();
-  assert_selected_and_displayed(curMessage);
-  assert_tab_titled_from(tabMessage, curMessage);
+  await assert_selected_and_displayed(curMessage);
+  await assert_tab_titled_from(tabMessage, curMessage);
 
   await switch_tab(tabFolder);
 
   // Open another tab with the message, this time in the background
   tabMessageBackground = await open_selected_message_in_new_tab(true);
-  assert_tab_titled_from(tabMessageBackground, curMessage);
+  await assert_tab_titled_from(tabMessageBackground, curMessage);
 
   // Open the window with the message
   await switch_tab(tabFolder);
   msgc = await open_selected_message_in_new_window();
-  assert_selected_and_displayed(msgc, curMessage);
+  await assert_selected_and_displayed(msgc, curMessage);
 }
 
 add_task(async function test_open_first_message_in_virtual_folder() {
@@ -184,7 +184,7 @@ add_task(async function test_delete_from_virtual_folder_in_folder_tab() {
   // while we're at it, figure out who is at 2 for the next step
   nextMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(2);
   // - delete the message
-  press_delete();
+  await press_delete();
 
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
@@ -197,7 +197,7 @@ add_task(async function test_delete_from_virtual_folder_in_folder_tab() {
 add_task(async function test_delete_from_virtual_folder_in_message_tab() {
   await switch_tab(tabMessage);
   // nextMessage is the guy we want to see once the delete completes.
-  press_delete();
+  await press_delete();
   curMessage = nextMessage;
 
   // - verify all displays
@@ -216,7 +216,7 @@ add_task(async function test_delete_from_virtual_folder_in_message_tab() {
  */
 add_task(async function test_delete_from_virtual_folder_in_message_window() {
   // - delete
-  press_delete(msgc);
+  await press_delete(msgc);
   curMessage = nextMessage;
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
@@ -236,7 +236,7 @@ add_task(
 
     // - let's arbitrarily perform the deletion on this message tab
     await switch_tab(tabMessage);
-    press_delete();
+    await press_delete();
 
     // - the message window should have gone away...
     // (this also helps ensure that the 3pane gets enough event loop time to do
@@ -279,7 +279,7 @@ add_task(async function test_delete_from_smart_inbox_in_folder_tab() {
   // while we're at it, figure out who is at 2 for the next step
   nextMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(2);
   // - delete the message
-  press_delete();
+  await press_delete();
 
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
@@ -292,7 +292,7 @@ add_task(async function test_delete_from_smart_inbox_in_folder_tab() {
 add_task(async function test_delete_from_smart_inbox_in_message_tab() {
   await switch_tab(tabMessage);
   // nextMessage is the guy we want to see once the delete completes.
-  press_delete();
+  await press_delete();
   curMessage = nextMessage;
 
   // - verify all displays
@@ -311,7 +311,7 @@ add_task(async function test_delete_from_smart_inbox_in_message_tab() {
  */
 add_task(async function test_delete_from_smart_inbox_in_message_window() {
   // - delete
-  press_delete(msgc);
+  await press_delete(msgc);
   curMessage = nextMessage;
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
@@ -331,7 +331,7 @@ add_task(
 
     // - let's arbitrarily perform the deletion on this message tab
     await switch_tab(tabMessage);
-    press_delete();
+    await press_delete();
 
     // - the message window should have gone away...
     // (this also helps ensure that the 3pane gets enough event loop time to do

@@ -66,7 +66,7 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
   // Start in folder a.
   let tabFolderA = await be_in_folder(folderA);
   assert_folder_selected_and_displayed(folderA);
-  assert_nothing_selected();
+  await assert_nothing_selected();
   Assert.equal(
     folderLoc.label,
     "FolderToolbarA",
@@ -75,9 +75,9 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
 
   // Open tab b, make sure it works right.
   let tabFolderB = await open_folder_in_new_tab(folderB);
-  wait_for_blank_content_pane();
+  await wait_for_blank_content_pane();
   assert_folder_selected_and_displayed(folderB);
-  assert_nothing_selected();
+  await assert_nothing_selected();
   Assert.equal(
     folderLoc.label,
     "FolderToolbarB",
@@ -87,7 +87,7 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
   // Go back to tab/folder A and make sure we change correctly.
   await switch_tab(tabFolderA);
   assert_folder_selected_and_displayed(folderA);
-  assert_nothing_selected();
+  await assert_nothing_selected();
   Assert.equal(
     folderLoc.label,
     "FolderToolbarA",
@@ -97,7 +97,7 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
   // Go back to tab/folder A and make sure we change correctly.
   await switch_tab(tabFolderB);
   assert_folder_selected_and_displayed(folderB);
-  assert_nothing_selected();
+  await assert_nothing_selected();
   Assert.equal(
     folderLoc.label,
     "FolderToolbarB",
@@ -122,7 +122,7 @@ add_task(async function test_folder_toolbar_disappears_on_message_tab() {
   Assert.equal(folderLoc.collapsed, false, "The toolbar should be shown.");
 
   // Select one message
-  select_click_row(0);
+  await select_click_row(0);
   // Open it
   let messageTab = await open_selected_message_in_new_tab();
 

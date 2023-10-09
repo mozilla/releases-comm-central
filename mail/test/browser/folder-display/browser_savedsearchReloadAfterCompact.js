@@ -45,8 +45,8 @@ add_task(async function test_setup_virtual_folder_and_compact() {
    * view still gets rebuilt, such that there is a valid msg hdr at row 0.
    */
   await be_in_folder(otherFolder);
-  select_click_row(0);
-  press_delete();
+  await select_click_row(0);
+  await press_delete();
 
   folderVirtual = create_virtual_folder(
     [inboxFolder, otherFolder],
@@ -56,7 +56,7 @@ add_task(async function test_setup_virtual_folder_and_compact() {
   );
 
   await be_in_folder(folderVirtual);
-  select_click_row(0);
+  await select_click_row(0);
   let urlListener = {
     compactDone: false,
 

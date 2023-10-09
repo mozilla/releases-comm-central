@@ -46,8 +46,8 @@ add_setup(async function () {
 add_task(async function test_was_reply_subj() {
   await be_in_folder(folder);
 
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
 
   let cwc = await open_compose_with_reply();
 

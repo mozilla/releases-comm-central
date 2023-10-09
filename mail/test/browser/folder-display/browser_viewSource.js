@@ -95,7 +95,7 @@ function addToFolder(subject, charset, body) {
 }
 
 async function subtest(row, expectedDisplayed, expectedSource) {
-  select_click_row(row);
+  await select_click_row(row);
 
   let aboutMessage = get_about_message();
   let displayContent =

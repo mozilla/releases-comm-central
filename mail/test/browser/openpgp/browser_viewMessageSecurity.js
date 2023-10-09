@@ -143,7 +143,7 @@ add_task(async function testSmimeOpenPgpSelection() {
   await copyListener.promise;
 
   // Select the second row, which should contain the S/MIME message.
-  select_click_row(-2);
+  await select_click_row(-2);
 
   let aboutMessage = get_about_message();
   Assert.equal(
@@ -162,7 +162,7 @@ add_task(async function testSmimeOpenPgpSelection() {
     "openpgpprocessed"
   );
   // Select the first row, which should contain the OpenPGP message.
-  select_click_row(-1);
+  await select_click_row(-1);
   await openpgpprocessed;
 
   Assert.equal(
@@ -183,9 +183,9 @@ add_task(async function testSmimeOpenPgpSelection() {
   );
 
   // Delete the two generated messages.
-  press_delete();
-  select_click_row(-1);
-  press_delete();
+  await press_delete();
+  await select_click_row(-1);
+  await press_delete();
 });
 
 /**
@@ -214,7 +214,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
   await copyListener.promise;
 
   // Select the first row, which should contain the OpenPGP message.
-  select_click_row(-1);
+  await select_click_row(-1);
 
   // Assert the "corrupted by MS-Exchange" notification is visible.
   let aboutMessage = get_about_message();
@@ -246,7 +246,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
   // The broken exchange repair process generates a new fixed message body and
   // then copies the new message in the same folder. Therefore, we need to wait
   // for the message to be automatically reloaded and reselected.
-  wait_for_message_display_completion(window, true);
+  await wait_for_message_display_completion(window, true);
 
   // Assert that the message was repaired and decrypted.
   await TestUtils.waitForCondition(
@@ -255,7 +255,7 @@ add_task(async function testBrokenMSExchangeEncryption() {
   );
 
   // Delete the message.
-  press_delete();
+  await press_delete();
 });
 
 /**
@@ -283,7 +283,7 @@ add_task(async function testMessageSecurityShortcut() {
   await copyListener.promise;
 
   // Select the first row, which should contain the S/MIME message.
-  select_click_row(-1);
+  await select_click_row(-1);
 
   let aboutMessage = get_about_message();
   Assert.equal(
@@ -310,9 +310,9 @@ add_task(async function testMessageSecurityShortcut() {
   await popupshown;
 
   // Select the row again since the focus moved to the popup panel.
-  select_click_row(-1);
+  await select_click_row(-1);
   // Delete the message.
-  press_delete();
+  await press_delete();
 });
 
 registerCleanupFunction(async function tearDown() {

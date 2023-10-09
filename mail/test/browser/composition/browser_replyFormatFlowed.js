@@ -54,7 +54,7 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   // Now check the message content in the drafts folder.
   await be_in_folder(gDrafts);
-  let message = select_click_row(0);
+  let message = await select_click_row(0);
   let messageContent = await get_msg_source(message);
 
   // Check for a single line that contains text and make sure there is a
@@ -68,7 +68,7 @@ async function subtest_reply_format_flowed(aFlowed) {
   );
 
   // Delete the outgoing message.
-  press_delete();
+  await press_delete();
 }
 
 add_task(async function test_reply_format_flowed() {

@@ -292,7 +292,7 @@ add_task(async function test_send_enabled_address_contacts_sidebar() {
     () => abTree.view.rowCount > 0,
     "Addressbook cards didn't load"
   );
-  click_tree_row(abTree, 0);
+  await click_tree_row(abTree, 0);
 
   contactsBrowser.contentDocument.getElementById("ccButton").click();
 

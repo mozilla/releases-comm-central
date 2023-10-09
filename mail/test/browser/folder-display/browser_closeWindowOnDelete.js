@@ -42,17 +42,17 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    select_click_row(0);
+    await select_click_row(0);
     // display it
     let msgc = await open_selected_message_in_new_window();
 
-    select_click_row(1);
+    await select_click_row(1);
     let msgc2 = await open_selected_message_in_new_window();
 
     let preCount = folder.getTotalMessages(false);
     msgc.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgc);
-    press_delete(msgc);
+    await press_delete(msgc);
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");
     }
@@ -78,19 +78,19 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    select_click_row(0);
+    await select_click_row(0);
     // display it
     let msgc = await open_selected_message_in_new_window();
     let msgcA = await open_selected_message_in_new_window();
 
-    select_click_row(1);
+    await select_click_row(1);
     let msgc2 = await open_selected_message_in_new_window();
 
     let preCount = folder.getTotalMessages(false);
     msgc.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgc);
     const closePromiseA = BrowserTestUtils.domWindowClosed(msgcA);
-    press_delete(msgc);
+    await press_delete(msgc);
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");
@@ -118,20 +118,20 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    select_click_row(0);
+    await select_click_row(0);
     // display it
     let msgc = await open_selected_message_in_new_window();
     let msgcA = await open_selected_message_in_new_window();
 
-    select_click_row(1);
+    await select_click_row(1);
     let msgc2 = await open_selected_message_in_new_window();
 
     let preCount = folder.getTotalMessages(false);
     window.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgc);
     const closePromiseA = BrowserTestUtils.domWindowClosed(msgcA);
-    select_click_row(0);
-    press_delete(window);
+    await select_click_row(0);
+    await press_delete(window);
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");
@@ -158,16 +158,16 @@ add_task(async function test_close_message_tab_on_delete_from_message_tab() {
   await be_in_folder(folder);
 
   // select the first message
-  select_click_row(0);
+  await select_click_row(0);
   // display it
   let msgc = await open_selected_message_in_new_tab(true);
 
-  select_click_row(1);
+  await select_click_row(1);
   let msgc2 = await open_selected_message_in_new_tab(true);
 
   let preCount = folder.getTotalMessages(false);
   await switch_tab(msgc);
-  press_delete();
+  await press_delete();
 
   if (folder.getTotalMessages(false) != preCount - 1) {
     throw new Error("didn't delete a message before closing tab");
@@ -194,17 +194,17 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    select_click_row(0);
+    await select_click_row(0);
     // display it
     let msgc = await open_selected_message_in_new_tab(true);
     await open_selected_message_in_new_tab(true);
 
-    select_click_row(1);
+    await select_click_row(1);
     let msgc2 = await open_selected_message_in_new_tab(true);
 
     let preCount = folder.getTotalMessages(false);
     await switch_tab(msgc);
-    press_delete();
+    await press_delete();
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing tab");
@@ -232,18 +232,18 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    select_click_row(0);
+    await select_click_row(0);
     // display it
     await open_selected_message_in_new_tab(true);
     await open_selected_message_in_new_tab(true);
 
-    select_click_row(1);
+    await select_click_row(1);
     let msgc2 = await open_selected_message_in_new_tab(true);
 
     let preCount = folder.getTotalMessages(false);
     window.focus();
-    select_click_row(0);
-    press_delete(window);
+    await select_click_row(0);
+    await press_delete(window);
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");
@@ -271,20 +271,20 @@ add_task(
     await be_in_folder(folder);
 
     // select the first message
-    select_click_row(0);
+    await select_click_row(0);
     // display it
     await open_selected_message_in_new_tab(true);
     let msgcA = await open_selected_message_in_new_window();
 
-    select_click_row(1);
+    await select_click_row(1);
     let msgc2 = await open_selected_message_in_new_tab(true);
     let msgc2A = await open_selected_message_in_new_window();
 
     let preCount = folder.getTotalMessages(false);
     window.focus();
     const closePromise = BrowserTestUtils.domWindowClosed(msgcA);
-    select_click_row(0);
-    press_delete(window);
+    await select_click_row(0);
+    await press_delete(window);
 
     if (folder.getTotalMessages(false) != preCount - 1) {
       throw new Error("didn't delete a message before closing window");

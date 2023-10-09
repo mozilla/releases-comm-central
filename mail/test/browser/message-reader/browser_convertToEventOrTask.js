@@ -71,8 +71,8 @@ add_task(async function test_convertToEvent() {
   );
   await BrowserTestUtils.closeWindow(msgc);
 
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
 
   // Open Other Actions, and check the event dialog popping up seems alright.
   let dialogWindowPromise = CalendarTestUtils.waitForEventDialog("edit");

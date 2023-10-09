@@ -67,7 +67,7 @@ add_task(async function test_sticky_basics() {
 
   // -- setup
   await be_in_folder(folderOne);
-  toggle_boolean_constraints("sticky", "unread");
+  await toggle_boolean_constraints("sticky", "unread");
   assert_messages_in_view(unreadOne);
 
   // -- change folders
@@ -117,7 +117,7 @@ add_task(async function test_sticky_tags() {
   setTagC2.addTag(tagC);
 
   await be_in_folder(folderOne);
-  toggle_boolean_constraints("sticky", "tags");
+  await toggle_boolean_constraints("sticky", "tags");
   assert_tag_constraints_visible(tagA, tagB);
   assert_messages_in_view([setTagA1, setTagB1]);
 
@@ -127,14 +127,14 @@ add_task(async function test_sticky_tags() {
   assert_messages_in_view([setTagA2, setTagC2]);
 
   // -- do not re-facet since tag A was selected
-  toggle_tag_constraints(tagA);
+  await toggle_tag_constraints(tagA);
   await be_in_folder(folderOne);
   assert_tag_constraints_visible(tagA, tagC);
   assert_messages_in_view([setTagA1]);
 
   // -- if we turn off sticky, make sure that things clear when we change
   //     folders.  (we had a bug with this before.)
-  toggle_boolean_constraints("sticky");
+  await toggle_boolean_constraints("sticky");
   await be_in_folder(folderTwo);
   assert_constraints_expressed({});
   teardownTest();
@@ -150,8 +150,8 @@ add_task(async function test_sticky_text() {
   let folderTwo = await create_folder("QuickFilterBarStickyText2");
 
   await be_in_folder(folderOne);
-  toggle_boolean_constraints("sticky");
-  set_filter_text("foo");
+  await toggle_boolean_constraints("sticky");
+  await set_filter_text("foo");
 
   await be_in_folder(folderTwo);
   assert_filter_text("foo");

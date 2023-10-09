@@ -196,8 +196,8 @@ function ensure_starts_expanded(expand) {
 add_task(async function test_attachment_view_collapsed() {
   await be_in_folder(folder);
 
-  select_click_row(0);
-  assert_selected_and_displayed(0);
+  await select_click_row(0);
+  await assert_selected_and_displayed(0);
 
   if (
     !get_about_message().document.getElementById("attachmentView").collapsed
@@ -210,8 +210,8 @@ add_task(async function test_attachment_view_expanded() {
   await be_in_folder(folder);
 
   for (let i = 1; i < messages.length; i++) {
-    select_click_row(i);
-    assert_selected_and_displayed(i);
+    await select_click_row(i);
+    await assert_selected_and_displayed(i);
 
     if (
       get_about_message().document.getElementById("attachmentView").collapsed
@@ -231,8 +231,8 @@ add_task(async function test_attachment_name_sanitization() {
 
   for (let i = 0; i < messages.length; i++) {
     if ("attachments" in messages[i]) {
-      select_click_row(i);
-      assert_selected_and_displayed(i);
+      await select_click_row(i);
+      await assert_selected_and_displayed(i);
 
       let attachments = messages[i].attachments;
       if (messages[i].attachments.length == 1) {
@@ -255,8 +255,8 @@ add_task(async function test_attachment_name_sanitization() {
 add_task(async function test_long_attachment_name() {
   await be_in_folder(folder);
 
-  select_click_row(4);
-  assert_selected_and_displayed(4);
+  await select_click_row(4);
+  await assert_selected_and_displayed(4);
 
   let aboutMessage = get_about_message();
   let messagepaneBox = aboutMessage.document.getElementById("messagepanebox");
@@ -277,8 +277,8 @@ add_task(async function test_long_attachment_name() {
 add_task(async function test_attached_message_attachments() {
   await be_in_folder(folder);
 
-  select_click_row(5);
-  assert_selected_and_displayed(5);
+  await select_click_row(5);
+  await assert_selected_and_displayed(5);
 
   // Make sure we have the expected number of attachments in the root message:
   // an outer text attachment, an attached email, and an inner text attachment.
@@ -295,7 +295,7 @@ add_task(async function test_attached_message_attachments() {
     .getItemAtIndex(1)
     .attachment.open();
   let msgc = await newWindowPromise;
-  wait_for_message_display_completion(msgc, true);
+  await wait_for_message_display_completion(msgc, true);
 
   // Make sure we have the expected number of attachments in the attached
   // message: just an inner text attachment.
@@ -307,8 +307,8 @@ add_task(async function test_attached_message_attachments() {
 add_task(async function test_attachment_name_click() {
   await be_in_folder(folder);
 
-  select_click_row(1);
-  assert_selected_and_displayed(1);
+  await select_click_row(1);
+  await assert_selected_and_displayed(1);
 
   let aboutMessage = get_about_message();
   let attachmentList = aboutMessage.document.getElementById("attachmentList");
@@ -367,8 +367,8 @@ async function subtest_attachment_right_click(elementId, contextMenuId) {
 add_task(async function test_attachment_right_click_single() {
   await be_in_folder(folder);
 
-  select_click_row(1);
-  assert_selected_and_displayed(1);
+  await select_click_row(1);
+  await assert_selected_and_displayed(1);
 
   await subtest_attachment_right_click(
     "attachmentIcon",
@@ -404,8 +404,8 @@ add_task(async function test_attachment_right_click_single() {
 add_task(async function test_attachment_right_click_multiple() {
   await be_in_folder(folder);
 
-  select_click_row(3);
-  assert_selected_and_displayed(3);
+  await select_click_row(3);
+  await assert_selected_and_displayed(3);
 
   await subtest_attachment_right_click(
     "attachmentIcon",
@@ -463,8 +463,8 @@ function subtest_attachment_list_toggle(elementId) {
 add_task(async function test_attachment_list_expansion() {
   await be_in_folder(folder);
 
-  select_click_row(1);
-  assert_selected_and_displayed(1);
+  await select_click_row(1);
+  await assert_selected_and_displayed(1);
 
   let aboutMessage = get_about_message();
   Assert.ok(
@@ -494,8 +494,8 @@ add_task(async function test_attachment_list_starts_expanded() {
   ensure_starts_expanded(true);
   await be_in_folder(folder);
 
-  select_click_row(2);
-  assert_selected_and_displayed(2);
+  await select_click_row(2);
+  await assert_selected_and_displayed(2);
 
   Assert.ok(
     !get_about_message().document.getElementById("attachmentList").collapsed,
@@ -507,7 +507,7 @@ add_task(async function test_selected_attachments_are_cleared() {
   ensure_starts_expanded(false);
   await be_in_folder(folder);
   // First, select the message with two attachments.
-  select_click_row(3);
+  await select_click_row(3);
 
   // Expand the attachment list.
   let aboutMessage = get_about_message();
@@ -548,7 +548,7 @@ add_task(async function test_selected_attachments_are_cleared() {
 
   // Switch to the message with one attachment, and make sure there are no
   // selected attachments.
-  select_click_row(2);
+  await select_click_row(2);
 
   // Expand the attachment list again.
   EventUtils.synthesizeMouseAtCenter(
@@ -568,8 +568,8 @@ add_task(async function test_select_all_attachments_key() {
   await be_in_folder(folder);
 
   // First, select the message with two attachments.
-  select_none();
-  select_click_row(3);
+  await select_none();
+  await select_click_row(3);
 
   // Expand the attachment list.
   let aboutMessage = get_about_message();
@@ -593,11 +593,11 @@ add_task(async function test_delete_attachment_key() {
   await be_in_folder(folder);
 
   // First, select the message with two attachments.
-  select_none();
-  select_click_row(3);
+  await select_none();
+  await select_click_row(3);
 
   // Expand the attachment list.
-  assert_selected_and_displayed(3);
+  await assert_selected_and_displayed(3);
   let aboutMessage = get_about_message();
   if (aboutMessage.document.getElementById("attachmentList").collapsed) {
     EventUtils.synthesizeMouseAtCenter(
@@ -631,8 +631,8 @@ add_task(async function test_attachments_compose_menu() {
   await be_in_folder(folder);
 
   // First, select the message with two attachments.
-  select_none();
-  select_click_row(3);
+  await select_none();
+  await select_click_row(3);
 
   let cwc = await open_compose_with_forward();
   let attachment = cwc.document.getElementById("attachmentBucket");
@@ -722,11 +722,11 @@ add_task(async function test_delete_from_toolbar() {
   await be_in_folder(folder);
 
   // First, select the message with two attachments.
-  select_none();
-  select_click_row(3);
+  await select_none();
+  await select_click_row(3);
 
   // Expand the attachment list.
-  assert_selected_and_displayed(3);
+  await assert_selected_and_displayed(3);
   let aboutMessage = get_about_message();
   if (aboutMessage.document.getElementById("attachmentList").collapsed) {
     EventUtils.synthesizeMouseAtCenter(
@@ -752,7 +752,7 @@ add_task(async function test_delete_from_toolbar() {
     { clickCount: 1 },
     aboutMessage
   );
-  wait_for_folder_events();
+  await wait_for_folder_events();
 }).skip();
 
 registerCleanupFunction(() => {

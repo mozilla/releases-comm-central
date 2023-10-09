@@ -73,7 +73,7 @@ add_task(
     assert_message_pane_hidden();
 
     // - open message tab, make sure the message pane is visible
-    select_click_row(0);
+    await select_click_row(0);
     let tabMessage = await open_selected_message_in_new_tab();
 
     // - close the tab, sanity check the transition was okay
@@ -100,7 +100,7 @@ add_task(async function test_message_pane_is_sticky() {
   assert_message_pane_visible();
 
   // [folder+ => (new) message]
-  select_click_row(0);
+  await select_click_row(0);
   let tabMessage = await open_selected_message_in_new_tab();
 
   // [message => folder+]

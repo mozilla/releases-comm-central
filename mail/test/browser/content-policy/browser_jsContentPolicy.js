@@ -165,7 +165,7 @@ add_task(async function testJsInMail() {
   let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
   // select the newly created message
-  let msgHdr = select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(
     msgDbHdr,
@@ -173,12 +173,12 @@ add_task(async function testJsInMail() {
     "selected message header should be the same as generated header"
   );
 
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   await SpecialPowers.spawn(messagePane, [], assertJSDisabled);
 
   ++gMsgNo;
-  select_none();
+  await select_none();
 });
 
 /**
@@ -227,7 +227,7 @@ add_task(async function testJsInMailAgain() {
   let msgDbHdr = addToFolder("JS test message " + gMsgNo, jsMsgBody, folder);
 
   // select the newly created message
-  let msgHdr = select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(
     msgDbHdr,
@@ -235,12 +235,12 @@ add_task(async function testJsInMailAgain() {
     "selected message header should be the same as generated header"
   );
 
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   await SpecialPowers.spawn(messagePane, [], assertJSDisabled);
 
   ++gMsgNo;
-  select_none();
+  await select_none();
 });
 
 /*
@@ -272,7 +272,7 @@ add_task(async function testJsInMailReply() {
   let msgDbHdr = addToFolder("js msg reply " + gMsgNo, body, folder);
 
   // select the newly created message
-  let msgHdr = select_click_row(gMsgNo);
+  let msgHdr = await select_click_row(gMsgNo);
 
   Assert.equal(
     msgDbHdr,
@@ -280,7 +280,7 @@ add_task(async function testJsInMailReply() {
     "selected message header should be the same as generated header"
   );
 
-  assert_selected_and_displayed(gMsgNo);
+  await assert_selected_and_displayed(gMsgNo);
 
   await SpecialPowers.spawn(messagePane, [], assertJSDisabledInEditor);
 
@@ -297,5 +297,5 @@ add_task(async function testJsInMailReply() {
   await close_compose_window(fwdWin);
 
   ++gMsgNo;
-  select_none();
+  await select_none();
 });

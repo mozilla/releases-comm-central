@@ -80,10 +80,10 @@ async function subtest_replyEditAsNewForward_charset(
   );
   await BrowserTestUtils.closeWindow(msgc);
 
-  let msg = select_click_row(0);
+  let msg = await select_click_row(0);
   if (aViewed) {
     // Only if the preview pane is on, we can check the following.
-    assert_selected_and_displayed(window, msg);
+    await assert_selected_and_displayed(window, msg);
   }
 
   let fwdWin;
@@ -108,7 +108,7 @@ async function subtest_replyEditAsNewForward_charset(
   Assert.equal(charset, "UTF-8", "Compose window has the wrong charset");
   await close_compose_window(fwdWin);
 
-  press_delete(window);
+  await press_delete(window);
 }
 
 add_task(async function test_replyEditAsNewForward_charsetFromBody() {

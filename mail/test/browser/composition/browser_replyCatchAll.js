@@ -16,8 +16,8 @@ var {
   add_message_to_folder,
   assert_selected_and_displayed,
   be_in_folder,
+  empty_folder,
   create_message,
-  press_delete,
   select_click_row,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
@@ -85,8 +85,8 @@ async function create_replyMsg(aTo, aEnvelopeTo) {
   await add_message_to_folder([gFolder], msg0);
 
   await be_in_folder(gFolder);
-  let msg = select_click_row(0);
-  assert_selected_and_displayed(window, msg);
+  let msg = await select_click_row(0);
+  await assert_selected_and_displayed(window, msg);
 }
 
 /**
@@ -252,11 +252,7 @@ function checkCompIdentity(cwc, identityKey, from) {
 }
 
 registerCleanupFunction(async function () {
-  await be_in_folder(gFolder);
-  while (gFolder.getTotalMessages(false) > 0) {
-    select_click_row(0);
-    press_delete();
-  }
+  await empty_folder(gFolder);
 
   gAccount.removeIdentity(identity2);
 
