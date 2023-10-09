@@ -2129,7 +2129,7 @@ const folderTypeMap = new Map([
  *
  * @param {nsIMsgFolder} folder - The folder to convert.
  * @param {string} [accountId] - An optimization to avoid looking up the
- *     account. The value from nsIMsgHdr.accountKey must not be used here.
+ *     account. The value from nsIMsgDBHdr.accountKey must not be used here.
  * @returns {MailFolder}
  * @see mail/components/extensions/schemas/folders.json
  */
@@ -2164,7 +2164,7 @@ function convertFolder(folder, accountId) {
  *
  * @param {nsIMsgFolder} folder - The folder to convert.
  * @param {string} [accountId] - An optimization to avoid looking up the
- *     account. The value from nsIMsgHdr.accountKey must not be used here.
+ *     account. The value from nsIMsgDBHdr.accountKey must not be used here.
  * @returns {MailFolder}
  * @see mail/components/extensions/schemas/folders.json
  */
@@ -2215,10 +2215,10 @@ function isAttachedMessageUrl(dummyMsgUrl) {
 }
 
 /**
- * Converts an nsIMsgHdr to a simple object for use in messages.
+ * Converts an nsIMsgDBHdr to a simple object for use in messages.
  * This function WILL change as the API develops.
  *
- * @param {nsIMsgHdr} msgHdr
+ * @param {nsIMsgDBHdr} msgHdr
  * @param {ExtensionData} extension
  * @returns {MessageHeader} MessageHeader object
  *
@@ -2361,10 +2361,28 @@ var messageTracker = new (class extends EventEmitter {
   }
 
   /**
+   * Generates a hash for the given msgIdentifier.
+   *
+   * @param {*} msgIdentifier
+   * @returns {string}
+   */
+  getHash(msgIdentifier) {
+    if (msgIdentifier.folderURI) {
+      return `folderURI:${msgIdentifier.folderURI}, messageKey: ${msgIdentifier.messageKey}`;
+    }
+    return `dummyMsgUrl:${msgIdentifier.dummyMsgUrl}, dummyMsgLastModifiedTime: ${msgIdentifier.dummyMsgLastModifiedTime}`;
+  }
+
+  /**
    * Maps the provided message identifier to the given messageTracker id.
+   *
+   * @param {integer} id - messageTracker id of the message
+   * @param {*} msgIdentifier - msgIdentifier of the message
+   * @param {nsIMsgDBHdr} [msgHdr] - optional msgHdr of the message, will be
+   *   added to the cache if it is a dummy msgHdr (a file or attachment message)
    */
   _set(id, msgIdentifier, msgHdr) {
-    let hash = JSON.stringify(msgIdentifier);
+    let hash = this.getHash(msgIdentifier);
     this._messageIds.set(hash, id);
     this._messages.set(id, msgIdentifier);
     // Keep track of dummy message headers, which do not have a folder property
@@ -2380,9 +2398,12 @@ var messageTracker = new (class extends EventEmitter {
   /**
    * Lookup the messageTracker id for the given message identifier, return null
    * if not known.
+   *
+   * @param {*} msgIdentifier - msgIdentifier of the message
+   * @returns {integer} The messageTracker id of the message.
    */
   _get(msgIdentifier) {
-    let hash = JSON.stringify(msgIdentifier);
+    let hash = this.getHash(msgIdentifier);
     if (this._messageIds.has(hash)) {
       return this._messageIds.get(hash);
     }
@@ -2391,9 +2412,11 @@ var messageTracker = new (class extends EventEmitter {
 
   /**
    * Removes the provided message identifier from the messageTracker.
+   *
+   * @param {*} msgIdentifier - msgIdentifier of the message
    */
   _remove(msgIdentifier) {
-    let hash = JSON.stringify(msgIdentifier);
+    let hash = this.getHash(msgIdentifier);
     let id = this._get(msgIdentifier);
     this._messages.delete(id);
     this._messageIds.delete(hash);
@@ -2403,7 +2426,8 @@ var messageTracker = new (class extends EventEmitter {
   /**
    * Finds a message in the messageTracker or adds it.
    *
-   * @returns {int} The messageTracker id of the message
+   * @param {nsIMsgDBHdr} - msgHdr of the requested message
+   * @returns {integer} The messageTracker id of the message.
    */
   getId(msgHdr) {
     let msgIdentifier;
@@ -2445,7 +2469,7 @@ var messageTracker = new (class extends EventEmitter {
   /**
    * Check if the provided msgIdentifier belongs to a modified file message.
    *
-   * @param {*} msgIdentifier - the msgIdentifier object of the message
+   * @param {*} msgIdentifier - msgIdentifier object of the message
    * @returns {boolean}
    */
   isModifiedFileMsg(msgIdentifier) {
@@ -2478,7 +2502,8 @@ var messageTracker = new (class extends EventEmitter {
    * Retrieves a message from the messageTracker. If the message no longer,
    * exists it is removed from the messageTracker.
    *
-   * @returns {nsIMsgHdr} The identifier of the message
+   * @param {integer} id - messageTracker id of the message
+   * @returns {nsIMsgDBHdr} The identifier of the message.
    */
   getMessage(id) {
     let msgIdentifier = this._messages.get(id);
