@@ -11,12 +11,12 @@
                                     onmousedown="event.preventDefault();"
                                     onclick="event.stopPropagation();"
                                     oncommand="toggleAttachmentList(this.checked, true);"/>
-                            <hbox align="center" id="attachmentInfo" flex="1">
+                            <hbox align="center" id="attachmentInfo">
                               <html:img id="attachmentIcon"
                                         src="chrome://messenger/skin/icons/attach.svg"
                                         alt="" />
                               <label id="attachmentCount"/>
-                              <label id="attachmentName" crop="center" flex="1"
+                              <label id="attachmentName" crop="center"
                                      role="button"
                                      tooltiptext="&openAttachment.tooltip;"
                                      tooltiptextopen="&openAttachment.tooltip;"
@@ -24,10 +24,7 @@
                                      ondragstart="attachmentNameDNDObserver.onDragStart(event);"/>
                               <label id="attachmentSize"/>
                             </hbox>
-                            <!-- Use a very large flex value here so that attachmentCount doesn't take
-                                 up more space than necessary, but still crops itself if there's not
-                                 enough space. -->
-                            <spacer style="flex: 9999 9999;"/>
+                            <spacer flex="1"/>
 
                             <vbox id="attachment-view-toolbox" class="inline-toolbox">
                               <hbox id="attachment-view-toolbar"

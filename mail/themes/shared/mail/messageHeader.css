@@ -54,6 +54,7 @@
 #messagepanebox {
   color: var(--layout-color-1);
   background-color: var(--layout-background-1);
+  min-width: 0;
 }
 
 .main-header-area {
@@ -275,6 +276,7 @@ mail-tagfield[collapsed="true"] {
   color: var(--layout-color-1);
   background-color: var(--layout-background-1);
   padding: 3px 0;
+  overflow: hidden;
 }
 
 #attachmentToggle {
@@ -315,6 +317,11 @@ mail-tagfield[collapsed="true"] {
 #attachmentToggle:focus-visible {
   outline: var(--focus-outline);
   outline-offset: -2px;
+}
+
+#attachmentInfo {
+  overflow: hidden;
+  flex-shrink: 1;
 }
 
 #attachmentName:hover,
