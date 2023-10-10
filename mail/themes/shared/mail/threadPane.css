@@ -24,6 +24,7 @@
     --thread-pane-spam-fill: var(--color-red-50);
     --thread-pane-spam-stroke: var(--color-red-70);
     --thread-pane-unread-color: currentColor;
+    --thread-pane-child-card-bg: var(--layout-background-2);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -35,6 +36,7 @@
       --thread-pane-spam-fill: var(--color-red-40);
       --thread-pane-spam-stroke: var(--color-red-50);
       --thread-pane-unread-color: var(--color-white);
+      --thread-pane-child-card-bg: var(--layout-background-0);
     }
   }
 }
@@ -629,6 +631,10 @@ tr[is="thread-card"][data-properties~="unread"]:not(.selected, :hover) {
   background-color: var(--tree-view-bg);
 }
 
+tr[is="thread-card"][data-properties~="unread"][data-properties~="thread-children"]:not(.selected, :hover) {
+  background-color: var(--thread-pane-child-card-bg);
+}
+
 tr[is="thread-card"][data-properties~="new"] {
   position: relative;
   box-shadow: 0 6px 5px -5px rgba(0, 0, 0, 0.1);
@@ -657,6 +663,10 @@ tr[is="thread-card"] + tr[is="thread-card"]:not(.context-menu-target) .thread-ca
   .thread-card-container {
     padding-inline-end: env(scrollbar-inline-size);
   }
+}
+
+tr[data-properties~="thread-children"] {
+  background-color: var(--thread-pane-child-card-bg);
 }
 
 tr[data-properties~="new"] .thread-card-container::after {
