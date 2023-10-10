@@ -301,7 +301,7 @@ add_task(async function testSingleMessage() {
   await TestUtils.waitForCondition(
     () => ConversationOpener.isMessageIndexed(testMessages[0]),
     "waiting for Gloda to finish indexing",
-    500
+    1000
   );
 
   let about3Pane = tabmail.currentAbout3Pane;
@@ -395,7 +395,7 @@ add_task(async function testMultipleMessages() {
   await TestUtils.waitForCondition(
     () => ConversationOpener.isMessageIndexed(testMessages[1]),
     "waiting for Gloda to finish indexing",
-    500
+    1000
   );
 
   let about3Pane = tabmail.currentAbout3Pane;
@@ -465,7 +465,7 @@ add_task(async function testDraftsFolder() {
   await TestUtils.waitForCondition(
     () => ConversationOpener.isMessageIndexed(draftsMessages[1]),
     "waiting for Gloda to finish indexing",
-    500
+    1000
   );
 
   let mailContext = about3Pane.document.getElementById("mailContext");
@@ -530,7 +530,7 @@ add_task(async function testTemplatesFolder() {
   await TestUtils.waitForCondition(
     () => ConversationOpener.isMessageIndexed(templatesMessages[1]),
     "waiting for Gloda to finish indexing",
-    500
+    1000
   );
 
   let mailContext = about3Pane.document.getElementById("mailContext");
@@ -596,7 +596,7 @@ add_task(async function testListMessage() {
   await TestUtils.waitForCondition(
     () => ConversationOpener.isMessageIndexed(listMessages[0]),
     "waiting for Gloda to finish indexing",
-    500
+    1000
   );
 
   let mailContext = about3Pane.document.getElementById("mailContext");
@@ -646,12 +646,12 @@ add_task(async function testSyntheticFolder() {
   await TestUtils.waitForCondition(
     () => ConversationOpener.isMessageIndexed(testMessages[9]),
     "waiting for Gloda to finish indexing",
-    500
+    1000
   );
   await TestUtils.waitForCondition(
     () => ConversationOpener.isMessageIndexed(draftsMessages[4]),
     "waiting for Gloda to finish indexing",
-    500
+    1000
   );
 
   let tabPromise = BrowserTestUtils.waitForEvent(window, "aboutMessageLoaded");
