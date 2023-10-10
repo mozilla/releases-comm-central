@@ -1307,10 +1307,9 @@ function MsgFilters(emailAddress, folder, fieldName) {
     let chromeBrowser =
       document.getElementById("tabmail")?.currentTabInfo.chromeBrowser ||
       document.getElementById("messageBrowser");
-    let message =
-      chromeBrowser?.contentWindow?.gDBView?.hdrForFirstSelectedMessage;
+    let dbView = chromeBrowser?.contentWindow?.gDBView;
     // Try to determine the folder from the selected message.
-    if (message) {
+    if (dbView?.numSelected) {
       // Here we face a decision. If the message has been moved to a different
       // account, then a single filter cannot work for both manual and incoming
       // scope. So we will create the filter based on its existing location,
@@ -1318,9 +1317,7 @@ function MsgFilters(emailAddress, folder, fieldName) {
       // solution for POP3 with global inbox (as then both manual and incoming
       // filters work correctly), but may not be what IMAP users who filter to a
       // local folder really want.
-      try {
-        folder = message.folder;
-      } catch (ex) {}
+      folder = dbView.hdrForFirstSelectedMessage.folder;
     }
     if (!folder) {
       folder = GetFirstSelectedMsgFolder();
