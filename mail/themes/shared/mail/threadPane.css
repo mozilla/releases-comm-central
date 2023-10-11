@@ -706,6 +706,11 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
   white-space: nowrap;
 }
 
+.thread-card-row > .thread-card-icon-info {
+  display: flex;
+  margin-inline-start: auto;
+}
+
 .is-outgoing [data-properties~="outgoing"] .thread-card-row > .sender {
   background-position-x: 0;
   background-position-y: center;
