@@ -42,8 +42,8 @@ fakeCommand.prototype = {
   get helpString() {
     return "";
   },
-  usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
-  priority: Ci.imICommand.CMD_PRIORITY_PRPL,
+  usageContext: IMServices.cmd.COMMAND_CONTEXT.ALL,
+  priority: IMServices.cmd.COMMAND_PRIORITY.PRPL,
   run: (aMsg, aConv) => true,
 };
 
@@ -57,7 +57,7 @@ function run_test() {
 
   // MUC-only command.
   cmdserv.registerCommand(
-    new fakeCommand("balderdash", Ci.imICommand.CMD_CONTEXT_CHAT),
+    new fakeCommand("balderdash", IMServices.cmd.COMMAND_CONTEXT.CHAT),
     kPrplId
   );
 
@@ -227,7 +227,7 @@ function run_test() {
         // Check if the right command was returned.
         Assert.equal(cmdArray[0].name, expectedResult[0]);
         Assert.equal(
-          cmdArray[0].priority == Ci.imICommand.CMD_PRIORITY_PRPL,
+          cmdArray[0].priority == IMServices.cmd.COMMAND_PRIORITY.PRPL,
           !!expectedResult[1]
         );
       }

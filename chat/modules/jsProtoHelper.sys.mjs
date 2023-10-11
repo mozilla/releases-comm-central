@@ -1616,14 +1616,11 @@ export var GenericProtocolPrototype = {
       if (!command.hasOwnProperty("name") || !command.hasOwnProperty("run")) {
         throw new Error("Every command must have a name and a run function.");
       }
-      if (!("QueryInterface" in command)) {
-        command.QueryInterface = ChromeUtils.generateQI(["imICommand"]);
-      }
       if (!command.hasOwnProperty("usageContext")) {
-        command.usageContext = Ci.imICommand.CMD_CONTEXT_ALL;
+        command.usageContext = IMServices.cmd.COMMAND_CONTEXT.ALL;
       }
       if (!command.hasOwnProperty("priority")) {
-        command.priority = Ci.imICommand.CMD_PRIORITY_PRPL;
+        command.priority = IMServices.cmd.COMMAND_PRIORITY.PRPL;
       }
       IMServices.cmd.registerCommand(command, this.id);
     }, this);

@@ -4,6 +4,7 @@
 
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
 const lazy = {};
 
@@ -316,7 +317,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.invite", "invite");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: clientCommand("invite", 1),
   },
   {
@@ -331,7 +332,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.op", "op");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: clientCommand("setPowerLevel", 2, {
       validateParams([userId, powerLevelString]) {
         const powerLevel = Number.parseInt(powerLevelString);
@@ -355,7 +356,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.deop", "deop");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: clientCommand("setPowerLevel", 1, {
       formatParams(conv, [userId]) {
         const powerLevelEvent = conv.roomState.getStateEvents(

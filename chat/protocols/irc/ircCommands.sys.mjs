@@ -6,6 +6,7 @@
 // implementing the commands field before we register them.
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
 const lazy = {};
 XPCOMUtils.defineLazyGetter(lazy, "_", () =>
@@ -156,7 +157,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.ban", "ban");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: (aMsg, aConv) => setMode(aMsg, aConv, "b", true),
   },
   {
@@ -189,7 +190,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.deop", "deop");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: (aMsg, aConv) => setMode(aMsg, aConv, "o", false),
   },
   {
@@ -197,7 +198,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.devoice", "devoice");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: (aMsg, aConv) => setMode(aMsg, aConv, "v", false),
   },
   {
@@ -279,7 +280,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.kick", "kick");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: kickCommand,
   },
   {
@@ -429,7 +430,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.op", "op");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: (aMsg, aConv) => setMode(aMsg, aConv, "o", true),
   },
   {
@@ -444,7 +445,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.part", "part");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
       getConv(aConv).part(aMsg);
       return true;
@@ -509,7 +510,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.kick", "remove");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: kickCommand,
   },
   {
@@ -535,7 +536,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.topic", "topic");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
       aConv.topic = aMsg;
       return true;
@@ -570,7 +571,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.voice", "voice");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run: (aMsg, aConv) => setMode(aMsg, aConv, "v", true),
   },
   {

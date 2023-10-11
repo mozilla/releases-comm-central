@@ -12,8 +12,44 @@ XPCOMUtils.defineLazyGetter(lazy, "_", () =>
   l10nHelper("chrome://chat/locale/commands.properties")
 );
 
-export function CommandsService() {}
-CommandsService.prototype = {
+/**
+ * @typedef {object} Command
+ * @property {string} name
+ * @property {string} helpString - Help message displayed when the user types
+ *   /help <name>.
+ *   Format: <command name> <parameters>: <help message>
+ *   Example: "help &lt;name&gt;: show the help message for the &lt;name&gt;
+ *            command, or the list of possible commands when used without
+ *            parameter."
+ * @property {number} usageContext - Value should be one of
+ *   CommandsService.COMMAND_CONTEXT.
+ * @property {number} priority - Any integer value is usable as a priority.
+ *   0 is the default priority. (CommandsService.COMMAND_PRIORITY.DEFAULT)
+ *   < 0 is lower priority.
+ *   > 0 is higher priority.
+ *   Commands registered by protocol plugins will usually use
+ *   CommandsService.COMMAND_PRIORITY.PRPL.
+ * @property {(aMessage: string, aConversation?: prplIConversation, aReturnedConv?: prplIConversation) => boolean} run -
+ *   Will return true if the command handled the message (it should not be sent).
+ *   The leading slash, the command name and the following space are not included
+ *   in the aMessage parameter.
+ *   If a conversation is returned as a result of executing the command,
+ *   the caller should consider focusing it.
+ */
+
+export class CommandsService {
+  COMMAND_CONTEXT = Object.freeze({
+    IM: 1,
+    CHAT: 2,
+    ALL: 1 | 2,
+  });
+  COMMAND_PRIORITY = Object.freeze({
+    LOW: -1000,
+    DEFAULT: 0,
+    PRPL: 1000,
+    HIGH: 4000,
+  });
+
   initCommands() {
     this._commands = {};
     // The say command is directly implemented in the UI layer, but has a
@@ -24,8 +60,8 @@ CommandsService.prototype = {
       get helpString() {
         return lazy._("sayHelpString");
       },
-      usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
-      priority: Ci.imICommand.CMD_PRIORITY_HIGH,
+      usageContext: this.COMMAND_CONTEXT.ALL,
+      priority: this.COMMAND_PRIORITY.HIGH,
       run(aMsg, aConv) {
         throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
       },
@@ -36,8 +72,8 @@ CommandsService.prototype = {
       get helpString() {
         return lazy._("rawHelpString");
       },
-      usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
-      priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
+      usageContext: this.COMMAND_CONTEXT.ALL,
+      priority: this.COMMAND_PRIORITY.DEFAULT,
       run(aMsg, aConv) {
         const conv = IMServices.conversations.getUIConversation(aConv);
         if (!conv) {
@@ -57,8 +93,8 @@ CommandsService.prototype = {
       get helpString() {
         return lazy._("helpHelpString");
       },
-      usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
-      priority: Ci.imICommand.CMD_PRIORITY_DEFAULT,
+      usageContext: this.COMMAND_CONTEXT.ALL,
+      priority: this.COMMAND_PRIORITY.DEFAULT,
       run(aMsg, aConv) {
         aMsg = aMsg.trim();
         const conv = IMServices.conversations.getUIConversation(aConv);
@@ -125,19 +161,28 @@ CommandsService.prototype = {
         get helpString() {
           return lazy._("statusCommand", this.name, lazy._(this.name));
         },
-        usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
-        priority: Ci.imICommand.CMD_PRIORITY_HIGH,
+        usageContext: this.COMMAND_CONTEXT.ALL,
+        priority: this.COMMAND_PRIORITY.HIGH,
         run(aMsg) {
           IMServices.core.globalUserStatus.setStatus(statusValue, aMsg);
           return true;
         },
       });
     }
-  },
+  }
   unInitCommands() {
     delete this._commands;
-  },
+  }
 
+  /**
+   * Commands registered without a protocol id will work for all protocols.
+   * Registering several commands of the same name with the same
+   * protocol id or no protocol id will replace the former command
+   * with the latter.
+   *
+   * @param {Command} aCommand
+   * @param {string} [aPrplId]
+   */
   registerCommand(aCommand, aPrplId) {
     const name = aCommand.name;
     if (!name) {
@@ -148,7 +193,13 @@ CommandsService.prototype = {
       this._commands[name] = {};
     }
     this._commands[name][aPrplId || ""] = aCommand;
-  },
+  }
+  /**
+   * aPrplId should be the same as what was used for the command registration.
+   *
+   * @param {string} aCommandName
+   * @param {string} [aPrplId]
+   */
   unregisterCommand(aCommandName, aPrplId) {
     if (this._commands.hasOwnProperty(aCommandName)) {
       const prplId = aPrplId || "";
@@ -160,7 +211,12 @@ CommandsService.prototype = {
         delete this._commands[aCommandName];
       }
     }
-  },
+  }
+  /**
+   *
+   * @param {prplIConversation} [aConversation]
+   * @returns {Command[]}
+   */
   listCommandsForConversation(aConversation) {
     let result = [];
     const prplId = aConversation && aConversation.account.protocol.id;
@@ -177,8 +233,13 @@ CommandsService.prototype = {
       result = result.filter(this._usageContextFilter(aConversation));
     }
     return result;
-  },
-  // List only the commands for a protocol (excluding the global commands).
+  }
+  /**
+   * List only the commands for a protocol (excluding the global commands).
+   *
+   * @param {string} aPrplId
+   * @returns {Command[]}
+   */
   listCommandsForProtocol(aPrplId) {
     if (!aPrplId) {
       throw new Error("You must provide a prpl ID.");
@@ -192,12 +253,12 @@ CommandsService.prototype = {
       }
     }
     return result;
-  },
+  }
   _usageContextFilter(aConversation) {
     const usageContext =
-      Ci.imICommand["CMD_CONTEXT_" + (aConversation.isChat ? "CHAT" : "IM")];
+      this.COMMAND_CONTEXT[aConversation.isChat ? "CHAT" : "IM"];
     return c => c.usageContext & usageContext;
-  },
+  }
   _findCommands(aConversation, aName) {
     let prplId = null;
     if (aConversation) {
@@ -254,7 +315,19 @@ CommandsService.prototype = {
 
     // Sort the matching commands by priority before returning the array.
     return cmdArray.sort((a, b) => b.priority - a.priority);
-  },
+  }
+  /**
+   * Will return true if a command handled the message (it should not be sent).
+   * The aConversation parameters is required to execute protocol specific
+   * commands. Application global commands will work without it.
+   * If a conversation is returned as a result of executing the command,
+   * the caller should consider focusing it.
+   *
+   * @param {string} aMessage
+   * @param {prplIConversation} [aConversation]
+   * @param {prplIConversation} [aReturnedConv]
+   * @returns {boolean}
+   */
   executeCommand(aMessage, aConversation, aReturnedConv) {
     if (!aMessage) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
@@ -282,8 +355,7 @@ CommandsService.prototype = {
       this.executeCommand("/help " + name, aConversation);
     }
     return true;
-  },
+  }
+}
 
-  QueryInterface: ChromeUtils.generateQI(["imICommandsService"]),
-  classDescription: "Commands",
-};
+export const cmd = new CommandsService();

@@ -4,6 +4,7 @@
 
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 
 const lazy = {};
 
@@ -162,7 +163,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.part2", "part");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
       const conv = getConv(aConv);
       if (!conv.left) {
@@ -176,7 +177,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.topic", "topic");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
       const conv = getMUC(aConv);
       if (!conv) {
@@ -191,7 +192,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.ban", "ban");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
       const params = splitInput(aMsg);
       if (!params.length) {
@@ -210,7 +211,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.kick", "kick");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
       const conv = getMUC(aConv);
       if (!conv) {
@@ -230,7 +231,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.invite", "invite");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
       const conv = getMUC(aConv);
       if (!conv) {
@@ -245,7 +246,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.inviteto", "inviteto");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_IM,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.IM,
     run: (aMsg, aConv) => invite(aMsg, getConv(aConv)),
   },
   {
@@ -253,7 +254,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.me", "me");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
       const params = aMsg.trim();
       if (!params) {
@@ -271,7 +272,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.nick", "nick");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv) {
       const params = aMsg.trim().split(/\s+/);
       if (!params[0]) {
@@ -290,7 +291,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.msg", "msg");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_CHAT,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.CHAT,
     run(aMsg, aConv, aReturnedConv) {
       const conv = getMUC(aConv);
       if (!conv) {
@@ -323,7 +324,7 @@ export var commands = [
     get helpString() {
       return lazy._("command.version", "version");
     },
-    usageContext: Ci.imICommand.CMD_CONTEXT_IM,
+    usageContext: IMServices.cmd.COMMAND_CONTEXT.IM,
     run(aMsg, aConv, aReturnedConv) {
       const conv = getConv(aConv);
       if (conv.left) {
