@@ -8,6 +8,7 @@ export const IMServices = {};
 
 // eslint-disable-next-line mozilla/lazy-getter-object-name
 ChromeUtils.defineESModuleGetters(IMServices, {
+  core: "resource:///modules/imCore.sys.mjs",
   logs: "resource:///modules/logger.sys.mjs",
 });
 
@@ -16,12 +17,6 @@ XPCOMUtils.defineLazyServiceGetter(
   "accounts",
   "@mozilla.org/chat/accounts-service;1",
   "imIAccountsService"
-);
-XPCOMUtils.defineLazyServiceGetter(
-  IMServices,
-  "core",
-  "@mozilla.org/chat/core-service;1",
-  "imICoreService"
 );
 XPCOMUtils.defineLazyServiceGetter(
   IMServices,

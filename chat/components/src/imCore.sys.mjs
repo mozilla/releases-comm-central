@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import {
   ClassInfo,
@@ -9,7 +10,6 @@ import {
 } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 var kQuitApplicationGranted = "quit-application-granted";
-var kProtocolPluginCategory = "im-protocol-plugin";
 
 var kPrefReportIdle = "messenger.status.reportIdle";
 var kPrefUserIconFilename = "messenger.status.userIconFileName";
@@ -20,6 +20,50 @@ var kPrefDefaultMessage = "messenger.status.defaultIdleAwayMessage";
 
 var NS_IOSERVICE_GOING_OFFLINE_TOPIC = "network:offline-about-to-go-offline";
 var NS_IOSERVICE_OFFLINE_STATUS_TOPIC = "network:offline-status-changed";
+
+const protocols = {
+  "prpl-facebook": "@mozilla.org/chat/facebook;1",
+  "prpl-gtalk": "@mozilla.org/chat/gtalk;1",
+  "prpl-irc": "@mozilla.org/chat/irc;1",
+  "prpl-jabber": "@mozilla.org/chat/xmpp;1",
+  // prpl-jstest is debug-only
+  "prpl-jstest": "@mozilla.org/chat/jstest;1",
+  "prpl-matrix": "@mozilla.org/chat/matrix;1",
+  "prpl-odnoklassniki": "@mozilla.org/chat/odnoklassniki;1",
+  "prpl-twitter": "@mozilla.org/chat/twitter;1",
+  "prpl-yahoo": "@mozilla.org/chat/yahoo;1",
+};
+const BUILT_IN_PROTOCOLS = new Set(Object.keys(protocols));
+
+/**
+ * Register a new chat protocol. Does nothing if a protocol with the same ID
+ * already exists.
+ * This doesn't handle accounts of the protocol ID, since this is intended for
+ * tests.
+ *
+ * @param {string} id - The internal ID of the protocol.
+ * @param {string} cid - The contract ID of the protocol.
+ */
+export function registerProtocol(id, cid) {
+  if (protocols.hasOwnProperty(id)) {
+    return;
+  }
+  protocols[id] = cid;
+}
+/**
+ * Remove the registration of a custom chat protocol previously registered with
+ * registerProtocol.
+ * This doesn't handle accounts of the protocol ID, since this is intended for
+ * tests.
+ *
+ * @param {string} id
+ */
+export function unregisterProtocol(id) {
+  if (BUILT_IN_PROTOCOLS.has(id)) {
+    return;
+  }
+  delete protocols[id];
+}
 
 function UserStatus() {
   this._observers = [];
@@ -264,14 +308,31 @@ UserStatus.prototype = {
   },
 };
 
-export function CoreService() {}
-CoreService.prototype = {
-  globalUserStatus: null,
+/**
+ * @implements {nsIObserver}
+ */
+class CoreService {
+  QueryInterface = ChromeUtils.generateQI(["nsIObserver"]);
 
-  _initialized: false,
+  /**
+   * @type {?imIUserStatusInfo}
+   * @readonly
+   */
+  globalUserStatus = null;
+
+  _initialized = false;
+  /**
+   * @type {boolean}
+   * @readonly
+   */
   get initialized() {
     return this._initialized;
-  },
+  }
+  /**
+   * This will emit a prpl-init notification. After this point the 'initialized'
+   * attribute will be 'true' and it's safe to access the services for accounts,
+   * contacts, conversations and commands.
+   */
   init() {
     if (this._initialized) {
       return;
@@ -297,7 +358,7 @@ CoreService.prototype = {
     IMServices.accounts.initAccounts();
     IMServices.contacts.initContacts();
     IMServices.conversations.initConversations();
-    Services.obs.notifyObservers(this, "prpl-init");
+    Services.obs.notifyObservers(null, "prpl-init");
 
     // Wait with automatic connections until the password service
     // is available.
@@ -309,19 +370,23 @@ CoreService.prototype = {
         IMServices.accounts.processAutoLogin();
       });
     }
-  },
+  }
   observe(aObject, aTopic, aData) {
     if (aTopic == kQuitApplicationGranted) {
       this.quit();
     }
-  },
+  }
+  /**
+   * This will emit a prpl-quit notification. This is the last opportunity to
+   * use the aforementioned services before they are uninitialized.
+   */
   quit() {
     if (!this._initialized) {
       throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
 
     Services.obs.removeObserver(this, kQuitApplicationGranted);
-    Services.obs.notifyObservers(this, "prpl-quit");
+    Services.obs.notifyObservers(null, "prpl-quit");
 
     IMServices.conversations.unInitConversations();
     IMServices.accounts.unInitAccounts();
@@ -332,19 +397,20 @@ CoreService.prototype = {
     delete this.globalUserStatus;
     delete this._protos;
     delete this._initialized;
-  },
+  }
 
+  /**
+   * Returns the available protocols.
+   *
+   * @returns {prplIProtocol[]}
+   */
   getProtocols() {
     if (!this._initialized) {
       throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
 
     const protocols = [];
-    for (const entry of Services.catMan.enumerateCategory(
-      kProtocolPluginCategory
-    )) {
-      const id = entry.data;
-
+    for (const id of Object.keys(protocols)) {
       // If the preference is set to disable this prpl, don't show it in the
       // full list of protocols.
       const pref = "chat.prpls." + id + ".disable";
@@ -362,8 +428,13 @@ CoreService.prototype = {
       }
     }
     return protocols;
-  },
+  }
 
+  /**
+   *
+   * @param {string} aPrplId
+   * @returns {prplIProtocol}
+   */
   getProtocolById(aPrplId) {
     if (!this._initialized) {
       throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
@@ -373,12 +444,14 @@ CoreService.prototype = {
       return this._protos[aPrplId];
     }
 
-    let cid;
-    try {
-      cid = Services.catMan.getCategoryEntry(kProtocolPluginCategory, aPrplId);
-    } catch (e) {
+    if (
+      !protocols.hasOwnProperty(aPrplId) ||
+      (aPrplId === "prpl-jstest" && !AppConstants.DEBUG)
+    ) {
       return null; // no protocol registered for this id.
     }
+
+    const cid = protocols[aPrplId];
 
     let proto = null;
     try {
@@ -402,8 +475,7 @@ CoreService.prototype = {
 
     this._protos[aPrplId] = proto;
     return proto;
-  },
+  }
+}
 
-  QueryInterface: ChromeUtils.generateQI(["imICoreService"]),
-  classDescription: "Core",
-};
+export const core = new CoreService();

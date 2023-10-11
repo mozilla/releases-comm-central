@@ -12,6 +12,10 @@ import {
   GenericMessagePrototype,
   TooltipInfo,
 } from "resource:///modules/jsProtoHelper.sys.mjs";
+import {
+  registerProtocol,
+  unregisterProtocol,
+} from "resource:///modules/imCore.sys.mjs";
 
 import { nsSimpleEnumerator } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
@@ -290,19 +294,9 @@ TestProtocol.prototype = {
 };
 
 export function registerTestProtocol() {
-  Services.catMan.addCategoryEntry(
-    "im-protocol-plugin",
-    TestProtocol.prototype.id,
-    "@mozilla.org/chat/mochitest;1",
-    false,
-    true
-  );
+  registerProtocol(TestProtocol.prototype.id, "@mozilla.org/chat/mochitest;1");
 }
 
 export function unregisterTestProtocol() {
-  Services.catMan.deleteCategoryEntry(
-    "im-protocol-plugin",
-    TestProtocol.prototype.id,
-    true
-  );
+  unregisterProtocol(TestProtocol.prototype.id);
 }
