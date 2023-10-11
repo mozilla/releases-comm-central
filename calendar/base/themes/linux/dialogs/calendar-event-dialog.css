@@ -14,17 +14,6 @@
   margin-inline-start: 16px;
 }
 
-
-#todo-entrydate menulist[is="menulist-editable"][editable="true"],
-#todo-duedate menulist[is="menulist-editable"][editable="true"] {
-  margin-inline-end: 2.4em;
-}
-
-#todo-entrydate::part(dropmarker),
-#todo-duedate::part(dropmarker) {
-  display: block !important;
-}
-
 #percent-complete-textbox {
   padding: 3px;
 }
