@@ -5,10 +5,7 @@
 import { IMServices } from "resource:///modules/IMServices.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { GenericMessagePrototype } from "resource:///modules/jsProtoHelper.sys.mjs";
-import {
-  ClassInfo,
-  l10nHelper,
-} from "resource:///modules/imXPCOMUtils.sys.mjs";
+import { l10nHelper } from "resource:///modules/imXPCOMUtils.sys.mjs";
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -282,26 +279,40 @@ function initLogCleanup() {
   });
 }
 
-// One of these is maintained for every conversation being logged. It initializes
-// a log file and appends to it as required.
-function LogWriter(aConversation) {
-  this._conv = aConversation;
-  this.paths = [];
-  this.startNewFile(this._conv.startDate / 1000);
-}
-LogWriter.prototype = {
-  // All log file paths used by this LogWriter.
-  paths: [],
-  // Path of the log file that is currently being written to.
+/**
+ * One of these is maintained for every conversation being logged. It initializes
+ * a log file and appends to it as required.
+ */
+class LogWriter {
+  constructor(aConversation) {
+    this._conv = aConversation;
+    this.paths = [];
+    this.startNewFile(this._conv.startDate / 1000);
+  }
+  /**
+   * All log file paths used by this LogWriter.
+   *
+   * @type {string[]}
+   */
+  paths = [];
+  /**
+   * Path of the log file that is currently being written to.
+   *
+   * @type {string}
+   */
   get currentPath() {
     return this.paths[this.paths.length - 1];
-  },
-  // Constructor sets this to a promise that will resolve when the log header
-  // has been written.
-  _initialized: null,
-  _startTime: null,
-  _lastMessageTime: null,
-  _messageCount: 0,
+  }
+  /**
+   * Constructor sets this to a promise that will resolve when the log header
+   * has been written.
+   *
+   * @type {?Promise}
+   */
+  _initialized = null;
+  _startTime = null;
+  _lastMessageTime = null;
+  _messageCount = 0;
   startNewFile(aStartTime, aContinuedSession) {
     // We start a new log file every 1000 messages. The start time of this new
     // log file is the time of the next message. Since message times are in seconds,
@@ -334,14 +345,28 @@ LogWriter.prototype = {
     this._initialized.catch(aError =>
       console.error("Failed to initialize log file:\n" + aError)
     );
-  },
-  // We start a new log file in the following cases:
-  // - If it has been 30 minutes since the last message.
-  kInactivityLimit: 30 * 60 * 1000,
-  // - If at midnight, it's been longer than 3 hours since we started the file.
-  kDayOverlapLimit: 3 * 60 * 60 * 1000,
-  // - After every 1000 messages.
-  kMessageCountLimit: 1000,
+  }
+  /**
+   * The maximum length of time between messages, in milliseconds, before a new
+   * log file is started.
+   *
+   * @type {number}
+   */
+  static kInactivityLimit = 30 * 60 * 1000;
+  /**
+   * The minimum time a log file must have been opened for, in milliseconds, in
+   * order for a new file to be started at midnight.
+   *
+   * @type {number}
+   */
+  static kDayOverlapLimit = 3 * 60 * 60 * 1000;
+  /**
+   * The maximum amount of messages after which a new log file is always
+   * started.
+   *
+   * @type {number}
+   */
+  static kMessageCountLimit = 1000;
   async logMessage(aMessage) {
     // aMessage.time is in seconds, we need it in milliseconds.
     const messageTime = aMessage.time * 1000;
@@ -349,15 +374,15 @@ LogWriter.prototype = {
 
     const inactivityLimitExceeded =
       !aMessage.delayed &&
-      messageTime - this._lastMessageTime > this.kInactivityLimit;
+      messageTime - this._lastMessageTime > LogWriter.kInactivityLimit;
     const dayOverlapLimitExceeded =
       !aMessage.delayed &&
-      messageMidnight - this._startTime > this.kDayOverlapLimit;
+      messageMidnight - this._startTime > LogWriter.kDayOverlapLimit;
 
     if (
       inactivityLimitExceeded ||
       dayOverlapLimitExceeded ||
-      this._messageCount == this.kMessageCountLimit
+      this._messageCount == LogWriter.kMessageCountLimit
     ) {
       // We start a new session if the inactivity limit was exceeded.
       this.startNewFile(messageTime, !inactivityLimitExceeded);
@@ -405,8 +430,8 @@ LogWriter.prototype = {
     if (aMessage.deleted) {
       queueLogFileCleanup(this.currentPath);
     }
-  },
-};
+  }
+}
 
 var dummyLogWriter = {
   paths: null,
@@ -486,20 +511,59 @@ LogMessage.prototype = {
   },
 };
 
-function LogConversation(aMessages, aProperties) {
-  this._messages = aMessages;
-  for (const property in aProperties) {
-    this[property] = aProperties[property];
+class LogConversation {
+  /**
+   * @property title
+   * @type {string}
+   */
+  /**
+   * @property name
+   * @type {string}
+   */
+  /**
+   * Value in microseconds.
+   *
+   * @property startDate
+   * @type {number}
+   */
+  /**
+   *
+   * @param {imIMessage[]} aMessages
+   * @param {object} aProperties - Object containing any properties to copy onto
+   *   this instance. To set isChat, provide _isChat in this object. Meanwhile
+   *   the buddy and account properties can not be directly influenced.
+   */
+  constructor(aMessages, aProperties) {
+    this._messages = aMessages;
+    for (const property in aProperties) {
+      this[property] = aProperties[property];
+    }
   }
-}
-LogConversation.prototype = {
-  __proto__: ClassInfo("imILogConversation", "Log conversation object"),
+  /**
+   * @type {boolean}
+   */
   get isChat() {
     return this._isChat;
-  },
+  }
+  /**
+   * Always null (compatibility with prplIConversation).
+   *
+   * @type {prplIAccountBuddy}
+   */
   get buddy() {
     return null;
-  },
+  }
+  /**
+   * Simplified account implementation:
+   *  - alias will always be empty
+   *  - name (always the normalizedName)
+   *  - statusInfo will return IMServices.core.globalUserStatus
+   *  - protocol will only contain a "name" attribute, with the prpl's
+   *    normalized name.
+   * Other methods/attributes aren't implemented.
+   *
+   * @type {imIAccount}
+   */
   get account() {
     return {
       alias: "",
@@ -508,13 +572,16 @@ LogConversation.prototype = {
       protocol: { name: this._protocolName },
       statusInfo: IMServices.core.globalUserStatus,
     };
-  },
+  }
+  /**
+   * @returns {imIMessage[]}
+   */
   getMessages() {
     // Start with the newest message to filter out older versions of the same
     // message. Also filter out deleted messages.
     return this._messages.map(m => new LogMessage(m, this));
-  },
-};
+  }
+}
 
 /**
  * A Log object represents one or more log files. The constructor expects one
@@ -527,55 +594,79 @@ LogConversation.prototype = {
  *   For a single file - exact time extracted from the name of the log file.
  *   For a set of files - the time extracted, reduced to the day.
  */
-function Log(aEntries) {
-  if (typeof aEntries == "string") {
-    // Assume that aEntries is a single path.
-    const path = aEntries;
-    this.path = path;
-    const [date, format] = getDateFromFilename(PathUtils.filename(path));
-    if (!date || !format) {
-      this.time = 0;
+class Log {
+  /**
+   *
+   * @param {{path: string, time: Date}[]|string} aEntries
+   */
+  constructor(aEntries) {
+    if (typeof aEntries == "string") {
+      // Assume that aEntries is a single path.
+      const path = aEntries;
+      this.path = path;
+      const [date, format] = getDateFromFilename(PathUtils.filename(path));
+      if (!date || !format) {
+        this.time = 0;
+        return;
+      }
+      this.time = date.valueOf() / 1000;
+      // Wrap the path in an array
+      this._entryPaths = [path];
       return;
     }
-    this.time = date.valueOf() / 1000;
-    // Wrap the path in an array
-    this._entryPaths = [path];
-    return;
+
+    if (!aEntries.length) {
+      throw new Error(
+        "Log was passed an invalid argument, " +
+          "expected a non-empty array or a string."
+      );
+    }
+
+    // Assume aEntries is an array of objects.
+    // Sort our list of entries for this day in increasing order.
+    aEntries.sort((aLeft, aRight) => aLeft.time - aRight.time);
+
+    this._entryPaths = aEntries.map(entry => entry.path);
+    // Calculate the timestamp for the first entry down to the day.
+    const timestamp = new Date(aEntries[0].time);
+    timestamp.setHours(0);
+    timestamp.setMinutes(0);
+    timestamp.setSeconds(0);
+
+    /**
+     * Timestamp for the first entry down to the day. Value in seconds.
+     *
+     * @property
+     * @type {number}
+     */
+    this.time = timestamp.valueOf() / 1000;
+    /**
+     * Path is used to uniquely identify a Log, and sometimes used to
+     * quickly determine which directory a log file is from.
+     *
+     * @property
+     * @type {string}
+     */
+    // We'll use the first file's path.
+    this.path = aEntries[0].path;
   }
 
-  if (!aEntries.length) {
-    throw new Error(
-      "Log was passed an invalid argument, " +
-        "expected a non-empty array or a string."
-    );
-  }
+  /**
+   * @type {?string[]}
+   */
+  _entryPaths = null;
 
-  // Assume aEntries is an array of objects.
-  // Sort our list of entries for this day in increasing order.
-  aEntries.sort((aLeft, aRight) => aLeft.time - aRight.time);
-
-  this._entryPaths = aEntries.map(entry => entry.path);
-  // Calculate the timestamp for the first entry down to the day.
-  const timestamp = new Date(aEntries[0].time);
-  timestamp.setHours(0);
-  timestamp.setMinutes(0);
-  timestamp.setSeconds(0);
-  this.time = timestamp.valueOf() / 1000;
-  // Path is used to uniquely identify a Log, and sometimes used to
-  // quickly determine which directory a log file is from.  We'll use
-  // the first file's path.
-  this.path = aEntries[0].path;
-}
-Log.prototype = {
-  __proto__: ClassInfo("imILog", "Log object"),
-  _entryPaths: null,
+  /**
+   * Read the set of log files asynchronously and return a promise that
+   * resolves to a LogConversation instance. Even if a file contains some
+   * junk (invalid JSON), messages that are valid will be read. If the first
+   * line of metadata is corrupt however, the data isn't useful and the
+   * promise will resolve to null.
+   *
+   * @returns {Promise<?LogConversation>}
+   */
   async getConversation() {
     /*
-     * Read the set of log files asynchronously and return a promise that
-     * resolves to a LogConversation instance. Even if a file contains some
-     * junk (invalid JSON), messages that are valid will be read. If the first
-     * line of metadata is corrupt however, the data isn't useful and the
-     * promise will resolve to null.
      */
     let messages = [];
     const properties = {};
@@ -676,14 +767,14 @@ Log.prototype = {
     });
 
     return new LogConversation(messages, properties);
-  },
-};
+  }
+}
 
 /**
  * logsGroupedByDay() organizes log entries by date.
  *
  * @param {string[]} aEntries - paths of log files to be parsed.
- * @returns {imILog[]} Logs, ordered by day.
+ * @returns {Log[]} Logs, ordered by day.
  */
 function logsGroupedByDay(aEntries) {
   if (!Array.isArray(aEntries)) {
@@ -727,29 +818,38 @@ function logsGroupedByDay(aEntries) {
   return days.map(dayID => new Log(entries[dayID]));
 }
 
-export function Logger() {
-  IOUtils.profileBeforeChange.addBlocker(
-    "Chat logger: writing all pending messages",
-    async function () {
-      for (const promise of gFilePromises.values()) {
-        try {
-          await promise;
-        } catch (aError) {
-          // Ignore the error, whatever queued the operation will take care of it.
+/**
+ * @implements {nsIObserver}
+ */
+export class Logger {
+  QueryInterface = ChromeUtils.generateQI(["nsIObserver"]);
+
+  constructor() {
+    IOUtils.profileBeforeChange.addBlocker(
+      "Chat logger: writing all pending messages",
+      async function () {
+        for (const promise of gFilePromises.values()) {
+          try {
+            await promise;
+          } catch (aError) {
+            // Ignore the error, whatever queued the operation will take care of it.
+          }
         }
       }
-    }
-  );
+    );
 
-  Services.obs.addObserver(this, "new-text");
-  Services.obs.addObserver(this, "conversation-closed");
-  Services.obs.addObserver(this, "conversation-left-chat");
-  initLogCleanup();
-}
+    Services.obs.addObserver(this, "new-text");
+    Services.obs.addObserver(this, "conversation-closed");
+    Services.obs.addObserver(this, "conversation-left-chat");
+    initLogCleanup();
+  }
 
-Logger.prototype = {
-  // Returned Promise resolves to an array of entries for the
-  // log folder if it exists, otherwise null.
+  /**
+   * Returned Promise resolves to an array of entries for the
+   * log folder if it exists, otherwise null.
+   *
+   * @returns {Promise<string[]>}
+   */
   async _getLogEntries(aAccount, aNormalizedName) {
     let path;
     try {
@@ -766,7 +866,12 @@ Logger.prototype = {
       );
     }
     return [];
-  },
+  }
+  /**
+   * @param {string} aFilePath
+   * @param {boolean} [aGroupByDay]
+   * @returns {Promise<Log>}
+   */
   async getLogFromFile(aFilePath, aGroupByDay) {
     if (!aGroupByDay) {
       return new Log(aFilePath);
@@ -797,8 +902,16 @@ Logger.prototype = {
       }
     }
     return new Log(relevantEntries);
-  },
+  }
 
+  /**
+   * Returns a promise that resolves to the log file paths if a log writer
+   * exists for the conversation, or null otherwise. The promise resolves
+   * after any pending I/O operations on the files complete.
+   *
+   * @param {prplIConversation} aConversation
+   * @returns {Promise<string[]>}
+   */
   async getLogPathsForConversation(aConversation) {
     const writer = gLogWritersById.get(aConversation.id);
     // Resolve to null if we haven't created a LogWriter yet for this conv, or
@@ -813,7 +926,13 @@ Logger.prototype = {
       await gFilePromises.get(path);
     }
     return paths;
-  },
+  }
+  /**
+   * Get logs for a contact.
+   *
+   * @param {imIContact} aContact
+   * @returns {Promise<Log[]}
+   */
   async getLogsForContact(aContact) {
     let entries = [];
     for (const buddy of aContact.getBuddies()) {
@@ -827,7 +946,13 @@ Logger.prototype = {
       }
     }
     return logsGroupedByDay(entries);
-  },
+  }
+  /**
+   * Get logs for a conversation.
+   *
+   * @param {prplIConversation} aConversation
+   * @returns {Promise<Log[]>}
+   */
   getLogsForConversation(aConversation) {
     let name = aConversation.normalizedName;
     if (aConversation.isChat) {
@@ -837,7 +962,13 @@ Logger.prototype = {
     return this._getLogEntries(aConversation.account, name).then(entries =>
       logsGroupedByDay(entries)
     );
-  },
+  }
+  /**
+   * GetLogs that are from the same conversation.
+   *
+   * @param {Log} log
+   * @returns {Promise<Log[]>}
+   */
   async getSimilarLogs(log) {
     let entries;
     try {
@@ -849,12 +980,24 @@ Logger.prototype = {
     }
     // If there was an error, this will return an empty array.
     return logsGroupedByDay(entries);
-  },
+  }
 
+  /**
+   * Returns the folder storing all logs for aAccount.
+   *
+   * @param {imIAccount} aAccount
+   * @returns {string}
+   */
   getLogFolderPathForAccount(aAccount) {
     return getLogFolderPathForAccount(aAccount);
-  },
+  }
 
+  /**
+   * Removes the folder storing all logs for aAccount.
+   * Be sure the account is disconnected before using this.
+   *
+   * @param {imIAccount} aAccount - Account to remove the logs of.
+   */
   deleteLogFolderForAccount(aAccount) {
     if (!aAccount.disconnecting && !aAccount.disconnected) {
       throw new Error(
@@ -885,8 +1028,19 @@ Logger.prototype = {
       .catch(aError =>
         console.error("Failed to remove log folders:\n" + aError)
       );
-  },
+  }
 
+  /**
+   * Asynchronously iterates through log folders for all prpls and accounts and
+   * invokes the callback on every log file. Returns a promise that resolves when
+   * iteration is complete. If the callback returns a promise, iteration pauses
+   * until the promise resolves. If the callback throws (or rejects), iteration
+   * will stop and the returned promise will reject with the same error.
+   *
+   * @param {{processLog(string): Promise}} aCallback - The callback can return
+   *   a promise. If it does, then it will not be called on the next log until
+   *   this promise resolves. If it throws (or rejects), iteration will stop.
+   */
   async forEach(aCallback) {
     const getAllSubdirs = async function (aPaths, aErrorMsg) {
       let entries = [];
@@ -939,7 +1093,7 @@ Logger.prototype = {
         console.error("Error sweeping log folder:\n" + aError);
       }
     }
-  },
+  }
 
   observe(aSubject, aTopic, aData) {
     switch (aTopic) {
@@ -965,8 +1119,7 @@ Logger.prototype = {
       default:
         throw new Error("Unexpected notification " + aTopic);
     }
-  },
+  }
+}
 
-  QueryInterface: ChromeUtils.generateQI(["nsIObserver", "imILogger"]),
-  classDescription: "Logger",
-};
+export const logs = new Logger();

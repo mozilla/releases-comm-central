@@ -288,7 +288,7 @@ add_task(async function test_appendToFileHeader() {
   await IOUtils.remove(path);
 });
 
-// Tests the getLogPathsForConversation API defined in the imILogger interface.
+// Tests the getLogPathsForConversation API defined in the Logger interface.
 var test_getLogPathsForConversation = async function () {
   const logger = new Logger();
   let paths = await logger.getLogPathsForConversation(dummyConv);
@@ -476,7 +476,7 @@ var test_logFileSplitting = async function () {
   };
 
   await logMessage(message);
-  message.time += logWriter.kInactivityLimit / 1000 + 1;
+  message.time += logWriter.constructor.kInactivityLimit / 1000 + 1;
   // This should go in a new log file.
   await logMessage(message);
   notEqual(logWriter.currentPath, oldPath);
@@ -498,7 +498,7 @@ var test_logFileSplitting = async function () {
     24,
     0,
     0,
-    -(logWriter.kDayOverlapLimit + 1)
+    -(logWriter.constructor.kDayOverlapLimit + 1)
   );
   const nearlyMidnight = new Date(logWriter._startTime).setHours(24, 0, 0, -1);
   oldPath = logWriter.currentPath;
@@ -512,7 +512,7 @@ var test_logFileSplitting = async function () {
 
   // Ensure a new file is created every kMessageCountLimit messages.
   oldPath = logWriter.currentPath;
-  const messageCountLimit = logWriter.kMessageCountLimit;
+  const messageCountLimit = logWriter.constructor.kMessageCountLimit;
   for (let i = 0; i < messageCountLimit; ++i) {
     logMessage(message);
   }

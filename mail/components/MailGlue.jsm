@@ -592,8 +592,6 @@ MailGlue.prototype = {
 
   _onFirstWindowLoaded() {
     // Start these services.
-    Cc["@mozilla.org/chat/logger;1"].getService(Ci.imILogger);
-
     this._checkForOldBuildUpdates();
 
     // On Windows 7 and above, initialize the jump list module.

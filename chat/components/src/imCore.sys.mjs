@@ -292,6 +292,8 @@ CoreService.prototype = {
       },
     });
 
+    // Make sure logger has registered its observers.
+    IMServices.logs;
     IMServices.accounts.initAccounts();
     IMServices.contacts.initContacts();
     IMServices.conversations.initConversations();

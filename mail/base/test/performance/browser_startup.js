@@ -57,7 +57,6 @@ const startupPhases = {
         "resource:///modules/MsgIncomingServer.jsm",
       ]),
       services: new Set([
-        "@mozilla.org/chat/logger;1",
         "@mozilla.org/mail/notification-manager;1",
         "@mozilla.org/newMailNotificationService;1",
       ]),

@@ -10,7 +10,6 @@ XPIDL_SOURCES += [
     "imIContactsService.idl",
     "imIConversationsService.idl",
     "imICoreService.idl",
-    "imILogger.idl",
     "imIStatusInfo.idl",
     "imITagsService.idl",
     "imIUserStatusInfo.idl",

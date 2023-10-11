@@ -6,6 +6,11 @@ import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
 export const IMServices = {};
 
+// eslint-disable-next-line mozilla/lazy-getter-object-name
+ChromeUtils.defineESModuleGetters(IMServices, {
+  logs: "resource:///modules/logger.sys.mjs",
+});
+
 XPCOMUtils.defineLazyServiceGetter(
   IMServices,
   "accounts",
@@ -41,10 +46,4 @@ XPCOMUtils.defineLazyServiceGetter(
   "tags",
   "@mozilla.org/chat/tags-service;1",
   "imITagsService"
-);
-XPCOMUtils.defineLazyServiceGetter(
-  IMServices,
-  "logs",
-  "@mozilla.org/chat/logger;1",
-  "imILogger"
 );
