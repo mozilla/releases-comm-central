@@ -213,7 +213,7 @@ function publishRoomDetails(account, conv) {
  * @param {number} [options.requiredCount] - How many of the parameters are required (from the start).
  * @param {(string[]) => boolean} [options.validateParams] - Validator function for params.
  * @param {(prplIConversation, string[]) => any[]} [options.formatParams] - Formatting function for params.
- * @returns {(string, imIConversation) => boolean} Command handler function that returns true when the command was handled.
+ * @returns {(string, IMConversation) => boolean} Command handler function that returns true when the command was handled.
  */
 function runCommand(
   commandCallback,
@@ -279,7 +279,7 @@ function runCommand(
  * @param {number} [options.requiredCount] - How many of the parameters are required (from the start).
  * @param {(string[]) => boolean} [options.validateParams] - Validator function for params.
  * @param {(prplIConversation, string[]) => any[]} [options.formatParams] - Formatting function for params.
- * @returns {(string, imIConversation) => boolean} Command handler function that returns true when the command was handled.
+ * @returns {(string, IMConversation) => boolean} Command handler function that returns true when the command was handled.
  */
 function clientCommand(clientMethod, parameterCount, options) {
   return runCommand(

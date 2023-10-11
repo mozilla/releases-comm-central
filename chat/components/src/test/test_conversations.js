@@ -33,7 +33,7 @@ Conversation.prototype = {
     DEBUG() {},
   },
   addObserver(aObserver) {
-    if (!(aObserver instanceof Ci.nsIObserver)) {
+    if (!(aObserver instanceof Ci.nsIObserver) && !("observe" in aObserver)) {
       aObserver = { observe: aObserver };
     }
     GenericConvIMPrototype.addObserver.call(this, aObserver);

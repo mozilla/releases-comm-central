@@ -557,7 +557,7 @@ var GlodaIMIndexer = {
       // Add ourselves to the ui-conversation's list of observers for the
       // unread-message-count-changed notification.
       // For this notification, aSubject is the ui-conversation that is opened.
-      aSubject.addObserver(this);
+      aSubject.wrappedJSObject.addObserver(this);
       return;
     }
 
@@ -565,7 +565,7 @@ var GlodaIMIndexer = {
       aTopic == "ui-conversation-closed" ||
       aTopic == "ui-conversation-replaced"
     ) {
-      aSubject.removeObserver(this);
+      aSubject.wrappedJSObject.removeObserver(this);
       return;
     }
 

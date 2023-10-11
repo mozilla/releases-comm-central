@@ -166,7 +166,7 @@
      * Set the conversation this item should represent. Updates appearance and
      * adds observers to keep it up to date.
      *
-     * @param {imIConversation} conv - Conversation this item represents.
+     * @param {IMConversation} conv - Conversation this item represents.
      */
     build(conv) {
       this.conv = conv;
@@ -340,7 +340,7 @@
     /**
      * Replace the conversation that this item represents.
      *
-     * @param {imIConversation} conv - Updated conversation this should
+     * @param {IMConversation} conv - Updated conversation this should
      *   represent.
      */
     changeConversation(conv) {

@@ -409,7 +409,7 @@
      * Regenerate the tooltip based on a buddy.
      *
      * @param {prplIAccountBuddy} aBuddy - The buddy to generate the conversation.
-     * @param {imIConversation} [aConv] - A conversation associated with this buddy.
+     * @param {IMConversation} [aConv] - A conversation associated with this buddy.
      * @param {string} [overrideAvatar] - URL for the user avatar to use
      *  instead.
      */
@@ -500,7 +500,7 @@
     /**
      * Regenerate the tooltip based on a conversation.
      *
-     * @param {imIConversation} aConv - The conversation to generate the tooltip from.
+     * @param {IMConversation} aConv - The conversation to generate the tooltip from.
      * @param {string} [overrideAvatar] - URL for the user avatar to use
      *  instead if the conversation is a direct conversation.
      */

@@ -133,45 +133,51 @@ imMessage.prototype = {
 };
 
 /**
- * @param {prplIConversation} aPrplConversation
- * @param {number} [idToReuse] - ID to use for this UI conversation if it replaces another UI conversation.
+ * @implements {prplIMessage}
+ * @implements {nsIObserver}
  */
-export function UIConversation(aPrplConversation, idToReuse) {
-  this._prplConv = {};
-  if (idToReuse) {
-    this.id = idToReuse;
-  } else {
-    this.id = ++gLastUIConvId;
+export class UIConversation {
+  QueryInterface = ChromeUtils.generateQI(["nsIObserver"]);
+  get wrappedJSObject() {
+    return this;
   }
-  // Observers listening to this instance's notifications.
-  this._observers = [];
-  // Observers this instance has attached to prplIConversations.
-  this._convObservers = new WeakMap();
-  this._messages = [];
-  this.changeTargetTo(aPrplConversation);
-  const iface = Ci["prplIConv" + (aPrplConversation.isChat ? "Chat" : "IM")];
-  this._interfaces = this._interfaces.concat(iface);
-  // XPConnect will create a wrapper around 'this' after here,
-  // so the list of exposed interfaces shouldn't change anymore.
-  this.updateContactObserver();
-  if (!idToReuse) {
-    Services.obs.notifyObservers(this, "new-ui-conversation");
-  }
-}
 
-UIConversation.prototype = {
-  __proto__: ClassInfo(
-    ["imIConversation", "prplIConversation", "nsIObserver"],
-    "UI conversation"
-  ),
-  _observedContact: null,
+  /**
+   * @param {prplIConversation} aPrplConversation
+   * @param {number} [idToReuse] - ID to use for this UI conversation if it replaces another UI conversation.
+   */
+  constructor(aPrplConversation, idToReuse) {
+    this._prplConv = {};
+    if (idToReuse) {
+      this.id = idToReuse;
+    } else {
+      this.id = ++gLastUIConvId;
+    }
+    // Observers listening to this instance's notifications.
+    this._observers = [];
+    // Observers this instance has attached to prplIConversations.
+    this._convObservers = new WeakMap();
+    this._messages = [];
+    this.changeTargetTo(aPrplConversation);
+    this.updateContactObserver();
+    if (!idToReuse) {
+      Services.obs.notifyObservers(this, "new-ui-conversation");
+    }
+  }
+
+  _observedContact = null;
+  /**
+   * Will be null for MUCs and IMs from people not in the contacts list.
+   *
+   * @type {imIContact}
+   */
   get contact() {
     const target = this.target;
     if (!target.isChat && target.buddy) {
       return target.buddy.buddy.contact;
     }
     return null;
-  },
+  }
   updateContactObserver() {
     const contact = this.contact;
     if (contact && !this._observedContact) {
@@ -181,19 +187,19 @@ UIConversation.prototype = {
       this._observedContact.removeObserver(this);
       delete this._observedContact;
     }
-  },
+  }
   /**
    * @type {prplIConversation}
    */
   get target() {
     return this._prplConv[this._currentTargetId];
-  },
+  }
   set target(aPrplConversation) {
     this.changeTargetTo(aPrplConversation);
-  },
+  }
   get hasMultipleTargets() {
     return Object.keys(this._prplConv).length > 1;
-  },
+  }
   getTargetByAccount(aAccount) {
     const accountId = aAccount.id;
     for (const id in this._prplConv) {
@@ -203,8 +209,8 @@ UIConversation.prototype = {
       }
     }
     return null;
-  },
-  _currentTargetId: 0,
+  }
+  _currentTargetId = 0;
   changeTargetTo(aPrplConversation) {
     const id = aPrplConversation.id;
     if (this._currentTargetId == id) {
@@ -213,7 +219,9 @@ UIConversation.prototype = {
 
     if (!(id in this._prplConv)) {
       this._prplConv[id] = aPrplConversation;
-      const observeConv = this.observeConv.bind(this, id);
+      const observeConv = {
+        observe: (...args) => this.observeConv(id, ...args),
+      };
       this._convObservers.set(aPrplConversation, observeConv);
       aPrplConversation.addObserver(observeConv);
     }
@@ -234,7 +242,7 @@ UIConversation.prototype = {
         lazy.bundle.formatStringFromName("targetChanged", params)
       );
     }
-  },
+  }
   // Returns a boolean indicating if the ui-conversation was closed.
   // If the conversation was closed, aContactId.value is set to the contact id
   // or 0 if no contact was associated with the conversation.
@@ -265,35 +273,61 @@ UIConversation.prototype = {
     delete this._currentTargetId;
     this.notifyObservers(this, "ui-conversation-closed");
     return true;
-  },
+  }
 
-  _unreadMessageCount: 0,
+  _unreadMessageCount = 0;
+  /**
+   * Number of unread messages (all messages, including system
+   * messages are counted).
+   *
+   * @type {number}
+   */
   get unreadMessageCount() {
     return this._unreadMessageCount;
-  },
-  _unreadTargetedMessageCount: 0,
+  }
+  _unreadTargetedMessageCount = 0;
+  /**
+   * Number of unread incoming messages targeted at the user (= IMs or
+   * message containing the user's nick in MUCs).
+   *
+   * @type {number}
+   */
   get unreadTargetedMessageCount() {
     return this._unreadTargetedMessageCount;
-  },
-  _unreadIncomingMessageCount: 0,
+  }
+  _unreadIncomingMessageCount = 0;
+  /**
+   * Number of unread incoming messages (both targeted and untargeted
+   * messages are counted).
+   *
+   * @type {number}
+   */
   get unreadIncomingMessageCount() {
     return this._unreadIncomingMessageCount;
-  },
-  _unreadOTRNotificationCount: 0,
+  }
+  _unreadOTRNotificationCount = 0;
+  /**
+   * Number of unread off-the-record authentication requests.
+   *
+   * @type {number}
+   */
   get unreadOTRNotificationCount() {
     return this._unreadOTRNotificationCount;
-  },
+  }
+  /**
+   * Reset all unread message counts.
+   */
   markAsRead() {
-    delete this._unreadMessageCount;
-    delete this._unreadTargetedMessageCount;
-    delete this._unreadIncomingMessageCount;
-    delete this._unreadOTRNotificationCount;
+    this._unreadMessageCount = 0;
+    this._unreadTargetedMessageCount = 0;
+    this._unreadIncomingMessageCount = 0;
+    this._unreadOTRNotificationCount = 0;
     if (this._messages.length) {
       this._messages[this._messages.length - 1].whenDisplayed();
     }
     this._notifyUnreadCountChanged();
-  },
-  _lastNotifiedUnreadCount: 0,
+  }
+  _lastNotifiedUnreadCount = 0;
   _notifyUnreadCountChanged() {
     if (this._unreadIncomingMessageCount == this._lastNotifiedUnreadCount) {
       return;
@@ -307,10 +341,24 @@ UIConversation.prototype = {
         this._unreadIncomingMessageCount.toString()
       );
     }
-  },
+  }
+  /**
+   * Get an array of all messages of the conversation.
+   *
+   * @returns {imIMessage[]}
+   */
   getMessages() {
     return this._messages;
-  },
+  }
+  /**
+   * Call this to give the core an opportunity to close an inactive
+   * conversation.  If the conversation is a left MUC or an IM
+   * conversation without unread message, the implementation will call
+   * close().
+   * The returned value indicates if the conversation was closed.
+   *
+   * @returns {boolean}
+   */
   checkClose() {
     if (!this._currentTargetId) {
       // Already closed.
@@ -331,7 +379,7 @@ UIConversation.prototype = {
 
     this.close();
     return true;
-  },
+  }
 
   observe(aSubject, aTopic, aData) {
     if (aTopic == "contact-no-longer-dummy") {
@@ -370,15 +418,15 @@ UIConversation.prototype = {
     ) {
       this.notifyObservers(this, "update-buddy-display-name");
     }
-  },
+  }
 
-  _iconUpdatePending: false,
+  _iconUpdatePending = false;
   updateIcon() {
     delete this._iconUpdatePending;
     this.notifyObservers(this, "update-buddy-icon");
-  },
+  }
 
-  _statusUpdatePending: false,
+  _statusUpdatePending = false;
   updateBuddyStatus() {
     delete this._statusUpdatePending;
     const { statusType: statusType, statusText: statusText } = this.buddy;
@@ -418,9 +466,9 @@ UIConversation.prototype = {
       }
     }
     this.systemMessage(msg);
-  },
+  }
 
-  _disconnected: false,
+  _disconnected = false;
   disconnecting() {
     if (this._disconnected) {
       return;
@@ -438,7 +486,7 @@ UIConversation.prototype = {
       this.systemMessage(lazy.bundle.GetStringFromName("accountDisconnected"));
     }
     this.notifyObservers(this, "update-buddy-status");
-  },
+  }
   connected() {
     if (this._disconnected) {
       delete this._disconnected;
@@ -463,7 +511,7 @@ UIConversation.prototype = {
       }
     }
     this.notifyObservers(this, "update-buddy-status");
-  },
+  }
 
   observeConv(aTargetId, aSubject, aTopic, aData) {
     if (
@@ -478,8 +526,16 @@ UIConversation.prototype = {
     }
 
     this.notifyObservers(aSubject, aTopic, aData);
-  },
+  }
 
+  /**
+   * Write a system message into the conversation.
+   * Note: this will not be logged.
+   *
+   * @param {string} aText
+   * @param {boolean} [aIsError=false]
+   * @param {boolean} [aNoCollapse=false]
+   */
   systemMessage(aText, aIsError, aNoCollapse) {
     const flags = {
       system: true,
@@ -489,13 +545,17 @@ UIConversation.prototype = {
     };
     const message = new Message("system", aText, flags, this);
     this.notifyObservers(message, "new-text");
-  },
+  }
 
   /**
    * Emit a notification sound for a new chat message and trigger the
    * global notificationbox to prompt the user with the verifiation request.
    *
-   * @param String aText - The system message.
+   * Write a system message into the conversation and trigger the update of the
+   * notification counter during an off-the-record authentication request.
+   * Note: this will not be logged.
+   *
+   * @param {string} aText - The system message.
    */
   notifyVerifyOTR(aText) {
     this._unreadOTRNotificationCount++;
@@ -507,39 +567,39 @@ UIConversation.prototype = {
         this._unreadOTRNotificationCount.toString()
       );
     }
-  },
+  }
 
   // prplIConversation
   get isChat() {
     return this.target.isChat;
-  },
+  }
   get account() {
     return this.target.account;
-  },
+  }
   get name() {
     return this.target.name;
-  },
+  }
   get normalizedName() {
     return this.target.normalizedName;
-  },
+  }
   get title() {
     return this.target.title;
-  },
+  }
   get startDate() {
     return this.target.startDate;
-  },
+  }
   get convIconFilename() {
     return this.target.convIconFilename;
-  },
+  }
   get encryptionState() {
     return this.target.encryptionState;
-  },
+  }
   initializeEncryption() {
     this.target.initializeEncryption();
-  },
+  }
   sendMsg(aMsg, aAction = false, aNotice = false) {
     this.target.sendMsg(aMsg, aAction, aNotice);
-  },
+  }
   unInit() {
     for (const id in this._prplConv) {
       const conv = this._prplConv[id];
@@ -552,7 +612,7 @@ UIConversation.prototype = {
     this._prplConv = {}; // Prevent .close from failing.
     delete this._currentTargetId;
     this.notifyObservers(this, "ui-conversation-destroyed");
-  },
+  }
   close() {
     for (const id in this._prplConv) {
       const conv = this._prplConv[id];
@@ -564,15 +624,15 @@ UIConversation.prototype = {
     delete this._currentTargetId;
     this.notifyObservers(this, "ui-conversation-closed");
     Services.obs.notifyObservers(this, "ui-conversation-closed");
-  },
+  }
   addObserver(aObserver) {
     if (!this._observers.includes(aObserver)) {
       this._observers.push(aObserver);
     }
-  },
+  }
   removeObserver(aObserver) {
     this._observers = this._observers.filter(o => o !== aObserver);
-  },
+  }
   notifyObservers(aSubject, aTopic, aData) {
     if (aTopic == "new-text" || aTopic == "update-text") {
       aSubject = new imMessage(aSubject);
@@ -650,64 +710,70 @@ UIConversation.prototype = {
         );
       }
     }
-  },
+  }
 
   // Used above when notifying of new-texts originating in the
   // UIConversation. This happens when this.systemMessage() is called. The
   // conversation for the message is set as the UIConversation.
-  prepareForDisplaying(aMsg) {},
+  prepareForDisplaying(aMsg) {}
 
   // prplIConvIM
   get buddy() {
     return this.target.buddy;
-  },
+  }
   get typingState() {
     return this.target.typingState;
-  },
+  }
   sendTyping(aString) {
     return this.target.sendTyping(aString);
-  },
+  }
 
   // Chat only
   getParticipants() {
     return this.target.getParticipants();
-  },
+  }
   get topic() {
     return this.target.topic;
-  },
+  }
   set topic(aTopic) {
     this.target.topic = aTopic;
-  },
+  }
   get topicSetter() {
     return this.target.topicSetter;
-  },
+  }
   get topicSettable() {
     return this.target.topicSettable;
-  },
+  }
+  /**
+   *  Can be used instead of the topic when no topic is set.
+   *
+   * @type {string}
+   */
   get noTopicString() {
     return lazy.bundle.GetStringFromName("noTopic");
-  },
+  }
   get nick() {
     return this.target.nick;
-  },
+  }
   get left() {
     return this.target.left;
-  },
+  }
   get joining() {
     return this.target.joining;
-  },
-};
+  }
+}
 
 var gConversationsService;
 
-export function ConversationsService() {
-  gConversationsService = this;
-}
+/**
+ * @implements {nsIObserver}
+ */
+class ConversationsService {
+  QueryInterface = ChromeUtils.generateQI(["nsIObserver"]);
 
-ConversationsService.prototype = {
-  get wrappedJSObject() {
-    return this;
-  },
+  constructor() {
+    gConversationsService = this;
+  }
 
   initConversations() {
     this._uiConv = {};
@@ -717,7 +783,7 @@ ConversationsService.prototype = {
     Services.obs.addObserver(this, "account-connected");
     Services.obs.addObserver(this, "account-buddy-added");
     Services.obs.addObserver(this, "account-buddy-removed");
-  },
+  }
 
   unInitConversations() {
     const UIConvs = this.getUIConversations();
@@ -735,7 +801,7 @@ ConversationsService.prototype = {
     Services.obs.removeObserver(this, "account-connected");
     Services.obs.removeObserver(this, "account-buddy-added");
     Services.obs.removeObserver(this, "account-buddy-removed");
-  },
+  }
 
   observe(aSubject, aTopic, aData) {
     if (aTopic == "account-connected") {
@@ -804,8 +870,14 @@ ConversationsService.prototype = {
       uiConv.updateContactObserver();
       uiConv.notifyObservers(uiConv, "update-conv-buddy");
     }
-  },
+  }
 
+  /**
+   * Register a conversation. This will create a unique id for the
+   * conversation and set it.
+   *
+   * @param {prplIConversation} aPrplConversation
+   */
   addConversation(aPrplConversation) {
     // Give an id to the new conversation.
     aPrplConversation.id = ++gLastPrplConvId;
@@ -837,7 +909,7 @@ ConversationsService.prototype = {
     if (contactId) {
       this._uiConvByContactId[contactId] = newUIConv;
     }
-  },
+  }
   /**
    * Informs the conversation service that the type of the conversation changed, which then lets the
    * UI components know to use a new UI conversation instance.
@@ -874,7 +946,10 @@ ConversationsService.prototype = {
       this._uiConvByContactId[contactId] = uiConv;
     }
     Services.obs.notifyObservers(uiConv, "conversation-update-type");
-  },
+  }
+  /**
+   * @param {prplIConversation} aPrplConversation
+   */
   removeConversation(aPrplConversation) {
     Services.obs.notifyObservers(aPrplConversation, "conversation-closed");
 
@@ -888,15 +963,18 @@ ConversationsService.prototype = {
       Services.obs.notifyObservers(uiConv, "ui-conversation-closed");
     }
     this.forgetConversation(aPrplConversation);
-  },
+  }
   forgetConversation(aPrplConversation) {
     aPrplConversation.unInit();
 
     this._prplConversations = this._prplConversations.filter(
       c => c !== aPrplConversation
     );
-  },
+  }
 
+  /**
+   * @returns {IMConversation[]}
+   */
   getUIConversations() {
     const rv = [];
     if (this._uiConv) {
@@ -911,21 +989,36 @@ ConversationsService.prototype = {
       }
     }
     return rv;
-  },
+  }
+  /**
+   * @param {prplIConversation} aPrplConversation
+   * @returns {IMConversation}
+   */
   getUIConversation(aPrplConversation) {
     const id = aPrplConversation.id;
     if (this._uiConv && id in this._uiConv) {
       return this._uiConv[id];
     }
     throw new Error("Unknown conversation");
-  },
+  }
+  /**
+   * @param {number} aId
+   * @returns {IMConversation}
+   */
   getUIConversationByContactId(aId) {
     return aId in this._uiConvByContactId ? this._uiConvByContactId[aId] : null;
-  },
+  }
 
+  /**
+   * @returns {prplIConversation[]}
+   */
   getConversations() {
     return this._prplConversations;
-  },
+  }
+  /**
+   * @param {number} aId
+   * @returns {prplIConversation}
+   */
   getConversationById(aId) {
     for (const conv of this._prplConversations) {
       if (conv.id == aId) {
@@ -933,7 +1026,14 @@ ConversationsService.prototype = {
       }
     }
     return null;
-  },
+  }
+  /**
+   *
+   * @param {string} aName
+   * @param {imIAccount} aAccount
+   * @param {boolean} aIsChat
+   * @returns {prplIConversation}
+   */
   getConversationByNameAndAccount(aName, aAccount, aIsChat) {
     const normalizedName = aAccount.normalize(aName);
     for (const conv of this._prplConversations) {
@@ -946,8 +1046,7 @@ ConversationsService.prototype = {
       }
     }
     return null;
-  },
+  }
+}
 
-  QueryInterface: ChromeUtils.generateQI(["imIConversationsService"]),
-  classDescription: "Conversations",
-};
+export const conversations = new ConversationsService();

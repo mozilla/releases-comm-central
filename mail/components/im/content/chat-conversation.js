@@ -1687,7 +1687,7 @@
      * Change the UI Conversation attached to this component and its browser.
      * Does not clear any existing messages in the conversation browser.
      *
-     * @param {imIConversation} conv
+     * @param {IMConversation} conv
      */
     changeConversation(conv) {
       this._conv.removeObserver(this.observer);

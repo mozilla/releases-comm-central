@@ -1442,7 +1442,7 @@ var chatHandler = {
     }
     if (aTopic == "new-ui-conversation") {
       if (chatTabType.hasBeenOpened) {
-        chatHandler._addConversation(aSubject);
+        chatHandler._addConversation(aSubject.wrappedJSObject);
       }
       return;
     }
@@ -1453,7 +1453,7 @@ var chatHandler = {
       }
       let conv = document
         .getElementById("conversationsGroup")
-        .removeContact(aSubject);
+        .removeContact(aSubject.wrappedJSObject);
       if (conv.imContact) {
         let contact = conv.imContact;
         let groupName = (contact.online ? "on" : "off") + "linecontactsGroup";
@@ -1646,22 +1646,23 @@ var chatHandler = {
       let contactlistbox = document.getElementById("contactlistbox");
       let convs = document.getElementById("conversationsGroup");
       let convItem = convs.nextElementSibling;
+      const updatedConv = aSubject.wrappedJSObject;
       while (
-        convItem.conv.target.id !== aSubject.target.id &&
+        convItem.conv.target.id !== updatedConv.target.id &&
         convItem.id != "searchResultConv"
       ) {
         convItem = convItem.nextElementSibling;
       }
-      if (convItem.conv.target.id !== aSubject.target.id) {
+      if (convItem.conv.target.id !== updatedConv.target.id) {
         // Could not find a matching conversation in the front end.
         return;
       }
       // Update UI conversation associated with components
-      if (convItem.convView && convItem.convView.conv !== aSubject) {
-        convItem.convView.changeConversation(aSubject);
+      if (convItem.convView && convItem.convView.conv !== updatedConv) {
+        convItem.convView.changeConversation(updatedConv);
       }
-      if (convItem.conv !== aSubject) {
-        convItem.changeConversation(aSubject);
+      if (convItem.conv !== updatedConv) {
+        convItem.changeConversation(updatedConv);
       } else {
         convItem.update();
       }

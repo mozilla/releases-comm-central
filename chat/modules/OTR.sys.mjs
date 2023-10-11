@@ -1188,13 +1188,15 @@ export var OTR = {
         this.onReceive(aObject);
         break;
       case "new-ui-conversation":
-        this.addConversation(aObject);
+        this.addConversation(aObject.wrappedJSObject);
         break;
       case "conversation-update-type":
-        if (this._convos.has(aObject.target.id)) {
-          this._convos.get(aObject.target.id).removeObserver(this);
+        if (this._convos.has(aObject.wrappedJSObject.target.id)) {
+          this._convos
+            .get(aObject.wrappedJSObject.target.id)
+            .removeObserver(this);
         }
-        this.addConversation(aObject);
+        this.addConversation(aObject.wrappedJSObject);
         break;
       case "update-conv-encryption": {
         // Disable OTR encryption when the chat protocol initiates encryption

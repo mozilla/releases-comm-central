@@ -69,7 +69,7 @@ export const ChatEncryption = {
    * given conversation, if encryption is available.
    *
    * @param {DOMDocument} document
-   * @param {imIConversation} conversation
+   * @param {IMConversation} conversation
    */
   updateEncryptionButton(document, conversation) {
     if (!this.hasEncryptionActions(conversation)) {
