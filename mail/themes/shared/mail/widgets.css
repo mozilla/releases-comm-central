@@ -134,7 +134,7 @@
         background-color: var(--button-primary-hover-background-color);
         color: var(--button-primary-text-color);
         border-color: var(--button-primary-border-color);
-      
+
         &:active {
           background-color: var(--button-primary-active-background-color);
           border-color: var(--button-primary-border-color);
@@ -305,18 +305,18 @@
       outline-offset: 0;
       z-index: 3;
     }
-    
+
     &:first-child {
       border-inline-end: var(--button-border-size) solid var(--button-border-color);
       border-start-start-radius: calc(var(--button-border-radius) - 1px);
       border-end-start-radius: calc(var(--button-border-radius) - 1px);
     }
-    
+
     &:last-child {
       border-start-end-radius: calc(var(--button-border-radius) - 1px);
       border-end-end-radius: calc(var(--button-border-radius) - 1px);
     }
-    
+
     & + .button:not(:last-child) {
       border-inline-end: var(--button-border-size) solid var(--button-border-color);
     }
