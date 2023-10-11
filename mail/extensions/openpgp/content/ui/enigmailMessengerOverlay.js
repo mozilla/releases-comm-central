@@ -1327,7 +1327,7 @@ Enigmail.msg = {
     if (exitCode !== 0 && !(statusFlags & noSecondTry)) {
       // Bad signature/armor
       if (retry == 1) {
-        msgText = EnigmailData.convertFromUnicode(msgText, "UTF-8");
+        msgText = MailStringUtils.stringToByteString(msgText);
         await Enigmail.msg.messageParseCallback(
           msgText,
           msgDate,
@@ -1365,7 +1365,7 @@ Enigmail.msg = {
         );
         return;
       } else if (retry == 3) {
-        msgText = EnigmailData.convertFromUnicode(msgText, "UTF-8");
+        msgText = MailStringUtils.stringToByteString(msgText);
         await Enigmail.msg.messageParseCallback(
           msgText,
           msgDate,
@@ -1393,7 +1393,7 @@ Enigmail.msg = {
 
     if (retry >= 2) {
       plainText = EnigmailData.convertFromUnicode(
-        EnigmailData.convertToUnicode(plainText, "UTF-8"),
+        MailStringUtils.byteStringToString(plainText),
         charset
       );
     }
@@ -1404,10 +1404,7 @@ Enigmail.msg = {
       var blocks = blockSeparationObj.value.split(/ /);
       var blockInfo = blocks[0].split(/:/);
       plainText =
-        EnigmailData.convertFromUnicode(
           "*Parts of the message have NOT been signed nor encrypted*",
-          charset
-        ) +
         "\n\n" +
         plainText.substr(0, blockInfo[1]) +
         "\n\n" +

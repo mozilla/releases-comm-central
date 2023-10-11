@@ -679,17 +679,7 @@ export var invitation = {
    * @returns {string} the converted uft-8 encoded string
    */
   encodeUTF8(aText) {
-    return invitation.convertFromUnicode(aText).replace(/(\r\n)|\n/g, "\r\n");
-  },
-
-  /**
-   * Converts a given unicode text
-   *
-   * @param  {string} aSrc       unicode text to convert
-   * @returns {string} the converted string
-   */
-  convertFromUnicode(aSrc) {
-    return lazy.MailStringUtils.stringToByteString(aSrc);
+    return lazy.MailStringUtils.stringToByteString(aText).replace(/(\r\n)|\n/g, "\r\n");
   },
 
   /**

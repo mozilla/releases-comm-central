@@ -5,6 +5,7 @@
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { XPCOMUtils } = ChromeUtils.importESModule("resource://gre/modules/XPCOMUtils.sys.mjs");
+var { MailStringUtils } = ChromeUtils.import("resource:///modules/MailStringUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.jsm",
@@ -1228,7 +1229,7 @@ add_task(async function convertFromUnicode_test() {
   let i = 0;
   for (const test of data) {
     i++;
-    equal(cal.invitation.convertFromUnicode(test.input), test.expected, "(test #" + i + ")");
+    equal(MailStringUtils.stringToByteString(test.input), test.expected, "(test #" + i + ")");
   }
 });
 

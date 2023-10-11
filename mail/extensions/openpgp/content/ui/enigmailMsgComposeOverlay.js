@@ -1992,17 +1992,8 @@ Enigmail.msg = {
 
       escText = this.editorGetContentAs("text/plain", encoderFlags);
 
-      //EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: escText["+encoderFlags+"] = '"+escText+"'\n");
-
-      var charset = this.editorGetCharset();
-      EnigmailLog.DEBUG(
-        "enigmailMsgComposeOverlay.js: Enigmail.msg.signInline: charset=" +
-          charset +
-          "\n"
-      );
-
-      // Encode plaintext to charset from unicode
-      var plainText = EnigmailData.convertFromUnicode(escText, charset);
+      // Encode plaintext to utf-8 from unicode
+      var plainText = MailStringUtils.stringToByteString(escText);
 
       // this will sign, not encrypt
       var cipherText = EnigmailEncryption.encryptMessage(
@@ -2026,15 +2017,14 @@ Enigmail.msg = {
 
         cipherText = cipherText.replace(/\r\n/g, "\n");
 
-        // Decode ciphertext from charset to unicode and overwrite
+        // Decode ciphertext from utf-8 to unicode and overwrite
         this.replaceEditorText(
-          EnigmailData.convertToUnicode(cipherText, charset)
+          EnigmailData.convertToUnicode(cipherText, "utf-8")
         );
 
         // Save original text (for undo)
         this.processed = {
           origText,
-          charset,
         };
       } else {
         // Restore original text
@@ -2358,17 +2348,8 @@ Enigmail.msg = {
       tail = "";
     }
 
-    //EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.decryptQuote: pgpBlock='"+pgpBlock+"'\n");
-
-    var charset = this.editorGetCharset();
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.decryptQuote: charset=" +
-        charset +
-        "\n"
-    );
-
-    // Encode ciphertext from unicode to charset
-    var cipherText = EnigmailData.convertFromUnicode(pgpBlock, charset);
+    // Encode ciphertext from unicode to utf-8
+    var cipherText = MailStringUtils.stringToByteString(pgpBlock);
 
     // Decrypt message
     var signatureObj = {};
@@ -2401,8 +2382,8 @@ Enigmail.msg = {
       blockSeparationObj,
       encToDetailsObj
     );
-    // Decode plaintext from charset to unicode
-    plainText = EnigmailData.convertToUnicode(plainText, charset).replace(
+    // Decode plaintext from "utf-8" to unicode
+    plainText = EnigmailData.convertToUnicode(plainText, "utf-8").replace(
       /\r\n/g,
       "\n"
     );
@@ -2783,13 +2764,6 @@ Enigmail.msg = {
     if (this.editor) {
       this.editor.selectAll();
     }
-  },
-
-  editorGetCharset() {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.editorGetCharset\n"
-    );
-    return this.editor.documentCharacterSet;
   },
 
   editorGetContentAs(mimeType, flags) {

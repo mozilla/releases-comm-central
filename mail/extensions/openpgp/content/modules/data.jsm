@@ -76,27 +76,6 @@ var EnigmailData = {
     return result;
   },
 
-  convertGpgToUnicode(text) {
-    if (typeof text === "string") {
-      text = text.replace(/\\x3a/gi, "\\e3A");
-      var a = text.search(/\\x[0-9a-fA-F]{2}/);
-      while (a >= 0) {
-        var ch = unescape("%" + text.substr(a + 2, 2));
-        var r = new RegExp("\\" + text.substr(a, 4));
-        text = text.replace(r, ch);
-
-        a = text.search(/\\x[0-9a-fA-F]{2}/);
-      }
-
-      text = EnigmailData.convertToUnicode(text, "utf-8").replace(
-        /\\e3A/g,
-        ":"
-      );
-    }
-
-    return text;
-  },
-
   pack(value, bytes) {
     let str = "";
     let mask = 0xff;
