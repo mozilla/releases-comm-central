@@ -12,6 +12,7 @@ ChromeUtils.defineESModuleGetters(IMServices, {
   conversations: "resource:///modules/imConversations.sys.mjs",
   core: "resource:///modules/imCore.sys.mjs",
   logs: "resource:///modules/logger.sys.mjs",
+  tags: "resource:///modules/imContacts.sys.mjs",
 });
 
 XPCOMUtils.defineLazyServiceGetter(
@@ -25,10 +26,4 @@ XPCOMUtils.defineLazyServiceGetter(
   "contacts",
   "@mozilla.org/chat/contacts-service;1",
   "imIContactsService"
-);
-XPCOMUtils.defineLazyServiceGetter(
-  IMServices,
-  "tags",
-  "@mozilla.org/chat/tags-service;1",
-  "imITagsService"
 );

@@ -132,14 +132,21 @@ Object.defineProperty(lazy, "DBConn", {
   },
 });
 
-export function TagsService() {}
-TagsService.prototype = {
-  get wrappedJSObject() {
-    return this;
-  },
+class TagsService {
+  /**
+   * Get the default tag (ie. "Contacts" for en-US).
+   *
+   * @type {imITag}
+   */
   get defaultTag() {
     return this.createTag(lazy._("defaultGroup"));
-  },
+  }
+  /**
+   * Creates a new tag or gets an existing tag if one already exists.
+   *
+   * @param {string} aName - The name of the new tag.
+   * @returns {imITag}
+   */
   createTag(aName) {
     // If the tag already exists, we don't want to create a duplicate.
     let tag = this.getTagByName(aName);
@@ -160,11 +167,21 @@ TagsService.prototype = {
     tag = new Tag(lazy.DBConn.lastInsertRowID, aName);
     Tags.push(tag);
     return tag;
-  },
-  // Get an existing tag by (numeric) id. Returns null if not found.
-  getTagById: aId => TagsById[aId],
-  // Get an existing tag by name (will do an SQL query). Returns null
-  // if not found.
+  }
+  /**
+   * Get an existing tag by (numeric) id. Returns null if not found.
+   *
+   * @param {number} aId - The numeric tag ID.
+   * @returns {?imITag} The tag or null if the tag doesn't exist.
+   */
+  getTagById = aId => TagsById[aId];
+  /**
+   * Get an existing tag by name (will do an SQL query). Returns null
+   * if not found.
+   *
+   * @param {string} name - The tag name.
+   * @returns {?imITag} The tag or null if the tag doesn't exist.
+   */
   getTagByName(aName) {
     const statement = lazy.DBConn.createStatement(
       "SELECT id FROM tags where name = :name"
@@ -178,8 +195,12 @@ TagsService.prototype = {
     } finally {
       statement.finalize();
     }
-  },
-  // Get an array of all existing tags.
+  }
+  /**
+   * Get an array of all existing tags.
+   *
+   * @returns {imITag[]}
+   */
   getTags() {
     if (Tags.length) {
       Tags.sort((a, b) =>
@@ -190,23 +211,35 @@ TagsService.prototype = {
     }
 
     return Tags;
-  },
+  }
 
-  isTagHidden: aTag => aTag.id in otherContactsTag._hiddenTags,
+  /**
+   * @param {imITag} aTag
+   * @returns {boolean}
+   */
+  isTagHidden = aTag => aTag.id in otherContactsTag._hiddenTags;
+  /**
+   * @param {imITag} aTag
+   */
   hideTag(aTag) {
     otherContactsTag.hideTag(aTag);
-  },
+  }
+  /**
+   * @param {imITag} aTag
+   */
   showTag(aTag) {
     otherContactsTag.showTag(aTag);
-  },
+  }
+  /**
+   * @type {imITag}
+   */
   get otherContactsTag() {
     otherContactsTag._initContacts();
     return otherContactsTag;
-  },
+  }
+}
 
-  QueryInterface: ChromeUtils.generateQI(["imITagsService"]),
-  classDescription: "Tags",
-};
+export const tags = new TagsService();
 
 // TODO move into the tagsService
 var Tags = [];
