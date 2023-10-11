@@ -1490,8 +1490,7 @@ Buddy.prototype = {
   },
 };
 
-export function ContactsService() {}
-ContactsService.prototype = {
+class ContactsService {
   initContacts() {
     let statement = lazy.DBConn.createStatement("SELECT id, name FROM tags");
     try {
@@ -1597,7 +1596,7 @@ ContactsService.prototype = {
       statement.finalize();
     }
     otherContactsTag._initHiddenTags();
-  },
+  }
   unInitContacts() {
     Tags = [];
     TagsById = {};
@@ -1609,16 +1608,33 @@ ContactsService.prototype = {
     }
     BuddiesById = {};
     ContactsById = {};
-  },
+  }
 
-  getContactById: aId => ContactsById[aId],
-  // Get an array of all existing contacts.
+  /**
+   * @param {number} aId
+   * @returns {imIContact}
+   */
+  getContactById = aId => ContactsById[aId];
+  /**
+   * Get an array of all existing contacts.
+   *
+   * @returns {imIContact[]}
+   */
   getContacts() {
     return Object.keys(ContactsById)
       .filter(id => !ContactsById[id]._empty)
       .map(id => ContactsById[id]);
-  },
-  getBuddyById: aId => BuddiesById[aId],
+  }
+  /**
+   * @param {number} aId
+   * @returns {imIBuddy}
+   */
+  getBuddyById = aId => BuddiesById[aId];
+  /**
+   * @param {string} aNormalizedName
+   * @param {prplIProtocol} aPrpl
+   * @returns {?imIBuddy}
+   */
   getBuddyByNameAndProtocol(aNormalizedName, aPrpl) {
     const statement = lazy.DBConn.createStatement(
       "SELECT b.id FROM buddies b " +
@@ -1636,7 +1652,12 @@ ContactsService.prototype = {
     } finally {
       statement.finalize();
     }
-  },
+  }
+  /**
+   * @param {string} aNormalizedName
+   * @param {imIAccount} aAccount
+   * @returns {?prplIAccountBuddy}
+   */
   getAccountBuddyByNameAndAccount(aNormalizedName, aAccount) {
     const buddy = this.getBuddyByNameAndProtocol(
       aNormalizedName,
@@ -1651,8 +1672,15 @@ ContactsService.prototype = {
       }
     }
     return null;
-  },
+  }
 
+  // These 3 functions are called by the protocol plugins when
+  // synchronizing the buddy list with the server stored list,
+  // or after user operations have been performed.
+
+  /**
+   * @param {prplIAccountBuddy} aAccountBuddy
+   */
   accountBuddyAdded(aAccountBuddy) {
     const account = aAccountBuddy.account;
     const normalizedName = aAccountBuddy.normalizedName;
@@ -1720,7 +1748,10 @@ ContactsService.prototype = {
 
     // Fire the notifications.
     buddy.observe(aAccountBuddy, "account-buddy-added");
-  },
+  }
+  /**
+   * @param {prplIAccountBuddy} aAccountBuddy
+   */
   accountBuddyRemoved(aAccountBuddy) {
     const buddy = aAccountBuddy.buddy;
     const statement = lazy.DBConn.createStatement(
@@ -1739,8 +1770,12 @@ ContactsService.prototype = {
     }
 
     buddy.observe(aAccountBuddy, "account-buddy-removed");
-  },
-
+  }
+  /**
+   * @param {prplIAccountBuddy} aAccountBuddy
+   * @param {imITag} aOldTag
+   * @param {imITag} aNewTag
+   */
   accountBuddyMoved(aAccountBuddy, aOldTag, aNewTag) {
     const buddy = aAccountBuddy.buddy;
     const statement = lazy.DBConn.createStatement(
@@ -1768,8 +1803,23 @@ ContactsService.prototype = {
 
     buddy.observe(aAccountBuddy, "account-buddy-moved");
     contact._moved(aOldTag, aNewTag);
-  },
+  }
 
+  // These methods are called by the imIAccountsService implementation
+  // to keep the accounts table in sync with accounts stored in the
+  // preferences.
+
+  /**
+   * Called when an account is created or loaded to store the new
+   * account or ensure it doesn't conflict with an existing account
+   * (to detect database corruption).
+   * Will throw if a stored account has the id aId but a different
+   * username or prplId.
+   *
+   * @param {number} aId
+   * @param {string} aUserName
+   * @param {string} aPrplId
+   */
   storeAccount(aId, aUserName, aPrplId) {
     let statement = lazy.DBConn.createStatement(
       "SELECT name, prpl FROM accounts WHERE id = :id"
@@ -1803,7 +1853,13 @@ ContactsService.prototype = {
     } finally {
       statement.finalize();
     }
-  },
+  }
+  /**
+   * Check if an account id already exists in the database.
+   *
+   * @param {number} aId
+   * @returns {boolean}
+   */
   accountIdExists(aId) {
     const statement = lazy.DBConn.createStatement(
       "SELECT id FROM accounts WHERE id = :id"
@@ -1814,7 +1870,12 @@ ContactsService.prototype = {
     } finally {
       statement.finalize();
     }
-  },
+  }
+  /**
+   * Called when deleting an account to remove it from blist.sqlite.
+   *
+   * @param {number} aId
+   */
   forgetAccount(aId) {
     let statement = lazy.DBConn.createStatement(
       "DELETE FROM accounts WHERE id = :accountId"
@@ -1837,8 +1898,7 @@ ContactsService.prototype = {
     } finally {
       statement.finalize();
     }
-  },
+  }
+}
 
-  QueryInterface: ChromeUtils.generateQI(["imIContactsService"]),
-  classDescription: "Contacts",
-};
+export const contacts = new ContactsService();

@@ -7,50 +7,10 @@
 #include "nsISupports.idl"
 #include "nsIObserver.idl"
 
-interface imIContact;
 interface imIBuddy;
 interface prplIAccountBuddy;
 interface imIAccount;
 interface prplIProtocol;
-
-[scriptable, uuid(45ce33d9-d335-4cce-b904-44821987e048)]
-interface imIContactsService: nsISupports {
-  void initContacts();
-  void unInitContacts();
-
-  imIContact getContactById(in long aId);
-  // Get an array of all existing contacts.
-  Array<imIContact> getContacts();
-  imIBuddy getBuddyById(in long aId);
-  imIBuddy getBuddyByNameAndProtocol(in AUTF8String aNormalizedName,
-                                     in prplIProtocol aPrpl);
-  prplIAccountBuddy getAccountBuddyByNameAndAccount(in AUTF8String aNormalizedName,
-                                                    in imIAccount aAccount);
-
-  // These 3 functions are called by the protocol plugins when
-  // synchronizing the buddy list with the server stored list,
-  // or after user operations have been performed.
-  void accountBuddyAdded(in prplIAccountBuddy aAccountBuddy);
-  void accountBuddyRemoved(in prplIAccountBuddy aAccountBuddy);
-  void accountBuddyMoved(in prplIAccountBuddy aAccountBuddy,
-                         in imITag aOldTag, in imITag aNewTag);
-
-  // These methods are called by the imIAccountsService implementation
-  // to keep the accounts table in sync with accounts stored in the
-  // preferences.
-
-  // Called when an account is created or loaded to store the new
-  // account or ensure it doesn't conflict with an existing account
-  // (to detect database corruption).
-  // Will throw if a stored account has the id aId but a different
-  // username or prplId.
-  void storeAccount(in unsigned long aId, in AUTF8String aUserName,
-                    in AUTF8String aPrplId);
-  // Check if an account id already exists in the database.
-  boolean accountIdExists(in unsigned long aId);
-  // Called when deleting an account to remove it from blist.sqlite.
-  void forgetAccount(in unsigned long aId);
-};
 
 /**
  * An imIContact represents a person, e.g. our friend Alice. This person might

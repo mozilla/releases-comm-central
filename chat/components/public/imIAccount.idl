@@ -101,7 +101,7 @@ interface prplIAccount: nsISupports {
 
   // This should only be called by the imIAccountsService
   // implementation, never directly.  It will call
-  // imIContactsService.accountBuddyRemoved on each buddy of the
+  // ContactsService.accountBuddyRemoved on each buddy of the
   // account and close all prplIConversation instances of the account.
   void remove();
 
