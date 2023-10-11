@@ -3191,19 +3191,22 @@ nsMsgDBFolder::GetCanRename(bool* aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::GetCanCompact(bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
+nsMsgDBFolder::GetCanCompact(bool* canCompact) {
+  NS_ENSURE_ARG_POINTER(canCompact);
   bool isServer = false;
   nsresult rv = GetIsServer(&isServer);
   NS_ENSURE_SUCCESS(rv, rv);
-  // servers cannot be compacted --> 4.x
+  // servers (root folder) cannot be compacted
   // virtual search folders cannot be compacted
-  *aResult = !isServer && !(mFlags & nsMsgFolderFlags::Virtual);
-  // Check if the store supports compaction
-  if (*aResult) {
+  *canCompact = !isServer && !(mFlags & nsMsgFolderFlags::Virtual);
+  // If *canCompact now true and folder is imap, keep *canCompact true and
+  // return; otherwise, when not imap, type of store controls it. E.g., mbox
+  // sets *canCompact true, maildir sets it false.
+  if (*canCompact && !(mFlags & nsMsgFolderFlags::ImapBox)) {
+    // Check if the storage type supports compaction
     nsCOMPtr<nsIMsgPluggableStore> msgStore;
     GetMsgStore(getter_AddRefs(msgStore));
-    if (msgStore) msgStore->GetSupportsCompaction(aResult);
+    if (msgStore) msgStore->GetSupportsCompaction(canCompact);
   }
   return NS_OK;
 }

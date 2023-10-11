@@ -219,8 +219,12 @@ add_task(async function testOfflineBodyCopy() {
 });
 
 add_task(async function test_checkAlert() {
-  if (!IMAPPump.inbox.canCompact) {
-    // If there was no compaction, then no alert will have occurred.
+  // Check if testing maildir which doesn't produce an the alert like mbox.
+  // If so, don't wait for an alert.
+  let storageCID = Services.prefs.getCharPref(
+    "mail.serverDefaultStoreContractID"
+  );
+  if (storageCID == "@mozilla.org/msgstore/maildirstore;1") {
     return;
   }
 
