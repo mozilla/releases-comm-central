@@ -364,7 +364,7 @@ class CoreService {
     // is available.
     if (
       IMServices.accounts.autoLoginStatus ==
-      Ci.imIAccountsService.AUTOLOGIN_ENABLED
+      IMServices.accounts.AUTOLOGIN.ENABLED
     ) {
       Services.logins.initializationPromise.then(() => {
         IMServices.accounts.processAutoLogin();

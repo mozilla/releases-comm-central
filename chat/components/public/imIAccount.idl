@@ -99,7 +99,7 @@ interface prplIAccount: nsISupports {
   void observe(in nsISupports aObj, in string aEvent,
                [optional] in wstring aData);
 
-  // This should only be called by the imIAccountsService
+  // This should only be called by the AccountsService
   // implementation, never directly.  It will call
   // ContactsService.accountBuddyRemoved on each buddy of the
   // account and close all prplIConversation instances of the account.

@@ -1805,7 +1805,7 @@ class ContactsService {
     contact._moved(aOldTag, aNewTag);
   }
 
-  // These methods are called by the imIAccountsService implementation
+  // These methods are called by the AccountService
   // to keep the accounts table in sync with accounts stored in the
   // preferences.
 

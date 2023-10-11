@@ -532,8 +532,7 @@ var gAccountManager = {
   },
 
   setAutoLoginNotification() {
-    var as = IMServices.accounts;
-    var autoLoginStatus = as.autoLoginStatus;
+    var autoLoginStatus = IMServices.accounts.autoLoginStatus;
     let isOffline = false;
     let crashCount = 0;
     for (let acc of this.getAccounts()) {
@@ -545,7 +544,10 @@ var gAccountManager = {
       }
     }
 
-    if (autoLoginStatus == as.AUTOLOGIN_ENABLED && crashCount == 0) {
+    if (
+      autoLoginStatus == IMServices.accounts.AUTOLOGIN.ENABLED &&
+      crashCount == 0
+    ) {
       let status = IMServices.core.globalUserStatus.statusType;
       this.setOffline(isOffline || status == Ci.imIStatusInfo.STATUS_OFFLINE);
       return;
@@ -564,33 +566,33 @@ var gAccountManager = {
     var barLabel;
 
     switch (autoLoginStatus) {
-      case as.AUTOLOGIN_USER_DISABLED:
+      case IMServices.accounts.AUTOLOGIN.USER_DISABLED:
         barLabel = bundle.getString(
           "accountsManager.notification.userDisabled.label"
         );
         break;
 
-      case as.AUTOLOGIN_SAFE_MODE:
+      case IMServices.accounts.AUTOLOGIN.SAFE_MODE:
         barLabel = bundle.getString(
           "accountsManager.notification.safeMode.label"
         );
         break;
 
-      case as.AUTOLOGIN_START_OFFLINE:
+      case IMServices.accounts.AUTOLOGIN.START_OFFLINE:
         barLabel = bundle.getString(
           "accountsManager.notification.startOffline.label"
         );
         isOffline = true;
         break;
 
-      case as.AUTOLOGIN_CRASH:
+      case IMServices.accounts.AUTOLOGIN.CRASH:
         barLabel = bundle.getString("accountsManager.notification.crash.label");
         prio = box.PRIORITY_WARNING_MEDIUM;
         break;
 
       /* One or more accounts made the application crash during their connection.
          If none, this function has already returned */
-      case as.AUTOLOGIN_ENABLED:
+      case IMServices.accounts.AUTOLOGIN.ENABLED:
         barLabel = bundle.getString(
           "accountsManager.notification.singleCrash.label"
         );

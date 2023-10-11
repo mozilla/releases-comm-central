@@ -976,8 +976,35 @@ imAccount.prototype = {
 
 var gAccountsService = null;
 
-export function AccountsService() {}
-AccountsService.prototype = {
+/**
+ * account related notifications sent to nsIObserverService:
+ * - account-added: a new account has been created
+ * - account-removed: the account has been deleted
+ * - account-connecting: the account is being connected
+ * - account-connected: the account is now connected
+ * - account-connect-error: the account is disconnect with an error.
+ *   (before account-disconnecting)
+ * - account-disconnecting: the account is being disconnected
+ * - account-disconnected: the account is now disconnected
+ * - account-updated: when some settings have changed
+ * - account-list-updated: when the list of account is reordered.
+ * These events can be watched using an nsIObserver.
+ * The associated imIAccount will be given as a parameter
+ * (except for account-list-updated).
+ *
+ * @implements {nsIObserver}
+ */
+class AccountsService {
+  QueryInterface = ChromeUtils.generateQI(["nsIObserver"]);
+
+  AUTOLOGIN = Object.freeze({
+    ENABLED: 0,
+    USER_DISABLED: 1,
+    SAFE_MODE: 2,
+    CRASH: 3,
+    START_OFFLINE: 4,
+  });
+
   initAccounts() {
     this._initAutoLoginStatus();
     this._accounts = [];
@@ -992,9 +1019,9 @@ AccountsService.prototype = {
 
     this._prefObserver = this.observe.bind(this);
     Services.prefs.addObserver(kPrefAccountOrder, this._prefObserver);
-  },
+  }
 
-  _prefObserver: null,
+  _prefObserver = null;
   observe(aSubject, aTopic, aData) {
     if (aTopic != "nsPref:changed" || aData != kPrefAccountOrder) {
       return;
@@ -1011,9 +1038,9 @@ AccountsService.prototype = {
     // Only update _accounts if it's a reorder operation
     if (imAccounts.length == this._accounts.length) {
       this._accounts = imAccounts;
-      Services.obs.notifyObservers(this, "account-list-updated");
+      Services.obs.notifyObservers(null, "account-list-updated");
     }
-  },
+  }
 
   unInitAccounts() {
     for (const account of this._accounts) {
@@ -1024,24 +1051,34 @@ AccountsService.prototype = {
     delete this._accountsById;
     Services.prefs.removeObserver(kPrefAccountOrder, this._prefObserver);
     delete this._prefObserver;
-  },
+  }
 
-  autoLoginStatus: Ci.imIAccountsService.AUTOLOGIN_ENABLED,
+  /**
+   * This attribute is set to AUTOLOGIN.ENABLED by default. It can be set to
+   * any other value before the initialization of this service to prevent
+   * accounts with autoLogin enabled from being connected when libpurple is
+   * initialized.
+   * Any value other than the ones listed in AccountsService.AUTOLOGIN will
+   * disable autoLogin and display a generic message in the Account Manager.
+   *
+   * @type {number}
+   */
+  autoLoginStatus = this.AUTOLOGIN.ENABLED;
   _initAutoLoginStatus() {
     /* If auto-login is already disabled, do nothing */
-    if (this.autoLoginStatus != Ci.imIAccountsService.AUTOLOGIN_ENABLED) {
+    if (this.autoLoginStatus != this.AUTOLOGIN.ENABLED) {
       return;
     }
 
     if (!Services.prefs.getIntPref("messenger.startup.action")) {
       // the value 0 means that we start without connecting the accounts
-      this.autoLoginStatus = Ci.imIAccountsService.AUTOLOGIN_USER_DISABLED;
+      this.autoLoginStatus = this.AUTOLOGIN.USER_DISABLED;
       return;
     }
 
     /* Disable auto-login if we are running in safe mode */
     if (Services.appinfo.inSafeMode) {
-      this.autoLoginStatus = Ci.imIAccountsService.AUTOLOGIN_SAFE_MODE;
+      this.autoLoginStatus = this.AUTOLOGIN.SAFE_MODE;
       return;
     }
 
@@ -1058,7 +1095,7 @@ AccountsService.prototype = {
 
     // Last autologin hasn't finished properly.
     // For now, assume it's because of a crash.
-    this.autoLoginStatus = Ci.imIAccountsService.AUTOLOGIN_CRASH;
+    this.autoLoginStatus = this.AUTOLOGIN.CRASH;
     Services.prefs.deleteBranch(kPrefAutologinPending);
 
     // If the crash reporter isn't built, we can't know anything more.
@@ -1111,7 +1148,7 @@ AccountsService.prototype = {
           // This should fail with NS_ERROR_INVALID_ARG if breakpad is enabled,
           // and NS_ERROR_NOT_INITIALIZED if it is not.
           if (e.result != Cr.NS_ERROR_NOT_INITIALIZED) {
-            this.autoLoginStatus = Ci.imIAccountsService.AUTOLOGIN_ENABLED;
+            this.autoLoginStatus = this.AUTOLOGIN.ENABLED;
           }
         }
       }
@@ -1119,8 +1156,14 @@ AccountsService.prototype = {
       // if we failed to get the last crash time, then keep the
       // AUTOLOGIN_CRASH value in mAutoLoginStatus and return.
     }
-  },
+  }
 
+  /**
+   * The method should be used to connect all accounts with autoLogin enabled.
+   * Some use cases:
+   *   - if the autologin was disabled at startup
+   *   - after a loss of internet connectivity that disconnected all accounts.
+   */
   processAutoLogin() {
     if (!this._accounts) {
       // if we're already shutting down
@@ -1134,14 +1177,14 @@ AccountsService.prototype = {
     // Make sure autologin is now enabled, so that we don't display a
     // message stating that it is disabled and asking the user if it
     // should be processed now.
-    this.autoLoginStatus = Ci.imIAccountsService.AUTOLOGIN_ENABLED;
+    this.autoLoginStatus = this.AUTOLOGIN.ENABLED;
 
     // Notify observers so that any message stating that autologin is
     // disabled can be removed
-    Services.obs.notifyObservers(this, "autologin-processed");
-  },
+    Services.obs.notifyObservers(null, "autologin-processed");
+  }
 
-  _checkingIfPasswordStillMissing: false,
+  _checkingIfPasswordStillMissing = false;
   _checkIfPasswordStillMissing() {
     // Avoid recursion.
     if (this._checkingIfPasswordStillMissing) {
@@ -1153,8 +1196,12 @@ AccountsService.prototype = {
       account._checkIfPasswordStillMissing();
     }
     delete this._checkingIfPasswordStillMissing;
-  },
+  }
 
+  /**
+   * @param {string} aAccountId
+   * @returns {imIAccount}
+   */
   getAccountById(aAccountId) {
     if (!aAccountId.startsWith(kAccountKeyPrefix)) {
       throw Components.Exception(
@@ -1165,19 +1212,33 @@ AccountsService.prototype = {
 
     const id = parseInt(aAccountId.substr(kAccountKeyPrefix.length));
     return this.getAccountByNumericId(id);
-  },
+  }
 
   _keepAccount(aAccount) {
     this._accounts.push(aAccount);
     this._accountsById[aAccount.numericId] = aAccount;
-  },
+  }
+  /**
+   * @param {number} aAccountId
+   * @returns {imIAccount}
+   */
   getAccountByNumericId(aAccountId) {
     return this._accountsById[aAccountId];
-  },
+  }
+  /**
+   * @returns {imIAccount[]}
+   */
   getAccounts() {
     return this._accounts;
-  },
+  }
 
+  /**
+   * Will fire the event account-added.
+   *
+   * @param {string} aName
+   * @param {string} aPrpl
+   * @returns {imIAccount}
+   */
   createAccount(aName, aPrpl) {
     // Ensure an account with the same name and protocol doesn't already exist.
     const prpl = IMServices.core.getProtocolById(aPrpl);
@@ -1215,8 +1276,13 @@ AccountsService.prototype = {
 
     Services.obs.notifyObservers(account, "account-added");
     return account;
-  },
+  }
 
+  /**
+   * Will fire the event account-removed.
+   *
+   * @param {string} aAccountId
+   */
   deleteAccount(aAccountId) {
     const account = this.getAccountById(aAccountId);
     if (!account) {
@@ -1233,8 +1299,7 @@ AccountsService.prototype = {
     this._accounts.splice(index, 1);
     delete this._accountsById[id];
     Services.obs.notifyObservers(account, "account-removed");
-  },
+  }
+}
 
-  QueryInterface: ChromeUtils.generateQI(["imIAccountsService"]),
-  classDescription: "Accounts",
-};
+export const accounts = new AccountsService();

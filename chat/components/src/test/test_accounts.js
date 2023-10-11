@@ -31,7 +31,10 @@ function run_test() {
     IMServices.core.init();
 
     const account = IMServices.accounts.getAccountByNumericId(1);
-    Assert.ok(account instanceof Ci.imIAccount);
+    Assert.ok(
+      account.QueryInterface(Ci.imIAccount),
+      "Can query interface the account to imIAccount"
+    );
     Assert.equal(account.name, kAccountName);
     Assert.equal(account.normalizedName, kAccountName);
     Assert.equal(account.protocol.id, kPrplId);
