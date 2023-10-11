@@ -265,7 +265,68 @@ add_task(
           tags1
         );
 
-        await browser.messages.createTag("custom", "Custom Tag", "#123456");
+        // Test some allowed special chars and that the key is created as lower
+        // case.
+        let goodKeys = [
+          "TestKey",
+          "Test_Key",
+          "Test\\Key",
+          "Test}Key",
+          "Test&Key",
+          "Test!Key",
+          "Test§Key",
+          "Test$Key",
+          "Test=Key",
+          "Test?Key",
+        ];
+        for (let key of goodKeys) {
+          await browser.messages.createTag(key, "Test Tag", "#123456");
+          let goodTags = await browser.messages.listTags();
+          window.assertDeepEqual(
+            [
+              {
+                key: "$label1",
+                tag: "Important",
+                color: "#FF0000",
+                ordinal: "",
+              },
+              {
+                key: "$label2",
+                tag: "Work",
+                color: "#FF9900",
+                ordinal: "",
+              },
+              {
+                key: "$label3",
+                tag: "Personal",
+                color: "#009900",
+                ordinal: "",
+              },
+              {
+                key: "$label4",
+                tag: "To Do",
+                color: "#3333FF",
+                ordinal: "",
+              },
+              {
+                key: "$label5",
+                tag: "Later",
+                color: "#993399",
+                ordinal: "",
+              },
+              {
+                key: key.toLowerCase(),
+                tag: "Test Tag",
+                color: "#123456",
+                ordinal: "",
+              },
+            ],
+            goodTags
+          );
+          await browser.messages.deleteTag(key.toLowerCase());
+        }
+
+        await browser.messages.createTag("custom_tag", "Custom Tag", "#123456");
         let tags2 = await browser.messages.listTags();
         window.assertDeepEqual(
           [
@@ -300,7 +361,7 @@ add_task(
               ordinal: "",
             },
             {
-              key: "custom",
+              key: "custom_tag",
               tag: "Custom Tag",
               color: "#123456",
               ordinal: "",
@@ -347,7 +408,7 @@ add_task(
               ordinal: "",
             },
             {
-              key: "custom",
+              key: "custom_tag",
               tag: "Custom Tag",
               color: "#123456",
               ordinal: "",
@@ -357,12 +418,24 @@ add_task(
         );
 
         // Test rejects for createTag().
-        await browser.test.assertThrows(
-          () =>
-            browser.messages.createTag("Bad Key", "Important Stuff", "#223344"),
-          /Type error for parameter key/,
-          "Should reject creating an invalid key"
-        );
+        let badKeys = [
+          "Bad Key",
+          "Bad%Key",
+          "Bad/Key",
+          "Bad*Key",
+          'Bad"Key',
+          "Bad{Key}",
+          "Bad(Key)",
+          "Bad<Key>",
+        ];
+        for (let badKey of badKeys) {
+          await browser.test.assertThrows(
+            () =>
+              browser.messages.createTag(badKey, "Important Stuff", "#223344"),
+            /Type error for parameter key/,
+            `Should reject creating an invalid key: ${badKey}`
+          );
+        }
 
         await browser.test.assertThrows(
           () =>
@@ -389,6 +462,16 @@ add_task(
         await browser.test.assertRejects(
           browser.messages.createTag("$label5", "Important Stuff", "#223344"),
           `Specified key already exists: $label5`,
+          "Should reject creating a key which exists already"
+        );
+
+        await browser.test.assertRejects(
+          browser.messages.createTag(
+            "Custom_Tag",
+            "Important Stuff",
+            "#223344"
+          ),
+          `Specified key already exists: custom_tag`,
           "Should reject creating a key which exists already"
         );
 
@@ -439,18 +522,18 @@ add_task(
 
         // Test tagging messages, deleting tag and re-creating tag.
         await browser.messages.update(folder4Messages[0].id, {
-          tags: ["custom"],
+          tags: ["custom_tag"],
         });
         let message1 = await browser.messages.get(folder4Messages[0].id);
-        window.assertDeepEqual(["custom"], message1.tags);
+        window.assertDeepEqual(["custom_tag"], message1.tags);
 
-        await browser.messages.deleteTag("custom");
+        await browser.messages.deleteTag("custom_tag");
         let message2 = await browser.messages.get(folder4Messages[0].id);
         window.assertDeepEqual([], message2.tags);
 
-        await browser.messages.createTag("custom", "Custom Tag", "#123456");
+        await browser.messages.createTag("custom_tag", "Custom Tag", "#123456");
         let message3 = await browser.messages.get(folder4Messages[0].id);
-        window.assertDeepEqual(["custom"], message3.tags);
+        window.assertDeepEqual(["custom_tag"], message3.tags);
 
         // Test deleting built-in tag.
         await browser.messages.deleteTag("$label5");
@@ -482,7 +565,7 @@ add_task(
               ordinal: "",
             },
             {
-              key: "custom",
+              key: "custom_tag",
               tag: "Custom Tag",
               color: "#123456",
               ordinal: "",
@@ -493,7 +576,7 @@ add_task(
 
         // Clean up.
         await browser.messages.update(folder4Messages[0].id, { tags: [] });
-        await browser.messages.deleteTag("custom");
+        await browser.messages.deleteTag("custom_tag");
         await browser.messages.createTag("$label5", "Later", "#993399");
         browser.test.notifyPass("finished");
       },
@@ -523,7 +606,11 @@ add_task(
       "background.js": async () => {
         await browser.test.assertThrows(
           () =>
-            browser.messages.createTag("custom", "Important Stuff", "#223344"),
+            browser.messages.createTag(
+              "custom_tag",
+              "Important Stuff",
+              "#223344"
+            ),
           /browser.messages.createTag is not a function/,
           "Should reject creating tags without messagesTags permission"
         );

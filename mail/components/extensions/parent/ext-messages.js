@@ -1529,6 +1529,7 @@ this.messages = class extends ExtensionAPIPersistent {
         },
         async createTag(key, tag, color) {
           let tags = MailServices.tags.getAllTags();
+          key = key.toLowerCase();
           if (tags.find(t => t.key == key)) {
             throw new ExtensionError(`Specified key already exists: ${key}`);
           }
@@ -1539,6 +1540,7 @@ this.messages = class extends ExtensionAPIPersistent {
         },
         async updateTag(key, updateProperties) {
           let tags = MailServices.tags.getAllTags();
+          key = key.toLowerCase();
           let tag = tags.find(t => t.key == key);
           if (!tag) {
             throw new ExtensionError(`Specified key does not exist: ${key}`);
@@ -1558,6 +1560,7 @@ this.messages = class extends ExtensionAPIPersistent {
         },
         async deleteTag(key) {
           let tags = MailServices.tags.getAllTags();
+          key = key.toLowerCase();
           if (!tags.find(t => t.key == key)) {
             throw new ExtensionError(`Specified key does not exist: ${key}`);
           }

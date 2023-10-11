@@ -865,8 +865,8 @@
           {
             "type": "string",
             "name": "key",
-            "description": "Unique tag identifier (must use only alphanumeric characters).",
-            "pattern": "^[$a-zA-Z0-9]+$"
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "pattern": "^[^ ()/{%*<>\"]+$"
           },
           {
             "type": "string",
@@ -891,8 +891,8 @@
           {
             "type": "string",
             "name": "key",
-            "description": "Unique tag identifier.",
-            "pattern": "^[$a-zA-Z0-9]+$"
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "pattern": "^[^ ()/{%*<>\"]+$"
           },
           {
             "type": "object",
@@ -923,7 +923,8 @@
           {
             "type": "string",
             "name": "key",
-            "pattern": "^[$a-zA-Z0-9]+$"
+            "description": "Unique tag identifier (will be converted to lower case). Must not include <value>()<>{/%*\"</value> or spaces.",
+            "pattern": "^[^ ()/{%*<>\"]+$"
           }
         ]
       }
