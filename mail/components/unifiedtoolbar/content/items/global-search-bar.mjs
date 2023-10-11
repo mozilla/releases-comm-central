@@ -108,7 +108,18 @@ class GlobalSearchBar extends SearchBar {
       capture: true,
     });
     this.addEventListener("focus", this.#handleFocus);
+    this.addEventListener("blur", this);
     this.addEventListener("drop", this.#handleDrop, { capture: true });
+  }
+
+  handleEvent(event) {
+    switch (event.type) {
+      case "blur":
+        if (this.popup.mPopupOpen) {
+          this.popup.closePopup();
+        }
+        break;
+    }
   }
 
   #handleSearch = event => {
