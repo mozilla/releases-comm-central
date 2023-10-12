@@ -1,0 +1,15 @@
+From: test@example.com
+To: test@example.com
+MIME-Version: 1.0
+Subject:plain text message not using format=flowed
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+line 1
+line 2
+line 3
+line 4
+line 5
+line 6
+line 7
+line 8

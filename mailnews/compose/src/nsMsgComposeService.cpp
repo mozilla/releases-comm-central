@@ -389,8 +389,24 @@ nsMsgComposeService::OpenComposeWindow(
            type == nsIMsgCompType::ReplyToSenderAndGroup ||
            type == nsIMsgCompType::ReplyToList)) {
         nsAutoCString selHTML;
-        if (NS_SUCCEEDED(GetOrigWindowSelection(type, selection, selHTML)))
-          pMsgComposeParams->SetHtmlToQuote(selHTML);
+        if (NS_SUCCEEDED(GetOrigWindowSelection(type, selection, selHTML))) {
+          nsCOMPtr<nsINode> node = selection->GetFocusNode();
+          NS_ENSURE_TRUE(node, NS_ERROR_FAILURE);
+          IgnoredErrorResult er;
+
+          if ((node->LocalName().IsEmpty() ||
+               node->LocalName().EqualsLiteral("pre")) &&
+              node->OwnerDoc()->QuerySelector(
+                  "body > div:first-of-type.moz-text-plain"_ns, er)) {
+            // Treat the quote as <pre> for selections in moz-text-plain bodies.
+            // If focusNode.localName isn't empty, we had e.g. body selected
+            // and should not add <pre>.
+            pMsgComposeParams->SetHtmlToQuote("<pre>"_ns + selHTML +
+                                              "</pre>"_ns);
+          } else {
+            pMsgComposeParams->SetHtmlToQuote(selHTML);
+          }
+        }
       }
 
       if (!originalMsgURI.IsEmpty()) {
