@@ -111,6 +111,17 @@ async function openImipMessage(file) {
   const aboutMessage = win.document.getElementById("messageBrowser").contentWindow;
   const imipBar = aboutMessage.document.getElementById("imip-bar");
   await TestUtils.waitForCondition(() => !imipBar.collapsed, "imip-bar shown");
+
+  if (Services.prefs.getBoolPref("calendar.itip.newInvitationDisplay")) {
+    // CalInvitationDisplay.show() does some async activities before the panel is added.
+    await TestUtils.waitForCondition(
+      () =>
+        win.document
+          .getElementById("messageBrowser")
+          .contentDocument.querySelector("calendar-invitation-panel"),
+      "calendar-invitation-panel shown"
+    );
+  }
   return win;
 }
 
