@@ -11,7 +11,6 @@
 var { cal } = ChromeUtils.importESModule("resource:///modules/calendar/calUtils.sys.mjs");
 
 /**
- * publishCalendarData
  * Show publish dialog, ask for URL and publish all selected items.
  */
 function publishCalendarData() {
@@ -28,7 +27,6 @@ function publishCalendarData() {
 }
 
 /**
- * publishCalendarDataDialogResponse
  * Callback method for publishCalendarData() that is called when the user
  * presses the OK button in the publish dialog.
  */
@@ -41,11 +39,10 @@ function publishCalendarDataDialogResponse(CalendarPublishObject, aProgressDialo
 }
 
 /**
- * publishEntireCalendar
  * Show publish dialog, ask for URL and publish all items from the calendar.
  *
- * @param aCalendar   (optional) The calendar that will be published. If omitted
- *                               the user will be prompted to select a calendar.
+ * @param {?calICalendar} aCalendar - The calendar that will be published.
+ *   If not specified, the user will be prompted to select a calendar.
  */
 function publishEntireCalendar(aCalendar) {
   if (!aCalendar) {
@@ -81,7 +78,7 @@ function publishEntireCalendar(aCalendar) {
 
   // restore the remote ics path preference from the calendar passed in
   let remotePath = aCalendar.getProperty("remote-ics-path");
-  if (remotePath && remotePath.length && remotePath.length > 0) {
+  if (remotePath) {
     publishObject.remotePath = remotePath;
   }
 
@@ -95,7 +92,6 @@ function publishEntireCalendar(aCalendar) {
 }
 
 /**
- * publishEntireCalendarDialogResponse
  * Callback method for publishEntireCalendar() that is called when the user
  * presses the OK button in the publish dialog.
  */
@@ -181,15 +177,20 @@ function publishItemArray(aItemArray, aPath, aProgressDialog) {
   }
 }
 
+/** @implements {nsIInterfaceRequestor} */
 var notificationCallbacks = {
-  // nsIInterfaceRequestor interface
   getInterface(iid, instance) {
+    if (iid.equals(Ci.nsIAuthPrompt2)) {
+      if (!this.calAuthPrompt) {
+        return new cal.auth.Prompt();
+      }
+    }
     if (iid.equals(Ci.nsIAuthPrompt)) {
       // use the window watcher service to get a nsIAuthPrompt impl
       return Services.ww.getNewAuthPrompter(null);
     }
 
-    throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
+    throw Components.Exception(`${iid} not implemented`, Cr.NS_ERROR_NO_INTERFACE);
   },
 };
 
@@ -200,17 +201,14 @@ var notificationCallbacks = {
  * @implements {nsIStreamListener}
  */
 class PublishingListener {
+  QueryInterface = ChromeUtils.generateQI(["nsIStreamListener"]);
+
   constructor(progressDialog) {
     this.progressDialog = progressDialog;
   }
 
-  QueryInterface = ChromeUtils.generateQI(["nsIStreamListener"]);
-
   onStartRequest(request) {}
-
   onStopRequest(request, status) {
-    this.progressDialog.wrappedJSObject.onStopUpload();
-
     let channel;
     let requestSucceeded;
     try {
@@ -221,15 +219,19 @@ class PublishingListener {
     }
 
     if (channel && !requestSucceeded) {
+      this.progressDialog.wrappedJSObject.onStopUpload(0);
       let body = cal.l10n.getCalString("httpPutError", [
         channel.responseStatus,
         channel.responseStatusText,
       ]);
       Services.prompt.alert(null, cal.l10n.getCalString("genericErrorTitle"), body);
     } else if (!channel && !Components.isSuccessCode(request.status)) {
+      this.progressDialog.wrappedJSObject.onStopUpload(0);
       // XXX this should be made human-readable.
       let body = cal.l10n.getCalString("otherPutError", [request.status.toString(16)]);
       Services.prompt.alert(null, cal.l10n.getCalString("genericErrorTitle"), body);
+    } else {
+      this.progressDialog.wrappedJSObject.onStopUpload(100);
     }
   }
 

@@ -52,11 +52,12 @@ function checkURLField() {
 
 var progressDialog = {
   onStartUpload() {
-    document.getElementById("publish-progressmeter").removeAttribute("value");
+    document.getElementById("publish-progressmeter").setAttribute("value", "0");
+    document.querySelector("dialog").getButton("cancel").hidden = true;
   },
 
-  onStopUpload() {
-    document.getElementById("publish-progressmeter").setAttribute("value", "0");
+  onStopUpload(percentage) {
+    document.getElementById("publish-progressmeter").setAttribute("value", percentage);
   },
 };
 progressDialog.wrappedJSObject = progressDialog;

@@ -8,9 +8,10 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/publishDialog.css"?>
 
-<!DOCTYPE html [ <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd"> %dtd1;
-<!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" >
-%dtd2; ]>
+<!DOCTYPE html [
+<!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd"> %dtd1;
+<!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd"> %dtd2;
+]>
 <html
   id="calendar-publishwindow"
   xmlns="http://www.w3.org/1999/xhtml"
@@ -32,7 +33,7 @@
       buttonlabelaccept="&calendar.publish.publish.button;"
       buttonlabelaccept2="&calendar.publish.close.button;"
     >
-      <hbox>
+      <html:div>
         <html:label for="publish-remotePath-textbox">&calendar.publish.url.label;</html:label>
         <html:input
           id="publish-remotePath-textbox"
@@ -42,7 +43,7 @@
           placeholder="https://www.example.com/webdav/calendar.ics"
           oninput="checkURLField()"
         />
-      </hbox>
+      </html:div>
       <html:progress id="publish-progressmeter" value="0" max="100"></html:progress>
     </dialog>
   </html:body>
