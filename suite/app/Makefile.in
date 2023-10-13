@@ -40,7 +40,7 @@ include $(topsrcdir)/config/rules.mk
 # channel-prefs.js is handled separate from other prefs due to bug 756325.
 libs:: $(srcdir)/profile/channel-prefs.js
 	$(NSINSTALL) -D $(DIST)/bin/defaults/pref
-	$(call py_action,preprocessor,-Fsubstitution $(PREF_PPFLAGS) $(ACDEFINES) $^ -o $(DIST)/bin/defaults/pref/channel-prefs.js)
+	$(call py_action,preprocessor channel-prefs.js,-Fsubstitution $(PREF_PPFLAGS) $(ACDEFINES) $^ -o $(DIST)/bin/defaults/pref/channel-prefs.js)
 
 libs:: $(LICENSE_TXT_FILE)
 ifeq ($(OS_ARCH),WINNT)
