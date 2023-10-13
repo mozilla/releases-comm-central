@@ -417,13 +417,14 @@ class MimeMessage {
       if (attachment.htmlAnnotation) {
         part = new MimePart();
         part.bodyText = attachment.htmlAnnotation;
-        part.setHeader("content-type", "text/html");
+        part.setHeader("content-type", "text/html; charset=utf-8");
 
-        let suffix = attachment.name.endsWith(".html") ? "" : ".html";
-        part.setHeader(
-          "content-disposition",
-          `attachment; filename=${attachment.name}${suffix}`
+        let suffix = /\.html$/i.test(attachment.name) ? "" : ".html";
+        let encodedFilename = MsgUtils.rfc2231ParamFolding(
+          "filename",
+          `${attachment.name}${suffix}`
         );
+        part.setHeader("content-disposition", `attachment; ${encodedFilename}`);
       } else {
         part = new MimePart(null, this._compFields.forceMsgEncoding, false);
         part.setBodyAttachment(attachment);
