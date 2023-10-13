@@ -912,7 +912,7 @@ var dbViewWrapperListener = {
   },
 
   get shouldUseMailViews() {
-    return top.ViewPickerBinding.isVisible;
+    return false;
   },
   get shouldDeferMessageDisplayUntilAfterServerConnect() {
     return false;
