@@ -44,10 +44,7 @@ module.exports = {
     "function-no-unknown": [
       true,
       {
-        ignoreFunctions: [
-          "-moz-image-rect" /* Used for cropping images */,
-          "add" /* Used in mathml.css */,
-        ],
+        ignoreFunctions: ["add" /* Used in mathml.css */],
       },
     ],
 
