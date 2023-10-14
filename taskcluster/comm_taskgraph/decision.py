@@ -27,6 +27,7 @@ from gecko_taskgraph.util.taskgraph import (
 
 from . import COMM
 from comm_taskgraph.parameters import get_defaults
+from comm_taskgraph.util.suite import is_suite_only_push
 
 logger = logging.getLogger(__name__)
 
@@ -158,6 +159,18 @@ def get_decision_parameters(graph_config, parameters):
         for key, _callable in CRON_OPTIONS.get(parameters["target_tasks_method"], {}).items():
             result = _callable(parameters, graph_config)
             parameters[key] = result
+
+    comm_head_repository = parameters.get("comm_head_repository")
+    comm_head_rev = parameters.get("comm_head_rev")
+
+    # Do not run any jobs if this is a suite-only push, but the push could be used for
+    # a cron decision task later (like for a Daily build)
+    if (
+        is_suite_only_push(comm_head_repository, comm_head_rev)
+        and options["tasks_for"] == "hg-push"
+    ):
+        logger.info("This is a suite-only push; setting target_tasks_method to 'nothing'.")
+        parameters["target_tasks_method"] = "nothing"
 
 
 def get_existing_tasks(parameters, graph_config):
