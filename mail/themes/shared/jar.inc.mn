@@ -728,4 +728,10 @@
   skin/classic/messenger/icons/new/activity/info.svg           (../shared/mail/icons/new/activity/info.svg)
   skin/classic/messenger/icons/new/activity/error.svg          (../shared/mail/icons/new/activity/error.svg)
 
+# XS - 12x12px icons
+  skin/classic/messenger/icons/xs/sparkle-star.svg             (../shared/mail/icons/xs/sparkle-star.svg)
+
+# SM - 16x16px icons
+  skin/classic/messenger/icons/sm/sparkle-star.svg             (../shared/mail/icons/sm/sparkle-star.svg)
+
   skin/classic/messenger/icons/new/supernova-logo.webp          (../shared/mail/icons/new/supernova-logo.webp)

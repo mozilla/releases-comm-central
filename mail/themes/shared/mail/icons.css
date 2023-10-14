@@ -5,6 +5,12 @@
 /* Density variations */
 
 :root {
+  /* XS - 12x12px icons */
+  --icon-sparkle-star-xs: url("chrome://messenger/skin/icons/xs/sparkle-star.svg");
+
+  /* SM - 16x16px icons */
+  --icon-sparkle-star-sm: url("chrome://messenger/skin/icons/sm/sparkle-star.svg");
+
   --icon-account-settings: url("chrome://messenger/skin/icons/new/compact/account-settings.svg");
   --icon-add: url("chrome://messenger/skin/icons/new/compact/add.svg");
   --icon-address-book: url("chrome://messenger/skin/icons/new/compact/address-book.svg");

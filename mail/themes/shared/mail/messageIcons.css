@@ -277,7 +277,7 @@ treechildren::-moz-tree-image(subjectCol, replied, forwarded, redirected) {
 }
 
 treechildren::-moz-tree-image(subjectCol, new) {
-  list-style-image: var(--icon-notify);
+  list-style-image: var(--icon-sparkle-star-xs);
   fill: var(--color-yellow-50) !important; /* override the selected, focus rule */
   stroke: var(--color-orange-50) !important; /* override the selected, focus rule */
 }

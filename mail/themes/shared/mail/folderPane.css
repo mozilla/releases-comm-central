@@ -286,9 +286,12 @@ treechildren::-moz-tree-cell-text(imapdeleted) {
 #folderTree treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true) {
   margin-inline-start: -20px;
   padding-inline-start: 23px;
-  background-image: var(--icon-new-indicator);
+  background-image: var(--icon-sparkle-star-xs);
   background-repeat: no-repeat;
   background-position: left;
+  -moz-context-properties: fill, stroke;
+  fill: var(--color-yellow-30);
+  stroke: var(--color-amber-50);
 }
 
 #folderTree:-moz-locale-dir(rtl)

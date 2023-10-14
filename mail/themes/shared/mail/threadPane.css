@@ -398,7 +398,8 @@ tr[is="thread-row"] .subject-line img {
   visibility: hidden;
   width: 16px;
   height: 16px;
-  vertical-align: sub;
+  vertical-align: middle;
+  margin-block-start: -2px;
   margin-inline-end: 3px;
 }
 
@@ -410,7 +411,7 @@ tr[is="thread-card"] .state {
 
 tr[data-properties~="new"] .subject-line img {
   visibility: initial;
-  content: var(--icon-notify);
+  content: var(--icon-sparkle-star-xs);
   fill: var(--color-yellow-40) !important; /* override the selected, focus rule */
   stroke: var(--color-orange-50) !important; /* override the selected, focus rule */
 }
@@ -646,7 +647,8 @@ tr[is="thread-card"][data-properties~="new"] {
   justify-content: center;
   gap: var(--thread-pane-container-gap);
   height: 100%;
-  padding-inline: 12px;
+  padding-inline-start: 21px;
+  padding-inline-end: 12px;
   box-sizing: border-box;
 }
 
@@ -671,9 +673,12 @@ tr[data-properties~="thread-children"] {
 
 tr[data-properties~="new"] .thread-card-container::after {
   position: absolute;
-  content: var(--icon-new-indicator);
-  inset-inline-start: 3px;
-  inset-block-start: 3px;
+  content: var(--icon-sparkle-star-xs);
+  inset-inline-start: 7px;
+  inset-block-start: 6px;
+  -moz-context-properties: fill, stroke;
+  fill: var(--color-yellow-30);
+  stroke: var(--color-amber-50);
 }
 
 tr[data-properties~="thread-children"] .thread-card-container {

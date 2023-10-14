@@ -391,9 +391,12 @@ li.context-menu-target:not(.selected) > .container:hover {
 
 .new-messages:not([data-server-type]) > .container > .icon::after {
   position: absolute;
-  content: var(--icon-new-indicator);
-  inset-inline-start: -2px;
-  inset-block-start: -2px;
+  content: var(--icon-sparkle-star-xs);
+  inset-inline-start: -4px;
+  inset-block-start: -4px;
+  -moz-context-properties: fill, stroke;
+  fill: var(--color-yellow-30);
+  stroke: var(--color-amber-50);
 }
 
 #folderTree:focus-within li.selected > .container > .icon {
