@@ -132,35 +132,40 @@
           </html:tr>
         </html:table>
         <!-- Attendees -->
-        <box class="item-attendees" orient="vertical" hidden="true" flex="1">
-          <spacer class="default-spacer"/>
-          <hbox class="calendar-caption" align="center">
-            <label value="&read.only.attendees.label;"
-                   class="header"/>
-            <separator class="groove" flex="1"/>
-          </hbox>
-          <vbox class="item-attendees-list-container"
-                context="attendee-popup"
-                oncontextmenu="onAttendeeContextMenu(event)">
-          </vbox>
-        </box>
+        <box class="item-attendees-description">
+          <box class="item-attendees" orient="vertical" hidden="true">
+            <spacer class="default-spacer"/>
+            <hbox class="calendar-caption" align="center">
+              <label value="&read.only.attendees.label;"
+                    class="header"/>
+              <separator class="groove" flex="1"/>
+            </hbox>
+            <vbox class="item-attendees-list-container"
+                  flex="1"
+                  context="attendee-popup"
+                  oncontextmenu="onAttendeeContextMenu(event)">
+            </vbox>
+          </box>
 
-        <splitter id="attendeeDescriptionSplitter"
-                  class="item-summary-splitter"
-                  orient="vertical"
-                  state="open"/>
+          <splitter id="attendeeDescriptionSplitter"
+                    class="item-summary-splitter"
+                    collapse="after"
+                    orient="vertical"
+                    state="open"/>
 
-        <!-- Description -->
-        <box class="item-description-box" hidden="true" orient="vertical">
-          <hbox class="calendar-caption" align="center">
-            <label value="&read.only.description.label;"
-                   class="header"/>
-            <separator class="groove"/>
-          </hbox>
-          <iframe class="item-description"
-                  type="content"
-                  oncontextmenu="openDescriptionContextMenu(event);">
-          </iframe>
+          <!-- Description -->
+          <box class="item-description-box" hidden="true" orient="vertical">
+            <hbox class="calendar-caption" align="center">
+              <label value="&read.only.description.label;"
+                    class="header"/>
+              <separator class="groove" flex="1"/>
+            </hbox>
+            <iframe class="item-description"
+                    type="content"
+                    flex="1"
+                    oncontextmenu="openDescriptionContextMenu(event);">
+            </iframe>
+          </box>
         </box>
 
         <!-- URL link -->

@@ -52,9 +52,9 @@
   border-style: none;
   border-bottom: 1px solid var(--field-border-color);
   min-height: 0;
-  height: 5px;
+  height: 10px;
   background-color: transparent;
-  margin: 5px;
+  margin: 10px;
   position: relative;
   z-index: 10;
   transition: border-width .3s ease-in;

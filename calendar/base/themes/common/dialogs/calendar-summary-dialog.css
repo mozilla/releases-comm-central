@@ -16,12 +16,29 @@ notification {
   background-color: var(--toolbar-bgcolor);
 }
 
+.item-attendees-description {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.item-attendees,
+.item-attendees-list-container {
+  height: 90px;
+  min-height: 50px;
+}
+
+.item-description-box {
+  height: 100%;
+}
+
 #calendar-summary-dialog {
-  height: auto;
+  min-height: 20em;
 }
 
 #calendar-event-summary-dialog {
   height: 100vh;
+  overflow-y: scroll;
 }
 
 #calendar-summary-dialog-custom-button-footer {
