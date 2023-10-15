@@ -432,6 +432,11 @@ li.context-menu-target:not(.selected) > .container:hover {
   background-image: var(--icon-rss);
 }
 
+#folderTree li[data-server-type="rss"] > ul > li:not([data-folder-type], [data-is-busy="true"]) .icon {
+  --icon-color: currentColor;
+  fill: var(--icon-color);
+}
+
 #folderTree li[data-folder-type="archive"] > .container > .icon {
   background-image: var(--icon-archive);
   --icon-color: var(--folder-color-archive);
@@ -492,6 +497,17 @@ li.context-menu-target:not(.selected) > .container:hover {
 #folderTree li[data-is-busy="true"] > .container > .icon {
   content: var(--icon-clock) !important;
   background-image: none;
+  --icon-color: var(--button-primary-background-color);
+
+  @media (prefers-reduced-motion: no-preference) {
+    content: var(--icon-loading) !important;
+    animation: activity-indicator-3pane 1.05s steps(30) infinite;
+    object-fit: cover;
+    object-position: 0px 0;
+  }
+}
+@keyframes activity-indicator-3pane {
+  100% { object-position: -480px 0; }
 }
 
 #folderTree li[data-has-error="true"] > .container > .icon {
