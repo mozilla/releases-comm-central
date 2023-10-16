@@ -294,8 +294,8 @@ var gSyncPane = {
   verifyFirefoxAccount() {
     let onError = async () => {
       let [title, body] = await document.l10n.formatValues([
-        "sync-verification-not-sent-title",
-        "sync-verification-not-sent-body",
+        "fxa-verification-not-sent-title",
+        "fxa-verification-not-sent-body",
       ]);
       new Notification(title, { body });
     };
@@ -303,11 +303,8 @@ var gSyncPane = {
     let onSuccess = async data => {
       if (data) {
         let [title, body] = await document.l10n.formatValues([
-          "sync-verification-sent-title",
-          {
-            id: "sync-verification-sent-body",
-            args: { userEmail: data.email },
-          },
+          "fxa-verification-sent-title",
+          { id: "fxa-verification-sent-body", args: { userEmail: data.email } },
         ]);
         new Notification(title, { body });
       } else {
