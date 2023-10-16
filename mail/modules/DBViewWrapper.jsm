@@ -885,6 +885,7 @@ DBViewWrapper.prototype = {
     this._sort = [
       [Ci.nsMsgViewSortType.byNone, Ci.nsMsgViewSortOrder.ascending],
     ];
+    this.__viewFlags = Ci.nsMsgViewFlagsType.kNone;
 
     FolderNotificationHelper.noteCuriosity(this);
     this._applyViewChanges();
