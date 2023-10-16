@@ -3,37 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 :root {
-  --vcard-delete-button-color: var(--color-red-60);
-  --vcard-remove-color: var(--color-red-60);
+  --vcard-delete-button-color: light-dark(var(--color-red-60), var(--color-red-40));
+  --vcard-remove-color: light-dark(var(--color-red-60), var(--color-red-40));
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --vcard-delete-button-color: var(--color-red-40);
-    --vcard-remove-color: var(--color-red-40);
-  }
-}
-
-vcard-edit {
-  color: var(--sidebar-text-color);
-  --input-border-density: 1px;
-}
-
-vcard-edit,
 .addr-book-edit-display-nickname {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(30em, 1fr));
   column-gap: 2em;
-}
-
-vcard-edit {
-  grid-template-rows: masonry;
-  row-gap: 30px;
-}
-
-vcard-edit label[for] {
-  margin-block-end: 6px;
-  font-weight: 600;
 }
 
 vcard-edit input[type="text"],
@@ -57,63 +34,78 @@ vcard-special-date select:not([size], [multiple]) {
   font-weight: normal;
 }
 
-vcard-edit input[type="text"],
-vcard-edit input[type="email"],
-vcard-edit input[type="url"],
-vcard-edit input[type="tel"],
-vcard-edit input[type="date"] {
-  /* it should be 2em but input doesn't include the border */
-  height: calc(var(--in-content-button-height) - 2px);
-}
+vcard-edit {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(30em, 1fr));
+  column-gap: 2em;
+  grid-template-rows: masonry;
+  row-gap: 30px;
+  color: var(--sidebar-text-color);
+  --input-border-density: 1px;
 
-vcard-edit vcard-impp input[type="text"] {
-  flex: 1;
-}
+  & label[for] {
+    margin-block-end: 6px;
+    font-weight: 600;
+  }
 
-vcard-edit input[type="email"] {
-  width: -moz-available;
-}
+  & input[type="text"],
+  & input[type="email"],
+  & input[type="url"],
+  & input[type="tel"],
+  & input[type="date"] {
+    /* it should be 2em but input doesn't include the border */
+    height: calc(var(--in-content-button-height) - 2px);
+  }
 
-vcard-edit input[type="url"],
-vcard-edit input[type="tel"] {
-  flex: 1;
-}
+  & vcard-impp input[type="text"] {
+    flex: 1;
+  }
 
-vcard-edit input[type="number"] {
-  padding-inline-end: 0;
-}
+  & input[type="email"] {
+    width: -moz-available;
+  }
 
-vcard-edit select:not([size]) {
-  border-color: var(--in-content-button-border-color);
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-  background-position-x: right 6px;
-  padding-inline-end: 15px;
-}
+  & input[type="url"],
+  & input[type="tel"] {
+    flex: 1;
+  }
 
-vcard-edit select:not([size]):dir(rtl) {
-  background-position-x: left 6px;
-}
+  & input[type="number"] {
+    padding-inline-end: 0;
+  }
 
-vcard-edit select:not([size], [multiple]) {
-  padding-inline: 6px 22px;
-  padding-block: 0;
-  margin-block-end: 0;
-}
+  & select:not([size]) {
+    border-color: var(--in-content-button-border-color);
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+    background-position-x: right 6px;
+    padding-inline-end: 15px;
+  }
 
-vcard-edit select:user-invalid {
-  outline: 2px solid var(--in-content-border-invalid);
-  outline-offset: -1px;
-}
+    &:dir(rtl) {
+      background-position-x: left 6px;
+    }
 
-vcard-edit textarea {
-  /* 3px is for the margin-end. */
-  width: calc(100% - 3px);
-  box-sizing: border-box;
-  border: var(--input-border-density) solid var(--toolbar-field-border-color);
-  margin-block: 0 3px;
-  margin-inline: 0 3px;
-  resize: vertical;
+  & select:not([size], [multiple]) {
+    padding-inline: 6px 22px;
+    padding-block: 0;
+    margin-block-end: 0;
+  }
+
+  & select:user-invalid {
+    outline: 2px solid var(--in-content-border-invalid);
+    outline-offset: -1px;
+  }
+
+  & textarea {
+    /* 3px is for the margin-end. */
+    width: calc(100% - 3px);
+    box-sizing: border-box;
+    border: var(--input-border-density) solid var(--toolbar-field-border-color);
+    margin-block: 0 3px;
+    margin-inline: 0 3px;
+    resize: vertical;
+  }
 }
 
 #addr-book-edit-n {
@@ -133,54 +125,51 @@ vcard-n {
 .n-list-component {
   display: inline-flex;
   flex-direction: column;
-}
 
-.n-list-component button {
-  min-width: auto;
-  min-height: auto;
-  display: inline-flex;
-  margin: 0;
-  padding: 3px;
-  border: none;
-  z-index: 2;
-  margin-block-end: 9px;
-  border-radius: 8px;
-}
+  & button {
+    min-width: auto;
+    min-height: auto;
+    display: inline-flex;
+    margin: 0;
+    padding: 3px;
+    border: none;
+    z-index: 2;
+    margin-block-end: 9px;
+    border-radius: 8px;
+  }
 
-.n-list-component button img {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  width: 9px;
-  height: 9px;
-}
+  & button img {
+    -moz-context-properties: fill;
+    fill: currentColor;
+    width: 9px;
+    height: 9px;
+  }
 
-.n-list-component button[hidden] {
-  display: none;
-}
-
-#n-list-component-prefix input,
-#n-list-component-suffix input {
-  width: 10ch;
-  box-sizing: border-box;
+  & button[hidden] {
+    display: none;
+  }
 }
 
 #n-list-component-prefix,
 #n-list-component-suffix {
   flex: 0 0 0%;
+
+  & input {
+    width: 10ch;
+    box-sizing: border-box;
+  }
 }
 
 #n-list-component-firstname,
 #n-list-component-middlename,
 #n-list-component-lastname {
   flex: 1 0 0%;
-}
 
-#n-list-component-firstname input,
-#n-list-component-middlename input,
-#n-list-component-lastname input {
-  min-width: 20ch;
-  box-sizing: border-box;
-  width: 100%;
+  & input {
+    min-width: 20ch;
+    box-sizing: border-box;
+    width: 100%;
+  }
 }
 
 #n-list-component-middlename.hasButton {
@@ -194,11 +183,10 @@ vcard-nickname {
   flex-direction: column;
   gap: 6px;
   margin-block-start: 12px;
-}
 
-vcard-fn label[for],
-vcard-nickname label[for] {
-  margin-block-end: 0;
+  & label[for] {
+    margin-block-end: 0;
+  }
 }
 
 .vcard-checkbox {
@@ -206,79 +194,100 @@ vcard-nickname label[for] {
   align-items: center;
 }
 
-/* Email fieldset styles */
-#addr-book-edit-email table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
 /**
  * Shows the "Default" table header for emails.
  */
 .default-table-header {
   position: relative;
-}
 
-.default-table-header legend {
-  /* The legend is positioned absolute over the table headers. */
-  position: absolute;
+  & legend {
+    /* The legend is positioned absolute over the table headers. */
+    position: absolute;
+  }
+
+  /* Imitates the legend element. */
+  & #addr-book-edit-email-default {
+    font-weight: 400;
+    /* This is a th so instead of a margin a padding is used. */
+    padding-block: 0 6px;
+
+    & span {
+      /* The box height of the th has to fully imitate the legend element. */
+      /* That's why the font size get adjusted directly on the span. */
+      font-size: 1rem;
+    }
+  }
 }
 
 /* Email field styles */
-#addr-book-edit-email :is(th, td) {
-  padding: 0;
-}
+#addr-book-edit-email {
+  & :is(th, td) {
+    padding: 0;
+  }
 
-#addr-book-edit-email td.email-column {
-  width: 100%;
+  & td.email-column {
+    width: 100%;
+  }
+
+  /* Email fieldset styles */
+  & table {
+    width: 100%;
+    border-collapse: collapse;
+  }
 }
 
 .default-column {
   text-align: center;
 }
 
-#vcard-email input[type="checkbox"]:not([hidden]) {
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  margin-inline: 0;
-  margin-block: 0 3px;
-  display: inline-grid;
-}
+#vcard-email {
+  & input[type="checkbox"]:not([hidden]) {
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    margin-inline: 0;
+    margin-block: 0 3px;
+    display: inline-grid;
 
-#vcard-email input[type="checkbox"]:checked {
-  background-image: none;
-  background-color: transparent;
-  border-color: var(--in-content-primary-button-background);
-  position: relative;
-}
+    &:checked {
+      background-image: none;
+      background-color: transparent;
+      border-color: var(--in-content-primary-button-background);
+      position: relative;
 
-#vcard-email input[type="checkbox"]:enabled:checked:hover {
-  background-color: transparent;
-  border-color: var(--in-content-primary-button-background-hover);
-}
+      &:enabled {
+        &:hover {
+          background-color: transparent;
+          border-color: var(--in-content-primary-button-background-hover);
+        }
 
-#vcard-email input[type="checkbox"]:checked:active {
-  border-color: var(--in-content-primary-button-background-active);
-}
+        &:active {
+          border-color: var(--in-content-primary-button-background-active);
+        }
+      }
 
-#vcard-email input[type="checkbox"]:checked::before {
-  content: "";
-  display: block;
-  height: 8px;
-  width: 8px;
-  background-color: var(--in-content-primary-button-background);
-  border-radius: 50%;
-  position: absolute;
-  inset: 3px;
-}
+      &::before {
+        content: "";
+        display: block;
+        height: 8px;
+        width: 8px;
+        background-color: var(--in-content-primary-button-background);
+        border-radius: 50%;
+        position: absolute;
+        inset: 3px;
 
-#vcard-email input[type="checkbox"]:enabled:checked:hover::before {
-  background-color: var(--in-content-primary-button-background-hover);
-}
+        &:enabled {
+          &:hover {
+            background-color: var(--in-content-primary-button-background-hover);
+          }
 
-#vcard-email input[type="checkbox"]:checked:active::before {
-  background-color: var(--in-content-primary-button-background-active);
+          &:active {
+            background-color: var(--in-content-primary-button-background-active);
+          }
+        }
+      }
+    }
+  }
 }
 
 #addr-book-edit-address {
@@ -324,51 +333,40 @@ vcard-special-date {
   padding-inline: 0;
 }
 
-/* Imitates the legend element. */
-.default-table-header #addr-book-edit-email-default {
-  font-weight: 400;
-  /* This is a th so instead of a margin a padding is used. */
-  padding-block: 0 6px;
-}
-
-.default-table-header #addr-book-edit-email-default span {
-  /* The box height of the th has to fully imitate the legend element. */
-  /* That's why the font size get adjusted directly on the span. */
-  font-size: 1rem;
-}
-
 .vcard-year-month-day-container {
   display: flex;
   align-items: center;
-}
 
-.vcard-year-month-day-container select:not([size], [multiple]),
-.vcard-year-month-day-container input[type="number"] {
-  margin-block-end: 0;
-  margin-inline: 0;
-  background-color: var(--in-content-box-background);
-  border-color: var(--toolbar-field-border-color);
-}
+  & select:not([size], [multiple]),
+  & input[type="number"] {
+    margin-block-end: 0;
+    margin-inline: 0;
+    background-color: var(--in-content-box-background);
+    border-color: var(--toolbar-field-border-color);
+  }
 
-.vcard-year-month-day-container select.vcard-month-select {
-  border-radius: 0;
-  border-inline-end-width: 0;
-}
+  & select {
+    &.vcard-month-select {
+      border-radius: 0;
+      border-inline-end-width: 0;
+    }
 
-.vcard-year-month-day-container select.vcard-day-select {
-  border-start-start-radius: 0;
-  border-end-start-radius: 0;
-}
+    &.vcard-day-select {
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
+    }
+  }
 
-.vcard-year-month-day-container input[type="number"] {
-  box-sizing: border-box;
-  border-start-end-radius: 0;
-  border-end-end-radius: 0;
-  border-inline-end-width: 0;
-}
+  & input[type="number"] {
+    box-sizing: border-box;
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+    border-inline-end-width: 0;
 
-.vcard-year-month-day-container input[type="number"]::-moz-number-spin-box {
-  padding-inline-end: 2px;
+    &::-moz-number-spin-box {
+      padding-inline-end: 2px;
+    }
+  }
 }
 
 vcard-adr select {
@@ -390,41 +388,41 @@ vcard-adr select {
   border-radius: 3px;
   min-height: auto;
   width: fit-content;
-}
 
-.addr-book-edit-fieldset-button:enabled:hover,
-.addr-book-edit-fieldset-button:enabled:active,
-.addr-book-edit-fieldset-button:enabled:active:hover {
-  background-color: var(--in-content-button-background);
-}
-
-.add-property-button:enabled:hover,
-.add-property-button:enabled:active,
-.add-property-button:enabled:active:hover {
-  color: var(--in-content-primary-button-background);
-}
-
-.add-property-button::before {
-  position: relative;
-  display: block;
-  content: "";
-  border-radius: 8px;
-  background-color: var(--in-content-primary-button-background);
-  width: 13px;
-  height: 13px;
-  background-image: url("chrome://global/skin/icons/add.svg");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 9px;
-  fill: unset;
-  stroke: unset;
-  fill-opacity: unset;
+  &:enabled {
+    &:is(:hover, :active, :hover:active) {
+      background-color: var(--in-content-button-background);
+    }
+  }
 }
 
 .add-property-button {
   -moz-context-properties: fill;
   color: var(--in-content-primary-button-background);
   fill: var(--in-content-primary-button-text-color);
+
+  &:enabled {
+    &:is(:hover, :active, :hover:active) {
+      color: var(--in-content-primary-button-background);
+    }
+  }
+
+  &::before {
+    position: relative;
+    display: block;
+    content: "";
+    border-radius: 8px;
+    background-color: var(--in-content-primary-button-background);
+    width: 13px;
+    height: 13px;
+    background-image: url("chrome://global/skin/icons/add.svg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 9px;
+    fill: unset;
+    stroke: unset;
+    fill-opacity: unset;
+  }
 }
 
 .remove-property-button {
@@ -434,43 +432,43 @@ vcard-adr select {
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
   align-self: center;
-}
 
-.remove-property-button::before {
-  width: 12px;
-  height: 12px;
-  background-image: var(--icon-subtract-circle-sm);
-  background-repeat: no-repeat;
-  background-position: center;
-}
+  &::before {
+    width: 12px;
+    height: 12px;
+    background-image: var(--icon-subtract-circle-sm);
+    background-repeat: no-repeat;
+    background-position: center;
+  }
 
-.remove-property-button:enabled:hover,
-.remove-property-button:enabled:active,
-.remove-property-button:enabled:active:hover {
-  color: var(--color-white);
-  background-color: var(--vcard-delete-button-color);
-}
+  &:enabled {
+    &:is(:hover, :active, :hover:active) {
+      color: var(--color-white);
+      background-color: var(--vcard-delete-button-color);
+    }
+  }
 
-/* Remove button special cases. */
-#vcard-email .remove-property-button {
-  padding: 2px;
-}
+  /* Remove button special cases. */
+  #vcard-email & {
+    padding: 2px;
+  }
 
-vcard-special-date .remove-property-button {
-  margin-inline-start: 3px;
-  margin-block-end: 0;
-}
+  vcard-special-date & {
+    margin-inline-start: 3px;
+    margin-block-end: 0;
+  }
 
-.add-property-button + .remove-property-button {
-  margin-inline-start: 0;
+  .add-property-button + & {
+    margin-inline-start: 0;
+  }
 }
 
 vcard-tz {
   display: inline-flex;
   flex-direction: column;
-}
 
-vcard-tz .remove-property-button {
-  margin-block-start: 3px;
-  align-self: auto;
+  & .remove-property-button {
+    margin-block-start: 3px;
+    align-self: auto;
+  }
 }
