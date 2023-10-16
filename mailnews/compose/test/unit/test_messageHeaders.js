@@ -513,7 +513,7 @@ async function testContentHeaders() {
     contentLocation: "http://localhost.invalid/",
   });
   let cloudAttachmentHeaders = {
-    "Content-Type": "text/html",
+    "Content-Type": "text/html; charset=utf-8",
     "X-Mozilla-Cloud-Part":
       "cloudFile; " +
       "url=http://localhost.invalid/; " +
@@ -535,7 +535,7 @@ async function testContentHeaders() {
     contentLocation: "http://localhost.invalid/",
   });
   cloudAttachmentHeaders = {
-    "Content-Type": "text/html",
+    "Content-Type": "text/html; charset=utf-8",
     "X-Mozilla-Cloud-Part":
       "cloudFile; " +
       "url=http://localhost.invalid/; " +
@@ -706,7 +706,7 @@ async function testSentMessage() {
     checkMessageHeaders(
       daemon.post,
       {
-        "Content-Type": "text/html",
+        "Content-Type": "text/html; charset=utf-8",
         "X-Mozilla-Cloud-Part": "cloudFile; url=http://localhost.invalid/",
       },
       "2"
