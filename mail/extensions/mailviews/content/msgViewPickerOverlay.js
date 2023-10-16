@@ -93,7 +93,7 @@ var ViewPickerBinding = {
    *  no way to change it.)
    */
   get isVisible() {
-    return document.getElementById("viewPicker") != null;
+    return !!document.querySelector("#unifiedToolbarContent .view-picker");
   },
 
   /**
