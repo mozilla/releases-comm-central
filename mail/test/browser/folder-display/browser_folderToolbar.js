@@ -10,7 +10,6 @@
 "use strict";
 
 var {
-  add_to_toolbar,
   assert_folder_selected_and_displayed,
   assert_nothing_selected,
   be_in_folder,
@@ -19,12 +18,15 @@ var {
   make_message_sets_in_folders,
   open_folder_in_new_tab,
   open_selected_message_in_new_tab,
-  remove_from_toolbar,
   select_click_row,
   switch_tab,
   wait_for_blank_content_pane,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
+const { storeState } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizationState.mjs"
 );
 
 var folderA, folderB;
@@ -34,41 +36,35 @@ add_setup(async function () {
   // we need one message to select and open
   folderB = await create_folder("FolderToolbarB");
   await make_message_sets_in_folders([folderB], [{ count: 1 }]);
-});
 
-add_task(function test_add_folder_toolbar() {
-  // It should not be present by default
-  let folderLoc = document.getElementById("locationFolders");
-  Assert.ok(!folderLoc);
-
-  // But it should show up when we call
-  add_to_toolbar(
-    document.getElementById("mail-bar3"),
-    "folder-location-container"
+  storeState({
+    mail: ["folder-location"],
+  });
+  await BrowserTestUtils.waitForMutationCondition(
+    document.getElementById("unifiedToolbarContent"),
+    {
+      subtree: true,
+      childList: true,
+    },
+    () =>
+      document.querySelector("#unifiedToolbarContent .folder-location button")
   );
-  folderLoc = document.getElementById("locationFolders");
-  Assert.ok(folderLoc);
-
-  Assert.equal(
-    !!folderLoc.label,
-    true,
-    "Uninitialized Folder doesn't have a default label."
-  );
+  registerCleanupFunction(() => {
+    storeState({});
+  });
 });
 
 add_task(async function test_folder_toolbar_shows_correct_item() {
-  add_to_toolbar(
-    document.getElementById("mail-bar3"),
-    "folder-location-container"
+  const folderLoc = document.querySelector(
+    "#unifiedToolbarContent .folder-location button"
   );
-  let folderLoc = document.getElementById("locationFolders");
 
   // Start in folder a.
   let tabFolderA = await be_in_folder(folderA);
   assert_folder_selected_and_displayed(folderA);
   await assert_nothing_selected();
   Assert.equal(
-    folderLoc.label,
+    folderLoc.label.textContent,
     "FolderToolbarA",
     "Opening FolderA doesn't update toolbar."
   );
@@ -79,7 +75,7 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
   assert_folder_selected_and_displayed(folderB);
   await assert_nothing_selected();
   Assert.equal(
-    folderLoc.label,
+    folderLoc.label.textContent,
     "FolderToolbarB",
     "Opening FolderB in a tab doesn't update toolbar."
   );
@@ -89,7 +85,7 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
   assert_folder_selected_and_displayed(folderA);
   await assert_nothing_selected();
   Assert.equal(
-    folderLoc.label,
+    folderLoc.label.textContent,
     "FolderToolbarA",
     "Switching back to FolderA's tab doesn't update toolbar."
   );
@@ -99,7 +95,7 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
   assert_folder_selected_and_displayed(folderB);
   await assert_nothing_selected();
   Assert.equal(
-    folderLoc.label,
+    folderLoc.label.textContent,
     "FolderToolbarB",
     "Switching back to FolderB's tab doesn't update toolbar."
   );
@@ -107,40 +103,32 @@ add_task(async function test_folder_toolbar_shows_correct_item() {
 });
 
 add_task(async function test_folder_toolbar_disappears_on_message_tab() {
-  add_to_toolbar(
-    document.getElementById("mail-bar3"),
-    "folder-location-container"
-  );
   await be_in_folder(folderB);
-  let folderLoc = document.getElementById("locationFolders");
+  const folderLoc = document.querySelector(
+    "#unifiedToolbarContent .folder-location button"
+  );
   Assert.ok(folderLoc);
   Assert.equal(
-    folderLoc.label,
+    folderLoc.label.textContent,
     "FolderToolbarB",
     "We should have started in FolderB."
   );
-  Assert.equal(folderLoc.collapsed, false, "The toolbar should be shown.");
+  Assert.ok(!folderLoc.disabled, "The toolbar button should be enabled.");
 
   // Select one message
   await select_click_row(0);
   // Open it
   let messageTab = await open_selected_message_in_new_tab();
 
-  Assert.equal(
-    document.getElementById("folder-location-container").collapsed,
-    true,
-    "The toolbar should be hidden."
+  await BrowserTestUtils.waitForMutationCondition(
+    document.getElementById("unifiedToolbarContent"),
+    {
+      attributes: true,
+    },
+    () => folderLoc.disabled
   );
+  Assert.ok(folderLoc.disabled, "The toolbar button should be disabled.");
 
   // Clean up, close the tab
   close_tab(messageTab);
-});
-
-add_task(function test_remove_folder_toolbar() {
-  remove_from_toolbar(
-    document.getElementById("mail-bar3"),
-    "folder-location-container"
-  );
-
-  Assert.ok(!document.getElementById("locationFolders"));
 });
