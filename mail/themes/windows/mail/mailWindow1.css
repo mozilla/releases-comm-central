@@ -271,11 +271,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 }
 
-#viewPickerPopup > menu,
-#viewPickerPopup > menuitem {
-  padding-inline-start: 1em;
-}
-
 :root:not([lwt-tree],:-moz-lwtheme) #folderTree {
   background-color: #fafafa;
 }

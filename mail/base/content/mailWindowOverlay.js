@@ -343,7 +343,7 @@ function view_init(event) {
 
   // Hide the "View > Messages" menu item if the user doesn't have the "Views"
   // (aka "Mail Views") toolbar button in the main toolbar. (See bug 1563789.)
-  var viewsToolbarButton = document.getElementById("mailviews-container");
+  var viewsToolbarButton = ViewPickerBinding?.isVisible;
   document.getElementById("viewMessageViewMenu").hidden = !viewsToolbarButton;
 
   // Initialize the Message Body menuitem

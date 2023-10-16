@@ -271,11 +271,6 @@ function MailToolboxCustomizeDone(aEvent, customizePopupId) {
     menubar.children[i].setAttribute("disabled", false);
   }
 
-  // make sure the mail views search box is initialized
-  if (document.getElementById("mailviews-container")) {
-    ViewPickerOnLoad();
-  }
-
   var customizePopup = document.getElementById(customizePopupId);
   customizePopup.removeAttribute("disabled");
 

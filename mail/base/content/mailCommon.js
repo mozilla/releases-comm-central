@@ -978,7 +978,9 @@ var dbViewWrapperListener = {
     }
     window.quickFilterBar?.onMessagesChanged();
   },
-  onMailViewChanged() {},
+  onMailViewChanged() {
+    window.dispatchEvent(new CustomEvent("MailViewChanged"));
+  },
   onSortChanged() {
     if (window.threadTree && gDBView.selection.count == 0) {
       // If there is no selection, scroll to the most relevant end.

@@ -23,6 +23,9 @@ var {
   select_click_row,
   switch_tab,
   wait_for_all_messages_to_load,
+  get_about_3pane,
+  get_about_message,
+  delete_messages,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -32,6 +35,10 @@ var { promise_modal_dialog } = ChromeUtils.import(
 
 var { MailViewConstants } = ChromeUtils.import(
   "resource:///modules/MailViewManager.jsm"
+);
+
+const { storeState } = ChromeUtils.importESModule(
+  "resource:///modules/CustomizationState.mjs"
 );
 
 var baseFolder, folder;
@@ -49,9 +56,6 @@ var msgc;
 add_setup(async function () {
   // Make sure the whole test runs with an unthreaded view in all folders.
   Services.prefs.setIntPref("mailnews.default_view_flags", 0);
-  registerCleanupFunction(() => {
-    Services.prefs.clearUserPref("mailnews.default_view_flags");
-  });
 
   baseFolder = await create_folder("DeletionFromVirtualFoldersA");
   // For setTagged, we want exactly as many messages as we plan to delete, so
@@ -68,10 +72,27 @@ add_setup(async function () {
     [{ count: 4 }]
   );
 
+  // Show the smart folders view.
+  get_about_3pane().folderPane.activeModes = ["all", "smart"];
+
   // Add the view picker to the toolbar
-  let toolbar = document.getElementById("mail-bar3");
-  toolbar.insertItem("mailviews-container", null);
-  Assert.ok(document.getElementById("mailviews-container"));
+  storeState({
+    mail: ["view-picker"],
+  });
+  await BrowserTestUtils.waitForMutationCondition(
+    document.getElementById("unifiedToolbarContent"),
+    {
+      subtree: true,
+      childList: true,
+    },
+    () => document.querySelector("#unifiedToolbarContent .view-picker")
+  );
+
+  registerCleanupFunction(() => {
+    storeState({});
+    Services.prefs.clearUserPref("mailnews.default_view_flags");
+    get_about_3pane().folderPane.activeModes = ["all"];
+  });
 });
 
 // Check whether this message is displayed in the folder tab
@@ -123,7 +144,9 @@ add_task(async function test_create_virtual_folders() {
   await be_in_folder(baseFolder);
 
   // Apply the mail view
-  window.RefreshAllViewPopups(document.getElementById("viewPickerPopup"));
+  window.RefreshAllViewPopups(
+    document.getElementById("toolbarViewPickerPopup")
+  );
   window.ViewChange(":$label1");
   await wait_for_all_messages_to_load();
 
@@ -139,7 +162,7 @@ add_task(async function test_create_virtual_folders() {
 });
 
 function subtest_save_mail_view(savc) {
-  savc.onOK();
+  savc.document.querySelector("dialog").acceptDialog();
 }
 
 async function _open_first_message() {
@@ -167,9 +190,7 @@ async function _open_first_message() {
 
 add_task(async function test_open_first_message_in_virtual_folder() {
   folder = baseFolder.getChildNamed(baseFolder.prettyName + "-Important");
-  if (!folder) {
-    throw new Error("DeletionFromVirtualFoldersA-Important was not created!");
-  }
+  Assert.ok(folder, "DeletionFromVirtualFoldersA-Important was not created!");
 
   await _open_first_message();
 });
@@ -179,10 +200,11 @@ add_task(async function test_open_first_message_in_virtual_folder() {
  * (advancing to the next message).
  */
 add_task(async function test_delete_from_virtual_folder_in_folder_tab() {
+  const { gDBView } = get_about_3pane();
   // - plan to end up on the guy who is currently at index 1
-  curMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
+  curMessage = gDBView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
-  nextMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(2);
+  nextMessage = gDBView.getMsgHdrAt(2);
   // - delete the message
   await press_delete();
 
@@ -203,11 +225,10 @@ add_task(async function test_delete_from_virtual_folder_in_message_tab() {
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 
+  const { gDBView } = get_about_message();
   // figure out the next guy...
-  nextMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
-  if (!nextMessage) {
-    throw new Error("We ran out of messages early?");
-  }
+  nextMessage = gDBView.getMsgHdrAt(1);
+  Assert.ok(nextMessage, "We ran out of messages early?");
 });
 
 /**
@@ -245,13 +266,17 @@ add_task(
     msgc = null;
 
     // - and we should now be on the folder tab and there should be no other tabs
-    if (document.getElementById("tabmail").tabInfo.length != 1) {
-      throw new Error("There should only be one tab left!");
-    }
+    Assert.equal(
+      document.getElementById("tabmail").tabInfo.length,
+      1,
+      "There should only be one tab left!"
+    );
     // the below check is implied by the previous check if things are sane-ish
-    if (document.getElementById("tabmail").currentTabInfo != tabFolder) {
-      throw new Error("We should be on the folder tab!");
-    }
+    Assert.deepEqual(
+      document.getElementById("tabmail").currentTabInfo,
+      tabFolder,
+      "We should be on the folder tab!"
+    );
   }
 );
 
@@ -259,8 +284,6 @@ add_task(
  * Open the first message in the smart inbox.
  */
 add_task(async function test_open_first_message_in_smart_inbox() {
-  // Show the smart folders view.
-  window.folderTreeView.activeModes = "smart";
   // Select the smart inbox
   folder = get_smart_folder_named("Inbox");
   await be_in_folder(folder);
@@ -274,10 +297,11 @@ add_task(async function test_open_first_message_in_smart_inbox() {
  * (advancing to the next message).
  */
 add_task(async function test_delete_from_smart_inbox_in_folder_tab() {
+  const { gDBView } = get_about_3pane();
   // - plan to end up on the guy who is currently at index 1
-  curMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
+  curMessage = gDBView.getMsgHdrAt(1);
   // while we're at it, figure out who is at 2 for the next step
-  nextMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(2);
+  nextMessage = gDBView.getMsgHdrAt(2);
   // - delete the message
   await press_delete();
 
@@ -298,11 +322,10 @@ add_task(async function test_delete_from_smart_inbox_in_message_tab() {
   // - verify all displays
   await _verify_message_is_displayed_in(VERIFY_ALL, curMessage, 0);
 
+  const { gDBView } = get_about_message();
   // figure out the next guy...
-  nextMessage = window.gFolderDisplay.view.dbView.getMsgHdrAt(1);
-  if (!nextMessage) {
-    throw new Error("We ran out of messages early?");
-  }
+  nextMessage = gDBView.getMsgHdrAt(1);
+  Assert.ok(nextMessage, "We ran out of messages early?");
 });
 
 /**
@@ -340,28 +363,16 @@ add_task(
     msgc = null;
 
     // - and we should now be on the folder tab and there should be no other tabs
-    if (document.getElementById("tabmail").tabInfo.length != 1) {
-      throw new Error("There should only be one tab left!");
-    }
+    Assert.equal(
+      document.getElementById("tabmail").tabInfo.length,
+      1,
+      "There should only be one tab left!"
+    );
     // the below check is implied by the previous check if things are sane-ish
-    if (document.getElementById("tabmail").currentTabInfo != tabFolder) {
-      throw new Error("We should be on the folder tab!");
-    }
+    Assert.deepEqual(
+      document.getElementById("tabmail").currentTabInfo,
+      tabFolder,
+      "We should be on the folder tab!"
+    );
   }
 );
-
-/**
- * Switch back to the all folders mode for further tests.
- */
-add_task(function test_switch_back_to_all_folders_mode() {
-  // The activeModes setter automatically toggles off the mode if is currently
-  // visible.
-  window.folderTreeView.activeModes = "smart";
-
-  Assert.report(
-    false,
-    undefined,
-    undefined,
-    "Test ran to completion successfully"
-  );
-});

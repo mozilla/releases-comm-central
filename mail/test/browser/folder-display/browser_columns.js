@@ -21,6 +21,7 @@ var {
   open_folder_in_new_tab,
   switch_tab,
   select_click_row,
+  delete_messages,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -216,7 +217,13 @@ add_task(async function test_column_defaults_inbox() {
 });
 
 add_task(async function test_keypress_on_columns() {
-  await make_message_sets_in_folders([folderInbox], [{ count: 1 }]);
+  const [messageSet] = await make_message_sets_in_folders(
+    [folderInbox],
+    [{ count: 1 }]
+  );
+  registerCleanupFunction(async () => {
+    await delete_messages(messageSet);
+  });
 
   let tabmail = document.getElementById("tabmail");
   let about3Pane = tabmail.currentAbout3Pane;

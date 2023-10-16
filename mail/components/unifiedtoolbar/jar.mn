@@ -16,6 +16,7 @@ messenger.jar:
     content/messenger/unifiedtoolbar/mail-go-button.mjs                (content/items/mail-go-button.mjs)
     content/messenger/unifiedtoolbar/quick-filter-bar-toggle.mjs       (content/items/quick-filter-bar-toggle.mjs)
     content/messenger/unifiedtoolbar/space-button.mjs                  (content/items/space-button.mjs)
+    content/messenger/unifiedtoolbar/view-picker-button.mjs            (content/items/view-picker-button.mjs)
     content/messenger/unifiedtoolbar/extension-action-button.mjs       (content/extension-action-button.mjs)
     content/messenger/unifiedtoolbar/list-box-selection.mjs            (content/list-box-selection.mjs)
     content/messenger/unifiedtoolbar/mail-tab-button.mjs               (content/mail-tab-button.mjs)

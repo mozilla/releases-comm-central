@@ -44,13 +44,13 @@ function ViewChange(aValue) {
 
   if (aValue == kViewItemCustomize || aValue == kViewItemVirtual) {
     // restore to the previous view value, in case they cancel
-    ViewPickerBinding.updateDisplay();
     if (aValue == kViewItemCustomize) {
       LaunchCustomizeDialog();
     } else {
       about3Pane.folderPane.newVirtualFolder(
         ViewPickerBinding.currentViewLabel,
-        viewWrapper.search.viewTerms
+        viewWrapper.search.viewTerms,
+        about3Pane.gFolder
       );
     }
     return;
@@ -65,7 +65,6 @@ function ViewChange(aValue) {
     var numval = Number(aValue);
     viewWrapper.setMailView(numval, null);
   }
-  ViewPickerBinding.updateDisplay();
 }
 
 function ViewChangeByMenuitem(aMenuitem) {
@@ -79,12 +78,6 @@ function ViewChangeByMenuitem(aMenuitem) {
  *  visible at all times (or ever).  No view picker widget, no binding.
  */
 var ViewPickerBinding = {
-  _init() {
-    window.addEventListener("MailViewChanged", function (aEvent) {
-      ViewPickerBinding.updateDisplay(aEvent);
-    });
-  },
-
   /**
    * Return true if the view picker is visible.  This is used by the
    *  FolderDisplayWidget to know whether or not to actually use mailviews. (The
@@ -121,32 +114,7 @@ var ViewPickerBinding = {
       `#toolbarViewPickerPopup [value="${this.currentViewValue}"]`
     )?.label;
   },
-
-  /**
-   * The effective view has changed, update the widget.
-   */
-  updateDisplay(event) {
-    let viewPicker = document.getElementById("viewPicker");
-    if (viewPicker) {
-      let value = this.currentViewValue;
-
-      let viewPickerPopup = document.getElementById("viewPickerPopup");
-      let selectedItem = viewPickerPopup.querySelector(
-        '[value="' + value + '"]'
-      );
-      if (!selectedItem) {
-        // We may have a new item, so refresh to make it show up.
-        RefreshAllViewPopups(viewPickerPopup, true);
-        selectedItem = viewPickerPopup.querySelector('[value="' + value + '"]');
-      }
-      viewPicker.setAttribute(
-        "label",
-        selectedItem && selectedItem.getAttribute("label")
-      );
-    }
-  },
 };
-ViewPickerBinding._init();
 
 function LaunchCustomizeDialog() {
   OpenOrFocusWindow(
@@ -312,12 +280,3 @@ function RefreshTagsPopup(parent, elementName = "menuitem", classes) {
     parent.appendChild(item);
   });
 }
-
-function ViewPickerOnLoad() {
-  var viewPickerPopup = document.getElementById("viewPickerPopup");
-  if (viewPickerPopup) {
-    RefreshAllViewPopups(viewPickerPopup, true);
-  }
-}
-
-window.addEventListener("load", ViewPickerOnLoad);

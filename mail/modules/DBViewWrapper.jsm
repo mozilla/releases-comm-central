@@ -2085,8 +2085,7 @@ DBViewWrapper.prototype = {
       }
     }
 
-    // we don't need to notify the view picker to update because the makeActive
-    //  that cascades out of the view update will do it for us.
+    this.listener.onMailViewChanged();
   },
 
   /**
