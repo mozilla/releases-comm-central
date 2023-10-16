@@ -102,9 +102,9 @@ var gSync = {
       let title, body, button;
       if (disconnectAccount) {
         [title, body, button] = await document.l10n.formatValues([
-          "fxa-signout-dialog-title",
-          "fxa-signout-dialog-body",
-          "fxa-signout-dialog-button",
+          "sync-signout-dialog-title",
+          "sync-signout-dialog-body",
+          "sync-signout-dialog-button",
         ]);
       } else {
         [title, body, button] = await document.l10n.formatValues([
