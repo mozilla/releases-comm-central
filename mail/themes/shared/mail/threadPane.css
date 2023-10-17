@@ -714,6 +714,9 @@ tr[data-properties~="thread-children"] + tr:not([data-properties~="thread-childr
 .thread-card-row > .thread-card-icon-info {
   display: flex;
   margin-inline-start: auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
 }
 
 .is-outgoing [data-properties~="outgoing"] .thread-card-row > .sender {
