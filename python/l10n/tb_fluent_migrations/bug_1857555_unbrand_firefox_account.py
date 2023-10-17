@@ -17,8 +17,13 @@ sync-verification-sent-title = { COPY_PATTERN(from_path, "fxa-verification-sent-
 sync-verification-sent-body = { COPY_PATTERN(from_path, "fxa-verification-sent-body") }
 sync-verification-not-sent-title = { COPY_PATTERN(from_path, "fxa-verification-not-sent-title") }
 sync-verification-not-sent-body = { COPY_PATTERN(from_path, "fxa-verification-not-sent-body") }
+
 sync-signout-dialog-body = { COPY_PATTERN(from_path, "fxa-signout-dialog-body") }
 sync-signout-dialog-button = { COPY_PATTERN(from_path, "fxa-signout-dialog-button") }
+
+sync-disconnect-dialog-title = { COPY_PATTERN(from_path, "sync-disconnect-dialog-title") }
+sync-disconnect-dialog-body = { COPY_PATTERN(from_path, "sync-disconnect-dialog-body") }
+sync-disconnect-dialog-button = { COPY_PATTERN(from_path, "sync-disconnect-dialog-button") }
             """,
             from_path="mail/messenger/firefoxAccounts.ftl",
         ),
