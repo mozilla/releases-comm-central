@@ -14,18 +14,19 @@ const FORMATTER = new Intl.NumberFormat("en", {
 
 const VARIANT_RANGE = {
   white: [],
-  gray: [10, 90],
-  red: [30, 90],
-  orange: [30, 90],
-  amber: [30, 90],
+  black: [],
+  gray: [5, 10, 90],
+  red: [10, 90],
+  orange: [10, 90],
+  amber: [10, 90],
   yellow: [30, 90],
-  green: [30, 90],
-  teal: [30, 90],
-  blue: [0, 90],
-  purple: [0, 90],
-  magenta: [30, 90],
-  brown: [30, 90],
-  ink: [30, 90],
+  green: [10, 90],
+  teal: [10, 90],
+  blue: [10, 90],
+  purple: [10, 90],
+  magenta: [10, 90],
+  brown: [10, 90],
+  ink: [10, 90],
 };
 
 const ALL_COLORS = Object.entries(VARIANT_RANGE).flatMap(([color, range]) => {
@@ -33,7 +34,12 @@ const ALL_COLORS = Object.entries(VARIANT_RANGE).flatMap(([color, range]) => {
     return [color];
   }
   const colors = [];
-  for (let variant = range[0]; variant <= range[1]; variant += 10) {
+  let start = 0;
+  while (range[start] < 10) {
+    colors.push(`${color}-${FORMATTER.format(range[start])}`);
+    ++start;
+  }
+  for (let variant = range[start]; variant <= range[start + 1]; variant += 10) {
     colors.push(`${color}-${FORMATTER.format(variant)}`);
   }
   return colors;
@@ -61,7 +67,7 @@ function createColor(colorName) {
   preview.style.width = "200px";
   preview.style.height = "50px";
   preview.style.background = `var(${cssVariableName})`;
-  const legend = document.createElement("span");
+  const legend = document.createElement("code");
   legend.textContent = cssVariableName;
   color.append(preview, legend);
   return color;
@@ -70,20 +76,63 @@ function createColor(colorName) {
 export const Colors = {
   render: () => {
     const container = document.createElement("div");
+    container.insertAdjacentHTML(
+      "afterbegin",
+      "<h1>Color variables provided by <code>chrome://messenger/skin/colors.css</code>:</h1>"
+    );
     container.append(...ALL_COLORS.map(createColor));
     return container;
   },
 };
 
-const Template = ({ color1, color2 }) => html`
+const CompareTemplate = ({ color1, color2 }) => html`
   <div style="display: grid">
     <div style="height: 40vh; background: var(--color-${color1})"></div>
     <div style="height: 40vh; background: var(--color-${color2})"></div>
   </div>
 `;
 
-export const CompareColors = Template.bind({});
+export const CompareColors = CompareTemplate.bind({});
 CompareColors.args = {
+  color1: "white",
+  color2: "ink-90",
+};
+
+const TextContrastTemplate = ({ color1, color2 }) => html`
+  <section
+    style="background-color: var(--color-${color1}); color: var(--color-${color2});"
+  >
+    <p>
+      Consectetur voluptatem voluptatibus nihil nobis dignissimos suscipit et
+      odio. Ipsa sequi ad aperiam officia aut maxime. Voluptas qui et
+      repellendus corrupti. Libero nihil in corrupti non dolorem.
+    </p>
+    <p>
+      Eligendi eligendi deleniti necessitatibus. Tempore ipsam illum cumque.
+      Excepturi ex explicabo et.
+    </p>
+    <p>
+      Aut sequi consequuntur asperiores non. Corporis quos reprehenderit
+      consequuntur sint. Ipsa numquam sint id non tempore doloremque. Nam
+      quibusdam blanditiis nostrum. Ducimus autem nesciunt quam officia sunt et.
+    </p>
+    <p>
+      Recusandae facere laudantium ad quas tenetur non vel ullam. Voluptas hic
+      dicta itaque doloribus repellendus impedit laborum. Illum velit
+      dignissimos voluptatem dolorem quo sit hic. Sequi occaecati exercitationem
+      non veniam sed suscipit blanditiis consequatur. Facere eum eaque fugiat
+      esse quisquam qui dolor et.
+    </p>
+    <p>
+      Ut et perspiciatis recusandae recusandae. Voluptate temporibus quia
+      voluptas cumque. Sint ut qui mollitia fugiat omnis qui distinctio. Numquam
+      expedita amet quas velit consequatur laborum. Eius officiis modi unde
+      earum voluptas est sed.
+    </p>
+  </section>
+`;
+export const TextContrast = TextContrastTemplate.bind({});
+TextContrast.args = {
   color1: "white",
   color2: "ink-90",
 };
