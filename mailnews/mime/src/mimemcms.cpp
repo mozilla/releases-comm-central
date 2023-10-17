@@ -23,6 +23,7 @@
 #include "plstr.h"
 #include "nsComponentManagerUtils.h"
 #include "nsIMailChannel.h"
+#include "nsIPrefBranch.h"
 
 #define MIME_SUPERCLASS mimeMultipartSignedClass
 MimeDefClass(MimeMultipartSignedCMS, MimeMultipartSignedCMSClass,
@@ -205,9 +206,24 @@ static void* MimeMultCMS_init(MimeObject* obj) {
     return 0; /* #### bogus message?  out of memory? */
   }
 
-  if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA256) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_2) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_3))
+  bool allowSha1 = false;
+  nsCOMPtr<nsIPrefBranch> pPrefBranch(
+      do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  if (NS_SUCCEEDED(rv)) {
+    pPrefBranch->GetBoolPref("mail.smime.accept_insecure_sha1_message_signatures",
+                             &allowSha1);
+  }
+
+  if (allowSha1 &&
+      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1) ||
+      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_2) ||
+      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_3) ||
+      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_4) ||
+      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_5))
+    hash_type = nsICryptoHash::SHA1;
+  else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA256) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_2) ||
+           !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_3))
     hash_type = nsICryptoHash::SHA256;
   else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA384) ||
            !PL_strcasecmp(micalg, PARAM_MICALG_SHA384_2) ||

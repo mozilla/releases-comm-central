@@ -25,6 +25,7 @@
 #include "secerr.h"
 #include "smime.h"
 #include "mozilla/StaticMutex.h"
+#include "nsIPrefBranch.h"
 
 using namespace mozilla;
 using namespace mozilla::psm;
@@ -401,6 +402,8 @@ nsresult nsCMSMessage::CommonVerifySignature(
   int32_t nsigners;
   nsresult rv = NS_ERROR_FAILURE;
   SECOidTag sigAlgTag;
+  bool allowSha1 = false;
+  nsCOMPtr<nsIPrefBranch> pPrefBranch;
 
   if (!NSS_CMSMessage_IsSigned(m_cmsMsg)) {
     MOZ_LOG(gCMSLog, LogLevel::Debug,
@@ -499,12 +502,27 @@ nsresult nsCMSMessage::CommonVerifySignature(
     goto loser;
   }
 
+  pPrefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
+  if (NS_SUCCEEDED(rv)) {
+    pPrefBranch->GetBoolPref("mail.smime.accept_insecure_sha1_message_signatures",
+                             &allowSha1);
+  }
+
   sigAlgTag = NSS_CMSSignerInfo_GetDigestAlgTag(si);
   switch (sigAlgTag) {
     case SEC_OID_SHA256:
     case SEC_OID_SHA384:
     case SEC_OID_SHA512:
       break;
+
+    case SEC_OID_SHA1:
+      if (allowSha1) {
+        break;
+      }
+      // else fall through to failure
+#if defined(__clang__)
+    [[clang::fallthrough]];
+#endif
 
     default:
       MOZ_LOG(
