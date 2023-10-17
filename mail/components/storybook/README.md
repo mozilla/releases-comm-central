@@ -29,3 +29,19 @@ the following command in your Thunderbird developer console:
 ```js
 tabmail.openTab("contentTab", { url: "http://localhost:5703" })
 ```
+
+==== Ensuring all style features work
+
+Our stylesheets use some features that are not available to web content. To fix
+this a couple preferences have to be set to true:
+
+```
+svg.context-properties.content.enabled = true
+layout.css.light-dark.enabled = true
+```
+
+To change those preferences in your Thunderbird profile, go to the Settings and
+scroll to the bottom in the General pane. Click to open the Config Editor and
+enter the preference names in the search bar.
+
+You might not want to keep these preferences enabled on a long-lived profile.
