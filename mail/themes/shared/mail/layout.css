@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/colors.css");
 
 /* This file defines the colors used for the main layout of the application.
- * Colors that define a containers for content or thier text color should go
+ * Colors that define a containers for content or their text color should go
  *  here. Colors that define widgets or content should not */
 
 /* Background 0 should be used for the main content or page background */
@@ -17,7 +17,7 @@
 /* Color 0 should be used when the text needs more emphasis */
 /* Color 1 should be used for the main text color */
 /* Color 2 should be used when the text needs less emphasis */
-/* Color 2 should be used when the text need even less emphasis */
+/* Color 3 should be used when the text need even less emphasis */
 
 /* Border 0 should be used for separation from main layout sections */
 /* Border 1 should be used when the separation is part of the element */
