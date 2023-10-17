@@ -71,7 +71,7 @@
     --in-content-box-info-background: var(--color-gray-60);
   }
 
-  :host(:is(.anonymous-content-host, notification-messagem, [type=warning])) {
+  :host(:is(.anonymous-content-host, notification-message, [type=warning])) {
     --message-bar-background-color: #ffe900;
   }
 }
