@@ -23,12 +23,26 @@ You can run storybook by executing
 ../mach tb-storybook
 ```
 
-Now storybook should be running at `http://localhost:5703`. To use storybook, run
-the following command in your Thunderbird developer console:
+Now storybook should be running at `http://localhost:5703` and Thunderbird will
+open with a temporary profile, loading a tab with storybook.
+
+You can disable Thunderbird opening with the command using the `--no-open`
+option.
+
+==== Manually opening Storybook in Thunderbird
+
+Run the following command in your Thunderbird developer console:
 
 ```js
 tabmail.openTab("contentTab", { url: "http://localhost:5703" })
 ```
+
+You can also launch Thunderbird with storybook getting loaded in a new tab in a
+temporary profile using `../mach tb-storybook launch`. If the
+`--no-temp-profile` flag is specified, your normal development profile is opened
+and no preferences are modified except to open storybook in the first place.
+Consider the next section on preferences you might want to flip while using
+storybook like this.
 
 ==== Ensuring all style features work
 

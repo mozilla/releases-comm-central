@@ -16,10 +16,6 @@ export const Widgets = () => html`
     Each of these widgets shown off is based on CSS classes provided by
     <code>chrome://messenger/skin/widgets.css</code>
   </h1>
-  <p>
-    To get correct icon colors, follow the preference changing instructions of
-    the readme.
-  </p>
 `;
 
 export const Button = () => html`<button class="button">Button</button>`;

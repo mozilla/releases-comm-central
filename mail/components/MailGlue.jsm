@@ -774,6 +774,28 @@ MailGlue.prototype = {
           lazy.UpdateListener.maybeShowUnsupportedNotification();
         },
       },
+      // This implements a special pref that allows used to launch the
+      // application with an immediately opened Storybook when running mach
+      // tb-storybook. This pref only needs to work in the local development
+      // environment. The URL is hardcoded as to limit what the pref can be used
+      // for.
+      {
+        condition:
+          !AppConstants.MOZILLA_OFFICIAL &&
+          Services.prefs.getBoolPref("mail.storybook.openTab", false),
+        task: () => {
+          const win = Services.wm.getMostRecentWindow("mail:3pane");
+          if (!win) {
+            return;
+          }
+          const tabmail = win.document.getElementById("tabmail");
+          if (!tabmail) {
+            return;
+          }
+          tabmail.openTab("contentTab", { url: "http://localhost:5703" });
+          Services.prefs.clearUserPref("mail.storybook.openTab");
+        },
+      },
       {
         task() {
           // Use idleDispatch a second time to run this after the per-window
