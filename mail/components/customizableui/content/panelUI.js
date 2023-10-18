@@ -11,8 +11,8 @@
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
-var { ExtensionSupport } = ChromeUtils.import(
-  "resource:///modules/ExtensionSupport.jsm"
+var { ExtensionSupport } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionSupport.sys.mjs"
 );
 var { ShortcutUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/ShortcutUtils.sys.mjs"

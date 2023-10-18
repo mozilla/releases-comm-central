@@ -4,13 +4,17 @@
 
 const XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
+var { ExtensionSupport } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionSupport.sys.mjs"
+);
+
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-var { migrateMailnews } =
-  ChromeUtils.import("resource:///modules/mailnewsMigrator.js");
-var { ExtensionSupport } = 
-  ChromeUtils.import("resource:///modules/ExtensionSupport.jsm");
-var { LightweightThemeConsumer } =
-  ChromeUtils.import("resource://gre/modules/LightweightThemeConsumer.jsm");
+var { migrateMailnews } = ChromeUtils.import(
+  "resource:///modules/mailnewsMigrator.js"
+);
+var { LightweightThemeConsumer } = ChromeUtils.import(
+  "resource://gre/modules/LightweightThemeConsumer.jsm"
+);
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
@@ -100,7 +104,7 @@ function SuiteGlue() {
                                      "nsIIdleService");
 
   this._init();
-  extensionDefaults(); // extensionSupport.jsm
+  extensionDefaults(); // ExtensionSupport.sys.mjs
 }
 
 SuiteGlue.prototype = {

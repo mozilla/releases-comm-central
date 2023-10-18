@@ -6,8 +6,8 @@
 
 "use strict";
 
-var { ExtensionSupport } = ChromeUtils.import(
-  "resource:///modules/ExtensionSupport.jsm"
+var { ExtensionSupport } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionSupport.sys.mjs"
 );
 var { ExtensionUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionUtils.sys.mjs"

@@ -41,8 +41,8 @@ var myapi = class extends ExtensionCommon.ExtensionAPI {
 };
 
 // A helpful class for listening to windows opening and closing.
-var { ExtensionSupport } = ChromeUtils.import(
-  "resource:///modules/ExtensionSupport.jsm"
+var { ExtensionSupport } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionSupport.sys.mjs"
 );
 
 // This object is just what we're using to listen for toolbar clicks. The implementation isn't

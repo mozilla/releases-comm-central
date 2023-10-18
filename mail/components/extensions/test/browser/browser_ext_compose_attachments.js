@@ -12,8 +12,8 @@ const { ExtensionUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionUtils.sys.mjs"
 );
 
-var { ExtensionSupport } = ChromeUtils.import(
-  "resource:///modules/ExtensionSupport.jsm"
+var { ExtensionSupport } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionSupport.sys.mjs"
 );
 
 let account = createAccount();

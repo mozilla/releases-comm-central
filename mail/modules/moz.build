@@ -12,7 +12,7 @@ EXTRA_JS_MODULES += [
     "DisplayNameUtils.jsm",
     "DNS.jsm",
     "ExtensionsUI.sys.mjs",
-    "ExtensionSupport.jsm",
+    "ExtensionSupport.sys.mjs",
     "FolderTreeProperties.jsm",
     "GlobalPopupNotifications.jsm",
     "MailConsts.jsm",

@@ -37,6 +37,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.sys.mjs",
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   ChatCore: "resource:///modules/chatHandler.sys.mjs",
+  ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
 
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.sys.mjs",
@@ -51,7 +52,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
 });
 
 XPCOMUtils.defineLazyModuleGetters(lazy, {
-  ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
   MailMigrator: "resource:///modules/MailMigrator.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   MailUsageTelemetry: "resource:///modules/MailUsageTelemetry.jsm",

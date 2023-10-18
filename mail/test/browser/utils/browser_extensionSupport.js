@@ -3,7 +3,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Tests ExtensionSupport.jsm functions.
+ * Tests ExtensionSupport.sys.mjs functions.
  */
 
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(
@@ -13,8 +13,8 @@ var { promise_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { ExtensionSupport } = ChromeUtils.import(
-  "resource:///modules/ExtensionSupport.jsm"
+var { ExtensionSupport } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionSupport.sys.mjs"
 );
 
 /**

@@ -7,12 +7,10 @@
  * into the application.
  */
 
-const EXPORTED_SYMBOLS = ["ExtensionSupport"];
-
 var extensionHooks = new Map();
 var openWindowList;
 
-var ExtensionSupport = {
+export var ExtensionSupport = {
   /**
    * Register listening for windows getting opened that will run the specified callback function
    * when a matching window is loaded.

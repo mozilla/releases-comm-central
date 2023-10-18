@@ -7,13 +7,10 @@
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
+  ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
   ViewPopup: "resource:///modules/ExtensionPopups.sys.mjs",
 });
-ChromeUtils.defineModuleGetter(
-  lazy,
-  "ExtensionSupport",
-  "resource:///modules/ExtensionSupport.jsm"
-);
+
 import { ExtensionCommon } from "resource://gre/modules/ExtensionCommon.sys.mjs";
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
 import { ExtensionParent } from "resource://gre/modules/ExtensionParent.sys.mjs";
