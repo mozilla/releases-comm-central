@@ -422,7 +422,7 @@ define(function (require) {
           emitter.addDate(new Date("1850-01-01"));
         }, /Date year is out of encodable range/);
         assert.throws(function () {
-          emitter.addDate(new Date("10000-01-01"));
+          emitter.addDate(new Date("YYYY-MM-DD"));
         }, /Cannot encode an invalid date/);
       });
 
