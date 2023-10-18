@@ -24,16 +24,16 @@ struct fileTransactionEntry {
       newName;  // only valid if the file should be renamed after getting copied
 };
 
-#define F(a) nsNetscapeProfileMigratorBase::a
+#define TRANSFORMFUNCTION(a) nsNetscapeProfileMigratorBase::a
 
 #define MAKEPREFTRANSFORM(pref, newpref, getmethod, setmethod)         \
   {                                                                    \
-    pref, newpref, F(Get##getmethod), F(Set##setmethod), false, { -1 } \
+    pref, newpref, TRANSFORMFUNCTION(Get##getmethod), TRANSFORMFUNCTION(Set##setmethod), false, { -1 } \
   }
 
 #define MAKESAMETYPEPREFTRANSFORM(pref, method)            \
   {                                                        \
-    pref, 0, F(Get##method), F(Set##method), false, { -1 } \
+    pref, 0, TRANSFORMFUNCTION(Get##method), TRANSFORMFUNCTION(Set##method), false, { -1 } \
   }
 
 class nsNetscapeProfileMigratorBase : public nsIMailProfileMigrator,
