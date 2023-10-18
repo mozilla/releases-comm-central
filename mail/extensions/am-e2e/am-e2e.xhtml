@@ -3,14 +3,19 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
-
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/am-smime.dtd">
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="parent.onPanelLoaded('am-e2e.xhtml');">
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/accountManage.css"
+  />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/openpgp/inlineNotification.css"
+  />
 
   <script src="chrome://messenger/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>

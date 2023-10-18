@@ -3,14 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/variables.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
-
 <!DOCTYPE window [ <!ENTITY % edImageProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorImageProperties.dtd">
 %edImageProperties;
 <!ENTITY % composeEditorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/mailComposeEditorOverlay.dtd">
@@ -28,6 +20,20 @@
   lightweightthemes="true"
   onload="Startup()"
 >
+  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
+  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/themeableDialog.css"
+  />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/shared/grid-layout.css"
+  />
+
   <dialog id="imageDlg" buttons="accept,cancel" style="width: 60ch">
     <script src="chrome://messenger/content/globalOverlay.js" />
     <script src="chrome://global/content/editMenuOverlay.js" />

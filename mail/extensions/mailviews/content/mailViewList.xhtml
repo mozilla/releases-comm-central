@@ -4,10 +4,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
-
 <!DOCTYPE window [ <!ENTITY % mailViewLisDTD SYSTEM "chrome://messenger/locale/mailViewList.dtd">
 %mailViewLisDTD;
 <!ENTITY % FilterListDialogDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">
@@ -25,6 +21,13 @@
   height="340"
   persist="screenX screenY width height"
 >
+  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/themeableDialog.css"
+  />
+
   <dialog buttons="accept">
     <script src="chrome://messenger/content/mailViewList.js" />
     <script src="chrome://messenger/content/dialogShadowDom.js" />

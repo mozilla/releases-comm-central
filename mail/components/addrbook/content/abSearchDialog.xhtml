@@ -3,12 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/searchDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/addressbook/abResultsPane.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/abSearchDialog.css" type="text/css"?>
-
 <!DOCTYPE window [
   <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd">
   %abResultsPaneDTD;
@@ -28,6 +22,21 @@
         style="min-width: 52em; min-height: 34em;"
         lightweightthemes="true"
         persist="screenX screenY width height sizemode">
+  <html:link rel="stylesheet" href="chrome://messenger/skin/searchDialog.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/themeableDialog.css"
+  />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/addressbook/abResultsPane.css"
+  />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/abSearchDialog.css"
+  />
+
   <html:link rel="localization" href="messenger/addressbook/aboutAddressBook.ftl" />
 
   <script src="chrome://messenger/content/globalOverlay.js"/>

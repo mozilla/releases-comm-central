@@ -3,14 +3,11 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger-newsblog/skin/feed-subscriptions.css" type="text/css"?>
-
 <!DOCTYPE html [ <!ENTITY % newsblogDTD SYSTEM "chrome://messenger-newsblog/locale/am-newsblog.dtd">
 %newsblogDTD;
-<!ENTITY %             feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd" >
+<!ENTITY % feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
 %feedDTD;
-<!ENTITY %   accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd" >
+<!ENTITY % accountNoIdentDTD SYSTEM "chrome://messenger/locale/am-serverwithnoidentities.dtd">
 %accountNoIdentDTD;
 <!ENTITY % accountServerTopDTD SYSTEM "chrome://messenger/locale/am-server-top.dtd">
 %accountServerTopDTD; ]>
@@ -22,6 +19,11 @@
 >
   <head>
     <title>&accountTitle.label;</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
+    <link
+      rel="stylesheet"
+      href="chrome://messenger-newsblog/skin/feed-subscriptions.css"
+    />
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"

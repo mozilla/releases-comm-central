@@ -4,9 +4,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/contextMenu.css" type="text/css"?>
-
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
@@ -30,6 +27,9 @@
         persist="screenX screenY width height sizemode">
 
 <linkset>
+  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+
   <html:link rel="localization" href="branding/brand.ftl"/>
   <html:link rel="localization" href="messenger/messenger.ftl"/>
   <html:link rel="localization" href="messenger/menubar.ftl"/>

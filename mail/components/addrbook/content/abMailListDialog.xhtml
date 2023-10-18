@@ -4,10 +4,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/addressbook/cardDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
-
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/abMailListDialog.dtd">
 
 <window
@@ -18,6 +14,16 @@
   ondragover="DragOverAddressListTree(event);"
   ondrop="DropOnAddressListTree(event);"
 >
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/addressbook/cardDialog.css"
+  />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/shared/grid-layout.css"
+  />
+
   <dialog id="ablistWindow">
     <script src="chrome://messenger/content/globalOverlay.js" />
     <script src="chrome://global/content/editMenuOverlay.js" />

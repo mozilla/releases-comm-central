@@ -5,10 +5,6 @@
 
 #filter substitution
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/aboutDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://branding/content/aboutDialog.css" type="text/css"?>
-
 <!DOCTYPE html>
 <html id="aboutDialog" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -17,6 +13,10 @@
 
 <head>
   <title data-l10n-id="about-dialog-title"></title>
+  <link rel="stylesheet" href="chrome://global/skin/global.css" />
+  <link rel="stylesheet" href="chrome://messenger/content/aboutDialog.css" />
+  <link rel="stylesheet" href="chrome://branding/content/aboutDialog.css" />
+
   <link rel="localization" href="branding/brand.ftl"/>
   <link rel="localization" href="messenger/aboutDialog.ftl"/>
   <script defer="true" src="chrome://messenger/content/aboutDialog.js"></script>

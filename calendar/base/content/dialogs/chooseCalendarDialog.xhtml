@@ -3,11 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/dialogs/chooseCalendarDialog.css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/colors.css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
-
 <!-- DTD File with all strings specific to the file -->
 <!DOCTYPE window SYSTEM "chrome://calendar/locale/calendar.dtd">
 
@@ -21,6 +16,14 @@
   lightweightthemes="true"
   persist="screenX screenY height width"
 >
+  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <html:link
+    rel="stylesheet"
+    href="chrome://calendar/skin/shared/dialogs/chooseCalendarDialog.css"
+  />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
+
   <dialog buttons="accept,cancel">
     <script src="chrome://calendar/content/calendar-ui-utils.js" />
     <script src="chrome://calendar/content/chooseCalendarDialog.js" />

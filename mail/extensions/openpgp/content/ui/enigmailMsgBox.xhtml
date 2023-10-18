@@ -5,11 +5,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 -->
 
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/contextMenu.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/openpgp/enigmail.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
-
 <!DOCTYPE window [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD; ]>
 
@@ -26,6 +21,23 @@
       src="chrome://openpgp/content/ui/enigmailMsgBox.js"
     />
     <linkset>
+      <html:link
+        rel="stylesheet"
+        href="chrome://messenger/skin/messenger.css"
+      />
+      <html:link
+        rel="stylesheet"
+        href="chrome://messenger/skin/contextMenu.css"
+      />
+      <html:link
+        rel="stylesheet"
+        href="chrome://messenger/skin/openpgp/enigmail.css"
+      />
+      <html:link
+        rel="stylesheet"
+        href="chrome://messenger/skin/shared/grid-layout.css"
+      />
+
       <html:link rel="localization" href="messenger/openpgp/openpgp.ftl" />
     </linkset>
 

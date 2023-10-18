@@ -4,9 +4,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css"?>
-<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
-
 <!DOCTYPE window>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -14,6 +11,9 @@
         data-l10n-id="tag-dialog-window"
         style="min-width: 25em;"
         onload="onLoad();">
+  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+
 <dialog>
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>

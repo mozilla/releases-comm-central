@@ -6,8 +6,6 @@
 <!DOCTYPE window [ <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
 %utilityDTD; ]>
 
-<?xml-stylesheet href="chrome://global/skin/global.css"?>
-
 <window
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
@@ -27,6 +25,8 @@
     <script src="chrome://messenger/content/troubleshootMode.js" />
 
     <linkset>
+      <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
+
       <html:link rel="localization" href="branding/brand.ftl" />
       <html:link rel="localization" href="messenger/troubleshootMode.ftl" />
     </linkset>

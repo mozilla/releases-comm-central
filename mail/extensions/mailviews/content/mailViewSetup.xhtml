@@ -3,12 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/shared/input-fields.css" type="text/css" ?>
-<?xml-stylesheet href="chrome://messenger/skin/searchDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/variables.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
-
 <!DOCTYPE window [
   <!ENTITY % mailViewDTD SYSTEM "chrome://messenger/locale/mailViewSetup.dtd">
   %mailViewDTD;
@@ -26,6 +20,18 @@
         title="&mailViewSetupTitle.label;"
         style="min-width: 52em; min-height: 22em;"
         persist="screenX screenY width height">
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/shared/input-fields.css"
+  />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/searchDialog.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/themeableDialog.css"
+  />
+
 <dialog buttons="accept,cancel">
 
   <script src="chrome://messenger/content/globalOverlay.js"/>

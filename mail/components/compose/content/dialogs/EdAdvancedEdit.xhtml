@@ -6,14 +6,6 @@
 <!-- first checkin of the year 2000!      -->
 <!-- Ben Goodger, 12:50AM, 01/00/00 NZST  -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
-
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EdAdvancedEdit.dtd">
 
 <window
@@ -24,6 +16,17 @@
   lightweightthemes="true"
   onload="Startup()"
 >
+  <html:link rel="stylesheet" href="chrome://global/skin/global.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <html:link rel="stylesheet" href="chrome://editor/skin/EditorDialog.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/menulist.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/themeableDialog.css"
+  />
+
   <dialog id="advancedEditDlg">
     <script src="chrome://messenger/content/globalOverlay.js" />
     <script src="chrome://global/content/editMenuOverlay.js" />

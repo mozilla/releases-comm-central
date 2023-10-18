@@ -45,7 +45,6 @@ mailnews/test/data/alias-9.json
 
 
 # Ignore preprocessed xhtml/html files
-calendar/base/content/dialogs/calendar-event-dialog.xhtml
 calendar/base/content/widgets/*.xhtml
 mail/base/content/about3Pane.xhtml
 mail/base/content/aboutDialog.xhtml
@@ -81,7 +80,6 @@ mailnews/base/prefs/content/am-addressing.xhtml
 mailnews/base/prefs/content/am-copies.xhtml
 mailnews/base/prefs/content/am-identity-edit.xhtml
 mailnews/import/content/aboutImport.xhtml
-mailnews/search/content/CustomHeaders.xhtml
 mailnews/search/content/FilterEditor.xhtml
 
 # Chat template files that are space sensitive

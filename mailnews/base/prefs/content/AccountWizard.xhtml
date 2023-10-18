@@ -6,11 +6,6 @@
 <!-- NOTE: This Account Wizard is *only* for Newsgroup accounts. Historically,
    - it was a generic Account Wizard, hence the generic naming. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/accountWizard.css" type="text/css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
-<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
-
 <!DOCTYPE window [
 <!ENTITY % AccountWizardDTD SYSTEM "chrome://messenger/locale/AccountWizard.dtd">
 %AccountWizardDTD;
@@ -27,6 +22,23 @@
   <stringbundle id="bundle_prefs" src="chrome://messenger/locale/prefs.properties"/>
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <linkset>
+    <html:link
+      rel="stylesheet"
+      href="chrome://messenger/skin/accountWizard.css"
+    />
+    <html:link
+      rel="stylesheet"
+      href="chrome://messenger/skin/input-fields.css"
+    />
+    <html:link
+      rel="stylesheet"
+      href="chrome://messenger/skin/shared/grid-layout.css"
+    />
+    <html:link
+      rel="stylesheet"
+      href="chrome://messenger/skin/themeableDialog.css"
+    />
+
     <html:link rel="localization" href="toolkit/global/wizard.ftl"/>
   </linkset>
 

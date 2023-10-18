@@ -2,60 +2,88 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
-#ifdef MOZ_THUNDERBIRD
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-#else
-<?xml-stylesheet href="chrome://communicator/skin/" type="text/css"?>
-#endif
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/CustomHeaders.dtd">
-<html id="customHeaderDialog" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-      xmlns:html="http://www.w3.org/1999/xhtml"
-      width="450" height="375"
-      persist="width height screenX screenY"
-      scrolling="false">
-<head>
-  <title>&window.title;</title>
-  <link rel="localization" href="branding/brand.ftl" />
-  <script defer="defer" src="chrome://messenger/content/globalOverlay.js"></script>
-  <script defer="defer" src="chrome://global/content/editMenuOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/CustomHeaders.js"></script>
-</head>
-<html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<dialog buttons="accept,cancel,extra1,extra2">
-  <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
-  <stringbundle id="bundle_custom" src="chrome://messenger/locale/custom.properties"/>
+<html
+  id="customHeaderDialog"
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  width="450"
+  height="375"
+  persist="width height screenX screenY"
+  scrolling="false"
+>
+  <head>
+    <title>&window.title;</title>
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
 
-  <hbox flex="1">
-    <vbox flex="1">
-      <label id="headerInputLabel"
-             accesskey="&newMsgHeader.accesskey;"
-             control="headerInput"
-             value="&newMsgHeader.label;"/>
-      <html:input id="headerInput"
-                  type="text"
-                  aria-labelledby="headerInputLabel"
-                  class="input-inline"
-                  oninput="onTextInput();"/>
-      <richlistbox id="headerList"
-                   class="theme-listbox"
-                   flex="1"
-                   onselect="updateRemoveButton();" />
-    </vbox>
-    <vbox>
-      <label value=""/>
-      <button id="addButton"
-              label="&addButton.label;"
-              accesskey="&addButton.accesskey;"
-              dlgtype="extra1"/>
-      <button id="removeButton"
-              label="&removeButton.label;"
-              accesskey="&removeButton.accesskey;"
-              dlgtype="extra2"/>
-    </vbox>
-  </hbox>
-</dialog>
-</html:body>
+    <link rel="localization" href="branding/brand.ftl" />
+    <script
+      defer="defer"
+      src="chrome://messenger/content/globalOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://global/content/editMenuOverlay.js"
+    ></script>
+    <script
+      defer="defer"
+      src="chrome://messenger/content/CustomHeaders.js"
+    ></script>
+  </head>
+  <html:body
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  >
+    <dialog buttons="accept,cancel,extra1,extra2">
+      <stringbundle
+        id="bundle_filter"
+        src="chrome://messenger/locale/filter.properties"
+      />
+      <stringbundle
+        id="bundle_custom"
+        src="chrome://messenger/locale/custom.properties"
+      />
+
+      <hbox flex="1">
+        <vbox flex="1">
+          <label
+            id="headerInputLabel"
+            accesskey="&newMsgHeader.accesskey;"
+            control="headerInput"
+            value="&newMsgHeader.label;"
+          />
+          <html:input
+            id="headerInput"
+            type="text"
+            aria-labelledby="headerInputLabel"
+            class="input-inline"
+            oninput="onTextInput();"
+          />
+          <richlistbox
+            id="headerList"
+            class="theme-listbox"
+            flex="1"
+            onselect="updateRemoveButton();"
+          />
+        </vbox>
+        <vbox>
+          <label value="" />
+          <button
+            id="addButton"
+            label="&addButton.label;"
+            accesskey="&addButton.accesskey;"
+            dlgtype="extra1"
+          />
+          <button
+            id="removeButton"
+            label="&removeButton.label;"
+            accesskey="&removeButton.accesskey;"
+            dlgtype="extra2"
+          />
+        </vbox>
+      </hbox>
+    </dialog>
+  </html:body>
 </html>

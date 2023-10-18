@@ -3,11 +3,7 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
-
 <!DOCTYPE html SYSTEM "chrome://messenger/locale/addressbook/abAddressBookNameDialog.dtd">
-
 <html
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -17,6 +13,8 @@
 >
   <head>
     <title><!-- addressBookTitleEdit --></title>
+    <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+    <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
     <script
       defer="defer"
       src="chrome://messenger/content/globalOverlay.js"
@@ -36,7 +34,6 @@
         id="bundle_addressBook"
         src="chrome://messenger/locale/addressbook/addressBook.properties"
       />
-
       <div class="input-container">
         <label id="nameLabel" for="name">&name.label;</label>
         <input

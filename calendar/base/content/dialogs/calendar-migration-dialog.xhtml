@@ -3,9 +3,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<!-- Style sheets -->
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-
 <!DOCTYPE html [ <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 <!ENTITY % migrationDtd SYSTEM "chrome://calendar/locale/migration.dtd">
@@ -21,6 +18,8 @@
 >
   <head>
     <title>&migration.title;</title>
+    <link rel="stylesheet" href="chrome://global/skin/global.css" />
+
     <link rel="localization" href="toolkit/global/wizard.ftl" />
     <script defer="defer" src="chrome://calendar/content/import-export.js"></script>
     <script defer="defer" src="chrome://calendar/content/calendar-migration-dialog.js"></script>

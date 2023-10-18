@@ -4,12 +4,6 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<?xml-stylesheet href="chrome://messenger/skin/colors.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/addressbook/abContactsPanel.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/contextMenu.css" type="text/css"?>
-
 <!DOCTYPE window [ <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd">
 %abResultsPaneDTD;
 <!ENTITY % abContactsPanelDTD SYSTEM "chrome://messenger/locale/addressbook/abContactsPanel.dtd" >
@@ -25,6 +19,18 @@
   onload="AbPanelLoad();"
   onunload="AbPanelUnload();"
 >
+  <html:link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/searchBox.css" />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/addressbook/abContactsPanel.css"
+  />
+  <html:link
+    rel="stylesheet"
+    href="chrome://messenger/skin/themeableDialog.css"
+  />
+  <html:link rel="stylesheet" href="chrome://messenger/skin/contextMenu.css" />
+
   <html:link
     rel="localization"
     href="messenger/addressbook/aboutAddressBook.ftl"
