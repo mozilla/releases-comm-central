@@ -19,11 +19,8 @@ const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
   ExtensionCommon: "resource://gre/modules/ExtensionCommon.sys.mjs",
-});
-
-XPCOMUtils.defineLazyModuleGetters(lazy, {
-  getCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.jsm",
-  setCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.jsm",
+  getCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.sys.mjs",
+  setCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.sys.mjs",
 });
 
 /**

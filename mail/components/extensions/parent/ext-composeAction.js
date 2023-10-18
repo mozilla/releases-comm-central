@@ -6,11 +6,9 @@
 
 "use strict";
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "ToolbarButtonAPI",
-  "resource:///modules/ExtensionToolbarButtons.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  ToolbarButtonAPI: "resource:///modules/ExtensionToolbarButtons.sys.mjs",
+});
 
 const composeActionMap = new WeakMap();
 

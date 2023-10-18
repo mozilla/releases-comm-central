@@ -4,15 +4,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-"use strict";
-
-const EXPORTED_SYMBOLS = [
-  "ToolbarButtonAPI",
-  "getIconData",
-  "getCachedAllowedSpaces",
-  "setCachedAllowedSpaces",
-];
-
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -23,15 +14,9 @@ ChromeUtils.defineModuleGetter(
   "ExtensionSupport",
   "resource:///modules/ExtensionSupport.jsm"
 );
-const { ExtensionCommon } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionCommon.sys.mjs"
-);
-const { ExtensionUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionUtils.sys.mjs"
-);
-const { ExtensionParent } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionParent.sys.mjs"
-);
+import { ExtensionCommon } from "resource://gre/modules/ExtensionCommon.sys.mjs";
+import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
+import { ExtensionParent } from "resource://gre/modules/ExtensionParent.sys.mjs";
 
 var { EventManager, ExtensionAPIPersistent, makeWidgetId } = ExtensionCommon;
 
@@ -41,7 +26,7 @@ var { DefaultWeakMap, ExtensionError } = ExtensionUtils;
 
 var DEFAULT_ICON = "chrome://messenger/content/extension.svg";
 
-function getCachedAllowedSpaces() {
+export function getCachedAllowedSpaces() {
   let cache = {};
   if (
     Services.xulStore.hasValue(
@@ -60,7 +45,7 @@ function getCachedAllowedSpaces() {
   return new Map(Object.entries(cache));
 }
 
-function setCachedAllowedSpaces(allowedSpacesMap) {
+export function setCachedAllowedSpaces(allowedSpacesMap) {
   Services.xulStore.setValue(
     "chrome://messenger/content/messenger.xhtml",
     "unifiedToolbar",
@@ -75,7 +60,7 @@ function setCachedAllowedSpaces(allowedSpacesMap) {
  * @param {object} icons
  *        Contains the icon information, typically the extension manifest
  */
-function getIconData(icons, extension) {
+export function getIconData(icons, extension) {
   let baseSize = 16;
   let { icon, size } = IconDetails.getPreferredIcon(icons, extension, baseSize);
 
@@ -126,7 +111,7 @@ function getIconData(icons, extension) {
   return { style, legacy, realIcon };
 }
 
-var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
+export class ToolbarButtonAPI extends ExtensionAPIPersistent {
   constructor(extension, global) {
     super(extension);
     this.global = global;
@@ -939,4 +924,4 @@ var ToolbarButtonAPI = class extends ExtensionAPIPersistent {
       },
     };
   }
-};
+}

@@ -4,11 +4,9 @@
 
 "use strict";
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "ToolbarButtonAPI",
-  "resource:///modules/ExtensionToolbarButtons.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  ToolbarButtonAPI: "resource:///modules/ExtensionToolbarButtons.sys.mjs",
+});
 
 var { ExtensionCommon } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionCommon.sys.mjs"

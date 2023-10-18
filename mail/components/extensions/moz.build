@@ -9,8 +9,8 @@ EXTRA_COMPONENTS += [
 EXTRA_JS_MODULES += [
     "ExtensionBrowsingData.sys.mjs",
     "ExtensionPopups.sys.mjs",
-    "ExtensionToolbarButtons.jsm",
-    "MailExtensionShortcuts.jsm",
+    "ExtensionToolbarButtons.sys.mjs",
+    "MailExtensionShortcuts.sys.mjs",
 ]
 
 JAR_MANIFESTS += ["jar.mn"]

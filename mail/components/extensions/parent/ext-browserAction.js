@@ -12,18 +12,14 @@ ChromeUtils.defineESModuleGetters(this, {
   registerExtension: "resource:///modules/CustomizableItems.sys.mjs",
   unregisterExtension: "resource:///modules/CustomizableItems.sys.mjs",
   EXTENSION_PREFIX: "resource:///modules/CustomizableItems.sys.mjs",
+  ToolbarButtonAPI: "resource:///modules/ExtensionToolbarButtons.sys.mjs",
+  getCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.sys.mjs",
+  setCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.sys.mjs",
 });
+
 var { ExtensionCommon } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionCommon.sys.mjs"
 );
-var { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-XPCOMUtils.defineLazyModuleGetters(this, {
-  ToolbarButtonAPI: "resource:///modules/ExtensionToolbarButtons.jsm",
-  getCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.jsm",
-  setCachedAllowedSpaces: "resource:///modules/ExtensionToolbarButtons.jsm",
-});
 
 var { makeWidgetId } = ExtensionCommon;
 

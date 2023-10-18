@@ -10,9 +10,10 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { MessageGenerator } = ChromeUtils.import(
   "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
-var { getCachedAllowedSpaces, setCachedAllowedSpaces } = ChromeUtils.import(
-  "resource:///modules/ExtensionToolbarButtons.jsm"
-);
+var { getCachedAllowedSpaces, setCachedAllowedSpaces } =
+  ChromeUtils.importESModule(
+    "resource:///modules/ExtensionToolbarButtons.sys.mjs"
+  );
 const { storeState, getState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
 );

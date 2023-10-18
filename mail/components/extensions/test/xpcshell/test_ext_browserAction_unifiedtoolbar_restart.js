@@ -2,9 +2,10 @@
 /* vim: set sts=2 sw=2 et tw=80: */
 "use strict";
 
-var { getCachedAllowedSpaces, setCachedAllowedSpaces } = ChromeUtils.import(
-  "resource:///modules/ExtensionToolbarButtons.jsm"
-);
+var { getCachedAllowedSpaces, setCachedAllowedSpaces } =
+  ChromeUtils.importESModule(
+    "resource:///modules/ExtensionToolbarButtons.sys.mjs"
+  );
 var { storeState, getState } = ChromeUtils.importESModule(
   "resource:///modules/CustomizationState.mjs"
 );

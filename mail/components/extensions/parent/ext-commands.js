@@ -6,11 +6,9 @@
 
 "use strict";
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "MailExtensionShortcuts",
-  "resource:///modules/MailExtensionShortcuts.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  MailExtensionShortcuts: "resource:///modules/MailExtensionShortcuts.sys.mjs",
+});
 
 this.commands = class extends ExtensionAPIPersistent {
   PERSISTENT_EVENTS = {

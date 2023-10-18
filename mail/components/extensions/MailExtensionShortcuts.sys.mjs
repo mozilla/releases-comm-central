@@ -1,16 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-"use strict";
 
-const EXPORTED_SYMBOLS = ["MailExtensionShortcuts"];
-
-const { XPCOMUtils } = ChromeUtils.importESModule(
-  "resource://gre/modules/XPCOMUtils.sys.mjs"
-);
-const { ExtensionShortcuts } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionShortcuts.sys.mjs"
-);
+import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { ExtensionShortcuts } from "resource://gre/modules/ExtensionShortcuts.sys.mjs";
 
 const lazy = {};
 
@@ -35,7 +28,7 @@ const EXECUTE_BROWSER_ACTION = "_execute_browser_action";
 const EXECUTE_MSG_DISPLAY_ACTION = "_execute_message_display_action";
 const EXECUTE_COMPOSE_ACTION = "_execute_compose_action";
 
-class MailExtensionShortcuts extends ExtensionShortcuts {
+export class MailExtensionShortcuts extends ExtensionShortcuts {
   /**
    * Builds a XUL Key element and attaches an onCommand listener which
    * emits a command event with the provided name when fired.

@@ -92,7 +92,7 @@ class ExtensionActionButton extends UnifiedToolbarButton {
    * label, icon, badge, disabled and popup.
    *
    * @param {object} tabData - Properties for the button in the current tab. See
-   *   ExtensionToolbarButtons.jsm for more details.
+   *   ExtensionToolbarButtons.sys.mjs for more details.
    */
   applyTabData(tabData) {
     if (!this.#action) {

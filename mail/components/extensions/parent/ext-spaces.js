@@ -17,11 +17,9 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "getIconData",
-  "resource:///modules/ExtensionToolbarButtons.jsm"
-);
+ChromeUtils.defineESModuleGetters(this, {
+  getIconData: "resource:///modules/ExtensionToolbarButtons.sys.mjs",
+});
 
 XPCOMUtils.defineLazyGlobalGetters(this, ["InspectorUtils"]);
 

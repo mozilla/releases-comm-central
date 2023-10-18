@@ -13,10 +13,10 @@ const { getState, storeState } = ChromeUtils.importESModule(
 const { EXTENSION_PREFIX } = ChromeUtils.importESModule(
   "resource:///modules/CustomizableItems.sys.mjs"
 );
-const { getCachedAllowedSpaces, setCachedAllowedSpaces } = ChromeUtils.import(
-  "resource:///modules/ExtensionToolbarButtons.jsm"
-);
-
+const { getCachedAllowedSpaces, setCachedAllowedSpaces } =
+  ChromeUtils.importESModule(
+    "resource:///modules/ExtensionToolbarButtons.sys.mjs"
+  );
 const MESSENGER_WINDOW = "chrome://messenger/content/messenger.xhtml";
 const EXTENSION_ID = "thunderbird-compact-light@mozilla.org";
 
