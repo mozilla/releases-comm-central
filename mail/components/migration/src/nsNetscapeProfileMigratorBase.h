@@ -26,14 +26,20 @@ struct fileTransactionEntry {
 
 #define TRANSFORMFUNCTION(a) nsNetscapeProfileMigratorBase::a
 
-#define MAKEPREFTRANSFORM(pref, newpref, getmethod, setmethod)         \
-  {                                                                    \
-    pref, newpref, TRANSFORMFUNCTION(Get##getmethod), TRANSFORMFUNCTION(Set##setmethod), false, { -1 } \
+#define MAKEPREFTRANSFORM(pref, newpref, getmethod, setmethod) \
+  {                                                            \
+    pref, newpref, TRANSFORMFUNCTION(Get##getmethod),          \
+        TRANSFORMFUNCTION(Set##setmethod), false, {            \
+      -1                                                       \
+    }                                                          \
   }
 
-#define MAKESAMETYPEPREFTRANSFORM(pref, method)            \
-  {                                                        \
-    pref, 0, TRANSFORMFUNCTION(Get##method), TRANSFORMFUNCTION(Set##method), false, { -1 } \
+#define MAKESAMETYPEPREFTRANSFORM(pref, method)                              \
+  {                                                                          \
+    pref, 0, TRANSFORMFUNCTION(Get##method), TRANSFORMFUNCTION(Set##method), \
+        false, {                                                             \
+      -1                                                                     \
+    }                                                                        \
   }
 
 class nsNetscapeProfileMigratorBase : public nsIMailProfileMigrator,
