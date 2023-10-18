@@ -5,9 +5,6 @@
 var { IMServices } = ChromeUtils.importESModule(
   "resource:///modules/IMServices.sys.mjs"
 );
-const { updateAppInfo } = ChromeUtils.importESModule(
-  "resource://testing-common/AppInfo.sys.mjs"
-);
 
 function run_test() {
   do_get_profile();
@@ -25,9 +22,6 @@ function run_test() {
   Services.prefs.setCharPref("mail.server.server1.userName", kAccountName);
   Services.prefs.setCharPref("mail.server.server1.hostname", kPrplId);
   try {
-    // Having an implementation of nsIXULAppInfo is required for
-    // IMServices.core.init to work.
-    updateAppInfo();
     IMServices.core.init();
 
     const account = IMServices.accounts.getAccountByNumericId(1);

@@ -409,25 +409,20 @@ class CoreService {
       throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
 
-    const protocols = [];
-    for (const id of Object.keys(protocols)) {
-      // If the preference is set to disable this prpl, don't show it in the
-      // full list of protocols.
-      const pref = "chat.prpls." + id + ".disable";
-      if (
-        Services.prefs.getPrefType(pref) == Services.prefs.PREF_BOOL &&
-        Services.prefs.getBoolPref(pref)
-      ) {
-        this.LOG("Disabling prpl: " + id);
-        continue;
-      }
-
-      const proto = this.getProtocolById(id);
-      if (proto) {
-        protocols.push(proto);
-      }
-    }
-    return protocols;
+    return (
+      Object.keys(protocols)
+        // If the preference is set to disable this prpl, don't show it in the
+        // full list of protocols.
+        .filter(protocolId => {
+          const pref = `chat.prpls.${protocolId}.disable`;
+          return (
+            Services.prefs.getPrefType(pref) != Services.prefs.PREF_BOOL ||
+            !Services.prefs.getBoolPref(pref)
+          );
+        })
+        .map(protocolId => this.getProtocolById(protocolId))
+        .filter(Boolean)
+    );
   }
 
   /**
