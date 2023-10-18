@@ -11,7 +11,7 @@ EXTRA_JS_MODULES += [
     "DBViewWrapper.jsm",
     "DisplayNameUtils.jsm",
     "DNS.jsm",
-    "ExtensionsUI.jsm",
+    "ExtensionsUI.sys.mjs",
     "ExtensionSupport.jsm",
     "FolderTreeProperties.jsm",
     "GlobalPopupNotifications.jsm",

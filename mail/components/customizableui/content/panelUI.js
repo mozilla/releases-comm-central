@@ -29,12 +29,8 @@ ChromeUtils.defineESModuleGetters(this, {
   AppMenuNotifications: "resource://gre/modules/AppMenuNotifications.sys.mjs",
   CustomizableUI: "resource:///modules/CustomizableUI.sys.mjs",
   PanelMultiView: "resource:///modules/PanelMultiView.sys.mjs",
+  ExtensionsUI: "resource:///modules/ExtensionsUI.sys.mjs",
 });
-ChromeUtils.defineModuleGetter(
-  this,
-  "ExtensionsUI",
-  "resource:///modules/ExtensionsUI.jsm"
-);
 
 /**
  * Maintains the state and dispatches events for the main menu panel.

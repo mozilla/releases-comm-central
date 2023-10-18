@@ -606,8 +606,8 @@ MailGlue.prototype = {
       WinTaskbarJumpList.startup();
     }
 
-    const { ExtensionsUI } = ChromeUtils.import(
-      "resource:///modules/ExtensionsUI.jsm"
+    const { ExtensionsUI } = ChromeUtils.importESModule(
+      "resource:///modules/ExtensionsUI.sys.mjs"
     );
     ExtensionsUI.init();
 

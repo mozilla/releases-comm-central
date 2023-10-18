@@ -7,8 +7,8 @@
 var { ExtensionTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/ExtensionXPCShellUtils.sys.mjs"
 );
-var { ExtensionsUI } = ChromeUtils.import(
-  "resource:///modules/ExtensionsUI.jsm"
+var { ExtensionsUI } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionsUI.sys.mjs"
 );
 
 let account, rootFolder, subFolders;

@@ -138,7 +138,6 @@
   "resource:///modules/DNS.jsm": "comm/mail/modules/DNS.jsm",
   "resource:///modules/DisplayNameUtils.jsm": "comm/mail/modules/DisplayNameUtils.jsm",
   "resource:///modules/ExtensionSupport.jsm": "comm/mail/modules/ExtensionSupport.jsm",
-  "resource:///modules/ExtensionsUI.jsm": "comm/mail/modules/ExtensionsUI.jsm",
   "resource:///modules/Feed.jsm": "comm/mailnews/extensions/newsblog/Feed.jsm",
   "resource:///modules/FeedItem.jsm": "comm/mailnews/extensions/newsblog/FeedItem.jsm",
   "resource:///modules/FeedParser.jsm": "comm/mailnews/extensions/newsblog/FeedParser.jsm",

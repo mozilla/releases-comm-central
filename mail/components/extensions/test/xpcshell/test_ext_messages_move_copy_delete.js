@@ -10,8 +10,8 @@ var { ExtensionTestUtils } = ChromeUtils.importESModule(
 var { TestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/TestUtils.sys.mjs"
 );
-var { ExtensionsUI } = ChromeUtils.import(
-  "resource:///modules/ExtensionsUI.jsm"
+var { ExtensionsUI } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionsUI.sys.mjs"
 );
 var { AddonTestUtils } = ChromeUtils.importESModule(
   "resource://testing-common/AddonTestUtils.sys.mjs"
