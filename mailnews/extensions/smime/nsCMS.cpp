@@ -504,8 +504,8 @@ nsresult nsCMSMessage::CommonVerifySignature(
 
   pPrefBranch = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv)) {
-    pPrefBranch->GetBoolPref("mail.smime.accept_insecure_sha1_message_signatures",
-                             &allowSha1);
+    pPrefBranch->GetBoolPref(
+        "mail.smime.accept_insecure_sha1_message_signatures", &allowSha1);
   }
 
   sigAlgTag = NSS_CMSSignerInfo_GetDigestAlgTag(si);
@@ -521,7 +521,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
       }
       // else fall through to failure
 #if defined(__clang__)
-    [[clang::fallthrough]];
+      [[clang::fallthrough]];
 #endif
 
     default:

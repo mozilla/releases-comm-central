@@ -210,16 +210,15 @@ static void* MimeMultCMS_init(MimeObject* obj) {
   nsCOMPtr<nsIPrefBranch> pPrefBranch(
       do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   if (NS_SUCCEEDED(rv)) {
-    pPrefBranch->GetBoolPref("mail.smime.accept_insecure_sha1_message_signatures",
-                             &allowSha1);
+    pPrefBranch->GetBoolPref(
+        "mail.smime.accept_insecure_sha1_message_signatures", &allowSha1);
   }
 
-  if (allowSha1 &&
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_2) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_3) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_4) ||
-      !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_5))
+  if (allowSha1 && (!PL_strcasecmp(micalg, PARAM_MICALG_SHA1) ||
+                    !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_2) ||
+                    !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_3) ||
+                    !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_4) ||
+                    !PL_strcasecmp(micalg, PARAM_MICALG_SHA1_5)))
     hash_type = nsICryptoHash::SHA1;
   else if (!PL_strcasecmp(micalg, PARAM_MICALG_SHA256) ||
            !PL_strcasecmp(micalg, PARAM_MICALG_SHA256_2) ||
