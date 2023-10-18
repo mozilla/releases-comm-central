@@ -4,19 +4,10 @@
 
 :root {
   --in-content-button-border-radius: 3px;
-}
 
-@media not (prefers-contrast) {
-  :root {
-    --in-content-button-background: var(--grey-90-a10);
-    --in-content-button-background-hover: var(--grey-90-a20);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --in-content-button-background: rgba(249, 249, 250, 0.1);
-      --in-content-button-background-hover: rgba(249, 249, 250, 0.15);
-    }
+  @media not (prefers-contrast) {
+    --in-content-button-background: light-dark(var(--grey-90-a10), rgba(249, 249, 250, 0.1));
+    --in-content-button-background-hover: light-dark(var(--grey-90-a20), rgba(249, 249, 250, 0.15));
   }
 }
 
@@ -25,60 +16,60 @@ button {
   padding: 0 12px;
   border-radius: var(--in-content-button-border-radius);
   min-height: var(--in-content-button-height);
-}
 
-button + button {
-  margin-inline-start: 6px;
+  & + & {
+    margin-inline-start: 6px;
+  }
 }
 
 input[type="number"] {
   min-height: calc(var(--in-content-button-height) - 4px);
   padding: 1px;
   border-radius: var(--in-content-button-border-radius);
-}
 
-/* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
-input[type="number"].size3 {
-  width: calc(3ch + 55px);
-}
-input[type="number"].size5 {
-  width: calc(5ch + 55px);
-}
+  /* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
+  input[type="number"].size3 {
+    width: calc(3ch + 55px);
+  }
+  &.size5 {
+    width: calc(5ch + 55px);
+  }
 
-input[type="number"]::-moz-number-spin-box {
-  padding-inline-start: 10px;
-}
+  &::-moz-number-spin-box {
+    padding-inline-start: 10px;
+  }
 
-input[type="number"]::-moz-number-spin-up,
-input[type="number"]::-moz-number-spin-down {
-  appearance: none;
-  min-width: 25px;
-  border: 1px solid var(--in-content-box-border-color);
-  border-radius: 0;
-  background-color: var(--in-content-button-background);
-  background-position: center;
-  background-repeat: no-repeat;
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-}
+  &::-moz-number-spin-up,
+  &::-moz-number-spin-down {
+    appearance: none;
+    min-width: 25px;
+    border: 1px solid var(--in-content-box-border-color);
+    border-radius: 0;
+    background-color: var(--in-content-button-background);
+    background-position: center;
+    background-repeat: no-repeat;
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+  }
 
-input[type="number"]::-moz-number-spin-up:hover,
-input[type="number"]::-moz-number-spin-down:hover {
-  background-color: var(--in-content-button-background-hover);
-}
+  &::-moz-number-spin-up:hover,
+  &::-moz-number-spin-down:hover {
+    background-color: var(--in-content-button-background-hover);
+  }
 
-input[type="number"]::-moz-number-spin-up {
-  min-height: calc(var(--in-content-button-height) * 0.5 - 3px);
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
-  border-start-end-radius: var(--in-content-button-border-radius);
-  background-image: var(--icon-nav-up-sm);
-}
+  &::-moz-number-spin-up {
+    min-height: calc(var(--in-content-button-height) * 0.5 - 3px);
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-start-end-radius: var(--in-content-button-border-radius);
+    background-image: var(--icon-nav-up-sm);
+  }
 
-input[type="number"]::-moz-number-spin-down {
-  min-height: calc(var(--in-content-button-height) * 0.5 - 4px);
-  border-end-end-radius: var(--in-content-button-border-radius);
-  background-image: var(--icon-nav-down-sm);
+  &::-moz-number-spin-down {
+    min-height: calc(var(--in-content-button-height) * 0.5 - 4px);
+    border-end-end-radius: var(--in-content-button-border-radius);
+    background-image: var(--icon-nav-down-sm);
+  }
 }
 
 input:is([type="email"], [type="tel"], [type="text"], [type="password"], [type="url"]) {

@@ -8,27 +8,27 @@
 
 @import url("chrome://messenger/skin/messenger.css");
 
-#abContactsPanel:not([lwt-tree]) {
-  --button-background: rgba(128, 128, 128, .15);
-  --button-background-hover: rgba(128, 128, 128, .25);
-  --button-background-active: rgba(128, 128, 128, .35);
-  --box-text-color: MenuText;
-  --box-background-color: Menu;
-  --box-border-color: ThreeDShadow;
-  --field-border-color: rgba(128, 128, 128, .6);
-}
-
 #abContactsPanel {
   appearance: none;
   background-color: -moz-Dialog;
   background-image: none !important;
   color: -moz-dialogText;
   text-shadow: none;
-}
 
-#abContactsPanel[lwt-tree] {
-  background-color: var(--toolbar-bgcolor);
-  color: var(--lwt-text-color);
+  &:not([lwt-tree]) {
+    --button-background: rgba(128, 128, 128, .15);
+    --button-background-hover: rgba(128, 128, 128, .25);
+    --button-background-active: rgba(128, 128, 128, .35);
+    --box-text-color: MenuText;
+    --box-background-color: Menu;
+    --box-border-color: ThreeDShadow;
+    --field-border-color: rgba(128, 128, 128, .6);
+  }
+
+  &[lwt-tree] {
+    background-color: var(--toolbar-bgcolor);
+    color: var(--lwt-text-color);
+  }
 }
 
 #abContextMenuButton {
@@ -36,24 +36,24 @@
   list-style-image: url("chrome://messenger/skin/addressbook/icons/menu.svg");
   -moz-context-properties: fill;
   fill: currentColor;
-}
 
-#abContextMenuButton:not(:hover) {
-  background: transparent;
-  border-color: transparent;
-}
+  &:not(:hover) {
+    background: transparent;
+    border-color: transparent;
+  }
 
-#abContextMenuButton:hover:focus-visible {
-  outline-style: none;
-}
+  &:hover:focus-visible {
+    outline-style: none;
+  }
 
-#abContextMenuButton > .toolbarbutton-icon {
-  width: 11px;
-  height: 11px;
-}
+  & > .toolbarbutton-icon {
+    width: 11px;
+    height: 11px;
+  }
 
-#abContextMenuButton > .toolbarbutton-text {
-  display: none;
+  & > .toolbarbutton-text {
+    display: none;
+  }
 }
 
 #sidebarAbContextMenu {

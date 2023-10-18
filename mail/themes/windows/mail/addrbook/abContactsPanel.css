@@ -19,10 +19,10 @@
 #abContextMenuButton {
   margin-block: -4px 2px;
   padding-inline: 5px;
-}
 
-#abContextMenuButton > .toolbarbutton-icon {
-  margin-inline-end: 0;
+  & > .toolbarbutton-icon {
+    margin-inline-end: 0;
+  }
 }
 
 :root:not([lwt-tree]) #abResultsTree {

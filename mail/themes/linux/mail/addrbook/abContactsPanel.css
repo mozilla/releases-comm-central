@@ -15,10 +15,10 @@
 #abContextMenuButton {
   margin: -4px 4px 0;
   padding-inline: 4px 2px;
-}
 
-#abContextMenuButton > .toolbarbutton-icon {
-  margin-inline-end: 0;
+  & > .toolbarbutton-icon {
+    margin-inline-end: 0;
+  }
 }
 
 :root:not([lwt-tree]) #abResultsTree {
