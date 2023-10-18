@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/colors.css");
 @import url("chrome://messenger/skin/widgets.css");
-@import url("chrome://global/skin/in-content/common.css");
 @import url("chrome://messenger/skin/inContentDialog.css");
 @import url("chrome://messenger/skin/accountHubForms.css");
 
@@ -15,9 +15,13 @@ dialog {
   --hub-account-button-background-hover: var(--color-ink-10);
   --hub-account-button-background-hover-active: var(--color-gray-10);
   --hub-account-button-border-color: var(--color-gray-30);
+  --hub-account-primary-button-background: var(--in-content-primary-button-background);
+  --hub-account-primary-button-background-hover: var(--in-content-primary-button-background-hover);
+  --hub-account-primary-button-background-active: var(--in-content-primary-button-background-active);
 
   --hub-input-height: 33px;
   --hub-input-border-radius: 3px;
+  --hub-input-border-color: color-mix(in srgb, currentColor 50%, transparent);
 }
 
 @media not (prefers-contrast) {
@@ -71,12 +75,18 @@ dialog h1 {
   font-size: 1.8rem;
   line-height: 1em;
   margin-block: 0;
-}
 
-dialog h1.sub-view-title {
-  font-size: 1.7rem;
-  font-weight: 400;
-  margin-block-start: 9px;
+  &.sub-view-title {
+    font-size: 2rem;
+    font-weight: 400;
+    margin-block-start: 9px;
+  }
+
+  &.sub-view-subheader {
+    font-size: 1.3rem;
+    font-weight: 400;
+    margin-block-start: 15px;
+  }
 }
 
 /* Header */
@@ -87,12 +97,12 @@ dialog h1.sub-view-title {
   align-items: center;
   justify-content: center;
   gap: 15px;
-}
 
-.start-header h1 {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  h1 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 #closeButton:not([hidden]) {
@@ -183,6 +193,24 @@ dialog h1.sub-view-title {
   align-items: center;
   justify-content: space-between;
   margin-inline: 30px;
+
+  div:last-child {
+    border-inline-end: none;
+  }
+
+  &.flex-direction-row {
+    flex-direction: row;
+  }
+}
+
+.hub-body-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  border-inline-end: 1px solid var(--hub-account-button-border-color);
+  overflow-y: scroll;
+  margin-block: 20px;
+  padding-inline: 20px
 }
 
 .hub-body-grid {
@@ -267,6 +295,14 @@ dialog h1.sub-view-title {
   background-image: var(--icon-import-lg);
 }
 
+#hubLoader {
+  width: 16px;
+  min-height: 16px;
+  content: image-set(url("chrome://global/skin/icons/loading.png"),
+      url("chrome://global/skin/icons/loading@2x.png") 2x);
+  vertical-align: middle;
+}
+
 #hubSyncButton {
   align-self: center;
   position: relative;
@@ -318,6 +354,10 @@ dialog h1.sub-view-title {
 
 .hub-footer {
   grid-area: footer;
+
+  .center-column {
+    justify-content: center;
+  }
 }
 
 .footer-links {

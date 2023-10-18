@@ -41,7 +41,7 @@ class AccountHubControllerClass {
    * Object containing all strings to trigger the needed methods for the various
    * views.
    */
-  #accounts = {
+  #views = {
     START: () => this.#viewStart(),
     MAIL: () => this.#viewEmailSetup(),
     CALENDAR: () => this.#viewCalendarSetup(),
@@ -50,6 +50,9 @@ class AccountHubControllerClass {
     FEED: () => this.#viewFeedSetup(),
     NNTP: () => this.#viewNNTPSetup(),
     IMPORT: () => this.#viewImportSetup(),
+    MANUAL_EMAIL: () => this.#viewManualEmailConfig(),
+    LOADING: () => this.#viewLoading(),
+    EMAIL_ADDED: () => this.#viewEmailAdded(),
   };
 
   constructor() {
@@ -173,14 +176,14 @@ class AccountHubControllerClass {
    *
    * @param {?string} type - Which account flow to load when the modal opens.
    */
-  open(type = "START") {
+  open(type = "MANUAL_EMAIL") {
     // Interrupt if something went wrong while cleaning up a previously loaded
     // view.
     if (!this.#reset()) {
       return;
     }
 
-    this.#accounts[type].call();
+    this.#views[type].call();
     if (!this.#modal.open) {
       this.#modal.showModal();
     }
@@ -217,6 +220,30 @@ class AccountHubControllerClass {
   async #viewEmailSetup() {
     await this.#loadScript("email");
     this.#loadView("account-hub-email");
+  }
+
+  /**
+   * Show the loading view.
+   */
+  async #viewLoading() {
+    await this.#loadScript("loading");
+    this.#loadView("account-hub-loading");
+  }
+
+  /**
+   * Show the manual email config view.
+   */
+  async #viewManualEmailConfig() {
+    await this.#loadScript("manual-email");
+    this.#loadView("account-hub-manual-email");
+  }
+
+  /**
+   * Show the email account added view.
+   */
+  async #viewEmailAdded() {
+    await this.#loadScript("email-added");
+    this.#loadView("account-hub-email-added");
   }
 
   /**
@@ -266,7 +293,7 @@ class AccountHubControllerClass {
  * Open the account hub dialog and show the requested view.
  *
  * @param {?string} type - The type of view that should be loaded when the modal
- *   is showed. See AccountHubController::#accounts for a list references.
+ *   is showed. See AccountHubController::#views for a list references.
  */
 async function openAccountHub(type) {
   if (!AccountHubController) {
