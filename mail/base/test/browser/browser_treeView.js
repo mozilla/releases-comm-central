@@ -151,16 +151,20 @@ async function subtestKeyboardAndMouse(variant) {
     seenEvent: null,
     currentAtEvent: null,
     selectedAtEvent: null,
+    t0: Date.now(),
+    time: 0,
 
     reset() {
       this.seenEvent = null;
       this.currentAtEvent = null;
       this.selectedAtEvent = null;
+      this.t0 = Date.now();
     },
     handleEvent(event) {
       this.seenEvent = event;
       this.currentAtEvent = list.currentIndex;
       this.selectedAtEvent = list.selectedIndices;
+      this.time = Date.now() - this.t0;
     },
   };
 
@@ -331,19 +335,19 @@ async function subtestKeyboardAndMouse(variant) {
     selectHandler.reset();
     list.addEventListener("select", selectHandler, { once: true });
     EventUtils.synthesizeKey(key, modifiers, content);
-    // We don't enforce any delay on multiselection.
-    if (!modifiers.shiftKey && !modifiers.accelKey) {
-      content.setTimeout(() => {
-        Assert.ok(
-          !selectHandler.seenEvent,
-          "'select' event didn't fire before the delay"
-        );
-      }, 240);
-    }
     await TestUtils.waitForCondition(
       () => !!selectHandler.seenEvent == expectEvent,
       `'select' event should ${expectEvent ? "" : "not "}get fired`
     );
+    // We don't enforce any delay on multiselection.
+    let multiselect =
+      (AppConstants.platform == "macosx" && key == " ") ||
+      modifiers.shiftKey ||
+      modifiers.accelKey;
+    if (expectEvent && !multiselect) {
+      // We have data-select-delay="250" in treeView.xhtml
+      Assert.greater(selectHandler.time, 240, "should select only after delay");
+    }
   }
 
   await pressKey("VK_UP");
