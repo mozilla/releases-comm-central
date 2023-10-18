@@ -44,3 +44,7 @@ third_party/asn1js/node_modules/
 
 # Ruff
 \.ruff_cache/
+
+# Built documentation
+docs/_build
+docs/_venv
