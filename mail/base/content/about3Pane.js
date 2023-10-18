@@ -6985,18 +6985,18 @@ commandController.registerCallback(
  * @returns {?XULElement} - A XUL browser or null.
  */
 function visibleMessagePaneBrowser() {
-  if (!webBrowser.hidden) {
+  if (webBrowser && !webBrowser.hidden) {
     return webBrowser;
   }
 
-  if (!messageBrowser.hidden) {
+  if (messageBrowser && !messageBrowser.hidden) {
     // If the message browser is the one visible, actually return the
     // element showing the message's content, since that's the one zoom
     // commands should apply to.
     return messageBrowser.contentDocument.getElementById("messagepane");
   }
 
-  if (!multiMessageBrowser.hidden) {
+  if (multiMessageBrowser && !multiMessageBrowser.hidden) {
     return multiMessageBrowser;
   }
 
