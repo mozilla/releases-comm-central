@@ -3,13 +3,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-  content/messenger/accountcreation/accountHub.js             (content/accountHub.js)
-  content/messenger/accountcreation/accountSetup.js           (content/accountSetup.js)
-  content/messenger/accountcreation/accountSetup.xhtml        (content/accountSetup.xhtml)
+  content/messenger/accountcreation/accountHub.js         (content/accountHub.js)
+  content/messenger/accountcreation/accountSetup.js       (content/accountSetup.js)
+  content/messenger/accountcreation/accountSetup.xhtml    (content/accountSetup.xhtml)
 # Custom elements
-  content/messenger/accountcreation/views/container.mjs       (views/container.mjs)
-  content/messenger/accountcreation/views/email.mjs           (views/email.mjs)
-  content/messenger/accountcreation/views/start.mjs           (views/start.mjs)
-  content/messenger/accountcreation/views/manual-email.mjs    (views/manual-email.mjs)
-  content/messenger/accountcreation/views/loading.mjs         (views/loading.mjs)
-  content/messenger/accountcreation/views/email-added.mjs     (views/email-added.mjs)
+  content/messenger/accountcreation/views/container.mjs   (views/container.mjs)
+  content/messenger/accountcreation/views/email.mjs       (views/email.mjs)
+  content/messenger/accountcreation/views/start.mjs       (views/start.mjs)

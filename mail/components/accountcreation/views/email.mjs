@@ -46,13 +46,6 @@ class AccountHubEmail extends HTMLElement {
   #continueButton;
 
   /**
-   * The manual email config button.
-   *
-   * @type {HTMLButtonElement}
-   */
-  #manualConfigButton;
-
-  /**
    * The domain name extrapolated from the email address.
    *
    * @type {string}
@@ -76,9 +69,6 @@ class AccountHubEmail extends HTMLElement {
     this.#password = this.querySelector("#password");
     this.#passwordToggleButton = this.querySelector("#passwordToggleButton");
     this.#continueButton = this.querySelector("#emailContinueButton");
-    this.#manualConfigButton = this.querySelector(
-      "#emailManuallyConfigureButton"
-    );
 
     this.initUI();
 
@@ -96,7 +86,6 @@ class AccountHubEmail extends HTMLElement {
     }
 
     this.#realName.focus();
-    this.#checkValidForm();
   }
 
   /**
@@ -116,17 +105,6 @@ class AccountHubEmail extends HTMLElement {
     this.#passwordToggleButton.addEventListener("click", event => {
       this.#togglePasswordInput(
         event.target.getAttribute("aria-pressed") === "false"
-      );
-    });
-
-    // Set the manual email config button.
-    this.#manualConfigButton.addEventListener("click", event => {
-      this.dispatchEvent(
-        new CustomEvent("open-view", {
-          bubbles: true,
-          composed: true,
-          detail: { type: "MANUAL_EMAIL" },
-        })
       );
     });
 
@@ -155,7 +133,6 @@ class AccountHubEmail extends HTMLElement {
       : "";
 
     this.#continueButton.disabled = !isValidForm;
-    this.#manualConfigButton.hidden = !isValidForm;
   }
 
   /**
