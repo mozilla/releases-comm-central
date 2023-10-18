@@ -25,6 +25,7 @@ def mach_sys_path(mozilla_dir):
             os.path.join("python", "mach"),
             os.path.join("third_party", "python", "packaging"),
             os.path.join("third_party", "python", "pyparsing"),
+            os.path.join("third_party", "python", "six"),
         )
     ]
     from mach.requirements import MachEnvRequirements

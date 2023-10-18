@@ -4,6 +4,7 @@ pth:comm/python/thirdroc
 pth:comm/taskcluster
 pth:comm/testing/marionette
 vendored:comm/third_party/python/fluent.migratetb
+pth:testing/mozbase/mozfile
 vendored:third_party/python/compare_locales
 vendored:third_party/python/fluent.migrate
 vendored:third_party/python/fluent.syntax
