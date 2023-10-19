@@ -11,13 +11,13 @@
 /* UI Density customization */
 :root {
   --menuitem-vertical-padding: 3px;
-}
-:root[uidensity="compact"] {
-  --menuitem-vertical-padding: 1px;
-}
+  &[uidensity="compact"] {
+    --menuitem-vertical-padding: 1px;
+  }
 
-:root[uidensity="touch"] {
-  --menuitem-vertical-padding: 8px;
+  &[uidensity="touch"] {
+    --menuitem-vertical-padding: 8px;
+  }
 }
 
 menupopup > menu,
@@ -63,20 +63,15 @@ menupopup:not([needsgutter]) > menuitem:not([checked="true"], [icon], .menuitem-
   appearance: none;
 }
 
-.inline-toolbar toolbarpaletteitem toolbarseparator,
-.inline-toolbar > toolbarseparator {
-  height: 24px;
-}
-
 /* ::::: menubar ::::: */
 
 #menubar-items {
   flex-direction: column; /* for flex hack */
   margin-bottom: 1px;
-}
 
-#menubar-items > menubar {
-  flex: 1; /* make menu items expand to fill toolbar height */
+  & > menubar {
+    flex: 1; /* make menu items expand to fill toolbar height */
+  }
 }
 
 menubar > menu[disabled="true"]:-moz-lwtheme {
@@ -121,22 +116,20 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
 }
 
 menulist.folderMenuItem menu:not(.folderMenuItem) {
-  padding-top: 3px;
-  padding-bottom: 3px;
-}
+  padding-block: 3px;
 
-treecol[sortDirection="ascending"]:not([hideheader="true"]) > .treecol-sortdirection {
-  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
-}
+  treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
+    list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  }
 
-treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdirection {
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  treecol[sortDirection="descending"]:not([hideheader="true"]) > & {
+    list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  }
 }
 
 .thread-tree-col-picker image,
 .thread-tree-icon-header img {
-  padding-inline-start: 1px;
-  padding-inline-end: 2px;
+  padding-inline: 1px 2px;
   padding-bottom: 2px;
 }
 
@@ -145,49 +138,50 @@ treechildren::-moz-tree-row(multicol, odd) {
 }
 
 treechildren::-moz-tree-cell-text {
-  padding-inline-start: 2px;
-  padding-bottom: 2px;
+  padding-inline: 2px;
 }
 
 @media (prefers-color-scheme: dark) {
   /* Override the toolkit color. */
-  :root:-moz-lwtheme tree > treechildren::-moz-tree-row(selected) {
-    background-color:  rgba(249, 249, 250, .1);
-  }
+  :root:-moz-lwtheme {
+    & tree > treechildren::-moz-tree-row(selected) {
+      background-color:  rgba(249, 249, 250, .1);
+    }
 
-  :root:-moz-lwtheme tree > treechildren::-moz-tree-row(selected, focus) {
-    background-color: var(--dark-lwt-highlight-color);
-  }
+    & tree > treechildren::-moz-tree-row(selected, focus) {
+      background-color: var(--dark-lwt-highlight-color);
+    }
 
-  :root:-moz-lwtheme treechildren::-moz-tree-twisty(selected),
-  :root:-moz-lwtheme tree:not(:focus) treechildren::-moz-tree-image(selected),
-  :root:-moz-lwtheme #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
-  :root:-moz-lwtheme tree:not(#threadTree,:focus) treechildren::-moz-tree-cell-text(selected) {
-    color: FieldText;
-  }
+    & treechildren::-moz-tree-twisty(selected),
+    & tree:not(:focus) treechildren::-moz-tree-image(selected),
+    & #threadTree:not(:focus) treechildren::-moz-tree-cell-text(untagged, selected),
+    & tree:not(#threadTree,:focus) treechildren::-moz-tree-cell-text(selected) {
+      color: FieldText;
+    }
 
-  :root:-moz-lwtheme tree:not(#threadTree) treechildren::-moz-tree-image(selected, focus),
-  :root:-moz-lwtheme #threadTree treechildren::-moz-tree-image(untagged, selected, focus) {
-    color: FieldText;
-    fill: color-mix(in srgb, currentColor 20%, transparent);
-    stroke: currentColor;
-  }
+    & tree:not(#threadTree) treechildren::-moz-tree-image(selected, focus),
+    & #threadTree treechildren::-moz-tree-image(untagged, selected, focus) {
+      color: FieldText;
+      fill: color-mix(in srgb, currentColor 20%, transparent);
+      stroke: currentColor;
+    }
 
-  :root:-moz-lwtheme #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
-  :root:-moz-lwtheme tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
-    color: FieldText;
-    fill: currentColor;
-    stroke: currentColor;
-  }
+    & #threadTree treechildren::-moz-tree-cell-text(untagged, selected),
+    & tree:not(#threadTree) treechildren::-moz-tree-cell-text(selected) {
+      color: FieldText;
+      fill: currentColor;
+      stroke: currentColor;
+    }
 
-  :root:-moz-lwtheme tree:not(#threadTree) treechildren::-moz-tree-twisty(selected),
-  :root:-moz-lwtheme #threadTree treechildren::-moz-tree-twisty(untagged, selected) {
-    fill: FieldText !important;
-  }
+    & tree:not(#threadTree) treechildren::-moz-tree-twisty(selected),
+    & #threadTree treechildren::-moz-tree-twisty(untagged, selected) {
+      fill: FieldText !important;
+    }
 
-  :root:-moz-lwtheme treechildren::-moz-tree-image(folderNameCol, selected, focus) {
-    fill: color-mix(in srgb, currentColor 20%, transparent) !important;
-    stroke: currentColor;
+    & treechildren::-moz-tree-image(folderNameCol, selected, focus) {
+      fill: color-mix(in srgb, currentColor 20%, transparent) !important;
+      stroke: currentColor;
+    }
   }
 }
 
@@ -251,10 +245,10 @@ treechildren::-moz-tree-indentation {
 
 menulist {
   padding: 0 5px 1px !important;
-}
 
-menulist.folderMenuItem::part(label) {
-  margin-inline-start: 2px !important;
+  &.folderMenuItem::part(label) {
+    margin-inline-start: 2px !important;
+  }
 }
 
 button[is="toolbarbutton-menu-button"] > .button-box > button {
@@ -276,20 +270,32 @@ button.notification-button[is="toolbarbutton-menu-button"] {
 @media (prefers-contrast) {
   #tabmail:not(:-moz-lwtheme) {
     background-color: ActiveCaption;
-  }
 
-  #tabmail:not(:-moz-lwtheme):-moz-window-inactive {
-    background-color: InactiveCaption;
+    &:-moz-window-inactive {
+      background-color: InactiveCaption;
+    }
   }
 }
 
 /* ::::: primary toolbar buttons ::::: */
 
-.toolbarbutton-1[disabled=true] .toolbarbutton-icon,
-.toolbarbutton-1[disabled=true] .toolbarbutton-text,
-.toolbarbutton-1[disabled=true] .toolbarbutton-menu-dropmarker,
-.toolbarbutton-1[disabled=true] > .toolbarbutton-menubutton-dropmarker {
-  opacity: .4;
+.toolbarbutton-1 {
+  &,
+  & > .toolbarbutton-menubutton-button,
+  & > .toolbarbutton-menubutton-dropmarker {
+    appearance: none;
+  }
+
+  &[disabled=true] .toolbarbutton-icon,
+  &[disabled=true] .toolbarbutton-text,
+  &[disabled=true] .toolbarbutton-menu-dropmarker,
+  &[disabled=true] > .toolbarbutton-menubutton-dropmarker {
+    opacity: .4;
+  }
+
+  toolbox[labelalign="end"] > toolbar[mode="full"] & .toolbarbutton-text {
+    padding-inline-end: 2px;
+  }
 }
 
 toolbar[mode="text"] .toolbarbutton-text {
@@ -297,23 +303,12 @@ toolbar[mode="text"] .toolbarbutton-text {
   padding-inline: 2px !important;
 }
 
-toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
-.toolbarbutton-text {
-  padding-inline-end: 2px;
-}
-
-.toolbarbutton-1,
-.toolbarbutton-1 > .toolbarbutton-menubutton-button,
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-  appearance: none;
-}
-
 .statusbarpanel {
   border-inline-end: 1px solid ThreeDLightShadow;
-}
 
-.statusbarpanel:-moz-lwtheme {
-  border-inline-end-color: var(--lwt-tabs-border-color);
+  &:-moz-lwtheme {
+    border-inline-end-color: var(--lwt-tabs-border-color);
+  }
 }
 
 /* Status panel */
@@ -326,33 +321,33 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
   border-top-style: solid;
   color: -moz-dialogText;
   text-shadow: none;
-}
 
-.statuspanel-label:-moz-locale-dir(ltr):not([mirror]),
-.statuspanel-label:-moz-locale-dir(rtl)[mirror] {
-  border-right-style: solid;
-  /* disabled for triggering grayscale AA (bug 659213)
-  border-top-right-radius: .3em;
-  */
-  margin-right: 1em;
-}
+  &:-moz-locale-dir(ltr):not([mirror]),
+  &:-moz-locale-dir(rtl)[mirror] {
+    border-right-style: solid;
+    /* disabled for triggering grayscale AA (bug 659213)
+    border-top-right-radius: .3em;
+    */
+    margin-right: 1em;
+  }
 
-.statuspanel-label:-moz-locale-dir(rtl):not([mirror]),
-.statuspanel-label:-moz-locale-dir(ltr)[mirror] {
-  border-left-style: solid;
-  /* disabled for triggering grayscale AA (bug 659213)
-  border-top-left-radius: .3em;
-  */
-  margin-left: 1em;
+  &:-moz-locale-dir(rtl):not([mirror]),
+  &:-moz-locale-dir(ltr)[mirror] {
+    border-left-style: solid;
+    /* disabled for triggering grayscale AA (bug 659213)
+    border-top-left-radius: .3em;
+    */
+    margin-left: 1em;
+  }
 }
 
 .contentTabInstance {
   background-color: -moz-dialog;
-}
 
-.contentTabInstance:-moz-lwtheme {
-  background-color: transparent;
-  background-image: linear-gradient(transparent 40px, -moz-dialog 40px);
+  &:-moz-lwtheme {
+    background-color: transparent;
+    background-image: linear-gradient(transparent 40px, -moz-dialog 40px);
+  }
 }
 
 /* ::::: groupbox ::::: */
@@ -360,8 +355,14 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
 fieldset {
   border: 0.5px groove ThreeDLightShadow;
   border-radius: 3px;
-  margin: 1em 3px 3px 3px;
+  margin: 1em 3px 3px;
   padding: 3px 0 6px;
+
+  & > hbox,
+  & > vbox,
+  & > radiogroup {
+    width: -moz-available;
+  }
 }
 
 legend {
@@ -370,12 +371,6 @@ legend {
   padding-inline: 3px;
   background-color: -moz-dialog;
   font-weight: bold;
-}
-
-fieldset > hbox,
-fieldset > vbox,
-fieldset > radiogroup {
-  width: -moz-available;
 }
 
 #navigation-toolbox {

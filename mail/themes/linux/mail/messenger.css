@@ -13,33 +13,30 @@
 :root[lwt-tree-brighttext]:not([lwt-tree]) {
   --sidebar-background-color: var(--color-gray-80);
   --sidebar-text-color: var(--color-gray-10);
-}
 
-:root[lwt-tree-brighttext]:not([lwt-tree]) treechildren::-moz-tree-row(current, focus) {
-  --sidebar-highlight-background-color: var(--selected-item-color);
-  --sidebar-highlight-text-color: var(--selected-item-text-color);
+  & treechildren::-moz-tree-row(current, focus) {
+    --sidebar-highlight-background-color: var(--selected-item-color);
+    --sidebar-highlight-text-color: var(--selected-item-text-color);
+  }
 }
 
 #tabs-toolbar {
-  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
-                                        hsla(240, 5%, 5%, .1));
-  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background,
-                                         hsla(240, 5%, 5%, .1));
-  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background,
-                                         hsla(240, 5%, 5%, .15));
-  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background,
-                                          hsla(240, 5%, 5%, .15));
-}
-
-#tabs-toolbar[brighttext] {
-  --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background,
-                                        hsla(0, 0%, 70%, .4));
-  --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background,
-                                         hsla(0, 0%, 70%, .4));
-  --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background,
-                                         hsla(0, 0%, 70%, .6));
-  --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background,
-                                          hsla(0, 0%, 70%, .6));
+  --toolbarbutton-hover-background: light-dark(var(--lwt-toolbarbutton-hover-background,
+                                               hsla(240, 5%, 5%, .1)),
+                                               var(--lwt-toolbarbutton-hover-background,
+                                               hsla(0, 0%, 70%, .4)));
+  --toolbarbutton-hover-bordercolor: light-dark(var(--lwt-toolbarbutton-hover-background,
+                                                hsla(240, 5%, 5%, .1)),
+                                                var(--lwt-toolbarbutton-hover-background,
+                                                hsla(0, 0%, 70%, .4)));
+  --toolbarbutton-active-background: light-dark(var(--lwt-toolbarbutton-active-background,
+                                                hsla(240, 5%, 5%, .15)),
+                                                var(--lwt-toolbarbutton-active-background,
+                                                hsla(0, 0%, 70%, .6)));
+  --toolbarbutton-active-bordercolor: light-dark(var(--lwt-toolbarbutton-active-background,
+                                                 hsla(240, 5%, 5%, .15)),
+                                                 var(--lwt-toolbarbutton-active-background,
+                                                 hsla(0, 0%, 70%, .6)));
 }
 
 #navigation-toolbox {
@@ -156,12 +153,13 @@
   border-radius: 100%;
   margin-inline: 5px;
   padding: 1px;
-}
-.titlebar-button > .toolbarbutton-icon:-moz-lwtheme {
-  display: inline-flex;
-  padding: 3px;
-  -moz-context-properties: stroke;
-  stroke: currentColor;
+
+  & > .toolbarbutton-icon {
+    display: inline-flex;
+    padding: 3px;
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+  }
 }
 .titlebar-min:-moz-lwtheme {
   list-style-image: url(chrome://messenger/skin/window-controls/minimize.svg);
@@ -307,28 +305,29 @@ button[is="toolbarbutton-menu-button"] > .button-box > button {
   appearance: none;
   -moz-context-properties: fill;
   fill: currentColor;
+
+  treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
+    list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  }
+
+  treecol[sortDirection="descending"]:not([hideheader="true"]) > & {
+    list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  }
 }
 
-treecol[sortDirection="ascending"]:not([hideheader="true"]) > .treecol-sortdirection {
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-}
+:root[lwt-tree] {
+  & treecol:not([hideheader="true"]),
+  & .tree-columnpicker-button:not([hideheader="true"]) {
+    padding-inline: 7px 6px;
+  }
 
-treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdirection {
-  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
-}
+  & treechildren::-moz-tree-row(odd) {
+    background-color: transparent;
+  }
 
-:root[lwt-tree] treecol:not([hideheader="true"]),
-:root[lwt-tree] .tree-columnpicker-button:not([hideheader="true"]) {
-  padding-inline-start: 7px;
-  padding-inline-end: 6px;
-}
-
-:root[lwt-tree] treechildren::-moz-tree-row(odd) {
-  background-color: transparent;
-}
-
-:root[lwt-tree] treechildren::-moz-tree-row(hover) {
-  background-color: hsla(0, 0%, 50%, 0.15);
+  & treechildren::-moz-tree-row(hover) {
+    background-color: hsla(0, 0%, 50%, 0.15);
+  }
 }
 
 treechildren::-moz-tree-cell-text {
@@ -345,45 +344,45 @@ treechildren::-moz-tree-cell-text {
   border-top-style: solid;
   color: -moz-dialogText;
   text-shadow: none;
-}
 
-.statuspanel-label:-moz-locale-dir(ltr):not([mirror]),
-.statuspanel-label:-moz-locale-dir(rtl)[mirror] {
-  border-right-style: solid;
-  border-top-right-radius: .3em;
-  margin-right: 1em;
-}
+  &:-moz-locale-dir(ltr):not([mirror]),
+  &:-moz-locale-dir(rtl)[mirror] {
+    border-right-style: solid;
+    border-top-right-radius: .3em;
+    margin-right: 1em;
+  }
 
-.statuspanel-label:-moz-locale-dir(rtl):not([mirror]),
-.statuspanel-label:-moz-locale-dir(ltr)[mirror] {
-  border-left-style: solid;
-  border-top-left-radius: .3em;
-  margin-left: 1em;
+  &:-moz-locale-dir(rtl):not([mirror]),
+  &:-moz-locale-dir(ltr)[mirror] {
+    border-left-style: solid;
+    border-top-left-radius: .3em;
+    margin-left: 1em;
+  }
 }
 
 .contentTabInstance {
   background-color: -moz-dialog;
-}
 
-.contentTabInstance:-moz-lwtheme {
-  background-color: transparent;
-  background-image: linear-gradient(transparent 40px, -moz-dialog 40px);
+  &:-moz-lwtheme {
+    background-color: transparent;
+    background-image: linear-gradient(transparent 40px, -moz-dialog 40px);
+  }
 }
 
 fieldset {
   margin: 5px;
   padding: 5px;
   border: none;
+
+  & > hbox,
+  & > vbox,
+  & > radiogroup {
+    width: -moz-available;
+  }
 }
 
 legend {
   font-weight: bold;
-}
-
-fieldset > hbox,
-fieldset > vbox,
-fieldset > radiogroup {
-  width: -moz-available;
 }
 
 /* UI Density customization */

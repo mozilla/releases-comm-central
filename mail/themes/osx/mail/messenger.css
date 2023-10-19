@@ -35,36 +35,36 @@
 
 #navigation-toolbox {
   appearance: none;
-}
 
-/*
-  This is a workaround for Bug 1482157
-  -moz-default-appearance: toolbox; makes the macOS sheets attached to the
-  element's bottom border. We cannot put this property on the toolbox itself as
-  it cancels all backgrounds that are there, so we set it on the toolbox bottom
-  border.
-*/
-#navigation-toolbox::after {
-  content: "";
-  display: flex;
-  appearance: auto;
-  -moz-default-appearance: toolbox;
-  height: 1px;
-  margin-top: -1px;
-  opacity: 0.001;
+  /*
+    This is a workaround for Bug 1482157
+    -moz-default-appearance: toolbox; makes the macOS sheets attached to the
+    element's bottom border. We cannot put this property on the toolbox itself as
+    it cancels all backgrounds that are there, so we set it on the toolbox bottom
+    border.
+  */
+  &::after {
+    content: "";
+    display: flex;
+    appearance: auto;
+    -moz-default-appearance: toolbox;
+    height: 1px;
+    margin-top: -1px;
+    opacity: 0.001;
+  }
 }
 
 #titlebar {
   /* Centrally align content items vertically */
   justify-content: center;
+
+  &:-moz-lwtheme {
+    appearance: none;
+  }
 }
 
 .titlebar-button {
   display: none;
-}
-
-#titlebar:-moz-lwtheme {
-  appearance: none;
 }
 
 #toolbar-menubar {
@@ -93,49 +93,49 @@ toolbarbutton[is="toolbarbutton-menu-button"] {
 
 /* ::::: primary toolbar buttons ::::: */
 
-.toolbarbutton-1[open],
-.toolbarbutton-1[open] > .toolbarbutton-menubutton-button {
-  text-shadow: none;
-}
+.toolbarbutton-1 {
+  &[open],
+  &[open] > .toolbarbutton-menubutton-button {
+    text-shadow: none;
+  }
 
-.toolbarbutton-1[checked="true"]:-moz-window-inactive {
-  box-shadow: var(--toolbarbutton-inactive-boxshadow);
-  border-color: var(--toolbarbutton-inactive-bordercolor);
-  background: transparent !important;
-}
+  &[checked="true"]:-moz-window-inactive {
+    box-shadow: var(--toolbarbutton-inactive-boxshadow);
+    border-color: var(--toolbarbutton-inactive-bordercolor);
+    background: transparent !important;
+  }
 
-.toolbarbutton-1[is="toolbarbutton-menu-button"] {
-  padding: 0;
-}
+  &[is="toolbarbutton-menu-button"] {
+    padding: 0;
+  }
 
-.toolbarbutton-1[disabled="true"] .toolbarbutton-text,
-.toolbarbutton-1[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled="true"]
-  > .toolbarbutton-icon {
-  opacity: .4;
-}
+  &[disabled="true"] .toolbarbutton-text,
+  &[is="toolbarbutton-menu-button"] > .toolbarbutton-menubutton-button[disabled="true"]
+    > .toolbarbutton-icon {
+    opacity: .4;
+  }
 
-.toolbarbutton-1[disabled="true"] .toolbarbutton-icon,
-.toolbarbutton-1[is="toolbarbutton-menu-button"]
-  > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
-.toolbarbutton-1[disabled="true"] > .toolbarbutton-menu-dropmarker,
-.toolbarbutton-1[disabled="true"] > .toolbarbutton-menubutton-dropmarker,
-.toolbarbutton-1:not(:hover):-moz-window-inactive .toolbarbutton-icon,
-.toolbarbutton-1:not(:hover):-moz-window-inactive
-  > .toolbarbutton-menu-dropmarker,
-.toolbarbutton-1:not(:hover):-moz-window-inactive
-  > .toolbarbutton-menubutton-dropmarker {
-  opacity: .5;
-}
+  &[disabled="true"] .toolbarbutton-icon,
+  &[is="toolbarbutton-menu-button"]
+    > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon,
+  &[disabled="true"] > .toolbarbutton-menu-dropmarker,
+  &[disabled="true"] > .toolbarbutton-menubutton-dropmarker,
+  &:not(:hover):-moz-window-inactive .toolbarbutton-icon,
+  &:not(:hover):-moz-window-inactive > .toolbarbutton-menu-dropmarker,
+  &:not(:hover):-moz-window-inactive > .toolbarbutton-menubutton-dropmarker {
+    opacity: .5;
+  }
 
-.toolbarbutton-1:-moz-window-inactive[disabled="true"] > .toolbarbutton-icon,
-.toolbarbutton-1:-moz-window-inactive[is="toolbarbutton-menu-button"]
-  > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
-  opacity: .25;
-}
+  &:-moz-window-inactive[disabled="true"] > .toolbarbutton-icon,
+  &:-moz-window-inactive[is="toolbarbutton-menu-button"]
+    > .toolbarbutton-menubutton-button[disabled="true"] > .toolbarbutton-icon {
+    opacity: .25;
+  }
 
-.toolbarbutton-1 > .toolbarbutton-menu-dropmarker {
-  margin-inline-end: 1px;
-  padding-inline-start: 4px;
+  & > .toolbarbutton-menu-dropmarker {
+    margin-inline-end: 1px;
+    padding-inline-start: 4px;
+  }
 }
 
 toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
@@ -144,10 +144,10 @@ toolbar[mode="icons"] .toolbarbutton-1 > menupopup {
 
 menulist {
   padding: 1px 6px;
-}
 
-menulist > menupopup:not([position]) {
-  margin-inline-start: 0;
+  & > menupopup:not([position]) {
+    margin-inline-start: 0;
+  }
 }
 
 menulist > menupopup menu,
@@ -156,14 +156,9 @@ toolbarbutton > menupopup menu,
 toolbarbutton > menupopup menuitem {
   appearance: none !important;
   padding-block: 4px !important;
-}
 
-@media (-moz-mac-big-sur-theme) {
-  menulist > menupopup menu,
-  menulist > menupopup menuitem,
-  toolbarbutton > menupopup menu,
-  toolbarbutton > menupopup menuitem {
-    margin-inline:5px;
+  @media (-moz-mac-big-sur-theme) {
+    margin-inline: 5px;
     border-radius: 4px;
   }
 }
@@ -206,6 +201,10 @@ toolbarbutton > menupopup menu .menu-right:-moz-locale-dir(rtl) {
   -moz-context-properties: stroke, fill-opacity;
   stroke: currentColor;
   fill-opacity: 1;
+
+  &[disabled="true"] {
+    fill-opacity: .5;
+  }
 }
 
 .up {
@@ -214,11 +213,6 @@ toolbarbutton > menupopup menu .menu-right:-moz-locale-dir(rtl) {
 
 .down {
   list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-}
-
-.up[disabled="true"],
-.down[disabled="true"] {
-  fill-opacity: .5;
 }
 
 /* ::::: Tabs ::::: */
@@ -243,44 +237,48 @@ treechildren::-moz-tree-line(selected, focus) {
 
 /* message column icons */
 
-:root:not(:-moz-lwtheme) treecol:not([hideheader="true"]),
-:root:not(:-moz-lwtheme) .tree-columnpicker-button:not([hideheader="true"]) {
-  appearance: none;
-  color: inherit;
-  background-color: transparent;
-  padding-block: 2px;
-  border-bottom: 1px solid ThreeDShadow;
-}
+:root:not(:-moz-lwtheme) {
+  & treecol:not([hideheader="true"]),
+  & .tree-columnpicker-button:not([hideheader="true"]) {
+    appearance: none;
+    color: inherit;
+    background-color: transparent;
+    padding-block: 2px;
+    border-bottom: 1px solid ThreeDShadow;
+  }
 
-:root:not(:-moz-lwtheme) treecol {
-  border-inline-end: 1px solid ThreeDShadow;
-}
+  & treecol {
+    border-inline-end: 1px solid ThreeDShadow;
+  }
 
-:root:not(:-moz-lwtheme) treecol:hover:active,
-:root:not(:-moz-lwtheme) .tree-columnpicker-button:hover:active {
-  background-color: ThreeDFace;
+  & treecol:hover:active,
+  & .tree-columnpicker-button:hover:active {
+    background-color: ThreeDFace;
+  }
 }
 
 .treecol-sortdirection {
   appearance: none;
   -moz-context-properties: fill;
   fill: currentColor;
+
+  treecol[sortDirection="ascending"]:not([hideheader="true"]) > & {
+    list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  }
+
+  treecol[sortDirection="descending"]:not([hideheader="true"]) > & {
+    list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
+  }
 }
 
-treecol[sortDirection="ascending"]:not([hideheader="true"]) > .treecol-sortdirection {
-  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
-}
+:root[lwt-tree] {
+  & treechildren::-moz-tree-row(odd) {
+    background-color: transparent;
+  }
 
-treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdirection {
-  list-style-image: url("chrome://global/skin/icons/arrow-down-12.svg");
-}
-
-:root[lwt-tree] treechildren::-moz-tree-row(odd) {
-  background-color: transparent;
-}
-
-:root[lwt-tree] treechildren::-moz-tree-row(odd, hover) {
-  background-color: hsla(0, 0%, 50%, 0.15);
+  & treechildren::-moz-tree-row(odd, hover) {
+    background-color: hsla(0, 0%, 50%, 0.15);
+  }
 }
 
 /* ::::: Tabs in Titlebar :::::: */
@@ -292,11 +290,17 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
 
 .titlebar-buttonbox-container {
   align-items: center;
-}
 
-@media not (-moz-mac-rtl) {
-  .titlebar-buttonbox-container:-moz-locale-dir(ltr) {
-    order: -1;
+  @media not (-moz-mac-rtl) {
+    &:-moz-locale-dir(ltr) {
+      order: -1;
+    }
+  }
+
+  @media (-moz-mac-rtl) {
+    &:-moz-locale-dir(rtl) {
+      order: -1;
+    }
   }
 }
 
@@ -304,21 +308,12 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
   #unifiedToolbarContainer:-moz-locale-dir(rtl) {
     flex-direction: row-reverse;
   }
-
-  .titlebar-buttonbox-container:-moz-locale-dir(rtl) {
-    order: -1;
-  }
-}
-
-/* NB: these would be margin-inline-start/end if it wasn't for the fact that OS X
- * doesn't reverse the order of the items in the titlebar in RTL mode. */
-.titlebar-buttonbox {
-  margin-inline: 12px;
 }
 
 .titlebar-buttonbox {
   appearance: auto;
   -moz-default-appearance: -moz-window-button-box;
+  margin-inline: 12px;
 }
 
 #messengerWindow[sizemode="fullscreen"] .titlebar-buttonbox-container {
@@ -360,12 +355,12 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > .button-box 
   /* need to use padding-inline-end when/if bug 631729 gets fixed: */
   padding: 0 16px 1px 1px;
   text-shadow: rgba(255, 255, 255, 0.4) 0 1px;
-}
 
-.statusbar:-moz-lwtheme {
-  background: none;
-  border-style: none;
-  text-shadow: inherit;
+  &:-moz-lwtheme {
+    background: none;
+    border-style: none;
+    text-shadow: inherit;
+  }
 }
 
 /* Status panel */
@@ -378,29 +373,29 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > .button-box 
   border-top-style: solid;
   color: #444;
   text-shadow: none;
-}
 
-.statuspanel-label:-moz-locale-dir(ltr):not([mirror]),
-.statuspanel-label:-moz-locale-dir(rtl)[mirror] {
-  border-right-style: solid;
-  border-top-right-radius: .3em;
-  margin-right: 1em;
-}
+  &:-moz-locale-dir(ltr):not([mirror]),
+  &:-moz-locale-dir(rtl)[mirror] {
+    border-right-style: solid;
+    border-top-right-radius: .3em;
+    margin-right: 1em;
+  }
 
-.statuspanel-label:-moz-locale-dir(rtl):not([mirror]),
-.statuspanel-label:-moz-locale-dir(ltr)[mirror] {
-  border-left-style: solid;
-  border-top-left-radius: .3em;
-  margin-left: 1em;
+  &:-moz-locale-dir(rtl):not([mirror]),
+  &:-moz-locale-dir(ltr)[mirror] {
+    border-left-style: solid;
+    border-top-left-radius: .3em;
+    margin-left: 1em;
+  }
 }
 
 .contentTabInstance {
   background-color: -moz-dialog;
-}
 
-.contentTabInstance:-moz-lwtheme {
-  background-color: transparent;
-  background-image: linear-gradient(transparent 40px, -moz-dialog 40px);
+  &:-moz-lwtheme {
+    background-color: transparent;
+    background-image: linear-gradient(transparent 40px, -moz-dialog 40px);
+  }
 }
 
 .contentTabAddress * {
@@ -409,8 +404,14 @@ toolbarbutton.notification-button[is="toolbarbutton-menu-button"] > .button-box 
 
 fieldset {
   padding: 0 8px 5px;
-  margin: 1.5em 6px 6px 6px;
+  margin: 1.5em 6px 6px;
   border: none;
+
+  & > hbox,
+  & > vbox,
+  & > radiogroup {
+    width: -moz-available;
+  }
 }
 
 legend {
@@ -421,28 +422,22 @@ legend {
   font-weight: bold;
 }
 
-fieldset > hbox,
-fieldset > vbox,
-fieldset > radiogroup {
-  width: -moz-available;
-}
-
 .menu-right,
 .menu-accel-container {
   margin-inline-end: 0;
 }
 
-menupopup[type="arrow"] .menu-accel-container {
-  margin-inline-end: 0;
-}
-
 .menu-accel-container {
   opacity: 0.5;
-}
 
-menuitem:not([disabled="true"]):hover .menu-accel-container,
-menuitem:not([disabled="true"]):focus .menu-accel-container {
-  opacity: 1;
+  menupopup[type="arrow"] & {
+    margin-inline-end: 0;
+  }
+
+  menuitem:not([disabled="true"]):hover &,
+  menuitem:not([disabled="true"]):focus & {
+    opacity: 1;
+  }
 }
 
 /* UI Density customization */
