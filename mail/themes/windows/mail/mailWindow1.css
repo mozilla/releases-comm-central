@@ -70,7 +70,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 @media (prefers-contrast) {
-  :root[tabsintitlebar]:not(:-moz-lwtheme) {
+  :root[tabsintitlebar] #navigation-toolbox:not(:-moz-lwtheme) {
     background-color: ActiveCaption;
     color: CaptionText;
 
