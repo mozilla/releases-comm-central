@@ -1005,18 +1005,22 @@ label.statusbarpanel {
                                                rgba(0, 0, 0, 0.1) 75%,
                                                rgba(0, 0, 0, 0.5) 100%);
     }
+  }
+}
 
-    @media (prefers-reduced-motion: no-preference) {
-      animation: progressSlideX 1.5s linear infinite;
+@media (prefers-reduced-motion: no-preference) {
+  #dialog\.progress:indeterminate::-moz-progress-bar,
+  #shutdown_progressmeter:indeterminate::-moz-progress-bar,
+  .progressmeter-statusbar:indeterminate::-moz-progress-bar {
+    animation: progressSlideX 1.5s linear infinite;
+  }
 
-      @keyframes progressSlideX {
-        0% {
-          background-position: 0 0;
-        }
-        100% {
-          background-position: -100% 0;
-        }
-      }
+  @keyframes progressSlideX {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: -100% 0;
     }
   }
 }
