@@ -71,7 +71,7 @@
     --in-content-box-info-background: var(--color-gray-60);
   }
 
-  :host(:is(.anonymous-content-host, notification-message, [type=warning])) {
+  :host(:is(.anonymous-content-host, notification-message)[type=warning]) {
     --message-bar-background-color: #ffe900;
   }
 }
@@ -236,7 +236,7 @@ button.ghost-button:not(.semi-transparent):enabled:hover:active {
 }
 
 @media (prefers-color-scheme: dark) {
-  :host(:is(.anonymous-content-host, notification-message, [type="info"])) .container.infobar {
+  :host(:is(.anonymous-content-host, notification-message)[type="info"]) .container.infobar {
     --message-bar-background-color: var(--in-content-box-info-background);
   }
 }
@@ -415,7 +415,7 @@ strong {
 }
 
 @media (prefers-color-scheme: dark) {
-  :host(:is(.anonymous-content-host, notification-message, [type=info])) .icon {
+  :host(:is(.anonymous-content-host, notification-message)[type=info]) .icon {
     color: #45a1ff;
   }
 }
