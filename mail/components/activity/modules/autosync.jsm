@@ -424,10 +424,27 @@ var autosyncModule = {
   },
 
   init() {
-    // XXX when do we need to remove ourselves?
     this.log.info("initing");
     Cc["@mozilla.org/imap/autosyncmgr;1"]
       .getService(Ci.nsIAutoSyncManager)
       .addListener(this);
   },
+
+  cleanUp() {
+    this.log.info("cleaning up");
+    Cc["@mozilla.org/imap/autosyncmgr;1"]
+      .getService(Ci.nsIAutoSyncManager)
+      .removeListener(this);
+  },
 };
+
+// Disconnect the listener at shutdown to avoid memory leaking.
+Services.obs.addObserver(
+  {
+    observe() {
+      autosyncModule.cleanUp();
+      Services.obs.removeObserver(this, "xpcom-shutdown");
+    },
+  },
+  "xpcom-shutdown"
+);
