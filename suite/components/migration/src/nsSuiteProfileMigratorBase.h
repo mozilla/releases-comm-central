@@ -29,13 +29,23 @@ struct fileTransactionEntry {
 #define FILE_NAME_JUNKTRAINING    "training.dat"
 #define FILE_NAME_VIRTUALFOLDERS  "virtualFolders.dat"
 
-#define F(a) nsSuiteProfileMigratorBase::a
+#define TRANSFORMFUNCTION(a) nsSuiteProfileMigratorBase::a
 
 #define MAKEPREFTRANSFORM(pref, newpref, getmethod, setmethod) \
-  { pref, newpref, F(Get##getmethod), F(Set##setmethod), false, { -1 } }
+  {                                                            \
+    pref, newpref, TRANSFORMFUNCTION(Get##getmethod),          \
+        TRANSFORMFUNCTION(Set##setmethod), false, {            \
+      -1                                                       \
+    }                                                          \
+  }
 
-#define MAKESAMETYPEPREFTRANSFORM(pref, method) \
-  { pref, 0, F(Get##method), F(Set##method), false, { -1 } }
+#define MAKESAMETYPEPREFTRANSFORM(pref, method)                              \
+  {                                                                          \
+    pref, 0, TRANSFORMFUNCTION(Get##method), TRANSFORMFUNCTION(Set##method), \
+        false, {                                                             \
+      -1                                                                     \
+    }                                                                        \
+  }
 
 class nsSuiteProfileMigratorBase : public nsISuiteProfileMigrator,
                                    public nsITimerCallback,
