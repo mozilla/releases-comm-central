@@ -1661,56 +1661,47 @@ NS_IMETHODIMP nsMsgDatabase::ContainsKey(nsMsgKey key, bool* containsKey) {
 // get a message header for the given key. Caller must release()!
 NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForKey(nsMsgKey key,
                                              nsIMsgDBHdr** pmsgHdr) {
-  nsresult err = NS_OK;
-  mdb_bool hasOid;
-  mdbOid rowObjectId;
+  *pmsgHdr = nullptr;
+  NS_ENSURE_ARG_POINTER(pmsgHdr);
+  NS_ENSURE_STATE(m_folder);
+  NS_ENSURE_STATE(m_mdbAllMsgHeadersTable);
+  NS_ENSURE_STATE(m_mdbStore);
 
   // Because this may be called a lot, and we don't want gettimeofday() to show
   // up in trace logs, we just remember the most recent time any db was used,
   // which should be close enough for our purposes.
   m_lastUseTime = gLastUseTime;
 
-#ifdef DEBUG_bienvenu1
-  NS_ASSERTION(m_folder, "folder should be set");
-#endif
+  nsresult rv = GetHdrFromUseCache(key, pmsgHdr);
+  if (NS_SUCCEEDED(rv) && *pmsgHdr) return rv;
 
-  if (!pmsgHdr || !m_mdbAllMsgHeadersTable || !m_mdbStore)
-    return NS_ERROR_NULL_POINTER;
-
-  *pmsgHdr = NULL;
-  err = GetHdrFromUseCache(key, pmsgHdr);
-  if (NS_SUCCEEDED(err) && *pmsgHdr) return err;
-
+  mdbOid rowObjectId;
   rowObjectId.mOid_Id = key;
   rowObjectId.mOid_Scope = m_hdrRowScopeToken;
-  err = m_mdbAllMsgHeadersTable->HasOid(GetEnv(), &rowObjectId, &hasOid);
-  if (NS_SUCCEEDED(err) /* && hasOid */) {
+  mdb_bool hasOid;
+  rv = m_mdbAllMsgHeadersTable->HasOid(GetEnv(), &rowObjectId, &hasOid);
+  if (NS_SUCCEEDED(rv) /* && hasOid */) {
     nsIMdbRow* hdrRow;
-    err = m_mdbStore->GetRow(GetEnv(), &rowObjectId, &hdrRow);
-
-    if (NS_SUCCEEDED(err)) {
+    rv = m_mdbStore->GetRow(GetEnv(), &rowObjectId, &hdrRow);
+    if (NS_SUCCEEDED(rv)) {
       if (!hdrRow) {
-        err = NS_ERROR_NULL_POINTER;
+        rv = NS_ERROR_NULL_POINTER;
       } else {
-        //        NS_ASSERTION(hasOid, "we had oid, right?");
-        err = CreateMsgHdr(hdrRow, key, pmsgHdr);
+        rv = CreateMsgHdr(hdrRow, key, pmsgHdr);
       }
     }
   }
-
-  return err;
+  return rv;
 }
 
 NS_IMETHODIMP nsMsgDatabase::DeleteMessage(nsMsgKey key,
                                            nsIDBChangeListener* instigator,
                                            bool commit) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-
-  nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+  GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
   if (!msgHdr) return NS_MSG_MESSAGE_NOT_FOUND;
 
-  rv = DeleteHeader(msgHdr, instigator, commit, true);
-  return rv;
+  return DeleteHeader(msgHdr, instigator, commit, true);
 }
 
 NS_IMETHODIMP nsMsgDatabase::DeleteMessages(nsTArray<nsMsgKey> const& nsMsgKeys,
@@ -1725,13 +1716,12 @@ NS_IMETHODIMP nsMsgDatabase::DeleteMessages(nsTArray<nsMsgKey> const& nsMsgKeys,
     bool hasKey;
 
     if (NS_SUCCEEDED(ContainsKey(key, &hasKey)) && hasKey) {
-      err = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-      if (NS_FAILED(err)) {
+      GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+      if (!msgHdr) {
         err = NS_MSG_MESSAGE_NOT_FOUND;
         break;
       }
-      if (msgHdr)
-        err = DeleteHeader(msgHdr, instigator, kindex % 300 == 0, true);
+      err = DeleteHeader(msgHdr, instigator, kindex % 300 == 0, true);
       if (NS_FAILED(err)) break;
     }
   }
@@ -1847,12 +1837,10 @@ nsresult nsMsgDatabase::RemoveHeaderFromDB(nsMsgHdr* msgHdr) {
 
 nsresult nsMsgDatabase::IsRead(nsMsgKey key, bool* pRead) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
+  GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+  if (!msgHdr) return NS_MSG_MESSAGE_NOT_FOUND;
 
-  nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv) || !msgHdr)
-    return NS_MSG_MESSAGE_NOT_FOUND;  // XXX return rv?
-  rv = IsHeaderRead(msgHdr, pRead);
-  return rv;
+  return IsHeaderRead(msgHdr, pRead);
 }
 
 uint32_t nsMsgDatabase::GetStatusFlags(nsIMsgDBHdr* msgHdr,
@@ -1884,13 +1872,13 @@ nsresult nsMsgDatabase::IsHeaderRead(nsIMsgDBHdr* msgHdr, bool* pRead) {
 NS_IMETHODIMP nsMsgDatabase::IsMarked(nsMsgKey key, bool* pMarked) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
-  nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv)) return NS_MSG_MESSAGE_NOT_FOUND;  // XXX return rv?
+  GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+  if (!msgHdr) return NS_MSG_MESSAGE_NOT_FOUND;
 
   uint32_t flags;
   (void)msgHdr->GetFlags(&flags);
   *pMarked = !!(flags & nsMsgMessageFlags::Marked);
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDatabase::IsIgnored(nsMsgKey key, bool* pIgnored) {
@@ -1930,13 +1918,13 @@ nsresult nsMsgDatabase::HasAttachments(nsMsgKey key, bool* pHasThem) {
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
-  nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv)) return rv;
+  GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+  if (!msgHdr) return NS_MSG_MESSAGE_NOT_FOUND;
 
   uint32_t flags;
   (void)msgHdr->GetFlags(&flags);
   *pHasThem = !!(flags & nsMsgMessageFlags::Attachment);
-  return rv;
+  return NS_OK;
 }
 
 bool nsMsgDatabase::SetHdrReadFlag(nsIMsgDBHdr* msgHdr, bool bRead) {
@@ -1977,15 +1965,12 @@ nsresult nsMsgDatabase::MarkHdrReadInDB(nsIMsgDBHdr* msgHdr, bool bRead,
 
 NS_IMETHODIMP nsMsgDatabase::MarkRead(nsMsgKey key, bool bRead,
                                       nsIDBChangeListener* instigator) {
-  nsresult rv;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
-  rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv) || !msgHdr)
-    return NS_MSG_MESSAGE_NOT_FOUND;  // XXX return rv?
+  GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+  if (!msgHdr) return NS_MSG_MESSAGE_NOT_FOUND;
 
-  rv = MarkHdrRead(msgHdr, bRead, instigator);
-  return rv;
+  return MarkHdrRead(msgHdr, bRead, instigator);
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkReplied(
@@ -2059,8 +2044,8 @@ nsMsgDatabase::MarkThreadIgnored(nsIMsgThread* thread, nsMsgKey threadKey,
   thread->SetFlags(threadFlags);
 
   nsCOMPtr<nsIMsgDBHdr> msg;
-  nsresult rv = GetMsgHdrForKey(threadKey, getter_AddRefs(msg));
-  NS_ENSURE_SUCCESS(rv, rv);
+  GetMsgHdrForKey(threadKey, getter_AddRefs(msg));
+  NS_ENSURE_TRUE(msg, NS_MSG_MESSAGE_NOT_FOUND);
 
   // We'll add the message flags to the thread flags when notifying, since
   // notifications are supposed to be about messages, not threads.
@@ -2104,6 +2089,7 @@ nsMsgDatabase::MarkThreadWatched(nsIMsgThread* thread, nsMsgKey threadKey,
 
   nsCOMPtr<nsIMsgDBHdr> msg;
   GetMsgHdrForKey(threadKey, getter_AddRefs(msg));
+  if (!msg) return NS_MSG_MESSAGE_NOT_FOUND;
 
   // We'll add the message flags to the thread flags when notifying, since
   // notifications are supposed to be about messages, not threads.
@@ -2128,9 +2114,8 @@ NS_IMETHODIMP nsMsgDatabase::SetStringProperty(nsMsgKey aKey,
                                                const char* aProperty,
                                                const nsACString& aValue) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  nsresult rv = GetMsgHdrForKey(aKey, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv) || !msgHdr)
-    return NS_MSG_MESSAGE_NOT_FOUND;  // XXX return rv?
+  GetMsgHdrForKey(aKey, getter_AddRefs(msgHdr));
+  if (!msgHdr) return NS_MSG_MESSAGE_NOT_FOUND;
   return SetStringPropertyByHdr(msgHdr, aProperty, aValue);
 }
 
@@ -2265,25 +2250,22 @@ nsresult nsMsgDatabase::MarkMDNSent(
 nsresult nsMsgDatabase::IsMDNSent(nsMsgKey key, bool* pSent) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
-  nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv) || !msgHdr)
-    return NS_MSG_MESSAGE_NOT_FOUND;  // XXX return rv?
+  GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+  if (!msgHdr) return NS_MSG_MESSAGE_NOT_FOUND;
 
   uint32_t flags;
   (void)msgHdr->GetFlags(&flags);
   *pSent = !!(flags & nsMsgMessageFlags::MDNReportSent);
-  return rv;
+  return NS_OK;
 }
 
 nsresult nsMsgDatabase::SetKeyFlag(nsMsgKey key, bool set,
                                    nsMsgMessageFlagType flag,
                                    nsIDBChangeListener* instigator) {
-  nsresult rv;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
-  rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-  if (NS_FAILED(rv) || !msgHdr)
-    return NS_MSG_MESSAGE_NOT_FOUND;  // XXX return rv?
+  GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+  if (!msgHdr) return NS_MSG_MESSAGE_NOT_FOUND;
 
   return SetMsgHdrFlag(msgHdr, set, flag, instigator);
 }
@@ -2423,7 +2405,6 @@ NS_IMETHODIMP nsMsgDatabase::AddToNewList(nsMsgKey key) {
 }
 
 NS_IMETHODIMP nsMsgDatabase::ClearNewList(bool notify /* = FALSE */) {
-  nsresult err = NS_OK;
   if (notify && !m_newSet.IsEmpty())  // need to update view
   {
     nsTArray<nsMsgKey> saveNewSet;
@@ -2434,8 +2415,8 @@ NS_IMETHODIMP nsMsgDatabase::ClearNewList(bool notify /* = FALSE */) {
     for (uint32_t elementIndex = saveNewSet.Length() - 1;; elementIndex--) {
       nsMsgKey lastNewKey = saveNewSet.ElementAt(elementIndex);
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
-      err = GetMsgHdrForKey(lastNewKey, getter_AddRefs(msgHdr));
-      if (NS_SUCCEEDED(err)) {
+      GetMsgHdrForKey(lastNewKey, getter_AddRefs(msgHdr));
+      if (msgHdr) {
         uint32_t flags;
         (void)msgHdr->GetFlags(&flags);
 
@@ -2448,7 +2429,7 @@ NS_IMETHODIMP nsMsgDatabase::ClearNewList(bool notify /* = FALSE */) {
       if (elementIndex == 0) break;
     }
   }
-  return err;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDatabase::HasNew(bool* _retval) {
@@ -3798,11 +3779,10 @@ nsresult nsMsgDatabase::GetThreadForMsgKey(nsMsgKey msgKey,
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsCOMPtr<nsIMsgDBHdr> msg;
-  nsresult rv = GetMsgHdrForKey(msgKey, getter_AddRefs(msg));
+  GetMsgHdrForKey(msgKey, getter_AddRefs(msg));
+  if (!msg) return NS_MSG_MESSAGE_NOT_FOUND;
 
-  if (NS_SUCCEEDED(rv) && msg) rv = GetThreadContainingMsgHdr(msg, aResult);
-
-  return rv;
+  return GetThreadContainingMsgHdr(msg, aResult);
 }
 
 // caller needs to unrefer.
@@ -4004,8 +3984,8 @@ nsresult nsMsgDatabase::DumpContents() {
   NS_ENSURE_SUCCESS(rv, rv);
   for (nsMsgKey key : keys) {
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
-    rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
-    if (NS_SUCCEEDED(rv)) {
+    GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
+    if (msgHdr) {
       nsCString author;
       nsCString subject;
 
