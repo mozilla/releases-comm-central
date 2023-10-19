@@ -2,25 +2,83 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+@namespace xul "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
 form {
   grid-row: header / footer;
+
+  .hub-body {
+    align-items: stretch;
+    justify-content: flex-start;
+    place-self: center;
+    gap: 0;
+    width: 100%;
+    max-width: 400px;
+    text-align: start;
+    margin-inline: 0;
+  }
+
+  .hub-body.flex-direction-row {
+    max-width: 700px;
+  }
+
+  label {
+    font-size: 1.1rem;
+    line-height: 1;
+    margin-block-end: 3px;
+  }
+
+  .input-field {
+    flex: 1;
+    margin-inline: 0;
+    padding-block: 0;
+    padding-inline: 9px 14px;
+    min-height: var(--hub-input-height);
+    border: 1px solid var(--hub-input-border-color);
+  }
+
+  .menulist {
+    margin: 4px 0;
+    padding-inline-start: 6px;
+    padding-block: 0;
+    line-height: 2;
+    border: 1px solid var(--hub-input-border-color);
+    border-radius: var(--hub-input-border-radius);
+
+    &:hover {
+      border-color: var(--hub-input-border-color);
+    }
+  }
+
+  .menupopup {
+    --arrowpanel-padding: 4px 0;
+    --panel-background: var(--arrowpanel-background);
+    --panel-color: var(--arrowpanel-color);
+    --panel-border-color: var(--arrowpanel-border-color);
+    --panel-border-radius: var(--arrowpanel-border-radius);
+    --panel-padding: var(--arrowpanel-padding);
+    --menu-color: var(--arrowpanel-color);
+    --menu-border-color: var(--arrowpanel-border-color);
+    --menu-background-color: var(--arrowpanel-background);
+  }
+
+  xul|menulist > xul|menupopup xul|menuitem {
+    padding-block: var(--menu-item-padding);
+  }
+
+  legend {
+    margin-block: 0 10px;
+    background-color: var(--hub-account-primary-button-background);
+    border-radius: 7px;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: var(--hub-button-color);
+  }
 }
 
-form .hub-body {
-  align-items: stretch;
-  justify-content: flex-start;
-  place-self: center;
-  gap: 0;
-  width: 100%;
-  max-width: 400px;
-  text-align: start;
-  margin-inline: 0;
-}
-
-form label {
-  font-size: 1.1rem;
-  line-height: 1;
-  margin-block-end: 3px;
+div:has(legend) {
+  display: flex;
 }
 
 .input-control {
@@ -32,15 +90,6 @@ form label {
 .input-control.vertical {
   flex-direction: column;
   align-items: stretch;
-}
-
-form .input-field {
-  flex: 1;
-  margin-inline: 0;
-  padding-block: 0;
-  padding-inline-end: 33px;
-  min-height: var(--hub-input-height);
-  border-radius: var(--hub-input-border-radius);
 }
 
 .form-icon {
