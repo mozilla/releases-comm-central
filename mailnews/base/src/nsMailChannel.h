@@ -10,6 +10,7 @@
 #include "nsTArray.h"
 #include "nsTString.h"
 #include "calIItipItem.h"
+#include "nsIWeakReferenceUtils.h"
 
 class nsMailChannel : public nsIMailChannel {
  public:
@@ -23,6 +24,7 @@ class nsMailChannel : public nsIMailChannel {
   nsCString mImipMethod;
   nsCOMPtr<calIItipItem> mImipItem;
   nsCOMPtr<nsIMsgSMIMEHeaderSink> mSmimeHeaderSink;
+  nsWeakPtr mListener;
 };
 
 #endif /* nsMailChannel_h__ */

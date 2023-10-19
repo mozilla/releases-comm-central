@@ -118,3 +118,21 @@ nsMailChannel::SetSmimeHeaderSink(nsIMsgSMIMEHeaderSink* aSmimeHeaderSink) {
   mSmimeHeaderSink = aSmimeHeaderSink;
   return NS_OK;
 }
+
+NS_IMETHODIMP
+nsMailChannel::GetListener(nsIMailProgressListener** aListener) {
+  nsCOMPtr<nsIMailProgressListener> listener = do_QueryReferent(mListener);
+  if (listener) {
+    NS_IF_ADDREF(*aListener = listener);
+  } else {
+    *aListener = nullptr;
+  }
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMailChannel::SetListener(nsIMailProgressListener* aListener) {
+  nsresult rv;
+  mListener = do_GetWeakReference(aListener, &rv);
+  return rv;
+}

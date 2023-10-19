@@ -196,23 +196,10 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(int32_t aHeaderMode) {
   }
 
   // Notify the front end that the headers are ready on `mailChannel`.
-  nsCOMPtr<nsIInterfaceRequestor> notificationCallbacks;
-  mChannel->GetNotificationCallbacks(getter_AddRefs(notificationCallbacks));
-  if (NS_SUCCEEDED(rv) && notificationCallbacks) {
-    nsCOMPtr<nsIProgressEventSink> sink;
-    rv = notificationCallbacks->GetInterface(NS_GET_IID(nsIProgressEventSink),
-                                             getter_AddRefs(sink));
-    if (NS_SUCCEEDED(rv) && sink) {
-      nsCOMPtr<nsIURI> uri;
-      mChannel->GetURI(getter_AddRefs(uri));
-      nsCString host;
-      uri->GetHost(host);
-      // The listener gets the localized string "Transferring data from {host}…"
-      // because we use NS_NET_STATUS_RECEIVING_FROM. The channel and status
-      // code itself do not get passed to the listener.
-      sink->OnStatus(mChannel, NS_NET_STATUS_RECEIVING_FROM,
-                     NS_ConvertUTF8toUTF16(host).get());
-    }
+  nsCOMPtr<nsIMailProgressListener> listener;
+  mailChannel->GetListener(getter_AddRefs(listener));
+  if (listener) {
+    listener->OnHeadersComplete(mailChannel);
   }
 
   return rv;
@@ -440,24 +427,13 @@ nsresult nsMimeHtmlDisplayEmitter::EndBody() {
   }
 
   // Notify the front end that we've finished reading the body.
-  nsCOMPtr<nsIInterfaceRequestor> notificationCallbacks;
-  nsresult rv =
-      mChannel->GetNotificationCallbacks(getter_AddRefs(notificationCallbacks));
-  if (NS_SUCCEEDED(rv) && notificationCallbacks) {
-    nsCOMPtr<nsIProgressEventSink> sink;
-    rv = notificationCallbacks->GetInterface(NS_GET_IID(nsIProgressEventSink),
-                                             getter_AddRefs(sink));
-    if (NS_SUCCEEDED(rv) && sink) {
-      nsCOMPtr<nsIURI> uri;
-      mChannel->GetURI(getter_AddRefs(uri));
-      nsCString host;
-      uri->GetHost(host);
-      // The listener gets the localized string "Read {host}" because we use
-      // NS_NET_STATUS_READING. The channel and status code itself do not get
-      // passed to the listener.
-      sink->OnStatus(mChannel, NS_NET_STATUS_READING,
-                     NS_ConvertUTF8toUTF16(host).get());
-    }
+  nsresult rv;
+  nsCOMPtr<nsIMailChannel> mailChannel = do_QueryInterface(mChannel, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMailProgressListener> listener;
+  mailChannel->GetListener(getter_AddRefs(listener));
+  if (listener) {
+    listener->OnBodyComplete(mailChannel);
   }
 
   return NS_OK;

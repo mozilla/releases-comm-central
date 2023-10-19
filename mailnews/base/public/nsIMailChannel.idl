@@ -7,6 +7,10 @@
 #include "nsIPropertyBag2.idl"
 #include "nsIMsgSMIMEHeaderSink.idl"
 
+interface nsIMailProgressListener;
+interface nsIWebProgress;
+interface nsIRequest;
+
 /**
  * An interface that email-streaming channels can use to provide access to
  * parsed message headers, message attachment info, and other metadata.
@@ -75,4 +79,25 @@ interface nsIMailChannel : nsISupports {
    * Set this in onStartRequest to receive security status notifications.
    */
   attribute nsIMsgSMIMEHeaderSink smimeHeaderSink;
+
+  /**
+   * A listener for progress events. This object must also implement
+   * nsISupportsWeakReference.
+   */
+  attribute nsIMailProgressListener listener;
+};
+
+[scriptable, uuid(1286f969-1c20-422e-8247-233fe0d26ba5)]
+interface nsIMailProgressListener : nsISupports {
+  /**
+   * Receive a notification from the parser that it has finished outputting
+   * the headers to the channel.
+   */
+  void onHeadersComplete(in nsIMailChannel mailChannel);
+
+  /**
+   * Receive a notification from the parser that it has finished outputting
+   * the message body to the channel.
+   */
+  void onBodyComplete(in nsIMailChannel mailChannel);
 };

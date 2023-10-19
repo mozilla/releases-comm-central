@@ -10,6 +10,7 @@ export class MailChannel {
   _headerValues = [];
   _attachments = [];
   _mailCharacterSet = null;
+  _progressListener = null;
 
   addHeaderFromMIME(name, value) {
     this._headerNames.push(name);
@@ -59,4 +60,12 @@ export class MailChannel {
   imipMethod = null;
   imipItem = null;
   smimeHeaderSink = null;
+
+  get listener() {
+    return this._progressListener?.get();
+  }
+
+  set listener(listener) {
+    this._progressListener = Cu.getWeakReference(listener);
+  }
 }

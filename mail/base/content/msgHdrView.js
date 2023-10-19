@@ -454,7 +454,7 @@ async function OnLoadMsgHeaderPane() {
 
   getMessagePaneBrowser().addProgressListener(
     messageProgressListener,
-    Ci.nsIWebProgress.NOTIFY_STATUS | Ci.nsIWebProgress.NOTIFY_STATE_ALL
+    Ci.nsIWebProgress.NOTIFY_STATE_ALL
   );
 
   gHeaderCustomize.init();
@@ -523,38 +523,31 @@ var MsgHdrViewObserver = {
  * Receives a message's headers as we display the message through our mime converter.
  *
  * @see {nsIMailChannel}
+ * @implements {nsIMailProgressListener}
  * @implements {nsIWebProgressListener}
  * @implements {nsISupportsWeakReference}
  */
 var messageProgressListener = {
   QueryInterface: ChromeUtils.generateQI([
+    "nsIMailProgressListener",
     "nsIWebProgressListener",
     "nsISupportsWeakReference",
   ]),
 
   /**
-   * @param {nsIWebProgress} webProgress
-   * @param {nsIRequest} request
-   * @param {nsresult} status
-   * @param {wstring} message
-   * @see {nsIWebProgressListener}
+   * @param {nsIMailChannel} mailChannel
+   * @see {nsIMailProgressListener}
    */
-  onStatusChange(webProgress, request, status, message) {
-    // We use status change events as a notification from the parser that the
-    // headers are ready to use. Though this event could be fired for any
-    // of the resources in the message, the first three arguments aren't given
-    // so there's no way to know. We'll assume that the first time we get here
-    // after STATE_START is the notification from the parser, since at that
-    // point there should be no other requests in progress.
-    const docRequest = getMessagePaneBrowser().webProgress?.documentRequest;
-    if (
-      !this._sawHeaders &&
-      docRequest &&
-      docRequest instanceof Ci.nsIMailChannel
-    ) {
-      this._sawHeaders = true;
-      this.processHeaders(docRequest.headerNames, docRequest.headerValues);
-    }
+  onHeadersComplete(mailChannel) {
+    this.processHeaders(mailChannel.headerNames, mailChannel.headerValues);
+  },
+
+  /**
+   * @param {nsIMailChannel} mailChannel
+   * @see {nsIMailProgressListener}
+   */
+  onBodyComplete(mailChannel) {
+    autoMarkAsRead();
   },
 
   /**
@@ -578,17 +571,12 @@ var messageProgressListener = {
       ClearAttachmentList();
       gMessageNotificationBar.clearMsgNotifications();
 
-      this._sawHeaders = false;
+      request.listener = this;
       request.smimeHeaderSink = smimeHeaderSink;
       this.onStartHeaders();
     } else if (stateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
       currentCharacterSet = request.mailCharacterSet;
       request.smimeHeaderSink = null;
-      if (!this._sawHeaders) {
-        // This shouldn't happen, but it's here as a backup plan.
-        this._sawHeaders = true;
-        this.processHeaders(request.headerNames, request.headerValues);
-      }
       if (request.imipItem) {
         calImipBar.showImipBar(request.imipItem, request.imipMethod);
       }
@@ -4191,13 +4179,21 @@ function OnMsgLoaded(aUrl) {
     return;
   }
 
-  let win =
-    location.href == "about:message"
-      ? window.browsingContext.topChromeWindow
-      : window;
-  let wintype = win.document.documentElement.getAttribute("windowtype");
-
   gMessageNotificationBar.setJunkMsg(gMessage);
+
+  // See if MDN was requested but has not been sent.
+  HandleMDNResponse(aUrl);
+}
+
+/**
+ * Marks the message as read, optionally after a delay, if the preferences say
+ * we should do so.
+ */
+function autoMarkAsRead() {
+  if (!gMessage?.folder) {
+    // The message can't be marked read or unread.
+    return;
+  }
 
   let markReadAutoMode = Services.prefs.getBoolPref(
     "mailnews.mark_message_read.auto"
@@ -4206,14 +4202,15 @@ function OnMsgLoaded(aUrl) {
   // We just finished loading a message. If messages are to be marked as read
   // automatically, set a timer to mark the message is read after n seconds
   // where n can be configured by the user.
-  if (gMessage && !gMessage.isRead && markReadAutoMode) {
+  if (!gMessage.isRead && markReadAutoMode) {
     let markReadOnADelay = Services.prefs.getBoolPref(
       "mailnews.mark_message_read.delay"
     );
 
+    let winType = top.document.documentElement.getAttribute("windowtype");
     // Only use the timer if viewing using the 3-pane preview pane and the
     // user has set the pref.
-    if (markReadOnADelay && wintype == "mail:3pane") {
+    if (markReadOnADelay && winType == "mail:3pane") {
       // 3-pane window
       ClearPendingReadTimer();
       let markReadDelayTime = Services.prefs.getIntPref(
@@ -4233,9 +4230,6 @@ function OnMsgLoaded(aUrl) {
       MarkMessageAsRead(gMessage);
     }
   }
-
-  // See if MDN was requested but has not been sent.
-  HandleMDNResponse(aUrl);
 }
 
 /**
