@@ -47,7 +47,9 @@ PER_PROJECT_PARAMETERS = {
     },
     "try-comm-central": {
         "enable_always_target": True,
-        "target_tasks_method": "try_cc_tasks",
+        "target_tasks_method": lambda parameters: "codereview"
+        if parameters.get("target_tasks_method") == "codereview"
+        else "try_cc_tasks",
     },
     "comm-central": {
         "target_tasks_method": "comm_central_tasks",
@@ -103,7 +105,9 @@ def get_decision_parameters(graph_config, parameters):
     project = parameters["project"]
 
     if project in PER_PROJECT_PARAMETERS:
-        parameters.update(PER_PROJECT_PARAMETERS[project])
+        for _parameter, _value in PER_PROJECT_PARAMETERS[project].items():
+            parameters[_parameter] = _value(parameters) if callable(_value) else _value
+
         logger.info("project parameters set for project {} from {}.".format(project, __file__))
     else:
         # Projects without a target_tasks_method should not exist for Thunderbird CI
