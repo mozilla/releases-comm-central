@@ -512,17 +512,13 @@ var commandController = {
           return aboutMessage?.currentHeaderData?.["list-post"];
         }
         return false;
-      case "cmd_forward":
-        if (!hasIdentities) {
-          return false;
-        }
-      // Falls through.
       case "cmd_viewPageSource":
       case "cmd_saveAsTemplate":
         return numSelectedMessages == 1;
       case "cmd_reply":
       case "cmd_replySender":
       case "cmd_replyall":
+      case "cmd_forward":
       case "cmd_forwardInline":
       case "cmd_forwardAttachment":
       case "cmd_redirect":

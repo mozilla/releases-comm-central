@@ -20,7 +20,7 @@ const messageMenuData = {
   replySenderMainMenu: { hidden: true },
   menu_replyToAll: { disabled: nothingSelected },
   menu_replyToList: { disabled: true },
-  menu_forwardMsg: { disabled: nothingOrMultiSelected },
+  menu_forwardMsg: { disabled: nothingSelected },
   forwardAsMenu: { disabled: nothingSelected },
   menu_forwardAsInline: { disabled: nothingSelected },
   menu_forwardAsAttachment: { disabled: nothingSelected },

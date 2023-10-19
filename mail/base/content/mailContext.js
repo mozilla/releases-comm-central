@@ -358,6 +358,7 @@ var mailContextMenu = {
       "mailContext-openContainingFolder",
       (!isDummyMessage && !inAbout3Pane) || gViewWrapper.isSynthetic
     );
+    setSingleSelection("mailContext-forward", !onSpecialItem);
     setSingleSelection("mailContext-forwardAsMenu", !onSpecialItem);
     showItem(
       "mailContext-multiForwardAsAttachment",
