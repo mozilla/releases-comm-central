@@ -886,6 +886,7 @@ export class MessageList {
     this.pages = [];
     this._messageTracker = messageTracker;
     this.autoPaginatorTimeout = null;
+    this.folderCache = new Map();
 
     this.addPage();
   }
@@ -923,7 +924,7 @@ export class MessageList {
     return this.messageListId;
   }
 
-  addMessage(message) {
+  addMessage(msgHdr) {
     if (this.isDone || !this.currentPage) {
       return;
     }
@@ -931,9 +932,21 @@ export class MessageList {
       this.addPage();
     }
 
-    this.currentPage.messages.push(
-      this.extension.messageManager.convert(message)
-    );
+    let messageHeader = this.extension.messageManager.convert(msgHdr, {
+      skipFolder: true,
+    });
+
+    if (msgHdr.folder && this.extension.folderManager) {
+      if (this.folderCache.has(msgHdr.folder.URI)) {
+        messageHeader.folder = this.folderCache.get(msgHdr.folder.URI);
+      } else {
+        messageHeader.folder = this.extension.folderManager.convert(
+          msgHdr.folder
+        );
+        this.folderCache.set(msgHdr.folder.URI, messageHeader.folder);
+      }
+    }
+    this.currentPage.messages.push(messageHeader);
 
     // Automatically push a new page and return the page with this message after
     // a fixed amount of time, so that small sets of search results are not held
@@ -1083,6 +1096,11 @@ export class MessageListTracker {
   }
 }
 
+/**
+ * @typedef MessageConvertOptions
+ * @property {boolean} [skipFolder] - do not include the converted folder
+ */
+
 export class MessageManager {
   constructor(extension, messageTracker, messageListTracker) {
     this.extension = extension;
@@ -1095,12 +1113,13 @@ export class MessageManager {
    * This function WILL change as the API develops.
    *
    * @param {nsIMsgDBHdr} msgHdr
+   * @param {MessageConvertOptions} [options]
    *
    * @returns {MessageHeader} MessageHeader object
    *
    * @see /mail/components/extensions/schemas/messages.json
    */
-  convert(msgHdr) {
+  convert(msgHdr, options = {}) {
     if (!msgHdr) {
       return null;
     }
@@ -1152,7 +1171,11 @@ export class MessageManager {
       external: !cachedHdr.folder,
     };
 
-    if (cachedHdr.folder && this.extension.hasPermission("accountsRead")) {
+    if (
+      !options.skipFolder &&
+      cachedHdr.folder &&
+      this.extension.folderManager
+    ) {
       messageObject.folder = this.extension.folderManager.convert(
         cachedHdr.folder
       );
