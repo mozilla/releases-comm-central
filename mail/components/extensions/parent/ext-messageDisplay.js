@@ -4,7 +4,9 @@
 
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
-
+var { getMsgStreamUrl } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionMessages.sys.mjs"
+);
 /**
  * Returns the currently displayed messages in the given tab.
  *
@@ -285,18 +287,7 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
               .finalize().spec;
           } else {
             let msgHdr = getMsgHdr(properties, extension);
-            if (msgHdr.folder) {
-              messageURI = msgHdr.folder.getUriForMsg(msgHdr);
-            } else {
-              // Add the application/x-message-display type to the url, if missing.
-              // The slash is escaped when setting the type via searchParams, but
-              // core code needs it unescaped.
-              let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
-              url.searchParams.delete("type");
-              messageURI = `${url.href}${
-                url.searchParams.toString() ? "&" : "?"
-              }type=application/x-message-display`;
-            }
+            messageURI = getMsgStreamUrl(msgHdr);
           }
 
           let tab;

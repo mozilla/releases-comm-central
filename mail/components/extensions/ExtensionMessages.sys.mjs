@@ -28,6 +28,26 @@ XPCOMUtils.defineLazyPreferenceGetter(
 );
 
 /**
+ * Returns the msgUrl of the given msgHdr, which is usable with,
+ * nsIMsgMessageService.streamMessage().
+ *
+ * For dummy messages the "application/x-message-display" type is added to the
+ * url, if missing.
+ *
+ * @param {nsIMsgDBHdr} msgHdr
+ * @returns {string}
+ */
+export function getMsgStreamUrl(msgHdr) {
+  if (msgHdr.folder) {
+    return msgHdr.folder.getUriForMsg(msgHdr);
+  }
+
+  let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
+  url.searchParams.set("type", "application/x-message-display");
+  return url.toString();
+}
+
+/**
  * Class for cached message headers to reduce XPCOM requests and to cache msgHdr
  * of file and attachment messages.
  */
@@ -170,29 +190,6 @@ export class MessageTracker extends EventEmitter {
         MailServices.mfn.msgsMoveCopyCompleted |
         MailServices.mfn.msgKeyChanged
     );
-
-    this._messageOpenListenerRegistered = false;
-    try {
-      this._windowTracker.addListener("MsgLoaded", this);
-      this._messageOpenListenerRegistered = true;
-    } catch (ex) {
-      // Fails during XPCSHELL tests, which mock the WindowWatcher but do not
-      // implement registerNotification.
-    }
-  }
-
-  // Event handler for MsgLoaded event.
-  handleEvent(event) {
-    let msgHdr = event.detail;
-    // It is not possible to retrieve the dummyMsgHdr of messages opened
-    // from file at a later time, track them manually.
-    if (
-      msgHdr &&
-      !msgHdr.folder &&
-      msgHdr.getStringProperty("dummyMsgUrl").startsWith("file://")
-    ) {
-      this.getId(msgHdr);
-    }
   }
 
   cleanup() {
@@ -203,10 +200,6 @@ export class MessageTracker extends EventEmitter {
     MailServices.mailSession.RemoveFolderListener(this);
     // nsIMsgFolderListener
     MailServices.mfn.removeListener(this);
-    if (this._messageOpenListenerRegistered) {
-      this._windowTracker.removeListener("MsgLoaded", this);
-      this._messageOpenListenerRegistered = false;
-    }
   }
 
   /**
@@ -228,15 +221,19 @@ export class MessageTracker extends EventEmitter {
    * @param {integer} id - messageTracker id of the message
    * @param {*} msgIdentifier - msgIdentifier of the message
    * @param {nsIMsgDBHdr} [msgHdr] - optional msgHdr of the message, will be
-   *   added to the cache if it is a dummy msgHdr (a file or attachment message)
+   *   added to the cache if it is a non-file dummy msgHdr, which cannot be
+   *   retrieved later (for example an attached message)
    */
   _set(id, msgIdentifier, msgHdr) {
     let hash = this.getHash(msgIdentifier);
     this._messageIds.set(hash, id);
     this._messages.set(id, msgIdentifier);
-    // Keep track of dummy message headers, which do not have a folder property
-    // and cannot be retrieved later.
-    if (msgHdr && !msgHdr.folder && msgIdentifier.dummyMsgUrl) {
+    if (
+      msgHdr &&
+      !msgHdr.folder &&
+      msgIdentifier.dummyMsgUrl &&
+      !msgIdentifier.dummyMsgUrl.startsWith("file://")
+    ) {
       this._dummyMessageHeaders.set(
         msgIdentifier.dummyMsgUrl,
         msgHdr instanceof Ci.nsIMsgDBHdr ? new CachedMsgHeader(msgHdr) : msgHdr
@@ -372,11 +369,15 @@ export class MessageTracker extends EventEmitter {
           return msgHdr;
         }
       }
-    } else {
-      let msgHdr = this._dummyMessageHeaders.get(msgIdentifier.dummyMsgUrl);
+    } else if (msgIdentifier.dummyMsgUrl.startsWith("file://")) {
+      let msgHdr = MailServices.messageServiceFromURI(
+        "file:"
+      ).messageURIToMsgHdr(msgIdentifier.dummyMsgUrl);
       if (msgHdr && !this.isModifiedFileMsg(msgIdentifier)) {
         return msgHdr;
       }
+    } else {
+      return this._dummyMessageHeaders.get(msgIdentifier.dummyMsgUrl);
     }
 
     this._remove(msgIdentifier);

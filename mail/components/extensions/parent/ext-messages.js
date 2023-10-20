@@ -6,7 +6,7 @@ ChromeUtils.defineESModuleGetters(this, {
   AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
 });
 
-var { CachedMsgHeader } = ChromeUtils.importESModule(
+var { CachedMsgHeader, getMsgStreamUrl } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionMessages.sys.mjs"
 );
 var { folderPathToURI } = ChromeUtils.importESModule(
@@ -248,14 +248,6 @@ function getParentMsgHdr(msgHdr) {
     return messenger.msgHdrFromURI(newsUrl);
   }
 
-  if (url.protocol == "mailbox:") {
-    // This could be a sub-message of a message opened from file.
-    let fileUrl = `file://${url.pathname}`;
-    let parentMsgHdr = messageTracker._dummyMessageHeaders.get(fileUrl);
-    if (parentMsgHdr) {
-      return parentMsgHdr;
-    }
-  }
   // Everything else should be a mailbox:// or an imap:// url.
   let params = Array.from(url.searchParams, p => p[0]).filter(
     p => !["number"].includes(p)
@@ -288,12 +280,7 @@ async function getRawMessage(msgHdr) {
     );
   }
 
-  // Messages opened from file do not have a folder property, but
-  // have their url stored as a string property.
-  let msgUri = msgHdr.folder
-    ? msgHdr.folder.generateMessageURI(msgHdr.messageKey)
-    : msgHdr.getStringProperty("dummyMsgUrl");
-
+  let msgUri = getMsgStreamUrl(msgHdr);
   let service = MailServices.messageServiceFromURI(msgUri);
   return new Promise((resolve, reject) => {
     let streamlistener = {

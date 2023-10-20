@@ -320,6 +320,26 @@ add_task(
             external: true,
           });
 
+          // Make sure we can use getFull() on the subMessage.
+          let subFull = await browser.messages.getFull(subMessage.id);
+          browser.test.assertEq(
+            subFull.headers["message-id"][0],
+            "<sample-attached.eml@mime.sample>",
+            "Message Id returned by getFull() for the attached message should be correct."
+          );
+          browser.test.assertEq(
+            subFull.name,
+            "message1.eml",
+            "Name returned by getFull() for the attached message should be correct."
+          );
+
+          // Make sure we can use getRaw() on the subMessage.
+          let subRaw = await browser.messages.getRaw(subMessage.id);
+          browser.test.assertTrue(
+            subRaw.startsWith("Message-ID: <sample-attached.eml@mime.sample>"),
+            "Content returned by getRaw() for the attached message should be correct."
+          );
+
           // Get attachments of sub-message messag1.eml.
           let subAttachments = await browser.messages.listAttachments(
             subMessage.id
