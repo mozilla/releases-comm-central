@@ -115,11 +115,14 @@ add_task(async function () {
   inbox.biffState = Ci.nsIMsgFolder.nsMsgBiffState_NewMail;
 
   let inboxMessages = [...inbox.messages];
-  let newMessages = await extension.awaitMessage(
+  let onNewMailReceivedEventData = await extension.awaitMessage(
     "onNewMailReceived event received"
   );
-  equal(newMessages[1].messages.length, 1);
-  equal(newMessages[1].messages[0].subject, inboxMessages[0].subject);
+  equal(onNewMailReceivedEventData[1].messages.length, 1);
+  equal(
+    onNewMailReceivedEventData[1].messages[0].subject,
+    inboxMessages[0].subject
+  );
 
   // Create 2 more new messages.
 
@@ -134,17 +137,54 @@ add_task(async function () {
   );
 
   inboxMessages = [...inbox.messages];
-  newMessages = await extension.awaitMessage(
+  onNewMailReceivedEventData = await extension.awaitMessage(
     "onNewMailReceived event received"
   );
+
+  // Checks the folder type property of the given message and returns a clone
+  // where the type has been removed.
+  function preCheckFolderType(message, expected) {
+    Assert.deepEqual(
+      message.folder.type,
+      expected,
+      "Folder type should be correct"
+    );
+    let m = JSON.parse(JSON.stringify(message));
+    delete m.folder.type;
+    return m;
+  }
+
   Assert.deepEqual(
-    primedOnNewMailReceivedEventData,
-    newMessages,
-    "The primed and non-primed onNewMailReceived events should return the same values"
+    preCheckFolderType({ folder: primedOnNewMailReceivedEventData[0] }, []),
+    preCheckFolderType({ folder: onNewMailReceivedEventData[0] }, undefined),
+    "The primed and non-primed onNewMailReceived events should return the same folder"
   );
-  equal(newMessages[1].messages.length, 2);
-  equal(newMessages[1].messages[0].subject, inboxMessages[1].subject);
-  equal(newMessages[1].messages[1].subject, inboxMessages[2].subject);
+
+  Assert.deepEqual(
+    {
+      id: primedOnNewMailReceivedEventData[1].id,
+      messages: primedOnNewMailReceivedEventData[1].messages.map(m =>
+        preCheckFolderType(m, [])
+      ),
+    },
+    {
+      id: onNewMailReceivedEventData[1].id,
+      messages: onNewMailReceivedEventData[1].messages.map(m =>
+        preCheckFolderType(m, undefined)
+      ),
+    },
+    "The primed and non-primed onNewMailReceived events should return the same messages"
+  );
+
+  equal(onNewMailReceivedEventData[1].messages.length, 2);
+  equal(
+    onNewMailReceivedEventData[1].messages[0].subject,
+    inboxMessages[1].subject
+  );
+  equal(
+    onNewMailReceivedEventData[1].messages[1].subject,
+    inboxMessages[2].subject
+  );
 
   await extension.unload();
 

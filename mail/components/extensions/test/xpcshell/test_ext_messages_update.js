@@ -135,6 +135,20 @@ add_task(
             browser.messages.onUpdated.addListener(listener);
           });
         }
+
+        // Checks the folder type property of the given message and returns a clone
+        // where the type has been removed.
+        function preCheckFolderType(message, expected) {
+          window.assertDeepEqual(
+            message.folder.type,
+            expected,
+            "Folder type should be correct"
+          );
+          let m = JSON.parse(JSON.stringify(message));
+          delete m.folder.type;
+          return m;
+        }
+
         let tags = await browser.messages.listTags();
         let [data] = await window.sendMessage("getFolder");
         let messageList = await browser.messages.list(data.folder);
@@ -154,9 +168,10 @@ add_task(
           browser.messages.update(message.id, { flagged: true })
         );
         let updateInfo = await updatePromise;
+
         window.assertDeepEqual(
-          [updateInfo.msg, updateInfo.props],
-          primedUpdatedInfo,
+          [preCheckFolderType(updateInfo.msg, undefined), updateInfo.props],
+          [preCheckFolderType(primedUpdatedInfo[0], []), primedUpdatedInfo[1]],
           "The primed and non-primed onUpdated events should return the same values",
           { strict: true }
         );
@@ -170,9 +185,10 @@ add_task(
           browser.messages.update(message.id, { read: true })
         );
         updateInfo = await updatePromise;
+
         window.assertDeepEqual(
-          [updateInfo.msg, updateInfo.props],
-          primedUpdatedInfo,
+          [preCheckFolderType(updateInfo.msg, undefined), updateInfo.props],
+          [preCheckFolderType(primedUpdatedInfo[0], []), primedUpdatedInfo[1]],
           "The primed and non-primed onUpdated events should return the same values",
           { strict: true }
         );
@@ -186,9 +202,10 @@ add_task(
           browser.messages.update(message.id, { junk: true })
         );
         updateInfo = await updatePromise;
+
         window.assertDeepEqual(
-          [updateInfo.msg, updateInfo.props],
-          primedUpdatedInfo,
+          [preCheckFolderType(updateInfo.msg, undefined), updateInfo.props],
+          [preCheckFolderType(primedUpdatedInfo[0], []), primedUpdatedInfo[1]],
           "The primed and non-primed onUpdated events should return the same values",
           { strict: true }
         );
@@ -202,9 +219,10 @@ add_task(
           browser.messages.update(message.id, { tags: [tags[0].key] })
         );
         updateInfo = await updatePromise;
+
         window.assertDeepEqual(
-          [updateInfo.msg, updateInfo.props],
-          primedUpdatedInfo,
+          [preCheckFolderType(updateInfo.msg, undefined), updateInfo.props],
+          [preCheckFolderType(primedUpdatedInfo[0], []), primedUpdatedInfo[1]],
           "The primed and non-primed onUpdated events should return the same values",
           { strict: true }
         );

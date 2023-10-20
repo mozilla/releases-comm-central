@@ -269,12 +269,23 @@ export class FolderManager {
       path: folderURIToPath(accountId, folder.URI),
     };
 
+    // In MV2 only the first matching type was returned, assuming a folder can
+    // only be of one type. Since that turned out to be wrong, the type property
+    // is now an array in MV3.
+    if (this.extension.manifestVersion > 2) {
+      folderObject.type = [];
+    }
+
     let flags = folder.flags;
     for (let [flag, typeName] of folderTypeMap.entries()) {
       if (flags & flag) {
-        folderObject.type = typeName;
-        // Exit the loop as soon as an entry was found.
-        break;
+        if (this.extension.manifestVersion > 2) {
+          folderObject.type.push(typeName);
+        } else {
+          folderObject.type = typeName;
+          // Exit the loop as soon as an entry was found.
+          break;
+        }
       }
     }
 

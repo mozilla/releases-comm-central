@@ -44,19 +44,21 @@
             "optional": true
           },
           "type": {
-            "type": "string",
+            "choices": [
+              {
+                "max_manifest_version": 2,
+                "$ref": "folders.MailFolderType"
+              },
+              {
+                "min_manifest_version": 3,
+                "type": "array",
+                "items": {
+                  "$ref": "folders.MailFolderType"
+                }
+              }
+            ],
             "optional": true,
-            "description": "The type of folder, for several common types.",
-            "enum": [
-              "inbox",
-              "drafts",
-              "sent",
-              "trash",
-              "templates",
-              "archives",
-              "junk",
-              "outbox"
-            ]
+            "description": "The type of folder."
           }
         }
       },
@@ -81,6 +83,21 @@
             "description": "Number of unread messages in this folder."
           }
         }
+      },
+      {
+        "id": "MailFolderType",
+        "type": "string",
+        "description": "The type of folder",
+        "enum": [
+          "inbox",
+          "drafts",
+          "sent",
+          "trash",
+          "templates",
+          "archives",
+          "junk",
+          "outbox"
+        ]
       }
     ],
     "functions": [

@@ -132,7 +132,7 @@ add_task(async function test_accounts_MV3_event_pages() {
           ],
         },
         rv,
-        "The primed onCreated event should return the correct values"
+        `The primed onCreated event should return the correct values for account type ${details.type}`
       );
     }
 

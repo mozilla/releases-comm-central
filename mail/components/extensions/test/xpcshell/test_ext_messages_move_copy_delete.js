@@ -122,6 +122,19 @@ add_task(
           return eventPageExtensionFinishedPromise;
         }
 
+        // Checks the folder type property of the given message and returns a clone
+        // where the type has been removed.
+        function preCheckFolderType(message, expected) {
+          window.assertDeepEqual(
+            message.folder.type,
+            expected,
+            "Folder type should be correct"
+          );
+          let m = JSON.parse(JSON.stringify(message));
+          delete m.folder.type;
+          return m;
+        }
+
         async function checkMessagesInFolder(expectedKeys, folder) {
           let expectedSubjects = expectedKeys.map(k => messages[k].subject);
 
@@ -259,11 +272,23 @@ add_task(
         let primedMoveInfo = await capturePrimedEvent("onMoved", () =>
           browser.messages.move([messages.Red.id], testFolder2)
         );
+        let moveInfo = await movePromise;
         window.assertDeepEqual(
-          await movePromise,
           {
-            srcMsgs: primedMoveInfo[0].messages,
-            dstMsgs: primedMoveInfo[1].messages,
+            srcMsgs: moveInfo.srcMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+            dstMsgs: moveInfo.dstMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+          },
+          {
+            srcMsgs: primedMoveInfo[0].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
+            dstMsgs: primedMoveInfo[1].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
           },
           "The primed and non-primed onMoved events should return the same values",
           { strict: true }
@@ -291,11 +316,23 @@ add_task(
         primedMoveInfo = await capturePrimedEvent("onMoved", () =>
           browser.messages.move([messages.Red.id], testFolder1)
         );
+        moveInfo = await movePromise;
         window.assertDeepEqual(
-          await movePromise,
           {
-            srcMsgs: primedMoveInfo[0].messages,
-            dstMsgs: primedMoveInfo[1].messages,
+            srcMsgs: moveInfo.srcMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+            dstMsgs: moveInfo.dstMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+          },
+          {
+            srcMsgs: primedMoveInfo[0].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
+            dstMsgs: primedMoveInfo[1].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
           },
           "The primed and non-primed onMoved events should return the same values",
           { strict: true }
@@ -326,11 +363,23 @@ add_task(
             testFolder2
           )
         );
+        moveInfo = await movePromise;
         window.assertDeepEqual(
-          await movePromise,
           {
-            srcMsgs: primedMoveInfo[0].messages,
-            dstMsgs: primedMoveInfo[1].messages,
+            srcMsgs: moveInfo.srcMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+            dstMsgs: moveInfo.dstMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+          },
+          {
+            srcMsgs: primedMoveInfo[0].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
+            dstMsgs: primedMoveInfo[1].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
           },
           "The primed and non-primed onMoved events should return the same values",
           { strict: true }
@@ -355,11 +404,23 @@ add_task(
         primedMoveInfo = await capturePrimedEvent("onMoved", () =>
           browser.messages.move([messages.My.id], testFolder1)
         );
+        moveInfo = await movePromise;
         window.assertDeepEqual(
-          await movePromise,
           {
-            srcMsgs: primedMoveInfo[0].messages,
-            dstMsgs: primedMoveInfo[1].messages,
+            srcMsgs: moveInfo.srcMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+            dstMsgs: moveInfo.dstMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+          },
+          {
+            srcMsgs: primedMoveInfo[0].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
+            dstMsgs: primedMoveInfo[1].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
           },
           "The primed and non-primed onMoved events should return the same values",
           { strict: true }
@@ -478,11 +539,23 @@ add_task(
         let primedCopyInfo = await capturePrimedEvent("onCopied", () =>
           browser.messages.copy([messages.Happy.id], testFolder2)
         );
+        let copyInfo = await copyPromise;
         window.assertDeepEqual(
-          await copyPromise,
           {
-            srcMsgs: primedCopyInfo[0].messages,
-            dstMsgs: primedCopyInfo[1].messages,
+            srcMsgs: copyInfo.srcMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+            dstMsgs: copyInfo.dstMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+          },
+          {
+            srcMsgs: primedCopyInfo[0].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
+            dstMsgs: primedCopyInfo[1].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
           },
           "The primed and non-primed onCopied events should return the same values",
           { strict: true }
@@ -516,7 +589,7 @@ add_task(
         browser.test.log("");
         browser.test.log(" --> Delete the copied message.");
         let deletePromise = newDeletePromise();
-        let primedDeleteLog = await capturePrimedEvent("onDeleted", () =>
+        let [primedDeleteLog] = await capturePrimedEvent("onDeleted", () =>
           browser.messages.delete([folder2Messages[0].id], true)
         );
         // Check if the delete information is correct.
@@ -525,10 +598,17 @@ add_task(
           [
             {
               id: null,
-              messages: deleteLog,
+              messages: deleteLog.map(m => preCheckFolderType(m, undefined)),
             },
           ],
-          primedDeleteLog,
+          [
+            {
+              id: primedDeleteLog.id,
+              messages: primedDeleteLog.messages.map(m =>
+                preCheckFolderType(m, [])
+              ),
+            },
+          ],
           "The primed and non-primed onDeleted events should return the same values",
           { strict: true }
         );
@@ -554,11 +634,22 @@ add_task(
         primedMoveInfo = await capturePrimedEvent("onMoved", () =>
           browser.messages.move([messages.Green.id], trashFolder)
         );
+        moveInfo = await movePromise;
         window.assertDeepEqual(
-          await movePromise,
           {
-            srcMsgs: primedMoveInfo[0].messages,
-            dstMsgs: primedMoveInfo[1].messages,
+            srcMsgs: moveInfo.srcMsgs.map(m =>
+              preCheckFolderType(m, undefined)
+            ),
+            dstMsgs: moveInfo.dstMsgs.map(m => preCheckFolderType(m, "trash")),
+          },
+          {
+            // Adjust expected folder type from MV3 to MV2.
+            srcMsgs: primedMoveInfo[0].messages.map(m =>
+              preCheckFolderType(m, [])
+            ),
+            dstMsgs: primedMoveInfo[1].messages.map(m =>
+              preCheckFolderType(m, ["trash"])
+            ),
           },
           "The primed and non-primed onMoved events should return the same values",
           { strict: true }
