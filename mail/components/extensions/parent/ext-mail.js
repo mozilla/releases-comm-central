@@ -2709,6 +2709,27 @@ var messageTracker = new (class extends EventEmitter {
 })();
 
 /**
+ * Convenience class to handle message pages.
+ */
+class MessagePage {
+  constructor() {
+    this.messages = [];
+    this.read = false;
+    this._deferredPromise = new Promise(resolve => {
+      this._resolveDeferredPromise = resolve;
+    });
+  }
+
+  get promise() {
+    return this._deferredPromise;
+  }
+
+  resolvePage() {
+    this._resolveDeferredPromise(this.messages);
+  }
+}
+
+/**
  * Convenience class to keep track of the status of message lists.
  */
 class MessageList {
@@ -2717,30 +2738,20 @@ class MessageList {
     this.extension = extension;
     this.isDone = false;
     this.pages = [];
-    this.pagePromises = [];
-    this.currentPageResolveCallback = null;
-    this.readIndex = 0;
-
-    this._addPage();
+    this.addPage();
   }
 
-  _addPage() {
-    let contents = this._getCurrentPage();
-    let resolvePage = this.currentPageResolveCallback;
-
-    this.pages.push([]);
-    this.pagePromises.push(
-      new Promise(resolve => {
-        this.currentPageResolveCallback = resolve;
-      })
-    );
-
-    if (contents && resolvePage) {
-      resolvePage(contents);
+  addPage() {
+    // Adding a page will make this.currentPage point to the new page.
+    let previousPage = this.currentPage;
+    this.pages.push(new MessagePage());
+    // The previous page is finished and can be resolved.
+    if (previousPage) {
+      previousPage.resolvePage();
     }
   }
 
-  _getCurrentPage() {
+  get currentPage() {
     return this.pages.length > 0 ? this.pages[this.pages.length - 1] : null;
   }
 
@@ -2748,14 +2759,14 @@ class MessageList {
     return this.messageListId;
   }
 
-  add(message) {
-    if (this.isDone) {
+  addMessage(message) {
+    if (this.isDone || !this.currentPage) {
       return;
     }
-    if (this._getCurrentPage().length >= gMessagesPerPage) {
-      this._addPage();
+    if (this.currentPage.messages.length >= gMessagesPerPage) {
+      this.addPage();
     }
-    this._getCurrentPage().push(convertMessage(message, this.extension));
+    this.currentPage.messages.push(convertMessage(message, this.extension));
   }
 
   done() {
@@ -2763,22 +2774,26 @@ class MessageList {
       return;
     }
     this.isDone = true;
-    this.currentPageResolveCallback(this._getCurrentPage());
+
+    // Resolve the current page.
+    if (this.currentPage) {
+      this.currentPage.resolvePage();
+    }
   }
 
-  hasMorePages() {
-    return this.readIndex < this.pages.length;
-  }
-
-  async getNextPage() {
-    if (this.readIndex >= this.pages.length) {
+  async getNextUnreadPage() {
+    let page = this.pages.find(p => !p.read);
+    if (!page) {
       return null;
     }
-    const pageContent = await this.pagePromises[this.readIndex];
-    // Increment readIndex only after pagePromise has resolved, so multiple
-    // calls to getNextPage get the same page.
-    this.readIndex++;
-    return pageContent;
+
+    let messages = await page.promise;
+    page.read = true;
+
+    return {
+      id: this.pages.find(p => !p.read) ? this.id : null,
+      messages,
+    };
   }
 }
 
@@ -2813,7 +2828,7 @@ var messageListTracker = {
     }
     while (messages.hasMoreElements()) {
       let next = messages.getNext();
-      messageList.add(next.QueryInterface(Ci.nsIMsgDBHdr));
+      messageList.addMessage(next.QueryInterface(Ci.nsIMsgDBHdr));
     }
     messageList.done();
   },
@@ -2868,19 +2883,20 @@ var messageListTracker = {
    * @returns {object}
    */
   async getNextPage(messageList) {
-    let messageListId = messageList.id;
-    let messages = await messageList.getNextPage();
-    if (!messageList.hasMorePages()) {
-      let lists = this._contextLists.get(messageList.extension);
-      if (lists && lists.has(messageListId)) {
-        lists.delete(messageListId);
-      }
-      messageListId = null;
+    let page = await messageList.getNextUnreadPage();
+    if (!page) {
+      return null;
     }
-    return {
-      id: messageListId,
-      messages,
-    };
+
+    // If the page does not have an id, the list has been retrieved completely
+    // and can be removed.
+    if (!page.id) {
+      let lists = this._contextLists.get(messageList.extension);
+      if (lists && lists.has(messageList.id)) {
+        lists.delete(messageList.id);
+      }
+    }
+    return page;
   },
 };
 

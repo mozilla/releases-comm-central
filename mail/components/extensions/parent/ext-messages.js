@@ -1182,7 +1182,7 @@ this.messages = class extends ExtensionAPIPersistent {
             if (messages) {
               for (let msg of [...messages]) {
                 if (await checkSearchCriteria(folder, msg)) {
-                  messageList.add(msg);
+                  messageList.addMessage(msg);
                 }
               }
             }
