@@ -18,6 +18,7 @@ var { be_in_folder, create_folder, make_message_sets_in_folders } =
 var { NNTP_PORT, setupLocalServer, setupNNTPDaemon } = ChromeUtils.import(
   "resource://testing-common/mozmill/NNTPHelpers.jsm"
 );
+
 var {
   click_menus_in_sequence,
   promise_modal_dialog,
@@ -48,7 +49,9 @@ add_setup(async function () {
 
   registerCleanupFunction(() => {
     folderA.deleteSelf(null);
-    MailServices.accounts.removeAccount(NNTPAccount);
+    // For some peculiar reason, removing won't work in --verify mode
+    // if we remove the account here.
+    //  MailServices.accounts.removeAccount(NNTPAccount);
     // Some tests that open new windows don't return focus to the main window
     // in a way that satisfies mochitest, and the test times out.
     Services.focus.focusedWindow = window;
@@ -142,31 +145,23 @@ add_task(async function test_message_filter_shows_newsgroup_server() {
   let filterc = await openFiltersDialogs();
   wait_for_window_focused(filterc);
 
-  let popup = filterc.document.getElementById("serverMenuPopup");
-  Assert.ok(popup);
-  EventUtils.synthesizeMouseAtCenter(popup, {}, popup.ownerGlobal);
+  // Get the newsgroups to pop up.
+  let serverMenu = filterc.document.getElementById("serverMenu");
+  let popupshown = BrowserTestUtils.waitForEvent(serverMenu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(serverMenu, {}, serverMenu.ownerGlobal);
+  await popupshown;
 
-  let nntp = popup.children.item(1);
-  Assert.ok(nntp);
-  // We need to get the newsgroups to pop up somehow.
-  // These all fail.
-  // EventUtils.synthesizeMouseAtCenter(nntp, { }, nntp.ownerGlobal)
-  // filterc.mouseover(nntp);
-  // filterc.select(popup, popup.parentNode.getIndexOfItem(nntp));
-  // filterc.select(nntp, popup.parentNode.getIndexOfItem(nntp));
-  // filterc.select(popup, 2);
-  // let nntpPopup = nntp.menupopup;
-  // EventUtils.synthesizeMouseAtCenter(nntpPopup, { }, nntpPopup.ownerGlobal)
-  // filterc.mouseover(nntpPopup);
-  // filterc.select(nntpPopup, 2);
-
-  // This one initializes the menuitems, but it's kinda hacky.
-  nntp.menupopup._ensureInitialized();
+  let nntp = serverMenu.firstElementChild.children.item(1);
   Assert.equal(
-    nntp.itemCount,
-    5,
-    "Incorrect number of children for the NNTP server"
+    nntp.label,
+    "localhost",
+    "should show 'localhost' nntp server item in menu"
   );
+  popupshown = BrowserTestUtils.waitForEvent(nntp, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(nntp, {}, nntp.ownerGlobal);
+  await popupshown;
+
+  Assert.equal(nntp.itemCount, 5, "All five items should show");
   await BrowserTestUtils.closeWindow(filterc);
 });
 
@@ -327,7 +322,7 @@ add_task(async function test_can_quit_on_filter_changes() {
 
   // There should already be 1 filter defined from previous test.
   let filterCount = filterc.document.getElementById("filterList").itemCount;
-  Assert.equal(filterCount, 1);
+  Assert.equal(filterCount, 1, "should have 1 filter from prev test");
 
   let runButton = filterc.document.getElementById("runFiltersButton");
   runButton.setAttribute("label", runButton.getAttribute("stoplabel"));
