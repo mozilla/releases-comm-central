@@ -11,6 +11,10 @@ ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
 });
 
+var { convertMailIdentity } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionAccounts.sys.mjs"
+);
+
 function findIdentityAndAccount(identityId) {
   for (let account of MailServices.accounts.accounts) {
     for (let identity of account.identities) {

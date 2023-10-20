@@ -10,7 +10,8 @@ ChromeUtils.defineModuleGetter(
 ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
 });
-
+var { convertFolder, folderPathToURI, folderURIToPath, traverseSubfolders } =
+  ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
 /**
  * Tracks folder events.
  *

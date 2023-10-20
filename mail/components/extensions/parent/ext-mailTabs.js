@@ -11,6 +11,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailServices: "resource:///modules/MailServices.jsm",
 });
 
+var { convertFolder, folderPathToURI } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionAccounts.sys.mjs"
+);
+
 XPCOMUtils.defineLazyPreferenceGetter(
   this,
   "gDynamicPaneConfig",

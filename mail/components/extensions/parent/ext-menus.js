@@ -12,24 +12,26 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailServices.jsm"
 );
 
+var { convertFolder, convertAccount, folderPathToURI, traverseSubfolders } =
+  ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
+
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
+);
+
+var { ExtensionCommon } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionCommon.sys.mjs"
+);
+var { ExtensionParent } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionParent.sys.mjs"
 );
 var { SelectionUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/SelectionUtils.sys.mjs"
 );
 
-var { DefaultMap, ExtensionError } = ExtensionUtils;
-
-var { ExtensionParent } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionParent.sys.mjs"
-);
-var { IconDetails, StartupCache } = ExtensionParent;
-
-var { ExtensionCommon } = ChromeUtils.importESModule(
-  "resource://gre/modules/ExtensionCommon.sys.mjs"
-);
 var { makeWidgetId } = ExtensionCommon;
+var { DefaultMap, ExtensionError } = ExtensionUtils;
+var { IconDetails, StartupCache } = ExtensionParent;
 
 const ACTION_MENU_TOP_LEVEL_LIMIT = 6;
 

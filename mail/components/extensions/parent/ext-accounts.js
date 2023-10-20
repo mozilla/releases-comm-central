@@ -8,6 +8,10 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailServices.jsm"
 );
 
+var { convertAccount, convertMailIdentity } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionAccounts.sys.mjs"
+);
+
 /**
  * @implements {nsIObserver}
  * @implements {nsIMsgFolderListener}

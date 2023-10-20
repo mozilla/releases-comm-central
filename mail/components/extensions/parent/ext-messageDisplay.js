@@ -37,7 +37,7 @@ function getDisplayedMessages(tab) {
 function convertMessages(messages, extension) {
   let result = [];
   for (let msg of messages) {
-    let hdr = convertMessage(msg, extension);
+    let hdr = messageTracker.convertMessage(msg, extension);
     if (hdr) {
       result.push(hdr);
     }
@@ -99,7 +99,7 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           // `event.target` is an about:message window.
           let nativeTab = event.target.tabOrWindow;
           let tab = tabManager.wrapTab(nativeTab);
-          let msg = convertMessage(event.detail, extension);
+          let msg = messageTracker.convertMessage(event.detail, extension);
           fire.async(tab.convert(), msg);
         },
       };
@@ -252,7 +252,7 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           if (messages.length != 1) {
             return null;
           }
-          return convertMessage(messages[0], extension);
+          return messageTracker.convertMessage(messages[0], extension);
         },
         async getDisplayedMessages(tabId) {
           let tab = await getMessageDisplayTab(tabId);

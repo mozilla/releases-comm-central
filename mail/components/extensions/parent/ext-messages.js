@@ -6,6 +6,16 @@ ChromeUtils.defineESModuleGetters(this, {
   AttachmentInfo: "resource:///modules/AttachmentInfo.sys.mjs",
 });
 
+var { CachedMsgHeader } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionMessages.sys.mjs"
+);
+var { convertFolder, folderPathToURI } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionAccounts.sys.mjs"
+);
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
+
 ChromeUtils.defineModuleGetter(
   this,
   "MailServices",
@@ -40,9 +50,7 @@ ChromeUtils.defineModuleGetter(
 var { MailStringUtils } = ChromeUtils.import(
   "resource:///modules/MailStringUtils.jsm"
 );
-
-// eslint-disable-next-line mozilla/reject-importGlobalProperties
-Cu.importGlobalProperties(["File", "IOUtils", "PathUtils"]);
+XPCOMUtils.defineLazyGlobalGetters(this, ["File", "IOUtils", "PathUtils"]);
 
 var { DefaultMap } = ExtensionUtils;
 
@@ -107,7 +115,7 @@ async function convertAttachment(attachment) {
     let hdrId = attachment.headers["message-id"]?.[0];
     attachedMsgHdr.messageId = hdrId ? hdrId.replace(/^<|>$/g, "") : "";
 
-    rv.message = convertMessage(attachedMsgHdr);
+    rv.message = messageTracker.convertMessage(attachedMsgHdr);
   }
 
   return rv;
@@ -443,7 +451,10 @@ this.messages = class extends ExtensionAPIPersistent {
       let listener = async (event, message, properties) => {
         let { extension } = this;
         // The msgHdr could be gone after the wakeup, convert it early.
-        let convertedMessage = convertMessage(message, extension);
+        let convertedMessage = messageTracker.convertMessage(
+          message,
+          extension
+        );
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -756,7 +767,10 @@ this.messages = class extends ExtensionAPIPersistent {
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          let messageHeader = convertMessage(msgHdr, context.extension);
+          let messageHeader = messageTracker.convertMessage(
+            msgHdr,
+            context.extension
+          );
           if (messageHeader.id != messageId) {
             throw new ExtensionError(
               "Unexpected Error: Returned message does not equal requested message."
@@ -1503,7 +1517,7 @@ this.messages = class extends ExtensionAPIPersistent {
             if (!file.mozFullPath) {
               await IOUtils.remove(tempFile.path);
             }
-            return convertMessage(msgHeader, context.extension);
+            return messageTracker.convertMessage(msgHeader, context.extension);
           } catch (ex) {
             console.error(ex);
             throw new ExtensionError(`Error importing message: ${ex.message}`);

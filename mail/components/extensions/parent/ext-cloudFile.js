@@ -7,12 +7,14 @@
 var { ExtensionParent } = ChromeUtils.importESModule(
   "resource://gre/modules/ExtensionParent.sys.mjs"
 );
+var { XPCOMUtils } = ChromeUtils.importESModule(
+  "resource://gre/modules/XPCOMUtils.sys.mjs"
+);
 var { cloudFileAccounts } = ChromeUtils.import(
   "resource:///modules/cloudFileAccounts.jsm"
 );
 
-// eslint-disable-next-line mozilla/reject-importGlobalProperties
-Cu.importGlobalProperties(["File", "FileReader"]);
+XPCOMUtils.defineLazyGlobalGetters(this, ["File", "FileReader"]);
 
 async function promiseFileRead(nsifile) {
   let blob = await File.createFromNsIFile(nsifile);

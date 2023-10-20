@@ -6,7 +6,7 @@ var { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
 
-XPCOMUtils.defineLazyGlobalGetters(this, ["IOUtils", "PathUtils"]);
+XPCOMUtils.defineLazyGlobalGetters(this, ["File", "IOUtils", "PathUtils"]);
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -22,8 +22,12 @@ let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
   Ci.nsIParserUtils
 );
 
-// eslint-disable-next-line mozilla/reject-importGlobalProperties
-Cu.importGlobalProperties(["File"]);
+var { convertMessage } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionMessages.sys.mjs"
+);
+var { convertFolder, folderPathToURI } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionAccounts.sys.mjs"
+);
 
 const deliveryFormats = [
   { id: Ci.nsIMsgCompSendFormat.Auto, value: "auto" },
@@ -850,7 +854,7 @@ class MsgOperationObserver {
         folderURI: msgHdr.folder.URI,
       });
       if (!this.classifiedMessages.has(key)) {
-        this.classifiedMessages.set(key, convertMessage(msgHdr));
+        this.classifiedMessages.set(key, messageTracker.convertMessage(msgHdr));
       }
     }
   }
