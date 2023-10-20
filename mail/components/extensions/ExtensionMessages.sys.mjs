@@ -962,6 +962,11 @@ export class MessageList {
     }
     this.isDone = true;
 
+    if (this.autoPaginatorTimeout) {
+      clearTimeout(this.autoPaginatorTimeout);
+      this.autoPaginatorTimeout = null;
+    }
+
     // Resolve the current page.
     if (this.currentPage) {
       this.currentPage.resolvePage();
@@ -1013,7 +1018,8 @@ export class MessageListTracker {
   }
 
   /**
-   * Add messages to a messageList.
+   * Add messages to a messageList and finalize the list once all messages have
+   * been added.
    */
   _addMessages(messages, messageList) {
     if (messageList.isDone) {
