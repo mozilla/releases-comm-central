@@ -11,7 +11,7 @@ var { getMsgStreamUrl } = ChromeUtils.importESModule(
  * Returns the currently displayed messages in the given tab.
  *
  * @param {Tab} tab
- * @returns {nsIMsgHdr[]} Array of nsIMsgHdr
+ * @returns {nsIMsgDBHdr[]} Array of nsIMsgDBHdr
  */
 function getDisplayedMessages(tab) {
   let nativeTab = tab.nativeTab;
@@ -28,9 +28,9 @@ function getDisplayedMessages(tab) {
 }
 
 /**
- * Wrapper to convert multiple nsIMsgHdr to MessageHeader objects.
+ * Wrapper to convert multiple nsIMsgDBHdr to MessageHeader objects.
  *
- * @param {nsIMsgHdr[]} Array of nsIMsgHdr
+ * @param {nsIMsgDBHdr[]} Array of nsIMsgDBHdr
  * @param {ExtensionData} extension
  * @returns {MessageHeader[]} Array of MessageHeader objects
  *
@@ -64,7 +64,7 @@ function getDefaultMessageOpenLocation() {
  * @param {object} properties - @see mail/components/extensions/schemas/messageDisplay.json
  * @param {ExtensionData} extension
  * @throws ExtensionError if an unknown message has been specified
- * @returns {nsIMsgHdr} the requested msgHdr
+ * @returns {nsIMsgDBHdr} the requested msgHdr
  */
 function getMsgHdr(properties, extension) {
   if (properties.headerMessageId) {

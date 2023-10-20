@@ -7,7 +7,7 @@ const lazy = {};
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 import { EventEmitter } from "resource://gre/modules/EventEmitter.sys.mjs";
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
-import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
+import { setTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
 import { folderPathToURI } from "resource:///modules/ExtensionAccounts.sys.mjs";
 
@@ -76,11 +76,12 @@ export function getMsgStreamUrl(msgHdr) {
  */
 
 /**
- * Returns attachments found in the message belonging to the given nsIMsgHdr.
+ * Returns attachments found in the message belonging to the given nsIMsgDBHdr.
  *
- * @param {nsIMsgHdr} msgHdr
+ * @param {nsIMsgDBHdr} msgHdr
  * @param {boolean} includeNestedAttachments - Whether to return all attachments,
  *   including attachments from nested mime parts.
+ *
  * @returns {Promise<MimeMessagePart[]>}
  */
 export async function getAttachments(msgHdr, includeNestedAttachments = false) {
@@ -99,10 +100,11 @@ export async function getAttachments(msgHdr, includeNestedAttachments = false) {
 /**
  * Returns the attachment identified by the provided partName.
  *
- * @param {nsIMsgHdr} msgHdr
+ * @param {nsIMsgDBHdr} msgHdr
  * @param {string} partName
  * @param {object} [options={}] - If the includeRaw property is truthy the raw
  *   attachment contents are included.
+ *
  * @returns {Promise<MimeMessagePart>}
  */
 export async function getAttachment(msgHdr, partName, options = {}) {
@@ -149,9 +151,9 @@ export async function getAttachment(msgHdr, partName, options = {}) {
 }
 
 /**
- * Returns the <part> parameter of the dummyMsgUrl of the provided nsIMsgHdr.
+ * Returns the <part> parameter of the dummyMsgUrl of the provided nsIMsgDBHdr.
  *
- * @param {nsIMsgHdr} msgHdr
+ * @param {nsIMsgDBHdr} msgHdr
  * @returns {string}
  */
 function getSubMessagePartName(msgHdr) {
@@ -165,12 +167,12 @@ function getSubMessagePartName(msgHdr) {
 }
 
 /**
- * Returns the nsIMsgHdr of the outer message, if the provided nsIMsgHdr belongs
+ * Returns the nsIMsgDBHdr of the outer message, if the provided nsIMsgDBHdr belongs
  * to a message which is actually an attachment of another message. Returns null
  * otherwise.
  *
- * @param {nsIMsgHdr} msgHdr
- * @returns {nsIMsgHdr}
+ * @param {nsIMsgDBHdr} msgHdr
+ * @returns {nsIMsgDBHdr}
  */
 function getParentMsgHdr(msgHdr) {
   if (msgHdr.folder || !msgHdr.getStringProperty("dummyMsgUrl")) {
@@ -200,7 +202,7 @@ function getParentMsgHdr(msgHdr) {
 }
 
 /**
- * Get the raw message for a given nsIMsgHdr.
+ * Get the raw message for a given nsIMsgDBHdr.
  *
  * @param aMsgHdr - The message header to retrieve the raw message for.
  * @returns {Promise<string>} - Binary string of the raw message.
@@ -266,10 +268,11 @@ export async function getRawMessage(msgHdr) {
 }
 
 /**
- * Returns MIME parts found in the message identified by the given nsIMsgHdr.
+ * Returns MIME parts found in the message identified by the given nsIMsgDBHdr.
  *
- * @param {nsIMsgHdr} msgHdr
+ * @param {nsIMsgDBHdr} msgHdr
  * @param {string} partName - Return only a specific mime part.
+ *
  * @returns {Promise<MimeMessagePart>}
  */
 export async function getMimeMessage(msgHdr, partName = "") {
@@ -505,7 +508,7 @@ export class MessageTracker extends EventEmitter {
   /**
    * Generates a hash for the given msgIdentifier.
    *
-   * @param {*} msgIdentifier
+   * @param {object} msgIdentifier
    * @returns {string}
    */
   getHash(msgIdentifier) {
@@ -519,7 +522,7 @@ export class MessageTracker extends EventEmitter {
    * Maps the provided message identifier to the given messageTracker id.
    *
    * @param {integer} id - messageTracker id of the message
-   * @param {*} msgIdentifier - msgIdentifier of the message
+   * @param {object} msgIdentifier - msgIdentifier of the message
    * @param {nsIMsgDBHdr} [msgHdr] - optional msgHdr of the message, will be
    *   added to the cache if it is a non-file dummy msgHdr, which cannot be
    *   retrieved later (for example an attached message)
@@ -545,7 +548,7 @@ export class MessageTracker extends EventEmitter {
    * Lookup the messageTracker id for the given message identifier, return null
    * if not known.
    *
-   * @param {*} msgIdentifier - msgIdentifier of the message
+   * @param {object} msgIdentifier - msgIdentifier of the message
    * @returns {integer} The messageTracker id of the message.
    */
   _get(msgIdentifier) {
@@ -559,7 +562,7 @@ export class MessageTracker extends EventEmitter {
   /**
    * Removes the provided message identifier from the messageTracker.
    *
-   * @param {*} msgIdentifier - msgIdentifier of the message
+   * @param {object} msgIdentifier - msgIdentifier of the message
    */
   _remove(msgIdentifier) {
     let hash = this.getHash(msgIdentifier);
@@ -615,7 +618,7 @@ export class MessageTracker extends EventEmitter {
   /**
    * Check if the provided msgIdentifier belongs to a modified file message.
    *
-   * @param {*} msgIdentifier - msgIdentifier object of the message
+   * @param {object} msgIdentifier - msgIdentifier object of the message
    * @returns {boolean}
    */
   isModifiedFileMsg(msgIdentifier) {
@@ -769,7 +772,7 @@ export class MessageTracker extends EventEmitter {
   msgsJunkStatusChanged(messages) {
     for (let msgHdr of messages) {
       let junkScore = parseInt(msgHdr.getStringProperty("junkscore"), 10) || 0;
-      this.emit("message-updated", msgHdr, {
+      this.emit("message-updated", new CachedMsgHeader(msgHdr), {
         junk: junkScore >= lazy.gJunkThreshold,
       });
     }
@@ -777,14 +780,21 @@ export class MessageTracker extends EventEmitter {
 
   msgsDeleted(deletedMsgs) {
     if (deletedMsgs.length > 0) {
-      this.emit("messages-deleted", deletedMsgs);
+      this.emit(
+        "messages-deleted",
+        deletedMsgs.map(msgHdr => new CachedMsgHeader(msgHdr))
+      );
     }
   }
 
   msgsMoveCopyCompleted(move, srcMsgs, dstFolder, dstMsgs) {
     if (srcMsgs.length > 0 && dstMsgs.length > 0) {
       let emitMsg = move ? "messages-moved" : "messages-copied";
-      this.emit(emitMsg, srcMsgs, dstMsgs);
+      this.emit(
+        emitMsg,
+        srcMsgs.map(msgHdr => new CachedMsgHeader(msgHdr)),
+        dstMsgs.map(msgHdr => new CachedMsgHeader(msgHdr))
+      );
     }
   }
 
@@ -861,9 +871,17 @@ class MessagePage {
   constructor() {
     this.messages = [];
     this.read = false;
+    this.timeOfFirstMessage = null;
     this._deferredPromise = new Promise(resolve => {
       this._resolveDeferredPromise = resolve;
     });
+  }
+
+  addMessage(msgHdr) {
+    if (this.messages.length == 0) {
+      this.timeOfFirstMessage = Date.now();
+    }
+    this.messages.push(msgHdr);
   }
 
   get promise() {
@@ -879,24 +897,22 @@ class MessagePage {
  * Convenience class to keep track of the status of message lists.
  */
 export class MessageList {
+  /**
+   * @param {ExtensionData} extension
+   * @param {MessageTracker} messageTracker
+   */
   constructor(extension, messageTracker) {
     this.messageListId = Services.uuid.generateUUID().number.substring(1, 37);
     this.extension = extension;
     this.isDone = false;
     this.pages = [];
     this._messageTracker = messageTracker;
-    this.autoPaginatorTimeout = null;
     this.folderCache = new Map();
 
-    this.addPage();
+    this.pages.push(new MessagePage());
   }
 
-  addPage() {
-    if (this.autoPaginatorTimeout) {
-      clearTimeout(this.autoPaginatorTimeout);
-      this.autoPaginatorTimeout = null;
-    }
-
+  async addPage() {
     if (this.isDone) {
       return;
     }
@@ -914,6 +930,14 @@ export class MessageList {
     if (previousPage) {
       previousPage.resolvePage();
     }
+
+    await this.allowPagesToResolve();
+  }
+
+  async allowPagesToResolve() {
+    // Interrupt the execution flow, so pending callbacks on the call stack
+    // (for example waiting for a fulfilled page promise) can be processed.
+    return new Promise(resolve => setTimeout(resolve, 25));
   }
 
   get currentPage() {
@@ -924,12 +948,13 @@ export class MessageList {
     return this.messageListId;
   }
 
-  addMessage(msgHdr) {
+  async addMessage(msgHdr) {
     if (this.isDone || !this.currentPage) {
       return;
     }
+
     if (this.currentPage.messages.length >= lazy.gMessagesPerPage) {
-      this.addPage();
+      await this.addPage();
     }
 
     let messageHeader = this.extension.messageManager.convert(msgHdr, {
@@ -946,14 +971,7 @@ export class MessageList {
         this.folderCache.set(msgHdr.folder.URI, messageHeader.folder);
       }
     }
-    this.currentPage.messages.push(messageHeader);
-
-    // Automatically push a new page and return the page with this message after
-    // a fixed amount of time, so that small sets of search results are not held
-    // back until a full page has been found or the entire search has finished.
-    if (!this.autoPaginatorTimeout) {
-      this.autoPaginatorTimeout = setTimeout(this.addPage.bind(this), 1000);
-    }
+    this.currentPage.addMessage(messageHeader);
   }
 
   done() {
@@ -962,17 +980,18 @@ export class MessageList {
     }
     this.isDone = true;
 
-    if (this.autoPaginatorTimeout) {
-      clearTimeout(this.autoPaginatorTimeout);
-      this.autoPaginatorTimeout = null;
-    }
-
     // Resolve the current page.
     if (this.currentPage) {
       this.currentPage.resolvePage();
     }
   }
 
+  /**
+   * Returns the next unread message page.
+   *
+   * @returns {Promise<MessageList>}
+   * @see /mail/components/extensions/schemas/messages.json
+   */
   async getNextUnreadPage() {
     let page = this.pages.find(p => !p.read);
     if (!page) {
@@ -1006,22 +1025,30 @@ export class MessageListTracker {
    * Takes an array or enumerator of messages and returns a Promise for the first
    * page.
    *
-   * @returns {object}
+   * @param {nsIMsgDBHdr[]} Array or enumerator of messages.
+   * @param {ExtensionData} extension
+   *
+   * @returns {Promise<MessageList>}
+   * @see /mail/components/extensions/schemas/messages.json
    */
-  startList(messages, extension) {
+  async startList(messages, extension) {
     let messageList = this.createList(extension);
-    // Note: If _addMessages is becoming an async function in the future, do not
-    //       await it here, to return the Promise for the first page as soon as
-    //       it is available and not after all messages have been added.
-    this._addMessages(messages, messageList);
+    // Do not await _addMessages() here, to let the function return the Promise
+    // for the first page as soon as possible and not after all messages have
+    // been added.
+    setTimeout(() => this._addMessages(messages, messageList));
+
     return this.getNextPage(messageList);
   }
 
   /**
    * Add messages to a messageList and finalize the list once all messages have
    * been added.
+   *
+   * @param {nsIMsgDBHdr[]} Array or enumerator of messages.
+   * @param {MessageList}
    */
-  _addMessages(messages, messageList) {
+  async _addMessages(messages, messageList) {
     if (messageList.isDone) {
       return;
     }
@@ -1030,7 +1057,7 @@ export class MessageListTracker {
     }
     while (messages.hasMoreElements()) {
       let next = messages.getNext();
-      messageList.addMessage(next.QueryInterface(Ci.nsIMsgDBHdr));
+      await messageList.addMessage(next.QueryInterface(Ci.nsIMsgDBHdr));
     }
     messageList.done();
   }
@@ -1050,7 +1077,8 @@ export class MessageListTracker {
   /**
    * Creates and returns a new messageList object.
    *
-   * @returns {object}
+   * @param {ExtensionData} extension
+   * @returns {MessageList}
    */
   createList(extension) {
     let messageList = new MessageList(extension, this._messageTracker);
@@ -1066,7 +1094,7 @@ export class MessageListTracker {
   /**
    * Returns the messageList object for a given id.
    *
-   * @returns {object}
+   * @returns {MessageList}
    */
   getList(messageListId, extension) {
     let lists = this._contextLists.get(extension);
@@ -1080,9 +1108,10 @@ export class MessageListTracker {
   }
 
   /**
-   * Returns the first/next message page of the given messageList.
+   * Returns the next message page of the given messageList.
    *
-   * @returns {object}
+   * @returns {Promise<MessageList>}
+   * @see /mail/components/extensions/schemas/messages.json
    */
   async getNextPage(messageList) {
     let page = await messageList.getNextUnreadPage();
@@ -1122,7 +1151,6 @@ export class MessageManager {
    * @param {MessageConvertOptions} [options]
    *
    * @returns {MessageHeader} MessageHeader object
-   *
    * @see /mail/components/extensions/schemas/messages.json
    */
   convert(msgHdr, options = {}) {
@@ -1203,38 +1231,56 @@ export class MessageManager {
  */
 export class MessageQuery {
   /**
+   * @callback CheckSearchCriteriaCallback
+   *
+   * Check if the given msgHdr matches the current search criteria.
+   *
+   * @param {nsIMsgDBHdr} msgHdr
+   * @param {nsIMsgFolder} [folder = msgHdr.folder] - The parent folder of the
+   *   msgHdr, can be specified to prevent multiple lookups while evaluating
+   *   multiple messages of the same folder.
+   *
+   * @returns {Promise<boolean>}
+   */
+
+  /**
    * @param {object} queryInfo
    * @param {MessageListTracker} messageListTracker
    * @param {ExtensionData} extension
+   * @param {CheckSearchCriteriaCallback} [checkSearchCriteriaFn] - Function
+   *   to be used instead of the default MessageQuery.checkSearchCriteria(),
+   *   when checking if a message matches the current search criteria.
    *
    * @see /mail/components/extensions/schemas/messages.json
    */
-  constructor(queryInfo, messageListTracker, extension) {
+  constructor(queryInfo, messageListTracker, extension, checkSearchCriteriaFn) {
     this.extension = extension;
     this.queryInfo = queryInfo;
     this.messageListTracker = messageListTracker;
     this.messageList = this.messageListTracker.createList(this.extension);
+    this.checkSearchCriteriaFn =
+      checkSearchCriteriaFn || this.checkSearchCriteria;
 
     this.composeFields = Cc[
       "@mozilla.org/messengercompose/composefields;1"
     ].createInstance(Ci.nsIMsgCompFields);
-
-    // Prepare case insensitive me filtering.
-    this.identities = null;
-    if (this.queryInfo.toMe !== null || this.queryInfo.fromMe !== null) {
-      this.identities = MailServices.accounts.allIdentities.map(i =>
-        i.email.toLocaleLowerCase()
-      );
-    }
   }
 
   /**
    * Initiates the search.
    *
-   * @returns {Promise <MessageList>} A Promise for the first page with search
+   * @returns {Promise<MessageList>} A Promise for the first page with search
    *    results.
    */
   async startSearch() {
+    // Prepare case insensitive me filtering.
+    this.identities = null;
+    if (this.queryInfo.toMe || this.queryInfo.fromMe) {
+      this.identities = MailServices.accounts.allIdentities.map(i =>
+        i.email.toLocaleLowerCase()
+      );
+    }
+
     // Prepare tag filtering.
     this.requiredTags = null;
     this.forbiddenTags = null;
@@ -1296,21 +1342,31 @@ export class MessageQuery {
     // is an asynchronous function, but it is not awaited here. Instead,
     // messageListTracker.getNextPage() returns a Promise, which will
     // fulfill after enough messages for a full page have been added.
-    this.searchFolders(folders, includeSubFolders);
+    setTimeout(() => this.searchFolders(folders, includeSubFolders));
     return this.messageListTracker.getNextPage(this.messageList);
   }
 
-  async checkSearchCriteria(folder, msg) {
+  /**
+   * Check if the given msgHdr matches the current search criteria.
+   *
+   * @param {nsIMsgDBHdr} msgHdr
+   * @param {nsIMsgFolder} [folder = msgHdr.folder] - The parent folder of the
+   *   msgHdr, can be specified to prevent multiple lookups while evaluating
+   *   multiple messages of the same folder.
+   *
+   * @returns {Promise<boolean>}
+   */
+  async checkSearchCriteria(msgHdr, folder = msgHdr.folder) {
     // Check date ranges.
     if (
       this.queryInfo.fromDate !== null &&
-      msg.dateInSeconds * 1000 < this.queryInfo.fromDate.getTime()
+      msgHdr.dateInSeconds * 1000 < this.queryInfo.fromDate.getTime()
     ) {
       return false;
     }
     if (
       this.queryInfo.toDate !== null &&
-      msg.dateInSeconds * 1000 > this.queryInfo.toDate.getTime()
+      msgHdr.dateInSeconds * 1000 > this.queryInfo.toDate.getTime()
     ) {
       return false;
     }
@@ -1318,7 +1374,7 @@ export class MessageQuery {
     // Check headerMessageId.
     if (
       this.queryInfo.headerMessageId &&
-      msg.messageId != this.queryInfo.headerMessageId
+      msgHdr.messageId != this.queryInfo.headerMessageId
     ) {
       return false;
     }
@@ -1326,7 +1382,7 @@ export class MessageQuery {
     // Check unread.
     if (
       this.queryInfo.unread !== null &&
-      msg.isRead != !this.queryInfo.unread
+      msgHdr.isRead != !this.queryInfo.unread
     ) {
       return false;
     }
@@ -1334,7 +1390,7 @@ export class MessageQuery {
     // Check flagged.
     if (
       this.queryInfo.flagged !== null &&
-      msg.isFlagged != this.queryInfo.flagged
+      msgHdr.isFlagged != this.queryInfo.flagged
     ) {
       return false;
     }
@@ -1342,14 +1398,14 @@ export class MessageQuery {
     // Check subject (substring match).
     if (
       this.queryInfo.subject &&
-      !msg.mime2DecodedSubject.includes(this.queryInfo.subject)
+      !msgHdr.mime2DecodedSubject.includes(this.queryInfo.subject)
     ) {
       return false;
     }
 
     // Check tags.
     if (this.requiredTags || this.forbiddenTags) {
-      let messageTags = msg.getStringProperty("keywords").split(" ");
+      let messageTags = msgHdr.getStringProperty("keywords").split(" ");
       if (this.requiredTags.length > 0) {
         if (
           this.queryInfo.tags.mode == "all" &&
@@ -1383,9 +1439,9 @@ export class MessageQuery {
     // Check toMe (case insensitive email address match).
     if (this.queryInfo.toMe !== null) {
       let recipients = [].concat(
-        this.composeFields.splitRecipients(msg.recipients, true),
-        this.composeFields.splitRecipients(msg.ccList, true),
-        this.composeFields.splitRecipients(msg.bccList, true)
+        this.composeFields.splitRecipients(msgHdr.recipients, true),
+        this.composeFields.splitRecipients(msgHdr.ccList, true),
+        this.composeFields.splitRecipients(msgHdr.bccList, true)
       );
 
       if (
@@ -1401,7 +1457,7 @@ export class MessageQuery {
     // Check fromMe (case insensitive email address match).
     if (this.queryInfo.fromMe !== null) {
       let authors = this.composeFields.splitRecipients(
-        msg.mime2DecodedAuthor,
+        msgHdr.mime2DecodedAuthor,
         true
       );
       if (
@@ -1418,7 +1474,7 @@ export class MessageQuery {
     if (
       this.queryInfo.author &&
       !isAddressMatch(this.queryInfo.author, [
-        { addr: msg.mime2DecodedAuthor, doRfc2047: false },
+        { addr: msgHdr.mime2DecodedAuthor, doRfc2047: false },
       ])
     ) {
       return false;
@@ -1428,9 +1484,9 @@ export class MessageQuery {
     if (
       this.queryInfo.recipients &&
       !isAddressMatch(this.queryInfo.recipients, [
-        { addr: msg.mime2DecodedRecipients, doRfc2047: false },
-        { addr: msg.ccList, doRfc2047: true },
-        { addr: msg.bccList, doRfc2047: true },
+        { addr: msgHdr.mime2DecodedRecipients, doRfc2047: false },
+        { addr: msgHdr.ccList, doRfc2047: true },
+        { addr: msgHdr.bccList, doRfc2047: true },
       ])
     ) {
       return false;
@@ -1439,10 +1495,10 @@ export class MessageQuery {
     // Check if fullText is already partially fulfilled.
     let fullTextBodySearchNeeded = false;
     if (this.queryInfo.fullText) {
-      let subjectMatches = msg.mime2DecodedSubject.includes(
+      let subjectMatches = msgHdr.mime2DecodedSubject.includes(
         this.queryInfo.fullText
       );
-      let authorMatches = msg.mime2DecodedAuthor.includes(
+      let authorMatches = msgHdr.mime2DecodedAuthor.includes(
         this.queryInfo.fullText
       );
       fullTextBodySearchNeeded = !(subjectMatches || authorMatches);
@@ -1450,7 +1506,7 @@ export class MessageQuery {
 
     // Check body.
     if (this.queryInfo.body || fullTextBodySearchNeeded) {
-      let mimeMsg = await getMimeMessage(msg);
+      let mimeMsg = await getMimeMessage(msgHdr);
       if (
         this.queryInfo.body &&
         !includesContent(folder, [mimeMsg], this.queryInfo.body)
@@ -1468,7 +1524,7 @@ export class MessageQuery {
     // Check attachments.
     if (this.queryInfo.attachment != null) {
       let attachments = await getAttachments(
-        msg,
+        msgHdr,
         true // includeNestedAttachments
       );
       return !!attachments.length == this.queryInfo.attachment;
@@ -1490,8 +1546,16 @@ export class MessageQuery {
         if (this.messageList.isDone) {
           return;
         }
-        if (await this.checkSearchCriteria(folder, msg)) {
-          this.messageList.addMessage(msg);
+        if (await this.checkSearchCriteriaFn(msg, folder)) {
+          await this.messageList.addMessage(msg);
+        }
+
+        // Check if auto-pagination is needed.
+        if (
+          this.messageList.currentPage.messages.length > 0 &&
+          Date.now() - this.messageList.currentPage.timeOfFirstMessage > 1000
+        ) {
+          await this.messageList.addPage();
         }
       }
     }

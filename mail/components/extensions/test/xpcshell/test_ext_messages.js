@@ -736,31 +736,165 @@ add_task(
     // not need to be tested for IMAP and NNTP individually.
     skip_if: () => IS_IMAP || IS_NNTP,
   },
-  async function test_auto_pagination() {
+  async function test_list_auto_early_page_return() {
+    let files = {
+      "background.js": async () => {
+        let [folder] = await window.waitForMessage();
+
+        let page = await browser.messages.list(folder);
+        let listId = page.id;
+        // This test uses 10 messages per page. The first page should have been
+        // returned before all 99 messages have been added to 10 pages.
+        // Aborting the list prevents further additions. Therefore, we should not
+        // be able to receive all 10 pages.
+        browser.messages.abortList(listId);
+
+        browser.test.assertEq(
+          36,
+          listId.length,
+          "The listId should have the correct length"
+        );
+        browser.test.assertEq(
+          10,
+          page.messages.length,
+          "The page should have the correct number of messages"
+        );
+
+        // Search for the last page.
+        let pageCount = 1;
+        while (page.id) {
+          pageCount++;
+          browser.test.assertEq(
+            listId,
+            page.id,
+            "The listId should be correct"
+          );
+          page = await browser.messages.continueList(listId);
+        }
+
+        browser.test.assertEq(
+          2,
+          pageCount,
+          "Should have received only 2 pages."
+        );
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    let extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
+      },
+    });
+
+    Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
+
+    await extension.startup();
+    extension.sendMessage({ accountId: account.key, path: "/Trash" });
+    await extension.awaitFinish("finished");
+    await extension.unload();
+
+    Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
+  }
+);
+
+add_task(
+  {
+    // This is basically a unit test for the MessageList implementation and does
+    // not need to be tested for IMAP and NNTP individually.
+    skip_if: () => IS_IMAP || IS_NNTP,
+  },
+  async function test_query_auto_early_page_return() {
+    let files = {
+      "background.js": async () => {
+        let [folder] = await window.waitForMessage();
+
+        let page = await browser.messages.query({ folder });
+        let listId = page.id;
+        // This test uses 10 messages per page. The first page should have been
+        // returned before all 99 messages have been added to 10 pages.
+        // Aborting the list prevents further additions. Therefore, we should not
+        // be able to receive all 10 pages.
+        browser.messages.abortList(listId);
+
+        browser.test.assertEq(
+          36,
+          listId.length,
+          "The listId should have the correct length"
+        );
+        browser.test.assertEq(
+          10,
+          page.messages.length,
+          "The page should have the correct number of messages"
+        );
+
+        // Search for the last page.
+        let pageCount = 1;
+        while (page.id) {
+          pageCount++;
+          browser.test.assertEq(
+            listId,
+            page.id,
+            "The listId should be correct"
+          );
+          page = await browser.messages.continueList(listId);
+        }
+
+        browser.test.assertEq(
+          2,
+          pageCount,
+          "Should have received only 2 pages."
+        );
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    let extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
+      },
+    });
+
+    Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
+
+    await extension.startup();
+    extension.sendMessage({ accountId: account.key, path: "/Trash" });
+    await extension.awaitFinish("finished");
+    await extension.unload();
+
+    Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
+  }
+);
+
+add_task(
+  {
+    // This is basically a unit test for the MessageQuery implementation and does
+    // not need to be tested for IMAP and NNTP individually.
+    skip_if: () => IS_IMAP || IS_NNTP,
+  },
+  async function test_query_auto_pagination() {
     let files = {
       "schema.json": [
         {
           namespace: "PaginationTest",
           functions: [
             {
-              name: "throttledList",
+              name: "throttledQuery",
               type: "function",
               async: true,
               parameters: [
                 {
-                  name: "folder",
-                  $ref: "folders.MailFolder",
-                },
-              ],
-            },
-            {
-              name: "pushNextMessages",
-              type: "function",
-              async: true,
-              parameters: [
-                {
-                  name: "numberOfMessages",
-                  type: "integer",
+                  type: "object",
+                  name: "queryInfo",
+                  properties: {
+                    folder: {
+                      $ref: "folders.MailFolder",
+                    },
+                  },
                 },
               ],
             },
@@ -771,33 +905,44 @@ add_task(
         var { ExtensionCommon } = ChromeUtils.importESModule(
           "resource://gre/modules/ExtensionCommon.sys.mjs"
         );
+        var { MessageQuery } = ChromeUtils.importESModule(
+          "resource:///modules/ExtensionMessages.sys.mjs"
+        );
         this.PaginationTest = class extends ExtensionCommon.ExtensionAPI {
           getAPI(context) {
             const { extension } = context;
-            const { messageManager, folderManager } = extension;
+            const { messageManager } = extension;
             const messageListTracker = messageManager._messageListTracker;
-            let counter = 0;
-            let messages = [];
-            let messageList;
 
             return {
               PaginationTest: {
-                async throttledList({ accountId, path }) {
-                  let realFolder = folderManager.get(accountId, path);
-                  messages = [...realFolder.messages];
-                  messageList = messageListTracker.createList(extension);
-                  return messageListTracker.getNextPage(messageList);
-                },
+                async throttledQuery(queryInfo) {
+                  let msgCounter = 1;
+                  let messageDelays = new Map();
+                  messageDelays.set(2, 1500);
+                  messageDelays.set(6, 1500);
 
-                async pushNextMessages(numberOfMessages) {
-                  let newMessages = messages.slice(
-                    counter,
-                    counter + numberOfMessages
+                  let messageQuery = new MessageQuery(
+                    queryInfo,
+                    messageListTracker,
+                    extension,
+                    async () => {
+                      // This is a dummy checkSearchCriteriaFn().
+                      let delay = messageDelays.get(msgCounter) || 0;
+                      if (delay) {
+                        console.log(
+                          `Simulating a prolonged synchronous search for message #${msgCounter}`
+                        );
+                        let start = Date.now();
+                        while (Date.now() - start < delay) {
+                          // No Op.
+                        }
+                      }
+                      msgCounter++;
+                      return true;
+                    }
                   );
-                  for (let message of newMessages) {
-                    await messageList.addMessage(message);
-                  }
-                  counter += numberOfMessages;
+                  return messageQuery.startSearch();
                 },
               },
             };
@@ -807,20 +952,24 @@ add_task(
       "background.js": async () => {
         let [folder] = await window.waitForMessage();
 
-        // The throttledList will add messages to the returned messageList only
-        // when requested, allowing us to test the automatic pagination mechanism.
-        let firstPagePromise = browser.PaginationTest.throttledList(folder);
-        await browser.PaginationTest.pushNextMessages(5);
+        // Test the auto-pagination mechanism and the ability to retrieve pages
+        // as soon as they are available.
+        // If the search process happens to be purely synchronous (determined by
+        // queryInfo), the execution flow will not return to the WebExtension
+        // before the entire messages-add-process has finished. We therefore
+        // interrupt the synchronous execution in MessageQuery.searchMessages()
+        // after new pages have been added and allow pending callbacks on the call
+        // stack to be processed.
+        //
+        // This test will return 99 messages, but will need 1500ms to find the
+        // 2nd and 6th message. The auto-pagination after the default 1000ms will
+        // create early pages and the enforced interruption will allow the
+        // WebExtension to receive the pages before the entire message-add-process
+        // has finished.
+        let firstPage = await browser.PaginationTest.throttledQuery({
+          folder,
+        });
         let firstPageCreationTime = Date.now();
-
-        // At this point only 5 messages have been added to the list, which is
-        // less then the nominal page size. After the auto-pagination timeout
-        // has been reached, the page should be returned even though it has not
-        // reached its nominal page size.
-        browser.test.log("Waiting for auto-pagination of page 1 to kick in...");
-        let firstPage = await firstPagePromise;
-        let firstPageResolveTime = Date.now();
-
         let listId = firstPage.id;
         browser.test.assertEq(
           36,
@@ -828,121 +977,41 @@ add_task(
           "The listId should have the correct length"
         );
         browser.test.assertEq(
-          5,
+          2,
           firstPage.messages.length,
           "The first page should be correct"
         );
-        browser.test.assertTrue(
-          firstPageResolveTime - firstPageCreationTime > 500,
-          `The first page should have been returned with a delay corresponding to the auto-pagination-timeout: ${
-            firstPageResolveTime - firstPageCreationTime
-          } > 500`
-        );
 
-        // Once we have the first page, we can query for the second page and can
-        // actually do that multiple times and they all should return a Promise
-        // for the same second page.
-        let secondPagePromises = [];
-        secondPagePromises.push(browser.messages.continueList(listId));
-        secondPagePromises.push(browser.messages.continueList(listId));
-        secondPagePromises.push(browser.messages.continueList(listId));
-
-        // Fill the second page with 10 messages and auto-pagination should
-        // kick in after 1s, fulfilling all Promises for the second page.
-        await browser.PaginationTest.pushNextMessages(10);
+        let secondPage = await browser.messages.continueList(listId);
         let secondPageCreationTime = Date.now();
-
-        browser.test.log("Waiting for auto-pagination of page 2 to kick in...");
-        let secondPages = await Promise.allSettled(secondPagePromises);
-        let secondPageResolveTime = Date.now();
-
-        browser.test.assertEq(3, secondPages.length);
-        for (let p of secondPages) {
-          browser.test.assertEq(
-            listId,
-            p.value.id,
-            "The listId should be correct"
-          );
-          browser.test.assertEq(
-            10,
-            p.value.messages.length,
-            "The second page should be correct"
-          );
-        }
-        browser.test.assertTrue(
-          secondPageResolveTime - secondPageCreationTime > 500,
-          `The second page should have been returned with a delay corresponding to the auto-pagination-timeout: ${
-            secondPageResolveTime - secondPageCreationTime
-          } > 500`
+        browser.test.assertEq(
+          listId,
+          secondPage.id,
+          "The listId should be correct"
+        );
+        browser.test.assertEq(
+          4,
+          secondPage.messages.length,
+          "The second page should be correct"
         );
 
-        // Repeat once more and request the third page.
-        let thirdPagePromises = [];
-        thirdPagePromises.push(browser.messages.continueList(listId));
-        thirdPagePromises.push(browser.messages.continueList(listId));
-
-        // Fill the third page with 20 messages and auto-pagination should
-        // kick in after 1s, fulfilling all Promises for the third page.
-        await browser.PaginationTest.pushNextMessages(20);
-        let thirdPageCreationTime = Date.now();
-
-        browser.test.log("Waiting for auto-pagination of page 3 to kick in...");
-        let thirdPages = await Promise.allSettled(thirdPagePromises);
-        let thirdPageResolveTime = Date.now();
-
-        browser.test.assertEq(2, thirdPages.length);
-        for (let p of thirdPages) {
-          browser.test.assertEq(
-            listId,
-            p.value.id,
-            "The listId should be correct"
-          );
-          browser.test.assertEq(
-            20,
-            p.value.messages.length,
-            "The third page should be correct"
-          );
-        }
-        browser.test.assertTrue(
-          thirdPageResolveTime - thirdPageCreationTime > 500,
-          `The third page should have been returned with a delay corresponding to the auto-pagination-timeout: ${
-            thirdPageResolveTime - thirdPageCreationTime
-          } > 500`
+        let thirdPage = await browser.messages.continueList(listId);
+        browser.test.assertEq(
+          null,
+          thirdPage.id,
+          "The listId should be correct"
+        );
+        browser.test.assertEq(
+          93,
+          thirdPage.messages.length,
+          "The third page should be correct"
         );
 
-        // Fill another 30 messages but abort the search immediately after. This
-        // should return the page immediately and no longer include a listId,
-        // because the list has been finalized.
-        let finalPagePromises = [];
-        finalPagePromises.push(browser.messages.continueList(listId));
-        finalPagePromises.push(browser.messages.continueList(listId));
-        finalPagePromises.push(browser.messages.continueList(listId));
-        finalPagePromises.push(browser.messages.continueList(listId));
-
-        await browser.PaginationTest.pushNextMessages(30);
-        let finalPageCreationTime = Date.now();
-        browser.messages.abortList(listId);
-
-        let finalPages = await Promise.allSettled(finalPagePromises);
-        let finalPageResolveTime = Date.now();
-
-        browser.test.assertEq(4, finalPages.length);
-        for (let p of finalPages) {
-          browser.test.assertTrue(
-            !p.value.id,
-            "The listId should not be present"
-          );
-          browser.test.assertEq(
-            30,
-            p.value.messages.length,
-            "The final page should be correct"
-          );
-        }
         browser.test.assertTrue(
-          finalPageResolveTime - finalPageCreationTime < 500,
-          `The final page should have been returned immediately: ${
-            finalPageResolveTime - finalPageCreationTime
-          } < 500`
+          secondPageCreationTime - firstPageCreationTime > 1000,
+          `secondPageCreationTime - firstPageCreationTime > 1000: ${
+            secondPageCreationTime - firstPageCreationTime
+          }`
         );
 
         browser.test.notifyPass("finished");
