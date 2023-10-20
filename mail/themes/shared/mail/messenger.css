@@ -71,6 +71,10 @@ hr {
   pointer-events: none;
 }
 
+#navigation-toolbox {
+  appearance: none;
+}
+
 #navigation-toolbox:-moz-lwtheme,
 #compose-toolbox:-moz-lwtheme {
   background-color: var(--lwt-accent-color);

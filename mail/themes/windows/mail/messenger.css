@@ -373,10 +373,6 @@ legend {
   font-weight: bold;
 }
 
-#navigation-toolbox {
-  appearance: none;
-}
-
 /* UI Density customization */
 
 treechildren::-moz-tree-row {
