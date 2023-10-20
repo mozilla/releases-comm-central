@@ -11,7 +11,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailServices: "resource:///modules/MailServices.jsm",
 });
 
-var { convertFolder, folderPathToURI } = ChromeUtils.importESModule(
+var { folderPathToURI } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 
@@ -70,7 +70,9 @@ function convertMailTab(tab, context) {
     mailTabObject.viewType = "ungrouped";
   }
   if (context.extension.hasPermission("accountsRead")) {
-    mailTabObject.displayedFolder = convertFolder(about3Pane.gFolder);
+    mailTabObject.displayedFolder = context.extension.folderManager.convert(
+      about3Pane.gFolder
+    );
   }
   return mailTabObject;
 }
@@ -144,12 +146,12 @@ this.mailTabs = class extends ExtensionAPIPersistent {
 
     onDisplayedFolderChanged({ context, fire }) {
       const { extension } = this;
-      const { tabManager } = extension;
+      const { tabManager, folderManager } = extension;
       async function listener(event, tab, folder) {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.sync(tabManager.convert(tab), convertFolder(folder));
+        fire.sync(tabManager.convert(tab), folderManager.convert(folder));
       }
       uiListener.on("folder-changed", listener);
       uiListener.incrementListeners();
@@ -389,7 +391,7 @@ this.mailTabs = class extends ExtensionAPIPersistent {
           let refFolder, refMsgId;
           let msgHdrs = [];
           for (let messageId of messageIds) {
-            let msgHdr = messageTracker.getMessage(messageId);
+            let msgHdr = extension.messageManager.get(messageId);
             if (!refFolder) {
               refFolder = msgHdr.folder;
               refMsgId = messageId;

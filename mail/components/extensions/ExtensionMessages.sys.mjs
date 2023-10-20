@@ -9,8 +9,6 @@ import { EventEmitter } from "resource://gre/modules/EventEmitter.sys.mjs";
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
 import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
-import { convertFolder } from "resource:///modules/ExtensionAccounts.sys.mjs";
-
 var { ExtensionError } = ExtensionUtils;
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -37,7 +35,7 @@ export class CachedMsgHeader {
   constructor(msgHdr) {
     this.mProperties = {};
 
-    // Properties needed by convertMessage().
+    // Properties needed by MessageManager.convert().
     this.author = null;
     this.subject = "";
     this.recipients = null;
@@ -55,7 +53,7 @@ export class CachedMsgHeader {
     this.accountKey = "";
 
     if (msgHdr) {
-      // Cache all elements which are needed by convertMessage().
+      // Cache all elements which are needed by MessageManager.convert().
       this.author = msgHdr.mime2DecodedAuthor;
       this.subject = msgHdr.mime2DecodedSubject;
       this.recipients = msgHdr.mime2DecodedRecipients;
@@ -119,6 +117,10 @@ export class CachedMsgHeader {
   }
   get mime2DecodedRecipients() {
     return this.recipients;
+  }
+
+  QueryInterface() {
+    return this;
   }
 }
 
@@ -381,80 +383,6 @@ export class MessageTracker extends EventEmitter {
     return null;
   }
 
-  /**
-   * Converts an nsIMsgDBHdr to a simple object for use in messages.
-   * This function WILL change as the API develops.
-   *
-   * @param {nsIMsgDBHdr} msgHdr
-   * @param {ExtensionData} extension
-   *
-   * @returns {MessageHeader} MessageHeader object
-   *
-   * @see /mail/components/extensions/schemas/messages.json
-   */
-  convertMessage(msgHdr, extension) {
-    if (!msgHdr) {
-      return null;
-    }
-
-    let composeFields = Cc[
-      "@mozilla.org/messengercompose/composefields;1"
-    ].createInstance(Ci.nsIMsgCompFields);
-
-    // Cache msgHdr to reduce XPCOM requests.
-    let cachedHdr = new CachedMsgHeader(msgHdr);
-
-    let junkScore = parseInt(cachedHdr.getStringProperty("junkscore"), 10) || 0;
-    let tags = (cachedHdr.getStringProperty("keywords") || "")
-      .split(" ")
-      .filter(MailServices.tags.isValidKey);
-
-    // Getting the size of attached messages does not work consistently. For imap://
-    // and mailbox:// messages the returned size in msgHdr.messageSize is 0, and for
-    // file:// messages the returned size is always the total file size
-    // Be consistent here and always return 0. The user can obtain the message size
-    // from the size of the associated attachment file.
-    let size = isAttachedMessageUrl(cachedHdr.getStringProperty("dummyMsgUrl"))
-      ? 0
-      : cachedHdr.messageSize;
-
-    let messageObject = {
-      id: this.getId(cachedHdr),
-      date: new Date(Math.round(cachedHdr.date / 1000)),
-      author: cachedHdr.mime2DecodedAuthor,
-      recipients: cachedHdr.mime2DecodedRecipients
-        ? composeFields.splitRecipients(cachedHdr.mime2DecodedRecipients, false)
-        : [],
-      ccList: cachedHdr.ccList
-        ? composeFields.splitRecipients(cachedHdr.ccList, false)
-        : [],
-      bccList: cachedHdr.bccList
-        ? composeFields.splitRecipients(cachedHdr.bccList, false)
-        : [],
-      subject: cachedHdr.mime2DecodedSubject,
-      read: cachedHdr.isRead,
-      new: !!(cachedHdr.flags & Ci.nsMsgMessageFlags.New),
-      headersOnly: !!(cachedHdr.flags & Ci.nsMsgMessageFlags.Partial),
-      flagged: !!cachedHdr.isFlagged,
-      junk: junkScore >= lazy.gJunkThreshold,
-      junkScore,
-      headerMessageId: cachedHdr.messageId,
-      size,
-      tags,
-      external: !cachedHdr.folder,
-    };
-    // convertMessage can be called without providing an extension, if the info is
-    // needed for multiple extensions. The caller has to ensure that the folder info
-    // is not forwarded to extensions, which do not have the required permission.
-    if (
-      cachedHdr.folder &&
-      (!extension || extension.hasPermission("accountsRead"))
-    ) {
-      messageObject.folder = convertFolder(cachedHdr.folder);
-    }
-    return messageObject;
-  }
-
   // nsIFolderListener
 
   onFolderPropertyFlagChanged(item, property, oldFlag, newFlag) {
@@ -703,7 +631,7 @@ export class MessageList {
     }
 
     this.currentPage.messages.push(
-      this._messageTracker.convertMessage(message, this.extension)
+      this.extension.messageManager.convert(message)
     );
 
     // Automatically push a new page and return the page with this message after
@@ -858,8 +786,74 @@ export class MessageManager {
     this._messageListTracker = messageListTracker;
   }
 
+  /**
+   * Converts an nsIMsgDBHdr to a simple object for use in messages.
+   * This function WILL change as the API develops.
+   *
+   * @param {nsIMsgDBHdr} msgHdr
+   *
+   * @returns {MessageHeader} MessageHeader object
+   *
+   * @see /mail/components/extensions/schemas/messages.json
+   */
   convert(msgHdr) {
-    return this._messageTracker.convertMessage(msgHdr, this.extension);
+    if (!msgHdr) {
+      return null;
+    }
+
+    let composeFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
+
+    // Cache msgHdr to reduce XPCOM requests.
+    let cachedHdr = new CachedMsgHeader(msgHdr);
+
+    let junkScore = parseInt(cachedHdr.getStringProperty("junkscore"), 10) || 0;
+    let tags = (cachedHdr.getStringProperty("keywords") || "")
+      .split(" ")
+      .filter(MailServices.tags.isValidKey);
+
+    // Getting the size of attached messages does not work consistently. For imap://
+    // and mailbox:// messages the returned size in msgHdr.messageSize is 0, and for
+    // file:// messages the returned size is always the total file size
+    // Be consistent here and always return 0. The user can obtain the message size
+    // from the size of the associated attachment file.
+    let size = isAttachedMessageUrl(cachedHdr.getStringProperty("dummyMsgUrl"))
+      ? 0
+      : cachedHdr.messageSize;
+
+    let messageObject = {
+      id: this._messageTracker.getId(cachedHdr),
+      date: new Date(Math.round(cachedHdr.date / 1000)),
+      author: cachedHdr.mime2DecodedAuthor,
+      recipients: cachedHdr.mime2DecodedRecipients
+        ? composeFields.splitRecipients(cachedHdr.mime2DecodedRecipients, false)
+        : [],
+      ccList: cachedHdr.ccList
+        ? composeFields.splitRecipients(cachedHdr.ccList, false)
+        : [],
+      bccList: cachedHdr.bccList
+        ? composeFields.splitRecipients(cachedHdr.bccList, false)
+        : [],
+      subject: cachedHdr.mime2DecodedSubject,
+      read: cachedHdr.isRead,
+      new: !!(cachedHdr.flags & Ci.nsMsgMessageFlags.New),
+      headersOnly: !!(cachedHdr.flags & Ci.nsMsgMessageFlags.Partial),
+      flagged: !!cachedHdr.isFlagged,
+      junk: junkScore >= lazy.gJunkThreshold,
+      junkScore,
+      headerMessageId: cachedHdr.messageId,
+      size,
+      tags,
+      external: !cachedHdr.folder,
+    };
+
+    if (cachedHdr.folder && this.extension.hasPermission("accountsRead")) {
+      messageObject.folder = this.extension.folderManager.convert(
+        cachedHdr.folder
+      );
+    }
+    return messageObject;
   }
 
   get(id) {

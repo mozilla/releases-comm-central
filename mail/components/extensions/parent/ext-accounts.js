@@ -8,7 +8,7 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailServices.jsm"
 );
 
-var { convertAccount, convertMailIdentity } = ChromeUtils.importESModule(
+var { CachedAccount, convertMailIdentity } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 
@@ -88,8 +88,7 @@ var accountsTracker = new (class extends EventEmitter {
         nativeAccount.key,
         this.getMonitoredProperties(nativeAccount)
       );
-      let account = convertAccount(nativeAccount, false);
-      this.emit("account-added", nativeAccount.key, account);
+      this.emit("account-added", new CachedAccount(nativeAccount));
     }
   }
 
@@ -159,11 +158,14 @@ this.accounts = class extends ExtensionAPIPersistent {
     // has been called).
 
     onCreated({ context, fire }) {
-      async function listener(_event, key, account) {
+      const { extension } = this;
+
+      async function listener(_event, cachedAccount) {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.sync(key, account);
+        let account = extension.accountManager.convert(cachedAccount, false);
+        fire.sync(cachedAccount.key, account);
       }
       accountsTracker.on("account-added", listener);
       return {
@@ -229,7 +231,10 @@ this.accounts = class extends ExtensionAPIPersistent {
         async list(includeFolders) {
           let accounts = [];
           for (let account of MailServices.accounts.accounts) {
-            account = convertAccount(account, includeFolders);
+            account = context.extension.accountManager.convert(
+              account,
+              includeFolders
+            );
             if (account) {
               accounts.push(account);
             }
@@ -238,11 +243,17 @@ this.accounts = class extends ExtensionAPIPersistent {
         },
         async get(accountId, includeFolders) {
           let account = MailServices.accounts.getAccount(accountId);
-          return convertAccount(account, includeFolders);
+          return context.extension.accountManager.convert(
+            account,
+            includeFolders
+          );
         },
         async getDefault(includeFolders) {
           let account = MailServices.accounts.defaultAccount;
-          return convertAccount(account, includeFolders);
+          return context.extension.accountManager.convert(
+            account,
+            includeFolders
+          );
         },
         async getDefaultIdentity(accountId) {
           let account = MailServices.accounts.getAccount(accountId);

@@ -1519,7 +1519,7 @@ add_task(async function test_compose_attachments_immutable() {
         management_url: "/content/management.html",
       },
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose", "compose.send"],
+      permissions: ["compose", "compose.send", "messagesRead"],
       applications: { gecko: { id: "compose.attachments@mochi.test" } },
     },
   });

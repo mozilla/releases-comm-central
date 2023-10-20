@@ -22,11 +22,12 @@ let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
   Ci.nsIParserUtils
 );
 
-var { convertMessage } = ChromeUtils.importESModule(
-  "resource:///modules/ExtensionMessages.sys.mjs"
-);
-var { convertFolder, folderPathToURI } = ChromeUtils.importESModule(
+var { folderPathToURI } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
+);
+
+var { CachedMsgHeader } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionMessages.sys.mjs"
 );
 
 const deliveryFormats = [
@@ -172,8 +173,8 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   ) {
     let msgHdr = null;
     let msgURI = null;
-    if (relatedMessageId) {
-      msgHdr = messageTracker.getMessage(relatedMessageId);
+    if (relatedMessageId && extension.messageManager) {
+      msgHdr = extension.messageManager.get(relatedMessageId);
       msgURI = msgHdr.folder.getUriForMsg(msgHdr);
     }
 
@@ -250,8 +251,8 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  if (relatedMessageId) {
-    let msgHdr = messageTracker.getMessage(relatedMessageId);
+  if (relatedMessageId && extension.messageManager) {
+    let msgHdr = extension.messageManager.get(relatedMessageId);
     params.originalMsgURI = msgHdr.folder.getUriForMsg(msgHdr);
   }
 
@@ -348,13 +349,14 @@ async function getComposeDetails(composeWindow, extension) {
   }
 
   let relatedMessageId = null;
-  if (composeWindow.gMsgCompose.originalMsgURI) {
+  if (composeWindow.gMsgCompose.originalMsgURI && extension.messageManager) {
     try {
       // This throws for messages opened from file and then being replied to.
       let relatedMsgHdr = composeWindow.gMessenger.msgHdrFromURI(
         composeWindow.gMsgCompose.originalMsgURI
       );
-      relatedMessageId = messageTracker.getId(relatedMsgHdr);
+      let relatedMessage = extension.messageManager.convert(relatedMsgHdr);
+      relatedMessageId = relatedMessage.id;
     } catch (ex) {
       // We are currently unable to get the fake msgHdr from the uri of messages
       // opened from file.
@@ -384,14 +386,14 @@ async function getComposeDetails(composeWindow, extension) {
   if (overrideDefaultFcc && !composeFields.fcc.startsWith("nocopy://")) {
     let folder = MailUtils.getExistingFolder(composeFields.fcc);
     if (folder) {
-      overrideDefaultFccFolder = convertFolder(folder);
+      overrideDefaultFccFolder = extension.folderManager.convert(folder);
     }
   }
   let additionalFccFolder = "";
   if (composeFields.fcc2 && !composeFields.fcc2.startsWith("nocopy://")) {
     let folder = MailUtils.getExistingFolder(composeFields.fcc2);
     if (folder) {
-      additionalFccFolder = convertFolder(folder);
+      additionalFccFolder = extension.folderManager.convert(folder);
     }
   }
 
@@ -849,12 +851,13 @@ class MsgOperationObserver {
   msgsClassified(msgs, junkProcessed, traitProcessed) {
     // Collect all msgHdrs added to folders during the current message operation.
     for (let msgHdr of msgs) {
+      let cachedMsgHdr = new CachedMsgHeader(msgHdr);
       let key = JSON.stringify({
-        headerMessageId: msgHdr.messageId,
-        folderURI: msgHdr.folder.URI,
+        headerMessageId: cachedMsgHdr.messageId,
+        folderURI: cachedMsgHdr.folder.URI,
       });
       if (!this.classifiedMessages.has(key)) {
-        this.classifiedMessages.set(key, messageTracker.convertMessage(msgHdr));
+        this.classifiedMessages.set(key, cachedMsgHdr);
       }
     }
   }
@@ -987,18 +990,18 @@ var afterSaveSendEventTracker = {
       if (!listener.modes.includes(mode)) {
         continue;
       }
+
+      let convertedMessages;
+      if (listener.extension.messageManager) {
+        convertedMessages = messages.map(cachedMsgHdr =>
+          listener.extension.messageManager.convert(cachedMsgHdr)
+        );
+      }
+
       await listener.onSuccess(
         window,
         mode,
-        messages.map(message => {
-          // Strip data from MessageHeader if this extension doesn't have
-          // the required permission.
-          let clone = Object.assign({}, message);
-          if (!listener.extension.hasPermission("accountsRead")) {
-            delete clone.folders;
-          }
-          return clone;
-        }),
+        convertedMessages,
         headerMessageId
       );
     }
@@ -1494,8 +1497,8 @@ this.compose = class extends ExtensionAPIPersistent {
         }).api(),
         async beginNew(messageId, details) {
           let type = Ci.nsIMsgCompType.New;
-          if (messageId) {
-            let msgHdr = messageTracker.getMessage(messageId);
+          if (messageId && context.extension.messageManager) {
+            let msgHdr = context.extension.messageManager.get(messageId);
             type =
               msgHdr.flags & Ci.nsMsgMessageFlags.Template
                 ? Ci.nsIMsgCompType.Template

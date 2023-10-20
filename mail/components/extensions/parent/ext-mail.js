@@ -18,8 +18,11 @@ var { ExtensionSupport } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   ExtensionContent: "resource://gre/modules/ExtensionContent.sys.mjs",
-  FolderManager: "resource:///modules/ExtensionAccounts.sys.mjs",
 });
+
+var { AccountManager, FolderManager } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionAccounts.sys.mjs"
+);
 
 var { MessageListTracker, MessageTracker, MessageManager } =
   ChromeUtils.importESModule("resource:///modules/ExtensionMessages.sys.mjs");
@@ -1910,7 +1913,13 @@ extensions.on("startup", (type, extension) => {
       "folderManager",
       () => new FolderManager(extension)
     );
+    defineLazyGetter(
+      extension,
+      "accountManager",
+      () => new AccountManager(extension)
+    );
   }
+
   if (extension.hasPermission("addressBooks")) {
     defineLazyGetter(extension, "addressBookManager", () => {
       if (!("addressBookCache" in this)) {

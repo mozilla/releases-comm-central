@@ -12,8 +12,9 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/MailServices.jsm"
 );
 
-var { convertFolder, convertAccount, folderPathToURI, traverseSubfolders } =
-  ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
+var { folderPathToURI } = ChromeUtils.importESModule(
+  "resource:///modules/ExtensionAccounts.sys.mjs"
+);
 
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
@@ -765,16 +766,16 @@ async function addMenuEventInfo(
   if (extension.hasPermission("accountsRead")) {
     for (let folderType of ["displayedFolder", "selectedFolder"]) {
       if (contextData[folderType]) {
-        let folder = convertFolder(contextData[folderType]);
+        let folder = extension.folderManager.convert(contextData[folderType]);
         // If the context menu click in the folder pane occurred on a root folder
         // representing an account, do not include a selectedFolder object, but
         // the corresponding selectedAccount object.
         if (folderType == "selectedFolder" && folder.path == "/") {
-          info.selectedAccount = convertAccount(
+          info.selectedAccount = extension.accountManager.convert(
             MailServices.accounts.getAccount(folder.accountId)
           );
         } else {
-          info[folderType] = traverseSubfolders(
+          info[folderType] = extension.folderManager.traverseSubfolders(
             contextData[folderType],
             folder.accountId
           );

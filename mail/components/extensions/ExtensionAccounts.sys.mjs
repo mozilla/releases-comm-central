@@ -6,40 +6,138 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+export class AccountManager {
+  constructor(extension) {
+    this.extension = extension;
+  }
+
+  /**
+   * Converts an nsIMsgAccount to a simple object
+   *
+   * @param {nsIMsgAccount} account - The account to be converted.
+   * @param {boolean} [includeFolders = true]
+   */
+  convert(account, includeFolders = true) {
+    if (!account) {
+      return null;
+    }
+
+    account = account.QueryInterface(Ci.nsIMsgAccount);
+
+    let server = account.incomingServer;
+    if (server.type == "im") {
+      return null;
+    }
+
+    let folders = null;
+    if (includeFolders) {
+      folders = this.extension.folderManager.traverseSubfolders(
+        server.rootFolder,
+        account.key
+      ).subFolders;
+    }
+
+    return {
+      id: account.key,
+      name: server.prettyName,
+      type: server.type,
+      folders,
+      identities: account.identities.map(identity =>
+        convertMailIdentity(account, identity)
+      ),
+    };
+  }
+}
+
 /**
- * Converts an nsIMsgAccount to a simple object
+ * Class to cache all relevant identity information needed for later calls to
+ * convertMailIdentity().
  *
- * @param {nsIMsgAccount} account
- * @returns {object}
+ * @implements {nsIMsgIdentity} (partially)
  */
-export function convertAccount(account, includeFolders = true) {
-  if (!account) {
-    return null;
+export class CachedIdentity {
+  /**
+   * @param {nsIMsgIdentity} identity - The identity to be cached.
+   */
+  constructor(identity) {
+    if (!identity) {
+      throw new Error("CachedIdentity constructor: identity required");
+    }
+
+    this.key = identity.key;
+    this.label = identity.label;
+    this.name = identity.name;
+    this.email = identity.email;
+    this.replyTo = identity.replyTo;
+    this.organization = identity.organization;
+    this.composeHtml = identity.composeHtml;
+    this.htmlSigText = identity.htmlSigText;
+    this.htmlSigFormat = identity.htmlSigFormat;
   }
 
-  account = account.QueryInterface(Ci.nsIMsgAccount);
-  let server = account.incomingServer;
-  if (server.type == "im") {
-    return null;
+  QueryInterface() {
+    return this;
+  }
+}
+
+/**
+ * Class to cache all relevant server information needed by the CachedAccount
+ * class.
+ *
+ * Note: Since there is currently no need for cached (sub-)folder, the relevant
+ *       methods have not been implemented.
+ *
+ * @implements {nsIMsgIncomingServer} (partially)
+ */
+export class CachedServer {
+  /**
+   * @param {nsIMsgIncomingServer} server - The server to be cached.
+   */
+  constructor(server) {
+    if (!server) {
+      throw new Error("CachedServer constructor: server required");
+    }
+
+    this.type = server.type;
+    this.prettyName = server.prettyName;
   }
 
-  let folders = null;
-  if (includeFolders) {
-    folders = traverseSubfolders(
-      account.incomingServer.rootFolder,
-      account.key
-    ).subFolders;
+  get rootFolder() {
+    throw new Error("CachedServer.rootFolder: Not implemented");
   }
 
-  return {
-    id: account.key,
-    name: account.incomingServer.prettyName,
-    type: account.incomingServer.type,
-    folders,
-    identities: account.identities.map(identity =>
-      convertMailIdentity(account, identity)
-    ),
-  };
+  QueryInterface() {
+    return this;
+  }
+}
+
+/**
+ * Class to cache all relevant account information needed for later calls to
+ * AccountManager.convert().
+ *
+ * @implements {nsIMsgAccount} (partially)
+ */
+export class CachedAccount {
+  /**
+   * @param {nsIMsgAccount} account - The account to be cached.
+   */
+  constructor(account) {
+    if (!account) {
+      throw new Error("CachedAccount constructor: account required");
+    }
+
+    account = account.QueryInterface(Ci.nsIMsgAccount);
+
+    this.key = account.key;
+    this.identities = account.identities.map(
+      identity => new CachedIdentity(identity)
+    );
+    this.incomingServer = new CachedServer(account.incomingServer);
+  }
+
+  QueryInterface() {
+    return this;
+  }
 }
 
 /**
@@ -53,7 +151,10 @@ export function convertMailIdentity(account, identity) {
   if (!account || !identity) {
     return null;
   }
+
+  account = account.QueryInterface(Ci.nsIMsgAccount);
   identity = identity.QueryInterface(Ci.nsIMsgIdentity);
+
   return {
     accountId: account.key,
     id: identity.key,
@@ -138,84 +239,117 @@ const folderTypeMap = new Map([
   [Ci.nsMsgFolderFlags.Queue, "outbox"],
 ]);
 
-/**
- * Converts an nsIMsgFolder to a simple object for use in API messages.
- *
- * @param {nsIMsgFolder} folder - The folder to convert.
- * @param {string} [accountId] - An optimization to avoid looking up the
- *     account. The value from nsIMsgDBHdr.accountKey must not be used here.
- * @returns {MailFolder}
- * @see mail/components/extensions/schemas/folders.json
- */
-export function convertFolder(folder, accountId) {
-  if (!folder) {
-    return null;
-  }
-  if (!accountId) {
-    let server = folder.server;
-    let account = MailServices.accounts.FindAccountForServer(server);
-    accountId = account.key;
-  }
-
-  let folderObject = {
-    accountId,
-    name: folder.prettyName,
-    path: folderURIToPath(accountId, folder.URI),
-  };
-
-  let flags = folder.flags;
-  for (let [flag, typeName] of folderTypeMap.entries()) {
-    if (flags & flag) {
-      folderObject.type = typeName;
-      // Exit the loop as soon as an entry was found.
-      break;
-    }
-  }
-
-  return folderObject;
-}
-
-/**
- * Converts an nsIMsgFolder and all its subfolders to a simple object for use in
- * API messages.
- *
- * @param {nsIMsgFolder} folder - The folder to convert.
- * @param {string} [accountId] - An optimization to avoid looking up the
- *     account. The value from nsIMsgDBHdr.accountKey must not be used here.
- * @returns {MailFolder}
- * @see mail/components/extensions/schemas/folders.json
- */
-export function traverseSubfolders(folder, accountId) {
-  let f = convertFolder(folder, accountId);
-  f.subFolders = [];
-  if (folder.hasSubFolders) {
-    // Use the same order as used by Thunderbird.
-    let subFolders = [...folder.subFolders].sort((a, b) =>
-      a.sortOrder == b.sortOrder
-        ? a.name.localeCompare(b.name)
-        : a.sortOrder - b.sortOrder
-    );
-    for (let subFolder of subFolders) {
-      f.subFolders.push(
-        traverseSubfolders(subFolder, accountId || f.accountId)
-      );
-    }
-  }
-  return f;
-}
-
 export class FolderManager {
   constructor(extension) {
     this.extension = extension;
   }
 
+  /**
+   * Converts an nsIMsgFolder to a simple object for use in API messages.
+   *
+   * @param {nsIMsgFolder} folder - The folder to convert.
+   * @param {string} [accountId] - An optimization to avoid looking up the
+   *     account. The value from nsIMsgDBHdr.accountKey must not be used here.
+   * @returns {MailFolder}
+   * @see mail/components/extensions/schemas/folders.json
+   */
   convert(folder, accountId) {
-    return convertFolder(folder, accountId);
+    if (!folder) {
+      return null;
+    }
+    if (!accountId) {
+      let server = folder.server;
+      let account = MailServices.accounts.FindAccountForServer(server);
+      accountId = account.key;
+    }
+
+    let folderObject = {
+      accountId,
+      name: folder.prettyName,
+      path: folderURIToPath(accountId, folder.URI),
+    };
+
+    let flags = folder.flags;
+    for (let [flag, typeName] of folderTypeMap.entries()) {
+      if (flags & flag) {
+        folderObject.type = typeName;
+        // Exit the loop as soon as an entry was found.
+        break;
+      }
+    }
+
+    return folderObject;
+  }
+
+  /**
+   * Converts an nsIMsgFolder and all its subfolders to a simple object for use in
+   * API messages.
+   *
+   * @param {nsIMsgFolder} folder - The folder to convert.
+   * @param {string} [accountId] - An optimization to avoid looking up the
+   *     account. The value from nsIMsgDBHdr.accountKey must not be used here.
+   * @returns {MailFolder}
+   * @see mail/components/extensions/schemas/folders.json
+   */
+  traverseSubfolders(folder, accountId) {
+    let f = this.convert(folder, accountId);
+    f.subFolders = [];
+    if (folder.hasSubFolders) {
+      // Use the same order as used by Thunderbird.
+      let subFolders = [...folder.subFolders].sort((a, b) =>
+        a.sortOrder == b.sortOrder
+          ? a.name.localeCompare(b.name)
+          : a.sortOrder - b.sortOrder
+      );
+      for (let subFolder of subFolders) {
+        f.subFolders.push(
+          this.traverseSubfolders(subFolder, accountId || f.accountId)
+        );
+      }
+    }
+    return f;
   }
 
   get(accountId, path) {
     return MailServices.folderLookup.getFolderForURL(
       folderPathToURI(accountId, path)
     );
+  }
+}
+
+/**
+ * Class to cache all relevant folder information needed for later calls to
+ * FolderManager.convert()
+ *
+ * Note: Since there is currently no need for cached (sub-)folder, the relevant
+ *       methods have not been implemented.
+ *
+ * @implements {nsIMsgFolder} (partially)
+ */
+export class CachedFolder {
+  /**
+   * @param {nsIMsgFolder} folder - The folder to be cached.
+   */
+  constructor(folder) {
+    if (!folder) {
+      throw new Error("CachedFolder constructor: folder required");
+    }
+
+    this.server = folder.server;
+    this.prettyName = folder.prettyName;
+    this.URI = folder.URI;
+    this.flags = folder.flags;
+  }
+
+  get hasSubFolders() {
+    throw new Error("CachedFolder.hasSubFolders: Not Implemented");
+  }
+
+  get subFolder() {
+    throw new Error("CachedFolder.subFolders: Not Implemented");
+  }
+
+  QueryInterface() {
+    return this;
   }
 }

@@ -9,7 +9,7 @@ ChromeUtils.defineESModuleGetters(this, {
 var { CachedMsgHeader } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionMessages.sys.mjs"
 );
-var { convertFolder, folderPathToURI } = ChromeUtils.importESModule(
+var { folderPathToURI } = ChromeUtils.importESModule(
   "resource:///modules/ExtensionAccounts.sys.mjs"
 );
 var { XPCOMUtils } = ChromeUtils.importESModule(
@@ -90,7 +90,7 @@ function convertMessagePart(part) {
   return partObject;
 }
 
-async function convertAttachment(attachment) {
+async function convertAttachment(attachment, extension) {
   let rv = {
     contentType: attachment.contentType,
     name: attachment.name,
@@ -115,7 +115,7 @@ async function convertAttachment(attachment) {
     let hdrId = attachment.headers["message-id"]?.[0];
     attachedMsgHdr.messageId = hdrId ? hdrId.replace(/^<|>$/g, "") : "";
 
-    rv.message = messageTracker.convertMessage(attachedMsgHdr);
+    rv.message = extension.messageManager.convert(attachedMsgHdr);
   }
 
   return rv;
@@ -434,7 +434,7 @@ this.messages = class extends ExtensionAPIPersistent {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(convertFolder(folder), page);
+        fire.async(extension.folderManager.convert(folder), page);
       };
       messageTracker.on("messages-received", listener);
       return {
@@ -451,10 +451,7 @@ this.messages = class extends ExtensionAPIPersistent {
       let listener = async (event, message, properties) => {
         let { extension } = this;
         // The msgHdr could be gone after the wakeup, convert it early.
-        let convertedMessage = messageTracker.convertMessage(
-          message,
-          extension
-        );
+        let convertedMessage = extension.messageManager.convert(message);
         if (fire.wakeup) {
           await fire.wakeup();
         }
@@ -555,13 +552,13 @@ this.messages = class extends ExtensionAPIPersistent {
 
   getAPI(context) {
     const { extension } = this;
-    const { tabManager } = extension;
+    const { tabManager, messageManager } = extension;
 
     function collectMessagesInFolders(messageIds) {
       let folderMap = new DefaultMap(() => new Set());
 
       for (let messageId of messageIds) {
-        let msgHdr = messageTracker.getMessage(messageId);
+        let msgHdr = messageManager.get(messageId);
         if (!msgHdr) {
           throw new ExtensionError(`Message not found: ${messageId}.`);
         }
@@ -763,14 +760,11 @@ this.messages = class extends ExtensionAPIPersistent {
           messageList.done();
         },
         async get(messageId) {
-          let msgHdr = messageTracker.getMessage(messageId);
+          let msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
-          let messageHeader = messageTracker.convertMessage(
-            msgHdr,
-            context.extension
-          );
+          let messageHeader = context.extension.messageManager.convert(msgHdr);
           if (messageHeader.id != messageId) {
             throw new ExtensionError(
               "Unexpected Error: Returned message does not equal requested message."
@@ -779,7 +773,7 @@ this.messages = class extends ExtensionAPIPersistent {
           return messageHeader;
         },
         async getFull(messageId) {
-          let msgHdr = messageTracker.getMessage(messageId);
+          let msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
@@ -800,7 +794,7 @@ this.messages = class extends ExtensionAPIPersistent {
               extension.manifestVersion < 3 ? "BinaryString" : "File";
           }
 
-          let msgHdr = messageTracker.getMessage(messageId);
+          let msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
@@ -823,18 +817,21 @@ this.messages = class extends ExtensionAPIPersistent {
           }
         },
         async listAttachments(messageId) {
-          let msgHdr = messageTracker.getMessage(messageId);
+          let msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
           let attachments = await getAttachments(msgHdr);
           for (let i = 0; i < attachments.length; i++) {
-            attachments[i] = await convertAttachment(attachments[i]);
+            attachments[i] = await convertAttachment(
+              attachments[i],
+              context.extension
+            );
           }
           return attachments;
         },
         async getAttachmentFile(messageId, partName) {
-          let msgHdr = messageTracker.getMessage(messageId);
+          let msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
@@ -851,7 +848,7 @@ this.messages = class extends ExtensionAPIPersistent {
           });
         },
         async openAttachment(messageId, partName, tabId) {
-          let msgHdr = messageTracker.getMessage(messageId);
+          let msgHdr = messageManager.get(messageId);
           if (!msgHdr) {
             throw new ExtensionError(`Message not found: ${messageId}.`);
           }
@@ -1305,7 +1302,7 @@ this.messages = class extends ExtensionAPIPersistent {
         },
         async update(messageId, newProperties) {
           try {
-            let msgHdr = messageTracker.getMessage(messageId);
+            let msgHdr = messageManager.get(messageId);
             if (!msgHdr) {
               throw new ExtensionError(`Message not found: ${messageId}.`);
             }
@@ -1517,7 +1514,7 @@ this.messages = class extends ExtensionAPIPersistent {
             if (!file.mozFullPath) {
               await IOUtils.remove(tempFile.path);
             }
-            return messageTracker.convertMessage(msgHeader, context.extension);
+            return context.extension.messageManager.convert(msgHeader);
           } catch (ex) {
             console.error(ex);
             throw new ExtensionError(`Error importing message: ${ex.message}`);

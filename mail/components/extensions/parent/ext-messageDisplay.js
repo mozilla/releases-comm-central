@@ -37,7 +37,7 @@ function getDisplayedMessages(tab) {
 function convertMessages(messages, extension) {
   let result = [];
   for (let msg of messages) {
-    let hdr = messageTracker.convertMessage(msg, extension);
+    let hdr = extension.messageManager.convert(msg);
     if (hdr) {
       result.push(hdr);
     }
@@ -60,10 +60,11 @@ function getDefaultMessageOpenLocation() {
  * can be specified via properties.headerMessageId or properties.messageId.
  *
  * @param {object} properties - @see mail/components/extensions/schemas/messageDisplay.json
+ * @param {ExtensionData} extension
  * @throws ExtensionError if an unknown message has been specified
  * @returns {nsIMsgHdr} the requested msgHdr
  */
-function getMsgHdr(properties) {
+function getMsgHdr(properties, extension) {
   if (properties.headerMessageId) {
     let msgHdr = MailUtils.getMsgHdrForMsgId(properties.headerMessageId);
     if (!msgHdr) {
@@ -73,7 +74,7 @@ function getMsgHdr(properties) {
     }
     return msgHdr;
   }
-  let msgHdr = messageTracker.getMessage(properties.messageId);
+  let msgHdr = extension.messageManager.get(properties.messageId);
   if (!msgHdr) {
     throw new ExtensionError(
       `Unknown or invalid messageId: ${properties.messageId}.`
@@ -90,7 +91,7 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
 
     onMessageDisplayed({ context, fire }) {
       const { extension } = this;
-      const { tabManager } = extension;
+      const { tabManager, messageManager } = extension;
       let listener = {
         async handleEvent(event) {
           if (fire.wakeup) {
@@ -99,7 +100,7 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           // `event.target` is an about:message window.
           let nativeTab = event.target.tabOrWindow;
           let tab = tabManager.wrapTab(nativeTab);
-          let msg = messageTracker.convertMessage(event.detail, extension);
+          let msg = messageManager.convert(event.detail);
           fire.async(tab.convert(), msg);
         },
       };
@@ -252,7 +253,7 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
           if (messages.length != 1) {
             return null;
           }
-          return messageTracker.convertMessage(messages[0], extension);
+          return extension.messageManager.convert(messages[0]);
         },
         async getDisplayedMessages(tabId) {
           let tab = await getMessageDisplayTab(tabId);
@@ -283,7 +284,7 @@ this.messageDisplay = class extends ExtensionAPIPersistent {
               .setQuery("type=application/x-message-display")
               .finalize().spec;
           } else {
-            let msgHdr = getMsgHdr(properties);
+            let msgHdr = getMsgHdr(properties, extension);
             if (msgHdr.folder) {
               messageURI = msgHdr.folder.getUriForMsg(msgHdr);
             } else {

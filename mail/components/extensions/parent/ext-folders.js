@@ -10,8 +10,9 @@ ChromeUtils.defineModuleGetter(
 ChromeUtils.defineESModuleGetters(this, {
   DeferredTask: "resource://gre/modules/DeferredTask.sys.mjs",
 });
-var { convertFolder, folderPathToURI, folderURIToPath, traverseSubfolders } =
+var { CachedFolder, folderPathToURI, folderURIToPath } =
   ChromeUtils.importESModule("resource:///modules/ExtensionAccounts.sys.mjs");
+
 /**
  * Tracks folder events.
  *
@@ -121,7 +122,7 @@ var folderTracker = new (class extends EventEmitter {
     if (folderInfo.size > 0) {
       this.emit(
         "folder-info-changed",
-        convertFolder(folder),
+        new CachedFolder(folder),
         Object.fromEntries(folderInfo)
       );
       this.pendingInfoNotifications.delete(folder);
@@ -131,7 +132,7 @@ var folderTracker = new (class extends EventEmitter {
   // nsIMsgFolderListener
 
   folderAdded(childFolder) {
-    this.emit("folder-created", convertFolder(childFolder));
+    this.emit("folder-created", new CachedFolder(childFolder));
   }
   folderDeleted(oldFolder) {
     // Deleting an account, will trigger delete notifications for its folders,
@@ -139,7 +140,7 @@ var folderTracker = new (class extends EventEmitter {
     let server = oldFolder.server;
     let account = MailServices.accounts.FindAccountForServer(server);
     if (account) {
-      this.emit("folder-deleted", convertFolder(oldFolder, account.key));
+      this.emit("folder-deleted", new CachedFolder(oldFolder), account.key);
     }
   }
   folderMoveCopyCompleted(move, srcFolder, targetFolder) {
@@ -155,22 +156,22 @@ var folderTracker = new (class extends EventEmitter {
     if (move) {
       this.emit(
         "folder-moved",
-        convertFolder(srcFolder),
-        convertFolder(dstFolder)
+        new CachedFolder(srcFolder),
+        new CachedFolder(dstFolder)
       );
     } else {
       this.emit(
         "folder-copied",
-        convertFolder(srcFolder),
-        convertFolder(dstFolder)
+        new CachedFolder(srcFolder),
+        new CachedFolder(dstFolder)
       );
     }
   }
   folderRenamed(oldFolder, newFolder) {
     this.emit(
       "folder-renamed",
-      convertFolder(oldFolder),
-      convertFolder(newFolder)
+      new CachedFolder(oldFolder),
+      new CachedFolder(newFolder)
     );
   }
 })();
@@ -196,7 +197,7 @@ function getFolder({ accountId, path, id }) {
 /**
  * Copy or Move a folder.
  */
-async function doMoveCopyOperation(source, destination, isMove) {
+async function doMoveCopyOperation(source, destination, extension, isMove) {
   // The schema file allows destination to be either a MailFolder or a
   // MailAccount.
   let srcFolder = getFolder(source);
@@ -280,7 +281,7 @@ async function doMoveCopyOperation(source, destination, isMove) {
     );
   }
 
-  return convertFolder(rv.folder, dstFolder.accountId);
+  return extension.folderManager.convert(rv.folder, dstFolder.accountId);
 }
 
 /**
@@ -335,11 +336,14 @@ this.folders = class extends ExtensionAPIPersistent {
     // has been called).
 
     onCreated({ context, fire }) {
-      async function listener(event, createdMailFolder) {
+      const { extension } = this;
+      const { folderManager } = extension;
+
+      async function listener(event, createdFolder) {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(createdMailFolder);
+        fire.async(folderManager.convert(createdFolder));
       }
       folderTracker.on("folder-created", listener);
       return {
@@ -353,11 +357,17 @@ this.folders = class extends ExtensionAPIPersistent {
       };
     },
     onRenamed({ context, fire }) {
-      async function listener(event, originalMailFolder, renamedMailFolder) {
+      const { extension } = this;
+      const { folderManager } = extension;
+
+      async function listener(event, originalFolder, renamedFolder) {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(originalMailFolder, renamedMailFolder);
+        fire.async(
+          folderManager.convert(originalFolder),
+          folderManager.convert(renamedFolder)
+        );
       }
       folderTracker.on("folder-renamed", listener);
       return {
@@ -371,11 +381,17 @@ this.folders = class extends ExtensionAPIPersistent {
       };
     },
     onMoved({ context, fire }) {
-      async function listener(event, srcMailFolder, dstMailFolder) {
+      const { extension } = this;
+      const { folderManager } = extension;
+
+      async function listener(event, srcFolder, dstFolder) {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(srcMailFolder, dstMailFolder);
+        fire.async(
+          folderManager.convert(srcFolder),
+          folderManager.convert(dstFolder)
+        );
       }
       folderTracker.on("folder-moved", listener);
       return {
@@ -389,11 +405,17 @@ this.folders = class extends ExtensionAPIPersistent {
       };
     },
     onCopied({ context, fire }) {
-      async function listener(event, srcMailFolder, dstMailFolder) {
+      const { extension } = this;
+      const { folderManager } = extension;
+
+      async function listener(event, srcFolder, dstFolder) {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(srcMailFolder, dstMailFolder);
+        fire.async(
+          folderManager.convert(srcFolder),
+          folderManager.convert(dstFolder)
+        );
       }
       folderTracker.on("folder-copied", listener);
       return {
@@ -407,11 +429,14 @@ this.folders = class extends ExtensionAPIPersistent {
       };
     },
     onDeleted({ context, fire }) {
-      async function listener(event, deletedMailFolder) {
+      const { extension } = this;
+      const { folderManager } = extension;
+
+      async function listener(event, deletedFolder, accountKey) {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(deletedMailFolder);
+        fire.async(folderManager.convert(deletedFolder, accountKey));
       }
       folderTracker.on("folder-deleted", listener);
       return {
@@ -425,11 +450,14 @@ this.folders = class extends ExtensionAPIPersistent {
       };
     },
     onFolderInfoChanged({ context, fire }) {
-      async function listener(event, changedMailFolder, mailFolderInfo) {
+      const { extension } = this;
+      const { folderManager } = extension;
+
+      async function listener(event, changedFolder, mailFolderInfo) {
         if (fire.wakeup) {
           await fire.wakeup();
         }
-        fire.async(changedMailFolder, mailFolderInfo);
+        fire.async(folderManager.convert(changedFolder), mailFolderInfo);
       }
       folderTracker.on("folder-info-changed", listener);
       return {
@@ -507,7 +535,10 @@ this.folders = class extends ExtensionAPIPersistent {
           parentFolder.createSubfolder(childName, null);
 
           let childFolder = await childFolderPromise;
-          return convertFolder(childFolder, accountId);
+          return context.extension.folderManager.convert(
+            childFolder,
+            accountId
+          );
         },
         async rename({ accountId, path }, newName) {
           let { folder } = getFolder({ accountId, path });
@@ -539,13 +570,23 @@ this.folders = class extends ExtensionAPIPersistent {
           folder.rename(newName, null);
 
           let newFolder = await newFolderPromise;
-          return convertFolder(newFolder, accountId);
+          return context.extension.folderManager.convert(newFolder, accountId);
         },
         async move(source, destination) {
-          return doMoveCopyOperation(source, destination, true /* isMove */);
+          return doMoveCopyOperation(
+            source,
+            destination,
+            context.extension,
+            true /* isMove */
+          );
         },
         async copy(source, destination) {
-          return doMoveCopyOperation(source, destination, false /* isMove */);
+          return doMoveCopyOperation(
+            source,
+            destination,
+            context.extension,
+            false /* isMove */
+          );
         },
         async delete({ accountId, path }) {
           if (
@@ -640,6 +681,8 @@ this.folders = class extends ExtensionAPIPersistent {
           return mailFolderInfo;
         },
         async getParentFolders({ accountId, path }, includeFolders) {
+          const { folderManager } = context.extension;
+
           let { folder } = getFolder({ accountId, path });
           let parentFolders = [];
           // We do not consider the absolute root ("/") as a root folder, but
@@ -649,22 +692,28 @@ this.folders = class extends ExtensionAPIPersistent {
             folder = folder.parent;
 
             if (includeFolders) {
-              parentFolders.push(traverseSubfolders(folder, accountId));
+              parentFolders.push(
+                folderManager.traverseSubfolders(folder, accountId)
+              );
             } else {
-              parentFolders.push(convertFolder(folder, accountId));
+              parentFolders.push(folderManager.convert(folder, accountId));
             }
           }
           return parentFolders;
         },
         async getSubFolders(accountOrFolder, includeFolders) {
+          const { folderManager } = context.extension;
+
           let { folder, accountId } = getFolder(accountOrFolder);
           let subFolders = [];
           if (folder.hasSubFolders) {
             for (let subFolder of folder.subFolders) {
               if (includeFolders) {
-                subFolders.push(traverseSubfolders(subFolder, accountId));
+                subFolders.push(
+                  folderManager.traverseSubfolders(subFolder, accountId)
+                );
               } else {
-                subFolders.push(convertFolder(subFolder, accountId));
+                subFolders.push(folderManager.convert(subFolder, accountId));
               }
             }
           }

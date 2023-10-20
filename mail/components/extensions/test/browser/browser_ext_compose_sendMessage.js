@@ -310,7 +310,7 @@ add_task(async function test_send() {
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose", "compose.send"],
+      permissions: ["compose", "compose.send", "messagesRead"],
     },
   });
 
@@ -383,7 +383,7 @@ add_task(async function test_sendDefault() {
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose", "compose.send"],
+      permissions: ["compose", "compose.send", "messagesRead"],
     },
   });
 
@@ -457,7 +457,7 @@ add_task(async function test_sendNow() {
     files,
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose", "compose.send"],
+      permissions: ["compose", "compose.send", "messagesRead"],
     },
   });
 
