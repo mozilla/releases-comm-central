@@ -9,11 +9,23 @@ import { EventEmitter } from "resource://gre/modules/EventEmitter.sys.mjs";
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
 import { setTimeout, clearTimeout } from "resource://gre/modules/Timer.sys.mjs";
 
+import { folderPathToURI } from "resource:///modules/ExtensionAccounts.sys.mjs";
+
 var { ExtensionError } = ExtensionUtils;
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "MsgHdrToMimeMessage",
+  "resource:///modules/gloda/MimeMessage.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  lazy,
+  "jsmime",
+  "resource:///modules/jsmime.jsm"
+);
 XPCOMUtils.defineLazyPreferenceGetter(
   lazy,
   "gJunkThreshold",
@@ -45,6 +57,294 @@ export function getMsgStreamUrl(msgHdr) {
   let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
   url.searchParams.set("type", "application/x-message-display");
   return url.toString();
+}
+
+/**
+ * @typedef MimeMessagePart
+ * @property {MimeMessagePart[]} [attachments] - flat list of attachment parts
+ *   found in any of the nested mime parts
+ * @property {string} [body] - the body of the part
+ * @property {Uint8Array} [raw] - the raw binary content of the part
+ * @property {string} [contentType]
+ * @property {string} headers - key-value object with key being a header name
+ *   and value an array with all header values found
+ * @property {string} [name] - filename, if part is an attachment
+ * @property {string} partName - name of the mime part (e.g: "1.2")
+ * @property {MimeMessagePart[]} [parts] - nested mime parts
+ * @property {string} [size] - size of the part
+ * @property {string} [url] - message url
+ */
+
+/**
+ * Returns attachments found in the message belonging to the given nsIMsgHdr.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @param {boolean} includeNestedAttachments - Whether to return all attachments,
+ *   including attachments from nested mime parts.
+ * @returns {Promise<MimeMessagePart[]>}
+ */
+export async function getAttachments(msgHdr, includeNestedAttachments = false) {
+  let mimeMsg = await getMimeMessage(msgHdr);
+  if (!mimeMsg) {
+    return null;
+  }
+
+  // Reduce returned attachments according to includeNestedAttachments.
+  let level = mimeMsg.partName ? mimeMsg.partName.split(".").length : 0;
+  return mimeMsg.attachments.filter(
+    a => includeNestedAttachments || a.partName.split(".").length == level + 2
+  );
+}
+
+/**
+ * Returns the attachment identified by the provided partName.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @param {string} partName
+ * @param {object} [options={}] - If the includeRaw property is truthy the raw
+ *   attachment contents are included.
+ * @returns {Promise<MimeMessagePart>}
+ */
+export async function getAttachment(msgHdr, partName, options = {}) {
+  // It's not ideal to have to call MsgHdrToMimeMessage here again, but we need
+  // the name of the attached file, plus this also gives us the URI without having
+  // to jump through a lot of hoops.
+  let attachment = await getMimeMessage(msgHdr, partName);
+  if (!attachment) {
+    return null;
+  }
+
+  if (options.includeRaw) {
+    let channel = Services.io.newChannelFromURI(
+      Services.io.newURI(attachment.url),
+      null,
+      Services.scriptSecurityManager.getSystemPrincipal(),
+      null,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+      Ci.nsIContentPolicy.TYPE_OTHER
+    );
+
+    attachment.raw = await new Promise((resolve, reject) => {
+      let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
+        Ci.nsIStreamLoader
+      );
+      listener.init({
+        onStreamComplete(loader, context, status, resultLength, result) {
+          if (Components.isSuccessCode(status)) {
+            resolve(Uint8Array.from(result));
+          } else {
+            reject(
+              new ExtensionError(
+                `Failed to read attachment ${attachment.url} content: ${status}`
+              )
+            );
+          }
+        },
+      });
+      channel.asyncOpen(listener, null);
+    });
+  }
+
+  return attachment;
+}
+
+/**
+ * Returns the <part> parameter of the dummyMsgUrl of the provided nsIMsgHdr.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @returns {string}
+ */
+function getSubMessagePartName(msgHdr) {
+  if (msgHdr.folder || !msgHdr.getStringProperty("dummyMsgUrl")) {
+    return "";
+  }
+
+  return new URL(msgHdr.getStringProperty("dummyMsgUrl")).searchParams.get(
+    "part"
+  );
+}
+
+/**
+ * Returns the nsIMsgHdr of the outer message, if the provided nsIMsgHdr belongs
+ * to a message which is actually an attachment of another message. Returns null
+ * otherwise.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @returns {nsIMsgHdr}
+ */
+function getParentMsgHdr(msgHdr) {
+  if (msgHdr.folder || !msgHdr.getStringProperty("dummyMsgUrl")) {
+    return null;
+  }
+
+  let url = new URL(msgHdr.getStringProperty("dummyMsgUrl"));
+
+  if (url.protocol == "news:") {
+    let newsUrl = `news-message://${url.hostname}/${url.searchParams.get(
+      "group"
+    )}#${url.searchParams.get("key")}`;
+    return MailServices.messageServiceFromURI("news:").messageURIToMsgHdr(
+      newsUrl
+    );
+  }
+
+  // Everything else should be a mailbox:// or an imap:// url.
+  let params = Array.from(url.searchParams, p => p[0]).filter(
+    p => !["number"].includes(p)
+  );
+  for (let param of params) {
+    url.searchParams.delete(param);
+  }
+  return Services.io.newURI(url.href).QueryInterface(Ci.nsIMsgMessageUrl)
+    .messageHeader;
+}
+
+/**
+ * Get the raw message for a given nsIMsgHdr.
+ *
+ * @param aMsgHdr - The message header to retrieve the raw message for.
+ * @returns {Promise<string>} - Binary string of the raw message.
+ */
+export async function getRawMessage(msgHdr) {
+  // If this message is a sub-message (an attachment of another message), get it
+  // as an attachment from the parent message and return its raw content.
+  let subMsgPartName = getSubMessagePartName(msgHdr);
+  if (subMsgPartName) {
+    let parentMsgHdr = getParentMsgHdr(msgHdr);
+    let attachment = await getAttachment(parentMsgHdr, subMsgPartName, {
+      includeRaw: true,
+    });
+    return attachment.raw.reduce(
+      (prev, curr) => prev + String.fromCharCode(curr),
+      ""
+    );
+  }
+
+  let msgUri = getMsgStreamUrl(msgHdr);
+  let service = MailServices.messageServiceFromURI(msgUri);
+  return new Promise((resolve, reject) => {
+    let streamlistener = {
+      _data: [],
+      _stream: null,
+      onDataAvailable(aRequest, aInputStream, aOffset, aCount) {
+        if (!this._stream) {
+          this._stream = Cc[
+            "@mozilla.org/scriptableinputstream;1"
+          ].createInstance(Ci.nsIScriptableInputStream);
+          this._stream.init(aInputStream);
+        }
+        this._data.push(this._stream.read(aCount));
+      },
+      onStartRequest() {},
+      onStopRequest(request, status) {
+        if (Components.isSuccessCode(status)) {
+          resolve(this._data.join(""));
+        } else {
+          reject(
+            new ExtensionError(
+              `Error while streaming message <${msgUri}>: ${status}`
+            )
+          );
+        }
+      },
+      QueryInterface: ChromeUtils.generateQI([
+        "nsIStreamListener",
+        "nsIRequestObserver",
+      ]),
+    };
+
+    // This is not using aConvertData and therefore works for news:// messages.
+    service.streamMessage(
+      msgUri,
+      streamlistener,
+      null, // aMsgWindow
+      null, // aUrlListener
+      false, // aConvertData
+      "" //aAdditionalHeader
+    );
+  });
+}
+
+/**
+ * Returns MIME parts found in the message identified by the given nsIMsgHdr.
+ *
+ * @param {nsIMsgHdr} msgHdr
+ * @param {string} partName - Return only a specific mime part.
+ * @returns {Promise<MimeMessagePart>}
+ */
+export async function getMimeMessage(msgHdr, partName = "") {
+  // If this message is a sub-message (an attachment of another message), get the
+  // mime parts of the parent message and return the part of the sub-message.
+  let subMsgPartName = getSubMessagePartName(msgHdr);
+  if (subMsgPartName) {
+    let parentMsgHdr = getParentMsgHdr(msgHdr);
+    if (!parentMsgHdr) {
+      return null;
+    }
+
+    let mimeMsg = await getMimeMessage(parentMsgHdr, partName);
+    if (!mimeMsg) {
+      return null;
+    }
+
+    // If <partName> was specified, the returned mime message is just that part,
+    // no further processing needed. But prevent x-ray vision into the parent.
+    if (partName) {
+      if (partName.split(".").length > subMsgPartName.split(".").length) {
+        return mimeMsg;
+      }
+      return null;
+    }
+
+    // Limit mimeMsg and attachments to the requested <subMessagePart>.
+    let findSubPart = (parts, partName) => {
+      let match = parts.find(a => partName.startsWith(a.partName));
+      if (!match) {
+        throw new ExtensionError(
+          `Unexpected Error: Part ${partName} not found.`
+        );
+      }
+      return match.partName == partName
+        ? match
+        : findSubPart(match.parts, partName);
+    };
+    let subMimeMsg = findSubPart(mimeMsg.parts, subMsgPartName);
+
+    if (mimeMsg.attachments) {
+      subMimeMsg.attachments = mimeMsg.attachments.filter(
+        a =>
+          a.partName != subMsgPartName && a.partName.startsWith(subMsgPartName)
+      );
+    }
+    return subMimeMsg;
+  }
+
+  try {
+    let mimeMsg = await new Promise((resolve, reject) => {
+      lazy.MsgHdrToMimeMessage(
+        msgHdr,
+        null,
+        (_msgHdr, mimeMsg) => {
+          if (!mimeMsg) {
+            reject();
+          } else {
+            mimeMsg.attachments = mimeMsg.allInlineAttachments;
+            resolve(mimeMsg);
+          }
+        },
+        true,
+        { examineEncryptedParts: true }
+      );
+    });
+    return partName
+      ? mimeMsg.attachments.find(a => a.partName == partName)
+      : mimeMsg;
+  } catch (ex) {
+    // Something went wrong. Return null, which will inform the user that the
+    // message could not be read.
+    console.warn(ex);
+    return null;
+  }
 }
 
 /**
@@ -867,4 +1167,446 @@ export class MessageManager {
   startMessageList(messageList) {
     return this._messageListTracker.startList(messageList, this.extension);
   }
+}
+
+/**
+ * Convenience class to keep track of a search.
+ */
+export class MessageQuery {
+  /**
+   * @param {object} queryInfo
+   * @param {MessageListTracker} messageListTracker
+   * @param {ExtensionData} extension
+   *
+   * @see /mail/components/extensions/schemas/messages.json
+   */
+  constructor(queryInfo, messageListTracker, extension) {
+    this.extension = extension;
+    this.queryInfo = queryInfo;
+    this.messageListTracker = messageListTracker;
+    this.messageList = this.messageListTracker.createList(this.extension);
+
+    this.composeFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
+
+    // Prepare case insensitive me filtering.
+    this.identities = null;
+    if (this.queryInfo.toMe !== null || this.queryInfo.fromMe !== null) {
+      this.identities = MailServices.accounts.allIdentities.map(i =>
+        i.email.toLocaleLowerCase()
+      );
+    }
+  }
+
+  /**
+   * Initiates the search.
+   *
+   * @returns {Promise <MessageList>} A Promise for the first page with search
+   *    results.
+   */
+  async startSearch() {
+    // Prepare tag filtering.
+    this.requiredTags = null;
+    this.forbiddenTags = null;
+    if (this.queryInfo.tags) {
+      let availableTags = MailServices.tags.getAllTags();
+      this.requiredTags = availableTags.filter(
+        tag =>
+          tag.key in this.queryInfo.tags.tags &&
+          this.queryInfo.tags.tags[tag.key]
+      );
+      this.forbiddenTags = availableTags.filter(
+        tag =>
+          tag.key in this.queryInfo.tags.tags &&
+          !this.queryInfo.tags.tags[tag.key]
+      );
+      // If non-existing tags have been required, return immediately with
+      // an empty message list.
+      if (
+        this.requiredTags.length === 0 &&
+        Object.values(this.queryInfo.tags.tags).filter(v => v).length > 0
+      ) {
+        return this.messageListTracker.startList([], this.extension);
+      }
+      this.requiredTags = this.requiredTags.map(tag => tag.key);
+      this.forbiddenTags = this.forbiddenTags.map(tag => tag.key);
+    }
+
+    // Limit search to a given folder, or search all folders.
+    let folders = [];
+    let includeSubFolders = false;
+    if (this.queryInfo.folder) {
+      includeSubFolders = !!this.queryInfo.includeSubFolders;
+      if (!this.extension.hasPermission("accountsRead")) {
+        throw new ExtensionError(
+          'Querying by folder requires the "accountsRead" permission'
+        );
+      }
+      let folder = MailServices.folderLookup.getFolderForURL(
+        folderPathToURI(
+          this.queryInfo.folder.accountId,
+          this.queryInfo.folder.path
+        )
+      );
+      if (!folder) {
+        throw new ExtensionError(
+          `Folder not found: ${this.queryInfo.folder.path}`
+        );
+      }
+      folders.push(folder);
+    } else {
+      includeSubFolders = true;
+      for (let account of MailServices.accounts.accounts) {
+        folders.push(account.incomingServer.rootFolder);
+      }
+    }
+
+    // The searchFolders() function searches the provided folders for
+    // messages matching the query and adds results to the messageList. It
+    // is an asynchronous function, but it is not awaited here. Instead,
+    // messageListTracker.getNextPage() returns a Promise, which will
+    // fulfill after enough messages for a full page have been added.
+    this.searchFolders(folders, includeSubFolders);
+    return this.messageListTracker.getNextPage(this.messageList);
+  }
+
+  async checkSearchCriteria(folder, msg) {
+    // Check date ranges.
+    if (
+      this.queryInfo.fromDate !== null &&
+      msg.dateInSeconds * 1000 < this.queryInfo.fromDate.getTime()
+    ) {
+      return false;
+    }
+    if (
+      this.queryInfo.toDate !== null &&
+      msg.dateInSeconds * 1000 > this.queryInfo.toDate.getTime()
+    ) {
+      return false;
+    }
+
+    // Check headerMessageId.
+    if (
+      this.queryInfo.headerMessageId &&
+      msg.messageId != this.queryInfo.headerMessageId
+    ) {
+      return false;
+    }
+
+    // Check unread.
+    if (
+      this.queryInfo.unread !== null &&
+      msg.isRead != !this.queryInfo.unread
+    ) {
+      return false;
+    }
+
+    // Check flagged.
+    if (
+      this.queryInfo.flagged !== null &&
+      msg.isFlagged != this.queryInfo.flagged
+    ) {
+      return false;
+    }
+
+    // Check subject (substring match).
+    if (
+      this.queryInfo.subject &&
+      !msg.mime2DecodedSubject.includes(this.queryInfo.subject)
+    ) {
+      return false;
+    }
+
+    // Check tags.
+    if (this.requiredTags || this.forbiddenTags) {
+      let messageTags = msg.getStringProperty("keywords").split(" ");
+      if (this.requiredTags.length > 0) {
+        if (
+          this.queryInfo.tags.mode == "all" &&
+          !this.requiredTags.every(tag => messageTags.includes(tag))
+        ) {
+          return false;
+        }
+        if (
+          this.queryInfo.tags.mode == "any" &&
+          !this.requiredTags.some(tag => messageTags.includes(tag))
+        ) {
+          return false;
+        }
+      }
+      if (this.forbiddenTags.length > 0) {
+        if (
+          this.queryInfo.tags.mode == "all" &&
+          this.forbiddenTags.every(tag => messageTags.includes(tag))
+        ) {
+          return false;
+        }
+        if (
+          this.queryInfo.tags.mode == "any" &&
+          this.forbiddenTags.some(tag => messageTags.includes(tag))
+        ) {
+          return false;
+        }
+      }
+    }
+
+    // Check toMe (case insensitive email address match).
+    if (this.queryInfo.toMe !== null) {
+      let recipients = [].concat(
+        this.composeFields.splitRecipients(msg.recipients, true),
+        this.composeFields.splitRecipients(msg.ccList, true),
+        this.composeFields.splitRecipients(msg.bccList, true)
+      );
+
+      if (
+        this.queryInfo.toMe !=
+        recipients.some(email =>
+          this.identities.includes(email.toLocaleLowerCase())
+        )
+      ) {
+        return false;
+      }
+    }
+
+    // Check fromMe (case insensitive email address match).
+    if (this.queryInfo.fromMe !== null) {
+      let authors = this.composeFields.splitRecipients(
+        msg.mime2DecodedAuthor,
+        true
+      );
+      if (
+        this.queryInfo.fromMe !=
+        authors.some(email =>
+          this.identities.includes(email.toLocaleLowerCase())
+        )
+      ) {
+        return false;
+      }
+    }
+
+    // Check author.
+    if (
+      this.queryInfo.author &&
+      !isAddressMatch(this.queryInfo.author, [
+        { addr: msg.mime2DecodedAuthor, doRfc2047: false },
+      ])
+    ) {
+      return false;
+    }
+
+    // Check recipients.
+    if (
+      this.queryInfo.recipients &&
+      !isAddressMatch(this.queryInfo.recipients, [
+        { addr: msg.mime2DecodedRecipients, doRfc2047: false },
+        { addr: msg.ccList, doRfc2047: true },
+        { addr: msg.bccList, doRfc2047: true },
+      ])
+    ) {
+      return false;
+    }
+
+    // Check if fullText is already partially fulfilled.
+    let fullTextBodySearchNeeded = false;
+    if (this.queryInfo.fullText) {
+      let subjectMatches = msg.mime2DecodedSubject.includes(
+        this.queryInfo.fullText
+      );
+      let authorMatches = msg.mime2DecodedAuthor.includes(
+        this.queryInfo.fullText
+      );
+      fullTextBodySearchNeeded = !(subjectMatches || authorMatches);
+    }
+
+    // Check body.
+    if (this.queryInfo.body || fullTextBodySearchNeeded) {
+      let mimeMsg = await getMimeMessage(msg);
+      if (
+        this.queryInfo.body &&
+        !includesContent(folder, [mimeMsg], this.queryInfo.body)
+      ) {
+        return false;
+      }
+      if (
+        fullTextBodySearchNeeded &&
+        !includesContent(folder, [mimeMsg], this.queryInfo.fullText)
+      ) {
+        return false;
+      }
+    }
+
+    // Check attachments.
+    if (this.queryInfo.attachment != null) {
+      let attachments = await getAttachments(
+        msg,
+        true // includeNestedAttachments
+      );
+      return !!attachments.length == this.queryInfo.attachment;
+    }
+
+    return true;
+  }
+
+  async searchMessages(folder, includeSubFolders = false) {
+    let messages = null;
+    try {
+      messages = folder.messages;
+    } catch (e) {
+      // Some folders fail on message query, instead of returning empty
+    }
+
+    if (messages) {
+      for (let msg of [...messages]) {
+        if (this.messageList.isDone) {
+          return;
+        }
+        if (await this.checkSearchCriteria(folder, msg)) {
+          this.messageList.addMessage(msg);
+        }
+      }
+    }
+
+    if (includeSubFolders) {
+      for (let subFolder of folder.subFolders) {
+        if (this.messageList.isDone) {
+          return;
+        }
+        await this.searchMessages(subFolder, true);
+      }
+    }
+  }
+
+  async searchFolders(folders, includeSubFolders = false) {
+    for (let folder of folders) {
+      if (this.messageList.isDone) {
+        return;
+      }
+      await this.searchMessages(folder, includeSubFolders);
+    }
+    this.messageList.done();
+  }
+}
+
+function includesContent(folder, parts, searchTerm) {
+  if (!parts || parts.length == 0) {
+    return false;
+  }
+  for (let part of parts) {
+    if (
+      coerceBodyToPlaintext(folder, part).includes(searchTerm) ||
+      includesContent(folder, part.parts, searchTerm)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function coerceBodyToPlaintext(folder, part) {
+  if (!part || !part.body) {
+    return "";
+  }
+  if (part.contentType == "text/plain") {
+    return part.body;
+  }
+  // text/enriched gets transformed into HTML by libmime
+  if (part.contentType == "text/html" || part.contentType == "text/enriched") {
+    return folder.convertMsgSnippetToPlainText(part.body);
+  }
+  return "";
+}
+
+/**
+ * Prepare name and email properties of the address object returned by
+ * MailServices.headerParser.makeFromDisplayAddress() to be lower case.
+ * Also fix the name being wrongly returned in the email property, if
+ * the address was just a single name.
+ *
+ * @param {string} displayAddr - Full mail address with (potentially) name and
+ *   email.
+ */
+function prepareAddress(displayAddr) {
+  let email = displayAddr.email?.toLocaleLowerCase();
+  let name = displayAddr.name?.toLocaleLowerCase();
+  if (email && !name && !email.includes("@")) {
+    name = email;
+    email = null;
+  }
+  return { name, email };
+}
+
+/**
+ * Check multiple addresses if they match the provided search address.
+ *
+ * @returns A boolean indicating if search was successful.
+ */
+function searchInMultipleAddresses(searchAddress, addresses) {
+  // Return on first positive match.
+  for (let address of addresses) {
+    let nameMatched =
+      searchAddress.name &&
+      address.name &&
+      address.name.includes(searchAddress.name);
+
+    // Check for email match. Name match being required on top, if
+    // specified.
+    if (
+      (nameMatched || !searchAddress.name) &&
+      searchAddress.email &&
+      address.email &&
+      address.email == searchAddress.email
+    ) {
+      return true;
+    }
+
+    // If address match failed, name match may only be true if no
+    // email has been specified.
+    if (!searchAddress.email && nameMatched) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Substring match on name and exact match on email. If searchTerm
+ * includes multiple addresses, all of them must match.
+ *
+ * @returns A boolean indicating if search was successful.
+ */
+function isAddressMatch(searchTerm, addressObjects) {
+  let searchAddresses =
+    MailServices.headerParser.makeFromDisplayAddress(searchTerm);
+  if (!searchAddresses || searchAddresses.length == 0) {
+    return false;
+  }
+
+  // Prepare addresses.
+  let addresses = [];
+  for (let addressObject of addressObjects) {
+    let decodedAddressString = addressObject.doRfc2047
+      ? lazy.jsmime.headerparser.decodeRFC2047Words(addressObject.addr)
+      : addressObject.addr;
+    for (let address of MailServices.headerParser.makeFromDisplayAddress(
+      decodedAddressString
+    )) {
+      addresses.push(prepareAddress(address));
+    }
+  }
+  if (addresses.length == 0) {
+    return false;
+  }
+
+  let success = false;
+  for (let searchAddress of searchAddresses) {
+    // Exit early if this search was not successfully, but all search
+    // addresses have to be matched.
+    if (!searchInMultipleAddresses(prepareAddress(searchAddress), addresses)) {
+      return false;
+    }
+    success = true;
+  }
+
+  return success;
 }
