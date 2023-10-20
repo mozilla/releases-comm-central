@@ -615,7 +615,7 @@ export class MessageList {
   }
 
   get currentPage() {
-    return this.pages.length > 0 ? this.pages[this.pages.length - 1] : null;
+    return this.pages.at(-1);
   }
 
   get id() {
@@ -685,12 +685,15 @@ export class MessageListTracker {
 
   /**
    * Takes an array or enumerator of messages and returns a Promise for the first
-   * page, which will resolve as soon as it is available.
+   * page.
    *
    * @returns {object}
    */
   startList(messages, extension) {
     let messageList = this.createList(extension);
+    // Note: If _addMessages is becoming an async function in the future, do not
+    //       await it here, to return the Promise for the first page as soon as
+    //       it is available and not after all messages have been added.
     this._addMessages(messages, messageList);
     return this.getNextPage(messageList);
   }
@@ -698,7 +701,7 @@ export class MessageListTracker {
   /**
    * Add messages to a messageList.
    */
-  async _addMessages(messages, messageList) {
+  _addMessages(messages, messageList) {
     if (messageList.isDone) {
       return;
     }
