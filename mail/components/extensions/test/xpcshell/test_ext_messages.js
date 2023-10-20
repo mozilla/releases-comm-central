@@ -811,7 +811,10 @@ add_task(
       "background.js": async () => {
         let [folder] = await window.waitForMessage();
 
-        let page = await browser.messages.query({ folder });
+        let page = await browser.messages.query({
+          folder,
+          messagesPerPage: 10,
+        });
         let listId = page.id;
         // This test uses 10 messages per page. The first page should have been
         // returned before all 99 messages have been added to 10 pages.
@@ -859,14 +862,10 @@ add_task(
       },
     });
 
-    Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
-
     await extension.startup();
     extension.sendMessage({ accountId: account.key, path: "/Trash" });
     await extension.awaitFinish("finished");
     await extension.unload();
-
-    Services.prefs.clearUserPref("extensions.webextensions.messagesPerPage");
   }
 );
 
@@ -1011,6 +1010,461 @@ add_task(
           secondPageCreationTime - firstPageCreationTime > 1000,
           `secondPageCreationTime - firstPageCreationTime > 1000: ${
             secondPageCreationTime - firstPageCreationTime
+          }`
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    let extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
+        experiment_apis: {
+          PaginationTest: {
+            schema: "schema.json",
+            parent: {
+              scopes: ["addon_parent"],
+              paths: [["PaginationTest"]],
+              script: "implementation.js",
+            },
+          },
+        },
+      },
+    });
+
+    await extension.startup();
+    extension.sendMessage({ accountId: account.key, path: "/Trash" });
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
+add_task(
+  {
+    // This is basically a unit test for the MessageQuery implementation and does
+    // not need to be tested for IMAP and NNTP individually.
+    skip_if: () => IS_IMAP || IS_NNTP,
+  },
+  async function test_query_auto_pagination_custom_timeout() {
+    let files = {
+      "schema.json": [
+        {
+          namespace: "PaginationTest",
+          functions: [
+            {
+              name: "throttledQuery",
+              type: "function",
+              async: true,
+              parameters: [
+                {
+                  type: "object",
+                  name: "queryInfo",
+                  properties: {
+                    folder: {
+                      $ref: "folders.MailFolder",
+                    },
+                    autoPaginationTimeout: {
+                      type: "integer",
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      "implementation.js": () => {
+        var { ExtensionCommon } = ChromeUtils.importESModule(
+          "resource://gre/modules/ExtensionCommon.sys.mjs"
+        );
+        var { MessageQuery } = ChromeUtils.importESModule(
+          "resource:///modules/ExtensionMessages.sys.mjs"
+        );
+        this.PaginationTest = class extends ExtensionCommon.ExtensionAPI {
+          getAPI(context) {
+            const { extension } = context;
+            const { messageManager } = extension;
+            const messageListTracker = messageManager._messageListTracker;
+
+            return {
+              PaginationTest: {
+                async throttledQuery(queryInfo) {
+                  let msgCounter = 1;
+                  let messageDelays = new Map();
+                  messageDelays.set(2, 500);
+                  messageDelays.set(6, 500);
+
+                  let messageQuery = new MessageQuery(
+                    queryInfo,
+                    messageListTracker,
+                    extension,
+                    async () => {
+                      // This is a dummy checkSearchCriteriaFn().
+                      let delay = messageDelays.get(msgCounter) || 0;
+                      if (delay) {
+                        console.log(
+                          `Simulating a prolonged synchronous search for message #${msgCounter}`
+                        );
+                        let start = Date.now();
+                        while (Date.now() - start < delay) {
+                          // No Op.
+                        }
+                      }
+                      msgCounter++;
+                      return true;
+                    }
+                  );
+                  return messageQuery.startSearch();
+                },
+              },
+            };
+          }
+        };
+      },
+      "background.js": async () => {
+        let [folder] = await window.waitForMessage();
+
+        // This test will return 99 messages, but will need 500ms to find the
+        // 2nd and 6th message. The auto-pagination after the custom 250ms will
+        // create early pages and the enforced interruption will allow the
+        // WebExtension to receive the pages before the entire message-add-process
+        // has finished.
+        let firstPage = await browser.PaginationTest.throttledQuery({
+          folder,
+          autoPaginationTimeout: 250,
+        });
+        let firstPageCreationTime = Date.now();
+        let listId = firstPage.id;
+        browser.test.assertEq(
+          36,
+          listId.length,
+          "The listId should have the correct length"
+        );
+        browser.test.assertEq(
+          2,
+          firstPage.messages.length,
+          "The first page should be correct"
+        );
+
+        let secondPage = await browser.messages.continueList(listId);
+        let secondPageCreationTime = Date.now();
+        browser.test.assertEq(
+          listId,
+          secondPage.id,
+          "The listId should be correct"
+        );
+        browser.test.assertEq(
+          4,
+          secondPage.messages.length,
+          "The second page should be correct"
+        );
+
+        let thirdPage = await browser.messages.continueList(listId);
+        browser.test.assertEq(
+          null,
+          thirdPage.id,
+          "The listId should be correct"
+        );
+        browser.test.assertEq(
+          93,
+          thirdPage.messages.length,
+          "The second page should be correct"
+        );
+
+        browser.test.assertTrue(
+          secondPageCreationTime - firstPageCreationTime > 250,
+          `secondPageCreationTime - firstPageCreationTime > 250: ${
+            secondPageCreationTime - firstPageCreationTime
+          }`
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    let extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
+        experiment_apis: {
+          PaginationTest: {
+            schema: "schema.json",
+            parent: {
+              scopes: ["addon_parent"],
+              paths: [["PaginationTest"]],
+              script: "implementation.js",
+            },
+          },
+        },
+      },
+    });
+
+    await extension.startup();
+    extension.sendMessage({ accountId: account.key, path: "/Trash" });
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
+add_task(
+  {
+    // This is basically a unit test for the MessageQuery implementation and does
+    // not need to be tested for IMAP and NNTP individually.
+    skip_if: () => IS_IMAP || IS_NNTP,
+  },
+  async function test_query_disabled_auto_pagination() {
+    let files = {
+      "schema.json": [
+        {
+          namespace: "PaginationTest",
+          functions: [
+            {
+              name: "throttledQuery",
+              type: "function",
+              async: true,
+              parameters: [
+                {
+                  type: "object",
+                  name: "queryInfo",
+                  properties: {
+                    folder: {
+                      $ref: "folders.MailFolder",
+                    },
+                    autoPaginationTimeout: {
+                      type: "integer",
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      "implementation.js": () => {
+        var { ExtensionCommon } = ChromeUtils.importESModule(
+          "resource://gre/modules/ExtensionCommon.sys.mjs"
+        );
+        var { MessageQuery } = ChromeUtils.importESModule(
+          "resource:///modules/ExtensionMessages.sys.mjs"
+        );
+        this.PaginationTest = class extends ExtensionCommon.ExtensionAPI {
+          getAPI(context) {
+            const { extension } = context;
+            const { messageManager } = extension;
+            const messageListTracker = messageManager._messageListTracker;
+
+            return {
+              PaginationTest: {
+                async throttledQuery(queryInfo) {
+                  let msgCounter = 1;
+                  let messageDelays = new Map();
+                  messageDelays.set(2, 500);
+                  messageDelays.set(6, 500);
+                  messageDelays.set(10, 500);
+                  messageDelays.set(30, 500);
+
+                  let messageQuery = new MessageQuery(
+                    queryInfo,
+                    messageListTracker,
+                    extension,
+                    async () => {
+                      // This is a dummy checkSearchCriteriaFn().
+                      let delay = messageDelays.get(msgCounter) || 0;
+                      if (delay) {
+                        console.log(
+                          `Simulating a prolonged synchronous search for message #${msgCounter}`
+                        );
+                        let start = Date.now();
+                        while (Date.now() - start < delay) {
+                          // No Op.
+                        }
+                      }
+                      msgCounter++;
+                      return true;
+                    }
+                  );
+                  return messageQuery.startSearch();
+                },
+              },
+            };
+          }
+        };
+      },
+      "background.js": async () => {
+        let [folder] = await window.waitForMessage();
+
+        // This test will return 99 messages, but will need 500ms to find the
+        // 2nd, 6th, 10th and 30th message. Since auto-pagination is disabled,
+        // the query will return a single page with all messages after the entire
+        // message-add-process has finished.
+        let firstPage = await browser.PaginationTest.throttledQuery({
+          folder,
+          autoPaginationTimeout: 0,
+        });
+        browser.test.assertEq(
+          null,
+          firstPage.id,
+          "The listId should not be present"
+        );
+        browser.test.assertEq(
+          99,
+          firstPage.messages.length,
+          "The first page should be correct"
+        );
+
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": await getUtilsJS(),
+    };
+    let extension = ExtensionTestUtils.loadExtension({
+      files,
+      manifest: {
+        background: { scripts: ["utils.js", "background.js"] },
+        permissions: ["accountsRead", "messagesRead"],
+        experiment_apis: {
+          PaginationTest: {
+            schema: "schema.json",
+            parent: {
+              scopes: ["addon_parent"],
+              paths: [["PaginationTest"]],
+              script: "implementation.js",
+            },
+          },
+        },
+      },
+    });
+
+    await extension.startup();
+    extension.sendMessage({ accountId: account.key, path: "/Trash" });
+    await extension.awaitFinish("finished");
+    await extension.unload();
+  }
+);
+
+add_task(
+  {
+    // This is basically a unit test for the MessageQuery implementation and does
+    // not need to be tested for IMAP and NNTP individually.
+    skip_if: () => IS_IMAP || IS_NNTP,
+  },
+  async function test_query_returnMessageListId() {
+    let files = {
+      "schema.json": [
+        {
+          namespace: "PaginationTest",
+          functions: [
+            {
+              name: "throttledQuery",
+              type: "function",
+              async: true,
+              parameters: [
+                {
+                  type: "object",
+                  name: "queryInfo",
+                  properties: {
+                    folder: {
+                      $ref: "folders.MailFolder",
+                    },
+                    autoPaginationTimeout: {
+                      type: "integer",
+                    },
+                    returnMessageListId: {
+                      type: "boolean",
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      "implementation.js": () => {
+        var { ExtensionCommon } = ChromeUtils.importESModule(
+          "resource://gre/modules/ExtensionCommon.sys.mjs"
+        );
+        var { MessageQuery } = ChromeUtils.importESModule(
+          "resource:///modules/ExtensionMessages.sys.mjs"
+        );
+        this.PaginationTest = class extends ExtensionCommon.ExtensionAPI {
+          getAPI(context) {
+            const { extension } = context;
+            const { messageManager } = extension;
+            const messageListTracker = messageManager._messageListTracker;
+
+            return {
+              PaginationTest: {
+                async throttledQuery(queryInfo) {
+                  let msgCounter = 1;
+                  let searchResults = new Map();
+                  searchResults.set(6, true);
+                  searchResults.set(55, true);
+
+                  let messageQuery = new MessageQuery(
+                    queryInfo,
+                    messageListTracker,
+                    extension,
+                    async () => {
+                      // This is a dummy checkSearchCriteriaFn().
+                      let result = searchResults.has(msgCounter);
+                      console.log(
+                        `Simulating a prolonged synchronous search for message #${msgCounter}`
+                      );
+                      let start = Date.now();
+                      while (Date.now() - start < 20) {
+                        // No Op.
+                      }
+                      msgCounter++;
+                      return result;
+                    }
+                  );
+                  return messageQuery.startSearch();
+                },
+              },
+            };
+          }
+        };
+      },
+      "background.js": async () => {
+        let [folder] = await window.waitForMessage();
+
+        // This test will return message #6 and message #55, and will need 20ms
+        // to check each of the 99 messages in the specified folder.
+        // Since autoPagination is disabled and returnMessageListId is enabled,
+        // the query should return the listId immediately, and one page with two
+        // messages after all 99 messages have been processed.
+        let listId = await browser.PaginationTest.throttledQuery({
+          folder,
+          autoPaginationTimeout: 0,
+          returnMessageListId: true,
+        });
+        let listCreationTime = Date.now();
+        browser.test.assertEq(
+          36,
+          listId.length,
+          "The listId should have the correct length"
+        );
+
+        let firstPage = await browser.messages.continueList(listId);
+        let firstPageCreationTime = Date.now();
+        browser.test.assertEq(
+          null,
+          firstPage.id,
+          "The listId should be correct"
+        );
+        browser.test.assertEq(
+          2,
+          firstPage.messages.length,
+          "The page should be correct"
+        );
+
+        browser.test.assertTrue(
+          firstPageCreationTime - listCreationTime >= 1980,
+          `secondPageCreationTime - firstPageCreationTime >= 99*20 = 1980: ${
+            firstPageCreationTime - listCreationTime
           }`
         );
 

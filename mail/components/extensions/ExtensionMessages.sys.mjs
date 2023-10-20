@@ -900,14 +900,16 @@ export class MessageList {
   /**
    * @param {ExtensionData} extension
    * @param {MessageTracker} messageTracker
+   * @param {integer} [messagesPerPage]
    */
-  constructor(extension, messageTracker) {
+  constructor(extension, messageTracker, messagesPerPage) {
     this.messageListId = Services.uuid.generateUUID().number.substring(1, 37);
     this.extension = extension;
     this.isDone = false;
     this.pages = [];
     this._messageTracker = messageTracker;
     this.folderCache = new Map();
+    this.messagesPerPage = messagesPerPage ?? lazy.gMessagesPerPage;
 
     this.pages.push(new MessagePage());
   }
@@ -953,7 +955,7 @@ export class MessageList {
       return;
     }
 
-    if (this.currentPage.messages.length >= lazy.gMessagesPerPage) {
+    if (this.currentPage.messages.length >= this.messagesPerPage) {
       await this.addPage();
     }
 
@@ -1078,10 +1080,16 @@ export class MessageListTracker {
    * Creates and returns a new messageList object.
    *
    * @param {ExtensionData} extension
+   * @param {integer} [messagesPerPage]
+   *
    * @returns {MessageList}
    */
-  createList(extension) {
-    let messageList = new MessageList(extension, this._messageTracker);
+  createList(extension, messagesPerPage) {
+    let messageList = new MessageList(
+      extension,
+      this._messageTracker,
+      messagesPerPage
+    );
     let lists = this._contextLists.get(extension);
     if (!lists) {
       lists = new Map();
@@ -1257,20 +1265,28 @@ export class MessageQuery {
     this.extension = extension;
     this.queryInfo = queryInfo;
     this.messageListTracker = messageListTracker;
-    this.messageList = this.messageListTracker.createList(this.extension);
+
+    this.messageList = this.messageListTracker.createList(
+      this.extension,
+      queryInfo.messagesPerPage
+    );
+
     this.checkSearchCriteriaFn =
       checkSearchCriteriaFn || this.checkSearchCriteria;
 
     this.composeFields = Cc[
       "@mozilla.org/messengercompose/composefields;1"
     ].createInstance(Ci.nsIMsgCompFields);
+
+    this.autoPaginationTimeout = queryInfo.autoPaginationTimeout ?? 1000;
   }
 
   /**
    * Initiates the search.
    *
-   * @returns {Promise<MessageList>} A Promise for the first page with search
-   *    results.
+   * @returns {Promise<MessageList> | Promise<string>} A Promise for the first
+   *   page with search results, or the id of the created list (depends on
+   *   this.queryInfo.returnMessageListId).
    */
   async startSearch() {
     // Prepare case insensitive me filtering.
@@ -1343,6 +1359,10 @@ export class MessageQuery {
     // messageListTracker.getNextPage() returns a Promise, which will
     // fulfill after enough messages for a full page have been added.
     setTimeout(() => this.searchFolders(folders, includeSubFolders));
+
+    if (this.queryInfo.returnMessageListId) {
+      return this.messageList.id;
+    }
     return this.messageListTracker.getNextPage(this.messageList);
   }
 
@@ -1552,8 +1572,10 @@ export class MessageQuery {
 
         // Check if auto-pagination is needed.
         if (
+          this.autoPaginationTimeout &&
           this.messageList.currentPage.messages.length > 0 &&
-          Date.now() - this.messageList.currentPage.timeOfFirstMessage > 1000
+          Date.now() - this.messageList.currentPage.timeOfFirstMessage >
+            this.autoPaginationTimeout
         ) {
           await this.messageList.addPage();
         }

@@ -56,7 +56,7 @@
                 "optional": true
               },
               "type": {
-                "description": "Specifies the type of the button. Default type is <code>button</code>.",
+                "description": "Specifies the type of the button. Default type is <value>button</value>.",
                 "type": "string",
                 "enum": ["button", "menu"],
                 "optional": true,

@@ -386,7 +386,7 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "MessageList"
+                "$ref": "messages.MessageList"
               }
             ]
           }
@@ -408,7 +408,7 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "MessageList"
+                "$ref": "messages.MessageList"
               }
             ]
           }
@@ -691,6 +691,21 @@
                 "type": "boolean",
                 "optional": true,
                 "description": "Returns only unread (or read if false) messages."
+              },
+              "autoPaginationTimeout": {
+                "type": "integer",
+                "optional": true,
+                "description": "Set the timeout in ms after which results should be returned, even if the nominal number of messages-per-page has not yet been reached. Defaults to <value>1000</value> ms. Setting it to <value>0</value> will disable auto-pagination."
+              },
+              "messagesPerPage": {
+                "type": "integer",
+                "optional": true,
+                "description": "Set the nominal number of messages-per-page for this query. Defaults to <value>100</value> messages."
+              },
+              "returnMessageListId": {
+                "type": "boolean",
+                "optional": true,
+                "description": "The <em>messageListId</em> is usually returned together with the first page, after some messages have been found. Enabling this option will change the return value of this function and return the <em>messageListId</em> directly."
               }
             }
           },
@@ -700,7 +715,14 @@
             "optional": true,
             "parameters": [
               {
-                "$ref": "MessageList"
+                "choices": [
+                  {
+                    "$ref": "messages.MessageList"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
               }
             ]
           }
