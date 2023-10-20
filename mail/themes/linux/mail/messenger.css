@@ -101,7 +101,8 @@
     border-top-right-radius: env(-moz-gtk-csd-titlebar-radius);
   }
 
-  @media (-moz-gtk-csd-rounded-bottom-corners) {
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media (-moz-bool-pref: "widget.gtk.rounded-bottom-corners.enabled") {
     body {
       border-bottom-left-radius: env(-moz-gtk-csd-titlebar-radius);
       border-bottom-right-radius: env(-moz-gtk-csd-titlebar-radius);

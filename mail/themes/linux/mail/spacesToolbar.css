@@ -11,7 +11,8 @@
 }
 
 :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) {
-  @media (-moz-gtk-csd-rounded-bottom-corners) {
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media (-moz-bool-pref: "widget.gtk.rounded-bottom-corners.enabled") {
     .spaces-toolbar:not([hidden]) {
       &:-moz-locale-dir(ltr) {
         border-bottom-left-radius: env(-moz-gtk-csd-titlebar-radius);
