@@ -415,6 +415,18 @@
         ]
       },
       {
+        "name": "abortList",
+        "type": "function",
+        "description": "Finalizes the specified list and terminates any process currently still adding messages.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageListId",
+            "type": "string"
+          }
+        ]
+      },
+      {
         "name": "get",
         "type": "function",
         "description": "Returns a specified message.",

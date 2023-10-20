@@ -744,6 +744,13 @@ this.messages = class extends ExtensionAPIPersistent {
           );
           return messageListTracker.getNextPage(messageList);
         },
+        async abortList(messageListId) {
+          let messageList = messageListTracker.getList(
+            messageListId,
+            context.extension
+          );
+          messageList.done();
+        },
         async get(messageId) {
           let msgHdr = messageTracker.getMessage(messageId);
           if (!msgHdr) {
@@ -1181,6 +1188,9 @@ this.messages = class extends ExtensionAPIPersistent {
 
             if (messages) {
               for (let msg of [...messages]) {
+                if (messageList.isDone) {
+                  return;
+                }
                 if (await checkSearchCriteria(folder, msg)) {
                   messageList.addMessage(msg);
                 }
@@ -1189,6 +1199,9 @@ this.messages = class extends ExtensionAPIPersistent {
 
             if (includeSubFolders) {
               for (let subFolder of folder.subFolders) {
+                if (messageList.isDone) {
+                  return;
+                }
                 await searchMessages(subFolder, messageList, true);
               }
             }
@@ -1200,9 +1213,12 @@ this.messages = class extends ExtensionAPIPersistent {
             includeSubFolders = false
           ) => {
             for (let folder of folders) {
+              if (messageList.isDone) {
+                return;
+              }
               await searchMessages(folder, messageList, includeSubFolders);
             }
-            return messageList.done();
+            messageList.done();
           };
 
           // Prepare case insensitive me filtering.

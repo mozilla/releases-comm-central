@@ -18,6 +18,8 @@ var { ExtensionSupport } = ChromeUtils.importESModule(
 
 ChromeUtils.defineESModuleGetters(this, {
   ExtensionContent: "resource://gre/modules/ExtensionContent.sys.mjs",
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
+  clearTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -2738,12 +2740,29 @@ class MessageList {
     this.extension = extension;
     this.isDone = false;
     this.pages = [];
+    this.autoPaginatorTimeout = null;
+
     this.addPage();
   }
 
   addPage() {
+    if (this.autoPaginatorTimeout) {
+      clearTimeout(this.autoPaginatorTimeout);
+      this.autoPaginatorTimeout = null;
+    }
+
+    if (this.isDone) {
+      return;
+    }
+
     // Adding a page will make this.currentPage point to the new page.
     let previousPage = this.currentPage;
+
+    // If the current page has no messages, there is no need to add a page.
+    if (previousPage && previousPage.messages.length == 0) {
+      return;
+    }
+
     this.pages.push(new MessagePage());
     // The previous page is finished and can be resolved.
     if (previousPage) {
@@ -2766,7 +2785,15 @@ class MessageList {
     if (this.currentPage.messages.length >= gMessagesPerPage) {
       this.addPage();
     }
+
     this.currentPage.messages.push(convertMessage(message, this.extension));
+
+    // Automatically push a new page and return the page with this message after
+    // a fixed amount of time, so that small sets of search results are not held
+    // back until a full page has been found or the entire search has finished.
+    if (!this.autoPaginatorTimeout) {
+      this.autoPaginatorTimeout = setTimeout(this.addPage.bind(this), 1000);
+    }
   }
 
   done() {
@@ -2823,6 +2850,9 @@ var messageListTracker = {
    * Add messages to a messageList.
    */
   async _addMessages(messages, messageList) {
+    if (messageList.isDone) {
+      return;
+    }
     if (Array.isArray(messages)) {
       messages = this._createEnumerator(messages);
     }
@@ -2959,4 +2989,8 @@ extensions.on("startup", (type, extension) => {
     "windowManager",
     () => new WindowManager(extension)
   );
+});
+
+extensions.on("shutdown", (type, extension) => {
+  messageListTracker._contextLists.delete(extension);
 });
