@@ -2149,9 +2149,12 @@ function convertFolder(folder, accountId) {
     path: folderURIToPath(accountId, folder.URI),
   };
 
+  let flags = folder.flags;
   for (let [flag, typeName] of folderTypeMap.entries()) {
-    if (folder.flags & flag) {
+    if (flags & flag) {
       folderObject.type = typeName;
+      // Exit the loop as soon as an entry was found.
+      break;
     }
   }
 
@@ -2220,6 +2223,7 @@ function isAttachedMessageUrl(dummyMsgUrl) {
  *
  * @param {nsIMsgDBHdr} msgHdr
  * @param {ExtensionData} extension
+ *
  * @returns {MessageHeader} MessageHeader object
  *
  * @see /mail/components/extensions/schemas/messages.json
@@ -2705,6 +2709,80 @@ var messageTracker = new (class extends EventEmitter {
 })();
 
 /**
+ * Convenience class to keep track of the status of message lists.
+ */
+class MessageList {
+  constructor(extension) {
+    this.messageListId = Services.uuid.generateUUID().number.substring(1, 37);
+    this.extension = extension;
+    this.isDone = false;
+    this.pages = [];
+    this.pagePromises = [];
+    this.currentPageResolveCallback = null;
+    this.readIndex = 0;
+
+    this._addPage();
+  }
+
+  _addPage() {
+    let contents = this._getCurrentPage();
+    let resolvePage = this.currentPageResolveCallback;
+
+    this.pages.push([]);
+    this.pagePromises.push(
+      new Promise(resolve => {
+        this.currentPageResolveCallback = resolve;
+      })
+    );
+
+    if (contents && resolvePage) {
+      resolvePage(contents);
+    }
+  }
+
+  _getCurrentPage() {
+    return this.pages.length > 0 ? this.pages[this.pages.length - 1] : null;
+  }
+
+  get id() {
+    return this.messageListId;
+  }
+
+  add(message) {
+    if (this.isDone) {
+      return;
+    }
+    if (this._getCurrentPage().length >= gMessagesPerPage) {
+      this._addPage();
+    }
+    this._getCurrentPage().push(convertMessage(message, this.extension));
+  }
+
+  done() {
+    if (this.isDone) {
+      return;
+    }
+    this.isDone = true;
+    this.currentPageResolveCallback(this._getCurrentPage());
+  }
+
+  hasMorePages() {
+    return this.readIndex < this.pages.length;
+  }
+
+  async getNextPage() {
+    if (this.readIndex >= this.pages.length) {
+      return null;
+    }
+    const pageContent = await this.pagePromises[this.readIndex];
+    // Increment readIndex only after pagePromise has resolved, so multiple
+    // calls to getNextPage get the same page.
+    this.readIndex++;
+    return pageContent;
+  }
+}
+
+/**
  * Tracks lists of messages so that an extension can consume them in chunks.
  * Any WebExtensions method that could return multiple messages should instead call
  * messageListTracker.startList and return the results, which contain the first
@@ -2715,12 +2793,21 @@ var messageListTracker = {
   _contextLists: new WeakMap(),
 
   /**
-   * Takes an array or enumerator of messages and returns the first chunk.
+   * Takes an array or enumerator of messages and returns a Promise for the first
+   * page, which will resolve as soon as it is available.
    *
    * @returns {object}
    */
   startList(messages, extension) {
     let messageList = this.createList(extension);
+    this._addMessages(messages, messageList);
+    return this.getNextPage(messageList);
+  },
+
+  /**
+   * Add messages to a messageList.
+   */
+  async _addMessages(messages, messageList) {
     if (Array.isArray(messages)) {
       messages = this._createEnumerator(messages);
     }
@@ -2729,7 +2816,6 @@ var messageListTracker = {
       messageList.add(next.QueryInterface(Ci.nsIMsgDBHdr));
     }
     messageList.done();
-    return this.getNextPage(messageList);
   },
 
   _createEnumerator(array) {
@@ -2750,14 +2836,13 @@ var messageListTracker = {
    * @returns {object}
    */
   createList(extension) {
-    let messageListId = Services.uuid.generateUUID().number.substring(1, 37);
-    let messageList = this._createListObject(messageListId, extension);
+    let messageList = new MessageList(extension);
     let lists = this._contextLists.get(extension);
     if (!lists) {
       lists = new Map();
       this._contextLists.set(extension, lists);
     }
-    lists.set(messageListId, messageList);
+    lists.set(messageList.id, messageList);
     return messageList;
   },
 
@@ -2795,77 +2880,6 @@ var messageListTracker = {
     return {
       id: messageListId,
       messages,
-    };
-  },
-
-  _createListObject(messageListId, extension) {
-    function getCurrentPage() {
-      return pages.length > 0 ? pages[pages.length - 1] : null;
-    }
-
-    function addPage() {
-      let contents = getCurrentPage();
-      let resolvePage = currentPageResolveCallback;
-
-      pages.push([]);
-      pagePromises.push(
-        new Promise(resolve => {
-          currentPageResolveCallback = resolve;
-        })
-      );
-
-      if (contents && resolvePage) {
-        resolvePage(contents);
-      }
-    }
-
-    let _messageListId = messageListId;
-    let _extension = extension;
-    let isDone = false;
-    let pages = [];
-    let pagePromises = [];
-    let currentPageResolveCallback = null;
-    let readIndex = 0;
-
-    // Add first page.
-    addPage();
-
-    return {
-      get id() {
-        return _messageListId;
-      },
-      get extension() {
-        return _extension;
-      },
-      add(message) {
-        if (isDone) {
-          return;
-        }
-        if (getCurrentPage().length >= gMessagesPerPage) {
-          addPage();
-        }
-        getCurrentPage().push(convertMessage(message, _extension));
-      },
-      done() {
-        if (isDone) {
-          return;
-        }
-        isDone = true;
-        currentPageResolveCallback(getCurrentPage());
-      },
-      hasMorePages() {
-        return readIndex < pages.length;
-      },
-      async getNextPage() {
-        if (readIndex >= pages.length) {
-          return null;
-        }
-        const pageContent = await pagePromises[readIndex];
-        // Increment readIndex only after pagePromise has resolved, so multiple
-        // calls to getNextPage get the same page.
-        readIndex++;
-        return pageContent;
-      },
     };
   },
 };
