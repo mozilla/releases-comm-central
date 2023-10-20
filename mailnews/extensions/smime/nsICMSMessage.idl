@@ -19,6 +19,13 @@ interface nsISMimeVerificationListener;
 
 interface nsIX509Cert;
 
+[uuid(cd76ec81-02f0-41a3-8852-c0acce0bab53)]
+interface nsICMSVerifyFlags : nsISupports
+{
+  const long NONE = 0;
+  const long VERIFY_ALLOW_WEAK_SHA1 = 1 << 0;
+};
+
 /**
  * nsICMSMessage
  *  Interface to a CMS Message
@@ -32,8 +39,17 @@ interface nsICMSMessage : nsISupports
   void getSignerEmailAddress(out string aEmail);
   void getSignerCert(out nsIX509Cert scert);
   void getEncryptionCert(out nsIX509Cert ecert);
-  void verifySignature();
-  void verifyDetachedSignature(in Array<octet> aDigestData,
+
+  /**
+   * @param verifyFlags - Optional flags from nsICMSVerifyFlags.
+   */
+  void verifySignature(in long verifyFlags);
+
+  /**
+   * @param verifyFlags - Optional flags from nsICMSVerifyFlags.
+   */
+  void verifyDetachedSignature(in long verifyFlags,
+                               in Array<octet> aDigestData,
                                in int16_t aDigestType);
   void CreateEncrypted(in Array<nsIX509Cert> aRecipientCerts);
 
@@ -47,7 +63,8 @@ interface nsICMSMessage : nsISupports
     * availability of results will be notified using a
     * call to nsISMimeVerificationListener.
    */
-  void asyncVerifySignature(in nsISMimeVerificationListener listener);
+  void asyncVerifySignature(in long verifyFlags,
+                            in nsISMimeVerificationListener listener);
 
   /**
     * Async version of nsICMSMessage::VerifyDetachedSignature.
@@ -57,7 +74,8 @@ interface nsICMSMessage : nsISupports
     *
     * Set aDigestType to one of the values from nsICryptoHash.
    */
-  void asyncVerifyDetachedSignature(in nsISMimeVerificationListener listener,
+  void asyncVerifyDetachedSignature(in long verifyFlags,
+                                    in nsISMimeVerificationListener listener,
                                     in Array<octet> aDigestData,
                                     in int16_t aDigestType);
 };

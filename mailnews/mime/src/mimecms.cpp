@@ -596,10 +596,18 @@ void MimeCMSRequestAsyncSignatureVerification(
       new nsSMimeVerificationListener(
           aFromAddr, aFromName, aSenderAddr, aSenderName, aHeaderSink,
           aMimeNestingLevel, aMsgNeckoURL, aOriginMimePartNumber);
+
+  long verifyFlags = 0;
+  if (mozilla::Preferences::GetBool(
+          "mail.smime.accept_insecure_sha1_message_signatures", false)) {
+    verifyFlags |= nsICMSVerifyFlags::VERIFY_ALLOW_WEAK_SHA1;
+  }
+
   if (aDigestData.IsEmpty())
-    aCMSMsg->AsyncVerifySignature(listener);
+    aCMSMsg->AsyncVerifySignature(verifyFlags, listener);
   else
-    aCMSMsg->AsyncVerifyDetachedSignature(listener, aDigestData, aDigestType);
+    aCMSMsg->AsyncVerifyDetachedSignature(verifyFlags, listener, aDigestData,
+                                          aDigestType);
 }
 
 static int MimeCMS_eof(void* crypto_closure, bool abort_p) {

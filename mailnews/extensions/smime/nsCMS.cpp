@@ -25,6 +25,7 @@
 #include "secerr.h"
 #include "smime.h"
 #include "mozilla/StaticMutex.h"
+#include "nsIPrefBranch.h"
 
 using namespace mozilla;
 using namespace mozilla::psm;
@@ -50,8 +51,8 @@ nsresult nsCMSMessage::Init() {
   return rv;
 }
 
-NS_IMETHODIMP nsCMSMessage::VerifySignature() {
-  return CommonVerifySignature({}, 0);
+NS_IMETHODIMP nsCMSMessage::VerifySignature(int32_t verifyFlags) {
+  return CommonVerifySignature(verifyFlags, {}, 0);
 }
 
 NSSCMSSignerInfo* nsCMSMessage::GetTopLevelSignerInfo() {
@@ -147,11 +148,12 @@ NS_IMETHODIMP nsCMSMessage::GetEncryptionCert(nsIX509Cert**) {
 }
 
 NS_IMETHODIMP
-nsCMSMessage::VerifyDetachedSignature(const nsTArray<uint8_t>& aDigestData,
+nsCMSMessage::VerifyDetachedSignature(int32_t verifyFlags,
+                                      const nsTArray<uint8_t>& aDigestData,
                                       int16_t aDigestType) {
   if (aDigestData.IsEmpty()) return NS_ERROR_FAILURE;
 
-  return CommonVerifySignature(aDigestData, aDigestType);
+  return CommonVerifySignature(verifyFlags, aDigestData, aDigestType);
 }
 
 // This is an exact copy of NSS_CMSArray_Count from NSS' cmsarray.c,
@@ -391,7 +393,8 @@ loser:
 }
 
 nsresult nsCMSMessage::CommonVerifySignature(
-    const nsTArray<uint8_t>& aDigestData, int16_t aDigestType) {
+    int32_t verifyFlags, const nsTArray<uint8_t>& aDigestData,
+    int16_t aDigestType) {
   MOZ_LOG(gCMSLog, LogLevel::Debug,
           ("nsCMSMessage::CommonVerifySignature, content level count %d",
            NSS_CMSMessage_ContentLevelCount(m_cmsMsg)));
@@ -506,6 +509,15 @@ nsresult nsCMSMessage::CommonVerifySignature(
     case SEC_OID_SHA512:
       break;
 
+    case SEC_OID_SHA1:
+      if (verifyFlags & nsICMSVerifyFlags::VERIFY_ALLOW_WEAK_SHA1) {
+        break;
+      }
+      // else fall through to failure
+#if defined(__clang__)
+      [[clang::fallthrough]];
+#endif
+
     default:
       MOZ_LOG(
           gCMSLog, LogLevel::Debug,
@@ -583,28 +595,30 @@ loser:
 }
 
 NS_IMETHODIMP nsCMSMessage::AsyncVerifySignature(
-    nsISMimeVerificationListener* aListener) {
-  return CommonAsyncVerifySignature(aListener, {}, 0);
+    int32_t verifyFlags, nsISMimeVerificationListener* aListener) {
+  return CommonAsyncVerifySignature(verifyFlags, aListener, {}, 0);
 }
 
 NS_IMETHODIMP nsCMSMessage::AsyncVerifyDetachedSignature(
-    nsISMimeVerificationListener* aListener,
+    int32_t verifyFlags, nsISMimeVerificationListener* aListener,
     const nsTArray<uint8_t>& aDigestData, int16_t aDigestType) {
   if (aDigestData.IsEmpty()) return NS_ERROR_FAILURE;
 
-  return CommonAsyncVerifySignature(aListener, aDigestData, aDigestType);
+  return CommonAsyncVerifySignature(verifyFlags, aListener, aDigestData,
+                                    aDigestType);
 }
 
 class SMimeVerificationTask final : public CryptoTask {
  public:
-  SMimeVerificationTask(nsICMSMessage* aMessage,
+  SMimeVerificationTask(nsICMSMessage* aMessage, int32_t verifyFlags,
                         nsISMimeVerificationListener* aListener,
                         const nsTArray<uint8_t>& aDigestData,
                         int16_t aDigestType)
       : mMessage(aMessage),
         mListener(aListener),
         mDigestData(aDigestData.Clone()),
-        mDigestType(aDigestType) {
+        mDigestType(aDigestType),
+        mVerifyFlags(verifyFlags) {
     MOZ_ASSERT(NS_IsMainThread());
   }
 
@@ -618,9 +632,10 @@ class SMimeVerificationTask final : public CryptoTask {
     mozilla::StaticMutexAutoLock lock(sMutex);
     nsresult rv;
     if (mDigestData.IsEmpty()) {
-      rv = mMessage->VerifySignature();
+      rv = mMessage->VerifySignature(mVerifyFlags);
     } else {
-      rv = mMessage->VerifyDetachedSignature(mDigestData, mDigestType);
+      rv = mMessage->VerifyDetachedSignature(mVerifyFlags, mDigestData,
+                                             mDigestType);
     }
 
     return rv;
@@ -634,6 +649,7 @@ class SMimeVerificationTask final : public CryptoTask {
   nsCOMPtr<nsISMimeVerificationListener> mListener;
   nsTArray<uint8_t> mDigestData;
   int16_t mDigestType;
+  int32_t mVerifyFlags;
 
   static mozilla::StaticMutex sMutex;
 };
@@ -641,10 +657,10 @@ class SMimeVerificationTask final : public CryptoTask {
 mozilla::StaticMutex SMimeVerificationTask::sMutex;
 
 nsresult nsCMSMessage::CommonAsyncVerifySignature(
-    nsISMimeVerificationListener* aListener,
+    int32_t verifyFlags, nsISMimeVerificationListener* aListener,
     const nsTArray<uint8_t>& aDigestData, int16_t aDigestType) {
-  RefPtr<CryptoTask> task =
-      new SMimeVerificationTask(this, aListener, aDigestData, aDigestType);
+  RefPtr<CryptoTask> task = new SMimeVerificationTask(
+      this, verifyFlags, aListener, aDigestData, aDigestType);
   return task->Dispatch();
 }
 

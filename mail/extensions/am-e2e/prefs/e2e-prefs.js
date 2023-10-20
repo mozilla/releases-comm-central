@@ -94,6 +94,8 @@ pref("mail.openpgp.remind_encryption_possible", true);
 // sent with S/MIME encryption (without further user actions/decisions).
 pref("mail.smime.remind_encryption_possible", true);
 
+pref("mail.smime.accept_insecure_sha1_message_signatures", false);
+
 // When sending, encrypt to this additional key. Not available in release channel builds.
 pref("mail.openpgp.debug.extra_encryption_key", "");
 

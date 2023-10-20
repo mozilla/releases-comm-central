@@ -40,10 +40,12 @@ class nsCMSMessage : public nsICMSMessage {
   nsCOMPtr<nsIInterfaceRequestor> m_ctx;
   NSSCMSMessage* m_cmsMsg;
   NSSCMSSignerInfo* GetTopLevelSignerInfo();
-  nsresult CommonVerifySignature(const nsTArray<uint8_t>& aDigestData,
+  nsresult CommonVerifySignature(int32_t verifyFlags,
+                                 const nsTArray<uint8_t>& aDigestData,
                                  int16_t aDigestType);
 
-  nsresult CommonAsyncVerifySignature(nsISMimeVerificationListener* aListener,
+  nsresult CommonAsyncVerifySignature(int32_t verifyFlags,
+                                      nsISMimeVerificationListener* aListener,
                                       const nsTArray<uint8_t>& aDigestData,
                                       int16_t aDigestType);
   bool IsAllowedHash(const int16_t aCryptoHashInt);
