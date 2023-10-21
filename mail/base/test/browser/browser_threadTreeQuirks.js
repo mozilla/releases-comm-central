@@ -534,6 +534,10 @@ add_task(async function testThreadTreeA11yRoles() {
     "listbox",
     "The tree view should be presented as ListBox"
   );
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(0),
+    "row0 should become available"
+  );
   Assert.equal(
     threadTree.getRowAtIndex(0).getAttribute("role"),
     "option",
@@ -545,6 +549,10 @@ add_task(async function testThreadTreeA11yRoles() {
   await BrowserTestUtils.waitForCondition(
     () => threadTree.table.body.getAttribute("role") == "treegrid",
     "The tree view should switch to a Tree Grid View role"
+  );
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(0),
+    "row0 should become available"
   );
   Assert.equal(
     threadTree.getRowAtIndex(0).getAttribute("role"),
@@ -558,6 +566,10 @@ add_task(async function testThreadTreeA11yRoles() {
   await BrowserTestUtils.waitForCondition(
     () => threadTree.table.body.getAttribute("role") == "treegrid",
     "The message list table should remain presented as Tree Grid View"
+  );
+  await BrowserTestUtils.waitForCondition(
+    () => threadTree.getRowAtIndex(0),
+    "row0 should become available"
   );
   Assert.equal(
     threadTree.getRowAtIndex(0).getAttribute("role"),
