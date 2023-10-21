@@ -32,7 +32,11 @@ XPCOMUtils.defineLazyGetter(
   "l10n",
   () =>
     new Localization(
-      ["messenger/extensionsUI.ftl", "messenger/addonNotifications.ftl"],
+      [
+        "branding/brand.ftl",
+        "messenger/extensionsUI.ftl",
+        "messenger/addonNotifications.ftl",
+      ],
       true
     )
 );
