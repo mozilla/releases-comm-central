@@ -20,7 +20,9 @@ add_task(async function test_multiple_messages_selected() {
       });
     });
 
-    let { messages } = await browser.messages.query({});
+    let { messages } = await browser.messages.query({
+      autoPaginationTimeout: 0,
+    });
     await browser.mailTabs.setSelectedMessages(messages.map(m => m.id));
     let { messages: selectedMessages } =
       await browser.mailTabs.getSelectedMessages();

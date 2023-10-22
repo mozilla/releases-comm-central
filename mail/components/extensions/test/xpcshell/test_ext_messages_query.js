@@ -70,7 +70,9 @@ add_task(async function test_query() {
       browser.test.assertEq(9, messages2.messages.length);
 
       // Check all messages are returned.
-      let { messages: allMessages } = await browser.messages.query({});
+      let { messages: allMessages } = await browser.messages.query({
+        autoPaginationTimeout: 0,
+      });
       browser.test.assertEq(18, allMessages.length);
 
       let folder1 = { accountId, path: "/test1" };
@@ -81,6 +83,7 @@ add_task(async function test_query() {
       // We'll use these messages as a reference for further tests.
       let { messages: referenceMessages } = await browser.messages.query({
         folder: folder1,
+        autoPaginationTimeout: 0,
       });
       browser.test.assertEq(9, referenceMessages.length);
       browser.test.assertTrue(
@@ -90,6 +93,7 @@ add_task(async function test_query() {
       // Test includeSubFolders: Default (False).
       let { messages: searchRecursiveDefault } = await browser.messages.query({
         folder: rootFolder,
+        autoPaginationTimeout: 0,
       });
       browser.test.assertEq(
         0,
@@ -101,6 +105,7 @@ add_task(async function test_query() {
       let { messages: searchRecursiveTrue } = await browser.messages.query({
         folder: rootFolder,
         includeSubFolders: true,
+        autoPaginationTimeout: 0,
       });
       browser.test.assertEq(
         18,
@@ -112,6 +117,7 @@ add_task(async function test_query() {
       let { messages: searchRecursiveFalse } = await browser.messages.query({
         folder: rootFolder,
         includeSubFolders: false,
+        autoPaginationTimeout: 0,
       });
       browser.test.assertEq(
         0,
@@ -123,6 +129,7 @@ add_task(async function test_query() {
       let { messages: searchAttachmentFalse } = await browser.messages.query({
         attachment: false,
         includeSubFolders: true,
+        autoPaginationTimeout: 0,
       });
       browser.test.assertEq(
         17,
@@ -134,6 +141,7 @@ add_task(async function test_query() {
       let { messages: searchAttachmentTrue } = await browser.messages.query({
         attachment: true,
         includeSubFolders: true,
+        autoPaginationTimeout: 0,
       });
       browser.test.assertEq(1, searchAttachmentTrue.length, "attachment: True");
 
@@ -157,9 +165,10 @@ add_task(async function test_query() {
           queryInfo.folder = folder1;
         }
         browser.test.log("Testing " + JSON.stringify(queryInfo));
-        let { messages: actualMessages } = await browser.messages.query(
-          queryInfo
-        );
+        let { messages: actualMessages } = await browser.messages.query({
+          ...queryInfo,
+          autoPaginationTimeout: 0,
+        });
 
         browser.test.assertEq(
           expectedMessageIndices.length,

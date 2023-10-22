@@ -167,7 +167,9 @@ add_task(async function test_browserAction_in_message_window() {
       );
 
       // Open a message in a window.
-      let { messages } = await browser.messages.query({});
+      let { messages } = await browser.messages.query({
+        autoPaginationTimeout: 0,
+      });
       browser.messageDisplay.open({
         location: "window",
         messageId: messages[0].id,
@@ -404,7 +406,9 @@ add_task(async function test_messageDisplayAction_in_message_tab() {
       );
 
       // Open a message in a tab.
-      let { messages } = await browser.messages.query({});
+      let { messages } = await browser.messages.query({
+        autoPaginationTimeout: 0,
+      });
       browser.messageDisplay.open({
         location: "tab",
         messageId: messages[0].id,
@@ -492,7 +496,9 @@ add_task(async function test_messageDisplayAction_in_message_window() {
       );
 
       // Open a message in a window.
-      let { messages } = await browser.messages.query({});
+      let { messages } = await browser.messages.query({
+        autoPaginationTimeout: 0,
+      });
       browser.messageDisplay.open({
         location: "window",
         messageId: messages[0].id,
