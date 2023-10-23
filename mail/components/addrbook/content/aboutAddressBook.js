@@ -3426,7 +3426,7 @@ var detailsPane = {
    */
   editCurrentContact(vCard) {
     let card = this.currentCard;
-
+    this.deleteButton.hidden = !card;
     if (card && card.supportsVCard) {
       this._screenNamesToIMPPs(card);
 
@@ -3437,13 +3437,13 @@ var detailsPane = {
         card.getProperty("PreferDisplayName", true) == true;
     } else {
       this.vCardEdit.vCardString = vCard ?? "";
+      card = new AddrBookCard();
+      card.setProperty("_vCard", vCard);
     }
+
     this.showEditPhoto(card?.photoURL);
     this._photoDetails = { sourceURL: card?.photoURL };
     this._photoChanged = false;
-
-    this.deleteButton.hidden = !card;
-
     this.isEditing = true;
     this.node.hidden = this.splitter.isCollapsed = false;
     this.form.querySelector(".contact-details-scroll").scrollTo(0, 0);
@@ -3576,7 +3576,7 @@ var detailsPane = {
           "Photos",
           oldLeafName
         );
-        IOUtils.remove(oldPath);
+        await IOUtils.remove(oldPath);
 
         card.setProperty("PhotoName", "");
         card.setProperty("PhotoType", "");
@@ -3620,7 +3620,6 @@ var detailsPane = {
       }
     }
     this._photoChanged = false;
-
     this.isEditing = false;
 
     if (!card.directoryUID) {

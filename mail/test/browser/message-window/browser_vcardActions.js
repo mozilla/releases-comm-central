@@ -83,8 +83,14 @@ add_task(async function test_check_vcard_icon() {
 
   // Check new card was created from the vcard.
   newcards = get_cards_in_all_address_books_for_email("meister@example.com");
-  Assert.equal(newcards.length, 1, "card created");
+  Assert.equal(newcards.length, 1, "exactly one card created");
   Assert.equal(newcards[0].displayName, "Meister", "display name saved");
+  Assert.ok(
+    newcards[0].photoURL.startsWith(
+      "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/"
+    ),
+    "PHOTO correctly saved"
+  );
 
   tabmail.closeTab(tabmail.currentTabInfo);
   // Reset the window size.
