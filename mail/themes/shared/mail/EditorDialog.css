@@ -62,7 +62,7 @@
   width: 30px;
   height: 12px;
   border: 1px inset #CCCCCC;
-  margin: 1px 0;
+  margin: auto;
 }
 
 .color-well[default="true"] {
