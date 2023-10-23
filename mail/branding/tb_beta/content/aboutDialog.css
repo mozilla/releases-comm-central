@@ -1,0 +1,38 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#clientBox {
+  background-color: var(--client-box-background);
+}
+
+#leftBox {
+  background-image: url("chrome://branding/content/about-logo.svg");
+  background-repeat: no-repeat;
+  /* min-width and min-height create room for the logo */
+  min-width: 210px;
+  min-height: 210px;
+  margin-top: 20px;
+  margin-inline-start: 30px;
+}
+
+#rightBox {
+  background-size: 260px auto;
+}
+
+#supernova-logo {
+  height: 28px;
+  width: 86px;
+  margin-block-start: 12px;
+}
+
+#updateDeck > hbox > label:not([class="text-link"]) {
+  opacity: 0.6;
+}
+
+#trademark {
+  font-size: xx-small;
+  text-align: center;
+  opacity: 0.6;
+  margin-block: 10px;
+}
