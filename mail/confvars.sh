@@ -15,6 +15,10 @@ BROWSER_CHROME_URL=chrome://messenger/content/extensionPopup.xhtml
 
 MOZ_BRANDING_DIRECTORY=comm/mail/branding/nightly
 MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/thunderbird
+# This looks silly, but it's for the benefit of MSIX repackaging.
+if test -n "$THUNDERBIRD_OFFICIAL_BRANDING"; then
+  MOZ_OFFICIAL_BRANDING_DIRECTORY=comm/mail/branding/$THUNDERBIRD_OFFICIAL_BRANDING
+fi
 
 MOZ_APP_ID={3550f703-e582-4d05-9a08-453d09bdfdc6}
 

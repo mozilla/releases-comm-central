@@ -74,4 +74,30 @@ include("../build/moz.configure/gecko_source.configure")
 include("../mailnews/moz.configure")
 
 imply_option("--enable-app-system-headers", True)
+
+
+@depends(milestone, update_channel)
+@imports("re")
+def thunderbird_official_branding(milestone, update_channel):
+    rv = "nightly"
+    if update_channel == "release":
+        rv = "thunderbird"
+    elif update_channel == "beta":
+        rv = "tb_beta"
+    elif update_channel == "default":  # For distros that want official branding but updates
+        version_display = milestone.app_version_display
+        m = re.search(r"([ab])\d+", version_display)
+        if m:  # Alpha or beta
+            if m.group(1) == "b":
+                rv = "tb_beta"
+        else:  # Release
+            rv = "thunderbird"
+    log.info(f"Thunderbird official branding set to '{rv}'.")
+    return rv
+
+
+set_config("THUNDERBIRD_OFFICIAL_BRANDING", thunderbird_official_branding)
+add_old_configure_assignment("THUNDERBIRD_OFFICIAL_BRANDING", thunderbird_official_branding)
+
+
 include("../../toolkit/moz.configure")

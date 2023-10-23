@@ -33,55 +33,5 @@ is at rnp/moz.yaml.
 
 Build notes:
 
-There are several configure options that can be added to mozconfig to control
-how librnp is built.
 
---with-system-librnp
-  Use system RNP (librnp) for OpenPGP support.
-  This option will not build librnp at all. In order to provide OpenPGP support,
-  librnp must be installed as a system package (RPM, DEB) and located where the
-  dynamic loader will find it or copied separately into Thunderbird's application
-  directory.
-
---with-system-jsonc
-  Use system JSON-C for librnp (located with pkgconfig)
-  Build librnp from the in-tree sources, but link with a system-installed
-  libjson-c. Build flags are determined with Pkg-config/pkgconf.
-
---with-system-bz2[=prefix]
-  Use system Bzip2 for librnp (pkgconfig/given prefix)
-  Build librnp from in-tree sources, link with a system libbz2.
-  This option does accept a prefix path (such as --with-system-bz2=/usr/local).
-  (Bzip2 itself does not provide a pkgconfig file. Some Linux distributions
-  include their own so the build system will look for one.)
-
---with-system-zlib
-  Link librnp to a system zlib. Pkgconfig only.
-
---with-librnp-backend=(botan|openssl) **
-  ** "openssl" is only supported when targeting Linux.
-
-  This option allows building librnp with the OpenSSL backend. When not provided,
-  it defaults to "botan".
-  When set to "openssl", OpenSSL will be located via Pkgconfig.
-
---with-system-botan
-  Link librnp to a system libbotan. Pkgconfig only. Note that it is not necessary
-  to also set "--with-librnp-backend=botan".
-
---with-openssl=prefix (Linux only)
-  Used with "--with-librnp-backend=openssl" to use OpenSSL installed at "prefix"
-  instead of one provided by Pkgconfig. Ex: --with-openssl=/usr/openssl-3
-
-
-OpenSSL notes:
-
-Only Linux targets are supported.
-
-OpenSSL 1.1.1 and OpenSSL 3.0.x are supported. The version is checked during
-configure as RNP has slightly different code paths for 3.x.
-
-The OpenSSL backend has some limitations compared to Botan. The following
-features are disabled:
-TWOFISH, BRAINPOOL
 

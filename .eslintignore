@@ -54,7 +54,9 @@ mailnews/extensions/mdn/mdn.js
 # mail exclusions
 mail/app/profile/all-thunderbird.js
 mail/app/profile/channel-prefs.js
+mail/branding/include/release-prefs.js
 mail/branding/nightly/pref/thunderbird-branding.js
+mail/branding/tb_beta/pref/thunderbird-branding.js
 mail/branding/thunderbird/pref/thunderbird-branding.js
 # This file is split into two in order to keep it as a valid json file
 # for documentation purposes (policies.json) but to be accessed by the

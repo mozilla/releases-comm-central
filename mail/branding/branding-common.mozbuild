@@ -7,7 +7,8 @@
 
 @template
 def ThunderbirdBranding():
-    if CONFIG["MOZ_BRANDING_DIRECTORY"] == "comm/mail/branding/thunderbird":
+    release_branding_dirs = ("comm/mail/branding/tb_beta", "comm/mail/branding/thunderbird")
+    if CONFIG["MOZ_BRANDING_DIRECTORY"] in release_branding_dirs:
         JS_PREFERENCE_PP_FILES += [
             "pref/thunderbird-branding.js",
         ]

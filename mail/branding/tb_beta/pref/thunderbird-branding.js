@@ -5,6 +5,6 @@
 // app.update.url.details: a default value for the "More information about this
 // update" link supplied in the "An update is available" page of the update
 // wizard.
-// release channel
-pref("app.update.url.manual", "https://www.thunderbird.net/");
-pref("app.update.url.details", "https://www.thunderbird.net/notes/");
+// beta channel
+pref("app.update.url.manual", "https://www.thunderbird.net/%LOCALE%/download/beta/");
+pref("app.update.url.details", "https://www.thunderbird.net/notes/beta/");
