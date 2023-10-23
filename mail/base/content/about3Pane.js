@@ -6072,7 +6072,10 @@ customElements.whenDefined("tree-view-table-row").then(() => {
           const div = cell.querySelector(".subject-line");
 
           // Indent child message of this thread.
-          div.style.setProperty("--thread-level", threadLevel.value);
+          div.style.setProperty(
+            "--thread-level",
+            gViewWrapper.showGroupedBySort ? 0 : threadLevel.value
+          );
 
           let imageFluentID = this.#getMessageIndicatorString(propertiesSet);
           const image = div.querySelector("img");
