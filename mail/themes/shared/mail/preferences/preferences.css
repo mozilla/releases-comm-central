@@ -25,15 +25,18 @@ search-textbox {
 
 button {
   padding: 0 12px;
+
+  &[open="true"] {
+    color: var(--in-content-button-text-color-hover);
+  }
 }
 
 menulist {
   padding: 0 6px;
-}
 
-button[open="true"],
-menulist[open="true"] {
-  color: var(--in-content-button-text-color-hover);
+  &[open="true"] {
+    color: var(--in-content-button-text-color-hover);
+  }
 }
 
 button,
@@ -99,12 +102,10 @@ fieldset {
   margin: 0 0 32px;
   padding: 0;
   border-style: none !important;
-}
 
-fieldset > hbox,
-fieldset > vbox,
-fieldset > radiogroup {
-  width: -moz-available;
+  & > :where(hbox, vbox, radiogroup) {
+    width: -moz-available;
+  }
 }
 
 html|h1 {
@@ -201,51 +202,51 @@ menulist::part(dropmarker-icon) {
   border: 1px solid #d7b600;
   bottom: 36px;
   opacity: 0.85;
-}
 
-.search-tooltip:hover {
-  opacity: 0.1;
-}
-
-.search-tooltip::before {
-  position: absolute;
-  content: "";
-  border: 7px solid transparent;
-  border-top-color: #d7b600;
-  top: 100%;
-  inset-inline-start: calc(50% - 7px);
-  forced-color-adjust: none;
-}
-
-.search-tooltip::after {
-  position: absolute;
-  content: "";
-  border: 6px solid transparent;
-  border-top-color: #ffe900;
-  top: 100%;
-  inset-inline-start: calc(50% - 6px);
-  forced-color-adjust: none;
-}
-
-@media (forced-colors: active) {
-  .search-tooltip::before {
-    border-top-color: CanvasText;
+  &:hover {
+    opacity: 0.1;
   }
 
-  .search-tooltip::after {
-    border-top-color: Canvas;
+  &::before {
+    position: absolute;
+    content: "";
+    border: 7px solid transparent;
+    border-top-color: #d7b600;
+    top: 100%;
+    inset-inline-start: calc(50% - 7px);
+    forced-color-adjust: none;
+  }
+
+  &::after {
+    position: absolute;
+    content: "";
+    border: 6px solid transparent;
+    border-top-color: #ffe900;
+    top: 100%;
+    inset-inline-start: calc(50% - 6px);
+    forced-color-adjust: none;
+  }
+
+  @media (forced-colors: active) {
+    &::before {
+      border-top-color: CanvasText;
+    }
+
+    &::after {
+      border-top-color: Canvas;
+    }
+  }
+
+  & > span {
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
 .search-tooltip-parent {
   position: relative;
-}
-
-.search-tooltip > span {
-  user-select: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .tip-caption {
@@ -311,54 +312,55 @@ html|input[type="number"] {
   margin-inline-start: 4px;
   padding: 1px;
   min-height: calc(var(--in-content-button-height) - 4px);
-}
-/* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
-html|input[type="number"].size2 {
-  width: calc(2ch + 55px);
-}
-html|input[type="number"].size3 {
-  width: calc(3ch + 55px);
-}
-html|input[type="number"].size4 {
-  width: calc(4ch + 55px);
-}
-html|input[type="number"].size5 {
-  width: calc(5ch + 55px);
-}
 
-html|input[type="number"]::-moz-number-spin-box {
-  padding-inline-start: 10px;
-}
+  /* sizes: chars + 8px padding + 1px borders + spin buttons 25+2+10px  */
+  &.size2 {
+    width: calc(2ch + 55px);
+  }
+  &.size3 {
+    width: calc(3ch + 55px);
+  }
+  &.size4 {
+    width: calc(4ch + 55px);
+  }
+  &.size5 {
+    width: calc(5ch + 55px);
+  }
 
-html|input[type="number"]::-moz-number-spin-up,
-html|input[type="number"]::-moz-number-spin-down {
-  appearance: none;
-  min-width: 25px;
-  border: 1px solid var(--in-content-box-border-color);
-  background-color: var(--in-content-button-background);
-  background-position: center;
-  background-repeat: no-repeat;
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-}
+  &::-moz-number-spin-box {
+    padding-inline-start: 10px;
+  }
 
-html|input[type="number"]::-moz-number-spin-up:hover,
-html|input[type="number"]::-moz-number-spin-down:hover {
-  background-color: var(--in-content-button-background-hover);
-}
+  &::-moz-number-spin-up,
+  &::-moz-number-spin-down {
+    appearance: none;
+    min-width: 25px;
+    border: 1px solid var(--in-content-box-border-color);
+    background-color: var(--in-content-button-background);
+    background-position: center;
+    background-repeat: no-repeat;
+    -moz-context-properties: stroke;
+    stroke: currentColor;
+  }
 
-html|input[type="number"]::-moz-number-spin-up {
-  min-height: calc(var(--in-content-button-height) * 0.5 - 3px);
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
-  border-radius: 1px 1px 0 0;
-  background-image: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
-}
+  &::-moz-number-spin-up:hover,
+  &::-moz-number-spin-down:hover {
+    background-color: var(--in-content-button-background-hover);
+  }
 
-html|input[type="number"]::-moz-number-spin-down {
-  min-height: calc(var(--in-content-button-height) * 0.5 - 4px);
-  border-radius: 0 0 1px 1px;
-  background-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
+  &::-moz-number-spin-up {
+    min-height: calc(var(--in-content-button-height) * 0.5 - 3px);
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-radius: 1px 1px 0 0;
+    background-image: url("chrome://messenger/skin/icons/new/nav-up-sm.svg");
+  }
+
+  &::-moz-number-spin-down {
+    min-height: calc(var(--in-content-button-height) * 0.5 - 4px);
+    border-radius: 0 0 1px 1px;
+    background-image: url("chrome://messenger/skin/icons/new/nav-down-sm.svg");
+  }
 }
 
 separator.groove:not([orient="vertical"]) {
@@ -366,20 +368,22 @@ separator.groove:not([orient="vertical"]) {
   border-bottom-width: 0;
 }
 
-tab:not([selected="true"]):hover {
-  border-bottom-color: transparent;
-}
+tab {
+  &:not([selected="true"]):hover {
+    border-bottom-color: transparent;
+  }
 
-tab:-moz-focusring > .tab-middle {
-  outline: none;
-}
+  &:focus-visible {
+    background-color: var(--in-content-button-background);
 
-tab:focus-visible {
-  background-color: var(--in-content-button-background);
-}
+    & > .tab-middle {
+      outline: none;
 
-tab:focus-visible > .tab-middle > .tab-text {
-  outline: none;
+      & > .tab-text {
+        outline: none;
+      }
+    }
+  }
 }
 
 #defaultWebSearchPopup > menuitem > .menu-iconic-left {
@@ -397,6 +401,7 @@ tab:focus-visible > .tab-middle > .tab-text {
 description > html|a {
   cursor: pointer;
 }
+
 #previewBox {
   height: 220px;
 }
@@ -442,19 +447,19 @@ checkbox {
 .update-deck-container {
   display: flex;
   align-items: center;
-}
 
-.update-deck-container > * {
-  flex: 0 0 auto;
-}
+  & > * {
+    flex: 0 0 auto;
+  }
 
-.update-deck-container.deck-selected {
-  visibility: visible;
-}
+  &.deck-selected {
+    visibility: visible;
+  }
 
-.update-deck-container > button {
-  /* Align the button at the end. */
-  margin-inline-start: auto;
+  & > button {
+    /* Align the button at the end. */
+    margin-inline-start: auto;
+  }
 }
 
 .update-throbber {
@@ -463,12 +468,12 @@ checkbox {
   margin-inline: 6px 4px;
   content: image-set(url("chrome://global/skin/icons/loading.png"),
                      url("chrome://global/skin/icons/loading@2x.png") 2x);
-}
 
-/* Work around bug 560067 - animated images in visibility: hidden
- * still eat CPU. */
-#updateDeck > *:not(.deck-selected) > .update-throbber {
-  display: none;
+  /* Work around bug 560067 - animated images in visibility: hidden
+   * still eat CPU. */
+  #updateDeck > *:not(.deck-selected) > & {
+    display: none;
+  }
 }
 
 .updateSettingCrossUserWarningContainer {
@@ -490,10 +495,10 @@ checkbox {
   background-repeat: no-repeat;
   -moz-context-properties: fill;
   fill: currentColor;
-}
 
-#updateSettingCrossUserWarning:-moz-locale-dir(rtl) {
-  background-position-x: right 2px;
+  &:-moz-locale-dir(rtl) {
+    background-position-x: right 2px;
+  }
 }
 
 #releasenotes {
@@ -508,10 +513,10 @@ checkbox {
   margin-block: 4px;
   width: 100%;
   display: flex;
-}
 
-#telemetry-container[hidden] {
-  display: none;
+  &[hidden] {
+    display: none;
+  }
 }
 
 #telemetryInfoIcon {
@@ -550,11 +555,11 @@ checkbox {
   list-style-type: none;
   padding: 0;
   margin-block: 0.5em;
-}
 
-#dictionaryList label {
-  display: flex;
-  align-items: center;
+  & label {
+    display: flex;
+    align-items: center;
+  }
 }
 
 /**
@@ -585,34 +590,36 @@ checkbox {
   appearance: none;
   background-color: var(--in-content-box-background);
   color: var(--in-content-text-color);
+
+  & richlistitem {
+    padding: 0.3em;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    background-image: none;
+  }
 }
 
-#preferencesContainer richlistbox richlistitem {
-  padding: 0.3em;
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  background-image: none;
-}
+#containerBox richlistbox,
+#identitiesList richlistbox,
+#preferencesContainer richlistbox {
+  & richlistitem {
+    &:hover {
+      background-color: var(--in-content-item-hover);
+    }
 
-#containerBox richlistbox richlistitem:hover,
-#identitiesList richlistbox richlistitem:hover,
-#preferencesContainer richlistbox richlistitem:hover {
-  background-color: var(--in-content-item-hover);
-}
+    &[selected="true"] {
+      background-color: var(--in-content-item-selected-unfocused);
+      color: inherit;
+    }
+  }
 
-#containerBox richlistitem[selected="true"],
-#identitiesList richlistitem[selected="true"],
-#preferencesContainer richlistitem[selected="true"] {
-  background-color: var(--in-content-item-selected-unfocused);
-  color: inherit;
-}
-
-#containerBox richlistbox:focus > richlistitem[selected="true"],
-#identitiesList:focus > richlistitem[selected="true"],
-#preferencesContainer richlistbox:focus > richlistitem[selected="true"] {
-  background-color: var(--in-content-item-selected);
-  color: var(--in-content-item-selected-text) !important;
+  &:focus {
+    & > richlistitem[selected="true"] {
+      background-color: var(--in-content-item-selected);
+      color: var(--in-content-item-selected-text) !important;
+    }
+  }
 }
 
 #defaultWebSearch {
@@ -641,10 +648,10 @@ checkbox {
 
 #warning-message {
   margin-top: 8px;
-}
 
-#warning-message > .message-bar-description {
-  width: 32em;
+  & > .message-bar-description {
+    width: 32em;
+  }
 }
 
 .action-button {
@@ -689,14 +696,14 @@ checkbox {
 #proxyExtensionDescription {
   margin-block: 0;
   flex: 1 1 auto;
-}
 
-#proxyExtensionDescription > img {
-  height: 20px;
-  width: 20px;
-  vertical-align: text-bottom;
-  -moz-context-properties: fill;
-  fill: currentColor;
+  & > img {
+    height: 20px;
+    width: 20px;
+    vertical-align: text-bottom;
+    -moz-context-properties: fill;
+    fill: currentColor;
+  }
 }
 
 #proxyExtensionDisable {
@@ -724,28 +731,28 @@ calendar-notifications-setting {
   display: flex;
   flex-direction: column;
   margin-bottom: 9px;
-}
 
-calendar-notifications-setting .add-button {
-  list-style-image: var(--icon-add);
-  -moz-context-properties: stroke;
-  stroke: currentColor;
-}
+  & .add-button {
+    list-style-image: var(--icon-add);
+    -moz-context-properties: stroke;
+    stroke: currentColor;
 
-calendar-notifications-setting .add-button .button-icon {
-  margin-inline-end: 6px;
-}
+    & .button-icon {
+      margin-inline-end: 6px;
+    }
+  }
 
-calendar-notifications-setting .remove-button {
-  width: 32px;
-  min-width: 0;
-  padding: 0;
-  list-style-image: var(--icon-trash);
-  -moz-context-properties: fill, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
-  background: none;
-  --in-content-button-horizontal-padding: 0;
+  & .remove-button {
+    width: 32px;
+    min-width: 0;
+    padding: 0;
+    list-style-image: var(--icon-trash);
+    -moz-context-properties: fill, stroke;
+    fill: color-mix(in srgb, currentColor 20%, transparent);
+    stroke: currentColor;
+    background: none;
+    --in-content-button-horizontal-padding: 0;
+  }
 }
 
 /**
@@ -819,16 +826,16 @@ calendar-notifications-setting .remove-button {
   object-fit: cover;
   object-position: center;
   border: 1px solid var(--in-content-button-background);
-}
 
-.contact-photo[src=""] {
-  background-color: var(--in-content-button-background);
-  background-image: var(--icon-user);
-  background-size: 48px;
-  background-position: calc(50% - 1px) calc(50% - 1px);
-  background-repeat: no-repeat;
-  -moz-context-properties: stroke;
-  stroke: color-mix(in srgb, currentColor 30%, transparent);
+  &[src=""] {
+    background-color: var(--in-content-button-background);
+    background-image: var(--icon-user);
+    background-size: 48px;
+    background-position: calc(50% - 1px) calc(50% - 1px);
+    background-repeat: no-repeat;
+    -moz-context-properties: stroke;
+    stroke: color-mix(in srgb, currentColor 30%, transparent);
+  }
 }
 
 #photoButton {
@@ -839,37 +846,35 @@ calendar-notifications-setting .remove-button {
   overflow: hidden;
   background-color: transparent;
   border: none;
-}
 
-#photoButton:hover {
-  background: none;
-}
+  &:hover {
+    background: none;
+  }
 
-#photoOverlay {
-  position: absolute;
-  inset: 0;
-  border-radius: 100%;
-}
+  &:focus-visible {
+    outline: 2px solid var(--in-content-focus-outline-color);
+    outline-offset: 2px;
+  }
 
-#photoButton:focus-visible {
-  outline: 2px solid var(--in-content-focus-outline-color);
-  outline-offset: 2px;
-}
+  & #photoOverlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 100%;
+    }
 
-#photoButton:is(:focus-visible, :hover) #photoOverlay {
-  background-color: color-mix(in srgb, var(--color-gray-90) 75%, transparent);
-  background-image: var(--icon-more);
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: 48px;
-  -moz-context-properties: stroke;
-  stroke: var(--color-white);
-  cursor: pointer;
-}
+  &:is(:focus-visible, :hover) #photoOverlay {
+    background-color: color-mix(in srgb, var(--color-gray-90) 75%, transparent);
+    background-image: var(--icon-more);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 48px;
+    -moz-context-properties: stroke;
+    stroke: var(--color-white);
+    cursor: pointer;
 
-@media (prefers-contrast) {
-  #photoButton:is(:focus-visible, :hover) #photoOverlay {
-    background-color: var(--color-black);
+    @media (prefers-contrast) {
+      background-color: var(--color-black);
+    }
   }
 }
 
@@ -942,13 +947,15 @@ calendar-notifications-setting .remove-button {
   border-radius: 6px;
 }
 
-#syncDisconnected .sync-panel {
-  grid-template-columns: 1fr auto;
-  align-items: center;
-}
+#syncDisconnected {
+  & .sync-panel {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
 
-#syncDisconnected p {
-  margin: 0;
+  & p {
+    margin: 0;
+  }
 }
 
 #showSyncedListHeading {
@@ -1072,10 +1079,10 @@ calendar-notifications-setting .remove-button {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
-}
 
-.config-list li {
-  list-style: none;
+  & li {
+    list-style: none;
+  }
 }
 
 .synced-account .config-list {
@@ -1087,12 +1094,12 @@ calendar-notifications-setting .remove-button {
   display: inline-flex;
   align-items: center;
   line-height: 1;
-}
 
-.config-item label::before {
-  display: inline-block;
-  height: 16px;
-  width: 16px;
-  margin-inline-end: 6px;
-  vertical-align: sub;
+  & label::before {
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+    margin-inline-end: 6px;
+    vertical-align: sub;
+  }
 }

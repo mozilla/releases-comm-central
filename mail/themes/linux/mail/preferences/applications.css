@@ -8,16 +8,18 @@
  * Used by the cloudFile manager
  */
 
-.cloudfileAccount > label {
-  margin-inline-start: 1px;
-  margin-block: initial;
-}
+.cloudfileAccount {
+  & > label {
+    margin-inline-start: 1px;
+    margin-block: initial;
+  }
 
-.cloudfileAccount > input {
-  min-height: unset !important;
-  margin: 0 !important;
-  padding-block: 2px 3px !important;
-  padding-inline: 4px 3px !important;
+  & > input {
+    min-height: unset !important;
+    margin: 0 !important;
+    padding-block: 2px 3px !important;
+    padding-inline: 4px 3px !important;
+  }
 }
 
 .actionsMenu > menupopup > menuitem {

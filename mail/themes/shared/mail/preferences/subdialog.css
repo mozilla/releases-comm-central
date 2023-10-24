@@ -14,10 +14,10 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
 
 .dialogOverlay {
   visibility: hidden;
-}
 
-.dialogOverlay[topmost="true"] {
-  background-color: rgba(0,0,0,0.5);
+  &[topmost="true"] {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 }
 
 .dialogBox {
@@ -28,25 +28,25 @@ xul|window > :is(xul|dialog, xul|hbox, xul|vbox) {
      when page colors are disabled */
   border: 1px solid transparent;
   border-radius: var(--arrowpanel-border-radius);
-  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
   display: flex;
   margin: 0;
   padding: 0;
+
+  &[resizable="true"] {
+    resize: both;
+    overflow: hidden;
+    min-height: 20em;
+    min-width: 66ch;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root[dialogroot],
   body > xul|dialog,
   .dialogBox {
-    --in-content-page-background: #2a2a2e;
+    --in-content-page-background: #2a2a2e !important;
   }
-}
-
-.dialogBox[resizable="true"] {
-  resize: both;
-  overflow: hidden;
-  min-height: 20em;
-  min-width: 66ch;
 }
 
 .dialogTitleBar {

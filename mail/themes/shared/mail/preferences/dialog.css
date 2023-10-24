@@ -37,10 +37,10 @@ dialog.doScroll::part(content-box) {
 
 dialog.doScroll {
   margin-inline: -4px;
-}
 
-dialog.doScroll::part(content-box) {
-  padding-inline: 4px;
+  &::part(content-box) {
+    padding-inline: 4px;
+  }
 }
 
 tabbox {
@@ -78,10 +78,10 @@ groupbox {
   margin-top: 0;
   margin-inline: 4px;
   padding-block: 0 5px;
-}
 
-groupbox description {
-  margin-inline: 0;
+  & description {
+    margin-inline: 0;
+  }
 }
 
 menulist label {

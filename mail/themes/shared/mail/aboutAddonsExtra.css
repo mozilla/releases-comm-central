@@ -16,18 +16,50 @@ body {
 
 #sidebar {
   background-color: var(--in-content-categories-background);
-}
 
-#sidebar > #categories {
-  width: inherit;
-  padding-inline-end: 0;
-}
+  & > #categories {
+    width: inherit;
+    padding-inline-end: 0;
 
-#categories > .category {
-  border-radius: var(--in-content-button-border-radius);
-  -moz-context-properties: fill, fill-opacity, stroke;
-  fill: color-mix(in srgb, currentColor 20%, transparent);
-  stroke: currentColor;
+    & > .category {
+      border-radius: var(--in-content-button-border-radius);
+      -moz-context-properties: fill, fill-opacity, stroke;
+      fill: color-mix(in srgb, currentColor 20%, transparent);
+      stroke: currentColor;
+
+      &[name="discover"] {
+        background-image: var(--addons-manager-recommendations);
+      }
+
+      &[name="extension"] {
+        background-image: var(--addons-manager-extensions);
+      }
+
+      &[name="theme"] {
+        background-image: var(--addons-manager-themes);
+      }
+
+      &[name="dictionary"] {
+        background-image: var(--addons-manager-dictionaries);
+      }
+
+      &[name="locale"] {
+        background-image: var(--addons-manager-languages);
+      }
+
+      &[name="sitepermission"] {
+        background-image: var(--addons-manager-site-permissions);
+      }
+
+      &[name="available-updates"] {
+        background-image: var(--addons-manager-available-updates);
+      }
+
+      &[name="recent-updates"] {
+        background-image: var(--addons-manager-recent-updates);
+      }
+    }
+  }
 }
 
 /* Hide Plugins category */
@@ -52,38 +84,6 @@ button[name="plugin"] {
   .sidebar-footer-list > li > a {
     margin-inline: auto;
   }
-}
-
-.category[name="discover"] {
-  background-image: var(--addons-manager-recommendations);
-}
-
-.category[name="extension"] {
-  background-image: var(--addons-manager-extensions);
-}
-
-.category[name="theme"] {
-  background-image: var(--addons-manager-themes);
-}
-
-.category[name="dictionary"] {
-  background-image: var(--addons-manager-dictionaries);
-}
-
-.category[name="locale"] {
-  background-image: var(--addons-manager-languages);
-}
-
-.category[name="sitepermission"] {
-  background-image: var(--addons-manager-site-permissions);
-}
-
-.category[name="available-updates"] {
-  background-image: var(--addons-manager-available-updates);
-}
-
-.category[name="recent-updates"] {
-  background-image: var(--addons-manager-recent-updates);
 }
 
 /* Temporary styles for the supernova icons */
@@ -145,13 +145,14 @@ recommended-addon-card .addon.card:hover {
   cursor: pointer;
 }
 
-panel-item[action="remove"] {
-  --icon: var(--icon-trash);
-}
 panel-item {
   -moz-context-properties: fill, stroke;
   fill: color-mix(in srgb, currentColor 20%, transparent);
   stroke: currentColor;
+
+  &[action="remove"] {
+    --icon: var(--icon-trash);
+  }
 }
 
 /* Override the absolute (px) font-size values in aboutaddons.css. */

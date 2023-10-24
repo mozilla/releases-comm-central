@@ -8,25 +8,27 @@
  * Used by the cloudFile manager
  */
 
-.cloudfileAccount description{
-  padding-inline-start: 3px;
-}
+.cloudfileAccount {
+  & description {
+    padding-inline-start: 3px;
+  }
 
-.cloudfileAccount .typeIcon {
-  margin-inline-end: 5px;
-}
+  & .typeIcon {
+    margin-inline-end: 5px;
+  }
 
-.cloudfileAccount > input {
-  min-height: unset !important;
-  margin: 0 !important;
-  padding-block: 2px 3px !important;
-  padding-inline: 4px 3px !important;
+  & > input {
+    min-height: unset !important;
+    margin: 0 !important;
+    padding-block: 2px 3px !important;
+    padding-inline: 4px 3px !important;
+  }
 }
 
 .actionsMenu > menupopup {
   margin: initial;
-}
 
-.actionsMenu > menupopup > menuitem {
-  padding-inline-start: 12px;
+  & > menuitem {
+    padding-inline-start: 12px;
+  }
 }
