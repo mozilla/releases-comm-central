@@ -6,9 +6,11 @@
 
 :root {
   /* XS - 12x12px icons */
+  --icon-dot-xs: url("chrome://messenger/skin/icons/xs/dot.svg");
   --icon-sparkle-star-xs: url("chrome://messenger/skin/icons/xs/sparkle-star.svg");
 
   /* SM - 16x16px icons */
+  --icon-dot-sm: url("chrome://messenger/skin/icons/sm/dot.svg");
   --icon-sparkle-star-sm: url("chrome://messenger/skin/icons/sm/sparkle-star.svg");
 
   --icon-account-settings: url("chrome://messenger/skin/icons/new/compact/account-settings.svg");
@@ -172,7 +174,6 @@
   --icon-tag-sm: url("chrome://messenger/skin/icons/new/tag-sm.svg");
   --icon-thread-sm: url("chrome://messenger/skin/icons/new/thread-sm.svg");
   --icon-trash-sm: url("chrome://messenger/skin/icons/new/trash-sm.svg");
-  --icon-unread-dot: url("chrome://messenger/skin/icons/new/unread-dot.svg");
   --icon-unread-sm: url("chrome://messenger/skin/icons/new/unread-sm.svg");
   --icon-new-indicator: url("chrome://messenger/skin/icons/folder-new-indicator.svg");
   --icon-notify: url("chrome://messenger/skin/icons/new/notify.svg");

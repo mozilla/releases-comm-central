@@ -5,14 +5,18 @@
 :root {
   --thread-pane-container-gap: 3px;
   --thread-pane-header-padding: 3px;
+  --indicator-offset-inline: 7px;
+  --indicator-offset-block: 5px;
 }
 
 :root[uidensity="compact"] {
   --thread-pane-container-gap: 0;
+  --indicator-offset-block: 3px;
 }
 
 :root[uidensity="touch"] {
   --thread-pane-header-padding: 6px;
+  --indicator-offset-block: 7px;
 }
 
 @media not (prefers-contrast) {
@@ -324,7 +328,7 @@ tr:not([data-properties~="attach"]) :is(.attachmentcol-column img, .attachment-i
 }
 
 .tree-view-row-unread img {
-  content: var(--icon-unread-dot);
+  content: var(--icon-dot-xs);
   pointer-events: none;
   fill: color-mix(in srgb, currentColor 10%, transparent);
   stroke: color-mix(in srgb, currentColor 30%, transparent);
@@ -647,7 +651,7 @@ tr[is="thread-card"][data-properties~="new"] {
   justify-content: center;
   gap: var(--thread-pane-container-gap);
   height: 100%;
-  padding-inline-start: 21px;
+  padding-inline-start: 24px;
   padding-inline-end: 12px;
   box-sizing: border-box;
 }
@@ -671,14 +675,28 @@ tr[data-properties~="thread-children"] {
   background-color: var(--thread-pane-child-card-bg);
 }
 
-tr[data-properties~="new"] .thread-card-container::after {
+.thread-card-container::after {
   position: absolute;
-  content: var(--icon-sparkle-star-xs);
-  inset-inline-start: 7px;
-  inset-block-start: 6px;
+  content: var(--indicator-icon);
+  inset-inline-start: var(--indicator-offset-inline);
+  inset-block-start: var(--indicator-offset-block);
   -moz-context-properties: fill, stroke;
-  fill: var(--color-yellow-30);
-  stroke: var(--color-amber-50);
+  fill: var(--indicator-fill);
+  stroke: var(--indicator-stroke);
+}
+
+tr[is="thread-card"] {
+  &[data-properties~="new"] {
+    --indicator-icon: var(--icon-sparkle-star-sm);
+    --indicator-fill: var(--color-yellow-30);
+    --indicator-stroke: var(--color-amber-50);
+  }
+
+  &[data-properties~="unread"]:not([data-properties~="new"]) {
+    --indicator-icon: var(--icon-dot-sm);
+    --indicator-fill: var(--color-green-40);
+    --indicator-stroke: var(--color-green-60);
+  }
 }
 
 tr[data-properties~="thread-children"] .thread-card-container {

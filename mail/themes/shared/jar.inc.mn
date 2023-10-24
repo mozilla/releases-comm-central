@@ -680,7 +680,6 @@
   skin/classic/messenger/icons/new/thread-sm.svg              (../shared/mail/icons/new/thread-sm.svg)
   skin/classic/messenger/icons/new/trash-sm.svg               (../shared/mail/icons/new/trash-sm.svg)
   skin/classic/messenger/icons/new/unread-sm.svg              (../shared/mail/icons/new/unread-sm.svg)
-  skin/classic/messenger/icons/new/unread-dot.svg             (../shared/mail/icons/new/unread-dot.svg)
   skin/classic/messenger/icons/new/column-menu.svg            (../shared/mail/icons/new/column-menu.svg)
   skin/classic/messenger/icons/new/notify.svg                 (../shared/mail/icons/new/notify.svg)
   skin/classic/messenger/icons/new/event-start.svg            (../shared/mail/icons/new/event-start.svg)
@@ -729,9 +728,11 @@
   skin/classic/messenger/icons/new/activity/error.svg          (../shared/mail/icons/new/activity/error.svg)
 
 # XS - 12x12px icons
+  skin/classic/messenger/icons/xs/dot.svg                      (../shared/mail/icons/xs/dot.svg)
   skin/classic/messenger/icons/xs/sparkle-star.svg             (../shared/mail/icons/xs/sparkle-star.svg)
 
 # SM - 16x16px icons
+  skin/classic/messenger/icons/sm/dot.svg                      (../shared/mail/icons/sm/dot.svg)
   skin/classic/messenger/icons/sm/sparkle-star.svg             (../shared/mail/icons/sm/sparkle-star.svg)
 
   skin/classic/messenger/icons/new/supernova-logo.webp          (../shared/mail/icons/new/supernova-logo.webp)
