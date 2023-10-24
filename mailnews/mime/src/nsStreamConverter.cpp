@@ -948,13 +948,3 @@ NS_IMETHODIMP nsStreamConverter::GetConvertedType(const nsACString& aFromType,
                                                   nsACString& aToType) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-
-// Methods for nsIThreadRetargetableStreamListener
-
-nsresult nsStreamConverter::OnDataFinished(nsresult aStatusCode) {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-nsresult nsStreamConverter::CheckListenerChain() {
-  return NS_ERROR_NOT_IMPLEMENTED;
-}
