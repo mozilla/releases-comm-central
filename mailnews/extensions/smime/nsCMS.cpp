@@ -514,10 +514,7 @@ nsresult nsCMSMessage::CommonVerifySignature(
         break;
       }
       // else fall through to failure
-#if defined(__clang__)
-      [[clang::fallthrough]];
-#endif
-#if defined(__GNUC__)
+#if defined(__clang__) || defined(__GNUC__)
       [[fallthrough]];
 #endif
     default:
