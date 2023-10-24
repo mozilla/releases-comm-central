@@ -35,48 +35,48 @@ tabpanels {
   border-color: -moz-DialogText;
 }
 
-#tabmail-arrowscrollbox[overflow="true"] > .tabmail-tab:first-child::before {
-  content: '';
-  display: flex;
-  margin-inline-start: 0;
-}
-
 /**
  * Tab Scrollbox Arrow Buttons
  */
 
-#tabmail-arrowscrollbox::part(scrollbutton-up),
-#tabmail-arrowscrollbox::part(scrollbutton-down) {
-  appearance: none;
-  border-style: none !important;
-  padding: 0 3px !important;
-  margin: 0 !important;
-  margin-inline-end: 1px !important;
-}
+#tabmail-arrowscrollbox {
+  &[overflow="true"] > .tabmail-tab:first-child::before {
+    content: '';
+    display: flex;
+    margin-inline-start: 0;
+  }
 
-#tabmail-arrowscrollbox[scrolledtostart=true]::part(scrollbutton-up),
-#tabmail-arrowscrollbox[scrolledtoend=true]::part(scrollbutton-down) {
-  --toolbarbutton-icon-fill-opacity: .4;
-}
+  &::part(scrollbutton-up),
+  &::part(scrollbutton-down) {
+    appearance: none;
+    border-style: none !important;
+    padding: 0 3px !important;
+    margin: 0 !important;
+    margin-inline-end: 1px !important;
+  }
 
-#tabmail-arrowscrollbox:-moz-locale-dir(rtl)::part(scrollbutton-up),
-#tabmail-arrowscrollbox:-moz-locale-dir(ltr)::part(scrollbutton-down) {
-  margin-inline-start: 1px !important;
-  margin-inline-end: 0 !important;
+  &[scrolledtostart=true]::part(scrollbutton-up),
+  &[scrolledtoend=true]::part(scrollbutton-down) {
+    --toolbarbutton-icon-fill-opacity: .4;
+  }
+
+  &:-moz-locale-dir(rtl)::part(scrollbutton-up),
+  &:-moz-locale-dir(ltr)::part(scrollbutton-down) {
+    margin-inline: 1px 0 !important;
+  }
+
+  &:not([scrolledtostart=true])::part(scrollbutton-up):hover,
+  &:not([scrolledtoend=true])::part(scrollbutton-down):hover {
+    background: var(--toolbarbutton-active-background);
+  }
 }
 
 /**
  * All Tabs Button
  */
 
-#tabmail-arrowscrollbox:not([scrolledtostart=true])::part(scrollbutton-up):hover,
-#tabmail-arrowscrollbox:not([scrolledtoend=true])::part(scrollbutton-down):hover {
-  background: var(--toolbarbutton-active-background);
-}
-
 #alltabs-button {
-  padding-right: 3px !important;
-  padding-left: 3px !important;
+  padding-inline: 3px !important;
 }
 
 .tabs-alltabs-button > hbox > .toolbarbutton-menu-dropmarker {
@@ -86,6 +86,5 @@ tabpanels {
 /* Content Tabs */
 .contentTabAddress {
   height: 34px;
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-inline: 10px;
 }
